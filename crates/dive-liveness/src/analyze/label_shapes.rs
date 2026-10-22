@@ -31,6 +31,18 @@ fn run(
     model: &Model,
     graph: &capture::BehaviorGraph,
 ) -> Result<Option<CandidateWord>, AnalysisError> {
+    run_with_policy(
+        model,
+        graph,
+        GraphLabelPolicy::Cells(Limits::default().atom_cells),
+    )
+}
+
+fn run_with_policy(
+    model: &Model,
+    graph: &capture::BehaviorGraph,
+    policy: GraphLabelPolicy,
+) -> Result<Option<CandidateWord>, AnalysisError> {
     let limits = Limits::default();
     let control = evaluator_control(&CheckOptions::tlc(0, 0)).expect("control");
     let plans = prepare(model, limits, &control).expect("plan");
@@ -43,6 +55,7 @@ fn run(
         graph,
         limits,
         AcceptancePolicy::Legacy,
+        policy,
         &mut stage,
         &mut action,
         &control,
@@ -100,4 +113,44 @@ fn active_actions_keep_existing_concrete_row_validation() {
             "original action target row shape"
         ))
     ));
+}
+
+#[test]
+fn removing_graph_cell_policy_keeps_shape_validation() {
+    let model = model("[]<>(x = x)");
+    let mut malformed = captured(&model);
+    malformed.states.pop();
+    assert!(matches!(
+        run_with_policy(&model, &malformed, GraphLabelPolicy::NoCellLimit),
+        Err(AnalysisError::Product(product::ProductError::Shape(_)))
+    ));
+}
+
+#[test]
+fn explicit_graph_cells_and_native_size_overflow_have_separate_authority() {
+    for (policy, expected) in [
+        (GraphLabelPolicy::Cells(0), false),
+        (GraphLabelPolicy::Cells(5), false),
+        (GraphLabelPolicy::Cells(6), true),
+        (GraphLabelPolicy::NoCellLimit, true),
+    ] {
+        assert_eq!(policy.admit(2, 4, 1).is_ok(), expected);
+    }
+    assert!(
+        GraphLabelPolicy::Cells(8_000_000)
+            .admit(8_000_001, 0, 1)
+            .is_err()
+    );
+    assert!(
+        GraphLabelPolicy::Cells(usize::MAX)
+            .admit(usize::MAX, 1, 1)
+            .is_err()
+    );
+    // Removing this obsolete aggregate check does not allocate anything. Actual
+    // packed-layout byte/shape overflow remains covered by packed-truth tests.
+    assert!(
+        GraphLabelPolicy::NoCellLimit
+            .admit(usize::MAX, 1, usize::MAX)
+            .is_ok()
+    );
 }

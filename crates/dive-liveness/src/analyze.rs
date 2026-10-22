@@ -26,7 +26,9 @@ pub struct Limits {
     pub product: product::Limits,
     /// Maximum temporal properties planned before exploration.
     pub properties: usize,
-    /// Maximum state and action label cells for one property.
+    /// Shared legacy graph-label, attribution-row and word-truth cell ceiling.
+    /// Existing entrypoints retain it for every owner; explicit graph policy
+    /// changes only graph labels, leaving the latter two owners unchanged.
     pub atom_cells: usize,
 }
 impl Default for Limits {
@@ -38,6 +40,32 @@ impl Default for Limits {
             properties: 256,
             atom_cells: 8_000_000,
         }
+    }
+}
+
+/// Admission of logical cells for the captured graph's atom labels only.
+/// Attribution rows, word truth, products and capture retain their own limits.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum GraphLabelPolicy {
+    /// Enforce this exact logical `(states + edges) * atoms` ceiling before
+    /// allocation or predicate evaluation, including zero and default values.
+    Cells(usize),
+    /// Remove only the logical graph-label count ceiling. Existing configured
+    /// run budgets, checked packed layout and fallible allocation still apply.
+    /// This does not promise an allocation-time memory or wall-clock hard cap.
+    NoCellLimit,
+}
+
+impl GraphLabelPolicy {
+    fn admit(self, states: usize, edges: usize, atoms: usize) -> Result<(), AnalysisError> {
+        if let Self::Cells(limit) = self {
+            states
+                .checked_add(edges)
+                .and_then(|n| n.checked_mul(atoms))
+                .filter(|n| *n <= limit)
+                .ok_or(AnalysisError::Limit("atom cells"))?;
+        }
+        Ok(())
     }
 }
 
@@ -419,7 +447,7 @@ fn labels(
     graph: &capture::BehaviorGraph,
     shape: &Graph,
     property: &str,
-    limit: usize,
+    policy: GraphLabelPolicy,
     active: &(std::collections::BTreeSet<usize>, Option<usize>),
     action_error: &mut Option<Box<ActionEvaluation>>,
     control: &dive_check::budget::EvaluationControl,
@@ -429,13 +457,7 @@ fn labels(
         .iter()
         .try_fold(0_usize, |n, r| n.checked_add(r.len()))
         .ok_or(AnalysisError::Limit("atom cells"))?;
-    graph
-        .states
-        .len()
-        .checked_add(edges)
-        .and_then(|n| n.checked_mul(plan.atoms.len()))
-        .filter(|n| *n <= limit)
-        .ok_or(AnalysisError::Limit("atom cells"))?;
+    policy.admit(graph.states.len(), edges, plan.atoms.len())?;
     // Owned rows took their vertex dimension from actual captured states.
     // Packing must not turn a missing state row into unwritten FALSE bits.
     if graph.states.len() != shape.edges.len() || graph.edges.len() != shape.edges.len() {
@@ -638,6 +660,39 @@ pub fn analyze_final_with_policy(
     limits: Limits,
     policy: AcceptancePolicy,
 ) -> Result<Analysis, DetailedFailure> {
+    analyze_final_with_policies(
+        model,
+        opts,
+        limits,
+        policy,
+        GraphLabelPolicy::Cells(limits.atom_cells),
+    )
+}
+
+/// Like [`analyze_final_with_policy`], explicitly choosing the graph-label
+/// policy independently of acceptance. Every existing entrypoint retains its
+/// supplied `Limits::atom_cells` ceiling. No other limit changes its scope.
+///
+/// ```no_run
+/// # fn example(model: &dive_model::Model) {
+/// use dive_liveness::{analyze::{self, GraphLabelPolicy, Limits}, product::AcceptancePolicy};
+/// let result = analyze::analyze_final_with_policies(model,
+///     &dive_check::CheckOptions::tlc(0, 0), Limits::default(),
+///     AcceptancePolicy::compact_default(), GraphLabelPolicy::NoCellLimit);
+/// // A candidate still requires independent trace validation.
+/// # let _ = result;
+/// # }
+/// ```
+///
+/// # Errors
+/// The same typed failures as [`analyze_final_with_policy`].
+pub fn analyze_final_with_policies(
+    model: &Model,
+    opts: &CheckOptions,
+    limits: Limits,
+    policy: AcceptancePolicy,
+    graph_labels: GraphLabelPolicy,
+) -> Result<Analysis, DetailedFailure> {
     let mut stage = Stage::Planning;
     let mut exploration = None;
     let mut action = None;
@@ -646,6 +701,7 @@ pub fn analyze_final_with_policy(
         opts,
         limits,
         policy,
+        graph_labels,
         &mut stage,
         &mut exploration,
         &mut action,
@@ -686,11 +742,16 @@ fn validate_analysis_context(model: &Model) -> Result<(), AnalysisError> {
 /// and analysis alike, and installed on this thread for the analysis
 /// stages. Any failure while the budget is exhausted is reported as the stop
 /// it is (ADR 0107); a stop during capture stays the capture's own result.
+#[allow(
+    clippy::too_many_arguments,
+    reason = "explicit owner policies and separate typed execution evidence"
+)]
 fn analyze_observed(
     model: &Model,
     opts: &CheckOptions,
     limits: Limits,
     policy: AcceptancePolicy,
+    graph_labels: GraphLabelPolicy,
     stage: &mut Stage,
     exploration: &mut Option<Box<ExplorationEvidence>>,
     action_error: &mut Option<Box<ActionEvaluation>>,
@@ -709,6 +770,7 @@ fn analyze_observed(
         &armed,
         limits,
         policy,
+        graph_labels,
         stage,
         exploration,
         action_error,
@@ -764,11 +826,16 @@ fn budget_limit(error: &AnalysisError) -> bool {
     }
 }
 
+#[allow(
+    clippy::too_many_arguments,
+    reason = "explicit owner policies and separate typed execution evidence"
+)]
 fn analyze_unbudgeted(
     model: &Model,
     opts: &CheckOptions,
     limits: Limits,
     policy: AcceptancePolicy,
+    graph_labels: GraphLabelPolicy,
     stage: &mut Stage,
     exploration: &mut Option<Box<ExplorationEvidence>>,
     action_error: &mut Option<Box<ActionEvaluation>>,
@@ -800,6 +867,7 @@ fn analyze_unbudgeted(
         &captured.graph,
         limits,
         policy,
+        graph_labels,
         stage,
         action_error,
         &control,
@@ -898,6 +966,7 @@ fn analyze_captured(
     captured: &capture::BehaviorGraph,
     limits: Limits,
     policy: AcceptancePolicy,
+    graph_labels: GraphLabelPolicy,
     stage: &mut Stage,
     action_error: &mut Option<Box<ActionEvaluation>>,
     control: &dive_check::budget::EvaluationControl,
@@ -927,7 +996,7 @@ fn analyze_captured(
             captured,
             &graph,
             &p.name,
-            limits.atom_cells,
+            graph_labels,
             &active,
             action_error,
             control,

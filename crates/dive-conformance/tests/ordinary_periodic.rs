@@ -95,7 +95,7 @@ fn actual_default_prefix_retains_partial_counts_and_requires_independent_replay(
     let model = model(&spec.file)?;
     for width in [1, 4, 8] {
         let value = spec.report(width)?;
-        assert_eq!(value["schema_version"], 2);
+        assert_eq!(value["schema_version"], 3);
         assert_eq!(value["options"]["profile"], "dive");
         assert_eq!(value["options"]["lncheck"], "deterministic");
         assert_eq!(value["execution"]["capture_completed"], false);

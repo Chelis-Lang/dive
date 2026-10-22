@@ -201,7 +201,7 @@ fn parse_json_reports_diagnostics() {
         Ok(v) => v,
         Err(e) => unreachable!("invalid JSON: {e}"),
     };
-    assert_eq!(v["schema_version"], 2);
+    assert_eq!(v["schema_version"], 3);
     assert_eq!(v["accepted"], false);
     assert_eq!(v["module"], "Bad");
     assert_eq!(v["diagnostics"][0]["code"], "DIVE-S0012");
@@ -291,7 +291,7 @@ fn analyze_accepts_and_reports_levels() {
         Ok(v) => v,
         Err(e) => unreachable!("invalid JSON: {e}"),
     };
-    assert_eq!(v["schema_version"], 2);
+    assert_eq!(v["schema_version"], 3);
     assert_eq!(v["command"], "analyze");
     assert_eq!(v["accepted"], true);
     assert_eq!(v["module"], "Counter");
@@ -373,7 +373,7 @@ fn check_reports_a_violation_with_each_profiles_exit_code() {
         Ok(v) => v,
         Err(e) => unreachable!("not JSON: {e}"),
     };
-    assert_eq!(v["schema_version"], 2);
+    assert_eq!(v["schema_version"], 3);
     assert_eq!(v["verdict"], "invariant-violation");
     assert_eq!(v["property"], "Inv");
     assert_eq!(v["tlc"]["code"], 2110);
@@ -495,7 +495,7 @@ fn bounded_final_temporal_check_reports_validated_lassos_and_mixed_profiles() {
             assert_eq!(many.status.code(), Some(code));
             let a: serde_json::Value = serde_json::from_slice(&first.stdout).unwrap_or_default();
             let b: serde_json::Value = serde_json::from_slice(&many.stdout).unwrap_or_default();
-            assert_eq!(a["schema_version"], 2);
+            assert_eq!(a["schema_version"], 3);
             assert_eq!(a["verdict"], "liveness-violation");
             assert_eq!(a["properties"], serde_json::json!(["P"]));
             assert_eq!(a["counterexample"]["validation"], "valid");
@@ -1666,7 +1666,7 @@ fn translate_best_effort_checksum_is_data_and_invalid_fair_flag_stays_a_cli_erro
             let output = dive(&args);
             assert_eq!(output.status.code(), Some(0));
             let report: serde_json::Value = serde_json::from_slice(&output.stdout)?;
-            assert_eq!(report["schema_version"], 2);
+            assert_eq!(report["schema_version"], 3);
             assert_eq!(report["analysis"]["accepted"], true);
             assert!(report["replacement"]["algorithm_checksum"].is_null());
             assert!(report.get("model_proved").is_none());

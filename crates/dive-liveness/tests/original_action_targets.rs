@@ -132,3 +132,32 @@ fn unchanged_cell_guard_refuses_before_action_evaluation() {
         assert!(failure.action_evaluation().is_none());
     }
 }
+
+#[test]
+fn no_graph_ceiling_preserves_the_original_selected_action_error() {
+    use dive_liveness::analyze::GraphLabelPolicy;
+    use dive_liveness::product::AcceptancePolicy;
+    for options in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
+        let model = bound("Next", "ActionCheck", &options);
+        let result = analyze::analyze_final_with_policies(
+            &model,
+            &options,
+            Limits {
+                atom_cells: 0,
+                ..Limits::default()
+            },
+            AcceptancePolicy::compact_default(),
+            GraphLabelPolicy::NoCellLimit,
+        );
+        if options.profile == dive_eval::Profile::Tlc {
+            let failed = result.expect_err("real action evaluation failure precedes attribution");
+            assert_eq!(failed.failure().stage, analyze::Stage::Atoms);
+            let action = failed.action_evaluation().expect("original typed cause");
+            assert_eq!(action.cause().class(), dive_eval::ErrorClass::Eval);
+            assert_eq!(action.cause().ec(), dive_eval::Ec::General);
+            assert_eq!(action.property(), "ActionCheck");
+        } else {
+            assert!(matches!(result, Ok(Analysis::Holds(_))));
+        }
+    }
+}

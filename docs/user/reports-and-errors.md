@@ -2,7 +2,7 @@
 
 Request `--output json` and retain the whole document, source/configuration,
 resolved options and replay seed. Every public operation now emits report
-`schema_version: 2`, with `command` identifying the operation. `check` also emits
+`schema_version: 3`, with `command` identifying the operation. `check` also emits
 `check_kind: "safety" | "temporal"`. The kind identifies the request/report
 family, not execution or proof: final/short safety stops remain temporal-family
 reports with their actual `capture_completed: false` evidence. Ordinary safety
@@ -15,9 +15,9 @@ not an independent CLI operation envelope.
 | Operation | What to inspect |
 | --- | --- |
 | Parse/analyze | `accepted`, `diagnostics`; no property check |
-| Translate | Schema 2: `result`, `accepted`, `stage`, artifact/replacement, complete-module analysis and effective options |
+| Translate | Schema 3: `result`, `accepted`, `stage`, artifact/replacement, complete-module analysis and effective options |
 | Safety check | `verdict`, counts, options, warnings, collision and counterexample |
-| Final/short check | Schema 2, complete `properties`, execution and validated closing edge |
+| Final/short check | Schema 3, complete `properties`, execution and validated closing edge |
 | Simulation | `result`, `exhaustive: false`, `model_proved: false`, observed/pending validation |
 | DFID | `termination`, `model_proved`, iterations and validated counterexample |
 | Trace validation | `result`; valid/invalid/unsupported is separate from search verdicts |
@@ -42,8 +42,8 @@ selects TLC evaluation; it is independent of the chosen exit convention.
 DFID and simulation require their report qualifications even on exit zero.
 
 Schema stability for budgets: `options.budget` and the `stopped` block are
-additive within `dive check` schema versions 1 and 2, and `stopped` is a new
-`verdict` value that appears only when a budget runs out. Automation that pins
+retained in `dive check` schema 3 with their earlier meanings. The `stopped`
+`verdict` appears only when a budget runs out. Automation that pins
 the verdict vocabulary should treat an unknown verdict as "no result".
 
 Stable diagnostic codes and spans belong to the report; display text is intended
@@ -114,12 +114,12 @@ provides no certification and cannot waive an observed word. Legitimate success,
 evaluation outcomes whose contract carries no witness need none. Numeric exit
 pairs cannot excuse absent, invalid, unconfirmed or refused required words.
 
-Report compatibility is a versioned contract. Within version 2, existing field
+Report compatibility is a versioned contract. Within a major version, existing field
 names, types, required presence, null meanings, units and result meanings stay
 stable. The same applies to existing native `dive-trace` version 1 fields, tagged
 values, property endings and zero-based `ending.back_to` loop targets. The outer
 check report's `counterexample.back_to` summary is one-based. The trace payload version
-is independent of the report version: `validate-trace` emits report version 2
+is independent of the report version: `validate-trace` emits report version 3
 while reading and validating native trace version 1.
 
 Readers select the operation and supported version before interpreting results.
@@ -139,9 +139,22 @@ before it lands. Consumers update their readers before moving an immutable pin.
 The schema-2 migration was announced in
 [Oyster #61](https://github.com/Chelis-Lang/oyster/issues/61). The conformance
 harness retains version-1 safety/parse/analyze input support and legacy version-2
-temporal input support; current producers emit version 2 for every operation.
+temporal input support; current producers emit version 3 for every operation.
 A legacy version-2 check without `check_kind` still undergoes all strict temporal
 checks. Relabelling a temporal result as safety cannot bypass those checks.
+
+Report major 3 removes the ambiguous `options.temporal_bounds.atom_cells`.
+Read `cell_limits.graph_labels`, `cell_limits.attribution_rows` and
+`cell_limits.word_truth` separately. A graph policy of `{"kind":"run-budgets"}`
+means no logical graph-cell ceiling; the actual time/memory settings remain in
+`options.budget`. `{"kind":"cells","cells":n}` is an explicit finite ceiling,
+including zero. Attribution and word-truth defaults remain 8,000,000 cells.
+`acceptance_policy` declares actual legacy cells or byte/work buffers. The
+existing byte/work fields are null in legacy mode, and actual integers in buffer
+mode. These are configured settings, never proof that execution reached them.
+No DFID/simulation result disposition changes. Readers must support major 3
+before moving a producer pin; [Oyster #70](https://github.com/Chelis-Lang/oyster/issues/70)
+records the advance notice. See [ADR 0111](../decisions/0111-graph-label-policy-and-report-v3.md).
 
 For example:
 
@@ -149,7 +162,7 @@ For example:
 dive check docs/user/examples/Counter.tla --compat=tlc --seed 0 --fp 0 --workers 1 --output json
 ```
 
-This reports schema 2, `command: "check"`,
+This reports schema 3, `command: "check"`,
 `check_kind: "safety"`, `verdict: "success"`, and five distinct states. It does
 not report completed temporal capture. Parse/analysis and translation acceptance,
 simulation samples, DFID bounds and trace validation retain their operation's
@@ -159,7 +172,8 @@ library API; that interface has its own delivery milestone.
 
 ## Memory observations
 
-Check reports add `resources.memory` without changing schema-2 verdict tags.
+Check reports retain `resources.memory` and the existing check verdict tags in
+schema 3.
 The configured ceiling remains in `options.budget.max_memory_bytes`; its
 requested source is retained separately from enforcement observations.
 `metric` is `rss+swap` on Linux or `rss` on macOS. `samples` and

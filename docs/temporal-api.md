@@ -4,7 +4,7 @@ Eligible ordinary `dive_api::check_file` requests use deterministic completed-le
 checks in the dive profile and final analysis in the TLC profile.
 `TemporalMode::Ordinary` remains the request default. The actual bound role split
 retains an ordinary safety result or performs temporal analysis, with one
-startup binding and separate independent validation. Both use report schema 2;
+startup binding and separate independent validation. Both use report schema 3;
 `check_kind` distinguishes the safety/temporal report family without claiming
 that checking ran or that capture completed.
 A deciding prefix returns `Outcome::PrefixViolation` with actual incomplete
@@ -163,8 +163,21 @@ acceptance byte ceiling. Condition inspections and scratch initialization consum
 the remaining materialization work cumulatively across sequential alternatives.
 Boolean evaluation during search remains outside that work bound. No specification
 predicate is recomputed.
-All state/action labels and their original admission/error checks are still
+All state/action labels and their selected graph admission/error checks are
 computed before this representation choice.
+
+Graph labels have a separate `analyze::GraphLabelPolicy`. Existing final,
+periodic and acceptance-policy APIs retain `Cells(limits.atom_cells)`, even when
+the caller supplies exactly 8,000,000. New `*_with_policies` variants accept
+`Cells(n)` or `NoCellLimit` explicitly. The latter removes only obsolete logical
+`(states + retained edges) * atoms` admission; checked packed layout, shape,
+fallible allocation and configured run budgets remain. Attribution rows and
+word-truth workspace still use the supplied `Limits::atom_cells` unchanged.
+File final and periodic checks select `NoCellLimit` in both profiles. Returned
+API reports and failures expose their actual admitted `Configuration`; it does
+not claim a bound was exercised. Major-3 wire reports serialize these owner
+settings instead of the former ambiguous scalar. See
+[ADR 0111](decisions/0111-graph-label-policy-and-report-v3.md).
 
 Rust callers opt into this policy through `temporal::check_final_with_policy`
 or `analyze::analyze_final_with_policy`, passing
@@ -217,7 +230,7 @@ checking returns success or independently validated periodic counterexamples;
 unsupported formulas, missing independent covers and limits return no verdict.
 Safety violations found during exploration retain their full original report.
 
-All operation reports use JSON schema 2. Explicit final requests retain the
+All operation reports use JSON schema 3. Explicit final requests retain the
 `temporal` report family even when they stop at a safety failure; ordinary safety
 reports use the `safety` family and carry no temporal capture claim. A temporal
 violation includes `properties`, an independently admitted tagged `counterexample.trace`, a 1-based

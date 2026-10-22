@@ -69,6 +69,7 @@ fn a_due_prefix_inherits_its_budget_and_parent_reports_a_typed_stop() {
         plans: &plans,
         limits,
         policy: AcceptancePolicy::Legacy,
+        graph_labels: GraphLabelPolicy::Cells(limits.atom_cells),
         checks: Checks {
             schedule: Schedule {
                 min_states: 1,

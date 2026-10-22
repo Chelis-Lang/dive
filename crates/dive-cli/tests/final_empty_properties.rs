@@ -138,7 +138,7 @@ fn genuine_temporal_property_keeps_explicit_and_ordinary_profile_contracts()
             },
         )?;
         if profile == "tlc" {
-            assert_eq!(a["schema_version"], 2);
+            assert_eq!(a["schema_version"], 3);
             assert_eq!(a["options"]["profile"], profile);
             assert_eq!(a["options"]["lncheck"], "final");
             assert_eq!(a["verdict"], "liveness-violation");
@@ -151,7 +151,7 @@ fn genuine_temporal_property_keeps_explicit_and_ordinary_profile_contracts()
             let document = TraceDoc::from_json(&a["counterexample"]["trace"])?;
             assert_eq!(validator.read(&document).0.validation, Validation::Valid);
         } else {
-            assert_eq!(a["schema_version"], 2);
+            assert_eq!(a["schema_version"], 3);
             assert_eq!(a["options"]["profile"], profile);
             assert_eq!(a["options"]["lncheck"], "deterministic");
             assert_eq!(a["verdict"], "liveness-violation");
