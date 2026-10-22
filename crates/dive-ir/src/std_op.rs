@@ -337,6 +337,7 @@ impl StdOp {
         matches!(
             self,
             Self::TlcToString
+                | Self::JsonToJson
                 | Self::SequencesTail
                 | Self::SequencesConcat
                 | Self::SequencesSubSeq

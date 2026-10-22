@@ -59,6 +59,8 @@ A pure safety run admitting these operators does not mean simulation, temporal
 capture, checkpoint recovery or independent trace validation admits them too.
 Read each mode's supported/refused combinations.
 
+## Pure JSON conversion
+
 Pure `Json!ToJson(value)` has a bounded native conversion path. It uses the
 bundled `Json` source and needs no file-access grant.
 It converts booleans, integers, strings, model values, tuples, finite enumerable
@@ -78,6 +80,12 @@ and infinite JSON-array conversion refuse explicitly. `ToJsonArray`,
 `ToJsonObject`, `JsonSerialize`, `JsonDeserialize`, `ndJsonSerialize` and
 `ndJsonDeserialize` remain named refusals. This pure conversion does not grant
 host access or complete Json support.
+
+State-time `ToJson` creates string names. When value or exploration order follows
+TLC (`--compat=tlc`), checking reports the existing sequential worker fallback
+so those names retain encounter order. The default ordering can use the
+requested worker pool. This does not change JSON output or relax independent
+trace validation's refusal for unknown post-startup name history.
 
 The consumed `crates/dive-eval/tests/fixtures/json/JsonSupported.tla` and `.cfg`
 retain the historical pinned-oracle example (`ToJson(<<"x", TRUE, <<1,2>>>>)`

@@ -1,5 +1,9 @@
 # Changelog
 
+- Specs using `Json!ToJson` now retain the existing reported sequential worker
+  fallback under TLC value or exploration order, preserving generated-name
+  encounter order. Default ordering and named Array/Object refusals are unchanged.
+
 - Successor domain candidates and action-composition intermediate right steps
   observe run budgets even when their continuation emits no successor (issue
   #393). Interrupted private composition collection does not invent generated

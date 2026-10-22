@@ -1324,6 +1324,18 @@ model binding from newly created JSON strings; the latter retain the existing
 TLC-profile trace-validation refusal (#124). Full-gate and corpus measurements
 use their actual recorded source revisions rather than historical source labels.
 
+The state-time `json-runtime-names` microcorpus (#407) records
+`Json!ToJson(<<n>>)` during Init and successors. The pinned oracle and four
+pre-fix native profile/worker controls at `66aa04c69712a297922de167fd8e12c3a0062746`
+all completed with generated 3, distinct 3 and depth 3. Compat requested four
+workers actually used four before the missing native-name registry entry was
+corrected; no verdict/count disagreement or performance gain is claimed.
+[Compact primary evidence](survey/data/json-runtime-names-2026-10-21.json)
+retains actual source/binary/input/raw hashes. TLC `Json.java.toJson` returns a
+new `StringValue`; native `json.rs` interns the generated text. Array/Object
+entry points remain named refusals and are not included in this correction.
+Independent validation still refuses unknown post-startup name history.
+
 ## Basic simulation action inventories and flows
 
 The bounded action inventory and sampled-flow port follows tlaplus commit
