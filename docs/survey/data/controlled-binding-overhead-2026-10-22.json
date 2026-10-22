@@ -1,0 +1,797 @@
+{
+  "schema_version": 1,
+  "deliverable": "Owned cooperative run control during fresh model binding",
+  "issue": 425,
+  "umbrella_issue_remains_open": 349,
+  "scope": {
+    "added": "Optional controlled binding APIs; owning checker/API integration for initial binding and fresh native candidate rebinding; retained typed interruption and actual output/capture evidence.",
+    "uncontrolled_apis": "Preserved",
+    "excluded": [
+      "Structural and bulk startup",
+      "ASSUME evaluation",
+      "Post-binding symmetry",
+      "Quiet value/bulk/native units",
+      "Serialization",
+      "Foreign deferred providers",
+      "Legacy TLC/session and standalone validation"
+    ],
+    "no_changes": [
+      "Dependency graph",
+      "Count limits",
+      "Defaults",
+      "Report major",
+      "Trace version"
+    ]
+  },
+  "sources": {
+    "baseline": "44c1fd976637a68c4f76e3ce4da3d2fd348977c8",
+    "baseline_tree": "68e697a346a2886f28a9fcc0a74cf214ab54d398",
+    "candidate": "8e650dba58dd84ed1102618efc68aa52c2ff5d17",
+    "candidate_tree": "87b2abde8d517ea3f3726a066176c3c4ddff1bd5",
+    "delivery_parent": "0ec2d0f8d3d9f50a300d2db823da489a15b4f075",
+    "delivery_note": "Original6fe delivery on6b retained the entire measured8e runtime/test/build/gate/harness/corpus tree, with416/418 documentation preserved. Current integration on0ec inherits separately qualified SelectSeq and retains all18 owned binding runtime/test blobs exactly8e. The actual combinedf5 gate is recorded separately; original44/8e instruction measurements are not relabelled current-main measurements.",
+    "original_before_at": "2026-10-22T05:17:48.004222+00:00",
+    "original_after_at": "2026-10-22T06:30:37.394751+00:00",
+    "tracked_files": {
+      "base": 22546,
+      "candidate": 22551
+    },
+    "before_after_source_payload_tool_identity_unchanged": true,
+    "original_delivery_parent": "6badeb20b393dce1dc5fba50ad161d70b092e91e",
+    "original_delivery": "6fe608303d26fbf62e4a4c5c689584a910dc5438"
+  },
+  "builds": {
+    "base": {
+      "source": "44c1fd976637a68c4f76e3ce4da3d2fd348977c8",
+      "profile": "profiling",
+      "binary_sha256": "887f1c944c879901cbe2e7566d4b350bf194a08d1b79cd5a883076e5a3a4ebfc",
+      "started_at": "2026-10-22T05:17:52.252839+00:00",
+      "finished_at": "2026-10-22T05:19:23.217487+00:00",
+      "physical_exit": 0,
+      "externally_censored": false,
+      "linked_library_sha256": {
+        "libgcc_s.so.1": "d93224d2b0dab4247598be683adca02f5cf00586f99c187579cd7e92058fb7cb",
+        "libc.so.6": "3a15d66867d83762c7f2f1e37359cb8f6c5743edb369c65285cb0b1c4f7498bf",
+        "ld-linux-x86-64.so.2": "c20a2dc8917c755f02b94049356320fe1f62ac7d9f8994731f807d9df39302da"
+      }
+    },
+    "candidate": {
+      "source": "8e650dba58dd84ed1102618efc68aa52c2ff5d17",
+      "profile": "profiling",
+      "binary_sha256": "e1f9c5ec411f3d5d5534546eb74d0f2ecf67e373e5f51c185ff9b51ffe03c1bb",
+      "started_at": "2026-10-22T05:19:24.365863+00:00",
+      "finished_at": "2026-10-22T05:20:56.332888+00:00",
+      "physical_exit": 0,
+      "externally_censored": false,
+      "linked_library_sha256": {
+        "libgcc_s.so.1": "d93224d2b0dab4247598be683adca02f5cf00586f99c187579cd7e92058fb7cb",
+        "libc.so.6": "3a15d66867d83762c7f2f1e37359cb8f6c5743edb369c65285cb0b1c4f7498bf",
+        "ld-linux-x86-64.so.2": "c20a2dc8917c755f02b94049356320fe1f62ac7d9f8994731f807d9df39302da"
+      }
+    }
+  },
+  "machine": {
+    "os": "Linux",
+    "arch": "x86_64",
+    "logical_cpus": 32,
+    "memory_bytes": 66320322560,
+    "dedicated_campaign_instance": true,
+    "quiet_wall_time_claim": false
+  },
+  "toolchain": {
+    "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+    "nextest": "cargo-nextest 0.9.143 (60fa45f63 2026-08-04)\nrelease: 0.9.143\ncommit-hash: 60fa45f638ffc3f35e74afa65737f45fcd32db2a\ncommit-date: 2026-08-04\nhost: x86_64-unknown-linux-gnu",
+    "deny": "cargo-deny 0.20.2",
+    "valgrind": "valgrind-3.22.0",
+    "cachegrind_backend": "valgrind-3.22.0 cachegrind backend",
+    "callgrind_backend": "valgrind-3.22.0 callgrind backend"
+  },
+  "tool_sha256": {
+    "rustc": "f3834d26669b03f6855fa54bd2381443123e860167bc0c7a8dd137e5cf6e5e4f",
+    "cargo": "e951141cc55a6cd7b9876d187bd30a3720e6086b99413af95e3b8de1cdd72f14",
+    "nextest": "cb6243e32736eb6242379b379d44f09adf4873bbdf69ed6ff13f9dc4c0dfc654",
+    "deny": "095d1609e3040af892c3356154eb89488bcb8886315f8c7b7b6927ad7064b3e7",
+    "valgrind": "4652774bd116cb49951ef74115ad4237cad5021b2bd4d80002f09d986ec438b9",
+    "cachegrind_backend": "38093b3bf8e9ffecb559a333c896a2fd2a2343bb79c3295f31c36475914deebf",
+    "callgrind_backend": "825eb197d519240c112e03ed00f40a8bbe1a0a0614f79ea95e28c67e8695cb03"
+  },
+  "inputs": {
+    "workload_identity_sha256": "ee348f27d85022fcdd963a5ba63690f0f765c3c72034b7ae3bb53f6fdf97841a",
+    "workload_archive_sha256": "f1d3eb00d9f43c11e03a50be64a3115f8e2bb838299bb8d7033106a8ce0c53ef",
+    "module_archive_sha256": "90a8757da7c179dcf04ec8f7530f99881e013eb76b92bfeb59808d9a0fe782ab",
+    "full_observed_workload_and_module_manifests_match_before_after": true,
+    "seed": 0,
+    "fingerprint_polynomial_index": 0,
+    "workers_requested_used": 1,
+    "native_time_ms": 900000,
+    "native_memory_bytes": 8589934592,
+    "os_backstop_seconds": 930,
+    "actual_schema_versions": {
+      "base": 3,
+      "candidate": 3
+    }
+  },
+  "focused_verification": {
+    "source": "a9f104c47ba818d08e26dda769201f14c94ec23a",
+    "tests_passed": 34,
+    "failed": 0,
+    "ignored": 0,
+    "fmt": "PASS",
+    "affected_all_target_clippy": "PASS",
+    "receipt_sha256": "63dda486f0a504112820eb3cee2b0936abbe8366698f7577bcbb072d6689a25a",
+    "transfer": "18 owned runtime/test blobs exact in8e; three guide edit operations retained. No new execution is attributed to delivery."
+  },
+  "full_gate": {
+    "physical_seconds": 2143.0132560310003,
+    "reported_total": "35m40s",
+    "all13steps": [
+      "rustfmt",
+      "clippy",
+      "nextest (whole suite)",
+      "doctests",
+      "rustdoc",
+      "crate layering",
+      "cargo-deny",
+      "release build (harness, dive)",
+      "oracle and corpus fetch",
+      "cm1 gate (1, 4, 8 workers)",
+      "validation-smoke gate (1, 4, 8 workers)",
+      "small corpus tier (dive, tlc profile, vs baseline)",
+      "small corpus tier (dive, dive profile, vs baseline)"
+    ],
+    "whole_tests": 2243,
+    "failed": 0,
+    "skipped": 0,
+    "release_sha256": "b3cb821ce2f3eb1efdf3624660c72b2fa568ad7baf010ea708bcc0f1a279ba75",
+    "corpora": {
+      "tlc": {
+        "sha256": "d7f05e7ed8429f034242b989dc1612446181547eb146973f3c756613ec76c3ab",
+        "models": {
+          "agree": 149,
+          "disagree": 0,
+          "unsupported": 7,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "modules": {
+          "agree": 458,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        }
+      },
+      "dive": {
+        "sha256": "ae0f889829fc78695b772dc877a62d3bca1af0d52ca0eb670149b527732294d3",
+        "models": {
+          "agree": 143,
+          "disagree": 0,
+          "unsupported": 7,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 6,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "modules": {
+          "agree": 0,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        }
+      }
+    }
+  },
+  "normal_instruction_campaign": {
+    "arms": 16,
+    "schedule": "Sequential W1 four reduced safety models, both actual profiles, paired interleaved arm ordering as pinned plan",
+    "all_eight_cells_at_most_one_percent": true,
+    "geomean_delta_pct": 0.01409809389938399,
+    "pairs": [
+      {
+        "tag": "base-SimpleRegular-dive-w1",
+        "base_Ir": 2590738275,
+        "candidate_Ir": 2590833169,
+        "delta_pct": 0.0036628169242547415
+      },
+      {
+        "tag": "base-MCbtree-dive-w1",
+        "base_Ir": 14416367603,
+        "candidate_Ir": 14412119748,
+        "delta_pct": -0.029465501414627226
+      },
+      {
+        "tag": "base-GameOfLife-dive-w1",
+        "base_Ir": 1145191194,
+        "candidate_Ir": 1146767501,
+        "delta_pct": 0.13764574930883455
+      },
+      {
+        "tag": "base-EWD998PCal-dive-w1",
+        "base_Ir": 47066200280,
+        "candidate_Ir": 47104609383,
+        "delta_pct": 0.08160655156248531
+      },
+      {
+        "tag": "base-SimpleRegular-tlc-w1",
+        "base_Ir": 2654850790,
+        "candidate_Ir": 2654931993,
+        "delta_pct": 0.0030586653045006074
+      },
+      {
+        "tag": "base-MCbtree-tlc-w1",
+        "base_Ir": 18207196758,
+        "candidate_Ir": 18205663452,
+        "delta_pct": -0.008421428187876945
+      },
+      {
+        "tag": "base-GameOfLife-tlc-w1",
+        "base_Ir": 1137306927,
+        "candidate_Ir": 1136366414,
+        "delta_pct": -0.08269649798765544
+      },
+      {
+        "tag": "base-EWD998PCal-tlc-w1",
+        "base_Ir": 48021459223,
+        "candidate_Ir": 48025086610,
+        "delta_pct": 0.007553679248184508
+      }
+    ],
+    "observations": [
+      {
+        "tag": "base-SimpleRegular-dive-w1",
+        "Ir": 2590738275,
+        "statistics": {
+          "depth": 19,
+          "distinct": 12097,
+          "generated": 47584,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "native_exit": 0,
+        "stdout_sha256": "aae2575e957287d080884bb956784d364b68f995da37b1634cf5f1bb3ef8f154",
+        "cachegrind_sha256": "e82b53288d0bfeb8756906f64f8c86858da4314a9c988e3c7963b175bc01ccfb"
+      },
+      {
+        "tag": "candidate-SimpleRegular-dive-w1",
+        "Ir": 2590833169,
+        "statistics": {
+          "depth": 19,
+          "distinct": 12097,
+          "generated": 47584,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "native_exit": 0,
+        "stdout_sha256": "168f63fe4b1d7c667c4946264e7f8434b841c11d3378576a197d5b5bd34ac5d2",
+        "cachegrind_sha256": "d5543862620db8d502238c6180c76c47813bd9bd7143aac1b33a15e7c405e1ab"
+      },
+      {
+        "tag": "base-MCbtree-dive-w1",
+        "Ir": 14416367603,
+        "statistics": {
+          "depth": 24,
+          "distinct": 21364,
+          "generated": 127825,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "native_exit": 0,
+        "stdout_sha256": "0699e394f739fc5fc5e626780899d0df62deafe39e13283f8b16c3c4e1543bba",
+        "cachegrind_sha256": "23c0ffd60bfa35bad51efeca299f8b241bb8ee6e337f15358960e0ad5b7955c6"
+      },
+      {
+        "tag": "candidate-MCbtree-dive-w1",
+        "Ir": 14412119748,
+        "statistics": {
+          "depth": 24,
+          "distinct": 21364,
+          "generated": 127825,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "native_exit": 0,
+        "stdout_sha256": "5217f08708429ec45768d0aea660fc329a7cd16e8fd7e909dc053710ce544930",
+        "cachegrind_sha256": "79b472b9d3124cdfc7e0a616e27181d5e702eb4b57e0429142b59acfa718e676"
+      },
+      {
+        "tag": "base-GameOfLife-dive-w1",
+        "Ir": 1145191194,
+        "statistics": {
+          "depth": 1,
+          "distinct": 512,
+          "generated": 1024,
+          "initial_generated": 512,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "native_exit": 0,
+        "stdout_sha256": "f71d86347cd688545b3ef571dc5988cf9d4c2c4bba619a9393141ca76d6ca5d2",
+        "cachegrind_sha256": "d09e92ea16942734c2db8ace7cf3f4dcbe275406dc1780e972582151e90604fd"
+      },
+      {
+        "tag": "candidate-GameOfLife-dive-w1",
+        "Ir": 1146767501,
+        "statistics": {
+          "depth": 1,
+          "distinct": 512,
+          "generated": 1024,
+          "initial_generated": 512,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "native_exit": 0,
+        "stdout_sha256": "b878ce595577338885bccc79cb30fe7a8abefa11607b65b49f78a064496d100d",
+        "cachegrind_sha256": "a8edcef3c7872a90311b3cb9feb6919f150b304100bebe83cc743e39f1e4c716"
+      },
+      {
+        "tag": "base-EWD998PCal-dive-w1",
+        "Ir": 47066200280,
+        "statistics": {
+          "depth": 28,
+          "distinct": 20870,
+          "generated": 168292,
+          "initial_generated": 8,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "native_exit": 0,
+        "stdout_sha256": "a75d39a91edd4213f73779faf3f8f9cd0b1cbb7d7e4c29072d487eb6d8e57ee4",
+        "cachegrind_sha256": "e9c89683066c744edb2270301fee35d760f1f8f8db6c9c5c12b881fab47c984f"
+      },
+      {
+        "tag": "candidate-EWD998PCal-dive-w1",
+        "Ir": 47104609383,
+        "statistics": {
+          "depth": 28,
+          "distinct": 20870,
+          "generated": 168292,
+          "initial_generated": 8,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "native_exit": 0,
+        "stdout_sha256": "b33faba1db7440c83bcaf3825ec5a0b254c99883d5cef70730823d54217eb644",
+        "cachegrind_sha256": "00d821822d859b47bd0fcdc518f8bb7bef25d6fffdbc27681345335cc00e5e08"
+      },
+      {
+        "tag": "candidate-SimpleRegular-tlc-w1",
+        "Ir": 2654931993,
+        "statistics": {
+          "depth": 19,
+          "distinct": 12097,
+          "generated": 47584,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "native_exit": 0,
+        "stdout_sha256": "7e729f1c89723dda4a9e2f75590543b298c02dd0c7ecb261faf54f237f00575e",
+        "cachegrind_sha256": "2184cc0a1ec7206b754f446488396c8477164b13fa62c4bebcc0fa476d9d108a"
+      },
+      {
+        "tag": "base-SimpleRegular-tlc-w1",
+        "Ir": 2654850790,
+        "statistics": {
+          "depth": 19,
+          "distinct": 12097,
+          "generated": 47584,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "native_exit": 0,
+        "stdout_sha256": "2be8b0111733f4f049dc0e1b3fc19af9855079cd147b59d34c665b24b3eeb582",
+        "cachegrind_sha256": "63d146b539e93d8297900489c7d5b4eb61fcb796779eff619050f1963af94f6d"
+      },
+      {
+        "tag": "candidate-MCbtree-tlc-w1",
+        "Ir": 18205663452,
+        "statistics": {
+          "depth": 24,
+          "distinct": 21364,
+          "generated": 127825,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "native_exit": 0,
+        "stdout_sha256": "628cc351dae1ea7900dbec2677c29ef4f1e45a437b5a384132dd493c5af7133c",
+        "cachegrind_sha256": "e6b402a94b7affb6073a1b32176a2cd4280ebee3e504d0a8875d68149b002a72"
+      },
+      {
+        "tag": "base-MCbtree-tlc-w1",
+        "Ir": 18207196758,
+        "statistics": {
+          "depth": 24,
+          "distinct": 21364,
+          "generated": 127825,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "native_exit": 0,
+        "stdout_sha256": "b2bd39ee658dedb3b06c28d878a36811fd780ccd17fcedebf8d9fa7af08ff100",
+        "cachegrind_sha256": "1dca214a1e660c67ecaff6c722abe8fb51afd8fe92a536ed82a03140ce4f71e1"
+      },
+      {
+        "tag": "candidate-GameOfLife-tlc-w1",
+        "Ir": 1136366414,
+        "statistics": {
+          "depth": 1,
+          "distinct": 512,
+          "generated": 1024,
+          "initial_generated": 512,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "native_exit": 0,
+        "stdout_sha256": "088a202ef590cc73fc8b435f9f41aa6f65ddf74296061a03703ac81f9455af00",
+        "cachegrind_sha256": "6839ac96d6919274f24d202c2774e69a5d413ce72a6d892e11abbbc0eae95efd"
+      },
+      {
+        "tag": "base-GameOfLife-tlc-w1",
+        "Ir": 1137306927,
+        "statistics": {
+          "depth": 1,
+          "distinct": 512,
+          "generated": 1024,
+          "initial_generated": 512,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "native_exit": 0,
+        "stdout_sha256": "00777ea55c0e27d747fe1073e78f1fa165e30ca5cc10654449e99f04f049a19e",
+        "cachegrind_sha256": "349d847ff2db5ec8cc92abea1876e418fecb24927d6f774aa3ad840aaac57ad8"
+      },
+      {
+        "tag": "candidate-EWD998PCal-tlc-w1",
+        "Ir": 48025086610,
+        "statistics": {
+          "depth": 28,
+          "distinct": 20870,
+          "generated": 168292,
+          "initial_generated": 8,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "native_exit": 0,
+        "stdout_sha256": "1d9f201ec3bbd14a714de96ea6a90128799b9dafbbdf442b0d4dd623343a2061",
+        "cachegrind_sha256": "41c149cce78075cb9ccf850be2fbee939552b520bb6075d4664b7063ccfb9fbd"
+      },
+      {
+        "tag": "base-EWD998PCal-tlc-w1",
+        "Ir": 48021459223,
+        "statistics": {
+          "depth": 28,
+          "distinct": 20870,
+          "generated": 168292,
+          "initial_generated": 8,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "native_exit": 0,
+        "stdout_sha256": "3eceb18ec831b044ec42385cd945063a80b49e2071a61f80480645638f2db59f",
+        "cachegrind_sha256": "6bd0ce7e07881a063e1b762d0259cdeccc11fdcf1a3f26b1b7e4f3bd21058de0"
+      }
+    ],
+    "claim": "Whole CLI normal-input W1 instruction overhead only. No quiet wall-clock, TLC throughput, universal budget bound, binding-heavy performance or affected-model agreement claim."
+  },
+  "evidence": {
+    "archive_sha256": "b328715d6512b75bbe42d53c0d28c6e16a2b71d26413d400bcd52ad91e176966",
+    "archive_bytes": 71393253,
+    "qualification_plan_sha256": "0888e4a9d527126d2afd960001502bc100c5bc45fa72fcbb20a86b58a45afc0c",
+    "source_bundle_sha256": "ff4adbf4b4d783a34e2ff13017497507d62afb4b6d1500864acf360b201bff29",
+    "runner_sha256": "8e298d2df0f9cd0fc096ff74db5948e22960340d584b726b89ea7b2d7d389b30",
+    "frozen_verifier_sha256": "5d0bbb433d7810d975f546a1b5afcd9a5eb8209c0d9dda0ecee27678f3fdcb78",
+    "independent_final_audit_sha256": "98ff3aea32d21343483d5d30f0809e8768e04a51fd65c138b14ed2f33b9bdab4",
+    "gate_report_sha256": "d8e827ebbc3088ae8dc5dfb8ad9b3932b60c2409938fcd31ad5a9c7a4aa80514",
+    "raw_outputs": "External original archive; no raw logs, source snapshots or traces committed",
+    "producer_finished_at": "2026-10-22T06:30:38.434834+00:00",
+    "independent_audit_at": "2026-10-22T06:37:47.680746+00:00"
+  },
+  "integrated_full_gate": {
+    "source": "f5db2f534b6a0dd5137eb7437a00e49b6b29a824",
+    "base": "0ec2d0f8d3d9f50a300d2db823da489a15b4f075",
+    "whole_tests": 2249,
+    "failed": 0,
+    "skipped": 0,
+    "native_exit": 0,
+    "externally_censored": false,
+    "physical_seconds": 1320.5230274582282,
+    "reported_total": "21m55s",
+    "gate_report_sha256": "0f0cb4f1029aca27ea666a82d4a9f49dd60c4aaf89e6947540f56aad876febbe",
+    "release_sha256": "b1a1c508a669b63e6f2cb2ac22edf22650d40ad7fce52ad3198b931784ee33a4",
+    "baseline_facts_exact_both_profiles": true,
+    "corpora": {
+      "tlc": {
+        "sha256": "342ee8c405ec7ab87cb3efda5e4dddbf3356d854afdff30b92cfb7f8779fc17c",
+        "summary": {
+          "models_selected": 156,
+          "modules_selected": 458,
+          "models": {
+            "agree": 149,
+            "disagree": 0,
+            "unsupported": 7,
+            "oracle-error": 0,
+            "timeout": 0,
+            "out-of-scope": 0,
+            "divergence-mode": 0,
+            "expected-divergence": 0,
+            "agree-pending-trace-validation": 0,
+            "known-upstream-change": 0
+          },
+          "modules": {
+            "agree": 458,
+            "disagree": 0,
+            "unsupported": 0,
+            "oracle-error": 0,
+            "timeout": 0,
+            "out-of-scope": 0,
+            "divergence-mode": 0,
+            "expected-divergence": 0,
+            "agree-pending-trace-validation": 0,
+            "known-upstream-change": 0
+          },
+          "models_with_oracle_drift": 0,
+          "oracle_drift_findings": 0,
+          "informational_drift_findings": 0,
+          "worker_verdict_variant": 0,
+          "worker_counts_variant": 0,
+          "worker_depth_variant": 0,
+          "worker_introspecting": 2,
+          "worker_property_variant": 0,
+          "by_corpus": {
+            "configured-temporal-operators": {
+              "models": {
+                "agree": 2,
+                "disagree": 0,
+                "unsupported": 0,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 0,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              },
+              "modules": {
+                "agree": 2,
+                "disagree": 0,
+                "unsupported": 0,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 0,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              }
+            },
+            "examples": {
+              "models": {
+                "agree": 134,
+                "disagree": 0,
+                "unsupported": 6,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 0,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              },
+              "modules": {
+                "agree": 424,
+                "disagree": 0,
+                "unsupported": 0,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 0,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              }
+            },
+            "probes": {
+              "models": {
+                "agree": 13,
+                "disagree": 0,
+                "unsupported": 1,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 0,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              },
+              "modules": {
+                "agree": 12,
+                "disagree": 0,
+                "unsupported": 0,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 0,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              }
+            },
+            "validation-smoke": {
+              "models": {
+                "agree": 0,
+                "disagree": 0,
+                "unsupported": 0,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 0,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              },
+              "modules": {
+                "agree": 20,
+                "disagree": 0,
+                "unsupported": 0,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 0,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              }
+            }
+          }
+        }
+      },
+      "dive": {
+        "sha256": "2ee2d33f6bf06135d9ecf8aa57b6d52670cbab5bc242672bf2c3a68346c4d116",
+        "summary": {
+          "models_selected": 156,
+          "modules_selected": 0,
+          "models": {
+            "agree": 143,
+            "disagree": 0,
+            "unsupported": 7,
+            "oracle-error": 0,
+            "timeout": 0,
+            "out-of-scope": 0,
+            "divergence-mode": 0,
+            "expected-divergence": 6,
+            "agree-pending-trace-validation": 0,
+            "known-upstream-change": 0
+          },
+          "modules": {
+            "agree": 0,
+            "disagree": 0,
+            "unsupported": 0,
+            "oracle-error": 0,
+            "timeout": 0,
+            "out-of-scope": 0,
+            "divergence-mode": 0,
+            "expected-divergence": 0,
+            "agree-pending-trace-validation": 0,
+            "known-upstream-change": 0
+          },
+          "models_with_oracle_drift": 0,
+          "oracle_drift_findings": 0,
+          "informational_drift_findings": 0,
+          "worker_verdict_variant": 0,
+          "worker_counts_variant": 0,
+          "worker_depth_variant": 0,
+          "worker_introspecting": 2,
+          "worker_property_variant": 0,
+          "by_corpus": {
+            "configured-temporal-operators": {
+              "models": {
+                "agree": 2,
+                "disagree": 0,
+                "unsupported": 0,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 0,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              },
+              "modules": {
+                "agree": 0,
+                "disagree": 0,
+                "unsupported": 0,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 0,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              }
+            },
+            "examples": {
+              "models": {
+                "agree": 130,
+                "disagree": 0,
+                "unsupported": 6,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 4,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              },
+              "modules": {
+                "agree": 0,
+                "disagree": 0,
+                "unsupported": 0,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 0,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              }
+            },
+            "probes": {
+              "models": {
+                "agree": 11,
+                "disagree": 0,
+                "unsupported": 1,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 2,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              },
+              "modules": {
+                "agree": 0,
+                "disagree": 0,
+                "unsupported": 0,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 0,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    "scope": "Exact combined binding+SelectSeq main gate only; no new normal instruction, wall or TLC throughput measurement."
+  }
+}

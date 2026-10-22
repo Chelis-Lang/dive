@@ -570,3 +570,37 @@ eight-worker scaling, TLC throughput, new corpus agreement or release milestone.
 Construction and metadata acquisition still add costs. The complete checker
 gate and both small-profile baseline comparisons qualify the actual measured
 source; later source transfer and PR checks are recorded independently.
+
+## Controlled fresh model binding
+
+Owning run control now reaches cooperative evaluator loops during fresh model
+binding, with typed interruption and original output/capture evidence. Existing
+uncontrolled Rust binding APIs retain their behavior. Structural/bulk startup,
+assumptions, post-binding symmetry, quiet value units, serialization and legacy
+validation retain their documented limitations. This does not establish a hard
+wall-clock deadline for every binding operation.
+
+The exact `8e650dba` candidate against main `44c1fd97` passed all 2,243 tests and
+13 full-gate stages, including both small baselines without changes: 149 TLC
+agreements, 143 default agreements plus six expected divergences, seven refusals
+each and 458 SANY agreements. The gate's reported total is 35m40s; its outer
+process observation is 2,143.013 seconds. These are distinct observations.
+
+All 16 normal single-worker Cachegrind arms completed with identical verdicts,
+counts and depth. Every paired cell stays within 1% instruction overhead; the
+geometric mean is +0.014098%, with individual deltas from -0.082696% to +0.137646%.
+The campaign used explicit 900-second/8-GiB native budgets and a 930-second OS
+backstop, original before-run source/binary/tool/input receipts and matching
+final identities. This measures whole-CLI normal-input overhead, not binding-heavy
+throughput, quiet wall time, TLC speedup, universal interruption coverage or new
+corpus agreement. [Compact evidence](../survey/data/controlled-binding-overhead-2026-10-22.json)
+records the actual source pins, binaries, raw hashes and all eight pairs. Later
+original delivery on `6badeb20` retained the entire measured runtime tree.
+
+After integration with SelectSeq on main `0ec2d0f8`, exact `f5db2f53` passed
+all 2,249 tests, the full gate and both unchanged small baselines. Its reported
+total is 21m55s; the outer process took 1,320.523 seconds. The integration retains
+all 18 binding-owned runtime/test files exactly from `8e650dba` and preserves
+SelectSeq's separately qualified behavior. The normal instruction comparison
+remains the original `44c1fd97` / `8e650dba` campaign; it is not relabelled as a
+measurement of the integrated tree.

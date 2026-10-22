@@ -51,17 +51,18 @@ impl Binder<'_> {
             None => self.process_init_next()?,
             Some(name) => {
                 if self.cfg.init.is_some() || self.cfg.next.is_some() {
-                    return Err(BindError::tlc(Ec::TlcConfigNotBothSpecAndInit, &[]));
+                    return Err(BindError::tlc(Ec::TlcConfigNotBothSpecAndInit, &[]).into());
                 }
                 match self.defn(&name) {
                     Some(Look::Def(d)) => {
                         if !self.ir().def(d).params.is_empty() {
-                            return Err(BindError::tlc(Ec::TlcConfigIdRequiresNoArg, &[&name]));
+                            return Err(
+                                BindError::tlc(Ec::TlcConfigIdRequiresNoArg, &[&name]).into()
+                            );
                         }
-                        let scope = self
-                            .ev()
-                            .scope(d)
-                            .map_err(|e| BindError::unsupported(e.to_string()))?;
+                        let scope = self.ev().scope(d).map_err(|e| {
+                            self.eval_error(e, |e| BindError::unsupported(e.to_string()))
+                        })?;
                         let body = self.ir().def(d).body;
                         self.spec(body, scope, None)?;
                     }
@@ -69,14 +70,16 @@ impl Binder<'_> {
                         return Err(BindError::tlc(
                             Ec::TlcConfigSpecifiedNotDefined,
                             &["name", &name],
-                        ));
+                        )
+                        .into());
                     }
                     Some(other) => {
                         let shown = self.show_look(&other)?;
                         return Err(BindError::tlc(
                             Ec::TlcConfigIdHasValue,
                             &["value", &name, &shown],
-                        ));
+                        )
+                        .into());
                     }
                 }
             }
@@ -86,16 +89,15 @@ impl Binder<'_> {
             match self.defn(&name) {
                 Some(Look::Def(d)) => {
                     if !self.ir().def(d).params.is_empty() {
-                        return Err(BindError::tlc(Ec::TlcConfigIdRequiresNoArg, &[&name]));
+                        return Err(BindError::tlc(Ec::TlcConfigIdRequiresNoArg, &[&name]).into());
                     }
                     if self.ir().def(d).level == Level::State {
                         self.output
                             .push(Message::warning(Ec::TlcLiveFormulaStateLevel, &[&name]));
                     }
-                    let scope = self
-                        .ev()
-                        .scope(d)
-                        .map_err(|e| BindError::unsupported(e.to_string()))?;
+                    let scope = self.ev().scope(d).map_err(|e| {
+                        self.eval_error(e, |e| BindError::unsupported(e.to_string()))
+                    })?;
                     let body = self.ir().def(d).body;
                     self.props(name.clone(), &name, body, scope.clone(), None)?;
                     self.configured_properties.push(Named {
@@ -107,7 +109,8 @@ impl Binder<'_> {
                     return Err(BindError::tlc(
                         Ec::TlcConfigSpecifiedNotDefined,
                         &["property", &name],
-                    ));
+                    )
+                    .into());
                 }
                 Some(Look::Value(Value::Bool(true))) => {}
                 Some(other) => {
@@ -115,7 +118,8 @@ impl Binder<'_> {
                     return Err(BindError::tlc(
                         Ec::TlcConfigIdHasValue,
                         &["property", &name, &shown],
-                    ));
+                    )
+                    .into());
                 }
             }
         }
@@ -127,14 +131,14 @@ impl Binder<'_> {
                 || !self.invariants.is_empty()
                 || !self.implied_temporals.is_empty())
         {
-            return Err(BindError::tlc(Ec::TlcConfigMissingInit, &[]));
+            return Err(BindError::tlc(Ec::TlcConfigMissingInit, &[]).into());
         }
         if self.next.is_none()
             && (!self.implied_actions.is_empty()
                 || !self.invariants.is_empty()
                 || !self.implied_temporals.is_empty())
         {
-            return Err(BindError::tlc(Ec::TlcConfigMissingNext, &[]));
+            return Err(BindError::tlc(Ec::TlcConfigMissingNext, &[]).into());
         }
         let constraints: Vec<String> = self
             .cfg
@@ -151,12 +155,12 @@ impl Binder<'_> {
             .collect();
         self.action_constraints = self.process_constraints(&actions, "action constraint")?;
         if self.cfg.rl_reward.is_some() {
-            return Err(BindError::unsupported("_RL_REWARD"));
+            return Err(BindError::unsupported("_RL_REWARD").into());
         }
         // A configured `_PERIODIC` is bound (and refused) after this pass,
         // and its binding errors take precedence over the `_POSSIBLE` refusal.
         if !self.cfg.possible.is_empty() && self.cfg.periodic.is_none() {
-            return Err(BindError::unsupported("_POSSIBLE"));
+            return Err(BindError::unsupported("_POSSIBLE").into());
         }
         Ok(())
     }
@@ -169,7 +173,8 @@ impl Binder<'_> {
             Look::Java(op, _) => Err(BindError::unsupported(format!(
                 "the message TLC prints for the Java override of {} used as a configuration name",
                 op.qualified_name()
-            ))),
+            ))
+            .into()),
         }
     }
 
@@ -184,7 +189,8 @@ impl Binder<'_> {
                         return Err(BindError::tlc(
                             Ec::TlcConfigIdRequiresNoArg,
                             &["invariant", &name],
-                        ));
+                        )
+                        .into());
                     }
                     if def.level >= Level::Action {
                         // TLC adds a note when the body's `levelParams` are not
@@ -194,13 +200,13 @@ impl Binder<'_> {
                         } else {
                             &[&def.name]
                         };
-                        return Err(BindError::tlc(Ec::TlcInvariantViolatedLevel, params));
+                        return Err(BindError::tlc(Ec::TlcInvariantViolatedLevel, params).into());
                     }
                     let pred = Pred::new(
                         def.body,
-                        self.ev()
-                            .scope(d)
-                            .map_err(|e| BindError::unsupported(e.to_string()))?,
+                        self.ev().scope(d).map_err(|e| {
+                            self.eval_error(e, |e| BindError::unsupported(e.to_string()))
+                        })?,
                     );
                     self.invariants.push(Named { name, pred });
                 }
@@ -208,7 +214,8 @@ impl Binder<'_> {
                     return Err(BindError::tlc(
                         Ec::TlcConfigSpecifiedNotDefined,
                         &["invariant", &name],
-                    ));
+                    )
+                    .into());
                 }
                 Some(Look::Value(Value::Bool(true))) => {
                     self.output.push(Message::warning(
@@ -221,7 +228,8 @@ impl Binder<'_> {
                     return Err(BindError::tlc(
                         Ec::TlcConfigIdHasValue,
                         &["invariant", &name, &shown],
-                    ));
+                    )
+                    .into());
                 }
             }
         }
@@ -243,30 +251,25 @@ impl Binder<'_> {
             let Some(name) = name else { continue };
             let d = match self.defn(&name) {
                 None => {
-                    return Err(BindError::tlc(
-                        Ec::TlcConfigSpecifiedNotDefined,
-                        &[which, &name],
-                    ));
+                    return Err(
+                        BindError::tlc(Ec::TlcConfigSpecifiedNotDefined, &[which, &name]).into(),
+                    );
                 }
                 Some(Look::Def(d)) => d,
                 Some(_) => {
-                    return Err(BindError::tlc(
-                        Ec::TlcConfigIdMustNotBeConstant,
-                        &[which, &name],
-                    ));
+                    return Err(
+                        BindError::tlc(Ec::TlcConfigIdMustNotBeConstant, &[which, &name]).into(),
+                    );
                 }
             };
             if !self.ir().def(d).params.is_empty() {
-                return Err(BindError::tlc(
-                    Ec::TlcConfigIdRequiresNoArg,
-                    &[which, &name],
-                ));
+                return Err(BindError::tlc(Ec::TlcConfigIdRequiresNoArg, &[which, &name]).into());
             }
             let pred = Pred::new(
                 self.ir().def(d).body,
                 self.ev()
                     .scope(d)
-                    .map_err(|e| BindError::unsupported(e.to_string()))?,
+                    .map_err(|e| self.eval_error(e, |e| BindError::unsupported(e.to_string())))?,
             );
             if which == "initial predicate" {
                 self.init.push(Init { pred, def: Some(d) });
@@ -285,13 +288,15 @@ impl Binder<'_> {
             match self.defn(name) {
                 Some(Look::Def(d)) => {
                     if !self.ir().def(d).params.is_empty() {
-                        return Err(BindError::tlc(Ec::TlcConfigIdRequiresNoArg, &[what, name]));
+                        return Err(
+                            BindError::tlc(Ec::TlcConfigIdRequiresNoArg, &[what, name]).into()
+                        );
                     }
                     let pred = Pred::new(
                         self.ir().def(d).body,
-                        self.ev()
-                            .scope(d)
-                            .map_err(|e| BindError::unsupported(e.to_string()))?,
+                        self.ev().scope(d).map_err(|e| {
+                            self.eval_error(e, |e| BindError::unsupported(e.to_string()))
+                        })?,
                     );
                     out.push(Named {
                         name: name.clone(),
@@ -301,16 +306,14 @@ impl Binder<'_> {
                 Some(Look::Value(Value::Bool(true))) => {}
                 Some(other) => {
                     let shown = self.show_look(&other)?;
-                    return Err(BindError::tlc(
-                        Ec::TlcConfigIdHasValue,
-                        &[what, name, &shown],
-                    ));
+                    return Err(
+                        BindError::tlc(Ec::TlcConfigIdHasValue, &[what, name, &shown]).into(),
+                    );
                 }
                 None => {
-                    return Err(BindError::tlc(
-                        Ec::TlcConfigSpecifiedNotDefined,
-                        &[what, name],
-                    ));
+                    return Err(
+                        BindError::tlc(Ec::TlcConfigSpecifiedNotDefined, &[what, name]).into(),
+                    );
                 }
             }
         }
@@ -328,26 +331,29 @@ impl Binder<'_> {
             None => Err(BindError::tlc(
                 Ec::TlcConfigSpecifiedNotDefined,
                 &["view function", &name],
-            )),
+            )
+            .into()),
             Some(Look::Def(d)) => {
                 if !self.ir().def(d).params.is_empty() {
                     return Err(BindError::tlc(
                         Ec::TlcConfigIdRequiresNoArg,
                         &["view function", &name],
-                    ));
+                    )
+                    .into());
                 }
                 let pred = Pred::new(
                     self.ir().def(d).body,
-                    self.ev()
-                        .scope(d)
-                        .map_err(|e| BindError::unsupported(e.to_string()))?,
+                    self.ev().scope(d).map_err(|e| {
+                        self.eval_error(e, |e| BindError::unsupported(e.to_string()))
+                    })?,
                 );
                 Ok(Some(Named { name, pred }))
             }
             Some(_) => Err(BindError::tlc(
                 Ec::TlcConfigIdMustNotBeConstant,
                 &["view function", &name],
-            )),
+            )
+            .into()),
         }
     }
 
@@ -371,28 +377,22 @@ impl Binder<'_> {
     /// `TLC_CONFIG_ID_REQUIRES_NO_ARG`, in that order).
     fn named_def(&self, name: &str, what: &str) -> R<Named> {
         match self.defn(name) {
-            None => Err(BindError::tlc(
-                Ec::TlcConfigSpecifiedNotDefined,
-                &[what, name],
-            )),
+            None => Err(BindError::tlc(Ec::TlcConfigSpecifiedNotDefined, &[what, name]).into()),
             Some(Look::Def(d)) => {
                 if !self.ir().def(d).params.is_empty() {
-                    return Err(BindError::tlc(Ec::TlcConfigIdRequiresNoArg, &[what, name]));
+                    return Err(BindError::tlc(Ec::TlcConfigIdRequiresNoArg, &[what, name]).into());
                 }
                 Ok(Named {
                     name: name.to_owned(),
                     pred: Pred::new(
                         self.ir().def(d).body,
-                        self.ev()
-                            .scope(d)
-                            .map_err(|e| BindError::unsupported(e.to_string()))?,
+                        self.ev().scope(d).map_err(|e| {
+                            self.eval_error(e, |e| BindError::unsupported(e.to_string()))
+                        })?,
                     ),
                 })
             }
-            Some(_) => Err(BindError::tlc(
-                Ec::TlcConfigIdMustNotBeConstant,
-                &[what, name],
-            )),
+            Some(_) => Err(BindError::tlc(Ec::TlcConfigIdMustNotBeConstant, &[what, name]).into()),
         }
     }
 
@@ -402,15 +402,17 @@ impl Binder<'_> {
 
     /// The scope an instance substitution wrapper starts, and its location.
     fn subst_scope(&self, scope: &Scope, e: ExprId) -> R<Scope> {
-        self.ev()
-            .scope_subst(scope, e)
-            .map_err(|err| BindError::unsupported(format!("binding instance substitutions: {err}")))
+        self.ev().scope_subst(scope, e).map_err(|err| {
+            self.eval_error(err, |err| {
+                BindError::unsupported(format!("binding instance substitutions: {err}"))
+            })
+        })
     }
 
     fn let_scope(&self, scope: &Scope, e: ExprId) -> R<Scope> {
-        self.ev()
-            .scope_let(scope, e)
-            .map_err(|err| BindError::bug(format!("binding a LET: {err}")))
+        self.ev().scope_let(scope, e).map_err(|err| {
+            self.eval_error(err, |err| BindError::bug(format!("binding a LET: {err}")))
+        })
     }
 
     fn level(&self, e: ExprId, scope: &Scope) -> R<u8> {
@@ -435,20 +437,25 @@ impl Binder<'_> {
                     }
                     Look::Def(r) => match self.ev().scope_enter(scope, r) {
                         Ok(s) => Found::Def(r, s),
-                        Err(err) => Found::Other(err.to_string()),
+                        Err(err) => {
+                            self.propagate_interruption(&err)?;
+                            Found::Other(err.to_string())
+                        }
                     },
                     Look::Value(v) => Found::Value(v),
                     Look::Literal(lit) => {
                         match self.ev().eval_scoped(
-                            &self
-                                .ev()
-                                .scope(*d)
-                                .map_err(|e| BindError::unsupported(e.to_string()))?,
+                            &self.ev().scope(*d).map_err(|e| {
+                                self.eval_error(e, |e| BindError::unsupported(e.to_string()))
+                            })?,
                             lit,
                             &St::constant(),
                         ) {
                             Ok(v) => Found::Value(v),
-                            Err(err) => Found::Other(err.to_string()),
+                            Err(err) => {
+                                self.propagate_interruption(&err)?;
+                                Found::Other(err.to_string())
+                            }
                         }
                     }
                     Look::Java(op, _) => Found::Other(op.qualified_name()),
@@ -457,12 +464,12 @@ impl Binder<'_> {
             }
             Expr::Const(c) => {
                 let decl = ir.consts()[c.index()];
-                (ir.decl(decl).name.clone(), self.const_found(decl, scope))
+                (ir.decl(decl).name.clone(), self.const_found(decl, scope)?)
             }
             Expr::SubstRef {
                 decl,
                 primed: false,
-            } => (ir.decl(*decl).name.clone(), self.const_found(*decl, scope)),
+            } => (ir.decl(*decl).name.clone(), self.const_found(*decl, scope)?),
             Expr::Local(r) => {
                 let (name, kind) = self
                     .t
@@ -492,19 +499,24 @@ impl Binder<'_> {
 
     /// A declaration's tool object (TLC's lookup does not see instance
     /// substitutions while it walks a specification).
-    fn const_found(&self, decl: DeclId, scope: &Scope) -> Found {
+    fn const_found(&self, decl: DeclId, scope: &Scope) -> R<Found> {
         let ir = self.ir();
-        match ir.decl(decl).constant.and_then(|c| self.t.const_look(c)) {
-            Some(Look::Value(v)) => Found::Value(v),
-            Some(Look::Def(d)) => match self.ev().scope_enter(scope, d) {
-                Ok(s) => Found::Def(d, s),
-                Err(err) => Found::Other(err.to_string()),
+        Ok(
+            match ir.decl(decl).constant.and_then(|c| self.t.const_look(c)) {
+                Some(Look::Value(v)) => Found::Value(v),
+                Some(Look::Def(d)) => match self.ev().scope_enter(scope, d) {
+                    Ok(s) => Found::Def(d, s),
+                    Err(err) => {
+                        self.propagate_interruption(&err)?;
+                        Found::Other(err.to_string())
+                    }
+                },
+                Some(Look::Java(op, _)) => Found::Other(op.qualified_name()),
+                Some(Look::Literal(_)) | None => {
+                    Found::Other(format!("the declaration {}", ir.decl(decl).name))
+                }
             },
-            Some(Look::Java(op, _)) => Found::Other(op.qualified_name()),
-            Some(Look::Literal(_)) | None => {
-                Found::Other(format!("the declaration {}", ir.decl(decl).name))
-            }
-        }
+        )
     }
 
     /// `processConfigSpec(pred, c, subs)`. `wrap` is the outermost
@@ -528,7 +540,7 @@ impl Binder<'_> {
             match found {
                 Found::Def(d, s) => {
                     if !ir.def(d).params.is_empty() {
-                        return Err(BindError::tlc(Ec::TlcConfigOpNoArgs, &[&name]));
+                        return Err(BindError::tlc(Ec::TlcConfigOpNoArgs, &[&name]).into());
                     }
                     let body = ir.def(d).body;
                     if self.level(body, &s)? == 1 {
@@ -543,20 +555,19 @@ impl Binder<'_> {
                 }
                 Found::Value(Value::Bool(true)) => {}
                 Found::Value(Value::Bool(false)) => {
-                    return Err(BindError::tlc(Ec::TlcConfigSpecIsTrivial, &[&name]));
+                    return Err(BindError::tlc(Ec::TlcConfigSpecIsTrivial, &[&name]).into());
                 }
                 Found::Lazy(x, s) => self.spec(x, s, wrap)?,
                 Found::Value(v) => {
                     let shown = self.show(&v);
-                    return Err(BindError::tlc(
-                        Ec::TlcConfigOpIsEqual,
-                        &[&name, &shown, "spec"],
-                    ));
+                    return Err(
+                        BindError::tlc(Ec::TlcConfigOpIsEqual, &[&name, &shown, "spec"]).into(),
+                    );
                 }
                 Found::Other(what) => {
                     return Err(BindError::unsupported(format!(
                         "the message TLC prints for {what} used as a conjunct of the behavior specification"
-                    )));
+                    )).into());
                 }
             }
             return Ok(());
@@ -570,10 +581,9 @@ impl Binder<'_> {
                 }
             }
             Expr::TemporalQuant { .. } => {
-                return Err(BindError::tlc(
-                    Ec::TlcSpecificationFeaturesTemporalQuantifier,
-                    &[],
-                ));
+                return Err(
+                    BindError::tlc(Ec::TlcSpecificationFeaturesTemporalQuantifier, &[]).into(),
+                );
             }
             Expr::Junction {
                 kind: JunctionKind::And,
@@ -591,13 +601,16 @@ impl Binder<'_> {
                     return Err(BindError::tlc(
                         Ec::TlcLiveCannotHandleFormula,
                         &[&self.node_string(a)],
-                    ));
+                    )
+                    .into());
                 }
                 if let Expr::StepBox { action, sub } = ir.expr(a) {
                     let (action, sub) = (*action, *sub);
-                    self.subscript_warnings(sub, &scope);
+                    self.subscript_warnings(sub, &scope)?;
                     if self.next.is_some() {
-                        return Err(BindError::tlc(Ec::TlcCantHandleTooManyNextStateRels, &[]));
+                        return Err(
+                            BindError::tlc(Ec::TlcCantHandleTooManyNextStateRels, &[]).into()
+                        );
                     }
                     let mut pred = Pred::new(action, scope);
                     if let Some(w) = wrap {
@@ -630,10 +643,9 @@ impl Binder<'_> {
                 self.temporals.push(Named { name, pred });
             }
             _ => {
-                return Err(BindError::tlc(
-                    Ec::TlcCantHandleConjunct,
-                    &[&self.node_string(e)],
-                ));
+                return Err(
+                    BindError::tlc(Ec::TlcCantHandleConjunct, &[&self.node_string(e)]).into(),
+                );
             }
         }
         Ok(())
@@ -673,7 +685,9 @@ impl Binder<'_> {
                     .map_or_else(|| "?".to_owned(), |(n, _)| n);
                 return match self.ev().scope_apply_param(scope, *r, args) {
                     None => Ok(None),
-                    Some(Err(err)) => Err(BindError::bug(err.to_string())),
+                    Some(Err(err)) => {
+                        Err(self.eval_error(err, |err| BindError::bug(err.to_string())))
+                    }
                     Some(Ok((d, s))) => {
                         if ir.def(d).recursive {
                             Ok(None)
@@ -690,7 +704,7 @@ impl Binder<'_> {
                 let s = self
                     .ev()
                     .scope_apply(scope, d, args)
-                    .map_err(|err| BindError::bug(err.to_string()))?;
+                    .map_err(|err| self.eval_error(err, |err| BindError::bug(err.to_string())))?;
                 Ok(Some((d, s, name)))
             }
             _ => Ok(None),
@@ -699,13 +713,13 @@ impl Binder<'_> {
 
     /// TLC's check that the subscript of `[][Next]_v` contains every
     /// variable (`SubscriptCollector`): warnings only.
-    fn subscript_warnings(&mut self, sub: ExprId, scope: &Scope) {
+    fn subscript_warnings(&mut self, sub: ExprId, scope: &Scope) -> R<()> {
         let mut found: Vec<dive_ir::VarId> = Vec::new();
-        let ok = self.collect_subscript(sub, scope, &mut found, 0);
+        let ok = self.collect_subscript(sub, scope, &mut found, 0)?;
         if !ok {
             self.output
                 .push(Message::warning(Ec::TlcCouldNotDetermineSubscript, &[]));
-            return;
+            return Ok(());
         }
         let ir = self.t.ir.clone();
         for &v in ir.tlc_var_order() {
@@ -717,6 +731,7 @@ impl Binder<'_> {
                 ));
             }
         }
+        Ok(())
     }
 
     /// `SubscriptCollector.enter`; `false` where TLC gives up (an exception,
@@ -727,12 +742,12 @@ impl Binder<'_> {
         scope: &Scope,
         out: &mut Vec<dive_ir::VarId>,
         depth: u32,
-    ) -> bool {
+    ) -> R<bool> {
         if depth > 200 {
-            return false;
+            return Ok(false);
         }
         let ir = self.ir();
-        match ir.expr(e) {
+        Ok(match ir.expr(e) {
             Expr::Var { var, primed: false } => {
                 out.push(*var);
                 true
@@ -741,47 +756,62 @@ impl Binder<'_> {
                 decl,
                 primed: false,
             } => match self.ev().scope_subst_slot(scope, *decl) {
-                SlotView::Lazy(x, s) => self.collect_subscript(x, &s, out, depth + 1),
+                SlotView::Lazy(x, s) => self.collect_subscript(x, &s, out, depth + 1)?,
                 _ => true,
             },
             Expr::Local(r) => match self.ev().scope_slot(scope, *r) {
-                SlotView::Lazy(x, s) => self.collect_subscript(x, &s, out, depth + 1),
+                SlotView::Lazy(x, s) => self.collect_subscript(x, &s, out, depth + 1)?,
                 _ => true,
             },
             Expr::Def(d) => match self.t.lookup_def(*d) {
                 Look::Def(r) => match self.ev().scope_enter(scope, r) {
-                    Ok(s) => self.collect_subscript(ir.def(r).body, &s, out, depth + 1),
-                    Err(_) => false,
+                    Ok(s) => self.collect_subscript(ir.def(r).body, &s, out, depth + 1)?,
+                    Err(error) => {
+                        self.propagate_interruption(&error)?;
+                        false
+                    }
                 },
                 _ => true,
             },
-            Expr::Tuple(items) => items
-                .iter()
-                .all(|&i| self.collect_subscript(i, scope, out, depth + 1)),
+            Expr::Tuple(items) => {
+                let mut complete = true;
+                for &i in items {
+                    if !self.collect_subscript(i, scope, out, depth + 1)? {
+                        complete = false;
+                        break;
+                    }
+                }
+                complete
+            }
             Expr::Apply {
                 callee: OpRef::Def(d),
                 args,
             } => match self.t.lookup_def(*d) {
                 Look::Def(r) => match self.ev().scope_apply(scope, r, args) {
-                    Ok(s) => self.collect_subscript(ir.def(r).body, &s, out, depth + 1),
-                    Err(_) => false,
+                    Ok(s) => self.collect_subscript(ir.def(r).body, &s, out, depth + 1)?,
+                    Err(error) => {
+                        self.propagate_interruption(&error)?;
+                        false
+                    }
                 },
                 _ => true,
             },
             Expr::Subst { body, .. } => match self.subst_scope(scope, e) {
-                Ok(s) => self.collect_subscript(*body, &s, out, depth + 1),
+                Ok(s) => self.collect_subscript(*body, &s, out, depth + 1)?,
+                Err(error) if error.is_interrupted() => return Err(error),
                 Err(_) => false,
             },
             Expr::Let { body, .. } => match self.ev().scope_let(scope, e) {
-                Ok(s) => self.collect_subscript(*body, &s, out, depth + 1),
-                Err(_) => false,
+                Ok(s) => self.collect_subscript(*body, &s, out, depth + 1)?,
+                Err(error) => {
+                    self.propagate_interruption(&error)?;
+                    false
+                }
             },
-            Expr::Label { body, .. } => self.collect_subscript(*body, scope, out, depth + 1),
-            // Other built-in operators are ignored; numerals, strings and
-            // decimals make TLC give up.
+            Expr::Label { body, .. } => self.collect_subscript(*body, scope, out, depth + 1)?,
             Expr::Num(_) | Expr::Str(_) | Expr::Decimal { .. } | Expr::ExceptAt => false,
             _ => true,
-        }
+        })
     }
 
     // -------------------------------------------------------------------
@@ -817,13 +847,13 @@ impl Binder<'_> {
             match found {
                 Found::Def(d, s) => {
                     if !ir.def(d).params.is_empty() {
-                        return Err(BindError::tlc(Ec::TlcConfigOpNoArgs, &[&op_name]));
+                        return Err(BindError::tlc(Ec::TlcConfigOpNoArgs, &[&op_name]).into());
                     }
                     return self.props(op_name, config_name, ir.def(d).body, s, wrap);
                 }
                 Found::Value(Value::Bool(true)) => return Ok(()),
                 Found::Value(Value::Bool(false)) => {
-                    return Err(BindError::tlc(Ec::TlcConfigSpecIsTrivial, &[&op_name]));
+                    return Err(BindError::tlc(Ec::TlcConfigSpecIsTrivial, &[&op_name]).into());
                 }
                 Found::Lazy(x, s) => {
                     // TLC's lookup returns a zero-arity LET as an OpDefNode,
@@ -848,12 +878,14 @@ impl Binder<'_> {
                     return Err(BindError::tlc(
                         Ec::TlcConfigOpIsEqual,
                         &[&op_name, &shown, "property"],
-                    ));
+                    )
+                    .into());
                 }
                 Found::Other(what) => {
                     return Err(BindError::unsupported(format!(
                         "the message TLC prints for {what} used in a PROPERTY"
-                    )));
+                    ))
+                    .into());
                 }
             }
         }
@@ -877,11 +909,11 @@ impl Binder<'_> {
                 let plain = self
                     .ev()
                     .scope_without_substs(&scope)
-                    .map_err(|e| BindError::unsupported(e.to_string()))?;
+                    .map_err(|e| self.eval_error(e, |e| BindError::unsupported(e.to_string())))?;
                 match self.ev().scope_bindings(&plain, e, &St::constant()) {
                     Ok(scopes) => {
                         if scopes.is_empty() {
-                            return Err(BindError::tlc(Ec::TlcLiveFormulaTautology, &[]));
+                            return Err(BindError::tlc(Ec::TlcLiveFormulaTautology, &[]).into());
                         }
                         let n = self.node_string(body);
                         for s in scopes {
@@ -893,9 +925,10 @@ impl Binder<'_> {
                     }
                     Err(err) if err.class() == dive_eval::ErrorClass::Eval => {}
                     Err(err) => {
+                        self.propagate_interruption(&err)?;
                         return Err(BindError::unsupported(format!(
                             "a PROPERTY quantified over a domain dive cannot enumerate at start-up ({err})"
-                        )));
+                        )).into());
                     }
                 }
             }
@@ -957,7 +990,7 @@ impl Binder<'_> {
                     Expr::StepAngle { .. } => Ec::TlcConfigPropertyActionLevelAngleASubV,
                     _ => Ec::TlcConfigPropertyActionLevel,
                 };
-                return Err(BindError::tlc(ec, &[&name, &loc]));
+                return Err(BindError::tlc(ec, &[&name, &loc]).into());
             }
         }
         Ok(())
@@ -1020,10 +1053,9 @@ impl Binder<'_> {
             for &slot in &b.vars {
                 let r = dive_ir::LocalRef { up: 0, slot };
                 if let SlotView::Value(v) = self.ev().scope_slot(bound, r) {
-                    s = self
-                        .ev()
-                        .scope_bind(&s, slot, v)
-                        .map_err(|e| BindError::unsupported(e.to_string()))?;
+                    s = self.ev().scope_bind(&s, slot, v).map_err(|e| {
+                        self.eval_error(e, |e| BindError::unsupported(e.to_string()))
+                    })?;
                 }
             }
         }

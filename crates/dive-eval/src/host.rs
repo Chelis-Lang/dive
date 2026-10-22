@@ -96,7 +96,8 @@ impl Interrupted {
 
 /// Optional run control, separate from specification-visible host operations.
 ///
-/// Drivers install this after their uninterruptible startup phases. Calls are
+/// Drivers install this around the evaluator-backed phases they can classify,
+/// including controlled fresh binding after structural construction. Calls are
 /// amortized across evaluator loop work; implementations should inspect an
 /// existing signal rather than sample the clock or resident memory.
 pub trait HostControl: Send + Sync + std::fmt::Debug {

@@ -57,7 +57,9 @@ impl Binder<'_> {
                 let name = init.def.map_or(ActionName::Unnamed, ActionName::Def);
                 self.ev()
                     .predicate_in(&init.pred.scope, init.pred.expr, name, i)
-                    .map_err(|e| crate::BindError::unsupported(e.to_string()))
+                    .map_err(|e| {
+                        self.eval_error(e, |e| crate::BindError::unsupported(e.to_string()))
+                    })
             })
             .collect()
     }
@@ -77,7 +79,9 @@ impl Binder<'_> {
             return Ok(vec![
                 self.ev()
                     .predicate_in(&next.scope, next.expr, name, first)
-                    .map_err(|e| crate::BindError::unsupported(e.to_string()))?,
+                    .map_err(|e| {
+                        self.eval_error(e, |e| crate::BindError::unsupported(e.to_string()))
+                    })?,
             ]);
         }
         let redirects = self.split_redirects();
@@ -115,11 +119,13 @@ impl Binder<'_> {
         }
         self.ev()
             .actions_in(&next.scope, &tree, first)
-            .map_err(|e| match e.class() {
-                ErrorClass::Unsupported | ErrorClass::ResourceLimit => BindError::unsupported(
-                    format!("splitting the next-state relation: {}", e.message()),
-                ),
-                _ => BindError::bug(format!("splitting the next-state relation: {e}")),
+            .map_err(|e| {
+                self.eval_error(e, |e| match e.class() {
+                    ErrorClass::Unsupported | ErrorClass::ResourceLimit => BindError::unsupported(
+                        format!("splitting the next-state relation: {}", e.message()),
+                    ),
+                    _ => BindError::bug(format!("splitting the next-state relation: {e}")),
+                })
             })
     }
 }

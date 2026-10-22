@@ -58,14 +58,16 @@ impl<'a> LevelCx<'a> {
         }
     }
 
-    pub(crate) fn try_level(&mut self, e: ExprId, scope: &Scope) -> Result<u8, crate::BindError> {
-        self.t
-            .ev()
-            .validate_scope(scope)
-            .map_err(|e| crate::BindError::unsupported(e.to_string()))?;
+    pub(crate) fn try_level(&mut self, e: ExprId, scope: &Scope) -> crate::bind::R<u8> {
+        self.t.ev().validate_scope(scope).map_err(|e| {
+            self.t
+                .eval_error(e, |e| crate::BindError::unsupported(e.to_string()))
+        })?;
         let level = self.level(e, scope);
         if let Some(e) = self.error.take() {
-            Err(crate::BindError::unsupported(e.to_string()))
+            Err(self
+                .t
+                .eval_error(e, |e| crate::BindError::unsupported(e.to_string())))
         } else {
             Ok(level)
         }
@@ -73,6 +75,14 @@ impl<'a> LevelCx<'a> {
 
     /// `getLevelBound(expr, c)` where `c` is what `scope` binds.
     fn level(&mut self, e: ExprId, scope: &Scope) -> u8 {
+        if self.t.controlled
+            && self
+                .error
+                .as_ref()
+                .is_some_and(|e| e.class() == dive_eval::ErrorClass::Interrupted)
+        {
+            return 0;
+        }
         // Deep recursion only through pathological definitions; TLC would
         // overflow its stack. Treat the rest as level 0, conservatively the
         // bound TLC computes for what it cannot look into.
@@ -155,7 +165,13 @@ impl<'a> LevelCx<'a> {
                     let s = match self.t.ev().scope_unbound(scope, d) {
                         Ok(s) => s,
                         Err(e) => {
-                            self.error = Some(e);
+                            if !self.t.controlled
+                                || !self.error.as_ref().is_some_and(|prior| {
+                                    prior.class() == dive_eval::ErrorClass::Interrupted
+                                })
+                            {
+                                self.error = Some(e);
+                            }
                             return 0;
                         }
                     };
@@ -284,7 +300,14 @@ impl<'a> LevelCx<'a> {
         let s = match self.t.ev().scope_unbound(scope, d) {
             Ok(s) => s,
             Err(e) => {
-                self.error = Some(e);
+                if !self.t.controlled
+                    || !self
+                        .error
+                        .as_ref()
+                        .is_some_and(|prior| prior.class() == dive_eval::ErrorClass::Interrupted)
+                {
+                    self.error = Some(e);
+                }
                 return 0;
             }
         };

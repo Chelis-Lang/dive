@@ -707,19 +707,24 @@ the same armed budget on its capture thread. Polling occurs between bounded work
 units; nested evaluator quantifier, CHOOSE and filter loops also observe the
 same armed run budget, including atom evaluation and property attribution.
 Value-only allocation, sorting and native operations may finish before the next
-poll, so the time limit is not a hard real-time deadline. Binding, assumptions
-and diagnostic reconstruction of an already deciding error remain outside this
-interruption scope (#349, #379). Fresh independent replay of native temporal
-candidates inherits the same armed run control. Both the supplied word and its
+poll, so the time limit is not a hard real-time deadline. Structural binding,
+evaluator construction, assumptions, post-binding symmetry preparation and
+diagnostic reconstruction of an already deciding error remain outside this
+interruption scope (#349, #379). Evaluator-backed fresh binding observes the
+same control after structural construction. Fresh independent replay of native
+temporal candidates inherits the same armed run control. Both the supplied word and its
 native serialized round trip must validate before a violation is certified.
 Interruption returns `stopped` at `trace-validation`, with the actual capture
 completion flag and optional `resources.validation` progress; it publishes no
 uncertified counterexample. Validation progress counts completed checks and
 records a zero-based supplied state and check only when known.
 
-Fresh validation binding and `ASSUME`, native document encoding/decoding, and
-quiet value units remain uninterruptible (#349). A supplied deferred value can
-retain a different evaluator that this fresh control does not govern; the
+Fresh validation rebinding observes this control during evaluator-backed work;
+a stop retains the original capture, zero completed validation checks and no
+supplied state position. Its structural construction and `ASSUME`, native
+document encoding/decoding, and quiet value units remain uninterruptible (#349).
+A supplied deferred value can retain a different evaluator that this fresh
+control does not govern; the
 serialized native pass reconstructs its values independently. General TLC
 JSON interpretation/session reconstruction and standalone `validate-trace`
 budgeting are separate follow-ups. The diagnostic exclusion never pauses
