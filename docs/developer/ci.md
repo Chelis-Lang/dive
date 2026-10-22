@@ -85,9 +85,20 @@ that touch `dive-eval`, `dive-check`, `dive-value`, `dive-store`,
 set `CARGO_BUILD_JOBS` and `NEXTEST_TEST_THREADS`.
 
 Repository tasks resolve the Cargo workspace from the invocation directory at
-runtime. A shared `CARGO_TARGET_DIR` may reuse a driver compiled in another
-worktree; the gate still checks the invoking worktree. Invoking it outside a
-Cargo workspace fails instead of falling back to the driver's build directory.
+runtime. Invoking a task outside a Cargo workspace fails instead of falling back
+to the driver's build directory. This selects the source workspace; it does not
+establish that Cargo's cached dependencies came from that workspace.
+
+Keep a separate build directory for each worktree. Set `CARGO_TARGET_DIR=target`
+from the worktree root, or use a worktree-exclusive absolute directory. Unsetting
+the variable alone may still select a shared `build.target-dir` in Cargo's user
+configuration. Never run different worktrees against the same writable target.
+We observed a model test linked against an evaluator library from another
+worktree while the current worktree's evaluator unit tests passed. A fresh
+isolated build passed the model tests. If a build directory has been shared,
+rebuild in a fresh directory before relying on test or benchmark results; a
+clean Git status and a successful Cargo command alone do not establish the
+library's source identity.
 
 `.github/workflows/conformance.yml` runs the small or deep tier, including the
 TLC self-checks, on manual dispatch. Its `baseline` job runs nightly (and on a
