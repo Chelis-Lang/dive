@@ -52,6 +52,7 @@ fn pick(ev: &Evaluator) -> dive_eval::Result<Value> {
 fn a_large_function_cannot_relabel_interrupted_domain_comparison_as_unsupported() {
     for options in [Options::tlc(), Options::dive()] {
         for width in [31, 32] {
+            let reference = pick(&evaluator(options, width)).expect_err("ordinary reference");
             let ev = evaluator(options, width);
             let stop = Arc::new(Stop(AtomicUsize::new(0)));
             let scope = ev.host_control(Some(stop.clone())).expect("owner scope");
@@ -61,17 +62,11 @@ fn a_large_function_cannot_relabel_interrupted_domain_comparison_as_unsupported(
             assert_eq!(error.interruption().expect("typed owner").token(), 73);
             drop(scope);
 
-            // The ordinary incomparable domain retains its original error or
-            // named normalization refusal after the control has been removed.
+            // Forcing the deferred argument can itself fail before the final
+            // domain lookup. Preserve the complete ordinary error, including
+            // that priority, rather than inferring it from the function width.
             let ordinary = pick(&ev).expect_err("set key versus function elements");
-            assert_eq!(
-                ordinary.class(),
-                if width < 32 {
-                    ErrorClass::Eval
-                } else {
-                    ErrorClass::Unsupported
-                }
-            );
+            assert_eq!(ordinary, reference);
         }
     }
 }
