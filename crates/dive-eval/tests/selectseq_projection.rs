@@ -202,12 +202,18 @@ fn configured_definition_values_keep_body_evaluation_authority() {
             let evaluator = Evaluator::new(input, options).expect("evaluator");
             let def = ir.root_def("Q").expect("Q");
             let scope = evaluator.scope(def).expect("scope");
+            let before_warmup = provider.0.load(Ordering::SeqCst);
             if warm {
                 // C <- D evaluates D's body, never its stored definition value.
                 evaluator
                     .eval_scoped(&scope, ir.def(def).body, &St::constant())
                     .expect("configured definition body");
             }
+            assert_eq!(
+                provider.0.load(Ordering::SeqCst),
+                before_warmup,
+                "configured target body must ignore its stored override"
+            );
             let Expr::Apply { callee, args } = ir.expr(ir.def(def).body) else {
                 panic!("selection application")
             };
