@@ -41,7 +41,7 @@ COMMANDS:
     corpus list            list models with tier, mode and scope
     golden generate        generate goldens from an oracle
     run                    run an implementation against the goldens and write a report
-    study final            observe dive's schema-2 final/short mode against pinned goldens;
+    study final            observe dive's schema-2/3 final/short mode against pinned goldens;
                            truth/count evidence only, never a strict conformance outcome
     report summarise <report.json>...
                            re-render the summary sections of existing reports into
@@ -93,7 +93,7 @@ RUN:
     --summary <file>       default: docs/conformance.md;  --no-summary to skip
 
 FINAL STUDY:
-    --dive-bin <path>      explicit schema-2 final/short executable
+    --dive-bin <path>      explicit schema-2/3 final/short executable
     --impl-profile P      dive | tlc (tlc reports named final/short overrides)
     --golden-oracle <id>   pinned single-worker final goldens
     --workers <list>       requested widths; observations run sequentially

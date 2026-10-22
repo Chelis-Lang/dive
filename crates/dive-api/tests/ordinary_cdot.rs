@@ -57,7 +57,7 @@ fn actual_primary_hold_retains_intermediate_counts_and_fail_retains_replay_refus
             let request = spec.request(workers);
             let report = dive_api::check_file(&request)?;
             let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
-            assert_eq!(value["schema_version"], 2);
+            assert_eq!(value["schema_version"], 3);
             assert_eq!(value["options"]["profile"], "tlc");
             assert_eq!(value["execution"]["capture_completed"], true);
             for field in ["generated", "distinct", "depth"] {
@@ -103,7 +103,7 @@ fn composition_option_alone_keeps_noncomposed_positive_and_forged_word_controls(
         let request = spec.request(4);
         let report = dive_api::check_file(&request)?;
         let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
-        assert_eq!(value["schema_version"], 2);
+        assert_eq!(value["schema_version"], 3);
         assert_eq!(value["statistics"]["generated"], 4);
         assert_eq!(value["statistics"]["distinct"], 3);
         assert_eq!(value["statistics"]["depth"], 3);
@@ -145,7 +145,7 @@ fn composition_option_alone_keeps_noncomposed_positive_and_forged_word_controls(
             }
             let refused = dive_api::check_file(&excluded)?;
             assert_eq!(refused.verdict(), "unsupported");
-            assert_eq!(refused.to_json()["schema_version"], 2);
+            assert_eq!(refused.to_json()["schema_version"], 3);
         }
     }
     Ok(())
@@ -173,14 +173,14 @@ fn safety_roles_keep_single_startup_and_original_binding_priority() -> TestResul
         assert_eq!(actual.stats, direct.stats);
         assert_eq!(actual.output, direct.output);
         assert_eq!(actual.output.len(), 1);
-        assert_eq!(report.to_json()["schema_version"], 2);
+        assert_eq!(report.to_json()["schema_version"], 3);
     }
     let missing = Spec::new(
         "---- MODULE CompositionFinal ----\nEXTENDS TLC\nCONSTANT C\nBoot==Print(\"must-not-start\",0)\nVARIABLE x\nInit==x=C\nNext==x'=x\nHold==<>(x=1)\n====\n",
         "INIT Init\nNEXT Next\nPROPERTY Hold\n",
     )?;
     let failure = dive_api::check_file(&missing.request(1))?;
-    assert_eq!(failure.to_json()["schema_version"], 2);
+    assert_eq!(failure.to_json()["schema_version"], 3);
     assert_eq!(failure.to_json()["output"], serde_json::json!([]));
     assert_ne!(failure.verdict(), "success");
     Ok(())

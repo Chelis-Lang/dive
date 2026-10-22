@@ -7,12 +7,12 @@ use std::path::PathBuf;
 type Result<T = ()> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 fn envelope(value: &Value, command: &str) {
-    assert_eq!(value["schema_version"], 2, "{value}");
+    assert_eq!(value["schema_version"], 3, "{value}");
     assert_eq!(value["command"], command);
 }
 
 #[test]
-fn operation_reports_share_version_two_without_changing_trace_payloads() -> Result {
+fn operation_reports_share_version_three_without_changing_trace_payloads() -> Result {
     let file =
         PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../docs/user/examples/Counter.tla");
     let source = std::fs::read_to_string(&file)?;

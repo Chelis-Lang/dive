@@ -34,7 +34,7 @@ fn nested_enabled_primary_public_results_keep_existing_schema_and_statuses() -> 
                     ..CheckRequest::default()
                 })?;
                 let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
-                assert_eq!(value["schema_version"], 2);
+                assert_eq!(value["schema_version"], 3);
                 assert_eq!(value["statistics"]["generated"], oracle["generated"]);
                 assert_eq!(value["statistics"]["distinct"], oracle["distinct"]);
                 assert_eq!(value["statistics"]["depth"], oracle["depth"]);

@@ -38,7 +38,7 @@ pub(super) fn read(
         || physical_exit.is_none()
     {
         return Err(
-            "schema 2 is not an ordinary final report of this profile with its physical status"
+            "report is not an ordinary final report of this profile with its physical status"
                 .into(),
         );
     }

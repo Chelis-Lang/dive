@@ -406,7 +406,7 @@ model checking alone. Combining these two selection flags is a usage error.
 
 ## Final/short temporal study
 
-`study final` observes schema-2 final/short runs separately from strict
+`study final` observes schema-2/3 final/short runs separately from strict
 conformance. It compares final truth and counts and validates periodic witnesses
 independently. See the study guide
 and `scripts/final-temporal-study.sh conformance/studies/lm1.txt`. Named refusals

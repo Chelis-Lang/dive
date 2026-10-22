@@ -49,7 +49,7 @@ on a prefix is also a violation on the complete graph, where the final check
 would name it first. Violations of later properties wait for the final check,
 so the reported property is the one `--lncheck final` reports.
 
-Schema 2 reports the schedule (`min_states`, `growth_factor`), prefix check
+Schema 3 reports the schedule (`min_states`, `growth_factor`), prefix check
 count, last checked level/size, exhaustion and final-check truth in `periodic`.
 Rust callers can choose another schedule with `CheckRequest::periodic`
 (`dive_api::PeriodicSchedule`); the CLI always uses the default. Capture bounds are
@@ -106,10 +106,10 @@ Rust custom-limit APIs keep legacy logical acceptance cells; the additive
 [covered allocations and exclusions](../temporal-api.md) and ADR 0098.
 
 Binding happens once under the ordinary startup host. If the configured roles
-are all safety obligations, their complete ordinary result uses schema 2 with
+are all safety obligations, their complete ordinary result uses schema 3 with
 `check_kind: "safety"`,
 including startup Print output, randomness and error ordering. Genuine temporal
-analysis uses schema 2. A completed holding result or violation reports actual
+analysis uses schema 3. A completed holding result or violation reports actual
 generated/distinct/queue/depth counters and `execution.exhausted: true`, even
 though the legacy `reported_by_tlc` print marker is false. A violation names its
 property and carries a lossless periodic word independently replayed against a
@@ -249,8 +249,8 @@ for invariants. An enabledness atom runs the evaluator's `ENABLED` search
 (ADR 0103). Planning still inspects callback sources without evaluating them.
 Both value profiles use this same subset.
 
-Schema 2 reports explicit final requests and actual ordinary temporal analysis;
-ordinary safety results also use schema 2 with `check_kind: "safety"`.
+Schema 3 reports explicit final requests and actual ordinary temporal analysis;
+ordinary safety results also use schema 3 with `check_kind: "safety"`.
 `properties` names complete claims, and periodic counterexamples carry validation
 and a closing edge. Read [the temporal API contract](../temporal-api.md) for the
 Rust `temporal::check` example, supported forms, limits, source-qualified errors
@@ -723,7 +723,7 @@ profiles by:
 cargo test -p dive-liveness --test solutions
 ```
 
-All operation reports use schema 2. A check's top-level `check_kind: "temporal"`
+All operation reports use schema 3. A check's top-level `check_kind: "temporal"`
 identifies its request/report family; it is not capture, completion or proof
 evidence. Final/short requests that encounter a safety failure keep this family
 and the actual incomplete-capture facts. Read the required `execution`, property,
@@ -735,5 +735,18 @@ Liveness atom truth is stored as bit columns in the atom's actual state or
 action domain, with one shared index of original outgoing edges. Unused false
 rows for the other domain are not allocated. Atom identities and predicate
 evaluation order are unchanged, including first source errors, parallel
-transitions and closing edges. The existing `atom_cells` guard still applies
-to labelling and attribution; compact storage does not remove that bound.
+transitions and closing edges. File checking uses run budgets rather than an
+arbitrary graph-label cell ceiling. Reports distinguish that policy from the
+unchanged attribution-row and word-truth cell ceilings under
+`options.temporal_bounds.cell_limits`; they never present a shared 8,000,000
+number as a graph limit that is no longer enforced. Packed layout arithmetic,
+shape checks and fallible allocation remain. This is not an allocation-time
+process-memory or universal wall-clock hard cap; individual bulk/quiet/native
+units retain the interruption limitations described in the checking guide.
+
+Existing Rust analysis APIs retain `GraphLabelPolicy::Cells(limits.atom_cells)`,
+including caller-supplied zero and default-valued ceilings. New final and
+periodic `*_with_policies` variants select graph admission explicitly, separate
+from acceptance-buffer policy. `NoCellLimit` affects only graph labels;
+attribution rows and word truth retain their original bounds and failure order.
+See [ADR 0111](../decisions/0111-graph-label-policy-and-report-v3.md).

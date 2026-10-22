@@ -79,7 +79,7 @@ pub struct Row {
     pub exit_code: Option<i32>,
     /// Measured wall time; no performance claim is implied.
     pub elapsed_ms: u64,
-    /// Untrusted black-box schema-2 document, retained for auditing.
+    /// Untrusted black-box schema-2/3 document, retained for auditing.
     pub document: Option<Value>,
 }
 
@@ -152,12 +152,14 @@ pub struct Options {
 }
 
 fn mode(v: &Value, profile: &Profile, workers: u32) -> std::result::Result<(), String> {
-    if v["schema_version"].as_u64() != Some(2)
+    if !matches!(v["schema_version"].as_u64(), Some(2 | 3))
         || v["command"] != "check"
         || v.get("check_kind").is_some_and(|kind| kind != "temporal")
+        || (v["schema_version"] == 3 && v["check_kind"] != "temporal")
     {
-        return Err("expected a schema-2 check document".into());
+        return Err("expected a schema-2 or schema-3 check document".into());
     }
+    crate::dive::validate_temporal_bounds(v)?;
     let o = &v["options"];
     if !o["budget"]["max_states"].is_null() || !o["budget"]["max_depth"].is_null() {
         return Err("study report contains an unrequested search ceiling".into());
@@ -791,6 +793,26 @@ mod tests {
                 Err("study report contains an unrequested search ceiling".into())
             );
         }
+    }
+
+    #[test]
+    fn schema_three_final_mode_requires_real_owner_settings_and_explicit_family() {
+        let legacy = success();
+        assert!(mode(&legacy, &Profile::Tlc, 4).is_ok());
+        let mut current = legacy.clone();
+        current["schema_version"] = json!(3);
+        current["check_kind"] = json!("temporal");
+        assert!(mode(&current, &Profile::Tlc, 4).is_err());
+        current["options"]["temporal_bounds"] = json!({"cell_limits":{"graph_labels":{"kind":"run-budgets"},"attribution_rows":{"kind":"cells","cells":8_000_000},"word_truth":{"kind":"cells","cells":8_000_000}},"acceptance_policy":{"kind":"buffers","bytes":8_000_000,"materialization_work":32_000_000},"acceptance_buffer_bytes":8_000_000,"acceptance_materialization_work":32_000_000});
+        assert!(mode(&current, &Profile::Tlc, 4).is_ok());
+        for field in ["check_kind", "options"] {
+            let mut forged = current.clone();
+            forged[field] = Value::Null;
+            assert!(mode(&forged, &Profile::Tlc, 4).is_err());
+        }
+        current["options"]["temporal_bounds"]["atom_cells"] = json!(8_000_000);
+        assert!(mode(&current, &Profile::Tlc, 4).is_err());
+        assert!(mode(&legacy, &Profile::Tlc, 4).is_ok());
     }
 
     #[test]

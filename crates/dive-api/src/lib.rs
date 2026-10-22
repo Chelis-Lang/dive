@@ -83,7 +83,7 @@ use std::path::Path;
 /// CHANGELOG entry and advance notice to known consumers. Optional fields and
 /// diagnostic codes may be added; readers must reject unknown outcomes and
 /// versions. See `docs/user/reports-and-errors.md` for the compatibility policy.
-pub const REPORT_SCHEMA_VERSION: u32 = 2;
+pub const REPORT_SCHEMA_VERSION: u32 = 3;
 
 /// Version of the JSON document produced by [`ParseReport::to_json`].
 ///
@@ -273,10 +273,10 @@ impl ParseReport {
     /// The versioned JSON report. With `cst`, the whole concrete syntax tree
     /// is included under `"cst"`.
     ///
-    /// Shape (schema version 2):
+    /// Shape (schema version 3):
     ///
     /// ```text
-    /// { "schema_version": 2, "command": "parse", "file": "...",
+    /// { "schema_version": 3, "command": "parse", "file": "...",
     ///   "accepted": bool, "module": "Name" | null, "modules": ["Name", ...],
     ///   "diagnostics": [ { "code", "severity", "message", "help",
     ///                      "span": { "start", "end", "line", "column",

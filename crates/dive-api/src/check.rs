@@ -243,6 +243,7 @@ pub struct CheckReport {
     budget_sources: (&'static str, &'static str),
     memory_requested_source: &'static str,
     memory_samples: Option<dive_check::budget::MemorySamples>,
+    temporal_configuration: crate::temporal::Configuration,
     phase: Phase,
 }
 
@@ -460,6 +461,7 @@ fn check_file_in(
         budget_sources: (time_source, memory_source),
         memory_requested_source,
         memory_samples: None,
+        temporal_configuration: crate::temporal::file_configuration(),
         phase: Phase::Unlowered(String::new()),
     };
     // TLC's Spec constructor parses ModelConfig before creating SpecProcessor
@@ -581,12 +583,13 @@ fn check_backend(
         };
     }
     if temporal == TemporalMode::FinalShort {
-        return match crate::temporal::check_final_with_policy(
+        return match crate::temporal::check_final_with_policies(
             ir,
             config,
             options,
             dive_liveness::analyze::Limits::default(),
             dive_liveness::product::AcceptancePolicy::compact_default(),
+            dive_liveness::analyze::GraphLabelPolicy::NoCellLimit,
         ) {
             Ok(r) => match r.outcome() {
                 crate::temporal::Outcome::Safety(s) => Phase::Checked(s.clone()),
@@ -841,6 +844,15 @@ impl CheckReport {
     }
 
     /// The `options` block: profile, options and seed (ADR 0010).
+    fn analysis_configuration(&self) -> crate::temporal::Configuration {
+        match &self.phase {
+            Phase::Temporal(report) => report.configuration(),
+            Phase::TemporalError(failure) => failure.configuration(),
+            _ => None,
+        }
+        .unwrap_or(self.temporal_configuration)
+    }
+
     fn options_json(&self) -> Value {
         let o = &self.opts;
         let e = &o.eval;
@@ -918,7 +930,7 @@ impl CheckReport {
                 crate::temporal::Report::lncheck
             ));
             options["lasso"] = json!("short");
-            options["temporal_bounds"] = temporal_limits_json();
+            options["temporal_bounds"] = temporal_limits_json(self.analysis_configuration());
             options["tlc_exact_temporal"] = json!(false);
         }
         if let Some(request) = &self.checkpoint_request {
@@ -1001,7 +1013,7 @@ impl CheckReport {
     /// retain the temporal family and their actual execution evidence:
     ///
     /// ```text
-    /// { "schema_version": 2, "command": "check", "file", "config",
+    /// { "schema_version": 3, "command": "check", "file", "config",
     ///   "verdict": "success" | "invariant-violation" | "property-violation"
     ///            | "action-property-violation" | "deadlock" | "assumption-failure"
     ///            | "postcondition-failure" | "assertion-failure" | "overflow"
@@ -1038,7 +1050,7 @@ impl CheckReport {
     /// `TLC_INVARIANT_EVALUATION_FAILED`, for example); `verified: false`
     /// means dive does not yet reproduce TLC's error class at that site and
     /// does not claim it. `reported_by_tlc` is false where TLC prints no statistics
-    /// (a stop while generating initial states). Explicit final-only schema 2
+    /// (a stop while generating initial states). Explicit final-only schema 3
     /// also declares the schedule/selection, fixed entry/work bounds and actual
     /// failure stage. Periodic traces include all configured property names and
     /// a stuttering ending or one-based lasso target; independent replay precedes
@@ -1798,19 +1810,37 @@ fn temporal_human(report: &crate::temporal::Report) -> String {
     out
 }
 
-fn temporal_limits_json() -> Value {
-    let limits = dive_liveness::analyze::Limits::default();
-    let dive_liveness::product::AcceptancePolicy::Buffers { bytes, work } =
-        dive_liveness::product::AcceptancePolicy::compact_default()
-    else {
-        return Value::Null;
+fn temporal_limits_json(configuration: crate::temporal::Configuration) -> Value {
+    use dive_liveness::analyze::GraphLabelPolicy;
+    use dive_liveness::product::AcceptancePolicy;
+    let limits = configuration.limits;
+    let graph_labels = match configuration.graph_labels {
+        GraphLabelPolicy::Cells(cells) => json!({"kind": "cells", "cells": cells}),
+        GraphLabelPolicy::NoCellLimit => json!({"kind": "run-budgets"}),
+    };
+    let (acceptance, bytes, work) = match configuration.acceptance {
+        AcceptancePolicy::Legacy => (
+            json!({"kind": "cells", "cells": limits.product.acceptance_cells}),
+            None,
+            None,
+        ),
+        AcceptancePolicy::Buffers { bytes, work } => (
+            json!({"kind": "buffers", "bytes": bytes, "materialization_work": work}),
+            Some(bytes),
+            Some(work),
+        ),
     };
     json!({
         "kind": "entry-work-counts-and-acceptance-buffers", "states": limits.capture.states,
         "edges": limits.capture.edges, "generated": limits.capture.generated,
         "successors_per_unit": limits.capture.successors_per_unit,
         "max_expansion_units": dive_check::capture::MAX_EXPANSION_UNITS,
-        "properties": limits.properties, "atom_cells": limits.atom_cells,
+        "properties": limits.properties,
+        "cell_limits": {
+            "graph_labels": graph_labels,
+            "attribution_rows": {"kind": "cells", "cells": limits.atom_cells},
+            "word_truth": {"kind": "cells", "cells": limits.atom_cells},
+        },
         "formula_nodes": limits.formula.formula_nodes,
         "tableau_nodes": limits.formula.tableau_nodes,
         "formula_steps": limits.formula.expansion_steps,
@@ -1818,6 +1848,7 @@ fn temporal_limits_json() -> Value {
         "product_edges": limits.product.edges,
         "acceptance_buffer_bytes": bytes,
         "acceptance_materialization_work": work,
+        "acceptance_policy": acceptance,
         "total_memory_budget": false,
         "product_steps": limits.product.steps,
     })
@@ -1864,7 +1895,150 @@ mod evidence_controls {
             budget_sources: ("none", "none"),
             memory_requested_source: "none",
             memory_samples: None,
+            temporal_configuration: crate::temporal::Configuration {
+                limits,
+                acceptance: dive_liveness::product::AcceptancePolicy::Legacy,
+                graph_labels: dive_liveness::analyze::GraphLabelPolicy::Cells(limits.atom_cells),
+            },
             phase,
+        }
+    }
+
+    #[test]
+    fn owner_bounds_serialize_actual_custom_configuration_even_before_capture() {
+        use dive_liveness::{
+            analyze::{GraphLabelPolicy, Limits},
+            product::AcceptancePolicy,
+        };
+        let mut report = limited_report(dive_liveness::analyze::Stage::Product);
+        let source = "---- MODULE M ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nP == []<>x\n====\n";
+        let analysis = dive_sema::analyze_source("M.tla", source, &Options::default());
+        let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+        let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\n")
+            .into_config()
+            .expect("config");
+        let limits = Limits {
+            properties: 0,
+            atom_cells: 31,
+            capture: dive_check::capture::Limits {
+                states: 17,
+                ..dive_check::capture::Limits::default()
+            },
+            ..Limits::default()
+        };
+        let failure = crate::temporal::check_final_with_policies(
+            &ir,
+            &cfg,
+            &report.opts,
+            limits,
+            AcceptancePolicy::Buffers {
+                bytes: 73,
+                work: 79,
+            },
+            GraphLabelPolicy::Cells(19),
+        )
+        .expect_err("configured planning refusal");
+        assert_eq!(failure.capture_completed(), Some(false));
+        report.phase = Phase::TemporalError(Box::new(failure));
+        let document = report.to_json();
+        assert_eq!(document["schema_version"], 3);
+        let bounds = &document["options"]["temporal_bounds"];
+        assert!(bounds.get("atom_cells").is_none());
+        assert_eq!(bounds["states"], 17);
+        assert_eq!(bounds["properties"], 0);
+        assert_eq!(
+            bounds["cell_limits"],
+            json!({"graph_labels":{"kind":"cells","cells":19},"attribution_rows":{"kind":"cells","cells":31},"word_truth":{"kind":"cells","cells":31}})
+        );
+        assert_eq!(bounds["acceptance_buffer_bytes"], 73);
+        assert_eq!(bounds["acceptance_materialization_work"], 79);
+        assert_eq!(
+            bounds["acceptance_policy"],
+            json!({"kind":"buffers","bytes":73,"materialization_work":79})
+        );
+        assert_eq!(document["execution"]["capture_completed"], false);
+    }
+
+    #[test]
+    fn completed_reports_serialize_actual_zero_and_custom_owner_policies() {
+        use dive_liveness::{
+            analyze::{GraphLabelPolicy, Limits},
+            product::AcceptancePolicy,
+        };
+        let source = "---- MODULE M ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nP == []<>(x \\in {FALSE,TRUE})\n====\n";
+        let analysis = dive_sema::analyze_source("M.tla", source, &Options::default());
+        assert!(analysis.accepted());
+        let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+        let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\n")
+            .into_config()
+            .expect("config");
+        for graph_labels in [GraphLabelPolicy::Cells(6), GraphLabelPolicy::NoCellLimit] {
+            for acceptance in [
+                AcceptancePolicy::Legacy,
+                AcceptancePolicy::Buffers {
+                    bytes: 1_000_003,
+                    work: 1_000_019,
+                },
+            ] {
+                let mut report = limited_report(dive_liveness::analyze::Stage::Product);
+                let mut limits = Limits {
+                    atom_cells: 0,
+                    ..Limits::default()
+                };
+                limits.product.acceptance_cells = 64;
+                let actual = crate::temporal::check_final_with_policies(
+                    &ir,
+                    &cfg,
+                    &report.opts,
+                    limits,
+                    acceptance,
+                    graph_labels,
+                )
+                .expect("holding result within custom policies");
+                assert!(matches!(
+                    actual.outcome(),
+                    crate::temporal::Outcome::Holds(_)
+                ));
+                report.phase = Phase::Temporal(Box::new(actual));
+                let document = report.to_json();
+                assert_eq!(document["schema_version"], 3);
+                assert_eq!(document["verdict"], "success");
+                assert_eq!(document["execution"]["capture_completed"], true);
+                assert_eq!(document["statistics"]["distinct"], 2);
+                let bounds = &document["options"]["temporal_bounds"];
+                let graph = match graph_labels {
+                    GraphLabelPolicy::Cells(cells) => json!({"kind":"cells","cells":cells}),
+                    GraphLabelPolicy::NoCellLimit => json!({"kind":"run-budgets"}),
+                };
+                assert_eq!(bounds["cell_limits"]["graph_labels"], graph);
+                for owner in ["attribution_rows", "word_truth"] {
+                    assert_eq!(
+                        bounds["cell_limits"][owner],
+                        json!({"kind":"cells","cells":0})
+                    );
+                }
+                match acceptance {
+                    AcceptancePolicy::Legacy => {
+                        assert_eq!(
+                            bounds["acceptance_policy"],
+                            json!({"kind":"cells","cells":64})
+                        );
+                        assert_eq!(bounds.get("acceptance_buffer_bytes"), Some(&Value::Null));
+                        assert_eq!(
+                            bounds.get("acceptance_materialization_work"),
+                            Some(&Value::Null)
+                        );
+                    }
+                    AcceptancePolicy::Buffers { bytes, work } => {
+                        assert_eq!(
+                            bounds["acceptance_policy"],
+                            json!({"kind":"buffers","bytes":bytes,"materialization_work":work})
+                        );
+                        assert_eq!(bounds["acceptance_buffer_bytes"], bytes);
+                        assert_eq!(bounds["acceptance_materialization_work"], work);
+                    }
+                }
+            }
         }
     }
 
