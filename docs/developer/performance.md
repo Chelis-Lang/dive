@@ -388,6 +388,25 @@ function's change does not isolate dispatch cost. Function and source-line
 views overlap and must not be added. These observations identify added work;
 they are neither inclusive costs nor removable-savings bounds.
 
+A later prototype used evaluator-private recursive Boolean-result consumers
+with a borrowed-node fallback to the unchanged generic dispatch body. Its
+complete four-model, two-profile screen increased instructions by **0.501%
+geometrically**; all eight cells were worse (+0.230% to +0.811%). All sixteen
+arms preserved success verdicts, exact distinct/generated counts, depth, initial
+counts and empty queues. The screen missed the required 5% geometric reduction,
+so the runner rejected the prototype and skipped its conditional full gate.
+No runtime change was landed.
+
+The compact [Boolean-consumer screen](../survey/data/typed-boolean-consumers-rejected-2026-10-22.json)
+records actual `4459812b` / `8448506c` source and profiling binary pins, all eight
+pairs and sixteen original profile hashes. It used the same 115 pinned inputs,
+Valgrind 3.22.0 Cachegrind with cache simulation disabled, one worker,
+seed/fingerprint zero, a 900-second native budget, an 8 GiB ceiling and a
+930-second external backstop. These are whole-CLI instruction observations on
+reduced models, with no quiet wall-clock, throughput, scaling or TLC-speedup
+claim. All original producer evidence was preserved and verified before the
+instance, root volume, temporary bucket and security group were removed.
+
 A retained-profile investigation of boxing only the unused foreign-domain
 `Thunk` cache also found no credible 5% matrix case. Even deleting all named
 `cached`, `store`, `callee_env` and thunk-drop exclusive work, plus direct
