@@ -2327,3 +2327,30 @@ fn symmetry_liveness_json(resolution: &dive_model::SymmetryLivenessResolution) -
         "scope": if resolution.unreduced() { Some("whole-run") } else { None },
     })
 }
+
+#[cfg(test)]
+#[allow(
+    clippy::expect_used,
+    reason = "finite configuration serialization assertions"
+)]
+mod product_vertex_report_controls {
+    use super::*;
+
+    #[test]
+    fn actual_scalar_is_reported_without_changing_other_owner_settings() {
+        let file = crate::temporal::file_configuration();
+        assert_eq!(file.limits.product.vertices, usize::MAX);
+        let mut legacy = file;
+        legacy.limits = dive_liveness::analyze::Limits::default();
+        assert_eq!(legacy.limits.product.vertices, 1_000_000);
+        for vertices in [0, 1, 2, 1_000_000, usize::MAX] {
+            let mut configured = legacy;
+            configured.limits.product.vertices = vertices;
+            let actual = temporal_limits_json(configured);
+            assert_eq!(actual["product_vertices"], json!(vertices));
+            let mut expected = temporal_limits_json(file);
+            expected["product_vertices"] = json!(vertices);
+            assert_eq!(actual, expected, "only the vertex scalar differs");
+        }
+    }
+}

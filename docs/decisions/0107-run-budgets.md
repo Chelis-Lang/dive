@@ -182,3 +182,34 @@ so no key beyond the budget prefix is inserted. The unset resolver remains
 unchanged, and the normal path does no extra membership lookup or counter
 sampling. Cold limit metadata is allocated only when a limit is requested.
 The instruction-overhead acceptance bar remains at most 1% in both profiles.
+
+
+### File product vertex admission after range-row storage
+
+File temporal requests in both profiles select the explicit finite scalar
+`usize::MAX` for reachable product vertices. The private file configuration is
+shared by final and deterministic completed-level checks. The original checked
+cardinality addition and comparison against the supplied ceiling remain intact;
+no value is a sentinel. Public `product::Limits::default()` remains 1,000,000,
+and all existing Rust entrypoints enforce every caller-supplied custom ceiling,
+including zero and an explicit former default. All other product, acceptance,
+capture, tableau, attribution and word guards are unchanged.
+
+This follows the count-removal sequence above after general range-row storage.
+The [compact CoffeeCan experiment](../survey/data/coffeecan-product-vertex-experiment-2026-10-22.json)
+records separate instrumented custom-ceiling evidence: both ordinary profiles
+complete the pinned 1,000-bean model within explicit TLC-derived budgets, with
+1,003,000 reachable vertices in two groups. The initial omitted-config attempts
+and the later offline zero-buffer classifier correction remain explicit;
+neither a failed attempt nor a producer HOLD is silently rewritten. That
+experiment alone does not qualify a production default. The production change
+requires its own full gate, both small baselines, both affected-model profiles
+and the normal instruction-overhead bar before delivery.
+
+Unlike the shared atom-cell setting in ADR 0111, `product_vertices` already names
+one owner and contains its actual configured numeric ceiling. Reporting the
+native `usize::MAX` value preserves its type, units and meaning within report
+major 3; it is not an infinity/null policy or a byte-memory guarantee. Existing
+size/layout/reservation checks and native budget controls remain, including
+their cooperative sampling and infallible-allocation limitations. No new
+projection, probe, dependency or report outcome is introduced.

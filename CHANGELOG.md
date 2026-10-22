@@ -1,5 +1,10 @@
 # Changelog
 
+- File temporal requests in both profiles use the finite machine-index maximum
+  for reachable product vertices and report the actual numeric ceiling. Existing
+  Rust defaults and explicit custom ceilings remain enforced; all other owner
+  limits and native budget semantics are unchanged. The report stays at major 3.
+
 - Stream unassigned `ENABLED` interval-membership candidates in ascending order,
   stopping at the first witness. Rejected membership candidates reach the existing
   cooperative budget checkpoints; assigned-variable membership remains unchanged.

@@ -1,0 +1,737 @@
+{
+  "schema_version": 1,
+  "kind": "experimental-product-vertex-feasibility",
+  "recorded_at": "2026-10-22T08:29:51.431278+00:00",
+  "scope": "Two ordinary affected-model experimental arms only. No production default deletion, current corpus Agree refresh, full-gate, instruction or TLC throughput qualification. Instrumented stderr I/O/scheduling; no causal old-vs-new performance or whole-process peak comparison.",
+  "experiment": {
+    "source": "a77402731609b36242bb751ae3ec124348eb1ee7",
+    "tree": "6529a6695d31aa59844202248516f8d06050eef7",
+    "base": "a458e419d857be6868133cc6bfaf397f9ffe56f8",
+    "source_physical_files": 22553,
+    "sole_semantic_change": "Private file_configuration limits.product.vertices explicitly usize::MAX; all other limits/APIs/defaults unchanged. Temporary diagnostic/CLI-lock instrumentation present.",
+    "supplied_product_vertices": 18446744073709551615,
+    "pointer_bits": 64,
+    "binary_sha256": "623afdfe3d1316da4bc7e0b228f1d43263d82964802bad46e448570df030fbce",
+    "binary_bytes": 106568648,
+    "profile": "profiling",
+    "build_elapsed_seconds": 92.40791626200001,
+    "build_exit": 0,
+    "physical_workspace_artifacts": 344,
+    "source_input_tools_libraries_before_after_verified": true,
+    "tool_versions": {
+      "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+      "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+      "cc": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+      "ld": "GNU ld (GNU Binutils for Ubuntu) 2.42\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis program is free software; you may redistribute it under the terms of\nthe GNU General Public License version 3 or (at your option) a later version.\nThis program has absolutely no warranty.",
+      "python": "Python 3.12.3"
+    },
+    "kernel": "Linux ip-172-31-6-160 7.0.0-1014-aws #14~24.04.1-Ubuntu SMP PREEMPT Fri Sep 18 21:24:59 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux"
+  },
+  "pinned_inputs": {
+    "files": {
+      "CoffeeCan/CoffeeCan.tla": {
+        "sha256": "32c5d9c900104c0d8be0d3730a6013d141dc90901e08ccaea403fb0be731cd90",
+        "bytes": 5461
+      },
+      "CoffeeCan/CoffeeCan1000Beans.cfg": {
+        "sha256": "a57c02854cd0a0f7622df98d45cb70ea607337c35fa3a2ae49424d675f46e00a",
+        "bytes": 190
+      },
+      "Cycle/Cycle.cfg": {
+        "sha256": "9acefc7ddd66acdae19c51976291b15780b035d81dccf071b1437bc8813f821f",
+        "bytes": 31
+      },
+      "Cycle/Cycle.tla": {
+        "sha256": "1d27c8e8b5c6c845dd396cdfcfc8c8a8c97f5fa3c4b4a53d75c800b2350c49a1",
+        "bytes": 117
+      },
+      "reference/CoffeeCan1000Beans.golden.json": {
+        "sha256": "2a7d93a3b26bf4787aef4d92770b3272f9e27a52591bfec9ead92fec2f1d6d0d",
+        "bytes": 3889
+      },
+      "reference/Naturals.embedded-source.tla": {
+        "sha256": "73f2a68412039aa86f37ad08f0d0fef50fa8327d0ad8806f515548c75e9d9d84",
+        "bytes": 2047
+      }
+    },
+    "archive_sha256": "8a0eae5996315f136fc654b6a1d4e948340e1aa64c3e081c652719b3c3056141",
+    "golden_oracle": "tlc-2026.10.06.014338",
+    "golden_upstream": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+    "corpus": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "embedded_module_source": "crates/dive-sema/stdlib/Naturals.tla",
+    "embedded_module_file": "reference/Naturals.embedded-source.tla",
+    "fixture_scope": "Cycle source-owned holding control only, no new TLC oracle. Coffee exact original module/config/golden bytes, all4properties+TypeInvariant retained."
+  },
+  "native_budget": {
+    "time_limit_ms": 564520,
+    "max_memory_bytes": 8589934592,
+    "os_backstop_seconds": 600,
+    "cleanup_seconds": 5,
+    "time_source": "explicit",
+    "memory_source": "explicit",
+    "tlc_golden_elapsed_ms": 56452,
+    "derivation": "10 x pinned TLC elapsed, within existing cap900s"
+  },
+  "initial_failed_preparation": {
+    "archive_sha256": "8459c6fd0a46a57fabb0f606cbe3ffde58d61ff73f0097c8c97fd57d72b6962d",
+    "archive_bytes": 98235401,
+    "build_exit": 0,
+    "build_seconds": 96.957070733,
+    "six_linux_readiness_controls": "all physical0,3distinct/4generated/depth3; source-specific original producer",
+    "large_attempts": [
+      {
+        "profile": "dive",
+        "physical_exit": 2,
+        "externally_censored": false,
+        "stdout_bytes": 0,
+        "stderr_sha256": "0469be706ea43c75769d67f9d364accfba41c8294dfd0fdf8ec2a8e00649b015",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "observation_sha256": "a88551bec4e69daf98d2314966a9361db3bb1d055e54f4151e11094be051f004"
+      },
+      {
+        "profile": "tlc",
+        "physical_exit": 2,
+        "externally_censored": false,
+        "stdout_bytes": 0,
+        "stderr_sha256": "0469be706ea43c75769d67f9d364accfba41c8294dfd0fdf8ec2a8e00649b015",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "observation_sha256": "c6ce394adc8dcc6bbf708d5d837db7c7be2be58510c885b1ed696fd5ff22d982"
+      }
+    ],
+    "defect": "Both argv omitted explicit non-basename config and attempted absent CoffeeCan.cfg. No large model feasibility observed; no qualification. Original package/raw/classifications preserved."
+  },
+  "corrected_preparation": {
+    "package_version": 2,
+    "prepared_sha256": "60915ca8302843d1da98445d3915b15074209b1eb873ee5af39ea6a96b5c9ef5",
+    "plan_sha256": "f92d1bd1c18b666fa62c11b70cdc03244a4715aea2bfe11b941f6dba8058eec2",
+    "actual_eight_argv_inputs_preflight_sha256": "11e53f0d8c3ed52033718b150860ef398078372a523b97d010eb3771771fe74c",
+    "preflight": "All8 module/config arguments resolve to pinned physical inputs before build; large explicit1000cfg, tiny defaultCyclecfg. Retains all4properties+TypeInvariant. Complete bootstrap dependency fetch closure verified before AWS.",
+    "readiness": "Six fresh Linux native0 tiny arms,3distinct/4generated/depth3,ordinary profiles,rss+swap,16complete on-records,empty unset/0 stderr. No oracle/conformance/large-model credit from tiny controls."
+  },
+  "profiles": [
+    {
+      "profile": "dive",
+      "actual_config_option": "CoffeeCan/CoffeeCan1000Beans.cfg",
+      "native_started_at": "2026-10-22T08:11:31.470128+00:00",
+      "native_finished_at": "2026-10-22T08:12:13.998586+00:00",
+      "physical_exit": 0,
+      "externally_censored": false,
+      "outer_elapsed_ms": 42528.46186599998,
+      "native_report_elapsed_ms": 41982,
+      "native_verdict": "success",
+      "native_tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "verified": true
+      },
+      "statistics": {
+        "depth": 1,
+        "distinct": 501500,
+        "generated": 2000002,
+        "initial_generated": 501500,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "execution": {
+        "capture_completed": true,
+        "exhausted": true,
+        "stage": "complete"
+      },
+      "ordinary_route": {
+        "lncheck": "deterministic",
+        "action_composition": "tla",
+        "workers": {
+          "chaos": null,
+          "reason": null,
+          "requested": 1,
+          "sequential": false,
+          "used": 1
+        },
+        "seed": 0,
+        "fp": 0
+      },
+      "memory": {
+        "final_sampled": true,
+        "initial_sampled": true,
+        "metric": "rss+swap",
+        "observed_max_bytes": 1367519232,
+        "samples": 420,
+        "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+        "status": "sampled",
+        "unavailable_at": null
+      },
+      "remaining_limits": {
+        "acceptance_buffer_bytes": 8000000,
+        "acceptance_materialization_work": 32000000,
+        "acceptance_policy": {
+          "bytes": 8000000,
+          "kind": "buffers",
+          "materialization_work": 32000000
+        },
+        "cell_limits": {
+          "attribution_rows": {
+            "cells": 8000000,
+            "kind": "cells"
+          },
+          "graph_labels": {
+            "kind": "run-budgets"
+          },
+          "word_truth": {
+            "cells": 8000000,
+            "kind": "cells"
+          }
+        },
+        "edges": 8000000,
+        "formula_nodes": 4096,
+        "formula_steps": 1000000,
+        "generated": 32000000,
+        "kind": "entry-work-counts-and-acceptance-buffers",
+        "max_expansion_units": 8,
+        "product_edges": 8000000,
+        "product_steps": 32000000,
+        "product_vertices": 18446744073709551615,
+        "properties": 256,
+        "states": 1000000,
+        "successors_per_unit": 65536,
+        "tableau_nodes": 4096,
+        "total_memory_budget": false
+      },
+      "diagnostics": {
+        "records": 112,
+        "contexts": [
+          {
+            "context": 1,
+            "property_index": 0,
+            "group_index": 0,
+            "reachable_product_vertices": 501498,
+            "retained_product_edges": 1999995,
+            "discovery_candidate_edges": 1999995,
+            "expanded_rows": 501498,
+            "transition_inspections": 5002994,
+            "tableau_nodes": 1,
+            "all16_boundaries_present": true,
+            "search_alternatives_completed": 1,
+            "retained_payload_lengths": {
+              "targets": 1999995,
+              "originals": 1999995
+            },
+            "retained_payload_capacities": {
+              "targets": 2097152,
+              "originals": 2097152
+            },
+            "allocation_identity_conserved": true,
+            "zero_capacity_has_no_allocation_identity": false,
+            "max_observed_covered_adjacency_capacity_bytes": 45772704
+          },
+          {
+            "context": 2,
+            "property_index": 1,
+            "group_index": 0,
+            "reachable_product_vertices": 1003000,
+            "retained_product_edges": 4000004,
+            "discovery_candidate_edges": 4000004,
+            "expanded_rows": 1003000,
+            "transition_inspections": 10006008,
+            "tableau_nodes": 3,
+            "all16_boundaries_present": true,
+            "search_alternatives_completed": 1,
+            "retained_payload_lengths": {
+              "targets": 4000004,
+              "originals": 4000004
+            },
+            "retained_payload_capacities": {
+              "targets": 4194304,
+              "originals": 4194304
+            },
+            "allocation_identity_conserved": true,
+            "zero_capacity_has_no_allocation_identity": false,
+            "max_observed_covered_adjacency_capacity_bytes": 91545472
+          },
+          {
+            "context": 3,
+            "property_index": 2,
+            "group_index": 0,
+            "reachable_product_vertices": 1003000,
+            "retained_product_edges": 4000004,
+            "discovery_candidate_edges": 4000004,
+            "expanded_rows": 1003000,
+            "transition_inspections": 10006008,
+            "tableau_nodes": 3,
+            "all16_boundaries_present": true,
+            "search_alternatives_completed": 1,
+            "retained_payload_lengths": {
+              "targets": 4000004,
+              "originals": 4000004
+            },
+            "retained_payload_capacities": {
+              "targets": 4194304,
+              "originals": 4194304
+            },
+            "allocation_identity_conserved": true,
+            "zero_capacity_has_no_allocation_identity": false,
+            "max_observed_covered_adjacency_capacity_bytes": 91545472
+          },
+          {
+            "context": 4,
+            "property_index": 3,
+            "group_index": 0,
+            "reachable_product_vertices": 0,
+            "retained_product_edges": 0,
+            "discovery_candidate_edges": 0,
+            "expanded_rows": 0,
+            "transition_inspections": 0,
+            "tableau_nodes": 0,
+            "all16_boundaries_present": true,
+            "search_alternatives_completed": 1,
+            "retained_payload_lengths": {
+              "targets": 0,
+              "originals": 0
+            },
+            "retained_payload_capacities": {
+              "targets": 0,
+              "originals": 0
+            },
+            "allocation_identity_conserved": true,
+            "zero_capacity_has_no_allocation_identity": true,
+            "max_observed_covered_adjacency_capacity_bytes": 8
+          },
+          {
+            "context": 5,
+            "property_index": 3,
+            "group_index": 1,
+            "reachable_product_vertices": 500998,
+            "retained_product_edges": 1998996,
+            "discovery_candidate_edges": 1998996,
+            "expanded_rows": 500998,
+            "transition_inspections": 5000494,
+            "tableau_nodes": 2,
+            "all16_boundaries_present": true,
+            "search_alternatives_completed": 1,
+            "retained_payload_lengths": {
+              "targets": 1998996,
+              "originals": 1998996
+            },
+            "retained_payload_capacities": {
+              "targets": 2097152,
+              "originals": 2097152
+            },
+            "allocation_identity_conserved": true,
+            "zero_capacity_has_no_allocation_identity": false,
+            "max_observed_covered_adjacency_capacity_bytes": 45764704
+          },
+          {
+            "context": 6,
+            "property_index": 3,
+            "group_index": 2,
+            "reachable_product_vertices": 501998,
+            "retained_product_edges": 2000994,
+            "discovery_candidate_edges": 2000994,
+            "expanded_rows": 501998,
+            "transition_inspections": 5005494,
+            "tableau_nodes": 2,
+            "all16_boundaries_present": true,
+            "search_alternatives_completed": 1,
+            "retained_payload_lengths": {
+              "targets": 2000994,
+              "originals": 2000994
+            },
+            "retained_payload_capacities": {
+              "targets": 2097152,
+              "originals": 2097152
+            },
+            "allocation_identity_conserved": true,
+            "zero_capacity_has_no_allocation_identity": false,
+            "max_observed_covered_adjacency_capacity_bytes": 45780704
+          },
+          {
+            "context": 7,
+            "property_index": 3,
+            "group_index": 3,
+            "reachable_product_vertices": 501498,
+            "retained_product_edges": 1999995,
+            "discovery_candidate_edges": 1999995,
+            "expanded_rows": 501498,
+            "transition_inspections": 5002994,
+            "tableau_nodes": 1,
+            "all16_boundaries_present": true,
+            "search_alternatives_completed": 1,
+            "retained_payload_lengths": {
+              "targets": 1999995,
+              "originals": 1999995
+            },
+            "retained_payload_capacities": {
+              "targets": 2097152,
+              "originals": 2097152
+            },
+            "allocation_identity_conserved": true,
+            "zero_capacity_has_no_allocation_identity": false,
+            "max_observed_covered_adjacency_capacity_bytes": 45772704
+          }
+        ],
+        "logging_capped": false
+      },
+      "original_producer_classification": "HOLD: incomplete_capped_or_failed_diagnostics",
+      "separate_reviewed_offline_interpretation": "AFFECTED_MODEL_EVIDENCE_ONLY_NOT_PRODUCTION_APPROVAL",
+      "raw_sha256": {
+        "stdout": "05d981b576c9174d5229285c44b011c5839d95b4a614604bd342c76e6da8ecac",
+        "stderr": "ab079308ae28919adc1e4943307c7963fb26eab4fc86490f7288baf37bb7811a",
+        "observation.json": "2e2f1758ec6cb2c64abd31a81c364335b8f852e549f15f80d8945d691c3b2e4e",
+        "identity-before.json": "d1b847fcc8d430263f93b5c1638d5d22485e8483d76fea0225a3fde206156030",
+        "identity-after.json": "b01dc468c8b0d4cb65aa1ee7b27af2dd5225a1ef79af4deced9f294ffa4bd433"
+      }
+    },
+    {
+      "profile": "tlc",
+      "actual_config_option": "CoffeeCan/CoffeeCan1000Beans.cfg",
+      "native_started_at": "2026-10-22T08:12:19.962558+00:00",
+      "native_finished_at": "2026-10-22T08:13:02.420279+00:00",
+      "physical_exit": 0,
+      "externally_censored": false,
+      "outer_elapsed_ms": 42457.72407999999,
+      "native_report_elapsed_ms": 42025,
+      "native_verdict": "success",
+      "native_tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "verified": true
+      },
+      "statistics": {
+        "depth": 1,
+        "distinct": 501500,
+        "generated": 2000002,
+        "initial_generated": 501500,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "execution": {
+        "capture_completed": true,
+        "exhausted": true,
+        "stage": "complete"
+      },
+      "ordinary_route": {
+        "lncheck": "final",
+        "action_composition": "off",
+        "workers": {
+          "chaos": null,
+          "reason": null,
+          "requested": 1,
+          "sequential": false,
+          "used": 1
+        },
+        "seed": 0,
+        "fp": 0
+      },
+      "memory": {
+        "final_sampled": true,
+        "initial_sampled": true,
+        "metric": "rss+swap",
+        "observed_max_bytes": 1277865984,
+        "samples": 421,
+        "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+        "status": "sampled",
+        "unavailable_at": null
+      },
+      "remaining_limits": {
+        "acceptance_buffer_bytes": 8000000,
+        "acceptance_materialization_work": 32000000,
+        "acceptance_policy": {
+          "bytes": 8000000,
+          "kind": "buffers",
+          "materialization_work": 32000000
+        },
+        "cell_limits": {
+          "attribution_rows": {
+            "cells": 8000000,
+            "kind": "cells"
+          },
+          "graph_labels": {
+            "kind": "run-budgets"
+          },
+          "word_truth": {
+            "cells": 8000000,
+            "kind": "cells"
+          }
+        },
+        "edges": 8000000,
+        "formula_nodes": 4096,
+        "formula_steps": 1000000,
+        "generated": 32000000,
+        "kind": "entry-work-counts-and-acceptance-buffers",
+        "max_expansion_units": 8,
+        "product_edges": 8000000,
+        "product_steps": 32000000,
+        "product_vertices": 18446744073709551615,
+        "properties": 256,
+        "states": 1000000,
+        "successors_per_unit": 65536,
+        "tableau_nodes": 4096,
+        "total_memory_budget": false
+      },
+      "diagnostics": {
+        "records": 112,
+        "contexts": [
+          {
+            "context": 1,
+            "property_index": 0,
+            "group_index": 0,
+            "reachable_product_vertices": 501498,
+            "retained_product_edges": 1999995,
+            "discovery_candidate_edges": 1999995,
+            "expanded_rows": 501498,
+            "transition_inspections": 5002994,
+            "tableau_nodes": 1,
+            "all16_boundaries_present": true,
+            "search_alternatives_completed": 1,
+            "retained_payload_lengths": {
+              "targets": 1999995,
+              "originals": 1999995
+            },
+            "retained_payload_capacities": {
+              "targets": 2097152,
+              "originals": 2097152
+            },
+            "allocation_identity_conserved": true,
+            "zero_capacity_has_no_allocation_identity": false,
+            "max_observed_covered_adjacency_capacity_bytes": 45772704
+          },
+          {
+            "context": 2,
+            "property_index": 1,
+            "group_index": 0,
+            "reachable_product_vertices": 1003000,
+            "retained_product_edges": 4000004,
+            "discovery_candidate_edges": 4000004,
+            "expanded_rows": 1003000,
+            "transition_inspections": 10006008,
+            "tableau_nodes": 3,
+            "all16_boundaries_present": true,
+            "search_alternatives_completed": 1,
+            "retained_payload_lengths": {
+              "targets": 4000004,
+              "originals": 4000004
+            },
+            "retained_payload_capacities": {
+              "targets": 4194304,
+              "originals": 4194304
+            },
+            "allocation_identity_conserved": true,
+            "zero_capacity_has_no_allocation_identity": false,
+            "max_observed_covered_adjacency_capacity_bytes": 91545472
+          },
+          {
+            "context": 3,
+            "property_index": 2,
+            "group_index": 0,
+            "reachable_product_vertices": 1003000,
+            "retained_product_edges": 4000004,
+            "discovery_candidate_edges": 4000004,
+            "expanded_rows": 1003000,
+            "transition_inspections": 10006008,
+            "tableau_nodes": 3,
+            "all16_boundaries_present": true,
+            "search_alternatives_completed": 1,
+            "retained_payload_lengths": {
+              "targets": 4000004,
+              "originals": 4000004
+            },
+            "retained_payload_capacities": {
+              "targets": 4194304,
+              "originals": 4194304
+            },
+            "allocation_identity_conserved": true,
+            "zero_capacity_has_no_allocation_identity": false,
+            "max_observed_covered_adjacency_capacity_bytes": 91545472
+          },
+          {
+            "context": 4,
+            "property_index": 3,
+            "group_index": 0,
+            "reachable_product_vertices": 0,
+            "retained_product_edges": 0,
+            "discovery_candidate_edges": 0,
+            "expanded_rows": 0,
+            "transition_inspections": 0,
+            "tableau_nodes": 0,
+            "all16_boundaries_present": true,
+            "search_alternatives_completed": 1,
+            "retained_payload_lengths": {
+              "targets": 0,
+              "originals": 0
+            },
+            "retained_payload_capacities": {
+              "targets": 0,
+              "originals": 0
+            },
+            "allocation_identity_conserved": true,
+            "zero_capacity_has_no_allocation_identity": true,
+            "max_observed_covered_adjacency_capacity_bytes": 8
+          },
+          {
+            "context": 5,
+            "property_index": 3,
+            "group_index": 1,
+            "reachable_product_vertices": 500998,
+            "retained_product_edges": 1998996,
+            "discovery_candidate_edges": 1998996,
+            "expanded_rows": 500998,
+            "transition_inspections": 5000494,
+            "tableau_nodes": 2,
+            "all16_boundaries_present": true,
+            "search_alternatives_completed": 1,
+            "retained_payload_lengths": {
+              "targets": 1998996,
+              "originals": 1998996
+            },
+            "retained_payload_capacities": {
+              "targets": 2097152,
+              "originals": 2097152
+            },
+            "allocation_identity_conserved": true,
+            "zero_capacity_has_no_allocation_identity": false,
+            "max_observed_covered_adjacency_capacity_bytes": 45764704
+          },
+          {
+            "context": 6,
+            "property_index": 3,
+            "group_index": 2,
+            "reachable_product_vertices": 501998,
+            "retained_product_edges": 2000994,
+            "discovery_candidate_edges": 2000994,
+            "expanded_rows": 501998,
+            "transition_inspections": 5005494,
+            "tableau_nodes": 2,
+            "all16_boundaries_present": true,
+            "search_alternatives_completed": 1,
+            "retained_payload_lengths": {
+              "targets": 2000994,
+              "originals": 2000994
+            },
+            "retained_payload_capacities": {
+              "targets": 2097152,
+              "originals": 2097152
+            },
+            "allocation_identity_conserved": true,
+            "zero_capacity_has_no_allocation_identity": false,
+            "max_observed_covered_adjacency_capacity_bytes": 45780704
+          },
+          {
+            "context": 7,
+            "property_index": 3,
+            "group_index": 3,
+            "reachable_product_vertices": 501498,
+            "retained_product_edges": 1999995,
+            "discovery_candidate_edges": 1999995,
+            "expanded_rows": 501498,
+            "transition_inspections": 5002994,
+            "tableau_nodes": 1,
+            "all16_boundaries_present": true,
+            "search_alternatives_completed": 1,
+            "retained_payload_lengths": {
+              "targets": 1999995,
+              "originals": 1999995
+            },
+            "retained_payload_capacities": {
+              "targets": 2097152,
+              "originals": 2097152
+            },
+            "allocation_identity_conserved": true,
+            "zero_capacity_has_no_allocation_identity": false,
+            "max_observed_covered_adjacency_capacity_bytes": 45772704
+          }
+        ],
+        "logging_capped": false
+      },
+      "original_producer_classification": "HOLD: incomplete_capped_or_failed_diagnostics",
+      "separate_reviewed_offline_interpretation": "AFFECTED_MODEL_EVIDENCE_ONLY_NOT_PRODUCTION_APPROVAL",
+      "raw_sha256": {
+        "stdout": "499dbc7906a501ab1fa58277ebabeff9a50d089dd15305cef1cdee7259c354fb",
+        "stderr": "c2fc78c39d2b055f57c5e22653c792a87b8585eb660df11cd8e512c6e5e4eb45",
+        "observation.json": "6f55ab580213a2cdcd59d19cf00d3ba56baf815a42353c680c7fed9e862c7b8d",
+        "identity-before.json": "1e1223e2978b3702a8ea053ea20852593070f0befc680e49d13c9b0f5a973c7a",
+        "identity-after.json": "5ab28753962efedc51f8ed47d5b49350668d9e3d9b9a3f47763377016386c232"
+      }
+    }
+  ],
+  "offline_interpretation": {
+    "original_producer_HOLD_unchanged": true,
+    "finding": "Strict offline checker incorrectly required numeric allocation pointers and V+1 offsets at discovery even for actual V=E=0. Source emits explicit null pointers when capacity0 and initializes [0] during finish.",
+    "reviewed_fix": "Only actual V=E=0: require all zero payload capacities/lengths and explicit null pointers; discovery offsets0 then finalization offsets1. Nonempty checks, every lifecycle/error/alternative boundary unchanged. No native rerun.",
+    "original_reader_sha256": "f351443d743a6e99fdb4d1ed13fedd041063b8516ce410afbd46bc50bf696db3",
+    "reviewed_reader_sha256": "1dac2c3f616a714f93b94234c9475b739d6837e7f8bd9c88e9543957ed06b236",
+    "reviewed_patch_sha256": "a1966d56a1da7387dde8ad1737f3fe69e4e2f42de540c2b50d9e7ad32c3708c2",
+    "pure_controls": 88,
+    "root_separate_offline_interpretation_sha256": "efd0b1e08aae4d4bc80c20c13629033087d1799bfd4f7fb229fa60dede5ef5ba",
+    "root_applied_to_original_bytes": true,
+    "scope": "Affected-model feasibility evidence only; never overwrite producer HOLD or raw outputs."
+  },
+  "corrected_archive": {
+    "sha256": "d468360b31ec54f40e8b57554f93ba463464559e50b78500456341e94b6d998b",
+    "bytes": 98260957,
+    "raw_originals_external_only": true
+  },
+  "raw_sha256": {
+    "profiling-build.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "profiling-build.stderr": "bd09af5b42b71470e9c5c26adc065f00c2e21bee3844e173626f7102d4d6df61",
+    "profiling-build.observation.json": "d8636e8d6732fc2721f0f3b0960427243e762cca94a10583ee6e9698a6a3b41e",
+    "actual-build-artifacts.json": "378fbe7444ad1e48c089394119efabe1f524cd40e3c9a37063e778081986ac27",
+    "source-before.json": "c4077a064115c479b03f84dcd544d7594d4bc6a55ab0ee60644234412041c3e7",
+    "source-after.json": "1fee68d5c7bad39700317d8a4c5ce38b5d004d2cab7c6b92320efd32b93e44e9",
+    "identity-before.json": "dddf0cdc59f29e47d268b325c815e58fbc3b7dfedc187eca2f1c2bf2651bb945",
+    "identity-after.json": "4b78fc03aba2eb3426a376914d8d879081e4e0c2c5afde53caea1ab23ece23a8",
+    "argv-input-preflight.json": "11e53f0d8c3ed52033718b150860ef398078372a523b97d010eb3771771fe74c",
+    "host.json": "da6e29dfc1d2160c656fb419247f39bf2061547fcffada6e6f6ba343fc84360c",
+    "runner-finished.json": "2d7f2bea19e16e11bc806048f9e76a15ed67337e08a2a1949bc2d23cfbd4cd26",
+    "readiness-validation.json": "49c8b119cb863763a158fb9455fb753b4fb70ad97d257f219e83a8cd582c26a2",
+    "dive-unset.stdout": "3bfc86b22996d828d8c80b28efcb3eb7700fcad33c63995251d1cc91d6426b4b",
+    "dive-unset.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "dive-unset.observation.json": "b6d6f4c9c9bf8d38a5c770711ee83809640f62ddb15d4c33e9fa2924f49fcae5",
+    "dive-unset.identity-before.json": "cb8dbe8675b5c920acdcf32deec16ab42c5c6dd26924180d6b7ce285d49cdb9e",
+    "dive-unset.identity-after.json": "07a6ec3553ef20dde3eb4aeb3bf4399438ce3221912300eca204da77b35a1a74",
+    "dive-0.stdout": "407b71a39ce0305db1f059a113e2c1bbdc951bb28a14f34cf612c63d598083e3",
+    "dive-0.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "dive-0.observation.json": "6c651ecebf21d4f77805087a4da19e6924ba3a77c6657ff48a80d7c0fdf362a0",
+    "dive-0.identity-before.json": "d0538740a2031b9e8f53947c71e9ea0873187625b18e7c38ea6aae967f543e83",
+    "dive-0.identity-after.json": "c6e0333cffe05624802c4c901145492803166713650de884500b433e574ad38d",
+    "dive-1.stdout": "a262e49fb9836a45fb65bd701f82dc4b5deb3bc2c19c15f43a4e82f1432b27c4",
+    "dive-1.stderr": "f9b12560abf7df37e0b03094fef8bce72acdd4d0daf78d45d392ce236966e699",
+    "dive-1.observation.json": "84e2a550556c2da31d77b5c789a2a3bf4f5ced9039dedef8855f0a369d05019b",
+    "dive-1.identity-before.json": "60b058163e8fd00d873d939665a4ff5194441cf88a37d595969738a1a8f31984",
+    "dive-1.identity-after.json": "0debc1e4fdb640a0dbaae70185c68e68fc201a4ccc2e61f61cd31dfec38a4ceb",
+    "tlc-unset.stdout": "bfcc24f9245073468fdcd476c1972463b6ca9ff67322821947184a0ea80d1b97",
+    "tlc-unset.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tlc-unset.observation.json": "f78b73145cd943e69a18e74287fec21a4f9cec8b296ddb3d82ac11bd81bc34c8",
+    "tlc-unset.identity-before.json": "c21ac1f7f738c98e6cf50cde0b9102eea065dacae92df2c3d6ae6c5c933f5478",
+    "tlc-unset.identity-after.json": "7aff03f8820881810f3f4e419082ab7c007003608d9127d0387d7322fcf8efd5",
+    "tlc-0.stdout": "512a9d9f6a343e295a058685b69334f0dcd31d50120a5c5979fb83271dca2fba",
+    "tlc-0.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tlc-0.observation.json": "4a597fa3d5657b8ccc9c2cb8656070c77d17cdc0790f2d1f7bafb2b33de2bcbb",
+    "tlc-0.identity-before.json": "8666503e7a144354ee376e9f7fd5978bfaa9e9f4631c593b5a5d085aae61c791",
+    "tlc-0.identity-after.json": "6e949d76ca7b70f78fe298db1bd1d06db7f784ca96b4c698c793b8ce994916d5",
+    "tlc-1.stdout": "3e0488fc96c49d9005d4d8236e49c3741b3a65a8a905a39e59f6ee299f54f274",
+    "tlc-1.stderr": "edf80e5b296bee540dd4e3faa1e32f938ed368b8da82db3ae901486054dfd24c",
+    "tlc-1.observation.json": "310976766449821ef480cf0dc45c433035a7558259d2bd4f49bd640eab57a880",
+    "tlc-1.identity-before.json": "3a2ea36754674810d72539de2e9aaa1438e8caa7436e34b819ca08b7d4b923bb",
+    "tlc-1.identity-after.json": "4a56c5ea4d30ec7a4161e587a7efeeea6a425231b4721ab7ee8aa54ca44e6951"
+  },
+  "root_cleanup": {
+    "original": {
+      "review_sha256": "cee70b179b017a45dcc65512d96cb27daafd305330d7940b4bb45bc05dfa2a25",
+      "all_resources_absent": true,
+      "all_objects_preserved": 19
+    },
+    "corrected": {
+      "review_sha256": "75053cd42768511580a9201b23715612fb2f06e9f10554f12ebc6d451741ae86",
+      "all_resources_absent": true,
+      "all_objects_preserved": 20
+    }
+  },
+  "interpretation_limits": [
+    "Sampled memory maxima are observed samples, not true peaks or allocation-time memory bounds.",
+    "Covered adjacency bytes are selected Vec capacities, excluding other graph/index/search/allocator owners; not RSS.",
+    "Contexts use surviving property/group indices, not guessed configured-property names. Complete cfg pin establishes all configured obligations.",
+    "Two groups reached1003000 vertices/4000004 retained edges in each actual profile, exceeding former1000000; this is not a general capacity proof.",
+    "All other product/capture/tableau/acceptance/attribution/word bounds stayed unchanged."
+  ]
+}
