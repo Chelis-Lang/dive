@@ -20,7 +20,7 @@ use crate::model::{Init, Named, Pred};
 use crate::tables::{Look, Tables};
 use crate::walk::{file_modules, inner_modules};
 
-pub(crate) type R<T> = Result<T, BindError>;
+pub(crate) type R<T> = Result<T, crate::control::StepError>;
 
 /// How the binding stage runs.
 #[derive(Clone, Debug)]
@@ -74,6 +74,7 @@ enum CfgConst<'a> {
 
 /// The binder's state.
 pub(crate) struct Binder<'a> {
+    pub(crate) control: Option<Arc<dyn dive_eval::HostControl>>,
     pub(crate) t: Tables,
     pub(crate) cfg: &'a ModelConfig,
     pub(crate) opts: &'a BindOptions,
@@ -108,8 +109,10 @@ impl<'a> Binder<'a> {
         cfg: &'a ModelConfig,
         opts: &'a BindOptions,
         names: Arc<Interner>,
+        control: Option<Arc<dyn dive_eval::HostControl>>,
     ) -> R<Self> {
         Ok(Self {
+            control,
             t: Tables::new(ir)?,
             cfg,
             opts,
@@ -131,6 +134,21 @@ impl<'a> Binder<'a> {
             unsupported: Vec::new(),
             refused: HashMap::new(),
         })
+    }
+
+    pub(crate) fn eval_error(
+        &self,
+        error: dive_eval::EvalError,
+        legacy: impl FnOnce(dive_eval::EvalError) -> BindError,
+    ) -> crate::control::StepError {
+        self.t.eval_error(error, legacy)
+    }
+
+    pub(crate) fn propagate_interruption(&self, error: &dive_eval::EvalError) -> R<()> {
+        if self.control.is_some() && error.class() == ErrorClass::Interrupted {
+            return Err(crate::control::StepError::Interrupted(error.clone()));
+        }
+        Ok(())
     }
 
     pub(crate) fn ir(&self) -> &Ir {
@@ -211,7 +229,7 @@ impl<'a> Binder<'a> {
                 if let Some(&n) = arities.get(name)
                     && n != a.args.len()
                 {
-                    return Err(BindError::tlc(Ec::TlcConfigOpArityInconsistent, &[name]));
+                    return Err(BindError::tlc(Ec::TlcConfigOpArityInconsistent, &[name]).into());
                 }
                 arities.insert(name, a.args.len());
                 table.insert(name, CfgConst::Op);
@@ -230,7 +248,8 @@ impl<'a> Binder<'a> {
                         return Err(BindError::tlc(
                             Ec::TlcConfigValueNotAssignedToConstantParam,
                             &[&d.name],
-                        ));
+                        )
+                        .into());
                     }
                 }
                 Some(CfgConst::Plain(v)) => {
@@ -242,7 +261,7 @@ impl<'a> Binder<'a> {
                     return Err(BindError::unsupported(format!(
                         "values for the constant operator {} given in the configuration (TLC's OpRcdValue)",
                         d.name
-                    )));
+                    )).into());
                 }
             }
         }
@@ -258,7 +277,7 @@ impl<'a> Binder<'a> {
                     if !ir.def(*d).params.is_empty() {
                         return Err(BindError::unsupported(format!(
                             "a value given in the configuration for the operator {name}, which takes arguments"
-                        )));
+                        )).into());
                     }
                     let v = self.cfg_value(&v.value)?;
                     self.t.tool_obj.insert(*d, Look::Value(v.clone()));
@@ -267,7 +286,7 @@ impl<'a> Binder<'a> {
                 Some(CfgConst::Op) => {
                     return Err(BindError::unsupported(format!(
                         "values for the operator {name} given in the configuration (TLC's OpRcdValue)"
-                    )));
+                    )).into());
                 }
             }
         }
@@ -289,13 +308,15 @@ impl<'a> Binder<'a> {
                         return Err(BindError::tlc(
                             Ec::TlcConfigOpArityInconsistent,
                             &[&a.name.text],
-                        ));
+                        )
+                        .into());
                     }
                     marity.insert(a.name.text.as_str(), a.args.len());
                     return Err(BindError::unsupported(format!(
                         "module-scoped values for the operator {} given in the configuration",
                         a.name.text
-                    )));
+                    ))
+                    .into());
                 }
                 mtable.insert(a.name.text.as_str(), a.value);
             }
@@ -330,13 +351,10 @@ impl<'a> Binder<'a> {
             };
             let rhs = rhs.text.as_str();
             if overrides.contains_key(rhs) {
-                return Err(BindError::tlc(Ec::TlcConfigRhsIdAppearedAfterLhsId, &[rhs]));
+                return Err(BindError::tlc(Ec::TlcConfigRhsIdAppearedAfterLhsId, &[rhs]).into());
             }
             let Some(val) = self.defns.get(rhs).cloned() else {
-                return Err(BindError::tlc(
-                    Ec::TlcConfigWrongSubstitution,
-                    &[&d.name, rhs],
-                ));
+                return Err(BindError::tlc(Ec::TlcConfigWrongSubstitution, &[&d.name, rhs]).into());
             };
             self.t.consts[c.index()] = Some(val.clone());
             self.defns.insert(d.name.clone(), val);
@@ -349,10 +367,10 @@ impl<'a> Binder<'a> {
             };
             let rhs = rhs.text.as_str();
             if overrides.contains_key(rhs) {
-                return Err(BindError::tlc(Ec::TlcConfigRhsIdAppearedAfterLhsId, &[rhs]));
+                return Err(BindError::tlc(Ec::TlcConfigRhsIdAppearedAfterLhsId, &[rhs]).into());
             }
             let Some(val) = self.defns.get(rhs).cloned() else {
-                return Err(BindError::tlc(Ec::TlcConfigWrongSubstitution, &[name, rhs]));
+                return Err(BindError::tlc(Ec::TlcConfigWrongSubstitution, &[name, rhs]).into());
             };
             if let Look::Def(r) = &val
                 && ir.def(*d).params.len() != ir.def(*r).params.len()
@@ -360,7 +378,8 @@ impl<'a> Binder<'a> {
                 return Err(BindError::tlc(
                     Ec::TlcConfigWrongSubstitutionNumberOfArgs,
                     &[name, rhs],
-                ));
+                )
+                .into());
             }
             self.t.tool_obj.insert(*d, val.clone());
             self.defns.insert(name.clone(), val);
@@ -370,7 +389,7 @@ impl<'a> Binder<'a> {
         let keys = override_keys(self.cfg, None);
         for k in hashtable_order(&keys) {
             if !overridden.contains(k.as_str()) {
-                return Err(BindError::tlc(Ec::TlcConfigIdDoesNotAppearInSpec, &[&k]));
+                return Err(BindError::tlc(Ec::TlcConfigIdDoesNotAppearInSpec, &[&k]).into());
             }
         }
 
@@ -392,13 +411,12 @@ impl<'a> Binder<'a> {
                 };
                 let rhs = rhs.text.as_str();
                 if mdefs.contains_key(rhs) {
-                    return Err(BindError::tlc(Ec::TlcConfigRhsIdAppearedAfterLhsId, &[rhs]));
+                    return Err(BindError::tlc(Ec::TlcConfigRhsIdAppearedAfterLhsId, &[rhs]).into());
                 }
                 let Some(val) = self.defns.get(rhs).cloned() else {
-                    return Err(BindError::tlc(
-                        Ec::TlcConfigWrongSubstitution,
-                        &[&name, rhs],
-                    ));
+                    return Err(
+                        BindError::tlc(Ec::TlcConfigWrongSubstitution, &[&name, rhs]).into(),
+                    );
                 };
                 if let Look::Def(r) = &val
                     && ir.def(d).params.len() != ir.def(*r).params.len()
@@ -406,7 +424,8 @@ impl<'a> Binder<'a> {
                     return Err(BindError::tlc(
                         Ec::TlcConfigWrongSubstitutionNumberOfArgs,
                         &[&name, rhs],
-                    ));
+                    )
+                    .into());
                 }
                 self.set_body_obj(d, &val);
                 done.insert(name);
@@ -414,7 +433,7 @@ impl<'a> Binder<'a> {
             let keys = override_keys(self.cfg, Some(&mname));
             for k in hashtable_order(&keys) {
                 if !done.contains(k.as_str()) {
-                    return Err(BindError::tlc(Ec::TlcConfigIdDoesNotAppearInSpec, &[&k]));
+                    return Err(BindError::tlc(Ec::TlcConfigIdDoesNotAppearInSpec, &[&k]).into());
                 }
             }
         }
@@ -430,7 +449,7 @@ impl<'a> Binder<'a> {
         }
         for k in hashtable_order(&mkeys) {
             if !module_names.contains(&k) {
-                return Err(BindError::tlc(Ec::TlcNoModules, &[&k]));
+                return Err(BindError::tlc(Ec::TlcNoModules, &[&k]).into());
             }
         }
         Ok(())
@@ -542,7 +561,8 @@ impl<'a> Binder<'a> {
                         return Err(BindError::tlc(
                             Ec::TlcConfigWrongSubstitutionNumberOfArgs,
                             &[&constant.name, &ir.def(*d).name],
-                        ));
+                        )
+                        .into());
                     }
                     Some(ConstBinding::Def(*d))
                 }
@@ -567,7 +587,7 @@ impl<'a> Binder<'a> {
         if let Some(h) = &self.opts.host {
             ev.set_host(h.clone());
         }
-        self.t.set_evaluator(ev);
+        self.t.set_evaluator(ev, self.control.is_some());
         Ok(())
     }
 
@@ -620,7 +640,8 @@ impl<'a> Binder<'a> {
                 return Err(BindError::tlc(
                     Ec::TlcConfigWrongSubstitutionNumberOfArgs,
                     &[&d.name, &ir.def(def).name],
-                ));
+                )
+                .into());
             }
             if !ir.def(def).params.is_empty() {
                 continue;
@@ -632,10 +653,10 @@ impl<'a> Binder<'a> {
                 }
                 Ok(None) => {}
                 Err(e) => {
-                    let scope = self
-                        .ev()
-                        .scope(def)
-                        .map_err(|e| BindError::unsupported(e.to_string()))?;
+                    self.propagate_interruption(&e)?;
+                    let scope = self.ev().scope(def).map_err(|e| {
+                        self.eval_error(e, |e| BindError::unsupported(e.to_string()))
+                    })?;
                     let level = LevelCx::new(&self.t).try_level(ir.def(def).body, &scope)?;
                     if level > 0 {
                         self.drain_prints();
@@ -645,7 +666,7 @@ impl<'a> Binder<'a> {
                                 "the message TLC prints when the definition {} that the configuration substitutes for {} fails at start-up ({e})",
                                 ir.def(def).name,
                                 d.name
-                            )));
+                            )).into());
                         } else if e.is_eval_exception() {
                             String::new()
                         } else {
@@ -654,9 +675,10 @@ impl<'a> Binder<'a> {
                         return Err(BindError::tlc(
                             Ec::TlcConfigSubstitutionNonConstant,
                             &[&d.name, &ir.def(def).name, &addendum],
-                        ));
+                        )
+                        .into());
                     }
-                    self.note_startup_failure(def, &e);
+                    self.note_startup_failure(def, &e)?;
                 }
             }
         }
@@ -681,7 +703,7 @@ impl<'a> Binder<'a> {
             let scope = self
                 .ev()
                 .scope(real)
-                .map_err(|e| BindError::unsupported(e.to_string()))?;
+                .map_err(|e| self.eval_error(e, |e| BindError::unsupported(e.to_string())))?;
             let level = LevelCx::new(&self.t).try_level(ir.def(real).body, &scope)?;
             if level != 0 {
                 continue;
@@ -696,7 +718,7 @@ impl<'a> Binder<'a> {
                     let _ = name;
                 }
                 Ok(None) => {}
-                Err(e) => self.note_startup_failure(real, &e),
+                Err(e) => self.note_startup_failure(real, &e)?,
             }
         }
         for inner in inner_modules(&ir, m) {
@@ -709,9 +731,10 @@ impl<'a> Binder<'a> {
     /// unless dive refused something TLC may have evaluated, in which case
     /// the outcome may differ if the definition is impure (it prints or
     /// draws) and the model is refused.
-    fn note_startup_failure(&mut self, def: DefId, e: &dive_eval::EvalError) {
+    fn note_startup_failure(&mut self, def: DefId, e: &dive_eval::EvalError) -> R<()> {
+        self.propagate_interruption(e)?;
         if e.class() == ErrorClass::Eval {
-            return;
+            return Ok(());
         }
         let ir = &*self.t.ir;
         let what = format!(
@@ -723,6 +746,7 @@ impl<'a> Binder<'a> {
             self.unsupported.push(what.clone());
         }
         self.refused.entry(def).or_insert(what);
+        Ok(())
     }
 
     /// Refuses a configuration name that names a definition whose start-up
@@ -732,7 +756,7 @@ impl<'a> Binder<'a> {
         if let Some(Look::Def(d)) = self.defns.get(name)
             && let Some(why) = self.refused.get(d)
         {
-            return Err(BindError::unsupported(why.clone()));
+            return Err(BindError::unsupported(why.clone()).into());
         }
         Ok(())
     }

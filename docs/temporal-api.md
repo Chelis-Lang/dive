@@ -91,9 +91,21 @@ its completion flag, and optional `Failure::validation_progress()`; it contains
 no uncertified word. Unknown state/check positions remain absent. A previously
 fully certified witness retains the existing terminal-sampling priority.
 Native document shape errors retain their independent validation class.
-This does not control fresh binding/`ASSUME`, encoding/decoding, quiet value
-units, or deferred providers owned by a different evaluator. General TLC
-session/scoring and standalone trace-validation budgets remain follow-ups.
+The same capability is installed during evaluator-backed fresh rebinding, after
+structural configuration checks and evaluator construction. It returns the
+original typed interruption instead of swallowing a constant-definition error or
+reclassifying it as a binding refusal. A stop in this stage retains the real
+original capture, has zero completed validation checks and no supplied state
+position, and cannot certify a candidate. `Failure::binding_output()` preserves
+that binding invocation's output; validation rebinding output is separate from
+the original capture's execution output.
+
+This does not control structural binding/evaluator construction, `ASSUME`,
+post-binding symmetry preparation, encoding/decoding, quiet value units, or
+deferred providers owned by a different evaluator. General TLC session/scoring
+and standalone trace-validation budgets remain follow-ups. The additive
+`dive_model::Recipe::bind_controlled` supports callers which reconstruct their
+own fresh startup runtime; legacy recipe/session calls retain their behavior.
 
 The supported language includes pure boolean combinations, `[]`, `<>`, `~>`,
 zero-arity definitions, pure constant/state-argument operators, finite constant-domain quantifiers with explicit sets

@@ -397,10 +397,25 @@ pub(crate) fn run_check_with_checkpoint(
             ir,
         );
     }
-    let bound = bind_for_run(ir, cfg, opts, checkpoint.as_ref().and_then(|s| s.names()));
+    let Ok(control) = budget::EvaluationControl::new(&opts.budget, budget::Phase::Binding) else {
+        return bare(
+            Verdict::InternalError {
+                message: "binding control identity".into(),
+            },
+            opts,
+            ir,
+        );
+    };
+    let bound = bind_for_run_controlled(
+        ir,
+        cfg,
+        opts,
+        checkpoint.as_ref().and_then(|s| s.names()),
+        control.clone(),
+    );
     let (m, host) = match bound {
         Ok(bound) => bound,
-        Err(f) => return binding_failure(ir, opts, &f),
+        Err(f) => return controlled_binding_failure(ir, opts, &f, &control),
     };
     finish_bound_check(ir, cfg, opts, m, host, checkpoint)
 }
@@ -414,6 +429,51 @@ fn binding_failure(
     result.binding_model_error = matches!(result.verdict, Verdict::ModelError { .. });
     messages(&failure.output, &mut result);
     result
+}
+
+fn controlled_binding_failure(
+    ir: &Arc<Ir>,
+    opts: &CheckOptions,
+    failure: &dive_model::ControlledBindError,
+    control: &budget::EvaluationControl,
+) -> CheckResult {
+    if let dive_model::ControlledBindError::Binding(failure) = failure {
+        return binding_failure(ir, opts, failure);
+    }
+    let verdict = match failure {
+        dive_model::ControlledBindError::Interrupted { error, .. } => control
+            .verdict(error)
+            .unwrap_or_else(|| Verdict::InternalError {
+                message: "binding interruption lacks matching active resource authority".into(),
+            }),
+        _ => Verdict::InternalError {
+            message: "model binding control ownership conflict".into(),
+        },
+    };
+    let mut result = bare(verdict, opts, ir);
+    messages(failure.output(), &mut result);
+    result
+}
+
+fn bind_for_run_controlled(
+    ir: &Arc<Ir>,
+    cfg: &ModelConfig,
+    opts: &CheckOptions,
+    restored_names: Option<&[String]>,
+    control: Arc<budget::EvaluationControl>,
+) -> Result<(dive_model::Model, Arc<dive_stdlib::host::RunHost>), dive_model::ControlledBindError> {
+    let host = Arc::new(engine::run_host(opts));
+    let bind_opts = BindOptions {
+        eval: opts.eval,
+        no_deadlock: opts.no_deadlock,
+        host: Some(Arc::new(host::EngineHost::new(host.clone()))),
+    };
+    let bound = if let Some(names) = restored_names {
+        dive_model::bind_with_names_controlled(ir.clone(), cfg, &bind_opts, names, control)
+    } else {
+        dive_model::bind_controlled(ir.clone(), cfg, &bind_opts, control)
+    };
+    bound.map(|model| (model, host))
 }
 
 fn bind_for_run(
@@ -607,3 +667,6 @@ mod metadata_controls {
         }
     }
 }
+
+#[cfg(test)]
+mod binding_controls;

@@ -91,6 +91,61 @@ pub fn dispatch(
     )
 }
 
+/// Like [`dispatch`], retaining typed run interruption during fresh binding.
+///
+/// The caller owns the already armed budget and classifies an interrupted error
+/// only with this control's actual resource authority. Eligibility and single
+/// startup evaluation are unchanged; this must use the dedicated stack above.
+///
+/// ```
+/// # fn example(ir: &std::sync::Arc<dive_ir::Ir>, cfg: &dive_config::ModelConfig,
+/// # opts: &dive_check::CheckOptions, control: std::sync::Arc<dive_check::budget::EvaluationControl>) {
+/// let _ = dive_check::final_roles::dispatch_controlled(ir, cfg, opts, control);
+/// # }
+/// ```
+#[must_use]
+pub fn dispatch_controlled(
+    ir: &Arc<Ir>,
+    cfg: &ModelConfig,
+    opts: &CheckOptions,
+    control: Arc<crate::budget::EvaluationControl>,
+) -> Option<Result<Dispatch, dive_model::ControlledBindError>> {
+    if !eligible(ir, cfg, opts) {
+        return None;
+    }
+    Some(
+        crate::bind_for_run_controlled(ir, cfg, opts, None, control).map(|(model, host)| {
+            if model.implied_temporals.is_empty() {
+                Dispatch::Safety(Box::new(crate::finish_bound_check(
+                    ir, cfg, opts, model, host, None,
+                )))
+            } else {
+                Dispatch::Temporal(Box::new(model))
+            }
+        }),
+    )
+}
+
+/// Controlled ordinary dispatch which preserves ordinary binding error reports.
+///
+/// Genuine binding failures retain their existing safety result. Typed run
+/// interruptions remain errors so API callers retain actual binding-stage
+/// evidence, rather than mislabelling a pre-search failure as capture work.
+#[must_use]
+pub fn dispatch_ordinary_controlled(
+    ir: &Arc<Ir>,
+    cfg: &ModelConfig,
+    opts: &CheckOptions,
+    control: Arc<crate::budget::EvaluationControl>,
+) -> Option<Result<Dispatch, dive_model::ControlledBindError>> {
+    dispatch_controlled(ir, cfg, opts, control).map(|result| match result {
+        Err(dive_model::ControlledBindError::Binding(failure)) => Ok(Dispatch::Safety(Box::new(
+            crate::binding_failure(ir, opts, &failure),
+        ))),
+        other => other,
+    })
+}
+
 /// Like [`dispatch`], retaining ordinary binding failures as ordinary results.
 ///
 /// This uses the same eligibility, startup host and single binding. It must run
@@ -98,9 +153,25 @@ pub fn dispatch(
 /// the caller's original ordinary route without binding or running effects.
 #[must_use]
 pub fn dispatch_ordinary(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> Option<Dispatch> {
-    dispatch(ir, cfg, opts).map(|result| match result {
+    if !eligible(ir, cfg, opts) {
+        return None;
+    }
+    let Ok(control) =
+        crate::budget::EvaluationControl::new(&opts.budget, crate::budget::Phase::Binding)
+    else {
+        return Some(Dispatch::Safety(Box::new(crate::bare(
+            crate::Verdict::InternalError {
+                message: "binding control identity".into(),
+            },
+            opts,
+            ir,
+        ))));
+    };
+    dispatch_ordinary_controlled(ir, cfg, opts, control.clone()).map(|result| match result {
         Ok(bound) => bound,
-        Err(failure) => Dispatch::Safety(Box::new(crate::binding_failure(ir, opts, &failure))),
+        Err(failure) => Dispatch::Safety(Box::new(crate::controlled_binding_failure(
+            ir, opts, &failure, &control,
+        ))),
     })
 }
 

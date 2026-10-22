@@ -246,6 +246,8 @@ impl Resource {
 pub enum Phase {
     /// Before model binding or state generation starts.
     Startup,
+    /// Evaluator-backed startup work while binding a fresh model.
+    Binding,
     /// The owning entry point samples resources before publishing a result.
     Finalization,
     /// Safety search.
@@ -264,6 +266,7 @@ impl Phase {
     pub const fn name(self) -> &'static str {
         match self {
             Self::Startup => "check-startup",
+            Self::Binding => "model-binding",
             Self::Finalization => "finalization",
             Self::Search => "safety-search",
             Self::Capture => "graph-capture",
