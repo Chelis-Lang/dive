@@ -1235,6 +1235,20 @@ x=777 rejection is historical producer-sample mismatch evidence. Corrected
 producer reproduction. Multiple/cached/correlated calls remain unsupported.
 
 
+### Primary SelectSeq capture controls
+
+Before changing capture admission, the pinned TLC harness generated all 19
+models in `conformance/corpus/selectseq-captures`, with a recorded reason,
+512 MiB heap, one worker and a 30-second per-model budget. Eight holds/fails
+pairs cover direct selection, quantified and function-valued callback bodies,
+INSTANCE function/filter/recursive/nested-selection captures, and forwarded
+lexical callbacks. Three holding controls retain unused empty-domain effects,
+a configured primed source, or an unused effectful actual. TLC leaves these
+unused sources lazy; they are not permission for dive to ignore its existing
+capture effect checks. Every completed reference has two distinct states,
+three generated states and depth two. These references establish source
+semantics, not native checker or validator credit.
+
 ### SelectSeq callbacks in pure temporal predicates
 
 The native selection loop in `crates/dive-eval/src/std.rs` continues the existing
@@ -1259,6 +1273,18 @@ Scoped controls cover actual callback shapes, empty/error order, real bindings,
 aggregate duplicate work, cold/warm cache isolation and fresh word/document
 validation. These source controls confer no corpus parity credit; the three
 previously reached corpus sites still require the normal measured gates.
+
+Source admission conservatively refuses referenced definition value overrides,
+including resolved redirect targets, before recursive-leaf or native-source
+shortcuts. Direct definition uses may read those stored values; redirected uses
+execute the target body instead, so neither source can be silently omitted.
+Configured `C <- D` constants retain the existing core rule of evaluating D's
+body rather than its stored definition value. Injected opaque-provider controls
+cover both profiles and cold/warm caches without invoking provider methods
+during admission. The admission counter meters source visits. Existing lexical
+projection and binder-analysis helpers can copy or grow frames before that
+counter refuses; full metadata-allocation accounting remains separate from
+this purity fix and does not acquire a hard allocation-time budget guarantee.
 
 The runtime capture-storage traversal treats only the pointer-identical current
 SelectSeq input as a sequence shell, preserving per-element first-error order.

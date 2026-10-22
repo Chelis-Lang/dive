@@ -1555,7 +1555,8 @@ impl Lower<'_> {
                         .ok_or_else(|| self.refused(e, "SelectSeq callback context/level"))?;
                     self.steps = self.limits.expansion_steps - work;
                     for (body, captured) in bodies {
-                        self.forwarded_context(body, &captured, depth + 1)?;
+                        // Each original captured body is checked for its actual
+                        // level and queued for the ordinary pure-source walk.
                         if self.scoped_level(body, &captured, depth + 1)? > Level::State {
                             return Err(self.refused(e, "SelectSeq callback context/level"));
                         }

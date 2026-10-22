@@ -530,24 +530,62 @@ Q == [] (Captured(1-x) = IF x=0 THEN <<1>> ELSE <<0,0>>)
 }
 
 #[test]
-fn selectseq_temporal_callbacks_keep_named_capability_refusals() {
-    for callback in [
-        "LAMBDA y: y=x'",
-        "LAMBDA y: \\E z \\in {y}: z=x",
-        "LAMBDA y: [z \\in {y} |-> z] = [z \\in {y} |-> z]",
-        "LAMBDA y: y \\in Seq({x})",
-        "LAMBDA y: PrintT(y)",
-        "LAMBDA y: ToString(y)=\"0\"",
-        "LAMBDA y: ENABLED (x'=y)",
-        "LAMBDA y: RandomElement({TRUE,FALSE})",
-        "LAMBDA y: IF TRUE THEN y=x ELSE (\\E z \\in {y}: z=x)",
+fn selectseq_callback_truth_and_capability_boundaries() {
+    for (callback, supported, constant_true) in [
+        ("LAMBDA y: y=x'", false, false),
+        ("LAMBDA y: \\E z \\in {y}: z=x", true, false),
+        (
+            "LAMBDA y: [z \\in {y} |-> z] = [z \\in {y} |-> z]",
+            true,
+            true,
+        ),
+        ("LAMBDA y: y \\in Seq({x})", false, false),
+        ("LAMBDA y: PrintT(y)", false, false),
+        ("LAMBDA y: ToString(y)=\"0\"", false, false),
+        ("LAMBDA y: ENABLED (x'=y)", false, false),
+        ("LAMBDA y: RandomElement({TRUE,FALSE})", false, false),
+        (
+            "LAMBDA y: IF TRUE THEN y=x ELSE (\\E z \\in {y}: z=x)",
+            true,
+            false,
+        ),
     ] {
         let source = format!(
-            "---- MODULE SelectRefused ----\nEXTENDS Integers, Sequences, TLC\nVARIABLE x\nInit==x=0\nNext==x'=x\nP==[] [(SelectSeq(<<0>>, {callback}) = <<0>>)]_x\n===="
+            "---- MODULE SelectRefused ----\nEXTENDS Integers, Sequences, TLC\nVARIABLE x\nInit==x=0\nNext==x'=1-x\nP==[] [(SelectSeq(<<0>>, {callback}) = <<0>>)]_x\n===="
         );
         let model = bound(&source, "INIT Init\nNEXT Next\n");
-        assert!(
-            lower(&model, &pred(&model, "P"), Limits::default()).is_err(),
+        let predicate = pred(&model, "P");
+        let result = lower(&model, &predicate, Limits::default());
+        if !supported {
+            assert!(result.is_err(), "{callback}");
+            continue;
+        }
+        let plan = result.expect(callback);
+        for x in [0, 1] {
+            let before: dive_trace::State = Arc::from([Some(Value::Int(x))]);
+            let after: dive_trace::State = Arc::from([Some(Value::Int(1 - x))]);
+            let expected = constant_true || x == 0;
+            let rows = plan
+                .atoms
+                .iter()
+                .map(|atom| {
+                    atom.evaluate(&model, &St::action(before.clone(), after.clone()))
+                        .expect("original binder callback")
+                })
+                .collect::<Vec<_>>();
+            assert!(
+                rows.iter().all(|actual| *actual == expected),
+                "{callback}:x={x}"
+            );
+        }
+        let states = [
+            Arc::from([Some(Value::Int(0))]),
+            Arc::from([Some(Value::Int(1))]),
+        ];
+        assert_eq!(
+            dive_trace::temporal::evaluate_lasso(&model, &predicate, &states, 0)
+                .expect("independent action word"),
+            vec![constant_true, constant_true],
             "{callback}"
         );
     }
