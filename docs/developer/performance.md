@@ -361,6 +361,33 @@ quiet wall-clock, TLC-throughput, scaling or full-gate qualification. The
 campaign instance, root volume, temporary security group and bucket were removed
 after all original producer evidence was preserved and verified.
 
+An evaluator-private predicate-region prototype replaced nested logical and native
+expression dispatch with an explicit continuation loop and a Boolean result
+channel. Its complete four-model, two-profile screen increased instructions by
+**10.234% geometrically**, with every cell worse (+7.741% to +12.958%). All
+sixteen arms preserved success verdicts, exact distinct/generated counts, depth,
+initial counts and empty queues. The runtime candidate was rejected, and the
+frozen runner correctly skipped its conditional full gate. No runtime change
+was landed.
+
+The compact [predicate-region screen](../survey/data/predicate-regions-rejected-2026-10-22.json)
+records actual `6badeb20` / `561e6ff4` source and profiling binary pins, all eight
+pairs and sixteen original profile hashes. The complete CLI ran under Cachegrind
+with cache simulation disabled, one worker, seed/fingerprint zero, a 900-second
+native budget, an 8 GiB ceiling and a 930-second external backstop. The same
+115 pinned reduced-input and library files were used by both isolated builds.
+This is instruction evidence, with no quiet wall-clock, throughput, scaling or
+TLC-speedup claim. Raw profiles and actual binaries remain externally preserved.
+The instance, root volume, temporary bucket and security group were removed after
+all original producer evidence was preserved and hash-verified.
+
+The original exclusive profiles charge `Work::push` another 1.745–3.409% of
+baseline whole-process instructions and `region_operand` 1.271–2.093%. Region
+code also receives attribution inside `eval_inner` after inlining, so a named
+function's change does not isolate dispatch cost. Function and source-line
+views overlap and must not be added. These observations identify added work;
+they are neither inclusive costs nor removable-savings bounds.
+
 A retained-profile investigation of boxing only the unused foreign-domain
 `Thunk` cache also found no credible 5% matrix case. Even deleting all named
 `cached`, `store`, `callee_env` and thunk-drop exclusive work, plus direct

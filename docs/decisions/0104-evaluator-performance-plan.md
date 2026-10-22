@@ -209,6 +209,13 @@ Measured and not pursued:
   without a full gate or landed runtime change. The
   [performance guide](../developer/performance.md#discarded-evaluator-prototypes)
   links exact source, input and producer identities and all sixteen profile hashes.
+- A private predicate-region plan with an explicit continuation loop and Boolean
+  result channel increased instructions by 10.234% geometrically across all eight
+  reduced model/profile cells (+7.741% to +12.958%). All sixteen arms preserved
+  verdicts, counts and depth. The complete screen rejected the runtime candidate
+  and skipped its conditional full gate; no runtime change was landed. The
+  [performance guide](../developer/performance.md#discarded-evaluator-prototypes)
+  links actual source/binary identities and all sixteen original profile hashes.
 - Pre-sizing the fingerprint traversal's work list: within ±0.3%, noise.
 - A lazy function hash: it would make hashing recursive and break the
   documented stack safety for deeply nested values (`tests/limits.rs`).

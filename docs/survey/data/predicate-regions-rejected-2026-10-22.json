@@ -1,0 +1,395 @@
+{
+  "schema_version": 1,
+  "study": "predicate-region-screen",
+  "date": "2026-10-22",
+  "status": "rejected-unshipped-prototype",
+  "baseline_source": "6badeb20b393dce1dc5fba50ad161d70b092e91e",
+  "candidate_source": "561e6ff451f9aed2d9a4bebee6ed394ca3de23e6",
+  "source_trees": {
+    "base": "789ee91f2abb1a600604f61e840b6b81747a4b00",
+    "candidate": "d635b05c16bbe65a6f34f062dea1bf0ced1785dc"
+  },
+  "source_bundle_sha256": "ee91bf602832a4941b35974254291b5782470a002a150d88b864507b4b8e86e8",
+  "prepared_manifest_sha256": "0fac863afaac99f71754977ab65253703b4fb5f1f39e2e6aff4ebcf20d6ad442",
+  "plan_sha256": "62a5ab19cba6f9edc9feb5584ad6e082f9bb5aff9a78e7ac2af496333db6b181",
+  "runner_sha256": "5a3701ea19b91608173c3a277a304f73b77fc575a1185eb636921f2389e5de07",
+  "frozen_profiling_binary_sha256": {
+    "base": "7d58ae039da03eddded4327b67a44bb4e011545b8325d85c849dc41f912a67a5",
+    "candidate": "117c039599f644b0b4e9050a3412447cad3fa0ea21e01284ee59f68f58628481"
+  },
+  "machine": {
+    "instance_type": "c7i.8xlarge",
+    "ami": "ami-02a9cdd4e98bc3c78",
+    "region": "us-east-1",
+    "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+    "cpu_source": "Original source-before.json lscpu receipt; no instance-class inference or new query.",
+    "kernel": "Linux ip-172-31-5-50 7.0.0-1014-aws #14~24.04.1-Ubuntu SMP PREEMPT Fri Sep 18 21:24:59 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux",
+    "source_before_sha256": "b4a521ba1fde3668047848f689f11ee4e3ba110e1c1da98ff29c568542944b9d"
+  },
+  "tool_versions": {
+    "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+    "nextest": "cargo-nextest 0.9.143 (60fa45f63 2026-08-04)\nrelease: 0.9.143\ncommit-hash: 60fa45f638ffc3f35e74afa65737f45fcd32db2a\ncommit-date: 2026-08-04\nhost: x86_64-unknown-linux-gnu",
+    "deny": "cargo-deny 0.20.2",
+    "valgrind": "valgrind-3.22.0",
+    "cachegrind_backend": "valgrind-3.22.0 cachegrind backend",
+    "callgrind_backend": "valgrind-3.22.0 callgrind backend"
+  },
+  "tool_binary_sha256": {
+    "rustc": "f3834d26669b03f6855fa54bd2381443123e860167bc0c7a8dd137e5cf6e5e4f",
+    "cargo": "e951141cc55a6cd7b9876d187bd30a3720e6086b99413af95e3b8de1cdd72f14",
+    "nextest": "cb6243e32736eb6242379b379d44f09adf4873bbdf69ed6ff13f9dc4c0dfc654",
+    "deny": "095d1609e3040af892c3356154eb89488bcb8886315f8c7b7b6927ad7064b3e7",
+    "valgrind": "4652774bd116cb49951ef74115ad4237cad5021b2bd4d80002f09d986ec438b9",
+    "cachegrind_backend": "38093b3bf8e9ffecb559a333c896a2fd2a2343bb79c3295f31c36475914deebf",
+    "callgrind_backend": "825eb197d519240c112e03ed00f40a8bbe1a0a0614f79ea95e28c67e8695cb03"
+  },
+  "input_identity": {
+    "normal_files": 115,
+    "workload_archive_sha256": "f1d3eb00d9f43c11e03a50be64a3115f8e2bb838299bb8d7033106a8ce0c53ef",
+    "module_archive_sha256": "90a8757da7c179dcf04ec8f7530f99881e013eb76b92bfeb59808d9a0fe782ab",
+    "manifest_sha256": "ee348f27d85022fcdd963a5ba63690f0f765c3c72034b7ae3bb53f6fdf97841a",
+    "oracle_executed": false,
+    "scope": "Original four reduced ADR0104 models and pinned transitive libraries; no full ten-model or TLC wall-clock campaign."
+  },
+  "protocol": {
+    "workers": 1,
+    "profiles": [
+      "dive",
+      "tlc"
+    ],
+    "arms": 16,
+    "repetitions": 1,
+    "instrumentation": "WholeCLI Cachegrind Ir; startup included; cache simulation disabled",
+    "native_time_ms": 900000,
+    "max_memory_bytes": 8589934592,
+    "os_backstop_seconds": 930,
+    "absolute_lifetime_seconds": 9000,
+    "productive_seconds": 8040,
+    "collection_reserve_seconds": 960,
+    "actual_floor_collection_seconds": 927,
+    "geometric_admission_ratio": 0.95,
+    "maximum_individual_cell_ratio": 1.01,
+    "conditional_gate_limit_seconds": 3000,
+    "no_retries_or_extra_arms": true
+  },
+  "pairs": [
+    {
+      "model": "SimpleRegular",
+      "profile": "dive",
+      "base_Ir": 2590811393,
+      "candidate_Ir": 2848530178,
+      "delta_pct": 9.947415921371938,
+      "counts": {
+        "distinct": 12097,
+        "generated": 47584,
+        "initial_generated": 1,
+        "depth": 19,
+        "left_on_queue": 0
+      },
+      "verdict": "success",
+      "native_exit": 0,
+      "report_schema": 3,
+      "TLC_verified_code": 2193,
+      "workers_requested": 1,
+      "workers_used": 1,
+      "base_cachegrind_sha256": "82e565e68ca2927fb2d0802940105860316400432c6b0274b1c04b08835c9c59",
+      "candidate_cachegrind_sha256": "5fe02c83be3fc307650ef0b16511c63c0832c45177ab3b24e6e99149583c9afd",
+      "base_stdout_sha256": "b5420336c0c96dd47058f0fd558b90e37af78cbb0056b3c969e7a64fc7ae8550",
+      "candidate_stdout_sha256": "7b13353d992813a7f6dbfa7824020e8762fb109f2e4ea5379e39bf39edba5545",
+      "cell_within_one_percent": false
+    },
+    {
+      "model": "MCbtree",
+      "profile": "dive",
+      "base_Ir": 14416363643,
+      "candidate_Ir": 15867587095,
+      "delta_pct": 10.066501428081388,
+      "counts": {
+        "distinct": 21364,
+        "generated": 127825,
+        "initial_generated": 1,
+        "depth": 24,
+        "left_on_queue": 0
+      },
+      "verdict": "success",
+      "native_exit": 0,
+      "report_schema": 3,
+      "TLC_verified_code": 2193,
+      "workers_requested": 1,
+      "workers_used": 1,
+      "base_cachegrind_sha256": "a764fb3e27bece14037152062a55c394a0258679d06f7e951703e32fac32fb8e",
+      "candidate_cachegrind_sha256": "0c15071aecac16644a3f525eb263392476e39b13f46d98954396399248905003",
+      "base_stdout_sha256": "d764db77c490d964fdc2924afc531adfbeb6e33cb7398bac63461d96b4d7a188",
+      "candidate_stdout_sha256": "0d3b837bcd003cf878b72cd9cff27afc79980e08b21f20c9800998dacab66edf",
+      "cell_within_one_percent": false
+    },
+    {
+      "model": "GameOfLife",
+      "profile": "dive",
+      "base_Ir": 1145153374,
+      "candidate_Ir": 1293546671,
+      "delta_pct": 12.958377486298179,
+      "counts": {
+        "distinct": 512,
+        "generated": 1024,
+        "initial_generated": 512,
+        "depth": 1,
+        "left_on_queue": 0
+      },
+      "verdict": "success",
+      "native_exit": 0,
+      "report_schema": 3,
+      "TLC_verified_code": 2193,
+      "workers_requested": 1,
+      "workers_used": 1,
+      "base_cachegrind_sha256": "339f1a5ce82a8947b03864df5a4d59dda0ccb364152637514e4cfc5d6775f9c8",
+      "candidate_cachegrind_sha256": "1d1a9a7018479280e45a7e166977ba6ece9a3be0fd2fbf42c7d1f6a9941b959f",
+      "base_stdout_sha256": "e88633d290ac053447c142dbd923460e9f8c1026aea628e72888d761ddd138b9",
+      "candidate_stdout_sha256": "eeb2be5da4fd131ecf8febabe90b11cc058a03569c170cc6ee9a239298b457cc",
+      "cell_within_one_percent": false
+    },
+    {
+      "model": "EWD998PCal",
+      "profile": "dive",
+      "base_Ir": 47066229616,
+      "candidate_Ir": 51658592091,
+      "delta_pct": 9.75723467222207,
+      "counts": {
+        "distinct": 20870,
+        "generated": 168292,
+        "initial_generated": 8,
+        "depth": 28,
+        "left_on_queue": 0
+      },
+      "verdict": "success",
+      "native_exit": 0,
+      "report_schema": 3,
+      "TLC_verified_code": 2193,
+      "workers_requested": 1,
+      "workers_used": 1,
+      "base_cachegrind_sha256": "a2811e44a48efc894f63ce2d8d4587d2042117e05c8769a51081b86e8fb8d653",
+      "candidate_cachegrind_sha256": "98e5b7d56f697e69128d70bc1f33aa8a11992dd1f81bed84fe374e04c128ac0b",
+      "base_stdout_sha256": "96d02b9cca9776b64f94dca50c35d3554b9e60e3d75f1465f789dcc174c9a2ee",
+      "candidate_stdout_sha256": "0d10e1f70b9c1bb6e753eb78bd9af3e5f19ae6c06404aee652ed41384fa39c71",
+      "cell_within_one_percent": false
+    },
+    {
+      "model": "SimpleRegular",
+      "profile": "tlc",
+      "base_Ir": 2654787514,
+      "candidate_Ir": 2904603739,
+      "delta_pct": 9.41002711827581,
+      "counts": {
+        "distinct": 12097,
+        "generated": 47584,
+        "initial_generated": 1,
+        "depth": 19,
+        "left_on_queue": 0
+      },
+      "verdict": "success",
+      "native_exit": 0,
+      "report_schema": 3,
+      "TLC_verified_code": 2193,
+      "workers_requested": 1,
+      "workers_used": 1,
+      "base_cachegrind_sha256": "a13a9a887babfbec563815c02a97b5c10c4bc3d1c2ab812bcf692af86923f500",
+      "candidate_cachegrind_sha256": "18f2113ed296c9c66296dcdf542669272b3aa1513e3b5559cdf8cc4a6a885f83",
+      "base_stdout_sha256": "4630f84ef6203eec0a6e8da89d3e74e596b574f01684960cbaa4c4c2a6892855",
+      "candidate_stdout_sha256": "7d5eed2143e36c26a2bbd7c319d93d4aca525534bf8fca5dd2d649521f205cec",
+      "cell_within_one_percent": false
+    },
+    {
+      "model": "MCbtree",
+      "profile": "tlc",
+      "base_Ir": 18207180954,
+      "candidate_Ir": 19616620570,
+      "delta_pct": 7.741119394380247,
+      "counts": {
+        "distinct": 21364,
+        "generated": 127825,
+        "initial_generated": 1,
+        "depth": 24,
+        "left_on_queue": 0
+      },
+      "verdict": "success",
+      "native_exit": 0,
+      "report_schema": 3,
+      "TLC_verified_code": 2193,
+      "workers_requested": 1,
+      "workers_used": 1,
+      "base_cachegrind_sha256": "fa8618e16b3d1db8b4ab5422fa6224480456a186a7b6dfb3557c1ac58cc92ee5",
+      "candidate_cachegrind_sha256": "9a7f7ef05c3661d80be114087470b4dd95d75b1fd346799a1c5f8f82d385798e",
+      "base_stdout_sha256": "a4959775536de6e7248ade475fc790bd2aee47870c19286bfcabeff972588b76",
+      "candidate_stdout_sha256": "b3bbdc8f177a1da580033bd50758634b42cf8562dad44d29f259a99c42179f04",
+      "cell_within_one_percent": false
+    },
+    {
+      "model": "GameOfLife",
+      "profile": "tlc",
+      "base_Ir": 1137297062,
+      "candidate_Ir": 1283033549,
+      "delta_pct": 12.814285015712112,
+      "counts": {
+        "distinct": 512,
+        "generated": 1024,
+        "initial_generated": 512,
+        "depth": 1,
+        "left_on_queue": 0
+      },
+      "verdict": "success",
+      "native_exit": 0,
+      "report_schema": 3,
+      "TLC_verified_code": 2193,
+      "workers_requested": 1,
+      "workers_used": 1,
+      "base_cachegrind_sha256": "6309bd5f080255591ef5d383b308eb8e3bd06dac563faed04b7d7628da8a624b",
+      "candidate_cachegrind_sha256": "bef67be0f99d729c72c2518068d6d426f987de3b3b58aeaf68aef19ea28b5b80",
+      "base_stdout_sha256": "7e5ffb2afa8b1d7ce624e340ece5dedb9592d148e54e804784c00685163240ba",
+      "candidate_stdout_sha256": "d1a9e22d41d6b40be23d9b1d5d217cf196b26b95cef767c18bb630ffc46f7897",
+      "cell_within_one_percent": false
+    },
+    {
+      "model": "EWD998PCal",
+      "profile": "tlc",
+      "base_Ir": 48021365783,
+      "candidate_Ir": 52477052811,
+      "delta_pct": 9.278551235161569,
+      "counts": {
+        "distinct": 20870,
+        "generated": 168292,
+        "initial_generated": 8,
+        "depth": 28,
+        "left_on_queue": 0
+      },
+      "verdict": "success",
+      "native_exit": 0,
+      "report_schema": 3,
+      "TLC_verified_code": 2193,
+      "workers_requested": 1,
+      "workers_used": 1,
+      "base_cachegrind_sha256": "072dab439ec96ccadcce3e6cb3f7cfcdb2197ef522082b091566dd59479f80bc",
+      "candidate_cachegrind_sha256": "9068ee0afc4e628984b82ed91c1ac5edb0554f68172bb46346fd86c8133a58de",
+      "base_stdout_sha256": "100bdaff8cccb82a9ae540d726ce7c26081b7a3e54c2be3679b17065289dde3c",
+      "candidate_stdout_sha256": "46248f1fb592d72e1b4e7c291f5814394e0a80fe7add651209bec019fe224c47",
+      "cell_within_one_percent": false
+    }
+  ],
+  "aggregate": {
+    "equal_cell_geometric_ratio": 1.1023415516367778,
+    "geometric_instruction_delta_pct": 10.234155163677784,
+    "each_cell_increased": true,
+    "delta_range_pct": [
+      7.741119394380247,
+      12.958377486298179
+    ],
+    "five_percent_reduction_met": false,
+    "all_cells_within_one_percent": false,
+    "runtime_candidate_accepted": false,
+    "fullgate_run": false,
+    "gate_skip_reason": "Complete screen rejected; frozen runner skipped its conditional gate.",
+    "all_verdicts_counts_depth_initial_and_queue_exact": true
+  },
+  "raw_evidence": {
+    "final_archive_sha256": "18ac39817b9e30bc8e23c854674100fada982a93452c318f0128ce489211020a",
+    "final_archive_bytes": 52063190,
+    "original_producer_sidecar_verified": true,
+    "independent_screen_audit_sha256": "f1d5ec722d66f62b548bb98303a8157564edcd20de78e03e9be1ec3481b1ca0c",
+    "source_and_frozen_review_sha256": "144cfdcb240516e413a8f7d076db6803a8b3741090857c7190f86eb0e994caa0",
+    "source_after_sha256": "fcec5ded136fdf92b9d87771bee0bb46fe6e2040257cbbd53e7e7aa8570327cb",
+    "all16_original_profiles_preserved": true,
+    "actual_frozen_binaries_preserved": true,
+    "source_tools_inputs_before_after_unchanged": true
+  },
+  "cleanup": {
+    "status": "root-independently-verified-complete",
+    "at": "2026-10-22T06:44:06.593747+00:00",
+    "instance": "i-065c20e8c8d55d826",
+    "root_volumes_absent": [
+      "vol-03d0f5cb70a62d353"
+    ],
+    "security_group_absent": "sg-034b9cb18654a21bd",
+    "bucket_absent": "dive-regions-20261022054859-5fb2259b-010928226848",
+    "all32_original_objects_preserved_bytes": 172538693,
+    "receipt_sha256": "1e2d466e824ee8edbf62ebf6f0b9b7ddd661407a2cdb51fe93b3332b2c503183",
+    "Sail_IAM_SSM_untouched": true
+  },
+  "qualifications": [
+    "Instruction screen on reduced inputs only; no quiet-wall-clock/throughput/scaling/TLC-speedup claim.",
+    "No landed runtime change or fullgate qualification.",
+    "Original failed new test expectations and Clippy findings retained; prior focused159 distinct tests plus2 targeted lifetime repeats and Clippy are separate from this screen.",
+    "Original source and before/per-arm/after identities retained; no continuous monitor or retrospectively reconstructed before-run identity claimed."
+  ],
+  "exclusive_profile_context": {
+    "all16_tables_sum_to_original_whole_Ir": true,
+    "view": "Mutually exclusive emitted instructions within each function or source-line table. These two views overlap; do not add them. No callgraph/inclusive attribution.",
+    "limitations": "Inlining/layout changes attribution, including region code credited to eval_inner. These observed costs are not causal deletion/savings bounds or a future speedup forecast.",
+    "core_attribution_artifact_sha256": "d9c9c6c4a82eb76953fe761e959175d809eef7f7c64bb40289108a5a33099921",
+    "cells": [
+      {
+        "tag": "base-SimpleRegular-dive-w1",
+        "eval_inner_exclusive_delta_percentage_points_base": 10.433606349360376,
+        "Work_push_exclusive_percentage_points_base": 2.471014376923423,
+        "region_operand_exclusive_percentage_points_base": 1.9876245001521036,
+        "candidate_Work_source_lines194_243_percent": 2.6706441654556343,
+        "candidate_loop_source_lines250_458_percent": 3.3884037369675357
+      },
+      {
+        "tag": "base-MCbtree-dive-w1",
+        "eval_inner_exclusive_delta_percentage_points_base": 8.823996019396192,
+        "Work_push_exclusive_percentage_points_base": 2.2040010773055108,
+        "region_operand_exclusive_percentage_points_base": 1.607679292361202,
+        "candidate_Work_source_lines194_243_percent": 2.435185310069981,
+        "candidate_loop_source_lines250_458_percent": 2.8538039986097834
+      },
+      {
+        "tag": "base-GameOfLife-dive-w1",
+        "eval_inner_exclusive_delta_percentage_points_base": 14.176606180963844,
+        "Work_push_exclusive_percentage_points_base": 3.3856816807492547,
+        "region_operand_exclusive_percentage_points_base": 2.0791312797546717,
+        "candidate_Work_source_lines194_243_percent": 3.4488272437446517,
+        "candidate_loop_source_lines250_458_percent": 4.694857971614694
+      },
+      {
+        "tag": "base-EWD998PCal-dive-w1",
+        "eval_inner_exclusive_delta_percentage_points_base": 9.035236363089433,
+        "Work_push_exclusive_percentage_points_base": 2.0442124042010072,
+        "region_operand_exclusive_percentage_points_base": 1.2969556962185198,
+        "candidate_Work_source_lines194_243_percent": 2.2767959953846897,
+        "candidate_loop_source_lines250_458_percent": 2.7516736276822584
+      },
+      {
+        "tag": "base-SimpleRegular-tlc-w1",
+        "eval_inner_exclusive_delta_percentage_points_base": 10.21193807678877,
+        "Work_push_exclusive_percentage_points_base": 2.4114668937681314,
+        "region_operand_exclusive_percentage_points_base": 1.939725937704557,
+        "candidate_Work_source_lines194_243_percent": 2.6190872089901966,
+        "candidate_loop_source_lines250_458_percent": 3.322990386056237
+      },
+      {
+        "tag": "base-MCbtree-tlc-w1",
+        "eval_inner_exclusive_delta_percentage_points_base": 7.012661703235797,
+        "Work_push_exclusive_percentage_points_base": 1.7451180981984764,
+        "region_operand_exclusive_percentage_points_base": 1.2729532022862764,
+        "candidate_Work_source_lines194_243_percent": 1.969784492803696,
+        "candidate_loop_source_lines250_458_percent": 2.3083988059213403
+      },
+      {
+        "tag": "base-GameOfLife-tlc-w1",
+        "eval_inner_exclusive_delta_percentage_points_base": 14.301930641934606,
+        "Work_push_exclusive_percentage_points_base": 3.4090695646235654,
+        "region_operand_exclusive_percentage_points_base": 2.0934936698183435,
+        "candidate_Work_source_lines194_243_percent": 3.4770867866059207,
+        "candidate_loop_source_lines250_458_percent": 4.73332743694296
+      },
+      {
+        "tag": "base-EWD998PCal-tlc-w1",
+        "eval_inner_exclusive_delta_percentage_points_base": 8.880231041886859,
+        "Work_push_exclusive_percentage_points_base": 2.0035533940198844,
+        "region_operand_exclusive_percentage_points_base": 1.2711594850475851,
+        "candidate_Work_source_lines194_243_percent": 2.241285843997433,
+        "candidate_loop_source_lines250_458_percent": 2.708757025893872
+      }
+    ]
+  }
+}
