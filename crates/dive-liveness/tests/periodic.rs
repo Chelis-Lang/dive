@@ -35,6 +35,7 @@ fn model_with(body: &str, properties: &str, options: &CheckOptions) -> dive_mode
         &cfg,
         &dive_model::BindOptions {
             eval: options.eval,
+            symmetry_liveness: options.symmetry_liveness,
             no_deadlock: false,
             host: None,
         },
@@ -314,6 +315,7 @@ fn existing_pinned_fair_and_unfair_words_anchor_both_periodic_profiles() {
                         &config,
                         &dive_model::BindOptions {
                             eval: options.eval,
+                            symmetry_liveness: options.symmetry_liveness,
                             no_deadlock: false,
                             host: None,
                         },

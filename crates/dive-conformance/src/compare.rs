@@ -469,6 +469,7 @@ mod tests {
         trace: Option<u64>,
     ) -> OracleResult {
         OracleResult {
+            native_unreduced_symmetry: false,
             verdict,
             verdict_code: None,
             error_class: None,

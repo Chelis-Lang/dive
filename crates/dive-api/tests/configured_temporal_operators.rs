@@ -24,6 +24,7 @@ fn bound(source: &str, config: &str, options: &CheckOptions) -> Model {
         &dive_config::parse(config).into_config().expect("config"),
         &BindOptions {
             eval: options.eval,
+            symmetry_liveness: options.symmetry_liveness,
             no_deadlock: false,
             host: None,
         },

@@ -1,0 +1,274 @@
+{
+  "schema_version": 1,
+  "status": "QUALIFIED_SUPPORTED_UNREDUCED_SYMMETRY_LIVENESS",
+  "qualified_source": "a9c7376ff3d126deb5c8a9f48665b7e99cb02903",
+  "qualified_base": "5913ffd6c906df4f5e9d355248335b682e2e9c4c",
+  "scope": "Supported default-profile genuine temporal roles with SYMMETRY use the whole unreduced graph; safety-only roles keep existing reduction. TLC quotient liveness and VIEW liveness remain refused. No Agree or throughput gain.",
+  "full_gate": {
+    "native_exit": 0,
+    "externally_censored": false,
+    "elapsed_seconds": 2157.403773,
+    "actual_tests": 2274,
+    "skipped": 0,
+    "all_unique_original_pass_rows": true,
+    "native_xtask_phases": [
+      {
+        "name": "rustfmt",
+        "result": "pass",
+        "duration": "2.0s"
+      },
+      {
+        "name": "clippy",
+        "result": "pass",
+        "duration": "17.9s"
+      },
+      {
+        "name": "nextest (whole suite)",
+        "result": "pass",
+        "duration": "17m13s"
+      },
+      {
+        "name": "doctests",
+        "result": "pass",
+        "duration": "5.3s"
+      },
+      {
+        "name": "rustdoc",
+        "result": "pass",
+        "duration": "9.4s"
+      },
+      {
+        "name": "crate layering",
+        "result": "pass",
+        "duration": "0.0s"
+      },
+      {
+        "name": "cargo-deny",
+        "result": "pass",
+        "duration": "0.4s"
+      },
+      {
+        "name": "release build (harness, dive)",
+        "result": "pass",
+        "duration": "1m25s"
+      },
+      {
+        "name": "oracle and corpus fetch",
+        "result": "pass",
+        "duration": "4.9s"
+      },
+      {
+        "name": "cm1 gate (1, 4, 8 workers)",
+        "result": "pass",
+        "duration": "6.6s"
+      },
+      {
+        "name": "validation-smoke gate (1, 4, 8 workers)",
+        "result": "pass",
+        "duration": "0.4s"
+      },
+      {
+        "name": "small corpus tier (dive, tlc profile, vs baseline)",
+        "result": "pass",
+        "duration": "8m22s"
+      },
+      {
+        "name": "small corpus tier (dive, dive profile, vs baseline)",
+        "result": "pass",
+        "duration": "8m05s"
+      }
+    ],
+    "phase_result_authority": "Original xtask report; individual phase OS exits are not separately observed.",
+    "stdout_sha256": "5f0fbc0b21c45dfd496a3c24744c11161a305bf44c37ac1aa4f3b99050bedcea",
+    "stderr_sha256": "f50ffffa12f59719dfe3bb6ffc5e54996d0e8d08eeab2623948377a0e3bec4a9",
+    "report_sha256": "be24cfeb9edebde05e9893a43694c48d54cf3bab586fdc02ffcdb41b4a63544e"
+  },
+  "profiles": {
+    "tlc": {
+      "run_id": "20261022T200936721-dive-small",
+      "models_selected": 156,
+      "modules_selected": 458,
+      "models": {
+        "agree": 149,
+        "disagree": 0,
+        "unsupported": 7,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "modules": {
+        "agree": 458,
+        "disagree": 0,
+        "unsupported": 0,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "report_sha256": "0c57bd3967873e6c34ebbb0682a22b3e3f5a11ff0e042f974c2731dc3392af66",
+      "settings": {
+        "tier": "small",
+        "filters": [],
+        "workers": [
+          1
+        ],
+        "jobs": 2,
+        "xmx": "3g",
+        "timeout_policy": "TLC-derived budgets: with a golden max(60 s, 10 x golden elapsed); otherwise historical timeout; hard cap 900 s (historical cap 3600 s, cap when unknown)",
+        "crosscheck_manifest": false,
+        "sany_phase": "full",
+        "impl_options": [],
+        "impl_profile": "tlc",
+        "strict_tier": true
+      }
+    },
+    "dive": {
+      "run_id": "20261022T201741995-dive-small",
+      "models_selected": 156,
+      "modules_selected": 0,
+      "models": {
+        "agree": 143,
+        "disagree": 0,
+        "unsupported": 6,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 7,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "modules": {
+        "agree": 0,
+        "disagree": 0,
+        "unsupported": 0,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "report_sha256": "b3d24add842ca1abc58a0380e88821ba384ef4f5e5ee0089b9d931774af454ba",
+      "settings": {
+        "tier": "small",
+        "filters": [],
+        "workers": [
+          1
+        ],
+        "jobs": 2,
+        "xmx": "3g",
+        "timeout_policy": "TLC-derived budgets: with a golden max(60 s, 10 x golden elapsed); otherwise historical timeout; hard cap 900 s (historical cap 3600 s, cap when unknown)",
+        "crosscheck_manifest": false,
+        "sany_phase": "full",
+        "impl_options": [],
+        "impl_profile": "dive",
+        "strict_tier": false
+      }
+    }
+  },
+  "baseline_changes": {
+    "tlc": {
+      "source_run_id": "20261022T200936721-dive-small",
+      "generated_sha256": "b9373eafdf9c1fadc4b113eb8d13c276e04f7df4cd156f807a9c3a47bcf500f9",
+      "model_changes": {},
+      "module_changes": 0
+    },
+    "dive": {
+      "source_run_id": "20261022T201741995-dive-small",
+      "generated_sha256": "b32673112dba9dec4f47ee5dc9424b1f4e1f3fab43e39294aca58fd382e1b10d",
+      "model_changes": {
+        "probes:specifications/P4SymLive/P4SymLive.cfg": {
+          "before": {
+            "outcome": "unsupported",
+            "runs": [
+              {
+                "workers": 1
+              }
+            ]
+          },
+          "after": {
+            "outcome": "expected-divergence",
+            "runs": [
+              {
+                "workers": 1,
+                "verdict": "success",
+                "verdict_code": 2193,
+                "error_class": "TLC_SUCCESS",
+                "exit_code": 0,
+                "distinct_states": 2,
+                "states_generated": 3,
+                "depth": 2
+              }
+            ]
+          }
+        }
+      },
+      "module_changes": 0
+    }
+  },
+  "baseline_generation": {
+    "command": "dive-conformance report baseline <qualified-report> --out <baseline>",
+    "metadata_tool_source": "d0e500d83f6d335454d47ce4ecb0826c180719c3",
+    "metadata_tool_sha256": "6ad0d0b6c1bd305c3826bb390ac34f15806a98a77706fb11b761b648df44c725",
+    "harness_sources_and_build_inputs_match_qualified_source": true,
+    "qualification": "Pure data serialization by the retained macOS harness; actual model runs and gate are Linux qualified_source, not relabelled metadata-tool execution."
+  },
+  "identity": {
+    "physical_source_files_before_after_exact": 22654,
+    "actual_tools_before_after_exact": true,
+    "supervisor_sha256": "c4f0b2f298ecb1d777c04740246be10ab4476d895139f24ae73eb57ce3f10f61",
+    "source_bundle_sha256": "65b9971be7d93678b3d69194b5142d95a8cb9ed462b1a33f32fa14cc7f9fd4a5",
+    "collection_time_binary_sha256": {
+      "dive": "fd849d0ce4b36607fccd385658b7374997995682b4a6b266c07cf51f33e3af77",
+      "dive-conformance": "4193e1640ef696ec4c5641bd35623f8653840c596bee09552ffebfd07e70d43d"
+    },
+    "executed_cli_sha_matches_both_reports": true,
+    "final_original_archive_sha256": "4a3758c93394354ad4611ef62f630e13ef8d6410fdc40380af96a9c5e626d630"
+  },
+  "preservation": {
+    "external_objects": 25,
+    "external_bytes": 49253220,
+    "producer_archive_sha256_verified": true,
+    "all_archive_members_independently_checked": 21,
+    "instance_volume_group_bucket_removed": true,
+    "account_project_nonterminated_instances": 0,
+    "evidence_scope": "Original raw streams, reports, source/tool/argv receipts and frozen collection-time binaries retained externally; compact evidence only in repository."
+  },
+  "report_contract": {
+    "major": 3,
+    "additive_optional_fields": [
+      "options.symmetry_liveness",
+      "options.symmetry_liveness_source",
+      "symmetry_liveness"
+    ],
+    "absence_never_implies_unreduced_or_completion": true,
+    "native_trace_version": 1
+  },
+  "prior_attempts_preserved": [
+    {
+      "source": "d0e500d83f6d335454d47ce4ecb0826c180719c3",
+      "status": "FAILED_NEW_TEST_CLIPPY_DESPITE_2274_TESTS_PASS"
+    },
+    {
+      "source": "a9c7376ff3d126deb5c8a9f48665b7e99cb02903",
+      "status": "LOCAL_GATE_EXTERNALLY_CENSORED_AT_DISK_FLOOR; THIS_LINUX_CAMPAIGN_IS_A_SEPARATE_FRESH_FULL_GATE"
+    }
+  ],
+  "qualification_limits": [
+    "Not a TLC quotient or VIEW implementation.",
+    "Expected divergence is not agreement.",
+    "No new full-tier or four-worker corpus measurement.",
+    "No instruction-overhead or quiet-host throughput claim.",
+    "Configuration summaries are not execution or proof.",
+    "Native trace validation requirements are unchanged."
+  ]
+}

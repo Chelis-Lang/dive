@@ -34,7 +34,9 @@ pub(crate) fn unsupported(b: &Binder<'_>, model: &Model) -> Vec<Unsupported> {
             ),
         });
     }
-    if let Some(s) = &model.symmetry {
+    if let Some(s) = &model.symmetry
+        && !model.unreduced_symmetry_liveness()
+    {
         out.push(Unsupported {
             feature: format!("SYMMETRY {s}"),
             kind: UnsupportedKind::Feature,

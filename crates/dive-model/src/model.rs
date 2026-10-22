@@ -140,6 +140,7 @@ pub struct Model {
     pub postconditions: Result<Vec<Named>, BindError>,
     /// `SYMMETRY`, by name.
     pub symmetry: Option<String>,
+    pub(crate) symmetry_liveness: crate::SymmetryLivenessResolution,
     /// Prepared safety reduction. Concrete states remain unmodified.
     pub symmetry_reduction: Option<Arc<crate::symmetry::Reduction>>,
     /// Pre-constant-evaluation lookup, retained only for the configured declaration.
@@ -202,6 +203,39 @@ impl Model {
         (opts.ctx.order == dive_value::ValueOrder::Tlc
             || opts.exploration == dive_eval::ExplorationOrder::Tlc)
             && self.names.len() > self.evaluator.startup_names()
+    }
+
+    /// The immutable original declaration and policy after actual role binding.
+    /// This is not exploration or witness evidence.
+    ///
+    /// ```
+    /// # fn example(model: &dive_model::Model) {
+    /// let requested = model.symmetry_liveness().requested();
+    /// assert!(["unreduced", "refuse", "tlc"].contains(&requested.as_str()));
+    /// # }
+    /// ```
+    #[must_use]
+    pub const fn symmetry_liveness(&self) -> &crate::SymmetryLivenessResolution {
+        &self.symmetry_liveness
+    }
+
+    /// Whether this model uses full concrete identities for temporal checking.
+    /// Public role/declaration changes or an installed reduction invalidate it.
+    ///
+    /// ```
+    /// # fn example(model: &dive_model::Model) {
+    /// if model.unreduced_symmetry_liveness() {
+    ///     assert!(model.symmetry_reduction.is_none());
+    ///     assert!(!model.implied_temporals.is_empty());
+    /// }
+    /// # }
+    /// ```
+    #[must_use]
+    pub fn unreduced_symmetry_liveness(&self) -> bool {
+        self.symmetry_liveness.unreduced()
+            && self.symmetry.as_deref() == self.symmetry_liveness.declared()
+            && !self.implied_temporals.is_empty()
+            && self.symmetry_reduction.is_none()
     }
 
     /// Admits public bound-model metadata before backend startup or host effects.

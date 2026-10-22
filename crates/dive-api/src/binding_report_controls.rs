@@ -15,6 +15,7 @@ fn report(tlc: bool, capture: Option<bool>) -> CheckReport {
         config: "BindingWriter.cfg".into(),
         profile: if tlc { Profile::Tlc } else { Profile::Dive },
         opts,
+        symmetry_liveness_explicit: false,
         seed_given: true,
         fp_given: true,
         workers_requested: 1,

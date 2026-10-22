@@ -16,9 +16,20 @@ timing, thread or queue order, tableau numbering or SCC and lasso choice.
 ## Corpus scoreboard
 
 Measured 2026-10-22 against pinned TLC `tlc-2026.10.06.014338` goldens.
-The one-worker rows are from exact source `866c00ba` on `4e219ea8`, with an
-explicit file graph-label policy over packed atom truth. The complete 156-model
-population is unchanged. `FiniteMonotonic/MCCRDT` moves from unsupported to
+The one-worker rows are from exact source `a9c7376f` on `5913ffd6`, with the
+full gate passing and all 2,274 tests run. The complete 156-model population
+is unchanged. Supported default-profile symmetry liveness now checks the whole
+unreduced graph. `P4SymLive` moves from refusal to the exact registered D-005
+expected divergence: 2 distinct / 3 generated / depth 2, versus TLC's reduced
+1 / 2 / 1. This closes one default refusal without increasing Agree. TLC quotient
+and VIEW liveness remain refused. All other baseline observables are unchanged;
+all 458 SANY module comparisons agree. The
+[compact qualification](survey/data/unreduced-symmetry-liveness-qualification-2026-10-22.json)
+records source and tool pins, actual reports, generated baselines and limitations.
+
+The earlier `866c00ba` results on `4e219ea8`, with an explicit file graph-label
+policy over packed atom truth, remain unchanged. `FiniteMonotonic/MCCRDT`
+moved from unsupported to
 agreement under TLC semantics (25,000 distinct / 1,350,001 generated / depth 16).
 Its default-profile result (25,000 / 900,001 / 16) remains the exact registered
 D-022 expected divergence, never agreement. `allocator/AllocatorImplementation`
@@ -36,7 +47,7 @@ the TLC profile.
 | Profile | Workers | Models | Agree | Unsupported | Expected divergence | Disagree / timeout / pending / oracle error |
 |---------|--------:|-------:|------:|------------:|--------------------:|-------------------------------------------:|
 | TLC | 1 | 156 | 149 | 7 | 0 | 0 |
-| default | 1 | 156 | 143 | 7 | 6 | 0 |
+| default | 1 | 156 | 143 | 6 | 7 | 0 |
 | default | 4 | 156 | 144 | 9 | 3 | 0 |
 
 The four-worker observation replaces the historical `1f5ae5fa` row

@@ -214,6 +214,7 @@ fn empty_selection_is_a_usage_error() -> TestResult {
 
 fn success() -> OracleResult {
     OracleResult {
+        native_unreduced_symmetry: false,
         verdict: Verdict::Success,
         verdict_code: Some(2193),
         error_class: Some("TLC_SUCCESS".to_owned()),

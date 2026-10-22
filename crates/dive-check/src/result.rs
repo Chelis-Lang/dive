@@ -387,6 +387,9 @@ pub struct PredecessorUsage {
 /// The result of a check.
 #[derive(Clone, Debug)]
 pub struct CheckResult {
+    /// Original declared symmetry and effective temporal policy after binding.
+    /// `None` means no model was successfully bound.
+    pub symmetry_liveness: Option<dive_model::SymmetryLivenessResolution>,
     /// Opt-in transient disk seen-state operation and explicit cleanup facts.
     pub seen: Option<crate::SeenUsage>,
     /// Frontier-only encoded/disk retention and cleanup evidence.

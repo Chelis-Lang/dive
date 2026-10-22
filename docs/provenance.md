@@ -2016,3 +2016,43 @@ copying the edge payload. Only private graph
 read access changes in the shared lasso routines. The recurrent restriction,
 iterative SCC and reverse graph algorithms remain unchanged. No TLC algorithm
 is newly ported and no product or acceptance resource limit is removed.
+
+### Liveness quotient primary-control preparation
+
+The `liveness-quotient-primary` validation microcorpus preserves the existing
+`P4SymLive` and `SymLiveSymProp` source bytes and removes only their configured
+`SYMMETRY Sym` lines. No historical probe or golden is overwritten. The new
+VIEW pair is a small semantic control motivated by pinned TLC commit
+`94d0c5070852b37b801bb8998c436383ab7ee37b`: `SetOfStates.put0` retains concrete
+states with the same VIEW fingerprint using linear probing, while the
+non-tableau `LiveCheck.addNextState` may retain only the first action label for
+an already-written successor class. The pair reverses concrete generation
+order and uses one strong-fairness requirement; it prescribes no oracle result.
+The pinned harness generated all four primary goldens with the recorded reason
+“Record unreduced symmetry references and concrete VIEW successor-order controls
+before any liveness reduction policy change”, one worker, seed/fingerprint zero,
+final liveness checking and a 512 MB Java heap. Its `--timeout 10` is an external
+per-pass budget; each harness arm also had a 15-second owned process-group
+backstop. All four completed uncensored. Both symmetry-disabled controls report
+success (2 distinct, 3 generated, depth 2). VIEW forward reports success;
+reverse reports a violation of `Bad` (both 2 distinct, 5 generated, depth 2).
+The reverse literal trace fails its `SF(A)` by source inspection; no independent
+validator was executed. The actual result difference is preserved before any
+implementation change. [Compact evidence](survey/data/liveness-quotient-primary-2026-10-22.json)
+records the producer and input hashes, with the explicit limitation that internal
+raw Java transcripts are unavailable. No algorithm is ported and no checker,
+validator, report or trace policy changes in these primary controls.
+
+
+### Whole-run unreduced temporal symmetry (D-005)
+
+The accepted ADR 0085/0019 policy disables reduction only after actual binding
+finds genuine temporal properties; it preserves the declared `SYMMETRY` and
+ordinary startup/role error order. The implementation is a native policy route,
+not a port of TLC's quotient graph or witness reconstruction. Pure concrete
+checking and fresh independent replay retain the original scopes, literal
+closing and full fairness. TLC-equivalent requested mode `tlc` and all VIEW
+quotient paths remain unsupported. Primary unreduced references and the distinct
+VIEW order/witness gap were recorded before implementation in the separate
+`liveness-quotient-primary` corpus; no primary golden is edited. See its
+[compact evidence](survey/data/liveness-quotient-primary-2026-10-22.json).

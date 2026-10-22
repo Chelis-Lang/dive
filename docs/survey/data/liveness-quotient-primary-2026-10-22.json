@@ -1,0 +1,144 @@
+{
+  "schema": 1,
+  "date": "2026-10-22",
+  "scope": "Four primary validation models, separate from established parity populations",
+  "oracle": {
+    "id": "tlc-2026.10.06.014338",
+    "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+    "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "java_archive_sha256": "190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05",
+    "java_version": "17.0.20.1+1",
+    "platform": "macos-aarch64"
+  },
+  "producer": {
+    "source": "177d960b26da85ff84304516045811a3c482771e",
+    "binary_sha256": "15a92815dfac834423a8c13748c54eb33deafebf45e014c6ef6f444eda43582c",
+    "fixture_source": "1dd039fcfd6bc11f6455843b83aa8a2a38d9e2c2",
+    "fixture_tree": "34c964fbf42d5a082574c72f9a99cd8757b9132e",
+    "embedded_tlc_parser": true,
+    "own_crate_lock_and_toolchain_blobs_exact_to_fixture_source": true,
+    "identity_manifest_sha256": "af934aadb27b12b9c92b24f9ec323c74351d817c04c4654d59d85d77b32e73ea"
+  },
+  "inputs": {
+    "corpus": "liveness-quotient-primary",
+    "corpus_content_id": "sha256:c7af4ede50a4652bef8b026142cd01397b6a1f61bd39891b7193f915275bef50",
+    "reason": "Record unreduced symmetry references and concrete VIEW successor-order controls before any liveness reduction policy change",
+    "fixture_transform_proof_sha256": "49823541bdebb2e6d8fe24ae22905938b1a240af77d8595d2d1d39312a9edf46",
+    "module_copies": "P4SymLive and SymLiveSymProp byte-identical to original; cfg removes only SYMMETRY Sym",
+    "view_configs": "Shared ViewTwinTargets module; Reverse FALSE versus TRUE only"
+  },
+  "protocol": {
+    "workers": 1,
+    "seed": 0,
+    "fp": 0,
+    "lncheck": "final",
+    "java_heap": "512m",
+    "harness_external_per_tlc_pass_seconds": 10,
+    "owned_os_backstop_per_harness_arm_seconds": 15,
+    "whole_context_seconds": 120,
+    "tlc_native_wall_budget": null,
+    "extra_oracle_passes": 0,
+    "existing_matching_trace_pass": "Reverse only; generator cross-checks clean and trace facts",
+    "native_dive_runs": 0
+  },
+  "observations": [
+    {
+      "id": "p4-unreduced",
+      "model": "specifications/P4Unreduced/P4SymLive.cfg",
+      "golden_sha256": "a4e73d7abbce0240f8d3b896cd1ebdbb86bec2c3f1cc875ae1f61463919c3bca",
+      "outer_observation_sha256": "81fedc591a69461feb49f35539eb6f182adf711b8f66c9079ba8ac198d95bf4c",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "a7682017fd7b72d45342b2a9c09575e2d9325493dbf1974ab800e3d313e8861c",
+      "uncensored_harness_exit": 0,
+      "oracle_verdict": "success",
+      "oracle_exit": 0,
+      "property": null,
+      "counts": {
+        "distinct_states": 2,
+        "states_generated": 3,
+        "states_left_on_queue": 0,
+        "depth": 2
+      },
+      "trace_pass": false
+    },
+    {
+      "id": "symmetric-property-unreduced",
+      "model": "specifications/SymmetricPropertyUnreduced/SymLiveSymProp.cfg",
+      "golden_sha256": "69534cbc0a30e1d2260161ee178f8a60db69a9c3e98c230a3dd7e611a24f9f0c",
+      "outer_observation_sha256": "3736ac1b1929d0d23688115d40394044eb4a12902cdfa8e63611dff0e2ddec23",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "7c949ae6a6e9f19b8c644c3a1e06e9f872639aa29ac6c72aa0c401f36b0b7df7",
+      "uncensored_harness_exit": 0,
+      "oracle_verdict": "success",
+      "oracle_exit": 0,
+      "property": null,
+      "counts": {
+        "distinct_states": 2,
+        "states_generated": 3,
+        "states_left_on_queue": 0,
+        "depth": 2
+      },
+      "trace_pass": false
+    },
+    {
+      "id": "view-forward",
+      "model": "specifications/ViewTwinTargets/Forward.cfg",
+      "golden_sha256": "63eb2afb827ba3eea4842c3700f5d2b9975d07b8d475e75f28518fe7fbfcc682",
+      "outer_observation_sha256": "33b4d163daca6338ccc46077fad7dc8a6b5ca366d7d60799e2ea1b69a841af66",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "96aaf3959cddc17970a2c934e9eba919d0329dbdba12ec9a32cfd61e0c03a06e",
+      "uncensored_harness_exit": 0,
+      "oracle_verdict": "success",
+      "oracle_exit": 0,
+      "property": null,
+      "counts": {
+        "distinct_states": 2,
+        "states_generated": 5,
+        "states_left_on_queue": 0,
+        "depth": 2
+      },
+      "trace_pass": false
+    },
+    {
+      "id": "view-reverse",
+      "model": "specifications/ViewTwinTargets/Reverse.cfg",
+      "golden_sha256": "bf6f2c001b01d8fa60341007d9b25981b11e0dbf93c44266be7af87a0e94a5df",
+      "outer_observation_sha256": "7aa8598321b5c809ba347c823e032879a4c345ad6ff5ab75ac19d033fd94b0a1",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "1d79a9dc98d1ebec81a2f4dc347f66b74c3f069f82a53777a1804de6931f4415",
+      "uncensored_harness_exit": 0,
+      "oracle_verdict": "liveness-violation",
+      "oracle_exit": 13,
+      "property": "Bad",
+      "counts": {
+        "distinct_states": 2,
+        "states_generated": 5,
+        "states_left_on_queue": 0,
+        "depth": 2
+      },
+      "trace_pass": true
+    }
+  ],
+  "evidence": {
+    "manifest_sha256": "26b4177734251a3904fa06d9df79b33aab246bf480d13eaa1634ebba094f3076",
+    "runner_sha256": "5efbcc68117b2d86cecb14cf3920236dd51823795f1230023a92f191d525c497",
+    "summary_sha256": "cb4a1eee976bc2d229ba89f77ad4391cea6c3d9e813399b0a2e32bb0e52f4121",
+    "independent_review_sha256": "63a78e8eaae9a32f0d12edd4a53de313a32e8e65f8cdcbf44995b77962cf8cef",
+    "supervisor_sha256": "c4f0b2f298ecb1d777c04740246be10ab4476d895139f24ae73eb57ce3f10f61",
+    "all_four_arms_uncensored_harness_exit_zero": true,
+    "all_generated_bytes_equal_original_snapshots": true,
+    "all_before_between_after_source_and_tool_identities_verified": true,
+    "internal_raw_tlc_stdout_stderr_available": false,
+    "original_outer_harness_logs_preserved": true
+  },
+  "conclusions": {
+    "unreduced_symmetry_controls": "Both success, 2 distinct / 3 generated / depth2, no warning",
+    "view_pair": "Forward success; Reverse liveness violation Bad; both 2 distinct / 5 generated / depth2",
+    "view_order_reason": "Same VIEW fingerprints retain concrete-distinct successors; first retained action labels to an already-expanded class can differ with generation order. This is source-based explanation of the primary result, not an implementation certificate.",
+    "reverse_trace_source_audit": "Reverse literal two-state loop (0,0)->(1,1)->(0,0) never takes A (its only x=1 edge has y_next=0), while A is enabled at x=1, so that literal repetition fails SF(A). This is source reasoning, not an executed independent validator result. Matching TLC trace-pass reproduction does not establish valid concrete fairness.",
+    "independent_validator_executed": false,
+    "checker_or_validator_policy_changed": false,
+    "strict_agreement_or_scoreboard_credit": false,
+    "performance_or_capacity_claim": false
+  }
+}

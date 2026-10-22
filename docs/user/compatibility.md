@@ -13,6 +13,7 @@ TLC coverage.
 | Structural comparisons | Approved TLA+ comparisons | TLC's comparison/error behavior |
 | Safety workers | Automatic parallel width | One by default; an explicit width is reported |
 | Fingerprints | Native combination | TLC polynomial scheme, selectable with `--fp` |
+| Symmetry with genuine temporal properties | Whole-run unreduced checking (D-005) | `--symmetry-liveness=tlc` requests quotient semantics, currently refused; explicit `unreduced` under compat is `tlc+overrides` |
 | Explicit bounded final temporal mode | Deterministic short selection | Same short selection, labeled `tlc+overrides`; TLC's exact lasso is not reproduced (`--lasso tlc` is a usage error) |
 | Ordinary periodic temporal scheduling | Pending | Pending; final mode does not implement periodic scheduling |
 | Wall-clock budget (`--time-limit`) | 30 minutes (provisional), then `stopped`, exit 5 | None, as TLC has none (D-026) |

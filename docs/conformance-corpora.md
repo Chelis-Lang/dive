@@ -309,3 +309,48 @@ target/debug/dive-conformance golden generate \
 The raw primary observations stay external; compact source and producer hashes
 are recorded in [the primary evidence](survey/data/json-runtime-names-2026-10-21.json).
 The native Array/Object conversions remain named refusals.
+
+## Liveness quotient primary controls
+
+`liveness-quotient-primary` is four explicit validation models, separate from
+established parity populations. The two symmetry-disabled controls copy
+`P4SymLive` and `SymLiveSymProp` without changing their module bytes; their
+configurations remove only `SYMMETRY Sym`. The original reduced probes remain
+unchanged. These controls establish primary references for a future whole-run
+unreduced policy, rather than endorsing quotient liveness checking.
+
+`ViewTwinTargets` has two configurations differing only in `Reverse`. They
+reverse the generation order of concrete successors with the same VIEW. From
+the second class these successors target the already-expanded initial class,
+with different truth values for the single strong-fairness action `A`.
+`WF(Next)` excludes permanent stuttering; `SF(A)` tests recurring action truth
+rather than imposing two potentially contradictory retained edge labels.
+These are order-sensitive primary probes, not proposed admission rules.
+
+The pinned primary generation completed with a recorded reason, one worker,
+`-lncheck final`, seed/fingerprint zero, a 512 MB Java heap, `--timeout 10`, and
+a separate 15-second owned process-group backstop per harness arm. All four
+harness arms finished uncensored. The timeout is an external harness process
+budget; TLC has no native wall-clock budget here. Manifest runtime/result
+metadata remains `unknown`; generated goldens hold the observed facts.
+
+| Control | Pinned TLC result | Distinct / generated / depth |
+|---|---|---|
+| P4 without SYMMETRY | success | 2 / 3 / 2 |
+| symmetric token property without SYMMETRY | success | 2 / 3 / 2 |
+| VIEW forward successor order | success | 2 / 5 / 2 |
+| VIEW reverse successor order | liveness violation of `Bad` | 2 / 5 / 2 |
+
+Reversing the two equivalent disjuncts changes TLC's reported result. The
+reverse result's matching trace pass supplies the literal two-state loop
+`(x,y)=(0,0),(1,1)` closing to `(0,0)`. Source inspection shows that literal
+repetition never takes `A` while `A` is enabled at every `x=1` state, so it
+fails `SF(A)`. This is a source argument, not an executed independent validator
+result. A matching trace pass is not a fairness validation certificate.
+VIEW quotient capture, edge-label retention and concrete witness reconstruction
+therefore remain separate obligations; these probes authorize no approximation.
+
+[Compact primary evidence](survey/data/liveness-quotient-primary-2026-10-22.json)
+records source, producer, pins and original observation hashes. Raw outer harness
+logs and generated golden bytes stay external. This frozen generator does not
+preserve its internal raw Java stdout/stderr; that limitation is explicit.

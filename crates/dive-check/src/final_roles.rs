@@ -58,7 +58,9 @@ fn eligible(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> bool {
 /// with only [`dive_eval::ActionComposition::Tlc`] selected, and polynomial 0,
 /// no storage/directory overrides, deadlock override, sequential flag or chaos,
 /// and no source/configured randomness under VIEW or SYMMETRY. Seed and worker
-/// requests are retained. Eligibility is not a purity or model-truth claim.
+/// requests and the independently selected symmetry/liveness policy are retained.
+/// That policy is resolved only after actual role binding. Eligibility is not a
+/// purity or model-truth claim.
 ///
 /// The actual bound roles decide the route. Empty implied temporal roles retain
 /// every configured initial/invariant/action obligation and the ordinary

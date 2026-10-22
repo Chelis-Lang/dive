@@ -480,3 +480,26 @@ retain explicit refusals. Value-bound constants are permitted. Admission does
 not prove termination or suppress ordinary evaluation errors/resource limits.
 See [the temporal user guide](user/temporal.md#state-level-recursive-operators)
 for the checked CLI fixture and both-profile success/validated-violation tests.
+
+
+### Whole-run unreduced symmetry policy
+
+`CheckOptions.symmetry_liveness` and `BindOptions.symmetry_liveness` transport
+D-005 explicitly; the dive constructors select `Unreduced`, and TLC constructors
+select `Tlc` (its quotient temporal path still refuses). Existing struct-literal
+callers must supply the new typed field or use a constructor/update expression;
+these Rust APIs are not yet the stable published library interface.
+`Model::symmetry_liveness` exposes an immutable post-role-binding resolution,
+retaining the original declaration. Only a genuine temporal obligation can
+select whole-run unreduced identities. All safety-only symmetry behavior is
+unchanged. Capture verifies the requested/bound policy and refuses any prepared
+reduction or VIEW; no quotient graph can enter the unreduced path.
+
+Independent trace binding shares only this model-level typed policy. The legacy
+`Recipe::new` conservatively retains periodic-symmetry refusal; select
+`Recipe::with_symmetry_liveness` explicitly to reconstruct unreduced validation
+inputs. `TraceOptions` and the file API do this independently from their own
+resolved request. Literal closing and full fairness remain mandatory; neither
+model metadata nor an external report provides a validation certificate.
+The optional report-3 summary and requested fields are additive. Old producers
+without them remain readable, but cannot authorize the exact D-005 count tuple.

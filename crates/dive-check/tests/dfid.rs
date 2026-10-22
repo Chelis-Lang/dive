@@ -303,6 +303,7 @@ fn pure_operator_scopes_supplied_by_rust_callers_complete_dfid() {
             &config,
             &dive_model::BindOptions {
                 eval: check.eval,
+                symmetry_liveness: check.symmetry_liveness,
                 no_deadlock: check.no_deadlock,
                 host: None,
             },

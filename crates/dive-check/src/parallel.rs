@@ -2048,6 +2048,7 @@ pub(crate) mod budget_cut_tests {
                     &cfg,
                     &dive_model::BindOptions {
                         eval: options.eval,
+                        symmetry_liveness: options.symmetry_liveness,
                         no_deadlock: options.no_deadlock,
                         host: None,
                     },

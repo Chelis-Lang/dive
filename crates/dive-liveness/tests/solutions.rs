@@ -24,6 +24,7 @@ fn pinned_solution_controls_keep_all_properties_and_validated_witnesses() {
                 &config,
                 &dive_model::BindOptions {
                     eval: options.eval,
+                    symmetry_liveness: options.symmetry_liveness,
                     no_deadlock: options.no_deadlock,
                     host: None,
                 },

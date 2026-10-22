@@ -199,3 +199,13 @@ earlier error or already validated witness keeps its actual precedence; a later
 sampling failure is still reported as unavailable rather than an enforced
 ceiling. Optional diagnostic identifiers and resource metadata are additive
 under ADR 0108; the `dive-trace` payload remains version 1.
+
+
+For D-005, check reports may add `options.symmetry_liveness` and its source,
+and a nullable bound `symmetry_liveness` summary. Legacy schema-3 reports may
+omit these fields; readers do not infer an unreduced mode from their absence.
+A supplied requested mode has the closed vocabulary `unreduced`, `refuse`, `tlc`;
+unknown or contradictory values fail closed. The summary retains the declared
+name and actual bound temporal applicability. It is neither an execution claim
+nor a proof. Existing verdicts, execution facts and independent counterexample
+validation remain required. Native trace payloads stay version 1.
