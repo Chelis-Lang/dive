@@ -150,6 +150,22 @@ fn file_routes_report_machine_capacity_without_changing_other_owners() {
                 .expect("real file report");
                 let json = report.to_json();
                 assert_eq!(json["schema_version"], 3);
+                if config != CONFIG && matches!(temporal, TemporalMode::Ordinary) {
+                    // Ordinary genuine binding failures retain the existing
+                    // safety report; no temporal role was established.
+                    let result = report.result().expect("ordinary binding result");
+                    assert!(result.binding_model_error);
+                    assert_ne!(report.verdict(), "success");
+                    assert!(report.temporal_result().is_none());
+                    assert_eq!(json["check_kind"], "safety");
+                    for name in ["temporal_bounds", "lncheck", "lasso", "tlc_exact_temporal"] {
+                        assert!(json["options"].get(name).is_none(), "{name}");
+                    }
+                    assert!(json.get("execution").is_none());
+                    assert!(json["statistics"].is_null());
+                    assert!(json["counterexample"].is_null());
+                    continue;
+                }
                 let bounds = &json["options"]["temporal_bounds"];
                 assert_eq!(
                     bounds["product_vertices"],
