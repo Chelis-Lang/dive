@@ -66,6 +66,28 @@ whole suite with the default profile.
 
 ## Local gates
 
+The conformance harness owns each native command's process group on Linux and
+macOS (ADR 0112). Its leader remains unreaped until bounded system-process
+inspection finds no live group members. Cancellation permanently rejects new
+work and drains the retained owners; completion and cancellation cannot send a
+later signal through a reaped numeric group ID. A failed inspection or cleanup
+is a harness error, not a verdict or an empty group. Keep the original raw output
+and require external cleanup proof before accepting a campaign with such a
+failure. Native model budgets do not bound independent validation inside the
+harness process, so retain the outer campaign deadline.
+
+Group inspection uses the fixed system `/bin/ps` with isolated, bounded leaf
+observers. Each drain attempt has a five-second budget per registered native group, plus
+bounded preflight-observer cleanup. Error/unwind guards can make a further
+bounded attempt; cancellation may serialize with one already in progress. Allow
+that cleanup headroom for the harness to handle
+SIGINT/SIGTERM before an outer supervisor kills it. Killing only the harness's
+own group does not cover its separate native groups. The harness's documented
+host scope is Linux/macOS; child execution elsewhere fails before launch rather
+than silently running without group cleanup. Session escape,
+external reapers and uninterruptible OS work still require honest HOLD/cleanup
+handling; these controls are not a process sandbox.
+
 ```sh
 cargo xtask gate --fast                 # what CI's Workspace gate runs
 cargo xtask gate --full                 # whole suite, cm1 + validation-smoke at 1/4/8, small corpus tier vs baselines

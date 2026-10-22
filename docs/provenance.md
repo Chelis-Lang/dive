@@ -2056,3 +2056,21 @@ quotient paths remain unsupported. Primary unreduced references and the distinct
 VIEW order/witness gap were recorded before implementation in the separate
 `liveness-quotient-primary` corpus; no primary golden is edited. See its
 [compact evidence](survey/data/liveness-quotient-primary-2026-10-22.json).
+
+### Conformance process-group ownership
+
+The harness owner/registry state machine is an original Rust design (ADR 0112),
+not a TLC algorithm port. Integration follows the safe `waitid`,
+`kill_process_group` and `Pid::from_child` APIs after reading cached `rustix`
+1.1.5 primary sources in `src/process/{wait,kill}.rs` and `src/pid.rs` (used under
+its MIT licence option). Rust 1.99.0 standard-library `Child::try_wait` and Unix
+status-cache source were also read; observing completion by `try_wait` reaps
+the child and is unsuitable before a later numeric group signal. No upstream
+implementation or unsafe wrapper is copied into the workspace.
+
+The existing harness README has declared Linux/macOS hosts since commit
+`0dcf235b6`. Child execution elsewhere is explicitly refused before launch;
+there is no successful direct-child fallback or claimed BSD qualification.
+Existing Unix process assertions remain intact. Process-group quiescence and
+retained child ownership are cooperative host controls, with session escape,
+external reapers and uninterruptible OS work outside a universal cleanup claim.

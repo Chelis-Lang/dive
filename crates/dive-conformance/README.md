@@ -151,7 +151,7 @@ run --impl tlc|tlc:<oracle-id>|dive|adapter:<file.toml>
   - 20 × the manifest runtime + 120 s, at least 300 s, capped by `--timeout-cap` (default 3600); unknown runtimes get the cap;
   - in `run`, also at least 4 × the golden's recorded elapsed time + 60 s, even above the cap. Manifest runtimes were measured with several workers.
 
-  By default `dive check` runs with `--time-limit none --max-memory none`, so only this timeout applies, as before. `--tlc-budgets` (ADR 0107) instead gives a model with a golden a budget derived from TLC's recorded single-worker time, `max(60 s, 10 × golden elapsed)`, hard-capped by `--budget-cap` (default 900). dive receives it as `--time-limit` in both profiles (labelled `tlc+overrides` under compat) and `--xmx` as `--max-memory`, reports a structured `stopped` result, and is killed only 30 s after its limit. Either stop is recorded as `timeout`, a finding. The gate, smoke/cm1 scripts and nightly model checks select `--tlc-budgets --budget-cap 900` explicitly. The strict temporal reader accepts only the harness-requested budget override with unchanged TLC semantic settings; other overrides remain ineligible. On timeout the whole process group is killed with `SIGKILL`. Ctrl-C (`SIGINT`) and `SIGTERM` kill every live oracle process group before the harness exits.
+  By default `dive check` runs with `--time-limit none --max-memory none`, so only this timeout applies, as before. `--tlc-budgets` (ADR 0107) instead gives a model with a golden a budget derived from TLC's recorded single-worker time, `max(60 s, 10 × golden elapsed)`, hard-capped by `--budget-cap` (default 900). dive receives it as `--time-limit` in both profiles (labelled `tlc+overrides` under compat) and `--xmx` as `--max-memory`, reports a structured `stopped` result, and is killed only 30 s after its limit. Either stop is recorded as `timeout`, a finding. The gate, smoke/cm1 scripts and nightly model checks select `--tlc-budgets --budget-cap 900` explicitly. The strict temporal reader accepts only the harness-requested budget override with unchanged TLC semantic settings; other overrides remain ineligible. On Linux/macOS, timeout handling sends `SIGKILL` to the owned group and retains the leader through a bounded quiescence check. Ctrl-C (`SIGINT`) and `SIGTERM` permanently block new work and attempt the same owned-group cleanup before exit. An unproven drain is a harness error requiring external supervision (ADR 0112).
 - `--java PATH`: opts into a system Java. It is recorded in provenance as `source: system`, with the executable's SHA-256.
 - `--repo-root DIR` and `--cache-dir DIR`.
 
@@ -394,11 +394,18 @@ Each note has a minimal spec under `tests/fixtures/specs/` and captured transcri
 ## Limitations
 
 - Only the `examples-manifest` and `modules-only` layouts are enumerated. `tbd` corpora (ValidationTestSuite) report "not yet supported". The tlaplus repo tests (`tlaplus-tests`) and CommunityModules are `modules-only`: SANY goldens, no models.
-- `dive check` refuses features it does not implement yet (liveness, symmetry, simulation, Java-overridden modules, among others), so those models are `unsupported`.
+- Unsupported model features are reported by name as `unsupported`; see the
+  current [temporal checking](../../docs/user/temporal.md) and
+  [TLC differences](../../docs/tlc-differences.md) guides.
 - Examples submodules (CCF, azure-cosmos-tla, BlockingQueue, microwave) are never fetched. They are listed in reports as unfetched.
 - Simulation results are compared by verdict only; the simulation is pinned with `-seed 0`.
 - External adapters are parsed but not executed.
-- The harness targets macOS and Linux. Process-group killing uses Unix process groups.
+- The harness targets macOS and Linux. It retains native process-group leaders
+  unreaped through group cleanup (ADR 0112), using bounded `/bin/ps` inspection.
+  Cancellation blocks new work and serializes signalling with terminal reap.
+  Failed ownership/cleanup is a harness error and requires external supervision;
+  it is never a model result. Child execution on other hosts is explicitly
+  refused before launch; no successful direct-child fallback is substituted.
 
 `run --sany-only` compares modules without running model checking. Use it
 with `--sany-phase parse` for parser-only conformance; `--no-sany` selects
