@@ -326,7 +326,7 @@ pub struct Failure {
     exploration: Option<Box<dive_liveness::analyze::ExplorationEvidence>>,
     elapsed: Duration,
     action_evaluation: Option<Box<dive_liveness::analyze::ActionEvaluation>>,
-    validation_progress: Option<ValidationProgress>,
+    validation_progress: Option<Box<ValidationProgress>>,
     incomplete: bool,
     periodic: Option<Box<Checks>>,
     configuration: Option<Box<Configuration>>,
@@ -399,7 +399,7 @@ impl Failure {
     /// Actual progress from an interrupted independent validation invocation.
     #[must_use]
     pub fn validation_progress(&self) -> Option<&ValidationProgress> {
-        self.validation_progress.as_ref()
+        self.validation_progress.as_deref()
     }
     /// Original diagnostic, preserving its code and classification.
     #[must_use]
@@ -574,11 +574,11 @@ fn validation_binding_failure(mut failure: Failure) -> Failure {
         failure.error(),
         Error::Analysis(AnalysisError::Stopped(_) | AnalysisError::BudgetMeasurement(_))
     ) {
-        failure.validation_progress = Some(ValidationProgress {
+        failure.validation_progress = Some(Box::new(ValidationProgress {
             checks_passed: 0,
             state: None,
             check: None,
-        });
+        }));
     }
     failure
 }
@@ -706,7 +706,7 @@ fn final_validation_run_failure(
 ) -> Failure {
     let (error, progress) = validation_run_error(control, error);
     let mut failure = Failure::after(error, Stage::Validation, capture);
-    failure.validation_progress = progress;
+    failure.validation_progress = progress.map(Box::new);
     failure
 }
 
@@ -1054,7 +1054,7 @@ fn prefix_validation_run_failure(
 ) -> Failure {
     let (error, progress) = validation_run_error(control, error);
     let mut failure = prefix_failure(error, Stage::Validation, prefix);
-    failure.validation_progress = progress;
+    failure.validation_progress = progress.map(Box::new);
     failure
 }
 
