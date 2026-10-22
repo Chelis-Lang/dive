@@ -1,52 +1,40 @@
-//! Running a child process with a hard timeout.
+//! Running a child with a deadline and explicit process ownership.
 //!
-//! The child is placed in its own process group, and on timeout the whole
-//! group is killed with `SIGKILL`, so a JVM and anything it started cannot
-//! outlive the harness. Output goes to files rather than pipes, so a chatty
-//! child can never block on a full pipe.
-//!
-//! Because children run in their own process groups, a terminal's Ctrl-C
-//! does not reach them. [`install_signal_handler`] therefore tracks every
-//! live child group and, on `SIGINT` or `SIGTERM`, kills them all before the
-//! harness exits.
+//! Linux and macOS retain each process-group leader unreaped until the group
+//! has no live members (ADR 0112). Output uses regular files, not pipes.
+//! Child execution on other hosts is refused, matching the documented harness
+//! target scope. These are cooperative host controls, not a sandbox
+//! against session escape or an absolute bound on uninterruptible OS operations.
 
 use crate::error::{Error, Result};
-use std::collections::BTreeSet;
 use std::path::Path;
-use std::process::{Command, Stdio};
-use std::sync::Mutex;
-use std::time::{Duration, Instant};
+use std::process::Command;
+use std::time::Duration;
 
-/// Process groups of children that are still running.
-static LIVE_GROUPS: Mutex<BTreeSet<u32>> = Mutex::new(BTreeSet::new());
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+use std::process::Stdio;
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+use std::time::Instant;
 
-fn track(pid: u32, live: bool) {
-    if let Ok(mut groups) = LIVE_GROUPS.lock() {
-        if live {
-            groups.insert(pid);
-        } else {
-            groups.remove(&pid);
-        }
-    }
-}
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+mod owned;
 
-/// Kills every tracked child process group.
+/// Permanently prevents further harness children and drains currently owned
+/// groups on Linux/macOS. No child execution is permitted on other hosts.
+/// Cleanup failure is reported on stderr; it is never a native verdict.
 pub fn kill_all_children() {
-    let groups: Vec<u32> = LIVE_GROUPS
-        .lock()
-        .map(|g| g.iter().copied().collect())
-        .unwrap_or_default();
-    for pid in groups {
-        kill_group(pid);
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    if let Err(error) = owned::cancel() {
+        eprintln!("harness child cleanup failed; external supervision required: {error}");
     }
 }
 
-/// On `SIGINT` or `SIGTERM`, kills every tracked child process group and
-/// exits with `128 + signal`.
+/// On `SIGINT` or `SIGTERM`, latches cancellation, attempts bounded owned-group
+/// cleanup, then exits with `128 + signal`.
 ///
 /// # Errors
-/// Fails if the handler cannot be registered.
-#[cfg(unix)]
+/// Fails if signal notification cannot be registered.
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 pub fn install_signal_handler() -> Result<()> {
     use signal_hook::consts::{SIGINT, SIGTERM};
     let mut signals = signal_hook::iterator::Signals::new([SIGINT, SIGTERM])
@@ -60,13 +48,18 @@ pub fn install_signal_handler() -> Result<()> {
     Ok(())
 }
 
-/// No-op on platforms without Unix signals.
+/// Refuses harness child execution outside its documented Linux/macOS hosts.
 ///
 /// # Errors
-/// Never.
-#[cfg(not(unix))]
+/// Always returns a host-capability error before command dispatch.
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
 pub fn install_signal_handler() -> Result<()> {
-    Ok(())
+    Err(unsupported_host())
+}
+
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
+fn unsupported_host() -> Error {
+    Error::Command("harness child execution requires a Linux or macOS host (ADR 0112)".into())
 }
 
 /// How a child process ended.
@@ -86,44 +79,20 @@ pub struct ProcessOutcome {
     pub elapsed: Duration,
 }
 
-#[cfg(unix)]
-fn isolate(cmd: &mut Command) {
-    use std::os::unix::process::CommandExt as _;
-    cmd.process_group(0);
-}
-
-#[cfg(not(unix))]
-fn isolate(_cmd: &mut Command) {}
-
-#[cfg(unix)]
-fn kill_group(pid: u32) {
-    // Best effort: the group may already be gone.
-    let _ = Command::new("kill")
-        .args(["-KILL", "--", &format!("-{pid}")])
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .status();
-}
-
-#[cfg(not(unix))]
-fn kill_group(_pid: u32) {}
-
-#[cfg(unix)]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 fn signal_of(status: std::process::ExitStatus) -> Option<i32> {
     use std::os::unix::process::ExitStatusExt as _;
     status.signal()
 }
 
-#[cfg(not(unix))]
-fn signal_of(_status: std::process::ExitStatus) -> Option<i32> {
-    None
-}
-
-/// Runs `cmd`, capturing stdout and stderr into files under `scratch`, and
-/// kills its process group if it runs longer than `timeout`.
+/// Runs `cmd`, capturing stdout and stderr into files under `scratch`.
+/// Linux/macOS kill and prove quiescence of the owned group before leader reap.
+/// Other hosts are explicitly unsupported; no direct-child fallback runs.
 ///
 /// # Errors
-/// Fails if the process cannot be started or its output cannot be read.
+/// Fails on launch, cancellation, process/ownership inspection, cleanup or I/O
+/// failure. Unproven group cleanup latches the supervisor against further work.
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 pub fn run_with_timeout(
     cmd: &mut Command,
     timeout: Duration,
@@ -134,34 +103,8 @@ pub fn run_with_timeout(
     let out = std::fs::File::create(&out_path).map_err(|e| Error::io(&out_path, &e))?;
     let err = std::fs::File::create(&err_path).map_err(|e| Error::io(&err_path, &e))?;
     cmd.stdin(Stdio::null()).stdout(out).stderr(err);
-    isolate(cmd);
     let start = Instant::now();
-    let mut child = cmd.spawn().map_err(|e| {
-        Error::Command(format!("cannot start {}: {e}", cmd.get_program().display()))
-    })?;
-    let pid = child.id();
-    track(pid, true);
-    let mut timed_out = false;
-    let status = loop {
-        if let Some(status) = child
-            .try_wait()
-            .map_err(|e| Error::Command(format!("waiting for {pid}: {e}")))?
-        {
-            break status;
-        }
-        if start.elapsed() >= timeout {
-            timed_out = true;
-            kill_group(pid);
-            let _ = child.kill();
-            break child
-                .wait()
-                .map_err(|e| Error::Command(format!("waiting for {pid}: {e}")))?;
-        }
-        std::thread::sleep(Duration::from_millis(25));
-    };
-    // Reap anything the child left running in its group.
-    kill_group(pid);
-    track(pid, false);
+    let (status, timed_out) = owned::run(cmd, timeout)?;
     let elapsed = start.elapsed();
     let read = |p: &Path| {
         std::fs::read(p)
@@ -176,6 +119,19 @@ pub fn run_with_timeout(
         stderr: read(&err_path)?,
         elapsed,
     })
+}
+
+/// Refuses command execution outside the documented Linux/macOS host scope.
+///
+/// # Errors
+/// Always returns a host-capability error without launching a child.
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
+pub fn run_with_timeout(
+    _cmd: &mut Command,
+    _timeout: Duration,
+    _scratch: &Path,
+) -> Result<ProcessOutcome> {
+    Err(unsupported_host())
 }
 
 #[cfg(all(test, unix))]
