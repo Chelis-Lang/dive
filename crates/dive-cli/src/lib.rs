@@ -1470,7 +1470,7 @@ mod symmetry_liveness_tests {
                 ExitCode::from(EXIT_USAGE)
             );
             assert!(String::from_utf8_lossy(&err).contains("--symmetry-liveness expects"));
-            assert!(out.is_empty());
+            assert_eq!(out, [] as [u8; 0]);
             assert_eq!(
                 validate_trace_command(&args, &mut out, &mut err),
                 ExitCode::from(EXIT_USAGE)
