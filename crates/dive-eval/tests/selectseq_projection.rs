@@ -136,3 +136,51 @@ fn huge_binders_and_nested_selection_use_metadata_and_one_shared_budget() {
         }
     }
 }
+
+#[test]
+fn overridden_definition_sources_refuse_without_provider_calls() {
+    let ir = ir(
+        "---- MODULE Projection ----\nEXTENDS Sequences, FiniteSets\nD=={0}\nAlias=={0}\nQ==SelectSeq(<<0>>,LAMBDA v: Cardinality(D)=1)\nRedirected==SelectSeq(<<0>>,LAMBDA v: Cardinality(Alias)=1)\n====\n",
+    );
+    let target = ir.root_def("D").expect("D");
+    let alias = ir.root_def("Alias").expect("Alias");
+    for options in [Options::tlc(), Options::dive()] {
+        for (name, redirected) in [("Q", false), ("Redirected", true)] {
+            for warm in [false, true] {
+                let provider = Arc::new(Opaque(AtomicUsize::new(0)));
+                let mut input = Model::new(ir.clone());
+                input
+                    .def_values
+                    .insert(target, Value::deferred(provider.clone(), options.ctx));
+                if redirected {
+                    // A redirected use executes D's body, ignoring D's value.
+                    // Its source must not disappear merely because D is overridden.
+                    input.redirects.insert(alias, target);
+                }
+                let evaluator = Evaluator::new(input, options).expect("evaluator");
+                let def = ir.root_def(name).expect("selection");
+                let scope = evaluator.scope(def).expect("scope");
+                if warm {
+                    evaluator
+                        .eval_scoped(&scope, ir.def(def).body, &St::constant())
+                        .expect("ordinary cache warmup");
+                }
+                let Expr::Apply { callee, args } = ir.expr(ir.def(def).body) else {
+                    panic!("selection application")
+                };
+                let calls = provider.0.load(Ordering::SeqCst);
+                let result = evaluator.scope_selectseq_call(&scope, callee, args, &mut 100_000);
+                assert_eq!(
+                    provider.0.load(Ordering::SeqCst),
+                    calls,
+                    "admission must not inspect an opaque provider"
+                );
+                assert_eq!(
+                    result.as_ref().err().map(dive_eval::EvalError::class),
+                    Some(dive_eval::ErrorClass::Unsupported),
+                    "{name}/warm={warm}: overridden source must refuse"
+                );
+            }
+        }
+    }
+}
