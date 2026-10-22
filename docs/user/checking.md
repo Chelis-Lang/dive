@@ -123,7 +123,9 @@ preserving that failure rather than inventing an exhausted resource.
 Quiet value units defer calling the host control until they return: an
 infallible value operation cannot substitute a transient interruption for truth
 or cache it as a structural hash. Ordinary fallible enumeration and comparison
-retain typed interruption. These value units remain part of #349.
+retain typed interruption, including function-domain lookup with 32 or more keys.
+A genuine incomparable argument still receives its existing evaluation error or
+named normalization refusal. These quiet value units remain part of #349.
 Memory is the whole process's: resident
 plus swapped pages on Linux, resident pages on macOS. Where it cannot be
 measured, checking fails with diagnostic `DIVE-R0002`; it never substitutes

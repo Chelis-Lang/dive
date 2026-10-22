@@ -19,6 +19,10 @@
   product and acceptance bounds remain. Native budgets retain their documented
   cooperative scope; no hard allocation-time memory guarantee is added.
 
+- Fallible function-domain lookup retains a typed evaluator interruption for
+  functions with 32 or more keys, instead of turning it into the existing named
+  comparison refusal. Ordinary comparison errors and evaluation order are kept.
+
 - Default-profile conformance recognizes only the exact documented D-022
   generated-count pairs for MCCRDT and MCReplicatedLog. Matching runs remain
   expected divergences; other counts, verdicts, exits, depth and trace facts
