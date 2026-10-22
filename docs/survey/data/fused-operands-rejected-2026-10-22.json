@@ -1,0 +1,268 @@
+{
+  "schema_version": 1,
+  "study": "fused-value-operands-screen",
+  "date": "2026-10-22",
+  "status": "rejected-unshipped-prototype",
+  "baseline_source": "4e219ea81b9682c98012308f97fa725e9114d648",
+  "candidate_source": "1faf4905f02262849271f143134b6bc1fbcac8a9",
+  "source_trees": {
+    "base": "7c7c0c2e90cd29b84a0df0f92b3555e73b149865",
+    "candidate": "0d7e04a962edb08bddd780946e384dca843a4af6"
+  },
+  "source_bundle_sha256": "3e18e01735750d658d7d8f7cbe6b079bf53c43d825cedf0ad6edf7b269ecc043",
+  "prepared_manifest_sha256": "59628039367b5b612c7dc434e6c8f21df2e1b731a3c000ad36c592d623f41842",
+  "plan_sha256": "cf9f6328e0e05c74439fdc2483933d59398778ad6f57ca600156675f01d9b208",
+  "runner_sha256": "84ed8cb8815ff7aa4ad228fb3089033d02ee938d511d8fe2ea11ddd97b6feb33",
+  "frozen_profiling_binary_sha256": {
+    "base": "1edba2bea6b5ca27eee18dfecbb3b8ca389edbbc071cee36058fc8a56625d397",
+    "candidate": "a8a383390db93bb6afc30dbe899e517c5a56f18f5736cca656cd9d09a40fa6e4"
+  },
+  "machine": {
+    "instance_type": "c7i.8xlarge",
+    "ami": "ami-02a9cdd4e98bc3c78",
+    "region": "us-east-1",
+    "kernel": "Linux ip-172-31-15-139 7.0.0-1014-aws #14~24.04.1-Ubuntu SMP PREEMPT Fri Sep 18 21:24:59 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux",
+    "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+    "cpu_source": "Original source-before.json lscpu receipt; no new query or instance-class inference.",
+    "source_before_receipt_sha256": "4f083f800942eddd895c8edfdd8bca19a26535e1caae15568e8c271fcdf68429"
+  },
+  "tool_versions": {
+    "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+    "nextest": "cargo-nextest 0.9.143 (60fa45f63 2026-08-04)\nrelease: 0.9.143\ncommit-hash: 60fa45f638ffc3f35e74afa65737f45fcd32db2a\ncommit-date: 2026-08-04\nhost: x86_64-unknown-linux-gnu",
+    "deny": "cargo-deny 0.20.2",
+    "valgrind": "valgrind-3.22.0",
+    "cachegrind_backend": "valgrind-3.22.0 cachegrind backend",
+    "callgrind_backend": "valgrind-3.22.0 callgrind backend"
+  },
+  "input_identity": {
+    "normal_files": 115,
+    "workload_archive_sha256": "f1d3eb00d9f43c11e03a50be64a3115f8e2bb838299bb8d7033106a8ce0c53ef",
+    "module_archive_sha256": "90a8757da7c179dcf04ec8f7530f99881e013eb76b92bfeb59808d9a0fe782ab",
+    "manifest_sha256": "ee348f27d85022fcdd963a5ba63690f0f765c3c72034b7ae3bb53f6fdf97841a",
+    "oracle_executed": false,
+    "scope": "Original393four reduced input/library set, not the full ten-model wall-clock benchmark campaign."
+  },
+  "protocol": {
+    "workers": 1,
+    "profiles": [
+      "dive",
+      "tlc"
+    ],
+    "arms": 16,
+    "repetitions": 1,
+    "instrumentation": "Cachegrind Ir; complete CLI startup included; cache simulation disabled",
+    "native_time_ms": 900000,
+    "max_memory_bytes": 8589934592,
+    "os_backstop_seconds": 930,
+    "fixed_max_lifetime_seconds": 9000,
+    "productive_seconds": 8040,
+    "collection_reserve_seconds": 960,
+    "bar_geometric_ratio_at_most": 0.95,
+    "bar_every_cell_ratio_at_most": 1.01,
+    "conditional_full_gate_seconds": 3000,
+    "no_retries_or_extra_arms": true
+  },
+  "pairs": [
+    {
+      "model": "SimpleRegular",
+      "profile": "dive",
+      "base_Ir": 2590716612,
+      "candidate_Ir": 2555000439,
+      "delta_pct": -1.3786213758218646,
+      "counts": {
+        "distinct": 12097,
+        "generated": 47584,
+        "depth": 19,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "verdict": "success",
+      "native_exit": 0,
+      "workers_requested": 1,
+      "workers_used": 1,
+      "base_cachegrind_sha256": "20774cd9ee165410e8b54c1207551f1103db7f2fbdea66ebbbf10d0214a731e7",
+      "candidate_cachegrind_sha256": "64393085232ca8806f1955b61790ea168f14b86d649e496eee0358a3ea43b3f4",
+      "cell_within_one_percent": true
+    },
+    {
+      "model": "MCbtree",
+      "profile": "dive",
+      "base_Ir": 14416331195,
+      "candidate_Ir": 14399732583,
+      "delta_pct": -0.11513756014260856,
+      "counts": {
+        "distinct": 21364,
+        "generated": 127825,
+        "depth": 24,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "verdict": "success",
+      "native_exit": 0,
+      "workers_requested": 1,
+      "workers_used": 1,
+      "base_cachegrind_sha256": "65008feacd5f80f468671382097697220eb7dd1595cf9fd8abd8c148ea841eeb",
+      "candidate_cachegrind_sha256": "1ac5a3533a97e43da08f903e571c2b6426071e745164b6b4d6a75a17ceb18f97",
+      "cell_within_one_percent": true
+    },
+    {
+      "model": "GameOfLife",
+      "profile": "dive",
+      "base_Ir": 1145190617,
+      "candidate_Ir": 1093788070,
+      "delta_pct": -4.4885581698754,
+      "counts": {
+        "distinct": 512,
+        "generated": 1024,
+        "depth": 1,
+        "initial_generated": 512,
+        "left_on_queue": 0
+      },
+      "verdict": "success",
+      "native_exit": 0,
+      "workers_requested": 1,
+      "workers_used": 1,
+      "base_cachegrind_sha256": "2b6a87e8854492fe3949282d431782f7cbb393ea8b99cd9d195093b94420672c",
+      "candidate_cachegrind_sha256": "77dca2ebcc52a66df22e6746817fc96109b674219010866ae9969d2830456ef8",
+      "cell_within_one_percent": true
+    },
+    {
+      "model": "EWD998PCal",
+      "profile": "dive",
+      "base_Ir": 47063937991,
+      "candidate_Ir": 46680083103,
+      "delta_pct": -0.8156029953834354,
+      "counts": {
+        "distinct": 20870,
+        "generated": 168292,
+        "depth": 28,
+        "initial_generated": 8,
+        "left_on_queue": 0
+      },
+      "verdict": "success",
+      "native_exit": 0,
+      "workers_requested": 1,
+      "workers_used": 1,
+      "base_cachegrind_sha256": "c5d8e1c262e8dc9df831a58715b9fe3c0a47e5ebf0646d713c45dfc0d4a6ff8d",
+      "candidate_cachegrind_sha256": "a59c1d6e65ef1914f83d39f19508f92321157dbe5a95bc3367217b38272e0599",
+      "cell_within_one_percent": true
+    },
+    {
+      "model": "SimpleRegular",
+      "profile": "tlc",
+      "base_Ir": 2654816254,
+      "candidate_Ir": 2614972019,
+      "delta_pct": -1.5008283507367715,
+      "counts": {
+        "distinct": 12097,
+        "generated": 47584,
+        "depth": 19,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "verdict": "success",
+      "native_exit": 0,
+      "workers_requested": 1,
+      "workers_used": 1,
+      "base_cachegrind_sha256": "2becdb0f4946bbcb32ed77579afdbd688625334d4afeb459edb8491a40d55c16",
+      "candidate_cachegrind_sha256": "413eaf6068af0f78b25a40b08cf09b79858d8a35c0eb4063809ec7dcff72578e",
+      "cell_within_one_percent": true
+    },
+    {
+      "model": "MCbtree",
+      "profile": "tlc",
+      "base_Ir": 18207175996,
+      "candidate_Ir": 18192895763,
+      "delta_pct": -0.07843189412315432,
+      "counts": {
+        "distinct": 21364,
+        "generated": 127825,
+        "depth": 24,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "verdict": "success",
+      "native_exit": 0,
+      "workers_requested": 1,
+      "workers_used": 1,
+      "base_cachegrind_sha256": "957313bb5dd337b4493b82b569690490e2c7f2e0f3ec599b951258839bf16975",
+      "candidate_cachegrind_sha256": "9281b58ff7b1bb42f558d8db618a5970644abba2e500e0d412671eeb32cb15fc",
+      "cell_within_one_percent": true
+    },
+    {
+      "model": "GameOfLife",
+      "profile": "tlc",
+      "base_Ir": 1137303675,
+      "candidate_Ir": 1081891229,
+      "delta_pct": -4.8722647449459755,
+      "counts": {
+        "distinct": 512,
+        "generated": 1024,
+        "depth": 1,
+        "initial_generated": 512,
+        "left_on_queue": 0
+      },
+      "verdict": "success",
+      "native_exit": 0,
+      "workers_requested": 1,
+      "workers_used": 1,
+      "base_cachegrind_sha256": "425281d479ede2a6aa3fe00ef24a197e2af8b5805370c5d7a3a6007d4b503051",
+      "candidate_cachegrind_sha256": "a2a89a6ff98e1c190ee4f6d50aae222890f5c2316a6d66ee08685e0a31adb4d0",
+      "cell_within_one_percent": true
+    },
+    {
+      "model": "EWD998PCal",
+      "profile": "tlc",
+      "base_Ir": 48018800327,
+      "candidate_Ir": 47576632860,
+      "delta_pct": -0.9208215615319704,
+      "counts": {
+        "distinct": 20870,
+        "generated": 168292,
+        "depth": 28,
+        "initial_generated": 8,
+        "left_on_queue": 0
+      },
+      "verdict": "success",
+      "native_exit": 0,
+      "workers_requested": 1,
+      "workers_used": 1,
+      "base_cachegrind_sha256": "3c7055a228ba2ae8cf4d6603b0b2c3e9921a24d8f8197bd070240432161d0a74",
+      "candidate_cachegrind_sha256": "7ca1749b5a6fa44eaa722b7eee7dd6ad7a632fb6474afb3cd392cc0e97aead88",
+      "cell_within_one_percent": true
+    }
+  ],
+  "aggregate": {
+    "geomean_instruction_delta_pct": -1.7870265757234938,
+    "geometric_ratio": 0.9821297342427651,
+    "performance_bar_met": false,
+    "all_cells_improve": true,
+    "all_cells_within_one_percent": true,
+    "counts_depth_match_all_pairs": true,
+    "all_arms_uncensored_exit0": true,
+    "full_gate_attempted": false,
+    "reason": "Complete screen reduces instructions1.7870265757percent, below5percent admission; conditional fullgate skipped."
+  },
+  "external_evidence": {
+    "final_archive_sha256": "6158a96746f6ce0cc34e03f33905d0473233bed908a1480ba094d6c95d1577ca",
+    "final_archive_bytes": 51962719,
+    "screen_complete_archive_sha256": "08a414cd50c9e26ddf648de8fbf22e39eebb6b106f221e090b47dba43b571b2a",
+    "actual_raw_stdout_stderr_CG_and_source_receipts": "All16 actual raw reports/observations/Cachegrind profiles and original before/perarm/after source,binary,tool,input receipts preserved externally with producerarchive SHA before cleanup. No retrospective source/binary substitution."
+  },
+  "cleanup": {
+    "status": "complete-root-independently-verified",
+    "at": "2026-10-22T04:21:51.658514+00:00",
+    "root_receipt_sha256": "505cba2336f875577de75dd89ece39b439b43622282895856929245c36862074",
+    "instance_terminated_rootvolumes_SG_bucket_absent": true,
+    "preserved_objects": 32,
+    "all_producer_archive_sidecars_verified": true,
+    "scope": "Exact P campaign only; separate R5 campaign remains active. Existing Sail/IAM/SSM untouched."
+  },
+  "limits": [
+    "One worker/reduced inputs only; no quiet wallclock/TLC throughput or scaling claim.",
+    "Original152 focused tests are assigned to ea8a97aa, with equivalent assertion idiom/fmt/Clippy at244505d9. Mechanical four-owned source identity transfers source, not a new integrated full test run.",
+    "All four final owned blobs at1faf exactly equal244; production eval/std equalc03. No fullgate was attempted after screen rejection; prototype is unshipped.",
+    "Only original completed16-arm matrix supplied the aggregate; earlier prefix aggregates remainednull."
+  ]
+}
