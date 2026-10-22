@@ -194,6 +194,13 @@ Measured and not pursued:
 - An O(1) hash update for `EXCEPT` through a stored sum of entry hashes: the
   extra 8 bytes per function cost 1.3–2.5% on MCbtree and GameOfLife, more
   than it saved.
+- Reusing uniquely owned inline activation frames through a bounded thread-local
+  pool increased instructions by 0.795% geometrically across all eight reduced
+  model/profile cells. All sixteen arms completed with identical counts and
+  depth; every cell was worse, and default-profile MCbtree exceeded the 1%
+  regression ceiling. The runtime prototype was rejected and its conditional
+  full gate was skipped. The [performance guide](../developer/performance.md#discarded-evaluator-prototypes)
+  links the compact measurement and exact producer/input identities.
 - Pre-sizing the fingerprint traversal's work list: within ±0.3%, noise.
 - A lazy function hash: it would make hashing recursive and break the
   documented stack safety for deeply nested values (`tests/limits.rs`).

@@ -1,0 +1,265 @@
+{
+  "schema_version": 1,
+  "study": "activation-frame-reuse-screen",
+  "date": "2026-10-22",
+  "status": "rejected-unshipped-prototype",
+  "baseline_source": "537f83885cd2b1104e985cd46e8dc13ef1318543",
+  "candidate_source": "37488e8778df5bacfca653d0d13b870fba24010f",
+  "source_trees": {
+    "base": "0d9831e976a9350318f3d61236c6d2f87a34a9eb",
+    "candidate": "451610d7e6bbcb7465d9241078765081e01aded7"
+  },
+  "source_bundle_sha256": "8c20096e359ad9a5289128ce29534d7ecd545ab5fba3bce466b2dbd6e8fb65ff",
+  "prepared_manifest_sha256": "eba2362d9d15a8d03b113e602531c049db13fb142f7b149f35d75eea3cbd1f9f",
+  "plan_sha256": "212551501971c5e47a674920f2f0ecdad499b52628d963a3373dd9695d22bcd5",
+  "runner_sha256": "84ed8cb8815ff7aa4ad228fb3089033d02ee938d511d8fe2ea11ddd97b6feb33",
+  "frozen_profiling_binary_sha256": {
+    "base": "c69674d78f1ba6039fc5c28774ae4377a67aa5da082c493dac8d07e02b7f617f",
+    "candidate": "6e3e49052bfc3aa28b0b81d056865122ed1012bc66374659765ba4ce6e6d57a1"
+  },
+  "machine": {
+    "instance_type": "c7i.8xlarge",
+    "ami": "ami-02a9cdd4e98bc3c78",
+    "region": "us-east-1",
+    "kernel": "Linux ip-172-31-13-58 7.0.0-1014-aws #14~24.04.1-Ubuntu SMP PREEMPT Fri Sep 18 21:24:59 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux"
+  },
+  "tool_versions": {
+    "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+    "nextest": "cargo-nextest 0.9.143 (60fa45f63 2026-08-04)\nrelease: 0.9.143\ncommit-hash: 60fa45f638ffc3f35e74afa65737f45fcd32db2a\ncommit-date: 2026-08-04\nhost: x86_64-unknown-linux-gnu",
+    "deny": "cargo-deny 0.20.2",
+    "valgrind": "valgrind-3.22.0",
+    "cachegrind_backend": "valgrind-3.22.0 cachegrind backend",
+    "callgrind_backend": "valgrind-3.22.0 callgrind backend"
+  },
+  "input_identity": {
+    "normal_files": 115,
+    "workload_archive_sha256": "f1d3eb00d9f43c11e03a50be64a3115f8e2bb838299bb8d7033106a8ce0c53ef",
+    "module_archive_sha256": "90a8757da7c179dcf04ec8f7530f99881e013eb76b92bfeb59808d9a0fe782ab",
+    "manifest_sha256": "ee348f27d85022fcdd963a5ba63690f0f765c3c72034b7ae3bb53f6fdf97841a",
+    "oracle_executed": false,
+    "scope": "Original393four reduced inputs; includes retainedEWD override member; not full benchmark matrix"
+  },
+  "protocol": {
+    "workers": 1,
+    "profiles": [
+      "dive",
+      "tlc"
+    ],
+    "arms": 16,
+    "repetitions": 1,
+    "instrumentation": "Cachegrind Ir; complete CLI startup included; cache simulation disabled",
+    "native_time_ms": 900000,
+    "max_memory_bytes": 8589934592,
+    "os_backstop_seconds": 930,
+    "fixed_max_lifetime_seconds": 9000,
+    "productive_seconds": 8040,
+    "collection_reserve_seconds": 960,
+    "bar_geometric_ratio_at_most": 0.95,
+    "bar_every_cell_ratio_at_most": 1.01,
+    "conditional_full_gate_seconds": 3000,
+    "no_retries_or_extra_arms": true
+  },
+  "pairs": [
+    {
+      "model": "SimpleRegular",
+      "profile": "dive",
+      "base_Ir": 2590772251,
+      "candidate_Ir": 2615597351,
+      "delta_pct": 0.9582123627585512,
+      "counts": {
+        "distinct": 12097,
+        "generated": 47584,
+        "depth": 19,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "verdict": "success",
+      "native_exit": 0,
+      "workers_requested": 1,
+      "workers_used": 1,
+      "base_cachegrind_sha256": "0573ac4867d5498b3e8f4b74f084868747316dc6cd8c78784a239c2fd206e490",
+      "candidate_cachegrind_sha256": "2b78a88336528cb4352e8bebea145d49ffd189deb71c5489782a58a9aa5f1217",
+      "cell_within_one_percent": true
+    },
+    {
+      "model": "MCbtree",
+      "profile": "dive",
+      "base_Ir": 14416365064,
+      "candidate_Ir": 14621392011,
+      "delta_pct": 1.4221819861650529,
+      "counts": {
+        "distinct": 21364,
+        "generated": 127825,
+        "depth": 24,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "verdict": "success",
+      "native_exit": 0,
+      "workers_requested": 1,
+      "workers_used": 1,
+      "base_cachegrind_sha256": "77f80cbe0da3c2fa72ad8e6c8fb4387cbed05758366de68f68012d7fee490213",
+      "candidate_cachegrind_sha256": "7295c88a1cf75480bff6a2d1d7fdbcd12ffd783cb83829d1345aade2de547588",
+      "cell_within_one_percent": false
+    },
+    {
+      "model": "GameOfLife",
+      "profile": "dive",
+      "base_Ir": 1145154672,
+      "candidate_Ir": 1153509424,
+      "delta_pct": 0.7295741094439686,
+      "counts": {
+        "distinct": 512,
+        "generated": 1024,
+        "depth": 1,
+        "initial_generated": 512,
+        "left_on_queue": 0
+      },
+      "verdict": "success",
+      "native_exit": 0,
+      "workers_requested": 1,
+      "workers_used": 1,
+      "base_cachegrind_sha256": "95880eea6f8b436db7db87148cf3c9c6ef4db6e5a33c654196d0ceca724a061b",
+      "candidate_cachegrind_sha256": "7fe93b60829376f29162f37636341ee145afb46560965a5881d8273cdc93eb52",
+      "cell_within_one_percent": true
+    },
+    {
+      "model": "EWD998PCal",
+      "profile": "dive",
+      "base_Ir": 47063915068,
+      "candidate_Ir": 47324135775,
+      "delta_pct": 0.5529091802584246,
+      "counts": {
+        "distinct": 20870,
+        "generated": 168292,
+        "depth": 28,
+        "initial_generated": 8,
+        "left_on_queue": 0
+      },
+      "verdict": "success",
+      "native_exit": 0,
+      "workers_requested": 1,
+      "workers_used": 1,
+      "base_cachegrind_sha256": "93bfd312cacbb3b7c32d7329976559ca7dfff6ea5a29f68834882d2698416286",
+      "candidate_cachegrind_sha256": "0ddc15612c1878a3fd546539a5672b9f16fc7857bbd169d7a2fb412d682d410f",
+      "cell_within_one_percent": true
+    },
+    {
+      "model": "SimpleRegular",
+      "profile": "tlc",
+      "base_Ir": 2654869902,
+      "candidate_Ir": 2679782377,
+      "delta_pct": 0.9383689566570709,
+      "counts": {
+        "distinct": 12097,
+        "generated": 47584,
+        "depth": 19,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "verdict": "success",
+      "native_exit": 0,
+      "workers_requested": 1,
+      "workers_used": 1,
+      "base_cachegrind_sha256": "fc6b8d19777199f505df7cce41feef022e78b5d7dec70faf6df2ac5e648c45a0",
+      "candidate_cachegrind_sha256": "fd6556d010ec4be950d4342c948dea9c4cf531cac104394a1b9fd1b1d26f10ad",
+      "cell_within_one_percent": true
+    },
+    {
+      "model": "MCbtree",
+      "profile": "tlc",
+      "base_Ir": 18207171457,
+      "candidate_Ir": 18299983636,
+      "delta_pct": 0.5097561651418242,
+      "counts": {
+        "distinct": 21364,
+        "generated": 127825,
+        "depth": 24,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "verdict": "success",
+      "native_exit": 0,
+      "workers_requested": 1,
+      "workers_used": 1,
+      "base_cachegrind_sha256": "333f01c6c5d9d62cfdd9a0669f6b3ac7ac5957a1dbb6d85b93a8eca40866ce6a",
+      "candidate_cachegrind_sha256": "390351e3fd33d07995b9c4e17aea2158723042350af3a1cccea63d83db5ee07b",
+      "cell_within_one_percent": true
+    },
+    {
+      "model": "GameOfLife",
+      "profile": "tlc",
+      "base_Ir": 1137320873,
+      "candidate_Ir": 1145506690,
+      "delta_pct": 0.7197456051613325,
+      "counts": {
+        "distinct": 512,
+        "generated": 1024,
+        "depth": 1,
+        "initial_generated": 512,
+        "left_on_queue": 0
+      },
+      "verdict": "success",
+      "native_exit": 0,
+      "workers_requested": 1,
+      "workers_used": 1,
+      "base_cachegrind_sha256": "43de6b6a44b3c3348262ca7de72d5741411207ccb4ff952b9f2d992f1eebbe6c",
+      "candidate_cachegrind_sha256": "ac5bf4016bea875660c71fa9af8f368c9bfb4ade047cde06068ffca5c9562300",
+      "cell_within_one_percent": true
+    },
+    {
+      "model": "EWD998PCal",
+      "profile": "tlc",
+      "base_Ir": 48019135999,
+      "candidate_Ir": 48275349861,
+      "delta_pct": 0.5335661641336813,
+      "counts": {
+        "distinct": 20870,
+        "generated": 168292,
+        "depth": 28,
+        "initial_generated": 8,
+        "left_on_queue": 0
+      },
+      "verdict": "success",
+      "native_exit": 0,
+      "workers_requested": 1,
+      "workers_used": 1,
+      "base_cachegrind_sha256": "36b52c27a848a20247388d4c74abb460f8491a0532734cd78d741c2f2c881b9f",
+      "candidate_cachegrind_sha256": "04558d792f8702517a0a22781b2e54ba0140ee8c8e6096b3a5d1d5d2a2afc877",
+      "cell_within_one_percent": true
+    }
+  ],
+  "aggregate": {
+    "geomean_instruction_delta_pct": 0.795131612430076,
+    "geometric_ratio": 1.0079513161243008,
+    "performance_bar_met": false,
+    "all_cells_within_one_percent": false,
+    "counts_depth_match_all_pairs": true,
+    "all_arms_uncensored_exit0": true,
+    "full_gate_attempted": false,
+    "reason": "Complete screen rejected: +0.7951316124percent instructions geometrically; defaultMCbtree +1.4221819862percent. Conditional gate correctly skipped."
+  },
+  "external_evidence": {
+    "final_archive_sha256": "d0201f879e04bd03e05d810ca5d6d8d88fdba6abbc88b388bd6e9cc9186e1f9a",
+    "final_archive_bytes": 51968647,
+    "screen_complete_archive_sha256": "cb2fdcd527a826c3113d8ddbecb1f9f3598ef5f21912e3160f1612261808811d",
+    "actual_raw_stdout_stderr_CG_and_source_receipts": "All16 retained externally with producer SHA before root cleanup. Original before/perarm/after source,binary,tool,input and command receipts verified; no retrospective identity substitution."
+  },
+  "cleanup": {
+    "status": "complete-root-independently-verified",
+    "at": "2026-10-22T02:59:05.179974+00:00",
+    "root_receipt_sha256": "a37a0ef7bb824278dc4212d00ab6b623ee10ed385b59b527edeb5c36dd76ebf8",
+    "instance_terminated_rootvolumes_SG_bucket_absent": true,
+    "preserved_objects": 31,
+    "preserved_bytes": 172538645,
+    "all_physical_and_producer_hashes_verified": true,
+    "sail_iam_ssm_untouched": true
+  },
+  "limits": [
+    "One worker/reduced inputs only; no quiet wallclock/TLC throughput or scaling claim.",
+    "Historical102 focused tests and affectedClippy stay assigned to their original487d/560e sources.",
+    "Current374 screen is not fullgate qualification; prototype is unshipped and rejected.",
+    "No geometric estimate was assigned before all16arms completed."
+  ]
+}

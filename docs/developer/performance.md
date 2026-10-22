@@ -322,6 +322,26 @@ allocation is a smaller subset. The dominant GameOfLife `Sum`/`score` frames
 have arguments and captures. That cache was not implemented. Remaining
 ownership and allocation changes need current evidence across the full matrix.
 
+A later prototype reused uniquely owned inline activation frames through a
+bounded thread-local pool. Captured or weakly referenced frames kept the existing
+copy-on-write behavior, and released frames dropped their contents before reuse.
+The complete four-model, two-profile screen increased instructions by
+**0.795% geometrically**: all eight cells were worse, ranging from +0.510% to
++1.422%. All sixteen arms completed with identical verdicts, distinct/generated
+counts, depth, initial counts and empty final queues. The +1.422% cell also
+exceeded the per-cell regression ceiling. The prototype was rejected; its
+conditional full gate was correctly skipped and no runtime change was landed.
+
+The compact [frame-reuse screen](../survey/data/activation-frame-reuse-rejected-2026-10-22.json)
+records the exact `537f8388` / `37488e87` source and binary pins, all eight pairs,
+input hashes and retained raw-archive identity. It used Rust 1.99.0 profiling
+builds, Valgrind 3.22.0 Cachegrind with cache simulation disabled, one worker,
+seed/fingerprint zero, a 900-second native budget, an 8 GiB ceiling and a
+930-second external backstop. The c7i.8xlarge campaign ran its measured arms
+sequentially; no quiet-host wall-clock, TLC-throughput or scaling claim follows.
+The campaign's instance, root volume, temporary security group and bucket were
+removed after all producer evidence was preserved and verified.
+
 A retained-profile investigation of boxing only the unused foreign-domain
 `Thunk` cache also found no credible 5% matrix case. Even deleting all named
 `cached`, `store`, `callee_env` and thunk-drop exclusive work, plus direct
