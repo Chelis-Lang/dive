@@ -1,0 +1,31 @@
+{
+  "sources": [
+    "docs/conformance-corpora.md#liveness-quotient-primary-controls"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe"
+  ],
+  "modules": [
+    {
+      "path": "specifications/ViewTwinTargets/ViewTwinTargets.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/ViewTwinTargets/Forward.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        },
+        {
+          "path": "specifications/ViewTwinTargets/Reverse.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}

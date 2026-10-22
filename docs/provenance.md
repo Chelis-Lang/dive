@@ -2016,3 +2016,17 @@ copying the edge payload. Only private graph
 read access changes in the shared lasso routines. The recurrent restriction,
 iterative SCC and reverse graph algorithms remain unchanged. No TLC algorithm
 is newly ported and no product or acceptance resource limit is removed.
+
+### Liveness quotient primary-control preparation
+
+The `liveness-quotient-primary` validation microcorpus preserves the existing
+`P4SymLive` and `SymLiveSymProp` source bytes and removes only their configured
+`SYMMETRY Sym` lines. No historical probe or golden is overwritten. The new
+VIEW pair is a small semantic control motivated by pinned TLC commit
+`94d0c5070852b37b801bb8998c436383ab7ee37b`: `SetOfStates.put0` retains concrete
+states with the same VIEW fingerprint using linear probing, while the
+non-tableau `LiveCheck.addNextState` may retain only the first action label for
+an already-written successor class. The pair reverses concrete generation
+order and uses one strong-fairness requirement; it prescribes no oracle result.
+Primary runs and generated goldens are pending. This preparation ports no
+algorithm and changes no checker, validator, report or trace policy.
