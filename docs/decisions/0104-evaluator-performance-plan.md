@@ -216,6 +216,13 @@ Measured and not pursued:
   and skipped its conditional full gate; no runtime change was landed. The
   [performance guide](../developer/performance.md#discarded-evaluator-prototypes)
   links actual source/binary identities and all sixteen original profile hashes.
+- Recursive Boolean-result consumers with an unchanged generic-dispatch fallback
+  increased instructions by 0.501% geometrically across all eight reduced
+  model/profile cells (+0.230% to +0.811%). All sixteen arms preserved verdicts,
+  counts and depth. The complete screen rejected the candidate and skipped its
+  conditional full gate; no runtime change was landed. The
+  [performance guide](../developer/performance.md#discarded-evaluator-prototypes)
+  links actual source/binary identities and all sixteen original profile hashes.
 - Pre-sizing the fingerprint traversal's work list: within ±0.3%, noise.
 - A lazy function hash: it would make hashing recursive and break the
   documented stack safety for deeply nested values (`tests/limits.rs`).
