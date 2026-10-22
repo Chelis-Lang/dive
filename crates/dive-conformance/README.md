@@ -277,7 +277,7 @@ pub trait Implementation: Sync {
 - **Options.** `--impl-option NAME[=VALUE]` runs `dive` or an adapter under an option, and is recorded in the report. An option the implementation does not declare result-preserving (`result_preserving_options`) turns every would-be `agree` into `divergence-mode`.
 - **Profiles.** `dive` also has a profile, set with `--impl-profile dive|tlc|tlc+overrides=<features>`, or `DIVE_COMPAT=tlc`. Every report records it, plus `strict_tier`, which is true only for pure `tlc`.
 - **Expected divergences.** Under the `dive` profile, a disagreement listed in `conformance/expected-divergences.toml` is reported as `expected-divergence`. It is never `agree`. The registry never applies under `tlc` or `tlc+overrides`.
-  - An entry names the model or module glob, dive's verdict, the `fields` that may differ, and optionally one exact `exit_code_pair`. Field globs cannot cover exits. A declared pair must appear exactly in the diffs, and every other differing field must be listed, so counts never hide a different verdict or property. Trace validation can never be excused.
+  - An entry names the model or module glob, dive's verdict, the `fields` that may differ, and optional exact `exit_code_pair` or `generated_count_pair` values. Field globs cannot cover exits or a generated count that already has an exact pair. Every declared pair must appear exactly in the diffs, and every other differing field must be listed, so counts never hide a different verdict or property. Trace validation can never be excused.
   - Registered today: MissionariesAndCannibals and ACP_NB_WRONG_TLC (D-010), P1Overflow (D-004), P2Choose_str (D-006), and 14 measured default numeric-exit differences (D-023). `conformance.yml` runs the default profile on the tier's models, so these must stay `expected-divergence` and anything else unregistered fails.
 
 **`dive` (`--impl dive`)** runs the `dive` binary as a black box: `target/release/dive` by default, or `--dive-bin PATH`. Build it first with `cargo build --release -p dive-cli`. The report records the binary's path, SHA-256 and version, and its module search path.
@@ -437,3 +437,23 @@ trace validation remain required. Matching pairs are ExpectedDivergence, never
 Agree; TLC and override profiles never apply the registry. See
 [ADR 0096](../../docs/decisions/0096-truthful-default-numeric-exit-conformance.md)
 for the correction of historical omitted-exit credits.
+
+### Exact generated-count differences
+
+The default-only registry can declare
+`generated_count_pair = { expected = 1350001, actual = 900001 }` for a
+specific model. Both values are unsigned integers and must differ. The exact
+pair must appear in the comparison; missing, reversed, nearby or noninteger
+counts do not match. A field glob cannot also authorize
+`counts.states_generated` when this pair is present. Other differences still
+need their own listed fields or exact exit pair; independent trace validation
+cannot be excused.
+
+D-022 uses this form with `fields = []` for
+`specifications/FiniteMonotonic/MCCRDT.cfg` (1,350,001/900,001) and
+`MCReplicatedLog.cfg` (17,425/11,617). The default counts composed successors
+without TLC's composition intermediates. These entries report
+`expected-divergence`, never `agree`. TLC, TLC-with-overrides and implementations
+without a dive profile do not use the registry. Goldens, native result values
+and comparison policies remain unchanged. See
+[the documented composition counts](../../docs/tlc-differences.md#d-022-action-composition-works-by-default-with-its-tla-meaning).

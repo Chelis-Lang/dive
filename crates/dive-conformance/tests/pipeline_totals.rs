@@ -675,3 +675,68 @@ mod whole_words;
 #[cfg(unix)]
 #[path = "pipeline_totals/golden_facts.rs"]
 mod golden_facts;
+
+#[test]
+fn exact_generated_pair_is_expected_divergence_never_false_agreement() -> TestResult {
+    let tmp = dive_conformance::util::TempDir::new("exact-generated-pair")?;
+    let (repo, cache) = setup(tmp.path())?;
+    let config = Config::load(&repo)?;
+    write_success_golden(&repo, &config)?;
+    std::fs::write(
+        repo.join("conformance/expected-divergences.toml"),
+        r#"
+[[divergence]]
+id = "composition-generated-count"
+pattern = "specifications/x/X.cfg"
+profile = "dive"
+expected_verdict = "success"
+fields = []
+generated_count_pair = { expected = 5, actual = 4 }
+justification = "test-only exact generated-count distinction"
+link = "docs/divergences.md#registry"
+"#,
+    )?;
+    let mut opts = options(&repo, vec!["specifications/x/X.cfg".into()]);
+    opts.sany = false;
+    opts.workers = vec![1];
+    for generated in [3, 4, 5, 6] {
+        for profile in [
+            Some(Profile::Dive),
+            Some(Profile::Tlc),
+            Some(Profile::TlcWithOverrides(vec!["x".into()])),
+            None,
+        ] {
+            let mut result = success();
+            result.counts.states_generated = Some(generated);
+            let imp = Optioned {
+                options: vec![],
+                profile: profile.clone(),
+                result,
+            };
+            let report = pipeline::run(&config, &cache, &imp, None, &opts)?;
+            let expected = if generated == 5 {
+                Outcome::Agree
+            } else if generated == 4 && profile == Some(Profile::Dive) {
+                Outcome::ExpectedDivergence
+            } else {
+                Outcome::Disagree
+            };
+            assert_eq!(
+                report.models[0].outcome, expected,
+                "{profile:?}/{generated}"
+            );
+            assert_eq!(report.models[0].runs.len(), 1);
+            let row = &report.models[0].runs[0];
+            assert_eq!(row.outcome, expected);
+            assert_eq!(row.states_generated, Some(generated));
+            if generated != 5 {
+                assert_ne!(row.outcome, Outcome::Agree);
+                assert_eq!(row.diffs.len(), 1);
+                assert_eq!(row.diffs[0].field, "counts.states_generated");
+                assert_eq!(row.diffs[0].expected.as_u64(), Some(5));
+                assert_eq!(row.diffs[0].actual.as_u64(), Some(generated));
+            }
+        }
+    }
+    Ok(())
+}

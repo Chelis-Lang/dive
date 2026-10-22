@@ -15,7 +15,8 @@
 //!
 //! The registry applies only under `dive`. There, a disagreement that
 //! matches an entry, with the entry's expected verdict and with every
-//! differing field among the entry's `fields` or its exact `exit_code_pair`,
+//! differing field among the entry's `fields` or its exact `exit_code_pair`
+//! or `generated_count_pair`,
 //! is reported as
 //! `expected-divergence`. It is never counted as `agree`. Any other
 //! disagreement, and every difference under `tlc` or `tlc+overrides`, is
@@ -124,6 +125,30 @@ impl ExitCodePair {
     }
 }
 
+/// One declared generated-count difference; never a count normalization.
+///
+/// ```
+/// use dive_conformance::divergence::GeneratedCountPair;
+/// let composition = GeneratedCountPair { expected: 1_350_001, actual: 900_001 };
+/// assert_ne!(composition.expected, composition.actual);
+/// ```
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct GeneratedCountPair {
+    /// The pinned TLC generated-state count.
+    pub expected: u64,
+    /// The documented native generated-state count.
+    pub actual: u64,
+}
+
+impl GeneratedCountPair {
+    fn matches(self, diff: &FieldDiff) -> bool {
+        diff.field == "counts.states_generated"
+            && diff.expected.as_u64() == Some(self.expected)
+            && diff.actual.as_u64() == Some(self.actual)
+    }
+}
+
 /// One owner-approved divergence from TLC.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -153,6 +178,12 @@ pub struct ExpectedDivergence {
     /// authorize exits; all other differences still require their own field.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub exit_code_pair: Option<ExitCodePair>,
+    /// Optional exact pinned-TLC/native generated-state pair. When present,
+    /// that exact unsigned integer difference must occur; `fields` may not
+    /// cover `counts.states_generated`. Every other difference still needs
+    /// its own declared field or exact exit pair. Never strict agreement.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub generated_count_pair: Option<GeneratedCountPair>,
     /// Why the divergence is approved.
     pub justification: String,
     /// The entry in `docs/divergences.md`, e.g. `docs/divergences.md#integer-overflow`.
@@ -184,10 +215,12 @@ impl Registry {
     /// - an entry with both or neither of `profile` and `option`;
     /// - an empty justification, or a link outside `docs/divergences.md`;
     /// - an expected verdict that is not an oracle fact;
-    /// - no fields or exit pair, equal exit pairs, a field glob covering
+    /// - no fields or exact pairs, equal pairs, a field glob covering
     ///   `exit_code` (only exact pairs may excuse it), no compared field, or one
     ///   that matches a trace validation field (`trace.validated`,
     ///   `trace.invalid`), which no divergence may excuse.
+    /// - a field glob covering `counts.states_generated` alongside an exact
+    ///   generated-count pair (the pair must be the sole authority for it).
     pub fn parse(text: &str) -> Result<Self> {
         let reg: Self = toml::from_str(text)
             .map_err(|e| Error::Config(format!("expected-divergences.toml: {e}")))?;
@@ -223,15 +256,24 @@ impl Registry {
             if !d.expected_verdict.is_oracle_fact() {
                 return bad("expected_verdict must be a real verdict");
             }
-            if d.fields.is_empty() && d.exit_code_pair.is_none() {
-                return bad("lists no fields or exit_code_pair");
+            if d.fields.is_empty() && d.exit_code_pair.is_none() && d.generated_count_pair.is_none()
+            {
+                return bad("lists no fields, exit_code_pair or generated_count_pair");
             }
             if d.exit_code_pair.is_some_and(|p| p.expected == p.actual) {
                 return bad("exit_code_pair must declare different physical codes");
             }
+            if d.generated_count_pair
+                .is_some_and(|p| p.expected == p.actual)
+            {
+                return bad("generated_count_pair must declare different counts");
+            }
             for f in &d.fields {
                 if glob_match(f, "exit_code") {
                     return bad("exit_code requires an exact exit_code_pair, never a field glob");
+                }
+                if d.generated_count_pair.is_some() && glob_match(f, "counts.states_generated") {
+                    return bad("generated_count_pair cannot share authority with a field glob");
                 }
                 if !COMPARED_FIELDS.iter().any(|k| glob_match(f, k)) {
                     return bad(&format!("field `{f}` matches no compared field"));
@@ -267,9 +309,9 @@ impl Registry {
     /// profile. An entry matches when its glob matches `path`, it applies to
     /// the `dive` profile or to an active option (`name` or `name=value`),
     /// the observed verdict is its expected verdict, and every field in
-    /// `diffs` matches one of its `fields` or its exact `exit_code_pair`.
-    /// A declared pair must occur in `diffs`; it never authorizes a different
-    /// or absent numeric exit or excuses another field.
+    /// `diffs` matches one of its `fields` or its exact `exit_code_pair` or
+    /// `generated_count_pair`. Each declared pair must occur in `diffs`; it
+    /// never authorizes different or absent numeric values or another field.
     #[must_use]
     pub fn excuse(
         &self,
@@ -287,9 +329,15 @@ impl Registry {
                 && d.expected_verdict == observed
                 && d.exit_code_pair
                     .is_none_or(|p| diffs.iter().any(|x| p.matches(x)))
+                && d.generated_count_pair
+                    .is_none_or(|p| diffs.iter().any(|x| p.matches(x)))
                 && diffs.iter().all(|x| {
                     if x.field == "exit_code" {
                         d.exit_code_pair.is_some_and(|p| p.matches(x))
+                    } else if x.field == "counts.states_generated"
+                        && d.generated_count_pair.is_some()
+                    {
+                        d.generated_count_pair.is_some_and(|p| p.matches(x))
                     } else {
                         d.fields.iter().any(|g| glob_match(g, &x.field))
                     }
@@ -582,6 +630,335 @@ link = "docs/divergences.md#d-023-truthful-default-numeric-exit-accounting"
         assert!(Profile::Tlc.is_strict());
         assert!(!Profile::Dive.is_strict());
         assert!(!Profile::TlcWithOverrides(vec!["int".to_owned()]).is_strict());
+        Ok(())
+    }
+
+    const GENERATED_ENTRY: &str = r#"
+[[divergence]]
+id = "composition-generated-count"
+pattern = "specifications/x/X.cfg"
+profile = "dive"
+expected_verdict = "success"
+fields = []
+generated_count_pair = { expected = 1350001, actual = 900001 }
+justification = "documented D-022 composition intermediates"
+link = "docs/divergences.md#registry"
+"#;
+
+    fn generated_diff(expected: serde_json::Value, actual: serde_json::Value) -> FieldDiff {
+        FieldDiff {
+            field: "counts.states_generated".into(),
+            expected,
+            actual,
+        }
+    }
+
+    #[test]
+    fn generated_pair_registry_rejects_shared_authority_and_malformed_pairs() -> Result<()> {
+        Registry::parse(GENERATED_ENTRY)?;
+        for fields in [
+            "counts.states_generated",
+            "counts.*",
+            "counts.states_*",
+            "*",
+        ] {
+            assert!(
+                Registry::parse(
+                    &GENERATED_ENTRY.replace("fields = []", &format!("fields = [\"{fields}\"]"))
+                )
+                .is_err(),
+                "{fields}"
+            );
+        }
+        for pair in [
+            "{ expected = 1350001, actual = 1350001 }",
+            "{ expected = -1, actual = 900001 }",
+            "{ expected = 1350001, actual = -1 }",
+            "{ expected = true, actual = 900001 }",
+            "{ expected = 1350001, actual = false }",
+            "{ expected = 1350001, actual = 900001.0 }",
+            "{ expected = \"1350001\", actual = 900001 }",
+            "{ expected = 1350001, actual = \"900001\" }",
+            "{ expected = 1350001, actual = null }",
+            "{ expected = 1350001 }",
+            "{ actual = 900001 }",
+            "{ expected = 1350001, actual = 900001, other = 0 }",
+        ] {
+            assert!(
+                Registry::parse(
+                    &GENERATED_ENTRY.replace("{ expected = 1350001, actual = 900001 }", pair)
+                )
+                .is_err(),
+                "{pair}"
+            );
+        }
+        for profile in ["tlc", "tlc+overrides", "adapter", "compat=tlc"] {
+            assert!(
+                Registry::parse(
+                    &GENERATED_ENTRY
+                        .replace("profile = \"dive\"", &format!("profile = \"{profile}\""))
+                )
+                .is_err()
+            );
+        }
+        let plain = Registry::parse(ENTRY)?;
+        assert!(plain.divergence[0].generated_count_pair.is_none());
+        Ok(())
+    }
+
+    #[test]
+    fn exact_generated_pair_rejects_other_and_noninteger_counts() -> Result<()> {
+        let registry = Registry::parse(GENERATED_ENTRY)?;
+        let path = "specifications/x/X.cfg";
+        let pair = generated_diff(1_350_001.into(), 900_001.into());
+        assert!(
+            registry
+                .excuse(Some(&Profile::Dive), &[], path, Verdict::Success, &[pair])
+                .is_some()
+        );
+        for value in [
+            serde_json::Value::Null,
+            true.into(),
+            false.into(),
+            (-1).into(),
+            "900001".into(),
+            serde_json::json!(900_001.0),
+            0.into(),
+            900_000.into(),
+            900_002.into(),
+            1_350_000.into(),
+            1_350_002.into(),
+            u64::MAX.into(),
+        ] {
+            for invalid in [
+                generated_diff(1_350_001.into(), value.clone()),
+                generated_diff(value, 900_001.into()),
+            ] {
+                assert!(
+                    registry
+                        .excuse(
+                            Some(&Profile::Dive),
+                            &[],
+                            path,
+                            Verdict::Success,
+                            &[invalid]
+                        )
+                        .is_none()
+                );
+            }
+        }
+        for invalid in [
+            generated_diff(900_001.into(), 1_350_001.into()),
+            generated_diff(1_350_001.into(), 1_350_001.into()),
+            generated_diff(900_001.into(), 900_001.into()),
+        ] {
+            assert!(
+                registry
+                    .excuse(
+                        Some(&Profile::Dive),
+                        &[],
+                        path,
+                        Verdict::Success,
+                        &[invalid]
+                    )
+                    .is_none()
+            );
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn generated_pair_needs_the_exact_diff_and_no_unlisted_observables() -> Result<()> {
+        let registry = Registry::parse(GENERATED_ENTRY)?;
+        let path = "specifications/x/X.cfg";
+        let pair = generated_diff(1_350_001.into(), 900_001.into());
+        let dive = Some(&Profile::Dive);
+        assert!(
+            registry
+                .excuse(dive, &[], path, Verdict::Success, &[])
+                .is_none()
+        );
+        for field in [
+            "counts.distinct_states",
+            "counts.depth",
+            "verdict",
+            "error_class",
+            "violated_property",
+            "trace.length",
+            "trace.ending",
+            "trace.invalid",
+            "trace.validated",
+            "exit_code",
+        ] {
+            let mut mixed = vec![pair.clone()];
+            mixed.extend(diff(field));
+            assert!(
+                registry
+                    .excuse(dive, &[], path, Verdict::Success, &mixed)
+                    .is_none(),
+                "{field}"
+            );
+        }
+        let listed = Registry::parse(
+            &GENERATED_ENTRY.replace("fields = []", "fields = [\"counts.depth\"]"),
+        )?;
+        let mut mixed = vec![pair.clone()];
+        mixed.extend(diff("counts.depth"));
+        assert!(
+            listed
+                .excuse(dive, &[], path, Verdict::Success, &mixed)
+                .is_some()
+        );
+        assert!(
+            listed
+                .excuse(dive, &[], path, Verdict::Success, &diff("counts.depth"))
+                .is_none()
+        );
+        for profile in [
+            None,
+            Some(&Profile::Tlc),
+            Some(&Profile::TlcWithOverrides(vec!["x".into()])),
+        ] {
+            assert!(
+                registry
+                    .excuse(
+                        profile,
+                        &[],
+                        path,
+                        Verdict::Success,
+                        std::slice::from_ref(&pair)
+                    )
+                    .is_none()
+            );
+        }
+        for verdict in [
+            Verdict::SafetyViolation,
+            Verdict::Unclassified,
+            Verdict::ResourceLimit,
+        ] {
+            assert!(
+                registry
+                    .excuse(dive, &[], path, verdict, std::slice::from_ref(&pair))
+                    .is_none()
+            );
+        }
+        assert!(
+            registry
+                .excuse(
+                    dive,
+                    &[],
+                    "specifications/y/X.cfg",
+                    Verdict::Success,
+                    &[pair]
+                )
+                .is_none()
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn generated_and_exit_pairs_each_require_their_own_exact_difference() -> Result<()> {
+        let registry = Registry::parse(&format!(
+            "{GENERATED_ENTRY}\nexit_code_pair = {{ expected = 12, actual = 10 }}\n"
+        ))?;
+        let pair = generated_diff(1_350_001.into(), 900_001.into());
+        let exit = FieldDiff {
+            field: "exit_code".into(),
+            expected: 12.into(),
+            actual: 10.into(),
+        };
+        let path = "specifications/x/X.cfg";
+        for absent in [pair.clone(), exit.clone()] {
+            assert!(
+                registry
+                    .excuse(Some(&Profile::Dive), &[], path, Verdict::Success, &[absent])
+                    .is_none()
+            );
+        }
+        assert!(
+            registry
+                .excuse(
+                    Some(&Profile::Dive),
+                    &[],
+                    path,
+                    Verdict::Success,
+                    &[pair, exit]
+                )
+                .is_some()
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn repository_d022_entries_authorize_only_the_documented_generated_pair() -> Result<()> {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+        let registry = Registry::load(&root)?;
+        for (model, expected, actual) in [
+            ("MCCRDT", 1_350_001_u64, 900_001_u64),
+            ("MCReplicatedLog", 17_425, 11_617),
+        ] {
+            let path = format!("specifications/FiniteMonotonic/{model}.cfg");
+            let pair = generated_diff(expected.into(), actual.into());
+            let entry = registry
+                .excuse(
+                    Some(&Profile::Dive),
+                    &[],
+                    &path,
+                    Verdict::Success,
+                    std::slice::from_ref(&pair),
+                )
+                .ok_or_else(|| {
+                    Error::Config(format!("missing documented D-022 pair for {model}"))
+                })?;
+            assert_eq!(entry.fields, [] as [String; 0]);
+            assert!(entry.exit_code_pair.is_none());
+            assert_eq!(
+                entry.generated_count_pair,
+                Some(GeneratedCountPair { expected, actual })
+            );
+            for invalid in [
+                generated_diff(expected.into(), (actual + 1).into()),
+                generated_diff(actual.into(), expected.into()),
+            ] {
+                assert!(
+                    registry
+                        .excuse(
+                            Some(&Profile::Dive),
+                            &[],
+                            &path,
+                            Verdict::Success,
+                            &[invalid]
+                        )
+                        .is_none()
+                );
+            }
+            let mut mixed = vec![pair.clone()];
+            mixed.extend(diff("counts.distinct_states"));
+            assert!(
+                registry
+                    .excuse(Some(&Profile::Dive), &[], &path, Verdict::Success, &mixed)
+                    .is_none()
+            );
+            for profile in [
+                None,
+                Some(&Profile::Tlc),
+                Some(&Profile::TlcWithOverrides(vec![
+                    "action-composition=tla".into(),
+                ])),
+            ] {
+                assert!(
+                    registry
+                        .excuse(
+                            profile,
+                            &[],
+                            &path,
+                            Verdict::Success,
+                            std::slice::from_ref(&pair)
+                        )
+                        .is_none()
+                );
+            }
+        }
         Ok(())
     }
 }
