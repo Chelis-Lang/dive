@@ -191,7 +191,7 @@ fn concrete_violations_keep_literal_closure_fairness_and_private_fresh_replay() 
 }
 
 fn input(source: &str, cfg: &str) -> (Arc<dive_ir::Ir>, dive_config::ModelConfig) {
-    let analysis = dive_sema::analyze_source("Policy.tla", source, &Default::default());
+    let analysis = dive_sema::analyze_source("Policy.tla", source, &dive_sema::Options::default());
     assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
     (
         Arc::new(dive_ir::lower(&analysis).expect("IR")),
