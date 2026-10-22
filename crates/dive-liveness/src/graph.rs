@@ -38,6 +38,28 @@ pub struct Graph {
     pub(crate) roots: Vec<usize>,
 }
 
+// Borrowed adjacency only: representation adapters do not select traversal,
+// filter edges, validate acceptance or change public graph contracts.
+pub(crate) trait GraphAccess {
+    fn vertex_count(&self) -> usize;
+    fn roots(&self) -> &[usize];
+    fn successors(&self, source: usize) -> &[usize];
+}
+
+impl GraphAccess for Graph {
+    fn vertex_count(&self) -> usize {
+        self.edges.len()
+    }
+
+    fn roots(&self) -> &[usize] {
+        &self.roots
+    }
+
+    fn successors(&self, source: usize) -> &[usize] {
+        &self.edges[source]
+    }
+}
+
 impl Graph {
     /// Checks all references before accepting the graph.
     ///
