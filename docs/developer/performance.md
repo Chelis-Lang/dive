@@ -342,6 +342,25 @@ sequentially; no quiet-host wall-clock, TLC-throughput or scaling claim follows.
 The campaign's instance, root volume, temporary security group and bucket were
 removed after all producer evidence was preserved and verified.
 
+A separate prototype read settled leaf operands at their consuming operations,
+used an inline buffer for two operands, and handled successful bounded integer
+arithmetic before falling back to the original kernels. Its complete reduced
+four-model, two-profile screen lowered instructions by **1.787% geometrically**.
+Every cell improved, from 0.078% to 4.872%, with identical verdicts, counts,
+depth, initial counts and empty final queues in all sixteen arms. It missed the
+required 5% geometric reduction, so the prototype was rejected and its
+conditional full gate was skipped. No runtime change was landed.
+
+The compact [operand screen](../survey/data/fused-operands-rejected-2026-10-22.json)
+retains the actual `4e219ea8` / `1faf4905` source and profiling binary pins,
+all eight pairs and sixteen profile hashes. Each arm included the complete CLI
+under Cachegrind with cache simulation disabled, one worker, seed/fingerprint
+zero, a 900-second native budget, an 8 GiB ceiling and a 930-second external
+backstop. This is an instruction screen on reduced inputs; it establishes no
+quiet wall-clock, TLC-throughput, scaling or full-gate qualification. The
+campaign instance, root volume, temporary security group and bucket were removed
+after all original producer evidence was preserved and verified.
+
 A retained-profile investigation of boxing only the unused foreign-domain
 `Thunk` cache also found no credible 5% matrix case. Even deleting all named
 `cached`, `store`, `callee_env` and thunk-drop exclusive work, plus direct

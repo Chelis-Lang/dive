@@ -201,6 +201,14 @@ Measured and not pursued:
   regression ceiling. The runtime prototype was rejected and its conditional
   full gate was skipped. The [performance guide](../developer/performance.md#discarded-evaluator-prototypes)
   links the compact measurement and exact producer/input identities.
+- Reading settled leaf operands at consuming operations, an inline buffer for
+  two operands and a successful bounded integer arithmetic path lowered
+  instructions by 1.787% geometrically across the eight reduced model/profile
+  cells. All sixteen arms preserved verdicts, counts and depth, and all cells
+  improved, but the complete screen missed the 5% admission bar. It was rejected
+  without a full gate or landed runtime change. The
+  [performance guide](../developer/performance.md#discarded-evaluator-prototypes)
+  links exact source, input and producer identities and all sixteen profile hashes.
 - Pre-sizing the fingerprint traversal's work list: within ±0.3%, noise.
 - A lazy function hash: it would make hashing recursive and break the
   documented stack safety for deeply nested values (`tests/limits.rs`).
