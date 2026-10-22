@@ -1843,6 +1843,9 @@ impl Core {
             match tlc::equals(domain, arg, self.ctx) {
                 Ok(true) => Ok(Some(value.clone())),
                 Ok(false) => Ok(None),
+                Err(err) if matches!(err.kind(), dive_value::ErrorKind::Interrupted { .. }) => {
+                    Err(err.into())
+                }
                 Err(_) if f.len() >= 32 => Err(EvalError::unsupported(
                     "applying a function of 32 or more arguments to a value TLC cannot compare with its domain (TLC's error depends on whether it has normalized the function)",
                 )),
