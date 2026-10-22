@@ -2084,3 +2084,10 @@ query path follows that semantic order and first-witness rule, sharing the
 existing cooperative loop checkpoint without materializing the interval.
 Assigned-variable membership, noninterval enumeration order, genuine evaluation
 errors and the documented quiet-operation control boundary remain unchanged.
+
+The two new `interval-streaming` primary models pin the billion-value first
+witness and the first-candidate successor evaluation error. Both were generated
+by the harness against oracle `tlc-2026.10.06.014338` with recorded reasons.
+Initial-invariant evaluation errors that leave only context code 2103 explaining
+exit 75 remain unclassified by the existing harness; no oracle classification
+was relaxed to obtain these controls.
