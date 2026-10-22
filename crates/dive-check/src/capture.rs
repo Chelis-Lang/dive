@@ -584,8 +584,8 @@ pub(crate) fn limit(s: &str) -> Verdict {
 /// and includes the model's recorded startup output.
 ///
 /// Temporal property refusals are deferred explicitly; every other refusal
-/// is retained. VIEW, symmetry, randomness and stateful checker reads remain
-/// unsupported. Capture uses ordered, bounded source waves with the requested
+/// is retained. VIEW, active quotient symmetry, randomness and stateful checker
+/// reads remain unsupported; D-005 may select full concrete identities instead. Capture uses ordered, bounded source waves with the requested
 /// pool width, or the explicitly requested sequential mode. The ordinary
 /// safety checker is unchanged.
 ///
@@ -644,7 +644,8 @@ pub fn explore_with_evidence(
 /// Per-level speculative quotas divide the remaining entry/generation bounds by
 /// source count, independently of worker width. These conservative named bounds
 /// may refuse a skewed level that fits the inline capture's global budget.
-/// VIEW, symmetry, randomness and checker-state reads remain named refusals.
+/// VIEW, active quotient symmetry, randomness and checker-state reads remain
+/// named refusals. Whole-run D-005 unreduced symmetry uses concrete identities.
 /// The staged pool has a fixed structural maximum of 64 workers.
 ///
 /// Captured operator/function/lazy-set values are refused by a conservative
@@ -836,8 +837,33 @@ fn explore_inner(
     if model.evaluator.options() != &opts.eval {
         return refuse("graph capture evaluator profile mismatch".into());
     }
-    if model.view.is_some() || model.symmetry.is_some() {
-        return refuse("graph capture with VIEW or SYMMETRY".into());
+    if model.symmetry.is_some() && model.symmetry_liveness().requested() != opts.symmetry_liveness {
+        return refuse("graph capture symmetry-liveness policy mismatch".into());
+    }
+    if model.view.is_some() {
+        return refuse(
+            "graph capture with VIEW requires quotient edge and closing-state evidence".into(),
+        );
+    }
+    if model.symmetry_reduction.is_some()
+        || (model.symmetry.is_some() && !model.unreduced_symmetry_liveness())
+    {
+        if !model.symmetry_liveness().genuine_temporal() {
+            return refuse(
+                "graph capture with SYMMETRY needs a genuine temporal unreduced policy".into(),
+            );
+        }
+        return refuse(match opts.symmetry_liveness {
+            dive_model::SymmetryLiveness::Refuse => {
+                "SYMMETRY with liveness explicitly refused".into()
+            }
+            dive_model::SymmetryLiveness::Tlc => {
+                "TLC quotient liveness with SYMMETRY is not implemented".into()
+            }
+            dive_model::SymmetryLiveness::Unreduced => {
+                "graph capture with active or inconsistent SYMMETRY".into()
+            }
+        });
     }
     match engine::bound_configured_random(model) {
         Ok(true) => {
@@ -872,6 +898,7 @@ fn explore_inner(
     host.set_config(Some(config));
     engine::startup_counters(&host);
     let mut result = crate::bare(Verdict::Success, opts, &model.ir);
+    result.symmetry_liveness = Some(model.symmetry_liveness().clone());
     crate::messages(&model.output, &mut result);
     let assumptions = model.check_assumptions();
     result.output.extend(model.take_output());
@@ -951,6 +978,7 @@ fn explore_inner(
 
 fn stopped(verdict: Verdict, model: &Model, opts: &CheckOptions) -> Exploration {
     let mut result = crate::bare(verdict, opts, &model.ir);
+    result.symmetry_liveness = Some(model.symmetry_liveness().clone());
     crate::messages(&model.output, &mut result);
     Exploration::Stopped(Box::new(result))
 }

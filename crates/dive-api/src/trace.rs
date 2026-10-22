@@ -57,6 +57,9 @@ pub struct TraceOptions {
     /// integers, TLC's value order and comparisons). Otherwise dive's
     /// default profile.
     pub compat_tlc: bool,
+    /// Explicit independent symmetry/liveness binding policy; omitted selects
+    /// the semantic profile default. No trace annotation supplies this policy.
+    pub symmetry_liveness: Option<dive_model::SymmetryLiveness>,
     /// TLC's `-deadlock` flag: the model does not check for deadlock.
     pub no_deadlock: bool,
     /// The checking run's `-seed` and `-fp` index, when known (the TLC
@@ -171,7 +174,7 @@ impl SpecModel {
             None => None,
         };
         let host = streams.map(|s| Arc::new(dive_stdlib::host::RunHost::new(s, None)));
-        let bind_opts = dive_model::BindOptions {
+        let mut bind_opts = dive_model::BindOptions {
             no_deadlock: opts.no_deadlock,
             host: host.clone().map(|h| -> Arc<dyn dive_eval::Host> { h }),
             ..if opts.compat_tlc {
@@ -180,9 +183,13 @@ impl SpecModel {
                 dive_model::BindOptions::dive()
             }
         };
+        if let Some(policy) = opts.symmetry_liveness {
+            bind_opts.symmetry_liveness = policy;
+        }
         let model_values = cfg.model_values.clone();
         let recipe =
-            dive_model::Recipe::new(ir.clone(), cfg.clone(), bind_opts.eval, opts.no_deadlock);
+            dive_model::Recipe::new(ir.clone(), cfg.clone(), bind_opts.eval, opts.no_deadlock)
+                .with_symmetry_liveness(bind_opts.symmetry_liveness);
         let bound = on_big_stack(move || dive_model::bind(ir, &cfg, &bind_opts))?;
         if let (Ok(model), Some(h), Some((seed, fp_index))) = (&bound, &host, opts.run) {
             model.evaluator.intern_checker_names();

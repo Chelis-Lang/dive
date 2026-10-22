@@ -1,0 +1,25 @@
+{
+  "sources": [
+    "crates/dive-liveness/tests/fixtures/tlc-probes/specs/SymLiveSymProp/SymLiveSymProp.tla"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe"
+  ],
+  "modules": [
+    {
+      "path": "specifications/SymmetricPropertyUnreduced/SymLiveSymProp.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/SymmetricPropertyUnreduced/SymLiveSymProp.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}

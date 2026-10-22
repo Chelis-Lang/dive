@@ -45,6 +45,7 @@ fn classify_stdout(stdout: &str, exit: i32) -> OracleResult {
 
 fn safety(distinct: u64, generated: u64, depth: u64, trace: u64) -> OracleResult {
     OracleResult {
+        native_unreduced_symmetry: false,
         verdict: Verdict::SafetyViolation,
         verdict_code: Some(2110),
         error_class: Some("TLC_INVARIANT_VIOLATED_BEHAVIOR".to_owned()),
@@ -616,6 +617,7 @@ const INTROSPECTING: &str =
 
 fn success(distinct: u64) -> OracleResult {
     OracleResult {
+        native_unreduced_symmetry: false,
         verdict: Verdict::Success,
         verdict_code: None,
         error_class: None,
@@ -636,6 +638,7 @@ fn success(distinct: u64) -> OracleResult {
 
 fn assumption_false() -> OracleResult {
     OracleResult {
+        native_unreduced_symmetry: false,
         verdict: Verdict::AssumptionFailure,
         verdict_code: Some(2104),
         error_class: Some("TLC_ASSUMPTION_FALSE".to_owned()),

@@ -118,6 +118,7 @@ pub(crate) fn file_configuration() -> Configuration {
 /// A temporal result with total binding, exploration and validation time.
 #[derive(Clone, Debug)]
 pub struct Report {
+    symmetry_liveness: Option<dive_model::SymmetryLivenessResolution>,
     outcome: Outcome,
     options: CheckOptions,
     elapsed: Duration,
@@ -126,6 +127,13 @@ pub struct Report {
     configuration: Option<Configuration>,
 }
 impl Report {
+    /// Original declared symmetry and effective whole-run policy after binding.
+    /// `None` means no successfully bound model is available; this is not proof.
+    #[must_use]
+    pub fn symmetry_liveness(&self) -> Option<&dive_model::SymmetryLivenessResolution> {
+        self.symmetry_liveness.as_ref()
+    }
+
     /// Actual configured owner limits and policies. Their presence establishes
     /// neither execution nor completion; safety dispatch can leave them unused.
     #[must_use]
@@ -195,6 +203,7 @@ pub(crate) fn finish_report(
             failure.elapsed = report.elapsed;
             failure.periodic = report.periodic.map(Box::new);
             failure.configuration = report.configuration.map(Box::new);
+            failure.symmetry_liveness = report.symmetry_liveness.clone().map(Box::new);
             Some(failure)
         }
         Outcome::Safety(result) => {
@@ -311,18 +320,26 @@ impl Stage {
 /// [`check_final_with_evidence`] exposes these additional facts.
 #[derive(Clone, Debug)]
 pub struct Failure {
+    symmetry_liveness: Option<Box<dive_model::SymmetryLivenessResolution>>,
     error: Box<Error>,
     stage: Stage,
     exploration: Option<Box<dive_liveness::analyze::ExplorationEvidence>>,
     elapsed: Duration,
     action_evaluation: Option<Box<dive_liveness::analyze::ActionEvaluation>>,
-    validation_progress: Option<ValidationProgress>,
+    validation_progress: Option<Box<ValidationProgress>>,
     incomplete: bool,
     periodic: Option<Box<Checks>>,
     configuration: Option<Box<Configuration>>,
     binding_output: Vec<dive_model::Message>,
 }
 impl Failure {
+    /// Original declared symmetry and effective whole-run policy after binding.
+    /// `None` means no successfully bound model is available; this is not proof.
+    #[must_use]
+    pub fn symmetry_liveness(&self) -> Option<&dive_model::SymmetryLivenessResolution> {
+        self.symmetry_liveness.as_deref()
+    }
+
     /// Actual configured owner limits when admitted by the enclosing API.
     /// Internal failures without a configuration retain `None`, never guessed
     /// default settings. This does not certify that any bound was exercised.
@@ -342,6 +359,7 @@ impl Failure {
             periodic: None,
             configuration: None,
             binding_output: Vec::new(),
+            symmetry_liveness: None,
         }
     }
     fn after(error: Error, stage: Stage, capture: &capture::Complete) -> Self {
@@ -356,6 +374,7 @@ impl Failure {
             periodic: None,
             configuration: None,
             binding_output: Vec::new(),
+            symmetry_liveness: None,
         }
     }
     /// The actual typed active action-label error, when one occurred.
@@ -380,7 +399,7 @@ impl Failure {
     /// Actual progress from an interrupted independent validation invocation.
     #[must_use]
     pub fn validation_progress(&self) -> Option<&ValidationProgress> {
-        self.validation_progress.as_ref()
+        self.validation_progress.as_deref()
     }
     /// Original diagnostic, preserving its code and classification.
     #[must_use]
@@ -477,6 +496,7 @@ fn bind(ir: &Arc<Ir>, config: &ModelConfig, options: &CheckOptions) -> Result<Mo
         config,
         &BindOptions {
             eval: options.eval,
+            symmetry_liveness: options.symmetry_liveness,
             no_deadlock: options.no_deadlock,
             host: Some(host),
         },
@@ -539,6 +559,7 @@ fn bind_controlled(
         config,
         &BindOptions {
             eval: options.eval,
+            symmetry_liveness: options.symmetry_liveness,
             no_deadlock: options.no_deadlock,
             host: Some(host),
         },
@@ -553,11 +574,11 @@ fn validation_binding_failure(mut failure: Failure) -> Failure {
         failure.error(),
         Error::Analysis(AnalysisError::Stopped(_) | AnalysisError::BudgetMeasurement(_))
     ) {
-        failure.validation_progress = Some(ValidationProgress {
+        failure.validation_progress = Some(Box::new(ValidationProgress {
             checks_passed: 0,
             state: None,
             check: None,
-        });
+        }));
     }
     failure
 }
@@ -580,7 +601,7 @@ fn run(
     config: &ModelConfig,
     options: &CheckOptions,
     configuration: Configuration,
-) -> Result<Outcome, Failure> {
+) -> Result<(Outcome, Option<dive_model::SymmetryLivenessResolution>), Failure> {
     let control = dive_check::budget::EvaluationControl::new(
         &options.budget,
         dive_check::budget::Phase::Binding,
@@ -594,13 +615,20 @@ fn run(
     let model =
         match dive_check::final_roles::dispatch_controlled(ir, config, options, control.clone()) {
             Some(Ok(dive_check::final_roles::Dispatch::Safety(result))) => {
-                return Ok(Outcome::Safety(result));
+                let symmetry = result.symmetry_liveness.clone();
+                return Ok((Outcome::Safety(result), symmetry));
             }
             Some(Ok(dive_check::final_roles::Dispatch::Temporal(model))) => *model,
             Some(Err(error)) => return Err(controlled_binding_failure(error, &control)),
             None => bind_controlled(ir, config, options, &control)?,
         };
+    let symmetry = Some(model.symmetry_liveness().clone());
     run_bound(ir, config, options, &model, configuration)
+        .map(|outcome| (outcome, symmetry.clone()))
+        .map_err(|mut failure| {
+            failure.symmetry_liveness = symmetry.map(Box::new);
+            failure
+        })
 }
 
 fn run_bound(
@@ -678,7 +706,7 @@ fn final_validation_run_failure(
 ) -> Failure {
     let (error, progress) = validation_run_error(control, error);
     let mut failure = Failure::after(error, Stage::Validation, capture);
-    failure.validation_progress = progress;
+    failure.validation_progress = progress.map(Box::new);
     failure
 }
 
@@ -956,6 +984,7 @@ fn finish_final(
                     periodic: None,
                     configuration: None,
                     binding_output: Vec::new(),
+                    symmetry_liveness: None,
                 })
             }
         }
@@ -978,6 +1007,7 @@ fn final_validation_failure(candidate: Candidate, report: ValidationReport) -> F
         periodic: None,
         configuration: None,
         binding_output: Vec::new(),
+        symmetry_liveness: None,
     }
 }
 
@@ -993,6 +1023,7 @@ fn prefix_failure(error: Error, stage: Stage, prefix: &capture::Prefix) -> Failu
         periodic: None,
         configuration: None,
         binding_output: Vec::new(),
+        symmetry_liveness: None,
     }
 }
 
@@ -1012,6 +1043,7 @@ fn prefix_validation_failure(candidate: PrefixCandidate, report: ValidationRepor
         periodic: None,
         configuration: None,
         binding_output: Vec::new(),
+        symmetry_liveness: None,
     }
 }
 
@@ -1022,7 +1054,7 @@ fn prefix_validation_run_failure(
 ) -> Failure {
     let (error, progress) = validation_run_error(control, error);
     let mut failure = prefix_failure(error, Stage::Validation, prefix);
-    failure.validation_progress = progress;
+    failure.validation_progress = progress.map(Box::new);
     failure
 }
 
@@ -1105,6 +1137,7 @@ fn run_periodic(
                 periodic: Some(Box::new(failure.checks)),
                 configuration: None,
                 binding_output: Vec::new(),
+                symmetry_liveness: None,
             });
         }
     };
@@ -1156,10 +1189,12 @@ pub(crate) fn check_ordinary_final(
                         result.map_err(|failure| controlled_binding_failure(failure, &control))?;
                     match bound {
                         dive_check::final_roles::Dispatch::Safety(result) => {
-                            Ok((Outcome::Safety(result), None))
+                            let symmetry = result.symmetry_liveness.clone();
+                            Ok((Outcome::Safety(result), None, symmetry))
                         }
                         dive_check::final_roles::Dispatch::Temporal(model) => {
-                            if options.profile == dive_eval::Profile::Dive {
+                            let symmetry = Some(model.symmetry_liveness().clone());
+                            let result = if options.profile == dive_eval::Profile::Dive {
                                 run_periodic(
                                     ir,
                                     config,
@@ -1172,7 +1207,13 @@ pub(crate) fn check_ordinary_final(
                             } else {
                                 run_bound(ir, config, options, &model, file_configuration())
                                     .map(|outcome| (outcome, None))
-                            }
+                            };
+                            result
+                                .map(|(outcome, checks)| (outcome, checks, symmetry.clone()))
+                                .map_err(|mut failure| {
+                                    failure.symmetry_liveness = symmetry.map(Box::new);
+                                    failure
+                                })
                         }
                     }
                 })
@@ -1190,8 +1231,9 @@ pub(crate) fn check_ordinary_final(
         Ok(None) => None,
         Ok(Some(result)) => Some(
             result
-                .map(|(outcome, periodic)| Report {
+                .map(|(outcome, periodic, symmetry_liveness)| Report {
                     outcome,
+                    symmetry_liveness,
                     options: options.clone(),
                     elapsed: started.elapsed(),
                     periodic,
@@ -1388,9 +1430,11 @@ fn check_final_configured(
         }
         Ok(None) => {}
     }
-    let outcome = if config.properties.is_empty() {
+    let (outcome, symmetry_liveness) = if config.properties.is_empty() {
         // No temporal claim requested; retain the ordinary startup host.
-        Outcome::Safety(Box::new(dive_check::check(ir, config, options)))
+        let result = dive_check::check(ir, config, options);
+        let symmetry = result.symmetry_liveness.clone();
+        (Outcome::Safety(Box::new(result)), symmetry)
     } else {
         std::thread::scope(|s| {
             std::thread::Builder::new()
@@ -1412,6 +1456,7 @@ fn check_final_configured(
     };
     let mut report = Report {
         outcome,
+        symmetry_liveness,
         options: report_options,
         elapsed: started.elapsed(),
         periodic: None,

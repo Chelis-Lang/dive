@@ -1100,13 +1100,21 @@ fn run_model(
                         })
                         .collect();
                     registry
-                        .excuse(profile.as_ref(), &active, &m.id, result.verdict, &diffs)
+                        .excuse_observed(
+                            profile.as_ref(),
+                            &active,
+                            &m.id,
+                            &validation_golden.result,
+                            &result,
+                            &diffs,
+                        )
                         .or_else(|| {
-                            registry.excuse(
+                            registry.excuse_observed(
                                 profile.as_ref(),
                                 &active,
                                 &m.module,
-                                result.verdict,
+                                &validation_golden.result,
+                                &result,
                                 &diffs,
                             )
                         })

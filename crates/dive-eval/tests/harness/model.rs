@@ -97,6 +97,7 @@ pub fn bind_model(loaded: &Loaded, cfg: &ModelConfig, opts: Options) -> Result<B
     }
     let bind_opts = dive_model::BindOptions {
         eval: opts,
+        symmetry_liveness: dive_model::SymmetryLiveness::Refuse,
         no_deadlock: false,
         host: None,
     };

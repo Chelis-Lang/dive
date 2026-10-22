@@ -31,6 +31,7 @@ fn bound_to(source: &str, target: Option<&str>, options: &CheckOptions) -> dive_
         &dive_config::parse(&cfg).into_config().expect("config"),
         &dive_model::BindOptions {
             eval: options.eval,
+            symmetry_liveness: options.symmetry_liveness,
             no_deadlock: false,
             host: None,
         },

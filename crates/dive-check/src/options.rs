@@ -27,6 +27,9 @@ pub struct CheckOptions {
     pub predecessor_directory: Option<std::path::PathBuf>,
     /// The profile: dive's default or `--compat=tlc`.
     pub profile: Profile,
+    /// Whole-run symmetry policy for genuine temporal properties (D-005).
+    /// TLC-equivalent: `Tlc`; unsupported quotient checking still refuses.
+    pub symmetry_liveness: dive_model::SymmetryLiveness,
     /// Evaluation options (`Options::tlc()` under `--compat=tlc`).
     pub eval: Options,
     /// Fingerprint mode (the default, as in TLC) or exact mode
@@ -96,6 +99,7 @@ impl CheckOptions {
             predecessor_memory_bytes: None,
             predecessor_directory: None,
             profile: Profile::Tlc,
+            symmetry_liveness: dive_model::SymmetryLiveness::Tlc,
             eval: Options::tlc(),
             store: StoreMode::Fingerprint,
             fp_index,
@@ -123,6 +127,7 @@ impl CheckOptions {
             predecessor_memory_bytes: None,
             predecessor_directory: None,
             profile: Profile::Dive,
+            symmetry_liveness: dive_model::SymmetryLiveness::Unreduced,
             eval: Options::dive(),
             store: StoreMode::Fingerprint,
             fp_index: 0,

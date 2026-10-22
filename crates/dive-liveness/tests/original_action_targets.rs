@@ -24,6 +24,7 @@ fn bound(next: &str, property: &str, options: &CheckOptions) -> dive_model::Mode
         &config,
         &dive_model::BindOptions {
             eval: options.eval,
+            symmetry_liveness: options.symmetry_liveness,
             no_deadlock: options.no_deadlock,
             host: None,
         },

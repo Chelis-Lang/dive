@@ -5,7 +5,7 @@
 
 ## Context
 
-`SYMMETRY` is refused today (ADR 0015 §6). That refusal keeps 11 small-tier Examples models `unsupported`:
+At the original proposal date, `SYMMETRY` was refused (ADR 0015 §6), keeping 11 small-tier Examples models `unsupported`. The historical inventory follows; current supported routes are described in ADR 0085 and the temporal user guide:
 
 | Model | TLC golden (distinct / generated / depth) | Symmetry set |
 |---|---|---|
@@ -21,7 +21,7 @@
 | `SimplifiedFastPaxos/Paxos` | 1,207 / 13,290 / 22 | the same |
 | `braf/BufferedRandomAccessFile` | 3,316 / 128,581 / 10 | `Permutations(Symbols)` |
 
-None of the 11 checks liveness. In the whole Examples corpus only `KeyValueStore/MCKVsnap` combines `SYMMETRY` with a liveness property. D-005 (owner decision, 2026-10-08) makes dive refuse symmetry with liveness by default, with TLC's warn-and-proceed under `--symmetry-liveness=tlc`.
+None of the 11 checked liveness in that inventory. Only `KeyValueStore/MCKVsnap` combined `SYMMETRY` with a liveness property. The original D-005 proposal selected refusal by default. The accepted 2026-10-09 update below instead selects whole-run unreduced checking. Supported native unreduced/refuse routes now implement that policy; the requested TLC quotient route remains refused (ADR 0085).
 
 TLC paths are relative to `tlatools/org.lamport.tlatools/src/` at tlaplus `94d0c50`. The probes are in `crates/dive-liveness/tests/fixtures/tlc-probes/` (names `Sym*`; the README has the transcripts' results).
 
@@ -102,9 +102,13 @@ The work per successor is TLC's O(|G| × state), and dive does it once per in-mo
 
 Counterexamples print the explored concrete states, a valid behaviour, and `dive-trace` validates them like any other (ADR 0016). The length equals TLC's because both are breadth-first paths in the same 𝒪. Content can differ from TLC's rebuilt trace, which the harness does not compare.
 
-Symmetry plus liveness is covered in ADR 0018 §9: a lasso whose loop closes on an orbit, not on a state, carries the permutation that closes it, and the validator checks that.
+The quotient-lasso/permutation design in ADR 0018 §9 remains unimplemented. Supported unreduced symmetry runs validate concrete words with literal loop closure and full fairness, without a quotient or permutation annotation.
 
-### 4. Symmetry with liveness (D-005)
+### 4. Original symmetry-with-liveness proposal (D-005)
+
+The following proposal is historical. The owner decisions below supersede its
+refusal default; ADR 0085 records the implemented unreduced/refuse routes and
+the remaining TLC quotient refusal.
 
 - **Default, `--symmetry-liveness=refuse`:** dive refuses the run before checking, with error `DIVE-L0010`. The error names the `SYMMETRY` definition and the temporal properties, explains that TLC can both miss violations and report false ones in this combination (pointing to `SymLiveMissed` and `SymLiveSymProp` in `docs/tlc-differences.md`), and suggests checking liveness in a separate run without `SYMMETRY`. Safety-only `PROPERTY` parts (`[]P`, `[][A]_v`) do not trigger it, matching TLC's warning condition.
 - **`--symmetry-liveness=tlc`** (part of `--compat=tlc`): warning 2279, then TLC's quotient-graph construction exactly as ADR 0018 §9 specifies. The probes `SymLiveWarn`, `SymLiveMissed` and `SymLiveSymProp` are its conformance tests, and must reproduce TLC's verdicts, including the missed violation and the false one.
@@ -134,7 +138,7 @@ Symmetry does not change simulation's safety checking, since simulation does no 
 
 ## Owner decisions, 2026-10-09
 
-The intended default is `--symmetry-liveness=unreduced`, disabling reduction for the entire liveness run and reporting unreduced counts. This supersedes §4's refusal default; `refuse` stays an option and `--compat=tlc` retains the quotient path. Reject non-bijective functions in the default profile; preserve TLC's acceptance in compat mode. Build `--check-symmetry` as an opt-in audit. These are approved designs, not claims that the currently unsupported features are implemented.
+The intended default is `--symmetry-liveness=unreduced`, disabling reduction for the entire liveness run and reporting unreduced counts. This supersedes §4's refusal default; `refuse` stays an option and `--compat=tlc` retains the quotient-semantics request. Reject non-bijective functions in the default profile; preserve TLC's acceptance in compat mode. Build `--check-symmetry` as an opt-in audit. The unreduced and explicit refusal routes now implement the accepted policy for supported temporal runs. TLC quotient checking and the opt-in symmetry audit remain unimplemented; no quotient trace or permutation-closing support is claimed.
 
 ## S1 closure increment, 2026-10-09
 

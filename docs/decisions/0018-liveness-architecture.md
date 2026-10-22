@@ -12,7 +12,7 @@ ADR 0017 specifies what TLC's liveness checker does, and what conformance compar
 - **ADR 0015.** The search is the deterministic, level-synchronous engine with order 𝒪. Liveness must not reintroduce scheduling into results.
 - **ADR 0016.** `dive-trace` validates without the search code and without the successor enumerator.
 - **ADR 0006.** `ElevatorLivenessMedium` in ≤ 0.5 s (TLC 5.9 s at 8 workers; tla-mc 0.14 s), with a full tableau and no shape restrictions.
-- **D-005.** Symmetry with liveness uses the sound `unreduced` mode by default; TLC's behaviour is available under `--symmetry-liveness=tlc` (ADR 0019).
+- **D-005.** Supported symmetry with liveness uses the sound `unreduced` mode by default. `--symmetry-liveness=tlc` requests TLC quotient semantics, which remain refused (ADRs 0019 and 0085).
 
 TLC builds a product of the state graph and each tableau eagerly, on disk, once per order of solution (OoS). It stores state bits once per (state, tableau node) pair, and runs Tarjan with a hash-order edge list (ADR 0017 §3–§4). dive keeps TLC's semantics and changes the data structures.
 
@@ -171,10 +171,14 @@ numbering, graph capture or an integrated model-checking verdict.
 
 ### 4. Constraints, `VIEW`, symmetry
 
+The VIEW and TLC quotient constructions below are proposed architecture, not
+implemented checking or witness routes. VIEW liveness remains refused. Current
+symmetry modes are stated explicitly here and in ADR 0085.
+
 - **Constraints:** no edge to an out-of-model successor (ADR 0017 §9; probes `LvConstraint`, `LvConstraintHolds`, `LvActionConstraint`).
 - **`VIEW`:** nodes are view keys. A node's state atoms come from the state explored for the key; action atoms from the concrete pair; tableau consistency from the concrete successor (side table, §3).
   - **Duplicate edges.** dive reproduces TLC's duplicate-edge rule. An edge to a target already expanded (target id < source id) is dropped when an edge to the same target already exists, keeping the first edge's bits. An edge to a target not yet expanded, or to `s` itself, is always kept. This follows from TLC writing a node only after its transitions (`LiveCheck.java:562-579`). Without `VIEW` or symmetry, two successors with one key are equal states, `SetOfStates` keeps one, and the rule never applies.
-- **`SYMMETRY`:** refused by default (§9; ADR 0019 §4). Under `--symmetry-liveness=tlc` it is the same construction as `VIEW`, with canonical keys.
+- **`SYMMETRY`:** the supported default checks the whole unreduced graph (§9; ADR 0085). `--symmetry-liveness=refuse` remains explicit. The proposed `tlc` construction uses canonical keys like VIEW, but currently refuses rather than claiming quotient semantics.
 
 ### 5. dive's lasso search (`--lasso=short`)
 
@@ -315,15 +319,15 @@ This evaluator shares nothing with the tableau, the DNF or the SCC search. It is
 
   This is ADR 0016 amendment 1's deferred option (b). It also turns deadlock validation from "refused" into "checked". Until it exists, a lasso whose validity depends on a false `ENABLED` is refused by name, `dive_trace::ENABLED_UNSUPPORTED`, and the harness reports `agree-pending-trace-validation`, never `agree`.
 
-**Under `--symmetry-liveness=tlc`.** TLC's quotient lasso need not be a behaviour of the spec (probe `SymLiveSymProp`). The validator checks the steps and the closing permutation, then evaluates fairness and properties on the quotient word. It reports `ValidModuloSymmetry` or `InvalidUnderSymmetry`. dive reports either as TLC would, with a note that the counterexample is TLC's quotient artefact and may not be a real behaviour. That is the honest form of TLC's warning.
+**Planned, unimplemented `--symmetry-liveness=tlc` validation.** TLC's quotient lasso need not be a behaviour of the spec (probe `SymLiveSymProp`). The validator checks the steps and the closing permutation, then evaluates fairness and properties on the quotient word. It reports `ValidModuloSymmetry` or `InvalidUnderSymmetry`. dive reports either as TLC would, with a note that the counterexample is TLC's quotient artefact and may not be a real behaviour. That is the honest form of TLC's warning.
 
 **Harness.** As ADR 0016 §3: the harness validates dive's lasso itself, and runs every golden lasso (the two goldens and the probes' `trace.json`) through the validator as positive controls. It also mutates lassos (drop a cycle state, move `back_to`, claim stuttering for a lasso, claim an unviolated property) as negative controls.
 
 ### 9. Symmetry with liveness (D-005)
 
 - **`--symmetry-liveness=unreduced`** (default): disable symmetry for the whole run and report it (ADR 0019 §4). Check both safety and liveness on the full graph.
-- **`--symmetry-liveness=refuse`**: refused before the search with `DIVE-L0010` (ADR 0019 §4).
-- **`--symmetry-liveness=tlc`** (in `--compat=tlc`):
+- **`--symmetry-liveness=refuse`**: an explicit named refusal before graph capture (ADR 0085).
+- **`--symmetry-liveness=tlc`** (in `--compat=tlc`) is currently refused. The following is the planned quotient construction, not implemented behavior:
   - warning 2279;
   - canonical keys as nodes, with node atoms from the explored representative;
   - action atoms and tableau consistency from the concrete pair and successor (§3, §4), and the duplicate-edge rule.

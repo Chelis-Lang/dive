@@ -190,6 +190,13 @@ impl DiveImplementation {
         })
     }
 
+    fn symmetry_policy(&self) -> Option<&str> {
+        self.options
+            .iter()
+            .find(|option| option.name == "symmetry-liveness")
+            .and_then(|option| option.value.as_deref())
+    }
+
     /// Raw black-box model run. Final/short observation is assessed separately
     /// from the strict schema-1 conformance mapping.
     pub(crate) fn run_model(
@@ -230,6 +237,10 @@ impl DiveImplementation {
         for p in &self.module_path {
             extra.push("--module-path".as_ref());
             extra.push(p.path.as_os_str());
+        }
+        if let Some(policy) = self.symmetry_policy() {
+            extra
+                .extend::<[&std::ffi::OsStr; 2]>(["--symmetry-liveness".as_ref(), policy.as_ref()]);
         }
         // TLC runs these with `-Dtlc2.tool.impl.Tool.cdot=true`
         // (`oracle::run_tlc`); the default profile composes actions anyway
@@ -558,6 +569,7 @@ pub enum CheckMapping {
 /// A result with only a verdict, an exit code and a note.
 fn bare(verdict: Verdict, exit_code: Option<i32>, note: String) -> OracleResult {
     OracleResult {
+        native_unreduced_symmetry: false,
         verdict,
         verdict_code: None,
         error_class: None,
@@ -582,15 +594,111 @@ fn as_i32(v: &Value) -> Option<i32> {
     v.as_i64().and_then(|c| i32::try_from(c).ok())
 }
 
-fn budget_profile(options: &Value, time_limit: Option<Duration>) -> bool {
-    let Some(limit) = time_limit else {
-        return false;
+struct SymmetryMetadata<'a> {
+    requested: Option<&'a str>,
+    unreduced: bool,
+}
+
+// All new fields are optional for old report3 producers. Once supplied, their
+// complete mutual contract is checked; they never bypass the ordinary reader.
+fn symmetry_metadata(value: &Value) -> std::result::Result<SymmetryMetadata<'_>, String> {
+    let options = &value["options"];
+    let Some(requested) = options.get("symmetry_liveness") else {
+        if !value["symmetry_liveness"].is_null()
+            || options.get("symmetry_liveness_source").is_some()
+        {
+            return Err("symmetry policy metadata has no requested mode".into());
+        }
+        return Ok(SymmetryMetadata {
+            requested: None,
+            unreduced: false,
+        });
     };
-    let millis = u64::try_from(limit.as_millis()).unwrap_or(u64::MAX).max(1);
+    let requested = requested
+        .as_str()
+        .filter(|mode| ["unreduced", "refuse", "tlc"].contains(mode))
+        .ok_or("unknown requested symmetry-liveness mode")?;
+    if !matches!(
+        options["symmetry_liveness_source"].as_str(),
+        Some("explicit" | "profile-default")
+    ) {
+        return Err("unknown symmetry-liveness option source".into());
+    }
+    if value["options"]["profile"] == "tlc" && requested != "tlc" {
+        return Err("a plain TLC profile cannot select a non-TLC symmetry policy".into());
+    }
+    if value["symmetry_liveness"].is_null() {
+        return Ok(SymmetryMetadata {
+            requested: Some(requested),
+            unreduced: false,
+        });
+    }
+    let summary = &value["symmetry_liveness"];
+    let temporal = summary["genuine_temporal"]
+        .as_bool()
+        .ok_or("missing bound temporal-role fact")?;
+    let declared = match &summary["declared"] {
+        Value::Null => None,
+        Value::String(name) if !name.is_empty() => Some(name),
+        _ => return Err("invalid declared symmetry name".into()),
+    };
+    let applicable = temporal && declared.is_some();
+    let effective = if applicable {
+        match requested {
+            "unreduced" => "unreduced",
+            "refuse" => "refused",
+            _ => "unsupported-tlc-quotient",
+        }
+    } else {
+        "not-applicable"
+    };
+    if summary["requested"] != requested
+        || summary["effective"] != effective
+        || if applicable && requested == "unreduced" {
+            summary["scope"] != "whole-run"
+        } else {
+            !summary["scope"].is_null()
+        }
+    {
+        return Err("contradictory symmetry-liveness bound metadata".into());
+    }
+    if matches!(value["options"]["profile"].as_str(), Some("tlc")) && requested != "tlc" {
+        return Err("a plain TLC profile cannot select a non-TLC symmetry policy".into());
+    }
+    Ok(SymmetryMetadata {
+        requested: Some(requested),
+        unreduced: applicable && requested == "unreduced",
+    })
+}
+
+fn budget_profile(options: &Value, time_limit: Option<Duration>) -> bool {
+    time_limit.is_some() && override_profile(options, time_limit, None)
+}
+
+fn override_profile(options: &Value, time_limit: Option<Duration>, policy: Option<&str>) -> bool {
+    let time_matches = if let Some(time) = time_limit {
+        let Ok(millis) = u64::try_from(time.as_millis()) else {
+            return false;
+        };
+        options["budget"]["time_limit_source"] == "explicit"
+            && options["budget"]["time_limit_ms"].as_u64() == Some(millis)
+    } else {
+        options["budget"]["time_limit_ms"].is_null()
+            && options["budget"]["time_limit_source"] == "none"
+    };
+    let policy_matches = match policy {
+        Some(mode) => {
+            options["symmetry_liveness"] == mode
+                && options["symmetry_liveness_source"] == "explicit"
+        }
+        None => options
+            .get("symmetry_liveness")
+            .is_none_or(|mode| mode == "tlc"),
+    };
     options["profile"] == "tlc+overrides"
         && options["semantic_profile"] == "tlc"
-        && options["budget"]["time_limit_source"] == "explicit"
-        && options["budget"]["time_limit_ms"].as_u64() == Some(millis)
+        && time_matches
+        && policy_matches
         && options["budget"]["max_states"].is_null()
         && options["budget"]["max_depth"].is_null()
         && options["int"] == "tlc"
@@ -623,6 +731,19 @@ fn check_result_with_budget(
     tlc_profile: bool,
     time_limit: Option<Duration>,
 ) -> CheckMapping {
+    check_result_with_policy(outcome, tlc_profile, time_limit, None)
+}
+
+#[allow(
+    clippy::too_many_lines,
+    reason = "strict ordinary wrapper and requested override mapping"
+)]
+fn check_result_with_policy(
+    outcome: &ProcessOutcome,
+    tlc_profile: bool,
+    time_limit: Option<Duration>,
+    requested_policy: Option<&str>,
+) -> CheckMapping {
     if outcome.timed_out {
         return CheckMapping::Result(Box::new(bare(
             Verdict::Timeout,
@@ -649,8 +770,31 @@ fn check_result_with_budget(
             "dive check's report has an unknown schema".to_owned(),
         );
     }
+    let symmetry = match symmetry_metadata(&v) {
+        Ok(fields) => fields,
+        Err(error) => return unclassified(outcome.exit_code, error),
+    };
+    let expected_policy = requested_policy.unwrap_or(if tlc_profile { "tlc" } else { "unreduced" });
+    if !["unreduced", "refuse", "tlc"].contains(&expected_policy)
+        || symmetry
+            .requested
+            .is_some_and(|mode| mode != expected_policy)
+        || (requested_policy.is_some() && symmetry.requested.is_none())
+    {
+        return unclassified(
+            outcome.exit_code,
+            "report contradicts requested symmetry-liveness policy".into(),
+        );
+    }
+    let policy_override = tlc_profile && expected_policy != "tlc";
     let budget_override = tlc_profile && time_limit.is_some();
-    if budget_override && !budget_profile(&v["options"], time_limit) {
+    if (budget_override || policy_override)
+        && !(if policy_override {
+            override_profile(&v["options"], time_limit, Some(expected_policy))
+        } else {
+            budget_profile(&v["options"], time_limit)
+        })
+    {
         return unclassified(
             outcome.exit_code,
             "budgeted compat report contradicts the requested budget or TLC semantics".into(),
@@ -689,14 +833,24 @@ fn check_result_with_budget(
                 if let Err(error) = validate_temporal_bounds(&v) {
                     return unclassified(outcome.exit_code, error);
                 }
-                match ordinary_final::read(&v, tlc_profile, outcome.exit_code, budget_override) {
+                match ordinary_final::read(
+                    &v,
+                    tlc_profile,
+                    outcome.exit_code,
+                    budget_override || policy_override,
+                ) {
                     Ok(fields) => Some(fields),
                     Err(error) => return unclassified(outcome.exit_code, error),
                 }
             }
             // Before report unification, schema 2 always meant temporal.
             None if version == 2 && v.get("check_kind").is_none() => {
-                match ordinary_final::read(&v, tlc_profile, outcome.exit_code, budget_override) {
+                match ordinary_final::read(
+                    &v,
+                    tlc_profile,
+                    outcome.exit_code,
+                    budget_override || policy_override,
+                ) {
                     Ok(fields) => Some(fields),
                     Err(error) => return unclassified(outcome.exit_code, error),
                 }
@@ -739,8 +893,20 @@ fn map_check_document(
     v: &Value,
     temporal: Option<&ordinary_final::Fields>,
 ) -> CheckMapping {
+    if let Err(error) = symmetry_metadata(v) {
+        return unclassified(outcome.exit_code, error);
+    }
     let s = |k: &str| v.get(k).and_then(Value::as_str).map(str::to_owned);
     let verdict = s("verdict").unwrap_or_default();
+    if verdict == "success"
+        && temporal.is_none()
+        && symmetry_metadata(v).is_ok_and(|fields| fields.unreduced)
+    {
+        return unclassified(
+            outcome.exit_code,
+            "a holding unreduced temporal run needs its strict temporal execution wrapper".into(),
+        );
+    }
     let message = s("message").unwrap_or_default();
     match verdict.as_str() {
         "unsupported" | "resource-limit" => {
@@ -932,6 +1098,8 @@ fn map_check_document(
         .filter_map(Value::as_str)
         .collect();
     CheckMapping::Result(Box::new(OracleResult {
+        native_unreduced_symmetry: temporal.is_some()
+            && symmetry_metadata(v).is_ok_and(|fields| fields.unreduced),
         verdict: oracle_verdict,
         verdict_code: Some(code),
         error_class: ec_name(code).map(str::to_owned),
@@ -999,7 +1167,29 @@ impl Implementation for DiveImplementation {
             }
         };
         let paths: Vec<PathBuf> = self.module_path.iter().map(|e| e.path.clone()).collect();
-        match crate::trace_check::load_model(req.corpus_root, req.model, &paths, compat_tlc) {
+        let symmetry_liveness = match self.symmetry_policy() {
+            None => None,
+            Some("unreduced") => Some(dive_api::SymmetryLiveness::Unreduced),
+            Some("refuse") => Some(dive_api::SymmetryLiveness::Refuse),
+            Some("tlc") => Some(dive_api::SymmetryLiveness::Tlc),
+            Some(_) => {
+                return crate::trace_check::TraceCheck::no("unknown requested symmetry policy");
+            }
+        };
+        let options = dive_api::trace::TraceOptions {
+            compat_tlc,
+            symmetry_liveness,
+            run: Some((0, 0)),
+            module_paths: paths,
+            ..Default::default()
+        };
+        match dive_api::trace::SpecModel::load(
+            &req.corpus_root.join(&req.model.module),
+            &req.corpus_root.join(&req.model.id),
+            &options,
+        )
+        .map_err(|error| error.to_string())
+        {
             Ok(spec) => crate::trace_check::validate_counterexample(&spec, result, golden),
             Err(e) => crate::trace_check::TraceCheck::no(format!(
                 "the validator cannot bind the model: {e}"
@@ -1016,10 +1206,11 @@ impl Implementation for DiveImplementation {
         }
         let (command, outcome) = self.run_model(req, false)?;
         Ok(
-            match check_result_with_budget(
+            match check_result_with_policy(
                 &outcome,
                 self.profile == Profile::Tlc,
                 req.budgets.then_some(req.timeout),
+                self.symmetry_policy(),
             ) {
                 CheckMapping::Refused(why) => ImplResult::Unsupported(why),
                 CheckMapping::Result(result) => ImplResult::Completed {
@@ -1585,5 +1776,123 @@ mod tests {
             Some(ParseVerdict::Reject)
         );
         assert_eq!(v(2, "error: cannot read"), None);
+    }
+}
+
+#[cfg(test)]
+mod symmetry_policy_transport_tests {
+    #![allow(
+        clippy::expect_used,
+        clippy::panic,
+        reason = "actual finite writer/reader controls"
+    )]
+    use super::*;
+    use serde_json::json;
+    fn actual(tlc: bool) -> Value {
+        let file = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../conformance/corpus/probes/specifications/P4SymLive/P4SymLive.tla");
+        dive_api::check_file(&dive_api::CheckRequest {
+            file,
+            compat_tlc: tlc,
+            symmetry_liveness: tlc.then_some(dive_api::SymmetryLiveness::Unreduced),
+            workers: Some(1),
+            seed: Some(0),
+            fp: Some(0),
+            time_limit: dive_api::BudgetSetting::Unlimited,
+            max_memory: dive_api::BudgetSetting::Unlimited,
+            ..Default::default()
+        })
+        .expect("real finite writer")
+        .to_json_with_exit_convention(dive_api::ExitConvention::Tlc)
+    }
+    fn outcome(value: &Value) -> ProcessOutcome {
+        ProcessOutcome {
+            exit_code: Some(0),
+            signal: None,
+            timed_out: false,
+            stdout: value.to_string(),
+            stderr: String::new(),
+            elapsed: Duration::ZERO,
+        }
+    }
+    #[test]
+    fn actual_writer_mode_is_checked_but_cannot_replace_temporal_execution_facts() {
+        let report = actual(false);
+        assert!(
+            matches!(check_result(&outcome(&report),false),CheckMapping::Result(result)
+            if result.verdict==Verdict::Success && result.native_unreduced_symmetry)
+        );
+        for (pointer, value) in [
+            ("/options/symmetry_liveness", json!("unknown")),
+            ("/options/symmetry_liveness_source", json!("invented")),
+            ("/symmetry_liveness/requested", json!("tlc")),
+            ("/symmetry_liveness/genuine_temporal", json!(false)),
+            ("/symmetry_liveness/effective", json!("reduced")),
+            ("/symmetry_liveness/scope", json!(null)),
+            ("/symmetry_liveness/declared", json!(null)),
+            ("/execution/capture_completed", json!(false)),
+            ("/execution/exhausted", json!(false)),
+            ("/check_kind", json!("safety")),
+            ("/schema_version", json!(99)),
+        ] {
+            let mut forged = report.clone();
+            *forged.pointer_mut(pointer).expect("actual producer field") = value;
+            assert!(
+                matches!(check_result(&outcome(&forged),false),CheckMapping::Result(result) if result.verdict==Verdict::Unclassified),
+                "{pointer}"
+            );
+        }
+        let mut legacy_safety = report.clone();
+        legacy_safety["schema_version"] = json!(1);
+        legacy_safety
+            .as_object_mut()
+            .expect("object")
+            .remove("check_kind");
+        assert!(matches!(check_result(&outcome(&legacy_safety), false),
+            CheckMapping::Result(result) if result.verdict == Verdict::Unclassified));
+        let mut legacy = report;
+        legacy
+            .as_object_mut()
+            .expect("report")
+            .remove("symmetry_liveness");
+        let options = legacy["options"].as_object_mut().expect("options");
+        options.remove("symmetry_liveness");
+        options.remove("symmetry_liveness_source");
+        assert!(
+            matches!(check_result(&outcome(&legacy),false),CheckMapping::Result(result)
+            if result.verdict==Verdict::Success && !result.native_unreduced_symmetry)
+        );
+        assert!(
+            matches!(check_result_with_policy(&outcome(&legacy),false,None,Some("unreduced")),CheckMapping::Result(result) if result.verdict==Verdict::Unclassified)
+        );
+    }
+    #[test]
+    fn compat_override_requires_the_exact_requested_mode_and_all_existing_semantics() {
+        let report = actual(true);
+        assert!(
+            matches!(check_result(&outcome(&report),true),CheckMapping::Result(result) if result.verdict==Verdict::Unclassified)
+        );
+        assert!(
+            matches!(check_result_with_policy(&outcome(&report),true,None,Some("unreduced")),CheckMapping::Result(result)
+            if result.verdict==Verdict::Success && result.native_unreduced_symmetry)
+        );
+        for (pointer, value) in [
+            ("/options/profile", json!("tlc")),
+            ("/options/int", json!("big")),
+            ("/options/comparisons", json!("tla")),
+            ("/options/fingerprint/polynomial_index", json!(1)),
+            ("/options/budget/max_states", json!(3)),
+            (
+                "/options/symmetry_liveness_source",
+                json!("profile-default"),
+            ),
+        ] {
+            let mut forged = report.clone();
+            *forged.pointer_mut(pointer).expect("actual producer field") = value;
+            assert!(
+                matches!(check_result_with_policy(&outcome(&forged),true,None,Some("unreduced")),CheckMapping::Result(result) if result.verdict==Verdict::Unclassified),
+                "{pointer}"
+            );
+        }
     }
 }

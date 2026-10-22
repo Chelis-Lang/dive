@@ -37,12 +37,12 @@ const EXIT_UNSUPPORTED: u8 = 3;
 
 fn usage() -> String {
     format!(
-        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive translate <FILE.tla> [--compat=tlc] [--rewrite --checksums tla|full] [--replace-modified] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive explain <CODE> [--output human|json]\n    dive tlc [OPTIONS] SPEC[.tla] (TLC checking arguments; see dive tlc -help)\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--exit-codes native|tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock] [--action-composition off|tlc|tla]\n               [--frontier-memory-bytes N] [--frontier-directory DIR] [--output human|json]\n               [--time-limit DURATION|none] [--max-memory BYTES|auto|none]
+        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive translate <FILE.tla> [--compat=tlc] [--rewrite --checksums tla|full] [--replace-modified] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive explain <CODE> [--output human|json]\n    dive tlc [OPTIONS] SPEC[.tla] (TLC checking arguments; see dive tlc -help)\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--exit-codes native|tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock] [--action-composition off|tlc|tla]\n               [--symmetry-liveness unreduced|refuse|tlc]\n               [--frontier-memory-bytes N] [--frontier-directory DIR] [--output human|json]\n               [--time-limit DURATION|none] [--max-memory BYTES|auto|none]
                [--max-states N|none] [--max-depth N|none]
                [--predecessor-memory-bytes N] [--predecessor-directory DIR]\n               [--seen-disk-entries N] [--seen-directory DIR] [--seen-key-bytes N]\n               [--seen-probe-steps N] [--seen-summary-pairs N]
                [--checkpoint FILE --checkpoint-after-levels N | --recover FILE]
                [--checkpoint-counters tlc|retain]
-               [--lncheck final --lasso short] [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--depth N] [--seed N] [--aril N] [--stats none|basic] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    Eligible ordinary temporal checks use deterministic completed-level checks in the dive
+               [--lncheck final --lasso short] [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--depth N] [--seed N] [--aril N] [--stats none|basic] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    Eligible ordinary temporal checks use deterministic completed-level checks in the dive
     profile and final checking in the TLC profile; explicit final/short keeps final checking.
     dive check uses TLC process statuses by default, independently of semantic profile.\n    --exit-codes native retains: 0 no error, 1 rejected input, 10 property violated, 11 deadlock,\n    12 assumption, 13 evaluation error. Both conventions keep 2 usage, 3 unsupported/resource\n    limit, 4 internal error and 5 stopped by a run budget (no verdict).\n    --time-limit defaults to 30m in the dive profile and none under --compat=tlc; --max-memory\n    defaults to half of physical memory (auto) in both. --compat=tlc (or DIVE_COMPAT=tlc) also selects TLC semantics.\n",
         env!("CARGO_PKG_VERSION"),
@@ -466,6 +466,15 @@ fn check_command(
                 }
             }
             "-deadlock" => req.no_deadlock = true,
+            "--symmetry-liveness" => {
+                let Some(policy) = value().as_deref().and_then(symmetry_liveness) else {
+                    return usage_error(
+                        err,
+                        "--symmetry-liveness expects unreduced, refuse or tlc",
+                    );
+                };
+                req.symmetry_liveness = Some(policy);
+            }
             "--action-composition" => match value().as_deref() {
                 Some("off") => req.action_composition = Some(dive_api::ActionComposition::Off),
                 Some("tlc") => req.action_composition = Some(dive_api::ActionComposition::Tlc),
@@ -811,6 +820,27 @@ fn validate_trace_command(
                 Some("dive") => opts.compat_tlc = false,
                 _ => return usage_error(err, "--compat expects `tlc` or `dive`"),
             },
+            "--symmetry-liveness" => {
+                let Some(policy) = it.next().and_then(|v| symmetry_liveness(v)) else {
+                    return usage_error(
+                        err,
+                        "--symmetry-liveness expects unreduced, refuse or tlc",
+                    );
+                };
+                opts.symmetry_liveness = Some(policy);
+            }
+            s if s.starts_with("--symmetry-liveness=") => {
+                let Some(policy) = s
+                    .strip_prefix("--symmetry-liveness=")
+                    .and_then(symmetry_liveness)
+                else {
+                    return usage_error(
+                        err,
+                        "--symmetry-liveness expects unreduced, refuse or tlc",
+                    );
+                };
+                opts.symmetry_liveness = Some(policy);
+            }
             "--deadlock" | "-deadlock" => opts.no_deadlock = true,
             "--seed" | "-seed" => match it.next().and_then(|v| dive_api::parse_seed(v)) {
                 Some(s) => seed = Some(s),
@@ -1407,6 +1437,102 @@ mod budget_tests {
         assert_eq!(search_limit("none"), Ok(None));
         for bad in ["", "-1", "1.5", "18446744073709551616", "auto"] {
             assert!(search_limit(bad).is_err(), "{bad}");
+        }
+    }
+}
+
+fn symmetry_liveness(value: &str) -> Option<dive_api::SymmetryLiveness> {
+    match value {
+        "unreduced" => Some(dive_api::SymmetryLiveness::Unreduced),
+        "refuse" => Some(dive_api::SymmetryLiveness::Refuse),
+        "tlc" => Some(dive_api::SymmetryLiveness::Tlc),
+        _ => None,
+    }
+}
+
+#[cfg(test)]
+mod symmetry_liveness_tests {
+    #![allow(clippy::expect_used, reason = "finite argument and report controls")]
+    use super::*;
+    fn arguments(args: &[&str]) -> Vec<String> {
+        args.iter().map(|arg| (*arg).into()).collect()
+    }
+    #[test]
+    fn unknown_modes_are_usage_errors_before_any_input_access() {
+        for args in [
+            arguments(&["Missing.tla", "--symmetry-liveness=unknown"]),
+            arguments(&["--symmetry-liveness", "bad", "Missing.tla"]),
+        ] {
+            let mut out = Vec::new();
+            let mut err = Vec::new();
+            assert_eq!(
+                check_command(&args, &mut out, &mut err),
+                ExitCode::from(EXIT_USAGE)
+            );
+            assert!(String::from_utf8_lossy(&err).contains("--symmetry-liveness expects"));
+            assert_eq!(out, [] as [u8; 0]);
+            assert_eq!(
+                validate_trace_command(&args, &mut out, &mut err),
+                ExitCode::from(EXIT_USAGE)
+            );
+        }
+    }
+    #[test]
+    fn explicit_mode_survives_native_profile_flag_order_and_adapter_transport() {
+        let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../conformance/corpus/probes/specifications/P4SymLive/P4SymLive.tla");
+        let file = file.to_str().expect("fixture path");
+        for native in [true, false] {
+            for reverse in [false, true] {
+                let mut args = if native {
+                    arguments(&[
+                        file,
+                        "--output=json",
+                        "--workers=1",
+                        "--seed=0",
+                        "--fp=0",
+                        "--max-memory=none",
+                        "--time-limit=none",
+                    ])
+                } else {
+                    arguments(&[
+                        file,
+                        "--output=json",
+                        "--workers=1",
+                        "--seed=0",
+                        "--fp=0",
+                        "--max-memory=none",
+                    ])
+                };
+                let selection = if reverse {
+                    ["--symmetry-liveness=unreduced", "--compat=tlc"]
+                } else {
+                    ["--compat=tlc", "--symmetry-liveness=unreduced"]
+                };
+                if native {
+                    args.extend(arguments(&selection));
+                } else {
+                    args.push("--symmetry-liveness=unreduced".into());
+                }
+                let mut out = Vec::new();
+                let mut err = Vec::new();
+                let status = if native {
+                    check_command(&args, &mut out, &mut err)
+                } else {
+                    tlc::command(&args, &mut out, &mut err)
+                };
+                assert_eq!(
+                    status,
+                    ExitCode::SUCCESS,
+                    "{}",
+                    String::from_utf8_lossy(&err)
+                );
+                let report: serde_json::Value = serde_json::from_slice(&out).expect("actual JSON");
+                assert_eq!(report["options"]["profile"], "tlc+overrides");
+                assert_eq!(report["options"]["symmetry_liveness"], "unreduced");
+                assert_eq!(report["symmetry_liveness"]["scope"], "whole-run");
+                assert_eq!(report["statistics"]["distinct"], 2);
+            }
         }
     }
 }

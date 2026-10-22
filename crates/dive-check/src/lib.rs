@@ -323,6 +323,7 @@ fn bare(verdict: Verdict, opts: &CheckOptions, ir: &Ir) -> CheckResult {
         _ => (Vec::new(), Vec::new()),
     };
     CheckResult {
+        symmetry_liveness: None,
         frontier: crate::FrontierUsage {
             memory_bytes_per_queue: opts.frontier_memory_bytes,
             max_record_bytes: opts
@@ -465,6 +466,7 @@ fn bind_for_run_controlled(
     let host = Arc::new(engine::run_host(opts));
     let bind_opts = BindOptions {
         eval: opts.eval,
+        symmetry_liveness: opts.symmetry_liveness,
         no_deadlock: opts.no_deadlock,
         host: Some(Arc::new(host::EngineHost::new(host.clone()))),
     };
@@ -485,6 +487,7 @@ fn bind_for_run(
     let host = Arc::new(engine::run_host(opts));
     let bind_opts = BindOptions {
         eval: opts.eval,
+        symmetry_liveness: opts.symmetry_liveness,
         no_deadlock: opts.no_deadlock,
         host: Some(Arc::new(host::EngineHost::new(host.clone()))),
     };
@@ -514,6 +517,7 @@ fn finish_bound_check(
 ) -> CheckResult {
     let mut notes = Vec::new();
     let mut r = bare(Verdict::Success, opts, ir);
+    r.symmetry_liveness = Some(m.symmetry_liveness().clone());
     messages(&m.output, &mut r);
     if m.symmetry.is_some() && m.implied_temporals.is_empty() {
         if engine::uses_random(ir) {

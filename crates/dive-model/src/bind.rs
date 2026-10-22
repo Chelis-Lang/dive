@@ -25,6 +25,8 @@ pub(crate) type R<T> = Result<T, crate::control::StepError>;
 /// How the binding stage runs.
 #[derive(Clone, Debug)]
 pub struct BindOptions {
+    /// Whole-run policy for genuine temporal obligations and configured symmetry.
+    pub symmetry_liveness: crate::SymmetryLiveness,
     /// The evaluator's options (the profile).
     pub eval: Options,
     /// TLC's `-deadlock` command-line flag: do not check for deadlock,
@@ -43,6 +45,7 @@ impl BindOptions {
     pub fn tlc() -> Self {
         Self {
             eval: Options::tlc(),
+            symmetry_liveness: crate::SymmetryLiveness::Tlc,
             no_deadlock: false,
             host: None,
         }
@@ -53,6 +56,7 @@ impl BindOptions {
     pub fn dive() -> Self {
         Self {
             eval: Options::dive(),
+            symmetry_liveness: crate::SymmetryLiveness::Unreduced,
             no_deadlock: false,
             host: None,
         }

@@ -149,6 +149,48 @@ impl GeneratedCountPair {
     }
 }
 
+/// Exact expected/native `(distinct, generated, depth)` counts for D-005.
+/// Every count is bound, even when a compared field did not differ. This pair
+/// additionally requires an actual native report's bound unreduced mode.
+///
+/// ```
+/// use dive_conformance::divergence::UnreducedSymmetryCounts;
+/// let pair = UnreducedSymmetryCounts { expected: [1,2,1], actual: [2,3,2] };
+/// assert_ne!(pair.expected, pair.actual);
+/// ```
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct UnreducedSymmetryCounts {
+    /// The pinned reduced TLC tuple: distinct, generated, depth.
+    pub expected: [u64; 3],
+    /// The independently observed unreduced native tuple in that same order.
+    pub actual: [u64; 3],
+}
+impl UnreducedSymmetryCounts {
+    fn observed(
+        self,
+        expected: &crate::tlc::result::Counts,
+        actual: &crate::tlc::result::Counts,
+    ) -> bool {
+        let counts =
+            |c: &crate::tlc::result::Counts| [c.distinct_states, c.states_generated, c.depth];
+        counts(expected) == self.expected.map(Some) && counts(actual) == self.actual.map(Some)
+    }
+    fn matches(self, diff: &FieldDiff) -> bool {
+        let Some(index) = [
+            "counts.distinct_states",
+            "counts.states_generated",
+            "counts.depth",
+        ]
+        .iter()
+        .position(|field| *field == diff.field) else {
+            return false;
+        };
+        diff.expected.as_u64() == Some(self.expected[index])
+            && diff.actual.as_u64() == Some(self.actual[index])
+    }
+}
+
 /// One owner-approved divergence from TLC.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -184,6 +226,10 @@ pub struct ExpectedDivergence {
     /// its own declared field or exact exit pair. Never strict agreement.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub generated_count_pair: Option<GeneratedCountPair>,
+    /// Exact D-005 counts, bound to default profile and actual whole-run
+    /// unreduced symmetry metadata. No field glob may share count authority.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unreduced_symmetry_counts: Option<UnreducedSymmetryCounts>,
     /// Why the divergence is approved.
     pub justification: String,
     /// The entry in `docs/divergences.md`, e.g. `docs/divergences.md#integer-overflow`.
@@ -256,7 +302,10 @@ impl Registry {
             if !d.expected_verdict.is_oracle_fact() {
                 return bad("expected_verdict must be a real verdict");
             }
-            if d.fields.is_empty() && d.exit_code_pair.is_none() && d.generated_count_pair.is_none()
+            if d.fields.is_empty()
+                && d.exit_code_pair.is_none()
+                && d.generated_count_pair.is_none()
+                && d.unreduced_symmetry_counts.is_none()
             {
                 return bad("lists no fields, exit_code_pair or generated_count_pair");
             }
@@ -268,7 +317,30 @@ impl Registry {
             {
                 return bad("generated_count_pair must declare different counts");
             }
+            if let Some(pair) = d.unreduced_symmetry_counts {
+                if d.profile.as_deref() != Some("dive") || d.option.is_some() {
+                    return bad("unreduced_symmetry_counts requires the default dive profile");
+                }
+                if pair.expected == pair.actual || d.generated_count_pair.is_some() {
+                    return bad(
+                        "unreduced_symmetry_counts requires different exact tuples and sole count authority",
+                    );
+                }
+            }
             for f in &d.fields {
+                if d.unreduced_symmetry_counts.is_some()
+                    && [
+                        "counts.distinct_states",
+                        "counts.states_generated",
+                        "counts.depth",
+                    ]
+                    .iter()
+                    .any(|field| glob_match(f, field))
+                {
+                    return bad(
+                        "unreduced_symmetry_counts cannot share authority with a count-field glob",
+                    );
+                }
                 if glob_match(f, "exit_code") {
                     return bad("exit_code requires an exact exit_code_pair, never a field glob");
                 }
@@ -321,12 +393,83 @@ impl Registry {
         observed: Verdict,
         diffs: &[FieldDiff],
     ) -> Option<&ExpectedDivergence> {
+        self.excuse_with_facts(profile, options, path, observed, diffs, None)
+    }
+
+    /// Like [`Self::excuse`], also binding the complete count tuples and private
+    /// strict-reader mode fact required by the D-005 entry. Legacy callers
+    /// cannot authorize that entry through numeric differences alone.
+    ///
+    /// ```no_run
+    /// # fn example(registry: &dive_conformance::divergence::Registry,
+    /// # expected: &dive_conformance::tlc::result::OracleResult,
+    /// # actual: &dive_conformance::tlc::result::OracleResult) {
+    /// let entry = registry.excuse_observed(None, &[], "M.cfg", expected, actual, &[]);
+    /// assert!(entry.is_none()); // non-native/no profile never uses the registry
+    /// # }
+    /// ```
+    #[must_use]
+    pub fn excuse_observed(
+        &self,
+        profile: Option<&Profile>,
+        options: &[String],
+        path: &str,
+        expected: &crate::tlc::result::OracleResult,
+        actual: &crate::tlc::result::OracleResult,
+        diffs: &[FieldDiff],
+    ) -> Option<&ExpectedDivergence> {
+        self.excuse_with_facts(
+            profile,
+            options,
+            path,
+            actual.verdict,
+            diffs,
+            Some((
+                &expected.counts,
+                &actual.counts,
+                actual.native_unreduced_symmetry,
+            )),
+        )
+    }
+
+    fn excuse_with_facts(
+        &self,
+        profile: Option<&Profile>,
+        options: &[String],
+        path: &str,
+        observed: Verdict,
+        diffs: &[FieldDiff],
+        facts: Option<(
+            &crate::tlc::result::Counts,
+            &crate::tlc::result::Counts,
+            bool,
+        )>,
+    ) -> Option<&ExpectedDivergence> {
         if profile != Some(&Profile::Dive) || diffs.is_empty() {
             return None;
         }
         self.divergence.iter().find(|d| {
             glob_match(&d.pattern, path)
                 && d.expected_verdict == observed
+                && d.unreduced_symmetry_counts.is_none_or(|pair| {
+                    facts.is_some_and(|(expected, actual, unreduced)| {
+                        unreduced
+                            && pair.observed(expected, actual)
+                            && [
+                                "counts.distinct_states",
+                                "counts.states_generated",
+                                "counts.depth",
+                            ]
+                            .iter()
+                            .enumerate()
+                            .all(|(index, field)| {
+                                pair.expected[index] == pair.actual[index]
+                                    || diffs
+                                        .iter()
+                                        .any(|diff| diff.field == *field && pair.matches(diff))
+                            })
+                    })
+                })
                 && d.exit_code_pair
                     .is_none_or(|p| diffs.iter().any(|x| p.matches(x)))
                 && d.generated_count_pair
@@ -334,6 +477,16 @@ impl Registry {
                 && diffs.iter().all(|x| {
                     if x.field == "exit_code" {
                         d.exit_code_pair.is_some_and(|p| p.matches(x))
+                    } else if d.unreduced_symmetry_counts.is_some()
+                        && [
+                            "counts.distinct_states",
+                            "counts.states_generated",
+                            "counts.depth",
+                        ]
+                        .contains(&x.field.as_str())
+                    {
+                        d.unreduced_symmetry_counts
+                            .is_some_and(|pair| pair.matches(x))
                     } else if x.field == "counts.states_generated"
                         && d.generated_count_pair.is_some()
                     {
@@ -960,5 +1113,249 @@ link = "docs/divergences.md#registry"
             }
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod unreduced_symmetry_tests {
+    #![allow(clippy::expect_used, reason = "fixed primary fixtures and assertions")]
+    use super::*;
+    use crate::tlc::result::OracleResult;
+    use serde_json::json;
+    const ENTRY: &str = r#"[[divergence]]
+id = "symmetry-liveness-unreduced-p4"
+pattern = "specifications/P4SymLive/P4SymLive.cfg"
+profile = "dive"
+expected_verdict = "success"
+fields = []
+unreduced_symmetry_counts = { expected = [1,2,1], actual = [2,3,2] }
+justification = "D-005 exact primary full-state reference"
+link = "docs/divergences.md#symmetry-with-liveness"
+"#;
+    const PATH: &str = "specifications/P4SymLive/P4SymLive.cfg";
+    fn facts() -> (Registry, OracleResult, OracleResult, Vec<FieldDiff>) {
+        let golden: crate::golden::ModelGolden = serde_json::from_str(include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"), "/../../conformance/golden/tlc-2026.10.06.014338/probes/specifications/P4SymLive/P4SymLive.cfg.json"
+        ))).expect("original reduced golden");
+        let expected = golden.result;
+        let mut actual = expected.clone();
+        actual.native_unreduced_symmetry = true;
+        actual.counts.distinct_states = Some(2);
+        actual.counts.states_generated = Some(3);
+        actual.counts.depth = Some(2);
+        let diffs = [
+            "counts.distinct_states",
+            "counts.states_generated",
+            "counts.depth",
+        ]
+        .into_iter()
+        .zip([(1, 2), (2, 3), (1, 2)])
+        .map(|(field, (expected, actual))| FieldDiff {
+            field: field.into(),
+            expected: json!(expected),
+            actual: json!(actual),
+        })
+        .collect();
+        (
+            Registry::parse(ENTRY).expect("exact entry"),
+            expected,
+            actual,
+            diffs,
+        )
+    }
+    #[test]
+    fn all_three_counts_and_actual_default_unreduced_mode_are_required() {
+        let (registry, expected, mut actual, diffs) = facts();
+        let profile = Some(&Profile::Dive);
+        assert!(
+            registry
+                .excuse_observed(profile, &[], PATH, &expected, &actual, &diffs)
+                .is_some()
+        );
+        assert!(
+            registry
+                .excuse(profile, &[], PATH, actual.verdict, &diffs)
+                .is_none()
+        );
+        actual.native_unreduced_symmetry = false;
+        assert!(
+            registry
+                .excuse_observed(profile, &[], PATH, &expected, &actual, &diffs)
+                .is_none()
+        );
+        actual.native_unreduced_symmetry = true;
+        // Wire deserialization cannot manufacture the private mode fact.
+        let transported: OracleResult =
+            serde_json::from_value(serde_json::to_value(&actual).expect("json")).expect("read");
+        assert!(!transported.native_unreduced_symmetry);
+        for profile in [
+            None,
+            Some(Profile::Tlc),
+            Some(Profile::TlcWithOverrides(vec![
+                "symmetry-liveness=unreduced".into(),
+            ])),
+        ] {
+            assert!(
+                registry
+                    .excuse_observed(profile.as_ref(), &[], PATH, &expected, &actual, &diffs)
+                    .is_none()
+            );
+        }
+        assert!(
+            registry
+                .excuse_observed(
+                    Some(&Profile::Dive),
+                    &[],
+                    "other.cfg",
+                    &expected,
+                    &actual,
+                    &diffs
+                )
+                .is_none()
+        );
+    }
+    #[test]
+    fn exact_unreduced_tuple_rejects_missing_reversed_and_noninteger_facts() {
+        let (registry, expected, actual, diffs) = facts();
+        let mut reversed = Registry::parse(ENTRY).expect("entry");
+        let pair = reversed.divergence[0]
+            .unreduced_symmetry_counts
+            .as_mut()
+            .expect("tuple");
+        std::mem::swap(&mut pair.expected, &mut pair.actual);
+        assert!(
+            reversed
+                .excuse_observed(Some(&Profile::Dive), &[], PATH, &expected, &actual, &diffs)
+                .is_none()
+        );
+        for index in 0..3 {
+            let mut bad_expected = expected.clone();
+            match index {
+                0 => bad_expected.counts.distinct_states = None,
+                1 => bad_expected.counts.states_generated = Some(3),
+                _ => bad_expected.counts.depth = Some(2),
+            }
+            assert!(
+                registry
+                    .excuse_observed(
+                        Some(&Profile::Dive),
+                        &[],
+                        PATH,
+                        &bad_expected,
+                        &actual,
+                        &diffs
+                    )
+                    .is_none()
+            );
+            let mut bad = actual.clone();
+            match index {
+                0 => bad.counts.distinct_states = Some(3),
+                1 => bad.counts.states_generated = Some(4),
+                _ => bad.counts.depth = None,
+            }
+            assert!(
+                registry
+                    .excuse_observed(Some(&Profile::Dive), &[], PATH, &expected, &bad, &diffs)
+                    .is_none()
+            );
+            let mut missing = diffs.clone();
+            missing.remove(index);
+            assert!(
+                registry
+                    .excuse_observed(
+                        Some(&Profile::Dive),
+                        &[],
+                        PATH,
+                        &expected,
+                        &actual,
+                        &missing
+                    )
+                    .is_none()
+            );
+            for value in [json!(null), json!(true), json!("2"), json!(2.5), json!(99)] {
+                let mut bad = diffs.clone();
+                bad[index].actual = value;
+                assert!(
+                    registry
+                        .excuse_observed(Some(&Profile::Dive), &[], PATH, &expected, &actual, &bad)
+                        .is_none()
+                );
+            }
+        }
+    }
+    #[test]
+    fn no_other_observable_can_be_excused_by_the_tuple() {
+        let (registry, expected, actual, diffs) = facts();
+        for field in [
+            "verdict",
+            "error_class",
+            "violated_property",
+            "exit_code",
+            "trace.length",
+            "trace.ending",
+            "trace.validated",
+            "trace.invalid",
+            "counts.other",
+        ] {
+            let mut bad = diffs.clone();
+            bad.push(FieldDiff {
+                field: field.into(),
+                expected: json!(1),
+                actual: json!(2),
+            });
+            assert!(
+                registry
+                    .excuse_observed(Some(&Profile::Dive), &[], PATH, &expected, &actual, &bad)
+                    .is_none(),
+                "{field}"
+            );
+        }
+        let mut bad = actual.clone();
+        bad.verdict = Verdict::LivenessViolation;
+        assert!(
+            registry
+                .excuse_observed(Some(&Profile::Dive), &[], PATH, &expected, &bad, &diffs)
+                .is_none()
+        );
+    }
+    #[test]
+    fn tuple_schema_rejects_missing_noninteger_equal_and_overlapping_authority() {
+        for tuple in [
+            "{ expected=[1,2], actual=[2,3,2] }",
+            "{ expected=[1,2,1] }",
+            "{ expected=[1,2,1], actual=[1,2,1] }",
+            "{ expected=[1,2,1], actual=[2,3,2.0] }",
+            "{ expected=[1,2,1], actual=[2,3,true] }",
+            "{ expected=[1,2,1], actual=[2,3,\"2\"] }",
+        ] {
+            assert!(
+                Registry::parse(&ENTRY.replace("{ expected = [1,2,1], actual = [2,3,2] }", tuple))
+                    .is_err()
+            );
+        }
+        for glob in [
+            "counts.*",
+            "counts.distinct_states",
+            "counts.states_generated",
+            "counts.depth",
+        ] {
+            assert!(
+                Registry::parse(&ENTRY.replace("fields = []", &format!("fields = [\"{glob}\"]")))
+                    .is_err()
+            );
+        }
+        assert!(
+            Registry::parse(&ENTRY.replace(
+                "profile = \"dive\"",
+                "option = \"symmetry-liveness=unreduced\""
+            ))
+            .is_err()
+        );
+        assert!(
+            Registry::parse(
+                &(ENTRY.to_owned() + "generated_count_pair = { expected=2, actual=3 }\n")
+            )
+            .is_err()
+        );
     }
 }

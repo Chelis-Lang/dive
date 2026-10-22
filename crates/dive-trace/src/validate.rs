@@ -637,7 +637,10 @@ impl<'a> Run<'a> {
                 "temporal property names require a periodic ending",
             ));
         }
-        if self.model.view.is_some() || self.model.symmetry.is_some() {
+        if self.model.view.is_some()
+            || self.model.symmetry_reduction.is_some()
+            || (self.model.symmetry.is_some() && !self.model.unreduced_symmetry_liveness())
+        {
             return Err(Stop::Unsupported(
                 "periodic validation under VIEW or SYMMETRY needs concrete closing-state evidence"
                     .into(),

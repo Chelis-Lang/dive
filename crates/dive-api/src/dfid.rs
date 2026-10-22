@@ -138,6 +138,7 @@ pub fn dfid_file(req: &DfidRequest) -> Result<DfidReport, crate::ApiError> {
         &config,
         &TraceOptions {
             compat_tlc: req.compat_tlc,
+            symmetry_liveness: None,
             no_deadlock: req.no_deadlock,
             run: Some((seed, req.fp)),
             library_paths: req.library_paths.clone(),

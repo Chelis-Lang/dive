@@ -1,0 +1,25 @@
+{
+  "sources": [
+    "conformance/corpus/probes/specifications/P4SymLive/P4SymLive.tla"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe"
+  ],
+  "modules": [
+    {
+      "path": "specifications/P4Unreduced/P4SymLive.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/P4Unreduced/P4SymLive.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}

@@ -232,6 +232,11 @@ pub struct OmittedTrace {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct OracleResult {
+    /// Private native producer observation for the exact D-005 exception.
+    /// Not an oracle observable, wire field, execution proof or persisted fact.
+    /// Only the strict native reader sets it after validating bound policy data.
+    #[serde(skip)]
+    pub native_unreduced_symmetry: bool,
     /// The verdict class.
     pub verdict: Verdict,
     /// The message code that decided the verdict.
@@ -774,6 +779,7 @@ pub fn classify(t: &Transcript, facts: &RunFacts<'_>) -> OracleResult {
         .and_then(|c| errors.iter().find(|m| m.code == c))
         .and_then(|m| violated_property(m));
     OracleResult {
+        native_unreduced_symmetry: false,
         verdict,
         verdict_code: decision.code,
         error_class: decision.code.and_then(ec_name).map(str::to_owned),

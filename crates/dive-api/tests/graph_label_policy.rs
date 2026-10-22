@@ -178,6 +178,7 @@ fn no_graph_count_limit_does_not_remove_attribution_or_word_guards() {
             &cfg,
             &dive_model::BindOptions {
                 eval: options.eval,
+                symmetry_liveness: options.symmetry_liveness,
                 no_deadlock: options.no_deadlock,
                 host: None,
             },
@@ -234,6 +235,7 @@ fn periodic_entrypoints_keep_legacy_ceilings_and_explicit_new_policy() {
                 &cfg,
                 &dive_model::BindOptions {
                     eval: options.eval,
+                    symmetry_liveness: options.symmetry_liveness,
                     no_deadlock: options.no_deadlock,
                     host: None,
                 },

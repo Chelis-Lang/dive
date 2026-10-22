@@ -153,3 +153,11 @@ id = "selectseq-captures"
 path = "conformance/corpus/selectseq-captures"
 license = "MIT"
 layout = "examples-manifest"
+
+# Primary symmetry-disabled and concrete-successor VIEW action-label controls.
+# Separate validation microcorpus; established parity populations are unchanged.
+[[corpus]]
+id = "liveness-quotient-primary"
+path = "conformance/corpus/liveness-quotient-primary"
+license = "MIT"
+layout = "examples-manifest"

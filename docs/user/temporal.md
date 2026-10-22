@@ -798,3 +798,65 @@ used source `eeae5dd1` and its own frozen binary on 31 exported Oyster fixtures.
 Its 126 native commands cover 62 checks, 32 genuine trace validations and 32
 forged-trace rejections. These observations retain that source's identity;
 they do not qualify an Oyster report reader, typed consumer or new pilot pin.
+
+
+## Symmetry with genuine temporal properties
+
+`--symmetry-liveness=unreduced` is the dive profile's default (D-005). If the
+actual configured roles contain a genuine temporal property and `SYMMETRY`,
+the entire check uses full concrete state identities, including its initial and
+safety checks. Counts are the actual unreduced counts. `SYMMETRY` remains in the
+configuration and report; its reduction is not applied. The choice is made after
+one ordinary binding and role split, without repeating startup output or effects.
+A `PROPERTY` that binds entirely to initial/invariant/implied-action roles does
+not trigger this rule, nor does fairness alone; ordinary safety symmetry and
+its declaration/error ordering remain unchanged.
+
+```sh
+dive check conformance/corpus/probes/specifications/P4SymLive/P4SymLive.tla --workers 1 --seed 0 --fp 0 --output json
+```
+
+`--symmetry-liveness=refuse` explicitly refuses the temporal combination.
+`--compat=tlc` selects `--symmetry-liveness=tlc`, the TLC-equivalent requested
+setting. TLC's quotient liveness implementation is still unsupported, so it
+refuses rather than silently using the unreduced mode. To combine TLC value
+semantics with sound unreduced checking, select both explicitly:
+
+```sh
+dive check conformance/corpus/probes/specifications/P4SymLive/P4SymLive.tla --compat=tlc --symmetry-liveness=unreduced --workers 1 --seed 0 --fp 0 --output json
+```
+
+That named result-changing mode reports `tlc+overrides`. The flag wins over the
+profile regardless of argument order. `dive tlc` accepts the same double-dash
+extension. No new TLC `.cfg` keyword is introduced. The original configured
+constant/role errors still precede checking; an ignored temporal symmetry
+operator is not newly evaluated or prepared solely to validate its declaration.
+A malformed declaration still receives the existing ordinary safety treatment
+when safety reduction actually applies.
+
+`options.symmetry_liveness` records the resolved request and
+`options.symmetry_liveness_source` records `explicit` or `profile-default`.
+The optional `symmetry_liveness` object is null before successful binding; a
+bound unreduced run records its original `declared` name, `genuine_temporal`,
+`effective: "unreduced"` and `scope: "whole-run"`. This explanatory metadata
+proves neither exploration nor completion. Existing execution, counts, stopped
+outcomes and actual requested/used worker fields remain authoritative. An
+incomplete run cannot report success. Worker routing and all other capture
+limits/refusals retain their existing behavior.
+
+Periodic words still close by literal equality and independently check the
+original transition relation, complete property set and full behavior fairness.
+Fresh standalone validation receives the same explicit policy independently.
+Use your saved native counterexample with the matching specification:
+
+```text
+dive validate-trace conformance/corpus/probes/specifications/P4SymLive/P4SymLive.tla --trace YOUR_NATIVE_TRACE.json --compat=tlc --symmetry-liveness=unreduced
+```
+
+Native `dive-trace` stays version 1. No quotient/permutation closing annotation
+is accepted. VIEW remains unsupported, including the order-sensitive primary
+controls in [the corpus guide](../conformance-corpora.md#liveness-quotient-primary-controls)
+and issue #428. Strict TLC parity does not count an unreduced default result as
+agreement with a reduced golden; only the exact registered D-005 difference can
+be an expected divergence. The explicit no-SYMMETRY primary references remain a
+separate validation population.
