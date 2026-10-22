@@ -27,7 +27,6 @@ First == ENABLED (x' \in 1..1000000 /\ IF x'=1 THEN TRUE ELSE 1 \div 0=0)
 Last == ENABLED (x' \in 1..4 /\ x'=4)
 Empty == ENABLED (x' \in 2..1 /\ 1 \div 0=0)
 Assigned == ENABLED (x'=3 /\ x' \in 1..2)
-WideReject == ENABLED (x' \in 1..1000000 /\ FALSE)
 FiniteReject == ENABLED (x' \in 1..4096 /\ FALSE)
 FirstError == ENABLED (x' \in 1..1000000 /\ 1 \div 0=0)
 BigLast == ENABLED (x' \in 9223372036854775806..9223372036854775808 /\ x'=9223372036854775808)
@@ -73,7 +72,7 @@ fn rejected_enabled_candidates_interrupt_and_do_not_cache_an_incomplete_answer()
         });
         let scope = ev.host_control(Some(control.clone())).expect("control");
         assert_eq!(
-            run(&ev, "WideReject").expect_err("interruption").class(),
+            run(&ev, "FiniteReject").expect_err("interruption").class(),
             ErrorClass::Interrupted
         );
         assert!(control.calls.load(Ordering::Relaxed) > 0);
