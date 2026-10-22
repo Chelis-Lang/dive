@@ -1,5 +1,10 @@
 # Changelog
 
+- Default-profile conformance recognizes only the exact documented D-022
+  generated-count pairs for MCCRDT and MCReplicatedLog. Matching runs remain
+  expected divergences; other counts, verdicts, exits, depth and trace facts
+  remain checked. TLC profiles and adapters receive no exception (#413).
+
 - Specs using `Json!ToJson` now retain the existing reported sequential worker
   fallback under TLC value or exploration order, preserving generated-name
   encounter order. Default ordering and named Array/Object refusals are unchanged.
