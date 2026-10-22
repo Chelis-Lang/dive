@@ -1,5 +1,12 @@
 # Changelog
 
+- Qualify file graph-label admission on the unchanged 156-model small tier:
+  149 TLC agreements; default 143 agreements and six expected divergences,
+  including MCCRDT's registered D-022 counts; seven named refusals each.
+  All six affected checks complete and all eight normal instruction cells stay
+  within 1% overhead. Historical full-tier and four-worker results keep their
+  original sources and counts.
+
 - **Report migration:** every public operation now emits report major 3.
   Temporal settings replace ambiguous `atom_cells` with explicit graph-label,
   attribution-row and word-truth owners and report actual acceptance policy.

@@ -303,7 +303,7 @@ removed; new corpus agreement is claimed only after bounded qualification.
 
 The [source-specific Allocator observations](../survey/data/active-action-membership-2026-10-21.json)
 preserve the prior `dd2f0907` measurements separately from fresh integrated
-`85592819` results. Both profiles at the integrated source use the unchanged
+`85592819` results. Both profiles at that historical source use the unchanged
 pinned configuration, one worker, seed/fingerprint zero, and explicit
 361.620-second / 4 GiB budgets. They complete capture with 17,701 distinct
 states, 64,414 generated states and depth 16, then report `DIVE-L0034`,
@@ -314,7 +314,7 @@ and justify no further count removal. Early refusal timing is not compared
 with TLC's completed check; sampled process memory is neither a true peak nor
 a projected allocation lower bound.
 
-The exact integrated source also passes the full gate: 2,178 tests with no
+That historical source passed the full gate: 2,178 tests with no
 skips, 458 SANY modules, and the small corpus at 147/156 in the TLC profile and
 142/156 plus five expected divergences in the default profile. Both profiles
 retain nine unsupported models, with no baseline changes, disagreements,
@@ -750,3 +750,35 @@ periodic `*_with_policies` variants select graph admission explicitly, separate
 from acceptance-buffer policy. `NoCellLimit` affects only graph labels;
 attribution rows and word truth retain their original bounds and failure order.
 See [ADR 0111](../decisions/0111-graph-label-policy-and-report-v3.md).
+
+The `866c00ba` qualification retains the unchanged 156-model small tier:
+149 agreements in the TLC profile, and 143 agreements plus six registered
+expected divergences in the default profile. Both profiles retain seven named
+refusals and have zero disagreements or timeouts. MCCRDT and
+AllocatorImplementation are newly admitted; default-profile MCCRDT retains
+D-022's generated-count difference and earns no agreement credit.
+
+Six ordinary affected-model checks completed in both profiles under explicit
+8 GiB ceilings and TLC-derived native time budgets: 165.8 seconds for MCCRDT,
+230.82 seconds for Huang and 361.62 seconds for AllocatorImplementation, each
+with 30 seconds of external cleanup grace. Every check exhausted capture and
+completed temporal analysis. Their counts are:
+
+| Model | Distinct | Generated (TLC / default) | Depth |
+|---|---:|---:|---:|
+| MCCRDT | 25,000 | 1,350,001 / 900,001 | 16 |
+| Huang | 81,256 | 1,165,101 / 1,165,101 | 21 |
+| AllocatorImplementation | 17,701 | 64,414 / 64,414 | 16 |
+
+All eight normal instruction cells changed by less than 1%; geometric overhead
+was 0.0113%, with identical verdicts, counts, depth, initial counts and final
+queues. The [compact qualification](../survey/data/graph-label-policy-2026-10-22.json)
+records actual source, input, binary and producer identities. These are bounded
+capacity and instruction observations; historical full-tier and four-worker
+measurements retain their own sources and counts.
+
+A separate [historical CLI interoperability check](../survey/data/native31-cli-evidence-2026-10-22.json)
+used source `eeae5dd1` and its own frozen binary on 31 exported Oyster fixtures.
+Its 126 native commands cover 62 checks, 32 genuine trace validations and 32
+forged-trace rejections. These observations retain that source's identity;
+they do not qualify an Oyster report reader, typed consumer or new pilot pin.
