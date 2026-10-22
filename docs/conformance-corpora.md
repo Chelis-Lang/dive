@@ -294,6 +294,9 @@ states and depth one. The first-candidate error control runs inside a successor
 assignment and preserves `TLC_MODULE_DIVISION_BY_ZERO` (2179), exit 255, one
 distinct/one generated state and depth one. These goldens record ordinary query
 semantics; they do not certify time-limit interruption or wide-domain throughput.
+The first-error model remains `agree-pending-trace-validation`: its reported
+observables match, but the independent validator cannot re-raise an error while
+expanding the last state. That named gap earns no agreement credit.
 
 ## State-time Json runtime names
 
