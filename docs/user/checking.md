@@ -87,7 +87,23 @@ The clock starts after the specification and configuration are loaded.
 dive polls the budget for each initial state, each expanded state, and during
 graph capture and temporal analysis. After startup, nested quantifier, CHOOSE
 and filter predicate loops also poll at amortized work checkpoints, including
-when no complete successor is emitted (issue #374). Binding and `ASSUME`
+when no complete successor is emitted (issue #374). Successor domain candidates
+poll before binding, so a rejecting continuation cannot bypass control. Action
+composition also polls while collecting those candidates and before each
+intermediate right step in next-state generation, action-predicate evaluation
+and `ENABLED` (issue #393). These checks retain the original mode-specific
+enumeration and counts. An interrupted private intermediate collection does
+not become reported generated states; progress describes the externally
+published prefix.
+
+For example, this rejects candidates without producing successors and stops
+with exit 5 under the explicit time budget:
+
+```sh
+dive check docs/user/examples/RejectedCandidates.tla --seed 0 --fp 0 --workers 4 --time-limit 100ms --max-memory 1g --output json
+```
+
+Binding and `ASSUME`
 evaluation, value-only allocation/sorting/native operations, normalization in
 existing quiet equality/ordering/hash units, and diagnostic
 error/count and predecessor-path reconstruction after an already deciding event
@@ -403,15 +419,19 @@ Unassigned `x \in lo..hi` initial predicates and `x' \in lo..hi` successor
 assignments stream ascending integers without first retaining the whole domain.
 This lets existing checker guards run when a complete assignment reaches the
 sink. Already assigned variables still use the ordinary membership check. Other
-constructors, branches that never emit a complete assignment, and long individual
-evaluations remain potentially uninterruptible (issue #349). No fixed domain-size
-count is introduced. Parallel checking polls the armed run budget during
+constructors can still materialize a domain before candidate binding, and long
+individual evaluations remain potentially uninterruptible (issue #349). No fixed
+domain-size count is introduced. Parallel checking polls the armed run budget during
 successor emission (issue #362). A stop retains its actual ordered prefix and
 leaves the unfinished source queued; a later worker's violation cannot bypass an
 earlier incomplete expansion. A predicate such as
-`x' \in 0..50000000 /\ FALSE` emits no complete successors, so this emission
-guard does not interrupt its enumeration; single long evaluations retain the
-same limitation. For a bounded first-state violation with an independently
+`x' \in 0..50000000 /\ FALSE` emits no complete successors, so the emission
+guard alone cannot interrupt it. The additional amortized candidate checkpoint
+now observes the budget before binding while this rejecting search proceeds
+(issue #393), including inside private action-composition collection. Quiet
+normalization/equality/hash units, domain materialization before the candidate
+loop, and single long evaluations retain their limitations. For a bounded
+first-state violation with an independently
 validated witness, run:
 
 ```sh

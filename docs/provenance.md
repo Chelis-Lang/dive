@@ -1036,6 +1036,14 @@ inherited context mismatch without changing register or random admission.
 
 ## Action composition
 
+Successor-candidate and intermediate-right-step cooperative checkpoints (issue
+#393) are native budget control, not a change to the TLC algorithm below.
+They use the existing amortized evaluator host control before candidate binding
+and before each composition right step, including failed continuations with no
+outward emission. Original order, duplicate retention, mode-dependent
+intermediate accounting and pinned composition fixtures remain authoritative.
+Interrupted private collection does not publish invented generated counts.
+
 `dive-eval/src/next/cdot.rs` follows `tlc2.tool.impl.Tool` at tlaplus
 `94d0c50` (MIT): `OPCODE_cdot` in `getNextStates` (lines 1488–1531), `eval`
 (2772–2808) and `enabled` (3371–3393). TLC's composition switch and intermediate

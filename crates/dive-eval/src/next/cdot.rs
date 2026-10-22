@@ -159,6 +159,7 @@ impl Core {
         }
         let empty: StateVals = vec![None; self.ir.vars().len()].into();
         for t in self.cdot_steps(env, &st.s0, empty, a)? {
+            self.loop_work()?;
             let st2 = St {
                 s0: StateRef::Vals(t),
                 s1: st.s1.clone(),
@@ -226,6 +227,7 @@ impl Gen<'_, '_> {
         // t -B-> u
         let action = self.action;
         for t in iss {
+            core.loop_work()?;
             let mut g = Gen {
                 core,
                 init: false,
@@ -271,6 +273,7 @@ impl Enab {
         }
         let t0 = copy_with(&core.composition_current(&self.s0)?, &root_s1);
         for t in core.cdot_steps(env, &self.s0, t0, a)? {
+            core.loop_work()?;
             let en = Enab {
                 core: core.clone(),
                 s0: StateRef::Vals(t),
