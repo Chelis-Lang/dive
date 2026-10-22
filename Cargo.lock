@@ -215,6 +215,7 @@ name = "dive-conformance"
 version = "0.0.0"
 dependencies = [
  "dive-api",
+ "rustix",
  "serde",
  "serde_json",
  "sha2",

@@ -37,6 +37,8 @@ rowan = "0.16"
 proptest = { version = "1", default-features = false, features = ["std"] }
 sha2 = "0.11"
 signal-hook = { version = "0.4", default-features = false, features = ["iterator"] }
+# Nonreaping Unix child ownership in the conformance harness (ADR 0112).
+rustix = { version = "=1.1.5", features = ["process"] }
 toml = { version = "1", default-features = false, features = ["parse", "serde", "std"] }
 num-bigint = "0.5"
 num-integer = "0.1"

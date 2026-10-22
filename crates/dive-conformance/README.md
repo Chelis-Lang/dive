@@ -398,7 +398,11 @@ Each note has a minimal spec under `tests/fixtures/specs/` and captured transcri
 - Examples submodules (CCF, azure-cosmos-tla, BlockingQueue, microwave) are never fetched. They are listed in reports as unfetched.
 - Simulation results are compared by verdict only; the simulation is pinned with `-seed 0`.
 - External adapters are parsed but not executed.
-- The harness targets macOS and Linux. Process-group killing uses Unix process groups.
+- The harness targets macOS and Linux. It retains native process-group leaders
+  unreaped through group cleanup (ADR 0112), using bounded `/bin/ps` inspection.
+  Cancellation blocks new work and serializes signalling with terminal reap.
+  Failed ownership/cleanup is a harness error and requires external supervision;
+  it is never a model result. Other targets have direct-child deadlines only.
 
 `run --sany-only` compares modules without running model checking. Use it
 with `--sany-phase parse` for parser-only conformance; `--no-sany` selects
