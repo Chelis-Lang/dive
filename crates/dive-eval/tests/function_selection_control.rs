@@ -1,5 +1,8 @@
 //! Fallible function-domain comparisons retain the actual evaluator control.
-#![allow(clippy::expect_used, reason = "bounded fixture and typed error assertions")]
+#![allow(
+    clippy::expect_used,
+    reason = "bounded fixture and typed error assertions"
+)]
 
 use dive_eval::{ErrorClass, Evaluator, HostControl, Interrupted, Model, Options, St};
 use dive_value::Value;
