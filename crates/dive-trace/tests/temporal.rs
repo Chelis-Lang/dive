@@ -460,22 +460,28 @@ Bad==<>[] (Capture(x) = <<0,0>>)
         .validation,
         dive_trace::Validation::Unsupported(_)
     ));
-    for callback in [
-        "LAMBDA y: y=x'",
-        "LAMBDA y: \\E z \\in {y}: z=x",
-        "LAMBDA y: y \\in Seq({x})",
+    for (callback, supported) in [
+        ("LAMBDA y: y=x'", false),
+        ("LAMBDA y: \\E z \\in {y}: z=x", true),
+        ("LAMBDA y: y \\in Seq({x})", false),
     ] {
         let source = format!(
             "---- MODULE SelectWordRefusal ----\nEXTENDS Integers, Sequences\nVARIABLE x\nInit==x=0\nNext==x'=x\nP==[] [(SelectSeq(<<0>>, {callback}) = <<0>>)]_x\n===="
         );
         let fresh = bound(&source, "INIT Init\nNEXT Next\n");
-        assert!(
-            matches!(
-                evaluate_lasso(&fresh, &predicate(&fresh, "P"), &states, 0),
-                Err(TemporalError::Unsupported(_))
-            ),
-            "{callback}"
-        );
+        let result = evaluate_lasso(&fresh, &predicate(&fresh, "P"), &states, 0);
+        if supported {
+            assert_eq!(
+                result.expect("concrete quantified callback"),
+                vec![false, false],
+                "{callback}"
+            );
+        } else {
+            assert!(
+                matches!(result, Err(TemporalError::Unsupported(_))),
+                "{callback}"
+            );
+        }
     }
 }
 

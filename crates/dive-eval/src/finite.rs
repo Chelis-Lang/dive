@@ -7,7 +7,7 @@ use dive_ir::{Arg, BuiltinOp, ConstId, DefScope, Effects, Expr, ExprId, Level, O
 impl Evaluator {
     /// Inspects an authoritative `SelectSeq` call without evaluating its sequence
     /// or predicate. Returns the original sequence and callback/capture bodies
-    /// in their lexical scopes. Only binder-free unary user callbacks qualify.
+    /// in their lexical scopes. Pure supported unary user callbacks qualify.
     /// Callers independently check purity and scoped levels on every body.
     ///
     /// # Errors
@@ -17,6 +17,40 @@ impl Evaluator {
         reason = "original sequence plus lexical body projections; no opaque certificate"
     )]
     pub fn scope_selectseq_call(
+        &self,
+        scope: &Scope,
+        operator: &OpRef,
+        args: &[Arg],
+        work: &mut usize,
+    ) -> crate::Result<Option<(ExprId, Vec<(ExprId, Scope)>)>> {
+        let Some((sequence, bodies)) = self.selectseq_projection(scope, operator, args, work)?
+        else {
+            return Ok(None);
+        };
+        let initial = *work;
+        let mut guard = Guard {
+            evaluator: self,
+            limit: initial.div_ceil(64),
+            visits: 0,
+            configured_depth: 0,
+            query_allowed: true,
+        };
+        let result = guard.callback_sources(&bodies, 0);
+        *work = initial.saturating_sub(guard.visits);
+        if guard.visits > initial {
+            return Err(EvalError::resource_limit("SelectSeq callback work"));
+        }
+        result?;
+        Ok(Some((sequence, bodies)))
+    }
+
+    // Metadata only. Nested selection is inspected by the caller's same Guard,
+    // so neither a new callback nor a captured selector resets its work budget.
+    #[allow(
+        clippy::type_complexity,
+        reason = "same source projection as the public wrapper"
+    )]
+    fn selectseq_projection(
         &self,
         scope: &Scope,
         operator: &OpRef,
@@ -52,6 +86,7 @@ impl Evaluator {
                 "SelectSeq sequence/operator argument shape",
             ));
         };
+        self.admit_scoped_expr(scope, *sequence)?;
         // Validate the reference before looking up the value. The existing
         // resolver performs all definition/lexical/configured-origin checks.
         *work = work
@@ -61,11 +96,11 @@ impl Evaluator {
             return Err(EvalError::unsupported("SelectSeq user callback target"));
         };
         let value = self.core.op_value(&scope.env, op)?;
-        let bodies = self.selectseq_context(scope, value, work)?;
+        let bodies = self.selectseq_sources(scope, value, work)?;
         Ok(Some((*sequence, bodies)))
     }
 
-    fn selectseq_context(
+    fn selectseq_sources(
         &self,
         scope: &Scope,
         value: crate::env::OpVal,
@@ -83,36 +118,13 @@ impl Evaluator {
         *work = work
             .checked_sub(1)
             .ok_or_else(|| EvalError::resource_limit("SelectSeq body work"))?;
-        bodies.push((self.ir().def(def).body, called.clone()));
-        let initial = *work;
-        let mut guard = Guard {
-            evaluator: self,
-            limit: initial.div_ceil(64),
-            visits: 0,
-            configured_depth: 0,
-            query_allowed: true,
-        };
-        let result: crate::Result<()> = (|| {
-            // Actual stored slots, including unused captures, are inspected.
-            // No thunk result cache is read and no provider is normalized or
-            // iterated here.
-            guard.native_storage(Some(&called), None)?;
-            for (body, captured) in &bodies {
-                guard.walk(captured, *body, 0)?;
-            }
-            Ok(())
-        })();
-        *work = initial.saturating_sub(guard.visits);
-        if guard.visits > initial {
-            return Err(EvalError::resource_limit("SelectSeq callback work"));
-        }
-        result?;
+        bodies.push((self.ir().def(def).body, called));
         Ok(bodies)
     }
 }
 
-/// Walks `SelectSeq` callback sources at constant level, refusing effects,
-/// binders, providers, priming and opaque operators. It reads no domain.
+/// Walks `SelectSeq` callback sources without evaluating values or domains.
+/// Effects, priming and opaque runtime providers remain explicit refusals.
 struct Guard<'a> {
     evaluator: &'a Evaluator,
     limit: usize,
@@ -121,6 +133,16 @@ struct Guard<'a> {
     query_allowed: bool,
 }
 impl Guard<'_> {
+    fn callback_sources(&mut self, bodies: &[(ExprId, Scope)], depth: usize) -> crate::Result<()> {
+        for (body, captured) in bodies {
+            // Read original stored slots, never thunk result caches or provider
+            // methods. Captures are checked even when their source is unused.
+            self.native_storage(Some(captured), None)?;
+            self.walk_data(captured, *body, depth + 1)?;
+        }
+        Ok(())
+    }
+
     // Direct configured origin is still available here; captured operator
     // resolution deliberately does not acquire this route. Projection and
     // unused-actual inspection do not evaluate values or binder domains.
@@ -451,16 +473,21 @@ impl Guard<'_> {
         }
         if matches!(
             node.expr,
-            Expr::Quant { .. }
-                | Expr::SetMap { .. }
-                | Expr::SetFilter { .. }
-                | Expr::FcnCons { .. }
-                | Expr::RecFcn { .. }
-                | Expr::RecordSet(_)
-                | Expr::FcnSet { .. }
-                | Expr::Cartesian(_)
-                | Expr::Builtin {
-                    op: BuiltinOp::PowerSet
+            Expr::Builtin {
+                op: BuiltinOp::PowerSet
+                    | BuiltinOp::Times
+                    | BuiltinOp::String
+                    | BuiltinOp::Unchanged
+                    | BuiltinOp::Cdot
+                    | BuiltinOp::Enabled
+                    | BuiltinOp::Always
+                    | BuiltinOp::Eventually
+                    | BuiltinOp::LeadsTo
+                    | BuiltinOp::WhilePlus,
+                ..
+            } | Expr::Apply {
+                callee: OpRef::Builtin(
+                    BuiltinOp::PowerSet
                         | BuiltinOp::Times
                         | BuiltinOp::String
                         | BuiltinOp::Unchanged
@@ -469,25 +496,10 @@ impl Guard<'_> {
                         | BuiltinOp::Always
                         | BuiltinOp::Eventually
                         | BuiltinOp::LeadsTo
-                        | BuiltinOp::WhilePlus,
-                    ..
-                }
-                | Expr::Apply {
-                    callee: OpRef::Builtin(
-                        BuiltinOp::PowerSet
-                            | BuiltinOp::Times
-                            | BuiltinOp::String
-                            | BuiltinOp::Unchanged
-                            | BuiltinOp::Cdot
-                            | BuiltinOp::Enabled
-                            | BuiltinOp::Always
-                            | BuiltinOp::Eventually
-                            | BuiltinOp::LeadsTo
-                            | BuiltinOp::WhilePlus
-                    ),
-                    ..
-                }
-                | Expr::Enabled(_)
+                        | BuiltinOp::WhilePlus
+                ),
+                ..
+            } | Expr::Enabled(_)
                 | Expr::Always(_)
                 | Expr::Eventually(_)
                 | Expr::LeadsTo(_, _)
@@ -503,6 +515,32 @@ impl Guard<'_> {
             return Err(EvalError::unsupported(
                 "SelectSeq binder/provider/action callback",
             ));
+        }
+        match &node.expr {
+            Expr::Quant { body, bounds, .. }
+            | Expr::FcnCons { body, bounds, .. }
+            | Expr::RecFcn { body, bounds, .. }
+            | Expr::SetMap {
+                expr: body, bounds, ..
+            } => {
+                for bound in bounds {
+                    let domain = bound.domain.ok_or_else(|| {
+                        EvalError::unsupported("unbounded SelectSeq callback domain")
+                    })?;
+                    self.walk_data(scope, domain, depth + 1)?;
+                }
+                let analysis = ev.scope_binder_analysis(scope, expr)?;
+                return self.walk_data(&analysis, *body, depth + 1);
+            }
+            Expr::SetFilter { bound, pred } => {
+                let domain = bound
+                    .domain
+                    .ok_or_else(|| EvalError::unsupported("unbounded SelectSeq callback domain"))?;
+                self.walk_data(scope, domain, depth + 1)?;
+                let analysis = ev.scope_binder_analysis(scope, expr)?;
+                return self.walk_data(&analysis, *pred, depth + 1);
+            }
+            _ => {}
         }
         match &node.expr {
             Expr::Not(body) | Expr::Selected(body) | Expr::Label { body, .. } => {
@@ -592,9 +630,17 @@ impl Guard<'_> {
         };
         if let Some((op, args)) = call {
             let standard = match op {
-                OpRef::Def(d) => {
-                    let leaf = ev.recursive_leaf(d);
-                    let d = ev.redirected(d);
+                OpRef::Def(source) => {
+                    let d = ev.redirected(source);
+                    // Direct uses may read the stored override; redirected uses
+                    // execute its target body instead. Neither source may vanish
+                    // from this proof merely because the target has a value.
+                    if ev.is_value_override(d) {
+                        return Err(EvalError::unsupported(
+                            "SelectSeq overridden definition source",
+                        ));
+                    }
+                    let leaf = ev.recursive_leaf(source);
                     let def = ev.ir().def(d);
                     if def.recursive
                         && self.configured_depth == 0
@@ -700,9 +746,15 @@ impl Guard<'_> {
                 ));
             }
             if standard == Some(StdOp::SequencesSelectSeq) {
-                return Err(EvalError::unsupported(
-                    "SelectSeq nested higher-order callback",
-                ));
+                let ceiling = self.limit.saturating_mul(64).min(100_000);
+                let mut remaining = ceiling.saturating_sub(self.visits);
+                let projected = ev.selectseq_projection(scope, &op, args, &mut remaining);
+                self.visits = ceiling - remaining;
+                let Some((sequence, bodies)) = projected? else {
+                    return Err(EvalError::unsupported("SelectSeq nested target"));
+                };
+                self.walk_data(scope, sequence, depth + 1)?;
+                return self.callback_sources(&bodies, depth + 1);
             }
             if standard.is_some() && args.iter().any(|a| matches!(a, Arg::Op { .. })) {
                 return Err(EvalError::unsupported(

@@ -110,6 +110,18 @@ issue #2. This import does not close that issue.
 
 ## INSTANCE query namespace controls
 
+`selectseq-captures` is a separate local corpus of 19 tiny models generated
+against the pinned TLC before extending source admission. Eight holds/fails
+pairs cover callback binders, constructor/filter/recursive/nested-selection
+captures, and lexical forwarding. Three controls retain unused effects or a
+configured primed source: TLC leaves them lazy, while dive conservatively
+refuses their capture contexts. All references report two distinct states,
+three generated states and depth two. Run the explicit population with
+`dive-conformance run --impl dive --corpus selectseq-captures --tier all
+--no-sany --no-summary --timeout 30`; it does not change the established
+small-tier population. Native positive cases also run with cold/warm caches
+and fresh independent candidate replay in the liveness integration tests.
+
 `instance-temporal` is a separate local corpus of ten finite Boolean models and
 23 modules. It preserves primary-first observations of lexical INSTANCE and
 `ENABLED` successor namespaces before runtime changes. Every source input is
