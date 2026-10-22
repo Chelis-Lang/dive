@@ -77,8 +77,10 @@ failure. Native model budgets do not bound independent validation inside the
 harness process, so retain the outer campaign deadline.
 
 Group inspection uses the fixed system `/bin/ps` with isolated, bounded leaf
-observers. Cleanup can add up to five seconds per registered native group, plus
-bounded preflight-observer cleanup. Allow that time for the harness to handle
+observers. Each drain attempt has a five-second budget per registered native group, plus
+bounded preflight-observer cleanup. Error/unwind guards can make a further
+bounded attempt; cancellation may serialize with one already in progress. Allow
+that cleanup headroom for the harness to handle
 SIGINT/SIGTERM before an outer supervisor kills it. Killing only the harness's
 own group does not cover its separate native groups. Other targets retain
 direct-child deadlines without a descendant-containment claim. Session escape,
