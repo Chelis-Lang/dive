@@ -411,16 +411,17 @@ pub(super) fn materialize(
         limit: bytes,
     };
     let states = promise_columns(input, tableau, &layout, &mut requests)?;
-    let rows: &[Vec<usize>] = if layout.domain.behavior {
-        &behavior.0.edges
+    let rows: &dyn crate::graph::GraphAccess = if layout.domain.behavior {
+        behavior.0
     } else {
-        input.edges
+        input.graph
     };
     let mut edge_offsets = requests.reserve(layout.offsets)?;
     if layout.offsets != 0 {
         edge_offsets.push(0);
         let mut offset = 0_usize;
-        for row in rows {
+        for v in 0..rows.vertex_count() {
+            let row = rows.successors(v);
             offset = offset.checked_add(row.len()).ok_or(BYTES)?;
             edge_offsets.push(offset);
         }
@@ -434,7 +435,7 @@ pub(super) fn materialize(
     for condition in conditions {
         let mut words = requests.reserve(layout.action_words)?;
         words.resize(layout.action_words, 0);
-        for (id, row) in rows.iter().enumerate() {
+        for (id, row) in (0..rows.vertex_count()).map(|id| (id, rows.successors(id))) {
             let v = if layout.domain.behavior {
                 id
             } else {
@@ -444,7 +445,7 @@ pub(super) fn materialize(
                 let e = if layout.domain.behavior {
                     position
                 } else {
-                    input.original_edges[id][position]
+                    input.graph.original_edges(id)[position]
                 };
                 let truth = condition
                     .evaluate_bounded(

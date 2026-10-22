@@ -2002,3 +2002,17 @@ zero/exact work and input bounds, typed budget exhaustion, shared fairness DAGs
 and the existing depth boundary on a small stack. The old algorithm is retained
 only as a test oracle. This is no new corpus agreement or TLC lasso-selection
 claim.
+
+
+## Private flat product adjacency
+
+The coordinator's compressed sparse row adjacency is original Rust storage over
+its existing reachable `(behavior, tableau)` pair stream. Public owned products
+retain nested adjacency rows as a comparison representation. Pair lookup remains
+an ordered `BTreeMap`; canonical pair renumbering and per-source original edge
+positions are preserved, including distinct parallel edges. Canonical rows are
+ranges over the discovery buffers; destination IDs are remapped in place without
+copying the edge payload. Only private graph
+read access changes in the shared lasso routines. The recurrent restriction,
+iterative SCC and reverse graph algorithms remain unchanged. No TLC algorithm
+is newly ported and no product or acceptance resource limit is removed.

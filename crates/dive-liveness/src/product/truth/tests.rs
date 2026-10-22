@@ -175,9 +175,15 @@ fn compare_formula(
                     edge_count,
                 )
                 .expect("packed product");
-                assert_eq!(actual.parts.graph, original.parts.graph);
+                assert_eq!(
+                    actual.parts.graph.owned_graph(),
+                    original.parts.graph.owned_graph()
+                );
                 assert_eq!(actual.parts.behavior_states, original.parts.behavior_states);
-                assert_eq!(actual.parts.original_edges, original.parts.original_edges);
+                assert_eq!(
+                    actual.parts.graph.owned_original_edges(),
+                    original.parts.graph.owned_original_edges()
+                );
                 for conditions in &group.alternatives {
                     assert_eq!(
                         actual.find_lasso_with_conditions(packed, conditions),

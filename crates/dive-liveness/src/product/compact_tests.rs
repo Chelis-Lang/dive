@@ -77,7 +77,7 @@ fn compare(
         view.parts.acceptance.states,
         buffered.parts.acceptance.states
     );
-    for (v, row) in view.parts.graph.edges.iter().enumerate() {
+    for (v, row) in view.parts.graph.owned_graph().edges.iter().enumerate() {
         for e in 0..row.len() {
             for condition in 0..conditions.len() {
                 assert_eq!(
@@ -87,9 +87,12 @@ fn compare(
             }
         }
     }
-    assert_eq!(owned.graph, view.parts.graph);
+    assert_eq!(owned.graph, view.parts.graph.owned_graph());
     assert_eq!(owned.behavior_states, view.parts.behavior_states);
-    assert_eq!(owned.original_edges, view.parts.original_edges);
+    assert_eq!(
+        owned.original_edges,
+        view.parts.graph.owned_original_edges()
+    );
     assert_eq!(owned.acceptance.states.len(), view.state_count());
     assert_eq!(owned.acceptance.actions.len(), view.action_count());
     for (condition, row) in owned.acceptance.states.iter().enumerate() {
@@ -414,19 +417,26 @@ fn compact_bits_cross_word_boundaries_with_empty_rows_and_parallel_edges() {
     let view =
         CompactProduct::with_recurrences(&graph, &t, &labels, &conditions, Limits::default())
             .expect("view");
-    let edges: usize = view.parts.graph.edges.iter().map(Vec::len).sum();
+    let edges: usize = view
+        .parts
+        .graph
+        .owned_graph()
+        .edges
+        .iter()
+        .map(Vec::len)
+        .sum();
     assert_eq!(
         view.parts.acceptance.edge_offsets.len(),
-        view.parts.graph.edges.len() + 1
+        view.parts.graph.owned_graph().edges.len() + 1
     );
     assert_eq!(view.parts.acceptance.edge_offsets.last(), Some(&edges));
-    assert!(view.parts.graph.edges.len() > 64 && edges > 128);
+    assert!(view.parts.graph.owned_graph().edges.len() > 64 && edges > 128);
     assert!(
         view.parts
             .acceptance
             .states
             .iter()
-            .all(|row| row.len() == view.parts.graph.edges.len().div_ceil(64))
+            .all(|row| row.len() == view.parts.graph.owned_graph().edges.len().div_ceil(64))
     );
     assert!(
         view.parts

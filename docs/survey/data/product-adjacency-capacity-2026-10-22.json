@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "study": "product adjacency buffer capacity",
+  "measured_date": "2026-10-22",
+  "scope": "actual source-visible simultaneously owned Vec adjacency capacity bytes",
+  "sources": {
+    "measured_observer": "25d6d9a640f3d54b73d05419d4d7e3d1e714ef17",
+    "production_under_observer": "6d6cdc3cca40cfaeced83ca733f176ffc1cbc115",
+    "earlier_copying_observer": "18d5dde9246de94b0f395400a1c655967b95d25d",
+    "integrated_runtime": "177d960b26da85ff84304516045811a3c482771e"
+  },
+  "original_raw_sha256": {
+    "observations": "6ce63a8671f2d663286b0caf8ef9efd7646cf7f0cd3e21cc4a9cfa0c15058e58",
+    "independent_review": "db969ce23e9ca3df5b75f6d405de4ad519accbb4392789dd45350765abda9565",
+    "observer_source_proof": "06abfa3e5222190d9079ad0545a6284e40c12737df92c32562882653fcd25fe0",
+    "raw_manifest": "b5212d4c24f3fa000ddce999307247ad2661d36589e9453b2dfb1bec0ca57d68"
+  },
+  "execution": {
+    "physical_exit": 0,
+    "externally_censored": false,
+    "elapsed_context_seconds": 10.562838667072356,
+    "test_result": {
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0,
+      "filtered": 50,
+      "cases": 4
+    }
+  },
+  "observations": [
+    {
+      "degree": 0,
+      "V": 4096,
+      "E": 0,
+      "owned_checkpoint_maximum_LOWER_BOUND": 393216,
+      "owned_final_bytes": 196608,
+      "range_checkpoint_maximum_bytes": 131072,
+      "range_final_bytes": 65536,
+      "range_phase_bytes": [
+        65536,
+        131072,
+        131072,
+        65536,
+        65536,
+        65536
+      ],
+      "original_copy_CSR_checkpoint_maximum_bytes": 98312,
+      "original_copy_CSR_final_bytes": 32776
+    },
+    {
+      "degree": 1,
+      "V": 4096,
+      "E": 4096,
+      "owned_checkpoint_maximum_LOWER_BOUND": 655360,
+      "owned_final_bytes": 458752,
+      "range_checkpoint_maximum_bytes": 196608,
+      "range_final_bytes": 131072,
+      "range_phase_bytes": [
+        131072,
+        196608,
+        196608,
+        131072,
+        131072,
+        131072
+      ],
+      "original_copy_CSR_checkpoint_maximum_bytes": 229384,
+      "original_copy_CSR_final_bytes": 98312
+    },
+    {
+      "degree": 8,
+      "V": 4096,
+      "E": 30840,
+      "owned_checkpoint_maximum_LOWER_BOUND": 886656,
+      "owned_final_bytes": 690048,
+      "range_checkpoint_maximum_bytes": 655360,
+      "range_final_bytes": 589824,
+      "range_phase_bytes": [
+        589824,
+        655360,
+        655360,
+        589824,
+        589824,
+        589824
+      ],
+      "original_copy_CSR_checkpoint_maximum_bytes": 1116040,
+      "original_copy_CSR_final_bytes": 526216
+    },
+    {
+      "degree": 32,
+      "V": 4096,
+      "E": 123360,
+      "owned_checkpoint_maximum_LOWER_BOUND": 2366976,
+      "owned_final_bytes": 2170368,
+      "range_checkpoint_maximum_bytes": 2228224,
+      "range_final_bytes": 2162688,
+      "range_phase_bytes": [
+        2162688,
+        2228224,
+        2228224,
+        2162688,
+        2162688,
+        2162688
+      ],
+      "original_copy_CSR_checkpoint_maximum_bytes": 4169224,
+      "original_copy_CSR_final_bytes": 2006536
+    }
+  ],
+  "allocation_conservation": "Each nonempty case retains one actual target allocation and one original-edge allocation across six checkpoints, with unchanged length/capacity. Empty payloads have no allocation identity claim.",
+  "production_transfer": "Removing18 test-only observer hooks restores original production tokens; integrated nine runtime/test blobs equal original production implementation. This is source transfer, not repeated capacity execution.",
+  "limitations": [
+    "Owned checkpoint maximum is a lower bound over opaque Vec::collect intermediate capacity.",
+    "Recorded maxima cover named source-owned buffers at checkpoints, not whole-process RSS or allocator internals.",
+    "Ranges retain discovery-buffer spare capacity; final capacity can exceed the earlier copying representation.",
+    "Excluded: roots, order, renumber, pairs, lookup index, acceptance, search, capture, truth and observer/reference storage.",
+    "No CoffeeCan, count-limit, throughput, normal-overhead or integrated full-gate qualification is inferred from this historical experiment."
+  ]
+}

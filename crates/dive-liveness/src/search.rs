@@ -6,6 +6,7 @@
 //! graph, including stutter edges, and its acceptance labels.
 
 use crate::Graph;
+use crate::graph::GraphAccess;
 
 /// Acceptance labels for one order-of-solution / possible-error-model pair.
 /// Every state condition, action condition and tableau promise must occur
@@ -148,7 +149,7 @@ pub(crate) trait AcceptanceAccess {
 
     fn accepts(
         &self,
-        graph: &Graph,
+        graph: &(impl GraphAccess + ?Sized),
         component: &[usize],
         members: &[usize],
         stamp: usize,
@@ -162,7 +163,7 @@ pub(crate) trait AcceptanceAccess {
         for condition in 0..self.action_count() {
             let mut found = false;
             for &v in component {
-                if poll.any(graph.edges[v].iter().enumerate(), |(e, t)| {
+                if poll.any(graph.successors(v).iter().enumerate(), |(e, t)| {
                     members[*t] == stamp && self.recurrent(v, e) && self.action(condition, v, e)
                 })? {
                     found = true;
@@ -231,14 +232,14 @@ pub fn find_lasso(graph: &Graph, labels: &Acceptance) -> Result<Option<Lasso>, S
 }
 
 pub(crate) fn find_lasso_view(
-    graph: &Graph,
+    graph: &(impl GraphAccess + ?Sized),
     labels: &impl AcceptanceAccess,
 ) -> Result<Option<Lasso>, SearchError> {
     let mut poll = Poll::default();
     poll.step()?;
-    let prefix = Paths::new(graph, &graph.roots, |_, _, _| true, &mut poll)?;
-    let mut edges = Vec::with_capacity(graph.edges.len());
-    for (v, targets) in graph.edges.iter().enumerate() {
+    let prefix = Paths::new(graph, graph.roots(), |_, _, _| true, &mut poll)?;
+    let mut edges = Vec::with_capacity(graph.vertex_count());
+    for (v, targets) in (0..graph.vertex_count()).map(|v| (v, graph.successors(v))) {
         let mut row = Vec::new();
         for (e, &target) in targets.iter().enumerate() {
             poll.step()?;
@@ -259,7 +260,7 @@ pub(crate) fn find_lasso_view(
     }
     let restricted = Graph { edges, roots };
     let mut selected: Option<(usize, usize, Vec<usize>)> = None;
-    let mut membership = vec![0; graph.edges.len()];
+    let mut membership = vec![0; graph.vertex_count()];
     for (i, component) in restricted
         .try_components(|| poll.step())?
         .into_iter()
@@ -303,7 +304,7 @@ pub(crate) fn find_lasso_view(
         }
         return Ok(None);
     };
-    let mut inside = vec![false; graph.edges.len()];
+    let mut inside = vec![false; graph.vertex_count()];
     for v in component {
         poll.step()?;
         inside[v] = true;
@@ -330,13 +331,13 @@ struct Paths {
 
 impl Paths {
     fn new(
-        graph: &Graph,
+        graph: &(impl GraphAccess + ?Sized),
         roots: &[usize],
         mut keep: impl FnMut(usize, usize, usize) -> bool,
         poll: &mut Poll,
     ) -> Result<Self, SearchError> {
-        let mut distance = vec![None; graph.edges.len()];
-        let mut parent = vec![None; graph.edges.len()];
+        let mut distance = vec![None; graph.vertex_count()];
+        let mut parent = vec![None; graph.vertex_count()];
         let mut frontier = roots.to_vec();
         frontier.sort_unstable();
         frontier.dedup();
@@ -348,7 +349,7 @@ impl Paths {
         while !frontier.is_empty() {
             let mut next = Vec::new();
             for v in frontier {
-                for (edge, &to) in graph.edges[v].iter().enumerate() {
+                for (edge, &to) in graph.successors(v).iter().enumerate() {
                     poll.step()?;
                     if keep(v, edge, to) && distance[to].is_none() {
                         distance[to] = Some(depth + 1);
@@ -425,7 +426,7 @@ impl Outstanding {
     reason = "explicit deterministic covering-walk construction"
 )]
 fn covering_cycle(
-    graph: &Graph,
+    graph: &(impl GraphAccess + ?Sized),
     labels: &impl AcceptanceAccess,
     inside: &[bool],
     entry: usize,
@@ -433,7 +434,7 @@ fn covering_cycle(
 ) -> Result<Vec<Step>, SearchError> {
     // A self-loop that discharges everything is the canonical first choice.
     // The caller decides whether it projects to physical stuttering.
-    for (edge, &to) in graph.edges[entry].iter().enumerate() {
+    for (edge, &to) in graph.successors(entry).iter().enumerate() {
         poll.step()?;
         if to == entry
             && labels.recurrent(entry, edge)
@@ -476,7 +477,7 @@ fn covering_cycle(
                     best = Some(candidate);
                 }
             }
-            for (edge, &to) in graph.edges[v].iter().enumerate() {
+            for (edge, &to) in graph.successors(v).iter().enumerate() {
                 poll.step()?;
                 if keep(v, edge, to)
                     && poll.any(missing.actions.iter().enumerate(), |(condition, m)| {
@@ -500,7 +501,7 @@ fn covering_cycle(
             steps.push(Step {
                 from: v,
                 edge,
-                to: graph.edges[v][edge],
+                to: graph.successors(v)[edge],
             });
         }
         current = steps.last().map_or(v, |s| s.to);
@@ -513,10 +514,10 @@ fn covering_cycle(
         // A reverse BFS finds return distances once, rather than running
         // a forward BFS for every outgoing edge of a high-degree entry.
         let mut reverse = Graph {
-            edges: vec![vec![]; graph.edges.len()],
+            edges: vec![vec![]; graph.vertex_count()],
             roots: vec![entry],
         };
-        for (v, targets) in graph.edges.iter().enumerate() {
+        for (v, targets) in (0..graph.vertex_count()).map(|v| (v, graph.successors(v))) {
             poll.step()?;
             if !inside[v] {
                 continue;
@@ -530,7 +531,7 @@ fn covering_cycle(
         }
         let back = Paths::new(&reverse, &[entry], |_, _, _| true, poll)?;
         let mut best = None;
-        for (edge, &to) in graph.edges[entry].iter().enumerate() {
+        for (edge, &to) in graph.successors(entry).iter().enumerate() {
             poll.step()?;
             if keep(entry, edge, to)
                 && let Some(distance) = back.distance[to]
