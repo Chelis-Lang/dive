@@ -591,13 +591,14 @@ fn check_backend(
         };
     }
     if temporal == TemporalMode::FinalShort {
+        let configuration = crate::temporal::file_configuration();
         return match crate::temporal::check_final_with_policies(
             ir,
             config,
             options,
-            dive_liveness::analyze::Limits::default(),
-            dive_liveness::product::AcceptancePolicy::compact_default(),
-            dive_liveness::analyze::GraphLabelPolicy::NoCellLimit,
+            configuration.limits,
+            configuration.acceptance,
+            configuration.graph_labels,
         ) {
             Ok(r) => match r.outcome() {
                 crate::temporal::Outcome::Safety(s) => Phase::Checked(s.clone()),

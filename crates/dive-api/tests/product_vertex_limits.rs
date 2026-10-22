@@ -151,7 +151,11 @@ fn file_routes_report_machine_capacity_without_changing_other_owners() {
                 let json = report.to_json();
                 assert_eq!(json["schema_version"], 3);
                 let bounds = &json["options"]["temporal_bounds"];
-                assert_eq!(bounds["product_vertices"], serde_json::json!(usize::MAX));
+                assert_eq!(
+                    bounds["product_vertices"],
+                    serde_json::json!(usize::MAX),
+                    "config={config:?}, compat_tlc={compat_tlc}, temporal={temporal:?}"
+                );
                 assert_eq!(bounds["product_edges"], 8_000_000);
                 assert_eq!(bounds["product_steps"], 32_000_000);
                 assert_eq!(bounds["acceptance_buffer_bytes"], 8_000_000);
