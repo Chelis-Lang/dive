@@ -31,7 +31,7 @@ a diagnostic that names it (D-015). `--compat=tlc` accepts it, as TLC does.
 `--check-symmetry` is an opt-in audit of whether the declared symmetry really is
 a symmetry of the spec (D-016, planned).
 
-**Liveness.** The intended default is `--symmetry-liveness=unreduced`: disable
+**Liveness.** The default is `--symmetry-liveness=unreduced`: disable
 reduction for the whole liveness run and say so (D-005). `refuse` and TLC's
 quotient-graph behaviour (`tlc`, selected by `--compat=tlc`) are explicit modes.
 The unreduced and refusal branches implement this accepted policy for supported

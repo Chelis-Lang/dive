@@ -257,7 +257,7 @@ Measured on the pinned TLC:
 | | |
 |---|---|
 | **Kind** | Different answer |
-| **Intended default** | Unreduced checking; disable symmetry for the whole liveness run |
+| **Default** | Supported unreduced checking; disable symmetry for the whole genuine temporal run |
 | **TLC behaviour** | `--symmetry-liveness=tlc` (included in `--compat=tlc`): warn and proceed |
 | **Status** | unreduced/refuse implemented for supported temporal runs; TLC quotient remains refused |
 
@@ -275,15 +275,15 @@ Measured on the pinned TLC, it goes wrong in both directions:
 
 - **A false violation.** A token alternates between two interchangeable processes under weak fairness, and the property "every process holds the token infinitely often", `\A p \in S : []<>(tok = p)`, is true. The spec and the property are both symmetric. With `SYMMETRY`, TLC reports `Temporal property Fair was violated`, with a counterexample of one state followed by "Stuttering". The fairness condition forbids that behaviour.
 
-**What dive will do.** The approved default checks the whole unreduced state space and reports that symmetry was disabled. An explicit `refuse` mode remains available. These modes are not implemented yet; current runs still refuse temporal properties and symmetry by name.
+**What dive does.** Supported default-profile temporal runs check the whole unreduced state space and report that symmetry reduction was disabled. Explicit `refuse` remains available. Safety-only roles keep their existing symmetry reduction; actual genuine temporal roles select the whole-run unreduced path.
 
-Under `--symmetry-liveness=tlc` dive reproduces TLC's answers, both wrong ones included. A counterexample that comes from TLC's symmetry reduction and is not a real behaviour of the spec is labelled as such.
+`--symmetry-liveness=tlc`, including its selection by `--compat=tlc`, requests TLC quotient semantics but currently refuses. No missed/false TLC quotient verdict, quotient counterexample annotation or permutation-closing validation is claimed.
 
 **Evidence.** ADR 0010 (owner decision of 2026-10-08); ADR 0019 §4; probes `SymLiveMissed`, `SymLiveMissedNone`, `SymLiveSymProp` and `SymLiveWarn` in `crates/dive-liveness/tests/fixtures/tlc-probes/`; survey probe P4 (another checker raised a false liveness alarm under symmetry).
 
 ---
 
-**Owner update, 2026-10-09.** The intended default is now `--symmetry-liveness=unreduced`: ignore `SYMMETRY` for the entire liveness run, including its safety checks, and report the unreduced counts. This replaces the earlier approved refusal default. `=refuse` remains available. `--compat=tlc` selects `=tlc`, including TLC's missed and false violations in the probes. The unreduced and explicit refusal modes now implement this policy for supported temporal checks. TLC quotient liveness remains a named refusal, including under `--compat=tlc`; it does not silently select the sound mode. Explicit `--compat=tlc --symmetry-liveness=unreduced` reports `tlc+overrides`. Compare the sound mode against TLC run without symmetry, rather than excusing arbitrary verdict differences. Original declared symmetry and the actual bound whole-run choice are reported separately. VIEW quotient checking and its concrete witness reconstruction remain unsupported (issue #428).
+**Owner update, 2026-10-09.** The intended default is now `--symmetry-liveness=unreduced`: ignore `SYMMETRY` for the entire liveness run, including its safety checks, and report the unreduced counts. This replaces the earlier approved refusal default. `=refuse` remains available. `--compat=tlc` requests `=tlc`; that route remains refused rather than claiming reproduction of TLC's missed and false violations. The unreduced and explicit refusal modes now implement this policy for supported temporal checks. TLC quotient liveness remains a named refusal, including under `--compat=tlc`; it does not silently select the sound mode. Explicit `--compat=tlc --symmetry-liveness=unreduced` reports `tlc+overrides`. Compare the sound mode against TLC run without symmetry, rather than excusing arbitrary verdict differences. Original declared symmetry and the actual bound whole-run choice are reported separately. VIEW quotient checking and its concrete witness reconstruction remain unsupported (issue #428).
 
 ## D-006: `CHOOSE` does not depend on unrelated text in the module
 
@@ -847,7 +847,7 @@ into the completed-level implementation.
 
 ## D-015: Symmetry functions must actually be permutations
 
-**Status:** bounded checked/TLC groups, supported pure startup warnings and pure safety key reduction are implemented. Unverified startup exceptions, declaration shapes, lazy/deferred permutations, random seeding and symmetry with liveness remain named refusals. A declaration containing `[a |-> b, b |-> b]` is not bijective. TLC accepts it and closes the set under composition, permitting an unsound reduction. The owner-approved model default will name and reject the offending function; `--compat=tlc` retains TLC's acceptance. The minimal missed-invariant control below supplies numerical evidence for that policy.
+**Status:** bounded checked/TLC groups, supported pure startup warnings and pure safety key reduction are implemented. Unverified startup exceptions, declaration shapes, lazy/deferred permutations, random seeding and TLC quotient liveness remain named refusals. Supported whole-run unreduced temporal checking follows D-005. A declaration containing `[a |-> b, b |-> b]` is not bijective. TLC accepts it and closes the set under composition, permitting an unsound reduction. The owner-approved model default will name and reject the offending function; `--compat=tlc` retains TLC's acceptance. The minimal missed-invariant control below supplies numerical evidence for that policy.
 
 **Foundation update, 2026-10-09.** The bounded symmetry-closure kernel now
 has a checked setting that rejects non-bijective maps, including collisions
@@ -870,7 +870,7 @@ show concrete explored states and validate independently. The SyNonBiject
 control below now runs: the default refuses the non-bijection before search;
 `--compat=tlc` reproduces TLC's success and exact 3 / 1 / depth 1 counts.
 Source-backed warning controls also match TLC's too-small/unused-set warnings.
-This does not enable symmetry with liveness or the opt-in symmetry audit.
+That original safety increment did not enable symmetry with liveness or the opt-in audit. Supported whole-run unreduced temporal checking is now implemented separately under D-005; the audit remains planned.
 
 **Minimal measured missed violation.**
 
