@@ -184,3 +184,72 @@ fn overridden_definition_sources_refuse_without_provider_calls() {
         }
     }
 }
+
+#[test]
+fn configured_definition_values_keep_body_evaluation_authority() {
+    let ir = ir(
+        "---- MODULE Projection ----\nEXTENDS Sequences, FiniteSets\nCONSTANT C\nD=={0}\nQ==SelectSeq(<<0>>,LAMBDA v: Cardinality(C)=1)\n====\n",
+    );
+    let target = ir.root_def("D").expect("D");
+    for options in [Options::tlc(), Options::dive()] {
+        for warm in [false, true] {
+            let provider = Arc::new(Opaque(AtomicUsize::new(0)));
+            let mut input = Model::new(ir.clone());
+            input.constants[0] = Some(ConstBinding::Def(target));
+            input
+                .def_values
+                .insert(target, Value::deferred(provider.clone(), options.ctx));
+            let evaluator = Evaluator::new(input, options).expect("evaluator");
+            let def = ir.root_def("Q").expect("Q");
+            let scope = evaluator.scope(def).expect("scope");
+            if warm {
+                // C <- D evaluates D's body, never its stored definition value.
+                evaluator
+                    .eval_scoped(&scope, ir.def(def).body, &St::constant())
+                    .expect("configured definition body");
+            }
+            let Expr::Apply { callee, args } = ir.expr(ir.def(def).body) else {
+                panic!("selection application")
+            };
+            let calls = provider.0.load(Ordering::SeqCst);
+            assert!(
+                evaluator
+                    .scope_selectseq_call(&scope, callee, args, &mut 100_000)
+                    .expect("body is pure")
+                    .is_some()
+            );
+            assert_eq!(provider.0.load(Ordering::SeqCst), calls);
+        }
+    }
+}
+
+#[test]
+fn redirected_overrides_cannot_hide_impure_target_bodies() {
+    let ir = ir(
+        "---- MODULE Projection ----\nEXTENDS Sequences, TLC\nD==PrintT(0)\nAlias==TRUE\nQ==SelectSeq(<<0>>,LAMBDA v: Alias)\n====\n",
+    );
+    for options in [Options::tlc(), Options::dive()] {
+        let mut input = Model::new(ir.clone());
+        let target = ir.root_def("D").expect("D");
+        input
+            .redirects
+            .insert(ir.root_def("Alias").expect("Alias"), target);
+        input.def_values.insert(target, Value::Bool(true));
+        let evaluator = Evaluator::new(input, options).expect("evaluator");
+        let def = ir.root_def("Q").expect("Q");
+        let Expr::Apply { callee, args } = ir.expr(ir.def(def).body) else {
+            panic!("selection application")
+        };
+        let result = evaluator.scope_selectseq_call(
+            &evaluator.scope(def).expect("scope"),
+            callee,
+            args,
+            &mut 100_000,
+        );
+        assert_eq!(
+            result.as_ref().err().map(dive_eval::EvalError::class),
+            Some(dive_eval::ErrorClass::Unsupported)
+        );
+        assert_eq!(evaluator.take_output(), Vec::<String>::new());
+    }
+}

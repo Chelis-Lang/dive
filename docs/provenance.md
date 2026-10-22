@@ -1274,6 +1274,18 @@ aggregate duplicate work, cold/warm cache isolation and fresh word/document
 validation. These source controls confer no corpus parity credit; the three
 previously reached corpus sites still require the normal measured gates.
 
+Source admission conservatively refuses referenced definition value overrides,
+including resolved redirect targets, before recursive-leaf or native-source
+shortcuts. Direct definition uses may read those stored values; redirected uses
+execute the target body instead, so neither source can be silently omitted.
+Configured `C <- D` constants retain the existing core rule of evaluating D's
+body rather than its stored definition value. Injected opaque-provider controls
+cover both profiles and cold/warm caches without invoking provider methods
+during admission. The admission counter meters source visits. Existing lexical
+projection and binder-analysis helpers can copy or grow frames before that
+counter refuses; full metadata-allocation accounting remains separate from
+this purity fix and does not acquire a hard allocation-time budget guarantee.
+
 The runtime capture-storage traversal treats only the pointer-identical current
 SelectSeq input as a sequence shell, preserving per-element first-error order.
 It does not use value equality or normalization; callback reads perform the

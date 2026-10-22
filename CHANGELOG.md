@@ -170,7 +170,8 @@
   INSTANCE captures without enumerating domains. Nested selections share one
   source-inspection budget, and local recursive-function captures retain their
   self bindings. Runtime evaluation and independent replay keep original scopes;
-  unsafe or opaque unused captures still refuse.
+  unsafe or opaque unused captures still refuse. Referenced definition value
+  overrides also refuse before recursive-leaf or native-source shortcuts.
 
 - Liveness checking evaluates its atoms with the core evaluator and its
   definition and lazy-value caches, instead of a bounded re-evaluation that

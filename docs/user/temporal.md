@@ -234,9 +234,11 @@ calls and finite local recursive-function captures retain their original
 scopes and share the same admission work budget. For example,
 `SelectSeq(<<0,1,0>>, LAMBDA y: \E z \in {y}: z=0)` returns `<<0,0>>`.
 The reference corpus `selectseq-captures` pairs holding and violating models
-with independent replay controls.
+with independent replay controls. The shared admission allowance counts source
+visits; it is not a ceiling on lexical-frame copying or allocation.
 
-This subset excludes opaque stored functions/providers, action or temporal
+This subset excludes referenced definition value overrides, opaque stored
+functions/providers, action or temporal
 callbacks, recursive user-operator callbacks, native/configured predicate
 targets and retained dynamic callback contexts. Unused captured bodies and
 stored values are checked too; even an empty domain cannot hide effects or a

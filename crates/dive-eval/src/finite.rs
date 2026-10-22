@@ -630,9 +630,17 @@ impl Guard<'_> {
         };
         if let Some((op, args)) = call {
             let standard = match op {
-                OpRef::Def(d) => {
-                    let leaf = ev.recursive_leaf(d);
-                    let d = ev.redirected(d);
+                OpRef::Def(source) => {
+                    let d = ev.redirected(source);
+                    // Direct uses may read the stored override; redirected uses
+                    // execute its target body instead. Neither source may vanish
+                    // from this proof merely because the target has a value.
+                    if ev.is_value_override(d) {
+                        return Err(EvalError::unsupported(
+                            "SelectSeq overridden definition source",
+                        ));
+                    }
+                    let leaf = ev.recursive_leaf(source);
                     let def = ev.ir().def(d);
                     if def.recursive
                         && self.configured_depth == 0
