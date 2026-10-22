@@ -425,14 +425,7 @@ fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> bind::R<Model> {
     };
     b.drain_prints();
     let ir = b.t.ir.clone();
-    let root = ir.module(ir.root());
-    let assumptions = root
-        .assumptions
-        .iter()
-        .zip(root.axioms.iter().chain(std::iter::repeat(&false)))
-        .filter(|(_, ax)| !**ax)
-        .map(|(d, _)| *d)
-        .collect();
+    let assumptions = non_axiom_assumptions(&ir);
     let alias = b
         .process_alias()
         .map(|result| match result {
@@ -492,4 +485,14 @@ fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> bind::R<Model> {
     model.stateful_checking = sequential.stateful_checking;
     model.seal_startup_names();
     Ok(model)
+}
+
+fn non_axiom_assumptions(ir: &Ir) -> Vec<dive_ir::DefId> {
+    let root = ir.module(ir.root());
+    root.assumptions
+        .iter()
+        .zip(root.axioms.iter().chain(std::iter::repeat(&false)))
+        .filter(|(_, ax)| !**ax)
+        .map(|(d, _)| *d)
+        .collect()
 }
