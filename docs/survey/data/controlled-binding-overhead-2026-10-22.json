@@ -28,15 +28,17 @@
     "baseline_tree": "68e697a346a2886f28a9fcc0a74cf214ab54d398",
     "candidate": "8e650dba58dd84ed1102618efc68aa52c2ff5d17",
     "candidate_tree": "87b2abde8d517ea3f3726a066176c3c4ddff1bd5",
-    "delivery_parent": "6badeb20b393dce1dc5fba50ad161d70b092e91e",
-    "delivery_note": "Measured source is8e versus44. Later main416/418 changes only documentation and compact rejected-optimization evidence. Delivery retains all runtime/test/build/gate/harness/corpus entries exactly; full later tree is not relabelled measured8e.",
+    "delivery_parent": "0ec2d0f8d3d9f50a300d2db823da489a15b4f075",
+    "delivery_note": "Original6fe delivery on6b retained the entire measured8e runtime/test/build/gate/harness/corpus tree, with416/418 documentation preserved. Current integration on0ec inherits separately qualified SelectSeq and retains all18 owned binding runtime/test blobs exactly8e. The actual combinedf5 gate is recorded separately; original44/8e instruction measurements are not relabelled current-main measurements.",
     "original_before_at": "2026-10-22T05:17:48.004222+00:00",
     "original_after_at": "2026-10-22T06:30:37.394751+00:00",
     "tracked_files": {
       "base": 22546,
       "candidate": 22551
     },
-    "before_after_source_payload_tool_identity_unchanged": true
+    "before_after_source_payload_tool_identity_unchanged": true,
+    "original_delivery_parent": "6badeb20b393dce1dc5fba50ad161d70b092e91e",
+    "original_delivery": "6fe608303d26fbf62e4a4c5c689584a910dc5438"
   },
   "builds": {
     "base": {
@@ -510,5 +512,286 @@
     "raw_outputs": "External original archive; no raw logs, source snapshots or traces committed",
     "producer_finished_at": "2026-10-22T06:30:38.434834+00:00",
     "independent_audit_at": "2026-10-22T06:37:47.680746+00:00"
+  },
+  "integrated_full_gate": {
+    "source": "f5db2f534b6a0dd5137eb7437a00e49b6b29a824",
+    "base": "0ec2d0f8d3d9f50a300d2db823da489a15b4f075",
+    "whole_tests": 2249,
+    "failed": 0,
+    "skipped": 0,
+    "native_exit": 0,
+    "externally_censored": false,
+    "physical_seconds": 1320.5230274582282,
+    "reported_total": "21m55s",
+    "gate_report_sha256": "0f0cb4f1029aca27ea666a82d4a9f49dd60c4aaf89e6947540f56aad876febbe",
+    "release_sha256": "b1a1c508a669b63e6f2cb2ac22edf22650d40ad7fce52ad3198b931784ee33a4",
+    "baseline_facts_exact_both_profiles": true,
+    "corpora": {
+      "tlc": {
+        "sha256": "342ee8c405ec7ab87cb3efda5e4dddbf3356d854afdff30b92cfb7f8779fc17c",
+        "summary": {
+          "models_selected": 156,
+          "modules_selected": 458,
+          "models": {
+            "agree": 149,
+            "disagree": 0,
+            "unsupported": 7,
+            "oracle-error": 0,
+            "timeout": 0,
+            "out-of-scope": 0,
+            "divergence-mode": 0,
+            "expected-divergence": 0,
+            "agree-pending-trace-validation": 0,
+            "known-upstream-change": 0
+          },
+          "modules": {
+            "agree": 458,
+            "disagree": 0,
+            "unsupported": 0,
+            "oracle-error": 0,
+            "timeout": 0,
+            "out-of-scope": 0,
+            "divergence-mode": 0,
+            "expected-divergence": 0,
+            "agree-pending-trace-validation": 0,
+            "known-upstream-change": 0
+          },
+          "models_with_oracle_drift": 0,
+          "oracle_drift_findings": 0,
+          "informational_drift_findings": 0,
+          "worker_verdict_variant": 0,
+          "worker_counts_variant": 0,
+          "worker_depth_variant": 0,
+          "worker_introspecting": 2,
+          "worker_property_variant": 0,
+          "by_corpus": {
+            "configured-temporal-operators": {
+              "models": {
+                "agree": 2,
+                "disagree": 0,
+                "unsupported": 0,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 0,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              },
+              "modules": {
+                "agree": 2,
+                "disagree": 0,
+                "unsupported": 0,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 0,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              }
+            },
+            "examples": {
+              "models": {
+                "agree": 134,
+                "disagree": 0,
+                "unsupported": 6,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 0,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              },
+              "modules": {
+                "agree": 424,
+                "disagree": 0,
+                "unsupported": 0,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 0,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              }
+            },
+            "probes": {
+              "models": {
+                "agree": 13,
+                "disagree": 0,
+                "unsupported": 1,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 0,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              },
+              "modules": {
+                "agree": 12,
+                "disagree": 0,
+                "unsupported": 0,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 0,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              }
+            },
+            "validation-smoke": {
+              "models": {
+                "agree": 0,
+                "disagree": 0,
+                "unsupported": 0,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 0,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              },
+              "modules": {
+                "agree": 20,
+                "disagree": 0,
+                "unsupported": 0,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 0,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              }
+            }
+          }
+        }
+      },
+      "dive": {
+        "sha256": "2ee2d33f6bf06135d9ecf8aa57b6d52670cbab5bc242672bf2c3a68346c4d116",
+        "summary": {
+          "models_selected": 156,
+          "modules_selected": 0,
+          "models": {
+            "agree": 143,
+            "disagree": 0,
+            "unsupported": 7,
+            "oracle-error": 0,
+            "timeout": 0,
+            "out-of-scope": 0,
+            "divergence-mode": 0,
+            "expected-divergence": 6,
+            "agree-pending-trace-validation": 0,
+            "known-upstream-change": 0
+          },
+          "modules": {
+            "agree": 0,
+            "disagree": 0,
+            "unsupported": 0,
+            "oracle-error": 0,
+            "timeout": 0,
+            "out-of-scope": 0,
+            "divergence-mode": 0,
+            "expected-divergence": 0,
+            "agree-pending-trace-validation": 0,
+            "known-upstream-change": 0
+          },
+          "models_with_oracle_drift": 0,
+          "oracle_drift_findings": 0,
+          "informational_drift_findings": 0,
+          "worker_verdict_variant": 0,
+          "worker_counts_variant": 0,
+          "worker_depth_variant": 0,
+          "worker_introspecting": 2,
+          "worker_property_variant": 0,
+          "by_corpus": {
+            "configured-temporal-operators": {
+              "models": {
+                "agree": 2,
+                "disagree": 0,
+                "unsupported": 0,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 0,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              },
+              "modules": {
+                "agree": 0,
+                "disagree": 0,
+                "unsupported": 0,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 0,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              }
+            },
+            "examples": {
+              "models": {
+                "agree": 130,
+                "disagree": 0,
+                "unsupported": 6,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 4,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              },
+              "modules": {
+                "agree": 0,
+                "disagree": 0,
+                "unsupported": 0,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 0,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              }
+            },
+            "probes": {
+              "models": {
+                "agree": 11,
+                "disagree": 0,
+                "unsupported": 1,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 2,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              },
+              "modules": {
+                "agree": 0,
+                "disagree": 0,
+                "unsupported": 0,
+                "oracle-error": 0,
+                "timeout": 0,
+                "out-of-scope": 0,
+                "divergence-mode": 0,
+                "expected-divergence": 0,
+                "agree-pending-trace-validation": 0,
+                "known-upstream-change": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    "scope": "Exact combined binding+SelectSeq main gate only; no new normal instruction, wall or TLC throughput measurement."
   }
 }
