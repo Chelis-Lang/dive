@@ -1160,6 +1160,9 @@ impl Gen<'_, '_> {
     }
 
     fn bind_value(&mut self, var: usize, value: Value, acts: &Acts) -> Result<Flow> {
+        // A candidate is real work even when its continuation rejects it and
+        // no successor reaches the sink, including private composition sinks.
+        self.core.loop_work()?;
         self.bind(var, value);
         let flow = self.cont(acts);
         self.unbind(var);
