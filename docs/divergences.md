@@ -41,6 +41,17 @@
   the specific complete stream shape. TLC-exact phase-L checker behavior remains
   pending; this parser correction does not enable a new checker default.
 
+- **Action-composition generated counts (D-022).** The default-only harness
+  registry recognizes the exact TLC/native pairs 1,350,001/900,001 for
+  `FiniteMonotonic/MCCRDT.cfg` and 17,425/11,617 for `MCReplicatedLog.cfg`.
+  Both entries permit no other differing field. The original full gate at
+  `345a9bd1` exposed the missing MCCRDT entry after that model reached a
+  completed result: success 2193, physical exit 0, 25,000 distinct states and
+  depth 16 agreed; only the already documented 450,000 composition intermediates
+  differed. The original failed gate remains a failure, and this classification
+  is expected divergence rather than strict agreement. Issue #413 records the
+  evidence. Goldens and checker behavior are unchanged.
+
 ## Refusals where SANY accepts
 
 These are not divergences, because `dive` gives no different answer: it refuses with

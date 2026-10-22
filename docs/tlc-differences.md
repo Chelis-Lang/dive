@@ -2744,6 +2744,16 @@ Under `--compat=tlc` composition is off, as in TLC. `--action-composition=tlc` r
 
 The default profile's generated counts leave out TLC's 450,000 and 5,808 intermediate states.
 
+The conformance registry recognizes exactly these two generated-count pairs in
+its default profile, with no other differing field allowed. Matching runs are
+`expected-divergence`, never strict agreement. Any other count, verdict, exit,
+depth, property or trace-validation difference remains a finding; TLC and
+TLC-with-overrides profiles receive no exception. Issue #413 records the
+original MCCRDT full-gate failure that exposed the missing registry entry.
+This harness correction does not change the historical safety-only evidence
+above or certify a new temporal capability.
+
+
 ## D-023: Default process exits are distinct conformance observables
 
 **Current CLI decision (ADR 0097):** ordinary checking now selects TLC physical

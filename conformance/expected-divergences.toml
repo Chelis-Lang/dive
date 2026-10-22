@@ -10,16 +10,19 @@
 #
 # Under `dive`, a disagreement matching an entry below, with the entry's
 # expected verdict and with every differing field among the entry's
-# `fields` or its exact `exit_code_pair`, is reported as `expected-divergence`. It is never counted
+# `fields` or its exact `exit_code_pair`/`generated_count_pair`, is reported as
+# `expected-divergence`. It is never counted
 # as `agree`. Everything else is `disagree`. The registry never applies under
 # `tlc` or `tlc+overrides`, and an entry naming them is a configuration error.
 #
-# Entry shape (exit_code_pair is optional; give exactly one profile/option). `fields`
+# Entry shape (exact exit/count pairs are optional; give exactly one profile/option). `fields`
 # are globs over the compared fields (`verdict`, `error_class`,
 # `violated_property`, `counts.*`, `trace.length`, `trace.ending`); list only
 # those that actually differ. Numeric exits require exit_code_pair with integer
 # expected/actual codes in 0..255; field globs cannot excuse exits. The declared
-# pair must occur alongside only permitted other differences. Trace validation
+# pair must occur alongside only permitted other differences. An optional
+# generated_count_pair requires exact unsigned expected/actual generated counts;
+# when present, no field glob may cover counts.states_generated. Trace validation
 # can never be excused.
 #
 # [[divergence]]
@@ -243,6 +246,17 @@ id = "d022-finitemonotonic-mcreplicatedlog"
 pattern = "specifications/FiniteMonotonic/MCReplicatedLog.cfg"
 profile = "dive"
 expected_verdict = "success"
-fields = ["counts.states_generated"]
+fields = []
+generated_count_pair = { expected = 17425, actual = 11617 }
 justification = "Action composition with its TLA+ meaning (D-022) generates 11617 states without TLC's composition intermediates (TLC: 17425); Convergence holds and the 1363 distinct states and depth 13 agree"
+link = "docs/divergences.md#registry"
+
+[[divergence]]
+id = "d022-finitemonotonic-mccrdt"
+pattern = "specifications/FiniteMonotonic/MCCRDT.cfg"
+profile = "dive"
+expected_verdict = "success"
+fields = []
+generated_count_pair = { expected = 1350001, actual = 900001 }
+justification = "Action composition with its TLA+ meaning (D-022) generates 900001 states without TLC's 450000 composition intermediates (TLC: 1350001); success, physical exit 0, 25000 distinct states and depth 16 agree; issue #413 records the original full-gate finding"
 link = "docs/divergences.md#registry"
