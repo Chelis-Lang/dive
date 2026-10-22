@@ -822,29 +822,28 @@ fn main() -> ExitCode {
         out(&format!("{}\n", pipeline::generator()));
         return ExitCode::SUCCESS;
     }
-    if let Err(e) = dive_conformance::process::install_signal_handler() {
-        eprintln_safe(&format!("warning: {e}"));
-    }
     // The command is one word (`run`) or two (`oracle fetch`); any further
     // positionals are arguments (only `dev capture` takes them).
-    let result = parse_opts(&mut args).and_then(|mut o| {
-        let n = if o.positional.first().map(String::as_str) == Some("run") {
-            1
-        } else {
-            2
-        };
-        let rest = o.positional.split_off(n.min(o.positional.len()));
-        let cmd = std::mem::replace(&mut o.positional, rest);
-        let takes_args = matches!(cmd.first().map(String::as_str), Some("dev" | "report"));
-        if !takes_args && !o.positional.is_empty() {
-            return Err(Error::Usage(format!(
-                "unexpected argument(s) {:?} after `{}`",
-                o.positional,
-                cmd.join(" ")
-            )));
-        }
-        dispatch(&cmd, &o)
-    });
+    let result = dive_conformance::process::install_signal_handler()
+        .and_then(|()| parse_opts(&mut args))
+        .and_then(|mut o| {
+            let n = if o.positional.first().map(String::as_str) == Some("run") {
+                1
+            } else {
+                2
+            };
+            let rest = o.positional.split_off(n.min(o.positional.len()));
+            let cmd = std::mem::replace(&mut o.positional, rest);
+            let takes_args = matches!(cmd.first().map(String::as_str), Some("dev" | "report"));
+            if !takes_args && !o.positional.is_empty() {
+                return Err(Error::Usage(format!(
+                    "unexpected argument(s) {:?} after `{}`",
+                    o.positional,
+                    cmd.join(" ")
+                )));
+            }
+            dispatch(&cmd, &o)
+        });
     match result {
         Ok(false) => ExitCode::SUCCESS,
         Ok(true) => ExitCode::from(1),
