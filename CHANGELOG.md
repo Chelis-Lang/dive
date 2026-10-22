@@ -30,7 +30,9 @@
   actual startup output/capture evidence. Additive controlled Rust binding APIs
   preserve existing uncontrolled calls. Structural/bulk startup, assumptions,
   post-binding symmetry and legacy session validation remain outside this change
-  (#349); no count, default or report-major change.
+  (#349); no count, default or report-major change. Exact-source full qualification
+  passes all 2,243 tests and both small baselines; every normal single-worker
+  instruction cell stays within 1% overhead (issue #425).
 
 - Default-profile conformance recognizes only the exact documented D-022
   generated-count pairs for MCCRDT and MCReplicatedLog. Matching runs remain
