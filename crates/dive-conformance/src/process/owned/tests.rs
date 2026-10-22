@@ -3,14 +3,28 @@
 use super::*;
 use std::sync::mpsc;
 
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+enum Leader {
+    #[default]
+    Running,
+    Exited,
+    Reaped,
+}
+
+#[derive(Clone, Copy, Default, PartialEq, Eq)]
+enum Fault {
+    #[default]
+    None,
+    MembersOnce,
+    LostWait,
+    UnwindAfterReap,
+}
+
 #[derive(Default)]
 struct Fake {
-    exited: bool,
+    leader: Leader,
     live: bool,
-    reaped: bool,
-    fail_members: bool,
-    fail_wait: bool,
-    panic_reap: bool,
+    fault: Fault,
     events: Vec<&'static str>,
 }
 
@@ -23,20 +37,24 @@ impl Backend for FakeBackend {
 
     fn exited(&self, child: &mut FakeChild) -> Result<bool> {
         let mut child = child.lock().map_err(|_| command("poisoned fake"))?;
-        assert!(!child.reaped, "nonreaping observation after reap");
+        assert_ne!(
+            child.leader,
+            Leader::Reaped,
+            "nonreaping observation after reap"
+        );
         child.events.push("observe");
-        if child.fail_wait {
+        if child.fault == Fault::LostWait {
             return Err(command("injected lost wait ownership"));
         }
-        Ok(child.exited)
+        Ok(child.leader == Leader::Exited)
     }
 
     fn live_members(&self, child: &mut FakeChild, _: Instant) -> Result<bool> {
         let mut child = child.lock().map_err(|_| command("poisoned fake"))?;
-        assert!(!child.reaped);
+        assert_ne!(child.leader, Leader::Reaped);
         child.events.push("members");
-        if child.fail_members {
-            child.fail_members = false;
+        if child.fault == Fault::MembersOnce {
+            child.fault = Fault::None;
             return Err(command("injected missing membership observation"));
         }
         Ok(child.live)
@@ -44,19 +62,20 @@ impl Backend for FakeBackend {
 
     fn kill_group(&self, child: &mut FakeChild) -> Result<()> {
         let mut child = child.lock().map_err(|_| command("poisoned fake"))?;
-        assert!(!child.reaped, "numeric signal after reap");
+        assert_ne!(child.leader, Leader::Reaped, "numeric signal after reap");
         child.events.push("kill");
         child.live = false;
-        child.exited = true;
+        child.leader = Leader::Exited;
         Ok(())
     }
 
     fn reap(&self, child: &mut FakeChild) -> Result<i32> {
         let mut child = child.lock().map_err(|_| command("poisoned fake"))?;
-        assert!(!child.live && !child.reaped);
+        assert!(!child.live);
+        assert_eq!(child.leader, Leader::Exited);
         child.events.push("reap");
-        child.reaped = true;
-        if child.panic_reap {
+        child.leader = Leader::Reaped;
+        if child.fault == Fault::UnwindAfterReap {
             // Inject unwind after a backend has reaped. The owner's Reaping
             // phase must survive poisoning and prevent ANY subsequent signal.
             std::panic::resume_unwind(Box::new("injected backend unwind"));
@@ -68,7 +87,11 @@ impl Backend for FakeBackend {
 fn fake(live: bool) -> FakeChild {
     Arc::new(Mutex::new(Fake {
         live,
-        exited: !live,
+        leader: if live {
+            Leader::Running
+        } else {
+            Leader::Exited
+        },
         ..Fake::default()
     }))
 }
@@ -121,6 +144,13 @@ fn cancellation_serializes_spawn_registration_and_latches_future_work() -> Resul
     entered_rx
         .recv_timeout(Duration::from_secs(2))
         .map_err(|_| command("spawn did not enter"))?;
+    // Deterministic overlap proof, independent of scheduler timing: the launch
+    // closure is blocked on release_rx and MUST still hold the registry mutex.
+    // Moving launch outside the transaction makes this assertion fail.
+    assert!(matches!(
+        owner.registry.try_lock(),
+        Err(std::sync::TryLockError::WouldBlock)
+    ));
     let cancel_owner = Arc::clone(&owner);
     let cancellation = std::thread::spawn(move || {
         cancel_tx.send(()).map_err(|_| command("cancel channel"))?;
@@ -187,7 +217,7 @@ fn two_cancel_snapshots_share_one_terminal_transition() -> Result<()> {
 fn missing_observation_holds_new_work_but_retains_owner_for_cleanup() -> Result<()> {
     let owner = Supervisor::new(FakeBackend);
     let child = fake(true);
-    child.lock().map_err(|_| command("fake lock"))?.fail_members = true;
+    child.lock().map_err(|_| command("fake lock"))?.fault = Fault::MembersOnce;
     let handle = owner.spawn(|| Ok(Arc::clone(&child)))?;
     assert!(owner.drain(&handle, Instant::now() + CLEANUP).is_err());
     assert_eq!(
@@ -199,7 +229,10 @@ fn missing_observation_holds_new_work_but_retains_owner_for_cleanup() -> Result<
             .len(),
         1
     );
-    assert!(!child.lock().map_err(|_| command("fake lock"))?.reaped);
+    assert_ne!(
+        child.lock().map_err(|_| command("fake lock"))?.leader,
+        Leader::Reaped
+    );
     assert!(owner.spawn(|| Ok(fake(false))).is_err());
     assert_eq!(owner.drain(&handle, Instant::now() + CLEANUP)?, 23);
     assert!(owner.spawn(|| Ok(fake(false))).is_err());
@@ -210,7 +243,7 @@ fn missing_observation_holds_new_work_but_retains_owner_for_cleanup() -> Result<
 fn lost_wait_ownership_never_authorizes_a_later_numeric_signal() -> Result<()> {
     let owner = Supervisor::new(FakeBackend);
     let child = fake(true);
-    child.lock().map_err(|_| command("fake lock"))?.fail_wait = true;
+    child.lock().map_err(|_| command("fake lock"))?.fault = Fault::LostWait;
     let handle = owner.spawn(|| Ok(Arc::clone(&child)))?;
     assert!(owner.drain(&handle, Instant::now() + CLEANUP).is_err());
     assert!(owner.cancel().is_err());
@@ -233,7 +266,7 @@ fn lost_wait_ownership_never_authorizes_a_later_numeric_signal() -> Result<()> {
 fn poisoned_owner_after_uncertain_reap_cannot_signal() -> Result<()> {
     let owner = Supervisor::new(FakeBackend);
     let child = fake(false);
-    child.lock().map_err(|_| command("fake lock"))?.panic_reap = true;
+    child.lock().map_err(|_| command("fake lock"))?.fault = Fault::UnwindAfterReap;
     let handle = owner.spawn(|| Ok(Arc::clone(&child)))?;
     let outcome = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         let _ = owner.drain(&handle, Instant::now() + CLEANUP);
@@ -263,7 +296,10 @@ fn poisoned_registry_retains_children_and_reports_cleanup_failure() -> Result<()
     }));
     assert!(outcome.is_err());
     assert!(owner.cancel().is_err()); // Cleanup success cannot hide poisoning.
-    assert!(child.lock().map_err(|_| command("fake lock"))?.reaped);
+    assert_eq!(
+        child.lock().map_err(|_| command("fake lock"))?.leader,
+        Leader::Reaped
+    );
     assert!(owner.spawn(|| Ok(fake(false))).is_err());
     Ok(())
 }
@@ -316,7 +352,7 @@ fn nonlive_snapshot_alone_cannot_authorize_terminal_reap() -> Result<()> {
     let owner = Supervisor::new(FakeBackend);
     // Models an apparently zombie leader while waitid still says nonterminal.
     let child = fake(false);
-    child.lock().map_err(|_| command("fake lock"))?.exited = false;
+    child.lock().map_err(|_| command("fake lock"))?.leader = Leader::Running;
     let handle = owner.spawn(|| Ok(Arc::clone(&child)))?;
     assert_eq!(
         owner.wait(&handle, Instant::now(), Duration::ZERO)?,
@@ -376,20 +412,60 @@ fn real_exit_signal_and_binary_output_remain_authentic() -> Result<()> {
 
 #[test]
 fn real_normal_exit_drains_lingering_descendant_before_reap() -> Result<()> {
+    use std::io::Read as _;
+    use std::os::fd::OwnedFd;
+    use std::os::unix::net::UnixStream;
+    use std::os::unix::process::CommandExt as _;
     let owner = Supervisor::new(os::Os);
     let directory = crate::util::TempDir::new("owned-descendant")?;
     let marker = directory.path().join("survived");
-    let (status, timed_out) = real(
-        &owner,
-        Command::new("sh")
-            .arg("-c")
-            .arg("(sleep 30; touch \"$1\") & exit 7")
-            .arg("owned-test")
-            .arg(&marker),
-        Duration::from_secs(5),
-    )?;
+    let (mut endpoint, inherited) =
+        UnixStream::pair().map_err(|e| command(format!("socket pair: {e}")))?;
+    endpoint
+        .set_read_timeout(Some(Duration::from_secs(2)))
+        .map_err(|e| command(format!("socket timeout: {e}")))?;
+    let input: OwnedFd = inherited.into();
+    let mut native = Command::new("sh");
+    native
+        .arg("-c")
+        .arg(
+            r#"sh -c 'printf R >&0 || exit 72; IFS= read -r gate || exit 0; touch "$1"' owned-descendant "$1" <&0 & exit 7"#,
+        )
+        .arg("owned-test")
+        .arg(&marker)
+        .stdin(std::process::Stdio::from(input))
+        .process_group(0);
+    let start = Instant::now();
+    let handle = owner.spawn(|| os::spawn(&mut native))?;
+    // Command retains the parent's copy of its Stdio FD after spawn. Close it
+    // before observing EOF, so only actual child/descendant holders can keep the
+    // peer alive. The descendant blocks on read until killed or test teardown.
+    drop(native);
+    let lease = Lease {
+        supervisor: &owner,
+        handle,
+    };
+    // Require an authentic descendant-ready byte before starting normal drain.
+    // A failed exec or a fixture that never held the socket cannot pass by EOF.
+    let mut ready = [0_u8; 1];
+    endpoint
+        .read_exact(&mut ready)
+        .map_err(|e| command(format!("descendant readiness: {e}")))?;
+    assert_eq!(ready, [b'R']);
+    let (status, timed_out) = owner.wait(&lease.handle, start, Duration::from_secs(5))?;
     assert_eq!(status.code(), Some(7));
     assert!(!timed_out);
+    // A no-drain mutation leaves the descendant holding the socket: this read
+    // times out (FAILS), rather than letting immediate marker absence pass. No
+    // PID is signalled after reap. Unwinding closes endpoint; the fake exits on
+    // EOF, without touching the marker, even in that failed mutation.
+    let mut byte = [0_u8; 1];
+    assert_eq!(
+        endpoint
+            .read(&mut byte)
+            .map_err(|e| command(format!("descendant still holds socket: {e}")))?,
+        0
+    );
     assert!(!marker.exists());
     assert_eq!(
         owner

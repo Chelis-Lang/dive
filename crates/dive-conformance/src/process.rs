@@ -2,34 +2,30 @@
 //!
 //! Linux and macOS retain each process-group leader unreaped until the group
 //! has no live members (ADR 0112). Output uses regular files, not pipes.
-//! Other targets retain the existing direct-child-only capability; they do not
-//! claim descendant cleanup. These are cooperative host controls, not a sandbox
+//! Child execution on other hosts is refused, matching the documented harness
+//! target scope. These are cooperative host controls, not a sandbox
 //! against session escape or an absolute bound on uninterruptible OS operations.
 
 use crate::error::{Error, Result};
 use std::path::Path;
-use std::process::{Command, Stdio};
-use std::time::{Duration, Instant};
+use std::process::Command;
+use std::time::Duration;
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+use std::process::Stdio;
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+use std::time::Instant;
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 mod owned;
 
-#[cfg(not(any(target_os = "linux", target_os = "macos")))]
-static CANCELLED: std::sync::Mutex<bool> = std::sync::Mutex::new(false);
-
 /// Permanently prevents further harness children and drains currently owned
-/// groups on Linux/macOS. Other targets cannot promise descendant cleanup.
+/// groups on Linux/macOS. No child execution is permitted on other hosts.
 /// Cleanup failure is reported on stderr; it is never a native verdict.
 pub fn kill_all_children() {
     #[cfg(any(target_os = "linux", target_os = "macos"))]
     if let Err(error) = owned::cancel() {
         eprintln!("harness child cleanup failed; external supervision required: {error}");
-    }
-    #[cfg(not(any(target_os = "linux", target_os = "macos")))]
-    {
-        *CANCELLED
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner) = true;
     }
 }
 
@@ -38,7 +34,7 @@ pub fn kill_all_children() {
 ///
 /// # Errors
 /// Fails if signal notification cannot be registered.
-#[cfg(unix)]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 pub fn install_signal_handler() -> Result<()> {
     use signal_hook::consts::{SIGINT, SIGTERM};
     let mut signals = signal_hook::iterator::Signals::new([SIGINT, SIGTERM])
@@ -52,13 +48,18 @@ pub fn install_signal_handler() -> Result<()> {
     Ok(())
 }
 
-/// No-op on platforms without Unix signals.
+/// Refuses harness child execution outside its documented Linux/macOS hosts.
 ///
 /// # Errors
-/// Never.
-#[cfg(not(unix))]
+/// Always returns a host-capability error before command dispatch.
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
 pub fn install_signal_handler() -> Result<()> {
-    Ok(())
+    Err(unsupported_host())
+}
+
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
+fn unsupported_host() -> Error {
+    Error::Command("harness child execution requires a Linux or macOS host (ADR 0112)".into())
 }
 
 /// How a child process ended.
@@ -78,24 +79,20 @@ pub struct ProcessOutcome {
     pub elapsed: Duration,
 }
 
-#[cfg(unix)]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 fn signal_of(status: std::process::ExitStatus) -> Option<i32> {
     use std::os::unix::process::ExitStatusExt as _;
     status.signal()
 }
 
-#[cfg(not(unix))]
-fn signal_of(_status: std::process::ExitStatus) -> Option<i32> {
-    None
-}
-
 /// Runs `cmd`, capturing stdout and stderr into files under `scratch`.
 /// Linux/macOS kill and prove quiescence of the owned group before leader reap.
-/// Other targets can kill only the direct child.
+/// Other hosts are explicitly unsupported; no direct-child fallback runs.
 ///
 /// # Errors
 /// Fails on launch, cancellation, process/ownership inspection, cleanup or I/O
 /// failure. Unproven group cleanup latches the supervisor against further work.
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 pub fn run_with_timeout(
     cmd: &mut Command,
     timeout: Duration,
@@ -107,10 +104,7 @@ pub fn run_with_timeout(
     let err = std::fs::File::create(&err_path).map_err(|e| Error::io(&err_path, &e))?;
     cmd.stdin(Stdio::null()).stdout(out).stderr(err);
     let start = Instant::now();
-    #[cfg(any(target_os = "linux", target_os = "macos"))]
     let (status, timed_out) = owned::run(cmd, timeout)?;
-    #[cfg(not(any(target_os = "linux", target_os = "macos")))]
-    let (status, timed_out) = direct_child(cmd, timeout)?;
     let elapsed = start.elapsed();
     let read = |p: &Path| {
         std::fs::read(p)
@@ -127,43 +121,17 @@ pub fn run_with_timeout(
     })
 }
 
+/// Refuses command execution outside the documented Linux/macOS host scope.
+///
+/// # Errors
+/// Always returns a host-capability error without launching a child.
 #[cfg(not(any(target_os = "linux", target_os = "macos")))]
-fn direct_child(cmd: &mut Command, timeout: Duration) -> Result<(std::process::ExitStatus, bool)> {
-    let mut child = {
-        let cancelled = CANCELLED
-            .lock()
-            .map_err(|_| Error::Command("poisoned child launch latch".into()))?;
-        if *cancelled {
-            return Err(Error::Command(
-                "harness cancellation prevents new children".into(),
-            ));
-        }
-        cmd.spawn()
-            .map_err(|e| Error::Command(format!("cannot start child: {e}")))?
-    };
-    let start = Instant::now();
-    loop {
-        match child.try_wait() {
-            Ok(Some(status)) => return Ok((status, false)),
-            Ok(None) if start.elapsed() < timeout => std::thread::sleep(Duration::from_millis(25)),
-            Ok(None) => {
-                child
-                    .kill()
-                    .map_err(|e| Error::Command(format!("killing direct child: {e}")))?;
-                return child
-                    .wait()
-                    .map(|status| (status, true))
-                    .map_err(|e| Error::Command(format!("waiting for direct child: {e}")));
-            }
-            Err(error) => {
-                let _ = child.kill();
-                let cleanup = child.wait();
-                return Err(Error::Command(format!(
-                    "waiting for direct child: {error}; cleanup: {cleanup:?}"
-                )));
-            }
-        }
-    }
+pub fn run_with_timeout(
+    _cmd: &mut Command,
+    _timeout: Duration,
+    _scratch: &Path,
+) -> Result<ProcessOutcome> {
+    Err(unsupported_host())
 }
 
 #[cfg(all(test, unix))]

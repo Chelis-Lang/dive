@@ -82,8 +82,9 @@ bounded preflight-observer cleanup. Error/unwind guards can make a further
 bounded attempt; cancellation may serialize with one already in progress. Allow
 that cleanup headroom for the harness to handle
 SIGINT/SIGTERM before an outer supervisor kills it. Killing only the harness's
-own group does not cover its separate native groups. Other targets retain
-direct-child deadlines without a descendant-containment claim. Session escape,
+own group does not cover its separate native groups. The harness's documented
+host scope is Linux/macOS; child execution elsewhere fails before launch rather
+than silently running without group cleanup. Session escape,
 external reapers and uninterruptible OS work still require honest HOLD/cleanup
 handling; these controls are not a process sandbox.
 

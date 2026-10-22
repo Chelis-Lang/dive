@@ -13,6 +13,12 @@ through the later signal, and cancellation could race with a new spawn. These
 are source-level races (#430), not evidence that an unrelated process was
 actually signalled in a recorded campaign.
 
+The harness README has targeted macOS and Linux since bootstrap commit
+`0dcf235b6` (2026-10-08). The old generic Unix implementation was not a promise
+of broader supported-host coverage. This change enforces that existing scope
+explicitly; it does not substitute successful direct-child execution for Unix
+process-group cleanup.
+
 Stable `std::process::Child::try_wait` reaps an exited child. The already locked
 `rustix` 1.1.5 provides safe `waitid` with `EXITED | NOHANG | NOWAIT`, safe process
 signals, and safe process IDs. The cached primary implementation in
@@ -63,9 +69,11 @@ checker-throughput measurement. Native stdout/stderr files, normal exit,
 terminating signal and timeout fields retain their existing meanings. No model
 selection, oracle, golden, report-major, semantic limit or checker option changes.
 
-Other targets retain direct-child deadline handling and a serialized cancellation
-latch, without claiming descendant containment. Linux/macOS still require
-working system process inspection. Cleanup observers are trusted leaf tools,
+Outside Linux/macOS, harness child execution returns a host-capability error
+before command launch; no direct-child fallback or native result is produced.
+The original Unix process tests remain unchanged and require a supported host;
+no broader BSD/platform execution qualification is claimed. Linux/macOS still
+require working system process inspection. Cleanup observers are trusted leaf tools,
 not arbitrary user commands. These controls do not contain descendants that
 deliberately create new sessions, privileged external reapers or changed UIDs.
 SIGKILL of the harness and uninterruptible OS operations have no universal

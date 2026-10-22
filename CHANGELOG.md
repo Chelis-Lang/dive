@@ -4,7 +4,8 @@
   macOS. Serialize cancellation with spawn registration and reject new work
   after cancellation or an unproven drain. Preserve native output, exit,
   signal and timeout classifications; report process-inspection failures as
-  harness errors (ADR 0112, #430).
+  harness errors. Enforce the existing Linux/macOS host scope before launching
+  children elsewhere (ADR 0112, #430).
 
 - Store coordinator product adjacency in private flat target and original-edge
   arrays with canonical row ranges over the original discovery buffers. Remap

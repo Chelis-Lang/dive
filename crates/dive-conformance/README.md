@@ -394,7 +394,9 @@ Each note has a minimal spec under `tests/fixtures/specs/` and captured transcri
 ## Limitations
 
 - Only the `examples-manifest` and `modules-only` layouts are enumerated. `tbd` corpora (ValidationTestSuite) report "not yet supported". The tlaplus repo tests (`tlaplus-tests`) and CommunityModules are `modules-only`: SANY goldens, no models.
-- `dive check` refuses features it does not implement yet (liveness, symmetry, simulation, Java-overridden modules, among others), so those models are `unsupported`.
+- Unsupported model features are reported by name as `unsupported`; see the
+  current [temporal checking](../../docs/user/temporal.md) and
+  [TLC differences](../../docs/tlc-differences.md) guides.
 - Examples submodules (CCF, azure-cosmos-tla, BlockingQueue, microwave) are never fetched. They are listed in reports as unfetched.
 - Simulation results are compared by verdict only; the simulation is pinned with `-seed 0`.
 - External adapters are parsed but not executed.
@@ -402,7 +404,8 @@ Each note has a minimal spec under `tests/fixtures/specs/` and captured transcri
   unreaped through group cleanup (ADR 0112), using bounded `/bin/ps` inspection.
   Cancellation blocks new work and serializes signalling with terminal reap.
   Failed ownership/cleanup is a harness error and requires external supervision;
-  it is never a model result. Other targets have direct-child deadlines only.
+  it is never a model result. Child execution on other hosts is explicitly
+  refused before launch; no successful direct-child fallback is substituted.
 
 `run --sany-only` compares modules without running model checking. Use it
 with `--sany-phase parse` for parser-only conformance; `--no-sany` selects
