@@ -105,8 +105,11 @@ fn word_boundaries_exact_bytes_truth_and_witness_match_owned() {
                     policy(layout.bytes, 100_000),
                 )
                 .expect("exact budget");
-                assert_eq!(compact.parts.graph, owned.graph);
-                assert_eq!(compact.parts.original_edges, owned.original_edges);
+                assert_eq!(compact.parts.graph.owned_graph(), owned.graph);
+                assert_eq!(
+                    compact.parts.graph.owned_original_edges(),
+                    owned.original_edges
+                );
                 for p in 0..promises {
                     for v in 0..vertices {
                         assert_eq!(compact.state(p, v), owned.acceptance.states[p][v]);
@@ -490,11 +493,12 @@ fn behavior_edge_truth_is_reused_without_merging_parallel_positions_or_propertie
         )
         .expect("reused domain fits");
         assert!(compact.parts.acceptance.behavior_actions);
-        assert_eq!(compact.parts.graph.edges.len(), 8);
+        assert_eq!(compact.parts.graph.owned_graph().edges.len(), 8);
         assert_eq!(
             compact
                 .parts
                 .graph
+                .owned_graph()
                 .edges
                 .iter()
                 .map(Vec::len)
@@ -503,8 +507,8 @@ fn behavior_edge_truth_is_reused_without_merging_parallel_positions_or_propertie
         );
         assert_eq!(compact.parts.acceptance.edge_offsets, vec![0, 2, 4]);
         assert_eq!(
-            compact.parts.graph.edges[0][0],
-            compact.parts.graph.edges[0][4]
+            compact.parts.graph.owned_graph().edges[0][0],
+            compact.parts.graph.owned_graph().edges[0][4]
         );
         assert!(!compact.action(0, 0, 0));
         assert_eq!(compact.action(0, 0, 4), satisfiable);

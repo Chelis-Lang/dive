@@ -139,6 +139,27 @@ share the base product and evaluate Boolean truth over the original state/action
 labels during lasso search. They do not re-evaluate specification predicates.
 Public owned `Product`, `Labels`, `Acceptance` and lasso-search representations
 remain unchanged.
+The coordinator's product adjacency uses flat destination and original-edge-position
+arrays retaining their discovery allocations. Canonical source rows use ranges
+into those arrays, and destination IDs are remapped in place. Pair lookup remains
+a `BTreeMap`, and search
+still constructs its recurrent-edge graph using the existing algorithm. All
+vertex, edge, inspection and acceptance limits retain their units and values.
+The layout change does not by itself establish a process-memory saving; flat
+buffer spare capacity and simultaneous discovery offsets/final row ranges also
+consume memory.
+A [four-case synthetic capacity study](survey/data/product-adjacency-capacity-2026-10-22.json)
+records the buffers at six construction checkpoints. Nonempty target and
+original-edge arrays retain their allocation, length and capacity throughout
+canonicalization. These observations exclude the lookup index, acceptance,
+search and allocator internals; they establish neither CoffeeCan capacity nor
+a whole-process memory reduction.
+A separate [normal-input instruction screen](survey/data/product-adjacency-overhead-2026-10-22.json)
+compares the original base and CSR candidate on four reduced models in both
+profiles. Every matched cell stays within 1% overhead, with identical verdicts,
+counts and execution facts. The geometric mean is 0.0104% more instructions.
+These historical source pins establish the normal-input admission screen; they
+do not measure current-main throughput or qualify a product-limit removal.
 
 File-based ordinary eligible TLC requests and explicit final/short requests use
 **8,000,000 acceptance-buffer bytes** and **32,000,000 materialization work units**,

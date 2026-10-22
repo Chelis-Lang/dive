@@ -1,5 +1,10 @@
 # Changelog
 
+- Store coordinator product adjacency in private flat target and original-edge
+  arrays with canonical row ranges over the original discovery buffers. Remap
+  destination IDs in place. Preserve reachable-pair discovery, ordered
+  witness projection, public owned products and every existing resource limit.
+
 - Qualify file graph-label admission on the unchanged 156-model small tier:
   149 TLC agreements; default 143 agreements and six expected divergences,
   including MCCRDT's registered D-022 counts; seven named refusals each.

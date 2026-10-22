@@ -1,0 +1,312 @@
+{
+  "status": "QUALIFIED_NORMAL_INPUT_W1_INSTRUCTION_OVERHEAD",
+  "scope": "Exactly16 sequential whole-CLI Cachegrind arms: four reduced ADR0104 models, both profiles, base/candidate. Each of eight matched cells must have candidate instructions at most1percent above baseline. Geometric mean is descriptive only.",
+  "source": {
+    "baseline": "6badeb20b393dce1dc5fba50ad161d70b092e91e",
+    "baseline_tree": "789ee91f2abb1a600604f61e840b6b81747a4b00",
+    "candidate": "a458e419d857be6868133cc6bfaf397f9ffe56f8",
+    "candidate_tree": "22a6034d68ab5fa84143b256122b7e9659baf992",
+    "source_bundle_sha256": "16a5f7fb7d505a4830ecd06c53571e11cfcfbbe8553e1b4f61f88f00def584bd",
+    "source_contract_sha256": "d3fdf943a931bfdc1dfafb483ad246c7ff5077742e1b76fe40616871b5d43c16",
+    "qualification_plan_sha256": "565005a5d839f68b12647d8cb5f220d0f4a27a22a1d3042dfb4756584608d0bf",
+    "manifest_sha256": "ffb0c101068880d0e74e5f8f150ce72826143706940baa3ac63603b25e8bec47",
+    "runner_sha256": "cb3d4ca8b4c2dda53bb3626cd612fccda6aeefe864c28b904ddb33e942729332",
+    "strict_verifier_sha256": "909f2f4ed7adbb95f429a3629c58be24b75c1080f1372bc40a02f0a39e80dd61",
+    "before_and_after_sources_clean_and_same": true,
+    "tracked_payload_sha256": {
+      "base": "51348960cbf02ba9caca8cb503fd1b1c8d2fbe16bee0e55c905c81ec295a316e",
+      "candidate": "6bcdd0f93a7191e6b2b1c1fe5b8c3c6a98e2c985108a00c01aefd9b1a6ab24f7"
+    },
+    "actual_frozen_binary_sha256": {
+      "base": "44b4bedd80e63b8e6ba86b633c01bc0f37046aee3cfbe4714f6067c12980b955",
+      "candidate": "ad3df46343ffe30e2d9f4a14d03c4ea20a99a616a28e4cae5cf702b66b8145ae"
+    },
+    "receipts": "Actual original build, before/per-arm/after source, tools, linked libraries, binaries and input identities captured by the reviewed producer; full raw receipts retained externally."
+  },
+  "machine": {
+    "instance_type": "c7i.8xlarge",
+    "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+    "kernel": "Linux ip-172-31-0-227 7.0.0-1014-aws #14~24.04.1-Ubuntu SMP PREEMPT Fri Sep 18 21:24:59 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux",
+    "tool_versions": {
+      "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+      "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+      "nextest": "cargo-nextest 0.9.143 (60fa45f63 2026-08-04)\nrelease: 0.9.143\ncommit-hash: 60fa45f638ffc3f35e74afa65737f45fcd32db2a\ncommit-date: 2026-08-04\nhost: x86_64-unknown-linux-gnu",
+      "deny": "cargo-deny 0.20.2",
+      "valgrind": "valgrind-3.22.0",
+      "cachegrind_backend": "valgrind-3.22.0 cachegrind backend",
+      "callgrind_backend": "valgrind-3.22.0 callgrind backend"
+    },
+    "tool_sha256": {
+      "rustc": "f3834d26669b03f6855fa54bd2381443123e860167bc0c7a8dd137e5cf6e5e4f",
+      "cargo": "e951141cc55a6cd7b9876d187bd30a3720e6086b99413af95e3b8de1cdd72f14",
+      "nextest": "cb6243e32736eb6242379b379d44f09adf4873bbdf69ed6ff13f9dc4c0dfc654",
+      "deny": "095d1609e3040af892c3356154eb89488bcb8886315f8c7b7b6927ad7064b3e7",
+      "valgrind": "4652774bd116cb49951ef74115ad4237cad5021b2bd4d80002f09d986ec438b9",
+      "cachegrind_backend": "38093b3bf8e9ffecb559a333c896a2fd2a2343bb79c3295f31c36475914deebf",
+      "callgrind_backend": "825eb197d519240c112e03ed00f40a8bbe1a0a0614f79ea95e28c67e8695cb03"
+    },
+    "claim": "Shared instruction-count machine; no quiet wall-clock or controlled-frequency throughput claim."
+  },
+  "inputs": {
+    "workload_archive_sha256": "f1d3eb00d9f43c11e03a50be64a3115f8e2bb838299bb8d7033106a8ce0c53ef",
+    "module_archive_sha256": "90a8757da7c179dcf04ec8f7530f99881e013eb76b92bfeb59808d9a0fe782ab",
+    "workload_identity_sha256": "ee348f27d85022fcdd963a5ba63690f0f765c3c72034b7ae3bb53f6fdf97841a",
+    "physical_files": 115,
+    "oracle_executed": false,
+    "reference": "Pinned original393/385 reduced workloads and full module closure; equality is between matched native arms, no new TLC timing campaign."
+  },
+  "controls": {
+    "schema_version": 3,
+    "native_time_limit_ms": 900000,
+    "native_max_memory_bytes": 8589934592,
+    "both_budget_sources": "explicit",
+    "outer_child_backstop_seconds": 930,
+    "workers_requested_and_used": 1,
+    "seed": 0,
+    "fingerprint_polynomial_index": 0,
+    "success": "Actual schema3 safety success, native exit0 and TLC_SUCCESS2193 verifiedtrue; no diagnostic/error/property/word/stopped; queue0 and exact expected counts.",
+    "identical_per_pair": [
+      "distinct",
+      "generated",
+      "initial_generated",
+      "depth",
+      "left_on_queue"
+    ],
+    "all_16_exits_zero_and_uncensored": true,
+    "guard_profile_flags": "Actual profile-specific int/comparisons/choose/explore/exit/action modes and temporal-field absence verified from every original report."
+  },
+  "pairs": [
+    {
+      "tag": "base-SimpleRegular-dive-w1",
+      "base_Ir": 2590799688,
+      "candidate_Ir": 2590744111,
+      "ratio": 0.9999785483222584,
+      "delta_pct": -0.0021451677741590736,
+      "statistics": {
+        "distinct": 12097,
+        "generated": 47584,
+        "initial_generated": 1,
+        "depth": 19,
+        "left_on_queue": 0
+      },
+      "at_most_one_percent": true,
+      "base_stdout_sha256": "b32c1a00cc202569f04a2be77f1f81f4d73d1299a2cd552e6671a22a57e12a35",
+      "candidate_stdout_sha256": "20ec43b628c2fb4b88fe50965a77b9771101dd7e1b97fbc77021de66fcaab70d",
+      "base_stderr_sha256": "fee821fd99d8fdca14dab370227049a59f090a1bb416444af230474dafe2e15b",
+      "candidate_stderr_sha256": "98fcdabc69ed0943865fca47ad9c228790fbe85647273b832f159682dc47662e",
+      "base_cachegrind_sha256": "d1f3c2a0db5e0e71bd3bd805fb5705f8bd70a1eec7150638828b6797ebef7906",
+      "candidate_cachegrind_sha256": "e0c14dec2dbf4d61b8be405c176aefec688995d54a7a7839e6688beba2f28ae0",
+      "base_cachegrind_bytes": 968125,
+      "candidate_cachegrind_bytes": 968126,
+      "actual_requested_workers": 1,
+      "actual_used_workers": 1
+    },
+    {
+      "tag": "base-MCbtree-dive-w1",
+      "base_Ir": 14416311934,
+      "candidate_Ir": 14412142509,
+      "ratio": 0.999710784213113,
+      "delta_pct": -0.028921578688700933,
+      "statistics": {
+        "distinct": 21364,
+        "generated": 127825,
+        "initial_generated": 1,
+        "depth": 24,
+        "left_on_queue": 0
+      },
+      "at_most_one_percent": true,
+      "base_stdout_sha256": "230b7dee30a710b04116c6bb7adba3f379800f234f40d1409dc63ee3b1aae90b",
+      "candidate_stdout_sha256": "f7567274d7b9a524be396f48bdf756ac19d7b4ead021f13ca514366c669fbcab",
+      "base_stderr_sha256": "71e4b45e5329a621df86c8a219c2d08f63c8ffe620cc5f34d9d5d876cc3077b8",
+      "candidate_stderr_sha256": "5c544fdb7163b493d4c35d9c4533db345f85b2ce7968322d17a19be4f67cf1ce",
+      "base_cachegrind_sha256": "4d729af504efa3ac182908e482af8b4859ec13f328dd4152740c6b7456ec9705",
+      "candidate_cachegrind_sha256": "78d17ab557c159ee888ce6451b1bb8382347ccfa340d7b43f49b9d471c841d2e",
+      "base_cachegrind_bytes": 1104490,
+      "candidate_cachegrind_bytes": 1105203,
+      "actual_requested_workers": 1,
+      "actual_used_workers": 1
+    },
+    {
+      "tag": "base-GameOfLife-dive-w1",
+      "base_Ir": 1145223721,
+      "candidate_Ir": 1145313850,
+      "ratio": 1.0000786999067057,
+      "delta_pct": 0.00786999067057259,
+      "statistics": {
+        "distinct": 512,
+        "generated": 1024,
+        "initial_generated": 512,
+        "depth": 1,
+        "left_on_queue": 0
+      },
+      "at_most_one_percent": true,
+      "base_stdout_sha256": "057c8341c67583024a7f9356a6ad3dd510d1cfb54d89ad08ad12c469ffeaa6ed",
+      "candidate_stdout_sha256": "9d157cbfa96ee148141db32e6d774372a1d0386dd8dc6e8fece4eb984e43ddff",
+      "base_stderr_sha256": "1a01d4ebe487f3c2ce56364d41de00eca20a36cc6916b652dcc5a215d523d080",
+      "candidate_stderr_sha256": "0a27746464f48cb9413e5f200621d5ea10cae9dd4ae717b6d7e222216a22607a",
+      "base_cachegrind_sha256": "43fdb37bf6a24f4a68d2882f915a92809f34570ca97c8f8cef42f2cb19a64445",
+      "candidate_cachegrind_sha256": "e87365e5476c24883136ed90391ffd097b49ad81e983c10b45deb9f4a2b7a3be",
+      "base_cachegrind_bytes": 898409,
+      "candidate_cachegrind_bytes": 899584,
+      "actual_requested_workers": 1,
+      "actual_used_workers": 1
+    },
+    {
+      "tag": "base-EWD998PCal-dive-w1",
+      "base_Ir": 47066284323,
+      "candidate_Ir": 47076619779,
+      "ratio": 1.0002195936252174,
+      "delta_pct": 0.021959362521739578,
+      "statistics": {
+        "distinct": 20870,
+        "generated": 168292,
+        "initial_generated": 8,
+        "depth": 28,
+        "left_on_queue": 0
+      },
+      "at_most_one_percent": true,
+      "base_stdout_sha256": "895e31ca688d49dd65ef429f0705b79fd941346323ae0148d838652188acc39f",
+      "candidate_stdout_sha256": "22a00ef29244be8500c605ea0eb36283d7ed45d8bc95e93d8a035c31634d364d",
+      "base_stderr_sha256": "3e01585d1fadeda9dcb5cbb88c2c5fea3d8911e5315c5079400335e909e656dc",
+      "candidate_stderr_sha256": "228ba4a5248aec89fa718e6f5a49d7382f36c0f19be9b391674560f8e267f976",
+      "base_cachegrind_sha256": "3e0f351f42300f45288db1a089ad3d5913ad91eaeeb492d72fbabf46950c0d9c",
+      "candidate_cachegrind_sha256": "5affe2e672826809db322755d37bd9634efcbdadab1d28f59d3c07a785207d05",
+      "base_cachegrind_bytes": 1122705,
+      "candidate_cachegrind_bytes": 1123042,
+      "actual_requested_workers": 1,
+      "actual_used_workers": 1
+    },
+    {
+      "tag": "base-SimpleRegular-tlc-w1",
+      "base_Ir": 2654839197,
+      "candidate_Ir": 2654879263,
+      "ratio": 1.0000150916861728,
+      "delta_pct": 0.001509168617275236,
+      "statistics": {
+        "distinct": 12097,
+        "generated": 47584,
+        "initial_generated": 1,
+        "depth": 19,
+        "left_on_queue": 0
+      },
+      "at_most_one_percent": true,
+      "base_stdout_sha256": "256a2ccfe368cecbb55801e921c468b7edfd5387f7d19c13b217646c333a2690",
+      "candidate_stdout_sha256": "22ea4b89d0cf3e1b0e6efeb65bfa95e305303a5c092bcb92ddf0f2c69c4576a0",
+      "base_stderr_sha256": "86aca8948d9b25572213f01ebd3a749291d955beee72d6431765043defe811e4",
+      "candidate_stderr_sha256": "b77829c818d2878d231d4d14c3d5b851f791e5e20b8fe790467e49a517ef730e",
+      "base_cachegrind_sha256": "3a4705b56135f18aee5695c7edf145ed0307426585ebee40eb732d9fd68c725a",
+      "candidate_cachegrind_sha256": "a1e7038786c09ed476a679c87e7613a3393911b4c4df2c4f4026a2e1a587fdbf",
+      "base_cachegrind_bytes": 966142,
+      "candidate_cachegrind_bytes": 965873,
+      "actual_requested_workers": 1,
+      "actual_used_workers": 1
+    },
+    {
+      "tag": "base-MCbtree-tlc-w1",
+      "base_Ir": 18207161235,
+      "candidate_Ir": 18206584956,
+      "ratio": 0.9999683487726306,
+      "delta_pct": -0.0031651227369366985,
+      "statistics": {
+        "distinct": 21364,
+        "generated": 127825,
+        "initial_generated": 1,
+        "depth": 24,
+        "left_on_queue": 0
+      },
+      "at_most_one_percent": true,
+      "base_stdout_sha256": "ba83cc57286c1a8882d39e5e59cbf3b9f2d55e56e6e0623241b29b1e3841e8e3",
+      "candidate_stdout_sha256": "d6753be77b0591202fb1d8f9bde0ae540de1159fe81838ac96fbdb9b3ba59bd8",
+      "base_stderr_sha256": "98364949a6a3019648c1fb3a5ca0fc3b6700dade43c68e06a4219647b6249413",
+      "candidate_stderr_sha256": "77a3acece9706c4c87d94e4eee420524d5624214c90048f8819de1852cf465a8",
+      "base_cachegrind_sha256": "79777b67da752f52293268cdde0d9b128cc34c9cb13887ca907a711f4ebadcd2",
+      "candidate_cachegrind_sha256": "60c39fefc874e2f6046e4aba0836de46d197ae5849e914705441080c1b111d6d",
+      "base_cachegrind_bytes": 1029515,
+      "candidate_cachegrind_bytes": 1030788,
+      "actual_requested_workers": 1,
+      "actual_used_workers": 1
+    },
+    {
+      "tag": "base-GameOfLife-tlc-w1",
+      "base_Ir": 1137362274,
+      "candidate_Ir": 1137358195,
+      "ratio": 0.9999964136317044,
+      "delta_pct": -0.00035863682955605825,
+      "statistics": {
+        "distinct": 512,
+        "generated": 1024,
+        "initial_generated": 512,
+        "depth": 1,
+        "left_on_queue": 0
+      },
+      "at_most_one_percent": true,
+      "base_stdout_sha256": "982b7ff3f9dc988c08e19a3dc9538e143fc682204b31f13a5d14af5497d1cc6b",
+      "candidate_stdout_sha256": "372718f17c3aea8a59b6c3c65fc082bc346c92859be7f8de38184f48e09213a2",
+      "base_stderr_sha256": "17bf2ac73193c2ada96dbbe930981864fda6417cfb155be41a4195421c3eb3c1",
+      "candidate_stderr_sha256": "8bd74132f3f2d59f705d8e2e00e06df1fa9d5f0a16ad450f88adbcb0afc3ffe4",
+      "base_cachegrind_sha256": "50c12aabb6f0a78f37fe4de544de4e0a61c0a15c1adbb2be8f1d5d40b09397a4",
+      "candidate_cachegrind_sha256": "749df176a1bde31883f566b9db4bed0c1893445536821446653819fa017851d6",
+      "base_cachegrind_bytes": 882727,
+      "candidate_cachegrind_bytes": 883507,
+      "actual_requested_workers": 1,
+      "actual_used_workers": 1
+    },
+    {
+      "tag": "base-EWD998PCal-tlc-w1",
+      "base_Ir": 48021151636,
+      "candidate_Ir": 48062706002,
+      "ratio": 1.0008653346407637,
+      "delta_pct": 0.08653346407636597,
+      "statistics": {
+        "distinct": 20870,
+        "generated": 168292,
+        "initial_generated": 8,
+        "depth": 28,
+        "left_on_queue": 0
+      },
+      "at_most_one_percent": true,
+      "base_stdout_sha256": "e5204ca92ad619ee183011db3be59cbe7b92855247dc9ba011511d5c1fef754f",
+      "candidate_stdout_sha256": "2cfbb5126f8335d8469c9c869dccdb9b9871a112d56987dd16445acca220d08e",
+      "base_stderr_sha256": "b4c7648dd20230f04eeb062a95c32d95639861b1a705ebe6c4dbb0ae08d3f2ed",
+      "candidate_stderr_sha256": "ef0b39ffa40a13fcf168ee869e06cdeb7f05570b93cfb2b1f48f104f2126292b",
+      "base_cachegrind_sha256": "db2f19b0aefa1a2fe56e858c56c0ca91a76e8b8dd2819bcd7b45a8892426b4c9",
+      "candidate_cachegrind_sha256": "298faf0e46917ecc62ebf111a1d40068288f0556b87b21f45286715fb8aa4ed8",
+      "base_cachegrind_bytes": 1112280,
+      "candidate_cachegrind_bytes": 1112852,
+      "actual_requested_workers": 1,
+      "actual_used_workers": 1
+    }
+  ],
+  "aggregate": {
+    "all8cells_at_most_one_percent": true,
+    "geomean_ratio": 1.0001040517537965,
+    "geomean_delta_pct": 0.010405175379646359,
+    "geomean_descriptive_only": true,
+    "min_cell_delta_pct": -0.028921578688700933,
+    "max_cell_delta_pct": 0.08653346407636597
+  },
+  "evidence": {
+    "original_final_archive_sha256": "db4cb5656410e2ed9b74f771fa49c00f7de4ed2de5ae5661beb2ac0618f3a15f",
+    "independent_raw_review_sha256": "19646ea1ac1f1ed267a677af84411de6e8cff9f82be99bc3b060e064fb054153",
+    "all16_unique_cachegrind_profiles_retained": true,
+    "producer_finished_at": "2026-10-22T07:27:30.805910+00:00",
+    "no_fullgate_run_in_this_campaign": true
+  },
+  "cleanup": {
+    "status": "COMPLETE_INDEPENDENT_ROOT_VERIFIED",
+    "verified_at": "2026-10-22T07:34:38.497477+00:00",
+    "receipt_sha256": "978049b30f94a83243d8d258b9c974b178a46e7151e0d209d1f14b0aec360a38",
+    "exact_instance_terminated": true,
+    "root_volumes_absent": true,
+    "temporary_security_group_and_bucket_absent": true,
+    "all_project_dive_active_instances": [],
+    "preserved_objects": 32,
+    "preserved_object_bytes": 172650463
+  },
+  "limitations": [
+    "This campaign qualifies normal-input W1 instruction overhead only, not CSR memory/capacity or affected-model behavior.",
+    "The separate actual CSR fullgate and source-transfer proof are separate evidence; no new fullgate was run here.",
+    "No throughput, wall-clock speedup, scaling, worker8, release-readiness or TLC comparison claim.",
+    "Full profiles, native reports, stdout/stderr, machine/tool/source/binary receipts and archives remain external; no raw output is committed."
+  ]
+}

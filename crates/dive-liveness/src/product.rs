@@ -6,10 +6,14 @@
 
 use crate::Graph;
 use crate::formula::{AtomKind, CycleConditions, Recurrence, Tableau};
+use crate::graph::GraphAccess;
 use crate::search::{
     Acceptance, AcceptanceAccess, Lasso, SearchError, Step, find_lasso, find_lasso_view,
 };
 use std::collections::{BTreeMap, BTreeSet};
+
+mod csr;
+use csr::{CsrGraph, FlatRows, OwnedRows, ProductRows, RowStorage};
 
 mod budget;
 pub use budget::AcceptancePolicy;
@@ -92,11 +96,10 @@ pub struct Product {
     original_edges: Vec<Vec<usize>>,
 }
 
-struct Parts<A> {
-    graph: Graph,
+struct Parts<A, G> {
+    graph: G,
     acceptance: A,
     behavior_states: Vec<usize>,
-    original_edges: Vec<Vec<usize>>,
 }
 
 // Borrowed only while finalizing one builder; both routes retain the same
@@ -104,13 +107,12 @@ struct Parts<A> {
 struct Ordered<'a> {
     pairs: &'a [(usize, usize)],
     order: &'a [usize],
-    edges: &'a [Vec<usize>],
-    original_edges: &'a [Vec<usize>],
+    graph: &'a dyn ProductRows,
     edge_count: usize,
     scratch_len: usize,
 }
 
-struct Builder<'a, T: TruthAccess> {
+struct Builder<'a, T: TruthAccess, R: RowStorage> {
     graph: &'a Graph,
     tableau: &'a Tableau,
     labels: &'a T,
@@ -121,13 +123,12 @@ struct Builder<'a, T: TruthAccess> {
     scratch_len: usize,
     pairs: Vec<(usize, usize)>,
     ids: BTreeMap<(usize, usize), usize>,
-    edges: Vec<Vec<usize>>,
-    original_edges: Vec<Vec<usize>>,
+    rows: R,
     edge_count: usize,
     steps: usize,
 }
 
-impl<T: TruthAccess> Builder<'_, T> {
+impl<T: TruthAccess, R: RowStorage> Builder<'_, T, R> {
     fn inspect(&mut self) -> Result<(), ProductError> {
         if crate::budget::exhausted() {
             return Err(ProductError::Limit(crate::budget::EXHAUSTED));
@@ -181,8 +182,7 @@ impl<T: TruthAccess> Builder<'_, T> {
         self.acceptance_cells(size, self.edge_count)?;
         self.ids.insert((v, n), id);
         self.pairs.push((v, n));
-        self.edges.push(Vec::new());
-        self.original_edges.push(Vec::new());
+        self.rows.add_vertex()?;
         Ok(id)
     }
 
@@ -214,18 +214,17 @@ impl<T: TruthAccess> Builder<'_, T> {
                     .ok_or(ProductError::Limit("edges"))?;
                 self.acceptance_cells(self.pairs.len(), self.edge_count)?;
                 let destination = self.visit(target, next)?;
-                self.edges[id].push(destination);
-                self.original_edges[id].push(e);
+                self.rows.push_edge(id, destination, e)?;
             }
         }
-        Ok(())
+        self.rows.end_row(id)
     }
 
     fn finish<A>(
         self,
         roots: BTreeSet<usize>,
         acceptance: impl FnOnce(Ordered<'_>) -> Result<A, ProductError>,
-    ) -> Result<Parts<A>, ProductError> {
+    ) -> Result<Parts<A, R::Graph>, ProductError> {
         // Discovery order must never choose the witness. Renumber retained
         // pairs in the original Cartesian (behavior, tableau) order. Removing
         // unreachable ids preserves every reachable tie-break and edge order.
@@ -234,42 +233,24 @@ impl<T: TruthAccess> Builder<'_, T> {
         for (new, &old) in ordered.iter().enumerate() {
             renumber[old] = new;
         }
-        let mut edges = self.edges;
-        let mut original = self.original_edges;
-        let edges: Vec<Vec<usize>> = ordered
-            .iter()
-            .map(|&old| {
-                let mut row = std::mem::take(&mut edges[old]);
-                for target in &mut row {
-                    *target = renumber[*target];
-                }
-                row
-            })
-            .collect();
-        let original_edges: Vec<Vec<usize>> = ordered
-            .iter()
-            .map(|&old| std::mem::take(&mut original[old]))
-            .collect();
-        let acceptance = acceptance(Ordered {
-            pairs: &self.pairs,
-            order: &ordered,
-            edges: &edges,
-            original_edges: &original_edges,
-            edge_count: self.edge_count,
-            scratch_len: self.scratch_len,
-        })?;
         let roots = roots
             .into_iter()
             .map(|old| renumber[old])
             .collect::<BTreeSet<_>>()
             .into_iter()
             .collect();
-        let graph = Graph::new(edges, roots).map_err(|e| ProductError::Shape(e.to_string()))?;
+        let graph = self.rows.finish(&ordered, &renumber, roots)?;
+        let acceptance = acceptance(Ordered {
+            pairs: &self.pairs,
+            order: &ordered,
+            graph: &graph,
+            edge_count: self.edge_count,
+            scratch_len: self.scratch_len,
+        })?;
         Ok(Parts {
             graph,
             acceptance,
             behavior_states: ordered.iter().map(|&old| self.pairs[old].0).collect(),
-            original_edges,
         })
     }
 }
@@ -331,7 +312,7 @@ impl Product {
         conditions: &[Recurrence],
         limits: Limits,
     ) -> Result<Self, ProductError> {
-        let parts = build(
+        let parts = build::<_, OwnedRows>(
             graph,
             tableau,
             labels,
@@ -348,10 +329,8 @@ impl Product {
                             .collect()
                     })
                     .collect();
-                let recurrent = input
-                    .edges
-                    .iter()
-                    .map(|row| vec![true; row.len()])
+                let recurrent = (0..input.graph.vertex_count())
+                    .map(|v| vec![true; input.graph.successors(v).len()])
                     .collect();
                 let actions = conditions
                     .iter()
@@ -362,7 +341,9 @@ impl Product {
                             .enumerate()
                             .map(|(id, &old)| {
                                 let v = input.pairs[old].0;
-                                input.original_edges[id]
+                                input
+                                    .graph
+                                    .original_edges(id)
                                     .iter()
                                     .map(|&e| condition.evaluate(|atom| labels.truth(atom, v, e)))
                                     .collect()
@@ -378,10 +359,10 @@ impl Product {
             },
         )?;
         Ok(Self {
-            graph: parts.graph,
+            graph: parts.graph.graph,
             acceptance: parts.acceptance,
             behavior_states: parts.behavior_states,
-            original_edges: parts.original_edges,
+            original_edges: parts.graph.original_edges,
         })
     }
 
@@ -407,7 +388,7 @@ impl Product {
     }
 }
 
-fn build<A>(
+fn build<A, R: RowStorage>(
     graph: &Graph,
     tableau: &Tableau,
     labels: &impl TruthAccess,
@@ -415,7 +396,7 @@ fn build<A>(
     limits: Limits,
     acceptance_budget: (AcceptancePolicy, usize),
     acceptance: impl FnOnce(Ordered<'_>) -> Result<A, ProductError>,
-) -> Result<Parts<A>, ProductError> {
+) -> Result<Parts<A, R::Graph>, ProductError> {
     validate(graph, tableau, labels)?;
     for atom in conditions.iter().flat_map(Recurrence::atoms) {
         if !labels.contains(atom) {
@@ -439,8 +420,7 @@ fn build<A>(
             .unwrap_or(0),
         pairs: Vec::new(),
         ids: BTreeMap::new(),
-        edges: Vec::new(),
-        original_edges: Vec::new(),
+        rows: R::default(),
         edge_count: 0,
         steps: 0,
     };
@@ -525,9 +505,10 @@ impl CompactAcceptance {
         let mut edge_offsets = Vec::new();
         let mut edges = 0;
         if !conditions.is_empty() {
-            edge_offsets.reserve_exact(input.edges.len() + 1);
+            edge_offsets.reserve_exact(input.graph.vertex_count() + 1);
             edge_offsets.push(0);
-            for row in input.edges {
+            for v in 0..input.graph.vertex_count() {
+                let row = input.graph.successors(v);
                 // The shared builder already checked every retained-edge addition.
                 edges += row.len();
                 edge_offsets.push(edges);
@@ -540,7 +521,7 @@ impl CompactAcceptance {
                 let mut words = vec![0; edges.div_ceil(64)];
                 for (id, &old) in input.order.iter().enumerate() {
                     let v = input.pairs[old].0;
-                    for (position, &e) in input.original_edges[id].iter().enumerate() {
+                    for (position, &e) in input.graph.original_edges(id).iter().enumerate() {
                         let truth = condition
                             .evaluate_with_scratch(|atom| labels.truth(atom, v, e), &mut scratch);
                         set_bit(&mut words, edge_offsets[id] + position, truth);
@@ -562,7 +543,7 @@ impl CompactAcceptance {
 /// Coordinator-only product with flat acceptance bits. All legacy construction
 /// guards run before materializing acceptance, just as for public owned products.
 pub(crate) struct CompactProduct {
-    parts: Parts<CompactAcceptance>,
+    parts: Parts<CompactAcceptance, CsrGraph>,
     limits: Limits,
     policy: AcceptancePolicy,
     /// Setup work is cumulative; alternative scratch buffers live sequentially.
@@ -611,7 +592,7 @@ impl CompactProduct {
         policy: AcceptancePolicy,
         behavior_edges: usize,
     ) -> Result<Self, ProductError> {
-        let parts = build(
+        let parts = build::<_, FlatRows>(
             graph,
             tableau,
             labels,
@@ -644,11 +625,7 @@ impl CompactProduct {
     pub(crate) fn find_lasso(&self) -> Result<Option<Lasso>, ProductError> {
         let lasso = find_lasso_view(&self.parts.graph, self).map_err(ProductError::search)?;
         Ok(lasso.map(|lasso| {
-            project_lasso(
-                &lasso,
-                &self.parts.behavior_states,
-                &self.parts.original_edges,
-            )
+            project_lasso_rows(&lasso, &self.parts.behavior_states, &self.parts.graph)
         }))
     }
 
@@ -691,15 +668,13 @@ impl CompactProduct {
             Ok(())
         };
         if self.policy == AcceptancePolicy::Legacy {
-            let edges = self
-                .parts
-                .graph
-                .edges
-                .iter()
-                .try_fold(0_usize, |n, row| n.checked_add(row.len()))
+            let edges = (0..self.parts.graph.vertex_count())
+                .try_fold(0_usize, |n, v| {
+                    n.checked_add(self.parts.graph.successors(v).len())
+                })
                 .ok_or(ProductError::Limit("acceptance cells"))?;
             self.state_count()
-                .checked_mul(self.parts.graph.edges.len())
+                .checked_mul(self.parts.graph.vertex_count())
                 .and_then(|states| {
                     self.action_count()
                         .checked_add(conditions.recurring.len())
@@ -751,11 +726,7 @@ impl CompactProduct {
         let lasso =
             find_lasso_view(&self.parts.graph, &conditioned).map_err(ProductError::search)?;
         Ok(lasso.map(|lasso| {
-            project_lasso(
-                &lasso,
-                &self.parts.behavior_states,
-                &self.parts.original_edges,
-            )
+            project_lasso_rows(&lasso, &self.parts.behavior_states, &self.parts.graph)
         }))
     }
 }
@@ -782,7 +753,7 @@ impl AcceptanceAccess for CompactProduct {
         let (source, edge) = if labels.behavior_actions {
             (
                 self.parts.behavior_states[source],
-                self.parts.original_edges[source][edge],
+                self.parts.graph.original_edges(source)[edge],
             )
         } else {
             (source, edge)
@@ -806,7 +777,7 @@ struct Conditioned<'a, T: TruthAccess> {
 impl<T: TruthAccess> Conditioned<'_, T> {
     fn truth(&self, condition: &Recurrence, source: usize, edge: usize) -> bool {
         let state = self.product.parts.behavior_states[source];
-        let edge = self.product.parts.original_edges[source][edge];
+        let edge = self.product.parts.graph.original_edges(source)[edge];
         condition.evaluate_with_scratch(
             |atom| self.labels.truth(atom, state, edge),
             &mut self.scratch.borrow_mut(),
@@ -851,12 +822,28 @@ impl<T: TruthAccess> AcceptanceAccess for Conditioned<'_, T> {
 }
 
 fn project_lasso(lasso: &Lasso, behavior_states: &[usize], original_edges: &[Vec<usize>]) -> Lasso {
+    project_lasso_with(lasso, behavior_states, |source, edge| {
+        original_edges[source][edge]
+    })
+}
+
+fn project_lasso_rows(lasso: &Lasso, behavior_states: &[usize], graph: &impl ProductRows) -> Lasso {
+    project_lasso_with(lasso, behavior_states, |source, edge| {
+        graph.original_edges(source)[edge]
+    })
+}
+
+fn project_lasso_with(
+    lasso: &Lasso,
+    behavior_states: &[usize],
+    original: impl Fn(usize, usize) -> usize,
+) -> Lasso {
     let project = |steps: &[Step]| {
         steps
             .iter()
             .map(|s| Step {
                 from: behavior_states[s.from],
-                edge: original_edges[s.from][s.edge],
+                edge: original(s.from, s.edge),
                 to: behavior_states[s.to],
             })
             .collect()
