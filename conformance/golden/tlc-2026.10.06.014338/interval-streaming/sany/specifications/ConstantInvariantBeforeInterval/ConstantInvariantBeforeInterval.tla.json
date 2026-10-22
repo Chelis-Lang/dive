@@ -54,7 +54,7 @@
         "version_line": "openjdk version \"17.0.20.1\" 2026-08-18"
       }
     },
-    "corpus_commit": "sha256:29eadb8051a1a34763e1b32257fd1b30fcf7ce48a7494f8150eb93c75a55d964",
+    "corpus_commit": "sha256:70d4fa960be671cc49714ecbc7f1418f2f9cf40cc3401203a9868a081854c575",
     "command": [
       "$DIVE_CACHE_DIR/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
       "-XX:+UseParallelGC",
@@ -71,10 +71,10 @@
       "-error-codes",
       "ConstantInvariantBeforeInterval.tla"
     ],
-    "timeout_seconds": 10,
-    "reason": "Issue #349: use state-level x # x to pin first-state failures, and retain a separate constant-FALSE invariant rejection control before interval enumeration",
+    "timeout_seconds": 30,
+    "reason": "Refresh the complete interval-streaming corpus after adding ENABLED query controls; retain all existing five semantic results and pin the final whole-corpus input digest (#349).",
     "generator": "dive-conformance 0.0.0",
-    "generated_at": "2026-10-21T13:18:35Z",
-    "elapsed_ms": 112
+    "generated_at": "2026-10-22T22:22:46Z",
+    "elapsed_ms": 119
   }
 }

@@ -72,9 +72,9 @@
       "EnabledIntervalFirstError.tla"
     ],
     "timeout_seconds": 30,
-    "reason": "Capture pinned TLC first-candidate ENABLED interval division error during successor evaluation; Init replay errors remain deliberately unclassified by the harness (#349).",
+    "reason": "Refresh the complete interval-streaming corpus after adding ENABLED query controls; retain all existing five semantic results and pin the final whole-corpus input digest (#349).",
     "generator": "dive-conformance 0.0.0",
-    "generated_at": "2026-10-22T22:15:54Z",
-    "elapsed_ms": 126
+    "generated_at": "2026-10-22T22:22:46Z",
+    "elapsed_ms": 121
   }
 }

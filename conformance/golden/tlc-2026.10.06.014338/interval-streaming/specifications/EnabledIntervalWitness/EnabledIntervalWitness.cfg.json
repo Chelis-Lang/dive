@@ -77,7 +77,7 @@
         "version_line": "openjdk version \"17.0.20.1\" 2026-08-18"
       }
     },
-    "corpus_commit": "sha256:55e78697c793e24f75406c3b90ddbb92f2541c59ce0f51dd354d9cc0b76fae7d",
+    "corpus_commit": "sha256:70d4fa960be671cc49714ecbc7f1418f2f9cf40cc3401203a9868a081854c575",
     "command": [
       "$DIVE_CACHE_DIR/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
       "-XX:+UseParallelGC",
@@ -108,9 +108,9 @@
       "$TMP/states"
     ],
     "timeout_seconds": 30,
-    "reason": "Capture pinned TLC ENABLED ascending first-witness and first-candidate error semantics without eager billion-value interval allocation (#349).",
+    "reason": "Refresh the complete interval-streaming corpus after adding ENABLED query controls; retain all existing five semantic results and pin the final whole-corpus input digest (#349).",
     "generator": "dive-conformance 0.0.0",
-    "generated_at": "2026-10-22T22:12:53Z",
-    "elapsed_ms": 230
+    "generated_at": "2026-10-22T22:22:44Z",
+    "elapsed_ms": 244
   }
 }
