@@ -907,8 +907,10 @@ link = "docs/divergences.md#registry"
                     Verdict::Success,
                     std::slice::from_ref(&pair),
                 )
-                .expect("documented D-022 pair");
-            assert!(entry.fields.is_empty());
+                .ok_or_else(|| {
+                    Error::Config(format!("missing documented D-022 pair for {model}"))
+                })?;
+            assert_eq!(entry.fields, [] as [String; 0]);
             assert!(entry.exit_code_pair.is_none());
             assert_eq!(
                 entry.generated_count_pair,
