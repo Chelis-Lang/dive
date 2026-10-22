@@ -429,7 +429,7 @@ fn real_normal_exit_drains_lingering_descendant_before_reap() -> Result<()> {
     native
         .arg("-c")
         .arg(
-            r#"sh -c 'printf R >&0 || exit 72; IFS= read -r gate || exit 0; touch "$1"' owned-descendant "$1" <&0 & exit 7"#,
+            r#"exec 3<&0; sh -c 'printf R >&0 || exit 72; IFS= read -r gate || exit 0; touch "$1"' owned-descendant "$1" <&3 3<&- & exit 7"#,
         )
         .arg("owned-test")
         .arg(&marker)
