@@ -72,7 +72,11 @@ on red, and fix a red `main` first (label the issue `failing-on-main`).
 - Small, single-scope PRs from `main`. No long-lived integration or compose
   branches.
 - Each PR states the conformance entries it affects and the harness results.
-- Parallel agents use separate worktrees and branches; the lead merges.
+- Parallel agents use separate worktrees, branches and build directories; the
+  lead merges. Set `CARGO_TARGET_DIR=target` from the worktree root, or use a
+  worktree-exclusive absolute directory. Never share a writable Cargo target between
+  worktrees. If a target has already been shared, rebuild in a fresh directory
+  before using its results as correctness or performance evidence.
 - Feature notes go in one guide per area (for example `docs/user/*.md` or
   `docs/pluscal-translation.md`), not one doc per increment. User-visible changes
   update the user guide and `CHANGELOG.md` in the same PR.
