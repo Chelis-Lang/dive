@@ -108,8 +108,11 @@ pub struct Configuration {
 }
 
 pub(crate) fn file_configuration() -> Configuration {
+    let mut limits = Limits::default();
+    // File requests use machine-index capacity; explicit Rust ceilings stay exact.
+    limits.product.vertices = usize::MAX;
     Configuration {
-        limits: Limits::default(),
+        limits,
         acceptance: AcceptancePolicy::compact_default(),
         graph_labels: GraphLabelPolicy::NoCellLimit,
     }

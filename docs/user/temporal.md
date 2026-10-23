@@ -98,12 +98,55 @@ File-based temporal checking uses 8,000,000 covered acceptance-buffer bytes and
 32,000,000 independent acceptance materialization work units, in both profiles.
 Packed words, column headers, optional edge offsets and Boolean scratch count;
 capture, labels, graph construction, search, runtime and allocator overhead do
-not. This is not a total memory or search-work limit. Other graph, evaluator and
-transition limits remain unchanged. JSON names the byte/work bounds under
+not. This is not a total memory or search-work limit. Other evaluator,
+retained-edge and transition limits remain unchanged. JSON names the byte/work
+bounds under
 `options.temporal_bounds`; exhaustion is an explicit resource refusal. Existing
 Rust custom-limit APIs keep legacy logical acceptance cells; the additive
 `check_final_with_policy` API selects byte/work admission explicitly. See
 [covered allocations and exclusions](../temporal-api.md) and ADR 0098.
+
+### Product vertex capacity
+
+File-based temporal requests in both profiles use `usize::MAX` as the numeric
+ceiling on reachable behavior-state/tableau-node pairs. This is the machine's
+finite index capacity, not an infinity marker or a memory allowance. The report
+keeps the exact configured number in
+`options.temporal_bounds.product_vertices`. Ordinary completed-level checks and
+final checks use the same setting; there is no model-specific admission rule.
+
+Rust callers retain their supplied ceilings. `product::Limits::default()` stays
+at 1,000,000 vertices, and every existing final/periodic entrypoint enforces
+explicit zero, exact boundaries and an explicitly supplied former default.
+Callers can already supply `usize::MAX` when they want machine-index capacity.
+No numeric value is interpreted as permission to ignore the admission check.
+
+Product edges, transition work, acceptance buffers, captured graph, tableau,
+attribution and periodic-word bounds retain their independent settings. Checked
+size/layout arithmetic and existing fallible reservations remain in place.
+Whole-process time and memory budgets retain their documented cooperative and
+sampling limits: individual allocations and uninterruptible units can still
+outlast a poll or fail at the host. A refusal or stop never proves a property.
+
+The [CoffeeCan feasibility record](../survey/data/coffeecan-product-vertex-experiment-2026-10-22.json)
+is a separate instrumented custom-ceiling experiment. Both native profiles
+completed the pinned model and two groups each retained 1,003,000 vertices.
+Its original offline classifier HOLD remains preserved alongside a reviewed
+zero-buffer interpretation correction. It is not production-default, current
+corpus, causal speedup or true peak-memory qualification.
+
+The separate [production qualification](../survey/data/product-vertices-qualification-2026-10-23.json)
+at source `db8d4ad5` passed the full gate and both complete small-tier baseline
+comparisons. Both ordinary CoffeeCan1000Beans profiles completed all configured
+properties with 501,500 distinct states, 2,000,002 generated and depth 1 under
+an explicit 564,520 ms budget and 8 GiB ceiling. All eight normal instruction
+pairs stayed within 1% overhead; this is capacity evidence, not a throughput claim.
+From the pinned Examples CoffeeCan directory, use:
+
+```sh
+dive check CoffeeCan.tla --config CoffeeCan1000Beans.cfg --workers 1 --seed 0 --fp 0 --time-limit 564520ms --max-memory 8g --output json
+dive check CoffeeCan.tla --config CoffeeCan1000Beans.cfg --workers 1 --seed 0 --fp 0 --time-limit 564520ms --max-memory 8g --output json --compat=tlc
+```
 
 Binding happens once under the ordinary startup host. If the configured roles
 are all safety obligations, their complete ordinary result uses schema 3 with

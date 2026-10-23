@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "source_run_id": "20261022T200936721-dive-small",
+  "source_run_id": "20261023T013135052-dive-small",
   "implementation": "dive",
   "profile": "tlc",
   "golden_oracle": "tlc-2026.10.06.014338",
@@ -17,7 +17,7 @@
     "examples:specifications/Chameneos/Chameneos.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"success","verdict_code":2193,"error_class":"TLC_SUCCESS","exit_code":0,"distinct_states":34534,"states_generated":104697,"depth":13}]},
     "examples:specifications/CheckpointCoordination/MCCheckpointCoordinationFailure.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"safety-violation","verdict_code":2110,"error_class":"TLC_INVARIANT_VIOLATED_BEHAVIOR","exit_code":12,"violated_property":"SafetyInvariant","distinct_states":88152,"states_generated":1302999,"depth":12}]},
     "examples:specifications/CigaretteSmokers/CigaretteSmokers.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"success","verdict_code":2193,"error_class":"TLC_SUCCESS","exit_code":0,"distinct_states":6,"states_generated":15,"depth":2}]},
-    "examples:specifications/CoffeeCan/CoffeeCan1000Beans.cfg": {"outcome":"unsupported","runs":[{"workers":1}]},
+    "examples:specifications/CoffeeCan/CoffeeCan1000Beans.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"success","verdict_code":2193,"error_class":"TLC_SUCCESS","exit_code":0,"distinct_states":501500,"states_generated":2000002,"depth":1}]},
     "examples:specifications/CoffeeCan/CoffeeCan100Beans.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"success","verdict_code":2193,"error_class":"TLC_SUCCESS","exit_code":0,"distinct_states":5150,"states_generated":20002,"depth":1}]},
     "examples:specifications/DieHard/DieHard.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"safety-violation","verdict_code":2110,"error_class":"TLC_INVARIANT_VIOLATED_BEHAVIOR","exit_code":12,"violated_property":"NotSolved","distinct_states":14,"states_generated":73,"depth":7}]},
     "examples:specifications/DieHard/MCDieHarder.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"safety-violation","verdict_code":2110,"error_class":"TLC_INVARIANT_VIOLATED_BEHAVIOR","exit_code":12,"violated_property":"NotSolved","distinct_states":14,"states_generated":73,"depth":7}]},

@@ -503,3 +503,27 @@ resolved request. Literal closing and full fairness remain mandatory; neither
 model metadata nor an external report provides a validation certificate.
 The optional report-3 summary and requested fields are additive. Old producers
 without them remain readable, but cannot authorize the exact D-005 count tuple.
+
+
+### Reachable product vertex ceilings
+
+`product::Limits::vertices` remains a finite numeric maximum of reachable
+behavior-state/tableau-node pairs. All existing APIs enforce the actual supplied
+value, including zero, exact boundaries and the explicit default 1,000,000.
+The public `Limits::default()` value remains unchanged. There is no sentinel or
+comparison against a former default that disables a caller's guard.
+
+The private file configuration selects `usize::MAX` in both profiles, for final
+and deterministic completed-level analysis. `Builder::visit` still performs
+checked cardinality addition and compares it with this actual scalar before
+pair admission. This removes the arbitrary file-request threshold while keeping
+machine representability, layout checks and all other owner bounds. Report
+major 3 still emits the actual numeric `product_vertices`: the owner, units,
+type and meaning are unchanged. A literal unbounded/null policy would require a
+separate report-contract decision; this number is not reported as infinity.
+
+The range-row representation retains one target and one original-edge buffer;
+it does not introduce a Cartesian allocation. Existing infallible pair/index,
+canonicalization and recurrent/search allocations remain possible host failure
+points. Sampled process memory is not an allocation-time hard cap, and no new
+resident-size projection or universal interruption guarantee is claimed.
