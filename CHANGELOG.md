@@ -10,6 +10,16 @@
 - Stream unassigned `ENABLED` interval-membership candidates in ascending order,
   stopping at the first witness. Rejected membership candidates reach the existing
   cooperative budget checkpoints; assigned-variable membership remains unchanged.
+- Stream primitive interval columns in bounded evaluator contexts. Evaluate all
+  binder domains before the first body, preserve first-variable-fastest order
+  and tuple-error priority, and retain cooperative loop checkpoints without
+  first allocating the interval. Preserve original cardinality admission
+  errors in both profiles. Consumers that request all contexts still collect
+  the complete batch. Other domain materialization remains bounded
+  only by its existing cooperative resource contract (#349).
+- Apply the armed run budget to producer `ASSUME` evaluator loops in safety
+  checking and behavior-graph capture. Interruption reports `stopped` during
+  `check-startup`, preserving prior output without a graph or search verdict.
 
 - Retain conformance child-group leaders unreaped through cleanup on Linux and
   macOS. Serialize cancellation with spawn registration and reject new work

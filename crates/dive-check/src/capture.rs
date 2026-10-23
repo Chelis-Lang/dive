@@ -7,7 +7,6 @@
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
-use dive_eval::AssumptionOutcome;
 use dive_eval::next::{StateVals, Successor};
 use dive_model::{Model, UnsupportedKind};
 
@@ -900,18 +899,11 @@ fn explore_inner(
     let mut result = crate::bare(Verdict::Success, opts, &model.ir);
     result.symmetry_liveness = Some(model.symmetry_liveness().clone());
     crate::messages(&model.output, &mut result);
-    let assumptions = model.check_assumptions();
+    let assumption_failure = crate::budget::check_assumptions(model, &opts.budget);
     result.output.extend(model.take_output());
-    match assumptions {
-        AssumptionOutcome::AllTrue => {}
-        AssumptionOutcome::False { message, .. } => {
-            result.verdict = Verdict::AssumptionFalse { message };
-            return ControlledExploration::Stopped(Box::new(result));
-        }
-        AssumptionOutcome::Error { error, message, .. } => {
-            result.verdict = crate::class::assumption_error(&error, message);
-            return ControlledExploration::Stopped(Box::new(result));
-        }
+    if let Some(verdict) = assumption_failure {
+        result.verdict = verdict;
+        return ControlledExploration::Stopped(Box::new(result));
     }
     let outcome = engine::search(
         model,

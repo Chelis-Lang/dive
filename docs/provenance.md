@@ -1967,6 +1967,36 @@ change. No new policy count or model-shape admission rule follows from these
 controls.
 
 
+### Interval columns in evaluator contexts
+
+`Core::for_each_context` reads the pinned
+`tlc2/tool/impl/Tool.java:4088-4125`, `ContextEnumerator.java:24-84`,
+`EnumerableValue.java:83-101` and `IntervalValue.java:343-376` sources (MIT).
+`Tool.contexts` evaluates every bound and creates its normalized enumerator
+before constructing `ContextEnumerator`. The inherited
+`elements(Ordering.NORMALIZED)` overload calls `toSetEnum` and `normalize`;
+reading only the bare ascending `IntervalValue.elements()` iterator misses
+this admission path. Native interval streaming therefore retains the exact
+original `size` check in both profiles, including TLC's signed32 and dive's
+u64 cardinality errors, followed by the existing `MAX_ENUMERATION` ceiling
+in both profiles with its original typed error and message, before retaining
+an interval cursor. The cursor does not expand admission to larger domains. Only the bulk
+`Value` column allocation is removed. An empty column suppresses bodies but
+does not skip later domains; tuple checks and first-variable-fastest order
+remain. Noninterval domains retain `explore`; eager `scope_bindings` still
+collects its full batch. Small cursors never increment the last endpoint;
+Big cursor increments use the existing arbitrary-precision arithmetic.
+
+The first pinned primary generation of two wide-cardinality quantifier controls
+returned unclassified TLC exit75 (message codes1000/2121/2103), so it wrote no
+TLC goldens; SANY accepted both inputs. Raw outer streams and the two generated
+SANY documents remain external pending review. This is not a success or an
+invented classified oracle error. It corrected the initial bare-iterator
+source reading before any candidate compilation or invocation. No golden was
+hand-edited and no result-changing size admission is introduced. The remaining
+quiet/bulk limitations of issue #349 remain separate.
+
+
 ## Native process-memory observations
 
 ADR 0109 uses `memory-stats` 1.2.0 (MIT OR Apache-2.0), crates.io SHA-256

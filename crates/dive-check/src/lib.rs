@@ -85,7 +85,7 @@ use std::sync::Arc;
 use std::time::Instant;
 
 use dive_config::ModelConfig;
-use dive_eval::{AssumptionOutcome, Profile};
+use dive_eval::Profile;
 use dive_ir::Ir;
 use dive_model::{BindError, BindOptions, ErrorKind, Message};
 
@@ -570,20 +570,12 @@ fn finish_bound_check(
         r.verdict = verdict;
         return r;
     }
-    let assumptions = m.check_assumptions();
+    let assumption_failure = budget::check_assumptions(&m, &opts.budget);
     r.output.extend(m.take_output());
-    match assumptions {
-        AssumptionOutcome::AllTrue => {}
-        AssumptionOutcome::False { message, .. } => {
-            r.verdict = Verdict::AssumptionFalse { message };
-            r.notes = notes;
-            return r;
-        }
-        AssumptionOutcome::Error { error, message, .. } => {
-            r.verdict = class::assumption_error(&error, message);
-            r.notes = notes;
-            return r;
-        }
+    if let Some(verdict) = assumption_failure {
+        r.verdict = verdict;
+        r.notes = notes;
+        return r;
     }
     let outcome = if let Some(session) = checkpoint.take() {
         engine::search(
