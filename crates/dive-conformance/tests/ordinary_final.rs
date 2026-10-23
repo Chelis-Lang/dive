@@ -9,21 +9,18 @@ use dive_conformance::dive::{CheckMapping, check_result};
 use dive_conformance::process::ProcessOutcome;
 use dive_conformance::tlc::result::{OracleResult, TraceEnding, Verdict};
 use dive_conformance::trace_check::validate_counterexample;
+use dive_conformance::util::TempDir;
 use serde_json::{Value, json};
 
 type TestResult = Result<(), Box<dyn std::error::Error>>;
-struct Spec(PathBuf);
+struct Spec {
+    file: PathBuf,
+    _directory: TempDir,
+}
 impl Spec {
     fn new() -> Result<Self, Box<dyn std::error::Error>> {
-        let directory = std::env::temp_dir().join(format!(
-            "dive-transport-final-{}-{}",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)?
-                .as_nanos()
-        ));
-        std::fs::create_dir(&directory)?;
-        let file = directory.join("Ordinary.tla");
+        let directory = TempDir::new("dive-transport-final")?;
+        let file = directory.path().join("Ordinary.tla");
         std::fs::write(
             &file,
             "---- MODULE Ordinary ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == x'=IF x<2 THEN x+1 ELSE x\nP == <>(x=3)\n====\n",
@@ -32,11 +29,14 @@ impl Spec {
             file.with_extension("cfg"),
             "INIT Init\nNEXT Next\nPROPERTY P\n",
         )?;
-        Ok(Self(file))
+        Ok(Self {
+            file,
+            _directory: directory,
+        })
     }
     fn report(&self) -> Result<Value, Box<dyn std::error::Error>> {
         let request = CheckRequest {
-            file: self.0.clone(),
+            file: self.file.clone(),
             compat_tlc: true,
             fp: Some(0),
             seed: Some(0),
@@ -47,21 +47,14 @@ impl Spec {
     }
     fn model(&self) -> Result<SpecModel, Box<dyn std::error::Error>> {
         Ok(SpecModel::load(
-            &self.0,
-            &self.0.with_extension("cfg"),
+            &self.file,
+            &self.file.with_extension("cfg"),
             &TraceOptions {
                 compat_tlc: true,
                 run: Some((0, 0)),
                 ..TraceOptions::default()
             },
         )?)
-    }
-}
-impl Drop for Spec {
-    fn drop(&mut self) {
-        if let Some(parent) = self.0.parent() {
-            let _ = std::fs::remove_dir_all(parent);
-        }
     }
 }
 fn mapped(value: &Value, status: Option<i32>, profile: bool) -> CheckMapping {
@@ -230,11 +223,11 @@ fn different_valid_periodic_words_do_not_waive_any_observable_fact() -> TestResu
 #[test]
 fn actual_pure_state_property_dispatch_has_no_unused_temporal_policy() -> TestResult {
     let spec = Spec::new()?;
-    let source = std::fs::read_to_string(&spec.0)?.replace("P == <>(x=3)", "P == x<=2");
-    std::fs::write(&spec.0, source)?;
+    let source = std::fs::read_to_string(&spec.file)?.replace("P == <>(x=3)", "P == x<=2");
+    std::fs::write(&spec.file, source)?;
     for compat_tlc in [false, true] {
         let request = CheckRequest {
-            file: spec.0.clone(),
+            file: spec.file.clone(),
             compat_tlc,
             fp: Some(0),
             seed: Some(0),
@@ -273,8 +266,8 @@ fn actual_pure_state_property_dispatch_has_no_unused_temporal_policy() -> TestRe
 #[test]
 fn actual_finite_safety_words_keep_strict_length_and_ending_comparisons() -> TestResult {
     let spec = Spec::new()?;
-    let source = std::fs::read_to_string(&spec.0)?.replace("P == <>(x=3)", "P == [](x<2)");
-    std::fs::write(&spec.0, source)?;
+    let source = std::fs::read_to_string(&spec.file)?.replace("P == <>(x=3)", "P == [](x<2)");
+    std::fs::write(&spec.file, source)?;
     let report = spec.report()?;
     assert_eq!(report["schema_version"], 3);
     assert_eq!(report["check_kind"], "safety");
@@ -306,8 +299,8 @@ fn actual_finite_safety_words_keep_strict_length_and_ending_comparisons() -> Tes
 #[test]
 fn actual_error_transport_keeps_null_counts_and_cannot_claim_success() -> TestResult {
     let spec = Spec::new()?;
-    let source = std::fs::read_to_string(&spec.0)?.replace("P == <>(x=3)", "P == <>1");
-    std::fs::write(&spec.0, source)?;
+    let source = std::fs::read_to_string(&spec.file)?.replace("P == <>(x=3)", "P == <>1");
+    std::fs::write(&spec.file, source)?;
     let report = spec.report()?;
     assert!(report["statistics"].is_null());
     let CheckMapping::Result(result) = mapped(&report, Some(255), true) else {
