@@ -60,6 +60,8 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::Duration;
 
+mod raw;
+
 /// Where the Java runtime came from.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case", tag = "source")]
@@ -215,6 +217,9 @@ pub struct OracleEnv {
     pub tmp_root: PathBuf,
     /// Cache root (for redaction).
     pub cache_root: PathBuf,
+    /// Optional durable directory for raw TLC model invocations. Setup and
+    /// capability probes are excluded; default preparation leaves this off.
+    pub raw_invocations: Option<PathBuf>,
 }
 
 /// The mode a model is checked in.
@@ -320,6 +325,7 @@ impl OracleEnv {
             home: cache.tlc_home()?,
             tmp_root: cache.tmp_dir(),
             cache_root: cache.root().to_path_buf(),
+            raw_invocations: None,
         };
         env.capabilities = env.probe()?;
         Ok(env)
@@ -462,10 +468,16 @@ impl OracleEnv {
     /// Runs TLC on one model.
     ///
     /// # Errors
-    /// Fails only if the process cannot be started or scratch space cannot
-    /// be created; every TLC outcome, including timeouts, is returned.
+    /// Fails on harness process/scratch errors or an enabled raw-capture
+    /// recording failure. Every TLC outcome, including timeouts, is returned
+    /// when the harness and any requested recording complete successfully.
     pub fn run_tlc(&self, job: &TlcJob<'_>) -> Result<Invocation> {
-        let scratch = TempDir::new_in(&self.tmp_root, "tlc")?;
+        let raw_root = self
+            .raw_invocations
+            .as_deref()
+            .map(|root| raw::checked_root(root, job))
+            .transpose()?;
+        let scratch = raw::Scratch::new(&self.tmp_root, raw_root.as_deref())?;
         let work = isolate(job.corpus_root, job.module, scratch.path())?;
         let mut cmd = self.base_command(scratch.path(), &work, job.xmx);
         if job.features.iter().any(|f| f == "action composition") {
@@ -491,7 +503,10 @@ impl OracleEnv {
             cmd.args(["-dumpTrace", "json"]).arg(&trace_file);
         }
         let command = self.redacted_command(&cmd, scratch.path(), &work);
-        let mut outcome = run_with_timeout(&mut cmd, job.timeout, scratch.path())?;
+        scratch.started(&cmd, job)?;
+        let outcome = run_with_timeout(&mut cmd, job.timeout, scratch.path());
+        scratch.finished(&outcome)?;
+        let mut outcome = outcome?;
         let trace_json = std::fs::read_to_string(&trace_file).ok();
         self.redact_outcome(&mut outcome, scratch.path(), &work);
         Ok(Invocation {

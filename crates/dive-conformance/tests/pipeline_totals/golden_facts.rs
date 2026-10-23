@@ -8,7 +8,7 @@ use dive_conformance::pipeline::GenerateOptions;
 use dive_conformance::sany::SanyVerdict;
 use std::os::unix::fs::PermissionsExt;
 
-fn fixture(name: &str) -> String {
+pub(super) fn fixture(name: &str) -> String {
     std::fs::read_to_string(
         Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("tests/fixtures/tlc/tlc-2026.10.06.014338")
@@ -17,7 +17,7 @@ fn fixture(name: &str) -> String {
     .unwrap_or_else(|error| unreachable!("existing fixture: {error}"))
 }
 
-fn env(
+pub(super) fn env(
     tmp: &Path,
     config: &Config,
     cache: &Cache,
@@ -53,10 +53,11 @@ fn env(
         home,
         tmp_root: scratch,
         cache_root: cache.root().to_path_buf(),
+        raw_invocations: None,
     })
 }
 
-fn opts(models: bool) -> GenerateOptions {
+pub(super) fn opts(models: bool) -> GenerateOptions {
     GenerateOptions {
         oracle: "tlc-2026.10.06.014338".into(),
         corpus: "examples".into(),
