@@ -650,3 +650,32 @@ all 18 binding-owned runtime/test files exactly from `8e650dba` and preserves
 SelectSeq's separately qualified behavior. The normal instruction comparison
 remains the original `44c1fd97` / `8e650dba` campaign; it is not relabelled as a
 measurement of the integrated tree.
+
+## Incremental ENABLED interval enumeration
+
+Candidate `c2730906` against main `1d49aa76` passed all eight normal-input
+instruction comparisons: each used at most 1% more instructions, with identical
+success verdicts, counts and depths. The whole-CLI geometric mean was
+**+0.033933%**, descriptive rather than an acceptance substitute for individual
+cells. Two isolated profiling builds and 16 sequential Cachegrind arms used the
+four reduced models, both profiles, one worker, seed/fingerprint zero, native
+900-second/8-GiB limits and a 930-second external backstop. This establishes
+normal-input overhead, with no performance speedup, quiet wall-time, throughput
+or scaling claim.
+
+The same source then completed all 13 full-gate phases: native exit zero,
+2,292 unique tests passed with no skips, cm1 and validation at 1/4/8 workers,
+149 TLC-profile agreements, 143 default agreements plus seven expected
+divergences, and 458 SANY agreements. All 312 model identities and typed baseline
+facts remained unchanged. Separate interval controls agree on the first witness;
+the first-candidate error remains pending independent trace validation under
+[#434](https://github.com/Chelis-Lang/dive/issues/434), without established
+population agreement credit.
+
+[Compact evidence](../survey/data/enabled-interval-qualification-2026-10-23.json)
+records every integer instruction pair, actual source/tool/input identities,
+profile and release binary hashes, gate reports and original archive hashes.
+Release binaries were captured after the gate and remain distinct from the
+profiling binaries frozen before the matrix. Raw artifacts remain external;
+the campaign instance, root volume, bucket and security group were independently
+verified removed after preserving all original objects.
