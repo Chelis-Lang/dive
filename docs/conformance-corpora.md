@@ -417,3 +417,12 @@ validation finding. They receive no trace-validation or agreement credit. The or
 controls and their corpus digest remain unchanged.
 [Compact constructor provenance](survey/data/compound-domain-emptiness-oracle-2026-10-23.json)
 records the new input and golden hashes.
+
+The delivery qualification ran a fresh full gate (2,329 tests, no skips), the
+unchanged 156-model selections in both profiles and all 458 SANY comparisons.
+All four wide checks matched their primary words and independently validated.
+The eight normal-model instruction comparisons retained identical counts/depth;
+the largest overhead was 0.043%, below the 1% per-pair ceiling. This is capacity
+evidence, without a TLC throughput or full-tier agreement claim.
+[Compact qualification](survey/data/compound-domain-streaming-qualification-2026-10-23.json)
+records source/tool identities, all eight instruction pairs and original hashes.
