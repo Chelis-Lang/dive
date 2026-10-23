@@ -1101,6 +1101,14 @@ impl Gen<'_, '_> {
                             // and successor enumeration (ADR 0107, issue #349).
                             return self.bind_interval(var, lo, hi, acts);
                         }
+                        if let Some(elements) = core.in_element_stream(s)? {
+                            for value in elements {
+                                if self.bind_value(var, value, acts)? == Flow::Stop {
+                                    return Ok(Flow::Stop);
+                                }
+                            }
+                            return Ok(Flow::Continue);
+                        }
                         let elems = core.in_elements(s)?;
                         self.bind_each(var, &elems, acts)
                     }
@@ -2552,6 +2560,16 @@ impl Enab {
                             Value::Set(set) if is_enumerable(&rval) => {
                                 if let Some((lo, hi)) = set.as_interval() {
                                     return self.bind_interval(var, lo, hi, acts, &s1);
+                                }
+                                if let Some(elements) = core.in_element_stream(set)? {
+                                    for value in elements {
+                                        if let Some(found) =
+                                            self.bind_value(var, value, acts, &s1)?
+                                        {
+                                            return Ok(Some(found));
+                                        }
+                                    }
+                                    return Ok(None);
                                 }
                                 core.in_elements(set)?
                             }

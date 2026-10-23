@@ -2129,3 +2129,36 @@ certification of errors while expanding the last recorded state. The new witness
 agrees in both profiles. These explicit controls are outside the established
 small population; [compact qualification evidence](survey/data/enabled-interval-qualification-2026-10-23.json)
 records their distinct producer identities alongside the exact-source Linux gate.
+
+### Compound-domain first-state oracle observations
+
+Before changing compound assignment enumeration, four minimal models were
+generated against pinned TLC `94d0c507` in the separate
+`compound-domain-streaming` corpus. All four initial violations occur before
+whole-domain materialization, even when the complete powerset, Cartesian
+product, function set or record set exceeds a signed 32-bit cardinality.
+These are primary semantic observations, with original clean/trace evidence
+retained externally; the generated golden bytes are imported unchanged.
+The independent validator accepts all four words and rejects eight mutants.
+No algorithm is ported by these corpus additions. See
+[the compact provenance](survey/data/compound-domain-oracle-2026-10-23.json).
+
+The compound output cursor reuses dive's existing native normalized subset and
+odometer iterators. TLC's `Tool` unassigned `IN` rule and `SubsetValue`,
+`SetOfTuplesValue`, `SetOfFcnsValue` and `SetOfRcdsValue` enumerators were read
+at pinned commit `94d0c507`: complete output cardinality is not a prerequisite
+for the first candidate; product columns vary last-position fastest and subset
+outputs follow cardinality then lexicographic base indices. The optimized route
+requires explicit scalar or interval component enumerators and matching construction/exploration
+order. Deferred, independently resettable providers retain their existing route,
+since caching their range callbacks or moving lookahead past a continuation
+would change observable effects. No Java implementation is copied.
+
+Before correcting the first compound cursor prototype, two additional pinned
+`compound-domain-emptiness` probes confirmed that product and record emptiness
+checks precede component normalization. At TLC `94d0c507`, `Value.isEmpty`
+checks raw enumerated-set length without normalization, calls interval `size`,
+and scans product/record fields in stored order, returning at the first empty
+component. The interval size overflow is a native runtime error; its top-level
+classification remains the separate harness issue #436. These facts do not
+authorize reordering the existing normalized bulk path.

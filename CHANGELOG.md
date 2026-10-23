@@ -1,5 +1,12 @@
 # Changelog
 
+- Add pinned first-state compound-domain oracle controls and independently
+  validated counterexamples for issue #349.
+- Stream unassigned compound-membership candidates over concrete components,
+  reaching initial/successor stops and ENABLED witnesses without retaining the
+  complete powerset, product, function set or record set. Existing normalized
+  bulk enumeration and deferred-provider routes retain their contracts.
+
 - Add opt-in `golden generate --raw-invocations DIR` to retain original TLC
   clean/trace streams, invocation commands and process outcomes, including
   partial output on failure. Golden schemas and oracle pass scheduling stay

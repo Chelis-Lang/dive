@@ -1,0 +1,26 @@
+{
+  "sources": [
+    "docs/user/checking.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "budget"
+  ],
+  "modules": [
+    {
+      "path": "specifications/WideFunctionSetInit/WideFunctionSetInit.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/WideFunctionSetInit/WideFunctionSetInit.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}

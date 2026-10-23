@@ -1,0 +1,110 @@
+{
+  "schema": 1,
+  "purpose": "Pinned empty compound constructor priority before fixing the first stream prototype, issue #349",
+  "oracle": "tlc-2026.10.06.014338",
+  "oracle_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "original_producer_archive_sha256": "21f47e31f68f674adea054059a2be1658df6327e7c5744159d2471744f8f92e8",
+  "harness_binary_sha256": "370d2103c355fe7d2196e7429e3a918a19606fcb1689e72438d0aad5dd36015b",
+  "actual_compiled_source": "bfa74020b6682d69fc9849474aff423b589ede18",
+  "qualified_source": "7218edded7eee66492fe66f1d43b3b7c29d4c2f5",
+  "generation": {
+    "outer_exits": [
+      0,
+      0
+    ],
+    "native_clean_trace_exits": [
+      12,
+      12,
+      12,
+      12
+    ],
+    "externally_censored": false,
+    "timeout_seconds": 20,
+    "workers": 1,
+    "xmx": "256m",
+    "seed": 0,
+    "fingerprint": 0
+  },
+  "files": [
+    {
+      "path": "conformance/corpus/compound-domain-emptiness/specifications/EmptyProductSkipsMixedInit/EmptyProductSkipsMixedInit.cfg",
+      "sha256": "0dd20f5b64b18ad21cef997cc11763b84592557a9e76b5f330f9257d0a1066ca",
+      "bytes": 55,
+      "mode": "0o644"
+    },
+    {
+      "path": "conformance/corpus/compound-domain-emptiness/specifications/EmptyProductSkipsMixedInit/EmptyProductSkipsMixedInit.tla",
+      "sha256": "554af0c70b08e222c3822345e4363f6fe56f8e90e7e54c8f787b970314107de0",
+      "bytes": 155,
+      "mode": "0o644"
+    },
+    {
+      "path": "conformance/corpus/compound-domain-emptiness/specifications/EmptyProductSkipsMixedInit/manifest.json",
+      "sha256": "e5a89b45b5f38009546f1068d97c5d514ff719e9e96bf273b8063b30c11dde3a",
+      "bytes": 510,
+      "mode": "0o644"
+    },
+    {
+      "path": "conformance/corpus/compound-domain-emptiness/specifications/EmptyRecordSkipsMixedInit/EmptyRecordSkipsMixedInit.cfg",
+      "sha256": "0dd20f5b64b18ad21cef997cc11763b84592557a9e76b5f330f9257d0a1066ca",
+      "bytes": 55,
+      "mode": "0o644"
+    },
+    {
+      "path": "conformance/corpus/compound-domain-emptiness/specifications/EmptyRecordSkipsMixedInit/EmptyRecordSkipsMixedInit.tla",
+      "sha256": "9a3f42b14921ad95947caee7fe79eb8032a91ee48e8c9f75f8a90ec6e4e5879c",
+      "bytes": 160,
+      "mode": "0o644"
+    },
+    {
+      "path": "conformance/corpus/compound-domain-emptiness/specifications/EmptyRecordSkipsMixedInit/manifest.json",
+      "sha256": "7480a2cab140955a45f7c182ef9fa438f2c34ae25fc0194d52eefa99456076d4",
+      "bytes": 506,
+      "mode": "0o644"
+    }
+  ],
+  "goldens": [
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/compound-domain-emptiness/specifications/EmptyProductSkipsMixedInit/EmptyProductSkipsMixedInit.cfg.json",
+      "sha256": "c99b6d382da1eb562fba2db76202cc5da0cbfa62793b20e839c5836ed72ee5fc",
+      "corpus_commit": "sha256:990ee8fd51dc67bb9cbebced14e75f2b82f607f60bbe4371cf46cf3a8af52245",
+      "reason": "Establish pinned Product and record-set empty-constructor normalization/error priority before fixing streamed assignment enumeration (issue #349).",
+      "counts": {
+        "distinct_states": null,
+        "states_generated": null,
+        "states_left_on_queue": null,
+        "depth": null
+      },
+      "native_exit": 12,
+      "error_class": "TLC_INVARIANT_VIOLATED_INITIAL",
+      "trace_length": 1
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/compound-domain-emptiness/specifications/EmptyRecordSkipsMixedInit/EmptyRecordSkipsMixedInit.cfg.json",
+      "sha256": "69914d591f397cd72d4ca92d3b180a46615269656387acc9dca0a3ca6c4593c5",
+      "corpus_commit": "sha256:990ee8fd51dc67bb9cbebced14e75f2b82f607f60bbe4371cf46cf3a8af52245",
+      "reason": "Establish pinned Product and record-set empty-constructor normalization/error priority before fixing streamed assignment enumeration (issue #349).",
+      "counts": {
+        "distinct_states": null,
+        "states_generated": null,
+        "states_left_on_queue": null,
+        "depth": null
+      },
+      "native_exit": 12,
+      "error_class": "TLC_INVARIANT_VIOLATED_INITIAL",
+      "trace_length": 1
+    }
+  ],
+  "observed": "Each empty left disjunct skips mixed scalar normalization; later x=0 violates Bad. No counts or depth emitted, nulls preserved. No input/golden edits.",
+  "independent_trace_validation": {
+    "native_exit": 1,
+    "externally_censored": false,
+    "positive_valid": 0,
+    "mutants": 0,
+    "findings": 4,
+    "archive_sha256": "d1822c5e86595d498e156ac299dcd1b10a711edb4505edcd1eec419dc33234ca",
+    "issue": 443,
+    "failure": "Pointwise Init replay rejects x=0 membership as non-tuple/non-record. This is retained native failure; no trace validation credit."
+  },
+  "dive_qualification": "Pending; no parity or speed claim."
+}
