@@ -503,7 +503,7 @@ pub fn golden_generate_with_setup_capture(
     env.raw_invocations = Some(raw_root.to_path_buf());
     let corpus = load_corpus_with_setup(config, cache, &opts.corpus, Some(&setup))?;
     setup.prepared()?;
-    let failures = golden_generate_loaded(config, &env, opts, corpus, Some(&setup))?;
+    let failures = golden_generate_loaded(config, &env, opts, &corpus, Some(&setup))?;
     setup.complete()?;
     Ok(failures)
 }
@@ -520,7 +520,7 @@ pub fn golden_generate(
     opts: &GenerateOptions,
 ) -> Result<usize> {
     let corpus = load_corpus(config, cache, &opts.corpus)?;
-    golden_generate_loaded(config, env, opts, corpus, None)
+    golden_generate_loaded(config, env, opts, &corpus, None)
 }
 
 #[allow(
@@ -531,7 +531,7 @@ fn golden_generate_loaded(
     config: &Config,
     env: &OracleEnv,
     opts: &GenerateOptions,
-    corpus: CorpusIndex,
+    corpus: &CorpusIndex,
     setup: Option<&crate::oracle::setup::Capture>,
 ) -> Result<usize> {
     let root = golden_root(&config.repo_root);
@@ -541,7 +541,7 @@ fn golden_generate_loaded(
         log(&msg);
     };
     let models = if opts.models {
-        opts.selection.models(&corpus)?
+        opts.selection.models(corpus)?
     } else {
         Vec::new()
     };
@@ -648,7 +648,7 @@ fn golden_generate_loaded(
                 let mut result = result;
                 let mut prov = provenance(
                     env,
-                    &corpus,
+                    corpus,
                     command,
                     timeout,
                     opts.reason.as_deref(),
@@ -697,7 +697,7 @@ fn golden_generate_loaded(
     if opts.sany {
         let (modules, excluded): (Vec<&ModuleEntry>, Vec<&ModuleEntry>) = opts
             .selection
-            .modules(&corpus)?
+            .modules(corpus)?
             .into_iter()
             .partition(|m| m.out_of_scope.is_none());
         for m in &excluded {
@@ -759,7 +759,7 @@ fn golden_generate_loaded(
                         result,
                         provenance: provenance(
                             env,
-                            &corpus,
+                            corpus,
                             command,
                             timeout,
                             opts.reason.as_deref(),
@@ -780,7 +780,7 @@ fn golden_generate_loaded(
             }
         });
     }
-    assert_pristine_with_setup(&corpus, setup)?;
+    assert_pristine_with_setup(corpus, setup)?;
     Ok(failures.into_inner())
 }
 

@@ -306,8 +306,11 @@ mod tests {
     }
 
     fn pending(capture: &Capture) -> Result<Invocation> {
-        let invocation =
-            capture.start("synthetic-status", Command::new("not-dispatched"), TIMEOUT)?;
+        let invocation = capture.start(
+            "synthetic-status",
+            &mut Command::new("not-dispatched"),
+            TIMEOUT,
+        )?;
         for (name, bytes) in [
             ("stdout.txt", &[0xff, b'\n'][..]),
             ("stderr.txt", b"partial".as_slice()),
@@ -358,7 +361,11 @@ mod tests {
             assert!(capture.finish(invocation, Ok(output)).is_err());
             assert!(
                 capture
-                    .start("must-not-dispatch", Command::new("not-dispatched"), TIMEOUT)
+                    .start(
+                        "must-not-dispatch",
+                        &mut Command::new("not-dispatched"),
+                        TIMEOUT
+                    )
                     .is_err()
             );
             assert!(capture.complete().is_err());
@@ -465,8 +472,11 @@ mod tests {
     #[test]
     fn terminal_recording_error_also_blocks_later_dispatch() -> Result<()> {
         let (_parent, capture) = fixture()?;
-        let invocation =
-            capture.start("missing-stream", Command::new("not-dispatched"), TIMEOUT)?;
+        let invocation = capture.start(
+            "missing-stream",
+            &mut Command::new("not-dispatched"),
+            TIMEOUT,
+        )?;
         let path = invocation.scratch.path().to_path_buf();
         assert!(
             capture
