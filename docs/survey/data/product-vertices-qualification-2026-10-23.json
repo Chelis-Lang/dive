@@ -1,0 +1,2399 @@
+{
+  "schema_version": 1,
+  "status": "qualified_fullgate_coffee2_normal16_runtime_preserved",
+  "date": "2026-10-23",
+  "policy": "File temporal product_vertices uses explicit finite machine-index capacity; public Rust defaults/custom ceilings and all other admission owners unchanged.",
+  "source": {
+    "base": {
+      "head": "1892ddc7ea97902f65d406543a9d68f38a498e9d",
+      "tree": "721c8821513e9c5dfb01c38242b4bd53fe6dc190",
+      "status": "",
+      "tracked_file_count": 22672,
+      "tracked_file_sha256": "a74e9622aa925b7297554176551eeb81e461b0c2cb54f3a25c92a163f9605392"
+    },
+    "candidate": {
+      "head": "db8d4ad56143d33b07a8c885a03331b3c44ab30b",
+      "tree": "e2770634c9422a23e31675f321594efcd9811ada",
+      "status": "",
+      "tracked_file_count": 22674,
+      "tracked_file_sha256": "076579650056e272edec7264c50d4d04413f42b7aaf0d32bd3d34214623f29a4"
+    }
+  },
+  "measured_candidate_source": "db8d4ad56143d33b07a8c885a03331b3c44ab30b",
+  "measured_base_main": "1892ddc7ea97902f65d406543a9d68f38a498e9d",
+  "source_contract_sha256": "35e49e1593aee14b58e589a3c242c422bb524bd1f030f525c19e66c1d0344154",
+  "integrated_patch_sha256": "8201797890fe8c7a4b2e6c9164659ef2f54afc5eb1f5153001b2082afb869ec9",
+  "source_review_sha256": "9f9f3ae5bcfbf7df7df93b62328268241fd680b8651c48fc5404ee624d37c346",
+  "canonical_archive": {
+    "artifact_id": "campaign-product-vertices-combined-db8d4ad5/preserved/results/final.tgz",
+    "sha256": "0476ed811c98da2875db9be9500455452be431881975a730018580cdae75c4fc",
+    "bytes": 73349248,
+    "members": 217,
+    "regular_members_all_hashed": 213,
+    "all_member_modes_hash_manifest_sha256": "2884334549b3c949d1bd5b71005487bdd7ae89e64ba20949e1fc888a2b89ac34"
+  },
+  "canonical_object_preservation": {
+    "objects": 46,
+    "bytes": 257015219,
+    "manifest_sha256": "1fe407f0a8bd5c1dd52d78ab7b0feffb1923aa7611e7088c8ef248648e042335"
+  },
+  "independent_final_review_sha256": "b717377624dbfac61574d9fb9ba7ec5c398d4ca40e2957e36ffc53613b6896a3",
+  "reader_correction": {
+    "original_v1_failure_preserved": true,
+    "finding": "Local auditor namespace shadowing at receipt construction after assertions; no native/source/evidence failure.",
+    "v2_only_local_variable_alpha_rename_proof_sha256": "09db286b03326a2cca8f4adc5d9f884d63982aca536005e4a060693c590d9dae"
+  },
+  "gate": {
+    "source": "db8d4ad56143d33b07a8c885a03331b3c44ab30b",
+    "native_exit": 0,
+    "externally_censored": false,
+    "outer_observed_seconds": 2305.676379439,
+    "all_unique_PASS_tests": 2295,
+    "skipped": 0,
+    "phases": [
+      {
+        "name": "rustfmt",
+        "result": "pass",
+        "duration": "2.1s"
+      },
+      {
+        "name": "clippy",
+        "result": "pass",
+        "duration": "18.9s"
+      },
+      {
+        "name": "nextest (whole suite)",
+        "result": "pass",
+        "duration": "18m31s"
+      },
+      {
+        "name": "doctests",
+        "result": "pass",
+        "duration": "5.3s"
+      },
+      {
+        "name": "rustdoc",
+        "result": "pass",
+        "duration": "9.7s"
+      },
+      {
+        "name": "crate layering",
+        "result": "pass",
+        "duration": "0.0s"
+      },
+      {
+        "name": "cargo-deny",
+        "result": "pass",
+        "duration": "0.4s"
+      },
+      {
+        "name": "release build (harness, dive)",
+        "result": "pass",
+        "duration": "1m30s"
+      },
+      {
+        "name": "oracle and corpus fetch",
+        "result": "pass",
+        "duration": "4.6s"
+      },
+      {
+        "name": "cm1 gate (1, 4, 8 workers)",
+        "result": "pass",
+        "duration": "6.9s"
+      },
+      {
+        "name": "validation-smoke gate (1, 4, 8 workers)",
+        "result": "pass",
+        "duration": "0.7s"
+      },
+      {
+        "name": "small corpus tier (dive, tlc profile, vs baseline)",
+        "result": "pass",
+        "duration": "8m57s"
+      },
+      {
+        "name": "small corpus tier (dive, dive profile, vs baseline)",
+        "result": "pass",
+        "duration": "8m34s"
+      }
+    ],
+    "report_sha256": "03d9793589d0d59009bbd8dda70f109a8478b0f00c9a2c60128aaca14c768b26",
+    "original_stdout": {
+      "sha256": "1e8ed1a05057fe0ccc139e384309cbd880864afcc99314fd729d6b9a0bece3be",
+      "bytes": 27922,
+      "mode": "0o664"
+    },
+    "original_stderr": {
+      "sha256": "6c71f48555173f0db61ebaa8437c86ed7022f4362f9a2520e43aaf1980f9ce9f",
+      "bytes": 385737,
+      "mode": "0o664"
+    },
+    "original_observation": {
+      "sha256": "dd4e2d56effe25d818481e22393e1e22e4789c69d149210df35bf1c936725566",
+      "bytes": 1059,
+      "mode": "0o664"
+    },
+    "profiles": {
+      "tlc": {
+        "run_id": "20261023T013135052-dive-small",
+        "original_archive_member": "candidate/target/gate-corpus/tlc/20261023T013135052-dive-small.json",
+        "report_sha256": "37914875d4e7f9af628725fa04c3333e61cfa839ebb332f08b7726191646a7ab",
+        "models_selected": 156,
+        "modules_selected": 458,
+        "models": {
+          "agree": 150,
+          "disagree": 0,
+          "unsupported": 6,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "modules": {
+          "agree": 458,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "by_corpus": {
+          "configured-temporal-operators": {
+            "models": {
+              "agree": 2,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            },
+            "modules": {
+              "agree": 2,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            }
+          },
+          "examples": {
+            "models": {
+              "agree": 135,
+              "disagree": 0,
+              "unsupported": 5,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            },
+            "modules": {
+              "agree": 424,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            }
+          },
+          "probes": {
+            "models": {
+              "agree": 13,
+              "disagree": 0,
+              "unsupported": 1,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            },
+            "modules": {
+              "agree": 12,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            }
+          },
+          "validation-smoke": {
+            "models": {
+              "agree": 0,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            },
+            "modules": {
+              "agree": 20,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            }
+          }
+        },
+        "settings": {
+          "tier": "small",
+          "filters": [],
+          "workers": [
+            1
+          ],
+          "jobs": 2,
+          "xmx": "3g",
+          "timeout_policy": "TLC-derived budgets: with a golden max(60 s, 10 x golden elapsed); otherwise historical timeout; hard cap 900 s (historical cap 3600 s, cap when unknown)",
+          "crosscheck_manifest": false,
+          "sany_phase": "full",
+          "impl_options": [],
+          "impl_profile": "tlc",
+          "strict_tier": true
+        },
+        "all_other_typed_observables_exact_reference_ledger": true,
+        "only_changed_model": "examples:specifications/CoffeeCan/CoffeeCan1000Beans.cfg",
+        "only_counter_deltas": "Coffee unsupported->agree plus matching summary.models and summary.by_corpus.examples.models counters",
+        "generated_baseline": {
+          "repository_path": "conformance/baselines/small-tlc-w1.json",
+          "sha256": "2d7289f3320827cef61c009618e16ae1b7e9efb8e9d82ba447a1f24d0e94b650",
+          "bytes": 73674,
+          "source_run_id": "20261023T013135052-dive-small"
+        },
+        "module_path": [
+          {
+            "id": "community-modules-202610040242",
+            "pin": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+          },
+          {
+            "id": "community-modules-deps-202610040242",
+            "pin": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d"
+          },
+          {
+            "id": "apalache-modules-v0.62.3",
+            "pin": "3eb15b253482005222fabbf50bb7aae501eb9f8d"
+          },
+          {
+            "id": "tlapm-library-d8b9747",
+            "pin": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37"
+          }
+        ]
+      },
+      "dive": {
+        "run_id": "20261023T014009568-dive-small",
+        "original_archive_member": "candidate/target/gate-corpus/dive/20261023T014009568-dive-small.json",
+        "report_sha256": "4295f6b6d52b5f6cd181193ca7320a9c58fc57578779c665d762be4914698a0b",
+        "models_selected": 156,
+        "modules_selected": 0,
+        "models": {
+          "agree": 144,
+          "disagree": 0,
+          "unsupported": 5,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 7,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "modules": {
+          "agree": 0,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "by_corpus": {
+          "configured-temporal-operators": {
+            "models": {
+              "agree": 2,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            },
+            "modules": {
+              "agree": 0,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            }
+          },
+          "examples": {
+            "models": {
+              "agree": 131,
+              "disagree": 0,
+              "unsupported": 5,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 4,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            },
+            "modules": {
+              "agree": 0,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            }
+          },
+          "probes": {
+            "models": {
+              "agree": 11,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 3,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            },
+            "modules": {
+              "agree": 0,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            }
+          }
+        },
+        "settings": {
+          "tier": "small",
+          "filters": [],
+          "workers": [
+            1
+          ],
+          "jobs": 2,
+          "xmx": "3g",
+          "timeout_policy": "TLC-derived budgets: with a golden max(60 s, 10 x golden elapsed); otherwise historical timeout; hard cap 900 s (historical cap 3600 s, cap when unknown)",
+          "crosscheck_manifest": false,
+          "sany_phase": "full",
+          "impl_options": [],
+          "impl_profile": "dive",
+          "strict_tier": false
+        },
+        "all_other_typed_observables_exact_reference_ledger": true,
+        "only_changed_model": "examples:specifications/CoffeeCan/CoffeeCan1000Beans.cfg",
+        "only_counter_deltas": "Coffee unsupported->agree plus matching summary.models and summary.by_corpus.examples.models counters",
+        "generated_baseline": {
+          "repository_path": "conformance/baselines/small-dive-w1.json",
+          "sha256": "0d6842422b798618af5be64533877ad9cf8d8ebca4a24021f07acf9d41ed8f2e",
+          "bytes": 39296,
+          "source_run_id": "20261023T014009568-dive-small"
+        },
+        "module_path": [
+          {
+            "id": "community-modules-202610040242",
+            "pin": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+          },
+          {
+            "id": "community-modules-deps-202610040242",
+            "pin": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d"
+          },
+          {
+            "id": "apalache-modules-v0.62.3",
+            "pin": "3eb15b253482005222fabbf50bb7aae501eb9f8d"
+          },
+          {
+            "id": "tlapm-library-d8b9747",
+            "pin": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37"
+          }
+        ]
+      }
+    },
+    "cm1_and_validation_smoke_workers": [
+      1,
+      4,
+      8
+    ],
+    "temporary_individual_cm1_JSONs_all_retained": false
+  },
+  "baseline_generation": {
+    "generation_receipt_sha256": "b1850755de647a1cf2c3a67d14713b91b9313f82c8a591195d6636fbd598d73d",
+    "actual_harness_source": "38850114be0165ff667bc75620695d33d4df503a",
+    "actual_harness_binary_sha256": "36c60e4f3ce1c660474e063083f1507f2627c49b414f915e8407e11c259f0ca7",
+    "only_harness_Rust_source_difference_from_measured_candidate": [
+      "crates/dive-conformance/src/process/owned/tests.rs"
+    ],
+    "execution_kind": "Metadata-only report baseline generation from original db8 reports; no checker/oracle/golden generation."
+  },
+  "physical_frozen_binaries": {
+    "candidate-release-dive": {
+      "sha256": "2fa544a9516d17e9679b4940af8443a5b3aa77f556de60294d6fb4ce3cb5d482",
+      "bytes": 38072408,
+      "mode": "0o775",
+      "format": "ELF64 little-endian x86-64",
+      "elf_type": 3,
+      "captured_at": "2026-10-23T01:40:18.419275+00:00",
+      "receipt_sha256": "3eda7bd74365d3b98bd72998da44cc183a4615490144e67138da25383acebb42",
+      "timing": "Original collection after completed gate, before Coffee; not pre-gate attestation."
+    },
+    "candidate-release-dive-conformance": {
+      "sha256": "2e2cf929b15b4a3dd5813ea0284814c1f2579fb020ebe9c4c1dd1c7295c33140",
+      "bytes": 30641232,
+      "mode": "0o775",
+      "format": "ELF64 little-endian x86-64",
+      "elf_type": 3,
+      "captured_at": "2026-10-23T01:40:18.521257+00:00",
+      "receipt_sha256": "82c5d482136bb2a17019480a26bba9e7f79d57605e8ce5e6e3e868182a4251e5",
+      "timing": "Original collection after completed gate, before Coffee; not pre-gate attestation."
+    },
+    "base-profiling-dive": {
+      "sha256": "aaa67e78fdf414b25645ea0d0ee50ce6b94d6ac9400b851c7e86e65a5a0670c0",
+      "bytes": 106826664,
+      "mode": "0o775",
+      "format": "ELF64 little-endian x86-64",
+      "elf_type": 3,
+      "receipt_sha256": "388784f43b3d44289f40f94b6322995fc2c02b553b00c3f865442895c35bebfe",
+      "timing": "Physically frozen after actual successful profiling build and before any normal matrix arm; immutable per-arm identity matched."
+    },
+    "candidate-profiling-dive": {
+      "sha256": "e2bb58d38b56927e7827ea77a093dac681f1533e0a855bfece28e975aff2b4e2",
+      "bytes": 106830448,
+      "mode": "0o775",
+      "format": "ELF64 little-endian x86-64",
+      "elf_type": 3,
+      "receipt_sha256": "328c49e1ff13c3eb9af8653066df23cfceea782a5a21a8d1788dce3832738d80",
+      "timing": "Physically frozen after actual successful profiling build and before any normal matrix arm; immutable per-arm identity matched."
+    }
+  },
+  "tools": {
+    "rustc": {
+      "version": "rustc 1.99.0 (b940084d7 2026-09-28)",
+      "binary_name": "rustc",
+      "sha256": "f3834d26669b03f6855fa54bd2381443123e860167bc0c7a8dd137e5cf6e5e4f"
+    },
+    "cargo": {
+      "version": "cargo 1.99.0 (5f94df478 2026-08-27)",
+      "binary_name": "cargo",
+      "sha256": "e951141cc55a6cd7b9876d187bd30a3720e6086b99413af95e3b8de1cdd72f14"
+    },
+    "nextest": {
+      "version": "cargo-nextest 0.9.143 (60fa45f63 2026-08-04)\nrelease: 0.9.143\ncommit-hash: 60fa45f638ffc3f35e74afa65737f45fcd32db2a\ncommit-date: 2026-08-04\nhost: x86_64-unknown-linux-gnu",
+      "binary_name": "cargo-nextest",
+      "sha256": "cb6243e32736eb6242379b379d44f09adf4873bbdf69ed6ff13f9dc4c0dfc654"
+    },
+    "deny": {
+      "version": "cargo-deny 0.20.2",
+      "binary_name": "cargo-deny",
+      "sha256": "095d1609e3040af892c3356154eb89488bcb8886315f8c7b7b6927ad7064b3e7"
+    },
+    "valgrind": {
+      "version": "valgrind-3.22.0",
+      "binary_name": "valgrind",
+      "sha256": "4652774bd116cb49951ef74115ad4237cad5021b2bd4d80002f09d986ec438b9"
+    },
+    "cachegrind_backend": {
+      "version": "valgrind-3.22.0 cachegrind backend",
+      "binary_name": "cachegrind-amd64-linux",
+      "sha256": "38093b3bf8e9ffecb559a333c896a2fd2a2343bb79c3295f31c36475914deebf"
+    },
+    "callgrind_backend": {
+      "version": "valgrind-3.22.0 callgrind backend",
+      "binary_name": "callgrind-amd64-linux",
+      "sha256": "825eb197d519240c112e03ed00f40a8bbe1a0a0614f79ea95e28c67e8695cb03"
+    },
+    "owned_process_supervisor": {
+      "version": "Reviewed unreaped owned-group supervisor c4f0b2f2",
+      "binary_name": "owned_process_core.py",
+      "sha256": "c4f0b2f298ecb1d777c04740246be10ab4476d895139f24ae73eb57ce3f10f61"
+    }
+  },
+  "native_libraries": {
+    "base": [
+      {
+        "name": "libgcc_s.so.1",
+        "sha256": "d93224d2b0dab4247598be683adca02f5cf00586f99c187579cd7e92058fb7cb"
+      },
+      {
+        "name": "libc.so.6",
+        "sha256": "3a15d66867d83762c7f2f1e37359cb8f6c5743edb369c65285cb0b1c4f7498bf"
+      },
+      {
+        "name": "ld-linux-x86-64.so.2",
+        "sha256": "c20a2dc8917c755f02b94049356320fe1f62ac7d9f8994731f807d9df39302da"
+      }
+    ],
+    "candidate": [
+      {
+        "name": "libgcc_s.so.1",
+        "sha256": "d93224d2b0dab4247598be683adca02f5cf00586f99c187579cd7e92058fb7cb"
+      },
+      {
+        "name": "libc.so.6",
+        "sha256": "3a15d66867d83762c7f2f1e37359cb8f6c5743edb369c65285cb0b1c4f7498bf"
+      },
+      {
+        "name": "ld-linux-x86-64.so.2",
+        "sha256": "c20a2dc8917c755f02b94049356320fe1f62ac7d9f8994731f807d9df39302da"
+      }
+    ]
+  },
+  "input_identity": {
+    "workload": {
+      "examples_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "reductions": {
+        "SimpleRegular": "Copy SimpleRegular.cfg, set N to6.",
+        "MCbtree": "Copy MCbtree.cfg, set MaxKey to3.",
+        "GameOfLife": "Copy GameOfLife.cfg, set N to3.",
+        "EWD998PCal": "Copy EWD998PCal.cfg unchanged; in EWD998PCal.tla change StateConstraint counter[i]<3 to counter[i]<2."
+      },
+      "models": {
+        "SimpleRegular": {
+          "module": {
+            "path": "specifications/TeachingConcurrency/SimpleRegular.tla",
+            "sha256": "bf3872f04d71f7b80fcb55cecd07bf1b38fac3861fbb3452eb179c593c1bcdb5"
+          },
+          "config": {
+            "path": "specifications/TeachingConcurrency/R1SimpleRegular.cfg",
+            "sha256": "aa129769c5d9a6bd1c3545dbbfbc98e1279d4b314b592b7801c9af71735fc3ff"
+          },
+          "expected": {
+            "distinct": 12097,
+            "generated": 47584,
+            "depth": 19
+          }
+        },
+        "MCbtree": {
+          "module": {
+            "path": "specifications/btree/MCbtree.tla",
+            "sha256": "64655fd6391422f27607da0c3d36617066249c68687d984bdb1113bc98f83ac3"
+          },
+          "config": {
+            "path": "specifications/btree/R1MCbtree.cfg",
+            "sha256": "de7bb2b0263d04833243ed7f09bec7cb496e4111f6777425161b9d8a5e119ffa"
+          },
+          "expected": {
+            "distinct": 21364,
+            "generated": 127825,
+            "depth": 24
+          }
+        },
+        "GameOfLife": {
+          "module": {
+            "path": "specifications/GameOfLife/GameOfLife.tla",
+            "sha256": "dcd6d626946faab35ac22ad38a031b0d9bd9bc274d8750340506acc407dccbc6"
+          },
+          "config": {
+            "path": "specifications/GameOfLife/R1GameOfLife.cfg",
+            "sha256": "842e3c2d93b0535783091687f76debde6dd42fc7b33983f154a9f892125ef4a9"
+          },
+          "expected": {
+            "distinct": 512,
+            "generated": 1024,
+            "depth": 1
+          }
+        },
+        "EWD998PCal": {
+          "module": {
+            "path": "specifications/ewd998/EWD998PCal.tla",
+            "sha256": "3342f5d865902f6e85defbcd6713cea1dac50e031d3f2281e7b7cc9deb545da4"
+          },
+          "config": {
+            "path": "specifications/ewd998/R1EWD998PCal.cfg",
+            "sha256": "44073c04a88dd7aa593cab099e59b7b1dd4be31ec2d5b59616b0426a3a84f892"
+          },
+          "expected": {
+            "distinct": 20870,
+            "generated": 168292,
+            "depth": 28
+          }
+        }
+      }
+    },
+    "workload_archive_sha256": "f1d3eb00d9f43c11e03a50be64a3115f8e2bb838299bb8d7033106a8ce0c53ef",
+    "workload_archive_manifest": {
+      "specifications/TeachingConcurrency/Simple.cfg": "95943595ab1f09d64d8ca3b99222cdc1b8c9ddb626da96a06d68ae5f89bdf751",
+      "specifications/TeachingConcurrency/Simple.tla": "dd859866e8be0ee36b0005b0393becd788fe51aae7ebcd7deaa14c259a3c0bab",
+      "specifications/TeachingConcurrency/SimpleRegular.cfg": "8520b95eddae24778e6f099010d8da0b25ab6667c32a0284b2e16e9528924960",
+      "specifications/TeachingConcurrency/SimpleRegular.tla": "bf3872f04d71f7b80fcb55cecd07bf1b38fac3861fbb3452eb179c593c1bcdb5",
+      "specifications/TeachingConcurrency/SimpleRegular_proof.tla": "0bebedcf4a56e72ee29bf71aa6bc97f7e48ccc3bac18aca3db39829b3b789386",
+      "specifications/TeachingConcurrency/Simple_proof.tla": "f2e5348593cd1b4e4107c591442c1b625146f6907189013c822440d67c84d1af",
+      "specifications/btree/MCbtree.cfg": "e7122e42b7ee004fcf7b9f80602143b0e72909b45df6e797ea89017d8a16079c",
+      "specifications/btree/MCbtree.tla": "64655fd6391422f27607da0c3d36617066249c68687d984bdb1113bc98f83ac3",
+      "specifications/btree/btree.tla": "5f763508e82ac3173f8bd59c77dfa87da265d84a39444b5ef4d60d7985bf2fec",
+      "specifications/btree/kvstore.cfg": "7b0120df31cb29eb12fa2a8a6f3b7e355921e58268b4d27384c1a94978e7246a",
+      "specifications/btree/kvstore.tla": "c1131a8591f91c110f2a739dc91d20564542ac6f201d5b76be581e485cfbb376",
+      "specifications/GameOfLife/GameOfLife.cfg": "89b3dd94f35fb6cee4b093fa2b9a2e0f44e6cf0d3e43707b82c801690eeb9bf3",
+      "specifications/GameOfLife/GameOfLife.tla": "dcd6d626946faab35ac22ad38a031b0d9bd9bc274d8750340506acc407dccbc6",
+      "specifications/ewd998/AsyncTerminationDetection.cfg": "6affac15002d814a67775f16affa001d9e01c2a758a9d35dbfbaccdd1fc9f5c6",
+      "specifications/ewd998/AsyncTerminationDetection.tla": "c1b15be68a73c6e5f69c5c09f2736870182a9b0765ad9860452240119911b030",
+      "specifications/ewd998/AsyncTerminationDetection_proof.tla": "87cc4e25be553691b1819b1be20b0addec2f724cec9ffe081014b23f99722ec7",
+      "specifications/ewd998/EWD998.cfg": "4e47f078297118a6e31953eddf6a8a6d469d32464ec1d22b902c041c587e5d59",
+      "specifications/ewd998/EWD998.tla": "b51ba3587e0d1b88a38cc15cd667b7a50ccb72e7f5f79f7260c97e473f9392e8",
+      "specifications/ewd998/EWD998Chan.cfg": "259100c5161cf1e04dce4c9898957c5ff7ba81f790c840396a2a7b5e618eb044",
+      "specifications/ewd998/EWD998Chan.tla": "ebdb5e9c6469fb1afc3b12198e1e2159b3ff3fa76d7bd15e5e11dce92b72313c",
+      "specifications/ewd998/EWD998ChanID.cfg": "69ec430deca39d7af5e2bfb1f6e43b5c941d29f4362a70048d534a52b8a54146",
+      "specifications/ewd998/EWD998ChanID.tla": "c498e5e35a83d84257016fdf4ba359ddb40dbb5f3b2234656e32b419a5499e93",
+      "specifications/ewd998/EWD998ChanID_export.cfg": "a02a94fce512a1c7f8c47f0c35bbad7813dfedbafec7212d2404c585541b078a",
+      "specifications/ewd998/EWD998ChanID_export.tla": "638f814c422250d6debe1209419971b66ead59c8aa8aca4a2efcc29feb379985",
+      "specifications/ewd998/EWD998ChanID_shiviz.cfg": "4dab15b9fea40413c96361139310ee2502b305c9b69980f5ba3c39aa5c30719f",
+      "specifications/ewd998/EWD998ChanID_shiviz.tla": "43739b7a7c0754fbb2cf5a7606df9bd9610fc4bc3f22b79aab559e2f4e630c98",
+      "specifications/ewd998/EWD998ChanTrace.cfg": "e9e662c8672fff1a2affafb90efebbf1201f084e8f0e33698e2a42a9721bff64",
+      "specifications/ewd998/EWD998ChanTrace.tla": "da182795698ff457ae8979b7d97cd47842d75e3d860323ca02031dc47c940171",
+      "specifications/ewd998/EWD998Chan_opts.tla": "4f29c2b6208a54f1ba954fe455f47c70898789b9549d97b6deca6c9efbeaacab",
+      "specifications/ewd998/EWD998PCal.cfg": "44073c04a88dd7aa593cab099e59b7b1dd4be31ec2d5b59616b0426a3a84f892",
+      "specifications/ewd998/EWD998PCal.tla": "3342f5d865902f6e85defbcd6713cea1dac50e031d3f2281e7b7cc9deb545da4",
+      "specifications/ewd998/EWD998PCal_proof.tla": "fdf1114b7c47216f4b4a3c81db0cc34dd92c0712bad6c31eef09751835d906fd",
+      "specifications/ewd998/EWD998Small.cfg": "f0869ebeddcdec5b0208014218a946532c01fdb34130579acff081ed6e883f2a",
+      "specifications/ewd998/EWD998_anim.tla": "6265b417dc405685a3e860493bb21bc4481b2ac278daff99e281a25e7324e209",
+      "specifications/ewd998/EWD998_opts.tla": "5eab17aa1ab6cff0df0cda646453e240c92ed7378e51b4c97b3597fb732a8f85",
+      "specifications/ewd998/EWD998_optsSC.tla": "bf863afe83e52cc6c08e671100a1c15bb4d9ad6735b7887f8ac5cd254ef2334d",
+      "specifications/ewd998/EWD998_proof.tla": "2469117c5148dd3971326c0cc80cdc7665fbe859688f3c635681d3a069029517",
+      "specifications/ewd998/Folds.tla": "2f8c0a7de9a64a5276a78cb7b048e18038d37787439bb9e60df126dc7608a35a",
+      "specifications/ewd998/SmokeEWD998.cfg": "1b14807465007ef613790a0d2f83fe75455580a533c5a79f6b7ba0e690c6eeb7",
+      "specifications/ewd998/SmokeEWD998.tla": "c59b406bc1d54108b3d842e41bc2444c915adde416ebd8a02cb5fe4f6b13f808",
+      "specifications/ewd998/SmokeEWD998_SC.cfg": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "specifications/ewd998/SmokeEWD998_SC.tla": "063fe7c67a95789aeb793a67b8ac0135be60749356824e5d85fbe1fed09599d3",
+      "specifications/ewd998/Utils.tla": "386c5319fd101fdde36610466f82151e8a39e01d1c6c8c44e894f7589bcc2b7b",
+      "specifications/btree/R1MCbtree.cfg": "de7bb2b0263d04833243ed7f09bec7cb496e4111f6777425161b9d8a5e119ffa",
+      "specifications/TeachingConcurrency/R1SimpleRegular.cfg": "aa129769c5d9a6bd1c3545dbbfbc98e1279d4b314b592b7801c9af71735fc3ff",
+      "specifications/GameOfLife/R1GameOfLife.cfg": "842e3c2d93b0535783091687f76debde6dd42fc7b33983f154a9f892125ef4a9",
+      "specifications/ewd998/R1EWD998PCal.cfg": "44073c04a88dd7aa593cab099e59b7b1dd4be31ec2d5b59616b0426a3a84f892"
+    },
+    "module_roots": {
+      "module_path_order": [
+        "library",
+        "modules"
+      ],
+      "recovered_archive_sha256": "90a8757da7c179dcf04ec8f7530f99881e013eb76b92bfeb59808d9a0fe782ab",
+      "library_origin": {
+        "id": "tlapm-library-d8b9747",
+        "commit": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37"
+      },
+      "modules_origin": {
+        "id": "community-modules-202610040242",
+        "jar_sha256": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+      },
+      "ancestry_verification": "All 49 TLA files byte-match their pinned local cache roots: 15 TLAPS and 34 community modules. The archive also contains 19 Java source files not executed by the native instruction campaign.",
+      "matching_tla_files": [
+        "library/FiniteSetTheorems_proofs.tla",
+        "library/FiniteSetTheorems.tla",
+        "library/BagsTheorems_proofs.tla",
+        "library/FiniteSets.tla",
+        "library/RealTime.tla",
+        "library/WellFoundedInduction_proofs.tla",
+        "library/TLAPS.tla",
+        "library/Bags.tla",
+        "library/SequenceTheorems.tla",
+        "library/NaturalsInduction_proofs.tla",
+        "library/NaturalsInduction.tla",
+        "library/WellFoundedInduction.tla",
+        "library/SequenceTheorems_proofs.tla",
+        "library/BagsTheorems.tla",
+        "modules/GraphTheorems.tla",
+        "modules/CSV.tla",
+        "modules/SVG.tla",
+        "modules/GraphViz.tla",
+        "modules/Quorum.tla",
+        "modules/FoldsTheorems.tla",
+        "modules/BagsExt.tla",
+        "modules/VectorClocks.tla",
+        "modules/FiniteSetsExtTheorems.tla",
+        "modules/DifferentialEquations.tla",
+        "modules/Graphs.tla",
+        "modules/QuorumTheorems_proofs.tla",
+        "modules/HTML.tla",
+        "modules/FunctionTheorems.tla",
+        "modules/Statistics.tla",
+        "modules/SequencesExt.tla",
+        "modules/ShiViz.tla",
+        "modules/IOUtils.tla",
+        "modules/QuorumTheorems.tla",
+        "modules/UndirectedGraphs.tla",
+        "modules/FoldsTheorems_proofs.tla",
+        "modules/SequencesExtTheorems.tla",
+        "modules/FiniteSetsExtTheorems_proofs.tla",
+        "modules/Folds.tla",
+        "modules/DyadicRationals.tla",
+        "modules/Combinatorics.tla",
+        "modules/FunctionTheorems_proofs.tla",
+        "modules/Json.tla",
+        "modules/FiniteSetsExt.tla",
+        "modules/Relation.tla",
+        "modules/Bitwise.tla",
+        "modules/Functions.tla",
+        "modules/GraphTheorems_proofs.tla",
+        "modules/SequencesExtTheorems_proofs.tla"
+      ],
+      "non_tla_archive_extras": [
+        "library/dune",
+        "modules/tlc2/overrides/AbstractGraphs.java",
+        "modules/tlc2/overrides/IOUtils.java",
+        "modules/tlc2/overrides/BagsExt.java",
+        "modules/tlc2/overrides/TLCOverrides.java",
+        "modules/tlc2/overrides/Functions.java",
+        "modules/tlc2/overrides/FiniteSetsExt.java",
+        "modules/tlc2/overrides/CommunityModules.java",
+        "modules/tlc2/overrides/GraphViz.java",
+        "modules/tlc2/overrides/DyadicRationals.java",
+        "modules/tlc2/overrides/Json.java",
+        "modules/tlc2/overrides/Combinatorics.java",
+        "modules/tlc2/overrides/UndirectedGraphs.java",
+        "modules/tlc2/overrides/SequencesExt.java",
+        "modules/tlc2/overrides/Bitwise.java",
+        "modules/tlc2/overrides/SVG.java",
+        "modules/tlc2/overrides/Graphs.java",
+        "modules/tlc2/overrides/Statistics.java",
+        "modules/tlc2/overrides/CSV.java",
+        "modules/tlc2/overrides/VectorClocks.java"
+      ],
+      "archive_manifest": {
+        "library/FiniteSetTheorems_proofs.tla": "a0c71d0b98986784096f9f56b4395edb76dd013bf621d6fa0b9659c1cdbf80a6",
+        "library/FiniteSetTheorems.tla": "484bf0f9ab6a69ef45f7282f7f92dcf1e6ae139e44117b0d5a4427635818e773",
+        "library/dune": "1a64487faf00c1d6c2a4d9e8785f3a329146ffccafc4d8b4209ba9f230965292",
+        "library/BagsTheorems_proofs.tla": "749dcdc49aa7ac1717235c3d82b1f6cc1b389381a63033b40001db21174fba86",
+        "library/FiniteSets.tla": "eca905df95c16fb12f0f205a38b429c216a11b5c8429d270af044f05600a6380",
+        "library/RealTime.tla": "23078bd5961b783bb888cc5654a5c92ae6296fae4f426dc6e1f57a29109c52f0",
+        "library/WellFoundedInduction_proofs.tla": "f3af7b047663143f50d33c2587ca96cfeb27d47a80f365701cc0f1f7f569584c",
+        "library/TLAPS.tla": "9afe54984062748a0568966434cc0945d682f8cd89fdbc38f73b5579751b0c55",
+        "library/Bags.tla": "b655ca5e4866f2c81caa43b18a02d0eaa3517784ebc0025259ae4901fd40b814",
+        "library/SequenceTheorems.tla": "1fdbed9077bba9db329e499535be29f8d2e6fba3a2b338e364c3b0ec56596bf9",
+        "library/NaturalsInduction_proofs.tla": "8b48da8d05a2eb61698c5cd512a25c07cfe64ad6295976a853b3697e9640cddb",
+        "library/NaturalsInduction.tla": "08f52420cdaaf11292ed366782b5ce5b596bb7cbe789526a1cfd8806dbf98624",
+        "library/WellFoundedInduction.tla": "6f2f274c2e987d1edcf004d8e37b053f1f82b912e66d6a51bae0af8012ddcbec",
+        "library/SequenceTheorems_proofs.tla": "8f30d6f458ac623df4db14c88ab758fcb2a97889e42427e67634dcfc61510b20",
+        "library/BagsTheorems.tla": "af67c8abfb23b0f3ee0d0fa6d0427948f268a14de1b9bb408e7acda23a1d1db4",
+        "modules/GraphTheorems.tla": "bf34f1eda4f2f5daed418028f98de0228a19da4bf37ee9185c551d12a467e56f",
+        "modules/CSV.tla": "ecb845154f558670d1e432fcb46ee013c6a64eedea8d8656ebbfbca06e63a7a3",
+        "modules/SVG.tla": "a4d127c92ebc756b9f5c4bee354fd474f83a612e188915989212d197ab17747a",
+        "modules/GraphViz.tla": "8a09439b36a7ae7820b587f5ca883b91af280d61c875e3d6596d91eeef12d03d",
+        "modules/Quorum.tla": "1ebfb8e2a58c9ed2b2074e1ac620d315ed96290bedb4267f9f7d822d86f96b11",
+        "modules/FoldsTheorems.tla": "099de628fdd243f6f3b35c143b04e243e9fe817745948a9c9e83d367b88473e5",
+        "modules/BagsExt.tla": "f33833f1c20ca97aee90129996180e179fd41cab4362b5a0333fcbb617b4b03c",
+        "modules/VectorClocks.tla": "69cc7f09a0b1048495843778ba34afd3e1cb11881cd8e1ce7b725b376aeb9a6a",
+        "modules/FiniteSetsExtTheorems.tla": "89e3578d8014645100c6b1ba0405c759c47f56ac2c793f2b97a86184b36b3635",
+        "modules/DifferentialEquations.tla": "29d2de28dc7e8856d16ddf698aeef78a6191b053b0e6e7a74b85a1fae9d540fe",
+        "modules/Graphs.tla": "df8e76bd5841dec1e578c68f7b41e65c88e30b2670b188c6f09bd1b534eba135",
+        "modules/QuorumTheorems_proofs.tla": "6edfd8170d23c8f4ec6c0710e68d9449bf862877240edddc1eacebeee617412b",
+        "modules/HTML.tla": "9f95c172147c19ff3795e3b47dbe80ecbb10237925c1757e79cd506c1dc2020f",
+        "modules/FunctionTheorems.tla": "f89871fb5b35d2fc54f583b12adb489dd6660be7aced67ab295fba0d4999c116",
+        "modules/Statistics.tla": "0edfb2849a7ce326c49c668d88d6c123d693bfdd7271aa0e6f24f8f927f43005",
+        "modules/SequencesExt.tla": "8b96d0ff74836cca2adfb7da3b32846ca64c4d466d543b55c8d05c32b64aa0f6",
+        "modules/ShiViz.tla": "59b3af020731a856ab48d2e497e302f22f6059d5c18059358117fb32e3f63cf7",
+        "modules/IOUtils.tla": "c107b97b6fa302f0c84855eaa8b6b6cd536710302e7e2e5ebbbbbd47accad4ad",
+        "modules/QuorumTheorems.tla": "e01d0f6f5bf7950d03deb1d77e5089e8383ff91520b0355ecd25b33191720c13",
+        "modules/UndirectedGraphs.tla": "396a93b959795f3057bed9ee88ffbb76e5f8364bc5c474e01f5a8ce3e1d73875",
+        "modules/FoldsTheorems_proofs.tla": "61e4c97ba1bba2dd5b71af1846a0d473469fbc897911a2f87fe80d2d0394378e",
+        "modules/SequencesExtTheorems.tla": "165541b28e8fb7cee588bac97639b74df0f74c50a42e47529b13b9ea4ab7b042",
+        "modules/FiniteSetsExtTheorems_proofs.tla": "2511f68881282f97914f7468fe879cceeadcef30e7f37488f1c15a38989dacde",
+        "modules/Folds.tla": "aa59063fd600bb640b2ae24dc85ef770277ef5bf7955092b76b8b471790086da",
+        "modules/DyadicRationals.tla": "ba382ab4c561af6f575649a93e050d57d6395a8314925950d0285715763223af",
+        "modules/Combinatorics.tla": "c07c9ab36bb543332573258d57b5e5a1be9d96c982319aa0b92cd218025afc35",
+        "modules/FunctionTheorems_proofs.tla": "bf6c7b9f7bf4d7f7ca1f5ddf72ac8b230fbf3ca338e86cf70ea4f9c280191396",
+        "modules/Json.tla": "2c148bc47f20e6d2585029dcbeb9cdfc75fd423c7ce13fee2933cee84154c6cb",
+        "modules/FiniteSetsExt.tla": "dc5d6944395dd18e2f8acf696296808a9460cbbf1b9888f88c5ac4c83a5237f9",
+        "modules/Relation.tla": "89807adef4e91e63d1cb54bc91199063ec50c39106aa27373cf49e475dd828af",
+        "modules/Bitwise.tla": "35e2ba7cd18f83232f1f5b5c6e6b2030aa7927eef5abd64ffffddbde12b3d66a",
+        "modules/Functions.tla": "b54ff63b7c76c327525c17c188d5f9f5e53d92f3fd701f5e2ba54f0f54391063",
+        "modules/GraphTheorems_proofs.tla": "aca4d832c2b9f6ceda08b99178fd23293c91abd098db6434f9d8efef94621e21",
+        "modules/SequencesExtTheorems_proofs.tla": "942aa61eb4384720430f74f81da6f09678c6c992c94c2a228e713ba226a88fc1",
+        "modules/tlc2/overrides/AbstractGraphs.java": "f0b17565d34306cff6fcbccf19c3706b3405abea8ede76f46fbe1ef92e3cc395",
+        "modules/tlc2/overrides/IOUtils.java": "249ae8bd3b0ed1cca3af59118d47a53a02ff87bd2f6d718c5fd450086e73041c",
+        "modules/tlc2/overrides/BagsExt.java": "f60ee54d15ab03ea4266fd0fe6140fd83acbda523906579dcfbbade25378c15f",
+        "modules/tlc2/overrides/TLCOverrides.java": "ad99573c77b60084da24066006fe35c7c8ed670604987d02695326dec7505bee",
+        "modules/tlc2/overrides/Functions.java": "2d435825b09fc27f3d2f3d122e0cfb7256302236ae1bcff698066e0d49263d23",
+        "modules/tlc2/overrides/FiniteSetsExt.java": "82789fc3fafd9e726be5c9aa9525cff3bfdeade61c841a669beaf644dfe84df9",
+        "modules/tlc2/overrides/CommunityModules.java": "30004351430cc3e21b7bf5f4cf09c9e29e932850930cb8d1d9b0f321169ce6d8",
+        "modules/tlc2/overrides/GraphViz.java": "1d7cef1b279c3d152649b60efb14ab2d28b01a08368b38f696fbf099de4acca2",
+        "modules/tlc2/overrides/DyadicRationals.java": "496581189e02444fcb8f0724cfbdfe54c3207824df8607fa28bd74faeebb7667",
+        "modules/tlc2/overrides/Json.java": "3db84e88abf7b1874714c26e0c6e2bae009e29ff399f3ab453beac5f0f80fd9a",
+        "modules/tlc2/overrides/Combinatorics.java": "857ac3a910cc650b3e5abaa02e6db981d15715cd5d2ea72d09bdd2cc69cd1be9",
+        "modules/tlc2/overrides/UndirectedGraphs.java": "73d13947dd742603ed3d80965832a570d47c8c4dd8cda4eda9f02a91d071440e",
+        "modules/tlc2/overrides/SequencesExt.java": "683a3616c9b89018da22dff77e76cb021efcf7a4976c7cee54e424010561a17e",
+        "modules/tlc2/overrides/Bitwise.java": "1cb08783354de9f8bc3350d140ceb915be9edd7e29732268d6c4490f992938dc",
+        "modules/tlc2/overrides/SVG.java": "ca0f378586af5494077e0f6664d0db26cdd50304225ebbe21cba4542f75dd749",
+        "modules/tlc2/overrides/Graphs.java": "a8b4c308d5a23216bf5c40747822accf3ae23ece84d073ac2279d5ef0d5195ed",
+        "modules/tlc2/overrides/Statistics.java": "06cbf0e7f5e9a887c90fba125bddab13d122be588d02ebdc198ef8be0b93c99d",
+        "modules/tlc2/overrides/CSV.java": "ba085e7186cf2fbb632709d9737d63eae7f6a639640b89cf9bff0f9046f94345",
+        "modules/tlc2/overrides/VectorClocks.java": "c6b9c35f3a1a17daf9020357e4fca3dba048ae1287cf8d12f27e5dc0d485052d"
+      }
+    }
+  },
+  "coffee_input_identity": {
+    "files": {
+      "CoffeeCan/CoffeeCan.tla": {
+        "sha256": "32c5d9c900104c0d8be0d3730a6013d141dc90901e08ccaea403fb0be731cd90",
+        "bytes": 5461
+      },
+      "CoffeeCan/CoffeeCan1000Beans.cfg": {
+        "sha256": "a57c02854cd0a0f7622df98d45cb70ea607337c35fa3a2ae49424d675f46e00a",
+        "bytes": 190
+      },
+      "Cycle/Cycle.cfg": {
+        "sha256": "9acefc7ddd66acdae19c51976291b15780b035d81dccf071b1437bc8813f821f",
+        "bytes": 31
+      },
+      "Cycle/Cycle.tla": {
+        "sha256": "1d27c8e8b5c6c845dd396cdfcfc8c8a8c97f5fa3c4b4a53d75c800b2350c49a1",
+        "bytes": 117
+      },
+      "reference/CoffeeCan1000Beans.golden.json": {
+        "sha256": "2a7d93a3b26bf4787aef4d92770b3272f9e27a52591bfec9ead92fec2f1d6d0d",
+        "bytes": 3889
+      },
+      "reference/Naturals.embedded-source.tla": {
+        "sha256": "73f2a68412039aa86f37ad08f0d0fef50fa8327d0ad8806f515548c75e9d9d84",
+        "bytes": 2047
+      }
+    },
+    "archive_sha256": "8a0eae5996315f136fc654b6a1d4e948340e1aa64c3e081c652719b3c3056141",
+    "golden_oracle": "tlc-2026.10.06.014338",
+    "golden_upstream": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+    "corpus": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "embedded_module_source": "crates/dive-sema/stdlib/Naturals.tla",
+    "embedded_module_file": "reference/Naturals.embedded-source.tla",
+    "fixture_scope": "Cycle source-owned holding control only, no new TLC oracle. Coffee exact original module/config/golden bytes, all4properties+TypeInvariant retained."
+  },
+  "oracle": {
+    "id": "tlc-2026.10.06.014338",
+    "upstream": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+    "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "scope": "Pinned conformance goldens; affected-model/matrix phases execute native dive, no new oracle generation."
+  },
+  "Coffee_affected_model_checks": [
+    {
+      "profile": "dive",
+      "native_exit": 0,
+      "externally_censored": false,
+      "statistics": {
+        "depth": 1,
+        "distinct": 501500,
+        "generated": 2000002,
+        "initial_generated": 501500,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "execution": {
+        "capture_completed": true,
+        "exhausted": true,
+        "stage": "complete"
+      },
+      "success": {
+        "verdict": "success",
+        "check_kind": "temporal",
+        "report_exit": 0,
+        "tlc": {
+          "code": 2193,
+          "exit_status": 0,
+          "name": "TLC_SUCCESS",
+          "verified": true
+        }
+      },
+      "all_four_configured_properties": [
+        "EventuallyTerminates",
+        "MonotonicDecrease",
+        "LoopInvariant",
+        "TerminationHypothesis"
+      ],
+      "state_invariant": "TypeInvariant",
+      "property_evidence": "Exact original module/config bytes plus complete temporal success; report properties field is null, not per-property report rows.",
+      "native_budget": {
+        "time_limit_ms": 564520,
+        "max_memory_bytes": 8589934592,
+        "time_limit_source": "explicit",
+        "max_memory_source": "explicit"
+      },
+      "outer_backstop_seconds": 600,
+      "workers_requested": 1,
+      "workers_used": 1,
+      "seed": 0,
+      "fingerprint": 0,
+      "lncheck": "deterministic",
+      "lasso": "short",
+      "actual_temporal_bounds": {
+        "acceptance_buffer_bytes": 8000000,
+        "acceptance_materialization_work": 32000000,
+        "acceptance_policy": {
+          "bytes": 8000000,
+          "kind": "buffers",
+          "materialization_work": 32000000
+        },
+        "cell_limits": {
+          "attribution_rows": {
+            "cells": 8000000,
+            "kind": "cells"
+          },
+          "graph_labels": {
+            "kind": "run-budgets"
+          },
+          "word_truth": {
+            "cells": 8000000,
+            "kind": "cells"
+          }
+        },
+        "edges": 8000000,
+        "formula_nodes": 4096,
+        "formula_steps": 1000000,
+        "generated": 32000000,
+        "kind": "entry-work-counts-and-acceptance-buffers",
+        "max_expansion_units": 8,
+        "product_edges": 8000000,
+        "product_steps": 32000000,
+        "product_vertices": 18446744073709551615,
+        "properties": 256,
+        "states": 1000000,
+        "successors_per_unit": 65536,
+        "tableau_nodes": 4096,
+        "total_memory_budget": false
+      },
+      "original_argv_sha256": "2cfc6c556017a4d752c69b090ab696cb431a170b5492d4945d3e5e8fc2b55dbf",
+      "binary_sha256": "2fa544a9516d17e9679b4940af8443a5b3aa77f556de60294d6fb4ce3cb5d482",
+      "raw": {
+        "stdout": {
+          "sha256": "57dfa8c05913759485252743887d573b6ea40fddd9566fa2bec7c364c338d867",
+          "bytes": 4058,
+          "mode": "0o664"
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "mode": "0o664"
+        },
+        "observation.json": {
+          "sha256": "1e50ca549bb615129da533fc4cbb0c0ae75041226964cdb5b352d860185c921a",
+          "bytes": 1036,
+          "mode": "0o664"
+        },
+        "spawn.json": {
+          "sha256": "1ac31061d93e58760419a93d1fc3946f28ba9ae9917471fefb9268f9bd0034db",
+          "bytes": 682,
+          "mode": "0o664"
+        },
+        "identity-before.json": {
+          "sha256": "bb342f20ef8eb5e82648cebb90de2152243430f7ce4e718fea50752e36d8bd2b",
+          "bytes": 5783,
+          "mode": "0o664"
+        },
+        "identity-after.json": {
+          "sha256": "29c4add6d219dd320d10c094f8bd1df222934e805c459f8c9dba9c5e5efd0a86",
+          "bytes": 5783,
+          "mode": "0o664"
+        }
+      }
+    },
+    {
+      "profile": "tlc",
+      "native_exit": 0,
+      "externally_censored": false,
+      "statistics": {
+        "depth": 1,
+        "distinct": 501500,
+        "generated": 2000002,
+        "initial_generated": 501500,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "execution": {
+        "capture_completed": true,
+        "exhausted": true,
+        "stage": "complete"
+      },
+      "success": {
+        "verdict": "success",
+        "check_kind": "temporal",
+        "report_exit": 0,
+        "tlc": {
+          "code": 2193,
+          "exit_status": 0,
+          "name": "TLC_SUCCESS",
+          "verified": true
+        }
+      },
+      "all_four_configured_properties": [
+        "EventuallyTerminates",
+        "MonotonicDecrease",
+        "LoopInvariant",
+        "TerminationHypothesis"
+      ],
+      "state_invariant": "TypeInvariant",
+      "property_evidence": "Exact original module/config bytes plus complete temporal success; report properties field is null, not per-property report rows.",
+      "native_budget": {
+        "time_limit_ms": 564520,
+        "max_memory_bytes": 8589934592,
+        "time_limit_source": "explicit",
+        "max_memory_source": "explicit"
+      },
+      "outer_backstop_seconds": 600,
+      "workers_requested": 1,
+      "workers_used": 1,
+      "seed": 0,
+      "fingerprint": 0,
+      "lncheck": "final",
+      "lasso": "short",
+      "actual_temporal_bounds": {
+        "acceptance_buffer_bytes": 8000000,
+        "acceptance_materialization_work": 32000000,
+        "acceptance_policy": {
+          "bytes": 8000000,
+          "kind": "buffers",
+          "materialization_work": 32000000
+        },
+        "cell_limits": {
+          "attribution_rows": {
+            "cells": 8000000,
+            "kind": "cells"
+          },
+          "graph_labels": {
+            "kind": "run-budgets"
+          },
+          "word_truth": {
+            "cells": 8000000,
+            "kind": "cells"
+          }
+        },
+        "edges": 8000000,
+        "formula_nodes": 4096,
+        "formula_steps": 1000000,
+        "generated": 32000000,
+        "kind": "entry-work-counts-and-acceptance-buffers",
+        "max_expansion_units": 8,
+        "product_edges": 8000000,
+        "product_steps": 32000000,
+        "product_vertices": 18446744073709551615,
+        "properties": 256,
+        "states": 1000000,
+        "successors_per_unit": 65536,
+        "tableau_nodes": 4096,
+        "total_memory_budget": false
+      },
+      "original_argv_sha256": "0c688fb269135e72646335e031bd8ab869c45233eac1ab8a926f41b98044251c",
+      "binary_sha256": "2fa544a9516d17e9679b4940af8443a5b3aa77f556de60294d6fb4ce3cb5d482",
+      "raw": {
+        "stdout": {
+          "sha256": "b82008e417bf54e06559a6ba36669d4891e02be586709779c7a453e34ce6ad8e",
+          "bytes": 3792,
+          "mode": "0o664"
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "mode": "0o664"
+        },
+        "observation.json": {
+          "sha256": "ec0b952d7839c2792e1e9660d9d0f8f9ff411052c814da19faa43ac20e52d087",
+          "bytes": 1054,
+          "mode": "0o664"
+        },
+        "spawn.json": {
+          "sha256": "0ac2159456733507cec8c87c48cb88a8400d82ea49eac32cca04f388f0d34d4d",
+          "bytes": 702,
+          "mode": "0o664"
+        },
+        "identity-before.json": {
+          "sha256": "e83e406df2f38dd0a885f59104e5e274ff7cd4a7f873a6495595dca243371dad",
+          "bytes": 5783,
+          "mode": "0o664"
+        },
+        "identity-after.json": {
+          "sha256": "5aba31f6fa87f1737aaa38b9d5ba3670d006c82887640feb697a4597422150bf",
+          "bytes": 5783,
+          "mode": "0o664"
+        }
+      }
+    }
+  ],
+  "normal_instruction_screen": {
+    "arms": 16,
+    "pairs": [
+      {
+        "model": "SimpleRegular",
+        "profile": "dive",
+        "base_Ir": 2590803034,
+        "candidate_Ir": 2590977374,
+        "exact_integer_at_most_one_percent": true,
+        "delta_percent": 0.006729187734921815
+      },
+      {
+        "model": "MCbtree",
+        "profile": "dive",
+        "base_Ir": 14413251243,
+        "candidate_Ir": 14412088033,
+        "exact_integer_at_most_one_percent": true,
+        "delta_percent": -0.008070420617722895
+      },
+      {
+        "model": "GameOfLife",
+        "profile": "dive",
+        "base_Ir": 1146676673,
+        "candidate_Ir": 1146791019,
+        "exact_integer_at_most_one_percent": true,
+        "delta_percent": 0.00997194786398481
+      },
+      {
+        "model": "EWD998PCal",
+        "profile": "dive",
+        "base_Ir": 47065720379,
+        "candidate_Ir": 47104458171,
+        "exact_integer_at_most_one_percent": true,
+        "delta_percent": 0.08230574543013347
+      },
+      {
+        "model": "SimpleRegular",
+        "profile": "tlc",
+        "base_Ir": 2654965306,
+        "candidate_Ir": 2654959169,
+        "exact_integer_at_most_one_percent": true,
+        "delta_percent": -0.0002311517964481702
+      },
+      {
+        "model": "MCbtree",
+        "profile": "tlc",
+        "base_Ir": 18204396036,
+        "candidate_Ir": 18205582234,
+        "exact_integer_at_most_one_percent": true,
+        "delta_percent": 0.006515997551659325
+      },
+      {
+        "model": "GameOfLife",
+        "profile": "tlc",
+        "base_Ir": 1138889053,
+        "candidate_Ir": 1138808415,
+        "exact_integer_at_most_one_percent": true,
+        "delta_percent": -0.007080408735826715
+      },
+      {
+        "model": "EWD998PCal",
+        "profile": "tlc",
+        "base_Ir": 48048072543,
+        "candidate_Ir": 48025301291,
+        "exact_integer_at_most_one_percent": true,
+        "delta_percent": -0.04739264406417032
+      }
+    ],
+    "all8_integer_candidate_times100_at_most_base_times101": true,
+    "geomean_ratio": 1.0000533784926253,
+    "geomean_instruction_delta_percent": 0.005337849262532224,
+    "five_percent_speedup_requirement": false,
+    "observations": [
+      {
+        "tag": "base-SimpleRegular-dive-w1",
+        "source_arm": "base",
+        "model": "SimpleRegular",
+        "profile": "dive",
+        "verdict": "success",
+        "native_exit": 0,
+        "externally_censored": false,
+        "statistics": {
+          "distinct": 12097,
+          "generated": 47584,
+          "initial_generated": 1,
+          "depth": 19,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "Ir": 2590803034,
+        "original_argv_sha256": "50031518f3a2b2d692a22703ec40eac4092eee5b2f68cec2939c8a82bcd20403",
+        "raw": {
+          "stdout": {
+            "sha256": "3a8851ed84abafb3bb150cec6a62bbc1a595f2491d271bde178e2d9098e66bb9",
+            "bytes": 3111,
+            "mode": "0o664"
+          },
+          "stderr": {
+            "sha256": "65ec8eb0eef068ed5e21533fc3a9097ed830adb92f74e7f69320abe29257d078",
+            "bytes": 580,
+            "mode": "0o664"
+          },
+          "cachegrind": {
+            "sha256": "3d9e76d5f3e0d80168325b23cd7eb18cbac74e4024122d530bb3f1b48183458d",
+            "bytes": 964391,
+            "mode": "0o600"
+          },
+          "observation.json": {
+            "sha256": "7fb48ad28432eb2d5dfc5d855cbd8746b756dc76e717c526fddb33f6b644c5e9",
+            "bytes": 1370,
+            "mode": "0o664"
+          },
+          "spawn.json": {
+            "sha256": "5c7940b552a4e74f740f43b0a59e6652ffd20da86f70f4d069f75071b3e9e7c2",
+            "bytes": 893,
+            "mode": "0o664"
+          },
+          "identity-before.json": {
+            "sha256": "0abfac10642ee89c4e136d600148e69e449da3d81dd8555605892ff99d676d44",
+            "bytes": 3848,
+            "mode": "0o664"
+          },
+          "identity-after.json": {
+            "sha256": "c7889830ab38bc0c8e6b8d6298d05385b11477ecc58b8bfb9ca88ee9ba366368",
+            "bytes": 3848,
+            "mode": "0o664"
+          },
+          "command-identity-before.json": {
+            "sha256": "12e6b29a973295094025f171fc13db747ef4349e977785e0accda077e5e197f8",
+            "bytes": 8750,
+            "mode": "0o664"
+          },
+          "command-identity-after.json": {
+            "sha256": "5cf758fe4c8667bf7f5ab0bd72c9a89d8b2e6ec1714e3c311b3c40565cad5929",
+            "bytes": 8750,
+            "mode": "0o664"
+          }
+        }
+      },
+      {
+        "tag": "candidate-SimpleRegular-dive-w1",
+        "source_arm": "candidate",
+        "model": "SimpleRegular",
+        "profile": "dive",
+        "verdict": "success",
+        "native_exit": 0,
+        "externally_censored": false,
+        "statistics": {
+          "distinct": 12097,
+          "generated": 47584,
+          "initial_generated": 1,
+          "depth": 19,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "Ir": 2590977374,
+        "original_argv_sha256": "6fc8111f9efd3856b278ab6cdcbfd44ffa6f0fb1258b79342295e51b34acec72",
+        "raw": {
+          "stdout": {
+            "sha256": "265911455d2d518d97f059a88be9968df30d6a87cd6a5e2e95113636e5c6e14b",
+            "bytes": 3111,
+            "mode": "0o664"
+          },
+          "stderr": {
+            "sha256": "cef71d8335ac86044e1314a8f3e6228dbe7ed21161c212f850928681f982ea4d",
+            "bytes": 585,
+            "mode": "0o664"
+          },
+          "cachegrind": {
+            "sha256": "db1c76db19cac7fb560c8269ffacf5161f6b812cc09bac91db1202d8b4ee0ff6",
+            "bytes": 964418,
+            "mode": "0o600"
+          },
+          "observation.json": {
+            "sha256": "8abf541e5eaafd9826c0694482f73771e87f392ada7f320fe0e882c2be080110",
+            "bytes": 1386,
+            "mode": "0o664"
+          },
+          "spawn.json": {
+            "sha256": "109f7c4f91d1d17e66f2b4ff907216e75d7e0c13b6178d618f60186c01f9dc41",
+            "bytes": 903,
+            "mode": "0o664"
+          },
+          "identity-before.json": {
+            "sha256": "1a841aabfff45df63f819375cfd60df3df4fb0296e42e3b3fcfd3c6ba3507c87",
+            "bytes": 3853,
+            "mode": "0o664"
+          },
+          "identity-after.json": {
+            "sha256": "90d1bc1ea7849707ee120a8e46eee5a3b724e6ed70b5c4e2e49c08d0dfee150a",
+            "bytes": 3853,
+            "mode": "0o664"
+          },
+          "command-identity-before.json": {
+            "sha256": "27b5418f5ef1f3e61ba0cc1abd37d460bbccc2011dfeef6c494031faa6fe8ab1",
+            "bytes": 8750,
+            "mode": "0o664"
+          },
+          "command-identity-after.json": {
+            "sha256": "00fe4443e96d04e868837131f3afaedd3d3ff0a00260d7dd6fd622a207aa1e46",
+            "bytes": 8750,
+            "mode": "0o664"
+          }
+        }
+      },
+      {
+        "tag": "base-MCbtree-dive-w1",
+        "source_arm": "base",
+        "model": "MCbtree",
+        "profile": "dive",
+        "verdict": "success",
+        "native_exit": 0,
+        "externally_censored": false,
+        "statistics": {
+          "distinct": 21364,
+          "generated": 127825,
+          "initial_generated": 1,
+          "depth": 24,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "Ir": 14413251243,
+        "original_argv_sha256": "43a3f3efebf805891e13d888a19bd480b5dc2e77e3122231bf17d9e9a179668f",
+        "raw": {
+          "stdout": {
+            "sha256": "810337c9b6946b0ee43cced5312fe27f089e24f0b260744fddd96cc21884c1b7",
+            "bytes": 3106,
+            "mode": "0o664"
+          },
+          "stderr": {
+            "sha256": "87d14d8464dcd3884d09fa460f52a1ce4eff581c808c5588ea145e002d1e8467",
+            "bytes": 569,
+            "mode": "0o664"
+          },
+          "cachegrind": {
+            "sha256": "1046f965f04547606c7895d6e359159c5d437909146cee35e669225f226b7170",
+            "bytes": 1100600,
+            "mode": "0o600"
+          },
+          "observation.json": {
+            "sha256": "95ce0d2b04da8ac6caf0dd57ba7e776c0e20e7aab20943b46601df6c0acd577e",
+            "bytes": 1333,
+            "mode": "0o664"
+          },
+          "spawn.json": {
+            "sha256": "bfd4a6573e871188aaee4091967f340ebdb2c8c9c04cf94f8b1386fcf4948d1f",
+            "bytes": 861,
+            "mode": "0o664"
+          },
+          "identity-before.json": {
+            "sha256": "230a2d0e5e1ccd297724b6221b819d7516b2936f2d00753067c58b9a645e3f8f",
+            "bytes": 3848,
+            "mode": "0o664"
+          },
+          "identity-after.json": {
+            "sha256": "598ad14937b6a0e6c2a2f4c97865513e14c5c05d52d56656e9f446a7e4876cd3",
+            "bytes": 3848,
+            "mode": "0o664"
+          },
+          "command-identity-before.json": {
+            "sha256": "ef4d59eecf4de60448522d43e4ed40807a9c20d950c483123190c61edfca8bea",
+            "bytes": 8750,
+            "mode": "0o664"
+          },
+          "command-identity-after.json": {
+            "sha256": "a082c12806e0a8114c0e4f2c17bc083efb38e2709dfc927d511329cbf58a5701",
+            "bytes": 8750,
+            "mode": "0o664"
+          }
+        }
+      },
+      {
+        "tag": "candidate-MCbtree-dive-w1",
+        "source_arm": "candidate",
+        "model": "MCbtree",
+        "profile": "dive",
+        "verdict": "success",
+        "native_exit": 0,
+        "externally_censored": false,
+        "statistics": {
+          "distinct": 21364,
+          "generated": 127825,
+          "initial_generated": 1,
+          "depth": 24,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "Ir": 14412088033,
+        "original_argv_sha256": "6d34e8f1eac5bc51a8c977a33e1ae9915964ea2e9dd0a556764d5b51ab260332",
+        "raw": {
+          "stdout": {
+            "sha256": "bdb6be742431e5434b9a0f845d97f96c74e18a41f9e1c4810e85f59420b71dce",
+            "bytes": 3106,
+            "mode": "0o664"
+          },
+          "stderr": {
+            "sha256": "67827f4c8cc74b5dbe4d248635700f4ec4432a8a9762d647f5ee142ffe5fdba1",
+            "bytes": 574,
+            "mode": "0o664"
+          },
+          "cachegrind": {
+            "sha256": "da436b31678c9eab314806625718ac1ce2c822e5ff476593a404dee0c40169e6",
+            "bytes": 1100484,
+            "mode": "0o600"
+          },
+          "observation.json": {
+            "sha256": "042e99756d91d677c0d890122ea980986b1d515dc4564ed88f22b3bac6cd5074",
+            "bytes": 1348,
+            "mode": "0o664"
+          },
+          "spawn.json": {
+            "sha256": "f55b26980f744509d585abaa06917e05b0b1535fc62484e8cb8b5f0f47993d82",
+            "bytes": 871,
+            "mode": "0o664"
+          },
+          "identity-before.json": {
+            "sha256": "a6303da12c81682e732fef7a5e2d0ed3524389ba0aebe04695fffddadd569359",
+            "bytes": 3853,
+            "mode": "0o664"
+          },
+          "identity-after.json": {
+            "sha256": "71d5620b473b63f92202b31ea5f5c261bc9ebf7c74f4228a5509214938c223d7",
+            "bytes": 3853,
+            "mode": "0o664"
+          },
+          "command-identity-before.json": {
+            "sha256": "f73add7d5a9649716864464873a0c0f11bb20a6938a7b0e9d01580dc3cb67cfb",
+            "bytes": 8750,
+            "mode": "0o664"
+          },
+          "command-identity-after.json": {
+            "sha256": "c719602bf5902e90364d282b515b4a1818a137334a10c93a05289bb83dde3f89",
+            "bytes": 8750,
+            "mode": "0o664"
+          }
+        }
+      },
+      {
+        "tag": "base-GameOfLife-dive-w1",
+        "source_arm": "base",
+        "model": "GameOfLife",
+        "profile": "dive",
+        "verdict": "success",
+        "native_exit": 0,
+        "externally_censored": false,
+        "statistics": {
+          "distinct": 512,
+          "generated": 1024,
+          "initial_generated": 512,
+          "depth": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "Ir": 1146676673,
+        "original_argv_sha256": "fa756a9d3b8b9fe24cc73297a5fc8e92e0d3145e5678a76e542844a19f69b5b9",
+        "raw": {
+          "stdout": {
+            "sha256": "dcc948b9705020f8a46a98c6ba48641698bad3204b6d993718303cfb39c9a7ab",
+            "bytes": 3101,
+            "mode": "0o664"
+          },
+          "stderr": {
+            "sha256": "7bc882224c35cac89c08ddb6f8d5ae83aadf188cbddee8af63a090575b9fa917",
+            "bytes": 574,
+            "mode": "0o664"
+          },
+          "cachegrind": {
+            "sha256": "92cdc319ad52c1ac25b3f36da74e862322e60bf749f8766614c1ba3adca3a981",
+            "bytes": 894816,
+            "mode": "0o600"
+          },
+          "observation.json": {
+            "sha256": "6b9cd1a6d13e30a5233e351dc4ae4f1d82d8f94bcb65d59a3c04026f194481cd",
+            "bytes": 1349,
+            "mode": "0o664"
+          },
+          "spawn.json": {
+            "sha256": "b0d9093c98f18066899530dd6112380056174e7fd113809a6756ba4ff54d4245",
+            "bytes": 875,
+            "mode": "0o664"
+          },
+          "identity-before.json": {
+            "sha256": "18ef5ea30b4ac5608bc49a14bbadd63c07217ef10dc26efda51e988ea74cb6cd",
+            "bytes": 3848,
+            "mode": "0o664"
+          },
+          "identity-after.json": {
+            "sha256": "7524c2163c44f629aa42b7564d0fc870c45bae5a341e9a13b3f78627d646194f",
+            "bytes": 3848,
+            "mode": "0o664"
+          },
+          "command-identity-before.json": {
+            "sha256": "b241a17da3d753f233dac8c0288eb62f0e9f8beebbef195bccf4f8471f6cc5e1",
+            "bytes": 8750,
+            "mode": "0o664"
+          },
+          "command-identity-after.json": {
+            "sha256": "912b60a35fe8e6b420ace54157144a16e2f1cbc2d9075ce0e51f488d44e17e70",
+            "bytes": 8750,
+            "mode": "0o664"
+          }
+        }
+      },
+      {
+        "tag": "candidate-GameOfLife-dive-w1",
+        "source_arm": "candidate",
+        "model": "GameOfLife",
+        "profile": "dive",
+        "verdict": "success",
+        "native_exit": 0,
+        "externally_censored": false,
+        "statistics": {
+          "distinct": 512,
+          "generated": 1024,
+          "initial_generated": 512,
+          "depth": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "Ir": 1146791019,
+        "original_argv_sha256": "490de9656d82a494fae333bbe1fcf26cb6403340170c72a1964a7115b2672c35",
+        "raw": {
+          "stdout": {
+            "sha256": "18aebecea29526d8faf88d2a69ebe6c771c606d16dbacc59740ae8bcc66eaff2",
+            "bytes": 3101,
+            "mode": "0o664"
+          },
+          "stderr": {
+            "sha256": "55a52c7b48a4d8a41fa6f3bd50faf5a00f3c53a0ea4fe7de3e10784a9f16e6b2",
+            "bytes": 579,
+            "mode": "0o664"
+          },
+          "cachegrind": {
+            "sha256": "04f3bea27461da2b6e9316b71c6511076a723ea7bdbab913f454db4749151adb",
+            "bytes": 895235,
+            "mode": "0o600"
+          },
+          "observation.json": {
+            "sha256": "544304c12cdf4acc1269624b90d0f689a77bb57b501a567762098927e8cf8bfc",
+            "bytes": 1364,
+            "mode": "0o664"
+          },
+          "spawn.json": {
+            "sha256": "6d57d46442ce75f09c855b069515ff9442fa6e3fcde1e3495f9344aeb9d727aa",
+            "bytes": 885,
+            "mode": "0o664"
+          },
+          "identity-before.json": {
+            "sha256": "207f2bca6948e0e3753ed7322ae178d1d6a2b37a14397818fbc26f1dbd072c10",
+            "bytes": 3853,
+            "mode": "0o664"
+          },
+          "identity-after.json": {
+            "sha256": "27dd3ba9dc5b8bbbe0463362fd2903e58ca93a96909ce51e7b1888082621834e",
+            "bytes": 3853,
+            "mode": "0o664"
+          },
+          "command-identity-before.json": {
+            "sha256": "a5c9ef464758e747e7d470142f295b1b03a9da5d646f6a49c45f353901713412",
+            "bytes": 8750,
+            "mode": "0o664"
+          },
+          "command-identity-after.json": {
+            "sha256": "8521618196af8dc9f4794b11721eb4d23b6c80913449dc9e5cd45dbbdde1c90d",
+            "bytes": 8750,
+            "mode": "0o664"
+          }
+        }
+      },
+      {
+        "tag": "base-EWD998PCal-dive-w1",
+        "source_arm": "base",
+        "model": "EWD998PCal",
+        "profile": "dive",
+        "verdict": "success",
+        "native_exit": 0,
+        "externally_censored": false,
+        "statistics": {
+          "distinct": 20870,
+          "generated": 168292,
+          "initial_generated": 8,
+          "depth": 28,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "Ir": 47065720379,
+        "original_argv_sha256": "d7b27799d230bdfe69362ef258f8bf0c662d1f0d0664f3a68e4e8cd54a248d6d",
+        "raw": {
+          "stdout": {
+            "sha256": "8efe570791f1ea37fa48dfba96784daca2a041f2ca9b5c2b7e2261fdcaf40f15",
+            "bytes": 3113,
+            "mode": "0o664"
+          },
+          "stderr": {
+            "sha256": "596e3cd59b3c86a1703a2bd86fe80b6afff5bab3214bc7b47fa8ece76d233bf5",
+            "bytes": 575,
+            "mode": "0o664"
+          },
+          "cachegrind": {
+            "sha256": "e364752919cc6e7cc5be648f258fa49fa081c342252a6bdab934e9018d035a94",
+            "bytes": 1123375,
+            "mode": "0o600"
+          },
+          "observation.json": {
+            "sha256": "c89223b267413753d7006057b879f5c12f2f69895ae81214d28653c3cac6d07b",
+            "bytes": 1346,
+            "mode": "0o664"
+          },
+          "spawn.json": {
+            "sha256": "40a560fcfe94b86697527028bc6f64e536d6dd6d1fdd2e6a51ca2d3b80e6570a",
+            "bytes": 871,
+            "mode": "0o664"
+          },
+          "identity-before.json": {
+            "sha256": "81f8b629bf87332c99d360de7589fc27e855557fcbe78fac8022de4e939cd5cd",
+            "bytes": 3848,
+            "mode": "0o664"
+          },
+          "identity-after.json": {
+            "sha256": "f5ec1e8dfbe294901bb6af3338f68334df2cfbd26422f0c7a11035b75b03e1f4",
+            "bytes": 3848,
+            "mode": "0o664"
+          },
+          "command-identity-before.json": {
+            "sha256": "66c606b6905680e7096cacf98dbdc3d7d4664d40b04afe69ac5eb54cfafc68c4",
+            "bytes": 8750,
+            "mode": "0o664"
+          },
+          "command-identity-after.json": {
+            "sha256": "cfabffb779f367566dee1affabdd325f567c875b41e627db860ae748b6ed7777",
+            "bytes": 8750,
+            "mode": "0o664"
+          }
+        }
+      },
+      {
+        "tag": "candidate-EWD998PCal-dive-w1",
+        "source_arm": "candidate",
+        "model": "EWD998PCal",
+        "profile": "dive",
+        "verdict": "success",
+        "native_exit": 0,
+        "externally_censored": false,
+        "statistics": {
+          "distinct": 20870,
+          "generated": 168292,
+          "initial_generated": 8,
+          "depth": 28,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "Ir": 47104458171,
+        "original_argv_sha256": "62cfec8f422de8cd62469aa0f9d25d736308eae842f75c2698a45cc29cbc96f5",
+        "raw": {
+          "stdout": {
+            "sha256": "06acc78c021e03d74fce4f75fbd8bcf2a2c83be358241b2bf99ac870f460d2cf",
+            "bytes": 3113,
+            "mode": "0o664"
+          },
+          "stderr": {
+            "sha256": "9c39c896076bbc091fb37bf183e26cadbc24d4ba13e078e3dd0603b50be5805b",
+            "bytes": 580,
+            "mode": "0o664"
+          },
+          "cachegrind": {
+            "sha256": "e3f2c9af9d8d3fae312b962ee5479a795c782b139470f62b04281a053212232f",
+            "bytes": 1124168,
+            "mode": "0o600"
+          },
+          "observation.json": {
+            "sha256": "0f7bf0fa430d6678359c8ba53106983566479a3062794a1ab0bd51afffedecbe",
+            "bytes": 1361,
+            "mode": "0o664"
+          },
+          "spawn.json": {
+            "sha256": "8f020c59c818c3248d15a2af066c8d246ebfd644fc2fd9da18914ffcf23542fb",
+            "bytes": 881,
+            "mode": "0o664"
+          },
+          "identity-before.json": {
+            "sha256": "5a1bd88a8a595aaf576c11338cf21ae22d305d337972d68fe65a0e69e98da75d",
+            "bytes": 3853,
+            "mode": "0o664"
+          },
+          "identity-after.json": {
+            "sha256": "1babdd676b662e13cb9c240a71925ee65d2eb64b0da2e34d2728200cd6e0700e",
+            "bytes": 3853,
+            "mode": "0o664"
+          },
+          "command-identity-before.json": {
+            "sha256": "b0498da0dafc7bd05a15a57540220c9bf39b3e75c5a147f33cc2c4547c31f3a3",
+            "bytes": 8750,
+            "mode": "0o664"
+          },
+          "command-identity-after.json": {
+            "sha256": "7c4bfbca46fb9b168a285f114208f1995b8f660031ad6b0e3d54d6f77de09cb4",
+            "bytes": 8750,
+            "mode": "0o664"
+          }
+        }
+      },
+      {
+        "tag": "candidate-SimpleRegular-tlc-w1",
+        "source_arm": "candidate",
+        "model": "SimpleRegular",
+        "profile": "tlc",
+        "verdict": "success",
+        "native_exit": 0,
+        "externally_censored": false,
+        "statistics": {
+          "distinct": 12097,
+          "generated": 47584,
+          "initial_generated": 1,
+          "depth": 19,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "Ir": 2654959169,
+        "original_argv_sha256": "e3c93f4607b629b2cd498ca7a051350274908e78788386e74233f932d748fe54",
+        "raw": {
+          "stdout": {
+            "sha256": "f5935784d0f3f2cd67b345fc22a427ad8815e620dfe87a98b02917eaebdb5e9e",
+            "bytes": 3097,
+            "mode": "0o664"
+          },
+          "stderr": {
+            "sha256": "09262365a924c6e7d4673fcd5f8d1aae200c13215304a166e4745d62b45c7be6",
+            "bytes": 598,
+            "mode": "0o664"
+          },
+          "cachegrind": {
+            "sha256": "8f65d3376312c22a2f199a7714367d4dbdb025985214ed9ec82fd1c00465f83b",
+            "bytes": 962411,
+            "mode": "0o600"
+          },
+          "observation.json": {
+            "sha256": "f115c782abc74f3097ffdd1a25d5be2a8387cca6d0618e4a351ce7774d30b20a",
+            "bytes": 1404,
+            "mode": "0o664"
+          },
+          "spawn.json": {
+            "sha256": "1320ad98859519145a4655a0450f9d8fb46ca08e5de112511ae4fd790d2a676d",
+            "bytes": 922,
+            "mode": "0o664"
+          },
+          "identity-before.json": {
+            "sha256": "a2213c7322f7537997f3cb9c967308f428bf552dea5d4f9c8f3aae0b3e792c1e",
+            "bytes": 3853,
+            "mode": "0o664"
+          },
+          "identity-after.json": {
+            "sha256": "fe6681ca13c4f2b954146e45a7a7c5edbf20cc4c5c7b470a14b5dfe7009f078e",
+            "bytes": 3853,
+            "mode": "0o664"
+          },
+          "command-identity-before.json": {
+            "sha256": "3f338a77772555c4830117063f31fd04b33ec01f80934c38558952ec1f9a9388",
+            "bytes": 8750,
+            "mode": "0o664"
+          },
+          "command-identity-after.json": {
+            "sha256": "c415ef6542eef9214107593c901dbdbea0711c8a2ff05b31401c2db649ec0b8e",
+            "bytes": 8750,
+            "mode": "0o664"
+          }
+        }
+      },
+      {
+        "tag": "base-SimpleRegular-tlc-w1",
+        "source_arm": "base",
+        "model": "SimpleRegular",
+        "profile": "tlc",
+        "verdict": "success",
+        "native_exit": 0,
+        "externally_censored": false,
+        "statistics": {
+          "distinct": 12097,
+          "generated": 47584,
+          "initial_generated": 1,
+          "depth": 19,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "Ir": 2654965306,
+        "original_argv_sha256": "25ef0e19d5705b7103403f91fdc91d10014a8e3a036a987c0f691e17307abbac",
+        "raw": {
+          "stdout": {
+            "sha256": "3c1ae43d4933de909b8140184f286a14773a6458bdd7260b505b2fb161405cb1",
+            "bytes": 3097,
+            "mode": "0o664"
+          },
+          "stderr": {
+            "sha256": "716726fc61f85b43c3ab6f315302889618123b9eeb314e235f6e6a8a8835a55c",
+            "bytes": 593,
+            "mode": "0o664"
+          },
+          "cachegrind": {
+            "sha256": "e16cea6d0f2f1be9697ffb27c1e49b455943fd41dc9b3d30795f9416eef4e2fc",
+            "bytes": 961225,
+            "mode": "0o600"
+          },
+          "observation.json": {
+            "sha256": "fc23c4cd650ef3c033f8cecdd5fcddd43a2da643f82b4fea95d6b65cca579dfe",
+            "bytes": 1389,
+            "mode": "0o664"
+          },
+          "spawn.json": {
+            "sha256": "4f09034e718cfedaf700dc36e60e277e8e4aade9866186d3d537278cfc46a3af",
+            "bytes": 912,
+            "mode": "0o664"
+          },
+          "identity-before.json": {
+            "sha256": "07cd47aacf0ba9a3d21c43b8e8fd822e24e514383fa22b7c6ba9f3b02d5a40f1",
+            "bytes": 3848,
+            "mode": "0o664"
+          },
+          "identity-after.json": {
+            "sha256": "6268ce114f27dbe080571e69f05f31b4ea87106905c953c41831dff19ed84eff",
+            "bytes": 3848,
+            "mode": "0o664"
+          },
+          "command-identity-before.json": {
+            "sha256": "1229c9369da9be99b31e1961e61b1ce88a89d351b605003aa540ed4f13e87f5a",
+            "bytes": 8750,
+            "mode": "0o664"
+          },
+          "command-identity-after.json": {
+            "sha256": "e6fbdd035dd716009f564453e8b72b7ea1e8c0b8ef58be6deccbab4dad7c2ae0",
+            "bytes": 8750,
+            "mode": "0o664"
+          }
+        }
+      },
+      {
+        "tag": "candidate-MCbtree-tlc-w1",
+        "source_arm": "candidate",
+        "model": "MCbtree",
+        "profile": "tlc",
+        "verdict": "success",
+        "native_exit": 0,
+        "externally_censored": false,
+        "statistics": {
+          "distinct": 21364,
+          "generated": 127825,
+          "initial_generated": 1,
+          "depth": 24,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "Ir": 18205582234,
+        "original_argv_sha256": "aab54d3702c3b58dd478f006e1c07e0ab0e86e4c6b72339112900e2cf97162f8",
+        "raw": {
+          "stdout": {
+            "sha256": "5f877f267e8b236534356923c62aa788617273011ae89f3f437dde76e49676fa",
+            "bytes": 3186,
+            "mode": "0o664"
+          },
+          "stderr": {
+            "sha256": "9d6430ec3d61a6bc77eb99dda8b97638391e96970ae70e39cda632753d782671",
+            "bytes": 587,
+            "mode": "0o664"
+          },
+          "cachegrind": {
+            "sha256": "7c9f4922fbbb0ac5a5fca1b586a74a9085701575f7a4d7f1e99f31b69509036c",
+            "bytes": 1025429,
+            "mode": "0o600"
+          },
+          "observation.json": {
+            "sha256": "0dbbb78b5a9650e2639a70c50b0758b6d21540ce5619a0a487473722225c565d",
+            "bytes": 1367,
+            "mode": "0o664"
+          },
+          "spawn.json": {
+            "sha256": "80ac1f7ecd668620884161370cb33bc64c8c65943658625b7abde2159d707031",
+            "bytes": 890,
+            "mode": "0o664"
+          },
+          "identity-before.json": {
+            "sha256": "d311216325ccd28f35f4147507b97599d7200ecafd40e438a81293a229e69615",
+            "bytes": 3853,
+            "mode": "0o664"
+          },
+          "identity-after.json": {
+            "sha256": "0cad0ae65fc1c2d1f83905d6825db578954d903abdccda955d81d514568d69b8",
+            "bytes": 3853,
+            "mode": "0o664"
+          },
+          "command-identity-before.json": {
+            "sha256": "4fb124f3073f6fec5ea157d825547b1246d4d33a8d74edd2bc7bd85de9310704",
+            "bytes": 8750,
+            "mode": "0o664"
+          },
+          "command-identity-after.json": {
+            "sha256": "f3a6d93f19bb5c81e3c044215be92a570422dc46411e2130444b59bcf94e301a",
+            "bytes": 8750,
+            "mode": "0o664"
+          }
+        }
+      },
+      {
+        "tag": "base-MCbtree-tlc-w1",
+        "source_arm": "base",
+        "model": "MCbtree",
+        "profile": "tlc",
+        "verdict": "success",
+        "native_exit": 0,
+        "externally_censored": false,
+        "statistics": {
+          "distinct": 21364,
+          "generated": 127825,
+          "initial_generated": 1,
+          "depth": 24,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "Ir": 18204396036,
+        "original_argv_sha256": "15451e5eda04b5fab43ad5a62489bba22cf152ed1abfdf132493a0eff1275c8b",
+        "raw": {
+          "stdout": {
+            "sha256": "46aaac2053cdb8da3c96bf3eac36b447a027889285b52f3fcde74042a86674bc",
+            "bytes": 3185,
+            "mode": "0o664"
+          },
+          "stderr": {
+            "sha256": "a650710814e487000be267470e0330bcf9a08b0a1b9e33e42b870165cd6ef01f",
+            "bytes": 582,
+            "mode": "0o664"
+          },
+          "cachegrind": {
+            "sha256": "9ffff55cb2cd5c2c38d0cebf9ddfb173e401790b980ad3f6e6c7b356fda468d5",
+            "bytes": 1025374,
+            "mode": "0o600"
+          },
+          "observation.json": {
+            "sha256": "f39b0f252fac557d6800a03856c8d67be2871600935c0de7a70114202f3be7de",
+            "bytes": 1352,
+            "mode": "0o664"
+          },
+          "spawn.json": {
+            "sha256": "f6c3e3acd47232ecc6ed73f1efd6dd724eacb439756ad461bb3d9b0ab05dad1e",
+            "bytes": 880,
+            "mode": "0o664"
+          },
+          "identity-before.json": {
+            "sha256": "9c1378200cfa74a9479ee3b05385911fb8aedbeed10186237f469d7a6e8b41c2",
+            "bytes": 3848,
+            "mode": "0o664"
+          },
+          "identity-after.json": {
+            "sha256": "d18831f3037c18e464374d7dca03a45ad5c9239d9fdd71f0e9d12d47827c218b",
+            "bytes": 3848,
+            "mode": "0o664"
+          },
+          "command-identity-before.json": {
+            "sha256": "cce4df3aa68e23c3dbc2a4ee4a5aa6a4d1be10a1a461c2cf9a5a101d63c5c634",
+            "bytes": 8750,
+            "mode": "0o664"
+          },
+          "command-identity-after.json": {
+            "sha256": "47c1eb0365d4dcc055af86b75239887105616b89784c23bd731d1c46d0947d02",
+            "bytes": 8750,
+            "mode": "0o664"
+          }
+        }
+      },
+      {
+        "tag": "candidate-GameOfLife-tlc-w1",
+        "source_arm": "candidate",
+        "model": "GameOfLife",
+        "profile": "tlc",
+        "verdict": "success",
+        "native_exit": 0,
+        "externally_censored": false,
+        "statistics": {
+          "distinct": 512,
+          "generated": 1024,
+          "initial_generated": 512,
+          "depth": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "Ir": 1138808415,
+        "original_argv_sha256": "078cf7f6fc5c4362d98ba145db739e59c4c685e93406948587e8bacf2dc7f7e1",
+        "raw": {
+          "stdout": {
+            "sha256": "945af8edf14b6b4c0f9d3a5828b4e60cf22022adeb3d49de01d4aa763bfb5e88",
+            "bytes": 3087,
+            "mode": "0o664"
+          },
+          "stderr": {
+            "sha256": "f0bebef23865b86b70eb11389f38326418ae4cc14d012eeb16961ab02b617371",
+            "bytes": 592,
+            "mode": "0o664"
+          },
+          "cachegrind": {
+            "sha256": "e99acbbe239881749d28946d834bbaa7f64b22f3474bec98942856a2d0238047",
+            "bytes": 879937,
+            "mode": "0o600"
+          },
+          "observation.json": {
+            "sha256": "2b38317c1905db16ad2693182393dee6015c4ba61367ddfbb60eb8f1b9d736fd",
+            "bytes": 1382,
+            "mode": "0o664"
+          },
+          "spawn.json": {
+            "sha256": "84b71430b60b5daf26cf5212989756de197c36f7ee59e2391eec9635ccb71b62",
+            "bytes": 904,
+            "mode": "0o664"
+          },
+          "identity-before.json": {
+            "sha256": "61b0d83fc05b8146602adec3797ea726dcba9b4ef657543e4ac04a9de63137b6",
+            "bytes": 3853,
+            "mode": "0o664"
+          },
+          "identity-after.json": {
+            "sha256": "c0ff7fb82c26603193c2a2e8ce68ae93e6e0e451e1820254b22302cd3750b4f7",
+            "bytes": 3853,
+            "mode": "0o664"
+          },
+          "command-identity-before.json": {
+            "sha256": "b01d8d27706bb5a92edfaa18d77945e13542c1fe44ad0afbb634f30c1326d5e4",
+            "bytes": 8750,
+            "mode": "0o664"
+          },
+          "command-identity-after.json": {
+            "sha256": "c1431a1fe9af88ab6796d1fa486a7c06b41751d3d21f6b05ded7400c98422220",
+            "bytes": 8750,
+            "mode": "0o664"
+          }
+        }
+      },
+      {
+        "tag": "base-GameOfLife-tlc-w1",
+        "source_arm": "base",
+        "model": "GameOfLife",
+        "profile": "tlc",
+        "verdict": "success",
+        "native_exit": 0,
+        "externally_censored": false,
+        "statistics": {
+          "distinct": 512,
+          "generated": 1024,
+          "initial_generated": 512,
+          "depth": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "Ir": 1138889053,
+        "original_argv_sha256": "2a7955ff3ae4f4eb2fb326da51ac0eb0d78ed0636e59140da4a69b19e2882f54",
+        "raw": {
+          "stdout": {
+            "sha256": "c22b1f77154ba0403da1e739e552e159834be56f81100538f516e88308414fa1",
+            "bytes": 3087,
+            "mode": "0o664"
+          },
+          "stderr": {
+            "sha256": "d73b8c80213be1bdd98be94d584333cdd25724e0f93919425e0042e8a9fc1ba0",
+            "bytes": 587,
+            "mode": "0o664"
+          },
+          "cachegrind": {
+            "sha256": "d5af53d168918f4191f9c82263a63f8f5d0eceb2cac2529f93daf3dcc39390ad",
+            "bytes": 878592,
+            "mode": "0o600"
+          },
+          "observation.json": {
+            "sha256": "540689437630657e9ba81c873f6a547ba8ed61ba15631b398a7c0e43f8feedbb",
+            "bytes": 1367,
+            "mode": "0o664"
+          },
+          "spawn.json": {
+            "sha256": "09cb376d1576cd4046cb29f311499d3e3e3c390a86f2358bc503b4bbbe80d353",
+            "bytes": 894,
+            "mode": "0o664"
+          },
+          "identity-before.json": {
+            "sha256": "d92ee388a5c85d3d6941cae64cbb2b78791b7c96bf14f6bd02f1c5dbb792d75d",
+            "bytes": 3848,
+            "mode": "0o664"
+          },
+          "identity-after.json": {
+            "sha256": "501457fcfedac4c241a711e42ad65c6f4f7d9a6d936c6897ebb6043467c00e15",
+            "bytes": 3848,
+            "mode": "0o664"
+          },
+          "command-identity-before.json": {
+            "sha256": "4948c0308586a442c2f3bd84a5ff2a0230dfd3e9c6bc59eb077e1d6a06f6092e",
+            "bytes": 8750,
+            "mode": "0o664"
+          },
+          "command-identity-after.json": {
+            "sha256": "6b0cd0baef0892454b94ec6b8a71e27d4a2da919387ab25c91263114c25e636c",
+            "bytes": 8750,
+            "mode": "0o664"
+          }
+        }
+      },
+      {
+        "tag": "candidate-EWD998PCal-tlc-w1",
+        "source_arm": "candidate",
+        "model": "EWD998PCal",
+        "profile": "tlc",
+        "verdict": "success",
+        "native_exit": 0,
+        "externally_censored": false,
+        "statistics": {
+          "distinct": 20870,
+          "generated": 168292,
+          "initial_generated": 8,
+          "depth": 28,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "Ir": 48025301291,
+        "original_argv_sha256": "adbae77c2bfc5625ae7e2851e4051ccdce8e4ce782ef903edc2e8d049aa8fc2f",
+        "raw": {
+          "stdout": {
+            "sha256": "5c324ff8af1948ab1dbd84279d80a9d744e0b4a92375111c85c186fce74b9fa1",
+            "bytes": 3099,
+            "mode": "0o664"
+          },
+          "stderr": {
+            "sha256": "50ce8dda0e976c68546975915e21145cd28ff19ff0bf5c6d8a5fa3c1ddf80a6b",
+            "bytes": 593,
+            "mode": "0o664"
+          },
+          "cachegrind": {
+            "sha256": "ca67b13f92bda0f70f6e8882571b5a4930acf4a4612d56671968ba1a6a3022c9",
+            "bytes": 1113251,
+            "mode": "0o600"
+          },
+          "observation.json": {
+            "sha256": "bb19e631e09c22b667054f9dd386a6068704de0601842b091b9067987e422165",
+            "bytes": 1379,
+            "mode": "0o664"
+          },
+          "spawn.json": {
+            "sha256": "45a81fe2f391472ff1508b488c03010e03cd3690f405ebdf8995f3753c274bb8",
+            "bytes": 900,
+            "mode": "0o664"
+          },
+          "identity-before.json": {
+            "sha256": "1d95c837a5b4e1bf07e96d76abb324db3fec1d3d1ddca04b1fddb94401ac22e4",
+            "bytes": 3853,
+            "mode": "0o664"
+          },
+          "identity-after.json": {
+            "sha256": "4362d074273fd3590e18ed8ab228efbb31dddfee9df2bbe2ee9b127e3dcba90e",
+            "bytes": 3853,
+            "mode": "0o664"
+          },
+          "command-identity-before.json": {
+            "sha256": "5286838e7a7959f1160a3ff27410f18e451d0430544e1deaec21cda646640693",
+            "bytes": 8750,
+            "mode": "0o664"
+          },
+          "command-identity-after.json": {
+            "sha256": "3dd34201a694b3236d382ea5e5a99a98c4b35081b4e85389e1600f75da13ff2b",
+            "bytes": 8750,
+            "mode": "0o664"
+          }
+        }
+      },
+      {
+        "tag": "base-EWD998PCal-tlc-w1",
+        "source_arm": "base",
+        "model": "EWD998PCal",
+        "profile": "tlc",
+        "verdict": "success",
+        "native_exit": 0,
+        "externally_censored": false,
+        "statistics": {
+          "distinct": 20870,
+          "generated": 168292,
+          "initial_generated": 8,
+          "depth": 28,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "Ir": 48048072543,
+        "original_argv_sha256": "b9934081357e082698143eefd57fc9e38b35f0b7dc6735a8712efc698038b3e1",
+        "raw": {
+          "stdout": {
+            "sha256": "efa4a60c053b0d0ae74829d9809fc34ab76edda06c88abf136614661ce5bd40d",
+            "bytes": 3099,
+            "mode": "0o664"
+          },
+          "stderr": {
+            "sha256": "199c7cb1183f99be9421c2e120ee1a53d7214c3bc13af5062a2272477829290e",
+            "bytes": 588,
+            "mode": "0o664"
+          },
+          "cachegrind": {
+            "sha256": "48b518be84cd0cd0b01a49c17c4fa9e99245d34c805f3ba66b139f506a66278e",
+            "bytes": 1113339,
+            "mode": "0o600"
+          },
+          "observation.json": {
+            "sha256": "d95c1e8295f085e7aab71a2bd09972d2e7506eb6b03e67c6e1e93199585f2f05",
+            "bytes": 1365,
+            "mode": "0o664"
+          },
+          "spawn.json": {
+            "sha256": "1d5a5148b2a8c68398348acd867644d45382a653e055bf59e67165f86966a69a",
+            "bytes": 890,
+            "mode": "0o664"
+          },
+          "identity-before.json": {
+            "sha256": "1a00a40204728cf5700ced70f39c6e055d174f9325f431faa594ff09d6749dfe",
+            "bytes": 3848,
+            "mode": "0o664"
+          },
+          "identity-after.json": {
+            "sha256": "fdcd4892bc03ed69de33b99acc118b0925c5d5c88fa6efd8c522eccffc6a4c81",
+            "bytes": 3848,
+            "mode": "0o664"
+          },
+          "command-identity-before.json": {
+            "sha256": "320b640de88af8900ba45bf4d2976e561234afa49721fd927717a29a04e8a66c",
+            "bytes": 8750,
+            "mode": "0o664"
+          },
+          "command-identity-after.json": {
+            "sha256": "deea3367c31a5b6cd298a3700c29f3c4ddfb2dddf03698463fd829346e6ffaf8",
+            "bytes": 8750,
+            "mode": "0o664"
+          }
+        }
+      }
+    ],
+    "method": {
+      "metric": "Whole native CLI instructions",
+      "profiles": [
+        "dive",
+        "tlc"
+      ],
+      "workers": 1,
+      "seed": 0,
+      "fp": 0,
+      "native_time_limit_ms": 900000,
+      "max_memory_bytes": 8589934592,
+      "external_backstop_seconds": 930,
+      "Cachegrind": "Valgrind3.22.0,cache simulation disabled",
+      "instrumentation_concurrency": 1,
+      "complete_input_files": 115,
+      "all_pair_statistics_exact": [
+        "distinct",
+        "generated",
+        "initial_generated",
+        "depth",
+        "left_on_queue"
+      ],
+      "all_native_exit_zero_uncensored": true,
+      "all_Cachegrind_command_argv_and_exclusive_Ir_line_partitions_exact": true
+    }
+  },
+  "payload_hashes": {
+    "manifest.json": "6c218f2184e0fe9691aec80f5772e7746cd1122c27ffba046426ff61a1adfd08",
+    "qualification-plan.json": "9b272295e35e034d0af2f9438eb6151b5d4d6ce9e454c8c576fbcbe9cb12ef7a",
+    "schedule.json": "ee43fc2ff503d94ac0190e8c9b3b15a505eccd22d38142e0fda4bb0b28655f2c",
+    "runner.py": "b0ed1ffc7b1776fd2b466c95081f440f3d597e347742c283298197f649440f8f",
+    "verify_gate.py": "2f4e9ab9012d4d84c3d7483027ff9313997740bdb7a88ed122f44f760bfa41dd",
+    "verify_coffee.py": "62899c99d80e0cb216079481d6a852022898db633121fd0c3fb8638c413f3486",
+    "verify_qualification.py": "b9e993aa4948a416d837e588847c1d76970613b3d7a2c8035f5e0390ee088b6a",
+    "owned_process_core.py": "c4f0b2f298ecb1d777c04740246be10ab4476d895139f24ae73eb57ce3f10f61",
+    "candidate.bundle": "cc25522a5834c13b161c9b2d81476de15a27d27134f02c6f303620a2b4e43451",
+    "semantic-ledger.json": "996379ffe0a0204122a4ac4436ccbf783ae0fbf7fc9cca37e6605c578fbfee8d",
+    "perf-inputs.tgz": "f1d3eb00d9f43c11e03a50be64a3115f8e2bb838299bb8d7033106a8ce0c53ef",
+    "perf-mods.tgz": "90a8757da7c179dcf04ec8f7530f99881e013eb76b92bfeb59808d9a0fe782ab",
+    "coffee-inputs.tgz": "8a0eae5996315f136fc654b6a1d4e948340e1aa64c3e081c652719b3c3056141"
+  },
+  "producer_completion": {
+    "runner_finished_sha256": "fd2aaaf7117b499cddbe9e28d7b97abf54fb4160e9f792704737b26933bf9bc9",
+    "campaign_complete_sha256": "e1be4c2897aab5c76a6cd6243c693c269b9f5097df13fdfa3b0ce9ea584f5e7b",
+    "final_sources_clean": true,
+    "all_stages_qualified": true,
+    "progress_prefix_complete_false_legitimate": true,
+    "complete16ordered_tags_verified": true,
+    "production_approved_by_runner": false
+  },
+  "resource_cleanup": {
+    "status": "ROOT_INDEPENDENT_RESOURCES_ALL_GONE_ORIGINALS_PRESERVED",
+    "verified_at": "2026-10-23T02:37:30.717591+00:00",
+    "receipt_sha256": "b3b946793a4cc23d7df8493bd9b6a04d15ca5d26bdb5ab71439287b6d1ffca89",
+    "objects": 46,
+    "bytes": 257015219,
+    "instance_terminated": true,
+    "recorded_root_volume_security_group_bucket_absent": true,
+    "all_original_objects_preserved_before_termination_and_refreshed_after": true,
+    "final_original_sidecar_verified": true,
+    "other_active_dive_instances": []
+  },
+  "limitations": [
+    "Measurements identify exact db8/base1892. A later delivery changes only the explicitly listed documentation and generated-baseline paths; its runtime/test/config/golden entry map must satisfy the included equivalence contract. The actual delivery Git head is recorded separately in its PR, avoiding a self-referential evidence hash.",
+    "No old5c HOLD supplies stage or source admission; original earlier failed/held reports remain historical.",
+    "Release collection is post-gate/pre-Coffee, never retroactive pre-gate binary attestation.",
+    "Profiling bytes and before/per/after identity receipts precede all matrix measurements.",
+    "No new four-worker/full-tier parity, wall throughput, scaling, peak-memory or TLC speed ratio claim.",
+    "Whole-run time/memory cooperative and uninterruptible allocation limits remain.",
+    "Public product::Limits default stays1,000,000; explicit custom ceilings remain checked."
+  ],
+  "delivery_runtime_equivalence": {
+    "format_version": 1,
+    "qualified_source": "db8d4ad56143d33b07a8c885a03331b3c44ab30b",
+    "qualified_tree": "e2770634c9422a23e31675f321594efcd9811ada",
+    "permitted_metadata_paths": [
+      "CHANGELOG.md",
+      "conformance/baselines/small-dive-w1.json",
+      "conformance/baselines/small-tlc-w1.json",
+      "crates/dive-conformance/README.md",
+      "docs/conformance.md",
+      "docs/decisions/0107-run-budgets.md",
+      "docs/scoreboard.md",
+      "docs/survey/data/product-vertices-qualification-2026-10-23.json",
+      "docs/user/temporal.md"
+    ],
+    "all_other_entries_count": 22666,
+    "all_other_mode_kind_blob_map_sha256": "5022770740493e87f87e1c1dc0d465344da462c371f37f0a39110f43f3686328",
+    "meaning": "A delivery tree whose entire map excluding exactly these metadata paths matches this digest preserves the qualified runtime, tests, configuration, fixtures and oracle goldens. It receives no new native run or compiler-layout claim. Its actual final Git head and metadata blob hashes are reviewed separately to avoid a self-referential commit hash.",
+    "contract_sha256": "e3c8f30015759f8d0532385559e3bc873dc8af48a00baca0873a153b585f9549"
+  },
+  "independent_source_review_sha256": "bd2edbc2cd5f7c4476b46d95ceb004dcedf3486dea043ca9878589d9b397133f",
+  "root_normal_overhead_review_sha256": "318f93c77cebb89ceff4292af6c713d72d105185aacfc069a19068771d1bcb20",
+  "machine": {
+    "instance_id": "i-067f2314ae5db04bd",
+    "instance_type": "c7i.8xlarge",
+    "ami": "ami-02a9cdd4e98bc3c78",
+    "region": "us-east-1",
+    "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+    "architecture": "x86_64",
+    "logical_cpus": 32,
+    "threads_per_core": 2,
+    "kernel_release": "7.0.0-1014-aws",
+    "original_source_and_machine_receipt_sha256": "6e409ddf4d6a77a2b3756066f06e77dac708fb93c90f8618cc9361cba57b45bd",
+    "quiet_wall_clock_claim": false,
+    "scope": "Original observed machine facts; no turbo/SMT/noisy-neighbor isolation or repeated wall-clock claim."
+  }
+}
