@@ -359,61 +359,7 @@ fn dispatch(cmd: &[String], o: &Opts) -> Result<bool> {
             )?);
             Ok(false)
         }
-        ["golden", "generate"] => {
-            let java = if o.raw_setup_status {
-                None
-            } else {
-                Some(Java::resolve(&config, &cache, o.java.as_deref())?)
-            };
-            let oracle = match &o.oracle {
-                Some(id) => id.clone(),
-                None => config.oracles.default_oracle()?.id.clone(),
-            };
-            let env = match java.as_ref() {
-                Some(java) => {
-                    let mut env = OracleEnv::prepare(&config, &cache, &oracle, java)?;
-                    env.raw_invocations.clone_from(&o.raw_invocations);
-                    Some(env)
-                }
-                None => None,
-            };
-            if o.no_sany && o.sany_only {
-                return Err(Error::Usage(
-                    "--no-sany and --sany-only conflict".to_owned(),
-                ));
-            }
-            let opts = GenerateOptions {
-                oracle,
-                corpus: corpus_id(o)?,
-                selection: selection(o),
-                reason: o.reason.clone(),
-                limits: limits(o),
-                models: !o.sany_only,
-                sany: !o.no_sany,
-                workers: o.workers.clone().unwrap_or_else(|| vec![1]),
-            };
-            let failures = if o.raw_setup_status {
-                let raw_root = o.raw_invocations.as_deref().ok_or_else(|| {
-                    Error::Usage("--raw-setup-status requires --raw-invocations".to_owned())
-                })?;
-                pipeline::golden_generate_with_setup_capture(
-                    &config,
-                    &cache,
-                    &opts,
-                    o.java.as_deref(),
-                    raw_root,
-                )?
-            } else {
-                let env = env
-                    .as_ref()
-                    .ok_or_else(|| Error::Config("missing prepared oracle".to_owned()))?;
-                pipeline::golden_generate(&config, &cache, env, &opts)?
-            };
-            if failures > 0 {
-                eprintln_safe(&format!("{failures} golden(s) not written; see above"));
-            }
-            Ok(failures > 0)
-        }
+        ["golden", "generate"] => cmd_golden_generate(&config, &cache, o),
         ["run"] => cmd_run(&config, &cache, &root, o),
         ["report", "summarise"] => report_summarise(&root, o),
         ["report", "baseline"] => report_baseline(o),
@@ -427,6 +373,63 @@ fn dispatch(cmd: &[String], o: &Opts) -> Result<bool> {
             cmd.join(" ")
         ))),
     }
+}
+
+/// Generates goldens through the default or explicitly retained setup path.
+fn cmd_golden_generate(config: &Config, cache: &Cache, o: &Opts) -> Result<bool> {
+    let java = if o.raw_setup_status {
+        None
+    } else {
+        Some(Java::resolve(config, cache, o.java.as_deref())?)
+    };
+    let oracle = match &o.oracle {
+        Some(id) => id.clone(),
+        None => config.oracles.default_oracle()?.id.clone(),
+    };
+    let env = match java.as_ref() {
+        Some(java) => {
+            let mut env = OracleEnv::prepare(config, cache, &oracle, java)?;
+            env.raw_invocations.clone_from(&o.raw_invocations);
+            Some(env)
+        }
+        None => None,
+    };
+    if o.no_sany && o.sany_only {
+        return Err(Error::Usage(
+            "--no-sany and --sany-only conflict".to_owned(),
+        ));
+    }
+    let opts = GenerateOptions {
+        oracle,
+        corpus: corpus_id(o)?,
+        selection: selection(o),
+        reason: o.reason.clone(),
+        limits: limits(o),
+        models: !o.sany_only,
+        sany: !o.no_sany,
+        workers: o.workers.clone().unwrap_or_else(|| vec![1]),
+    };
+    let failures = if o.raw_setup_status {
+        let raw_root = o.raw_invocations.as_deref().ok_or_else(|| {
+            Error::Usage("--raw-setup-status requires --raw-invocations".to_owned())
+        })?;
+        pipeline::golden_generate_with_setup_capture(
+            config,
+            cache,
+            &opts,
+            o.java.as_deref(),
+            raw_root,
+        )?
+    } else {
+        let env = env
+            .as_ref()
+            .ok_or_else(|| Error::Config("missing prepared oracle".to_owned()))?;
+        pipeline::golden_generate(config, cache, env, &opts)?
+    };
+    if failures > 0 {
+        eprintln_safe(&format!("{failures} golden(s) not written; see above"));
+    }
+    Ok(failures > 0)
 }
 
 /// `report summarise <report.json>...`: merges each report's section into
