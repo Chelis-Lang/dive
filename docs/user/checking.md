@@ -488,3 +488,9 @@ different exploration order use their existing paths. A compound component may
 still require materialization; this does not make every domain construction
 interruptible. The four pinned first-state controls and their independent trace
 validation are documented in the [corpus guide](../conformance-corpora.md#compound-domain-first-state-controls).
+
+Temporal analysis borrows the captured graph's edge targets and roots while
+constructing labels and products. It retains every captured state and original
+concrete successor occurrence. This avoids a second behavior adjacency copy; it
+does not change capture, graph-label, product or acceptance limits, and does not
+provide disk-backed temporal capture.

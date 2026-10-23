@@ -1,7 +1,6 @@
 //! Requested acceptance-buffer layouts; excludes every other product owner.
 
 use super::{CompactAcceptance, Limits, Ordered, ProductError, set_bit};
-use crate::Graph;
 use crate::formula::{Recurrence, Tableau};
 use std::mem::size_of;
 
@@ -394,13 +393,13 @@ pub(super) fn materialize(
     conditions: &[Recurrence],
     bytes: usize,
     work: usize,
-    behavior: (&Graph, usize),
+    behavior: (super::BehaviorView<'_>, usize),
 ) -> Result<CompactAcceptance, ProductError> {
     let plan = choose(
         input,
         tableau,
         conditions,
-        ActionDomain::behavior(behavior.0.edges.len(), behavior.1),
+        ActionDomain::behavior(behavior.0.vertex_count(), behavior.1),
         bytes,
         work,
     )?;
@@ -411,18 +410,24 @@ pub(super) fn materialize(
         limit: bytes,
     };
     let states = promise_columns(input, tableau, &layout, &mut requests)?;
-    let rows: &dyn crate::graph::GraphAccess = if layout.domain.behavior {
-        behavior.0
+    let vertices = if layout.domain.behavior {
+        behavior.0.vertex_count()
     } else {
-        input.graph
+        input.graph.vertex_count()
+    };
+    let row_len = |source| {
+        if layout.domain.behavior {
+            behavior.0.row_len(source)
+        } else {
+            input.graph.successors(source).len()
+        }
     };
     let mut edge_offsets = requests.reserve(layout.offsets)?;
     if layout.offsets != 0 {
         edge_offsets.push(0);
         let mut offset = 0_usize;
-        for v in 0..rows.vertex_count() {
-            let row = rows.successors(v);
-            offset = offset.checked_add(row.len()).ok_or(BYTES)?;
+        for v in 0..vertices {
+            offset = offset.checked_add(row_len(v)).ok_or(BYTES)?;
             edge_offsets.push(offset);
         }
         if offset != layout.domain.edges {
@@ -435,13 +440,13 @@ pub(super) fn materialize(
     for condition in conditions {
         let mut words = requests.reserve(layout.action_words)?;
         words.resize(layout.action_words, 0);
-        for (id, row) in (0..rows.vertex_count()).map(|id| (id, rows.successors(id))) {
+        for (id, offset) in edge_offsets.iter().copied().take(vertices).enumerate() {
             let v = if layout.domain.behavior {
                 id
             } else {
                 input.pairs[input.order[id]].0
             };
-            for position in 0..row.len() {
+            for position in 0..row_len(id) {
                 let e = if layout.domain.behavior {
                     position
                 } else {
@@ -454,7 +459,7 @@ pub(super) fn materialize(
                         &mut remaining,
                     )
                     .ok_or(WORK)?;
-                set_bit(&mut words, edge_offsets[id] + position, truth);
+                set_bit(&mut words, offset + position, truth);
             }
         }
         actions.push(words);
