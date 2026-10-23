@@ -244,7 +244,7 @@ impl Resource {
 /// The phase a stopped run was in.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum Phase {
-    /// Before model binding or state generation starts.
+    /// Model startup, before state generation starts.
     Startup,
     /// Evaluator-backed startup work while binding a fresh model.
     Binding,
@@ -1236,6 +1236,41 @@ impl dive_eval::HostControl for EvaluationControl {
     }
 }
 
+/// Checks producer assumptions under the already armed startup budget.
+/// Binding and independent validation retain their own explicit boundaries.
+pub(crate) fn check_assumptions(
+    model: &dive_model::Model,
+    budget: &Budget,
+) -> Option<crate::Verdict> {
+    let control = match EvaluationControl::new(budget, Phase::Startup) {
+        Ok(control) => control,
+        Err(error) => {
+            return Some(crate::Verdict::InternalError {
+                message: error.to_string(),
+            });
+        }
+    };
+    let _scope = match control.enter(&model.evaluator) {
+        Ok(scope) => scope,
+        Err(error) => {
+            return Some(crate::Verdict::InternalError {
+                message: error.to_string(),
+            });
+        }
+    };
+    match model.check_assumptions() {
+        dive_eval::AssumptionOutcome::AllTrue => None,
+        dive_eval::AssumptionOutcome::False { message, .. } => {
+            Some(crate::Verdict::AssumptionFalse { message })
+        }
+        dive_eval::AssumptionOutcome::Error { error, message, .. } => Some(
+            control
+                .verdict(&error)
+                .unwrap_or_else(|| crate::class::assumption_error(&error, message)),
+        ),
+    }
+}
+
 impl EvaluationControl {
     /// Makes an explicit context from the already armed budget and actual phase.
     ///
@@ -1256,7 +1291,7 @@ impl EvaluationControl {
         }))
     }
 
-    /// Installs this context for evaluator loop checkpoints, after startup.
+    /// Installs this phase's context for evaluator loop checkpoints.
     /// Unlimited and unarmed budgets install a no-op owner scope, so another
     /// driver cannot replace control while this evaluator is in use.
     ///
@@ -1392,5 +1427,158 @@ mod evaluator_controls {
         }
         let genuine = dive_eval::EvalError::general("host interrupted evaluation");
         assert!(search.verdict(&genuine).is_none());
+    }
+}
+
+#[cfg(test)]
+#[allow(
+    clippy::expect_used,
+    clippy::panic,
+    reason = "deterministic assumption control evidence"
+)]
+mod assumption_controls {
+    use super::*;
+
+    const LOOP: &str = "PrintT(\"before-loop\") /\\ (\\A i \\in 1..4096: i = i)";
+
+    fn model(assumption: &str, options: &crate::CheckOptions) -> dive_model::Model {
+        let source = format!(
+            "---- MODULE ControlledAssume ----\nEXTENDS Naturals, TLC\nVARIABLE x\n\
+             ASSUME {assumption}\nInit == x = 0\nNext == x' = x\n====\n"
+        );
+        let analysis = dive_sema::analyze_source(
+            "ControlledAssume.tla",
+            &source,
+            &dive_sema::Options::default(),
+        );
+        let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+        let config = dive_config::parse("INIT Init\nNEXT Next\n")
+            .into_config()
+            .expect("config");
+        dive_model::bind(
+            ir,
+            &config,
+            &dive_model::BindOptions {
+                eval: options.eval,
+                symmetry_liveness: options.symmetry_liveness,
+                no_deadlock: false,
+                host: None,
+            },
+        )
+        .expect("bind")
+    }
+
+    #[test]
+    fn producer_assumption_loops_stop_with_their_owner_and_restore_control() {
+        for options in [crate::CheckOptions::tlc(0, 0), crate::CheckOptions::dive(0)] {
+            let model = model(LOOP, &options);
+            let watchdog = Budget::new(Some(Duration::from_secs(3600)), None)
+                .start()
+                .expect("watchdog")
+                .expect("finite budget");
+            watchdog.budget().trip_for_test();
+            assert!(matches!(
+                check_assumptions(&model, watchdog.budget()),
+                Some(crate::Verdict::Stopped(stop)) if stop.phase == Phase::Startup
+            ));
+            let prints = model.take_output();
+            assert_eq!(prints.len(), 1);
+            assert!(prints[0].contains("before-loop"));
+            // A stopped assumption did not cache false/error truth, and its
+            // scope did not leave the expired capability on this evaluator.
+            assert!(matches!(
+                model.check_assumptions(),
+                dive_eval::AssumptionOutcome::AllTrue
+            ));
+            assert_eq!(model.take_output().len(), 1);
+        }
+    }
+
+    #[test]
+    fn capture_assumption_stop_has_no_graph_search_statistics_or_witness() {
+        for mut options in [crate::CheckOptions::tlc(0, 0), crate::CheckOptions::dive(0)] {
+            let model = model(LOOP, &options);
+            let watchdog = Budget::new(Some(Duration::from_secs(3600)), None)
+                .start()
+                .expect("watchdog")
+                .expect("finite budget");
+            watchdog.budget().trip_for_test();
+            options.budget = watchdog.budget().clone();
+            let outcome =
+                crate::capture::explore(&model, &options, crate::capture::Limits::default());
+            let crate::capture::Exploration::Stopped(result) = outcome else {
+                panic!("an interrupted assumption cannot produce a complete graph");
+            };
+            assert!(
+                matches!(result.verdict, crate::Verdict::Stopped(ref stop) if stop.phase == Phase::Startup)
+            );
+            assert!(result.stats.is_none());
+            assert!(result.counterexample.is_none());
+            assert!(result.verdict.tlc().is_none());
+            assert!(
+                result
+                    .output
+                    .iter()
+                    .any(|line| line.contains("before-loop"))
+            );
+        }
+    }
+
+    #[test]
+    fn real_assumption_failures_keep_their_class_before_a_checkpoint() {
+        for options in [crate::CheckOptions::tlc(0, 0), crate::CheckOptions::dive(0)] {
+            let watchdog = Budget::new(Some(Duration::from_secs(3600)), None)
+                .start()
+                .expect("watchdog")
+                .expect("finite budget");
+            watchdog.budget().trip_for_test();
+            // A deciding false/error before a cooperative checkpoint keeps
+            // its genuine class, including when the signal has already tripped.
+            for budget in [&Budget::unlimited(), watchdog.budget()] {
+                assert!(matches!(
+                    check_assumptions(&model("FALSE", &options), budget),
+                    Some(crate::Verdict::AssumptionFalse { .. })
+                ));
+                assert!(matches!(
+                    check_assumptions(&model("1 \\div 0 = 0", &options), budget),
+                    Some(crate::Verdict::EvaluationError {
+                        site: crate::ErrorSite::Assumption,
+                        code: 2105,
+                        reported: 2105,
+                        ..
+                    })
+                ));
+                assert_eq!(check_assumptions(&model("TRUE", &options), budget), None);
+            }
+        }
+    }
+
+    #[test]
+    fn assumption_measurement_failure_remains_a_measurement_failure() {
+        for options in [crate::CheckOptions::tlc(0, 0), crate::CheckOptions::dive(0)] {
+            let model = model(LOOP, &options);
+            let watchdog = Budget::new(None, Some(100))
+                .start_with_sampler(
+                    |_, _, _| std::thread::Builder::new().spawn(|| {}),
+                    Sampler::Injected(Arc::new(|| Some(10))),
+                )
+                .expect("initial measurement")
+                .expect("finite budget");
+            let failure = MeasurementError::unavailable(SamplePoint::Periodic);
+            assert_eq!(
+                watchdog
+                    .budget()
+                    .signal
+                    .as_ref()
+                    .expect("armed")
+                    .record_sample(SamplePoint::Periodic, None, 100),
+                Err(failure)
+            );
+            assert_eq!(
+                check_assumptions(&model, watchdog.budget()),
+                Some(crate::Verdict::BudgetMeasurement { error: failure })
+            );
+            assert_eq!(model.take_output().len(), 1);
+        }
     }
 }

@@ -703,3 +703,21 @@ Release binaries were captured after the gate and remain distinct from the
 profiling binaries frozen before the matrix. Raw artifacts remain external;
 the campaign instance, root volume, bucket and security group were independently
 verified removed after preserving all original objects.
+
+## Assumption control and interval context cursors, 2026-10-23
+
+Controlled producer `ASSUME` evaluation now uses the existing cooperative run
+budget. Primitive interval contexts avoid a bulk domain vector while retaining
+the original size checks and binding order. Eight loop controls stopped during
+startup with their earlier output retained; four scalar false/error controls kept
+their original classes. At compiled source `1ba776da`, the full gate passed
+2,308 tests and all 13 phases, with the existing 150 TLC-profile and 144
+default-profile agreements unchanged.
+
+The complete eight-pair instruction screen kept all reported state, depth and
+queue counters identical and every pair within the 1% overhead limit
+(geometric mean −0.5968%). This qualifies the capacity change; it establishes no wall-clock or throughput milestone.
+Structural, quiet/native/bulk and independent-validation exclusions remain.
+The [compact record](../survey/data/assumption-control-overhead-2026-10-23.json)
+distinguishes the compiled source from its later delivery, retains both earlier
+setup HOLDs, and records preservation plus independent resource cleanup.
