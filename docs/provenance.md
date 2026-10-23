@@ -2091,3 +2091,11 @@ by the harness against oracle `tlc-2026.10.06.014338` with recorded reasons.
 Initial-invariant evaluation errors that leave only context code 2103 explaining
 exit 75 remain unclassified by the existing harness; no oracle classification
 was relaxed to obtain these controls.
+
+The first-candidate successor error matches the primary error observables but
+remains `agree-pending-trace-validation` in both profiles:
+[#434](https://github.com/Chelis-Lang/dive/issues/434) tracks independent
+certification of errors while expanding the last recorded state. The new witness
+agrees in both profiles. These explicit controls are outside the established
+small population; [compact qualification evidence](survey/data/enabled-interval-qualification-2026-10-23.json)
+records their distinct producer identities alongside the exact-source Linux gate.

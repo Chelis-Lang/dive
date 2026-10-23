@@ -297,6 +297,12 @@ semantics; they do not certify time-limit interruption or wide-domain throughput
 The first-error model remains `agree-pending-trace-validation`: its reported
 observables match, but the independent validator cannot re-raise an error while
 expanding the last state. That named gap earns no agreement credit.
+Independent terminal-error certification is tracked in
+[#434](https://github.com/Chelis-Lang/dive/issues/434). Both profiles agree on
+the new witness and retain the first-error case as pending; neither model changes
+the established small-tier denominator. The
+[qualification evidence](survey/data/enabled-interval-qualification-2026-10-23.json)
+keeps these observations separate from the full gate and normal-input overhead.
 
 ## State-time Json runtime names
 
