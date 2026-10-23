@@ -16,6 +16,127 @@ use crate::value::{Fcn, Set, SetRepr, Value};
 /// A stream of elements in normalized order.
 pub(crate) type Elems = Box<dyn Iterator<Item = Value> + Send>;
 
+/// A concrete component whose enumeration/comparison cannot call a provider.
+/// Check stored values as well as the outer representation: a raw set may hold
+/// nested deferred values. Mixed scalar types remain eligible and retain their
+/// normalization errors, unless the raw constructor short-circuits first.
+fn concrete_component(value: &Value) -> bool {
+    let Value::Set(set) = value else {
+        return false;
+    };
+    match set.repr() {
+        SetRepr::Interval(..) => true,
+        SetRepr::Enum | SetRepr::Raw(_) => set.stored_elements().is_some_and(|values| {
+            values.iter().all(|value| {
+                matches!(
+                    value,
+                    Value::Bool(_)
+                        | Value::Int(_)
+                        | Value::BigInt(_)
+                        | Value::Str(_)
+                        | Value::Model(_)
+                )
+            })
+        }),
+        _ => false,
+    }
+}
+
+/// TLC Value.isEmpty for already-checked concrete components. In particular,
+/// Raw does not normalize, whereas Interval calls size and can overflow.
+fn concrete_empty(value: &Value, ctx: Ctx) -> Result<bool> {
+    let Value::Set(set) = value else {
+        return Err(not_enumerable(value, ctx));
+    };
+    match set.repr() {
+        SetRepr::Raw(values) => Ok(values.is_empty()),
+        SetRepr::Enum => Ok(set.elements(ctx)?.is_empty()),
+        SetRepr::Interval(..) => Ok(crate::enumerate::size(set, ctx)? == 0),
+        _ => Err(not_enumerable(value, ctx)),
+    }
+}
+
+fn concrete_product_empty<'a>(values: impl Iterator<Item = &'a Value>, ctx: Ctx) -> Result<bool> {
+    for value in values {
+        if concrete_empty(value, ctx)? {
+            return Ok(true);
+        }
+    }
+    Ok(false)
+}
+
+fn concrete_functions(domain: &Value, range: &Value, ctx: Ctx) -> Result<Elems> {
+    // SetOfFcnsValue.elements checks emptiness before normalizing its domain.
+    // An empty domain skips the range entirely and yields a FcnRcdValue, not a
+    // TupleValue. A nonempty domain with empty range yields no functions.
+    if concrete_empty(domain, ctx)? {
+        let _normalized_domain = component(domain, ctx, true)?;
+        return Ok(Box::new(std::iter::once(Value::tuple_fcn(Vec::new()))));
+    }
+    if concrete_empty(range, ctx)? {
+        return Ok(Box::new(std::iter::empty()));
+    }
+    let domain = component(domain, ctx, true)?;
+    let range = component(range, ctx, true)?;
+    let shape = fcn_shape(&domain);
+    Ok(odometer(
+        vec![range; domain.len()],
+        Build::Fcn(domain, shape, ctx.order),
+    ))
+}
+
+/// Raw compound output storage for concrete scalar components. This is separate
+/// from `stream()`, whose normalized bulk callers retain their original checks.
+pub(crate) fn concrete_raw(set: &Set, ctx: Ctx) -> Result<Option<Elems>> {
+    let eligible = match set.repr() {
+        SetRepr::Subset(base) => concrete_component(base),
+        SetRepr::FcnSet(domain, range) => concrete_component(domain) && concrete_component(range),
+        SetRepr::Product(values) => values.iter().all(concrete_component),
+        SetRepr::RcdSet(fields) => fields.iter().all(|(_, value)| concrete_component(value)),
+        _ => false,
+    };
+    if !eligible {
+        return Ok(None);
+    }
+    let ctx = Ctx {
+        order: set.order(),
+        ..ctx
+    };
+    let output = match set.repr() {
+        SetRepr::Subset(base) => Box::new(SubsetIter {
+            base: component(base, ctx, true)?,
+            order: ctx.order,
+            k: 0,
+            idx: Vec::new(),
+            started: false,
+        }) as Elems,
+        SetRepr::FcnSet(domain, range) => concrete_functions(domain, range, ctx)?,
+        SetRepr::Product(values) => {
+            if concrete_product_empty(values.iter(), ctx)? {
+                return Ok(Some(Box::new(std::iter::empty())));
+            }
+            let columns = values
+                .iter()
+                .map(|value| component(value, ctx, true))
+                .collect::<Result<Vec<_>>>()?;
+            odometer(columns, Build::Tuple)
+        }
+        SetRepr::RcdSet(fields) => {
+            if concrete_product_empty(fields.iter().map(|(_, value)| value), ctx)? {
+                return Ok(Some(Box::new(std::iter::empty())));
+            }
+            let columns = fields
+                .iter()
+                .map(|(_, value)| component(value, ctx, true))
+                .collect::<Result<Vec<_>>>()?;
+            let names = fields.iter().map(|(name, _)| name.clone()).collect();
+            odometer(columns, Build::Record(names, ctx.order))
+        }
+        _ => return Ok(None),
+    };
+    Ok(Some(output))
+}
+
 pub(crate) fn not_enumerable(what: &Value, ctx: Ctx) -> ValueError {
     ValueError::new(
         ErrorKind::NotEnumerable,

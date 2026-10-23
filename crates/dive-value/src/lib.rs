@@ -67,3 +67,7 @@ pub use value::{
     DeferredKind, DeferredSet, DomainLookup, Fcn, FcnKind, Set, SetKind, Value,
     quiet_operation_active,
 };
+
+/// An owned incremental stream of set elements, with no complete output buffer.
+/// See [`Set::concrete_element_stream`] for construction and a bounded example.
+pub type SetElementStream = Box<dyn Iterator<Item = Value> + Send>;

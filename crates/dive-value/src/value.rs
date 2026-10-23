@@ -413,6 +413,41 @@ impl Set {
         Ok(e)
     }
 
+    /// Streams a compound set's raw TLC enumeration over scalar components,
+    /// without sizing or materializing the complete compound result.
+    ///
+    /// Returns `None`, without normalization or callbacks, unless this is a
+    /// powerset, product, function set or record set whose component sets are
+    /// explicit scalar collections or intervals. Nested aggregate values and
+    /// deferred providers need their existing enumeration route. All capability
+    /// checks precede effects; this selects output storage, never admission.
+    ///
+    /// Constructor emptiness checks precede component normalization, in TLC's
+    /// order. Nonempty components are materialized before the first output, so
+    /// this does not make a huge individual component incremental. Output order
+    /// follows this set's construction order; callers must establish that it is
+    /// their required exploration order. The full result is not cached.
+    ///
+    /// ```
+    /// use dive_value::{Ctx, Value};
+    /// let ctx = Ctx::dive();
+    /// let base = Value::interval(1.into(), 31.into(), ctx);
+    /// let Value::Set(powerset) = Value::subset(base, ctx) else {
+    ///     return Err("SUBSET must produce a set".into());
+    /// };
+    /// let mut elements = powerset.concrete_element_stream(ctx)?
+    ///     .ok_or("components need another enumeration route")?;
+    /// assert_eq!(elements.next(), Some(Value::set(vec![], ctx)?));
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
+    /// ```
+    ///
+    /// # Errors
+    /// Required component size/normalization errors. A failed capability check
+    /// returns `None` rather than evaluating or refusing an unsupported provider.
+    pub fn concrete_element_stream(&self, ctx: Ctx) -> Result<Option<crate::SetElementStream>> {
+        crate::stream::concrete_raw(self, ctx)
+    }
+
     /// The elements in normalized order, without changing TLC's view of the set
     /// or of any set nested in it: [`Set::elements`] without its side effects.
     ///

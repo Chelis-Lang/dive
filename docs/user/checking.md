@@ -474,3 +474,17 @@ dive check conformance/corpus/interval-streaming/specifications/WideIntervalInit
 
 The invariant fails on `x = 0` (TLC class `TLC_INVARIANT_VIOLATED_INITIAL`, exit
 12); this is not a successful proof over the rest of the interval.
+
+Compound assignment domains with explicit scalar or interval components
+also yield candidates incrementally: powersets, Cartesian products, function
+sets and record sets reach the initial/successor sink and `ENABLED` continuation
+without retaining every output. Required component normalization still precedes
+the first candidate. Candidate checkpoints also run when a continuation rejects
+every value, allowing the configured run budget to stop that search.
+
+This changes output storage, without imposing a new cardinality limit. Ordinary
+normalized bulk operations, deferred component providers and values requiring a
+different exploration order use their existing paths. A compound component may
+still require materialization; this does not make every domain construction
+interruptible. The four pinned first-state controls and their independent trace
+validation are documented in the [corpus guide](../conformance-corpora.md#compound-domain-first-state-controls).

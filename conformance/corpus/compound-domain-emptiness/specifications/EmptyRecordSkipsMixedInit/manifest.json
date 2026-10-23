@@ -1,0 +1,26 @@
+{
+  "sources": [
+    "docs/user/checking.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "budget"
+  ],
+  "modules": [
+    {
+      "path": "specifications/EmptyRecordSkipsMixedInit/EmptyRecordSkipsMixedInit.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/EmptyRecordSkipsMixedInit/EmptyRecordSkipsMixedInit.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}

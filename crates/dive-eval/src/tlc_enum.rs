@@ -30,7 +30,7 @@
 use std::cmp::Ordering;
 use std::sync::Arc;
 
-use dive_value::{DeferredKind, SetKind, Value};
+use dive_value::{DeferredKind, SetElementStream, SetKind, Value};
 
 use crate::core::{Core, TLC_ORDER, is_enumerable};
 use crate::error::{EvalError, Result};
@@ -38,6 +38,27 @@ use crate::lazy::{Filter, SetOp};
 use crate::options::ExplorationOrder;
 
 impl Core {
+    /// A compound output cursor over concrete component enumerators. This
+    /// selects storage for the existing enumeration, never an admission rule.
+    /// Deferred/resettable providers and cross-order values keep their existing
+    /// route: a shared component buffer cannot reproduce their raw effects.
+    pub(crate) fn in_element_stream(
+        self: &Arc<Self>,
+        set: &dive_value::Set,
+    ) -> Result<Option<SetElementStream>> {
+        if !matches!(
+            set.kind(),
+            SetKind::Subset | SetKind::FcnSet | SetKind::RcdSet | SetKind::Product
+        ) || set.order() != self.opts.explore_order()
+        {
+            return Ok(None);
+        }
+        // The capability check is read-only and excludes every symbolic,
+        // non-set or deferred component for which enum_guard supplies errors.
+        // The cursor preserves the concrete raw constructor's own checks.
+        Ok(set.concrete_element_stream(self.ctx)?)
+    }
+
     /// The elements `x' \in S` (and `x \in S` in an initial predicate) binds,
     /// in TLC's order and multiplicity (`Enumerable.elements()`). Under
     /// `--explore-order=value` the run's value order instead.
