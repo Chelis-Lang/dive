@@ -370,3 +370,59 @@ therefore remain separate obligations; these probes authorize no approximation.
 records source, producer, pins and original observation hashes. Raw outer harness
 logs and generated golden bytes stay external. This frozen generator does not
 preserve its internal raw Java stdout/stderr; that limitation is explicit.
+
+## Compound-domain first-state controls
+
+`compound-domain-streaming` contains four explicit deep-tier controls for issue
+#349, separate from established small/full populations. Each has invariant
+`Bad == x # x` and a large lazy initial domain. Pinned TLC reaches the first
+initial violation before constructing the complete domain.
+
+| Control | Initial domain | First counterexample value of `x` |
+|---|---|---|
+| WideSubsetInit | `SUBSET (1..31)` | `{}` |
+| WideProductInit | `(1..50000) \X (1..50000)` | `<<1, 1>>` |
+| WideFunctionSetInit | `[1..2 -> 1..50000]` | `<<1, 1>>` |
+| WideRecordSetInit | `[a: 1..50000, b: 1..50000]` | `[a |-> 1, b |-> 1]` |
+
+All four generated goldens record `TLC_INVARIANT_VIOLATED_INITIAL`, property
+`Bad`, native exit 12 and one finite state. TLC emitted no state counts or
+depth; these fields remain null. The manifests' runtime/result fields remain
+`unknown` because they belong to the exact pinned corpus digest.
+
+Generation used the pinned oracle, one worker, seed/fingerprint zero, a 256 MB
+heap and a 20-second explicit per-job timeout. All eight clean/trace native
+commands finished uncensored. The opt-in raw-invocation harness retained their
+original stdout/stderr, commands and traces. Its executable was compiled at
+`bfa74020`; its production code is identical to qualified source `7218edde`.
+No manual golden editing or new selected-corpus SANY run was involved.
+
+The existing independent trace validator accepted all four original words and
+rejected all eight mutations, including lossless format controls. These facts
+precede the compound-assignment implementation and do not establish agreement
+for unmeasured models or deferred provider effects.
+[Compact provenance](survey/data/compound-domain-oracle-2026-10-23.json) records
+source, input, original producer archive and exact generated-golden hashes.
+
+`compound-domain-emptiness` separately pins two constructor-order controls.
+The initial predicate first tries `x \in ({1, TRUE} \X {})` or
+`x \in [a: {1, TRUE}, b: {}]`, then the disjunct `x = 0`. Pinned TLC skips
+normalizing the mixed scalar component because the compound domain is empty,
+then reports the initial `Bad` violation at `x = 0`. All four clean/trace runs
+exit 12 uncensored; no counts or depth are emitted. These exact generated
+goldens precede the corrected stream constructor. Independent pointwise Init
+replay rejects these two generated words as non-tuple/non-record membership
+errors; [issue #443](https://github.com/Chelis-Lang/dive/issues/443) retains that
+validation finding. They receive no trace-validation or agreement credit. The original four large
+controls and their corpus digest remain unchanged.
+[Compact constructor provenance](survey/data/compound-domain-emptiness-oracle-2026-10-23.json)
+records the new input and golden hashes.
+
+The delivery qualification ran a fresh full gate (2,329 tests, no skips), the
+unchanged 156-model selections in both profiles and all 458 SANY comparisons.
+All four wide checks matched their primary words and independently validated.
+The eight normal-model instruction comparisons retained identical counts/depth;
+the largest overhead was 0.043%, below the 1% per-pair ceiling. This is capacity
+evidence, without a TLC throughput or full-tier agreement claim.
+[Compact qualification](survey/data/compound-domain-streaming-qualification-2026-10-23.json)
+records source/tool identities, all eight instruction pairs and original hashes.

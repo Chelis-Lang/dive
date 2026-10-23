@@ -161,3 +161,17 @@ id = "liveness-quotient-primary"
 path = "conformance/corpus/liveness-quotient-primary"
 license = "MIT"
 layout = "examples-manifest"
+
+# Raw first-state compound-domain probes; separate from established populations.
+[[corpus]]
+id = "compound-domain-streaming"
+path = "conformance/corpus/compound-domain-streaming"
+license = "MIT"
+layout = "examples-manifest"
+
+# Constructor emptiness precedes scalar normalization in raw compound domains.
+[[corpus]]
+id = "compound-domain-emptiness"
+path = "conformance/corpus/compound-domain-emptiness"
+license = "MIT"
+layout = "examples-manifest"

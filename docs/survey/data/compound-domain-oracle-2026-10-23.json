@@ -1,0 +1,201 @@
+{
+  "schema": 1,
+  "purpose": "Pinned first-state compound-domain oracle facts before implementation, issue #349",
+  "oracle": "tlc-2026.10.06.014338",
+  "oracle_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "jre_archive_sha256": "190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05",
+  "corpus_tree": "sha256:3e042a6e38e55d885b60e7f7deceb052b29431c6ae95cc0e18604c63932e05f1",
+  "qualified_harness_source": "7218edded7eee66492fe66f1d43b3b7c29d4c2f5",
+  "actual_runtime_compiled_source": "bfa74020b6682d69fc9849474aff423b589ede18",
+  "harness_binary_sha256": "370d2103c355fe7d2196e7429e3a918a19606fcb1689e72438d0aad5dd36015b",
+  "original_generation_archive_sha256": "566f554a80c54af11112747e68a63b6f0e1f245418d66b91c796bbfabe29c9cb",
+  "generation": {
+    "outer_commands": 4,
+    "clean_and_trace_native_commands": 8,
+    "outer_exits": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "native_exits": [
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12
+    ],
+    "externally_censored": false,
+    "timeout_seconds": 20,
+    "workers": 1,
+    "seed": 0,
+    "fingerprint": 0,
+    "xmx": "256m",
+    "reason": "Establish pinned raw compound-domain first-state enumeration and size/error boundaries before replacing eager assignment materialization (issue #349)."
+  },
+  "independent_validation": {
+    "native_exit": 0,
+    "externally_censored": false,
+    "positive_words_valid": 4,
+    "mutants_rejected": 8,
+    "mutants_total": 8,
+    "archive_sha256": "6f75184b5712865047c9c51411a0ba4d62d3bdbed25b43131f419d37fc3ac787"
+  },
+  "corpus_files": [
+    {
+      "relative_path": "specifications/WideFunctionSetInit/WideFunctionSetInit.cfg",
+      "bytes": 55,
+      "mode": "0o644",
+      "sha256": "0dd20f5b64b18ad21cef997cc11763b84592557a9e76b5f330f9257d0a1066ca"
+    },
+    {
+      "relative_path": "specifications/WideFunctionSetInit/WideFunctionSetInit.tla",
+      "bytes": 140,
+      "mode": "0o644",
+      "sha256": "cc48c681a1636cef0061c8a614a542a7e857d6bf677aa9ceb8578b2ae6a56b75"
+    },
+    {
+      "relative_path": "specifications/WideFunctionSetInit/manifest.json",
+      "bytes": 482,
+      "mode": "0o644",
+      "sha256": "cfce99fd0a3201babb6d96bd7563b66b888873ec3f7dc445f6410e9b2ae17162"
+    },
+    {
+      "relative_path": "specifications/WideProductInit/WideProductInit.cfg",
+      "bytes": 55,
+      "mode": "0o644",
+      "sha256": "0dd20f5b64b18ad21cef997cc11763b84592557a9e76b5f330f9257d0a1066ca"
+    },
+    {
+      "relative_path": "specifications/WideProductInit/WideProductInit.tla",
+      "bytes": 138,
+      "mode": "0o644",
+      "sha256": "f23a42bcba96c05db8d7931e94d9ed49536e734fb516bf341da3e6cceef87d06"
+    },
+    {
+      "relative_path": "specifications/WideProductInit/manifest.json",
+      "bytes": 466,
+      "mode": "0o644",
+      "sha256": "c77f28abcf3de0a40b416dfd6444da51c18385ea80c88f38bbf927a268dd0018"
+    },
+    {
+      "relative_path": "specifications/WideRecordSetInit/WideRecordSetInit.cfg",
+      "bytes": 55,
+      "mode": "0o644",
+      "sha256": "0dd20f5b64b18ad21cef997cc11763b84592557a9e76b5f330f9257d0a1066ca"
+    },
+    {
+      "relative_path": "specifications/WideRecordSetInit/WideRecordSetInit.tla",
+      "bytes": 148,
+      "mode": "0o644",
+      "sha256": "56d761f0119ddcb4fa20f0cbcde6ad7cb38714ac18e508e5d24f73562195cbf5"
+    },
+    {
+      "relative_path": "specifications/WideRecordSetInit/manifest.json",
+      "bytes": 474,
+      "mode": "0o644",
+      "sha256": "1e4d92c49d0f68079fe60c2e24c41776833e0828f511e05c65d831db31cbfc4f"
+    },
+    {
+      "relative_path": "specifications/WideSubsetInit/WideSubsetInit.cfg",
+      "bytes": 55,
+      "mode": "0o644",
+      "sha256": "0dd20f5b64b18ad21cef997cc11763b84592557a9e76b5f330f9257d0a1066ca"
+    },
+    {
+      "relative_path": "specifications/WideSubsetInit/WideSubsetInit.tla",
+      "bytes": 127,
+      "mode": "0o644",
+      "sha256": "3cf30c73f16daa293226fe85aab1cc3abfeba6dba74d334f055952ad30ef661a"
+    },
+    {
+      "relative_path": "specifications/WideSubsetInit/manifest.json",
+      "bytes": 462,
+      "mode": "0o644",
+      "sha256": "77d30815d9b04bc38ba57cfa4539546bcce19e9b3d3ba57de2627fb79a21f367"
+    }
+  ],
+  "goldens": [
+    {
+      "relative_path": "conformance/golden/tlc-2026.10.06.014338/compound-domain-streaming/specifications/WideFunctionSetInit/WideFunctionSetInit.cfg.json",
+      "bytes": 5817,
+      "sha256": "1f9c92f1131917bd4c205eeab58f026479880b91e5304bc6e2e00cf03d68d8a9",
+      "mode": "0o644",
+      "model": "specifications/WideFunctionSetInit/WideFunctionSetInit.cfg",
+      "verdict": "safety-violation",
+      "exit": 12,
+      "error_class": "TLC_INVARIANT_VIOLATED_INITIAL",
+      "property": "Bad",
+      "counts": {
+        "distinct_states": null,
+        "states_generated": null,
+        "states_left_on_queue": null,
+        "depth": null
+      },
+      "trace_length": 1,
+      "reason": "Establish pinned raw compound-domain first-state enumeration and size/error boundaries before replacing eager assignment materialization (issue #349)."
+    },
+    {
+      "relative_path": "conformance/golden/tlc-2026.10.06.014338/compound-domain-streaming/specifications/WideProductInit/WideProductInit.cfg.json",
+      "bytes": 5769,
+      "sha256": "74c2a74edbd7e95f95b17e571e1750f34b134f700e107cf3ab25d8e0334d035e",
+      "mode": "0o644",
+      "model": "specifications/WideProductInit/WideProductInit.cfg",
+      "verdict": "safety-violation",
+      "exit": 12,
+      "error_class": "TLC_INVARIANT_VIOLATED_INITIAL",
+      "property": "Bad",
+      "counts": {
+        "distinct_states": null,
+        "states_generated": null,
+        "states_left_on_queue": null,
+        "depth": null
+      },
+      "trace_length": 1,
+      "reason": "Establish pinned raw compound-domain first-state enumeration and size/error boundaries before replacing eager assignment materialization (issue #349)."
+    },
+    {
+      "relative_path": "conformance/golden/tlc-2026.10.06.014338/compound-domain-streaming/specifications/WideRecordSetInit/WideRecordSetInit.cfg.json",
+      "bytes": 5803,
+      "sha256": "88fe6c054c900f57af553897cdb7bce60edd61962b75bd450fb8be8c93f53c0c",
+      "mode": "0o644",
+      "model": "specifications/WideRecordSetInit/WideRecordSetInit.cfg",
+      "verdict": "safety-violation",
+      "exit": 12,
+      "error_class": "TLC_INVARIANT_VIOLATED_INITIAL",
+      "property": "Bad",
+      "counts": {
+        "distinct_states": null,
+        "states_generated": null,
+        "states_left_on_queue": null,
+        "depth": null
+      },
+      "trace_length": 1,
+      "reason": "Establish pinned raw compound-domain first-state enumeration and size/error boundaries before replacing eager assignment materialization (issue #349)."
+    },
+    {
+      "relative_path": "conformance/golden/tlc-2026.10.06.014338/compound-domain-streaming/specifications/WideSubsetInit/WideSubsetInit.cfg.json",
+      "bytes": 5699,
+      "sha256": "e09a58de00fad5cbb4c26b6c9ca166a71ad91d69c157fc65866ba57e6cc03961",
+      "mode": "0o644",
+      "model": "specifications/WideSubsetInit/WideSubsetInit.cfg",
+      "verdict": "safety-violation",
+      "exit": 12,
+      "error_class": "TLC_INVARIANT_VIOLATED_INITIAL",
+      "property": "Bad",
+      "counts": {
+        "distinct_states": null,
+        "states_generated": null,
+        "states_left_on_queue": null,
+        "depth": null
+      },
+      "trace_length": 1,
+      "reason": "Establish pinned raw compound-domain first-state enumeration and size/error boundaries before replacing eager assignment materialization (issue #349)."
+    }
+  ],
+  "limits": "No distinct/generated/depth counts were emitted by TLC: golden nulls are preserved. No SANY or current dive agreement/performance claim. Separate corpus does not alter explicit historical gate populations."
+}

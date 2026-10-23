@@ -1,0 +1,399 @@
+{
+  "schema_version": 1,
+  "measurement_date": "2026-10-23",
+  "purpose": "Compound output storage capacity, with result and normal-input instruction-overhead checks. No TLC throughput or scaling claim.",
+  "baseline": {
+    "commit": "02854597c8f37655dc50de717776db1585684fc0",
+    "tree": "249da0453fda29ac8b77391c106b17b1c2d3cfed",
+    "profiling_binary_sha256": "73aa4e98bddefe9e42f679c9fd174e7dcc67ed3e6a28cedc3eff4b9d88637dfe"
+  },
+  "candidate": {
+    "commit": "9c1c5daad09b22887528aa722f8e9f2e6ae6be95",
+    "tree": "ec644c27f258eff7052b59da10c894ed0c3d336f",
+    "profiling_binary_sha256": "65160aa642d7dea1564b0f409dc443c9f8ed39f5e00dae18d1a1eda8f1a1a60f"
+  },
+  "machine": {
+    "instance_type": "c7i.8xlarge",
+    "ami": "ami-02a9cdd4e98bc3c78",
+    "cpu": "Intel Xeon Platinum 8488C, 16 cores / 32 threads, KVM",
+    "kernel": "7.0.0-1014-aws x86_64",
+    "ram_bytes": 66320322560,
+    "rustc": "1.99.0 (b940084d7 2026-09-28)",
+    "cargo": "1.99.0 (5f94df478 2026-08-27)",
+    "valgrind": "3.22.0",
+    "build_jobs": 4,
+    "test_threads": 4,
+    "quiet_machine_throughput_qualification": false
+  },
+  "full_gate": {
+    "report_sha256": "c6ba99b06d32d8ee68987c2b6a26ed3af607a945bb2847c8275e64c27cb59d14",
+    "tests": 2329,
+    "passed": 2329,
+    "skipped": 0,
+    "phases": [
+      {
+        "name": "rustfmt",
+        "result": "pass",
+        "duration": "2.0s"
+      },
+      {
+        "name": "clippy",
+        "result": "pass",
+        "duration": "20.4s"
+      },
+      {
+        "name": "nextest (whole suite)",
+        "result": "pass",
+        "duration": "18m00s"
+      },
+      {
+        "name": "doctests",
+        "result": "pass",
+        "duration": "5.8s"
+      },
+      {
+        "name": "rustdoc",
+        "result": "pass",
+        "duration": "10.8s"
+      },
+      {
+        "name": "crate layering",
+        "result": "pass",
+        "duration": "0.0s"
+      },
+      {
+        "name": "cargo-deny",
+        "result": "skipped (Cargo.lock and deny.toml unchanged)",
+        "duration": "0.0s"
+      },
+      {
+        "name": "release build (harness, dive)",
+        "result": "pass",
+        "duration": "1m35s"
+      },
+      {
+        "name": "oracle and corpus fetch",
+        "result": "pass",
+        "duration": "5.2s"
+      },
+      {
+        "name": "cm1 gate (1, 4, 8 workers)",
+        "result": "pass",
+        "duration": "6.8s"
+      },
+      {
+        "name": "validation-smoke gate (1, 4, 8 workers)",
+        "result": "pass",
+        "duration": "0.8s"
+      },
+      {
+        "name": "small corpus tier (dive, tlc profile, vs baseline)",
+        "result": "pass",
+        "duration": "8m51s"
+      },
+      {
+        "name": "small corpus tier (dive, dive profile, vs baseline)",
+        "result": "pass",
+        "duration": "8m27s"
+      }
+    ],
+    "small_tlc": {
+      "selected": 156,
+      "agree": 150,
+      "unsupported": 6
+    },
+    "small_dive": {
+      "selected": 156,
+      "agree": 144,
+      "unsupported": 5,
+      "expected_divergence": 7
+    },
+    "SANY": {
+      "selected": 458,
+      "agree": 458
+    },
+    "disagreements": 0,
+    "timeouts": 0,
+    "original_population_unchanged": true,
+    "strict_typed_model_observations": 312
+  },
+  "wide_controls": [
+    {
+      "tag": "wide-WideSubsetInit",
+      "word": {
+        "source_model": "specifications/WideSubsetInit/WideSubsetInit.cfg",
+        "property": "Bad",
+        "native_exit": 12,
+        "tlc_code": 2107,
+        "word_length": 1,
+        "transported_word_exact_primary": true,
+        "oracle_counts_unchanged": {
+          "distinct_states": null,
+          "states_generated": null,
+          "states_left_on_queue": null,
+          "depth": null
+        },
+        "native_statistics_recorded_separately": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "initial_generated": 1,
+          "left_on_queue": 1,
+          "reported_by_tlc": false
+        },
+        "qualification": "Exact first primary word; no invented TLC counts/depth or model proof"
+      },
+      "validation": {
+        "result": "valid",
+        "length": 1,
+        "independent": "dive-trace predicate replay, independent of successor enumeration"
+      }
+    },
+    {
+      "tag": "wide-WideProductInit",
+      "word": {
+        "source_model": "specifications/WideProductInit/WideProductInit.cfg",
+        "property": "Bad",
+        "native_exit": 12,
+        "tlc_code": 2107,
+        "word_length": 1,
+        "transported_word_exact_primary": true,
+        "oracle_counts_unchanged": {
+          "distinct_states": null,
+          "states_generated": null,
+          "states_left_on_queue": null,
+          "depth": null
+        },
+        "native_statistics_recorded_separately": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "initial_generated": 1,
+          "left_on_queue": 1,
+          "reported_by_tlc": false
+        },
+        "qualification": "Exact first primary word; no invented TLC counts/depth or model proof"
+      },
+      "validation": {
+        "result": "valid",
+        "length": 1,
+        "independent": "dive-trace predicate replay, independent of successor enumeration"
+      }
+    },
+    {
+      "tag": "wide-WideFunctionSetInit",
+      "word": {
+        "source_model": "specifications/WideFunctionSetInit/WideFunctionSetInit.cfg",
+        "property": "Bad",
+        "native_exit": 12,
+        "tlc_code": 2107,
+        "word_length": 1,
+        "transported_word_exact_primary": true,
+        "oracle_counts_unchanged": {
+          "distinct_states": null,
+          "states_generated": null,
+          "states_left_on_queue": null,
+          "depth": null
+        },
+        "native_statistics_recorded_separately": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "initial_generated": 1,
+          "left_on_queue": 1,
+          "reported_by_tlc": false
+        },
+        "qualification": "Exact first primary word; no invented TLC counts/depth or model proof"
+      },
+      "validation": {
+        "result": "valid",
+        "length": 1,
+        "independent": "dive-trace predicate replay, independent of successor enumeration"
+      }
+    },
+    {
+      "tag": "wide-WideRecordSetInit",
+      "word": {
+        "source_model": "specifications/WideRecordSetInit/WideRecordSetInit.cfg",
+        "property": "Bad",
+        "native_exit": 12,
+        "tlc_code": 2107,
+        "word_length": 1,
+        "transported_word_exact_primary": true,
+        "oracle_counts_unchanged": {
+          "distinct_states": null,
+          "states_generated": null,
+          "states_left_on_queue": null,
+          "depth": null
+        },
+        "native_statistics_recorded_separately": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "initial_generated": 1,
+          "left_on_queue": 1,
+          "reported_by_tlc": false
+        },
+        "qualification": "Exact first primary word; no invented TLC counts/depth or model proof"
+      },
+      "validation": {
+        "result": "valid",
+        "length": 1,
+        "independent": "dive-trace predicate replay, independent of successor enumeration"
+      }
+    }
+  ],
+  "excluded_emptiness_controls": {
+    "issue": 443,
+    "independent_validation": "failed",
+    "agreement_credit": false,
+    "note": "Generated words and original failure are retained; assigned-state validation semantics are unchanged."
+  },
+  "normal_overhead": {
+    "arms": 16,
+    "pairs": [
+      {
+        "tag": "base-SimpleRegular-dive-w1",
+        "ratio": 1.0000040455968144,
+        "delta_pct": 0.00040455968144392784,
+        "base_Ir": 2532135670,
+        "candidate_Ir": 2532145914,
+        "counts": {
+          "distinct": 12097,
+          "generated": 47584,
+          "depth": 19,
+          "initial_generated": 1,
+          "left_on_queue": 0
+        }
+      },
+      {
+        "tag": "base-MCbtree-dive-w1",
+        "ratio": 1.0001928640336517,
+        "delta_pct": 0.019286403365170735,
+        "base_Ir": 14498706405,
+        "candidate_Ir": 14501502684,
+        "counts": {
+          "distinct": 21364,
+          "generated": 127825,
+          "depth": 24,
+          "initial_generated": 1,
+          "left_on_queue": 0
+        }
+      },
+      {
+        "tag": "base-GameOfLife-dive-w1",
+        "ratio": 1.0000533623129255,
+        "delta_pct": 0.005336231292552007,
+        "base_Ir": 1147551458,
+        "candidate_Ir": 1147612694,
+        "counts": {
+          "distinct": 512,
+          "generated": 1024,
+          "depth": 1,
+          "initial_generated": 512,
+          "left_on_queue": 0
+        }
+      },
+      {
+        "tag": "base-EWD998PCal-dive-w1",
+        "ratio": 1.0003732041362237,
+        "delta_pct": 0.03732041362236593,
+        "base_Ir": 46730765571,
+        "candidate_Ir": 46748205686,
+        "counts": {
+          "distinct": 20870,
+          "generated": 168292,
+          "depth": 28,
+          "initial_generated": 8,
+          "left_on_queue": 0
+        }
+      },
+      {
+        "tag": "base-SimpleRegular-tlc-w1",
+        "ratio": 1.000033270204751,
+        "delta_pct": 0.003327020475096809,
+        "base_Ir": 2596497396,
+        "candidate_Ir": 2596583782,
+        "counts": {
+          "distinct": 12097,
+          "generated": 47584,
+          "depth": 19,
+          "initial_generated": 1,
+          "left_on_queue": 0
+        }
+      },
+      {
+        "tag": "base-MCbtree-tlc-w1",
+        "ratio": 1.000214781361297,
+        "delta_pct": 0.021478136129693404,
+        "base_Ir": 18286963898,
+        "candidate_Ir": 18290891597,
+        "counts": {
+          "distinct": 21364,
+          "generated": 127825,
+          "depth": 24,
+          "initial_generated": 1,
+          "left_on_queue": 0
+        }
+      },
+      {
+        "tag": "base-GameOfLife-tlc-w1",
+        "ratio": 1.000111249557872,
+        "delta_pct": 0.011124955787189528,
+        "base_Ir": 1139627001,
+        "candidate_Ir": 1139753784,
+        "counts": {
+          "distinct": 512,
+          "generated": 1024,
+          "depth": 1,
+          "initial_generated": 512,
+          "left_on_queue": 0
+        }
+      },
+      {
+        "tag": "base-EWD998PCal-tlc-w1",
+        "ratio": 1.000421618184679,
+        "delta_pct": 0.04216181846790068,
+        "base_Ir": 47635205809,
+        "candidate_Ir": 47655289678,
+        "counts": {
+          "distinct": 20870,
+          "generated": 168292,
+          "depth": 28,
+          "initial_generated": 8,
+          "left_on_queue": 0
+        }
+      }
+    ],
+    "acceptance": "Every pair candidate_Ir * 100 <= base_Ir * 101 with identical state counts and depth. No geometric-mean waiver.",
+    "all_pairs_pass": true,
+    "geometric_delta_percent": 0.01755387898423333,
+    "maximum_pair_delta_percent": 0.04216181846790068,
+    "native_time_limit_seconds": 900,
+    "native_memory_bytes": 8589934592,
+    "outer_backstop_seconds": 930,
+    "worker_count": 1,
+    "seed": 0,
+    "fingerprint_index": 0,
+    "profile_order": "dive then tlc; paired arm order alternates by profile"
+  },
+  "evidence": {
+    "final_original_archive_sha256": "5a790db125604ea91223f19d0cc2d22a7a8c1ef0a138325ff3e831cbc79499de",
+    "source_bundle_sha256": "49563691d3d13cd78bddf7d794a2c1607c59373b90cf6eaa218b06e7d2143e1c",
+    "qualification_plan_sha256": "7730880da90c2dae05c0c7c37e9ecc4ad38f05908ad915a85b93833a0aebbb9a",
+    "root_raw_review_sha256": "c044c54a48c5ac778eeb4e81661db84d0c33054972a21b6c944e9e054b3e2658",
+    "archive_members_hashed": 681,
+    "actual_compiler_ELF_records": {
+      "base": 21,
+      "candidate": 462
+    },
+    "all_original_bytes_sha_and_modes_verified": true,
+    "raw_storage": "External; regenerate from pinned inputs. No logs, executables or source snapshots committed."
+  },
+  "limitations": [
+    "Component domains may still materialize; this partially addresses #349 and removes no liveness count limit.",
+    "The four primary words establish their exact initial violations, not successful exhaustive checks.",
+    "TLC emitted null counts and depth for the primary words; native progress is recorded separately.",
+    "Historical full-tier and parallel results were not remeasured."
+  ]
+}
