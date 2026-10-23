@@ -135,6 +135,19 @@ Its original offline classifier HOLD remains preserved alongside a reviewed
 zero-buffer interpretation correction. It is not production-default, current
 corpus, causal speedup or true peak-memory qualification.
 
+The separate [production qualification](../survey/data/product-vertices-qualification-2026-10-23.json)
+at source `db8d4ad5` passed the full gate and both complete small-tier baseline
+comparisons. Both ordinary CoffeeCan1000Beans profiles completed all configured
+properties with 501,500 distinct states, 2,000,002 generated and depth 1 under
+an explicit 564,520 ms budget and 8 GiB ceiling. All eight normal instruction
+pairs stayed within 1% overhead; this is capacity evidence, not a throughput claim.
+From the pinned Examples CoffeeCan directory, use:
+
+```sh
+dive check CoffeeCan.tla --config CoffeeCan1000Beans.cfg --workers 1 --seed 0 --fp 0 --time-limit 564520ms --max-memory 8g --output json
+dive check CoffeeCan.tla --config CoffeeCan1000Beans.cfg --workers 1 --seed 0 --fp 0 --time-limit 564520ms --max-memory 8g --output json --compat=tlc
+```
+
 Binding happens once under the ordinary startup host. If the configured roles
 are all safety obligations, their complete ordinary result uses schema 3 with
 `check_kind: "safety"`,

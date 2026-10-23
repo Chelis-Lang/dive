@@ -15,9 +15,21 @@ timing, thread or queue order, tableau numbering or SCC and lasso choice.
 
 ## Corpus scoreboard
 
-Measured 2026-10-22 against pinned TLC `tlc-2026.10.06.014338` goldens.
-The one-worker rows are from exact source `a9c7376f` on `5913ffd6`, with the
-full gate passing and all 2,274 tests run. The complete 156-model population
+Measured 2026-10-23 against pinned TLC `tlc-2026.10.06.014338` goldens.
+The current one-worker rows are from exact source `db8d4ad5` on `1892ddc7`:
+all 13 full-gate phases passed, with 2,295 tests passed and none skipped.
+`CoffeeCan1000Beans` moves from a product-vertex refusal to agreement in both
+profiles: 501,500 distinct / 2,000,002 generated / depth 1. All 156 model IDs
+per profile and 458 SANY comparisons remain selected; every other typed baseline
+observable is unchanged. Separate ordinary checks retain all four properties
+and TypeInvariant, and all eight normal instruction pairs remain within the
+1% overhead ceiling. The
+[compact capacity qualification](survey/data/product-vertices-qualification-2026-10-23.json)
+records actual source, reports, binaries, generated baselines and limitations.
+No new four-worker, full-tier, throughput or peak-memory result follows.
+
+The earlier 2026-10-22 observation used exact source `a9c7376f` on `5913ffd6`,
+with its full gate passing and all 2,274 tests run. The complete 156-model population
 is unchanged. Supported default-profile symmetry liveness now checks the whole
 unreduced graph. `P4SymLive` moves from refusal to the exact registered D-005
 expected divergence: 2 distinct / 3 generated / depth 2, versus TLC's reduced
@@ -46,8 +58,8 @@ the TLC profile.
 
 | Profile | Workers | Models | Agree | Unsupported | Expected divergence | Disagree / timeout / pending / oracle error |
 |---------|--------:|-------:|------:|------------:|--------------------:|-------------------------------------------:|
-| TLC | 1 | 156 | 149 | 7 | 0 | 0 |
-| default | 1 | 156 | 143 | 6 | 7 | 0 |
+| TLC | 1 | 156 | 150 | 6 | 0 | 0 |
+| default | 1 | 156 | 144 | 5 | 7 | 0 |
 | default | 4 | 156 | 144 | 9 | 3 | 0 |
 
 The four-worker observation replaces the historical `1f5ae5fa` row

@@ -213,3 +213,13 @@ major 3; it is not an infinity/null policy or a byte-memory guarantee. Existing
 size/layout/reservation checks and native budget controls remain, including
 their cooperative sampling and infallible-allocation limitations. No new
 projection, probe, dependency or report outcome is introduced.
+
+The separate production qualification at `db8d4ad5` is now complete: the full
+gate passed all 13 phases and 2,295 tests, both small baselines gained the exact
+CoffeeCan1000Beans agreement, both ordinary affected-model profiles exhausted
+capture and completed temporal analysis within their explicit budgets, and all
+eight normal instruction pairs passed the integer 1% overhead check. The
+[compact record](../survey/data/product-vertices-qualification-2026-10-23.json)
+keeps the actual source, producer, input and archived-evidence identities. This
+qualifies only the file product-vertex change; other owners, historical full-tier
+results and the remaining capacity/performance work retain their stated scope.

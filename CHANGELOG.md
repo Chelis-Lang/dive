@@ -4,6 +4,8 @@
   for reachable product vertices and report the actual numeric ceiling. Existing
   Rust defaults and explicit custom ceilings remain enforced; all other owner
   limits and native budget semantics are unchanged. The report stays at major 3.
+  CoffeeCan1000Beans now agrees in both profiles; the complete small tier is
+  150/156 in TLC mode and 144/156 in the default, with zero disagreements.
 
 - Stream unassigned `ENABLED` interval-membership candidates in ascending order,
   stopping at the first witness. Rejected membership candidates reach the existing
