@@ -700,3 +700,42 @@ fn selectseq_manual_prebound_atom_reports_the_callback_evaluation_error() {
         .expect_err("callback evaluation error");
     assert_eq!(error.class(), dive_eval::ErrorClass::Eval, "{error}");
 }
+
+#[test]
+fn callback_source_failure_keeps_inner_cause_and_outer_request() {
+    let source = "---- MODULE InnerCause ----\nEXTENDS Naturals, Sequences\nVARIABLE x\nInit==x=0\nNext==x'=x\nLeaf==Nat\nAlias==Leaf\nKeep(v)==v \\in Alias\nP == [] (SelectSeq(<<x>>, Keep) = <<x>>)\n====\n";
+    let analysis =
+        dive_sema::analyze_source("InnerCause.tla", source, &dive_sema::Options::default());
+    assert!(
+        analysis.accepted(),
+        "{:?}; {:?}",
+        analysis.syntax_diagnostics(),
+        analysis.diagnostics()
+    );
+    let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+    let config = dive_config::parse("INIT Init\nNEXT Next\n")
+        .into_config()
+        .expect("config");
+    for options in [
+        dive_model::BindOptions::tlc(),
+        dive_model::BindOptions::dive(),
+    ] {
+        let model = dive_model::bind(ir.clone(), &config, &options).expect("bind");
+        let request = pred(&model, "P");
+        let leaf = ir.def(ir.root_def("Leaf").expect("Leaf")).body;
+        let error = lower(&model, &request, Limits::default()).expect_err("same refusal");
+        assert_eq!(error.code(), "DIVE-L0020");
+        let dive_liveness::plan::PlanningError::Unsupported(refusal) = error else {
+            panic!("unsupported callback")
+        };
+        assert_eq!(refusal.cause.expr, leaf);
+        assert_eq!(refusal.cause.origin, ir.node(leaf).origin);
+        assert_eq!(refusal.cause.location, model.evaluator.location(leaf));
+        assert_eq!(refusal.request.expr, request.expr);
+        assert_eq!(
+            refusal.detail,
+            "unsupported: SelectSeq effect/provider/native callback"
+        );
+        assert_eq!(model.take_output(), Vec::<String>::new());
+    }
+}

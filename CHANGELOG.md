@@ -1,5 +1,9 @@
 # Changelog
 
+- Retain the original inner source expression for finite callback admission
+  failures through aliases and lazy actuals, preserving the existing refusal
+  class, message and admission policy.
+
 - File temporal requests in both profiles use the finite machine-index maximum
   for reachable product vertices and report the actual numeric ceiling. Existing
   Rust defaults and explicit custom ceilings remain enforced; all other owner
