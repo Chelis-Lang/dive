@@ -1,0 +1,696 @@
+{
+ "schema_version": 1,
+ "topic": "Controlled ASSUME evaluation and primitive interval context cursors",
+ "result": "qualified capacity and budget-control change; Agree +0",
+ "compiled_sources": {
+  "base": "60390462f8eb08c081642feab55d358dcca9de4d",
+  "candidate": "1ba776dafa76a686d92e4165539508e6d3dead8a",
+  "candidate_tree": "0516b6f6396c4732a8a7d831039a204ff572fc9a",
+  "delivery_before_evidence": "f97d702ec766ded5c4048dab505a53c0e63484bb",
+  "delivery_tree_before_evidence": "1affc7092656447d8a86961891b462d30c806d89",
+  "delivery_base_main": "d55e467b3e7541d590e43d2fcc8585d3be0dffbe",
+  "delivery_transfer": "Only the three merged performance-note files differ from qualified source. All crates, Cargo inputs, configs, corpora, goldens and baselines are exact. This proves source transfer, not a newly compiled delivery binary or a new full gate.",
+  "source_transfer_review_sha256": "dec3a7fa9f474856c055f14569adb7d0027dc1bfdeb5bf07eb7213be47649020",
+  "adversarial_source_review_sha256": "add6a48eb56bc90d66090cd454e8fbcf4c0f62c18089b30f4abdc885129d0105",
+  "adversarial_findings": 0,
+  "full_source_maps_before_after_exact": true,
+  "base_tracked_files": 22675,
+  "candidate_tracked_files": 22676
+ },
+ "behavior": {
+  "scope": "Ordinary safety and behavior-capture producer ASSUME evaluation uses owned run control. Primitive normalized context intervals use resettable cursors after the original size and enumeration-ceiling checks.",
+  "unchanged": [
+   "report schema 3",
+   "options and defaults",
+   "count limits",
+   "goldens and baselines",
+   "noninterval domain materialization",
+   "public eager scope_bindings"
+  ],
+  "not_universal": "Only existing cooperative checkpoints are covered. Structural construction, value-only bulk/native/sort and quiet units, independent validator ASSUME, and diagnostic reconstruction retain documented limitations. No per-assumption hard deadline or universal memory ceiling is established."
+ },
+ "full_gate": {
+  "compiled_source": "1ba776dafa76a686d92e4165539508e6d3dead8a",
+  "native_exit": 0,
+  "externally_censored": false,
+  "elapsed_seconds": 2206.330565802,
+  "phases": [
+   {
+    "name": "rustfmt",
+    "result": "pass"
+   },
+   {
+    "name": "clippy",
+    "result": "pass"
+   },
+   {
+    "name": "nextest (whole suite)",
+    "result": "pass"
+   },
+   {
+    "name": "doctests",
+    "result": "pass"
+   },
+   {
+    "name": "rustdoc",
+    "result": "pass"
+   },
+   {
+    "name": "crate layering",
+    "result": "pass"
+   },
+   {
+    "name": "cargo-deny",
+    "result": "pass"
+   },
+   {
+    "name": "release build (harness, dive)",
+    "result": "pass"
+   },
+   {
+    "name": "oracle and corpus fetch",
+    "result": "pass"
+   },
+   {
+    "name": "cm1 gate (1, 4, 8 workers)",
+    "result": "pass"
+   },
+   {
+    "name": "validation-smoke gate (1, 4, 8 workers)",
+    "result": "pass"
+   },
+   {
+    "name": "small corpus tier (dive, tlc profile, vs baseline)",
+    "result": "pass"
+   },
+   {
+    "name": "small corpus tier (dive, dive profile, vs baseline)",
+    "result": "pass"
+   }
+  ],
+  "nextest": {
+   "tests_run": 2308,
+   "passed": 2308,
+   "skipped": 0
+  },
+  "small_corpus": {
+   "tlc": {
+    "models_selected": 156,
+    "modules_selected": 458,
+    "agree": 150,
+    "unsupported": 6,
+    "expected_divergence": 0,
+    "model_disagreements": 0,
+    "module_disagreements": 0,
+    "modules_agree": 458,
+    "baseline": "conformance/baselines/small-tlc-w1.json",
+    "baseline_sha256": "2d7289f3320827cef61c009618e16ae1b7e9efb8e9d82ba447a1f24d0e94b650",
+    "report_sha256": "c24e91d8d7ade7659076cc35f0fb3539c47e3e47ae14459c831f2637e5e369dd"
+   },
+   "dive": {
+    "models_selected": 156,
+    "modules_selected": 0,
+    "agree": 144,
+    "unsupported": 5,
+    "expected_divergence": 7,
+    "model_disagreements": 0,
+    "module_disagreements": 0,
+    "modules_agree": 0,
+    "baseline": "conformance/baselines/small-dive-w1.json",
+    "baseline_sha256": "0d6842422b798618af5be64533877ad9cf8d8ebca4a24021f07acf9d41ed8f2e",
+    "report_sha256": "500462c08ac7e6f632c28eb3acf3734d57b669c7b6919bd3a687e54b7f725a33"
+   }
+  },
+  "strict_comparison": "All 312 model rows, 458 SANY rows, complete settings, corpus identities and typed facts matched the reviewed semantic ledger. SANY was run only in the TLC profile; it is not counted twice. No model exception.",
+  "semantic_ledger_sha256": "eacd464a427f4f4c247d59e18b7076b1a34861f1264487db3f2bfd4cb941a03c",
+  "gate_report_sha256": "7c5436f00451263ef9166eaef349f76cfc16cdb50c3296bba002e1ec87c61eb2",
+  "original_full_gate_archive_sha256": "f83f8f43b55ad7b104e5d103552266edf979c732749abc719447bac86a9db5b6"
+ },
+ "startup_controls": {
+  "schema": 3,
+  "cases": 12,
+  "stopped": 8,
+  "false_assumption": 2,
+  "genuine_evaluation_error": 2,
+  "requested_workers": 1,
+  "used_workers_in_every_case": 0,
+  "statistics_in_every_case": null,
+  "seed": 0,
+  "fingerprint": 0,
+  "max_memory_bytes": 1073741824,
+  "time_limits_ms": {
+   "loop": 300,
+   "bulk_loop": 300,
+   "false_or_error": 1000
+  },
+  "OS_backstop_seconds": 12,
+  "routes": "Both semantic profiles: safety, ordinary temporal producer and explicit final/short for the three-binder loop; plain safety for the billion-element primitive interval and scalar false/error controls.",
+  "reporting": "Precise stopped.phase is check-startup. Final/short retains the coarse execution.stage=capture with capture_completed=false. A stop is never a TLC verdict; statistics and counterexample are absent and zero workers have been used.",
+  "rows": [
+   {
+    "case": "loop",
+    "route": "safety",
+    "semantic_profile": "dive",
+    "check_kind": "safety",
+    "native_exit": 5,
+    "native_elapsed_seconds": 0.4237653569999793,
+    "report_elapsed_ms": 301,
+    "verdict": "stopped",
+    "stop_resource": "time",
+    "stop_phase": "check-startup",
+    "stop_limit_ms": 300,
+    "stop_observed_ms": 301,
+    "retained_pre_loop_print_once": true,
+    "output_events": 1
+   },
+   {
+    "case": "loop",
+    "route": "safety",
+    "semantic_profile": "tlc",
+    "check_kind": "safety",
+    "native_exit": 5,
+    "native_elapsed_seconds": 0.42669166000001724,
+    "report_elapsed_ms": 302,
+    "verdict": "stopped",
+    "stop_resource": "time",
+    "stop_phase": "check-startup",
+    "stop_limit_ms": 300,
+    "stop_observed_ms": 301,
+    "retained_pre_loop_print_once": true,
+    "output_events": 1
+   },
+   {
+    "case": "loop",
+    "route": "ordinary-temporal",
+    "semantic_profile": "dive",
+    "check_kind": "safety",
+    "native_exit": 5,
+    "native_elapsed_seconds": 0.42632918799995423,
+    "report_elapsed_ms": 302,
+    "verdict": "stopped",
+    "stop_resource": "time",
+    "stop_phase": "check-startup",
+    "stop_limit_ms": 300,
+    "stop_observed_ms": 301,
+    "retained_pre_loop_print_once": true,
+    "output_events": 1
+   },
+   {
+    "case": "loop",
+    "route": "ordinary-temporal",
+    "semantic_profile": "tlc",
+    "check_kind": "safety",
+    "native_exit": 5,
+    "native_elapsed_seconds": 0.42610581700000694,
+    "report_elapsed_ms": 303,
+    "verdict": "stopped",
+    "stop_resource": "time",
+    "stop_phase": "check-startup",
+    "stop_limit_ms": 300,
+    "stop_observed_ms": 302,
+    "retained_pre_loop_print_once": true,
+    "output_events": 1
+   },
+   {
+    "case": "loop",
+    "route": "final-temporal",
+    "semantic_profile": "dive",
+    "check_kind": "temporal",
+    "native_exit": 5,
+    "native_elapsed_seconds": 0.4228294199999709,
+    "report_elapsed_ms": 302,
+    "verdict": "stopped",
+    "stop_resource": "time",
+    "stop_phase": "check-startup",
+    "stop_limit_ms": 300,
+    "stop_observed_ms": 301,
+    "retained_pre_loop_print_once": true,
+    "output_events": 1
+   },
+   {
+    "case": "loop",
+    "route": "final-temporal",
+    "semantic_profile": "tlc",
+    "check_kind": "temporal",
+    "native_exit": 5,
+    "native_elapsed_seconds": 0.42341639299996814,
+    "report_elapsed_ms": 302,
+    "verdict": "stopped",
+    "stop_resource": "time",
+    "stop_phase": "check-startup",
+    "stop_limit_ms": 300,
+    "stop_observed_ms": 301,
+    "retained_pre_loop_print_once": true,
+    "output_events": 1
+   },
+   {
+    "case": "false",
+    "route": "safety",
+    "semantic_profile": "dive",
+    "check_kind": "safety",
+    "native_exit": 10,
+    "native_elapsed_seconds": 0.007660500999975284,
+    "report_elapsed_ms": 1,
+    "verdict": "assumption-failure",
+    "retained_pre_loop_print_once": false,
+    "output_events": 0,
+    "tlc_code": 2104
+   },
+   {
+    "case": "false",
+    "route": "safety",
+    "semantic_profile": "tlc",
+    "check_kind": "safety",
+    "native_exit": 10,
+    "native_elapsed_seconds": 0.008738453000034951,
+    "report_elapsed_ms": 1,
+    "verdict": "assumption-failure",
+    "retained_pre_loop_print_once": false,
+    "output_events": 0,
+    "tlc_code": 2104
+   },
+   {
+    "case": "error",
+    "route": "safety",
+    "semantic_profile": "dive",
+    "check_kind": "safety",
+    "native_exit": 10,
+    "native_elapsed_seconds": 0.2170879500000069,
+    "report_elapsed_ms": 2,
+    "verdict": "evaluation-error",
+    "retained_pre_loop_print_once": false,
+    "output_events": 0,
+    "tlc_code": 2105
+   },
+   {
+    "case": "error",
+    "route": "safety",
+    "semantic_profile": "tlc",
+    "check_kind": "safety",
+    "native_exit": 10,
+    "native_elapsed_seconds": 0.00862938000000213,
+    "report_elapsed_ms": 1,
+    "verdict": "evaluation-error",
+    "retained_pre_loop_print_once": false,
+    "output_events": 0,
+    "tlc_code": 2105
+   },
+   {
+    "case": "bulk-loop",
+    "route": "safety",
+    "semantic_profile": "dive",
+    "check_kind": "safety",
+    "native_exit": 5,
+    "native_elapsed_seconds": 0.42642713099996854,
+    "report_elapsed_ms": 302,
+    "verdict": "stopped",
+    "stop_resource": "time",
+    "stop_phase": "check-startup",
+    "stop_limit_ms": 300,
+    "stop_observed_ms": 301,
+    "retained_pre_loop_print_once": true,
+    "output_events": 1
+   },
+   {
+    "case": "bulk-loop",
+    "route": "safety",
+    "semantic_profile": "tlc",
+    "check_kind": "safety",
+    "native_exit": 5,
+    "native_elapsed_seconds": 0.4252388500000279,
+    "report_elapsed_ms": 302,
+    "verdict": "stopped",
+    "stop_resource": "time",
+    "stop_phase": "check-startup",
+    "stop_limit_ms": 300,
+    "stop_observed_ms": 301,
+    "retained_pre_loop_print_once": true,
+    "output_events": 1
+   }
+  ],
+  "source_inputs": {
+   "error.tla": {
+    "sha256": "882591e5c82753cbda245e88a33486798fdc13371ae43161eff589885a4a2a79",
+    "bytes": 119,
+    "definition_utf8": "---- MODULE error ----\nEXTENDS Naturals, TLC\nVARIABLE x\nASSUME 1 \\div 0=0\nInit == x=0\nNext == x'=x\nP == []<>(x=0)\n====\n"
+   },
+   "false.tla": {
+    "sha256": "e82924a6f160e937bb9a0223dd0960d26912a532db466b90f082e458d63fddcb",
+    "bytes": 114,
+    "definition_utf8": "---- MODULE false ----\nEXTENDS Naturals, TLC\nVARIABLE x\nASSUME FALSE\nInit == x=0\nNext == x'=x\nP == []<>(x=0)\n====\n"
+   },
+   "loop.tla": {
+    "sha256": "16d92530d386a9e357de6660bfedaa67c2c384e2c7e40e2433d9893191f8e632",
+    "bytes": 181,
+    "definition_utf8": "---- MODULE loop ----\nEXTENDS Naturals, TLC\nVARIABLE x\nASSUME PrintT(\"assume-before-loop\") /\\ (\\A i,j,k \\in 1..4096: i=i /\\ j=j /\\ k=k)\nInit == x=0\nNext == x'=x\nP == []<>(x=0)\n====\n"
+   },
+   "safety.cfg": {
+    "sha256": "817faebdc9fd7233e019188a206aa2785baf86be928714f2dfcd606d7e105f0f",
+    "bytes": 41,
+    "definition_utf8": "INIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n"
+   },
+   "temporal.cfg": {
+    "sha256": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb",
+    "bytes": 52,
+    "definition_utf8": "INIT Init\nNEXT Next\nPROPERTY P\nCHECK_DEADLOCK FALSE\n"
+   },
+   "bulk/loop.tla": {
+    "sha256": "91dccace2ac7b39900ad4da44b55fd3285c04ed2790515b6e22f39a76c9b3ca8",
+    "bytes": 169,
+    "definition_utf8": "---- MODULE loop ----\nEXTENDS Naturals, TLC\nVARIABLE x\nASSUME PrintT(\"assume-before-loop\") /\\ (\\A i \\in 1..1000000000: i=i)\nInit == x=0\nNext == x'=x\nP == []<>(x=0)\n====\n"
+   }
+  },
+  "input_definition_scope": "Only the six tiny custom TLA+/configuration workload inputs actually read by these 12 controls. Each text reproduces its recorded SHA and byte count. These are not Rust source snapshots or run-output dumps.",
+  "standard_modules": {
+   "files": 20,
+   "source": "1ba776dafa76a686d92e4165539508e6d3dead8a",
+   "source_directory": "crates/dive-sema/stdlib",
+   "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+   "input_identity_sha256": "b8a228f9ae52c594555d6e33dcdd063a7e102c45131cf5a14f79d6cb342bab44"
+  }
+ },
+ "normal_instruction_screen": {
+  "purpose": "Capacity-change overhead only, not a structural optimization acceptance screen.",
+  "models": {
+   "examples_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+   "reductions": {
+    "SimpleRegular": "Copy SimpleRegular.cfg, set N to6.",
+    "MCbtree": "Copy MCbtree.cfg, set MaxKey to3.",
+    "GameOfLife": "Copy GameOfLife.cfg, set N to3.",
+    "EWD998PCal": "Copy EWD998PCal.cfg unchanged; in EWD998PCal.tla change StateConstraint counter[i]<3 to counter[i]<2."
+   },
+   "models": {
+    "SimpleRegular": {
+     "module": {
+      "path": "specifications/TeachingConcurrency/SimpleRegular.tla",
+      "sha256": "bf3872f04d71f7b80fcb55cecd07bf1b38fac3861fbb3452eb179c593c1bcdb5"
+     },
+     "config": {
+      "path": "specifications/TeachingConcurrency/R1SimpleRegular.cfg",
+      "sha256": "aa129769c5d9a6bd1c3545dbbfbc98e1279d4b314b592b7801c9af71735fc3ff"
+     },
+     "expected": {
+      "distinct": 12097,
+      "generated": 47584,
+      "depth": 19
+     }
+    },
+    "MCbtree": {
+     "module": {
+      "path": "specifications/btree/MCbtree.tla",
+      "sha256": "64655fd6391422f27607da0c3d36617066249c68687d984bdb1113bc98f83ac3"
+     },
+     "config": {
+      "path": "specifications/btree/R1MCbtree.cfg",
+      "sha256": "de7bb2b0263d04833243ed7f09bec7cb496e4111f6777425161b9d8a5e119ffa"
+     },
+     "expected": {
+      "distinct": 21364,
+      "generated": 127825,
+      "depth": 24
+     }
+    },
+    "GameOfLife": {
+     "module": {
+      "path": "specifications/GameOfLife/GameOfLife.tla",
+      "sha256": "dcd6d626946faab35ac22ad38a031b0d9bd9bc274d8750340506acc407dccbc6"
+     },
+     "config": {
+      "path": "specifications/GameOfLife/R1GameOfLife.cfg",
+      "sha256": "842e3c2d93b0535783091687f76debde6dd42fc7b33983f154a9f892125ef4a9"
+     },
+     "expected": {
+      "distinct": 512,
+      "generated": 1024,
+      "depth": 1
+     }
+    },
+    "EWD998PCal": {
+     "module": {
+      "path": "specifications/ewd998/EWD998PCal.tla",
+      "sha256": "3342f5d865902f6e85defbcd6713cea1dac50e031d3f2281e7b7cc9deb545da4"
+     },
+     "config": {
+      "path": "specifications/ewd998/R1EWD998PCal.cfg",
+      "sha256": "44073c04a88dd7aa593cab099e59b7b1dd4be31ec2d5b59616b0426a3a84f892"
+     },
+     "expected": {
+      "distinct": 20870,
+      "generated": 168292,
+      "depth": 28
+     }
+    }
+   }
+  },
+  "workload_archive_sha256": "f1d3eb00d9f43c11e03a50be64a3115f8e2bb838299bb8d7033106a8ce0c53ef",
+  "module_archive_sha256": "90a8757da7c179dcf04ec8f7530f99881e013eb76b92bfeb59808d9a0fe782ab",
+  "method": "One sequential Cachegrind instruction-only observation per source/model/profile; all source, input, library and binary identities checked before and after. Every emitted cost row sums to the single Ir summary and stderr I-refs; all native exits 0, uncensored.",
+  "workers": 1,
+  "seed": 0,
+  "fingerprint": 0,
+  "report_schema": 3,
+  "native_time_limit_ms": 900000,
+  "native_max_memory_bytes": 8589934592,
+  "OS_backstop_seconds": 930,
+  "semantic_profiles": [
+   "dive",
+   "tlc"
+  ],
+  "reported_profiles": [
+   "dive",
+   "tlc+overrides"
+  ],
+  "other_flags": {
+   "store": "fingerprint",
+   "exit_codes": "tlc",
+   "warnings": true,
+   "dive_action_composition": "tla",
+   "tlc_action_composition": "off"
+  },
+  "arms": 16,
+  "pairs": [
+   {
+    "model": "SimpleRegular",
+    "semantic_profile": "dive",
+    "base_Ir": 2590722000,
+    "candidate_Ir": 2532146307,
+    "delta_percent": -2.260979487571413,
+    "at_most_one_percent": true,
+    "base_and_candidate_counters_equal": true,
+    "counters": {
+     "distinct": 12097,
+     "generated": 47584,
+     "depth": 19,
+     "initial_generated": 1,
+     "left_on_queue": 0
+    }
+   },
+   {
+    "model": "MCbtree",
+    "semantic_profile": "dive",
+    "base_Ir": 14413297531,
+    "candidate_Ir": 14501439740,
+    "delta_percent": 0.6115339589044311,
+    "at_most_one_percent": true,
+    "base_and_candidate_counters_equal": true,
+    "counters": {
+     "distinct": 21364,
+     "generated": 127825,
+     "depth": 24,
+     "initial_generated": 1,
+     "left_on_queue": 0
+    }
+   },
+   {
+    "model": "GameOfLife",
+    "semantic_profile": "dive",
+    "base_Ir": 1146734747,
+    "candidate_Ir": 1147585499,
+    "delta_percent": 0.07418908358935994,
+    "at_most_one_percent": true,
+    "base_and_candidate_counters_equal": true,
+    "counters": {
+     "distinct": 512,
+     "generated": 1024,
+     "depth": 1,
+     "initial_generated": 512,
+     "left_on_queue": 0
+    }
+   },
+   {
+    "model": "EWD998PCal",
+    "semantic_profile": "dive",
+    "base_Ir": 47065798763,
+    "candidate_Ir": 46748377099,
+    "delta_percent": -0.6744210708042542,
+    "at_most_one_percent": true,
+    "base_and_candidate_counters_equal": true,
+    "counters": {
+     "distinct": 20870,
+     "generated": 168292,
+     "depth": 28,
+     "initial_generated": 8,
+     "left_on_queue": 0
+    }
+   },
+   {
+    "model": "SimpleRegular",
+    "semantic_profile": "tlc",
+    "base_Ir": 2655015141,
+    "candidate_Ir": 2596392099,
+    "delta_percent": -2.2080115888875818,
+    "at_most_one_percent": true,
+    "base_and_candidate_counters_equal": true,
+    "counters": {
+     "distinct": 12097,
+     "generated": 47584,
+     "depth": 19,
+     "initial_generated": 1,
+     "left_on_queue": 0
+    }
+   },
+   {
+    "model": "MCbtree",
+    "semantic_profile": "tlc",
+    "base_Ir": 18204448166,
+    "candidate_Ir": 18290869771,
+    "delta_percent": 0.4747279577603791,
+    "at_most_one_percent": true,
+    "base_and_candidate_counters_equal": true,
+    "counters": {
+     "distinct": 21364,
+     "generated": 127825,
+     "depth": 24,
+     "initial_generated": 1,
+     "left_on_queue": 0
+    }
+   },
+   {
+    "model": "GameOfLife",
+    "semantic_profile": "tlc",
+    "base_Ir": 1138851270,
+    "candidate_Ir": 1139657937,
+    "delta_percent": 0.07083163721632868,
+    "at_most_one_percent": true,
+    "base_and_candidate_counters_equal": true,
+    "counters": {
+     "distinct": 512,
+     "generated": 1024,
+     "depth": 1,
+     "initial_generated": 512,
+     "left_on_queue": 0
+    }
+   },
+   {
+    "model": "EWD998PCal",
+    "semantic_profile": "tlc",
+    "base_Ir": 48047349075,
+    "candidate_Ir": 47654720498,
+    "delta_percent": -0.8171701135626042,
+    "at_most_one_percent": true,
+    "base_and_candidate_counters_equal": true,
+    "counters": {
+     "distinct": 20870,
+     "generated": 168292,
+     "depth": 28,
+     "initial_generated": 8,
+     "left_on_queue": 0
+    }
+   }
+  ],
+  "all8_at_most_one_percent": true,
+  "geometric_mean_instruction_ratio": 0.9940320383120276,
+  "geometric_mean_delta_percent": -0.5967961687972423,
+  "claims": "No quiet wall-clock comparison, throughput/scaling milestone, 5% structural performance improvement or full-tier measurement."
+ },
+ "machine_and_tools": {
+  "instance_type": "c7i.8xlarge",
+  "AMI": "ami-02a9cdd4e98bc3c78",
+  "CPU_model": "Intel(R) Xeon(R) Platinum 8488C",
+  "logical_cpus": 32,
+  "cores_per_socket": 16,
+  "sockets": 1,
+  "threads_per_core": 2,
+  "kernel_release": "7.0.0-1014-aws",
+  "architecture": "x86_64",
+  "compile_jobs": 4,
+  "test_threads": 4,
+  "versions": {
+   "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+   "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+   "nextest": "cargo-nextest 0.9.143 (60fa45f63 2026-08-04)",
+   "deny": "cargo-deny 0.20.2",
+   "valgrind": "valgrind-3.22.0",
+   "cachegrind_backend": "valgrind-3.22.0 cachegrind backend",
+   "callgrind_backend": "valgrind-3.22.0 callgrind backend",
+   "owned_process_supervisor": "Reviewed unreaped owned-group supervisor c4f0b2f2"
+  },
+  "tool_sha256": {
+   "rustc": "f3834d26669b03f6855fa54bd2381443123e860167bc0c7a8dd137e5cf6e5e4f",
+   "cargo": "e951141cc55a6cd7b9876d187bd30a3720e6086b99413af95e3b8de1cdd72f14",
+   "nextest": "cb6243e32736eb6242379b379d44f09adf4873bbdf69ed6ff13f9dc4c0dfc654",
+   "deny": "095d1609e3040af892c3356154eb89488bcb8886315f8c7b7b6927ad7064b3e7",
+   "valgrind": "4652774bd116cb49951ef74115ad4237cad5021b2bd4d80002f09d986ec438b9",
+   "cachegrind_backend": "38093b3bf8e9ffecb559a333c896a2fd2a2343bb79c3295f31c36475914deebf",
+   "callgrind_backend": "825eb197d519240c112e03ed00f40a8bbe1a0a0614f79ea95e28c67e8695cb03",
+   "owned_process_supervisor": "c4f0b2f298ecb1d777c04740246be10ab4476d895139f24ae73eb57ce3f10f61"
+  },
+  "profiling_binary_sha256": {
+   "base": "76358c7fdf8ed61da360f13a68cdd661822f4db7180ff55408469215679e9da0",
+   "candidate": "c42c069fadfc09cc5f007a5b9d78987ea50e97646b229590a0751e73780ba218"
+  },
+  "ordinary_release_binary_sha256": "fafabf55c611add0c96015ee74ebd4c05488b86ee66f70f9b0c485e3eb7ab461",
+  "ordinary_release_original_mode_octal": "0775",
+  "shared_library_sha256": {
+   "base": {
+    "libgcc_s.so.1": "d93224d2b0dab4247598be683adca02f5cf00586f99c187579cd7e92058fb7cb",
+    "libc.so.6": "3a15d66867d83762c7f2f1e37359cb8f6c5743edb369c65285cb0b1c4f7498bf",
+    "ld-linux-x86-64.so.2": "c20a2dc8917c755f02b94049356320fe1f62ac7d9f8994731f807d9df39302da"
+   },
+   "candidate": {
+    "libgcc_s.so.1": "d93224d2b0dab4247598be683adca02f5cf00586f99c187579cd7e92058fb7cb",
+    "libc.so.6": "3a15d66867d83762c7f2f1e37359cb8f6c5743edb369c65285cb0b1c4f7498bf",
+    "ld-linux-x86-64.so.2": "c20a2dc8917c755f02b94049356320fe1f62ac7d9f8994731f807d9df39302da"
+   }
+  },
+  "quietness": "No controlled quiet-machine wall-clock qualification is inferred from this instruction campaign."
+ },
+ "history_and_scope": [
+  {
+   "event": "Original full-gate campaign",
+   "outcome": "Gate passed, whole campaign HOLD afterward: missing cold-cache StandardModules path, before any startup or normal arm. The gate credit remains exact source 1ba only.",
+   "archive_sha256": "f83f8f43b55ad7b104e5d103552266edf979c732749abc719447bac86a9db5b6"
+  },
+  {
+   "event": "First remaining-controls campaign",
+   "outcome": "Setup HOLD: byte-exact ELF lost execute permissions in S3 transfer; zero startup/model/profiling arms. The replacement restores original 0775 only on a fresh owned file; source payload and library hashes remain exact.",
+   "archive_sha256": "fb0359feb3f05d0d907a99649bb33bff8f8bf3081d7b59feab57430a415367c0",
+   "root_failure_review_sha256": "571fa6252549f0189794b57ae57141e9abb80b86a88e5f0ad582c9e6abc74901"
+  },
+  {
+   "event": "Remaining-controls V2 campaign",
+   "outcome": "Complete 12 startup and 16 normal observations; prior full gate transferred only for the same compiled source, with separate new-host ELF/library checks.",
+   "archive_sha256": "a8a596bda880713957f7a72a930f1699e52e5196aba3a0db3bccf678c042009a"
+  },
+  {
+   "event": "Offline readers",
+   "outcome": "A small-observer numeric-arms type error and independent reader JSON-spacing assertion were preserved and corrected only in readers; original native outcomes and archive bytes were unchanged."
+  }
+ ],
+ "preservation_and_cleanup": {
+  "objects_preserved_before_termination": 86,
+  "bytes_preserved_before_termination": 272421539,
+  "objects_after_termination_refresh": 86,
+  "bytes_after_termination_refresh": 272421539,
+  "all_physical_hashes_and_producer_archive_sidecars_verified": true,
+  "instance_terminated_and_root_volume_security_group_bucket_absent": true,
+  "independent_cleanup_review_sha256": "ec94a7507435e87163e64f7bb3bc506cefd36bbce232cbdec24dc8d9faab14d4",
+  "refreshed_object_manifest_sha256": "247c16d7da35937bdefc4aec6ef8adc2f73d83b7f691375d7fb90a14ce671818"
+ },
+ "review_artifact_sha256": {
+  "root_final_raw_review": "3461d3d70ae9eb5ac0d251bd131c1da1a476ed76bf60d2e3c6800538a80a1796",
+  "independent_final_review": "c52bde89b52b9f1b668ffc94d5310515877fc4f355bf92f8ec87575d238e67a7",
+  "source_transfer_review": "dec3a7fa9f474856c055f14569adb7d0027dc1bfdeb5bf07eb7213be47649020",
+  "adversarial_source_review": "add6a48eb56bc90d66090cd454e8fbcf4c0f62c18089b30f4abdc885129d0105"
+ }
+}
