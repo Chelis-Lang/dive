@@ -114,7 +114,13 @@ reports no search statistics or used workers. The additive Rust
 `Recipe::bind_controlled` entry points expose this capability separately from
 `BindOptions`; their uncontrolled counterparts retain their original behavior.
 
-Structural binding and evaluator construction, `ASSUME` evaluation,
+Producer `ASSUME` evaluation in safety checking and graph capture uses the
+armed startup control at the same amortized evaluator-loop checkpoints.
+Interruption reports `stopped` in `check-startup`, retaining preceding output
+without search statistics, a behavior graph or a model verdict. Genuine false
+assumptions and evaluation errors retain their existing classifications.
+
+Structural binding and evaluator construction,
 post-binding symmetry preparation, value-only allocation/sorting/native
 operations, normalization in existing quiet equality/ordering/hash units, and
 diagnostic error/count and predecessor-path reconstruction after an already
@@ -439,8 +445,15 @@ This lets existing checker guards run when a complete assignment reaches the
 sink. `ENABLED` likewise streams unassigned interval-membership candidates,
 stopping at its first witness. Its membership-candidate loop reaches the
 existing amortized evaluator control even when every candidate is rejected.
-Already assigned variables still use the ordinary membership check. Other
-constructors can still materialize a domain before candidate binding, and long
+Already assigned variables still use the ordinary membership check.
+Bounded evaluator contexts also stream primitive interval columns for
+quantifiers and their shared binder traversal. Every domain is still evaluated
+before the first body, including domains after an empty interval; the first
+variable varies fastest and tuple validation keeps its original priority.
+Existing loop checkpoints can therefore run without first retaining the entire
+interval. Existing cardinality admission errors still apply before the first
+body in both profiles. APIs requesting all bindings still collect the full
+result. Other constructors can still materialize a domain before candidate binding, and long
 individual evaluations remain potentially uninterruptible (issue #349). No fixed
 domain-size count is introduced. Parallel checking polls the armed run budget during
 successor emission (issue #362). A stop retains its actual ordered prefix and

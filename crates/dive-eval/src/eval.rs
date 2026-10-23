@@ -11,6 +11,7 @@
     reason = "short names follow the TLC code each arm ports; helpers stay methods of the shared state like their siblings"
 )]
 
+use std::borrow::Cow;
 use std::sync::Arc;
 
 use dive_ir::{
@@ -31,6 +32,106 @@ use crate::options::Comparisons;
 struct Binder {
     slots: Vec<usize>,
     tuple: bool,
+}
+
+/// One independently resettable context column. Intervals need only their
+/// endpoints/current integer after the original cardinality admission, never a
+/// materialized vector.
+#[derive(Clone)]
+enum ContextColumn {
+    Stored { values: Arc<[Value]>, index: usize },
+    Small { low: i64, high: i64, current: i64 },
+    Big { low: Int, high: Int, current: Int },
+}
+
+impl ContextColumn {
+    fn interval(set: &dive_value::Set, ctx: dive_value::Ctx) -> Result<Self> {
+        // Preserve Set::elements' size check BEFORE enumerate's separate bulk
+        // ceiling, even though this cursor does not allocate the bulk column.
+        let count = set.size(ctx)?;
+        if count > dive_value::MAX_ENUMERATION {
+            // Same order override, typed error and pretty-printing as
+            // enumerate::enumerate -> too_large; no enumeration is requested.
+            let ctx = dive_value::Ctx {
+                order: set.order(),
+                ..ctx
+            };
+            let value = Value::Set(set.clone());
+            let printed =
+                dive_value::print::ppr(&dive_value::print::to_tlc_string_lenient(&value, ctx));
+            return Err(dive_value::ValueError::new(
+                dive_value::ErrorKind::TooLarge,
+                format!(
+                    "The set\n{printed}\nhas {count} elements, more than dive enumerates ({}).",
+                    dive_value::MAX_ENUMERATION
+                ),
+            )
+            .into());
+        }
+        let (low, high) = set
+            .as_interval()
+            .ok_or_else(|| EvalError::bug("noninterval context cursor"))?;
+        Ok(match (low.to_i64(), high.to_i64()) {
+            (Some(low), Some(high)) => Self::Small {
+                low,
+                high,
+                current: low,
+            },
+            _ => Self::Big {
+                low: low.clone(),
+                high: high.clone(),
+                current: low.clone(),
+            },
+        })
+    }
+
+    fn is_empty(&self) -> bool {
+        match self {
+            Self::Stored { values, .. } => values.is_empty(),
+            Self::Small { low, high, .. } => low > high,
+            Self::Big { low, high, .. } => low > high,
+        }
+    }
+
+    fn current(&self) -> Result<Cow<'_, Value>> {
+        match self {
+            Self::Stored { values, index } => values
+                .get(*index)
+                .map(Cow::Borrowed)
+                .ok_or_else(|| EvalError::bug("context column has no current element")),
+            Self::Small { current, .. } => Ok(Cow::Owned(Value::Int(*current))),
+            Self::Big { current, .. } => Ok(Cow::Owned(Value::int(current.clone()))),
+        }
+    }
+
+    /// Advances one column or resets it on carry, first variable fastest.
+    fn advance(&mut self) -> Result<bool> {
+        match self {
+            Self::Stored { values, index } => {
+                *index += 1;
+                if *index < values.len() {
+                    return Ok(true);
+                }
+                *index = 0;
+            }
+            Self::Small { low, high, current } => {
+                // Never increment a last element, including i64::MAX.
+                if *current < *high {
+                    *current += 1;
+                    return Ok(true);
+                }
+                *current = *low;
+            }
+            Self::Big { low, high, current } => {
+                if *current < *high {
+                    *current = current.add(&Int::ONE, dive_value::IntMode::Big)?;
+                    return Ok(true);
+                }
+                *current = low.clone();
+            }
+        }
+        Ok(false)
+    }
 }
 
 impl Core {
@@ -1186,7 +1287,7 @@ impl Core {
         body: &mut dyn FnMut(&Arc<Self>, &mut Env) -> Result<bool>,
     ) -> Result<()> {
         let mut binders: Vec<Binder> = Vec::new();
-        let mut columns: Vec<Arc<[Value]>> = Vec::new();
+        let mut columns: Vec<ContextColumn> = Vec::new();
         for b in bounds {
             let Some(dom) = b.domain else {
                 return Err(EvalError::bug("unbounded binder in a bounded construct"));
@@ -1198,35 +1299,44 @@ impl Core {
             if !is_enumerable(&set) {
                 return Err(self.non_enumerable_bound(&set, dom));
             }
-            let elems = self.explore(s)?;
+            // Tool.contexts constructs every domain enumerator before asking
+            // for any context. Only primitive interval enumeration is streamed;
+            // every other domain keeps its existing eager explore path/order.
+            let column = if s.as_interval().is_some() {
+                ContextColumn::interval(s, self.ctx)?
+            } else {
+                ContextColumn::Stored {
+                    values: self.explore(s)?,
+                    index: 0,
+                }
+            };
             if b.tuple {
                 binders.push(Binder {
                     slots: b.vars.iter().map(|s| s.index()).collect(),
                     tuple: true,
                 });
-                columns.push(elems);
+                columns.push(column);
             } else {
                 for v in &b.vars {
                     binders.push(Binder {
                         slots: vec![v.index()],
                         tuple: false,
                     });
-                    columns.push(elems.clone());
+                    columns.push(column.clone());
                 }
             }
         }
-        if columns.iter().any(|c| c.is_empty()) {
+        if columns.iter().any(ContextColumn::is_empty) {
             return Ok(());
         }
-        let mut idx = vec![0usize; columns.len()];
         loop {
             self.loop_work()?;
             for (k, b) in binders.iter().enumerate() {
-                let x = &columns[k][idx[k]];
+                let x = columns[k].current()?;
                 if b.tuple {
-                    match x {
+                    match x.as_ref() {
                         Value::Fcn(f) if f.as_tuple().is_some_and(|t| t.len() == b.slots.len()) => {
-                            self.bind_one(env, &b.slots, true, x, e)?;
+                            self.bind_one(env, &b.slots, true, x.as_ref(), e)?;
                         }
                         _ => {
                             return Err(EvalError::coded(
@@ -1236,7 +1346,7 @@ impl Core {
                         }
                     }
                 } else {
-                    env.bind(b.slots[0], Sv::Val(x.clone()));
+                    env.bind(b.slots[0], Sv::Val(x.into_owned()));
                 }
             }
             if !body(self, env)? {
@@ -1248,11 +1358,9 @@ impl Core {
                 if k == columns.len() {
                     return Ok(());
                 }
-                idx[k] += 1;
-                if idx[k] < columns[k].len() {
+                if columns[k].advance()? {
                     break;
                 }
-                idx[k] = 0;
                 k += 1;
             }
         }

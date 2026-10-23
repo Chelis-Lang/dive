@@ -223,3 +223,19 @@ eight normal instruction pairs passed the integer 1% overhead check. The
 keeps the actual source, producer, input and archived-evidence identities. This
 qualifies only the file product-vertex change; other owners, historical full-tier
 results and the remaining capacity/performance work retain their stated scope.
+
+### Producer assumption coverage
+
+The #349 follow-up installs the same armed evaluator control while safety
+checking and behavior-graph capture evaluate `ASSUME`. Its existing amortized
+loop checkpoints return typed interruption to the startup owner. Only matching
+resource evidence becomes `stopped` in `check-startup`; unavailable measurements
+remain measurement errors. A false assumption or genuine evaluation failure
+keeps its ordinary classification, and output preceding interruption is retained.
+The control scope ends before search starts. No count, default or schema changes.
+
+This covers producer assumption loops. Structural binding and evaluator
+construction, independent validation's assumption phase, quiet value/native/bulk
+operations and diagnostic reconstruction retain their existing boundaries. It adds no per-assumption deadline and no universal wall-clock
+guarantee. #349 remains open for those remaining coverage gaps. Normal-input
+overhead must still meet the existing 1% bar with identical counts.
