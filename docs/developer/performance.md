@@ -407,6 +407,30 @@ reduced models, with no quiet wall-clock, throughput, scaling or TLC-speedup
 claim. All original producer evidence was preserved and verified before the
 instance, root volume, temporary bucket and security group were removed.
 
+A private action-context continuation prototype retained borrowed action segments
+and exported captured contexts through immutable frame and thunk ownership. Its
+complete four-model, two-profile screen lowered whole-CLI instructions by
+**2.414% geometrically**, below the required 5% reduction. GameOfLife regressed
+by 2.150% in the default profile and 1.941% in TLC; EWD998PCal regressed by
+1.662% and 1.569%, respectively. Those four cells also exceeded the individual
+1% regression ceiling. SimpleRegular and MCbtree improved in both profiles,
+but individual improvements do not qualify the complete matrix. All sixteen
+arms completed with native exit zero and no external censor, preserving success
+verdicts, exact distinct/generated/initial counts, depth and empty queues.
+
+The [compact continuation screen](../survey/data/action-context-continuations-rejected-2026-10-23.json)
+records exact `1892ddc7` / `b30b2d4d` sources and trees, both physically frozen
+profiling ELF identities and modes, all eight instruction pairs, sixteen original
+profile/output hashes and both integer acceptance tests. It used the same 115
+pinned workload/library inputs, one worker, seed/fingerprint zero, Valgrind
+3.22.0 Cachegrind with cache simulation disabled, a 900-second native budget,
+an 8 GiB ceiling and a 930-second external backstop. The runner's terminal
+threshold assertion rejected a completed screen; its preserved generic HOLD and
+progress-prefix marker do not mean that model arms were incomplete. No full
+gate ran, no runtime change was delivered, and no wall-clock, throughput,
+scaling or TLC-speedup credit follows. Original evidence and the rejected source
+were preserved before the campaign resources were removed.
+
 A retained-profile investigation of boxing only the unused foreign-domain
 `Thunk` cache also found no credible 5% matrix case. Even deleting all named
 `cached`, `store`, `callee_env` and thunk-drop exclusive work, plus direct

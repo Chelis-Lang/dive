@@ -1,0 +1,1459 @@
+{
+  "schema_version": 1,
+  "status": "completed_negative_performance_screen",
+  "runtime_accepted": false,
+  "runtime_landed": false,
+  "fullgate_run": false,
+  "date": "2026-10-23",
+  "subject": "Private action-context continuations and borrowed action segments, with captured contexts exported through the original immutable frame/thunk ownership",
+  "source": {
+    "base": {
+      "source": "1892ddc7ea97902f65d406543a9d68f38a498e9d",
+      "tree": "721c8821513e9c5dfb01c38242b4bd53fe6dc190",
+      "status": "",
+      "tracked_file_count": 22672,
+      "tracked_file_sha256": "a74e9622aa925b7297554176551eeb81e461b0c2cb54f3a25c92a163f9605392",
+      "binary_sha256": "38830c989322f7275c8be560ed49537b4eb42b76aa37323b434187a12a2c9c22"
+    },
+    "candidate": {
+      "source": "b30b2d4ddc6083ff86b2fa508276af22fdf5a958",
+      "tree": "46dbcd690d3f53e5145024e1f81214cd4cea1c09",
+      "status": "",
+      "tracked_file_count": 22674,
+      "tracked_file_sha256": "025bff0ee452bfb8444adb161f12d744262a04f9eab9d30dcdd62583578add6b",
+      "binary_sha256": "85b4f6731f315410409d618e87662b1418ded59fa87f65f544dc9b28f0d9195b"
+    }
+  },
+  "source_keep_tag": "keep/action-context-continuations-b30b2d4d-rejected",
+  "source_contract_sha256": "5d5de3f2c8fb59f233366765e9403e7e099b9c688114042d7113f07ff3914bd3",
+  "source_patch_sha256": "ce4bae11b0528afd0a016ced725d71c8d21f417af865845764c8939caa86f981",
+  "campaign_archive": {
+    "artifact_id": "campaign-action-context-continuations-b30b2d4d/preserved/results/final.tgz",
+    "sha256": "25e7b7d5fb301811c5037f8e2cd6f5e4f15883802b974fe50e044605002c3f45",
+    "bytes": 52313540,
+    "members": 180,
+    "regular_members_stream_hashed": 179,
+    "all_regular_member_hash_manifest_sha256": "8bb694fefef7dfbb11b61ea37ab4b2e2072de7168c9138f9b36235815b5e8c51"
+  },
+  "preserved_objects": {
+    "objects": 32,
+    "bytes": 174405485,
+    "manifest_sha256": "810550582e469072b8b130f02ddfee69a94304afe9734bd883f5f0a0f7f9e594",
+    "all_original_object_hashes_verified": true
+  },
+  "reviews": {
+    "root_negative": "ebd002cb6db7c98eba82efe08bfddafbfaad751bade3326ed49c7a92b2560732",
+    "independent_agent": "07576ec17b42312941a62a4c7cc0954bf6865094e29788e967881f898b777db6",
+    "root_cleanup": "b99ec510446531eaad48354dad333bf6c11b0dbf27d97a8b7d27d65c6ca58db0",
+    "source_preservation": "62a3f04741928a377109a969172fa889e85aab89683185b17cf0298ae8611fc1"
+  },
+  "method": {
+    "scope": "Whole native CLI instructions on four reduced models in both profiles, one worker; not elapsed runtime or TLC comparison",
+    "sequential_arms": 16,
+    "pair_count": 8,
+    "tool": "Valgrind3.22.0 Cachegrind with cache simulation disabled; original schedule and parser",
+    "seed": 0,
+    "fingerprint": 0,
+    "native_time_limit_ms": 900000,
+    "native_memory_bytes": 8589934592,
+    "external_backstop_seconds": 930,
+    "instrumentation_concurrency": 1,
+    "all_native_zero_uncensored": true,
+    "all_pair_counts_depth_initial_queue_exact": true,
+    "all_source_tool_ELF_input_before_after_identity_stable": true,
+    "cold_profiling_builds": {
+      "base_native_exit": 0,
+      "candidate_native_exit": 0,
+      "profile": "profiling",
+      "jobs": 4,
+      "profile_overrides": false
+    }
+  },
+  "tools": {
+    "rustc": {
+      "version": "rustc 1.99.0 (b940084d7 2026-09-28)",
+      "binary_name": "rustc",
+      "sha256": "f3834d26669b03f6855fa54bd2381443123e860167bc0c7a8dd137e5cf6e5e4f"
+    },
+    "cargo": {
+      "version": "cargo 1.99.0 (5f94df478 2026-08-27)",
+      "binary_name": "cargo",
+      "sha256": "e951141cc55a6cd7b9876d187bd30a3720e6086b99413af95e3b8de1cdd72f14"
+    },
+    "nextest": {
+      "version": "cargo-nextest 0.9.143 (60fa45f63 2026-08-04)\nrelease: 0.9.143\ncommit-hash: 60fa45f638ffc3f35e74afa65737f45fcd32db2a\ncommit-date: 2026-08-04\nhost: x86_64-unknown-linux-gnu",
+      "binary_name": "cargo-nextest",
+      "sha256": "cb6243e32736eb6242379b379d44f09adf4873bbdf69ed6ff13f9dc4c0dfc654"
+    },
+    "deny": {
+      "version": "cargo-deny 0.20.2",
+      "binary_name": "cargo-deny",
+      "sha256": "095d1609e3040af892c3356154eb89488bcb8886315f8c7b7b6927ad7064b3e7"
+    },
+    "valgrind": {
+      "version": "valgrind-3.22.0",
+      "binary_name": "valgrind",
+      "sha256": "4652774bd116cb49951ef74115ad4237cad5021b2bd4d80002f09d986ec438b9"
+    },
+    "cachegrind_backend": {
+      "version": "valgrind-3.22.0 cachegrind backend",
+      "binary_name": "cachegrind-amd64-linux",
+      "sha256": "38093b3bf8e9ffecb559a333c896a2fd2a2343bb79c3295f31c36475914deebf"
+    },
+    "callgrind_backend": {
+      "version": "valgrind-3.22.0 callgrind backend",
+      "binary_name": "callgrind-amd64-linux",
+      "sha256": "825eb197d519240c112e03ed00f40a8bbe1a0a0614f79ea95e28c67e8695cb03"
+    },
+    "owned_process_supervisor": {
+      "version": "Reviewed unreaped owned-group supervisor c4f0b2f2",
+      "binary_name": "owned_process_core.py",
+      "sha256": "c4f0b2f298ecb1d777c04740246be10ab4476d895139f24ae73eb57ce3f10f61"
+    }
+  },
+  "native_libraries": {
+    "base": [
+      {
+        "binary_name": "libgcc_s.so.1",
+        "sha256": "d93224d2b0dab4247598be683adca02f5cf00586f99c187579cd7e92058fb7cb"
+      },
+      {
+        "binary_name": "libc.so.6",
+        "sha256": "3a15d66867d83762c7f2f1e37359cb8f6c5743edb369c65285cb0b1c4f7498bf"
+      },
+      {
+        "binary_name": "ld-linux-x86-64.so.2",
+        "sha256": "c20a2dc8917c755f02b94049356320fe1f62ac7d9f8994731f807d9df39302da"
+      }
+    ],
+    "candidate": [
+      {
+        "binary_name": "libgcc_s.so.1",
+        "sha256": "d93224d2b0dab4247598be683adca02f5cf00586f99c187579cd7e92058fb7cb"
+      },
+      {
+        "binary_name": "libc.so.6",
+        "sha256": "3a15d66867d83762c7f2f1e37359cb8f6c5743edb369c65285cb0b1c4f7498bf"
+      },
+      {
+        "binary_name": "ld-linux-x86-64.so.2",
+        "sha256": "c20a2dc8917c755f02b94049356320fe1f62ac7d9f8994731f807d9df39302da"
+      }
+    ]
+  },
+  "physical_frozen_ELFs": {
+    "frozen-base-profiling-dive": {
+      "sha256": "38830c989322f7275c8be560ed49537b4eb42b76aa37323b434187a12a2c9c22",
+      "bytes": 106826664,
+      "mode": "0o775",
+      "format": "ELF64 little-endian x86-64",
+      "elf_type": 3,
+      "physically_stream_hashed": true
+    },
+    "frozen-candidate-profiling-dive": {
+      "sha256": "85b4f6731f315410409d618e87662b1418ded59fa87f65f544dc9b28f0d9195b",
+      "bytes": 106916192,
+      "mode": "0o775",
+      "format": "ELF64 little-endian x86-64",
+      "elf_type": 3,
+      "physically_stream_hashed": true
+    }
+  },
+  "input_identity": {
+    "workload": {
+      "examples_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "reductions": {
+        "SimpleRegular": "Copy SimpleRegular.cfg, set N to6.",
+        "MCbtree": "Copy MCbtree.cfg, set MaxKey to3.",
+        "GameOfLife": "Copy GameOfLife.cfg, set N to3.",
+        "EWD998PCal": "Copy EWD998PCal.cfg unchanged; in EWD998PCal.tla change StateConstraint counter[i]<3 to counter[i]<2."
+      },
+      "models": {
+        "SimpleRegular": {
+          "module": {
+            "path": "specifications/TeachingConcurrency/SimpleRegular.tla",
+            "sha256": "bf3872f04d71f7b80fcb55cecd07bf1b38fac3861fbb3452eb179c593c1bcdb5"
+          },
+          "config": {
+            "path": "specifications/TeachingConcurrency/R1SimpleRegular.cfg",
+            "sha256": "aa129769c5d9a6bd1c3545dbbfbc98e1279d4b314b592b7801c9af71735fc3ff"
+          },
+          "expected": {
+            "distinct": 12097,
+            "generated": 47584,
+            "depth": 19
+          }
+        },
+        "MCbtree": {
+          "module": {
+            "path": "specifications/btree/MCbtree.tla",
+            "sha256": "64655fd6391422f27607da0c3d36617066249c68687d984bdb1113bc98f83ac3"
+          },
+          "config": {
+            "path": "specifications/btree/R1MCbtree.cfg",
+            "sha256": "de7bb2b0263d04833243ed7f09bec7cb496e4111f6777425161b9d8a5e119ffa"
+          },
+          "expected": {
+            "distinct": 21364,
+            "generated": 127825,
+            "depth": 24
+          }
+        },
+        "GameOfLife": {
+          "module": {
+            "path": "specifications/GameOfLife/GameOfLife.tla",
+            "sha256": "dcd6d626946faab35ac22ad38a031b0d9bd9bc274d8750340506acc407dccbc6"
+          },
+          "config": {
+            "path": "specifications/GameOfLife/R1GameOfLife.cfg",
+            "sha256": "842e3c2d93b0535783091687f76debde6dd42fc7b33983f154a9f892125ef4a9"
+          },
+          "expected": {
+            "distinct": 512,
+            "generated": 1024,
+            "depth": 1
+          }
+        },
+        "EWD998PCal": {
+          "module": {
+            "path": "specifications/ewd998/EWD998PCal.tla",
+            "sha256": "3342f5d865902f6e85defbcd6713cea1dac50e031d3f2281e7b7cc9deb545da4"
+          },
+          "config": {
+            "path": "specifications/ewd998/R1EWD998PCal.cfg",
+            "sha256": "44073c04a88dd7aa593cab099e59b7b1dd4be31ec2d5b59616b0426a3a84f892"
+          },
+          "expected": {
+            "distinct": 20870,
+            "generated": 168292,
+            "depth": 28
+          }
+        }
+      }
+    },
+    "workload_archive_sha256": "f1d3eb00d9f43c11e03a50be64a3115f8e2bb838299bb8d7033106a8ce0c53ef",
+    "workload_archive_manifest": {
+      "specifications/TeachingConcurrency/Simple.cfg": "95943595ab1f09d64d8ca3b99222cdc1b8c9ddb626da96a06d68ae5f89bdf751",
+      "specifications/TeachingConcurrency/Simple.tla": "dd859866e8be0ee36b0005b0393becd788fe51aae7ebcd7deaa14c259a3c0bab",
+      "specifications/TeachingConcurrency/SimpleRegular.cfg": "8520b95eddae24778e6f099010d8da0b25ab6667c32a0284b2e16e9528924960",
+      "specifications/TeachingConcurrency/SimpleRegular.tla": "bf3872f04d71f7b80fcb55cecd07bf1b38fac3861fbb3452eb179c593c1bcdb5",
+      "specifications/TeachingConcurrency/SimpleRegular_proof.tla": "0bebedcf4a56e72ee29bf71aa6bc97f7e48ccc3bac18aca3db39829b3b789386",
+      "specifications/TeachingConcurrency/Simple_proof.tla": "f2e5348593cd1b4e4107c591442c1b625146f6907189013c822440d67c84d1af",
+      "specifications/btree/MCbtree.cfg": "e7122e42b7ee004fcf7b9f80602143b0e72909b45df6e797ea89017d8a16079c",
+      "specifications/btree/MCbtree.tla": "64655fd6391422f27607da0c3d36617066249c68687d984bdb1113bc98f83ac3",
+      "specifications/btree/btree.tla": "5f763508e82ac3173f8bd59c77dfa87da265d84a39444b5ef4d60d7985bf2fec",
+      "specifications/btree/kvstore.cfg": "7b0120df31cb29eb12fa2a8a6f3b7e355921e58268b4d27384c1a94978e7246a",
+      "specifications/btree/kvstore.tla": "c1131a8591f91c110f2a739dc91d20564542ac6f201d5b76be581e485cfbb376",
+      "specifications/GameOfLife/GameOfLife.cfg": "89b3dd94f35fb6cee4b093fa2b9a2e0f44e6cf0d3e43707b82c801690eeb9bf3",
+      "specifications/GameOfLife/GameOfLife.tla": "dcd6d626946faab35ac22ad38a031b0d9bd9bc274d8750340506acc407dccbc6",
+      "specifications/ewd998/AsyncTerminationDetection.cfg": "6affac15002d814a67775f16affa001d9e01c2a758a9d35dbfbaccdd1fc9f5c6",
+      "specifications/ewd998/AsyncTerminationDetection.tla": "c1b15be68a73c6e5f69c5c09f2736870182a9b0765ad9860452240119911b030",
+      "specifications/ewd998/AsyncTerminationDetection_proof.tla": "87cc4e25be553691b1819b1be20b0addec2f724cec9ffe081014b23f99722ec7",
+      "specifications/ewd998/EWD998.cfg": "4e47f078297118a6e31953eddf6a8a6d469d32464ec1d22b902c041c587e5d59",
+      "specifications/ewd998/EWD998.tla": "b51ba3587e0d1b88a38cc15cd667b7a50ccb72e7f5f79f7260c97e473f9392e8",
+      "specifications/ewd998/EWD998Chan.cfg": "259100c5161cf1e04dce4c9898957c5ff7ba81f790c840396a2a7b5e618eb044",
+      "specifications/ewd998/EWD998Chan.tla": "ebdb5e9c6469fb1afc3b12198e1e2159b3ff3fa76d7bd15e5e11dce92b72313c",
+      "specifications/ewd998/EWD998ChanID.cfg": "69ec430deca39d7af5e2bfb1f6e43b5c941d29f4362a70048d534a52b8a54146",
+      "specifications/ewd998/EWD998ChanID.tla": "c498e5e35a83d84257016fdf4ba359ddb40dbb5f3b2234656e32b419a5499e93",
+      "specifications/ewd998/EWD998ChanID_export.cfg": "a02a94fce512a1c7f8c47f0c35bbad7813dfedbafec7212d2404c585541b078a",
+      "specifications/ewd998/EWD998ChanID_export.tla": "638f814c422250d6debe1209419971b66ead59c8aa8aca4a2efcc29feb379985",
+      "specifications/ewd998/EWD998ChanID_shiviz.cfg": "4dab15b9fea40413c96361139310ee2502b305c9b69980f5ba3c39aa5c30719f",
+      "specifications/ewd998/EWD998ChanID_shiviz.tla": "43739b7a7c0754fbb2cf5a7606df9bd9610fc4bc3f22b79aab559e2f4e630c98",
+      "specifications/ewd998/EWD998ChanTrace.cfg": "e9e662c8672fff1a2affafb90efebbf1201f084e8f0e33698e2a42a9721bff64",
+      "specifications/ewd998/EWD998ChanTrace.tla": "da182795698ff457ae8979b7d97cd47842d75e3d860323ca02031dc47c940171",
+      "specifications/ewd998/EWD998Chan_opts.tla": "4f29c2b6208a54f1ba954fe455f47c70898789b9549d97b6deca6c9efbeaacab",
+      "specifications/ewd998/EWD998PCal.cfg": "44073c04a88dd7aa593cab099e59b7b1dd4be31ec2d5b59616b0426a3a84f892",
+      "specifications/ewd998/EWD998PCal.tla": "3342f5d865902f6e85defbcd6713cea1dac50e031d3f2281e7b7cc9deb545da4",
+      "specifications/ewd998/EWD998PCal_proof.tla": "fdf1114b7c47216f4b4a3c81db0cc34dd92c0712bad6c31eef09751835d906fd",
+      "specifications/ewd998/EWD998Small.cfg": "f0869ebeddcdec5b0208014218a946532c01fdb34130579acff081ed6e883f2a",
+      "specifications/ewd998/EWD998_anim.tla": "6265b417dc405685a3e860493bb21bc4481b2ac278daff99e281a25e7324e209",
+      "specifications/ewd998/EWD998_opts.tla": "5eab17aa1ab6cff0df0cda646453e240c92ed7378e51b4c97b3597fb732a8f85",
+      "specifications/ewd998/EWD998_optsSC.tla": "bf863afe83e52cc6c08e671100a1c15bb4d9ad6735b7887f8ac5cd254ef2334d",
+      "specifications/ewd998/EWD998_proof.tla": "2469117c5148dd3971326c0cc80cdc7665fbe859688f3c635681d3a069029517",
+      "specifications/ewd998/Folds.tla": "2f8c0a7de9a64a5276a78cb7b048e18038d37787439bb9e60df126dc7608a35a",
+      "specifications/ewd998/SmokeEWD998.cfg": "1b14807465007ef613790a0d2f83fe75455580a533c5a79f6b7ba0e690c6eeb7",
+      "specifications/ewd998/SmokeEWD998.tla": "c59b406bc1d54108b3d842e41bc2444c915adde416ebd8a02cb5fe4f6b13f808",
+      "specifications/ewd998/SmokeEWD998_SC.cfg": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "specifications/ewd998/SmokeEWD998_SC.tla": "063fe7c67a95789aeb793a67b8ac0135be60749356824e5d85fbe1fed09599d3",
+      "specifications/ewd998/Utils.tla": "386c5319fd101fdde36610466f82151e8a39e01d1c6c8c44e894f7589bcc2b7b",
+      "specifications/btree/R1MCbtree.cfg": "de7bb2b0263d04833243ed7f09bec7cb496e4111f6777425161b9d8a5e119ffa",
+      "specifications/TeachingConcurrency/R1SimpleRegular.cfg": "aa129769c5d9a6bd1c3545dbbfbc98e1279d4b314b592b7801c9af71735fc3ff",
+      "specifications/GameOfLife/R1GameOfLife.cfg": "842e3c2d93b0535783091687f76debde6dd42fc7b33983f154a9f892125ef4a9",
+      "specifications/ewd998/R1EWD998PCal.cfg": "44073c04a88dd7aa593cab099e59b7b1dd4be31ec2d5b59616b0426a3a84f892"
+    },
+    "module_roots": {
+      "module_path_order": [
+        "library",
+        "modules"
+      ],
+      "recovered_archive_sha256": "90a8757da7c179dcf04ec8f7530f99881e013eb76b92bfeb59808d9a0fe782ab",
+      "library_origin": {
+        "id": "tlapm-library-d8b9747",
+        "commit": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37"
+      },
+      "modules_origin": {
+        "id": "community-modules-202610040242",
+        "jar_sha256": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+      },
+      "ancestry_verification": "All 49 TLA files byte-match their pinned local cache roots: 15 TLAPS and 34 community modules. The archive also contains 19 Java source files not executed by the native instruction campaign.",
+      "matching_tla_files": [
+        "library/FiniteSetTheorems_proofs.tla",
+        "library/FiniteSetTheorems.tla",
+        "library/BagsTheorems_proofs.tla",
+        "library/FiniteSets.tla",
+        "library/RealTime.tla",
+        "library/WellFoundedInduction_proofs.tla",
+        "library/TLAPS.tla",
+        "library/Bags.tla",
+        "library/SequenceTheorems.tla",
+        "library/NaturalsInduction_proofs.tla",
+        "library/NaturalsInduction.tla",
+        "library/WellFoundedInduction.tla",
+        "library/SequenceTheorems_proofs.tla",
+        "library/BagsTheorems.tla",
+        "modules/GraphTheorems.tla",
+        "modules/CSV.tla",
+        "modules/SVG.tla",
+        "modules/GraphViz.tla",
+        "modules/Quorum.tla",
+        "modules/FoldsTheorems.tla",
+        "modules/BagsExt.tla",
+        "modules/VectorClocks.tla",
+        "modules/FiniteSetsExtTheorems.tla",
+        "modules/DifferentialEquations.tla",
+        "modules/Graphs.tla",
+        "modules/QuorumTheorems_proofs.tla",
+        "modules/HTML.tla",
+        "modules/FunctionTheorems.tla",
+        "modules/Statistics.tla",
+        "modules/SequencesExt.tla",
+        "modules/ShiViz.tla",
+        "modules/IOUtils.tla",
+        "modules/QuorumTheorems.tla",
+        "modules/UndirectedGraphs.tla",
+        "modules/FoldsTheorems_proofs.tla",
+        "modules/SequencesExtTheorems.tla",
+        "modules/FiniteSetsExtTheorems_proofs.tla",
+        "modules/Folds.tla",
+        "modules/DyadicRationals.tla",
+        "modules/Combinatorics.tla",
+        "modules/FunctionTheorems_proofs.tla",
+        "modules/Json.tla",
+        "modules/FiniteSetsExt.tla",
+        "modules/Relation.tla",
+        "modules/Bitwise.tla",
+        "modules/Functions.tla",
+        "modules/GraphTheorems_proofs.tla",
+        "modules/SequencesExtTheorems_proofs.tla"
+      ],
+      "non_tla_archive_extras": [
+        "library/dune",
+        "modules/tlc2/overrides/AbstractGraphs.java",
+        "modules/tlc2/overrides/IOUtils.java",
+        "modules/tlc2/overrides/BagsExt.java",
+        "modules/tlc2/overrides/TLCOverrides.java",
+        "modules/tlc2/overrides/Functions.java",
+        "modules/tlc2/overrides/FiniteSetsExt.java",
+        "modules/tlc2/overrides/CommunityModules.java",
+        "modules/tlc2/overrides/GraphViz.java",
+        "modules/tlc2/overrides/DyadicRationals.java",
+        "modules/tlc2/overrides/Json.java",
+        "modules/tlc2/overrides/Combinatorics.java",
+        "modules/tlc2/overrides/UndirectedGraphs.java",
+        "modules/tlc2/overrides/SequencesExt.java",
+        "modules/tlc2/overrides/Bitwise.java",
+        "modules/tlc2/overrides/SVG.java",
+        "modules/tlc2/overrides/Graphs.java",
+        "modules/tlc2/overrides/Statistics.java",
+        "modules/tlc2/overrides/CSV.java",
+        "modules/tlc2/overrides/VectorClocks.java"
+      ],
+      "archive_manifest": {
+        "library/FiniteSetTheorems_proofs.tla": "a0c71d0b98986784096f9f56b4395edb76dd013bf621d6fa0b9659c1cdbf80a6",
+        "library/FiniteSetTheorems.tla": "484bf0f9ab6a69ef45f7282f7f92dcf1e6ae139e44117b0d5a4427635818e773",
+        "library/dune": "1a64487faf00c1d6c2a4d9e8785f3a329146ffccafc4d8b4209ba9f230965292",
+        "library/BagsTheorems_proofs.tla": "749dcdc49aa7ac1717235c3d82b1f6cc1b389381a63033b40001db21174fba86",
+        "library/FiniteSets.tla": "eca905df95c16fb12f0f205a38b429c216a11b5c8429d270af044f05600a6380",
+        "library/RealTime.tla": "23078bd5961b783bb888cc5654a5c92ae6296fae4f426dc6e1f57a29109c52f0",
+        "library/WellFoundedInduction_proofs.tla": "f3af7b047663143f50d33c2587ca96cfeb27d47a80f365701cc0f1f7f569584c",
+        "library/TLAPS.tla": "9afe54984062748a0568966434cc0945d682f8cd89fdbc38f73b5579751b0c55",
+        "library/Bags.tla": "b655ca5e4866f2c81caa43b18a02d0eaa3517784ebc0025259ae4901fd40b814",
+        "library/SequenceTheorems.tla": "1fdbed9077bba9db329e499535be29f8d2e6fba3a2b338e364c3b0ec56596bf9",
+        "library/NaturalsInduction_proofs.tla": "8b48da8d05a2eb61698c5cd512a25c07cfe64ad6295976a853b3697e9640cddb",
+        "library/NaturalsInduction.tla": "08f52420cdaaf11292ed366782b5ce5b596bb7cbe789526a1cfd8806dbf98624",
+        "library/WellFoundedInduction.tla": "6f2f274c2e987d1edcf004d8e37b053f1f82b912e66d6a51bae0af8012ddcbec",
+        "library/SequenceTheorems_proofs.tla": "8f30d6f458ac623df4db14c88ab758fcb2a97889e42427e67634dcfc61510b20",
+        "library/BagsTheorems.tla": "af67c8abfb23b0f3ee0d0fa6d0427948f268a14de1b9bb408e7acda23a1d1db4",
+        "modules/GraphTheorems.tla": "bf34f1eda4f2f5daed418028f98de0228a19da4bf37ee9185c551d12a467e56f",
+        "modules/CSV.tla": "ecb845154f558670d1e432fcb46ee013c6a64eedea8d8656ebbfbca06e63a7a3",
+        "modules/SVG.tla": "a4d127c92ebc756b9f5c4bee354fd474f83a612e188915989212d197ab17747a",
+        "modules/GraphViz.tla": "8a09439b36a7ae7820b587f5ca883b91af280d61c875e3d6596d91eeef12d03d",
+        "modules/Quorum.tla": "1ebfb8e2a58c9ed2b2074e1ac620d315ed96290bedb4267f9f7d822d86f96b11",
+        "modules/FoldsTheorems.tla": "099de628fdd243f6f3b35c143b04e243e9fe817745948a9c9e83d367b88473e5",
+        "modules/BagsExt.tla": "f33833f1c20ca97aee90129996180e179fd41cab4362b5a0333fcbb617b4b03c",
+        "modules/VectorClocks.tla": "69cc7f09a0b1048495843778ba34afd3e1cb11881cd8e1ce7b725b376aeb9a6a",
+        "modules/FiniteSetsExtTheorems.tla": "89e3578d8014645100c6b1ba0405c759c47f56ac2c793f2b97a86184b36b3635",
+        "modules/DifferentialEquations.tla": "29d2de28dc7e8856d16ddf698aeef78a6191b053b0e6e7a74b85a1fae9d540fe",
+        "modules/Graphs.tla": "df8e76bd5841dec1e578c68f7b41e65c88e30b2670b188c6f09bd1b534eba135",
+        "modules/QuorumTheorems_proofs.tla": "6edfd8170d23c8f4ec6c0710e68d9449bf862877240edddc1eacebeee617412b",
+        "modules/HTML.tla": "9f95c172147c19ff3795e3b47dbe80ecbb10237925c1757e79cd506c1dc2020f",
+        "modules/FunctionTheorems.tla": "f89871fb5b35d2fc54f583b12adb489dd6660be7aced67ab295fba0d4999c116",
+        "modules/Statistics.tla": "0edfb2849a7ce326c49c668d88d6c123d693bfdd7271aa0e6f24f8f927f43005",
+        "modules/SequencesExt.tla": "8b96d0ff74836cca2adfb7da3b32846ca64c4d466d543b55c8d05c32b64aa0f6",
+        "modules/ShiViz.tla": "59b3af020731a856ab48d2e497e302f22f6059d5c18059358117fb32e3f63cf7",
+        "modules/IOUtils.tla": "c107b97b6fa302f0c84855eaa8b6b6cd536710302e7e2e5ebbbbbd47accad4ad",
+        "modules/QuorumTheorems.tla": "e01d0f6f5bf7950d03deb1d77e5089e8383ff91520b0355ecd25b33191720c13",
+        "modules/UndirectedGraphs.tla": "396a93b959795f3057bed9ee88ffbb76e5f8364bc5c474e01f5a8ce3e1d73875",
+        "modules/FoldsTheorems_proofs.tla": "61e4c97ba1bba2dd5b71af1846a0d473469fbc897911a2f87fe80d2d0394378e",
+        "modules/SequencesExtTheorems.tla": "165541b28e8fb7cee588bac97639b74df0f74c50a42e47529b13b9ea4ab7b042",
+        "modules/FiniteSetsExtTheorems_proofs.tla": "2511f68881282f97914f7468fe879cceeadcef30e7f37488f1c15a38989dacde",
+        "modules/Folds.tla": "aa59063fd600bb640b2ae24dc85ef770277ef5bf7955092b76b8b471790086da",
+        "modules/DyadicRationals.tla": "ba382ab4c561af6f575649a93e050d57d6395a8314925950d0285715763223af",
+        "modules/Combinatorics.tla": "c07c9ab36bb543332573258d57b5e5a1be9d96c982319aa0b92cd218025afc35",
+        "modules/FunctionTheorems_proofs.tla": "bf6c7b9f7bf4d7f7ca1f5ddf72ac8b230fbf3ca338e86cf70ea4f9c280191396",
+        "modules/Json.tla": "2c148bc47f20e6d2585029dcbeb9cdfc75fd423c7ce13fee2933cee84154c6cb",
+        "modules/FiniteSetsExt.tla": "dc5d6944395dd18e2f8acf696296808a9460cbbf1b9888f88c5ac4c83a5237f9",
+        "modules/Relation.tla": "89807adef4e91e63d1cb54bc91199063ec50c39106aa27373cf49e475dd828af",
+        "modules/Bitwise.tla": "35e2ba7cd18f83232f1f5b5c6e6b2030aa7927eef5abd64ffffddbde12b3d66a",
+        "modules/Functions.tla": "b54ff63b7c76c327525c17c188d5f9f5e53d92f3fd701f5e2ba54f0f54391063",
+        "modules/GraphTheorems_proofs.tla": "aca4d832c2b9f6ceda08b99178fd23293c91abd098db6434f9d8efef94621e21",
+        "modules/SequencesExtTheorems_proofs.tla": "942aa61eb4384720430f74f81da6f09678c6c992c94c2a228e713ba226a88fc1",
+        "modules/tlc2/overrides/AbstractGraphs.java": "f0b17565d34306cff6fcbccf19c3706b3405abea8ede76f46fbe1ef92e3cc395",
+        "modules/tlc2/overrides/IOUtils.java": "249ae8bd3b0ed1cca3af59118d47a53a02ff87bd2f6d718c5fd450086e73041c",
+        "modules/tlc2/overrides/BagsExt.java": "f60ee54d15ab03ea4266fd0fe6140fd83acbda523906579dcfbbade25378c15f",
+        "modules/tlc2/overrides/TLCOverrides.java": "ad99573c77b60084da24066006fe35c7c8ed670604987d02695326dec7505bee",
+        "modules/tlc2/overrides/Functions.java": "2d435825b09fc27f3d2f3d122e0cfb7256302236ae1bcff698066e0d49263d23",
+        "modules/tlc2/overrides/FiniteSetsExt.java": "82789fc3fafd9e726be5c9aa9525cff3bfdeade61c841a669beaf644dfe84df9",
+        "modules/tlc2/overrides/CommunityModules.java": "30004351430cc3e21b7bf5f4cf09c9e29e932850930cb8d1d9b0f321169ce6d8",
+        "modules/tlc2/overrides/GraphViz.java": "1d7cef1b279c3d152649b60efb14ab2d28b01a08368b38f696fbf099de4acca2",
+        "modules/tlc2/overrides/DyadicRationals.java": "496581189e02444fcb8f0724cfbdfe54c3207824df8607fa28bd74faeebb7667",
+        "modules/tlc2/overrides/Json.java": "3db84e88abf7b1874714c26e0c6e2bae009e29ff399f3ab453beac5f0f80fd9a",
+        "modules/tlc2/overrides/Combinatorics.java": "857ac3a910cc650b3e5abaa02e6db981d15715cd5d2ea72d09bdd2cc69cd1be9",
+        "modules/tlc2/overrides/UndirectedGraphs.java": "73d13947dd742603ed3d80965832a570d47c8c4dd8cda4eda9f02a91d071440e",
+        "modules/tlc2/overrides/SequencesExt.java": "683a3616c9b89018da22dff77e76cb021efcf7a4976c7cee54e424010561a17e",
+        "modules/tlc2/overrides/Bitwise.java": "1cb08783354de9f8bc3350d140ceb915be9edd7e29732268d6c4490f992938dc",
+        "modules/tlc2/overrides/SVG.java": "ca0f378586af5494077e0f6664d0db26cdd50304225ebbe21cba4542f75dd749",
+        "modules/tlc2/overrides/Graphs.java": "a8b4c308d5a23216bf5c40747822accf3ae23ece84d073ac2279d5ef0d5195ed",
+        "modules/tlc2/overrides/Statistics.java": "06cbf0e7f5e9a887c90fba125bddab13d122be588d02ebdc198ef8be0b93c99d",
+        "modules/tlc2/overrides/CSV.java": "ba085e7186cf2fbb632709d9737d63eae7f6a639640b89cf9bff0f9046f94345",
+        "modules/tlc2/overrides/VectorClocks.java": "c6b9c35f3a1a17daf9020357e4fca3dba048ae1287cf8d12f27e5dc0d485052d"
+      }
+    }
+  },
+  "input_files": {
+    "workloads": 47,
+    "modules": 68,
+    "total": 115,
+    "observed_before_sha256": "280eb2658d6ad78761933eb4d8ecf2eaaacd64e2057569a523809dcf65e52eb2",
+    "observed_after_sha256": "cacc17e77bd612e0e0f012dd8c7e59646b2daab97d549054babb1a46f9050928"
+  },
+  "oracle": {
+    "pinned_TLC": "tlc-2026.10.06.014338",
+    "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "oracle_executed_in_screen": false,
+    "note": "Retained conformance oracle pin; screen compares two native producers and does not measure TLC throughput."
+  },
+  "artifact_contract_hashes": {
+    "manifest.json": "da931db04f1194f0235dede560e72bcc35d7fed28da5ec955766153ae9307039",
+    "qualification-plan.json": "5015ac543a838d78994ef23043688c63eeb1e1e524fa6e0928fb7cb5e37381db",
+    "schedule.json": "ee43fc2ff503d94ac0190e8c9b3b15a505eccd22d38142e0fda4bb0b28655f2c",
+    "runner.py": "2ad7b951f77d47b17da8230a0e80cf53721f6434610c24d492ebdae8d0e7c5e1",
+    "verify_qualification.py": "ef7bf622e7d32c73091630fab26ba9e239b29ecd12d5dbbdb644390ca1399d6e",
+    "owned_process_core.py": "c4f0b2f298ecb1d777c04740246be10ab4476d895139f24ae73eb57ce3f10f61",
+    "workload-identity.json": "ee348f27d85022fcdd963a5ba63690f0f765c3c72034b7ae3bb53f6fdf97841a",
+    "candidate.bundle": "54d22e5bbfe93ca23e1c328a8df3a11bfa68535fba5b16dafcfaf97e96463c14",
+    "perf-inputs.tgz": "f1d3eb00d9f43c11e03a50be64a3115f8e2bb838299bb8d7033106a8ce0c53ef",
+    "perf-mods.tgz": "90a8757da7c179dcf04ec8f7530f99881e013eb76b92bfeb59808d9a0fe782ab"
+  },
+  "pairs": [
+    {
+      "model": "SimpleRegular",
+      "profile": "dive",
+      "base_Ir": 2590778312,
+      "candidate_Ir": 2395353385,
+      "candidate_over_base": 0.9245690277339329,
+      "instruction_delta_percent": -7.54309722660671,
+      "candidate_times_100": 239535338500,
+      "base_times_101": 261668609512,
+      "at_most_one_percent": true
+    },
+    {
+      "model": "MCbtree",
+      "profile": "dive",
+      "base_Ir": 14413263678,
+      "candidate_Ir": 13529306099,
+      "candidate_over_base": 0.9386705468831984,
+      "instruction_delta_percent": -6.13294531168016,
+      "candidate_times_100": 1352930609900,
+      "base_times_101": 1455739631478,
+      "at_most_one_percent": true
+    },
+    {
+      "model": "GameOfLife",
+      "profile": "dive",
+      "base_Ir": 1146773519,
+      "candidate_Ir": 1171424653,
+      "candidate_over_base": 1.0214960788608862,
+      "instruction_delta_percent": 2.1496078860886225,
+      "candidate_times_100": 117142465300,
+      "base_times_101": 115824125419,
+      "at_most_one_percent": false
+    },
+    {
+      "model": "EWD998PCal",
+      "profile": "dive",
+      "base_Ir": 47065689774,
+      "candidate_Ir": 47847768935,
+      "candidate_over_base": 1.0166167576584002,
+      "instruction_delta_percent": 1.6616757658400205,
+      "candidate_times_100": 4784776893500,
+      "base_times_101": 4753634667174,
+      "at_most_one_percent": false
+    },
+    {
+      "model": "SimpleRegular",
+      "profile": "tlc",
+      "base_Ir": 2654973406,
+      "candidate_Ir": 2459416853,
+      "candidate_over_base": 0.9263433100466996,
+      "instruction_delta_percent": -7.365668995330044,
+      "candidate_times_100": 245941685300,
+      "base_times_101": 268152314006,
+      "at_most_one_percent": true
+    },
+    {
+      "model": "MCbtree",
+      "profile": "tlc",
+      "base_Ir": 18204444355,
+      "candidate_Ir": 17319304899,
+      "candidate_over_base": 0.9513778372611033,
+      "instruction_delta_percent": -4.862216273889675,
+      "candidate_times_100": 1731930489900,
+      "base_times_101": 1838648879855,
+      "at_most_one_percent": true
+    },
+    {
+      "model": "GameOfLife",
+      "profile": "tlc",
+      "base_Ir": 1138889731,
+      "candidate_Ir": 1161001147,
+      "candidate_over_base": 1.0194148874980067,
+      "instruction_delta_percent": 1.9414887498006683,
+      "candidate_times_100": 116100114700,
+      "base_times_101": 115027862831,
+      "at_most_one_percent": false
+    },
+    {
+      "model": "EWD998PCal",
+      "profile": "tlc",
+      "base_Ir": 48048145811,
+      "candidate_Ir": 48802217057,
+      "candidate_over_base": 1.0156940758747732,
+      "instruction_delta_percent": 1.5694075874773228,
+      "candidate_times_100": 4880221705700,
+      "base_times_101": 4852862726911,
+      "at_most_one_percent": false
+    }
+  ],
+  "arms": [
+    {
+      "tag": "base-SimpleRegular-dive-w1",
+      "arm": "base",
+      "model": "SimpleRegular",
+      "profile": "dive",
+      "native_exit": 0,
+      "externally_censored": false,
+      "started_at": "2026-10-23T01:18:21.743267+00:00",
+      "finished_at": "2026-10-23T01:18:39.751274+00:00",
+      "statistics": {
+        "distinct": 12097,
+        "generated": 47584,
+        "initial_generated": 1,
+        "depth": 19,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success",
+      "Ir": 2590778312,
+      "exclusive_line_sum": 2590778312,
+      "original_argv_sha256": "50031518f3a2b2d692a22703ec40eac4092eee5b2f68cec2939c8a82bcd20403",
+      "raw": {
+        "stdout": {
+          "sha256": "32bca02aedb1379a83ee642b72a4198c9dccb1b6beac4a02611c9f184fcf35db",
+          "bytes": 3111,
+          "mode": "0o664"
+        },
+        "stderr": {
+          "sha256": "c7c43176f2b48d41c295ee70745463e034da88ec9e3adf9b0ec01627fbaf3373",
+          "bytes": 573,
+          "mode": "0o664"
+        },
+        "observation.json": {
+          "sha256": "871553c9a00de2b4ae4a118597ccfe9476ea56e6549752bbddeb7730d8d0cc12",
+          "bytes": 1370,
+          "mode": "0o664"
+        },
+        "identity-before.json": {
+          "sha256": "d3e5e5a1897e4bb3b07d8a34b96d148e9da012da59219124fa92bd90ab1afa13",
+          "bytes": 3849,
+          "mode": "0o664"
+        },
+        "identity-after.json": {
+          "sha256": "692377d60b2c84c0d433434765fd600ed0cceb9a8b17f80c88ea006b04216d6e",
+          "bytes": 3849,
+          "mode": "0o664"
+        },
+        "cachegrind": {
+          "sha256": "5a26f69a4dc97be344d108bbc3cb2b7f026bbfc4ddc7fa35e018141df19d9668",
+          "bytes": 964493,
+          "mode": "0o600"
+        }
+      }
+    },
+    {
+      "tag": "candidate-SimpleRegular-dive-w1",
+      "arm": "candidate",
+      "model": "SimpleRegular",
+      "profile": "dive",
+      "native_exit": 0,
+      "externally_censored": false,
+      "started_at": "2026-10-23T01:18:56.361228+00:00",
+      "finished_at": "2026-10-23T01:19:13.751956+00:00",
+      "statistics": {
+        "distinct": 12097,
+        "generated": 47584,
+        "initial_generated": 1,
+        "depth": 19,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success",
+      "Ir": 2395353385,
+      "exclusive_line_sum": 2395353385,
+      "original_argv_sha256": "6fc8111f9efd3856b278ab6cdcbfd44ffa6f0fb1258b79342295e51b34acec72",
+      "raw": {
+        "stdout": {
+          "sha256": "8f397221d95fd38d591ad8d8677f9c96e2ba42d18a60459bc2f5365088b5d2cf",
+          "bytes": 3111,
+          "mode": "0o664"
+        },
+        "stderr": {
+          "sha256": "9550829cc4170531318407cd9b8e3b2e71983893add23e81b8048a22d1b0167d",
+          "bytes": 578,
+          "mode": "0o664"
+        },
+        "observation.json": {
+          "sha256": "aa41c07fedfbce34e27bdd0e2d9b1383e43298e218188494e9bffa3c7d8ba0f1",
+          "bytes": 1385,
+          "mode": "0o664"
+        },
+        "identity-before.json": {
+          "sha256": "0371a29ad2618be5d38b1d316dc3f8ff2c36dec128c15cc4fa91c09190568e4f",
+          "bytes": 3854,
+          "mode": "0o664"
+        },
+        "identity-after.json": {
+          "sha256": "281dda307f824b5f62e4c64369bd61da81abc2a019e73074e8119bcb2d94648e",
+          "bytes": 3854,
+          "mode": "0o664"
+        },
+        "cachegrind": {
+          "sha256": "dae7468fea9b02edb78f1d67523f354fa584fbfceaf7df11cb14de32756b70c2",
+          "bytes": 965745,
+          "mode": "0o600"
+        }
+      }
+    },
+    {
+      "tag": "base-MCbtree-dive-w1",
+      "arm": "base",
+      "model": "MCbtree",
+      "profile": "dive",
+      "native_exit": 0,
+      "externally_censored": false,
+      "started_at": "2026-10-23T01:19:30.333794+00:00",
+      "finished_at": "2026-10-23T01:20:58.876374+00:00",
+      "statistics": {
+        "distinct": 21364,
+        "generated": 127825,
+        "initial_generated": 1,
+        "depth": 24,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success",
+      "Ir": 14413263678,
+      "exclusive_line_sum": 14413263678,
+      "original_argv_sha256": "43a3f3efebf805891e13d888a19bd480b5dc2e77e3122231bf17d9e9a179668f",
+      "raw": {
+        "stdout": {
+          "sha256": "18cd5fa76ce89c2f8037575f1a60f61cfcbb4470fd93e779e819f0678f98c314",
+          "bytes": 3106,
+          "mode": "0o664"
+        },
+        "stderr": {
+          "sha256": "9cd94a1490b110a88f7776e8a3703b572799c63e2fc633a6c489ea780ecff6d2",
+          "bytes": 562,
+          "mode": "0o664"
+        },
+        "observation.json": {
+          "sha256": "ea6891fbe5fb9516b2d3d6224317bbbd484b885fc93fb059e82ea825a36fb72c",
+          "bytes": 1333,
+          "mode": "0o664"
+        },
+        "identity-before.json": {
+          "sha256": "f5cf669ccd3625930e5c165ce387ec089cb331dabcc1a8843fdf9ab20ca061dd",
+          "bytes": 3849,
+          "mode": "0o664"
+        },
+        "identity-after.json": {
+          "sha256": "840908f80a060b6c1c4656482db55aa4e2b0d6b79213d7b939ce350bf2029a46",
+          "bytes": 3849,
+          "mode": "0o664"
+        },
+        "cachegrind": {
+          "sha256": "fac9a958cf9590efff8131d216c1fb46f0c8632c8e9618399c030fcc68c60f5e",
+          "bytes": 1100008,
+          "mode": "0o600"
+        }
+      }
+    },
+    {
+      "tag": "candidate-MCbtree-dive-w1",
+      "arm": "candidate",
+      "model": "MCbtree",
+      "profile": "dive",
+      "native_exit": 0,
+      "externally_censored": false,
+      "started_at": "2026-10-23T01:21:15.472462+00:00",
+      "finished_at": "2026-10-23T01:22:43.173038+00:00",
+      "statistics": {
+        "distinct": 21364,
+        "generated": 127825,
+        "initial_generated": 1,
+        "depth": 24,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success",
+      "Ir": 13529306099,
+      "exclusive_line_sum": 13529306099,
+      "original_argv_sha256": "6d34e8f1eac5bc51a8c977a33e1ae9915964ea2e9dd0a556764d5b51ab260332",
+      "raw": {
+        "stdout": {
+          "sha256": "a536f910db9879f8d7a4178f183075108d89a826a879d01e7fe4f58595d00063",
+          "bytes": 3106,
+          "mode": "0o664"
+        },
+        "stderr": {
+          "sha256": "8796ccc0f989d35c7010d5f2e19635621e230dad732792e48ef14cb803b6a6af",
+          "bytes": 567,
+          "mode": "0o664"
+        },
+        "observation.json": {
+          "sha256": "2d2eacc1e4bc94064b876b23372f43ac67b2a47c5f96db92f3499c754ea5d6e5",
+          "bytes": 1348,
+          "mode": "0o664"
+        },
+        "identity-before.json": {
+          "sha256": "25951a0f0867ffcf5d09b820bdf38654ca96f34a7978a27735fb02181296ce22",
+          "bytes": 3854,
+          "mode": "0o664"
+        },
+        "identity-after.json": {
+          "sha256": "159acd3b6fe2a43c109ab5859bbc560974365a691f945834a38bcaabb8e12b99",
+          "bytes": 3854,
+          "mode": "0o664"
+        },
+        "cachegrind": {
+          "sha256": "e29fe3714fecdf6e9a77507f8cdfa63f99b8d831990e00494ef514d4cba9f491",
+          "bytes": 1100600,
+          "mode": "0o600"
+        }
+      }
+    },
+    {
+      "tag": "base-GameOfLife-dive-w1",
+      "arm": "base",
+      "model": "GameOfLife",
+      "profile": "dive",
+      "native_exit": 0,
+      "externally_censored": false,
+      "started_at": "2026-10-23T01:22:59.807508+00:00",
+      "finished_at": "2026-10-23T01:23:08.501620+00:00",
+      "statistics": {
+        "distinct": 512,
+        "generated": 1024,
+        "initial_generated": 512,
+        "depth": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success",
+      "Ir": 1146773519,
+      "exclusive_line_sum": 1146773519,
+      "original_argv_sha256": "fa756a9d3b8b9fe24cc73297a5fc8e92e0d3145e5678a76e542844a19f69b5b9",
+      "raw": {
+        "stdout": {
+          "sha256": "598b3a30db5953026cc29407b070a6fa1c68d97c5e72c34664e082645bf2ef3f",
+          "bytes": 3101,
+          "mode": "0o664"
+        },
+        "stderr": {
+          "sha256": "985ef04226a1f2b4fa59c36b2ca56a9bb76252150a27eef6e95c4a391ab44719",
+          "bytes": 567,
+          "mode": "0o664"
+        },
+        "observation.json": {
+          "sha256": "a39c181d8e374bcb27ce4bab8bea7cf627a7542d86113de26f22018667870d0b",
+          "bytes": 1348,
+          "mode": "0o664"
+        },
+        "identity-before.json": {
+          "sha256": "dc7ed2cb17a2c331ea9e536b9cc74cc62ce6e842ff307f96b72a38b1f2886178",
+          "bytes": 3849,
+          "mode": "0o664"
+        },
+        "identity-after.json": {
+          "sha256": "1215105cf0daf02d467bd95ba0da157775210ce233461d103dee409db053d06a",
+          "bytes": 3849,
+          "mode": "0o664"
+        },
+        "cachegrind": {
+          "sha256": "1a7f62b05e388e5a4e73f5c3743216a3dcda14a405c8b7555b460cb881212353",
+          "bytes": 894424,
+          "mode": "0o600"
+        }
+      }
+    },
+    {
+      "tag": "candidate-GameOfLife-dive-w1",
+      "arm": "candidate",
+      "model": "GameOfLife",
+      "profile": "dive",
+      "native_exit": 0,
+      "externally_censored": false,
+      "started_at": "2026-10-23T01:23:25.109437+00:00",
+      "finished_at": "2026-10-23T01:23:34.017494+00:00",
+      "statistics": {
+        "distinct": 512,
+        "generated": 1024,
+        "initial_generated": 512,
+        "depth": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success",
+      "Ir": 1171424653,
+      "exclusive_line_sum": 1171424653,
+      "original_argv_sha256": "490de9656d82a494fae333bbe1fcf26cb6403340170c72a1964a7115b2672c35",
+      "raw": {
+        "stdout": {
+          "sha256": "9bfc69aa5429a1ba4c0c06c986034bfb2ab5bc5c2186daaabab52e03d22dc680",
+          "bytes": 3101,
+          "mode": "0o664"
+        },
+        "stderr": {
+          "sha256": "9a7c32a091a324406c5c507f3eb79caf9ecda8fdb3a14c62a02c9d18c1420092",
+          "bytes": 572,
+          "mode": "0o664"
+        },
+        "observation.json": {
+          "sha256": "631289cbdad82ffda8a99f3382cb64d21e58b0be898fddd4dfb62a60792d07e1",
+          "bytes": 1363,
+          "mode": "0o664"
+        },
+        "identity-before.json": {
+          "sha256": "9e7ed1770e98f075e60ac1824de62cf2e53decbe4700066f0164f9e33efbe4a2",
+          "bytes": 3854,
+          "mode": "0o664"
+        },
+        "identity-after.json": {
+          "sha256": "5083f55637814215551a9f5141956590a30f5ee6506b5801e49bd7b2a75b12e0",
+          "bytes": 3854,
+          "mode": "0o664"
+        },
+        "cachegrind": {
+          "sha256": "2424eec96ca36d7d90f181116c8d3847d00f65ed402aa074c426a692a523ee05",
+          "bytes": 896055,
+          "mode": "0o600"
+        }
+      }
+    },
+    {
+      "tag": "base-EWD998PCal-dive-w1",
+      "arm": "base",
+      "model": "EWD998PCal",
+      "profile": "dive",
+      "native_exit": 0,
+      "externally_censored": false,
+      "started_at": "2026-10-23T01:23:50.630498+00:00",
+      "finished_at": "2026-10-23T01:30:08.261226+00:00",
+      "statistics": {
+        "distinct": 20870,
+        "generated": 168292,
+        "initial_generated": 8,
+        "depth": 28,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success",
+      "Ir": 47065689774,
+      "exclusive_line_sum": 47065689774,
+      "original_argv_sha256": "d7b27799d230bdfe69362ef258f8bf0c662d1f0d0664f3a68e4e8cd54a248d6d",
+      "raw": {
+        "stdout": {
+          "sha256": "69c2b7c091f3686ec72e80fef40da175ea73af01d17085534a05dc82f0ec9755",
+          "bytes": 3113,
+          "mode": "0o664"
+        },
+        "stderr": {
+          "sha256": "1769ef82eeba17f6bd207bd2014ab3630556e6ed724f4f09bf84c2b92682a8c2",
+          "bytes": 568,
+          "mode": "0o664"
+        },
+        "observation.json": {
+          "sha256": "a4a0e3ffa34564254fac9a0eaf4f3aa58e4a88a527c6aeddb3c9ee6c7429635c",
+          "bytes": 1347,
+          "mode": "0o664"
+        },
+        "identity-before.json": {
+          "sha256": "d2aeaec8ef760a08783ccaba6710cf5ff22e9b8f8f6629afec75b01cbef29cbe",
+          "bytes": 3849,
+          "mode": "0o664"
+        },
+        "identity-after.json": {
+          "sha256": "e6c6eda5d94537ce8aa63c37bfa0933ea38e21a40b719497ce9bbcddeda7b1e6",
+          "bytes": 3849,
+          "mode": "0o664"
+        },
+        "cachegrind": {
+          "sha256": "fd4279b338ca06ab71e0ca320c23517a051194a7f37ab0352dfaf57cc270f848",
+          "bytes": 1123380,
+          "mode": "0o600"
+        }
+      }
+    },
+    {
+      "tag": "candidate-EWD998PCal-dive-w1",
+      "arm": "candidate",
+      "model": "EWD998PCal",
+      "profile": "dive",
+      "native_exit": 0,
+      "externally_censored": false,
+      "started_at": "2026-10-23T01:30:24.929368+00:00",
+      "finished_at": "2026-10-23T01:36:48.766889+00:00",
+      "statistics": {
+        "distinct": 20870,
+        "generated": 168292,
+        "initial_generated": 8,
+        "depth": 28,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success",
+      "Ir": 47847768935,
+      "exclusive_line_sum": 47847768935,
+      "original_argv_sha256": "62cfec8f422de8cd62469aa0f9d25d736308eae842f75c2698a45cc29cbc96f5",
+      "raw": {
+        "stdout": {
+          "sha256": "c0a3d9f9633a5c0945618caeeff8a3ea64f210ca305e62c94d063cb73a2309bf",
+          "bytes": 3113,
+          "mode": "0o664"
+        },
+        "stderr": {
+          "sha256": "f3b915180b6eaea3b6162fbbb15c765e46926bd6aa8d81a2c67ebdd813c01d61",
+          "bytes": 573,
+          "mode": "0o664"
+        },
+        "observation.json": {
+          "sha256": "bb1cea82bca8f87bfeecdd223f114315f23d13d0d3fbd4c3b6b3e15090aa60d0",
+          "bytes": 1357,
+          "mode": "0o664"
+        },
+        "identity-before.json": {
+          "sha256": "9b39b8a945a0c6820bb12d1bc55466a195a36851902bd5c524305268c1145ea5",
+          "bytes": 3854,
+          "mode": "0o664"
+        },
+        "identity-after.json": {
+          "sha256": "4eaa18c4358e62ccbc6477b94028e8d712121c31054b65af758057a67cb26858",
+          "bytes": 3854,
+          "mode": "0o664"
+        },
+        "cachegrind": {
+          "sha256": "29c7cb7a81ed16eb069bd1231d1343cdbc636bfa68f01f58ad52156a11d98003",
+          "bytes": 1124111,
+          "mode": "0o600"
+        }
+      }
+    },
+    {
+      "tag": "candidate-SimpleRegular-tlc-w1",
+      "arm": "candidate",
+      "model": "SimpleRegular",
+      "profile": "tlc",
+      "native_exit": 0,
+      "externally_censored": false,
+      "started_at": "2026-10-23T01:37:05.385075+00:00",
+      "finished_at": "2026-10-23T01:37:22.767331+00:00",
+      "statistics": {
+        "distinct": 12097,
+        "generated": 47584,
+        "initial_generated": 1,
+        "depth": 19,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success",
+      "Ir": 2459416853,
+      "exclusive_line_sum": 2459416853,
+      "original_argv_sha256": "e3c93f4607b629b2cd498ca7a051350274908e78788386e74233f932d748fe54",
+      "raw": {
+        "stdout": {
+          "sha256": "0c7d8ecf49f5ba347a6152be9095a5f1538a3c0be3365ec01cbcd0cf2569f3c9",
+          "bytes": 3097,
+          "mode": "0o664"
+        },
+        "stderr": {
+          "sha256": "0e270d2de83a2566841afe151c426a9a6e3cd298ec70154a8a8565f4eed3a38a",
+          "bytes": 591,
+          "mode": "0o664"
+        },
+        "observation.json": {
+          "sha256": "258592f1126b4ef75b8432d999db36d1776224674b9f6593a72f12a6d55eb3da",
+          "bytes": 1404,
+          "mode": "0o664"
+        },
+        "identity-before.json": {
+          "sha256": "0b5fab20d241f98958492e996f60a161de5ae8d1ba16508641b94ad8870c284b",
+          "bytes": 3854,
+          "mode": "0o664"
+        },
+        "identity-after.json": {
+          "sha256": "721d3dc05b8d49571c1973bad83db78479d69f8b582bef357822b68f115662eb",
+          "bytes": 3854,
+          "mode": "0o664"
+        },
+        "cachegrind": {
+          "sha256": "393c469b01ed7453a7dcdb9b56dd0346e0ef7ace112d9fe250fd1d404507921d",
+          "bytes": 963625,
+          "mode": "0o600"
+        }
+      }
+    },
+    {
+      "tag": "base-SimpleRegular-tlc-w1",
+      "arm": "base",
+      "model": "SimpleRegular",
+      "profile": "tlc",
+      "native_exit": 0,
+      "externally_censored": false,
+      "started_at": "2026-10-23T01:37:39.412524+00:00",
+      "finished_at": "2026-10-23T01:37:57.229940+00:00",
+      "statistics": {
+        "distinct": 12097,
+        "generated": 47584,
+        "initial_generated": 1,
+        "depth": 19,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success",
+      "Ir": 2654973406,
+      "exclusive_line_sum": 2654973406,
+      "original_argv_sha256": "25ef0e19d5705b7103403f91fdc91d10014a8e3a036a987c0f691e17307abbac",
+      "raw": {
+        "stdout": {
+          "sha256": "26364ab30f89ea79ded9189a8819acf7ebdb565dd3c26545b5a97f49a5320237",
+          "bytes": 3097,
+          "mode": "0o664"
+        },
+        "stderr": {
+          "sha256": "f1e60eeaf066b02ba065cd11b285b4667fbff28fd8a49659ca22eefea3b60d13",
+          "bytes": 586,
+          "mode": "0o664"
+        },
+        "observation.json": {
+          "sha256": "0cb02524c5bbb1f7a27cc160a66b79181ffcf1d876c04d06ba9c7eb1e5e0e159",
+          "bytes": 1388,
+          "mode": "0o664"
+        },
+        "identity-before.json": {
+          "sha256": "fbc0643b2ad36166df6e1cae4fc6478cc2f8d0a33cf138a7dc3f383ccd560297",
+          "bytes": 3849,
+          "mode": "0o664"
+        },
+        "identity-after.json": {
+          "sha256": "fc493d25f7b4c8785d52be965340aaa1907ad37167ab5cc2e3979e229ff3abb8",
+          "bytes": 3849,
+          "mode": "0o664"
+        },
+        "cachegrind": {
+          "sha256": "91dbaf0339f65a763a8491cc4d616ab7024040e788e76f46bb807d78b7625189",
+          "bytes": 961468,
+          "mode": "0o600"
+        }
+      }
+    },
+    {
+      "tag": "candidate-MCbtree-tlc-w1",
+      "arm": "candidate",
+      "model": "MCbtree",
+      "profile": "tlc",
+      "native_exit": 0,
+      "externally_censored": false,
+      "started_at": "2026-10-23T01:38:13.850592+00:00",
+      "finished_at": "2026-10-23T01:39:48.333572+00:00",
+      "statistics": {
+        "distinct": 21364,
+        "generated": 127825,
+        "initial_generated": 1,
+        "depth": 24,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success",
+      "Ir": 17319304899,
+      "exclusive_line_sum": 17319304899,
+      "original_argv_sha256": "aab54d3702c3b58dd478f006e1c07e0ab0e86e4c6b72339112900e2cf97162f8",
+      "raw": {
+        "stdout": {
+          "sha256": "6d4f88925db9ddca87a31ac5e2a2772fbf348a581dc73ed1c8aa19402c940652",
+          "bytes": 3185,
+          "mode": "0o664"
+        },
+        "stderr": {
+          "sha256": "ea34926fcd6047454f3e35b6cfee45bcee309c6741257973bd155c38933c231b",
+          "bytes": 580,
+          "mode": "0o664"
+        },
+        "observation.json": {
+          "sha256": "21aa1eb8f7367d668a9ed19084bad4f724daea48d92666d32592cd219b8c7dc3",
+          "bytes": 1366,
+          "mode": "0o664"
+        },
+        "identity-before.json": {
+          "sha256": "2325c7b9cea1c842ff062cc8aa26e33fc3ae5694baef9c0e6c56ef8411c786e6",
+          "bytes": 3854,
+          "mode": "0o664"
+        },
+        "identity-after.json": {
+          "sha256": "505ec5861d555c4222e4fb83e5510f412c827c1c9505aa5cc8e542cddfe0de3d",
+          "bytes": 3854,
+          "mode": "0o664"
+        },
+        "cachegrind": {
+          "sha256": "a6d80141bc558fbaa719821328a495e35cd7a325ff1f543cce1d457071661317",
+          "bytes": 1025678,
+          "mode": "0o600"
+        }
+      }
+    },
+    {
+      "tag": "base-MCbtree-tlc-w1",
+      "arm": "base",
+      "model": "MCbtree",
+      "profile": "tlc",
+      "native_exit": 0,
+      "externally_censored": false,
+      "started_at": "2026-10-23T01:40:04.798512+00:00",
+      "finished_at": "2026-10-23T01:41:40.141202+00:00",
+      "statistics": {
+        "distinct": 21364,
+        "generated": 127825,
+        "initial_generated": 1,
+        "depth": 24,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success",
+      "Ir": 18204444355,
+      "exclusive_line_sum": 18204444355,
+      "original_argv_sha256": "15451e5eda04b5fab43ad5a62489bba22cf152ed1abfdf132493a0eff1275c8b",
+      "raw": {
+        "stdout": {
+          "sha256": "5b81bce3879bc602c16d6a7f17ce68337ff0be6fc1e5d8c9670e00d0e3c34089",
+          "bytes": 3185,
+          "mode": "0o664"
+        },
+        "stderr": {
+          "sha256": "05bb9dc2a30bf881762748498e8bdbcb74a59a7eafd994b3f34d3f29cd59bea4",
+          "bytes": 575,
+          "mode": "0o664"
+        },
+        "observation.json": {
+          "sha256": "f25f9046a2cece3f90bb489165ae4074536dce47f9e169553de00025b8fbf5f5",
+          "bytes": 1351,
+          "mode": "0o664"
+        },
+        "identity-before.json": {
+          "sha256": "8e3edd5ff9792dd9246d267b25a7c5b651f9addf7d3259445a3920e121c9c743",
+          "bytes": 3849,
+          "mode": "0o664"
+        },
+        "identity-after.json": {
+          "sha256": "9fa9ed076559f5b6651ba1946321258206387a92b64983636e49a6cf6ff8df9f",
+          "bytes": 3849,
+          "mode": "0o664"
+        },
+        "cachegrind": {
+          "sha256": "e48f688ea63f2a5916689057ae1637dd616e5fb43c8ca8576580ed1b327bb89b",
+          "bytes": 1025024,
+          "mode": "0o600"
+        }
+      }
+    },
+    {
+      "tag": "candidate-GameOfLife-tlc-w1",
+      "arm": "candidate",
+      "model": "GameOfLife",
+      "profile": "tlc",
+      "native_exit": 0,
+      "externally_censored": false,
+      "started_at": "2026-10-23T01:41:56.655748+00:00",
+      "finished_at": "2026-10-23T01:42:05.352704+00:00",
+      "statistics": {
+        "distinct": 512,
+        "generated": 1024,
+        "initial_generated": 512,
+        "depth": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success",
+      "Ir": 1161001147,
+      "exclusive_line_sum": 1161001147,
+      "original_argv_sha256": "078cf7f6fc5c4362d98ba145db739e59c4c685e93406948587e8bacf2dc7f7e1",
+      "raw": {
+        "stdout": {
+          "sha256": "dea4052badaee6b270492531b0e2fabe39c44d5d19b7213d41de356a6590d9d7",
+          "bytes": 3087,
+          "mode": "0o664"
+        },
+        "stderr": {
+          "sha256": "f188f8e77f991af53911c492edd7ed86f87caf80049b5c983b31a02e147ae2e5",
+          "bytes": 585,
+          "mode": "0o664"
+        },
+        "observation.json": {
+          "sha256": "ea315fcaf6fdd337918de5aba8e8035245e3acbe439a4843260b5ece0e4ad670",
+          "bytes": 1382,
+          "mode": "0o664"
+        },
+        "identity-before.json": {
+          "sha256": "2dd71f589606fd78d521912bba8940cf424144d840ec16c44bbbcdf2ea9620a7",
+          "bytes": 3854,
+          "mode": "0o664"
+        },
+        "identity-after.json": {
+          "sha256": "f83619d8c618eeb988e27649387fcca22c846452524ec71f5d17a02306351d38",
+          "bytes": 3854,
+          "mode": "0o664"
+        },
+        "cachegrind": {
+          "sha256": "54475da72926fb27357112683e408980b8acb0b307eecfde697d95c0b34d4ae6",
+          "bytes": 880111,
+          "mode": "0o600"
+        }
+      }
+    },
+    {
+      "tag": "base-GameOfLife-tlc-w1",
+      "arm": "base",
+      "model": "GameOfLife",
+      "profile": "tlc",
+      "native_exit": 0,
+      "externally_censored": false,
+      "started_at": "2026-10-23T01:42:21.850285+00:00",
+      "finished_at": "2026-10-23T01:42:30.341142+00:00",
+      "statistics": {
+        "distinct": 512,
+        "generated": 1024,
+        "initial_generated": 512,
+        "depth": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success",
+      "Ir": 1138889731,
+      "exclusive_line_sum": 1138889731,
+      "original_argv_sha256": "2a7955ff3ae4f4eb2fb326da51ac0eb0d78ed0636e59140da4a69b19e2882f54",
+      "raw": {
+        "stdout": {
+          "sha256": "eb34542f38660154829d5b766995d8c4bb87ca9ab534c6d59304a7c5ca0cfde9",
+          "bytes": 3087,
+          "mode": "0o664"
+        },
+        "stderr": {
+          "sha256": "3b7ca6400b5d728672d0dbdd72254f6cae99899fec38ba42cd39891a22491664",
+          "bytes": 580,
+          "mode": "0o664"
+        },
+        "observation.json": {
+          "sha256": "b79da33a2113aaeea01418ef2c3cde7967283180f6f00530035695e344f51ae3",
+          "bytes": 1367,
+          "mode": "0o664"
+        },
+        "identity-before.json": {
+          "sha256": "be473807503ec165a57a3bae8f981fb6082bd65cb676d2cff6759733a9be72f0",
+          "bytes": 3849,
+          "mode": "0o664"
+        },
+        "identity-after.json": {
+          "sha256": "cf08469f302a90781fac84316263b9491f80d7e3042a935fa85f2aad2ca82202",
+          "bytes": 3849,
+          "mode": "0o664"
+        },
+        "cachegrind": {
+          "sha256": "702af8dc80ea600e5d9d33dea45e9d60bf47a0e473f6b0f257fdeb6b6a92f797",
+          "bytes": 878806,
+          "mode": "0o600"
+        }
+      }
+    },
+    {
+      "tag": "candidate-EWD998PCal-tlc-w1",
+      "arm": "candidate",
+      "model": "EWD998PCal",
+      "profile": "tlc",
+      "native_exit": 0,
+      "externally_censored": false,
+      "started_at": "2026-10-23T01:42:46.832808+00:00",
+      "finished_at": "2026-10-23T01:49:14.728394+00:00",
+      "statistics": {
+        "distinct": 20870,
+        "generated": 168292,
+        "initial_generated": 8,
+        "depth": 28,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success",
+      "Ir": 48802217057,
+      "exclusive_line_sum": 48802217057,
+      "original_argv_sha256": "adbae77c2bfc5625ae7e2851e4051ccdce8e4ce782ef903edc2e8d049aa8fc2f",
+      "raw": {
+        "stdout": {
+          "sha256": "c5e1f5f8c7de4e4050889403e93714320fc506186bc53789807e2705e19e0c01",
+          "bytes": 3099,
+          "mode": "0o664"
+        },
+        "stderr": {
+          "sha256": "392b4759abbe9baa8c3b77589f3d6d8864e99580023d7bfc0f4d1c4e0de88c05",
+          "bytes": 586,
+          "mode": "0o664"
+        },
+        "observation.json": {
+          "sha256": "fdfcbb55f7fded14a1970e48a5737f6e95067e8e1ce8be7a9c11ae4b8b3368be",
+          "bytes": 1379,
+          "mode": "0o664"
+        },
+        "identity-before.json": {
+          "sha256": "fd9a05f09e15d1b656e810d2dd8da1513aa6771fa238bdc6ccb37f209356239d",
+          "bytes": 3854,
+          "mode": "0o664"
+        },
+        "identity-after.json": {
+          "sha256": "c117d6bd91a4a288be8db8c969f1795d028d4de82f0953edd1b47970c393aafa",
+          "bytes": 3854,
+          "mode": "0o664"
+        },
+        "cachegrind": {
+          "sha256": "60f7daed937ad1dfff85fee91d118c6a1d9101c9a335ed0d1ab6f97d22217528",
+          "bytes": 1113514,
+          "mode": "0o600"
+        }
+      }
+    },
+    {
+      "tag": "base-EWD998PCal-tlc-w1",
+      "arm": "base",
+      "model": "EWD998PCal",
+      "profile": "tlc",
+      "native_exit": 0,
+      "externally_censored": false,
+      "started_at": "2026-10-23T01:49:31.490815+00:00",
+      "finished_at": "2026-10-23T01:55:54.001919+00:00",
+      "statistics": {
+        "distinct": 20870,
+        "generated": 168292,
+        "initial_generated": 8,
+        "depth": 28,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "verdict": "success",
+      "Ir": 48048145811,
+      "exclusive_line_sum": 48048145811,
+      "original_argv_sha256": "b9934081357e082698143eefd57fc9e38b35f0b7dc6735a8712efc698038b3e1",
+      "raw": {
+        "stdout": {
+          "sha256": "55888bae19961598c3775095952b31170d635a208d25b9ae1a37cbd9abcd8851",
+          "bytes": 3099,
+          "mode": "0o664"
+        },
+        "stderr": {
+          "sha256": "de2a0d9eb57cf175e8a243390e2c56e8a7005c9160b93fabb67601fc2db0947a",
+          "bytes": 581,
+          "mode": "0o664"
+        },
+        "observation.json": {
+          "sha256": "73e9194b91775eff04e3f2ffadbc6dceee0623d49fd84db1421edde1757e1b9e",
+          "bytes": 1360,
+          "mode": "0o664"
+        },
+        "identity-before.json": {
+          "sha256": "529a0ed81134e0c6da8f77f0ff765bedefec32e0c09ca11b5727974bed1060ed",
+          "bytes": 3849,
+          "mode": "0o664"
+        },
+        "identity-after.json": {
+          "sha256": "a77b68348e15a3ce4e64cfe465eab02f5806206cd25740e54d6f922b401c5ce2",
+          "bytes": 3849,
+          "mode": "0o664"
+        },
+        "cachegrind": {
+          "sha256": "efa2be2bf8da93186e651abd7768777935672a2501cb99b2ccb307c2e9040709",
+          "bytes": 1112699,
+          "mode": "0o600"
+        }
+      }
+    }
+  ],
+  "acceptance": {
+    "every_cell_at_most_one_percent": false,
+    "individual_cell_failures": 4,
+    "geomean_ratio": 0.9758558587271651,
+    "instruction_geomean_delta_percent": -2.414414127283493,
+    "minimum_required_geometric_reduction_percent": 5,
+    "exact_product_test": {
+      "candidate_instruction_product": "4383852887467098561063968196197224705909489606505760062243321568544919215759725",
+      "baseline_instruction_product": "5330532322285924256378697965239930905802026171464261179164774570876642321689280",
+      "lhs_candidate_times_100_power8": "43838528874670985610639681961972247059094896065057600622433215685449192157597250000000000000000",
+      "rhs_base_times_95_power8": "35363840522512157748108852836777653605145681308044982427669509629311397462819722067929875000000",
+      "passed": false
+    },
+    "both_bars_passed": false
+  },
+  "original_terminal_records": {
+    "matrix_complete": true,
+    "matrix_performance_screen_passed": false,
+    "progress_prefix_complete": false,
+    "progress_completed_tag_count": 16,
+    "runner_error_type": "AssertionError",
+    "runner_error_record_sha256": "3bae93a9b663c223091b72dfe71ecc829083c8ad9f0742a75a272531f28a54f0",
+    "interpretation": "All16workload arms completed successfully; expected threshold AssertionError rejected the completed screen. Generic HOLD text and progress-prefix false remain original, not evidence of an incomplete workload."
+  },
+  "cleanup": {
+    "root_receipt_sha256": "b99ec510446531eaad48354dad333bf6c11b0dbf27d97a8b7d27d65c6ca58db0",
+    "instance_terminated_volume_security_group_bucket_absent": true,
+    "raw_originals_preserved": true
+  },
+  "limitations": [
+    "Rejected candidate, no production/runtime delivery and no fullgate credit.",
+    "Instruction reductions are not wall-speed, throughput, utilization, scaling or TLC-speed ratios.",
+    "No causal attribution or compositional gain claim from individual cells.",
+    "No rerun, threshold relaxation or retune; original terminal errors and negative evidence preserved."
+  ]
+}
