@@ -1,5 +1,10 @@
 # Changelog
 
+- Add opt-in `golden generate --raw-invocations DIR` to retain original TLC
+  clean/trace streams, invocation commands and process outcomes, including
+  partial output on failure. Golden schemas and oracle pass scheduling stay
+  unchanged; Java setup, capability probes and SANY are outside this option.
+
 - Retain the original inner source expression for finite callback admission
   failures through aliases and lazy actuals, preserving the existing refusal
   class, message and admission policy.
