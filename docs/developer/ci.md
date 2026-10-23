@@ -122,6 +122,40 @@ rebuild in a fresh directory before relying on test or benchmark results; a
 clean Git status and a successful Cargo command alone do not establish the
 library's source identity.
 
+## Metamorphic tests
+
+`crates/dive-api/tests/metamorphic.rs` checks the charter's metamorphic rule in
+the default profile. Each seed is a fixture module with a same-named
+configuration. The test rewrites it through the lossless syntax tree and
+checks both versions. It renames module-level symbols (to names of the same
+length, so junction-list layout is kept), reorders definitions in a random
+dependency order, adds comments, adds unused definitions with strings and a
+string `CHOOSE`, and splits the module into an extended base and the rest.
+These must reproduce the verdict, exit class, property, statistics,
+diagnostic codes, printed output and every counterexample state. Reordering
+`Next` disjuncts or configured invariants may change which same-depth
+violation is reported, so those compare the verdict, the depth and complete
+statistics. Reordering an invariant's conjuncts is exact unless exactly one
+side fails with an evaluation error, as a reordered guard does in TLC.
+Source locations are normalized away. Runs stop at 20,000 states or ten
+seconds, and a stopped pair is inconclusive.
+
+The `ci` profile runs a fixed list of 43 seeds covering every verdict and
+relation. To check every eligible fixture (about 1,350 seeds, three minutes in
+a release build):
+
+```sh
+DIVE_METAMORPHIC=all DIVE_METAMORPHIC_REPORT="$TMPDIR/metamorphic.json" \
+  cargo test -p dive-api --release --test metamorphic -- every_fixture --nocapture
+```
+
+The report lists each disagreement with the rewritten files. Two known
+text dependences are reported separately and do not fail the sweep. The
+start-up random stream draws constant definitions in definition and module
+order (`RndStartup`), so reordering or splitting changes random values. A
+failing constant definition's `Print` runs again for each module in the
+`EXTENDS` chain (`SuPrintRetry`), so a split changes the printed output.
+
 `.github/workflows/conformance.yml` runs the small or deep tier, including the
 TLC self-checks, on manual dispatch. Its `baseline` job runs nightly (and on a
 small-tier dispatch): the same two corpus runs as the full gate, against the
