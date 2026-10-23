@@ -112,6 +112,8 @@ LIMITS (golden generate, run; timeout options also apply to study final):
     --java <path>          use this java instead of the pinned JRE (recorded in provenance)
     --raw-invocations <dir> retain original TLC model streams (golden generate only;
                            default off; excludes Java setup and capability probes)
+    --raw-setup-status     also retain bounded setup status/streams in a separate schema
+                           requires --raw-invocations; default off
 
 EXIT STATUS:
     0 success; 1 findings (failed goldens, or disagree/oracle-error/timeout outcomes,
@@ -168,6 +170,7 @@ struct Opts {
     tlc_budgets: bool,
     java: Option<PathBuf>,
     raw_invocations: Option<PathBuf>,
+    raw_setup_status: bool,
     impl_options: Vec<String>,
     impl_profile: Option<String>,
     sany_phase: Option<String>,
@@ -231,6 +234,7 @@ fn parse_opts(args: &mut Args) -> Result<Opts> {
             "--tlc-budgets" => o.tlc_budgets = true,
             "--java" => o.java = Some(args.value(&a)?.into()),
             "--raw-invocations" => o.raw_invocations = Some(args.value(&a)?.into()),
+            "--raw-setup-status" => o.raw_setup_status = true,
             "--impl-option" => o.impl_options.push(args.value(&a)?),
             "--impl-profile" => o.impl_profile = Some(args.value(&a)?),
             "--sany-phase" => o.sany_phase = Some(args.value(&a)?),
@@ -306,6 +310,11 @@ fn dispatch(cmd: &[String], o: &Opts) -> Result<bool> {
             "--raw-invocations is only supported by golden generate".to_owned(),
         ));
     }
+    if o.raw_setup_status && o.raw_invocations.is_none() {
+        return Err(Error::Usage(
+            "--raw-setup-status requires --raw-invocations".to_owned(),
+        ));
+    }
     let root = match &o.repo_root {
         Some(r) => r.clone(),
         None => Config::find_repo_root(
@@ -351,13 +360,23 @@ fn dispatch(cmd: &[String], o: &Opts) -> Result<bool> {
             Ok(false)
         }
         ["golden", "generate"] => {
-            let java = Java::resolve(&config, &cache, o.java.as_deref())?;
+            let java = if o.raw_setup_status {
+                None
+            } else {
+                Some(Java::resolve(&config, &cache, o.java.as_deref())?)
+            };
             let oracle = match &o.oracle {
                 Some(id) => id.clone(),
                 None => config.oracles.default_oracle()?.id.clone(),
             };
-            let mut env = OracleEnv::prepare(&config, &cache, &oracle, &java)?;
-            env.raw_invocations.clone_from(&o.raw_invocations);
+            let env = match java.as_ref() {
+                Some(java) => {
+                    let mut env = OracleEnv::prepare(&config, &cache, &oracle, java)?;
+                    env.raw_invocations.clone_from(&o.raw_invocations);
+                    Some(env)
+                }
+                None => None,
+            };
             if o.no_sany && o.sany_only {
                 return Err(Error::Usage(
                     "--no-sany and --sany-only conflict".to_owned(),
@@ -373,7 +392,23 @@ fn dispatch(cmd: &[String], o: &Opts) -> Result<bool> {
                 sany: !o.no_sany,
                 workers: o.workers.clone().unwrap_or_else(|| vec![1]),
             };
-            let failures = pipeline::golden_generate(&config, &cache, &env, &opts)?;
+            let failures = if o.raw_setup_status {
+                let raw_root = o.raw_invocations.as_deref().ok_or_else(|| {
+                    Error::Usage("--raw-setup-status requires --raw-invocations".to_owned())
+                })?;
+                pipeline::golden_generate_with_setup_capture(
+                    &config,
+                    &cache,
+                    &opts,
+                    o.java.as_deref(),
+                    raw_root,
+                )?
+            } else {
+                let env = env
+                    .as_ref()
+                    .ok_or_else(|| Error::Config("missing prepared oracle".to_owned()))?;
+                pipeline::golden_generate(&config, &cache, env, &opts)?
+            };
             if failures > 0 {
                 eprintln_safe(&format!("{failures} golden(s) not written; see above"));
             }
@@ -883,6 +918,40 @@ mod tests {
         };
         let options = parse_opts(&mut args)?;
         assert_eq!(options.raw_invocations, Some(PathBuf::from("external-raw")));
+        assert!(matches!(
+            dispatch(&["run".into()], &options),
+            Err(Error::Usage(_))
+        ));
+        Ok(())
+    }
+    #[test]
+    fn setup_status_requires_raw_capture_and_defaults_off() -> Result<()> {
+        let mut args = Args {
+            items: Vec::new(),
+            pos: 0,
+        };
+        assert!(!parse_opts(&mut args)?.raw_setup_status);
+        args = Args {
+            items: vec!["--raw-setup-status".into()],
+            pos: 0,
+        };
+        let options = parse_opts(&mut args)?;
+        assert!(options.raw_setup_status);
+        assert!(matches!(
+            dispatch(&["golden".into(), "generate".into()], &options),
+            Err(Error::Usage(_))
+        ));
+        args = Args {
+            items: vec![
+                "--raw-setup-status".into(),
+                "--raw-invocations".into(),
+                "raw".into(),
+            ],
+            pos: 0,
+        };
+        let options = parse_opts(&mut args)?;
+        assert!(options.raw_setup_status);
+        assert_eq!(options.raw_invocations, Some(PathBuf::from("raw")));
         assert!(matches!(
             dispatch(&["run".into()], &options),
             Err(Error::Usage(_))

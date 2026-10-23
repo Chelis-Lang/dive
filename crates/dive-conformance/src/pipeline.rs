@@ -8,7 +8,7 @@ use crate::compare::{
 use crate::config::{Config, Layout};
 use crate::corpus::{CorpusIndex, ModelEntry, ModelMode, ModuleEntry, Tier, enumerate};
 use crate::error::{Error, Result};
-use crate::fetch::{FetchStatus, Fetcher, dirty_paths, verified_checkout};
+use crate::fetch::{FetchStatus, Fetcher};
 use crate::golden::{
     GOLDEN_SCHEMA, GoldenModel, ModelGolden, Provenance, SanyGolden, WriteStatus, golden_root,
     model_golden_path, read_model_golden, read_sany_golden, sany_golden_path, to_pretty,
@@ -157,6 +157,15 @@ pub fn corpus_fetch(config: &Config, cache: &Cache, ids: &[String]) -> Result<()
 /// # Errors
 /// Fails if the corpus is missing, modified or cannot be enumerated.
 pub fn load_corpus(config: &Config, cache: &Cache, id: &str) -> Result<CorpusIndex> {
+    load_corpus_with_setup(config, cache, id, None)
+}
+
+fn load_corpus_with_setup(
+    config: &Config,
+    cache: &Cache,
+    id: &str,
+    setup: Option<&crate::oracle::setup::Capture>,
+) -> Result<CorpusIndex> {
     let c = config.corpora.corpus(id)?;
     let index = if let Some(path) = &c.path {
         // A dive-owned corpus in this repository: identified by the digest
@@ -169,12 +178,20 @@ pub fn load_corpus(config: &Config, cache: &Cache, id: &str) -> Result<CorpusInd
             )));
         }
         let digest = crate::corpus::tree_digest(&dir)?;
+        if let Some(setup) = setup {
+            setup.in_process_verification("repository-corpus-digest", &digest)?;
+        }
         let mut index = enumerate(c, &dir)?;
         index.commit = digest;
         index
     } else {
         let dir = cache.checkout_dir(&c.id, &c.commit);
-        verified_checkout(&dir, &c.commit, &format!("corpus `{id}`"))?;
+        crate::fetch::verified_checkout_with_setup(
+            &dir,
+            &c.commit,
+            &format!("corpus `{id}`"),
+            setup,
+        )?;
         enumerate(c, &dir)?
     };
     if !index.uncovered.is_empty() {
@@ -395,6 +412,13 @@ fn provenance(
 
 /// Checks that oracle runs left the corpus checkout untouched.
 fn assert_pristine(corpus: &CorpusIndex) -> Result<()> {
+    assert_pristine_with_setup(corpus, None)
+}
+
+fn assert_pristine_with_setup(
+    corpus: &CorpusIndex,
+    setup: Option<&crate::oracle::setup::Capture>,
+) -> Result<()> {
     if corpus.in_repo {
         let now = crate::corpus::tree_digest(&corpus.root)?;
         return if now == corpus.commit {
@@ -407,7 +431,7 @@ fn assert_pristine(corpus: &CorpusIndex) -> Result<()> {
             )))
         };
     }
-    let dirty = dirty_paths(&corpus.root)?;
+    let dirty = crate::fetch::dirty_paths_with_setup(&corpus.root, setup)?;
     if dirty.is_empty() {
         Ok(())
     } else {
@@ -435,15 +459,60 @@ fn check_path_collisions<'a>(paths: impl Iterator<Item = (&'a str, PathBuf)>) ->
     Ok(())
 }
 
+/// Generates goldens while retaining separately versioned setup receipts.
+///
+/// This internal-facing harness entrypoint is the opt-in companion to
+/// [`golden_generate`]. It retains every dispatched preparation subprocess,
+/// uses the existing owned 120-second deadline for each, and fails before
+/// model dispatch if a setup invocation lacks normal completion. Normal
+/// nonzero exits retain their existing semantic checks. Verified cache files
+/// are recorded as not executed, never as successful native invocations.
+/// Model invocation records and golden provenance are unchanged.
+///
+/// # Example
+///
+/// ```no_run
+/// use dive_conformance::{cache::Cache, config::Config, pipeline::{self, GenerateOptions}, Result};
+/// use std::path::Path;
+///
+/// fn retain_setup(config: &Config, cache: &Cache, options: &GenerateOptions) -> Result<usize> {
+///     // Use an external directory outside the corpus and its directory aliases.
+///     pipeline::golden_generate_with_setup_capture(
+///         config, cache, options, None, Path::new("../oracle-evidence"),
+///     )
+/// }
+/// ```
+///
+/// # Errors
+/// Fails on preparation, recording, source/destination overlap or corpus errors.
+pub fn golden_generate_with_setup_capture(
+    config: &Config,
+    cache: &Cache,
+    opts: &GenerateOptions,
+    java_override: Option<&Path>,
+    raw_root: &Path,
+) -> Result<usize> {
+    let corpus_config = config.corpora.corpus(&opts.corpus)?;
+    let corpus_root = corpus_config.path.as_ref().map_or_else(
+        || cache.checkout_dir(&corpus_config.id, &corpus_config.commit),
+        |path| config.repo_root.join(path),
+    );
+    let setup = crate::oracle::setup::Capture::new(raw_root, &corpus_root)?;
+    let java = crate::oracle::Java::resolve_with_setup(config, cache, java_override, Some(&setup))?;
+    let mut env = OracleEnv::prepare_with_setup(config, cache, &opts.oracle, &java, Some(&setup))?;
+    env.raw_invocations = Some(raw_root.to_path_buf());
+    let corpus = load_corpus_with_setup(config, cache, &opts.corpus, Some(&setup))?;
+    setup.prepared()?;
+    let failures = golden_generate_loaded(config, &env, opts, corpus, Some(&setup))?;
+    setup.complete()?;
+    Ok(failures)
+}
+
 /// `golden generate`. Returns the number of failures (refused overwrites,
 /// timeouts, harness errors); goldens that could be written are written.
 ///
 /// # Errors
 /// Fails if the oracle or corpus cannot be prepared.
-#[allow(
-    clippy::too_many_lines,
-    reason = "one linear pass over models then modules; splitting obscures it"
-)]
 pub fn golden_generate(
     config: &Config,
     cache: &Cache,
@@ -451,6 +520,20 @@ pub fn golden_generate(
     opts: &GenerateOptions,
 ) -> Result<usize> {
     let corpus = load_corpus(config, cache, &opts.corpus)?;
+    golden_generate_loaded(config, env, opts, corpus, None)
+}
+
+#[allow(
+    clippy::too_many_lines,
+    reason = "one linear pass over models then modules; splitting obscures it"
+)]
+fn golden_generate_loaded(
+    config: &Config,
+    env: &OracleEnv,
+    opts: &GenerateOptions,
+    corpus: CorpusIndex,
+    setup: Option<&crate::oracle::setup::Capture>,
+) -> Result<usize> {
     let root = golden_root(&config.repo_root);
     let failures = AtomicUsize::new(0);
     let fail = |msg: String| {
@@ -697,7 +780,7 @@ pub fn golden_generate(
             }
         });
     }
-    assert_pristine(&corpus)?;
+    assert_pristine_with_setup(&corpus, setup)?;
     Ok(failures.into_inner())
 }
 
