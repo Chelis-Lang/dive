@@ -436,7 +436,10 @@ conformance populations; see [the corpus guide](../conformance-corpora.md#interv
 Unassigned `x \in lo..hi` initial predicates and `x' \in lo..hi` successor
 assignments stream ascending integers without first retaining the whole domain.
 This lets existing checker guards run when a complete assignment reaches the
-sink. Already assigned variables still use the ordinary membership check. Other
+sink. `ENABLED` likewise streams unassigned interval-membership candidates,
+stopping at its first witness. Its membership-candidate loop reaches the
+existing amortized evaluator control even when every candidate is rejected.
+Already assigned variables still use the ordinary membership check. Other
 constructors can still materialize a domain before candidate binding, and long
 individual evaluations remain potentially uninterruptible (issue #349). No fixed
 domain-size count is introduced. Parallel checking polls the armed run budget during

@@ -2465,6 +2465,49 @@ impl Enab {
         }
     }
 
+    fn bind_value(
+        &self,
+        var: dive_ir::DeclId,
+        value: Value,
+        acts: &Acts,
+        s1: &EnabledState,
+    ) -> Result<Option<EnabledState>> {
+        // Rejected query candidates are work even when no witness is found.
+        self.core.loop_work()?;
+        self.cont(acts, self.with(s1, var, value))
+    }
+
+    fn bind_interval(
+        &self,
+        var: dive_ir::DeclId,
+        lo: &dive_value::Int,
+        hi: &dive_value::Int,
+        acts: &Acts,
+        s1: &EnabledState,
+    ) -> Result<Option<EnabledState>> {
+        // IntervalValue.elements() is incremental and ascending, as in the
+        // ordinary assignment path. ENABLED stops at its first witness.
+        if let (Some(lo), Some(hi)) = (lo.to_i64(), hi.to_i64()) {
+            for value in lo..=hi {
+                if let Some(found) = self.bind_value(var, Value::Int(value), acts, s1)? {
+                    return Ok(Some(found));
+                }
+            }
+        } else {
+            let mut value = lo.clone();
+            while value <= *hi {
+                if let Some(found) = self.bind_value(var, Value::int(value.clone()), acts, s1)? {
+                    return Ok(Some(found));
+                }
+                if value == *hi {
+                    break;
+                }
+                value = value.add(&dive_value::Int::ONE, dive_value::IntMode::Big)?;
+            }
+        }
+        Ok(None)
+    }
+
     fn assign(
         &self,
         op: BuiltinOp,
@@ -2506,7 +2549,12 @@ impl Enab {
                 match lval {
                     None => {
                         let elems = match &rval {
-                            Value::Set(s) if is_enumerable(&rval) => core.in_elements(s)?,
+                            Value::Set(set) if is_enumerable(&rval) => {
+                                if let Some((lo, hi)) = set.as_interval() {
+                                    return self.bind_interval(var, lo, hi, acts, &s1);
+                                }
+                                core.in_elements(set)?
+                            }
                             _ => {
                                 return Err(EvalError::general(format!(
                                     "The right side of \\IN is not enumerable.\n{}",
@@ -2515,8 +2563,7 @@ impl Enab {
                             }
                         };
                         for x in elems.iter() {
-                            let s2 = self.with(&s1, var, x.clone());
-                            if let Some(s) = self.cont(acts, s2)? {
+                            if let Some(s) = self.bind_value(var, x.clone(), acts, &s1)? {
                                 return Ok(Some(s));
                             }
                         }

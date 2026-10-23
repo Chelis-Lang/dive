@@ -1,0 +1,1045 @@
+{
+  "format_version": 1,
+  "date": "2026-10-23",
+  "purpose": "ENABLED interval enumeration: normal-input instruction overhead and exact-source fullgate qualification, not a performance speedup.",
+  "sources": {
+    "base": {
+      "pin": "1d49aa7670215acffdc9c275cf33bf56a6c7f4b8",
+      "tree": "f1e775d933d054750cc504adc9f10f00e5120cda",
+      "files": 22660,
+      "tracked_map_sha256": "e2d8b18080db1f0ed80fbe8249a50df70a4a62c53b8f5a7388d4e91d88e4bdb8",
+      "all_pinned_git_contents_match_observed_physical_map": true
+    },
+    "candidate": {
+      "pin": "c27309062008cdb2695ec0a0efcfe572ffe1b16b",
+      "tree": "01221254c743ffa3f9a0b83c9e038e94b988f3e4",
+      "files": 22671,
+      "tracked_map_sha256": "352ee9c0452ee1d52933cf7f1c49747b897826603a55758ca2f6fa04fd653d90",
+      "all_pinned_git_contents_match_observed_physical_map": true
+    }
+  },
+  "source_bundle_sha256": "3a30a3fed17f32816799fc66a5b2594bc52e273ab8b34dd326ff4b8a18a2c970",
+  "machine": {
+    "instance_id": "i-0fe5264fd4fd01484",
+    "instance_type": "c7i.8xlarge",
+    "ami": "ami-02a9cdd4e98bc3c78",
+    "cpu": "Intel(R) Xeon(R) Platinum 8488C",
+    "kernel": "Linux 7.0.0-1014-aws x86_64",
+    "region": "us-east-1",
+    "quiet_wall_clock_claim": false
+  },
+  "tools": {
+    "rustc": {
+      "version": "rustc 1.99.0 (b940084d7 2026-09-28)",
+      "sha256": "f3834d26669b03f6855fa54bd2381443123e860167bc0c7a8dd137e5cf6e5e4f"
+    },
+    "cargo": {
+      "version": "cargo 1.99.0 (5f94df478 2026-08-27)",
+      "sha256": "e951141cc55a6cd7b9876d187bd30a3720e6086b99413af95e3b8de1cdd72f14"
+    },
+    "nextest": {
+      "version": "cargo-nextest 0.9.143 (60fa45f63 2026-08-04)\nrelease: 0.9.143\ncommit-hash: 60fa45f638ffc3f35e74afa65737f45fcd32db2a\ncommit-date: 2026-08-04\nhost: x86_64-unknown-linux-gnu",
+      "sha256": "cb6243e32736eb6242379b379d44f09adf4873bbdf69ed6ff13f9dc4c0dfc654"
+    },
+    "deny": {
+      "version": "cargo-deny 0.20.2",
+      "sha256": "095d1609e3040af892c3356154eb89488bcb8886315f8c7b7b6927ad7064b3e7"
+    },
+    "valgrind": {
+      "version": "valgrind-3.22.0",
+      "sha256": "4652774bd116cb49951ef74115ad4237cad5021b2bd4d80002f09d986ec438b9"
+    },
+    "cachegrind_backend": {
+      "version": "valgrind-3.22.0 cachegrind backend",
+      "sha256": "38093b3bf8e9ffecb559a333c896a2fd2a2343bb79c3295f31c36475914deebf"
+    },
+    "callgrind_backend": {
+      "version": "valgrind-3.22.0 callgrind backend",
+      "sha256": "825eb197d519240c112e03ed00f40a8bbe1a0a0614f79ea95e28c67e8695cb03"
+    },
+    "owned_process_supervisor": {
+      "version": "Reviewed unreaped owned-group supervisor c4f0b2f2",
+      "sha256": "c4f0b2f298ecb1d777c04740246be10ab4476d895139f24ae73eb57ce3f10f61"
+    }
+  },
+  "binaries": {
+    "base-profiling-dive": {
+      "sha256": "6de084a03619abd62f6fa19cb1bc3e9a219e7ee034a4f4884ad1d3218edf00d0",
+      "bytes": 106808840,
+      "mode": 509,
+      "elf_class": 64,
+      "machine": "x86_64"
+    },
+    "candidate-profiling-dive": {
+      "sha256": "fd9592311c002f06bf803260e2352fef1ce59db3caf41819df5ac4343c32845a",
+      "bytes": 106826696,
+      "mode": 509,
+      "elf_class": 64,
+      "machine": "x86_64"
+    },
+    "candidate-release-dive": {
+      "sha256": "83b4751082fafdc00ea6fc857e491e4964c79d667990b7cb09a7e7d2cbf56ef6",
+      "bytes": 38072408,
+      "mode": 509,
+      "elf_class": 64,
+      "machine": "x86_64"
+    },
+    "candidate-release-dive-conformance": {
+      "sha256": "2e2cf929b15b4a3dd5813ea0284814c1f2579fb020ebe9c4c1dd1c7295c33140",
+      "bytes": 30641232,
+      "mode": 509,
+      "elf_class": 64,
+      "machine": "x86_64"
+    }
+  },
+  "binary_provenance": "Profiling ELF bytes were frozen before the matrix and matched before/per-arm/after receipts. Release CLI and harness ELF bytes were frozen after the fullgate; their hashes are collection-time observations, not before-matrix identities. Both small reports identify the archived release CLI hash.",
+  "protocol": {
+    "profiling_builds": 2,
+    "sequential_matrix_arms": 16,
+    "workers": 1,
+    "profiles": [
+      "dive",
+      "tlc"
+    ],
+    "seed": 0,
+    "fp": 0,
+    "instrumentation": "Cachegrind --cache-sim=no; whole CLI including startup",
+    "native_time_limit_seconds": 900,
+    "native_max_memory_bytes": 8589934592,
+    "external_backstop_seconds": 930,
+    "per_cell_acceptance": "candidate_Ir * 100 <= base_Ir * 101; identical success verdict, distinct/generated/initial counts, depth and empty queue",
+    "geometric_mean_role": "descriptive only; cannot admit a failing individual cell",
+    "fullgate_only_after_complete_matrix": true,
+    "fullgate_backstop_seconds": 3600,
+    "maximum_instance_lifetime_seconds": 9000,
+    "productive_window_seconds": 8040,
+    "collection_reserve_seconds": 960
+  },
+  "inputs": {
+    "examples_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "reductions": {
+      "SimpleRegular": "Copy SimpleRegular.cfg, set N to6.",
+      "MCbtree": "Copy MCbtree.cfg, set MaxKey to3.",
+      "GameOfLife": "Copy GameOfLife.cfg, set N to3.",
+      "EWD998PCal": "Copy EWD998PCal.cfg unchanged; in EWD998PCal.tla change StateConstraint counter[i]<3 to counter[i]<2."
+    },
+    "models": {
+      "SimpleRegular": {
+        "module": {
+          "path": "specifications/TeachingConcurrency/SimpleRegular.tla",
+          "sha256": "bf3872f04d71f7b80fcb55cecd07bf1b38fac3861fbb3452eb179c593c1bcdb5"
+        },
+        "config": {
+          "path": "specifications/TeachingConcurrency/R1SimpleRegular.cfg",
+          "sha256": "aa129769c5d9a6bd1c3545dbbfbc98e1279d4b314b592b7801c9af71735fc3ff"
+        },
+        "expected": {
+          "distinct": 12097,
+          "generated": 47584,
+          "depth": 19
+        }
+      },
+      "MCbtree": {
+        "module": {
+          "path": "specifications/btree/MCbtree.tla",
+          "sha256": "64655fd6391422f27607da0c3d36617066249c68687d984bdb1113bc98f83ac3"
+        },
+        "config": {
+          "path": "specifications/btree/R1MCbtree.cfg",
+          "sha256": "de7bb2b0263d04833243ed7f09bec7cb496e4111f6777425161b9d8a5e119ffa"
+        },
+        "expected": {
+          "distinct": 21364,
+          "generated": 127825,
+          "depth": 24
+        }
+      },
+      "GameOfLife": {
+        "module": {
+          "path": "specifications/GameOfLife/GameOfLife.tla",
+          "sha256": "dcd6d626946faab35ac22ad38a031b0d9bd9bc274d8750340506acc407dccbc6"
+        },
+        "config": {
+          "path": "specifications/GameOfLife/R1GameOfLife.cfg",
+          "sha256": "842e3c2d93b0535783091687f76debde6dd42fc7b33983f154a9f892125ef4a9"
+        },
+        "expected": {
+          "distinct": 512,
+          "generated": 1024,
+          "depth": 1
+        }
+      },
+      "EWD998PCal": {
+        "module": {
+          "path": "specifications/ewd998/EWD998PCal.tla",
+          "sha256": "3342f5d865902f6e85defbcd6713cea1dac50e031d3f2281e7b7cc9deb545da4"
+        },
+        "config": {
+          "path": "specifications/ewd998/R1EWD998PCal.cfg",
+          "sha256": "44073c04a88dd7aa593cab099e59b7b1dd4be31ec2d5b59616b0426a3a84f892"
+        },
+        "expected": {
+          "distinct": 20870,
+          "generated": 168292,
+          "depth": 28
+        }
+      }
+    },
+    "workload_archive_sha256": "f1d3eb00d9f43c11e03a50be64a3115f8e2bb838299bb8d7033106a8ce0c53ef",
+    "module_archive_sha256": "90a8757da7c179dcf04ec8f7530f99881e013eb76b92bfeb59808d9a0fe782ab",
+    "workload_files": 47,
+    "module_files": 68,
+    "identity_manifest_sha256": "ee348f27d85022fcdd963a5ba63690f0f765c3c72034b7ae3bb53f6fdf97841a",
+    "all115_input_files_before_per_arm_after_verified": true
+  },
+  "instruction_pairs": [
+    {
+      "model": "SimpleRegular",
+      "profile": "dive",
+      "base_Ir": 2590774317,
+      "candidate_Ir": 2590902015,
+      "integer_one_percent_check": true,
+      "ratio": 1.0000492895113102,
+      "delta_pct": 0.004928951131022039
+    },
+    {
+      "model": "MCbtree",
+      "profile": "dive",
+      "base_Ir": 14413298920,
+      "candidate_Ir": 14412859322,
+      "integer_one_percent_check": true,
+      "ratio": 0.9999695005284744,
+      "delta_pct": -0.0030499471525565224
+    },
+    {
+      "model": "GameOfLife",
+      "profile": "dive",
+      "base_Ir": 1146698014,
+      "candidate_Ir": 1146847268,
+      "integer_one_percent_check": true,
+      "ratio": 1.0001301598138113,
+      "delta_pct": 0.013015981381127603
+    },
+    {
+      "model": "EWD998PCal",
+      "profile": "dive",
+      "base_Ir": 47065938531,
+      "candidate_Ir": 47104748241,
+      "integer_one_percent_check": true,
+      "ratio": 1.0008245816658778,
+      "delta_pct": 0.08245816658779251
+    },
+    {
+      "model": "SimpleRegular",
+      "profile": "tlc",
+      "base_Ir": 2654975654,
+      "candidate_Ir": 2655001843,
+      "integer_one_percent_check": true,
+      "ratio": 1.0000098641205846,
+      "delta_pct": 0.0009864120584512147
+    },
+    {
+      "model": "MCbtree",
+      "profile": "tlc",
+      "base_Ir": 18204480523,
+      "candidate_Ir": 18205671827,
+      "integer_one_percent_check": true,
+      "ratio": 1.0000654401535103,
+      "delta_pct": 0.006544015351027877
+    },
+    {
+      "model": "GameOfLife",
+      "profile": "tlc",
+      "base_Ir": 1136355350,
+      "candidate_Ir": 1138794989,
+      "integer_one_percent_check": true,
+      "ratio": 1.00214689797518,
+      "delta_pct": 0.2146897975180035
+    },
+    {
+      "model": "EWD998PCal",
+      "profile": "tlc",
+      "base_Ir": 48048217116,
+      "candidate_Ir": 48025212137,
+      "integer_one_percent_check": true,
+      "ratio": 0.9995212105592917,
+      "delta_pct": -0.04787894407082874
+    }
+  ],
+  "geomean_ratio": 1.0003393295916623,
+  "geomean_delta_pct": 0.033932959166227405,
+  "all_eight_integer_one_percent_checks": true,
+  "arms": [
+    {
+      "tag": "base-SimpleRegular-dive-w1",
+      "Ir": 2590774317,
+      "exit": 0,
+      "censored": false,
+      "verdict": "success",
+      "counts": {
+        "distinct": 12097,
+        "generated": 47584,
+        "depth": 19,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 1,
+        "sequential": false,
+        "used": 1
+      },
+      "sha256": {
+        "observation": "b4457af03dedaf19bff3ad7d573347e51cfb4cd049f9c3194ef0092c24cd1933",
+        "stdout": "767842ddef6436a3c53b79430eb2894fbfd88937b3fc59a1f816931a3f1b65de",
+        "stderr": "d709c5384fea5bc34c73ad7e84da6fd92b2e52946bf79aec8a172c4cfb8f449b",
+        "cachegrind": "8d559fc8d3455237080a525ac83733ddc8062e0307f4bf419e1ca859532d52bc"
+      }
+    },
+    {
+      "tag": "candidate-SimpleRegular-dive-w1",
+      "Ir": 2590902015,
+      "exit": 0,
+      "censored": false,
+      "verdict": "success",
+      "counts": {
+        "distinct": 12097,
+        "generated": 47584,
+        "depth": 19,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 1,
+        "sequential": false,
+        "used": 1
+      },
+      "sha256": {
+        "observation": "4e6106a671e314125b0a7e641b579f0b05b4b9a7d5d724944084a7f8143dd82f",
+        "stdout": "8db18956b4319f4d6728b3bd30fd34375146a4d40a08ec7f0986aad451a5db3d",
+        "stderr": "c06057ae2fd230aaa0af3d7ef4915c1c5a7ec1d9832ff3e1ecf1ae3c33a040f9",
+        "cachegrind": "d4b8f127471e17bf3d29dc7ca9fcf15d86931046bcef511c2ae73d22c6b8bbd7"
+      }
+    },
+    {
+      "tag": "base-MCbtree-dive-w1",
+      "Ir": 14413298920,
+      "exit": 0,
+      "censored": false,
+      "verdict": "success",
+      "counts": {
+        "distinct": 21364,
+        "generated": 127825,
+        "depth": 24,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 1,
+        "sequential": false,
+        "used": 1
+      },
+      "sha256": {
+        "observation": "893a9a64a74988502ce0d6168fdfb35ef5b47a31c4b97532552b739156b8685e",
+        "stdout": "bfc227bc6d44c500203a8a1a0e1758621352c820d81e1c5a2a29607a82cba2af",
+        "stderr": "a08157d62c4c219fbaca1abc3a1784bac4a6814b6c9a027762bb17bcfa8465a9",
+        "cachegrind": "565361aca55df407b40073c4b5f307c2ab01e2124e864c420c6676145fc25b77"
+      }
+    },
+    {
+      "tag": "candidate-MCbtree-dive-w1",
+      "Ir": 14412859322,
+      "exit": 0,
+      "censored": false,
+      "verdict": "success",
+      "counts": {
+        "distinct": 21364,
+        "generated": 127825,
+        "depth": 24,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 1,
+        "sequential": false,
+        "used": 1
+      },
+      "sha256": {
+        "observation": "a39c281740c907723e9bfb2762ad6f30455fa040c2a2e162f50fff24749c33dd",
+        "stdout": "3258760039ae6e714561ba51662d45a86001c26cd123cc7e8a62859a4b3ceaa0",
+        "stderr": "b76e4266e4a799f700d82693f6c409be6bad84819aaaf58a27c82412ed22ba2a",
+        "cachegrind": "e61d22d3a8c61404597673ba19dc6169d664ce43e018f716d3bf029562a800db"
+      }
+    },
+    {
+      "tag": "base-GameOfLife-dive-w1",
+      "Ir": 1146698014,
+      "exit": 0,
+      "censored": false,
+      "verdict": "success",
+      "counts": {
+        "distinct": 512,
+        "generated": 1024,
+        "depth": 1,
+        "initial_generated": 512,
+        "left_on_queue": 0
+      },
+      "workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 1,
+        "sequential": false,
+        "used": 1
+      },
+      "sha256": {
+        "observation": "5f9e3674d43158be828d18a7a9867a0009a220d95f2332eff4cf47d950276ef3",
+        "stdout": "be375456a16f196646b72c6b9f6b00d10bd0389919397409f21bf3c1d0355c2e",
+        "stderr": "f140aa5db5574cd0c3955409b03ff2c94fc0db24307da40c404ad0a0d555087e",
+        "cachegrind": "3d63518e660a9f129df2c79ee17b416164fcee34623a086670d3cadbd785f925"
+      }
+    },
+    {
+      "tag": "candidate-GameOfLife-dive-w1",
+      "Ir": 1146847268,
+      "exit": 0,
+      "censored": false,
+      "verdict": "success",
+      "counts": {
+        "distinct": 512,
+        "generated": 1024,
+        "depth": 1,
+        "initial_generated": 512,
+        "left_on_queue": 0
+      },
+      "workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 1,
+        "sequential": false,
+        "used": 1
+      },
+      "sha256": {
+        "observation": "9ab5e2a81997f98e21f7e92a2737e030c609c066f4eb29f4405aaa079c0f2f4f",
+        "stdout": "1ff0acf2a94ef56a46a2eb0d8e11aea861c12a85180e37273985549fb50daaad",
+        "stderr": "502f8002da18bac1938b1310527279489f985dc97df43f986ad91777fef3041f",
+        "cachegrind": "ef020db75ab8f3070d0a171bc4eda46bdf544bb2b69beeeaaee2b22746f6d85b"
+      }
+    },
+    {
+      "tag": "base-EWD998PCal-dive-w1",
+      "Ir": 47065938531,
+      "exit": 0,
+      "censored": false,
+      "verdict": "success",
+      "counts": {
+        "distinct": 20870,
+        "generated": 168292,
+        "depth": 28,
+        "initial_generated": 8,
+        "left_on_queue": 0
+      },
+      "workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 1,
+        "sequential": false,
+        "used": 1
+      },
+      "sha256": {
+        "observation": "e6c1cbbaae1d450043b0bda02a9b10649d4667b2edccedf4ab1acb96ee07be43",
+        "stdout": "c1cbefd8c4a7354729ced7dbe870ef718bf450c14a3cb379b5c13fcc2dedf7fa",
+        "stderr": "863801e1c7af73eae7a272328ea3386b905d718a021573cda84c9ab8e4f48b89",
+        "cachegrind": "7ce949bbc10fcab391eed06fe12f9ad929146adef2131af08316cda7e62a5843"
+      }
+    },
+    {
+      "tag": "candidate-EWD998PCal-dive-w1",
+      "Ir": 47104748241,
+      "exit": 0,
+      "censored": false,
+      "verdict": "success",
+      "counts": {
+        "distinct": 20870,
+        "generated": 168292,
+        "depth": 28,
+        "initial_generated": 8,
+        "left_on_queue": 0
+      },
+      "workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 1,
+        "sequential": false,
+        "used": 1
+      },
+      "sha256": {
+        "observation": "6c8df8c168f715faf6dec886db4ac90125bb0cb0d42dc36b6a2bbbbbd64ae9c5",
+        "stdout": "ef635d38a766a327c2df4fbbc6aee5b2828a1352f5dd93ef0398c1c265264ab5",
+        "stderr": "48811095ffaeb6f395300a53801150ba4beec3e1149eee7b25f92c48d96b97a6",
+        "cachegrind": "eb30d5501b125d3d69e933945e9f6d6598cb9dfe9c7ecb9e5e03a81c91a25920"
+      }
+    },
+    {
+      "tag": "candidate-SimpleRegular-tlc-w1",
+      "Ir": 2655001843,
+      "exit": 0,
+      "censored": false,
+      "verdict": "success",
+      "counts": {
+        "distinct": 12097,
+        "generated": 47584,
+        "depth": 19,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 1,
+        "sequential": false,
+        "used": 1
+      },
+      "sha256": {
+        "observation": "d974e8ac9f3e729c099043b140dca84efea7d13d3271c4d6971bc1e8b85b021f",
+        "stdout": "b264016f5ce2753aaa1b8f41c2ee13de6bca68cd3af0b0d0e2c79b5a7f8c9387",
+        "stderr": "c821933756de13e172cbfe7cf649d4dfadf732bbd3bd7613cc0af91a19236a3a",
+        "cachegrind": "1aafdc95e21ac60f580f2ab255b30e2be41a3f002858725aa207bf2f8fd2cde2"
+      }
+    },
+    {
+      "tag": "base-SimpleRegular-tlc-w1",
+      "Ir": 2654975654,
+      "exit": 0,
+      "censored": false,
+      "verdict": "success",
+      "counts": {
+        "distinct": 12097,
+        "generated": 47584,
+        "depth": 19,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 1,
+        "sequential": false,
+        "used": 1
+      },
+      "sha256": {
+        "observation": "0c8db83b5ddd164ef04fbd80fe37911675b7158152a36ca35dbdae8962613310",
+        "stdout": "c7f81c8921826a22377e245f858278799180596093ee411b6cd97df95dc7c469",
+        "stderr": "ca64943bbe4c5db05b0c59713a28e70d949dddad2dbdcee919ff6bc6da39dba2",
+        "cachegrind": "1e256915a1d8c098394fe090b8ab44c0e6e159b9fc22c3bb554c19d9edac82a1"
+      }
+    },
+    {
+      "tag": "candidate-MCbtree-tlc-w1",
+      "Ir": 18205671827,
+      "exit": 0,
+      "censored": false,
+      "verdict": "success",
+      "counts": {
+        "distinct": 21364,
+        "generated": 127825,
+        "depth": 24,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "workers": {
+        "chaos": null,
+        "reason": "sequential mode: the specification uses Sequences!\\o (runtime names require TLC encounter order)",
+        "requested": 1,
+        "sequential": true,
+        "used": 1
+      },
+      "sha256": {
+        "observation": "143d7358c6539f457cf46582ea0d73834bd9aeecf217313ee3767f9e6006b273",
+        "stdout": "9fe5316fdfe8d39f009df3103b311db98ca502454cddcccce44f0600517e6135",
+        "stderr": "69819b214700e3a77ceb9a3481b6507e137fdfee10d20adf5942e2e58557e45c",
+        "cachegrind": "41261758bea76ba7d45988d34f763b6557b54ef664e6e25d9bd8fcdae6c2da8c"
+      }
+    },
+    {
+      "tag": "base-MCbtree-tlc-w1",
+      "Ir": 18204480523,
+      "exit": 0,
+      "censored": false,
+      "verdict": "success",
+      "counts": {
+        "distinct": 21364,
+        "generated": 127825,
+        "depth": 24,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "workers": {
+        "chaos": null,
+        "reason": "sequential mode: the specification uses Sequences!\\o (runtime names require TLC encounter order)",
+        "requested": 1,
+        "sequential": true,
+        "used": 1
+      },
+      "sha256": {
+        "observation": "6d8eaa97654cc2f3cfae38e59e4b4c900e679df46bf7fb0f2e0edfce40808162",
+        "stdout": "2561596eac28946453cfdddd1908f5a41151b90dec6fecf227d11e715e6912e2",
+        "stderr": "ef0588ace2303ceabd92c0645ec4db05989d2107fbad7bde64e292c40c4774c7",
+        "cachegrind": "e7113adf87ee09094437866be539f0d4080250080777741025e5cdc073b7ab1b"
+      }
+    },
+    {
+      "tag": "candidate-GameOfLife-tlc-w1",
+      "Ir": 1138794989,
+      "exit": 0,
+      "censored": false,
+      "verdict": "success",
+      "counts": {
+        "distinct": 512,
+        "generated": 1024,
+        "depth": 1,
+        "initial_generated": 512,
+        "left_on_queue": 0
+      },
+      "workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 1,
+        "sequential": false,
+        "used": 1
+      },
+      "sha256": {
+        "observation": "447f760bc7935383e3a6883afec28ef7c84014c0ce9278448ca36917c9787007",
+        "stdout": "4dcb2b05069dbe9a788f5329e0ad1bad092b392438a594ed0ea8207f98424be8",
+        "stderr": "aa259121ce9790099c88fe610581b4eb8c9d8dd48a5d6eda100453742cdfb379",
+        "cachegrind": "71a7c3161039e8c758215fa1f87bf1be8a9b69d50f31ce83bf217a85f8dc1891"
+      }
+    },
+    {
+      "tag": "base-GameOfLife-tlc-w1",
+      "Ir": 1136355350,
+      "exit": 0,
+      "censored": false,
+      "verdict": "success",
+      "counts": {
+        "distinct": 512,
+        "generated": 1024,
+        "depth": 1,
+        "initial_generated": 512,
+        "left_on_queue": 0
+      },
+      "workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 1,
+        "sequential": false,
+        "used": 1
+      },
+      "sha256": {
+        "observation": "6a329d11591fd5b59fb4614c974b3be7b2f5bb4a1319d7b5e0399a678aec3061",
+        "stdout": "3bf376499c3969b6c654947488595946327235e566364a64f4d5888981e51484",
+        "stderr": "0793e87014ddc2038d2d8ef56483ed01c1f14b59c2085c07e7e23270d3ef35dd",
+        "cachegrind": "94769313012c84949546decb0e629ef78e98891be777b7ed81ca96a2c76c0e48"
+      }
+    },
+    {
+      "tag": "candidate-EWD998PCal-tlc-w1",
+      "Ir": 48025212137,
+      "exit": 0,
+      "censored": false,
+      "verdict": "success",
+      "counts": {
+        "distinct": 20870,
+        "generated": 168292,
+        "depth": 28,
+        "initial_generated": 8,
+        "left_on_queue": 0
+      },
+      "workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 1,
+        "sequential": false,
+        "used": 1
+      },
+      "sha256": {
+        "observation": "82aa7488d25d45badfb055885c7d379e126c0470dfab560d1ead219ef3ed9ce6",
+        "stdout": "e171a19aaef0a78126945060355ed91138d7c868b3701c90da3b35e74f78c88d",
+        "stderr": "2d7437171d0bac23bcccfa2e35bdb9ac65cab28893d424d826f614b8507baa9a",
+        "cachegrind": "40306b511936893a437372160f43cd4738a87a70837a3b3aa3b31f62fe69fcc5"
+      }
+    },
+    {
+      "tag": "base-EWD998PCal-tlc-w1",
+      "Ir": 48048217116,
+      "exit": 0,
+      "censored": false,
+      "verdict": "success",
+      "counts": {
+        "distinct": 20870,
+        "generated": 168292,
+        "depth": 28,
+        "initial_generated": 8,
+        "left_on_queue": 0
+      },
+      "workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 1,
+        "sequential": false,
+        "used": 1
+      },
+      "sha256": {
+        "observation": "9906625d308458a01725768a471e547336316c4bb5279c1e3a90a95e40817924",
+        "stdout": "766ac5472773e662d4c35a5b80508a3981bf8bd10435459ef586bb74105717ca",
+        "stderr": "c2457c3670ae58f870770ab014218588346e00198b0500e4ad0ba49b2c3bb09b",
+        "cachegrind": "497aa19f75927e646bf9158c721f34e994adfdba367fbe7191271f38a9e277ad"
+      }
+    }
+  ],
+  "fullgate": {
+    "source": "c27309062008cdb2695ec0a0efcfe572ffe1b16b",
+    "native_exit": 0,
+    "externally_censored": false,
+    "started_at": "2026-10-22T23:45:13.251626+00:00",
+    "finished_at": "2026-10-23T00:22:17.886287+00:00",
+    "elapsed_seconds": 2224.6346615410002,
+    "nextest": {
+      "tests_run": 2292,
+      "passed": 2292,
+      "skipped": 0
+    },
+    "independently_unique_pass_ids": 2292,
+    "native_phases": [
+      {
+        "name": "rustfmt",
+        "result": "pass",
+        "duration": "2.0s"
+      },
+      {
+        "name": "clippy",
+        "result": "pass",
+        "duration": "18.6s"
+      },
+      {
+        "name": "nextest (whole suite)",
+        "result": "pass",
+        "duration": "17m44s"
+      },
+      {
+        "name": "doctests",
+        "result": "pass",
+        "duration": "5.5s"
+      },
+      {
+        "name": "rustdoc",
+        "result": "pass",
+        "duration": "10.3s"
+      },
+      {
+        "name": "crate layering",
+        "result": "pass",
+        "duration": "0.0s"
+      },
+      {
+        "name": "cargo-deny",
+        "result": "pass",
+        "duration": "0.7s"
+      },
+      {
+        "name": "release build (harness, dive)",
+        "result": "pass",
+        "duration": "1m30s"
+      },
+      {
+        "name": "oracle and corpus fetch",
+        "result": "pass",
+        "duration": "4.5s"
+      },
+      {
+        "name": "cm1 gate (1, 4, 8 workers)",
+        "result": "pass",
+        "duration": "6.8s"
+      },
+      {
+        "name": "validation-smoke gate (1, 4, 8 workers)",
+        "result": "pass",
+        "duration": "0.7s"
+      },
+      {
+        "name": "small corpus tier (dive, tlc profile, vs baseline)",
+        "result": "pass",
+        "duration": "8m36s"
+      },
+      {
+        "name": "small corpus tier (dive, dive profile, vs baseline)",
+        "result": "pass",
+        "duration": "8m20s"
+      }
+    ],
+    "report_sha256": "22672f5d2d26d40679d187b938d9438b8b84450c7063cb6ec0bb1388039ee0fb",
+    "stdout_sha256": "6d13ea5a4ddb66d79f467f8bae07aa86ecac4c27b19f246994d9d7d9050d2aa1",
+    "stderr_sha256": "41bf57fc2dab1f9264598f42e924d42ba80524d183e963104043b6504cfe4af2",
+    "profiles": {
+      "tlc": {
+        "run_id": "20261023T001357748-dive-small",
+        "models_selected": 156,
+        "modules_selected": 458,
+        "models": {
+          "agree": 149,
+          "disagree": 0,
+          "unsupported": 7,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "modules": {
+          "agree": 458,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "all_baseline_ids_retained": true,
+        "module_roots": [
+          {
+            "id": "community-modules-202610040242",
+            "pin": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+          },
+          {
+            "id": "community-modules-deps-202610040242",
+            "pin": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d"
+          },
+          {
+            "id": "apalache-modules-v0.62.3",
+            "pin": "3eb15b253482005222fabbf50bb7aae501eb9f8d"
+          },
+          {
+            "id": "tlapm-library-d8b9747",
+            "pin": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37"
+          }
+        ],
+        "golden_oracle": "tlc-2026.10.06.014338",
+        "golden_oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+        "settings": {
+          "tier": "small",
+          "filters": [],
+          "workers": [
+            1
+          ],
+          "jobs": 2,
+          "xmx": "3g",
+          "timeout_policy": "TLC-derived budgets: with a golden max(60 s, 10 x golden elapsed); otherwise historical timeout; hard cap 900 s (historical cap 3600 s, cap when unknown)",
+          "crosscheck_manifest": false,
+          "sany_phase": "full",
+          "impl_options": [],
+          "impl_profile": "tlc",
+          "strict_tier": true
+        },
+        "report_sha256": "360c35cb91def45883230e0ab162b1678d7780f283404c630b4c326f86b18e01",
+        "baseline_sha256": "b9373eafdf9c1fadc4b113eb8d13c276e04f7df4cd156f807a9c3a47bcf500f9"
+      },
+      "dive": {
+        "run_id": "20261023T002217830-dive-small",
+        "models_selected": 156,
+        "modules_selected": 0,
+        "models": {
+          "agree": 143,
+          "disagree": 0,
+          "unsupported": 6,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 7,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "modules": {
+          "agree": 0,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "all_baseline_ids_retained": true,
+        "module_roots": [
+          {
+            "id": "community-modules-202610040242",
+            "pin": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+          },
+          {
+            "id": "community-modules-deps-202610040242",
+            "pin": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d"
+          },
+          {
+            "id": "apalache-modules-v0.62.3",
+            "pin": "3eb15b253482005222fabbf50bb7aae501eb9f8d"
+          },
+          {
+            "id": "tlapm-library-d8b9747",
+            "pin": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37"
+          }
+        ],
+        "golden_oracle": "tlc-2026.10.06.014338",
+        "golden_oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+        "settings": {
+          "tier": "small",
+          "filters": [],
+          "workers": [
+            1
+          ],
+          "jobs": 2,
+          "xmx": "3g",
+          "timeout_policy": "TLC-derived budgets: with a golden max(60 s, 10 x golden elapsed); otherwise historical timeout; hard cap 900 s (historical cap 3600 s, cap when unknown)",
+          "crosscheck_manifest": false,
+          "sany_phase": "full",
+          "impl_options": [],
+          "impl_profile": "dive",
+          "strict_tier": false
+        },
+        "report_sha256": "839932192667356b552a1d35bde431966e9d022fb9e36573ccc12571a9e07fe0",
+        "baseline_sha256": "b32673112dba9dec4f47ee5dc9424b1f4e1f3fab43e39294aca58fd382e1b10d"
+      }
+    },
+    "all312_baseline_model_ids_and_typed_semantic_facts_unchanged": true,
+    "sany_agreements": 458,
+    "qualification": "One genuine native0, uncensored whole gate; phase exits are xtask-reported phase results, not separately observed OS exits. The default profile intentionally does not repeat the TLC-profile SANY selection."
+  },
+  "microcorpus": {
+    "selection": "Two new explicit interval-streaming controls, outside the established small population.",
+    "observed_source_context": "c27309062008cdb2695ec0a0efcfe572ffe1b16b",
+    "native_binary_producer_source": "2b8e1521843dd554b6cd94ad089e2d42aaa6d33e",
+    "native_binary_sha256": "7069bec62458de0d42d04a45423f7088a2be02e22e8075a6f40ce399a8630990",
+    "producer_transfer": "Candidate crate/Cargo/toolchain/configuration blobs are exact to this earlier producer; this is not a whole-tree identity claim or the Linux gate release binary.",
+    "harness_producer_source": "38850114be0165ff667bc75620695d33d4df503a",
+    "harness_sha256": "36c60e4f3ce1c660474e063083f1507f2627c49b414f915e8407e11c259f0ca7",
+    "profiles": {
+      "tlc": {
+        "run_id": "20261022T222557004-dive-all",
+        "report_sha256": "e2993c4ee61b85663a04153e678a2b738264c253098446c5add78a7510949668",
+        "models": {
+          "EnabledIntervalFirstError": {
+            "outcome": "agree-pending-trace-validation",
+            "verdict": "evaluation-error",
+            "verdict_code": 2179,
+            "exit_code": 255,
+            "error_class": "TLC_MODULE_DIVISION_BY_ZERO",
+            "distinct_states": 1,
+            "states_generated": 1,
+            "depth": 1,
+            "trace_length": 1,
+            "diffs": [
+              {
+                "field": "trace.validated",
+                "expected": true,
+                "actual": false
+              }
+            ]
+          },
+          "EnabledIntervalWitness": {
+            "outcome": "agree",
+            "verdict": "success",
+            "verdict_code": 2193,
+            "exit_code": 0,
+            "error_class": "TLC_SUCCESS",
+            "distinct_states": 1,
+            "states_generated": 2,
+            "depth": 1,
+            "trace_length": null,
+            "diffs": []
+          }
+        }
+      },
+      "dive": {
+        "run_id": "20261022T222652038-dive-all",
+        "report_sha256": "36491e2c03b052d5fd67e8d8faded16857ce55d21810e44cbe1a315f9a28de9d",
+        "models": {
+          "EnabledIntervalFirstError": {
+            "outcome": "agree-pending-trace-validation",
+            "verdict": "evaluation-error",
+            "verdict_code": 2179,
+            "exit_code": 255,
+            "error_class": "TLC_MODULE_DIVISION_BY_ZERO",
+            "distinct_states": 1,
+            "states_generated": 1,
+            "depth": 1,
+            "trace_length": 1,
+            "diffs": [
+              {
+                "field": "trace.validated",
+                "expected": true,
+                "actual": false
+              }
+            ]
+          },
+          "EnabledIntervalWitness": {
+            "outcome": "agree",
+            "verdict": "success",
+            "verdict_code": 2193,
+            "exit_code": 0,
+            "error_class": "TLC_SUCCESS",
+            "distinct_states": 1,
+            "states_generated": 2,
+            "depth": 1,
+            "trace_length": null,
+            "diffs": []
+          }
+        }
+      }
+    },
+    "pending_issue": "https://github.com/Chelis-Lang/dive/issues/434",
+    "no_established_population_agreement_gain": true
+  },
+  "evidence": {
+    "final_archive_sha256": "67b48638f71f3a12ddd60c87c53402d7ef1cb079cfed3f671683b9a2cfc5b051",
+    "final_archive_bytes": 71716912,
+    "all156_regular_final_members_stream_hashed": true,
+    "original_screen_archive_sha256": "c43840b56b994dfb392bf571c13eef7a47fc9cb0e5a243875ca674fa53fc7c25",
+    "all16_final_raw_components_identical_to_screen": true,
+    "screen_independent_review_sha256": "27351efe99bbc71635185eec54157b3fa78bce612c1fa1bea632f8443cefd400",
+    "final_independent_review_sha256": "b63d8431fb981f776fa6f864dd9565bea86c59ac3482de442d217837f303507e",
+    "all_member_hashes_sha256": "4ff60dd1d3f0bed5dfc9519db6fb72562e91d15da2b3933c7a67df1399e6ae43",
+    "source_before_per_arm_after_unchanged": true,
+    "tools_and_linked_libraries_before_per_arm_after_unchanged": true,
+    "runner_sha256": "1f627e8b054a282e7fb13f98887790dcf5c334cfac9b63d36f634edef74a107d",
+    "supervisor_sha256": "c4f0b2f298ecb1d777c04740246be10ab4476d895139f24ae73eb57ce3f10f61",
+    "semantic_ledger_sha256": "996379ffe0a0204122a4ac4436ccbf783ae0fbf7fc9cca37e6605c578fbfee8d"
+  },
+  "cleanup": {
+    "status": "ROOT_INDEPENDENT_RESOURCES_ALL_GONE_ORIGINALS_PRESERVED",
+    "verified_at": "2026-10-23T00:34:50.098363+00:00",
+    "instance_terminated": true,
+    "root_volume_security_group_bucket_absent": true,
+    "objects_preserved": 36,
+    "bytes_preserved": 194032264,
+    "producer_final_sidecar_verified": true,
+    "receipt_sha256": "6ffbde85f874aa36d3183e09893aebcedd4dbb2840c71aded7831851e913ebed"
+  },
+  "limits": [
+    "One pair per model/profile, no repeated variance study.",
+    "No quiet wall-clock, throughput, scaling, TLC speedup, new established corpus agreement or release acceptance claim.",
+    "The independent terminal-error replay gap remains open; matching error observables do not establish trace agreement.",
+    "Raw outputs, complete profiles, source snapshots and frozen ELFs remain external. No consumer qualification is implied."
+  ]
+}

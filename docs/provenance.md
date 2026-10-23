@@ -2074,3 +2074,28 @@ there is no successful direct-child fallback or claimed BSD qualification.
 Existing Unix process assertions remain intact. Process-group quiescence and
 retained child ownership are cooperative host controls, with session escape,
 external reapers and uninterruptible OS work outside a universal cleanup claim.
+
+### ENABLED interval candidate enumeration
+
+The unassigned membership case of `Tool.enabled` at pinned TLC commit
+`94d0c507` uses `Enumerable.elements()` and tests continuations in that order.
+`IntervalValue.elements()` produces ascending integers incrementally. The native
+query path follows that semantic order and first-witness rule, sharing the
+existing cooperative loop checkpoint without materializing the interval.
+Assigned-variable membership, noninterval enumeration order, genuine evaluation
+errors and the documented quiet-operation control boundary remain unchanged.
+
+The two new `interval-streaming` primary models pin the billion-value first
+witness and the first-candidate successor evaluation error. Both were generated
+by the harness against oracle `tlc-2026.10.06.014338` with recorded reasons.
+Initial-invariant evaluation errors that leave only context code 2103 explaining
+exit 75 remain unclassified by the existing harness; no oracle classification
+was relaxed to obtain these controls.
+
+The first-candidate successor error matches the primary error observables but
+remains `agree-pending-trace-validation` in both profiles:
+[#434](https://github.com/Chelis-Lang/dive/issues/434) tracks independent
+certification of errors while expanding the last recorded state. The new witness
+agrees in both profiles. These explicit controls are outside the established
+small population; [compact qualification evidence](survey/data/enabled-interval-qualification-2026-10-23.json)
+records their distinct producer identities alongside the exact-source Linux gate.

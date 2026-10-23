@@ -1,5 +1,9 @@
 # Changelog
 
+- Stream unassigned `ENABLED` interval-membership candidates in ascending order,
+  stopping at the first witness. Rejected membership candidates reach the existing
+  cooperative budget checkpoints; assigned-variable membership remains unchanged.
+
 - Retain conformance child-group leaders unreaped through cleanup on Linux and
   macOS. Serialize cancellation with spawn registration and reject new work
   after cancellation or an unproven drain. Preserve native output, exit,
