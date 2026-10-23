@@ -223,6 +223,17 @@ Measured and not pursued:
   conditional full gate; no runtime change was landed. The
   [performance guide](../developer/performance.md#discarded-evaluator-prototypes)
   links actual source/binary identities and all sixteen original profile hashes.
+- Private action-context continuations with borrowed action segments lowered
+  instructions by 2.414% geometrically across the eight reduced model/profile
+  cells, below the 5% admission bar. GameOfLife and EWD998PCal regressed in both
+  profiles (four cells, +1.569% to +2.150%), exceeding the individual 1% ceiling.
+  All sixteen arms completed uncensored with identical verdicts, counts and
+  depth. The completed screen was rejected; no full gate ran and no runtime
+  change was delivered. The
+  [performance guide](../developer/performance.md#discarded-evaluator-prototypes)
+  links exact source, producer, input and original profile identities. This
+  negative result does not establish wall-clock, throughput or scaling behavior.
+
 - Pre-sizing the fingerprint traversal's work list: within ±0.3%, noise.
 - A lazy function hash: it would make hashing recursive and break the
   documented stack safety for deeply nested values (`tests/limits.rs`).
