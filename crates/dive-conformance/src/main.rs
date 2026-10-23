@@ -110,6 +110,8 @@ LIMITS (golden generate, run; timeout options also apply to study final):
                            --max-memory (ADR 0107); selected by model gates/nightly
     --budget-cap <secs>    hard cap on those budgets (default: 900)
     --java <path>          use this java instead of the pinned JRE (recorded in provenance)
+    --raw-invocations <dir> retain original TLC model streams (golden generate only;
+                           default off; excludes Java setup and capability probes)
 
 EXIT STATUS:
     0 success; 1 findings (failed goldens, or disagree/oracle-error/timeout outcomes,
@@ -165,6 +167,7 @@ struct Opts {
     budget_cap: Option<u64>,
     tlc_budgets: bool,
     java: Option<PathBuf>,
+    raw_invocations: Option<PathBuf>,
     impl_options: Vec<String>,
     impl_profile: Option<String>,
     sany_phase: Option<String>,
@@ -227,6 +230,7 @@ fn parse_opts(args: &mut Args) -> Result<Opts> {
             "--budget-cap" => o.budget_cap = Some(parse_num(&a, &args.value(&a)?)?),
             "--tlc-budgets" => o.tlc_budgets = true,
             "--java" => o.java = Some(args.value(&a)?.into()),
+            "--raw-invocations" => o.raw_invocations = Some(args.value(&a)?.into()),
             "--impl-option" => o.impl_options.push(args.value(&a)?),
             "--impl-profile" => o.impl_profile = Some(args.value(&a)?),
             "--sany-phase" => o.sany_phase = Some(args.value(&a)?),
@@ -295,6 +299,13 @@ fn out(s: &str) {
 
 /// Runs the command; `Ok(true)` means findings (exit 1).
 fn dispatch(cmd: &[String], o: &Opts) -> Result<bool> {
+    if o.raw_invocations.is_some()
+        && cmd.iter().map(String::as_str).collect::<Vec<_>>() != ["golden", "generate"]
+    {
+        return Err(Error::Usage(
+            "--raw-invocations is only supported by golden generate".to_owned(),
+        ));
+    }
     let root = match &o.repo_root {
         Some(r) => r.clone(),
         None => Config::find_repo_root(
@@ -345,7 +356,8 @@ fn dispatch(cmd: &[String], o: &Opts) -> Result<bool> {
                 Some(id) => id.clone(),
                 None => config.oracles.default_oracle()?.id.clone(),
             };
-            let env = OracleEnv::prepare(&config, &cache, &oracle, &java)?;
+            let mut env = OracleEnv::prepare(&config, &cache, &oracle, &java)?;
+            env.raw_invocations.clone_from(&o.raw_invocations);
             if o.no_sany && o.sany_only {
                 return Err(Error::Usage(
                     "--no-sany and --sany-only conflict".to_owned(),
@@ -851,5 +863,30 @@ fn main() -> ExitCode {
             eprintln_safe(&format!("error: {e}"));
             ExitCode::from(if matches!(e, Error::Usage(_)) { 2 } else { 3 })
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn raw_invocation_option_is_off_by_default_and_scoped_to_generation() -> Result<()> {
+        let mut args = Args {
+            items: Vec::new(),
+            pos: 0,
+        };
+        assert!(parse_opts(&mut args)?.raw_invocations.is_none());
+        args = Args {
+            items: vec!["--raw-invocations".into(), "external-raw".into()],
+            pos: 0,
+        };
+        let options = parse_opts(&mut args)?;
+        assert_eq!(options.raw_invocations, Some(PathBuf::from("external-raw")));
+        assert!(matches!(
+            dispatch(&["run".into()], &options),
+            Err(Error::Usage(_))
+        ));
+        Ok(())
     }
 }

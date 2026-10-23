@@ -677,6 +677,10 @@ mod whole_words;
 #[path = "pipeline_totals/golden_facts.rs"]
 mod golden_facts;
 
+#[cfg(unix)]
+#[path = "pipeline_totals/raw_invocations.rs"]
+mod raw_invocations;
+
 #[test]
 fn exact_generated_pair_is_expected_divergence_never_false_agreement() -> TestResult {
     let tmp = dive_conformance::util::TempDir::new("exact-generated-pair")?;
