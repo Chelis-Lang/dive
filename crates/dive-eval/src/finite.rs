@@ -404,11 +404,24 @@ impl Guard<'_> {
         result
     }
 
+    // Preserve the innermost inspected source, including a lazy actual or an
+    // INSTANCE body reached through a different lexical scope. This does not
+    // evaluate the expression or change the admission/work policy.
+    fn walk(&mut self, scope: &Scope, expr: ExprId, depth: usize) -> crate::Result<()> {
+        self.walk_inner(scope, expr, depth).map_err(|error| {
+            if self.evaluator.ir().nodes().get(expr.index()).is_some() {
+                error.at(expr)
+            } else {
+                error
+            }
+        })
+    }
+
     #[allow(
         clippy::too_many_lines,
         reason = "explicit lexical binding and callback shape rules"
     )]
-    fn walk(&mut self, scope: &Scope, expr: ExprId, depth: usize) -> crate::Result<()> {
+    fn walk_inner(&mut self, scope: &Scope, expr: ExprId, depth: usize) -> crate::Result<()> {
         self.visits = self.visits.saturating_add(1);
         if depth > 256 || self.visits > self.limit.saturating_mul(64).min(100_000) {
             return Err(EvalError::resource_limit("finite binding traversal"));

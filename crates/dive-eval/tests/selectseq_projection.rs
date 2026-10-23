@@ -259,3 +259,45 @@ fn redirected_overrides_cannot_hide_impure_target_bodies() {
         assert_eq!(evaluator.take_output(), Vec::<String>::new());
     }
 }
+
+#[test]
+fn callback_refusals_name_the_original_inner_source_through_aliases_and_lazy_actuals() {
+    let ir = ir(
+        "---- MODULE Projection ----\nEXTENDS Naturals, Sequences\nLeaf==Nat\nAlias==Leaf\nIdentity(value)==value\nLazyDenied==Identity(Nat)\nQ==SelectSeq(<<0>>,LAMBDA v: v \\in Alias)\nLazyQ==SelectSeq(<<0>>,LAMBDA v: v \\in LazyDenied)\n====\n",
+    );
+    let leaf = ir.def(ir.root_def("Leaf").expect("Leaf")).body;
+    let lazy = ir.def(ir.root_def("LazyDenied").expect("LazyDenied")).body;
+    let Expr::Apply { args, .. } = ir.expr(lazy) else {
+        panic!("lazy actual application")
+    };
+    let [dive_ir::Arg::Expr { expr: actual, .. }] = args.as_ref() else {
+        panic!("one expression actual")
+    };
+    for options in [Options::tlc(), Options::dive()] {
+        let evaluator = Evaluator::new(Model::new(ir.clone()), options).expect("evaluator");
+        for (name, expected) in [("Q", leaf), ("LazyQ", *actual)] {
+            let def = ir.root_def(name).expect("selector");
+            let Expr::Apply { callee, args } = ir.expr(ir.def(def).body) else {
+                panic!("SelectSeq application")
+            };
+            let mut remaining = 100_000;
+            let error = evaluator
+                .scope_selectseq_call(
+                    &evaluator.scope(def).expect("scope"),
+                    callee,
+                    args,
+                    &mut remaining,
+                )
+                .expect_err("infinite provider admission stays refused");
+            assert_eq!(error.class(), dive_eval::ErrorClass::Unsupported);
+            assert_eq!(error.message(), "SelectSeq effect/provider/native callback");
+            assert_eq!(
+                error.origin(),
+                Some(expected),
+                "original inner source for {name}"
+            );
+            assert!(remaining < 100_000);
+            assert_eq!(evaluator.take_output(), Vec::<String>::new());
+        }
+    }
+}

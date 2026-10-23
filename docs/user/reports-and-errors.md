@@ -87,6 +87,10 @@ This temporal span is byte-only, with its file ID inside the span; frontend
 diagnostics retain their existing span shape and line/column fields. A formula
 construction bound retains its recorded predicate context, which need not be
 the exact child where the bound was reached.
+Failures in the finite callback source walk retain the innermost inspected valid
+expression through aliases, lazy actuals and substituted scopes. Projection and
+opaque-storage failures may still have only their enclosing context. This adds
+source guidance without evaluating the callback or widening its support.
 Stage-wide failures have `span: null` and `location: null`; a root expression
 is not substituted for a missing cause location. The particular report's
 cause takes precedence over the general catalogue explanation. Budget

@@ -381,6 +381,10 @@ impl Lower<'_> {
     }
 
     fn refused_evaluation(&self, expr: ExprId, error: EvalError, context: &str) -> PlanningError {
+        let expr = error
+            .origin()
+            .filter(|origin| self.model.ir.nodes().get(origin.index()).is_some())
+            .unwrap_or(expr);
         if error.class() == ErrorClass::Interrupted {
             PlanningError::Evaluation {
                 error,
