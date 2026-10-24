@@ -2238,3 +2238,5 @@ action/state priority. Those original bytes remain unchanged. The separate
 its outcome remains unknown until a new pinned observation. No Java algorithm
 is copied and no runtime behavior or independent-validation credit follows from
 these references. The earlier seven Concat primary references are unchanged.
+
+See the [compact primary observations](survey/data/liveness-atom-error-timing-primary-2026-10-24.json) for input and generated-reference identities, exact outcomes and limitations.

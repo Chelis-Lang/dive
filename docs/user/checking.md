@@ -534,3 +534,5 @@ The exact manifests retain unknown metadata; these validation populations do not
 change established small/full selections or qualify temporal evaluation errors
 currently refused under issue #451. The finite error prefixes have not received
 independent trace validation.
+
+See the [compact primary observations](../survey/data/liveness-atom-error-timing-primary-2026-10-24.json) for input and generated-reference identities, exact outcomes and limitations.
