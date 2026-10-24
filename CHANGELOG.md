@@ -1,5 +1,9 @@
 # Changelog
 
+- Record the rejected general native-argument storage screen: all eight pairs
+  reduced instructions, but the 0.254% geometric reduction missed the fixed 5%
+  bar. The runtime prototype remains unmerged.
+
 - Record two rejected evaluator instruction screens: transient activations
   increased instructions by 0.573%, while compact raw outlining reduced them by
   0.441%, below the fixed 5% bar. Both runtime experiments remain unmerged.
