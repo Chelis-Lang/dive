@@ -183,3 +183,18 @@ id = "selectseq-concat-type-capability"
 path = "conformance/corpus/selectseq-concat-type-capability"
 license = "MIT"
 layout = "examples-manifest"
+
+# Primary-first temporal atom error timing controls (#451).
+# Separate validation microcorpus; established parity populations are unchanged.
+[[corpus]]
+id = "liveness-atom-error-timing"
+path = "conformance/corpus/liveness-atom-error-timing"
+license = "MIT"
+layout = "examples-manifest"
+
+# Angle-action successor to the preserved SANY-rejected timing input.
+[[corpus]]
+id = "liveness-atom-action-error-order"
+path = "conformance/corpus/liveness-atom-action-error-order"
+license = "MIT"
+layout = "examples-manifest"
