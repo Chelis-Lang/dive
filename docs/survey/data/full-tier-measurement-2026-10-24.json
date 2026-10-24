@@ -1,0 +1,637 @@
+{
+  "schema_version": 1,
+  "measurement": "full-tier-tlc-one-worker",
+  "date": "2026-10-24",
+  "status": "complete_measurement_with_36_unresolved_in_scope_models_not_release_acceptance",
+  "source": {
+    "measured": "68c09a1b7c2d12445c6eb967f9df7a886dbae8c3",
+    "tree": "ac0547cbf2fca5abf2ebd517f419b9e45c3ef2ba",
+    "delivery_base": "a0ec72b901dab4646ca67312cb5ee435b6541414",
+    "runtime_source_transfer": "Only documentation/changelog changed since measured source; no binary-equivalence or new-source execution claim."
+  },
+  "population": {
+    "selected": 265,
+    "in_scope": 217,
+    "excluded": 48,
+    "missing_references": 9,
+    "corpus_models": {
+      "examples": 233,
+      "probes": 14,
+      "validation-smoke": 16,
+      "configured-temporal-operators": 2
+    },
+    "canonical_ids_sha256": "5dcdfbe6c8ce594dcdf049a3c0fc8a061202e6906911acb38d73cf60a30a3e86",
+    "selection_contract_sha256": "537a1a5bbff46559e7f4e7fe263974bf77873b07efe60f7d92183cd4783e746f",
+    "ids": "Complete265-map is in the generated baseline; no filter, denominator resize or golden change."
+  },
+  "policy": {
+    "profile": "tlc",
+    "workers": 1,
+    "jobs": 2,
+    "max_memory_bytes": 17179869184,
+    "native_time_budget": "min(900s,max(60s,10*golden TLC elapsed))",
+    "harness_cleanup_grace_seconds": 30,
+    "model_filters": [],
+    "SANY_rerun": false,
+    "golden_oracle": "tlc-2026.10.06.014338",
+    "golden_oracle_jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "golden_map_sha256": "65a32279776c2ee0c2037a5da018565ab1bc856b7ec3f158ecf09ba72c81395a",
+    "reference_budgets": "Recomputed from exact unchanged source goldens; no manual overrides.",
+    "native_check_invocations": 205,
+    "predispatch_simulate_refusals": 3,
+    "version_invocations": 1
+  },
+  "outcomes": {
+    "agree": 181,
+    "oracle-error": 9,
+    "out-of-scope": 48,
+    "unsupported": 17,
+    "timeout": 10
+  },
+  "prior_agree": 171,
+  "new_agree_ids": [
+    "examples:specifications/CoffeeCan/CoffeeCan1000Beans.cfg",
+    "examples:specifications/FiniteMonotonic/MCCRDT.cfg",
+    "examples:specifications/Huang/Huang.cfg",
+    "examples:specifications/MisraReachability/MCParReach.cfg",
+    "examples:specifications/MisraReachability/MCReachable.cfg",
+    "examples:specifications/MultiCarElevator/ElevatorLivenessLarge.cfg",
+    "examples:specifications/MultiCarElevator/ElevatorLivenessMedium.cfg",
+    "examples:specifications/SpecifyingSystems/Liveness/MCLiveWriteThroughCache.cfg",
+    "examples:specifications/allocator/AllocatorImplementation.cfg",
+    "examples:specifications/glowingRaccoon/product.cfg"
+  ],
+  "old_agree_losses": [],
+  "unresolved": [
+    {
+      "id": "examples:specifications/CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_3/MC.cfg",
+      "outcome": "oracle-error",
+      "previous_outcome": "oracle-error",
+      "cause_first_line_preview": "no golden from `tlc-2026.10.06.014338` for this model",
+      "full_detail_sha256": "e71b5fdbb26f3998a7b5f9d05082925b347d2a6d51cc1260c486598cb9116887"
+    },
+    {
+      "id": "examples:specifications/CoffeeCan/CoffeeCan3000Beans.cfg",
+      "outcome": "unsupported",
+      "previous_outcome": "unsupported",
+      "cause_first_line_preview": "resource limit: behavior graph capture states",
+      "full_detail_sha256": "10e0f7dd1979e7ebeeb4080840d5cc9fdc26c9b2fb595801f9aa0665f7c15ba7"
+    },
+    {
+      "id": "examples:specifications/FiniteMonotonic/MCDistributedReplicatedLog.cfg",
+      "outcome": "unsupported",
+      "previous_outcome": "unsupported",
+      "cause_first_line_preview": "unsupported: graph capture with VIEW requires quotient edge and closing-state evidence",
+      "full_detail_sha256": "dabb22357bee64ff545ac3e0cde4918035654b9ec58dcb24e75fcf3398b32391"
+    },
+    {
+      "id": "examples:specifications/KeyValueStore/MCKVSSafetyLarge.cfg",
+      "outcome": "oracle-error",
+      "previous_outcome": "oracle-error",
+      "cause_first_line_preview": "no golden from `tlc-2026.10.06.014338` for this model",
+      "full_detail_sha256": "e71b5fdbb26f3998a7b5f9d05082925b347d2a6d51cc1260c486598cb9116887"
+    },
+    {
+      "id": "examples:specifications/KeyValueStore/MCKVSSafetyMedium.cfg",
+      "outcome": "timeout",
+      "previous_outcome": "timeout",
+      "cause_first_line_preview": "dive check stopped at its --time-limit: stopped during safety-search after 900037 ms: the time limit is 900000 ms",
+      "full_detail_sha256": "e6dcc479458383d54bd670082afb4fb79f12b99001d049c8ff89d759b5256c1a",
+      "native_stop": {
+        "native_exit": 5,
+        "stopped": {
+          "elapsed_ms": 900038,
+          "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+          "limit": 900000,
+          "observed": 900037,
+          "phase": "safety-search",
+          "resource": "time",
+          "unit": "ms"
+        },
+        "statistics": {
+          "depth": 15,
+          "distinct": 6130224,
+          "exhaustive": false,
+          "generated": 69440313,
+          "initial_generated": 1,
+          "left_on_queue": 2821693,
+          "reported_by_tlc": false
+        },
+        "execution": null
+      }
+    },
+    {
+      "id": "examples:specifications/KeyValueStore/MCKVsnap.cfg",
+      "outcome": "unsupported",
+      "previous_outcome": "unsupported",
+      "cause_first_line_preview": "unsupported: TLC quotient liveness with SYMMETRY is not implemented",
+      "full_detail_sha256": "c61c42f061b23d8702ea84b498a63f033c7c4fd876c7bf7c77e55c25eb055813"
+    },
+    {
+      "id": "examples:specifications/MultiCarElevator/ElevatorSafetyLarge.cfg",
+      "outcome": "timeout",
+      "previous_outcome": "timeout",
+      "cause_first_line_preview": "dive check stopped at its --time-limit: stopped during safety-search after 900022 ms: the time limit is 900000 ms",
+      "full_detail_sha256": "beef488f0176a4c33f57fc245230e6cc229d1ba99c72588fad2df2522a905aef",
+      "native_stop": {
+        "native_exit": 5,
+        "stopped": {
+          "elapsed_ms": 900024,
+          "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+          "limit": 900000,
+          "observed": 900022,
+          "phase": "safety-search",
+          "resource": "time",
+          "unit": "ms"
+        },
+        "statistics": {
+          "depth": 10,
+          "distinct": 10163625,
+          "exhaustive": false,
+          "generated": 71285103,
+          "initial_generated": 390625,
+          "left_on_queue": 1298394,
+          "reported_by_tlc": false
+        },
+        "execution": null
+      }
+    },
+    {
+      "id": "examples:specifications/MultiCarElevator/ElevatorSafetyMedium.cfg",
+      "outcome": "timeout",
+      "previous_outcome": "timeout",
+      "cause_first_line_preview": "dive check stopped at its --time-limit: stopped during safety-search after 900037 ms: the time limit is 900000 ms",
+      "full_detail_sha256": "e6dcc479458383d54bd670082afb4fb79f12b99001d049c8ff89d759b5256c1a",
+      "native_stop": {
+        "native_exit": 5,
+        "stopped": {
+          "elapsed_ms": 901801,
+          "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+          "limit": 900000,
+          "observed": 900037,
+          "phase": "safety-search",
+          "resource": "time",
+          "unit": "ms"
+        },
+        "statistics": {
+          "depth": 25,
+          "distinct": 8889487,
+          "exhaustive": false,
+          "generated": 50816861,
+          "initial_generated": 19683,
+          "left_on_queue": 915110,
+          "reported_by_tlc": false
+        },
+        "execution": null
+      }
+    },
+    {
+      "id": "examples:specifications/MultiPaxos-SMR/MultiPaxos_MC.cfg",
+      "outcome": "timeout",
+      "previous_outcome": "timeout",
+      "cause_first_line_preview": "dive check stopped at its --time-limit: stopped during safety-search after 900013 ms: the time limit is 900000 ms",
+      "full_detail_sha256": "216a2efbec64da0860829290026f8efbf23a00f68a0b2be4f3b256880349bb49",
+      "native_stop": {
+        "native_exit": 5,
+        "stopped": {
+          "elapsed_ms": 900013,
+          "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+          "limit": 900000,
+          "observed": 900013,
+          "phase": "safety-search",
+          "resource": "time",
+          "unit": "ms"
+        },
+        "statistics": {
+          "depth": 20,
+          "distinct": 2257412,
+          "exhaustive": false,
+          "generated": 7443983,
+          "initial_generated": 1,
+          "left_on_queue": 974485,
+          "reported_by_tlc": false
+        },
+        "execution": null
+      }
+    },
+    {
+      "id": "examples:specifications/NanoBlockchain/MCNanoLarge.cfg",
+      "outcome": "timeout",
+      "previous_outcome": "timeout",
+      "cause_first_line_preview": "dive check stopped at its --max-memory: stopped during safety-search: resident memory 17180241920 bytes exceeds the ceiling of 17179869184 bytes",
+      "full_detail_sha256": "47eee46f7ffcfb398fea3bce89c7b03721db9b5a26fe9c32ee45335fbff2f025",
+      "native_stop": {
+        "native_exit": 5,
+        "stopped": {
+          "elapsed_ms": 771403,
+          "hint": "raise --max-memory, or pass --max-memory=none; the run made no claim about the model",
+          "limit": 17179869184,
+          "observed": 17180241920,
+          "phase": "safety-search",
+          "resource": "memory",
+          "unit": "bytes"
+        },
+        "statistics": {
+          "depth": 10,
+          "distinct": 6190701,
+          "exhaustive": false,
+          "generated": 9143667,
+          "initial_generated": 1,
+          "left_on_queue": 4465983,
+          "reported_by_tlc": false
+        },
+        "execution": null
+      }
+    },
+    {
+      "id": "examples:specifications/SlushProtocol/SlushLarge.cfg",
+      "outcome": "timeout",
+      "previous_outcome": "timeout",
+      "cause_first_line_preview": "dive check stopped at its --time-limit: stopped during safety-search after 900007 ms: the time limit is 900000 ms",
+      "full_detail_sha256": "2a6d299a508d91dc93c4ee9670937facac41a17964a573e2a557c0ae659b0802",
+      "native_stop": {
+        "native_exit": 5,
+        "stopped": {
+          "elapsed_ms": 900008,
+          "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+          "limit": 900000,
+          "observed": 900007,
+          "phase": "safety-search",
+          "resource": "time",
+          "unit": "ms"
+        },
+        "statistics": {
+          "depth": 24,
+          "distinct": 14843986,
+          "exhaustive": false,
+          "generated": 90963401,
+          "initial_generated": 1,
+          "left_on_queue": 4265967,
+          "reported_by_tlc": false
+        },
+        "execution": null
+      }
+    },
+    {
+      "id": "examples:specifications/SpanningTree/SpanTreeRandom.cfg",
+      "outcome": "unsupported",
+      "previous_outcome": "unsupported",
+      "cause_first_line_preview": "unsupported: DIVE-L0020: unsupported liveness planning in line 66, col 34 to line 66, col 46 of module SpanTreeRandom: effects or dynamic bindings in temporal p",
+      "full_detail_sha256": "3a1e5c492e6fd09de738f5ad15e4977a7ec4be0621338755b79ece5657e1fa65"
+    },
+    {
+      "id": "examples:specifications/SpanningTree/SpanTreeTest5Nodes.cfg",
+      "outcome": "unsupported",
+      "previous_outcome": "unsupported",
+      "cause_first_line_preview": "TLC's error class for this result at initial-states is not reproduced yet (WP-C4); dive found evaluation-error (2103): @!@!@STARTMSG 2178:0 @!@!@",
+      "full_detail_sha256": "a28b43afd4c5c00030424c2ec1f5a2adaa1e19bc096f9a76c5bf62b76342667e"
+    },
+    {
+      "id": "examples:specifications/SpecifyingSystems/AdvancedExamples/MCInnerSerial.cfg",
+      "outcome": "timeout",
+      "previous_outcome": "unsupported",
+      "cause_first_line_preview": "dive check stopped at its --time-limit: stopped during graph-capture after 900001 ms: the time limit is 900000 ms",
+      "full_detail_sha256": "cf8312317f22d516e8ef7935fd2bb784d045df915b2497e28c0c191883b60a2d",
+      "native_stop": {
+        "native_exit": 5,
+        "stopped": {
+          "elapsed_ms": 900002,
+          "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+          "limit": 900000,
+          "observed": 900001,
+          "phase": "graph-capture",
+          "resource": "time",
+          "unit": "ms"
+        },
+        "statistics": {
+          "depth": 5,
+          "distinct": 195,
+          "exhaustive": false,
+          "generated": 4725,
+          "initial_generated": 4,
+          "left_on_queue": 22,
+          "reported_by_tlc": false
+        },
+        "execution": null
+      }
+    },
+    {
+      "id": "examples:specifications/TLC/TestGraphs.cfg",
+      "outcome": "unsupported",
+      "previous_outcome": "unsupported",
+      "cause_first_line_preview": "unsupported: DIVE-L0020: unsupported liveness planning in line 315, col 12 to line 315, col 24 of module TLCMC: unsupported: effects in finite binding preflight",
+      "full_detail_sha256": "2e0942f9144ac21e610357269b9430bc6ec7dffa232ce01d847e4a214246aa55"
+    },
+    {
+      "id": "examples:specifications/TLC/TestMCReachability.cfg",
+      "outcome": "oracle-error",
+      "previous_outcome": "oracle-error",
+      "cause_first_line_preview": "no golden from `tlc-2026.10.06.014338` for this model",
+      "full_detail_sha256": "e71b5fdbb26f3998a7b5f9d05082925b347d2a6d51cc1260c486598cb9116887"
+    },
+    {
+      "id": "examples:specifications/aba-asyn-byz/aba_asyn_byz.cfg",
+      "outcome": "unsupported",
+      "previous_outcome": "unsupported",
+      "cause_first_line_preview": "resource limit: behavior graph capture edges",
+      "full_detail_sha256": "8f3ff374f4bf906de8f804d5cfdc7f76df3524a16a588a7276173b80831d8db7"
+    },
+    {
+      "id": "examples:specifications/bcastFolklore/bcastFolklore.cfg",
+      "outcome": "unsupported",
+      "previous_outcome": "unsupported",
+      "cause_first_line_preview": "resource limit: behavior graph capture edges",
+      "full_detail_sha256": "8f3ff374f4bf906de8f804d5cfdc7f76df3524a16a588a7276173b80831d8db7"
+    },
+    {
+      "id": "examples:specifications/bosco/bosco.cfg",
+      "outcome": "timeout",
+      "previous_outcome": "timeout",
+      "cause_first_line_preview": "dive check stopped at its --time-limit: stopped during safety-search after 900014 ms: the time limit is 900000 ms",
+      "full_detail_sha256": "2a5af4e37ac3bb95b50eacf8877a62f0cbe71f9565205cb55c24cd038fb1517f",
+      "native_stop": {
+        "native_exit": 5,
+        "stopped": {
+          "elapsed_ms": 901676,
+          "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+          "limit": 900000,
+          "observed": 900014,
+          "phase": "safety-search",
+          "resource": "time",
+          "unit": "ms"
+        },
+        "statistics": {
+          "depth": 7,
+          "distinct": 704859,
+          "exhaustive": false,
+          "generated": 9821793,
+          "initial_generated": 8,
+          "left_on_queue": 430851,
+          "reported_by_tlc": false
+        },
+        "execution": null
+      }
+    },
+    {
+      "id": "examples:specifications/byzpaxos/BPConProof.cfg",
+      "outcome": "oracle-error",
+      "previous_outcome": "oracle-error",
+      "cause_first_line_preview": "no golden from `tlc-2026.10.06.014338` for this model",
+      "full_detail_sha256": "e71b5fdbb26f3998a7b5f9d05082925b347d2a6d51cc1260c486598cb9116887"
+    },
+    {
+      "id": "examples:specifications/byzpaxos/PConProof.cfg",
+      "outcome": "timeout",
+      "previous_outcome": "timeout",
+      "cause_first_line_preview": "dive check stopped at its --time-limit: stopped during safety-search after 900007 ms: the time limit is 900000 ms",
+      "full_detail_sha256": "2a6d299a508d91dc93c4ee9670937facac41a17964a573e2a557c0ae659b0802",
+      "native_stop": {
+        "native_exit": 5,
+        "stopped": {
+          "elapsed_ms": 900696,
+          "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+          "limit": 900000,
+          "observed": 900007,
+          "phase": "safety-search",
+          "resource": "time",
+          "unit": "ms"
+        },
+        "statistics": {
+          "depth": 18,
+          "distinct": 377462,
+          "exhaustive": false,
+          "generated": 19052394,
+          "initial_generated": 1,
+          "left_on_queue": 114890,
+          "reported_by_tlc": false
+        },
+        "execution": null
+      }
+    },
+    {
+      "id": "examples:specifications/c1cs/c1cs.cfg",
+      "outcome": "oracle-error",
+      "previous_outcome": "oracle-error",
+      "cause_first_line_preview": "no golden from `tlc-2026.10.06.014338` for this model",
+      "full_detail_sha256": "e71b5fdbb26f3998a7b5f9d05082925b347d2a6d51cc1260c486598cb9116887"
+    },
+    {
+      "id": "examples:specifications/cf1s-folklore/cf1s_folklore.cfg",
+      "outcome": "unsupported",
+      "previous_outcome": "unsupported",
+      "cause_first_line_preview": "resource limit: behavior graph capture edges",
+      "full_detail_sha256": "8f3ff374f4bf906de8f804d5cfdc7f76df3524a16a588a7276173b80831d8db7"
+    },
+    {
+      "id": "examples:specifications/dag-consensus/TLCSailfish2.cfg",
+      "outcome": "oracle-error",
+      "previous_outcome": "oracle-error",
+      "cause_first_line_preview": "no golden from `tlc-2026.10.06.014338` for this model",
+      "full_detail_sha256": "e71b5fdbb26f3998a7b5f9d05082925b347d2a6d51cc1260c486598cb9116887"
+    },
+    {
+      "id": "examples:specifications/detector_chan96/EnvironmentController.cfg",
+      "outcome": "oracle-error",
+      "previous_outcome": "oracle-error",
+      "cause_first_line_preview": "no golden from `tlc-2026.10.06.014338` for this model",
+      "full_detail_sha256": "e71b5fdbb26f3998a7b5f9d05082925b347d2a6d51cc1260c486598cb9116887"
+    },
+    {
+      "id": "examples:specifications/dijkstra-mutex/DijkstraMutex.toolbox/Safety-4-processors/MC.cfg",
+      "outcome": "timeout",
+      "previous_outcome": "timeout",
+      "cause_first_line_preview": "dive check stopped at its --time-limit: stopped during safety-search after 900022 ms: the time limit is 900000 ms",
+      "full_detail_sha256": "beef488f0176a4c33f57fc245230e6cc229d1ba99c72588fad2df2522a905aef",
+      "native_stop": {
+        "native_exit": 5,
+        "stopped": {
+          "elapsed_ms": 900027,
+          "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+          "limit": 900000,
+          "observed": 900022,
+          "phase": "safety-search",
+          "resource": "time",
+          "unit": "ms"
+        },
+        "statistics": {
+          "depth": 42,
+          "distinct": 21361860,
+          "exhaustive": false,
+          "generated": 88285116,
+          "initial_generated": 4,
+          "left_on_queue": 1682344,
+          "reported_by_tlc": false
+        },
+        "execution": null
+      }
+    },
+    {
+      "id": "examples:specifications/diskpaxos/MC_HDiskSynod.cfg",
+      "outcome": "oracle-error",
+      "previous_outcome": "oracle-error",
+      "cause_first_line_preview": "no golden from `tlc-2026.10.06.014338` for this model",
+      "full_detail_sha256": "e71b5fdbb26f3998a7b5f9d05082925b347d2a6d51cc1260c486598cb9116887"
+    },
+    {
+      "id": "examples:specifications/ewd687a/EWD687a_anim.cfg",
+      "outcome": "unsupported",
+      "previous_outcome": "unsupported",
+      "cause_first_line_preview": "Simulate { traces: 100 } mode: `dive check` does exhaustive search only",
+      "full_detail_sha256": "1ffd981c19a3ca2b05b9eaf1e4ac3130e76d158b5ee110bccaecdf97abf847a8"
+    },
+    {
+      "id": "examples:specifications/ewd840/EWD840_anim.cfg",
+      "outcome": "unsupported",
+      "previous_outcome": "unsupported",
+      "cause_first_line_preview": "Simulate { traces: 100 } mode: `dive check` does exhaustive search only",
+      "full_detail_sha256": "1ffd981c19a3ca2b05b9eaf1e4ac3130e76d158b5ee110bccaecdf97abf847a8"
+    },
+    {
+      "id": "examples:specifications/ewd998/EWD998.cfg",
+      "outcome": "oracle-error",
+      "previous_outcome": "oracle-error",
+      "cause_first_line_preview": "no golden from `tlc-2026.10.06.014338` for this model",
+      "full_detail_sha256": "e71b5fdbb26f3998a7b5f9d05082925b347d2a6d51cc1260c486598cb9116887"
+    },
+    {
+      "id": "examples:specifications/ewd998/EWD998Chan.cfg",
+      "outcome": "unsupported",
+      "previous_outcome": "timeout",
+      "cause_first_line_preview": "resource limit: behavior graph capture states",
+      "full_detail_sha256": "10e0f7dd1979e7ebeeb4080840d5cc9fdc26c9b2fb595801f9aa0665f7c15ba7"
+    },
+    {
+      "id": "examples:specifications/ewd998/EWD998ChanID.cfg",
+      "outcome": "unsupported",
+      "previous_outcome": "unsupported",
+      "cause_first_line_preview": "unsupported: graph capture with VIEW requires quotient edge and closing-state evidence",
+      "full_detail_sha256": "dabb22357bee64ff545ac3e0cde4918035654b9ec58dcb24e75fcf3398b32391"
+    },
+    {
+      "id": "examples:specifications/ewd998/EWD998ChanTrace.cfg",
+      "outcome": "unsupported",
+      "previous_outcome": "unsupported",
+      "cause_first_line_preview": "unsupported: splitting the next-state relation: IOUtils!IOEnv (an operator that performs file, process or environment I/O)",
+      "full_detail_sha256": "c3b9e6b46478a741e3a2d8391b196eee84691c8c0421cfed827e8681a4216821"
+    },
+    {
+      "id": "examples:specifications/ewd998/SmokeEWD998.cfg",
+      "outcome": "unsupported",
+      "previous_outcome": "unsupported",
+      "cause_first_line_preview": "Simulate { traces: 100 } mode: `dive check` does exhaustive search only",
+      "full_detail_sha256": "1ffd981c19a3ca2b05b9eaf1e4ac3130e76d158b5ee110bccaecdf97abf847a8"
+    },
+    {
+      "id": "examples:specifications/ewd998/SmokeEWD998_SC.cfg",
+      "outcome": "unsupported",
+      "previous_outcome": "unsupported",
+      "cause_first_line_preview": "unsupported: the start-up evaluation of CSVFile: TLC!JavaTime (not implemented in dive's evaluator yet)",
+      "full_detail_sha256": "b87321d84ff60f5f659bf832dc1f34e58c3457bdb5829f5b2b25fd7e4d4c11b2"
+    },
+    {
+      "id": "probes:specifications/P4SymLive/P4SymLive.cfg",
+      "outcome": "unsupported",
+      "previous_outcome": "unsupported",
+      "cause_first_line_preview": "unsupported: TLC quotient liveness with SYMMETRY is not implemented",
+      "full_detail_sha256": "c61c42f061b23d8702ea84b498a63f033c7c4fd876c7bf7c77e55c25eb055813"
+    }
+  ],
+  "native_stops": {
+    "exit": 5,
+    "time": 9,
+    "memory": 1,
+    "signals": 0,
+    "partial_streams": 0,
+    "interpretation": "Harness timeout retains native stopped resource/phase and actual prefix; no verdict or completion credit."
+  },
+  "packaging": {
+    "original_harness_exit": 1,
+    "original_run_status": "INCOMPLETE_POSTRUN_PACKAGING_TYPEERROR_PRESERVED",
+    "original_error": "TypeError: execute() missing 1 required positional argument: 'deadline'",
+    "original_incomplete_sha256": "11f5f2d77b0c4577f7c4d10a7eedddb3667be14cbc3fe7dae702651919bca642",
+    "producer": "root-postrun-recovery-v1",
+    "recovery_record_sha256": "4c518407013b3361c781987d8f86adb4d55ce7ca69cd9310b9032877cb4298f0",
+    "recovery_source_sha256": "39bf662246f2e2ec5ace3bfba95cd60e109c1470c84cf608f0851d797d01a0ba",
+    "quiescence_sha256": "fcc539c09c64f49d272b560a493c7c12c7877e8e3c344dee6f2f875f5e19f917",
+    "postrun_utility": "Only report baseline <original report> --out <new measurement file>, normal0; no checker/build/corpus/oracle rerun and no original baseline overwrite.",
+    "utility_observation_sha256": "963d4b2a25dbddbf3479c8e7322946948be40ba0be69a10bd6bfa97e445967ea",
+    "model_reruns": 0,
+    "build_reruns": 0
+  },
+  "evidence": {
+    "retained_s3_bucket": "dive-fulltier-20261024145328-f80f26b6-010928226848",
+    "original_report": {
+      "key": "results/originals/reports/20261024T165628670-dive-all.json",
+      "sha256": "e7baba71167a32175136314b6322551225f4fcdb58fbc2b21614b2dc5e5210f4"
+    },
+    "original_object_manifest": {
+      "key": "results/original-object-manifest.json",
+      "sha256": "874a1bfa2025fd31b768c72d5b1f92b51402abbcc33607f2a9b55a975179c38a",
+      "objects": 1291,
+      "bytes": 3013918
+    },
+    "completion_key": "results/recovery-completion.json",
+    "source_capsule_sha256": "a5b7084bf20b4c524388c945e836c843f84558ea40aed5475abd87295e287a6b",
+    "generated_baseline": {
+      "key": "results/originals/full-tlc-w1.measurement.json",
+      "path": "conformance/baselines/full-tlc-w1.json",
+      "sha256": "dc800917434543f919a1b69ff69bf8b73a3d95b2e68c2100f04305ead9c3d2b9",
+      "bytes": 55932,
+      "copy_policy": "Exact utility-generated bytes; never hand edited."
+    },
+    "Root_memory_auditor_source_sha256": "a5828c601d41a6aa0379a7ce8d7e5ac4823ed09f23355a5e474f9e7c032d4063",
+    "Root_actual_report_audit_sha256": "52601eeda15950c1a692c7957d9ff171bbdbfda0cdbfd621ca84cba538c66e85",
+    "Root_compact_measurement_sha256": "47c324a7b46e3477a95f46eed8fa2170c6b2b2027319e1b645cf3c7c1a6ee5b8",
+    "peer_compact_baseline_review_sha256": "ba9c3b04bae4ec0dfd87f86053566e1bb185366f53451b0c56b2210089987ade",
+    "review_scope": "Peer recomputes265map/counts/gains/losses/native-stop compact facts/reference hashes only; original report/raw1291 SHA replay and exact typed report comparisons were performed by the independent lead memory audit. No SDK/rawGET/models/builds by peer."
+  },
+  "unchanged_measurements": {
+    "small_TLC_agree": 150,
+    "small_default_agree": 144,
+    "small_models_per_profile": 156,
+    "small_SANY_agree": 458,
+    "qualification": "Separate existing small-tier observations; not rerun by this full-tier measurement."
+  },
+  "limitations": [
+    "No new full gate, full-tier SANY, four-worker, throughput, scaling or peak-memory result.",
+    "36 in-scope gaps remain; no timeout/refusal/missing reference is agreement. Queue is retained progress, not an agreement metric.",
+    "Historical171/217 and174/217 reports remain unchanged and distinct."
+  ],
+  "machine": {
+    "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+    "kernel": "Linux 7.0.0-1014-aws",
+    "scope": "Actual original tool-machine object facts; no quiet-window or peak-memory certificate."
+  },
+  "tools": {
+    "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)"
+  },
+  "native_binaries": {
+    "dive": {
+      "sha256": "a1c0102e11b3388672115102369a9f9c87c75966aad5aa34589867b7ec2220fd",
+      "logical_binary": "dive"
+    },
+    "dive-conformance": {
+      "sha256": "95f65084029c84755f06d6f038ae68499ad149579614fed7be19046045089af7",
+      "logical_binary": "dive-conformance"
+    }
+  },
+  "report_implementation_identity": {
+    "sha256": "0207c77e48d315ee7814a9611bbdbc685f01e00c5f596baead6d0992c721c960",
+    "scope": "The original harness implementation_dive hash identifies the transparent raw_capture wrapper, not the native executable. Native hashes are separate above."
+  },
+  "actual_identity_sources": {
+    "sanitized_selected_facts_sha256": "f9ef6dd5e681c43b1f7e0b89a4e054f9733f43e4fdd057ddf05e2dc4d3d89e78",
+    "objects": [
+      {
+        "key": "results/originals/binary-hashes.json",
+        "sha256": "b33079a807dcfe997b21d2985597ed170bcec975c843c4ec8ab02f99557797d9"
+      },
+      {
+        "key": "results/originals/tool-machine.json",
+        "sha256": "c1ccc0f1a0060be4d027a24f32666b07736bc664e5e39a5c3f36d8fc1e852236"
+      }
+    ],
+    "verification": "Original objects were SHA-verified against the audited manifest by the independent lead memory audit. This follow-up checks the selected fact artifact, not a second raw-object or ELF replay."
+  }
+}

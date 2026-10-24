@@ -1,5 +1,10 @@
 # Changelog
 
+- Refresh the generated full-tier TLC-profile baseline from the complete
+  one-worker measurement: 181/217 in-scope agreements, ten gains and no lost
+  agreements. Preserve 17 refusals, ten resource stops and nine missing
+  references, with explicit post-run packaging recovery provenance.
+
 - Record the rejected general native-argument storage screen: all eight pairs
   reduced instructions, but the 0.254% geometric reduction missed the fixed 5%
   bar. The runtime prototype remains unmerged.
