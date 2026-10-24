@@ -1,0 +1,765 @@
+{
+  "schema_version": 1,
+  "purpose": "Compact observable qualification of generic NonString-on-success SelectSeq/Concat capture admission",
+  "candidate_commit": "92bc7589b765b2ee437258c6e7613e84f8ce60b2",
+  "candidate_tree": "eacb957d021eb38ba46f0db1ff1db9da7468baca",
+  "base_commit": "771178b528532142a7c5fd5d411fcbd754cac86f",
+  "cli_sha256": "f2b0530f22f8cf4a3575c31f54b547015ca8f4f0fcd6954a6484c58c245848b3",
+  "harness_sha256": "6379abc21363c10e9771791de1e0235d91cb148da3a812278e9bd018a30b7517",
+  "method": "Ordinary direct same-source CLI and conformance harness, W1/jobs1/seed0/fp0, normal default temporal entrypoints, explicit TLC-derived60s model budgets/8g memory and30s process grace. No fresh oracle work or comparison-policy change.",
+  "profiles": [
+    {
+      "profile": "dive",
+      "counts": {
+        "agree": 3,
+        "unsupported": 4
+      },
+      "models": [
+        {
+          "id": "selectseq-concat-type-capability:specifications/CapturedConcatFails/CapturedConcatFails.cfg",
+          "outcome": "agree",
+          "observed": {
+            "verdict": "liveness-violation",
+            "verdict_code": 2116,
+            "exit_code": 13,
+            "error_class": "TLC_TEMPORAL_PROPERTY_VIOLATED",
+            "violated_property": "P",
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "trace_length": 1,
+            "diffs": [],
+            "detail": "Bounded short-lasso analysis: TLC-exact lasso selection and periodic timing are not claimed. Only independently validated periodic counterexamples are returned; prefix statistics describe the actual committed boundary."
+          },
+          "reference": {
+            "verdict": "liveness-violation",
+            "verdict_code": 2116,
+            "exit_code": 13,
+            "error_class": "TLC_TEMPORAL_PROPERTY_VIOLATED",
+            "violated_property": "P",
+            "counts": {
+              "distinct_states": 2,
+              "states_generated": 3,
+              "depth": 2
+            }
+          }
+        },
+        {
+          "id": "selectseq-concat-type-capability:specifications/CapturedConcatHolds/CapturedConcatHolds.cfg",
+          "outcome": "agree",
+          "observed": {
+            "verdict": "success",
+            "verdict_code": 2193,
+            "exit_code": 0,
+            "error_class": "TLC_SUCCESS",
+            "violated_property": null,
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "trace_length": null,
+            "diffs": [],
+            "detail": "Bounded short-lasso analysis: TLC-exact lasso selection and periodic timing are not claimed. Only independently validated periodic counterexamples are returned; prefix statistics describe the actual committed boundary."
+          },
+          "reference": {
+            "verdict": "success",
+            "verdict_code": 2193,
+            "exit_code": 0,
+            "error_class": "TLC_SUCCESS",
+            "violated_property": null,
+            "counts": {
+              "distinct_states": 2,
+              "states_generated": 3,
+              "depth": 2
+            }
+          }
+        },
+        {
+          "id": "selectseq-concat-type-capability:specifications/ConcatFirstTypeError/ConcatFirstTypeError.cfg",
+          "outcome": "unsupported",
+          "observed": {
+            "verdict": null,
+            "verdict_code": null,
+            "exit_code": null,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null,
+            "trace_length": null,
+            "diffs": [],
+            "detail": "unsupported: DIVE-L0033: liveness atom for P at line 6, col 11 to line 6, col 65 of module ConcatFirstTypeError: TLC_MODULE_EVALUATING (2182): Evaluating an expression of the form s \\o t when s is not a sequence:\nTRUE"
+          },
+          "reference": {
+            "verdict": "evaluation-error",
+            "verdict_code": 2182,
+            "exit_code": 255,
+            "error_class": "TLC_MODULE_EVALUATING",
+            "violated_property": null,
+            "counts": {
+              "distinct_states": 2,
+              "states_generated": 2,
+              "depth": 2
+            }
+          }
+        },
+        {
+          "id": "selectseq-concat-type-capability:specifications/ConcatSecondTypeError/ConcatSecondTypeError.cfg",
+          "outcome": "unsupported",
+          "observed": {
+            "verdict": null,
+            "verdict_code": null,
+            "exit_code": null,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null,
+            "trace_length": null,
+            "diffs": [],
+            "detail": "unsupported: DIVE-L0033: liveness atom for P at line 6, col 11 to line 6, col 65 of module ConcatSecondTypeError: TLC_MODULE_EVALUATING (2182): Evaluating an expression of the form t \\o s when s is not a sequence:\nTRUE"
+          },
+          "reference": {
+            "verdict": "evaluation-error",
+            "verdict_code": 2182,
+            "exit_code": 255,
+            "error_class": "TLC_MODULE_EVALUATING",
+            "violated_property": null,
+            "counts": {
+              "distinct_states": 2,
+              "states_generated": 2,
+              "depth": 2
+            }
+          }
+        },
+        {
+          "id": "selectseq-concat-type-capability:specifications/EmptySkipsCallbackError/EmptySkipsCallbackError.cfg",
+          "outcome": "agree",
+          "observed": {
+            "verdict": "success",
+            "verdict_code": 2193,
+            "exit_code": 0,
+            "error_class": "TLC_SUCCESS",
+            "violated_property": null,
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "trace_length": null,
+            "diffs": [],
+            "detail": "Bounded short-lasso analysis: TLC-exact lasso selection and periodic timing are not claimed. Only independently validated periodic counterexamples are returned; prefix statistics describe the actual committed boundary."
+          },
+          "reference": {
+            "verdict": "success",
+            "verdict_code": 2193,
+            "exit_code": 0,
+            "error_class": "TLC_SUCCESS",
+            "violated_property": null,
+            "counts": {
+              "distinct_states": 2,
+              "states_generated": 3,
+              "depth": 2
+            }
+          }
+        },
+        {
+          "id": "selectseq-concat-type-capability:specifications/RightChildErrorBeforeKernel/RightChildErrorBeforeKernel.cfg",
+          "outcome": "unsupported",
+          "observed": {
+            "verdict": null,
+            "verdict_code": null,
+            "exit_code": null,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null,
+            "trace_length": null,
+            "diffs": [],
+            "detail": "unsupported: DIVE-L0033: liveness atom for P at line 6, col 11 to line 6, col 76 of module RightChildErrorBeforeKernel: TLC_MODULE_DIVISION_BY_ZERO (2179): The second argument of \\div is 0."
+          },
+          "reference": {
+            "verdict": "evaluation-error",
+            "verdict_code": 2179,
+            "exit_code": 255,
+            "error_class": "TLC_MODULE_DIVISION_BY_ZERO",
+            "violated_property": null,
+            "counts": {
+              "distinct_states": 2,
+              "states_generated": 2,
+              "depth": 2
+            }
+          }
+        },
+        {
+          "id": "selectseq-concat-type-capability:specifications/StringConcatNames/StringConcatNames.cfg",
+          "outcome": "unsupported",
+          "observed": {
+            "verdict": null,
+            "verdict_code": null,
+            "exit_code": null,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null,
+            "trace_length": null,
+            "diffs": [],
+            "detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 6, col 6 to line 6, col 64 of module StringConcatNames: unsupported: SelectSeq effect/provider/native callback (at line 6, col 42 to line 6, col 51 of module StringConcatNames)"
+          },
+          "reference": {
+            "verdict": "success",
+            "verdict_code": 2193,
+            "exit_code": 0,
+            "error_class": "TLC_SUCCESS",
+            "violated_property": null,
+            "counts": {
+              "distinct_states": 2,
+              "states_generated": 3,
+              "depth": 2
+            }
+          }
+        }
+      ],
+      "fresh_independent_trace_validation": [
+        {
+          "id": "selectseq-concat-type-capability:specifications/CapturedConcatFails/CapturedConcatFails.cfg",
+          "trace_length": 1,
+          "mechanism": "Candidate harness freshSpecModel/dive-trace control flow, source-bound by qualified binary; CLI self-claim ignored."
+        }
+      ],
+      "report_sha256": "ba4c754a93dc79f6dfb1608608501b4b0119f0ce068d4c1b722894b86ac38b9f",
+      "archive_sha256": "b861c093bde812a403287ac076ca8625901536fbe5c595407f3ffec78973b45e",
+      "root_actual_review_sha256": "52e977628d13975c313458a0b6c2958efc50a01c20c3c226d9e6c1337c403417",
+      "independent_actual_review_sha256": "37bec6d19321cf4de744982a1f6925ba73a0ef0306b5768b7149de381aadf741"
+    },
+    {
+      "profile": "tlc",
+      "counts": {
+        "unsupported": 5,
+        "agree": 3
+      },
+      "models": [
+        {
+          "id": "examples:specifications/ewd998/EWD998ChanID.cfg",
+          "outcome": "unsupported",
+          "observed": {
+            "verdict": null,
+            "verdict_code": null,
+            "exit_code": null,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null,
+            "trace_length": null,
+            "diffs": [],
+            "detail": "unsupported: graph capture with VIEW requires quotient edge and closing-state evidence"
+          },
+          "reference": {
+            "verdict": "success",
+            "verdict_code": 2193,
+            "exit_code": 0,
+            "error_class": "TLC_SUCCESS",
+            "violated_property": null,
+            "counts": {
+              "distinct_states": 14,
+              "states_generated": 15,
+              "depth": 14
+            }
+          }
+        },
+        {
+          "id": "selectseq-concat-type-capability:specifications/CapturedConcatFails/CapturedConcatFails.cfg",
+          "outcome": "agree",
+          "observed": {
+            "verdict": "liveness-violation",
+            "verdict_code": 2116,
+            "exit_code": 13,
+            "error_class": "TLC_TEMPORAL_PROPERTY_VIOLATED",
+            "violated_property": "P",
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "trace_length": 1,
+            "diffs": [],
+            "detail": "Bounded short-lasso analysis: TLC-exact lasso selection and periodic timing are not claimed. Only independently validated periodic counterexamples are returned; prefix statistics describe the actual committed boundary."
+          },
+          "reference": {
+            "verdict": "liveness-violation",
+            "verdict_code": 2116,
+            "exit_code": 13,
+            "error_class": "TLC_TEMPORAL_PROPERTY_VIOLATED",
+            "violated_property": "P",
+            "counts": {
+              "distinct_states": 2,
+              "states_generated": 3,
+              "depth": 2
+            }
+          }
+        },
+        {
+          "id": "selectseq-concat-type-capability:specifications/CapturedConcatHolds/CapturedConcatHolds.cfg",
+          "outcome": "agree",
+          "observed": {
+            "verdict": "success",
+            "verdict_code": 2193,
+            "exit_code": 0,
+            "error_class": "TLC_SUCCESS",
+            "violated_property": null,
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "trace_length": null,
+            "diffs": [],
+            "detail": "Bounded short-lasso analysis: TLC-exact lasso selection and periodic timing are not claimed. Only independently validated periodic counterexamples are returned; prefix statistics describe the actual committed boundary."
+          },
+          "reference": {
+            "verdict": "success",
+            "verdict_code": 2193,
+            "exit_code": 0,
+            "error_class": "TLC_SUCCESS",
+            "violated_property": null,
+            "counts": {
+              "distinct_states": 2,
+              "states_generated": 3,
+              "depth": 2
+            }
+          }
+        },
+        {
+          "id": "selectseq-concat-type-capability:specifications/ConcatFirstTypeError/ConcatFirstTypeError.cfg",
+          "outcome": "unsupported",
+          "observed": {
+            "verdict": null,
+            "verdict_code": null,
+            "exit_code": null,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null,
+            "trace_length": null,
+            "diffs": [],
+            "detail": "unsupported: DIVE-L0033: liveness atom for P at line 6, col 11 to line 6, col 65 of module ConcatFirstTypeError: TLC_MODULE_EVALUATING (2182): Evaluating an expression of the form s \\o t when s is not a sequence:\nTRUE"
+          },
+          "reference": {
+            "verdict": "evaluation-error",
+            "verdict_code": 2182,
+            "exit_code": 255,
+            "error_class": "TLC_MODULE_EVALUATING",
+            "violated_property": null,
+            "counts": {
+              "distinct_states": 2,
+              "states_generated": 2,
+              "depth": 2
+            }
+          }
+        },
+        {
+          "id": "selectseq-concat-type-capability:specifications/ConcatSecondTypeError/ConcatSecondTypeError.cfg",
+          "outcome": "unsupported",
+          "observed": {
+            "verdict": null,
+            "verdict_code": null,
+            "exit_code": null,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null,
+            "trace_length": null,
+            "diffs": [],
+            "detail": "unsupported: DIVE-L0033: liveness atom for P at line 6, col 11 to line 6, col 65 of module ConcatSecondTypeError: TLC_MODULE_EVALUATING (2182): Evaluating an expression of the form t \\o s when s is not a sequence:\nTRUE"
+          },
+          "reference": {
+            "verdict": "evaluation-error",
+            "verdict_code": 2182,
+            "exit_code": 255,
+            "error_class": "TLC_MODULE_EVALUATING",
+            "violated_property": null,
+            "counts": {
+              "distinct_states": 2,
+              "states_generated": 2,
+              "depth": 2
+            }
+          }
+        },
+        {
+          "id": "selectseq-concat-type-capability:specifications/EmptySkipsCallbackError/EmptySkipsCallbackError.cfg",
+          "outcome": "agree",
+          "observed": {
+            "verdict": "success",
+            "verdict_code": 2193,
+            "exit_code": 0,
+            "error_class": "TLC_SUCCESS",
+            "violated_property": null,
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "trace_length": null,
+            "diffs": [],
+            "detail": "Bounded short-lasso analysis: TLC-exact lasso selection and periodic timing are not claimed. Only independently validated periodic counterexamples are returned; prefix statistics describe the actual committed boundary."
+          },
+          "reference": {
+            "verdict": "success",
+            "verdict_code": 2193,
+            "exit_code": 0,
+            "error_class": "TLC_SUCCESS",
+            "violated_property": null,
+            "counts": {
+              "distinct_states": 2,
+              "states_generated": 3,
+              "depth": 2
+            }
+          }
+        },
+        {
+          "id": "selectseq-concat-type-capability:specifications/RightChildErrorBeforeKernel/RightChildErrorBeforeKernel.cfg",
+          "outcome": "unsupported",
+          "observed": {
+            "verdict": null,
+            "verdict_code": null,
+            "exit_code": null,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null,
+            "trace_length": null,
+            "diffs": [],
+            "detail": "unsupported: DIVE-L0033: liveness atom for P at line 6, col 11 to line 6, col 76 of module RightChildErrorBeforeKernel: TLC_MODULE_DIVISION_BY_ZERO (2179): The second argument of \\div is 0."
+          },
+          "reference": {
+            "verdict": "evaluation-error",
+            "verdict_code": 2179,
+            "exit_code": 255,
+            "error_class": "TLC_MODULE_DIVISION_BY_ZERO",
+            "violated_property": null,
+            "counts": {
+              "distinct_states": 2,
+              "states_generated": 2,
+              "depth": 2
+            }
+          }
+        },
+        {
+          "id": "selectseq-concat-type-capability:specifications/StringConcatNames/StringConcatNames.cfg",
+          "outcome": "unsupported",
+          "observed": {
+            "verdict": null,
+            "verdict_code": null,
+            "exit_code": null,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null,
+            "trace_length": null,
+            "diffs": [],
+            "detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 6, col 6 to line 6, col 64 of module StringConcatNames: unsupported: SelectSeq effect/provider/native callback (at line 6, col 42 to line 6, col 51 of module StringConcatNames)"
+          },
+          "reference": {
+            "verdict": "success",
+            "verdict_code": 2193,
+            "exit_code": 0,
+            "error_class": "TLC_SUCCESS",
+            "violated_property": null,
+            "counts": {
+              "distinct_states": 2,
+              "states_generated": 3,
+              "depth": 2
+            }
+          }
+        }
+      ],
+      "fresh_independent_trace_validation": [
+        {
+          "id": "selectseq-concat-type-capability:specifications/CapturedConcatFails/CapturedConcatFails.cfg",
+          "trace_length": 1,
+          "mechanism": "Candidate harness freshSpecModel/dive-trace control flow, source-bound by qualified binary; CLI self-claim ignored."
+        }
+      ],
+      "report_sha256": "5583187b8443844b9e5dcfe823d4af45c77737facdc7f83affcbe59cb48baf13",
+      "archive_sha256": "fbd6e9db3b21c3746cf06e7a63c3b448968071ab3e9637e46d89093f4e1d4f45",
+      "root_actual_review_sha256": "94d18f1dae18b59586e2cb80fa65e107913c039ebdd4f0379d6fd6e42852eaea",
+      "independent_actual_review_sha256": "2efd6d8e2b03cf8b92d8676bf67502494240b7ca88d7b04bcb66c674c905555f"
+    }
+  ],
+  "source_input_sha256": {
+    "conformance/corpus/selectseq-concat-type-capability/specifications/CapturedConcatFails/CapturedConcatFails.cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb",
+    "conformance/corpus/selectseq-concat-type-capability/specifications/CapturedConcatFails/CapturedConcatFails.tla": "97c951af76b2cfe8d5e213ecbe7cc6322c2af187b29c1515f534848e73675be5",
+    "conformance/corpus/selectseq-concat-type-capability/specifications/CapturedConcatFails/manifest.json": "bdafc4dabb9117271bdd47176bd07e49da85461a8e0bd048d37c1d59096a9210",
+    "conformance/corpus/selectseq-concat-type-capability/specifications/CapturedConcatHolds/CapturedConcatHolds.cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb",
+    "conformance/corpus/selectseq-concat-type-capability/specifications/CapturedConcatHolds/CapturedConcatHolds.tla": "cbab066dcea094a81d0fbd2199cf8deb184efa882e51db9f75dd6c46150e9986",
+    "conformance/corpus/selectseq-concat-type-capability/specifications/CapturedConcatHolds/manifest.json": "d9a0f6cca62c02a73c2b6fec8bece857ddb3dbfc65e301c7f6cda2dbb57a202d",
+    "conformance/corpus/selectseq-concat-type-capability/specifications/ConcatFirstTypeError/ConcatFirstTypeError.cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb",
+    "conformance/corpus/selectseq-concat-type-capability/specifications/ConcatFirstTypeError/ConcatFirstTypeError.tla": "ebe58f33c319e8a583dad6e3b2a047c8e2ad73c3f2f9d66fa88446dbb8c86679",
+    "conformance/corpus/selectseq-concat-type-capability/specifications/ConcatFirstTypeError/manifest.json": "5241967a7e379aa4919b5580fe2951c72736d85837a233c1a8213c2993f89db2",
+    "conformance/corpus/selectseq-concat-type-capability/specifications/ConcatSecondTypeError/ConcatSecondTypeError.cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb",
+    "conformance/corpus/selectseq-concat-type-capability/specifications/ConcatSecondTypeError/ConcatSecondTypeError.tla": "85415462bff7be3a801b895d49681996446d98a61878a99497d62b2cbc54b8bb",
+    "conformance/corpus/selectseq-concat-type-capability/specifications/ConcatSecondTypeError/manifest.json": "2c6d035cadec44350658c1671761f8c109b55b209246bb0165f0b457b0a0b300",
+    "conformance/corpus/selectseq-concat-type-capability/specifications/EmptySkipsCallbackError/EmptySkipsCallbackError.cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb",
+    "conformance/corpus/selectseq-concat-type-capability/specifications/EmptySkipsCallbackError/EmptySkipsCallbackError.tla": "3a2da6d67ff3a88d1ec5d8c6ecd93daba5e058197adc3880ae6c327d4066f55b",
+    "conformance/corpus/selectseq-concat-type-capability/specifications/EmptySkipsCallbackError/manifest.json": "7bdab4efc01c6e49462733261befb32d331d99b66b97a21c0dc05dd6483c0a71",
+    "conformance/corpus/selectseq-concat-type-capability/specifications/RightChildErrorBeforeKernel/RightChildErrorBeforeKernel.cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb",
+    "conformance/corpus/selectseq-concat-type-capability/specifications/RightChildErrorBeforeKernel/RightChildErrorBeforeKernel.tla": "a6afd74271cca6ff2ed078200973bd245895f23245e613e374f9e9864d9427df",
+    "conformance/corpus/selectseq-concat-type-capability/specifications/RightChildErrorBeforeKernel/manifest.json": "626d409249e3bf7c4f8b9c4ddc26c3df2f655338459fcec10df0dc25f7820bab",
+    "conformance/corpus/selectseq-concat-type-capability/specifications/StringConcatNames/StringConcatNames.cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb",
+    "conformance/corpus/selectseq-concat-type-capability/specifications/StringConcatNames/StringConcatNames.tla": "6db6b116d6b7c29f49c94cfe29c8c923ad68edfd41938f4b983a32bd046cf588",
+    "conformance/corpus/selectseq-concat-type-capability/specifications/StringConcatNames/manifest.json": "b6fd06d2f422b9f16f608e3f20337a9c496045d8f475c0107bb55a6b7c3a5caf"
+  },
+  "generated_golden_sha256": {
+    "conformance/golden/tlc-2026.10.06.014338/selectseq-concat-type-capability/specifications/CapturedConcatFails/CapturedConcatFails.cfg.json": "eee815c81777b8b912dd30020b15a3e0dbf87decc92ceadba4d08a4c6ade660a",
+    "conformance/golden/tlc-2026.10.06.014338/selectseq-concat-type-capability/specifications/CapturedConcatHolds/CapturedConcatHolds.cfg.json": "eae08e72c03544c171608075c9e790c8d17eba8721e0b93c140a6d94a0ad93ef",
+    "conformance/golden/tlc-2026.10.06.014338/selectseq-concat-type-capability/specifications/ConcatFirstTypeError/ConcatFirstTypeError.cfg.json": "2872af44775b556c3d7538383d0cb103630a4c9352e96dac4cd7056642e7dfb8",
+    "conformance/golden/tlc-2026.10.06.014338/selectseq-concat-type-capability/specifications/ConcatSecondTypeError/ConcatSecondTypeError.cfg.json": "1582885abde2ae3fcd68b3c8add08d413ac131762f90bed8978397ada287992c",
+    "conformance/golden/tlc-2026.10.06.014338/selectseq-concat-type-capability/specifications/EmptySkipsCallbackError/EmptySkipsCallbackError.cfg.json": "3fcec6219185904bd037c5ca1f82a88bac7bd2e90cc86326718ad9a3bf6ed9ce",
+    "conformance/golden/tlc-2026.10.06.014338/selectseq-concat-type-capability/specifications/RightChildErrorBeforeKernel/RightChildErrorBeforeKernel.cfg.json": "47f9bb9436ea9ef8fbf97a3fc5126832d0c8ba753d7304a8f6ec0c95140af83d",
+    "conformance/golden/tlc-2026.10.06.014338/selectseq-concat-type-capability/specifications/StringConcatNames/StringConcatNames.cfg.json": "58f46ba5f636904ada7c18a7d92b0df83e346afd5fee03ab608fd74fe1c116bf"
+  },
+  "golden_provenance": "Pinned oracle tlc-2026.10.06.014338 at TLC94d0c5070852b37b801bb8998c436383ab7ee37b; generated-before-implementation with recorded reasons. Original reference receipts retained externally.",
+  "remaining_gaps": [
+    "Three kernel errors remain namedDIVE-L0033 refusals with null terminal verdict/code/exit/count/depth; ordinary error parity tracked#451.",
+    "String-only runtime-name creation remainsDIVE-L0020.",
+    "Original EWD998ChanID remains VIEW quotient edge/closing-state evidence refusal#428."
+  ],
+  "established_small_full_population_changed": false,
+  "established_baseline_agree_credit": 0,
+  "full_checker_gate": {
+    "status": "passed",
+    "source_commit": "d2bd371aabdc5bd57a5c5e18f6a61066af829683",
+    "elapsed_seconds": 2140.553525069,
+    "native_exit_code": 0,
+    "phases": [
+      {
+        "name": "rustfmt",
+        "result": "pass",
+        "duration": "2.0s"
+      },
+      {
+        "name": "clippy",
+        "result": "pass",
+        "duration": "15.5s"
+      },
+      {
+        "name": "nextest (whole suite)",
+        "result": "pass",
+        "duration": "16m51s"
+      },
+      {
+        "name": "doctests",
+        "result": "pass",
+        "duration": "5.2s"
+      },
+      {
+        "name": "rustdoc",
+        "result": "pass",
+        "duration": "8.9s"
+      },
+      {
+        "name": "crate layering",
+        "result": "pass",
+        "duration": "0.0s"
+      },
+      {
+        "name": "cargo-deny",
+        "result": "skipped (Cargo.lock and deny.toml unchanged)",
+        "duration": "0.0s"
+      },
+      {
+        "name": "release build (harness, dive)",
+        "result": "pass",
+        "duration": "1m28s"
+      },
+      {
+        "name": "oracle and corpus fetch",
+        "result": "pass",
+        "duration": "3.6s"
+      },
+      {
+        "name": "cm1 gate (1, 4, 8 workers)",
+        "result": "pass",
+        "duration": "6.5s"
+      },
+      {
+        "name": "validation-smoke gate (1, 4, 8 workers)",
+        "result": "pass",
+        "duration": "0.7s"
+      },
+      {
+        "name": "small corpus tier (dive, tlc profile, vs baseline)",
+        "result": "pass",
+        "duration": "8m27s"
+      },
+      {
+        "name": "small corpus tier (dive, dive profile, vs baseline)",
+        "result": "pass",
+        "duration": "8m08s"
+      }
+    ],
+    "nextest": {
+      "tests_run": 2366,
+      "passed": 2366,
+      "skipped": 0
+    },
+    "profiles": {
+      "tlc": {
+        "profile": "tlc",
+        "run_id": "20261024T095515844-dive-small",
+        "models": 156,
+        "modules": 458,
+        "outcomes": {
+          "agree": 150,
+          "unsupported": 6
+        },
+        "baseline_changes": {
+          "regressions": [],
+          "improvements": [],
+          "other": [],
+          "baseline_refresh_required": false
+        },
+        "report_dive_binary_sha256": "61702ed20e0b6cd33d4c1d9e9c32a6f842ac31bb214bc9a6a70c48e32afe14b7",
+        "scope": "Public harness observable comparison and same-source fresh independent trace validation; no per-child raw/queue/originalwordarchive claim"
+      },
+      "dive": {
+        "profile": "dive",
+        "run_id": "20261024T100324105-dive-small",
+        "models": 156,
+        "modules": 0,
+        "outcomes": {
+          "agree": 144,
+          "expected-divergence": 7,
+          "unsupported": 5
+        },
+        "baseline_changes": {
+          "regressions": [],
+          "improvements": [],
+          "other": [],
+          "baseline_refresh_required": false
+        },
+        "report_dive_binary_sha256": "61702ed20e0b6cd33d4c1d9e9c32a6f842ac31bb214bc9a6a70c48e32afe14b7",
+        "scope": "Public harness observable comparison and same-source fresh independent trace validation; no per-child raw/queue/originalwordarchive claim"
+      }
+    },
+    "archive_sha256": "13a354d0406e1545f01c376374f8b859e7d9a2d7f32f55d55e8a06f7efac336f",
+    "archive_bytes": 2750653828,
+    "original_archive_members_verified": 389,
+    "original_expanded_bytes_verified": 10114212171,
+    "root_actual_review_sha256": "ce30ccead3e5cdb4603e47c7d7190e0d3c6b2f9abc041e9a0039dd710fa81e1a",
+    "independent_actual_review_sha256": "6cf1f1ba4cfb50cfc820aca9b40d04b3e5c6fc5398d4ee95af16b6bb3aa24247",
+    "gate_report_sha256": "dc044bc7e70eb25f6a4d556f759a01b6143b8ce45a6d986318fff6e14df08cc2",
+    "release_binaries": {
+      "dive": {
+        "sha256": "61702ed20e0b6cd33d4c1d9e9c32a6f842ac31bb214bc9a6a70c48e32afe14b7",
+        "bytes": 38196680,
+        "mode": "0o775"
+      },
+      "dive-conformance": {
+        "sha256": "55d281363d20d5e61b20b9ba23630926471e73f07d42f4a3791effe75b4bc91f",
+        "bytes": 31128936,
+        "mode": "0o775"
+      }
+    },
+    "baseline_refresh_required": false,
+    "scope": "All13 phases, complete2366 nextest tests/zero skipped, cm1 andvalidation-smoke1/4/8, strictclosed156-model smallprofiles and458SANY. No newfull-tier aggregate or throughput result."
+  },
+  "instruction_qualification": {
+    "status": "qualified_normal_overhead",
+    "complete": true,
+    "arms": 16,
+    "pairs": [
+      {
+        "tag": "base-SimpleRegular-dive-w1",
+        "ratio": 1.0000051880866387,
+        "delta_pct": 0.0005188086638741041,
+        "base_Ir": 2532147382,
+        "candidate_Ir": 2532160519
+      },
+      {
+        "tag": "base-MCbtree-dive-w1",
+        "ratio": 1.000199348029369,
+        "delta_pct": 0.01993480293689398,
+        "base_Ir": 14498663514,
+        "candidate_Ir": 14501553794
+      },
+      {
+        "tag": "base-GameOfLife-dive-w1",
+        "ratio": 1.000076469371714,
+        "delta_pct": 0.007646937171390533,
+        "base_Ir": 1147505178,
+        "candidate_Ir": 1147592927
+      },
+      {
+        "tag": "base-EWD998PCal-dive-w1",
+        "ratio": 1.0002867108150997,
+        "delta_pct": 0.028671081509967777,
+        "base_Ir": 46734839756,
+        "candidate_Ir": 46748239140
+      },
+      {
+        "tag": "base-SimpleRegular-tlc-w1",
+        "ratio": 0.9999951172070052,
+        "delta_pct": -0.00048827929948203064,
+        "base_Ir": 2596464772,
+        "candidate_Ir": 2596452094
+      },
+      {
+        "tag": "base-MCbtree-tlc-w1",
+        "ratio": 1.0002166075218935,
+        "delta_pct": 0.021660752189345267,
+        "base_Ir": 18286987291,
+        "candidate_Ir": 18290948390
+      },
+      {
+        "tag": "base-GameOfLife-tlc-w1",
+        "ratio": 1.000051048250886,
+        "delta_pct": 0.005104825088597664,
+        "base_Ir": 1139666864,
+        "candidate_Ir": 1139725042
+      },
+      {
+        "tag": "base-EWD998PCal-tlc-w1",
+        "ratio": 1.0002893994931144,
+        "delta_pct": 0.028939949311435065,
+        "base_Ir": 47641279021,
+        "candidate_Ir": 47655066383
+      }
+    ],
+    "all8cells_at_most_one_percent": true,
+    "geomean_ratio": 1.0001399795760946,
+    "geomean_delta_pct": 0.013997957609457323,
+    "overhead_qualified": true,
+    "qualification": "Capacity-change normal instruction overhead only; no throughput, scaling or five-percent performance improvement claim.",
+    "baseline_source": "771178b528532142a7c5fd5d411fcbd754cac86f",
+    "candidate_source": "92bc7589b765b2ee437258c6e7613e84f8ce60b2",
+    "baseline_binary_sha256": "2cfc6014e8e45d46569264a24fecdfe23d9fb158ad84a99ac4fb9da53dee6839",
+    "candidate_binary_sha256": "3316ec288de4f130f9f34949fce88089b0192d70c8657d51c841d8e5afa86ada",
+    "archive_sha256": "efeb46cdb729241f4761782038f0170f5404542db071e8471389d8a87df78ecf",
+    "independent_data_review_sha256": "b02283c67a4ce500881378af9e9f138d78c28e092ba914a82092ebfc86ca4de5",
+    "toolchain": {
+      "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+      "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+      "valgrind": "valgrind-3.22.0"
+    },
+    "machine": {
+      "instance_type": "c7i.8xlarge",
+      "ami": "ami-02a9cdd4e98bc3c78",
+      "cpu": "Intel Xeon Platinum8488C",
+      "kernel": "Linux7.0.0-1014-aws x86_64",
+      "dedicated_wall_clock_campaign": false
+    },
+    "inputs": "ADR0104 reduced SimpleRegular, MCbtree, GameOfLife and EWD998PCal; two profiles/W1; explicit seed0/fp0, 8GiB and900s model budgets. Each of16 arms finished normally; two fresh profiling builds. All counts identical."
+  },
+  "scope": "Compared verdict/class/code/physicalexit/property/distinct/generated/depth and fresh in-process independent validation. No observedqueue/fulloriginalwordarchive/perchildargv/setupstream/dispatchcoverage claims. No wall-clock or throughput gain claim.",
+  "full_gate_candidate_commit": "d2bd371aabdc5bd57a5c5e18f6a61066af829683",
+  "full_gate_candidate_tree": "ec561b8dbbae60375bfab05c657827949b003481",
+  "source_transfer": "The d2bd371a delta from measured92bc7589 is one exhaustive integration-test match; all production inputs and other tracked entries remain exact. No binary-equivalence claim.",
+  "focused_controls_before_full_gate": {
+    "actual92_full_suites_passed": 44,
+    "historical244_unchanged_library_controls_passed": 41,
+    "library_source_transfer": "Exact all22745 other source entries/dependencies/tools unchanged by integration-test-only fix; independent transfer ef233fd4. No92A execution or currentClippy claim.",
+    "all_85_names_preserved": true,
+    "new_controls": 16,
+    "old_controls": 69
+  },
+  "delivery_scope": "Production code, dependency inputs, corpus inputs and generated goldens are exact full-gate Source d2bd371a. Later delivery changes only correct guide/provenance claims and add this compact evidence."
+}
