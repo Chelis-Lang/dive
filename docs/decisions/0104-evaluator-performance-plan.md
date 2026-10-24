@@ -234,6 +234,16 @@ Measured and not pursued:
   links exact source, producer, input and original profile identities. This
   negative result does not establish wall-clock, throughput or scaling behavior.
 
+- A private invocation-session evaluator with explicit call/force, substitution,
+  quantifier-row and raw-logic continuations increased whole-CLI instructions by
+  73.271% geometrically across all eight reduced model/profile cells (+55.216%
+  to +90.641%). All sixteen arms completed normally with identical verdicts and
+  all five counters. Both the 5% geometric reduction bar and 1% per-cell ceiling
+  failed; the runtime candidate remains unmerged without a runtime full gate,
+  repeat screen, retuning or threshold waiver. The
+  [performance guide](../developer/performance.md#discarded-evaluator-prototypes)
+  links the compact record and original source, binary and profile hashes.
+
 - Pre-sizing the fingerprint traversal's work list: within ±0.3%, noise.
 - A lazy function hash: it would make hashing recursive and break the
   documented stack safety for deeply nested values (`tests/limits.rs`).
