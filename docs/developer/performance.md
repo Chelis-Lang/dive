@@ -513,7 +513,7 @@ screen, retuning or threshold waiver.
 
 The [compact record](../survey/data/native-stdarg-storage-rejected-2026-10-24.json)
 retains every integer pair, equal counters, input and binary identities, raw
-hashes and retained S3 origins. Root replayed original streams and Cachegrind
+hashes and retained S3 origins. An independent audit replayed original streams and Cachegrind
 costs in memory; a separate review recomputed the integer decision and geometric
 mean from compact facts. Formatting, all-target evaluator Clippy and all 61
 library tests passed before this screen. These results establish no allocation
