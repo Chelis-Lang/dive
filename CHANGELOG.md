@@ -1,5 +1,9 @@
 # Changelog
 
+- Record two pinned temporal atom demand references: startup tautology rejection
+  and compiled-bin error priority. Both remain unsupported in ordinary
+  comparisons; established populations and checker behavior are unchanged.
+
 - Record the rejected invocation-session evaluator screen: all eight pairs
   increased instructions, by 73.271% geometrically, with matching counters.
   The private runtime prototype remains unmerged.

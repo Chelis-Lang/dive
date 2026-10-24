@@ -160,6 +160,27 @@ small or full populations. See the [compact qualification](survey/data/selectseq
 Select this microcorpus explicitly with
 `--corpus selectseq-concat-type-capability --tier all --no-sany`.
 
+`temporal-demand-primary-probes` records two further pinned references for
+issue #451 before implementing a temporal error-demand consumer.
+`UnusedDemandTautology` does not evaluate its bad state atom: TLC rejects the
+property before exploration with `TLC_LIVE_FORMULA_TAUTOLOGY` (2253), exit 77,
+all count fields unreported and no trace. Zero compiled solutions do not mean
+a successful model check. `CurrentStateBinPriority` chooses division error
+2179, exit 255, before the source-first type error 2182: TLC's compiled action
+bin precedes its state bin even though both predicates read only the current
+state. It reports two distinct and two generated states, one queued state,
+depth two and a finite one-state error prefix `x = 0`.
+
+The normal harness generated both references with their recorded reasons and
+unchanged provenance: pinned TLC `94d0c507`, one worker, seed/fingerprint zero,
+512 MB heap and 60-second per-model timeout. The source manifests retain
+`runtime` and `result` as `unknown`. Ordinary comparisons in both profiles
+still report two refusals: `DIVE-L0033` wraps division error 2179 for the
+tautology and type error 2182 for the priority case. Neither is ordinary error
+parity or a new agreement. Select this separate microcorpus explicitly with
+`--corpus temporal-demand-primary-probes --tier all --no-sany`; it changes
+neither the established 156-model small tier nor the 265-model full selection.
+
 `instance-temporal` is a separate local corpus of ten finite Boolean models and
 23 modules. It preserves primary-first observations of lexical INSTANCE and
 `ENABLED` successor namespaces before runtime changes. Every source input is
