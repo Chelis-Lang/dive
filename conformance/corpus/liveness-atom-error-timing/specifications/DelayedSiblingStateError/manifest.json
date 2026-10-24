@@ -1,0 +1,27 @@
+{
+  "sources": [
+    "docs/user/checking.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "liveness",
+    "error-timing"
+  ],
+  "modules": [
+    {
+      "path": "specifications/DelayedSiblingStateError/DelayedSiblingStateError.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/DelayedSiblingStateError/DelayedSiblingStateError.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}

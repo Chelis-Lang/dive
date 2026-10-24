@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "purpose": "Primary temporal-atom error timing observations before checker error promotion",
+  "input_source_commit": "44ac6798dcbe3bb9b25f02d69e77fde35da0d6f7",
+  "harness_compiled_source": "92bc7589b765b2ee437258c6e7613e84f8ce60b2",
+  "harness_sha256": "6379abc21363c10e9771791de1e0235d91cb148da3a812278e9bd018a30b7517",
+  "oracle": "tlc-2026.10.06.014338",
+  "oracle_upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "method": "Normal golden generate with recorded reason, one worker, seed0/fp0/final,256m heap,explicit60s native budget. Four selected jobs, six normal clean/trace processes,36 normal setup processes. Clean decides; ordinary optional trace must reproduce it. Generated files imported byte-for-byte.",
+  "facts": [
+    {
+      "case": "DelayedSiblingStateError",
+      "verdict": "evaluation-error",
+      "code": 2179,
+      "exit_code": 255,
+      "counts": {
+        "distinct_states": 4,
+        "states_generated": 4,
+        "states_left_on_queue": 2,
+        "depth": 3
+      },
+      "trace": {
+        "length": 2,
+        "ending": {
+          "kind": "finite"
+        },
+        "steps": [
+          {
+            "label": "<Initial predicate>",
+            "state": "x = 0"
+          },
+          {
+            "label": "<Next line 6, col 9 to line 8, col 19 of module DelayedSiblingStateError>",
+            "state": "x = 1"
+          }
+        ]
+      },
+      "error_codes": [
+        2103,
+        2179,
+        2121
+      ]
+    },
+    {
+      "case": "ActionStateErrorPriority",
+      "verdict": "semantic-error",
+      "code": 3002,
+      "exit_code": 150,
+      "counts": {
+        "distinct_states": null,
+        "states_generated": null,
+        "states_left_on_queue": null,
+        "depth": null
+      },
+      "trace": null,
+      "error_codes": [
+        3002
+      ]
+    },
+    {
+      "case": "CombinedUnusedAtom",
+      "verdict": "evaluation-error",
+      "code": 2179,
+      "exit_code": 255,
+      "counts": {
+        "distinct_states": 2,
+        "states_generated": 2,
+        "states_left_on_queue": 1,
+        "depth": 2
+      },
+      "trace": {
+        "length": 1,
+        "ending": {
+          "kind": "finite"
+        },
+        "steps": [
+          {
+            "label": "<Initial predicate>",
+            "state": "x = 0"
+          }
+        ]
+      },
+      "error_codes": [
+        2179,
+        2121
+      ]
+    },
+    {
+      "case": "TableauInitAtomError",
+      "verdict": "other-error",
+      "code": 1000,
+      "exit_code": 255,
+      "counts": {
+        "distinct_states": 1,
+        "states_generated": 1,
+        "states_left_on_queue": 1,
+        "depth": 1
+      },
+      "trace": null,
+      "error_codes": [
+        1000
+      ]
+    }
+  ],
+  "input_sha256": {
+    "conformance/corpus/liveness-atom-error-timing/specifications/ActionStateErrorPriority/ActionStateErrorPriority.cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb",
+    "conformance/corpus/liveness-atom-error-timing/specifications/ActionStateErrorPriority/ActionStateErrorPriority.tla": "f6fbf04f3b321e8c5cd834b363cb702acb77cf6a0a891e02f7608c5b57b82806",
+    "conformance/corpus/liveness-atom-error-timing/specifications/ActionStateErrorPriority/manifest.json": "c9b9900ea576bed710776ee7a85c078b98112c3d2f383074c0b59ada9c12636a",
+    "conformance/corpus/liveness-atom-error-timing/specifications/CombinedUnusedAtom/CombinedUnusedAtom.cfg": "864b64bd3491e5a117ef94c70c4f7f41eb73f8bef7431c51f37345957e11d869",
+    "conformance/corpus/liveness-atom-error-timing/specifications/CombinedUnusedAtom/CombinedUnusedAtom.tla": "c2edeecd6b5a0f23d6129615ce55885d93c67089ca2dba63b5c9f5e2aa1762b5",
+    "conformance/corpus/liveness-atom-error-timing/specifications/CombinedUnusedAtom/manifest.json": "c28a9e298cd5f2a7d88d894bd20154ff0d20f2f7ec36e3a87d4402783b5cc66e",
+    "conformance/corpus/liveness-atom-error-timing/specifications/DelayedSiblingStateError/DelayedSiblingStateError.cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb",
+    "conformance/corpus/liveness-atom-error-timing/specifications/DelayedSiblingStateError/DelayedSiblingStateError.tla": "b4ade8bafbb2d844142b232447b4bb44014d63f108c6f0b2f529c6455d93b8f0",
+    "conformance/corpus/liveness-atom-error-timing/specifications/DelayedSiblingStateError/manifest.json": "7ab5f8d2e9232a63d2c9a1f77324d62146e43a1255680b2ea8d9f526b493897b",
+    "conformance/corpus/liveness-atom-error-timing/specifications/TableauInitAtomError/TableauInitAtomError.cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb",
+    "conformance/corpus/liveness-atom-error-timing/specifications/TableauInitAtomError/TableauInitAtomError.tla": "715aaaa8977c6171a3eca62e5e02541f8a85a7658602530ba3a2ca71d150aada",
+    "conformance/corpus/liveness-atom-error-timing/specifications/TableauInitAtomError/manifest.json": "0fba5679e6c3f00326f0cb507bfb31ce614ac4e0f4f94b31c96243ef6de83176"
+  },
+  "generated_golden_sha256": {
+    "conformance/golden/tlc-2026.10.06.014338/liveness-atom-error-timing/specifications/ActionStateErrorPriority/ActionStateErrorPriority.cfg.json": "b31820ad1e87f53e7c34d82b6cbeb7406756045e709da963f0e525500f0e413d",
+    "conformance/golden/tlc-2026.10.06.014338/liveness-atom-error-timing/specifications/CombinedUnusedAtom/CombinedUnusedAtom.cfg.json": "de10f96c07f06c89fc50dccc7ab4ec949a038fcc05b0833f3e79d54e5e0a2b40",
+    "conformance/golden/tlc-2026.10.06.014338/liveness-atom-error-timing/specifications/DelayedSiblingStateError/DelayedSiblingStateError.cfg.json": "45df6870ba806a2ad97861cb44de4cf550a634e69bd3a537e4c7e8bdaa8cb67a",
+    "conformance/golden/tlc-2026.10.06.014338/liveness-atom-error-timing/specifications/TableauInitAtomError/TableauInitAtomError.cfg.json": "cf5ee01c2779604aad7346766477233ca8157386217f69c382b5a1528ff9d956"
+  },
+  "original_archive": {
+    "sha256": "c9c3228e9bc4bf7c1084a3f204441cc17f19749b48d0b3b8452edc0b71fe9daa",
+    "bytes": 3113976,
+    "members": 357,
+    "all_original_SHA_bytes_mode_UIDGID_numeric_ns_verified": true
+  },
+  "root_actual_review_sha256": "7f9520125b71b25998f26107b5bb201243c28f2d0fe3736b69a1bb1452fba12d",
+  "independent_actual_review_sha256": "38deadd0f01640219e2f07bf8d1f7ad2ecab6afe1f6e3cc9d0a534a0afa0c6e0",
+  "remaining_questions": [
+    "ActionStateErrorPriority remains the original SANYrejection. The separateangle input below reportsstateConcat2182 for its exactformula; allgeneraldemand/decomposition obligations remain.",
+    "CombinedUnusedAtom evaluates the bad atom; this input provides no simplification-elimination example.",
+    "GENERAL1000 is the Init primary result and is not relabeled as nested division code2179.",
+    "Finite evaluation-error prefixes are not independently validated temporal counterexamples."
+  ],
+  "independent_trace_validation": false,
+  "checker_runtime_or_agreement_credit": false,
+  "established_small_full_populations_changed": false,
+  "additional_angle_observation": {
+    "input_source_commit": "99ac2838",
+    "model": "liveness-atom-action-error-order:specifications/ActionStateErrorPriorityAngle/ActionStateErrorPriorityAngle.cfg",
+    "actual_result": {
+      "verdict": "evaluation-error",
+      "verdict_code": 2182,
+      "error_class": "TLC_MODULE_EVALUATING",
+      "exit_code": 255,
+      "exit_status": "ERROR",
+      "violated_property": null,
+      "counts": {
+        "distinct_states": 2,
+        "states_generated": 2,
+        "states_left_on_queue": 1,
+        "depth": 2
+      },
+      "fingerprint_collision": null,
+      "trace": {
+        "length": 1,
+        "ending": {
+          "kind": "finite"
+        },
+        "steps": [
+          {
+            "label": "<Initial predicate>",
+            "state": "x = 0"
+          }
+        ]
+      },
+      "error_codes": [
+        2103,
+        2182,
+        2121
+      ],
+      "warning_codes": [],
+      "unresolved_modules": [],
+      "note": null
+    },
+    "native_selected_models": 2,
+    "native_setup_processes": 9,
+    "harness_sha256": "6379abc21363c10e9771791de1e0235d91cb148da3a812278e9bd018a30b7517",
+    "method": "Same pinned oracle and ordinary golden generate, W1/seed0/fp0/final/256m, explicit60s model budget and recorded reason. New separatecorpus; originalSANYrejectedinput/reference preserved.",
+    "golden_path": "conformance/golden/tlc-2026.10.06.014338/liveness-atom-action-error-order/specifications/ActionStateErrorPriorityAngle/ActionStateErrorPriorityAngle.cfg.json",
+    "golden_sha256": "b23c93050e5f82c4deabe4e56f664c661e42c0100facc8247a36412d334e874e",
+    "input_sha256": {
+      "conformance/corpus/liveness-atom-action-error-order/specifications/ActionStateErrorPriorityAngle/ActionStateErrorPriorityAngle.cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb",
+      "conformance/corpus/liveness-atom-action-error-order/specifications/ActionStateErrorPriorityAngle/ActionStateErrorPriorityAngle.tla": "47d5c92223886e36820d79ca3ef49dc9fda89aae6059a9a17c2c555aafaa28fd",
+      "conformance/corpus/liveness-atom-action-error-order/specifications/ActionStateErrorPriorityAngle/manifest.json": "d79b733ea3a7ec84e5fdad7beee5c154f5966c01824960729733bb4d6f484e3b"
+    },
+    "original_archive_sha256": "c68cf9490147cc0449f03f6fe8565e95979e138abf79070e3a32eca28f152ed0",
+    "original_archive_bytes": 3007236,
+    "original_archive_members": 124,
+    "root_actual_review_sha256": "b5d52a3c3f275db7b7683914db6a17ef251f30f85e38a340b4f0f0635dc55ae1",
+    "independent_actual_review_sha256": "acbb10a4ab9ba181140439a513827babbc9e02fa7b8ebe032a0d499e79ecbe3b",
+    "scope": "Valid competing formula reports stateConcat error2182. This is formula-specific/per-solution evidence, never a global action-before-state rule or checkerAgreement/tracevalidation credit."
+  }
+}

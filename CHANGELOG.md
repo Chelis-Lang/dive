@@ -1,5 +1,9 @@
 # Changelog
 
+- Add four pinned primary temporal atom error timing observations for issue
+  #451, including a preserved SANY rejection, and a separate angle-action
+  error-order reference. Established parity populations and checker behavior are unchanged.
+
 - Prove non-string result kinds from owned sources during bounded SelectSeq
   callback analysis, allowing canonical native Concat past its own runtime-name
   check. Preserve both argument walks, unused captures, provider/effect checks,
