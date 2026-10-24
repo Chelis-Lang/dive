@@ -1,0 +1,15 @@
+{
+  "sources": ["docs/user/checking.md"],
+  "authors": ["dive"],
+  "tags": ["probe", "liveness", "error-demand"],
+  "modules": [{
+    "path": "specifications/CurrentStateBinPriority/CurrentStateBinPriority.tla",
+    "features": [],
+    "models": [{
+      "path": "specifications/CurrentStateBinPriority/CurrentStateBinPriority.cfg",
+      "runtime": "unknown",
+      "mode": "exhaustive search",
+      "result": "unknown"
+    }]
+  }]
+}
