@@ -191,3 +191,10 @@ id = "liveness-atom-error-timing"
 path = "conformance/corpus/liveness-atom-error-timing"
 license = "MIT"
 layout = "examples-manifest"
+
+# Angle-action successor to the preserved SANY-rejected timing input.
+[[corpus]]
+id = "liveness-atom-action-error-order"
+path = "conformance/corpus/liveness-atom-action-error-order"
+license = "MIT"
+layout = "examples-manifest"

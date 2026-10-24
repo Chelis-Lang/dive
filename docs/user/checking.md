@@ -520,12 +520,17 @@ CoffeeCan observations are descriptive; they establish no quantitative memory
 or throughput gain. All measurements run dive, including its TLC compatibility
 profile; this adds no capacity or parity claim.
 
-The `liveness-atom-error-timing` validation microcorpus contains four pending
-primary controls for temporal atom evaluation: a delayed source error with a
-pending sibling, competing action/state errors, combined-claim simplification,
-and candidate residual-tableau initial consistency. Their manifests record
-unknown results and runtimes. No oracle has run for these inputs and no goldens
-are supplied; neither the error site nor a selected class, exit, count, queue,
-depth or word is established. They do not change the established small/full
-corpus selections or qualify temporal evaluation errors currently refused under
-issue #451.
+The `liveness-atom-error-timing` validation microcorpus records four pinned
+primary observations. The delayed-source error reports four distinct/generated
+states, two queued states and depth three. The combined-claim case still evaluates
+the bad atom and reports two distinct/generated states, one queued state and depth
+two. Both report division by zero (2179), exit 255. The residual-tableau Init case
+reports GENERAL (1000), exit 255, with one distinct/generated/queued state and depth
+one. The action/state input is rejected by SANY (3002), exit 150: its bare action
+is not allowed after `<>`, so it establishes no error priority. Its original
+input and generated reference are retained. A separate
+`liveness-atom-action-error-order` corpus adds a pending `<<ActionBad>>_x` probe.
+The exact manifests retain unknown metadata; these validation populations do not
+change established small/full selections or qualify temporal evaluation errors
+currently refused under issue #451. The finite error prefixes have not received
+independent trace validation.

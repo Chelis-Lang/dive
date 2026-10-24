@@ -2218,7 +2218,7 @@ authorize reordering the existing normalized bulk path.
 
 ### Temporal atom error timing controls (issue #451)
 
-The `liveness-atom-error-timing` inputs pose four unanswered primary questions.
+The `liveness-atom-error-timing` inputs originally posed four primary questions.
 Pinned TLC source at `94d0c5070852b37b801bb8998c436383ab7ee37b` was read:
 `Worker.run`/`doNextCheckLiveness` finish successor generation before liveness
 insertion; `LiveCheck.addNextState` evaluates action then state labels **per
@@ -2227,7 +2227,14 @@ simplification; and `TableauLiveChecker.addInitState` checks initial tableau
 consistency. The inputs respectively distinguish a delayed source prefix,
 competing error demand, a potentially unused atom, and a candidate initial
 consistency error. Source structure does not establish any input's actual
-route or outcome. Generation by the pinned oracle with a recorded reason is
-required before those facts or any runtime implementation are claimed. No Java
-algorithm is copied, no golden is written here, and the earlier seven Concat
-primary references are unchanged.
+route or outcome. The pinned oracle subsequently generated four references with
+a recorded reason, W1/seed0/fp0/final, a 256 MB heap and explicit 60-second model
+budgets. Six clean/trace model processes and 36 setup subprocesses completed
+normally. The delayed and combined-claim models report division by zero; initial
+consistency instead reports GENERAL. The action/state model is SANY-rejected
+because its bare action after `<>` lacks `<<A>>_v` form; it establishes no
+action/state priority. Those original bytes remain unchanged. The separate
+`liveness-atom-action-error-order` input uses the requested angle-action form;
+its outcome remains unknown until a new pinned observation. No Java algorithm
+is copied and no runtime behavior or independent-validation credit follows from
+these references. The earlier seven Concat primary references are unchanged.
