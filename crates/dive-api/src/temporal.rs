@@ -329,6 +329,7 @@ pub struct Failure {
     exploration: Option<Box<dive_liveness::analyze::ExplorationEvidence>>,
     elapsed: Duration,
     action_evaluation: Option<Box<dive_liveness::analyze::ActionEvaluation>>,
+    state_evaluation: Option<Box<dive_liveness::analyze::StateEvaluation>>,
     validation_progress: Option<Box<ValidationProgress>>,
     incomplete: bool,
     periodic: Option<Box<Checks>>,
@@ -357,6 +358,7 @@ impl Failure {
             exploration: None,
             elapsed: Duration::ZERO,
             action_evaluation: None,
+            state_evaluation: None,
             validation_progress: None,
             incomplete: false,
             periodic: None,
@@ -372,6 +374,7 @@ impl Failure {
             exploration: Some(Box::new(capture.into())),
             elapsed: Duration::ZERO,
             action_evaluation: None,
+            state_evaluation: None,
             validation_progress: None,
             incomplete: false,
             periodic: None,
@@ -385,6 +388,21 @@ impl Failure {
     #[must_use]
     pub fn action_evaluation(&self) -> Option<&dive_liveness::analyze::ActionEvaluation> {
         self.action_evaluation.as_deref()
+    }
+    /// Original state-atom cause and postcapture/periodic/attribution site.
+    /// This is not certified TLC demand or a new evaluation-error verdict.
+    ///
+    /// ```
+    /// # fn example(failure: &dive_api::temporal::Failure) {
+    /// if let Some(state) = failure.state_evaluation() {
+    ///     let _actual_site = state.site();
+    ///     let _original_cause = state.core_cause();
+    /// }
+    /// # }
+    /// ```
+    #[must_use]
+    pub fn state_evaluation(&self) -> Option<&dive_liveness::analyze::StateEvaluation> {
+        self.state_evaluation.as_deref()
     }
     /// Output retained from the binding invocation which failed.
     ///
@@ -971,7 +989,8 @@ fn finish_final(
                 validation: report,
             })))
         }
-        Err(detailed) => {
+        Err(mut detailed) => {
+            let state_evaluation = detailed.take_state_evaluation();
             let (failure, action_evaluation) = detailed.into_parts();
             if let AnalysisError::Exploration(result) = failure.error {
                 Ok(Outcome::Safety(result))
@@ -982,6 +1001,7 @@ fn finish_final(
                     exploration: failure.exploration,
                     elapsed: Duration::ZERO,
                     action_evaluation,
+                    state_evaluation,
                     validation_progress: None,
                     incomplete: false,
                     periodic: None,
@@ -1005,6 +1025,7 @@ fn final_validation_failure(candidate: Candidate, report: ValidationReport) -> F
         exploration,
         elapsed: Duration::ZERO,
         action_evaluation: None,
+        state_evaluation: None,
         validation_progress: None,
         incomplete: false,
         periodic: None,
@@ -1021,6 +1042,7 @@ fn prefix_failure(error: Error, stage: Stage, prefix: &capture::Prefix) -> Failu
         exploration: Some(Box::new(prefix.into())),
         elapsed: Duration::ZERO,
         action_evaluation: None,
+        state_evaluation: None,
         validation_progress: None,
         incomplete: true,
         periodic: None,
@@ -1041,6 +1063,7 @@ fn prefix_validation_failure(candidate: PrefixCandidate, report: ValidationRepor
         exploration,
         elapsed: Duration::ZERO,
         action_evaluation: None,
+        state_evaluation: None,
         validation_progress: None,
         incomplete: true,
         periodic: None,
@@ -1125,7 +1148,9 @@ fn run_periodic(
     ) {
         Ok(result) => result,
         Err(failure) => {
-            let (detail, action_evaluation) = (*failure.failure).into_parts();
+            let mut detailed = *failure.failure;
+            let state_evaluation = detailed.take_state_evaluation();
+            let (detail, action_evaluation) = detailed.into_parts();
             if let AnalysisError::Exploration(result) = detail.error {
                 return Ok((Outcome::Safety(result), failure.checks));
             }
@@ -1135,6 +1160,7 @@ fn run_periodic(
                 exploration: detail.exploration.or(failure.prefix),
                 elapsed: Duration::ZERO,
                 action_evaluation,
+                state_evaluation,
                 validation_progress: None,
                 incomplete: failure.capture_completed == Some(false),
                 periodic: Some(Box::new(failure.checks)),

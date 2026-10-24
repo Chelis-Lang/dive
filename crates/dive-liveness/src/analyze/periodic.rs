@@ -5,7 +5,7 @@
 //! checks are additional work, without a total-run work or byte guarantee.
 
 use super::{
-    ActionEvaluation, Analysis, AnalysisError, CandidateWord, DetailedFailure, ExplorationEvidence,
+    Analysis, AnalysisError, CandidateWord, DetailedFailure, EvaluationErrors, ExplorationEvidence,
     Failure, GraphLabelPolicy, Limits, Stage, analyze_captured, prepare, validate_analysis_context,
 };
 use crate::product::AcceptancePolicy;
@@ -127,7 +127,7 @@ struct Observe<'a> {
     graph_labels: GraphLabelPolicy,
     checks: Checks,
     stage: Stage,
-    action: Option<Box<ActionEvaluation>>,
+    evaluations: EvaluationErrors,
     decision: Option<Result<CandidateWord, AnalysisError>>,
 }
 impl capture::Observer for Observe<'_> {
@@ -164,7 +164,7 @@ impl capture::Observer for Observe<'_> {
             self.policy,
             self.graph_labels,
             &mut self.stage,
-            &mut self.action,
+            &mut self.evaluations,
             &self.control,
         ) {
             Ok(None) => {}
@@ -194,7 +194,7 @@ fn failure(
     error: AnalysisError,
     stage: Stage,
     exploration: Option<Box<ExplorationEvidence>>,
-    action: Option<Box<ActionEvaluation>>,
+    evaluations: EvaluationErrors,
     capture_completed: Option<bool>,
     checks: Checks,
 ) -> PeriodicFailure {
@@ -211,7 +211,7 @@ fn failure(
                 stage,
                 exploration,
             },
-            action,
+            evaluations,
         }),
         capture_completed,
         checks,
@@ -284,7 +284,7 @@ pub fn analyze_periodic_with_policies(
             },
             Stage::Planning,
             None,
-            None,
+            EvaluationErrors::default(),
             Some(false),
             Checks {
                 schedule,
@@ -331,7 +331,7 @@ pub fn analyze_periodic_with_policies(
                     error,
                     Stage::Finalization,
                     Some(Box::new(evidence)),
-                    None,
+                    EvaluationErrors::default(),
                     Some(completed),
                     *checks,
                 ));
@@ -355,7 +355,7 @@ fn budget_failure(
             Err(error) => failure.failure.failure.error = AnalysisError::BudgetMeasurement(error),
             Ok(None) => return failure,
         }
-        failure.failure.action = None;
+        failure.failure.evaluations = EvaluationErrors::default();
     }
     failure
 }
@@ -377,23 +377,47 @@ fn periodic_unbudgeted(
         ..Checks::default()
     };
     // Before lowering, touching bound scopes or starting a capture host.
-    validate_analysis_context(model)
-        .map_err(|error| failure(error, Stage::Planning, None, None, Some(false), checks))?;
-    let control = super::evaluator_control(options)
-        .map_err(|error| failure(error, Stage::Planning, None, None, Some(false), checks))?;
+    validate_analysis_context(model).map_err(|error| {
+        failure(
+            error,
+            Stage::Planning,
+            None,
+            EvaluationErrors::default(),
+            Some(false),
+            checks,
+        )
+    })?;
+    let control = super::evaluator_control(options).map_err(|error| {
+        failure(
+            error,
+            Stage::Planning,
+            None,
+            EvaluationErrors::default(),
+            Some(false),
+            checks,
+        )
+    })?;
     let plans = {
         let _scope = control.enter(&model.evaluator).map_err(|_| {
             failure(
                 AnalysisError::Inconsistent("another driver owns evaluator control"),
                 Stage::Planning,
                 None,
-                None,
+                EvaluationErrors::default(),
                 Some(false),
                 checks,
             )
         })?;
-        prepare(model, limits, &control)
-            .map_err(|error| failure(error, Stage::Planning, None, None, Some(false), checks))?
+        prepare(model, limits, &control).map_err(|error| {
+            failure(
+                error,
+                Stage::Planning,
+                None,
+                EvaluationErrors::default(),
+                Some(false),
+                checks,
+            )
+        })?
     };
     let mut observer = Observe {
         budget: &options.budget,
@@ -405,7 +429,10 @@ fn periodic_unbudgeted(
         graph_labels,
         checks,
         stage: Stage::Capture,
-        action: None,
+        evaluations: EvaluationErrors {
+            periodic: true,
+            ..EvaluationErrors::default()
+        },
         decision: None,
     };
     let captured =
@@ -415,7 +442,7 @@ fn periodic_unbudgeted(
                     AnalysisError::CaptureThread(message),
                     Stage::Unknown,
                     None,
-                    None,
+                    EvaluationErrors::default(),
                     None,
                     observer.checks,
                 )
@@ -425,7 +452,7 @@ fn periodic_unbudgeted(
             AnalysisError::Exploration(result),
             Stage::Capture,
             None,
-            None,
+            EvaluationErrors::default(),
             Some(false),
             observer.checks,
         )),
@@ -442,7 +469,7 @@ fn periodic_unbudgeted(
                         error,
                         observer.stage,
                         Some(Box::new((&*prefix).into())),
-                        observer.action,
+                        observer.evaluations,
                         Some(false),
                         observer.checks,
                     )
@@ -465,13 +492,14 @@ fn periodic_unbudgeted(
                     AnalysisError::Inconsistent("another driver owns evaluator control"),
                     Stage::Product,
                     Some(Box::new((&*complete).into())),
-                    None,
+                    EvaluationErrors::default(),
                     Some(true),
                     observer.checks,
                 )
             })?;
             observer.checks.exhausted = true;
             observer.checks.final_check = true;
+            observer.evaluations.periodic = false;
             let word = analyze_captured(
                 model,
                 &plans,
@@ -481,7 +509,7 @@ fn periodic_unbudgeted(
                 policy,
                 graph_labels,
                 &mut observer.stage,
-                &mut observer.action,
+                &mut observer.evaluations,
                 &control,
             )
             .map_err(|error| {
@@ -489,7 +517,7 @@ fn periodic_unbudgeted(
                     error,
                     observer.stage,
                     Some(Box::new((&*complete).into())),
-                    observer.action,
+                    observer.evaluations,
                     Some(true),
                     observer.checks,
                 )

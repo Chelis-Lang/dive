@@ -1,5 +1,9 @@
 # Changelog
 
+- Retain original typed state-atom causes and actual analysis sites in detailed
+  Rust temporal failures, preserving `DIVE-L0033` refusals, verdict policy,
+  scheduling, counts, limits and the public report schema.
+
 - Add four pinned primary temporal atom error timing observations for issue
   #451, including a preserved SANY rejection, and a separate angle-action
   error-order reference. Established parity populations and checker behavior are unchanged.

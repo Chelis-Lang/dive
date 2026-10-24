@@ -97,7 +97,7 @@ fn captured_result(
         AcceptancePolicy::Legacy,
         policy,
         &mut Stage::Unknown,
-        &mut None,
+        &mut EvaluationErrors::default(),
         &control,
     )
 }
@@ -143,7 +143,7 @@ fn label_path(
             &model.property_claims()[0].name,
             GraphLabelPolicy::Cells(limits.atom_cells),
             &(std::collections::BTreeSet::new(), None),
-            &mut None,
+            &mut EvaluationErrors::default(),
             &control,
         )
         .map_err(|error| format!("{error:?}"))?;
