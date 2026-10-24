@@ -47,7 +47,7 @@ fn run_with_policy(
     let control = evaluator_control(&CheckOptions::tlc(0, 0)).expect("control");
     let plans = prepare(model, limits, &control).expect("plan");
     let mut stage = Stage::Unknown;
-    let mut action = None;
+    let mut action = EvaluationErrors::default();
     analyze_captured(
         model,
         &plans,

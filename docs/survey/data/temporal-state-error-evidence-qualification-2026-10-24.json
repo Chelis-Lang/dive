@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-24",
+  "deliverable": "Typed original state-atom causes and actual analysis sites in detailed Rust temporal failures",
+  "agreement_delta": 0,
+  "ordinary_error_verdict_promotion": false,
+  "source": {
+    "gate_commit": "2373b96168935a6d813d057f91919064d127ba80",
+    "gate_tree": "aefc5a0aa58b54bbd2ed04ab68ea9824726aa629",
+    "gate_base": "610d9e12d668385ac825f818286c64b7e8ddbb53",
+    "delivery_runtime_commit": "469157b9481b9c3409b463ae19b0dad88cf6c061",
+    "delivery_base": "fdbda49bcd89401ae060d44fdc87d0c3d8ee51b0",
+    "runtime_test_build_gate_baseline_entries_exact_gate_source": 20327,
+    "documentation_rebase_only": true
+  },
+  "behavior": {
+    "preserved": [
+      "DIVE-L0033 refusals",
+      "legacy AnalysisError and action error evidence",
+      "two-element DetailedFailure.into_parts",
+      "stopped/verdict classification",
+      "scheduling, counts, limits and report schema 3"
+    ],
+    "added": [
+      "StateEvaluation original typed core cause versus synthesized nonboolean cause",
+      "FinalLabels, PeriodicLabels, FinalAttribution and PeriodicAttribution sites",
+      "DetailedFailure and dive-api temporal Failure state_evaluation getters"
+    ],
+    "budget_precedence": "Owned resource exhaustion is classified first and clears stale action/state evidence; unrelated failures are not relabelled stopped",
+    "soundness_limit": "Evidence does not establish TLC capture-time demand, stopping prefix, or an independently validated finite error ending"
+  },
+  "validation": {
+    "full_gate": {
+      "argv": [
+        "cargo",
+        "xtask",
+        "gate",
+        "--full"
+      ],
+      "native_exit": 0,
+      "externally_censored": false,
+      "elapsed_seconds": 2203.558515877,
+      "platform": "linux x86_64",
+      "phases": [
+        {
+          "name": "rustfmt",
+          "result": "pass",
+          "duration": "2.1s"
+        },
+        {
+          "name": "clippy",
+          "result": "pass",
+          "duration": "16.1s"
+        },
+        {
+          "name": "nextest (whole suite)",
+          "result": "pass",
+          "duration": "17m22s"
+        },
+        {
+          "name": "doctests",
+          "result": "pass",
+          "duration": "5.2s"
+        },
+        {
+          "name": "rustdoc",
+          "result": "pass",
+          "duration": "8.9s"
+        },
+        {
+          "name": "crate layering",
+          "result": "pass",
+          "duration": "0.0s"
+        },
+        {
+          "name": "cargo-deny",
+          "result": "skipped (Cargo.lock and deny.toml unchanged)",
+          "duration": "0.0s"
+        },
+        {
+          "name": "release build (harness, dive)",
+          "result": "pass",
+          "duration": "1m28s"
+        },
+        {
+          "name": "oracle and corpus fetch",
+          "result": "pass",
+          "duration": "3.8s"
+        },
+        {
+          "name": "cm1 gate (1, 4, 8 workers)",
+          "result": "pass",
+          "duration": "6.9s"
+        },
+        {
+          "name": "validation-smoke gate (1, 4, 8 workers)",
+          "result": "pass",
+          "duration": "0.7s"
+        },
+        {
+          "name": "small corpus tier (dive, tlc profile, vs baseline)",
+          "result": "pass",
+          "duration": "8m43s"
+        },
+        {
+          "name": "small corpus tier (dive, dive profile, vs baseline)",
+          "result": "pass",
+          "duration": "8m22s"
+        }
+      ],
+      "nextest": {
+        "tests_run": 2374,
+        "passed": 2374,
+        "skipped": 0
+      },
+      "cm1_validation_workers": [
+        1,
+        4,
+        8
+      ],
+      "gate_report_sha256": "6590250a54883cb8bcc724110efa5c65f4b62013569e72406afa13d6ed163e88"
+    },
+    "profiles": {
+      "tlc": {
+        "profile": "tlc",
+        "run_id": "20261024T133022135-dive-small",
+        "models": 156,
+        "modules": 458,
+        "outcomes": {
+          "agree": 150,
+          "unsupported": 6
+        },
+        "baseline_changes": {
+          "regressions": [],
+          "improvements": [],
+          "other": [],
+          "baseline_refresh_required": false
+        },
+        "report_dive_binary_sha256": "9906ec4b6f359d06ca67bd18494570e0e73b2eac83439e23ac7b13bf6cba1b58",
+        "scope": "Public harness observable comparison and same-source fresh independent trace validation; no per-child raw/queue/originalwordarchive claim"
+      },
+      "dive": {
+        "profile": "dive",
+        "run_id": "20261024T133844950-dive-small",
+        "models": 156,
+        "modules": 0,
+        "outcomes": {
+          "agree": 144,
+          "expected-divergence": 7,
+          "unsupported": 5
+        },
+        "baseline_changes": {
+          "regressions": [],
+          "improvements": [],
+          "other": [],
+          "baseline_refresh_required": false
+        },
+        "report_dive_binary_sha256": "9906ec4b6f359d06ca67bd18494570e0e73b2eac83439e23ac7b13bf6cba1b58",
+        "scope": "Public harness observable comparison and same-source fresh independent trace validation; no per-child raw/queue/originalwordarchive claim"
+      }
+    },
+    "baseline_refresh_required": false,
+    "focused_previous": {
+      "source": "0b82aab67e1bfa1770aeae97cf40670b9118f1cf",
+      "tests_passed": 78,
+      "qualification": "Full gate above supersedes focused checks; no focused test credit transferred across a runtime change"
+    }
+  },
+  "provenance": {
+    "ami": "ami-02a9cdd4e98bc3c78",
+    "instance_type": "c7i.8xlarge",
+    "CPU_model": "Intel(R) Xeon(R) Platinum 8488C",
+    "tool_versions": {
+      "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+      "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+      "nextest": "cargo-nextest 0.9.143 (60fa45f63 2026-08-04)\nrelease: 0.9.143\ncommit-hash: 60fa45f638ffc3f35e74afa65737f45fcd32db2a\ncommit-date: 2026-08-04\nhost: x86_64-unknown-linux-gnu",
+      "deny": "cargo-deny 0.20.2"
+    },
+    "dive_binary_sha256": "9906ec4b6f359d06ca67bd18494570e0e73b2eac83439e23ac7b13bf6cba1b58",
+    "manifest_sha256": "75753ebe6206ddd472d6b0a1a49769705372d28d8e410132ad654ebcbbff775b",
+    "independent_actual_data_review_sha256": "dba560d9fbfb4ede0002e7532e29bd5d2ba09f739572c23e3660c3ba55ea5b4a"
+  },
+  "storage": {
+    "retained_archive": "s3://dive-selectseq-gate-20261024125700-45027010-010928226848/results/final.tgz",
+    "archive_sha256": "d49f9871d9b063b79227fd277ad2969d3b307d3b12dd885bcab68c51ea4ab30d",
+    "compressed_bytes": 140983,
+    "selected_original_bytes": 948899,
+    "selected_files": 18,
+    "compiler_artifacts_archived": false,
+    "local_archive_created": false,
+    "compute_terminated_and_volume_security_group_cleanup_verified_at": "2026-10-24T13:45:55.099424+00:00"
+  },
+  "limitations": [
+    "No new full-tier or four-worker aggregate",
+    "No throughput, instruction reduction or memory capacity claim",
+    "No ordinary temporal-state-error promotion or schema change"
+  ]
+}

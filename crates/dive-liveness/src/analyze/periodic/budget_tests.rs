@@ -78,7 +78,10 @@ fn a_due_prefix_inherits_its_budget_and_parent_reports_a_typed_stop() {
             ..Checks::default()
         },
         stage: Stage::Capture,
-        action: None,
+        evaluations: EvaluationErrors {
+            periodic: true,
+            ..EvaluationErrors::default()
+        },
         decision: None,
     };
     // Keep capture itself unlimited so it deterministically reaches a due
@@ -113,7 +116,7 @@ fn a_due_prefix_inherits_its_budget_and_parent_reports_a_typed_stop() {
         error,
         observer.stage,
         Some(Box::new((&*prefix).into())),
-        observer.action,
+        observer.evaluations,
         Some(false),
         observer.checks,
     );
@@ -142,7 +145,7 @@ fn a_due_prefix_inherits_its_budget_and_parent_reports_a_typed_stop() {
         AnalysisError::Inconsistent("existing failure"),
         Stage::Product,
         None,
-        None,
+        EvaluationErrors::default(),
         Some(false),
         Checks::default(),
     );
