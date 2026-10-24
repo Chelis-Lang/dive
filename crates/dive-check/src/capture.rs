@@ -13,6 +13,13 @@ use dive_model::{Model, UnsupportedKind};
 use crate::engine;
 use crate::{CheckOptions, CheckResult, Collision, Stats, Verdict, Workers};
 
+mod checkpoints;
+pub(crate) use checkpoints::Hooks as CheckpointHooks;
+pub use checkpoints::{
+    CheckpointDecision, CheckpointExploration, CheckpointObserver, CheckpointPhase,
+    ReachedCheckpoint, explore_checkpoints_with_evidence,
+};
+
 /// Maximum concurrently expanded source units during parallel capture.
 /// Fixed waves use this cap regardless of physical worker pool width.
 pub const MAX_EXPANSION_UNITS: usize = 8;
@@ -630,7 +637,7 @@ pub fn explore_with_evidence(
     if let Some(stopped) = context_stop(model, opts) {
         return Ok(stopped);
     }
-    let run = || explore_inner(model, opts, limits, false, None).legacy();
+    let run = || explore_inner(model, opts, limits, false, None, None).legacy();
     let mut result = run_on_thread(run)?;
     elapsed(&mut result, started.elapsed());
     Ok(result)
@@ -697,7 +704,8 @@ pub fn explore_concrete_parallel_with_evidence(
         return Ok(Exploration::Stopped(Box::new(result)));
     }
     let started = std::time::Instant::now();
-    let mut result = run_on_thread(|| explore_inner(model, opts, limits, true, None).legacy())?;
+    let mut result =
+        run_on_thread(|| explore_inner(model, opts, limits, true, None, None).legacy())?;
     elapsed(&mut result, started.elapsed());
     Ok(result)
 }
@@ -728,7 +736,7 @@ pub fn explore_observed_with_evidence(
     }
     let started = std::time::Instant::now();
     let mut result =
-        run_on_thread(|| explore_inner(model, opts, limits, false, Some(observer)).legacy())?;
+        run_on_thread(|| explore_inner(model, opts, limits, false, Some(observer), None).legacy())?;
     elapsed(&mut result, started.elapsed());
     Ok(result)
 }
@@ -749,7 +757,8 @@ pub fn explore_controlled_with_evidence(
         return Ok(stop.into());
     }
     let started = std::time::Instant::now();
-    let mut result = run_on_thread(|| explore_inner(model, opts, limits, false, Some(observer)))?;
+    let mut result =
+        run_on_thread(|| explore_inner(model, opts, limits, false, Some(observer), None))?;
     match &mut result {
         ControlledExploration::Complete(c) => c.safety_result.elapsed = started.elapsed(),
         ControlledExploration::Stopped(s) => s.elapsed = started.elapsed(),
@@ -809,12 +818,13 @@ fn context_stop(model: &Model, opts: &CheckOptions) -> Option<Exploration> {
     clippy::too_many_lines,
     reason = "keep admission, startup, observer dispatch and failed execution evidence in order"
 )]
-fn explore_inner(
+fn explore_inner<'obs>(
     model: &Model,
     opts: &CheckOptions,
     limits: Limits,
     parallel: bool,
-    observer: Option<&mut dyn Observer>,
+    observer: Option<&'obs mut dyn Observer>,
+    primary: Option<&mut CheckpointHooks<'obs>>,
 ) -> ControlledExploration {
     let refuse = |s: String| {
         ControlledExploration::from(stopped(Verdict::Unsupported { feature: s }, model, opts))
@@ -912,6 +922,7 @@ fn explore_inner(
         engine::SearchHooks {
             capture: Some((limits, parallel)),
             observer,
+            primary,
             ..Default::default()
         },
     );

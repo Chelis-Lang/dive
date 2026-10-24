@@ -846,6 +846,7 @@ pub(crate) struct Search<'a, 'obs, S: Keyed> {
     pub(crate) capture: Option<Collector<S::Key>>,
     checkpoint: Option<&'a mut crate::checkpoint::Session>,
     pub(crate) observer: Option<&'obs mut dyn crate::capture::Observer>,
+    pub(crate) primary: Option<&'a mut crate::capture::CheckpointHooks<'obs>>,
     pub(crate) prefix_level: Option<u64>,
     /// The run's armed budget (ADR 0107), polled once per expanded state.
     pub(crate) budget: crate::budget::Budget,
@@ -927,6 +928,50 @@ impl<S: Keyed> Search<'_, '_, S> {
         } else {
             Ok(self.set.insert(key))
         }
+    }
+
+    fn observe_checkpoint(
+        &mut self,
+        phase: crate::capture::CheckpointPhase,
+        source: StateId,
+        state: &StateVals,
+        stats: Stats,
+    ) -> Result<(), Verdict> {
+        if self.primary.is_none() {
+            return Ok(());
+        }
+        if let Some(stop) = self.budget_stop() {
+            return Err(stop.verdict);
+        }
+        let source =
+            usize::try_from(source).map_err(|_| observer_bug("checkpoint source range"))?;
+        let graph = self
+            .capture
+            .as_ref()
+            .ok_or_else(|| observer_bug("checkpoint without capture"))?
+            .graph();
+        let edges = graph
+            .edges
+            .get(source)
+            .ok_or_else(|| observer_bug("checkpoint source row"))?;
+        let concrete = graph
+            .concrete
+            .get(source)
+            .ok_or_else(|| observer_bug("checkpoint concrete row"))?;
+        if let Some(primary) = &mut self.primary {
+            primary.invoke(
+                crate::capture::ReachedCheckpoint {
+                    phase,
+                    source,
+                    state,
+                    stats,
+                    edges,
+                    concrete,
+                },
+                &self.control,
+            )?;
+        }
+        Ok(())
     }
 
     fn observe_initial(&mut self, stats: Stats) -> Result<(), Verdict> {
@@ -1239,6 +1284,31 @@ impl<S: Keyed> Search<'_, '_, S> {
                 return Some((v, false, false));
             }
         }
+        // Only the explicitly enabled checkpoint route enqueues a new root
+        // before its invariants. All legacy callers retain the old ordering.
+        let mut queued_for_checkpoint = false;
+        if initial
+            && self.primary.is_some()
+            && let Some(id) = new_id
+        {
+            if let Err(verdict) = next.push(t.clone(), id) {
+                return Some((verdict, false, false));
+            }
+            queued_for_checkpoint = true;
+            let stats = Stats {
+                initial_generated: self.generated,
+                ..self.stats(next.len() as u64)
+            };
+            if let Err(verdict) =
+                self.observe_checkpoint(crate::capture::CheckpointPhase::Init, id, &t, stats)
+            {
+                let with = self
+                    .primary
+                    .as_ref()
+                    .is_some_and(|hook| hook.has_decision());
+                return Some((verdict, with, false));
+            }
+        }
         if fresh {
             if let Some(v) = check_invariants(m, &st1, initial, &self.control) {
                 // TLC's replay checks a state outside the model again, and
@@ -1274,6 +1344,7 @@ impl<S: Keyed> Search<'_, '_, S> {
             }
         }
         if let Some(id) = new_id
+            && !queued_for_checkpoint
             && let Err(verdict) = next.push(t, id)
         {
             return Some((verdict, false, false));
@@ -1564,6 +1635,30 @@ impl<S: Keyed> Search<'_, '_, S> {
                         }),
                         self.stats(0),
                     );
+                }
+                if self.primary.is_some() {
+                    let stats = self.stats(((count - i - 1) + next.len()) as u64);
+                    if let Err(verdict) = self.observe_checkpoint(
+                        crate::capture::CheckpointPhase::SourceRow,
+                        id,
+                        s0,
+                        stats,
+                    ) {
+                        let path = self
+                            .primary
+                            .as_ref()
+                            .is_some_and(|hook| hook.has_decision())
+                            .then(|| (id, s0.clone()));
+                        return (
+                            Some(Stop {
+                                verdict,
+                                in_init: false,
+                                path,
+                                then: None,
+                            }),
+                            stats,
+                        );
+                    }
                 }
             }
             let stats = self.stats(next.len() as u64);
@@ -2178,6 +2273,7 @@ pub(crate) struct SearchHooks<'a, 'obs> {
     pub(crate) capture: Option<(crate::capture::Limits, bool)>,
     pub(crate) checkpoint: Option<&'a mut crate::checkpoint::Session>,
     pub(crate) observer: Option<&'obs mut dyn crate::capture::Observer>,
+    pub(crate) primary: Option<&'a mut crate::capture::CheckpointHooks<'obs>>,
 }
 
 /// Runs the search over `m` (assumptions already checked).
@@ -2258,11 +2354,18 @@ fn search_in<S: Keyed>(
         capture,
         checkpoint,
         observer,
+        primary,
     } = hooks;
     let (capture, concrete_pool) =
         capture.map_or((None, false), |(limits, pool)| (Some(limits), pool));
     let mut notes = Vec::new();
     let mut workers = plan_workers(m, opts);
+    if primary.is_some() {
+        workers.used = 1;
+        workers.sequential = true;
+        workers.reason =
+            Some("opt-in reached capture checkpoints use the inline W1 executor".into());
+    }
     let random = match bound_configured_random(m) {
         Ok(configured) => uses_random(&m.ir) || configured,
         Err(feature) => {
@@ -2380,6 +2483,7 @@ fn search_in<S: Keyed>(
         capture: capture.map(|limits| Collector::new(limits).with_concrete_pool(concrete_pool)),
         checkpoint,
         observer,
+        primary,
         prefix_level: None,
         budget: opts.budget.clone(),
         control: control.clone(),

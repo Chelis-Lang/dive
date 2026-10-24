@@ -1,5 +1,9 @@
 # Changelog
 
+- Add an opt-in W1 capture checkpoint API retaining reached Init/source-row
+  evidence and typed causes without enabling temporal atom evaluation, changing
+  ordinary verdicts or claiming new agreement.
+
 - Explain unresolved semantic names and operator symbols with concrete scope,
   declaration and module-import guidance. Preserve producer-specific help,
   original diagnostic evidence and analysis acceptance.
