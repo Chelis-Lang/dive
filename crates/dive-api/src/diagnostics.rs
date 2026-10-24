@@ -102,8 +102,8 @@ syntax_explanations! {
     InputTooLarge => ("DIVE-S0041", "The input exceeds the parser's 4 GiB source-size capacity.", "Split the source into smaller modules and import their definitions; time and memory budgets do not change the source-offset capacity.");
 }
 
-// Semantic coverage is deliberately partial. Only these typed argument-shape
-// families are registered; another assigned code must not borrow their help.
+// Semantic coverage is deliberately partial. Only these typed name-resolution
+// and argument-shape families are registered; another code must not borrow help.
 macro_rules! semantic_explanations {
     ($($variant:ident => ($code:literal, $cause:literal, $help:literal);)*) => {
         const SEMANTIC_CODES: &[dive_sema::Code] = &[$(dive_sema::Code::$variant,)*];
@@ -122,6 +122,8 @@ macro_rules! semantic_explanations {
 }
 
 semantic_explanations! {
+    UndefinedSymbol => ("DIVE-E0100", "The referenced name or qualified operator cannot be resolved in the current scope.", "Check the spelling and scope of the intended name. Define the intended operator, declare the intended CONSTANT or VARIABLE, or EXTENDS the module that defines it. For a named INSTANCE, check the Instance!Name qualification and the definitions exported by that instance.");
+    UndefinedOperatorSymbol => ("DIVE-E0101", "The operator symbol used here has no definition in the current scope.", "Extend the module that defines the intended operator, or supply its definition in scope. Arithmetic operators such as + need Naturals, Integers or Reals; unary minus needs Integers or Reals, and sequence concatenation needs Sequences. An operator argument or INSTANCE substitution must also have the required arity.");
     WrongArgumentCount => ("DIVE-E0107", "An operator application supplies a different number of arguments than its declared arity.", "Match the application to the declared parameter list and the required/provided counts in the message. Reference a zero-argument operator without an argument list; apply function values using brackets.");
     FunctionArgumentCount => ("DIVE-E0110", "A recognized function definition rules out the supplied number of comma-separated bracket arguments.", "Check the function definition and its bracketed indices. Match comma-separated index parameters; a tuple-pattern parameter counts as one index. A complete tuple index can be supplied as one expression when it matches the function's domain.");
     OperatorArgumentExpected => ("DIVE-E0112", "A higher-order parameter requires an operator, but its argument is an expression.", "Pass an operator name of the required arity or a LAMBDA with that many parameters; inspect the declared higher-order parameter in the message.");
@@ -248,7 +250,7 @@ mod tests {
                 );
             }
         }
-        for code in ["DIVE-E9999", "DIVE-E0107 extra", "dive-e0107", "DIVE-E0100"] {
+        for code in ["DIVE-E9999", "DIVE-E0107 extra", "dive-e0107", "DIVE-E0102"] {
             assert!(explain(code).is_none());
             assert_eq!(explanation_json(code)["known"], false);
         }
