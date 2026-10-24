@@ -519,3 +519,13 @@ instruction pairs stay within 1% overhead (maximum 0.0301%). Four ordinary-relea
 CoffeeCan observations are descriptive; they establish no quantitative memory
 or throughput gain. All measurements run dive, including its TLC compatibility
 profile; this adds no capacity or parity claim.
+
+The `liveness-atom-error-timing` validation microcorpus contains four pending
+primary controls for temporal atom evaluation: a delayed source error with a
+pending sibling, competing action/state errors, combined-claim simplification,
+and candidate residual-tableau initial consistency. Their manifests record
+unknown results and runtimes. No oracle has run for these inputs and no goldens
+are supplied; neither the error site nor a selected class, exit, count, queue,
+depth or word is established. They do not change the established small/full
+corpus selections or qualify temporal evaluation errors currently refused under
+issue #451.

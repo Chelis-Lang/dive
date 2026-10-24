@@ -2215,3 +2215,19 @@ and scans product/record fields in stored order, returning at the first empty
 component. The interval size overflow is a native runtime error; its top-level
 classification remains the separate harness issue #436. These facts do not
 authorize reordering the existing normalized bulk path.
+
+### Temporal atom error timing controls (issue #451)
+
+The `liveness-atom-error-timing` inputs pose four unanswered primary questions.
+Pinned TLC source at `94d0c5070852b37b801bb8998c436383ab7ee37b` was read:
+`Worker.run`/`doNextCheckLiveness` finish successor generation before liveness
+insertion; `LiveCheck.addNextState` evaluates action then state labels **per
+compiled solution**; `Liveness.processLiveness` combines negated claims before
+simplification; and `TableauLiveChecker.addInitState` checks initial tableau
+consistency. The inputs respectively distinguish a delayed source prefix,
+competing error demand, a potentially unused atom, and a candidate initial
+consistency error. Source structure does not establish any input's actual
+route or outcome. Generation by the pinned oracle with a recorded reason is
+required before those facts or any runtime implementation are claimed. No Java
+algorithm is copied, no golden is written here, and the earlier seven Concat
+primary references are unchanged.

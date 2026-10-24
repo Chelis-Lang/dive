@@ -183,3 +183,11 @@ id = "selectseq-concat-type-capability"
 path = "conformance/corpus/selectseq-concat-type-capability"
 license = "MIT"
 layout = "examples-manifest"
+
+# Primary-first temporal atom error timing controls (#451).
+# Separate validation microcorpus; established parity populations are unchanged.
+[[corpus]]
+id = "liveness-atom-error-timing"
+path = "conformance/corpus/liveness-atom-error-timing"
+license = "MIT"
+layout = "examples-manifest"

@@ -1,5 +1,9 @@
 # Changelog
 
+- Add four source-only temporal atom error timing probes for issue #451, with
+  unknown outcomes and a separate validation population pending pinned oracle
+  generation.
+
 - Prove non-string result kinds from owned sources during bounded SelectSeq
   callback analysis, allowing canonical native Concat past its own runtime-name
   check. Preserve both argument walks, unused captures, provider/effect checks,
