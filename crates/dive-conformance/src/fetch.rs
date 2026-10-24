@@ -356,7 +356,17 @@ fn checkout_marker(dir: &Path) -> PathBuf {
 /// # Errors
 /// Fails if git fails or `HEAD` differs.
 pub fn verify_head(dir: &Path, commit: &str) -> Result<()> {
-    let head = capture(
+    verify_head_with_setup(dir, commit, None)
+}
+
+fn verify_head_with_setup(
+    dir: &Path,
+    commit: &str,
+    setup: Option<&crate::oracle::setup::Capture>,
+) -> Result<()> {
+    let head = capture_setup(
+        setup,
+        "git-head",
         Command::new("git")
             .arg("-C")
             .arg(dir)
@@ -382,13 +392,24 @@ pub fn verify_head(dir: &Path, commit: &str) -> Result<()> {
 /// # Errors
 /// Fails if git fails.
 pub fn dirty_paths(dir: &Path) -> Result<Vec<String>> {
-    let out = capture(Command::new("git").arg("-C").arg(dir).args([
-        "status",
-        "--porcelain",
-        "--untracked-files=all",
-        "--ignored",
-        "--ignore-submodules=all",
-    ]))?;
+    dirty_paths_with_setup(dir, None)
+}
+
+pub(crate) fn dirty_paths_with_setup(
+    dir: &Path,
+    setup: Option<&crate::oracle::setup::Capture>,
+) -> Result<Vec<String>> {
+    let out = capture_setup(
+        setup,
+        "git-status",
+        Command::new("git").arg("-C").arg(dir).args([
+            "status",
+            "--porcelain",
+            "--untracked-files=all",
+            "--ignored",
+            "--ignore-submodules=all",
+        ]),
+    )?;
     Ok(out.lines().map(str::to_owned).collect())
 }
 
@@ -397,14 +418,23 @@ pub fn dirty_paths(dir: &Path) -> Result<Vec<String>> {
 /// # Errors
 /// Fails if any of those does not hold.
 pub fn verified_checkout(dir: &Path, commit: &str, what: &str) -> Result<()> {
+    verified_checkout_with_setup(dir, commit, what, None)
+}
+
+pub(crate) fn verified_checkout_with_setup(
+    dir: &Path,
+    commit: &str,
+    what: &str,
+    setup: Option<&crate::oracle::setup::Capture>,
+) -> Result<()> {
     if !checkout_marker(dir).is_file() {
         return Err(Error::Config(format!(
             "{what} is not in the cache ({}); run `dive-conformance corpus fetch` or `oracle fetch`",
             dir.display()
         )));
     }
-    verify_head(dir, commit)?;
-    let dirty = dirty_paths(dir)?;
+    verify_head_with_setup(dir, commit, setup)?;
+    let dirty = dirty_paths_with_setup(dir, setup)?;
     if !dirty.is_empty() {
         return Err(Error::Config(format!(
             "{what} checkout {} has local changes ({}); delete it and fetch again",
@@ -413,6 +443,27 @@ pub fn verified_checkout(dir: &Path, commit: &str, what: &str) -> Result<()> {
         )));
     }
     Ok(())
+}
+
+// Preserve the default unbounded utility path. Opt-in setup uses the existing
+// owned deadline runner and records normal nonzero before semantic rejection.
+fn capture_setup(
+    setup: Option<&crate::oracle::setup::Capture>,
+    phase: &str,
+    command: &mut Command,
+) -> Result<String> {
+    let Some(setup) = setup else {
+        return capture(command);
+    };
+    let output = setup.run(phase, command, crate::oracle::setup::TIMEOUT)?;
+    if output.exit_code != Some(0) {
+        return Err(Error::Command(format!(
+            "{phase} failed (exit {:?}): {}",
+            output.exit_code,
+            output.stderr.trim()
+        )));
+    }
+    Ok(output.stdout)
 }
 
 /// Finds the `java` executable inside an unpacked JRE. On macOS the archive

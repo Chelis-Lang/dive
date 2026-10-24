@@ -134,7 +134,7 @@ oracle fetch [--oracle ID]       # download + verify gating oracles (or ID), cla
 oracle verify [--oracle ID]      # re-verify the cache and print the gating oracles' (or ID's) probed capabilities
 corpus fetch [--corpus ID]      # git checkout of pinned corpora; submodules are recorded, not fetched
 corpus list  [--tier small|deep|all] [--filter GLOB]
-golden generate [--oracle ID] [--tier T] [--filter GLOB]... [--reason TEXT] [--no-sany|--sany-only] [--workers 1,4] [--raw-invocations DIR]
+golden generate [--oracle ID] [--tier T] [--filter GLOB]... [--reason TEXT] [--no-sany|--sany-only] [--workers 1,4] [--raw-invocations DIR] [--raw-setup-status]
 run --impl tlc|tlc:<oracle-id>|dive|adapter:<file.toml>
     [--corpus ID]... [--golden-oracle ID] [--workers 1,4] [--crosscheck-manifest] [--tier T] [--filter GLOB]...
     [--sany-phase full|parse] [--dive-bin PATH] [--impl-profile P] [--impl-option N[=V]]...
@@ -204,6 +204,38 @@ Recording failures fail the model job, including a terminal recording failure
 after TLC exits; an uncaptured result cannot become a golden. Unknown outcomes,
 timeouts and harness failures retain their available streams even when no golden
 is written. The caller owns collection and removal of these directories.
+
+`--raw-setup-status` requires `--raw-invocations DIR` and is also off by
+default. It records setup separately under `DIR/setup-status`, without changing
+the TLC model-record schema or adding model passes. Each fresh session retains
+Java version, TLC help, SANY and temporal capability probes, jar-manifest
+extraction, and any module-library/corpus Git verification subprocesses. The
+final cached-corpus pristine check is retained there too. These setup commands
+still execute on each preparation. Verified cached archives are marked
+`not-executed` with `cache_hit: true`. Freshly computed in-repository corpus
+digests are separate in-process verification records with `cache_hit: false`.
+Neither records an invented native exit status.
+
+Setup records use their own `schema: 1` and `kind: oracle-setup` namespace.
+A `preparation-completed.json` summary must be durable before model dispatch;
+the final session summary also includes any post-model pristine check.
+An atomic `started.json` precedes each dispatch and lists actual argv, cwd and
+its 120-second timeout; `completed.json` adds native status, timeout, elapsed
+time, and original stdout/stderr SHA-256 and byte counts. Normal nonzero exits
+are records, not automatic failures: existing capability checks still decide
+whether the result is usable (the temporal probe expects exit 13). A timeout,
+signal, missing normal status, spawn error or recording error fails preparation
+before another subprocess can be dispatched. `harness-error.json` preserves an
+available error without inventing a native completion. A retained started or
+partial record alone proves neither dispatch nor cleanup. The existing owned
+process supervisor still establishes quiescence before returning a normal
+outcome; callers must preserve uncertainty after external cancellation.
+
+The capability workspace is retained with these records. `DIR` must additionally
+be outside the corpus and all physical directory aliases reached from it; this
+is checked before setup creates files. No inherited environment is recorded.
+Setup receipts are external evidence, not golden provenance or a public golden
+schema; no capture is enabled by the default command.
 
 **`dev capture`** (`--oracle ID --specs DIR --out DIR [--seed N] [--lncheck MODE] [--workers N] [--fp N] [--feature F]... NAME...`) runs an oracle exactly as the harness does on `DIR/NAME/NAME.tla` and `.cfg`, and records the raw stdout, stderr, exit code, JSON trace and SANY output. The fixtures under `tests/fixtures/tlc/` were made this way. `--seed N` replaces the harness's `-seed 0`; the randomization fixtures in `crates/dive-stdlib/tests/fixtures/random/` use it. `--lncheck MODE` (`final`, `default` or `off`) replaces `-lncheck final`, `--workers N` (one count) replaces `-workers 1`, and `--fp N` replaces `-fp 0`. `--feature F` gives the specs an Examples manifest feature, so `--feature 'action composition'` adds `-Dtlc2.tool.impl.Tool.cdot=true`. They record TLC's other modes as oracle facts for probes (the liveness probes in `crates/dive-liveness/tests/fixtures/tlc-probes/` use all three); goldens never use them. A capture with more than one worker has no JSON trace, because the trace pass runs only at one worker. Like golden generation, it records the clean run (no `-dumpTrace`); a counterexample's `.trace.json` comes from the cross-checked trace pass, run with the same `-seed`, whose command line is in `.trace.command`. Transcripts captured before issue #35 were made with `-dumpTrace json` on the deciding run: their `.command` ends in `-dumpTrace json $TMP/trace.json`, and their SANY lines show `_JsonTrace`, `TLCExt`, `Json` and `Integers` being parsed. `dev capture` does not retain the trace pass's stdout/stderr; use `golden generate --raw-invocations` when both passes need original-byte evidence.
 
