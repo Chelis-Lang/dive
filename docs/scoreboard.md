@@ -130,8 +130,8 @@ Safety-4-processors configuration
 ([#368](https://github.com/Chelis-Lang/dive/issues/368)). The count falls from
 174 to 171; those findings are explicit and unresolved, not erased by a new
 digest. The historical `MCNanoLarge` OOM remains a disagreement in its original
-report ([#351](https://github.com/Chelis-Lang/dive/issues/351)); the new timed
-stop earns no agreement or fix credit. EWD998Chan stopped before reaching its
+report ([#351](https://github.com/Chelis-Lang/dive/issues/351)); its controlled
+2026-10-21 time stop earned no agreement or termination-fix credit. EWD998Chan stopped before reaching its
 old graph-capture count refusal, which earns no capacity credit
 ([#369](https://github.com/Chelis-Lang/dive/issues/369)).
 

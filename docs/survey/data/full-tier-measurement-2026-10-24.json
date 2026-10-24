@@ -596,5 +596,42 @@
     "No new full gate, full-tier SANY, four-worker, throughput, scaling or peak-memory result.",
     "36 in-scope gaps remain; no timeout/refusal/missing reference is agreement. Queue is retained progress, not an agreement metric.",
     "Historical171/217 and174/217 reports remain unchanged and distinct."
-  ]
+  ],
+  "machine": {
+    "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+    "kernel": "Linux 7.0.0-1014-aws",
+    "scope": "Actual original tool-machine object facts; no quiet-window or peak-memory certificate."
+  },
+  "tools": {
+    "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)"
+  },
+  "native_binaries": {
+    "dive": {
+      "sha256": "a1c0102e11b3388672115102369a9f9c87c75966aad5aa34589867b7ec2220fd",
+      "logical_binary": "dive"
+    },
+    "dive-conformance": {
+      "sha256": "95f65084029c84755f06d6f038ae68499ad149579614fed7be19046045089af7",
+      "logical_binary": "dive-conformance"
+    }
+  },
+  "report_implementation_identity": {
+    "sha256": "0207c77e48d315ee7814a9611bbdbc685f01e00c5f596baead6d0992c721c960",
+    "scope": "The original harness implementation_dive hash identifies the transparent raw_capture wrapper, not the native executable. Native hashes are separate above."
+  },
+  "actual_identity_sources": {
+    "sanitized_selected_facts_sha256": "f9ef6dd5e681c43b1f7e0b89a4e054f9733f43e4fdd057ddf05e2dc4d3d89e78",
+    "objects": [
+      {
+        "key": "results/originals/binary-hashes.json",
+        "sha256": "b33079a807dcfe997b21d2985597ed170bcec975c843c4ec8ab02f99557797d9"
+      },
+      {
+        "key": "results/originals/tool-machine.json",
+        "sha256": "c1ccc0f1a0060be4d027a24f32666b07736bc664e5e39a5c3f36d8fc1e852236"
+      }
+    ],
+    "verification": "Original objects were SHA-verified against the audited manifest by the independent lead memory audit. This follow-up checks the selected fact artifact, not a second raw-object or ELF replay."
+  }
 }
