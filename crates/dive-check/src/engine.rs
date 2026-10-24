@@ -934,7 +934,7 @@ impl<S: Keyed> Search<'_, '_, S> {
         &mut self,
         phase: crate::capture::CheckpointPhase,
         source: StateId,
-        state: &StateVals,
+        values: &StateVals,
         stats: Stats,
     ) -> Result<(), Verdict> {
         if self.primary.is_none() {
@@ -963,7 +963,7 @@ impl<S: Keyed> Search<'_, '_, S> {
                 crate::capture::ReachedCheckpoint {
                     phase,
                     source,
-                    state,
+                    state: values,
                     stats,
                     edges,
                     concrete,

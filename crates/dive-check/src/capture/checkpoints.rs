@@ -198,6 +198,7 @@ impl Hooks<'_> {
 /// Existing capture entrypoints, old Observer callbacks and ordinary scheduling
 /// are unchanged. Other requested widths (including zero) refuse before search.
 /// No temporal predicate is evaluated by this API itself.
+/// Both observer borrows cover this call; the owned result borrows neither.
 ///
 /// ```no_run
 /// # fn example(model: &dive_model::Model,
@@ -215,12 +216,12 @@ impl Hooks<'_> {
 ///
 /// # Errors
 /// The dedicated exploration thread failed or panicked, losing execution evidence.
-pub fn explore_checkpoints_with_evidence(
+pub fn explore_checkpoints_with_evidence<'observer>(
     model: &Model,
     opts: &CheckOptions,
     limits: Limits,
-    observer: Option<&mut dyn Observer>,
-    checkpoints: &mut dyn CheckpointObserver,
+    observer: Option<&'observer mut dyn Observer>,
+    checkpoints: &'observer mut dyn CheckpointObserver,
 ) -> Result<CheckpointExploration, String> {
     let refuse = |outcome: super::Exploration| CheckpointExploration {
         outcome: outcome.into(),
