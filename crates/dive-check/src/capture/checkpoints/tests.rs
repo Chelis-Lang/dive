@@ -70,7 +70,7 @@ const CFG: &str = "INIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n";
 fn init_is_really_queued_before_invariant_and_transports_original_core_cause() {
     for opts in profiles() {
         let m = model(
-            &format!("{LOOP}\nFail == FALSE\nBad == x \\div 0 = 0"),
+            &format!("{LOOP}\nFail == x = 2\nBad == x \\div 0 = 0"),
             "INIT Init\nNEXT Next\nINVARIANTS Fail Bad\n",
             &opts,
         );
@@ -306,7 +306,11 @@ fn excluded_duplicate_and_incomplete_init_candidates_do_not_invent_root_checkpoi
     assert_eq!(roots.len(), 1);
     assert_eq!(roots[0].1.initial_generated, 1);
     assert_eq!(roots[0].1.left_on_queue, 1);
-    let m = model("Init == TRUE\nNext == x' = 0", CFG, &opts);
+    let m = model(
+        "VARIABLE y\nInit == x = 0\nNext == UNCHANGED <<x, y>>",
+        CFG,
+        &opts,
+    );
     let mut calls = 0;
     let result = run(
         &m,
@@ -483,7 +487,7 @@ fn actual_armed_budget_keeps_stop_class_and_suppresses_callback_after_exhaustion
         .expect("armed budget");
     opts.budget = watchdog.budget().clone();
     let m = model(
-        &format!("{LOOP}\nInv == TRUE"),
+        &format!("{LOOP}\nInv == x >= 0"),
         "INIT Init\nNEXT Next\nINVARIANT Inv\n",
         &opts,
     );
