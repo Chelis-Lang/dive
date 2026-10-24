@@ -515,3 +515,120 @@ fn actual_armed_budget_keeps_stop_class_and_suppresses_callback_after_exhaustion
     assert!(subsequent.decision().is_none());
     assert!(matches!(stopped(&subsequent).verdict, Verdict::Stopped(_)));
 }
+
+fn output(run: &CheckpointExploration) -> &[String] {
+    match run.outcome() {
+        ControlledExploration::Complete(capture) => &capture.safety_result().output,
+        ControlledExploration::Stopped(result) => &result.output,
+        ControlledExploration::Prefix(prefix) => &prefix.output,
+    }
+}
+
+#[test]
+fn init_decision_omits_invariant_print_but_same_input_allowed_callback_prints() {
+    for opts in profiles() {
+        let m = model(
+            "Init == x = 0\nNext == x' = x\nInv == IF x = 0 THEN PrintT(\"init-invariant-sentinel\") ELSE TRUE",
+            "INIT Init\nNEXT Next\nINVARIANT Inv\n",
+            &opts,
+        );
+        let refused = run(
+            &m,
+            &opts,
+            &mut Visit(|e: ReachedCheckpoint<'_>| {
+                assert_eq!(e.phase(), CheckpointPhase::Init);
+                Err(EvalError::general("decide before the invariant effect"))
+            }),
+        );
+        assert!(refused.decision().is_some());
+        assert_eq!(output(&refused), [] as [String; 0]);
+        let allowed = run(&m, &opts, &mut Visit(|_: ReachedCheckpoint<'_>| Ok(())));
+        assert!(allowed.decision().is_none());
+        assert!(matches!(
+            allowed.outcome(),
+            ControlledExploration::Complete(_)
+        ));
+        assert_eq!(output(&allowed), ["\"init-invariant-sentinel\"".to_owned()]);
+    }
+}
+
+#[test]
+fn source_decision_omits_pending_sibling_print_but_same_input_allowed_callback_prints() {
+    for opts in profiles() {
+        let m = model(
+            "Init == x = 0\nNext == IF x = 0 THEN x' \\in {1, 2}\n        ELSE IF x = 1 THEN x' = 3\n        ELSE IF x = 2 THEN PrintT(\"pending-sibling-sentinel\") /\\ x' = x\n        ELSE x' = x",
+            CFG,
+            &opts,
+        );
+        let mut rows = Vec::new();
+        let refused = run(
+            &m,
+            &opts,
+            &mut Visit(|e: ReachedCheckpoint<'_>| {
+                if e.phase() == CheckpointPhase::SourceRow {
+                    rows.push(x(e.state()));
+                    if x(e.state()) == 1 {
+                        return Err(EvalError::general("decide before pending sibling"));
+                    }
+                }
+                Ok(())
+            }),
+        );
+        assert_eq!(rows, [0, 1]);
+        assert_eq!(
+            refused
+                .decision()
+                .expect("reached source")
+                .stats()
+                .left_on_queue,
+            2
+        );
+        assert_eq!(output(&refused), [] as [String; 0]);
+        let allowed = run(&m, &opts, &mut Visit(|_: ReachedCheckpoint<'_>| Ok(())));
+        assert!(allowed.decision().is_none());
+        assert!(matches!(
+            allowed.outcome(),
+            ControlledExploration::Complete(_)
+        ));
+        assert_eq!(
+            output(&allowed),
+            ["\"pending-sibling-sentinel\"".to_owned()]
+        );
+    }
+}
+
+#[test]
+fn non_eval_callback_causes_keep_existing_mapping_without_a_typed_decision() {
+    for opts in profiles() {
+        let m = model(LOOP, CFG, &opts);
+        for (cause, expected) in [
+            (
+                EvalError::unsupported("unimplemented callback feature"),
+                Verdict::Unsupported {
+                    feature: "unimplemented callback feature".into(),
+                },
+            ),
+            (
+                EvalError::resource_limit("callback resource bound"),
+                Verdict::ResourceLimit {
+                    message: "callback resource bound".into(),
+                },
+            ),
+            (
+                EvalError::bug("callback invariant fault"),
+                Verdict::InternalError {
+                    message: "callback invariant fault".into(),
+                },
+            ),
+        ] {
+            let result = run(
+                &m,
+                &opts,
+                &mut Visit(|_: ReachedCheckpoint<'_>| Err(cause.clone())),
+            );
+            assert_eq!(stopped(&result).verdict, expected);
+            assert!(result.decision().is_none());
+            assert!(stopped(&result).counterexample.is_none());
+        }
+    }
+}

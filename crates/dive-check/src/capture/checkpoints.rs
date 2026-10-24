@@ -84,13 +84,15 @@ pub trait CheckpointObserver: Send {
     /// Called only at the actual admitted boundary under the search's control.
     ///
     /// # Errors
-    /// An original core cause stops this opt-in run as unsupported evidence.
+    /// A genuine Core `ErrorClass::Eval` cause stops as unsupported evidence.
+    /// Other classes keep their existing mapping and produce no typed decision.
     /// Owned budget interruptions keep their existing stopped/measurement class;
     /// foreign interruptions and callback panics cannot produce a decision.
     fn reached(&mut self, event: ReachedCheckpoint<'_>) -> Result<(), EvalError>;
 }
 
-/// Producer-owned cause at a reached checkpoint with a checked diagnostic path.
+/// Producer-owned Core `ErrorClass::Eval` cause at a reached checkpoint.
+/// The stopped result carries its checked diagnostic path.
 /// This does not certify TLC's demand, class, trace ending or completed exploration.
 #[derive(Clone, Debug)]
 pub struct CheckpointDecision {
