@@ -1,5 +1,9 @@
 # Changelog
 
+- Record the rejected invocation-session evaluator screen: all eight pairs
+  increased instructions, by 73.271% geometrically, with matching counters.
+  The private runtime prototype remains unmerged.
+
 - Add an opt-in W1 capture checkpoint API retaining reached Init/source-row
   evidence and typed causes without enabling temporal atom evaluation, changing
   ordinary verdicts or claiming new agreement.

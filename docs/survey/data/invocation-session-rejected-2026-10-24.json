@@ -1,0 +1,533 @@
+{
+  "schema_version": 1,
+  "experiment": "invocation-session-evaluator",
+  "date": "2026-10-24",
+  "status": "rejected_complete_instruction_screen",
+  "change": "Private generation-tagged invocation control across calls, thunks, substitutions, bounded quantifier rows and raw logic, with same-session native callbacks and declared legacy fallback barriers. No runtime change landed.",
+  "source": {
+    "baseline": "6077f492ad4ca8aab2ee9c8749fe82bab78ef773",
+    "candidate": "99a4787830f2193bb3f574e3739b5f199e64f4ae",
+    "trees": {
+      "base": "902754e71e67f4e84fcde9560ca3df259a3c8ab1",
+      "candidate": "b469ce251c36b6c69bf2db7581a5c0072e7e9729"
+    }
+  },
+  "method": {
+    "metric": "Whole-CLI Cachegrind Ir, including startup; baseline is dive, not Java TLC.",
+    "builds": 2,
+    "native_stages": 18,
+    "instruction_arms": 16,
+    "pairs": 8,
+    "workers": 1,
+    "seed": 0,
+    "fingerprint": 0,
+    "max_memory_bytes": 8589934592,
+    "native_time_limit_seconds": 900,
+    "outer_arm_seconds": 930,
+    "cache_simulation": false,
+    "profiles": [
+      "dive",
+      "tlc"
+    ],
+    "cost_validation": "Entire exclusive cost-line sum equals Cachegrind summary Ir and stderr I refs; read through EOF.",
+    "acceptance": {
+      "minimum_geometric_reduction": 0.05,
+      "maximum_cell_ratio": 1.01
+    },
+    "workload": {
+      "examples_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "reductions": {
+        "SimpleRegular": "Copy SimpleRegular.cfg, set N to6.",
+        "MCbtree": "Copy MCbtree.cfg, set MaxKey to3.",
+        "GameOfLife": "Copy GameOfLife.cfg, set N to3.",
+        "EWD998PCal": "Copy EWD998PCal.cfg unchanged; in EWD998PCal.tla change StateConstraint counter[i]<3 to counter[i]<2."
+      },
+      "models": {
+        "SimpleRegular": {
+          "module": {
+            "path": "specifications/TeachingConcurrency/SimpleRegular.tla",
+            "sha256": "bf3872f04d71f7b80fcb55cecd07bf1b38fac3861fbb3452eb179c593c1bcdb5"
+          },
+          "config": {
+            "path": "specifications/TeachingConcurrency/R1SimpleRegular.cfg",
+            "sha256": "aa129769c5d9a6bd1c3545dbbfbc98e1279d4b314b592b7801c9af71735fc3ff"
+          },
+          "expected": {
+            "distinct": 12097,
+            "generated": 47584,
+            "depth": 19
+          }
+        },
+        "MCbtree": {
+          "module": {
+            "path": "specifications/btree/MCbtree.tla",
+            "sha256": "64655fd6391422f27607da0c3d36617066249c68687d984bdb1113bc98f83ac3"
+          },
+          "config": {
+            "path": "specifications/btree/R1MCbtree.cfg",
+            "sha256": "de7bb2b0263d04833243ed7f09bec7cb496e4111f6777425161b9d8a5e119ffa"
+          },
+          "expected": {
+            "distinct": 21364,
+            "generated": 127825,
+            "depth": 24
+          }
+        },
+        "GameOfLife": {
+          "module": {
+            "path": "specifications/GameOfLife/GameOfLife.tla",
+            "sha256": "dcd6d626946faab35ac22ad38a031b0d9bd9bc274d8750340506acc407dccbc6"
+          },
+          "config": {
+            "path": "specifications/GameOfLife/R1GameOfLife.cfg",
+            "sha256": "842e3c2d93b0535783091687f76debde6dd42fc7b33983f154a9f892125ef4a9"
+          },
+          "expected": {
+            "distinct": 512,
+            "generated": 1024,
+            "depth": 1
+          }
+        },
+        "EWD998PCal": {
+          "module": {
+            "path": "specifications/ewd998/EWD998PCal.tla",
+            "sha256": "3342f5d865902f6e85defbcd6713cea1dac50e031d3f2281e7b7cc9deb545da4"
+          },
+          "config": {
+            "path": "specifications/ewd998/R1EWD998PCal.cfg",
+            "sha256": "44073c04a88dd7aa593cab099e59b7b1dd4be31ec2d5b59616b0426a3a84f892"
+          },
+          "expected": {
+            "distinct": 20870,
+            "generated": 168292,
+            "depth": 28
+          }
+        }
+      }
+    },
+    "input_archives_sha256": {
+      "workloads": "f1d3eb00d9f43c11e03a50be64a3115f8e2bb838299bb8d7033106a8ce0c53ef",
+      "module_libraries": "90a8757da7c179dcf04ec8f7530f99881e013eb76b92bfeb59808d9a0fe782ab"
+    },
+    "shipping_allocator": "mimalloc in both normal profiling CLI binaries; no allocator override.",
+    "profile_build": {
+      "opt_level": "3",
+      "debuginfo": 2,
+      "debug_assertions": false,
+      "overflow_checks": false,
+      "test": false
+    }
+  },
+  "machine": {
+    "campaign": "dive-selectseq-perf-20261024210211-90bd4f41",
+    "ami": "ami-02a9cdd4e98bc3c78",
+    "instance_type": "c7i.8xlarge",
+    "observed_machine_identity_sha256": "43bcd69a5907bef006e8a8164799287e7c05fb7d6a530bdc49ce1d98466c4ef9",
+    "scope": "SMT2 shared environment; actual per-arm identity stable, no quiet-window or exclusive-host certificate.",
+    "cpu": {
+      "Architecture": "x86_64",
+      "CPU(s)": "32",
+      "Vendor ID": "GenuineIntel",
+      "Model name": "Intel(R) Xeon(R) Platinum 8488C",
+      "Thread(s) per core": "2",
+      "Core(s) per socket": "16",
+      "Socket(s)": "1"
+    },
+    "kernel": {
+      "system": "Linux",
+      "release": "7.0.0-1014-aws",
+      "architecture": "x86_64"
+    }
+  },
+  "tools": {
+    "expected_version_prefixes": {
+      "rustc": "rustc 1.99.0 ",
+      "cargo": "cargo 1.99.0 ",
+      "valgrind": "valgrind-3.22.0"
+    },
+    "actual_normalized_tool_and_loader_identity_sha256": "1370241ba9d5bb19e37059a88e60c28950bac66c277a0c73c7e84a84f218755f",
+    "scope": "Exact observed versions and normalized per-tool/loader identity digests from the original matrix identity; not a quiet-window certificate.",
+    "actual_versions": {
+      "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+      "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+      "valgrind": "valgrind-3.22.0",
+      "cachegrind_backend": "valgrind-3.22.0 cachegrind backend"
+    }
+  },
+  "binaries": {
+    "base": {
+      "sha256": "337853f7d036ef2a20f8a8c42b3f1a1120ddb41590e37ea146cb83e8a5c2d5d7",
+      "bytes": 107256192,
+      "mode": "0o775"
+    },
+    "candidate": {
+      "sha256": "d470ced344acf2fb6cd82c22e3ad78125b3c0d18f2d97d14c0fc0f819667f94e",
+      "bytes": 110016768,
+      "mode": "0o775"
+    }
+  },
+  "results": {
+    "all_native_stages_normal_uncensored": true,
+    "all_semantic_counters_equal": true,
+    "pairs": [
+      {
+        "model": "SimpleRegular",
+        "profile": "dive",
+        "baseline_Ir": 2532150223,
+        "candidate_Ir": 4052601149,
+        "delta_percent": 60.045842153812856,
+        "equal_counters": {
+          "distinct": 12097,
+          "generated": 47584,
+          "depth": 19,
+          "initial_generated": 1,
+          "left_on_queue": 0
+        },
+        "verdict": "success",
+        "verified_TLC_success_code": 2193,
+        "exit_code": 0,
+        "raw_hashes": {
+          "baseline": {
+            "cachegrind_sha256": "ab7f3319e07545c41e1f5dd2c4c38e957255b04599fada46081263f6d9967823",
+            "cachegrind_bytes": 963333,
+            "stdout_sha256": "3908b366e7c05f455de385de5b4644daf7965d4deb2df7a3d053b63398aa9ddf",
+            "stderr_sha256": "f379dcf86c23cd33a16fbfdec744e018b29579a1fe507270c990dd72d37f4784",
+            "observation_sha256": "3e0d7324652a5e501cae5d5cb458634f2e5d0b268232a52f82d288c2b75ae7f3",
+            "identity_before_sha256": "09f30997394d33b5a952af8e87a931b5e41cb6dcaa23ca20334c7ea260a62834",
+            "identity_after_sha256": "a854684fa4bb2382bcf65c404705889f2b7ed9e794c479c970d60d463e4b5f88"
+          },
+          "candidate": {
+            "cachegrind_sha256": "90e10706c2aa5d0bbf1370817ab465849e7f44ed4b7d5abf98313c75ffd3e2a9",
+            "cachegrind_bytes": 977043,
+            "stdout_sha256": "8adcf6e673a261961722e19fce0a642782ccab173db6196609cfc9dcf1c38a63",
+            "stderr_sha256": "12d3a43f1c209076f247436a94e606fed50b1908dc5d1073a2158c2110448641",
+            "observation_sha256": "105eb9e76cb7f2981577912da8e595e9ff16803628b8ca017c3513c842710e04",
+            "identity_before_sha256": "84bb37a3d64f6ee9bd3e61a5d184ad6b7c7bda8563950e880f30c32d4609a7a0",
+            "identity_after_sha256": "2252d68ba689ce6a7d5acdb698c9b607e4adf6776cfd758a97c9f37d0ecc55e2"
+          }
+        }
+      },
+      {
+        "model": "MCbtree",
+        "profile": "dive",
+        "baseline_Ir": 14498675086,
+        "candidate_Ir": 24616947261,
+        "delta_percent": 69.78756413936236,
+        "equal_counters": {
+          "distinct": 21364,
+          "generated": 127825,
+          "depth": 24,
+          "initial_generated": 1,
+          "left_on_queue": 0
+        },
+        "verdict": "success",
+        "verified_TLC_success_code": 2193,
+        "exit_code": 0,
+        "raw_hashes": {
+          "baseline": {
+            "cachegrind_sha256": "b5ed5ea4d4881305e7649a814160dcee719a3294dca734d73a6cc33764a1d621",
+            "cachegrind_bytes": 1101124,
+            "stdout_sha256": "aa99f57ff7bc19ceb439b6fd77bf17b481a8c18ae6ca428e82858c742ac6e2c2",
+            "stderr_sha256": "77540fa247d54936ea290970c14ee860d513ebbbe461ce7998a85350bd5335aa",
+            "observation_sha256": "7a2f54b8c71eae74e7db512008f6896d3655ba0161da16054aee18790376eb37",
+            "identity_before_sha256": "88d22467fcaba3acbfcefee090fad906defb244d3f3bae97d08195fd88d56424",
+            "identity_after_sha256": "6788009cc9b02011f3e72498cad4796d379bdcb5884b5564f6ea7843f9496c18"
+          },
+          "candidate": {
+            "cachegrind_sha256": "fd89d2830d25d4db2734018006445804074760787f9d19abee28c8d60fdd7ce7",
+            "cachegrind_bytes": 1125629,
+            "stdout_sha256": "60bf75642f54685797672ba76099cf9fea65e6014a2899d1c4bb546f5e24a14b",
+            "stderr_sha256": "192be08451a392e7f7f941c2571f50e09336ca6f3d51e690ce8985877e998152",
+            "observation_sha256": "15d0b6a6562105363c410ec700f53d9ef88f8e09c02867bb517420990f34c33e",
+            "identity_before_sha256": "989bc2110a095f50601e31980474b0dbc6696cad0bed719ce56bed4434cb1d95",
+            "identity_after_sha256": "e45ace42c917c3c98cd9ff66b690ba273f2b96ab9c20d7090b9c6e6aec2fbece"
+          }
+        }
+      },
+      {
+        "model": "GameOfLife",
+        "profile": "dive",
+        "baseline_Ir": 1147518252,
+        "candidate_Ir": 2183148707,
+        "delta_percent": 90.24958454429881,
+        "equal_counters": {
+          "distinct": 512,
+          "generated": 1024,
+          "depth": 1,
+          "initial_generated": 512,
+          "left_on_queue": 0
+        },
+        "verdict": "success",
+        "verified_TLC_success_code": 2193,
+        "exit_code": 0,
+        "raw_hashes": {
+          "baseline": {
+            "cachegrind_sha256": "1c7b27417c604c362c442d25676ee38e894e33cfde8d362a17067b9f2fb33cbb",
+            "cachegrind_bytes": 895438,
+            "stdout_sha256": "cc6d794360451e4664ad95cae89e26e8d255d6318785dd708b25ecfce4e86e61",
+            "stderr_sha256": "475fcf42247706fd411c1ce935caa013fab126378f220ee702b5f74894596484",
+            "observation_sha256": "7e34b60166f5e5abc47a2c9fc92de2abbeb962079373e633c4e84a8b4144d81a",
+            "identity_before_sha256": "4e712bc0fb24dccedaab0b8978b6897a57f627d820805b9c0ea1d740f35df838",
+            "identity_after_sha256": "e7e5d3fb9859952770f79c94bde092dbb9606c1fd445ef6f3091d0a49ec9ef09"
+          },
+          "candidate": {
+            "cachegrind_sha256": "38e5dff9af433046fdf506e7301928ed5f528c9fe52dea9a635c7c2cb8862a8f",
+            "cachegrind_bytes": 913092,
+            "stdout_sha256": "574c56597ba84b1ffa793d5055ffd783f7f8d3db4904cd2c4f477e2bf872b14b",
+            "stderr_sha256": "92f581cb436d7d12399b13ae641b804b5aaea3c5b0af1aab5650de75c68d5ef4",
+            "observation_sha256": "e9e54ae11b632a84da511ed2c04afc8fec9eb41ddf7b23045e82940ecadcc9bf",
+            "identity_before_sha256": "646ef44930ec07d768131f396c7957d04e66ad353ff78b466972a34396325edb",
+            "identity_after_sha256": "8e35c5f45e73b4ac499796465ebd8e7273cd875810b7c62a2032da1a40c764ac"
+          }
+        }
+      },
+      {
+        "model": "EWD998PCal",
+        "profile": "dive",
+        "baseline_Ir": 46734920184,
+        "candidate_Ir": 86019725263,
+        "delta_percent": 84.05878286371697,
+        "equal_counters": {
+          "distinct": 20870,
+          "generated": 168292,
+          "depth": 28,
+          "initial_generated": 8,
+          "left_on_queue": 0
+        },
+        "verdict": "success",
+        "verified_TLC_success_code": 2193,
+        "exit_code": 0,
+        "raw_hashes": {
+          "baseline": {
+            "cachegrind_sha256": "d3247f2783d5b55d0ed5723614a45eea271bd548cfbbc10881dc15208211af8b",
+            "cachegrind_bytes": 1122683,
+            "stdout_sha256": "8588ac205481a152a4e5a2a5104a965643aade633fb869c1af6f7c3671ca0455",
+            "stderr_sha256": "7578190eba49c1bd5b13aa15a13ffbf88cd0dadde2404966063d56a64bd4fc69",
+            "observation_sha256": "f93aa68705615766f2628148718eb865141622ba2e827e33580d28494f1a22aa",
+            "identity_before_sha256": "f9ed68ec1789b5cd96cb33eb888443fe804109094978745c887a9f9c22ac5356",
+            "identity_after_sha256": "e967a40e4cb64a23e996edb13f9e8c85a8f0c1200f940d0d66d572bb7393cf95"
+          },
+          "candidate": {
+            "cachegrind_sha256": "61f1bce5786de534ee55da79b0a3851b3b99dbc26e3b41ddc7b98d13968ee930",
+            "cachegrind_bytes": 1147734,
+            "stdout_sha256": "2d12c9a19575ab2e917e4f8b22fffc7ce4424cac682a28ea4fc9b04e2bcd5bed",
+            "stderr_sha256": "c1a895fb57ae17c5ea3e77524198fbc12b61e35fb565210c27627a4dd88d71c8",
+            "observation_sha256": "6a103814453c28471713abec4fa443a5708788fe2ad518f88a48f48cf152972d",
+            "identity_before_sha256": "d8e0aa352ba5ec244298d199f767ad1774c2d56c2ae21ce9a4e08dc4e3eed73b",
+            "identity_after_sha256": "b340e7bb7a28b764b76cf3b1561d56864e5938110bb9589e0734f53da0bb73d7"
+          }
+        }
+      },
+      {
+        "model": "SimpleRegular",
+        "profile": "tlc",
+        "baseline_Ir": 2596504256,
+        "candidate_Ir": 4109038469,
+        "delta_percent": 58.25271456824448,
+        "equal_counters": {
+          "distinct": 12097,
+          "generated": 47584,
+          "depth": 19,
+          "initial_generated": 1,
+          "left_on_queue": 0
+        },
+        "verdict": "success",
+        "verified_TLC_success_code": 2193,
+        "exit_code": 0,
+        "raw_hashes": {
+          "baseline": {
+            "cachegrind_sha256": "52cafd1cc05883efa0acaba68380d7008a764b4181c2178feb451dd0c2b0696b",
+            "cachegrind_bytes": 961191,
+            "stdout_sha256": "be49fa0997cc281189457b92e17210a1bfc82eecbca505c51a12cd6cb7206575",
+            "stderr_sha256": "7e7f3eba99f9e31806ad9eec23939f79008207e212a2c26b2dfb96113478598e",
+            "observation_sha256": "c3afa8b1bc65fd16e8aec32bad7fe224f9e592190d9533c74b18b18fc8163f11",
+            "identity_before_sha256": "e354f2fd8d8fb6792ca20c81c7894b5f31f3d533d74df7868102c624b69e7c8b",
+            "identity_after_sha256": "c1e7c6491ce20e521eb0105ea83d4cdc33c9999af02aa40eab219dcb2cec4495"
+          },
+          "candidate": {
+            "cachegrind_sha256": "865181372ac6e2f014abeb2242001d2fc36d34020f844f04f3d64b387be855b5",
+            "cachegrind_bytes": 973799,
+            "stdout_sha256": "aab432ceb8dd81073374cdd559e72797e259157a8b6504f4e2785692e13e1a02",
+            "stderr_sha256": "64ee4b849c06365839c890ef616e8bc94a8585299ea1c170863fb067462cbe1a",
+            "observation_sha256": "dad7c86980896260f9b7b3e17bb600cdbeede2b01d2a4f03c7c2b47f0250fc88",
+            "identity_before_sha256": "7d19ad4c5fe1639d2a84da052b016e3920ad983bf5eb861f3976c689ad6dc608",
+            "identity_after_sha256": "5fe675d768f79d1fed4c4fef851fdfc28e4e5a31402ddedae775c9877508170e"
+          }
+        }
+      },
+      {
+        "model": "MCbtree",
+        "profile": "tlc",
+        "baseline_Ir": 18287058276,
+        "candidate_Ir": 28384352631,
+        "delta_percent": 55.21552019250535,
+        "equal_counters": {
+          "distinct": 21364,
+          "generated": 127825,
+          "depth": 24,
+          "initial_generated": 1,
+          "left_on_queue": 0
+        },
+        "verdict": "success",
+        "verified_TLC_success_code": 2193,
+        "exit_code": 0,
+        "raw_hashes": {
+          "baseline": {
+            "cachegrind_sha256": "855b6ee94f4cff57e941103a58f838049308e43a535985a3a94ea2318aabb203",
+            "cachegrind_bytes": 1026604,
+            "stdout_sha256": "ec19c870f920933abf9cd438819613291cc7a6b06954a668010ba022a67f607c",
+            "stderr_sha256": "188959995041d0dfcba1022b877e00138d013711c29a3358a169be87ab025792",
+            "observation_sha256": "442e929d1b46f04ab4a2f798e8ca809df3ba589073892b9b3067fb1c992cd9d8",
+            "identity_before_sha256": "35e1edfc67b5b4e59a642d0bd7ac4b6929137a31dced5ca9070c2cd90537b4e0",
+            "identity_after_sha256": "59090d79c2d785baa55181248ba11763632e8895864ceed0026c3b649bd6e1fe"
+          },
+          "candidate": {
+            "cachegrind_sha256": "0c59b1666a8cedd369a075049f43998e31082c4de326d1f3c577015d49309a3d",
+            "cachegrind_bytes": 1050585,
+            "stdout_sha256": "ab5055b29c2bfbb40d8bfe8ce4c05e5e44b02229ef434923de6806badc2ad060",
+            "stderr_sha256": "948a8b8f19cb548186040d4e63c4b7e877d6b321e701d0e1fdf125d1d58df3c7",
+            "observation_sha256": "ab0bdeed7a603c76d1f5bac4924f4553c288a3045874c679e212387bf1c21f07",
+            "identity_before_sha256": "6bcee01cce986b8aa864317e432343978c38a03083b73f174ebbaec4a87db073",
+            "identity_after_sha256": "1908035db4ad1543b39e42af71946f446a28d8acba93bad3c8da7f00164be649"
+          }
+        }
+      },
+      {
+        "model": "GameOfLife",
+        "profile": "tlc",
+        "baseline_Ir": 1139657740,
+        "candidate_Ir": 2172654532,
+        "delta_percent": 90.6409666467057,
+        "equal_counters": {
+          "distinct": 512,
+          "generated": 1024,
+          "depth": 1,
+          "initial_generated": 512,
+          "left_on_queue": 0
+        },
+        "verdict": "success",
+        "verified_TLC_success_code": 2193,
+        "exit_code": 0,
+        "raw_hashes": {
+          "baseline": {
+            "cachegrind_sha256": "ee7f993e813a870e154457f1f5a7a23dd4b7a54ce57222ac5761c518a6b80d7a",
+            "cachegrind_bytes": 878790,
+            "stdout_sha256": "612de79eb43a7b169e41082bbbb40643cc0cd63b7767da42c231115c17befe78",
+            "stderr_sha256": "55cecfd7e90f5971c5f49b28b468c2c0cdc678ddd4e6bbe2188adab0a8a5d25b",
+            "observation_sha256": "b504ce3da5ea8b3bef96d29ffcdb523de04ac4d7df7cbc3a958bbd0d663ad91e",
+            "identity_before_sha256": "ef7d25a3ff9ae95ffc4a59e6bf10e6a513b7b99c51403b2c661a5e5b8659431f",
+            "identity_after_sha256": "8b201699712e36200fa0245482fc7677c7de2a4af7b79849b586cb2f5fd05f6e"
+          },
+          "candidate": {
+            "cachegrind_sha256": "1d54b6ae226854abe6d9917a07ce124d468c6284d36b0449d02f01e12ec85b55",
+            "cachegrind_bytes": 896905,
+            "stdout_sha256": "693b30bad963f02c6c1c0a3179f2a5045620c03eb03c90601d16b52086036bbd",
+            "stderr_sha256": "9645315b3a751a7e8344d80c4e5193f97d36943a3f512fa88d1431b054fd51f0",
+            "observation_sha256": "b67e592214e8f66361b168ae50d708866c0ef211dfba40d0b2fbff1838e99bb6",
+            "identity_before_sha256": "f28cf656e3552b8141a9f8f26dff6a9f013e2b61368d40b7c38e66a19f542bbb",
+            "identity_after_sha256": "ba6a8e915aab70934fd2c434df8f27335c2eb04bcdc614748110a29e1c877562"
+          }
+        }
+      },
+      {
+        "model": "EWD998PCal",
+        "profile": "tlc",
+        "baseline_Ir": 47641040949,
+        "candidate_Ir": 86868533430,
+        "delta_percent": 82.33970479988724,
+        "equal_counters": {
+          "distinct": 20870,
+          "generated": 168292,
+          "depth": 28,
+          "initial_generated": 8,
+          "left_on_queue": 0
+        },
+        "verdict": "success",
+        "verified_TLC_success_code": 2193,
+        "exit_code": 0,
+        "raw_hashes": {
+          "baseline": {
+            "cachegrind_sha256": "a38886dded850be11f255f138c486a166a63dd0dbaf4549d0fa82b180d533101",
+            "cachegrind_bytes": 1111930,
+            "stdout_sha256": "8b4907eb23e98879dece6884fd1ead67d87c4fd9b1da82111bea7a85e0a0e6f0",
+            "stderr_sha256": "248d1ad88c00a53a894882f3bb9d745dd70e4aaa9bdd102ff95b46456756760f",
+            "observation_sha256": "802c612e21c49ea762234d69e40cca62835e2e269079fab43821be1ce5781d1c",
+            "identity_before_sha256": "ae30ae4f88d090543a36f4f861cbe4a7fe5a8396b848adf35d94287f9d76c19f",
+            "identity_after_sha256": "3069029a1a12cad4eee6057ef940838ae42804f6702b4ce83211c3b7681acd77"
+          },
+          "candidate": {
+            "cachegrind_sha256": "d21666cc4a3a91d81e46895ff397e4c30db0b3f6fba6ca29ce15df9f20d3f20f",
+            "cachegrind_bytes": 1137203,
+            "stdout_sha256": "17a0829ac1c5e9a1bcccaa5961d23d93c4cc27f8630794f30767d95de3d30dd5",
+            "stderr_sha256": "9282e09b28e8862825c012a04e55617b2b15885cabe83268c69f73aaceacebb0",
+            "observation_sha256": "62638c347f9e2a6e4e7301980ef59f8a5b62e5ea155bdc62b30ee980ab932ce8",
+            "identity_before_sha256": "a3309cc8f119ebaea91914a1411c450ee085addbe8a4ae558c4bed3266754373",
+            "identity_after_sha256": "73ed4068b2ab0ee0c014043d6d6b90355fe6c7c056301f627d4eb9ae4456687c"
+          }
+        }
+      }
+    ],
+    "geomean_ratio": 1.732713627547407,
+    "geomean_delta_percent": 73.27136275474071,
+    "integer_product_5_percent_test": false,
+    "integer_per_cell_1_percent_test": false,
+    "accepted": false
+  },
+  "evidence": {
+    "originals": {
+      "bucket": "dive-selectseq-perf-20261024210211-90bd4f41-010928226848",
+      "key": "results/final.tgz",
+      "sha256": "fceba0066216280b81ee5790485267eeb6e8a0aebbf99cf207258ea61eea2c38",
+      "bytes": 4516019,
+      "scope": "Producer-preserved archive; Root audited individual original objects in memory, not a local archive or full tar GET."
+    },
+    "raw_individual_prefix": "results/raw/",
+    "root_memory_auditor_sha256": "bcaefc7faff07f10a8c5ab7602043734a54283468ac300d7b4acfc4a2e895402",
+    "root_originals_audit_sha256": "f42f28be0fb5c9fdf32007584cf3470f6ba7f9b83dddb96c4262d5860b3eac44",
+    "root_memory_transport_sha256": "d6aab0fa1c38e441a4bc5aca094e7b3ca430ec4c259c9cfa81e48e3067d06633",
+    "original_individual_objects_read": 110,
+    "producer_summary_sha256": "288a1628d2d6d24e9ed875c6e7abab615c817ee07c7506998d3b474815995b90",
+    "source_capsule_sha256": "ec2ae11797fef4b0f4a88d6c611a122e7067aaec0c22bcd848afd86151e4aa7c",
+    "qualification_plan_sha256": "5dbb4ca6eb7ecb76baa8bd5724c0f245e6a35c2ea69840877c434c03ce0bd9cf",
+    "source_contract_sha256": "b518f2293bfae662bb22b1fae0afe2a83e4603f91ec2e07a2d6dbc18f24c4411",
+    "manifest_sha256": "bbaefccc34467616efc23d213232ccda33518df125c6dbcceb46ca555822d710",
+    "input_pins_sha256": "1ffefd4365650ae6321d1f59adbd023df19f1a427daafabc43d25661aaaba790",
+    "producer_completion": "Original HOLD is the instruction-threshold rejection after all18 native stages; not censorship or an incomplete matrix.",
+    "root_postrun_inputs": {
+      "scope": "Only two existing input receipts were uploaded separately after completed native work and whole-node quiescence, plus a separately named Root preservation receipt. Producer completion, manifest and native observations were not rewritten; no model rerun.",
+      "before": "d69cddb25529d918ed8d45d12b60e25a9d1187a8b44ee49a6cd86ab28cc09fb0",
+      "after": "4facbe42446622d6bb2908acedc1aa76617c07c934e74a91607078c5aafaf12b",
+      "separate_receipt_sha256": "27913b9f1a1cf44a12a3de4fba14f71bd068426ab7975619eb79357f7297a869",
+      "quiescence_proof_sha256": "bbaec0737ad69168d1075b788599382de4c43862b1d48e539724b068a3ffd86e"
+    },
+    "focused_source_qualification": {
+      "source": "99a4787830f2193bb3f574e3739b5f199e64f4ae",
+      "result_sha256": "76a431a22f79a34a8df28a855d5e2634195d0d8cf3c20d862fdcbca15ecf44e7",
+      "Root_review_sha256": "2e5441de8d3f6057a4022eb5ba58a5b6eb3830df618ed6a1ac97f372e6182012",
+      "all_library_tests_passed": 69,
+      "ignored_filtered": 0,
+      "formatting_and_all_target_evaluator_clippy": "passed",
+      "runtime_full_gate": false
+    },
+    "audit_scope": "Root replayed all16 original CG files through EOF, CLI/stdout/stderr/observations, strict Cargo output and matrix/per-arm identities in memory. Compact record is normalized facts, not a raw stream copy.",
+    "matrix_identity_before_sha256": "1ed78901a4b77486a173118ed9fc1336f34eebcb6038d73382afcb817a2c5706",
+    "matrix_identity_after_sha256": "614b93ad2e3924b9d30baf947ef7215d9754ca624be0d19b06954957c3c8013f",
+    "runtime_identity_before_sha256": "2813b018df165f0a0086526b2ed3ed7f3a154a82b236de59af376571bb0c18c7",
+    "runtime_identity_after_sha256": "62ad255b0621aeae1a5730225b1a15b9df50dca242cae579444eae5261aae66f",
+    "independent_compact_matrix_review_sha256": "42e60d6e1926fbc28f051c1433c1aea80acd8f02fc710e1e048e2eacf198cc73",
+    "independent_compact_review_scope": "Separate review recomputed all8 integer pairs and high-precision geometric mean and cross-checked compact semantics, raw digest links and110transport-object facts. It did not independently fetch or replay the original raw CG/CLI objects; that byte replay was the Root memory audit.",
+    "sanitized_existing_machine_tools_sha256": "fedffe5340781c7d6a60cf912f67138807760b11ee685a03a1c6fec8160c7b19",
+    "sanitized_machine_tools_origin": {
+      "key": "results/raw/identity-before.json",
+      "sha256": "1ed78901a4b77486a173118ed9fc1336f34eebcb6038d73382afcb817a2c5706",
+      "bytes": 14546,
+      "scope": "Existing original matrix identity replayed in memory after termination; no new measurement or raw identity file saved."
+    }
+  },
+  "decision": "Reject runtime prototype; no runtime full gate, repeated screen, architecture retuning or threshold waiver. Keep private source/history and retained S3 originals.",
+  "limitations": [
+    "Instruction metric includes whole-CLI startup; baseline is dive and tlc names its compatibility profile, not Java TLC.",
+    "69 focused library tests establish correctness controls only, not a full checker gate or corpus agreement.",
+    "No quiet wall-clock, TLC throughput, scaling, new parity, allocation-saving fraction, removable-cost attribution or release-capacity credit."
+  ]
+}
