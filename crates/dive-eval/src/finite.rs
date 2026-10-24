@@ -270,14 +270,10 @@ impl Guard<'_> {
             | Expr::SetMap { .. }
             | Expr::SetFilter { .. }
             | Expr::Cartesian(_) => Ok(ResultKind::NonString),
-            Expr::Quant { kind, .. }
-                if matches!(
-                    kind,
-                    dive_ir::QuantKind::Forall | dive_ir::QuantKind::Exists
-                ) =>
-            {
-                Ok(ResultKind::NonString)
-            }
+            Expr::Quant {
+                kind: dive_ir::QuantKind::Forall | dive_ir::QuantKind::Exists,
+                ..
+            } => Ok(ResultKind::NonString),
             Expr::Builtin { op, .. } if non_string_builtin(*op) => Ok(ResultKind::NonString),
             Expr::If { then, other, .. } => {
                 let left = self.result_kind(scope, *then, depth + 1, active)?;
