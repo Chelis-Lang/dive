@@ -69,7 +69,7 @@ fn concat_route(ir: &dive_ir::Ir, direct: bool) -> Arc<dive_ir::Ir> {
                         expr: *expr,
                         pass: if direct { Pass::Direct } else { Pass::Lazy },
                     },
-                    other => other.clone(),
+                    other @ Arg::Op { .. } => other.clone(),
                 })
                 .collect();
             encoded["exprs"][index]["expr"]["Apply"]["args"] =
