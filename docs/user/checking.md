@@ -547,6 +547,18 @@ from a core evaluator error. This evidence does not certify TLC's capture-time
 error demand or stopping prefix. Ordinary temporal state-atom errors still report
 `DIVE-L0033` refusals; no verdict, count, limit or report-schema policy changes.
 
+A separate opt-in Rust capture API, `capture::explore_checkpoints_with_evidence`,
+exposes actually reached Init and completed-source-row checkpoints. Its W1-only
+inline execution is reported explicitly; ordinary capture and the existing
+whole-Init/completed-level observer callbacks keep their behavior. The API can
+retain a genuine core `ErrorClass::Eval` cause with real stopping counters and
+a checked finite diagnostic source path. Unsupported, resource and internal
+causes keep their existing mappings without a typed decision. That path is not a validated temporal counterexample, and the
+checkpoint does not certify that TLC demanded an atom or would report that
+error. No ordinary checker enables this callback: `DIVE-L0033`, temporal
+scheduling, report schemas and agreement remain unchanged. Parallel requests to
+this opt-in evidence API refuse before search.
+
 The
 [typed state-error qualification](../survey/data/temporal-state-error-evidence-qualification-2026-10-24.json)
 records the full gate at `2373b961`: 2,374 tests passed with none skipped,
