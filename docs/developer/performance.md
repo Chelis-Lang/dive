@@ -495,6 +495,31 @@ Symbol or source-line attribution does not establish removable work. These
 screens establish no quiet wall-time, TLC throughput, scaling, new agreement or
 release-capacity result.
 
+### General native argument storage, 2026-10-24
+
+The general `StdArg` collector experiment compared baseline `1c2bf3f2` with
+candidate `6790ba3b`, using empty, one-argument and two-argument owned storage
+before falling back to a vector. It completed the same four reduced models in
+both profiles at one worker: two profiling builds and sixteen normal,
+uncensored Cachegrind arms. All five reported counters matched in every pair.
+The baseline was dive; `tlc` names dive's compatibility profile.
+
+Instructions decreased in all eight pairs, by 0.103% to 0.628%, with a
+geometric reduction of 0.2535324%. This passes the per-cell 1% regression limit
+and fails the required 5% geometric reduction. The complete screen was rejected;
+its producer HOLD records the threshold failure after all arms completed.
+The runtime prototype remains unmerged, with no runtime full gate, repeat
+screen, retuning or threshold waiver.
+
+The [compact record](../survey/data/native-stdarg-storage-rejected-2026-10-24.json)
+retains every integer pair, equal counters, input and binary identities, raw
+hashes and retained S3 origins. Root replayed original streams and Cachegrind
+costs in memory; a separate review recomputed the integer decision and geometric
+mean from compact facts. Formatting, all-target evaluator Clippy and all 61
+library tests passed before this screen. These results establish no allocation
+saving fraction, quiet wall-time, Java TLC throughput, scaling, new agreement or
+release-capacity claim.
+
 ## Packed temporal atom truth
 
 The native temporal label store keeps one bit per actual state/action observation.
