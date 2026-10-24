@@ -79,6 +79,16 @@ tuple-pattern parameter counts as one function index; the diagnostic does not
 establish that an arbitrary index belongs to the function's runtime domain.
 Other semantic families remain outside this partial explanation catalogue.
 
+Unresolved-reference explanations cover `DIVE-E0100` (an unknown name or
+qualified operator) and `DIVE-E0101` (an undefined operator symbol). Check the
+intended spelling, declaration or definition, module import and named INSTANCE
+qualification. Importing a standard module can resolve its names and operators;
+it does not fix an unrelated typo or an argument with the wrong arity. The same
+fallback-help rule applies to operator arguments, proof steps and INSTANCE
+substitutions: a producer's more specific suggestion always takes precedence.
+These report-only explanations do not resolve a name or change which sources
+analysis accepts.
+
 Temporal failure diagnostics retain `code` and `message` and add the original
 `cause`, a `help` action and the available cause `span`/`location`. A span's
 `start` and `end` are UTF-8 byte offsets with an exclusive end; `file` is the

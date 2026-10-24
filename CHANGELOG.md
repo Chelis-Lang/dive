@@ -1,5 +1,9 @@
 # Changelog
 
+- Explain unresolved semantic names and operator symbols with concrete scope,
+  declaration and module-import guidance. Preserve producer-specific help,
+  original diagnostic evidence and analysis acceptance.
+
 - Refresh the generated full-tier TLC-profile baseline from the complete
   one-worker measurement: 181/217 in-scope agreements, ten gains and no lost
   agreements. Preserve 17 refusals, ten resource stops and nine missing

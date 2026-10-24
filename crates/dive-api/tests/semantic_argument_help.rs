@@ -195,7 +195,8 @@ fn higher_order_positive_controls_and_unlisted_errors_are_unchanged() -> Result 
         report.to_json()["diagnostics"][0]["help"],
         "define `missing`, declare it, or extend the module that defines it"
     );
-    assert!(dive_api::diagnostics::explain("DIVE-E0100").is_none());
+    assert!(dive_api::diagnostics::explain("DIVE-E0100").is_some());
+    assert!(dive_api::diagnostics::explain("DIVE-E0102").is_none());
     check_projection(&report)
 }
 
@@ -255,4 +256,203 @@ fn unicode_offsets_and_specific_producer_help_survive_projection() -> Result {
         Some("pass an operator name or a LAMBDA")
     );
     check_projection(&report)
+}
+
+#[test]
+fn unresolved_names_keep_utf8_and_qualified_source_evidence() -> Result {
+    for (source, spelling, repaired) in [
+        (
+            "---- MODULE MissingName ----\n\\* π precedes the diagnostic byte range\nA == missing\n====\n",
+            "missing",
+            "---- MODULE MissingName ----\n\\* π precedes the diagnostic byte range\nmissing == 1\nA == missing\n====\n",
+        ),
+        (
+            "---- MODULE MissingName ----\n\\* π precedes the diagnostic byte range\n---- MODULE Inner ----\nz == 1\n====\nI == INSTANCE Inner\nA == I!missing\n====\n",
+            "I!missing",
+            "---- MODULE MissingName ----\n\\* π precedes the diagnostic byte range\n---- MODULE Inner ----\nz == 1\n====\nI == INSTANCE Inner\nA == I!z\n====\n",
+        ),
+    ] {
+        let report =
+            dive_api::analyze_source("MissingName.tla", source, &AnalyzeOptions::default());
+        assert!(!report.accepted());
+        assert!(
+            report.analysis().syntax_diagnostics().is_empty(),
+            "{}",
+            report.render_human()
+        );
+        let raw = report
+            .analysis()
+            .diagnostics()
+            .iter()
+            .find(|diagnostic| diagnostic.code == Code::UndefinedSymbol)
+            .ok_or("unresolved name diagnostic")?;
+        assert_eq!(raw.sany, Some(4200));
+        assert_eq!(raw.severity, Severity::Error);
+        let span = raw.span.ok_or("actual unresolved name span")?;
+        let start = usize::from(span.range.start());
+        let end = usize::from(span.range.end());
+        assert_eq!(&source[start..end], spelling);
+        assert!(source[..start].chars().count() < start);
+        assert_eq!(
+            raw.help,
+            Some(format!(
+                "define `{spelling}`, declare it, or extend the module that defines it"
+            ))
+        );
+        let document = report.to_json();
+        let row = document["diagnostics"]
+            .as_array()
+            .ok_or("diagnostic rows")?
+            .iter()
+            .find(|row| row["code"] == "DIVE-E0100")
+            .ok_or("name JSON row")?;
+        let line = source[..start]
+            .bytes()
+            .filter(|byte| *byte == b'\n')
+            .count()
+            + 1;
+        assert_eq!(row["span"]["line"], line);
+        assert_eq!(row["span"]["column"], 6);
+        assert!(
+            report
+                .render_human()
+                .contains(&format!("MissingName.tla:{line}:6:"))
+        );
+        check_projection(&report)?;
+        let repaired =
+            dive_api::analyze_source("MissingName.tla", repaired, &AnalyzeOptions::default());
+        assert!(repaired.accepted(), "{}", repaired.render_human());
+        assert_eq!(repaired.analysis().diagnostics(), []);
+    }
+    Ok(())
+}
+
+#[test]
+fn unresolved_standard_references_keep_specific_import_suggestions() -> Result {
+    for (body, code, help, module) in [
+        (
+            "Len(<<1>>)",
+            Code::UndefinedSymbol,
+            "`Len` is defined in the standard module Sequences; add it to EXTENDS",
+            "Sequences",
+        ),
+        (
+            "1 + 2",
+            Code::UndefinedOperatorSymbol,
+            "add `EXTENDS Naturals` (or `Integers`, `Reals`)",
+            "Naturals",
+        ),
+        (
+            "-1",
+            Code::UndefinedOperatorSymbol,
+            "add `EXTENDS Integers` (or `Reals`) for unary minus",
+            "Integers",
+        ),
+    ] {
+        let source = format!("---- MODULE MissingImport ----\nA == {body}\n====\n");
+        let report =
+            dive_api::analyze_source("MissingImport.tla", &source, &AnalyzeOptions::default());
+        assert!(!report.accepted());
+        let raw = report
+            .analysis()
+            .diagnostics()
+            .iter()
+            .find(|diagnostic| diagnostic.code == code)
+            .ok_or("import diagnostic")?;
+        assert_eq!(raw.help.as_deref(), Some(help));
+        let explanation =
+            dive_api::diagnostics::explain(code.as_str()).ok_or("reference explanation")?;
+        assert_ne!(explanation.remediation, help);
+        check_projection(&report)?;
+        let source = source.replace("A ==", &format!("EXTENDS {module}\nA =="));
+        let repaired =
+            dive_api::analyze_source("MissingImport.tla", &source, &AnalyzeOptions::default());
+        assert!(repaired.accepted(), "{}", repaired.render_human());
+        assert_eq!(repaired.analysis().diagnostics(), []);
+    }
+    Ok(())
+}
+
+#[test]
+fn bare_operator_arguments_proofs_and_substitutions_receive_fallback_help() -> Result {
+    for (body, spelling) in [
+        ("F(G(_,_)) == G(1, 2)\nA == F( + )\n", "+"),
+        (
+            "THEOREM 1 = 1\n<1>1. 1 = 1\n  OBVIOUS\n<1>2. @ + 1\n  OBVIOUS\n<1>3. QED\n  OBVIOUS\n",
+            "@ + 1",
+        ),
+        (
+            "---- MODULE Inner ----\nCONSTANT Op(_,_)\nz == Op(1, 2)\n====\nI == INSTANCE Inner WITH Op <- +\n",
+            "+",
+        ),
+    ] {
+        let source = format!("---- MODULE MissingOperator ----\n{body}====\n");
+        let report =
+            dive_api::analyze_source("MissingOperator.tla", &source, &AnalyzeOptions::default());
+        assert!(!report.accepted());
+        assert!(
+            report.analysis().syntax_diagnostics().is_empty(),
+            "{}",
+            report.render_human()
+        );
+        let raw = report
+            .analysis()
+            .diagnostics()
+            .iter()
+            .find(|diagnostic| diagnostic.code == Code::UndefinedOperatorSymbol)
+            .ok_or("bare operator diagnostic")?;
+        assert_eq!(raw.help, None);
+        assert_eq!(raw.sany, Some(4004));
+        let span = raw.span.ok_or("actual operator span")?;
+        assert_eq!(
+            &source[usize::from(span.range.start())..usize::from(span.range.end())],
+            spelling
+        );
+        let explanation =
+            dive_api::diagnostics::explain("DIVE-E0101").ok_or("operator explanation")?;
+        let document = report.to_json();
+        let row = document["diagnostics"]
+            .as_array()
+            .ok_or("diagnostic rows")?
+            .iter()
+            .find(|row| row["code"] == "DIVE-E0101")
+            .ok_or("operator JSON row")?;
+        assert_eq!(row["help"], explanation.remediation);
+        assert!(
+            report
+                .render_human()
+                .contains(&format!("  help: {}\n", explanation.remediation))
+        );
+        check_projection(&report)?;
+        let repaired = format!("---- MODULE MissingOperator ----\nEXTENDS Naturals\n{body}====\n");
+        let repaired =
+            dive_api::analyze_source("MissingOperator.tla", &repaired, &AnalyzeOptions::default());
+        assert!(repaired.accepted(), "{}", repaired.render_human());
+        assert_eq!(repaired.analysis().diagnostics(), []);
+    }
+    Ok(())
+}
+
+#[test]
+fn reference_explanations_are_informational_and_neighbor_codes_stay_unknown() -> Result {
+    for code in ["DIVE-E0100", "DIVE-E0101"] {
+        let report = dive_api::diagnostics::explanation_json(code);
+        assert_eq!(report["schema_version"], 3);
+        assert_eq!(report["command"], "explain");
+        assert_eq!(report["code"], code);
+        assert_eq!(report["known"], true);
+        let explanation = dive_api::diagnostics::explain(code).ok_or("reference explanation")?;
+        assert_eq!(report["explanation"]["cause"], explanation.cause);
+        assert_eq!(
+            report["explanation"]["remediation"],
+            explanation.remediation
+        );
+        assert!(report.get("verdict").is_none());
+    }
+    assert!(dive_api::diagnostics::explain(Code::Redefinition.as_str()).is_none());
+    assert_eq!(
+        dive_api::diagnostics::explanation_json("DIVE-E0102")["known"],
+        false
+    );
+    Ok(())
 }
