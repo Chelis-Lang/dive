@@ -23,7 +23,11 @@ operands and all retained captures, including unused actuals, still undergo the
 existing effect, provider, context ownership and resource checks. Configured or
 redirected native origins and higher-order native operator actuals retain their
 existing restrictions. Ordinary evaluation preserves eager argument order and
-typed errors. VIEW, SYMMETRY and other temporal refusals remain separate limits.
+typed errors. Errors reached while evaluating a temporal atom currently remain
+`DIVE-L0033` refusals; issue #451 tracks returning the ordinary evaluation-error
+outcome. This change does not close that error-parity gap. VIEW graph capture
+still requires quotient-edge and closing-state evidence (issue #428), so
+EWD998ChanID remains unsupported. Other temporal restrictions also remain.
 
 ## TLC checking entrypoints
 

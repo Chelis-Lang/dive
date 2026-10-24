@@ -148,10 +148,16 @@ The pinned `94d0c507` oracle generated these seven goldens with their recorded
 reason, one worker, seed/fingerprint zero, a 256 MB heap and an explicit
 20-second model timeout. All 11 selected clean/trace processes and 63 separate
 setup subprocesses completed normally. The harness built at `1d11a2f0` retained
-original setup/model evidence; raw outputs remain external. The counterexamples
-have not yet been independently validated. No runtime admission, native
-comparison or agreement credit is claimed; string-name and VIEW obligations
-remain separate. Select this microcorpus explicitly with
+original setup/model evidence; raw outputs remain external.
+
+The subsequent native comparison agrees on the captured hold/fail pair and empty
+selection in both profiles. The failing word passes fresh independent validation.
+The three evaluation-error controls remain `DIVE-L0033` refusals (issue #451),
+and string concatenation retains `DIVE-L0020`: this is three agreements and four
+refusals in each profile. A separate TLC-profile run of EWD998ChanID still refuses
+VIEW graph capture (issue #428). These results add no agreement to the established
+small or full populations. See the [compact qualification](survey/data/selectseq-concat-qualification-2026-10-24.json).
+Select this microcorpus explicitly with
 `--corpus selectseq-concat-type-capability --tier all --no-sany`.
 
 `instance-temporal` is a separate local corpus of ten finite Boolean models and

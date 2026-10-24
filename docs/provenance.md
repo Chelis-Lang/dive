@@ -1272,8 +1272,9 @@ visits original positions and invokes the original callback.
 control. These source semantics motivate a general NonString-on-success proof,
 not a purity assertion or permission to omit arguments, unused captures, effects,
 providers, configured origins or ownership checks. No Java code is copied.
-The generated counterexamples receive no independent-validation or corpus
-agreement credit from this documentary prerequisite.
+The reference import alone conferred no independent-validation or corpus
+agreement credit. The subsequent native comparison and validation are recorded
+separately below.
 
 The private result-kind projection in `dive-eval/src/finite.rs` implements the
 subsequent NonString-on-success capability. It follows owned lexical frames,
@@ -1292,9 +1293,14 @@ receive the original full walk after the type proof. This is original Rust
 analysis derived from the primary branch and error-order semantics above; it
 does not copy a TLC algorithm or change evaluation order. New source controls
 cover aliases, joins, cold/warm captures, opaque providers, native authority,
-aggregate work, errors, primary counts and independent replay. Their execution
-and the complete seven-case comparisons in both profiles are required separately;
-adding these controls confers no measured agreement credit.
+aggregate work, errors, primary counts and independent replay. The measured
+seven-case comparison agrees on three models in each profile, including fresh
+independent validation of the failing word. The three temporal-atom evaluation
+errors remain named refusals (issue #451), as does string-name creation. The
+original EWD998ChanID additionally retains its VIEW refusal (issue #428).
+No established small/full population or agreement count changes. The
+[compact qualification](survey/data/selectseq-concat-qualification-2026-10-24.json)
+binds the primary inputs, generated references, native producers and measurements.
 
 ### SelectSeq callbacks in pure temporal predicates
 
