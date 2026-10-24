@@ -441,6 +441,31 @@ allocator/source positions, so the profiles do not isolate its total cost.
 No implementation or additional profiling workload was attempted. The compact
 summary retains the narrow cost inventory and its attribution limitations.
 
+### Optional value entrypoints, 2026-10-23
+
+A complete screen compared main `e78ffdb1` with candidate `bbf71ff3`, adding
+optional value-returning entrypoints to the existing resolved evaluator plan.
+Two isolated profiling builds and all sixteen sequential Cachegrind arms
+completed normally. All eight reduced model/profile pairs improved and retained
+identical success verdicts, distinct/generated counts, depths and queue counters.
+The geometric instruction reduction was **2.5763943%**, below the fixed **5%**
+bar. An exact integer-product comparison confirms rejection without rounding.
+The runtime change remains unmerged; no full checker gate was run for it.
+
+The runner's threshold assertion followed the complete matrix. It is a negative
+performance result, not a failed or censored native model run. The separate
+`02854597` / `6b7baa57` raw-handler experiment's 4.5943593% rejection remains
+unchanged; neither result earns a threshold waiver or a layout retry.
+
+The [compact screen](../survey/data/prepared-value-entry-screen-2026-10-23.json)
+retains each integer instruction pair, equal semantic counters, actual source
+and binary pins, input/tool/library hashes and raw evidence hashes. The host
+was c7i.8xlarge with Rust 1.99.0 and Valgrind 3.22.0. Explicit native budgets
+were 900 seconds and 8 GiB, with a 930-second external backstop. The scope is
+four reduced safety models in both profiles at one worker, including startup:
+there is no quiet wall-time, TLC-throughput, scaling, new agreement or release
+milestone claim. Original evidence was verified before resource cleanup.
+
 ## Packed temporal atom truth
 
 The native temporal label store keeps one bit per actual state/action observation.

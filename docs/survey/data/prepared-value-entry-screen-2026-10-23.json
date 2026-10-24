@@ -1,0 +1,280 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-23",
+  "status": "complete_instruction_screen_rejected",
+  "candidate": "optional value entrypoints in the resolved evaluator plan",
+  "baseline": "e78ffdb1ec6d732012928da638b9e6b45ec8d9e1",
+  "source": "bbf71ff3e7a9acf4b02bb4ff11ae8acc3ec5f191",
+  "source_trees": {
+    "base": "c231b689cf7e4e7a3c68d18ed60777e9277bcf6b",
+    "candidate": "53bb5c069008d73d1117bbbcc626eee2cd2b3f36"
+  },
+  "binary_sha256": {
+    "base": "39edf4522719038f8094fafb07ea98393ca87bd790215a65e0eb176e4733f6f4",
+    "candidate": "9ba770cdd90e082e96e1928944c257ea9fad4448e82e3a4a1f7b0981dd22b08e"
+  },
+  "machine": {
+    "instance_type": "c7i.8xlarge",
+    "cpu": "Intel Xeon Platinum 8488C",
+    "kernel": "7.0.0-1014-aws",
+    "toolchain": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+    "valgrind": "valgrind-3.22.0"
+  },
+  "protocol": {
+    "models": [
+      "SimpleRegular",
+      "MCbtree",
+      "GameOfLife",
+      "EWD998PCal"
+    ],
+    "model_scope": "ADR 0104 reduced safety inputs",
+    "profiles": [
+      "dive",
+      "tlc"
+    ],
+    "workers": 1,
+    "seed": 0,
+    "fingerprint_polynomial": 0,
+    "repetitions": 1,
+    "native_time_limit_ms": 900000,
+    "native_memory_ceiling_bytes": 8589934592,
+    "external_backstop_seconds": 930,
+    "tool": "Cachegrind --cache-sim=no",
+    "measurement": "whole CLI instructions including startup",
+    "schedule": "16 sequential predeclared arms, two isolated profiling builds",
+    "normal_builds": 2,
+    "normal_measured_arms": 16,
+    "censored_native_commands": 0
+  },
+  "input_manifest_sha256": "0afb7894a995770e878faa9a7820673bdd9e03dffe3dd08585963a8a367766ae",
+  "tool_hashes": {
+    "rustc": {
+      "sha256": "f3834d26669b03f6855fa54bd2381443123e860167bc0c7a8dd137e5cf6e5e4f",
+      "executable_name": "rustc"
+    },
+    "cargo": {
+      "sha256": "e951141cc55a6cd7b9876d187bd30a3720e6086b99413af95e3b8de1cdd72f14",
+      "executable_name": "cargo"
+    },
+    "nextest": {
+      "sha256": "cb6243e32736eb6242379b379d44f09adf4873bbdf69ed6ff13f9dc4c0dfc654",
+      "executable_name": "cargo-nextest"
+    },
+    "deny": {
+      "sha256": "095d1609e3040af892c3356154eb89488bcb8886315f8c7b7b6927ad7064b3e7",
+      "executable_name": "cargo-deny"
+    },
+    "valgrind": {
+      "sha256": "4652774bd116cb49951ef74115ad4237cad5021b2bd4d80002f09d986ec438b9",
+      "executable_name": "valgrind"
+    },
+    "cachegrind_backend": {
+      "sha256": "38093b3bf8e9ffecb559a333c896a2fd2a2343bb79c3295f31c36475914deebf",
+      "executable_name": "cachegrind-amd64-linux"
+    },
+    "callgrind_backend": {
+      "sha256": "825eb197d519240c112e03ed00f40a8bbe1a0a0614f79ea95e28c67e8695cb03",
+      "executable_name": "callgrind-amd64-linux"
+    },
+    "owned_process_supervisor": {
+      "sha256": "c4f0b2f298ecb1d777c04740246be10ab4476d895139f24ae73eb57ce3f10f61",
+      "executable_name": "owned_process_core.py"
+    },
+    "valgrind_binary": {
+      "sha256": "def5fdcf6ae64a4d3e6af3786b622978d8313e0734ecf3f6cbe71d8be9e274c8",
+      "executable_name": "valgrind.bin"
+    },
+    "valgrind_preload": {
+      "sha256": "87edd6ad90b12bb5fe58f2ea2235db5b6a3d637657488f3e06d07e482354a8c5",
+      "executable_name": "vgpreload_core-amd64-linux.so"
+    },
+    "system_shell": {
+      "sha256": "86d31f6fb799e91fa21bad341484564510ca287703a16e9e46c53338776f4f42",
+      "executable_name": "dash"
+    }
+  },
+  "linked_libraries": {
+    "base": {
+      "libgcc_s.so.1": "d93224d2b0dab4247598be683adca02f5cf00586f99c187579cd7e92058fb7cb",
+      "libc.so.6": "3a15d66867d83762c7f2f1e37359cb8f6c5743edb369c65285cb0b1c4f7498bf",
+      "ld-linux-x86-64.so.2": "c20a2dc8917c755f02b94049356320fe1f62ac7d9f8994731f807d9df39302da"
+    },
+    "candidate": {
+      "libgcc_s.so.1": "d93224d2b0dab4247598be683adca02f5cf00586f99c187579cd7e92058fb7cb",
+      "libc.so.6": "3a15d66867d83762c7f2f1e37359cb8f6c5743edb369c65285cb0b1c4f7498bf",
+      "ld-linux-x86-64.so.2": "c20a2dc8917c755f02b94049356320fe1f62ac7d9f8994731f807d9df39302da"
+    }
+  },
+  "pairs": [
+    {
+      "tag": "base-SimpleRegular-dive-w1",
+      "ratio": 0.9725886988651117,
+      "delta_pct": -2.741130113488832,
+      "base_Ir": 2532110667,
+      "candidate_Ir": 2462702219,
+      "verdict": "success",
+      "statistics": {
+        "depth": 19,
+        "distinct": 12097,
+        "generated": 47584,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "base_report_sha256": "8ba286c472b8246f2d6aa504e95ae6ccb023642e248c2521d092c958bd7caf3c",
+      "candidate_report_sha256": "789232962e5a7ea5428eab6a4c688e2b9939998c9b2e92cc06ac40fcab469210"
+    },
+    {
+      "tag": "base-MCbtree-dive-w1",
+      "ratio": 0.9906349465110104,
+      "delta_pct": -0.9365053488989639,
+      "base_Ir": 14498596528,
+      "candidate_Ir": 14362816396,
+      "verdict": "success",
+      "statistics": {
+        "depth": 24,
+        "distinct": 21364,
+        "generated": 127825,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "base_report_sha256": "ae6185f5734f96ca29b53b5d8503f941549795e9c70610e58af7da4a6426f283",
+      "candidate_report_sha256": "a6e35247dece851222a8216ad1ca20ab3d42847c8ae85e3d31728ed9ae66eecd"
+    },
+    {
+      "tag": "base-GameOfLife-dive-w1",
+      "ratio": 0.9536337582385987,
+      "delta_pct": -4.636624176140125,
+      "base_Ir": 1147491860,
+      "candidate_Ir": 1094286975,
+      "verdict": "success",
+      "statistics": {
+        "depth": 1,
+        "distinct": 512,
+        "generated": 1024,
+        "initial_generated": 512,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "base_report_sha256": "12cdec70c636dfc981430602cb255cb6b7a96d7f898aa9db8f2108735a8ba75d",
+      "candidate_report_sha256": "edda3436e1aa584795f51db7843777b67aeb6095900bb622a0ead7d4cc1d3492"
+    },
+    {
+      "tag": "base-EWD998PCal-dive-w1",
+      "ratio": 0.9842435526913423,
+      "delta_pct": -1.5756447308657662,
+      "base_Ir": 46734669534,
+      "candidate_Ir": 45998297176,
+      "verdict": "success",
+      "statistics": {
+        "depth": 28,
+        "distinct": 20870,
+        "generated": 168292,
+        "initial_generated": 8,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "base_report_sha256": "4b4cdf96c99a639647c0e2c79771f3b0e7e4d3e5d741ea70d9a22fdd3e348d96",
+      "candidate_report_sha256": "7aa980afa1ca0b922644882b16399e2345d981166464210862ea9d5b2a8f6617"
+    },
+    {
+      "tag": "base-SimpleRegular-tlc-w1",
+      "ratio": 0.9700006800988331,
+      "delta_pct": -2.9999319901166888,
+      "base_Ir": 2596475562,
+      "candidate_Ir": 2518583061,
+      "verdict": "success",
+      "statistics": {
+        "depth": 19,
+        "distinct": 12097,
+        "generated": 47584,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "base_report_sha256": "b1fd13d33ad871cd9cbc5a03a12627b67f66059a3d4810eb1b084eb0be6e69c4",
+      "candidate_report_sha256": "6922e9be95d517b82ec6e13c78b2ed720a10eb98647571d09e8dbb2120ab71c9"
+    },
+    {
+      "tag": "base-MCbtree-tlc-w1",
+      "ratio": 0.9905110493515047,
+      "delta_pct": -0.9488950648495309,
+      "base_Ir": 18286922804,
+      "candidate_Ir": 18113399096,
+      "verdict": "success",
+      "statistics": {
+        "depth": 24,
+        "distinct": 21364,
+        "generated": 127825,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "base_report_sha256": "e3ab6a58d137b37b71deccf1fc7f25827540ceed9965b0339b10e6ebbb704083",
+      "candidate_report_sha256": "cc2b646d11f6fa4cac6236250da5e6ff786bbcf9caca3fd4c27f312f695c19e3"
+    },
+    {
+      "tag": "base-GameOfLife-tlc-w1",
+      "ratio": 0.9508866044995595,
+      "delta_pct": -4.9113395500440475,
+      "base_Ir": 1139620880,
+      "candidate_Ir": 1083650229,
+      "verdict": "success",
+      "statistics": {
+        "depth": 1,
+        "distinct": 512,
+        "generated": 1024,
+        "initial_generated": 512,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "base_report_sha256": "a0819de229b4e0fa7cd2a185c1f52b3f8e5a7dd28ef5934eb55d603011ed4e6c",
+      "candidate_report_sha256": "0693643a6870ee93813439a124e888c8f0f7ae2c75467fc245d68645adf1879e"
+    },
+    {
+      "tag": "base-EWD998PCal-tlc-w1",
+      "ratio": 0.9822599592223137,
+      "delta_pct": -1.7740040777686317,
+      "base_Ir": 47640845621,
+      "candidate_Ir": 46795695077,
+      "verdict": "success",
+      "statistics": {
+        "depth": 28,
+        "distinct": 20870,
+        "generated": 168292,
+        "initial_generated": 8,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "base_report_sha256": "94b29a4438d540a94c21289c9f069b3234579b7e4e3040de77f122bb0af203ff",
+      "candidate_report_sha256": "3b29b7739abbeaa24283ca588cfbd8ac1c9114a23fa7f16cc89fbb5e13760402"
+    }
+  ],
+  "geometric_mean_ratio": 0.9742360570020271,
+  "geometric_instruction_reduction_percent": 2.576394299797291,
+  "minimum_geometric_reduction_percent": 5,
+  "all_pairs_improved": true,
+  "exact_integer_product_threshold_passed": false,
+  "production_accepted": false,
+  "full_gate_run": false,
+  "interpretation": [
+    "Complete negative performance result; not a model error, refusal, timeout or stopped result.",
+    "The runner threshold assertion occurred only after writing all sixteen normal arm results.",
+    "No runtime PR, layout retry or threshold waiver follows.",
+    "No quiet wall time, TLC throughput, scaling, conformance agreement or release milestone claim.",
+    "The prior raw-handler experiment at 02854597/6b7baa57 reduced instructions 4.5943593%; that separate rejection remains unchanged."
+  ],
+  "evidence": {
+    "final_archive_sha256": "98ee241eab2f57b0c7a7a146cc508d7d268a823d15abdb061609765a67a61106",
+    "final_archive_bytes": 56505193,
+    "all_archive_members_verified": 217,
+    "root_review_sha256": "5e24b76e51a548f265c5df385cdbbee02b69bba33c8475a197f86ace80d42401",
+    "independent_review_sha256": "5d7d54d04dfd848de5cb822e019e382c8f4c4a73fa4626bd63a3926f313c6190",
+    "all_original_objects": 33,
+    "all_original_object_bytes": 187373950,
+    "independent_resources_removed_review_sha256": "da9927b89f6e5bbf019838185264924abe15ad312a4f9046cf58f31538b3bf85",
+    "raw_evidence": "External, identified by content hashes; no logs or binaries committed."
+  }
+}
