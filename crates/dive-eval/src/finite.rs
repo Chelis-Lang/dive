@@ -269,8 +269,8 @@ impl Guard<'_> {
             | Expr::RecFcn { .. }
             | Expr::SetMap { .. }
             | Expr::SetFilter { .. }
-            | Expr::Cartesian(_) => Ok(ResultKind::NonString),
-            Expr::Quant {
+            | Expr::Cartesian(_)
+            | Expr::Quant {
                 kind: dive_ir::QuantKind::Forall | dive_ir::QuantKind::Exists,
                 ..
             } => Ok(ResultKind::NonString),
