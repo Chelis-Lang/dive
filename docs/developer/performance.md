@@ -466,6 +466,35 @@ four reduced safety models in both profiles at one worker, including startup:
 there is no quiet wall-time, TLC-throughput, scaling, new agreement or release
 milestone claim. Original evidence was verified before resource cleanup.
 
+### Transient activations and raw outlining, 2026-10-24
+
+Two further evaluator experiments completed the same fixed instruction screen:
+four reduced ADR 0104 models, both profiles, one worker, two profiling builds
+and sixteen sequential Cachegrind arms. Every native stage completed normally;
+each baseline/candidate pair retained identical success results and all five
+reported counters. The baseline in each screen is dive, not Java TLC.
+
+| Experiment | Baseline / candidate | Geometric instruction change | Decision |
+| --- | --- | --- | --- |
+| Transient function activations | `771178b5` / `25850c0d` | +0.5727351% | All eight pairs slower; rejected |
+| Compact raw evaluator outlining | `68c09a1b` / `9be70ddf` | -0.4409831% | All eight pairs improve, below 5%; rejected |
+
+The fixed bar requires at least 5% fewer instructions geometrically and no more
+than 1% regression in any cell. Both experiments pass the per-cell bound and
+fail the geometric requirement. Their runtime branches remain unmerged; neither
+received a full checker gate or a threshold waiver. The outline producer's
+terminal HOLD follows a complete matrix and records the threshold failure;
+its earlier zero-build, zero-model startup failure is separate evidence.
+
+The compact [activation record](../survey/data/transient-activations-rejected-2026-10-24.json)
+and [outline record](../survey/data/compact-raw-outline-rejected-2026-10-24.json)
+retain integer instruction pairs, equal counters, source/binary/input identities,
+tool and machine provenance, review hashes and retained S3 origins. Both used
+900-second native budgets, 8 GiB ceilings and 930-second external backstops.
+Symbol or source-line attribution does not establish removable work. These
+screens establish no quiet wall-time, TLC throughput, scaling, new agreement or
+release-capacity result.
+
 ## Packed temporal atom truth
 
 The native temporal label store keeps one bit per actual state/action observation.
