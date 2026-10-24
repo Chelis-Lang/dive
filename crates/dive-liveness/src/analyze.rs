@@ -321,12 +321,110 @@ impl ActionEvaluation {
     }
 }
 
-/// A failure retaining the legacy error and an actual action cause, when present.
+/// Where a state atom actually failed in the existing analysis schedule.
+/// None of these sites certifies TLC's capture-time error demand or prefix.
+///
+/// ```
+/// use dive_liveness::analyze::StateEvaluationSite;
+/// let site = StateEvaluationSite::FinalLabels;
+/// assert_ne!(site, StateEvaluationSite::PeriodicLabels);
+/// ```
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum StateEvaluationSite {
+    /// Graph labels evaluated after complete exploration.
+    FinalLabels,
+    /// Graph labels evaluated during a due completed-level prefix check.
+    PeriodicLabels,
+    /// Candidate-word attribution after complete exploration.
+    FinalAttribution,
+    /// Candidate-word attribution during a completed-level prefix check.
+    PeriodicAttribution,
+}
+
+/// An original state-atom cause, without an error verdict or timing certificate.
+/// The inner cause's expression origin and the bound predicate's outer source
+/// are retained separately. No graph state, scope or evaluator is retained.
+///
+/// ```no_run
+/// # fn example(model: &dive_model::Model) {
+/// use dive_liveness::analyze::{analyze_final_with_action_errors, Limits};
+/// if let Err(failure) = analyze_final_with_action_errors(model,
+///     &dive_check::CheckOptions::tlc(0, 0), Limits::default()) {
+///     if let Some(state) = failure.state_evaluation() {
+///         let _actual_site = state.site();
+///         let _original_cause = state.core_cause();
+///         let _outer_source = state.source();
+///     }
+/// }
+/// # }
+/// ```
+#[derive(Clone, Debug)]
+pub struct StateEvaluation {
+    cause: dive_eval::EvalError,
+    property: String,
+    source: Box<plan::Source>,
+    core: bool,
+    site: StateEvaluationSite,
+}
+impl StateEvaluation {
+    /// Original class, code, message and inner expression origin.
+    #[must_use]
+    pub fn cause(&self) -> &dive_eval::EvalError {
+        &self.cause
+    }
+    /// Actual core evaluation error, absent for a synthesized nonboolean result.
+    #[must_use]
+    pub fn core_cause(&self) -> Option<&dive_eval::EvalError> {
+        self.core.then_some(&self.cause)
+    }
+    /// Property whose state atom failed.
+    #[must_use]
+    pub fn property(&self) -> &str {
+        &self.property
+    }
+    /// Bound predicate's outer source, independent of the original inner cause.
+    #[must_use]
+    pub fn source(&self) -> &plan::Source {
+        &self.source
+    }
+    /// Actual postcapture or completed-level evaluation site, never Init/source-row.
+    #[must_use]
+    pub const fn site(&self) -> StateEvaluationSite {
+        self.site
+    }
+}
+
+#[derive(Clone, Debug, Default)]
+struct EvaluationErrors {
+    action: Option<Box<ActionEvaluation>>,
+    state: Option<Box<StateEvaluation>>,
+    periodic: bool,
+}
+
+impl EvaluationErrors {
+    fn state_site(&self, attribution: bool) -> StateEvaluationSite {
+        match (self.periodic, attribution) {
+            (false, false) => StateEvaluationSite::FinalLabels,
+            (true, false) => StateEvaluationSite::PeriodicLabels,
+            (false, true) => StateEvaluationSite::FinalAttribution,
+            (true, true) => StateEvaluationSite::PeriodicAttribution,
+        }
+    }
+}
+
+struct StateContext<'a> {
+    property: &'a str,
+    errors: &'a mut EvaluationErrors,
+    control: &'a dive_check::budget::EvaluationControl,
+    attribution: bool,
+}
+
+/// A failure retaining legacy errors and original typed evaluation causes.
 /// Legacy entrypoints keep their existing error shapes; no diagnostic is parsed.
 #[derive(Clone, Debug)]
 pub struct DetailedFailure {
     failure: Failure,
-    action: Option<Box<ActionEvaluation>>,
+    evaluations: EvaluationErrors,
 }
 impl DetailedFailure {
     /// Legacy failure and completed execution facts.
@@ -337,12 +435,31 @@ impl DetailedFailure {
     /// Actual active action error, absent for state/attribution and other failures.
     #[must_use]
     pub fn action_evaluation(&self) -> Option<&ActionEvaluation> {
-        self.action.as_deref()
+        self.evaluations.action.as_deref()
+    }
+    /// Original state-atom cause and actual site, without verdict/order parity.
+    #[must_use]
+    pub fn state_evaluation(&self) -> Option<&StateEvaluation> {
+        self.evaluations.state.as_deref()
+    }
+    /// Takes the state evidence before consuming the legacy two-part result.
+    /// This transfers only the failure description; no runtime owner is retained.
+    ///
+    /// ```
+    /// # fn example(mut failure: dive_liveness::analyze::DetailedFailure) {
+    /// let state = failure.take_state_evaluation();
+    /// let (legacy, action) = failure.into_parts();
+    /// # let _ = (state, legacy, action);
+    /// # }
+    /// ```
+    #[must_use]
+    pub fn take_state_evaluation(&mut self) -> Option<Box<StateEvaluation>> {
+        self.evaluations.state.take()
     }
     /// Consumes this description without changing the legacy public error shape.
     #[must_use]
     pub fn into_parts(self) -> (Failure, Option<Box<ActionEvaluation>>) {
-        (self.failure, self.action)
+        (self.failure, self.evaluations.action)
     }
 }
 impl std::fmt::Display for DetailedFailure {
@@ -387,18 +504,40 @@ fn atom(
     plan: &Plan,
     index: usize,
     st: &St,
-    property: &str,
-    control: &dive_check::budget::EvaluationControl,
+    context: &mut StateContext<'_>,
 ) -> Result<bool, AnalysisError> {
-    let pred = &plan.atoms[index].pred;
-    let failure = |detail| AnalysisError::Atom {
-        property: property.into(),
-        source: Box::new(plan::Source::new(model, pred.location)),
-        detail,
+    let pred = &plan.atoms[index];
+    pred.evaluate_detailed(model, st)
+        .map_err(|failure| state_failure(model, pred, failure, context))
+}
+
+fn state_failure(
+    model: &Model,
+    pred: &plan::PredicateAtom,
+    failure: plan::AtomError,
+    context: &mut StateContext<'_>,
+) -> AnalysisError {
+    let core = matches!(&failure, plan::AtomError::Core(_));
+    let cause = failure.into_error();
+    if let Some(interruption) = evaluator_interruption(context.control, &cause) {
+        return interruption;
+    }
+    let source = Box::new(plan::Source::new(model, pred.pred.location));
+    let error = AnalysisError::Atom {
+        property: context.property.into(),
+        source: source.clone(),
+        detail: cause.to_string(),
     };
-    plan.atoms[index]
-        .evaluate(model, st)
-        .map_err(|e| evaluator_interruption(control, &e).unwrap_or_else(|| failure(e.to_string())))
+    if pred.kind == AtomKind::State {
+        context.errors.state = Some(Box::new(StateEvaluation {
+            cause,
+            property: context.property.into(),
+            source,
+            core,
+            site: context.errors.state_site(context.attribution),
+        }));
+    }
+    error
 }
 
 fn selected_targets(
@@ -448,7 +587,7 @@ fn labels(
     property: &str,
     policy: GraphLabelPolicy,
     active: &(std::collections::BTreeSet<usize>, Option<usize>),
-    action_error: &mut Option<Box<ActionEvaluation>>,
+    evaluations: &mut EvaluationErrors,
     control: &dive_check::budget::EvaluationControl,
 ) -> Result<(PackedTruth, usize), AnalysisError> {
     let edges = graph
@@ -466,20 +605,19 @@ fn labels(
     }
     let kinds = plan.atoms.iter().map(|atom| atom.kind).collect::<Vec<_>>();
     let mut labels = PackedTruth::new(shape, &kinds).map_err(AnalysisError::Product)?;
+    let mut context = StateContext {
+        property,
+        errors: evaluations,
+        control,
+        attribution: false,
+    };
     for (index, pred) in plan.atoms.iter().enumerate() {
         for (v, vals) in graph.states.iter().enumerate() {
             if crate::budget::exhausted() {
                 return Err(AnalysisError::Limit(crate::budget::EXHAUSTED));
             }
             if pred.kind == AtomKind::State {
-                let value = atom(
-                    model,
-                    plan,
-                    index,
-                    &St::state(vals.clone()),
-                    property,
-                    control,
-                )?;
+                let value = atom(model, plan, index, &St::state(vals.clone()), &mut context)?;
                 labels
                     .set_state(index, v, value)
                     .map_err(AnalysisError::Product)?;
@@ -510,7 +648,7 @@ fn labels(
                                     source: source.clone(),
                                     detail: cause.to_string(),
                                 };
-                                *action_error = Some(Box::new(ActionEvaluation {
+                                context.errors.action = Some(Box::new(ActionEvaluation {
                                     cause,
                                     property: property.into(),
                                     source,
@@ -542,6 +680,7 @@ fn attribute(
     back: usize,
     cells: usize,
     control: &dive_check::budget::EvaluationControl,
+    evaluations: &mut EvaluationErrors,
 ) -> Result<Vec<String>, AnalysisError> {
     let mut violated = Vec::new();
     for (p, prepared) in model.property_claims().iter().zip(plans) {
@@ -551,12 +690,18 @@ fn attribute(
             .checked_mul(plan.atoms.len())
             .filter(|n| *n <= cells)
             .ok_or(AnalysisError::Limit("attribution atom cells"))?;
+        let mut context = StateContext {
+            property: &p.name,
+            errors: evaluations,
+            control,
+            attribution: true,
+        };
         let mut rows = Vec::new();
         for (i, state) in states.iter().enumerate() {
             let next = if i + 1 == states.len() { back } else { i + 1 };
             let st = St::action(state.clone(), states[next].clone());
             let row = (0..plan.atoms.len())
-                .map(|a| atom(model, plan, a, &st, &p.name, control))
+                .map(|a| atom(model, plan, a, &st, &mut context))
                 .collect::<Result<_, _>>()?;
             rows.push(row);
         }
@@ -636,7 +781,8 @@ pub fn analyze_final_with_evidence(
 ///
 /// # Errors
 /// The same failures as [`analyze_final_with_evidence`], with their original
-/// typed action cause when that evaluation actually failed.
+/// typed action or state cause when that evaluation actually failed. State
+/// evidence retains its actual analysis site, without broadening verdict policy.
 pub fn analyze_final_with_action_errors(
     model: &Model,
     opts: &CheckOptions,
@@ -694,7 +840,7 @@ pub fn analyze_final_with_policies(
 ) -> Result<Analysis, DetailedFailure> {
     let mut stage = Stage::Planning;
     let mut exploration = None;
-    let mut action = None;
+    let mut evaluations = EvaluationErrors::default();
     analyze_observed(
         model,
         opts,
@@ -703,7 +849,7 @@ pub fn analyze_final_with_policies(
         graph_labels,
         &mut stage,
         &mut exploration,
-        &mut action,
+        &mut evaluations,
     )
     .map_err(|error| DetailedFailure {
         failure: Failure {
@@ -711,7 +857,7 @@ pub fn analyze_final_with_policies(
             stage,
             exploration,
         },
-        action,
+        evaluations,
     })
 }
 
@@ -753,7 +899,7 @@ fn analyze_observed(
     graph_labels: GraphLabelPolicy,
     stage: &mut Stage,
     exploration: &mut Option<Box<ExplorationEvidence>>,
-    action_error: &mut Option<Box<ActionEvaluation>>,
+    evaluations: &mut EvaluationErrors,
 ) -> Result<Analysis, AnalysisError> {
     let (mut watchdog, armed) = dive_check::budget::arm(opts).map_err(|error| match error {
         dive_check::budget::StartError::Measurement(error) => {
@@ -772,13 +918,13 @@ fn analyze_observed(
         graph_labels,
         stage,
         exploration,
-        action_error,
+        evaluations,
     )
     .map_err(|error| match armed.budget.poll() {
         // Only the budget's own limit is a stop; every other failure,
         // including one raised just as the budget ran out, keeps its class.
         Ok(Some(exhausted)) if budget_limit(&error) => {
-            *action_error = None;
+            *evaluations = EvaluationErrors::default();
             AnalysisError::Stopped(Box::new(
                 exhausted.during(dive_check::budget::Phase::Temporal),
             ))
@@ -837,7 +983,7 @@ fn analyze_unbudgeted(
     graph_labels: GraphLabelPolicy,
     stage: &mut Stage,
     exploration: &mut Option<Box<ExplorationEvidence>>,
-    action_error: &mut Option<Box<ActionEvaluation>>,
+    evaluations: &mut EvaluationErrors,
 ) -> Result<Analysis, AnalysisError> {
     validate_analysis_context(model)?;
     let control = evaluator_control(opts)?;
@@ -868,7 +1014,7 @@ fn analyze_unbudgeted(
         policy,
         graph_labels,
         stage,
-        action_error,
+        evaluations,
         &control,
     )
     .inspect_err(|_| {
@@ -967,7 +1113,7 @@ fn analyze_captured(
     policy: AcceptancePolicy,
     graph_labels: GraphLabelPolicy,
     stage: &mut Stage,
-    action_error: &mut Option<Box<ActionEvaluation>>,
+    evaluations: &mut EvaluationErrors,
     control: &dive_check::budget::EvaluationControl,
 ) -> Result<Option<CandidateWord>, AnalysisError> {
     *stage = Stage::Product;
@@ -990,7 +1136,7 @@ fn analyze_captured(
             &p.name,
             graph_labels,
             &active,
-            action_error,
+            evaluations,
             control,
         )?;
         *stage = Stage::Product;
@@ -1026,6 +1172,7 @@ fn analyze_captured(
                         lasso.prefix.len(),
                         limits.atom_cells,
                         control,
+                        evaluations,
                     )?;
                     if !properties.contains(&p.name) {
                         return Err(AnalysisError::Inconsistent(
@@ -1054,3 +1201,6 @@ mod label_shapes;
 
 #[cfg(test)]
 mod borrowed_topology;
+
+#[cfg(test)]
+mod state_errors;

@@ -538,3 +538,11 @@ currently refused under issue #451. The finite error prefixes have not received
 independent trace validation.
 
 See the [compact primary observations](../survey/data/liveness-atom-error-timing-primary-2026-10-24.json) for input and generated-reference identities, exact outcomes and limitations.
+
+The Rust detailed temporal-failure APIs retain a state atom's original typed
+cause separately from its bound predicate source. `state_evaluation()` identifies
+whether that failure occurred in final graph labels, a completed-level periodic
+check, or candidate attribution; a synthesized nonboolean result remains distinct
+from a core evaluator error. This evidence does not certify TLC's capture-time
+error demand or stopping prefix. Ordinary temporal state-atom errors still report
+`DIVE-L0033` refusals; no verdict, count, limit or report-schema policy changes.
