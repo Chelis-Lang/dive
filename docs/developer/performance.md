@@ -520,6 +520,32 @@ library tests passed before this screen. These results establish no allocation
 saving fraction, quiet wall-time, Java TLC throughput, scaling, new agreement or
 release-capacity claim.
 
+### Invocation-local evaluator control, 2026-10-24
+
+The private invocation-session experiment compared baseline `6077f492` with
+candidate `99a47878`. It moved calls, thunk forcing, instance substitutions,
+bounded quantifier rows and raw Boolean connectors into an invocation-local
+control loop, retaining synchronous native callbacks and explicit legacy
+fallback boundaries. Both profiling binaries used the shipping mimalloc allocator.
+
+Two builds and all sixteen Cachegrind arms completed normally and uncensored
+across four reduced models in both profiles at one worker. Every pair preserved
+all five reported counters. Instructions increased in all eight pairs, by
+55.216% to 90.641%, with a geometric increase of 73.2713628%. The completed
+screen failed both the fixed 5% geometric reduction bar and the individual
+1% regression ceiling. The runtime prototype remains unmerged; no runtime full
+gate, repeat screen, retuning or threshold waiver follows.
+
+The [compact record](../survey/data/invocation-session-rejected-2026-10-24.json)
+retains the eight integer pairs, equal counters, source/binary/input identities,
+all sixteen raw profile hashes and S3 origins. An independent audit replayed the original
+profiles, outputs and observations in memory. A separate post-run upload retained
+two existing input-identity receipts without changing producer completion or
+native facts; the original producer HOLD records the threshold rejection.
+Formatting, all-target evaluator Clippy and all 69 unfiltered library tests had
+passed before the screen. This result establishes no removable-cost fraction,
+wall-time, Java TLC throughput, scaling, new parity or release-capacity claim.
+
 ## Packed temporal atom truth
 
 The native temporal label store keeps one bit per actual state/action observation.
