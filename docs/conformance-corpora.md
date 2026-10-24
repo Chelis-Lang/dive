@@ -279,7 +279,35 @@ Twenty-five directories of the pinned Examples checkout have no
 
 ## Full-tier implementation measurement
 
-The controlled 2026-10-21 campaign compares frozen native source `39f4e483`
+The fresh 2026-10-24 measurement of frozen source `68c09a1b` reports **181/217
+in-scope agreements** in the TLC profile at one worker: ten more agreements
+than the controlled 2026-10-21 baseline, with no lost agreements. The fixed
+265-model population, 48 exclusions, nine missing references and pinned oracle
+are unchanged. Seventeen named refusals, ten resource stops and the nine
+missing references remain unresolved; there are zero disagreements.
+
+It uses two concurrent models, a 16 GiB native process-memory ceiling per model
+and TLC-derived time budgets capped at 900 seconds, with 30 seconds of harness
+cleanup grace. All ten timeouts are structured native stops with exit 5, nine
+for time and one for memory. The [compact record](survey/data/full-tier-measurement-2026-10-24.json)
+retains every gap's named cause and the stops' actual resource, phase and prefix
+statistics. Signals and partial streams are absent; no stopped run earns
+agreement or completion credit.
+
+The original harness completed normally with exit 1, then the controller failed
+with a post-run packaging `TypeError` after computing the report and raw audits.
+The original failure remains intact. Following whole-campaign quiescence,
+recovery ran only `report baseline` and preserved originals in S3, with no model
+or build rerun. The generated digest `conformance/baselines/full-tlc-w1.json`
+is copied byte-for-byte from that utility's output for
+`20261024T165628670-dive-all`; it is not hand edited and no gate consumes it.
+This is a measurement, not a new full-gate pass or release acceptance. No
+full-tier SANY, four-worker, throughput or peak-memory result follows. The
+separate small-tier baselines remain unchanged.
+
+### Historical 2026-10-21 implementation measurements
+
+The earlier controlled 2026-10-21 campaign compares frozen native source `39f4e483`
 against the references above through harness `0ee2a2dd`. It is not a measurement
 of later main: 171/217 in-scope models agree in the TLC profile at one worker.
 All 265 historical `(corpus, model)` IDs are identical to the recovered
@@ -302,8 +330,8 @@ that now exceed the time budget, and EWD998Chan's refusal-to-stop change, are
 listed with their issues in [the scoreboard](scoreboard.md#full-tier-measurement).
 No model was dropped to improve the denominator and no golden changed.
 
-The generated digest `conformance/baselines/full-tlc-w1.json` comes from
-`report baseline` on report `20261021T141221299-dive-all`; no gate consumes it.
+The previous generated digest came from `report baseline` on report
+`20261021T141221299-dive-all`; it remains in Git history.
 The [compact evidence](survey/data/full-tier-budgeted-2026-10-21.json) records
 both source pins, binary and report hashes, the exact selection hash, all ten
 resource findings and the budget policy. Existing accepted small-tier baselines
