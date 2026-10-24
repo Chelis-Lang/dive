@@ -488,3 +488,16 @@ different exploration order use their existing paths. A compound component may
 still require materialization; this does not make every domain construction
 interruptible. The four pinned first-state controls and their independent trace
 validation are documented in the [corpus guide](../conformance-corpora.md#compound-domain-first-state-controls).
+
+Temporal analysis borrows the captured graph's edge targets and roots while
+constructing labels and products. It retains every captured state and original
+concrete successor occurrence. This avoids a second behavior adjacency copy; it
+does not change capture, graph-label, product or acceptance limits, and does not
+provide disk-backed temporal capture.
+
+The [source-bound qualification](../survey/data/borrowed-topology-qualification-2026-10-23.json)
+preserves all 312 small-tier model runs and 458 SANY agreements. Its eight normal
+instruction pairs stay within 1% overhead (maximum 0.0301%). Four ordinary-release
+CoffeeCan observations are descriptive; they establish no quantitative memory
+or throughput gain. All measurements run dive, including its TLC compatibility
+profile; this adds no capacity or parity claim.

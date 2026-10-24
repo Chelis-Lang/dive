@@ -15,6 +15,9 @@ use std::collections::{BTreeMap, BTreeSet};
 mod csr;
 use csr::{CsrGraph, FlatRows, OwnedRows, ProductRows, RowStorage};
 
+mod behavior;
+pub(crate) use behavior::BehaviorView;
+
 mod budget;
 pub use budget::AcceptancePolicy;
 mod truth;
@@ -113,7 +116,7 @@ struct Ordered<'a> {
 }
 
 struct Builder<'a, T: TruthAccess, R: RowStorage> {
-    graph: &'a Graph,
+    graph: BehaviorView<'a>,
     tableau: &'a Tableau,
     labels: &'a T,
     conditions: &'a [Recurrence],
@@ -149,7 +152,7 @@ impl<T: TruthAccess, R: RowStorage> Builder<'_, T, R> {
                 self.tableau.promise_count,
                 self.conditions.len(),
                 self.scratch_len,
-                budget::ActionDomain::behavior(self.graph.edges.len(), self.behavior_edges),
+                budget::ActionDomain::behavior(self.graph.vertex_count(), self.behavior_edges),
                 bytes,
             );
         }
@@ -189,9 +192,9 @@ impl<T: TruthAccess, R: RowStorage> Builder<'_, T, R> {
     fn expand(&mut self, id: usize) -> Result<(), ProductError> {
         self.inspect()?;
         let (v, n) = self.pairs[id];
-        for e in 0..self.graph.edges[v].len() {
+        for e in 0..self.graph.row_len(v) {
             self.inspect()?;
-            let target = self.graph.edges[v][e];
+            let target = self.graph.target(v, e);
             // Current action literals constrain this outgoing edge, including
             // loop closure. A destination's action literals constrain its own
             // outgoing edges when that pair is expanded.
@@ -256,7 +259,7 @@ impl<T: TruthAccess, R: RowStorage> Builder<'_, T, R> {
 }
 
 fn validate(
-    graph: &Graph,
+    graph: BehaviorView<'_>,
     tableau: &Tableau,
     labels: &impl TruthAccess,
 ) -> Result<(), ProductError> {
@@ -313,7 +316,7 @@ impl Product {
         limits: Limits,
     ) -> Result<Self, ProductError> {
         let parts = build::<_, OwnedRows>(
-            graph,
+            BehaviorView::Dense(graph),
             tableau,
             labels,
             conditions,
@@ -389,7 +392,7 @@ impl Product {
 }
 
 fn build<A, R: RowStorage>(
-    graph: &Graph,
+    graph: BehaviorView<'_>,
     tableau: &Tableau,
     labels: &impl TruthAccess,
     conditions: &[Recurrence],
@@ -425,7 +428,7 @@ fn build<A, R: RowStorage>(
         steps: 0,
     };
     let mut roots = BTreeSet::new();
-    for &v in &graph.roots {
+    for &v in graph.roots() {
         for &n in &tableau.roots {
             builder.inspect()?;
             if builder.fits_state(v, n) {
@@ -583,8 +586,8 @@ impl CompactProduct {
         Self::with_policy_and_edges(graph, tableau, labels, conditions, limits, policy, edges)
     }
 
-    pub(crate) fn with_policy_and_edges(
-        graph: &Graph,
+    pub(crate) fn with_policy_and_edges<'a>(
+        graph: impl Into<BehaviorView<'a>>,
         tableau: &Tableau,
         labels: &impl TruthAccess,
         conditions: &[Recurrence],
@@ -592,6 +595,7 @@ impl CompactProduct {
         policy: AcceptancePolicy,
         behavior_edges: usize,
     ) -> Result<Self, ProductError> {
+        let graph = graph.into();
         let parts = build::<_, FlatRows>(
             graph,
             tableau,

@@ -1,5 +1,9 @@
 # Changelog
 
+- Borrow captured behavior topology during temporal analysis instead of retaining
+  a second adjacency and root copy. Preserve captured states, concrete successor
+  occurrences, public graph APIs, validation order and all resource limits.
+
 - Add pinned first-state compound-domain oracle controls and independently
   validated counterexamples for issue #349.
 - Stream unassigned compound-membership candidates over concrete components,
