@@ -95,7 +95,7 @@ fn constructor_families_and_owned_alias_joins_prove_nonstring_without_evaluation
                 project(&evaluator, &ir, "Q", &mut 100_000).expect("metadata-only type fact"),
                 "{left}"
             );
-            assert!(evaluator.take_output().is_empty());
+            assert_eq!(evaluator.take_output(), [] as [std::string::String; 0]);
         }
     }
 }
@@ -160,7 +160,7 @@ fn string_and_unselected_string_arms_stay_refused_after_successful_cache_warmup(
                     .expect_err("cache/untaken arm is not a type certificate");
                 assert_eq!(error.class(), ErrorClass::Unsupported);
                 assert!(error.message().contains("effect/provider/native"));
-                assert!(evaluator.take_output().is_empty());
+                assert_eq!(evaluator.take_output(), [] as [std::string::String; 0]);
             }
         }
     }
@@ -237,7 +237,7 @@ fn nonstring_left_does_not_hide_provider_right_or_unsafe_unused_captures() {
                     .expect_err("all retained storage and both operands still checked");
                 assert_eq!(error.class(), ErrorClass::Unsupported);
                 assert_eq!(provider.0.load(Ordering::SeqCst), before);
-                assert!(evaluator.take_output().is_empty());
+                assert_eq!(evaluator.take_output(), [] as [std::string::String; 0]);
             }
         }
     }
@@ -258,7 +258,7 @@ fn constructor_result_kinds_do_not_authorize_print_or_unused_effect_captures() {
                     .class(),
                 ErrorClass::Unsupported
             );
-            assert!(evaluator.take_output().is_empty());
+            assert_eq!(evaluator.take_output(), [] as [std::string::String; 0]);
         }
     }
     let ir = lower(
@@ -294,7 +294,7 @@ fn constructor_result_kinds_do_not_authorize_print_or_unused_effect_captures() {
                     .class(),
                 ErrorClass::Unsupported
             );
-            assert!(evaluator.take_output().is_empty());
+            assert_eq!(evaluator.take_output(), [] as [std::string::String; 0]);
         }
     }
 }
@@ -342,7 +342,7 @@ fn canonical_def_std_routes_reject_redirects_values_and_configured_native_origin
                         ErrorClass::Unsupported
                     );
                 }
-                assert!(evaluator.take_output().is_empty());
+                assert_eq!(evaluator.take_output(), [] as [std::string::String; 0]);
             }
         }
     }
@@ -377,7 +377,7 @@ fn a_stored_definition_value_never_inherits_its_source_constructor_type() {
                     .class(),
                 ErrorClass::Unsupported
             );
-            assert!(evaluator.take_output().is_empty());
+            assert_eq!(evaluator.take_output(), [] as [std::string::String; 0]);
         }
     }
 }
@@ -449,7 +449,7 @@ fn discharged_own_name_gate_preserves_inner_refusal_origin_and_shared_budget() {
         let required = 100_000 - remaining;
         assert!(required > 0);
         assert!(project(&evaluator, &ir, "Nested", &mut required.saturating_sub(1)).is_err());
-        assert!(evaluator.take_output().is_empty());
+        assert_eq!(evaluator.take_output(), [] as [std::string::String; 0]);
     }
 }
 
@@ -490,7 +490,7 @@ fn admitted_type_error_operands_keep_both_eager_actuals_and_original_kernel_code
             assert_eq!(error.ec(), expected);
             assert_eq!(error.message(), message);
             assert!(error.origin().is_some());
-            assert!(evaluator.take_output().is_empty());
+            assert_eq!(evaluator.take_output(), [] as [std::string::String; 0]);
         }
     }
 }
