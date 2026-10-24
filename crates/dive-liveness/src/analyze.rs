@@ -10,7 +10,6 @@ use dive_check::{CheckOptions, CheckResult, capture};
 use dive_eval::{St, next::StateVals};
 use dive_model::Model;
 
-use crate::Graph;
 use crate::formula::{self, AtomKind, CycleConditions, Tableau};
 use crate::plan::{self, Plan, PlanningError};
 use crate::product::{self, AcceptancePolicy, CompactProduct, PackedTruth};
@@ -445,7 +444,7 @@ fn labels(
     model: &Model,
     plan: &Plan,
     graph: &capture::BehaviorGraph,
-    shape: &Graph,
+    shape: product::BehaviorView<'_>,
     property: &str,
     policy: GraphLabelPolicy,
     active: &(std::collections::BTreeSet<usize>, Option<usize>),
@@ -460,7 +459,7 @@ fn labels(
     policy.admit(graph.states.len(), edges, plan.atoms.len())?;
     // Owned rows took their vertex dimension from actual captured states.
     // Packing must not turn a missing state row into unwritten FALSE bits.
-    if graph.states.len() != shape.edges.len() || graph.edges.len() != shape.edges.len() {
+    if graph.states.len() != shape.vertex_count() || graph.edges.len() != shape.vertex_count() {
         return Err(AnalysisError::Product(product::ProductError::Shape(
             "state predicate dimensions".into(),
         )));
@@ -972,15 +971,8 @@ fn analyze_captured(
     control: &dive_check::budget::EvaluationControl,
 ) -> Result<Option<CandidateWord>, AnalysisError> {
     *stage = Stage::Product;
-    let graph = Graph::new(
-        captured
-            .edges
-            .iter()
-            .map(|r| r.iter().map(|e| e.to).collect())
-            .collect(),
-        captured.roots.clone(),
-    )
-    .map_err(|e| AnalysisError::Product(product::ProductError::Shape(e.to_string())))?;
+    let graph = product::BehaviorView::checked_captured(captured)
+        .map_err(|e| AnalysisError::Product(product::ProductError::Shape(e.to_string())))?;
     for (p, prepared) in model.property_claims().iter().zip(plans).take(searched) {
         let plan = &prepared.plan;
         *stage = Stage::Atoms;
@@ -994,7 +986,7 @@ fn analyze_captured(
             model,
             plan,
             captured,
-            &graph,
+            graph,
             &p.name,
             graph_labels,
             &active,
@@ -1004,7 +996,7 @@ fn analyze_captured(
         *stage = Stage::Product;
         for group in &prepared.groups {
             let product = CompactProduct::with_policy_and_edges(
-                &graph,
+                graph,
                 &group.tableau,
                 &labels,
                 &[],
@@ -1059,3 +1051,6 @@ pub mod periodic;
 
 #[cfg(test)]
 mod label_shapes;
+
+#[cfg(test)]
+mod borrowed_topology;

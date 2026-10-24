@@ -1,11 +1,16 @@
 //! Truth on original behavior states and edges, without unused-domain rows.
 
-use super::{Graph, Labels, ProductError};
+#[cfg(test)]
+use super::Graph;
+use super::{BehaviorView, Labels, ProductError};
 use crate::formula::{Atom, AtomKind};
 
 pub(crate) trait TruthAccess {
     fn contains(&self, atom: Atom) -> bool;
-    fn validate_dimensions(&self, graph: &Graph) -> Result<(), ProductError>;
+    fn validate_dimensions<'a>(
+        &self,
+        graph: impl Into<BehaviorView<'a>>,
+    ) -> Result<(), ProductError>;
     fn state(&self, atom: usize, vertex: usize) -> bool;
     fn action(&self, atom: usize, source: usize, edge: usize) -> bool;
 
@@ -26,16 +31,24 @@ impl TruthAccess for Labels {
             }
     }
 
-    fn validate_dimensions(&self, graph: &Graph) -> Result<(), ProductError> {
-        if self.states.iter().any(|row| row.len() != graph.edges.len()) {
+    fn validate_dimensions<'a>(
+        &self,
+        graph: impl Into<BehaviorView<'a>>,
+    ) -> Result<(), ProductError> {
+        let graph = graph.into();
+        if self
+            .states
+            .iter()
+            .any(|row| row.len() != graph.vertex_count())
+        {
             return Err(ProductError::Shape("state predicate dimensions".into()));
         }
         if self.actions.iter().any(|rows| {
-            rows.len() != graph.edges.len()
+            rows.len() != graph.vertex_count()
                 || rows
                     .iter()
-                    .zip(&graph.edges)
-                    .any(|(a, b)| a.len() != b.len())
+                    .enumerate()
+                    .any(|(v, row)| row.len() != graph.row_len(v))
         }) {
             return Err(ProductError::Shape(
                 "action predicate adjacency dimensions".into(),
@@ -123,29 +136,31 @@ fn reserve<T>(count: usize) -> Result<Vec<T>, ProductError> {
 }
 
 impl PackedTruth {
-    pub(crate) fn new(graph: &Graph, kinds: &[AtomKind]) -> Result<Self, ProductError> {
+    pub(crate) fn new<'a>(
+        graph: impl Into<BehaviorView<'a>>,
+        kinds: &[AtomKind],
+    ) -> Result<Self, ProductError> {
+        let graph = graph.into();
         let edges = if kinds.contains(&AtomKind::Action) {
-            graph
-                .edges
-                .iter()
-                .try_fold(0_usize, |n, row| n.checked_add(row.len()))
+            (0..graph.vertex_count())
+                .try_fold(0_usize, |n, v| n.checked_add(graph.row_len(v)))
                 .ok_or(SIZE)?
         } else {
             0
         };
         // Check every buffer's required size before allocating any of them.
         // This is a lower bound on live memory, not a guessed process size.
-        let layout = Layout::checked(graph.edges.len(), edges, kinds)?;
+        let layout = Layout::checked(graph.vertex_count(), edges, kinds)?;
         debug_assert!(layout.minimum_bytes >= layout.offsets * size_of::<usize>());
         let mut offsets = reserve(layout.offsets)?;
         if layout.offsets != 0 {
             let mut position = 0;
             offsets.push(position);
-            for row in &graph.edges {
+            for v in 0..graph.vertex_count() {
                 if crate::budget::exhausted() {
                     return Err(ProductError::Limit(crate::budget::EXHAUSTED));
                 }
-                position += row.len(); // checked sum above bounds every partial sum
+                position += graph.row_len(v); // checked sum above bounds every partial sum
                 offsets.push(position);
             }
         }
@@ -163,7 +178,7 @@ impl PackedTruth {
             columns.push(Column { kind, words });
         }
         Ok(Self {
-            vertices: graph.edges.len(),
+            vertices: graph.vertex_count(),
             columns,
             offsets,
         })
@@ -237,17 +252,21 @@ impl TruthAccess for PackedTruth {
             .is_some_and(|column| column.kind == atom.kind)
     }
 
-    fn validate_dimensions(&self, graph: &Graph) -> Result<(), ProductError> {
+    fn validate_dimensions<'a>(
+        &self,
+        graph: impl Into<BehaviorView<'a>>,
+    ) -> Result<(), ProductError> {
+        let graph = graph.into();
         let actions = self
             .columns
             .iter()
             .any(|column| column.kind == AtomKind::Action);
-        if self.vertices != graph.edges.len()
+        if self.vertices != graph.vertex_count()
             || if actions {
-                self.offsets.len() != graph.edges.len().saturating_add(1)
+                self.offsets.len() != graph.vertex_count().saturating_add(1)
                     || self.offsets.first() != Some(&0)
-                    || graph.edges.iter().enumerate().any(|(v, row)| {
-                        self.offsets[v + 1].checked_sub(self.offsets[v]) != Some(row.len())
+                    || (0..graph.vertex_count()).any(|v| {
+                        self.offsets[v + 1].checked_sub(self.offsets[v]) != Some(graph.row_len(v))
                     })
             } else {
                 !self.offsets.is_empty()
@@ -259,7 +278,7 @@ impl TruthAccess for PackedTruth {
         if self.columns.iter().any(|column| {
             column.words.len()
                 != words(match column.kind {
-                    AtomKind::State => graph.edges.len(),
+                    AtomKind::State => graph.vertex_count(),
                     AtomKind::Action => edges,
                 })
         }) {
