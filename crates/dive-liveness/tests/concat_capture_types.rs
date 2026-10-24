@@ -121,7 +121,7 @@ fn captured_hold_fail_and_empty_callback_keep_primary_counts_with_cold_and_warm_
                     }
                 }
             }
-            assert!(model.take_output().is_empty());
+            assert_eq!(model.take_output(), [] as [std::string::String; 0]);
         }
     }
 }
@@ -191,6 +191,6 @@ fn string_only_native_name_creation_stays_a_named_refusal_after_the_type_change(
             panic!("named planning refusal")
         };
         assert!(refusal.detail.contains("effect/provider/native"));
-        assert!(model.take_output().is_empty());
+        assert_eq!(model.take_output(), [] as [std::string::String; 0]);
     }
 }
