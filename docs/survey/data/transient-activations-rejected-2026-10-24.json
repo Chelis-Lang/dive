@@ -1,0 +1,387 @@
+{
+  "schema_version": 1,
+  "experiment": "transient-activations",
+  "date": "2026-10-24",
+  "status": "rejected_complete_instruction_screen",
+  "source": {
+    "baseline": "771178b528532142a7c5fd5d411fcbd754cac86f",
+    "candidate": "25850c0dfa98cc4ad78f9ef842cec389df79939d",
+    "trees": {
+      "baseline": "9179efce1f66cc1f551405c319a7439050187b76",
+      "candidate": "2278626360698bdcfb244e2d95e94f51c8732370"
+    }
+  },
+  "method": {
+    "metric": "Whole-CLI Cachegrind Ir, including startup; baseline is dive, not Java TLC.",
+    "builds": 2,
+    "native_stages": 18,
+    "instruction_arms": 16,
+    "pairs": 8,
+    "workers": 1,
+    "seed": 0,
+    "fingerprint": 0,
+    "max_memory_bytes": 8589934592,
+    "native_time_limit_seconds": 900,
+    "outer_arm_seconds": 930,
+    "cache_simulation": false,
+    "profiles": [
+      "dive",
+      "tlc"
+    ],
+    "cost_validation": "Entire exclusive cost-line sum equals Cachegrind summary Ir and stderr I refs; read through EOF.",
+    "acceptance": {
+      "minimum_geometric_reduction": 0.05,
+      "maximum_cell_ratio": 1.01
+    },
+    "workload": {
+      "examples_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "reductions": {
+        "SimpleRegular": "Copy SimpleRegular.cfg, set N to6.",
+        "MCbtree": "Copy MCbtree.cfg, set MaxKey to3.",
+        "GameOfLife": "Copy GameOfLife.cfg, set N to3.",
+        "EWD998PCal": "Copy EWD998PCal.cfg unchanged; in EWD998PCal.tla change StateConstraint counter[i]<3 to counter[i]<2."
+      },
+      "models": {
+        "SimpleRegular": {
+          "module": {
+            "path": "specifications/TeachingConcurrency/SimpleRegular.tla",
+            "sha256": "bf3872f04d71f7b80fcb55cecd07bf1b38fac3861fbb3452eb179c593c1bcdb5"
+          },
+          "config": {
+            "path": "specifications/TeachingConcurrency/R1SimpleRegular.cfg",
+            "sha256": "aa129769c5d9a6bd1c3545dbbfbc98e1279d4b314b592b7801c9af71735fc3ff"
+          },
+          "expected": {
+            "distinct": 12097,
+            "generated": 47584,
+            "depth": 19
+          }
+        },
+        "MCbtree": {
+          "module": {
+            "path": "specifications/btree/MCbtree.tla",
+            "sha256": "64655fd6391422f27607da0c3d36617066249c68687d984bdb1113bc98f83ac3"
+          },
+          "config": {
+            "path": "specifications/btree/R1MCbtree.cfg",
+            "sha256": "de7bb2b0263d04833243ed7f09bec7cb496e4111f6777425161b9d8a5e119ffa"
+          },
+          "expected": {
+            "distinct": 21364,
+            "generated": 127825,
+            "depth": 24
+          }
+        },
+        "GameOfLife": {
+          "module": {
+            "path": "specifications/GameOfLife/GameOfLife.tla",
+            "sha256": "dcd6d626946faab35ac22ad38a031b0d9bd9bc274d8750340506acc407dccbc6"
+          },
+          "config": {
+            "path": "specifications/GameOfLife/R1GameOfLife.cfg",
+            "sha256": "842e3c2d93b0535783091687f76debde6dd42fc7b33983f154a9f892125ef4a9"
+          },
+          "expected": {
+            "distinct": 512,
+            "generated": 1024,
+            "depth": 1
+          }
+        },
+        "EWD998PCal": {
+          "module": {
+            "path": "specifications/ewd998/EWD998PCal.tla",
+            "sha256": "3342f5d865902f6e85defbcd6713cea1dac50e031d3f2281e7b7cc9deb545da4"
+          },
+          "config": {
+            "path": "specifications/ewd998/R1EWD998PCal.cfg",
+            "sha256": "44073c04a88dd7aa593cab099e59b7b1dd4be31ec2d5b59616b0426a3a84f892"
+          },
+          "expected": {
+            "distinct": 20870,
+            "generated": 168292,
+            "depth": 28
+          }
+        }
+      }
+    },
+    "input_archives_sha256": {
+      "workloads": "f1d3eb00d9f43c11e03a50be64a3115f8e2bb838299bb8d7033106a8ce0c53ef",
+      "module_libraries": "90a8757da7c179dcf04ec8f7530f99881e013eb76b92bfeb59808d9a0fe782ab"
+    }
+  },
+  "machine": {
+    "instance_type": "c7i.8xlarge",
+    "ami": "ami-02a9cdd4e98bc3c78",
+    "cpu": "Intel Xeon Platinum 8488C",
+    "kernel": "Linux7.0.0-1014-aws x86_64"
+  },
+  "tools": {
+    "versions": {
+      "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+      "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+      "valgrind": "valgrind-3.22.0"
+    },
+    "sha256": {
+      "rustc": "f3834d26669b03f6855fa54bd2381443123e860167bc0c7a8dd137e5cf6e5e4f",
+      "cargo": "e951141cc55a6cd7b9876d187bd30a3720e6086b99413af95e3b8de1cdd72f14",
+      "valgrind": "4652774bd116cb49951ef74115ad4237cad5021b2bd4d80002f09d986ec438b9",
+      "cachegrind_backend": "38093b3bf8e9ffecb559a333c896a2fd2a2343bb79c3295f31c36475914deebf",
+      "callgrind_backend": "825eb197d519240c112e03ed00f40a8bbe1a0a0614f79ea95e28c67e8695cb03",
+      "valgrind_binary": "def5fdcf6ae64a4d3e6af3786b622978d8313e0734ecf3f6cbe71d8be9e274c8",
+      "valgrind_preload": "87edd6ad90b12bb5fe58f2ea2235db5b6a3d637657488f3e06d07e482354a8c5",
+      "system_shell": "86d31f6fb799e91fa21bad341484564510ca287703a16e9e46c53338776f4f42",
+      "rustup": "5be191e8c70a5007074254cb74d78dbfdd25cd5a61c27de7b8e5410122ec24f4"
+    }
+  },
+  "binaries": {
+    "baseline": {
+      "sha256": "f7188ed599f63dae5b954d5c035c725bdd2d3db7b21bf263b314d13078a51a3c"
+    },
+    "candidate": {
+      "sha256": "66c867fb757f6520685e729504a23f7e5d1de813444c6f12fa33fc0224b24832"
+    }
+  },
+  "results": {
+    "all_native_stages_normal_uncensored": true,
+    "all_semantic_counters_equal": true,
+    "pairs": [
+      {
+        "model": "SimpleRegular",
+        "profile": "dive",
+        "baseline_Ir": 2532145910,
+        "candidate_Ir": 2540912608,
+        "delta_percent": 0.346216146762246,
+        "equal_counters": {
+          "distinct": 12097,
+          "generated": 47584,
+          "depth": 19,
+          "initial_generated": 1,
+          "left_on_queue": 0
+        },
+        "verdict": "success",
+        "verified_TLC_success_code": 2193,
+        "exit_code": 0,
+        "raw_hashes": {
+          "baseline": {
+            "cachegrind_sha256": "ab1c170cf5d072409b018f7b376288f5f71c0c4f54033af6656f1377e4820d7d",
+            "cachegrind_bytes": 963365
+          },
+          "candidate": {
+            "cachegrind_sha256": "b6418602702d5c72d593901f4ebcaa18f45447c787ca3b054a97c97e4a9ac6ba",
+            "cachegrind_bytes": 969413
+          }
+        }
+      },
+      {
+        "model": "MCbtree",
+        "profile": "dive",
+        "baseline_Ir": 14498668235,
+        "candidate_Ir": 14591344060,
+        "delta_percent": 0.6392023287785875,
+        "equal_counters": {
+          "distinct": 21364,
+          "generated": 127825,
+          "depth": 24,
+          "initial_generated": 1,
+          "left_on_queue": 0
+        },
+        "verdict": "success",
+        "verified_TLC_success_code": 2193,
+        "exit_code": 0,
+        "raw_hashes": {
+          "baseline": {
+            "cachegrind_sha256": "614ce9bbf3950f171e427f3172de369bb35ec924f9695eb2dfa197ea4e36740d",
+            "cachegrind_bytes": 1101364
+          },
+          "candidate": {
+            "cachegrind_sha256": "a82c5b2fd64ab6ac9777162b593a09343b2ca1bd250aac212baae0a0d5fbd023",
+            "cachegrind_bytes": 1114534
+          }
+        }
+      },
+      {
+        "model": "GameOfLife",
+        "profile": "dive",
+        "baseline_Ir": 1147516639,
+        "candidate_Ir": 1156605968,
+        "delta_percent": 0.7920869023669175,
+        "equal_counters": {
+          "distinct": 512,
+          "generated": 1024,
+          "depth": 1,
+          "initial_generated": 512,
+          "left_on_queue": 0
+        },
+        "verdict": "success",
+        "verified_TLC_success_code": 2193,
+        "exit_code": 0,
+        "raw_hashes": {
+          "baseline": {
+            "cachegrind_sha256": "0b6024f9d8a19b532d8eed3f57f0a0d219f15822e4eeda475dcc26db9b53c215",
+            "cachegrind_bytes": 895587
+          },
+          "candidate": {
+            "cachegrind_sha256": "494de732f3ade42f0ddd957425af3c3dec742c358c38c8c0cce6c664e3768cb9",
+            "cachegrind_bytes": 911406
+          }
+        }
+      },
+      {
+        "model": "EWD998PCal",
+        "profile": "dive",
+        "baseline_Ir": 46734801534,
+        "candidate_Ir": 46996375733,
+        "delta_percent": 0.5596989618319004,
+        "equal_counters": {
+          "distinct": 20870,
+          "generated": 168292,
+          "depth": 28,
+          "initial_generated": 8,
+          "left_on_queue": 0
+        },
+        "verdict": "success",
+        "verified_TLC_success_code": 2193,
+        "exit_code": 0,
+        "raw_hashes": {
+          "baseline": {
+            "cachegrind_sha256": "657d81f8939a4165f7fa5bd63a7576b0f9854481d645cf0213c52539e0c7ea07",
+            "cachegrind_bytes": 1122473
+          },
+          "candidate": {
+            "cachegrind_sha256": "b1720686415364dc4bb3dc9b766f0b7195e8e0a6e391b35b8fb3e3807eadb11f",
+            "cachegrind_bytes": 1138237
+          }
+        }
+      },
+      {
+        "model": "SimpleRegular",
+        "profile": "tlc",
+        "baseline_Ir": 2596485940,
+        "candidate_Ir": 2605309361,
+        "delta_percent": 0.33982163600700943,
+        "equal_counters": {
+          "distinct": 12097,
+          "generated": 47584,
+          "depth": 19,
+          "initial_generated": 1,
+          "left_on_queue": 0
+        },
+        "verdict": "success",
+        "verified_TLC_success_code": 2193,
+        "exit_code": 0,
+        "raw_hashes": {
+          "baseline": {
+            "cachegrind_sha256": "2bab39576c03bd8256639cdf64098f92aa01db822576f14659716d1128fccd43",
+            "cachegrind_bytes": 961284
+          },
+          "candidate": {
+            "cachegrind_sha256": "1c5fa581b53d0b75301ed03513b2a91def03ae8b4640a3f0367c9563cc774611",
+            "cachegrind_bytes": 966760
+          }
+        }
+      },
+      {
+        "model": "MCbtree",
+        "profile": "tlc",
+        "baseline_Ir": 18286936816,
+        "candidate_Ir": 18387173015,
+        "delta_percent": 0.5481300668808586,
+        "equal_counters": {
+          "distinct": 21364,
+          "generated": 127825,
+          "depth": 24,
+          "initial_generated": 1,
+          "left_on_queue": 0
+        },
+        "verdict": "success",
+        "verified_TLC_success_code": 2193,
+        "exit_code": 0,
+        "raw_hashes": {
+          "baseline": {
+            "cachegrind_sha256": "10ebd6a4915c3c802046ca3236eb322ff05bbead1741cdbbaba76ad669e7144f",
+            "cachegrind_bytes": 1026301
+          },
+          "candidate": {
+            "cachegrind_sha256": "216b69b8638fc3830bcb53ef39b6d62b53a43ddde650b2daf657108aac90ceab",
+            "cachegrind_bytes": 1039573
+          }
+        }
+      },
+      {
+        "model": "GameOfLife",
+        "profile": "tlc",
+        "baseline_Ir": 1139670495,
+        "candidate_Ir": 1148705730,
+        "delta_percent": 0.7927936223355525,
+        "equal_counters": {
+          "distinct": 512,
+          "generated": 1024,
+          "depth": 1,
+          "initial_generated": 512,
+          "left_on_queue": 0
+        },
+        "verdict": "success",
+        "verified_TLC_success_code": 2193,
+        "exit_code": 0,
+        "raw_hashes": {
+          "baseline": {
+            "cachegrind_sha256": "062fead3d72b43573ee6a9836dd9be99bc3439c1887d9d7525b75bcb30c69517",
+            "cachegrind_bytes": 878800
+          },
+          "candidate": {
+            "cachegrind_sha256": "9592733f5576a304b45b02c90775e8ed92bd52e59de7e2ecc5ca024d50211630",
+            "cachegrind_bytes": 896055
+          }
+        }
+      },
+      {
+        "model": "EWD998PCal",
+        "profile": "tlc",
+        "baseline_Ir": 47640978158,
+        "candidate_Ir": 47910131607,
+        "delta_percent": 0.5649620545307821,
+        "equal_counters": {
+          "distinct": 20870,
+          "generated": 168292,
+          "depth": 28,
+          "initial_generated": 8,
+          "left_on_queue": 0
+        },
+        "verdict": "success",
+        "verified_TLC_success_code": 2193,
+        "exit_code": 0,
+        "raw_hashes": {
+          "baseline": {
+            "cachegrind_sha256": "bb1f3f039e9aa113228811b1768497fe0255a4b4fccd1b03897a1ac8065c7f5a",
+            "cachegrind_bytes": 1111252
+          },
+          "candidate": {
+            "cachegrind_sha256": "4c71f821d0110d77425172ec99992003ad05f835ce8bc34167e9eebb1a1eee69",
+            "cachegrind_bytes": 1128040
+          }
+        }
+      }
+    ],
+    "geomean_ratio": 1.005727350948811,
+    "geomean_delta_percent": 0.5727350948810939,
+    "integer_product_5_percent_test": false,
+    "integer_per_cell_1_percent_test": true,
+    "accepted": false
+  },
+  "evidence": {
+    "originals": {
+      "bucket": "dive-selectseq-perf-20261024091752-aa9b7ebd-010928226848",
+      "key": "results/final.tgz",
+      "sha256": "c3dda92ab0720a84c88cc393b1828013294b0a6ed9e5d3cf0e201f9255715735"
+    },
+    "independent_full_originals_review_sha256": "f92b873f3c4e612f0f81e11f62227121b0aef2bb71c25944750cc2a3c20fd6ad",
+    "qualification_summary_sha256": "2ebae162c30231ffaa1f9c639e9f4480f2d4ed8d404ad920f0d744dfce6b1c30",
+    "source_capsule_sha256": "dec9cb9aae91d567132f6d5727f0595b502208e8f8f5bdc71c20a9a5af31bfac",
+    "qualification_plan_sha256": "fb3a67bce34227aae76ec14d70072581143956e8c5544364fc419c8127fb7cfb"
+  },
+  "decision": "Runtime experiment remains unmerged. No full checker gate or retuning for this rejected runtime. The original 5% / 1% instruction bar is unchanged.",
+  "limitations": [
+    "No quiet wall-clock, Java TLC throughput, scaling, new agreement or release-capacity claim.",
+    "Exclusive symbols and source-line costs can move after outlining/inlining/monomorphization; they do not establish a removable fraction."
+  ]
+}

@@ -1,5 +1,9 @@
 # Changelog
 
+- Record two rejected evaluator instruction screens: transient activations
+  increased instructions by 0.573%, while compact raw outlining reduced them by
+  0.441%, below the fixed 5% bar. Both runtime experiments remain unmerged.
+
 - Retain original typed state-atom causes and actual analysis sites in detailed
   Rust temporal failures, preserving `DIVE-L0033` refusals, verdict policy,
   scheduling, counts, limits and the public report schema.
