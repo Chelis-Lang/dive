@@ -1,5 +1,11 @@
 # Changelog
 
+- Prove non-string result kinds from owned sources during bounded SelectSeq
+  callback analysis, allowing canonical native Concat past its own runtime-name
+  check. Preserve both argument walks, unused captures, provider/effect checks,
+  source errors, native authority and all existing limits. String or unknown
+  result kinds retain their named refusal.
+
 - Add seven pinned SelectSeq/Concat capture and error-order references before
   callback type-capability changes. Preserve exact source metadata and existing
   parity populations; this import changes no runtime admission policy.

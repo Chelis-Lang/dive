@@ -1275,6 +1275,27 @@ providers, configured origins or ownership checks. No Java code is copied.
 The generated counterexamples receive no independent-validation or corpus
 agreement credit from this documentary prerequisite.
 
+The private result-kind projection in `dive-eval/src/finite.rs` implements the
+subsequent NonString-on-success capability. It follows owned lexical frames,
+lazy actual sources, constructor result tags and joins of all conditional arms,
+without evaluating an expression or consulting a thunk's cached result. A stored
+value contributes only its outer tag; the separate storage/effect walk still
+checks its contents. The projection shares the enclosing finite walk's existing
+work and depth budget and retains the inspected source on errors.
+
+Only an authoritative direct native Concat reference or its canonical,
+unredirected definition can discharge that operator's own runtime-name concern.
+Configured origins, definition value replacements and runtime standard redirects
+remain conservative. The native operator-actual whitelist and global standard
+effect flags are unchanged. Both argument sources and all retained captures still
+receive the original full walk after the type proof. This is original Rust
+analysis derived from the primary branch and error-order semantics above; it
+does not copy a TLC algorithm or change evaluation order. New source controls
+cover aliases, joins, cold/warm captures, opaque providers, native authority,
+aggregate work, errors, primary counts and independent replay. Their execution
+and the complete seven-case comparisons in both profiles are required separately;
+adding these controls confers no measured agreement credit.
+
 ### SelectSeq callbacks in pure temporal predicates
 
 The native selection loop in `crates/dive-eval/src/std.rs` continues the existing

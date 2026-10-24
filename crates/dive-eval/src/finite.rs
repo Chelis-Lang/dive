@@ -132,7 +132,322 @@ struct Guard<'a> {
     configured_depth: usize,
     query_allowed: bool,
 }
+
+/// A successful-result kind, independent of effects, validity or finiteness.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum ResultKind {
+    NonString,
+    Unknown,
+}
+
 impl Guard<'_> {
+    fn kind_step(&mut self, depth: usize, work: usize) -> crate::Result<()> {
+        self.visits = self.visits.saturating_add(work);
+        if depth > 256 || self.visits > self.limit.saturating_mul(64).min(100_000) {
+            return Err(EvalError::resource_limit("finite binding traversal"));
+        }
+        Ok(())
+    }
+
+    // Only the actual unmodified native target can use Concat's result-kind
+    // rule. Operator parameters/configured/native-value admission stays separate.
+    fn concat_without_names(
+        &mut self,
+        scope: &Scope,
+        operator: &OpRef,
+        args: &[Arg],
+        depth: usize,
+    ) -> crate::Result<bool> {
+        self.kind_step(depth, 1)?;
+        let ev = self.evaluator;
+        ev.validate_scope(scope)?;
+        if ev.core.std_redirects.contains_key(&StdOp::SequencesConcat) {
+            return Ok(false);
+        }
+        // A native reference does not carry a configured-constant origin.
+        // Keep the existing conservative authority boundary without extending
+        // the separate operator-actual whitelist or inspecting stored values.
+        for binding in &ev.core.consts {
+            self.kind_step(depth, 1)?;
+            if let Some(ConstBinding::Def(def)) = binding
+                && ev.admit_def(ev.redirected(*def))?.std == Some(StdOp::SequencesConcat)
+            {
+                return Ok(false);
+            }
+        }
+        for def in ev.core.def_values.keys() {
+            self.kind_step(depth, 1)?;
+            if ev.admit_def(*def)?.std == Some(StdOp::SequencesConcat) {
+                return Ok(false);
+            }
+        }
+        let [Arg::Expr { expr: left, .. }, Arg::Expr { expr: right, .. }] = args else {
+            return Ok(false);
+        };
+        match operator {
+            OpRef::Std(StdOp::SequencesConcat) => {}
+            OpRef::Def(source) => {
+                let target = ev.admit_def(*source)?;
+                if ev.redirected(*source) != *source
+                    || ev.is_value_override(*source)
+                    || target.std != Some(StdOp::SequencesConcat)
+                    || target.scope != DefScope::TopLevel
+                    || target.recursive
+                    || target.params.len() != 2
+                    || target.params.iter().any(|parameter| parameter.arity != 0)
+                {
+                    return Ok(false);
+                }
+                ev.admit_args(scope, *source, args)?;
+            }
+            _ => return Ok(false),
+        }
+        ev.admit_scoped_expr(scope, *left)?;
+        ev.admit_scoped_expr(scope, *right)?;
+        let mut active = Vec::new();
+        if self.result_kind(scope, *left, depth + 1, &mut active)? == ResultKind::NonString {
+            return Ok(true);
+        }
+        Ok(self.result_kind(scope, *right, depth + 1, &mut active)? == ResultKind::NonString)
+    }
+
+    // Every retained owner remains live on the active path. Comparing only
+    // context identities never hashes a Value or consults a thunk result cache.
+    fn result_kind(
+        &mut self,
+        scope: &Scope,
+        expr: ExprId,
+        depth: usize,
+        active: &mut Vec<(ExprId, Scope)>,
+    ) -> crate::Result<ResultKind> {
+        self.kind_step(depth, active.len().saturating_add(1))?;
+        self.evaluator.admit_scoped_expr(scope, expr)?;
+        if scope.env.dynamic.at.is_some()
+            || active.iter().any(|(prior, captured)| {
+                *prior == expr
+                    && std::sync::Arc::ptr_eq(&captured.env.frame, &scope.env.frame)
+                    && captured.env.dynamic.cut == scope.env.dynamic.cut
+                    && match (&captured.env.dynamic.subst, &scope.env.dynamic.subst) {
+                        (None, None) => true,
+                        (Some(left), Some(right)) => std::sync::Arc::ptr_eq(left, right),
+                        _ => false,
+                    }
+            })
+        {
+            return Ok(ResultKind::Unknown);
+        }
+        let saved = active.len();
+        active.push((expr, scope.clone()));
+        let result = self.result_kind_inner(scope, expr, depth, active);
+        active.truncate(saved);
+        result.map_err(|error| error.at(expr))
+    }
+
+    // Constructor/result families are type facts even when their descendants
+    // would fail or have effects. The independent full Guard walk MUST remain.
+    fn result_kind_inner(
+        &mut self,
+        scope: &Scope,
+        expr: ExprId,
+        depth: usize,
+        active: &mut Vec<(ExprId, Scope)>,
+    ) -> crate::Result<ResultKind> {
+        let ev = self.evaluator;
+        match &ev.ir().node(expr).expr {
+            Expr::Bool(_)
+            | Expr::Num(_)
+            | Expr::Not(_)
+            | Expr::Junction { .. }
+            | Expr::Implies(_, _)
+            | Expr::Equiv(_, _)
+            | Expr::SetEnum(_)
+            | Expr::Tuple(_)
+            | Expr::Record(_)
+            | Expr::RecordSet(_)
+            | Expr::FcnSet { .. }
+            | Expr::FcnCons { .. }
+            | Expr::RecFcn { .. }
+            | Expr::SetMap { .. }
+            | Expr::SetFilter { .. }
+            | Expr::Cartesian(_) => Ok(ResultKind::NonString),
+            Expr::Quant { kind, .. }
+                if matches!(
+                    kind,
+                    dive_ir::QuantKind::Forall | dive_ir::QuantKind::Exists
+                ) =>
+            {
+                Ok(ResultKind::NonString)
+            }
+            Expr::Builtin { op, .. } if non_string_builtin(*op) => Ok(ResultKind::NonString),
+            Expr::If { then, other, .. } => {
+                let left = self.result_kind(scope, *then, depth + 1, active)?;
+                let right = self.result_kind(scope, *other, depth + 1, active)?;
+                Ok(join_kind(left, right))
+            }
+            Expr::Case { arms, other } => {
+                let mut result = ResultKind::NonString;
+                if arms.is_empty() {
+                    return Ok(ResultKind::Unknown);
+                }
+                for arm in arms {
+                    result = join_kind(
+                        result,
+                        self.result_kind(scope, arm.value, depth + 1, active)?,
+                    );
+                }
+                if let Some(other) = other {
+                    result = join_kind(result, self.result_kind(scope, *other, depth + 1, active)?);
+                }
+                Ok(result)
+            }
+            Expr::Label { body, .. } | Expr::Selected(body) => {
+                self.result_kind(scope, *body, depth + 1, active)
+            }
+            _ => self.result_context_kind(scope, expr, depth, active),
+        }
+    }
+
+    fn result_context_kind(
+        &mut self,
+        scope: &Scope,
+        expr: ExprId,
+        depth: usize,
+        active: &mut Vec<(ExprId, Scope)>,
+    ) -> crate::Result<ResultKind> {
+        let ev = self.evaluator;
+        match &ev.ir().node(expr).expr {
+            Expr::Let { body, defs } => {
+                self.kind_step(
+                    depth,
+                    defs.len().saturating_add(scope.env.frame.slots.len()),
+                )?;
+                self.result_kind(&ev.scope_let(scope, expr)?, *body, depth + 1, active)
+            }
+            Expr::Subst { body, bindings } => {
+                self.kind_step(depth, bindings.len())?;
+                if bindings.iter().any(|binding| {
+                    matches!(
+                        binding.value,
+                        Arg::Expr {
+                            pass: dive_ir::Pass::Strict,
+                            ..
+                        }
+                    )
+                }) {
+                    return Ok(ResultKind::Unknown);
+                }
+                self.result_kind(&ev.scope_subst(scope, expr)?, *body, depth + 1, active)
+            }
+            Expr::Local(local) => {
+                let frames = usize::try_from(local.up)
+                    .map_err(|_| EvalError::resource_limit("finite binding traversal"))?;
+                self.kind_step(depth, frames.saturating_add(1))?;
+                self.slot_kind(ev.scope_slot(scope, *local), depth, active)
+            }
+            Expr::Const(constant) => self.constant_kind(scope, *constant, depth, active),
+            Expr::SubstRef {
+                decl,
+                primed: false,
+            } => self.substitution_kind(scope, *decl, depth, active),
+            Expr::Def(def) => self.call_kind(scope, *def, &[], depth, active),
+            Expr::Apply {
+                callee: OpRef::Def(def),
+                args,
+            } => self.call_kind(scope, *def, args, depth, active),
+            _ => Ok(ResultKind::Unknown),
+        }
+    }
+
+    fn slot_kind(
+        &mut self,
+        slot: SlotView,
+        depth: usize,
+        active: &mut Vec<(ExprId, Scope)>,
+    ) -> crate::Result<ResultKind> {
+        match slot {
+            SlotView::Value(value) => Ok(value_kind(&value)),
+            SlotView::Lazy(body, source) => self.result_kind(&source, body, depth + 1, active),
+            _ => Ok(ResultKind::Unknown),
+        }
+    }
+
+    fn constant_kind(
+        &mut self,
+        scope: &Scope,
+        constant: ConstId,
+        depth: usize,
+        active: &mut Vec<(ExprId, Scope)>,
+    ) -> crate::Result<ResultKind> {
+        self.kind_step(depth, 1)?;
+        match self.evaluator.constant_binding(constant) {
+            Some(ConstBinding::Value(value)) => Ok(value_kind(&value)),
+            // Staying conservative about configured definition values avoids
+            // confusing direct-value lookup with redirected body evaluation.
+            Some(ConstBinding::Def(def)) => self.call_kind(scope, def, &[], depth, active),
+            None => Ok(ResultKind::Unknown),
+        }
+    }
+
+    fn substitution_kind(
+        &mut self,
+        scope: &Scope,
+        declaration: dive_ir::DeclId,
+        depth: usize,
+        active: &mut Vec<(ExprId, Scope)>,
+    ) -> crate::Result<ResultKind> {
+        self.kind_step(
+            depth,
+            scope
+                .env
+                .dynamic
+                .subst
+                .as_ref()
+                .map_or(1, |head| head.depth.saturating_add(1)),
+        )?;
+        match self.evaluator.scope_subst_slot(scope, declaration) {
+            SlotView::Unset => match self.evaluator.ir().decl(declaration).constant {
+                Some(constant) => self.constant_kind(scope, constant, depth, active),
+                None => Ok(ResultKind::Unknown),
+            },
+            slot => self.slot_kind(slot, depth, active),
+        }
+    }
+
+    fn call_kind(
+        &mut self,
+        scope: &Scope,
+        def: dive_ir::DefId,
+        args: &[Arg],
+        depth: usize,
+        active: &mut Vec<(ExprId, Scope)>,
+    ) -> crate::Result<ResultKind> {
+        self.kind_step(depth, 1)?;
+        let ev = self.evaluator;
+        let target = ev.admit_def(def)?;
+        if ev.redirected(def) != def
+            || ev.is_value_override(def)
+            || target.recursive
+            || target.std.is_some()
+        {
+            return Ok(ResultKind::Unknown);
+        }
+        self.kind_step(
+            depth,
+            target
+                .frame
+                .len()
+                .saturating_add(args.len())
+                .saturating_add(target.params.len()),
+        )?;
+        if target.params.iter().any(|parameter| parameter.arity != 0)
+            || args.iter().any(|arg| matches!(arg, Arg::Op { .. }))
+        {
+            return Ok(ResultKind::Unknown);
+        }
+        let called = ev.scope_apply(scope, def, args)?;
+        self.result_kind(&called, target.body, depth + 1, active)
+    }
+
     fn callback_sources(&mut self, bodies: &[(ExprId, Scope)], depth: usize) -> crate::Result<()> {
         for (body, captured) in bodies {
             // Read original stored slots, never thunk result caches or provider
@@ -742,9 +1057,11 @@ impl Guard<'_> {
                 }
                 _ => None,
             };
+            let concat_without_names = standard == Some(StdOp::SequencesConcat)
+                && self.concat_without_names(scope, &op, args, depth + 1)?;
             if standard.is_some_and(|s| {
                 s.impure()
-                    || s.creates_runtime_names()
+                    || (s.creates_runtime_names() && !concat_without_names)
                     || matches!(
                         s.support(),
                         dive_ir::StdSupport::Io | dive_ir::StdSupport::Introspection
@@ -784,5 +1101,154 @@ impl Guard<'_> {
             self.walk_data(scope, child, depth + 1)?;
         }
         Ok(())
+    }
+}
+
+fn join_kind(left: ResultKind, right: ResultKind) -> ResultKind {
+    if left == ResultKind::NonString && right == ResultKind::NonString {
+        ResultKind::NonString
+    } else {
+        ResultKind::Unknown
+    }
+}
+
+fn value_kind(value: &dive_value::Value) -> ResultKind {
+    match value {
+        dive_value::Value::Str(_) => ResultKind::Unknown,
+        dive_value::Value::Bool(_)
+        | dive_value::Value::Int(_)
+        | dive_value::Value::BigInt(_)
+        | dive_value::Value::Model(_)
+        | dive_value::Value::Set(_)
+        | dive_value::Value::Fcn(_) => ResultKind::NonString,
+    }
+}
+
+fn non_string_builtin(op: BuiltinOp) -> bool {
+    matches!(
+        op,
+        BuiltinOp::Eq
+            | BuiltinOp::Neq
+            | BuiltinOp::In
+            | BuiltinOp::NotIn
+            | BuiltinOp::Subseteq
+            | BuiltinOp::Cup
+            | BuiltinOp::Cap
+            | BuiltinOp::SetMinus
+            | BuiltinOp::PowerSet
+            | BuiltinOp::BigUnion
+            | BuiltinOp::Domain
+            | BuiltinOp::Times
+            | BuiltinOp::Boolean
+            | BuiltinOp::String
+            | BuiltinOp::Not
+            | BuiltinOp::And
+            | BuiltinOp::Or
+            | BuiltinOp::Implies
+            | BuiltinOp::Equiv
+    )
+}
+
+#[cfg(test)]
+#[allow(
+    clippy::expect_used,
+    clippy::panic,
+    reason = "private result-kind contract assertions"
+)]
+mod result_kind_tests {
+    use super::{Guard, ResultKind};
+    use crate::{Evaluator, Model, Options};
+    use dive_ir::{Arg, OpRef, Pass, StdOp};
+    use std::sync::Arc;
+
+    fn fixture(expression: &str) -> (Arc<dive_ir::Ir>, Evaluator) {
+        let source =
+            format!("---- MODULE Kind ----\nEXTENDS TLC, Sequences\nD=={expression}\n====\n");
+        let analysis =
+            dive_sema::analyze_source("Kind.tla", &source, &dive_sema::Options::default());
+        assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
+        let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+        let evaluator = Evaluator::new(Model::new(ir.clone()), Options::tlc()).expect("evaluator");
+        (ir, evaluator)
+    }
+
+    fn guard(evaluator: &Evaluator) -> Guard<'_> {
+        Guard {
+            evaluator,
+            limit: 1_000,
+            visits: 0,
+            configured_depth: 0,
+            query_allowed: false,
+        }
+    }
+
+    #[test]
+    fn a_constructor_type_fact_is_positive_without_executing_its_effectful_child() {
+        let (ir, evaluator) = fixture("<<PrintT(0)>>");
+        let def = ir.root_def("D").expect("D");
+        assert!(matches!(
+            guard(&evaluator)
+                .result_kind(
+                    &evaluator.scope(def).expect("scope"),
+                    ir.def(def).body,
+                    0,
+                    &mut Vec::new()
+                )
+                .expect("result-kind metadata"),
+            ResultKind::NonString
+        ));
+        assert!(evaluator.take_output().is_empty());
+    }
+
+    #[test]
+    fn active_owned_context_cycle_is_unknown_without_discarding_its_owner() {
+        let (ir, evaluator) = fixture("<<0>>");
+        let def = ir.root_def("D").expect("D");
+        let scope = evaluator.scope(def).expect("scope");
+        let expr = ir.def(def).body;
+        let mut active = vec![(expr, scope.clone())];
+        assert!(matches!(
+            guard(&evaluator)
+                .result_kind(&scope, expr, 0, &mut active)
+                .expect("bounded cycle"),
+            ResultKind::Unknown
+        ));
+        assert_eq!(active.len(), 1);
+        assert!(matches!(
+            guard(&evaluator)
+                .result_kind(&scope, expr, 0, &mut Vec::new())
+                .expect("fresh source"),
+            ResultKind::NonString
+        ));
+    }
+
+    #[test]
+    fn malformed_native_actual_shapes_never_gain_the_concat_exemption() {
+        let (ir, evaluator) = fixture("TRUE");
+        let def = ir.root_def("D").expect("D");
+        let scope = evaluator.scope(def).expect("scope");
+        let actual = Arg::Expr {
+            expr: ir.def(def).body,
+            pass: Pass::Direct,
+        };
+        for args in [
+            Vec::new(),
+            vec![actual.clone()],
+            vec![actual.clone(); 3],
+            vec![
+                Arg::Op {
+                    op: OpRef::Std(StdOp::SequencesConcat),
+                    level: dive_ir::Level::Constant
+                };
+                2
+            ],
+        ] {
+            assert!(
+                !guard(&evaluator)
+                    .concat_without_names(&scope, &OpRef::Std(StdOp::SequencesConcat), &args, 0)
+                    .expect("metadata shape refusal")
+            );
+        }
+        assert!(evaluator.take_output().is_empty());
     }
 }

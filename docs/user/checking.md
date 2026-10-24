@@ -11,6 +11,20 @@ a primed variable observes the query's candidate assignment, including when an
 inner variable shares a name with an outer variable. This applies in both
 semantic profiles.
 
+Bounded temporal callback analysis can admit native sequence concatenation
+(`\o`) when an owned source or stored value proves that at least one operand
+cannot successfully produce a string. The proof follows lexical aliases and
+requires every result arm of an `IF` or `CASE` to have that property. It does
+not evaluate an operand, force a cached thunk or inspect state invariants.
+Strings and unknown result kinds retain the runtime-name refusal.
+
+This capability removes only Concat's own string-name creation concern. Both
+operands and all retained captures, including unused actuals, still undergo the
+existing effect, provider, context ownership and resource checks. Configured or
+redirected native origins and higher-order native operator actuals retain their
+existing restrictions. Ordinary evaluation preserves eager argument order and
+typed errors. VIEW, SYMMETRY and other temporal refusals remain separate limits.
+
 ## TLC checking entrypoints
 
 The checking-only adapter accepts either `dive tlc [OPTIONS] SPEC[.tla]` or the
