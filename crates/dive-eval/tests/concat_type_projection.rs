@@ -2,7 +2,7 @@
 #![allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
 
 use dive_eval::{ConstBinding, Ec, ErrorClass, Evaluator, Model, Options, St};
-use dive_ir::{Arg, DefId, Expr, Level, LocalRef, OpRef, Slot, StdOp};
+use dive_ir::{Arg, DefId, Expr, Level, LocalRef, OpRef, Pass, Slot, StdOp};
 use dive_value::Value;
 use std::sync::{
     Arc,
@@ -51,7 +51,7 @@ fn concat_route(ir: &dive_ir::Ir, direct: bool) -> Arc<dive_ir::Ir> {
         OpRef::Def(native_concat(ir))
     };
     for (index, node) in ir.nodes().iter().enumerate() {
-        let Expr::Apply { callee, .. } = &node.expr else {
+        let Expr::Apply { callee, args } = &node.expr else {
             continue;
         };
         let concat = match callee {
@@ -62,6 +62,18 @@ fn concat_route(ir: &dive_ir::Ir, direct: bool) -> Arc<dive_ir::Ir> {
         if concat {
             encoded["exprs"][index]["expr"]["Apply"]["callee"] =
                 serde_json::to_value(&replacement).expect("operator reference");
+            let actuals: Vec<_> = args
+                .iter()
+                .map(|arg| match arg {
+                    Arg::Expr { expr, .. } => Arg::Expr {
+                        expr: *expr,
+                        pass: if direct { Pass::Direct } else { Pass::Lazy },
+                    },
+                    other => other.clone(),
+                })
+                .collect();
+            encoded["exprs"][index]["expr"]["Apply"]["args"] =
+                serde_json::to_value(actuals).expect("same actuals with valid route passes");
         }
     }
     Arc::new(serde_json::from_value(encoded).expect("same IR with explicit native route"))
@@ -167,26 +179,30 @@ fn string_and_unselected_string_arms_stay_refused_after_successful_cache_warmup(
 }
 
 #[derive(Debug)]
-struct Opaque(AtomicUsize);
+struct Opaque {
+    calls: AtomicUsize,
+    elements: AtomicUsize,
+}
 impl dive_value::DeferredSet for Opaque {
     fn kind(&self) -> dive_value::DeferredKind {
-        self.0.fetch_add(1, Ordering::SeqCst);
+        self.calls.fetch_add(1, Ordering::SeqCst);
         dive_value::DeferredKind::Map
     }
     fn key(&self) -> Vec<Value> {
-        self.0.fetch_add(1, Ordering::SeqCst);
+        self.calls.fetch_add(1, Ordering::SeqCst);
         Vec::new()
     }
     fn as_any(&self) -> Option<&dyn std::any::Any> {
-        self.0.fetch_add(1, Ordering::SeqCst);
+        self.calls.fetch_add(1, Ordering::SeqCst);
         None
     }
     fn elements(&self, _: dive_value::Ctx) -> dive_value::Result<Vec<Value>> {
-        self.0.fetch_add(1, Ordering::SeqCst);
+        self.calls.fetch_add(1, Ordering::SeqCst);
+        self.elements.fetch_add(1, Ordering::SeqCst);
         Ok(vec![Value::Int(0)])
     }
     fn member(&self, _: &Value, _: dive_value::Ctx) -> Option<dive_value::Result<bool>> {
-        self.0.fetch_add(1, Ordering::SeqCst);
+        self.calls.fetch_add(1, Ordering::SeqCst);
         Some(Ok(true))
     }
 }
@@ -201,7 +217,10 @@ fn nonstring_left_does_not_hide_provider_right_or_unsafe_unused_captures() {
         };
         let ir = lower(definitions);
         for options in [Options::tlc(), Options::dive()] {
-            let provider = Arc::new(Opaque(AtomicUsize::new(0)));
+            let provider = Arc::new(Opaque {
+                calls: AtomicUsize::new(0),
+                elements: AtomicUsize::new(0),
+            });
             let mut input = Model::new(ir.clone());
             input.constants[0] = Some(ConstBinding::Value(Value::deferred(
                 provider.clone(),
@@ -218,7 +237,8 @@ fn nonstring_left_does_not_hide_provider_right_or_unsafe_unused_captures() {
             };
             for warm in [false, true] {
                 if warm {
-                    let calls = provider.0.load(Ordering::SeqCst);
+                    let calls = provider.calls.load(Ordering::SeqCst);
+                    let elements = provider.elements.load(Ordering::SeqCst);
                     evaluator
                         .eval_scoped(
                             &evaluator.scope(q).expect("scope"),
@@ -226,17 +246,26 @@ fn nonstring_left_does_not_hide_provider_right_or_unsafe_unused_captures() {
                             &St::constant(),
                         )
                         .expect("ordinary unused/provider shell warmup");
-                    assert_eq!(provider.0.load(Ordering::SeqCst), calls);
+                    // Ordinary tuple construction hashes C and enumerates it
+                    // once; the unused actual remains lazy. Projection below
+                    // must not call any provider method in either case.
+                    let call_delta = provider.calls.load(Ordering::SeqCst) - calls;
+                    let elements_delta = provider.elements.load(Ordering::SeqCst) - elements;
+                    assert_eq!(call_delta, usize::from(!unused));
+                    assert_eq!(elements_delta, usize::from(!unused));
+                    assert_eq!(call_delta, elements_delta);
                 }
                 let scope = evaluator
                     .scope_apply(&evaluator.scope(q).expect("scope"), outer, actuals)
                     .expect("owned lazy actuals");
-                let before = provider.0.load(Ordering::SeqCst);
+                let before = provider.calls.load(Ordering::SeqCst);
+                let elements_before = provider.elements.load(Ordering::SeqCst);
                 let error = evaluator
                     .scope_selectseq_call(&scope, callee, args, &mut 100_000)
                     .expect_err("all retained storage and both operands still checked");
                 assert_eq!(error.class(), ErrorClass::Unsupported);
-                assert_eq!(provider.0.load(Ordering::SeqCst), before);
+                assert_eq!(provider.calls.load(Ordering::SeqCst), before);
+                assert_eq!(provider.elements.load(Ordering::SeqCst), elements_before);
                 assert_eq!(evaluator.take_output(), [] as [std::string::String; 0]);
             }
         }
