@@ -4,7 +4,16 @@ This compact snapshot is mechanically derived from the original small-tier repor
 
 The reports were produced by fullgate source `db8d4ad56143d33b07a8c885a03331b3c44ab30b` on main `1892ddc7ea97902f65d406543a9d68f38a498e9d`, pinned TLC `tlc-2026.10.06.014338`. The full gate passed all 13 phases and 2,295 tests with zero skipped. Both separately required affected-model profiles and all sixteen normal instruction arms also completed. The [complete capacity qualification](survey/data/product-vertices-qualification-2026-10-23.json) records their independent audits, frozen binaries and resource cleanup.
 
-[Scoreboard](scoreboard.md) distinguishes current one-worker parity from historical four-worker and full-tier measurements. [Temporal checking](user/temporal.md#product-vertex-capacity) describes the supported product policy and remaining bounds. Expected divergence does not count as agreement.
+[Scoreboard](scoreboard.md) distinguishes small-tier one-worker parity from historical four-worker results and the separately measured full tier. [Temporal checking](user/temporal.md#product-vertex-capacity) describes the supported product policy and remaining bounds. Expected divergence does not count as agreement.
+
+The separate [full-tier measurement](survey/data/full-tier-measurement-2026-10-24.json)
+on source `68c09a1b` records 181/217 in-scope agreements at one worker, with ten
+gains and no lost agreements. Its 17 refusals, ten structured stops and nine
+missing references remain unresolved. It does not rerun the small tier or SANY;
+the 150 TLC-profile and 144 default-profile agreements and 458 SANY agreements
+below retain their original qualification. The full-tier record explicitly
+preserves the post-run packaging failure and utility-only recovery; it is not
+a new full-gate pass or release acceptance.
 
 ## Model and module outcomes
 
@@ -41,4 +50,8 @@ Use `dive-conformance report summarise <report.json>... --summary <outside-repos
 
 This document omits per-model detail prose, raw outputs, hosts and duplicate module rows to stay below the 100 KB evidence-item limit. It changes presentation only: generated baselines and the source-pinned qualification record retain the comparison facts. Full summaries remain regenerable, and historical summaries remain available in Git history.
 
-No new four-worker, full-tier, throughput, scaling or true peak-memory result is inferred. A later-source delivery requires explicit source-transfer evidence; the separate affected-model and normal-input observations are documented in the linked qualification record.
+This small-tier snapshot supplies no new four-worker, full-tier, throughput,
+scaling or true peak-memory result. The separately observed full-tier result is
+linked above. A later-source delivery requires explicit source-transfer
+evidence; the separate affected-model and normal-input observations are
+documented in the linked qualification record.

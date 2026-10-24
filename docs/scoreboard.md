@@ -95,7 +95,15 @@ of this file.
 
 ## Full-tier measurement
 
-The controlled 2026-10-21 campaign measured frozen native source `39f4e483`
+The fresh 2026-10-24 measurement of frozen source `68c09a1b` records **181 agree
+of 217 in-scope models**, in the TLC profile at one worker. All 265 historical
+model IDs remain selected, with the same 48 exclusions and nine missing
+references. There are ten new agreements and no lost agreements relative to the
+controlled 2026-10-21 baseline. The remaining 36 in-scope gaps are 17 named
+refusals, ten resource stops and nine missing references; there are no
+disagreements. Report: `20261024T165628670-dive-all`.
+
+The earlier controlled 2026-10-21 campaign measured frozen native source `39f4e483`
 with harness `0ee2a2dd`, TLC profile, one worker: **171 agree of 217 in-scope
 models**. This is a historical source measurement, separate from the newer
 small-tier main results above. All 265 historical model IDs remain selected,
@@ -106,33 +114,48 @@ or resized. Report: `20261021T141221299-dive-all`.
 |----------|------:|------------:|----------------------:|------------------:|---------:|
 | Historical `652a5334`, 16 jobs, 3,600 s/model | 174 | 28 | 5 | 9 | 1 |
 | Controlled `39f4e483`, 2 jobs, explicit budgets | 171 | 27 | 10 | 9 | 0 |
+| Fresh `68c09a1b`, 2 jobs, same bounded policy | 181 | 17 | 10 | 9 | 0 |
 
-The controlled run used a 64 GiB c7i.8xlarge, a 16 GiB whole-process ceiling per
+The 2026-10-21 controlled run used a 64 GiB c7i.8xlarge, a 16 GiB whole-process ceiling per
 model and TLC-derived time budgets capped at 900 seconds, with 30 seconds of
 cleanup grace. Gates and instruction profiling shared the host, so there is no
 quiet-host throughput claim. All ten incomplete runs returned native `stopped`
 (exit 5); the harness records these resource findings as `timeout`, never as
 unsupported or agreement. Nine stopped on time and one on memory.
 
-Three historical agreements are now budget stops: ElevatorSafetyMedium
+Three historical agreements became budget stops in that controlled run: ElevatorSafetyMedium
 ([#359](https://github.com/Chelis-Lang/dive/issues/359)), bosco
 ([#366](https://github.com/Chelis-Lang/dive/issues/366)), and DijkstraMutex's
 Safety-4-processors configuration
 ([#368](https://github.com/Chelis-Lang/dive/issues/368)). The count falls from
 174 to 171; those findings are explicit and unresolved, not erased by a new
 digest. The historical `MCNanoLarge` OOM remains a disagreement in its original
-report ([#351](https://github.com/Chelis-Lang/dive/issues/351)); the new timed
-stop earns no agreement or fix credit. EWD998Chan now stops before reaching its
+report ([#351](https://github.com/Chelis-Lang/dive/issues/351)); its controlled
+2026-10-21 time stop earned no agreement or termination-fix credit. EWD998Chan stopped before reaching its
 old graph-capture count refusal, which earns no capacity credit
 ([#369](https://github.com/Chelis-Lang/dive/issues/369)).
 
-`conformance/baselines/full-tlc-w1.json` is generated only through `report
-baseline`; no gate consumes this full-tier observation digest. This remains
-**an incomplete full-tier result, not clean release acceptance**. The
+The fresh run retains the same two-job, one-worker, 16 GiB and TLC-derived
+900-second maximum model policy. All ten harness timeouts are native `stopped`
+results with exit 5: nine time stops and one memory stop. The
+[current compact record](survey/data/full-tier-measurement-2026-10-24.json)
+lists the ten gains and all 36 gaps, including actual stopped phases and prefix
+statistics. No native signal or partial output stream was substituted for a
+completed result.
+
+The original harness completed normally with exit 1. A later packaging
+`TypeError` occurred after the report and raw audits; its failure is preserved.
+After whole-campaign quiescence, recovery ran only the previously unexecuted
+`report baseline` utility and preserved originals in S3. No model or build was
+rerun. `conformance/baselines/full-tlc-w1.json` is an exact copy of that generated
+measurement; no gate consumes this full-tier observation digest. This is a
+complete measurement of **incomplete full-tier support, not clean release
+acceptance**. The historical
 [compact summary](survey/data/full-tier-budgeted-2026-10-21.json) retains exact
 pins, hashes, selection counts and every model-specific resource finding.
-This full-tier digest does not refresh the independent small-tier measurements
-above. No newer full-tier agreement count is inferred; the backlog remains
+This full-tier measurement does not rerun SANY or refresh the independent
+small-tier or four-worker measurements above. It supplies no full-gate,
+throughput, scaling or peak-memory result. The backlog remains
 [#338](https://github.com/Chelis-Lang/dive/issues/338).
 
 ## Roadmap feature checklist
