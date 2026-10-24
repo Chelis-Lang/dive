@@ -376,7 +376,7 @@ fn unresolved_standard_references_keep_specific_import_suggestions() -> Result {
 #[test]
 fn bare_operator_arguments_proofs_and_substitutions_receive_fallback_help() -> Result {
     for (body, spelling) in [
-        ("F(G(_,_)) == G(1, 2)\nA == F(+)\n", "+"),
+        ("F(G(_,_)) == G(1, 2)\nA == F( + )\n", "+"),
         (
             "THEOREM 1 = 1\n<1>1. 1 = 1\n  OBVIOUS\n<1>2. @ + 1\n  OBVIOUS\n<1>3. QED\n  OBVIOUS\n",
             "@ + 1",
