@@ -1193,7 +1193,7 @@ mod result_kind_tests {
                 .expect("result-kind metadata"),
             ResultKind::NonString
         ));
-        assert!(evaluator.take_output().is_empty());
+        assert_eq!(evaluator.take_output(), [] as [std::string::String; 0]);
     }
 
     #[test]
@@ -1245,6 +1245,6 @@ mod result_kind_tests {
                     .expect("metadata shape refusal")
             );
         }
-        assert!(evaluator.take_output().is_empty());
+        assert_eq!(evaluator.take_output(), [] as [std::string::String; 0]);
     }
 }
