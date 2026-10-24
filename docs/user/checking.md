@@ -529,7 +529,9 @@ reports GENERAL (1000), exit 255, with one distinct/generated/queued state and d
 one. The action/state input is rejected by SANY (3002), exit 150: its bare action
 is not allowed after `<>`, so it establishes no error priority. Its original
 input and generated reference are retained. A separate
-`liveness-atom-action-error-order` corpus adds a pending `<<ActionBad>>_x` probe.
+`liveness-atom-action-error-order` corpus uses `<<ActionBad>>_x` and reports
+the state Concat error (2182), exit 255, with two distinct/generated states, one
+queued state and depth two. This formula establishes no global action priority.
 The exact manifests retain unknown metadata; these validation populations do not
 change established small/full selections or qualify temporal evaluation errors
 currently refused under issue #451. The finite error prefixes have not received

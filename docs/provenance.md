@@ -2234,8 +2234,11 @@ normally. The delayed and combined-claim models report division by zero; initial
 consistency instead reports GENERAL. The action/state model is SANY-rejected
 because its bare action after `<>` lacks `<<A>>_v` form; it establishes no
 action/state priority. Those original bytes remain unchanged. The separate
-`liveness-atom-action-error-order` input uses the requested angle-action form;
-its outcome remains unknown until a new pinned observation. No Java algorithm
+`liveness-atom-action-error-order` input uses the requested angle-action form.
+A separate pinned observation, with the same model options, completed two
+clean/trace processes and nine setup subprocesses normally. Its state Concat
+error (2182) wins for that exact formula; no global action priority follows.
+No Java algorithm
 is copied and no runtime behavior or independent-validation credit follows from
 these references. The earlier seven Concat primary references are unchanged.
 
