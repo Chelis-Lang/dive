@@ -12,7 +12,8 @@ use std::sync::Arc;
 fn model(body: &str, config: &str, opts: &CheckOptions) -> Model {
     let source =
         format!("---- MODULE Reached ----\nEXTENDS Naturals, TLC\nVARIABLE x\n{body}\n====\n");
-    let analysis = dive_sema::analyze_source("Reached.tla", &source, &Default::default());
+    let analysis =
+        dive_sema::analyze_source("Reached.tla", &source, &dive_sema::Options::default());
     assert!(analysis.accepted(), "{analysis:?}");
     let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
     let cfg = dive_config::parse(config)
