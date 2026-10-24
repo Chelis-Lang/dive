@@ -122,6 +122,38 @@ three generated states and depth two. Run the explicit population with
 small-tier population. Native positive cases also run with cold/warm caches
 and fresh independent candidate replay in the liveness integration tests.
 
+`selectseq-concat-type-capability` adds seven separate primary controls for
+issue #424 before changing callback admission. The exact source manifests retain
+`runtime` and `result` as `unknown`: editing these measured inputs would change
+the corpus digest. This validation microcorpus changes neither the established
+156-model small tier nor full-tier population.
+
+| Control | Pinned TLC result | Distinct / generated / depth |
+| --- | --- | --- |
+| `CapturedConcatHolds` | Success, exit 0 | 2 / 3 / 2 |
+| `CapturedConcatFails` | Property `P` violated, exit 13 | 2 / 3 / 2 |
+| `ConcatFirstTypeError` | `TLC_MODULE_EVALUATING` (2182), exit 255 | 2 / 2 / 2 |
+| `ConcatSecondTypeError` | `TLC_MODULE_EVALUATING` (2182), exit 255 | 2 / 2 / 2 |
+| `EmptySkipsCallbackError` | Success, exit 0 | 2 / 3 / 2 |
+| `StringConcatNames` | Success, exit 0 | 2 / 3 / 2 |
+| `RightChildErrorBeforeKernel` | `TLC_MODULE_DIVISION_BY_ZERO` (2179), exit 255 | 2 / 2 / 2 |
+
+The captured hold/fail pair retains an unused INSTANCE recursive-function
+Concat source. Empty selection never invokes its bad callback. In the separate
+right-child control, division by zero is reported before Concat checks its
+invalid left operand: both actuals are evaluated before entering the native
+kernel. The three error controls leave one queued state; the other runs leave zero.
+
+The pinned `94d0c507` oracle generated these seven goldens with their recorded
+reason, one worker, seed/fingerprint zero, a 256 MB heap and an explicit
+20-second model timeout. All 11 selected clean/trace processes and 63 separate
+setup subprocesses completed normally. The harness built at `1d11a2f0` retained
+original setup/model evidence; raw outputs remain external. The counterexamples
+have not yet been independently validated. No runtime admission, native
+comparison or agreement credit is claimed; string-name and VIEW obligations
+remain separate. Select this microcorpus explicitly with
+`--corpus selectseq-concat-type-capability --tier all --no-sany`.
+
 `instance-temporal` is a separate local corpus of ten finite Boolean models and
 23 modules. It preserves primary-first observations of lexical INSTANCE and
 `ENABLED` successor namespaces before runtime changes. Every source input is

@@ -1,5 +1,9 @@
 # Changelog
 
+- Add seven pinned SelectSeq/Concat capture and error-order references before
+  callback type-capability changes. Preserve exact source metadata and existing
+  parity populations; this import changes no runtime admission policy.
+
 - Add opt-in `golden generate --raw-setup-status` alongside `--raw-invocations`
   to retain separately versioned, bounded setup subprocess receipts and original
   streams. Censored or unrecordable setup stops before later dispatch; normal

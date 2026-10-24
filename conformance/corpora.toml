@@ -175,3 +175,11 @@ id = "compound-domain-emptiness"
 path = "conformance/corpus/compound-domain-emptiness"
 license = "MIT"
 layout = "examples-manifest"
+
+# Primary SelectSeq/Concat capture type and error-order controls (#424).
+# Separate validation microcorpus; established small/full populations unchanged.
+[[corpus]]
+id = "selectseq-concat-type-capability"
+path = "conformance/corpus/selectseq-concat-type-capability"
+license = "MIT"
+layout = "examples-manifest"
