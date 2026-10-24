@@ -1,5 +1,11 @@
 # Changelog
 
+- Add opt-in `golden generate --raw-setup-status` alongside `--raw-invocations`
+  to retain separately versioned, bounded setup subprocess receipts and original
+  streams. Censored or unrecordable setup stops before later dispatch; normal
+  nonzero capability results retain their existing checks. Defaults, model raw
+  records, golden schemas and model-pass scheduling are unchanged.
+
 - Borrow captured behavior topology during temporal analysis instead of retaining
   a second adjacency and root copy. Preserve captured states, concrete successor
   occurrences, public graph APIs, validation order and all resource limits.

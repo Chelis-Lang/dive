@@ -51,7 +51,7 @@
 use crate::cache::Cache;
 use crate::config::{Config, ModuleLibrary, TlcOracle};
 use crate::error::{Error, Result};
-use crate::fetch::{find_java, verified_checkout};
+use crate::fetch::find_java;
 use crate::hash::sha256_file;
 use crate::process::{ProcessOutcome, run_with_timeout};
 use crate::util::{TempDir, capture, redact};
@@ -61,6 +61,7 @@ use std::process::Command;
 use std::time::Duration;
 
 mod raw;
+pub(crate) mod setup;
 
 /// Where the Java runtime came from.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -104,6 +105,15 @@ impl Java {
     /// # Errors
     /// Fails if the JRE is missing or corrupt, or `java -version` fails.
     pub fn resolve(config: &Config, cache: &Cache, override_path: Option<&Path>) -> Result<Self> {
+        Self::resolve_with_setup(config, cache, override_path, None)
+    }
+
+    pub(crate) fn resolve_with_setup(
+        config: &Config,
+        cache: &Cache,
+        override_path: Option<&Path>,
+        setup: Option<&setup::Capture>,
+    ) -> Result<Self> {
         let (path, source) = if let Some(p) = override_path {
             let sha256 = sha256_file(p)?;
             (
@@ -116,6 +126,9 @@ impl Java {
         } else {
             let jre = config.oracles.host_jre()?;
             cache.verified_artifact("JRE archive", &jre.url, &jre.sha256)?;
+            if let Some(setup) = setup {
+                setup.cache_hit("jre-archive-verified", &jre.sha256)?;
+            }
             let java = find_java(&cache.jre_dir(&jre.sha256)).map_err(|_| {
                 Error::Config(
                     "the pinned JRE is not unpacked; run `dive-conformance oracle fetch`"
@@ -131,22 +144,38 @@ impl Java {
                 },
             )
         };
-        let out = Command::new(&path)
-            .arg("-version")
-            .output()
-            .map_err(|e| Error::Command(format!("cannot run {}: {e}", path.display())))?;
-        if !out.status.success() {
-            return Err(Error::Command(format!(
-                "{} -version failed: {}",
-                path.display(),
-                String::from_utf8_lossy(&out.stderr).trim()
-            )));
-        }
-        let version_line = String::from_utf8_lossy(&out.stderr)
-            .lines()
-            .next()
-            .unwrap_or_default()
-            .to_owned();
+        let version_line = if let Some(setup) = setup {
+            let out = setup.run(
+                "java-version",
+                Command::new(&path).arg("-version"),
+                setup::TIMEOUT,
+            )?;
+            if out.exit_code != Some(0) {
+                return Err(Error::Command(format!(
+                    "{} -version failed: {}",
+                    path.display(),
+                    out.stderr.trim()
+                )));
+            }
+            out.stderr.lines().next().unwrap_or_default().to_owned()
+        } else {
+            let out = Command::new(&path)
+                .arg("-version")
+                .output()
+                .map_err(|e| Error::Command(format!("cannot run {}: {e}", path.display())))?;
+            if !out.status.success() {
+                return Err(Error::Command(format!(
+                    "{} -version failed: {}",
+                    path.display(),
+                    String::from_utf8_lossy(&out.stderr).trim()
+                )));
+            }
+            String::from_utf8_lossy(&out.stderr)
+                .lines()
+                .next()
+                .unwrap_or_default()
+                .to_owned()
+        };
         Ok(Self {
             path,
             source,
@@ -297,14 +326,30 @@ impl OracleEnv {
     /// # Errors
     /// Fails if any artifact is missing or fails verification.
     pub fn prepare(config: &Config, cache: &Cache, id: &str, java: &Java) -> Result<Self> {
+        Self::prepare_with_setup(config, cache, id, java, None)
+    }
+
+    pub(crate) fn prepare_with_setup(
+        config: &Config,
+        cache: &Cache,
+        id: &str,
+        java: &Java,
+        setup: Option<&setup::Capture>,
+    ) -> Result<Self> {
         let oracle = config.oracles.oracle(id)?.clone();
         let jar =
             cache.verified_artifact(&format!("TLC oracle `{id}`"), &oracle.url, &oracle.sha256)?;
+        if let Some(setup) = setup {
+            setup.cache_hit("oracle-jar-verified", &oracle.sha256)?;
+        }
         let mut classpath = Vec::new();
         for cp in &oracle.classpath {
             let a = config.oracles.classpath_artifact(cp)?;
             let path =
                 cache.verified_artifact(&format!("classpath jar `{cp}`"), &a.url, &a.sha256)?;
+            if let Some(setup) = setup {
+                setup.cache_hit("classpath-jar-verified", &a.sha256)?;
+            }
             classpath.push(ClasspathEntry {
                 id: a.id.clone(),
                 pin: a.sha256.clone(),
@@ -313,7 +358,7 @@ impl OracleEnv {
         }
         let mut libraries = Vec::new();
         for lib in &config.oracles.module_library {
-            libraries.push(library_entry(cache, lib)?);
+            libraries.push(library_entry_with_setup(cache, lib, setup)?);
         }
         let mut env = Self {
             oracle,
@@ -327,7 +372,7 @@ impl OracleEnv {
             cache_root: cache.root().to_path_buf(),
             raw_invocations: None,
         };
-        env.capabilities = env.probe()?;
+        env.capabilities = env.probe_with_setup(setup)?;
         Ok(env)
     }
 
@@ -383,11 +428,18 @@ impl OracleEnv {
         outcome.stderr = redact(&outcome.stderr, &reps);
     }
 
-    fn probe(&self) -> Result<Capabilities> {
-        let scratch = TempDir::new_in(&self.tmp_root, "probe")?;
+    fn probe_with_setup(&self, setup: Option<&setup::Capture>) -> Result<Capabilities> {
+        let scratch = match setup {
+            Some(setup) => raw::Scratch::Retained(setup.workspace().to_path_buf()),
+            None => raw::Scratch::Temporary(TempDir::new_in(&self.tmp_root, "probe")?),
+        };
+        let run = |phase: &str, cmd: &mut Command| match setup {
+            Some(setup) => setup.run(phase, cmd, setup::TIMEOUT),
+            None => run_with_timeout(cmd, Duration::from_secs(120), scratch.path()),
+        };
         let mut cmd = self.base_command(scratch.path(), scratch.path(), "256m");
         cmd.arg("-cp").arg(&self.jar).arg("tlc2.TLC").arg("-help");
-        let help = run_with_timeout(&mut cmd, Duration::from_secs(120), scratch.path())?;
+        let help = run("tlc-help", &mut cmd)?;
         let usage = format!("{}{}", help.stdout, help.stderr);
         if !usage.contains("-workers") {
             return Err(Error::Command(format!(
@@ -405,7 +457,7 @@ impl OracleEnv {
             .arg("tla2sany.SANY")
             .arg("-error-codes")
             .arg("DiveProbe.tla");
-        let sany = run_with_timeout(&mut cmd, Duration::from_secs(120), scratch.path())?;
+        let sany = run("sany-capability", &mut cmd)?;
         let probe_dir = scratch.path().join("DiveLive");
         std::fs::create_dir_all(&probe_dir).map_err(|e| Error::io(&probe_dir, &e))?;
         for (name, text) in [
@@ -431,7 +483,7 @@ impl OracleEnv {
             ])
             .arg("-metadir")
             .arg(scratch.path().join("live-states"));
-        let live = run_with_timeout(&mut cmd, Duration::from_secs(120), scratch.path())?;
+        let live = run("temporal-capability", &mut cmd)?;
         if live.exit_code != Some(13) {
             return Err(Error::Command(format!(
                 "oracle `{}` did not report the probe liveness violation (exit {:?}): {}",
@@ -440,13 +492,17 @@ impl OracleEnv {
                 live.stdout.chars().take(600).collect::<String>()
             )));
         }
-        let manifest = capture(
-            Command::new("unzip")
-                .arg("-p")
-                .arg(&self.jar)
-                .arg("META-INF/MANIFEST.MF"),
-        )
-        .ok();
+        let mut manifest_command = Command::new("unzip");
+        manifest_command
+            .arg("-p")
+            .arg(&self.jar)
+            .arg("META-INF/MANIFEST.MF");
+        let manifest = if let Some(setup) = setup {
+            let outcome = setup.run("jar-manifest", &mut manifest_command, setup::TIMEOUT)?;
+            (outcome.exit_code == Some(0)).then_some(outcome.stdout)
+        } else {
+            capture(&mut manifest_command).ok()
+        };
         let field = |key: &str| {
             manifest.as_deref().and_then(|m| {
                 m.lines()
@@ -599,8 +655,21 @@ pub fn isolate(corpus_root: &Path, path: &str, scratch: &Path) -> Result<PathBuf
 /// # Errors
 /// Fails if the library is not fetched at its pinned commit.
 pub fn library_entry(cache: &Cache, lib: &ModuleLibrary) -> Result<ClasspathEntry> {
+    library_entry_with_setup(cache, lib, None)
+}
+
+fn library_entry_with_setup(
+    cache: &Cache,
+    lib: &ModuleLibrary,
+    setup: Option<&setup::Capture>,
+) -> Result<ClasspathEntry> {
     let dir = cache.checkout_dir(&lib.id, &lib.commit);
-    verified_checkout(&dir, &lib.commit, &format!("module library `{}`", lib.id))?;
+    crate::fetch::verified_checkout_with_setup(
+        &dir,
+        &lib.commit,
+        &format!("module library `{}`", lib.id),
+        setup,
+    )?;
     Ok(ClasspathEntry {
         id: lib.id.clone(),
         pin: lib.commit.clone(),

@@ -56,7 +56,7 @@ pub(super) fn checked_root(root: &Path, job: &TlcJob<'_>) -> Result<PathBuf> {
 /// Resolve existing physical ancestry without creating a missing suffix. A
 /// normalized `missing/..` may expose an existing symlink, so resolve again
 /// until the path is stable. Dangling links fail before any directory is made.
-fn physical_destination(root: &Path) -> Result<PathBuf> {
+pub(super) fn physical_destination(root: &Path) -> Result<PathBuf> {
     let mut absolute = if root.is_absolute() {
         root.to_path_buf()
     } else {
@@ -209,7 +209,7 @@ impl Scratch {
     }
 }
 
-fn write_manifest(path: &Path, manifest: &serde_json::Value) -> Result<()> {
+pub(super) fn write_manifest(path: &Path, manifest: &serde_json::Value) -> Result<()> {
     let bytes = serde_json::to_vec_pretty(manifest)
         .map_err(|error| Error::Command(format!("raw invocation manifest: {error}")))?;
     write_atomic(path, &bytes)
