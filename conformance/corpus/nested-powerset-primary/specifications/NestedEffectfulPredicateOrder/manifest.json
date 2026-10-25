@@ -1,0 +1,27 @@
+{
+  "sources": [
+    "docs/conformance-corpora.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "initial-states",
+    "nested-powerset"
+  ],
+  "modules": [
+    {
+      "path": "specifications/NestedEffectfulPredicateOrder/NestedEffectfulPredicateOrder.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/NestedEffectfulPredicateOrder/NestedEffectfulPredicateOrder.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}

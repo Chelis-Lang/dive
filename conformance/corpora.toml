@@ -206,3 +206,12 @@ id = "temporal-demand-primary-probes"
 path = "conformance/corpus/temporal-demand-primary-probes"
 license = "MIT"
 layout = "examples-manifest"
+
+# Primary-first nested powerset Init enumeration controls (#459).
+# Input metadata stays pinned; eight generated primary references are separate
+# from established tiers and do not establish native enumeration support.
+[[corpus]]
+id = "nested-powerset-primary"
+path = "conformance/corpus/nested-powerset-primary"
+license = "MIT"
+layout = "examples-manifest"

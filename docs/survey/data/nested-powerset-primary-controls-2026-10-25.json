@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "status": "ALL_EIGHT_PRIMARY_REFERENCES_GENERATED_BEFORE_ENUMERATION_CHANGES",
+  "input_source": "4a9b1d3b8cefed628b94a4d83d813b1a3e66b402",
+  "generation_source": "84c32387481c839cabf64fae4027f3c56abc7726",
+  "corpus": "nested-powerset-primary",
+  "corpus_pin": "sha256:a1d7eb088f45e48a474df298ec18dd0a4b64f70bfdbb5865e39eec958dd0b398",
+  "harness_source": "618f4a7b65d6feb4e49dc2b562dff1cdd8dbec86",
+  "harness_sha256": "f078580344b240656512f1690c287adda82a2fd3dcbe14fe56486ccfa9a16b10",
+  "oracle_source": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "oracle_jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "java": "17.0.20.1+1 pinned macos-aarch64",
+  "workers": 1,
+  "seed": 0,
+  "fingerprint": 0,
+  "java_heap": "512m",
+  "timeout_seconds_per_invocation": 30,
+  "native_terminals": 10,
+  "native_signals": 0,
+  "native_timeouts": 0,
+  "generator_exit_code": 0,
+  "cases": {
+    "ExplicitOuterPowersetCardinality": {
+      "golden": "conformance/golden/tlc-2026.10.06.014338/nested-powerset-primary/specifications/ExplicitOuterPowersetCardinality/ExplicitOuterPowersetCardinality.cfg.json",
+      "golden_sha256": "958e509af11d26f78a6792e74484756838e5195f2d0b38cf9b80241e2c056c75",
+      "verdict": "other-error",
+      "verdict_code": 1000,
+      "error_class": "GENERAL",
+      "exit_code": 75,
+      "error_codes": [
+        1000,
+        2103
+      ],
+      "counts": {
+        "distinct_states": 0,
+        "states_generated": 0,
+        "states_left_on_queue": 0,
+        "depth": 0
+      },
+      "violated_property": null,
+      "trace": null
+    },
+    "NestedAcceptedSubsetOrder": {
+      "golden": "conformance/golden/tlc-2026.10.06.014338/nested-powerset-primary/specifications/NestedAcceptedSubsetOrder/NestedAcceptedSubsetOrder.cfg.json",
+      "golden_sha256": "bb0f9bf9ac9320bbdcca179910af0984c2a61ffd423086f2d613d59373d23429",
+      "verdict": "success",
+      "verdict_code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit_code": 0,
+      "error_codes": [],
+      "counts": {
+        "distinct_states": 8,
+        "states_generated": 16,
+        "states_left_on_queue": 0,
+        "depth": 1
+      },
+      "violated_property": null,
+      "trace": null
+    },
+    "NestedEffectfulPredicateOrder": {
+      "golden": "conformance/golden/tlc-2026.10.06.014338/nested-powerset-primary/specifications/NestedEffectfulPredicateOrder/NestedEffectfulPredicateOrder.cfg.json",
+      "golden_sha256": "29fc2fab1a9a2fab5f76603428de7659fb1c82e10b7551715fcfcdf56295a63e",
+      "verdict": "success",
+      "verdict_code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit_code": 0,
+      "error_codes": [],
+      "counts": {
+        "distinct_states": 4,
+        "states_generated": 8,
+        "states_left_on_queue": 0,
+        "depth": 1
+      },
+      "violated_property": null,
+      "trace": null
+    },
+    "NestedFilterFirstEmptyBeforeError": {
+      "golden": "conformance/golden/tlc-2026.10.06.014338/nested-powerset-primary/specifications/NestedFilterFirstEmptyBeforeError/NestedFilterFirstEmptyBeforeError.cfg.json",
+      "golden_sha256": "72ca3e5a5a323026636bfe032b74f4e4f484b20d3583b5cab5dc1c9b84e4c617",
+      "verdict": "safety-violation",
+      "verdict_code": 2107,
+      "error_class": "TLC_INVARIANT_VIOLATED_INITIAL",
+      "exit_code": 12,
+      "error_codes": [
+        2107
+      ],
+      "counts": {
+        "distinct_states": null,
+        "states_generated": null,
+        "states_left_on_queue": null,
+        "depth": null
+      },
+      "violated_property": "Inv",
+      "trace": {
+        "length": 1,
+        "ending": {
+          "kind": "finite"
+        },
+        "json_trace_retained": true
+      }
+    },
+    "NestedNonBooleanAfterEmpty": {
+      "golden": "conformance/golden/tlc-2026.10.06.014338/nested-powerset-primary/specifications/NestedNonBooleanAfterEmpty/NestedNonBooleanAfterEmpty.cfg.json",
+      "golden_sha256": "026a987eab44b23febcc0e6cae7bbcd2211dff9aed39945a49712406351d26b0",
+      "verdict": "other-error",
+      "verdict_code": 1000,
+      "error_class": "GENERAL",
+      "exit_code": 75,
+      "error_codes": [
+        1000,
+        2103
+      ],
+      "counts": {
+        "distinct_states": 1,
+        "states_generated": 1,
+        "states_left_on_queue": 1,
+        "depth": 1
+      },
+      "violated_property": null,
+      "trace": null
+    },
+    "NestedOuterAndStateDependent": {
+      "golden": "conformance/golden/tlc-2026.10.06.014338/nested-powerset-primary/specifications/NestedOuterAndStateDependent/NestedOuterAndStateDependent.cfg.json",
+      "golden_sha256": "60ab1506d23ce119d4591e63dd7b6dc8a3f6d1743868b2692bf1754499c798b1",
+      "verdict": "success",
+      "verdict_code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit_code": 0,
+      "error_codes": [],
+      "counts": {
+        "distinct_states": 5,
+        "states_generated": 10,
+        "states_left_on_queue": 0,
+        "depth": 1
+      },
+      "violated_property": null,
+      "trace": null
+    },
+    "NestedOuterFirstEmpty": {
+      "golden": "conformance/golden/tlc-2026.10.06.014338/nested-powerset-primary/specifications/NestedOuterFirstEmpty/NestedOuterFirstEmpty.cfg.json",
+      "golden_sha256": "33ea2acf56c72ec2d7546fbb2781af7536b9a6c1d5698b3c1811be4ee86ce781",
+      "verdict": "safety-violation",
+      "verdict_code": 2107,
+      "error_class": "TLC_INVARIANT_VIOLATED_INITIAL",
+      "exit_code": 12,
+      "error_codes": [
+        2107
+      ],
+      "counts": {
+        "distinct_states": null,
+        "states_generated": null,
+        "states_left_on_queue": null,
+        "depth": null
+      },
+      "violated_property": "Inv",
+      "trace": {
+        "length": 1,
+        "ending": {
+          "kind": "finite"
+        },
+        "json_trace_retained": true
+      }
+    },
+    "RequiredInnerComponentOverflow": {
+      "golden": "conformance/golden/tlc-2026.10.06.014338/nested-powerset-primary/specifications/RequiredInnerComponentOverflow/RequiredInnerComponentOverflow.cfg.json",
+      "golden_sha256": "1cf4bc889d91bb2d522bf1ffa5d73be1473f1a34f472505ba98280e1275f7e66",
+      "verdict": "evaluation-error",
+      "verdict_code": 2147,
+      "error_class": "TLC_FINGERPRINT_EXCEPTION",
+      "exit_code": 75,
+      "error_codes": [
+        1000,
+        2147
+      ],
+      "counts": {
+        "distinct_states": 0,
+        "states_generated": 0,
+        "states_left_on_queue": 0,
+        "depth": 0
+      },
+      "violated_property": null,
+      "trace": null
+    }
+  },
+  "previous_generation": {
+    "harness_source": "5217163fcf81c330238703f6369512e174357873",
+    "generated_references": 6,
+    "unclassified_without_golden": [
+      "ExplicitOuterPowersetCardinality",
+      "NestedNonBooleanAfterEmpty"
+    ],
+    "scope": "Original refused outputs retained; no hand-edited reference or altered oracle options."
+  },
+  "original_six_result_byte_slices_identical": true,
+  "original_six_result_payload_sha256": {
+    "NestedFilterFirstEmptyBeforeError": "5b119c98b52ba6de0a7c30205d1e3513b4c05c28441e3626238e023e41173823",
+    "NestedAcceptedSubsetOrder": "0d0abe112b79738a3c9e10254b3ef3c95c74b8b6e552b7cd1e71962f8afd07c9",
+    "NestedOuterFirstEmpty": "5b119c98b52ba6de0a7c30205d1e3513b4c05c28441e3626238e023e41173823",
+    "NestedEffectfulPredicateOrder": "29c34c5fd9a58d8e6aa61dc374d5b5e3c9b1fa7450638bfc34ca605dac4b7862",
+    "NestedOuterAndStateDependent": "565d4193277d7de4b90d1b1299294eda06ba349bcb267429ef0b34d55e7d13ac",
+    "RequiredInnerComponentOverflow": "9474dddec653bfd47f588b0e4a55a4f6659fb9d1f4c136ac48033466430bac5d"
+  },
+  "classification": "The owned NONE2215 or2154/2178 cause authenticates the narrowly demonstrated Init-replay physical75 route; deciding error remains GENERAL1000, literal error_codes[1000,2103]. Required component failure remains distinct2147/75.",
+  "qualification": {
+    "harness_unfiltered_tests": 229,
+    "new_protocol_test_groups": 12,
+    "workspace_fast_nextest_passed": 1959,
+    "workspace_ci_profile_excluded": 34,
+    "primary_audit_sha256": "4ea819710649964932bc9b3ed08045a9bbce6ffd4ed59dbf3cfbbab88d6473b4"
+  },
+  "evidence": {
+    "bucket": "dive-callgrind-profile-20261025064842-b9f59b27-010928226848",
+    "prefix": "root-followups/init-replay-qualified-and-primary-20261025-v1/",
+    "receipt_sha256": "f3ac574d976572230520b51a0b44b1cd089c4ce0128784220b4947fcc4b9736a"
+  },
+  "scope": "Separate reference microcorpus; no native checker comparison, enumeration/pruning implementation, count/default/schema change, established corpus agreement, scaling or throughput result."
+}
