@@ -215,3 +215,11 @@ id = "nested-powerset-primary"
 path = "conformance/corpus/nested-powerset-primary"
 license = "MIT"
 layout = "examples-manifest"
+
+# Primary-first empty BASE sizing/conversion boundary (#478). Kept separate
+# from the eight nested-powerset references and established corpus identities.
+[[corpus]]
+id = "empty-subset-base-primary"
+path = "conformance/corpus/empty-subset-base-primary"
+license = "MIT"
+layout = "examples-manifest"

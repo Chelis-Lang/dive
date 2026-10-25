@@ -599,3 +599,36 @@ for source, oracle, result and preserved original-stream identities.
 Select it with `--corpus nested-powerset-primary --tier all --no-sany`. This is reference generation before enumeration changes: no native
 checker comparison or streaming/pruning capability is established. The existing
 small/full selections and baselines are unchanged.
+
+
+`empty-subset-base-primary` contains four isolated primary inputs for issue #478.
+Normal pinned-TLC generation of all four inputs reports initial invariant
+`Inv` violations (2107, exit 12) for both the mixed-product `EmptyBase` and direct
+`DirectEmptyBase`, with the finite initial state `x = {}`. TLC does not report
+state, generated, queue or depth counts for those violations; the generated
+fields remain null.
+
+The historical name `BaseSizeBeforeConversion` describes its original purpose,
+not its observed error priority. Its mixed component produces GENERAL1000
+"Attempted to compare boolean TRUE with non-boolean: 1", followed by
+FINGERPRINT2147, exit 75 and zero counts. It is not evidence that a product-size
+error is delivered before normalization. TLC's product-size overflow diagnostic
+renders the product, and rendering an unnormalized explicit set can itself
+normalize it. The observed mixed-comparison result is retained unchanged.
+
+`BaseSizeOverflow` uses a homogeneous `{1, 2}` component with the same nonempty
+interval. Its actual primary reports "Overflow when computing the number of
+elements", wrapped as GENERAL1000 then FINGERPRINT2147, exit 75 and zero counts.
+It establishes the required BASE-size failure independently of the mixed-column
+comparison. All four references were normally generated with a recorded reason
+under the new corpus pin; the first three result payloads are unchanged. No
+native runtime fix is included.
+
+Descriptor runtime/result fields remain `unknown` to preserve each input pin.
+Select only this population with
+`--corpus empty-subset-base-primary --tier all --no-sany`. The original eight-case
+`nested-powerset-primary` corpus, historical pins and small/full baselines are
+unchanged. The runtime correction skips conversion only after an actual zero
+BASE size; nonempty errors retain their existing named class refusals. Native
+qualification and whole-CLI comparison remain separate from these references;
+no new agreement is claimed here.
