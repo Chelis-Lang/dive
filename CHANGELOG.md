@@ -1,9 +1,9 @@
 # Changelog
 
-- Pin three empty-subset-base primary results, preserving initial invariant
-  violations with unreported counts and the mixed-comparison error envelope.
-  Add a separate homogeneous size-overflow control for normal regeneration;
-  no runtime fix, baseline change or new agreement is established.
+- Pin four empty-subset-base primary results, preserving initial invariant
+  violations with unreported counts and distinct mixed-comparison/size-overflow
+  details under their actual error envelopes. No runtime fix, baseline change
+  or new agreement is established.
 
 - Preserve GENERAL as the primary class of source-qualified Init errors while
   retaining diagnostic replay exit 75. Carry native causes through typed,

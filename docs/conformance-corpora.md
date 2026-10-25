@@ -602,7 +602,7 @@ small/full selections and baselines are unchanged.
 
 
 `empty-subset-base-primary` contains four isolated primary inputs for issue #478.
-Normal pinned-TLC generation of the first three inputs reports initial invariant
+Normal pinned-TLC generation of all four inputs reports initial invariant
 `Inv` violations (2107, exit 12) for both the mixed-product `EmptyBase` and direct
 `DirectEmptyBase`, with the finite initial state `x = {}`. TLC does not report
 state, generated, queue or depth counts for those violations; the generated
@@ -616,12 +616,13 @@ error is delivered before normalization. TLC's product-size overflow diagnostic
 renders the product, and rendering an unnormalized explicit set can itself
 normalize it. The observed mixed-comparison result is retained unchanged.
 
-`BaseSizeOverflow` adds a homogeneous `{1, 2}` component with the same nonempty
-interval, so the product size exceeds TLC's signed 32-bit cardinality without a
-mixed-comparison ambiguity. Its primary result remains unknown until normal
-pinned generation; no class or counts are guessed. Adding it changes the corpus
-pin: the first three goldens preserve their original generated provenance, and
-all four must be regenerated with a recorded reason before any runtime fix.
+`BaseSizeOverflow` uses a homogeneous `{1, 2}` component with the same nonempty
+interval. Its actual primary reports "Overflow when computing the number of
+elements", wrapped as GENERAL1000 then FINGERPRINT2147, exit 75 and zero counts.
+It establishes the required BASE-size failure independently of the mixed-column
+comparison. All four references were normally generated with a recorded reason
+under the new corpus pin; the first three result payloads are unchanged. No
+native runtime fix is included.
 
 Descriptor runtime/result fields remain `unknown` to preserve each input pin.
 Select only this population with

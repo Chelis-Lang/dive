@@ -97,7 +97,7 @@
         "version_line": "openjdk version \"17.0.20.1\" 2026-08-18"
       }
     },
-    "corpus_commit": "sha256:e1fea394d43c8689f629cf7a987a6cc63ee8fcfbc855aaadbf8e2f12816f565e",
+    "corpus_commit": "sha256:ea691a886b9ea08b3287402bf6e7d6ae5a0f40cdc30eef7682bee4c5e4356739",
     "command": [
       "$DIVE_CACHE_DIR/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
       "-XX:+UseParallelGC",
@@ -160,9 +160,9 @@
       "$TMP/trace.json"
     ],
     "timeout_seconds": 60,
-    "reason": "Issue #478: generate primary empty subset base and size-before-conversion references before any native runtime fix",
+    "reason": "Issue #478: regenerate all four primary references after adding homogeneous BASE-size overflow control; preserve observed mixed-error envelope before runtime fix",
     "generator": "dive-conformance 0.0.0",
-    "generated_at": "2026-10-25T19:37:56Z",
-    "elapsed_ms": 755
+    "generated_at": "2026-10-25T19:43:13Z",
+    "elapsed_ms": 262
   }
 }
