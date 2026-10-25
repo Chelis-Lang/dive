@@ -335,10 +335,15 @@ an inline run. Concatenation alone does not add this restriction when a complete
 source inspection proves that every reachable call has a tuple operand: literal
 tuples, unchanged native `Append`, and transparent calls and branches can establish
 the successful result kind. Argument expressions retain their own restrictions.
-Unknown state values, higher-order calls, configured native origins, overrides
+A closed operator-argument source path may forward unchanged binary comparisons
+(equality, membership, subset and integer ordering); unknown callbacks retain
+the restriction. Already-inspected configured literal values are call-free
+leaves at zero-arity definition uses, without inheriting the replaced body's
+result kind. Unknown state values, configured native origins, operator overrides
 and opaque captured providers keep the conservative route. This proof does not
 assume a type invariant, remove other sequential causes, or change evaluation,
-error behavior or resource limits. Requested and used widths remain reported;
+error behavior or resource limits. Replay and checkpoint admission retain their
+conservative source inventory. Requested and used widths remain reported;
 the source proof is not a worker-utilization or performance measurement.
 
 Pure safety symmetry retains concrete counterexamples while canonicalizing
