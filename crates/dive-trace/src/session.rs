@@ -143,7 +143,8 @@ impl Session {
         doc: &TraceDoc,
         control: Arc<dyn dive_eval::HostControl>,
     ) -> Result<(Report, Option<TraceDoc>), crate::ValidationRunError> {
-        self.read_fallible(doc, Some(control))
+        // Retain the owned control until private model/trace owners and the final poll finish.
+        self.read_fallible(doc, Some(&control))
     }
 
     /// Validates a document with resource exceptions outside the report.
@@ -174,7 +175,7 @@ impl Session {
     fn read_fallible(
         &self,
         doc: &TraceDoc,
-        control: Option<Arc<dyn dive_eval::HostControl>>,
+        control: Option<&Arc<dyn dive_eval::HostControl>>,
     ) -> Result<(Report, Option<TraceDoc>), crate::ValidationRunError> {
         use crate::{ValidationProgress, ValidationRunError};
         let progress = || ValidationProgress {
@@ -183,7 +184,7 @@ impl Session {
             check: None,
         };
         let poll = || {
-            if let Some(control) = &control {
+            if let Some(control) = control {
                 control
                     .check()
                     .map_err(|error| ValidationRunError::Interrupted {
@@ -212,7 +213,7 @@ impl Session {
         }
         let host = TraceHost::startup();
         host.startup.store(true, Ordering::Relaxed);
-        let binding = self.recipe.bind_fallible(host.clone(), control.clone());
+        let binding = self.recipe.bind_fallible(host.clone(), control.cloned());
         let model = match binding {
             Ok(model) => model,
             Err(dive_model::ControlledBindError::Interrupted { error, .. }) => {
@@ -266,22 +267,11 @@ impl Session {
         let trace = match Trace::decode(&model, doc) {
             Ok(trace) => trace,
             Err(error) => {
-                return finish(
-                    Report {
-                        validation: Validation::Invalid(crate::Failure {
-                            state: error.state.unwrap_or(0),
-                            check: crate::Check::Shape,
-                            detail: error.detail,
-                        }),
-                        notes: Vec::new(),
-                        length: doc.states.len(),
-                    },
-                    None,
-                );
+                return finish(shape_refusal(error, doc.states.len()), None);
             }
         };
         let report =
-            crate::validate::validate_private_controlled(&model, host, &trace, control.clone())?;
+            crate::validate::validate_private_controlled(&model, host, &trace, control.cloned())?;
         finish(report, trace.to_doc(&model).ok())
     }
 
@@ -293,6 +283,18 @@ impl Session {
 fn refusal(feature: String, length: usize) -> Report {
     Report {
         validation: Validation::Unsupported(feature),
+        notes: Vec::new(),
+        length,
+    }
+}
+
+fn shape_refusal(error: crate::ShapeError, length: usize) -> Report {
+    Report {
+        validation: Validation::Invalid(crate::Failure {
+            state: error.state.unwrap_or(0),
+            check: crate::Check::Shape,
+            detail: error.detail,
+        }),
         notes: Vec::new(),
         length,
     }

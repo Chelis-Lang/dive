@@ -396,7 +396,7 @@ impl Lower<'_> {
                         )?,
                         Expr::Local(local) => match ev.scope_slot(scope, *local) {
                             SlotView::Lazy(expr, scope) => {
-                                push(&mut tasks, Task::Enter(Pred::new(expr, scope)))?
+                                push(&mut tasks, Task::Enter(Pred::new(expr, scope)))?;
                             }
                             _ => return Err(refused("opaque temporal local")),
                         },
@@ -405,7 +405,7 @@ impl Lower<'_> {
                             primed: false,
                         } => match ev.scope_subst_slot(scope, *decl) {
                             SlotView::Lazy(expr, scope) => {
-                                push(&mut tasks, Task::Enter(Pred::new(expr, scope)))?
+                                push(&mut tasks, Task::Enter(Pred::new(expr, scope)))?;
                             }
                             _ => return Err(refused("opaque temporal substitution")),
                         },
@@ -427,10 +427,10 @@ impl Lower<'_> {
                             )?;
                         }
                         Expr::Apply { callee, args } => {
-                            push(&mut tasks, Task::Enter(self.call(&pred, callee, args)?))?
+                            push(&mut tasks, Task::Enter(self.call(&pred, callee, args)?))?;
                         }
                         Expr::Selected(expr) | Expr::Label { body: expr, .. } => {
-                            push(&mut tasks, Task::Enter(Pred::new(*expr, scope.clone())))?
+                            push(&mut tasks, Task::Enter(Pred::new(*expr, scope.clone())))?;
                         }
                         Expr::Not(expr) | Expr::Always(expr) | Expr::Eventually(expr) => {
                             let kind = match self.model.ir.expr(pred.expr) {
@@ -482,7 +482,7 @@ impl Lower<'_> {
     fn call(&self, pred: &Pred, callee: &OpRef, args: &[Arg]) -> Result<Pred, FormulaError> {
         let ev = &self.model.evaluator;
         let scope = &pred.scope;
-        let (def, called) = match callee {
+        let (def, entered) = match callee {
             OpRef::Def(def) => {
                 let target = ev.redirected(*def);
                 (target, ev.scope_apply(scope, target, args)?)
@@ -503,7 +503,7 @@ impl Lower<'_> {
         if target.recursive || target.std.is_some() || ev.is_value_override(def) {
             return Err(refused("unsupported temporal callee"));
         }
-        Ok(Pred::new(target.body, called))
+        Ok(Pred::new(target.body, entered))
     }
 
     fn canonical(&self) -> Result<(), FormulaError> {
@@ -832,6 +832,7 @@ fn canonical_value(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fmt::Write as _;
     #[test]
     fn boolean_replay_is_iterative_and_retains_shortcircuit_errors()
     -> Result<(), Box<dyn std::error::Error>> {
@@ -869,7 +870,7 @@ mod tests {
     -> Result<(), Box<dyn std::error::Error>> {
         let mut body = String::from("A0 == x=0\n");
         for i in 1..600 {
-            body.push_str(&format!("A{i} == A{}\n", i - 1));
+            writeln!(body, "A{i} == A{}", i - 1)?;
         }
         let source = format!(
             "---- MODULE DeepMetadata ----\nVARIABLE x\nInit == x=0\nNext == x'=x\n{body}P == []<>A599\n====\n"

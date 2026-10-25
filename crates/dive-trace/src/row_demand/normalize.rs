@@ -102,7 +102,7 @@ impl<'a> Build<'a> {
                     let node = self.node(at)?;
                     match (&node, pass) {
                         (Node::Not(child), Pass::Negate(negative)) => {
-                            push(&mut tasks, Task::Enter(*child, Pass::Negate(!negative)))?
+                            push(&mut tasks, Task::Enter(*child, Pass::Negate(!negative)))?;
                         }
                         (Node::Atom(_), Pass::Negate(true)) => {
                             let value = self.push(Node::Not(at))?;
@@ -147,10 +147,10 @@ impl<'a> Build<'a> {
                     let always = matches!(node, Node::Always(_));
                     let value = match pass {
                         Pass::Negate(negative) => {
-                            if always != negative {
-                                Node::Always(child)
-                            } else {
+                            if always == negative {
                                 Node::Eventually(child)
+                            } else {
+                                Node::Always(child)
                             }
                         }
                         Pass::Simplify if matches!(node, Node::Always(_) | Node::Eventually(_)) => {

@@ -127,37 +127,36 @@ pub(super) fn level(
                         Task::Enter(Pred::new(*body, ev.scope_let(scope, pred.expr)?)),
                     )?,
                     Expr::Local(local) => {
-                        slot(&mut tasks, &mut values, ev.scope_slot(scope, *local))?
+                        slot(&mut tasks, &mut values, ev.scope_slot(scope, *local))?;
                     }
                     Expr::SubstRef { decl, primed } => {
                         if *primed {
                             push(&mut tasks, Task::Prime)?;
                         }
-                        match ev.scope_substitution(scope, *decl, &St::constant(), *primed)? {
-                            Some(value) => slot(&mut tasks, &mut values, value)?,
-                            None => {
-                                let declaration = ir.decl(*decl);
-                                if declaration.variable {
-                                    push(&mut values, Level::State)?;
-                                } else if let Some(constant) = declaration.constant {
-                                    match ev.constant_binding(constant) {
-                                        Some(ConstBinding::Value(_)) => {
-                                            push(&mut values, Level::Constant)?
-                                        }
-                                        Some(ConstBinding::Def(def)) => {
-                                            enter(model, &mut tasks, scope, def, &[])?
-                                        }
-                                        None => {
-                                            return Err(refused(
-                                                "unbound endpoint substitution constant",
-                                            ));
-                                        }
+                        if let Some(value) =
+                            ev.scope_substitution(scope, *decl, &St::constant(), *primed)?
+                        {
+                            slot(&mut tasks, &mut values, value)?;
+                        } else {
+                            let declaration = ir.decl(*decl);
+                            if declaration.variable {
+                                push(&mut values, Level::State)?;
+                            } else if let Some(constant) = declaration.constant {
+                                match ev.constant_binding(constant) {
+                                    Some(ConstBinding::Value(_)) => {
+                                        push(&mut values, Level::Constant)?;
                                     }
-                                } else {
-                                    return Err(refused(
-                                        "missing endpoint substitution declaration",
-                                    ));
+                                    Some(ConstBinding::Def(def)) => {
+                                        enter(model, &mut tasks, scope, def, &[])?;
+                                    }
+                                    None => {
+                                        return Err(refused(
+                                            "unbound endpoint substitution constant",
+                                        ));
+                                    }
                                 }
+                            } else {
+                                return Err(refused("missing endpoint substitution declaration"));
                             }
                         }
                     }
@@ -217,7 +216,7 @@ pub(super) fn level(
                         for arg in args {
                             match arg {
                                 Arg::Expr { expr, .. } => {
-                                    push(&mut children, Pred::new(*expr, scope.clone()))?
+                                    push(&mut children, Pred::new(*expr, scope.clone()))?;
                                 }
                                 Arg::Op { op, .. } => {
                                     // Level analysis only, not callback/capture eligibility.
@@ -245,10 +244,10 @@ pub(super) fn level(
                         )?;
                     }
                     Expr::SetMap { bounds, expr, .. } => {
-                        binder(&mut tasks, &pred, *expr, bounds, false)?
+                        binder(&mut tasks, &pred, *expr, bounds, false)?;
                     }
                     Expr::SetFilter { bound, pred: body } => {
-                        binder(&mut tasks, &pred, *body, std::slice::from_ref(bound), false)?
+                        binder(&mut tasks, &pred, *body, std::slice::from_ref(bound), false)?;
                     }
                     _ => {
                         if node.level == Level::Temporal {

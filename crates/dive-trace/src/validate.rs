@@ -893,7 +893,7 @@ impl<'a> Run<'a> {
             AssumptionOutcome::False { message, .. } => Err(invalid(0, Check::Assumption, message)),
             AssumptionOutcome::Error { error, message, .. } => match error.class() {
                 ErrorClass::Eval => Err(invalid(0, Check::Assumption, message)),
-                _ => Err(self.evaluation_refusal(error, None, Check::Assumption)),
+                _ => Err(self.evaluation_refusal(&error, None, Check::Assumption)),
             },
         }
     }
@@ -949,7 +949,7 @@ impl<'a> Run<'a> {
                 if matches!(error.class(), ErrorClass::ResourceLimit | ErrorClass::Bug)
                     && self.endpoint_prepared =>
             {
-                Err(self.evaluation_refusal(error, Some(k), Check::Label))
+                Err(self.evaluation_refusal(&error, Some(k), Check::Label))
             }
             Err(error) if error.class() == ErrorClass::Interrupted => {
                 Err(refused(&error).at(Some(k), Check::Label))
@@ -1010,7 +1010,12 @@ impl<'a> Run<'a> {
         }
     }
 
-    fn evaluation_refusal(&mut self, error: EvalError, state: Option<usize>, check: Check) -> Stop {
+    fn evaluation_refusal(
+        &mut self,
+        error: &EvalError,
+        state: Option<usize>,
+        check: Check,
+    ) -> Stop {
         // Legacy finite validation keeps its closed report channel. The new
         // fallible endpoint path retains original resource/bug transport separately
         // and intercepts it before constructing any ValidationReport.
@@ -1019,7 +1024,7 @@ impl<'a> Run<'a> {
         {
             self.endpoint_exception = Some((error.clone(), state, check));
         }
-        refused(&error).at(state, check)
+        refused(error).at(state, check)
     }
 
     fn holds(&mut self, pred: &Pred, st: &St, k: usize, check: Check) -> Result<bool, Stop> {
@@ -1051,7 +1056,7 @@ impl<'a> Run<'a> {
                     check,
                     format!("evaluating {} fails: {}", m.location(pred), e.message()),
                 )),
-                _ => Err(self.evaluation_refusal(e, Some(k), check)),
+                _ => Err(self.evaluation_refusal(&e, Some(k), check)),
             },
         }
     }
@@ -1442,7 +1447,7 @@ fn controlled_report(run: &mut Run<'_>, trace: &Trace) -> Result<Report, Validat
                     state: last,
                     check: Check::Ending,
                     detail,
-                })
+                });
             }
             Err(error) => return endpoint_refusal(run, trace, error, Some(last)),
         }
