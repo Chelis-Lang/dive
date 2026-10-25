@@ -1,5 +1,9 @@
 # Changelog
 
+- Record the rejected ready explicit-set payload screen: all eight pairs
+  reduced instructions, but the 2.018% geometric reduction missed the fixed
+  5% bar. The private runtime prototype remains unmerged.
+
 - Record complete frozen-main evaluator cost attribution and the measured
   rejection of hash deferral before implementation. Checker behavior,
   conformance populations and baselines are unchanged.
