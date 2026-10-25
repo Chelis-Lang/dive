@@ -17,14 +17,17 @@ use crate::value::{Fcn, FcnRepr, Set, SetRepr, Value};
 pub(crate) type Elems = Box<dyn Iterator<Item = Value> + Send>;
 
 /// Legacy scalar-component eligibility: no heap work-list on the old path.
-fn concrete_component(value: &Value) -> bool {
+fn concrete_component(value: &Value, order: ValueOrder) -> bool {
     let Value::Set(set) = value else {
         return false;
     };
-    scalar_set(set)
+    scalar_set(set, order)
 }
 
-fn scalar_set(set: &Set) -> bool {
+fn scalar_set(set: &Set, order: ValueOrder) -> bool {
+    if set.order() != order {
+        return false;
+    }
     match set.repr() {
         SetRepr::Interval(..) => true,
         SetRepr::Enum | SetRepr::Raw(_) => set.stored_elements().is_some_and(|values| {
@@ -43,13 +46,20 @@ fn scalar_set(set: &Set) -> bool {
     }
 }
 
-fn scalar_compound(set: &Set) -> bool {
+fn scalar_compound(set: &Set, order: ValueOrder) -> bool {
+    if set.order() != order {
+        return false;
+    }
     match set.repr() {
-        SetRepr::Subset(base) => concrete_component(base),
-        SetRepr::FcnSet(domain, range) => concrete_component(domain) && concrete_component(range),
-        SetRepr::Product(values) => values.iter().all(concrete_component),
-        SetRepr::RcdSet(fields) => fields.iter().all(|(_, value)| concrete_component(value)),
-        SetRepr::Enum | SetRepr::Raw(_) | SetRepr::Interval(..) => scalar_set(set),
+        SetRepr::Subset(base) => concrete_component(base, order),
+        SetRepr::FcnSet(domain, range) => {
+            concrete_component(domain, order) && concrete_component(range, order)
+        }
+        SetRepr::Product(values) => values.iter().all(|value| concrete_component(value, order)),
+        SetRepr::RcdSet(fields) => fields
+            .iter()
+            .all(|(_, value)| concrete_component(value, order)),
+        SetRepr::Enum | SetRepr::Raw(_) | SetRepr::Interval(..) => scalar_set(set, order),
         _ => false,
     }
 }
@@ -70,7 +80,7 @@ fn inspect_push<'a>(pending: &mut Vec<Inspect<'a>>, value: Inspect<'a>) -> bool 
 }
 
 fn concrete_set(set: &Set, order: ValueOrder) -> bool {
-    if scalar_compound(set) {
+    if scalar_compound(set, order) {
         return true;
     }
     let mut pending = Vec::new();
