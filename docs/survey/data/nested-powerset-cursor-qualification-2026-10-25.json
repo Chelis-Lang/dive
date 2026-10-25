@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "status": "QUALIFIED_GENERAL_NESTED_INIT_CURSOR",
+  "runtime_source": "c1d2a60531ab463428f230cb4fd242e28c2d17d0",
+  "runtime_tree": "bf6e746d4431ef8936abfbc9d726b88781a76db9",
+  "base": "06eff442e75f36b2394e22d985a3765b8e895a8d",
+  "focused": {
+    "unfiltered_passed": 117,
+    "failed": 0,
+    "ignored": 0,
+    "filtered": 0
+  },
+  "full_gate": {
+    "phases": 13,
+    "nextest": {
+      "tests_run": 2521,
+      "passed": 2521,
+      "skipped": 0
+    },
+    "sany_agree": 458,
+    "small_tlc": {
+      "agree": 150,
+      "unsupported": 6,
+      "disagree": 0
+    },
+    "small_default": {
+      "agree": 144,
+      "expected_divergence": 7,
+      "unsupported": 5,
+      "disagree": 0
+    },
+    "established_baselines_unchanged": true,
+    "actual_audit_sha256": "ca87abb3c05136c0940b8b5be965bd5b4a057601225df550fe3606424f8f8f5d"
+  },
+  "selected_primary8": {
+    "tlc_before": {
+      "agree": 4,
+      "disagree": 1,
+      "unsupported": 3
+    },
+    "tlc_after": {
+      "agree": 7,
+      "disagree": 0,
+      "unsupported": 1
+    },
+    "default_before": {
+      "agree": 3,
+      "expected_D004": 1,
+      "disagree": 1,
+      "unsupported": 3
+    },
+    "default_after": {
+      "agree": 6,
+      "expected_D004": 1,
+      "disagree": 0,
+      "unsupported": 1
+    },
+    "closed": [
+      "Two first-empty invariant cases no longer refuse.",
+      "NonBooleanAfterEmpty keeps exact1distinct/1generated/depth1 with GENERAL1000/75."
+    ],
+    "remaining": "RequiredInnerComponentOverflow retains unverified-class refusal."
+  },
+  "method": {
+    "cursor": "original normalized concrete components and original inner-to-outer predicate pulls; flat fallible preparation and teardown",
+    "new_groups": 16,
+    "deep_control": "4096actual lowered filters /256KiB stack, stop/drop",
+    "default_or_count_limit_changes": false
+  },
+  "provenance": {
+    "bucket": "dive-selectseq-gate-20261025180822-8ac7b5be-010928226848",
+    "archive_key": "results/final.tgz",
+    "archive_sha256": "05a2c9ff30335434727ddb9384c95e532d964ca8500bc24a4ffbc7102f2f385f",
+    "archive_bytes": 147223,
+    "ordinary_typed_audit_sha256": "f6470c9762cde59e4c4f4625d45cd65c0e508b29115f11016330bf441d6d783f",
+    "root_rebase_review_sha256": "41aff6848b4386bee7ca4198d927d9c14fda5d5409da53f2f91720567dd36f5d"
+  },
+  "limits": [
+    "Selected8 only; no new156/217population claim or throughput result.",
+    "No restricted-index mask; originalSpanTree5 within900s/8GiB remains unqualified (#459).",
+    "Empty-BASE normalization boundary is separately tracked (#478), source-predicted pre-existing.",
+    "Final publication adds only this compact JSON; runtime/tests/fixtures exact qualifiedc1d."
+  ]
+}

@@ -1102,7 +1102,8 @@ impl Gen<'_, '_> {
                             return self.bind_interval(var, lo, hi, acts);
                         }
                         if let Some(elements) = core.in_element_stream(s)? {
-                            for value in elements {
+                            for value in elements.with_owner(rval) {
+                                let value = value?;
                                 if self.bind_value(var, value, acts)? == Flow::Stop {
                                     return Ok(Flow::Stop);
                                 }
@@ -2562,7 +2563,8 @@ impl Enab {
                                     return self.bind_interval(var, lo, hi, acts, &s1);
                                 }
                                 if let Some(elements) = core.in_element_stream(set)? {
-                                    for value in elements {
+                                    for value in elements.with_owner(rval) {
+                                        let value = value?;
                                         if let Some(found) =
                                             self.bind_value(var, value, acts, &s1)?
                                         {
