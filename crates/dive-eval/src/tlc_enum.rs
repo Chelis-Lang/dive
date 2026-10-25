@@ -30,33 +30,128 @@
 use std::cmp::Ordering;
 use std::sync::Arc;
 
-use dive_value::{DeferredKind, SetElementStream, SetKind, Value};
+use dive_value::{DeferredKind, DeferredSet, SetElementStream, SetKind, Value};
 
 use crate::core::{Core, TLC_ORDER, is_enumerable};
 use crate::error::{EvalError, Result};
 use crate::lazy::{Filter, SetOp};
 use crate::options::ExplorationOrder;
 
+/// A fallible pull cursor; original predicate work happens only when pulled.
+pub(crate) enum InElementStream {
+    Concrete(SetElementStream),
+    Filter(Box<FilterCursor>),
+}
+
+pub(crate) struct FilterCursor {
+    // Drop the active per-enumeration environment/input before the original
+    // captured Filter owner (and its Core/Env/St) can be released.
+    env: crate::env::Env,
+    source: Box<InElementStream>,
+    owner: Arc<dyn DeferredSet>,
+    done: bool,
+}
+
+impl Iterator for InElementStream {
+    type Item = Result<Value>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self {
+            Self::Concrete(source) => source.next().map(Ok),
+            Self::Filter(filter) => filter.next(),
+        }
+    }
+}
+
+impl Iterator for FilterCursor {
+    type Item = Result<Value>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.done {
+            return None;
+        }
+        loop {
+            let value = match self.source.next() {
+                Some(Ok(value)) => value,
+                Some(Err(error)) => {
+                    self.done = true;
+                    return Some(Err(error));
+                }
+                None => {
+                    self.done = true;
+                    return None;
+                }
+            };
+            let Some(filter) = self
+                .owner
+                .as_any()
+                .and_then(|value| value.downcast_ref::<Filter>())
+            else {
+                self.done = true;
+                return Some(Err(EvalError::bug(
+                    "private filter cursor owner changed type",
+                )));
+            };
+            match filter.core.filter_keeps(filter, &mut self.env, &value) {
+                Ok(true) => return Some(Ok(value)),
+                Ok(false) => {}
+                Err(error) => {
+                    self.done = true;
+                    return Some(Err(error));
+                }
+            }
+        }
+    }
+}
+
 impl Core {
-    /// A compound output cursor over concrete component enumerators. This
-    /// selects storage for the existing enumeration, never an admission rule.
-    /// Deferred/resettable providers and cross-order values keep their existing
-    /// route: a shared component buffer cannot reproduce their raw effects.
+    /// Concrete raw storage or an authentic same-Core filter pull cursor.
+    /// Every capability rejection precedes normalization, callbacks and input
+    /// consumption. Cached/foreign/deferred-history owners keep their old route.
     pub(crate) fn in_element_stream(
         self: &Arc<Self>,
         set: &dive_value::Set,
-    ) -> Result<Option<SetElementStream>> {
-        if !matches!(
-            set.kind(),
-            SetKind::Subset | SetKind::FcnSet | SetKind::RcdSet | SetKind::Product
-        ) || set.order() != self.opts.explore_order()
-        {
+    ) -> Result<Option<InElementStream>> {
+        if set.order() != self.opts.explore_order() {
             return Ok(None);
         }
-        // The capability check is read-only and excludes every symbolic,
-        // non-set or deferred component for which enum_guard supplies errors.
-        // The cursor preserves the concrete raw constructor's own checks.
-        Ok(set.concrete_element_stream(self.ctx)?)
+        if set.kind() != SetKind::Deferred {
+            return Ok(set
+                .concrete_element_stream(self.ctx)?
+                .map(InElementStream::Concrete));
+        }
+        if set.has_cached_elements() {
+            return Ok(None);
+        }
+        let Some(owner) = set.as_deferred() else {
+            return Ok(None);
+        };
+        // Any's blanket type identity is callback-free, unlike an arbitrary
+        // provider's overridable as_any/kind/elements methods.
+        if std::any::Any::type_id(owner.as_ref()) != std::any::TypeId::of::<Filter>() {
+            return Ok(None);
+        }
+        let Some(filter) = owner
+            .as_any()
+            .and_then(|value| value.downcast_ref::<Filter>())
+        else {
+            return Ok(None);
+        };
+        if !Arc::ptr_eq(self, &filter.core) {
+            return Ok(None);
+        }
+        let Value::Set(input) = &filter.in_val else {
+            return Ok(None);
+        };
+        let Some(source) = self.in_element_stream(input)? else {
+            return Ok(None);
+        };
+        Ok(Some(InElementStream::Filter(Box::new(FilterCursor {
+            owner: owner.clone(),
+            env: filter.env.clone(),
+            source: Box::new(source),
+            done: false,
+        }))))
     }
 
     /// The elements `x' \in S` (and `x \in S` in an initial predicate) binds,
@@ -322,3 +417,7 @@ mod tests {
         assert_eq!(odometer_last_fastest(&[&a, &[]]).len(), 0);
     }
 }
+
+#[cfg(test)]
+#[path = "tlc_enum_cursor_tests.rs"]
+mod cursor_tests;

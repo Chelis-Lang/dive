@@ -524,7 +524,17 @@ dive check conformance/corpus/interval-streaming/specifications/WideIntervalInit
 The invariant fails on `x = 0` (TLC class `TLC_INVARIANT_VIOLATED_INITIAL`, exit
 12); this is not a successful proof over the rest of the interval.
 
-Compound assignment domains with explicit scalar or interval components
+A private set filter over a concrete source can pull candidates in original
+order, evaluating its original predicate only when the next candidate is needed.
+An accepted empty set reaches the continuation before a later failing predicate.
+Each required component is still sized and normalized before its first output;
+a nested powerset avoids sizing the outer aggregate. Unknown providers,
+foreign evaluator captures, cached deferred history and cross-order components
+keep their existing routes. This changes storage and effect timing to the
+ordered enumeration, not predicate admission: no candidate is pruned or assumed
+Boolean/total, and a very large rejected domain can still exhaust the run budget.
+
+Compound assignment domains with recursively concrete finite components
 also yield candidates incrementally: powersets, Cartesian products, function
 sets and record sets reach the initial/successor sink and `ENABLED` continuation
 without retaining every output. Required component normalization still precedes

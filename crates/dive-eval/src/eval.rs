@@ -1611,35 +1611,44 @@ impl Core {
         let mut env = f.env.clone();
         let mut out = Vec::new();
         for x in elems {
-            self.loop_work()?;
-            if f.tuple {
-                match x {
-                    Value::Fcn(t) if t.as_tuple().is_some_and(|t| t.len() == f.slots.len()) => {
-                        self.bind_one(&mut env, &f.slots, true, x, f.node)?;
-                    }
-                    _ => {
-                        return Err(EvalError::general(format!(
-                            "Attempted to check if the value:\n{}\nis an element of a set of {}-tuples.",
-                            self.ppr(x),
-                            f.slots.len()
-                        )));
-                    }
-                }
-            } else {
-                self.bind_one(&mut env, &f.slots, false, x, f.node)?;
-            }
-            match self.eval(&mut env, &f.st, f.pred)? {
-                Ev::V(Value::Bool(true)) => out.push(x.clone()),
-                Ev::V(Value::Bool(false)) => {}
-                _ => {
-                    return Err(EvalError::general(format!(
-                        "The evaluation of predicate {} yielded non-Boolean value.",
-                        self.loc(f.pred)
-                    )));
-                }
+            if self.filter_keeps(f, &mut env, x)? {
+                out.push(x.clone());
             }
         }
         Ok(out)
+    }
+
+    /// The original per-element SetPredValue binding/evaluation boundary.
+    pub(crate) fn filter_keeps(
+        self: &Arc<Self>,
+        f: &Filter,
+        env: &mut Env,
+        x: &Value,
+    ) -> Result<bool> {
+        self.loop_work()?;
+        if f.tuple {
+            match x {
+                Value::Fcn(t) if t.as_tuple().is_some_and(|t| t.len() == f.slots.len()) => {
+                    self.bind_one(env, &f.slots, true, x, f.node)?;
+                }
+                _ => {
+                    return Err(EvalError::general(format!(
+                        "Attempted to check if the value:\n{}\nis an element of a set of {}-tuples.",
+                        self.ppr(x),
+                        f.slots.len()
+                    )));
+                }
+            }
+        } else {
+            self.bind_one(env, &f.slots, false, x, f.node)?;
+        }
+        match self.eval(env, &f.st, f.pred)? {
+            Ev::V(Value::Bool(value)) => Ok(value),
+            _ => Err(EvalError::general(format!(
+                "The evaluation of predicate {} yielded non-Boolean value.",
+                self.loc(f.pred)
+            ))),
+        }
     }
 
     fn filter_not_enumerable(&self, f: &Filter) -> EvalError {

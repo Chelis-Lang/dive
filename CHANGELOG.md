@@ -11,6 +11,11 @@
   result payloads remain identical; no enumeration algorithm, limit or baseline
   changes.
 
+- Pull concrete nested-set filter candidates through the existing Init,
+  successor and `ENABLED` continuations in original order. Required component
+  sizing/normalization and predicate errors/effects remain before their actual
+  outputs; explicit Cardinality and bulk enumeration keep their existing routes.
+
 - Classify two source-verified TLC Init exception/replay envelopes without
   promoting nested causes or relaxing context-only failure checks. Preserve
   GENERAL1000 and the actual exit75; malformed, unowned and unknown exceptions

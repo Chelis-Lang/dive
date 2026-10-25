@@ -11,33 +11,95 @@ use crate::atom::Atom;
 use crate::ctx::{Ctx, IntMode, ValueOrder};
 use crate::error::{ErrorKind, Result, ValueError};
 use crate::int::Int;
-use crate::value::{Fcn, Set, SetRepr, Value};
+use crate::value::{Fcn, FcnRepr, Set, SetRepr, Value};
 
 /// A stream of elements in normalized order.
 pub(crate) type Elems = Box<dyn Iterator<Item = Value> + Send>;
 
-/// A concrete component whose enumeration/comparison cannot call a provider.
-/// Check stored values as well as the outer representation: a raw set may hold
-/// nested deferred values. Mixed scalar types remain eligible and retain their
-/// normalization errors, unless the raw constructor short-circuits first.
-fn concrete_component(value: &Value) -> bool {
-    let Value::Set(set) = value else {
+/// Read-only inspection of concrete storage, never provider metadata or values.
+/// A failed optional work-list reservation declines before enumeration effects.
+enum Inspect<'a> {
+    Set(&'a Set),
+    Value(&'a Value),
+}
+
+fn inspect_push<'a>(pending: &mut Vec<Inspect<'a>>, value: Inspect<'a>) -> bool {
+    if pending.try_reserve(1).is_err() {
         return false;
-    };
+    }
+    pending.push(value);
+    true
+}
+
+fn concrete_set(set: &Set, order: ValueOrder) -> bool {
+    let mut pending = Vec::new();
+    if !inspect_push(&mut pending, Inspect::Set(set)) {
+        return false;
+    }
+    while let Some(item) = pending.pop() {
+        let valid = match item {
+            Inspect::Set(set) => inspect_set(set, order, &mut pending),
+            Inspect::Value(value) => inspect_value(value, order, &mut pending),
+        };
+        if !valid {
+            return false;
+        }
+    }
+    true
+}
+
+fn inspect_value<'a>(value: &'a Value, order: ValueOrder, pending: &mut Vec<Inspect<'a>>) -> bool {
+    match value {
+        Value::Set(set) => inspect_push(pending, Inspect::Set(set)),
+        Value::Fcn(function) => {
+            if function.kind() != crate::FcnKind::Tuple && function.order() != order {
+                return false;
+            }
+            match &function.0.repr {
+                FcnRepr::Tuple(values) => values
+                    .iter()
+                    .all(|v| inspect_push(pending, Inspect::Value(v))),
+                FcnRepr::Record(fields) => fields
+                    .iter()
+                    .all(|(_, v)| inspect_push(pending, Inspect::Value(v))),
+                FcnRepr::General(function) => function
+                    .domain
+                    .keys
+                    .iter()
+                    .chain(function.values.iter())
+                    .all(|v| inspect_push(pending, Inspect::Value(v))),
+            }
+        }
+        Value::Bool(_) | Value::Int(_) | Value::BigInt(_) | Value::Str(_) | Value::Model(_) => true,
+    }
+}
+
+fn inspect_component<'a>(value: &'a Value, pending: &mut Vec<Inspect<'a>>) -> bool {
+    match value {
+        Value::Set(set) => inspect_push(pending, Inspect::Set(set)),
+        _ => false,
+    }
+}
+
+fn inspect_set<'a>(set: &'a Set, order: ValueOrder, pending: &mut Vec<Inspect<'a>>) -> bool {
+    if set.order() != order {
+        return false;
+    }
     match set.repr() {
         SetRepr::Interval(..) => true,
         SetRepr::Enum | SetRepr::Raw(_) => set.stored_elements().is_some_and(|values| {
-            values.iter().all(|value| {
-                matches!(
-                    value,
-                    Value::Bool(_)
-                        | Value::Int(_)
-                        | Value::BigInt(_)
-                        | Value::Str(_)
-                        | Value::Model(_)
-                )
-            })
+            values
+                .iter()
+                .all(|v| inspect_push(pending, Inspect::Value(v)))
         }),
+        SetRepr::Subset(base) => inspect_component(base, pending),
+        SetRepr::FcnSet(domain, range) => {
+            inspect_component(domain, pending) && inspect_component(range, pending)
+        }
+        SetRepr::Product(values) => values.iter().all(|value| inspect_component(value, pending)),
+        SetRepr::RcdSet(fields) => fields
+            .iter()
+            .all(|(_, value)| inspect_component(value, pending)),
         _ => false,
     }
 }
@@ -88,14 +150,7 @@ fn concrete_functions(domain: &Value, range: &Value, ctx: Ctx) -> Result<Elems> 
 /// Raw compound output storage for concrete scalar components. This is separate
 /// from `stream()`, whose normalized bulk callers retain their original checks.
 pub(crate) fn concrete_raw(set: &Set, ctx: Ctx) -> Result<Option<Elems>> {
-    let eligible = match set.repr() {
-        SetRepr::Subset(base) => concrete_component(base),
-        SetRepr::FcnSet(domain, range) => concrete_component(domain) && concrete_component(range),
-        SetRepr::Product(values) => values.iter().all(concrete_component),
-        SetRepr::RcdSet(fields) => fields.iter().all(|(_, value)| concrete_component(value)),
-        _ => false,
-    };
-    if !eligible {
+    if !concrete_set(set, set.order()) {
         return Ok(None);
     }
     let ctx = Ctx {
@@ -103,13 +158,26 @@ pub(crate) fn concrete_raw(set: &Set, ctx: Ctx) -> Result<Option<Elems>> {
         ..ctx
     };
     let output = match set.repr() {
-        SetRepr::Subset(base) => Box::new(SubsetIter {
-            base: component(base, ctx, true)?,
-            order: ctx.order,
-            k: 0,
-            idx: Vec::new(),
-            started: false,
-        }) as Elems,
+        SetRepr::Enum | SetRepr::Raw(_) => slice_stream(set.elements(ctx)?),
+        SetRepr::Interval(lo, hi) => Box::new(IntervalIter {
+            next: lo.clone(),
+            hi: hi.clone(),
+        }),
+        SetRepr::Subset(base) => {
+            // SubsetValue.elementsNormalized asks BASE.size before BASE's
+            // normalized enumeration, never for this outer powerset's size.
+            let Value::Set(component_set) = base else {
+                return Ok(None);
+            };
+            component_set.size(ctx)?;
+            Box::new(SubsetIter {
+                base: component(base, ctx, true)?,
+                order: ctx.order,
+                k: 0,
+                idx: Vec::new(),
+                started: false,
+            }) as Elems
+        }
         SetRepr::FcnSet(domain, range) => concrete_functions(domain, range, ctx)?,
         SetRepr::Product(values) => {
             if concrete_product_empty(values.iter(), ctx)? {
@@ -425,3 +493,7 @@ pub(crate) fn stream(s: &Set, ctx: Ctx, mark: bool) -> Result<Elems> {
         SetRepr::Nat | SetRepr::Int | SetRepr::Strings => return Err(not_enumerable(&me(), ctx)),
     })
 }
+
+#[cfg(test)]
+#[path = "stream_concrete_tests.rs"]
+mod concrete_tests;

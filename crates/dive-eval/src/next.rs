@@ -1103,6 +1103,7 @@ impl Gen<'_, '_> {
                         }
                         if let Some(elements) = core.in_element_stream(s)? {
                             for value in elements {
+                                let value = value?;
                                 if self.bind_value(var, value, acts)? == Flow::Stop {
                                     return Ok(Flow::Stop);
                                 }
@@ -2563,6 +2564,7 @@ impl Enab {
                                 }
                                 if let Some(elements) = core.in_element_stream(set)? {
                                     for value in elements {
+                                        let value = value?;
                                         if let Some(found) =
                                             self.bind_value(var, value, acts, &s1)?
                                         {
