@@ -1,0 +1,181 @@
+//! Internal source-binding bridge for a single privately owned temporal run.
+//!
+//! Unlike the borrowed-model analyzer, this bridge never exposes its runtime.
+//! Host replacement on caller-owned evaluators keeps its existing behavior.
+
+use std::fmt;
+use std::marker::PhantomData;
+use std::rc::Rc;
+use std::sync::Arc;
+
+use dive_check::{CheckOptions, CheckResult, budget::EvaluationControl, final_roles};
+use dive_config::ModelConfig;
+use dive_ir::Ir;
+use dive_model::{ControlledBindError, Model, SymmetryLivenessResolution};
+
+use super::{Analysis, DetailedFailure, GraphLabelPolicy, Limits, periodic};
+use crate::product::AcceptancePolicy;
+
+#[cfg(test)]
+#[path = "owned_tests.rs"]
+mod tests;
+
+/// A source-binding result which has never published a temporal runtime.
+#[derive(Debug)]
+pub enum Dispatch {
+    /// The existing ordinary safety result, including its failures.
+    Safety(Box<CheckResult>),
+    /// One freshly bound temporal runtime, consumed by its analysis.
+    Temporal(Box<OwnedTemporal>),
+}
+
+/// A fresh source-bound runtime whose model and evaluator cannot escape.
+///
+/// The consuming analysis methods retain the constructor's options and binding
+/// control. This is not a lease on public caller-owned evaluators. No model,
+/// scope, host or arbitrary callback is accepted or exposed by this bridge.
+/// It must be constructed and consumed on the dedicated evaluator stack.
+///
+/// ```no_run
+/// # fn run(ir: &std::sync::Arc<dive_ir::Ir>, config: &dive_config::ModelConfig,
+/// # options: &dive_check::CheckOptions, control: std::sync::Arc<dive_check::budget::EvaluationControl>) {
+/// use dive_liveness::analyze::{owned, Limits, GraphLabelPolicy};
+/// use dive_liveness::product::AcceptancePolicy;
+/// if let Some(Ok(owned::Dispatch::Temporal(runtime))) =
+///     owned::dispatch_controlled(ir, config, options, control) {
+///     let _result = runtime.final_analysis(Limits::default(),
+///         AcceptancePolicy::Legacy, GraphLabelPolicy::Cells(1000));
+/// }
+/// # }
+/// ```
+pub struct OwnedTemporal {
+    model: Box<Model>,
+    options: CheckOptions,
+    _binding_control: Arc<EvaluationControl>,
+    _thread: PhantomData<Rc<()>>,
+}
+
+impl fmt::Debug for OwnedTemporal {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("OwnedTemporal")
+            .finish_non_exhaustive()
+    }
+}
+
+/// Actual private owner, created only while consuming the hidden fresh model.
+pub(super) struct Authority<'a> {
+    model: &'a Model,
+}
+
+impl Authority<'_> {
+    pub(super) fn owns(&self, model: &Model) -> bool {
+        std::ptr::eq(self.model, model)
+    }
+}
+
+impl OwnedTemporal {
+    /// The actual bound symmetry resolution, with no runtime handle.
+    #[must_use]
+    pub fn symmetry_liveness(&self) -> &SymmetryLivenessResolution {
+        self.model.symmetry_liveness()
+    }
+
+    /// Consumes this runtime for the existing final analysis and owner policies.
+    ///
+    /// # Errors
+    /// Existing detailed analysis failures, including unqualified legacy stops.
+    pub fn final_analysis(
+        self,
+        limits: Limits,
+        policy: AcceptancePolicy,
+        graph_labels: GraphLabelPolicy,
+    ) -> Result<Analysis, DetailedFailure> {
+        let authority = Authority { model: &self.model };
+        super::analyze_final_bound(
+            &self.model,
+            &self.options,
+            limits,
+            policy,
+            graph_labels,
+            Some(&authority),
+        )
+    }
+
+    /// Consumes this runtime for the existing completed-level schedule.
+    ///
+    /// # Errors
+    /// Existing periodic failures and actual prefix/check evidence.
+    pub fn periodic_analysis(
+        self,
+        limits: Limits,
+        policy: AcceptancePolicy,
+        graph_labels: GraphLabelPolicy,
+        schedule: periodic::Schedule,
+    ) -> Result<(periodic::PeriodicAnalysis, periodic::Checks), periodic::PeriodicFailure> {
+        let authority = Authority { model: &self.model };
+        periodic::analyze_periodic_bound(
+            &self.model,
+            &self.options,
+            limits,
+            policy,
+            graph_labels,
+            schedule,
+            Some(&authority),
+        )
+    }
+}
+
+// A caller cannot supply a prebound Dispatch::Temporal. These private fields
+// are filled only by the source-binding dispatch in the two entrypoints below.
+fn wrap(
+    dispatch: final_roles::Dispatch,
+    options: &CheckOptions,
+    control: Arc<EvaluationControl>,
+) -> Dispatch {
+    match dispatch {
+        final_roles::Dispatch::Safety(result) => Dispatch::Safety(result),
+        final_roles::Dispatch::Temporal(model) => Dispatch::Temporal(Box::new(OwnedTemporal {
+            model,
+            options: options.clone(),
+            _binding_control: control,
+            _thread: PhantomData,
+        })),
+    }
+}
+
+/// Performs exactly the existing controlled source-binding dispatch once.
+///
+/// `None` preserves the existing no-bind eligibility fallback. The caller must
+/// use the dedicated evaluator stack. This takes no prebound runtime or host.
+///
+/// # Errors
+/// The unchanged controlled binding error and original startup output.
+#[must_use]
+pub fn dispatch_controlled(
+    ir: &Arc<Ir>,
+    config: &ModelConfig,
+    options: &CheckOptions,
+    control: Arc<EvaluationControl>,
+) -> Option<Result<Dispatch, ControlledBindError>> {
+    final_roles::dispatch_controlled(ir, config, options, control.clone())
+        .map(|result| result.map(|dispatch| wrap(dispatch, options, control)))
+}
+
+/// Performs the existing ordinary controlled dispatch without changing failures.
+///
+/// Real ordinary binding failures remain safety results; interruption stays a
+/// controlled error. `None` still means no binding or source evaluation ran.
+///
+/// # Errors
+/// The unchanged ordinary-dispatch controlled interruption/error evidence.
+#[must_use]
+pub fn dispatch_ordinary_controlled(
+    ir: &Arc<Ir>,
+    config: &ModelConfig,
+    options: &CheckOptions,
+    control: Arc<EvaluationControl>,
+) -> Option<Result<Dispatch, ControlledBindError>> {
+    final_roles::dispatch_ordinary_controlled(ir, config, options, control.clone())
+        .map(|result| result.map(|dispatch| wrap(dispatch, options, control)))
+}

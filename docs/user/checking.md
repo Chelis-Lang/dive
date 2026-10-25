@@ -23,9 +23,9 @@ operands and all retained captures, including unused actuals, still undergo the
 existing effect, provider, context ownership and resource checks. Configured or
 redirected native origins and higher-order native operator actuals retain their
 existing restrictions. Ordinary evaluation preserves eager argument order and
-typed errors. The three Concat temporal-atom error controls still produce
-`DIVE-L0033` refusals; issue #451 tracks their ordinary evaluation-error
-outcomes. VIEW graph capture
+typed errors. Eligible single-worker temporal requests can report an original
+Concat evaluation error through the certified row-demand route described below;
+unproved contexts retain `DIVE-L0033` refusals. VIEW graph capture
 still requires quotient-edge and closing-state evidence (issue #428), so
 EWD998ChanID remains unsupported. Other temporal restrictions also remain.
 
@@ -533,9 +533,8 @@ input and generated reference are retained. A separate
 the state Concat error (2182), exit 255, with two distinct/generated states, one
 queued state and depth two. This formula establishes no global action priority.
 The exact manifests retain unknown metadata; these validation populations do not
-change established small/full selections or qualify temporal evaluation errors
-currently refused under issue #451. The finite error prefixes have not received
-independent trace validation.
+change established small/full selections. The historical primary measurements
+alone do not validate a dive error prefix or qualify an ordinary error verdict.
 
 See the [compact primary observations](../survey/data/liveness-atom-error-timing-primary-2026-10-24.json) for input and generated-reference identities, exact outcomes and limitations.
 
@@ -544,8 +543,10 @@ cause separately from its bound predicate source. `state_evaluation()` identifie
 whether that failure occurred in final graph labels, a completed-level periodic
 check, or candidate attribution; a synthesized nonboolean result remains distinct
 from a core evaluator error. This evidence does not certify TLC's capture-time
-error demand or stopping prefix. Ordinary temporal state-atom errors still report
-`DIVE-L0033` refusals; no verdict, count, limit or report-schema policy changes.
+error demand or stopping prefix. APIs accepting a caller-owned `&Model`, and detailed APIs retaining finite
+`GraphLabelPolicy::Cells` (including their defaults), keep this posthoc refusal
+behavior. A `CaptureRow` site is accompanied by separate
+opaque `capture_row()` evidence; the site or typed cause alone grants no verdict.
 
 A separate opt-in Rust capture API, `capture::explore_checkpoints_with_evidence`,
 exposes actually reached Init and completed-source-row checkpoints. Its W1-only
@@ -555,9 +556,37 @@ retain a genuine core `ErrorClass::Eval` cause with real stopping counters and
 a checked finite diagnostic source path. Unsupported, resource and internal
 causes keep their existing mappings without a typed decision. That path is not a validated temporal counterexample, and the
 checkpoint does not certify that TLC demanded an atom or would report that
-error. No ordinary checker enables this callback: `DIVE-L0033`, temporal
-scheduling, report schemas and agreement remain unchanged. Parallel requests to
-this opt-in evidence API refuse before search.
+error. The certified consumer below uses this API only after completing its
+separate pre-capture proof. Parallel requests to the opt-in checkpoint API still
+refuse before search; existing ordinary parallel routes keep their old behavior.
+
+### Certified current-state row errors
+
+A single-worker source-bound temporal request can report an original 2179 or
+2182 evaluation error at the real completed-source boundary. Admission requires
+an exact ordered TLC bin program with no residual tableau, complete must-read
+coverage of every backend and attribution predicate, and a separate proof of
+stable producers, captures, intermediate values and caches. This route requires
+the existing `NoCellLimit` graph-label policy used by ordinary file requests;
+finite cell policies keep their old admission before any label evaluation. The proof inspects
+representations without running a predicate or provider. Unknown deferred values, nonliteral function representations,
+normalization-sensitive operations, host effects or incomplete coverage retain
+the old route before any new atom call; no model names or invariants grant admission.
+
+Successful source rows retain actual Boolean results. Periodic checking uses
+only completed rows, preserving original vertex and edge-occurrence identities;
+attribution reads those cached results instead of evaluating skipped atoms.
+Ordinary error reporting additionally requires the capture producer's matching
+core cause, original source prefix and statistics, followed by fresh independent
+validation of the finite behavior and its serialized document. The report uses
+`temporal-state-row`; it does not claim a lasso or violated property. Scheduling,
+existing owner limits and JSON schema 3 are unchanged. Budgets, nonboolean results,
+foreign contexts and internal failures do not acquire this error authority.
+
+TLC's zero-solution startup tautology error (2253/77, null exploration counts)
+remains a separate unsupported boundary. It must not become `Holds` or a promoted
+later division error. These capabilities do not by themselves establish a new
+small/full baseline or agreement count.
 
 The
 [typed state-error qualification](../survey/data/temporal-state-error-evidence-qualification-2026-10-24.json)

@@ -59,6 +59,7 @@ fn run_with_policy(
         &mut stage,
         &mut action,
         &control,
+        None,
     )
 }
 

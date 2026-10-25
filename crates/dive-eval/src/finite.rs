@@ -5,6 +5,27 @@ use crate::{ConstBinding, EvalError, Evaluator, Scope, SlotView, St};
 use dive_ir::{Arg, BuiltinOp, ConstId, DefScope, Effects, Expr, ExprId, Level, OpRef, StdOp};
 
 impl Evaluator {
+    // Reuses the exact own-native, successful-result-kind theorem. The caller
+    // separately proves every argument/capture and the producer's storage.
+    pub(crate) fn concat_name_stability(
+        &self,
+        scope: &Scope,
+        operator: &OpRef,
+        args: &[Arg],
+        work: &mut usize,
+    ) -> crate::Result<bool> {
+        let mut guard = Guard {
+            evaluator: self,
+            limit: (*work).min(100_000) / 64,
+            visits: 0,
+            configured_depth: 0,
+            query_allowed: false,
+        };
+        let result = guard.concat_without_names(scope, operator, args, 0);
+        *work = work.saturating_sub(guard.visits);
+        result
+    }
+
     /// Inspects an authoritative `SelectSeq` call without evaluating its sequence
     /// or predicate. Returns the original sequence and callback/capture bodies
     /// in their lexical scopes. Pure supported unary user callbacks qualify.

@@ -129,6 +129,7 @@ struct Observe<'a> {
     stage: Stage,
     evaluations: EvaluationErrors,
     decision: Option<Result<CandidateWord, AnalysisError>>,
+    cache: Option<&'a std::sync::Mutex<super::row_demand::Cache>>,
 }
 impl capture::Observer for Observe<'_> {
     fn level_done(
@@ -152,6 +153,12 @@ impl capture::Observer for Observe<'_> {
         // budgets do not cross that boundary; install the same armed signal
         // only while a due prefix analysis runs.
         let _scope = crate::budget::enter(self.budget);
+        let Ok(cached) = self.cache.map(std::sync::Mutex::lock).transpose() else {
+            self.decision = Some(Err(AnalysisError::Inconsistent(
+                "temporal cache lock poisoned",
+            )));
+            return Ok(());
+        };
         // Only the first property can decide a prefix: a word for it on a
         // subgraph is a word on the complete graph, which the final search
         // would also report first. Later properties wait for the final check.
@@ -166,6 +173,7 @@ impl capture::Observer for Observe<'_> {
             &mut self.stage,
             &mut self.evaluations,
             &self.control,
+            cached.as_deref(),
         ) {
             Ok(None) => {}
             Ok(Some(word)) => self.decision = Some(Ok(word)),
@@ -270,6 +278,18 @@ pub fn analyze_periodic_with_policies(
     graph_labels: GraphLabelPolicy,
     schedule: Schedule,
 ) -> Result<(PeriodicAnalysis, Checks), PeriodicFailure> {
+    analyze_periodic_bound(model, options, limits, policy, graph_labels, schedule, None)
+}
+
+pub(super) fn analyze_periodic_bound(
+    model: &Model,
+    options: &CheckOptions,
+    limits: Limits,
+    policy: AcceptancePolicy,
+    graph_labels: GraphLabelPolicy,
+    schedule: Schedule,
+    authority: Option<&super::owned::Authority<'_>>,
+) -> Result<(PeriodicAnalysis, Checks), PeriodicFailure> {
     // One budget for capture and every level check (ADR 0107); only the
     // budget's own limit becomes a stop.
     let (mut watchdog, armed) = dive_check::budget::arm(options).map_err(|error| {
@@ -293,8 +313,16 @@ pub fn analyze_periodic_with_policies(
         )
     })?;
     let _scope = crate::budget::enter(&armed.budget);
-    let result = periodic_unbudgeted(model, &armed, limits, policy, graph_labels, schedule)
-        .map_err(|failure| budget_failure(failure, &armed.budget));
+    let result = periodic_unbudgeted(
+        model,
+        &armed,
+        limits,
+        policy,
+        graph_labels,
+        schedule,
+        authority,
+    )
+    .map_err(|failure| budget_failure(failure, &armed.budget));
     if let Some(watchdog) = &mut watchdog {
         let finished = watchdog.finish();
         if let Ok((analysis, checks)) = &result {
@@ -371,6 +399,7 @@ fn periodic_unbudgeted(
     policy: AcceptancePolicy,
     graph_labels: GraphLabelPolicy,
     schedule: Schedule,
+    authority: Option<&super::owned::Authority<'_>>,
 ) -> Result<(PeriodicAnalysis, Checks), PeriodicFailure> {
     let checks = Checks {
         schedule,
@@ -419,6 +448,28 @@ fn periodic_unbudgeted(
             )
         })?
     };
+    let demand = super::row_demand::prepare(
+        model,
+        &plans,
+        options,
+        model.temporals.len(),
+        limits.formula,
+        graph_labels,
+        authority,
+    )
+    .map_err(|error| {
+        failure(
+            error,
+            Stage::Planning,
+            None,
+            EvaluationErrors::default(),
+            Some(false),
+            checks,
+        )
+    })?;
+    let cache = demand
+        .as_ref()
+        .map(|program| std::sync::Mutex::new(super::row_demand::Cache::new(program)));
     let mut observer = Observe {
         budget: &options.budget,
         control: control.clone(),
@@ -434,8 +485,33 @@ fn periodic_unbudgeted(
             ..EvaluationErrors::default()
         },
         decision: None,
+        cache: cache.as_ref(),
     };
-    let captured =
+    let captured = if let (Some(program), Some(cache)) = (&demand, &cache) {
+        let mut errors = EvaluationErrors {
+            periodic: true,
+            ..EvaluationErrors::default()
+        };
+        let mut exploration = None;
+        super::row_demand::Observe::new(model, &plans, program, cache)
+            .explore(
+                options,
+                limits.capture,
+                Some(&mut observer),
+                &mut errors,
+                &mut exploration,
+            )
+            .map_err(|error| {
+                failure(
+                    error,
+                    Stage::Capture,
+                    exploration,
+                    errors,
+                    Some(false),
+                    observer.checks,
+                )
+            })?
+    } else {
         capture::explore_controlled_with_evidence(model, options, limits.capture, &mut observer)
             .map_err(|message| {
                 failure(
@@ -446,7 +522,8 @@ fn periodic_unbudgeted(
                     None,
                     observer.checks,
                 )
-            })?;
+            })?
+    };
     match captured {
         capture::ControlledExploration::Stopped(result) => Err(failure(
             AnalysisError::Exploration(result),
@@ -500,6 +577,20 @@ fn periodic_unbudgeted(
             observer.checks.exhausted = true;
             observer.checks.final_check = true;
             observer.evaluations.periodic = false;
+            let cached = cache
+                .as_ref()
+                .map(std::sync::Mutex::lock)
+                .transpose()
+                .map_err(|_| {
+                    failure(
+                        AnalysisError::Inconsistent("temporal cache lock poisoned"),
+                        Stage::Product,
+                        Some(Box::new((&*complete).into())),
+                        EvaluationErrors::default(),
+                        Some(true),
+                        observer.checks,
+                    )
+                })?;
             let word = analyze_captured(
                 model,
                 &plans,
@@ -511,6 +602,7 @@ fn periodic_unbudgeted(
                 &mut observer.stage,
                 &mut observer.evaluations,
                 &control,
+                cached.as_deref(),
             )
             .map_err(|error| {
                 failure(

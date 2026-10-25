@@ -1,4 +1,5 @@
-//! Typed state failure evidence does not promote an ordinary error verdict.
+//! Source-bound rows require certified demand and fresh finite validation.
+//! Borrowed-model legacy refusal coverage remains in dive-liveness.
 #![allow(
     clippy::expect_used,
     clippy::panic,
@@ -52,7 +53,7 @@ fn detailed_temporal_api_transports_state_cause_without_an_action_error() {
 }
 
 #[test]
-fn ordinary_file_reports_keep_the_refusal_schema_and_full_capture_counts() {
+fn ordinary_file_reports_require_certified_error_and_actual_source_row_counts() {
     let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures/state-atom-error/StateCause.tla");
     for compat_tlc in [false, true] {
@@ -65,21 +66,24 @@ fn ordinary_file_reports_keep_the_refusal_schema_and_full_capture_counts() {
             ..dive_api::CheckRequest::default()
         })
         .expect("ordinary check");
-        assert_eq!(report.verdict(), "unsupported");
-        assert_eq!(report.exit_code(), 3);
+        assert_eq!(report.verdict(), "evaluation-error");
+        assert_eq!(report.exit_code_for(dive_api::ExitConvention::Tlc), 255);
         let json = report.to_json();
         assert_eq!(json["schema_version"], 3);
-        assert_eq!(json["verdict"], "unsupported");
+        assert_eq!(json["verdict"], "evaluation-error");
         assert_eq!(json["diagnostics"][0]["code"], "DIVE-L0033");
-        assert_eq!(json["execution"]["capture_completed"], true);
-        assert_eq!(json["statistics"]["generated"], 3);
+        assert_eq!(json["execution"]["capture_completed"], false);
+        assert_eq!(json["statistics"]["generated"], 2);
         assert_eq!(json["statistics"]["distinct"], 2);
-        assert_eq!(json["statistics"]["left_on_queue"], 0);
+        assert_eq!(json["statistics"]["left_on_queue"], 1);
         assert_eq!(json["statistics"]["depth"], 2);
         assert!(json["property"].is_null());
-        assert!(json["tlc"].is_null());
-        assert!(json["error_site"].is_null());
-        assert!(json["counterexample"].is_null());
+        assert_eq!(json["tlc"]["code"], 2179);
+        assert_eq!(json["tlc"]["verified"], true);
+        assert_eq!(json["error_site"], "temporal-state-row");
+        assert_eq!(json["counterexample"]["ending"], "finite");
+        assert_eq!(json["counterexample"]["validation"], "valid");
+        assert_eq!(json["counterexample"]["length"], 1);
         assert!(json.get("state_evaluation").is_none());
     }
 }

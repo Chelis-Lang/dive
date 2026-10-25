@@ -2243,3 +2243,38 @@ is copied and no runtime behavior or independent-validation credit follows from
 these references. The earlier seven Concat primary references are unchanged.
 
 See the [compact primary observations](survey/data/liveness-atom-error-timing-primary-2026-10-24.json) for input and generated-reference identities, exact outcomes and limitations.
+
+The later `temporal-demand-primary-probes` references distinguish the zero-solution
+startup rejection (2253/77, null counts) from row demand. In
+`CurrentStateBinPriority`, division error 2179 precedes the textually earlier
+Concat error 2182. These generated references and recorded reasons remain
+unchanged; they establish no unconditional global atom priority.
+
+The certified row consumer follows pinned `Liveness.processLiveness`'s combined
+claims, occurrence tags before simplification/DNF, residual grouping and
+`addToBin` order, and `LiveCheck.addNextState`'s action-then-state ordering per
+compiled solution. It admits only residual-free current-state programs with
+complete static must-read coverage of all original scoped backend/attribution
+atoms. Must-read sets decide eligibility, never execution order: the actual
+Boolean programs keep their short circuits. Scope and AtomTest ownership stay
+with original prepared predicates; no equality is inferred from ExprId or a
+separately reconstructed capture.
+
+A separate canonical producer proof checks actual source-reachable Init/Next,
+retained environments, stored data, native targets and original/warm caches
+without evaluation. Unproved normalization transitions or deferred constructors
+decline before capture. This is original Rust capability analysis, not a claim
+that pure owned providers are idempotent. ADR 0104's normalization errors and
+primed Null-state thunk cache bypass remain unchanged. A consuming opaque bridge
+binds and keeps its fresh runtime private; public host replacement and borrowed
+model analysis retain their old behavior. It uses the existing source-binding
+dispatch and native permission hooks rather than assuming a host lease.
+
+Completed-row projection removes only zero-outdegree unexpanded frontier
+vertices and their incoming edges, preserving all reachable infinite walks.
+Explicit maps retain original vertices and parallel edge occurrences; backend
+labels and property attribution consume actual cached truths. A matched typed
+capture decision grants an ordinary 2179/2182 classification only after fresh
+typed and serialized finite-behavior validation. Residual Init/zero-solution
+startup, nonboolean, resource and unproved contexts gain no such authority.
+No established baseline is changed by this implementation or its source proof.
