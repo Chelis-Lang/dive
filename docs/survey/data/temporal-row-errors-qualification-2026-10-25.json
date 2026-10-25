@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "measurement": "certified temporal row error validation microcorpora",
-  "status": "FULL_GATE_PASSED",
+  "status": "QUALIFIED",
   "source": "92a33e3bc5e7b3991e594133e37fe8eabd8d0f72",
   "tree": "4f8f32e84c877d13c675fe9743493c95147c764d",
   "cli_sha256": "ac7c446d84ded50c7757ecd1c056e494895cd74cc995ec070eab37ad1795e618",
@@ -255,11 +255,22 @@
         "sha256": "9c760c189a131fffe5a9583d9bd7eadebdf51ce3b233afa73ce6ac1c1c8a0c57"
       }
     },
-    "retained_raw_S3_preservation": "pending Root verification; no S3 verification claimed",
-    "independent_full_gate_audit": "pending"
+    "retained_raw_S3_preservation": {
+      "bucket": "dive-selectseq-perf-20261025055036-65e37f43-010928226848",
+      "normal_cli_prefix": "root-followups/completed-local-since-0340-v1/temporal-row-demand-cli-92a33e3b-v5/",
+      "full_gate_prefix": "root-followups/completed-final-gate-92-v1/temporal-row-full-gate-92a33e3b-v2/",
+      "individual_whole_file_sha256_verified": true,
+      "local_archive_created": false
+    },
+    "independent_full_gate_audit": {
+      "sha256": "36ffc779a6d3c024e5ef8102a6425b4202624f723cd1c62e86545c77db8c0e77",
+      "S3_key": "root-followups/final-gate-review-92a33e3b/REVIEW.json",
+      "qualified_source": "92a33e3bc5e7b3991e594133e37fe8eabd8d0f72",
+      "runtime_unchanged_by_documentation": true
+    }
   },
   "limitations": [
-    "Completed full gate and normal reports are source-bound; independent full-gate audit and raw retention are recorded separately when verified.",
+    "Completed full gate and normal reports are source-bound. Whole-file raw evidence and the independent audit are retained in S3; code and test bytes are unchanged by the documentation qualification.",
     "Five changed models belong only to isolated validation microcorpora; no small/full baseline refresh.",
     "Startup2253, residual/tableau demand and unproved code/provider contexts remain unsupported.",
     "No performance or memory improvement is measured."

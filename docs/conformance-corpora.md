@@ -152,8 +152,8 @@ original setup/model evidence; raw outputs remain external.
 
 The historical native comparison at `92bc7589` agrees on the captured hold/fail
 pair and empty selection in both profiles. The failing word passes fresh independent validation.
-The three evaluation-error controls remain `DIVE-L0033` refusals (issue #451),
-and string concatenation retains `DIVE-L0020`: this is three agreements and four
+The three evaluation-error controls remained `DIVE-L0033` refusals (issue #451),
+and string concatenation retained `DIVE-L0020`: that was three agreements and four
 refusals in each profile. A separate TLC-profile run of EWD998ChanID still refuses
 VIEW graph capture (issue #428). These results add no agreement to the established
 small or full populations. See the [compact qualification](survey/data/selectseq-concat-qualification-2026-10-24.json).
