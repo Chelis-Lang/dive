@@ -1,0 +1,345 @@
+{
+  "schema_version": 1,
+  "experiment": "resolved-recursive-call-demand-ownership",
+  "date": "2026-10-25",
+  "status": "SCREEN_REJECTED",
+  "change": "Shared original recursive interpreter with a scoped callee-access protocol: borrow only the final lazy actual suffix, promote automatically into original owned frames/thunks before captures, and share immutable zero-slot top-level frames. Existing resolved IR and typed slots remain. Private runtime prototype unmerged.",
+  "source": {
+    "base": "de8a97617556ab235209908e9c9dc486198b6c0f",
+    "candidate": "813525e8ad060c78f78cd200201e23d41472235f",
+    "trees": {
+      "base": "65da9acfe5442f9c50043aac4af0a159203b02b9",
+      "candidate": "26a7e3e5940d1e89259bddd4271855b4b0e2b76f"
+    },
+    "source_capsule_sha256": "6fffb776894e296e8b341bdad4b81bf2e5b2f5eea5b41e86becf31cc7712ab03",
+    "capsule_bytes": 23436522,
+    "commit_depth": 8,
+    "source_maps": {
+      "base": "fa34afcc1640a9eb89834fca7f6449fc9c39283a4364e06f3f815ff2abd307d6",
+      "candidate": "fa244eab7d7834276e89a82285a94a694ac6e85226ac5afcb0bd8d9e91b2eee3"
+    }
+  },
+  "method": {
+    "metric": "Whole-CLI Cachegrind Ir including startup; baseline is dive, not Java TLC. tlc denotes the dive compatibility profile.",
+    "builds": 2,
+    "normal_native_stages": 18,
+    "arms": 16,
+    "pairs": 8,
+    "profiles": [
+      "dive",
+      "tlc"
+    ],
+    "workers": 1,
+    "seed": 0,
+    "fingerprint": 0,
+    "native_seconds": 900,
+    "outer_seconds": 930,
+    "native_max_memory_bytes": 8589934592,
+    "whole_seconds": 25200,
+    "productive_seconds": 23400,
+    "collection_seconds": 1800,
+    "compile_jobs": 4,
+    "allocator": "Shipping mimalloc in both profiling binaries",
+    "cache_simulation": false,
+    "order": "Base then candidate for four dive cells; candidate then base for four tlc cells.",
+    "acceptance": {
+      "minimum_geometric_instruction_reduction": 0.05,
+      "maximum_cell_ratio": 1.01,
+      "all_pairs_required": true
+    }
+  },
+  "inputs": {
+    "pins_sha256": "1ffefd4365650ae6321d1f59adbd023df19f1a427daafabc43d25661aaaba790",
+    "source_identity_sha256": "ee348f27d85022fcdd963a5ba63690f0f765c3c72034b7ae3bb53f6fdf97841a",
+    "workload_archive_sha256": "f1d3eb00d9f43c11e03a50be64a3115f8e2bb838299bb8d7033106a8ce0c53ef",
+    "workload_files": 47,
+    "workload_files_canonical_sha256": "939db2523b05308b532a8df390d8c8d1e7f8f75eaf8f91967f45a556a7d5f463",
+    "module_archive_sha256": "90a8757da7c179dcf04ec8f7530f99881e013eb76b92bfeb59808d9a0fe782ab",
+    "module_files": 68,
+    "module_files_canonical_sha256": "2a81bdbb4993853b74d828a45ac4f4a88015153f181e9289209e1d515a1d628f",
+    "reductions": "ADR0104 fixed reduced inputs: SimpleRegular N6; MCbtree MaxKey3; GameOfLife N3; EWD998PCal StateConstraint counter[i]<2. Original archives use last-member extraction semantics."
+  },
+  "machine": {
+    "instance_type": "c7i.8xlarge",
+    "ami": "ami-02a9cdd4e98bc3c78",
+    "architecture": "x86_64",
+    "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+    "logical_cpus": 32,
+    "cores_per_socket": 16,
+    "sockets": 1,
+    "threads_per_core": 2,
+    "kernel": {
+      "system": "Linux",
+      "release": "7.0.0-1014-aws",
+      "version": "#14~24.04.1-Ubuntu SMP PREEMPT Fri Sep 18 21:24:59 UTC 2026",
+      "architecture": "x86_64"
+    },
+    "kernel_boot_id_sha256": "cfb12b742e67b8ae0e608606e7571d6522d10ea4ee04bcc3382a73521e1ab1fe",
+    "original_identity_sha256": "b0af741de7961ad0ee223705d5f5718d5651c34b833cc44a8bd1121fe4b681d0",
+    "environment": "Shared virtualized host, SMT2; no quiet-window or exclusive-host certificate."
+  },
+  "tools": {
+    "versions": {
+      "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+      "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+      "valgrind": "valgrind-3.22.0",
+      "cachegrind_backend": "valgrind-3.22.0 cachegrind backend"
+    },
+    "sha256": {
+      "rustc": "f3834d26669b03f6855fa54bd2381443123e860167bc0c7a8dd137e5cf6e5e4f",
+      "cargo": "e951141cc55a6cd7b9876d187bd30a3720e6086b99413af95e3b8de1cdd72f14",
+      "valgrind": "4652774bd116cb49951ef74115ad4237cad5021b2bd4d80002f09d986ec438b9",
+      "cachegrind_backend": "38093b3bf8e9ffecb559a333c896a2fd2a2343bb79c3295f31c36475914deebf",
+      "callgrind_backend": "825eb197d519240c112e03ed00f40a8bbe1a0a0614f79ea95e28c67e8695cb03",
+      "valgrind_binary": "def5fdcf6ae64a4d3e6af3786b622978d8313e0734ecf3f6cbe71d8be9e274c8",
+      "valgrind_preload": "87edd6ad90b12bb5fe58f2ea2235db5b6a3d637657488f3e06d07e482354a8c5",
+      "system_shell": "86d31f6fb799e91fa21bad341484564510ca287703a16e9e46c53338776f4f42",
+      "rustup": "5be191e8c70a5007074254cb74d78dbfdd25cd5a61c27de7b8e5410122ec24f4"
+    }
+  },
+  "binaries": {
+    "base": "0b57c2970d02d541b7c2f25f3e9c65b91e4dc9f406cb6644cd2898138473fb9b",
+    "candidate": "09ae6d80cf14413d6f29192af531b8f0d651a0bc448897c0ffbe5bf3c8d0339a"
+  },
+  "pair_columns": [
+    "model",
+    "profile",
+    "base_Ir",
+    "candidate_Ir",
+    "delta_pct",
+    "equal_counters",
+    "base_CG_sha256",
+    "candidate_CG_sha256",
+    "base_observation_sha256",
+    "candidate_observation_sha256"
+  ],
+  "counter_columns": [
+    "distinct",
+    "generated",
+    "initial_generated",
+    "depth",
+    "left_on_queue"
+  ],
+  "pairs": [
+    [
+      "SimpleRegular",
+      "dive",
+      2532152088,
+      2544722319,
+      0.496424802,
+      [
+        12097,
+        47584,
+        1,
+        19,
+        0
+      ],
+      "f25af46240b451d4524a2cb14d5022bcc75e9f989f7d2cf54052fc5e447f2604",
+      "6e08afc964b18a60bd8759fe9c575f78595fc7f5c6efb0feacd982f21e661c02",
+      "13becc11691f242b89d6732d8dd221812cc6cbf097f268d2795595e8caf74b7e",
+      "b3e6e106d51a29cf621ad2a0476c618fd9ab8693675a2bf054e6ccdee2c097a6"
+    ],
+    [
+      "MCbtree",
+      "dive",
+      14498723416,
+      14799372299,
+      2.073623135,
+      [
+        21364,
+        127825,
+        1,
+        24,
+        0
+      ],
+      "e9c501fd8f8ecac9d6902e1a55c3929eecbf29ba27cbae9e29671cfde4fd5ba6",
+      "02f905ba28d791b914b23461fba686855f807e5e3048364849f01543542238a5",
+      "aedef4c3fb7a6d51acc961f33db2a911af9df61ec4d41fcee123e1e7645c337c",
+      "e1a2e280fe945961308033ca4bdbf5cfd8aab620fe23058772c7bcfc7ec40719"
+    ],
+    [
+      "GameOfLife",
+      "dive",
+      1147525746,
+      1189110973,
+      3.623903616,
+      [
+        512,
+        1024,
+        512,
+        1,
+        0
+      ],
+      "b52c2703c9f8dd1cf597ffbbfe6bdccc5780b3c47e617f78bea514a3027e36be",
+      "780a58a63a49cb70229039ca271e063902a526cdec47ef58afc0a5bba7df5a0a",
+      "62584806cc8c6e65702eed07e011e1a5d28adb948107ab9ed88ede32a3ddb2e7",
+      "45cfe4eb043b7e2eaf92cdde4100c05027f092b174ae38054a37959d566ce970"
+    ],
+    [
+      "EWD998PCal",
+      "dive",
+      46734665186,
+      47473895738,
+      1.581760668,
+      [
+        20870,
+        168292,
+        8,
+        28,
+        0
+      ],
+      "b59711f05764061bb71308d5193c6e4c5437490e219fca1fcdebc87bc226a6b7",
+      "da9757f9651466803379c13c1bd11628dd0a6198abfd08d2828e1567715d81e5",
+      "d2218008164fb94000a9a0210e81001159105d93e8d9222a2ddde043aa9bbe18",
+      "0b5961d650c3f0195fe1fa4d8292e85e316c1f8f3474f78e9202c33ad76437b6"
+    ],
+    [
+      "SimpleRegular",
+      "tlc",
+      2596503316,
+      2608944561,
+      0.479153827,
+      [
+        12097,
+        47584,
+        1,
+        19,
+        0
+      ],
+      "96508d17b82ec6d2a01b92b583b9d86698b5758952b487673350ce34f0d73e9a",
+      "4823a89b4b960c444cafc4ff5d45b2d880759d39a8ddd4df201e77926424e00d",
+      "04dcd555e1f56d4a1b2f6598b8a2fdc6f74e03d290cbdf95d26e667a78253238",
+      "271e64abbc1bc4a29fa4e57eea8bf2dfdd6e39cea1dd9c2408f1837be454ab83"
+    ],
+    [
+      "MCbtree",
+      "tlc",
+      18288367682,
+      18778866502,
+      2.682026239,
+      [
+        21364,
+        127825,
+        1,
+        24,
+        0
+      ],
+      "8b85dfcdfdebd72b882eaf802f286ec54f742e31e78b0aa2010c6112a0f85bcf",
+      "4d24db71f7f314fcb031b380e85d3ae14257a58ba780c34036f95f5e17d61a5b",
+      "827bb5a2cff4308478803eca49a7fa8d990f63bd3dc747f2e2bfe4e18624c21d",
+      "17c0ebbb6ca755d1119da76b24005d2ec89ec71a0dbf7a9aa6f42f9603944e79"
+    ],
+    [
+      "GameOfLife",
+      "tlc",
+      1139692335,
+      1181265881,
+      3.647786751,
+      [
+        512,
+        1024,
+        512,
+        1,
+        0
+      ],
+      "23512668aaea311686402c5984b51caa0aceff001607ac6e1893b851afdc1f4d",
+      "b81f62acf2f19699625604c21e42fbe2fbba808b1f403e9f268f0dd843c12585",
+      "2d0b7186b84958a204399919ad9ca7b544ceb00083852a2e4d1747a728862631",
+      "278d618958ebc543b295ba5cc39c183570ac1c8d8c028e996c0ab61766f418b5"
+    ],
+    [
+      "EWD998PCal",
+      "tlc",
+      47641116013,
+      48420856557,
+      1.636696638,
+      [
+        20870,
+        168292,
+        8,
+        28,
+        0
+      ],
+      "a9f1590acf5f67762cfc3796b0ac3f4a22d09db044f1a8078002f72835f5b988",
+      "2c723b4efe8aeb9ff38f488652764548388636782f6fef0ab7b407f2519a68a0",
+      "ee12e068ce9d2135734b10ee69f8cc77497983ef22e751017c90cf40b201d840",
+      "e1950c959e59b16b6a09d99b468b107c641f8e735dd752f18165b1807907a336"
+    ]
+  ],
+  "result": {
+    "gm_instruction_delta_pct": 2.021123066217688,
+    "gm_instruction_delta_pct_decimal": "2.021123066217687826635531871664998440103804453867323679114860447407300",
+    "all8_cells_increase": true,
+    "cells_above_one_percent_regression": 6,
+    "cell_delta_range_pct": [
+      0.479153827,
+      3.647786751
+    ],
+    "fixed_five_percent_reduction_passed": false,
+    "all_cells_at_most_one_percent_regression": false,
+    "same5counters_every_pair": true,
+    "screen": "REJECTED",
+    "disposition": "No conditional runtime full gate, runtime PR, repeat, retuning or threshold waiver."
+  },
+  "correctness_before_screen": {
+    "fmt": 0,
+    "all_target_eval_clippy": 0,
+    "unfiltered_library_tests": 62,
+    "unfiltered_evaluator_regression_tests_including_library": 190,
+    "test_targets": 25,
+    "all_failed_ignored_filtered": 0,
+    "runtime_full_gate": false,
+    "scope": "Focused/library and evaluator integrations only, not full checker/corpus qualification."
+  },
+  "evidence": {
+    "bucket": "dive-selectseq-perf-20261025055036-65e37f43-010928226848",
+    "original_raw_prefix": "results/raw/",
+    "manifest_sha256": "2400aa72433c2cee1a7ba1a5f9aed73cbc63d5a0d1c023f5f240a3b9072f4f33",
+    "plan_sha256": "c258e2f96d479f9cba32f7af0b30ffafc43984bc6938278ef87d6c47444429d6",
+    "producer_summary_sha256": "8ea4bfee44521a0d604fc199551ebe67fa70f8f4d988e07c884721ae3dc06022",
+    "producer_completion_sha256": "0c51e09c868ca94adaca083b2280ffdf04448e113bc47e3f81903c7e11f347ed",
+    "producer_status": "HOLD, phase=instruction threshold; all18native stages completed normally.",
+    "original_archive": {
+      "key": "results/final.tgz",
+      "sha256": "98e65e2a10a8b7193e492400aa15f9c2d02905d5b8fe1e14c7f1b211e7e42b88",
+      "bytes": 4498370,
+      "verification_scope": "Producer-reported SHA only; independent audit read selected original objects, not the archive body. Later postrun preservation receipt is separate."
+    },
+    "independent_raw_memory_replay": {
+      "record": "ROOT-INDEPENDENT-ACTUAL-MATRIX.json",
+      "sha256": "3c721bc76642ed1fe215021b4af3a66c95066b5f63d5719f730605bcfb784b96",
+      "transport_record_sha256": "66179e0cd0c168792939e29bb7e6bcddeb11def37abdf48fce37974d0e4b1586",
+      "original_objects": 110,
+      "scope": "Bounded whole-body S3-to-RAM replay of original Cargo/CLI/CG/observations/identities and all8pairs; no local raw or ELF/archive retrieval."
+    },
+    "independent_compact_review": {
+      "record": "resolved-call-demand-independent-actual-review-813525e8-v1/REVIEW.json",
+      "sha256": "efb29ac15dd2831f817d2ab3a0504f1bdad38ac3ae4c0ccc718231e1c70295d1",
+      "scope": "Retained compact arithmetic, counters and provenance crossbindings; no second SDK or raw CG-body replay."
+    },
+    "separate_input_preservation": {
+      "receipt_sha256": "bd13f9e4cd74bc298568a647d8a075942d7088811ebd10fc1ece0c7e9405c7db",
+      "quiescence_sha256": "d324b013d7cd976c02cc1b433f727fddebbe46ddaea6cc108b716552659bf498",
+      "completion_sha256": "0c51e09c868ca94adaca083b2280ffdf04448e113bc47e3f81903c7e11f347ed",
+      "scope": "Both existing original observed-input receipts uploaded under results/raw only after complete18normal/16arms and whole-node quiescence, plus a separate receipt. Original producer completion/archive/native facts unchanged."
+    },
+    "cleanup": {
+      "verified_at": "2026-10-25T06:37:44.980454+00:00",
+      "compute": "terminated",
+      "campaign_volumes_remaining": 0,
+      "security_group": "independent missing-group lookup confirmed",
+      "bucket": "retained"
+    },
+    "durable_followup_locator": {
+      "status": "WHOLE_S3_BODIES_VERIFIED",
+      "s3_uri": "s3://dive-selectseq-perf-20261025055036-65e37f43-010928226848/root-followups/completed-813525e8-audit-v1/RECEIPT.json",
+      "sha256": "6a82b78deb96ad3b2616deb5fe57362e4c14617308472ffbd1c73e8daf7e6a10",
+      "objects": 13,
+      "scope": "Selected completed compact audit, input/quiescence, peer review, machine and cleanup receipts; every uploaded S3 object and the final receipt read back and verified byte-for-byte. Original raw results remain separately in results/raw/."
+    }
+  },
+  "limits": [
+    "No Java TLC throughput, wall-clock speedup, worker scaling, new parity or release-capacity credit.",
+    "Instruction deltas do not establish a removable-cost fraction or isolate one ownership operation."
+  ]
+}

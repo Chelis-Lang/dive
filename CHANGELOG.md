@@ -1,5 +1,9 @@
 # Changelog
 
+- Record the rejected resolved-call ownership screen: instructions increased
+  by 2.021% geometrically across all eight pairs, with six cells exceeding
+  the 1% regression ceiling. The private runtime prototype remains unmerged.
+
 - Add certified current-state temporal row errors for eligible single-worker
   source-bound requests, preserving actual error order, prefix statistics and
   fresh finite-path and independent ordered error-endpoint validation. Trace1
