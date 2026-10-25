@@ -188,6 +188,13 @@ pub enum ValidationRunError {
         /// Work completed before the failure.
         progress: ValidationProgress,
     },
+    /// The fresh source binder reported an intrinsic internal binding failure.
+    BindingFailure {
+        /// Original typed binding error; never parsed from its display text.
+        error: dive_model::BindError,
+        /// Progress before a private runtime could be constructed.
+        progress: ValidationProgress,
+    },
     /// The isolated validation thread could not run or did not return.
     ThreadFailure(String),
     /// Another thread owns the evaluator's control registration.
@@ -200,6 +207,7 @@ impl std::fmt::Display for ValidationRunError {
             Self::Interrupted { error, .. }
             | Self::ResourceLimit { error, .. }
             | Self::EvaluationFailure { error, .. } => error.fmt(f),
+            Self::BindingFailure { error, .. } => error.fmt(f),
             Self::ThreadFailure(message) => f.write_str(message),
             Self::ControlConflict(error) => error.fmt(f),
         }

@@ -53,7 +53,11 @@ their contracts.
 
 `Session::try_read` and `SpecModel::try_read`/`try_validate` carry resource and
 execution exceptions outside `ValidationReport`. The controlled fresh-session
-path retains original typed interruption and validation progress. Infallible
+path retains original typed interruption and validation progress. Its fallible
+Recipe binding retains intrinsic evaluator resource/internal errors and startup
+output before legacy binding conversion; existing binding entrypoints keep their
+mapping. The row API does not first pass through borrowed Behavior validation
+or legacy binding that could erase those exceptions. Infallible
 legacy entrypoints refuse endpoint requests before binding or replay and direct
 callers to the fallible path. They do not convert endpoint exhaustion into an
 unsupported result. Ordinary CLI validation and the harness use the fallible

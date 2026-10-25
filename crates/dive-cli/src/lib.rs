@@ -959,7 +959,8 @@ fn validation_exception(
             ("resource-limit", Some(progress), EXIT_UNSUPPORTED)
         }
         ValidationRunError::Interrupted { progress, .. } => ("interrupted", Some(progress), 5),
-        ValidationRunError::EvaluationFailure { progress, .. } => {
+        ValidationRunError::EvaluationFailure { progress, .. }
+        | ValidationRunError::BindingFailure { progress, .. } => {
             ("execution-error", Some(progress), 4)
         }
         ValidationRunError::ThreadFailure(_) | ValidationRunError::ControlConflict(_) => {

@@ -218,3 +218,45 @@ fn fresh_recipe_binding_keeps_typed_startup_and_predicate_only_scope() {
             .expect_err("fresh recipe stop"),
     );
 }
+
+#[test]
+fn fallible_recipe_retains_real_startup_depth_exhaustion_and_legacy_stays_unchanged() {
+    let nested = format!("{}1{}", "<< ".repeat(32), " >>".repeat(32));
+    let source = format!(
+        "---- MODULE ResourceBinding ----\nVARIABLE x\nD == {nested}\nInit == x=0\nNext == x'=x\n====\n"
+    );
+    let analysis = dive_sema::analyze_source(
+        "ResourceBinding.tla",
+        &source,
+        &dive_sema::Options::default(),
+    );
+    assert!(analysis.accepted(), "{analysis:?}");
+    let ir = Arc::new(dive_ir::lower(&analysis).expect("source IR"));
+    let config = dive_config::parse("INIT Init\nNEXT Next\n")
+        .into_config()
+        .expect("config");
+    let mut options = dive_eval::Options::tlc();
+    options.max_depth = 4;
+    let direct = dive_eval::Evaluator::new(dive_eval::Model::new(ir.clone()), options)
+        .expect("actual evaluator");
+    let error = direct
+        .precompute(ir.root_def("D").expect("source D"))
+        .expect_err("actual intrinsic depth exhaustion");
+    assert_eq!(error.class(), dive_eval::ErrorClass::ResourceLimit);
+    let recipe = dive_model::Recipe::new(ir, config, options, false);
+    let host = Arc::new(Control::default());
+    assert!(
+        recipe.bind(host.clone()).is_ok(),
+        "legacy unused startup failure remains swallowed"
+    );
+    assert!(
+        recipe.bind_controlled(host.clone(), host.clone()).is_ok(),
+        "existing controlled legacy mapping unchanged"
+    );
+    let failure = recipe
+        .bind_fallible(host, None)
+        .expect_err("new fallible startup exception");
+    assert!(
+        matches!(failure,ControlledBindError::EvaluationFailure{error:actual,..} if actual.class()==error.class()&&actual.origin()==error.origin())
+    );
+}

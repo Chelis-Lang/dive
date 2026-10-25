@@ -600,6 +600,10 @@ fn controlled_binding_failure(
                 ),
             })
         }
+        dive_model::ControlledBindError::EvaluationFailure { error, .. } => match error.class() {
+            dive_eval::ErrorClass::ResourceLimit => Error::ValidationResource(error),
+            _ => Error::Thread(format!("intrinsic binding evaluator failure: {error}")),
+        },
         dive_model::ControlledBindError::ControlConflict { .. } => Error::Analysis(
             AnalysisError::Inconsistent("binding control ownership conflict"),
         ),
@@ -803,6 +807,12 @@ fn validation_run_error(
                 Some(progress),
             );
         }
+        ValidationRunError::BindingFailure { error, progress } => {
+            return (
+                Error::Thread(format!("independent validation binding failed: {error}")),
+                Some(progress),
+            );
+        }
         ValidationRunError::ThreadFailure(message) => return (Error::Thread(message), None),
         ValidationRunError::ControlConflict(_) => {
             return (
@@ -884,8 +894,27 @@ fn validate_row(
         )
     })?;
     let control = validation_control(options).map_err(|error| (error, None))?;
-    let model =
-        bind_controlled(ir, config, options, &control).map_err(|failure| (*failure.error, None))?;
+    let recipe = dive_model::Recipe::new(
+        ir.clone(),
+        config.clone(),
+        options.eval,
+        options.no_deadlock,
+    )
+    .with_symmetry_liveness(options.symmetry_liveness);
+    let mode = if options.profile == dive_eval::Profile::Tlc {
+        dive_stdlib::random::RandomMode::Tlc
+    } else {
+        dive_stdlib::random::RandomMode::Dive
+    };
+    let host = Arc::new(dive_stdlib::host::RunHost::new(
+        dive_stdlib::random::Streams::new(options.seed, mode),
+        None,
+    ));
+    // Encoding still uses a genuine fresh model, but no legacy binding or
+    // Behavior validation may erase an intrinsic error before the fallible path.
+    let model = recipe
+        .bind_fallible(host, Some(control.clone()))
+        .map_err(|failure| (*controlled_binding_failure(failure, &control).error, None))?;
     let mut states = Vec::new();
     for state in &path.states {
         if state.text.is_some() {
@@ -905,11 +934,6 @@ fn validate_row(
         ending: Ending::Behavior,
         properties: Vec::new(),
     };
-    let report = dive_trace::validate_controlled(&model, &trace, control.clone())
-        .map_err(|error| validation_run_error(&control, error))?;
-    if report.validation != Validation::Valid {
-        return Err((Error::EndpointValidation { report }, None));
-    }
     let cause = state.core_cause().ok_or_else(|| {
         (
             Error::Document("row endpoint lost its original core cause".into()),
@@ -930,13 +954,6 @@ fn validate_row(
             ec: cause.ec().name().into(),
             endpoint,
         });
-    let recipe = dive_model::Recipe::new(
-        ir.clone(),
-        config.clone(),
-        options.eval,
-        options.no_deadlock,
-    )
-    .with_symmetry_liveness(options.symmetry_liveness);
     let session = dive_trace::Session::new(recipe, None);
     let (report, _) = session
         .read_controlled(&document, control.clone())

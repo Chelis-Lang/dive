@@ -212,13 +212,7 @@ impl Session {
         }
         let host = TraceHost::startup();
         host.startup.store(true, Ordering::Relaxed);
-        let binding = if let Some(control) = &control {
-            self.recipe.bind_controlled(host.clone(), control.clone())
-        } else {
-            self.recipe
-                .bind(host.clone())
-                .map_err(dive_model::ControlledBindError::Binding)
-        };
+        let binding = self.recipe.bind_fallible(host.clone(), control.clone());
         let model = match binding {
             Ok(model) => model,
             Err(dive_model::ControlledBindError::Interrupted { error, .. }) => {
@@ -230,7 +224,26 @@ impl Session {
             Err(dive_model::ControlledBindError::ControlConflict { error, .. }) => {
                 return Err(ValidationRunError::ControlConflict(error));
             }
+            Err(dive_model::ControlledBindError::EvaluationFailure { error, .. }) => {
+                return Err(if error.class() == dive_eval::ErrorClass::ResourceLimit {
+                    ValidationRunError::ResourceLimit {
+                        error,
+                        progress: progress(),
+                    }
+                } else {
+                    ValidationRunError::EvaluationFailure {
+                        error,
+                        progress: progress(),
+                    }
+                });
+            }
             Err(dive_model::ControlledBindError::Binding(failure)) => {
+                if failure.error.kind == dive_model::ErrorKind::Bug {
+                    return Err(ValidationRunError::BindingFailure {
+                        error: failure.error,
+                        progress: progress(),
+                    });
+                }
                 return finish(
                     refusal(
                         format!("fresh validation binding: {}", failure.error),
