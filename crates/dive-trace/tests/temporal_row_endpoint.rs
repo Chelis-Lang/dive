@@ -108,7 +108,7 @@ fn whole_ordered_program_reproduces_priority_and_refutes_mutated_claims() -> Tes
             Validation::Unsupported(_)
         ));
         let model = input.model(options)?;
-        let trace = Trace::decode(&model, &doc)?;
+        let trace = Trace::decode(&model, &doc).map_err(|error| format!("{error:?}"))?;
         assert!(matches!(
             dive_trace::validate(&model, &trace).validation,
             Validation::Unsupported(_)
@@ -194,7 +194,10 @@ fn descriptor_roundtrip_is_additive_and_unknown_fields_fail_closed() -> TestResu
     assert_eq!(decoded.ending, request.ending);
     let model = input.model(Options::tlc())?;
     assert_eq!(
-        Trace::decode(&model, &decoded)?.to_doc(&model)?.ending,
+        Trace::decode(&model, &decoded)
+            .map_err(|error| format!("{error:?}"))?
+            .to_doc(&model)?
+            .ending,
         request.ending
     );
     for key in ["stage", "unknown"] {
@@ -259,7 +262,7 @@ fn public_borrowed_provider_cannot_acquire_endpoint_authority() -> TestResult {
     let input = Input::new("Init == x=0\nNext == x'=x\nBad == 1 \\div (x-x)=0\nP == []<>Bad")?;
     let request = input.request(Options::tlc(), "Bad")?;
     let model = input.model(Options::tlc())?;
-    let mut trace = Trace::decode(&model, &request)?;
+    let mut trace = Trace::decode(&model, &request).map_err(|error| format!("{error:?}"))?;
     let calls = Arc::new(AtomicUsize::new(0));
     let value = Value::deferred(Arc::new(Provider(calls.clone())), Options::tlc().ctx);
     assert!(dive_value::tlc::member(
