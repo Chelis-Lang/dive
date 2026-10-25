@@ -1,5 +1,10 @@
 # Changelog
 
+- Classify two source-verified TLC Init exception/replay envelopes without
+  promoting nested causes or relaxing context-only failure checks. Preserve
+  GENERAL1000 and the actual exit75; malformed, unowned and unknown exceptions
+  still refuse golden generation.
+
 - Report TLC startup error 2253 before assumptions and exploration when the
   actual combined temporal-role formula normalizes to no solutions. Preserve
   prior binding output and null counts without evaluating discarded state atoms;

@@ -38,7 +38,7 @@ use super::codes::{
     CONTEXT_CODES, PARSE_FAILURE_CODES, ec_name, exit_status_name, exit_statuses_for,
     verdict_for_code,
 };
-use super::messages::{Message, Transcript, class};
+use super::messages::{Message, OwnedTranscript, Transcript, class};
 use crate::hash::sha256_bytes;
 use serde::{Deserialize, Serialize};
 
@@ -609,11 +609,183 @@ fn finite_temporal_prefix(t: &Transcript, errors: &[&Message]) -> bool {
     phase == 2 && states > 0
 }
 
+// Only the demonstrated Init catch/replay route can use NONE descendants.
+// Public Transcript values cannot construct or retain this ownership authority.
+fn init_replay_cause(parsed: &OwnedTranscript, facts: &RunFacts<'_>) -> Option<i32> {
+    let t = parsed.transcript();
+    if facts.exit_code != Some(75)
+        || facts.simulate
+        || facts.trace_json.is_some()
+        || t.messages().any(|m| {
+            m.class == class::STATE
+                || ec_name(m.code).is_none()
+                || !matches!(
+                    m.class,
+                    class::NONE | class::ERROR | class::WARNING | class::TLCBUG
+                )
+                || matches!(m.code, 2188 | 2190 | 2191 | 2193 | 2210)
+        })
+        || t.messages()
+            .filter(|m| matches!(m.class, class::ERROR | class::TLCBUG))
+            .map(|m| (m.code, m.class))
+            .collect::<Vec<_>>()
+            != [(1000, class::ERROR), (2103, class::ERROR)]
+    {
+        return None;
+    }
+    let phases = [2185, 2189, 1000, 2103, 2199, 2194, 2186]
+        .map(|code| parsed.unique(code))
+        .into_iter()
+        .collect::<Option<Vec<_>>>()?;
+    for (position, &index) in phases.iter().enumerate() {
+        let frame = parsed.frames().get(index)?;
+        let message = parsed.message(index)?;
+        let expected_class = if matches!(message.code, 1000 | 2103) {
+            class::ERROR
+        } else {
+            class::NONE
+        };
+        if frame.parent.is_some()
+            || !frame.line_start
+            || !frame.canonical
+            || frame.end.is_none()
+            || message.class != expected_class
+            || (position > 0 && parsed.frames()[phases[position - 1]].end? > frame.start)
+        {
+            return None;
+        }
+    }
+    if parsed.message(phases[1])?.body != "Computing initial states..."
+        || !parsed.message(phases[0])?.body.starts_with("Starting... (")
+        || !parsed.message(phases[0])?.body.ends_with(')')
+        || !parsed.message(phases[6])?.body.starts_with("Finished in ")
+        || !parsed.message(phases[6])?.body.ends_with(')')
+        || parsed.frames()[phases[2]].own_body_len != 0
+        || !parsed.message(phases[2])?.body.is_empty()
+        || !replay_stack(&parsed.message(phases[3])?.body)
+    {
+        return None;
+    }
+    let counts = extract_counts(t);
+    counts.distinct_states?;
+    counts.states_generated?;
+    counts.states_left_on_queue?;
+    counts.depth?;
+    owned_cause(parsed, phases[2])
+}
+
+fn owned_cause(parsed: &OwnedTranscript, general: usize) -> Option<i32> {
+    let nested: Vec<usize> = parsed
+        .frames()
+        .iter()
+        .enumerate()
+        .filter_map(|(index, frame)| frame.parent.map(|_| index))
+        .collect();
+    let &first = nested.first()?;
+    if parsed.frames()[first].parent != Some(general)
+        || parsed.frames()[first].parent_body_prefix_len != 0
+    {
+        return None;
+    }
+    for &index in &nested {
+        let frame = &parsed.frames()[index];
+        if !frame.line_start
+            || !frame.canonical
+            || frame.end.is_none()
+            || parsed.message(index)?.class != class::NONE
+        {
+            return None;
+        }
+    }
+    let cause = match (parsed.message(first)?.code, nested.as_slice()) {
+        (2215, [_]) => first,
+        (2154, [_, leaf])
+            if parsed.frames()[*leaf].parent == Some(first)
+                && parsed.message(*leaf)?.code == 2178
+                && parsed.frames()[*leaf].parent_body_prefix_len
+                    == parsed.frames()[first].own_body_len
+                && java_wrapper(&parsed.message(first)?.body) =>
+        {
+            *leaf
+        }
+        _ => return None,
+    };
+    if (0..parsed.frames().len()).any(|index| {
+        parsed
+            .message(index)
+            .is_some_and(|message| matches!(message.code, 2154 | 2178 | 2215))
+            && !nested.contains(&index)
+    }) {
+        return None;
+    }
+    let message = parsed.message(cause)?;
+    match message.code {
+        2178 if !message
+            .body
+            .strip_prefix("Overflow when computing ")?
+            .is_empty() =>
+        {
+            Some(2178)
+        }
+        2215 => {
+            let location = message
+                .body
+                .strip_prefix("TLC expected a boolean value, but did not find one. ")?;
+            (!location.is_empty() && !location.contains('\n')).then_some(2215)
+        }
+        _ => None,
+    }
+}
+
+fn java_wrapper(body: &str) -> bool {
+    let Some(descriptor) = body
+        .strip_prefix("Attempted to apply the operator overridden by the Java method\n")
+        .and_then(|body| body.strip_suffix(",\nbut it produced the following error:"))
+    else {
+        return false;
+    };
+    !descriptor.is_empty() && !descriptor.contains('\n')
+}
+
+fn replay_stack(body: &str) -> bool {
+    let Some(rows) = body.strip_prefix(
+        "The error occurred when TLC was evaluating the nested\nexpressions at the following positions:\n"
+    ) else {
+        return false;
+    };
+    let rows = rows.trim_end_matches('\n');
+    !rows.is_empty()
+        && rows.lines().enumerate().all(|(index, row)| {
+            let prefix = format!("{index}. Line ");
+            row.strip_prefix(prefix.as_str())
+                .is_some_and(stack_location)
+        })
+}
+
+fn stack_location(row: &str) -> bool {
+    let mut rest = row;
+    for separator in [", column ", " to line ", ", column ", " in "] {
+        let Some((number, tail)) = rest.split_once(separator) else {
+            return false;
+        };
+        if !number.parse::<u32>().is_ok_and(|value| value > 0) {
+            return false;
+        }
+        rest = tail;
+    }
+    !rest.is_empty()
+}
+
 #[allow(
     clippy::too_many_lines,
     reason = "the classification rules read best as one ordered sequence"
 )]
-fn decide(t: &Transcript, facts: &RunFacts<'_>, errors: &[&Message]) -> Decision {
+fn decide(
+    t: &Transcript,
+    facts: &RunFacts<'_>,
+    errors: &[&Message],
+    owned: Option<&OwnedTranscript>,
+) -> Decision {
     let codes: Vec<i32> = errors.iter().map(|m| m.code).collect();
     if facts.timed_out {
         return Decision::new(Verdict::Timeout, None, None);
@@ -678,6 +850,15 @@ fn decide(t: &Transcript, facts: &RunFacts<'_>, errors: &[&Message]) -> Decision
         .filter(|m| exit_statuses_for(m.code).contains(&exit))
         .collect();
     if !candidates.is_empty() && candidates.iter().all(|m| CONTEXT_CODES.contains(&m.code)) {
+        if let Some(cause) = owned.and_then(|parsed| init_replay_cause(parsed, facts)) {
+            return Decision::new(
+                Verdict::OtherError,
+                Some(1000),
+                Some(format!(
+                    "GENERAL owns NONE cause {cause}; Init diagnostic replay records 2103 (physical exit 75)"
+                )),
+            );
+        }
         // Only a context message (e.g. the nested-expression stack 2103 after
         // a GENERAL 1000) explains the exit code: the real error is not one
         // whose class we can name.
@@ -739,11 +920,24 @@ fn decide(t: &Transcript, facts: &RunFacts<'_>, errors: &[&Message]) -> Decision
 /// Classifies one TLC run from its parsed stdout and the run facts.
 #[must_use]
 pub fn classify(t: &Transcript, facts: &RunFacts<'_>) -> OracleResult {
+    classify_inner(t, facts, None)
+}
+
+/// Normalizes a parser-owned stream without exporting mutable framing evidence.
+pub(crate) fn classify_owned(parsed: &OwnedTranscript, facts: &RunFacts<'_>) -> OracleResult {
+    classify_inner(parsed.transcript(), facts, Some(parsed))
+}
+
+fn classify_inner(
+    t: &Transcript,
+    facts: &RunFacts<'_>,
+    owned: Option<&OwnedTranscript>,
+) -> OracleResult {
     let errors: Vec<&Message> = t
         .messages()
         .filter(|m| m.class == class::ERROR || m.class == class::TLCBUG)
         .collect();
-    let decision = decide(t, facts, &errors);
+    let decision = decide(t, facts, &errors, owned);
     let (trace, trace_problem) = extract_trace(t, facts.trace_json);
     let mut verdict = decision.verdict;
     let mut note = decision.note;
@@ -1055,3 +1249,7 @@ mod tests {
         ));
     }
 }
+
+#[cfg(test)]
+#[path = "init_replay_tests.rs"]
+mod init_replay_tests;
