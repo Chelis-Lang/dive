@@ -76,7 +76,7 @@
         "version_line": "openjdk version \"17.0.20.1\" 2026-08-18"
       }
     },
-    "corpus_commit": "sha256:0dd5ca3b492b3f0893d190309d6e6ad40a2092aff5da91b1e2b963663a679777",
+    "corpus_commit": "sha256:b0871bf6ea5554c7c048ba4545bdd300ab48a00ec830ff8002ecccd75af3662b",
     "command": [
       "$DIVE_CACHE_DIR/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
       "-XX:+UseParallelGC",
@@ -107,9 +107,9 @@
       "$TMP/states"
     ],
     "timeout_seconds": 30,
-    "reason": "#464: pin combined simplified-DNF startup error and output priority before implementation",
+    "reason": "#464: refresh the complete16-member microcorpus provenance after fixed primary additions; preserve all pinned result payloads",
     "generator": "dive-conformance 0.0.0",
-    "generated_at": "2026-10-25T12:35:09Z",
-    "elapsed_ms": 244
+    "generated_at": "2026-10-25T13:19:59Z",
+    "elapsed_ms": 252
   }
 }

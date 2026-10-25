@@ -22,12 +22,12 @@
     "jobs": 1,
     "outer_seconds": 600,
     "raw_setup_and_model_streams": "retained externally",
-    "original_goldens_unchanged": true
+    "original_goldens_unchanged_during_initial_generation": true
   },
   "new_reference_cases": [
     {
       "name": "TautologyBeforeFalseAssume",
-      "golden_sha256": "803934dc7db1bc1399cbe2183a0da244fe8485ad85204b07a62f49c774aa8c27",
+      "golden_sha256": "51f930fb8c7a13ffb86f0a01a2ddb104bd69b6d20b8fe3877ed90fea61f27693",
       "result": {
         "verdict": "evaluation-error",
         "verdict_code": 2253,
@@ -53,11 +53,12 @@
       "input_sha256": {
         ".tla": "391c73bfc0cd2686f8b4c3bae6441487815dcad086328ebc92513be65490ae15",
         ".cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb"
-      }
+      },
+      "first_generation_golden_sha256": "803934dc7db1bc1399cbe2183a0da244fe8485ad85204b07a62f49c774aa8c27"
     },
     {
       "name": "TautologyBeforePrintAssume",
-      "golden_sha256": "fa3f1b57fbe52ac6866f4d1ce17f9107f546e66165f75ebf34ea97f9e936d9c5",
+      "golden_sha256": "619dfa32485526bc1958e0e6bf10abd06608750658c76e2ab41e967563cd5f05",
       "result": {
         "verdict": "evaluation-error",
         "verdict_code": 2253,
@@ -83,11 +84,12 @@
       "input_sha256": {
         ".tla": "45fa3a61b21ecb5ccdf560b7d04eeca29876786453d1d8e37c203bd1155cb5d7",
         ".cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb"
-      }
+      },
+      "first_generation_golden_sha256": "fa3f1b57fbe52ac6866f4d1ce17f9107f546e66165f75ebf34ea97f9e936d9c5"
     },
     {
       "name": "TautologyBeforeInitError",
-      "golden_sha256": "8cc53277e6eb7405e1601bdd982efabc4200b07296bc340dc654cdfa64437f0b",
+      "golden_sha256": "922f38608fbc5c3930026eda1a3e24864afcf80daf4a51c3d36f9f8931947fba",
       "result": {
         "verdict": "evaluation-error",
         "verdict_code": 2253,
@@ -113,11 +115,12 @@
       "input_sha256": {
         ".tla": "3461972e404d5fbe96279a0711def4f76ede0d2e364abe83628b483d45481454",
         ".cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb"
-      }
+      },
+      "first_generation_golden_sha256": "8cc53277e6eb7405e1601bdd982efabc4200b07296bc340dc654cdfa64437f0b"
     },
     {
       "name": "TautologyBeforeInvariant",
-      "golden_sha256": "528fccbebd85688e34302fb9f7ee33eedb45629f0faeb36903a705a62796f749",
+      "golden_sha256": "226108e27c4cdc49386a74203d4996f4d06fe57dbaf34df56e4b7e5e432e482a",
       "result": {
         "verdict": "evaluation-error",
         "verdict_code": 2253,
@@ -143,11 +146,12 @@
       "input_sha256": {
         ".tla": "81d09d0e1e68cee15cf0aa2124636edf73973c88515421685403971c64a71bb8",
         ".cfg": "dde26aa06b98dbfeb4dc161bdd66fefcb45d9a2b317a3da833b7a4f53bbfc3f7"
-      }
+      },
+      "first_generation_golden_sha256": "528fccbebd85688e34302fb9f7ee33eedb45629f0faeb36903a705a62796f749"
     },
     {
       "name": "BindingBeforeTautology",
-      "golden_sha256": "120a649b229fcf2a475211711d71b47e6ee247b9b69d6404882eb12e52ac0df5",
+      "golden_sha256": "fcc03cd234736d9eee3f0416dc7766f75af1ecd0f24bf733f707fd4e4d687d08",
       "result": {
         "verdict": "config-error",
         "verdict_code": 2229,
@@ -173,11 +177,12 @@
       "input_sha256": {
         ".tla": "10e36359cb03df06eea4639e982d1974be6139cb497a6b61834e03681d46d28e",
         ".cfg": "2948988c2534dcf4418a88a5b786fd8e84e6c18aaeed8c5fa592c4157dc03a9c"
-      }
+      },
+      "first_generation_golden_sha256": "120a649b229fcf2a475211711d71b47e6ee247b9b69d6404882eb12e52ac0df5"
     },
     {
       "name": "ConversionErrorBeforeTautology",
-      "golden_sha256": "9d726d133a63ed0b6959672f22decb960f513e4e2f0218730300170439fb91d7",
+      "golden_sha256": "e1e79c8990ecd91bc7d7578c1327fc6683c7063ada07a9d404e0ae5f517049a7",
       "result": {
         "verdict": "other-error",
         "verdict_code": 1000,
@@ -203,11 +208,12 @@
       "input_sha256": {
         ".tla": "9a26d6d31d14b4d68d06ed6f8adb135699aed691b9243dddb555d0d2963408c6",
         ".cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb"
-      }
+      },
+      "first_generation_golden_sha256": "9d726d133a63ed0b6959672f22decb960f513e4e2f0218730300170439fb91d7"
     },
     {
       "name": "ConversionPrintBeforeTautology",
-      "golden_sha256": "b43354fb64fd6cb63878efc98f25dfcfa80e4546064e285236034cbec50b4a2b",
+      "golden_sha256": "fbd03984311f8f689e9ede858e9f01c81f5cf0e7624600db565eaeafd7cc1b82",
       "result": {
         "verdict": "evaluation-error",
         "verdict_code": 2253,
@@ -233,11 +239,12 @@
       "input_sha256": {
         ".tla": "76625082d54146bece647cd89e6d8f0e85d9f5f2e8478d96e22003733b0c24d0",
         ".cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb"
-      }
+      },
+      "first_generation_golden_sha256": "b43354fb64fd6cb63878efc98f25dfcfa80e4546064e285236034cbec50b4a2b"
     },
     {
       "name": "TautologyThenNontrivialClaim",
-      "golden_sha256": "99499ec03e3b1872b8c844a183746547721f657793ea4770fa216fa151c71a7f",
+      "golden_sha256": "ed2b455a4259ef71a9c728a6e4f01df533800ee5a254bf3248cbb39e032bca75",
       "result": {
         "verdict": "success",
         "verdict_code": 2193,
@@ -264,11 +271,12 @@
       "input_sha256": {
         ".tla": "788e39ed0b4ed4b0e31a0dc3ee4e0bf3c70ff23dd6577748793495bb9c5646dd",
         ".cfg": "48874502217837a72ebe3a183953489d80877d174c2bd9cc4157bef75801c7f4"
-      }
+      },
+      "first_generation_golden_sha256": "99499ec03e3b1872b8c844a183746547721f657793ea4770fa216fa151c71a7f"
     },
     {
       "name": "NontrivialThenTautologyClaim",
-      "golden_sha256": "b9f1ad28516b788bde23bc3626d8be1d89386b83b88b652216e3cd7e483f0c09",
+      "golden_sha256": "f53bd2b50e9ba556c7922e77585625e4110803c13bf58726f139b025e92c6e92",
       "result": {
         "verdict": "success",
         "verdict_code": 2193,
@@ -295,11 +303,12 @@
       "input_sha256": {
         ".tla": "b856a005d82819fd8daa30c1a481e51756db76c362d67fe6f67fe707d2bdeec5",
         ".cfg": "4d7ff7048b4fa8d2faf43adef91547e298f4f5cecf3e42e972dce8b4d766993f"
-      }
+      },
+      "first_generation_golden_sha256": "b9f1ad28516b788bde23bc3626d8be1d89386b83b88b652216e3cd7e483f0c09"
     },
     {
       "name": "EventuallyTrueNotSyntacticZero",
-      "golden_sha256": "7f5fc06c191f6c3672e5546d2415b4941488ff2ab070a8d7b2270deeb891c7f5",
+      "golden_sha256": "021846b25136f69c36b7a4eb1a3579d4c22f241ec3617f48e096509c004baff6",
       "result": {
         "verdict": "success",
         "verdict_code": 2193,
@@ -326,11 +335,12 @@
       "input_sha256": {
         ".tla": "55cf47d6e277ae2d921a1b9721396a05d57819126e7600d3a9af8b6e0c63895d",
         ".cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb"
-      }
+      },
+      "first_generation_golden_sha256": "7f5fc06c191f6c3672e5546d2415b4941488ff2ab070a8d7b2270deeb891c7f5"
     },
     {
       "name": "EventuallyAlwaysTrueNotSyntacticZero",
-      "golden_sha256": "41372eb7376c9413ed4a35427e7b936d6d4a89d0e1d70b5e1e29d0a4e10177cd",
+      "golden_sha256": "41682a754abeb9a21efdaa4e65926b9af52dce3182e63e0e9e8751a6581f0b84",
       "result": {
         "verdict": "success",
         "verdict_code": 2193,
@@ -357,7 +367,8 @@
       "input_sha256": {
         ".tla": "e85ceee7a45a3d94b9a7266e22a8bc86b528ed8d97a9c3b84823ab97d7dc6060",
         ".cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb"
-      }
+      },
+      "first_generation_golden_sha256": "41372eb7376c9413ed4a35427e7b936d6d4a89d0e1d70b5e1e29d0a4e10177cd"
     }
   ],
   "observed_output_priority": {
@@ -407,7 +418,7 @@
     "cases": [
       {
         "name": "StartupRoleSplitInitial",
-        "golden_sha256": "b7170208d4b8dc02553121bf5cfb7fd4ea6679f727bb59e28f32d1ac15048017",
+        "golden_sha256": "ea946351d0853b5bf798691d52755030a867c0377bd890eb95fc41c7c5425d78",
         "input_sha256": {
           ".tla": "8a475733d0a7950090fb2c75a0c498662dd1d3eb16177a5e60ab14578a108840",
           ".cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb"
@@ -433,11 +444,12 @@
           "warning_codes": [],
           "unresolved_modules": [],
           "note": null
-        }
+        },
+        "first_generation_golden_sha256": "b7170208d4b8dc02553121bf5cfb7fd4ea6679f727bb59e28f32d1ac15048017"
       },
       {
         "name": "StartupRoleSplitBeforeFalseAssume",
-        "golden_sha256": "0035be9b351a89f9c43642b536e89c5d0aee8819cf049f5b0e8ee59cb4569b2c",
+        "golden_sha256": "e8ec89d171f37084f2798b556895145500560323dc6b252f82de06c424d5184b",
         "input_sha256": {
           ".tla": "54b2e4f145cf3000de91974759c2154cc87b6de1b0498e2c746f13a351f5c678",
           ".cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb"
@@ -463,11 +475,12 @@
           "warning_codes": [],
           "unresolved_modules": [],
           "note": null
-        }
+        },
+        "first_generation_golden_sha256": "0035be9b351a89f9c43642b536e89c5d0aee8819cf049f5b0e8ee59cb4569b2c"
       },
       {
         "name": "RowRoleSplitInitialOnly",
-        "golden_sha256": "538ac32d7a04c88c54b69c64c88142cd50b8d9e6cf3f10540b24711e3f9d2c08",
+        "golden_sha256": "e6befb4f30ce7cf4ab1a6781e26cdb8bf8bd5cf59e6fd5c2a9d4b44fa1e77afe",
         "input_sha256": {
           ".tla": "cb7ce088f4bc456050f039998c3a30e5a4a467dd4a845b8f826b3c83e6c22141",
           ".cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb"
@@ -572,7 +585,8 @@
           ],
           "unresolved_modules": [],
           "note": null
-        }
+        },
+        "first_generation_golden_sha256": "538ac32d7a04c88c54b69c64c88142cd50b8d9e6cf3f10540b24711e3f9d2c08"
       }
     ],
     "scope": "Same immutable64bd harness/oracle; concurrent uncompiled runtime WIP is excluded from the oracle artifact. New3 filters only; older goldens unchanged. Native model timeout30s,512MiB,W1,seed/fp0;180s outer.",
@@ -598,5 +612,95 @@
       "original_objects": 118,
       "original_bytes": 100186
     }
+  },
+  "golden_provenance_refresh": {
+    "source": "b5607e8d1d1e04317c1f604aa5cd2ae42784cb5c",
+    "reason": "Normal pinned harness refresh of complete16-member microcorpus after membership additions invalidated older corpus hashes. Every result payload is exactly unchanged; old originals remain in Git and retained primary streams.",
+    "status": "COMPLETE16_NORMAL_GENERATED_ALL_RESULT_PAYLOADS_IDENTICAL",
+    "result_sha256": "16d913d0c4fa2d58e777d9e59f13af3fa3e26605a2ba50ee6d12e120a04404f9",
+    "corpus_commit": "sha256:b0871bf6ea5554c7c048ba4545bdd300ab48a00ec830ff8002ecccd75af3662b",
+    "goldens": {
+      "specifications/TautologyBeforeInitError/TautologyBeforeInitError.cfg.json": {
+        "sha256": "922f38608fbc5c3930026eda1a3e24864afcf80daf4a51c3d36f9f8931947fba",
+        "corpus_commit": "sha256:b0871bf6ea5554c7c048ba4545bdd300ab48a00ec830ff8002ecccd75af3662b",
+        "result_canonical_sha256": "b8e422f52ffbd44674504f098b2880028db877d9c46bc03024699d0cc7788225"
+      },
+      "specifications/StartupRoleSplitBeforeFalseAssume/StartupRoleSplitBeforeFalseAssume.cfg.json": {
+        "sha256": "e8ec89d171f37084f2798b556895145500560323dc6b252f82de06c424d5184b",
+        "corpus_commit": "sha256:b0871bf6ea5554c7c048ba4545bdd300ab48a00ec830ff8002ecccd75af3662b",
+        "result_canonical_sha256": "b8e422f52ffbd44674504f098b2880028db877d9c46bc03024699d0cc7788225"
+      },
+      "specifications/TautologyBeforeFalseAssume/TautologyBeforeFalseAssume.cfg.json": {
+        "sha256": "51f930fb8c7a13ffb86f0a01a2ddb104bd69b6d20b8fe3877ed90fea61f27693",
+        "corpus_commit": "sha256:b0871bf6ea5554c7c048ba4545bdd300ab48a00ec830ff8002ecccd75af3662b",
+        "result_canonical_sha256": "b8e422f52ffbd44674504f098b2880028db877d9c46bc03024699d0cc7788225"
+      },
+      "specifications/EventuallyAlwaysTrueNotSyntacticZero/EventuallyAlwaysTrueNotSyntacticZero.cfg.json": {
+        "sha256": "41682a754abeb9a21efdaa4e65926b9af52dce3182e63e0e9e8751a6581f0b84",
+        "corpus_commit": "sha256:b0871bf6ea5554c7c048ba4545bdd300ab48a00ec830ff8002ecccd75af3662b",
+        "result_canonical_sha256": "873beddd91ef7ca8bd0e3b2f73c4dd859c069d5668b479c7188d9c3cf1b9e9c9"
+      },
+      "specifications/NontrivialThenTautologyClaim/NontrivialThenTautologyClaim.cfg.json": {
+        "sha256": "f53bd2b50e9ba556c7922e77585625e4110803c13bf58726f139b025e92c6e92",
+        "corpus_commit": "sha256:b0871bf6ea5554c7c048ba4545bdd300ab48a00ec830ff8002ecccd75af3662b",
+        "result_canonical_sha256": "873beddd91ef7ca8bd0e3b2f73c4dd859c069d5668b479c7188d9c3cf1b9e9c9"
+      },
+      "specifications/ConversionPrintBeforeTautology/ConversionPrintBeforeTautology.cfg.json": {
+        "sha256": "fbd03984311f8f689e9ede858e9f01c81f5cf0e7624600db565eaeafd7cc1b82",
+        "corpus_commit": "sha256:b0871bf6ea5554c7c048ba4545bdd300ab48a00ec830ff8002ecccd75af3662b",
+        "result_canonical_sha256": "b8e422f52ffbd44674504f098b2880028db877d9c46bc03024699d0cc7788225"
+      },
+      "specifications/EventuallyTrueNotSyntacticZero/EventuallyTrueNotSyntacticZero.cfg.json": {
+        "sha256": "021846b25136f69c36b7a4eb1a3579d4c22f241ec3617f48e096509c004baff6",
+        "corpus_commit": "sha256:b0871bf6ea5554c7c048ba4545bdd300ab48a00ec830ff8002ecccd75af3662b",
+        "result_canonical_sha256": "873beddd91ef7ca8bd0e3b2f73c4dd859c069d5668b479c7188d9c3cf1b9e9c9"
+      },
+      "specifications/StartupRoleSplitInitial/StartupRoleSplitInitial.cfg.json": {
+        "sha256": "ea946351d0853b5bf798691d52755030a867c0377bd890eb95fc41c7c5425d78",
+        "corpus_commit": "sha256:b0871bf6ea5554c7c048ba4545bdd300ab48a00ec830ff8002ecccd75af3662b",
+        "result_canonical_sha256": "b8e422f52ffbd44674504f098b2880028db877d9c46bc03024699d0cc7788225"
+      },
+      "specifications/TautologyBeforePrintAssume/TautologyBeforePrintAssume.cfg.json": {
+        "sha256": "619dfa32485526bc1958e0e6bf10abd06608750658c76e2ab41e967563cd5f05",
+        "corpus_commit": "sha256:b0871bf6ea5554c7c048ba4545bdd300ab48a00ec830ff8002ecccd75af3662b",
+        "result_canonical_sha256": "b8e422f52ffbd44674504f098b2880028db877d9c46bc03024699d0cc7788225"
+      },
+      "specifications/BindingBeforeTautology/BindingBeforeTautology.cfg.json": {
+        "sha256": "fcc03cd234736d9eee3f0416dc7766f75af1ecd0f24bf733f707fd4e4d687d08",
+        "corpus_commit": "sha256:b0871bf6ea5554c7c048ba4545bdd300ab48a00ec830ff8002ecccd75af3662b",
+        "result_canonical_sha256": "2d6a4de785a0b29f6fa44fd2a9411d1ebd8d6bf1b88900d0cc9920ca3f2fe781"
+      },
+      "specifications/TautologyThenNontrivialClaim/TautologyThenNontrivialClaim.cfg.json": {
+        "sha256": "ed2b455a4259ef71a9c728a6e4f01df533800ee5a254bf3248cbb39e032bca75",
+        "corpus_commit": "sha256:b0871bf6ea5554c7c048ba4545bdd300ab48a00ec830ff8002ecccd75af3662b",
+        "result_canonical_sha256": "873beddd91ef7ca8bd0e3b2f73c4dd859c069d5668b479c7188d9c3cf1b9e9c9"
+      },
+      "specifications/UnusedDemandTautology/UnusedDemandTautology.cfg.json": {
+        "sha256": "7940d526154951c6783a130be31445fa16079dbdf57fe5aafb3a58b5203ed8fe",
+        "corpus_commit": "sha256:b0871bf6ea5554c7c048ba4545bdd300ab48a00ec830ff8002ecccd75af3662b",
+        "result_canonical_sha256": "b8e422f52ffbd44674504f098b2880028db877d9c46bc03024699d0cc7788225"
+      },
+      "specifications/RowRoleSplitInitialOnly/RowRoleSplitInitialOnly.cfg.json": {
+        "sha256": "e6befb4f30ce7cf4ab1a6781e26cdb8bf8bd5cf59e6fd5c2a9d4b44fa1e77afe",
+        "corpus_commit": "sha256:b0871bf6ea5554c7c048ba4545bdd300ab48a00ec830ff8002ecccd75af3662b",
+        "result_canonical_sha256": "01f5815e82c3699f595ab4afb21c3214786f865aa626391d9141a8c69a57c196"
+      },
+      "specifications/TautologyBeforeInvariant/TautologyBeforeInvariant.cfg.json": {
+        "sha256": "226108e27c4cdc49386a74203d4996f4d06fe57dbaf34df56e4b7e5e432e482a",
+        "corpus_commit": "sha256:b0871bf6ea5554c7c048ba4545bdd300ab48a00ec830ff8002ecccd75af3662b",
+        "result_canonical_sha256": "b8e422f52ffbd44674504f098b2880028db877d9c46bc03024699d0cc7788225"
+      },
+      "specifications/ConversionErrorBeforeTautology/ConversionErrorBeforeTautology.cfg.json": {
+        "sha256": "e1e79c8990ecd91bc7d7578c1327fc6683c7063ada07a9d404e0ae5f517049a7",
+        "corpus_commit": "sha256:b0871bf6ea5554c7c048ba4545bdd300ab48a00ec830ff8002ecccd75af3662b",
+        "result_canonical_sha256": "b709c81a3b3c3e0d40a5f80beed9570a17340ddfeca4673a36a3b5b7f7ce6138"
+      },
+      "specifications/CurrentStateBinPriority/CurrentStateBinPriority.cfg.json": {
+        "sha256": "67c8c429d890f7bab271f0d094a1d77c9a9d3825fcaeb622bc1203bb06eb7bf5",
+        "corpus_commit": "sha256:b0871bf6ea5554c7c048ba4545bdd300ab48a00ec830ff8002ecccd75af3662b",
+        "result_canonical_sha256": "336d3a9c81aa596883b8d24f4c19e0c40b7a1b36130ec5e4f9f5a616877aa85f"
+      }
+    },
+    "initial_ordinary_finding": "Before this refresh, ordinary TLC-profile comparison had13 predispatch oracle-provenance errors,2 agreements and1 refusal. It is not a complete parity measurement or a checker disagreement."
   }
 }

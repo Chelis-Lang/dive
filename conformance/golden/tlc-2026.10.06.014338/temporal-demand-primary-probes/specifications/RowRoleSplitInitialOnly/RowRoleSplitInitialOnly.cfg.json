@@ -218,9 +218,9 @@
       "$TMP/trace.json"
     ],
     "timeout_seconds": 30,
-    "reason": "#464: pin actual bound temporal roles and initial-only predicate demand before implementation",
+    "reason": "#464: refresh the complete16-member microcorpus provenance after fixed primary additions; preserve all pinned result payloads",
     "generator": "dive-conformance 0.0.0",
-    "generated_at": "2026-10-25T12:55:55Z",
-    "elapsed_ms": 229
+    "generated_at": "2026-10-25T13:19:58Z",
+    "elapsed_ms": 318
   }
 }
