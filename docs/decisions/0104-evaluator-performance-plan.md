@@ -252,6 +252,17 @@ Measured and not pursued:
   [performance guide](../developer/performance.md#discarded-evaluator-prototypes)
   links the compact record and original source, binary and profile hashes.
 
+- Ready eager explicit-set payloads and checked same-order domain-key views
+  reduced whole-CLI instructions geometrically by 2.018% across all eight
+  reduced model/profile cells (0.251% to 5.071% fewer instructions per cell).
+  All sixteen arms completed normally with identical verdicts and all five
+  counters. The 1% per-cell regression ceiling passed, but the fixed 5%
+  geometric reduction bar failed. The complete screen was rejected; no
+  conditional runtime full gate, runtime PR, repeat screen, retuning or
+  threshold waiver follows. The
+  [performance guide](../developer/performance.md#discarded-evaluator-prototypes)
+  links the compact record and exact source, binary, input and profile hashes.
+
 - Pre-sizing the fingerprint traversal's work list: within ±0.3%, noise.
 - A lazy function hash: it would make hashing recursive and break the
   documented stack safety for deeply nested values (`tests/limits.rs`).
