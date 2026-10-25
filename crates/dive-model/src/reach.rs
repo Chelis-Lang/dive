@@ -340,17 +340,7 @@ pub(crate) fn sequential(b: &Binder<'_>, model: &Model) -> crate::bind::R<Sequen
             "side effects inside a lazily evaluated value bound with the model, which TLC caches (a LET or an operator argument)".to_owned(),
         );
     }
-    let concat = format!(
-        "{} (runtime names require TLC encounter order)",
-        StdOp::SequencesConcat.qualified_name()
-    );
-    if names.contains(&concat)
-        && tuple_calls::prove(b, model)?.is_some_and(|fact| fact.belongs_to(b.ev()))
-    {
-        // The proof accounts for every real root/call, not just native
-        // definition visibility. Other creators and sequential causes remain.
-        names.remove(&concat);
-    }
+    tuple_calls::remove_proved_concat(b, model, &mut names)?;
     Ok(classify_sequential(out, names, composition))
 }
 
