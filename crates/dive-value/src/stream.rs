@@ -322,9 +322,15 @@ pub(crate) fn concrete_raw(set: &Set, ctx: Ctx) -> Result<Option<Elems>> {
             let Value::Set(component_set) = base else {
                 return Ok(None);
             };
-            component_set.size(ctx)?;
+            let base = if component_set.size(ctx)? == 0 {
+                // TLC returns its empty enumeration before BASE.toSetEnum:
+                // even a dead mixed column must not be normalized here.
+                Arc::from([])
+            } else {
+                component(base, ctx, true)?
+            };
             Box::new(SubsetIter {
-                base: component(base, ctx, true)?,
+                base,
                 order: ctx.order,
                 k: 0,
                 idx: Vec::new(),

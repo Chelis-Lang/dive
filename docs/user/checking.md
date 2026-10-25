@@ -527,8 +527,10 @@ The invariant fails on `x = 0` (TLC class `TLC_INVARIANT_VIOLATED_INITIAL`, exit
 A private set filter over a concrete source can pull candidates in original
 order, evaluating its original predicate only when the next candidate is needed.
 An accepted empty set reaches the continuation before a later failing predicate.
-Each required component is still sized and normalized before its first output;
-a nested powerset avoids sizing the outer aggregate. Unknown providers,
+Each required component is still sized before its first output. A powerset
+whose BASE size is zero yields its single empty subset before converting or
+normalizing BASE; a nonzero BASE keeps the required normalization and its errors.
+A nested powerset avoids sizing the outer aggregate. Unknown providers,
 foreign evaluator captures, cached deferred history and cross-order components
 keep their existing routes. This changes storage and effect timing to the
 ordered enumeration, not predicate admission: no candidate is pruned or assumed
@@ -537,8 +539,12 @@ Boolean/total, and a very large rejected domain can still exhaust the run budget
 Compound assignment domains with recursively concrete finite components
 also yield candidates incrementally: powersets, Cartesian products, function
 sets and record sets reach the initial/successor sink and `ENABLED` continuation
-without retaining every output. Required component normalization still precedes
-the first candidate. Candidate checkpoints also run when a continuation rejects
+without retaining every output. Required nonempty component normalization still
+precedes the first candidate. For example, `SUBSET ({1, TRUE} \X {})` yields the
+empty set without comparing the dead mixed column; an initial invariant can
+therefore fail on that actual state. BASE size errors and nonempty conversion
+errors remain unchanged, including their existing named class refusals.
+Candidate checkpoints also run when a continuation rejects
 every value, allowing the configured run budget to stop that search.
 
 This changes output storage, without imposing a new cardinality limit. Ordinary

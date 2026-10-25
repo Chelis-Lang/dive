@@ -1,5 +1,14 @@
 # Changelog
 
+- Preserve TLC's zero-size powerset BASE boundary: yield its empty subset before
+  component conversion, retaining the actual size check, nonempty errors and
+  initial invariant witness. No error-class mapping or admission rule changes.
+
+- Pin four empty-subset-base primary results, preserving initial invariant
+  violations with unreported counts and distinct mixed-comparison/size-overflow
+  details under their actual error envelopes. No runtime fix, baseline change
+  or new agreement is established.
+
 - Preserve GENERAL as the primary class of source-qualified Init errors while
   retaining diagnostic replay exit 75. Carry native causes through typed,
   nonreused deferred-error receipts; rendered text grants no provenance.
