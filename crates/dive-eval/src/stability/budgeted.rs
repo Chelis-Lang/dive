@@ -184,7 +184,7 @@ impl Walk<'_> {
         self.sequence(tasks)
     }
 
-    // Each recursion boundary in the bounded proof is a task here. A task
+    // Each semantic inspection boundary is a task here. A task
     // either schedules its prerequisites/continuation or completes one check.
     #[allow(
         clippy::too_many_lines,
@@ -650,7 +650,7 @@ impl Walk<'_> {
 
     #[allow(
         clippy::too_many_lines,
-        reason = "explicit IR transfer cases preserve the bounded proof capability"
+        reason = "explicit IR transfer cases preserve the canonical representation capability"
     )]
     fn inner(&mut self, scope: &Scope, expr: ExprId, mode: Mode) -> crate::Result<bool> {
         use Expr as E;

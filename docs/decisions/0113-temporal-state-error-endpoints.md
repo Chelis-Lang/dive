@@ -48,8 +48,7 @@ The new endpoint compiler and canonical traversal use explicit stacks, checked
 allocation and existing cooperative controls. They introduce no formula-node,
 value-depth or proof-work count limit. Pinned TLC's Java-int overflow applies
 only to the DNF product of disjunctive factors; an allocation failure is not that
-TLC error. Existing explicit bounded APIs and unrelated validator limits retain
-their contracts.
+TLC error. Unrelated existing validator limits retain their contracts.
 
 `Session::try_read` and `SpecModel::try_read`/`try_validate` carry resource and
 execution exceptions outside `ValidationReport`. The controlled fresh-session
