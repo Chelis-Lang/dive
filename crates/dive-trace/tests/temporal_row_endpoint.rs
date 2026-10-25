@@ -148,9 +148,13 @@ fn unused_operands_tautology_and_wrong_scope_never_select_a_target() -> TestResu
         Validation::Valid
     );
     // A separate same-expression scope mutation changes the actual first EC.
-    let priority = "Init == x=0\nNext == x'=1-x\n---- MODULE Inner ----\nEXTENDS Naturals\nVARIABLE C\nBad == (1 \\div C)=0\n====\nI == INSTANCE Inner WITH C <- x\nJ == INSTANCE Inner WITH C <- (x=0)\nP == ([]<>I!Bad) /\\ ([]<>J!Bad)";
+    let priority = "Init == x=0\nNext == x'=1-x\n---- MODULE Inner ----\nEXTENDS Naturals, Sequences\nVARIABLE C\nBad == IF C=0 THEN (1 \\div (C-C)=0) ELSE Len(TRUE \\o <<C>>)=0\n====\nI == INSTANCE Inner WITH C <- x\nJ == INSTANCE Inner WITH C <- x+1\nP == ([]<>I!Bad) /\\ ([]<>J!Bad)";
     let ordered = Input::new(priority)?;
     let original = ordered.request(Options::tlc(), "I!Bad")?;
+    assert!(matches!(
+        &original.ending,
+        Some(Ending::TemporalStateError { ec, .. }) if ec == "TLC_MODULE_DIVISION_BY_ZERO"
+    ));
     assert_eq!(
         ordered
             .session(Options::tlc())
@@ -159,8 +163,8 @@ fn unused_operands_tautology_and_wrong_scope_never_select_a_target() -> TestResu
             .validation,
         Validation::Valid
     );
-    let changed = Input::new(&priority.replace("C <- x\nJ", "C <- (x=0)\nJ").replace(
-        "J == INSTANCE Inner WITH C <- (x=0)",
+    let changed = Input::new(&priority.replace("C <- x\nJ", "C <- x+1\nJ").replace(
+        "J == INSTANCE Inner WITH C <- x+1",
         "J == INSTANCE Inner WITH C <- x",
     ))?;
     let observed = changed.session(Options::tlc()).try_read(&original)?.0;
@@ -169,6 +173,10 @@ fn unused_operands_tautology_and_wrong_scope_never_select_a_target() -> TestResu
         "changed-scope replay: {observed:?}"
     );
     let corrected = changed.request(Options::tlc(), "I!Bad")?;
+    assert!(matches!(
+        &corrected.ending,
+        Some(Ending::TemporalStateError { ec, .. }) if ec == "TLC_MODULE_EVALUATING"
+    ));
     assert_eq!(
         changed
             .session(Options::tlc())
