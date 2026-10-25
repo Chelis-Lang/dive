@@ -139,6 +139,9 @@ fn opaque_providers_stay_unknown_even_after_a_real_normalization_warmup() {
         frames: BTreeMap::new(),
         abstracts: Vec::new(),
         active: Vec::new(),
+        control: None,
+        interrupted: None,
+        poll_after: 0,
     };
     let before = calls.load(Ordering::SeqCst);
     assert!(guard.value(&value, 0).is_none());

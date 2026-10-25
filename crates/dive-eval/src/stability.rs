@@ -19,6 +19,12 @@ use crate::{ConstBinding, Evaluator, Scope, SlotView, St};
 #[path = "stability_tests.rs"]
 mod tests;
 
+mod budgeted;
+
+#[cfg(test)]
+#[path = "stability/budgeted_tests.rs"]
+mod budgeted_tests;
+
 /// A producer/atom closure checked without evaluation for one evaluator.
 ///
 /// This fact covers only the supplied roots, ordinary cache domain, and the
@@ -77,9 +83,42 @@ struct Guard<'a> {
     frames: BTreeMap<usize, Arc<Frame>>,
     abstracts: Vec<Arc<Frame>>,
     active: Vec<(ExprId, Scope, Mode)>,
+    control: Option<&'a dyn crate::HostControl>,
+    interrupted: Option<crate::EvalError>,
+    poll_after: usize,
 }
 
 impl Evaluator {
+    /// Inspects canonical producer and predicate storage under the run budget.
+    ///
+    /// This callback-free inspection uses explicit traversal stacks, without a
+    /// formula, value-depth or proof-work ceiling. Unknown representation or
+    /// transfer semantics still return `None`. An explicit control is polled
+    /// when supplied; otherwise the evaluator's installed control is polled.
+    /// No provider, expression or native permission callback is invoked.
+    /// Like the bounded proof, this grants neither private-host ownership nor
+    /// completeness of the supplied producer roots.
+    ///
+    /// ```no_run
+    /// # fn inspect(ev: &dive_eval::Evaluator, root: (dive_ir::ExprId, dive_eval::Scope))
+    /// # -> dive_eval::Result<()> {
+    /// if let Some(fact) = ev.canonical_producer_stability_budgeted(&[root], &[], None)? {
+    ///     assert!(fact.belongs_to(ev));
+    /// }
+    /// # Ok(()) }
+    /// ```
+    ///
+    /// # Errors
+    /// The original typed interruption, or failed traversal allocation.
+    pub fn canonical_producer_stability_budgeted(
+        &self,
+        producers: &[(ExprId, Scope)],
+        predicates: &[(ExprId, Scope)],
+        control: Option<&dyn crate::HostControl>,
+    ) -> crate::Result<Option<ProducerStability>> {
+        budgeted::prove(self, producers, predicates, control)
+    }
+
     /// Inspects a complete producer/atom closure without evaluating an input.
     ///
     /// All supplied scopes must be genuine scopes of this evaluator. Unknown
@@ -93,31 +132,88 @@ impl Evaluator {
         predicates: &[(ExprId, Scope)],
         work: usize,
     ) -> Option<ProducerStability> {
+        self.canonical_producer_stability_inner(producers, predicates, work, None)
+            .ok()
+            .flatten()
+    }
+
+    /// The same callback-free value inspection with cooperative proof-work polls.
+    /// The only invoked callback is the explicitly supplied control, never a
+    /// value provider. An interruption remains typed, not an unknown proof.
+    ///
+    /// ```no_run
+    /// # fn inspect(ev: &dive_eval::Evaluator, root: (dive_ir::ExprId, dive_eval::Scope),
+    /// # control: &dyn dive_eval::HostControl) -> dive_eval::Result<()> {
+    /// let _ = ev.canonical_producer_stability_controlled(&[root], &[], 1000, control)?;
+    /// # Ok(()) }
+    /// ```
+    ///
+    /// # Errors
+    /// The original typed evaluator interruption from the supplied control.
+    pub fn canonical_producer_stability_controlled(
+        &self,
+        producers: &[(ExprId, Scope)],
+        predicates: &[(ExprId, Scope)],
+        work: usize,
+        control: &dyn crate::HostControl,
+    ) -> crate::Result<Option<ProducerStability>> {
+        self.canonical_producer_stability_inner(producers, predicates, work, Some(control))
+    }
+
+    fn canonical_producer_stability_inner(
+        &self,
+        producers: &[(ExprId, Scope)],
+        predicates: &[(ExprId, Scope)],
+        work: usize,
+        control: Option<&dyn crate::HostControl>,
+    ) -> crate::Result<Option<ProducerStability>> {
         let mut guard = Guard {
             evaluator: self,
             work,
             frames: BTreeMap::new(),
             abstracts: Vec::new(),
             active: Vec::new(),
+            control,
+            interrupted: None,
+            poll_after: 0,
         };
-        for (expr, scope) in producers {
-            self.admit_scoped_expr(scope, *expr).ok()?;
-            guard.environment(&scope.env, 0)?;
-            guard.expression(scope, *expr, Mode::Producer, 0)?;
+        let result = (|| {
+            for (expr, scope) in producers {
+                self.admit_scoped_expr(scope, *expr).ok()?;
+                guard.environment(&scope.env, 0)?;
+                guard.expression(scope, *expr, Mode::Producer, 0)?;
+            }
+            for (expr, scope) in predicates {
+                self.admit_scoped_expr(scope, *expr).ok()?;
+                guard.environment(&scope.env, 0)?;
+                guard.expression(scope, *expr, Mode::Reordered, 0)?;
+            }
+            Some(ProducerStability {
+                owner: Arc::downgrade(&self.core),
+            })
+        })();
+        if let Some(error) = guard.interrupted {
+            return Err(error);
         }
-        for (expr, scope) in predicates {
-            self.admit_scoped_expr(scope, *expr).ok()?;
-            guard.environment(&scope.env, 0)?;
-            guard.expression(scope, *expr, Mode::Reordered, 0)?;
+        if let Some(control) = control {
+            control.check().map_err(crate::EvalError::interrupted)?;
         }
-        Some(ProducerStability {
-            owner: Arc::downgrade(&self.core),
-        })
+        Ok(result)
     }
 }
 
 impl Guard<'_> {
     fn step(&mut self, depth: usize) -> Option<()> {
+        if self.poll_after == 0 {
+            if let Some(control) = self.control
+                && let Err(error) = control.check()
+            {
+                self.interrupted = Some(crate::EvalError::interrupted(error));
+                return None;
+            }
+            self.poll_after = 1024;
+        }
+        self.poll_after -= 1;
         self.work = self.work.checked_sub(1)?;
         (depth <= 128).then_some(())
     }
@@ -509,7 +605,22 @@ impl Guard<'_> {
     ) -> Option<Fact> {
         let called = match self.evaluator.ir().expr(expr) {
             Expr::Let { .. } => self.evaluator.scope_eval_let(scope, expr).ok()?,
-            Expr::Subst { .. } => self.evaluator.scope_subst(scope, expr).ok()?,
+            Expr::Subst { bindings, .. } => {
+                // scope_subst binds strict actuals by evaluation. A callback-
+                // free proof must decline before entering that runtime helper.
+                if bindings.iter().any(|binding| {
+                    matches!(
+                        binding.value,
+                        Arg::Expr {
+                            pass: dive_ir::Pass::Strict,
+                            ..
+                        }
+                    )
+                }) {
+                    return None;
+                }
+                self.evaluator.scope_subst(scope, expr).ok()?
+            }
             _ => return None,
         };
         self.environment(&called.env, depth)?;
