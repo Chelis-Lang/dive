@@ -1,5 +1,9 @@
 # Changelog
 
+- Record complete frozen-main instruction and caller attribution, including a
+  bounded EXCEPT cost query. Selected contexts do not justify a 5% rewrite;
+  no runtime change or throughput improvement follows from the evidence.
+
 - Avoid the runtime-name sequential restriction for concatenations whose complete
   checking sources prove a tuple operand, using constructor-grounded result
   facts without assuming type invariants. Other creators, effects and unresolved

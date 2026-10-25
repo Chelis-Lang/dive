@@ -281,6 +281,12 @@ Measured and not pursued:
   exclusive cost on its slower paths), but a custom `GlobalAlloc` needs
   `unsafe`, which the workspace forbids without an owner-approved ADR.
 
+A later frozen-main caller profile at `1a8343b9` retains complete source-PC and
+caller-context ledgers for all eight observations. The mixed allocator and
+ownership share does not prove removable work. A query of existing EXCEPT
+contexts did not justify a 5% candidate; selected exclusive costs and overlapping
+immediate arcs remain separate. See the [caller-attribution record](../survey/data/instruction-caller-attribution-2026-10-25.json).
+
 ## Consequences
 
 - The plan is ordered by measured share; re-profile after each item, because
