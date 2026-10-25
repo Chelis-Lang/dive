@@ -40,6 +40,14 @@ pipeline.rs / report.rs   commands, JSON report, docs/conformance.md
   requires the finite counterexample header, consecutive nonempty state messages,
   completion/statistics and no other errors or cycle markers. It retains both
   the temporal verdict and actual exit 12; cyclic cases still require exit 13.
+- A narrowly verified Init-exception route keeps `other-error / GENERAL1000`
+  with physical exit 75: the original GENERAL owns a complete known NONE cause
+  (2215, or 2154 wrapping2178), and later Init diagnostic replay reports2103.
+  Parser-owned containment, exact placement/templates and the complete Init
+  lifecycle are required; no state/trace or completed-Init route is admitted.
+  The cause is evidence only, not a replacement error class. Public flat
+  transcript classification stays conservative; unknown GENERAL/context-only
+  errors, including bare interval exception text, remain unclassified.
 - An unknown exit code or message code, or a malformed stream, is `unclassified`, with the raw data kept.
 - JVM resource exhaustion (out of memory, stack overflow) is `resource-limit`: never an oracle fact, never a golden.
 - Golden generation refuses oracle errors, unclassified outputs, timeouts and

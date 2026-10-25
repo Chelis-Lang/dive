@@ -177,9 +177,56 @@ fn next_marker(s: &str, from: usize) -> Option<Candidate<'_>> {
 /// A message that has started but not ended.
 struct Open {
     slot: usize,
+    frame: usize,
     code: i32,
     class: i32,
     body: String,
+}
+
+/// Parser-owned framing, separate from the publicly mutable transcript.
+pub(crate) struct OwnedTranscript {
+    transcript: Transcript,
+    frames: Vec<Frame>,
+}
+
+/// One actual scanner frame; indices refer to this carrier only.
+pub(super) struct Frame {
+    pub(super) segment: usize,
+    pub(super) parent: Option<usize>,
+    pub(super) start: usize,
+    pub(super) end: Option<usize>,
+    pub(super) line_start: bool,
+    pub(super) canonical: bool,
+    pub(super) parent_body_prefix_len: usize,
+    pub(super) own_body_len: usize,
+}
+
+impl OwnedTranscript {
+    pub(crate) fn transcript(&self) -> &Transcript {
+        &self.transcript
+    }
+
+    pub(super) fn frames(&self) -> &[Frame] {
+        &self.frames
+    }
+
+    pub(super) fn message(&self, frame: usize) -> Option<&Message> {
+        match self
+            .transcript
+            .segments
+            .get(self.frames.get(frame)?.segment)?
+        {
+            Segment::Message(message) => Some(message),
+            Segment::Text(_) => None,
+        }
+    }
+
+    pub(super) fn unique(&self, code: i32) -> Option<usize> {
+        let mut found = (0..self.frames.len())
+            .filter(|&index| self.message(index).is_some_and(|m| m.code == code));
+        let index = found.next()?;
+        found.next().is_none().then_some(index)
+    }
 }
 
 /// Parses TLC's stdout as produced with `-tool`.
@@ -193,14 +240,20 @@ struct Open {
 /// close the innermost open message, or a message left open at the end of
 /// the output, is an anomaly.
 #[must_use]
+pub fn parse(stdout: &str) -> Transcript {
+    parse_owned(stdout).transcript
+}
+
+/// Parses once while retaining immutable scanner ownership for native callers.
 #[allow(
     clippy::too_many_lines,
     reason = "a single-pass scanner reads best as one loop"
 )]
-pub fn parse(stdout: &str) -> Transcript {
+pub(crate) fn parse_owned(stdout: &str) -> OwnedTranscript {
     let mut slots: Vec<Option<Segment>> = Vec::new();
     let mut anomalies = Vec::new();
     let mut stack: Vec<Open> = Vec::new();
+    let mut frames = Vec::new();
     let emit_text = |text: &str, stack: &mut Vec<Open>, slots: &mut Vec<Option<Segment>>| {
         if text.is_empty() {
             return;
@@ -242,9 +295,21 @@ pub fn parse(stdout: &str) -> Transcript {
                 pos = stdout.len();
                 break;
             };
+            let frame = frames.len();
+            frames.push(Frame {
+                segment: slots.len(),
+                parent: stack.last().map(|open| open.frame),
+                start: at,
+                end: None,
+                line_start: at == 0 || stdout.as_bytes().get(at - 1) == Some(&b'\n'),
+                canonical: header == format!("{code}:{class}"),
+                parent_body_prefix_len: stack.last().map_or(0, |open| open.body.len()),
+                own_body_len: 0,
+            });
             slots.push(None);
             stack.push(Open {
                 slot: slots.len() - 1,
+                frame,
                 code,
                 class,
                 body: String::new(),
@@ -254,6 +319,9 @@ pub fn parse(stdout: &str) -> Transcript {
             match stack.last() {
                 Some(open) if Some(open.code) == code => {
                     if let Some(open) = stack.pop() {
+                        frames[open.frame].end = Some(marker_end);
+                        frames[open.frame].canonical &= header == open.code.to_string();
+                        frames[open.frame].own_body_len = open.body.len();
                         let body = open
                             .body
                             .strip_suffix('\n')
@@ -294,9 +362,12 @@ pub fn parse(stdout: &str) -> Transcript {
             }));
         }
     }
-    Transcript {
-        segments: slots.into_iter().flatten().collect(),
-        anomalies,
+    OwnedTranscript {
+        transcript: Transcript {
+            segments: slots.into_iter().flatten().collect(),
+            anomalies,
+        },
+        frames,
     }
 }
 
