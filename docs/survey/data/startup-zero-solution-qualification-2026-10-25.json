@@ -1,0 +1,258 @@
+{
+  "schema_version": 1,
+  "status": "FULL_GATE_AND_ORDINARY_STARTUP_ERROR_PARITY_QUALIFIED",
+  "source": "5217163fcf81c330238703f6369512e174357873",
+  "source_tree": "c38890bf0eb8b313ddc435f1a668976a2e0d6fe5",
+  "base": "2b23dc1d3432963b1464e8822e52056efe781336",
+  "focused_and_first_shipping_build_source": "b5607e8d1d1e04317c1f604aa5cd2ae42784cb5c",
+  "source_transfer": "Final source changes from the focused runtime are16 normally regenerated golden provenance objects and two documentation files. Every result payload and all runtime/test/input blobs remain identical. The final shipping rebuild completed normally and both executables are byte-identical.",
+  "behavior": {
+    "outcome": "Typed startup evaluation-error2253 / TLC_LIVE_FORMULA_TAUTOLOGY, physical77, before ASSUME or Init after complete admissible binding and actual-temporal-role conversion.",
+    "evidence": "Original binding output retained; no search workers, exploration statistics, property or trace fabricated.",
+    "scope": "Combined actual bound temporal obligations plus fairness, only pinned syntactic normalization to literalFALSE. Original configured-claim continuation and complete row guards are unchanged. Unknown/effectful conversion refuses.",
+    "limits": "No count, time/memory default, schema, scope-identity authority or dependency change. Once-per-run startup preparation adds work; no overhead or throughput result is claimed."
+  },
+  "focused": {
+    "result_sha256": "5eb69ddfa861e4bbab2cbdbd2b11e70591d26dc2c246f34141ba150dc3b3cc5d",
+    "tests": 149,
+    "skipped": 0,
+    "filtered": 0,
+    "new_control_groups": 12,
+    "stages": 7,
+    "fmt": "pass",
+    "affected_all_target_clippy": "pass"
+  },
+  "shipping_binaries": {
+    "macos_aarch64": {
+      "dive": "fd14a3ca3bb01617360f3c9d41b248c020c2b676f3ae75672540bebe3cae04e5",
+      "dive-conformance": "f40c8cac7fa7675483c6d887cc24f7eb383a9a1ace8fdf077febef604ccbc5a1"
+    },
+    "linux_x86_64": {
+      "dive": {
+        "sha256": "5b306aa41f634e3ab3ccd1f496c4109e0989a0ccec7a0fd2379896929b233813",
+        "bytes": 8240840
+      },
+      "dive-conformance": {
+        "sha256": "31f7b71c9f9d396da02e66a3fbc6dcd4e343ba85f82d974b30c6c4cbd5fe8f0a",
+        "bytes": 7207152
+      }
+    }
+  },
+  "ordinary_primary_corpus": {
+    "corpus": "temporal-demand-primary-probes",
+    "models": 16,
+    "profiles": [
+      "tlc",
+      "dive"
+    ],
+    "workers": 1,
+    "jobs": 1,
+    "native_budget_seconds": 30,
+    "max_memory_bytes": 536870912,
+    "results": {
+      "tlc": {
+        "agree": 11,
+        "disagree": 0,
+        "unsupported": 5,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "dive": {
+        "agree": 11,
+        "disagree": 0,
+        "unsupported": 5,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      }
+    },
+    "startup2253_agreements_each_profile": [
+      "UnusedDemandTautology",
+      "TautologyBeforeFalseAssume",
+      "TautologyBeforePrintAssume",
+      "TautologyBeforeInitError",
+      "TautologyBeforeInvariant",
+      "StartupRoleSplitInitial",
+      "StartupRoleSplitBeforeFalseAssume"
+    ],
+    "remaining_refusals_each_profile": [
+      "ConversionErrorBeforeTautology",
+      "ConversionPrintBeforeTautology",
+      "NontrivialThenTautologyClaim",
+      "TautologyThenNontrivialClaim",
+      "RowRoleSplitInitialOnly"
+    ],
+    "existing_error_word": "CurrentStateBinPriority matches2179 and its finite endpoint independently validates on a fresh source-bound runtime.",
+    "review_scope": "An audit of the official harness complete typed reports and original driver streams. Underlying per-model CLI stdout/stderr were not retained by this standard harness mode, so no independent whole raw32 CLI replay is claimed. Source-state error word validation is the harness recorded fresh validator outcome. No established population or throughput claim.",
+    "typed_review_sha256": "7ac4323d68c6a4debaef72772e08e029cf2090fdf6a9316cf57a587a26231725"
+  },
+  "full_gate": {
+    "command": "cargo xtask gate --full",
+    "source": "5217163fcf81c330238703f6369512e174357873",
+    "platform": "linux x86_64",
+    "instance_type": "c7i.8xlarge",
+    "compile_jobs": 2,
+    "test_threads": 2,
+    "steps": [
+      {
+        "name": "rustfmt",
+        "result": "pass",
+        "duration": "2.2s"
+      },
+      {
+        "name": "clippy",
+        "result": "pass",
+        "duration": "32.3s"
+      },
+      {
+        "name": "nextest (whole suite)",
+        "result": "pass",
+        "duration": "21m10s"
+      },
+      {
+        "name": "doctests",
+        "result": "pass",
+        "duration": "5.6s"
+      },
+      {
+        "name": "rustdoc",
+        "result": "pass",
+        "duration": "10.5s"
+      },
+      {
+        "name": "crate layering",
+        "result": "pass",
+        "duration": "0.0s"
+      },
+      {
+        "name": "cargo-deny",
+        "result": "skipped (Cargo.lock and deny.toml unchanged)",
+        "duration": "0.0s"
+      },
+      {
+        "name": "release build (harness, dive)",
+        "result": "pass",
+        "duration": "2m11s"
+      },
+      {
+        "name": "oracle and corpus fetch",
+        "result": "pass",
+        "duration": "3.9s"
+      },
+      {
+        "name": "cm1 gate (1, 4, 8 workers)",
+        "result": "pass",
+        "duration": "7.1s"
+      },
+      {
+        "name": "validation-smoke gate (1, 4, 8 workers)",
+        "result": "pass",
+        "duration": "0.7s"
+      },
+      {
+        "name": "small corpus tier (dive, tlc profile, vs baseline)",
+        "result": "pass",
+        "duration": "8m55s"
+      },
+      {
+        "name": "small corpus tier (dive, dive profile, vs baseline)",
+        "result": "pass",
+        "duration": "8m33s"
+      }
+    ],
+    "nextest": {
+      "tests_run": 2487,
+      "passed": 2487,
+      "skipped": 0
+    },
+    "profiles": {
+      "tlc": {
+        "profile": "tlc",
+        "run_id": "20261025T141030647-dive-small",
+        "models": 156,
+        "modules": 458,
+        "outcomes": {
+          "agree": 150,
+          "unsupported": 6
+        },
+        "baseline_changes": {
+          "regressions": [],
+          "improvements": [],
+          "other": [],
+          "baseline_refresh_required": false
+        },
+        "report_dive_binary_sha256": "5b306aa41f634e3ab3ccd1f496c4109e0989a0ccec7a0fd2379896929b233813",
+        "scope": "Public harness observable comparison and same-source fresh independent trace validation; no per-child raw/queue/originalwordarchive claim"
+      },
+      "dive": {
+        "profile": "dive",
+        "run_id": "20261025T141904614-dive-small",
+        "models": 156,
+        "modules": 0,
+        "outcomes": {
+          "agree": 144,
+          "expected-divergence": 7,
+          "unsupported": 5
+        },
+        "baseline_changes": {
+          "regressions": [],
+          "improvements": [],
+          "other": [],
+          "baseline_refresh_required": false
+        },
+        "report_dive_binary_sha256": "5b306aa41f634e3ab3ccd1f496c4109e0989a0ccec7a0fd2379896929b233813",
+        "scope": "Public harness observable comparison and same-source fresh independent trace validation; no per-child raw/queue/originalwordarchive claim"
+      }
+    },
+    "source_and_tools_identity_unchanged": true,
+    "report_sha256": "cba05709f957472636909a3e6c5f59fb297fb03083ee2e080e093ff3bfb12989",
+    "independent_archive_audit_sha256": "6bfbaf4e62e153c743b5038443a30f55eba8860fde6806627c580cabe7a2e624",
+    "original_archive_members": 18,
+    "original_uncompressed_bytes": 966113
+  },
+  "original_evidence": {
+    "local_qualification": {
+      "bucket": "dive-callgrind-profile-20261025064842-b9f59b27-010928226848",
+      "prefix": "root-followups/startup-zero-local-qualification-20261025-v1/",
+      "receipt_sha256": "467de8a64814159313cbef6bd92690f64bf1bf1b789a5c8b9fa2805dd2eade4c",
+      "objects": 411,
+      "bytes": 839087
+    },
+    "full_gate": {
+      "bucket": "dive-selectseq-gate-20261025132920-f93638fc-010928226848",
+      "key": "results/final.tgz",
+      "sha256": "43b11f9acb253bb950e086a29980ca22a06f4381072d0a9759fa432e28745856",
+      "bytes": 145476,
+      "whole_archive_and_each_member_replayed_in_RAM": true,
+      "local_archive_ELF_or_Cargo_target_written": false
+    },
+    "source_capsule": {
+      "key": "payload/source-capsule.tgz",
+      "sha256": "f93f72ae3f3a6492c2b9fcb295807c2643318e0905756656c0cef9184f3e5e28",
+      "bytes": 24063971,
+      "RAM_only_delivery": true
+    }
+  },
+  "retained_findings": [
+    "First new-test compile check hit the Rust assert_is_empty lint; equivalent visible empty-output assertion retained.",
+    "First focused startup target had an incorrect new expectation that explicit final/short success publishes TLC2193. Its existing nullTLC success contract is now required; verdict/count/output/exit assertions remain.",
+    "First ordinary comparison correctly refused13 stale corpus-provenance references after adding primary cases. All16 were regenerated normally with a reason, every result object byte-exact; no freshness or comparison check was relaxed."
+  ],
+  "population_limits": "The16-model primary population is separate from established small/full selections. Small150/156 TLC and144/156 default (seven expected divergences), SANY458, all unchanged. Historical181/217 full-tier and historical four-worker observations are not remeasured. No capacity, scaling, instruction or TLC throughput claim.",
+  "cloud_cleanup": {
+    "instance_state": "terminated",
+    "volume_and_security_group": "verified absent",
+    "active_or_stopped_dive_instances": 0,
+    "evidence_bucket": "retained",
+    "readback_sha256": "6349c83afd36745ed94c531a14cb0649ace8bf4a0cf2cf3fbf5c4f6a066d8975"
+  }
+}

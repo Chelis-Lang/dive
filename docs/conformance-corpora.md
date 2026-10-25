@@ -233,6 +233,18 @@ rechecked as a later temporal atom. These references use the same pinned
 oracle and 30-second model budget and are recorded in the primary data's
 additional-controls section; no runtime agreement is inferred.
 
+
+At source `5217163f`, ordinary checking of all sixteen primary models records
+**11 agreements and five named refusals per profile**, with no disagreements,
+timeouts, pending validation or oracle errors. Seven pure startup-error cases
+match 2253/77, including both split-role controls. The earlier finite2179 error
+word remains independently validated. Effectful conversion, conversion error
+class, both mixed-claim cases and initial-only later-row labelling remain
+refused. The
+[startup qualification](survey/data/startup-zero-solution-qualification-2026-10-25.json)
+records the complete selection, original reports, full gate and unchanged
+established baselines; this isolated population is not a full-tier result.
+
 `instance-temporal` is a separate local corpus of ten finite Boolean models and
 23 modules. It preserves primary-first observations of lexical INSTANCE and
 `ENABLED` successor namespaces before runtime changes. Every source input is
