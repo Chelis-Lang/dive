@@ -18,7 +18,7 @@ fn take(trace: &Trace) -> Vec<&'static str> {
 }
 fn evaluator(options: Options) -> Evaluator {
     let source = "---- MODULE Binding ----\nEXTENDS Naturals, FiniteSets, TLC\nCalc == Cardinality(Print({1,2}, {1,2}))\nOutput == PrintT(7)\nLevel == TLCGet(\"level\")\nLoop == \\A x \\in 1..2048: TRUE\nPure == Cardinality({1,2})\n====\n";
-    let analysis = dive_sema::analyze_source("Binding.tla", source, &Default::default());
+    let analysis = dive_sema::analyze_source("Binding.tla", source, &dive_sema::Options::default());
     assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
     Evaluator::new(
         Model::new(Arc::new(dive_ir::lower(&analysis).expect("IR"))),
