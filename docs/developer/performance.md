@@ -584,6 +584,36 @@ was removed and raw evidence remains in S3. This establishes no removable-cost
 fraction, wall-time, Java TLC throughput, scaling, new parity or release-capacity
 claim.
 
+### Resolved recursive call ownership, 2026-10-25
+
+The private resolved-call experiment compared baseline `de8a9761` with candidate
+`813525e8`. It retained the original recursive interpreter and existing resolved
+IR, borrowed the final lazy argument suffix, promoted captures into original
+owned frames and thunks, and shared immutable zero-slot top-level frames. Both
+profiling binaries used the shipping mimalloc allocator.
+
+Two builds and all sixteen Cachegrind arms completed normally and uncensored
+across four reduced models in both profiles at one worker. Every pair retained
+identical success verdicts and all five counters. Instructions increased in
+every cell, by 0.479% to 3.648%, with a geometric increase of 2.0211231%.
+Six cells exceeded the 1% regression ceiling, and the fixed 5% geometric
+reduction bar also failed. The complete screen was rejected; no conditional
+runtime full gate, runtime PR, repeat, retuning or threshold waiver follows.
+
+The [compact record](../survey/data/resolved-call-demand-rejected-2026-10-25.json)
+retains all eight integer pairs, equal counters, source and binary identities,
+raw profile and observation hashes, machine/tool facts and retained S3 origins.
+An independent audit replayed 110 original objects in memory; a separate compact
+review checked arithmetic and provenance without a second raw-body retrieval.
+The original archive hash is producer-reported: the audit did not retrieve the
+archive body. Two existing input receipts were preserved separately after
+complete normal execution and whole-node quiescence, without changing the
+producer's threshold HOLD or native facts. Formatting, all-target evaluator
+Clippy, all 62 unfiltered library tests and 190 unfiltered evaluator regression
+tests including that library had passed before the screen. Compute was retired
+and raw evidence remains in S3. This establishes no removable-cost fraction,
+wall-time, Java TLC throughput, scaling, new parity or release-capacity claim.
+
 ## Packed temporal atom truth
 
 The native temporal label store keeps one bit per actual state/action observation.
