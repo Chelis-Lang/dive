@@ -664,3 +664,29 @@ one-worker 156-model small-tier baselines retained every observable. TLC-profile
 with 458/458 SANY module comparisons; default-profile agreement remains 144/156
 with seven expected divergences and five refusals. No full-tier or performance
 improvement is inferred.
+
+
+### Native host bindings for embedding
+
+The existing evaluator `set_host` and `replace_host` methods always invoke the
+host's native permission callbacks. An explicit `native_hook_scope` can select
+`Unrestricted` only with a host in shared ordinary cache domain zero and an
+available generation. Otherwise selection returns `None` and changes nothing.
+There is no fresh unrestricted binding constructor. The policy omits only that callback, while
+print, register, introspection, action-composition, I/O and cooperative-control
+checks remain in their original paths. Choosing this policy does not certify
+purity, ownership, or permission to skip an evaluation. A caller must own host
+replacement while using a binding scope; it does not lock out evaluator clones.
+Domain zero deliberately shares ordinary cached values across mode restoration;
+Callback restoration is not revocation of that authority. Independent nonzero
+guard/replay domains always retain callbacks, so an unrestricted ordinary warm
+cannot satisfy their permission-bearing cache entries.
+
+Fresh ordinary checking uses this policy only with its built-in host, whose
+native callback already returns success. It preserves binding state and output.
+Fresh owned temporal capture keeps its existing fresh-host reset before
+assumptions and Init. Public borrowed capture and legacy host setters retain
+callbacks; diagnostic replay temporarily restores them too. Complete scopes
+restore the host owner, policy and installed expression-cache domain with a new
+nonreused installation generation. Exhausted generations grant no optional
+admission authority. There is no new CLI switch or predicate-result cache.

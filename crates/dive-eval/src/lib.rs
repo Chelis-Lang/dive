@@ -73,8 +73,9 @@ pub use crate::core::{CollectSink, PrintSink};
 pub use crate::env::{St, StateRef};
 pub use crate::error::{Ec, ErrorClass, EvalError, Result};
 pub use crate::host::{
-    Counter, Host, HostControl, HostControlConflict, HostControlScope, HostError, Interrupted,
-    RunConfig, TLCGET_NAMES,
+    Counter, Host, HostBinding, HostBindingScope, HostBindingStamp, HostControl,
+    HostControlConflict, HostControlScope, HostError, Interrupted, NativeHooks, RunConfig,
+    TLCGET_NAMES,
 };
 pub use crate::lazy::{LazyFcn, deferred_filter_normalization_operand};
 pub use crate::named_state::NamedState;
@@ -377,6 +378,53 @@ impl Evaluator {
     #[must_use = "the previous host must be restored or dropped deliberately"]
     pub fn replace_host(&self, host: Option<Arc<dyn Host>>) -> Option<Arc<dyn Host>> {
         self.core.host.replace(host)
+    }
+
+    /// Replaces the complete operative host binding and returns its predecessor.
+    ///
+    /// Unlike [`Self::replace_host`], this deliberately selects callback policy.
+    /// It grants no private-run authority, purity or permission to skip work.
+    #[must_use = "restore or drop the complete previous binding deliberately"]
+    pub fn replace_host_binding(&self, binding: HostBinding) -> HostBinding {
+        self.core.host.replace_binding(binding)
+    }
+
+    /// Temporarily selects native hook execution, preserving the current host.
+    ///
+    /// `Unrestricted` returns `None` without changing the binding unless a host
+    /// is installed in ordinary cache domain zero and a fresh generation is
+    /// available. Independent nonzero domains
+    /// keep callbacks and cannot be warmed while omitting their permission hook.
+    /// Domain zero is shared ordinary authority: values warmed there can remain
+    /// cached after callbacks are restored. It is not an isolated guard domain.
+    /// Other host methods and cooperative control are unchanged. The caller
+    /// must own host changes until scope drop; evaluator clones are not locked.
+    /// Legacy setters select callbacks. This grants no private-run certificate.
+    ///
+    /// ```
+    /// # fn select(ev: &dive_eval::Evaluator) {
+    /// use dive_eval::NativeHooks;
+    /// if let Some(scope) = ev.native_hook_scope(NativeHooks::Unrestricted) {
+    ///     assert_eq!(ev.host_binding_stamp().native_hooks(), NativeHooks::Unrestricted);
+    ///     drop(scope); // Restore the complete previous binding, not its generation.
+    /// }
+    /// # }
+    /// ```
+    #[must_use]
+    pub fn native_hook_scope(&self, hooks: NativeHooks) -> Option<HostBindingScope> {
+        let previous = self.core.host.replace_hooks(hooks)?;
+        Some(HostBindingScope {
+            core: self.core.clone(),
+            previous: Some(previous),
+            _thread: ::std::marker::PhantomData,
+        })
+    }
+
+    /// Snapshots operative policy and nonreused installation generation.
+    /// This is not a private-owner certificate or a concurrent replacement lease.
+    #[must_use]
+    pub fn host_binding_stamp(&self) -> HostBindingStamp {
+        self.core.host.stamp()
     }
 
     /// Installs cooperative host control until the returned scope drops.

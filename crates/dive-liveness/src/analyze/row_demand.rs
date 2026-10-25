@@ -531,6 +531,7 @@ impl Observe<'_> {
         observer: Option<&mut dyn capture::Observer>,
         errors: &mut EvaluationErrors,
         exploration: &mut Option<Box<super::ExplorationEvidence>>,
+        native_hooks: dive_eval::NativeHooks,
     ) -> Result<capture::ControlledExploration, AnalysisError> {
         let model = self.model;
         let run = {
@@ -538,7 +539,14 @@ impl Observe<'_> {
             let observer = forwarded
                 .as_mut()
                 .map(|observer| observer as &mut dyn capture::Observer);
-            capture::explore_checkpoints_with_evidence(model, options, limits, observer, &mut self)
+            capture::explore_checkpoints_with_native_hooks(
+                model,
+                options,
+                limits,
+                observer,
+                &mut self,
+                native_hooks,
+            )
         }
         .map_err(AnalysisError::CaptureThread)?;
         let (outcome, decision) = run.into_parts();

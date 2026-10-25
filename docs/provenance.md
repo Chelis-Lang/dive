@@ -2325,3 +2325,14 @@ A process-unique deferred receipt transports this origin through the value
 layer, reusing the existing checked interruption receipt mechanism. Forged,
 stale, duplicated, cross-thread or exhausted receipts cannot supply an error
 class. Global EC exit mappings and report/trace schemas are unchanged.
+### Operative native host bindings
+
+ADR 0115 separates permission-hook execution from a provider's claim of
+quietness. The native dispatch order remains pinned TLC's
+`MethodValue.eval`/`EvaluatingValue` order (tlaplus `94d0c507`, MIT): redirect,
+permission boundary, ordered arguments, enter and kernel/wrapping. The existing
+built-in `EngineHost` native hook inherits the literal success default; selecting
+that operative policy does not suppress a failing custom hook by inference.
+Safety keeps its original bound run state, while temporal capture preserves its
+existing fresh-host installation. This is dive's embedding/ownership protocol,
+not a TLC algorithm port or a membership/predicate cache.

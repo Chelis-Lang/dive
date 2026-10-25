@@ -481,6 +481,7 @@ fn periodic_unbudgeted(
         },
         decision: None,
     };
+    let native_hooks = super::owned::native_hooks(authority, model);
     let captured = if let (Some(program), Some(cache)) = (&demand, &cache) {
         let mut errors = EvaluationErrors {
             periodic: true,
@@ -494,6 +495,7 @@ fn periodic_unbudgeted(
                 Some(&mut observer),
                 &mut errors,
                 &mut exploration,
+                native_hooks,
             )
             .map_err(|error| {
                 failure(
@@ -506,17 +508,23 @@ fn periodic_unbudgeted(
                 )
             })?
     } else {
-        capture::explore_controlled_with_evidence(model, options, limits.capture, &mut observer)
-            .map_err(|message| {
-                failure(
-                    AnalysisError::CaptureThread(message),
-                    Stage::Unknown,
-                    None,
-                    EvaluationErrors::default(),
-                    None,
-                    observer.checks,
-                )
-            })?
+        capture::explore_controlled_with_native_hooks(
+            model,
+            options,
+            limits.capture,
+            &mut observer,
+            native_hooks,
+        )
+        .map_err(|message| {
+            failure(
+                AnalysisError::CaptureThread(message),
+                Stage::Unknown,
+                None,
+                EvaluationErrors::default(),
+                None,
+                observer.checks,
+            )
+        })?
     };
     match captured {
         capture::ControlledExploration::Stopped(result) => Err(failure(

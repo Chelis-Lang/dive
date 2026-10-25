@@ -17,7 +17,7 @@ mod checkpoints;
 pub(crate) use checkpoints::Hooks as CheckpointHooks;
 pub use checkpoints::{
     CheckpointDecision, CheckpointExploration, CheckpointObserver, CheckpointPhase,
-    ReachedCheckpoint, explore_checkpoints_with_evidence,
+    ReachedCheckpoint, explore_checkpoints_with_evidence, explore_checkpoints_with_native_hooks,
 };
 
 /// Maximum concurrently expanded source units during parallel capture.
@@ -633,11 +633,27 @@ pub fn explore_with_evidence(
     opts: &CheckOptions,
     limits: Limits,
 ) -> Result<Exploration, String> {
+    explore_with_native_hooks(model, opts, limits, dive_eval::NativeHooks::Callback)
+}
+
+/// Explicit operative native-hook selection for an owning driver.
+///
+/// Legacy capture APIs always use callbacks. This selects execution policy only;
+/// it grants no private model ownership, purity or permission to skip work.
+///
+/// # Errors
+/// The existing exploration thread failure; execution evidence may be lost.
+pub fn explore_with_native_hooks(
+    model: &Model,
+    opts: &CheckOptions,
+    limits: Limits,
+    native_hooks: dive_eval::NativeHooks,
+) -> Result<Exploration, String> {
     let started = std::time::Instant::now();
     if let Some(stopped) = context_stop(model, opts) {
         return Ok(stopped);
     }
-    let run = || explore_inner(model, opts, limits, false, None, None).legacy();
+    let run = || explore_inner(model, opts, limits, false, None, None, native_hooks).legacy();
     let mut result = run_on_thread(run)?;
     elapsed(&mut result, started.elapsed());
     Ok(result)
@@ -704,8 +720,18 @@ pub fn explore_concrete_parallel_with_evidence(
         return Ok(Exploration::Stopped(Box::new(result)));
     }
     let started = std::time::Instant::now();
-    let mut result =
-        run_on_thread(|| explore_inner(model, opts, limits, true, None, None).legacy())?;
+    let mut result = run_on_thread(|| {
+        explore_inner(
+            model,
+            opts,
+            limits,
+            true,
+            None,
+            None,
+            dive_eval::NativeHooks::Callback,
+        )
+        .legacy()
+    })?;
     elapsed(&mut result, started.elapsed());
     Ok(result)
 }
@@ -735,8 +761,18 @@ pub fn explore_observed_with_evidence(
         ));
     }
     let started = std::time::Instant::now();
-    let mut result =
-        run_on_thread(|| explore_inner(model, opts, limits, false, Some(observer), None).legacy())?;
+    let mut result = run_on_thread(|| {
+        explore_inner(
+            model,
+            opts,
+            limits,
+            false,
+            Some(observer),
+            None,
+            dive_eval::NativeHooks::Callback,
+        )
+        .legacy()
+    })?;
     elapsed(&mut result, started.elapsed());
     Ok(result)
 }
@@ -753,12 +789,44 @@ pub fn explore_controlled_with_evidence(
     limits: Limits,
     observer: &mut dyn Observer,
 ) -> Result<ControlledExploration, String> {
+    explore_controlled_with_native_hooks(
+        model,
+        opts,
+        limits,
+        observer,
+        dive_eval::NativeHooks::Callback,
+    )
+}
+
+/// Explicit operative native-hook selection for an owning driver.
+///
+/// Legacy capture APIs always use callbacks. This selects execution policy only;
+/// it grants no private model ownership, purity or permission to skip work.
+///
+/// # Errors
+/// The existing exploration thread failure; execution evidence may be lost.
+pub fn explore_controlled_with_native_hooks(
+    model: &Model,
+    opts: &CheckOptions,
+    limits: Limits,
+    observer: &mut dyn Observer,
+    native_hooks: dive_eval::NativeHooks,
+) -> Result<ControlledExploration, String> {
     if let Some(stop) = context_stop(model, opts) {
         return Ok(stop.into());
     }
     let started = std::time::Instant::now();
-    let mut result =
-        run_on_thread(|| explore_inner(model, opts, limits, false, Some(observer), None))?;
+    let mut result = run_on_thread(|| {
+        explore_inner(
+            model,
+            opts,
+            limits,
+            false,
+            Some(observer),
+            None,
+            native_hooks,
+        )
+    })?;
     match &mut result {
         ControlledExploration::Complete(c) => c.safety_result.elapsed = started.elapsed(),
         ControlledExploration::Stopped(s) => s.elapsed = started.elapsed(),
@@ -816,7 +884,8 @@ fn context_stop(model: &Model, opts: &CheckOptions) -> Option<Exploration> {
 
 #[allow(
     clippy::too_many_lines,
-    reason = "keep admission, startup, observer dispatch and failed execution evidence in order"
+    clippy::too_many_arguments,
+    reason = "keep admission, startup, explicit operative policy and failed execution evidence in order"
 )]
 fn explore_inner<'obs>(
     model: &Model,
@@ -825,6 +894,7 @@ fn explore_inner<'obs>(
     parallel: bool,
     observer: Option<&'obs mut dyn Observer>,
     primary: Option<&mut CheckpointHooks<'obs>>,
+    native_hooks: dive_eval::NativeHooks,
 ) -> ControlledExploration {
     let refuse = |s: String| {
         ControlledExploration::from(stopped(Verdict::Unsupported { feature: s }, model, opts))
@@ -901,6 +971,13 @@ fn explore_inner<'obs>(
     model
         .evaluator
         .set_host(Arc::new(crate::host::EngineHost::new(host.clone())));
+    // Keep the original fresh capture-host installation/reset above. The
+    // owned scope restores Callback on THIS host, never the discarded bind host.
+    let _native_hooks = if native_hooks == dive_eval::NativeHooks::Unrestricted {
+        model.evaluator.native_hook_scope(native_hooks)
+    } else {
+        None
+    };
     model.evaluator.intern_checker_names();
     let config = engine::run_config(opts, model.settings.check_deadlock);
     model.evaluator.intern_bfs_config(&config);

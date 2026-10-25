@@ -2074,6 +2074,16 @@ impl<S: Keyed> Search<'_, '_, S> {
         // event and joined every worker phase. Preserve that event if the
         // budget trips while regenerating its predecessors. This thread-owned
         // scope does not pause independent witness certification or workers.
+        // Replay uses callback execution even inside a fresh owned run.
+        let _native_hooks = if self.m.evaluator.host_binding_stamp().native_hooks()
+            == dive_eval::NativeHooks::Unrestricted
+        {
+            self.m
+                .evaluator
+                .native_hook_scope(dive_eval::NativeHooks::Callback)
+        } else {
+            None
+        };
         let _diagnostic = self
             .m
             .evaluator

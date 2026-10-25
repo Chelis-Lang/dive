@@ -5,6 +5,10 @@
   nonreused deferred-error receipts; rendered text grants no provenance.
   Register the observed nested Cardinality case under the approved D-004
   big-integer default, with exact exit and generated-count pairs.
+- Make native permission-hook execution an explicit host binding policy for
+  fresh owned checking runs. Legacy/custom and replay hosts keep callbacks;
+  other permissions, startup state and control remain unchanged. This adds no
+  predicate mask, new enumeration route or performance claim.
 
 - Add eight pinned primary references for nested powerset Init enumeration,
   including original candidate order and error boundaries. All six earlier

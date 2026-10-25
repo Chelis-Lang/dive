@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "purpose": "Operative native host binding foundation correctness; no atomic optimization or throughput claim",
+  "source": "48ed1e428f2df66a233874edf91b888c14e6dca4",
+  "tree": "3c77a4c3f82de4e71a951c92c9dbdf90a052ee12",
+  "base": "8f738c0f9376d061f47b162ddca4935c6704cee3",
+  "full_gate": {
+    "command": "cargo xtask gate --full",
+    "phases": 13,
+    "nextest": {
+      "tests_run": 2531,
+      "passed": 2531,
+      "skipped": 0
+    },
+    "sany_modules": 458,
+    "profiles": {
+      "tlc": {
+        "agree": 150,
+        "unsupported": 6
+      },
+      "dive": {
+        "agree": 144,
+        "expected-divergence": 7,
+        "unsupported": 5
+      }
+    },
+    "baseline_regressions": 0,
+    "baseline_changes": 0
+  },
+  "focused_tests": 285,
+  "shipping_cli_and_harness_build": "pass",
+  "primary8": {
+    "tlc": {
+      "agree": 7,
+      "unsupported": 1
+    },
+    "dive": {
+      "agree": 6,
+      "expected_divergence": 1,
+      "unsupported": 1
+    },
+    "all_model_fields_exact_parent_except_elapsed_ms": true
+  },
+  "review_scope": "Independent whole-source review plus Root actual native, gate, report/baseline, source/tool identity and original S3 archive audit",
+  "raw_evidence": {
+    "uri": "s3://dive-selectseq-gate-20261025192836-c5e26efe-010928226848/results/final.tgz",
+    "sha256": "24c1e4313cd9e62f041502a51b753aa16f0c4f3cef8ddae8fe0951c057692e1c",
+    "bytes": 147249,
+    "root_audit_sha256": "5cac1b75088c7df0fa5f1de0e8304e5712fe7eb59e107a737763889a94d49141"
+  },
+  "limits": [
+    "Original five-node powerset workload not qualified by this foundation",
+    "Public policy or installation stamp is not a private source-owner certificate",
+    "Atomic permission prototype and enumeration pruning are separate work"
+  ]
+}

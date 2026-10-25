@@ -223,6 +223,31 @@ pub fn explore_checkpoints_with_evidence<'observer>(
     observer: Option<&'observer mut dyn Observer>,
     checkpoints: &'observer mut dyn CheckpointObserver,
 ) -> Result<CheckpointExploration, String> {
+    explore_checkpoints_with_native_hooks(
+        model,
+        opts,
+        limits,
+        observer,
+        checkpoints,
+        dive_eval::NativeHooks::Callback,
+    )
+}
+
+/// Explicit operative hook selection for a source-owning row consumer.
+///
+/// The ordinary public checkpoint API retains callbacks. This is an execution
+/// choice, not a certificate of ownership or authority to evaluate row atoms.
+///
+/// # Errors
+/// The existing dedicated-thread failure, with unknown lost work.
+pub fn explore_checkpoints_with_native_hooks<'observer>(
+    model: &Model,
+    opts: &CheckOptions,
+    limits: Limits,
+    observer: Option<&'observer mut dyn Observer>,
+    checkpoints: &'observer mut dyn CheckpointObserver,
+    native_hooks: dive_eval::NativeHooks,
+) -> Result<CheckpointExploration, String> {
     let refuse = |outcome: super::Exploration| CheckpointExploration {
         outcome: outcome.into(),
         decision: None,
@@ -252,7 +277,15 @@ pub fn explore_checkpoints_with_evidence<'observer>(
             observer: checkpoints,
             decision: None,
         };
-        let outcome = super::explore_inner(model, opts, limits, false, observer, Some(&mut hooks));
+        let outcome = super::explore_inner(
+            model,
+            opts,
+            limits,
+            false,
+            observer,
+            Some(&mut hooks),
+            native_hooks,
+        );
         (outcome, hooks.decision)
     })?;
     match &mut outcome {
