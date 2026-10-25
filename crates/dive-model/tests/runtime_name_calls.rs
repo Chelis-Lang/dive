@@ -44,6 +44,18 @@ fn closed_scalar_comparison_assumptions_preserve_inventory_and_allow_workers() {
 }
 
 #[test]
+fn configured_literal_definitions_use_the_stored_value_without_evaluating_replaced_bodies() {
+    let bound = model(
+        "D == x \\o x\nInit == x= <<>>\nNext == D=sentinel /\\ x'= <<0>> \\o x",
+        "CONSTANT D=sentinel\n",
+        &BindOptions::tlc(),
+    );
+    assert!(bound.runtime_name_order);
+    assert!(bound.sequential_names_only);
+    assert_eq!(bound.sequential, Vec::<String>::new());
+}
+
+#[test]
 fn literal_and_recursive_append_calls_remove_only_the_unneeded_name_reason() {
     for source in [
         "Init == x= <<>>\nNext == x'= <<0>> \\o x",

@@ -93,6 +93,21 @@ fn operator_substitution_leaves_must_be_known_scalar_comparisons() {
 }
 
 #[test]
+fn stored_zero_arity_values_do_not_evaluate_their_replaced_bodies_or_grant_tuple_facts() {
+    for (body, expected) in [
+        ("D == x \\o x\nP == IF D=0 THEN <<x>> \\o x ELSE <<>>", true),
+        ("D == <<x>>\nP == D \\o x", false),
+    ] {
+        let (original, pred) = input(body);
+        let def = original.ir().root_def("D").expect("stored definition");
+        let mut model = Model::new(original.ir().clone());
+        model.def_values.insert(def, Value::Int(0));
+        let ev = Evaluator::new(model, Options::tlc()).expect("stored value evaluator");
+        assert_eq!(proves(&ev, pred), expected, "{body}");
+    }
+}
+
+#[test]
 fn literal_append_and_branch_results_are_grounded_without_parameter_types() {
     for body in [
         "P == <<x>> \\o x",

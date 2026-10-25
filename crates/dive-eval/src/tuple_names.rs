@@ -317,6 +317,10 @@ impl Analysis<'_> {
                         return Ok(false);
                     }
                 }
+                Expr::Def(def) if self.stored_value_leaf(*def) => {
+                    // eval_def_use returns this already inspected stored value.
+                    // Its overridden body is not evaluated and grants no tuple fact.
+                }
                 Expr::Def(def) => {
                     if let Some(op) = self.native(&OpRef::Def(*def), 0) {
                         if op.creates_runtime_names() {
@@ -369,6 +373,16 @@ impl Analysis<'_> {
                 .try_for_each_child(|child| push(&mut work, (child, context)))?;
         }
         Ok(true)
+    }
+
+    fn stored_value_leaf(&self, def: DefId) -> bool {
+        let Some(target) = self.ev.ir().defs().get(def.index()) else {
+            return false;
+        };
+        target.params.is_empty()
+            && target.std.is_none()
+            && self.ev.redirected(def) == def
+            && self.ev.core.def_values.contains_key(&def)
     }
 
     fn call(
