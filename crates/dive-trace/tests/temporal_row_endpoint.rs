@@ -163,14 +163,11 @@ fn unused_operands_tautology_and_wrong_scope_never_select_a_target() -> TestResu
         "J == INSTANCE Inner WITH C <- (x=0)",
         "J == INSTANCE Inner WITH C <- x",
     ))?;
-    assert!(matches!(
-        changed
-            .session(Options::tlc())
-            .try_read(&original)?
-            .0
-            .validation,
-        Validation::Invalid(_)
-    ));
+    let observed = changed.session(Options::tlc()).try_read(&original)?.0;
+    assert!(
+        matches!(&observed.validation, Validation::Invalid(_)),
+        "changed-scope replay: {observed:?}"
+    );
     let corrected = changed.request(Options::tlc(), "I!Bad")?;
     assert_eq!(
         changed
