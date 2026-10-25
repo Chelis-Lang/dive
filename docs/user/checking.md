@@ -132,6 +132,13 @@ reports no search statistics or used workers. The additive Rust
 `Recipe::bind_controlled` entry points expose this capability separately from
 `BindOptions`; their uncontrolled counterparts retain their original behavior.
 
+Optional worker-selection proof planning also preserves its original resource
+or internal error through controlled binding, including preceding startup
+output. The legacy boxed `bind` and `Recipe::bind` errors cannot represent that
+exception channel and retain their fail-closed bug wrapper. Rust integrations
+that need the original intrinsic cause should use the controlled entry points
+or `Recipe::bind_fallible`.
+
 Producer `ASSUME` evaluation in safety checking and graph capture uses the
 armed startup control at the same amortized evaluator-loop checkpoints.
 Interruption reports `stopped` in `check-startup`, retaining preceding output
@@ -322,6 +329,24 @@ order. Read `options.workers.requested`, `used` and `reason`: checker-register
 reads and some modes can require an inline run. A requested pool width is not
 a claim that every step used that many active threads. `--sequential` explicitly
 selects inline checking. Simulation and checkpoint widths have separate limits.
+
+Under TLC value or exploration order, runtime string creation can also require
+an inline run. Concatenation alone does not add this restriction when a complete
+source inspection proves that every reachable call has a tuple operand: literal
+tuples, unchanged native `Append`, and transparent calls and branches can establish
+the successful result kind. Argument expressions retain their own restrictions.
+A closed operator-argument source path may forward unchanged binary comparisons
+(equality, membership, subset and integer ordering); unknown callbacks retain
+the restriction. Already-inspected configured literal values are call-free
+leaves at zero-arity definition uses, without inheriting the replaced body's
+result kind. Unknown state values, configured native origins, operator overrides
+and opaque captured providers keep the conservative route. This proof does not
+assume a type invariant, remove other sequential causes, or change evaluation,
+error behavior or resource limits. Replay and checkpoint admission retain their
+conservative source inventory. Requested and used widths remain reported;
+the source proof is not a worker-utilization or performance measurement.
+See [ADR 0114](../decisions/0114-proven-runtime-name-free-concatenation.md) for the
+proof and source-inventory boundary.
 
 Pure safety symmetry retains concrete counterexamples while canonicalizing
 visited keys. Unsupported representative/startup/value interactions refuse.

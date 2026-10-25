@@ -1,5 +1,10 @@
 # Changelog
 
+- Avoid the runtime-name sequential restriction for concatenations whose complete
+  checking sources prove a tuple operand, using constructor-grounded result
+  facts without assuming type invariants. Other creators, effects and unresolved
+  roots keep their restrictions; evaluation and limits are unchanged.
+
 - Record the rejected resolved-call ownership screen: instructions increased
   by 2.021% geometrically across all eight pairs, with six cells exceeding
   the 1% regression ceiling. The private runtime prototype remains unmerged.
