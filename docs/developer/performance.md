@@ -179,6 +179,13 @@ A bounded query of those same eight ledgers retained every selected EXCEPT produ
 
 [The compact record](../survey/data/instruction-caller-attribution-2026-10-25.json) pins all eight totals/category partitions and counter outcomes, original stream/profile/ledger hashes, machine/tool/binary identities, review scopes and S3 receipts. Raw profiles and archives remain in S3; the node, volume and security group were removed. This is instruction attribution, without a candidate, wall-time, Java TLC throughput, scaling or new conformance qualification.
 
+
+## Function-membership census, 2026-10-25
+
+A private diagnostic build completed the same eight reduced model/profile cells through the ordinary CLI at one worker, with matching success verdicts and all five counters. It observed the original function-set checks without skipping domain or range work. No qualified repeat successes were recorded. GameOfLife supplied 512 eligible first Boolean successes per profile, with no later witnessed repeat; every MCbtree query was conservatively provider-excluded. SimpleRegular used non-Boolean ranges and was also provider-excluded; EWD998PCal entered no observed function-set kernel.
+
+These exclusions prevent a general conclusion about reuse. Neither the zero recorded repeats nor the Boolean visit counts establish saved instructions, a safe cache hit rate or a 5% improvement. The cache proposal remains unimplemented. The [compact census record](../survey/data/function-membership-census-2026-10-25.json) retains every cell, exact source/binary/input and original-output hashes, the corrected checker-thread diagnostic handoff, qualification and limitations. No throughput, scaling, conformance or shipping-overhead result follows.
+
 ## Substitution-cache probe
 
 On 2026-10-21, a small paired probe confirmed that caching every forced
