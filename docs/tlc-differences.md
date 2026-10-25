@@ -244,6 +244,14 @@ Measured on the pinned TLC:
 | `Cardinality(SUBSET (1..31))` | `Overflow when computing the number of elements in: SUBSET (1..31)` |
 | `Cardinality(-2147483647..2147483647)` | `Size of interval value exceeds the maximum representable size (32bits)` |
 
+The fixed `ExplicitOuterPowersetCardinality` control computes
+`Cardinality(SUBSET (SUBSET (1..5)))`. Pinned TLC fails during Init with GENERAL
+(1000) and physical exit 75, wrapping the size overflow; the default profile
+computes 4,294,967,296 and completes with one distinct state, two generated
+states and depth one. Its expected D-004 difference is registered with exact
+exit and generated-count pairs. TLC mode retains the overflow and replay exit.
+
+
 **What dive does.** dive computes with unbounded integers, as the language intends. Small numbers still use an inline 64-bit fast path. With `--int=tlc` every one of the reports above is reproduced word for word. When a run would have stopped with TLC's overflow error, dive's output says so, so the difference is never silent.
 
 **Why it matters.** Four of the five other Rust or Go TLA+ checkers we measured widen integers silently, with no TLC mode and no indication in their output. dive does better by default and is TLC-exact on request.

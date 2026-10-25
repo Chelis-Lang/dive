@@ -1951,7 +1951,13 @@ impl Core {
             match tlc::equals(domain, arg, self.ctx) {
                 Ok(true) => Ok(Some(value.clone())),
                 Ok(false) => Ok(None),
-                Err(err) if matches!(err.kind(), dive_value::ErrorKind::Interrupted { .. }) => {
+                Err(err)
+                    if matches!(
+                        err.kind(),
+                        dive_value::ErrorKind::Interrupted { .. }
+                            | dive_value::ErrorKind::DeferredError { .. }
+                    ) =>
+                {
                     Err(err.into())
                 }
                 Err(_) if f.len() >= 32 => Err(EvalError::unsupported(

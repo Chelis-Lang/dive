@@ -108,7 +108,12 @@ pub(crate) fn member(core: &Core, elem: &Value, set: &Value) -> Result<bool> {
                     match tlc::equals(elem, x, core.ctx) {
                         Ok(true) => return Ok(true),
                         Ok(false) => {}
-                        Err(error) if matches!(error.kind(), ErrorKind::Interrupted { .. }) => {
+                        Err(error)
+                            if matches!(
+                                error.kind(),
+                                ErrorKind::Interrupted { .. } | ErrorKind::DeferredError { .. }
+                            ) =>
+                        {
                             return Err(error.into());
                         }
                         Err(_) => unspecified = true,

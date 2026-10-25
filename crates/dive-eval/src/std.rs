@@ -94,12 +94,13 @@ impl Core {
                 op.qualified_name()
             ));
         };
-        EvalError::coded(
-            Ec::JavaMethodOverride,
+        EvalError::wrapped_override(
+            op,
             format!(
                 "Attempted to apply the operator overridden by the Java method\n{sig},\nbut it produced the following error:\n{}",
                 err.tool_text()
             ),
+            &err,
         )
     }
 

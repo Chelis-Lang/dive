@@ -170,15 +170,16 @@ pub enum Verdict {
     },
 }
 
-/// How TLC classifies a result: its deciding message code, that code's
-/// `EC` name, and TLC's process exit status.
+/// How TLC classifies a result: its observable primary code, `EC` name,
+/// and physical process exit status. A source-qualified Init replay may
+/// retain GENERAL as primary while its diagnostic context supplies exit 75.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TlcClass {
-    /// The deciding message code.
+    /// The observable deciding message code, distinct from a replay exit code.
     pub code: u32,
     /// Its `EC` name.
     pub name: String,
-    /// TLC's exit status (`EC.ExitStatus.errorConstantToExitStatus`).
+    /// TLC's physical exit status, including qualified diagnostic replay paths.
     pub exit: u8,
     /// The code of the error message TLC prints first, where it differs
     /// from `code` (an evaluation error wrapped by its site); otherwise
@@ -284,15 +285,29 @@ impl Verdict {
             // The error-class table (`class.rs`) decides the code and
             // whether it is verified.
             Self::EvaluationError {
+                site,
                 code,
                 name,
                 reported,
                 verified,
+                cause,
                 ..
-            } => TlcClass {
-                reported: *reported,
-                ..class(*code, name, *verified)
-            },
+            } => {
+                if crate::class::init_primary_general(*site, *code, *reported, *verified, cause) {
+                    TlcClass {
+                        code: 1000,
+                        name: "GENERAL".to_owned(),
+                        exit: 75,
+                        reported: 1000,
+                        verified: true,
+                    }
+                } else {
+                    TlcClass {
+                        reported: *reported,
+                        ..class(*code, name, *verified)
+                    }
+                }
+            }
             Self::Unsupported { .. }
             | Self::ResourceLimit { .. }
             | Self::Stopped(_)
