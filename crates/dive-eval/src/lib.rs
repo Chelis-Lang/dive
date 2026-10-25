@@ -416,7 +416,7 @@ impl Evaluator {
         Some(HostBindingScope {
             core: self.core.clone(),
             previous: Some(previous),
-            _thread: std::marker::PhantomData,
+            _thread: ::std::marker::PhantomData,
         })
     }
 
