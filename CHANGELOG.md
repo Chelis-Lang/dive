@@ -1,9 +1,9 @@
 # Changelog
 
-- Prepare three isolated empty-subset-base primary inputs for the zero-size
-  conversion boundary, direct-empty control and required size-error priority.
-  Pinned harness generation remains separate; existing references, populations
-  and runtime behavior are unchanged.
+- Pin three empty-subset-base primary results, preserving initial invariant
+  violations with unreported counts and the mixed-comparison error envelope.
+  Add a separate homogeneous size-overflow control for normal regeneration;
+  no runtime fix, baseline change or new agreement is established.
 
 - Preserve GENERAL as the primary class of source-qualified Init errors while
   retaining diagnostic replay exit 75. Carry native causes through typed,

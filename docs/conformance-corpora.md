@@ -601,19 +601,30 @@ checker comparison or streaming/pruning capability is established. The existing
 small/full selections and baselines are unchanged.
 
 
-`empty-subset-base-primary` prepares three isolated primary inputs for issue #478:
-`EmptyBase` retains the directly measured mixed-product input and failing initial
-invariant, `DirectEmptyBase` supplies a direct empty-set base, and
-`BaseSizeBeforeConversion` puts product-size overflow before possible mixed-column
-normalization. The last control uses two nonempty components with size product
-2 × 1073741824, beyond TLC's signed 32-bit cardinality, without requesting a
-large enumeration. This is a source-derived priority obligation, not a generated
-classification or measured runtime claim.
+`empty-subset-base-primary` contains four isolated primary inputs for issue #478.
+Normal pinned-TLC generation of the first three inputs reports initial invariant
+`Inv` violations (2107, exit 12) for both the mixed-product `EmptyBase` and direct
+`DirectEmptyBase`, with the finite initial state `x = {}`. TLC does not report
+state, generated, queue or depth counts for those violations; the generated
+fields remain null.
 
-Descriptor runtime/result fields remain `unknown`. The earlier direct #478
-measurement is not a conformance golden; all three references must be generated
-by the normal pinned-TLC harness with a recorded reason before a runtime change.
+The historical name `BaseSizeBeforeConversion` describes its original purpose,
+not its observed error priority. Its mixed component produces GENERAL1000
+"Attempted to compare boolean TRUE with non-boolean: 1", followed by
+FINGERPRINT2147, exit 75 and zero counts. It is not evidence that a product-size
+error is delivered before normalization. TLC's product-size overflow diagnostic
+renders the product, and rendering an unnormalized explicit set can itself
+normalize it. The observed mixed-comparison result is retained unchanged.
+
+`BaseSizeOverflow` adds a homogeneous `{1, 2}` component with the same nonempty
+interval, so the product size exceeds TLC's signed 32-bit cardinality without a
+mixed-comparison ambiguity. Its primary result remains unknown until normal
+pinned generation; no class or counts are guessed. Adding it changes the corpus
+pin: the first three goldens preserve their original generated provenance, and
+all four must be regenerated with a recorded reason before any runtime fix.
+
+Descriptor runtime/result fields remain `unknown` to preserve each input pin.
 Select only this population with
 `--corpus empty-subset-base-primary --tier all --no-sany`. The original eight-case
 `nested-powerset-primary` corpus, historical pins and small/full baselines are
-unchanged. No native fix or new agreement is established by these inputs.
+unchanged. These references establish neither a native fix nor new agreement.
