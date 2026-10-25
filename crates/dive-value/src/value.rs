@@ -456,6 +456,16 @@ impl Set {
         crate::stream::concrete_raw(self, ctx)
     }
 
+    /// Prepare a concrete powerset with typed, transactional integer positions.
+    /// Non-powersets or unknown component storage decline before consumption.
+    /// The required component size/normalization precedes its first empty value.
+    ///
+    /// # Errors
+    /// The same required component errors as [`Self::concrete_element_stream`].
+    pub fn concrete_subset_stream(&self, ctx: Ctx) -> Result<Option<crate::ConcreteSubsetStream>> {
+        crate::stream::concrete_subset(self, ctx)
+    }
+
     /// The elements in normalized order, without changing TLC's view of the set
     /// or of any set nested in it: [`Set::elements`] without its side effects.
     ///

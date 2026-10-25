@@ -63,6 +63,10 @@ mod tla_cmp;
 mod tlc_enum;
 mod tuple_names;
 
+#[cfg(test)]
+#[path = "subset_mask.rs"]
+mod subset_mask;
+
 use ::std::collections::HashMap;
 use ::std::sync::Arc;
 

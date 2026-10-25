@@ -102,3 +102,20 @@ impl Evaluator {
         budgeted::prove(self, producers, predicates, control)
     }
 }
+
+// Source-only independent slice: promoted to a production caller only when the
+// separately reviewed operative binding/atomic cursor interface lands.
+#[cfg(test)]
+pub(crate) fn closed_subset_forall(
+    evaluator: &Evaluator,
+    original: Scope,
+    quantifier: ExprId,
+    body: ExprId,
+    outer_slot: usize,
+    state: &crate::St,
+    base: &[dive_value::Value],
+) -> crate::Result<bool> {
+    budgeted::closed_forall(
+        evaluator, original, quantifier, body, outer_slot, state, base,
+    )
+}

@@ -60,6 +60,9 @@ struct Walk<'a> {
     frames: Vec<Arc<Frame>>,
     abstracts: Vec<Arc<Frame>>,
     active: Vec<(ExprId, Scope, Mode)>,
+    // In the subset proof, reject reads of the actual outer binder through any
+    // resolved frame/capture. This is not a public analysis-scope attestation.
+    forbidden: Option<(dive_ir::DefId, usize)>,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -98,6 +101,7 @@ pub(super) fn prove(
         frames: Vec::new(),
         abstracts: Vec::new(),
         active: Vec::new(),
+        forbidden: None,
     };
     walk.poll()?;
     for (roots, mode) in [(producers, Mode::Producer), (predicates, Mode::Reordered)] {
@@ -120,6 +124,53 @@ pub(super) fn prove(
     Ok(Some(ProducerStability {
         owner: Arc::downgrade(&evaluator.core),
     }))
+}
+
+#[cfg(test)]
+pub(super) fn closed_forall(
+    evaluator: &Evaluator,
+    original: Scope,
+    quantifier: ExprId,
+    body: ExprId,
+    outer_slot: usize,
+    state: &St,
+    base: &[Value],
+) -> crate::Result<bool> {
+    let Ok(bound) = evaluator.scope_binder_analysis(&original, quantifier) else {
+        return Ok(false);
+    };
+    let mut walk = Walk {
+        evaluator,
+        control: None,
+        tasks: Vec::new(),
+        results: Vec::new(),
+        frames: Vec::new(),
+        abstracts: Vec::new(),
+        active: Vec::new(),
+        forbidden: Some((original.env.frame.def, outer_slot)),
+    };
+    walk.poll()?;
+    reserve(&mut walk.abstracts, 1)?;
+    walk.abstracts.push(bound.env.frame.clone());
+    walk.schedule([
+        Task::Environment(original.env),
+        Task::State(state.s0.clone()),
+        Task::State(state.s1.clone()),
+        Task::Environment(bound.env.clone()),
+        Task::Expression(bound, body, Mode::Reordered, true),
+    ])?;
+    if !walk.run()? {
+        return Ok(false);
+    }
+    for value in base {
+        walk.poll()?;
+        walk.push(Task::Value(value.clone()))?;
+        if !walk.run()? {
+            return Ok(false);
+        }
+        walk.results.clear();
+    }
+    Ok(true)
 }
 
 impl Walk<'_> {
@@ -197,6 +248,25 @@ impl Walk<'_> {
             match task {
                 Task::Result(info) => self.result(info)?,
                 Task::Expression(scope, expr, mode, canonical) => {
+                    if self.forbidden.is_some()
+                        && (matches!(
+                            ev.ir().expr(expr),
+                            Expr::Var { .. }
+                                | Expr::Prime(_)
+                                | Expr::Unchanged(_)
+                                | Expr::SubstRef { primed: true, .. }
+                                | Expr::StepBox { .. }
+                                | Expr::StepAngle { .. }
+                        ) || matches!(
+                            ev.ir().expr(expr),
+                            Expr::Builtin {
+                                op: BuiltinOp::Prime | BuiltinOp::Unchanged | BuiltinOp::Enabled,
+                                ..
+                            }
+                        ) || self.active.iter().any(|(active, _, _)| *active == expr))
+                    {
+                        return Ok(false);
+                    }
                     if ev.admit_scoped_expr(&scope, expr).is_err()
                         || ev.ir().node(expr).effects.intersects(
                             Effects::IMPURE
@@ -296,8 +366,17 @@ impl Walk<'_> {
                         Sv::Unset => {}
                         Sv::Val(value) => self.push(Task::Value(value))?,
                         Sv::AnalysisBound | Sv::AnalysisConstant | Sv::Fcn(_) => return Ok(false),
-                        Sv::Thunk(thunk) => self
-                            .schedule([Task::Environment(thunk.env.clone()), Task::Thunk(thunk)])?,
+                        Sv::Thunk(thunk) => {
+                            // Shared mutable cache contents cannot be inspected
+                            // as a closed immutable context on a public Core.
+                            if self.forbidden.is_some() {
+                                return Ok(false);
+                            }
+                            self.schedule([
+                                Task::Environment(thunk.env.clone()),
+                                Task::Thunk(thunk),
+                            ])?;
+                        }
                         Sv::Op(operator) => {
                             if let OpVal::Def {
                                 parent: Some(parent),
@@ -659,6 +738,15 @@ impl Walk<'_> {
             E::Bool(_) | E::Num(_) => self.result(Info::canonical(true))?,
             E::Str(_) | E::Var { .. } => self.result(Info::canonical(false))?,
             E::Local(local) => {
+                if self.forbidden.is_some_and(|(definition, slot)| {
+                    local.slot.index() == slot
+                        && scope
+                            .env
+                            .frame_up(local.up)
+                            .is_some_and(|frame| frame.def == definition)
+                }) {
+                    return Ok(false);
+                }
                 let value = ev.scope_slot(scope, *local);
                 if matches!(value, SlotView::AnalysisBound | SlotView::AnalysisConstant) {
                     let Some(frame) = scope.env.frame_up(local.up) else {
@@ -697,6 +785,9 @@ impl Walk<'_> {
                     return Ok(false);
                 };
                 if declaration.variable {
+                    if self.forbidden.is_some() {
+                        return Ok(false);
+                    }
                     self.result(Info::canonical(false))?;
                 } else if let Some(constant) = declaration.constant {
                     return self.constant(scope, constant, mode);

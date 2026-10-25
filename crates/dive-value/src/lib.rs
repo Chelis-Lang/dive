@@ -63,6 +63,7 @@ pub use enumerate::MAX_ENUMERATION;
 pub use error::{ErrorKind, Result, ValueError};
 pub use int::Int;
 pub use names::NameError;
+pub use stream::{ConcreteSubsetStream, SubsetCommit, SubsetScratch};
 pub use value::{
     DeferredKind, DeferredSet, DomainLookup, Fcn, FcnKind, Set, SetKind, Value,
     quiet_operation_active,
