@@ -160,8 +160,8 @@ fn cursor_really_retains_the_original_core_until_its_active_environment_is_dropp
             .core
             .in_element_stream(set(&value))
             .expect("cursor construction")
-            .expect("positive cursor route");
-        drop(value);
+            .expect("positive cursor route")
+            .with_owner(value);
         drop(ev);
         assert_eq!(drops.load(Ordering::Relaxed), 0);
         assert_eq!(
@@ -171,5 +171,49 @@ fn cursor_really_retains_the_original_core_until_its_active_environment_is_dropp
         assert_eq!(calls.load(Ordering::Relaxed), before);
         drop(cursor);
         assert_eq!(drops.load(Ordering::Relaxed), 1);
+    }
+}
+
+#[test]
+fn accumulated_real_filter_frames_prepare_pull_and_drop_on_a_small_stack() {
+    for options in [Options::dive(), Options::tlc()] {
+        let ev = evaluator("F(S) == {a \\in S : TRUE}", options);
+        let def = ev.ir().root_def("F").expect("F");
+        let body = ev.ir().def(def).body;
+        let mut value = Value::subset(
+            Value::interval(1.into(), 0.into(), options.ctx),
+            options.ctx,
+        );
+        // Repeated real body evaluation accumulates captures without increasing
+        // the IR depth. Each frame uses the original lowered parameter slot.
+        for _ in 0..4096 {
+            let mut scope = ev.scope(def).expect("real parameter frame");
+            scope.env.bind(0, crate::env::Sv::Val(value));
+            value = ev
+                .core
+                .eval_v(&mut scope.env, &St::constant(), body)
+                .expect("original private Filter constructor");
+        }
+        std::thread::Builder::new()
+            .stack_size(256 * 1024)
+            .spawn(move || {
+                let mut cursor = ev
+                    .core
+                    .in_element_stream(set(&value))
+                    .expect("iterative preparation")
+                    .expect("private chain")
+                    .with_owner(value);
+                assert_eq!(cursor.filters.len(), 4096);
+                assert_eq!(
+                    cursor.next().expect("one value").expect("TRUE filters"),
+                    Value::empty_set(options.ctx)
+                );
+                // Deliberately stop before exhaustion, as an Init sink does.
+                drop(cursor);
+                assert_eq!(ev.take_output(), Vec::<String>::new());
+            })
+            .expect("small-stack cursor thread")
+            .join()
+            .expect("cursor teardown");
     }
 }

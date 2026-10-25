@@ -16,6 +16,44 @@ use crate::value::{Fcn, FcnRepr, Set, SetRepr, Value};
 /// A stream of elements in normalized order.
 pub(crate) type Elems = Box<dyn Iterator<Item = Value> + Send>;
 
+/// Legacy scalar-component eligibility: no heap work-list on the old path.
+fn concrete_component(value: &Value) -> bool {
+    let Value::Set(set) = value else {
+        return false;
+    };
+    scalar_set(set)
+}
+
+fn scalar_set(set: &Set) -> bool {
+    match set.repr() {
+        SetRepr::Interval(..) => true,
+        SetRepr::Enum | SetRepr::Raw(_) => set.stored_elements().is_some_and(|values| {
+            values.iter().all(|value| {
+                matches!(
+                    value,
+                    Value::Bool(_)
+                        | Value::Int(_)
+                        | Value::BigInt(_)
+                        | Value::Str(_)
+                        | Value::Model(_)
+                )
+            })
+        }),
+        _ => false,
+    }
+}
+
+fn scalar_compound(set: &Set) -> bool {
+    match set.repr() {
+        SetRepr::Subset(base) => concrete_component(base),
+        SetRepr::FcnSet(domain, range) => concrete_component(domain) && concrete_component(range),
+        SetRepr::Product(values) => values.iter().all(concrete_component),
+        SetRepr::RcdSet(fields) => fields.iter().all(|(_, value)| concrete_component(value)),
+        SetRepr::Enum | SetRepr::Raw(_) | SetRepr::Interval(..) => scalar_set(set),
+        _ => false,
+    }
+}
+
 /// Read-only inspection of concrete storage, never provider metadata or values.
 /// A failed optional work-list reservation declines before enumeration effects.
 enum Inspect<'a> {
@@ -32,6 +70,9 @@ fn inspect_push<'a>(pending: &mut Vec<Inspect<'a>>, value: Inspect<'a>) -> bool 
 }
 
 fn concrete_set(set: &Set, order: ValueOrder) -> bool {
+    if scalar_compound(set) {
+        return true;
+    }
     let mut pending = Vec::new();
     if !inspect_push(&mut pending, Inspect::Set(set)) {
         return false;
@@ -114,8 +155,110 @@ fn concrete_empty(value: &Value, ctx: Ctx) -> Result<bool> {
         SetRepr::Raw(values) => Ok(values.is_empty()),
         SetRepr::Enum => Ok(set.elements(ctx)?.is_empty()),
         SetRepr::Interval(..) => Ok(crate::enumerate::size(set, ctx)? == 0),
+        SetRepr::Subset(_) | SetRepr::FcnSet(..) | SetRepr::Product(_) | SetRepr::RcdSet(_) => {
+            compound_empty(set, ctx)
+        }
         _ => Err(not_enumerable(value, ctx)),
     }
+}
+
+// The newly eligible compounds follow TLC isEmpty without recursively walking
+// accumulated product/function storage. Existing scalar cases stay above.
+enum EmptyTask<'a> {
+    Set(&'a Set),
+    Range(&'a Value),
+    Columns {
+        set: &'a Set,
+        next: usize,
+        any: bool,
+    },
+}
+
+fn empty_push<'a>(tasks: &mut Vec<EmptyTask<'a>>, task: EmptyTask<'a>) -> Result<()> {
+    tasks.try_reserve(1).map_err(|error| {
+        ValueError::new(
+            ErrorKind::DiveLimit,
+            format!("concrete emptiness frames: {error}"),
+        )
+    })?;
+    tasks.push(task);
+    Ok(())
+}
+
+fn compound_empty(set: &Set, ctx: Ctx) -> Result<bool> {
+    let mut tasks = Vec::new();
+    empty_push(&mut tasks, EmptyTask::Set(set))?;
+    let mut empty = false;
+    while let Some(task) = tasks.pop() {
+        match task {
+            EmptyTask::Set(set) => match set.repr() {
+                SetRepr::Subset(_) => empty = false,
+                SetRepr::FcnSet(domain, range) => {
+                    empty_push(&mut tasks, EmptyTask::Range(range))?;
+                    let Value::Set(domain) = domain else {
+                        return Err(not_enumerable(domain, ctx));
+                    };
+                    empty_push(&mut tasks, EmptyTask::Set(domain))?;
+                }
+                SetRepr::Product(_) | SetRepr::RcdSet(_) => {
+                    empty_push(
+                        &mut tasks,
+                        EmptyTask::Columns {
+                            set,
+                            next: 0,
+                            any: false,
+                        },
+                    )?;
+                }
+                SetRepr::Raw(values) => empty = values.is_empty(),
+                SetRepr::Enum => empty = set.elements(ctx)?.is_empty(),
+                // In compound TLC isEmpty, unlike the original direct scalar
+                // helper, an interval compares its endpoints without size().
+                SetRepr::Interval(lo, hi) => empty = hi < lo,
+                _ => return Err(not_enumerable(&Value::Set(set.clone()), ctx)),
+            },
+            EmptyTask::Range(range) => {
+                if empty {
+                    // An empty function domain makes the function set nonempty
+                    // and skips the range, exactly as TLC isEmpty does.
+                    empty = false;
+                } else {
+                    let Value::Set(range) = range else {
+                        return Err(not_enumerable(range, ctx));
+                    };
+                    empty_push(&mut tasks, EmptyTask::Set(range))?;
+                }
+            }
+            EmptyTask::Columns { set, next, mut any } => {
+                if next != 0 {
+                    any |= empty;
+                }
+                let value = match set.repr() {
+                    SetRepr::Product(values) => values.get(next),
+                    SetRepr::RcdSet(fields) => fields.get(next).map(|(_, value)| value),
+                    _ => None,
+                };
+                if let Some(value) = value {
+                    // All columns are visited even after an empty column.
+                    empty_push(
+                        &mut tasks,
+                        EmptyTask::Columns {
+                            set,
+                            next: next + 1,
+                            any,
+                        },
+                    )?;
+                    let Value::Set(value) = value else {
+                        return Err(not_enumerable(value, ctx));
+                    };
+                    empty_push(&mut tasks, EmptyTask::Set(value))?;
+                } else {
+                    empty = any;
+                }
+            }
+        }
+    }
+    Ok(empty)
 }
 
 fn concrete_product_empty<'a>(values: impl Iterator<Item = &'a Value>, ctx: Ctx) -> Result<bool> {
@@ -147,7 +290,7 @@ fn concrete_functions(domain: &Value, range: &Value, ctx: Ctx) -> Result<Elems> 
     ))
 }
 
-/// Raw compound output storage for concrete scalar components. This is separate
+/// Raw output storage for recursively concrete finite components. This is separate
 /// from `stream()`, whose normalized bulk callers retain their original checks.
 pub(crate) fn concrete_raw(set: &Set, ctx: Ctx) -> Result<Option<Elems>> {
     if !concrete_set(set, set.order()) {

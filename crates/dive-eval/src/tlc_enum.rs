@@ -38,68 +38,73 @@ use crate::lazy::{Filter, SetOp};
 use crate::options::ExplorationOrder;
 
 /// A fallible pull cursor; original predicate work happens only when pulled.
-pub(crate) enum InElementStream {
-    Concrete(SetElementStream),
-    Filter(Box<FilterCursor>),
+/// Frames are outermost first, so their owners drop without a recursive cursor
+/// chain. The original assigned value drops while every frame is still alive.
+pub(crate) struct InElementStream {
+    root: Option<Value>,
+    filters: Vec<FilterFrame>,
+    source: SetElementStream,
+    done: bool,
 }
 
-pub(crate) struct FilterCursor {
-    // Drop the active per-enumeration environment/input before the original
-    // captured Filter owner (and its Core/Env/St) can be released.
+struct FilterFrame {
+    // Keep the original captured Filter/Core alive through active Env cleanup.
     env: crate::env::Env,
-    source: Box<InElementStream>,
     owner: Arc<dyn DeferredSet>,
-    done: bool,
+}
+
+impl InElementStream {
+    pub(crate) fn with_owner(mut self, root: Value) -> Self {
+        self.root = Some(root);
+        self
+    }
+}
+
+impl Drop for InElementStream {
+    fn drop(&mut self) {
+        // Release the caller's original root while all input owners remain
+        // retained, then release frames outermost first. No recursive cursor
+        // next/drop chain is introduced by folded filter accumulation.
+        drop(self.root.take());
+        for frame in self.filters.drain(..) {
+            drop(frame);
+        }
+    }
 }
 
 impl Iterator for InElementStream {
     type Item = Result<Value>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        match self {
-            Self::Concrete(source) => source.next().map(Ok),
-            Self::Filter(filter) => filter.next(),
-        }
-    }
-}
-
-impl Iterator for FilterCursor {
-    type Item = Result<Value>;
-
-    fn next(&mut self) -> Option<Self::Item> {
         if self.done {
             return None;
         }
-        loop {
-            let value = match self.source.next() {
-                Some(Ok(value)) => value,
-                Some(Err(error)) => {
-                    self.done = true;
-                    return Some(Err(error));
-                }
-                None => {
-                    self.done = true;
-                    return None;
-                }
-            };
-            let Some(filter) = self
-                .owner
-                .as_any()
-                .and_then(|value| value.downcast_ref::<Filter>())
-            else {
+        'input: loop {
+            let Some(value) = self.source.next() else {
                 self.done = true;
-                return Some(Err(EvalError::bug(
-                    "private filter cursor owner changed type",
-                )));
+                return None;
             };
-            match filter.core.filter_keeps(filter, &mut self.env, &value) {
-                Ok(true) => return Some(Ok(value)),
-                Ok(false) => {}
-                Err(error) => {
+            for frame in self.filters.iter_mut().rev() {
+                let Some(filter) = frame
+                    .owner
+                    .as_any()
+                    .and_then(|owner| owner.downcast_ref::<Filter>())
+                else {
                     self.done = true;
-                    return Some(Err(error));
+                    return Some(Err(EvalError::bug(
+                        "private filter cursor owner changed type",
+                    )));
+                };
+                match filter.core.filter_keeps(filter, &mut frame.env, &value) {
+                    Ok(true) => {}
+                    Ok(false) => continue 'input,
+                    Err(error) => {
+                        self.done = true;
+                        return Some(Err(error));
+                    }
                 }
             }
+            return Some(Ok(value));
         }
     }
 }
@@ -112,46 +117,62 @@ impl Core {
         self: &Arc<Self>,
         set: &dive_value::Set,
     ) -> Result<Option<InElementStream>> {
-        if set.order() != self.opts.explore_order() {
+        // Ordinary explicit assignments retain the existing in_elements path.
+        // Explicit/interval streams are needed only below an authentic Filter.
+        if matches!(set.kind(), SetKind::Enum | SetKind::Raw | SetKind::Interval) {
             return Ok(None);
         }
-        if set.kind() != SetKind::Deferred {
-            return Ok(set
-                .concrete_element_stream(self.ctx)?
-                .map(InElementStream::Concrete));
+        let mut filters = Vec::new();
+        let mut current = set;
+        loop {
+            if current.order() != self.opts.explore_order() {
+                return Ok(None);
+            }
+            if current.kind() != SetKind::Deferred {
+                return Ok(current.concrete_element_stream(self.ctx)?.map(|source| {
+                    InElementStream {
+                        root: None,
+                        filters,
+                        source,
+                        done: false,
+                    }
+                }));
+            }
+            if current.has_cached_elements() {
+                return Ok(None);
+            }
+            let Some(owner) = current.as_deferred() else {
+                return Ok(None);
+            };
+            // Any's blanket identity cannot invoke an unknown provider's
+            // overridable as_any/kind/elements methods.
+            if std::any::Any::type_id(owner.as_ref()) != std::any::TypeId::of::<Filter>() {
+                return Ok(None);
+            }
+            let Some(filter) = owner
+                .as_any()
+                .and_then(|value| value.downcast_ref::<Filter>())
+            else {
+                return Ok(None);
+            };
+            if !Arc::ptr_eq(self, &filter.core) {
+                return Ok(None);
+            }
+            let Value::Set(input) = &filter.in_val else {
+                return Ok(None);
+            };
+            // Accumulated private filters need not be bounded by IR depth.
+            // Preparation uses cooperative control and fallible flat storage.
+            self.loop_work()?;
+            filters.try_reserve(1).map_err(|error| {
+                EvalError::resource_limit(format!("filter cursor frames: {error}"))
+            })?;
+            filters.push(FilterFrame {
+                env: filter.env.clone(),
+                owner: owner.clone(),
+            });
+            current = input;
         }
-        if set.has_cached_elements() {
-            return Ok(None);
-        }
-        let Some(owner) = set.as_deferred() else {
-            return Ok(None);
-        };
-        // Any's blanket type identity is callback-free, unlike an arbitrary
-        // provider's overridable as_any/kind/elements methods.
-        if std::any::Any::type_id(owner.as_ref()) != std::any::TypeId::of::<Filter>() {
-            return Ok(None);
-        }
-        let Some(filter) = owner
-            .as_any()
-            .and_then(|value| value.downcast_ref::<Filter>())
-        else {
-            return Ok(None);
-        };
-        if !Arc::ptr_eq(self, &filter.core) {
-            return Ok(None);
-        }
-        let Value::Set(input) = &filter.in_val else {
-            return Ok(None);
-        };
-        let Some(source) = self.in_element_stream(input)? else {
-            return Ok(None);
-        };
-        Ok(Some(InElementStream::Filter(Box::new(FilterCursor {
-            owner: owner.clone(),
-            env: filter.env.clone(),
-            source: Box::new(source),
-            done: false,
-        }))))
     }
 
     /// The elements `x' \in S` (and `x \in S` in an initial predicate) binds,
