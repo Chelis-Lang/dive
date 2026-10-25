@@ -510,7 +510,7 @@ fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> bind::R<Model> {
         stateful_checking: None,
     };
     model.unsupported = reach::unsupported(b, &model);
-    let sequential = reach::sequential(b, &model);
+    let sequential = reach::sequential(b, &model)?;
     model.sequential = sequential.reasons;
     model.sequential_names_only = sequential.names_only;
     model.runtime_name_order = sequential.runtime_names;

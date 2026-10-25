@@ -10,6 +10,8 @@ use crate::bind::Binder;
 use crate::model::{Model, Pred, Unsupported, UnsupportedKind};
 use crate::tables::Look;
 
+mod tuple_calls;
+
 /// The features of `model` dive refuses, in a stable order.
 pub(crate) fn unsupported(b: &Binder<'_>, model: &Model) -> Vec<Unsupported> {
     let mut out: Vec<Unsupported> = b
@@ -243,7 +245,7 @@ pub const TLC_CDOT: &str = "action composition under `--action-composition=tlc` 
 ///
 /// `Print` elsewhere does not force sequential mode: the checker buffers its
 /// output and releases it in TLC's order.
-pub(crate) fn sequential(b: &Binder<'_>, model: &Model) -> Sequential {
+pub(crate) fn sequential(b: &Binder<'_>, model: &Model) -> crate::bind::R<Sequential> {
     let ir = &*model.ir;
     let (roots, mut exprs) = checking_path(b, model);
     let reach = ir.reachable_defs(&roots);
@@ -338,7 +340,18 @@ pub(crate) fn sequential(b: &Binder<'_>, model: &Model) -> Sequential {
             "side effects inside a lazily evaluated value bound with the model, which TLC caches (a LET or an operator argument)".to_owned(),
         );
     }
-    classify_sequential(out, names, composition)
+    let concat = format!(
+        "{} (runtime names require TLC encounter order)",
+        StdOp::SequencesConcat.qualified_name()
+    );
+    if names.contains(&concat)
+        && tuple_calls::prove(b, model)?.is_some_and(|fact| fact.belongs_to(b.ev()))
+    {
+        // The proof accounts for every real root/call, not just native
+        // definition visibility. Other creators and sequential causes remain.
+        names.remove(&concat);
+    }
+    Ok(classify_sequential(out, names, composition))
 }
 
 fn classify_sequential(

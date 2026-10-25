@@ -323,6 +323,17 @@ reads and some modes can require an inline run. A requested pool width is not
 a claim that every step used that many active threads. `--sequential` explicitly
 selects inline checking. Simulation and checkpoint widths have separate limits.
 
+Under TLC value or exploration order, runtime string creation can also require
+an inline run. Concatenation alone does not add this restriction when a complete
+source inspection proves that every reachable call has a tuple operand: literal
+tuples, unchanged native `Append`, and transparent calls and branches can establish
+the successful result kind. Argument expressions retain their own restrictions.
+Unknown state values, higher-order calls, configured native origins, overrides
+and opaque captured providers keep the conservative route. This proof does not
+assume a type invariant, remove other sequential causes, or change evaluation,
+error behavior or resource limits. Requested and used widths remain reported;
+the source proof is not a worker-utilization or performance measurement.
+
 Pure safety symmetry retains concrete counterexamples while canonicalizing
 visited keys. Unsupported representative/startup/value interactions refuse.
 Ordinary `RandomElement` checking supports a closed pure VIEW and pure startup/Init.

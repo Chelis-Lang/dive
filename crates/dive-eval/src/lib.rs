@@ -61,6 +61,7 @@ mod std;
 mod svg;
 mod tla_cmp;
 mod tlc_enum;
+mod tuple_names;
 
 use ::std::collections::HashMap;
 use ::std::sync::Arc;
@@ -83,6 +84,7 @@ pub use crate::options::{
 };
 pub use crate::scope::{Scope, SlotView};
 pub use crate::stability::ProducerStability;
+pub use crate::tuple_names::TupleConcatSources;
 
 use crate::core::Core;
 use crate::env::{Dyn, Env, Ev};
