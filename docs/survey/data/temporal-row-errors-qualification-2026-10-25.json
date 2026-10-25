@@ -1,0 +1,268 @@
+{
+  "schema_version": 1,
+  "measurement": "certified temporal row error validation microcorpora",
+  "status": "FULL_GATE_PASSED",
+  "source": "92a33e3bc5e7b3991e594133e37fe8eabd8d0f72",
+  "tree": "4f8f32e84c877d13c675fe9743493c95147c764d",
+  "cli_sha256": "ac7c446d84ded50c7757ecd1c056e494895cd74cc995ec070eab37ad1795e618",
+  "harness_sha256": "9df75b9f447b0d71c77c528fc3b3ae89e4ea9321712c232460225f58cbf8fd6f",
+  "profiles": [
+    "tlc",
+    "dive"
+  ],
+  "policy": {
+    "workers": 1,
+    "jobs": 2,
+    "seed": 0,
+    "fingerprint": 0,
+    "native_time_seconds": 60,
+    "native_memory": "512m",
+    "harness_timeout_seconds": 65
+  },
+  "selected_models_per_profile": 13,
+  "summary_per_profile": {
+    "agree": 9,
+    "unsupported": 4,
+    "disagree": 0,
+    "timeout": 0,
+    "pending_trace_validation": 0
+  },
+  "by_corpus_per_profile": {
+    "selectseq-concat-type-capability": {
+      "agree": 6,
+      "unsupported": 1
+    },
+    "liveness-atom-error-timing": {
+      "agree": 2,
+      "unsupported": 2
+    },
+    "temporal-demand-primary-probes": {
+      "agree": 1,
+      "unsupported": 1
+    }
+  },
+  "changed_error_models": [
+    {
+      "id": "selectseq-concat-type-capability:specifications/ConcatFirstTypeError/ConcatFirstTypeError.cfg",
+      "golden_path": "conformance/golden/tlc-2026.10.06.014338/selectseq-concat-type-capability/specifications/ConcatFirstTypeError/ConcatFirstTypeError.cfg.json",
+      "golden_sha256": "2872af44775b556c3d7538383d0cb103630a4c9352e96dac4cd7056642e7dfb8",
+      "runs": {
+        "tlc": {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "evaluation-error",
+          "verdict_code": 2182,
+          "exit_code": 255,
+          "error_class": "TLC_MODULE_EVALUATING",
+          "distinct_states": 2,
+          "states_generated": 2,
+          "depth": 2,
+          "trace_length": 1
+        },
+        "dive": {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "evaluation-error",
+          "verdict_code": 2182,
+          "exit_code": 255,
+          "error_class": "TLC_MODULE_EVALUATING",
+          "distinct_states": 2,
+          "states_generated": 2,
+          "depth": 2,
+          "trace_length": 1
+        }
+      }
+    },
+    {
+      "id": "selectseq-concat-type-capability:specifications/ConcatSecondTypeError/ConcatSecondTypeError.cfg",
+      "golden_path": "conformance/golden/tlc-2026.10.06.014338/selectseq-concat-type-capability/specifications/ConcatSecondTypeError/ConcatSecondTypeError.cfg.json",
+      "golden_sha256": "1582885abde2ae3fcd68b3c8add08d413ac131762f90bed8978397ada287992c",
+      "runs": {
+        "tlc": {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "evaluation-error",
+          "verdict_code": 2182,
+          "exit_code": 255,
+          "error_class": "TLC_MODULE_EVALUATING",
+          "distinct_states": 2,
+          "states_generated": 2,
+          "depth": 2,
+          "trace_length": 1
+        },
+        "dive": {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "evaluation-error",
+          "verdict_code": 2182,
+          "exit_code": 255,
+          "error_class": "TLC_MODULE_EVALUATING",
+          "distinct_states": 2,
+          "states_generated": 2,
+          "depth": 2,
+          "trace_length": 1
+        }
+      }
+    },
+    {
+      "id": "selectseq-concat-type-capability:specifications/RightChildErrorBeforeKernel/RightChildErrorBeforeKernel.cfg",
+      "golden_path": "conformance/golden/tlc-2026.10.06.014338/selectseq-concat-type-capability/specifications/RightChildErrorBeforeKernel/RightChildErrorBeforeKernel.cfg.json",
+      "golden_sha256": "47f9bb9436ea9ef8fbf97a3fc5126832d0c8ba753d7304a8f6ec0c95140af83d",
+      "runs": {
+        "tlc": {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "evaluation-error",
+          "verdict_code": 2179,
+          "exit_code": 255,
+          "error_class": "TLC_MODULE_DIVISION_BY_ZERO",
+          "distinct_states": 2,
+          "states_generated": 2,
+          "depth": 2,
+          "trace_length": 1
+        },
+        "dive": {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "evaluation-error",
+          "verdict_code": 2179,
+          "exit_code": 255,
+          "error_class": "TLC_MODULE_DIVISION_BY_ZERO",
+          "distinct_states": 2,
+          "states_generated": 2,
+          "depth": 2,
+          "trace_length": 1
+        }
+      }
+    },
+    {
+      "id": "liveness-atom-error-timing:specifications/DelayedSiblingStateError/DelayedSiblingStateError.cfg",
+      "golden_path": "conformance/golden/tlc-2026.10.06.014338/liveness-atom-error-timing/specifications/DelayedSiblingStateError/DelayedSiblingStateError.cfg.json",
+      "golden_sha256": "45df6870ba806a2ad97861cb44de4cf550a634e69bd3a537e4c7e8bdaa8cb67a",
+      "runs": {
+        "tlc": {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "evaluation-error",
+          "verdict_code": 2179,
+          "exit_code": 255,
+          "error_class": "TLC_MODULE_DIVISION_BY_ZERO",
+          "distinct_states": 4,
+          "states_generated": 4,
+          "depth": 3,
+          "trace_length": 2
+        },
+        "dive": {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "evaluation-error",
+          "verdict_code": 2179,
+          "exit_code": 255,
+          "error_class": "TLC_MODULE_DIVISION_BY_ZERO",
+          "distinct_states": 4,
+          "states_generated": 4,
+          "depth": 3,
+          "trace_length": 2
+        }
+      }
+    },
+    {
+      "id": "temporal-demand-primary-probes:specifications/CurrentStateBinPriority/CurrentStateBinPriority.cfg",
+      "golden_path": "conformance/golden/tlc-2026.10.06.014338/temporal-demand-primary-probes/specifications/CurrentStateBinPriority/CurrentStateBinPriority.cfg.json",
+      "golden_sha256": "a5fd4654bf93b74e5200b70767e2acc2ea88ec6751420dd01f921a48f367ff0e",
+      "runs": {
+        "tlc": {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "evaluation-error",
+          "verdict_code": 2179,
+          "exit_code": 255,
+          "error_class": "TLC_MODULE_DIVISION_BY_ZERO",
+          "distinct_states": 2,
+          "states_generated": 2,
+          "depth": 2,
+          "trace_length": 1
+        },
+        "dive": {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "evaluation-error",
+          "verdict_code": 2179,
+          "exit_code": 255,
+          "error_class": "TLC_MODULE_DIVISION_BY_ZERO",
+          "distinct_states": 2,
+          "states_generated": 2,
+          "depth": 2,
+          "trace_length": 1
+        }
+      }
+    }
+  ],
+  "remaining_unsupported": [
+    "selectseq-concat-type-capability:StringConcatNames",
+    "liveness-atom-error-timing:CombinedUnusedAtom",
+    "liveness-atom-error-timing:TableauInitAtomError",
+    "temporal-demand-primary-probes:UnusedDemandTautology"
+  ],
+  "independent_validation_scope": "Harness agreement requires fresh independent configured-source finite Error endpoint replay. It does not certify BFS counts, whole capture completion, timing, shortest word, lasso or temporal violated-property attribution. Standalone validate-trace controls also passed in focused qualification.",
+  "fallback_regression": "All due prefixes retain legacy full-frontier labels/topology/attribution. Optional cache only feeds complete final capture. Unpromotable semantic failure clears all row truth and continues same capture; interruption/resource/bug propagate. Existing ordinary_periodic tests unchanged.",
+  "focused_controls": 117,
+  "full_gate": {
+    "status": "passed",
+    "source": "92a33e3bc5e7b3991e594133e37fe8eabd8d0f72",
+    "report_sha256": "6e323fb4cf04f1a00af234bd8c53bc24b9352ce597d036f58f6e06ce7b408862",
+    "rust_tests_passed": 2450,
+    "rust_tests_skipped": 0,
+    "cm1_and_validation_workers": [
+      1,
+      4,
+      8
+    ],
+    "tlc_small": {
+      "models": 156,
+      "agree": 150,
+      "unsupported": 6,
+      "SANY_agree": 458,
+      "disagree": 0,
+      "timeout": 0,
+      "baseline_regressions": 0
+    },
+    "default_small": {
+      "models": 156,
+      "agree": 144,
+      "unsupported": 5,
+      "expected_divergence": 7,
+      "disagree": 0,
+      "timeout": 0,
+      "baseline_regressions": 0
+    },
+    "cargo_deny": "not run: Cargo.lock and deny.toml unchanged"
+  },
+  "established_populations": {
+    "small_156_credit": 0,
+    "full_217_credit": 0,
+    "full_measurement_unchanged": "181/217 at68c09a1b",
+    "goldens_or_baselines_changed": false
+  },
+  "evidence": {
+    "normal_report_identities": {
+      "tlc": {
+        "run_id": "20261025T054115150-dive-all",
+        "sha256": "cd83b436f9343ac9e8b1307685d1def8a28c65996e4c6e6385ff89a37dc53188"
+      },
+      "dive": {
+        "run_id": "20261025T054116121-dive-all",
+        "sha256": "9c760c189a131fffe5a9583d9bd7eadebdf51ce3b233afa73ce6ac1c1c8a0c57"
+      }
+    },
+    "retained_raw_S3_preservation": "pending Root verification; no S3 verification claimed",
+    "independent_full_gate_audit": "pending"
+  },
+  "limitations": [
+    "Completed full gate and normal reports are source-bound; independent full-gate audit and raw retention are recorded separately when verified.",
+    "Five changed models belong only to isolated validation microcorpora; no small/full baseline refresh.",
+    "Startup2253, residual/tableau demand and unproved code/provider contexts remain unsupported.",
+    "No performance or memory improvement is measured."
+  ],
+  "date": "2026-10-25"
+}

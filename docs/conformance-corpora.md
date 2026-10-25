@@ -150,13 +150,19 @@ reason, one worker, seed/fingerprint zero, a 256 MB heap and an explicit
 setup subprocesses completed normally. The harness built at `1d11a2f0` retained
 original setup/model evidence; raw outputs remain external.
 
-The subsequent native comparison agrees on the captured hold/fail pair and empty
-selection in both profiles. The failing word passes fresh independent validation.
+The historical native comparison at `92bc7589` agrees on the captured hold/fail
+pair and empty selection in both profiles. The failing word passes fresh independent validation.
 The three evaluation-error controls remain `DIVE-L0033` refusals (issue #451),
 and string concatenation retains `DIVE-L0020`: this is three agreements and four
 refusals in each profile. A separate TLC-profile run of EWD998ChanID still refuses
 VIEW graph capture (issue #428). These results add no agreement to the established
 small or full populations. See the [compact qualification](survey/data/selectseq-concat-qualification-2026-10-24.json).
+The 2026-10-25 comparison at `92a33e3b` reports **six agreements and one
+refusal in each profile**. The three finite evaluation-error controls now match
+the pinned classes, physical status 255, counts and depth, with fresh independent
+error-endpoint validation. `StringConcatNames` remains refused. These isolated
+results add no small- or full-tier agreement; see the
+[current qualification](survey/data/temporal-row-errors-qualification-2026-10-25.json).
 Select this microcorpus explicitly with
 `--corpus selectseq-concat-type-capability --tier all --no-sany`.
 
@@ -174,10 +180,16 @@ depth two and a finite one-state error prefix `x = 0`.
 The normal harness generated both references with their recorded reasons and
 unchanged provenance: pinned TLC `94d0c507`, one worker, seed/fingerprint zero,
 512 MB heap and 60-second per-model timeout. The source manifests retain
-`runtime` and `result` as `unknown`. Ordinary comparisons in both profiles
-still report two refusals: `DIVE-L0033` wraps division error 2179 for the
-tautology and type error 2182 for the priority case. Neither is ordinary error
-parity or a new agreement. Select this separate microcorpus explicitly with
+`runtime` and `result` as `unknown`. Before the consumer, ordinary comparisons
+in both profiles reported two refusals: `DIVE-L0033` wrapped division error 2179
+for the tautology and type error 2182 for the priority case. Those historical
+results earned no error-parity credit.
+
+The `92a33e3b` comparison reports **one agreement and one refusal in each
+profile**: `CurrentStateBinPriority` now matches error 2179 and independently
+validates its finite endpoint. `UnusedDemandTautology` remains unsupported;
+startup 2253 is not reproduced and never becomes a holding result. Select this
+separate microcorpus explicitly with
 `--corpus temporal-demand-primary-probes --tier all --no-sany`; it changes
 neither the established 156-model small tier nor the 265-model full selection.
 

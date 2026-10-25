@@ -538,6 +538,16 @@ alone do not validate a dive error prefix or qualify an ordinary error verdict.
 
 See the [compact primary observations](../survey/data/liveness-atom-error-timing-primary-2026-10-24.json) for input and generated-reference identities, exact outcomes and limitations.
 
+The `92a33e3b` ordinary comparison records two agreements and two refusals in
+this four-model corpus, in both profiles. `DelayedSiblingStateError` now matches
+2179/255 and its partial counts with independent finite endpoint validation;
+the invalid bare-action model already agrees on its SANY rejection.
+`CombinedUnusedAtom` and `TableauInitAtomError` remain unsupported. Together with
+the separate Concat and bin-priority controls, the five new agreements are
+outside the established small and full populations. The
+[qualification](../survey/data/temporal-row-errors-qualification-2026-10-25.json)
+retains the tested source and unchanged baseline results.
+
 The Rust detailed temporal-failure APIs retain a state atom's original typed
 cause separately from its bound predicate source. `state_evaluation()` identifies
 whether that failure occurred in final graph labels, a completed-level periodic
