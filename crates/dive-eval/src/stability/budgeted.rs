@@ -1,7 +1,16 @@
 //! Budget-backed canonical inspection. Tasks own only metadata/storage owners;
 //! executing a task never evaluates an expression or consults a provider.
 
-use super::*;
+use std::sync::Arc;
+
+use dive_ir::{
+    Arg, BuiltinOp, Effects, Expr, ExprId, OpRef, QuantKind, StdKind, StdOp, StdSupport,
+};
+use dive_value::{SetKind, Value};
+
+use super::{Fact, Mode, ProducerStability};
+use crate::env::{Env, Ev, Frame, OpVal, StateRef, Sv};
+use crate::{ConstBinding, Evaluator, Scope, SlotView, St};
 
 #[derive(Clone, Copy)]
 struct Info {
@@ -616,7 +625,7 @@ impl Walk<'_> {
                 Task::Result(Info::canonical(!matches!(value, Value::Str(_)))),
             ])?,
             SlotView::Lazy(body, captured) => {
-                self.push(Task::Expression(captured, body, mode, false))?
+                self.push(Task::Expression(captured, body, mode, false))?;
             }
             _ => return Ok(false),
         }
@@ -739,7 +748,7 @@ impl Walk<'_> {
                     )?;
                 }
             }
-            E::Tuple(items) => self.children(
+            E::Tuple(items) | E::Junction { items, .. } => self.children(
                 scope,
                 items.iter().copied(),
                 mode,
@@ -766,18 +775,11 @@ impl Walk<'_> {
                 )?;
             }
             E::Not(child) | E::Unchanged(child) => {
-                self.children(scope, [*child], mode, true, Info::canonical(true))?
+                self.children(scope, [*child], mode, true, Info::canonical(true))?;
             }
             E::Prime(child) | E::Selected(child) | E::Label { body: child, .. } => {
                 self.push(Task::Expression(scope.clone(), *child, mode, true))?;
             }
-            E::Junction { items, .. } => self.children(
-                scope,
-                items.iter().copied(),
-                mode,
-                true,
-                Info::canonical(true),
-            )?,
             E::Implies(a, b)
             | E::Equiv(a, b)
             | E::StepBox { action: a, sub: b }
@@ -813,7 +815,7 @@ impl Walk<'_> {
                 self.sequence(tasks)?;
             }
             E::Let { body, .. } | E::Subst { body, .. } => {
-                self.push(Task::Nested(scope.clone(), expr, *body, mode))?
+                self.push(Task::Nested(scope.clone(), expr, *body, mode))?;
             }
             E::Quant {
                 kind: QuantKind::Forall | QuantKind::Exists,
@@ -834,14 +836,38 @@ impl Walk<'_> {
                 self.sequence(tasks)?;
             }
             E::FcnApply { fcn, arg } => {
-                self.children(scope, [*fcn, *arg], mode, true, Info::canonical(false))?
+                self.children(scope, [*fcn, *arg], mode, true, Info::canonical(false))?;
             }
             E::RecordSelect { record, .. } => {
-                self.children(scope, [*record], mode, true, Info::canonical(false))?
+                self.children(scope, [*record], mode, true, Info::canonical(false))?;
             }
             _ => return Ok(false),
         }
         Ok(true)
+    }
+
+    fn called_body(
+        &self,
+        scope: &Scope,
+        original: &OpRef,
+        def: dive_ir::DefId,
+        args: &[Arg],
+        mode: Mode,
+    ) -> Option<Task> {
+        let called = match original {
+            OpRef::Param(local) => match self.evaluator.scope_apply_param(scope, *local, args) {
+                Some(Ok((_, called))) => Some(called),
+                _ => None,
+            },
+            _ if args.is_empty() => self.evaluator.scope_enter(scope, def).ok(),
+            _ => self.evaluator.scope_apply(scope, def, args).ok(),
+        }?;
+        Some(Task::CachedBody(
+            called,
+            self.evaluator.ir().def(def).body,
+            mode,
+            self.evaluator.core.cacheable(def),
+        ))
     }
 
     fn call_value(&mut self, call: ResolvedCall) -> crate::Result<bool> {
@@ -924,27 +950,11 @@ impl Walk<'_> {
                         seen,
                     }));
                 } else {
-                    let called = match &original {
-                        OpRef::Param(local) => match ev.scope_apply_param(&scope, *local, &args) {
-                            Some(Ok((_, called))) => called,
-                            _ => return Ok(false),
-                        },
-                        _ if args.is_empty() => match ev.scope_enter(&scope, def) {
-                            Ok(called) => called,
-                            Err(_) => return Ok(false),
-                        },
-                        _ => match ev.scope_apply(&scope, def, &args) {
-                            Ok(called) => called,
-                            Err(_) => return Ok(false),
-                        },
+                    let Some(body) = self.called_body(&scope, &original, def, &args, mode) else {
+                        return Ok(false);
                     };
                     reserve(&mut tasks, 1)?;
-                    tasks.push(Task::CachedBody(
-                        called,
-                        definition.body,
-                        mode,
-                        ev.core.cacheable(def),
-                    ));
+                    tasks.push(body);
                 }
                 self.sequence(tasks)?;
             }
