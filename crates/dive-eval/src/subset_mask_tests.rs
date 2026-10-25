@@ -17,7 +17,8 @@ fn evaluator(extra: &str, expression: &str, options: Options) -> Evaluator {
     let source = format!(
         "---- MODULE MaskContext ----\nEXTENDS Integers,FiniteSets,TLC\nVARIABLE x\n{extra}\nF == {expression}\n====\n"
     );
-    let analysis = dive_sema::analyze_source("MaskContext.tla", &source, &Default::default());
+    let analysis =
+        dive_sema::analyze_source("MaskContext.tla", &source, &dive_sema::Options::default());
     assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
     Evaluator::new(
         Model::new(Arc::new(dive_ir::lower(&analysis).expect("IR"))),
@@ -297,7 +298,8 @@ fn unused_actual_provider_capture_is_not_queried_or_released_by_inspection() {
     let drops = Arc::new(AtomicUsize::new(0));
     {
         let text = "---- MODULE CapturedProvider ----\nEXTENDS FiniteSets\nCONSTANT C\nMake(S,Unused) == {A \\in SUBSET S : \\A e \\in A : Cardinality(e)=1}\nF == Make(SUBSET {1,2},C)\n====\n";
-        let analysis = dive_sema::analyze_source("CapturedProvider.tla", text, &Default::default());
+        let analysis =
+            dive_sema::analyze_source("CapturedProvider.tla", text, &dive_sema::Options::default());
         assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
         let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
         let def = ir.root_def("F").expect("F");

@@ -17,7 +17,8 @@ fn evaluator(extra: &str, expression: &str, options: Options) -> Evaluator {
     let text = format!(
         "---- MODULE MaskRuntime ----\nEXTENDS Integers,FiniteSets,TLC\nVARIABLE x\n{extra}\nF == {expression}\n====\n"
     );
-    let analysis = dive_sema::analyze_source("MaskRuntime.tla", &text, &Default::default());
+    let analysis =
+        dive_sema::analyze_source("MaskRuntime.tla", &text, &dive_sema::Options::default());
     assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
     Evaluator::new(
         crate::Model::new(Arc::new(dive_ir::lower(&analysis).expect("real IR"))),
@@ -278,7 +279,7 @@ fn typed_cancellation_and_changed_depth_do_not_consume_a_skipped_position() {
             assert!(stream.next().expect("ordinary pair").is_ok());
             assert_eq!(stream.mask_progress(), Some(("ready", 0)));
         }
-        assert!(!drain(&mut stream).is_empty());
+        assert_ne!(drain(&mut stream), [] as [Value; 0]);
         assert!(stream.mask_progress().expect("typed path").1 > 0);
     }
 }
