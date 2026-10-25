@@ -437,7 +437,13 @@ mod tests {
         let singleton = build.push(Node::Or(vec![atoms[0]]))?;
         let root = build.push(Node::And(vec![singleton]))?;
         let root = build.dnf(root, 0)?;
-        assert!(matches!(&build.nodes[root],Node::And(cs) if cs==&[singleton]));
+        let Node::And(children) = &build.nodes[root] else {
+            return Err("singleton DNF conjunction".into());
+        };
+        assert_eq!(children.len(), 1);
+        assert_eq!(build.nodes[children[0]], Node::Or(vec![atoms[0]]));
+        assert_eq!(build.nodes[atoms[0]], Node::Atom(0));
+        assert_eq!(build.nodes[singleton], Node::Or(vec![atoms[0]]));
         let empty = build.push(Node::Or(Vec::new()))?;
         let root = build.push(Node::And(vec![empty]))?;
         let root = build.dnf(root, 0)?;
