@@ -1,5 +1,9 @@
 # Changelog
 
+- Record the private eight-cell function-membership census. It establishes no
+  qualified repeat successes or instruction savings; provider-excluded work
+  remains unknown, and no membership cache is implemented.
+
 - Record complete frozen-main instruction and caller attribution, including a
   bounded EXCEPT cost query. Selected contexts do not justify a 5% rewrite;
   no runtime change or throughput improvement follows from the evidence.
