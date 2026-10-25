@@ -1,0 +1,95 @@
+{
+  "source": "4a9b1d3b8cefed628b94a4d83d813b1a3e66b402",
+  "oracle_source": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "harness_source": "5217163fcf81c330238703f6369512e174357873",
+  "corpus_pin": "sha256:a1d7eb088f45e48a474df298ec18dd0a4b64f70bfdbb5865e39eec958dd0b398",
+  "cases": {
+    "NestedNonBooleanAfterEmpty": {
+      "stdout_sha256": "4f8f6da0efb22e0e2e1ac204a2b03d2a6aa3515983ead3e142fbe3e180ceb9cb",
+      "stdout_bytes": 3583,
+      "exit_code": 75,
+      "signal": null,
+      "timed_out": false,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_bytes": 0,
+      "counts": {
+        "distinct_states": 1,
+        "states_generated": 1,
+        "states_left_on_queue": 1,
+        "depth": 1
+      },
+      "inputs": {
+        "specifications/NestedNonBooleanAfterEmpty/NestedNonBooleanAfterEmpty.cfg": {
+          "sha256": "817faebdc9fd7233e019188a206aa2785baf86be928714f2dfcd606d7e105f0f",
+          "bytes": 41
+        },
+        "specifications/NestedNonBooleanAfterEmpty/NestedNonBooleanAfterEmpty.tla": {
+          "sha256": "8050cc441487ff2470d6ce0326cb30a770986de87eaf9ad6255b06116b020041",
+          "bytes": 219
+        },
+        "specifications/NestedNonBooleanAfterEmpty/manifest.json": {
+          "sha256": "c3c305f0d15aa6251b495adabefbb7293f4da88de876b99176dd7cb70038b38c",
+          "bytes": 547
+        }
+      }
+    },
+    "ExplicitOuterPowersetCardinality": {
+      "stdout_sha256": "d1bda35f6f701f687eef6953fb596499a04a2eb39f3f2c2d0f6dbd59abe197f8",
+      "stdout_bytes": 4087,
+      "exit_code": 75,
+      "signal": null,
+      "timed_out": false,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_bytes": 0,
+      "counts": {
+        "distinct_states": 0,
+        "states_generated": 0,
+        "states_left_on_queue": 0,
+        "depth": 0
+      },
+      "inputs": {
+        "specifications/ExplicitOuterPowersetCardinality/ExplicitOuterPowersetCardinality.cfg": {
+          "sha256": "817faebdc9fd7233e019188a206aa2785baf86be928714f2dfcd606d7e105f0f",
+          "bytes": 41
+        },
+        "specifications/ExplicitOuterPowersetCardinality/ExplicitOuterPowersetCardinality.tla": {
+          "sha256": "36cf643637514274f4e566d7c405627bd415ca96b0c63b7c05a72732a0959b6e",
+          "bytes": 173
+        },
+        "specifications/ExplicitOuterPowersetCardinality/manifest.json": {
+          "sha256": "e2c2ad41aaa201f5d9db91d8cf1e7485b93db160695ed98a18aad42a56be3645",
+          "bytes": 571
+        }
+      }
+    },
+    "RequiredInnerComponentOverflow": {
+      "stdout_sha256": "0195abe5df0682ecaf3edd83f2f09e4c24429a93b1d92ef8808fee23fd8c5fcf",
+      "stdout_bytes": 3596,
+      "exit_code": 75,
+      "signal": null,
+      "timed_out": false,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_bytes": 0,
+      "counts": {
+        "distinct_states": 0,
+        "states_generated": 0,
+        "states_left_on_queue": 0,
+        "depth": 0
+      },
+      "inputs": {
+        "specifications/RequiredInnerComponentOverflow/RequiredInnerComponentOverflow.cfg": {
+          "sha256": "67bbddabd3d6c58253810be1b47b3d3b44dbe14a4a9f28148edf3c16b66011b0",
+          "bytes": 55
+        },
+        "specifications/RequiredInnerComponentOverflow/RequiredInnerComponentOverflow.tla": {
+          "sha256": "3322686ae633c505e0a628059efe24815b0dedbee17527d3857afaa9947c492c",
+          "bytes": 175
+        },
+        "specifications/RequiredInnerComponentOverflow/manifest.json": {
+          "sha256": "3448360cc8769f1e5e94a966e4f15e89066b4148580c8c5b52d409a325e8e360",
+          "bytes": 563
+        }
+      }
+    }
+  }
+}

@@ -21,7 +21,7 @@ use crate::error::{Error, Result};
 use crate::oracle::{CheckMode, Invocation, OracleEnv, TlcJob};
 use crate::sany::{self, ParseVerdict, SanyResult};
 use crate::tlc::messages;
-use crate::tlc::result::{OracleResult, RunFacts, Verdict, classify};
+use crate::tlc::result::{OracleResult, RunFacts, Verdict, classify, classify_owned};
 use serde::Deserialize;
 use std::collections::BTreeMap;
 use std::path::Path;
@@ -360,8 +360,9 @@ pub fn classify_with_trace_pass(
     job: &TlcJob<'_>,
     clean: &Invocation,
 ) -> Result<(OracleResult, Option<Invocation>)> {
-    let transcript = messages::parse(&clean.outcome.stdout);
-    let result = classify(&transcript, &run_facts(clean, job.mode, None));
+    let parsed = messages::parse_owned(&clean.outcome.stdout);
+    let transcript = parsed.transcript();
+    let result = classify_owned(&parsed, &run_facts(clean, job.mode, None));
     let wants_trace = env.capabilities.dump_trace_json
         && job.workers == 1
         && result.trace.is_some()
@@ -381,7 +382,7 @@ pub fn classify_with_trace_pass(
         &run_facts(&traced, job.mode, None),
     );
     let merged = merge_trace_pass(
-        &transcript,
+        transcript,
         &run_facts(clean, job.mode, None),
         result,
         &traced_result,
