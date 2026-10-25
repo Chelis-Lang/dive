@@ -68,7 +68,7 @@ impl ClosedForall {
         else {
             return Ok(None);
         };
-        let [quantified] = bounds.as_slice() else {
+        let [quantified] = bounds else {
             return Ok(None);
         };
         if quantified.vars.is_empty() || (!quantified.tuple && quantified.vars.len() != 1) {
@@ -83,7 +83,12 @@ impl ClosedForall {
         if local.up != 0 || local.slot.index() != filter.slots[0] {
             return Ok(None);
         }
-        let evaluator = Evaluator { core: core.clone() };
+        // Borrow the existing Core/sink; no new collector, evaluation or
+        // output drain is introduced by this metadata-only wrapper.
+        let evaluator = Evaluator {
+            core: core.clone(),
+            collected: None,
+        };
         let scope = Scope {
             env: filter.env.clone(),
             owner: core.ir.clone(),
