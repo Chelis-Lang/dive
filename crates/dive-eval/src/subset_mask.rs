@@ -68,7 +68,7 @@ impl ClosedForall {
         else {
             return Ok(None);
         };
-        let [quantified] = bounds else {
+        let [quantified] = bounds.as_ref() else {
             return Ok(None);
         };
         if quantified.vars.is_empty() || (!quantified.tuple && quantified.vars.len() != 1) {
