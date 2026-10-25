@@ -1,0 +1,404 @@
+{
+  "schema_version": 1,
+  "status": "PINNED_PRIMARY_REFERENCE_ONLY_NO_RUNTIME_CHANGE",
+  "issue": 464,
+  "harness_build_source": "64bd7c48a1a6989f921a00514324a05b728b3c71",
+  "fixture_source": "293e88c4d693e9df6139039a8062ca1e0109ed98",
+  "harness_binary_sha256": "c745d49dd1ce6b77a537a9b4751ba5ff2fe402ab601a5c1473ad25c153f09055",
+  "oracle": {
+    "id": "tlc-2026.10.06.014338",
+    "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+    "sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "java": "pinned 17.0.20.1+1, macos-aarch64",
+    "java_sha256": "190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05"
+  },
+  "method": {
+    "command": "Normal harness golden generate, new11 filters only, --reason #464: pin combined simplified-DNF startup error and output priority before implementation",
+    "workers": 1,
+    "seed": 0,
+    "fp": 0,
+    "xmx": "512m",
+    "per_model_seconds": 30,
+    "jobs": 1,
+    "outer_seconds": 600,
+    "raw_setup_and_model_streams": "retained externally",
+    "original_goldens_unchanged": true
+  },
+  "new_reference_cases": [
+    {
+      "name": "TautologyBeforeFalseAssume",
+      "golden_sha256": "803934dc7db1bc1399cbe2183a0da244fe8485ad85204b07a62f49c774aa8c27",
+      "result": {
+        "verdict": "evaluation-error",
+        "verdict_code": 2253,
+        "error_class": "TLC_LIVE_FORMULA_TAUTOLOGY",
+        "exit_code": 77,
+        "exit_status": "FAILURE_LIVENESS_EVAL",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": null,
+          "states_generated": null,
+          "states_left_on_queue": null,
+          "depth": null
+        },
+        "fingerprint_collision": null,
+        "trace": null,
+        "error_codes": [
+          2253
+        ],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      },
+      "input_sha256": {
+        ".tla": "391c73bfc0cd2686f8b4c3bae6441487815dcad086328ebc92513be65490ae15",
+        ".cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb"
+      }
+    },
+    {
+      "name": "TautologyBeforePrintAssume",
+      "golden_sha256": "fa3f1b57fbe52ac6866f4d1ce17f9107f546e66165f75ebf34ea97f9e936d9c5",
+      "result": {
+        "verdict": "evaluation-error",
+        "verdict_code": 2253,
+        "error_class": "TLC_LIVE_FORMULA_TAUTOLOGY",
+        "exit_code": 77,
+        "exit_status": "FAILURE_LIVENESS_EVAL",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": null,
+          "states_generated": null,
+          "states_left_on_queue": null,
+          "depth": null
+        },
+        "fingerprint_collision": null,
+        "trace": null,
+        "error_codes": [
+          2253
+        ],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      },
+      "input_sha256": {
+        ".tla": "45fa3a61b21ecb5ccdf560b7d04eeca29876786453d1d8e37c203bd1155cb5d7",
+        ".cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb"
+      }
+    },
+    {
+      "name": "TautologyBeforeInitError",
+      "golden_sha256": "8cc53277e6eb7405e1601bdd982efabc4200b07296bc340dc654cdfa64437f0b",
+      "result": {
+        "verdict": "evaluation-error",
+        "verdict_code": 2253,
+        "error_class": "TLC_LIVE_FORMULA_TAUTOLOGY",
+        "exit_code": 77,
+        "exit_status": "FAILURE_LIVENESS_EVAL",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": null,
+          "states_generated": null,
+          "states_left_on_queue": null,
+          "depth": null
+        },
+        "fingerprint_collision": null,
+        "trace": null,
+        "error_codes": [
+          2253
+        ],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      },
+      "input_sha256": {
+        ".tla": "3461972e404d5fbe96279a0711def4f76ede0d2e364abe83628b483d45481454",
+        ".cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb"
+      }
+    },
+    {
+      "name": "TautologyBeforeInvariant",
+      "golden_sha256": "528fccbebd85688e34302fb9f7ee33eedb45629f0faeb36903a705a62796f749",
+      "result": {
+        "verdict": "evaluation-error",
+        "verdict_code": 2253,
+        "error_class": "TLC_LIVE_FORMULA_TAUTOLOGY",
+        "exit_code": 77,
+        "exit_status": "FAILURE_LIVENESS_EVAL",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": null,
+          "states_generated": null,
+          "states_left_on_queue": null,
+          "depth": null
+        },
+        "fingerprint_collision": null,
+        "trace": null,
+        "error_codes": [
+          2253
+        ],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      },
+      "input_sha256": {
+        ".tla": "81d09d0e1e68cee15cf0aa2124636edf73973c88515421685403971c64a71bb8",
+        ".cfg": "dde26aa06b98dbfeb4dc161bdd66fefcb45d9a2b317a3da833b7a4f53bbfc3f7"
+      }
+    },
+    {
+      "name": "BindingBeforeTautology",
+      "golden_sha256": "120a649b229fcf2a475211711d71b47e6ee247b9b69d6404882eb12e52ac0df5",
+      "result": {
+        "verdict": "config-error",
+        "verdict_code": 2229,
+        "error_class": "TLC_CONFIG_SPECIFIED_NOT_DEFINED",
+        "exit_code": 151,
+        "exit_status": "ERROR_CONFIG_PARSE",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": null,
+          "states_generated": null,
+          "states_left_on_queue": null,
+          "depth": null
+        },
+        "fingerprint_collision": null,
+        "trace": null,
+        "error_codes": [
+          2229
+        ],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      },
+      "input_sha256": {
+        ".tla": "10e36359cb03df06eea4639e982d1974be6139cb497a6b61834e03681d46d28e",
+        ".cfg": "2948988c2534dcf4418a88a5b786fd8e84e6c18aaeed8c5fa592c4157dc03a9c"
+      }
+    },
+    {
+      "name": "ConversionErrorBeforeTautology",
+      "golden_sha256": "9d726d133a63ed0b6959672f22decb960f513e4e2f0218730300170439fb91d7",
+      "result": {
+        "verdict": "other-error",
+        "verdict_code": 1000,
+        "error_class": "GENERAL",
+        "exit_code": 255,
+        "exit_status": "ERROR",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": null,
+          "states_generated": null,
+          "states_left_on_queue": null,
+          "depth": null
+        },
+        "fingerprint_collision": null,
+        "trace": null,
+        "error_codes": [
+          1000
+        ],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      },
+      "input_sha256": {
+        ".tla": "9a26d6d31d14b4d68d06ed6f8adb135699aed691b9243dddb555d0d2963408c6",
+        ".cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb"
+      }
+    },
+    {
+      "name": "ConversionPrintBeforeTautology",
+      "golden_sha256": "b43354fb64fd6cb63878efc98f25dfcfa80e4546064e285236034cbec50b4a2b",
+      "result": {
+        "verdict": "evaluation-error",
+        "verdict_code": 2253,
+        "error_class": "TLC_LIVE_FORMULA_TAUTOLOGY",
+        "exit_code": 77,
+        "exit_status": "FAILURE_LIVENESS_EVAL",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": null,
+          "states_generated": null,
+          "states_left_on_queue": null,
+          "depth": null
+        },
+        "fingerprint_collision": null,
+        "trace": null,
+        "error_codes": [
+          2253
+        ],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      },
+      "input_sha256": {
+        ".tla": "76625082d54146bece647cd89e6d8f0e85d9f5f2e8478d96e22003733b0c24d0",
+        ".cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb"
+      }
+    },
+    {
+      "name": "TautologyThenNontrivialClaim",
+      "golden_sha256": "99499ec03e3b1872b8c844a183746547721f657793ea4770fa216fa151c71a7f",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "exit_status": "SUCCESS",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 2,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 2
+        },
+        "fingerprint_collision": {
+          "optimistic": "val = 1.1E-19",
+          "observed": null
+        },
+        "trace": null,
+        "error_codes": [],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      },
+      "input_sha256": {
+        ".tla": "788e39ed0b4ed4b0e31a0dc3ee4e0bf3c70ff23dd6577748793495bb9c5646dd",
+        ".cfg": "48874502217837a72ebe3a183953489d80877d174c2bd9cc4157bef75801c7f4"
+      }
+    },
+    {
+      "name": "NontrivialThenTautologyClaim",
+      "golden_sha256": "b9f1ad28516b788bde23bc3626d8be1d89386b83b88b652216e3cd7e483f0c09",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "exit_status": "SUCCESS",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 2,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 2
+        },
+        "fingerprint_collision": {
+          "optimistic": "val = 1.1E-19",
+          "observed": null
+        },
+        "trace": null,
+        "error_codes": [],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      },
+      "input_sha256": {
+        ".tla": "b856a005d82819fd8daa30c1a481e51756db76c362d67fe6f67fe707d2bdeec5",
+        ".cfg": "4d7ff7048b4fa8d2faf43adef91547e298f4f5cecf3e42e972dce8b4d766993f"
+      }
+    },
+    {
+      "name": "EventuallyTrueNotSyntacticZero",
+      "golden_sha256": "7f5fc06c191f6c3672e5546d2415b4941488ff2ab070a8d7b2270deeb891c7f5",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "exit_status": "SUCCESS",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 2,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 2
+        },
+        "fingerprint_collision": {
+          "optimistic": "val = 1.1E-19",
+          "observed": null
+        },
+        "trace": null,
+        "error_codes": [],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      },
+      "input_sha256": {
+        ".tla": "55cf47d6e277ae2d921a1b9721396a05d57819126e7600d3a9af8b6e0c63895d",
+        ".cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb"
+      }
+    },
+    {
+      "name": "EventuallyAlwaysTrueNotSyntacticZero",
+      "golden_sha256": "41372eb7376c9413ed4a35427e7b936d6d4a89d0e1d70b5e1e29d0a4e10177cd",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "exit_status": "SUCCESS",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 2,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 2
+        },
+        "fingerprint_collision": {
+          "optimistic": "val = 1.1E-19",
+          "observed": null
+        },
+        "trace": null,
+        "error_codes": [],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      },
+      "input_sha256": {
+        ".tla": "e85ceee7a45a3d94b9a7266e22a8bc86b528ed8d97a9c3b84823ab97d7dc6060",
+        ".cfg": "3c3cf2f351a9a4bf6bddece9ca9235208dc47c4d57d75afa77b2f60517b23fbb"
+      }
+    }
+  ],
+  "observed_output_priority": {
+    "ConversionPrintBeforeTautology": [
+      "BIND_SEEN",
+      "CONVERSION_SEEN"
+    ],
+    "TautologyBeforePrintAssume": [],
+    "EventuallyTrueNotSyntacticZero": [
+      "INIT_SEEN"
+    ],
+    "EventuallyAlwaysTrueNotSyntacticZero": [
+      "INIT_SEEN"
+    ],
+    "ASSUME_SEEN_in_all_new_clean_streams": false
+  },
+  "interpretation": [
+    "Five new cases report startup TLC_LIVE_FORMULA_TAUTOLOGY2253/77 with unreported exploration counts and no word, before assumptions, Init or initial invariants.",
+    "Missing invariant configuration reports2229/151; constant conversion error reports GENERAL1000 wrapping division2179/255. Neither becomes2253.",
+    "Conversion effects retain original binding then conversion output; ASSUME is not reached. This is oracle evidence, not permission to relax planner purity.",
+    "Both property orders with a nontrivial claim and fairness succeed at2distinct/3generated/depth2. One tautological property alone cannot authorize a combined zero-solution result.",
+    "<>TRUE and <>[]TRUE are logical tautologies but do not take the observed startup2253 route; both explore and succeed. No arbitrary logical tautology solver is implied."
+  ],
+  "scope": "Adds pinned oracle references only, before implementation. Existing original2253 golden is reused unchanged. No new dive agreement, capacity, throughput, baseline or established population claim.",
+  "original_evidence_sha256": {
+    "PLAN.json": "d0ad5e3fab57c8f42198d91385667ca79f059841b53422a379f5483dcd0a0f60",
+    "run.py": "514fa1d23b87b776133b2f6ed9d1dbd53b7579c7dd47a48ba26a4855d1580162",
+    "result.json": "b08e1747946ac66d920790a535db1da6e0a1b1da22b7dc32da90af49be805bed",
+    "primary-generate.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "primary-generate.stderr": "a75f852a7fb8758ee5f31a43b106253c09bc69713ba93110151ef85d7e490823",
+    "independent-primary-review.json": "74de21d2bec0200d3df2bd4b6e90e3d0f04ceb7169129e42fbff3e764dfa096a"
+  },
+  "preflight": "Earlier v1 exited before spawning because its context-lifetime guard lacked five seconds of required cleanup allowance. V2 preserves the same600s outer cap with sufficient whole-context allowance; no native arm was retried.",
+  "retention": {
+    "bucket": "dive-callgrind-profile-20261025064842-b9f59b27-010928226848",
+    "prefix": "root-followups/startup-tautology-primary-20261025-v1/",
+    "receipt_key": "root-followups/startup-tautology-primary-20261025-v1/RECEIPT.json",
+    "receipt_sha256": "c54419a68a8e90ec0c429cfd0e896e9b3ad4f26e043d68885fc08bb85d04f30c",
+    "status": "ALL_ORIGINAL_BODIES_PRESERVED_AND_READBACK_VERIFIED",
+    "original_objects": 173,
+    "original_bytes": 172526,
+    "build_caches_archived": 0
+  }
+}

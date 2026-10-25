@@ -1,5 +1,9 @@
 # Changelog
 
+- Pin eleven additional startup temporal-error priority references, including
+  combined-property and conversion-output controls, before implementing error
+  2253. Existing goldens and established conformance populations are unchanged.
+
 - Record the private eight-cell function-membership census. It establishes no
   qualified repeat successes or instruction savings; provider-excluded work
   remains unknown, and no membership cache is implemented.
