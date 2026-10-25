@@ -138,3 +138,57 @@ fn hidden_provider_and_cross_order_storage_decline_without_callbacks_or_normaliz
     }
     Ok(())
 }
+
+#[test]
+fn empty_subset_base_skips_a_genuinely_failing_component_conversion() -> TestResult {
+    for ctx in [Ctx::dive(), Ctx::tlc()] {
+        for record in [false, true] {
+            let mixed = Value::set_raw(vec![Value::Int(1), Value::TRUE], ctx);
+            let empty = Value::empty_set(ctx);
+            let base = if record {
+                let names = crate::Interner::new();
+                Value::record_set(
+                    vec![
+                        (names.intern("a"), mixed.clone()),
+                        (names.intern("b"), empty),
+                    ],
+                    ctx,
+                )?
+            } else {
+                Value::product(vec![mixed.clone(), empty], ctx)
+            };
+            assert_eq!(set(&base)?.size(ctx)?, 0);
+            assert!(!set(&mixed)?.is_tlc_normalized());
+            let outer = Value::subset(base.clone(), ctx);
+            let mut cursor = set(&outer)?
+                .concrete_element_stream(ctx)?
+                .ok_or("concrete empty-base cursor")?;
+            assert_eq!(cursor.next(), Some(Value::empty_set(ctx)));
+            assert_eq!(cursor.next(), None);
+            assert!(!set(&mixed)?.is_tlc_normalized());
+            // This is a real conversion trap, not an always-empty reference:
+            // bulk BASE conversion still visits the incomparable dead column.
+            assert!(set(&base)?.elements(ctx).is_err());
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn subset_base_size_error_survives_before_any_first_candidate() -> TestResult {
+    for ctx in [Ctx::dive(), Ctx::tlc()] {
+        let base = Value::subset(Value::interval(1.into(), 64.into(), ctx), ctx);
+        let expected = set(&base)?
+            .size(ctx)
+            .err()
+            .ok_or("actual BASE.size error")?;
+        let outer = Value::subset(base, ctx);
+        let actual = set(&outer)?
+            .concrete_element_stream(ctx)
+            .err()
+            .ok_or("size failure before cursor creation")?;
+        assert_eq!(actual.kind(), expected.kind());
+        assert_eq!(actual.message(), expected.message());
+    }
+    Ok(())
+}

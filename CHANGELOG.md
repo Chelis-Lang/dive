@@ -1,5 +1,9 @@
 # Changelog
 
+- Preserve TLC's zero-size powerset BASE boundary: yield its empty subset before
+  component conversion, retaining the actual size check, nonempty errors and
+  initial invariant witness. No error-class mapping or admission rule changes.
+
 - Pin four empty-subset-base primary results, preserving initial invariant
   violations with unreported counts and distinct mixed-comparison/size-overflow
   details under their actual error envelopes. No runtime fix, baseline change

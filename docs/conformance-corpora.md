@@ -628,4 +628,7 @@ Descriptor runtime/result fields remain `unknown` to preserve each input pin.
 Select only this population with
 `--corpus empty-subset-base-primary --tier all --no-sany`. The original eight-case
 `nested-powerset-primary` corpus, historical pins and small/full baselines are
-unchanged. These references establish neither a native fix nor new agreement.
+unchanged. The runtime correction skips conversion only after an actual zero
+BASE size; nonempty errors retain their existing named class refusals. Native
+qualification and whole-CLI comparison remain separate from these references;
+no new agreement is claimed here.
