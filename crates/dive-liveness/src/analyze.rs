@@ -109,6 +109,12 @@ pub enum AnalysisError {
     BudgetStartup(String),
     /// Process-memory measurement failed; no invented exhaustion is reported.
     BudgetMeasurement(dive_check::budget::MeasurementError),
+    /// Original combined TLC normalization produced no liveness solutions,
+    /// before assumptions or exploration. Retains the original startup output.
+    StartupTautology {
+        /// Output from the one completed binding invocation.
+        output: Vec<dive_model::Message>,
+    },
     /// Pure predicate planning failed.
     Planning(PlanningError),
     /// Tableau construction failed.
@@ -145,6 +151,7 @@ impl AnalysisError {
     #[must_use]
     pub fn code(&self) -> &'static str {
         match self {
+            Self::StartupTautology { .. } => "TLC_LIVE_FORMULA_TAUTOLOGY",
             Self::Planning(e) => e.code(),
             Self::Tableau(_) => "DIVE-L0030",
             Self::Product(_) => "DIVE-L0031",
@@ -172,6 +179,9 @@ impl AnalysisError {
 impl std::fmt::Display for AnalysisError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            Self::StartupTautology { .. } => {
+                dive_model::BindError::tlc(dive_model::Ec::TlcLiveFormulaTautology, &[]).fmt(f)
+            }
             Self::Planning(e) => e.fmt(f),
             Self::Tableau(e) => e.fmt(f),
             Self::Product(e) => e.fmt(f),
@@ -1202,6 +1212,26 @@ struct PreparedGroup {
     alternatives: Vec<CycleConditions>,
 }
 
+fn startup_normalization(
+    inputs: &[(&crate::formula::Formula, usize)],
+    fairness: usize,
+    limits: formula::Limits,
+) -> Result<Option<crate::tlc_plan::demand::Normalized>, AnalysisError> {
+    match crate::tlc_plan::demand::normalize(inputs, fairness, limits) {
+        Ok(normalized) => Ok(normalized),
+        // Proven Java-int DNF overflow is an intrinsic TLC refusal. It must
+        // not fall through to a potentially holding native backend. Its code
+        // is not newly promoted here; retain a conservative typed failure.
+        Err(error @ formula::FormulaError::Limit("TLC DNF cardinality")) => {
+            Err(AnalysisError::Tableau(error))
+        }
+        // Incomplete optional work/term proof introduces no admission limit
+        // and cannot establish either zero solutions or row authority.
+        Err(formula::FormulaError::Limit(_)) => Ok(None),
+        Err(error) => Err(AnalysisError::Tableau(error)),
+    }
+}
+
 fn prepare(
     model: &Model,
     limits: Limits,
@@ -1218,6 +1248,40 @@ fn prepare(
     if model.property_claims().len() > limits.properties {
         return Err(AnalysisError::Limit("properties"));
     }
+    {
+        // TLC's startup input is the actual temporal role sequence after binding,
+        // not the original configured roots retained for later attribution.
+        let claims = model
+            .implied_temporals
+            .iter()
+            .map(|p| p.pred.clone())
+            .collect::<Vec<_>>();
+        let converted = plan::lower_claims(model, &claims, limits.formula)
+            .map_err(|error| planning_failure(control, error))?;
+        if crate::budget::exhausted() {
+            return Err(AnalysisError::Limit(crate::budget::EXHAUSTED));
+        }
+        let inputs = converted
+            .iter()
+            .map(|p| (&p.formula, p.atoms.len()))
+            .collect::<Vec<_>>();
+        let normalized = startup_normalization(&inputs, model.temporals.len(), limits.formula)?;
+        if crate::budget::exhausted() {
+            return Err(AnalysisError::Limit(crate::budget::EXHAUSTED));
+        }
+        if normalized
+            .as_ref()
+            .is_some_and(crate::tlc_plan::demand::Normalized::zero_solutions)
+        {
+            return Err(AnalysisError::StartupTautology {
+                output: model.output.clone(),
+            });
+        }
+    }
+    // These are different semantic inputs: original configured claims carry
+    // initial/safety roles needed for attribution. No scope-cycle identity or
+    // expression equality permits replacing them with the temporal-role plans.
+    // The row consumer retains its original complete MUST/producer authority.
     let plans = model
         .property_claims()
         .iter()
@@ -1413,3 +1477,7 @@ mod borrowed_topology;
 
 #[cfg(test)]
 mod state_errors;
+
+#[cfg(test)]
+#[path = "analyze/startup_tests.rs"]
+mod startup_tests;

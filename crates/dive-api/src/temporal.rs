@@ -467,10 +467,10 @@ impl Failure {
     /// from the original execution. Report writers retain the capture's output.
     #[must_use]
     pub fn binding_output(&self) -> &[dive_model::Message] {
-        if let Error::Binding(failure) = self.error() {
-            &failure.output
-        } else {
-            &self.binding_output
+        match self.error() {
+            Error::Binding(failure) => &failure.output,
+            Error::Analysis(AnalysisError::StartupTautology { output }) => output,
+            _ => &self.binding_output,
         }
     }
 

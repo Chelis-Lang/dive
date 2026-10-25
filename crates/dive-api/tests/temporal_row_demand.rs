@@ -133,8 +133,19 @@ fn tautology_startup_and_tableau_init_are_not_relabelled_as_certified_rows() -> 
     ] {
         for tlc in [false, true] {
             let actual = report(corpus, name, tlc)?;
-            assert_eq!(actual["verdict"], "unsupported", "{name}/{tlc}: {actual}");
-            assert!(actual["tlc"].is_null());
+            if name == "UnusedDemandTautology" {
+                let expected = golden(corpus, name)?;
+                assert_eq!(actual["verdict"], expected["result"]["verdict"]);
+                assert_eq!(actual["tlc"]["code"], expected["result"]["verdict_code"]);
+                assert_eq!(
+                    actual["tlc"]["exit_status"],
+                    expected["result"]["exit_code"]
+                );
+                assert!(actual["statistics"]["distinct"].is_null());
+            } else {
+                assert_eq!(actual["verdict"], "unsupported", "{name}/{tlc}: {actual}");
+                assert!(actual["tlc"].is_null());
+            }
             assert!(actual["error_site"].is_null());
             assert!(actual["counterexample"].is_null());
         }

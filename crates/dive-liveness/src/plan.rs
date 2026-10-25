@@ -1987,6 +1987,51 @@ pub fn lower_violation(
     })
 }
 
+/// Converts fairness once and then every claim in original order, before any
+/// normalization/tableau work. Reused prefixes retain their actual atom scopes.
+pub(crate) fn lower_claims(
+    model: &Model,
+    properties: &[Pred],
+    limits: Limits,
+) -> Result<Vec<Plan>, PlanningError> {
+    let mut cx = Lower {
+        model,
+        limits,
+        nodes: Vec::new(),
+        atoms: Vec::new(),
+        steps: 0,
+        root_expr: properties.first().map_or(ExprId(0), |p| p.expr),
+    };
+    let mut fairness = Vec::new();
+    for behavior in &model.temporals {
+        cx.root_expr = behavior.pred.expr;
+        fairness.push(cx.expr(behavior.pred.expr, &behavior.pred.scope, 0)?);
+    }
+    properties
+        .iter()
+        .map(|property| {
+            let mut claim = Lower {
+                model,
+                limits,
+                nodes: cx.nodes.clone(),
+                atoms: cx.atoms.clone(),
+                steps: cx.steps,
+                root_expr: property.expr,
+            };
+            let property = claim.expr(property.expr, &property.scope, 0)?;
+            let mut conjuncts = fairness.clone();
+            conjuncts.push(claim.push(Node::Not(property))?);
+            let root = claim.push(Node::And(conjuncts))?;
+            let formula = Formula::new(claim.nodes, root)
+                .map_err(|e| PlanningError::formula(model, claim.root_expr, e))?;
+            Ok(Plan {
+                formula,
+                atoms: claim.atoms,
+            })
+        })
+        .collect()
+}
+
 #[cfg(test)]
 mod atom_error_tests {
     use super::*;

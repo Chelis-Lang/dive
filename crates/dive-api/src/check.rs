@@ -750,9 +750,15 @@ impl CheckReport {
                 }
                 "evaluation-error" => {
                     if tlc {
-                        temporal_evaluation(e).map_or(exit::INTERNAL, |error| {
-                            dive_check::tlc_exit_status(error.ec().code())
-                        })
+                        if temporal_startup_tautology(e) {
+                            dive_check::tlc_exit_status(
+                                dive_model::Ec::TlcLiveFormulaTautology.code(),
+                            )
+                        } else {
+                            temporal_evaluation(e).map_or(exit::INTERNAL, |error| {
+                                dive_check::tlc_exit_status(error.ec().code())
+                            })
+                        }
                     } else {
                         exit::EVALUATION
                     }
@@ -1186,6 +1192,13 @@ impl CheckReport {
                         "exit_status": class.exit,
                         "reported": class.reported,
                         "verified": class.verified,
+                    });
+                } else if temporal_startup_tautology(e) {
+                    let class = dive_model::Ec::TlcLiveFormulaTautology;
+                    doc["tlc"] = json!({
+                        "code": class.code(), "name": class.name(),
+                        "reported": class.code(), "verified": true,
+                        "exit_status": dive_check::tlc_exit_status(class.code()),
                     });
                 } else if let Some(error) = temporal_evaluation(e) {
                     let code = error.ec().code();
@@ -1651,6 +1664,15 @@ fn temporal_evaluation(failure: &crate::temporal::Failure) -> Option<&dive_eval:
         .or_else(|| temporal_planning_evaluation(failure.error()))
 }
 
+fn temporal_startup_tautology(failure: &crate::temporal::Failure) -> bool {
+    matches!(
+        failure.error(),
+        crate::temporal::Error::Analysis(
+            dive_liveness::analyze::AnalysisError::StartupTautology { .. }
+        )
+    )
+}
+
 fn temporal_failure_kind(failure: &crate::temporal::Failure) -> &'static str {
     use crate::temporal::Error;
     use dive_liveness::analyze::AnalysisError;
@@ -1660,7 +1682,7 @@ fn temporal_failure_kind(failure: &crate::temporal::Failure) -> &'static str {
     if matches!(failure.error(), Error::Analysis(AnalysisError::Stopped(_))) {
         return "stopped";
     }
-    if failure.capture_row_error().is_some() {
+    if temporal_startup_tautology(failure) || failure.capture_row_error().is_some() {
         return "evaluation-error";
     }
     if let Some(action) = failure.action_evaluation() {

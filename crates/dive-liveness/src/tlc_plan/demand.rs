@@ -233,15 +233,23 @@ fn unique(checks: &mut Vec<Check>, check: Check) {
     }
 }
 
-/// `formulas` are the actual `lower_violation` products and original atom counts.
-/// Their outer conjunction is a producer invariant, not a source-form whitelist.
-/// Fairness is imported once; separately recreated fairness scopes in later
-/// backend plans cannot be guessed equal and will fail complete MUST coverage.
-pub(crate) fn compile(
+/// Complete original combined conversion, before any row/runtime certificate.
+pub(crate) struct Normalized {
+    build: Build,
+    dnf: usize,
+    slots: Vec<Slot>,
+    offsets: Vec<usize>,
+}
+
+/// `formulas` are complete violation envelopes and original atom counts.
+/// Their outer conjunction is a producer invariant, not a source whitelist.
+/// Fairness is imported once. Startup supplies actual bound temporal roles;
+/// the separate row consumer supplies original configured-claim plans.
+pub(crate) fn normalize(
     formulas: &[(&Formula, usize)],
     fairness: usize,
     limits: Limits,
-) -> Result<Option<Program>, FormulaError> {
+) -> Result<Option<Normalized>, FormulaError> {
     if formulas.is_empty() {
         return Ok(None);
     }
@@ -292,30 +300,61 @@ pub(crate) fn compile(
     };
     let simplified = build.simplified(root)?;
     let dnf = build.dnf(simplified, 0)?;
-    if build.nodes[dnf] == Node::Bool(false) {
-        // Pinned TLC has a startup2253 branch before ASSUME/Init. This row
-        // consumer does not implement that separate binding-order policy.
-        return Ok(None);
-    }
-    let Some(actions) = ordered_bins(&mut build, dnf)? else {
-        return Ok(None);
-    };
-    let mut must = BTreeSet::new();
-    for check in &actions {
-        for atom in check.must_read(&mut build)? {
-            build.step(0)?;
-            must.insert(atom);
-        }
-    }
-    if !(0..slots.len()).all(|atom| must.contains(&atom)) {
-        return Ok(None);
-    }
-    Ok(Some(Program {
-        checks: actions,
+    Ok(Some(Normalized {
+        build,
+        dnf,
         slots,
         offsets,
-        stability: None,
     }))
+}
+
+impl Normalized {
+    /// Only TLC's syntactic normalization result, never semantic tautology.
+    pub(crate) fn zero_solutions(&self) -> bool {
+        self.build.nodes[self.dnf] == Node::Bool(false)
+    }
+
+    pub(crate) fn into_program(self) -> Result<Option<Program>, FormulaError> {
+        if self.zero_solutions() {
+            return Ok(None);
+        }
+        let Self {
+            mut build,
+            dnf,
+            slots,
+            offsets,
+        } = self;
+        let Some(actions) = ordered_bins(&mut build, dnf)? else {
+            return Ok(None);
+        };
+        let mut must = BTreeSet::new();
+        for check in &actions {
+            for atom in check.must_read(&mut build)? {
+                build.step(0)?;
+                must.insert(atom);
+            }
+        }
+        if !(0..slots.len()).all(|atom| must.contains(&atom)) {
+            return Ok(None);
+        }
+        Ok(Some(Program {
+            checks: actions,
+            slots,
+            offsets,
+            stability: None,
+        }))
+    }
+}
+
+pub(crate) fn compile(
+    formulas: &[(&Formula, usize)],
+    fairness: usize,
+    limits: Limits,
+) -> Result<Option<Program>, FormulaError> {
+    normalize(formulas, fairness, limits)?
+        .map(Normalized::into_program)
+        .transpose()
+        .map(Option::flatten)
 }
 
 fn ordered_bins(build: &mut Build, dnf: usize) -> Result<Option<Vec<Check>>, FormulaError> {
