@@ -10,7 +10,7 @@ use crate::{ErrorClass, Host, HostControl, HostError, Interrupted, Model, Option
 use dive_value::{Ctx, DeferredKind, DeferredSet, ValueError};
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-fn input(body: &str) -> (Evaluator, dive_ir::DefId) {
+fn lower_input(body: &str) -> (Arc<dive_ir::Ir>, dive_ir::DefId) {
     let source = format!(
         "---- MODULE Budgeted ----\nEXTENDS Naturals, Sequences, TLC\nVARIABLE x\n{body}\n====\n"
     );
@@ -19,8 +19,15 @@ fn input(body: &str) -> (Evaluator, dive_ir::DefId) {
     assert!(analysis.accepted(), "{analysis:?}");
     let ir = Arc::new(dive_ir::lower(&analysis).expect("actual source IR"));
     let def = ir.root_def("P").expect("P");
-    let ev = Evaluator::new(Model::new(ir), Options::tlc()).expect("actual evaluator");
-    (ev, def)
+    (ir, def)
+}
+
+fn input(body: &str) -> (Evaluator, dive_ir::DefId) {
+    let (ir, def) = lower_input(body);
+    (
+        Evaluator::new(Model::new(ir), Options::tlc()).expect("actual evaluator"),
+        def,
+    )
 }
 
 fn root(ev: &Evaluator, def: dive_ir::DefId) -> (ExprId, Scope) {
@@ -61,48 +68,45 @@ fn deep_real_storage_and_low_old_work_are_separate_from_run_budgets() {
 
 #[test]
 fn deep_source_transfers_and_real_callback_closures_use_the_iterative_route() {
-    eprintln!("budgeted deep-source diagnostic: before deep input");
     let expression = format!("{}x{}", "<< ".repeat(180), " >>".repeat(180));
-    let (ev, def) = input(&format!("P == {expression} = {expression}"));
-    eprintln!("budgeted deep-source diagnostic: after deep input");
+    let body = format!("P == {expression} = {expression}");
+    // Analysis/lowering is fixture construction, not the proof under test.
+    // Return only immutable IR; evaluator construction and both proof calls
+    // below stay on this original test thread's ordinary stack.
+    let (ir, def) = std::thread::Builder::new()
+        .name("canonical-deep-source-fixture".into())
+        .stack_size(16 * 1024 * 1024)
+        .spawn(move || lower_input(&body))
+        .expect("bounded fixture worker")
+        .join()
+        .expect("fixture analysis/lowering completed");
+    let ev = Evaluator::new(Model::new(ir), Options::tlc()).expect("actual evaluator");
     let roots = [root(&ev, def)];
-    eprintln!("budgeted deep-source diagnostic: before old bounded proof");
     assert!(
         ev.canonical_producer_stability(&[], &roots, 100_000)
             .is_none()
     );
-    eprintln!("budgeted deep-source diagnostic: after old bounded proof");
-    eprintln!("budgeted deep-source diagnostic: before budgeted proof");
     assert!(
         ev.canonical_producer_stability_budgeted(&[], &roots, None)
             .expect("deep planning")
             .is_some()
     );
-    eprintln!("budgeted deep-source diagnostic: after budgeted proof");
-    eprintln!("budgeted deep-source diagnostic: before callback input");
     let (ev, def) = input("Less(a,b) == a<b\nP == SortSeq(<<2,1>>,Less) = <<1,2>>");
-    eprintln!("budgeted deep-source diagnostic: after callback input");
     let roots = [root(&ev, def)];
-    eprintln!("budgeted deep-source diagnostic: before old callback proof");
     assert!(
         ev.canonical_producer_stability(&[], &roots, 100_000)
             .is_some()
     );
-    eprintln!("budgeted deep-source diagnostic: after old callback proof");
-    eprintln!("budgeted deep-source diagnostic: before budgeted callback proof");
     assert!(
         ev.canonical_producer_stability_budgeted(&[], &roots, None)
             .expect("actual callback capture proof")
             .is_some()
     );
-    eprintln!("budgeted deep-source diagnostic: after budgeted callback proof");
-    eprintln!("budgeted deep-source diagnostic: before actual callback evaluation");
     assert_eq!(
         ev.eval_def(def, &St::empty())
             .expect("original native callback still runs"),
         Value::TRUE
     );
-    eprintln!("budgeted deep-source diagnostic: after actual callback evaluation");
 }
 
 #[derive(Debug)]
