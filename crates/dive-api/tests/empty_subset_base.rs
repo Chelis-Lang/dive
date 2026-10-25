@@ -22,7 +22,7 @@ fn empty_subset_bases_reach_the_initial_invariant_and_validate_the_finite_word()
                 ..CheckRequest::default()
             })
             .expect("ordinary source-bound check");
-            assert_eq!(report.verdict(), "safety-violation");
+            assert_eq!(report.verdict(), "invariant-violation");
             assert_eq!(report.exit_code_for(ExitConvention::Tlc), 12);
             let value = report.to_json();
             assert_eq!(value["property"], "Inv");
