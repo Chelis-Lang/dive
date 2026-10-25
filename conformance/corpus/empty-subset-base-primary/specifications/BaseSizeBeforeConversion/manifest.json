@@ -1,0 +1,27 @@
+{
+  "sources": [
+    "docs/conformance-corpora.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "initial-states",
+    "empty-subset-base"
+  ],
+  "modules": [
+    {
+      "path": "specifications/BaseSizeBeforeConversion/BaseSizeBeforeConversion.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/BaseSizeBeforeConversion/BaseSizeBeforeConversion.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}

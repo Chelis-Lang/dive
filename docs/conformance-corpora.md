@@ -599,3 +599,21 @@ for source, oracle, result and preserved original-stream identities.
 Select it with `--corpus nested-powerset-primary --tier all --no-sany`. This is reference generation before enumeration changes: no native
 checker comparison or streaming/pruning capability is established. The existing
 small/full selections and baselines are unchanged.
+
+
+`empty-subset-base-primary` prepares three isolated primary inputs for issue #478:
+`EmptyBase` retains the directly measured mixed-product input and failing initial
+invariant, `DirectEmptyBase` supplies a direct empty-set base, and
+`BaseSizeBeforeConversion` puts product-size overflow before possible mixed-column
+normalization. The last control uses two nonempty components with size product
+2 × 1073741824, beyond TLC's signed 32-bit cardinality, without requesting a
+large enumeration. This is a source-derived priority obligation, not a generated
+classification or measured runtime claim.
+
+Descriptor runtime/result fields remain `unknown`. The earlier direct #478
+measurement is not a conformance golden; all three references must be generated
+by the normal pinned-TLC harness with a recorded reason before a runtime change.
+Select only this population with
+`--corpus empty-subset-base-primary --tier all --no-sany`. The original eight-case
+`nested-powerset-primary` corpus, historical pins and small/full baselines are
+unchanged. No native fix or new agreement is established by these inputs.
