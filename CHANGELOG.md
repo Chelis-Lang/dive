@@ -1,5 +1,11 @@
 # Changelog
 
+- Preserve GENERAL as the primary class of source-qualified Init errors while
+  retaining diagnostic replay exit 75. Carry native causes through typed,
+  nonreused deferred-error receipts; rendered text grants no provenance.
+  Register the observed nested Cardinality case under the approved D-004
+  big-integer default, with exact exit and generated-count pairs.
+
 - Add eight pinned primary references for nested powerset Init enumeration,
   including original candidate order and error boundaries. All six earlier
   result payloads remain identical; no enumeration algorithm, limit or baseline

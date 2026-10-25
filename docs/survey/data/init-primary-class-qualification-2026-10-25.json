@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "status": "QUALIFIED_INIT_PRIMARY_CLASS_ONLY",
+  "runtime_source": "efdcbcfb015e668ac219c70ee30560b7c8a66bc4",
+  "runtime_tree": "a80043185e4291841327cf918969dbf439960556",
+  "base": "e7b749e309cf82774b50d77998370c45803e17ff",
+  "focused": {
+    "unfiltered_passed": 91,
+    "failed": 0,
+    "ignored": 0,
+    "filtered": 0
+  },
+  "full_gate": {
+    "phases": 13,
+    "nextest": {
+      "tests_run": 2505,
+      "passed": 2505,
+      "skipped": 0
+    },
+    "sany_agree": 458,
+    "small_tlc": {
+      "agree": 150,
+      "unsupported": 6,
+      "disagree": 0
+    },
+    "small_default": {
+      "agree": 144,
+      "expected_divergence": 7,
+      "unsupported": 5,
+      "disagree": 0
+    },
+    "established_baselines_unchanged": true,
+    "actual_audit_sha256": "498e444e46aade7b5d17aa708843bf716b474b74cb8a076a796896fad65519a2"
+  },
+  "shipping_primary8": {
+    "tlc": {
+      "agree": 4,
+      "disagree": 1,
+      "unsupported": 3
+    },
+    "default": {
+      "agree": 3,
+      "expected_D004": 1,
+      "disagree": 1,
+      "unsupported": 3
+    },
+    "remaining_disagreement": "NestedNonBooleanAfterEmpty eager-filter distinct/generated/depth prefix (#459); primary GENERAL/75 now matches."
+  },
+  "oracle": {
+    "id": "tlc-2026.10.06.014338",
+    "sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+  },
+  "provenance": {
+    "bucket": "dive-selectseq-gate-20261025163852-7885d710-010928226848",
+    "archive_key": "results/final.tgz",
+    "archive_sha256": "90e123f8eedb20e0db6c8174f0730d2de1e3d7aeeac916b13867c67999479b83",
+    "archive_bytes": 146301,
+    "source_peer_review_sha256": "28b176f789cb25182f88307b68280d8461b307a07f5c4e8b1f3bc5c20e3d9477",
+    "selected_typed_audit_sha256": "23d2ff590252cb8d9d92e167bb6c93d1478243b3abc9f9de56a2ed639b696153"
+  },
+  "limits": [
+    "No original SpanTree5 completion, new small/full-tier population gain or performance claim.",
+    "Error class and physical replay exit remain separate; global EC exit mapping unchanged.",
+    "Full gate runtime source precedes compact evidence-only publication commit."
+  ]
+}

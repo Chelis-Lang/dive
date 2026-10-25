@@ -17,6 +17,12 @@ pub enum ErrorKind {
         /// deferred-provider receipt. It is not a TLC error code.
         receipt: u32,
     },
+    /// An evaluator error with sealed native-cause provenance. Only its
+    /// original evaluator can recover the error; message text is insufficient.
+    DeferredError {
+        /// Process-unique, nonreused pending evaluator receipt.
+        receipt: u32,
+    },
     /// Two values that TLC refuses to compare or to test for equality
     /// (`Assert.fail` in a `compareTo`/`equals` method, `EC.GENERAL`).
     Incomparable,
@@ -68,6 +74,7 @@ impl ErrorKind {
             Self::NullPowerNull => 2180,
             Self::Argument => 2169,
             Self::Interrupted { .. }
+            | Self::DeferredError { .. }
             | Self::Incomparable
             | Self::Membership
             | Self::TooLarge
@@ -100,6 +107,7 @@ impl ErrorKind {
     pub const fn dive_code(self) -> &'static str {
         match self {
             Self::Interrupted { .. } => "DIVE-V0031",
+            Self::DeferredError { .. } => "DIVE-V0032",
             Self::Incomparable => "DIVE-V0001",
             Self::Membership => "DIVE-V0002",
             Self::ModuleMembership => "DIVE-V0003",
