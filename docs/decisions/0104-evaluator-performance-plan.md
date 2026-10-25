@@ -263,6 +263,16 @@ Measured and not pursued:
   [performance guide](../developer/performance.md#discarded-evaluator-prototypes)
   links the compact record and exact source, binary, input and profile hashes.
 
+- Scoped resolved-call ownership over the original recursive interpreter
+  increased whole-CLI instructions geometrically by 2.021% across all eight
+  reduced model/profile cells (+0.479% to +3.648%). All sixteen arms completed
+  normally with identical success verdicts and all five counters. Six cells
+  exceeded the 1% regression ceiling, and the fixed 5% geometric reduction bar
+  also failed. The complete screen was rejected without a conditional runtime
+  full gate, runtime PR, repeat, retuning or threshold waiver. The
+  [performance guide](../developer/performance.md#resolved-recursive-call-ownership-2026-10-25)
+  links the compact source, binary, input, profile and observation evidence.
+
 - Pre-sizing the fingerprint traversal's work list: within ±0.3%, noise.
 - A lazy function hash: it would make hashing recursive and break the
   documented stack safety for deeply nested values (`tests/limits.rs`).
