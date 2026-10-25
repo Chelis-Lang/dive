@@ -89,7 +89,7 @@
         "version_line": "openjdk version \"17.0.20.1\" 2026-08-18"
       }
     },
-    "corpus_commit": "sha256:d8303d8ad5d2c32f72a4667979f3a5ceb8559e5b2de6eeae31570914616403df",
+    "corpus_commit": "sha256:b0871bf6ea5554c7c048ba4545bdd300ab48a00ec830ff8002ecccd75af3662b",
     "command": [
       "$DIVE_CACHE_DIR/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
       "-XX:+UseParallelGC",
@@ -151,10 +151,10 @@
       "json",
       "$TMP/trace.json"
     ],
-    "timeout_seconds": 60,
-    "reason": "#451: establish current-state predicate demand priority between TLC compiled action and state bins before implementing a certified temporal row-error consumer.",
+    "timeout_seconds": 30,
+    "reason": "#464: refresh the complete16-member microcorpus provenance after fixed primary additions; preserve all pinned result payloads",
     "generator": "dive-conformance 0.0.0",
-    "generated_at": "2026-10-24T22:15:36Z",
-    "elapsed_ms": 250
+    "generated_at": "2026-10-25T13:19:57Z",
+    "elapsed_ms": 236
   }
 }

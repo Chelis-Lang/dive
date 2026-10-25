@@ -1,0 +1,27 @@
+{
+  "sources": [
+    "docs/user/checking.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "liveness",
+    "startup-role-splitting"
+  ],
+  "modules": [
+    {
+      "path": "specifications/StartupRoleSplitInitial/StartupRoleSplitInitial.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/StartupRoleSplitInitial/StartupRoleSplitInitial.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}
