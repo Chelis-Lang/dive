@@ -325,10 +325,133 @@ pub(crate) struct Registers {
     named: Vec<(String, Value)>,
 }
 
+/// Whether native permission hooks execute for an installed host.
+///
+/// This chooses execution semantics, not a host's claim of purity or a proof
+/// that checks may be omitted. Legacy host setters always select `Callback`.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum NativeHooks {
+    /// Invoke the installed host's original permission callback.
+    #[default]
+    Callback,
+    /// Do not invoke native permission callbacks in shared ordinary domain zero.
+    /// Selection declines in independent nonzero cache domains.
+    Unrestricted,
+}
+
+/// A complete host installation, including its operative callback policy.
+///
+/// Choosing `Unrestricted` explicitly changes hook execution; it grants no
+/// private source ownership or permission to skip evaluator work. Unrestricted
+/// execution can only be selected in ordinary cache domain zero, never in an
+/// independent permission-bearing cache domain. No public constructor mints an
+/// unrestricted binding; a displaced snapshot can retain an admitted domain-zero
+/// policy. A displaced
+/// binding retains its installed cache domain for complete restoration; a fresh
+/// constructor queries the host at installation, like legacy replacement.
+///
+/// ```
+/// # fn install(ev: &dive_eval::Evaluator, host: std::sync::Arc<dyn dive_eval::Host>) {
+/// use dive_eval::HostBinding;
+/// let previous = ev.replace_host_binding(HostBinding::callback(Some(host)));
+/// // The driver owns installation until the complete predecessor is restored.
+/// drop(ev.replace_host_binding(previous));
+/// # }
+/// ```
+#[derive(Debug)]
+pub struct HostBinding {
+    host: Option<Arc<dyn Host>>,
+    hooks: NativeHooks,
+    // Installed snapshots restore the cache domain without calling user code.
+    cache_domain: Option<u64>,
+}
+
+impl HostBinding {
+    /// Install normal callbacks, including the no-host case.
+    #[must_use]
+    pub fn callback(host: Option<Arc<dyn Host>>) -> Self {
+        Self {
+            host,
+            hooks: NativeHooks::Callback,
+            cache_domain: None,
+        }
+    }
+
+    /// The installed native callback policy.
+    #[must_use]
+    pub const fn native_hooks(&self) -> NativeHooks {
+        self.hooks
+    }
+}
+
+/// A read-only installation snapshot, not a semantic proof or concurrency lease.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct HostBindingStamp {
+    generation: u64,
+    hooks: NativeHooks,
+}
+
+impl HostBindingStamp {
+    /// A process-local installation generation, or `None` after exhaustion.
+    /// Generations are specific to this evaluator and are never restored/reused.
+    #[must_use]
+    pub const fn generation(self) -> Option<u64> {
+        if self.generation == 0 {
+            None
+        } else {
+            Some(self.generation)
+        }
+    }
+
+    /// The operative native callback policy at this snapshot.
+    #[must_use]
+    pub const fn native_hooks(self) -> NativeHooks {
+        self.hooks
+    }
+}
+
+/// Restores the complete preceding host installation on drop.
+///
+/// The caller must own host replacement for this scope's lifetime. This is not
+/// a lease on a publicly shared evaluator. Restoration creates a new generation.
+#[derive(Debug)]
+pub struct HostBindingScope {
+    pub(crate) core: Arc<Core>,
+    pub(crate) previous: Option<HostBinding>,
+    pub(crate) _thread: std::marker::PhantomData<std::rc::Rc<()>>,
+}
+
+impl Drop for HostBindingScope {
+    fn drop(&mut self) {
+        if let Some(previous) = self.previous.take() {
+            drop(self.core.host.replace_binding(previous));
+        }
+    }
+}
+
+#[derive(Debug)]
+struct BindingState {
+    binding: HostBinding,
+    generation: u64,
+}
+
+impl Default for BindingState {
+    fn default() -> Self {
+        Self {
+            binding: HostBinding {
+                host: None,
+                hooks: NativeHooks::Callback,
+                cache_domain: Some(0),
+            },
+            generation: 1,
+        }
+    }
+}
+
 /// The evaluator's handle on its host and registers.
 #[derive(Debug, Default)]
 pub(crate) struct HostSlot {
-    pub(crate) host: Mutex<Option<Arc<dyn Host>>>,
+    host: Mutex<BindingState>,
     pub(crate) registers: Mutex<Registers>,
     /// Independent of host replacement: graph capture installs a search host
     /// while the same outer run control remains active.
@@ -339,14 +462,78 @@ pub(crate) struct HostSlot {
 }
 
 impl HostSlot {
-    /// Installs `host` (or none) and returns the host installed before.
+    /// Legacy replacements always select callbacks, even for the same Arc.
     pub(crate) fn replace(&self, host: Option<Arc<dyn Host>>) -> Option<Arc<dyn Host>> {
+        self.replace_binding(HostBinding::callback(host)).host
+    }
+
+    pub(crate) fn replace_binding(&self, binding: HostBinding) -> HostBinding {
         let mut slot = self.host.lock().unwrap_or_else(PoisonError::into_inner);
-        self.cache_domain.store(
-            host.as_ref().map_or(0, |h| h.expression_cache_domain()),
-            Ordering::Release,
-        );
-        std::mem::replace(&mut *slot, host)
+        self.install(&mut slot, binding)
+    }
+
+    fn install(&self, slot: &mut BindingState, mut binding: HostBinding) -> HostBinding {
+        let domain = binding.cache_domain.unwrap_or_else(|| {
+            binding
+                .host
+                .as_ref()
+                .map_or(0, |host| host.expression_cache_domain())
+        });
+        binding.cache_domain = Some(domain);
+        self.cache_domain.store(domain, Ordering::Release);
+        if slot.generation != 0 {
+            slot.generation = slot.generation.checked_add(1).unwrap_or(0);
+        }
+        // Independent cache authority and exhausted identity space never
+        // admit omission of permission checks.
+        if domain != 0 || slot.generation == 0 {
+            binding.hooks = NativeHooks::Callback;
+        }
+        std::mem::replace(&mut slot.binding, binding)
+    }
+
+    pub(crate) fn replace_hooks(&self, hooks: NativeHooks) -> Option<HostBinding> {
+        let mut slot = self.host.lock().unwrap_or_else(PoisonError::into_inner);
+        if hooks == NativeHooks::Unrestricted
+            && (slot.generation == 0
+                || slot.generation == u64::MAX
+                || slot.binding.host.is_none()
+                || slot.binding.cache_domain != Some(0))
+        {
+            return None;
+        }
+        let binding = HostBinding {
+            host: slot.binding.host.clone(),
+            hooks: if slot.binding.host.is_some() {
+                hooks
+            } else {
+                NativeHooks::Callback
+            },
+            cache_domain: slot.binding.cache_domain,
+        };
+        Some(self.install(&mut slot, binding))
+    }
+
+    pub(crate) fn stamp(&self) -> HostBindingStamp {
+        let slot = self.host.lock().unwrap_or_else(PoisonError::into_inner);
+        HostBindingStamp {
+            generation: slot.generation,
+            hooks: slot.binding.hooks,
+        }
+    }
+
+    pub(crate) fn check_native_access(&self, op: StdOp) -> Result<()> {
+        let host = {
+            let slot = self.host.lock().unwrap_or_else(PoisonError::into_inner);
+            match slot.binding.hooks {
+                NativeHooks::Unrestricted => None,
+                NativeHooks::Callback => slot.binding.host.clone(),
+            }
+        };
+        match host {
+            Some(host) => host.check_native_access(op).map_err(host_error),
+            None => Ok(()),
+        }
     }
 
     pub(crate) fn push_control(
@@ -410,6 +597,8 @@ impl HostSlot {
         self.host
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
+            .binding
+            .host
             .clone()
     }
 }
@@ -749,3 +938,7 @@ impl Core {
 fn undefined(key: &str) -> EvalError {
     EvalError::eval_exception(Ec::TlcGetUndefined, format!("TLCGet({key}) was undefined."))
 }
+
+#[cfg(test)]
+#[path = "host_binding_tests.rs"]
+mod binding_tests;
