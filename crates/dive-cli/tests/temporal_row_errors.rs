@@ -33,7 +33,8 @@ fn command(
         .arg(operation)
         .arg(file)
         .arg(format!("--compat={profile}"))
-        .arg("--output=json")
+        .arg("--output")
+        .arg("json")
         .args(extra)
         .env_remove("DIVE_COMPAT")
         .env_remove("DIVE_CHAOS")
@@ -67,7 +68,13 @@ fn pinned_row_errors_keep_physical_status_counts_and_standalone_trace_validation
             ]
             .map(std::ffi::OsStr::new);
             let output = command("check", &file, profile, &extra)?;
-            let report: Value = serde_json::from_slice(&output.stdout)?;
+            let report: Value = serde_json::from_slice(&output.stdout).map_err(|error| {
+                format!(
+                    "{name}/{profile}/check: invalid JSON: {error}; status={}; stderr={:?}",
+                    output.status,
+                    String::from_utf8_lossy(&output.stderr)
+                )
+            })?;
             assert_eq!(
                 output.status.code(),
                 Some(255),
@@ -109,7 +116,13 @@ fn pinned_row_errors_keep_physical_status_counts_and_standalone_trace_validation
                 profile,
                 &[std::ffi::OsStr::new("--trace"), trace.as_os_str()],
             )?;
-            let report: Value = serde_json::from_slice(&validation.stdout)?;
+            let report: Value = serde_json::from_slice(&validation.stdout).map_err(|error| {
+                format!(
+                    "{name}/{profile}/validate-trace: invalid JSON: {error}; status={}; stderr={:?}",
+                    validation.status,
+                    String::from_utf8_lossy(&validation.stderr)
+                )
+            })?;
             assert!(validation.status.success(), "{name}/{profile}: {report}");
             assert_eq!(report["result"], "valid", "{name}/{profile}: {report}");
         }
