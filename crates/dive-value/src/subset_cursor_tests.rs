@@ -99,8 +99,9 @@ fn abandoned_or_stale_commit_preserves_the_exact_unstarted_original_candidate() 
             .expect("prepare target")
     );
     // A failed permission decision drops only exclusive references.
-    let transaction = scratch.prepare_commit(&mut cursor).expect("ready");
-    drop(transaction);
+    {
+        let _transaction = scratch.prepare_commit(&mut cursor).expect("ready");
+    }
     assert_eq!(
         cursor.next(),
         Some(Value::set(vec![1.into()], ctx).expect("singleton"))
