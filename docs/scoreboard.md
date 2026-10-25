@@ -15,8 +15,18 @@ timing, thread or queue order, tableau numbering or SCC and lasso choice.
 
 ## Corpus scoreboard
 
-Measured 2026-10-23 against pinned TLC `tlc-2026.10.06.014338` goldens.
-The current one-worker rows are from exact source `db8d4ad5` on `1892ddc7`:
+The latest one-worker recheck at frozen source `92a33e3b` on 2026-10-25 passed
+all 13 full-gate phases and 2,450 Rust tests with none skipped. The rows below
+remain **150/156 TLC** and **144/156 default**, with seven registered expected
+divergences in the default profile; all 458 SANY comparisons agree. No baseline
+or established population changed. A separate 13-model validation selection
+records nine agreements and four refusals in each profile, including five new
+finite temporal-error agreements. These microcorpus gains add no credit to this
+table or the historical **181/217** full-tier result below. See the
+[qualification](survey/data/temporal-row-errors-qualification-2026-10-25.json).
+
+The one-worker baseline gains were measured on 2026-10-23 against pinned TLC
+`tlc-2026.10.06.014338` goldens, at exact source `db8d4ad5` on `1892ddc7`:
 all 13 full-gate phases passed, with 2,295 tests passed and none skipped.
 `CoffeeCan1000Beans` moves from a product-vertex refusal to agreement in both
 profiles: 501,500 distinct / 2,000,002 generated / depth 1. All 156 model IDs

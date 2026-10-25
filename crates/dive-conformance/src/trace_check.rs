@@ -163,13 +163,27 @@ pub fn validate_counterexample(
         Err(e) => return TraceCheck::no(format!("unreadable counterexample: {e}")),
     };
     let reported = ending_of(result);
-    if doc.ending.is_none() || doc.ending != reported {
+    let matching = match &doc.ending {
+        Some(Ending::TemporalStateError { ec, .. }) => {
+            reported
+                == Some(Ending::Error {
+                    ec: Some(ec.clone()),
+                })
+        }
+        _ => doc.ending.is_some() && doc.ending == reported,
+    };
+    if !matching {
         return TraceCheck::refuted(format!(
             "the counterexample claims {:?}, but the result reports {reported:?}",
             doc.ending
         ));
     }
-    let (report, trace) = spec.read(&doc);
+    let (report, trace) = match spec.try_read(&doc) {
+        Ok(read) => read,
+        Err(error) => {
+            return TraceCheck::no(format!("independent validation did not complete: {error}"));
+        }
+    };
     match &report.validation {
         Validation::Valid => TraceCheck::yes("validated"),
         Validation::Unsupported(u) if u == dive_trace_deadlock() => {

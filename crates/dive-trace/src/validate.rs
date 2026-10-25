@@ -174,6 +174,29 @@ pub enum ValidationRunError {
         /// Actual progress in this invocation.
         progress: ValidationProgress,
     },
+    /// Allocation or evaluator resource exhaustion; no validation verdict exists.
+    ResourceLimit {
+        /// Original resource error, not a semantic capability refusal.
+        error: EvalError,
+        /// Actual progress before validation could not complete.
+        progress: ValidationProgress,
+    },
+    /// An internal evaluator failure aborted validation, rather than refuting it.
+    EvaluationFailure {
+        /// Original internal evaluator error.
+        error: EvalError,
+        /// Work completed before the failure.
+        progress: ValidationProgress,
+    },
+    /// The fresh source binder reported an intrinsic internal binding failure.
+    BindingFailure {
+        /// Original typed binding error; never parsed from its display text.
+        error: dive_model::BindError,
+        /// Progress before a private runtime could be constructed.
+        progress: ValidationProgress,
+    },
+    /// The isolated validation thread could not run or did not return.
+    ThreadFailure(String),
     /// Another thread owns the evaluator's control registration.
     ControlConflict(dive_eval::HostControlConflict),
 }
@@ -181,7 +204,11 @@ pub enum ValidationRunError {
 impl std::fmt::Display for ValidationRunError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Interrupted { error, .. } => error.fmt(f),
+            Self::Interrupted { error, .. }
+            | Self::ResourceLimit { error, .. }
+            | Self::EvaluationFailure { error, .. } => error.fmt(f),
+            Self::BindingFailure { error, .. } => error.fmt(f),
+            Self::ThreadFailure(message) => f.write_str(message),
             Self::ControlConflict(error) => error.fmt(f),
         }
     }
@@ -253,6 +280,7 @@ enum Goal {
     Behavior,
     Liveness(&'static str),
     ErrorEnd(&'static str),
+    TemporalStateError,
 }
 
 /// One validation run. `passed` counts the checks passed, in order: the
@@ -266,6 +294,8 @@ pub(crate) struct Run<'a> {
     pub(crate) notes: BTreeSet<String>,
     private_init: bool,
     pub(crate) init_incomplete: bool,
+    endpoint_prepared: bool,
+    endpoint_exception: Option<(EvalError, Option<usize>, Check)>,
     control: Option<Arc<dyn dive_eval::HostControl>>,
 }
 
@@ -295,6 +325,8 @@ impl<'a> Run<'a> {
             notes: BTreeSet::new(),
             private_init: false,
             init_incomplete: false,
+            endpoint_prepared: false,
+            endpoint_exception: None,
             control: None,
         }
     }
@@ -309,6 +341,8 @@ impl<'a> Run<'a> {
             notes: BTreeSet::new(),
             private_init: initial,
             init_incomplete: false,
+            endpoint_prepared: false,
+            endpoint_exception: None,
             control: None,
         }
     }
@@ -385,6 +419,13 @@ impl<'a> Run<'a> {
     fn run(&mut self, trace: &Trace) -> Result<Option<String>, Stop> {
         self.poll(None, None)?;
         let m = self.model;
+        if matches!(trace.ending, Ending::TemporalStateError { .. })
+            && (!self.host.private || !self.endpoint_prepared)
+        {
+            return Err(Stop::Unsupported(
+                "temporal error endpoint requires a privately reconstructed source session".into(),
+            ));
+        }
         let n = trace.states.len();
         if n == 0 {
             return Err(invalid(0, Check::Shape, "the trace has no states"));
@@ -618,6 +659,9 @@ impl<'a> Run<'a> {
                     Some(DEADLOCK_UNSUPPORTED.to_owned())
                 }
             }
+            // The fallible entrypoint separately reconstructs the program
+            // before this path validation and replays it afterward.
+            Goal::TemporalStateError => None,
             Goal::Liveness(why) | Goal::ErrorEnd(why) => Some(why.to_owned()),
             Goal::Invariant(_) | Goal::ImpliedInit(_) | Goal::ImpliedAction(_) | Goal::Behavior => {
                 None
@@ -815,6 +859,7 @@ impl<'a> Run<'a> {
                 Goal::Deadlock
             }
             Ending::Behavior => Goal::Behavior,
+            Ending::TemporalStateError { .. } => Goal::TemporalStateError,
             Ending::Lasso { back_to } => {
                 if *back_to > last {
                     return Err(invalid(last, Check::Shape, format!("the lasso loops back to state {back_to}, past the end")));
@@ -830,7 +875,7 @@ impl<'a> Run<'a> {
         // Binding and ASSUME remain explicit uninterruptible units. This
         // thread-owned frame restores control on every return/unwind without
         // disabling another evaluator or any worker's installed capability.
-        let _assumptions = if self.control.is_some() {
+        let _assumptions = if self.control.is_some() && !self.endpoint_prepared {
             Some(
                 self.model
                     .evaluator
@@ -848,7 +893,7 @@ impl<'a> Run<'a> {
             AssumptionOutcome::False { message, .. } => Err(invalid(0, Check::Assumption, message)),
             AssumptionOutcome::Error { error, message, .. } => match error.class() {
                 ErrorClass::Eval => Err(invalid(0, Check::Assumption, message)),
-                _ => Err(refused(&error).at(None, Check::Assumption)),
+                _ => Err(self.evaluation_refusal(&error, None, Check::Assumption)),
             },
         }
     }
@@ -900,6 +945,12 @@ impl<'a> Run<'a> {
                 Check::Label,
                 format!("the step is labelled `{name}`, but `{name}` is false on it"),
             )),
+            Err(error)
+                if matches!(error.class(), ErrorClass::ResourceLimit | ErrorClass::Bug)
+                    && self.endpoint_prepared =>
+            {
+                Err(self.evaluation_refusal(&error, Some(k), Check::Label))
+            }
             Err(error) if error.class() == ErrorClass::Interrupted => {
                 Err(refused(&error).at(Some(k), Check::Label))
             }
@@ -959,7 +1010,24 @@ impl<'a> Run<'a> {
         }
     }
 
-    fn holds(&self, pred: &Pred, st: &St, k: usize, check: Check) -> Result<bool, Stop> {
+    fn evaluation_refusal(
+        &mut self,
+        error: &EvalError,
+        state: Option<usize>,
+        check: Check,
+    ) -> Stop {
+        // Legacy finite validation keeps its closed report channel. The new
+        // fallible endpoint path retains original resource/bug transport separately
+        // and intercepts it before constructing any ValidationReport.
+        if self.endpoint_prepared
+            && matches!(error.class(), ErrorClass::ResourceLimit | ErrorClass::Bug)
+        {
+            self.endpoint_exception = Some((error.clone(), state, check));
+        }
+        refused(error).at(state, check)
+    }
+
+    fn holds(&mut self, pred: &Pred, st: &St, k: usize, check: Check) -> Result<bool, Stop> {
         let m = self.model;
         // TLC's level of `s0`: state k (numbered from 0) is at level k + 1;
         // a step into state k is evaluated with the state before it as s0.
@@ -988,7 +1056,7 @@ impl<'a> Run<'a> {
                     check,
                     format!("evaluating {} fails: {}", m.location(pred), e.message()),
                 )),
-                _ => Err(refused(&e).at(Some(k), check)),
+                _ => Err(self.evaluation_refusal(&e, Some(k), check)),
             },
         }
     }
@@ -1271,7 +1339,60 @@ pub fn validate_controlled(
     }
     let mut run = Run::new(model);
     run.control = Some(control);
-    let validation = match run.validate_result(trace) {
+    controlled_report(&mut run, trace)
+}
+
+#[allow(
+    clippy::too_many_lines,
+    reason = "finite validation and independent endpoint phases share one fallible report boundary"
+)]
+fn controlled_report(run: &mut Run<'_>, trace: &Trace) -> Result<Report, ValidationRunError> {
+    let endpoint = if matches!(trace.ending, Ending::TemporalStateError { .. }) {
+        if !run.host.private {
+            return Ok(Report {
+                validation: Validation::Unsupported(
+                    "temporal error endpoint requires a privately reconstructed source session"
+                        .into(),
+                ),
+                notes: Vec::new(),
+                length: trace.states.len(),
+            });
+        }
+        if !trace.properties.is_empty() {
+            return Ok(Report {
+                validation: Validation::Invalid(Failure {
+                    state: 0,
+                    check: Check::Shape,
+                    detail: "finite error endpoints cannot claim temporal properties".into(),
+                }),
+                notes: Vec::new(),
+                length: trace.states.len(),
+            });
+        }
+        match crate::row_demand::prepare(run.model, &trace.states, run.control.as_deref()) {
+            Ok(program) => {
+                run.endpoint_prepared = true;
+                Some(program)
+            }
+            Err(error) => return endpoint_refusal(run, trace, error, None),
+        }
+    } else {
+        None
+    };
+    let result = run.validate_result(trace);
+    if let Some((error, state, check)) = run.endpoint_exception.take() {
+        let progress = ValidationProgress {
+            checks_passed: run.passed,
+            state,
+            check: Some(check),
+        };
+        return Err(if error.class() == ErrorClass::ResourceLimit {
+            ValidationRunError::ResourceLimit { error, progress }
+        } else {
+            ValidationRunError::EvaluationFailure { error, progress }
+        });
+    }
+    let mut validation = match result {
         Ok(validation) => validation,
         Err(Stop::Interrupted {
             error,
@@ -1292,11 +1413,121 @@ pub fn validate_controlled(
         }
         Err(other) => other.into(),
     };
+    if validation == Validation::Valid
+        && let Some(program) = endpoint
+    {
+        let Some(last) = trace.states.len().checked_sub(1) else {
+            return Ok(Report {
+                validation: Validation::Invalid(Failure {
+                    state: 0,
+                    check: Check::Shape,
+                    detail: "endpoint has no state".into(),
+                }),
+                notes: Vec::new(),
+                length: 0,
+            });
+        };
+        let Ending::TemporalStateError { ec, endpoint } = &trace.ending else {
+            return Ok(Report {
+                validation: Validation::Unsupported("missing endpoint ending".into()),
+                notes: Vec::new(),
+                length: trace.states.len(),
+            });
+        };
+        match program.replay(
+            run.model,
+            &trace.states[last],
+            ec,
+            endpoint,
+            run.control.as_deref(),
+        ) {
+            Ok(Ok(())) => {}
+            Ok(Err(detail)) => {
+                validation = Validation::Invalid(Failure {
+                    state: last,
+                    check: Check::Ending,
+                    detail,
+                });
+            }
+            Err(error) => return endpoint_refusal(run, trace, error, Some(last)),
+        }
+        if let Some(control) = &run.control {
+            control
+                .check()
+                .map_err(|error| ValidationRunError::Interrupted {
+                    error: EvalError::interrupted(error),
+                    progress: progress(run, Some(last)),
+                })?;
+        }
+    }
+    if let Some(feature) = run.refusal() {
+        validation = Validation::Unsupported(feature);
+    }
     Ok(Report {
         validation,
         notes: std::mem::take(&mut run.notes).into_iter().collect(),
         length: trace.states.len(),
     })
+}
+
+fn progress(run: &Run<'_>, state: Option<usize>) -> ValidationProgress {
+    ValidationProgress {
+        checks_passed: run.passed,
+        state,
+        check: Some(Check::Ending),
+    }
+}
+fn endpoint_refusal(
+    run: &Run<'_>,
+    trace: &Trace,
+    error: crate::row_demand::FormulaError,
+    state: Option<usize>,
+) -> Result<Report, ValidationRunError> {
+    let feature = match error {
+        crate::row_demand::FormulaError::Evaluation(error) => match error.class() {
+            ErrorClass::Interrupted => {
+                return Err(ValidationRunError::Interrupted {
+                    error,
+                    progress: progress(run, state),
+                });
+            }
+            ErrorClass::ResourceLimit => {
+                return Err(ValidationRunError::ResourceLimit {
+                    error,
+                    progress: progress(run, state),
+                });
+            }
+            ErrorClass::Bug => {
+                return Err(ValidationRunError::EvaluationFailure {
+                    error,
+                    progress: progress(run, state),
+                });
+            }
+            _ => error.to_string(),
+        },
+        other => other.to_string(),
+    };
+    Ok(Report {
+        validation: Validation::Unsupported(feature),
+        notes: Vec::new(),
+        length: trace.states.len(),
+    })
+}
+
+pub(crate) fn validate_private_controlled(
+    model: &Model,
+    host: Arc<TraceHost>,
+    trace: &Trace,
+    control: Option<Arc<dyn dive_eval::HostControl>>,
+) -> Result<Report, ValidationRunError> {
+    let _scope = control
+        .as_ref()
+        .map(|control| model.evaluator.host_control(Some(control.clone())))
+        .transpose()
+        .map_err(ValidationRunError::ControlConflict)?;
+    let mut run = Run::private(model, host, false);
+    run.control = control;
+    controlled_report(&mut run, trace)
 }
 
 /// `report`, refused if a name was created after the model was bound
@@ -1316,7 +1547,10 @@ mod negative_controls {
 
     use std::sync::Arc;
 
-    use super::{Check, Validation, validate};
+    use super::{
+        Check, ErrorClass, Run, TraceHost, Validation, ValidationRunError, endpoint_refusal,
+        validate,
+    };
     use crate::{Ending, Trace, TraceDoc};
 
     const SPEC: &str = "---- MODULE Count ----\nEXTENDS Naturals\nVARIABLE x\n\
@@ -1344,6 +1578,21 @@ mod negative_controls {
             Validation::Invalid(f) => f.check,
             other => panic!("{other:?}"),
         }
+    }
+
+    #[test]
+    fn endpoint_allocation_failure_has_no_completed_validation_report() {
+        let model = model();
+        let trace = trace(&model, &[0, 1]);
+        let host = TraceHost::startup();
+        let run = Run::private(&model, host, false);
+        let error = crate::row_demand::reserve(&mut Vec::<u64>::new(), usize::MAX)
+            .expect_err("actual allocation capacity overflow");
+        let error =
+            endpoint_refusal(&run, &trace, error, Some(1)).expect_err("no report on exhaustion");
+        assert!(
+            matches!(error,ValidationRunError::ResourceLimit{error,progress} if error.class()==ErrorClass::ResourceLimit&&progress.state==Some(1)&&progress.check==Some(Check::Ending))
+        );
     }
 
     #[test]

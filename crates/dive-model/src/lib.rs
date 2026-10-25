@@ -165,6 +165,7 @@ impl Recipe {
             None,
             true,
             None,
+            false,
         )
         .map_err(ControlledBindError::legacy)
     }
@@ -194,6 +195,7 @@ impl Recipe {
             None,
             true,
             Some(control),
+            false,
         )
     }
 
@@ -201,6 +203,35 @@ impl Recipe {
     #[must_use]
     pub fn model_values(&self) -> &[String] {
         &self.config.model_values
+    }
+
+    /// Reconstructs a fresh predicate-only model with fallible error transport.
+    /// Intrinsic evaluator resource/internal errors retain their original type
+    /// and startup output. No synthetic control or resource policy is installed
+    /// when `control` is absent; legacy binding methods remain unchanged.
+    ///
+    /// # Errors
+    /// Ordinary binding failures, original evaluator failures/interruption, or
+    /// conflicting control ownership. No model exists on failure.
+    pub fn bind_fallible(
+        &self,
+        host: Arc<dyn dive_eval::Host>,
+        control: Option<Arc<dyn dive_eval::HostControl>>,
+    ) -> Result<Model, ControlledBindError> {
+        bind_in(
+            self.ir.clone(),
+            &self.config,
+            &BindOptions {
+                eval: self.options,
+                symmetry_liveness: self.symmetry_liveness,
+                no_deadlock: self.no_deadlock,
+                host: Some(host),
+            },
+            None,
+            true,
+            control,
+            true,
+        )
     }
 }
 
@@ -221,7 +252,7 @@ pub const DUMP_TRACE_JSON_MODULES: &[&str] = &["_JsonTrace"];
 /// TLC's error for the model, with what TLC printed before it; or an
 /// unsupported feature or an internal error, which are never verdicts.
 pub fn bind(ir: Arc<Ir>, cfg: &ModelConfig, opts: &BindOptions) -> Result<Model, Box<Failure>> {
-    bind_in(ir, cfg, opts, None, false, None).map_err(ControlledBindError::legacy)
+    bind_in(ir, cfg, opts, None, false, None, false).map_err(ControlledBindError::legacy)
 }
 
 /// Binds a trusted native recovered ordered name table before evaluating constants.
@@ -237,7 +268,7 @@ pub fn bind_with_names(
     opts: &BindOptions,
     restored: &[String],
 ) -> Result<Model, Box<Failure>> {
-    bind_in(ir, cfg, opts, Some(restored), false, None).map_err(ControlledBindError::legacy)
+    bind_in(ir, cfg, opts, Some(restored), false, None, false).map_err(ControlledBindError::legacy)
 }
 
 /// Binds a fresh model with typed cooperative evaluator control.
@@ -270,7 +301,7 @@ pub fn bind_controlled(
     opts: &BindOptions,
     control: Arc<dyn dive_eval::HostControl>,
 ) -> Result<Model, ControlledBindError> {
-    bind_in(ir, cfg, opts, None, false, Some(control))
+    bind_in(ir, cfg, opts, None, false, Some(control), false)
 }
 
 /// Like [`bind_controlled`], restoring a checked native ordered name table.
@@ -284,7 +315,7 @@ pub fn bind_with_names_controlled(
     restored: &[String],
     control: Arc<dyn dive_eval::HostControl>,
 ) -> Result<Model, ControlledBindError> {
-    bind_in(ir, cfg, opts, Some(restored), false, Some(control))
+    bind_in(ir, cfg, opts, Some(restored), false, Some(control), false)
 }
 
 fn bind_in(
@@ -294,6 +325,7 @@ fn bind_in(
     restored: Option<&[String]>,
     predicates_only: bool,
     control: Option<Arc<dyn dive_eval::HostControl>>,
+    fallible_errors: bool,
 ) -> Result<Model, ControlledBindError> {
     dive_eval::validate_ir(&ir).map_err(|error| {
         Box::new(Failure {
@@ -365,7 +397,7 @@ fn bind_in(
     } else {
         Arc::new(feed)
     };
-    let mut b = bind::Binder::new(ir, cfg, opts, names, control)
+    let mut b = bind::Binder::new(ir, cfg, opts, names, control, fallible_errors)
         .map_err(|error| error.with_output(Vec::new()))?;
     let result = run(&mut b, predicates_only);
     b.drain_prints();

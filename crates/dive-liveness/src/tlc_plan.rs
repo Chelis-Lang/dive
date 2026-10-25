@@ -518,6 +518,8 @@ pub fn classify(
 #[path = "tlc_plan/active.rs"]
 mod active;
 
+pub(crate) mod demand;
+
 // Membership/error-attribution metadata only; no classifier authority.
 pub(crate) fn active_actions(
     formula: &Formula,

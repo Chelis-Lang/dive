@@ -2243,3 +2243,56 @@ is copied and no runtime behavior or independent-validation credit follows from
 these references. The earlier seven Concat primary references are unchanged.
 
 See the [compact primary observations](survey/data/liveness-atom-error-timing-primary-2026-10-24.json) for input and generated-reference identities, exact outcomes and limitations.
+
+The later `temporal-demand-primary-probes` references distinguish the zero-solution
+startup rejection (2253/77, null counts) from row demand. In
+`CurrentStateBinPriority`, division error 2179 precedes the textually earlier
+Concat error 2182. These generated references and recorded reasons remain
+unchanged; they establish no unconditional global atom priority.
+
+The certified row consumer follows pinned `Liveness.processLiveness`'s combined
+claims, occurrence tags before simplification/DNF, residual grouping and
+`addToBin` order, and `LiveCheck.addNextState`'s action-then-state ordering per
+compiled solution. It admits only residual-free current-state programs with
+complete static must-read coverage of all original scoped backend/attribution
+atoms. Must-read sets decide eligibility, never execution order: the actual
+Boolean programs keep their short circuits. Scope and AtomTest ownership stay
+with original prepared predicates; no equality is inferred from ExprId or a
+separately reconstructed capture.
+
+A separate canonical producer proof checks actual source-reachable Init/Next,
+retained environments, stored data, native targets and original/warm caches
+without evaluation. Unproved normalization transitions or deferred constructors
+decline before capture. This is original Rust capability analysis, not a claim
+that pure owned providers are idempotent. ADR 0104's normalization errors and
+primed Null-state thunk cache bypass remain unchanged. A consuming opaque bridge
+binds and keeps its fresh runtime private; public host replacement and borrowed
+model analysis retain their old behavior. It uses the existing source-binding
+dispatch and native permission hooks rather than assuming a host lease.
+
+Cached labels and attribution are used only after complete capture, with
+explicit maps retaining original vertices and parallel edge occurrences. Every
+due prefix check keeps the original frontier graph, labels and attribution;
+zero-outdegree frontier projection alone would not preserve eager label errors.
+An unpromotable semantic row failure clears all cached truth and continues the
+same capture without restarting or changing its schedule. Resource, interruption
+and internal errors do not take this fallback. A matched typed
+capture decision grants an ordinary 2179/2182 classification only after fresh
+typed and serialized finite-behavior validation. Residual Init/zero-solution
+startup, nonboolean, resource and unproved contexts gain no such authority.
+No established baseline is changed by this implementation or its source proof.
+
+
+The independent endpoint reconstruction in `dive-trace/src/row_demand` ports
+pinned TLC `Liveness`/`LNConj`/`LNDisj` negation, simplification, tagged DNF,
+EA/AE grouping and action-before-state bin order separately from the producer.
+It consumes only immutable configured source roots and actual lazy scopes,
+never producer programs, truth caches, graph rows or source-slot IDs. Explicit
+continuations preserve absorbing-child simplification, all-child DNF conversion,
+last-factor-fast product order and the reference Java-int disjunction-product
+overflow. Storage overflow is an actual resource exception, not TLC2213.
+The optional trace1 error endpoint and fallible resource transport are specified
+in ADR 0113. Its source-context descriptor is compared only after fresh complete
+ordered replay identifies its own first actual core error. This does not port
+TLC's BFS implementation, infer a global error priority, validate counters or
+claim a new conformance baseline.

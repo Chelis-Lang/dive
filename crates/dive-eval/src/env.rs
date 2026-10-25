@@ -531,6 +531,18 @@ pub(crate) struct Thunk {
 }
 
 impl Thunk {
+    // Metadata inspection must check both original computation and warm values,
+    // without consulting getCachedValue or keeping the cache lock while walking.
+    pub(crate) fn stored_caches(&self) -> [Option<(Ev, StateRef, StateRef)>; 2] {
+        let snapshot = |slot: &Mutex<Option<Cached>>| {
+            slot.lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .as_ref()
+                .map(|cached| (cached.val.clone(), cached.s0.clone(), cached.s1.clone()))
+        };
+        [snapshot(&self.cache), snapshot(&self.foreign)]
+    }
+
     pub(crate) fn new(expr: ExprId, env: Env, cachable: bool) -> Arc<Self> {
         Arc::new(Self {
             expr,

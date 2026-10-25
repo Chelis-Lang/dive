@@ -14,6 +14,10 @@ use crate::formula::{self, AtomKind, CycleConditions, Tableau};
 use crate::plan::{self, Plan, PlanningError};
 use crate::product::{self, AcceptancePolicy, CompactProduct, PackedTruth};
 
+#[doc(hidden)]
+pub mod owned;
+mod row_demand;
+
 /// Combined bounds on planning, exploration and explicit product construction.
 #[derive(Clone, Copy, Debug)]
 pub struct Limits {
@@ -322,7 +326,7 @@ impl ActionEvaluation {
 }
 
 /// Where a state atom actually failed in the existing analysis schedule.
-/// None of these sites certifies TLC's capture-time error demand or prefix.
+/// A capture site alone does not certify demand; use its separate producer proof.
 ///
 /// ```
 /// use dive_liveness::analyze::StateEvaluationSite;
@@ -331,6 +335,8 @@ impl ActionEvaluation {
 /// ```
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum StateEvaluationSite {
+    /// An actually reached source-row call, before the next source expands.
+    CaptureRow,
     /// Graph labels evaluated after complete exploration.
     FinalLabels,
     /// Graph labels evaluated during a due completed-level prefix check.
@@ -341,9 +347,11 @@ pub enum StateEvaluationSite {
     PeriodicAttribution,
 }
 
-/// An original state-atom cause, without an error verdict or timing certificate.
+/// An original state-atom cause, without an ordinary error verdict.
 /// The inner cause's expression origin and the bound predicate's outer source
-/// are retained separately. No graph state, scope or evaluator is retained.
+/// are retained separately. Legacy posthoc evidence has no demand authority.
+/// A certified row additionally retains its finite producer diagnostic path,
+/// never the scope, evaluator or complete behavior graph.
 ///
 /// ```no_run
 /// # fn example(model: &dive_model::Model) {
@@ -365,6 +373,44 @@ pub struct StateEvaluation {
     source: Box<plan::Source>,
     core: bool,
     site: StateEvaluationSite,
+    row: Option<Box<CaptureRowEvidence>>,
+}
+
+/// Opaque producer proof for an ordered, MUST-complete source-row demand.
+/// Construction requires the private compiler certificate and the capture
+/// producer's matching typed decision, actual statistics and diagnostic path.
+/// This is not independent validation or an ordinary error verdict.
+///
+/// ```
+/// use dive_liveness::analyze::StateEvaluation;
+/// fn inspect(state: &StateEvaluation) {
+///     if let Some(row) = state.capture_row() {
+///         let _original_source = row.source();
+///         let _actual_statistics = row.result().stats;
+///     }
+/// }
+/// # let _ = inspect;
+/// ```
+#[derive(Clone, Debug)]
+pub struct CaptureRowEvidence {
+    source: usize,
+    result: Box<CheckResult>,
+    _proof: crate::tlc_plan::demand::Certificate,
+}
+
+impl CaptureRowEvidence {
+    /// Original dense capture source identity, not a projected product index.
+    #[must_use]
+    pub const fn source(&self) -> usize {
+        self.source
+    }
+
+    /// Original unsupported stop with actual counters and finite source path.
+    /// Its verdict is not rewritten by producing this evidence.
+    #[must_use]
+    pub fn result(&self) -> &CheckResult {
+        &self.result
+    }
 }
 impl StateEvaluation {
     /// Original class, code, message and inner expression origin.
@@ -387,10 +433,18 @@ impl StateEvaluation {
     pub fn source(&self) -> &plan::Source {
         &self.source
     }
-    /// Actual postcapture or completed-level evaluation site, never Init/source-row.
+    /// Actual evaluation site; a capture site requires its separate proof.
     #[must_use]
     pub const fn site(&self) -> StateEvaluationSite {
         self.site
+    }
+
+    /// A sealed matching capture-row decision, absent for all posthoc failures.
+    /// Callers still need independent finite-behavior validation and a qualified
+    /// temporal error classification before reporting an ordinary error.
+    #[must_use]
+    pub fn capture_row(&self) -> Option<&CaptureRowEvidence> {
+        self.row.as_deref()
     }
 }
 
@@ -535,6 +589,7 @@ fn state_failure(
             source,
             core,
             site: context.errors.state_site(context.attribution),
+            row: None,
         }));
     }
     error
@@ -673,17 +728,66 @@ fn labels(
     Ok((labels, edges))
 }
 
+fn cached_labels(
+    property: usize,
+    plan: &Plan,
+    original: &capture::BehaviorGraph,
+    projection: &row_demand::Projection,
+    cache: &row_demand::Cache,
+    policy: GraphLabelPolicy,
+) -> Result<(PackedTruth, usize), AnalysisError> {
+    let original_edges = original
+        .edges
+        .iter()
+        .try_fold(0_usize, |n, row| n.checked_add(row.len()))
+        .ok_or(AnalysisError::Limit("atom cells"))?;
+    // Keep explicit caller cell ceilings on their original captured domain.
+    // Projection changes queried topology, not the configured admission policy.
+    policy.admit(original.states.len(), original_edges, plan.atoms.len())?;
+    let kinds = plan.atoms.iter().map(|atom| atom.kind).collect::<Vec<_>>();
+    let mut truth = PackedTruth::new(&projection.graph, &kinds).map_err(AnalysisError::Product)?;
+    let mut edges = 0_usize;
+    for (vertex, &source) in projection.sources.iter().enumerate() {
+        if crate::budget::exhausted() {
+            return Err(AnalysisError::Limit(crate::budget::EXHAUSTED));
+        }
+        let row = &projection.edges[vertex];
+        edges = edges
+            .checked_add(row.len())
+            .ok_or(AnalysisError::Limit("atom cells"))?;
+        for (atom, kind) in kinds.iter().enumerate() {
+            let value = cache.read(property, atom, source)?;
+            if *kind == AtomKind::State {
+                truth
+                    .set_state(atom, vertex, value)
+                    .map_err(AnalysisError::Product)?;
+            } else {
+                for position in 0..row.len() {
+                    truth
+                        .set_action(atom, vertex, position, value)
+                        .map_err(AnalysisError::Product)?;
+                }
+            }
+        }
+    }
+    Ok((truth, edges))
+}
+
 fn attribute(
     model: &Model,
     plans: &[PreparedProperty],
     states: &[StateVals],
     back: usize,
     cells: usize,
-    control: &dive_check::budget::EvaluationControl,
-    evaluations: &mut EvaluationErrors,
+    evaluation: (
+        &dive_check::budget::EvaluationControl,
+        &mut EvaluationErrors,
+    ),
+    cached: Option<(&row_demand::Cache, &[usize])>,
 ) -> Result<Vec<String>, AnalysisError> {
+    let (control, evaluations) = evaluation;
     let mut violated = Vec::new();
-    for (p, prepared) in model.property_claims().iter().zip(plans) {
+    for (property, (p, prepared)) in model.property_claims().iter().zip(plans).enumerate() {
         let plan = &prepared.plan;
         states
             .len()
@@ -701,7 +805,16 @@ fn attribute(
             let next = if i + 1 == states.len() { back } else { i + 1 };
             let st = St::action(state.clone(), states[next].clone());
             let row = (0..plan.atoms.len())
-                .map(|a| atom(model, plan, a, &st, &mut context))
+                .map(|a| {
+                    if let Some((cache, sources)) = cached {
+                        let source = *sources
+                            .get(i)
+                            .ok_or(AnalysisError::Inconsistent("attribution source map"))?;
+                        cache.read(property, a, source)
+                    } else {
+                        atom(model, plan, a, &st, &mut context)
+                    }
+                })
                 .collect::<Result<_, _>>()?;
             rows.push(row);
         }
@@ -838,6 +951,17 @@ pub fn analyze_final_with_policies(
     policy: AcceptancePolicy,
     graph_labels: GraphLabelPolicy,
 ) -> Result<Analysis, DetailedFailure> {
+    analyze_final_bound(model, opts, limits, policy, graph_labels, None)
+}
+
+fn analyze_final_bound(
+    model: &Model,
+    opts: &CheckOptions,
+    limits: Limits,
+    policy: AcceptancePolicy,
+    graph_labels: GraphLabelPolicy,
+    authority: Option<&owned::Authority<'_>>,
+) -> Result<Analysis, DetailedFailure> {
     let mut stage = Stage::Planning;
     let mut exploration = None;
     let mut evaluations = EvaluationErrors::default();
@@ -850,6 +974,7 @@ pub fn analyze_final_with_policies(
         &mut stage,
         &mut exploration,
         &mut evaluations,
+        authority,
     )
     .map_err(|error| DetailedFailure {
         failure: Failure {
@@ -900,6 +1025,7 @@ fn analyze_observed(
     stage: &mut Stage,
     exploration: &mut Option<Box<ExplorationEvidence>>,
     evaluations: &mut EvaluationErrors,
+    authority: Option<&owned::Authority<'_>>,
 ) -> Result<Analysis, AnalysisError> {
     let (mut watchdog, armed) = dive_check::budget::arm(opts).map_err(|error| match error {
         dive_check::budget::StartError::Measurement(error) => {
@@ -919,6 +1045,7 @@ fn analyze_observed(
         stage,
         exploration,
         evaluations,
+        authority,
     )
     .map_err(|error| match armed.budget.poll() {
         // Only the budget's own limit is a stop; every other failure,
@@ -984,6 +1111,7 @@ fn analyze_unbudgeted(
     stage: &mut Stage,
     exploration: &mut Option<Box<ExplorationEvidence>>,
     evaluations: &mut EvaluationErrors,
+    authority: Option<&owned::Authority<'_>>,
 ) -> Result<Analysis, AnalysisError> {
     validate_analysis_context(model)?;
     let control = evaluator_control(opts)?;
@@ -993,15 +1121,46 @@ fn analyze_unbudgeted(
             .map_err(|_| AnalysisError::Inconsistent("another driver owns evaluator control"))?;
         prepare(model, limits, &control)?
     };
+    let demand = row_demand::prepare(
+        model,
+        &plans,
+        opts,
+        model.temporals.len(),
+        limits.formula,
+        graph_labels,
+        (authority, &control),
+    )?;
+    let cache = demand
+        .as_ref()
+        .map(|program| std::sync::Mutex::new(row_demand::Cache::new(program)));
     *stage = Stage::Capture;
-    let captured =
+    let captured = if let (Some(program), Some(cache)) = (&demand, &cache) {
+        match row_demand::Observe::new(model, &plans, program, cache).explore(
+            opts,
+            limits.capture,
+            None,
+            evaluations,
+            exploration,
+        )? {
+            capture::ControlledExploration::Complete(complete) => *complete,
+            capture::ControlledExploration::Stopped(result) => {
+                return Err(AnalysisError::Exploration(result));
+            }
+            capture::ControlledExploration::Prefix(_) => {
+                return Err(AnalysisError::Inconsistent(
+                    "final row capture returned a prefix",
+                ));
+            }
+        }
+    } else {
         match capture::explore_with_evidence(model, opts, limits.capture).map_err(|message| {
             *stage = Stage::Unknown;
             AnalysisError::CaptureThread(message)
         })? {
             capture::Exploration::Complete(c) => *c,
             capture::Exploration::Stopped(v) => return Err(AnalysisError::Exploration(v)),
-        };
+        }
+    };
     let _control = control
         .enter(&model.evaluator)
         .map_err(|_| AnalysisError::Inconsistent("another driver owns evaluator control"))?;
@@ -1016,6 +1175,16 @@ fn analyze_unbudgeted(
         stage,
         evaluations,
         &control,
+        cache
+            .as_ref()
+            .map(|cache| {
+                cache
+                    .lock()
+                    .map_err(|_| AnalysisError::Inconsistent("temporal cache lock poisoned"))
+            })
+            .transpose()?
+            .filter(|cache| cache.active())
+            .as_deref(),
     )
     .inspect_err(|_| {
         *exploration = Some(Box::new(ExplorationEvidence::from(&captured)));
@@ -1095,6 +1264,33 @@ struct CandidateWord {
     edges: Vec<capture::Edge>,
 }
 
+type OriginalWord = (Vec<StateVals>, Vec<usize>, Vec<capture::Edge>);
+
+fn original_word(
+    captured: &capture::BehaviorGraph,
+    projection: Option<&row_demand::Projection>,
+    lasso: &crate::search::Lasso,
+) -> OriginalWord {
+    let steps = lasso.prefix.iter().chain(&lasso.cycle);
+    let states: Vec<StateVals> = steps
+        .clone()
+        .map(|s| captured.states[projection.map_or(s.from, |p| p.sources[s.from])].clone())
+        .collect();
+    let source_ids = steps
+        .clone()
+        .map(|s| projection.map_or(s.from, |p| p.sources[s.from]))
+        .collect::<Vec<_>>();
+    let edges = steps
+        .map(|s| {
+            let (source, edge) = projection.map_or((s.from, s.edge), |p| {
+                (p.sources[s.from], p.edges[s.from][s.edge])
+            });
+            captured.edges[source][edge].clone()
+        })
+        .collect();
+    (states, source_ids, edges)
+}
+
 /// Searches the first `searched` properties in configuration order for an
 /// accepting word; attribution always covers every property. A complete graph
 /// searches all of them. A prefix searches only the first, because a word for a
@@ -1115,11 +1311,25 @@ fn analyze_captured(
     stage: &mut Stage,
     evaluations: &mut EvaluationErrors,
     control: &dive_check::budget::EvaluationControl,
+    cache: Option<&row_demand::Cache>,
 ) -> Result<Option<CandidateWord>, AnalysisError> {
     *stage = Stage::Product;
-    let graph = product::BehaviorView::checked_captured(captured)
+    let cache = cache.filter(|cache| cache.active());
+    let original = product::BehaviorView::checked_captured(captured)
         .map_err(|e| AnalysisError::Product(product::ProductError::Shape(e.to_string())))?;
-    for (p, prepared) in model.property_claims().iter().zip(plans).take(searched) {
+    let projection = cache
+        .map(|cache| row_demand::Projection::new(captured, cache))
+        .transpose()?;
+    let graph = projection.as_ref().map_or(original, |projection| {
+        product::BehaviorView::from(&projection.graph)
+    });
+    for (property, (p, prepared)) in model
+        .property_claims()
+        .iter()
+        .zip(plans)
+        .take(searched)
+        .enumerate()
+    {
         let plan = &prepared.plan;
         *stage = Stage::Atoms;
         let active = if plan.atoms.iter().any(|atom| atom.kind == AtomKind::Action) {
@@ -1128,17 +1338,22 @@ fn analyze_captured(
         } else {
             (std::collections::BTreeSet::new(), None)
         };
-        let (labels, behavior_edges) = labels(
-            model,
-            plan,
-            captured,
-            graph,
-            &p.name,
-            graph_labels,
-            &active,
-            evaluations,
-            control,
-        )?;
+        let (labels, behavior_edges) = if let (Some(cache), Some(projection)) = (cache, &projection)
+        {
+            cached_labels(property, plan, captured, projection, cache, graph_labels)?
+        } else {
+            labels(
+                model,
+                plan,
+                captured,
+                graph,
+                &p.name,
+                graph_labels,
+                &active,
+                evaluations,
+                control,
+            )?
+        };
         *stage = Stage::Product;
         for group in &prepared.groups {
             let product = CompactProduct::with_policy_and_edges(
@@ -1156,14 +1371,8 @@ fn analyze_captured(
                     .find_lasso_with_conditions(&labels, conditions)
                     .map_err(AnalysisError::Product)?
                 {
-                    let steps = lasso.prefix.iter().chain(&lasso.cycle);
-                    let states: Vec<StateVals> = steps
-                        .clone()
-                        .map(|s| captured.states[s.from].clone())
-                        .collect();
-                    let edges = steps
-                        .map(|s| captured.edges[s.from][s.edge].clone())
-                        .collect();
+                    let (states, source_ids, edges) =
+                        original_word(captured, projection.as_ref(), &lasso);
                     *stage = Stage::Attribution;
                     let properties = attribute(
                         model,
@@ -1171,8 +1380,8 @@ fn analyze_captured(
                         &states,
                         lasso.prefix.len(),
                         limits.atom_cells,
-                        control,
-                        evaluations,
+                        (control, evaluations),
+                        cache.map(|cache| (cache, source_ids.as_slice())),
                     )?;
                     if !properties.contains(&p.name) {
                         return Err(AnalysisError::Inconsistent(

@@ -66,6 +66,15 @@ impl Session {
     /// Transport uses text/JSON; private interner atoms cannot escape the runtime.
     #[must_use]
     pub fn read(&self, doc: &TraceDoc) -> (Report, Option<TraceDoc>) {
+        if matches!(doc.ending, Some(crate::Ending::TemporalStateError { .. })) {
+            return (
+                refusal(
+                    "temporal error endpoints require Session::try_read or read_controlled".into(),
+                    doc.states.len(),
+                ),
+                None,
+            );
+        }
         let (model, host) = match self.bind() {
             Ok(bound) => bound,
             Err(feature) => return (refusal(feature, doc.states.len()), None),
@@ -112,6 +121,162 @@ impl Session {
         (report, trace.to_doc(&model).ok())
     }
 
+    /// Reads a native trace on a fresh privately bound runtime with typed control.
+    /// Endpoint descriptors are independently compiled and replayed; no producer
+    /// validation flag is authority. This new controlled fresh-session path
+    /// supports native temporal error endpoints only. Other native documents
+    /// and TLC JSON interpretation retain their existing entrypoints.
+    ///
+    /// ```no_run
+    /// # fn check(session: &dive_trace::Session, document: &dive_trace::TraceDoc,
+    /// # control: std::sync::Arc<dyn dive_eval::HostControl>)
+    /// # -> Result<(), dive_trace::ValidationRunError> {
+    /// let (report, _) = session.read_controlled(document, control)?;
+    /// # let _ = report; Ok(()) }
+    /// ```
+    ///
+    /// # Errors
+    /// Typed binding or validation interruption with progress, or conflicting
+    /// evaluator control ownership. Other refusals remain validation reports.
+    pub fn read_controlled(
+        &self,
+        doc: &TraceDoc,
+        control: Arc<dyn dive_eval::HostControl>,
+    ) -> Result<(Report, Option<TraceDoc>), crate::ValidationRunError> {
+        // Retain the owned control until private model/trace owners and the final poll finish.
+        let result = self.read_fallible(doc, Some(&control));
+        drop(control);
+        result
+    }
+
+    /// Validates a document with resource exceptions outside the report.
+    /// No budget or artificial control is installed by this uncontrolled path.
+    /// Legacy documents retain the existing reader; temporal error endpoints
+    /// use fresh private binding, ordered reconstruction and finite replay.
+    ///
+    /// ```no_run
+    /// # fn read(session: &dive_trace::Session, doc: &dive_trace::TraceDoc)
+    /// # -> Result<(), dive_trace::ValidationRunError> {
+    /// let (report, _) = session.try_read(doc)?;
+    /// # let _ = report; Ok(()) }
+    /// ```
+    ///
+    /// # Errors
+    /// Allocation/resource failure or a typed evaluation-control interruption;
+    /// neither is a completed validation verdict.
+    pub fn try_read(
+        &self,
+        doc: &TraceDoc,
+    ) -> Result<(Report, Option<TraceDoc>), crate::ValidationRunError> {
+        if !matches!(doc.ending, Some(crate::Ending::TemporalStateError { .. })) {
+            return Ok(self.read(doc));
+        }
+        self.read_fallible(doc, None)
+    }
+
+    fn read_fallible(
+        &self,
+        doc: &TraceDoc,
+        control: Option<&Arc<dyn dive_eval::HostControl>>,
+    ) -> Result<(Report, Option<TraceDoc>), crate::ValidationRunError> {
+        use crate::{ValidationProgress, ValidationRunError};
+        let progress = || ValidationProgress {
+            checks_passed: 0,
+            state: None,
+            check: None,
+        };
+        let poll = || {
+            if let Some(control) = control {
+                control
+                    .check()
+                    .map_err(|error| ValidationRunError::Interrupted {
+                        error: dive_eval::EvalError::interrupted(error),
+                        progress: progress(),
+                    })?;
+            }
+            Ok(())
+        };
+        let finish = |report, document| {
+            poll()?;
+            Ok((report, document))
+        };
+        poll()?;
+        if doc.source != Source::Dive {
+            return finish(
+                refusal(
+                    "controlled private TLC document interpretation".into(),
+                    doc.states.len(),
+                ),
+                None,
+            );
+        }
+        if !matches!(doc.ending, Some(crate::Ending::TemporalStateError { .. })) {
+            return finish(refusal("controlled fresh-session validation currently requires a native temporal-state error endpoint; use existing validation entrypoints for other documents".into(),doc.states.len()),None);
+        }
+        let host = TraceHost::startup();
+        host.startup.store(true, Ordering::Relaxed);
+        let binding = self.recipe.bind_fallible(host.clone(), control.cloned());
+        let model = match binding {
+            Ok(model) => model,
+            Err(dive_model::ControlledBindError::Interrupted { error, .. }) => {
+                return Err(ValidationRunError::Interrupted {
+                    error,
+                    progress: progress(),
+                });
+            }
+            Err(dive_model::ControlledBindError::ControlConflict { error, .. }) => {
+                return Err(ValidationRunError::ControlConflict(error));
+            }
+            Err(dive_model::ControlledBindError::EvaluationFailure { error, .. }) => {
+                return Err(if error.class() == dive_eval::ErrorClass::ResourceLimit {
+                    ValidationRunError::ResourceLimit {
+                        error,
+                        progress: progress(),
+                    }
+                } else {
+                    ValidationRunError::EvaluationFailure {
+                        error,
+                        progress: progress(),
+                    }
+                });
+            }
+            Err(dive_model::ControlledBindError::Binding(failure)) => {
+                if failure.error.kind == dive_model::ErrorKind::Bug {
+                    return Err(ValidationRunError::BindingFailure {
+                        error: failure.error,
+                        progress: progress(),
+                    });
+                }
+                return finish(
+                    refusal(
+                        format!("fresh validation binding: {}", failure.error),
+                        doc.states.len(),
+                    ),
+                    None,
+                );
+            }
+        };
+        poll()?;
+        if let Some(mut config) = self.config.clone() {
+            config.deadlock = model.settings.check_deadlock;
+            model.evaluator.intern_checker_names();
+            model.evaluator.intern_bfs_config(&config);
+            *host
+                .run_config
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner) = Some(config);
+        }
+        let trace = match Trace::decode(&model, doc) {
+            Ok(trace) => trace,
+            Err(error) => {
+                return finish(shape_refusal(error, doc.states.len()), None);
+            }
+        };
+        let report =
+            crate::validate::validate_private_controlled(&model, host, &trace, control.cloned())?;
+        finish(report, trace.to_doc(&model).ok())
+    }
+
     pub(crate) fn interpretation(&self, doc: &TraceDoc) -> (Report, Option<TraceDoc>) {
         self.plain(doc, true)
     }
@@ -120,6 +285,18 @@ impl Session {
 fn refusal(feature: String, length: usize) -> Report {
     Report {
         validation: Validation::Unsupported(feature),
+        notes: Vec::new(),
+        length,
+    }
+}
+
+fn shape_refusal(error: crate::ShapeError, length: usize) -> Report {
+    Report {
+        validation: Validation::Invalid(crate::Failure {
+            state: error.state.unwrap_or(0),
+            check: crate::Check::Shape,
+            detail: error.detail,
+        }),
         notes: Vec::new(),
         length,
     }

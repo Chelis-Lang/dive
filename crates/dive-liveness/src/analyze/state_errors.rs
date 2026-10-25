@@ -209,8 +209,8 @@ fn attribution_helper_retains_its_distinct_final_and_periodic_site() {
             &states,
             0,
             Limits::default().atom_cells,
-            &control,
-            &mut errors,
+            (&control, &mut errors),
+            None,
         )
         .expect_err("direct attribution failure");
         assert_eq!(failure.code(), "DIVE-L0033");

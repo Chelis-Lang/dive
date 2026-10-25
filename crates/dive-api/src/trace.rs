@@ -42,6 +42,7 @@ use std::sync::Arc;
 pub use dive_trace::mutate::{ControlMode, Mutant};
 pub use dive_trace::{
     Check, DEADLOCK_UNSUPPORTED, Ending, Failure, Report, State, Trace, TraceDoc, Validation,
+    ValidationRunError,
 };
 use serde_json::{Value, json};
 
@@ -257,6 +258,41 @@ impl SpecModel {
             (report, trace)
         })
         .unwrap_or_else(|e| (thread_failed(&e, doc.states.len()), None))
+    }
+
+    /// Validates with resource/execution exceptions outside the report.
+    /// Endpoint documents require this fallible entrypoint; no resource failure
+    /// is relabeled as a completed unsupported validation result.
+    ///
+    /// ```no_run
+    /// # fn check(model: &dive_api::trace::SpecModel, doc: &dive_api::trace::TraceDoc)
+    /// # -> Result<(), dive_api::trace::ValidationRunError> {
+    /// let report = model.try_validate(doc)?;
+    /// # let _ = report; Ok(()) }
+    /// ```
+    ///
+    /// # Errors
+    /// Resource exhaustion, typed interruption, control conflict or isolated
+    /// thread failure; in each case there is no completed validation report.
+    pub fn try_validate(&self, doc: &TraceDoc) -> Result<Report, ValidationRunError> {
+        self.try_read(doc).map(|(report, _)| report)
+    }
+
+    /// Reads through fresh private source reconstruction with fallible transport.
+    /// Other document forms retain their existing reading semantics.
+    ///
+    /// # Errors
+    /// As [`Self::try_validate`].
+    pub fn try_read(&self, doc: &TraceDoc) -> Result<(Report, Option<Trace>), ValidationRunError> {
+        if !matches!(doc.ending, Some(Ending::TemporalStateError { .. })) {
+            return Ok(self.read(doc));
+        }
+        on_big_stack(|| {
+            let (report, plain) = self.session.try_read(doc)?;
+            let trace = plain.and_then(|doc| Trace::decode(&self.model, &doc).ok());
+            Ok((report, trace))
+        })
+        .map_err(|error| ValidationRunError::ThreadFailure(error.to_string()))?
     }
 
     /// Validates a trace already read against this model.
