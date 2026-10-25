@@ -1,0 +1,515 @@
+{
+  "schema_version": 1,
+  "status": "COMPLETE_FROZEN_MAIN_INSTRUCTION_AND_CALLER_ATTRIBUTION",
+  "source": "1a8343b90a60f5087a1a5a9ca8d1a0f69195992a",
+  "source_tree": "bb4dad68b4ee8c5834c61997eb1e11fac5d1dcaf",
+  "method": {
+    "build_profile": "profiling",
+    "shipping_allocator": "mimalloc",
+    "workers": 1,
+    "seed": 0,
+    "fp": 0,
+    "model_budget_seconds": 900,
+    "max_memory_bytes": 8589934592,
+    "outer_seconds": 930,
+    "native_stages": 9,
+    "complete_profiles": 8,
+    "events": [
+      "Ir"
+    ],
+    "positions": [
+      "instr",
+      "line"
+    ],
+    "callgrind_flags_added_to_prior_method": [
+      "--dump-instr=yes",
+      "--separate-callers=2"
+    ],
+    "metric": "Whole CLI Callgrind instructions only. No candidate comparison, wall-time, scaling or Java TLC measurement."
+  },
+  "machine": {
+    "cpu": {
+      "Architecture": "x86_64",
+      "CPU(s)": "32",
+      "Vendor ID": "GenuineIntel",
+      "Model name": "Intel(R) Xeon(R) Platinum 8488C",
+      "Thread(s) per core": "2",
+      "Core(s) per socket": "16",
+      "Socket(s)": "1"
+    },
+    "kernel": {
+      "system": "Linux",
+      "release": "7.0.0-1014-aws",
+      "architecture": "x86_64"
+    },
+    "ami": "ami-02a9cdd4e98bc3c78",
+    "instance_type": "c7i.8xlarge",
+    "identity_sha256": "8b16a1389c736401db813cdd5c9094975e842acebd75f91e50102b965e591de6",
+    "shared_environment_no_quiet_or_exclusive_host_certificate": true
+  },
+  "tools": {
+    "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+    "valgrind": "valgrind-3.22.0",
+    "callgrind_backend": "valgrind-3.22.0 callgrind backend"
+  },
+  "binary": {
+    "sha256": "1f13dc9a52aa7048a595cb721e405002f08378bc8ad719cfdebde2f52bd36b6c",
+    "bytes": 111578864,
+    "mode": "0o775"
+  },
+  "source_map_sha256": "1ee82777506b9fc3350adf8c0b21d213dc0f57c4279d82ebc8e1e2860ff59dfb",
+  "tools_and_loader_identity_sha256": "1370241ba9d5bb19e37059a88e60c28950bac66c277a0c73c7e84a84f218755f",
+  "plan_sha256": "06970dec036e953936a22a4ac9b6b64463185cbe4efdc4c4b0918615d791a9e2",
+  "manifest_sha256": "58ac11c56ae66341e6ac49b31f6032ca45e2dc406b8f766544415ec6caf6326c",
+  "input_receipts": {
+    "results/raw/observed-inputs-before.json": "4038f82aaca1a10d2daf217da421bb9f1320890127412f15a40c9746820782b1",
+    "results/raw/observed-inputs-after.json": "b3417b8d7ed639e9335a0741cb34a1e90411a2d8e1b1484bb20420a51313188b"
+  },
+  "cells": [
+    {
+      "model": "SimpleRegular",
+      "profile": "dive",
+      "workers": 1,
+      "normal_native_exit": 0,
+      "success_code": 2193,
+      "statistics": {
+        "distinct": 12097,
+        "generated": 47584,
+        "depth": 19,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "whole_Ir": 2522404639,
+      "exclusive_categories_Ir": {
+        "allocator_runtime": 393228886,
+        "ownership_runtime": 280247956,
+        "force_cache": 0,
+        "substitution_access": 0,
+        "call_binding": 20635397,
+        "materialize_normalize": 2902089,
+        "evaluator_other": 1049802928,
+        "other": 775586646,
+        "unresolved": 737
+      },
+      "raw_profile_sha256": "a10708b1c7c8a3c08f5f9fd1314d18f66a82d7c9c81de9602214ca2534d93340",
+      "raw_profile_bytes": 5625719,
+      "original_stream_hashes": {
+        "stdout_sha256": "8460f7038e6446f0effe2da6e838c5f73adc5619635aba3138291d9ae459ea37",
+        "stderr_sha256": "746c7d93e59dea00d7cc35fc2474aa83e06801ab1b4a3085965826379c29c7ce",
+        "observation_sha256": "d20dfa08b6c1927a769415a7d19c24ff46f1346b47c8cc34c18e8d5079cbf068",
+        "identity_before_sha256": "7f8bf804998a7b44897297fd45c186c04cba6386b79455a5be2ab5d4a74f0aa2",
+        "identity_after_sha256": "70b883f968ee40294e4e2891c0bb9f66e82c9582d10f939a868241754d4c5308"
+      },
+      "audited_cost_summary_sha256": "7085c66bf7f7c6929c4db1499e20608b25c4990beb23c3fab38e7165c7310d62",
+      "original_ledger_sha256": "bb53c3f1027d671cf33f8284baa60b8bc70862aaa73f918717acb7594eed3315",
+      "original_ledger_bytes": 32107542,
+      "selected_EXCEPT_contexts": {
+        "table_sha256": "a2a62bf3c813e261909538b49c06b2f296b4edbd5e7a42ba4392c0feaa5a82f2",
+        "table_bytes": 24546,
+        "exclusive_partition_Ir": {
+          "producer_contexts": 49781142,
+          "helper_no_external_incoming_observed": 50019550,
+          "helper_shared_or_unknown": 5417280,
+          "other_contexts": 2417186667
+        },
+        "source_range_self_Ir": 10644483,
+        "universal_affected_or_removable_bound_Ir": null
+      }
+    },
+    {
+      "model": "MCbtree",
+      "profile": "dive",
+      "workers": 1,
+      "normal_native_exit": 0,
+      "success_code": 2193,
+      "statistics": {
+        "distinct": 21364,
+        "generated": 127825,
+        "depth": 24,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "whole_Ir": 14425426107,
+      "exclusive_categories_Ir": {
+        "allocator_runtime": 2091934275,
+        "ownership_runtime": 1964420654,
+        "force_cache": 266570486,
+        "substitution_access": 0,
+        "call_binding": 437231371,
+        "materialize_normalize": 24787513,
+        "evaluator_other": 6102805958,
+        "other": 3537675113,
+        "unresolved": 737
+      },
+      "raw_profile_sha256": "b9345f069755ba86d66c623757e806c4599da830c90be5065caead98a8d4a7d9",
+      "raw_profile_bytes": 7699863,
+      "original_stream_hashes": {
+        "stdout_sha256": "0c75750011a7ec4951598b62c98bb20cb714e4fb61cd658839e21111ec337fb9",
+        "stderr_sha256": "8678f4780a8e6eeae56a5fbb55da2038587990ef120527ade7da4202c4f9a816",
+        "observation_sha256": "b5a685dd562ea23eac3652b0448cf435cd518c85c6481b2b5629377f5d700e2c",
+        "identity_before_sha256": "b1cf9ab350dbe0cd72e19dc38329b13aec30b7b70fc4ff4519e34856d020b1a9",
+        "identity_after_sha256": "c11603a8e6c8af5fb168192b12678997e3068b23adfbbdc4d50efd4d3e325913"
+      },
+      "audited_cost_summary_sha256": "f9b862144d96118dabbcd876163c2ea4f0bad1de73436cc4bbbb638a3674ae72",
+      "original_ledger_sha256": "4c9fc0345256db412f007aaaa74cc9b723243f4849a842a02646c8d052cc94eb",
+      "original_ledger_bytes": 42927676,
+      "selected_EXCEPT_contexts": {
+        "table_sha256": "2eb218710e6cceb45ab4b5a386d2e19d109238d3fac0e440feb8b4933a6f46c4",
+        "table_bytes": 35001,
+        "exclusive_partition_Ir": {
+          "producer_contexts": 4856979,
+          "helper_no_external_incoming_observed": 8433333,
+          "helper_shared_or_unknown": 373464,
+          "other_contexts": 14411762331
+        },
+        "source_range_self_Ir": 696593,
+        "universal_affected_or_removable_bound_Ir": null
+      }
+    },
+    {
+      "model": "GameOfLife",
+      "profile": "dive",
+      "workers": 1,
+      "normal_native_exit": 0,
+      "success_code": 2193,
+      "statistics": {
+        "distinct": 512,
+        "generated": 1024,
+        "depth": 1,
+        "initial_generated": 512,
+        "left_on_queue": 0
+      },
+      "whole_Ir": 1144210670,
+      "exclusive_categories_Ir": {
+        "allocator_runtime": 150781164,
+        "ownership_runtime": 143515488,
+        "force_cache": 51849216,
+        "substitution_access": 0,
+        "call_binding": 43419646,
+        "materialize_normalize": 4107698,
+        "evaluator_other": 409685231,
+        "other": 340851490,
+        "unresolved": 737
+      },
+      "raw_profile_sha256": "6d76c53360efa5303556102c4495d7c2ff9277bbf34e04efa0efd0c706044c71",
+      "raw_profile_bytes": 5152241,
+      "original_stream_hashes": {
+        "stdout_sha256": "5ce9608d9a526e91ffe63cdc4eefec8f58aa21ed9462c38ac08aa1341d012310",
+        "stderr_sha256": "006c53813cee7630413e40b5f89f63205ba7d73f50896d7e59fd34367d481fdd",
+        "observation_sha256": "0d4a29bf76c28585dee29b31fe81e949844e0b2872fdf4c1f698d3687cf88f01",
+        "identity_before_sha256": "df0b33fa5e32c0545c1c157061142981dc54a9310c96487f6e067067c5f4f525",
+        "identity_after_sha256": "fbad1d227bbf3dfad679cb1e4b62ceef6cf4186545d82d788bddb63e2b2738b3"
+      },
+      "audited_cost_summary_sha256": "a011b89d616a64a0f0efd7d6e851e3115614042ae3fbb4572a709deba16a0996",
+      "original_ledger_sha256": "cc65b3a0820fb8294f3b6d32f08cdb84f522ca5499df1e3b3f18252d0b55a6e6",
+      "original_ledger_bytes": 29604908,
+      "selected_EXCEPT_contexts": {
+        "table_sha256": "1923ccbb148c6b9167c8303fa51e18a500cee58ae801a6cfa59bec0ea5f2b2f1",
+        "table_bytes": 1066,
+        "exclusive_partition_Ir": {
+          "producer_contexts": 0,
+          "helper_no_external_incoming_observed": 0,
+          "helper_shared_or_unknown": 0,
+          "other_contexts": 1144210670
+        },
+        "source_range_self_Ir": 0,
+        "universal_affected_or_removable_bound_Ir": null
+      }
+    },
+    {
+      "model": "EWD998PCal",
+      "profile": "dive",
+      "workers": 1,
+      "normal_native_exit": 0,
+      "success_code": 2193,
+      "statistics": {
+        "distinct": 20870,
+        "generated": 168292,
+        "depth": 28,
+        "initial_generated": 8,
+        "left_on_queue": 0
+      },
+      "whole_Ir": 46586547950,
+      "exclusive_categories_Ir": {
+        "allocator_runtime": 6564688545,
+        "ownership_runtime": 6404003662,
+        "force_cache": 1272377264,
+        "substitution_access": 485678998,
+        "call_binding": 1888321872,
+        "materialize_normalize": 543372765,
+        "evaluator_other": 17680341922,
+        "other": 11747762185,
+        "unresolved": 737
+      },
+      "raw_profile_sha256": "65e1777ca1e88d5225b9ecf019994a54f4d52133c92e0170479ba04ce7242288",
+      "raw_profile_bytes": 8176929,
+      "original_stream_hashes": {
+        "stdout_sha256": "c768941160010153db9490a4366751c2e67e2dff1c00a86d7f7a917482db1cb3",
+        "stderr_sha256": "57bcdd9d245d16234a92bbf49e049512e1ef862540059cd6f4c12abdfa8b1245",
+        "observation_sha256": "0359fc805602a183a8a345eed4c33307e4e26ded50e4498ddefaeafbaebb360c",
+        "identity_before_sha256": "f7ea20e3db1010c79651bdb519e2425ed55f6677c4e64cbf0f7203e04c5a5ffb",
+        "identity_after_sha256": "cd2bf20426ce554f69f77b85a7e39f171696efb61262c6acc5081d25a413cd6c"
+      },
+      "audited_cost_summary_sha256": "8c2b254ee603a971b4cdc84e3b8f6f54c8e25c77ac4f53af24b2d87ba2151fff",
+      "original_ledger_sha256": "6133dfc6743d4a646a206508f6fddba72f4272b5e3d3186f1148d5b169a35612",
+      "original_ledger_bytes": 45307027,
+      "selected_EXCEPT_contexts": {
+        "table_sha256": "a05a59a0303468828b3db71ca9a9ca1bea14e3535bcf04767f967ce20c92df76",
+        "table_bytes": 58729,
+        "exclusive_partition_Ir": {
+          "producer_contexts": 357375972,
+          "helper_no_external_incoming_observed": 261032172,
+          "helper_shared_or_unknown": 175595427,
+          "other_contexts": 45792544379
+        },
+        "source_range_self_Ir": 96823020,
+        "universal_affected_or_removable_bound_Ir": null
+      }
+    },
+    {
+      "model": "SimpleRegular",
+      "profile": "tlc",
+      "workers": 1,
+      "normal_native_exit": 0,
+      "success_code": 2193,
+      "statistics": {
+        "distinct": 12097,
+        "generated": 47584,
+        "depth": 19,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "whole_Ir": 2586618532,
+      "exclusive_categories_Ir": {
+        "allocator_runtime": 410940526,
+        "ownership_runtime": 280617352,
+        "force_cache": 0,
+        "substitution_access": 0,
+        "call_binding": 20635397,
+        "materialize_normalize": 2902089,
+        "evaluator_other": 977897019,
+        "other": 893625412,
+        "unresolved": 737
+      },
+      "raw_profile_sha256": "1bffb44ee60002ca502e184e9e19234819cfc0495fbfe1bb11c67f177285c3b0",
+      "raw_profile_bytes": 5623949,
+      "original_stream_hashes": {
+        "stdout_sha256": "feadc8e96b6e41243046caa3b673eb00989b261bca12b53a3bf573c66db66309",
+        "stderr_sha256": "e3e534292605557a386bc1ba261c1556c74273a56cffb5d1436cee7b0bfe8a42",
+        "observation_sha256": "b73e29f36452426e3fab06778ed1f176d8fd2087ea8ab04b26646e8b69c8a28a",
+        "identity_before_sha256": "6ad172a1059521b86f6d929d2f5e7cfeb1af3efd93484e614659196ddc839b65",
+        "identity_after_sha256": "b95d953b0fa5c982a99aabe48891cbbd3f77cba3c10bcfb26131ad68429f6f49"
+      },
+      "audited_cost_summary_sha256": "6c9cb40495b79a3dfc74348d253b19d79301433d9d653d13b87b3824e89ebe21",
+      "original_ledger_sha256": "c831f26558281b18f966686ebd43bad8575f99f4eda03b7f2dfcd6b2f511f71f",
+      "original_ledger_bytes": 32072131,
+      "selected_EXCEPT_contexts": {
+        "table_sha256": "5615c4a3e8e7f86c1c2d424347a1fb917df490988dc135c4e041a750fb828c83",
+        "table_bytes": 24947,
+        "exclusive_partition_Ir": {
+          "producer_contexts": 49781142,
+          "helper_no_external_incoming_observed": 50019640,
+          "helper_shared_or_unknown": 5417280,
+          "other_contexts": 2481400470
+        },
+        "source_range_self_Ir": 10644483,
+        "universal_affected_or_removable_bound_Ir": null
+      }
+    },
+    {
+      "model": "MCbtree",
+      "profile": "tlc",
+      "workers": 1,
+      "normal_native_exit": 0,
+      "success_code": 2193,
+      "statistics": {
+        "distinct": 21364,
+        "generated": 127825,
+        "depth": 24,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "whole_Ir": 18222891108,
+      "exclusive_categories_Ir": {
+        "allocator_runtime": 2432176754,
+        "ownership_runtime": 1981527614,
+        "force_cache": 266570486,
+        "substitution_access": 0,
+        "call_binding": 437231371,
+        "materialize_normalize": 24573733,
+        "evaluator_other": 5643716638,
+        "other": 7437093781,
+        "unresolved": 731
+      },
+      "raw_profile_sha256": "9d948a52d2dc7085ab5c3357e50ca8eda4c7a6f858dedfdc0e67981bf7d93ae8",
+      "raw_profile_bytes": 7529835,
+      "original_stream_hashes": {
+        "stdout_sha256": "1c86c509f3514456e398799b26020e219eb7d07a37399fde52f187bf7370f12e",
+        "stderr_sha256": "67c5de28c95c19c4461909ad553f55a0c8029f0c4ec780743e350a9c7deb3258",
+        "observation_sha256": "fe155b5aa33b2c63c605240e0c1648f8b71f5f5878eef4754aca672ba9138ea7",
+        "identity_before_sha256": "7089ea6662cd027406077d554943d9f50054866c025037c89ef3d07cfaf5b522",
+        "identity_after_sha256": "f3df9b980dc235d92f4d35bca57781730d72ea405ba6b417514432595b47d27a"
+      },
+      "audited_cost_summary_sha256": "63b8653d56ac059affa404dd69b2ef07c3e372bf2c04ebbbec8ddc3e153c51d2",
+      "original_ledger_sha256": "9d2fa702d45caa27deb2fabea0df94b4ca29d1e8ee9e1abf45176a859a55d44d",
+      "original_ledger_bytes": 41948854,
+      "selected_EXCEPT_contexts": {
+        "table_sha256": "792492e2536672302d6ae943da6fb796590fcd6df115fe9ea11da4f9b59c61c7",
+        "table_bytes": 35019,
+        "exclusive_partition_Ir": {
+          "producer_contexts": 4856979,
+          "helper_no_external_incoming_observed": 8433155,
+          "helper_shared_or_unknown": 373464,
+          "other_contexts": 18209227510
+        },
+        "source_range_self_Ir": 696593,
+        "universal_affected_or_removable_bound_Ir": null
+      }
+    },
+    {
+      "model": "GameOfLife",
+      "profile": "tlc",
+      "workers": 1,
+      "normal_native_exit": 0,
+      "success_code": 2193,
+      "statistics": {
+        "distinct": 512,
+        "generated": 1024,
+        "depth": 1,
+        "initial_generated": 512,
+        "left_on_queue": 0
+      },
+      "whole_Ir": 1136581274,
+      "exclusive_categories_Ir": {
+        "allocator_runtime": 144762830,
+        "ownership_runtime": 142669576,
+        "force_cache": 51849216,
+        "substitution_access": 0,
+        "call_binding": 43419646,
+        "materialize_normalize": 3970482,
+        "evaluator_other": 400398652,
+        "other": 349510135,
+        "unresolved": 737
+      },
+      "raw_profile_sha256": "5349a5a31726127f556b18b00f66e489b079407419d212b6eb008e360446da46",
+      "raw_profile_bytes": 5115788,
+      "original_stream_hashes": {
+        "stdout_sha256": "0fc6b08d926f595679fb27120c927bd8101dc468e83551a281b8e9adef48b7b8",
+        "stderr_sha256": "354e069f4688be84047c5f738845237286b27292da5916d3bec6318e543d1961",
+        "observation_sha256": "6f71f19930bb2ff5a19e95c9f6832a62558c1183073748d23869815486e4751d",
+        "identity_before_sha256": "9139370f533991bec646a49e7924f59cc91914a858a82cd1504dd84c076371d9",
+        "identity_after_sha256": "507716afa1e6fd37392b1ba4f762428b44c0b37cfe3f0e869aa9900f8599aeb0"
+      },
+      "audited_cost_summary_sha256": "68908fc1461529496c268cd71b01c3f798230de80987f973b73d3e9766d9be07",
+      "original_ledger_sha256": "f3b35ce8db47a78afa2091834c21749d0b7b8e256196449ba913c5b2f21e0d21",
+      "original_ledger_bytes": 29397691,
+      "selected_EXCEPT_contexts": {
+        "table_sha256": "f2cad72b5ca24fc951e657906e8ebf0c2591949242b515cbc454e7dbe6470e25",
+        "table_bytes": 1066,
+        "exclusive_partition_Ir": {
+          "producer_contexts": 0,
+          "helper_no_external_incoming_observed": 0,
+          "helper_shared_or_unknown": 0,
+          "other_contexts": 1136581274
+        },
+        "source_range_self_Ir": 0,
+        "universal_affected_or_removable_bound_Ir": null
+      }
+    },
+    {
+      "model": "EWD998PCal",
+      "profile": "tlc",
+      "workers": 1,
+      "normal_native_exit": 0,
+      "success_code": 2193,
+      "statistics": {
+        "distinct": 20870,
+        "generated": 168292,
+        "depth": 28,
+        "initial_generated": 8,
+        "left_on_queue": 0
+      },
+      "whole_Ir": 47494350479,
+      "exclusive_categories_Ir": {
+        "allocator_runtime": 6404753140,
+        "ownership_runtime": 6380035450,
+        "force_cache": 1272377264,
+        "substitution_access": 485678998,
+        "call_binding": 1888321872,
+        "materialize_normalize": 543372765,
+        "evaluator_other": 17439843397,
+        "other": 13079966856,
+        "unresolved": 737
+      },
+      "raw_profile_sha256": "14653957ab808abf7b8eb7ae4b8c1fc383c1d7a9bce78873fc5e6ef70d41386e",
+      "raw_profile_bytes": 8159131,
+      "original_stream_hashes": {
+        "stdout_sha256": "d2c07ccc6554cf925d11aee4289d022e5b5e7543337e5451b5cda9f3eed77a7c",
+        "stderr_sha256": "51a50d237e4d99f4cee74eceaf3103322565e0e72b26b390e37e196474407bdd",
+        "observation_sha256": "42056848c95ef63c16f6dacdb0d4e0ce2afae8106cb5407558865209d167deba",
+        "identity_before_sha256": "9a93531170d011eb944e341fb160e425c2d6548359dd3df4b1c77718612cd7e1",
+        "identity_after_sha256": "9ca6e25083840791ee210dcf3854f3e5328f3467820bf3ba9d61a9139672ee17"
+      },
+      "audited_cost_summary_sha256": "0c75fef095c42c9b36d58f0b86d92657d8621865a447a34a5b4995eefb33708a",
+      "original_ledger_sha256": "3b2772e3784486c36631f8464b1e1b36abe056bca039b23fdfaa17398e4d1421",
+      "original_ledger_bytes": 45202594,
+      "selected_EXCEPT_contexts": {
+        "table_sha256": "c1e7ebb0cfb668bb177ecedd5b83527ea4f4290980c355967b09e61b5575d80e",
+        "table_bytes": 60188,
+        "exclusive_partition_Ir": {
+          "producer_contexts": 357375972,
+          "helper_no_external_incoming_observed": 261035370,
+          "helper_shared_or_unknown": 175595427,
+          "other_contexts": 46700343710
+        },
+        "source_range_self_Ir": 96823020,
+        "universal_affected_or_removable_bound_Ir": null
+      }
+    }
+  ],
+  "audit": {
+    "root_original_replay": {
+      "objects": 100,
+      "RAM_stream_bytes": 352537632,
+      "whole_profile_EOF_and_conservation": true,
+      "all_eight_actual_S3_ledger_bodies_SHA_verified": true,
+      "local_raw_files_saved": false,
+      "root_overview_sha256": "c0b68c9ca7272c1f7c2a175932f9bc2efc1c6fcdf93ee79d7f1f7b97a5911c9d",
+      "root_transport_sha256": "12af81a1e005efc154877677544ba9e2fb73072e4c426fe8d4beddc0adc361a8"
+    },
+    "independent_compact_profile_review_sha256": "e0678882c9f34f05eebd542ecbc57b1a91c0ea1e7212f691ec7a93fded536e1f",
+    "ledger_query": {
+      "script_sha256": "6d9a715e3d6b38fa2ac3b46a2cb99c267e42db19c61b3233d33f962e7ec125df",
+      "independent_source_review_sha256": "98f70f31a54ef3a229abe843b8d6d08cb672808315f50a87d410f944d95d0795",
+      "extractor_sha256": "c67db923234ab588fb6e041d9bdde477f632dbdfa1756b63dd6c573909df1dbf",
+      "complete_result_sha256": "704d448c969400f489922db305d15a70cc21b6be409dd47df571c4526a64eb78",
+      "all_eight_barrier_before_selected_outputs": true,
+      "independent_retained_result_review_sha256": "810da993f16ef4ad227b93bf323defbbd98d28d620832d9c3ac74cea0f99b974"
+    }
+  },
+  "origin": {
+    "bucket": "dive-callgrind-profile-20261025064842-b9f59b27-010928226848",
+    "raw_prefix": "results/raw/",
+    "ledger_profile_overview_s3_key": "root-followups/completed-1a8343b9-attribution-audit-v1/ROOT-INDEPENDENT-PROFILE-OVERVIEW.json",
+    "audit_receipt_s3_key": "root-followups/completed-1a8343b9-attribution-audit-v1/RECEIPT.json",
+    "audit_receipt_sha256": "480dd5481c8ab26bb64604e5647c78418bf800f3993fc8b89750bb0d6cca5937",
+    "selected_tables_s3_prefix": "root-followups/local-scaling-and-except-query-20261025-v1/except-copy-ledger-query-1a8343b9-v1/",
+    "selected_preservation_receipt_sha256": "a8a00625503f136dda6ba1c3b6da5e0a401d47a5be9dd2295d10d4bef9741167"
+  },
+  "decision": {
+    "new_runtime_candidate_admitted": false,
+    "hypothetical_delete_all_selected_EXCEPT_exclusive_pool_geomean_reduction": 0.014873798769783009,
+    "interpretation": "Conditional arithmetic over exact selected exclusive contexts only; source-range rows and direct incident helpers do not cover arbitrary descendants. Shared helpers remain unknown. Immediate arc costs overlap and are never added to exclusive totals. Neither these costs nor the 24.22-28.12% mixed allocator/ownership pool proves removable work. No defensible 5% candidate is established."
+  },
+  "compute_cleanup": {
+    "instance": "i-0d4f6fedac73b520a",
+    "state": "terminated",
+    "exact_volume_absent": true,
+    "exact_security_group_absent": true,
+    "bucket_retained": true,
+    "fresh_exact_resource_lookup_receipt_sha256": "f2e3a0982712f5772eb142515a65d7d19f7ae5967528a4afc1f8b7ed433bdd9c",
+    "fresh_node_observation": "absent_from_exact_lookup"
+  },
+  "conformance_population_change": 0
+}
