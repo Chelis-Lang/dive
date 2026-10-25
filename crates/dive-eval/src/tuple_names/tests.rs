@@ -285,7 +285,7 @@ fn dominated_let_facts_do_not_escape_into_roots_formals_or_rebound_contexts() {
         .bind(slot.index(), Sv::Val(Value::tuple(vec![Value::Int(0)])));
     let bare = (*body, forged);
     assert!(
-        ev.tuple_concat_sources(&[bare.clone()], &[], None)
+        ev.tuple_concat_sources(std::slice::from_ref(&bare), &[], None)
             .expect("bare slot refusal")
             .is_none()
     );
