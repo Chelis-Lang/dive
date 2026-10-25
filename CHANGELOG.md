@@ -1,8 +1,16 @@
 # Changelog
 
+- Add certified current-state temporal row errors for eligible single-worker
+  source-bound requests, preserving actual error order, prefix statistics and
+  fresh finite-path and independent ordered error-endpoint validation. Trace1
+  endpoints use fallible validation transport; resource exceptions produce no
+  validation verdict. Unproved contexts retain the old route;
+  caller-owned model APIs, limits, scheduling and report schema stay unchanged.
+
 - Record the rejected ready explicit-set payload screen: all eight pairs
   reduced instructions, but the 2.018% geometric reduction missed the fixed
   5% bar. The private runtime prototype remains unmerged.
+
 
 - Record complete frozen-main evaluator cost attribution and the measured
   rejection of hash deferral before implementation. Checker behavior,

@@ -114,10 +114,13 @@ impl<'a> Binder<'a> {
         opts: &'a BindOptions,
         names: Arc<Interner>,
         control: Option<Arc<dyn dive_eval::HostControl>>,
+        fallible_errors: bool,
     ) -> R<Self> {
+        let mut tables = Tables::new(ir)?;
+        tables.fallible_errors = fallible_errors;
         Ok(Self {
             control,
-            t: Tables::new(ir)?,
+            t: tables,
             cfg,
             opts,
             names,
@@ -149,8 +152,15 @@ impl<'a> Binder<'a> {
     }
 
     pub(crate) fn propagate_interruption(&self, error: &dive_eval::EvalError) -> R<()> {
-        if self.control.is_some() && error.class() == ErrorClass::Interrupted {
+        if (self.control.is_some() || self.t.fallible_errors)
+            && error.class() == ErrorClass::Interrupted
+        {
             return Err(crate::control::StepError::Interrupted(error.clone()));
+        }
+        if self.t.fallible_errors
+            && matches!(error.class(), ErrorClass::ResourceLimit | ErrorClass::Bug)
+        {
+            return Err(crate::control::StepError::EvaluationFailure(error.clone()));
         }
         Ok(())
     }
@@ -586,6 +596,7 @@ impl<'a> Binder<'a> {
                 }
             }
         }
+        // Construction returns ContextError, not an intrinsic EvalError.
         let ev = Evaluator::new(model, self.opts.eval)
             .map_err(|e| BindError::unsupported(e.to_string()))?;
         if let Some(h) = &self.opts.host {

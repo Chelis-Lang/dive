@@ -798,7 +798,7 @@ impl Binder<'_> {
             },
             Expr::Subst { body, .. } => match self.subst_scope(scope, e) {
                 Ok(s) => self.collect_subscript(*body, &s, out, depth + 1)?,
-                Err(error) if error.is_interrupted() => return Err(error),
+                Err(error) if error.is_exception() => return Err(error),
                 Err(_) => false,
             },
             Expr::Let { body, .. } => match self.ev().scope_let(scope, e) {

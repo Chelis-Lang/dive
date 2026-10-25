@@ -19,6 +19,14 @@ pub enum ControlledBindError {
         /// Output before interruption, in original startup order.
         output: Vec<Message>,
     },
+    /// Fallible recipe evaluation aborted with its original intrinsic error.
+    /// Legacy binding entrypoints retain their earlier error mapping.
+    EvaluationFailure {
+        /// Original resource-limit or internal evaluator error.
+        error: EvalError,
+        /// Startup output produced before the failure, in original order.
+        output: Vec<Message>,
+    },
     /// The evaluator could not admit this control registration.
     ControlConflict {
         /// The registration error; it is not resource exhaustion.
@@ -34,7 +42,9 @@ impl ControlledBindError {
     pub fn output(&self) -> &[Message] {
         match self {
             Self::Binding(failure) => &failure.output,
-            Self::Interrupted { output, .. } | Self::ControlConflict { output, .. } => output,
+            Self::Interrupted { output, .. }
+            | Self::EvaluationFailure { output, .. }
+            | Self::ControlConflict { output, .. } => output,
         }
     }
 
@@ -47,12 +57,12 @@ impl ControlledBindError {
             Self::Binding(failure) => failure,
             // Uncontrolled entries never install a capability or use the typed
             // catch branches. Keep an impossible boundary failure fail-closed.
-            Self::Interrupted { output, .. } | Self::ControlConflict { output, .. } => {
-                Box::new(Failure {
-                    error: BindError::bug("uncontrolled binding returned a controlled failure"),
-                    output,
-                })
-            }
+            Self::Interrupted { output, .. }
+            | Self::EvaluationFailure { output, .. }
+            | Self::ControlConflict { output, .. } => Box::new(Failure {
+                error: BindError::bug("uncontrolled binding returned a controlled failure"),
+                output,
+            }),
         }
     }
 }
@@ -61,7 +71,7 @@ impl std::fmt::Display for ControlledBindError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Binding(failure) => failure.fmt(f),
-            Self::Interrupted { error, .. } => error.fmt(f),
+            Self::Interrupted { error, .. } | Self::EvaluationFailure { error, .. } => error.fmt(f),
             Self::ControlConflict { error, .. } => error.fmt(f),
         }
     }
@@ -78,6 +88,7 @@ impl From<Box<Failure>> for ControlledBindError {
 pub(crate) enum StepError {
     Binding(BindError),
     Interrupted(EvalError),
+    EvaluationFailure(EvalError),
     ControlConflict(HostControlConflict),
 }
 
@@ -88,6 +99,9 @@ impl StepError {
                 ControlledBindError::Binding(Box::new(Failure { error, output }))
             }
             Self::Interrupted(error) => ControlledBindError::Interrupted { error, output },
+            Self::EvaluationFailure(error) => {
+                ControlledBindError::EvaluationFailure { error, output }
+            }
             Self::ControlConflict(error) => ControlledBindError::ControlConflict { error, output },
         }
     }
@@ -99,8 +113,8 @@ impl StepError {
         }
     }
 
-    pub(crate) fn is_interrupted(&self) -> bool {
-        matches!(self, Self::Interrupted(_))
+    pub(crate) fn is_exception(&self) -> bool {
+        matches!(self, Self::Interrupted(_) | Self::EvaluationFailure(_))
     }
 }
 
@@ -117,12 +131,46 @@ impl From<HostControlConflict> for StepError {
 
 pub(crate) fn eval_error(
     controlled: bool,
+    fallible_errors: bool,
     error: EvalError,
     legacy: impl FnOnce(EvalError) -> BindError,
 ) -> StepError {
-    if controlled && error.class() == dive_eval::ErrorClass::Interrupted {
+    if (controlled || fallible_errors) && error.class() == dive_eval::ErrorClass::Interrupted {
         StepError::Interrupted(error)
+    } else if fallible_errors
+        && matches!(
+            error.class(),
+            dive_eval::ErrorClass::ResourceLimit | dive_eval::ErrorClass::Bug
+        )
+    {
+        StepError::EvaluationFailure(error)
     } else {
         StepError::Binding(legacy(error))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn fallible_intrinsic_errors_retain_original_class_origin_and_output() {
+        for original in [
+            EvalError::resource_limit("actual allocation failure"),
+            EvalError::bug("actual internal failure"),
+        ] {
+            let original = original.at(dive_ir::ExprId(17));
+            let legacy = eval_error(false, false, original.clone(), |error| {
+                BindError::unsupported(error.to_string())
+            });
+            assert!(matches!(legacy, StepError::Binding(_)));
+            let output = vec![Message::Print("before".into())];
+            let result = eval_error(false, true, original.clone(), |error| {
+                BindError::unsupported(error.to_string())
+            })
+            .with_output(output.clone());
+            assert!(
+                matches!(result,ControlledBindError::EvaluationFailure{error,output:actual} if error==original&&actual==output)
+            );
+        }
     }
 }

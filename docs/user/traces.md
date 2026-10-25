@@ -15,6 +15,24 @@ independent of the native trace document's `format: "dive-trace", version: 1`.
 Existing trace tags, endings and loop indexing follow the compatibility policy
 in [reports and automation](reports-and-errors.md).
 
+A certified temporal state-row error can carry `kind: "error"` with an optional
+`endpoint` describing its stage and original source context (ADR 0113). The
+validator reconstructs the full configured demand independently and checks its
+first real error after validating the finite path. The descriptor cannot select
+an atom or scope. Generic errors without an endpoint remain unsupported; an
+endpoint is not a lasso, property violation, BFS-count or completion proof.
+Older trace1 readers retain the generic unsupported error ending.
+
+Rust callers must use `SpecModel::try_validate`/`try_read`, or the corresponding
+fresh `dive_trace::Session` fallible/controlled entrypoint, for these endpoints.
+The legacy infallible entrypoints refuse the request before replay. Resource,
+interruption and execution exceptions return no validation report. Standalone
+`validate-trace` uses the fallible path: an aborted JSON operation has
+`validation_completed: false` and `error` with phase/progress, but no `result`.
+Its resource/interruption/internal statuses are 3/5/4. No new budget is installed
+by the uncontrolled fallible entrypoint. The completed report vocabulary above
+is unchanged.
+
 The validator evaluates Init and the original next-state relation as predicates
 over supplied concrete states. It is independent of the checker's successor
 enumerator. Every state must assign every spec variable; missing/partial states
@@ -54,9 +72,11 @@ opaque identity. Ordinary feature refusals and invalid words keep their existing
 reports. The control scope restores the caller's evaluator host and control on
 return or unwind, and refuses a registration owned by a different thread.
 
-This API does not add a resource policy to `validate`, `validate_doc`, private
-session reconstruction, TLC interpretation scoring, `SpecModel`, or standalone
-`dive validate-trace`. Their closed report tags are unchanged. Binding, `ASSUME`,
+This API does not add a resource policy to legacy `validate`, `validate_doc`,
+TLC interpretation scoring or uncontrolled validation. Their closed report tags
+are unchanged. The fresh controlled endpoint path separately retains its real
+control through reconstruction, ASSUME, finite checks and ordered replay.
+Legacy binding, `ASSUME`,
 quiet value work, and pure bulk/native operations retain their cooperative
 interruption limitations. Supplied deferred values can retain another
 evaluator, whose work this control does not govern; document encoding and

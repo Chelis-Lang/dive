@@ -56,6 +56,7 @@ mod options;
 mod random_relation;
 mod recursive_leaf;
 mod scope;
+mod stability;
 mod std;
 mod svg;
 mod tla_cmp;
@@ -81,6 +82,7 @@ pub use crate::options::{
     RECOMMENDED_STACK,
 };
 pub use crate::scope::{Scope, SlotView};
+pub use crate::stability::ProducerStability;
 
 use crate::core::Core;
 use crate::env::{Dyn, Env, Ev};

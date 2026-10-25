@@ -85,6 +85,14 @@ pub enum Ending {
         /// TLC's error class, if known (`EC` name).
         ec: Option<String>,
     },
+    /// A source-state demand error, checked only by a fresh source-bound session.
+    /// Its descriptor requests independent replay, never grants authority.
+    TemporalStateError {
+        /// The expected TLC evaluation error class.
+        ec: String,
+        /// Untrusted stage and original inner source context.
+        endpoint: crate::TemporalStateEndpoint,
+    },
 }
 
 impl Ending {
@@ -100,6 +108,9 @@ impl Ending {
             Self::Stuttering => json!({"kind": "stuttering"}),
             Self::Assertion => json!({"kind": "assertion"}),
             Self::Error { ec } => json!({"kind": "error", "ec": ec}),
+            Self::TemporalStateError { ec, endpoint } => {
+                json!({"kind":"error", "ec":ec, "endpoint":endpoint.to_json()})
+            }
         }
     }
 
@@ -112,6 +123,21 @@ impl Ending {
             .get("kind")
             .and_then(J::as_str)
             .ok_or("an ending needs a `kind`")?;
+        if j.get("endpoint").is_some() {
+            let object = j.as_object().ok_or("ending must be an object")?;
+            if kind != "error" || object.len() != 3 || !object.contains_key("ec") {
+                return Err("endpoint requires an exact error ending".into());
+            }
+            let ec = j["ec"]
+                .as_str()
+                .filter(|ec| matches!(*ec, "TLC_MODULE_DIVISION_BY_ZERO" | "TLC_MODULE_EVALUATING"))
+                .ok_or("unsupported temporal endpoint error class")?
+                .to_owned();
+            return Ok(Self::TemporalStateError {
+                ec,
+                endpoint: crate::TemporalStateEndpoint::from_json(&j["endpoint"])?,
+            });
+        }
         let name = || {
             j.get("name")
                 .and_then(J::as_str)

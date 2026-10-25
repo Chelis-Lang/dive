@@ -99,6 +99,7 @@ fn captured_result(
         &mut Stage::Unknown,
         &mut EvaluationErrors::default(),
         &control,
+        None,
     )
 }
 

@@ -75,11 +75,10 @@ impl<'a> LevelCx<'a> {
 
     /// `getLevelBound(expr, c)` where `c` is what `scope` binds.
     fn level(&mut self, e: ExprId, scope: &Scope) -> u8 {
-        if self.t.controlled
-            && self
-                .error
-                .as_ref()
-                .is_some_and(|e| e.class() == dive_eval::ErrorClass::Interrupted)
+        if self
+            .error
+            .as_ref()
+            .is_some_and(|error| self.t.is_exception(error))
         {
             return 0;
         }
@@ -165,10 +164,10 @@ impl<'a> LevelCx<'a> {
                     let s = match self.t.ev().scope_unbound(scope, d) {
                         Ok(s) => s,
                         Err(e) => {
-                            if !self.t.controlled
-                                || !self.error.as_ref().is_some_and(|prior| {
-                                    prior.class() == dive_eval::ErrorClass::Interrupted
-                                })
+                            if !self
+                                .error
+                                .as_ref()
+                                .is_some_and(|prior| self.t.is_exception(prior))
                             {
                                 self.error = Some(e);
                             }
@@ -300,11 +299,10 @@ impl<'a> LevelCx<'a> {
         let s = match self.t.ev().scope_unbound(scope, d) {
             Ok(s) => s,
             Err(e) => {
-                if !self.t.controlled
-                    || !self
-                        .error
-                        .as_ref()
-                        .is_some_and(|prior| prior.class() == dive_eval::ErrorClass::Interrupted)
+                if !self
+                    .error
+                    .as_ref()
+                    .is_some_and(|prior| self.t.is_exception(prior))
                 {
                     self.error = Some(e);
                 }

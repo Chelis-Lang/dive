@@ -1193,7 +1193,7 @@ impl CheckReport {
                         "code": code,
                         "name": error.ec().name(),
                         "exit_status": dive_check::tlc_exit_status(code),
-                        "verified": if temporal_action_evaluation(e).is_some() {
+                        "verified": if e.capture_row_error().is_some() { true } else if temporal_action_evaluation(e).is_some() {
                             error.ec() == dive_eval::Ec::General && !error.is_eval_exception()
                         } else { error.ec() == dive_eval::Ec::ExpectedValue },
                     });
@@ -1234,6 +1234,20 @@ impl CheckReport {
                             })
                             .collect::<Vec<_>>()
                     );
+                }
+                if let Some((error, document, _)) = e.capture_row_error() {
+                    doc["message"] = json!(error.to_string());
+                    doc["error_site"] = json!("temporal-state-row");
+                    doc["tlc"]["reported"] = json!(error.ec().code());
+                    doc["statistics"]["reported_by_tlc"] = json!(true);
+                    doc["counterexample"] = json!({
+                        "length": document.states.len(), "ending": "finite",
+                        "states": document.states.iter().enumerate().map(|(i, values)| json!({"index":i+1,"label": if i==0 {Some("<Initial predicate>")} else {None},"action":null,"values":values,"text":null})).collect::<Vec<_>>(),
+                        "trace": document.to_json(), "validation": "valid",
+                    });
+                    doc["notes"] = json!([
+                        "The finite behavior and first source-state temporal demand error were independently reconstructed and validated on a fresh source-bound runtime. No BFS counters, lasso or violated-property claim is certified by endpoint validation."
+                    ]);
                 }
             }
             Phase::Checked(r) => {
@@ -1630,7 +1644,11 @@ fn temporal_action_evaluation(failure: &crate::temporal::Failure) -> Option<&div
 }
 
 fn temporal_evaluation(failure: &crate::temporal::Failure) -> Option<&dive_eval::EvalError> {
-    temporal_action_evaluation(failure).or_else(|| temporal_planning_evaluation(failure.error()))
+    failure
+        .capture_row_error()
+        .map(|(cause, _, _)| cause)
+        .or_else(|| temporal_action_evaluation(failure))
+        .or_else(|| temporal_planning_evaluation(failure.error()))
 }
 
 fn temporal_failure_kind(failure: &crate::temporal::Failure) -> &'static str {
@@ -1641,6 +1659,9 @@ fn temporal_failure_kind(failure: &crate::temporal::Failure) -> &'static str {
     use dive_liveness::product::ProductError;
     if matches!(failure.error(), Error::Analysis(AnalysisError::Stopped(_))) {
         return "stopped";
+    }
+    if failure.capture_row_error().is_some() {
+        return "evaluation-error";
     }
     if let Some(action) = failure.action_evaluation() {
         return match action.cause().class() {
@@ -1661,7 +1682,9 @@ fn temporal_failure_kind(failure: &crate::temporal::Failure) -> &'static str {
         Error::Analysis(AnalysisError::Planning(PlanningError::Evaluation { .. })) => {
             "evaluation-error"
         }
-        Error::Validation { report, .. } | Error::PrefixValidation { report, .. }
+        Error::Validation { report, .. }
+        | Error::PrefixValidation { report, .. }
+        | Error::EndpointValidation { report }
             if matches!(report.validation, dive_trace::Validation::Invalid(_)) =>
         {
             "internal-error"
@@ -1684,7 +1707,8 @@ fn temporal_failure_kind(failure: &crate::temporal::Failure) -> &'static str {
             dive_model::ErrorKind::Tlc(_) | dive_model::ErrorKind::Eval { .. } => "model-error",
             dive_model::ErrorKind::Unsupported { .. } => "unsupported",
         },
-        Error::Analysis(
+        Error::ValidationResource(_)
+        | Error::Analysis(
             AnalysisError::Product(ProductError::Limit(_))
             | AnalysisError::Limit(_)
             | AnalysisError::Tableau(FormulaError::Limit(_))

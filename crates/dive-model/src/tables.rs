@@ -39,6 +39,7 @@ pub(crate) struct Tables {
     pub(crate) ir: Arc<Ir>,
     ev: Evaluator,
     pub(crate) controlled: bool,
+    pub(crate) fallible_errors: bool,
     root_vars: HashSet<String>,
     /// Root constants' tool objects, by `ConstId`.
     pub(crate) consts: Vec<Option<Look>>,
@@ -66,6 +67,7 @@ impl Tables {
             ir,
             ev,
             controlled: false,
+            fallible_errors: false,
             root_vars,
             consts: vec![None; n],
             tool_obj: HashMap::new(),
@@ -83,7 +85,17 @@ impl Tables {
         error: dive_eval::EvalError,
         legacy: impl FnOnce(dive_eval::EvalError) -> crate::BindError,
     ) -> crate::control::StepError {
-        crate::control::eval_error(self.controlled, error, legacy)
+        crate::control::eval_error(self.controlled, self.fallible_errors, error, legacy)
+    }
+
+    pub(crate) fn is_exception(&self, error: &dive_eval::EvalError) -> bool {
+        ((self.controlled || self.fallible_errors)
+            && error.class() == dive_eval::ErrorClass::Interrupted)
+            || (self.fallible_errors
+                && matches!(
+                    error.class(),
+                    dive_eval::ErrorClass::ResourceLimit | dive_eval::ErrorClass::Bug
+                ))
     }
 
     /// The evaluator (a placeholder until the constants are bound).

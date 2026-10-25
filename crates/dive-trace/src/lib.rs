@@ -71,9 +71,11 @@
 #![forbid(unsafe_code)]
 
 pub mod enabled;
+mod endpoint;
 pub mod format;
 mod initial;
 pub mod mutate;
+mod row_demand;
 mod session;
 pub mod temporal;
 pub mod tlc;
@@ -83,6 +85,7 @@ pub mod value_json;
 
 use dive_model::Model;
 
+pub use endpoint::TemporalStateEndpoint;
 pub use format::{Ending, Label, Source, TraceDoc};
 pub use session::Session;
 pub use trace::{ShapeError, State, Trace, variables};

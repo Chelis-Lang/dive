@@ -245,6 +245,13 @@ pub enum Error {
         /// Actual independent validator report.
         report: ValidationReport,
     },
+    /// Independent finite-error endpoint validation, distinct from a lasso.
+    EndpointValidation {
+        /// Actual independently computed valid/invalid/unsupported result.
+        report: ValidationReport,
+    },
+    /// Validation exhausted an actual resource without producing a verdict.
+    ValidationResource(dive_eval::EvalError),
     /// A value could not be represented in the tagged trace document.
     Document(String),
     /// The evaluation thread failed to start or panicked.
@@ -258,12 +265,17 @@ impl Error {
         match self {
             Self::Binding(_) => "DIVE-A0030",
             Self::Analysis(e) => e.code(),
-            Self::Validation { report, .. } | Self::PrefixValidation { report, .. }
+            Self::Validation { report, .. }
+            | Self::PrefixValidation { report, .. }
+            | Self::EndpointValidation { report }
                 if matches!(report.validation, Validation::Invalid(_)) =>
             {
                 "DIVE-A0031"
             }
-            Self::Validation { .. } | Self::PrefixValidation { .. } => "DIVE-A0032",
+            Self::Validation { .. }
+            | Self::PrefixValidation { .. }
+            | Self::EndpointValidation { .. } => "DIVE-A0032",
+            Self::ValidationResource(_) => "DIVE-L0034",
             Self::Document(_) => "DIVE-A0033",
             Self::Thread(_) => "DIVE-A0034",
         }
@@ -274,12 +286,15 @@ impl std::fmt::Display for Error {
         match self {
             Self::Binding(e) => e.fmt(f),
             Self::Analysis(e) => e.fmt(f),
-            Self::Validation { report, .. } | Self::PrefixValidation { report, .. } => write!(
+            Self::Validation { report, .. }
+            | Self::PrefixValidation { report, .. }
+            | Self::EndpointValidation { report } => write!(
                 f,
                 "{}: temporal candidate did not pass independent validation: {:?}",
                 self.code(),
                 report.validation
             ),
+            Self::ValidationResource(error) => error.fmt(f),
             Self::Document(e) => write!(f, "{}: temporal trace document: {e}", self.code()),
             Self::Thread(e) => write!(f, "{}: temporal evaluation thread: {e}", self.code()),
         }
@@ -330,13 +345,53 @@ pub struct Failure {
     elapsed: Duration,
     action_evaluation: Option<Box<dive_liveness::analyze::ActionEvaluation>>,
     state_evaluation: Option<Box<dive_liveness::analyze::StateEvaluation>>,
+    row_validation: Option<Box<RowValidation>>,
     validation_progress: Option<Box<ValidationProgress>>,
     incomplete: bool,
     periodic: Option<Box<Checks>>,
     configuration: Option<Box<Configuration>>,
     binding_output: Vec<dive_model::Message>,
 }
+
+#[derive(Clone, Debug)]
+struct RowValidation {
+    document: TraceDoc,
+    report: ValidationReport,
+}
+
 impl Failure {
+    pub(crate) fn capture_row_error(
+        &self,
+    ) -> Option<(&dive_eval::EvalError, &TraceDoc, &ValidationReport)> {
+        let state = self.row_candidate()?;
+        let validation = self.row_validation.as_deref()?;
+        (validation.report.validation == Validation::Valid).then_some((
+            state.core_cause()?,
+            &validation.document,
+            &validation.report,
+        ))
+    }
+
+    fn row_candidate(&self) -> Option<&dive_liveness::analyze::StateEvaluation> {
+        let state = self.state_evaluation()?;
+        let row = state.capture_row()?;
+        let cause = state.core_cause()?;
+        (state.site() == dive_liveness::analyze::StateEvaluationSite::CaptureRow
+            && cause.class() == dive_eval::ErrorClass::Eval
+            && cause.is_eval_exception()
+            && matches!(
+                cause.ec(),
+                dive_eval::Ec::DivisionByZero | dive_eval::Ec::ModuleEvaluating
+            )
+            && cause.origin().is_some()
+            && row.result().stats.is_some()
+            && row
+                .result()
+                .counterexample
+                .as_ref()
+                .is_some_and(|path| !path.states.is_empty()))
+        .then_some(state)
+    }
     /// Original declared symmetry and effective whole-run policy after binding.
     /// `None` means no successfully bound model is available; this is not proof.
     #[must_use]
@@ -359,6 +414,7 @@ impl Failure {
             elapsed: Duration::ZERO,
             action_evaluation: None,
             state_evaluation: None,
+            row_validation: None,
             validation_progress: None,
             incomplete: false,
             periodic: None,
@@ -375,6 +431,7 @@ impl Failure {
             elapsed: Duration::ZERO,
             action_evaluation: None,
             state_evaluation: None,
+            row_validation: None,
             validation_progress: None,
             incomplete: false,
             periodic: None,
@@ -543,6 +600,10 @@ fn controlled_binding_failure(
                 ),
             })
         }
+        dive_model::ControlledBindError::EvaluationFailure { error, .. } => match error.class() {
+            dive_eval::ErrorClass::ResourceLimit => Error::ValidationResource(error),
+            _ => Error::Thread(format!("intrinsic binding evaluator failure: {error}")),
+        },
         dive_model::ControlledBindError::ControlConflict { .. } => Error::Analysis(
             AnalysisError::Inconsistent("binding control ownership conflict"),
         ),
@@ -633,18 +694,34 @@ fn run(
             Stage::Binding,
         )
     })?;
-    let model =
-        match dive_check::final_roles::dispatch_controlled(ir, config, options, control.clone()) {
-            Some(Ok(dive_check::final_roles::Dispatch::Safety(result))) => {
-                let symmetry = result.symmetry_liveness.clone();
-                return Ok((Outcome::Safety(result), symmetry));
-            }
-            Some(Ok(dive_check::final_roles::Dispatch::Temporal(model))) => *model,
-            Some(Err(error)) => return Err(controlled_binding_failure(error, &control)),
-            None => bind_controlled(ir, config, options, &control)?,
-        };
-    let symmetry = Some(model.symmetry_liveness().clone());
-    run_bound(ir, config, options, &model, configuration)
+    let (result, symmetry) = match dive_liveness::analyze::owned::dispatch_controlled(
+        ir,
+        config,
+        options,
+        control.clone(),
+    ) {
+        Some(Ok(dive_liveness::analyze::owned::Dispatch::Safety(result))) => {
+            let symmetry = result.symmetry_liveness.clone();
+            return Ok((Outcome::Safety(result), symmetry));
+        }
+        Some(Ok(dive_liveness::analyze::owned::Dispatch::Temporal(model))) => {
+            let symmetry = Some(model.symmetry_liveness().clone());
+            (
+                run_bound_owned(ir, config, options, *model, configuration),
+                symmetry,
+            )
+        }
+        Some(Err(error)) => return Err(controlled_binding_failure(error, &control)),
+        None => {
+            let model = bind_controlled(ir, config, options, &control)?;
+            let symmetry = Some(model.symmetry_liveness().clone());
+            (
+                run_bound(ir, config, options, &model, configuration),
+                symmetry,
+            )
+        }
+    };
+    result
         .map(|outcome| (outcome, symmetry.clone()))
         .map_err(|mut failure| {
             failure.symmetry_liveness = symmetry.map(Box::new);
@@ -666,6 +743,25 @@ fn run_bound(
         dive_liveness::analyze::analyze_final_with_policies(
             model,
             options,
+            configuration.limits,
+            configuration.acceptance,
+            configuration.graph_labels,
+        ),
+    )
+}
+
+fn run_bound_owned(
+    ir: &Arc<Ir>,
+    config: &ModelConfig,
+    options: &CheckOptions,
+    model: dive_liveness::analyze::owned::OwnedTemporal,
+    configuration: Configuration,
+) -> Result<Outcome, Failure> {
+    finish_final(
+        ir,
+        config,
+        options,
+        model.final_analysis(
             configuration.limits,
             configuration.acceptance,
             configuration.graph_labels,
@@ -700,13 +796,32 @@ fn validation_run_error(
     control: &dive_check::budget::EvaluationControl,
     error: ValidationRunError,
 ) -> (Error, Option<ValidationProgress>) {
-    let ValidationRunError::Interrupted { error, progress } = error else {
-        return (
-            Error::Analysis(AnalysisError::Inconsistent(
-                "validation control ownership conflict",
-            )),
-            None,
-        );
+    let (error, progress) = match error {
+        ValidationRunError::Interrupted { error, progress } => (error, progress),
+        ValidationRunError::ResourceLimit { error, progress } => {
+            return (Error::ValidationResource(error), Some(progress));
+        }
+        ValidationRunError::EvaluationFailure { error, progress } => {
+            return (
+                Error::Thread(format!("independent validation evaluator failed: {error}")),
+                Some(progress),
+            );
+        }
+        ValidationRunError::BindingFailure { error, progress } => {
+            return (
+                Error::Thread(format!("independent validation binding failed: {error}")),
+                Some(progress),
+            );
+        }
+        ValidationRunError::ThreadFailure(message) => return (Error::Thread(message), None),
+        ValidationRunError::ControlConflict(_) => {
+            return (
+                Error::Analysis(AnalysisError::Inconsistent(
+                    "validation control ownership conflict",
+                )),
+                None,
+            );
+        }
     };
     let error = match control.verdict(&error) {
         Some(dive_check::Verdict::Stopped(stopped)) => AnalysisError::Stopped(stopped),
@@ -758,6 +873,116 @@ fn validate_native_document(
         }
     };
     dive_trace::validate_controlled(model, &trace, control.clone())
+}
+
+fn validate_row(
+    ir: &Arc<Ir>,
+    config: &ModelConfig,
+    options: &CheckOptions,
+    state: &dive_liveness::analyze::StateEvaluation,
+) -> Result<RowValidation, (Error, Option<ValidationProgress>)> {
+    let row = state.capture_row().ok_or_else(|| {
+        (
+            Error::Analysis(AnalysisError::Inconsistent("missing row certificate")),
+            None,
+        )
+    })?;
+    let path = row.result().counterexample.as_ref().ok_or_else(|| {
+        (
+            Error::Analysis(AnalysisError::Inconsistent("missing row source path")),
+            None,
+        )
+    })?;
+    let control = validation_control(options).map_err(|error| (error, None))?;
+    let recipe = dive_model::Recipe::new(
+        ir.clone(),
+        config.clone(),
+        options.eval,
+        options.no_deadlock,
+    )
+    .with_symmetry_liveness(options.symmetry_liveness);
+    let mode = if options.profile == dive_eval::Profile::Tlc {
+        dive_stdlib::random::RandomMode::Tlc
+    } else {
+        dive_stdlib::random::RandomMode::Dive
+    };
+    let host = Arc::new(dive_stdlib::host::RunHost::new(
+        dive_stdlib::random::Streams::new(options.seed, mode),
+        None,
+    ));
+    // Encoding still uses a genuine fresh model, but no legacy binding or
+    // Behavior validation may erase an intrinsic error before the fallible path.
+    let model = recipe
+        .bind_fallible(host, Some(control.clone()))
+        .map_err(|failure| (*controlled_binding_failure(failure, &control).error, None))?;
+    let mut states = Vec::new();
+    for state in &path.states {
+        if state.text.is_some() {
+            return Err((
+                Error::Document("incomplete row-error source state".into()),
+                None,
+            ));
+        }
+        states.push(Arc::from(
+            state.values.iter().cloned().map(Some).collect::<Vec<_>>(),
+        ));
+    }
+    let trace = Trace {
+        length: Some(states.len()),
+        labels: vec![None; states.len()],
+        states,
+        ending: Ending::Behavior,
+        properties: Vec::new(),
+    };
+    let cause = state.core_cause().ok_or_else(|| {
+        (
+            Error::Document("row endpoint lost its original core cause".into()),
+            None,
+        )
+    })?;
+    let endpoint =
+        dive_trace::TemporalStateEndpoint::from_error(&model, cause).ok_or_else(|| {
+            (
+                Error::Document("row endpoint has no original source context".into()),
+                None,
+            )
+        })?;
+    let document = trace
+        .to_doc(&model)
+        .map_err(|error| (Error::Document(error), None))?
+        .with_ending(Ending::TemporalStateError {
+            ec: cause.ec().name().into(),
+            endpoint,
+        });
+    let session = dive_trace::Session::new(recipe, None);
+    let (report, _) = session
+        .read_controlled(&document, control.clone())
+        .map_err(|error| validation_run_error(&control, error))?;
+    if report.validation != Validation::Valid {
+        return Err((Error::EndpointValidation { report }, None));
+    }
+    Ok(RowValidation { document, report })
+}
+
+fn finish_row_failure(
+    ir: &Arc<Ir>,
+    config: &ModelConfig,
+    options: &CheckOptions,
+    mut failure: Failure,
+) -> Failure {
+    let Some(state) = failure.row_candidate() else {
+        return failure;
+    };
+    let validation = validate_row(ir, config, options, state);
+    match validation {
+        Ok(validation) => failure.row_validation = Some(Box::new(validation)),
+        Err((error, progress)) => {
+            failure.error = Box::new(error);
+            failure.stage = Stage::Validation;
+            failure.validation_progress = progress.map(Box::new);
+        }
+    }
+    failure
 }
 
 #[cfg(test)]
@@ -995,20 +1220,29 @@ fn finish_final(
             if let AnalysisError::Exploration(result) = failure.error {
                 Ok(Outcome::Safety(result))
             } else {
-                Err(Failure {
-                    error: Box::new(Error::Analysis(failure.error)),
-                    stage: Stage::Analysis(failure.stage),
-                    exploration: failure.exploration,
-                    elapsed: Duration::ZERO,
-                    action_evaluation,
-                    state_evaluation,
-                    validation_progress: None,
-                    incomplete: false,
-                    periodic: None,
-                    configuration: None,
-                    binding_output: Vec::new(),
-                    symmetry_liveness: None,
-                })
+                let incomplete = state_evaluation.as_deref().is_some_and(|state| {
+                    state.site() == dive_liveness::analyze::StateEvaluationSite::CaptureRow
+                });
+                Err(finish_row_failure(
+                    ir,
+                    config,
+                    options,
+                    Failure {
+                        error: Box::new(Error::Analysis(failure.error)),
+                        stage: Stage::Analysis(failure.stage),
+                        exploration: failure.exploration,
+                        elapsed: Duration::ZERO,
+                        action_evaluation,
+                        state_evaluation,
+                        row_validation: None,
+                        validation_progress: None,
+                        incomplete,
+                        periodic: None,
+                        configuration: None,
+                        binding_output: Vec::new(),
+                        symmetry_liveness: None,
+                    },
+                ))
             }
         }
     }
@@ -1026,6 +1260,7 @@ fn final_validation_failure(candidate: Candidate, report: ValidationReport) -> F
         elapsed: Duration::ZERO,
         action_evaluation: None,
         state_evaluation: None,
+        row_validation: None,
         validation_progress: None,
         incomplete: false,
         periodic: None,
@@ -1043,6 +1278,7 @@ fn prefix_failure(error: Error, stage: Stage, prefix: &capture::Prefix) -> Failu
         elapsed: Duration::ZERO,
         action_evaluation: None,
         state_evaluation: None,
+        row_validation: None,
         validation_progress: None,
         incomplete: true,
         periodic: None,
@@ -1064,6 +1300,7 @@ fn prefix_validation_failure(candidate: PrefixCandidate, report: ValidationRepor
         elapsed: Duration::ZERO,
         action_evaluation: None,
         state_evaluation: None,
+        row_validation: None,
         validation_progress: None,
         incomplete: true,
         periodic: None,
@@ -1130,6 +1367,7 @@ fn validate_prefix(
     })))
 }
 
+#[cfg(test)]
 fn run_periodic(
     ir: &Arc<Ir>,
     config: &ModelConfig,
@@ -1138,14 +1376,49 @@ fn run_periodic(
     schedule: Schedule,
     configuration: Configuration,
 ) -> Result<(Outcome, Checks), Failure> {
-    let (analysis, checks) = match dive_liveness::analyze::periodic::analyze_periodic_with_policies(
-        model,
+    finish_periodic(
+        ir,
+        config,
         options,
-        configuration.limits,
-        configuration.acceptance,
-        configuration.graph_labels,
-        schedule,
-    ) {
+        dive_liveness::analyze::periodic::analyze_periodic_with_policies(
+            model,
+            options,
+            configuration.limits,
+            configuration.acceptance,
+            configuration.graph_labels,
+            schedule,
+        ),
+    )
+}
+
+fn run_periodic_owned(
+    ir: &Arc<Ir>,
+    config: &ModelConfig,
+    options: &CheckOptions,
+    model: dive_liveness::analyze::owned::OwnedTemporal,
+    schedule: Schedule,
+    configuration: Configuration,
+) -> Result<(Outcome, Checks), Failure> {
+    finish_periodic(
+        ir,
+        config,
+        options,
+        model.periodic_analysis(
+            configuration.limits,
+            configuration.acceptance,
+            configuration.graph_labels,
+            schedule,
+        ),
+    )
+}
+
+fn finish_periodic(
+    ir: &Arc<Ir>,
+    config: &ModelConfig,
+    options: &CheckOptions,
+    result: Result<(PeriodicAnalysis, Checks), dive_liveness::analyze::periodic::PeriodicFailure>,
+) -> Result<(Outcome, Checks), Failure> {
+    let (analysis, checks) = match result {
         Ok(result) => result,
         Err(failure) => {
             let mut detailed = *failure.failure;
@@ -1154,20 +1427,26 @@ fn run_periodic(
             if let AnalysisError::Exploration(result) = detail.error {
                 return Ok((Outcome::Safety(result), failure.checks));
             }
-            return Err(Failure {
-                error: Box::new(Error::Analysis(detail.error)),
-                stage: Stage::Analysis(detail.stage),
-                exploration: detail.exploration.or(failure.prefix),
-                elapsed: Duration::ZERO,
-                action_evaluation,
-                state_evaluation,
-                validation_progress: None,
-                incomplete: failure.capture_completed == Some(false),
-                periodic: Some(Box::new(failure.checks)),
-                configuration: None,
-                binding_output: Vec::new(),
-                symmetry_liveness: None,
-            });
+            return Err(finish_row_failure(
+                ir,
+                config,
+                options,
+                Failure {
+                    error: Box::new(Error::Analysis(detail.error)),
+                    stage: Stage::Analysis(detail.stage),
+                    exploration: detail.exploration.or(failure.prefix),
+                    elapsed: Duration::ZERO,
+                    action_evaluation,
+                    state_evaluation,
+                    row_validation: None,
+                    validation_progress: None,
+                    incomplete: failure.capture_completed == Some(false),
+                    periodic: Some(Box::new(failure.checks)),
+                    configuration: None,
+                    binding_output: Vec::new(),
+                    symmetry_liveness: None,
+                },
+            ));
         }
     };
     let outcome = match analysis {
@@ -1207,7 +1486,7 @@ pub(crate) fn check_ordinary_final(
                         Stage::Binding,
                     )));
                 };
-                dive_check::final_roles::dispatch_ordinary_controlled(
+                dive_liveness::analyze::owned::dispatch_ordinary_controlled(
                     ir,
                     config,
                     options,
@@ -1217,24 +1496,24 @@ pub(crate) fn check_ordinary_final(
                     let bound =
                         result.map_err(|failure| controlled_binding_failure(failure, &control))?;
                     match bound {
-                        dive_check::final_roles::Dispatch::Safety(result) => {
+                        dive_liveness::analyze::owned::Dispatch::Safety(result) => {
                             let symmetry = result.symmetry_liveness.clone();
                             Ok((Outcome::Safety(result), None, symmetry))
                         }
-                        dive_check::final_roles::Dispatch::Temporal(model) => {
+                        dive_liveness::analyze::owned::Dispatch::Temporal(model) => {
                             let symmetry = Some(model.symmetry_liveness().clone());
                             let result = if options.profile == dive_eval::Profile::Dive {
-                                run_periodic(
+                                run_periodic_owned(
                                     ir,
                                     config,
                                     options,
-                                    &model,
+                                    *model,
                                     schedule,
                                     file_configuration(),
                                 )
                                 .map(|(outcome, checks)| (outcome, Some(checks)))
                             } else {
-                                run_bound(ir, config, options, &model, file_configuration())
+                                run_bound_owned(ir, config, options, *model, file_configuration())
                                     .map(|outcome| (outcome, None))
                             };
                             result
