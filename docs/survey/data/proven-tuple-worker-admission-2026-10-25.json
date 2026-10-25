@@ -292,5 +292,9 @@
     "corrected_reader_sha256": "ef66ca8552db2cad4b93d3b8df061e8bcbcd5bc9696db9a0f4e47d828e4f25e0",
     "independent_actual_review_sha256": "021c5d746694d6c608336b65d98043187f92477900c91f0b00b7f82995c32453",
     "original_reader_hold": "Missing nonexistent success statistics.exhaustive field; original native result retained unchanged and same whole output independently reinterpreted. No rerun."
-  }
+  },
+  "bounded_observation_reviews": [
+    "97f5cb3eb104062499dbb9d51439467851d6aff38d9b147da464363fb863a5e1",
+    "6504b98197b29c33b07aa68e8225b078afa2c3bb70bb91f1ba58b8aa6cbc2341"
+  ]
 }
