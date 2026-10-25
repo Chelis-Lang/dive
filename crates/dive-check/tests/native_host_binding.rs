@@ -11,7 +11,7 @@ use std::sync::{
 const SOURCE: &str = "---- MODULE Binding ----\nEXTENDS Naturals,FiniteSets,TLC\nVARIABLE x\nASSUME PrintT(\"assume\")\nInit == x=Cardinality({1})\nNext == x'=x\n====\n";
 const CONFIG: &str = "INIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n";
 fn inputs(source: &str) -> (Arc<dive_ir::Ir>, dive_config::ModelConfig) {
-    let analysis = dive_sema::analyze_source("Binding.tla", source, &Default::default());
+    let analysis = dive_sema::analyze_source("Binding.tla", source, &dive_sema::Options::default());
     assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
     (
         Arc::new(dive_ir::lower(&analysis).expect("IR")),
@@ -67,8 +67,9 @@ fn capture_drops_the_old_host_before_init_and_resets_only_the_fresh_host_policy(
     for options in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
         let reference_drops = Arc::new(AtomicUsize::new(0));
         let reference = model(&options, &reference_drops);
-        let original = capture::explore_with_evidence(&reference, &options, Default::default())
-            .expect("reference callback capture");
+        let original =
+            capture::explore_with_evidence(&reference, &options, capture::Limits::default())
+                .expect("reference callback capture");
         let capture::Exploration::Complete(original) = original else {
             return Err("reference must complete".into());
         };
@@ -85,7 +86,7 @@ fn capture_drops_the_old_host_before_init_and_resets_only_the_fresh_host_policy(
             let result = capture::explore_controlled_with_native_hooks(
                 &current,
                 &options,
-                Default::default(),
+                capture::Limits::default(),
                 &mut observer,
                 hooks,
             )
@@ -100,8 +101,8 @@ fn capture_drops_the_old_host_before_init_and_resets_only_the_fresh_host_policy(
             assert_eq!(actual.output, original.output);
             assert_eq!(actual.output.len(), 1);
             assert_eq!(observer.observations.len(), 1);
-            let (observed, epoch, old_drops) = observer.observations[0];
-            assert_eq!(observed, hooks);
+            let (policy, epoch, old_drops) = observer.observations[0];
+            assert_eq!(policy, hooks);
             assert!(epoch.is_some());
             assert_eq!(old_drops, 1);
             let after = current.evaluator.host_binding_stamp();
