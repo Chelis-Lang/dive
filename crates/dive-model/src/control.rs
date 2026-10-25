@@ -19,8 +19,9 @@ pub enum ControlledBindError {
         /// Output before interruption, in original startup order.
         output: Vec<Message>,
     },
-    /// Fallible recipe evaluation aborted with its original intrinsic error.
-    /// Legacy binding entrypoints retain their earlier error mapping.
+    /// Fallible evaluation or optional source-proof planning failed intrinsically.
+    /// Controlled binding retains the original error. The legacy boxed binding
+    /// API has no exception channel and uses its existing fail-closed bug wrapper.
     EvaluationFailure {
         /// Original resource-limit or internal evaluator error.
         error: EvalError,
@@ -55,8 +56,8 @@ impl ControlledBindError {
     pub(crate) fn legacy(self) -> Box<Failure> {
         match self {
             Self::Binding(failure) => failure,
-            // Uncontrolled entries never install a capability or use the typed
-            // catch branches. Keep an impossible boundary failure fail-closed.
+            // The legacy boxed error has no exception channel. Preserve its
+            // fail-closed bug projection rather than minting a semantic refusal.
             Self::Interrupted { output, .. }
             | Self::EvaluationFailure { output, .. }
             | Self::ControlConflict { output, .. } => Box::new(Failure {

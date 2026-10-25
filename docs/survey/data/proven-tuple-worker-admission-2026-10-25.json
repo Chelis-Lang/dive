@@ -1,0 +1,300 @@
+{
+  "schema_version": 1,
+  "status": "COMPLETE_BOUNDED_ADMISSION_AND_ORIGINAL_MCbtree_W8_CORRECTNESS",
+  "source": "e5be04cc38ad34c0c2369dad21da813ef2d6f5af",
+  "runtime_and_shipping_release_build_source": "d7c00db245d1d6a96e72f57579a7942577654957",
+  "binary_sha256": "9e2dc4cc22b8d08117b85909e196eb43b17c3531c1cc5f64eea530db84f6531e",
+  "method": {
+    "models": "The four previously sequential entries from the fixed ten-model benchmark set; original pinned module/config, no workload edits",
+    "examples_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "community_modules_pin": "78b98ae9939d2fe7a6615e9a4b21dd6c23ef8ff3",
+    "compat": "tlc",
+    "seed": 0,
+    "fp": 0,
+    "max_depth": 2,
+    "time_limit_seconds": 30,
+    "max_memory_bytes": 2147483648,
+    "outer_seconds_per_observation": 45,
+    "whole_seconds_per_packet": 240,
+    "no_external_censoring": true
+  },
+  "observations": [
+    {
+      "model": "MCbtree",
+      "source": "d7c00db245d1d6a96e72f57579a7942577654957",
+      "requested_workers": 1,
+      "used_workers": 1,
+      "sequential": false,
+      "reason": null,
+      "verdict": "stopped",
+      "native_exit": 5,
+      "statistics": {
+        "depth": 2,
+        "distinct": 29,
+        "exhaustive": false,
+        "generated": 30,
+        "initial_generated": 1,
+        "left_on_queue": 27,
+        "reported_by_tlc": false
+      },
+      "budget_resource": "depth",
+      "budget_limit": 2,
+      "original_stdout_sha256": "903427e6643318bfc356f8cc50e3c82898d4e97c2842789b1d9999964eb15497",
+      "original_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "model": "MCbtree",
+      "source": "d7c00db245d1d6a96e72f57579a7942577654957",
+      "requested_workers": 8,
+      "used_workers": 8,
+      "sequential": false,
+      "reason": null,
+      "verdict": "stopped",
+      "native_exit": 5,
+      "statistics": {
+        "depth": 2,
+        "distinct": 29,
+        "exhaustive": false,
+        "generated": 30,
+        "initial_generated": 1,
+        "left_on_queue": 27,
+        "reported_by_tlc": false
+      },
+      "budget_resource": "depth",
+      "budget_limit": 2,
+      "original_stdout_sha256": "30521cd76b6360df1844636660a5f2a8a3d4ed06cd865466cb0e688499703573",
+      "original_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "model": "TLCSailfish1",
+      "source": "d7c00db245d1d6a96e72f57579a7942577654957",
+      "requested_workers": 1,
+      "used_workers": 1,
+      "sequential": true,
+      "reason": "sequential mode: the specification uses Sequences!\\o (runtime names require TLC encounter order)",
+      "verdict": "stopped",
+      "native_exit": 5,
+      "statistics": {
+        "depth": 2,
+        "distinct": 4,
+        "exhaustive": false,
+        "generated": 5,
+        "initial_generated": 1,
+        "left_on_queue": 2,
+        "reported_by_tlc": false
+      },
+      "budget_resource": "depth",
+      "budget_limit": 2,
+      "original_stdout_sha256": "74bef71c498125c28dcfb6dd3cd1111e848a33d4fe29506a11296bab7c92f5f2",
+      "original_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "model": "TLCSailfish1",
+      "source": "d7c00db245d1d6a96e72f57579a7942577654957",
+      "requested_workers": 8,
+      "used_workers": 1,
+      "sequential": true,
+      "reason": "sequential mode: the specification uses Sequences!\\o (runtime names require TLC encounter order)",
+      "verdict": "stopped",
+      "native_exit": 5,
+      "statistics": {
+        "depth": 2,
+        "distinct": 4,
+        "exhaustive": false,
+        "generated": 5,
+        "initial_generated": 1,
+        "left_on_queue": 2,
+        "reported_by_tlc": false
+      },
+      "budget_resource": "depth",
+      "budget_limit": 2,
+      "original_stdout_sha256": "9f44d0b2d86320135929ef72d52b5fd8460eb31fb21931dc7cd5c940c6ed0a1e",
+      "original_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "model": "MCLamportMutex",
+      "source": "e5be04cc38ad34c0c2369dad21da813ef2d6f5af",
+      "requested_workers": 1,
+      "used_workers": 1,
+      "sequential": true,
+      "reason": "sequential mode: the specification uses Sequences!Tail (runtime names require TLC encounter order)",
+      "verdict": "stopped",
+      "native_exit": 5,
+      "statistics": {
+        "depth": 2,
+        "distinct": 4,
+        "exhaustive": false,
+        "generated": 5,
+        "initial_generated": 1,
+        "left_on_queue": 2,
+        "reported_by_tlc": false
+      },
+      "budget_resource": "depth",
+      "budget_limit": 2,
+      "original_stdout_sha256": "781b4034ed2b77726489ce2c46d2e8e50b3a6e62367ca4f3f689f5f7b41f3cf5",
+      "original_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "model": "MCLamportMutex",
+      "source": "e5be04cc38ad34c0c2369dad21da813ef2d6f5af",
+      "requested_workers": 8,
+      "used_workers": 1,
+      "sequential": true,
+      "reason": "sequential mode: the specification uses Sequences!Tail (runtime names require TLC encounter order)",
+      "verdict": "stopped",
+      "native_exit": 5,
+      "statistics": {
+        "depth": 2,
+        "distinct": 4,
+        "exhaustive": false,
+        "generated": 5,
+        "initial_generated": 1,
+        "left_on_queue": 2,
+        "reported_by_tlc": false
+      },
+      "budget_resource": "depth",
+      "budget_limit": 2,
+      "original_stdout_sha256": "aecf0c09b6945344f4c6006653739b5c13b3c645576a85673d625c33a7617054",
+      "original_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "model": "BufferedRandomAccessFile",
+      "source": "e5be04cc38ad34c0c2369dad21da813ef2d6f5af",
+      "requested_workers": 1,
+      "used_workers": 1,
+      "sequential": true,
+      "reason": "sequential mode: the specification uses Sequences!SubSeq (runtime names require TLC encounter order) (and 1 more)",
+      "verdict": "stopped",
+      "native_exit": 5,
+      "statistics": {
+        "depth": 2,
+        "distinct": 26,
+        "exhaustive": false,
+        "generated": 69,
+        "initial_generated": 1,
+        "left_on_queue": 24,
+        "reported_by_tlc": false
+      },
+      "budget_resource": "depth",
+      "budget_limit": 2,
+      "original_stdout_sha256": "f4086dd007a0656aeba0647dff343441ed361b0d84f4b8c2a8c4bb3f866ec896",
+      "original_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "model": "BufferedRandomAccessFile",
+      "source": "e5be04cc38ad34c0c2369dad21da813ef2d6f5af",
+      "requested_workers": 8,
+      "used_workers": 1,
+      "sequential": true,
+      "reason": "sequential mode: the specification uses Sequences!SubSeq (runtime names require TLC encounter order) (and 1 more)",
+      "verdict": "stopped",
+      "native_exit": 5,
+      "statistics": {
+        "depth": 2,
+        "distinct": 26,
+        "exhaustive": false,
+        "generated": 69,
+        "initial_generated": 1,
+        "left_on_queue": 24,
+        "reported_by_tlc": false
+      },
+      "budget_resource": "depth",
+      "budget_limit": 2,
+      "original_stdout_sha256": "ac6c41250f1e56d72e2353ce48572484dd93ab46367e7ac8f40ba170fd45f582",
+      "original_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "source_review_sha256": "05097cac9d5dea9e525e799da09a26763424a6f85f9a7640a2bbea8cac5d1ed8",
+  "scope": "MCbtree accepts eight workers and its complete original safety check matches the existing W1 TLC golden. Sailfish, LamportMutex and BufferedRandomAccessFile retain conservative reasons. The eight earlier depth-bounded observations remain stopped/inconclusive. Established conformance populations are unchanged; no utilization, wall-time, throughput or scaling-ratio claim.",
+  "input_hashes": {
+    "MCbtree": {
+      ".tla": "64655fd6391422f27607da0c3d36617066249c68687d984bdb1113bc98f83ac3",
+      ".cfg": "e7122e42b7ee004fcf7b9f80602143b0e72909b45df6e797ea89017d8a16079c"
+    },
+    "TLCSailfish1": {
+      ".tla": "065bcdb952c4d2b94d2a58d7f9d3009206f1c79f80437d83c6c7142b6f0333d0",
+      ".cfg": "52b3ce7ce5ca649d44a38ff98e6f5772ad39b33e22e0af6df6d1174e9aff9e16"
+    },
+    "MCLamportMutex": {
+      ".tla": "2ebf6f863f504f76cfcb4a3bc8228aae1c5a896e7f2f8d046f8ab763656ccca8",
+      ".cfg": "b91d46fb0a2f3af22fa65147c4c971d5cb9e42d141f63ad9035aa30cad51d118"
+    },
+    "BufferedRandomAccessFile": {
+      ".tla": "e374d8b6dfd2e435c1936e49985e8164b7d1f0fc572c13c6fe27561250d54e40",
+      ".cfg": "3b82f9554bc28097581d0a35fa1ccf9c3856308b500003c32c0a15e1cec61798"
+    }
+  },
+  "focused_validation": {
+    "source": "d7c00db245d1d6a96e72f57579a7942577654957",
+    "result_sha256": "2a426a49d7cacb29109abf74a8dee0a8feace8271a2f8e28c1bce1dcf4043604",
+    "unfiltered_tests": 111,
+    "trace_runtime_name_tests": 25,
+    "ignored": 0,
+    "filtered": 0,
+    "fmt": "pass",
+    "affected_all_target_clippy": "pass",
+    "independent_retained_result_review_sha256": "97f5cb3eb104062499dbb9d51439467851d6aff38d9b147da464363fb863a5e1"
+  },
+  "full_gate": {
+    "source": "e5be04cc38ad34c0c2369dad21da813ef2d6f5af",
+    "source_tree": "df55429208388ee7137d8aca1f305db091cfd173",
+    "result_sha256": "436843884c7370e1b8961214782ee0f634186636f8b8198edfcff168b9af8b29",
+    "report_sha256": "4df4c2ccecf4e576cea2770e851302a3d92bcaa3805f712c1de3e4f4809a3cbd",
+    "normal_exit": 0,
+    "tests_passed": 2475,
+    "tests_skipped": 0,
+    "small_tlc": "150/156 agree, 6 unsupported; 458/458 SANY",
+    "small_dive": "144/156 agree, 7 expected divergences, 5 unsupported",
+    "regressions": 0,
+    "disagreements": 0,
+    "cm1_and_validation_workers": [
+      1,
+      4,
+      8
+    ],
+    "independent_actual_review_sha256": "6d0f1df1eadd772d3898f9d473e0c374f685a90267145cd05a3887b647711a71"
+  },
+  "complete_original_MCbtree_w8": {
+    "source": "e5be04cc38ad34c0c2369dad21da813ef2d6f5af",
+    "binary_sha256": "acc27e05d572ac2a00ca04dcef27402d49168a1608ee562518eee41432de5e40",
+    "stdout_sha256": "273b0d6bc208ec7a23250017d6af9f91552bc3590745c2b0563e16cba7bf387a",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "normal_exit": 0,
+    "externally_censored": false,
+    "driver_interruption": null,
+    "tlc": {
+      "code": 2193,
+      "exit_status": 0,
+      "name": "TLC_SUCCESS",
+      "reported": 2193,
+      "verified": true
+    },
+    "statistics": {
+      "depth": 38,
+      "distinct": 374727,
+      "generated": 2820091,
+      "initial_generated": 1,
+      "left_on_queue": 0,
+      "reported_by_tlc": true
+    },
+    "workers": {
+      "chaos": null,
+      "reason": null,
+      "requested": 8,
+      "sequential": false,
+      "used": 8
+    },
+    "baseline_sha256": "2d7289f3320827cef61c009618e16ae1b7e9efb8e9d82ba447a1f24d0e94b650",
+    "original_native_result_sha256": "609bb6e207690993ece634c405a37e52faa760d929439f76bdaa25a123594a13",
+    "max_depth": null,
+    "time_limit_seconds": 120,
+    "max_memory_bytes": 4294967296,
+    "corrected_reader_sha256": "ef66ca8552db2cad4b93d3b8df061e8bcbcd5bc9696db9a0f4e47d828e4f25e0",
+    "independent_actual_review_sha256": "021c5d746694d6c608336b65d98043187f92477900c91f0b00b7f82995c32453",
+    "original_reader_hold": "Missing nonexistent success statistics.exhaustive field; original native result retained unchanged and same whole output independently reinterpreted. No rerun."
+  },
+  "bounded_observation_reviews": [
+    "97f5cb3eb104062499dbb9d51439467851d6aff38d9b147da464363fb863a5e1",
+    "6504b98197b29c33b07aa68e8225b078afa2c3bb70bb91f1ba58b8aa6cbc2341"
+  ]
+}

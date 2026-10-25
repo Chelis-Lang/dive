@@ -294,7 +294,8 @@ pub fn bind_with_names(
 ///
 /// # Errors
 /// Ordinary binding failures, original typed interruption with startup output,
-/// or a control registration conflict. The caller classifies run exhaustion.
+/// an intrinsic resource/internal failure of optional proof planning, or a
+/// control registration conflict. The caller classifies run exhaustion.
 pub fn bind_controlled(
     ir: Arc<Ir>,
     cfg: &ModelConfig,
@@ -478,7 +479,9 @@ fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> bind::R<Model> {
         ir: ir.clone(),
         evaluator: b.ev().clone(),
         names: b.names.clone(),
-        output: std::mem::take(&mut b.output),
+        // Keep startup output with the error owner until optional proof
+        // classification succeeds. A late intrinsic failure still needs it.
+        output: Vec::new(),
         init: std::mem::take(&mut b.init),
         next: b.next.clone(),
         init_actions,
@@ -510,11 +513,12 @@ fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> bind::R<Model> {
         stateful_checking: None,
     };
     model.unsupported = reach::unsupported(b, &model);
-    let sequential = reach::sequential(b, &model);
+    let sequential = reach::sequential(b, &model)?;
     model.sequential = sequential.reasons;
     model.sequential_names_only = sequential.names_only;
     model.runtime_name_order = sequential.runtime_names;
     model.stateful_checking = sequential.stateful_checking;
+    model.output = std::mem::take(&mut b.output);
     model.seal_startup_names();
     Ok(model)
 }
