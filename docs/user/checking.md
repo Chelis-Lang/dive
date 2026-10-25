@@ -536,6 +536,24 @@ keep their existing routes. This changes storage and effect timing to the
 ordered enumeration, not predicate admission: no candidate is pruned or assumed
 Boolean/total, and a very large rejected domain can still exhaust the run budget.
 
+For an independently checked, closed predicate of the general form
+`{A \in SUBSET B : \A b \in A : P(b)}`, the cursor may retain only base
+indices whose original singleton predicates succeeded. It first evaluates and
+emits the original empty candidate; every singleton then runs the original
+whole predicate in order, and every accepted candidate reaches the original
+sink. Metadata inspection supplies neither Boolean results nor totality.
+Only the completed original singleton evaluations establish those facts over
+the retained finite base. Larger retained candidates still run the whole
+predicate. Their order is the same size/lexicographic subsequence.
+
+Skipping a position additionally requires the current operative native-hook
+policy to omit permission callbacks in ordinary cache domain zero. A host
+replacement, changed checked-depth context, unknown mutable capture, provider,
+outer-set dependence or unproved scope keeps ordinary enumeration. The private
+position commit changes integer cursor storage only; predicate evaluation,
+control callbacks, value construction and sinks remain outside the host lock.
+No cardinality limit, explicit `Cardinality` behavior or reference result changes.
+
 Compound assignment domains with recursively concrete finite components
 also yield candidates incrementally: powersets, Cartesian products, function
 sets and record sets reach the initial/successor sink and `ENABLED` continuation

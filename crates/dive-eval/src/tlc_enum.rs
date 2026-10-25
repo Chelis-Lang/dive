@@ -36,6 +36,7 @@ use crate::core::{Core, TLC_ORDER, is_enumerable};
 use crate::error::{EvalError, Result};
 use crate::lazy::{Filter, SetOp};
 use crate::options::ExplorationOrder;
+use crate::subset_mask::SingletonMask;
 
 /// A fallible pull cursor; original predicate work happens only when pulled.
 /// Frames are outermost first, so their owners drop without a recursive cursor
@@ -43,8 +44,57 @@ use crate::options::ExplorationOrder;
 pub(crate) struct InElementStream {
     root: Option<Value>,
     filters: Vec<FilterFrame>,
-    source: SetElementStream,
+    source: StreamSource,
     done: bool,
+}
+
+enum StreamSource {
+    Plain(SetElementStream),
+    Subset(Box<MaskedSubset>),
+}
+
+struct MaskedSubset {
+    stream: dive_value::ConcreteSubsetStream,
+    learning: SingletonMask,
+}
+
+impl StreamSource {
+    fn before_next(&mut self, frame: Option<&FilterFrame>) -> Result<()> {
+        if let (Self::Subset(subset), Some(frame)) = (self, frame) {
+            let filter = private_filter(&frame.owner)?;
+            subset
+                .learning
+                .before_next(&filter.core, &frame.owner, &mut subset.stream)?;
+        }
+        Ok(())
+    }
+
+    fn next(&mut self) -> Option<Value> {
+        match self {
+            Self::Plain(source) => source.next(),
+            Self::Subset(subset) => subset.stream.next(),
+        }
+    }
+
+    fn entry(&self) -> Option<(u32, u32)> {
+        match self {
+            Self::Plain(_) => None,
+            Self::Subset(subset) => subset.learning.entry(),
+        }
+    }
+
+    fn observed(&mut self, entry: Option<(u32, u32)>, kept: bool) {
+        if let Self::Subset(subset) = self {
+            subset.learning.observed(&subset.stream, entry, kept);
+        }
+    }
+}
+
+fn private_filter(owner: &Arc<dyn DeferredSet>) -> Result<&Filter> {
+    owner
+        .as_any()
+        .and_then(|owner| owner.downcast_ref::<Filter>())
+        .ok_or_else(|| EvalError::bug("private filter cursor owner changed type"))
 }
 
 struct FilterFrame {
@@ -54,6 +104,14 @@ struct FilterFrame {
 }
 
 impl InElementStream {
+    #[cfg(test)]
+    pub(crate) fn mask_progress(&self) -> Option<(&'static str, usize)> {
+        match &self.source {
+            StreamSource::Plain(_) => None,
+            StreamSource::Subset(subset) => Some(subset.learning.progress()),
+        }
+    }
+
     pub(crate) fn with_owner(mut self, root: Value) -> Self {
         self.root = Some(root);
         self
@@ -80,6 +138,10 @@ impl Iterator for InElementStream {
             return None;
         }
         'input: loop {
+            if let Err(error) = self.source.before_next(self.filters.first()) {
+                self.done = true;
+                return Some(Err(error));
+            }
             let Some(value) = self.source.next() else {
                 self.done = true;
                 return None;
@@ -95,9 +157,16 @@ impl Iterator for InElementStream {
                         "private filter cursor owner changed type",
                     )));
                 };
+                let entry = self.source.entry();
                 match filter.core.filter_keeps(filter, &mut frame.env, &value) {
-                    Ok(true) => {}
-                    Ok(false) => continue 'input,
+                    Ok(kept) => {
+                        // Only a single authentic filter has a typed source.
+                        // Its actual complete predicate result is observed once.
+                        self.source.observed(entry, kept);
+                        if !kept {
+                            continue 'input;
+                        }
+                    }
                     Err(error) => {
                         self.done = true;
                         return Some(Err(error));
@@ -129,13 +198,25 @@ impl Core {
                 return Ok(None);
             }
             if current.kind() != SetKind::Deferred {
-                return Ok(current.concrete_element_stream(self.ctx)?.map(|source| {
-                    InElementStream {
-                        root: None,
-                        filters,
-                        source,
-                        done: false,
-                    }
+                // A single private filter owns the predicate/sink sequence.
+                // Accumulated filters retain the original general pull path.
+                let source = if filters.len() == 1 && current.kind() == SetKind::Subset {
+                    current.concrete_subset_stream(self.ctx)?.map(|stream| {
+                        StreamSource::Subset(Box::new(MaskedSubset {
+                            stream,
+                            learning: SingletonMask::default(),
+                        }))
+                    })
+                } else {
+                    current
+                        .concrete_element_stream(self.ctx)?
+                        .map(StreamSource::Plain)
+                };
+                return Ok(source.map(|source| InElementStream {
+                    root: None,
+                    filters,
+                    source,
+                    done: false,
                 }));
             }
             if current.has_cached_elements() {

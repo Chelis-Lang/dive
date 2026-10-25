@@ -126,7 +126,6 @@ pub(super) fn prove(
     }))
 }
 
-#[cfg(test)]
 pub(super) fn closed_forall(
     evaluator: &Evaluator,
     original: Scope,
@@ -615,7 +614,15 @@ impl Walk<'_> {
                 }
             }
             Value::Fcn(function) => {
-                if (!function.is_tuple_literal() && !function.is_record_literal())
+                // The row proof retains its literal-only canonical contract.
+                // Closed-singleton inspection additionally admits immutable
+                // stored FcnRcdValues, auditing every key/value below. Their
+                // deterministic representation metadata is not a mutable
+                // evaluator cache; actual per-element success is learned only
+                // by the original complete singleton predicate evaluations.
+                if (self.forbidden.is_none()
+                    && !function.is_tuple_literal()
+                    && !function.is_record_literal())
                     || (function.as_tuple().is_none() && function.order() != ev.core.ctx.order)
                 {
                     return Ok(false);

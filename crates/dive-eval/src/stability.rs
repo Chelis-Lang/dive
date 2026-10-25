@@ -103,9 +103,8 @@ impl Evaluator {
     }
 }
 
-// Source-only independent slice: promoted to a production caller only when the
-// separately reviewed operative binding/atomic cursor interface lands.
-#[cfg(test)]
+// Private fixed-data/independence inspection. Boolean/totality follows only
+// from the original completed singleton predicate observations, not this fact.
 pub(crate) fn closed_subset_forall(
     evaluator: &Evaluator,
     original: Scope,

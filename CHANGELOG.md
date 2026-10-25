@@ -1,5 +1,10 @@
 # Changelog
 
+- Learn generic closed powerset-filter restrictions from original empty and
+  singleton evaluations, preserving whole predicates and accepted sink order.
+  Position skips require the current operative host policy and unchanged checked
+  depth; unknown contexts retain ordinary enumeration.
+
 - Preserve TLC's zero-size powerset BASE boundary: yield its empty subset before
   component conversion, retaining the actual size check, nonempty errors and
   initial invariant witness. No error-class mapping or admission rule changes.
