@@ -213,6 +213,17 @@ pins all eleven inputs, outputs, classes and provenance. This adds references
 before runtime work; it changes neither established populations nor dive's
 reported agreement.
 
+
+Three further primary role-splitting controls distinguish actual bound temporal
+obligations from original configured property roots. Both split-root tautology
+cases report 2253/77, including before a false ASSUME. An initial-only predicate
+that would fail at a later state instead permits TLC to report a temporal
+violation, 2116/13 for `P`, with two distinct / three generated states / depth
+two and the word `x = 0`, `x = 1`, then stuttering. Its initial predicate is not
+rechecked as a later temporal atom. These references use the same pinned
+oracle and 30-second model budget and are recorded in the primary data's
+additional-controls section; no runtime agreement is inferred.
+
 `instance-temporal` is a separate local corpus of ten finite Boolean models and
 23 modules. It preserves primary-first observations of lexical INSTANCE and
 `ENABLED` successor namespaces before runtime changes. Every source input is
