@@ -32,6 +32,18 @@ fn concat_reason(model: &Model) -> bool {
 }
 
 #[test]
+fn closed_scalar_comparison_assumptions_preserve_inventory_and_allow_workers() {
+    let bound = model(
+        "Ordered(Op(_,_),S) == \\A a,b \\in S: Op(a,b) \\/ Op(b,a) \\/ a=b\nASSUME Ordered(<,{0,1})\nInit == x= <<>>\nNext == x'= <<0>> \\o x",
+        "",
+        &BindOptions::tlc(),
+    );
+    assert!(bound.runtime_name_order);
+    assert!(bound.sequential_names_only);
+    assert_eq!(bound.sequential, Vec::<String>::new());
+}
+
+#[test]
 fn literal_and_recursive_append_calls_remove_only_the_unneeded_name_reason() {
     for source in [
         "Init == x= <<>>\nNext == x'= <<0>> \\o x",

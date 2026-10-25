@@ -7,9 +7,10 @@ use dive_ir::{Arg, DefId, Expr, ExprId, OpRef, StdKind, StdOp, StdSupport};
 use dive_value::{Fcn, Set, SetKind, Value};
 
 use crate::core::Core;
-use crate::env::{Env, Ev, Frame, StateRef, SubstLink, Sv, Thunk};
+use crate::env::{Env, Ev, Frame, OpVal, StateRef, SubstLink, Sv, Thunk};
 use crate::{ConstBinding, EvalError, Evaluator, HostControl, Result, Scope};
 
+mod scalar_callbacks;
 #[cfg(test)]
 mod tests;
 
@@ -56,7 +57,7 @@ impl Evaluator {
     /// Literal tuples and the unchanged native `Append` ground a finite monotone
     /// result analysis. All actuals remain unknown; recursion is never assumed
     /// tuple-valued. Every child is still inspected for its own calls. Opaque
-    /// captures, native roots and higher-order calls decline without forcing a
+    /// captures, native roots and unknown higher-order calls decline without forcing a
     /// value, calling a provider, or changing permissions or evaluation.
     ///
     /// `definitions` are bare configuration/assumption roots, not merely native
@@ -116,10 +117,13 @@ impl Evaluator {
             let Some(body) = analysis.user_body(def, 0) else {
                 return Ok(None);
             };
-            push(&mut sources, body)?;
+            push(&mut sources.exprs, body)?;
         }
+        let Some(callbacks) = analysis.closed_scalar_callbacks(&sources)? else {
+            return Ok(None);
+        };
         let tuples = analysis.results()?;
-        if !analysis.calls(&sources, &tuples)? {
+        if !analysis.calls(&sources.exprs, &tuples, callbacks)? {
             return Ok(None);
         }
         analysis.poll()?;
@@ -281,7 +285,7 @@ impl Analysis<'_> {
         Ok(tuples)
     }
 
-    fn calls(&self, sources: &[ExprId], tuples: &[bool]) -> Result<bool> {
+    fn calls(&self, sources: &[ExprId], tuples: &[bool], callbacks: bool) -> Result<bool> {
         let mut contexts = Vec::new();
         push(&mut contexts, Lexical::default())?;
         let mut seen = HashSet::new();
@@ -302,7 +306,14 @@ impl Analysis<'_> {
             };
             match &node.expr {
                 Expr::Apply { callee, args } => {
-                    if !self.call(callee, args, tuples, &contexts[context], &mut work)? {
+                    if !self.call(
+                        callee,
+                        args,
+                        tuples,
+                        &contexts[context],
+                        &mut work,
+                        callbacks,
+                    )? {
                         return Ok(false);
                     }
                 }
@@ -367,8 +378,9 @@ impl Analysis<'_> {
         tuples: &[bool],
         context: &Lexical,
         work: &mut Vec<(ExprId, usize)>,
+        callbacks: bool,
     ) -> Result<bool> {
-        if args.iter().any(|a| matches!(a, Arg::Op { .. })) {
+        if !callbacks && args.iter().any(|a| matches!(a, Arg::Op { .. })) {
             return Ok(false);
         }
         if let Some(op) = self.native(callee, args.len()) {
@@ -383,8 +395,14 @@ impl Analysis<'_> {
             {
                 return Ok(false);
             }
+        } else if callbacks
+            && args.len() == 2
+            && matches!(callee, OpRef::Param(_) | OpRef::Subst(_))
+        {
+            // The separate closed-origin walk proved every possible operator
+            // value is a name-free scalar comparison. No tuple fact follows.
         } else if let OpRef::Def(def) = callee
-            && let Some(body) = self.user_body(*def, args.len())
+            && let Some(body) = self.call_body(*def, args)
         {
             // A callee's own frame and captured parent are not this callsite's
             // lexical proof context, even for a zero-arity local operator.
@@ -456,6 +474,11 @@ struct Lexical {
     slots: Vec<(dive_ir::Slot, DefId)>,
 }
 
+struct Sources {
+    exprs: Vec<ExprId>,
+    scalar_callbacks: bool,
+}
+
 enum Capture {
     Environment(Env),
     Slot(Sv),
@@ -471,10 +494,11 @@ struct Retained {
     sets: Vec<Set>,
     thunks: Vec<Arc<Thunk>>,
     states: Vec<Arc<[Option<Value>]>>,
+    scalar_callbacks: bool,
 }
 
 impl Analysis<'_> {
-    fn captures(&self, roots: &[(ExprId, Scope)]) -> Result<Option<Vec<ExprId>>> {
+    fn captures(&self, roots: &[(ExprId, Scope)]) -> Result<Option<Sources>> {
         let mut work = Vec::new();
         let mut sources = Vec::new();
         let mut retained = Retained::default();
@@ -535,7 +559,10 @@ impl Analysis<'_> {
                 return Ok(None);
             }
         }
-        Ok(Some(sources))
+        Ok(Some(Sources {
+            exprs: sources,
+            scalar_callbacks: retained.scalar_callbacks,
+        }))
     }
 
     fn capture_environment(
@@ -572,7 +599,15 @@ impl Analysis<'_> {
                 break;
             }
             push(&mut retained.frames, current.clone())?;
-            for slot in &current.slots {
+            let Some(definition) = self.ev.ir().defs().get(current.def.index()) else {
+                return Ok(false);
+            };
+            for (index, slot) in current.slots.iter().enumerate() {
+                if definition.params.get(index).is_some_and(|p| p.arity != 0)
+                    && !matches!(slot, Sv::Op(_))
+                {
+                    return Ok(false); // An opaque operator root is not forwarding.
+                }
                 push(work, Capture::Slot(slot.clone()))?;
             }
             frame.clone_from(&current.parent);
@@ -611,6 +646,7 @@ impl Analysis<'_> {
             }
             Sv::Val(value) => push(work, Capture::Value(value))?,
             Sv::Unset | Sv::AnalysisBound | Sv::AnalysisConstant => {}
+            Sv::Op(op) if self.scalar_operator(&op) => retained.scalar_callbacks = true,
             Sv::Fcn(_) | Sv::Op(_) => return Ok(false),
         }
         Ok(true)

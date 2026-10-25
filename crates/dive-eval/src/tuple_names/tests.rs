@@ -9,7 +9,7 @@ use std::sync::{
 use dive_ir::{DefId, ExprId, StdOp};
 use dive_value::{Ctx, DeferredKind, DeferredSet, Value, ValueError};
 
-use crate::env::Sv;
+use crate::env::{OpVal, Sv};
 use crate::{Evaluator, Host, HostControl, HostError, Interrupted, Model, Options, Scope, St};
 
 fn input(body: &str) -> (Evaluator, DefId) {
@@ -34,6 +34,62 @@ fn proves(ev: &Evaluator, def: DefId) -> bool {
     ev.tuple_concat_sources(&[root(ev, def)], &[], None)
         .expect("metadata inspection")
         .is_some_and(|fact| fact.belongs_to(ev))
+}
+
+#[test]
+fn closed_comparison_actuals_and_forwarding_do_not_execute_callbacks() {
+    for body in [
+        "F(Op(_,_),a) == Op(a,a)\nP == IF F(<,x) THEN <<x>> \\o x ELSE <<>>",
+        "F(Op(_,_),a) == Op(a,a)\nG(Op(_,_),a) == F(Op,a)\nP == IF G(<,x) THEN <<x>> \\o x ELSE <<>>",
+        "All(Op(_,_),S) == \\A a,b \\in S: Op(a,b) \\/ a=b\nP == IF All(<,{0,1}) THEN <<x>> \\o x ELSE <<>>",
+    ] {
+        let (ev, pred) = input(body);
+        let count = Arc::new(AtomicUsize::new(0));
+        let ev = ev.with_host(Some(Arc::new(Permissions(count.clone()))));
+        assert!(proves(&ev, pred), "{body}");
+        assert_eq!(count.load(Ordering::SeqCst), 0);
+    }
+}
+
+#[test]
+fn nonprimitive_and_missing_operator_origins_remain_unknown() {
+    for body in [
+        "F(Op(_,_),a) == Op(a,a)\nP == <<F(Append,x)>> \\o x",
+        "Callback(a,b) == a\nF(Op(_,_),a) == Op(a,a)\nP == <<F(Callback,x)>> \\o x",
+        "F(Op(_,_),a) == Op(a,a)\nP(Unknown(_,_)) == IF F(<,x) THEN <<Unknown(x,x)>> \\o x ELSE <<>>",
+    ] {
+        let (ev, pred) = input(body);
+        assert!(!proves(&ev, pred), "{body}");
+    }
+}
+
+#[test]
+fn captured_scalar_operator_slots_are_checked_without_invoking_them() {
+    let (ev, pred) = input("P(Op(_,_)) == IF Op(x,x) THEN <<x>> \\o x ELSE <<>>");
+    for (op, expected) in [
+        (OpVal::Std(StdOp::NaturalsLt), true),
+        (OpVal::Std(StdOp::SequencesConcat), false),
+        (OpVal::Std(StdOp::SequencesAppend), false),
+    ] {
+        let mut source = root(&ev, pred);
+        source.1.env.bind(0, Sv::op(op));
+        assert_eq!(
+            ev.tuple_concat_sources(&[source], &[], None)
+                .expect("operator metadata")
+                .is_some(),
+            expected
+        );
+    }
+}
+
+#[test]
+fn operator_substitution_leaves_must_be_known_scalar_comparisons() {
+    for (actual, expected) in [("<", true), ("\\o", false)] {
+        let (ev, pred) = input(&format!(
+            "---- MODULE Inner ----\nCONSTANT C(_,_)\nE(a,b) == C(a,b)\n====\nI == INSTANCE Inner WITH C <- {actual}\nP == IF I!E(x,x) THEN <<x>> \\o x ELSE <<>>"
+        ));
+        assert_eq!(proves(&ev, pred), expected, "{actual}");
+    }
 }
 
 #[test]
