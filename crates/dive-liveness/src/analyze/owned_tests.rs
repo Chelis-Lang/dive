@@ -348,8 +348,8 @@ fn assert_same_atom_refusal(actual: &DetailedFailure, legacy: &DetailedFailure) 
 #[test]
 fn due_frontier_nonbooleans_keep_legacy_refusals_instead_of_prefix_words() {
     for property in [
-        "<>[](IF x=0 THEN TRUE ELSE 1)",
-        "[]<>(IF x=0 THEN FALSE ELSE 1)",
+        "<>[](IF x=0 THEN TRUE ELSE x)",
+        "[]<>(IF x=0 THEN FALSE ELSE x)",
     ] {
         let (ir, config) = input(
             &format!("Init == x=0\nNext == IF x<2 THEN x'=x+1 ELSE UNCHANGED x\nP == {property}"),
@@ -413,7 +413,7 @@ fn due_frontier_nonbooleans_keep_legacy_refusals_instead_of_prefix_words() {
 fn completed_semantic_fallback_keeps_the_independent_legacy_atom_failure() {
     for property in [
         "<>[]x",
-        "<>[](IF x=0 THEN TRUE ELSE 1)",
+        "<>[](IF x=0 THEN TRUE ELSE x)",
         "[]<>((1 \\div (x=0))=0)",
     ] {
         let (ir, config) = input(
