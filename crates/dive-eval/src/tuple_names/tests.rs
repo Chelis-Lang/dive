@@ -264,3 +264,63 @@ fn foreign_scopes_and_both_control_sources_preserve_actual_authority() {
         915
     );
 }
+
+#[test]
+fn dominated_let_facts_do_not_escape_into_roots_formals_or_rebound_contexts() {
+    let (ev, pred) = input("P == LET A == <<x>> IN A \\o x\nQ(a) == a \\o x");
+    let entered = root(&ev, pred);
+    assert!(
+        proves(&ev, pred),
+        "the actual entered LET remains a positive"
+    );
+    let dive_ir::Expr::Let { defs, body } = ev.ir().expr(entered.0) else {
+        panic!("real LET root");
+    };
+    let dive_ir::DefScope::LetValue { slot, .. } = ev.ir().def(defs[0]).scope else {
+        panic!("real LET slot");
+    };
+    let mut forged = entered.1.clone();
+    forged
+        .env
+        .bind(slot.index(), Sv::Val(Value::tuple(vec![Value::Int(0)])));
+    let bare = (*body, forged);
+    assert!(
+        ev.tuple_concat_sources(&[bare.clone()], &[], None)
+            .expect("bare slot refusal")
+            .is_none()
+    );
+    for sources in [vec![entered.clone(), bare.clone()], vec![bare, entered]] {
+        assert!(
+            ev.tuple_concat_sources(&sources, &[], None)
+                .expect("mixed root refusal")
+                .is_none()
+        );
+    }
+    let count = Arc::new(AtomicUsize::new(0));
+    let mut opaque = root(&ev, pred);
+    opaque.1.env.bind(
+        slot.index(),
+        Sv::Val(Value::deferred(Arc::new(Probe(count.clone())), Ctx::tlc())),
+    );
+    let before = count.load(Ordering::SeqCst);
+    assert!(
+        ev.tuple_concat_sources(&[opaque], &[], None)
+            .expect("opaque capture refusal")
+            .is_none()
+    );
+    assert_eq!(count.load(Ordering::SeqCst), before);
+    let other = ev.ir().root_def("Q").expect("formal root");
+    assert!(
+        ev.tuple_concat_sources(&[root(&ev, pred), root(&ev, other)], &[], None)
+            .expect("formal root refusal")
+            .is_none()
+    );
+    for body in [
+        "P == LET A == <<x>> F(a) == a \\o x IN F(A)",
+        "P == LET A == <<x>> IN \\A b \\in {x}: (A \\o x)=x",
+        "P(Op(_)) == LET A == <<x>> IN A \\o Op(x)",
+    ] {
+        let (ev, pred) = input(body);
+        assert!(!proves(&ev, pred), "{body}");
+    }
+}

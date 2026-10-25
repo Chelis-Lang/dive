@@ -1,5 +1,6 @@
 //! Constructor-grounded result facts, separate from expression effects.
 
+use std::collections::HashSet;
 use std::sync::{Arc, Weak};
 
 use dive_ir::{Arg, DefId, Expr, ExprId, OpRef, StdKind, StdOp, StdSupport};
@@ -281,44 +282,27 @@ impl Analysis<'_> {
     }
 
     fn calls(&self, sources: &[ExprId], tuples: &[bool]) -> Result<bool> {
-        let mut seen = Vec::new();
-        reserve(&mut seen, self.ev.ir().nodes().len())?;
-        seen.resize(self.ev.ir().nodes().len(), false);
+        let mut contexts = Vec::new();
+        push(&mut contexts, Lexical::default())?;
+        let mut seen = HashSet::new();
         let mut work = Vec::new();
-        reserve(&mut work, sources.len())?;
-        work.extend_from_slice(sources);
-        while let Some(id) = work.pop() {
+        for &source in sources {
+            push(&mut work, (source, 0))?;
+        }
+        while let Some((id, context)) = work.pop() {
             self.poll()?;
-            let Some(visited) = seen.get_mut(id.index()) else {
-                return Ok(false);
-            };
-            if *visited {
+            if seen.contains(&(id, context)) {
                 continue;
             }
-            *visited = true;
-            let expr = self.ev.ir().expr(id);
-            match expr {
+            seen.try_reserve(1)
+                .map_err(|_| EvalError::resource_limit("tuple name call contexts allocation"))?;
+            seen.insert((id, context));
+            let Some(node) = self.ev.ir().nodes().get(id.index()) else {
+                return Ok(false);
+            };
+            match &node.expr {
                 Expr::Apply { callee, args } => {
-                    if args.iter().any(|a| matches!(a, Arg::Op { .. })) {
-                        return Ok(false);
-                    }
-                    if let Some(op) = self.native(callee, args.len()) {
-                        if op.creates_runtime_names() && op != StdOp::SequencesConcat {
-                            return Ok(false);
-                        }
-                        if op == StdOp::SequencesConcat
-                            && !args.iter().any(|a| {
-                                matches!(a,
-                                Arg::Expr { expr, .. } if tuples[expr.index()])
-                            })
-                        {
-                            return Ok(false);
-                        }
-                    } else if let OpRef::Def(def) = callee
-                        && let Some(body) = self.user_body(*def, args.len())
-                    {
-                        push(&mut work, body)?;
-                    } else {
+                    if !self.call(callee, args, tuples, &contexts[context], &mut work)? {
                         return Ok(false);
                     }
                 }
@@ -328,25 +312,148 @@ impl Analysis<'_> {
                             return Ok(false);
                         }
                     } else if let Some(body) = self.user_body(*def, 0) {
-                        push(&mut work, body)?;
+                        push(&mut work, (body, 0))?;
                     } else {
                         return Ok(false);
                     }
                 }
-                Expr::Let { defs, .. } => {
+                Expr::Let { defs, body } => {
+                    let context = self.enter_let(defs, &contexts[context], tuples)?;
+                    let next = if let Some(index) = contexts.iter().position(|old| *old == context)
+                    {
+                        index
+                    } else {
+                        let index = contexts.len();
+                        push(&mut contexts, context)?;
+                        index
+                    };
+                    push(&mut work, (*body, next))?;
                     for def in defs {
-                        let Some(target) = self.ev.ir().defs().get(def.index()) else {
-                            return Ok(false);
-                        };
-                        push(&mut work, target.body)?;
+                        push(&mut work, (self.ev.ir().def(*def).body, 0))?;
                     }
+                    continue;
                 }
                 _ => {}
             }
-            expr.try_for_each_child(|child| push(&mut work, child))?;
+            // These constructs can rebind slots, retain a closure or replace
+            // dynamic context. Never carry a dominated LET fact through them.
+            let context = if matches!(
+                node.expr,
+                Expr::Quant { .. }
+                    | Expr::SetFilter { .. }
+                    | Expr::SetMap { .. }
+                    | Expr::FcnCons { .. }
+                    | Expr::RecFcn { .. }
+                    | Expr::TemporalQuant { .. }
+                    | Expr::Subst { .. }
+                    | Expr::Except { .. }
+                    | Expr::Prime(_)
+                    | Expr::Enabled(_)
+            ) {
+                0
+            } else {
+                context
+            };
+            node.expr
+                .try_for_each_child(|child| push(&mut work, (child, context)))?;
         }
         Ok(true)
     }
+
+    fn call(
+        &self,
+        callee: &OpRef,
+        args: &[Arg],
+        tuples: &[bool],
+        context: &Lexical,
+        work: &mut Vec<(ExprId, usize)>,
+    ) -> Result<bool> {
+        if args.iter().any(|a| matches!(a, Arg::Op { .. })) {
+            return Ok(false);
+        }
+        if let Some(op) = self.native(callee, args.len()) {
+            if op.creates_runtime_names() && op != StdOp::SequencesConcat {
+                return Ok(false);
+            }
+            if op == StdOp::SequencesConcat
+                && !args.iter().any(|a| {
+                    matches!(a, Arg::Expr { expr, .. }
+                    if tuples[expr.index()] || self.local_tuple(*expr, context))
+                })
+            {
+                return Ok(false);
+            }
+        } else if let OpRef::Def(def) = callee
+            && let Some(body) = self.user_body(*def, args.len())
+        {
+            // A callee's own frame and captured parent are not this callsite's
+            // lexical proof context, even for a zero-arity local operator.
+            push(work, (body, 0))?;
+        } else {
+            return Ok(false);
+        }
+        Ok(true)
+    }
+
+    fn enter_let(&self, defs: &[DefId], old: &Lexical, tuples: &[bool]) -> Result<Lexical> {
+        let mut context = Lexical {
+            frame: old.frame,
+            slots: Vec::new(),
+        };
+        reserve(&mut context.slots, old.slots.len())?;
+        context.slots.extend_from_slice(&old.slots);
+        for &def in defs {
+            self.poll()?;
+            let definition = self.ev.ir().def(def);
+            let dive_ir::DefScope::LetValue { parent, slot, .. } = definition.scope else {
+                continue;
+            };
+            // Mint only for a real LET-owned slot of this immutable IR. A root
+            // Local, formal, capture or similarly numbered foreign frame cannot
+            // acquire this fact merely by having a tuple stored in it.
+            if context.frame != Some(parent) {
+                context.slots.clear();
+                context.frame = Some(parent);
+            }
+            context.slots.retain(|(bound, _)| *bound != slot);
+            let valid = self
+                .ev
+                .ir()
+                .def(parent)
+                .frame
+                .get(slot.index())
+                .is_some_and(|info| info.kind == dive_ir::SlotKind::LetValue(def));
+            if valid
+                && self.user_body(def, 0) == Some(definition.body)
+                && tuples[definition.body.index()]
+            {
+                push(&mut context.slots, (slot, def))?;
+            }
+        }
+        context.slots.sort_unstable();
+        Ok(context)
+    }
+
+    fn local_tuple(&self, expr: ExprId, context: &Lexical) -> bool {
+        let Expr::Local(local) = self.ev.ir().expr(expr) else {
+            return false;
+        };
+        local.up == 0
+            && context.slots.iter().any(|(slot, def)| {
+                *slot == local.slot
+                    && matches!(self.ev.ir().def(*def).scope,
+                dive_ir::DefScope::LetValue { parent, slot: bound, .. }
+                    if Some(parent) == context.frame && bound == local.slot)
+            })
+    }
+}
+
+// Facts arise only from an actually entered LET. They never populate the global
+// expression result vector, and roots/user-definition bodies start empty.
+#[derive(Default, PartialEq, Eq)]
+struct Lexical {
+    frame: Option<DefId>,
+    slots: Vec<(dive_ir::Slot, DefId)>,
 }
 
 enum Capture {
@@ -441,7 +548,7 @@ impl Analysis<'_> {
             return Ok(false);
         }
         let mut link = env.dynamic.subst.clone();
-        while let Some(current) = link {
+        while let Some(current) = link.take() {
             self.poll()?;
             if retained
                 .links
@@ -452,10 +559,10 @@ impl Analysis<'_> {
             }
             push(&mut retained.links, current.clone())?;
             push(work, Capture::Slot(current.val.clone()))?;
-            link = current.next.clone();
+            link.clone_from(&current.next);
         }
         let mut frame = Some(env.frame);
-        while let Some(current) = frame {
+        while let Some(current) = frame.take() {
             self.poll()?;
             if retained
                 .frames
@@ -468,7 +575,7 @@ impl Analysis<'_> {
             for slot in &current.slots {
                 push(work, Capture::Slot(slot.clone()))?;
             }
-            frame = current.parent.clone();
+            frame.clone_from(&current.parent);
         }
         Ok(true)
     }

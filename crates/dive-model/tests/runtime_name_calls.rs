@@ -5,7 +5,10 @@
     reason = "real source binding fixtures"
 )]
 
-use std::sync::Arc;
+use std::sync::{
+    Arc,
+    atomic::{AtomicUsize, Ordering},
+};
 
 use dive_model::{BindOptions, Model, bind};
 
@@ -139,4 +142,80 @@ fn default_and_tlc_profiles_keep_the_same_successful_source_evaluation() {
             dive_value::Value::TRUE
         );
     }
+}
+
+#[derive(Debug)]
+struct Polls {
+    calls: AtomicUsize,
+    stop: Option<usize>,
+}
+
+impl dive_eval::HostControl for Polls {
+    fn check(&self) -> Result<(), dive_eval::Interrupted> {
+        let call = self.calls.fetch_add(1, Ordering::SeqCst) + 1;
+        if self.stop == Some(call) {
+            Err(dive_eval::Interrupted::new(917))
+        } else {
+            Ok(())
+        }
+    }
+}
+
+#[test]
+fn late_proof_interruption_keeps_actual_startup_output_and_allows_a_fresh_retry() {
+    let source = "---- MODULE Names ----\nEXTENDS Sequences, TLC\nVARIABLE x\nD == IF PrintT(\"before-one\") THEN PrintT(\"before-two\") ELSE FALSE\nInit == x = <<>>\nNext == x' = x \\o <<>>\n====\n";
+    let analysis = dive_sema::analyze_source("Names.tla", source, &dive_sema::Options::default());
+    assert!(analysis.accepted(), "{analysis:?}");
+    let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+    let config = dive_config::parse("INIT Init\nNEXT Next\n")
+        .into_config()
+        .expect("config");
+    // Fresh ordinary threads also reset the evaluator's existing TLS loop
+    // cadence. Calibrate the actual complete walk; no hardcoded proof count or
+    // production hook determines the cancellation point.
+    let run = |stop| {
+        let ir = ir.clone();
+        let config = config.clone();
+        std::thread::Builder::new()
+            .name("tuple-name-control".into())
+            .spawn(move || {
+                let control = Arc::new(Polls {
+                    calls: AtomicUsize::new(0),
+                    stop,
+                });
+                let result =
+                    dive_model::bind_controlled(ir, &config, &BindOptions::tlc(), control.clone());
+                (result, control.calls.load(Ordering::SeqCst))
+            })
+            .expect("fixture thread")
+            .join()
+            .expect("binding completed")
+    };
+    let (calibration, polls) = run(None);
+    let positive = calibration.expect("actual complete proof");
+    assert!(!positive.runtime_name_order);
+    assert_eq!(positive.sequential, Vec::<String>::new());
+    let expected = vec![
+        dive_model::Message::Print("\"before-one\"".into()),
+        dive_model::Message::Print("\"before-two\"".into()),
+    ];
+    assert_eq!(positive.output, expected);
+    assert!(polls > 1);
+    // On this successful proved path, the final proof poll is the binder's
+    // last controlled boundary, after startup and Model construction.
+    let (stopped, actual) = run(Some(polls));
+    assert_eq!(actual, polls);
+    let dive_model::ControlledBindError::Interrupted { error, output } =
+        stopped.expect_err("late proof stop")
+    else {
+        panic!("original typed interruption");
+    };
+    assert_eq!(error.class(), dive_eval::ErrorClass::Interrupted);
+    assert_eq!(error.interruption().expect("actual identity").token(), 917);
+    assert_eq!(output, expected);
+    let (retry, actual) = run(None);
+    let retry = retry.expect("fresh runtime after interrupted proof");
+    assert_eq!(actual, polls);
+    assert!(!retry.runtime_name_order);
+    assert_eq!(retry.output, expected);
 }

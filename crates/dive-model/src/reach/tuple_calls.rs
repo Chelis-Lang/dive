@@ -16,8 +16,13 @@ fn push<T>(values: &mut Vec<T>, value: T) -> Result<(), EvalError> {
 }
 
 pub(super) fn prove(b: &Binder<'_>, model: &Model) -> R<Option<TupleConcatSources>> {
-    inspect(b, model)
-        .map_err(|error| b.eval_error(error, |e| BindError::unsupported(e.to_string())))
+    inspect(b, model).map_err(proof_error)
+}
+
+fn proof_error(error: EvalError) -> crate::control::StepError {
+    // Optional planning can fail intrinsically even on the legacy startup
+    // route. Its resource/bug/interruption must never become a semantic refusal.
+    crate::control::eval_error(true, true, error, |e| BindError::unsupported(e.to_string()))
 }
 
 fn inspect(b: &Binder<'_>, model: &Model) -> Result<Option<TupleConcatSources>, EvalError> {
@@ -64,4 +69,38 @@ fn inspect(b: &Binder<'_>, model: &Model) -> Result<Option<TupleConcatSources>, 
     }
     b.ev()
         .tuple_concat_sources(&roots, &definitions, b.control.as_deref())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::proof_error;
+    use crate::{ControlledBindError, Message};
+    use dive_eval::{EvalError, Interrupted};
+
+    #[test]
+    fn optional_proof_intrinsic_failures_keep_owned_error_origin_and_startup_output() {
+        for original in [
+            EvalError::resource_limit("actual proof allocation failure"),
+            EvalError::bug("actual proof invariant failure"),
+        ] {
+            let original = original.at(dive_ir::ExprId(19));
+            let output = vec![Message::Print("before proof".into())];
+            let failure = proof_error(original.clone()).with_output(output.clone());
+            assert!(
+                matches!(failure, ControlledBindError::EvaluationFailure { error, output: observed }
+                if error == original && observed == output)
+            );
+        }
+    }
+
+    #[test]
+    fn optional_proof_interruption_keeps_opaque_run_identity_and_output() {
+        let original = EvalError::interrupted(Interrupted::new(916)).at(dive_ir::ExprId(23));
+        let output = vec![Message::Print("before control".into())];
+        let failure = proof_error(original.clone()).with_output(output.clone());
+        assert!(
+            matches!(failure, ControlledBindError::Interrupted { error, output: observed }
+            if error == original && observed == output)
+        );
+    }
 }
