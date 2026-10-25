@@ -287,6 +287,12 @@ ownership share does not prove removable work. A query of existing EXCEPT
 contexts did not justify a 5% candidate; selected exclusive costs and overlapping
 immediate arcs remain separate. See the [caller-attribution record](../survey/data/instruction-caller-attribution-2026-10-25.json).
 
+A later private eight-cell function-membership census recorded no qualified repeat
+successes. Provider-excluded MCbtree work remains unknown; GameOfLife had only
+first successes. This does not establish a safe hit rate or saved instructions,
+and no membership cache is admitted. See the
+[census record](../survey/data/function-membership-census-2026-10-25.json).
+
 ## Consequences
 
 - The plan is ordered by measured share; re-profile after each item, because
