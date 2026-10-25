@@ -171,6 +171,14 @@ A fresh profile of frozen main `c542d442` completed one shipping profiling CLI b
 
 [The compact record](../survey/data/current-main-profile-2026-10-25.json) pins all eight totals and five-counter outcomes, original profile/stream hashes, machine/tools and the distinct raw-replay and compact-review scopes. The earlier startup `KeyError` occurred before any build/model/profile sample and remains separate from the complete corrected campaign. Compute was removed; raw evidence remains in S3. These observations establish no wall-time, TLC-throughput or scaling gain.
 
+## Frozen-main caller attribution, 2026-10-25
+
+Frozen main `1a8343b9` completed a shipping profiling build and all eight reduced-model/profile observations at one worker. Original profiles and caller-context ledgers were replayed through genuine EOF with whole hashes, exact instruction conservation and the expected verdict and five counters. The mixed allocator/ownership categories account for 24.22–28.12% of instructions; they include required work and do not identify a removable client pool.
+
+A bounded query of those same eight ledgers retained every selected EXCEPT producer context, its exclusive source PCs and immediate incident helpers/arcs. Deleting the entire selected exclusive pool would reduce the eight-cell instruction geometric mean by only 1.487%. That is conditional arithmetic over the selected pool, not a universal bound: arbitrary descendants and shared helper ownership remain unknown, and overlapping arc costs are never added to exclusive totals. The evidence does not justify a 5% EXCEPT rewrite or a new performance campaign.
+
+[The compact record](../survey/data/instruction-caller-attribution-2026-10-25.json) pins all eight totals/category partitions and counter outcomes, original stream/profile/ledger hashes, machine/tool/binary identities, review scopes and S3 receipts. Raw profiles and archives remain in S3; the node, volume and security group were removed. This is instruction attribution, without a candidate, wall-time, Java TLC throughput, scaling or new conformance qualification.
+
 ## Substitution-cache probe
 
 On 2026-10-21, a small paired probe confirmed that caching every forced
