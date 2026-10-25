@@ -1,7 +1,5 @@
 //! Complete actual checking roots for the optional constructor-result proof.
 
-use std::collections::BTreeSet;
-
 use dive_eval::{EvalError, TupleConcatSources};
 use dive_ir::{DefId, StdOp};
 
@@ -20,15 +18,15 @@ fn push<T>(values: &mut Vec<T>, value: T) -> Result<(), EvalError> {
 pub(super) fn remove_proved_concat(
     b: &Binder<'_>,
     model: &Model,
-    names: &mut BTreeSet<String>,
+    reasons: &mut Vec<String>,
 ) -> R<()> {
     let concat = format!(
         "{} (runtime names require TLC encounter order)",
         StdOp::SequencesConcat.qualified_name()
     );
-    if names.contains(&concat) && prove(b, model)?.is_some_and(|fact| fact.belongs_to(b.ev())) {
+    if reasons.contains(&concat) && prove(b, model)?.is_some_and(|fact| fact.belongs_to(b.ev())) {
         // Cover every real root/call before removing only this native reason.
-        names.remove(&concat);
+        reasons.retain(|reason| *reason != concat);
     }
     Ok(())
 }

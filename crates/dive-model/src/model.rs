@@ -157,10 +157,14 @@ pub struct Model {
     pub sequential: Vec<String>,
     /// The only sequential restriction is preserving runtime name encounter
     /// order. This is not an I/O, random-stream or live-checker-state effect.
+    /// This conservative source inventory remains available to checkpoint
+    /// admission after a proof discharges the corresponding worker restriction.
     pub sequential_names_only: bool,
     /// Checking may create runtime names whose encounter order is observable
     /// under the selected value or exploration order. Remains true when other
     /// sequential effects are also reachable.
+    /// This is a conservative source feature flag; a worker-selection proof
+    /// can remove a scheduling reason without changing replay's inventory.
     pub runtime_name_order: bool,
     pub(crate) stateful_checking: Option<String>,
 }

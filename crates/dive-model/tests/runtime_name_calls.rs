@@ -24,6 +24,13 @@ fn model(body: &str, extra_config: &str, options: &BindOptions) -> Model {
     bind(ir, &config, options).unwrap_or_else(|error| panic!("{error}"))
 }
 
+fn concat_reason(model: &Model) -> bool {
+    model
+        .sequential
+        .iter()
+        .any(|reason| reason.starts_with(dive_ir::StdOp::SequencesConcat.qualified_name()))
+}
+
 #[test]
 fn literal_and_recursive_append_calls_remove_only_the_unneeded_name_reason() {
     for source in [
@@ -31,7 +38,9 @@ fn literal_and_recursive_append_calls_remove_only_the_unneeded_name_reason() {
         "RECURSIVE Order(_)\nOrder(S) == IF S={} THEN <<>> ELSE LET e == CHOOSE v \\in S: TRUE IN Append(Order(S\\{e}),e)\nInit == x= <<>>\nNext == x'=x \\o Order({0,1})",
     ] {
         let bound = model(source, "", &BindOptions::tlc());
-        assert!(!bound.runtime_name_order, "{:?}", bound.sequential);
+        // Replay and checkpoint consumers keep their original source inventory.
+        assert!(bound.runtime_name_order);
+        assert!(bound.sequential_names_only);
         assert_eq!(bound.sequential, Vec::<String>::new());
     }
 }
@@ -55,6 +64,7 @@ fn every_call_and_each_selected_checking_root_must_be_accounted_for() {
     ] {
         let bound = model(body, config, &BindOptions::tlc());
         assert!(bound.runtime_name_order, "{body}: {:?}", bound.sequential);
+        assert!(concat_reason(&bound), "{body}: {:?}", bound.sequential);
     }
 }
 
@@ -72,7 +82,9 @@ fn children_keep_their_own_creators_and_other_sequential_effects() {
         "",
         &BindOptions::tlc(),
     );
-    assert!(!registers.runtime_name_order, "{:?}", registers.sequential);
+    assert!(registers.runtime_name_order);
+    assert!(!registers.sequential_names_only);
+    assert!(!concat_reason(&registers), "{:?}", registers.sequential);
     assert!(
         registers
             .sequential
@@ -89,18 +101,21 @@ fn configured_native_origins_and_higher_order_arguments_remain_conservative() {
         &BindOptions::tlc(),
     );
     assert!(configured.runtime_name_order, "{:?}", configured.sequential);
+    assert!(concat_reason(&configured));
     let higher = model(
         "F(Op(_,_),a) == Op(a,a)\nInit == x= <<>>\nNext == x'= <<0>> \\o F(Append,x)",
         "",
         &BindOptions::tlc(),
     );
     assert!(higher.runtime_name_order, "{:?}", higher.sequential);
+    assert!(concat_reason(&higher));
     let redirected = model(
         "Replacement(a,b) == a\nInit == x= <<>>\nNext == x'=Append(x,x) \\o x",
         "CONSTANT Append <- Replacement\n",
         &BindOptions::tlc(),
     );
     assert!(redirected.runtime_name_order, "{:?}", redirected.sequential);
+    assert!(concat_reason(&redirected));
 }
 
 #[test]
@@ -116,6 +131,7 @@ fn ungrounded_state_and_except_flows_do_not_inherit_type_invariants() {
             "{expression}: {:?}",
             bound.sequential
         );
+        assert!(concat_reason(&bound));
     }
 }
 
@@ -127,7 +143,10 @@ fn default_and_tlc_profiles_keep_the_same_successful_source_evaluation() {
             "",
             &options,
         );
-        assert!(!bound.runtime_name_order, "{:?}", bound.sequential);
+        let ordered = options.eval.ctx.order == dive_value::ValueOrder::Tlc
+            || options.eval.exploration == dive_eval::ExplorationOrder::Tlc;
+        assert_eq!(bound.runtime_name_order, ordered);
+        assert_eq!(bound.sequential, Vec::<String>::new());
         let values = Arc::from([Some(dive_value::Value::tuple(Vec::new()))]);
         let successors = Arc::from([Some(dive_value::Value::tuple(vec![
             dive_value::Value::Int(0),
@@ -193,7 +212,7 @@ fn late_proof_interruption_keeps_actual_startup_output_and_allows_a_fresh_retry(
     };
     let (calibration, polls) = run(None);
     let positive = calibration.expect("actual complete proof");
-    assert!(!positive.runtime_name_order);
+    assert!(positive.runtime_name_order);
     assert_eq!(positive.sequential, Vec::<String>::new());
     let expected = vec![
         dive_model::Message::Print("\"before-one\"".into()),
@@ -216,6 +235,7 @@ fn late_proof_interruption_keeps_actual_startup_output_and_allows_a_fresh_retry(
     let (retry, actual) = run(None);
     let retry = retry.expect("fresh runtime after interrupted proof");
     assert_eq!(actual, polls);
-    assert!(!retry.runtime_name_order);
+    assert!(retry.runtime_name_order);
+    assert_eq!(retry.sequential, Vec::<String>::new());
     assert_eq!(retry.output, expected);
 }
