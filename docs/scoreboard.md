@@ -15,7 +15,17 @@ timing, thread or queue order, tableau numbering or SCC and lasso choice.
 
 ## Corpus scoreboard
 
-The latest full gate at source `5217163f` on 2026-10-25 passed all 13 phases
+The latest full gate at runtime source `2c966c74` on 2026-10-25 passed all 13
+phases and **2,555 Rust tests with none skipped**. Small-tier results remain
+**150/156 TLC** and **144/156 default**, with seven registered expected
+divergences; all 458 SANY comparisons agree. A separate check of the original
+`SpanTreeTest5Nodes` agrees in both profiles: 410,112 distinct states, 3,150,464
+generated states and depth 5, within explicit 900-second/8-GiB budgets. This
+closes its nested-powerset Init gap without adding credit to the historical
+full-tier population below. See the
+[qualification](survey/data/nested-powerset-mask-qualification-2026-10-25.json).
+
+The earlier full gate at source `5217163f` on 2026-10-25 passed all 13 phases
 and **2,487 Rust tests with none skipped**. Small-tier results remain
 **150/156 TLC** and **144/156 default**, with seven registered expected
 divergences; all 458 SANY comparisons agree. A separate 16-model startup
