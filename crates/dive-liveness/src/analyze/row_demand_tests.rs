@@ -109,7 +109,7 @@ fn disabling_discards_all_rows_and_cannot_supply_projection_or_truth() {
     assert!(cache.complete(0) && cache.complete(1));
     cache.disable();
     assert!(!cache.active());
-    assert!(cache.rows.is_empty());
+    assert_eq!(cache.rows, [] as [Option<Vec<u64>>; 0]);
     assert!(!cache.complete(0) && !cache.complete(1));
     assert!(cache.read(0, 0, 0).is_err());
     assert!(cache.read(0, 0, 1).is_err());
