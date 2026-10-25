@@ -146,6 +146,14 @@ baselines.
    expected gain there is large (up to half its instructions), and it bears
    directly on ADR 0006's "at least 1x on every model".
 
+A fresh frozen-main profile at `c542d442` and a bounded hash-demand check
+qualify the historical cost estimates; see the
+[performance guide](../developer/performance.md#frozen-main-callgrind-attribution-2026-10-24)
+and [compact record](../survey/data/current-main-profile-2026-10-25.json).
+Hot exclusive owners and nested inclusive arcs do not themselves establish
+removable work. No defensible 5% hash-deferral case was established; that
+hypothesis was rejected before implementation.
+
 ### Substitution-cache probe, 2026-10-21
 
 A two-state paired probe against pinned TLC commit `94d0c507` checks

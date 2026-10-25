@@ -163,6 +163,14 @@ Do not certify a quiet window by changing metadata after the run. Record the
 reservation, CPU/thermal controls and absence of interfering work for the next
 campaign; retain all original measurements when repeating a declared block.
 
+## Frozen-main Callgrind attribution, 2026-10-24
+
+A fresh profile of frozen main `c542d442` completed one shipping profiling CLI build and all eight reduced-model/profile observations at one worker. All observations were normal and retained the expected verdict and all five counters; this is attribution evidence, with no candidate comparison or new parity qualification. Every original Callgrind file was replayed through its terminal totals and matched its stdout/stderr and source/input/tool/binary identities. Exclusive sums equal whole instructions in all cells. An independent compact review separately checked the arithmetic and original transport links.
+
+`eval_inner` owns 10.26–13.81% exclusive instructions, but inclusive generation/property/evaluator arcs overlap and do not identify removable dispatch work. One bounded reread of the same profiles examined compound-value hash/constructor source positions and immediate call arcs. Its exclusive source/function unions include other construction and exclude descendants; they are not a global hash bound. No defensible eligible 5% hash-deferral case was established, so that hypothesis was rejected before implementation. No extra native run or profiler campaign followed.
+
+[The compact record](../survey/data/current-main-profile-2026-10-25.json) pins all eight totals and five-counter outcomes, original profile/stream hashes, machine/tools and the distinct raw-replay and compact-review scopes. The earlier startup `KeyError` occurred before any build/model/profile sample and remains separate from the complete corrected campaign. Compute was removed; raw evidence remains in S3. These observations establish no wall-time, TLC-throughput or scaling gain.
+
 ## Substitution-cache probe
 
 On 2026-10-21, a small paired probe confirmed that caching every forced

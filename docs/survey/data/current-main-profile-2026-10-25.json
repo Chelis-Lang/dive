@@ -1,0 +1,1151 @@
+{
+  "schema_version": 1,
+  "status": "COMPLETE_FROZEN_MAIN_PROFILE_ATTRIBUTION",
+  "source": "c542d442d7564f48658b19cb132d7e89749c9db9",
+  "source_tree": "8224e9acffe39009e0c49c768fe25895342482a0",
+  "method": {
+    "candidate": null,
+    "build_profile": "profiling",
+    "shipping_allocator": "mimalloc",
+    "workers": 1,
+    "seed": 0,
+    "fp": 0,
+    "native_seconds": 900,
+    "native_memory_bytes": 8589934592,
+    "outer_seconds": 930,
+    "models": 4,
+    "profiles": [
+      "dive",
+      "tlc"
+    ],
+    "native_stages": 9,
+    "complete_Callgrind_profiles": 8,
+    "metric": "whole CLI Callgrind Ir; no timing comparison",
+    "interpretation": "Exclusive costs partition Ir. Selected call arcs overlap, can exceed whole Ir and cannot be added. Emitted context IDs identify graph nodes only within their original profile; SCCs do not certify physical recursion."
+  },
+  "machine": {
+    "cpu": {
+      "Architecture": "x86_64",
+      "CPU(s)": "32",
+      "Vendor ID": "GenuineIntel",
+      "Model name": "Intel(R) Xeon(R) Platinum 8488C",
+      "Thread(s) per core": "2",
+      "Core(s) per socket": "16",
+      "Socket(s)": "1"
+    },
+    "kernel": {
+      "system": "Linux",
+      "release": "7.0.0-1014-aws",
+      "architecture": "x86_64"
+    },
+    "ami": "ami-02a9cdd4e98bc3c78",
+    "instance_type": "c7i.8xlarge",
+    "identity_sha256": "607452ce2ce0b5a2d0c0060e2e0e6cd1530ebf8aa07796c16123a3eb3a5cfa72",
+    "shared_environment_no_quiet_or_exclusive_host_certificate": true
+  },
+  "tools": {
+    "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+    "valgrind": "valgrind-3.22.0",
+    "callgrind_backend": "valgrind-3.22.0 callgrind backend"
+  },
+  "binary": {
+    "sha256": "4130df3a5980b65e4d41cc13c0a1fac5a89d9573135658a8fe9b08350cbcdbf3",
+    "bytes": 107336104,
+    "mode": "0o775"
+  },
+  "source_map_sha256": "99053f5535aab3c9267a314d6dd53871c5d4c26dde7bfdf615b43ae763094798",
+  "tools_and_loader_identity_sha256": "1370241ba9d5bb19e37059a88e60c28950bac66c277a0c73c7e84a84f218755f",
+  "workload_identity_sha256": "1ffefd4365650ae6321d1f59adbd023df19f1a427daafabc43d25661aaaba790",
+  "input_receipts": {
+    "results/raw/observed-inputs-before.json": "26e91bc1b4f219ab91dbe424121ea4d3ae1f878419d747e3860d3c85775c6493",
+    "results/raw/observed-inputs-after.json": "da7391aaaef0717a9b63f4d88ae2063b4e23cdc854a481818691e70c031f41ec"
+  },
+  "origin": {
+    "bucket": "dive-callgrind-profile-20261024230124-8d598041-010928226848",
+    "prefix": "results/raw/",
+    "plan_sha256": "d55c2d112b5db9abfe80b7a1c90dbbc18ec1731c1a89e7626fdf574f1c839460",
+    "manifest_sha256": "e15c4f146107971c8052b04e09d3eafc2602f64825e9d7f094b04fd0178f7ac3",
+    "completion_sha256": "b58996ab252e75a50f27d67fb6ae6e7e02ab29a7343123389801b8a66a23dff1",
+    "producer_summary_sha256": "70e73d66f55e9b31456eae08e7d982da7d464f88b4495a60e6ead27bffaa223b",
+    "independent_raw_replay_overview_sha256": "1c4955f5f8abdbbb4d7f4d1baf8321bbadfdb8ed8b268f41a9cdc66b363e59fd",
+    "memory_transport_sha256": "eb4545e843216efd62fd9390ebb3a793963e92b2b6acbc06294b93401d5e147b",
+    "independent_compact_review_sha256": "60dc4f00dda2aa5029d79422ba9e2550f46c97c5ec215c3767ead740b749f1ea",
+    "compact_review_scope": "Local compact arithmetic and original transport hash links, separate from the original RAM stream/parser replay.",
+    "source_capsule_sha256": "acf5e40adfed9f1947aa9487818f7ebef293e29aeb775abdd075edc5185a6149"
+  },
+  "cells": [
+    {
+      "model": "SimpleRegular",
+      "profile": "dive",
+      "statistics": {
+        "distinct": 12097,
+        "generated": 47584,
+        "depth": 19,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "success_code": 2193,
+      "whole_Ir": 2525866997,
+      "exclusive_Ir": 2525866997,
+      "unattributed_Ir": 0,
+      "unresolved_symbol_Ir": 743,
+      "EOF": true,
+      "positions": [
+        "line"
+      ],
+      "events": [
+        "Ir"
+      ],
+      "profile_sha256": "4222259fa578f5c6a34ec7c09f2806f6f410d3a8b38c0f4a778ca39ebfee461a",
+      "profile_bytes": 1303831,
+      "cost_table_sha256": "4098fe17c839723a4d3e1a87e4c4dd6a53084ff4506ef3baad85aa79a12d053c",
+      "original_stream_hashes": {
+        "stdout_sha256": "f4b1342e724253c746fdfb7a63159f36db890abea9de986e4749268bdc315661",
+        "stderr_sha256": "2fe28c7d4d12f9bd65503f76059ae179e843c7c293fea98489637f05dbb13161",
+        "observation_sha256": "86474e8681318e417035f36f535c085888ae23346cb7a905bb9162376ede28e0",
+        "identity_before_sha256": "60244f30d5b9680e81c0bcf944469a46163d44ae15f494689fd9f6512f380eff",
+        "identity_after_sha256": "d7458ef24e0626796b0504085d637f70d2030313f4219f4cbdac2b33fe4cf0c3"
+      },
+      "native": {
+        "tag": "current-SimpleRegular-dive-w1",
+        "started_at": "2026-10-24T23:04:44.185653+00:00",
+        "finished_at": "2026-10-24T23:04:57.888496+00:00",
+        "observed_child_returncode": 0,
+        "externally_censored": false,
+        "driver_interruption": null,
+        "argv_sha256": "c3ba407a0b760bb31b56b31c727086f18dd009a9a5b104f0a0489ecfd9266d43"
+      },
+      "top_functions_are_selected_not_complete": true,
+      "top_functions": [
+        {
+          "emitted_context_id": 8395,
+          "function": "<dive_eval::core::Core>::eval_inner'2",
+          "exclusive_Ir": 265619714
+        },
+        {
+          "emitted_context_id": 10896,
+          "function": "<dive_value::fp64::TlcFingerprint as dive_value::fp64::Fingerprinter>::extend",
+          "exclusive_Ir": 117300606
+        },
+        {
+          "emitted_context_id": 1208,
+          "function": "mi_free",
+          "exclusive_Ir": 80326119
+        },
+        {
+          "emitted_context_id": 978,
+          "function": "mi_theap_malloc_aligned",
+          "exclusive_Ir": 71365028
+        },
+        {
+          "emitted_context_id": 10100,
+          "function": "<dive_eval::core::Core>::eval_builtin",
+          "exclusive_Ir": 50364275
+        },
+        {
+          "emitted_context_id": 982,
+          "function": "mi_theap_malloc_zero_aligned_at_generic",
+          "exclusive_Ir": 48354614
+        },
+        {
+          "emitted_context_id": 8032,
+          "function": "<dive_value::value::Value>::hash64",
+          "exclusive_Ir": 44856234
+        },
+        {
+          "emitted_context_id": 1164,
+          "function": "mi_theap_malloc_zero_aligned_at_overalloc",
+          "exclusive_Ir": 41114141
+        }
+      ],
+      "exclusive_top24_Ir": 1252621162,
+      "exclusive_remaining_Ir": 1273245835,
+      "literal_aggregated_nodes": 0,
+      "hash_demand_attribution": {
+        "derived_table_sha256": "df61d4ed6be92718d56ce0d14ba0548341af7de6376f808d72dfde4782f3b936",
+        "derived_table_bytes": 29368,
+        "source_exclusive_Ir": 24374379,
+        "named_function_exclusive_Ir": 2880487,
+        "source_named_overlap_Ir": 508224,
+        "source_and_named_union_Ir": 26746642,
+        "union_remaining_Ir": 2499120355,
+        "immediate_arc_count": 13,
+        "named_functions": [
+          {
+            "function": "<dive_value::value::Set>::from_sorted",
+            "emitted_context_id": 8018,
+            "exclusive_Ir": 2879254
+          },
+          {
+            "function": "<dive_value::value::Fcn>::general",
+            "emitted_context_id": 10670,
+            "exclusive_Ir": 1233
+          }
+        ],
+        "selected_constructor_client_arcs": [
+          {
+            "caller": "<dive_value::value::Value>::set_raw",
+            "caller_context_id": 10576,
+            "callee": "<dive_value::value::Set>::from_sorted",
+            "callee_context_id": 8018,
+            "reported_calls": 24194,
+            "reported_inclusive_Ir": 9259753
+          }
+        ],
+        "scope": "Source/function union includes other construction work, excludes additional descendants, and is neither a global hash upper bound nor a removable fraction. Client arcs are overlapping inclusive observations, not savings."
+      }
+    },
+    {
+      "model": "MCbtree",
+      "profile": "dive",
+      "statistics": {
+        "distinct": 21364,
+        "generated": 127825,
+        "depth": 24,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "success_code": 2193,
+      "whole_Ir": 14460157687,
+      "exclusive_Ir": 14460157687,
+      "unattributed_Ir": 0,
+      "unresolved_symbol_Ir": 743,
+      "EOF": true,
+      "positions": [
+        "line"
+      ],
+      "events": [
+        "Ir"
+      ],
+      "profile_sha256": "be99611fecdd704c622f4430988e95c2c820734b91720973a72ec39504b3e64a",
+      "profile_bytes": 1643024,
+      "cost_table_sha256": "19cdde6cd58e51464c799eceaf0fbba69677b1a683cbc2b8bf5b5f078667ea73",
+      "original_stream_hashes": {
+        "stdout_sha256": "8193d77172c06c74eaaba56d1d47f189e594cd874c61e96e9d24ecf8c39baf87",
+        "stderr_sha256": "6a482656cba041b403213fe91a2fc131fd18aef5b8364a64a8763099aa32c4da",
+        "observation_sha256": "83d2f8719f94e89040cf17bc76b55cee427063fce60dc46b5a2c223dbead1ee1",
+        "identity_before_sha256": "a45339f0b7a1aeec98458c1318c71ce4617de92bbbaa0aaf9598d4902c700419",
+        "identity_after_sha256": "1481feaca3b98fec8428bd920ea029af4b3bb0e6e81bdc25fda6d6c1b6967cc6"
+      },
+      "native": {
+        "tag": "current-MCbtree-dive-w1",
+        "started_at": "2026-10-24T23:05:03.654868+00:00",
+        "finished_at": "2026-10-24T23:06:17.505219+00:00",
+        "observed_child_returncode": 0,
+        "externally_censored": false,
+        "driver_interruption": null,
+        "argv_sha256": "71a4620b7d1c309431e6fdbb3f09b4d6fd8f54ee2cbb8c479819f326d064d635"
+      },
+      "top_functions_are_selected_not_complete": true,
+      "top_functions": [
+        {
+          "emitted_context_id": 9393,
+          "function": "<dive_eval::core::Core>::eval_inner'2",
+          "exclusive_Ir": 1714292640
+        },
+        {
+          "emitted_context_id": 1208,
+          "function": "mi_free",
+          "exclusive_Ir": 449894058
+        },
+        {
+          "emitted_context_id": 978,
+          "function": "mi_theap_malloc_aligned",
+          "exclusive_Ir": 425258848
+        },
+        {
+          "emitted_context_id": 11633,
+          "function": "dive_eval::tla_cmp::member'2",
+          "exclusive_Ir": 355751532
+        },
+        {
+          "emitted_context_id": 11838,
+          "function": "dive_value::tlc::equals",
+          "exclusive_Ir": 341406257
+        },
+        {
+          "emitted_context_id": 8848,
+          "function": "<dive_value::value::Set>::from_sorted",
+          "exclusive_Ir": 329117200
+        },
+        {
+          "emitted_context_id": 10520,
+          "function": "<dive_eval::env::Env>::bind",
+          "exclusive_Ir": 298095432
+        },
+        {
+          "emitted_context_id": 8580,
+          "function": "core::ptr::drop_glue::<dive_value::value::Value>",
+          "exclusive_Ir": 295728772
+        }
+      ],
+      "exclusive_top24_Ir": 7531580071,
+      "exclusive_remaining_Ir": 6928577616,
+      "literal_aggregated_nodes": 0,
+      "hash_demand_attribution": {
+        "derived_table_sha256": "163c37f105d7fabd9470de4b788e6af9ec8e06195ecadf41b432cc89dd0318f5",
+        "derived_table_bytes": 42592,
+        "source_exclusive_Ir": 81682563,
+        "named_function_exclusive_Ir": 368274517,
+        "source_named_overlap_Ir": 63133328,
+        "source_and_named_union_Ir": 386823752,
+        "union_remaining_Ir": 14073333935,
+        "immediate_arc_count": 25,
+        "named_functions": [
+          {
+            "function": "<dive_value::value::Set>::from_sorted",
+            "emitted_context_id": 8848,
+            "exclusive_Ir": 329117200
+          },
+          {
+            "function": "<dive_value::value::Fcn>::tuple_as",
+            "emitted_context_id": 11598,
+            "exclusive_Ir": 38539383
+          },
+          {
+            "function": "<dive_value::value::Fcn>::general",
+            "emitted_context_id": 12368,
+            "exclusive_Ir": 617934
+          }
+        ],
+        "selected_constructor_client_arcs": [
+          {
+            "caller": "<dive_value::value::Value>::set_raw",
+            "caller_context_id": 9608,
+            "callee": "<dive_value::value::Set>::from_sorted",
+            "callee_context_id": 8848,
+            "reported_calls": 1270266,
+            "reported_inclusive_Ir": 497171745
+          },
+          {
+            "caller": "dive_value::ops::intersect",
+            "caller_context_id": 12916,
+            "callee": "<dive_value::value::Set>::from_sorted",
+            "callee_context_id": 8848,
+            "reported_calls": 1081366,
+            "reported_inclusive_Ir": 420670938
+          }
+        ],
+        "scope": "Source/function union includes other construction work, excludes additional descendants, and is neither a global hash upper bound nor a removable fraction. Client arcs are overlapping inclusive observations, not savings."
+      }
+    },
+    {
+      "model": "GameOfLife",
+      "profile": "dive",
+      "statistics": {
+        "distinct": 512,
+        "generated": 1024,
+        "depth": 1,
+        "initial_generated": 512,
+        "left_on_queue": 0
+      },
+      "success_code": 2193,
+      "whole_Ir": 1146128901,
+      "exclusive_Ir": 1146128901,
+      "unattributed_Ir": 0,
+      "unresolved_symbol_Ir": 743,
+      "EOF": true,
+      "positions": [
+        "line"
+      ],
+      "events": [
+        "Ir"
+      ],
+      "profile_sha256": "e30b19831970e37e8e6014bb25862d0eb2a7ee65f1eb2d425f8125999f3e6f71",
+      "profile_bytes": 1216053,
+      "cost_table_sha256": "98edbb2de5240365f0fbe6b8d4eb67fa6898f0dd56d628ab22899f28df09a54e",
+      "original_stream_hashes": {
+        "stdout_sha256": "4fbe41748cefbee03fac489241e40b92d85001c7efb41c1ef7cf92fe2b836dc6",
+        "stderr_sha256": "09628c89d199ce190e330806b91c88eda151fc75b70e627d7961030fbb1f4292",
+        "observation_sha256": "6e628e202e586c1f1de32ea1864fda8758b3caa2d221323527de1661165f7022",
+        "identity_before_sha256": "584d0a57d8f07e09c3f781d91ec73f73aa939cc628dba7b485851655478ccdf3",
+        "identity_after_sha256": "272a773b53904fcf0318324c5d6f2e7a90146c2aae50a7411e3a04dec59b4a22"
+      },
+      "native": {
+        "tag": "current-GameOfLife-dive-w1",
+        "started_at": "2026-10-24T23:06:23.353002+00:00",
+        "finished_at": "2026-10-24T23:06:30.420436+00:00",
+        "observed_child_returncode": 0,
+        "externally_censored": false,
+        "driver_interruption": null,
+        "argv_sha256": "0fda599845128b7ceb73f3414eb89a42ce8a064ada5242ede43b162efd582f73"
+      },
+      "top_functions_are_selected_not_complete": true,
+      "top_functions": [
+        {
+          "emitted_context_id": 8063,
+          "function": "<dive_eval::core::Core>::eval_inner'2",
+          "exclusive_Ir": 152516375
+        },
+        {
+          "emitted_context_id": 1208,
+          "function": "mi_free",
+          "exclusive_Ir": 38897256
+        },
+        {
+          "emitted_context_id": 978,
+          "function": "mi_theap_malloc_aligned",
+          "exclusive_Ir": 37253366
+        },
+        {
+          "emitted_context_id": 8254,
+          "function": "<dive_eval::env::Env>::bind",
+          "exclusive_Ir": 29514152
+        },
+        {
+          "emitted_context_id": 8073,
+          "function": "<dive_eval::core::Core>::eval_std'2",
+          "exclusive_Ir": 25728000
+        },
+        {
+          "emitted_context_id": 7964,
+          "function": "core::ptr::drop_glue::<dive_eval::env::Sv>",
+          "exclusive_Ir": 23841246
+        },
+        {
+          "emitted_context_id": 10050,
+          "function": "dive_value::order::join",
+          "exclusive_Ir": 23163733
+        },
+        {
+          "emitted_context_id": 8278,
+          "function": "<dive_value::value::Fcn>::tuple_as",
+          "exclusive_Ir": 22166926
+        }
+      ],
+      "exclusive_top24_Ir": 612411650,
+      "exclusive_remaining_Ir": 533717251,
+      "literal_aggregated_nodes": 0,
+      "hash_demand_attribution": {
+        "derived_table_sha256": "492b20578f173d232ff4f08235f4a5b342adb509dc816e8e14277bef5c0857fa",
+        "derived_table_bytes": 33244,
+        "source_exclusive_Ir": 12577624,
+        "named_function_exclusive_Ir": 35074270,
+        "source_named_overlap_Ir": 5931832,
+        "source_and_named_union_Ir": 41720062,
+        "union_remaining_Ir": 1104408839,
+        "immediate_arc_count": 22,
+        "named_functions": [
+          {
+            "function": "<dive_value::value::Set>::from_sorted",
+            "emitted_context_id": 7576,
+            "exclusive_Ir": 12368720
+          },
+          {
+            "function": "<dive_value::value::Fcn>::tuple_as",
+            "emitted_context_id": 8278,
+            "exclusive_Ir": 22166926
+          },
+          {
+            "function": "<dive_value::value::Fcn>::general",
+            "emitted_context_id": 10212,
+            "exclusive_Ir": 538624
+          }
+        ],
+        "selected_constructor_client_arcs": [
+          {
+            "caller": "<dive_value::value::Value>::set_raw",
+            "caller_context_id": 8302,
+            "callee": "<dive_value::value::Set>::from_sorted",
+            "callee_context_id": 7576,
+            "reported_calls": 41472,
+            "reported_inclusive_Ir": 16029241
+          }
+        ],
+        "scope": "Source/function union includes other construction work, excludes additional descendants, and is neither a global hash upper bound nor a removable fraction. Client arcs are overlapping inclusive observations, not savings."
+      }
+    },
+    {
+      "model": "EWD998PCal",
+      "profile": "dive",
+      "statistics": {
+        "distinct": 20870,
+        "generated": 168292,
+        "depth": 28,
+        "initial_generated": 8,
+        "left_on_queue": 0
+      },
+      "success_code": 2193,
+      "whole_Ir": 46685689917,
+      "exclusive_Ir": 46685689917,
+      "unattributed_Ir": 0,
+      "unresolved_symbol_Ir": 743,
+      "EOF": true,
+      "positions": [
+        "line"
+      ],
+      "events": [
+        "Ir"
+      ],
+      "profile_sha256": "aaf1b7ec4d0aee7f3889d54aca990db331ff3808663c229c93782e3fe61a4905",
+      "profile_bytes": 1713410,
+      "cost_table_sha256": "a38a4395b0e0d56a55a1e77d87f77b4a6ceaa8bec60c2f3ef0f694f3646062ce",
+      "original_stream_hashes": {
+        "stdout_sha256": "5d758b2a81db52439d4af7a290a76e61f5b1d6c0f0cfda19afd98c9afee3fcbb",
+        "stderr_sha256": "cd0b5e488b92067b8099beae6702c4dd0295886687bd34b678f8c4a34fdd7251",
+        "observation_sha256": "0fcf0b2c9e886e68a330970c57cd2a04e3c308a110fd55a53b3f037df98b03ae",
+        "identity_before_sha256": "4cc7fc42498f1b54c0f4a0f98038b8e6f2d85539f645242cd11b1b3f5af10f53",
+        "identity_after_sha256": "f95f453a2a034e907e557bd658101f65eb773464c770335ef29004139db9309e"
+      },
+      "native": {
+        "tag": "current-EWD998PCal-dive-w1",
+        "started_at": "2026-10-24T23:06:36.188997+00:00",
+        "finished_at": "2026-10-24T23:11:23.453200+00:00",
+        "observed_child_returncode": 0,
+        "externally_censored": false,
+        "driver_interruption": null,
+        "argv_sha256": "e64ff6f1c08c5313e5b01f05a8498c5a789f0ff24a3ecd30cd6586871e7ff1b4"
+      },
+      "top_functions_are_selected_not_complete": true,
+      "top_functions": [
+        {
+          "emitted_context_id": 9391,
+          "function": "<dive_eval::core::Core>::eval_inner'2",
+          "exclusive_Ir": 6445677930
+        },
+        {
+          "emitted_context_id": 1208,
+          "function": "mi_free",
+          "exclusive_Ir": 1681647032
+        },
+        {
+          "emitted_context_id": 978,
+          "function": "mi_theap_malloc_aligned",
+          "exclusive_Ir": 1623119310
+        },
+        {
+          "emitted_context_id": 10548,
+          "function": "<dive_eval::env::Env>::bind",
+          "exclusive_Ir": 1105162689
+        },
+        {
+          "emitted_context_id": 9502,
+          "function": "core::ptr::drop_glue::<dive_eval::env::Sv>",
+          "exclusive_Ir": 1012476049
+        },
+        {
+          "emitted_context_id": 1152,
+          "function": "_mi_page_malloc_zero",
+          "exclusive_Ir": 858089948
+        },
+        {
+          "emitted_context_id": 8718,
+          "function": "core::ptr::drop_glue::<dive_value::value::Value>",
+          "exclusive_Ir": 761402708
+        },
+        {
+          "emitted_context_id": 8984,
+          "function": "<dive_value::value::Value>::hash64",
+          "exclusive_Ir": 761283310
+        }
+      ],
+      "exclusive_top24_Ir": 22834719508,
+      "exclusive_remaining_Ir": 23850970409,
+      "literal_aggregated_nodes": 0,
+      "hash_demand_attribution": {
+        "derived_table_sha256": "d02ad13adf6227574c960cf4aaf09f4c40a24fa5249ebc40864774c9e5a0b07e",
+        "derived_table_bytes": 38591,
+        "source_exclusive_Ir": 567935932,
+        "named_function_exclusive_Ir": 1499692831,
+        "source_named_overlap_Ir": 220879297,
+        "source_and_named_union_Ir": 1846749466,
+        "union_remaining_Ir": 44838940451,
+        "immediate_arc_count": 25,
+        "named_functions": [
+          {
+            "function": "<dive_value::value::Set>::from_sorted",
+            "emitted_context_id": 8970,
+            "exclusive_Ir": 689436027
+          },
+          {
+            "function": "<dive_value::value::Fcn>::record",
+            "emitted_context_id": 11990,
+            "exclusive_Ir": 534155151
+          },
+          {
+            "function": "<dive_value::value::Fcn>::general",
+            "emitted_context_id": 12052,
+            "exclusive_Ir": 204960127
+          },
+          {
+            "function": "<dive_value::value::Fcn>::tuple_as",
+            "emitted_context_id": 12098,
+            "exclusive_Ir": 71141526
+          }
+        ],
+        "selected_constructor_client_arcs": [
+          {
+            "caller": "<dive_eval::core::Core>::domain",
+            "caller_context_id": 12428,
+            "callee": "<dive_value::value::Set>::from_sorted",
+            "callee_context_id": 8970,
+            "reported_calls": 4120915,
+            "reported_inclusive_Ir": 2142370293
+          }
+        ],
+        "scope": "Source/function union includes other construction work, excludes additional descendants, and is neither a global hash upper bound nor a removable fraction. Client arcs are overlapping inclusive observations, not savings."
+      }
+    },
+    {
+      "model": "SimpleRegular",
+      "profile": "tlc",
+      "statistics": {
+        "distinct": 12097,
+        "generated": 47584,
+        "depth": 19,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "success_code": 2193,
+      "whole_Ir": 2590214468,
+      "exclusive_Ir": 2590214468,
+      "unattributed_Ir": 0,
+      "unresolved_symbol_Ir": 743,
+      "EOF": true,
+      "positions": [
+        "line"
+      ],
+      "events": [
+        "Ir"
+      ],
+      "profile_sha256": "bd1fd6d448a8d940a7178b984caaa03e343fcd4e1c9f9d75e9149e14e3334b58",
+      "profile_bytes": 1303164,
+      "cost_table_sha256": "5455faa24d436f0a88928c8b79ea00950e5c9335d677ad3f9396276b3878918b",
+      "original_stream_hashes": {
+        "stdout_sha256": "66de2d00382d43a478e585da5149cada18f7cbe6abcfe06364e19cb304348987",
+        "stderr_sha256": "9de0b28e4698baa7facb6b62d4e4a48e5b538c93eb715a921bf28cd99697b51c",
+        "observation_sha256": "bfc557f5b88d293f27c70a9e399206754102fecb5149f7113fad1c08b6c98dc0",
+        "identity_before_sha256": "bdff05890ff124ab36d03c5706c94f100e5df6cb48b7e014cf5f16af003133e8",
+        "identity_after_sha256": "205bfddc61e677e7a39e767da43e03c2f5bcbf0c575cf3cd668a6743e6bbb582"
+      },
+      "native": {
+        "tag": "current-SimpleRegular-tlc-w1",
+        "started_at": "2026-10-24T23:11:29.315607+00:00",
+        "finished_at": "2026-10-24T23:11:42.990976+00:00",
+        "observed_child_returncode": 0,
+        "externally_censored": false,
+        "driver_interruption": null,
+        "argv_sha256": "98c1fd5723437e1dfb57fee44dca58073dd5f9b56075eba6253b760931fa5b12"
+      },
+      "top_functions_are_selected_not_complete": true,
+      "top_functions": [
+        {
+          "emitted_context_id": 8417,
+          "function": "<dive_eval::core::Core>::eval_inner'2",
+          "exclusive_Ir": 265619714
+        },
+        {
+          "emitted_context_id": 10922,
+          "function": "<dive_value::fp64::TlcFingerprint as dive_value::fp64::Fingerprinter>::extend",
+          "exclusive_Ir": 183901848
+        },
+        {
+          "emitted_context_id": 1208,
+          "function": "mi_free",
+          "exclusive_Ir": 82579555
+        },
+        {
+          "emitted_context_id": 11116,
+          "function": "dive_value::tlc::equals",
+          "exclusive_Ir": 76637787
+        },
+        {
+          "emitted_context_id": 10143,
+          "function": "dive_value::tlc::member'2",
+          "exclusive_Ir": 71591508
+        },
+        {
+          "emitted_context_id": 978,
+          "function": "mi_theap_malloc_aligned",
+          "exclusive_Ir": 70466706
+        },
+        {
+          "emitted_context_id": 10128,
+          "function": "<dive_eval::core::Core>::eval_builtin",
+          "exclusive_Ir": 50364275
+        },
+        {
+          "emitted_context_id": 982,
+          "function": "mi_theap_malloc_zero_aligned_at_generic",
+          "exclusive_Ir": 48414580
+        }
+      ],
+      "exclusive_top24_Ir": 1383097419,
+      "exclusive_remaining_Ir": 1207117049,
+      "literal_aggregated_nodes": 0,
+      "hash_demand_attribution": {
+        "derived_table_sha256": "8fa1cbab9fd6ec0c3f58488eda1da8178aea077c1e95bd6638e1b23269f7d9bd",
+        "derived_table_bytes": 29366,
+        "source_exclusive_Ir": 22429227,
+        "named_function_exclusive_Ir": 2880487,
+        "source_named_overlap_Ir": 508224,
+        "source_and_named_union_Ir": 24801490,
+        "union_remaining_Ir": 2565412978,
+        "immediate_arc_count": 13,
+        "named_functions": [
+          {
+            "function": "<dive_value::value::Set>::from_sorted",
+            "emitted_context_id": 8040,
+            "exclusive_Ir": 2879254
+          },
+          {
+            "function": "<dive_value::value::Fcn>::general",
+            "emitted_context_id": 10698,
+            "exclusive_Ir": 1233
+          }
+        ],
+        "selected_constructor_client_arcs": [
+          {
+            "caller": "<dive_value::value::Value>::set_raw",
+            "caller_context_id": 10604,
+            "callee": "<dive_value::value::Set>::from_sorted",
+            "callee_context_id": 8040,
+            "reported_calls": 24194,
+            "reported_inclusive_Ir": 9265384
+          }
+        ],
+        "scope": "Source/function union includes other construction work, excludes additional descendants, and is neither a global hash upper bound nor a removable fraction. Client arcs are overlapping inclusive observations, not savings."
+      }
+    },
+    {
+      "model": "MCbtree",
+      "profile": "tlc",
+      "statistics": {
+        "distinct": 21364,
+        "generated": 127825,
+        "depth": 24,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "success_code": 2193,
+      "whole_Ir": 18268019541,
+      "exclusive_Ir": 18268019541,
+      "unattributed_Ir": 0,
+      "unresolved_symbol_Ir": 737,
+      "EOF": true,
+      "positions": [
+        "line"
+      ],
+      "events": [
+        "Ir"
+      ],
+      "profile_sha256": "c7f5cceed424aaac6cae7e777fd596a0a1ff7f3bd6f6c45f6569a2419cb1cf94",
+      "profile_bytes": 1578637,
+      "cost_table_sha256": "d311931c43b7ab0268a1cfea2a535c566673cd3fb5f8754ff5ea480ec9eb1357",
+      "original_stream_hashes": {
+        "stdout_sha256": "7ea784aa6faabc1d5e7456a145be51a115e8aad2959018ae92b22d1811e267bf",
+        "stderr_sha256": "8ef086579dde2d85470690f3a6d2795bd3897a63a86b43cc2543759298a3ec65",
+        "observation_sha256": "713ce59a1f756cc4fe88887bebcf621bd7156b1cc3fcf26dc3d3f08f7a2fc098",
+        "identity_before_sha256": "178f3ebfe0a3ef8fc2200dbfd993d65916e470b8e59c5330c7711a8fd9d38bb2",
+        "identity_after_sha256": "ee332798b8cfc69706459d8fb0b81f30df47b44f624de8029186c74dc464250c"
+      },
+      "native": {
+        "tag": "current-MCbtree-tlc-w1",
+        "started_at": "2026-10-24T23:11:48.752172+00:00",
+        "finished_at": "2026-10-24T23:13:09.925976+00:00",
+        "observed_child_returncode": 0,
+        "externally_censored": false,
+        "driver_interruption": null,
+        "argv_sha256": "c1043e23d98b5da734394c519e33b4f2e2cd718a74facd3b02e45e83634245bd"
+      },
+      "top_functions_are_selected_not_complete": true,
+      "top_functions": [
+        {
+          "emitted_context_id": 12572,
+          "function": "<dive_value::fp64::TlcFingerprint as dive_value::fp64::Fingerprinter>::extend",
+          "exclusive_Ir": 3519000010
+        },
+        {
+          "emitted_context_id": 9397,
+          "function": "<dive_eval::core::Core>::eval_inner'2",
+          "exclusive_Ir": 1714292640
+        },
+        {
+          "emitted_context_id": 11546,
+          "function": "dive_value::tlc::equals",
+          "exclusive_Ir": 554871028
+        },
+        {
+          "emitted_context_id": 1208,
+          "function": "mi_free",
+          "exclusive_Ir": 492759287
+        },
+        {
+          "emitted_context_id": 978,
+          "function": "mi_theap_malloc_aligned",
+          "exclusive_Ir": 412856494
+        },
+        {
+          "emitted_context_id": 8852,
+          "function": "<dive_value::value::Set>::from_sorted",
+          "exclusive_Ir": 329117200
+        },
+        {
+          "emitted_context_id": 8578,
+          "function": "core::ptr::drop_glue::<dive_value::value::Value>",
+          "exclusive_Ir": 302164791
+        },
+        {
+          "emitted_context_id": 10538,
+          "function": "<dive_eval::env::Env>::bind",
+          "exclusive_Ir": 298095432
+        }
+      ],
+      "exclusive_top24_Ir": 11072412480,
+      "exclusive_remaining_Ir": 7195607061,
+      "literal_aggregated_nodes": 0,
+      "hash_demand_attribution": {
+        "derived_table_sha256": "79e2e3065e7740c812cd19192fde458b53693ab8f9bac0ffcd6920865218b7b1",
+        "derived_table_bytes": 42591,
+        "source_exclusive_Ir": 81682563,
+        "named_function_exclusive_Ir": 368274517,
+        "source_named_overlap_Ir": 63133328,
+        "source_and_named_union_Ir": 386823752,
+        "union_remaining_Ir": 17881195789,
+        "immediate_arc_count": 25,
+        "named_functions": [
+          {
+            "function": "<dive_value::value::Set>::from_sorted",
+            "emitted_context_id": 8852,
+            "exclusive_Ir": 329117200
+          },
+          {
+            "function": "<dive_value::value::Fcn>::tuple_as",
+            "emitted_context_id": 11674,
+            "exclusive_Ir": 38539383
+          },
+          {
+            "function": "<dive_value::value::Fcn>::general",
+            "emitted_context_id": 12426,
+            "exclusive_Ir": 617934
+          }
+        ],
+        "selected_constructor_client_arcs": [
+          {
+            "caller": "<dive_value::value::Value>::set_raw",
+            "caller_context_id": 9612,
+            "callee": "<dive_value::value::Set>::from_sorted",
+            "callee_context_id": 8852,
+            "reported_calls": 1270266,
+            "reported_inclusive_Ir": 492278580
+          },
+          {
+            "caller": "dive_value::ops::intersect",
+            "caller_context_id": 12934,
+            "callee": "<dive_value::value::Set>::from_sorted",
+            "callee_context_id": 8852,
+            "reported_calls": 1081366,
+            "reported_inclusive_Ir": 428548385
+          }
+        ],
+        "scope": "Source/function union includes other construction work, excludes additional descendants, and is neither a global hash upper bound nor a removable fraction. Client arcs are overlapping inclusive observations, not savings."
+      }
+    },
+    {
+      "model": "GameOfLife",
+      "profile": "tlc",
+      "statistics": {
+        "distinct": 512,
+        "generated": 1024,
+        "depth": 1,
+        "initial_generated": 512,
+        "left_on_queue": 0
+      },
+      "success_code": 2193,
+      "whole_Ir": 1138478670,
+      "exclusive_Ir": 1138478670,
+      "unattributed_Ir": 0,
+      "unresolved_symbol_Ir": 743,
+      "EOF": true,
+      "positions": [
+        "line"
+      ],
+      "events": [
+        "Ir"
+      ],
+      "profile_sha256": "063dd99d2eca118e6ae751a99abf53158493bb3578ba6c4341b312051803ea40",
+      "profile_bytes": 1210119,
+      "cost_table_sha256": "eeaeffc40c485724c5a51a8e75a45e535e65c0acb762b3268d08e85a033623dc",
+      "original_stream_hashes": {
+        "stdout_sha256": "9f13f128e9f0cb0e3edd453599e2f44ea62f917f5b70b92ca2b2e134366807b1",
+        "stderr_sha256": "57fe8a5ebfe00f5f812ddfa9e14d8d2d501e150babb5f8d2cbcc2acfafe059ed",
+        "observation_sha256": "513a80f99c1c8c895e418a76872489e7de1410c01cea68f3951e002db878f808",
+        "identity_before_sha256": "54daf671e63a130219a645df4109f1c6e24e0f36ebd43d6b442f5c040de11d78",
+        "identity_after_sha256": "d431d530491971d5ed5ed902ac3f5d47d71b9ecb3a39b5c98bb58f7fa6d96589"
+      },
+      "native": {
+        "tag": "current-GameOfLife-tlc-w1",
+        "started_at": "2026-10-24T23:13:15.744833+00:00",
+        "finished_at": "2026-10-24T23:13:22.793569+00:00",
+        "observed_child_returncode": 0,
+        "externally_censored": false,
+        "driver_interruption": null,
+        "argv_sha256": "483cc36aca4485988446f4509e4a6b96c9459501b4203430005e88c214e28ea9"
+      },
+      "top_functions_are_selected_not_complete": true,
+      "top_functions": [
+        {
+          "emitted_context_id": 8031,
+          "function": "<dive_eval::core::Core>::eval_inner'2",
+          "exclusive_Ir": 152516375
+        },
+        {
+          "emitted_context_id": 1208,
+          "function": "mi_free",
+          "exclusive_Ir": 36993940
+        },
+        {
+          "emitted_context_id": 978,
+          "function": "mi_theap_malloc_aligned",
+          "exclusive_Ir": 35462744
+        },
+        {
+          "emitted_context_id": 8222,
+          "function": "<dive_eval::env::Env>::bind",
+          "exclusive_Ir": 29514152
+        },
+        {
+          "emitted_context_id": 8041,
+          "function": "<dive_eval::core::Core>::eval_std'2",
+          "exclusive_Ir": 25728000
+        },
+        {
+          "emitted_context_id": 10466,
+          "function": "dive_value::tlc::equals",
+          "exclusive_Ir": 24268400
+        },
+        {
+          "emitted_context_id": 7932,
+          "function": "core::ptr::drop_glue::<dive_eval::env::Sv>",
+          "exclusive_Ir": 23841246
+        },
+        {
+          "emitted_context_id": 8246,
+          "function": "<dive_value::value::Fcn>::tuple_as",
+          "exclusive_Ir": 22166926
+        }
+      ],
+      "exclusive_top24_Ir": 620640670,
+      "exclusive_remaining_Ir": 517838000,
+      "literal_aggregated_nodes": 0,
+      "hash_demand_attribution": {
+        "derived_table_sha256": "cda03564ed91672ede5b3d252a0156ea0d0af22711f47a1450629ae94fa08b49",
+        "derived_table_bytes": 29974,
+        "source_exclusive_Ir": 12577419,
+        "named_function_exclusive_Ir": 35074270,
+        "source_named_overlap_Ir": 5931832,
+        "source_and_named_union_Ir": 41719857,
+        "union_remaining_Ir": 1096758813,
+        "immediate_arc_count": 22,
+        "named_functions": [
+          {
+            "function": "<dive_value::value::Set>::from_sorted",
+            "emitted_context_id": 7546,
+            "exclusive_Ir": 12368720
+          },
+          {
+            "function": "<dive_value::value::Fcn>::tuple_as",
+            "emitted_context_id": 8246,
+            "exclusive_Ir": 22166926
+          },
+          {
+            "function": "<dive_value::value::Fcn>::general",
+            "emitted_context_id": 10176,
+            "exclusive_Ir": 538624
+          }
+        ],
+        "selected_constructor_client_arcs": [
+          {
+            "caller": "<dive_value::value::Value>::set_raw",
+            "caller_context_id": 8270,
+            "callee": "<dive_value::value::Set>::from_sorted",
+            "callee_context_id": 7546,
+            "reported_calls": 41472,
+            "reported_inclusive_Ir": 16022910
+          }
+        ],
+        "scope": "Source/function union includes other construction work, excludes additional descendants, and is neither a global hash upper bound nor a removable fraction. Client arcs are overlapping inclusive observations, not savings."
+      }
+    },
+    {
+      "model": "EWD998PCal",
+      "profile": "tlc",
+      "statistics": {
+        "distinct": 20870,
+        "generated": 168292,
+        "depth": 28,
+        "initial_generated": 8,
+        "left_on_queue": 0
+      },
+      "success_code": 2193,
+      "whole_Ir": 47594026343,
+      "exclusive_Ir": 47594026343,
+      "unattributed_Ir": 0,
+      "unresolved_symbol_Ir": 743,
+      "EOF": true,
+      "positions": [
+        "line"
+      ],
+      "events": [
+        "Ir"
+      ],
+      "profile_sha256": "2e4cccad30c213e037476318b0381bf40b9f61748ffae5b8b67088e53f8314c9",
+      "profile_bytes": 1713454,
+      "cost_table_sha256": "377d2074220ffbd2a149273ba3c13e6f784fba1f90f0bcdff62368f8fc4e4dcf",
+      "original_stream_hashes": {
+        "stdout_sha256": "db937d1eab459e948d011f40520d6a36d420147876d17f20aa0b5f7e292fe9df",
+        "stderr_sha256": "6599da82889bf0769d1656f306539510dfe6703328cd744d99e53e3d509a53b2",
+        "observation_sha256": "8ecc81653a57f2ffdafcac3fa195156c2635fc72d07fad8ac81edbece120e5bd",
+        "identity_before_sha256": "155b53608b6b7ed75d4693a6cf2f053225f916423d87b5c8187ad397a235fe8b",
+        "identity_after_sha256": "9b9cd3737aae8cba24769a3e3306421d80b97b810099a52c5ad8e1413f9a4d35"
+      },
+      "native": {
+        "tag": "current-EWD998PCal-tlc-w1",
+        "started_at": "2026-10-24T23:13:28.518020+00:00",
+        "finished_at": "2026-10-24T23:18:21.286946+00:00",
+        "observed_child_returncode": 0,
+        "externally_censored": false,
+        "driver_interruption": null,
+        "argv_sha256": "20b29c132c66924eb23ae88b4f4a57b1584d29452884d81c24309cf6aca9b879"
+      },
+      "top_functions_are_selected_not_complete": true,
+      "top_functions": [
+        {
+          "emitted_context_id": 9417,
+          "function": "<dive_eval::core::Core>::eval_inner'2",
+          "exclusive_Ir": 6445677930
+        },
+        {
+          "emitted_context_id": 1208,
+          "function": "mi_free",
+          "exclusive_Ir": 1643524570
+        },
+        {
+          "emitted_context_id": 978,
+          "function": "mi_theap_malloc_aligned",
+          "exclusive_Ir": 1591111476
+        },
+        {
+          "emitted_context_id": 10582,
+          "function": "<dive_eval::env::Env>::bind",
+          "exclusive_Ir": 1105162689
+        },
+        {
+          "emitted_context_id": 9538,
+          "function": "core::ptr::drop_glue::<dive_eval::env::Sv>",
+          "exclusive_Ir": 1012476049
+        },
+        {
+          "emitted_context_id": 1152,
+          "function": "_mi_page_malloc_zero",
+          "exclusive_Ir": 843303987
+        },
+        {
+          "emitted_context_id": 8740,
+          "function": "core::ptr::drop_glue::<dive_value::value::Value>",
+          "exclusive_Ir": 761402708
+        },
+        {
+          "emitted_context_id": 9010,
+          "function": "<dive_value::value::Value>::hash64",
+          "exclusive_Ir": 761283310
+        }
+      ],
+      "exclusive_top24_Ir": 22700753162,
+      "exclusive_remaining_Ir": 24893273181,
+      "literal_aggregated_nodes": 0,
+      "hash_demand_attribution": {
+        "derived_table_sha256": "ebb07aeadaa52d7a6cb8ffc475c59d90b066000e2d1c1c071b010822d3454895",
+        "derived_table_bytes": 38590,
+        "source_exclusive_Ir": 567935932,
+        "named_function_exclusive_Ir": 1499692831,
+        "source_named_overlap_Ir": 220879297,
+        "source_and_named_union_Ir": 1846749466,
+        "union_remaining_Ir": 45747276877,
+        "immediate_arc_count": 25,
+        "named_functions": [
+          {
+            "function": "<dive_value::value::Set>::from_sorted",
+            "emitted_context_id": 8996,
+            "exclusive_Ir": 689436027
+          },
+          {
+            "function": "<dive_value::value::Fcn>::record",
+            "emitted_context_id": 12016,
+            "exclusive_Ir": 534155151
+          },
+          {
+            "function": "<dive_value::value::Fcn>::general",
+            "emitted_context_id": 12078,
+            "exclusive_Ir": 204960127
+          },
+          {
+            "function": "<dive_value::value::Fcn>::tuple_as",
+            "emitted_context_id": 12124,
+            "exclusive_Ir": 71141526
+          }
+        ],
+        "selected_constructor_client_arcs": [
+          {
+            "caller": "<dive_eval::core::Core>::domain",
+            "caller_context_id": 12454,
+            "callee": "<dive_value::value::Set>::from_sorted",
+            "callee_context_id": 8996,
+            "reported_calls": 4120915,
+            "reported_inclusive_Ir": 2143440323
+          }
+        ],
+        "scope": "Source/function union includes other construction work, excludes additional descendants, and is neither a global hash upper bound nor a removable fraction. Client arcs are overlapping inclusive observations, not savings."
+      }
+    }
+  ],
+  "limits": [
+    "No candidate comparison, gain, removable cost fraction or exact cache hit/miss rate.",
+    "No parity/trace-validation, TLC-throughput, wall-time, quiet-host or scaling claim.",
+    "Successful models do not measure actual error paths.",
+    "Required provider callbacks, normalization, live predecessor versions and control/guard work cannot be removed merely because they occur under a hot function."
+  ],
+  "separate_failed_startup": {
+    "source_packet": "v2",
+    "reason": "missing manifest source_trees.current key",
+    "native_stages": 0,
+    "effect": "HOLD preserved; no compiler/model/profile samples; separate from this complete v3 source campaign.",
+    "aws_epoch": "v1"
+  },
+  "build_native": {
+    "tag": "current-profiling-build",
+    "started_at": "2026-10-24T23:02:58.883849+00:00",
+    "finished_at": "2026-10-24T23:04:35.997556+00:00",
+    "observed_child_returncode": 0,
+    "externally_censored": false,
+    "driver_interruption": null,
+    "argv_sha256": "e3a1f050ab3bbff2beb954a7a796a914f7508ee6be5e6ab6f0c31f375db38e7d"
+  },
+  "additional_attribution": {
+    "source_check_sha256": "b2f7c5b8f23f866a50a799d1c1be2f86767ed3c3ba53ab33d2836d2955a4da9d",
+    "source_position_proof_sha256": "07ad0f7b65d9105f95af5bdb33892036d769f9c9c43c6fe1ad36fe3996f0cd59",
+    "transport_sha256": "cd238eaf7e79388b63ba5fd71eaa11621a92d1391f34a7b6534ae18fd72362b7",
+    "independent_source_review_sha256": "17d8a584445c43036987b196d25958fb17a23d0b8b8dabaccd31fa687cdc90ee",
+    "independent_compact_review_sha256": "dba16f900408491adbcf791b89718a1932be3dcdad2687dfaceb1fb49d75fdd3",
+    "scope": "Same8 original S3 Callgrind/stderr objects, full qualified parser reproduced unchanged original tables; no new native/profile/candidate run. Source rows use current inline file/line, compressed IDs remain profile-scoped. Exclusive overlap subtracted; immediate arc costs remain separate.",
+    "pre_raw_launch_findings_preserved": [
+      "Collector import-path preflight",
+      "Python3.9 zip(strict) incompatibility; execution used Python3.12 unchanged source"
+    ],
+    "new_profile_or_native_runs": 0
+  },
+  "decision": {
+    "hash_demand_runtime_prototype": "REJECT_BEFORE_IMPLEMENTATION",
+    "reason": "No defensible eligible >=5% case. Constructor descendants are largely retained allocation/copy/cache initialization; source union is not a global bound. Never-hashed incidence unknown; provider timing and layout checks impose additional costs.",
+    "not_runtime_admission": "No implementation or >=5% forecast. All8-pair5%GM/1%percell criteria remain; do not infer removability from allocator totals or add inclusive arcs.",
+    "separate_followup": "Ready-set source feasibility is a separate developing design, not a measured result or admitted runtime prototype."
+  },
+  "compute_cleanup": {
+    "status": "INSTANCE_ROOT_VOLUME_AND_SECURITY_GROUP_DELETION_SEPARATELY_VERIFIED",
+    "verified_at_utc": "2026-10-24T23:33:31Z",
+    "S3_originals_retained": true,
+    "review_scope": "Cleanup was reported separately; this author performed no SDK calls.",
+    "live_Dive_compute_empty_confirmed_minute_utc": "2026-10-24T23:36Z"
+  }
+}
