@@ -132,6 +132,13 @@ reports no search statistics or used workers. The additive Rust
 `Recipe::bind_controlled` entry points expose this capability separately from
 `BindOptions`; their uncontrolled counterparts retain their original behavior.
 
+Optional worker-selection proof planning also preserves its original resource
+or internal error through controlled binding, including preceding startup
+output. The legacy boxed `bind` and `Recipe::bind` errors cannot represent that
+exception channel and retain their fail-closed bug wrapper. Rust integrations
+that need the original intrinsic cause should use the controlled entry points
+or `Recipe::bind_fallible`.
+
 Producer `ASSUME` evaluation in safety checking and graph capture uses the
 armed startup control at the same amortized evaluator-loop checkpoints.
 Interruption reports `stopped` in `check-startup`, retaining preceding output
