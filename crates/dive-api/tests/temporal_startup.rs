@@ -42,9 +42,8 @@ fn zero_document(actual: &Value, expected: &Value) {
     assert!(actual["property"].is_null());
     assert!(actual["counterexample"].is_null());
     assert!(actual["error_site"].is_null());
-    for field in ["distinct", "generated", "left_on_queue", "depth"] {
-        assert!(actual["statistics"][field].is_null(), "{actual}");
-    }
+    assert!(actual["statistics"].is_null(), "{actual}");
+    assert_eq!(actual["options"]["workers"]["used"], 0);
     assert_eq!(actual["execution"]["capture_completed"], false);
     assert_eq!(actual["output"], serde_json::json!([]));
 }

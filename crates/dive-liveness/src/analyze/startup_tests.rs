@@ -168,7 +168,7 @@ fn shared_actual_conversion_keeps_legacy_errors_and_effect_refusals() -> TestRes
                 assert_eq!(a, b);
             } else {
                 assert!(matches!(actual, PlanningError::Unsupported(_)));
-                assert!(model.evaluator.take_output().is_empty());
+                assert_eq!(model.evaluator.take_output(), Vec::<String>::new());
             }
         }
     }
