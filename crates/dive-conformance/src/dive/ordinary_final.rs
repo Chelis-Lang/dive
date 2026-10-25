@@ -235,8 +235,8 @@ fn finite_error(value: &Value, physical_exit: Option<i32>) -> Result<Option<Fiel
     {
         return Err("contradictory finite temporal error endpoint report".into());
     }
-    let document = dive_trace::TraceDoc::from_json(&value["counterexample"]["trace"])?;
-    let Some(dive_trace::Ending::TemporalStateError { ec, .. }) = &document.ending else {
+    let document = dive_api::trace::TraceDoc::from_json(&value["counterexample"]["trace"])?;
+    let Some(dive_api::trace::Ending::TemporalStateError { ec, .. }) = &document.ending else {
         return Err("finite temporal error needs its source-bound endpoint request".into());
     };
     if ec != expected

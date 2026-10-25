@@ -2,7 +2,7 @@
 //! No checker graph, producer plan/cache, occurrence selector or boolean is read.
 
 use crate::endpoint::TemporalStateEndpoint;
-use dive_eval::{ConstBinding, EvalError, Scope, SlotView, St};
+use dive_eval::{ConstBinding, EvalError, SlotView, St};
 use dive_ir::{Arg, Expr, JunctionKind, Level, OpRef};
 use dive_model::{Model, Pred};
 use dive_value::Value;

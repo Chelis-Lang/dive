@@ -221,13 +221,10 @@ fn fresh_recipe_binding_keeps_typed_startup_and_predicate_only_scope() {
 
 #[test]
 fn fallible_recipe_retains_real_startup_depth_exhaustion_and_legacy_stays_unchanged() {
-    let nested = format!("{}1{}", "<< ".repeat(32), " >>".repeat(32));
-    let source = format!(
-        "---- MODULE ResourceBinding ----\nVARIABLE x\nD == {nested}\nInit == x=0\nNext == x'=x\n====\n"
-    );
+    let source = "---- MODULE ResourceBinding ----\nEXTENDS Naturals\nVARIABLE x\nRECURSIVE F(_)\nF(n) == IF n=0 THEN 1 ELSE F(n-1)\nD == F(32)\nInit == x=0\nNext == x'=x\n====\n";
     let analysis = dive_sema::analyze_source(
         "ResourceBinding.tla",
-        &source,
+        source,
         &dive_sema::Options::default(),
     );
     assert!(analysis.accepted(), "{analysis:?}");
