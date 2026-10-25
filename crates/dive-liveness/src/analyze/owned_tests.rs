@@ -319,3 +319,234 @@ fn actual_init_membership_and_quantified_cartesian_generation_preserve_canonical
         assert_eq!(complete.stats.distinct, 6);
     }
 }
+
+fn assert_same_atom_refusal(actual: &DetailedFailure, legacy: &DetailedFailure) {
+    assert!(matches!(
+        actual.failure().error,
+        super::super::AnalysisError::Atom { .. }
+    ));
+    assert_eq!(actual.failure().stage, super::super::Stage::Atoms);
+    assert_eq!(actual.failure().stage, legacy.failure().stage);
+    assert_eq!(
+        actual.failure().error.to_string(),
+        legacy.failure().error.to_string()
+    );
+    assert_eq!(
+        actual.failure().exploration.as_ref().map(|e| e.stats),
+        legacy.failure().exploration.as_ref().map(|e| e.stats)
+    );
+    let actual = actual.state_evaluation().expect("actual legacy atom error");
+    let legacy = legacy
+        .state_evaluation()
+        .expect("independent legacy atom error");
+    assert_eq!(actual.cause(), legacy.cause());
+    assert_eq!(actual.site(), legacy.site());
+    assert!(actual.capture_row().is_none());
+    assert!(legacy.capture_row().is_none());
+}
+
+#[test]
+fn due_frontier_nonbooleans_keep_legacy_refusals_instead_of_prefix_words() {
+    for property in [
+        "<>[](IF x=0 THEN TRUE ELSE 1)",
+        "[]<>(IF x=0 THEN FALSE ELSE 1)",
+    ] {
+        let (ir, config) = input(
+            &format!("Init == x=0\nNext == IF x<2 THEN x'=x+1 ELSE UNCHANGED x\nP == {property}"),
+            "P",
+        );
+        for options in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
+            let Dispatch::Temporal(runtime) =
+                dispatch_controlled(&ir, &config, &options, control(&options))
+                    .expect("eligible")
+                    .expect("bind")
+            else {
+                panic!("temporal")
+            };
+            demand_admitted(&runtime);
+            let schedule = periodic::Schedule {
+                min_states: 2,
+                growth_factor: 1,
+            };
+            let actual = runtime
+                .periodic_analysis(
+                    Limits::default(),
+                    AcceptancePolicy::Legacy,
+                    GraphLabelPolicy::NoCellLimit,
+                    schedule,
+                )
+                .expect_err("no prefix word before frontier error");
+            let model = legacy_model(&ir, &config, &options);
+            let legacy = periodic::analyze_periodic_with_policies(
+                &model,
+                &options,
+                Limits::default(),
+                AcceptancePolicy::Legacy,
+                GraphLabelPolicy::NoCellLimit,
+                schedule,
+            )
+            .expect_err("legacy frontier error");
+            assert_same_atom_refusal(&actual.failure, &legacy.failure);
+            assert_eq!(actual.checks, legacy.checks);
+            assert_eq!(actual.capture_completed, Some(false));
+            assert_eq!(actual.capture_completed, legacy.capture_completed);
+            assert_eq!(
+                actual.prefix.as_ref().map(|e| e.stats),
+                legacy.prefix.as_ref().map(|e| e.stats)
+            );
+            assert_eq!(actual.checks.prefixes, 1);
+            assert_eq!(actual.checks.last_size, 2);
+            assert!(!actual.checks.final_check && !actual.checks.exhausted);
+            assert_eq!(
+                actual
+                    .failure
+                    .state_evaluation()
+                    .expect("typed cause")
+                    .site(),
+                super::super::StateEvaluationSite::PeriodicLabels
+            );
+        }
+    }
+}
+
+#[test]
+fn completed_semantic_fallback_keeps_the_independent_legacy_atom_failure() {
+    for property in [
+        "<>[]x",
+        "<>[](IF x=0 THEN TRUE ELSE 1)",
+        "[]<>((1 \\div (x=0))=0)",
+    ] {
+        let (ir, config) = input(
+            &format!("Init == x=0\nNext == x'=1-x\nP == {property}"),
+            "P",
+        );
+        for options in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
+            let Dispatch::Temporal(runtime) =
+                dispatch_controlled(&ir, &config, &options, control(&options))
+                    .expect("eligible")
+                    .expect("bind")
+            else {
+                panic!("temporal")
+            };
+            demand_admitted(&runtime);
+            let actual = runtime
+                .final_analysis(
+                    Limits::default(),
+                    AcceptancePolicy::Legacy,
+                    GraphLabelPolicy::NoCellLimit,
+                )
+                .expect_err("completed legacy semantic refusal");
+            let model = legacy_model(&ir, &config, &options);
+            let legacy = super::super::analyze_final_with_policies(
+                &model,
+                &options,
+                Limits::default(),
+                AcceptancePolicy::Legacy,
+                GraphLabelPolicy::NoCellLimit,
+            )
+            .expect_err("legacy atom refusal");
+            assert_same_atom_refusal(&actual, &legacy);
+            let completed = actual
+                .failure()
+                .exploration
+                .as_ref()
+                .expect("actual full capture");
+            assert_eq!(completed.stats.distinct, 2);
+            assert_eq!(completed.stats.left_on_queue, 0);
+            assert_eq!(
+                actual.state_evaluation().expect("typed atom").site(),
+                super::super::StateEvaluationSite::FinalLabels
+            );
+            if property.contains("div") {
+                assert_eq!(
+                    actual
+                        .state_evaluation()
+                        .expect("real Core")
+                        .core_cause()
+                        .expect("actual Java override error")
+                        .ec(),
+                    dive_eval::Ec::JavaMethodOverride
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn semantic_fallback_continues_the_same_capture_to_later_next_and_invariant_failures() {
+    for (next, invariant, properties) in [
+        ("IF x=0 THEN x'=1 ELSE x'=1 \\div 0", "", "P"),
+        ("x'=x+1", "Inv == x<2", "P\nINVARIANT Inv"),
+    ] {
+        let (ir, config) = input(
+            &format!("Init == x=0\nNext == {next}\n{invariant}\nP == <>[]x"),
+            properties,
+        );
+        for options in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
+            let Dispatch::Temporal(runtime) =
+                dispatch_controlled(&ir, &config, &options, control(&options))
+                    .expect("eligible")
+                    .expect("bind")
+            else {
+                panic!("temporal")
+            };
+            demand_admitted(&runtime);
+            let actual = runtime
+                .final_analysis(
+                    Limits::default(),
+                    AcceptancePolicy::Legacy,
+                    GraphLabelPolicy::NoCellLimit,
+                )
+                .expect_err("later safety event wins");
+            let model = legacy_model(&ir, &config, &options);
+            let legacy = super::super::analyze_final_with_policies(
+                &model,
+                &options,
+                Limits::default(),
+                AcceptancePolicy::Legacy,
+                GraphLabelPolicy::NoCellLimit,
+            )
+            .expect_err("legacy safety event");
+            assert_eq!(actual.failure().stage, super::super::Stage::Capture);
+            assert_eq!(actual.failure().stage, legacy.failure().stage);
+            let (
+                super::super::AnalysisError::Exploration(actual),
+                super::super::AnalysisError::Exploration(legacy),
+            ) = (&actual.failure().error, &legacy.failure().error)
+            else {
+                panic!("original capture failure")
+            };
+            assert_eq!(actual.verdict, legacy.verdict);
+            assert_eq!(actual.stats, legacy.stats);
+            assert_eq!(actual.output, legacy.output);
+            assert_eq!(
+                actual.counterexample.as_ref().map(|c| c
+                    .states
+                    .iter()
+                    .map(|s| &s.values)
+                    .collect::<Vec<_>>()),
+                legacy.counterexample.as_ref().map(|c| c
+                    .states
+                    .iter()
+                    .map(|s| &s.values)
+                    .collect::<Vec<_>>())
+            );
+            assert!(
+                actual
+                    .counterexample
+                    .as_ref()
+                    .is_some_and(|c| !c.states.is_empty())
+            );
+            if invariant.is_empty() {
+                assert!(matches!(
+                    actual.verdict,
+                    dive_check::Verdict::EvaluationError { code: 2179, .. }
+                ));
+            } else {
+                assert!(
+                    matches!(&actual.verdict, dive_check::Verdict::InvariantViolated { property, initial: false } if property == "Inv")
+                );
+            }
+        }
+    }
+}

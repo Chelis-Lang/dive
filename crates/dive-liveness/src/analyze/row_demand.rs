@@ -160,6 +160,7 @@ fn root(
 }
 
 pub(super) struct Cache {
+    active: bool,
     rows: Vec<Option<Vec<u64>>>,
     offsets: Vec<usize>,
     width: usize,
@@ -168,14 +169,24 @@ pub(super) struct Cache {
 impl Cache {
     pub(super) fn new(program: &Program) -> Self {
         Self {
+            active: true,
             rows: Vec::new(),
             offsets: program.offsets.clone(),
             width: program.slots.len(),
         }
     }
 
+    pub(super) fn active(&self) -> bool {
+        self.active
+    }
+
+    fn disable(&mut self) {
+        self.active = false;
+        self.rows = Vec::new();
+    }
+
     pub(super) fn complete(&self, source: usize) -> bool {
-        self.rows.get(source).is_some_and(Option::is_some)
+        self.active && self.rows.get(source).is_some_and(Option::is_some)
     }
 
     pub(super) fn read(
@@ -184,6 +195,9 @@ impl Cache {
         atom: usize,
         source: usize,
     ) -> Result<bool, AnalysisError> {
+        if !self.active {
+            return Err(AnalysisError::Inconsistent(CACHE));
+        }
         let start = *self
             .offsets
             .get(property)
@@ -206,7 +220,10 @@ impl Cache {
     }
 
     fn insert(&mut self, source: usize, values: &[Option<bool>]) -> Result<(), EvalError> {
-        if values.len() != self.width || values.iter().any(Option::is_none) || self.complete(source)
+        if !self.active
+            || values.len() != self.width
+            || values.iter().any(Option::is_none)
+            || self.complete(source)
         {
             return Err(EvalError::bug(CACHE));
         }
@@ -236,6 +253,34 @@ struct Failed {
     global: usize,
     cause: EvalError,
     core: bool,
+}
+
+fn promotable(model: &Model, failed: &Failed) -> bool {
+    if !failed.core
+        || failed.cause.class() != ErrorClass::Eval
+        || !failed.cause.is_eval_exception()
+        || !matches!(
+            failed.cause.ec(),
+            dive_eval::Ec::DivisionByZero | dive_eval::Ec::ModuleEvaluating
+        )
+    {
+        return false;
+    }
+    let Some(node) = failed
+        .cause
+        .origin()
+        .and_then(|origin| model.ir.nodes().get(origin.index()))
+    else {
+        return false;
+    };
+    node.origin
+        .file
+        .and_then(|file| model.ir.files().get(file.index()))
+        .is_some()
+        && node
+            .origin
+            .instance
+            .is_none_or(|def| model.ir.defs().get(def.index()).is_some())
 }
 
 pub(super) struct Observe<'a> {
@@ -317,7 +362,13 @@ impl<'a> Observe<'a> {
 
 impl capture::CheckpointObserver for Observe<'_> {
     fn reached(&mut self, event: capture::ReachedCheckpoint<'_>) -> Result<(), EvalError> {
-        if event.phase() == capture::CheckpointPhase::Init {
+        if event.phase() == capture::CheckpointPhase::Init
+            || !self
+                .cache
+                .lock()
+                .map_err(|_| EvalError::bug("temporal cache lock poisoned"))?
+                .active()
+        {
             return Ok(());
         }
         let mut values = Vec::new();
@@ -345,15 +396,30 @@ impl capture::CheckpointObserver for Observe<'_> {
                         cause: cause.clone(),
                         core,
                     });
-                    if core {
-                        Err(cause)
-                    } else {
-                        Err(EvalError::unsupported(cause.to_string()))
-                    }
+                    Err(cause)
                 }
             }
         });
-        outcome?;
+        if let Err(cause) = outcome {
+            // A semantic refusal cannot change the old label schedule. The
+            // private canonical proof makes prior optional work effect/cache
+            // stable; abandon its truth without restarting exploration.
+            let Some(failed) = self.failed.take() else {
+                return Err(cause);
+            };
+            if promotable(self.model, &failed) {
+                self.failed = Some(failed);
+                return Err(cause);
+            }
+            if !matches!(cause.class(), ErrorClass::Eval | ErrorClass::Unsupported) {
+                return Err(cause);
+            }
+            self.cache
+                .lock()
+                .map_err(|_| EvalError::bug("temporal cache lock poisoned"))?
+                .disable();
+            return Ok(());
+        }
         self.cache
             .lock()
             .map_err(|_| EvalError::bug("temporal cache lock poisoned"))?
@@ -372,6 +438,9 @@ impl Projection {
         graph: &capture::BehaviorGraph,
         cache: &Cache,
     ) -> Result<Self, AnalysisError> {
+        if !cache.active() {
+            return Err(AnalysisError::Inconsistent(CACHE));
+        }
         let mut sources = Vec::new();
         let mut mapped = vec![None; graph.states.len()];
         for (source, target) in mapped.iter_mut().enumerate() {

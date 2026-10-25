@@ -83,7 +83,6 @@ fn a_due_prefix_inherits_its_budget_and_parent_reports_a_typed_stop() {
             ..EvaluationErrors::default()
         },
         decision: None,
-        cache: None,
     };
     // Keep capture itself unlimited so it deterministically reaches a due
     // callback with the already-expired temporal budget. The production path

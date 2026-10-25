@@ -129,7 +129,6 @@ struct Observe<'a> {
     stage: Stage,
     evaluations: EvaluationErrors,
     decision: Option<Result<CandidateWord, AnalysisError>>,
-    cache: Option<&'a std::sync::Mutex<super::row_demand::Cache>>,
 }
 impl capture::Observer for Observe<'_> {
     fn level_done(
@@ -153,12 +152,8 @@ impl capture::Observer for Observe<'_> {
         // budgets do not cross that boundary; install the same armed signal
         // only while a due prefix analysis runs.
         let _scope = crate::budget::enter(self.budget);
-        let Ok(cached) = self.cache.map(std::sync::Mutex::lock).transpose() else {
-            self.decision = Some(Err(AnalysisError::Inconsistent(
-                "temporal cache lock poisoned",
-            )));
-            return Ok(());
-        };
+        // Due prefixes retain legacy frontier labels and attribution. A row
+        // cache covers expanded sources only and cannot replace that demand.
         // Only the first property can decide a prefix: a word for it on a
         // subgraph is a word on the complete graph, which the final search
         // would also report first. Later properties wait for the final check.
@@ -173,7 +168,7 @@ impl capture::Observer for Observe<'_> {
             &mut self.stage,
             &mut self.evaluations,
             &self.control,
-            cached.as_deref(),
+            None,
         ) {
             Ok(None) => {}
             Ok(Some(word)) => self.decision = Some(Ok(word)),
@@ -485,7 +480,6 @@ fn periodic_unbudgeted(
             ..EvaluationErrors::default()
         },
         decision: None,
-        cache: cache.as_ref(),
     };
     let captured = if let (Some(program), Some(cache)) = (&demand, &cache) {
         let mut errors = EvaluationErrors {
@@ -590,7 +584,8 @@ fn periodic_unbudgeted(
                         Some(true),
                         observer.checks,
                     )
-                })?;
+                })?
+                .filter(|cache| cache.active());
             let word = analyze_captured(
                 model,
                 &plans,

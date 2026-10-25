@@ -1183,6 +1183,7 @@ fn analyze_unbudgeted(
                     .map_err(|_| AnalysisError::Inconsistent("temporal cache lock poisoned"))
             })
             .transpose()?
+            .filter(|cache| cache.active())
             .as_deref(),
     )
     .inspect_err(|_| {
@@ -1313,6 +1314,7 @@ fn analyze_captured(
     cache: Option<&row_demand::Cache>,
 ) -> Result<Option<CandidateWord>, AnalysisError> {
     *stage = Stage::Product;
+    let cache = cache.filter(|cache| cache.active());
     let original = product::BehaviorView::checked_captured(captured)
         .map_err(|e| AnalysisError::Product(product::ProductError::Shape(e.to_string())))?;
     let projection = cache

@@ -2270,10 +2270,13 @@ binds and keeps its fresh runtime private; public host replacement and borrowed
 model analysis retain their old behavior. It uses the existing source-binding
 dispatch and native permission hooks rather than assuming a host lease.
 
-Completed-row projection removes only zero-outdegree unexpanded frontier
-vertices and their incoming edges, preserving all reachable infinite walks.
-Explicit maps retain original vertices and parallel edge occurrences; backend
-labels and property attribution consume actual cached truths. A matched typed
+Cached labels and attribution are used only after complete capture, with
+explicit maps retaining original vertices and parallel edge occurrences. Every
+due prefix check keeps the original frontier graph, labels and attribution;
+zero-outdegree frontier projection alone would not preserve eager label errors.
+An unpromotable semantic row failure clears all cached truth and continues the
+same capture without restarting or changing its schedule. Resource, interruption
+and internal errors do not take this fallback. A matched typed
 capture decision grants an ordinary 2179/2182 classification only after fresh
 typed and serialized finite-behavior validation. Residual Init/zero-solution
 startup, nonboolean, resource and unproved contexts gain no such authority.

@@ -7,6 +7,7 @@ use std::sync::Arc;
 #[test]
 fn incomplete_and_duplicate_rows_never_supply_default_false_truth() {
     let mut cache = Cache {
+        active: true,
         rows: Vec::new(),
         offsets: vec![0, 1],
         width: 2,
@@ -67,6 +68,7 @@ fn frontier_projection_preserves_duplicate_edge_occurrences_and_original_ids() {
         concrete: vec![Vec::new(), Vec::new(), Vec::new()],
     };
     let cache = Cache {
+        active: true,
         rows: vec![Some(vec![1]), None, Some(vec![0])],
         offsets: vec![0],
         width: 1,
@@ -92,4 +94,33 @@ fn frontier_projection_preserves_duplicate_edge_occurrences_and_original_ids() {
             );
         }
     }
+}
+
+#[test]
+fn disabling_discards_all_rows_and_cannot_supply_projection_or_truth() {
+    let mut cache = Cache {
+        active: true,
+        rows: Vec::new(),
+        offsets: vec![0],
+        width: 1,
+    };
+    cache.insert(0, &[Some(true)]).expect("first actual row");
+    cache.insert(1, &[Some(false)]).expect("second actual row");
+    assert!(cache.complete(0) && cache.complete(1));
+    cache.disable();
+    assert!(!cache.active());
+    assert!(cache.rows.is_empty());
+    assert!(!cache.complete(0) && !cache.complete(1));
+    assert!(cache.read(0, 0, 0).is_err());
+    assert!(cache.read(0, 0, 1).is_err());
+    assert!(cache.insert(2, &[Some(true)]).is_err());
+    let graph = capture::BehaviorGraph {
+        states: vec![Arc::from([Some(dive_value::Value::Int(0))])],
+        roots: vec![0],
+        edges: vec![Vec::new()],
+        concrete: vec![Vec::new()],
+    };
+    assert!(Projection::new(&graph, &cache).is_err());
+    cache.disable();
+    assert!(!cache.active(), "disable is monotone");
 }

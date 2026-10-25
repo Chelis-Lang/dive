@@ -573,9 +573,14 @@ representations without running a predicate or provider. Unknown deferred values
 normalization-sensitive operations, host effects or incomplete coverage retain
 the old route before any new atom call; no model names or invariants grant admission.
 
-Successful source rows retain actual Boolean results. Periodic checking uses
-only completed rows, preserving original vertex and edge-occurrence identities;
-attribution reads those cached results instead of evaluating skipped atoms.
+Successful source rows retain actual Boolean results for analysis after capture
+completes, preserving original vertex and edge-occurrence identities. Every due
+periodic prefix check keeps the original graph, including its frontier labels
+and attribution; it does not consume the row cache. An unpromotable semantic
+atom failure discards all optional cached truth and continues the same capture
+with the original label schedule. Resource, interruption and internal failures
+remain stops. Completed final attribution uses cached results only while that
+cache remains active.
 Ordinary error reporting additionally requires the capture producer's matching
 core cause, original source prefix and statistics, followed by fresh independent
 validation of the finite behavior and an independently reconstructed ordered
