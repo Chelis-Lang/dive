@@ -61,34 +61,48 @@ fn deep_real_storage_and_low_old_work_are_separate_from_run_budgets() {
 
 #[test]
 fn deep_source_transfers_and_real_callback_closures_use_the_iterative_route() {
+    eprintln!("budgeted deep-source diagnostic: before deep input");
     let expression = format!("{}x{}", "<< ".repeat(180), " >>".repeat(180));
     let (ev, def) = input(&format!("P == {expression} = {expression}"));
+    eprintln!("budgeted deep-source diagnostic: after deep input");
     let roots = [root(&ev, def)];
+    eprintln!("budgeted deep-source diagnostic: before old bounded proof");
     assert!(
         ev.canonical_producer_stability(&[], &roots, 100_000)
             .is_none()
     );
+    eprintln!("budgeted deep-source diagnostic: after old bounded proof");
+    eprintln!("budgeted deep-source diagnostic: before budgeted proof");
     assert!(
         ev.canonical_producer_stability_budgeted(&[], &roots, None)
             .expect("deep planning")
             .is_some()
     );
+    eprintln!("budgeted deep-source diagnostic: after budgeted proof");
+    eprintln!("budgeted deep-source diagnostic: before callback input");
     let (ev, def) = input("Less(a,b) == a<b\nP == SortSeq(<<2,1>>,Less) = <<1,2>>");
+    eprintln!("budgeted deep-source diagnostic: after callback input");
     let roots = [root(&ev, def)];
+    eprintln!("budgeted deep-source diagnostic: before old callback proof");
     assert!(
         ev.canonical_producer_stability(&[], &roots, 100_000)
             .is_some()
     );
+    eprintln!("budgeted deep-source diagnostic: after old callback proof");
+    eprintln!("budgeted deep-source diagnostic: before budgeted callback proof");
     assert!(
         ev.canonical_producer_stability_budgeted(&[], &roots, None)
             .expect("actual callback capture proof")
             .is_some()
     );
+    eprintln!("budgeted deep-source diagnostic: after budgeted callback proof");
+    eprintln!("budgeted deep-source diagnostic: before actual callback evaluation");
     assert_eq!(
         ev.eval_def(def, &St::empty())
             .expect("original native callback still runs"),
         Value::TRUE
     );
+    eprintln!("budgeted deep-source diagnostic: after actual callback evaluation");
 }
 
 #[derive(Debug)]
