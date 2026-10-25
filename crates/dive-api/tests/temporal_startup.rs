@@ -89,7 +89,13 @@ fn semantically_true_temporal_forms_keep_their_actual_nonzero_startup_route() ->
                 let report = dive_api::check_file(&request(name, tlc, mode, 1))?;
                 let actual = report.to_json_with_exit_convention(ExitConvention::Tlc);
                 assert_eq!(actual["verdict"], expected["result"]["verdict"]);
-                assert_eq!(actual["tlc"]["code"], expected["result"]["verdict_code"]);
+                if mode == TemporalMode::Ordinary {
+                    assert_eq!(actual["tlc"]["code"], expected["result"]["verdict_code"]);
+                } else {
+                    // Explicit final/short preserves its existing report contract:
+                    // native completion does not claim an ordinary TLC verdict.
+                    assert!(actual["tlc"].is_null());
+                }
                 assert_eq!(actual["exit_code"], 0);
                 for (field, original) in [
                     ("distinct", "distinct_states"),
