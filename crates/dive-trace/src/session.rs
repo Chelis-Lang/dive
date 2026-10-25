@@ -144,7 +144,9 @@ impl Session {
         control: Arc<dyn dive_eval::HostControl>,
     ) -> Result<(Report, Option<TraceDoc>), crate::ValidationRunError> {
         // Retain the owned control until private model/trace owners and the final poll finish.
-        self.read_fallible(doc, Some(&control))
+        let result = self.read_fallible(doc, Some(&control));
+        drop(control);
+        result
     }
 
     /// Validates a document with resource exceptions outside the report.
