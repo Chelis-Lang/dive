@@ -130,7 +130,7 @@ impl ConcreteSubsetStream {
             .target
             .indices
             .try_reserve(allowed.len())
-            .map_err(reservation)?;
+            .map_err(|error| reservation(&error))?;
         let k = current.len();
         let ranks = &mut scratch.target.indices;
         let mut greater = false;
@@ -194,7 +194,7 @@ impl ConcreteSubsetStream {
     }
 }
 
-fn reservation(error: std::collections::TryReserveError) -> ValueError {
+fn reservation(error: &std::collections::TryReserveError) -> ValueError {
     ValueError::new(
         ErrorKind::DiveLimit,
         format!("subset index scratch: {error}"),
@@ -206,7 +206,8 @@ fn copy_indices(
     poll: &mut impl FnMut() -> Result<()>,
 ) -> Result<()> {
     to.clear();
-    to.try_reserve(from.len()).map_err(reservation)?;
+    to.try_reserve(from.len())
+        .map_err(|error| reservation(&error))?;
     for &index in from {
         poll()?;
         to.push(index);
