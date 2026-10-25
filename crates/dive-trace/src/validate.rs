@@ -287,7 +287,7 @@ pub(crate) struct Run<'a> {
     private_init: bool,
     pub(crate) init_incomplete: bool,
     endpoint_prepared: bool,
-    endpoint_resource: Option<(EvalError, Option<usize>, Check)>,
+    endpoint_exception: Option<(EvalError, Option<usize>, Check)>,
     control: Option<Arc<dyn dive_eval::HostControl>>,
 }
 
@@ -318,7 +318,7 @@ impl<'a> Run<'a> {
             private_init: false,
             init_incomplete: false,
             endpoint_prepared: false,
-            endpoint_resource: None,
+            endpoint_exception: None,
             control: None,
         }
     }
@@ -334,7 +334,7 @@ impl<'a> Run<'a> {
             private_init: initial,
             init_incomplete: false,
             endpoint_prepared: false,
-            endpoint_resource: None,
+            endpoint_exception: None,
             control: None,
         }
     }
@@ -937,7 +937,10 @@ impl<'a> Run<'a> {
                 Check::Label,
                 format!("the step is labelled `{name}`, but `{name}` is false on it"),
             )),
-            Err(error) if error.class() == ErrorClass::ResourceLimit && self.endpoint_prepared => {
+            Err(error)
+                if matches!(error.class(), ErrorClass::ResourceLimit | ErrorClass::Bug)
+                    && self.endpoint_prepared =>
+            {
                 Err(self.evaluation_refusal(error, Some(k), Check::Label))
             }
             Err(error) if error.class() == ErrorClass::Interrupted => {
@@ -1001,10 +1004,12 @@ impl<'a> Run<'a> {
 
     fn evaluation_refusal(&mut self, error: EvalError, state: Option<usize>, check: Check) -> Stop {
         // Legacy finite validation keeps its closed report channel. The new
-        // fallible endpoint path retains original resource transport separately
+        // fallible endpoint path retains original resource/bug transport separately
         // and intercepts it before constructing any ValidationReport.
-        if self.endpoint_prepared && error.class() == ErrorClass::ResourceLimit {
-            self.endpoint_resource = Some((error.clone(), state, check));
+        if self.endpoint_prepared
+            && matches!(error.class(), ErrorClass::ResourceLimit | ErrorClass::Bug)
+        {
+            self.endpoint_exception = Some((error.clone(), state, check));
         }
         refused(&error).at(state, check)
     }
@@ -1362,14 +1367,16 @@ fn controlled_report(run: &mut Run<'_>, trace: &Trace) -> Result<Report, Validat
         None
     };
     let result = run.validate_result(trace);
-    if let Some((error, state, check)) = run.endpoint_resource.take() {
-        return Err(ValidationRunError::ResourceLimit {
-            error,
-            progress: ValidationProgress {
-                checks_passed: run.passed,
-                state,
-                check: Some(check),
-            },
+    if let Some((error, state, check)) = run.endpoint_exception.take() {
+        let progress = ValidationProgress {
+            checks_passed: run.passed,
+            state,
+            check: Some(check),
+        };
+        return Err(if error.class() == ErrorClass::ResourceLimit {
+            ValidationRunError::ResourceLimit { error, progress }
+        } else {
+            ValidationRunError::EvaluationFailure { error, progress }
         });
     }
     let mut validation = match result {
