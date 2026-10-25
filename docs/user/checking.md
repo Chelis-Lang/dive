@@ -345,6 +345,8 @@ assume a type invariant, remove other sequential causes, or change evaluation,
 error behavior or resource limits. Replay and checkpoint admission retain their
 conservative source inventory. Requested and used widths remain reported;
 the source proof is not a worker-utilization or performance measurement.
+See [ADR 0114](../decisions/0114-proven-runtime-name-free-concatenation.md) for the
+proof and source-inventory boundary.
 
 Pure safety symmetry retains concrete counterexamples while canonicalizing
 visited keys. Unsupported representative/startup/value interactions refuse.
