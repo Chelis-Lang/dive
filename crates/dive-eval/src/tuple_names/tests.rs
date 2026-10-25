@@ -45,7 +45,7 @@ fn closed_comparison_actuals_and_forwarding_do_not_execute_callbacks() {
     ] {
         let (ev, pred) = input(body);
         let count = Arc::new(AtomicUsize::new(0));
-        let ev = ev.with_host(Some(Arc::new(Permissions(count.clone()))));
+        ev.set_host(Arc::new(Permissions(count.clone())));
         assert!(proves(&ev, pred), "{body}");
         assert_eq!(count.load(Ordering::SeqCst), 0);
     }
