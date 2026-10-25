@@ -28,7 +28,7 @@ fn concat_reason(model: &Model) -> bool {
     model
         .sequential
         .iter()
-        .any(|reason| reason.starts_with(dive_ir::StdOp::SequencesConcat.qualified_name()))
+        .any(|reason| reason.starts_with(&dive_ir::StdOp::SequencesConcat.qualified_name()))
 }
 
 #[test]
