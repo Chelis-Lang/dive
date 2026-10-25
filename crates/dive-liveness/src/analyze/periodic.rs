@@ -455,7 +455,7 @@ fn periodic_unbudgeted(
         model.temporals.len(),
         limits.formula,
         graph_labels,
-        authority,
+        (authority, &control),
     )
     .map_err(|error| {
         failure(

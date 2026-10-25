@@ -1246,7 +1246,7 @@ impl CheckReport {
                         "trace": document.to_json(), "validation": "valid",
                     });
                     doc["notes"] = json!([
-                        "The actual finite source behavior was independently validated. The original typed temporal-row error was not re-raised by trace validation; no lasso or violated-property claim is made."
+                        "The finite behavior and first source-state temporal demand error were independently reconstructed and validated on a fresh source-bound runtime. No BFS counters, lasso or violated-property claim is certified by endpoint validation."
                     ]);
                 }
             }
@@ -1682,7 +1682,9 @@ fn temporal_failure_kind(failure: &crate::temporal::Failure) -> &'static str {
         Error::Analysis(AnalysisError::Planning(PlanningError::Evaluation { .. })) => {
             "evaluation-error"
         }
-        Error::Validation { report, .. } | Error::PrefixValidation { report, .. }
+        Error::Validation { report, .. }
+        | Error::PrefixValidation { report, .. }
+        | Error::EndpointValidation { report }
             if matches!(report.validation, dive_trace::Validation::Invalid(_)) =>
         {
             "internal-error"
@@ -1705,7 +1707,8 @@ fn temporal_failure_kind(failure: &crate::temporal::Failure) -> &'static str {
             dive_model::ErrorKind::Tlc(_) | dive_model::ErrorKind::Eval { .. } => "model-error",
             dive_model::ErrorKind::Unsupported { .. } => "unsupported",
         },
-        Error::Analysis(
+        Error::ValidationResource(_)
+        | Error::Analysis(
             AnalysisError::Product(ProductError::Limit(_))
             | AnalysisError::Limit(_)
             | AnalysisError::Tableau(FormulaError::Limit(_))

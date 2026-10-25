@@ -931,7 +931,10 @@ fn validate_trace_command(
         }
         Err(e) => return usage_error(err, &e.to_string()),
     };
-    let report = model.validate(&doc);
+    let report = match model.try_validate(&doc) {
+        Ok(report) => report,
+        Err(error) => return validation_exception(out, err, &error, json),
+    };
     if json {
         let _ = writeln!(out, "{}", dive_api::trace::report_json(&report));
     } else {
@@ -942,6 +945,41 @@ fn validate_trace_command(
         dive_api::trace::Validation::Invalid(_) => ExitCode::from(EXIT_REJECTED),
         dive_api::trace::Validation::Unsupported(_) => ExitCode::from(EXIT_UNSUPPORTED),
     }
+}
+
+fn validation_exception(
+    out: &mut dyn std::io::Write,
+    err: &mut dyn std::io::Write,
+    error: &dive_api::trace::ValidationRunError,
+    json: bool,
+) -> ExitCode {
+    use dive_api::trace::ValidationRunError;
+    let (kind, progress, status) = match error {
+        ValidationRunError::ResourceLimit { progress, .. } => {
+            ("resource-limit", Some(progress), EXIT_UNSUPPORTED)
+        }
+        ValidationRunError::Interrupted { progress, .. } => ("interrupted", Some(progress), 5),
+        ValidationRunError::EvaluationFailure { progress, .. } => {
+            ("execution-error", Some(progress), 4)
+        }
+        ValidationRunError::ThreadFailure(_) | ValidationRunError::ControlConflict(_) => {
+            ("execution-error", None, 4)
+        }
+    };
+    if json {
+        let progress=progress.map(|progress|serde_json::json!({"checks_passed":progress.checks_passed,"state":progress.state,"check":progress.check.map(dive_api::trace::Check::name)}));
+        let _ = writeln!(
+            out,
+            "{}",
+            serde_json::json!({"schema_version":3,"command":"validate-trace","validation_completed":false,"error":{"kind":kind,"phase":"validation","message":error.to_string(),"progress":progress}})
+        );
+    } else {
+        let _ = writeln!(
+            err,
+            "{error}; validation did not complete; no validation verdict produced"
+        );
+    }
+    ExitCode::from(status)
 }
 
 fn simulation_usage_error(err: &mut impl std::io::Write, message: &str) -> ExitCode {
@@ -1534,5 +1572,29 @@ mod symmetry_liveness_tests {
                 assert_eq!(report["statistics"]["distinct"], 2);
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod validation_exception_tests {
+    #[test]
+    fn aborted_validation_json_is_an_exception_without_a_result()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let mut out = Vec::new();
+        let mut err = Vec::new();
+        let error = dive_api::trace::ValidationRunError::ThreadFailure(
+            "test isolated thread did not return".into(),
+        );
+        let status = super::validation_exception(&mut out, &mut err, &error, true);
+        assert_eq!(status, std::process::ExitCode::from(4));
+        let value: serde_json::Value = serde_json::from_slice(&out)?;
+        assert_eq!(value["schema_version"], 3);
+        assert_eq!(value["command"], "validate-trace");
+        assert_eq!(value["validation_completed"], false);
+        assert_eq!(value["error"]["kind"], "execution-error");
+        assert!(value.get("result").is_none());
+        assert!(value.get("verdict").is_none());
+        assert!(err.is_empty());
+        Ok(())
     }
 }

@@ -245,6 +245,13 @@ pub enum Error {
         /// Actual independent validator report.
         report: ValidationReport,
     },
+    /// Independent finite-error endpoint validation, distinct from a lasso.
+    EndpointValidation {
+        /// Actual independently computed valid/invalid/unsupported result.
+        report: ValidationReport,
+    },
+    /// Validation exhausted an actual resource without producing a verdict.
+    ValidationResource(dive_eval::EvalError),
     /// A value could not be represented in the tagged trace document.
     Document(String),
     /// The evaluation thread failed to start or panicked.
@@ -258,12 +265,17 @@ impl Error {
         match self {
             Self::Binding(_) => "DIVE-A0030",
             Self::Analysis(e) => e.code(),
-            Self::Validation { report, .. } | Self::PrefixValidation { report, .. }
+            Self::Validation { report, .. }
+            | Self::PrefixValidation { report, .. }
+            | Self::EndpointValidation { report }
                 if matches!(report.validation, Validation::Invalid(_)) =>
             {
                 "DIVE-A0031"
             }
-            Self::Validation { .. } | Self::PrefixValidation { .. } => "DIVE-A0032",
+            Self::Validation { .. }
+            | Self::PrefixValidation { .. }
+            | Self::EndpointValidation { .. } => "DIVE-A0032",
+            Self::ValidationResource(_) => "DIVE-L0034",
             Self::Document(_) => "DIVE-A0033",
             Self::Thread(_) => "DIVE-A0034",
         }
@@ -274,12 +286,15 @@ impl std::fmt::Display for Error {
         match self {
             Self::Binding(e) => e.fmt(f),
             Self::Analysis(e) => e.fmt(f),
-            Self::Validation { report, .. } | Self::PrefixValidation { report, .. } => write!(
+            Self::Validation { report, .. }
+            | Self::PrefixValidation { report, .. }
+            | Self::EndpointValidation { report } => write!(
                 f,
                 "{}: temporal candidate did not pass independent validation: {:?}",
                 self.code(),
                 report.validation
             ),
+            Self::ValidationResource(error) => error.fmt(f),
             Self::Document(e) => write!(f, "{}: temporal trace document: {e}", self.code()),
             Self::Thread(e) => write!(f, "{}: temporal evaluation thread: {e}", self.code()),
         }
@@ -777,13 +792,26 @@ fn validation_run_error(
     control: &dive_check::budget::EvaluationControl,
     error: ValidationRunError,
 ) -> (Error, Option<ValidationProgress>) {
-    let ValidationRunError::Interrupted { error, progress } = error else {
-        return (
-            Error::Analysis(AnalysisError::Inconsistent(
-                "validation control ownership conflict",
-            )),
-            None,
-        );
+    let (error, progress) = match error {
+        ValidationRunError::Interrupted { error, progress } => (error, progress),
+        ValidationRunError::ResourceLimit { error, progress } => {
+            return (Error::ValidationResource(error), Some(progress));
+        }
+        ValidationRunError::EvaluationFailure { error, progress } => {
+            return (
+                Error::Thread(format!("independent validation evaluator failed: {error}")),
+                Some(progress),
+            );
+        }
+        ValidationRunError::ThreadFailure(message) => return (Error::Thread(message), None),
+        ValidationRunError::ControlConflict(_) => {
+            return (
+                Error::Analysis(AnalysisError::Inconsistent(
+                    "validation control ownership conflict",
+                )),
+                None,
+            );
+        }
     };
     let error = match control.verdict(&error) {
         Some(dive_check::Verdict::Stopped(stopped)) => AnalysisError::Stopped(stopped),
@@ -880,27 +908,41 @@ fn validate_row(
     let report = dive_trace::validate_controlled(&model, &trace, control.clone())
         .map_err(|error| validation_run_error(&control, error))?;
     if report.validation != Validation::Valid {
-        return Err((
-            Error::Document(format!(
-                "finite temporal-error behavior validation: {:?}",
-                report.validation
-            )),
-            None,
-        ));
+        return Err((Error::EndpointValidation { report }, None));
     }
+    let cause = state.core_cause().ok_or_else(|| {
+        (
+            Error::Document("row endpoint lost its original core cause".into()),
+            None,
+        )
+    })?;
+    let endpoint =
+        dive_trace::TemporalStateEndpoint::from_error(&model, cause).ok_or_else(|| {
+            (
+                Error::Document("row endpoint has no original source context".into()),
+                None,
+            )
+        })?;
     let document = trace
         .to_doc(&model)
-        .map_err(|error| (Error::Document(error), None))?;
-    let report = validate_native_document(&model, &document, &control)
+        .map_err(|error| (Error::Document(error), None))?
+        .with_ending(Ending::TemporalStateError {
+            ec: cause.ec().name().into(),
+            endpoint,
+        });
+    let recipe = dive_model::Recipe::new(
+        ir.clone(),
+        config.clone(),
+        options.eval,
+        options.no_deadlock,
+    )
+    .with_symmetry_liveness(options.symmetry_liveness);
+    let session = dive_trace::Session::new(recipe, None);
+    let (report, _) = session
+        .read_controlled(&document, control.clone())
         .map_err(|error| validation_run_error(&control, error))?;
     if report.validation != Validation::Valid {
-        return Err((
-            Error::Document(format!(
-                "serialized temporal-error behavior validation: {:?}",
-                report.validation
-            )),
-            None,
-        ));
+        return Err((Error::EndpointValidation { report }, None));
     }
     Ok(RowValidation { document, report })
 }

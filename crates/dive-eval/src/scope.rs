@@ -46,6 +46,37 @@ impl Scope {
         self.env.dynamic.subst.is_some()
     }
 
+    /// Whether two scopes retain the same analysis environment owners.
+    ///
+    /// This is an identity test for active-walk cycle detection only. It is not
+    /// semantic scope equality, an atom/cache key, or an admission certificate.
+    /// A negative answer does not prove inequivalence. Dynamic `@` contexts
+    /// return false without inspecting, comparing or calling their values.
+    ///
+    /// ```
+    /// # fn retained(scope: &dive_eval::Scope) {
+    /// let clone = scope.clone();
+    /// let same_owner = scope.same_analysis_context(&clone);
+    /// # let _ = same_owner; }
+    /// ```
+    #[must_use]
+    pub fn same_analysis_context(&self, other: &Self) -> bool {
+        let same_substitution = match (&self.env.dynamic.subst, &other.env.dynamic.subst) {
+            (None, None) => true,
+            (Some(left), Some(right)) => Arc::ptr_eq(left, right),
+            _ => false,
+        };
+        self.env.dynamic.at.is_none()
+            && other.env.dynamic.at.is_none()
+            && self.context.ptr_eq(&other.context)
+            && Arc::ptr_eq(&self.owner, &other.owner)
+            && Arc::ptr_eq(&self.names, &other.names)
+            && Arc::ptr_eq(&self.env.frame, &other.env.frame)
+            && same_substitution
+            && self.env.dynamic.cut == other.env.dynamic.cut
+            && self.wrapper == other.wrapper
+    }
+
     /// The definition whose frame the scope's expressions are evaluated in.
     #[must_use]
     pub fn def(&self) -> DefId {

@@ -578,7 +578,10 @@ only completed rows, preserving original vertex and edge-occurrence identities;
 attribution reads those cached results instead of evaluating skipped atoms.
 Ordinary error reporting additionally requires the capture producer's matching
 core cause, original source prefix and statistics, followed by fresh independent
-validation of the finite behavior and its serialized document. The report uses
+validation of the finite behavior and an independently reconstructed ordered
+error endpoint on another fresh runtime. Unknown independent validation
+capabilities remain named refusals; allocation and budget failures remain
+resource exceptions/stops. The report uses
 `temporal-state-row`; it does not claim a lasso or violated property. Scheduling,
 existing owner limits and JSON schema 3 are unchanged. Budgets, nonboolean results,
 foreign contexts and internal failures do not acquire this error authority.

@@ -26,8 +26,12 @@ pub(super) fn prepare(
     fairness: usize,
     limits: crate::formula::Limits,
     graph_labels: super::GraphLabelPolicy,
-    authority: Option<&super::owned::Authority<'_>>,
+    owned_control: (
+        Option<&super::owned::Authority<'_>>,
+        &dive_check::budget::EvaluationControl,
+    ),
 ) -> Result<Option<Program>, AnalysisError> {
+    let (authority, control) = owned_control;
     if !matches!(graph_labels, super::GraphLabelPolicy::NoCellLimit)
         || !authority.is_some_and(|authority| authority.owns(model))
         || options.workers != 1
@@ -40,7 +44,20 @@ pub(super) fn prepare(
     if crate::budget::exhausted() {
         return Err(AnalysisError::Limit(crate::budget::EXHAUSTED));
     }
-    let Some(stability) = stable_producers(model, plans, limits.expansion_steps) else {
+    let stability = stable_producers(model, plans, control).map_err(|error| {
+        if let Some(stop) = super::evaluator_interruption(control, &error) {
+            return stop;
+        }
+        match error.class() {
+            ErrorClass::ResourceLimit => {
+                AnalysisError::Limit("canonical producer proof allocation")
+            }
+            _ => AnalysisError::Inconsistent(
+                "canonical producer inspection failed without matching control authority",
+            ),
+        }
+    })?;
+    let Some(stability) = stability else {
         return Ok(None);
     };
     if crate::budget::exhausted() {
@@ -77,26 +94,18 @@ pub(super) fn prepare(
 fn stable_producers(
     model: &Model,
     plans: &[PreparedProperty],
-    work: usize,
-) -> Option<dive_eval::ProducerStability> {
-    let mut producers = model
-        .init
-        .iter()
-        .map(|init| (init.pred.expr, init.pred.scope.clone()))
-        .collect::<Vec<_>>();
-    producers.extend(
-        model
-            .next
-            .iter()
-            .map(|pred| (pred.expr, pred.scope.clone())),
-    );
-    producers.extend(
-        model
-            .init_actions
-            .iter()
-            .chain(&model.actions)
-            .map(|action| (action.expr(), action.scope())),
-    );
+    control: &dive_check::budget::EvaluationControl,
+) -> Result<Option<dive_eval::ProducerStability>, EvalError> {
+    let mut producers = Vec::new();
+    for init in &model.init {
+        root(&mut producers, init.pred.expr, init.pred.scope.clone())?;
+    }
+    if let Some(next) = &model.next {
+        root(&mut producers, next.expr, next.scope.clone())?;
+    }
+    for action in model.init_actions.iter().chain(&model.actions) {
+        root(&mut producers, action.expr(), action.scope())?;
+    }
     for named in model
         .invariants
         .iter()
@@ -106,27 +115,48 @@ fn stable_producers(
         .chain(&model.action_constraints)
         .chain(model.view.iter())
     {
-        producers.push((named.pred.expr, named.pred.scope.clone()));
+        root(&mut producers, named.pred.expr, named.pred.scope.clone())?;
     }
     if let Some(alias) = &model.alias {
-        let alias = alias.as_ref().ok()?;
-        producers.push((alias.pred.expr, alias.pred.scope.clone()));
+        let Ok(alias) = alias.as_ref() else {
+            return Ok(None);
+        };
+        root(&mut producers, alias.pred.expr, alias.pred.scope.clone())?;
     }
-    for named in model.postconditions.as_ref().ok()? {
-        producers.push((named.pred.expr, named.pred.scope.clone()));
+    let Ok(postconditions) = &model.postconditions else {
+        return Ok(None);
+    };
+    for named in postconditions {
+        root(&mut producers, named.pred.expr, named.pred.scope.clone())?;
     }
     for &def in &model.assumptions {
-        producers.push((model.ir.def(def).body, model.evaluator.scope(def).ok()?));
+        root(
+            &mut producers,
+            model.ir.def(def).body,
+            model.evaluator.scope(def)?,
+        )?;
     }
-    let predicates = plans
-        .iter()
-        .flat_map(|prepared| &prepared.plan.atoms)
-        .map(|atom| (atom.pred.expr, atom.pred.scope.clone()))
-        .collect::<Vec<_>>();
-    let proof = model
-        .evaluator
-        .canonical_producer_stability(&producers, &predicates, work)?;
-    proof.belongs_to(&model.evaluator).then_some(proof)
+    let mut predicates = Vec::new();
+    for atom in plans.iter().flat_map(|prepared| &prepared.plan.atoms) {
+        root(&mut predicates, atom.pred.expr, atom.pred.scope.clone())?;
+    }
+    let proof = model.evaluator.canonical_producer_stability_budgeted(
+        &producers,
+        &predicates,
+        Some(control),
+    )?;
+    Ok(proof.filter(|proof| proof.belongs_to(&model.evaluator)))
+}
+fn root(
+    roots: &mut Vec<(dive_ir::ExprId, dive_eval::Scope)>,
+    expr: dive_ir::ExprId,
+    scope: dive_eval::Scope,
+) -> Result<(), EvalError> {
+    roots
+        .try_reserve(1)
+        .map_err(|_| EvalError::resource_limit("canonical producer roots allocation"))?;
+    roots.push((expr, scope));
+    Ok(())
 }
 
 pub(super) struct Cache {

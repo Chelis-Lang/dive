@@ -24,6 +24,14 @@ not an independent CLI operation envelope.
 | Checkpoint pause | `checkpoint.status: paused-incomplete`; incomplete execution |
 | Budget stop | `verdict: stopped` and `stopped` (resource, limit, observed, unit, phase, hint); progress statistics; exit 5 |
 
+A temporal `evaluation-error` at `error_site: "temporal-state-row"` retains
+actual partial statistics and `capture_completed: false`. Its finite trace may
+include the independently replayed error endpoint from ADR 0113, with no
+violated property or lasso claim. The report family remains temporal.
+A validation operation aborted by a resource or execution exception emits
+`validation_completed: false` and an `error` envelope instead of a completed
+`result`; it must not be interpreted as `unsupported`, `valid` or a model verdict.
+
 `unsupported` names a feature that was not checked. A resource limit, timeout,
 incomplete bound, failed storage or internal error supplies no successful model
 certificate. Missing counters/worker evidence remain absent instead of invented.

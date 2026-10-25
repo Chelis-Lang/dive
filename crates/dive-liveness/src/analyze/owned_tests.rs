@@ -40,7 +40,7 @@ fn demand_admitted(runtime: &OwnedTemporal) {
             runtime.model.temporals.len(),
             Limits::default().formula,
             GraphLabelPolicy::NoCellLimit,
-            Some(&authority)
+            (Some(&authority), &control),
         )
         .expect("proof inspection")
         .is_some(),

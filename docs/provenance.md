@@ -2278,3 +2278,18 @@ capture decision grants an ordinary 2179/2182 classification only after fresh
 typed and serialized finite-behavior validation. Residual Init/zero-solution
 startup, nonboolean, resource and unproved contexts gain no such authority.
 No established baseline is changed by this implementation or its source proof.
+
+
+The independent endpoint reconstruction in `dive-trace/src/row_demand` ports
+pinned TLC `Liveness`/`LNConj`/`LNDisj` negation, simplification, tagged DNF,
+EA/AE grouping and action-before-state bin order separately from the producer.
+It consumes only immutable configured source roots and actual lazy scopes,
+never producer programs, truth caches, graph rows or source-slot IDs. Explicit
+continuations preserve absorbing-child simplification, all-child DNF conversion,
+last-factor-fast product order and the reference Java-int disjunction-product
+overflow. Storage overflow is an actual resource exception, not TLC2213.
+The optional trace1 error endpoint and fallible resource transport are specified
+in ADR 0113. Its source-context descriptor is compared only after fresh complete
+ordered replay identifies its own first actual core error. This does not port
+TLC's BFS implementation, infer a global error priority, validate counters or
+claim a new conformance baseline.

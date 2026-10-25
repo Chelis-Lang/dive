@@ -1128,7 +1128,7 @@ fn analyze_unbudgeted(
         model.temporals.len(),
         limits.formula,
         graph_labels,
-        authority,
+        (authority, &control),
     )?;
     let cache = demand
         .as_ref()

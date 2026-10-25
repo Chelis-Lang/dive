@@ -2,7 +2,9 @@
 
 - Add certified current-state temporal row errors for eligible single-worker
   source-bound requests, preserving actual error order, prefix statistics and
-  fresh finite-behavior validation. Unproved contexts retain the old route;
+  fresh finite-path and independent ordered error-endpoint validation. Trace1
+  endpoints use fallible validation transport; resource exceptions produce no
+  validation verdict. Unproved contexts retain the old route;
   caller-owned model APIs, limits, scheduling and report schema stay unchanged.
 
 - Record the rejected ready explicit-set payload screen: all eight pairs

@@ -27,6 +27,9 @@ pub(super) fn read(value: &Value, physical_exit: Option<i32>) -> Result<Fields, 
     {
         return Err("missing deterministic progress after planning".into());
     }
+    if let Some(fields) = super::finite_error(value, physical_exit)? {
+        return Ok(fields);
+    }
     let counts = if complete {
         Some(counts(value)?)
     } else if value["statistics"].is_null() {
