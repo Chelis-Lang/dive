@@ -557,6 +557,15 @@ fn finish_bound_check(
         r.notes = notes;
         return r;
     }
+    // This source-bound Model has never published its evaluator. EngineHost's
+    // actual native hook is the default Ok; keep the SAME startup run/state.
+    // Persistent checkpoint/recovery retains callback execution.
+    let _native_hooks = if checkpoint.is_none() {
+        m.evaluator
+            .native_hook_scope(dive_eval::NativeHooks::Unrestricted)
+    } else {
+        None
+    };
     // TLC creates its model checker here: `TLCGet("config")` and the
     // checker's names exist from now on, and the counters read 0.
     m.evaluator.intern_checker_names();

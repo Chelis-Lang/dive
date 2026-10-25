@@ -1143,6 +1143,7 @@ fn analyze_unbudgeted(
     let cache = demand
         .as_ref()
         .map(|program| std::sync::Mutex::new(row_demand::Cache::new(program)));
+    let native_hooks = owned::native_hooks(authority, model);
     *stage = Stage::Capture;
     let captured = if let (Some(program), Some(cache)) = (&demand, &cache) {
         match row_demand::Observe::new(model, &plans, program, cache).explore(
@@ -1151,6 +1152,7 @@ fn analyze_unbudgeted(
             None,
             evaluations,
             exploration,
+            native_hooks,
         )? {
             capture::ControlledExploration::Complete(complete) => *complete,
             capture::ControlledExploration::Stopped(result) => {
@@ -1163,10 +1165,11 @@ fn analyze_unbudgeted(
             }
         }
     } else {
-        match capture::explore_with_evidence(model, opts, limits.capture).map_err(|message| {
-            *stage = Stage::Unknown;
-            AnalysisError::CaptureThread(message)
-        })? {
+        match capture::explore_with_native_hooks(model, opts, limits.capture, native_hooks)
+            .map_err(|message| {
+                *stage = Stage::Unknown;
+                AnalysisError::CaptureThread(message)
+            })? {
             capture::Exploration::Complete(c) => *c,
             capture::Exploration::Stopped(v) => return Err(AnalysisError::Exploration(v)),
         }

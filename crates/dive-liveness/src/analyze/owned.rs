@@ -74,6 +74,19 @@ impl Authority<'_> {
     }
 }
 
+// Only this private Model identity selects the source-owned driver route.
+// An operative public binding cannot manufacture this authority.
+pub(super) fn native_hooks(
+    authority: Option<&Authority<'_>>,
+    model: &Model,
+) -> dive_eval::NativeHooks {
+    if authority.is_some_and(|authority| authority.owns(model)) {
+        dive_eval::NativeHooks::Unrestricted
+    } else {
+        dive_eval::NativeHooks::Callback
+    }
+}
+
 impl OwnedTemporal {
     /// The actual bound symmetry resolution, with no runtime handle.
     #[must_use]
