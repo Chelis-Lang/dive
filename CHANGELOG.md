@@ -1,5 +1,14 @@
 # Changelog
 
+- Report TLC startup error 2253 before assumptions and exploration when the
+  actual combined temporal-role formula normalizes to no solutions. Preserve
+  prior binding output and null counts without evaluating discarded state atoms;
+  effectful or unproved conversions retain explicit refusals.
+
+- Pin eleven additional startup temporal-error priority references, including
+  combined-property and conversion-output controls, before implementing error
+  2253. Existing goldens and established conformance populations are unchanged.
+
 - Record the private eight-cell function-membership census. It establishes no
   qualified repeat successes or instruction savings; provider-excluded work
   remains unknown, and no membership cache is implemented.

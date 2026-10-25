@@ -15,7 +15,17 @@ timing, thread or queue order, tableau numbering or SCC and lasso choice.
 
 ## Corpus scoreboard
 
-The latest one-worker recheck at frozen source `92a33e3b` on 2026-10-25 passed
+The latest full gate at source `5217163f` on 2026-10-25 passed all 13 phases
+and **2,487 Rust tests with none skipped**. Small-tier results remain
+**150/156 TLC** and **144/156 default**, with seven registered expected
+divergences; all 458 SANY comparisons agree. A separate 16-model startup
+primary selection records **11 agreements and five refusals in each profile**,
+including seven startup2253 agreements. These separate probes add no credit to
+the established populations or historical full-tier result. See the
+[startup qualification](survey/data/startup-zero-solution-qualification-2026-10-25.json).
+
+
+The earlier one-worker recheck at frozen source `92a33e3b` on 2026-10-25 passed
 all 13 full-gate phases and 2,450 Rust tests with none skipped. The rows below
 remain **150/156 TLC** and **144/156 default**, with seven registered expected
 divergences in the default profile; all 458 SANY comparisons agree. No baseline

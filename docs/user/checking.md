@@ -626,10 +626,19 @@ resource exceptions/stops. The report uses
 existing owner limits and JSON schema 3 are unchanged. Budgets, nonboolean results,
 foreign contexts and internal failures do not acquire this error authority.
 
-TLC's zero-solution startup tautology error (2253/77, null exploration counts)
-remains a separate unsupported boundary. It must not become `Holds` or a promoted
-later division error. These capabilities do not by themselves establish a new
-small/full baseline or agreement count.
+Temporal preparation reports TLC's zero-solution startup error (2253/77)
+when the complete admissible conversion of the actual bound temporal roles,
+combined with fairness, becomes literal `FALSE` under TLC's negation,
+simplification and DNF rules. This happens after binding and its output, before
+`ASSUME`, Init or exploration. Counts, property and counterexample remain null;
+no state row, holding result or later atom error is substituted. A logically
+true formula alone is insufficient: `<>TRUE` and `<>[]TRUE` retain their ordinary
+analysis route. Effectful or unknown conversion scopes can still be refused.
+The original configured claims remain separate attribution inputs; nonzero
+startup preparation retains their existing backend and row-proof requirements.
+This adds startup-only preparation work, not work per state or a performance
+claim. These capabilities do not by themselves establish a new small/full
+baseline or agreement count.
 
 The
 [typed state-error qualification](../survey/data/temporal-state-error-evidence-qualification-2026-10-24.json)

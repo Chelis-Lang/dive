@@ -1,0 +1,27 @@
+{
+  "sources": [
+    "docs/user/checking.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "liveness",
+    "startup-error-priority"
+  ],
+  "modules": [
+    {
+      "path": "specifications/TautologyBeforeInitError/TautologyBeforeInitError.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/TautologyBeforeInitError/TautologyBeforeInitError.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}

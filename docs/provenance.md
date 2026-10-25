@@ -2296,3 +2296,15 @@ in ADR 0113. Its source-context descriptor is compared only after fresh complete
 ordered replay identifies its own first actual core error. This does not port
 TLC's BFS implementation, infer a global error priority, validate counters or
 claim a new conformance baseline.
+
+
+The startup zero-solution outcome follows pinned `94d0c5070852b37b801bb8998c436383ab7ee37b`
+`SpecProcessor.processConfigProps`, `Liveness.parseLiveness/processLiveness`,
+`LiveCheck` construction and `ModelChecker.modelCheckImpl`: role binding and
+constant conversion precede combined negation/simplification/DNF, whose actual
+literal false result yields 2253 before assumptions and Init. The existing
+empty-quantifier binding path remains distinct. Actual bound temporal roles,
+not original configured attribution roots, grant this startup outcome. The
+existing pure conversion boundary remains; no predicate-result cache, row or
+word is created. Source/operator observations and generated goldens are recorded
+in `startup-tautology-primary-controls-2026-10-25.json` under `docs/survey/data/`.

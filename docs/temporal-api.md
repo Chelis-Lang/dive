@@ -100,6 +100,18 @@ position, and cannot certify a candidate. `Failure::binding_output()` preserves
 that binding invocation's output; validation rebinding output is separate from
 the original capture's execution output.
 
+A complete supported startup conversion can return
+`AnalysisError::StartupTautology` before assumptions or exploration. It means
+TLC's actual combined fairness and bound temporal-role formula normalized to
+literal `FALSE`, not that a general tautology prover accepted the property.
+`Failure::binding_output()` retains earlier output; there is no capture, state
+row, word or `Holds`. Ordinary reports use evaluation error 2253 and TLC status
+77 with null exploration counts. Effectful/unknown conversions remain refused.
+Original configured claims remain the legacy continuation's separate inputs;
+no expression or scope-cycle equality authorizes substituting actual roles for
+those claims. This entails extra startup preparation on continuing runs and
+requires ordinary-runtime overhead qualification; it adds no per-state hook.
+
 This does not control structural binding/evaluator construction, `ASSUME`,
 post-binding symmetry preparation, encoding/decoding, quiet value units, or
 deferred providers owned by a different evaluator. General TLC session/scoring
