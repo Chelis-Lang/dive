@@ -360,6 +360,14 @@ impl Set {
         }
     }
 
+    /// Whether normalized element storage has already been cached.
+    /// This reads storage only; it invokes no provider and grants no authority
+    /// to reproduce a deferred provider's conversion or callback history.
+    #[must_use]
+    pub fn has_cached_elements(&self) -> bool {
+        self.0.elems.get().is_some()
+    }
+
     /// The set's kind.
     #[must_use]
     pub fn kind(&self) -> SetKind {
@@ -413,13 +421,13 @@ impl Set {
         Ok(e)
     }
 
-    /// Streams a compound set's raw TLC enumeration over scalar components,
+    /// Streams a concrete set's raw TLC enumeration over concrete components,
     /// without sizing or materializing the complete compound result.
     ///
     /// Returns `None`, without normalization or callbacks, unless this is a
-    /// powerset, product, function set or record set whose component sets are
-    /// explicit scalar collections or intervals. Nested aggregate values and
-    /// deferred providers need their existing enumeration route. All capability
+    /// finite explicit collection, interval, powerset, product, function set
+    /// or record set whose complete component storage is concrete and in the
+    /// same value order. Deferred or symbolic storage keeps its old route. All capability
     /// checks precede effects; this selects output storage, never admission.
     ///
     /// Constructor emptiness checks precede component normalization, in TLC's
