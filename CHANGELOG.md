@@ -1,5 +1,10 @@
 # Changelog
 
+- Add eight pinned primary references for nested powerset Init enumeration,
+  including original candidate order and error boundaries. All six earlier
+  result payloads remain identical; no enumeration algorithm, limit or baseline
+  changes.
+
 - Classify two source-verified TLC Init exception/replay envelopes without
   promoting nested causes or relaxing context-only failure checks. Preserve
   GENERAL1000 and the actual exit75; malformed, unowned and unknown exceptions

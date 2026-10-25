@@ -577,3 +577,25 @@ the largest overhead was 0.043%, below the 1% per-pair ceiling. This is capacity
 evidence, without a TLC throughput or full-tier agreement claim.
 [Compact qualification](survey/data/compound-domain-streaming-qualification-2026-10-23.json)
 records source/tool identities, all eight instruction pairs and original hashes.
+
+
+`nested-powerset-primary` is a separate local corpus of eight primary-first Init
+enumeration controls for issue #459. They cover the first empty nested subset,
+required component sizing versus explicit outer cardinality, accepted subset
+order, and failing, nonboolean, effectful, outer-dependent and state-dependent
+filter predicates. Descriptor result/runtime metadata remains `unknown` to
+preserve the pinned input digest; the normal generated goldens hold the facts.
+
+All eight references now generate against pinned TLC. Two first-empty controls
+report invariant error 2107/12 before later candidates. Explicit outer
+Cardinality and a nonboolean predicate report GENERAL1000/75 through the owned
+Init-replay path; the required inner-component overflow remains distinct 2147/75.
+The accepted-order, effectful and dependent controls succeed with distinct /
+generated counts of 8/16, 4/8 and 5/10 respectively, each at depth 1. The six earlier
+reference result payloads are byte-identical after normal regeneration. See the
+[compact primary record](survey/data/nested-powerset-primary-controls-2026-10-25.json)
+for source, oracle, result and preserved original-stream identities.
+
+Select it with `--corpus nested-powerset-primary --tier all --no-sany`. This is reference generation before enumeration changes: no native
+checker comparison or streaming/pruning capability is established. The existing
+small/full selections and baselines are unchanged.
