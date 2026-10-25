@@ -181,7 +181,10 @@ fn actual_host_panic_restores_complete_binding_without_converting_the_unwind() {
     let before = ev.host_binding_stamp();
     let panic = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         let _scope = ev.native_hook_scope(NativeHooks::Unrestricted);
-        let _ = run(&ev, "Level");
+        // TLCGet("level") is literal zero in CONST/INIT; state evaluation
+        // reaches the real host callback whose unwind this control exercises.
+        let def = ev.ir().root_def("Level").expect("level definition");
+        let _ = ev.eval_in(def, ev.ir().def(def).body, &St::state(Arc::from([])));
     }))
     .expect_err("real unchanged host panic");
     assert_eq!(
