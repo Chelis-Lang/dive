@@ -551,73 +551,105 @@ fn semantic_fallback_continues_the_same_capture_to_later_next_and_invariant_fail
     }
 }
 
+// A cached startup Print is still an effectful producer in the original
+// source inspection. Keeping its output does not grant a row certificate.
+fn host_fixture_demand_declines(runtime: &OwnedTemporal) {
+    let control = super::super::evaluator_control(&runtime.options).expect("analysis control");
+    let plans = super::super::prepare(&runtime.model, Limits::default(), &control)
+        .expect("actual effectful-source plans");
+    let authority = Authority {
+        model: &runtime.model,
+    };
+    assert!(
+        super::super::row_demand::prepare(
+            &runtime.model,
+            &plans,
+            &runtime.options,
+            runtime.model.temporals.len(),
+            Limits::default().formula,
+            GraphLabelPolicy::NoCellLimit,
+            (Some(&authority), &control),
+        )
+        .expect("original producer proof inspection")
+        .is_none(),
+        "effectful Init-to-C producer must decline the certified row route"
+    );
+}
+
 #[test]
 fn operative_host_selection_retains_fresh_owned_final_and_periodic_graphs() {
-    let (ir, config) = input(
-        "C == Print(0,0)\nInit == x=1+C\nNext == x'=x\nP == []<>(x=1)",
-        "P",
-    );
-    for options in [CheckOptions::dive(7), CheckOptions::tlc(0, 7)] {
-        for labels in [GraphLabelPolicy::Cells(4096), GraphLabelPolicy::NoCellLimit] {
-            for periodic in [false, true] {
-                // The ordinary callback capture runs FIRST on its own binding.
-                let reference = legacy_model(&ir, &config, &options);
-                let dive_check::capture::Exploration::Complete(reference) =
-                    dive_check::capture::explore_with_evidence(
-                        &reference,
-                        &options,
-                        Limits::default().capture,
-                    )
-                    .expect("callback reference")
-                else {
-                    panic!("complete callback reference")
-                };
-                let Dispatch::Temporal(runtime) =
-                    dispatch_controlled(&ir, &config, &options, control(&options))
-                        .expect("source eligible")
-                        .expect("fresh bind")
-                else {
-                    panic!("genuine temporal roles")
-                };
-                assert_eq!(
-                    runtime.model.evaluator.host_binding_stamp().native_hooks(),
-                    dive_eval::NativeHooks::Callback
-                );
-                if labels == GraphLabelPolicy::NoCellLimit {
-                    demand_admitted(&runtime);
-                }
-                let result = if periodic {
-                    let (analysis, checks) = runtime
-                        .periodic_analysis(
-                            Limits::default(),
-                            AcceptancePolicy::Legacy,
-                            labels,
-                            periodic::Schedule::DEFAULT,
+    for effectful in [true, false] {
+        let constant = if effectful { "Print(0,0)" } else { "0" };
+        let (ir, config) = input(
+            &format!("C == {constant}\nInit == x=1+C\nNext == x'=x\nP == []<>(x=1)"),
+            "P",
+        );
+        for options in [CheckOptions::dive(7), CheckOptions::tlc(0, 7)] {
+            for labels in [GraphLabelPolicy::Cells(4096), GraphLabelPolicy::NoCellLimit] {
+                for periodic in [false, true] {
+                    // The ordinary callback capture runs FIRST on its own binding.
+                    let reference = legacy_model(&ir, &config, &options);
+                    let dive_check::capture::Exploration::Complete(reference) =
+                        dive_check::capture::explore_with_evidence(
+                            &reference,
+                            &options,
+                            Limits::default().capture,
                         )
-                        .expect("owned periodic analysis");
-                    assert!(checks.exhausted);
-                    let periodic::PeriodicAnalysis::Final(analysis) = analysis else {
-                        panic!("complete periodic graph")
+                        .expect("callback reference")
+                    else {
+                        panic!("complete callback reference")
                     };
-                    analysis
-                } else {
-                    runtime
-                        .final_analysis(Limits::default(), AcceptancePolicy::Legacy, labels)
-                        .expect("owned final analysis")
-                };
-                let super::super::Analysis::Holds(actual) = result else {
-                    panic!("actual holding graph")
-                };
-                assert_eq!(actual.stats, reference.stats);
-                assert_eq!(actual.graph.states, reference.graph.states);
-                assert_eq!(actual.graph.edges, reference.graph.edges);
-                assert_eq!(actual.graph.roots, reference.graph.roots);
-                assert_eq!(actual.output, reference.output);
-                assert_eq!(
-                    actual.output.len(),
-                    1,
-                    "binding Print executes exactly once"
-                );
+                    let Dispatch::Temporal(runtime) =
+                        dispatch_controlled(&ir, &config, &options, control(&options))
+                            .expect("source eligible")
+                            .expect("fresh bind")
+                    else {
+                        panic!("genuine temporal roles")
+                    };
+                    assert_eq!(
+                        runtime.model.evaluator.host_binding_stamp().native_hooks(),
+                        dive_eval::NativeHooks::Callback
+                    );
+                    if labels == GraphLabelPolicy::NoCellLimit {
+                        if effectful {
+                            host_fixture_demand_declines(&runtime);
+                        } else {
+                            demand_admitted(&runtime);
+                        }
+                    }
+                    let result = if periodic {
+                        let (analysis, checks) = runtime
+                            .periodic_analysis(
+                                Limits::default(),
+                                AcceptancePolicy::Legacy,
+                                labels,
+                                periodic::Schedule::DEFAULT,
+                            )
+                            .expect("owned periodic analysis");
+                        assert!(checks.exhausted);
+                        let periodic::PeriodicAnalysis::Final(analysis) = analysis else {
+                            panic!("complete periodic graph")
+                        };
+                        analysis
+                    } else {
+                        runtime
+                            .final_analysis(Limits::default(), AcceptancePolicy::Legacy, labels)
+                            .expect("owned final analysis")
+                    };
+                    let super::super::Analysis::Holds(actual) = result else {
+                        panic!("actual holding graph")
+                    };
+                    assert_eq!(actual.stats, reference.stats);
+                    assert_eq!(actual.graph.states, reference.graph.states);
+                    assert_eq!(actual.graph.edges, reference.graph.edges);
+                    assert_eq!(actual.graph.roots, reference.graph.roots);
+                    assert_eq!(actual.output, reference.output);
+                    assert_eq!(
+                        actual.output.len(),
+                        usize::from(effectful),
+                        "effectful binding Print executes exactly once; pure binding prints nothing"
+                    );
+                }
             }
         }
     }
