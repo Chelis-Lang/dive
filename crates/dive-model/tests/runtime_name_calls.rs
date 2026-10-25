@@ -66,7 +66,7 @@ fn children_keep_their_own_creators_and_other_sequential_effects() {
         &BindOptions::tlc(),
     );
     assert!(strings.runtime_name_order);
-    assert!(!strings.sequential.is_empty());
+    assert_ne!(strings.sequential, Vec::<String>::new());
     let registers = model(
         "Init == x= <<>>\nNext == (x'= <<0>> \\o x) /\\ TLCSet(0,x)",
         "",
