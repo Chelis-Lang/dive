@@ -1595,7 +1595,7 @@ mod validation_exception_tests {
         assert_eq!(value["error"]["kind"], "execution-error");
         assert!(value.get("result").is_none());
         assert!(value.get("verdict").is_none());
-        assert!(err.is_empty());
+        assert_eq!(err, [] as [u8; 0]);
         Ok(())
     }
 }

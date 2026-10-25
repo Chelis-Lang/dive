@@ -201,7 +201,7 @@ fn lasso(value: &Value) -> Result<Trace, String> {
     })
 }
 
-/// Strict finite endpoint transport. Validity remains fresh SpecModel replay.
+/// Strict finite endpoint transport. Validity remains fresh `SpecModel` replay.
 fn finite_error(value: &Value, physical_exit: Option<i32>) -> Result<Option<Fields>, String> {
     if value["error_site"] != "temporal-state-row" {
         return Ok(None);
