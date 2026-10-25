@@ -1,0 +1,730 @@
+{
+  "schema_version": 1,
+  "experiment": "ready-explicit-set-payload-and-checked-domain-view",
+  "date": "2026-10-25",
+  "status": "SCREEN_REJECTED",
+  "change": "Prepare the same eager native hash and element cache before Arc publication with OnceLock::from; share only empty element storage and independently owned, same-order canonical Domain keys proved bounded/provider-free. Ordinary unknown/deep/provider key routes remain. Runtime prototype unmerged.",
+  "source": {
+    "baseline": "198e587922ea58fea9e7974de5ca864ea1625c41",
+    "candidate": "77b34163505286d04fb16fb7ae3864ad23ed2dde",
+    "trees": {
+      "base": "47d539d54ced32e126018d4196c496cdf6efaa04",
+      "candidate": "489b4ceb50154832fcde566bb3131400f8a2241e"
+    },
+    "source_capsule_sha256": "445d27478b4a6c8ff4e30faa723c85d7dd95764d6290fc63c97bbfd4a1443f49",
+    "commit_depth": 5
+  },
+  "method": {
+    "metric": "Whole-CLI Cachegrind Ir including startup; baseline is dive, not Java TLC. tlc names the dive compatibility profile.",
+    "builds": 2,
+    "normal_native_stages": 18,
+    "instruction_arms": 16,
+    "pairs": 8,
+    "workers": 1,
+    "seed": 0,
+    "fingerprint": 0,
+    "max_memory_bytes": 8589934592,
+    "native_time_limit_seconds": 900,
+    "outer_arm_seconds": 930,
+    "hard_lifetime_seconds": 25200,
+    "productive_seconds": 23400,
+    "collection_seconds": 1800,
+    "compile_jobs": 4,
+    "allocator": "Shipping mimalloc in both binaries",
+    "cache_simulation": false,
+    "profiles": [
+      "dive",
+      "tlc"
+    ],
+    "acceptance": {
+      "minimum_geometric_reduction": 0.05,
+      "maximum_cell_ratio": 1.01,
+      "complete_all_pairs_required": true
+    },
+    "balanced_order": "base then candidate for the four dive-profile pairs; candidate then base for the four tlc-profile pairs",
+    "workload": {
+      "examples_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "reductions": {
+        "SimpleRegular": "Copy SimpleRegular.cfg, set N to6.",
+        "MCbtree": "Copy MCbtree.cfg, set MaxKey to3.",
+        "GameOfLife": "Copy GameOfLife.cfg, set N to3.",
+        "EWD998PCal": "Copy EWD998PCal.cfg unchanged; in EWD998PCal.tla change StateConstraint counter[i]<3 to counter[i]<2."
+      },
+      "models": {
+        "SimpleRegular": {
+          "module": {
+            "path": "specifications/TeachingConcurrency/SimpleRegular.tla",
+            "sha256": "bf3872f04d71f7b80fcb55cecd07bf1b38fac3861fbb3452eb179c593c1bcdb5"
+          },
+          "config": {
+            "path": "specifications/TeachingConcurrency/R1SimpleRegular.cfg",
+            "sha256": "aa129769c5d9a6bd1c3545dbbfbc98e1279d4b314b592b7801c9af71735fc3ff"
+          },
+          "expected": {
+            "distinct": 12097,
+            "generated": 47584,
+            "depth": 19
+          }
+        },
+        "MCbtree": {
+          "module": {
+            "path": "specifications/btree/MCbtree.tla",
+            "sha256": "64655fd6391422f27607da0c3d36617066249c68687d984bdb1113bc98f83ac3"
+          },
+          "config": {
+            "path": "specifications/btree/R1MCbtree.cfg",
+            "sha256": "de7bb2b0263d04833243ed7f09bec7cb496e4111f6777425161b9d8a5e119ffa"
+          },
+          "expected": {
+            "distinct": 21364,
+            "generated": 127825,
+            "depth": 24
+          }
+        },
+        "GameOfLife": {
+          "module": {
+            "path": "specifications/GameOfLife/GameOfLife.tla",
+            "sha256": "dcd6d626946faab35ac22ad38a031b0d9bd9bc274d8750340506acc407dccbc6"
+          },
+          "config": {
+            "path": "specifications/GameOfLife/R1GameOfLife.cfg",
+            "sha256": "842e3c2d93b0535783091687f76debde6dd42fc7b33983f154a9f892125ef4a9"
+          },
+          "expected": {
+            "distinct": 512,
+            "generated": 1024,
+            "depth": 1
+          }
+        },
+        "EWD998PCal": {
+          "module": {
+            "path": "specifications/ewd998/EWD998PCal.tla",
+            "sha256": "3342f5d865902f6e85defbcd6713cea1dac50e031d3f2281e7b7cc9deb545da4"
+          },
+          "config": {
+            "path": "specifications/ewd998/R1EWD998PCal.cfg",
+            "sha256": "44073c04a88dd7aa593cab099e59b7b1dd4be31ec2d5b59616b0426a3a84f892"
+          },
+          "expected": {
+            "distinct": 20870,
+            "generated": 168292,
+            "depth": 28
+          }
+        }
+      }
+    },
+    "input_archives_sha256": {
+      "workloads": "f1d3eb00d9f43c11e03a50be64a3115f8e2bb838299bb8d7033106a8ce0c53ef",
+      "module_libraries": "90a8757da7c179dcf04ec8f7530f99881e013eb76b92bfeb59808d9a0fe782ab"
+    },
+    "counter_contract": "Three per-model expected constants distinct/generated/depth; all five counters including initial_generated/left_on_queue compared between each baseline/candidate pair.",
+    "validation": "All original CG event tables contain only Ir; exclusive cost-line sum equals terminal summary and stderr I refs through EOF. Original CLI schema3 success/TLC2193 and absent error fields verified; no new conformance claim."
+  },
+  "machine": {
+    "campaign": "dive-selectseq-perf-20261025012341-11fb20f4",
+    "ami": "ami-02a9cdd4e98bc3c78",
+    "instance_type": "c7i.8xlarge",
+    "cpu": {
+      "Architecture": "x86_64",
+      "CPU(s)": "32",
+      "Model name": "Intel(R) Xeon(R) Platinum 8488C",
+      "Thread(s) per core": "2",
+      "Core(s) per socket": "16",
+      "Socket(s)": "1",
+      "NUMA node(s)": "1"
+    },
+    "kernel_version": null,
+    "kernel_version_status": "Not recorded in this campaign; no inference from other AMI measurements.",
+    "kernel_boot_id": "8b760871-c212-4c9c-a780-cd152b3218f3",
+    "environment": "Shared cloud host; SMT enabled (2 threads/core); no quiet-window certificate.",
+    "machine_identity_sha256": "7446fa007271b0722271de3d7f311cdc3cdfe0276e2cee7a670f86316fc5b829",
+    "original_matrix_identity_sha256": "103c93bd2c5587764b3df7a720b8146dc04e58cda38d36015a58ebf5b231545e"
+  },
+  "tools": {
+    "versions": {
+      "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+      "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+      "valgrind": "valgrind-3.22.0",
+      "cachegrind_backend": "valgrind-3.22.0 cachegrind backend"
+    },
+    "executable_sha256": {
+      "rustc": "f3834d26669b03f6855fa54bd2381443123e860167bc0c7a8dd137e5cf6e5e4f",
+      "cargo": "e951141cc55a6cd7b9876d187bd30a3720e6086b99413af95e3b8de1cdd72f14",
+      "valgrind": "4652774bd116cb49951ef74115ad4237cad5021b2bd4d80002f09d986ec438b9",
+      "cachegrind_backend": "38093b3bf8e9ffecb559a333c896a2fd2a2343bb79c3295f31c36475914deebf"
+    },
+    "tools_and_loader_identity_sha256": "1370241ba9d5bb19e37059a88e60c28950bac66c277a0c73c7e84a84f218755f",
+    "identity_scope": "Complete per-tool executable/loader digest maps bound before and after all arms; only compact hashes and version facts reproduced here."
+  },
+  "binaries": {
+    "base": {
+      "sha256": "e91250ea9a35097295bd58e3063f189eadae913751f0cdf0a4903a967e279f85",
+      "bytes": 107336080,
+      "mode": "0o775"
+    },
+    "candidate": {
+      "sha256": "df4a9014e8327d94813bef38de8e22ca8ad271a9b414633c555cbab822de2c4d",
+      "bytes": 107381496,
+      "mode": "0o775"
+    }
+  },
+  "results": {
+    "all18_normal_uncensored": true,
+    "all16_completed": true,
+    "all8_cells_improved": true,
+    "all5_pair_counters_equal": true,
+    "geometric_delta_percent": -2.017815393282791,
+    "geometric_delta_percent_decimal70": "-2.017815393282790834180835669747169485252467628448844944400491152378060",
+    "cell_delta_percent_range": [
+      -5.071367879236115,
+      -0.2506655865919954
+    ],
+    "integer_5_percent_reduction": false,
+    "integer_at_most_1_percent_each_cell": true,
+    "screen_rejected": true,
+    "producer_status": "HOLD",
+    "producer_failure_phase": "instruction threshold",
+    "pairs": [
+      {
+        "model": "SimpleRegular",
+        "profile": "dive",
+        "baseline": {
+          "instructions": 2532173172,
+          "CG_bytes": 964367,
+          "CG_exclusive_cost_lines": 33937,
+          "raw_sha256": {
+            "CG": "f078a1abbf87ee9f5885a35b65af2548a76390586ba16b082df25a46d1700401",
+            "stdout": "58de07d1d59dcbe027715d0b805a7c00ab40f56baf3c723d0bcd8cc69ae67ea6",
+            "stderr": "868f294201fce9735b31fe7aa21955919ab9925ffe35d6619bb3ffbe24e5fc4d",
+            "observation": "949ff4504ca0fdb0e07fbd67165916d3f9ca61ee69e3b12fd3eb7c17ba4fcd48",
+            "identity_before": "7601ebae106ea5c84393bc4d6b3474e2c5a1173a46f243334deb2aeeec834077",
+            "identity_after": "01e51398a4939582957142fa5fe35b70f016af81b84b5e67ca37826ee14b5b81"
+          },
+          "native": {
+            "returncode": 0,
+            "externally_censored": false,
+            "driver_interruption": null,
+            "argv_sha256": "50031518f3a2b2d692a22703ec40eac4092eee5b2f68cec2939c8a82bcd20403"
+          },
+          "CLI_options_sha256": "9b29d0d5ab77287cabd60f21d04b70639a5629be8080388409143a336451aeca"
+        },
+        "candidate": {
+          "instructions": 2525093544,
+          "CG_bytes": 964302,
+          "CG_exclusive_cost_lines": 33941,
+          "raw_sha256": {
+            "CG": "b2b7f30c00ccaed528dc5bbe9e9e1223c57fd289476294435e480e706b5b3b08",
+            "stdout": "2339eee8393d5746b9dc132d34926c15ba945d5d54e31f78ae02fd61ee154620",
+            "stderr": "2d9f082352d074bf37147374c6c4cc94354a5b2a997d7cf4011827a7459d8276",
+            "observation": "f8e3bf59dcc598919a8c09c97e9b02b067a2bd32dd26612076f5cd03b6d09cd0",
+            "identity_before": "77320515102a9247823a402d297b8184a65c54915611a01a64fda92786c8408d",
+            "identity_after": "4ffb13b0d06d707eeb99565d805d6171658ae06cdd2c17d4f77ee5a7bf6b2295"
+          },
+          "native": {
+            "returncode": 0,
+            "externally_censored": false,
+            "driver_interruption": null,
+            "argv_sha256": "6fc8111f9efd3856b278ab6cdcbfd44ffa6f0fb1258b79342295e51b34acec72"
+          },
+          "CLI_options_sha256": "9b29d0d5ab77287cabd60f21d04b70639a5629be8080388409143a336451aeca"
+        },
+        "delta_percent": -0.2795870392390367,
+        "equal_counters": {
+          "distinct": 12097,
+          "generated": 47584,
+          "initial_generated": 1,
+          "depth": 19,
+          "left_on_queue": 0
+        }
+      },
+      {
+        "model": "MCbtree",
+        "profile": "dive",
+        "baseline": {
+          "instructions": 14498724161,
+          "CG_bytes": 1101918,
+          "CG_exclusive_cost_lines": 38168,
+          "raw_sha256": {
+            "CG": "b81190ca17d75c3e86246ca5fb351612a33044f02b66329c812a3fcc005e14e6",
+            "stdout": "e1b8e86e5899758df9324de39012f626b5639e510cd0e21c8f1d01eb33a6e4f4",
+            "stderr": "c6bebae02df3f08282ef407ed6b8e6e7f1f85de3e73297eb5dfe71bd774d1d45",
+            "observation": "bb6e09bc7cbfb4d49e47ca583af39c273239123766b8040a1b081507f60f8f19",
+            "identity_before": "c9a49a6151a03376771dfd685600fc2d02b0e4e5d9e81ab457c6d3f541d69de5",
+            "identity_after": "46febf6e26e4d79826f802fddb7d92eaddfed3b893dc2042602b8e8901e4b80d"
+          },
+          "native": {
+            "returncode": 0,
+            "externally_censored": false,
+            "driver_interruption": null,
+            "argv_sha256": "43a3f3efebf805891e13d888a19bd480b5dc2e77e3122231bf17d9e9a179668f"
+          },
+          "CLI_options_sha256": "9b29d0d5ab77287cabd60f21d04b70639a5629be8080388409143a336451aeca"
+        },
+        "candidate": {
+          "instructions": 13763440521,
+          "CG_bytes": 1102988,
+          "CG_exclusive_cost_lines": 38196,
+          "raw_sha256": {
+            "CG": "0af41e7864b7f2cc593afcff2e213ba65caba395ea5d2d10ae7b2e7c5e442afb",
+            "stdout": "c13db746251e52f0b67e0b6a006fa7679e9660fa4d96616dda26f79da76c9c34",
+            "stderr": "0189b8f73ee571903f9b0df85b4ce55100ae55bb1964d48c2d6c47d35554d9ef",
+            "observation": "7156f44431fcadff619ff83b0b2c6cf3c170a3cd073128d920eb1616127b733f",
+            "identity_before": "30c94e776554ab29484462739880babe0efc64efe2a02ffe1d2d499049109c0e",
+            "identity_after": "09e2bcb4e3ce5e4f5c9d6380cbf99276d2b528120b45b08dc2b3f198cc9b32f0"
+          },
+          "native": {
+            "returncode": 0,
+            "externally_censored": false,
+            "driver_interruption": null,
+            "argv_sha256": "6d34e8f1eac5bc51a8c977a33e1ae9915964ea2e9dd0a556764d5b51ab260332"
+          },
+          "CLI_options_sha256": "9b29d0d5ab77287cabd60f21d04b70639a5629be8080388409143a336451aeca"
+        },
+        "delta_percent": -5.071367879236115,
+        "equal_counters": {
+          "distinct": 21364,
+          "generated": 127825,
+          "initial_generated": 1,
+          "depth": 24,
+          "left_on_queue": 0
+        }
+      },
+      {
+        "model": "GameOfLife",
+        "profile": "dive",
+        "baseline": {
+          "instructions": 1147580527,
+          "CG_bytes": 895332,
+          "CG_exclusive_cost_lines": 32540,
+          "raw_sha256": {
+            "CG": "d9d2d10f9b9bc1a40553601509ae0a5260de840ae7a5aa852bc5957e8e0a053b",
+            "stdout": "9a8d5013ba9aa73d491b47975979004a5e9f026a1695369327abc8db0c6e7ce4",
+            "stderr": "05b94c6119e9a870fdea110481edc50b5fe0079d54eaa2d2fe4873944272565a",
+            "observation": "45c6596d45943914fc9f6bb74de9e496c001973e9429cb0dad8c244e48305ffa",
+            "identity_before": "1f0e9ba4baf1fa1ca28245d85fa3293596f2365e626e62f50f5f05747de0e3f7",
+            "identity_after": "0de2300d69c0c004999b7acdd6e6e83ab5f80f579de4c3bd24198596cb6d4a45"
+          },
+          "native": {
+            "returncode": 0,
+            "externally_censored": false,
+            "driver_interruption": null,
+            "argv_sha256": "fa756a9d3b8b9fe24cc73297a5fc8e92e0d3145e5678a76e542844a19f69b5b9"
+          },
+          "CLI_options_sha256": "9b29d0d5ab77287cabd60f21d04b70639a5629be8080388409143a336451aeca"
+        },
+        "candidate": {
+          "instructions": 1128984614,
+          "CG_bytes": 895462,
+          "CG_exclusive_cost_lines": 32549,
+          "raw_sha256": {
+            "CG": "58c5a4cb3423757db30c7e1721f8fcdbfd700f37d59788d398aeda5782911742",
+            "stdout": "22d286cf998b8f0003d75e23cf184cec5936fad1cd73b4aa20411f236f07c98d",
+            "stderr": "1b0caa40bf9f71fcacb5cb4b2ce54d925e3d3ecb324be6ef4b720695645554a7",
+            "observation": "06aad38b1a52e04988724ad443f3bae9dc13efb80024fd3ac8b51ed00c1cbc92",
+            "identity_before": "39a13462a6954a00b3634eb0dc73fe08ef804536bef05656dfafd6080448b0c0",
+            "identity_after": "60eb14da57b84b73c3d3cde284c5ddc77ee11ed4a13c016df55becbef7de7e87"
+          },
+          "native": {
+            "returncode": 0,
+            "externally_censored": false,
+            "driver_interruption": null,
+            "argv_sha256": "490de9656d82a494fae333bbe1fcf26cb6403340170c72a1964a7115b2672c35"
+          },
+          "CLI_options_sha256": "9b29d0d5ab77287cabd60f21d04b70639a5629be8080388409143a336451aeca"
+        },
+        "delta_percent": -1.620445150687016,
+        "equal_counters": {
+          "distinct": 512,
+          "generated": 1024,
+          "initial_generated": 512,
+          "depth": 1,
+          "left_on_queue": 0
+        }
+      },
+      {
+        "model": "EWD998PCal",
+        "profile": "dive",
+        "baseline": {
+          "instructions": 46734884276,
+          "CG_bytes": 1122196,
+          "CG_exclusive_cost_lines": 38424,
+          "raw_sha256": {
+            "CG": "0a797d1d8808c19295d332a7c3fc27077bdd1cee986577d1894533b6a242dd1a",
+            "stdout": "36077b1b986891542ea39a9008b7bb939b4d087f0a0ee183f86a49b709e6874a",
+            "stderr": "bc0a7b08283ef59fa41f1ddd9ef37ffa9978cd364b1c6c08912a91c72bbb7ca2",
+            "observation": "e5008a53178b8e5b9cd01febf038bcc1b7d5f8d7c313dceabc6b216ea6f3c74d",
+            "identity_before": "3b6773ecfa273098289e0af7eea7416d03157a76f9ce6ce75bf62dbe7ce37208",
+            "identity_after": "e005b90d3c3d5f6e139b992a1b778fee32f762e7dda6ecf466e4f704357954dd"
+          },
+          "native": {
+            "returncode": 0,
+            "externally_censored": false,
+            "driver_interruption": null,
+            "argv_sha256": "d7b27799d230bdfe69362ef258f8bf0c662d1f0d0664f3a68e4e8cd54a248d6d"
+          },
+          "CLI_options_sha256": "9b29d0d5ab77287cabd60f21d04b70639a5629be8080388409143a336451aeca"
+        },
+        "candidate": {
+          "instructions": 45989075671,
+          "CG_bytes": 1124800,
+          "CG_exclusive_cost_lines": 38463,
+          "raw_sha256": {
+            "CG": "4c3e2fe440655d235f150d8558b2a987df6fb7b9577448ee325ca9f5812e4cff",
+            "stdout": "6fbcbedc5467329e9cd3818dbd523a3a05e4a5d1b6b5c8426f1b85bbf391a774",
+            "stderr": "85753caabc5dd352faa62e6050bcb11ec042fb1ba8c61bb2d0f99f7293c0d225",
+            "observation": "55446ef8fab5ad2ad8311cea9d76abe599073488288d62a2fe985b49838e0795",
+            "identity_before": "c3b11792e91db753d1839abc0cfd79e033f34c744aa1a9fc13cda3f6870d0bfc",
+            "identity_after": "84cfa3aa42a5c5ba50f893467e14eba9c319b596515c0df452bfa6d2eeed9e29"
+          },
+          "native": {
+            "returncode": 0,
+            "externally_censored": false,
+            "driver_interruption": null,
+            "argv_sha256": "62cfec8f422de8cd62469aa0f9d25d736308eae842f75c2698a45cc29cbc96f5"
+          },
+          "CLI_options_sha256": "9b29d0d5ab77287cabd60f21d04b70639a5629be8080388409143a336451aeca"
+        },
+        "delta_percent": -1.5958285048819492,
+        "equal_counters": {
+          "distinct": 20870,
+          "generated": 168292,
+          "initial_generated": 8,
+          "depth": 28,
+          "left_on_queue": 0
+        }
+      },
+      {
+        "model": "SimpleRegular",
+        "profile": "tlc",
+        "baseline": {
+          "instructions": 2596516773,
+          "CG_bytes": 960394,
+          "CG_exclusive_cost_lines": 33771,
+          "raw_sha256": {
+            "CG": "0f44aaff930ccaf147ea3bf847cdcd7d0470cc575d82ccfd2c90fc28acbd3165",
+            "stdout": "5b0ffe737528a8e7a157e0097a8e8709ab0199b75ddd3ff77c7f243bc2b39ec8",
+            "stderr": "b6da83fd794b360b227a62f3f17c76b32cbcaee2fc38ff665a8d998c61277673",
+            "observation": "227462856a5159a98326b70bce1626f147cc575e712011c120c922d3c1bfe673",
+            "identity_before": "da0b789ee20c06cfb4a0eaa8a5fa274ce7450251133da684311bf50f4aaf714d",
+            "identity_after": "390f1de5ad3439658485d4b726126ab42b0ba885a9010f3d952936f0a0e61af0"
+          },
+          "native": {
+            "returncode": 0,
+            "externally_censored": false,
+            "driver_interruption": null,
+            "argv_sha256": "25ef0e19d5705b7103403f91fdc91d10014a8e3a036a987c0f691e17307abbac"
+          },
+          "CLI_options_sha256": "7940a8ca958c646d73a1bf8fd5adb40e694f84abf1ecb9456d31439523b6d50b"
+        },
+        "candidate": {
+          "instructions": 2590008199,
+          "CG_bytes": 962230,
+          "CG_exclusive_cost_lines": 33884,
+          "raw_sha256": {
+            "CG": "68a6ab500a9eae6562455f184b49a97f431d9b1d33434c6e7d59fc8d20f4f889",
+            "stdout": "c7f9d8cf99b9d69a9b67ca651ef2051e73ae7de1decf686325fe90aee4460780",
+            "stderr": "e365ef94e164fe5c0137af8a7f5cb6c996c2544b105e1f32f3a0121b06a93d79",
+            "observation": "5ccea0b210614d83b56ccdd1e7d81a1a76703a483641b88fc9cec92c40321d4e",
+            "identity_before": "0331383126f2adfb00ae181afa19830d31c162eea16e2637e87268082921a6ad",
+            "identity_after": "0af4b29fd0a472c60ce4e0ab34ea33938f707b430ce7f2233977839019e75816"
+          },
+          "native": {
+            "returncode": 0,
+            "externally_censored": false,
+            "driver_interruption": null,
+            "argv_sha256": "e3c93f4607b629b2cd498ca7a051350274908e78788386e74233f932d748fe54"
+          },
+          "CLI_options_sha256": "7940a8ca958c646d73a1bf8fd5adb40e694f84abf1ecb9456d31439523b6d50b"
+        },
+        "delta_percent": -0.2506655865919954,
+        "equal_counters": {
+          "distinct": 12097,
+          "generated": 47584,
+          "initial_generated": 1,
+          "depth": 19,
+          "left_on_queue": 0
+        }
+      },
+      {
+        "model": "MCbtree",
+        "profile": "tlc",
+        "baseline": {
+          "instructions": 18288388320,
+          "CG_bytes": 1026872,
+          "CG_exclusive_cost_lines": 37089,
+          "raw_sha256": {
+            "CG": "7261f52785049f267392968c45d1f7c4e56486dde2985f6c3bce7b4d0154d23b",
+            "stdout": "a8d0a7a11d0424894112ec9f3027ed24cce533439f1cacadff7d8f962e42fd4c",
+            "stderr": "b8c396b41f267408673840aa18dfb7e49013c92176044cee08022d1a18ddc5f5",
+            "observation": "07337346eaf2601f9bef19baf00601843384081bb1a1955984ea62a6903f24ab",
+            "identity_before": "271bded904a4cf6535b5c431559f02f54f7d6cc88a76b458b97eb903bb9900d1",
+            "identity_after": "b328877853a51e1b37e9782dd66b19de0c59ae5187ee8f6ba9fad26606974999"
+          },
+          "native": {
+            "returncode": 0,
+            "externally_censored": false,
+            "driver_interruption": null,
+            "argv_sha256": "15451e5eda04b5fab43ad5a62489bba22cf152ed1abfdf132493a0eff1275c8b"
+          },
+          "CLI_options_sha256": "c0dceae62abcb98a93874bfdda125a01c8e448aad76776319a21c027a2f52e0e"
+        },
+        "candidate": {
+          "instructions": 17545803224,
+          "CG_bytes": 1027160,
+          "CG_exclusive_cost_lines": 37103,
+          "raw_sha256": {
+            "CG": "cd37608ce09c15f98bca7c5a609618cf462366f2e288dd6f5b66a62e793b4714",
+            "stdout": "ba9d5798fb18afaa06249a04533de00baccd041b2070efaab78c6408e592b8f3",
+            "stderr": "0b9c7f4d99faa743dcb5ca554d9a0c49994640b70410491803c39b123fdb4674",
+            "observation": "39f1cf7ab1b0ed75926a7bf66aa1447a3f47845f1ea393efee6fae3ff515bd39",
+            "identity_before": "854e5e4a7aa636db3425e6a1df07589a654285397bfc5cfb26cb59aacae207a9",
+            "identity_after": "a15e9b7f99b6cff9defe15baae6d0977c9a734deddb1449111f491029f0fbb00"
+          },
+          "native": {
+            "returncode": 0,
+            "externally_censored": false,
+            "driver_interruption": null,
+            "argv_sha256": "aab54d3702c3b58dd478f006e1c07e0ab0e86e4c6b72339112900e2cf97162f8"
+          },
+          "CLI_options_sha256": "c0dceae62abcb98a93874bfdda125a01c8e448aad76776319a21c027a2f52e0e"
+        },
+        "delta_percent": -4.0604184633804845,
+        "equal_counters": {
+          "distinct": 21364,
+          "generated": 127825,
+          "initial_generated": 1,
+          "depth": 24,
+          "left_on_queue": 0
+        }
+      },
+      {
+        "model": "GameOfLife",
+        "profile": "tlc",
+        "baseline": {
+          "instructions": 1139682217,
+          "CG_bytes": 878873,
+          "CG_exclusive_cost_lines": 32338,
+          "raw_sha256": {
+            "CG": "83c6641fca52a65c0cf0ab8dd7875930915f384ede9d9aa170a40b7304d9a9e5",
+            "stdout": "c46f8066d31ae047d16b9637585d107f9e1c4c911bb774efa91b81387b8b4b14",
+            "stderr": "f28902f33fce8bc8eed1e945d8dbd693d4115f63344ffe895d3427ec518b1b28",
+            "observation": "0245ecbce204c3df5f7d27c0e425ea4993d962b018fa92b8f1c40c5a51ecd1b4",
+            "identity_before": "5212bd1c9de89fcbadfbfcfc5e43dbbb85afd205268f1180cf0a7f8325c5e369",
+            "identity_after": "5b3eb0f8d53e8031dd57d622fd73f0df0b682c3d1fa14e303caa6b7d7d67ad9c"
+          },
+          "native": {
+            "returncode": 0,
+            "externally_censored": false,
+            "driver_interruption": null,
+            "argv_sha256": "2a7955ff3ae4f4eb2fb326da51ac0eb0d78ed0636e59140da4a69b19e2882f54"
+          },
+          "CLI_options_sha256": "7940a8ca958c646d73a1bf8fd5adb40e694f84abf1ecb9456d31439523b6d50b"
+        },
+        "candidate": {
+          "instructions": 1121436873,
+          "CG_bytes": 879550,
+          "CG_exclusive_cost_lines": 32473,
+          "raw_sha256": {
+            "CG": "ff7e99ab4a7a3b3efcbcc13887be5ba102cd26d3005d4b85273aaea44be1e114",
+            "stdout": "7e57447b13e1730bb8a367e55813454ccf89e29e478b1c6f8402c09de47b86a7",
+            "stderr": "60b433ac4a0214cd0bac377ee7a5e3e076c36dcc053c489875544cb8ac421e36",
+            "observation": "da931c21586c823b4745e10c8e82c32ce3cbeef8ecdf2b3a8873f5f3bf18cede",
+            "identity_before": "6f2fa3d9a15452ec22e8753557572bcc5d797357b777c030ea4a07b5234a17b8",
+            "identity_after": "06448ecafda166b940fe0f703f253b72585437b469611a5f09eeb6656545517d"
+          },
+          "native": {
+            "returncode": 0,
+            "externally_censored": false,
+            "driver_interruption": null,
+            "argv_sha256": "078cf7f6fc5c4362d98ba145db739e59c4c685e93406948587e8bacf2dc7f7e1"
+          },
+          "CLI_options_sha256": "7940a8ca958c646d73a1bf8fd5adb40e694f84abf1ecb9456d31439523b6d50b"
+        },
+        "delta_percent": -1.600915038231223,
+        "equal_counters": {
+          "distinct": 512,
+          "generated": 1024,
+          "initial_generated": 512,
+          "depth": 1,
+          "left_on_queue": 0
+        }
+      },
+      {
+        "model": "EWD998PCal",
+        "profile": "tlc",
+        "baseline": {
+          "instructions": 47641243048,
+          "CG_bytes": 1111279,
+          "CG_exclusive_cost_lines": 38365,
+          "raw_sha256": {
+            "CG": "acd6d9ce5042dd53cedb58ba885c516ef07981185c8cb7d1fd95e6f21ef36da8",
+            "stdout": "345323bdc22df949db2aa0296df239b0b1723d6943fe30909294acaeaa967181",
+            "stderr": "0bae4d06fb6aed8d1a9eeddbcd0d6177e816a1b2efdf56413cfa5c2fee378a01",
+            "observation": "f73dad30f82432b2edd8d22d6672f78f6cc864d94967eff2a5bcc34f967b4316",
+            "identity_before": "17e55296892a17864b93330b1359978a3badd158a5218a8e421782206adc703e",
+            "identity_after": "16140b09ee268a5975a8f252d390f674079a16c7c1642c128207c3cef5387ea4"
+          },
+          "native": {
+            "returncode": 0,
+            "externally_censored": false,
+            "driver_interruption": null,
+            "argv_sha256": "b9934081357e082698143eefd57fc9e38b35f0b7dc6735a8712efc698038b3e1"
+          },
+          "CLI_options_sha256": "7940a8ca958c646d73a1bf8fd5adb40e694f84abf1ecb9456d31439523b6d50b"
+        },
+        "candidate": {
+          "instructions": 46898774094,
+          "CG_bytes": 1113084,
+          "CG_exclusive_cost_lines": 38404,
+          "raw_sha256": {
+            "CG": "80b0b2ab76b087fd3a2886465bab78b01dd002637005d1ccb9baa8e3c04108c2",
+            "stdout": "87b6990f79936510623c1d5cb1ba39e50e36111fbff00ea389f10bdd61bfed6c",
+            "stderr": "cda6f464f10ca71350237934623ee6c75732c594fc12bbb81a4e5ef49efa9d48",
+            "observation": "f786742297135c51c23cf22b68b866b713c308c76628e66cec2102e64c396526",
+            "identity_before": "a5a5dfef4f78eba74553a155efcf95240f598bb7e496580b6ae40f6ae1163e9e",
+            "identity_after": "d26afe1ac34c14b46a76191a4e845743c311175ff82d67ca1616f6a72ee47d46"
+          },
+          "native": {
+            "returncode": 0,
+            "externally_censored": false,
+            "driver_interruption": null,
+            "argv_sha256": "adbae77c2bfc5625ae7e2851e4051ccdce8e4ce782ef903edc2e8d049aa8fc2f"
+          },
+          "CLI_options_sha256": "7940a8ca958c646d73a1bf8fd5adb40e694f84abf1ecb9456d31439523b6d50b"
+        },
+        "delta_percent": -1.5584583996936014,
+        "equal_counters": {
+          "distinct": 20870,
+          "generated": 168292,
+          "initial_generated": 8,
+          "depth": 28,
+          "left_on_queue": 0
+        }
+      }
+    ],
+    "builds": [
+      {
+        "arm": "base",
+        "source": "198e587922ea58fea9e7974de5ca864ea1625c41",
+        "normal_native_returncode": 0,
+        "externally_censored": false,
+        "driver_interruption": null,
+        "stdout_sha256": "945687b4371d374812b0cc8f9fe78348c0ea52e615a37f1e5dd9ad18ff70f9ae",
+        "stderr_sha256": "6bf7715ee798b5ab0f69abd0eedd8cf1a1ae9bd48ab91a992c7b14e9e5c55e9b",
+        "observation_sha256": "d99413da3b0d0e845b07a8c95394904c7e2f1f60fb7459b128498e02e2629f96",
+        "strict_Cargo_bin": "dive",
+        "profile": "profiling",
+        "fresh": false,
+        "opt_level": "3",
+        "debuginfo": 2,
+        "debug_assertions": false,
+        "overflow_checks": false,
+        "build_finished_success": true
+      },
+      {
+        "arm": "candidate",
+        "source": "77b34163505286d04fb16fb7ae3864ad23ed2dde",
+        "normal_native_returncode": 0,
+        "externally_censored": false,
+        "driver_interruption": null,
+        "stdout_sha256": "d73c571eb535bfd6441f31538c158b8dc51ee191d167abaa98d5dbed0508b632",
+        "stderr_sha256": "aeb4c976818e5af03c52fd663a62facc1f77118f871ad3d738429c67b1a0bc62",
+        "observation_sha256": "dc215f43dee597db0079756c6789b9834f314b9e7c377852c3d5eea97a7b47f5",
+        "strict_Cargo_bin": "dive",
+        "profile": "profiling",
+        "fresh": false,
+        "opt_level": "3",
+        "debuginfo": 2,
+        "debug_assertions": false,
+        "overflow_checks": false,
+        "build_finished_success": true
+      }
+    ]
+  },
+  "identity_bindings": {
+    "matrix_before_sha256": "103c93bd2c5587764b3df7a720b8146dc04e58cda38d36015a58ebf5b231545e",
+    "matrix_after_sha256": "14d1e3e66eab3fef9496cdf4dcb03c536c7fdc4b6e04f6918ae92f3935b58a36",
+    "runtime_before_sha256": "58074daf644bcdf7ac122e5b2646effad4f06631884babc0a19e56a610ef7a30",
+    "runtime_after_sha256": "4d4ad70ae9fda6f1fdf55c8375aaf8326fbbf2c844ca72a1a7e5ff4912089066",
+    "per_arm_source_map_sha256": {
+      "base": "2fec7ead1bd36a3127729f581dd3bf2b03765533dffce2543aa798941a1b64c0",
+      "candidate": "07f127118fc9d2048f56fd7ca9efc7de6ec9cccddd04086ba8bf703268258c67"
+    },
+    "observed_input_receipts": {
+      "observed-inputs-before.json": {
+        "key": "results/raw/observed-inputs-before.json",
+        "sha256": "af50dca7f77e2f0fb8091cd8b5c8850ab06c535fde751f927ee8f8f1652022b9",
+        "bytes": 630
+      },
+      "observed-inputs-after.json": {
+        "key": "results/raw/observed-inputs-after.json",
+        "sha256": "86428682e337a5445be7224dde473ebead6340f3778d5f541c234801edc11ad9",
+        "bytes": 630
+      }
+    },
+    "input_policy": "Both original input receipts retained in the producer archive; separate post-run upload under fixed raw keys after normal18/16 plus whole-node quiescence. Producer native completion was not rewritten.",
+    "postrun_preservation_receipt_sha256": "6903c7ebe09be092f82d24a76fe1f2cd2698cf901bb110a774862c59c5fbfb19",
+    "whole_node_quiescence_proof_sha256": "45591f8731305b916d4db08bbdce25700610de5d827d95a37746653e637fa573"
+  },
+  "qualification": {
+    "focused_before_screen": {
+      "format": 0,
+      "all_target_evaluator_and_value_clippy": 0,
+      "value_library_tests": 20,
+      "evaluator_library_tests": 43,
+      "total_unfiltered_passed": 63,
+      "failed": 0,
+      "ignored": 0,
+      "filtered": 0,
+      "source": "77b34163505286d04fb16fb7ae3864ad23ed2dde",
+      "independent_review_sha256": "c8d27c2c661dbbb2e7e2332634ff45b25297649a55cd757d450c2ec047c641a2"
+    },
+    "candidate_full_gate": "Not run; conditional full gate not admitted because screen failed.",
+    "runtime_delivery": false,
+    "repeat_or_retuning": false,
+    "threshold_waiver": false
+  },
+  "evidence": {
+    "raw_origin": "s3://dive-selectseq-perf-20261025012341-11fb20f4-010928226848/results/raw/",
+    "producer_archive": {
+      "uri": "s3://dive-selectseq-perf-20261025012341-11fb20f4-010928226848/results/final.tgz",
+      "sha256": "6f06b6d087e8ba8ec1020ef225d17080f2d4815d509e4bf1ff33d6572d997aac",
+      "bytes": 4462723,
+      "complete_required_raw_set_preserved": true,
+      "scope": "Original producer archive; postrun input-preservation receipt is separate."
+    },
+    "producer_summary_sha256": "cbb6275ff3c256bb586578f9a94b35621b065dc5512f73f1e37cbf6b74549512",
+    "producer_completion_sha256": "151642cc2f16946b145728b624f7fa3c81f9a0cc5f0b090c917db54600360e31",
+    "manifest_sha256": "07da4b9d90c42276be24bd6bfe85bacc888f611e4a139e208a74790b54caa0e3",
+    "plan_sha256": "5aa9f6108ec10a37ad634ba3044c9eb19cd05240b9a44e940cf4b52a894bfdf8",
+    "source_contract_sha256": "dfb6241e5ab4023933356c2496acbeba984f9fe24a9053f0acecc5fbda06884d",
+    "protocol_preparation_sha256": "fd869a9876b1c45f5e02d7a5647f5c1aa5a3cd1226ed53bc1fc633a97e2ffbad",
+    "root_original_memory_audit": {
+      "receipt": "ROOT-INDEPENDENT-ACTUAL-MATRIX.json",
+      "sha256": "0c66f0cf0a99b186528c83f21a912d1a98b7c56c00afca42e3d36dcb504465e4",
+      "scope": "All18 original observations,16 complete CG/stdout/stderr streams, identities/input receipts replayed in bounded RAM; no local raw files."
+    },
+    "independent_compact_review": {
+      "receipt": "REVIEW.json",
+      "sha256": "43d045fd4a2a6450311bbd095a425fee3953d98b07eaa3258edc5ff6c30c0ef9",
+      "scope": "Independent local compact arithmetic/provenance crosscheck of8pairs/5counters/96arm digest links/110transportobjects; not a second original raw replay."
+    },
+    "memory_transport_sha256": "959da7497a246cf24778599c2054f88d519f434356854cd79dbbb1540348c0d1",
+    "transport_objects": 110,
+    "local_raw_files_created": false,
+    "archive_or_ELF_GET": false
+  },
+  "cleanup": {
+    "verified_at": "2026-10-25T02:16:18.233058+00:00",
+    "compute_state": "terminated",
+    "campaign_volume_count": 0,
+    "security_group_deleted": true,
+    "evidence_bucket_retained": true,
+    "scope": "Exact campaign compute, volume and security-group removal independently checked by the campaign owner; no model rerun."
+  },
+  "limitations": [
+    "This screen rejects the complete prototype under the fixed bar despite every cell improving. No conditional full gate or runtime PR.",
+    "No allocation-saving fraction, quiet wall-time, Java TLC throughput, scaling, new checker agreement or release-capacity claim.",
+    "Field/representation/layout and callback/drop controls passed focused tests; those results are not full-gate or new conformance qualification."
+  ]
+}

@@ -554,6 +554,36 @@ Formatting, all-target evaluator Clippy and all 69 unfiltered library tests had
 passed before the screen. This result establishes no removable-cost fraction,
 wall-time, Java TLC throughput, scaling, new parity or release-capacity claim.
 
+### Ready explicit-set payloads, 2026-10-25
+
+The private ready-set experiment compared baseline `198e5879` with candidate
+`77b34163`. It prepared the same eager native hash and element cache before
+publishing an owned set, shared empty element storage, and reused independently
+owned domain keys only after an exact same-order, canonical, provider-free
+proof. Unknown, deep and provider-backed keys retained their original route.
+Both profiling binaries used the shipping mimalloc allocator.
+
+Two builds and all sixteen Cachegrind arms completed normally and uncensored
+across four reduced models in both profiles at one worker. Every pair preserved
+all five reported counters. Instructions fell in every cell, by 0.251% to
+5.071%, with a geometric reduction of 2.0178154%. The screen passed the
+individual 1% regression ceiling and missed the fixed 5% geometric reduction
+bar. It was rejected in full: no conditional runtime full gate, runtime PR,
+repeat screen, retuning or threshold waiver follows.
+
+The [compact record](../survey/data/eager-set-payload-rejected-2026-10-25.json)
+retains all eight integer pairs, equal counters, source and binary identities,
+sixteen raw profile hashes, machine/tool facts and retained S3 origins. An
+independent audit replayed original streams and identities in memory; a
+separate compact review recomputed the arithmetic and checked provenance links.
+Two existing input receipts were uploaded separately after complete normal
+execution and whole-node quiescence, without changing the producer's threshold
+HOLD or native facts. Formatting, all-target value/evaluator Clippy and all
+63 unfiltered value/evaluator library tests passed before the screen. Compute
+was removed and raw evidence remains in S3. This establishes no removable-cost
+fraction, wall-time, Java TLC throughput, scaling, new parity or release-capacity
+claim.
+
 ## Packed temporal atom truth
 
 The native temporal label store keeps one bit per actual state/action observation.
