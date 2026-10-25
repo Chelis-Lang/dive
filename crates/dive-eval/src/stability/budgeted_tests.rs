@@ -255,9 +255,9 @@ fn checked_traversal_allocation_is_a_resource_error_not_an_unknown_certificate()
 }
 
 #[test]
-fn strict_substitution_is_refused_before_its_real_native_permission_effect() {
+fn strict_substitution_refuses_proof_and_ordinary_binding_still_produces_a_value() {
     let (ev, def) = input(
-        "---- MODULE Inner ----\nCONSTANT K\nRead == K=K\n====\nI == INSTANCE Inner WITH K <- <<1+2>>\nP == I!Read",
+        "---- MODULE Inner ----\nEXTENDS Sequences\nCONSTANT K\nRead == Len(K)=1\n====\nI == INSTANCE Inner WITH K <- <<1>>\nP == I!Read",
     );
     assert!(ev.ir().nodes().iter().any(|node| matches!(&node.expr,
         Expr::Subst { bindings, .. } if bindings.iter().any(|binding| matches!(binding.value,
@@ -270,6 +270,52 @@ fn strict_substitution_is_refused_before_its_real_native_permission_effect() {
             .is_none()
     );
     assert_eq!(calls.load(Ordering::SeqCst), 0);
+    let (at, declaration) = ev
+        .ir()
+        .nodes()
+        .iter()
+        .enumerate()
+        .find_map(|(at, node)| {
+            let Expr::Subst { bindings, .. } = &node.expr else {
+                return None;
+            };
+            bindings.iter().find_map(|binding| {
+                matches!(
+                    binding.value,
+                    Arg::Expr {
+                        pass: dive_ir::Pass::Strict,
+                        ..
+                    }
+                )
+                .then_some((at, binding.decl))
+            })
+        })
+        .expect("genuine lowered strict substitution");
+    let expression = ExprId(u32::try_from(at).expect("actual expression index"));
+    let owner = ev
+        .ir()
+        .defs()
+        .iter()
+        .enumerate()
+        .find_map(|(at, definition)| (definition.body == expression).then_some(at))
+        .expect("source definition owns its substitution");
+    let source = ev
+        .scope(dive_ir::DefId(
+            u32::try_from(owner).expect("actual definition index"),
+        ))
+        .expect("actual source scope");
+    let bound = ev
+        .scope_subst(&source, expression)
+        .expect("ordinary strict binding helper");
+    let SlotView::Value(value) = ev.scope_subst_slot(&bound, declaration) else {
+        panic!("strict tuple literal must already be stored, not a lazy binding");
+    };
+    assert_eq!(value, Value::tuple(vec![Value::Int(1)]));
+    assert_eq!(
+        calls.load(Ordering::SeqCst),
+        0,
+        "literal binding needs no native callback"
+    );
     assert!(
         ev.canonical_producer_stability_budgeted(&[], &roots, None)
             .expect("strict metadata is unknown, not evaluated")
@@ -283,7 +329,7 @@ fn strict_substitution_is_refused_before_its_real_native_permission_effect() {
     );
     assert!(
         calls.load(Ordering::SeqCst) > 0,
-        "real strict substitution evaluates its native child"
+        "ordinary substituted body genuinely reaches Len after binding"
     );
 }
 
