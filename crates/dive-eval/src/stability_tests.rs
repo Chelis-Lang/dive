@@ -4,8 +4,12 @@
 use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use super::*;
+use super::ProducerStability;
+use crate::env::Sv;
+use crate::{Evaluator, St};
 use crate::{Host, HostControl, HostError, Interrupted, Model, Options};
+use dive_ir::{Expr, StdOp};
+use dive_value::Value;
 use dive_value::{Ctx, DeferredKind, DeferredSet, ValueError};
 
 fn input(extra: &str) -> (Evaluator, dive_ir::DefId, dive_ir::DefId, dive_ir::DefId) {
@@ -34,11 +38,13 @@ fn proof(
             evaluator.scope(def).expect("scope"),
         )
     };
-    evaluator.canonical_producer_stability(
-        &[producer(init), producer(next)],
-        &[producer(pred)],
-        100_000,
-    )
+    evaluator
+        .canonical_producer_stability_budgeted(
+            &[producer(init), producer(next)],
+            &[producer(pred)],
+            None,
+        )
+        .expect("inspection without a run interruption")
 }
 
 #[test]
@@ -130,21 +136,18 @@ impl std::fmt::Debug for Probe {
 
 #[test]
 fn opaque_providers_stay_unknown_even_after_a_real_normalization_warmup() {
-    let (ev, _, _, _) = input("Init == x=0\nNext == UNCHANGED x\nP == TRUE");
+    let (ev, _, _, pred) = input("Init == x=0\nNext == UNCHANGED x\nP(a) == a=a");
     let calls = Arc::new(AtomicUsize::new(0));
     let value = Value::deferred(Arc::new(Probe(calls.clone())), Ctx::tlc());
-    let mut guard = Guard {
-        evaluator: &ev,
-        work: 100_000,
-        frames: BTreeMap::new(),
-        abstracts: Vec::new(),
-        active: Vec::new(),
-        control: None,
-        interrupted: None,
-        poll_after: 0,
-    };
+    let mut scope = ev.scope(pred).expect("actual predicate scope");
+    scope.env.bind(0, Sv::Val(value.clone()));
+    let roots = [(ev.ir().def(pred).body, scope)];
     let before = calls.load(Ordering::SeqCst);
-    assert!(guard.value(&value, 0).is_none());
+    assert!(
+        ev.canonical_producer_stability_budgeted(&[], &roots, None)
+            .expect("opaque storage is a semantic refusal")
+            .is_none()
+    );
     assert_eq!(calls.load(Ordering::SeqCst), before);
     let Value::Set(set) = &value else {
         panic!("deferred set")
@@ -152,7 +155,11 @@ fn opaque_providers_stay_unknown_even_after_a_real_normalization_warmup() {
     let _ = set.elements(Ctx::tlc()).expect("actual warmup");
     let warmed = calls.load(Ordering::SeqCst);
     assert!(warmed > before, "the provider observation must be genuine");
-    assert!(guard.value(&value, 0).is_none());
+    assert!(
+        ev.canonical_producer_stability_budgeted(&[], &roots, None)
+            .expect("opaque storage is a semantic refusal")
+            .is_none()
+    );
     assert_eq!(calls.load(Ordering::SeqCst), warmed);
 }
 
@@ -177,17 +184,24 @@ fn a_warm_thunk_does_not_hide_its_original_effectful_capture() {
     let warmed = ev.take_output();
     assert_eq!(warmed.len(), 1, "real PrintT once through the thunk cache");
     assert!(
-        ev.canonical_producer_stability(&[], &[(body, scope)], 100_000)
+        ev.canonical_producer_stability_budgeted(&[], &[(body, scope)], None)
+            .expect("effectful capture is refused without evaluation")
             .is_none()
     );
     assert_eq!(ev.take_output(), Vec::<String>::new());
 }
 
 #[test]
-fn proof_work_and_foreign_scopes_decline_without_runtime_evaluation() {
+fn run_budget_and_foreign_scopes_stop_without_runtime_evaluation() {
     let (ev, init, next, pred) = input("Init == x=0\nNext == x'=1-x\nP == 1 \\div (x-x)=0");
     let root = (ev.ir().def(pred).body, ev.scope(pred).expect("scope"));
-    assert!(ev.canonical_producer_stability(&[], &[root], 0).is_none());
+    let control = StopControl(AtomicUsize::new(0));
+    let error = ev
+        .canonical_producer_stability_budgeted(&[], &[root], Some(&control))
+        .expect_err("the actual run control must stop proof work");
+    assert_eq!(error.class(), crate::ErrorClass::Interrupted);
+    assert_eq!(error.interruption(), Some(Interrupted::new(727)));
+    assert_eq!(control.0.load(Ordering::SeqCst), 1);
     let foreign =
         Evaluator::new(Model::new(ev.ir().clone()), Options::tlc()).expect("independent Core");
     let root = (
@@ -195,7 +209,8 @@ fn proof_work_and_foreign_scopes_decline_without_runtime_evaluation() {
         foreign.scope(pred).expect("foreign scope"),
     );
     assert!(
-        ev.canonical_producer_stability(&[], &[root], 100_000)
+        ev.canonical_producer_stability_budgeted(&[], &[root], None)
+            .expect("foreign scope is a semantic refusal")
             .is_none()
     );
     assert!(
@@ -203,6 +218,15 @@ fn proof_work_and_foreign_scopes_decline_without_runtime_evaluation() {
         "failing primitive is inspected, not evaluated"
     );
     assert_eq!(ev.take_output(), Vec::<String>::new());
+}
+
+#[derive(Debug)]
+struct StopControl(AtomicUsize);
+impl HostControl for StopControl {
+    fn check(&self) -> Result<(), Interrupted> {
+        self.0.fetch_add(1, Ordering::SeqCst);
+        Err(Interrupted::new(727))
+    }
 }
 
 #[derive(Debug)]
@@ -242,7 +266,7 @@ fn public_host_replacement_remains_visible_while_control_persists() {
         .map(|item| item.to_string())
         .collect::<Vec<_>>()
         .join(",");
-    let (ev, _, _, pred) = input(&format!(
+    let (ev, init, next, pred) = input(&format!(
         "Init == x=0\nNext == UNCHANGED x\nP == IF (\\A item \\in {{{domain}}}: TRUE) THEN x+1 ELSE 0"
     ));
     let calls = Arc::new(AtomicUsize::new(0));
@@ -254,6 +278,21 @@ fn public_host_replacement_remains_visible_while_control_persists() {
     let _scope = ev
         .host_control(Some(Arc::new(Continue(controls.clone()))))
         .expect("control");
+    let producers = [init, next].map(|def| {
+        (
+            ev.ir().def(def).body,
+            ev.scope(def).expect("actual producer scope"),
+        )
+    });
+    assert!(
+        ev.canonical_producer_stability_budgeted(&producers, &[], None)
+            .expect("installed control permits metadata inspection")
+            .is_some()
+    );
+    assert!(controls.load(Ordering::SeqCst) > 0);
+    assert_eq!(calls.load(Ordering::SeqCst), 0);
+    // Keep the original runtime-loop witness independent of proof polls.
+    controls.store(0, Ordering::SeqCst);
     let state = St::state(Arc::from([Some(Value::Int(0))]));
     assert_eq!(
         ev.eval_def(pred, &state).expect("first host"),

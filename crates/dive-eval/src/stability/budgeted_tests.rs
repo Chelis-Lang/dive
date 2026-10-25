@@ -5,9 +5,14 @@
     reason = "real source/storage test setup"
 )]
 
-use super::*;
+use super::budgeted;
+use crate::env::Sv;
 use crate::{ErrorClass, Host, HostControl, HostError, Interrupted, Model, Options};
+use crate::{Evaluator, Scope, SlotView, St};
+use dive_ir::{Arg, Expr, ExprId, StdOp};
+use dive_value::Value;
 use dive_value::{Ctx, DeferredKind, DeferredSet, ValueError};
+use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 fn lower_input(body: &str) -> (Arc<dive_ir::Ir>, dive_ir::DefId) {
@@ -39,17 +44,11 @@ fn nested() -> Value {
 }
 
 #[test]
-fn deep_real_storage_and_low_old_work_are_separate_from_run_budgets() {
+fn deep_real_storage_is_inspected_under_the_run_budget() {
     let (ev, def) = input("P(a) == a=a");
     let (expr, mut scope) = root(&ev, def);
     scope.env.bind(0, Sv::Val(nested()));
     let roots = [(expr, scope)];
-    assert!(ev.canonical_producer_stability(&[], &roots, 0).is_none());
-    assert!(
-        ev.canonical_producer_stability(&[], &roots, 100_000)
-            .is_none(),
-        "old depth contract retained"
-    );
     let proof = ev
         .canonical_producer_stability_budgeted(&[], &roots, None)
         .expect("no budget interruption")
@@ -71,7 +70,7 @@ fn deep_source_transfers_and_real_callback_closures_use_the_iterative_route() {
     let expression = format!("{}x{}", "<< ".repeat(180), " >>".repeat(180));
     let body = format!("P == {expression} = {expression}");
     // Analysis/lowering is fixture construction, not the proof under test.
-    // Return only immutable IR; evaluator construction and both proof calls
+    // Return only immutable IR; evaluator construction and the proof call
     // below stay on this original test thread's ordinary stack.
     let (ir, def) = std::thread::Builder::new()
         .name("canonical-deep-source-fixture".into())
@@ -83,20 +82,12 @@ fn deep_source_transfers_and_real_callback_closures_use_the_iterative_route() {
     let ev = Evaluator::new(Model::new(ir), Options::tlc()).expect("actual evaluator");
     let roots = [root(&ev, def)];
     assert!(
-        ev.canonical_producer_stability(&[], &roots, 100_000)
-            .is_none()
-    );
-    assert!(
         ev.canonical_producer_stability_budgeted(&[], &roots, None)
             .expect("deep planning")
             .is_some()
     );
     let (ev, def) = input("Less(a,b) == a<b\nP == SortSeq(<<2,1>>,Less) = <<1,2>>");
     let roots = [root(&ev, def)];
-    assert!(
-        ev.canonical_producer_stability(&[], &roots, 100_000)
-            .is_some()
-    );
     assert!(
         ev.canonical_producer_stability_budgeted(&[], &roots, None)
             .expect("actual callback capture proof")
@@ -284,7 +275,8 @@ fn strict_substitution_refuses_proof_and_ordinary_binding_still_produces_a_value
     ev.set_host(Arc::new(Permission(calls.clone())));
     let roots = [root(&ev, def)];
     assert!(
-        ev.canonical_producer_stability(&[], &roots, 100_000)
+        ev.canonical_producer_stability_budgeted(&[], &roots, None)
+            .expect("strict metadata is refused before ordinary binding")
             .is_none()
     );
     assert_eq!(calls.load(Ordering::SeqCst), 0);
