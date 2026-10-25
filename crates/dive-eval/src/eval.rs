@@ -1618,7 +1618,7 @@ impl Core {
         Ok(out)
     }
 
-    /// The original per-element SetPredValue binding/evaluation boundary.
+    /// The original per-element `SetPredValue` binding/evaluation boundary.
     pub(crate) fn filter_keeps(
         self: &Arc<Self>,
         f: &Filter,
