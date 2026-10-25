@@ -8,7 +8,8 @@
 //! **Two messages and a deciding code.** When an error stops the search,
 //! TLC prints one message for it (the *reported* code and text) and, in
 //! most cases, a second one from a replay; the code its run returns decides
-//! the exit status, and that is the class the harness compares.
+//! the exit status. The observable primary class and physical exit are
+//! separate for the qualified owned Init replay envelopes below.
 //!
 //! - **While exploring** (`Worker.run` → `ModelChecker.doNextFailed`): an
 //!   `EvalException` is reported with its own code and message; anything
@@ -34,6 +35,9 @@
 //!   the state when a check of an initial state raised a non-`EvalException`;
 //!   the replay (`doInit(cTool, true)`) then returns `TLC_NESTED_EXPRESSION`
 //!   for every exception.
+//!   For owned NONE2215 or native2154/NONE2178, the source-qualified harness
+//!   retains GENERAL1000 as primary and the actual replay exit 75. Native
+//!   wrapper causes are retained as typed provenance, never parsed from text.
 //!
 //! What the replay does to the counts and to the verdict of an invariant
 //! that fails to evaluate on a new state is `engine::Search::replay_after`'s.
@@ -92,6 +96,28 @@ fn replay_class_known(e: &EvalError) -> bool {
     } else {
         TOOL_CODES.contains(&code)
     }
+}
+
+/// The primary message of the two source-qualified Init replay envelopes.
+/// The internal replay code still supplies physical exit 75. Native wrapper
+/// provenance is typed; neither a method signature nor nested message text
+/// can establish this rule. Other Init errors retain their existing table.
+pub(crate) fn init_primary_general(
+    site: ErrorSite,
+    code: u32,
+    reported: u32,
+    verified: bool,
+    cause: &EvalError,
+) -> bool {
+    site == ErrorSite::Init
+        && code == 2103
+        && reported == 1000
+        && verified
+        && cause.is_eval()
+        && !cause.is_eval_exception()
+        && (cause.ec() == Ec::ExpectedValue
+            || (cause.ec() == Ec::JavaMethodOverride
+                && matches!(cause.override_cause(), Some((_, Ec::Overflow)))))
 }
 
 /// The `EC` name of a code this module or the evaluator reports.

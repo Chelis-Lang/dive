@@ -2309,3 +2309,18 @@ not original configured attribution roots, grant this startup outcome. The
 existing pure conversion boundary remains; no predicate-result cache, row or
 word is created. Source/operator observations and generated goldens are recorded
 in `startup-tautology-primary-controls-2026-10-25.json` under `docs/survey/data/`.
+
+
+### Primary Init errors and diagnostic exits
+
+The qualified Init mapping follows pinned TLC `94d0c507` (MIT),
+`ModelChecker.modelCheckImpl`'s original exception report and CallStackTool
+replay, `MethodValue.eval`, and MP's GENERAL/2154/2178/2215 templates.
+The original `nested-powerset-primary` references precede this implementation.
+The primary GENERAL class and physical replay exit 75 remain distinct.
+Native override origins are retained by the actual evaluator wrapper; method
+signatures and apparent nested frames in a message grant no authority.
+A process-unique deferred receipt transports this origin through the value
+layer, reusing the existing checked interruption receipt mechanism. Forged,
+stale, duplicated, cross-thread or exhausted receipts cannot supply an error
+class. Global EC exit mappings and report/trace schemas are unchanged.

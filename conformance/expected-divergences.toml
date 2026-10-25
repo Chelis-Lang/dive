@@ -84,6 +84,19 @@ fields = ["verdict", "error_class", "counts.*"]
 justification = "Unbounded integers (D-004): x reaches 2147483648, where TLC's 32-bit integers raise TLC_INTEGER_TOO_BIG; in TLA+ the invariant holds and the search ends after 3 states, as dive reports"
 link = "docs/divergences.md#registry"
 
+# D-004: normally generated primary reference and unchanged-main measurement.
+# TLC's Init wrapper is GENERAL/75; default computes 2^32, then one self-loop.
+[[divergence]]
+id = "d004-nested-powerset-cardinality"
+pattern = "specifications/ExplicitOuterPowersetCardinality/ExplicitOuterPowersetCardinality.cfg"
+profile = "dive"
+exit_code_pair = { expected = 75, actual = 0 }
+generated_count_pair = { expected = 0, actual = 2 }
+expected_verdict = "success"
+fields = ["verdict", "error_class", "counts.distinct_states", "counts.depth"]
+justification = "Unbounded integers (D-004): explicit outer Cardinality computes 4294967296 without TLC's 32-bit size overflow; the unchanged model has 1 distinct / 2 generated states and depth 1"
+link = "docs/divergences.md#registry"
+
 [[divergence]]
 id = "d006-p2-choose-str"
 pattern = "specifications/P2Choose/P2Choose_str.cfg"

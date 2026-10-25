@@ -287,6 +287,12 @@ Human output displays the selected convention and process status. The existing
 `tlc` object describes the deciding error class, independently of the selected
 exit convention; `verified: false` stays unverified.
 
+For source-qualified errors during Init, `tlc.code` can remain GENERAL (1000)
+while `tlc.exit_status` is 75: TLC reports the original exception, then its
+diagnostic replay determines the process status. Native override provenance
+and the actual Init site distinguish these cases; error text alone does not.
+Other sites and unknown causes keep their existing classification.
+
 Rust callers keep `CheckReport::exit_code()`, `to_json()` and `render_human()`
 behavior. To select explicitly, use `ExitConvention::Tlc` or `Native` with
 `exit_code_for`, `to_json_with_exit_convention` and

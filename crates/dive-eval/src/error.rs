@@ -228,6 +228,9 @@ struct Inner {
     /// unrelated refusal with the same text can never authorize lazy retry.
     analysis_only: bool,
     interruption: Option<crate::host::Interrupted>,
+    /// Original typed cause of a built-in Java-override wrapper. Rendered
+    /// message text, including apparent tool frames, grants no provenance.
+    override_cause: Option<(dive_ir::StdOp, Ec)>,
 }
 
 const ANALYSIS_ONLY: &str = "analysis-only binder has no runtime value";
@@ -247,6 +250,7 @@ impl EvalError {
             eval_exception,
             analysis_only: false,
             interruption: None,
+            override_cause: None,
         }))
     }
 
@@ -269,6 +273,33 @@ impl EvalError {
     #[must_use]
     pub fn eval_exception(ec: Ec, message: impl Into<String>) -> Self {
         Self::make(ErrorClass::Eval, ec, message.into(), true)
+    }
+
+    /// Constructs the actual native wrapper without recovering its cause from
+    /// presentation text. Only the evaluator's native dispatch uses this path.
+    pub(crate) fn wrapped_override(
+        operator: dive_ir::StdOp,
+        message: String,
+        cause: &Self,
+    ) -> Self {
+        let mut error = Self::coded(Ec::JavaMethodOverride, message);
+        error.0.override_cause = Some((operator, cause.ec()));
+        error
+    }
+
+    /// The original operator and error code retained by native wrapping.
+    ///
+    /// An error made with [`Self::coded`] has no such provenance, even when
+    /// its message contains the same method text and nested tool frames.
+    ///
+    /// ```
+    /// use dive_eval::{Ec, EvalError};
+    /// let error = EvalError::coded(Ec::JavaMethodOverride, "nested tool text");
+    /// assert_eq!(error.override_cause(), None);
+    /// ```
+    #[must_use]
+    pub fn override_cause(&self) -> Option<(dive_ir::StdOp, Ec)> {
+        self.0.override_cause
     }
 
     /// An explicit refusal: dive does not implement `feature` exactly.
@@ -436,8 +467,8 @@ thread_local! {
 }
 
 // Process uniqueness is necessary: a ValueError can cross a worker boundary.
-// Zero marks exhausted identity space, never a receipt. Only interruption takes
-// this cold path; successful evaluation and ordinary errors do not touch it.
+// Zero marks exhausted identity space, never a receipt. Interruption and sealed
+// native-cause errors take this cold path; successful evaluation does not.
 static NEXT_RECEIPT: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(1);
 
 fn receipt(counter: &std::sync::atomic::AtomicU32) -> Option<u32> {
@@ -456,19 +487,21 @@ pub(crate) fn stash(error: EvalError) -> ValueError {
 }
 
 fn stash_with_counter(error: EvalError, counter: &std::sync::atomic::AtomicU32) -> ValueError {
-    let (error, receipt) = if error.class() == ErrorClass::Interrupted {
-        match receipt(counter) {
-            Some(receipt) => (error, Some(receipt)),
-            None => (
-                EvalError::bug("deferred interruption receipt identity space exhausted"),
-                None,
-            ),
-        }
-    } else {
-        (error, None)
-    };
+    let (error, receipt) =
+        if error.class() == ErrorClass::Interrupted || error.override_cause().is_some() {
+            match receipt(counter) {
+                Some(receipt) => (error, Some(receipt)),
+                None => (
+                    EvalError::bug("deferred evaluator receipt identity space exhausted"),
+                    None,
+                ),
+            }
+        } else {
+            (error, None)
+        };
     let kind = match (error.class(), error.ec(), receipt) {
         (ErrorClass::Interrupted, _, Some(receipt)) => ErrorKind::Interrupted { receipt },
+        (_, _, Some(receipt)) => ErrorKind::DeferredError { receipt },
         (ErrorClass::Eval, Ec::General, _) => ErrorKind::NotEnumerable,
         (ErrorClass::Eval, _, _) => ErrorKind::Argument,
         _ => ErrorKind::DiveLimit,
@@ -480,13 +513,20 @@ fn stash_with_counter(error: EvalError, counter: &std::sync::atomic::AtomicU32) 
 
 impl From<ValueError> for EvalError {
     fn from(error: ValueError) -> Self {
-        if let ErrorKind::Interrupted { receipt } = error.kind() {
+        if let ErrorKind::Interrupted { receipt } | ErrorKind::DeferredError { receipt } =
+            error.kind()
+        {
+            let interruption = matches!(error.kind(), ErrorKind::Interrupted { .. });
             return STASH
                 .with(|stash| {
                     let mut stash = stash.borrow_mut();
                     if stash.as_ref().is_some_and(|pending| {
                         pending.receipt == Some(receipt)
-                            && pending.error.class() == ErrorClass::Interrupted
+                            && if interruption {
+                                pending.error.class() == ErrorClass::Interrupted
+                            } else {
+                                pending.error.override_cause().is_some()
+                            }
                     }) {
                         stash.take().map(|pending| pending.error)
                     } else {
@@ -494,7 +534,7 @@ impl From<ValueError> for EvalError {
                     }
                 })
                 .unwrap_or_else(|| {
-                    Self::bug("value-layer interruption has no matching typed evaluator receipt")
+                    Self::bug("value-layer error has no matching typed evaluator receipt")
                 });
         }
         let recovered = STASH.with(|stash| {
@@ -592,5 +632,59 @@ mod interruption_transport {
             assert_eq!(std::mem::size_of::<ValueError>(), 32);
             assert_eq!(std::mem::size_of::<ErrorKind>(), 8);
         }
+    }
+}
+
+#[cfg(test)]
+mod native_cause_transport {
+    use super::*;
+    use dive_ir::StdOp;
+
+    fn wrapped() -> EvalError {
+        EvalError::wrapped_override(
+            StdOp::FiniteSetsCardinality,
+            "original wrapper text".to_owned(),
+            &EvalError::coded(Ec::Overflow, "original size overflow"),
+        )
+    }
+
+    #[test]
+    fn native_origin_survives_clone_and_real_receipt_but_not_rendered_forgery() {
+        let original = wrapped().at(ExprId(7));
+        assert_eq!(
+            original.clone().override_cause(),
+            Some((StdOp::FiniteSetsCardinality, Ec::Overflow))
+        );
+        let forged = EvalError::coded(Ec::JavaMethodOverride, original.message());
+        assert_eq!(forged.override_cause(), None);
+        let transported = stash(original.clone());
+        assert!(matches!(
+            transported.kind(),
+            ErrorKind::DeferredError { .. }
+        ));
+        let text_forgery = ValueError::new(ErrorKind::Argument, original.message());
+        assert_eq!(EvalError::from(text_forgery).override_cause(), None);
+        let duplicate = transported.clone();
+        assert_eq!(EvalError::from(transported), original);
+        assert_eq!(EvalError::from(duplicate).class(), ErrorClass::Bug);
+    }
+
+    #[test]
+    fn native_receipts_do_not_cross_threads_or_exhaust_into_a_verdict()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let value = stash(wrapped());
+        let moved = value.clone();
+        std::thread::spawn(move || {
+            assert_eq!(EvalError::from(moved).class(), ErrorClass::Bug);
+        })
+        .join()
+        .map_err(|_| "worker failed")?;
+        assert!(EvalError::from(value).override_cause().is_some());
+        let exhausted = std::sync::atomic::AtomicU32::new(0);
+        assert_eq!(
+            EvalError::from(stash_with_counter(wrapped(), &exhausted)).class(),
+            ErrorClass::Bug
+        );
+        Ok(())
     }
 }
