@@ -57,7 +57,6 @@
     "max_memory": "8g"
   },
   "full_gate": {
-    "phases_passed": 13,
     "tests": {
       "tests_run": 2555,
       "passed": 2555,
@@ -76,7 +75,13 @@
       }
     },
     "baseline_changes": false,
-    "archive_sha256": "5a51d29eacba92fd39652f655c542f6b6ed9f653917be46e24b463c62ddba7fc"
+    "archive_sha256": "5a51d29eacba92fd39652f655c542f6b6ed9f653917be46e24b463c62ddba7fc",
+    "phase_count": 13,
+    "applicable_phases_passed": 12,
+    "conditional_phase_not_applicable": {
+      "name": "cargo-deny",
+      "reason": "Cargo.lock and deny.toml unchanged"
+    }
   },
   "focused": {
     "tests_passed": 309,
