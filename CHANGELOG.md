@@ -1,5 +1,9 @@
 # Changelog
 
+- Record complete frozen-main evaluator cost attribution and the measured
+  rejection of hash deferral before implementation. Checker behavior,
+  conformance populations and baselines are unchanged.
+
 - Record two pinned temporal atom demand references: startup tautology rejection
   and compiled-bin error priority. Both remain unsupported in ordinary
   comparisons; established populations and checker behavior are unchanged.
