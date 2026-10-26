@@ -89,7 +89,9 @@ fn actual_ordinary_compat_statuses_and_schema_match_the_selected_backend()
             assert_eq!(native["execution"]["exhausted"], true);
             assert_eq!(native["statistics"]["distinct"], 3);
         }
-        let excluded = run(&file, "tlc", 1, &["--sequential"])?;
+        let sequential = run(&file, "tlc", 1, &["--sequential"])?;
+        assert_eq!(sequential.status.code(), Some(status));
+        let excluded = run(&file, "tlc", 1, &["--chaos", "0"])?;
         assert_eq!(excluded.status.code(), Some(3));
         assert_eq!(
             serde_json::from_slice::<serde_json::Value>(&excluded.stdout)?["schema_version"],
@@ -147,14 +149,29 @@ fn existing_tlc_composition_option_keeps_counts_and_safe_validation_refusal()
         }
         for extra in [
             vec!["--action-composition=tla"],
-            vec!["--action-composition=tlc", "--sequential"],
-            vec!["--action-composition=tlc", "--store=exact"],
+            vec!["--action-composition=tlc", "--chaos", "0"],
         ] {
             let output = run(&file, "tlc", 1, &extra)?;
             let value: serde_json::Value = serde_json::from_slice(&output.stdout)?;
             assert_eq!(output.status.code(), Some(3));
             assert_eq!(value["schema_version"], 3);
             assert_eq!(value["verdict"], "unsupported");
+        }
+        // Sequential and exact-store requests keep the composed result.
+        for extra in [
+            vec!["--action-composition=tlc", "--sequential"],
+            vec!["--action-composition=tlc", "--store=exact"],
+        ] {
+            let output = run(&file, "tlc", 1, &extra)?;
+            let value: serde_json::Value = serde_json::from_slice(&output.stdout)?;
+            assert_eq!(output.status.code(), Some(if holds { 0 } else { 3 }));
+            assert_eq!(
+                value["verdict"],
+                if holds { "success" } else { "unsupported" }
+            );
+            for field in ["generated", "distinct", "depth"] {
+                assert_eq!(value["statistics"][field], case[field]);
+            }
         }
     }
     Ok(())
