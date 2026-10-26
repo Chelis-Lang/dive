@@ -1,8 +1,9 @@
 # Exploration engine
 
 Status: M1 stream 3. Single-thread BFS in `crates/dive-explore`, with the
-predecessor log and replayed traces (§4, `core/engine-traces`). The parallel
-level (§3, S9) is not built yet. This document covers strategies S3 and S9 from
+predecessor log and replayed traces (§4, `core/engine-traces`) and TLC's
+error endings (§4, `core/engine-errors`). The parallel level (§3, S9) is not
+built yet. This document covers strategies S3 and S9 from
 `01-motivation.md`. The new engine lives in `dive-explore`.
 
 ## 1. Contract
@@ -201,13 +202,59 @@ the incremental hash before any interning, so only new states are interned.
   same successor order), and `dive-trace` validates it. For deadlocks the
   validator checks the steps and reports the ending itself as unsupported.
 
-**Not built yet:** error endings (traces for evaluation errors and incomplete
-states, the call-stack replay), budgets other than `--time-limit`, and the
-parallel level.
+**Done (M1, `core/engine-errors`).** Error endings
+(`02-semantic-contract.md` §3(e)).
+- `dive_explore::ending` records where an evaluation error ends the search:
+  - the site: `Init`, `Next(action)`, `Constraint(i)`, `ActionConstraint(i)`,
+    `Invariant(i)`, or `Incomplete` for a state that leaves variables
+    unassigned;
+  - the parent state, the state checked, and the action;
+  - whether the state was inside the model;
+  - for `Init` and `Next`, the states the predicate or action emitted before
+    the error.
+  The trace ends at the parent, followed by the state checked.
+- TLC's call-stack replay (E3) is the explorer's. After an invariant fails
+  to evaluate on a new successor inside the model, the parent is expanded
+  again, each action in full before its successors are checked. Past the
+  failing successor, new states are inserted (distinct, not generated),
+  checked and queued, until a violation or an incomplete state ends the
+  replay quietly, or a further error ends it with that error's site.
+- The core's errors carry no TLC class yet (`04-plan-compiler.md` §5, stream
+  2). `crates/dive-api/src/core_ending.rs` therefore reproduces each ending
+  with the reference evaluator on the same states: the failing action is
+  re-run (`next_states` or `init_states`), or the failing check is evaluated
+  again. The error it raises is classified with the reference engine's table,
+  through `dive_check::classify` (a thin public view of `class.rs`):
+  - E2 for `Next` and the constraints;
+  - E3 for invariants, with `recurring` for a state outside the model and
+    `replay_error` for a further error in the replay;
+  - E6 for the initial states, with `init_error` and TLC's statistics after
+    an error there.
+  The reproduction doubles as a cross-check. If the reference evaluator
+  raises no error there, or emits a different number of states before it,
+  the run is refused rather than reported.
+- When the core has typed error provenance, the reproduction can be
+  dropped: build the `EvalError` from the core error's EC code and kind, and
+  call the same table.
+- Results, in `crates/dive-api/tests/core_rules.rs` and `core_traces.rs`:
+  - Of the 175 error-class fixtures, 85 agree with the reference engine on
+    verdict, class, exit, counts after the replay, and trace. Among them,
+    `ErInvDivZero` gives 4 generated, 5 distinct, 2 queued and exit 76, and
+    `ErInvReplayError` gives 4 / 5 / 1 and exit 75.
+  - The other 90 use constructs the core does not run yet (VIEW, ALIAS,
+    POSTCONDITION, properties, `Print`, `Assert`, ENABLED, failing ASSUMEs,
+    recursive functions). `ErFpInfinite` is the one exception: it is refused
+    because the core raises its error while assigning `x' = Nat`, where TLC
+    raises it only when fingerprinting the successor.
+  - Every trace equals the reference engine's and validates with
+    `dive-trace`. The validator's known refutations #490 and #499 are
+    allowed, as for the reference engine.
+
+**Not built yet:** fingerprint-site errors, budgets other than
+`--time-limit`, and the parallel level.
 
 **Next (M1, stream 3):**
-1. Error endings and replay (`02-semantic-contract.md` §3(e)).
-2. Budgets: `--max-memory`, `--max-states` and `--time-limit` with the
+1. Budgets: `--max-memory`, `--max-states` and `--time-limit` with the
    reference engine's structured stop.
-3. The parallel level of §3.
-4. The static fallback (`08-correctness.md` §3).
+2. The parallel level of §3.
+3. The static fallback (`08-correctness.md` §3).
