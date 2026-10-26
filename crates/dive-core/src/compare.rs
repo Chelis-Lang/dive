@@ -113,7 +113,11 @@ pub(crate) fn miss(heap: &Heap, x: Handle, elems: &[Handle]) -> Result<(), Error
     let cx = class(heap, x);
     let (cf, cl) = (class(heap, first), class(heap, last));
     let clash = if cx.is_scalar() {
-        if cf == cx { (cl != cx).then_some(cl) } else { Some(cf) }
+        if cf == cx {
+            (cl != cx).then_some(cl)
+        } else {
+            Some(cf)
+        }
     } else {
         cf.is_scalar().then_some(cf)
     };
@@ -211,9 +215,15 @@ mod tests {
         assert!(miss(&h, a, &[one, two]).is_err());
         assert!(miss(&h, s, &[one, two]).is_err());
         assert!(miss(&h, Handle::int(3).unwrap(), &[one, two]).is_ok());
-        assert!(miss(&h, one, &[s]).is_err(), "TLC compares the integer with the set");
+        assert!(
+            miss(&h, one, &[s]).is_err(),
+            "TLC compares the integer with the set"
+        );
         let t = h.tuple(&[one]);
-        assert!(miss(&h, t, &[s]).is_ok(), "a function is unequal to a set element");
+        assert!(
+            miss(&h, t, &[s]).is_ok(),
+            "a function is unequal to a set element"
+        );
         assert!(miss(&h, a, &[]).is_ok());
     }
 
