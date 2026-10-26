@@ -1,5 +1,6 @@
 //! The M0 spike models under `--engine=core` reproduce the pinned TLC
-//! goldens' verdict, distinct and generated counts and depth at one worker.
+//! goldens' verdict, distinct and generated counts and depth, at one worker
+//! and at four.
 //!
 //! Slow and corpus-dependent: excluded from the `ci` nextest profile. It
 //! needs the pinned examples corpus and module libraries in
@@ -38,36 +39,42 @@ fn golden(model: &str) -> serde_json::Value {
 
 fn check(spec: &Path, cfg: &Path, model: &str) {
     assert!(spec.exists(), "missing corpus file {}", spec.display());
-    let report = check_file_engine(
-        &CheckRequest {
-            file: spec.to_path_buf(),
-            config: Some(cfg.to_path_buf()),
-            module_paths: vec![cache().join("git").join(TLAPM)],
-            workers: Some(1),
-            seed: Some(0),
-            fp: Some(0),
-            ..CheckRequest::default()
-        },
-        Engine::Core,
-    )
-    .expect("check runs");
-    let got = report.to_json();
-    let want = golden(model);
-    let counts = &want["result"]["counts"];
-    assert_eq!(got["engine"], "core");
-    assert_eq!(
-        got["verdict"], want["result"]["verdict"],
-        "{model}: {got:#}"
-    );
-    assert_eq!(
-        got["statistics"]["distinct"], counts["distinct_states"],
-        "{model}"
-    );
-    assert_eq!(
-        got["statistics"]["generated"], counts["states_generated"],
-        "{model}"
-    );
-    assert_eq!(got["statistics"]["depth"], counts["depth"], "{model}");
+    // One worker, and the parallel level, whose results are the same.
+    for workers in [1, 4] {
+        let report = check_file_engine(
+            &CheckRequest {
+                file: spec.to_path_buf(),
+                config: Some(cfg.to_path_buf()),
+                module_paths: vec![cache().join("git").join(TLAPM)],
+                workers: Some(workers),
+                seed: Some(0),
+                fp: Some(0),
+                ..CheckRequest::default()
+            },
+            Engine::Core,
+        )
+        .expect("check runs");
+        let got = report.to_json();
+        let want = golden(model);
+        let counts = &want["result"]["counts"];
+        assert_eq!(got["engine"], "core");
+        assert_eq!(
+            got["verdict"], want["result"]["verdict"],
+            "{model} at {workers} workers: {got:#}"
+        );
+        assert_eq!(
+            got["statistics"]["distinct"], counts["distinct_states"],
+            "{model} at {workers} workers"
+        );
+        assert_eq!(
+            got["statistics"]["generated"], counts["states_generated"],
+            "{model} at {workers} workers"
+        );
+        assert_eq!(
+            got["statistics"]["depth"], counts["depth"],
+            "{model} at {workers} workers"
+        );
+    }
 }
 
 fn example(model: &str) {
