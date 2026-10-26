@@ -1,5 +1,11 @@
 # Changelog
 
+- `--engine core` now runs `<<A>>_v`, `UNCHANGED` of any expression, `x'
+  \subseteq S`, functions applied as actions and `ACTION_CONSTRAINT`, reports
+  TLC's warning 2143, and reports the queue at a deadlock or an initial-state
+  violation. It now refuses `x' \in` a lazily represented union whose
+  enumeration repeats elements, which M0 answered with wrong counts.
+
 - Add `dive check --engine core` (or `DIVE_ENGINE=core`), the experimental M0
   spike of the new execution core (ADR 0117). It covers the default profile, one
   worker and safety only, and reports anything else as `unsupported`; it never

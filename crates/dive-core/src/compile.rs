@@ -48,6 +48,9 @@ use crate::plan::{
 };
 use crate::store::Store;
 
+#[path = "compile_gen.rs"]
+mod generator;
+
 /// The largest plan the compiler builds (inlining blow-up guard).
 const MAX_NODES: usize = 4_000_000;
 
@@ -98,6 +101,9 @@ pub struct Handoff<'a> {
     pub invariants: Vec<Role>,
     /// `CONSTRAINT`s.
     pub constraints: Vec<Role>,
+    /// `ACTION_CONSTRAINT`s, evaluated on a step: unprimed variables read
+    /// the parent, primed ones the successor.
+    pub action_constraints: Vec<Role>,
     /// Whether deadlock is checked.
     pub check_deadlock: bool,
 }
@@ -209,6 +215,14 @@ pub fn compile(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<Plan, E
     for r in &h.constraints {
         constraints.push(c.check(r)?);
     }
+    let mut action_constraints = Vec::new();
+    for r in &h.action_constraints {
+        let mut k = c.check(r)?;
+        // The parent-delta skip compares a state with its parent; a step
+        // predicate has no such parent.
+        k.conjuncts.iter_mut().for_each(|j| j.skippable = false);
+        action_constraints.push(k);
+    }
     c.stats.nodes = c.code.nodes.len();
     c.stats.gnodes = c.code.gnodes.len();
     let vars =
@@ -226,6 +240,7 @@ pub fn compile(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<Plan, E
         next,
         invariants,
         constraints,
+        action_constraints,
         check_deadlock: h.check_deadlock,
         stats: c.stats,
     })
@@ -913,8 +928,26 @@ impl Compiler<'_> {
             Expr::Subst { .. } | Expr::SubstRef { .. } => {
                 Err(Error::unsupported("INSTANCE substitution (M0 core)"))
             }
-            Expr::StepBox { .. } | Expr::StepAngle { .. } => {
-                Err(Error::unsupported("[A]_v as a value (M0 core)"))
+            // `[A]_v` is `A \/ UNCHANGED v`; `<<A>>_v` is `A /\ v' # v`
+            // (TLC's `OPCODE_sa`, `OPCODE_aa` in `eval`).
+            Expr::StepBox { action, sub } | Expr::StepAngle { action, sub } => {
+                if mode == Mode::Primed || self.init_mode {
+                    return Err(Error::unsupported(
+                        "[A]_v under a prime or in an initial predicate (core)",
+                    ));
+                }
+                let boxed = matches!(expr, Expr::StepBox { .. });
+                let (action, sub) = (*action, *sub);
+                let a = self.p(action, env, mode)?;
+                let x = self.p(sub, env, Mode::Plain)?;
+                let y = self.p(sub, env, Mode::Primed)?;
+                let same = self.push(Node::Eq(x, y))?;
+                if boxed {
+                    self.push(Node::Or([a, same].into()))
+                } else {
+                    let changed = self.push(Node::Not(same))?;
+                    self.push(Node::And([a, changed].into()))
+                }
             }
             Expr::Enabled(_) => Err(Error::unsupported("ENABLED (M0 core)")),
             Expr::Cdot(..) => Err(Error::unsupported("action composition (M0 core)")),
@@ -1586,13 +1619,9 @@ impl Compiler<'_> {
                 if let Some(var) = self.target(args[0], env, false)? {
                     let set = self.p(args[1], env, Mode::Plain)?;
                     // TLC enumerates a lazy union without normalizing it,
-                    // so its generated count can include duplicates; M0
-                    // does not reproduce that multiplicity.
-                    if matches!(
-                        self.code.nodes.get(set as usize),
-                        Some(Node::SetBin(SetOp::Cup, ..) | Node::BigUnion(_))
-                    ) {
-                        return Err(Error::unsupported("x' \\in a union of sets (M0 core)"));
+                    // so its elements can repeat (§6).
+                    if let Some(raw) = self.raw_plan(args[1], env)? {
+                        return Ok(self.gpush(GNode::AssignInRaw { var, set, raw }));
                     }
                     return Ok(self.gpush(GNode::AssignIn { var, set }));
                 }
@@ -1601,8 +1630,15 @@ impl Compiler<'_> {
             Expr::Builtin {
                 op: BuiltinOp::Subseteq,
                 args,
-            } if args.len() == 2 && self.target(args[0], env, false)?.is_some() => {
-                Err(Error::unsupported("x' \\subseteq S (M0 core)"))
+            } if args.len() == 2 => {
+                // `x' \subseteq S` enumerates `SUBSET S`, normalized
+                // (`Tool.java:1379-1421`).
+                if let Some(var) = self.target(args[0], env, false)? {
+                    let base = self.p(args[1], env, Mode::Plain)?;
+                    let set = self.push(Node::Powerset(base))?;
+                    return Ok(self.gpush(GNode::AssignIn { var, set }));
+                }
+                self.guard_expr(e, env)
             }
             Expr::Builtin {
                 op: BuiltinOp::Unchanged,
@@ -1611,28 +1647,64 @@ impl Compiler<'_> {
                 if self.init_mode {
                     return self.guard_expr(e, env);
                 }
-                let mut vars = Vec::new();
-                self.flatten_unchanged(args[0], env, &mut vars)?;
-                Ok(self.gpush(GNode::Unchanged(vars.into())))
+                let mut items = Vec::new();
+                self.unchanged_items(args[0], env, &mut items)?;
+                Ok(self.gpush(GNode::Unchanged(items.into())))
             }
             Expr::Unchanged(a) => {
                 if self.init_mode {
                     return self.guard_expr(e, env);
                 }
-                let mut vars = Vec::new();
-                self.flatten_unchanged(*a, env, &mut vars)?;
-                Ok(self.gpush(GNode::Unchanged(vars.into())))
+                let mut items = Vec::new();
+                self.unchanged_items(*a, env, &mut items)?;
+                Ok(self.gpush(GNode::Unchanged(items.into())))
             }
             Expr::StepBox { action, sub } => {
+                if self.init_mode {
+                    return self.guard_expr(e, env);
+                }
                 let a = self.g(*action, env)?;
-                let mut vars = Vec::new();
-                self.flatten_unchanged(*sub, env, &mut vars)?;
+                let mut items = Vec::new();
+                self.unchanged_items(*sub, env, &mut items)?;
                 Ok(self.gpush(GNode::StepBox {
                     action: a,
-                    vars: vars.into(),
+                    vars: items.into(),
                 }))
             }
-            Expr::StepAngle { .. } => Err(Error::unsupported("<<A>>_v in an action (M0 core)")),
+            Expr::StepAngle { action, sub } => {
+                if self.init_mode {
+                    return self.guard_expr(e, env);
+                }
+                let (action, sub) = (*action, *sub);
+                let a = self.g(action, env)?;
+                let same = self.changed_test(sub, env)?;
+                Ok(self.gpush(GNode::StepAngle { action: a, same }))
+            }
+            Expr::FcnApply { fcn, arg } => {
+                let (fcn, arg) = (*fcn, *arg);
+                let Some((lambda, lenv)) = self.fcn_lambda(fcn, env, 0)? else {
+                    return self.guard_expr(e, env);
+                };
+                let Expr::FcnCons { bounds, body } = self.ir.node(lambda).expr.clone() else {
+                    return self.guard_expr(e, env);
+                };
+                if bounds.iter().any(|b| b.domain.is_none()) {
+                    return self.guard_expr(e, env);
+                }
+                let (binds, saved) = self.binds(&bounds, lenv, Mode::Plain)?;
+                let r = (|| {
+                    let a = self.p(arg, env, Mode::Plain)?;
+                    let b = self.g(body, lenv)?;
+                    Ok((a, b))
+                })();
+                self.unbind(saved);
+                let (a, b) = r?;
+                Ok(self.gpush(GNode::FcnAction {
+                    binds: binds.into(),
+                    arg: a,
+                    body: b,
+                }))
+            }
             Expr::Let { defs, body } => {
                 let body = *body;
                 let defs = defs.clone();
@@ -1761,62 +1833,6 @@ impl Compiler<'_> {
                 self.target(def.body, inner, under_prime)
             }
             _ => Ok(None),
-        }
-    }
-
-    fn flatten_unchanged(
-        &mut self,
-        e: ExprId,
-        env: usize,
-        out: &mut Vec<u16>,
-    ) -> Result<(), Error> {
-        #[allow(clippy::cast_possible_truncation, reason = "at most 64 variables")]
-        match &self.ir.node(e).expr {
-            Expr::Var { var, primed: false } => {
-                out.push(var.index() as u16);
-                Ok(())
-            }
-            Expr::Tuple(items) => {
-                for &i in items {
-                    self.flatten_unchanged(i, env, out)?;
-                }
-                Ok(())
-            }
-            Expr::Label { body: a, .. } | Expr::Selected(a) => self.flatten_unchanged(*a, env, out),
-            Expr::Def(d) => {
-                let d = self.redirect(*d);
-                let def = self.ir.def(d);
-                if self.h.precomputed.contains_key(&d)
-                    || def.std.is_some()
-                    || !def.params.is_empty()
-                    || def.recursive
-                {
-                    return Err(Error::unsupported(
-                        "UNCHANGED of a non-variable expression (M0 core)",
-                    ));
-                }
-                let parent = self.lexical_parent(d, env)?;
-                let inner = self.new_env(d, parent);
-                self.flatten_unchanged(def.body, inner, out)
-            }
-            Expr::Local(r) => {
-                let fe = self.frame_env(env, r.up)?;
-                match self.envs[fe].slots.get(r.slot.index()).cloned() {
-                    Some(Sb::Arg {
-                        expr, env: aenv, ..
-                    }) => self.flatten_unchanged(expr, aenv, out),
-                    Some(Sb::LetVal { def, env: lenv, .. }) => {
-                        let body = self.ir.def(def).body;
-                        self.flatten_unchanged(body, lenv, out)
-                    }
-                    _ => Err(Error::unsupported(
-                        "UNCHANGED of a non-variable expression (M0 core)",
-                    )),
-                }
-            }
-            _ => Err(Error::unsupported(
-                "UNCHANGED of a non-variable expression (M0 core)",
-            )),
         }
     }
 }

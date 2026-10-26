@@ -48,6 +48,10 @@ pub struct Machine {
     /// Whether the all-assigned shortcut runs for successors (TLC's
     /// `TLCGlobals.warn`; on in both profiles).
     pub warn: bool,
+    /// Warnings 2143 raised by the generator (`UNCHANGED` of a variable
+    /// already assigned another value), once per variable and site (an
+    /// `ExprId` index), in the order raised.
+    pub warnings: Vec<(u16, u32)>,
     pub(crate) conts: Vec<crate::generate::ContNode>,
     pub(crate) cvals: Vec<Handle>,
     pub(crate) saved: Vec<Handle>,
@@ -86,6 +90,7 @@ impl Machine {
             memo,
             stats: EvalStats::default(),
             warn: true,
+            warnings: Vec::new(),
             conts: Vec::new(),
             cvals: Vec::new(),
             saved: Vec::new(),
