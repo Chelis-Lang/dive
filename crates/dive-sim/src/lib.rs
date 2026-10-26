@@ -301,19 +301,9 @@ fn simulate_inner(model: &Model, opts: &Options, host: Option<&host::SimulationH
         };
         return report;
     }
-    // Simulator.deepNormalize changes lazy cache state. Until the value API
-    // exposes that operation, refuse compound initial values instead of guessing.
-    if selected_inits
-        .iter()
-        .flat_map(|(s, _)| s.iter())
-        .flatten()
-        .any(|v| matches!(v, Value::Set(_) | Value::Fcn(_)))
-    {
-        report.outcome = Outcome::Unsupported(
-            "simulation deep normalization of compound initial values".to_owned(),
-        );
-        return report;
-    }
+    // TLC's Simulator.deepNormalize only changes which random draw selects a
+    // successor. That draw sequence is not a parity obligation (ADR 0116), and
+    // compound values keep their semantics without it.
     let streams = Streams::new(opts.seed, opts.mode);
     let mut worker = Stream::Java(dive_stdlib::random::JavaRandom::new(
         streams.tlc_simulation_worker_seeds(opts.aril, 1)[0],
@@ -492,8 +482,10 @@ fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
     if let Some(u) = model.unsupported.first() {
         return refusal(&u.feature);
     }
-    if !model.temporals.is_empty() || !model.implied_temporals.is_empty() {
-        return refusal("simulation temporal properties and fairness");
+    // Fairness (`model.temporals`) constrains only infinite behaviors and is
+    // inert for the finite safety prefixes simulation checks (ADR 0116).
+    if !model.implied_temporals.is_empty() {
+        return refusal("simulation temporal properties");
     }
     if !model.implied_inits.is_empty() {
         return refusal(
