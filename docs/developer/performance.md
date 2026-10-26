@@ -180,6 +180,17 @@ A bounded query of those same eight ledgers retained every selected EXCEPT produ
 [The compact record](../survey/data/instruction-caller-attribution-2026-10-25.json) pins all eight totals/category partitions and counter outcomes, original stream/profile/ledger hashes, machine/tool/binary identities, review scopes and S3 receipts. Raw profiles and archives remain in S3; the node, volume and security group were removed. This is instruction attribution, without a candidate, wall-time, Java TLC throughput, scaling or new conformance qualification.
 
 
+A separate complete query of the same eight caller ledgers examined batched
+ordered-set search. Hypothetically deleting every selected source-PC instruction
+would reduce the eight-cell instruction geometric mean by 0.657%; deleting the
+broader selected owner and immediate-helper pool would give 4.579%. Both miss
+the fixed 5% bar even before eligibility checks and required merge work. These
+are conditional calculations over finite selected pools, not global bounds on
+descendants or predictions of savings. Overlapping call arcs remain separate.
+No implementation or new model run follows. The [compact assessment](../survey/data/ordered-set-search-assessment-2026-10-26.json)
+pins every whole-ledger replay, selected union, arithmetic and retained review.
+
+
 ## Function-membership census, 2026-10-25
 
 A private diagnostic build completed the same eight reduced model/profile cells through the ordinary CLI at one worker, with matching success verdicts and all five counters. It observed the original function-set checks without skipping domain or range work. No qualified repeat successes were recorded. GameOfLife supplied 512 eligible first Boolean successes per profile, with no later witnessed repeat; every MCbtree query was conservatively provider-excluded. SimpleRegular used non-Boolean ranges and was also provider-excluded; EWD998PCal entered no observed function-set kernel.
