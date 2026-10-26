@@ -1,0 +1,18 @@
+[package]
+name = "dive-core"
+description = "The new execution core: values, store, plan compiler, interpreter and successor generation (ADR 0117)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+dive-ir.workspace = true
+# Only at the binder boundary: startup constants computed by the reference
+# binder are converted to handles (ADR 0117 item 6).
+dive-value.workspace = true
+
+[lints]
+workspace = true

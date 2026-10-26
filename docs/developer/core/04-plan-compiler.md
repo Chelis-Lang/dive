@@ -1,8 +1,9 @@
 # Plan compiler
 
-Status: design. There is no code yet. This document covers strategy S8 from
-`01-motivation.md`, and the compiler side of S5 and S6. It supersedes the
-evaluation-plan section of ADR 0014 §1.
+Status: M0 spike implemented in `crates/dive-core/src/compile.rs`, `plan.rs`,
+`eval.rs` and `convert.rs` on `core/m0-spike`; results in `m0-results.md`. This
+document covers strategy S8 from `01-motivation.md`, and the compiler side of
+S5 and S6. It supersedes the evaluation-plan section of ADR 0014 §1.
 
 ## 1. Input and output
 
@@ -187,12 +188,29 @@ shadow-compared against this interpreter.
 
 ## 7. Next step
 
-M0 builds:
-- a plan compiler covering only the operators used by CoffeeCan1000BeansSafety,
-  MCLamportMutex and SimpleRegular, with GameOfLife as a stretch;
-- the constants are taken directly from the configuration;
-- no INSTANCE, `ENABLED`, error classes beyond abort, or compat order.
+M0 built a compiler for the operators of the four spike models and the
+fixtures in `crates/dive-api/tests/fixtures/core-m0`. Measurements are in
+`m0-results.md`. Every other construct is refused at compile time, naming it.
 
-The inlining and demand-order analysis are prototyped on these models. Their
-effect is measured with an ablation switch that forces every lazy argument to
-be a thunk.
+- **Binder handoff.** M0 reuses the reference binder's split actions, roles,
+  constants, overrides and startup values (`crates/dive-api/src/core_engine.rs`).
+  This deviates from §2, which calls for a native split.
+- **Inlining.** Every non-recursive operator is inlined. An argument that is a
+  literal, a constant, a bound variable or a state read is substituted. A
+  state-level argument becomes a thunk slot, and an argument that reads primed
+  variables is passed by name. Zero-arity `LET` definitions are thunks.
+- **Caching.** A zero-arity top-level definition of state level is evaluated
+  at most once per frame activation (for example `sc` in GameOfLife).
+- **Recursive operators.** They are compiled once into their own frame, with
+  eager arguments. Function constructors are materialized.
+- **Folding.** Closed subexpressions are folded by evaluating them at compile
+  time. A folding failure leaves the node alone.
+- **Errors.** Evaluation errors are reported as `unsupported`. M0 does not
+  classify them (§5 is not built).
+
+Next (M1, stream 2):
+1. Native action splitting and constant evaluation, to drop the reference
+   binder from the handoff.
+2. The demand-order analysis of §4, replacing the conservative rule above.
+   Lazy function values are needed to remove GameOfLife's materialization.
+3. Error classes (§5) and the INSTANCE and `ENABLED` passes.

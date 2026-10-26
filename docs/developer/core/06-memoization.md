@@ -1,7 +1,8 @@
 # Memoized pure evaluation
 
-Status: design. There is no code yet. This document covers strategy S6 from
-`01-motivation.md`.
+Status: M0 spike implemented in `crates/dive-core/src/memo.rs` and in the
+parent-delta rule of `crates/dive-explore` on `core/m0-spike`; results in
+`m0-results.md`. This document covers strategy S6 from `01-motivation.md`.
 
 ## 1. Idea
 
@@ -159,8 +160,19 @@ point, including errors and their codes. This is checked by:
 
 ## 6. Next step
 
-M0 implements both mechanisms for invariant conjuncts and action guards on the
-spike models, with one ablation switch each. It records:
-- hit rates per site;
-- the share of conjunct evaluations skipped by the parent-delta rule;
-- wall-time contribution, measured with each switch off.
+M0 implements both mechanisms:
+- keyed memo tables for invariant and constraint conjuncts and action guards,
+  keyed on the handles of the variables and free slots they read. Each table is
+  per worker, 2-way and has 8,192 sets. A site turns itself off when its hit
+  rate is under 30% after 4,096 lookups;
+- the parent-delta skip of invariant and constraint conjuncts whose read set
+  does not meet the variables a step changed.
+
+`DIVE_CORE_OPT=-memo` and `-parent-skip` turn each off. `m0-results.md` gives
+hit rates, the share skipped and the slowdown when each is off.
+
+Next (M1, stream 2):
+1. Size the tables from the site's observed key diversity. On MCLamportMutex
+   `Memo::get` is the top self-time entry, although 76% of lookups hit.
+2. Extend keys to sub-values (`f[p]` instead of all of `f`) after the read-set
+   analysis can name them.

@@ -42,9 +42,9 @@ fn usage() -> String {
                [--predecessor-memory-bytes N] [--predecessor-directory DIR]\n               [--seen-disk-entries N] [--seen-directory DIR] [--seen-key-bytes N]\n               [--seen-probe-steps N] [--seen-summary-pairs N]
                [--checkpoint FILE --checkpoint-after-levels N | --recover FILE]
                [--checkpoint-counters tlc|retain]
-               [--lncheck final --lasso short] [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--depth N] [--seed N] [--aril N] [--stats none|basic] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    Eligible ordinary temporal checks use deterministic completed-level checks in the dive
+               [--lncheck final --lasso short] [--engine reference|core] [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--depth N] [--seed N] [--aril N] [--stats none|basic] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    Eligible ordinary temporal checks use deterministic completed-level checks in the dive
     profile and final checking in the TLC profile; explicit final/short keeps final checking.
-    dive check uses TLC process statuses by default, independently of semantic profile.\n    --exit-codes native retains: 0 no error, 1 rejected input, 10 property violated, 11 deadlock,\n    12 assumption, 13 evaluation error. Both conventions keep 2 usage, 3 unsupported/resource\n    limit, 4 internal error and 5 stopped by a run budget (no verdict).\n    --time-limit defaults to 30m in the dive profile and none under --compat=tlc; --max-memory\n    defaults to half of physical memory (auto) in both. --compat=tlc (or DIVE_COMPAT=tlc) also selects TLC semantics.\n",
+    dive check uses TLC process statuses by default, independently of semantic profile.\n    --exit-codes native retains: 0 no error, 1 rejected input, 10 property violated, 11 deadlock,\n    12 assumption, 13 evaluation error. Both conventions keep 2 usage, 3 unsupported/resource\n    limit, 4 internal error and 5 stopped by a run budget (no verdict).\n    --time-limit defaults to 30m in the dive profile and none under --compat=tlc; --max-memory\n    defaults to half of physical memory (auto) in both. --compat=tlc (or DIVE_COMPAT=tlc) also selects TLC semantics.\n    --engine core (or DIVE_ENGINE=core) runs the experimental new core: default profile, one worker,\n    safety only; anything else it reports as unsupported. The reference engine is the default.\n",
         env!("CARGO_PKG_VERSION"),
         COMMANDS.join("\n    ")
     )
@@ -380,6 +380,16 @@ fn check_command(
     let mut file: Option<&str> = None;
     let mut json = false;
     let mut exit_convention = dive_api::ExitConvention::Tlc;
+    let mut engine = match std::env::var("DIVE_ENGINE").ok().as_deref() {
+        None | Some("") => dive_api::Engine::Reference,
+        Some(name) => {
+            let Some(e) = dive_api::Engine::parse(name) else {
+                let _ = writeln!(err, "error: DIVE_ENGINE expects `reference` or `core`");
+                return ExitCode::from(EXIT_USAGE);
+            };
+            e
+        }
+    };
     let usage_error = |err: &mut dyn std::io::Write, m: &str| {
         let _ = writeln!(err, "error: {m}");
         ExitCode::from(EXIT_USAGE)
@@ -492,6 +502,10 @@ fn check_command(
                 }
             },
             "--sequential" => req.sequential = true,
+            "--engine" => match value().as_deref().and_then(dive_api::Engine::parse) {
+                Some(e) => engine = e,
+                None => return usage_error(err, "--engine expects `reference` or `core`"),
+            },
             "--seen-disk-entries" => match value().and_then(|v| v.parse().ok()) {
                 Some(n) => {
                     seen_policy.limits.entries = n;
@@ -711,10 +725,13 @@ fn check_command(
         }
     };
     req.file = file.into();
+    if engine == dive_api::Engine::Core && checkpoint.is_some() {
+        return usage_error(err, "--engine core does not support checkpoints");
+    }
     let checked = if let Some(request) = &checkpoint {
         dive_api::check_file_checkpoint(&req, request)
     } else {
-        dive_api::check_file(&req)
+        dive_api::check_file_engine(&req, engine)
     };
     let report = match checked {
         Ok(r) => r,

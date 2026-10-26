@@ -29,6 +29,8 @@ dive-model = { path = "crates/dive-model" }
 dive-pluscal = { path = "crates/dive-pluscal" }
 dive-api = { path = "crates/dive-api" }
 dive-conformance = { path = "crates/dive-conformance" }
+dive-core = { path = "crates/dive-core" }
+dive-explore = { path = "crates/dive-explore" }
 
 # Third-party. Add here first, then reference with `workspace = true`.
 serde = { version = "1", features = ["derive"] }
