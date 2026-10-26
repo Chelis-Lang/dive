@@ -55,6 +55,10 @@ pub enum Kind {
     /// `{x \in S : P}` before it is enumerated: `lo` is the closure id,
     /// `data = [S, captures...]`. Lazy.
     SetPred,
+    /// An integer outside the inline 61-bit range: `lo` is the sign, `data`
+    /// the magnitude's 32-bit digits (least significant first) as inline
+    /// integers. Not a set (`int.rs`).
+    BigInt,
 }
 
 /// [`View::flags`] bits. They describe a value's representation, never its
@@ -70,7 +74,7 @@ impl Kind {
     /// Whether the kind is a set.
     #[must_use]
     pub const fn is_set(self) -> bool {
-        !matches!(self, Self::IntFcn | Self::Fcn | Self::Lambda)
+        !matches!(self, Self::IntFcn | Self::Fcn | Self::Lambda | Self::BigInt)
     }
 
     /// Whether the kind is a function.
@@ -85,7 +89,7 @@ impl Kind {
     pub const fn is_symbolic(self) -> bool {
         !matches!(
             self,
-            Self::Set | Self::IntFcn | Self::Fcn | Self::Lambda | Self::SetPred
+            Self::Set | Self::IntFcn | Self::Fcn | Self::Lambda | Self::SetPred | Self::BigInt
         )
     }
 

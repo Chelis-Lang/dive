@@ -26,16 +26,15 @@ pub fn from_value(heap: &mut Heap, v: &Value, ctx: Ctx) -> Result<Handle, Error>
 fn int(i: &dive_value::Int) -> Result<Handle, Error> {
     i.to_i64()
         .and_then(Handle::int)
-        .ok_or_else(|| Error::unsupported("an integer outside the M0 core's 61-bit range"))
+        .ok_or_else(|| Error::unsupported("an interval bound outside the core's 61-bit range"))
 }
 
 #[allow(clippy::too_many_lines, reason = "one arm per value class")]
 fn transient(heap: &mut Heap, v: &Value, ctx: Ctx) -> Result<Handle, Error> {
     match v {
         Value::Bool(b) => Ok(Handle::bool(*b)),
-        Value::Int(i) => Handle::int(*i)
-            .ok_or_else(|| Error::unsupported("an integer outside the M0 core's 61-bit range")),
-        Value::BigInt(_) => Err(Error::unsupported("big integers (M0 core)")),
+        Value::Int(i) => Ok(heap.int_from_i64(*i)),
+        Value::BigInt(b) => Ok(heap.int_from_big(b)),
         Value::Str(a) => heap.string(a.as_str()),
         Value::Model(_) => Err(Error::unsupported("model values (M0 core)")),
         Value::Set(s) => match s.kind() {

@@ -9,6 +9,7 @@
 //! - [`store`]: the hash-consed, sharded persistent store.
 //! - [`arena`]: the per-worker transient arena with epochs.
 //! - [`heap`]: hashing, equality, order, builders and interning.
+//! - [`int`]: integers of any size, in both integer modes.
 //! - [`mod@compile`]: the plan compiler from `dive_ir` plus the binder handoff.
 //! - [`eval`]: the interpreter for value nodes.
 //! - [`generate`]: TLC's successor-generation rules.
@@ -41,6 +42,7 @@ pub mod eval;
 pub mod generate;
 pub mod handle;
 pub mod heap;
+pub mod int;
 pub mod memo;
 pub mod node;
 pub mod opts;

@@ -42,7 +42,7 @@ fn counts(v: &Value) -> (Value, Value, Value, Value) {
 
 #[test]
 fn core_matches_reference_counts_and_verdicts() {
-    for name in ["Mix", "Viol", "Dead", "Fold", "Lazy", "Inst"] {
+    for name in ["Mix", "Viol", "Dead", "Fold", "Lazy", "Inst", "Big"] {
         let reference = run(name, Engine::Reference);
         let core = run(name, Engine::Core);
         assert_eq!(core["engine"], "core", "{name}");
