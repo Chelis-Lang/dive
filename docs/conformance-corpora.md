@@ -632,3 +632,30 @@ unchanged. The runtime correction skips conversion only after an actual zero
 BASE size; nonempty errors retain their existing named class refusals. Native
 qualification and whole-CLI comparison remain separate from these references;
 no new agreement is claimed here.
+
+## Stored startup reads and configured redirects
+
+`startup-stored-read-primary` contains one module with two configurations. Its
+zero-arity `Draw` definition prints `DRAW` and selects a random value. `Direct`
+reads that definition directly; `Redirect` substitutes it for the declared
+constant `C`. Both use the same two-state relation and fairness condition.
+
+An initial pinned-TLC probe at one worker, seed 0 and fingerprint 0 observed
+success (2193, exit 0) with one `DRAW` for `Direct`, and a temporal violation
+(2116, exit 13) with nine `DRAW` outputs for `Redirect`. Both reported three
+generated states, two distinct states, an empty queue and depth two. The
+contrast preserves TLC's distinction between reusing a stored startup value
+and evaluating a configured redirect's body again.
+
+Normal harness generation with a recorded reason now pins both results against
+the oracle. `Redirect` retains the actual null violated-property name and a
+two-state lasso returning to state one; its separate JSON trace pass matched
+the clean run. These generated references preserve the actual result and
+provenance rather than predicting them from the initial probe's output count.
+[Compact provenance](survey/data/startup-stored-read-primary-2026-10-26.json)
+records the input, corpus, harness, golden and retained original identities.
+
+Descriptor runtime/result fields remain `unknown`. Select only these inputs with
+`--corpus startup-stored-read-primary --tier all --no-sany`. This corpus changes
+no evaluator or liveness behavior and establishes no native agreement. Existing
+small/full selections and baselines are unchanged.
