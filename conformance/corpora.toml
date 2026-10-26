@@ -223,3 +223,11 @@ id = "empty-subset-base-primary"
 path = "conformance/corpus/empty-subset-base-primary"
 license = "MIT"
 layout = "examples-manifest"
+
+# Primary-first stored startup reads versus configured redirects.
+# Separate microcorpus; existing small/full populations are unchanged.
+[[corpus]]
+id = "startup-stored-read-primary"
+path = "conformance/corpus/startup-stored-read-primary"
+license = "MIT"
+layout = "examples-manifest"

@@ -1,0 +1,33 @@
+{
+  "sources": [
+    "docs/conformance-corpora.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "liveness",
+    "startup-values"
+  ],
+  "modules": [
+    {
+      "path": "specifications/StartupStoredRead/StartupStoredRead.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/StartupStoredRead/Direct.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        },
+        {
+          "path": "specifications/StartupStoredRead/Redirect.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}

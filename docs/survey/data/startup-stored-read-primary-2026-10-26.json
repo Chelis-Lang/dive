@@ -1,0 +1,204 @@
+{
+  "schema": 1,
+  "status": "GENERATED_PRIMARY_REFERENCES_NO_NATIVE_COMPARISON",
+  "date": "2026-10-26",
+  "purpose": "Preserve actual TLC direct stored startup-read versus configured-redirect behavior before changing liveness effect admission.",
+  "selection": {
+    "corpus": "startup-stored-read-primary",
+    "corpus_digest": "sha256:c7cf3a6590c2d5066e06708d99ec3572bd87b4d6190352d4700ee05524aa0be7",
+    "models": 2,
+    "existing_small_full_populations_and_baselines_unchanged": true,
+    "descriptor_runtime_and_result": "unknown"
+  },
+  "inputs": {
+    "specifications/StartupStoredRead/Direct.cfg": {
+      "sha256": "4d04a3b2fde14cc32a9491dd5c486f7fb437c612f00839ba70ce6fd3376d414f",
+      "bytes": 54
+    },
+    "specifications/StartupStoredRead/Redirect.cfg": {
+      "sha256": "61a58fcc603aebb5950dbcadff910962656c89c694e9f59b9cf371f2696ae6ea",
+      "bytes": 60
+    },
+    "specifications/StartupStoredRead/StartupStoredRead.tla": {
+      "sha256": "3ff46c90f898f062b04e9d7e44f93ad8f21e3faaf5787f72c91f038644a5a42b",
+      "bytes": 381
+    },
+    "specifications/StartupStoredRead/manifest.json": {
+      "sha256": "31140687ae3af75ad94cc8b23fc24fffe6b9c8205e9420b8daf4ed8445359c58",
+      "bytes": 682
+    }
+  },
+  "generator": {
+    "harness_source": "672fc1b19f196761fc7c007aeb6c8d42c4848328",
+    "harness_binary_sha256": "ae265c111f7d8554c6a672596c4fe2087aa79eb0e70a421d1b54a05f501c0c2f",
+    "generator_source_sha256": "4db7aa42c6a4d8fd932c8cd0f778d9402c2852173bbe3abd5a6131a12596873c",
+    "generation_record_sha256": "fa1700c76a5e344286f7800be2076c8a521b1f96fd4ef3800353d1e8bb581221",
+    "generation_record_bytes": 38684,
+    "exit_code": 0,
+    "interrupted": false,
+    "cleanup_unknown": false,
+    "elapsed_seconds": 1.8906889166682959,
+    "reason": "Primary stored startup reads versus configured redirects, before changing liveness effect admission",
+    "scope": "Normal golden generate; one worker/job, all tier, no-SANY, timeout60s, Java512m. No native Dive checker comparison.",
+    "oracle": {
+      "id": "tlc-2026.10.06.014338",
+      "sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+      "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+      "JRE_archive_sha256": "190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05",
+      "java_version": "17.0.20.1+1",
+      "platform": "macos-aarch64"
+    },
+    "seed": 0,
+    "fingerprint_polynomial": 0,
+    "liveness_check": "final"
+  },
+  "references": [
+    {
+      "id": "specifications/StartupStoredRead/Direct.cfg",
+      "golden": {
+        "path": "conformance/golden/tlc-2026.10.06.014338/startup-stored-read-primary/specifications/StartupStoredRead/Direct.cfg.json",
+        "sha256": "cf90206f3287ad99af089710b19239ba14dac2525e9162e09088cf01e51bfc76",
+        "bytes": 3972
+      },
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "exit_status": "SUCCESS",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 2,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 2
+        },
+        "fingerprint_collision": {
+          "optimistic": "val = 1.1E-19",
+          "observed": null
+        },
+        "trace": null,
+        "error_codes": [],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      },
+      "clean_elapsed_ms": 257,
+      "trace_pass_recorded": false
+    },
+    {
+      "id": "specifications/StartupStoredRead/Redirect.cfg",
+      "golden": {
+        "path": "conformance/golden/tlc-2026.10.06.014338/startup-stored-read-primary/specifications/StartupStoredRead/Redirect.cfg.json",
+        "sha256": "9f0c8bf5e8dac453bb46b48c40030fceb924935dce5336e0939c46012f5fcb2e",
+        "bytes": 6897
+      },
+      "result": {
+        "verdict": "liveness-violation",
+        "verdict_code": 2116,
+        "error_class": "TLC_TEMPORAL_PROPERTY_VIOLATED",
+        "exit_code": 13,
+        "exit_status": "VIOLATION_LIVENESS",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 2,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 2
+        },
+        "fingerprint_collision": null,
+        "trace": {
+          "length": 2,
+          "ending": {
+            "kind": "lasso",
+            "back_to": 1
+          },
+          "states": [
+            [
+              1,
+              {
+                "x": 0
+              }
+            ],
+            [
+              2,
+              {
+                "x": 1
+              }
+            ]
+          ],
+          "full_json_in_generated_golden": true
+        },
+        "error_codes": [
+          2116,
+          2264
+        ],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      },
+      "clean_elapsed_ms": 271,
+      "trace_pass_recorded": true
+    }
+  ],
+  "initial_direct_java_observations": {
+    "generation_record_sha256": "07b60e9a6be9813c8200e8c279252a35d2496c03a86d3ba695acd720065f88d5",
+    "scope": "Separate initial direct Java probe, not substituted for normal harness results or draw-count expectations.",
+    "Direct": {
+      "normal_exit_code": 0,
+      "draw_count": 1
+    },
+    "Redirect": {
+      "normal_exit_code": 13,
+      "draw_count": 9
+    }
+  },
+  "originals": {
+    "bucket": "dive-callgrind-profile-20261025064842-b9f59b27-010928226848",
+    "prefix": "root-probes/startup-stored-harness-39c7e399/",
+    "generation_record_key": "root-probes/startup-stored-harness-39c7e399/GENERATION.json",
+    "inventory_entries": 94,
+    "inventory_bytes": 76203,
+    "generation_object_additional": 1,
+    "whole_original_objects_including_generation": 95,
+    "whole_original_bytes_including_generation": 114887,
+    "selected_original_hashes": {
+      "generator.stdout": {
+        "key": "root-probes/startup-stored-harness-39c7e399/generator.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "generator.stderr": {
+        "key": "root-probes/startup-stored-harness-39c7e399/generator.stderr",
+        "sha256": "57c92a642453a4f2fa321fa19ca7badb1ab07ee0d4d36ca6c9b9fed4a3c38d93",
+        "bytes": 263
+      },
+      "raw/tlc-9105-12-1792975449859942000/trace.json": {
+        "key": "root-probes/startup-stored-harness-39c7e399/raw/tlc-9105-12-1792975449859942000/trace.json",
+        "sha256": "dfba0c554acc8ead37c6c599db42b3111eda812a6561731da0ceeac7fe87d394",
+        "bytes": 360
+      },
+      "golden/Direct.cfg.json": {
+        "key": "root-probes/startup-stored-harness-39c7e399/golden/Direct.cfg.json",
+        "sha256": "cf90206f3287ad99af089710b19239ba14dac2525e9162e09088cf01e51bfc76",
+        "bytes": 3972
+      },
+      "golden/Redirect.cfg.json": {
+        "key": "root-probes/startup-stored-harness-39c7e399/golden/Redirect.cfg.json",
+        "sha256": "9f0c8bf5e8dac453bb46b48c40030fceb924935dce5336e0939c46012f5fcb2e",
+        "bytes": 6897
+      }
+    },
+    "producer_preservation": "Every original was conditionally uploaded and whole-body owner/ETag/byte/SHA checked before temporary staging removal. Raw originals remain in retained S3 only."
+  },
+  "verification": {
+    "peer_scope": "Local generated-golden/input/corpus/result/provenance consistency and independent reading of the generator/harness source. No second raw-S3 body replay; initial input fixtures were authored by this same reviewer.",
+    "clean_trace_merge": "The unchanged harness attaches JSON only after matching the clean verdict, deciding code, property, trace length/ending and every printed state. Redirect contains the attached JSON and trace_command; its property remains null. This is not a fresh independent dive-trace validation.",
+    "source_authority": "Existing harness source672; generated bytes copied unchanged, not hand-edited.",
+    "limits": [
+      "No runtime implementation, native agreement, model-specific admission, baseline refresh or performance claim.",
+      "No uncached/redirected/provider/opaque definition is declared pure by these references.",
+      "The initial one/nine DRAW observations do not pre-fill generated golden fields or all future execution counts."
+    ]
+  }
+}
