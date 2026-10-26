@@ -14,19 +14,18 @@ for the workstream you are joining.
 
 | Workstream | Milestone | State | Branch / PR | Doc |
 |---|---|---|---|---|
-| Design docs (Phase 0) | P0 | in review | `docs/core-reboot` | this directory |
-| Host-hook lock (#495), old engine | Day 0 | in progress | `fix/host-hook-lock` | `01-motivation.md` |
-| Rebaseline on x86 and M3 | Day 0 | not started | — | `09-performance-method.md` |
-| Values and store | M0 | spike done; x86 measured (store 4.6–4.9× at 8 threads) | `core/m0-spike` | `03-value-model.md` |
-| Plan compiler and laziness | M0 | spike done (spike-model subset) | `core/m0-spike` | `04-plan-compiler.md` |
-| Successor generation | M0 | spike done (spike-model subset) | `core/m0-spike` | `05-successor-generation.md` |
-| Memoization | M0 (ablation) | spike done; no measurable gain on x86 yet (see `m0-results.md` §3.0) | `core/m0-spike` | `06-memoization.md` |
-| Engine | M0 (single thread) | spike done; `--engine=core` | `core/m0-spike` | `07-engine.md` |
-| M0 results | M0 | x86 measured: 1.81× TLC, 5.21× reference (geomean); proceed to M1 | `core/m0-spike` | `m0-results.md` |
-| Correctness net | M1 | not started | — | `08-correctness.md` |
+| Design docs (Phase 0) | P0 | done | #496 | this directory |
+| Host-hook lock (#495), old engine | Day 0 | done | #497 | `01-motivation.md` |
+| Rebaseline on x86 | Day 0 | in progress (bench node) | — | `09-performance-method.md` |
+| M0 spike | M0 | done: 1.81× TLC, 5.21× reference (x86 geomean); merged as `--engine=core` | #505 | `m0-results.md` |
+| 1. Values and store | M1 | in progress: interface freeze, inline node data, RSS (R10), lazy values, big ints | `core/values-*` | `03-value-model.md` |
+| 2. Plan compiler and laziness | M1 | in progress: coverage histogram, fold bound (R9), laziness, breadth, error classes, memo decision | `core/compiler-*` | `04-plan-compiler.md`, `06-memoization.md` |
+| 3. Successor generation and engine | M1 | in progress: full `getNextStates`, traces, error endings, budgets, parallel engine, static fallback | `core/engine-*` | `05-successor-generation.md`, `07-engine.md` |
+| 4. Harness, shadow comparison, bench | M1 | lead | — | `08-correctness.md`, `09-performance-method.md` |
 
-The umbrella issue is #498. The M0 spike is on `core/m0-spike`; its results
-are in `m0-results.md`. Update this table in every core PR.
+The umbrella issue is #498. The M0 spike landed on `main` in #505; its results
+are in `m0-results.md`. M1 streams 1–3 started 2026-10-26, each in its own
+worktree, with module ownership as listed in `10-plan.md` §3. Update this table in every core PR.
 
 ## Documents
 
