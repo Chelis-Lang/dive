@@ -122,6 +122,164 @@ rebuild in a fresh directory before relying on test or benchmark results; a
 clean Git status and a successful Cargo command alone do not establish the
 library's source identity.
 
+## Metamorphic tests
+
+`crates/dive-api/tests/metamorphic.rs` checks the charter's metamorphic rule in
+the default profile. Each seed is a fixture module with a same-named
+configuration. The test rewrites it through the lossless syntax tree and
+checks both versions. It renames module-level symbols (to names of the same
+length, so junction-list layout is kept), reorders definitions in a random
+dependency order, adds comments, adds unused definitions with strings and a
+string `CHOOSE`, and splits the module into an extended base and the rest.
+These must reproduce the verdict, exit class, property, statistics,
+diagnostic codes, printed output and every counterexample state. Reordering
+`Next` disjuncts or configured invariants may change which same-depth
+violation is reported, so those compare the verdict, the depth and complete
+statistics. Reordering an invariant's conjuncts is exact unless exactly one
+side fails with an evaluation error, as a reordered guard does in TLC.
+Source locations are normalized away. Runs stop at 20,000 states or ten
+seconds, and a stopped pair is inconclusive.
+
+The `ci` profile runs a fixed list of 43 seeds covering every verdict and
+relation. To check every eligible fixture (about 1,350 seeds, three minutes in
+a release build):
+
+```sh
+DIVE_METAMORPHIC=all DIVE_METAMORPHIC_REPORT="$TMPDIR/metamorphic.json" \
+  cargo test -p dive-api --release --test metamorphic -- every_fixture --nocapture
+```
+
+The report lists each disagreement with the rewritten files. Two known
+text dependences are reported separately and do not fail the sweep. The
+start-up random stream draws constant definitions in definition and module
+order (`RndStartup`), so reordering or splitting changes random values. A
+failing constant definition's `Print` runs again for each module in the
+`EXTENDS` chain (`SuPrintRetry`), so a split changes the printed output.
+
+## Counterexample validation
+
+`crates/dive-api/tests/counterexample_validation.rs` checks every
+counterexample `dive check` reports with the independent validator, in both
+profiles. The harness does this for corpus models with goldens; this test
+covers every fixture spec with a same-named configuration, goldens or not.
+Each run uses seed 0, fp 0, one worker, the default store (the exact store
+refuses liveness) and stops at 20,000 states or ten seconds. A trace must
+end as the report's verdict says and validate. A trace the validator reports
+partly unsupported, or a run without a trace document, is counted but does
+not fail.
+
+The `ci` profile runs a fixed list of seeds covering each ending. To check
+every fixture (about 1,400 seeds, both profiles, a few minutes in a release
+build):
+
+```sh
+DIVE_CX_VALIDATION=all DIVE_CX_VALIDATION_REPORT="$TMPDIR/cx-validation.json" \
+  cargo test -p dive-api --release --test counterexample_validation -- every_fixture --nocapture
+```
+
+Three known refutations of correct counterexamples, each matching TLC's own
+trace, are reported separately and do not fail the sweep:
+
+- a claimed evaluation error is re-raised while the validator checks the
+  last state's invariants, constraints, action constraints or implied action
+  properties, and the trace is refuted (#490);
+- a last state outside `CONSTRAINT` is accepted only for an invariant
+  violation, so action-property violations and error endings on such a state
+  are refuted (`ErInvConstrained`, `DfidActionConstrained`; #499);
+- checking `Init` raises on a disjunct whose empty product or record set
+  TLC's generator skips (`EmptyProductSkipsMixedInit`; #443).
+
+`known_refutations_still_reproduce` fails once one is fixed, so its entry can
+be removed.
+
+## Output agreement
+
+`crates/dive-api/tests/output_agreement.rs` checks that the human and JSON
+reports of one `dive check` run agree: the header's profile, store, seed and
+workers, the verdict line and violated properties, the statistics, the
+counterexample (state count, each state, the loop-back state), the printed
+output in order and the warnings. Both renderings come from the same report,
+so a difference is a rendering defect. It does not compare dive with TLC:
+#489, where the property names differ from TLC's but agree between the two
+reports, is a parity issue.
+
+The `ci` profile runs a fixed list of seeds covering each verdict family. To
+check every fixture in both profiles:
+
+```sh
+DIVE_OUTPUT_AGREEMENT=all DIVE_OUTPUT_AGREEMENT_REPORT="$TMPDIR/output-agreement.json" \
+  cargo test -p dive-api --release --test output_agreement -- every_fixture --nocapture
+```
+
+One known difference is reported separately and does not fail the sweep: a
+temporal evaluation error's JSON report carries the counterexample to the
+failing state, while the human report says only that capture completed
+(`ConcatFirstTypeError`; #500). `known_differences_still_reproduce` fails once it is
+fixed.
+
+## Directional metamorphic tests
+
+`crates/dive-api/tests/metamorphic_directional.rs` changes a model in ways
+whose effect is known in direction, in the default profile:
+
+- `CONSTRAINT TLCGet("level") < k`: the distinct count never decreases as `k`
+  grows and reaches the unbounded count; a violation, once found, keeps the
+  unbounded depth;
+- `INVARIANT TLCGet("level") < k` on a passing model: the counterexample grows
+  by one state per larger `k` until `k` passes the model's depth;
+- an invariant replaced by `TRUE`: a passing model keeps its counts, another
+  invariant's violation keeps its depth, and dropping the violated invariant
+  finds nothing shallower.
+
+Each change is made in a wrapper module that extends the seed's root module,
+`TLC` and `Naturals`. Seeds whose unchanged wrapper reports differently are
+skipped (mostly roots whose helper modules follow them in the same file and
+so are not found from the wrapper), as are temporal properties, models
+without a behavior, and seeds whose own run takes over a second: the memory
+budget measures the whole test process. A run dive refuses as `unsupported`
+(D-002 random replay) is inconclusive.
+
+The `ci` profile runs a fixed seed list. To check every fixture:
+
+```sh
+DIVE_DIRECTIONAL=all DIVE_DIRECTIONAL_REPORT="$TMPDIR/directional.json" \
+  cargo test -p dive-api --release --test metamorphic_directional -- every_fixture --nocapture
+```
+
+## Fault injection
+
+`crates/dive-api/tests/fault_injection.rs` checks that a fault ends in the
+correct answer or an explicit safe stop, never a different verdict or counts
+presented as complete. Each fixture is checked once unfaulted, then:
+
+- transparent faults must reproduce the reference's verdict, property, TLC
+  code and exit status, statistics, counterexample and output: chaos
+  scheduling at 1, 4 and 8 workers, frontier, predecessor and seen-set spill
+  with zero memory budgets, and a checkpoint pause at a completed level
+  followed by recovery;
+- disruptive faults may also stop (`stopped` or `resource-limit`, no
+  counterexample, statistics no larger than the reference's) or refuse with
+  an error: state, depth and time budgets at several points, missing and
+  read-only spill or checkpoint directories, and checkpoint archives that are
+  emptied, truncated, extended or have one byte flipped before recovery. A
+  state budget may also keep the deciding error with smaller counts, since it
+  bounds diagnostic replay too (see `docs/user/checking.md`).
+
+An `internal-error` always fails; a mode dive refuses as `unsupported` is
+inconclusive. Runs use the exact store, seed 0 and fp 0; seeds whose own run
+takes over a second are skipped. The `ci` profile runs a fixed seed list. To
+check every fixture:
+
+```sh
+DIVE_FAULTS=all DIVE_FAULTS_REPORT="$TMPDIR/faults.json" \
+  cargo test -p dive-api --release --test fault_injection -- every_fixture --nocapture
+```
+
+One known finding is reported separately: a state budget that cuts
+diagnostic replay short changes the reported TLC error class and exit status
+without marking the run stopped (`ErInvReplayError` under `max_states` 4;
+reported on #379). `known_findings_still_reproduce` fails once it is fixed.
+
 `.github/workflows/conformance.yml` runs the small or deep tier, including the
 TLC self-checks, on manual dispatch. Its `baseline` job runs nightly (and on a
 small-tier dispatch): the same two corpus runs as the full gate, against the
