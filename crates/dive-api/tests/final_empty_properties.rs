@@ -215,8 +215,12 @@ fn nonempty_safety_roles_require_the_narrow_default_memory_route() -> TestResult
         let options = CheckOptions::dive(0);
         let report = temporal::check_final(&ir, &cfg, &options, Limits::default())?;
         assert!(matches!(report.outcome(), Outcome::Safety(r) if r.verdict==Verdict::Success));
+        let mut exact = options.clone();
+        exact.store = dive_store::StoreMode::Exact;
+        let report = temporal::check_final(&ir, &cfg, &exact, Limits::default())?;
+        assert!(matches!(report.outcome(), Outcome::Safety(r) if r.verdict==Verdict::Success));
         let mut outside_scope = options;
-        outside_scope.store = dive_store::StoreMode::Exact;
+        outside_scope.chaos = Some(0);
         let error = temporal::check_final(&ir, &cfg, &outside_scope, Limits::default())
             .err()
             .ok_or("existing nonempty property route")?;

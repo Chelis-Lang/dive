@@ -294,7 +294,7 @@ fn imported_and_lexical_property_roles_retain_their_real_scopes() -> TestResult 
 }
 
 #[test]
-fn every_excluded_option_keeps_the_existing_nonempty_property_refusal() -> TestResult {
+fn excluded_options_keep_the_nonempty_property_refusal_and_admitted_ones_succeed() -> TestResult {
     let (_, ir, cfg) = input(
         "VARIABLE x\nInit == x=0\nNext == x'=x\nP == x=0",
         "INIT Init\nNEXT Next\nPROPERTY P\n",
@@ -320,23 +320,33 @@ fn every_excluded_option_keeps_the_existing_nonempty_property_refusal() -> TestR
     let mut option = base.clone();
     option.predecessor_directory = Some(std::path::PathBuf::from("must-not-open"));
     excluded.push(option);
+    // Store, polynomial, fingerprint, deadlock and sequential settings are
+    // honored by the safety engine: they take the safety route and succeed.
+    let mut admitted = Vec::new();
     let mut option = base.clone();
     option.store = dive_store::StoreMode::Exact;
-    excluded.push(option);
+    admitted.push(option);
     let mut option = base.clone();
     option.fp_index = 1;
-    excluded.push(option);
+    admitted.push(option);
     let mut option = base.clone();
     option.tlc_fingerprints = true;
-    excluded.push(option);
-    let mut option = base.clone();
-    option.eval.warnings = false;
-    excluded.push(option);
+    admitted.push(option);
     let mut option = base.clone();
     option.no_deadlock = true;
-    excluded.push(option);
+    admitted.push(option);
     let mut option = base.clone();
     option.sequential = true;
+    admitted.push(option);
+    for opts in admitted {
+        let report = temporal::check_final(&ir, &cfg, &opts, Limits::default())?;
+        assert!(
+            matches!(report.outcome(), temporal::Outcome::Safety(r) if r.verdict == dive_check::Verdict::Success),
+            "{opts:?}"
+        );
+    }
+    let mut option = base.clone();
+    option.eval.warnings = false;
     excluded.push(option);
     let mut option = base;
     option.chaos = Some(0);

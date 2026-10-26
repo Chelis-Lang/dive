@@ -133,19 +133,30 @@ fn composition_option_alone_keeps_noncomposed_positive_and_forged_word_controls(
                 Validation::Invalid(_)
             ));
         }
-        for change in 0..6 {
+        for change in 0..2 {
             let mut excluded = request.clone();
             match change {
                 0 => excluded.action_composition = Some(ActionComposition::Tla),
-                1 => excluded.compat_tlc = false,
-                2 => excluded.fp = Some(1),
-                3 => excluded.sequential = true,
-                4 => excluded.store = dive_api::Store::Exact,
-                _ => excluded.no_deadlock = true,
+                _ => excluded.compat_tlc = false,
             }
             let refused = dive_api::check_file(&excluded)?;
             assert_eq!(refused.verdict(), "unsupported");
             assert_eq!(refused.to_json()["schema_version"], 3);
+        }
+        // Store, polynomial, sequential and deadlock settings keep the same
+        // composed temporal result as the default-option request.
+        for change in 0..4 {
+            let mut admitted = request.clone();
+            match change {
+                0 => admitted.fp = Some(1),
+                1 => admitted.sequential = true,
+                2 => admitted.store = dive_api::Store::Exact,
+                _ => admitted.no_deadlock = true,
+            }
+            let actual = dive_api::check_file(&admitted)?.to_json();
+            assert_eq!(actual["verdict"], value["verdict"], "{admitted:?}");
+            assert_eq!(actual["property"], value["property"]);
+            assert_eq!(actual["statistics"], value["statistics"]);
         }
     }
     Ok(())

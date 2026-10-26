@@ -423,7 +423,7 @@ fn check_refuses_and_rejects_with_distinct_codes() {
         Some(13),
         "eligible ordinary temporal check"
     );
-    // An option outside the final temporal route keeps the named refusal.
+    // --sequential is honored by the temporal route.
     let out = dive(&[
         "check",
         &tla.to_string_lossy(),
@@ -431,8 +431,20 @@ fn check_refuses_and_rejects_with_distinct_codes() {
         &cfg.to_string_lossy(),
         "--sequential",
     ]);
+    assert_eq!(out.status.code(), Some(13));
+    // An option outside the final temporal route keeps the named refusal.
+    let out = dive(&[
+        "check",
+        &tla.to_string_lossy(),
+        "--config",
+        &cfg.to_string_lossy(),
+        "--chaos",
+        "0",
+    ]);
     assert_eq!(out.status.code(), Some(3));
-    assert!(String::from_utf8_lossy(&out.stdout).contains("unsupported: temporal"));
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    assert!(stdout.contains("unsupported: temporal"));
+    assert!(stdout.contains("temporal checking does not yet support --chaos"));
     let bad = temp_file("CheckBad.tla", "---- MODULE CheckBad ----\nx == y\n====\n");
     let out = dive(&["check", &bad.to_string_lossy(), "--compat=tlc"]);
     assert_eq!(out.status.code(), Some(150));
@@ -451,8 +463,8 @@ fn bounded_final_temporal_check_reports_validated_lassos_and_mixed_profiles() {
     let cfg = spec.with_extension("cfg");
     assert!(std::fs::write(&cfg, "SPECIFICATION Spec\nPROPERTY P Q\n").is_ok());
     let path = spec.to_string_lossy();
-    // Polynomial 1 remains outside the narrow ordinary TLC final route.
-    // Pin it explicitly: a random polynomial 0 would select that supported route.
+    // A nonzero polynomial selects the same ordinary TLC final route: temporal
+    // capture keeps concrete states, so the polynomial cannot change the result.
     let ordinary = dive(&[
         "check",
         &path,
@@ -462,7 +474,10 @@ fn bounded_final_temporal_check_reports_validated_lassos_and_mixed_profiles() {
         "--output",
         "json",
     ]);
-    assert_eq!(ordinary.status.code(), Some(3));
+    assert_eq!(ordinary.status.code(), Some(13));
+    let ordinary: serde_json::Value = serde_json::from_slice(&ordinary.stdout).unwrap_or_default();
+    assert_eq!(ordinary["verdict"], "liveness-violation");
+    assert_eq!(ordinary["counterexample"]["validation"], "valid");
     for (profile, code) in [("tlc", 13), ("dive", 13)] {
         let run = |store: &str, workers: &str| {
             dive(&[

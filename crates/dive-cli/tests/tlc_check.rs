@@ -250,10 +250,11 @@ fn final_spelling_uses_existing_qualified_backend_without_extra_policy_flag() ->
         ]),
         &fixtures(),
     )?;
-    assert_eq!(output.status.code(), Some(3));
+    // A nonzero polynomial keeps the ordinary temporal route and its result.
+    assert_eq!(output.status.code(), Some(13));
     let doc: Value = serde_json::from_slice(&output.stdout)?;
-    assert_eq!(doc["verdict"], "unsupported");
-    assert!(doc["counterexample"].is_null());
+    assert_eq!(doc["verdict"], "liveness-violation");
+    assert_eq!(doc["counterexample"]["validation"], "valid");
     assert_eq!(doc["options"]["fingerprint"]["polynomial_index"], 1);
     Ok(())
 }
