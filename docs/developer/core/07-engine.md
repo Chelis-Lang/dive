@@ -1,7 +1,8 @@
 # Exploration engine
 
-Status: design. There is no code yet. This document covers strategies S3 and
-S9 from `01-motivation.md`. The new engine lives in `dive-explore`.
+Status: M0 spike implemented in `crates/dive-explore` on `core/m0-spike`;
+results in `m0-results.md`. This document covers strategies S3 and S9 from
+`01-motivation.md`. The new engine lives in `dive-explore`.
 
 ## 1. Contract
 
@@ -170,11 +171,18 @@ The reference engine handles this by forcing a single worker
 
 ## 8. Next step
 
-M0 builds only:
-- a single-thread breadth-first search with the seen set and hash-delta probe;
-- materialization only for winners, and the predecessor log;
-- no traces, no invariant errors beyond abort.
+M0 built a single-thread breadth-first search. It follows TLC's
+`ModelChecker` order of counting, constraint, seen and invariant checks. It
+uses an open-addressing seen set of 64-bit state keys, and probes each
+successor with the incremental hash before any interning. Only new states are
+interned. `dive check --engine=core` (or `DIVE_ENGINE=core`) reaches it
+through `crates/dive-api/src/core_engine.rs`. It honours `--time-limit`.
 
-It measures the share of successors discarded before materialization. The
-parallel design of section 3 is built in M1, after M0 has measured the store's
-8-thread interning throughput.
+Not built in M0: the predecessor log, traces, error classification,
+`--max-memory` enforcement inside the core, and parallelism.
+
+Next (M1, stream 3):
+1. Add the predecessor log and traces through `dive-trace`.
+2. Build the parallel level of section 3 on the store measured in
+   `m0-results.md`.
+3. Add budgets and the static fallback (`08-correctness.md`).

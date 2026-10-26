@@ -1,0 +1,15 @@
+[package]
+name = "dive-explore"
+description = "The new core's exploration engine: breadth-first search over compiled plans (ADR 0117)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+dive-core.workspace = true
+
+[lints]
+workspace = true

@@ -249,6 +249,8 @@ pub struct CheckReport {
     memory_samples: Option<dive_check::budget::MemorySamples>,
     temporal_configuration: crate::temporal::Configuration,
     phase: Phase,
+    /// The core engine's run, when `--engine=core` ran the check.
+    core: Option<Box<crate::core_engine::CoreRun>>,
 }
 
 fn admit_storage_request(req: &CheckRequest) -> Result<(), crate::ApiError> {
@@ -289,7 +291,44 @@ fn admit_storage_request(req: &CheckRequest) -> Result<(), crate::ApiError> {
 /// # Errors
 /// [`crate::ApiError`] if the root file or the configuration cannot be read.
 pub fn check_file(req: &CheckRequest) -> Result<CheckReport, crate::ApiError> {
-    check_file_in(req, None, false)
+    check_file_in(req, None, false, crate::Engine::Reference, None)
+}
+
+/// Loads and checks files as [`check_file`] does, with the given engine.
+///
+/// [`crate::Engine::Core`] runs the M0 spike of the new execution core: the
+/// default profile only, one worker, safety only. What it does not
+/// implement is an `unsupported` verdict naming the construct; it never falls
+/// back to the reference engine.
+///
+/// ```no_run
+/// use dive_api::{CheckRequest, Engine, check_file_engine};
+/// let req = CheckRequest { file: "Spec.tla".into(), ..CheckRequest::default() };
+/// let report = check_file_engine(&req, Engine::Core).unwrap();
+/// println!("{}", report.to_json()["engine"]);
+/// ```
+///
+/// # Errors
+/// As [`check_file`].
+pub fn check_file_engine(
+    req: &CheckRequest,
+    engine: crate::Engine,
+) -> Result<CheckReport, crate::ApiError> {
+    check_file_in(req, None, false, engine, None)
+}
+
+/// Checks with the core engine under explicit strategy switches, as
+/// `DIVE_CORE_OPT` gives them (for example `-memo,-delta-hash`); the
+/// environment variable is ignored. Every switch must leave every result
+/// unchanged.
+///
+/// # Errors
+/// As [`check_file`].
+pub fn check_file_core_opts(
+    req: &CheckRequest,
+    switches: &str,
+) -> Result<CheckReport, crate::ApiError> {
+    check_file_in(req, None, false, crate::Engine::Core, Some(switches))
 }
 
 /// Loads and checks files with TLC's configuration-first input error priority.
@@ -313,7 +352,7 @@ pub fn check_file(req: &CheckRequest) -> Result<CheckReport, crate::ApiError> {
 /// # Errors
 /// [`crate::ApiError`] if the configuration or root file cannot be read.
 pub fn check_file_tlc_inputs(req: &CheckRequest) -> Result<CheckReport, crate::ApiError> {
-    check_file_in(req, None, true)
+    check_file_in(req, None, true, crate::Engine::Reference, None)
 }
 
 /// Runs the first native pure-safety checkpoint/recovery slice. It refuses
@@ -354,7 +393,7 @@ pub fn check_file_checkpoint(
             feature: "native checkpoint with temporal checking is not implemented".into(),
         });
     }
-    check_file_in(req, Some(checkpoint), false)
+    check_file_in(req, Some(checkpoint), false, crate::Engine::Reference, None)
 }
 
 #[allow(
@@ -365,6 +404,8 @@ fn check_file_in(
     req: &CheckRequest,
     checkpoint: Option<&dive_check::checkpoint::Request>,
     config_first: bool,
+    engine: crate::Engine,
+    core_switches: Option<&str>,
 ) -> Result<CheckReport, crate::ApiError> {
     admit_storage_request(req)?;
     let profile = if req.compat_tlc {
@@ -471,6 +512,7 @@ fn check_file_in(
         memory_samples: None,
         temporal_configuration: crate::temporal::file_configuration(),
         phase: Phase::Unlowered(String::new()),
+        core: None,
     };
     // TLC's Spec constructor parses ModelConfig before creating SpecProcessor
     // (tlaplus 94d0c50). Keep the file API's existing module-first order.
@@ -546,6 +588,11 @@ fn check_file_in(
         let native = dive_check::checkpoint::check(&ir, &model, &armed, &request);
         report.checkpoint_receipt = native.receipt;
         Phase::Checked(Box::new(native.check))
+    } else if engine == crate::Engine::Core {
+        let (result, run) =
+            crate::core_engine::check(&ir, &model, &armed, time, req.compat_tlc, core_switches);
+        report.core = Some(Box::new(run));
+        Phase::Checked(Box::new(result))
     } else {
         check_backend(&ir, &model, &armed, req.temporal, req.periodic)
     };
@@ -1443,6 +1490,10 @@ impl CheckReport {
         if (self.verdict() == "stopped" || measurement_failure) && doc["statistics"].is_object() {
             doc["statistics"]["exhaustive"] = json!(false);
         }
+        if let Some(core) = &self.core {
+            doc["engine"] = json!(crate::Engine::Core.name());
+            doc["core"] = json!({"disabled": core.opts, "metrics": core.metrics});
+        }
         doc
     }
 
@@ -2005,6 +2056,7 @@ mod evidence_controls {
                 graph_labels: dive_liveness::analyze::GraphLabelPolicy::Cells(limits.atom_cells),
             },
             phase,
+            core: None,
         }
     }
 

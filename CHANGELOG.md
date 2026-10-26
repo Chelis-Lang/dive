@@ -1,5 +1,11 @@
 # Changelog
 
+- Add `dive check --engine core` (or `DIVE_ENGINE=core`), the experimental M0
+  spike of the new execution core (ADR 0117). It covers the default profile, one
+  worker and safety only, and reports anything else as `unsupported`; it never
+  falls back to the reference engine, which stays the default. `DIVE_CORE_OPT`
+  turns strategies off for measurement without changing results.
+
 - `dive simulate` now accepts initial states holding compound values and
   specifications with fairness conjuncts, in both profiles, instead of refusing
   them. Fairness cannot affect a finite safety sample. Configured temporal
