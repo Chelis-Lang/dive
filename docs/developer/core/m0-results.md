@@ -2,10 +2,9 @@
 
 Status: M0 spike on `core/m0-spike` (umbrella issue #498). The core runs all
 four spike models under `dive check --engine=core`. Its verdicts, distinct and
-generated counts and depths equal the pinned TLC goldens. Timings are from
-one noisy Apple M3 and are **indicative only**. The gating measurements are
-the x86 runs of `09-performance-method.md`, which the lead runs on quiet bench
-nodes. The owner treats the ×TLC targets of `10-plan.md` §2 as directional
+generated counts and depths equal the pinned TLC goldens. The x86 bench-node
+campaign (§3.0) is the measurement of record. The Apple M3 tables after it are
+**indicative only**. The owner treats the ×TLC targets of `10-plan.md` §2 as directional
 aims, not hard gates.
 
 ## 1. What was built
@@ -78,6 +77,89 @@ reference engine on fixtures that cover records, `EXCEPT` with `@`, sequences,
 under each switch and all switches together, and checks the refusals.
 
 ## 3. Timing
+
+### 3.0 x86 bench node (measurement of record)
+
+**Host.** AWS c7i.metal-24xl with a dedicated Xeon Platinum 8488C.
+- SMT and turbo off; performance governor fixed at 2.4 GHz.
+- Pinned to CPUs 0–15 with memory on node 0.
+- Ubuntu 24.04.5, Rust 1.99.0.
+- Load stayed at or below 1.3, and no other benchmark processes ran.
+
+**Method.**
+- One worker, release build (fat LTO), `--seed 0 --fp 0`.
+- Five repetitions, with the arm order reversed on even repetitions and one
+  process at a time.
+- Reference engine at `e18e9dda`, which is `main` and includes #497; core at
+  `59471628`.
+- TLC is the pinned jar on the pinned JRE, with the harness flags.
+
+Every run's verdict, generated and distinct counts, and depth equal the
+golden. Compact summary:
+`conformance/reports/perf/2026-10-26-core-m0-x86.json`.
+
+| Model | core (s) | reference (s) | TLC (s) | core ×TLC | core ×reference | reference ×TLC | RSS core / reference / TLC (MB) |
+|---|---|---|---|---|---|---|---|
+| CoffeeCan1000BeansSafety | 0.85 | 4.83 | 2.28 | 2.68 | 5.68 | 0.47 | 239 / 147 / 809 |
+| SimpleRegular | 2.58 | 15.28 | 5.45 | 2.11 | 5.92 | 0.36 | 51 / 187 / 1146 |
+| MCLamportMutex | 10.47 | 53.48 | 16.96 | 1.62 | 5.11 | 0.32 | 103 / 299 / 1282 |
+| GameOfLife | 10.44 | 44.73 | 12.29 | 1.18 | 4.28 | 0.27 | 93 / 83 / 1112 |
+
+Wall times are medians. Run-to-run spread was at most 1.3%, except GameOfLife
+at 4.3%.
+
+**Summary.**
+- **Gain over the reference.** Geometric mean: 1.81× TLC and 5.21× the
+  reference engine. The kill criterion (under 2.5× the current dive) is far
+  from triggered.
+- **Reference vs TLC.** The reference engine runs at 0.27–0.47× TLC here,
+  which agrees with the 2026-10-21 controlled campaign
+  (`docs/developer/performance.md`).
+- **The four models against the ×TLC aims (directional):**
+  - Lamport and SimpleRegular exceed the 1.5× aim.
+  - CoffeeCan exceeds its 2.5× aim.
+  - GameOfLife is at 1.18×, the weakest model: laziness, `CHOOSE` and
+    recursion are where M1 must concentrate.
+- **CoffeeCan startup.** The plan compiles in 225 ms of its 0.85 s (R9).
+
+**Ablation on x86.** These are wall-time ratios with one switch off. The
+ablation came from the first node campaign. Two copies of it ran at once,
+reaching load 2.7; its main-matrix medians agree with the clean rerun within
+1%. Raw rows are kept outside the repository.
+
+| Switch off | CoffeeCan | SimpleRegular | MCLamportMutex | GameOfLife |
+|---|---|---|---|---|
+| `-delta-hash` | 1.13 | 1.26 | 1.45 | 1.09 |
+| `-early-probe` | 1.17 | 1.00 | 0.89 | 1.00 |
+| `-hashcons` | 0.97 (RSS 195) | 1.08 (RSS 113) | 1.17 (RSS 536) | 1.00 |
+| `-symbolic-member` | 1.89 | 1.35 | unsupported (`Nat`) | 1.01 |
+| `-memo` | 0.96 | 0.97 | 1.04 | 1.00 |
+| `-parent-skip` | 1.00 | 1.01 | 1.01 | 1.00 |
+| `-arena` | 1.04 | 1.02 | 1.03 | 1.01 |
+| `-eager` | 1.00 | 1.00 | 1.00 | 1.00 |
+| `-fold` | 1.05 | 1.35 | 1.06 | 1.22 |
+
+**What the ablation shows.**
+- **Measurable gains:**
+  - symbolic membership (S5);
+  - delta hashing (S1/S2);
+  - folding (S8);
+  - hash-consing (S4), mostly through memory.
+- **No measurable gain yet:**
+  - memoization and the parent-delta skip (S6);
+  - arenas (S7);
+  - eager evaluation.
+
+  For S6, M1 needs a cheaper lookup and site selection by measured hit
+  value, or must drop it from the defaults. M0 does not decide which.
+- **Most of the ~5× over the reference shows under no single switch.** It
+  comes from the base design: handle values, the compiled plan, and building
+  only claimed successors.
+
+**Store scaling on x86.** Pinned to 16 physical cores, the 8-thread speedup is
+4.57–4.88× over three runs, against an aim of 6×.
+
+### 3.0b Apple M3 (indicative)
 
 Method: release build with fat LTO, one worker, `--seed 0 --fp 0`, wall and
 user time from `/usr/bin/time -l`. `uptime` was recorded before each run. TLC

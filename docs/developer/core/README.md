@@ -17,12 +17,12 @@ for the workstream you are joining.
 | Design docs (Phase 0) | P0 | in review | `docs/core-reboot` | this directory |
 | Host-hook lock (#495), old engine | Day 0 | in progress | `fix/host-hook-lock` | `01-motivation.md` |
 | Rebaseline on x86 and M3 | Day 0 | not started | — | `09-performance-method.md` |
-| Values and store | M0 | spike done; x86 measurement pending | `core/m0-spike` | `03-value-model.md` |
+| Values and store | M0 | spike done; x86 measured (store 4.6–4.9× at 8 threads) | `core/m0-spike` | `03-value-model.md` |
 | Plan compiler and laziness | M0 | spike done (spike-model subset) | `core/m0-spike` | `04-plan-compiler.md` |
 | Successor generation | M0 | spike done (spike-model subset) | `core/m0-spike` | `05-successor-generation.md` |
-| Memoization | M0 (ablation) | spike done; ablation indicative (M3) | `core/m0-spike` | `06-memoization.md` |
+| Memoization | M0 (ablation) | spike done; no measurable gain on x86 yet (see `m0-results.md` §3.0) | `core/m0-spike` | `06-memoization.md` |
 | Engine | M0 (single thread) | spike done; `--engine=core` | `core/m0-spike` | `07-engine.md` |
-| M0 results | M0 | M3 indicative; x86 pending | `core/m0-spike` | `m0-results.md` |
+| M0 results | M0 | x86 measured: 1.81× TLC, 5.21× reference (geomean); proceed to M1 | `core/m0-spike` | `m0-results.md` |
 | Correctness net | M1 | not started | — | `08-correctness.md` |
 
 The umbrella issue is #498. The M0 spike is on `core/m0-spike`; its results
