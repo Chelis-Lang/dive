@@ -240,6 +240,45 @@ pub enum Node {
     },
     /// A standard operator.
     Std(StdFn, Box<[P]>),
+    /// An expression the core evaluates eagerly where TLC evaluates it
+    /// lazily (`04-plan-compiler.md` §4.1): an evaluation error inside it
+    /// is reported as `unsupported`, because TLC might never raise it.
+    Spec(P),
+    /// `a \in S` (or `a \notin S` with `neg`) with `S` a set TLC keeps
+    /// lazy: a filter or a binary set operation, possibly behind thunks.
+    /// Membership is decided on the structure, as TLC's `SetPredValue`,
+    /// `SetCupValue`, `SetCapValue` and `SetDiffValue` do, without building
+    /// the set.
+    InLazy {
+        /// The element.
+        elem: P,
+        /// The set's node.
+        set: P,
+        /// `\notin`.
+        neg: bool,
+    },
+    /// `f[arg]` with `f` a function constructor TLC keeps lazy
+    /// (`FcnLambdaValue.apply`): the body is evaluated for `arg` alone, after
+    /// a domain check. `chain` leads to the constructor `fc` through thunks;
+    /// a thunk already forced is applied as a value.
+    Beta {
+        /// The function expression.
+        chain: P,
+        /// The `FcnCons` node, with one bound variable.
+        fc: P,
+        /// The argument.
+        arg: P,
+    },
+    /// The body of a recursive function `f[x \in S] == e`: checks that the
+    /// argument in `slot` is in `domain`, then evaluates `body`.
+    DomCheck {
+        /// The argument's slot.
+        slot: u32,
+        /// The domain.
+        domain: P,
+        /// The body.
+        body: P,
+    },
     /// A memoized pure body (S6).
     Memo {
         /// The site.
@@ -422,6 +461,10 @@ pub struct Fun {
     pub frame: u32,
     /// The body.
     pub body: P,
+    /// The slots of the values captured from enclosing definitions (a
+    /// recursive `LET` operator's free locals, lambda-lifted): a call
+    /// passes them after the parameters.
+    pub caps: Box<[u32]>,
 }
 
 /// A memoization site (`06-memoization.md` §2.2).
@@ -536,4 +579,10 @@ pub struct CompileStats {
     pub fold_fuel: u64,
     /// Wall time spent folding, in nanoseconds.
     pub fold_nanos: u64,
+    /// Filters, function constructors and set operations the core builds
+    /// eagerly where TLC is lazy (`Node::Spec`).
+    pub speculative: u64,
+    /// Applications of lazy function constructors evaluated for their
+    /// argument alone (`Node::Beta`).
+    pub beta: u64,
 }

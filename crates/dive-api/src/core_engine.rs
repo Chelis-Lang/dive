@@ -210,6 +210,7 @@ fn handoff<'a>(model: &'a dive_model::Model, ir: &'a Ir) -> Result<Handoff<'a>, 
     let mut redirects = HashMap::new();
     let mut std_redirects = HashMap::new();
     let mut precomputed = HashMap::new();
+    let mut overrides = std::collections::HashSet::new();
     for (i, def) in ir.defs().iter().enumerate() {
         #[allow(clippy::cast_possible_truncation, reason = "dense ids")]
         let d = DefId(i as u32);
@@ -221,6 +222,9 @@ fn handoff<'a>(model: &'a dive_model::Model, ir: &'a Ir) -> Result<Handoff<'a>, 
             }
         }
         if let Some(v) = ev.precomputed(d) {
+            if ev.is_value_override(d) {
+                overrides.insert(d);
+            }
             precomputed.insert(d, v);
         } else if ev.is_value_override(d) {
             return Err(format!(
@@ -236,6 +240,7 @@ fn handoff<'a>(model: &'a dive_model::Model, ir: &'a Ir) -> Result<Handoff<'a>, 
         redirects,
         std_redirects,
         precomputed,
+        overrides,
         init: action_roles(model, &model.init_actions)?,
         next: action_roles(model, &model.actions)?,
         invariants: named_roles(model, &model.invariants)?,
@@ -638,7 +643,7 @@ fn metrics_json(
             "thunk_args": plan.stats.thunks, "by_name": plan.stats.by_name,
             "folded": plan.stats.folded, "fold_abandoned": plan.stats.fold_abandoned,
             "fold_skipped": plan.stats.fold_skipped, "fold_fuel": plan.stats.fold_fuel,
-            "fold_ms": std::time::Duration::from_nanos(plan.stats.fold_nanos).as_secs_f64() * 1e3, "cached_defs": plan.stats.cached_defs, "memo_sites": plan.code.sites.len(),
+            "fold_ms": std::time::Duration::from_nanos(plan.stats.fold_nanos).as_secs_f64() * 1e3, "cached_defs": plan.stats.cached_defs, "speculative": plan.stats.speculative, "beta": plan.stats.beta, "memo_sites": plan.code.sites.len(),
         },
         "probed": m.probed,
         "discarded_before_intern": m.discarded_before_intern,
