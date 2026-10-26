@@ -18,6 +18,13 @@ thread_local! {
     static DEPTH: Cell<u32> = const { Cell::new(0) };
 }
 
+/// Current checked-operation nesting on this thread, without entering a level.
+/// This snapshot changes no depth policy and grants no authority to skip work.
+#[must_use]
+pub fn checked_operation_depth() -> u32 {
+    DEPTH.with(Cell::get)
+}
+
 /// One level of recursion; released on drop.
 pub(crate) struct Guard(());
 

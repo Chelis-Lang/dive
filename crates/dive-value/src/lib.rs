@@ -58,11 +58,12 @@ mod value;
 
 pub use atom::{Atom, Interner};
 pub use ctx::{Ctx, IntMode, ValueOrder};
-pub use depth::MAX_DEPTH;
+pub use depth::{MAX_DEPTH, checked_operation_depth};
 pub use enumerate::MAX_ENUMERATION;
 pub use error::{ErrorKind, Result, ValueError};
 pub use int::Int;
 pub use names::NameError;
+pub use stream::{ConcreteSubsetStream, SubsetCommit, SubsetScratch};
 pub use value::{
     DeferredKind, DeferredSet, DomainLookup, Fcn, FcnKind, Set, SetKind, Value,
     quiet_operation_active,

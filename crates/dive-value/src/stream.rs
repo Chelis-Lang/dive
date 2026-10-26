@@ -16,6 +16,10 @@ use crate::value::{Fcn, FcnRepr, Set, SetRepr, Value};
 /// A stream of elements in normalized order.
 pub(crate) type Elems = Box<dyn Iterator<Item = Value> + Send>;
 
+#[path = "subset_cursor.rs"]
+mod subset_cursor;
+pub use subset_cursor::{ConcreteSubsetStream, SubsetCommit, SubsetScratch};
+
 /// Legacy scalar-component eligibility: no heap work-list on the old path.
 fn concrete_component(value: &Value, order: ValueOrder) -> bool {
     let Value::Set(set) = value else {
@@ -316,27 +320,7 @@ pub(crate) fn concrete_raw(set: &Set, ctx: Ctx) -> Result<Option<Elems>> {
             next: lo.clone(),
             hi: hi.clone(),
         }),
-        SetRepr::Subset(base) => {
-            // SubsetValue.elementsNormalized asks BASE.size before BASE's
-            // normalized enumeration, never for this outer powerset's size.
-            let Value::Set(component_set) = base else {
-                return Ok(None);
-            };
-            let base = if component_set.size(ctx)? == 0 {
-                // TLC returns its empty enumeration before BASE.toSetEnum:
-                // even a dead mixed column must not be normalized here.
-                Arc::from([])
-            } else {
-                component(base, ctx, true)?
-            };
-            Box::new(SubsetIter {
-                base,
-                order: ctx.order,
-                k: 0,
-                idx: Vec::new(),
-                started: false,
-            }) as Elems
-        }
+        SetRepr::Subset(base) => Box::new(prepare_subset(base, ctx)?) as Elems,
         SetRepr::FcnSet(domain, range) => concrete_functions(domain, range, ctx)?,
         SetRepr::Product(values) => {
             if concrete_product_empty(values.iter(), ctx)? {
@@ -362,6 +346,45 @@ pub(crate) fn concrete_raw(set: &Set, ctx: Ctx) -> Result<Option<Elems>> {
         _ => return Ok(None),
     };
     Ok(Some(output))
+}
+
+fn prepare_subset(base: &Value, ctx: Ctx) -> Result<SubsetIter> {
+    let Value::Set(component_set) = base else {
+        return Err(not_enumerable(base, ctx));
+    };
+    // SubsetValue.elementsNormalized asks BASE.size before BASE's
+    // normalized enumeration, never for this outer powerset's size.
+    let base = if component_set.size(ctx)? == 0 {
+        // TLC returns its empty enumeration before BASE.toSetEnum:
+        // even a dead mixed column must not be normalized here.
+        Arc::from([])
+    } else {
+        component(base, ctx, true)?
+    };
+    Ok(SubsetIter {
+        base,
+        order: ctx.order,
+        k: 0,
+        idx: Vec::new(),
+        started: false,
+    })
+}
+
+pub(crate) fn concrete_subset(set: &Set, ctx: Ctx) -> Result<Option<ConcreteSubsetStream>> {
+    let SetRepr::Subset(base) = set.repr() else {
+        return Ok(None);
+    };
+    if !concrete_set(set, set.order()) {
+        return Ok(None);
+    }
+    prepare_subset(
+        base,
+        Ctx {
+            order: set.order(),
+            ..ctx
+        },
+    )
+    .map(|inner| Some(ConcreteSubsetStream::new(inner, set.clone())))
 }
 
 pub(crate) fn not_enumerable(what: &Value, ctx: Ctx) -> ValueError {
@@ -472,8 +495,14 @@ impl Iterator for SubsetIter {
             }
         }
         self.started = true;
+        Some(self.current_value())
+    }
+}
+
+impl SubsetIter {
+    fn current_value(&self) -> Value {
         let elems = self.idx.iter().map(|&i| self.base[i].clone()).collect();
-        Some(Value::Set(Set::from_sorted(self.order, elems)))
+        Value::Set(Set::from_sorted(self.order, elems))
     }
 }
 

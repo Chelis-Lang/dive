@@ -462,6 +462,21 @@ pub(crate) struct HostSlot {
 }
 
 impl HostSlot {
+    // Depends on the separately merged operative binding foundation. This
+    // concrete token owns only references to validated integer cursor storage.
+    pub(crate) fn commit_subset_position(&self, position: dive_value::SubsetCommit<'_>) -> bool {
+        let slot = self.host.lock().unwrap_or_else(PoisonError::into_inner);
+        if slot.generation == 0
+            || slot.binding.host.is_none()
+            || slot.binding.hooks != NativeHooks::Unrestricted
+            || slot.binding.cache_domain != Some(0)
+        {
+            return false;
+        }
+        position.commit();
+        true
+    }
+
     /// Legacy replacements always select callbacks, even for the same Arc.
     pub(crate) fn replace(&self, host: Option<Arc<dyn Host>>) -> Option<Arc<dyn Host>> {
         self.replace_binding(HostBinding::callback(host)).host

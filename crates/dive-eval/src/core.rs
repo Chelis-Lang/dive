@@ -426,6 +426,11 @@ impl Core {
         }
     }
 
+    /// Read-only current evaluator depth; does not enter or waive a guard.
+    pub(crate) fn evaluation_depth() -> u32 {
+        DEPTH.with(Cell::get)
+    }
+
     /// Enters one level of evaluation depth.
     pub(crate) fn enter(&self, what: ExprId) -> Result<DepthGuard> {
         DEPTH.with(|d| {
