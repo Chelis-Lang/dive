@@ -384,8 +384,7 @@ Next (M1, stream 2), from the census:
    evaluation error one TLC raises. Its site and code need the engine
    (stream 3, `crates/dive-explore`).
 2. `INSTANCE` substitution: built (pass 2). Next comes EWD998PCal's
-   speed. It is blocked first by PlusCal translation checks (it is rejected
-   in both engines here) and then by its temporal properties.
+   speed. It needs Bags, and its properties are still the engine's (M3).
 3. Operator breadth in census order: `TLC!Print`/`PrintT`/`Assert`/
    `ToString`, which need effects (B6), and the standard modules.
 4. The memoization decision (`06-memoization.md`).
