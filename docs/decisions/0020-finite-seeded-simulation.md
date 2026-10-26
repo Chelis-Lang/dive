@@ -1,6 +1,6 @@
 # ADR 0020: Finite seeded simulation
 
-- Status: Accepted
+- Status: Superseded by [0116](0116-simulation-observable-contract.md) for its parity target and refusal rules; its engineering decisions stand
 - Date: 2026-10-10
 
 ## Context
