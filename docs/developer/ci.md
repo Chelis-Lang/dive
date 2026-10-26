@@ -192,6 +192,31 @@ trace, are reported separately and do not fail the sweep:
 `known_refutations_still_reproduce` fails once one is fixed, so its entry can
 be removed.
 
+## Output agreement
+
+`crates/dive-api/tests/output_agreement.rs` checks that the human and JSON
+reports of one `dive check` run agree: the header's profile, store, seed and
+workers, the verdict line and violated properties, the statistics, the
+counterexample (state count, each state, the loop-back state), the printed
+output in order and the warnings. Both renderings come from the same report,
+so a difference is a rendering defect. It does not compare dive with TLC:
+#489, where the property names differ from TLC's but agree between the two
+reports, is a parity issue.
+
+The `ci` profile runs a fixed list of seeds covering each verdict family. To
+check every fixture in both profiles:
+
+```sh
+DIVE_OUTPUT_AGREEMENT=all DIVE_OUTPUT_AGREEMENT_REPORT="$TMPDIR/output-agreement.json" \
+  cargo test -p dive-api --release --test output_agreement -- every_fixture --nocapture
+```
+
+One known difference is reported separately and does not fail the sweep: a
+temporal evaluation error's JSON report carries the counterexample to the
+failing state, while the human report says only that capture completed
+(`ConcatFirstTypeError`). `known_differences_still_reproduce` fails once it is
+fixed.
+
 `.github/workflows/conformance.yml` runs the small or deep tier, including the
 TLC self-checks, on manual dispatch. Its `baseline` job runs nightly (and on a
 small-tier dispatch): the same two corpus runs as the full gate, against the
