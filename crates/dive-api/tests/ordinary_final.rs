@@ -244,19 +244,7 @@ fn ordinary_binding_failures_and_excluded_options_keep_their_existing_routes() -
     let temporal = Spec::new(&format!("{COUNTER}P == <>(x=3)"), CONFIG)?;
     let mut requests = Vec::new();
     let mut request = temporal.request(1);
-    request.fp = Some(1);
-    requests.push(request);
-    let mut request = temporal.request(1);
-    request.sequential = true;
-    requests.push(request);
-    let mut request = temporal.request(1);
-    request.no_deadlock = true;
-    requests.push(request);
-    let mut request = temporal.request(1);
     request.chaos = Some(0);
-    requests.push(request);
-    let mut request = temporal.request(1);
-    request.store = dive_api::Store::Exact;
     requests.push(request);
     let mut request = temporal.request(1);
     request.frontier_memory_bytes = Some(0);
@@ -276,6 +264,68 @@ fn ordinary_binding_failures_and_excluded_options_keep_their_existing_routes() -
                 .is_some_and(|s| s.contains("temporal"))
         );
     }
+    Ok(())
+}
+
+#[test]
+fn ordinary_temporal_honors_store_polynomial_deadlock_and_sequential_requests() -> TestResult {
+    let spec = Spec::new(&format!("{COUNTER}P == <>(x=3)"), CONFIG)?;
+    let baseline =
+        dive_api::check_file(&spec.request(1))?.to_json_with_exit_convention(ExitConvention::Tlc);
+    assert_eq!(baseline["verdict"], "liveness-violation");
+    let mut requests = Vec::new();
+    let mut request = spec.request(1);
+    request.fp = Some(5);
+    requests.push(request);
+    let mut request = spec.request(1);
+    request.store = dive_api::Store::Exact;
+    requests.push(request);
+    let mut request = spec.request(1);
+    request.no_deadlock = true;
+    requests.push(request);
+    let mut request = spec.request(4);
+    request.sequential = true;
+    requests.push(request);
+    for request in requests {
+        let report = dive_api::check_file(&request)?;
+        let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
+        assert!(report.temporal_result().is_some(), "{request:?}");
+        assert_eq!(value["check_kind"], "temporal");
+        assert_eq!(value["verdict"], baseline["verdict"]);
+        assert_eq!(value["property"], baseline["property"]);
+        assert_eq!(value["statistics"], baseline["statistics"]);
+        assert_eq!(report.exit_code_for(ExitConvention::Tlc), 13);
+    }
+    // Pinned TLC (`-workers 1 -lncheck final -fp 0 -seed 0`): deadlock at
+    // x = 2 with deadlock checking, and P violated with `-deadlock`; both
+    // with 3 distinct and 3 generated states.
+    let dead = Spec::new(
+        "VARIABLE x\nInit == x=0\nNext == x<2 /\\ x'=x+1\nP == <>(x=2)",
+        CONFIG,
+    )?;
+    let checked = dive_api::check_file(&dead.request(1))?;
+    assert_eq!(checked.verdict(), "deadlock");
+    assert_eq!(checked.exit_code_for(ExitConvention::Tlc), 11);
+    let mut request = dead.request(1);
+    request.no_deadlock = true;
+    let report = dive_api::check_file(&request)?;
+    let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
+    assert_eq!(value["verdict"], "liveness-violation");
+    assert_eq!(value["property"], "P");
+    assert_eq!(value["statistics"]["distinct"], 3);
+    assert_eq!(value["statistics"]["generated"], 3);
+    assert_eq!(report.exit_code_for(ExitConvention::Tlc), 13);
+    let mut request = spec.request(1);
+    request.chaos = Some(0);
+    let refused = dive_api::check_file(&request)?;
+    assert_eq!(refused.verdict(), "unsupported");
+    assert!(
+        refused.to_json()["message"]
+            .as_str()
+            .is_some_and(|s| s.contains("temporal checking does not yet support --chaos")),
+        "{}",
+        refused.to_json()["message"]
+    );
     Ok(())
 }
 

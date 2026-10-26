@@ -24,6 +24,29 @@ pub enum Dispatch {
 }
 
 fn eligible(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> bool {
+    !cfg.properties.is_empty() && route_exclusion(ir, cfg, opts).is_none()
+}
+
+/// Why an ordinary request with temporal properties cannot use the temporal
+/// route, or `None` when it can. Callers that refuse such a request name this
+/// reason, so the user knows which option to drop.
+///
+/// ```
+/// # fn example(ir: &std::sync::Arc<dive_ir::Ir>, cfg: &dive_config::ModelConfig) {
+/// let mut opts = dive_check::CheckOptions::tlc(0, 0);
+/// opts.chaos = Some(0);
+/// assert_eq!(
+///     dive_check::final_roles::route_exclusion(ir, cfg, &opts),
+///     Some("--chaos")
+/// );
+/// # }
+/// ```
+#[must_use]
+pub fn route_exclusion(
+    ir: &Arc<Ir>,
+    cfg: &ModelConfig,
+    opts: &CheckOptions,
+) -> Option<&'static str> {
     let mut baseline = match opts.profile {
         dive_eval::Profile::Dive => CheckOptions::dive(opts.seed),
         dive_eval::Profile::Tlc => CheckOptions::tlc(0, opts.seed),
@@ -33,21 +56,27 @@ fn eligible(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> bool {
     {
         baseline.eval.action_composition = dive_eval::ActionComposition::Tlc;
     }
-    !cfg.properties.is_empty()
-        && opts.seen_disk.is_none()
-        && opts.frontier_memory_bytes.is_none()
-        && opts.frontier_directory.is_none()
-        && opts.predecessor_memory_bytes.is_none()
-        && opts.predecessor_directory.is_none()
-        && opts.store == baseline.store
-        && opts.fp_index == baseline.fp_index
-        && opts.tlc_fingerprints == baseline.tlc_fingerprints
-        && opts.eval == baseline.eval
-        && opts.no_deadlock == baseline.no_deadlock
-        && opts.sequential == baseline.sequential
-        && opts.chaos == baseline.chaos
-        && dive_eval::validate_ir(ir).is_ok()
-        && dive_model::transformed_randomness(ir, cfg).is_none()
+    // The seen-state store, fingerprint polynomial, deadlock switch and
+    // sequential request are honored by both continuations: the safety engine
+    // reads them, and temporal capture retains concrete states with its own
+    // deadlock check and worker plan.
+    if opts.seen_disk.is_some() {
+        Some("disk seen-state storage")
+    } else if opts.frontier_memory_bytes.is_some() || opts.frontier_directory.is_some() {
+        Some("frontier spill")
+    } else if opts.predecessor_memory_bytes.is_some() || opts.predecessor_directory.is_some() {
+        Some("predecessor spill")
+    } else if opts.eval != baseline.eval {
+        Some("evaluation options other than the profile defaults")
+    } else if opts.chaos != baseline.chaos {
+        Some("--chaos")
+    } else if dive_eval::validate_ir(ir).is_err() {
+        Some("an IR the evaluator does not accept")
+    } else if dive_model::transformed_randomness(ir, cfg).is_some() {
+        Some("randomness combined with VIEW or SYMMETRY")
+    } else {
+        None
+    }
 }
 
 /// Binds once and dispatches only the default resident-memory option route.
@@ -55,8 +84,9 @@ fn eligible(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> bool {
 /// `None` means no host was created and no binding or source evaluation ran:
 /// the caller must retain its existing temporal route and error priority.
 /// Eligible requests use profile-default evaluation/fingerprints, or TLC evaluation
-/// with only [`dive_eval::ActionComposition::Tlc`] selected, and polynomial 0,
-/// no storage/directory overrides, deadlock override, sequential flag or chaos,
+/// with only [`dive_eval::ActionComposition::Tlc`] selected, any seen-state
+/// store, polynomial, deadlock and sequential setting, no storage/directory
+/// overrides or chaos,
 /// and no source/configured randomness under VIEW or SYMMETRY. Seed and worker
 /// requests and the independently selected symmetry/liveness policy are retained.
 /// That policy is resolved only after actual role binding. Eligibility is not a
@@ -231,15 +261,10 @@ mod tests {
             |o| o.eval.comparisons = Comparisons::Tla,
             |o| o.eval.max_depth = 1,
             |o| o.eval.warnings = false,
-            |o| o.store = dive_store::StoreMode::Exact,
-            |o| o.fp_index = 1,
-            |o| o.tlc_fingerprints = false,
             |o| o.frontier_memory_bytes = Some(0),
             |o| o.frontier_directory = Some("unused".into()),
             |o| o.predecessor_memory_bytes = Some(0),
             |o| o.predecessor_directory = Some("unused".into()),
-            |o| o.no_deadlock = true,
-            |o| o.sequential = true,
             |o| o.chaos = Some(0),
         ];
         let (ir, cfg) = input();
@@ -250,6 +275,26 @@ mod tests {
             let mut options = baseline.clone();
             change(&mut options);
             assert!(!eligible(&ir, &cfg, &options), "{options:?}");
+        }
+    }
+
+    #[test]
+    fn store_polynomial_deadlock_and_sequential_settings_remain_eligible() {
+        type Change = fn(&mut CheckOptions);
+        let changes: &[Change] = &[
+            |o| o.store = dive_store::StoreMode::Exact,
+            |o| o.fp_index = 5,
+            |o| o.tlc_fingerprints = false,
+            |o| o.no_deadlock = true,
+            |o| o.sequential = true,
+        ];
+        let (ir, cfg) = input();
+        for baseline in [CheckOptions::tlc(0, 7), CheckOptions::dive(7)] {
+            for change in changes {
+                let mut options = baseline.clone();
+                change(&mut options);
+                assert!(eligible(&ir, &cfg, &options), "{options:?}");
+            }
         }
     }
 }
