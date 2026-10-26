@@ -71,24 +71,54 @@ fn exhausted_budgets_keep_partial_statistics_and_refuse() {
 }
 
 #[test]
-fn temporal_effects_and_compound_normalization_are_named_refusals() {
-    for (source, config) in [
-        (
-            "---- MODULE M ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x' = x + 1\nLive == []<>(x = 0)\n====\n",
+fn temporal_properties_are_named_refusals() {
+    let source = "---- MODULE M ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x' = x + 1\nLive == []<>(x = 0)\n====\n";
+    for mode in [RandomMode::Tlc, RandomMode::Dive] {
+        let report = run(
+            source,
             "INIT Init\nNEXT Next\nPROPERTY Live\n",
-        ),
-        (
-            "---- MODULE M ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = <<0>>\nNext == x' = x\n====\n",
-            "INIT Init\nNEXT Next\n",
-        ),
-    ] {
-        let report = run(source, config, &Options::new(0, RandomMode::Tlc, 3, 1));
+            &Options::new(0, mode, 3, 1),
+        );
         assert!(
-            matches!(report.outcome, Outcome::Unsupported(_)),
+            matches!(&report.outcome, Outcome::Unsupported(f) if f.contains("temporal properties")),
             "{:?}",
             report.outcome
         );
         assert_eq!(report.traces_started, 0);
+    }
+}
+
+// ADR 0116: compound initial values and fairness-only specifications are
+// simulated in both random modes.
+#[test]
+fn compound_initial_values_and_fairness_only_specs_are_simulated() {
+    let compound = "---- MODULE M ----\nEXTENDS Naturals, Sequences\nVARIABLES q, f\nInit == q = <<>> /\\ f = [i \\in {1, 2} |-> {}]\nNext == \\/ /\\ Len(q) < 3\n           /\\ q' = Append(q, Len(q))\n           /\\ f' = [f EXCEPT ![1] = @ \\cup {Len(q)}]\n        \\/ UNCHANGED <<q, f>>\nInv == Len(q) < 3\n====\n";
+    let fair = "---- MODULE M ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x' = (x + 1) % 4\nSpec == Init /\\ [][Next]_x /\\ WF_x(Next)\nInv == x < 3\n====\n";
+    for mode in [RandomMode::Tlc, RandomMode::Dive] {
+        let options = Options::new(0, mode, 10, 3);
+        let report = run(compound, "INIT Init\nNEXT Next\n", &options);
+        assert!(
+            matches!(report.outcome, Outcome::Sampled),
+            "{:?}",
+            report.outcome
+        );
+        assert_eq!(report.traces_started, 3);
+        for (source, config, length) in [
+            // The stuttering disjunct can delay the violating append.
+            (compound, "INIT Init\nNEXT Next\nINVARIANT Inv\n", 4),
+            (fair, "SPECIFICATION Spec\nINVARIANT Inv\n", 4),
+        ] {
+            let report = run(source, config, &options);
+            assert!(
+                matches!(
+                    &report.outcome,
+                    Outcome::Violation { kind: "invariant", name: Some(n), trace, .. }
+                        if n == "Inv" && report.traces[*trace].states.len() >= length
+                ),
+                "{:?}",
+                report.outcome
+            );
+        }
     }
 }
 

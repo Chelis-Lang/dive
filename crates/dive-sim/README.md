@@ -83,9 +83,10 @@ it is not substituted for the concrete validation input. All reports contain
 `exhaustive: false` and `model_proved: false`, even when sampling exits zero.
 `sampled` means the requested finite sample completed without finding a bug.
 
-Temporal/fairness simulation, unsupported runtime effects and random operators outside
-the direct scalar Init subset, unresolved constant-operator effects, compound initial-state
-deep normalization, implied-initial properties, action properties combined with state/action constraints, ALIAS, POSTCONDITION,
+Compound initial values and fairness-bearing specifications are simulated
+(ADR 0116). Temporal property checking, unsupported runtime effects and random
+operators outside the direct scalar Init subset, unresolved constant-operator
+effects, implied-initial properties, action properties combined with state/action constraints, ALIAS, POSTCONDITION,
 probabilistic/RL simulation, generation, distributed execution, continuation
 after violations, and additional workers remain named refusals. The core
 sampling stream is replayable; this slice does not claim worker scaling or
