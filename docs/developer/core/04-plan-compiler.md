@@ -1,9 +1,11 @@
 # Plan compiler
 
-Status: M0 spike implemented in `crates/dive-core/src/compile.rs`, `plan.rs`,
-`eval.rs` and `convert.rs` on `core/m0-spike`; results in `m0-results.md`. This
-document covers strategy S8 from `01-motivation.md`, and the compiler side of
-S5 and S6. It supersedes the evaluation-plan section of ADR 0014 §1.
+Status: M1 stream 2 in progress. The M0 spike is on `main`
+(`crates/dive-core/src/compile.rs`, `plan.rs`, `eval.rs`, `convert.rs`;
+results in `m0-results.md`). M1 adds the comparison rules of §5.1
+(`compare.rs`) and the coverage census of §8. This document covers strategy
+S8 from `01-motivation.md`, and the compiler side of S5 and S6. It supersedes
+the evaluation-plan section of ADR 0014 §1.
 
 ## 1. Input and output
 
@@ -168,6 +170,34 @@ Message text is not contract. The new core produces clear messages with source
 spans. It may reuse the reference engine's text, but it is not required to
 reproduce TLC's text.
 
+### 5.1 Comparison errors (`crates/dive-core/src/compare.rs`)
+
+Equality and membership follow the default profile's D-009 rules as the
+reference engine applies them (`crates/dive-eval/src/tla_cmp.rs`), with TLC's
+errors where TLA+ leaves the answer unspecified (`02-semantic-contract.md`
+C1–C3):
+
+- `a = b`, `a # b`, `x' = e` against an assigned `x'`, and `UNCHANGED` against
+  an assigned variable raise TLC's error when the operands are of different
+  classes (boolean, integer, string, set, function). Inside sets and
+  functions, values of different classes are unequal.
+- Membership in an enumerated set that misses raises TLC's error when the set
+  holds a scalar of another class than the element. The set's sorted order
+  groups classes, so its first and last elements decide.
+- Membership of a non-integer in a non-empty interval, `Nat` or `Int`, of a
+  non-set in `SUBSET S`, and of a non-function in a set of functions,
+  records, tuples or sequences raises TLC's error. A function of the wrong
+  shape is not a member (D-009).
+- `EXCEPT` at a key outside the domain leaves the function unchanged, unless
+  the key had to be compared with a domain value of another class.
+- **Refusal.** The core builds every set normalized, but TLC normalizes
+  lazily, and whether a set that mixes classes (or records with tuples, C2,
+  C5) raises an error, and which, depends on when TLC normalizes it. The core
+  refuses such a set with `unsupported`, naming the mixture.
+
+The M0 core answered all of these with `FALSE`, so specifications that TLC
+stops with an evaluation error passed (`ErWrapSetMember`); see §8.
+
 ## 6. Interpreter
 
 The plan is executed by a recursive `match` over compact node arrays: an enum
@@ -187,6 +217,12 @@ and generated Rust. Either would implement the same evaluation interface and be
 shadow-compared against this interpreter.
 
 ## 7. Next step
+
+M1 stream 2 order: coverage census (§8), comparison errors (§5.1), the fold
+bound (R9), laziness (§4), operator breadth in census order, error classes
+(§5), then the memoization decision (`06-memoization.md`).
+
+The state of M0, which M1 replaces item by item:
 
 M0 built a compiler for the operators of the four spike models and the
 fixtures in `crates/dive-api/tests/fixtures/core-m0`. Measurements are in
@@ -215,7 +251,87 @@ Next (M1, stream 2):
    Lazy function values are needed to remove GameOfLife's materialization.
 3. Error classes (§5) and the INSTANCE and `ENABLED` passes.
 
-## 8. Interface
+## 8. Coverage
+
+The census that orders stream 2's work. Raw outputs are kept outside the
+repository; the commands are below.
+
+**Method.**
+- Small tier: `DIVE_ENGINE=core dive-conformance run --impl dive --corpus
+  examples --corpus probes --corpus validation-smoke --corpus
+  configured-temporal-operators --tier small --workers 1 --no-sany
+  --tlc-budgets --budget-cap 900` (156 models).
+- Latent refusals: each model refused for an engine feature (temporal
+  properties, `SYMMETRY`, `VIEW`, `ALIAS`, `ACTION_CONSTRAINT`,
+  `POSTCONDITION`) is rerun with those configuration sections removed, core
+  against the reference engine. This shows what the compiler refuses behind
+  the engine refusal.
+- Fixtures: every `.cfg` under `crates/*/tests/fixtures/` except the
+  configuration-parser fixtures (1,269 models), core against the reference
+  engine (shadow comparison, `08-correctness.md`), 20 s each.
+
+**Baseline, M0 at `866c0978`.**
+
+Small tier: 24 agree, 2 expected divergences, 4 disagree, 126 unsupported.
+The four disagreements are missing counterexamples (traces are stream 3);
+no count disagreed.
+
+| Unsupported reason (small tier) | Models |
+|---|---|
+| temporal properties (engine, M3) | 70 |
+| model values (values, stream 1) | 16 |
+| `SYMMETRY` (engine, M2) | 11 |
+| value override of a definition (a model value) | 5 |
+| split argument that is not constant (binder handoff) | 5 |
+| `VIEW` or `ALIAS` (engine, M2) | 4 |
+| INSTANCE substitution | 3 |
+| `TLC!RandomElement` (M2) | 3 |
+| `IOUtils` I/O (M2) | 2 |
+| standard operator not implemented | 2 |
+| false or failing `ASSUME` (handoff) | 1 |
+| evaluation error, unclassified (§5) | 1 |
+| recursive `LET` operator | 1 |
+| `ACTION_CONSTRAINT` (engine) | 1 |
+| `TLCGet`/`TLCSet` (M2) | 1 |
+
+Latent refusals (126 models with the engine sections removed): 41 agree with
+the reference engine, none disagree, 85 are refused:
+
+| Latent refusal | Models |
+|---|---|
+| model values (values, stream 1) | 40 |
+| value override of a definition (a model value) | 12 |
+| split argument that is not constant (handoff) | 10 |
+| INSTANCE substitution | 6 |
+| standard operator not implemented (`Bitwise`, `Bags`, `Json`, `TLCExt`, `UndirectedGraphs`) | 6 |
+| constant operator | 2 |
+| `TLC!RandomElement`, `IOUtils` (M2) | 4 |
+| other (recursive `LET` operator, `SelectSeq` with an operator argument, `[A]_v` as a value, `TLCGet`, failing `ASSUME`) | 5 |
+
+Fixtures: 284 agree with the reference engine, 963 are refused, 7 differ,
+15 are skipped (no module, or the reference refuses). The refusals are led by
+false `ASSUME`s (210), temporal properties (about 400), unclassified
+evaluation errors (about 110, §5), `VIEW`/`ALIAS` (26), `PrintT` (20),
+`SYMMETRY` (28), INSTANCE (15) and `ENABLED` (14).
+
+**Disagreements found, and their owners.**
+- *Comparison errors (fixed, §5.1).* `ErWrapSetMember` passed in the core and
+  is an evaluation error in TLC. Thirty probe specifications of comparisons
+  and memberships between classes showed 22 wrong verdicts. All now raise the
+  error, or are refused.
+- *Engine (stream 3).* `DfidInitialOnly` (no next-state action) is a deadlock
+  in the core and TLC's 2115 model error in the reference.
+  `SimExcludedInitial` (the only initial state fails the constraint) reports
+  depth 0, the reference depth 1. Four runs at the 20 s time limit end as
+  `resource-limit` (exit 3), the reference as a D-026 `stopped` (exit 5).
+
+**Priorities drawn from the census.** Model values (stream 1) gate the
+largest group. In the compiler: the binder handoff of non-constant split
+arguments, INSTANCE, then evaluation-error classes, which hide most fixture
+coverage. Laziness comes first among them, because classifying errors is
+sound only once the core raises no error TLC would not.
+
+## 9. Interface
 
 Changes made by other streams to the plan and compiler, recorded here as
 `10-plan.md` §3 asks.
