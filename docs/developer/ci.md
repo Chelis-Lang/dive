@@ -217,6 +217,35 @@ failing state, while the human report says only that capture completed
 (`ConcatFirstTypeError`). `known_differences_still_reproduce` fails once it is
 fixed.
 
+## Directional metamorphic tests
+
+`crates/dive-api/tests/metamorphic_directional.rs` changes a model in ways
+whose effect is known in direction, in the default profile:
+
+- `CONSTRAINT TLCGet("level") < k`: the distinct count never decreases as `k`
+  grows and reaches the unbounded count; a violation, once found, keeps the
+  unbounded depth;
+- `INVARIANT TLCGet("level") < k` on a passing model: the counterexample grows
+  by one state per larger `k` until `k` passes the model's depth;
+- an invariant replaced by `TRUE`: a passing model keeps its counts, another
+  invariant's violation keeps its depth, and dropping the violated invariant
+  finds nothing shallower.
+
+Each change is made in a wrapper module that extends the seed's root module,
+`TLC` and `Naturals`. Seeds whose unchanged wrapper reports differently are
+skipped (mostly roots whose helper modules follow them in the same file and
+so are not found from the wrapper), as are temporal properties, models
+without a behavior, and seeds whose own run takes over a second: the memory
+budget measures the whole test process. A run dive refuses as `unsupported`
+(D-002 random replay) is inconclusive.
+
+The `ci` profile runs a fixed seed list. To check every fixture:
+
+```sh
+DIVE_DIRECTIONAL=all DIVE_DIRECTIONAL_REPORT="$TMPDIR/directional.json" \
+  cargo test -p dive-api --release --test metamorphic_directional -- every_fixture --nocapture
+```
+
 `.github/workflows/conformance.yml` runs the small or deep tier, including the
 TLC self-checks, on manual dispatch. Its `baseline` job runs nightly (and on a
 small-tier dispatch): the same two corpus runs as the full gate, against the
