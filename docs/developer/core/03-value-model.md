@@ -2,7 +2,8 @@
 
 Status: M0 spike on `main` in `crates/dive-core` (`handle`, `strings`,
 `store`, `arena`, `node`, `heap`); results in `m0-results.md`. M1 (stream 1):
-the value interface is frozen in §11; the remaining M1 steps are in §12. This document covers strategies S1, S2, S4, S5 and S7 from
+the value interface is frozen in §11 and node data is inline in the store
+(step 2); the remaining M1 steps are in §12. This document covers strategies S1, S2, S4, S5 and S7 from
 `01-motivation.md`.
 
 ## 1. Goals
@@ -54,12 +55,15 @@ all constants.
 
 - **Shards.** It is split into 256 shards, selected by the top bits of the
   value hash. Each shard has two parts:
-  - **Node storage.** An append-only vector with stable indices. Reads need no
-    lock. Candidate crates are `boxcar`, or a chunked vector of fixed-size
-    blocks behind a published length; this is decided in M0 by the 8-thread
-    microbenchmark.
-  - **Deduplication index.** A table from hash to node index. It is consulted
-    and updated only while interning, under a per-shard `Mutex`.
+  - **Node storage.** One append-only column per size class: nodes with at
+    most 4 handles, at most 8, and more. A column is a chunked vector of
+    write-once `OnceLock` slots (chunk `k` holds `2^(4+k)` slots). The first
+    two classes hold the node header and its handles inline in the slot; the
+    last boxes its handles. Reads need no lock: a read is one chunk-pointer
+    load and one slot load. The class is part of the persistent handle.
+  - **Deduplication index.** An open-addressing table of `u64` entries (the
+    low 32 bits of the hash, and the class and index), consulted and updated
+    only while interning, under a per-shard `Mutex` on its own cache line.
 - **Hash-consing.** A compound is interned once. Interning looks up the hash,
   compares candidates structurally, and inserts if none matches. Two retained
   values are equal exactly when their handles are equal.
@@ -448,10 +452,14 @@ Deviations, to resolve in M1:
 M1, stream 1. The steps below are the ones §11 refers to.
 
 1. **Freeze the value interface.** Done: §11.
-2. Move node data inline into the store's chunks, in size classes, to remove
-   the pointer chase per view and one heap allocation per stored node (R10).
-   `Heap::view` and `Store::node` are the top self-time entries on
-   MCLamportMutex and GameOfLife.
+2. **Node data inline in the store.** Done: §3.1. Size classes 4, 8 and
+   boxed (classes 16 and 32 inline were tried: GameOfLife's 32-handle grid
+   nodes then cost 15 MB more RSS, through chunk doubling, for no time gain).
+   Measured on M3 (indicative, load 6–13): random persistent reads 25–35%
+   faster (`examples/store_views.rs`: 47–58 ns to 33–38 ns for 4 and 8
+   handles); single-thread `store_scaling` 28% faster; the four spike models
+   within noise on cycles, with 3% more instructions on MCLamportMutex (the
+   class dispatch); CoffeeCan peak RSS 224 to 214 MB. Counts unchanged.
 3. Arena rollback (`mark`, `rollback`) for rejected candidates, used by the
    filter and the fold (R10: CoffeeCan's fold enumerates 1,002,001
    candidates).

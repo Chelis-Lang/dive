@@ -31,6 +31,13 @@ const T_PERSISTENT: u64 = 4;
 const T_TRANSIENT: u64 = 5;
 const T_EMPTY: u64 = 7;
 
+const SHARD_BITS: u32 = 8;
+const CLASS_BITS: u32 = 2;
+/// The number of store size classes (`store.rs`).
+pub(crate) const CLASSES: usize = 3;
+/// The bound on a node index within one shard and size class.
+pub(crate) const MAX_CLASS_INDEX: u64 = (1 << 29) - 1;
+
 /// The largest inline integer.
 pub const INT_MAX: i64 = (1 << 60) - 1;
 /// The smallest inline integer.
@@ -48,8 +55,8 @@ impl std::fmt::Debug for Handle {
             Tag::Bool => write!(f, "Bool({})", self.0 >> TAG_BITS != 0),
             Tag::Str => write!(f, "Str#{}", self.0 >> TAG_BITS),
             Tag::Persistent => {
-                let (s, i) = self.persistent_parts();
-                write!(f, "P{s}:{i}")
+                let (s, c, i) = self.persistent_parts();
+                write!(f, "P{s}:{c}:{i}")
             }
             Tag::Transient => {
                 let (e, i) = self.transient_parts();
@@ -110,8 +117,14 @@ impl Handle {
         Self(((id as u64) << TAG_BITS) | T_STR)
     }
 
-    pub(crate) const fn persistent(shard: u8, index: u64) -> Self {
-        Self((((index << 8) | shard as u64) << TAG_BITS) | T_PERSISTENT)
+    pub(crate) const fn persistent(shard: u8, class: u8, index: u64) -> Self {
+        Self(
+            (((index << (SHARD_BITS + CLASS_BITS))
+                | ((class as u64) << SHARD_BITS)
+                | shard as u64)
+                << TAG_BITS)
+                | T_PERSISTENT,
+        )
     }
 
     pub(crate) const fn transient(epoch: u32, index: u32) -> Self {
@@ -178,10 +191,16 @@ impl Handle {
         self.0 & TAG_MASK == T_EMPTY
     }
 
+    /// The shard, size class and index of a persistent handle.
     #[allow(clippy::cast_possible_truncation, reason = "packed fields")]
-    pub(crate) const fn persistent_parts(self) -> (u8, u64) {
+    #[inline]
+    pub(crate) const fn persistent_parts(self) -> (u8, u8, u64) {
         let p = self.0 >> TAG_BITS;
-        ((p & 0xff) as u8, p >> 8)
+        (
+            (p & 0xff) as u8,
+            ((p >> SHARD_BITS) & ((1 << CLASS_BITS) - 1)) as u8,
+            p >> (SHARD_BITS + CLASS_BITS),
+        )
     }
 
     #[allow(clippy::cast_possible_truncation, reason = "packed fields")]
@@ -267,8 +286,8 @@ mod tests {
 
     #[test]
     fn compound_parts_round_trip() {
-        let p = Handle::persistent(200, (1 << 40) + 7);
-        assert_eq!(p.persistent_parts(), (200, (1 << 40) + 7));
+        let p = Handle::persistent(200, 2, (1 << 40) + 7);
+        assert_eq!(p.persistent_parts(), (200, 2, (1 << 40) + 7));
         assert!(p.is_persistent());
         let t = Handle::transient(0x1fff_ffff, 0xffff_fff0);
         assert_eq!(t.transient_parts(), (0x1fff_ffff, 0xffff_fff0));

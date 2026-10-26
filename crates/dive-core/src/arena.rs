@@ -153,6 +153,7 @@ impl Arena {
 
     /// The node behind a transient handle, if it belongs to this epoch,
     /// without recording a miss.
+    #[inline]
     pub(crate) fn lookup(&self, h: Handle) -> Option<View<'_>> {
         let (epoch, index) = h.transient_parts();
         let n = self.nodes.get(index as usize)?;
