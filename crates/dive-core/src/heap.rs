@@ -25,8 +25,8 @@ pub struct Heap {
     poisoned: std::cell::Cell<bool>,
     /// `-delta-hash`: recompute hashes in full instead of incrementally.
     pub(crate) full_hash: bool,
-    /// Enumerations of persistent finite symbolic sets, interned: a
-    /// constant such as `1..N \X 1..N` is enumerated once per worker.
+    /// Interned enumerations of persistent finite symbolic sets, for
+    /// [`Heap::materialize_cached`].
     materialized: std::collections::HashMap<Handle, Handle>,
 }
 
@@ -457,6 +457,17 @@ impl Heap {
     /// # Errors
     /// An infinite or too-large set.
     pub fn materialize(&mut self, h: Handle) -> Result<Handle, Error> {
+        self.materialize_fresh(h)
+    }
+
+    /// As [`Heap::materialize`], but a persistent set's enumeration is
+    /// interned and kept, so that it is built once per worker. Used only by
+    /// membership under `-symbolic-member`: interning every enumeration
+    /// would fill the store with values no state holds.
+    ///
+    /// # Errors
+    /// As [`Heap::materialize`].
+    pub fn materialize_cached(&mut self, h: Handle) -> Result<Handle, Error> {
         if h.is_persistent() {
             if let Some(&m) = self.materialized.get(&h) {
                 return Ok(m);

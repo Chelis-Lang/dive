@@ -535,7 +535,7 @@ impl Machine {
         }
         let kind = self.heap.view(set).kind;
         if kind != Kind::Set && !self.opts.symbolic_member && self.heap.is_finite(set) {
-            let m = self.heap.materialize(set)?;
+            let m = self.heap.materialize_cached(set)?;
             return self.member(x, m);
         }
         let v = self.heap.view(set);
