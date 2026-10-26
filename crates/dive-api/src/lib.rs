@@ -49,6 +49,8 @@ pub use config::{ConfigReport, parse_config_file, parse_config_source};
 
 mod analyze;
 mod check;
+mod core_engine;
+pub use core_engine::Engine;
 /// Native safety checkpoint request and format API (ADR0033).
 pub use dive_check::checkpoint;
 mod dfid;
@@ -59,7 +61,7 @@ pub use simulate::{SIMULATE_SCHEMA_VERSION, SimulateReport, SimulateRequest, sim
 pub use check::{
     BudgetSetting, CHECK_SCHEMA_VERSION, CheckReport, CheckRequest, ExitConvention,
     PeriodicSchedule, Store, TEMPORAL_CHECK_SCHEMA_VERSION, TemporalMode, check_file,
-    check_file_checkpoint, check_file_tlc_inputs, exit,
+    check_file_checkpoint, check_file_core_opts, check_file_engine, check_file_tlc_inputs, exit,
 };
 /// Parses a seed as TLC's `-seed` does (`dive check --seed`).
 pub use dive_stdlib::random::parse_seed;
