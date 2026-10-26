@@ -16,7 +16,11 @@ runtime `Print` and `PrintT` through captured operators. Their normal arguments,
 rendering and return values are evaluated. One direct scalar Init
 `RandomElement` draw is supported as described below. Other reached random draws,
 registers and unsupported host effects refuse; untaken branches do not run them.
-VIEW, symmetry, temporal checking and unproved sampling interactions refuse. Returned violations require independent trace validation;
+Initial states may hold compound values (sets, functions, records, sequences).
+A `SPECIFICATION` with fairness conjuncts is simulated: fairness constrains only
+infinite behaviors, so it cannot change a finite safety result (ADR 0116).
+Configured temporal `PROPERTY` checking, VIEW, symmetry and unproved sampling
+interactions refuse. Returned violations require independent trace validation;
 unknown replay alignment returns `unsupported`.
 
 Use `--stats basic --output json` to collect action flows, corresponding to TLC's

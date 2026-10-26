@@ -1,5 +1,10 @@
 # Changelog
 
+- `dive simulate` now accepts initial states holding compound values and
+  specifications with fairness conjuncts, in both profiles, instead of refusing
+  them. Fairness cannot affect a finite safety sample. Configured temporal
+  properties still refuse (ADR 0116, #491).
+
 - Check temporal properties under any `--store`, `--fp`, `-deadlock` and
   `--sequential` setting. Plain `dive check --compat=tlc` (random polynomial),
   `--store exact`, `-deadlock` and `--sequential` previously refused every
