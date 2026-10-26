@@ -1,8 +1,8 @@
 # Value model
 
-Status: M0 spike implemented in `crates/dive-core` (`handle`, `strings`,
-`store`, `arena`, `node`, `heap`) on `core/m0-spike`; results in
-`m0-results.md`. This document covers strategies S1, S2, S4, S5 and S7 from
+Status: M0 spike on `main` in `crates/dive-core` (`handle`, `strings`,
+`store`, `arena`, `node`, `heap`); results in `m0-results.md`. M1 (stream 1):
+the value interface is frozen in §11; the remaining M1 steps are in §12. This document covers strategies S1, S2, S4, S5 and S7 from
 `01-motivation.md`.
 
 ## 1. Goals
@@ -33,9 +33,9 @@ A value is a `Handle`, a `u64` newtype. Its low three bits are a tag.
 | 1 | Boolean | 1 bit |
 | 2 | String | string id (u32) into the string table |
 | 3 | Model value | id (u32) into the string table; the entry carries the TLC model-value type |
-| 4 | Persistent compound | shard (8 bits) and index (up to 48 bits) in the persistent store |
+| 4 | Persistent compound | shard (8 bits), size class (3 bits) and index in the persistent store |
 | 5 | Transient compound | epoch (16 bits) and index (32 bits) in the owning worker's arena |
-| 6 | Big integer | a persistent or transient node holding a `BigInt` |
+| 6 | Reserved | — (big integers are compound nodes of kind `BigInt`, §11.1) |
 | 7 | Reserved | — |
 
 Handles are plain integers, so arenas and stores are vectors indexed by
@@ -264,7 +264,164 @@ a level boundary it:
 2. remaps the frontier handles;
 3. clears the memoization caches.
 
-## 11. Next step
+## 11. Interface (M1)
+
+This section is the value interface that the evaluator (`eval`), the plan
+compiler (`compile`) and successor generation (`generate`, `dive-explore`)
+code against. Streams 2 and 3 use only what is listed here. A change to it is
+made by stream 1 and recorded here first. Items marked *(step n)* are
+specified but not yet on `main`: they land with step n of §12, and their
+signatures are frozen.
+
+### 11.1 Handle kinds and encoding
+
+A `Handle` is a `Copy` `u64`. The low three bits are the tag; the encoding is
+private to `handle.rs`, and other modules use only the methods named here.
+
+| Tag | Kind | Payload | Constructors and accessors |
+|---|---|---|---|
+| 0 | Integer, 61-bit two's complement | value | `Handle::int(i64) -> Option`, `as_int` |
+| 1 | Boolean | 1 bit | `Handle::TRUE`, `FALSE`, `bool`, `as_bool` |
+| 2 | String | id (u32) in the string table | `Heap::string(&str)`, `as_str_id` |
+| 3 | Model value | *(reserved; M2)* | — |
+| 4 | Persistent compound | shard (8 bits), size class (3 bits), index | issued by the store only; `is_persistent` |
+| 5 | Transient compound | epoch (29 bits), index (32 bits) | issued by the arena only; `is_transient` |
+| 6 | *(reserved)* | — | — |
+| 7 | Empty marker | none | `Handle::EMPTY`, `is_empty` |
+
+Rules:
+
+- **Equality.** Equal handles are equal values. Two *persistent* handles of
+  closed values (§11.3) are equal values exactly when the handles are equal,
+  in the default (hash-consing) store. For anything else use `Heap::eq`.
+- **Integers outside 61 bits** are compound nodes of kind `BigInt`
+  *(step 5)*, never inline. A canonical integer is inline whenever it
+  fits, so an inline and a big handle are never equal. Use `Heap::int_of`
+  *(step 5)* rather than `as_int` where a big integer is possible.
+- **`Handle::bits`** is for hash keys only; it carries no order.
+- **Size classes** are a store detail (step 2). Code outside the store
+  never decodes a persistent handle.
+
+### 11.2 Node kinds and views
+
+`Heap::view(h) -> View` reads any compound from either region. A `View`
+borrows the heap; copy what you need out of it before calling any `&mut Heap`
+method.
+
+| `Kind` | `lo` | `data` |
+|---|---|---|
+| `Set` | 0 | sorted distinct elements (run order, §7) |
+| `IntFcn` | domain lower bound (1 for tuples, sequences and the empty function) | values |
+| `Fcn` | 0 | `n` sorted keys, then `n` values |
+| `Interval` | lower bound | `[hi]` |
+| `Subset`, `SeqSet` | 0 | `[S]` |
+| `FcnSet` | 0 | `[D, R]` |
+| `RecSet` | 0 | `n` sorted field names, then `n` sets |
+| `Product` | 0 | the factors |
+| `Nat`, `Int` | 0 | empty |
+| `Lambda` *(step 4)* | closure id | `[D, captures...]`: `[x \in D \|-> e]` before it is materialized |
+| `SetPred` *(step 4)* | closure id | `[S, captures...]`: `{x \in S : P}` before it is enumerated |
+| `Union` *(step 4)* | 0 | `[A, B]`: a lazy `A \cup B` |
+| `BigInt` *(step 5)* | sign | magnitude limbs; read only through `Heap::big` |
+
+`View` has `kind`, `lo`, `hash`, `sum`, `data` and, from step 4, `flags`. Use
+`len`, `keys` and `values` rather than indexing `data` by kind. Every kind
+except `Set`, `IntFcn`, `Fcn` and `BigInt` is *symbolic*
+(`Kind::is_symbolic`).
+
+**Canonical form.** Builders always produce the canonical form: a function
+whose keys are consecutive integers is an `IntFcn`; anything else is a `Fcn`
+with sorted keys. So structural equality of normalized, closed values is
+equality of node contents, and the evaluator never needs to compare
+representations.
+
+### 11.3 Normalized, closed and lazy values
+
+- **Normalized**: not a finite symbolic set. `Heap::norm` normalizes a handle
+  (it materializes a finite symbolic set and leaves everything else alone).
+- **Lazy** *(step 4)*: the value contains a `Lambda` or `SetPred` node, which
+  only the evaluator can force (the heap has no access to the plan).
+  `Heap::is_lazy(h)` tells. A lazy node is never a set element or a
+  function key: the evaluator closes a value before it uses it as either,
+  because TLC normalizes sets (and so forces their elements) on every
+  comparison.
+- **Closed**: normalized at the top level and not lazy anywhere. `hash`,
+  `eq`, `cmp`, the set builders and `intern` require closed inputs (sets:
+  closed elements; functions: closed keys). Given a lazy input they record an
+  internal error (`Heap::poisoned`), never a wrong answer.
+
+### 11.4 Heap operations
+
+`Heap` is one worker's handle on the shared `Store` plus its own `Arena`. Each
+worker (and the compiler, while folding) owns exactly one `Heap`; it is not
+`Sync`. The operations each stream may use:
+
+| Operation | Purpose | eval | compile | generate / explore |
+|---|---|---|---|---|
+| `view`, `kind` | read a compound | yes | yes | yes |
+| `hash` | value hash of a closed value; the state key is built from it | yes | yes | yes |
+| `eq`, `cmp` | equality and run order of closed values | yes | yes | yes |
+| `is_finite`, `cardinality` | set size questions | yes | yes | yes |
+| `cursor` + `Cursor::next`, `elements` | enumerate a finite set in run order | yes | yes | yes |
+| `norm`, `materialize` | normalize, or force a set's enumeration | yes | yes | yes |
+| `materialize_cached` | membership in a persistent symbolic set, once per worker | yes | no | no |
+| `set_from`, `set_sorted`, `empty_set` | build a set (unsorted with duplicates, or sorted distinct) | yes | yes | yes |
+| `int_fcn`, `tuple`, `fcn_sorted`, `fcn_from_pairs` | build a function, record or tuple | yes | yes | yes |
+| `fcn_with` | `EXCEPT` at an entry index, O(1) hash update | yes | no | yes |
+| `symbolic`, `interval` | build a symbolic set | yes | yes | no |
+| `string` | intern a string's text | yes | yes | no |
+| `lambda`, `set_pred`, `union` *(step 4)* | build a lazy value | yes | yes | no |
+| `closure(h) -> Option<Closure>` *(step 4)* | the closure id, domain and captures of a `Lambda` or `SetPred` | yes | no | no |
+| `rebuild(h, data)` *(step 4)* | the same kind with new contents, canonicalized and rehashed (used to close a value bottom-up) | yes | no | yes |
+| `is_lazy` *(step 4)* | whether the value must be closed first | yes | yes | yes |
+| `int_of`, `big`, `int_from_big`, `arith` *(step 5)* | integers of any size, profile-aware arithmetic | yes | yes | no |
+| `mark`, `rollback` *(step 3)* | discard transients built since a mark | yes | yes | no |
+| `intern` | deep-close a closed value into the store | no | no | engine, after the claim |
+| `intern_const` | intern a constant, keeping a top-level symbolic or lazy set symbolic | no | yes | no |
+| `reset` | end of an expansion: free every transient | no | after each fold | engine, per expansion |
+| `poisoned` | a stale or foreign handle was read, or a lazy value was hashed (a bug) | check | check | check after each successor |
+
+Store operations outside the heap are limited to `Store::new(hashcons)`,
+`Store::stats` and `Store::strings`. Nothing outside `heap.rs` reads store or
+arena nodes directly.
+
+### 11.5 Ownership and lifetime rules
+
+1. **Arena epoch.** Every transient handle belongs to one worker's arena and
+   one epoch. `reset` frees all of them and starts a new epoch. A transient
+   handle must not be kept across a `reset`, stored in another worker's
+   structures, or put in the persistent store, memo tables or the frontier.
+   A stale read is detected in every build and poisons the heap; the engine
+   reports it as an internal error.
+2. **Rollback** *(step 3)*. `mark()` returns a `Mark`; `rollback(mark)` frees
+   every transient allocated after it. A handle allocated after the mark must
+   not be used after the rollback; this includes values held in frame slots
+   or thunk caches. Each rollback starts a new epoch for later allocations,
+   so a stale use is detected like rule 1. Use it only around work whose
+   result is a scalar or a value built before the mark (a filter predicate,
+   a rejected candidate).
+3. **Intern after claim.** The engine interns a successor's values only after
+   its state key wins the seen-set claim (or, without the early probe,
+   before the probe). Nothing else interns state values. The compiler interns
+   constants with `intern_const`.
+4. **Deep close on intern.** `intern` walks a value children first, interning
+   each child, and materializes finite symbolic sets (TLC fingerprints a state
+   by normalizing it, so this adds no observable behaviour). A lazy value
+   *(step 4)* is closed by the evaluator first: for each `Lambda` or `SetPred`
+   it evaluates the materialization, then rebuilds the parents with
+   `rebuild`. `intern` given a lazy value is an internal error.
+5. **Persistent values are immutable and never reference transients.** They
+   live until the store is dropped (compaction is M2, §10).
+6. **Views and identity** (§8). A value's identity handle is its normalized,
+   closed form. A lazy view (a symbolic class, or TLC's `isNorm` state) is
+   kept beside it, never in it: `hash`, `eq`, `cmp` and `intern` ignore
+   `View::flags` *(step 4)*. The engine keeps a state slot's view handle in a
+   side table when the plan asks for it.
+7. **Sharing.** `Store` is `Sync` and shared through `Arc`. Interning takes a
+   per-shard lock; reads take none. A persistent handle may be passed to any
+   worker once it has been returned by `intern`.
+
+## 12. Next step
 
 M0 built the following. Measurements are in `m0-results.md`.
 - 64-bit tagged handles: inline 61-bit integers, booleans and string ids; a
@@ -288,10 +445,17 @@ Deviations, to resolve in M1:
 - The literal flag for tuples and records is not part of identity.
 - The store has no compaction. Memo tables are cleared when the store remaps.
 
-Next (M1, stream 1):
-1. Freeze the value interface: handles, `Heap`, cursors and views.
-2. Move `PNode` data inline into the chunk, to remove one pointer chase per
-   view. `Heap::view` and `Store::node` are the top self-time entries on
+M1, stream 1. The steps below are the ones §11 refers to.
+
+1. **Freeze the value interface.** Done: §11.
+2. Move node data inline into the store's chunks, in size classes, to remove
+   the pointer chase per view and one heap allocation per stored node (R10).
+   `Heap::view` and `Store::node` are the top self-time entries on
    MCLamportMutex and GameOfLife.
-3. Add lazy function values (`[x \in S |-> e]` applied before it is
-   materialized), big integers, and the compat-order intern path.
+3. Arena rollback (`mark`, `rollback`) for rejected candidates, used by the
+   filter and the fold (R10: CoffeeCan's fold enumerates 1,002,001
+   candidates).
+4. Lazy values: `Lambda`, `SetPred` and `Union` nodes, `View::flags`, the
+   close protocol of §11.5 rule 4, and lazy-view retention for state slots.
+5. Big integers out of line (D-004), with `--int=tlc` overflow errors.
+6. The compat-order intern path for strings (§7).
