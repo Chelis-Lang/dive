@@ -1,0 +1,250 @@
+{
+  "schema_version": 1,
+  "status": "NOT_ADMITTED_AFTER_COMPLETE_EXISTING_LEDGER_QUERY",
+  "source": "1a8343b90a60f5087a1a5a9ca8d1a0f69195992a",
+  "source_tree": "bb4dad68b4ee8c5834c61997eb1e11fac5d1dcaf",
+  "input_scope": "Four ADR0104 reduced models, both profiles, one worker; unweighted eight-cell instruction arithmetic. This is a query of existing profiles, not a new model run or candidate screen.",
+  "raw_replay": {
+    "status": "COMPLETE_EIGHT_BATCHED_SEARCH_CONTEXT_REPLAYS",
+    "reader_result_sha256": "91baed57944dbaf3504bfe37d3ca122368d014d68a1d1d62a8b3a52538172c84",
+    "streams": [
+      {
+        "tag": "current-EWD998PCal-dive-w1",
+        "bytes": 45307027,
+        "sha256": "6133dfc6743d4a646a206508f6fddba72f4272b5e3d3186f1148d5b169a35612",
+        "genuine_EOF": true,
+        "receipt": {
+          "cell": "current-EWD998PCal-dive-w1",
+          "status": "VERIFIED_WAITING_ALL_EIGHT"
+        }
+      },
+      {
+        "tag": "current-EWD998PCal-tlc-w1",
+        "bytes": 45202594,
+        "sha256": "3b2772e3784486c36631f8464b1e1b36abe056bca039b23fdfaa17398e4d1421",
+        "genuine_EOF": true,
+        "receipt": {
+          "cell": "current-EWD998PCal-tlc-w1",
+          "status": "VERIFIED_WAITING_ALL_EIGHT"
+        }
+      },
+      {
+        "tag": "current-GameOfLife-dive-w1",
+        "bytes": 29604908,
+        "sha256": "cc65b3a0820fb8294f3b6d32f08cdb84f522ca5499df1e3b3f18252d0b55a6e6",
+        "genuine_EOF": true,
+        "receipt": {
+          "cell": "current-GameOfLife-dive-w1",
+          "status": "VERIFIED_WAITING_ALL_EIGHT"
+        }
+      },
+      {
+        "tag": "current-GameOfLife-tlc-w1",
+        "bytes": 29397691,
+        "sha256": "f3b35ce8db47a78afa2091834c21749d0b7b8e256196449ba913c5b2f21e0d21",
+        "genuine_EOF": true,
+        "receipt": {
+          "cell": "current-GameOfLife-tlc-w1",
+          "status": "VERIFIED_WAITING_ALL_EIGHT"
+        }
+      },
+      {
+        "tag": "current-MCbtree-dive-w1",
+        "bytes": 42927676,
+        "sha256": "4c9fc0345256db412f007aaaa74cc9b723243f4849a842a02646c8d052cc94eb",
+        "genuine_EOF": true,
+        "receipt": {
+          "cell": "current-MCbtree-dive-w1",
+          "status": "VERIFIED_WAITING_ALL_EIGHT"
+        }
+      },
+      {
+        "tag": "current-MCbtree-tlc-w1",
+        "bytes": 41948854,
+        "sha256": "9d2fa702d45caa27deb2fabea0df94b4ca29d1e8ee9e1abf45176a859a55d44d",
+        "genuine_EOF": true,
+        "receipt": {
+          "cell": "current-MCbtree-tlc-w1",
+          "status": "VERIFIED_WAITING_ALL_EIGHT"
+        }
+      },
+      {
+        "tag": "current-SimpleRegular-dive-w1",
+        "bytes": 32107542,
+        "sha256": "bb53c3f1027d671cf33f8284baa60b8bc70862aaa73f918717acb7594eed3315",
+        "genuine_EOF": true,
+        "receipt": {
+          "cell": "current-SimpleRegular-dive-w1",
+          "status": "VERIFIED_WAITING_ALL_EIGHT"
+        }
+      },
+      {
+        "tag": "current-SimpleRegular-tlc-w1",
+        "bytes": 32072131,
+        "sha256": "c831f26558281b18f966686ebd43bad8575f99f4eda03b7f2dfcd6b2f511f71f",
+        "genuine_EOF": true,
+        "receipt": {
+          "cell": "current-SimpleRegular-tlc-w1",
+          "status": "VERIFIED_WAITING_ALL_EIGHT"
+        }
+      }
+    ],
+    "raw_files_saved": false,
+    "native_calls": 0
+  },
+  "assessment_sha256": "3000b50d3d249f564a7fb14f80ad00af137c539a8f9e03b254358ee17c4d306a",
+  "metadata": {
+    "Root_result_sha256": "91baed57944dbaf3504bfe37d3ca122368d014d68a1d1d62a8b3a52538172c84",
+    "selected_overview_sha256": "d85454bbcbb878874672ca9f06c938150f892d2f2f7974fb8fa76296dfb1a634",
+    "source_check_sha256": "b1c4ebe713115c1398d8227a5e6736c1a439613090a7feaeacfd5d75cd4cf147",
+    "selector_sha256": "2d07cb4e8e3baea324ccff59e5586eda41c35a779508905bda747dd27efa72f7",
+    "Root_binding_correction_sha256": "491089fcfd5743d634e9c8d557ebff4dfb73f7cdf674a8739d90b660cce86b9c",
+    "source_peer_sha256": "10171fd68f7ecf830ea61460432f63e8cdca0960ecd384b0758568eab6ff3842",
+    "binding_sha256": "1cfc0d2ecb22c0a1bfcae48a99214684bc9d9d95a6887e4881462a308d7ec443"
+  },
+  "cells": [
+    {
+      "cell": "current-EWD998PCal-dive-w1",
+      "whole_Ir": 46586547950,
+      "source_PC_union": [
+        50228691,
+        192,
+        194,
+        "99830708335ed13f2d1ff4b2cce50ef79cf175d692665a208a4b1a9387e61b48"
+      ],
+      "selected_owner_and_helper_union": [
+        570029915,
+        1692,
+        1765,
+        "4708103e4687eb7e8fdf94a84446dce181e81a115e9d14ebfd13d8786f18aa0b"
+      ]
+    },
+    {
+      "cell": "current-EWD998PCal-tlc-w1",
+      "whole_Ir": 47494350479,
+      "source_PC_union": [
+        114143289,
+        289,
+        299,
+        "7c4aae52a981941c453b97193b8137973763da0dae14c01be593937ebba87f53"
+      ],
+      "selected_owner_and_helper_union": [
+        645438350,
+        1716,
+        1793,
+        "2194f9d94303602bde5b4a4474e5b95d36c207191f330538fef773d9777e27a0"
+      ]
+    },
+    {
+      "cell": "current-GameOfLife-dive-w1",
+      "whole_Ir": 1144210670,
+      "source_PC_union": [
+        6391968,
+        112,
+        112,
+        "ba8dc23d486d705f7f49c0e54140ac3ffaef7b4dce9cdb640f5ddde80276ef80"
+      ],
+      "selected_owner_and_helper_union": [
+        45360824,
+        1084,
+        1137,
+        "5998fa385183d3058a934db8a7f4b8b5fbb8af77077ecab691736da340278ca5"
+      ]
+    },
+    {
+      "cell": "current-GameOfLife-tlc-w1",
+      "whole_Ir": 1136581274,
+      "source_PC_union": [
+        6622752,
+        149,
+        155,
+        "bcdceb3dcb65662bd2f6f771898187c7324835a4c5f2a60e8c90735a225c6f86"
+      ],
+      "selected_owner_and_helper_union": [
+        45215089,
+        815,
+        860,
+        "07252f6cd77eecfcbfba2f574ec4ea0c674e67ba2ee43849c00ef79595f7aadb"
+      ]
+    },
+    {
+      "cell": "current-MCbtree-dive-w1",
+      "whole_Ir": 14425426107,
+      "source_PC_union": [
+        245179644,
+        439,
+        447,
+        "e437309a3123d625ab301b305c6cd8a2b790bfb653a9bcc67ea14b7099ed9df6"
+      ],
+      "selected_owner_and_helper_union": [
+        1187960233,
+        2336,
+        2432,
+        "cb6eaa15375d3d270a2bd21a4922494a133939d29379de3ab7e033c5ffcbac66"
+      ]
+    },
+    {
+      "cell": "current-MCbtree-tlc-w1",
+      "whole_Ir": 18222891108,
+      "source_PC_union": [
+        210513617,
+        513,
+        536,
+        "7d1e381e2eabf4126741e117582dd92bcf6709fcc30760beedcf5b3b2910b685"
+      ],
+      "selected_owner_and_helper_union": [
+        1071096505,
+        2296,
+        2382,
+        "233205a8a31b6384b00a9e9f4ee89da907e696abf20b26c3fec29882c47f9723"
+      ]
+    },
+    {
+      "cell": "current-SimpleRegular-dive-w1",
+      "whole_Ir": 2522404639,
+      "source_PC_union": [
+        9960592,
+        49,
+        60,
+        "86e414b48b0ff4e6df1864e0a7620b312f2de2bc0063bb522ded6f902f0a56f0"
+      ],
+      "selected_owner_and_helper_union": [
+        155708024,
+        752,
+        773,
+        "39d2fb6d9c22453c6e13820c3884501ccd9137c6c9994f63c9a8e1a96474dae8"
+      ]
+    },
+    {
+      "cell": "current-SimpleRegular-tlc-w1",
+      "whole_Ir": 2586618532,
+      "source_PC_union": [
+        13074922,
+        49,
+        72,
+        "e36defce7840202ea6cf67791dd6af9e6c99079915156f96ca73d0abd38a7585"
+      ],
+      "selected_owner_and_helper_union": [
+        145040169,
+        655,
+        696,
+        "cf476b24b076c0ddc99a8d2788f41a0f70a6257b83ea4029d3487fde16a3e28d"
+      ]
+    }
+  ],
+  "conditional_arithmetic": {
+    "definition": "100*(1-product(1-selected_Ir[cell]/whole_Ir[cell])^(1/8)); exact integer input ratios, Decimal precision70. Delete the entire selected pool solely as a hypothetical arithmetic exercise.",
+    "selected_source_PC_union_GM_reduction_percent": "0.6567971654301562202133878163944649195888348646748327454839963228905400",
+    "all_selected_owner_plus_immediate_helper_union_GM_reduction_percent": "4.579108932799533482649621344191976976215085662250248109751116260774870",
+    "fixed_screen_required_GM_reduction_percent": 5,
+    "interpretation": "Even deleting every instruction in the broader selected pool gives4.5791089%GM, below5. This is CONDITIONAL over the complete selector output, not an upper bound on all algorithm descendants and not a predicted saving. Actual batching must retain output/comparison work and pay eligibility/merge overhead. Unknown costs outside the pool cannot be claimed as a budget."
+  },
+  "decision": "Do not implement or benchmark the proposed batched ordered-set merge on this evidence; no further query/prototype authorized by this assessment.",
+  "limitations": "No optimized binary, savings/hit-rate/eligible-count, allocator-causality, JavaTLC speedup, wallclock/scaling, new conformance or parity claim. Collector metadata adapter key correction occurred before SDK clients/reads and left the sealed selector unchanged; original finding preserved separately.",
+  "storage": {
+    "bucket": "dive-callgrind-profile-20261025064842-b9f59b27-010928226848",
+    "assessment_preservation_prefix": "root-compact/mask-merge-canary3-and-fulltier-source-20261026-v1/",
+    "assessment_preservation_receipt_sha256": "d7d400b413450919668e93d35ebe0a969746da009e5ebeaf331cb15c709ba441"
+  },
+  "assessment_scope": "Retained compact arithmetic, hash and crossbinding review. The separately pinned reader_result records original whole-ledger replay; the assessment performs no second raw-body replay."
+}
