@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "status": "QUALIFIED_CLOSED_POWERSET_FILTER_MASK",
+  "runtime_source": "2c966c74543f38b3de2e19828bef492aad9c7a5d",
+  "runtime_tree": "f39d7f38b4a4bf5c5878dea3d51b58c47eec392d",
+  "base_main": "84c2624a40a94865fc9e5eba167f95619c9038f1",
+  "model": "specifications/SpanningTree/SpanTreeTest5Nodes.cfg",
+  "module": "specifications/SpanningTree/SpanTreeTest.tla",
+  "corpus_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "input_sha256": {
+    "specifications/SpanningTree/SpanTreeTest5Nodes.cfg": "32452f3bb5419e3259deab683ca0dfd3138445137f4fb9c04c3ca4ee2143c9a9",
+    "specifications/SpanningTree/SpanTreeTest.tla": "474ae020a81dc380a89b829366db79698eaaca6afb9cafb6579748d2838c6e5c"
+  },
+  "golden": {
+    "path": "conformance/golden/tlc-2026.10.06.014338/examples/specifications/SpanningTree/SpanTreeTest5Nodes.cfg.json",
+    "sha256": "f1b7f65e0483f3938ddaae7bcc22a5ee41ab00664279ed8c23bafa110958fc12",
+    "oracle": "tlc-2026.10.06.014338",
+    "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+  },
+  "profiles": {
+    "tlc": {
+      "outcome": "agree",
+      "workers": 1,
+      "verdict": "success",
+      "verdict_code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit_code": 0,
+      "violated_property": null,
+      "distinct_states": 410112,
+      "states_generated": 3150464,
+      "depth": 5,
+      "trace_length": null,
+      "elapsed_ms": 185210,
+      "report_sha256": "d2a20e83dcf88f0f6b5250744328da7da21bac40da215f4a8b7804975bc8536a"
+    },
+    "dive": {
+      "outcome": "agree",
+      "workers": 1,
+      "verdict": "success",
+      "verdict_code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit_code": 0,
+      "violated_property": null,
+      "distinct_states": 410112,
+      "states_generated": 3150464,
+      "depth": 5,
+      "trace_length": null,
+      "elapsed_ms": 281934,
+      "report_sha256": "9cce310c64b6e5f0b6dc6a2435c89dcefaf8d607537c703a1c8a155a4cfd7163"
+    }
+  },
+  "budgets": {
+    "workers": 1,
+    "jobs": 1,
+    "native_seconds": 900,
+    "outer_seconds": 930,
+    "max_memory": "8g"
+  },
+  "full_gate": {
+    "tests": {
+      "tests_run": 2555,
+      "passed": 2555,
+      "skipped": 0
+    },
+    "SANY_modules": 458,
+    "small_profiles": {
+      "tlc": {
+        "agree": 150,
+        "unsupported": 6
+      },
+      "dive": {
+        "agree": 144,
+        "expected-divergence": 7,
+        "unsupported": 5
+      }
+    },
+    "baseline_changes": false,
+    "archive_sha256": "5a51d29eacba92fd39652f655c542f6b6ed9f653917be46e24b463c62ddba7fc",
+    "phase_count": 13,
+    "applicable_phases_passed": 12,
+    "conditional_phase_not_applicable": {
+      "name": "cargo-deny",
+      "reason": "Cargo.lock and deny.toml unchanged"
+    }
+  },
+  "focused": {
+    "tests_passed": 309,
+    "new_control_groups": 21,
+    "shipping_build": "pass",
+    "ordinary_12_models_both_profiles": "Every model field exact against qualified parent except elapsed time"
+  },
+  "machine": {
+    "cpu": "Intel Xeon Platinum 8488C",
+    "instance_type": "c7i.8xlarge",
+    "ami": "ami-02a9cdd4e98bc3c78",
+    "kernel": "7.0.0-1014-aws",
+    "rustc": "1.99.0",
+    "quiet_host": false
+  },
+  "origins": {
+    "bucket": "dive-selectseq-gate-20261025220917-d667c653-010928226848",
+    "gate_key": "results/gate-complete.tgz",
+    "original_producer_completion": "results/completion.json",
+    "recovery_prefix": "root-recovery2/",
+    "recovery_completion_sha256": "3299a63877f0a139683b3b02f31b160998b9892772daee8a0a1cc8eb8dbc3ea7",
+    "root_whole_body_audit_sha256": "d3c27d38371cfe15615210891d968be4bfb5e460d4fb9df66371da5f991d6f71",
+    "independent_retained_qualification_review_sha256": "2f69e4dad2defbb5f0c05ab79c131faec9a87b9bf4da223a25e37116ed7daf84",
+    "release_binary_sha256": "e6ff12c65ea1c449ef83ffe5447f9dd4fc0f789da886397b54a3727cedbfa2ef"
+  },
+  "qualification_notes": [
+    "The original TLC run was recertified after correcting an external reader expectation: report binary paths are repository-relative; absolute execution argv and the binary SHA stayed exact.",
+    "Recovery uses the existing identity projector to compare loader metadata with ASLR addresses normalized; every binary/library SHA and physical identity field remains checked. Original HOLD records are retained.",
+    "The default model ran once after recovered TLC evidence was preserved. No TLC model rerun, rebuild, report edit or golden change was used.",
+    "Normalized reports provide no raw initial-state or queue counters. Physical post-default binary comparison is producer-checked; source/tool identities and both report binary SHAs are independently replayed.",
+    "This separate model probe adds no credit to the historical 181/217 full-tier population. Established small baselines remain unchanged. No instruction, wall-time speedup, scaling or performance-suite claim is made."
+  ]
+}

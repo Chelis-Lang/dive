@@ -360,3 +360,58 @@ fn a_real_host_panic_unwinds_the_cursor_without_poisoning_later_evaluation() {
         assert_eq!(f.ev.take_output(), ["100"]);
     }
 }
+
+#[derive(Debug)]
+struct OrdinaryHost;
+impl dive_eval::Host for OrdinaryHost {}
+
+#[test]
+fn operative_singleton_projection_preserves_real_init_successor_sinks_and_partial_state() {
+    let text = "---- MODULE Cursor ----\nEXTENDS Integers,FiniteSets,TLC\nVARIABLES x,mom,dist\nReference == {A \\in SUBSET (SUBSET {10,20,30}) : \\A e \\in A : Cardinality(e)=2}\nInit == /\\ mom=[n \\in {10,20,30} |-> n] /\\ dist=[n \\in {10,20,30} |-> 0] /\\ x \\in Reference\nNext == /\\ mom'=mom /\\ dist'=dist /\\ x' \\in Reference\n====\n";
+    for options in [Options::dive(), Options::tlc()] {
+        let mut runs = Vec::new();
+        for operative in [false, true] {
+            let f = from_source(text, options);
+            f.ev.set_host(Arc::new(OrdinaryHost));
+            let _scope = operative.then(|| {
+                f.ev.native_hook_scope(dive_eval::NativeHooks::Unrestricted)
+                    .expect("domain0 operative binding")
+            });
+            let mut initial = Vec::new();
+            let init =
+                f.ev.init_states(&f.inits, &mut |successor| {
+                    assert_eq!(successor.ordinal, initial.len() as u64);
+                    initial.push(successor.state.to_vec());
+                    Flow::Continue
+                })
+                .expect("full original Init");
+            assert_eq!(init.emitted, 8);
+            assert!(!init.stopped);
+            assert_eq!(initial[0][0], Some(Value::empty_set(options.ctx)));
+            let mut successors = Vec::new();
+            let next =
+                f.ev.successors(&f.actions, &initial[0].clone().into(), &mut |successor| {
+                    assert_eq!(successor.ordinal, successors.len() as u64);
+                    successors.push(successor.state.to_vec());
+                    Flow::Continue
+                })
+                .expect("full original Next");
+            assert_eq!(next.emitted, 8);
+            assert!(!next.stopped);
+            // An actual sink stop on empty precedes inspection/learning.
+            let stop =
+                f.ev.init_states(&f.inits, &mut |successor| {
+                    assert_eq!(successor.state[0], Some(Value::empty_set(options.ctx)));
+                    Flow::Stop
+                })
+                .expect("early original sink stop");
+            assert_eq!(stop.emitted, 1);
+            assert!(stop.stopped);
+            runs.push((initial, successors, f.ev.take_output()));
+        }
+        assert_eq!(
+            runs[1], runs[0],
+            "reference executes first, all states/ordinals retained"
+        );
+    }
+}
