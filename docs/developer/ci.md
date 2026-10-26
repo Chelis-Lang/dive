@@ -246,6 +246,40 @@ DIVE_DIRECTIONAL=all DIVE_DIRECTIONAL_REPORT="$TMPDIR/directional.json" \
   cargo test -p dive-api --release --test metamorphic_directional -- every_fixture --nocapture
 ```
 
+## Fault injection
+
+`crates/dive-api/tests/fault_injection.rs` checks that a fault ends in the
+correct answer or an explicit safe stop, never a different verdict or counts
+presented as complete. Each fixture is checked once unfaulted, then:
+
+- transparent faults must reproduce the reference's verdict, property, TLC
+  code and exit status, statistics, counterexample and output: chaos
+  scheduling at 1, 4 and 8 workers, frontier, predecessor and seen-set spill
+  with zero memory budgets, and a checkpoint pause at a completed level
+  followed by recovery;
+- disruptive faults may also stop (`stopped` or `resource-limit`, no
+  counterexample, statistics no larger than the reference's) or refuse with
+  an error: state, depth and time budgets at several points, missing and
+  read-only spill or checkpoint directories, and checkpoint archives that are
+  emptied, truncated, extended or have one byte flipped before recovery. A
+  state budget may also keep the deciding error with smaller counts, since it
+  bounds diagnostic replay too (see `docs/user/checking.md`).
+
+An `internal-error` always fails; a mode dive refuses as `unsupported` is
+inconclusive. Runs use the exact store, seed 0 and fp 0; seeds whose own run
+takes over a second are skipped. The `ci` profile runs a fixed seed list. To
+check every fixture:
+
+```sh
+DIVE_FAULTS=all DIVE_FAULTS_REPORT="$TMPDIR/faults.json" \
+  cargo test -p dive-api --release --test fault_injection -- every_fixture --nocapture
+```
+
+One known finding is reported separately: a state budget that cuts
+diagnostic replay short changes the reported TLC error class and exit status
+without marking the run stopped (`ErInvReplayError` under `max_states` 4;
+related to #379). `known_findings_still_reproduce` fails once it is fixed.
+
 `.github/workflows/conformance.yml` runs the small or deep tier, including the
 TLC self-checks, on manual dispatch. Its `baseline` job runs nightly (and on a
 small-tier dispatch): the same two corpus runs as the full gate, against the
