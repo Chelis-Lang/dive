@@ -364,7 +364,33 @@ Twenty-five directories of the pinned Examples checkout have no
 
 ## Full-tier implementation measurement
 
-The fresh 2026-10-24 measurement of frozen source `68c09a1b` reports **181/217
+The latest 2026-10-26 measurement of source `672fc1b1` records **182/217
+in-scope agreements**, one more than the 2026-10-24 result. The only new
+agreement is `examples:specifications/SpanningTree/SpanTreeTest5Nodes.cfg`,
+with no lost agreements. The exact 265 historical IDs, 48 exclusions, nine
+missing references and four corpora remain selected. The separate startup
+primary corpora are outside this population. Sixteen named refusals, ten
+resource stops and nine missing references remain; there are zero disagreements.
+
+This retains TLC profile, W1/jobs2, native 16 GiB, TLC-derived budgets capped
+at 900 seconds and 30 seconds of cleanup grace. Eight stops were for time and
+two for memory, all native exit 5 with no completion credit. The normal harness
+exit is 1 and nine references remain missing; this is not a gate pass.
+
+After the normal report and `report baseline` utility completed, the controller
+exhausted its S3 preservation window. That failure remains intact. Following
+whole-node quiescence, preservation-only recovery and a RAM audit verified
+all 1,288 originals (3,009,809 bytes), without rerunning models, builds or the
+utility. `conformance/baselines/full-tlc-w1.json` is copied byte-for-byte from
+that normal utility output for `20261026T023947024-dive-all`. The
+[compact record](survey/data/full-tier-measurement-2026-10-26.json) binds the
+source, complete population, every remaining gap, resource findings, generated
+digest and S3/cleanup receipts. Small-tier baselines are unchanged. No new SANY,
+four-worker, full-gate, throughput or peak-memory result follows.
+
+### Earlier 2026-10-24 implementation measurement
+
+The earlier 2026-10-24 measurement of frozen source `68c09a1b` reports **181/217
 in-scope agreements** in the TLC profile at one worker: ten more agreements
 than the controlled 2026-10-21 baseline, with no lost agreements. The fixed
 265-model population, 48 exclusions, nine missing references and pinned oracle

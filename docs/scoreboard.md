@@ -22,8 +22,8 @@ change, and **2,555 Rust tests with none skipped**. Small-tier results remain
 divergences; all 458 SANY comparisons agree. A separate check of the original
 `SpanTreeTest5Nodes` agrees in both profiles: 410,112 distinct states, 3,150,464
 generated states and depth 5, within explicit 900-second/8-GiB budgets. This
-closes its nested-powerset Init gap without adding credit to the historical
-full-tier population below. See the
+closed its nested-powerset Init gap. That isolated check added no population
+credit; the fresh full-tier measurement below now records the agreement. See the
 [qualification](survey/data/nested-powerset-mask-qualification-2026-10-25.json).
 
 The earlier full gate at source `5217163f` on 2026-10-25 passed all 13 phases
@@ -126,7 +126,32 @@ of this file.
 
 ## Full-tier measurement
 
-The fresh 2026-10-24 measurement of frozen source `68c09a1b` records **181 agree
+The latest 2026-10-26 measurement of source `672fc1b1` records **182 agreements
+out of 217 in-scope models**, up from 181. The sole new agreement is
+`SpanningTree/SpanTreeTest5Nodes.cfg`; no historical agreement was lost. All 265
+historical IDs, 48 exclusions, nine missing references and four selected corpora
+remain unchanged. The 35 remaining gaps are 16 named refusals, ten resource
+stops and nine missing references, with zero disagreements. Report:
+`20261026T023947024-dive-all`. The later `b91b73a6` main has identical runtime
+and Cargo inputs; its new primary corpus is outside this selection.
+
+The same TLC-profile W1/jobs2 policy uses a 16 GiB native ceiling and
+`min(900 s, max(60 s, 10 × golden TLC elapsed))`, with 30 seconds of cleanup
+grace. All ten stops returned native exit 5: eight time stops and two memory
+stops. Their prefix statistics earn no completion or agreement credit. The
+normal harness completed with exit 1 and nine missing references; this is not
+a full-gate pass or clean release acceptance.
+
+The controller exhausted its original S3 preservation window after the models
+and normal `report baseline` utility had completed. The original failure stays
+intact. After whole-node quiescence, preservation-only recovery and a RAM
+audit verified all 1,288 original files (3,009,809 bytes), without rerunning
+models, builds or the utility. The generated digest is copied exactly from that
+utility's output. The [current compact record](survey/data/full-tier-measurement-2026-10-26.json)
+retains the 35 gaps, typed stops, source/input pins, S3 receipts and cleanup.
+No new small-tier, four-worker, SANY or performance result follows.
+
+The earlier 2026-10-24 measurement of frozen source `68c09a1b` records **181 agree
 of 217 in-scope models**, in the TLC profile at one worker. All 265 historical
 model IDs remain selected, with the same 48 exclusions and nine missing
 references. There are ten new agreements and no lost agreements relative to the
@@ -146,6 +171,7 @@ or resized. Report: `20261021T141221299-dive-all`.
 | Historical `652a5334`, 16 jobs, 3,600 s/model | 174 | 28 | 5 | 9 | 1 |
 | Controlled `39f4e483`, 2 jobs, explicit budgets | 171 | 27 | 10 | 9 | 0 |
 | Fresh `68c09a1b`, 2 jobs, same bounded policy | 181 | 17 | 10 | 9 | 0 |
+| Fresh `672fc1b1`, 2 jobs, same bounded policy | 182 | 16 | 10 | 9 | 0 |
 
 The 2026-10-21 controlled run used a 64 GiB c7i.8xlarge, a 16 GiB whole-process ceiling per
 model and TLC-derived time budgets capped at 900 seconds, with 30 seconds of
@@ -166,10 +192,10 @@ report ([#351](https://github.com/Chelis-Lang/dive/issues/351)); its controlled
 old graph-capture count refusal, which earns no capacity credit
 ([#369](https://github.com/Chelis-Lang/dive/issues/369)).
 
-The fresh run retains the same two-job, one-worker, 16 GiB and TLC-derived
+The 2026-10-24 run retained the same two-job, one-worker, 16 GiB and TLC-derived
 900-second maximum model policy. All ten harness timeouts are native `stopped`
 results with exit 5: nine time stops and one memory stop. The
-[current compact record](survey/data/full-tier-measurement-2026-10-24.json)
+[earlier compact record](survey/data/full-tier-measurement-2026-10-24.json)
 lists the ten gains and all 36 gaps, including actual stopped phases and prefix
 statistics. No native signal or partial output stream was substituted for a
 completed result.

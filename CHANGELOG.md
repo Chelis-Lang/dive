@@ -1,5 +1,10 @@
 # Changelog
 
+- Refresh the unchanged 265-model full-tier measurement to 182/217 agreements
+  (+1), with `SpanTreeTest5Nodes` as the sole gain and no lost agreements.
+  Retain 16 refusals, ten resource stops and nine missing references; the
+  generated digest and recovered originals do not constitute a full-gate pass.
+
 - Pin two generated primary references distinguishing a stored startup definition
   from a configured redirect to its effectful body: success versus a temporal
   violation with an unnamed property. No runtime change or new native agreement
