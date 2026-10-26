@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "source_run_id": "20261024T165628670-dive-all",
+  "source_run_id": "20261026T023947024-dive-all",
   "implementation": "dive",
   "profile": "tlc",
   "golden_oracle": "tlc-2026.10.06.014338",
@@ -114,7 +114,7 @@
     "examples:specifications/SpanningTree/SpanTree.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"success","verdict_code":2193,"error_class":"TLC_SUCCESS","exit_code":0,"distinct_states":1236,"states_generated":10278,"depth":5}]},
     "examples:specifications/SpanningTree/SpanTreeRandom.cfg": {"outcome":"unsupported","runs":[{"workers":1}]},
     "examples:specifications/SpanningTree/SpanTreeTest4Nodes.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"success","verdict_code":2193,"error_class":"TLC_SUCCESS","exit_code":0,"distinct_states":3984,"states_generated":21784,"depth":4}]},
-    "examples:specifications/SpanningTree/SpanTreeTest5Nodes.cfg": {"outcome":"unsupported","runs":[{"workers":1}]},
+    "examples:specifications/SpanningTree/SpanTreeTest5Nodes.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"success","verdict_code":2193,"error_class":"TLC_SUCCESS","exit_code":0,"distinct_states":410112,"states_generated":3150464,"depth":5}]},
     "examples:specifications/SpecifyingSystems/AdvancedExamples/MCInnerSequential.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"success","verdict_code":2193,"error_class":"TLC_SUCCESS","exit_code":0,"distinct_states":3528,"states_generated":24368,"depth":9}]},
     "examples:specifications/SpecifyingSystems/AdvancedExamples/MCInnerSerial.cfg": {"outcome":"timeout","runs":[{"workers":1,"verdict":"timeout","exit_code":5}]},
     "examples:specifications/SpecifyingSystems/AsynchronousInterface/APAsynchInterface.cfg": {"outcome":"out-of-scope","runs":[]},
