@@ -17,14 +17,16 @@ for the workstream you are joining.
 | Design docs (Phase 0) | P0 | in review | `docs/core-reboot` | this directory |
 | Host-hook lock (#495), old engine | Day 0 | in progress | `fix/host-hook-lock` | `01-motivation.md` |
 | Rebaseline on x86 and M3 | Day 0 | not started | — | `09-performance-method.md` |
-| Values and store | M0 | not started | — | `03-value-model.md` |
-| Plan compiler and laziness | M0 | not started | — | `04-plan-compiler.md` |
-| Successor generation | M0 | not started | — | `05-successor-generation.md` |
-| Memoization | M0 (ablation) | not started | — | `06-memoization.md` |
-| Engine | M0 (single thread) | not started | — | `07-engine.md` |
+| Values and store | M0 | spike done; x86 measurement pending | `core/m0-spike` | `03-value-model.md` |
+| Plan compiler and laziness | M0 | spike done (spike-model subset) | `core/m0-spike` | `04-plan-compiler.md` |
+| Successor generation | M0 | spike done (spike-model subset) | `core/m0-spike` | `05-successor-generation.md` |
+| Memoization | M0 (ablation) | spike done; ablation indicative (M3) | `core/m0-spike` | `06-memoization.md` |
+| Engine | M0 (single thread) | spike done; `--engine=core` | `core/m0-spike` | `07-engine.md` |
+| M0 results | M0 | M3 indicative; x86 pending | `core/m0-spike` | `m0-results.md` |
 | Correctness net | M1 | not started | — | `08-correctness.md` |
 
-There is no new-core code yet. Update this table in every core PR.
+The umbrella issue is #498. The M0 spike is on `core/m0-spike`; its results
+are in `m0-results.md`. Update this table in every core PR.
 
 ## Documents
 
@@ -40,6 +42,7 @@ There is no new-core code yet. Update this table in every core PR.
 | `08-correctness.md` | Shadow comparison, mutation fuzzing, validator independence, fallback policy |
 | `09-performance-method.md` | Benchmarks, hosts, ablations, recording format, gates |
 | `10-plan.md` | Milestones, gates, workstreams, risks, decision and handoff log |
+| `m0-results.md` | M0 spike: what was built, counts, timings, ablation, store scaling, watched risks |
 | `tlc-baseline.md` | What TLC does per state, verified against the pinned TLC source |
 
 ## How to resume

@@ -1,6 +1,7 @@
 # Plan, status and handoff log
 
-Status: Phase 0 (design documents) in review. Decision: ADR 0117.
+Status: M0 spike on `core/m0-spike`, awaiting x86 measurement. Decision: ADR
+0117. Umbrella issue: #498.
 
 ## 1. Milestones
 
@@ -74,6 +75,8 @@ worktree and target directory:
 | R6 | Cost of keeping two engines | Reference frozen to bug fixes; static fallback only; fixes land once, in the core |
 | R7 | The x86 gap is larger than measured on M3 | Rebaseline on x86 on Day 0; all gates on x86 |
 | R8 | The 10 ms startup target, given the reused binder | Measure in M1; move constant evaluation into the core in M2 if needed |
+| R9 | Plan compile time: folding CoffeeCan's Init filter takes 0.19–0.43 s of a 0.6 s run (`m0-results.md` §6) | A fold size bound and streaming of large filters; a compile-time budget in M1 |
+| R10 | Peak RSS above the reference: CoffeeCan 220 MB after the M0 fix, against 126 MB (`m0-results.md` §6) | Arena rollback for rejected fold candidates; node data inline in the store |
 
 ## 5. Decisions taken
 
@@ -98,6 +101,19 @@ The semantic contract lists seven more, in `02-semantic-contract.md` §6.
 
 Add a new entry at the top for every working session that ends with work in
 progress. Give the date, branch, state and the exact next step.
+
+- **2026-10-26 (M0).** Umbrella issue #498.
+  - **State.** `core/m0-spike` is rebased on `main` and pushed; no PR is open.
+    `dive-core` and `dive-explore` run all four spike models under
+    `dive check --engine=core` (or `DIVE_ENGINE=core`), with counts equal to
+    the goldens under every `DIVE_CORE_OPT` switch. Results, M3 timings
+    (indicative) and ablations are in `m0-results.md`. The fast gate passes
+    (nextest on the touched crates; the rest workspace-wide).
+  - **Next.** The lead runs the x86 measurements of `09-performance-method.md`
+    (core, reference and TLC; ablation; `store_scaling`) and records them in
+    `m0-results.md` §3–5. Then decide pass or kill against §2. Watched risks
+    are R9 and R10. If M0 passes, start M1 streams 1–3 from the "Next step"
+    sections of `03`–`07`.
 
 - **2026-10-26.**
   - **State.** Phase 0 documents drafted on `docs/core-reboot`. #495 fix in
