@@ -607,7 +607,16 @@ fn check_backend(
             Err(e) => Phase::TemporalError(Box::new(e)),
         };
     }
-    Phase::Checked(Box::new(dive_check::check(ir, config, options)))
+    let mut result = dive_check::check(ir, config, options);
+    if temporal == TemporalMode::Ordinary
+        && let dive_check::Verdict::Unsupported { feature } = &mut result.verdict
+        && feature.contains("temporal properties (liveness checking)")
+        && let Some(reason) = dive_check::final_roles::route_exclusion(ir, config, options)
+    {
+        feature.push_str("; temporal checking does not yet support ");
+        feature.push_str(reason);
+    }
+    Phase::Checked(Box::new(result))
 }
 
 impl CheckReport {

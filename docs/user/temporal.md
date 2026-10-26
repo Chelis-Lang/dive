@@ -83,11 +83,12 @@ The report records the actual `lncheck: final`, `lasso: short` and temporal
 bounds, with profile `tlc`. This is partial temporal support, not general TLC
 parity or an implementation of periodic checking.
 
-The route requires profile-default evaluation and fingerprint settings,
-fingerprint polynomial 0, resident fingerprint storage, and no storage
-budget/directory, deadlock, sequential or chaos overrides. Under `--compat=tlc`
-use `--fp 0` explicitly: the TLC profile otherwise selects a random polynomial
-(the default profile's polynomial is already 0). Seed and
+The route requires profile-default evaluation and no storage
+budget/directory or chaos overrides. Any `--store`, `--fp` polynomial,
+`-deadlock` and `--sequential` setting is accepted: temporal capture retains
+concrete states, so neither the store nor the polynomial affects its result,
+and the report carries no collision bound. A request excluded by one of these
+options is refused with a message naming the option. Seed and
 worker requests are retained. Checkpoint/recovery uses its existing separate
 safety path. Randomness combined with VIEW or SYMMETRY, excluded options and
 requests with excluded dive-profile options retain their existing routes and named

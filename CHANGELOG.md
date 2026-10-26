@@ -1,5 +1,10 @@
 # Changelog
 
+- Check temporal properties under any `--store`, `--fp`, `-deadlock` and
+  `--sequential` setting. Plain `dive check --compat=tlc` (random polynomial),
+  `--store exact`, `-deadlock` and `--sequential` previously refused every
+  liveness property. Remaining route exclusions now name the blocking option.
+
 - Refresh the unchanged 265-model full-tier measurement to 182/217 agreements
   (+1), with `SpanTreeTest5Nodes` as the sole gain and no lost agreements.
   Retain 16 refusals, ten resource stops and nine missing references; the

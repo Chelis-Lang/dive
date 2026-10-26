@@ -88,7 +88,7 @@ fn one_binding_and_frozen_constructor_options_survive_the_consuming_run() {
 fn no_bind_fallback_and_the_two_binding_failure_contracts_stay_distinct() {
     let (ir, config) = input("Init == x=0\nNext == UNCHANGED x\nP == []<>(x=0)", "P");
     let mut options = CheckOptions::tlc(0, 0);
-    options.store = dive_store::StoreMode::Exact;
+    options.chaos = Some(0);
     assert!(dispatch_controlled(&ir, &config, &options, control(&options)).is_none());
     assert!(dispatch_ordinary_controlled(&ir, &config, &options, control(&options)).is_none());
     let options = CheckOptions::tlc(0, 0);
