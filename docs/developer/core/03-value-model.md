@@ -3,7 +3,8 @@
 Status: M0 spike on `main` in `crates/dive-core` (`handle`, `strings`,
 `store`, `arena`, `node`, `heap`); results in `m0-results.md`. M1 (stream 1):
 the value interface is frozen in §11, node data is inline in the store
-(step 2), and the arena rolls back rejected candidates (step 3); the remaining M1 steps are in §12. This document covers strategies S1, S2, S4, S5 and S7 from
+(step 2), the arena rolls back rejected candidates (step 3), and lazy values
+exist on the value side (step 4); the remaining M1 steps are in §12. This document covers strategies S1, S2, S4, S5 and S7 from
 `01-motivation.md`.
 
 ## 1. Goals
@@ -313,6 +314,10 @@ Rules:
   fits, so an inline and a big handle are never equal. Use `Heap::int_of`
   *(step 5)* rather than `as_int` where a big integer is possible.
 - **`Handle::bits`** is for hash keys only; it carries no order.
+- **Lazy constants.** A lazy value interned by `intern_const` (for example
+  `[x \in Nat |-> x + 1]`) is stored structurally, in a class of its own, so
+  that `Handle::is_lazy_persistent` tells it from the handle. Two such
+  handles are never compared; `Heap::eq` records an internal error.
 - **Size classes** are a store detail (step 2). Code outside the store
   never decodes a persistent handle.
 
@@ -333,15 +338,17 @@ method.
 | `RecSet` | 0 | `n` sorted field names, then `n` sets |
 | `Product` | 0 | the factors |
 | `Nat`, `Int` | 0 | empty |
-| `Lambda` *(step 4)* | closure id | `[D, captures...]`: `[x \in D \|-> e]` before it is materialized |
-| `SetPred` *(step 4)* | closure id | `[S, captures...]`: `{x \in S : P}` before it is enumerated |
-| `Union` *(step 4)* | 0 | `[A, B]`: a lazy `A \cup B` |
+| `Lambda` | closure id | `[D, captures...]`: `[x \in D \|-> e]` before it is materialized |
+| `SetPred` | closure id | `[S, captures...]`: `{x \in S : P}` before it is enumerated |
+| `Union` | 0 | `[A, B]`: a lazy `A \cup B` |
 | `BigInt` *(step 5)* | sign | magnitude limbs; read only through `Heap::big` |
 
-`View` has `kind`, `lo`, `hash`, `sum`, `data` and, from step 4, `flags`. Use
+`View` has `kind`, `lo`, `hash`, `sum`, `flags` and `data`. Use
 `len`, `keys` and `values` rather than indexing `data` by kind. Every kind
-except `Set`, `IntFcn`, `Fcn` and `BigInt` is *symbolic*
-(`Kind::is_symbolic`).
+except `Set`, `IntFcn`, `Fcn`, `BigInt`, `Lambda` and `SetPred` is
+*symbolic* (`Kind::is_symbolic`): a set the heap can enumerate on its own.
+`Lambda` and `SetPred` are *lazy* (`Kind::is_lazy`): only the evaluator can
+force them.
 
 **Canonical form.** Builders always produce the canonical form: a function
 whose keys are consecutive integers is an `IntFcn`; anything else is a `Fcn`
@@ -353,7 +360,7 @@ representations.
 
 - **Normalized**: not a finite symbolic set. `Heap::norm` normalizes a handle
   (it materializes a finite symbolic set and leaves everything else alone).
-- **Lazy** *(step 4)*: the value contains a `Lambda` or `SetPred` node, which
+- **Lazy**: the value contains a `Lambda` or `SetPred` node, which
   only the evaluator can force (the heap has no access to the plan).
   `Heap::is_lazy(h)` tells. A lazy node is never a set element or a
   function key: the evaluator closes a value before it uses it as either,
@@ -384,14 +391,15 @@ worker (and the compiler, while folding) owns exactly one `Heap`; it is not
 | `fcn_with` | `EXCEPT` at an entry index, O(1) hash update | yes | no | yes |
 | `symbolic`, `interval` | build a symbolic set | yes | yes | no |
 | `string` | intern a string's text | yes | yes | no |
-| `lambda`, `set_pred`, `union` *(step 4)* | build a lazy value | yes | yes | no |
-| `closure(h) -> Option<Closure>` *(step 4)* | the closure id, domain and captures of a `Lambda` or `SetPred` | yes | no | no |
-| `rebuild(h, data)` *(step 4)* | the same kind with new contents, canonicalized and rehashed (used to close a value bottom-up) | yes | no | yes |
-| `is_lazy` *(step 4)* | whether the value must be closed first | yes | yes | yes |
+| `lambda`, `set_pred`, `union` | build a lazy value | yes | yes | no |
+| `closure(h) -> Option<Closure>` | the closure id, domain and captures of a `Lambda` or `SetPred` | yes | no | no |
+| `rebuild(h, data)` | the same kind with new contents, canonicalized and rehashed (used to close a value bottom-up) | yes | no | yes |
+| `is_lazy` | whether the value must be closed first | yes | yes | yes |
 | `int_of`, `big`, `int_from_big`, `arith` *(step 5)* | integers of any size, profile-aware arithmetic | yes | yes | no |
 | `mark`, `rollback` *(step 3)* | discard transients built since a mark | yes | yes | no |
 | `intern` | deep-close a closed value into the store | no | no | engine, after the claim |
-| `intern_const` | intern a constant, keeping a top-level symbolic or lazy set symbolic | no | yes | no |
+| `intern_const` | intern a constant, keeping a top-level symbolic set symbolic and a lazy value lazy | no | yes | no |
+| `intern_view` | intern a state value and, for a top-level symbolic set, its view (§8) | no | no | engine, after the claim |
 | `reset` | end of an expansion: free every transient | no | after each fold | engine, per expansion |
 | `poisoned` | a stale or foreign handle was read, or a lazy value was hashed (a bug) | check | check | check after each successor |
 
@@ -421,7 +429,7 @@ arena nodes directly.
 4. **Deep close on intern.** `intern` walks a value children first, interning
    each child, and materializes finite symbolic sets (TLC fingerprints a state
    by normalizing it, so this adds no observable behaviour). A lazy value
-   *(step 4)* is closed by the evaluator first: for each `Lambda` or `SetPred`
+   is closed by the evaluator first: for each `Lambda` or `SetPred`
    it evaluates the materialization, then rebuilds the parents with
    `rebuild`. `intern` given a lazy value is an internal error.
 5. **Persistent values are immutable and never reference transients.** They
@@ -429,7 +437,7 @@ arena nodes directly.
 6. **Views and identity** (§8). A value's identity handle is its normalized,
    closed form. A lazy view (a symbolic class, or TLC's `isNorm` state) is
    kept beside it, never in it: `hash`, `eq`, `cmp` and `intern` ignore
-   `View::flags` *(step 4)*. The engine keeps a state slot's view handle in a
+   `View::flags` (except to refuse a lazy value). The engine keeps a state slot's view handle in a
    side table when the plan asks for it.
 7. **Sharing.** `Store` is `Sync` and shared through `Arc`. Interning takes a
    per-shard lock; reads take none. A persistent handle may be passed to any
@@ -476,7 +484,19 @@ M1, stream 1. The steps below are the ones §11 refers to.
    Open: an accepted candidate's continuation in the generator is not yet
    rolled back, and GameOfLife's arena still grows across its 65,536 initial
    states (stream 3, `07-engine.md`).
-4. Lazy values: `Lambda`, `SetPred` and `Union` nodes, `View::flags`, the
-   close protocol of §11.5 rule 4, and lazy-view retention for state slots.
+4. **Lazy values, value side.** Done: `Lambda`, `SetPred` and `Union`
+   nodes, `View::flags` with `flags::LAZY` propagated by every builder, the
+   checks of §11.3 (a lazy value hashed, compared, put in a set or interned
+   is an internal error, never a wrong answer), `closure`, `rebuild`,
+   lazy constants, and `intern_view` for state-slot views. `Union`
+   membership is TLC's `SetCupValue.member` (either side, left first).
+   Cost on M3 (indicative): MCLamportMutex +2% instructions, the other
+   models within ±0.6%; counts unchanged.
+   Left to stream 2, the evaluator side: compiling `[x \in S |-> e]`,
+   recursive functions and `{x \in S : P}` to these nodes, application of a
+   `Lambda`, `SetPred` membership and enumeration, and the `close` walk.
+   Still open on the value side: the `isNorm` and record/tuple literal bits
+   of `View::flags` (C1, C5 of `02-semantic-contract.md`), which `--compat=tlc`
+   needs (M2).
 5. Big integers out of line (D-004), with `--int=tlc` overflow errors.
 6. The compat-order intern path for strings (§7).
