@@ -73,9 +73,11 @@ no engine. After a dynamic refusal, the reference run gets what is left of
 `--time-limit`. Under `--compat=tlc` the core always refuses, so auto runs
 the reference engine and stays TLC-equivalent.
 
-The `DIVE_CORE_OPT` variable (for example `-memo,-delta-hash`) turns
-individual strategies off for measurement. Every switch leaves the results
-unchanged. See `docs/developer/core/m0-results.md`.
+The `DIVE_CORE_OPT` variable (for example `-fold,-delta-hash`) turns
+individual strategies off (`-name`) or on (`+name`) for measurement. Every
+switch leaves the results unchanged. The memo tables are off by default
+(`+memo` turns them on); see `docs/developer/core/06-memoization.md` and
+`docs/developer/core/m0-results.md`.
 
 ## TLC checking entrypoints
 

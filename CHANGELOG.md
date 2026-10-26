@@ -38,6 +38,16 @@
   worker and safety only, and reports anything else as `unsupported`; it never
   falls back to the reference engine, which stays the default. `DIVE_CORE_OPT`
   turns strategies off for measurement without changing results.
+- The experimental core (`--engine core`) now runs:
+  - `INSTANCE` substitutions;
+  - recursive functions and recursive `LET` operators;
+  - TLC's lazy function and set values (for example `[k \in Nat |-> ...][x]`
+    and membership in `{k \in Nat : P}`);
+  - the Bags operators `EmptyBag`, `SetToBag`, `BagToSet`, `BagIn` and
+    `CopiesIn`.
+
+  It raises TLC's comparison errors instead of answering `FALSE`. Its memo
+  tables are now off by default (`DIVE_CORE_OPT=+memo` turns them on).
 
 - `dive simulate` now accepts initial states holding compound values and
   specifications with fairness conjuncts, in both profiles, instead of refusing
