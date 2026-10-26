@@ -293,6 +293,13 @@ first successes. This does not establish a safe hit rate or saved instructions,
 and no membership cache is admitted. See the
 [census record](../survey/data/function-membership-census-2026-10-25.json).
 
+A complete query of the same eight ledgers also did not justify batched
+ordered-set search: conditional deletion of the selected source PCs gives
+0.657% geometric instruction reduction, or 4.579% for the broader selected
+owner and immediate-helper pool. Neither establishes removable work or reaches
+the fixed 5% bar. No implementation or additional campaign follows; see the
+[compact assessment](../survey/data/ordered-set-search-assessment-2026-10-26.json).
+
 ## Consequences
 
 - The plan is ordered by measured share; re-profile after each item, because
