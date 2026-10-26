@@ -4,8 +4,8 @@ Status: M0 spike on `main` in `crates/dive-core` (`handle`, `strings`,
 `store`, `arena`, `node`, `heap`); results in `m0-results.md`. M1 (stream 1):
 the value interface is frozen in §11, node data is inline in the store
 (step 2), the arena rolls back rejected candidates (step 3), and lazy values
-exist on the value side (step 4), and integers have any size (step 5); the
-remaining M1 steps are in §12. This document covers strategies S1, S2, S4, S5 and S7 from
+exist on the value side (step 4), integers have any size (step 5), and
+strings can compare by TLC token (step 6); the remaining M1 steps are in §12. This document covers strategies S1, S2, S4, S5 and S7 from
 `01-motivation.md`.
 
 ## 1. Goals
@@ -414,7 +414,8 @@ worker (and the compiler, while folding) owns exactly one `Heap`; it is not
 | `poisoned` | a stale or foreign handle was read, or a lazy value was hashed (a bug) | check | check | check after each successor |
 
 Store operations outside the heap are limited to `Store::new(hashcons)`,
-`Store::stats` and `Store::strings`. Nothing outside `heap.rs` reads store or
+`Store::with_string_order(hashcons, order)`, `Store::stats` and
+`Store::strings` (with `Strings::preload` at startup, before compilation). Nothing outside `heap.rs` reads store or
 arena nodes directly.
 
 ### 11.5 Ownership and lifetime rules
@@ -518,4 +519,18 @@ M1, stream 1. The steps below are the ones §11 refers to.
      specifications, nor raise TLC's "integer too big" for numerals in TLC
      mode (stream 2);
    - interval bounds, `Len` and similar remain 61-bit (refused beyond).
-6. The compat-order intern path for strings (§7).
+6. **Compat-order strings, value side.** Done: `StringOrder::{Text, Token}`
+   fixed per store (`Store::with_string_order`), and `Strings::preload` to
+   feed TLC's startup encounter order so that ids are TLC's tokens (§7).
+   Open: the binder handoff must pass the reference binder's intern order
+   (`crates/dive-model/src/intern.rs`) to `preload` (stream 2), and the
+   engine must pick `Token` under `--compat=tlc` (stream 3). Runtime names
+   with several workers are `07-engine.md` §6.
+
+Next (stream 1, after the open PRs merge):
+- The `isNorm` and record/tuple literal bits of `View::flags` (C1, C5 of
+  `02-semantic-contract.md`), with the view side table, for `--compat=tlc`.
+- Persistent 32-way trees for functions above 64 entries (§4), so that
+  `EXCEPT` copies one path; measure on MCbtree and EWD998PCal first.
+- An x86 measurement of steps 2 and 3 (`09-performance-method.md`):
+  `store_views`, `store_scaling`, and the four spike models' time and RSS.

@@ -20,7 +20,7 @@ use std::sync::{Mutex, OnceLock, PoisonError};
 
 use crate::handle::{CLASSES, Handle, LAZY_CLASS, MAX_CLASS_INDEX};
 use crate::node::{Kind, View};
-use crate::strings::Strings;
+use crate::strings::{StringOrder, Strings};
 
 const SHARDS: usize = 256;
 /// Chunks per column: chunk `k` holds `2^(base + k)` slots, which covers
@@ -351,6 +351,14 @@ impl Store {
     /// intern inserts a fresh node, and equality must be structural.
     #[must_use]
     pub fn new(hashcons: bool) -> Self {
+        Self::with_string_order(hashcons, StringOrder::Text)
+    }
+
+    /// A new store whose strings compare in `order` (`--compat=tlc` uses
+    /// [`StringOrder::Token`]). The order is fixed for the store's life,
+    /// because sets are kept sorted in it.
+    #[must_use]
+    pub fn with_string_order(hashcons: bool, order: StringOrder) -> Self {
         Self {
             cols: (0..SHARDS).map(|_| Columns::new()).collect(),
             shards: (0..SHARDS)
@@ -358,7 +366,7 @@ impl Store {
                     index: Mutex::new(Index::default()),
                 })
                 .collect(),
-            strings: Strings::default(),
+            strings: Strings::new(order),
             hashcons,
             poisoned: AtomicBool::new(false),
         }

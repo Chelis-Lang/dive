@@ -1342,6 +1342,33 @@ mod tests {
     }
 
     #[test]
+    fn sets_of_strings_follow_the_store_order() {
+        use crate::strings::StringOrder;
+        for (order, want) in [
+            (StringOrder::Text, ["a", "b"]),
+            (StringOrder::Token, ["b", "a"]),
+        ] {
+            let store = Arc::new(Store::with_string_order(true, order));
+            assert!(store.strings().preload(["b", "a"]).is_ok());
+            let mut h = Heap::new(store, false, false);
+            let (a, b) = (
+                h.string("a").unwrap_or(Handle::EMPTY),
+                h.string("b").unwrap_or(Handle::EMPTY),
+            );
+            let set = h.set_from(&mut vec![a, b]);
+            let got: Vec<String> = h
+                .view(set)
+                .data
+                .iter()
+                .filter_map(|e| e.as_str_id())
+                .filter_map(|id| h.store().strings().text(id))
+                .map(|t| t.to_string())
+                .collect();
+            assert_eq!(got, want, "{order:?}");
+        }
+    }
+
+    #[test]
     fn subset_cursor_is_in_canonical_order() {
         let mut h = heap(false);
         let base = h.set_from(&mut vec![int(1), int(2)]);
