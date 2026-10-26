@@ -582,6 +582,8 @@ pub struct CompileStats {
     /// Filters, function constructors and set operations the core builds
     /// eagerly where TLC is lazy (`Node::Spec`).
     pub speculative: u64,
+    /// `INSTANCE` substitutions bound.
+    pub substituted: usize,
     /// Applications of lazy function constructors evaluated for their
     /// argument alone (`Node::Beta`).
     pub beta: u64,

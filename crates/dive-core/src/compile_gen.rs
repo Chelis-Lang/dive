@@ -354,6 +354,43 @@ impl Compiler<'_> {
                 let inner = self.new_env(d, parent);
                 self.unchanged_items(def.body, inner, out)
             }
+            // An `INSTANCE` substitution (stream 2): a substituted name is
+            // followed like an argument, an unsubstituted one is the root's
+            // variable.
+            Expr::SubstRef {
+                decl,
+                primed: false,
+            } => match self.subst_expr(decl) {
+                Some(r) => {
+                    let (expr, aenv, depth) = r?;
+                    self.outside(depth, |c| c.unchanged_items(expr, aenv, out))
+                }
+                None => match self.ir.decl(decl).var {
+                    Some(v) => {
+                        out.push(Unch::Var {
+                            var: v.index() as u16,
+                            at: e.0,
+                        });
+                        Ok(())
+                    }
+                    None => self.verify_item(e, env, out),
+                },
+            },
+            Expr::Subst { bindings, body } => {
+                let mut inner = Vec::new();
+                let (r, _) = self.subst_scope(&bindings, env, Mode::Plain, |c| {
+                    c.unchanged_items(body, env, &mut inner)
+                })?;
+                // A verified item would read the substitution's slots after
+                // its scope ends.
+                if inner.iter().any(|u| matches!(u, Unch::Verify(_))) {
+                    return Err(Error::unsupported(
+                        "UNCHANGED of a non-variable expression under an INSTANCE substitution (core)",
+                    ));
+                }
+                out.extend(inner);
+                Ok(r)
+            }
             Expr::Local(r) => {
                 let fe = self.frame_env(env, r.up)?;
                 match self.envs[fe].slots.get(r.slot.index()).cloned() {

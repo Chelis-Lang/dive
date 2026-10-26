@@ -12,7 +12,7 @@ use std::sync::Arc;
 use std::time::Instant;
 
 use dive_check::{CheckOptions, CheckResult, Stats, Verdict, Workers};
-use dive_core::compile::{ConstBinding, Handoff, Role};
+use dive_core::compile::{ConstBinding, Handoff, Role, RoleSubst};
 use dive_eval::{SlotView, St};
 use dive_ir::{DefId, ExprId, Ir, LocalRef, Slot};
 use dive_value::Value;
@@ -130,6 +130,7 @@ fn role(
     expr: ExprId,
     scope: &dive_eval::Scope,
 ) -> Result<Role, String> {
+    let substs = role_substs(model, &name, scope)?;
     let def = scope.def();
     let n = model.ir.def(def).frame.len();
     let mut slots = Vec::new();
@@ -146,7 +147,63 @@ fn role(
         expr,
         def,
         slots,
+        substs,
     })
+}
+
+/// The bound slots of a scope's frame.
+fn frame_slots(
+    model: &dive_model::Model,
+    scope: &dive_eval::Scope,
+) -> Result<Vec<(Slot, Value)>, String> {
+    let n = model.ir.def(scope.def()).frame.len();
+    let mut slots = Vec::new();
+    for i in 0..n {
+        #[allow(clippy::cast_possible_truncation, reason = "frames are small")]
+        let slot = Slot(i as u32);
+        let view = model.evaluator.scope_slot(scope, LocalRef { up: 0, slot });
+        if let Some(v) = slot_value(model, view)? {
+            slots.push((slot, v));
+        }
+    }
+    Ok(slots)
+}
+
+/// The `INSTANCE` substitutions active at a split role (splitting entered
+/// an instantiated definition). Values evaluated under substitutions of
+/// their own (nested instances) are refused.
+fn role_substs(
+    model: &dive_model::Model,
+    name: &str,
+    scope: &dive_eval::Scope,
+) -> Result<Vec<RoleSubst>, String> {
+    if !scope.has_substitutions() {
+        return Ok(Vec::new());
+    }
+    let mut out = Vec::new();
+    for (i, d) in model.ir.decls().iter().enumerate() {
+        if !d.substituted {
+            continue;
+        }
+        #[allow(clippy::cast_possible_truncation, reason = "dense ids")]
+        let decl = dive_ir::DeclId(i as u32);
+        match model.evaluator.scope_subst_slot(scope, decl) {
+            SlotView::Unset => {}
+            SlotView::Value(value) => out.push(RoleSubst::Value { decl, value }),
+            SlotView::Lazy(expr, s) if !s.has_substitutions() => out.push(RoleSubst::Expr {
+                decl,
+                expr,
+                def: s.def(),
+                slots: frame_slots(model, &s)?,
+            }),
+            _ => {
+                return Err(format!(
+                    "the split action {name} inside nested INSTANCE substitutions (M1 core)"
+                ));
+            }
+        }
+    }
+    Ok(out)
 }
 
 fn named_roles(
@@ -652,7 +709,7 @@ fn metrics_json(
             "thunk_args": plan.stats.thunks, "by_name": plan.stats.by_name,
             "folded": plan.stats.folded, "fold_abandoned": plan.stats.fold_abandoned,
             "fold_skipped": plan.stats.fold_skipped, "fold_fuel": plan.stats.fold_fuel,
-            "fold_ms": std::time::Duration::from_nanos(plan.stats.fold_nanos).as_secs_f64() * 1e3, "cached_defs": plan.stats.cached_defs, "speculative": plan.stats.speculative, "beta": plan.stats.beta, "memo_sites": plan.code.sites.len(),
+            "fold_ms": std::time::Duration::from_nanos(plan.stats.fold_nanos).as_secs_f64() * 1e3, "cached_defs": plan.stats.cached_defs, "speculative": plan.stats.speculative, "beta": plan.stats.beta, "substituted": plan.stats.substituted, "memo_sites": plan.code.sites.len(),
         },
         "probed": m.probed,
         "discarded_before_intern": m.discarded_before_intern,
