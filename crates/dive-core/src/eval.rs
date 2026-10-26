@@ -4,6 +4,7 @@
 use std::sync::Arc;
 
 use crate::Error;
+use crate::compare;
 use crate::handle::Handle;
 use crate::heap::Heap;
 use crate::memo::{MAX_KEY, Memo};
@@ -261,12 +262,12 @@ impl Machine {
             Node::Eq(a, b) => {
                 let x = self.eval_norm(code, *a)?;
                 let y = self.eval_norm(code, *b)?;
-                Ok(Handle::bool(self.heap.eq(x, y)))
+                Ok(Handle::bool(compare::equals(&self.heap, x, y)?))
             }
             Node::Neq(a, b) => {
                 let x = self.eval_norm(code, *a)?;
                 let y = self.eval_norm(code, *b)?;
-                Ok(Handle::bool(!self.heap.eq(x, y)))
+                Ok(Handle::bool(!compare::equals(&self.heap, x, y)?))
             }
             Node::In(a, s) => {
                 let x = self.eval_norm(code, *a)?;
@@ -330,7 +331,7 @@ impl Machine {
                 }
                 let r = self.heap.set_from(&mut v);
                 self.give_scratch(v);
-                Ok(r)
+                self.checked_set(r)
             }
             Node::SetBin(op, a, b) => {
                 let x = self.eval(code, *a)?;
@@ -349,7 +350,8 @@ impl Machine {
                     let m = self.heap.norm(m)?;
                     out.extend(self.heap.elements(m)?);
                 }
-                Ok(self.heap.set_from(&mut out))
+                let r = self.heap.set_from(&mut out);
+                self.checked_set(r)
             }
             Node::Product(items) => {
                 let mut v = Vec::with_capacity(items.len());
@@ -378,7 +380,8 @@ impl Machine {
                     out.push(v);
                     Ok(true)
                 })?;
-                Ok(self.heap.set_from(&mut out))
+                let r = self.heap.set_from(&mut out);
+                self.checked_set(r)
             }
             Node::FcnCons { binds, body } => self.fcn_cons(code, binds, *body),
             Node::Quant { kind, binds, body } => self.quant(code, *kind, binds, *body),
@@ -529,6 +532,26 @@ impl Machine {
     // Sets
     // ------------------------------------------------------------------
 
+    /// Refuses a just-built set whose elements TLC cannot all compare
+    /// (`compare::check_set`).
+    fn checked_set(&self, s: Handle) -> Result<Handle, Error> {
+        if s.is_compound() {
+            compare::check_set(&self.heap, self.heap.view(s).data)?;
+        }
+        Ok(s)
+    }
+
+    /// TLC's error for a membership test of a value that is not a function
+    /// in a set of functions, records, tuples or sequences.
+    fn non_fcn_member(&self, x: Handle, what: &str) -> Result<bool, Error> {
+        if x.is_compound() && self.heap.view(x).kind.is_fcn() {
+            return Ok(false);
+        }
+        Err(eval_err(&format!(
+            "Attempted to check if a value that is not a function is in {what}"
+        )))
+    }
+
     /// Whether `x` (normalized) is in `set`.
     ///
     /// # Errors
@@ -545,23 +568,39 @@ impl Machine {
         }
         let v = self.heap.view(set);
         match v.kind {
-            Kind::Set => Ok(v.data.binary_search_by(|&e| self.heap.cmp(e, x)).is_ok()),
+            Kind::Set => {
+                if v.data.binary_search_by(|&e| self.heap.cmp(e, x)).is_ok() {
+                    return Ok(true);
+                }
+                compare::miss(&self.heap, x, v.data)?;
+                Ok(false)
+            }
             Kind::Interval => {
                 let hi = v.data[0].as_int().unwrap_or(v.lo - 1);
                 let lo = v.lo;
                 match x.as_int() {
                     Some(i) => Ok(lo <= i && i <= hi),
+                    // TLC answers FALSE for an empty interval.
+                    None if lo > hi => Ok(false),
                     None => Err(eval_err(
-                        "membership of a non-integer in an integer interval",
+                        "Attempted to check if a value that is not an integer is in an integer interval",
                     )),
                 }
             }
-            Kind::Nat => Ok(x.as_int().is_some_and(|i| i >= 0)),
-            Kind::Int => Ok(x.as_int().is_some()),
+            Kind::Nat | Kind::Int => match x.as_int() {
+                Some(i) => Ok(v.kind == Kind::Int || i >= 0),
+                None => Err(eval_err(
+                    "Attempted to check if a value that is not an integer is an element of Nat or Int",
+                )),
+            },
             Kind::Subset => {
                 let base = v.data[0];
                 if !x.is_compound() || self.heap.view(x).kind != Kind::Set {
-                    return Ok(false);
+                    // A finite set is normalized before membership, so this is
+                    // a non-set or a non-enumerable (infinite) set.
+                    return Err(eval_err(
+                        "Attempted to check if a non-enumerable value is an element of SUBSET",
+                    ));
                 }
                 let elems = self.heap.view(x).data.to_vec();
                 for e in elems {
@@ -573,8 +612,8 @@ impl Machine {
             }
             Kind::SeqSet => {
                 let base = v.data[0];
-                if !x.is_compound() {
-                    return Ok(false);
+                if !x.is_compound() || !self.heap.view(x).kind.is_fcn() {
+                    return self.non_fcn_member(x, "a set of sequences");
                 }
                 let xv = self.heap.view(x);
                 if xv.kind != Kind::IntFcn || xv.lo != 1 {
@@ -591,7 +630,7 @@ impl Machine {
             Kind::FcnSet => {
                 let (dom, rng) = (v.data[0], v.data[1]);
                 if !x.is_compound() || !self.heap.view(x).kind.is_fcn() {
-                    return Ok(false);
+                    return self.non_fcn_member(x, "a set of functions");
                 }
                 let d = self.domain(x)?;
                 let d = self.heap.norm(d)?;
@@ -610,8 +649,8 @@ impl Machine {
             Kind::RecSet => {
                 let n = v.data.len() / 2;
                 let (names, sets) = (v.data[..n].to_vec(), v.data[n..].to_vec());
-                if !x.is_compound() {
-                    return Ok(false);
+                if !x.is_compound() || !self.heap.view(x).kind.is_fcn() {
+                    return self.non_fcn_member(x, "a set of records");
                 }
                 let xv = self.heap.view(x);
                 if xv.kind != Kind::Fcn || xv.keys() != names.as_slice() {
@@ -627,8 +666,8 @@ impl Machine {
             }
             Kind::Product => {
                 let sets = v.data.to_vec();
-                if !x.is_compound() {
-                    return Ok(false);
+                if !x.is_compound() || !self.heap.view(x).kind.is_fcn() {
+                    return self.non_fcn_member(x, "a set of tuples");
                 }
                 let xv = self.heap.view(x);
                 if xv.kind != Kind::IntFcn || xv.lo != 1 || xv.data.len() != sets.len() {
@@ -657,7 +696,8 @@ impl Machine {
                 }
                 let mut v = self.heap.elements(x)?;
                 v.extend(self.heap.elements(y)?);
-                Ok(self.heap.set_from(&mut v))
+                let r = self.heap.set_from(&mut v);
+                self.checked_set(r)
             }
             SetOp::Cap => {
                 let (a, b) = if fx {
@@ -994,7 +1034,18 @@ impl Machine {
         }
         let Some(i) = self.fcn_index(f, key)? else {
             // TLC leaves the function unchanged when the key is outside its
-            // domain.
+            // domain, but fails when it had to compare the key with a domain
+            // value of another class on the way.
+            let v = self.heap.view(f);
+            if v.kind == Kind::IntFcn {
+                if key.as_int().is_none() && !v.data.is_empty() {
+                    return Err(eval_err(
+                        "Attempted to apply EXCEPT to a tuple at a non-integral index",
+                    ));
+                }
+            } else {
+                compare::miss(&self.heap, key, v.keys())?;
+            }
             return Ok(f);
         };
         let old = self.heap.view(f).values()[i];
