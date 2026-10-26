@@ -27,9 +27,8 @@ const ORACLE: &str = "tlc-2026.10.06.014338";
 const REFUSED: &[(&str, &str)] = &[
     // §6: TLC's multiplicity depends on the set object's history.
     ("NxInLazyCup", "lazily represented set"),
-    // Stream 2 (plan compiler): ENABLED and INSTANCE.
+    // Stream 2 (plan compiler): ENABLED.
     ("NxEnabled", "ENABLED"),
-    ("NxInstance", "INSTANCE"),
     // Implied action properties (not yet in the core).
     ("ImpliedActionSeen", "temporal"),
     // The core raises the error while assigning `x' = Nat`; TLC (and the
