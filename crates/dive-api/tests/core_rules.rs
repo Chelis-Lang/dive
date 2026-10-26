@@ -1,0 +1,193 @@
+//! The new core's successor generator against the rule fixtures of
+//! `docs/developer/core/05-successor-generation.md` §7 (the `Nx*` specs of
+//! `crates/dive-eval/tests/fixtures/next/`) and the TLC probes of
+//! `crates/dive-check/tests/fixtures/tlc-probes/`.
+//!
+//! Each fixture runs under `--engine=core` and the reference engine in the
+//! default profile at one worker. Where the core runs it, its verdict,
+//! violated property, generated and distinct counts, depth, queue and exit
+//! must equal the reference engine's, and, for a run TLC completes, the
+//! counts must equal TLC's transcript. Counts at a stop depend on the
+//! value order (D-010), so for those the reference engine is the oracle;
+//! the TLC transcript is checked where the two profiles agree.
+//!
+//! Fixtures the core does not run yet must be refused, naming the
+//! construct, never answered wrongly. `NxInLazyCup` must stay refused in
+//! the default profile (§6).
+#![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
+
+use std::path::{Path, PathBuf};
+
+use dive_api::{CheckRequest, Engine, check_file_engine};
+use serde_json::Value;
+
+const ORACLE: &str = "tlc-2026.10.06.014338";
+
+/// Fixtures the core refuses, with a word its refusal must contain.
+const REFUSED: &[(&str, &str)] = &[
+    // §6: TLC's multiplicity depends on the set object's history.
+    ("NxInLazyCup", "lazily represented set"),
+    // Stream 2 (plan compiler): ENABLED and INSTANCE.
+    ("NxEnabled", "ENABLED"),
+    ("NxInstance", "INSTANCE"),
+    // Implied action properties (not yet in the core).
+    ("ImpliedActionSeen", "temporal"),
+];
+
+fn repo() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..")
+}
+
+fn specs(dir: &str) -> Vec<(String, PathBuf, PathBuf)> {
+    let root = repo().join(dir);
+    let mut out: Vec<_> = std::fs::read_dir(root.join("specs"))
+        .expect("fixture directory")
+        .map(|e| e.expect("entry").path())
+        .filter(|p| p.is_dir())
+        .map(|p| {
+            let name = p
+                .file_name()
+                .and_then(|n| n.to_str())
+                .expect("name")
+                .to_owned();
+            let transcript = root.join(ORACLE).join(format!("{name}.stdout"));
+            (name.clone(), p.join(format!("{name}.tla")), transcript)
+        })
+        .collect();
+    out.sort();
+    out
+}
+
+fn run(spec: &Path, engine: Engine) -> Value {
+    let report = check_file_engine(
+        &CheckRequest {
+            config: Some(spec.with_extension("cfg")),
+            file: spec.to_path_buf(),
+            workers: Some(1),
+            seed: Some(0),
+            fp: Some(0),
+            ..CheckRequest::default()
+        },
+        engine,
+    )
+    .expect("check runs");
+    let mut j = report.to_json();
+    j["exit"] = Value::from(report.exit_code());
+    j
+}
+
+fn observed(v: &Value) -> Value {
+    serde_json::json!({
+        "verdict": v["verdict"],
+        "property": v["property"],
+        "generated": v["statistics"]["generated"],
+        "distinct": v["statistics"]["distinct"],
+        "depth": v["statistics"]["depth"],
+        "queue": v["statistics"]["left_on_queue"],
+        "exit": v["exit"],
+        "output": v["output"],
+    })
+}
+
+/// TLC's final counts: generated, distinct, left on queue.
+fn tlc_counts(transcript: &Path) -> Option<(u64, u64, u64)> {
+    let text = std::fs::read_to_string(transcript).ok()?;
+    text.lines()
+        .filter_map(|l| {
+            let (g, rest) = l.split_once(" states generated, ")?;
+            let (d, rest) = rest.split_once(" distinct states found, ")?;
+            let q = rest.strip_suffix(" states left on queue.")?;
+            let n = |s: &str| s.replace(',', "").parse::<u64>().ok();
+            Some((n(g)?, n(d)?, n(q)?))
+        })
+        .next_back()
+}
+
+fn check_dir(dir: &str) -> usize {
+    let mut agreed = 0;
+    for (name, spec, transcript) in specs(dir) {
+        let core = run(&spec, Engine::Core);
+        assert_eq!(core["engine"], "core", "{name}");
+        if let Some((_, word)) = REFUSED.iter().find(|(n, _)| *n == name) {
+            assert_eq!(core["verdict"], "unsupported", "{name}: {core:#}");
+            assert!(
+                core["message"].as_str().is_some_and(|m| m.contains(word)),
+                "{name}: {core:#}"
+            );
+            continue;
+        }
+        if core["verdict"] == "unsupported" {
+            // Error endings are classified by the engine's error PR; until
+            // then they must be refused, not answered.
+            let m = core["message"].as_str().unwrap_or("");
+            assert!(m.contains("evaluation error"), "{name}: {core:#}");
+            continue;
+        }
+        let reference = run(&spec, Engine::Reference);
+        assert_eq!(observed(&core), observed(&reference), "{name}");
+        if core["verdict"] == "success"
+            && let Some((g, d, q)) = tlc_counts(&transcript)
+        {
+            assert_eq!(
+                (
+                    core["statistics"]["generated"].as_u64(),
+                    core["statistics"]["distinct"].as_u64(),
+                    core["statistics"]["left_on_queue"].as_u64()
+                ),
+                (Some(g), Some(d), Some(q)),
+                "{name} against TLC"
+            );
+        }
+        agreed += 1;
+    }
+    agreed
+}
+
+#[test]
+fn rule_fixtures_match_the_reference_and_tlc() {
+    let agreed = check_dir("crates/dive-eval/tests/fixtures/next");
+    // 18 fixtures: 13 agree, NxInLazyCup is refused by rule, and
+    // NxEnabled, NxInstance and NxUnassigned wait for other work.
+    assert!(agreed >= 13, "only {agreed} rule fixtures agreed");
+}
+
+#[test]
+fn tlc_probes_match_the_reference_and_tlc() {
+    let agreed = check_dir("crates/dive-check/tests/fixtures/tlc-probes");
+    assert!(agreed >= 17, "only {agreed} probes agreed");
+}
+
+/// The M1 generator fixtures (`tests/fixtures/core-m1`): each agrees with
+/// the reference engine, or is one of the lazy-union cases both refuse.
+#[test]
+fn m1_generator_fixtures_match_the_reference() {
+    let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/core-m1");
+    let mut names: Vec<PathBuf> = std::fs::read_dir(&dir)
+        .expect("fixtures")
+        .map(|e| e.expect("entry").path())
+        .filter(|p| p.extension().is_some_and(|x| x == "tla"))
+        .collect();
+    names.sort();
+    assert!(names.len() >= 7);
+    for spec in names {
+        let name = spec
+            .file_stem()
+            .and_then(|n| n.to_str())
+            .unwrap_or("?")
+            .to_owned();
+        let core = run(&spec, Engine::Core);
+        let reference = run(&spec, Engine::Reference);
+        if name.ends_with("Dup") {
+            assert_eq!(core["verdict"], "unsupported", "{name}: {core:#}");
+            assert_eq!(reference["verdict"], "unsupported", "{name}");
+            assert!(
+                core["message"]
+                    .as_str()
+                    .is_some_and(|m| m.contains("lazily represented set")),
+                "{name}: {core:#}"
+            );
+            continue;
+        }
+        assert_eq!(observed(&core), observed(&reference), "{name}");
+    }
+}

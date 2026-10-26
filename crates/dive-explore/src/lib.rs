@@ -108,15 +108,21 @@ pub struct Outcome {
     pub stats: Stats,
     /// Strategy metrics.
     pub metrics: Metrics,
+    /// Warnings 2143 (variable, `UNCHANGED` site as an `ExprId` index), once each, in the
+    /// order raised.
+    pub warnings: Vec<(u16, u32)>,
 }
 
 /// Run settings.
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Clone, Copy, Debug)]
 pub struct Config {
     /// Strategy switches.
     pub opts: Opts,
     /// When to stop.
     pub deadline: Option<Instant>,
+    /// TLC's warning switch (`-nowarning` turns it off): it also selects
+    /// the all-assigned shortcut for successors (`05` §5).
+    pub warn: bool,
 }
 
 /// A set of 64-bit state keys (open addressing, linear probing).
@@ -283,6 +289,16 @@ impl Explorer<'_> {
                 break;
             }
         }
+        // `ACTION_CONSTRAINT`s, on the step from the parent (TLC's
+        // `isInActions`, after `isInModel`); never on initial states.
+        if in_model && !self.initial {
+            for c in &plan.action_constraints {
+                if !check_step(m, code, c)? {
+                    in_model = false;
+                    break;
+                }
+            }
+        }
         if !self.opts.early_probe {
             for i in 0..m.s1.len() {
                 m.s1[i] = m.heap.intern(m.s1[i])?;
@@ -340,6 +356,16 @@ impl Explorer<'_> {
             self.stats.distinct += 1;
             self.stats.depth = self.stats.depth.max(self.level);
         }
+        // TLC enqueues a new initial state before checking its invariants
+        // (`DoInitFunctor.addElement`), and a successor only after
+        // (`Worker.addElement`).
+        let enqueue_first = self.initial && in_model;
+        if enqueue_first {
+            for i in 0..m.s1.len() {
+                let h = m.heap.intern(m.s1[i])?;
+                self.next.push(h);
+            }
+        }
         for c in &plan.invariants {
             if !self.check(m, code, c)? {
                 self.stop = Some(Verdict::InvariantViolated {
@@ -349,7 +375,7 @@ impl Explorer<'_> {
                 return Err(Error::stop());
             }
         }
-        if in_model {
+        if in_model && !enqueue_first {
             for i in 0..m.s1.len() {
                 let h = m.heap.intern(m.s1[i])?;
                 self.next.push(h);
@@ -357,6 +383,23 @@ impl Explorer<'_> {
         }
         Ok(())
     }
+}
+
+/// Evaluates a step predicate on `(m.s0, m.s1)`.
+fn check_step(m: &mut Machine, code: &Code, c: &Check) -> Result<bool, Error> {
+    let old = m.enter(c.frame);
+    let mut r = Ok(true);
+    for conj in &c.conjuncts {
+        match m.eval_bool(code, conj.p) {
+            Ok(true) => {}
+            other => {
+                r = other;
+                break;
+            }
+        }
+    }
+    m.leave(old);
+    r
 }
 
 impl Sink for Explorer<'_> {
@@ -406,6 +449,7 @@ pub fn explore(plan: &Plan, store: &Arc<Store>, config: Config) -> Outcome {
         .map(|s| s.vars.len() + s.slots.len())
         .collect();
     let mut m = Machine::new(Arc::clone(store), nvars, config.opts, Memo::new(&keys));
+    m.warn = config.warn;
     let mut ex = Explorer {
         plan,
         stats: Stats::default(),
@@ -443,17 +487,26 @@ pub fn explore(plan: &Plan, store: &Arc<Store>, config: Config) -> Outcome {
     metrics.arena_peak = m.heap.arena().peak();
     metrics.thunks = (m.stats.forced, m.stats.cached);
     metrics.explore_time = start.elapsed();
+    let warnings = if config.warn {
+        std::mem::take(&mut m.warnings)
+    } else {
+        Vec::new()
+    };
     Outcome {
         verdict,
         stats: ex.stats,
         metrics,
+        warnings,
     }
 }
 
 fn run(m: &mut Machine, ex: &mut Explorer<'_>, plan: &Plan, config: Config) -> Result<(), Error> {
     let code = &plan.code;
     let nvars = plan.vars.len();
-    run_actions(m, ex, &plan.init, code)?;
+    if let Err(e) = run_actions(m, ex, &plan.init, code) {
+        ex.stats.left_on_queue = (ex.next.len() / nvars.max(1)) as u64;
+        return Err(e);
+    }
     m.heap.reset();
     ex.initial = false;
     let mut cur = std::mem::take(&mut ex.next);
@@ -468,11 +521,13 @@ fn run(m: &mut Machine, ex: &mut Explorer<'_>, plan: &Plan, config: Config) -> R
             ex.emitted = 0;
             let r = run_actions(m, ex, &plan.next, code);
             m.heap.reset();
+            let left = (cur.len() / nvars - k - 1 + ex.next.len() / nvars) as u64;
             if let Err(e) = r {
-                ex.stats.left_on_queue = (cur.len() / nvars - k - 1 + ex.next.len() / nvars) as u64;
+                ex.stats.left_on_queue = left;
                 return Err(e);
             }
             if ex.emitted == 0 && plan.check_deadlock {
+                ex.stats.left_on_queue = left;
                 ex.stop = Some(Verdict::Deadlock);
                 return Err(Error::stop());
             }

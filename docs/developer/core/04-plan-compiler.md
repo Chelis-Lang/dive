@@ -214,3 +214,19 @@ Next (M1, stream 2):
 2. The demand-order analysis of §4, replacing the conservative rule above.
    Lazy function values are needed to remove GameOfLife's materialization.
 3. Error classes (§5) and the INSTANCE and `ENABLED` passes.
+
+## 8. Interface
+
+Changes made by other streams to the plan and compiler, recorded here as
+`10-plan.md` §3 asks.
+
+- **Stream 3, `core/engine-getnext`.**
+  - `plan.rs`: new generator nodes `AssignInRaw`, `StepAngle` and
+    `FcnAction`; `Unchanged` and `StepBox` hold `Unch` items (`Var` with its
+    site, or `Verify(P)`); the `Raw` tree; `Plan::action_constraints`.
+  - `compile.rs`: `Handoff::action_constraints`; the generator arms of `g`
+    for `\in`, `\subseteq`, `UNCHANGED`, `[A]_v`, `<<A>>_v` and `f[a]`; the
+    value forms of `[A]_v` and `<<A>>_v` in `p`. The new helpers live in
+    `compile_gen.rs`, a child module of `compile`.
+  - `eval.rs`: `Machine::warnings`.
+

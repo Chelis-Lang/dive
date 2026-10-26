@@ -179,9 +179,6 @@ fn refusal(model: &dive_model::Model) -> Option<String> {
     if !model.implied_inits.is_empty() || !model.implied_actions.is_empty() {
         return Some("implied initial or action properties (M0 core engine)".into());
     }
-    if !model.action_constraints.is_empty() {
-        return Some("ACTION_CONSTRAINT (M0 core engine)".into());
-    }
     if model.view.is_some() || model.alias.is_some() {
         return Some("VIEW or ALIAS (M0 core engine)".into());
     }
@@ -243,6 +240,7 @@ fn handoff<'a>(model: &'a dive_model::Model, ir: &'a Ir) -> Result<Handoff<'a>, 
         next: action_roles(model, &model.actions)?,
         invariants: named_roles(model, &model.invariants)?,
         constraints: named_roles(model, &model.constraints)?,
+        action_constraints: named_roles(model, &model.action_constraints)?,
         check_deadlock: model.settings.check_deadlock,
     })
 }
@@ -352,6 +350,7 @@ pub(crate) fn check(
         dive_explore::Config {
             opts: core_opts,
             deadline,
+            warn: options.eval.warnings,
         },
     );
     let verdict = match out.verdict {
@@ -371,6 +370,13 @@ pub(crate) fn check(
         Verdict::Success | Verdict::InvariantViolated { .. } | Verdict::Deadlock
     );
     let mut r = result(verdict, options, ir);
+    for (var, at) in &out.warnings {
+        let name = plan.vars.get(usize::from(*var)).map_or("?", String::as_str);
+        r.output.push(format!(
+            "@!@!@STARTMSG 2143:3 @!@!@\nThe variable {name} was changed while it is specified as UNCHANGED at\n{}\n@!@!@ENDMSG 2143 @!@!@",
+            model.evaluator.location(ExprId(*at))
+        ));
+    }
     if counted {
         r.stats = Some(Stats {
             generated: out.stats.generated,
