@@ -137,11 +137,15 @@ The analysis also has these rules:
 - An argument used several times with no effects and no cutoff sensitivity may
   be evaluated once and shared. TLC's cache reuse would give the same value.
 - Any other argument becomes a thunk in the arena. A thunk holds the plan node,
-  its frame, and a cache slot. The cache is reused exactly under TLC's
-  `getCachedValue` rule: same predecessor, same assignments made when it was
-  forced, equivalent mode (`crates/dive-eval/src/env.rs:518-597`).
-  Generation stamps on the successor buffer make the common case a single
-  comparison.
+  its frame, and a cache slot.
+  - **Under `--compat=tlc`.** The cache is reused exactly under TLC's
+    `getCachedValue` rule, stale reuses included: same predecessor, same
+    root-module assignments made when it was forced, equivalent mode
+    (`crates/dive-eval/src/env.rs:518-597`; `02-semantic-contract.md` B2).
+  - **In the default profile.** The cache is reused only when every input it
+    depends on is unchanged (`02-semantic-contract.md` §3a).
+  - **Either profile.** Generation stamps on the successor buffer make the
+    common case a single comparison.
 - Generator `LET` values and substitutions stay uncached, as TLC binds them
   (`02-semantic-contract.md`, section on successor generation).
 - Standard-module operators of the value kind evaluate their arguments eagerly,

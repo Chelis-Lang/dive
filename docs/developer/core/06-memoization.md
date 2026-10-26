@@ -103,10 +103,14 @@ A body is eligible only if all of the following hold.
 1. **No effects.** It does not reach `TLCGet`, `TLCSet`, random draws,
    `Print`, `PrintT`, assertions with output, or I/O. Assertion failures are
    errors and may be cached, because they are deterministic.
-2. **No cutoff sensitivity.** It is not evaluated under `ENABLED` and does not
-   depend on its cutoff semantics or on lazy cache reuse across contexts. The
-   `lazy-enabled-cache` corpus shows the result can depend on context; see
-   `02-semantic-contract.md`.
+2. **No cutoff sensitivity.** It does not depend on `ENABLED` cutoff
+   semantics (B3).
+   - **Under `--compat=tlc`.** Neither is it reachable at a site where TLC's
+     lazy cache reuse is stale (B2, B4); the `lazy-enabled-cache` corpus shows
+     the result can then depend on context.
+   - **In the default profile.** Those sites evaluate soundly
+     (`02-semantic-contract.md` §3a), so they may be memoized like any other
+     pure body.
 3. **No normalization side effects.** Its result does not depend on the
    normalization state of an input whose lazy view is unnormalized, and it
    does not change such a state. In TLC, normalizing a set can change the
@@ -121,15 +125,16 @@ A body is eligible only if all of the following hold.
 How these conditions relate to TLC's own caching
 (`02-semantic-contract.md` §3(b)):
 
-- **Stale reuse (B2).** TLC's `LazyValue` cache reuse is sometimes stale on
-  purpose: `isSubset` ignores hidden `INSTANCE` variables. A sound memo would
-  give a different answer at such sites. Condition 2 therefore excludes every
-  body reachable under `ENABLED` or behind an `INSTANCE` with hidden variables
-  (B2, B3). Those sites keep real thunks with TLC's cache key, as
-  `04-plan-compiler.md` §4 requires.
+- **Stale reuse (B2, B4).** TLC's `LazyValue` cache reuse is sometimes stale:
+  `isSubset` ignores hidden `INSTANCE` variables.
+  - **Under `--compat=tlc`.** Condition 2 excludes those sites. They keep real
+    thunks with TLC's cache key, as `04-plan-compiler.md` §4 requires.
+  - **In the default profile.** They are evaluated soundly and may be memoized
+    (`02-semantic-contract.md` §3a).
 - **Cached errors (B7).** TLC never caches a failing thunk; it re-evaluates in
-  the caller's context. A memo entry may record an error only because its key
-  covers every input of the body. A different context is therefore a different
+  the caller's context. Caching errors is allowed in both profiles. A memo
+  entry may record an error only because its key covers every input of the
+  body. A different context is therefore a different
   key, and an equal key re-evaluates to the same error. Shadow comparison must
   confirm this on the error fixtures (`ErInv*`, `ErrMemNormalized`).
 

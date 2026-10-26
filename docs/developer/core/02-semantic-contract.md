@@ -224,7 +224,7 @@ stale reuses.** A forced value is reused when three conditions hold:
 When the successor state is null, TLC neither reads nor fills the cache.
 Because `isSubset` ignores hidden `INSTANCE` variables, TLC reuses a value
 that a fresh evaluation would change.
-- Profile: both.
+- Profile: tlc only. The default profile evaluates soundly (§3a below).
 - Evidence:
   - `tlc2/value/impl/LazyValue.java:143-153`, `:169-183`;
     `tlc2/tool/TLCState.java:246-271`; `Tool.java:1922-1940`;
@@ -238,9 +238,13 @@ that a fresh evaluation would change.
   - `docs/user/temporal.md`, "Hidden-query lazy argument caching". A
     diagnostic run with `-Dtlc2.value.impl.LazyValue.off=true` flips only the
     remove-two control.
-- Core: wherever such a site is reachable (under `ENABLED`, behind an
-  `INSTANCE` with hidden variables), keep a real thunk with TLC's key. A cache
-  that is semantically sound would give the wrong answer here.
+- Core, `--compat=tlc`: wherever such a site is reachable (under `ENABLED`,
+  behind an `INSTANCE` with hidden variables), keep a real thunk with TLC's key.
+  A cache that is semantically sound would give TLC's answer wrongly here.
+- Core, default profile: reuse a value only when every input it depends on is
+  unchanged, hidden `INSTANCE` variables included. The stale reuse is not
+  reproduced. This changes the default-profile result of the affected corpus
+  controls; see §3a.
 
 **B3. `ENABLED` cutoff.** `ENABLED` evaluates its body in
 `Context.branch(c)`. A primed lookup stops at the branch, so substitutions made
@@ -251,17 +255,22 @@ outside the `ENABLED` are hidden from it.
   `conformance/corpus/lazy-enabled-capture/`.
 - Core: inlining substitutions by name (`04-plan-compiler.md`, pass 2) is not
   allowed under `ENABLED` or a prime cutoff.
+- Open: this cutoff may be TLC implementing correctly the rule that
+  substitution does not distribute over `ENABLED`. It stays in both profiles
+  until it is ruled on (§6).
 
 **B4. Lexical lifetime of lazy bindings in queries.** A `LET` reached before
 a hidden membership choice keeps one binding across all the candidates. A
 `LET` reached after the choice gets a new binding for each candidate.
-- Profile: both.
+- Profile: tlc only. The default profile evaluates soundly (§3a below).
 - Evidence: corpus `conformance/corpus/lazy-query-lifetimes/` (24 controls).
   For example, `delayed_let_remove_two` gives 2107 with exit 12, while
   `delayed_let_remove_one` succeeds. The paired `*_inverse` invariants catch
   fabricated endings. `docs/user/temporal.md`, "Lazy query binding lifetime".
-- Core: create a binding when the `LET` or application is reached, never per
-  complete candidate and never hoisted.
+- Core, `--compat=tlc`: create a binding when the `LET` or application is
+  reached, never per complete candidate and never hoisted.
+- Core, default profile: a `LET` value that depends on primed variables is
+  evaluated for each candidate, as TLA+'s definition-by-substitution requires.
 
 **B5. The generator does not cache `LET` definitions or substitutions.**
 - In `getNextStates`, a `LET` binds nothing. Each use evaluates the
@@ -299,6 +308,10 @@ recomputed in the caller's context.
 - Profile: both.
 - Evidence: `LazyValue.java:169-183` (the cache is filled only after `eval`
   returns); `eval.rs:726-729`; ADR 0012 §1 ("Only successes are cached").
+- Core: this is not observable for a pure body whose cache key covers every
+  input, because an equal key re-evaluates to the same error. The new core may
+  therefore cache errors in both profiles, under the conditions in
+  `06-memoization.md` §4. Effectful bodies are never cached.
 
 ### (c) Normalization (`isNorm`) and membership errors
 
@@ -532,6 +545,31 @@ count.**
 - Profile: both.
 - Evidence: ADR 0014 §7; D-001.
 
+## 3a. Where the default profile does better than TLC
+
+**Owner direction, 2026-10-26.** Where TLC returns a result that TLA+
+semantics would not, such as a stale cached value, the default profile does the
+semantically correct thing. `--compat=tlc` reproduces TLC. This applies
+ADR 0010: the improvement is result-changing, and the owner has approved it as
+the default.
+
+| Rule | TLC behaviour | Default-profile behaviour | Divergence |
+|---|---|---|---|
+| B2 | Reuses a cached lazy value when only hidden `INSTANCE` variables changed | Reuse only when all inputs are unchanged | to register as D-027 with the implementing PR |
+| B4 | One `LET` binding kept across hidden-choice candidates | Per-candidate evaluation where the value depends on primed variables | same entry as B2, or its own, decided when implemented |
+
+The current reference engine reproduces both behaviours in both profiles. The
+affected controls in `conformance/corpus/lazy-enabled-cache/` and
+`lazy-query-lifetimes/` therefore change their default-profile result. The
+implementing PR adds:
+- their expected-divergence entries;
+- the D-entry, in `docs/divergences.md` and `docs/tlc-differences.md`;
+- tests in both profiles.
+
+Further candidates are added to this table with evidence. A behaviour is a
+candidate only if it differs from the TLA+ semantics, not merely from another
+implementation choice.
+
 ## 4. Behaviours the new core MAY drop
 
 **X1. Message text and Java signatures.** No compared field holds message
@@ -649,3 +687,8 @@ each one's TLC counterpart applies.
    view is symmetric?
 7. **History-dependent `elements()` (A6).** Keep the `NxInLazyCup` refusal,
    or track TLC's per-object normalization history to reproduce it?
+
+8. **`ENABLED` cutoff (B3).** Is TLC's branch cutoff the correct TLA+
+   treatment of substitution under `ENABLED`, which should therefore stay in
+   both profiles, or a TLC artifact the default profile should drop like B2 and
+   B4? Default until ruled: keep it in both profiles.

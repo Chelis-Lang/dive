@@ -97,6 +97,14 @@ Tuning within this design cannot reach ADR 0006. The design is described in
    `dive-core` and `dive-store`. `dive-api` dispatches between the engines. The
    rows are added to `xtask/src/layering.rs` with the first code PR.
 
+7. **Better than TLC by default, where TLC is semantically wrong.** The
+   default profile evaluates soundly where TLC's lazy-value cache reuse is
+   stale (`docs/developer/core/02-semantic-contract.md` §3a). `--compat=tlc`
+   reproduces TLC. The owner approved this result-changing default on
+   2026-10-26, under ADR 0010. Each such behaviour is registered as a D-entry
+   in the PR that implements it. Caching the errors of pure evaluations is
+   result-preserving and allowed in both profiles.
+
 ## Consequences
 
 - Correctness work concentrates in one new code base, and parity fixes to the
