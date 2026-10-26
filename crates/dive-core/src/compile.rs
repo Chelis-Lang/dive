@@ -55,7 +55,7 @@ mod generator;
 const MAX_NODES: usize = 4_000_000;
 
 /// The most loop iterations one constant fold may spend (R9). A larger
-/// closed expression, such as CoffeeCan's initial filter over 1,002,001
+/// closed expression, such as `CoffeeCan`'s initial filter over 1,002,001
 /// records, is left to run time, where the generator streams it instead of
 /// building it in the compile arena.
 pub const FOLD_FUEL: u64 = 1 << 12;
