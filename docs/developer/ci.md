@@ -156,6 +156,42 @@ order (`RndStartup`), so reordering or splitting changes random values. A
 failing constant definition's `Print` runs again for each module in the
 `EXTENDS` chain (`SuPrintRetry`), so a split changes the printed output.
 
+## Counterexample validation
+
+`crates/dive-api/tests/counterexample_validation.rs` checks every
+counterexample `dive check` reports with the independent validator, in both
+profiles. The harness does this for corpus models with goldens; this test
+covers every fixture spec with a same-named configuration, goldens or not.
+Each run uses seed 0, fp 0, one worker, the default store (the exact store
+refuses liveness) and stops at 20,000 states or ten seconds. A trace must
+end as the report's verdict says and validate. A trace the validator reports
+partly unsupported, or a run without a trace document, is counted but does
+not fail.
+
+The `ci` profile runs a fixed list of seeds covering each ending. To check
+every fixture (about 1,400 seeds, both profiles, a few minutes in a release
+build):
+
+```sh
+DIVE_CX_VALIDATION=all DIVE_CX_VALIDATION_REPORT="$TMPDIR/cx-validation.json" \
+  cargo test -p dive-api --release --test counterexample_validation -- every_fixture --nocapture
+```
+
+Three known refutations of correct counterexamples, each matching TLC's own
+trace, are reported separately and do not fail the sweep:
+
+- a claimed evaluation error is re-raised while the validator checks the
+  last state's invariants, constraints, action constraints or implied action
+  properties, and the trace is refuted (#490 names the invariant case);
+- a last state outside `CONSTRAINT` is accepted only for an invariant
+  violation, so action-property violations and error endings on such a state
+  are refuted (`ErInvConstrained`, `DfidActionConstrained`);
+- checking `Init` raises on a disjunct whose empty product or record set
+  TLC's generator skips (`EmptyProductSkipsMixedInit`).
+
+`known_refutations_still_reproduce` fails once one is fixed, so its entry can
+be removed.
+
 `.github/workflows/conformance.yml` runs the small or deep tier, including the
 TLC self-checks, on manual dispatch. Its `baseline` job runs nightly (and on a
 small-tier dispatch): the same two corpus runs as the full gate, against the
