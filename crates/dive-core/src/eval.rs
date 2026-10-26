@@ -58,6 +58,9 @@ pub struct Machine {
     pub(crate) saved: Vec<Handle>,
     scratch: Vec<Vec<Handle>>,
     depth: usize,
+    /// Loop iterations left before evaluation gives up. Unbounded at run
+    /// time; the compiler bounds it while folding constants (R9).
+    pub(crate) fuel: u64,
 }
 
 fn eval_err(what: &str) -> Error {
@@ -97,7 +100,20 @@ impl Machine {
             saved: Vec::new(),
             scratch: Vec::new(),
             depth: 0,
+            fuel: u64::MAX,
         }
+    }
+
+    /// Spends `n` units of fuel: one per element a loop visits.
+    #[inline]
+    fn charge(&mut self, n: usize) -> Result<(), Error> {
+        let n = n as u64;
+        if self.fuel < n {
+            self.fuel = 0;
+            return Err(Error::unsupported("the constant-folding budget"));
+        }
+        self.fuel -= n;
+        Ok(())
     }
 
     fn take_scratch(&mut self) -> Vec<Handle> {
@@ -284,6 +300,7 @@ impl Machine {
                 let x = self.heap.norm(x)?;
                 let y = self.eval(code, *b)?;
                 let elems = self.heap.elements(x)?;
+                self.charge(elems.len())?;
                 for e in elems {
                     if !self.member(e, y)? {
                         return Ok(Handle::FALSE);
@@ -348,7 +365,9 @@ impl Machine {
                 let mut out = Vec::new();
                 for m in members {
                     let m = self.heap.norm(m)?;
-                    out.extend(self.heap.elements(m)?);
+                    let es = self.heap.elements(m)?;
+                    self.charge(es.len())?;
+                    out.extend(es);
                 }
                 let r = self.heap.set_from(&mut out);
                 self.checked_set(r)
@@ -689,6 +708,12 @@ impl Machine {
         let (x, y) = (self.heap.norm(x)?, self.heap.norm(y)?);
         let fx = self.heap.is_finite(x);
         let fy = self.heap.is_finite(y);
+        for (s, finite) in [(x, fx), (y, fy)] {
+            if finite && s.is_compound() {
+                let n = self.heap.view(s).len();
+                self.charge(n)?;
+            }
+        }
         match op {
             SetOp::Cup => {
                 if !fx || !fy {
@@ -731,11 +756,13 @@ impl Machine {
     }
 
     fn filter(&mut self, code: &Code, bind: &Bind, pred: P) -> Result<Handle, Error> {
+        // The cursor enumerates a symbolic domain in canonical order without
+        // materializing it (R9, R10).
         let dom = self.eval(code, bind.domain)?;
-        let dom = self.heap.norm(dom)?;
         let mut cur = self.heap.cursor(dom)?;
         let mut out = Vec::new();
         while let Some(e) = cur.next(&mut self.heap)? {
+            self.charge(1)?;
             self.bind_one(bind, e)?;
             if self.eval_bool(code, pred)? {
                 out.push(e);
@@ -822,6 +849,7 @@ impl Machine {
         }
         let mut idx = vec![0usize; units.len()];
         loop {
+            self.charge(1)?;
             for (k, (u, elems)) in units.iter().enumerate() {
                 self.bind_unit(binds, *u, elems[idx[k]])?;
             }
@@ -872,9 +900,9 @@ impl Machine {
                     return Err(Error::unsupported("CHOOSE with several bound variables"));
                 }
                 let d = self.eval(code, binds[0].domain)?;
-                let d = self.heap.norm(d)?;
                 let mut cur = self.heap.cursor(d)?;
                 while let Some(e) = cur.next(&mut self.heap)? {
+                    self.charge(1)?;
                     self.bind_one(&binds[0], e)?;
                     if self.eval_bool(code, body)? {
                         return Ok(e);
@@ -894,6 +922,7 @@ impl Machine {
                 .into_iter()
                 .next()
                 .unwrap_or((Unit { bind: 0, var: None }, Vec::new()));
+            self.charge(keys.len())?;
             let mut vals = Vec::with_capacity(keys.len());
             for &k in &keys {
                 self.bind_unit(binds, u, k)?;
@@ -915,6 +944,7 @@ impl Machine {
         }
         let mut idx = vec![0usize; units.len()];
         'outer: loop {
+            self.charge(1)?;
             let comps: Vec<Handle> = idx.iter().zip(&units).map(|(&i, (_, e))| e[i]).collect();
             for (k, (u, _)) in units.iter().enumerate() {
                 self.bind_unit(binds, *u, comps[k])?;
