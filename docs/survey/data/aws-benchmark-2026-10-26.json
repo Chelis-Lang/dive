@@ -1,0 +1,3485 @@
+{
+  "provenance": {
+    "affinity": "Cpus_allowed_list:\t0-15",
+    "baseline": null,
+    "benchmark_set_sha256": "5a1a11b0398324394a2cc0b3ca8679b744bd20ced27cb6c4cfe662c8da942c8e",
+    "binary_sha256": "b03c5e573649aa8ddad48cc14362f955fcf6176354ca0893ab1a6e37a14fdfe5",
+    "binary_version": "dive 0.0.0",
+    "campaign_id": "6962-1793044035997269961",
+    "candidate": {
+      "path": "dive-main",
+      "sha256": "b03c5e573649aa8ddad48cc14362f955fcf6176354ca0893ab1a6e37a14fdfe5",
+      "source_label_supplied_by_user": "e18e9dda504f368f76a40e08b881ee7540b44b81"
+    },
+    "corpus_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "cpu": "Intel(R) Xeon(R) Platinum 8488C",
+    "cpu_topology": "# The following is the parsable format, which can be fed to other\n# programs. Each different item in every column has an unique ID\n# starting usually from zero.\n# CPU,Core,Socket,Online\n0,0,0,Y\n1,1,0,Y\n2,2,0,Y\n3,3,0,Y\n4,4,0,Y\n5,5,0,Y\n6,6,0,Y\n7,7,0,Y\n8,8,0,Y\n9,9,0,Y\n10,10,0,Y\n11,11,0,Y\n12,12,0,Y\n13,13,0,Y\n14,14,0,Y\n15,15,0,Y\n16,16,0,Y\n17,17,0,Y\n18,18,0,Y\n19,19,0,Y\n20,20,0,Y\n21,21,0,Y\n22,22,0,Y\n23,23,0,Y\n24,24,0,Y\n25,25,0,Y\n26,26,0,Y\n27,27,0,Y\n28,28,0,Y\n29,29,0,Y\n30,30,0,Y\n31,31,0,Y\n32,32,0,Y\n33,33,0,Y\n34,34,0,Y\n35,35,0,Y\n36,36,0,Y\n37,37,0,Y\n38,38,0,Y\n39,39,0,Y\n40,40,0,Y\n41,41,0,Y\n42,42,0,Y\n43,43,0,Y\n44,44,0,Y\n45,45,0,Y\n46,46,0,Y\n47,47,0,Y",
+    "cpus": 16,
+    "fp": 0,
+    "load_at_start": "0.04 0.43 0.28 1/1021 7106",
+    "memory": "MemTotal:       197631728 kB\nMemFree:        192256892 kB\nMemAvailable:   194535820 kB",
+    "module_path": [
+      {
+        "id": "community-modules-202610040242",
+        "pin": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+      },
+      {
+        "id": "community-modules-deps-202610040242",
+        "pin": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d"
+      },
+      {
+        "id": "apalache-modules-v0.62.3",
+        "pin": "3eb15b253482005222fabbf50bb7aae501eb9f8d"
+      },
+      {
+        "id": "tlapm-library-d8b9747",
+        "pin": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37"
+      }
+    ],
+    "native_budget_policy": {
+      "cleanup_reserve": "10% of the external backstop, at most 30s",
+      "memory": "--xmx is also the explicit whole-process memory ceiling for both dive profiles",
+      "time": "max(60s, 10 x pinned TLC elapsed), capped below the external backstop"
+    },
+    "oracle": {
+      "id": "tlc-2026.10.06.014338",
+      "sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+    },
+    "oracle_runtime": {
+      "capabilities": {
+        "dump_trace_json": true,
+        "git_revision": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+        "implementation_version": "2.0 2026-10-06",
+        "names_temporal_properties": true,
+        "no_generate_spec_te": true,
+        "sany_error_codes": true
+      },
+      "classpath": [
+        {
+          "id": "community-modules-202610040242",
+          "pin": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+        },
+        {
+          "id": "community-modules-deps-202610040242",
+          "pin": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d"
+        }
+      ],
+      "id": "tlc-2026.10.06.014338",
+      "java": {
+        "platform": "linux-x86_64",
+        "sha256": "0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62",
+        "source": "pinned",
+        "version": "17.0.20.1+1",
+        "version_line": "openjdk version \"17.0.20.1\" 2026-08-18"
+      },
+      "module_libraries": [
+        {
+          "id": "apalache-modules-v0.62.3",
+          "pin": "3eb15b253482005222fabbf50bb7aae501eb9f8d"
+        },
+        {
+          "id": "tlapm-library-d8b9747",
+          "pin": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37"
+        }
+      ],
+      "sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+      "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b"
+    },
+    "os": "Linux x86_64",
+    "quiet_window_certified": false,
+    "runner_dirty": false,
+    "runner_revision": "e18e9dda504f368f76a40e08b881ee7540b44b81",
+    "rustc": "",
+    "schedule": "model order fixed; worker/arm blocks reversed on odd repetitions; one process at a time",
+    "seed": 0,
+    "timeout_seconds": 900,
+    "xmx": "3g"
+  },
+  "schema_version": 2,
+  "summary": {
+    "aggregates": [
+      {
+        "comparison": "TLC throughput",
+        "complete_models": 10,
+        "geometric_mean": 0.34396497188350583,
+        "profile": "tlc",
+        "purpose": "descriptive all-selected-model aggregate; no performance-target acceptance assessment",
+        "selected_models": 10,
+        "workers": 1
+      },
+      {
+        "comparison": "TLC throughput",
+        "complete_models": 10,
+        "geometric_mean": 0.23550514916691342,
+        "profile": "tlc",
+        "purpose": "descriptive all-selected-model aggregate; no performance-target acceptance assessment",
+        "selected_models": 10,
+        "workers": 8
+      },
+      {
+        "comparison": "1-worker scaling",
+        "complete_models": 7,
+        "geometric_mean": null,
+        "profile": "tlc",
+        "purpose": "descriptive all-selected-model aggregate; no performance-target acceptance assessment",
+        "selected_models": 10,
+        "workers": 8
+      },
+      {
+        "comparison": "TLC throughput",
+        "complete_models": 10,
+        "geometric_mean": 0.36186357634931043,
+        "profile": "default",
+        "purpose": "descriptive all-selected-model aggregate; no performance-target acceptance assessment",
+        "selected_models": 10,
+        "workers": 1
+      },
+      {
+        "comparison": "TLC throughput",
+        "complete_models": 10,
+        "geometric_mean": 0.3912956731909959,
+        "profile": "default",
+        "purpose": "descriptive all-selected-model aggregate; no performance-target acceptance assessment",
+        "selected_models": 10,
+        "workers": 8
+      },
+      {
+        "comparison": "1-worker scaling",
+        "complete_models": 10,
+        "geometric_mean": 3.7544930202278333,
+        "profile": "default",
+        "purpose": "descriptive all-selected-model aggregate; no performance-target acceptance assessment",
+        "selected_models": 10,
+        "workers": 8
+      }
+    ],
+    "comparisons": [
+      {
+        "bench": "GameOfLife",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.27033900232791597,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 1
+      },
+      {
+        "bench": "TLCSailfish1",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.36099406322541355,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 1
+      },
+      {
+        "bench": "EWD998PCal",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.24691701892187493,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 1
+      },
+      {
+        "bench": "MCBakery",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.3340984225072122,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 1
+      },
+      {
+        "bench": "MCLamportMutex",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.33192234099249107,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 1
+      },
+      {
+        "bench": "SimpleRegular",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.34731434256545585,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 1
+      },
+      {
+        "bench": "MCbtree",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.4653887756689205,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 1
+      },
+      {
+        "bench": "CoffeeCan1000BeansSafety",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.4656605108311144,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 1
+      },
+      {
+        "bench": "MCDisruptor_MPMC",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.43336073945308623,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 1
+      },
+      {
+        "bench": "BufferedRandomAccessFile",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.26595850363390855,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 1
+      },
+      {
+        "bench": "GameOfLife",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.411081022185501,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 8
+      },
+      {
+        "bench": "TLCSailfish1",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.05751931107421745,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 8
+      },
+      {
+        "bench": "EWD998PCal",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.1907655481893594,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 8
+      },
+      {
+        "bench": "MCBakery",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.35155915984559166,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 8
+      },
+      {
+        "bench": "MCLamportMutex",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.08515974900977591,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 8
+      },
+      {
+        "bench": "SimpleRegular",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.47120404737912824,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 8
+      },
+      {
+        "bench": "MCbtree",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.5093756833419891,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 8
+      },
+      {
+        "bench": "CoffeeCan1000BeansSafety",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.586344898643064,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 8
+      },
+      {
+        "bench": "MCDisruptor_MPMC",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.6516958519916926,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 8
+      },
+      {
+        "bench": "BufferedRandomAccessFile",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.042372579544693166,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 8
+      },
+      {
+        "bench": "GameOfLife",
+        "comparison": "1-worker scaling",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 7.017600702586451,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 8
+      },
+      {
+        "bench": "TLCSailfish1",
+        "comparison": "1-worker scaling",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": null,
+          "missing": 0,
+          "paired": 0,
+          "refused": 0,
+          "unused_workers": 5
+        },
+        "profile": "tlc",
+        "workers": 8
+      },
+      {
+        "bench": "EWD998PCal",
+        "comparison": "1-worker scaling",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 4.2121062712464346,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 8
+      },
+      {
+        "bench": "MCBakery",
+        "comparison": "1-worker scaling",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 1.498638741652368,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 8
+      },
+      {
+        "bench": "MCLamportMutex",
+        "comparison": "1-worker scaling",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": null,
+          "missing": 0,
+          "paired": 0,
+          "refused": 0,
+          "unused_workers": 5
+        },
+        "profile": "tlc",
+        "workers": 8
+      },
+      {
+        "bench": "SimpleRegular",
+        "comparison": "1-worker scaling",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 3.240131134217949,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 8
+      },
+      {
+        "bench": "MCbtree",
+        "comparison": "1-worker scaling",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 5.665370022434303,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 8
+      },
+      {
+        "bench": "CoffeeCan1000BeansSafety",
+        "comparison": "1-worker scaling",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 1.6745196415243289,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 8
+      },
+      {
+        "bench": "MCDisruptor_MPMC",
+        "comparison": "1-worker scaling",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 4.175418207955214,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "tlc",
+        "workers": 8
+      },
+      {
+        "bench": "BufferedRandomAccessFile",
+        "comparison": "1-worker scaling",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": null,
+          "missing": 0,
+          "paired": 0,
+          "refused": 0,
+          "unused_workers": 5
+        },
+        "profile": "tlc",
+        "workers": 8
+      },
+      {
+        "bench": "GameOfLife",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.2692813758913374,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 1
+      },
+      {
+        "bench": "TLCSailfish1",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.3603701663815092,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 1
+      },
+      {
+        "bench": "EWD998PCal",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.25199921002657816,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 1
+      },
+      {
+        "bench": "MCBakery",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.35438868365729737,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 1
+      },
+      {
+        "bench": "MCLamportMutex",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.31701162725987225,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 1
+      },
+      {
+        "bench": "SimpleRegular",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.3564109273633666,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 1
+      },
+      {
+        "bench": "MCbtree",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.7164347098825112,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 1
+      },
+      {
+        "bench": "CoffeeCan1000BeansSafety",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.4632397029772114,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 1
+      },
+      {
+        "bench": "MCDisruptor_MPMC",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.4429305890629814,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 1
+      },
+      {
+        "bench": "BufferedRandomAccessFile",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.2674670383307865,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 1
+      },
+      {
+        "bench": "GameOfLife",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.3985589456389106,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 8
+      },
+      {
+        "bench": "TLCSailfish1",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.34639877319748413,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 8
+      },
+      {
+        "bench": "EWD998PCal",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.17537492149416956,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 8
+      },
+      {
+        "bench": "MCBakery",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.35845149725939524,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 8
+      },
+      {
+        "bench": "MCLamportMutex",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.3484905116536741,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 8
+      },
+      {
+        "bench": "SimpleRegular",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.4990124316824139,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 8
+      },
+      {
+        "bench": "MCbtree",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.7009833610717183,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 8
+      },
+      {
+        "bench": "CoffeeCan1000BeansSafety",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.5960642878917547,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 8
+      },
+      {
+        "bench": "MCDisruptor_MPMC",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.647575700937369,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 8
+      },
+      {
+        "bench": "BufferedRandomAccessFile",
+        "comparison": "TLC throughput",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 0.2060582380504069,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 8
+      },
+      {
+        "bench": "GameOfLife",
+        "comparison": "1-worker scaling",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 6.791961701817234,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 8
+      },
+      {
+        "bench": "TLCSailfish1",
+        "comparison": "1-worker scaling",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 6.010232308009748,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 8
+      },
+      {
+        "bench": "EWD998PCal",
+        "comparison": "1-worker scaling",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 3.905109650059864,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 8
+      },
+      {
+        "bench": "MCBakery",
+        "comparison": "1-worker scaling",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 1.4449249674963576,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 8
+      },
+      {
+        "bench": "MCLamportMutex",
+        "comparison": "1-worker scaling",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 4.286690402693214,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 8
+      },
+      {
+        "bench": "SimpleRegular",
+        "comparison": "1-worker scaling",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 3.361378013159151,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 8
+      },
+      {
+        "bench": "MCbtree",
+        "comparison": "1-worker scaling",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 5.102622910360092,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 8
+      },
+      {
+        "bench": "CoffeeCan1000BeansSafety",
+        "comparison": "1-worker scaling",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 1.6632679881349106,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 8
+      },
+      {
+        "bench": "MCDisruptor_MPMC",
+        "comparison": "1-worker scaling",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 4.021484529775441,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 8
+      },
+      {
+        "bench": "BufferedRandomAccessFile",
+        "comparison": "1-worker scaling",
+        "pairs": {
+          "censored": 0,
+          "failed": 0,
+          "intended": 5,
+          "median": 4.9132223401508766,
+          "missing": 0,
+          "paired": 5,
+          "refused": 0,
+          "unused_workers": 0
+        },
+        "profile": "default",
+        "workers": 8
+      }
+    ],
+    "models": [
+      {
+        "bench": "GameOfLife",
+        "expected": {
+          "depth": 1,
+          "distinct": 65536,
+          "error_class": "TLC_SUCCESS",
+          "exit_code": 0,
+          "generated": 131072,
+          "property": null,
+          "verdict": "success"
+        },
+        "inputs": {
+          "cfg_scope": "original pinned configuration",
+          "effective_cfg_sha256": "89b3dd94f35fb6cee4b093fa2b9a2e0f44e6cf0d3e43707b82c801690eeb9bf3",
+          "golden_sha256": "955b6693179e588979459d984988d2175506e151dfed130ada06e7c38ab82d2f",
+          "model": "specifications/GameOfLife/GameOfLife.cfg",
+          "module": "specifications/GameOfLife/GameOfLife.tla",
+          "module_sha256": "dcd6d626946faab35ac22ad38a031b0d9bd9bc274d8750340506acc407dccbc6",
+          "scaling_population_at_least_400000_distinct": false,
+          "source_files": {
+            "GameOfLife.tla": "dcd6d626946faab35ac22ad38a031b0d9bd9bc274d8750340506acc407dccbc6"
+          }
+        }
+      },
+      {
+        "bench": "TLCSailfish1",
+        "expected": {
+          "depth": 16,
+          "distinct": 109604,
+          "error_class": "TLC_SUCCESS",
+          "exit_code": 0,
+          "generated": 314144,
+          "property": null,
+          "verdict": "success"
+        },
+        "inputs": {
+          "cfg_scope": "original pinned configuration",
+          "effective_cfg_sha256": "52b3ce7ce5ca649d44a38ff98e6f5772ad39b33e22e0af6df6d1174e9aff9e16",
+          "golden_sha256": "2222e51b2dece9d5c8c7c3f362c8d4b21dfeec98337649e72a1b09efb7281837",
+          "model": "specifications/dag-consensus/TLCSailfish1.cfg",
+          "module": "specifications/dag-consensus/TLCSailfish1.tla",
+          "module_sha256": "065bcdb952c4d2b94d2a58d7f9d3009206f1c79f80437d83c6c7142b6f0333d0",
+          "scaling_population_at_least_400000_distinct": false,
+          "source_files": {
+            "BlockDag.tla": "f80956f2d02bd547ce310eaf693c434daf6785166e863859276cce0377051d62",
+            "BlockDagTest.tla": "206d49cd5556e79ab464aeaa30bd77ad145c0f56d5b2aa749d8d9657ad83749f",
+            "Digraph.tla": "d89e6b7ffb1f25e288bdfef9b80c2259493ae5381929a10b8bb4a949b0db6be5",
+            "Sailfish.tla": "74e165a98af083509b5dc6b86e526588721fadd572f7c6b47e5474ce509bc401",
+            "TLCSailfish1.tla": "065bcdb952c4d2b94d2a58d7f9d3009206f1c79f80437d83c6c7142b6f0333d0",
+            "TLCSailfish2.tla": "8263711a83ee9afe4a26ead6219ab7235775b084c9fea87e3934b34f24f4bb86",
+            "Utils.tla": "b38f43403c4d5cfd4b733613935e9ac92149c26d055d44b77f0b9c81c6644a1e"
+          }
+        }
+      },
+      {
+        "bench": "EWD998PCal",
+        "expected": {
+          "depth": 47,
+          "distinct": 321370,
+          "error_class": "TLC_SUCCESS",
+          "exit_code": 0,
+          "generated": 2808396,
+          "property": null,
+          "verdict": "success"
+        },
+        "inputs": {
+          "cfg_scope": "original pinned configuration",
+          "effective_cfg_sha256": "44073c04a88dd7aa593cab099e59b7b1dd4be31ec2d5b59616b0426a3a84f892",
+          "golden_sha256": "dd8289dd5ba9c9c6a98a41825e9bac193e92ca06be00237cff1d852e73050b25",
+          "model": "specifications/ewd998/EWD998PCal.cfg",
+          "module": "specifications/ewd998/EWD998PCal.tla",
+          "module_sha256": "d1622e16901edfa5b01d4e9c00779408b97483156d241c7b0f22515a1d81dc0d",
+          "scaling_population_at_least_400000_distinct": false,
+          "source_files": {
+            "AsyncTerminationDetection.tla": "c1b15be68a73c6e5f69c5c09f2736870182a9b0765ad9860452240119911b030",
+            "AsyncTerminationDetection_proof.tla": "87cc4e25be553691b1819b1be20b0addec2f724cec9ffe081014b23f99722ec7",
+            "EWD998.tla": "b51ba3587e0d1b88a38cc15cd667b7a50ccb72e7f5f79f7260c97e473f9392e8",
+            "EWD998Chan.tla": "ebdb5e9c6469fb1afc3b12198e1e2159b3ff3fa76d7bd15e5e11dce92b72313c",
+            "EWD998ChanID.tla": "c498e5e35a83d84257016fdf4ba359ddb40dbb5f3b2234656e32b419a5499e93",
+            "EWD998ChanID_export.tla": "638f814c422250d6debe1209419971b66ead59c8aa8aca4a2efcc29feb379985",
+            "EWD998ChanID_shiviz.tla": "43739b7a7c0754fbb2cf5a7606df9bd9610fc4bc3f22b79aab559e2f4e630c98",
+            "EWD998ChanTrace.tla": "da182795698ff457ae8979b7d97cd47842d75e3d860323ca02031dc47c940171",
+            "EWD998Chan_opts.tla": "4f29c2b6208a54f1ba954fe455f47c70898789b9549d97b6deca6c9efbeaacab",
+            "EWD998PCal.tla": "d1622e16901edfa5b01d4e9c00779408b97483156d241c7b0f22515a1d81dc0d",
+            "EWD998PCal_proof.tla": "fdf1114b7c47216f4b4a3c81db0cc34dd92c0712bad6c31eef09751835d906fd",
+            "EWD998_anim.tla": "6265b417dc405685a3e860493bb21bc4481b2ac278daff99e281a25e7324e209",
+            "EWD998_opts.tla": "5eab17aa1ab6cff0df0cda646453e240c92ed7378e51b4c97b3597fb732a8f85",
+            "EWD998_optsSC.tla": "bf863afe83e52cc6c08e671100a1c15bb4d9ad6735b7887f8ac5cd254ef2334d",
+            "EWD998_proof.tla": "2469117c5148dd3971326c0cc80cdc7665fbe859688f3c635681d3a069029517",
+            "Folds.tla": "2f8c0a7de9a64a5276a78cb7b048e18038d37787439bb9e60df126dc7608a35a",
+            "SmokeEWD998.tla": "c59b406bc1d54108b3d842e41bc2444c915adde416ebd8a02cb5fe4f6b13f808",
+            "SmokeEWD998_SC.tla": "063fe7c67a95789aeb793a67b8ac0135be60749356824e5d85fbe1fed09599d3",
+            "Utils.tla": "386c5319fd101fdde36610466f82151e8a39e01d1c6c8c44e894f7589bcc2b7b"
+          }
+        }
+      },
+      {
+        "bench": "MCBakery",
+        "expected": {
+          "depth": 1,
+          "distinct": 655200,
+          "error_class": "TLC_SUCCESS",
+          "exit_code": 0,
+          "generated": 3403584,
+          "property": null,
+          "verdict": "success"
+        },
+        "inputs": {
+          "cfg_scope": "original pinned configuration",
+          "effective_cfg_sha256": "27204f5e0a0a6dc62748f1148d7aa65ed0a8d7e1cb0bf9daf59beee57246c8f5",
+          "golden_sha256": "40a04ffa013aab5579f779ccb25d985974a818f71b28a3d35c3feb6147aca264",
+          "model": "specifications/Bakery-Boulangerie/MCBakery.cfg",
+          "module": "specifications/Bakery-Boulangerie/MCBakery.tla",
+          "module_sha256": "e30e4fc5558357406b890b3249eda6ec0ec7d5e191b1469adc3774990c1fbe25",
+          "scaling_population_at_least_400000_distinct": true,
+          "source_files": {
+            "Bakery.tla": "3b2a3f370e5f0fde8660b3ef09932d579c9bd2ccd249a5ce2304007bf24da8d5",
+            "Boulanger.tla": "e0f76da20c999aa23ed494d319119575f678ccd77f3c1e105eead18d3fe66fa0",
+            "MCBakery.tla": "e30e4fc5558357406b890b3249eda6ec0ec7d5e191b1469adc3774990c1fbe25",
+            "MCBoulanger.tla": "e1a52928940ae952cd25a3888cecb962f615237d5e81e4c164c9bfd64f82f3fa"
+          }
+        }
+      },
+      {
+        "bench": "MCLamportMutex",
+        "expected": {
+          "depth": 61,
+          "distinct": 724274,
+          "error_class": "TLC_SUCCESS",
+          "exit_code": 0,
+          "generated": 2729079,
+          "property": null,
+          "verdict": "success"
+        },
+        "inputs": {
+          "cfg_scope": "original pinned configuration",
+          "effective_cfg_sha256": "b91d46fb0a2f3af22fa65147c4c971d5cb9e42d141f63ad9035aa30cad51d118",
+          "golden_sha256": "3d0d2ded1d36c84eb8a6e2e5ef79e3fdcc3813c2495e3ccf736bd17e3a257ece",
+          "model": "specifications/lamport_mutex/MCLamportMutex.cfg",
+          "module": "specifications/lamport_mutex/MCLamportMutex.tla",
+          "module_sha256": "2ebf6f863f504f76cfcb4a3bc8228aae1c5a896e7f2f8d046f8ab763656ccca8",
+          "scaling_population_at_least_400000_distinct": true,
+          "source_files": {
+            "APLamportMutex.tla": "4d894d361a203b91900400e0db5e9a2886ee690389311bd6944b7688194233e4",
+            "LamportMutex.tla": "dfa726da541fb0515ad482c3b5ca82c81b6f54df6626c3b9edfcebedc2a9c05a",
+            "LamportMutex_proofs.tla": "9cbecb6501595b2222e663e09145f48d3cd73df2c817f07acc4d76acb9ca9f61",
+            "MCLamportMutex.tla": "2ebf6f863f504f76cfcb4a3bc8228aae1c5a896e7f2f8d046f8ab763656ccca8"
+          }
+        }
+      },
+      {
+        "bench": "SimpleRegular",
+        "expected": {
+          "depth": 25,
+          "distinct": 277726,
+          "error_class": "TLC_SUCCESS",
+          "exit_code": 0,
+          "generated": 1454776,
+          "property": null,
+          "verdict": "success"
+        },
+        "inputs": {
+          "cfg_scope": "original pinned configuration",
+          "effective_cfg_sha256": "8520b95eddae24778e6f099010d8da0b25ab6667c32a0284b2e16e9528924960",
+          "golden_sha256": "cb8d0126403d59833fc017c03e6421690ce56fa949d2487a14bc6c403a927737",
+          "model": "specifications/TeachingConcurrency/SimpleRegular.cfg",
+          "module": "specifications/TeachingConcurrency/SimpleRegular.tla",
+          "module_sha256": "bf3872f04d71f7b80fcb55cecd07bf1b38fac3861fbb3452eb179c593c1bcdb5",
+          "scaling_population_at_least_400000_distinct": false,
+          "source_files": {
+            "Simple.tla": "dd859866e8be0ee36b0005b0393becd788fe51aae7ebcd7deaa14c259a3c0bab",
+            "SimpleRegular.tla": "bf3872f04d71f7b80fcb55cecd07bf1b38fac3861fbb3452eb179c593c1bcdb5",
+            "SimpleRegular_proof.tla": "0bebedcf4a56e72ee29bf71aa6bc97f7e48ccc3bac18aca3db39829b3b789386",
+            "Simple_proof.tla": "f2e5348593cd1b4e4107c591442c1b625146f6907189013c822440d67c84d1af"
+          }
+        }
+      },
+      {
+        "bench": "MCbtree",
+        "expected": {
+          "depth": 38,
+          "distinct": 374727,
+          "error_class": "TLC_SUCCESS",
+          "exit_code": 0,
+          "generated": 2820091,
+          "property": null,
+          "verdict": "success"
+        },
+        "inputs": {
+          "cfg_scope": "original pinned configuration",
+          "effective_cfg_sha256": "e7122e42b7ee004fcf7b9f80602143b0e72909b45df6e797ea89017d8a16079c",
+          "golden_sha256": "ab8b35d8fa164a7fa880b44a87b8c4f098159b80f5b2e9c450a3be9a4a89b041",
+          "model": "specifications/btree/MCbtree.cfg",
+          "module": "specifications/btree/MCbtree.tla",
+          "module_sha256": "64655fd6391422f27607da0c3d36617066249c68687d984bdb1113bc98f83ac3",
+          "scaling_population_at_least_400000_distinct": false,
+          "source_files": {
+            "MCbtree.tla": "64655fd6391422f27607da0c3d36617066249c68687d984bdb1113bc98f83ac3",
+            "btree.tla": "5f763508e82ac3173f8bd59c77dfa87da265d84a39444b5ef4d60d7985bf2fec",
+            "kvstore.tla": "c1131a8591f91c110f2a739dc91d20564542ac6f201d5b76be581e485cfbb376"
+          }
+        }
+      },
+      {
+        "bench": "CoffeeCan1000BeansSafety",
+        "expected": {
+          "depth": 1,
+          "distinct": 501500,
+          "error_class": "TLC_SUCCESS",
+          "exit_code": 0,
+          "generated": 2000002,
+          "property": null,
+          "verdict": "success"
+        },
+        "inputs": {
+          "cfg_scope": "safety variant; no original-property parity credit",
+          "effective_cfg_sha256": "96cf1b07de37ad01772f00c2b2b6de266d9b5bbd3e4690c7620d31d1242cae86",
+          "golden_sha256": "2a7d93a3b26bf4787aef4d92770b3272f9e27a52591bfec9ead92fec2f1d6d0d",
+          "model": "specifications/CoffeeCan/CoffeeCan1000Beans.cfg",
+          "module": "specifications/CoffeeCan/CoffeeCan.tla",
+          "module_sha256": "32c5d9c900104c0d8be0d3730a6013d141dc90901e08ccaea403fb0be731cd90",
+          "scaling_population_at_least_400000_distinct": true,
+          "source_files": {
+            "APCoffeeCan.tla": "1de47b998ded67418cdab386f9ddde0122dcdaf553b8cca126c670045d67dbc3",
+            "CoffeeCan.tla": "32c5d9c900104c0d8be0d3730a6013d141dc90901e08ccaea403fb0be731cd90",
+            "CoffeeCan_proof.tla": "afed664aed94d10e6cdde95895ee79b41d60a27116bdf40d08813dcc5f2b00ab"
+          }
+        }
+      },
+      {
+        "bench": "MCDisruptor_MPMC",
+        "expected": {
+          "depth": 81,
+          "distinct": 112929,
+          "error_class": "TLC_SUCCESS",
+          "exit_code": 0,
+          "generated": 422781,
+          "property": null,
+          "verdict": "success"
+        },
+        "inputs": {
+          "cfg_scope": "original pinned configuration",
+          "effective_cfg_sha256": "536a5a14deb08f933d9091a213991d634bd2f2cccf0f92e25f22fefe273b1b44",
+          "golden_sha256": "11927d4c85ea2c8e236ab9f2a17a5d800a61e60b38176d68b3da4d72af670337",
+          "model": "specifications/Disruptor/MCDisruptor_MPMC.cfg",
+          "module": "specifications/Disruptor/MCDisruptor_MPMC.tla",
+          "module_sha256": "def6ddaeb2a8bb3995421722e007e1d9b889502a8d8bd92a55f51289a1633e75",
+          "scaling_population_at_least_400000_distinct": false,
+          "source_files": {
+            "APDisruptor_MPMC.tla": "70eebb2719fbc179fce99f3593c8ef586337ebad909f9ec58bb6ed29104ac87c",
+            "APDisruptor_SPMC.tla": "f2b561d7ce07b39fd044ec5bd3e2df60d4dcbbb9fe17d3e5906138723757e23b",
+            "APRingBuffer.tla": "f470389d0efaa8fcd3f94b42e41cfd425f0556b723b307ca869f26b682a41d38",
+            "Disruptor_MPMC.tla": "24c4ea4f7d3850d19336c425d428d6bc454d269488a43c1c7327efa732fcbaa6",
+            "Disruptor_SPMC.tla": "88a5f2bdfeed1f4954d5be6eedfdaac44d5b8a8c88589dffd6ae6694220eda0b",
+            "MCDisruptor_MPMC.tla": "def6ddaeb2a8bb3995421722e007e1d9b889502a8d8bd92a55f51289a1633e75",
+            "MCDisruptor_SPMC.tla": "be3f2a2d60d4a6067b2d815822570a2f8c163b2b9b3a06b43d9a7c1f3eec4e39",
+            "RingBuffer.tla": "7284bbd3653341a7762b4842f32e54c54ba5d892bf3f719e4918aa81c71b181a"
+          }
+        }
+      },
+      {
+        "bench": "BufferedRandomAccessFile",
+        "expected": {
+          "depth": 10,
+          "distinct": 3316,
+          "error_class": "TLC_SUCCESS",
+          "exit_code": 0,
+          "generated": 128581,
+          "property": null,
+          "verdict": "success"
+        },
+        "inputs": {
+          "cfg_scope": "original pinned configuration",
+          "effective_cfg_sha256": "3b82f9554bc28097581d0a35fa1ccf9c3856308b500003c32c0a15e1cec61798",
+          "golden_sha256": "f16553c737072a3023c592060d8a54504d11ac57eb5f6b8d5e0f920cc378da06",
+          "model": "specifications/braf/BufferedRandomAccessFile.cfg",
+          "module": "specifications/braf/BufferedRandomAccessFile.tla",
+          "module_sha256": "e374d8b6dfd2e435c1936e49985e8164b7d1f0fc572c13c6fe27561250d54e40",
+          "scaling_population_at_least_400000_distinct": false,
+          "source_files": {
+            "BufferedRandomAccessFile.tla": "e374d8b6dfd2e435c1936e49985e8164b7d1f0fc572c13c6fe27561250d54e40"
+          }
+        }
+      }
+    ],
+    "models_selected": 10,
+    "runs": [
+      {
+        "arm": "tlc-w1",
+        "bench": "GameOfLife",
+        "distinct_per_cpu_s": 4126.952141057935,
+        "distinct_per_wall_s": 5437.468290444043,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            15.84,
+            15.920000000000002
+          ],
+          "cpu_s": 15.88,
+          "failed": 0,
+          "generated_per_wall_s": 10874.936580888087,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 1104.65234375,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            11.97537212,
+            12.102400451
+          ],
+          "wall_s": 12.052667988,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "dive-tlc-w1",
+        "bench": "GameOfLife",
+        "distinct_per_cpu_s": 1470.7360861759425,
+        "distinct_per_wall_s": 1469.9597528283214,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            44.550000000000004,
+            44.61000000000001
+          ],
+          "cpu_s": 44.56,
+          "failed": 0,
+          "generated_per_wall_s": 2939.9195056566427,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 81.10546875,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            44.580819819,
+            44.635121504
+          ],
+          "wall_s": 44.583533579,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "dive-default-w1",
+        "bench": "GameOfLife",
+        "distinct_per_cpu_s": 1464.1644325290438,
+        "distinct_per_wall_s": 1463.3628855127276,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            44.7,
+            44.85
+          ],
+          "cpu_s": 44.76,
+          "failed": 0,
+          "generated_per_wall_s": 2926.7257710254553,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 83.35546875,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            44.731255433,
+            44.886599157
+          ],
+          "wall_s": 44.784516984,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "tlc-w8",
+        "bench": "GameOfLife",
+        "distinct_per_cpu_s": 3508.351177730193,
+        "distinct_per_wall_s": 24967.296017607747,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            18.24,
+            20.71
+          ],
+          "cpu_s": 18.68,
+          "failed": 0,
+          "generated_per_wall_s": 49934.59203521549,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 1108.4375,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            2.573890386,
+            2.845691914
+          ],
+          "wall_s": 2.624873753,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      },
+      {
+        "arm": "dive-tlc-w8",
+        "bench": "GameOfLife",
+        "distinct_per_cpu_s": 1394.3829787234042,
+        "distinct_per_wall_s": 10303.791112088018,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            46.86,
+            47.39
+          ],
+          "cpu_s": 47.0,
+          "failed": 0,
+          "generated_per_wall_s": 20607.582224176036,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 89.5703125,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            6.280057373,
+            6.385295383
+          ],
+          "wall_s": 6.360377388,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      },
+      {
+        "arm": "dive-default-w8",
+        "bench": "GameOfLife",
+        "distinct_per_cpu_s": 1381.159114857745,
+        "distinct_per_wall_s": 9950.903684297067,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            47.050000000000004,
+            47.82
+          ],
+          "cpu_s": 47.45,
+          "failed": 0,
+          "generated_per_wall_s": 19901.807368594134,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 89.5546875,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            6.535545535,
+            6.706242752
+          ],
+          "wall_s": 6.585934512,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      },
+      {
+        "arm": "tlc-w1",
+        "bench": "TLCSailfish1",
+        "distinct_per_cpu_s": 1845.8066689120915,
+        "distinct_per_wall_s": 2129.6755192039177,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            59.01,
+            61.120000000000005
+          ],
+          "cpu_s": 59.38,
+          "failed": 0,
+          "generated_per_wall_s": 6104.0179765774565,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 1085.71875,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            51.01173064,
+            52.644730535
+          ],
+          "wall_s": 51.465117109,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "dive-tlc-w1",
+        "bench": "TLCSailfish1",
+        "distinct_per_cpu_s": 768.6115007012623,
+        "distinct_per_wall_s": 768.8002190291145,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            142.5,
+            142.70999999999998
+          ],
+          "cpu_s": 142.6,
+          "failed": 0,
+          "generated_per_wall_s": 2203.5142513656633,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 270.734375,
+          "sequential_reasons": [
+            "sequential mode: the specification uses Sequences!\\o (runtime names require TLC encounter order)",
+            "sequential mode: the specification uses Sequences!\\o (runtime names require TLC encounter order)",
+            "sequential mode: the specification uses Sequences!\\o (runtime names require TLC encounter order)",
+            "sequential mode: the specification uses Sequences!\\o (runtime names require TLC encounter order)",
+            "sequential mode: the specification uses Sequences!\\o (runtime names require TLC encounter order)"
+          ],
+          "wall_range_s": [
+            142.463818222,
+            142.675039092
+          ],
+          "wall_s": 142.564995804,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "dive-default-w1",
+        "bench": "TLCSailfish1",
+        "distinct_per_cpu_s": 767.0515781370285,
+        "distinct_per_wall_s": 767.2699553393252,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            142.84,
+            143.04000000000002
+          ],
+          "cpu_s": 142.89,
+          "failed": 0,
+          "generated_per_wall_s": 2199.1282512510215,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 632.8828125,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            142.811813824,
+            142.989721785
+          ],
+          "wall_s": 142.849331239,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "tlc-w8",
+        "bench": "TLCSailfish1",
+        "distinct_per_cpu_s": 1639.7965290245365,
+        "distinct_per_wall_s": 13372.389400491911,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            65.84,
+            67.58
+          ],
+          "cpu_s": 66.83999999999999,
+          "failed": 0,
+          "generated_per_wall_s": 38327.57833498897,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 1349.1015625,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            8.017504751,
+            8.243110541
+          ],
+          "wall_s": 8.196291382,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      },
+      {
+        "arm": "dive-tlc-w8",
+        "bench": "TLCSailfish1",
+        "distinct_per_cpu_s": 768.6654043060523,
+        "distinct_per_wall_s": 768.9325549874436,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            142.53,
+            143.44
+          ],
+          "cpu_s": 142.59,
+          "failed": 0,
+          "generated_per_wall_s": 2203.893549085576,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 270.84375,
+          "sequential_reasons": [
+            "sequential mode: the specification uses Sequences!\\o (runtime names require TLC encounter order)",
+            "sequential mode: the specification uses Sequences!\\o (runtime names require TLC encounter order)",
+            "sequential mode: the specification uses Sequences!\\o (runtime names require TLC encounter order)",
+            "sequential mode: the specification uses Sequences!\\o (runtime names require TLC encounter order)",
+            "sequential mode: the specification uses Sequences!\\o (runtime names require TLC encounter order)"
+          ],
+          "wall_range_s": [
+            142.496341297,
+            143.392765505
+          ],
+          "wall_s": 142.540459874,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "dive-default-w8",
+        "bench": "TLCSailfish1",
+        "distinct_per_cpu_s": 596.7116724738676,
+        "distinct_per_wall_s": 4612.682132158425,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            182.64,
+            187.07
+          ],
+          "cpu_s": 183.68,
+          "failed": 0,
+          "generated_per_wall_s": 13220.743911944603,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 642.99609375,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            23.63457137,
+            24.259288544
+          ],
+          "wall_s": 23.761446564,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      },
+      {
+        "arm": "tlc-w1",
+        "bench": "EWD998PCal",
+        "distinct_per_cpu_s": 6206.4503669370415,
+        "distinct_per_wall_s": 7668.096733851417,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            51.550000000000004,
+            51.96
+          ],
+          "cpu_s": 51.78,
+          "failed": 0,
+          "generated_per_wall_s": 67010.15090071065,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 1227.70703125,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            41.758990171,
+            42.214008589
+          ],
+          "wall_s": 41.910008592,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "dive-tlc-w1",
+        "bench": "EWD998PCal",
+        "distinct_per_cpu_s": 1892.972845614655,
+        "distinct_per_wall_s": 1893.4294616151385,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            169.57000000000002,
+            169.83999999999997
+          ],
+          "cpu_s": 169.77,
+          "failed": 0,
+          "generated_per_wall_s": 16546.3475939948,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 147.765625,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            169.505879768,
+            169.781907698
+          ],
+          "wall_s": 169.729058576,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "dive-default-w1",
+        "bench": "EWD998PCal",
+        "distinct_per_cpu_s": 1930.3820278712158,
+        "distinct_per_wall_s": 1931.0975024537668,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            166.34,
+            167.25
+          ],
+          "cpu_s": 166.48,
+          "failed": 0,
+          "generated_per_wall_s": 16875.52198867707,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 141.11328125,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            166.269997163,
+            167.173626133
+          ],
+          "wall_s": 166.418318905,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "tlc-w8",
+        "bench": "EWD998PCal",
+        "distinct_per_cpu_s": 5110.846055979644,
+        "distinct_per_wall_s": 42197.31516040354,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            61.67,
+            65.25
+          ],
+          "cpu_s": 62.879999999999995,
+          "failed": 0,
+          "generated_per_wall_s": 368754.92767593946,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 1445.40234375,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            7.366018815,
+            7.8903318559999995
+          ],
+          "wall_s": 7.61588738,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      },
+      {
+        "arm": "dive-tlc-w8",
+        "bench": "EWD998PCal",
+        "distinct_per_cpu_s": 1025.430759412891,
+        "distinct_per_wall_s": 7977.5975631788615,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            304.36,
+            339.08
+          ],
+          "cpu_s": 313.4,
+          "failed": 0,
+          "generated_per_wall_s": 69714.82430233457,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 161.79296875,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            39.154422787,
+            43.517883163
+          ],
+          "wall_s": 40.284057632,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      },
+      {
+        "arm": "dive-default-w8",
+        "bench": "EWD998PCal",
+        "distinct_per_cpu_s": 968.8281933013776,
+        "distinct_per_wall_s": 7545.56998485241,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            326.25,
+            355.79999999999995
+          ],
+          "cpu_s": 331.71000000000004,
+          "failed": 0,
+          "generated_per_wall_s": 65939.41115592486,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 165.19140625,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            41.888331138,
+            45.61813043
+          ],
+          "wall_s": 42.590553218,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      },
+      {
+        "arm": "tlc-w1",
+        "bench": "MCBakery",
+        "distinct_per_cpu_s": 34249.869315211705,
+        "distinct_per_wall_s": 58897.658103452886,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            18.97,
+            19.380000000000003
+          ],
+          "cpu_s": 19.130000000000003,
+          "failed": 0,
+          "generated_per_wall_s": 305957.1531721346,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 1265.15234375,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            11.097803226,
+            11.248379546
+          ],
+          "wall_s": 11.124381191,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "dive-tlc-w1",
+        "bench": "MCBakery",
+        "distinct_per_cpu_s": 19711.191335740074,
+        "distinct_per_wall_s": 19677.614661732732,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            33.22,
+            33.34
+          ],
+          "cpu_s": 33.239999999999995,
+          "failed": 0,
+          "generated_per_wall_s": 102219.80222960767,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 233.171875,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            33.246942639,
+            33.373176834
+          ],
+          "wall_s": 33.296718696,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "dive-default-w1",
+        "bench": "MCBakery",
+        "distinct_per_cpu_s": 20906.190172303766,
+        "distinct_per_wall_s": 20872.663525780223,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            31.31,
+            31.39
+          ],
+          "cpu_s": 31.34,
+          "failed": 0,
+          "generated_per_wall_s": 108427.75276820689,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 230.96875,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            31.340691036,
+            31.441468902
+          ],
+          "wall_s": 31.390339771,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "tlc-w8",
+        "bench": "MCBakery",
+        "distinct_per_cpu_s": 25248.5549132948,
+        "distinct_per_wall_s": 84097.17916384754,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            25.8,
+            26.14
+          ],
+          "cpu_s": 25.95,
+          "failed": 0,
+          "generated_per_wall_s": 436861.7421355386,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 1288.13671875,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            7.789139103,
+            7.863765639
+          ],
+          "wall_s": 7.790986648,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      },
+      {
+        "arm": "dive-tlc-w8",
+        "bench": "MCBakery",
+        "distinct_per_cpu_s": 12338.983050847459,
+        "distinct_per_wall_s": 29533.09199926974,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            52.169999999999995,
+            56.779999999999994
+          ],
+          "cpu_s": 53.099999999999994,
+          "failed": 0,
+          "generated_per_wall_s": 153416.29944939332,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 241.3125,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            22.084716735,
+            22.637147986
+          ],
+          "wall_s": 22.185282869,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      },
+      {
+        "arm": "dive-default-w8",
+        "bench": "MCBakery",
+        "distinct_per_cpu_s": 12084.101807451125,
+        "distinct_per_wall_s": 30144.759786572766,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            51.96,
+            55.84
+          ],
+          "cpu_s": 54.22,
+          "failed": 0,
+          "generated_per_wall_s": 156593.74556383162,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 241.3125,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            21.483301788,
+            21.935001753
+          ],
+          "wall_s": 21.735120951,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      },
+      {
+        "arm": "tlc-w1",
+        "bench": "MCLamportMutex",
+        "distinct_per_cpu_s": 26686.588061901253,
+        "distinct_per_wall_s": 42626.72131318557,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            27.0,
+            27.27
+          ],
+          "cpu_s": 27.14,
+          "failed": 0,
+          "generated_per_wall_s": 160618.34329917567,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 1270.95703125,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            16.966316984,
+            17.116334971
+          ],
+          "wall_s": 16.99107925,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "dive-tlc-w1",
+        "bench": "MCLamportMutex",
+        "distinct_per_cpu_s": 14168.114241001565,
+        "distinct_per_wall_s": 14155.69565328842,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            51.089999999999996,
+            51.160000000000004
+          ],
+          "cpu_s": 51.12,
+          "failed": 0,
+          "generated_per_wall_s": 53338.94594832992,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 162.5859375,
+          "sequential_reasons": [
+            "sequential mode: the specification uses Sequences!Tail (runtime names require TLC encounter order)",
+            "sequential mode: the specification uses Sequences!Tail (runtime names require TLC encounter order)",
+            "sequential mode: the specification uses Sequences!Tail (runtime names require TLC encounter order)",
+            "sequential mode: the specification uses Sequences!Tail (runtime names require TLC encounter order)",
+            "sequential mode: the specification uses Sequences!Tail (runtime names require TLC encounter order)"
+          ],
+          "wall_range_s": [
+            51.115320931,
+            51.215847969
+          ],
+          "wall_s": 51.164846839,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "dive-default-w1",
+        "bench": "MCLamportMutex",
+        "distinct_per_cpu_s": 13525.191409897292,
+        "distinct_per_wall_s": 13513.055605171745,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            53.449999999999996,
+            53.58
+          ],
+          "cpu_s": 53.550000000000004,
+          "failed": 0,
+          "generated_per_wall_s": 50917.465321006275,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 298.41015625,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            53.471275518,
+            53.621882996
+          ],
+          "wall_s": 53.598092183,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "tlc-w8",
+        "bench": "MCLamportMutex",
+        "distinct_per_cpu_s": 20640.467369620972,
+        "distinct_per_wall_s": 166113.85440838098,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            34.67,
+            35.29
+          ],
+          "cpu_s": 35.09,
+          "failed": 0,
+          "generated_per_wall_s": 625920.3446140134,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 1327.9453125,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            4.35727142,
+            4.382586097
+          ],
+          "wall_s": 4.36010592,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      },
+      {
+        "arm": "dive-tlc-w8",
+        "bench": "MCLamportMutex",
+        "distinct_per_cpu_s": 14137.692758149522,
+        "distinct_per_wall_s": 14128.102013441196,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            51.12,
+            51.309999999999995
+          ],
+          "cpu_s": 51.23,
+          "failed": 0,
+          "generated_per_wall_s": 53234.97255836891,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 162.39453125,
+          "sequential_reasons": [
+            "sequential mode: the specification uses Sequences!Tail (runtime names require TLC encounter order)",
+            "sequential mode: the specification uses Sequences!Tail (runtime names require TLC encounter order)",
+            "sequential mode: the specification uses Sequences!Tail (runtime names require TLC encounter order)",
+            "sequential mode: the specification uses Sequences!Tail (runtime names require TLC encounter order)",
+            "sequential mode: the specification uses Sequences!Tail (runtime names require TLC encounter order)"
+          ],
+          "wall_range_s": [
+            51.164906522,
+            51.36620587
+          ],
+          "wall_s": 51.26477706,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "dive-default-w8",
+        "bench": "MCLamportMutex",
+        "distinct_per_cpu_s": 8122.3954244701135,
+        "distinct_per_wall_s": 57926.76023782176,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            88.94,
+            92.47
+          ],
+          "cpu_s": 89.17,
+          "failed": 0,
+          "generated_per_wall_s": 218269.19771118995,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 331.0859375,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            12.477805726,
+            12.931104084
+          ],
+          "wall_s": 12.503271321,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      },
+      {
+        "arm": "tlc-w1",
+        "bench": "SimpleRegular",
+        "distinct_per_cpu_s": 26807.528957528953,
+        "distinct_per_wall_s": 50887.73071438788,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            10.31,
+            10.37
+          ],
+          "cpu_s": 10.360000000000001,
+          "failed": 0,
+          "generated_per_wall_s": 266558.58413599856,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 1138.6328125,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            5.433267728,
+            5.458038383
+          ],
+          "wall_s": 5.457622026,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "dive-tlc-w1",
+        "bench": "SimpleRegular",
+        "distinct_per_cpu_s": 17746.070287539937,
+        "distinct_per_wall_s": 17675.823233018033,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            15.64,
+            15.69
+          ],
+          "cpu_s": 15.65,
+          "failed": 0,
+          "generated_per_wall_s": 92588.96689412242,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 192.41015625,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            15.687554572,
+            15.737330346
+          ],
+          "wall_s": 15.712196051,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "dive-default-w1",
+        "bench": "SimpleRegular",
+        "distinct_per_cpu_s": 18199.606815203144,
+        "distinct_per_wall_s": 18138.295077425224,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            15.25,
+            15.28
+          ],
+          "cpu_s": 15.26,
+          "failed": 0,
+          "generated_per_wall_s": 95011.47303297622,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 186.90234375,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            15.311295922,
+            15.33619252
+          ],
+          "wall_s": 15.311582418,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "tlc-w8",
+        "bench": "SimpleRegular",
+        "distinct_per_cpu_s": 17489.04282115869,
+        "distinct_per_wall_s": 119547.6444650471,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            15.379999999999999,
+            17.0
+          ],
+          "cpu_s": 15.879999999999999,
+          "failed": 0,
+          "generated_per_wall_s": 626210.8841962343,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 1191.18359375,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            2.273383787,
+            2.398780139
+          ],
+          "wall_s": 2.323140713,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      },
+      {
+        "arm": "dive-tlc-w8",
+        "bench": "SimpleRegular",
+        "distinct_per_cpu_s": 7721.045315540729,
+        "distinct_per_wall_s": 57180.51534773407,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            33.919999999999995,
+            39.08
+          ],
+          "cpu_s": 35.97,
+          "failed": 0,
+          "generated_per_wall_s": 299521.2597866789,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 233.87890625,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            4.605270047,
+            5.257365789
+          ],
+          "wall_s": 4.857004144,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      },
+      {
+        "arm": "dive-default-w8",
+        "bench": "SimpleRegular",
+        "distinct_per_cpu_s": 8292.80382203643,
+        "distinct_per_wall_s": 60961.430003120746,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            33.31,
+            37.629999999999995
+          ],
+          "cpu_s": 33.489999999999995,
+          "failed": 0,
+          "generated_per_wall_s": 319326.33348775405,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 225.703125,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            4.530301667,
+            5.057008744
+          ],
+          "wall_s": 4.555765834,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      },
+      {
+        "arm": "tlc-w1",
+        "bench": "MCbtree",
+        "distinct_per_cpu_s": 7291.827203736136,
+        "distinct_per_wall_s": 9177.418030367659,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            51.059999999999995,
+            51.9
+          ],
+          "cpu_s": 51.39,
+          "failed": 0,
+          "generated_per_wall_s": 69066.69119299533,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 1146.4296875,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            40.660816037000004,
+            41.109857704
+          ],
+          "wall_s": 40.831418898,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "dive-tlc-w1",
+        "bench": "MCbtree",
+        "distinct_per_cpu_s": 4266.017759562841,
+        "distinct_per_wall_s": 4265.90327090702,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            87.74,
+            87.95
+          ],
+          "cpu_s": 87.84,
+          "failed": 0,
+          "generated_per_wall_s": 32103.999501384875,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 137.0859375,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            87.736148856,
+            87.964378965
+          ],
+          "wall_s": 87.842357457,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "dive-default-w1",
+        "bench": "MCbtree",
+        "distinct_per_cpu_s": 6590.344706296166,
+        "distinct_per_wall_s": 6586.975568962388,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            56.82,
+            57.0
+          ],
+          "cpu_s": 56.86,
+          "failed": 0,
+          "generated_per_wall_s": 49571.74294686721,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 144.6171875,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            56.86491928,
+            57.045060967
+          ],
+          "wall_s": 56.889083021,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "tlc-w8",
+        "bench": "MCbtree",
+        "distinct_per_cpu_s": 5657.964668579193,
+        "distinct_per_wall_s": 47493.89616640889,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            65.45,
+            67.50999999999999
+          ],
+          "cpu_s": 66.23,
+          "failed": 0,
+          "generated_per_wall_s": 357425.83036136767,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 1291.1171875,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            7.76445681,
+            7.914039461
+          ],
+          "wall_s": 7.890003353,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      },
+      {
+        "arm": "dive-tlc-w8",
+        "bench": "MCbtree",
+        "distinct_per_cpu_s": 3168.1349340547854,
+        "distinct_per_wall_s": 24197.17687724284,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            117.08000000000001,
+            119.47
+          ],
+          "cpu_s": 118.28,
+          "failed": 0,
+          "generated_per_wall_s": 182101.21164720086,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 169.43359375,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            15.335417357,
+            15.636767945
+          ],
+          "wall_s": 15.486393388,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      },
+      {
+        "arm": "dive-default-w8",
+        "bench": "MCbtree",
+        "distinct_per_cpu_s": 4418.4294304916875,
+        "distinct_per_wall_s": 33609.68832974274,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            84.7,
+            86.5
+          ],
+          "cpu_s": 84.81,
+          "failed": 0,
+          "generated_per_wall_s": 252937.15043621763,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 163.14453125,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            11.148456671,
+            11.374482633
+          ],
+          "wall_s": 11.14937444,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      },
+      {
+        "arm": "tlc-w1",
+        "bench": "CoffeeCan1000BeansSafety",
+        "distinct_per_cpu_s": 96814.67181467182,
+        "distinct_per_wall_s": 220614.06674819757,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            5.0600000000000005,
+            5.2
+          ],
+          "cpu_s": 5.18,
+          "failed": 0,
+          "generated_per_wall_s": 879817.6963599774,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 797.74609375,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            2.223359424,
+            2.298401459
+          ],
+          "wall_s": 2.273200469,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "dive-tlc-w1",
+        "bench": "CoffeeCan1000BeansSafety",
+        "distinct_per_cpu_s": 104261.95426195428,
+        "distinct_per_wall_s": 103249.17860419635,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            4.8,
+            4.81
+          ],
+          "cpu_s": 4.81,
+          "failed": 0,
+          "generated_per_wall_s": 411761.84188783634,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 147.4921875,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            4.857008146,
+            4.882227941
+          ],
+          "wall_s": 4.857181498,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "dive-default-w1",
+        "bench": "CoffeeCan1000BeansSafety",
+        "distinct_per_cpu_s": 103830.22774327124,
+        "distinct_per_wall_s": 102716.79781551508,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            4.819999999999999,
+            4.84
+          ],
+          "cpu_s": 4.829999999999999,
+          "failed": 0,
+          "generated_per_wall_s": 409638.6860710385,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 147.1796875,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            4.881974203,
+            4.907179705
+          ],
+          "wall_s": 4.882356252,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "tlc-w8",
+        "bench": "CoffeeCan1000BeansSafety",
+        "distinct_per_cpu_s": 55722.22222222222,
+        "distinct_per_wall_s": 294865.322345421,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            8.63,
+            9.84
+          ],
+          "cpu_s": 9.0,
+          "failed": 0,
+          "generated_per_wall_s": 1175934.6648484282,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 797.37109375,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            1.67527765,
+            1.7736748310000001
+          ],
+          "wall_s": 1.700776463,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      },
+      {
+        "arm": "dive-tlc-w8",
+        "bench": "CoffeeCan1000BeansSafety",
+        "distinct_per_cpu_s": 31963.033779477377,
+        "distinct_per_wall_s": 172892.77754398028,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            13.33,
+            16.16
+          ],
+          "cpu_s": 15.69,
+          "failed": 0,
+          "generated_per_wall_s": 689503.2918714171,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 155.18359375,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            2.624455582,
+            2.975604733
+          ],
+          "wall_s": 2.900641699,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      },
+      {
+        "arm": "dive-default-w8",
+        "bench": "CoffeeCan1000BeansSafety",
+        "distinct_per_cpu_s": 32024.2656449553,
+        "distinct_per_wall_s": 169981.3225099034,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            13.54,
+            16.02
+          ],
+          "cpu_s": 15.66,
+          "failed": 0,
+          "generated_per_wall_s": 677892.2930856468,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 154.62890625,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            2.649667568,
+            2.975643512
+          ],
+          "wall_s": 2.9503241449999997,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      },
+      {
+        "arm": "tlc-w1",
+        "bench": "MCDisruptor_MPMC",
+        "distinct_per_cpu_s": 14151.503759398496,
+        "distinct_per_wall_s": 25380.33515733481,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            7.91,
+            8.18
+          ],
+          "cpu_s": 7.98,
+          "failed": 0,
+          "generated_per_wall_s": 95018.31662507566,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 1043.21484375,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            4.4241981280000005,
+            4.455115973
+          ],
+          "wall_s": 4.449468429,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "dive-tlc-w1",
+        "bench": "MCDisruptor_MPMC",
+        "distinct_per_cpu_s": 11093.222003929273,
+        "distinct_per_wall_s": 11048.097158067412,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            10.17,
+            10.2
+          ],
+          "cpu_s": 10.18,
+          "failed": 0,
+          "generated_per_wall_s": 41361.61273530182,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 53.6796875,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            10.22089236,
+            10.271037531
+          ],
+          "wall_s": 10.22157919,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "dive-default-w1",
+        "bench": "MCDisruptor_MPMC",
+        "distinct_per_cpu_s": 11315.531062124248,
+        "distinct_per_wall_s": 11241.726801854204,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            9.98,
+            9.99
+          ],
+          "cpu_s": 9.98,
+          "failed": 0,
+          "generated_per_wall_s": 42086.51895451764,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 53.80859375,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            10.036009546,
+            10.04622765
+          ],
+          "wall_s": 10.045520763,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "tlc-w8",
+        "bench": "MCDisruptor_MPMC",
+        "distinct_per_cpu_s": 9602.80612244898,
+        "distinct_per_wall_s": 70791.94208852669,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            11.28,
+            11.98
+          ],
+          "cpu_s": 11.76,
+          "failed": 0,
+          "generated_per_wall_s": 265029.24906914437,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 1071.04296875,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            1.5919139169999998,
+            1.6176271500000001
+          ],
+          "wall_s": 1.5952239289999999,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      },
+      {
+        "arm": "dive-tlc-w8",
+        "bench": "MCDisruptor_MPMC",
+        "distinct_per_cpu_s": 6501.381692573402,
+        "distinct_per_wall_s": 46130.52362730041,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            17.189999999999998,
+            17.89
+          ],
+          "cpu_s": 17.37,
+          "failed": 0,
+          "generated_per_wall_s": 172702.39628150163,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 65.359375,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            2.422403826,
+            2.5233311990000002
+          ],
+          "wall_s": 2.448032043,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      },
+      {
+        "arm": "dive-default-w8",
+        "bench": "MCDisruptor_MPMC",
+        "distinct_per_cpu_s": 6401.87074829932,
+        "distinct_per_wall_s": 45209.0557569455,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            17.03,
+            17.819999999999997
+          ],
+          "cpu_s": 17.639999999999997,
+          "failed": 0,
+          "generated_per_wall_s": 169252.62600374725,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 65.7890625,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            2.423014984,
+            2.498213339
+          ],
+          "wall_s": 2.497928747,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      },
+      {
+        "arm": "tlc-w1",
+        "bench": "BufferedRandomAccessFile",
+        "distinct_per_cpu_s": 60.19241241604647,
+        "distinct_per_wall_s": 65.88577397703109,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            54.14,
+            55.85
+          ],
+          "cpu_s": 55.089999999999996,
+          "failed": 0,
+          "generated_per_wall_s": 2554.7824800182857,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 1096.39453125,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            49.353232531,
+            51.083875602
+          ],
+          "wall_s": 50.329529424,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "dive-tlc-w1",
+        "bench": "BufferedRandomAccessFile",
+        "distinct_per_cpu_s": 17.520870759801333,
+        "distinct_per_wall_s": 17.529248238349215,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            188.9,
+            195.39
+          ],
+          "cpu_s": 189.26,
+          "failed": 0,
+          "generated_per_wall_s": 679.7129878574126,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 29.19921875,
+          "sequential_reasons": [
+            "sequential mode: the specification uses Sequences!SubSeq (runtime names require TLC encounter order) (and 1 more)",
+            "sequential mode: the specification uses Sequences!SubSeq (runtime names require TLC encounter order) (and 1 more)",
+            "sequential mode: the specification uses Sequences!SubSeq (runtime names require TLC encounter order) (and 1 more)",
+            "sequential mode: the specification uses Sequences!SubSeq (runtime names require TLC encounter order) (and 1 more)",
+            "sequential mode: the specification uses Sequences!SubSeq (runtime names require TLC encounter order) (and 1 more)"
+          ],
+          "wall_range_s": [
+            188.79699437,
+            195.282737164
+          ],
+          "wall_s": 189.169549938,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "dive-default-w1",
+        "bench": "BufferedRandomAccessFile",
+        "distinct_per_cpu_s": 17.643928913483023,
+        "distinct_per_wall_s": 17.652530929437802,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            187.4,
+            188.4
+          ],
+          "cpu_s": 187.94000000000003,
+          "failed": 0,
+          "generated_per_wall_s": 684.4933894565868,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 30.83203125,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            187.302917268,
+            188.309952523
+          ],
+          "wall_s": 187.848417502,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "tlc-w8",
+        "bench": "BufferedRandomAccessFile",
+        "distinct_per_cpu_s": 52.327599810635945,
+        "distinct_per_wall_s": 414.02140672787266,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            60.94,
+            64.53
+          ],
+          "cpu_s": 63.370000000000005,
+          "failed": 0,
+          "generated_per_wall_s": 16054.067098454945,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 1152.2109375,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            7.760115317,
+            8.158915401
+          ],
+          "wall_s": 8.009247701,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      },
+      {
+        "arm": "dive-tlc-w8",
+        "bench": "BufferedRandomAccessFile",
+        "distinct_per_cpu_s": 17.53476812437206,
+        "distinct_per_wall_s": 17.543154989782547,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            188.9,
+            189.67000000000002
+          ],
+          "cpu_s": 189.10999999999999,
+          "failed": 0,
+          "generated_per_wall_s": 680.2522351451236,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 29.16015625,
+          "sequential_reasons": [
+            "sequential mode: the specification uses Sequences!SubSeq (runtime names require TLC encounter order) (and 1 more)",
+            "sequential mode: the specification uses Sequences!SubSeq (runtime names require TLC encounter order) (and 1 more)",
+            "sequential mode: the specification uses Sequences!SubSeq (runtime names require TLC encounter order) (and 1 more)",
+            "sequential mode: the specification uses Sequences!SubSeq (runtime names require TLC encounter order) (and 1 more)",
+            "sequential mode: the specification uses Sequences!SubSeq (runtime names require TLC encounter order) (and 1 more)"
+          ],
+          "wall_range_s": [
+            188.821622009,
+            189.569759377
+          ],
+          "wall_s": 189.019592082,
+          "workers_used": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "arm": "dive-default-w8",
+        "bench": "BufferedRandomAccessFile",
+        "distinct_per_cpu_s": 11.200432344794976,
+        "distinct_per_wall_s": 86.93505416546331,
+        "statistics": {
+          "censored": 0,
+          "completed": 5,
+          "cpu_range_s": [
+            271.16999999999996,
+            319.38
+          ],
+          "cpu_s": 296.05999999999995,
+          "failed": 0,
+          "generated_per_wall_s": 3370.987997481737,
+          "intended": 5,
+          "missing": 0,
+          "refused": 0,
+          "rss_mb": 40.71484375,
+          "sequential_reasons": [],
+          "wall_range_s": [
+            35.03369407,
+            41.101513639
+          ],
+          "wall_s": 38.143416736,
+          "workers_used": [
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      }
+    ],
+    "target_acceptance": "not-assessed"
+  }
+}
