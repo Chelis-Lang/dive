@@ -180,7 +180,11 @@ pub(crate) fn check_set(heap: &Heap, elems: &[Handle]) -> Result<(), Error> {
 
 #[cfg(test)]
 mod tests {
-    #![allow(clippy::unwrap_used, reason = "tests")]
+    #![allow(
+        clippy::unwrap_used,
+        clippy::many_single_char_names,
+        reason = "tests over short value names"
+    )]
     use std::sync::Arc;
 
     use super::*;
