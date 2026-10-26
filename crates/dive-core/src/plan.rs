@@ -312,14 +312,45 @@ pub enum GNode {
         /// The set.
         set: P,
     },
-    /// `UNCHANGED <<x, y, ...>>`, flattened to variables in order.
-    Unchanged(Box<[u16]>),
-    /// `[A]_v` with `v` a tuple of variables.
+    /// `x' \in S` where TLC's `elements()` of `S` may list an element more
+    /// than once (a lazy union, `05-successor-generation.md` §6): `raw`
+    /// reproduces TLC's multiplicity, and the run refuses when it differs
+    /// from the normalized set's.
+    AssignInRaw {
+        /// The variable.
+        var: u16,
+        /// The set.
+        set: P,
+        /// TLC's `elements()` structure.
+        raw: Raw,
+    },
+    /// `UNCHANGED e`, decomposed by TLC's `processUnchanged` into items in
+    /// order.
+    Unchanged(Box<[Unch]>),
+    /// `[A]_v`: `A`, then `UNCHANGED v`.
     StepBox {
         /// `A`
         action: G,
-        /// `v`, flattened.
-        vars: Box<[u16]>,
+        /// `v`, decomposed.
+        vars: Box<[Unch]>,
+    },
+    /// `<<A>>_v`: `A`, then a `CHANGED v` item.
+    StepAngle {
+        /// `A`
+        action: G,
+        /// `v = v'`, evaluated with `v` in `s0` and `v'` in `s1`.
+        same: P,
+    },
+    /// `f[a]` used as an action, where `f` is a function constructor TLC
+    /// keeps lazy (`FcnLambdaValue`, `Tool.getFcnContext`): the body is
+    /// enumerated with the parameters bound to the argument.
+    FcnAction {
+        /// The parameters, one group per bound.
+        binds: Box<[Bind]>,
+        /// The argument.
+        arg: P,
+        /// The body.
+        body: G,
     },
     /// Thunk slots reset around a body (inlined operator or `LET`).
     Scope {
@@ -330,6 +361,54 @@ pub enum GNode {
     },
     /// Any other formula: a boolean guard.
     Guard(P),
+}
+
+/// One item of a decomposed `UNCHANGED` (TLC's `processUnchanged`).
+#[derive(Clone, Copy, Debug)]
+pub enum Unch {
+    /// A state variable: bound to its old value, or compared with it. `at`
+    /// is the expression TLC's warning 2143 names.
+    Var {
+        /// The variable.
+        var: u16,
+        /// Where it is written: the `ExprId` index.
+        at: u32,
+    },
+    /// Any other expression: `e = e'`, with `e` in `s0` and `e'` in `s1`
+    /// (`verifyUnchanged`).
+    Verify(P),
+}
+
+/// TLC's `Enumerable.elements()` multiplicity of a set bound by `x' \in S`
+/// (`05-successor-generation.md` §6).
+#[derive(Clone, Debug)]
+pub enum Raw {
+    /// A set whose `elements()` lists every element once.
+    Leaf(P),
+    /// `SetCupValue`: the first set's elements, then the second's.
+    Cup(Box<Raw>, Box<Raw>),
+    /// `UnionValue` of an enumerated set of sets: each distinct member's
+    /// elements in turn.
+    Union(Box<[Raw]>),
+    /// `UnionValue` of another set of sets: each member's elements in turn.
+    UnionOf(P),
+    /// `SetPredValue`: the bound set's elements, filtered.
+    Filter {
+        /// The bound variable (its domain is `inner`).
+        bind: Bind,
+        /// The predicate.
+        pred: P,
+        /// The bound set.
+        inner: Box<Raw>,
+    },
+    /// `SetCapValue`: the enumerable operand's elements, filtered by
+    /// membership in the other.
+    Cap(Box<Raw>, Box<Raw>, P, P),
+    /// `SetDiffValue`: the first operand's elements not in the second.
+    Minus(Box<Raw>, P),
+    /// An odometer over components (`[D -> R]`, records, products): an
+    /// element repeats when a component's does.
+    Odometer(Box<[Raw]>, P),
 }
 
 /// A recursive operator, compiled once with its own frame.
@@ -422,6 +501,8 @@ pub struct Plan {
     pub invariants: Vec<Check>,
     /// `CONSTRAINT`s.
     pub constraints: Vec<Check>,
+    /// `ACTION_CONSTRAINT`s.
+    pub action_constraints: Vec<Check>,
     /// Whether deadlock is checked.
     pub check_deadlock: bool,
     /// Compile statistics.

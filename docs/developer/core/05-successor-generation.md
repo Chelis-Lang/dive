@@ -1,7 +1,8 @@
 # Successor generation
 
-Status: M0 spike implemented in `crates/dive-core/src/generate.rs` on
-`core/m0-spike`, for the constructs of the spike models. This document
+Status: M1 stream 3. `crates/dive-core/src/generate.rs` implements every rule
+of section 4 except `ENABLED` and INSTANCE (stream 2). The rule fixtures and
+TLC probes run in `crates/dive-api/tests/core_rules.rs` (section 10). This document
 specifies how TLC enumerates initial states and successors. The new core must
 reproduce that enumeration exactly. The document also covers how the new core
 generates, hashes and deduplicates successors without changing any count.
@@ -823,25 +824,72 @@ engine on any path:
 
 ## 10. Next step
 
-M0 implements the rules of sections 3 and 4 that the spike models use:
-- conjunction lists with continuations, `\/`, `\E` and `\A` (in TLC's
-  binding order), and `IF`, `CASE` and `=>`;
-- `x' = e` and `x' \in S`, with a filter streamed from its bound set;
-- `UNCHANGED` of variable tuples, and `[A]_v`;
-- the all-assigned shortcut, and initial-state enumeration over the same
-  generator.
+**Done (M0).** Conjunction lists with continuations, `\/`, `\E` and `\A` (in
+TLC's binding order), `IF`, `CASE` and `=>`; `x' = e` and `x' \in S`, with a
+filter streamed from its bound set; `UNCHANGED` of variable tuples and `[A]_v`;
+the all-assigned shortcut, and initial-state enumeration over the same
+generator.
 
-It refuses `x' \in` a union, where TLC's multiplicity is not reproduced, and
-`x' \subseteq S`. Its generated counts equal TLC's on all four spike models
-and on the fixtures (`m0-results.md`). Enumeration uses canonical order, not
-TLC's order. Counts do not depend on it at one worker, but traces and runtime
-names will.
+**Done (M1, `core/engine-getnext`).**
+- `<<A>>_v` (a `CHANGED` continuation item), and the boolean forms of `[A]_v`
+  and `<<A>>_v` that the shortcut evaluates (`A \/ v' = v`, `A /\ v' # v`).
+- `UNCHANGED e` decomposed as `processUnchanged` does: variables, tuples
+  (nested), zero-arity definitions and arguments are followed; any other
+  expression is verified (`e = e'`, with `e'` read from `s1`). Warning 2143 is
+  reported once per variable and site, with TLC's text, through the report's
+  `output`, as the reference engine does.
+- `x' \subseteq S` as `x' \in SUBSET S` (normalized; membership when
+  assigned).
+- `f[a]` as an action over a function constructor TLC keeps lazy
+  (`getFcnContext`): domains, then the argument, the domain checks, tuple
+  matching, then the body is enumerated (`GNode::FcnAction`).
+- `ACTION_CONSTRAINT`, after `CONSTRAINT`, on successors only, without the
+  parent-delta skip.
+- TLC's multiplicity for `x' \in S` (section 6). The compiler classifies the
+  set expression (`crates/dive-core/src/compile_gen.rs`): a union of two
+  `Reducible` sets (set enumerations, intervals, set maps, configured
+  enumerations) is computed eagerly; `UNION` of set enumerations too.
+  Otherwise the generator node `AssignInRaw` carries TLC's `elements()`
+  structure (`plan::Raw`: cup, union, filter, cap, difference, odometer), and
+  at run time the listed count is compared with the normalized cardinality.
+  When they differ, the run refuses, as the reference engine does; when they
+  agree, the normalized set is enumerated in the run's order (D-010). A
+  startup value that the reference binder holds as a lazy set, and an
+  operator application or `LET` whose body builds a union, are refused at
+  compile time. M0 had a soundness bug here: constant folding hid the union
+  from its refusal, and `NxInLazyCup` reported 7 generated instead of
+  refusing. That is fixed and pinned by the test.
+- Queue counts at a stop: a deadlock reports the states still queued, and new
+  initial states are queued before their invariants are checked
+  (`DoInitFunctor.addElement`), so an initial violation reports TLC's queue.
 
-Next (M1, stream 3):
-1. Copy the rule list of sections 3 and 4 into `02-semantic-contract.md` as
-   contract items, each citing its fixture.
-2. Write the four fixtures listed at the end of section 9 and capture their TLC
-   transcripts.
-3. Complete the generator node set of section 8.1: the remaining set
-   constructors under `\in`, warnings 2143 and friends, TLC enumeration order
-   under compat, and the generator side of `ENABLED`.
+**Coverage.** `core_rules.rs` runs the 18 rule fixtures, the 19 TLC probes and
+the M1 generator fixtures (`crates/dive-api/tests/fixtures/core-m1/`) on both
+engines in the default profile. Every fixture the core runs agrees with the
+reference engine on verdict, property, generated, distinct, depth, queue,
+exit and `output`, and every completed run agrees with TLC's transcript.
+Refused, by rule or pending other work: `NxInLazyCup` (rule), `NxEnabled` and
+`NxInstance` (stream 2), `ImpliedActionSeen` (implied actions), and the
+error endings `NxUnassigned` and `EvalErrorMidLevel` (deliverable 3 of
+stream 3, on its own branch).
+
+**Known limits.**
+- A lazy union hidden inside a value (for example a function whose range
+  values are unions, applied in `x' \in f[i]`) is enumerated as normalized.
+  The core materializes values, so it cannot see TLC's representation there.
+  This needs the lazy view of `03-value-model.md` §8 (stream 1).
+- The raw check evaluates the parts of a lazy union before the enumeration,
+  so an evaluation error inside a part surfaces before, not between, the
+  successors TLC emits first. This is the general demand-order question of
+  `04-plan-compiler.md` §4.
+- `-nowarning` is plumbed (`dive_explore::Config::warn` from the evaluator
+  options), but the CLI does not expose it, so `NxFastPath.nowarning` is not
+  yet a core test.
+
+**Next.**
+1. The generator side of `ENABLED` once stream 2 compiles it: a search over the
+   same rules with a sink that stops at the first successor.
+2. TLC enumeration order under `--compat=tlc` (M2), then the order-dependent
+   transcripts (`NxForallOrder`, `NxInRcdOrder`, `NxInLazyFilter`) against TLC
+   instead of the reference engine.
+3. The four fixtures listed at the end of section 9.
