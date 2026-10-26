@@ -1,5 +1,10 @@
 # Changelog
 
+- `--engine core` honours `--time-limit`, `--max-memory`, `--max-states` and
+  `--max-depth` with the reference engine's structured `stopped` verdict and
+  exit code. Before, it reported a time limit as a resource limit and
+  ignored the others.
+
 - `--engine core` reports evaluation errors and incompletely specified states
   as the reference engine does: the same class and exit code, the counts
   after TLC's call-stack replay, and the trace.

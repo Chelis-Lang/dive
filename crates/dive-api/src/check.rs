@@ -590,7 +590,7 @@ fn check_file_in(
         Phase::Checked(Box::new(native.check))
     } else if engine == crate::Engine::Core {
         let (result, run) =
-            crate::core_engine::check(&ir, &model, &armed, time, req.compat_tlc, core_switches);
+            crate::core_engine::check(&ir, &model, &armed, req.compat_tlc, core_switches);
         report.core = Some(Box::new(run));
         Phase::Checked(Box::new(result))
     } else {
