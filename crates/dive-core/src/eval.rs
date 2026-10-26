@@ -71,6 +71,33 @@ fn eval_err(what: &str) -> Error {
     Error::eval(what)
 }
 
+/// An `Assert.fail(EC.GENERAL, ...)` error the core raises exactly where
+/// TLC does. Messages that begin like TLC's keep TLC's beginning, which the
+/// engine's replay rule reads (`dive-check` `class.rs`).
+fn general(what: &str) -> Error {
+    Error::eval_class(crate::TlcClass::GENERAL, what)
+}
+
+/// An `EvalException` of TLC class `code` (`04-plan-compiler.md` §5).
+fn eval_exc(code: u32, what: &str) -> Error {
+    Error::eval_class(crate::TlcClass::eval_exception(code), what)
+}
+
+/// `EC.TLC_MODULE_COMPUTING_CARDINALITY`: `Cardinality` of a value that is
+/// not an enumerable set (`FiniteSets.Cardinality`; a function, record or
+/// tuple is not `Enumerable` there either).
+pub(crate) fn cardinality_error() -> Error {
+    eval_exc(2181, "Attempted to compute cardinality of the value")
+}
+
+/// `EC.TLC_MODULE_ONE_ARGUMENT_ERROR`, as `SequencesHelper` raises it.
+fn one_arg(op: &str, what: &str) -> Error {
+    eval_exc(
+        2283,
+        &format!("The argument of {op} should be a {what}, but instead it is not"),
+    )
+}
+
 /// An error raised inside `Node::Spec`: an evaluation error TLC might not
 /// raise, because TLC would not have evaluated the expression yet.
 fn speculative(e: Error) -> Error {
@@ -508,8 +535,8 @@ impl Machine {
                 let d = self.eval(code, *domain).map_err(speculative)?;
                 let x = self.slot(*slot);
                 if !self.member(x, d)? {
-                    return Err(eval_err(
-                        "In applying a recursive function, the argument is not in its domain",
+                    return Err(general(
+                        "In applying the function\na recursive function, the argument is not in its domain",
                     ));
                 }
                 self.eval(code, *body)
@@ -555,8 +582,8 @@ impl Machine {
                 let dom = self.eval(code, bind.domain)?;
                 let x = self.eval_norm(code, arg)?;
                 if !self.member(x, dom)? {
-                    return Err(eval_err(
-                        "In applying a function, the argument is not in its domain",
+                    return Err(general(
+                        "In applying the function\na function, the argument is not in its domain",
                     ));
                 }
                 let old = self.slot(slot);
@@ -775,8 +802,8 @@ impl Machine {
                     None if lo > hi => Ok(false),
                     // Bounds are inline, so a big integer is outside.
                     None if self.heap.is_int(x) => Ok(false),
-                    None => Err(eval_err(
-                        "Attempted to check if a value that is not an integer is in an integer interval",
+                    None => Err(general(
+                        "Attempted to check if the value:\na value that is not an integer\nis in the integer interval",
                     )),
                 }
             }
@@ -791,8 +818,9 @@ impl Machine {
                             == Some(std::cmp::Ordering::Greater)
                 }
             }),
-            Kind::Nat | Kind::Int => Err(eval_err(
-                "Attempted to check if a value that is not an integer is an element of Nat or Int",
+            Kind::Nat | Kind::Int => Err(eval_exc(
+                2158,
+                "Attempted to check if the value:\na value that is not an integer\nis an element of Nat or Int.",
             )),
             Kind::Subset => {
                 let base = v.data[0];
@@ -1117,8 +1145,8 @@ impl Machine {
                         return Ok(e);
                     }
                 }
-                Err(eval_err(
-                    "Attempted to compute the value of an expression of form CHOOSE x \\in S: P, but no element of S satisfied P",
+                Err(general(
+                    "Attempted to compute the value of an expression of form\nCHOOSE x \\in S: P, but no element of S satisfied P.",
                 ))
             }
         }
@@ -1208,11 +1236,20 @@ impl Machine {
     /// # Errors
     /// `a` is not in the domain of `f`.
     pub fn apply(&mut self, f: Handle, a: Handle) -> Result<Handle, Error> {
-        match self.fcn_index(f, a)? {
-            Some(i) => Ok(self.heap.view(f).values()[i]),
-            None => Err(eval_err(
-                "Attempted to apply function to an argument not in its domain",
-            )),
+        if let Some(i) = self.fcn_index(f, a)? {
+            return Ok(self.heap.view(f).values()[i]);
+        }
+        let msg = "Attempted to apply function to an argument not in its domain";
+        let v = self.heap.view(f);
+        match v.kind {
+            // TLC compares the argument with the domain on the way: a value
+            // of another class fails that comparison first.
+            Kind::Fcn => {
+                compare::miss(&self.heap, a, v.keys())?;
+                Err(general(msg))
+            }
+            Kind::IntFcn if a.as_int().is_some() => Err(general(msg)),
+            _ => Err(eval_err(msg)),
         }
     }
 
@@ -1395,8 +1432,11 @@ impl Machine {
             StdFn::Len => {
                 let s = arg(0)?;
                 let v = self.heap.view(s);
+                if s.as_str_id().is_some() {
+                    return Err(Error::unsupported("Len of a string (M1 core)"));
+                }
                 if !s.is_compound() || v.kind != Kind::IntFcn || v.lo != 1 {
-                    return Err(eval_err("Len of a value that is not a sequence"));
+                    return Err(one_arg("Len", "sequence"));
                 }
                 mk_int(i64::try_from(v.data.len()).unwrap_or(i64::MAX))
             }
@@ -1404,12 +1444,15 @@ impl Machine {
                 let vals = self.seq_vals(arg(0)?)?;
                 vals.first()
                     .copied()
-                    .ok_or_else(|| eval_err("Attempted to apply Head to the empty sequence"))
+                    .ok_or_else(|| eval_exc(2184, "Attempted to apply Head to the empty sequence."))
             }
             StdFn::Tail => {
                 let vals = self.seq_vals(arg(0)?)?;
                 if vals.is_empty() {
-                    return Err(eval_err("Attempted to apply Tail to the empty sequence"));
+                    return Err(eval_exc(
+                        2184,
+                        "Attempted to apply Tail to the empty sequence.",
+                    ));
                 }
                 Ok(self.heap.tuple(&vals[1..]))
             }
@@ -1442,7 +1485,20 @@ impl Machine {
                 Ok(self.heap.tuple(&vals[(m - 1) as usize..n as usize]))
             }
             StdFn::Cardinality => {
-                let n = self.heap.cardinality(arg(0)?)?;
+                let s = arg(0)?;
+                let kind = self.heap.kind(s);
+                match kind {
+                    // Not enumerable in TLC.
+                    None | Some(Kind::IntFcn | Kind::Fcn | Kind::Nat | Kind::Int) => {
+                        return Err(cardinality_error());
+                    }
+                    Some(Kind::SeqSet) => {
+                        return Err(Error::unsupported("Cardinality of Seq(S) (M1 core)"));
+                    }
+                    Some(_) if !self.heap.is_finite(s) => return Err(cardinality_error()),
+                    Some(_) => {}
+                }
+                let n = self.heap.cardinality(s)?;
                 mk_int(i64::try_from(n).unwrap_or(i64::MAX))
             }
             StdFn::Seq => {
@@ -1499,4 +1555,37 @@ fn fast_arith(op: Arith, x: i64, y: i64, mode: IntMode) -> Option<Handle> {
         return None;
     }
     Handle::int(r)
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, reason = "tests")]
+    use super::*;
+    use crate::TlcClass;
+
+    #[test]
+    fn arithmetic_errors_carry_tlc_classes() {
+        let exc = |c| Some(TlcClass::eval_exception(c));
+        for mode in [crate::int::IntMode::Big, crate::int::IntMode::Tlc] {
+            let mut h =
+                crate::Heap::new(std::sync::Arc::new(crate::Store::default()), false, false);
+            h.set_int_mode(mode);
+            let n = |v| Handle::int(v).unwrap();
+            let mut class = |op, x, y| h.int_arith(op, n(x), n(y)).unwrap_err().tlc();
+            assert_eq!(class(IntOp::Div, 1, 0), exc(2179));
+            assert_eq!(class(IntOp::Mod, 1, 0), exc(2169));
+            assert_eq!(class(IntOp::Pow, 2, -1), exc(2169));
+            assert_eq!(class(IntOp::Pow, 0, 0), exc(2180));
+        }
+        let mut h = crate::Heap::new(std::sync::Arc::new(crate::Store::default()), false, false);
+        h.set_int_mode(crate::int::IntMode::Tlc);
+        let big = h
+            .int_arith(
+                IntOp::Mul,
+                Handle::int(1 << 20).unwrap(),
+                Handle::int(1 << 20).unwrap(),
+            )
+            .unwrap_err();
+        assert_eq!(big.tlc(), exc(2178));
+    }
 }

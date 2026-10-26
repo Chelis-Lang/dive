@@ -105,6 +105,22 @@ fn unsupported_features_are_named_without_fallback() {
 }
 
 #[test]
+fn an_evaluation_error_is_never_a_success() {
+    // The engine does not yet report the core's classified errors as
+    // verdicts; until it does, the error must be refused, never answered.
+    let reference = run("Pow0", Engine::Reference);
+    assert_eq!(reference["verdict"], "evaluation-error", "{reference:#}");
+    let core = run("Pow0", Engine::Core);
+    assert_eq!(core["verdict"], "unsupported", "{core:#}");
+    assert!(
+        core["message"]
+            .as_str()
+            .is_some_and(|m| m.contains("0^0 is undefined")),
+        "{core:#}"
+    );
+}
+
+#[test]
 fn every_strategy_switch_leaves_counts_unchanged() {
     for name in ["Mix", "Fold", "Lazy", "Inst", "Bag"] {
         let file = fixture(name);

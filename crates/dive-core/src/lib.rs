@@ -64,8 +64,8 @@ pub use store::Store;
 pub enum ErrorKind {
     /// A construct or size the core does not implement: never a verdict.
     Unsupported,
-    /// An evaluation error TLC would also raise. M0 does not classify
-    /// errors; the run reports it as unsupported, naming it.
+    /// An evaluation error TLC would also raise, with its TLC class
+    /// ([`Error::tlc`]). The engine decides the reported site class.
     Eval,
     /// A bug in the core.
     Internal,
@@ -85,11 +85,48 @@ pub struct ErrorData {
     pub kind: ErrorKind,
     /// What happened.
     pub message: String,
+    /// TLC's class of an [`ErrorKind::Eval`] error, when the core knows it.
+    /// `None` is an unclassified error, which the engine must not report
+    /// as a verdict: it names it as unsupported instead.
+    pub tlc: Option<TlcClass>,
+}
+
+/// How TLC raises an evaluation error: its `EC` code and whether it is an
+/// `EvalException` (which a Java override passes through, and which the
+/// checker reports with its own code) or an `Assert.fail`
+/// (`04-plan-compiler.md` §5). The site rules stay with the engine.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct TlcClass {
+    /// The `tlc2.output.EC` code: 1000 for `GENERAL`.
+    pub code: u32,
+    /// Whether TLC raises it as an `EvalException`.
+    pub eval_exception: bool,
+}
+
+impl TlcClass {
+    /// `Assert.fail(EC.GENERAL, ...)`, TLC's most common evaluation error.
+    pub const GENERAL: Self = Self {
+        code: 1000,
+        eval_exception: false,
+    };
+
+    /// An `EvalException` with `code`.
+    #[must_use]
+    pub const fn eval_exception(code: u32) -> Self {
+        Self {
+            code,
+            eval_exception: true,
+        }
+    }
 }
 
 impl Error {
     fn new(kind: ErrorKind, message: String) -> Self {
-        Self(Box::new(ErrorData { kind, message }))
+        Self(Box::new(ErrorData {
+            kind,
+            message,
+            tlc: None,
+        }))
     }
 
     /// An unsupported construct.
@@ -98,10 +135,34 @@ impl Error {
         Self::new(ErrorKind::Unsupported, what.into())
     }
 
-    /// An evaluation error.
+    /// An unclassified evaluation error: the core has not established that
+    /// TLC raises it, or with which class.
     #[must_use]
     pub fn eval(what: impl Into<String>) -> Self {
         Self::new(ErrorKind::Eval, what.into())
+    }
+
+    /// An evaluation error of TLC class `tlc`.
+    ///
+    /// ```
+    /// use dive_core::{Error, TlcClass};
+    /// let e = Error::eval_class(TlcClass::eval_exception(2179), "The second argument of \\div is 0.");
+    /// assert_eq!(e.tlc(), Some(TlcClass { code: 2179, eval_exception: true }));
+    /// assert_eq!(Error::eval("x").tlc(), None);
+    /// ```
+    #[must_use]
+    pub fn eval_class(tlc: TlcClass, what: impl Into<String>) -> Self {
+        Self(Box::new(ErrorData {
+            kind: ErrorKind::Eval,
+            message: what.into(),
+            tlc: Some(tlc),
+        }))
+    }
+
+    /// TLC's class of an evaluation error the core has classified.
+    #[must_use]
+    pub fn tlc(&self) -> Option<TlcClass> {
+        self.0.tlc
     }
 
     /// An internal error.
