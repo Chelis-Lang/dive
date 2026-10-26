@@ -1,7 +1,9 @@
 # Value model
 
-Status: design. There is no code yet. This document covers strategies S1, S2,
-S4, S5 and S7 from `01-motivation.md`.
+Status: M0 spike implemented in `crates/dive-core` (`handle`, `strings`,
+`store`, `arena`, `node`, `heap`) on `core/m0-spike`; results in
+`m0-results.md`. This document covers strategies S1, S2, S4, S5 and S7 from
+`01-motivation.md`.
 
 ## 1. Goals
 
@@ -264,12 +266,32 @@ a level boundary it:
 
 ## 11. Next step
 
-M0 builds the following:
-- handles, the string table, the persistent store with per-shard intern locks,
-  and the arena with epochs;
-- sets, functions, records and tuples as plain arrays (no persistent trees);
-- the hash rules of section 5;
-- an 8-thread microbenchmark of interning and of lock-free reads.
+M0 built the following. Measurements are in `m0-results.md`.
+- 64-bit tagged handles: inline 61-bit integers, booleans and string ids; a
+  persistent tag (shard and index); a transient tag (epoch and index).
+- The string table, and the persistent store: 256 shards, a `Mutex` index per
+  shard, and append-only chunked `OnceLock` node storage that is read without
+  locks.
+- The arena with an epoch check on every dereference. A stale handle poisons
+  the heap and becomes an internal error.
+- Sets, functions, records and tuples as sorted plain arrays. Integer-domain
+  functions are stored densely.
+- Symbolic `a..b`, `Nat`, `Int`, `SUBSET`, `[D -> R]`, record sets, `Seq(S)`
+  and products. Persistent finite symbolic sets are enumerated at most once
+  per worker.
+- Section 5 hashing: an incremental `EXCEPT` and state hash from the cached
+  child hashes, with a full-recompute switch.
+- The store microbenchmark `crates/dive-core/examples/store_scaling.rs`.
 
-Two numbers are recorded: the intern hit rate, and the share of generated
-successors that reach the store.
+Deviations, to resolve in M1:
+- Big integers are refused, not represented.
+- The literal flag for tuples and records is not part of identity.
+- The store has no compaction. Memo tables are cleared when the store remaps.
+
+Next (M1, stream 1):
+1. Freeze the value interface: handles, `Heap`, cursors and views.
+2. Move `PNode` data inline into the chunk, to remove one pointer chase per
+   view. `Heap::view` and `Store::node` are the top self-time entries on
+   MCLamportMutex and GameOfLife.
+3. Add lazy function values (`[x \in S |-> e]` applied before it is
+   materialized), big integers, and the compat-order intern path.

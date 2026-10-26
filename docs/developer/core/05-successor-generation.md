@@ -1,6 +1,7 @@
 # Successor generation
 
-Status: design (Phase 0). There is no new-core code yet. This document
+Status: M0 spike implemented in `crates/dive-core/src/generate.rs` on
+`core/m0-spike`, for the constructs of the spike models. This document
 specifies how TLC enumerates initial states and successors. The new core must
 reproduce that enumeration exactly. The document also covers how the new core
 generates, hashes and deduplicates successors without changing any count.
@@ -822,10 +823,25 @@ engine on any path:
 
 ## 10. Next step
 
+M0 implements the rules of sections 3 and 4 that the spike models use:
+- conjunction lists with continuations, `\/`, `\E` and `\A` (in TLC's
+  binding order), and `IF`, `CASE` and `=>`;
+- `x' = e` and `x' \in S`, with a filter streamed from its bound set;
+- `UNCHANGED` of variable tuples, and `[A]_v`;
+- the all-assigned shortcut, and initial-state enumeration over the same
+  generator.
+
+It refuses `x' \in` a union, where TLC's multiplicity is not reproduced, and
+`x' \subseteq S`. Its generated counts equal TLC's on all four spike models
+and on the fixtures (`m0-results.md`). Enumeration uses canonical order, not
+TLC's order. Counts do not depend on it at one worker, but traces and runtime
+names will.
+
+Next (M1, stream 3):
 1. Copy the rule list of sections 3 and 4 into `02-semantic-contract.md` as
    contract items, each citing its fixture.
 2. Write the four fixtures listed at the end of section 9 and capture their TLC
    transcripts.
-3. Specify the generator node set of section 8.1 in `04-plan-compiler.md`, and
-   the buffer, view and arena lifetimes of sections 8.2 to 8.4 in
-   `03-value-model.md` and `07-engine.md`.
+3. Complete the generator node set of section 8.1: the remaining set
+   constructors under `\in`, warnings 2143 and friends, TLC enumeration order
+   under compat, and the generator side of `ENABLED`.

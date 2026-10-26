@@ -29,6 +29,33 @@ unproved contexts retain `DIVE-L0033` refusals. VIEW graph capture
 still requires quotient-edge and closing-state evidence (issue #428), so
 EWD998ChanID remains unsupported. Other temporal restrictions also remain.
 
+## Experimental core engine
+
+```sh
+dive check Spec.tla --engine core --workers 1 --output json
+DIVE_ENGINE=core dive check Spec.tla --output json
+```
+
+`--engine core` (or `DIVE_ENGINE=core`) runs the check on the new execution
+core (ADR 0117), which is under construction. The reference engine stays the
+default (`--engine reference`), and it is also the TLC-equivalent setting. The
+core currently covers:
+
+- the default profile only. `--compat=tlc` is reported as unsupported;
+- one worker. A larger `--workers` request runs one worker and reports why;
+- safety only: invariants, constraints and deadlock. `PROPERTY`, implied
+  actions, `ACTION_CONSTRAINT`, `VIEW`, `ALIAS`, `POSTCONDITION`, `SYMMETRY`,
+  INSTANCE and `ENABLED` are reported as unsupported, naming the feature;
+- verdicts and TLC's distinct and generated counts and depth, without a
+  counterexample trace. Evaluation errors are reported as unsupported.
+
+Anything the core does not implement yields an `unsupported` verdict that names
+it. The run never falls back to the reference engine. The JSON report adds
+`"engine": "core"` and a `core` object with strategy metrics. The
+`DIVE_CORE_OPT` variable (for example `-memo,-delta-hash`) turns individual
+strategies off for measurement. Every switch leaves the results unchanged. See
+`docs/developer/core/m0-results.md`.
+
 ## TLC checking entrypoints
 
 The checking-only adapter accepts either `dive tlc [OPTIONS] SPEC[.tla]` or the
