@@ -7,6 +7,64 @@ evaluator work. Instruction counts assess individual optimizations; wall time
 against the pinned TLC assesses the release goal. Neither substitutes for the
 other, and incomplete or refused runs earn no credit.
 
+## AWS rebaseline, 2026-10-26
+
+This is the Day-0 rebaseline of the core reboot (#498,
+`docs/developer/core/09-performance-method.md`). It ran at `main` `e18e9dda`,
+which includes the native-hook lock fix (#497, #495).
+
+**Host.** A dedicated c7i.metal-24xl on the same AMI: Xeon Platinum 8488C,
+Ubuntu 24.04.5, Linux 7.0.0-1014-aws, Rust 1.99.0.
+- SMT and turbo off; performance governor with minimum and maximum frequency
+  2.4 GHz.
+- Runner pinned to CPUs 0–15 with memory on node 0.
+- No build, gate or other benchmark ran on the host.
+
+Housekeeping CPUs and telemetry were not separately reserved or audited, as
+they were on 2026-10-21, so this campaign is not quiet-window certified.
+
+**Runs.**
+- `dive-bench --profile both --workers 1,8 --reps 5 --tlc --timeout 900 --xmx 3g`.
+- All **300 runs** passed the pinned-golden checks.
+- Compact summary: `docs/survey/data/aws-benchmark-2026-10-26.json`. Raw rows
+  stay outside the repository.
+
+TLC/dive wall-time ratios (above 1 means dive is faster), each the median of
+five within-repetition ratios:
+
+| Model | TLC profile, 1 | TLC profile, requested 8 | Default, 1 | Default, 8 | Default, 8: 2026-10-21 → now |
+|-------|---:|---:|---:|---:|---:|
+| GameOfLife | 0.270 | 0.411 | 0.269 | 0.399 | 0.152 → 0.399 |
+| TLCSailfish1 | 0.361 | 0.058 | 0.360 | 0.346 | 0.265 → 0.346 |
+| EWD998PCal | 0.247 | 0.191 | 0.252 | 0.175 | 0.175 → 0.175 |
+| MCBakery | 0.334 | 0.352 | 0.354 | 0.358 | 0.364 → 0.358 |
+| MCLamportMutex | 0.332 | 0.085 | 0.317 | 0.348 | 0.211 → 0.348 |
+| SimpleRegular | 0.347 | 0.471 | 0.356 | 0.499 | 0.398 → 0.499 |
+| MCbtree | 0.465 | 0.509 | 0.716 | 0.701 | 0.573 → 0.701 |
+| CoffeeCan1000BeansSafety | 0.466 | 0.586 | 0.463 | 0.596 | 0.314 → 0.596 |
+| MCDisruptor_MPMC | 0.433 | 0.652 | 0.443 | 0.648 | 0.338 → 0.648 |
+| BufferedRandomAccessFile | 0.266 | 0.042 | 0.267 | 0.206 | 0.037 → 0.206 |
+
+**Equal-model geometric means.**
+
+| Profile | 1 worker | Requested 8 workers |
+|---|---|---|
+| TLC profile | 0.344× | 0.236× |
+| Default profile | 0.362× | 0.391× |
+
+On 2026-10-21 the default profile measured 0.328× and 0.234×. Default-profile
+scaling from 1 to 8 workers is 3.754× across all ten models.
+
+**Reading the change.** The 8-worker gain (0.234× → 0.391×) is consistent with
+removing the process-global host lock that #495 measured at 38% of worker busy
+time. Other changes also merged between the two campaigns, so this run alone
+does not attribute the gain to #497. Every model is still slower than TLC;
+the new execution core (ADR 0117) is the plan for closing the gap.
+
+TLCSailfish1, MCLamportMutex and BufferedRandomAccessFile still use one worker
+under the TLC profile when eight are requested. They receive no scaling
+credit there.
+
 ## Controlled AWS baseline, 2026-10-21
 
 A dedicated bare-metal campaign at clean source
