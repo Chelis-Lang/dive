@@ -153,9 +153,8 @@ fn ending_matches(verdict: &str, property: Option<&str>, ending: &Ending) -> boo
 const KNOWN_ERROR_RERAISED: &str =
     "#490: a claimed evaluation error is re-raised by a last-state check and refuted";
 const KNOWN_CONSTRAINED_LAST_STATE: &str =
-    "a last state outside CONSTRAINT is refuted unless the ending is an invariant violation";
-const KNOWN_SKIPPED_INIT_DISJUNCT: &str =
-    "Init membership raises on a disjunct TLC's generator skips (empty product or record set)";
+    "#499: a last state outside CONSTRAINT is refuted unless the ending is an invariant violation";
+const KNOWN_SKIPPED_INIT_DISJUNCT: &str = "#443: Init membership raises on a disjunct TLC's generator skips (empty product or record set)";
 
 /// A refutation the sweep already found, so it does not fail the test.
 /// [`known_refutations_still_reproduce`] fails once one is fixed.

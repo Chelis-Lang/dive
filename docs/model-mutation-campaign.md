@@ -59,7 +59,7 @@ disagree, 25 unsupported, 1 timeout and 52 oracle errors.
 - Five mutants make an action used under `WF_` fail with an evaluation error.
   TLC exits 255 (`GENERAL`); dive exits 75 (`TLC_NESTED_EXPRESSION`). The
   smallest reproduction is a `CHOOSE` with no satisfying element in an action
-  named by `WF_vars`; the same error outside fairness exits 75 in both.
+  named by `WF_vars`; the same error outside fairness exits 75 in both. (#502)
 - Eleven mutants fail an `ASSUME`. dive matches the verdict, exit code and
   message, but its JSON `property` is empty while TLC's golden names the
   assumption's location, so the harness reports `violated_property`. No
@@ -71,7 +71,9 @@ disagree, 25 unsupported, 1 timeout and 52 oracle errors.
 - The timeout is a constant raised from 3 to 4: TLC took 56 seconds of the
   60-second limit.
 - Two oracle errors are TLC timeouts. The other 50 are TLC output the
-  classifier leaves unclassified on purpose: an exit code explained only by the context message 2103 after a
-  `GENERAL` 1000 (`crates/dive-conformance/src/tlc/result.rs`, rule 4). That
-  is TLC's usual shape for an evaluation error while computing successors,
-  so those error paths get no golden and are not compared.
+  classifier leaves unclassified on purpose: an exit code explained only by
+  the context message 2103 after a `GENERAL` 1000
+  (`crates/dive-conformance/src/tlc/result.rs`, rule 4). That is TLC's usual
+  shape for an evaluation error while computing successors, so those error
+  paths get no golden and are not compared (#436 proposes classifying one
+  such family).

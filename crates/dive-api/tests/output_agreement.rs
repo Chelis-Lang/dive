@@ -276,7 +276,7 @@ fn compare(doc: &Value, human: &str) -> Vec<String> {
 /// A temporal evaluation error's JSON report carries the counterexample to
 /// the failing state; the human report says only that capture completed.
 const KNOWN_TEMPORAL_ERROR_TRACE: &str =
-    "a temporal evaluation error's counterexample is in the JSON report only";
+    "#500: a temporal evaluation error's counterexample is in the JSON report only";
 
 /// A difference the sweep already found, so it does not fail the test.
 /// [`known_differences_still_reproduce`] fails once one is fixed.

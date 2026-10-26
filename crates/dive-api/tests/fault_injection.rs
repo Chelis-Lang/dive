@@ -502,9 +502,8 @@ fn checkpoint_faults(spec: &Path, reference: &Value, rng: &mut Rng) -> Result<Ve
 /// reported error class and exit status: replay never meets the later error
 /// that decides TLC's class (`ErInvReplayError`: 2103 and exit 75 unbounded,
 /// as TLC reports; 2111 and exit 76 under `max_states` 4). The run is not
-/// marked stopped. Related to #379, which covers time budgets in replay.
-const KNOWN_REPLAY_CLASS: &str =
-    "a state budget that cuts diagnostic replay changes the reported error class and exit status";
+/// marked stopped. Reported on #379, which covers time budgets in replay.
+const KNOWN_REPLAY_CLASS: &str = "#379: a state budget that cuts diagnostic replay changes the reported error class and exit status";
 
 /// A failure the sweep already found, so it does not fail the test.
 /// [`known_findings_still_reproduce`] fails once one is fixed.

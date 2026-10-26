@@ -182,12 +182,12 @@ trace, are reported separately and do not fail the sweep:
 
 - a claimed evaluation error is re-raised while the validator checks the
   last state's invariants, constraints, action constraints or implied action
-  properties, and the trace is refuted (#490 names the invariant case);
+  properties, and the trace is refuted (#490);
 - a last state outside `CONSTRAINT` is accepted only for an invariant
   violation, so action-property violations and error endings on such a state
-  are refuted (`ErInvConstrained`, `DfidActionConstrained`);
+  are refuted (`ErInvConstrained`, `DfidActionConstrained`; #499);
 - checking `Init` raises on a disjunct whose empty product or record set
-  TLC's generator skips (`EmptyProductSkipsMixedInit`).
+  TLC's generator skips (`EmptyProductSkipsMixedInit`; #443).
 
 `known_refutations_still_reproduce` fails once one is fixed, so its entry can
 be removed.
@@ -214,7 +214,7 @@ DIVE_OUTPUT_AGREEMENT=all DIVE_OUTPUT_AGREEMENT_REPORT="$TMPDIR/output-agreement
 One known difference is reported separately and does not fail the sweep: a
 temporal evaluation error's JSON report carries the counterexample to the
 failing state, while the human report says only that capture completed
-(`ConcatFirstTypeError`). `known_differences_still_reproduce` fails once it is
+(`ConcatFirstTypeError`; #500). `known_differences_still_reproduce` fails once it is
 fixed.
 
 ## Directional metamorphic tests
@@ -278,7 +278,7 @@ DIVE_FAULTS=all DIVE_FAULTS_REPORT="$TMPDIR/faults.json" \
 One known finding is reported separately: a state budget that cuts
 diagnostic replay short changes the reported TLC error class and exit status
 without marking the run stopped (`ErInvReplayError` under `max_states` 4;
-related to #379). `known_findings_still_reproduce` fails once it is fixed.
+reported on #379). `known_findings_still_reproduce` fails once it is fixed.
 
 `.github/workflows/conformance.yml` runs the small or deep tier, including the
 TLC self-checks, on manual dispatch. Its `baseline` job runs nightly (and on a
