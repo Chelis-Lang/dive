@@ -3,7 +3,7 @@
 Status: M1 stream 2 in progress. The M0 spike is on `main`
 (`crates/dive-core/src/compile.rs`, `plan.rs`, `eval.rs`, `convert.rs`;
 results in `m0-results.md`). M1 adds the comparison rules of §5.1
-(`compare.rs`) and the coverage census of §8. This document covers strategy
+(`compare.rs`), the coverage census of §8 and the fold bound of §3.1 (R9). This document covers strategy
 S8 from `01-motivation.md`, and the compiler side of S5 and S6. It supersedes
 the evaluation-plan section of ADR 0014 §1.
 
@@ -59,6 +59,13 @@ section 4 decide.
 1. **Constant folding.** Expressions that are constant-level under TLC's level
    bound, and whose startup value is known, become pool constants. This covers
    overridden definitions (`Op <- D`, `Op = v`) and module-scoped overrides.
+   - **Bound (R9).** A fold may visit at most `FOLD_FUEL` (4,096) loop
+     elements, and all folds of one compile together at most `FOLD_BUDGET`
+     (2^22): the compile-time budget. A fold that runs out of fuel is
+     abandoned, and its node and every node containing it stay unfolded, so
+     the work happens at run time, where the generator streams it. The plan
+     statistics report `fold_abandoned`, `fold_skipped`, `fold_fuel` and
+     `fold_ms` (`core.metrics.plan` in the JSON report).
 2. **INSTANCE substitution.** `Subst` bodies and `SubstRef` uses
    (`crates/dive-ir/src/expr.rs:342`, `:495`) are inlined by name: each
    reference is replaced by the bound argument expression in the substituting
@@ -240,7 +247,9 @@ fixtures in `crates/dive-api/tests/fixtures/core-m0`. Measurements are in
 - **Recursive operators.** They are compiled once into their own frame, with
   eager arguments. Function constructors are materialized.
 - **Folding.** Closed subexpressions are folded by evaluating them at compile
-  time. A folding failure leaves the node alone.
+  time, within the R9 bound (§3, pass 1). A folding failure leaves the node
+  alone. Filters and `CHOOSE` enumerate a symbolic domain through its cursor
+  instead of materializing it first.
 - **Errors.** Evaluation errors are reported as `unsupported`. M0 does not
   classify them (§5 is not built).
 

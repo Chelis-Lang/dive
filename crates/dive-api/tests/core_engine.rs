@@ -59,7 +59,10 @@ fn large_folds_are_bounded_and_reported() {
     let core = run("Fold", Engine::Core);
     let plan = &core["core"]["metrics"]["plan"];
     assert_eq!(plan["fold_abandoned"], 1, "{plan:#}");
-    assert!(plan["fold_fuel"].as_u64().is_some_and(|f| f <= 1 << 22), "{plan:#}");
+    assert!(
+        plan["fold_fuel"].as_u64().is_some_and(|f| f <= 1 << 22),
+        "{plan:#}"
+    );
     assert!(plan["fold_ms"].is_number(), "{plan:#}");
     assert_eq!(counts(&core), counts(&run("Fold", Engine::Reference)));
 }
