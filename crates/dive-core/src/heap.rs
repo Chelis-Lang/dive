@@ -6,7 +6,7 @@ use std::cmp::Ordering;
 use std::sync::Arc;
 
 use crate::Error;
-use crate::arena::Arena;
+use crate::arena::{Arena, Mark};
 use crate::handle::{Handle, K_FCN, K_SET, K_SYM, Tag, fin, int_hash, mix2, mix64, scalar_hash};
 use crate::node::{Kind, View};
 use crate::store::Store;
@@ -70,6 +70,20 @@ impl Heap {
     /// Frees the transients of the current expansion.
     pub fn reset(&mut self) {
         self.arena.reset();
+    }
+
+    /// The current transient allocation point (§11.5 rule 2 of
+    /// `03-value-model.md`).
+    #[must_use]
+    pub fn mark(&self) -> Mark {
+        self.arena.mark()
+    }
+
+    /// Frees every transient allocated after `mark`. No handle allocated
+    /// after the mark may be used afterwards, including one held in a frame
+    /// slot or a thunk cache; such a use is detected as stale.
+    pub fn rollback(&mut self, mark: Mark) {
+        self.arena.rollback(mark);
     }
 
     /// Whether a stale or foreign handle was read: an internal error.
@@ -939,6 +953,30 @@ mod tests {
         h.reset();
         let _ = h.view(a);
         assert!(h.poisoned());
+    }
+
+    #[test]
+    fn rollback_frees_candidates_and_stale_reads_poison() {
+        let mut h = heap(false);
+        let kept = h.set_from(&mut vec![int(1)]);
+        for i in 0..1000 {
+            let m = h.mark();
+            let c = h.tuple(&[int(i), kept]);
+            if i % 10 == 0 {
+                continue;
+            }
+            assert!(h.eq(h.view(c).data[1], kept));
+            h.rollback(m);
+        }
+        // The 100 kept candidates and the set remain; the rest were freed.
+        assert_eq!(h.arena().len(), 101);
+        assert!(!h.poisoned());
+        let m = h.mark();
+        let gone = h.tuple(&[int(7)]);
+        h.rollback(m);
+        let _ = h.tuple(&[int(8)]);
+        let _ = h.view(gone);
+        assert!(h.poisoned(), "a handle freed by rollback must not resolve");
     }
 
     #[test]

@@ -23,6 +23,9 @@ pub struct EvalStats {
     pub forced: u64,
     /// Thunk reads answered from the cache.
     pub cached: u64,
+    /// Forced thunks whose value is transient (an arena rollback must not
+    /// free it while its slot holds it).
+    pub transient_thunks: u64,
 }
 
 /// One worker's evaluation state.
@@ -203,6 +206,7 @@ impl Machine {
                 }
                 self.stats.forced += 1;
                 let v = self.eval(code, *body)?;
+                self.stats.transient_thunks += u64::from(v.is_transient());
                 self.set_slot(*slot, v);
                 Ok(v)
             }
@@ -761,10 +765,28 @@ impl Machine {
         let dom = self.eval(code, bind.domain)?;
         let mut cur = self.heap.cursor(dom)?;
         let mut out = Vec::new();
-        while let Some(e) = cur.next(&mut self.heap)? {
+        loop {
+            // Free a rejected candidate, and the predicate's transients, by
+            // arena rollback (R10). Only when no thunk was forced to a
+            // transient meanwhile: its slot may hold a value built after the
+            // mark (`03-value-model.md` §11.5 rule 2).
+            let before = self.heap.mark();
+            let Some(e) = cur.next(&mut self.heap)? else {
+                break;
+            };
             self.charge(1)?;
+            let after = self.heap.mark();
+            let forced = self.stats.transient_thunks;
             self.bind_one(bind, e)?;
-            if self.eval_bool(code, pred)? {
+            let keep = self.eval_bool(code, pred)?;
+            if self.stats.transient_thunks == forced {
+                if keep {
+                    self.heap.rollback(after);
+                } else {
+                    self.heap.rollback(before);
+                }
+            }
+            if keep {
                 out.push(e);
             }
         }

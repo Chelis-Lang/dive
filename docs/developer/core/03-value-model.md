@@ -2,8 +2,8 @@
 
 Status: M0 spike on `main` in `crates/dive-core` (`handle`, `strings`,
 `store`, `arena`, `node`, `heap`); results in `m0-results.md`. M1 (stream 1):
-the value interface is frozen in §11 and node data is inline in the store
-(step 2); the remaining M1 steps are in §12. This document covers strategies S1, S2, S4, S5 and S7 from
+the value interface is frozen in §11, node data is inline in the store
+(step 2), and the arena rolls back rejected candidates (step 3); the remaining M1 steps are in §12. This document covers strategies S1, S2, S4, S5 and S7 from
 `01-motivation.md`.
 
 ## 1. Goals
@@ -89,8 +89,18 @@ Each worker owns an arena: a vector of nodes plus an epoch counter.
   dereferencing a handle whose epoch differs from the arena's current epoch is
   an internal error. Stale indices are therefore caught by tests, not silently
   misread.
-- Transient nodes may reference persistent nodes and other transient nodes of
-  the same epoch. Persistent nodes never reference transient nodes.
+- Transient nodes may reference persistent nodes and other live transient
+  nodes. Persistent nodes never reference transient nodes.
+- **Rollback.** `mark` and `rollback` free the nodes allocated after a mark,
+  within one expansion. Later allocations get a new epoch, and every node
+  records its epoch, so a handle to a freed node no longer resolves. The
+  filter `{x \in S : P}` and the generator's streamed `x' \in {y \in S : P}`
+  free each rejected candidate, and the filter also frees the predicate's
+  transients. Both skip the rollback when a thunk was forced to a transient
+  meanwhile, since its slot would keep the freed value. Both also enumerate a
+  symbolic domain through its cursor rather than materializing it first, so
+  CoffeeCan's fold holds the 501,500 survivors rather than the 1,002,001
+  candidates.
 
 ### 3.3 Interning a transient value (deep close)
 
@@ -460,9 +470,12 @@ M1, stream 1. The steps below are the ones §11 refers to.
    handles); single-thread `store_scaling` 28% faster; the four spike models
    within noise on cycles, with 3% more instructions on MCLamportMutex (the
    class dispatch); CoffeeCan peak RSS 224 to 214 MB. Counts unchanged.
-3. Arena rollback (`mark`, `rollback`) for rejected candidates, used by the
-   filter and the fold (R10: CoffeeCan's fold enumerates 1,002,001
-   candidates).
+3. **Arena rollback.** Done: §3.2. CoffeeCan peak RSS on M3 (indicative)
+   214 to 138 MB (the reference engine: 134 MB), with 2.5% fewer
+   instructions; with `-fold`, 298 to 171 MB. The other models are unchanged.
+   Open: an accepted candidate's continuation in the generator is not yet
+   rolled back, and GameOfLife's arena still grows across its 65,536 initial
+   states (stream 3, `07-engine.md`).
 4. Lazy values: `Lambda`, `SetPred` and `Union` nodes, `View::flags`, the
    close protocol of §11.5 rule 4, and lazy-view retention for state slots.
 5. Big integers out of line (D-004), with `--int=tlc` overflow errors.
