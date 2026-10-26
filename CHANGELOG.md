@@ -1,5 +1,10 @@
 # Changelog
 
+- Pin two generated primary references distinguishing a stored startup definition
+  from a configured redirect to its effectful body: success versus a temporal
+  violation with an unnamed property. No runtime change or new native agreement
+  is included; established conformance populations and baselines are unchanged.
+
 - Learn generic closed powerset-filter restrictions from original empty and
   singleton evaluations, preserving whole predicates and accepted sink order.
   Position skips require the current operative host policy and unchanged checked
