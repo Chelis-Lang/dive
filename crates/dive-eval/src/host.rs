@@ -15,7 +15,7 @@
 //! every value a TLC run with one worker reads.
 
 use std::collections::BTreeMap;
-use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex, PoisonError};
 
 use dive_ir::{Arg, ExprId, StdOp};
@@ -459,6 +459,11 @@ pub(crate) struct HostSlot {
     /// The installed host's [`Host::expression_cache_domain`], updated with
     /// the host so cache lookups need not lock it.
     pub(crate) cache_domain: AtomicU64,
+    /// Whether the installed binding's hooks are [`NativeHooks::Unrestricted`],
+    /// mirrored from `host` so the per-call native check need not lock it.
+    /// Written only by `install`, under the `host` lock; `false` matches the
+    /// default binding's `Callback`.
+    unrestricted: AtomicBool,
 }
 
 impl HostSlot {
@@ -504,6 +509,14 @@ impl HostSlot {
         if domain != 0 || slot.generation == 0 {
             binding.hooks = NativeHooks::Callback;
         }
+        // Release pairs with the Acquire load in `check_native_access`: a
+        // thread whose use happens after this install (for example a worker
+        // started or signalled afterwards) observes this mode or a later one.
+        // The installing thread always observes its own store (coherence).
+        self.unrestricted.store(
+            binding.hooks == NativeHooks::Unrestricted,
+            Ordering::Release,
+        );
         std::mem::replace(&mut slot.binding, binding)
     }
 
@@ -538,6 +551,15 @@ impl HostSlot {
     }
 
     pub(crate) fn check_native_access(&self, op: StdOp) -> Result<()> {
+        // Lock-free fast path. The flag is stored under the `host` lock by every
+        // install, so it is the mode of an installation at least as recent as
+        // any that happens-before this call; a concurrent install may land
+        // either side, exactly as it could when this read took the lock.
+        if self.unrestricted.load(Ordering::Acquire) {
+            return Ok(());
+        }
+        // Callback: read the binding under the lock (it may have changed since
+        // the load) and call the host outside it, so the hook may reinstall.
         let host = {
             let slot = self.host.lock().unwrap_or_else(PoisonError::into_inner);
             match slot.binding.hooks {
