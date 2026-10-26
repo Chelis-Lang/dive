@@ -384,9 +384,22 @@ Next (M1, stream 2), from the census:
    evaluation error one TLC raises. Its site and code need the engine
    (stream 3, `crates/dive-explore`).
 2. `INSTANCE` substitution: built (pass 2). Next comes EWD998PCal's
-   speed. It needs Bags, and its properties are still the engine's (M3).
+   speed. It needed Bags (below), and its properties are still the
+   engine's (M3).
 3. Operator breadth in census order: `TLC!Print`/`PrintT`/`Assert`/
    `ToString`, which need effects (B6), and the standard modules.
+   - **Done: Bags.** `EmptyBag`, `SetToBag`, `BagToSet`, `BagIn` and
+     `CopiesIn` are in (`Machine::bag`). Fixture `Bag.tla` gives 27 distinct,
+     111 generated, depth 5 with the pinned TLC, the reference engine and the
+     core.
+   - **EWD998PCal**, safety with its constraint and without its properties
+     and alias, now runs in the core with the reference engine's counts:
+     321,370 distinct, 2,808,396 generated, depth 47. M3, indicative, load
+     11: 2.9 s user and 30 MB RSS, against 11.0 s and 127 MB for the
+     reference engine.
+   - **Still to do in Bags:** `\oplus`, `\ominus`, `BagCardinality`,
+     `BagUnion`, `\sqsubseteq`, `BagOfAll`, `IsABag`, and `FoldBag`
+     (BagsExt).
 4. The memoization decision (`06-memoization.md`).
 5. Native action splitting and constant evaluation, to drop the reference
    binder from the handoff.

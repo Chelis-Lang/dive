@@ -87,6 +87,16 @@ pub enum StdFn {
     Seq,
     /// `IsFiniteSet(S)`
     IsFiniteSet,
+    /// `EmptyBag` (Bags)
+    EmptyBag,
+    /// `SetToBag(S)` (Bags)
+    SetToBag,
+    /// `BagToSet(B)` (Bags)
+    BagToSet,
+    /// `BagIn(e, B)` (Bags)
+    BagIn,
+    /// `CopiesIn(e, B)` (Bags)
+    CopiesIn,
 }
 
 /// One bound group: `x, y \in S` or `<<x, y>> \in S`.
