@@ -57,6 +57,13 @@ worktree and target directory:
 4. Harness, shadow comparison and bench (`08-correctness.md`,
    `09-performance-method.md`). This one is light and can be run by the lead.
 
+**Module ownership (M1).**
+- Stream 1: `handle`, `heap`, `store`, `arena`, `node`, `strings`, `convert`.
+- Stream 2: `compile`, `plan`, `eval`, `memo`, `opts`.
+- Stream 3: `generate`, `dive-explore`, `dive-api/src/core_engine.rs`.
+
+A change outside a stream's own modules is kept minimal and flagged in the PR.
+
 **Dependencies.**
 - Stream 1 blocks 2 and 3 at the value interface.
 - Stream 2 blocks 3 at the plan interface.
@@ -85,6 +92,7 @@ worktree and target directory:
 | 2026-10-26 | Rebuild the core; freeze the old engine as reference; fingerprint store key not contract; wall-clock gate on x86 | ADR 0117 |
 | 2026-10-26 | Write design documents before any code | this directory |
 | 2026-10-26 | M0 x86 result: counts equal on all four models; 1.81× TLC and 5.21× the reference (geomean); kill criterion not triggered; proceed to M1. The second kill criterion (most of the gain reproducible by porting handles and arenas into the old evaluator) was not tested; the ablation attributes most of the gain to the base design rather than to any portable piece | `m0-results.md` §3.0 |
+| 2026-10-26 | M0 merged as experimental `--engine=core` (#505); M1 streams 1–3 started from `main` with module ownership; owner approved the plan | this directory |
 | 2026-10-26 | Where TLC is semantically wrong (stale lazy reuse, B2 and B4), the default profile evaluates soundly and `--compat=tlc` reproduces TLC; error caching is allowed in both profiles | `02-semantic-contract.md` §3a; ADR 0117 item 7 |
 
 ## 6. Open questions
