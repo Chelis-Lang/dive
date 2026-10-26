@@ -3,9 +3,10 @@
 Status: M1 stream 2 in progress. The M0 spike is on `main`
 (`crates/dive-core/src/compile.rs`, `plan.rs`, `eval.rs`, `convert.rs`;
 results in `m0-results.md`). M1 adds the comparison rules of §5.1
-(`compare.rs`), the coverage census of §8, the fold bound of §3 (R9) and the
-laziness of values (§4.1), and `INSTANCE` substitution (§3, pass 2). This document covers strategy
-S8 from `01-motivation.md`, and the compiler side of S5 and S6. It supersedes
+(`compare.rs`), the coverage census of §8, the fold bound of §3 (R9), the
+laziness of values (§4.1), `INSTANCE` substitution (§3, pass 2), Bags, typed
+TLC error classes (§5.2) and the memo decision (`06-memoization.md` §6).
+This document covers strategy S8 from `01-motivation.md`, and the compiler side of S5 and S6. It supersedes
 the evaluation-plan section of ADR 0014 §1.
 
 ## 1. Input and output
@@ -331,6 +332,48 @@ against the reference engine: each one gets the reference result or a
 refusal, and only the mixed-class set may be refused where the reference
 engine answers.
 
+### 5.2 Typed classes (built)
+
+An evaluation error carries `Option<TlcClass>` (`crates/dive-core/src/lib.rs`):
+TLC's `EC` code and whether TLC raises it as an `EvalException`.
+- **`None`:** an unclassified error. The core has not established that TLC
+  raises this error here, or with which class. The engine must refuse it
+  (`unsupported`, naming it), never report it as a verdict.
+- **`Some`:** classified. The error is raised exactly where TLC raises it,
+  with TLC's class. The engine applies the site rules: 2111, 2113,
+  `GENERAL`'s prefix and the replay. Messages keep TLC's beginning where
+  the replay rule reads it ("In applying the function\n", "...of
+  form\nCHOOSE").
+
+| Error | Class |
+|---|---|
+| `\div` by 0 | 2179 `EvalException` |
+| `%` by a non-positive number; `^` with a negative exponent | 2169 `EvalException` |
+| `0^0` | 2180 `EvalException` |
+| `Head`/`Tail` of `<<>>` | 2184 `EvalException` |
+| `Len` of a non-sequence | 2283 `EvalException` |
+| `Cardinality` of a non-enumerable value | 2181 `EvalException` |
+| a non-integer `\in Nat`/`Int` | 2158 `EvalException` |
+| comparisons between classes (§5.1) | `GENERAL` |
+| a lazy or recursive function applied outside its domain | `GENERAL` |
+| `f[a]` outside the domain, with no class clash | `GENERAL` |
+| `CHOOSE` with no witness | `GENERAL` |
+| a non-integer in a non-empty interval | `GENERAL` |
+
+Every other evaluation error is unclassified. Integers outside the core's
+61-bit range are refused (`unsupported`).
+
+**Defect fixed.** The M0 core computed `0^0` as 1. TLC raises "0^0 is
+undefined." (fixture `Pow0`: TLC and the reference engine report an
+evaluation error after 1 distinct, 1 generated). The core now raises the
+2180 error.
+
+**The engine's part (stream 3).** `crates/dive-explore` still reports every
+evaluation error as `unsupported`. Next, it should map classified errors
+through the site rules and produce the trace. The reference engine's table
+is `crates/dive-check/src/class.rs`. Its functions are `pub(crate)`, so
+sharing them is a layering decision.
+
 ## 6. Interpreter
 
 The plan is executed by a recursive `match` over compact node arrays: an enum
@@ -376,13 +419,14 @@ fixtures in `crates/dive-api/tests/fixtures/core-m0`. Measurements are in
   time, within the R9 bound (§3, pass 1). A folding failure leaves the node
   alone. Filters and `CHOOSE` enumerate a symbolic domain through its cursor
   instead of materializing it first.
-- **Errors.** Evaluation errors are reported as `unsupported`. M0 does not
-  classify them (§5 is not built).
+- **Errors.** Evaluation errors are reported as `unsupported`. (M1: the
+  core classifies them, §5.2; the engine does not yet report them.)
 
 Next (M1, stream 2), from the census:
-1. Error classes (§5). The speculation of §4.1 makes every remaining
-   evaluation error one TLC raises. Its site and code need the engine
-   (stream 3, `crates/dive-explore`).
+1. Error classes (§5.2): typed classes are built. Next comes the engine's
+   site mapping and traces (stream 3). Then extend classification to the
+   unclassified sites. Check each against a pinned-TLC probe before
+   classifying it.
 2. `INSTANCE` substitution: built (pass 2). Next comes EWD998PCal's
    speed. It needed Bags (below), and its properties are still the
    engine's (M3).
