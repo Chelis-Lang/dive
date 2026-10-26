@@ -366,3 +366,72 @@ fn independent_guard_domain_declines_and_cannot_reuse_a_warmed_ordinary_thunk() 
         ]
     );
 }
+
+#[test]
+fn concurrent_native_checks_route_to_the_callback_exactly_outside_a_scope() {
+    // `seq` brackets each change on the owning thread: odd while a scope is
+    // pushed or popped, `4k` under callbacks and `4k + 2` while unrestricted.
+    // A worker that reads the same even value before and after a check was in
+    // one stable mode for its whole duration (Acquire/Release on `seq` orders
+    // the install before the first read and the next change after the check).
+    const ROUNDS: u64 = 64;
+    let ev = evaluator(Options::tlc());
+    let trace = Trace::default();
+    let drops = Arc::new(AtomicUsize::new(0));
+    ev.set_host(probe(&trace, &drops));
+    let slot = &ev.core.host;
+    let seq = AtomicU64::new(0);
+    let done = AtomicBool::new(false);
+    let seen = [AtomicU64::new(0), AtomicU64::new(0)];
+    let check = || slot.check_native_access(StdOp::FiniteSetsCardinality);
+    std::thread::scope(|threads| {
+        for _ in 0..4 {
+            threads.spawn(|| {
+                while !done.load(Ordering::Acquire) {
+                    let before = seq.load(Ordering::Acquire);
+                    let called = check().is_err();
+                    let after = seq.load(Ordering::Acquire);
+                    if before == after && before.is_multiple_of(2) {
+                        let unrestricted = before % 4 == 2;
+                        assert_eq!(called, !unrestricted, "stable phase {before}");
+                        seen[usize::from(unrestricted)].fetch_add(1, Ordering::Relaxed);
+                    }
+                }
+            });
+        }
+        // Each stable phase waits until a worker has observed it.
+        let settle = |unrestricted: bool| {
+            let index = usize::from(unrestricted);
+            let start = seen[index].load(Ordering::Relaxed);
+            while seen[index].load(Ordering::Relaxed) == start {
+                std::thread::yield_now();
+            }
+        };
+        for round in 0..ROUNDS {
+            assert!(check().is_err(), "owner callback in round {round}");
+            settle(false);
+            seq.store(4 * round + 1, Ordering::Release);
+            let scope = ev
+                .native_hook_scope(NativeHooks::Unrestricted)
+                .expect("ordinary domain");
+            seq.store(4 * round + 2, Ordering::Release);
+            assert!(check().is_ok(), "owner unrestricted in round {round}");
+            settle(true);
+            seq.store(4 * round + 3, Ordering::Release);
+            drop(scope);
+            seq.store(4 * round + 4, Ordering::Release);
+        }
+        assert!(check().is_err(), "callback restored");
+        done.store(true, Ordering::Release);
+    });
+    assert_eq!(
+        ev.host_binding_stamp().native_hooks(),
+        NativeHooks::Callback
+    );
+    assert!(seen.iter().all(|n| n.load(Ordering::Relaxed) >= ROUNDS));
+    assert!(
+        take(&trace)
+            .iter()
+            .all(|e| *e == "native-denied" || *e == "domain")
+    );
+}
