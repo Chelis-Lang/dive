@@ -149,7 +149,9 @@ version = "0.0.0"
 dependencies = [
  "dive-check",
  "dive-config",
+ "dive-core",
  "dive-eval",
+ "dive-explore",
  "dive-ir",
  "dive-liveness",
  "dive-model",
@@ -224,6 +226,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "dive-core"
+version = "0.0.0"
+dependencies = [
+ "dive-ir",
+ "dive-value",
+]
+
+[[package]]
 name = "dive-eval"
 version = "0.0.0"
 dependencies = [
@@ -234,6 +244,13 @@ dependencies = [
  "dive-value",
  "proptest",
  "serde_json",
+]
+
+[[package]]
+name = "dive-explore"
+version = "0.0.0"
+dependencies = [
+ "dive-core",
 ]
 
 [[package]]

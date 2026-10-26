@@ -79,6 +79,10 @@ pub const ALLOWED: &[(&str, &[&str])] = &[
         ],
     ),
     ("dive-pluscal", &["dive-syntax", "dive-sema"]),
+    // The new execution core (ADR 0117). `dive-value` only at the binder
+    // boundary, to convert startup constants of the reference binder.
+    ("dive-core", &["dive-ir", "dive-config", "dive-value"]),
+    ("dive-explore", &["dive-core", "dive-store"]),
     (
         "dive-api",
         &[
@@ -96,6 +100,8 @@ pub const ALLOWED: &[(&str, &[&str])] = &[
             "dive-sim",
             "dive-trace",
             "dive-pluscal",
+            "dive-core",
+            "dive-explore",
         ],
     ),
     ("dive-cli", &["dive-api", "dive-conformance"]),
