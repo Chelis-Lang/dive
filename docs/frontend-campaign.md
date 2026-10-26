@@ -79,3 +79,7 @@ Both measurements agreed on all 1,108 inputs, with no exhausted edit searches,
 oracle errors, timeouts or disagreements. Preparation at the same seed was
 byte-identical. This repeats a bounded campaign, not the original entire
 12,000-plus-mutant survey. Future seeds remain new measurements.
+
+The [model-mutation campaign](model-mutation-campaign.md) applies the same
+seeded approach to model checking: well-formed behavioural mutants of Examples
+models, compared with TLC.
