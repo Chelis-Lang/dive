@@ -4,6 +4,8 @@
   specifications with fairness conjuncts, in both profiles, instead of refusing
   them. Fairness cannot affect a finite safety sample. Configured temporal
   properties still refuse (ADR 0116, #491).
+- Read the native-hook mode without taking the evaluator's host lock on every
+  standard-operator call; callback hooks still run exactly as before.
 
 - Check temporal properties under any `--store`, `--fp`, `-deadlock` and
   `--sequential` setting. Plain `dive check --compat=tlc` (random polynomial),
