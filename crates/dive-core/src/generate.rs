@@ -564,12 +564,24 @@ impl Machine {
         if !self.heap.is_finite(s) {
             return Err(Error::eval("The right side of \\IN is not enumerable"));
         }
-        let listed = self.raw_elems(code, raw)?.len() as u64;
+        let elems = self.raw_elems(code, raw)?;
+        let listed = elems.len() as u64;
         let distinct = self.heap.cardinality(s)?;
         if listed != distinct {
             return Err(Error::unsupported(format!(
                 "x' \\in a lazily represented set: TLC's unnormalized enumeration of it ({listed} elements) differs from its normalized one ({distinct} elements), and which one TLC uses depends on whether it has already compared, sized or fingerprinted the same set object"
             )));
+        }
+        // Under TLC's exploration order the order is observable too (A6):
+        // the parts' sequence must be the normalized order.
+        if self.heap.store().semantics().tlc_exploration
+            && elems
+                .windows(2)
+                .any(|w| self.heap.cmp(w[0], w[1]) != std::cmp::Ordering::Less)
+        {
+            return Err(Error::unsupported(
+                "x' \\in a lazily represented set under --compat=tlc: TLC's unnormalized enumeration of it lists the elements in another order than its normalized one, and which one TLC uses depends on the set object's history (A6)",
+            ));
         }
         let mut c = self.heap.cursor(s)?;
         while let Some(e) = c.next(&mut self.heap)? {

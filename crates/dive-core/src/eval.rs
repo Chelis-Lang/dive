@@ -867,6 +867,11 @@ impl Machine {
                 }
                 let xv = self.heap.view(x);
                 if xv.kind != Kind::IntFcn || xv.lo != 1 {
+                    // TLC fails on a function it cannot view as a tuple.
+                    compare::guard_kind_member(
+                        &self.heap,
+                        "a membership test of a function that is not a sequence in Seq(S)",
+                    )?;
                     return Ok(false);
                 }
                 let vals = xv.data.to_vec();
@@ -886,6 +891,10 @@ impl Machine {
                 let d = self.heap.norm(d)?;
                 let dom = self.heap.norm(dom)?;
                 if !self.heap.eq(d, dom) {
+                    // TLC compares the domains with `equals`, which may fail.
+                    if self.heap.store().semantics().tlc_comparisons {
+                        compare::equals(&self.heap, d, dom)?;
+                    }
                     return Ok(false);
                 }
                 let vals = self.heap.view(x).values().to_vec();
@@ -903,7 +912,15 @@ impl Machine {
                     return self.non_fcn_member(x, "a set of records");
                 }
                 let xv = self.heap.view(x);
-                if xv.kind != Kind::Fcn || xv.keys() != names.as_slice() {
+                if xv.kind != Kind::Fcn || xv.keys().iter().any(|k| k.as_str_id().is_none()) {
+                    // TLC fails on a function it cannot view as a record.
+                    compare::guard_kind_member(
+                        &self.heap,
+                        "a membership test of a function that is not a record in a set of records",
+                    )?;
+                    return Ok(false);
+                }
+                if xv.keys() != names.as_slice() {
                     return Ok(false);
                 }
                 let vals = xv.values().to_vec();
@@ -920,6 +937,13 @@ impl Machine {
                     return self.non_fcn_member(x, "a set of tuples");
                 }
                 let xv = self.heap.view(x);
+                if xv.kind == Kind::Fcn && xv.keys().iter().any(|k| k.as_int().is_none()) {
+                    // TLC fails on a function over other values than integers.
+                    compare::guard_kind_member(
+                        &self.heap,
+                        "a membership test of a function over non-integers in a set of tuples",
+                    )?;
+                }
                 if xv.kind != Kind::IntFcn || xv.lo != 1 || xv.data.len() != sets.len() {
                     return Ok(false);
                 }
@@ -1559,6 +1583,7 @@ const fn int_op(op: Arith) -> IntOp {
         Arith::Sub => IntOp::Sub,
         Arith::Mul => IntOp::Mul,
         Arith::Div => IntOp::Div,
+        Arith::DivNaturals => IntOp::DivNaturals,
         Arith::Mod => IntOp::Mod,
         Arith::Pow => IntOp::Pow,
     }
@@ -1574,7 +1599,9 @@ fn fast_arith(op: Arith, x: i64, y: i64, mode: IntMode) -> Option<Handle> {
         Arith::Mul => x.checked_mul(y)?,
         // Floored division; in TLC mode only where `Naturals` and
         // `Integers` agree.
-        Arith::Div if y > 0 && (mode == IntMode::Big || x >= 0) => x.div_euclid(y),
+        Arith::Div | Arith::DivNaturals if y > 0 && (mode == IntMode::Big || x >= 0) => {
+            x.div_euclid(y)
+        }
         Arith::Mod if y > 0 => x.rem_euclid(y),
         _ => return None,
     };

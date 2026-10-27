@@ -1213,6 +1213,12 @@ impl Compiler<'_> {
         match expr {
             Expr::Bool(b) => self.konst(Handle::bool(*b)),
             Expr::Num(s) => {
+                if self.m.heap.int_mode() == crate::int::IntMode::Tlc && s.parse::<i32>().is_err() {
+                    // TLC rejects the numeral before checking starts.
+                    return Err(Error::unsupported(format!(
+                        "the numeral {s}, outside TLC's 32-bit integers (--compat=tlc)"
+                    )));
+                }
                 let v = if let Some(h) = s.parse::<i64>().ok().and_then(Handle::int) {
                     h
                 } else {
@@ -2285,7 +2291,8 @@ impl Compiler<'_> {
             S::NaturalsPlus | S::IntegersPlus => arith(Arith::Add)?,
             S::NaturalsMinus | S::IntegersMinus => arith(Arith::Sub)?,
             S::NaturalsTimes | S::IntegersTimes => arith(Arith::Mul)?,
-            S::NaturalsDiv | S::IntegersDiv => arith(Arith::Div)?,
+            S::IntegersDiv => arith(Arith::Div)?,
+            S::NaturalsDiv => arith(Arith::DivNaturals)?,
             S::NaturalsMod | S::IntegersMod => arith(Arith::Mod)?,
             S::NaturalsExpt | S::IntegersExpt => arith(Arith::Pow)?,
             S::NaturalsLt | S::IntegersLt => cmp(Cmp::Lt)?,

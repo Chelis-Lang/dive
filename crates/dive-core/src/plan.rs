@@ -25,6 +25,9 @@ pub enum Arith {
     Mul,
     /// `\div`
     Div,
+    /// `\div` from `Naturals` without `Integers` (`Naturals.Divide`; floored
+    /// in big mode, as `Div`).
+    DivNaturals,
     /// `%`
     Mod,
     /// `^`

@@ -165,7 +165,11 @@ pub(crate) fn equals(heap: &Heap, a: Handle, b: Handle) -> Result<bool, Error> {
     if ca != cb {
         return Err(mismatch(ca, cb));
     }
-    Ok(heap.eq(a, b))
+    let eq = heap.eq(a, b);
+    if !eq && !ca.is_scalar() {
+        guard_equals(heap, a, b)?;
+    }
+    Ok(eq)
 }
 
 /// After a miss of `x` in the enumerated set with sorted elements `elems`:
@@ -174,6 +178,7 @@ pub(crate) fn equals(heap: &Heap, a: Handle, b: Handle) -> Result<bool, Error> {
 /// Elements are sorted by class (booleans, integers, strings, then
 /// compounds), so the first and last elements decide.
 pub(crate) fn miss(heap: &Heap, x: Handle, elems: &[Handle]) -> Result<(), Error> {
+    guard_member(heap, x, elems)?;
     // Model values sort first. Which of them TLC compares `x` with depends
     // on its search, so any incomparable pair is refused (C1, D3).
     let k = elems.partition_point(|e| e.as_model_id().is_some());
@@ -252,6 +257,8 @@ pub(crate) fn check_set(heap: &Heap, elems: &[Handle]) -> Result<(), Error> {
     if elems.len() < 2 {
         return Ok(());
     }
+    // Model values are holes or refused above.
+    guard_set(heap, elems)?;
     let (cf, cl) = (class(heap, first), class(heap, last));
     let refuse = |a: Class, b: Class| {
         Err(Error::unsupported(format!(
@@ -282,6 +289,218 @@ pub(crate) fn check_set(heap: &Heap, elems: &[Handle]) -> Result<(), Error> {
         }
         _ => Ok(()),
     }
+}
+
+// ----------------------------------------------------------------------
+// --compat=tlc: the shape guard
+// ----------------------------------------------------------------------
+
+/// The comparison shape of a value under TLC's comparisons: what any
+/// `equals` or `compareTo` TLC runs on it could inspect. Two values whose
+/// shapes unify cannot make TLC fail, in any order of comparison, and then
+/// TLC's answers are TLA+'s, which the core computes. Where they do not
+/// unify, TLC may fail, or answer by the asymmetric rules of C2 and C5, and
+/// the core refuses (`02-semantic-contract.md` C1–C5) until TLC's checked
+/// comparisons are ported.
+#[derive(Clone, Debug, PartialEq, Eq)]
+enum Shape {
+    /// No constraint: an untyped model value, or the element of an empty
+    /// set.
+    Hole,
+    Bool,
+    Int,
+    Str,
+    /// A typed model value of the given type.
+    Typed(u16),
+    /// A finite set, with its elements' unified shape.
+    Set(Box<Shape>),
+    /// The empty function (`<<>>`).
+    EmptyFcn,
+    /// A function over strings (a record), by field.
+    Rec(std::collections::BTreeMap<u32, Shape>),
+    /// A function over integers (a tuple or sequence), by index.
+    IntKeyed(std::collections::BTreeMap<i64, Shape>),
+    /// Any other function: its keys' and its values' unified shapes.
+    Gen(Box<Shape>, Box<Shape>),
+}
+
+/// The shape of `h`, or `None` for a value whose comparisons the guard
+/// does not model (a symbolic set or a lazy value).
+fn shape(heap: &Heap, h: Handle) -> Option<Shape> {
+    match h.tag() {
+        Tag::Bool => return Some(Shape::Bool),
+        Tag::Int => return Some(Shape::Int),
+        Tag::Str => return Some(Shape::Str),
+        Tag::Model => return Some(mv_type(heap, h).map_or(Shape::Hole, Shape::Typed)),
+        Tag::Persistent | Tag::Transient | Tag::Empty => {}
+    }
+    if !h.is_compound() {
+        return Some(Shape::Set(Box::new(Shape::Hole)));
+    }
+    let v = heap.view(h);
+    match v.kind {
+        Kind::BigInt => Some(Shape::Int),
+        Kind::Set => {
+            let mut acc = Shape::Hole;
+            for &e in v.data {
+                acc = unify(acc, shape(heap, e)?)?;
+            }
+            Some(Shape::Set(Box::new(acc)))
+        }
+        Kind::Interval => Some(Shape::Set(Box::new(Shape::Int))),
+        Kind::IntFcn if v.data.is_empty() => Some(Shape::EmptyFcn),
+        Kind::IntFcn => {
+            let mut m = std::collections::BTreeMap::new();
+            for (i, &e) in (v.lo..).zip(v.data) {
+                m.insert(i, shape(heap, e)?);
+            }
+            Some(Shape::IntKeyed(m))
+        }
+        Kind::Fcn => {
+            let (keys, vals) = (v.keys(), v.values());
+            if keys.is_empty() {
+                return Some(Shape::EmptyFcn);
+            }
+            if keys.iter().all(|k| k.as_str_id().is_some()) {
+                let mut m = std::collections::BTreeMap::new();
+                for (k, &e) in keys.iter().zip(vals) {
+                    m.insert(k.as_str_id()?, shape(heap, e)?);
+                }
+                return Some(Shape::Rec(m));
+            }
+            if keys.iter().all(|k| k.as_int().is_some()) {
+                let mut m = std::collections::BTreeMap::new();
+                for (k, &e) in keys.iter().zip(vals) {
+                    m.insert(k.as_int()?, shape(heap, e)?);
+                }
+                return Some(Shape::IntKeyed(m));
+            }
+            let (mut ks, mut vs) = (Shape::Hole, Shape::Hole);
+            for (&k, &e) in keys.iter().zip(vals) {
+                ks = unify(ks, shape(heap, k)?)?;
+                vs = unify(vs, shape(heap, e)?)?;
+            }
+            Some(Shape::Gen(Box::new(ks), Box::new(vs)))
+        }
+        _ => None,
+    }
+}
+
+fn unify_maps<K: Ord>(
+    mut a: std::collections::BTreeMap<K, Shape>,
+    b: std::collections::BTreeMap<K, Shape>,
+) -> Option<std::collections::BTreeMap<K, Shape>> {
+    for (k, y) in b {
+        let x = a.remove(&k).unwrap_or(Shape::Hole);
+        a.insert(k, unify(x, y)?);
+    }
+    Some(a)
+}
+
+/// The most specific shape compatible with both, or `None` when TLC could
+/// fail comparing values of the two shapes.
+fn unify(a: Shape, b: Shape) -> Option<Shape> {
+    use Shape as S;
+    Some(match (a, b) {
+        // `<<>>` against a record is C2/C5's asymmetric case, so the empty
+        // function unifies with the other non-record functions only.
+        (S::Hole, x)
+        | (x, S::Hole)
+        | (S::EmptyFcn, x @ (S::IntKeyed(_) | S::Gen(..)))
+        | (x @ (S::IntKeyed(_) | S::Gen(..)), S::EmptyFcn) => x,
+        (S::Bool, S::Bool) => S::Bool,
+        (S::Int, S::Int) => S::Int,
+        (S::Str, S::Str) => S::Str,
+        (S::Typed(x), S::Typed(y)) if x == y => S::Typed(x),
+        (S::Set(x), S::Set(y)) => S::Set(Box::new(unify(*x, *y)?)),
+        (S::EmptyFcn, S::EmptyFcn) => S::EmptyFcn,
+        (S::Rec(x), S::Rec(y)) => S::Rec(unify_maps(x, y)?),
+        (S::IntKeyed(x), S::IntKeyed(y)) => S::IntKeyed(unify_maps(x, y)?),
+        (S::Gen(k1, v1), S::Gen(k2, v2)) => {
+            S::Gen(Box::new(unify(*k1, *k2)?), Box::new(unify(*v1, *v2)?))
+        }
+        _ => return None,
+    })
+}
+
+fn guard_refusal(what: &str) -> Error {
+    Error::unsupported(format!(
+        "{what} under --compat=tlc, where TLC's checked comparison may fail or answer by its asymmetric rules (C1–C5; the exact port is not built)"
+    ))
+}
+
+/// Under TLC's comparisons, refuses `a = b` on two compound values unless
+/// TLC cannot fail on them. The caller has handled identical handles,
+/// model values and different classes.
+fn guard_equals(heap: &Heap, a: Handle, b: Handle) -> Result<(), Error> {
+    if !heap.store().semantics().tlc_comparisons {
+        return Ok(());
+    }
+    let ok = match (shape(heap, a), shape(heap, b)) {
+        (Some(x), Some(y)) => unify(x, y).is_some(),
+        _ => false,
+    };
+    if ok {
+        Ok(())
+    } else {
+        Err(guard_refusal(
+            "an equality between values of different shapes",
+        ))
+    }
+}
+
+/// Under TLC's comparisons, refuses a membership miss of the compound `x`
+/// among `elems` (a set's elements or a function's keys) unless TLC cannot
+/// fail comparing `x` with any of them.
+fn guard_member(heap: &Heap, x: Handle, elems: &[Handle]) -> Result<(), Error> {
+    if !heap.store().semantics().tlc_comparisons || !x.is_compound() || elems.is_empty() {
+        return Ok(());
+    }
+    let ok = (|| {
+        let mut acc = shape(heap, x)?;
+        for &e in elems {
+            acc = unify(acc, shape(heap, e)?)?;
+        }
+        Some(acc)
+    })()
+    .is_some();
+    if ok {
+        Ok(())
+    } else {
+        Err(guard_refusal(
+            "a membership test of a value of another shape",
+        ))
+    }
+}
+
+/// Under TLC's comparisons, refuses a set whose elements TLC could fail to
+/// sort (C2): their shapes must unify.
+fn guard_set(heap: &Heap, elems: &[Handle]) -> Result<(), Error> {
+    if !heap.store().semantics().tlc_comparisons || elems.len() < 2 {
+        return Ok(());
+    }
+    let ok = (|| {
+        let mut acc = Shape::Hole;
+        for &e in elems {
+            acc = unify(acc, shape(heap, e)?)?;
+        }
+        Some(acc)
+    })()
+    .is_some();
+    if ok {
+        Ok(())
+    } else {
+        Err(guard_refusal("a set of values of different shapes"))
+    }
+}
+
+/// Under TLC's comparisons, refuses an answer the default profile gives
+/// by D-009 where TLC's own `member` may fail instead (C3).
+pub(crate) fn guard_kind_member(heap: &Heap, what: &str) -> Result<(), Error> {
+    if heap.store().semantics().tlc_comparisons {
+        return Err(guard_refusal(what));
+    }
+    Ok(())
 }
 
 #[cfg(test)]
@@ -364,6 +583,49 @@ mod tests {
             "a function is unequal to a set element"
         );
         assert!(miss(&h, a, &[]).is_ok());
+    }
+
+    #[test]
+    fn tlc_comparisons_refuse_shapes_tlc_could_fail_on() {
+        let store = Arc::new(Store::with_semantics(true, crate::Semantics::tlc()));
+        let mut h = Heap::new(store, false, false);
+        let one = Handle::int(1).unwrap();
+        let a = h.string("a").unwrap();
+        let t = h.tuple(&[one]);
+        let t2 = h.tuple(&[one, one]);
+        let r = h.fcn_sorted(&[a], &[one]);
+        let ra = h.fcn_sorted(&[a], &[a]);
+        assert!(!equals(&h, t, t2).unwrap(), "tuples of any length compare");
+        assert!(
+            equals(&h, t, r).is_err(),
+            "a tuple with a record is refused"
+        );
+        assert!(equals(&h, r, ra).is_err(), "a field of another class");
+        let s1 = h.set_from(&mut vec![one]);
+        let sa = h.set_from(&mut vec![a]);
+        assert!(equals(&h, s1, sa).is_err(), "TLC compares 1 with \"a\"");
+        let empty = h.set_from(&mut vec![]);
+        assert!(!equals(&h, s1, empty).unwrap());
+        assert!(check_set(&h, &[t, t2]).is_ok());
+        let mut v = vec![s1, sa];
+        let ss = h.set_from(&mut v);
+        let elems = h.view(ss).data.to_vec();
+        assert!(
+            check_set(&h, &elems).is_err(),
+            "{{1}} and {{\"a\"}} in one set"
+        );
+        assert!(miss(&h, t2, &[t]).is_ok());
+        assert!(miss(&h, r, &[t]).is_err());
+        // The default profile answers by D-009.
+        let mut d = heap();
+        let one = Handle::int(1).unwrap();
+        let a = d.string("a").unwrap();
+        let t = d.tuple(&[one]);
+        let r = d.fcn_sorted(&[a], &[one]);
+        assert!(!equals(&d, t, r).unwrap(), "D-009: a tuple is not a record");
+        let s1 = d.set_from(&mut vec![one]);
+        let sa = d.set_from(&mut vec![a]);
+        assert!(!equals(&d, s1, sa).unwrap());
     }
 
     #[test]

@@ -8,6 +8,7 @@
 //! order with [`Strings::preload`] (`03-value-model.md` §7).
 
 use std::collections::HashMap;
+use std::sync::atomic::{AtomicBool, Ordering as AtomicOrdering};
 use std::sync::{Arc, PoisonError, RwLock};
 
 /// How strings compare (`02-semantic-contract.md` D1, D2).
@@ -25,6 +26,7 @@ pub enum StringOrder {
 pub struct Strings {
     inner: RwLock<Inner>,
     order: StringOrder,
+    sealed: AtomicBool,
 }
 
 #[derive(Debug, Default)]
@@ -40,6 +42,7 @@ impl Strings {
         Self {
             inner: RwLock::default(),
             order,
+            sealed: AtomicBool::new(false),
         }
     }
 
@@ -73,10 +76,19 @@ impl Strings {
         Ok(())
     }
 
+    /// Refuses every later new string: under [`StringOrder::Token`] a string
+    /// TLC first meets during the search gets a token that depends on what
+    /// TLC evaluated before it, so after [`Strings::preload`] the run seals
+    /// the table rather than guess the order.
+    pub fn seal(&self) {
+        self.sealed.store(true, AtomicOrdering::Release);
+    }
+
     /// The id of `text`, assigning one if it is new.
     ///
     /// # Errors
-    /// More than `u32::MAX` strings.
+    /// More than `u32::MAX` strings; a new string after [`Strings::seal`]
+    /// (unsupported).
     pub fn intern(&self, text: &str) -> Result<u32, crate::Error> {
         if let Some(&id) = self
             .inner
@@ -90,6 +102,11 @@ impl Strings {
         let mut inner = self.inner.write().unwrap_or_else(PoisonError::into_inner);
         if let Some(&id) = inner.ids.get(text) {
             return Ok(id);
+        }
+        if self.sealed.load(AtomicOrdering::Acquire) {
+            return Err(crate::Error::unsupported(format!(
+                "the string or name {text:?}, which TLC first meets after start-up: its place in TLC's string order depends on evaluation order (--compat=tlc)"
+            )));
         }
         let id = u32::try_from(inner.texts.len())
             .map_err(|_| crate::Error::unsupported("more than 2^32 distinct strings"))?;
@@ -148,6 +165,15 @@ mod tests {
     use std::cmp::Ordering;
 
     use super::*;
+
+    #[test]
+    fn a_sealed_table_refuses_new_strings_only() {
+        let t = Strings::new(StringOrder::Token);
+        assert!(t.preload(["zeta", "alpha"]).is_ok());
+        t.seal();
+        assert_eq!(t.intern("alpha").ok(), Some(1));
+        assert!(t.intern("beta").is_err());
+    }
 
     #[test]
     fn text_order_ignores_encounter_order() {

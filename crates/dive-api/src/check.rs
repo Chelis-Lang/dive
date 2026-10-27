@@ -616,6 +616,15 @@ fn check_file_in(
         );
         report.core = Some(Box::new(run));
         Phase::Checked(Box::new(result))
+    } else if engine == crate::Engine::Auto && req.compat_tlc {
+        // `--engine=core` runs `--compat=tlc`, but `auto` keeps it on the
+        // reference engine until the core's compat shadow is clean
+        // (`docs/developer/core/07-engine.md` §8).
+        report.fallback = Some(crate::core_engine::Fallback {
+            stage: "static",
+            reason: "--compat=tlc under --engine=auto (M2: the core's compat profile is not yet the default)".into(),
+        });
+        check_backend(&ir, &model, &armed, req.temporal, req.periodic)
     } else if engine == crate::Engine::Auto {
         let (result, run) = crate::core_engine::check(
             &ir,
