@@ -90,6 +90,10 @@
 - Fixed: `--engine core` reported integers outside its inline 61-bit range
   as `<<>>` in counterexamples (#540).
 
+- `--engine core` turns its memo tables back on by default
+  (`DIVE_CORE_OPT=-memo` turns them off): MCLamportMutex runs about 29% fewer
+  instructions with them.
+
 - `--engine core` reports a new state that holds a set TLC cannot
   fingerprint (`Nat`, `Int`, an infinite `Seq(S)`, or a set whose
   fingerprint enumerates one, such as `SUBSET Nat`) as TLC does: the same

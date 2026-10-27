@@ -171,9 +171,49 @@ M0 implements both mechanisms:
 `DIVE_CORE_OPT=-memo` and `-parent-skip` turn each off. `m0-results.md` gives
 hit rates, the share skipped and the slowdown when each is off.
 
-**M1 decision (stream 2): the memo tables are off by default.** They stay
-in the code behind `DIVE_CORE_OPT=+memo` until finer keys can make them pay.
-The parent-delta skip stays on: it costs nothing measurable and is exact.
+**M1 decision (stream 2), revised: the memo tables are on by default**
+(`DIVE_CORE_OPT=-memo` turns them off). The first M1 decision turned them
+off on wall-clock medians at load 10–22 (below). The quiet x86 A/B
+reverses it, and so do the M3 instruction counts.
+- **Measurement of record: quiet x86** (lead; c7i.metal-24xl, SMT and turbo
+  off, CPUs 0–15; main `fdaf57a2`; core with `DIVE_CORE_OPT=+memo` against
+  `-memo`; wall seconds, median of 5; every count equals its golden):
+
+  | Model | 1w off | 1w on | Speedup | 8w off | 8w on | Speedup | RSS 8w off / on (MB) |
+  |---|---|---|---|---|---|---|---|
+  | CoffeeCan1000BeansSafety | 0.97 | 0.97 | 1.00 | 0.67 | 0.66 | 1.01 | 212 / 208 |
+  | EWD998PCal | 27.78 | 27.91 | 1.00 | 4.86 | 4.76 | 1.02 | 160 / 230 |
+  | GameOfLife | 8.12 | 8.12 | 1.00 | 1.64 | 1.65 | 1.00 | 151 / 147 |
+  | MCBakery | 8.47 | 6.11 | 1.39 | 6.61 | 4.66 | 1.42 | 242 / 330 |
+  | MCDisruptor_MPMC | 1.47 | 0.87 | 1.69 | 0.44 | 0.34 | 1.28 | 84 / 172 |
+  | MCLamportMutex | 12.23 | 9.54 | 1.28 | 2.50 | 2.57 | 0.97 | 184 / 419 |
+  | MCbtree | 5.11 | 4.35 | 1.17 | 3.67 | 1.07 | 3.43 | 167 / 333 |
+  | SimpleRegular | 2.95 | 2.72 | 1.08 | 0.72 | 0.72 | 1.00 | 176 / 258 |
+  | TLCSailfish1 | 44.18 | 43.21 | 1.02 | 7.86 | 7.81 | 1.01 | 182 / 217 |
+
+  Geomean speedup with the tables on: 1.16 at 1 worker and 1.23 at 8. The
+  M0 ablation covered four models and missed this.
+- **Next: bound the tables.** They roughly double the 8-worker RSS of
+  several models (MCLamportMutex 184 to 419 MB). The per-worker tables need
+  a size cap that follows the run's memory budget, with an eviction that
+  never changes a result.
+- **Instructions retired, M3, at `0abc2844`, 1 worker, off / on:**
+
+  | Model | Instructions off / on | Cycles off / on | RSS off / on (MB) |
+  |---|---|---|---|
+  | MCLamportMutex | 114.2 G / 81.5 G | 24.5 G / 24.5 G | 54 / 86 |
+  | SimpleRegular | 26.6 G / 24.9 G | 5.3 G / 4.8 G | 40 / 47 |
+  | GameOfLife | 113.5 G / 113.6 G | 23.7 G / 24.3 G | 87 / 84 |
+  | CoffeeCan1000BeansSafety | 9.2 G / 9.5 G | 2.6 G / 2.6 G | 145 / 146 |
+
+  The counts are identical in every run.
+- **x86 bench (lead, `f1ed932a`).** One-worker MCLamportMutex went from
+  10.47 s at M0 to 12.53 s. The bisection by instruction count puts 13.4 G
+  of the 24.5 G it gained since M0 on the memo-off commit (`0bff25aa`).
+- **Cost.** The tables add their memory: about 32 MB on MCLamportMutex.
+  Finer keys (below) would cut that.
+
+The first decision's evidence, kept for the record:
 - **x86 (M0 ablation, `m0-results.md` §3).** `-memo` gives 0.96 on CoffeeCan,
   0.97 on SimpleRegular, 1.04 on MCLamportMutex and 1.00 on GameOfLife. No
   model gains more than noise.
@@ -188,13 +228,15 @@ The parent-delta skip stays on: it costs nothing measurable and is exact.
   | EWD998PCal (safety) | 2.14 | 2.14 | 30 / 23 |
 
   The counts are identical in every run.
-- **Reading.** Where states share sub-values, hash-consing and the
+- **Reading (superseded).** Where states share sub-values, hash-consing and the
   parent-delta skip already remove the work the tables would save. The tables
   then cost a lookup per site visit and their memory: 26 MB on
   MCLamportMutex, 8 MB on EWD998PCal.
-- **What would change the decision.** Keys on sub-values (`f[p]` instead of
-  all of `f`), once the read-set analysis can name them. Then a guard on one
-  process's slot would hit across states that differ elsewhere. Also tables
-  sized from each site's observed key diversity. Revisit with the M2
-  benchmark campaign (`09-performance-method.md`). Rerun this table on x86
-  before relying on its magnitudes.
+- **Next.** Keys on sub-values (`f[p]` instead of all of `f`), once the
+  read-set analysis can name them. Then a guard on one process's slot would
+  hit across states that differ elsewhere. Also tables sized from each
+  site's observed key diversity, which would cut their memory. Revisit with
+  the M2 benchmark campaign (`09-performance-method.md`), measuring
+  instructions as well as time.
+
+The parent-delta skip stays on: it costs nothing measurable and is exact.

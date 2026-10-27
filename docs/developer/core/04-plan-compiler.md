@@ -704,8 +704,8 @@ Next (M1, stream 2), from the census:
      `CHOOSE` and recursion, no override), and the `SubSeq` forms of the
      selections (their argument-not-in-domain error class is not mapped
      yet).
-4. The memoization decision: made. The memo tables are off by default
-   (`06-memoization.md` §6).
+4. The memoization decision: made, then revised. The memo tables are on
+   by default (`06-memoization.md` §6).
 5. Native action splitting and constant evaluation, to drop the reference
    binder from the handoff.
 6. Model values: built (§5.3). Of the 23 small-tier models refused for
