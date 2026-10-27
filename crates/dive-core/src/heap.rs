@@ -30,6 +30,11 @@ pub struct Heap {
     /// Interned enumerations of persistent finite symbolic sets, for
     /// [`Heap::materialize_cached`].
     materialized: std::collections::HashMap<Handle, Handle>,
+    /// This heap's copy of the string table's texts, by id, extended on a
+    /// miss: string comparisons read it without the table's lock, which
+    /// every worker would otherwise share (#550). Ids never change their
+    /// text, so a copy never goes stale.
+    texts: std::cell::RefCell<Vec<Arc<str>>>,
 }
 
 /// The closure of a lazy node ([`Heap::closure`]).
@@ -69,6 +74,29 @@ impl Heap {
             full_hash,
             int_mode,
             materialized: std::collections::HashMap::new(),
+            texts: std::cell::RefCell::new(Vec::new()),
+        }
+    }
+
+    /// Compares two string or model-value ids in the table's order, as
+    /// [`crate::strings::Strings::cmp`] does, from this heap's copy of the
+    /// texts.
+    fn str_cmp(&self, a: u32, b: u32) -> Ordering {
+        if a == b {
+            return Ordering::Equal;
+        }
+        let strings = self.store.strings();
+        if strings.order() == crate::strings::StringOrder::Token {
+            return a.cmp(&b);
+        }
+        let mut texts = self.texts.borrow_mut();
+        if a.max(b) as usize >= texts.len() {
+            let more = strings.texts_from(texts.len());
+            texts.extend(more);
+        }
+        match (texts.get(a as usize), texts.get(b as usize)) {
+            (Some(x), Some(y)) => x.cmp(y),
+            _ => a.cmp(&b),
         }
     }
 
@@ -311,12 +339,12 @@ impl Heap {
             Tag::Bool => a.as_bool().cmp(&b.as_bool()),
             Tag::Int => a.as_int().cmp(&b.as_int()),
             Tag::Str => match (a.as_str_id(), b.as_str_id()) {
-                (Some(x), Some(y)) => self.store.strings().cmp(x, y),
+                (Some(x), Some(y)) => self.str_cmp(x, y),
                 _ => Ordering::Equal,
             },
             // By name, as strings (D2).
             Tag::Model => match (a.as_model_id(), b.as_model_id()) {
-                (Some(x), Some(y)) => self.store.strings().cmp(x, y),
+                (Some(x), Some(y)) => self.str_cmp(x, y),
                 _ => Ordering::Equal,
             },
             Tag::Persistent | Tag::Transient => self.cmp_compound(a, b),
@@ -1243,6 +1271,21 @@ mod tests {
 
     fn heap(full: bool) -> Heap {
         Heap::new(Arc::new(Store::default()), false, full)
+    }
+
+    /// The heap's copy of the string texts orders strings as the table
+    /// does, also for strings interned after the copy was first made.
+    #[test]
+    fn string_comparison_follows_the_table_as_it_grows() {
+        let h = heap(false);
+        let t = h.store().strings();
+        let id = |s: &str| t.intern(s).unwrap_or(u32::MAX);
+        let (b, a) = (id("b"), id("a"));
+        assert_eq!(h.str_cmp(b, a), Ordering::Greater);
+        let (c, aa) = (id("c"), id("aa"));
+        for (x, y) in [(a, b), (b, c), (aa, a), (aa, b), (c, aa), (c, c)] {
+            assert_eq!(h.str_cmp(x, y), t.cmp(x, y), "{x} {y}");
+        }
     }
 
     #[test]
