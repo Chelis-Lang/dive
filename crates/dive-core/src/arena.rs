@@ -4,9 +4,14 @@
 //! vector and their contents in one pool of handles, so building a value does
 //! not allocate once both vectors have grown to their steady size (S7). The
 //! arena is reset after each expansion and its epoch incremented. A handle
-//! carries the epoch it was created in; dereferencing a handle from an older
-//! epoch is an internal error. The check runs in every build, so a stale
+//! carries the epoch it was created in, and so does its node; dereferencing a
+//! handle whose node is gone, or whose slot now holds a node of another
+//! epoch, is an internal error. The check runs in every build, so a stale
 //! handle is reported as a bug, never silently misread.
+//!
+//! A [`Mark`] and [`Arena::rollback`] free the nodes allocated after the mark
+//! (for example a rejected filter candidate) and start a new epoch for later
+//! allocations, so a handle to a freed node is detected in the same way.
 //!
 //! The `-arena` ablation keeps each node's contents in its own heap
 //! allocation instead of the pool, freed at reset, which is what a design with
@@ -43,6 +48,18 @@ pub struct Arena {
     stale: std::cell::Cell<bool>,
     peak_nodes: usize,
     peak_pool: usize,
+    /// Resets so far: a mark is valid only within the reset it was taken in.
+    resets: u64,
+    rollbacks: u64,
+}
+
+/// A point in an arena's allocation, for [`Arena::rollback`].
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Mark {
+    resets: u64,
+    nodes: usize,
+    pool: usize,
+    boxed: usize,
 }
 
 impl Arena {
@@ -59,7 +76,55 @@ impl Arena {
             stale: std::cell::Cell::new(false),
             peak_nodes: 0,
             peak_pool: 0,
+            resets: 0,
+            rollbacks: 0,
         }
+    }
+
+    fn next_epoch(&mut self) {
+        self.epoch = (self.epoch + 1) & EPOCH_MASK;
+        if self.epoch == 0 {
+            self.epoch = 1;
+        }
+    }
+
+    /// The current allocation point.
+    #[must_use]
+    pub fn mark(&self) -> Mark {
+        Mark {
+            resets: self.resets,
+            nodes: self.nodes.len(),
+            pool: self.pool.len(),
+            boxed: self.boxed.len(),
+        }
+    }
+
+    /// Frees every node allocated after `mark`. Later allocations get a new
+    /// epoch, so a kept handle to a freed node is detected as stale. A mark
+    /// from before the last reset is a bug: it is recorded as a stale access
+    /// and nothing is freed.
+    pub fn rollback(&mut self, mark: Mark) {
+        if mark.resets != self.resets || mark.nodes > self.nodes.len() {
+            self.stale.set(true);
+            return;
+        }
+        if mark.nodes == self.nodes.len() {
+            return;
+        }
+        self.peak_nodes = self.peak_nodes.max(self.nodes.len());
+        self.peak_pool = self.peak_pool.max(self.pool.len());
+        self.nodes.truncate(mark.nodes);
+        self.interned.truncate(mark.nodes);
+        self.pool.truncate(mark.pool);
+        self.boxed.truncate(mark.boxed);
+        self.rollbacks += 1;
+        self.next_epoch();
+    }
+
+    /// The number of rollbacks that freed at least one node.
+    #[must_use]
+    pub fn rollbacks(&self) -> u64 {
+        self.rollbacks
     }
 
     /// Frees every transient and starts a new epoch.
@@ -70,10 +135,8 @@ impl Arena {
         self.pool.clear();
         self.boxed.clear();
         self.interned.clear();
-        self.epoch = (self.epoch + 1) & EPOCH_MASK;
-        if self.epoch == 0 {
-            self.epoch = 1;
-        }
+        self.resets += 1;
+        self.next_epoch();
     }
 
     /// The current epoch.
@@ -157,7 +220,7 @@ impl Arena {
     pub(crate) fn lookup(&self, h: Handle) -> Option<View<'_>> {
         let (epoch, index) = h.transient_parts();
         let n = self.nodes.get(index as usize)?;
-        if n.epoch != epoch || epoch != self.epoch {
+        if n.epoch != epoch {
             return None;
         }
         let data: &[Handle] = if self.heap_mode {
@@ -178,7 +241,10 @@ impl Arena {
     /// The index of a transient handle of this epoch.
     pub(crate) fn index(&self, h: Handle) -> Option<usize> {
         let (epoch, index) = h.transient_parts();
-        (epoch == self.epoch && (index as usize) < self.nodes.len()).then_some(index as usize)
+        self.nodes
+            .get(index as usize)
+            .is_some_and(|n| n.epoch == epoch)
+            .then_some(index as usize)
     }
 
     /// Records a stale access found elsewhere.
@@ -206,6 +272,39 @@ mod tests {
             assert!(a.lookup(h).is_none());
             assert!(!a.stale(), "a plain lookup does not record a miss");
             assert_eq!(a.lookup(g).map(|v| v.hash), Some(9));
+        }
+    }
+
+    #[test]
+    fn rollback_frees_later_nodes_and_keeps_earlier_ones() {
+        for heap in [false, true] {
+            let mut a = Arena::new(heap);
+            let one = Handle::int(1).unwrap_or(Handle::EMPTY);
+            let keep = a.alloc(Kind::Set, 0, 1, 1, &[one]);
+            let m = a.mark();
+            let gone = a.alloc(Kind::Set, 0, 2, 2, &[one, one]);
+            a.rollback(m);
+            assert_eq!(a.len(), 1);
+            assert_eq!(a.lookup(keep).map(|v| v.hash), Some(1));
+            assert!(a.lookup(gone).is_none());
+            // The freed slot is reused under a new epoch: the old handle
+            // still does not resolve.
+            let again = a.alloc(Kind::Set, 0, 3, 3, &[]);
+            assert_ne!(again, gone);
+            assert!(a.lookup(gone).is_none());
+            assert_eq!(a.lookup(again).map(|v| v.hash), Some(3));
+            assert_eq!(a.lookup(keep).map(|v| v.data.len()), Some(1));
+            assert_eq!(a.rollbacks(), 1);
+            // A rollback with nothing to free changes nothing.
+            let e = a.epoch();
+            let m = a.mark();
+            a.rollback(m);
+            assert_eq!(a.epoch(), e);
+            assert!(!a.stale());
+            // A mark from before a reset is a bug.
+            a.reset();
+            a.rollback(m);
+            assert!(a.stale());
         }
     }
 }
