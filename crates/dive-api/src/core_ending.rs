@@ -90,7 +90,7 @@ fn check_of(model: &Model, site: Site) -> Option<(&Named, ErrorSite)> {
             .get(i)
             .map(|c| (c, ErrorSite::ActionConstraint)),
         Site::Invariant(i) => model.invariants.get(i).map(|c| (c, ErrorSite::Invariant)),
-        Site::Init | Site::Next(_) | Site::Incomplete => None,
+        Site::Init | Site::Next(_) | Site::Incomplete | Site::Fingerprint => None,
     }
 }
 
@@ -133,6 +133,24 @@ fn reproduce(
                 .map(|_| ())
                 .map_err(|e| e.error)
         }),
+        Site::Fingerprint => {
+            let t = f
+                .state
+                .as_deref()
+                .ok_or("a fingerprint failure without its state")?;
+            let t = state(model, store, t)?;
+            let vals: Vec<Value> = t
+                .iter()
+                .map(|v| v.clone().ok_or("an unassigned variable"))
+                .collect::<Result<_, _>>()?;
+            let fp = dive_store::state::StateFingerprinter::new(0)
+                .ok_or("no fingerprint polynomial 0")?;
+            match fp.fingerprint(&vals, ev.options().ctx) {
+                Err(dive_store::StoreError::Value(v)) => Ok(EvalError::from(v)),
+                Err(e) => Err(format!("the reference store fails otherwise: {e}")),
+                Ok(_) => Err("the reference engine fingerprints the state".into()),
+            }
+        }
         Site::Next(i) => {
             let a = model
                 .actions
@@ -227,6 +245,7 @@ fn classified(model: &Model, f: &Failure, e: &EvalError) -> Verdict {
     match f.site {
         Site::Init => classify::search_error(e, ErrorSite::Init, None),
         Site::Next(_) | Site::Incomplete => classify::search_error(e, ErrorSite::Next, None),
+        Site::Fingerprint => classify::search_error(e, ErrorSite::Fingerprint, None),
         site => match check_of(model, site) {
             Some((c, s)) => classify::search_error(e, s, Some(&c.name)),
             None => classify::search_error(e, ErrorSite::Next, None),

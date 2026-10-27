@@ -405,6 +405,11 @@ impl Explorer<'_> {
         if matches!(probe, Probe::Seen) {
             return Ok(());
         }
+        if in_model && !fingerprintable(m, self.initial)? {
+            self.failure = Some(self.failure_at(m, Site::Fingerprint, FP_MESSAGE.into())?);
+            self.end_here(m)?;
+            return Err(Error::stop());
+        }
         // TLC inserts a new state, counting it and its level, before it
         // checks the invariants.
         if in_model {
@@ -599,6 +604,51 @@ pub(crate) fn changed_vars(m: &Machine) -> u64 {
         }
     }
     changed
+}
+
+/// The core's message for [`Site::Fingerprint`]; the caller reports TLC's.
+const FP_MESSAGE: &str = "a state holds a set that cannot be fingerprinted";
+
+/// Whether TLC can fingerprint the new state in `m.s1`, which it does before
+/// inserting a state inside the model (`ErFpInfinite`). The variables are
+/// interned in place first, which closes every finite set, so any set kind
+/// left is an infinite one (`Nat`, `Int`, an infinite `Seq(S)` and the
+/// like). Only the variables that differ from the parent's are read: the
+/// parent was fingerprinted. A flagged state the reference fingerprinter
+/// accepts is refused when the ending is reported, never reported as an
+/// error.
+///
+/// # Errors
+/// A value too large to intern.
+pub(crate) fn fingerprintable(m: &mut Machine, initial: bool) -> Result<bool, Error> {
+    for i in 0..m.s1.len() {
+        let h = m.s1[i];
+        if h.is_empty() || !h.is_compound() || (!initial && m.s0.get(i) == Some(&h)) {
+            continue;
+        }
+        let p = m.heap.intern(h)?;
+        m.s1[i] = p;
+        if !closed_fingerprintable(&m.heap, p) {
+            return Ok(false);
+        }
+    }
+    Ok(true)
+}
+
+/// Whether an interned value holds no infinite set.
+fn closed_fingerprintable(heap: &dive_core::Heap, h: Handle) -> bool {
+    use dive_core::node::Kind;
+    if !h.is_compound() {
+        return true;
+    }
+    let v = heap.view(h);
+    match v.kind {
+        Kind::Set | Kind::IntFcn | Kind::Fcn => {
+            v.data.iter().all(|&d| closed_fingerprintable(heap, d))
+        }
+        Kind::BigInt | Kind::Interval => true,
+        _ => false,
+    }
 }
 
 /// Evaluates a step predicate on `(m.s0, m.s1)`.
