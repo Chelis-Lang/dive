@@ -106,6 +106,17 @@ fn unsupported_features_are_named_without_fallback() {
     );
 }
 
+/// Unions with an infinite side stay lazy (`04-plan-compiler.md` §4.2).
+#[test]
+fn unions_with_an_infinite_side_stay_lazy() {
+    let name = "InfCup";
+    let reference = run(name, Engine::Reference);
+    let core = run(name, Engine::Core);
+    assert_eq!(core["engine"], "core", "{name}");
+    assert_eq!(counts(&core), counts(&reference), "{name}: {core:#}");
+    assert_eq!(core["property"], reference["property"], "{name}");
+}
+
 #[test]
 fn zero_to_the_zero_is_tlcs_evaluation_error() {
     // M0 answered 0^0 = 1 and reported success; TLC raises 2180.

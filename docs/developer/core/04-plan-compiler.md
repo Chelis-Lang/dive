@@ -290,6 +290,30 @@ Every one agrees with the reference engine, or is refused. The fixture
 `crates/dive-api/tests/fixtures/core-m0/Lazy.tla` covers the successful paths
 in the test suite.
 
+### 4.2 Unions with an infinite side (built)
+
+TLC keeps `A \cup B` (`SetCupValue`) and `UNION S` (`UnionValue`) lazy.
+Membership tests each side, or each member, in turn. Enumerating one with an
+infinite side fails.
+- **Before.** The core refused `A \cup B` with an infinite side ("union of
+  an infinite set"), and enumerated `UNION` members, which fails on an
+  infinite member.
+- **Now.** Both build the heap's lazy `Kind::Union` node (`Heap::union`)
+  when some side or member cannot be enumerated. The membership arm already
+  follows `SetCupValue.member`. Finite unions are still built eagerly.
+- **Errors.** An error raised while normalizing or testing one, such as
+  `UNION {Nat, {NULL}}`, is reproduced with the reference evaluator, as
+  every core error is (`crates/dive-api/src/core_ending.rs`).
+
+Fixture `InfCup` (18 distinct, 100 generated, depth 3, as TLC) covers:
+- `Int \cup {NULL}`;
+- `UNION {[D -> Int \cup {NULL}]}`;
+- `Seq(Int \cup {NULL})`;
+- a finite `UNION` joined with `Nat`.
+
+MCDisruptor_MPMC (112929 distinct, 422781 generated, depth 81) agrees
+with the reference engine once §2.1 is in as well.
+
 ## 5. Error classes
 
 Compiled nodes raise typed errors that carry the error-class (EC) code. They
