@@ -16,12 +16,12 @@ for the workstream you are joining.
 |---|---|---|---|---|
 | Design docs (Phase 0) | P0 | done | #496 | this directory |
 | Host-hook lock (#495), old engine | Day 0 | done | #497 | `01-motivation.md` |
-| Rebaseline on x86 | Day 0 | in progress (bench node) | — | `09-performance-method.md` |
+| Rebaseline on x86 | Day 0 | done | #522 | `09-performance-method.md` |
 | M0 spike | M0 | done: 1.81× TLC, 5.21× reference (x86 geomean); merged as `--engine=core` | #505 | `m0-results.md` |
-| 1. Values and store | M1 | in progress: interface freeze, inline node data, RSS (R10), lazy values, big ints | `core/values-*` | `03-value-model.md` |
-| 2. Plan compiler and laziness | M1 | in progress: coverage histogram, fold bound (R9), laziness, breadth, error classes, memo decision | `core/compiler-*` | `04-plan-compiler.md`, `06-memoization.md` |
-| 3. Successor generation and engine | M1 | in progress: full `getNextStates`, traces, error endings, budgets, parallel engine, static fallback | `core/engine-*` | `05-successor-generation.md`, `07-engine.md` |
-| 4. Harness, shadow comparison, bench | M1 | lead | — | `08-correctness.md`, `09-performance-method.md` |
+| 1. Values and store | M1 | in progress: stdlib and CommunityModules operators in `dive-core/src/stdlib/`; done: inline node data, lazy values, big ints, model values, `isNorm`, intern-token strings, Bags | `core/values-*` | `03-value-model.md` |
+| 2. Plan compiler and laziness | M1 | in progress: non-constant split arguments, INSTANCE by non-top-level operators, lazy infinite unions; done: fold bound (R9), TLC lazy values, INSTANCE, error classes, memo off by default, operator arguments, lazy LET, failing ASSUME | `core/compiler-*` | `04-plan-compiler.md`, `06-memoization.md` |
+| 3. Successor generation and engine | M1 | in progress: refusal census, liveness adapter (pulled forward from M3), then #550 and #551; done: traces, error endings, budgets, parallel engine, `--engine=auto` fallback, `--compat=tlc` on the core at any worker count | `core/engine-*` | `05-successor-generation.md`, `07-engine.md` |
+| 4. Harness, shadow comparison, bench | M1 | lead; done: harness engine selection, shadow gate in CI, successor sampling, M1 x86 checkpoint (`10-plan.md` §5) | — | `08-correctness.md`, `09-performance-method.md` |
 
 The umbrella issue is #498. The M0 spike landed on `main` in #505; its results
 are in `m0-results.md`. M1 streams 1–3 started 2026-10-26, each in its own
