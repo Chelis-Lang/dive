@@ -373,6 +373,11 @@ fn handoff<'a>(model: &'a dive_model::Model, ir: &'a Ir) -> Result<Handoff<'a>, 
     })
 }
 
+/// The reference engine's note on a stop in the default profile (D-010).
+/// `core_rules.rs` checks that the core's notes equal the reference
+/// engine's on every fixture.
+const CANONICAL_STOP_NOTE: &str = "The default profile explores sets in canonical order (D-010). When several violations are reachable at the same depth, which one is reported, and the counts at the stop, may differ under --compat=tlc; dive does not yet detect whether the order mattered in this run.";
+
 /// Runs the core engine.
 #[allow(clippy::too_many_lines, reason = "the stages of a core run, in order")]
 pub(crate) fn check(
@@ -591,6 +596,12 @@ pub(crate) fn check(
     }
     let prints = !in_init || matches!(verdict, Verdict::EvaluationError { .. });
     let mut r = result(verdict, options, ir);
+    // The reference engine's D-010 qualification of a stop in the default
+    // profile (`dive_check::note_canonical_stop`); the core refuses
+    // `--compat=tlc`, where TLC's order needs no note.
+    if !profile_tlc && r.verdict.is_verdict() && r.verdict != Verdict::Success {
+        r.notes.push(CANONICAL_STOP_NOTE.to_owned());
+    }
     r.workers.used = workers;
     r.workers.reason = None;
     for (var, at) in &out.warnings {
