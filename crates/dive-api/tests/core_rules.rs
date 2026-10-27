@@ -85,6 +85,7 @@ fn observed(v: &Value) -> Value {
         "queue": v["statistics"]["left_on_queue"],
         "exit": v["exit"],
         "output": v["output"],
+        "notes": v["notes"],
         "trace": v["counterexample"]["length"],
     })
 }
