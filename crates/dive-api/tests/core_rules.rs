@@ -32,6 +32,9 @@ const REFUSED: &[(&str, &str)] = &[
     ("NxInstance", "INSTANCE"),
     // Implied action properties (not yet in the core).
     ("ImpliedActionSeen", "temporal"),
+    // The core raises the error while assigning `x' = Nat`; TLC (and the
+    // reference engine) only when fingerprinting the successor.
+    ("ErFpInfinite", "does not reproduce"),
 ];
 
 fn repo() -> PathBuf {
@@ -86,12 +89,18 @@ fn observed(v: &Value) -> Value {
         "queue": v["statistics"]["left_on_queue"],
         "exit": v["exit"],
         "output": v["output"],
+        "trace": v["counterexample"]["length"],
     })
 }
 
 /// TLC's final counts: generated, distinct, left on queue.
+/// Only for a run TLC completes too: where the default profile does better
+/// (for example, no overflow, D-008), TLC stops early.
 fn tlc_counts(transcript: &Path) -> Option<(u64, u64, u64)> {
     let text = std::fs::read_to_string(transcript).ok()?;
+    if !text.contains("No error has been found") {
+        return None;
+    }
     text.lines()
         .filter_map(|l| {
             let (g, rest) = l.split_once(" states generated, ")?;
@@ -107,6 +116,15 @@ fn check_dir(dir: &str) -> usize {
     let mut agreed = 0;
     for (name, spec, transcript) in specs(dir) {
         let core = run(&spec, Engine::Core);
+        if core["verdict"] == "rejected" {
+            // Rejected before any engine runs.
+            assert_eq!(
+                run(&spec, Engine::Reference)["verdict"],
+                "rejected",
+                "{name}"
+            );
+            continue;
+        }
         assert_eq!(core["engine"], "core", "{name}");
         if let Some((_, word)) = REFUSED.iter().find(|(n, _)| *n == name) {
             assert_eq!(core["verdict"], "unsupported", "{name}: {core:#}");
@@ -116,14 +134,13 @@ fn check_dir(dir: &str) -> usize {
             );
             continue;
         }
-        if core["verdict"] == "unsupported" {
-            // Error endings are classified by the engine's error PR; until
-            // then they must be refused, not answered.
+        let reference = run(&spec, Engine::Reference);
+        if core["verdict"] == "unsupported" && observed(&core) != observed(&reference) {
+            // Only a construct the core names as not implemented yet.
             let m = core["message"].as_str().unwrap_or("");
-            assert!(m.contains("evaluation error"), "{name}: {core:#}");
+            assert!(m.contains("(M0 core"), "{name}: {core:#}");
             continue;
         }
-        let reference = run(&spec, Engine::Reference);
         assert_eq!(observed(&core), observed(&reference), "{name}");
         if core["verdict"] == "success"
             && let Some((g, d, q)) = tlc_counts(&transcript)
@@ -146,15 +163,27 @@ fn check_dir(dir: &str) -> usize {
 #[test]
 fn rule_fixtures_match_the_reference_and_tlc() {
     let agreed = check_dir("crates/dive-eval/tests/fixtures/next");
-    // 18 fixtures: 13 agree, NxInLazyCup is refused by rule, and
-    // NxEnabled, NxInstance and NxUnassigned wait for other work.
-    assert!(agreed >= 13, "only {agreed} rule fixtures agreed");
+    // 18 fixtures: 14 agree, NxInLazyCup is refused by rule, and
+    // NxEnabled and NxInstance wait for stream 2.
+    assert!(agreed >= 14, "only {agreed} rule fixtures agreed");
 }
 
 #[test]
 fn tlc_probes_match_the_reference_and_tlc() {
     let agreed = check_dir("crates/dive-check/tests/fixtures/tlc-probes");
-    assert!(agreed >= 17, "only {agreed} probes agreed");
+    assert!(agreed >= 18, "only {agreed} probes agreed");
+}
+
+/// The error-class fixtures (`crates/dive-check/tests/fixtures/errors/`):
+/// the core's error endings (class, exit, counts after TLC's call-stack
+/// replay, trace length) equal the reference engine's.
+#[test]
+fn error_fixtures_match_the_reference() {
+    let agreed = check_dir("crates/dive-check/tests/fixtures/errors");
+    // 175 fixtures: 84 agree; the rest use VIEW, ALIAS, POSTCONDITION,
+    // properties, Print, Assert, ENABLED, ASSUME errors or recursive
+    // functions, which the core does not run yet.
+    assert!(agreed >= 84, "only {agreed} error fixtures agreed");
 }
 
 /// The M1 generator fixtures (`tests/fixtures/core-m1`): each agrees with

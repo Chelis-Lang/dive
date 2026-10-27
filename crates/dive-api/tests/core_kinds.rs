@@ -7,8 +7,10 @@
 //! so is membership of a value of the wrong class in a set. The core must
 //! never answer such a comparison: before this test it answered `FALSE`, so
 //! that a run TLC stops with an error reported success or a deadlock. Each
-//! case runs on both engines; the core must give the reference's verdict and
-//! counts, or refuse the run (it does not classify evaluation errors yet).
+//! case runs on both engines; the core must give the reference's verdict,
+//! counts and exit (its error endings are classified as the reference
+//! engine classifies them, `crates/dive-api/src/core_ending.rs`), except
+//! that it refuses a set whose elements mix classes.
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
 
 use std::path::Path;
@@ -59,8 +61,8 @@ const CASES: &[&str] = &[
     r#"{x} \cap {"a"} = {}"#,
 ];
 
-/// The sets whose elements mix classes, which the core refuses
-/// (`crates/dive-core/src/compare.rs`).
+/// The cases the core refuses: an enumerated set whose elements mix
+/// classes (`crates/dive-core/src/compare.rs`).
 const MIXED: &[&str] = &[
     r#"x \in {1, "b"} \/ TRUE"#,
     r#"x \in {0, "b"}"#,
@@ -99,8 +101,8 @@ fn observed(v: &Value) -> Value {
 fn comparisons_across_kinds_are_never_answered_wrongly() {
     let dir = std::env::temp_dir().join(format!("dive-core-kinds-{}", std::process::id()));
     std::fs::create_dir_all(&dir).expect("temp dir");
-    let mut refused = 0;
-    let mut answerable_refused = Vec::new();
+    let mut errors = 0;
+    let mut refused = Vec::new();
     for (i, inv) in CASES.iter().enumerate() {
         let name = format!("K{i}");
         let spec = dir.join(format!("{name}.tla"));
@@ -119,15 +121,13 @@ fn comparisons_across_kinds_are_never_answered_wrongly() {
         .expect("cfg");
         let core = run(&spec, Engine::Core);
         let reference = run(&spec, Engine::Reference);
-        // Never a wrong answer: the reference result, or an explicit
-        // refusal. The core refuses an error until it classifies errors,
-        // and refuses a set whose elements mix classes
-        // (`04-plan-compiler.md` §7).
+        if reference["verdict"] == "evaluation-error" {
+            errors += 1;
+        }
+        // The reference result, or an explicit refusal of a set whose
+        // elements mix classes (`04-plan-compiler.md` §5.1).
         if core["verdict"] == "unsupported" {
-            refused += 1;
-            if reference["verdict"] != "evaluation-error" {
-                answerable_refused.push(*inv);
-            }
+            refused.push(*inv);
             continue;
         }
         assert_eq!(
@@ -137,11 +137,9 @@ fn comparisons_across_kinds_are_never_answered_wrongly() {
         );
     }
     let _ = std::fs::remove_dir_all(&dir);
-    assert!(refused > 0);
-    // Only the mixed-class sets may be refused where the reference engine
-    // answers.
-    // Where the reference engine answers, only a mixed set may be refused.
-    for inv in &answerable_refused {
-        assert!(MIXED.contains(inv), "refused an answerable case: {inv}");
-    }
+    assert_eq!(refused, MIXED, "refused cases");
+    assert!(
+        errors >= 25,
+        "only {errors} cases end in an evaluation error"
+    );
 }

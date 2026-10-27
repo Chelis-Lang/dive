@@ -49,6 +49,7 @@ pub use config::{ConfigReport, parse_config_file, parse_config_source};
 
 mod analyze;
 mod check;
+mod core_ending;
 mod core_engine;
 pub use core_engine::Engine;
 /// Native safety checkpoint request and format API (ADR0033).

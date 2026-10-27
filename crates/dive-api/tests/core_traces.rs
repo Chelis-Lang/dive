@@ -8,7 +8,7 @@
 
 use std::path::{Path, PathBuf};
 
-use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
+use dive_api::trace::{Ending, Failure, SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Engine, check_file_engine};
 use serde_json::Value;
 
@@ -48,6 +48,23 @@ fn run(spec: &Path, engine: Engine) -> Value {
     .to_json()
 }
 
+/// The validator's known refutations of correct error endings (the
+/// reference engine's counterexamples are refuted the same way; see
+/// `counterexample_validation.rs`): #490, an evaluation error re-raised by a
+/// check of the last state, and #499, a last state outside `CONSTRAINT`.
+fn known(ending: Option<&Ending>, f: &Failure, last: usize) -> bool {
+    let check = f.check.name();
+    let raises = matches!(ending, Some(Ending::Error { .. } | Ending::Assertion));
+    f.state == last
+        && ((raises
+            && ["invariant", "constraint", "action-constraint"].contains(&check)
+            && !f.detail.contains("may lie outside the model"))
+            || (check == "constraint"
+                && f.detail.contains(
+                    "only the last state of an invariant violation may lie outside the model",
+                )))
+}
+
 fn validate(spec: &Path, trace: &Value) -> Result<(), String> {
     let doc = TraceDoc::from_json(trace).map_err(|e| format!("unreadable trace: {e}"))?;
     let options = TraceOptions {
@@ -61,7 +78,15 @@ fn validate(spec: &Path, trace: &Value) -> Result<(), String> {
         // The validator cannot confirm a deadlock on its own; the states and
         // steps it checks before saying so are still checked.
         Validation::Unsupported(why) if why.contains("deadlock") => Ok(()),
+        // Nor re-raise an error while expanding the last state, which needs
+        // the successor generator; it checks the steps before it says so.
+        Validation::Unsupported(why) if why.contains("the steps were checked") => Ok(()),
         Validation::Unsupported(why) => Err(format!("unsupported: {why}")),
+        Validation::Invalid(f)
+            if known(doc.ending.as_ref(), &f, doc.states.len().saturating_sub(1)) =>
+        {
+            Ok(())
+        }
         Validation::Invalid(f) => Err(format!("invalid at state {}: {}", f.state + 1, f.detail)),
     }
 }
@@ -72,6 +97,7 @@ fn core_counterexamples_equal_the_reference_and_validate() {
     for dir in [
         "crates/dive-eval/tests/fixtures/next/specs",
         "crates/dive-check/tests/fixtures/tlc-probes/specs",
+        "crates/dive-check/tests/fixtures/errors/specs",
         "crates/dive-api/tests/fixtures/core-m0",
         "crates/dive-api/tests/fixtures/core-m1",
     ] {
@@ -95,10 +121,9 @@ fn core_counterexamples_equal_the_reference_and_validate() {
         );
         let trace = &core["counterexample"]["trace"];
         if trace.is_null() {
-            assert!(
-                core["counterexample"].is_null(),
-                "{name}: a counterexample without a trace document"
-            );
+            // No trace document: no counterexample, or one with a state
+            // only TLC's text describes (an incomplete state), exactly as
+            // the reference engine reports it (compared above).
             continue;
         }
         if let Err(e) = validate(spec, trace) {
@@ -107,7 +132,7 @@ fn core_counterexamples_equal_the_reference_and_validate() {
         traced += 1;
     }
     assert!(
-        traced >= 10,
+        traced >= 60,
         "only {traced} core counterexamples were checked"
     );
 }

@@ -24,6 +24,7 @@
 //! `tests/golden.rs` for complete runs from TLA+ sources.
 #![forbid(unsafe_code)]
 
+pub mod ending;
 pub mod trace;
 
 use std::sync::Arc;
@@ -37,6 +38,7 @@ use dive_core::{Error, ErrorKind, Handle, Machine, Opts, Plan, Sink, Store};
 use dive_store::predecessor::PredecessorLog;
 use dive_store::trace::StateId;
 
+pub use ending::{Failure, Replayed, Site};
 pub use trace::TraceState;
 
 /// How a run ended.
@@ -53,6 +55,9 @@ pub enum Verdict {
     },
     /// A reachable state has no successors.
     Deadlock,
+    /// An evaluation error, or a state that is not completely specified,
+    /// ended the search: [`Outcome::failure`] says where.
+    Failed,
     /// A construct, size or error the M0 core does not handle.
     Unsupported {
         /// What it was.
@@ -117,9 +122,15 @@ pub struct Outcome {
     /// Warnings 2143 (variable, `UNCHANGED` site as an `ExprId` index), once each, in the
     /// order raised.
     pub warnings: Vec<(u16, u32)>,
-    /// The counterexample of a violation or deadlock, initial state first,
-    /// rebuilt by replay; `Err` when the replay failed (a core bug).
+    /// The counterexample of a violation, deadlock or failure, initial
+    /// state first, rebuilt by replay; `Err` when the replay failed (a core
+    /// bug). After a failure in a check, the last state is the one checked.
     pub trace: Option<Result<Vec<TraceState>, String>>,
+    /// Where the search failed ([`Verdict::Failed`]).
+    pub failure: Option<Failure>,
+    /// What TLC's call-stack replay changed after an invariant failed to
+    /// evaluate on a new successor.
+    pub replayed: Option<Replayed>,
 }
 
 /// Run settings.
@@ -258,6 +269,12 @@ struct Explorer<'p> {
     /// How the trace of a stop ends: the state to replay up to, and the
     /// last state when it is not a logged one.
     end: Option<End>,
+    /// Whether the state being checked passed the constraints.
+    in_model: bool,
+    /// `emitted` when the current action started.
+    action_start: u64,
+    /// The failure that stopped the search.
+    failure: Option<Failure>,
 }
 
 /// The end of a counterexample, recorded at the stop.
@@ -310,27 +327,43 @@ impl Explorer<'_> {
         r
     }
 
-    fn probe(&mut self, m: &mut Machine) -> Result<(Probe, bool), Error> {
+    /// Whether the state in `m.s1` satisfies the constraints, and the
+    /// action constraints on the step to it; on an error, its site.
+    fn in_model_of(&mut self, m: &mut Machine) -> Result<bool, (Site, Error)> {
         let plan = self.plan;
         let code = &plan.code;
-        // Constraints first.
-        let mut in_model = true;
-        for c in &plan.constraints {
-            if !self.check(m, code, c)? {
-                in_model = false;
-                break;
+        for (i, c) in plan.constraints.iter().enumerate() {
+            if !self
+                .check(m, code, c)
+                .map_err(|e| (Site::Constraint(i), e))?
+            {
+                return Ok(false);
             }
         }
         // `ACTION_CONSTRAINT`s, on the step from the parent (TLC's
         // `isInActions`, after `isInModel`); never on initial states.
-        if in_model && !self.initial {
-            for c in &plan.action_constraints {
-                if !check_step(m, code, c)? {
-                    in_model = false;
-                    break;
+        if !self.initial {
+            for (i, c) in plan.action_constraints.iter().enumerate() {
+                if !check_step(m, code, c).map_err(|e| (Site::ActionConstraint(i), e))? {
+                    return Ok(false);
                 }
             }
         }
+        Ok(true)
+    }
+
+    fn probe(&mut self, m: &mut Machine) -> Result<(Probe, bool), Error> {
+        let in_model = match self.in_model_of(m) {
+            Ok(b) => b,
+            Err((site, e)) => {
+                let e = self.fail_check(m, site, e);
+                if self.failure.is_some() {
+                    self.end_here(m)?;
+                }
+                return Err(e);
+            }
+        };
+        self.in_model = in_model;
         if !self.opts.early_probe {
             for i in 0..m.s1.len() {
                 m.s1[i] = m.heap.intern(m.s1[i])?;
@@ -360,15 +393,10 @@ impl Explorer<'_> {
                     .filter(|(h, _)| h.is_empty())
                     .map(|(_, n)| n.as_str())
                     .collect();
-            return Err(Error::eval(format!(
-                "{} is not completely specified (variables {})",
-                if self.initial {
-                    "an initial state"
-                } else {
-                    "a successor state"
-                },
-                missing.join(", ")
-            )));
+            let message = format!("not completely specified: {}", missing.join(", "));
+            self.failure = Some(self.failure_at(m, Site::Incomplete, message)?);
+            self.end_here(m)?;
+            return Err(Error::stop());
         }
         if !self.initial {
             self.changed = 0;
@@ -395,8 +423,18 @@ impl Explorer<'_> {
         if enqueue_first {
             self.enqueue(m)?;
         }
-        for c in &plan.invariants {
-            if !self.check(m, code, c)? {
+        for (i, c) in plan.invariants.iter().enumerate() {
+            let holds = match self.check(m, code, c) {
+                Ok(b) => b,
+                Err(e) => {
+                    let e = self.fail_check(m, Site::Invariant(i), e);
+                    if self.failure.is_some() {
+                        self.end_here(m)?;
+                    }
+                    return Err(e);
+                }
+            };
+            if !holds {
                 self.stop = Some(Verdict::InvariantViolated {
                     property: c.name.clone(),
                     initial: self.initial,
@@ -489,6 +527,7 @@ fn run_actions(
 ) -> Result<(), Error> {
     for (i, a) in actions.iter().enumerate() {
         ex.action = (!ex.initial).then_some(i);
+        ex.action_start = ex.emitted;
         let old = m.enter(a.frame);
         for &(slot, v) in &a.preset {
             if let Some(x) = m.frame.get_mut(m.base + slot as usize) {
@@ -532,8 +571,12 @@ pub fn explore(plan: &Plan, store: &Arc<Store>, config: Config) -> Outcome {
         next_ids: Vec::new(),
         cur_id: None,
         end: None,
+        in_model: true,
+        action_start: 0,
+        failure: None,
     };
-    let result = run(&mut m, &mut ex, plan, config);
+    let mut replayed = None;
+    let result = run(&mut m, &mut ex, plan, config, &mut replayed);
     let trace = ex
         .end
         .take()
@@ -541,6 +584,7 @@ pub fn explore(plan: &Plan, store: &Arc<Store>, config: Config) -> Outcome {
     let verdict = match result {
         Ok(()) => Verdict::Success,
         Err(e) => match e.into_parts() {
+            (ErrorKind::Stop, _) if ex.failure.is_some() => Verdict::Failed,
             (ErrorKind::Stop, _) => ex.stop.take().unwrap_or(Verdict::Success),
             (ErrorKind::Unsupported, message) => Verdict::Unsupported { feature: message },
             (ErrorKind::Eval, message) => Verdict::Unsupported {
@@ -572,6 +616,8 @@ pub fn explore(plan: &Plan, store: &Arc<Store>, config: Config) -> Outcome {
         metrics,
         warnings,
         trace,
+        failure: ex.failure,
+        replayed,
     }
 }
 
@@ -601,12 +647,35 @@ fn reconstruct(
     Ok(states)
 }
 
-fn run(m: &mut Machine, ex: &mut Explorer<'_>, plan: &Plan, config: Config) -> Result<(), Error> {
+/// Turns an evaluation error raised by the generator itself (not by a
+/// check in the sink, which records its own failure) into a failure.
+fn generator_error(m: &Machine, ex: &mut Explorer<'_>, e: Error) -> Error {
+    if e.kind() != ErrorKind::Eval || ex.failure.is_some() {
+        return e;
+    }
+    ex.failure = Some(ex.generator_failure(m, e.message().to_owned()));
+    if let Some(id) = ex.cur_id {
+        ex.end = Some(End {
+            upto: Some(id),
+            last: None,
+            expect: m.s0.clone(),
+        });
+    }
+    Error::stop()
+}
+
+fn run(
+    m: &mut Machine,
+    ex: &mut Explorer<'_>,
+    plan: &Plan,
+    config: Config,
+    replayed: &mut Option<Replayed>,
+) -> Result<(), Error> {
     let code = &plan.code;
     let nvars = plan.vars.len();
     if let Err(e) = run_actions(m, ex, &plan.init, code) {
         ex.stats.left_on_queue = (ex.next.len() / nvars.max(1)) as u64;
-        return Err(e);
+        return Err(generator_error(m, ex, e));
     }
     m.heap.reset();
     ex.initial = false;
@@ -622,7 +691,15 @@ fn run(m: &mut Machine, ex: &mut Explorer<'_>, plan: &Plan, config: Config) -> R
             m.s0.copy_from_slice(state);
             ex.cur_id = cur_ids.get(k).copied();
             ex.emitted = 0;
-            let r = run_actions(m, ex, &plan.next, code);
+            let r = run_actions(m, ex, &plan.next, code).map_err(|e| generator_error(m, ex, e));
+            if r.is_err()
+                && let Some(f) = &ex.failure
+                && f.site_resumes()
+            {
+                // TLC's call-stack replay (`ending.rs`).
+                let ordinal = ex.emitted - 1;
+                *replayed = Some(ending::replay_after(m, ex, ordinal)?);
+            }
             m.heap.reset();
             let left = (cur.len() / nvars - k - 1 + ex.next.len() / nvars) as u64;
             if let Err(e) = r {

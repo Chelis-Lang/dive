@@ -1,5 +1,9 @@
 # Changelog
 
+- `--engine core` reports evaluation errors and incompletely specified states
+  as the reference engine does: the same class and exit code, the counts
+  after TLC's call-stack replay, and the trace.
+
 - `--engine core` reports counterexamples for invariant violations and
   deadlocks, rebuilt from a predecessor log by replay, in the same JSON trace
   format as the reference engine. Every one validates with `dive-trace`.
