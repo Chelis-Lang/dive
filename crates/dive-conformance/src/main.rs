@@ -750,11 +750,15 @@ const SHADOW_SAMPLE: usize = 32;
 
 /// `shadow`: returns whether there were findings.
 fn cmd_shadow(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool> {
-    if o.imp.is_some() || o.impl_profile.is_some() || !o.impl_options.is_empty() {
+    if o.imp.is_some() || !o.impl_options.is_empty() {
         return Err(Error::Usage(
-            "shadow runs dive's two engines in the default profile; it takes no --impl, --impl-profile or --impl-option".to_owned(),
+            "shadow runs dive's two engines; it takes no --impl or --impl-option".to_owned(),
         ));
     }
+    let profile = match &o.impl_profile {
+        Some(p) => Profile::parse(p)?,
+        None => Profile::default(),
+    };
     let golden_oracle = match &o.golden_oracle {
         Some(id) => id.clone(),
         None => config.oracles.default_oracle()?.id.clone(),
@@ -776,6 +780,7 @@ fn cmd_shadow(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<b
         report_dir: o.report_dir.clone(),
         strict: o.strict,
         sample: o.sample.unwrap_or(SHADOW_SAMPLE),
+        profile,
     };
     let report = dive_conformance::shadow::run(config, cache, &golden_oracle, &bin, &opts)?;
     out(&format!(

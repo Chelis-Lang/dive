@@ -126,8 +126,18 @@ Where it runs:
   the core's inline range were reported as `<<>>` in counterexamples and
   wherever a core state is converted to the reference engine's values.
 
-Not built yet: shadowing under `--compat=tlc` (M2), and sampling from the
-initial-state predicate (only expanded states are sampled).
+- `--impl-profile tlc` shadows the two engines under `--compat=tlc` (M2):
+  the core runs one worker, the sample compares successors with the
+  reference evaluator bound in TLC's profile, and the report's `profile`
+  says which profile ran. Small tier at one worker (2026-10-27, M2 first
+  piece): 49 models agree and 107 are refused, with no finding. The one
+  model that agrees in the default profile but not under compat is
+  `P1Overflow`, whose numeral `2147483648` fails TLC's start-up. The
+  binding failure is refused instead of being reported as the reference
+  engine reports it.
+
+Not built yet: sampling from the initial-state predicate (only expanded
+states are sampled).
 
 ## 5. Differential fuzzing
 

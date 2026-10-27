@@ -76,8 +76,16 @@ discarded, so results are never mixed. The report names the engine that ran:
 
 A check that ends before any search, for example at a false `ASSUME`, names
 no engine. After a dynamic refusal, the reference run gets what is left of
-`--time-limit`. Under `--compat=tlc` the core always refuses, so auto runs
-the reference engine and stays TLC-equivalent.
+`--time-limit`. For now auto runs every `--compat=tlc` check on the
+reference engine.
+
+`--engine core --compat=tlc` runs TLC's profile on the core, on one worker.
+It covers TLC's string order, 32-bit integers, `\div` from `Naturals` and
+TLC's `x' \in S` order. Where TLC's comparisons could fail, or could answer
+differently from TLA+, the core refuses instead of answering. This happens,
+for example, when a tuple is compared with a record, or `{1}` with `{"a"}`.
+It also refuses a string that TLC first meets during the search, such as one
+built by `ToString`. Each of these refusals names `--compat=tlc`.
 
 The `DIVE_CORE_OPT` variable (for example `-fold,-delta-hash`) turns
 individual strategies off (`-name`) or on (`+name`) for measurement. Every

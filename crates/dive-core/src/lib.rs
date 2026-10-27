@@ -57,7 +57,7 @@ pub use handle::Handle;
 pub use heap::Heap;
 pub use opts::Opts;
 pub use plan::Plan;
-pub use store::Store;
+pub use store::{Semantics, Store};
 
 /// What kind of failure an [`Error`] is.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

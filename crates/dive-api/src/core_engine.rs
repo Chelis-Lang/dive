@@ -265,18 +265,18 @@ fn action_roles(
 /// Refuses what M0 does not model, before any work.
 /// A run option the core does not implement, which would change the
 /// result if the core ignored it.
-fn option_refusal(options: &CheckOptions) -> Option<String> {
-    let default_eval = dive_eval::Options {
-        warnings: options.eval.warnings,
-        ..dive_eval::Options::dive()
-    };
+fn option_refusal(options: &CheckOptions, profile_tlc: bool) -> Option<String> {
+    let e = &options.eval;
     let refused = if options.store == dive_store::StoreMode::Exact {
         "--store exact (the core keeps 64-bit state keys)"
-    } else if options.tlc_fingerprints {
-        "TLC fingerprints"
-    } else if options.eval != default_eval {
-        "evaluation options other than the default profile's \
-         (comparisons, exploration order, evaluation depth or action composition)"
+    } else if options.tlc_fingerprints && !profile_tlc {
+        "TLC fingerprints outside --compat=tlc"
+    } else if e.max_depth != dive_eval::Options::dive().max_depth {
+        "an evaluation depth other than the default"
+    } else if e.action_composition != dive_eval::Options::dive().action_composition
+        && e.action_composition != dive_eval::Options::tlc().action_composition
+    {
+        "--action-composition=tlc"
     } else if options.seen_disk.is_some()
         || options.frontier_memory_bytes.is_some()
         || options.frontier_directory.is_some()
@@ -378,6 +378,53 @@ fn handoff<'a>(model: &'a dive_model::Model, ir: &'a Ir) -> Result<Handoff<'a>, 
 /// engine's on every fixture.
 const CANONICAL_STOP_NOTE: &str = "The default profile explores sets in canonical order (D-010). When several violations are reachable at the same depth, which one is reported, and the counts at the stop, may differ under --compat=tlc; dive does not yet detect whether the order mattered in this run.";
 
+/// The core's value semantics for the run's evaluation options: each of
+/// `--compat=tlc`'s components maps to its own switch.
+fn semantics(eval: &dive_eval::Options) -> dive_core::Semantics {
+    dive_core::Semantics {
+        string_order: if eval.ctx.order == dive_value::ValueOrder::Tlc {
+            dive_core::strings::StringOrder::Token
+        } else {
+            dive_core::strings::StringOrder::Text
+        },
+        int_mode: match eval.ctx.int_mode {
+            dive_value::IntMode::Tlc => dive_core::int::IntMode::Tlc,
+            dive_value::IntMode::Big => dive_core::int::IntMode::Big,
+        },
+        tlc_comparisons: eval.comparisons == dive_eval::Comparisons::Tlc,
+        tlc_exploration: eval.exploration == dive_eval::ExplorationOrder::Tlc,
+    }
+}
+
+/// A store with the run's semantics. Under TLC's string order its table is
+/// first fed the reference binder's start-up names, in TLC's encounter
+/// order, and then sealed: a name TLC meets later gets a token that depends
+/// on evaluation order, which the core refuses rather than guess.
+fn store_for(
+    model: &dive_model::Model,
+    hashcons: bool,
+    semantics: dive_core::Semantics,
+) -> Result<dive_core::Store, String> {
+    let store = dive_core::Store::with_semantics(hashcons, semantics);
+    if semantics.string_order == dive_core::strings::StringOrder::Token {
+        let n = model.evaluator.startup_names();
+        let mut texts = Vec::with_capacity(n);
+        for tok in 0..n {
+            let atom = u32::try_from(tok)
+                .ok()
+                .and_then(|t| model.names.resolve(t))
+                .ok_or_else(|| format!("start-up name {tok} is missing from the name table"))?;
+            texts.push(atom);
+        }
+        store
+            .strings()
+            .preload(texts.iter().map(dive_value::Atom::as_str))
+            .map_err(|e| e.to_string())?;
+        store.strings().seal();
+    }
+    Ok(store)
+}
+
 /// Runs the core engine.
 #[allow(clippy::too_many_lines, reason = "the stages of a core run, in order")]
 pub(crate) fn check(
@@ -414,19 +461,7 @@ pub(crate) fn check(
         r.elapsed = started.elapsed();
         r
     };
-    if profile_tlc {
-        return (
-            finish(result(
-                unsupported(
-                    "--compat=tlc with --engine=core (M0 implements the default profile only)",
-                ),
-                options,
-                ir,
-            )),
-            run,
-        );
-    }
-    if let Some(feature) = option_refusal(options) {
+    if let Some(feature) = option_refusal(options, profile_tlc) {
         return (finish(result(unsupported(feature), options, ir)), run);
     }
     let bind = dive_model::BindOptions {
@@ -468,7 +503,15 @@ pub(crate) fn check(
         Ok(h) => h,
         Err(e) => return (finish(result(unsupported(e), options, ir)), run),
     };
-    let store = Arc::new(dive_core::Store::new(core_opts.hashcons));
+    let store = match store_for(&model, core_opts.hashcons, semantics(&options.eval)) {
+        Ok(s) => Arc::new(s),
+        Err(message) => {
+            return (
+                finish(result(Verdict::InternalError { message }, options, ir)),
+                run,
+            );
+        }
+    };
     let compile_started = Instant::now();
     let plan = match dive_core::compile(&h, Arc::clone(&store), core_opts) {
         Ok(p) => p,
@@ -486,8 +529,13 @@ pub(crate) fn check(
     // it; `--max-states` and `--max-depth` are admission limits.
     let budget = &options.budget;
     // Every observable result is the one-worker result
-    // (`docs/developer/core/07-engine.md` §3).
-    let workers = options.workers.max(1);
+    // (`docs/developer/core/07-engine.md` §3). M2 runs `--compat=tlc` on
+    // one worker until its parallel runs are shadowed.
+    let workers = if profile_tlc {
+        1
+    } else {
+        options.workers.max(1)
+    };
     let poll = || !matches!(budget.poll(), Ok(None));
     let explore_started = Instant::now();
     run.searched = true;

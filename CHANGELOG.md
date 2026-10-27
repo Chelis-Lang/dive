@@ -1,5 +1,13 @@
 # Changelog
 
+- `dive check --engine core --compat=tlc` runs TLC's profile on the new core,
+  on one worker. It covers TLC's string order, 32-bit integers, `\div` from
+  `Naturals` and TLC's `x' \in S` order. Comparisons TLC could fail on, and
+  strings TLC first meets during the search, are refused, naming
+  `--compat=tlc`. `--engine=auto` still runs `--compat=tlc` on the reference
+  engine. `dive-conformance shadow --impl-profile tlc` shadows the two engines
+  under `--compat=tlc`.
+
 - `--engine core` adds the default profile's D-010 note to a stop (a
   violation, deadlock or error), as the reference engine does. Its text
   output now equals the reference engine's on those endings.

@@ -50,6 +50,8 @@ pub struct ShadowOptions {
     /// Sample this many expanded states per core run and compare their
     /// successors with the reference evaluator's (`--sample`; 0: none).
     pub sample: usize,
+    /// The profile both engines run in (`--impl-profile`; default `dive`).
+    pub profile: crate::divergence::Profile,
 }
 
 /// The outcome of one model at one worker count.
@@ -140,6 +142,9 @@ pub struct ShadowReport {
     /// Whether refusals and timeouts were findings (`--strict`).
     #[serde(default)]
     pub strict: bool,
+    /// The profile both engines ran in.
+    #[serde(default)]
+    pub profile: crate::divergence::Profile,
     /// Rows by status.
     pub summary: BTreeMap<ShadowStatus, usize>,
     /// The rows, sorted.
@@ -328,6 +333,7 @@ pub fn run(
 ) -> Result<ShadowReport> {
     let mut core = DiveImplementation::prepare(config, cache, golden_oracle, bin)?;
     core.engine = DiveEngine::Core;
+    core.profile = opts.profile.clone();
     let mut reference = core.clone();
     reference.engine = DiveEngine::Reference;
     core.core_sample = (opts.sample > 0).then_some(opts.sample);
@@ -377,7 +383,16 @@ pub fn run(
     let now = unix_now();
     let report = ShadowReport {
         schema_version: SHADOW_SCHEMA,
-        run_id: format!("{}-shadow-{}", compact_stamp(now), opts.selection.tier),
+        run_id: format!(
+            "{}-shadow-{}{}",
+            compact_stamp(now),
+            opts.selection.tier,
+            if opts.profile == crate::divergence::Profile::Tlc {
+                "-tlc"
+            } else {
+                ""
+            }
+        ),
         generated_at: rfc3339(now),
         dive: core.dive_provenance(),
         corpora: opts.corpora.clone(),
@@ -385,6 +400,7 @@ pub fn run(
         filters: opts.selection.filters.clone(),
         workers: opts.workers.clone(),
         strict: opts.strict,
+        profile: opts.profile.clone(),
         summary,
         rows,
     };
