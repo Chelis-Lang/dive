@@ -53,20 +53,55 @@ This document says how the new core uses them.
 
 ## 4. Shadow comparison
 
-`cargo xtask shadow` is a new command, added in M1. It runs both engines on a
-corpus selection, at 1 and 4 workers and in both profiles, and compares:
+**Built (M1, `core/engine-shadow`).** `dive-conformance shadow` runs both
+engines on a corpus selection in the default profile and compares them.
+It needs no golden, so any corpus model can be shadowed
+(`crates/dive-conformance/src/shadow.rs`).
 
-- verdict, error class, exit code and violated property;
-- distinct and generated counts, and depth;
-- trace validity under `dive-trace`, and trace length and ending;
-- on a sample of explored states (seeded, reported), the multiset of
-  successors of each sampled state, compared as canonical state keys.
+For every selected model and worker count (default 1 and 4):
 
-It writes a compact JSON report. Any difference is a failure, unless an
-expected-divergence entry explains it. In the default profile there should be
-none.
+- `dive check --engine core` runs first. A model the core refuses
+  (`unsupported`, with the feature named) is counted as `refused` and not
+  run on the reference engine.
+- Otherwise `dive check --engine reference` runs the same model, and the
+  two must agree on the verdict, error class and code, exit code and
+  violated property. The distinct and generated counts and the depth must
+  agree too, at one worker or when the search is complete. At a stop with
+  several workers, which state ends the search depends on scheduling, so
+  the counts are not compared there.
+- The core's counterexample, if any, must validate with `dive-trace`
+  against the reference result's ending, as the harness validates dive's
+  counterexamples against a golden.
 
-CI runs it on the smoke gate. The full gate runs it on the small tier and cm1.
+Statuses are `agree`, `refused`, `differ`, `trace-refuted` and `timeout`.
+`differ` and `trace-refuted` are findings: the command exits 1 and prints
+one line per finding. With `--strict`, `refused` and `timeout` are findings
+too, for a fixed list of models the core is expected to run. The JSON
+report (`schema: 1`) is written only with `--report-dir`. The summary,
+printed as JSON, counts each status.
+
+How to run it:
+
+```sh
+cargo build --release -p dive-cli -p dive-conformance
+target/release/dive-conformance shadow --corpus examples --tier small \
+  --workers 1,4 --tlc-budgets --budget-cap 900 --jobs 2
+scripts/shadow-gate.sh conformance/gates/shadow-smoke.txt   # CI's list
+```
+
+Where it runs:
+
+- CI's `Conformance gate` job runs `scripts/shadow-gate.sh` on
+  `conformance/gates/shadow-smoke.txt`, under `--strict`. The list has ten
+  fast examples models the core runs, covering an invariant violation, a
+  deadlock, a parallel stop and successful searches.
+- `cargo xtask gate --full` shadows the whole small tier (the four corpora
+  of the small-tier runs) at 1 and 4 workers, without `--strict`, so models
+  the core refuses are counted, not failed.
+
+Not built yet: in-place successor sampling (comparing the successors of
+sampled states as canonical state keys), shadowing under `--compat=tlc`,
+and the cm1 list.
 
 ## 5. Differential fuzzing
 
