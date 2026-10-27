@@ -497,7 +497,7 @@ impl Machine {
                         }
                     }
                 }
-                let r = self.heap.tuple(&v);
+                let r = self.heap.tuple_literal(&v);
                 self.give_scratch(v);
                 Ok(r)
             }
@@ -515,7 +515,7 @@ impl Machine {
                         }
                     }
                 }
-                let r = self.heap.fcn_sorted(&keys, &vals);
+                let r = self.heap.record(&keys, &vals);
                 self.give_scratch(keys);
                 self.give_scratch(vals);
                 Ok(r)
@@ -919,6 +919,12 @@ impl Machine {
             }
             Kind::SetPred => Err(Error::unsupported(
                 "membership in a lazy set predicate (the evaluator side is not built)",
+            )),
+            // TLC's unnormalized `SetEnumValue.member` is a linear scan whose
+            // errors differ from a sorted search (C1); its compat-order
+            // comparison is not built.
+            Kind::SetEnum => Err(Error::unsupported(
+                "membership in a set enumeration TLC has not normalized (--compat=tlc)",
             )),
         }
     }

@@ -43,7 +43,7 @@ const POISON_VIEW: View<'static> = View {
 /// The size class of a node with `len` handles. Lazy nodes (constants
 /// only) have a class of their own, so that a handle tells it.
 fn class_of(len: usize, fl: u8) -> u8 {
-    if fl & crate::node::flags::LAZY != 0 {
+    if fl & (crate::node::flags::LAZY | crate::node::flags::VIEW) != 0 {
         return LAZY_CLASS;
     }
     match len {
@@ -447,7 +447,11 @@ impl Store {
                     let class = (local >> LOCAL_CLASS_SHIFT) as u8;
                     let i = u64::from(local & ((1 << LOCAL_CLASS_SHIFT) - 1));
                     if cols.view(class, i).is_some_and(|n| {
-                        n.kind == kind && n.lo == lo && n.hash == hash && n.data == data
+                        n.kind == kind
+                            && n.flags == flags
+                            && n.lo == lo
+                            && n.hash == hash
+                            && n.data == data
                     }) {
                         index.hits += 1;
                         return Handle::persistent(s, class, i);
