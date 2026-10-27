@@ -546,7 +546,8 @@ impl Compiler<'_> {
             | Node::SetEnum(xs)
             | Node::Product(xs)
             | Node::Tuple(xs)
-            | Node::Std(_, xs) => {
+            | Node::Std(_, xs)
+            | Node::Lib(_, xs) => {
                 for &x in xs {
                     add(x, &mut i);
                 }
@@ -2560,6 +2561,7 @@ impl Compiler<'_> {
             S::BagsBagToSet => Node::Std(StdFn::BagToSet, ps.into()),
             S::BagsBagIn => Node::Std(StdFn::BagIn, ps.into()),
             S::BagsCopiesIn => Node::Std(StdFn::CopiesIn, ps.into()),
+            other if crate::stdlib::implements(other) => Node::Lib(other, ps.into()),
             other => {
                 return Err(Error::unsupported(format!(
                     "the standard operator {} (M0 core)",
