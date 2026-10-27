@@ -772,7 +772,19 @@ impl Sink for Explorer<'_> {
         if self.initial {
             self.stats.initial_generated += 1;
         }
+        // The checks' transients are freed once the state is accepted (R10):
+        // an `Init` that enumerates many states, or a state with many
+        // successors, would otherwise hold them all until the expansion
+        // ends (#551). Only when no thunk was forced to a transient
+        // meanwhile, whose slot may hold a value built after the mark
+        // (`03-value-model.md` §11.5 rule 2). The state's own values predate
+        // the mark, and the frontier holds them interned.
+        let before = m.heap.mark();
+        let forced = m.stats.transient_thunks;
         let r = self.accept(m);
+        if r.is_ok() && m.stats.transient_thunks == forced {
+            m.heap.rollback(before);
+        }
         if m.heap.poisoned() {
             return Err(Error::internal("a stale value handle was read"));
         }
@@ -952,6 +964,9 @@ fn generator_error(m: &Machine, ex: &mut Explorer<'_>, e: Error) -> Error {
     Error::stop()
 }
 
+/// The states of a parallel level each worker expands per chunk (#551).
+const CHUNK_PER_WORKER: usize = 4096;
+
 #[allow(
     clippy::too_many_lines,
     reason = "TLC's ordered level loop: expansion, stops, replay and deadlock"
@@ -985,37 +1000,47 @@ fn run(
         let estimate = usize::try_from(ex.stats.generated - generated_before).unwrap_or(1 << 20);
         generated_before = ex.stats.generated;
         let level_started = Instant::now();
-        let expanded = if parallel && nvars > 0 {
-            let mut metrics = Metrics::default();
-            let r = parallel::expand_level(
-                plan,
-                machines,
-                &cur,
-                nvars,
-                &ex.seen,
-                ex.opts,
-                ex.poll,
-                estimate,
-                &mut metrics,
-            )?;
-            ex.metrics.conjuncts_total += metrics.conjuncts_total;
-            ex.metrics.conjuncts_skipped += metrics.conjuncts_skipped;
-            ex.metrics.discarded_before_intern += metrics.discarded_before_intern;
-            ex.metrics.expand_time += level_started.elapsed();
-            Some(r)
-        } else {
-            None
-        };
-        let Some(m) = machines.first_mut() else {
-            return Err(Error::internal("no core machine"));
-        };
+        let mut expand_time = std::time::Duration::ZERO;
+        let states = cur.len() / nvars.max(1);
+        // The parallel level is expanded and committed a chunk of states at
+        // a time, so that phase 1 buffers one chunk's successors, not the
+        // level's (#551). A chunk's commit fills the seen set before the
+        // next chunk is expanded, which reads it as an earlier level's.
+        let chunk = (machines.len() * CHUNK_PER_WORKER).max(1);
+        let mut expanded: Option<Vec<Option<parallel::Expanded>>> = None;
+        let mut base = 0;
         for (k, state) in cur.chunks_exact(nvars.max(1)).enumerate() {
             if nvars == 0 {
                 break;
             }
+            if parallel && k % chunk == 0 {
+                let started = Instant::now();
+                let end = (k + chunk).min(states);
+                let mut metrics = Metrics::default();
+                let r = parallel::expand_level(
+                    plan,
+                    machines,
+                    &cur[k * nvars..end * nvars],
+                    nvars,
+                    &ex.seen,
+                    ex.opts,
+                    ex.poll,
+                    estimate.saturating_mul(end - k) / states.max(1),
+                    &mut metrics,
+                )?;
+                ex.metrics.conjuncts_total += metrics.conjuncts_total;
+                ex.metrics.conjuncts_skipped += metrics.conjuncts_skipped;
+                ex.metrics.discarded_before_intern += metrics.discarded_before_intern;
+                expand_time += started.elapsed();
+                expanded = Some(r);
+                base = k;
+            }
+            let Some(m) = machines.first_mut() else {
+                return Err(Error::internal("no core machine"));
+            };
             let res = expanded
                 .as_ref()
-                .and_then(|all| all.get(k).and_then(Option::as_ref));
+                .and_then(|all| all.get(k - base).and_then(Option::as_ref));
             // Phase 1 polled the budget before each state it expanded, and
             // stopped before this one if it ran out.
             let exhausted = if expanded.is_some() {
@@ -1072,8 +1097,9 @@ fn run(
                 return Err(Error::stop());
             }
         }
-        if expanded.is_some() {
-            ex.metrics.commit_time += level_started.elapsed();
+        if parallel {
+            ex.metrics.expand_time += expand_time;
+            ex.metrics.commit_time += level_started.elapsed().saturating_sub(expand_time);
         }
         cur.clear();
         cur_ids.clear();
