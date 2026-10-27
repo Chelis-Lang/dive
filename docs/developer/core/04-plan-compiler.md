@@ -197,6 +197,10 @@ C1–C3):
 
 The M0 core answered all of these with `FALSE`, so specifications that TLC
 stops with an evaluation error passed (`ErWrapSetMember`); see §8.
+`crates/dive-api/tests/core_kinds.rs` checks 38 comparisons across kinds
+against the reference engine: each one gets the reference result or a
+refusal, and only the mixed-class set may be refused where the reference
+engine answers.
 
 ## 6. Interpreter
 
