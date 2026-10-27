@@ -21,7 +21,13 @@ the evaluation-plan section of ADR 0014 §1.
 
 **Output.** A `Plan`:
 - the compiled roles: initial predicate, actions in TLC order, invariants,
-  constraints, action constraints, properties, VIEW and symmetry;
+  constraints, action constraints, properties, VIEW and symmetry. The
+  binder's initial predicates are conjuncts, as in TLC and the reference
+  engine's `init_states`. For example, `Spec == Init /\ y \in S /\
+  [][Next]_v` has two. The plan conjoins them into one initial action
+  (`init_action`), named after the first. Until that fix, the core ran each
+  as a separate initial action, and reported an incomplete initial state
+  where TLC reports success (fixture `InitConj`, RoSpec);
 - compact node arrays per compiled body;
 - constant pools of persistent handles;
 - metadata for the engine: variables read and written by each action, whether

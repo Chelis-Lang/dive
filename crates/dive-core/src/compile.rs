@@ -308,10 +308,13 @@ pub fn compile(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<Plan, E
         site_names: Vec::new(),
         role_name: String::new(),
     };
-    let mut init = Vec::new();
-    for r in &h.init {
-        init.push(c.action(r, true)?);
-    }
+    // The initial predicates are conjoined, as TLC's (and the reference
+    // engine's `init_states`): one action.
+    let init = if h.init.is_empty() {
+        Vec::new()
+    } else {
+        vec![c.init_action(&h.init)?]
+    };
     let mut next = Vec::new();
     for r in &h.next {
         next.push(c.action(r, false)?);
@@ -1040,6 +1043,12 @@ impl Compiler<'_> {
 
     fn role_env(&mut self, r: &Role) -> Result<(usize, Vec<(u32, Handle)>), Error> {
         self.next_slot = 0;
+        self.role_env_after(r)
+    }
+
+    /// [`Self::role_env`] for a role compiled into the same frame as the
+    /// previous one: its slots follow the previous role's.
+    fn role_env_after(&mut self, r: &Role) -> Result<(usize, Vec<(u32, Handle)>), Error> {
         self.reset_stack.clear();
         self.def_cache.clear();
         self.at_stack.clear();
@@ -1123,6 +1132,38 @@ impl Compiler<'_> {
             g,
             frame: self.next_slot,
             preset,
+        })
+    }
+
+    /// The initial predicates, conjoined left to right into one action
+    /// named after the first.
+    fn init_action(&mut self, roles: &[Role]) -> Result<Action, Error> {
+        let [first, rest @ ..] = roles else {
+            return Err(Error::internal("no initial predicate"));
+        };
+        if rest.is_empty() {
+            return self.action(first, true);
+        }
+        self.init_mode = true;
+        let mut items = Vec::with_capacity(roles.len());
+        let mut presets = Vec::new();
+        for (i, r) in roles.iter().enumerate() {
+            let (env, preset) = if i == 0 {
+                self.role_env(r)?
+            } else {
+                self.role_env_after(r)?
+            };
+            presets.extend(preset);
+            let g = self.g(r.expr, env)?;
+            let p = self.p(r.expr, env, Mode::Plain)?;
+            items.push((g, p));
+        }
+        let g = self.gpush(GNode::Conj(items.into()));
+        Ok(Action {
+            name: first.name.clone(),
+            g,
+            frame: self.next_slot,
+            preset: presets,
         })
     }
 

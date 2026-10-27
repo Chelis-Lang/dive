@@ -82,6 +82,18 @@ fn large_folds_are_bounded_and_reported() {
     assert_eq!(counts(&core), counts(&run("Fold", Engine::Reference)));
 }
 
+/// The binder's initial predicates are conjoined, as TLC's
+/// (`04-plan-compiler.md` §1).
+#[test]
+fn initial_predicates_are_conjoined() {
+    let name = "InitConj";
+    let reference = run(name, Engine::Reference);
+    let core = run(name, Engine::Core);
+    assert_eq!(core["engine"], "core", "{name}");
+    assert_eq!(counts(&core), counts(&reference), "{name}: {core:#}");
+    assert_eq!(core["property"], reference["property"], "{name}");
+}
+
 /// Laziness (`04-plan-compiler.md` §4.1): recursive functions, lazy
 /// functions over `Nat` applied without being built, structural membership
 /// in lazy sets, and recursive operators run in the core, with the
