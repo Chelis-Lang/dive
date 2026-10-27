@@ -337,6 +337,12 @@ products). States outside the model are not fingerprinted.
   when TLC normalizes the set (C1, C2), and lazy functions over `Nat`
   (`ErFpLambda`, which the reference engine refuses too).
 
+**Done (M1, `core/engine-order-note`).** A stop in the default profile (any
+verdict about the model other than success) carries the reference
+engine's D-010 note, so the core's text output equals the reference
+engine's on violations, deadlocks and error endings. Under `--compat=tlc`
+there is no note. `core_rules.rs` compares the notes on every fixture.
+
 **Next (M1, stream 3):**
 1. Scaling measurements on a quiet x86 machine, then profiling of the expand
    phase. Per-worker memo tables are a known cost: each worker warms its own.

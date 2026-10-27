@@ -1,5 +1,9 @@
 # Changelog
 
+- `--engine core` adds the default profile's D-010 note to a stop (a
+  violation, deadlock or error), as the reference engine does. Its text
+  output now equals the reference engine's on those endings.
+
 - `dive check --engine core --core-sample N` compares the successors of `N`
   sampled states with the reference evaluator's and reports the result in
   the JSON report (`core.sample`); it changes no result.
