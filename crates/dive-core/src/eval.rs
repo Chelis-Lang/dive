@@ -424,8 +424,22 @@ impl Machine {
             Node::BigUnion(a) => {
                 let x = self.eval_norm(code, *a)?;
                 let members = self.heap.elements(x)?;
-                let mut out = Vec::new();
+                // TLC's `UnionValue` stays lazy: membership tests the
+                // members in turn. The core keeps it lazy only when some
+                // member cannot be enumerated.
+                let mut normed = Vec::with_capacity(members.len());
                 for m in members {
+                    normed.push(self.heap.norm(m)?);
+                }
+                if normed.iter().any(|&m| !self.heap.is_finite(m)) {
+                    let mut it = normed.into_iter();
+                    let Some(first) = it.next() else {
+                        return Err(Error::internal("an empty UNION with an infinite member"));
+                    };
+                    return Ok(it.fold(first, |acc, m| self.heap.union(acc, m)));
+                }
+                let mut out = Vec::new();
+                for m in normed {
                     let m = self.heap.norm(m)?;
                     let es = self.heap.elements(m)?;
                     self.charge(es.len())?;
@@ -986,8 +1000,10 @@ impl Machine {
         }
         match op {
             SetOp::Cup => {
+                // TLC's `SetCupValue` stays lazy: membership is either
+                // side's, and enumerating it fails as TLC's does.
                 if !fx || !fy {
-                    return Err(Error::unsupported("union of an infinite set"));
+                    return Ok(self.heap.union(x, y));
                 }
                 let mut v = self.heap.elements(x)?;
                 v.extend(self.heap.elements(y)?);
