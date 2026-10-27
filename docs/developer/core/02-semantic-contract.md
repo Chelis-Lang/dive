@@ -296,8 +296,8 @@ expression is evaluated changes:
 Draws come from one stream per expanded state, shared by the next-state
 relation and the checks on its successors.
 - Core: `RandomElement` draws from the reference engine's streams
-  (`03-value-model.md` §6.1). A draw in a check, a startup draw before
-  `Init` draws, and an effect-bearing `LET` or argument used in more than
+  (`03-value-model.md` §6.1). A draw in a check, a draw in `Init` after
+  start-up drew, and an effect-bearing `LET` or argument used in more than
   one conjunct are refused.
 - Profile: tlc for bit-exact draws; both for "the same seed gives the same
   run".

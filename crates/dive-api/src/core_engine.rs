@@ -582,13 +582,6 @@ fn arm_draws(
 ) -> Result<(), String> {
     let streams = host.streams();
     let startup = host.stream();
-    if startup != streams.startup() {
-        // TLC's trace rebuild starts `Init` from a fresh stream, without
-        // the start-up draws (D-002, fixture `RndTraceAssume`).
-        return Err(
-            "RandomElement in Init after constant definitions or ASSUMEs drew (M1 core)".into(),
-        );
-    }
     let tlc_order: Vec<usize> = ir.tlc_var_order().iter().map(|v| v.index()).collect();
     let seeder = dive_store::state::StateFingerprinter::tlc(options.fp_index, &tlc_order)
         .ok_or_else(|| {
@@ -603,6 +596,7 @@ fn arm_draws(
     store.set_draws(Arc::new(crate::core_random::CoreDraws {
         streams,
         startup,
+        startup_drew: startup != streams.startup(),
         seeder,
         names: Arc::clone(&printer.names),
         ctx: printer.ctx,
@@ -872,12 +866,19 @@ pub(crate) fn check(
     ) || (matches!(verdict, Verdict::Stopped(_)) && out.in_init);
     let mut trace = out.trace.clone();
     let mut stats = out.stats;
+    // Whether the trace ends in the successor a check failed on (the
+    // reference engine's `Stop::then`).
+    let mut then = matches!(
+        verdict,
+        Verdict::InvariantViolated { initial: false, .. } | Verdict::ActionPropertyViolated { .. }
+    );
     if let Some(f) = out.failure.as_ref().filter(|_| failed) {
         match crate::core_ending::ending(&model, &store, f, out.replayed.as_ref()) {
             Ok(end) => {
                 verdict = end.verdict;
                 in_init = end.in_init;
                 counted = true;
+                then = end.with && f.state.is_some() && !in_init;
                 if !end.with
                     && f.state.is_some()
                     && let Some(Ok(t)) = &mut trace
@@ -899,8 +900,26 @@ pub(crate) fn check(
             Err(refusal) => verdict = refusal,
         }
     }
+    // The reference engine's boundary for a plan that draws: TLC rebuilds
+    // a trace whose predecessor is initial from the original state object,
+    // whose stream is already consumed, so its last state can go missing
+    // (`docs/tlc-differences.md`, D-002). The reference engine refuses it
+    // with the statistics of the stop.
+    let mut draw_note = None;
+    if plan.effects.draws
+        && then
+        && verdict.is_verdict()
+        && matches!(&trace, Some(Ok(t)) if t.len() == 2)
+    {
+        draw_note = Some(format!(
+            "The search reached {verdict:?}; its first-successor random trace has an unproved TLC replay/printing contract (D-002). Statistics record that stopping prefix, not a completed certification."
+        ));
+        verdict = unsupported("TLC initial-predecessor random counterexample replay is not proved");
+        trace = None;
+    }
     let prints = !in_init || matches!(verdict, Verdict::EvaluationError { .. });
     let mut r = result(verdict, options, ir);
+    r.notes.extend(draw_note);
     r.warnings.append(&mut sym.warnings);
     r.notes.extend(sym.note.take());
     r.output = startup;

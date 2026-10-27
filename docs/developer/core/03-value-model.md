@@ -270,8 +270,8 @@ the run, and the seed is always reported.
   implementation.
 - **Where draws come from.**
   - Constants and `ASSUME`s draw from the startup stream, on the reference
-    binder's host. If they drew and the plan draws too, the core refuses
-    the run: `Init` would continue that stream, and TLC's trace rebuild
+    binder's host. If they drew, a draw in `Init` is refused: it would
+    continue that stream, and TLC's trace rebuild
     starts `Init` from a fresh one (D-002, fixture `RndTraceAssume`).
   - `Init` draws from the startup stream.
   - Expanding a state starts that state's stream (TLC reseeds with
@@ -285,7 +285,11 @@ the run, and the seed is always reported.
 - **Rebuilding traces.** The rebuild uses the same streams: the startup
   stream for `Init`, and each predecessor's own stream after that. TLC's
   call-stack replay after a failing check (`ending.rs`) is refused in a
-  plan that draws.
+  plan that draws. A check that fails on a successor of an initial state
+  is refused with the reference engine's feature name and the stop's
+  statistics: TLC rebuilds that trace from the initial state's object,
+  whose stream is consumed, and may drop its last state
+  (`docs/tlc-differences.md`, D-002).
 - **Evaluation counts.** A draw is an effect (`Info::effect`). It is never
   folded, memoized or cached. Inside a function constructor, a filter, a
   set map or an operator argument's body, TLC evaluates lazily, so a draw

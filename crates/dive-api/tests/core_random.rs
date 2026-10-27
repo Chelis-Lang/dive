@@ -7,8 +7,8 @@
 //! `--compat=tlc` the `Rd*` fixtures (`tests/fixtures/core-lib`) give the
 //! pinned TLC's counts and printed lines at `-seed 0`.
 //!
-//! What the core does not run is refused by name: a draw at start-up
-//! before `Init` draws (TLC's trace rebuild restarts that stream, D-002), a
+//! What the core does not run is refused by name: a draw in `Init` after
+//! start-up drew (TLC's trace rebuild restarts that stream, D-002), a
 //! `LET`-bound draw used in more than one conjunct (TLC draws it again at
 //! each, fixture `RndLetRedraw`) and `RandomSubset`.
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
@@ -29,6 +29,7 @@ const REFUSED: &[(&str, &str)] = &[
     ("RndNext", "RandomSubset"),
     ("RndStartup", "ASSUMEs drew"),
     ("RndTraceAssume", "ASSUMEs drew"),
+    ("TmRandom", "RandomSubset"),
 ];
 
 fn repo() -> PathBuf {
@@ -88,6 +89,10 @@ fn observed(v: &Value) -> Value {
 fn all() -> Vec<(String, PathBuf)> {
     let mut v = specs("crates/dive-api/tests/fixtures/core-lib", "Rd");
     v.extend(specs("crates/dive-stdlib/tests/fixtures/random", "Rnd"));
+    v.extend(specs(
+        "crates/dive-check/tests/fixtures/tlc-module",
+        "TmRandom",
+    ));
     v
 }
 
@@ -116,8 +121,9 @@ fn draws_match_the_reference_engine() {
             }
         }
     }
-    // Rd*: four fixtures; Rnd*: the ten start-up error endings.
-    assert!(agreed >= 14 * 8, "only {agreed} runs agreed");
+    // Rd*: four fixtures; Rnd*: the ten start-up error endings;
+    // TmRandomStartup, whose start-up draws `Init` does not continue.
+    assert!(agreed >= 15 * 8, "only {agreed} runs agreed");
 }
 
 /// The same seed gives the same run, at any requested worker count (the
