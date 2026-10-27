@@ -1,5 +1,11 @@
 # Changelog
 
+- `dive-conformance shadow` runs dive's new core and its reference engine on
+  a corpus selection and reports any difference in verdict, error class,
+  exit, property, counts or depth, and any core counterexample `dive-trace`
+  refutes. CI shadows ten examples models at 1 and 4 workers
+  (`scripts/shadow-gate.sh`), and `cargo xtask gate --full` the small tier.
+
 - `--engine core` runs model values: constants assigned model values, sets
   of them, typed model values with TLC's comparison rules, and definitions
   the configuration assigns a value (`NoVal = NoVal`). The empty function
