@@ -127,6 +127,20 @@ impl Strings {
             .cloned()
     }
 
+    /// The texts of the ids from `start` on, in id order, under one read
+    /// lock: a worker's heap copies them once instead of locking the table
+    /// on every comparison ([`crate::heap::Heap::cmp`]).
+    #[must_use]
+    pub fn texts_from(&self, start: usize) -> Vec<Arc<str>> {
+        self.inner
+            .read()
+            .unwrap_or_else(PoisonError::into_inner)
+            .texts
+            .get(start..)
+            .map(<[Arc<str>]>::to_vec)
+            .unwrap_or_default()
+    }
+
     /// Compares two ids in the table's order: by text, or by token.
     #[must_use]
     pub fn cmp(&self, a: u32, b: u32) -> std::cmp::Ordering {

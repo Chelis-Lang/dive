@@ -1,5 +1,8 @@
 # Changelog
 
+- `--engine core` scales better on models that compare many strings:
+  string comparisons no longer share a lock between workers.
+
 - `--engine core` checks the safety parts of `PROPERTY` entries: implied
   initial predicates and actions (`[][A]_v`), as in a refinement property.
   A property that needs liveness checking is still refused (and `auto` falls
