@@ -2313,6 +2313,11 @@ impl Compiler<'_> {
             S::SequencesSeq => Node::Std(StdFn::Seq, ps.into()),
             S::FiniteSetsCardinality => Node::Std(StdFn::Cardinality, ps.into()),
             S::FiniteSetsIsFiniteSet => Node::Std(StdFn::IsFiniteSet, ps.into()),
+            S::BagsEmptyBag => Node::Std(StdFn::EmptyBag, ps.into()),
+            S::BagsSetToBag => Node::Std(StdFn::SetToBag, ps.into()),
+            S::BagsBagToSet => Node::Std(StdFn::BagToSet, ps.into()),
+            S::BagsBagIn => Node::Std(StdFn::BagIn, ps.into()),
+            S::BagsCopiesIn => Node::Std(StdFn::CopiesIn, ps.into()),
             other => {
                 return Err(Error::unsupported(format!(
                     "the standard operator {} (M0 core)",
