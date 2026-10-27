@@ -360,8 +360,9 @@ TLC's `EC` code and whether TLC raises it as an `EvalException`.
 | `CHOOSE` with no witness | `GENERAL` |
 | a non-integer in a non-empty interval | `GENERAL` |
 
-Every other evaluation error is unclassified. Integers outside the core's
-61-bit range are refused (`unsupported`).
+Every other evaluation error is unclassified. The arithmetic classes, and
+TLC mode's 32-bit overflow (2178 `EvalException`), are raised in
+`crates/dive-core/src/int.rs`.
 
 **Defect fixed.** The M0 core computed `0^0` as 1 and reported success.
 TLC raises "0^0 is undefined." On fixture `Pow0`, TLC, the reference engine
