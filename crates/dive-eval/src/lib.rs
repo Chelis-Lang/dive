@@ -661,6 +661,14 @@ impl Evaluator {
         self.core.def_values.contains_key(&def)
     }
 
+    /// The value the configuration assigns `def` (`Op = v`), if any. The
+    /// new core reads it at its binder boundary (`dive-api`'s
+    /// `core_engine`).
+    #[must_use]
+    pub fn value_override(&self, def: DefId) -> Option<Value> {
+        self.core.def_values.get(&def).cloned()
+    }
+
     /// The error TLC raises while processing the specification, before
     /// checking assumptions: a numeral too big for `--int=tlc`
     /// (`TLC_INTEGER_TOO_BIG`) or a decimal (`TLC_CANT_HANDLE_REAL_NUMBERS`).

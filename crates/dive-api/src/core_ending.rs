@@ -247,7 +247,8 @@ pub(crate) fn ending(
 ) -> Result<Ending, Verdict> {
     let refuse = |why: String| Verdict::Unsupported {
         feature: format!(
-            "an evaluation error the reference evaluator does not reproduce (core engine): {why}"
+            "an evaluation error the reference evaluator does not reproduce (core engine): {why} (the core raised: {})",
+            f.message
         ),
     };
     let t = f

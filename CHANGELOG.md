@@ -1,5 +1,10 @@
 # Changelog
 
+- `--engine core` runs model values: constants assigned model values, sets
+  of them, typed model values with TLC's comparison rules, and definitions
+  the configuration assigns a value (`NoVal = NoVal`). The empty function
+  `[k \in {} |-> e]` is now the same value as `<<>>` in the core.
+
 - `dive-conformance run --impl dive:core` and `--impl dive:auto` run the
   harness on the new core. Reports record the engine requested and, per
   run, the engine that ran and any fallback (`summary.by_engine`), and

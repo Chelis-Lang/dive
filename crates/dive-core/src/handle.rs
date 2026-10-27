@@ -12,6 +12,9 @@ pub enum Tag {
     Bool,
     /// A string id into the string table.
     Str,
+    /// A model value: its name's id in the string table. A model value and
+    /// the string with the same text are different values.
+    Model,
     /// A compound in the persistent store.
     Persistent,
     /// A compound in a worker's transient arena.
@@ -25,8 +28,8 @@ const TAG_MASK: u64 = 0b111;
 const T_INT: u64 = 0;
 const T_BOOL: u64 = 1;
 const T_STR: u64 = 2;
-// Tag 3 (model values) and 6 (big integers) are reserved by the design and not
-// produced in M0: the spike models use neither.
+const T_MODEL: u64 = 3;
+// Tag 6 is unused: big integers are compounds (`Kind::BigInt`).
 const T_PERSISTENT: u64 = 4;
 const T_TRANSIENT: u64 = 5;
 const T_EMPTY: u64 = 7;
@@ -56,6 +59,7 @@ impl std::fmt::Debug for Handle {
             Tag::Int => write!(f, "Int({})", self.int_unchecked()),
             Tag::Bool => write!(f, "Bool({})", self.0 >> TAG_BITS != 0),
             Tag::Str => write!(f, "Str#{}", self.0 >> TAG_BITS),
+            Tag::Model => write!(f, "Model#{}", self.0 >> TAG_BITS),
             Tag::Persistent => {
                 let (s, c, i) = self.persistent_parts();
                 write!(f, "P{s}:{c}:{i}")
@@ -90,6 +94,7 @@ impl Handle {
             T_INT => Tag::Int,
             T_BOOL => Tag::Bool,
             T_STR => Tag::Str,
+            T_MODEL => Tag::Model,
             T_PERSISTENT => Tag::Persistent,
             T_TRANSIENT => Tag::Transient,
             _ => Tag::Empty,
@@ -117,6 +122,12 @@ impl Handle {
     #[must_use]
     pub const fn string(id: u32) -> Self {
         Self(((id as u64) << TAG_BITS) | T_STR)
+    }
+
+    /// A model value by its name's string id.
+    #[must_use]
+    pub const fn model(id: u32) -> Self {
+        Self(((id as u64) << TAG_BITS) | T_MODEL)
     }
 
     pub(crate) const fn persistent(shard: u8, class: u8, index: u64) -> Self {
@@ -162,6 +173,17 @@ impl Handle {
     #[must_use]
     pub const fn as_str_id(self) -> Option<u32> {
         if self.0 & TAG_MASK == T_STR {
+            #[allow(clippy::cast_possible_truncation, reason = "ids are 32-bit")]
+            Some((self.0 >> TAG_BITS) as u32)
+        } else {
+            None
+        }
+    }
+
+    /// The name's string id, if this is a model value.
+    #[must_use]
+    pub const fn as_model_id(self) -> Option<u32> {
+        if self.0 & TAG_MASK == T_MODEL {
             #[allow(clippy::cast_possible_truncation, reason = "ids are 32-bit")]
             Some((self.0 >> TAG_BITS) as u32)
         } else {
@@ -241,6 +263,7 @@ pub(crate) const K_STR: u64 = 0x6a09_e667_f3bc_c908;
 pub(crate) const K_SET: u64 = 0x3c6e_f372_fe94_f82b;
 pub(crate) const K_FCN: u64 = 0xa54f_f53a_5f1d_36f1;
 pub(crate) const K_SYM: u64 = 0x510e_527f_ade6_82d1;
+pub(crate) const K_MODEL: u64 = 0x1f83_d9ab_5be0_cd19;
 /// The kind constant of a state hash (`03-value-model.md` §5).
 pub const K_STATE: u64 = 0x9b05_688c_2b3e_6c1f;
 
@@ -259,6 +282,7 @@ pub const fn scalar_hash(h: Handle) -> Option<u64> {
         T_INT => Some(int_hash(h.int_unchecked())),
         T_BOOL => Some(mix64(K_BOOL ^ (h.0 >> TAG_BITS))),
         T_STR => Some(mix64(K_STR ^ (h.0 >> TAG_BITS))),
+        T_MODEL => Some(mix64(K_MODEL ^ (h.0 >> TAG_BITS))),
         _ => None,
     }
 }

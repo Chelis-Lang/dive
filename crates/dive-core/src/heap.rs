@@ -261,13 +261,16 @@ impl Heap {
         va.data.iter().zip(vb.data).all(|(&x, &y)| self.eq(x, y))
     }
 
+    /// The rank of a handle's class in the canonical order (D2): model
+    /// values, booleans, integers, strings, then compounds.
     fn scalar_rank(h: Handle) -> u8 {
         match h.tag() {
-            Tag::Bool => 1,
-            Tag::Int => 2,
-            Tag::Str => 3,
-            Tag::Persistent | Tag::Transient => 4,
             Tag::Empty => 0,
+            Tag::Model => 1,
+            Tag::Bool => 2,
+            Tag::Int => 3,
+            Tag::Str => 4,
+            Tag::Persistent | Tag::Transient => 5,
         }
     }
 
@@ -279,9 +282,10 @@ impl Heap {
         }
     }
 
-    /// The canonical total order (D-010): booleans, integers, strings by
-    /// text, finite sets by size then elements, functions by size, domain
-    /// then values, then symbolic sets structurally. Consistent with
+    /// The canonical total order (D-010): model values by name, booleans,
+    /// integers, strings by text, finite sets by size then elements,
+    /// functions by size, domain then values, then symbolic sets
+    /// structurally. Consistent with
     /// [`Heap::eq`] on normalized handles.
     #[must_use]
     pub fn cmp(&self, a: Handle, b: Handle) -> Ordering {
@@ -292,10 +296,10 @@ impl Heap {
         if ra != rb {
             // A big integer is a compound that ranks among the integers.
             if a.is_compound() && self.view(a).kind == Kind::BigInt {
-                ra = 2;
+                ra = 3;
             }
             if b.is_compound() && self.view(b).kind == Kind::BigInt {
-                rb = 2;
+                rb = 3;
             }
             if ra != rb {
                 return ra.cmp(&rb);
@@ -306,6 +310,11 @@ impl Heap {
             Tag::Bool => a.as_bool().cmp(&b.as_bool()),
             Tag::Int => a.as_int().cmp(&b.as_int()),
             Tag::Str => match (a.as_str_id(), b.as_str_id()) {
+                (Some(x), Some(y)) => self.store.strings().cmp(x, y),
+                _ => Ordering::Equal,
+            },
+            // By name, as strings (D2).
+            Tag::Model => match (a.as_model_id(), b.as_model_id()) {
                 (Some(x), Some(y)) => self.store.strings().cmp(x, y),
                 _ => Ordering::Equal,
             },
@@ -960,7 +969,11 @@ fn fcn_key(v: &View<'_>, i: usize) -> Handle {
 
 /// The lower bound if `keys` are the consecutive integers `lo, lo+1, ...`.
 fn contiguous_ints(keys: &[Handle]) -> Option<i64> {
-    let lo = keys.first()?.as_int()?;
+    // The empty function is the empty tuple: one canonical form.
+    let Some(first) = keys.first() else {
+        return Some(1);
+    };
+    let lo = first.as_int()?;
     for (i, k) in keys.iter().enumerate() {
         #[allow(clippy::cast_possible_wrap, reason = "domains fit in i64")]
         if k.as_int()? != lo + i as i64 {
