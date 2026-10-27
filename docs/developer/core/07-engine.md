@@ -114,7 +114,11 @@ The design avoids these, by construction:
 
 - **Process-global locks on the hot path.** Host hooks, the reachability of
   effects and the profile are resolved when the plan is built. Issue #495 is
-  the motivating case.
+  the motivating case. String comparisons in the canonical order read each
+  worker's heap copy of the string table's texts, extended on a miss, not
+  the table behind its lock (#550: in SimpleRegular, `Strings::cmp` was
+  the hottest frame after `Heap::view` at 8 workers, and the eleventh at
+  1 worker; with the copy, user time at 8 workers halved).
 - **Shared reference counts.** Values are handles, so there are no reference
   counts at all.
 - **Shared allocator traffic.** Transients live in per-worker arenas, and
