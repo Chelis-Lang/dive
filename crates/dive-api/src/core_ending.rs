@@ -98,7 +98,7 @@ fn check_of(model: &Model, site: Site) -> Option<(&Named, ErrorSite)> {
             .implied_actions
             .get(i)
             .map(|c| (c, ErrorSite::ImpliedAction)),
-        Site::Init | Site::Next(_) | Site::Incomplete | Site::Fingerprint => None,
+        Site::Init | Site::Next(_) | Site::Incomplete | Site::Fingerprint | Site::View => None,
     }
 }
 
@@ -157,6 +157,18 @@ fn reproduce(
                 Err(dive_store::StoreError::Value(v)) => Ok(EvalError::from(v)),
                 Err(e) => Err(format!("the reference store fails otherwise: {e}")),
                 Ok(_) => Err("the reference engine fingerprints the state".into()),
+            }
+        }
+        Site::View => {
+            let view = model.view.as_ref().ok_or("a VIEW failure without a VIEW")?;
+            let t = f
+                .state
+                .as_deref()
+                .ok_or("a VIEW failure without its state")?;
+            let t = state(model, store, t)?;
+            match model.eval(&view.pred, &St::state(t)) {
+                Err(e) => Ok(e),
+                Ok(_) => Err("the reference evaluator evaluates the VIEW there".into()),
             }
         }
         Site::Next(i) => {
@@ -254,6 +266,7 @@ fn classified(model: &Model, f: &Failure, e: &EvalError) -> Verdict {
         Site::Init => classify::search_error(e, ErrorSite::Init, None),
         Site::Next(_) | Site::Incomplete => classify::search_error(e, ErrorSite::Next, None),
         Site::Fingerprint => classify::search_error(e, ErrorSite::Fingerprint, None),
+        Site::View => classify::search_error(e, ErrorSite::View, None),
         site => match check_of(model, site) {
             Some((c, s)) => classify::search_error(e, s, Some(&c.name)),
             None => classify::search_error(e, ErrorSite::Next, None),

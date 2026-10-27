@@ -287,9 +287,16 @@ impl Seen {
     }
 }
 
-/// The state key of `m.s1`: under `SYMMETRY`, the key of its canonical
-/// image (`dive_core::symmetry`).
+/// The state key of `m.s1`: with a `VIEW`, the key of its value; under
+/// `SYMMETRY`, the key of its canonical image (`dive_core::symmetry`).
+///
+/// # Errors
+/// The VIEW's evaluation error (kind `Eval`), or a VIEW value the core
+/// cannot key (unsupported).
 fn state_key(m: &mut Machine, plan: &Plan) -> Result<u64, Error> {
+    if let Some(view) = &plan.view {
+        return view_key(m, plan, view);
+    }
     let image;
     let state: &[Handle] = match &plan.symmetry {
         Some(sym) => {
@@ -306,6 +313,35 @@ fn state_key(m: &mut Machine, plan: &Plan) -> Result<u64, Error> {
         sum = sum.wrapping_add(state_term(i, m.heap.hash(h)));
     }
     Ok(fin(K_STATE, state.len() as u64, sum))
+}
+
+/// The key of the `VIEW`'s value on `m.s1`. TLC normalizes the state's
+/// variables before it evaluates the VIEW (`TLCStateMut.fingerPrint`); the
+/// core interns them, and refuses a state holding an infinite set, whose
+/// normalization it does not reproduce. The value is interned too and must
+/// hold no infinite set, which TLC fails to fingerprint (refused here
+/// rather than reported).
+fn view_key(m: &mut Machine, plan: &Plan, view: &Check) -> Result<u64, Error> {
+    let Some(conj) = view.conjuncts.first() else {
+        return Err(Error::internal("a VIEW without its expression"));
+    };
+    if !fingerprintable(m, true)? {
+        return Err(Error::unsupported(
+            "a VIEW over a state holding an infinite or lazily represented set (core)",
+        ));
+    }
+    std::mem::swap(&mut m.s0, &mut m.s1);
+    let old = m.enter(view.frame);
+    let r = m.eval_norm(&plan.code, conj.p);
+    m.leave(old);
+    std::mem::swap(&mut m.s0, &mut m.s1);
+    let v = m.heap.intern(r?)?;
+    if !closed_fingerprintable(&m.heap, v) {
+        return Err(Error::unsupported(
+            "a VIEW value holding an infinite or lazily represented set (core)",
+        ));
+    }
+    Ok(fin(K_STATE, 1, state_term(0, m.heap.hash(v))))
 }
 
 struct Explorer<'p> {
@@ -404,14 +440,23 @@ impl Explorer<'_> {
                 m.s1[i] = m.heap.intern(m.s1[i])?;
             }
         }
-        if !in_model && self.plan.symmetry.is_some() {
+        if !in_model && (self.plan.symmetry.is_some() || self.plan.view.is_some()) {
             // TLC checks a state outside the model without looking it up
-            // (`isSeenState` is for states inside it). Without symmetry a
-            // lookup only skips a state already checked; with it, an image
-            // seen before may hide a concrete state that is not.
+            // (`isSeenState` is for states inside it). Without symmetry or a
+            // VIEW a lookup only skips a state already checked; with them,
+            // a seen image or view value may hide a concrete state that is
+            // not.
             return Ok((Probe::New, false));
         }
-        let key = state_key(m, self.plan)?;
+        let key = match state_key(m, self.plan) {
+            Ok(k) => k,
+            Err(e) if e.kind() == ErrorKind::Eval && self.plan.view.is_some() => {
+                self.failure = Some(self.failure_at(m, Site::View, e.message().to_owned())?);
+                self.end_here(m)?;
+                return Err(Error::stop());
+            }
+            Err(e) => return Err(e),
+        };
         self.metrics.probed += 1;
         if in_model && (self.max_states.is_some() || self.max_depth.is_some()) {
             self.admit(key)?;
@@ -450,7 +495,9 @@ impl Explorer<'_> {
                 self.implied_actions(m)
             };
         }
-        if in_model && !fingerprintable(m, self.initial)? {
+        // With a VIEW, TLC fingerprints the view's value instead
+        // (`view_key`).
+        if in_model && self.plan.view.is_none() && !fingerprintable(m, self.initial)? {
             self.failure = Some(self.failure_at(m, Site::Fingerprint, FP_MESSAGE.into())?);
             self.end_here(m)?;
             return Err(Error::stop());

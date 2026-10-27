@@ -202,12 +202,12 @@ fn tlc_probes_match_the_reference_and_tlc() {
 #[test]
 fn error_fixtures_match_the_reference() {
     let agreed = check_dir("crates/dive-check/tests/fixtures/errors");
-    // 175 fixtures: 110 or more agree, `ErFpInfinite`, the implied action
-    // errors (`ErProp*`) and the `ErAlias*` fixtures among them; the rest
-    // use VIEW, POSTCONDITION, Print, ENABLED, non-constant split
+    // 175 fixtures: 130 or more agree, `ErFpInfinite`, the implied action
+    // errors (`ErProp*`), the `ErAlias*` and the `ErView*` fixtures among
+    // them; the rest use POSTCONDITION, Print, ENABLED, non-constant split
     // arguments, ASSUME errors or recursive functions, which the core does
     // not run yet.
-    assert!(agreed >= 110, "only {agreed} error fixtures agreed");
+    assert!(agreed >= 130, "only {agreed} error fixtures agreed");
 }
 
 /// The standard-library fixtures (`tests/fixtures/core-lib`): one model

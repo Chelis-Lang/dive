@@ -524,6 +524,21 @@ stop note. The ten `ErAlias*` error fixtures now agree, so at least 110 of
 the 175 do. Applying ALIAS to traces is reference-engine work, and the core
 follows it.
 
+**Done (M2, `core/engine-view`).** `VIEW`. The plan compiles the view as
+a one-conjunct value role, and `state_key` keys a state by the key of the
+view's interned value. As in TLC's `TLCStateMut.fingerPrint`, the state's
+variables are normalized first (the core interns them, and refuses a state
+or view value holding an infinite set rather than reproduce TLC's
+normalization of it). An evaluation error in the view is
+`ErrorSite::View`, reproduced by the reference evaluator; the trace ends at
+the predecessor, as for a fingerprint error. A state outside the model is
+checked without a lookup, as under SYMMETRY. Fixtures `ViewMerge` (an
+invariant that reads a variable the view ignores, violated on a state
+outside the model whose view was seen) and `ViewSets`; nine `ErView*`
+error fixtures agree (`ErViewEnabled` waits for `ENABLED`). VIEW together
+with SYMMETRY, where TLC evaluates the view on the canonical image, is
+refused.
+
 **Refusal census (2026-10-27, `main` at #549).** `--impl dive:auto` over
 the small tier (156 models, 1 worker), static fallbacks by reason. Default
 profile: 144 agree, 7 expected divergences, 5 unsupported; 48 models ran on

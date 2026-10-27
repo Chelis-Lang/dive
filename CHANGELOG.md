@@ -1,5 +1,9 @@
 # Changelog
 
+- `--engine core` runs models with a `VIEW`: states are told apart by the
+  view's value, and an error in the view is reported as the reference engine
+  reports it.
+
 - `--engine core` runs models with `ALIAS` as the reference engine does: the
   counterexample shows the states themselves, with a note saying so.
 
