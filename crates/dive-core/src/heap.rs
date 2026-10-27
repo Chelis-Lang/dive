@@ -61,12 +61,13 @@ impl Heap {
     /// A heap over `store` with a fresh arena.
     #[must_use]
     pub fn new(store: Arc<Store>, heap_arena: bool, full_hash: bool) -> Self {
+        let int_mode = store.int_mode();
         Self {
             store,
             arena: Arena::new(heap_arena),
             poisoned: std::cell::Cell::new(false),
             full_hash,
-            int_mode: crate::int::IntMode::Big,
+            int_mode,
             materialized: std::collections::HashMap::new(),
         }
     }

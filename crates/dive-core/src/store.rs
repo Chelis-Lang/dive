@@ -329,7 +329,40 @@ pub struct Store {
     shards: Box<[Shard]>,
     strings: Strings,
     hashcons: bool,
+    semantics: Semantics,
     poisoned: AtomicBool,
+}
+
+/// The value semantics of a run, fixed for the store's life: the default
+/// profile's, or `--compat=tlc`'s ([`Semantics::tlc`]).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct Semantics {
+    /// How strings compare.
+    pub string_order: StringOrder,
+    /// The integer semantics every heap on the store starts with.
+    pub int_mode: crate::int::IntMode,
+    /// TLC's comparisons (`--comparisons=tlc`) rather than D-009's: where
+    /// TLC's `equals`, `compareTo` or `member` may fail or answer otherwise
+    /// than TLA+, the core refuses (`compare.rs`).
+    pub tlc_comparisons: bool,
+    /// TLC's exploration order (`--explore-order=tlc`, A6): `x' \in S`
+    /// binds in the order of TLC's `elements()`, which the core follows
+    /// where it is the normalized order and refuses elsewhere.
+    pub tlc_exploration: bool,
+}
+
+impl Semantics {
+    /// `--compat=tlc`: token string order, 32-bit integers, TLC's
+    /// comparisons.
+    #[must_use]
+    pub const fn tlc() -> Self {
+        Self {
+            string_order: StringOrder::Token,
+            int_mode: crate::int::IntMode::Tlc,
+            tlc_comparisons: true,
+            tlc_exploration: true,
+        }
+    }
 }
 
 impl std::fmt::Debug for Store {
@@ -359,6 +392,19 @@ impl Store {
     /// because sets are kept sorted in it.
     #[must_use]
     pub fn with_string_order(hashcons: bool, order: StringOrder) -> Self {
+        Self::with_semantics(
+            hashcons,
+            Semantics {
+                string_order: order,
+                ..Semantics::default()
+            },
+        )
+    }
+
+    /// A new store with the run's value semantics, so that constant
+    /// folding, the search and trace replay all compute alike.
+    #[must_use]
+    pub fn with_semantics(hashcons: bool, semantics: Semantics) -> Self {
         Self {
             cols: (0..SHARDS).map(|_| Columns::new()).collect(),
             shards: (0..SHARDS)
@@ -366,8 +412,9 @@ impl Store {
                     index: Mutex::new(Index::default()),
                 })
                 .collect(),
-            strings: Strings::new(order),
+            strings: Strings::new(semantics.string_order),
             hashcons,
+            semantics,
             poisoned: AtomicBool::new(false),
         }
     }
@@ -376,6 +423,18 @@ impl Store {
     #[must_use]
     pub fn hashcons(&self) -> bool {
         self.hashcons
+    }
+
+    /// The run's value semantics.
+    #[must_use]
+    pub fn semantics(&self) -> Semantics {
+        self.semantics
+    }
+
+    /// The integer semantics heaps on this store start with.
+    #[must_use]
+    pub fn int_mode(&self) -> crate::int::IntMode {
+        self.semantics.int_mode
     }
 
     /// The string table.
