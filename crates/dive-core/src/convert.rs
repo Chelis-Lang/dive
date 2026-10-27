@@ -16,8 +16,8 @@ use crate::node::Kind;
 /// Converts a reference value to a persistent (or scalar) handle.
 ///
 /// # Errors
-/// Values the M0 core does not represent: model values, big integers,
-/// `STRING`, and sets the reference cannot enumerate.
+/// Values the core does not represent (`STRING`), and sets the reference
+/// cannot enumerate.
 pub fn from_value(heap: &mut Heap, v: &Value, ctx: Ctx) -> Result<Handle, Error> {
     let h = transient(heap, v, ctx)?;
     heap.intern_const(h)
@@ -36,7 +36,7 @@ fn transient(heap: &mut Heap, v: &Value, ctx: Ctx) -> Result<Handle, Error> {
         Value::Int(i) => Ok(heap.int_from_i64(*i)),
         Value::BigInt(b) => Ok(heap.int_from_big(b)),
         Value::Str(a) => heap.string(a.as_str()),
-        Value::Model(_) => Err(Error::unsupported("model values (M0 core)")),
+        Value::Model(a) => Ok(Handle::model(heap.store().strings().intern(a.as_str())?)),
         Value::Set(s) => match s.kind() {
             SetKind::Interval => {
                 let Some((lo, hi)) = s.as_interval() else {
