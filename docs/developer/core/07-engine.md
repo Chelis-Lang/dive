@@ -2,8 +2,8 @@
 
 Status: M1 stream 3. Single-thread BFS in `crates/dive-explore`, with the
 predecessor log and replayed traces (§4, `core/engine-traces`), TLC's
-error endings (§4, `core/engine-errors`) and budgets (`core/engine-budgets`).
-The parallel level (§3, S9) is not built yet. This document covers strategies S3 and S9 from
+error endings (§4, `core/engine-errors`), budgets (`core/engine-budgets`)
+and the parallel level (§3, `core/engine-parallel`). This document covers strategies S3 and S9 from
 `01-motivation.md`. The new engine lives in `dive-explore`.
 
 ## 1. Contract
@@ -269,8 +269,47 @@ the incremental hash before any interning, so only new states are interned.
     report equals the reference engine's;
   - the time and memory limits each stop an endless model.
 
-**Not built yet:** fingerprint-site errors and the parallel level.
+**Done (M1, `core/engine-parallel`).** The parallel level, implemented in
+`crates/dive-explore/src/parallel.rs`. With `--workers N`, the levels after
+the initial states run in two phases:
+- **Expand** (parallel). Workers claim batches of states from an atomic
+  counter. Each worker has its own `Machine` and shares the store. For each
+  successor, a worker evaluates completeness, the constraints, the key and,
+  unless the state is a duplicate, the invariants. It interns only the
+  successors that may be new.
+
+  Duplicates are found by lock-free minimum-position claims: an `AtomicU64`
+  key table with `fetch_min` on a packed (state, emission) position. A
+  successor inside the model whose key is held by an earlier position is not
+  new, and is neither interned nor checked. A claim only saves work: a key
+  that is not placed within 32 probes (the table is at most 2^23 slots), or
+  a position past 2^24 successors of one state, is checked anyway.
+- **Commit** (sequential, in position order). The explorer replays the
+  one-worker decisions over the recorded successors, without evaluating
+  anything: counting, admission limits, seen-set insertion (the first
+  position wins), the first event, queueing, the predecessor log, and
+  warnings in the order the one-worker search raises them. Error endings,
+  TLC's call-stack replay and traces reuse the one-worker code.
+
+Every observable result is therefore the one-worker result:
+`crates/dive-api/tests/core_parallel.rs` checks every fixture the core runs
+at 2, 3 and 8 workers, with and without `--max-states`, and
+`core_golden.rs` checks the spike models at 4 workers.
+
+Scaling is not measured yet, because the M3 development machine was busy
+with other work (load averages 12–19 on 4 performance and 4 efficiency
+cores). Indicative figures, explore time at 1 / 4 / 8 workers:
+- MCLamportMutex: 9.1 / 4.3 / 3.2 s.
+- GameOfLife: 7.5 / 2.2 / 1.7 s.
+
+The commit phase takes about 0.2 s of MCLamportMutex's run (`commit_ms` in
+the core metrics), so it is not the limit. The ≥ 6× target at 8 workers
+needs a quiet x86 machine to assess (`09-performance-method.md`).
+
+**Not built yet:** fingerprint-site errors, an exact store (`--store exact`)
+and spilling for the core.
 
 **Next (M1, stream 3):**
-1. The parallel level of §3.
-2. The static fallback (`08-correctness.md` §3).
+1. The static fallback (`08-correctness.md` §3).
+2. Scaling measurements on a quiet x86 machine, then profiling of the expand
+   phase. Per-worker memo tables are a known cost: each worker warms its own.
