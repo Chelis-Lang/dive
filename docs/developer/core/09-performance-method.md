@@ -57,6 +57,12 @@ The M0 spike uses only these four:
    blocks reversed on odd repetitions.
 3. Run at 1 and 8 workers in both profiles. Record wall time, CPU time, peak RSS
    and states per CPU second.
+   On macOS, also record the peak memory footprint (`/usr/bin/time -l`,
+   "peak memory footprint"), and compare memory by footprint. On a loaded
+   host, maximum RSS varies by up to 20 MB between runs of the same binary,
+   because pages are reclaimed and compressed under pressure, while the
+   footprint varies by under 0.5 MB. One run's RSS is not evidence of a
+   regression (see `03-value-model.md` §12, the MCLamportMutex bisection).
 4. For the new core, also run each ablation switch at 1 worker on the spike
    models.
 5. Record the result as compact JSON (section 6). Put a summary table in the
