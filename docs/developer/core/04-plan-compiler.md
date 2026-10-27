@@ -584,6 +584,12 @@ Next (M1, stream 2), from the census:
      Fixtures are in `tests/fixtures/core-lib` (§8, library fixtures).
      Still to do: `BagOfAll` and `FoldBag` (BagsExt), which take operator
      arguments.
+   - **TLC, values (stream 1, `stdlib/tlc.rs`):** `:>`, `@@`, `Assert` and
+     `Permutations`. Still to do: `Print`, `PrintT` and `TLCSet` (effects:
+     an `Info` effect bit that blocks folding, speculation and memo sites),
+     `ToString` (a TLC printer in the core), `SortSeq` (an operator
+     argument, through stream 2's `Compiler::op_fn`) and `RandomElement`
+     (seed rules, B6).
 4. The memoization decision: made. The memo tables are off by default
    (`06-memoization.md` §6).
 5. Native action splitting and constant evaluation, to drop the reference
@@ -681,6 +687,7 @@ with TLC's counts.
 | Family | Operators | Fixtures | Result |
 |---|---|---|---|
 | Bags | `\oplus`, `\ominus`, `BagCardinality`, `BagUnion`, `\sqsubseteq`, `IsABag` | `BagOps` (32 distinct, 95 generated, depth 9; TLC agrees); errors `ErBagCardNonBag` (2176), `ErBagCupNonBag` (2169), `ErBagDiffNonFcn` (2169), `ErBagSqNonFcn` (2176) | all agree; `ErBagUnionNonBag` (TLC 2154, comparing `2` with `<<1>>`) is refused: a set of an integer and a function (C1, C2) |
+| TLC | `:>`, `@@`, `Assert`, `Permutations` | `TlcOps` (48 distinct, 145 generated, depth 9), `Perm` (6, 42, depth 1), `PermViol` (violation after 36 generated, trace 3), all equal to TLC; errors `ErAssertInv` (2132 in an invariant), `ErAssertNext` (assertion failure in the next-state relation, exit 14), `ErCombineNonFcn`, `ErCombineSecond` (2169), `ErPermNonSet` (2176) | all agree. `Permutations` is refused over strings or model values in the default profile and over compound elements: TLC enumerates the result in its own order (D-010) |
 
 **Disagreements found, and their owners.**
 - *Comparison errors (fixed, §5.1).* `ErWrapSetMember` passed in the core and
