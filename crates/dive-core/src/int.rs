@@ -58,8 +58,18 @@ pub enum IntOp {
 /// reference engine).
 const MAX_POW_BITS: u64 = 1 << 26;
 
+/// `EC.TLC_MODULE_OVERFLOW`, an `EvalException` (stream 2's error classes,
+/// `04-plan-compiler.md` §5.2).
 fn overflow(what: &str) -> Error {
-    Error::eval(format!("Overflow when computing {what}"))
+    Error::eval_class(
+        crate::TlcClass::eval_exception(2178),
+        format!("Overflow when computing {what}"),
+    )
+}
+
+/// An `EvalException` of TLC class `code`.
+fn eval_exc(code: u32, what: impl Into<String>) -> Error {
+    Error::eval_class(crate::TlcClass::eval_exception(code), what)
 }
 
 impl IntOp {
@@ -208,16 +218,20 @@ fn domain_errors(
 ) -> Result<(), Error> {
     match (op, y_sign) {
         (IntOp::Div | IntOp::DivNaturals, Ordering::Equal) => {
-            Err(Error::eval("The second argument of \\div is 0."))
+            Err(eval_exc(2179, "The second argument of \\div is 0."))
         }
-        (IntOp::Mod, Ordering::Equal | Ordering::Less) => Err(Error::eval(format!(
-            "The second argument of % should be a positive number, but instead it is:\n{y}"
-        ))),
-        (IntOp::Pow, Ordering::Less) => Err(Error::eval(format!(
-            "The second argument of ^ should be a natural number, but instead it is:\n{y}"
-        ))),
+        (IntOp::Mod, Ordering::Equal | Ordering::Less) => Err(eval_exc(
+            2169,
+            format!(
+                "The second argument of % should be a positive number, but instead it is:\n{y}"
+            ),
+        )),
+        (IntOp::Pow, Ordering::Less) => Err(eval_exc(
+            2169,
+            format!("The second argument of ^ should be a natural number, but instead it is:\n{y}"),
+        )),
         (IntOp::Pow, Ordering::Equal) if x_sign == Ordering::Equal => {
-            Err(Error::eval("0^0 is undefined."))
+            Err(eval_exc(2180, "0^0 is undefined."))
         }
         _ => Ok(()),
     }
