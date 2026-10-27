@@ -76,8 +76,8 @@ discarded, so results are never mixed. The report names the engine that ran:
 
 A check that ends before any search, for example at a false `ASSUME`, names
 no engine. After a dynamic refusal, the reference run gets what is left of
-`--time-limit`. For now auto runs every `--compat=tlc` check on the
-reference engine.
+`--time-limit`. Auto works the same way under `--compat=tlc`: the core runs
+TLC's profile, and the reference engine runs whatever the core refuses.
 
 `--engine core --compat=tlc` runs TLC's profile on the core, at any worker
 count, with the one-worker result.
