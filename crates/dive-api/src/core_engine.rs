@@ -546,13 +546,9 @@ pub(crate) fn check(
     // it; `--max-states` and `--max-depth` are admission limits.
     let budget = &options.budget;
     // Every observable result is the one-worker result
-    // (`docs/developer/core/07-engine.md` §3). M2 runs `--compat=tlc` on
-    // one worker until its parallel runs are shadowed.
-    let workers = if profile_tlc {
-        1
-    } else {
-        options.workers.max(1)
-    };
+    // (`docs/developer/core/07-engine.md` §3), in both profiles: under
+    // TLC's string order the table is sealed, so no worker creates a token.
+    let workers = options.workers.max(1);
     let poll = || !matches!(budget.poll(), Ok(None));
     let explore_started = Instant::now();
     run.searched = true;

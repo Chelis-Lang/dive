@@ -141,6 +141,10 @@ The reference engine handles this by forcing a single worker
 
 - **M1.** Same rule: the plan records whether runtime names are reachable
   under TLC order, and if so the run uses one worker.
+- **As built (M2).** The core seals its string table after the start-up
+  names and refuses any later string (`core/engine-compat`), so no worker
+  ever creates a token and compat runs at any worker count. The provisional
+  tokens below are needed only to run such models instead of refusing them.
 - **M2.** A worker that creates a new string during a level gives it a
   provisional token, ordered by (position, sequence within the evaluation).
   This is the order a single worker would have produced.
@@ -400,10 +404,17 @@ warnings included, when the verdict is the same. Otherwise it refuses. The
 fixture `CompatBigNumeral` (a numeral outside 32 bits) is a model error
 under `--compat=tlc` and a success in the default profile, on both engines.
 
+**Done (M2, `core/engine-compat-parallel`).** Compat runs at any worker
+count. The sealed string table means no worker creates a token, and the
+commit phase gives the one-worker result as in the default profile.
+- `core_compat.rs` checks every fixture the core runs (134) at 2, 3 and 8
+  workers against its one-worker result.
+- Compat shadow, small tier at 1, 4 and 8 workers: 50 models agree at every
+  worker count, 106 are refused, 0 findings. The sample covered 2,451
+  states with no mismatch.
+
 **Next (M2, stream 3):**
-1. Parallel compat runs: shadow them at 4 and 8 workers, then lift the
-   one-worker rule.
-2. Flip `--engine=auto` for `--compat=tlc` once the small tier is clean
+1. Flip `--engine=auto` for `--compat=tlc` once the small tier is clean
    against the TLC-profile goldens (`run --impl dive:core --impl-profile
    tlc`).
 
