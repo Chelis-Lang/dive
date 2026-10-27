@@ -289,6 +289,25 @@ a level boundary it:
 2. remaps the frontier handles;
 3. clears the memoization caches.
 
+### 10.1 Measured: the MCLamportMutex bisection
+
+A reported rise in RSS from 85 MB (main at #523) to 98 MB (main at #514) was
+noise, not a regression. The test used release builds of each merge in the
+range, run at 1 worker, three times interleaved, at load 7–15 on M3:
+
+| Main at | Max RSS, 3 runs (MB) | Peak footprint, median (MB) |
+|---|---|---|
+| #523 `b836629e` | 85.5, 90.5, 92.0 | 85.6 |
+| #510 `57e9e679` | 95.6, 96.4, 96.9 | 81.7 |
+| #520 `6ed14712` | 79.0, 94.7, 97.4 | 81.6 |
+| #514 `a87f1bea` | 87.5, 87.9, 96.0 | 81.7 |
+| #524 `431d6f95` | 94.9, 95.2, 97.6 | 81.8 |
+
+The store's counts are identical at every merge (182,053 nodes, 546,115
+handles). The footprint fell by 3.9 MB at #510 (the inline columns) and is
+flat after it, while one binary's max RSS spans 79–98 MB. Memory is
+therefore compared by footprint (`09-performance-method.md` §4).
+
 ## 11. Interface (M1)
 
 This section is the value interface that the evaluator (`eval`), the plan
