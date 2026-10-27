@@ -153,6 +153,9 @@ pub struct Handoff<'a> {
     pub implied_actions: Vec<Role>,
     /// Whether deadlock is checked.
     pub check_deadlock: bool,
+    /// `SYMMETRY`: the closure's nonidentity maps, each as its moved
+    /// model values `(from, to)` by name; empty without one.
+    pub symmetry: Vec<Vec<(String, String)>>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -355,6 +358,20 @@ pub fn compile(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<Plan, E
     if c.m.heap.poisoned() {
         return Err(Error::internal("a stale handle was read while compiling"));
     }
+    let symmetry = if h.symmetry.is_empty() {
+        None
+    } else {
+        let strings = c.m.heap.store().strings();
+        let mut maps = Vec::with_capacity(h.symmetry.len());
+        for m in &h.symmetry {
+            let mut pairs = Vec::with_capacity(m.len());
+            for (a, b) in m {
+                pairs.push((strings.intern(a)?, strings.intern(b)?));
+            }
+            maps.push(pairs);
+        }
+        Some(crate::symmetry::Symmetry::new(maps))
+    };
     Ok(Plan {
         code: c.code,
         vars,
@@ -366,6 +383,7 @@ pub fn compile(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<Plan, E
         implied_inits,
         implied_actions,
         check_deadlock: h.check_deadlock,
+        symmetry,
         stats: c.stats,
     })
 }
