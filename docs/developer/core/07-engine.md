@@ -454,6 +454,23 @@ workers):
   ended before any search.
 - `--impl dive:core`: 50 agree and 106 unsupported, with 0 disagreements.
 
+**Done (M2, `core/engine-implied`).** Implied initial predicates and
+actions of `PROPERTY` entries (§7, "Implied properties first"). The plan
+compiles them as checks and step predicates; the one-worker search, the
+parallel commit (an `Inv` verdict per successor, applied whether or not the
+successor is new) and TLC's call-stack replay check them in the reference
+engine's order. The 13 models the core refused for "temporal properties"
+now run on it: on the small tier under `--impl dive:auto` the core runs 65
+models in the default profile and 64 under `--compat=tlc` (48 each
+before), with no regression against either baseline. EWD998PCal runs on the
+core in 20 s against the reference engine's 80 s and TLC's 35 s (1 worker,
+an 8-core laptop under load, its `ALIAS` removed). BufferedRandomAccessFile
+still needs `ENABLED` (stream 2) and `SYMMETRY`. Fixtures `PropRefine`
+(refinement through INSTANCE, steps out of the model), `PropStep`,
+`PropInit` and `PropAbs`; the `ErProp*` error fixtures and the
+`ImpliedActionSeen` probe agree. The `ErPropInit*` fixtures need
+non-constant split arguments (stream 2), and are refused naming them.
+
 **Refusal census (2026-10-27, `main` at #549).** `--impl dive:auto` over
 the small tier (156 models, 1 worker), static fallbacks by reason. Default
 profile: 144 agree, 7 expected divergences, 5 unsupported; 48 models ran on
