@@ -189,6 +189,19 @@ fn zero_to_the_zero_is_tlcs_evaluation_error() {
     assert_eq!(core["tlc"], reference["tlc"], "{core:#}");
 }
 
+/// Pair-domain functions are indexed by position or by search, and small
+/// differences are taken directly; fixture `GridFcn` (TLC: `Inv` violated,
+/// 1665 distinct, 5174 generated, depth 6).
+#[test]
+fn pair_domain_lookups_and_small_differences_match_the_reference() {
+    let name = "GridFcn";
+    let reference = run(name, Engine::Reference);
+    let core = run(name, Engine::Core);
+    assert_eq!(core["engine"], "core", "{name}");
+    assert_eq!(counts(&core), counts(&reference), "{name}: {core:#}");
+    assert_eq!(core["property"], reference["property"], "{name}");
+}
+
 #[test]
 fn every_strategy_switch_leaves_counts_unchanged() {
     for name in ["Mix", "Fold", "Lazy", "Inst", "Bag", "Mv", "OpArg", "OpSub"] {

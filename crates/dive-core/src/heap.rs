@@ -379,6 +379,17 @@ impl Heap {
                 }
                 Ordering::Equal
             }),
+            // Two tuples, or integer-domain functions with the same domain:
+            // the domains are equal, so only the values decide.
+            (Kind::IntFcn, Kind::IntFcn) if va.lo == vb.lo && va.data.len() == vb.data.len() => {
+                for (&x, &y) in va.data.iter().zip(vb.data) {
+                    let c = self.cmp(x, y);
+                    if c != Ordering::Equal {
+                        return c;
+                    }
+                }
+                Ordering::Equal
+            }
             (ka, kb) if ka.is_fcn() && kb.is_fcn() => {
                 let n = va.len();
                 n.cmp(&vb.len()).then_with(|| {
