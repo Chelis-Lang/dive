@@ -19,6 +19,14 @@ pub fn search_error(e: &EvalError, site: ErrorSite, name: Option<&str>) -> Verdi
     class::search_error(e, site, name)
 }
 
+/// An `ASSUME` that fails to evaluate, as TLC classifies it
+/// (`TLC_ASSUMPTION_EVALUATION_ERROR`, or the error's own class). `message`
+/// is the evaluator's text of the error.
+#[must_use]
+pub fn assumption_error(e: &EvalError, message: String) -> Verdict {
+    class::assumption_error(e, message)
+}
+
 /// An error raised while generating or checking the initial states. `state`
 /// is TLC's text of the initial state being checked, for an error in a
 /// check of a state, and `None` for an error while generating them.

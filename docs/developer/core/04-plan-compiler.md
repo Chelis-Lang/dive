@@ -38,6 +38,12 @@ The handoff has two parts.
 **What is reused from the reference binder.**
 - Constant and override processing (`crates/dive-model/src/bind.rs:219`).
 - Startup evaluation of constant definitions and ASSUMEs (`bind.rs:617`).
+  A false or failing ASSUME ends a core run with the reference engine's
+  verdict: `AssumptionFalse` (TLC 2104) or `classify::assumption_error`
+  (2105, or the error's own class), exit 10, before any core work. The
+  fixtures `AsFalse` and `AsErr` match the pinned TLC. A run that printed
+  output at startup is refused, because the core does not report startup
+  output.
 - TLC's level bound (`crates/dive-model/src/level.rs`).
 - Their results are `dive_value::Value`s. `dive-api` converts them to handles
   in the permanent region through `dive-core`'s conversion API.
