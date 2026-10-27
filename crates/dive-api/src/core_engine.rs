@@ -319,8 +319,8 @@ fn refusal(model: &dive_model::Model) -> Option<String> {
     if !model.implied_temporals.is_empty() {
         return Some("temporal properties (M0 core engine)".into());
     }
-    if model.view.is_some() || model.alias.is_some() {
-        return Some("VIEW or ALIAS (M0 core engine)".into());
+    if model.view.is_some() {
+        return Some("VIEW (M0 core engine)".into());
     }
     if model
         .postconditions
@@ -830,12 +830,6 @@ pub(crate) fn check(
     let mut r = result(verdict, options, ir);
     r.warnings.append(&mut sym.warnings);
     r.notes.extend(sym.note.take());
-    // The reference engine's D-010 qualification of a stop in the default
-    // profile (`dive_check::note_canonical_stop`); under `--compat=tlc`
-    // TLC's order needs no note.
-    if !profile_tlc && r.verdict.is_verdict() && r.verdict != Verdict::Success {
-        r.notes.push(CANONICAL_STOP_NOTE.to_owned());
-    }
     r.output = startup;
     r.output.extend(out.printed.iter().cloned());
     if plan.effects && workers > 1 {
@@ -883,6 +877,22 @@ pub(crate) fn check(
                 r.tlc_prints_stats = false;
             }
         }
+    }
+    // The reference engine does not apply ALIAS yet: it shows the states
+    // themselves and says so (`dive_check::finish_bound_check`).
+    if r.counterexample.is_some()
+        && let Some(alias) = &config.alias
+    {
+        r.notes.push(format!(
+            "ALIAS {} is not applied: the counterexample shows the states themselves (not implemented yet).",
+            alias.text
+        ));
+    }
+    // The reference engine's D-010 qualification of a stop in the default
+    // profile (`dive_check::note_canonical_stop`); under `--compat=tlc`
+    // TLC's order needs no note.
+    if !profile_tlc && r.verdict.is_verdict() && r.verdict != Verdict::Success {
+        r.notes.push(CANONICAL_STOP_NOTE.to_owned());
     }
     run.metrics = metrics_json(&plan, &out.metrics, compile_time);
     (finish(r), run)

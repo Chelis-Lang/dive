@@ -1,5 +1,8 @@
 # Changelog
 
+- `--engine core` runs models with `ALIAS` as the reference engine does: the
+  counterexample shows the states themselves, with a note saying so.
+
 - `--engine core` runs `AllSubSeqs`, `LongestCommonPrefix`, and
   `ReplaceFirstSubSeq` and `ReplaceAllSubSeqs` on strings (SequencesExt),
   `FoldSet` (FiniteSetsExt), `FoldFunctionOnSet` (Functions), and `Len` of

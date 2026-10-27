@@ -516,6 +516,14 @@ non-constant split arguments (stream 2), and are refused naming them.
   `core-m1` agree with the reference engine in counts and traces, at every
   worker count `core_parallel.rs` checks.
 
+**Done (M2, `core/engine-alias`).** `ALIAS`. The reference engine does not
+apply ALIAS yet: its counterexample shows the states themselves, with a
+note saying so. The core now does the same instead of refusing, and its
+notes keep the reference engine's order: the ALIAS note, then the D-010
+stop note. The ten `ErAlias*` error fixtures now agree, so at least 110 of
+the 175 do. Applying ALIAS to traces is reference-engine work, and the core
+follows it.
+
 **Refusal census (2026-10-27, `main` at #549).** `--impl dive:auto` over
 the small tier (156 models, 1 worker), static fallbacks by reason. Default
 profile: 144 agree, 7 expected divergences, 5 unsupported; 48 models ran on
