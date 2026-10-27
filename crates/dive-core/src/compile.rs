@@ -179,6 +179,12 @@ enum Sb {
     },
     /// The function name inside a recursive function definition.
     RecSelf(u32),
+    /// An operator parameter bound to an operator argument: the operator,
+    /// resolved in the caller's environment `env`.
+    OpArg {
+        op: OpRef,
+        env: usize,
+    },
 }
 
 /// A function being compiled from a definition nested in others (a
@@ -1723,6 +1729,7 @@ impl Compiler<'_> {
             Sb::RecSelf(_) => Err(Error::unsupported(
                 "a recursive function used other than applied (M1 core)",
             )),
+            Sb::OpArg { .. } => Err(Error::internal("an operator parameter used as a value")),
             Sb::Unset => Err(Error::internal(format!(
                 "unbound local {} in {}",
                 self.ir
@@ -1923,6 +1930,47 @@ impl Compiler<'_> {
         r
     }
 
+    /// The operator an operator declaration stands for: the innermost
+    /// active substitution, followed through substitutions by declarations
+    /// of enclosing instances (`INSTANCE M WITH F <- F`, nested), each
+    /// looked up in the context outside its own substitution.
+    fn subst_op(&self, decl: dive_ir::DeclId) -> Result<OpRef, Error> {
+        let mut decl = decl;
+        let mut limit = self.substs.len();
+        loop {
+            let Some(i) = self.substs[..limit].iter().rposition(|s| s.decl == decl) else {
+                return match self.ir.decl(decl).constant {
+                    Some(c) => Ok(OpRef::Const(c)),
+                    None => Err(Error::unsupported(
+                        "an unsubstituted operator declaration (M1 core)",
+                    )),
+                };
+            };
+            let s = &self.substs[i];
+            match &s.value {
+                Ok(Arg::Op {
+                    op: OpRef::Subst(d2),
+                    ..
+                }) => {
+                    decl = *d2;
+                    limit = s.depth.min(i);
+                }
+                Ok(Arg::Op {
+                    op: op @ (OpRef::Def(_) | OpRef::Std(_) | OpRef::Const(_)),
+                    ..
+                }) if !matches!(op, OpRef::Def(d) if self.ir.def(self.redirect(*d)).scope != DefScope::TopLevel) =>
+                {
+                    return Ok(op.clone());
+                }
+                _ => {
+                    return Err(Error::unsupported(
+                        "an INSTANCE substitution of an operator by a non-top-level operator (M1 core)",
+                    ));
+                }
+            }
+        }
+    }
+
     /// A reference to a substituted declaration: the innermost active
     /// substitution, or else the declaration itself (a root variable or a
     /// constant).
@@ -2070,17 +2118,7 @@ impl Compiler<'_> {
                 if def.recursive {
                     return self.call(d, args, env, mode);
                 }
-                let body = def.body;
-                let (inner, reset) = self.inline(d, args, env, mode)?;
-                let b = self.p(body, inner, mode)?;
-                if reset.is_empty() {
-                    Ok(b)
-                } else {
-                    self.push(Node::Scope {
-                        reset: reset.into(),
-                        body: b,
-                    })
-                }
+                self.inline_apply(d, args, env, env, mode)
             }
             OpRef::Std(op) => {
                 if let Some(&t) = self.h.std_redirects.get(op) {
@@ -2088,40 +2126,162 @@ impl Compiler<'_> {
                 }
                 self.std_apply(*op, args, env, mode)
             }
-            OpRef::Param(_) => Err(Error::unsupported("operator parameters (M0 core)")),
+            OpRef::Param(r) => self.apply_param(*r, args, env, env, mode),
             OpRef::Builtin(op) => Err(Error::unsupported(format!(
                 "the built-in {} as an operator argument (M0 core)",
                 op.sany_name()
             ))),
-            OpRef::Const(_) => Err(Error::unsupported("constant operators (M0 core)")),
-            OpRef::Subst(decl) => match self.substs.iter().rposition(|s| s.decl == *decl) {
-                Some(i) => {
-                    let value = self.substs[i].value.clone();
-                    match value {
-                        // The operator is resolved outside the substitution;
-                        // the arguments are compiled here.
-                        Ok(Arg::Op {
-                            op: op @ (OpRef::Def(_) | OpRef::Std(_)),
-                            ..
-                        }) if !matches!(&op, OpRef::Def(d) if self.ir.def(self.redirect(*d)).scope != DefScope::TopLevel) =>
-                        {
-                            // TLC applies the operator in the current
-                            // (dynamic) context.
-                            self.apply(&op, args, env, mode)
-                        }
-                        _ => Err(Error::unsupported(
-                            "an INSTANCE substitution of an operator by a non-top-level operator (M1 core)",
-                        )),
-                    }
-                }
-                None => match self.ir.decl(*decl).constant {
-                    Some(c) => self.apply(&OpRef::Const(c), args, env, mode),
-                    None => Err(Error::unsupported(
-                        "an unsubstituted operator declaration (M1 core)",
-                    )),
-                },
+            // `CONSTANT F(_)` with `F <- D` in the configuration.
+            OpRef::Const(c) => match self.h.constants.get(c.index()).cloned().flatten() {
+                Some(ConstBinding::Def(d)) => self.apply(&OpRef::Def(d), args, env, mode),
+                _ => Err(Error::unsupported(
+                    "a constant operator the configuration does not bind to a definition (M1 core)",
+                )),
             },
+            // The operator is resolved outside the substitution; the
+            // arguments are compiled here, and TLC applies the operator in
+            // the current (dynamic) context.
+            OpRef::Subst(decl) => {
+                let op = self.subst_op(*decl)?;
+                self.apply(&op, args, env, mode)
+            }
             OpRef::Unbound(n) => Err(Error::unsupported(format!("the unbound operator {n}"))),
+        }
+    }
+
+    /// Inlines a non-recursive operator applied to `args`, which are
+    /// compiled in `env`; the operator's lexical parent is found from
+    /// `def_env` (the caller's, or where an operator argument was passed).
+    fn inline_apply(
+        &mut self,
+        d: DefId,
+        args: &[Arg],
+        env: usize,
+        def_env: usize,
+        mode: Mode,
+    ) -> Result<P, Error> {
+        let body = self.ir.def(d).body;
+        let (inner, reset) = self.inline(d, args, env, def_env, mode)?;
+        let b = self.p(body, inner, mode)?;
+        if reset.is_empty() {
+            Ok(b)
+        } else {
+            self.push(Node::Scope {
+                reset: reset.into(),
+                body: b,
+            })
+        }
+    }
+
+    /// Inlines a non-recursive operator applied as an action (see
+    /// [`Self::inline_apply`]).
+    fn g_inline(&mut self, d: DefId, args: &[Arg], env: usize, def_env: usize) -> Result<G, Error> {
+        let body = self.ir.def(d).body;
+        let (inner, reset) = self.inline(d, args, env, def_env, Mode::Plain)?;
+        let g = self.g(body, inner)?;
+        if reset.is_empty() {
+            Ok(g)
+        } else {
+            Ok(self.gpush(GNode::Scope {
+                reset: reset.into(),
+                body: g,
+            }))
+        }
+    }
+
+    /// Applies, as an action, an operator resolved from a constant, a
+    /// substitution or a parameter; `aenv` is where it was resolved.
+    fn g_apply_op(
+        &mut self,
+        op: &OpRef,
+        args: &[Arg],
+        e: ExprId,
+        env: usize,
+        aenv: usize,
+    ) -> Result<G, Error> {
+        let d = match *op {
+            OpRef::Def(d) => d,
+            OpRef::Const(c) => match self.h.constants.get(c.index()).cloned().flatten() {
+                Some(ConstBinding::Def(d)) => d,
+                _ => return self.guard_expr(e, env),
+            },
+            _ => return self.guard_expr(e, env),
+        };
+        let d = self.redirect(d);
+        let def = self.ir.def(d);
+        if def.std.is_some() || def.recursive || args.is_empty() {
+            return self.guard_expr(e, env);
+        }
+        let def_env = if def.scope == DefScope::TopLevel {
+            env
+        } else {
+            aenv
+        };
+        self.g_inline(d, args, env, def_env)
+    }
+
+    /// The operator argument an operator parameter is bound to, following
+    /// parameters passed on, and the environment it was passed in.
+    fn resolve_param(&self, r: LocalRef, look_env: usize) -> Result<(OpRef, usize), Error> {
+        let mut r = r;
+        let mut look = look_env;
+        loop {
+            let fe = self.frame_env(look, r.up)?;
+            if self.lifts.last().is_some_and(|l| fe < l.floor) {
+                return Err(Error::unsupported(
+                    "an enclosing operator parameter inside a recursive LET definition (M1 core)",
+                ));
+            }
+            let Some(Sb::OpArg { op, env }) = self.envs[fe].slots.get(r.slot.index()).cloned()
+            else {
+                return Err(Error::unsupported(
+                    "an operator parameter of a recursive operator (M1 core)",
+                ));
+            };
+            match op {
+                OpRef::Param(r2) => {
+                    r = r2;
+                    look = env;
+                }
+                op => return Ok((op, env)),
+            }
+        }
+    }
+
+    /// Applies an operator parameter: the operator argument bound to it.
+    /// The arguments are compiled in `env`; the parameter is looked up from
+    /// `look_env`. TLC applies the argument as a closure over the caller's
+    /// context, which inlining it there reproduces.
+    fn apply_param(
+        &mut self,
+        r: LocalRef,
+        args: &[Arg],
+        env: usize,
+        look_env: usize,
+        mode: Mode,
+    ) -> Result<P, Error> {
+        let (op, aenv) = self.resolve_param(r, look_env)?;
+        match op {
+            OpRef::Param(_) => Err(Error::internal("an unresolved operator parameter")),
+            OpRef::Def(d) => {
+                let d = self.redirect(d);
+                let def = self.ir.def(d);
+                if def.std.is_some() || def.scope == DefScope::TopLevel {
+                    self.apply(&OpRef::Def(d), args, env, mode)
+                } else if def.recursive {
+                    Err(Error::unsupported(
+                        "a recursive LET operator passed as an operator argument (M1 core)",
+                    ))
+                } else {
+                    self.inline_apply(d, args, env, aenv, mode)
+                }
+            }
+            OpRef::Subst(_) => Err(Error::unsupported(
+                "an INSTANCE-substituted operator passed as an operator argument (M1 core)",
+            )),
+            op @ (OpRef::Std(_) | OpRef::Builtin(_) | OpRef::Const(_) | OpRef::Unbound(_)) => {
+                self.apply(&op, args, env, mode)
+            }
         }
     }
 
@@ -2132,6 +2292,7 @@ impl Compiler<'_> {
         d: DefId,
         args: &[Arg],
         env: usize,
+        def_env: usize,
         mode: Mode,
     ) -> Result<(usize, Vec<u32>), Error> {
         let def = self.ir.def(d);
@@ -2142,13 +2303,22 @@ impl Compiler<'_> {
                 args.len()
             )));
         }
-        let parent = self.lexical_parent(d, env)?;
+        let parent = self.lexical_parent(d, def_env)?;
         let inner = self.new_env(d, parent);
         let mut reset = Vec::new();
         self.stats.inlined += 1;
         for (i, a) in args.iter().enumerate() {
-            let Arg::Expr { expr, .. } = a else {
-                return Err(Error::unsupported("operator arguments (M0 core)"));
+            let expr = match a {
+                Arg::Expr { expr, .. } => expr,
+                Arg::Op { op, .. } => {
+                    if let Some(s) = self.envs[inner].slots.get_mut(i) {
+                        *s = Sb::OpArg {
+                            op: op.clone(),
+                            env,
+                        };
+                    }
+                    continue;
+                }
             };
             let cp = self.p(*expr, env, mode)?;
             let how = if self.opts.eager && self.is_trivial(cp) {
@@ -2716,17 +2886,30 @@ impl Compiler<'_> {
                     }
                     return self.guard_expr(e, env);
                 }
-                let body = def.body;
-                let (inner, reset) = self.inline(d, args, env, Mode::Plain)?;
-                let g = self.g(body, inner)?;
-                if reset.is_empty() {
-                    Ok(g)
-                } else {
-                    Ok(self.gpush(GNode::Scope {
-                        reset: reset.into(),
-                        body: g,
-                    }))
-                }
+                self.g_inline(d, args, env, env)
+            }
+            // An operator that stands for a definition, applied as an
+            // action: a constant operator bound to a definition (`F <- D`),
+            // an operator declaration an instance substitutes, or an
+            // operator parameter (the argument, inlined where it was
+            // passed).
+            Expr::Apply {
+                callee: OpRef::Const(c),
+                args,
+            } => self.g_apply_op(&OpRef::Const(*c), args, e, env, env),
+            Expr::Apply {
+                callee: OpRef::Subst(decl),
+                args,
+            } => {
+                let op = self.subst_op(*decl)?;
+                self.g_apply_op(&op, args, e, env, env)
+            }
+            Expr::Apply {
+                callee: OpRef::Param(r),
+                args,
+            } => {
+                let (op, aenv) = self.resolve_param(*r, env)?;
+                self.g_apply_op(&op, args, e, env, aenv)
             }
             Expr::Local(r) => {
                 let fe = self.frame_env(env, r.up)?;
