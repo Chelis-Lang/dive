@@ -153,6 +153,12 @@ pub struct Baseline {
     /// The implementation's profile (`dive`, `tlc`, ...), if it has one.
     #[serde(default)]
     pub profile: Option<String>,
+    /// The `dive check` engine requested, when not the reference engine
+    /// (`core` or `auto`). Engines must agree, so it is recorded but never
+    /// makes two baselines incomparable: an `auto` run is checked against
+    /// the reference engine's baseline (`08-correctness.md` §8).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub engine: Option<String>,
     /// The oracle whose goldens were compared against.
     pub golden_oracle: String,
     /// Tier selection.
@@ -220,6 +226,11 @@ impl Baseline {
             source_run_id: report.run_id.clone(),
             implementation: report.implementation.clone(),
             profile,
+            engine: report
+                .settings
+                .impl_engine
+                .clone()
+                .filter(|e| e != "reference"),
             golden_oracle: report.golden_oracle.clone(),
             tier: report.settings.tier.clone(),
             workers: report.settings.workers.clone(),
@@ -273,6 +284,13 @@ impl Baseline {
             ("source_run_id", line(&self.source_run_id)),
             ("implementation", line(&self.implementation)),
             ("profile", line(&self.profile)),
+        ] {
+            let _ = writeln!(out, "  \"{k}\": {v},");
+        }
+        if let Some(engine) = &self.engine {
+            let _ = writeln!(out, "  \"engine\": {},", line(engine));
+        }
+        for (k, v) in [
             ("golden_oracle", line(&self.golden_oracle)),
             ("tier", line(&self.tier)),
             ("workers", line(&self.workers)),
@@ -330,6 +348,8 @@ pub struct BaselineDiff {
     pub improvements: Vec<Change>,
     /// Other outcome changes, and entries new to the run.
     pub other: Vec<Change>,
+    /// The engines, when the baseline's and the run's differ.
+    pub engines: Option<(String, String)>,
 }
 
 impl BaselineDiff {
@@ -342,6 +362,9 @@ impl BaselineDiff {
             self.improvements.len(),
             self.other.len()
         );
+        if let Some((base, now)) = &self.engines {
+            let _ = writeln!(out, "  engine: baseline {base}, this run {now}");
+        }
         for (label, list) in [
             ("REGRESSION", &self.regressions),
             ("improved", &self.improvements),
@@ -383,6 +406,10 @@ pub fn compare(base: &Baseline, now: &Baseline) -> Result<BaselineDiff> {
     // A filtered run checks only what it selected.
     let partial = !now.filters.is_empty() || base.filters != now.filters;
     let mut d = BaselineDiff::default();
+    if base.engine != now.engine {
+        let name = |e: &Option<String>| e.clone().unwrap_or_else(|| "reference".to_owned());
+        d.engines = Some((name(&base.engine), name(&now.engine)));
+    }
     let outcome = |o: Outcome| o.as_str();
     for (id, b) in &base.models {
         let change = |what: String| Change {
@@ -509,6 +536,7 @@ mod tests {
             source_run_id: "r".to_owned(),
             implementation: "dive".to_owned(),
             profile: Some("tlc".to_owned()),
+            engine: None,
             golden_oracle: "o".to_owned(),
             tier: "small".to_owned(),
             workers: vec![1],
@@ -637,6 +665,28 @@ mod tests {
         assert!(err.contains("profile, workers"), "{err}");
     }
 
+    /// An engine is recorded but never refuses the comparison: engines must
+    /// agree, and an `auto` run is checked against the reference baseline.
+    #[test]
+    fn engines_are_recorded_and_compared_by_results() -> Result<()> {
+        let mut now = base();
+        now.engine = Some("auto".to_owned());
+        let d = compare(&base(), &now)?;
+        assert!(d.regressions.is_empty() && d.other.is_empty());
+        assert_eq!(d.engines, Some(("reference".to_owned(), "auto".to_owned())));
+        assert!(
+            d.render("r")
+                .contains("engine: baseline reference, this run auto")
+        );
+        let dir = std::env::temp_dir().join(format!("dive-baseline-e-{}", std::process::id()));
+        let path = dir.join("b.json");
+        now.write(&path)?;
+        let back = Baseline::load(&path);
+        let _ = std::fs::remove_dir_all(&dir);
+        assert_eq!(back?, now);
+        Ok(())
+    }
+
     #[test]
     fn write_and_load_round_trip() -> Result<()> {
         let dir = std::env::temp_dir().join(format!("dive-baseline-{}", std::process::id()));
@@ -647,7 +697,10 @@ mod tests {
         let text = std::fs::read_to_string(&path).map_err(|e| Error::io(&path, &e));
         let _ = std::fs::remove_dir_all(&dir);
         assert_eq!(back?, b);
-        assert!(text?.contains("\n    \"e:A\": {\"outcome\":\"agree\""));
+        let text = text?;
+        assert!(text.contains("\n    \"e:A\": {\"outcome\":\"agree\""));
+        // The reference engine's baselines carry no engine key.
+        assert!(!text.contains("\"engine\""));
         Ok(())
     }
 }

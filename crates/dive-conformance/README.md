@@ -143,7 +143,7 @@ oracle verify [--oracle ID]      # re-verify the cache and print the gating orac
 corpus fetch [--corpus ID]      # git checkout of pinned corpora; submodules are recorded, not fetched
 corpus list  [--tier small|deep|all] [--filter GLOB]
 golden generate [--oracle ID] [--tier T] [--filter GLOB]... [--reason TEXT] [--no-sany|--sany-only] [--workers 1,4] [--raw-invocations DIR] [--raw-setup-status]
-run --impl tlc|tlc:<oracle-id>|dive|adapter:<file.toml>
+run --impl tlc|tlc:<oracle-id>|dive|dive:<engine>|adapter:<file.toml>
     [--corpus ID]... [--golden-oracle ID] [--workers 1,4] [--crosscheck-manifest] [--tier T] [--filter GLOB]...
     [--sany-phase full|parse] [--dive-bin PATH] [--impl-profile P] [--impl-option N[=V]]...
 ```
@@ -180,6 +180,7 @@ dive-conformance run --impl tlc --workers 1,4 --filter 'specifications/ewd840/*'
 cargo build --release -p dive-cli                                  # then, for dive's front end:
 dive-conformance run --impl dive --tier all --corpus examples --corpus tlaplus-tests --corpus community-modules
 dive-conformance run --impl dive --sany-phase parse --sany-only --corpus tlaplus-tests   # dive parse vs SANY's parse phase
+dive-conformance run --impl dive:auto --impl-profile dive --no-sany --baseline conformance/baselines/small-dive-w1.json   # the new core, falling back (M1 gate)
 ```
 
 `golden generate --raw-invocations DIR` optionally retains original TLC model
@@ -347,6 +348,7 @@ pub trait Implementation: Sync {
 **Profiles, options and expected divergences (ADR 0010).**
 - **Options.** `--impl-option NAME[=VALUE]` runs `dive` or an adapter under an option, and is recorded in the report. An option the implementation does not declare result-preserving (`result_preserving_options`) turns every would-be `agree` into `divergence-mode`.
 - **Profiles.** `dive` also has a profile, set with `--impl-profile dive|tlc|tlc+overrides=<features>`, or `DIVE_COMPAT=tlc`. Every report records it, plus `strict_tier`, which is true only for pure `tlc`.
+- **Engines.** `dive` also has an engine (ADR 0117): `--impl dive:reference|core|auto`. Plain `--impl dive` takes `DIVE_ENGINE`, or else the reference engine. The harness removes `DIVE_ENGINE` from the child's environment and passes `--engine` for any engine other than the reference engine. The report records the request in `settings.impl_engine`. Each run row records the engine that ran (`engine`) and, under `auto`, the core's refusal (`engine_fallback`: `stage` `static` or `dynamic`, and `reason`). `summary.by_engine` counts models by `core`, `reference`, `static-fallback`, `dynamic-fallback` and `none` (the run named no engine: refused, or ended before the search). Every engine must give the same observable results, so the engine never changes an outcome and never makes a baseline incomparable. A baseline records a non-reference engine (`engine`), and a run against a baseline of another engine says so in its first line. This is how the M1 gate checks an `auto` run against the reference engine's baseline (`docs/developer/core/08-correctness.md` §8).
 - **Expected divergences.** Under the `dive` profile, a disagreement listed in `conformance/expected-divergences.toml` is reported as `expected-divergence`. It is never `agree`. The registry never applies under `tlc` or `tlc+overrides`.
   - An entry names the model or module glob, dive's verdict, the `fields` that may differ, and optional exact `exit_code_pair` or `generated_count_pair` values. Field globs cannot cover exits or a generated count that already has an exact pair. Every declared pair must appear exactly in the diffs, and every other differing field must be listed, so counts never hide a different verdict or property. Trace validation can never be excused.
   - Registered today: MissionariesAndCannibals and ACP_NB_WRONG_TLC (D-010), P1Overflow (D-004), P2Choose_str (D-006), and 14 measured default numeric-exit differences (D-023). `conformance.yml` runs the default profile on the tier's models, so these must stay `expected-divergence` and anything else unregistered fails.

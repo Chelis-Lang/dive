@@ -92,6 +92,13 @@ pub struct RunRecord {
     pub elapsed_ms: u64,
     /// Refusal reason, classification note, or other detail.
     pub detail: Option<String>,
+    /// The `dive check` engine that ran (`reference` or `core`), when the
+    /// run named one (`--impl dive:core|auto`).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub engine: Option<String>,
+    /// Why `--engine auto` ran the reference engine.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub engine_fallback: Option<crate::tlc::result::EngineFallback>,
 }
 
 /// The report entry for one model.
@@ -197,6 +204,10 @@ pub struct Settings {
     /// implementation has no profile.
     #[serde(default)]
     pub strict_tier: Option<bool>,
+    /// The `dive check` engine requested (`reference`, `core` or `auto`),
+    /// for `dive` only.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub impl_engine: Option<String>,
 }
 
 /// Outcome counts.
@@ -232,6 +243,12 @@ pub struct Summary {
     /// Model and module outcomes per corpus.
     #[serde(default)]
     pub by_corpus: BTreeMap<String, CorpusCounts>,
+    /// Models by the engine that ran their first run, when the runs name
+    /// one: `core`, `reference`, `static-fallback`, `dynamic-fallback`
+    /// (`--engine auto` ran the reference engine), or `none` (no engine
+    /// reported: refused, or ended before the search).
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub by_engine: BTreeMap<String, usize>,
 }
 
 /// Outcome counts of one corpus.
@@ -290,6 +307,33 @@ pub struct Report {
     pub modules: Vec<ModuleReport>,
 }
 
+/// [`Summary::by_engine`]: empty unless some run names its engine.
+fn by_engine(models: &[ModelReport]) -> BTreeMap<String, usize> {
+    let mut by = BTreeMap::new();
+    if !models
+        .iter()
+        .flat_map(|m| &m.runs)
+        .any(|r| r.engine.is_some())
+    {
+        return by;
+    }
+    for m in models {
+        let run = m.runs.first();
+        let key = match (
+            run.and_then(|r| r.engine.as_deref()),
+            run.and_then(|r| r.engine_fallback.as_ref()),
+        ) {
+            (_, Some(f)) if f.stage == "dynamic" => "dynamic-fallback",
+            (_, Some(_)) => "static-fallback",
+            (Some("core"), None) => "core",
+            (Some(_), None) => "reference",
+            (None, None) => "none",
+        };
+        *by.entry(key.to_owned()).or_default() += 1;
+    }
+    by
+}
+
 fn count(outcomes: impl Iterator<Item = Outcome>) -> OutcomeCounts {
     let mut m: OutcomeCounts = Outcome::ALL.iter().map(|o| (*o, 0)).collect();
     for o in outcomes {
@@ -335,6 +379,7 @@ pub fn summarise(
         worker_depth_variant: inv(|w| w.depth_varies),
         worker_property_variant: inv(|w| w.property_varies),
         worker_introspecting: models.iter().filter(|m| m.worker_introspecting).count(),
+        by_engine: by_engine(models),
         by_corpus: {
             let mut by: BTreeMap<String, CorpusCounts> = BTreeMap::new();
             let ids = models
@@ -780,6 +825,66 @@ pub fn render_markdown(r: &Report) -> Result<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn engine_model(engine: Option<&str>, stage: Option<&str>) -> ModelReport {
+        ModelReport {
+            corpus: "c".into(),
+            model: format!("{engine:?}{stage:?}"),
+            module: "M".into(),
+            tier: Tier::Small,
+            outcome: Outcome::Agree,
+            detail: None,
+            golden_verdict: Some(Verdict::Success),
+            runs: vec![RunRecord {
+                workers: 1,
+                outcome: Outcome::Agree,
+                verdict: Some(Verdict::Success),
+                verdict_code: None,
+                exit_code: Some(0),
+                error_class: None,
+                violated_property: None,
+                distinct_states: None,
+                states_generated: None,
+                depth: None,
+                trace_length: None,
+                diffs: vec![],
+                elapsed_ms: 0,
+                detail: None,
+                engine: engine.map(str::to_owned),
+                engine_fallback: stage.map(|s| crate::tlc::result::EngineFallback {
+                    stage: s.to_owned(),
+                    reason: "r".to_owned(),
+                }),
+            }],
+            worker_invariance: None,
+            worker_introspecting: false,
+            manifest_drift: vec![],
+        }
+    }
+
+    #[test]
+    fn models_are_counted_by_the_engine_that_ran() {
+        let models = [
+            engine_model(Some("core"), None),
+            engine_model(Some("reference"), Some("static")),
+            engine_model(Some("reference"), Some("static")),
+            engine_model(Some("reference"), Some("dynamic")),
+            engine_model(None, None),
+        ];
+        let by = by_engine(&models);
+        let get = |k: &str| by.get(k).copied().unwrap_or(0);
+        assert_eq!(
+            [
+                get("core"),
+                get("static-fallback"),
+                get("dynamic-fallback"),
+                get("none")
+            ],
+            [1, 2, 1, 1]
+        );
+        // The reference engine names no engine: nothing is counted.
+        assert!(by_engine(&[engine_model(None, None)]).is_empty());
+    }
 
     #[test]
     fn summary_counts_every_outcome() -> Result<()> {

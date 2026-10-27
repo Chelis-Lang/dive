@@ -228,6 +228,26 @@ pub struct OmittedTrace {
     pub canonical_sha256: String,
 }
 
+/// Which `dive check` engine ran a model (`--engine`, ADR 0117), and why
+/// `--engine auto` fell back to the reference engine.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct EngineRun {
+    /// `reference` or `core`.
+    pub engine: String,
+    /// The core's refusal, when `auto` ran the reference engine.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fallback: Option<EngineFallback>,
+}
+
+/// An `--engine auto` fallback to the reference engine.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct EngineFallback {
+    /// `static` (refused before the search) or `dynamic` (during it).
+    pub stage: String,
+    /// The feature the core refused.
+    pub reason: String,
+}
+
 /// Everything the harness extracts from one TLC run.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -237,6 +257,11 @@ pub struct OracleResult {
     /// Only the strict native reader sets it after validating bound policy data.
     #[serde(skip)]
     pub native_unreduced_symmetry: bool,
+    /// The `dive check` engine that produced the result, and its fallback
+    /// under `--engine auto`. A producer observation like the field above:
+    /// never a golden field, never compared.
+    #[serde(skip)]
+    pub engine: Option<EngineRun>,
     /// The verdict class.
     pub verdict: Verdict,
     /// The message code that decided the verdict.
@@ -974,6 +999,7 @@ fn classify_inner(
         .and_then(|m| violated_property(m));
     OracleResult {
         native_unreduced_symmetry: false,
+        engine: None,
         verdict,
         verdict_code: decision.code,
         error_class: decision.code.and_then(ec_name).map(str::to_owned),

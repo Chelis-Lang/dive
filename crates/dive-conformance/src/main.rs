@@ -8,7 +8,7 @@ use dive_conformance::config::Config;
 use dive_conformance::divergence::Profile;
 use dive_conformance::error::{Error, Result};
 use dive_conformance::implementation::{
-    DiveImplementation, ExternalAdapter, ImplOption, Implementation, TlcImplementation,
+    DiveEngine, DiveImplementation, ExternalAdapter, ImplOption, Implementation, TlcImplementation,
     classify_with_trace_pass,
 };
 use dive_conformance::oracle::{CheckMode, Java, OracleEnv, TlcJob};
@@ -69,7 +69,9 @@ GOLDEN GENERATE:
     --no-sany | --sany-only
 
 RUN:
-    --impl <impl>          tlc | tlc:<oracle-id> | dive | adapter:<file.toml>
+    --impl <impl>          tlc | tlc:<oracle-id> | dive | dive:<engine> | adapter:<file.toml>
+                           (dive engines: reference (default, or DIVE_ENGINE) | core | auto;
+                           each report row records the engine that ran)
     --golden-oracle <id>   oracle whose goldens are compared (default: the default oracle)
     --workers <list>       worker counts, e.g. 1,4 (default: 1)
     --crosscheck-manifest  compare goldens with the Examples manifests (oracle drift)
@@ -597,7 +599,8 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
         Some(id) => id.clone(),
         None => config.oracles.default_oracle()?.id.clone(),
     };
-    if o.dive_bin.is_some() && imp_spec != "dive" {
+    let dive_engine = dive_engine(&imp_spec)?;
+    if o.dive_bin.is_some() && dive_engine.is_none() {
         return Err(Error::Usage(
             "--dive-bin applies to --impl dive only".to_owned(),
         ));
@@ -651,13 +654,14 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
         }
         let imp = TlcImplementation { env };
         pipeline::run(config, cache, &imp, Some(&imp.env), &opts)?
-    } else if imp_spec == "dive" {
+    } else if let Some(engine) = dive_engine {
         let bin = o.dive_bin.clone().unwrap_or_else(|| {
             root.join("target")
                 .join("release")
                 .join(format!("dive{}", std::env::consts::EXE_SUFFIX))
         });
         let mut imp = DiveImplementation::prepare(config, cache, &golden_oracle, &bin)?;
+        imp.engine = engine;
         imp.profile = match &o.impl_profile {
             Some(p) => Profile::parse(p)?,
             None => Profile::from_env()?.unwrap_or_default(),
@@ -723,6 +727,16 @@ fn print_and_gate(report: &dive_conformance::report::Report) -> bool {
         return false;
     }
     findings > 0
+}
+
+/// The engine of `--impl dive` (`DIVE_ENGINE`, else the reference
+/// engine) or `--impl dive:<engine>`; `None` for any other implementation.
+fn dive_engine(imp_spec: &str) -> Result<Option<DiveEngine>> {
+    Ok(match imp_spec.strip_prefix("dive:") {
+        Some(engine) => Some(DiveEngine::parse(engine)?),
+        None if imp_spec == "dive" => Some(DiveEngine::from_env()?.unwrap_or_default()),
+        None => None,
+    })
 }
 
 fn parse_impl_options(texts: &[String], imp: &dyn Implementation) -> Result<Vec<ImplOption>> {

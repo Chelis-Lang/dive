@@ -835,6 +835,8 @@ fn record_from(
         diffs,
         elapsed_ms: u64::try_from(elapsed.as_millis()).unwrap_or(u64::MAX),
         detail,
+        engine: result.and_then(|r| r.engine.as_ref().map(|e| e.engine.clone())),
+        engine_fallback: result.and_then(|r| r.engine.as_ref().and_then(|e| e.fallback.clone())),
     }
 }
 
@@ -1664,6 +1666,7 @@ pub fn run(
             strict_tier: imp
                 .profile()
                 .map(|p| p.is_strict() && !imp.options().iter().any(|o| o.result_changing)),
+            impl_engine: imp.engine().map(str::to_owned),
         },
         summary: summarise(
             &model_reports,

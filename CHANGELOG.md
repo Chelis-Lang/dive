@@ -1,5 +1,10 @@
 # Changelog
 
+- `dive-conformance run --impl dive:core` and `--impl dive:auto` run the
+  harness on the new core. Reports record the engine requested and, per
+  run, the engine that ran and any fallback (`summary.by_engine`), and
+  baselines record a non-reference engine without making it incomparable.
+
 - Add `dive check --engine auto` (or `DIVE_ENGINE=auto`). It runs the new
   core where the core implements the check, and otherwise the whole check on
   the reference engine. The report names the engine that ran and the core's
