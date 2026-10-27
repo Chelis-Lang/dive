@@ -36,6 +36,16 @@ const REFUSED: &[(&str, &str)] = &[
     // `OpValue`; the reference engine applies it (`04-plan-compiler.md` §8).
     ("ErHoConstBagOfAll", "body is constant"),
     ("ErHoConstFoldLeft", "body is constant"),
+    // A set of consecutive integers may be TLC's interval, which TLC prints
+    // as `1..2`: a stored interval, `DOMAIN` of a sequence
+    // (`crates/dive-core/src/print.rs`).
+    ("TsStored", "consecutive integers"),
+    ("TsDomain", "consecutive integers"),
+    ("PrAmbig", "consecutive integers"),
+    // TLC prints again while it rebuilds the trace (`PrViol`), and may
+    // evaluate a function constructor's body lazily (`PrLazy`).
+    ("PrViol", "does not end in success"),
+    ("PrLazy", "function constructor"),
 ];
 
 fn repo() -> PathBuf {
@@ -207,10 +217,105 @@ fn error_fixtures_match_the_reference() {
 fn library_fixtures_match_the_reference_and_tlc() {
     let agreed = check_dir("crates/dive-api/tests/fixtures/core-lib");
     // Bags: BagOps and four error endings (ErBagUnionNonBag is refused);
-    // TLC: TlcOps, Perm, PermViol and five error endings;
+    // TLC: TlcOps, TsOps, TsLazy, PrOps, PrRange, Perm, PermViol and five
+    // error endings (TsStored, TsDomain, PrAmbig, PrViol and PrLazy are
+    // refused);
     // CommunityModules: CmOps, CmSeqsViol and three error endings;
     // operator arguments: HoOps and three error endings.
-    assert!(agreed >= 22, "only {agreed} library fixtures agreed");
+    assert!(agreed >= 26, "only {agreed} library fixtures agreed");
+}
+
+/// What TLC printed (`Print`, `PrintT`): the transcript's lines outside
+/// its tool-mode messages, after SANY's own output.
+fn tlc_printed(transcript: &Path) -> Vec<String> {
+    let text = std::fs::read_to_string(transcript).expect("transcript");
+    let mut out = Vec::new();
+    let mut in_message = false;
+    let mut started = false;
+    for line in text.lines() {
+        if line.starts_with("@!@!@STARTMSG") {
+            in_message = true;
+        } else if line.starts_with("@!@!@ENDMSG") {
+            in_message = false;
+        } else if line.starts_with("Linting of module") {
+            started = true;
+        } else if started && !in_message {
+            out.push(line.to_owned());
+        }
+    }
+    out
+}
+
+/// The `Print` fixtures (`core-lib/specs/Pr*`) that the core runs print
+/// exactly what TLC printed, in TLC's order.
+#[test]
+fn print_fixtures_print_as_tlc() {
+    let mut checked = 0;
+    for (name, spec, transcript) in specs("crates/dive-api/tests/fixtures/core-lib") {
+        if !name.starts_with("Pr") || REFUSED.iter().any(|(n, _)| *n == name) {
+            continue;
+        }
+        let core = run(&spec, Engine::Core);
+        assert_eq!(core["verdict"], "success", "{name}: {core:#}");
+        let printed: Vec<String> = core["output"]
+            .as_array()
+            .expect("output")
+            .iter()
+            .flat_map(|l| {
+                l.as_str()
+                    .unwrap_or("")
+                    .lines()
+                    .map(str::to_owned)
+                    .collect::<Vec<_>>()
+            })
+            .collect();
+        assert_eq!(printed, tlc_printed(&transcript), "{name}");
+        // More workers print the same: a plan that prints runs one.
+        let community = repo().join("crates/dive-eval/tests/fixtures/community-modules");
+        let four = check_file_engine(
+            &CheckRequest {
+                config: Some(spec.with_extension("cfg")),
+                file: spec.clone(),
+                library_paths: vec![community],
+                workers: Some(4),
+                seed: Some(0),
+                fp: Some(0),
+                ..CheckRequest::default()
+            },
+            Engine::Core,
+        )
+        .expect("check runs")
+        .to_json();
+        assert_eq!(four["output"], core["output"], "{name} at 4 workers");
+        // And under `--compat=tlc`.
+        let compat = check_file_engine(
+            &CheckRequest {
+                config: Some(spec.with_extension("cfg")),
+                file: spec.clone(),
+                library_paths: vec![
+                    repo().join("crates/dive-eval/tests/fixtures/community-modules"),
+                ],
+                workers: Some(1),
+                seed: Some(0),
+                fp: Some(0),
+                compat_tlc: true,
+                ..CheckRequest::default()
+            },
+            Engine::Core,
+        )
+        .expect("check runs")
+        .to_json();
+        assert_eq!(
+            compat["verdict"], "success",
+            "{name} under --compat=tlc: {compat:#}"
+        );
+        assert_eq!(
+            compat["output"], core["output"],
+            "{name} under --compat=tlc"
+        );
+        checked += 1;
+    }
+    assert!(checked >= 1);
 }
 
 /// The M1 generator fixtures (`tests/fixtures/core-m1`): each agrees with

@@ -58,6 +58,13 @@ core currently covers:
   traces in the reference engine's format, TLC's evaluation-error endings
   where the core can reproduce them, and the run budgets (`--time-limit`,
   `--max-memory`, `--max-states`, `--max-depth`).
+- `Print`, `PrintT` and `ToString`, printing what TLC prints, in TLC's
+  order. A specification that prints runs with one worker (the header says
+  so). A run that prints and then finds a violation or an error, a print
+  inside a function constructor, filter or set map, and a set that TLC may
+  hold as an interval and print as `1..3` (a set of consecutive integers,
+  in a specification that uses `..` or `DOMAIN`) are reported as
+  unsupported.
 
 With `--engine core`, anything the core does not implement yields an
 `unsupported` verdict that names it, and the run never falls back. The JSON

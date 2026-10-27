@@ -57,6 +57,9 @@ pub struct Machine {
     /// already assigned another value), once per variable and site (an
     /// `ExprId` index), in the order raised.
     pub warnings: Vec<(u16, u32)>,
+    /// What `Print` and `PrintT` printed, one line each, in evaluation
+    /// order.
+    pub printed: Vec<String>,
     pub(crate) conts: Vec<crate::generate::ContNode>,
     pub(crate) cvals: Vec<Handle>,
     pub(crate) saved: Vec<Handle>,
@@ -139,6 +142,7 @@ impl Machine {
             stats: EvalStats::default(),
             warn: true,
             warnings: Vec::new(),
+            printed: Vec::new(),
             conts: Vec::new(),
             cvals: Vec::new(),
             saved: Vec::new(),
@@ -543,9 +547,21 @@ impl Machine {
             Node::Call { fun, args } => self.call(code, *fun, args),
             Node::Std(f, args) => self.std(code, *f, args),
             Node::Lib(op, args) => {
+                // A value printed keeps its form: TLC prints an interval as
+                // `1..3` (`crate::print`).
+                let prints = matches!(
+                    op,
+                    dive_ir::StdOp::TlcPrint
+                        | dive_ir::StdOp::TlcPrintT
+                        | dive_ir::StdOp::TlcToString
+                );
                 let mut a = Vec::with_capacity(args.len());
                 for &x in args {
-                    a.push(self.eval_norm(code, x)?);
+                    a.push(if prints {
+                        self.eval(code, x)?
+                    } else {
+                        self.eval_norm(code, x)?
+                    });
                 }
                 crate::stdlib::call(self, *op, &a)
             }

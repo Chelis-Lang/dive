@@ -1,5 +1,13 @@
 # Changelog
 
+- `--engine core` runs specifications that use `ToString`, `Print` and
+  `PrintT`, printing what TLC prints in TLC's order (with one worker). It
+  now also reports what constant definitions and `ASSUME`s print at
+  start-up, which it used to drop. A run that prints and then finds a
+  violation or error, and a value whose printed form the core cannot know
+  (a set that TLC may hold as an interval), still fall back to the
+  reference engine under `--engine=auto`.
+
 - `--engine core` uses less memory on models with many initial states or
   wide levels: MCBakery's peak falls from 769 MB to 136 MB at one worker.
 

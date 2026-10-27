@@ -331,6 +331,11 @@ pub struct Store {
     hashcons: bool,
     semantics: Semantics,
     poisoned: AtomicBool,
+    /// The model's names, for printing ([`Store::set_printer`]).
+    printer: OnceLock<crate::print::Printer>,
+    /// Whether the plan may build an interval or a lazy set
+    /// ([`Store::lazy_sets`]).
+    lazy_sets: AtomicBool,
 }
 
 /// The value semantics of a run, fixed for the store's life: the default
@@ -416,7 +421,37 @@ impl Store {
             hashcons,
             semantics,
             poisoned: AtomicBool::new(false),
+            printer: OnceLock::new(),
+            lazy_sets: AtomicBool::new(false),
         }
+    }
+
+    /// Sets the model's name table and value semantics, which printing
+    /// (`ToString`, `Print`) converts values with (`print.rs`). The first
+    /// call wins.
+    pub fn set_printer(&self, printer: crate::print::Printer) {
+        let _ = self.printer.set(printer);
+    }
+
+    /// Records that the plan may build a value TLC keeps as an interval or
+    /// a lazy set (`a..b`, `DOMAIN`, `SUBSET`, `[S -> T]`, `[a : S]`,
+    /// `S \X T`), which the core may enumerate: printing then refuses the
+    /// enumerated sets TLC could print otherwise (`print.rs`). Set while
+    /// compiling, before any search.
+    pub fn note_lazy_sets(&self) {
+        self.lazy_sets.store(true, Ordering::Relaxed);
+    }
+
+    /// Whether [`Store::note_lazy_sets`] was called.
+    #[must_use]
+    pub fn lazy_sets(&self) -> bool {
+        self.lazy_sets.load(Ordering::Relaxed)
+    }
+
+    /// The printer, once set.
+    #[must_use]
+    pub fn printer(&self) -> Option<&crate::print::Printer> {
+        self.printer.get()
     }
 
     /// Whether values are hash-consed.
