@@ -1,5 +1,8 @@
 # Changelog
 
+- `--engine core` uses less memory on models with many initial states or
+  wide levels: MCBakery's peak falls from 769 MB to 136 MB at one worker.
+
 - `--engine core` runs models with `SYMMETRY` in the default profile, with
   the reference engine's canonical keys, counts, warnings and notes. Under
   `--compat=tlc` it still refuses them.

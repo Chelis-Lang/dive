@@ -93,6 +93,19 @@ The barriers per level are expand→gather and check→commit. On narrow levels
 the cost of a barrier is bounded by splitting levels into (state, action) units.
 On very wide levels it is amortized.
 
+**Memory (#551).** As implemented, a level is expanded and committed a chunk
+of states at a time (4,096 per worker), so phase 1 buffers one chunk's
+successors, not the level's. A chunk's commit fills the seen set before the
+next chunk is expanded, and reads it as an earlier level's: positions only
+matter within a chunk. Transients are freed by arena rollback, under the
+rule of `03-value-model.md` §11.5 (no thunk forced to a transient since the
+mark): after each accepted state's checks, and after each element of an
+`x \in S` or filtered membership once its continuation has emitted. Before
+this, MCBakery (655,200 initial states, depth 1) held every candidate's
+values until the level ended: 769 MB against the reference engine's 216 MB
+at 1 worker. After it, 136 MB at 1 worker and 174 MB at 8 (local, under
+load).
+
 ## 4. Errors, traces and replay
 
 An evaluation error at a position is an event like a violation. The minimum
