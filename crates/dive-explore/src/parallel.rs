@@ -226,7 +226,7 @@ impl WorkerSink<'_> {
                 return Err(Error::stop());
             }
         };
-        let key = state_key(m);
+        let key = state_key(m, plan)?;
         self.metrics.probed += 1;
         // TLC checks the implied actions on every step (`Search::successor`).
         let mut imp = Inv::Holds;

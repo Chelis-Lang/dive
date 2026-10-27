@@ -475,6 +475,27 @@ still needs `ENABLED` (stream 2) and `SYMMETRY`. Fixtures `PropRefine`
 `ImpliedActionSeen` probe agree. The `ErPropInit*` fixtures need
 non-constant split arguments (stream 2), and are refused naming them.
 
+**Done (M2, `core/engine-symmetry`).** `SYMMETRY` in the default profile.
+- `core_engine.rs` prepares the declaration as the reference engine does:
+  `Model::prepare_symmetry` in `Mode::Checked`, with its warnings and the
+  D-010 symmetry note. Then it hands the closure's nonidentity maps to the
+  plan, by model-value name. `dive-model`'s `Reduction` gained two
+  accessors for this, `universe` and `maps`.
+- `dive_core::symmetry::Symmetry::canonical` computes a state's canonical
+  image: the least of its images, the state itself first, compared variable
+  by variable with `Heap::cmp`. A later image wins only when it is strictly
+  smaller, as in `Reduction::canonical_values`. Images are transient heap
+  values. A value is rebuilt only when something in it moves.
+- The explorer's `state_key` keys a state by its image, in the one-worker
+  level, the parallel level and TLC's call-stack replay. The explored state,
+  the predecessor log and the traces stay concrete.
+- Refused: `SYMMETRY` under `--compat=tlc`, where TLC compares in its own
+  argument order and may fail; `SYMMETRY` with temporal properties; and
+  states holding lazily represented sets or functions.
+- Fixtures `SymOwner` (a violation) and `SymSets` (a deadlock) in
+  `core-m1` agree with the reference engine in counts and traces, at every
+  worker count `core_parallel.rs` checks.
+
 **Refusal census (2026-10-27, `main` at #549).** `--impl dive:auto` over
 the small tier (156 models, 1 worker), static fallbacks by reason. Default
 profile: 144 agree, 7 expected divergences, 5 unsupported; 48 models ran on

@@ -284,13 +284,25 @@ impl Seen {
     }
 }
 
-/// The state key of `m.s1`.
-fn state_key(m: &Machine) -> u64 {
+/// The state key of `m.s1`: under `SYMMETRY`, the key of its canonical
+/// image (`dive_core::symmetry`).
+fn state_key(m: &mut Machine, plan: &Plan) -> Result<u64, Error> {
+    let image;
+    let state: &[Handle] = match &plan.symmetry {
+        Some(sym) => {
+            let mut out = Vec::with_capacity(m.s1.len());
+            let s1 = m.s1.clone();
+            sym.canonical(&mut m.heap, &s1, &mut out)?;
+            image = out;
+            &image
+        }
+        None => &m.s1,
+    };
     let mut sum = 0u64;
-    for (i, &h) in m.s1.iter().enumerate() {
+    for (i, &h) in state.iter().enumerate() {
         sum = sum.wrapping_add(state_term(i, m.heap.hash(h)));
     }
-    fin(K_STATE, m.s1.len() as u64, sum)
+    Ok(fin(K_STATE, state.len() as u64, sum))
 }
 
 struct Explorer<'p> {
@@ -389,7 +401,7 @@ impl Explorer<'_> {
                 m.s1[i] = m.heap.intern(m.s1[i])?;
             }
         }
-        let key = state_key(m);
+        let key = state_key(m, self.plan)?;
         self.metrics.probed += 1;
         if in_model && (self.max_states.is_some() || self.max_depth.is_some()) {
             self.admit(key)?;

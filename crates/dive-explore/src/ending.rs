@@ -250,7 +250,7 @@ pub(crate) fn replay_after(
             };
             let mut new = true;
             if inside {
-                let key = state_key(m);
+                let key = state_key(m, plan)?;
                 new = !ex.seen.contains(key) && !added.contains(&key);
                 if new {
                     added.insert(key);

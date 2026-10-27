@@ -1,5 +1,9 @@
 # Changelog
 
+- `--engine core` runs models with `SYMMETRY` in the default profile, with
+  the reference engine's canonical keys, counts, warnings and notes. Under
+  `--compat=tlc` it still refuses them.
+
 - `--engine core` scales better on models that compare many strings:
   string comparisons no longer share a lock between workers.
 
