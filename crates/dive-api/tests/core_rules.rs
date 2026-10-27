@@ -220,9 +220,10 @@ fn library_fixtures_match_the_reference_and_tlc() {
     // TLC: TlcOps, TsOps, TsLazy, PrOps, PrRange, Perm, PermViol and five
     // error endings (TsStored, TsDomain, PrAmbig, PrViol and PrLazy are
     // refused);
-    // CommunityModules: CmOps, CmSeqsViol and three error endings;
-    // operator arguments: HoOps and three error endings.
-    assert!(agreed >= 26, "only {agreed} library fixtures agreed");
+    // CommunityModules: CmOps, CmSeqsViol, CmSubSeqs, CmSubSeqsViol and six
+    // error endings;
+    // operator arguments: HoOps, FoldOps and six error endings.
+    assert!(agreed >= 35, "only {agreed} library fixtures agreed");
 }
 
 /// What TLC printed (`Print`, `PrintT`): the transcript's lines outside
