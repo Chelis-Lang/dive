@@ -42,7 +42,7 @@ fn counts(v: &Value) -> (Value, Value, Value, Value) {
 
 #[test]
 fn core_matches_reference_counts_and_verdicts() {
-    for name in ["Mix", "Viol", "Dead", "Fold", "Lazy", "Inst", "Big"] {
+    for name in ["Mix", "Viol", "Dead", "Fold", "Lazy", "Inst", "Big", "Bag"] {
         let reference = run(name, Engine::Reference);
         let core = run(name, Engine::Core);
         assert_eq!(core["engine"], "core", "{name}");
@@ -106,7 +106,7 @@ fn unsupported_features_are_named_without_fallback() {
 
 #[test]
 fn every_strategy_switch_leaves_counts_unchanged() {
-    for name in ["Mix", "Fold", "Lazy", "Inst"] {
+    for name in ["Mix", "Fold", "Lazy", "Inst", "Bag"] {
         let file = fixture(name);
         let req = CheckRequest {
             config: Some(file.with_extension("cfg")),

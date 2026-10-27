@@ -1315,6 +1315,72 @@ impl Machine {
         Ok(v.data.to_vec())
     }
 
+    /// Bags (`tlc2.module.Bags`; the reference engine's
+    /// `crates/dive-eval/src/community.rs`).
+    fn bag(&mut self, op: StdFn, args: &[Handle]) -> Result<Handle, Error> {
+        let arg = |i: usize| {
+            args.get(i)
+                .copied()
+                .ok_or_else(|| Error::internal("missing argument"))
+        };
+        match op {
+            StdFn::EmptyBag => Ok(self.heap.fcn_sorted(&[], &[])),
+            StdFn::SetToBag => {
+                let set = arg(0)?;
+                if !set.is_compound()
+                    || matches!(self.heap.view(set).kind, Kind::Fcn | Kind::IntFcn)
+                {
+                    return Err(eval_err(
+                        "The argument of SetToBag should be a finite set, but instead it is not",
+                    ));
+                }
+                let keys = self.heap.elements(set)?;
+                let one = mk_int(1)?;
+                let ones = vec![one; keys.len()];
+                Ok(self.heap.fcn_sorted(&keys, &ones))
+            }
+            StdFn::BagToSet => {
+                let bag = arg(0)?;
+                if !bag.is_compound()
+                    || !matches!(self.heap.view(bag).kind, Kind::Fcn | Kind::IntFcn)
+                {
+                    return Err(eval_err(
+                        "The argument of BagToSet should be a function with a finite domain",
+                    ));
+                }
+                self.domain(bag)
+            }
+            StdFn::BagIn | StdFn::CopiesIn => {
+                let (elem, bag) = (arg(0)?, arg(1)?);
+                if !bag.is_compound()
+                    || !matches!(self.heap.view(bag).kind, Kind::Fcn | Kind::IntFcn)
+                {
+                    return Err(eval_err("BagIn or CopiesIn of a value that is not a bag"));
+                }
+                // TLC compares the element with the bag's domain in order:
+                // an element of another class is an error.
+                let dom = self.domain(bag)?;
+                if !self.member(elem, dom)? {
+                    return Ok(if op == StdFn::BagIn {
+                        Handle::bool(false)
+                    } else {
+                        mk_int(0)?
+                    });
+                }
+                let count = self.apply(bag, elem)?;
+                let n = count
+                    .as_int()
+                    .ok_or_else(|| eval_err("The second argument of BagIn should be a bag"))?;
+                Ok(if op == StdFn::BagIn {
+                    Handle::bool(n > 0)
+                } else {
+                    count
+                })
+            }
+            _ => Err(Error::internal("not a Bags operator")),
+        }
+    }
+
     fn std(&mut self, code: &Code, f: StdFn, args: &[P]) -> Result<Handle, Error> {
         let mut a = Vec::with_capacity(args.len());
         for &x in args {
@@ -1387,6 +1453,11 @@ impl Machine {
                 let s = arg(0)?;
                 Ok(Handle::bool(self.heap.is_finite(s)))
             }
+            StdFn::EmptyBag
+            | StdFn::SetToBag
+            | StdFn::BagToSet
+            | StdFn::BagIn
+            | StdFn::CopiesIn => self.bag(f, &a),
         }
     }
 }
