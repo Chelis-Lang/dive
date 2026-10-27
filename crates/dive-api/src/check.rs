@@ -172,6 +172,11 @@ pub struct CheckRequest {
     pub store: Store,
     /// `--seed`; a fresh seed otherwise (always reported).
     pub seed: Option<i64>,
+    /// `--core-sample N` (`--engine core`): after the search, compare the
+    /// successors of `N` sampled expanded states with the reference
+    /// evaluator's (`docs/developer/core/08-correctness.md` §4). Diagnostic
+    /// only: every result is unchanged. `None` samples nothing.
+    pub core_sample: Option<usize>,
     /// `--fp`; TLC picks one at random under `--compat=tlc`, dive uses 0.
     pub fp: Option<usize>,
     /// `--workers`; `None` is the profile's default (TLC's 1 under
@@ -601,13 +606,25 @@ fn check_file_in(
         }
         Phase::Checked(Box::new(native.check))
     } else if engine == crate::Engine::Core {
-        let (result, run) =
-            crate::core_engine::check(&ir, &model, &armed, req.compat_tlc, core_switches);
+        let (result, run) = crate::core_engine::check(
+            &ir,
+            &model,
+            &armed,
+            req.compat_tlc,
+            core_switches,
+            req.core_sample,
+        );
         report.core = Some(Box::new(run));
         Phase::Checked(Box::new(result))
     } else if engine == crate::Engine::Auto {
-        let (result, run) =
-            crate::core_engine::check(&ir, &model, &armed, req.compat_tlc, core_switches);
+        let (result, run) = crate::core_engine::check(
+            &ir,
+            &model,
+            &armed,
+            req.compat_tlc,
+            core_switches,
+            req.core_sample,
+        );
         if let Some(fallback) = crate::core_engine::Fallback::of(&result, &run) {
             // The whole check again, on the reference engine; the core's
             // partial results (counts, output, metrics) are discarded.
@@ -1518,6 +1535,9 @@ impl CheckReport {
         if let Some(core) = &self.core {
             doc["engine"] = json!(crate::Engine::Core.name());
             doc["core"] = json!({"disabled": core.opts, "metrics": core.metrics});
+            if !core.sample.is_null() {
+                doc["core"]["sample"] = core.sample.clone();
+            }
         } else if self.fallback.is_some() {
             doc["engine"] = json!(crate::Engine::Reference.name());
         }

@@ -35,7 +35,7 @@ pub(crate) struct Ending {
 }
 
 /// A state of handles as the reference evaluator's values.
-fn state(
+pub(crate) fn state(
     model: &Model,
     store: &Arc<dive_core::Store>,
     hs: &[dive_core::Handle],

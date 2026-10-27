@@ -4,17 +4,24 @@
 # model path per line, `#` comments allowed. Extra arguments go to the
 # harness. CI's `Conformance gate` job runs
 #   scripts/shadow-gate.sh conformance/gates/shadow-smoke.txt
-# and `cargo xtask gate --full` shadows the whole small tier. The gate runs
-# `--strict`: a listed model the core refuses, or a timeout, fails it.
+# and `cargo xtask gate --full` runs it on conformance/gates/cm1.txt at 1, 4
+# and 8 workers (not strict) before shadowing the whole small tier. By
+# default the gate runs `--strict`: a listed model the core refuses, or a
+# timeout, fails it. Every core run also compares the successors of 32
+# sampled states with the reference evaluator's (`--sample`). Later
+# arguments win, so `--workers 1,4,8` replaces the default worker counts.
 #
 #   HARNESS           harness binary (default target/release/dive-conformance)
 #   DIVE_GATE_CORPUS  corpus of the listed models (default examples)
+#   SHADOW_STRICT     0 to count refusals and timeouts instead of failing
 set -euo pipefail
 
 list="${1:?usage: shadow-gate.sh <model-list> [shadow args...]}"
 shift
 harness="${HARNESS:-target/release/dive-conformance}"
 corpus="${DIVE_GATE_CORPUS:-examples}"
+strict=(--strict)
+[ "${SHADOW_STRICT:-1}" = 0 ] && strict=()
 
 filters=()
 expected=0
@@ -29,7 +36,7 @@ done <"$list"
 
 start=$(date +%s)
 set +e
-"$harness" shadow --strict --corpus "$corpus" --tier all --workers 1,4 \
+"$harness" shadow ${strict[@]+"${strict[@]}"} --corpus "$corpus" --tier all --workers 1,4 \
   --tlc-budgets --budget-cap 900 "${filters[@]}" "$@"
 status=$?
 set -e

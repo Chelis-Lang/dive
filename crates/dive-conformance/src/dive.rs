@@ -156,7 +156,22 @@ fn engine_run(v: &Value) -> Option<crate::tlc::result::EngineRun> {
             reason: text("reason"),
         }
     });
+    let sample = v["core"]["sample"].as_object().map(|s| {
+        let n = |k: &str| s.get(k).and_then(Value::as_u64).unwrap_or_default();
+        crate::tlc::result::CoreSample {
+            states: n("states"),
+            compared: n("compared"),
+            successors: n("successors"),
+            mismatches: n("mismatches"),
+            shown: s
+                .get("shown")
+                .and_then(Value::as_array)
+                .map(|a| a.iter().map(ToString::to_string).collect())
+                .unwrap_or_default(),
+        }
+    });
     Some(crate::tlc::result::EngineRun {
+        sample,
         engine: engine.to_owned(),
         fallback,
     })
@@ -171,6 +186,8 @@ pub struct DiveImplementation {
     pub engine: DiveEngine,
     /// The profile (`--impl-profile`, or `DIVE_COMPAT=tlc`).
     pub profile: Profile,
+    /// `--core-sample N` for a core run (the shadow comparison).
+    pub core_sample: Option<usize>,
     bin: PathBuf,
     module_path: Vec<ClasspathEntry>,
     provenance: Option<DiveProvenance>,
@@ -260,6 +277,7 @@ impl DiveImplementation {
             options: Vec::new(),
             engine: DiveEngine::default(),
             profile: Profile::default(),
+            core_sample: None,
             bin: executable,
             module_path,
             provenance: Some(provenance),
@@ -297,6 +315,10 @@ impl DiveImplementation {
         } else {
             ("none".to_owned(), "none".to_owned())
         };
+        let sample = self
+            .core_sample
+            .filter(|_| self.engine != DiveEngine::Reference)
+            .map(|n| n.to_string());
         // TLC's goldens run with `-fp 0 -seed 0` (`oracle::run_tlc`).
         let mut extra: Vec<&std::ffi::OsStr> = vec![
             "--config".as_ref(),
@@ -336,6 +358,9 @@ impl DiveImplementation {
                 "--engine".as_ref(),
                 self.engine.name().as_ref(),
             ]);
+        }
+        if let Some(n) = &sample {
+            extra.extend::<[&std::ffi::OsStr; 2]>(["--core-sample".as_ref(), n.as_ref()]);
         }
         if final_short {
             extra.extend::<[&std::ffi::OsStr; 4]>([

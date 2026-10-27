@@ -1,21 +1,38 @@
 # CI shadow gate: the required `Conformance gate` job in ci.yml runs
 # `scripts/shadow-gate.sh conformance/gates/shadow-smoke.txt` (1 and 4
-# workers). Ten fast examples models the core runs, three violations and
-# seven successes, each well under a second on both engines (2026-10-27,
-# `docs/developer/core/08-correctness.md` §4). `cargo xtask gate --full`
-# shadows the whole small tier. The gate runs `--strict`: a listed model the
-# core refuses, or a timeout, fails it, so keep the list on models the core
-# runs.
+# workers, `--strict`, successor sampling on). Examples models the core runs
+# whose two engines take under 0.7 s together at both worker counts on an M3
+# (2026-10-27, `docs/developer/core/08-correctness.md` §4); the whole list
+# takes about 2 s there. `cargo xtask gate --full` shadows cm1 and the
+# whole small tier. A listed model the core refuses, or a timeout, fails the
+# gate, so keep the list on models the core runs, and keep the job's shadow
+# step within about 30 s.
 #
 # Violations
 specifications/DieHard/DieHard.cfg
+specifications/MissionariesAndCannibals/MissionariesAndCannibals.cfg
 specifications/N-Queens/Queens.toolbox/FourQueens/MC.cfg
+specifications/spanning/MC_spanning.cfg
 specifications/tower_of_hanoi/Hanoi.toolbox/Model_1/MC.cfg
 # Successes
+specifications/byihive/VoucherLifeCycle.cfg
 specifications/CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_1/MC.cfg
+specifications/dag-consensus/BlockDagTest.cfg
+specifications/LearnProofs/MCFindHighest.cfg
 specifications/locks_auxiliary_vars/Lock.cfg
+specifications/Majority/MCMajority.cfg
+specifications/nbacc_ray97/nbacc_ray97.cfg
 specifications/Paxos/MCConsensus.cfg
+specifications/PaxosHowToWinATuringAward/MCConsensus.cfg
+specifications/SpecifyingSystems/AsynchronousInterface/AsynchInterface.cfg
+specifications/SpecifyingSystems/AsynchronousInterface/Channel.cfg
+specifications/SpecifyingSystems/AsynchronousInterface/PrintValues.cfg
+specifications/SpecifyingSystems/FIFO/MCInnerFIFO.cfg
 specifications/SpecifyingSystems/HourClock/HourClock.cfg
+specifications/SpecifyingSystems/SimpleMath/SimpleMath.cfg
+specifications/SpecifyingSystems/TLC/ABCorrectness.cfg
 specifications/Stones/Stones.cfg
 specifications/TeachingConcurrency/Simple.cfg
-specifications/nbacc_ray97/nbacc_ray97.cfg
+specifications/transaction_commit/2PCwithBTM.cfg
+specifications/transaction_commit/TCommit.cfg
+specifications/transaction_commit/TwoPhase.cfg

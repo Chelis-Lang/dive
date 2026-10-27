@@ -72,9 +72,24 @@ For every selected model and worker count (default 1 and 4):
 - The core's counterexample, if any, must validate with `dive-trace`
   against the reference result's ending, as the harness validates dive's
   counterexamples against a golden.
+- Successor sampling (`core/engine-sample`). The core run gets
+  `--core-sample N` (`shadow --sample N`, default 32; 0 turns it off). The
+  explorer keeps a uniform reservoir sample of `N` expanded states, seeded
+  by the run's seed, so it picks the same states at any worker count
+  (`dive-explore/src/sample.rs`). After the search, `dive-api`
+  (`core_sample.rs`) regenerates each sampled state's successors on the
+  core, action by action, and compares them with the reference evaluator's
+  `next_states` on the same state. They are compared as multisets of
+  canonical state keys (`dive_store::state::state_key`, with a marker for
+  an unassigned variable), so multiplicities must agree too. When both
+  raise an error, that agrees: classifying it is the ending's job. The
+  report's `core.sample` gives the counts and the first eight differences.
+  A difference makes the row `successors-differ`. Sampling changes no
+  result.
 
-Statuses are `agree`, `refused`, `differ`, `trace-refuted` and `timeout`.
-`differ` and `trace-refuted` are findings: the command exits 1 and prints
+Statuses are `agree`, `refused`, `differ`, `trace-refuted`,
+`successors-differ` and `timeout`. `differ`, `trace-refuted` and
+`successors-differ` are findings: the command exits 1 and prints
 one line per finding. With `--strict`, `refused` and `timeout` are findings
 too, for a fixed list of models the core is expected to run. The JSON
 report (`schema: 1`) is written only with `--report-dir`. The summary,
@@ -92,20 +107,27 @@ scripts/shadow-gate.sh conformance/gates/shadow-smoke.txt   # CI's list
 Where it runs:
 
 - CI's `Conformance gate` job runs `scripts/shadow-gate.sh` on
-  `conformance/gates/shadow-smoke.txt`, under `--strict`. The list has ten
-  fast examples models the core runs: invariant violations (stops, whose
-  counts are compared at one worker only) and complete searches. It takes
-  a few seconds.
-- Results on the small tier (2026-10-27, 156 models at 1 and 4 workers):
-  31 models agree at both worker counts, 125 are refused by the core, and
-  there is no difference, refuted trace or timeout.
-- `cargo xtask gate --full` shadows the whole small tier (the four corpora
-  of the small-tier runs) at 1 and 4 workers, without `--strict`, so models
-  the core refuses are counted, not failed.
+  `conformance/gates/shadow-smoke.txt`, under `--strict`. The list has 26
+  examples models the core runs, invariant violations (stops, whose counts
+  are compared at one worker only) and complete searches, each under 0.7 s
+  for both engines at both worker counts on an M3, where the whole list
+  takes about 2 s. The step should stay within about 30 s on CI.
+- `cargo xtask gate --full` shadows `conformance/gates/cm1.txt` at 1, 4 and
+  8 workers, then the whole small tier (the four corpora of the small-tier
+  runs) at 1 and 4 workers, both without `--strict`, so models the core
+  refuses are counted, not failed. On cm1 (21 models), 10 agree at all
+  three worker counts and 11 are refused (2026-10-27).
+- Results on the small tier (2026-10-27, after model values, #533; 156
+  models at 1 and 4 workers): 50 models agree at both worker counts and
+  106 are refused by the core. There is no difference, refuted trace,
+  successor difference or timeout. The sample covered 1,642 states, 27,010
+  (state, action) pairs and 6,498 successors.
+- The sample found one core bug on its first run (#540): integers outside
+  the core's inline range were reported as `<<>>` in counterexamples and
+  wherever a core state is converted to the reference engine's values.
 
-Not built yet: in-place successor sampling (comparing the successors of
-sampled states as canonical state keys), shadowing under `--compat=tlc`,
-and the cm1 list.
+Not built yet: shadowing under `--compat=tlc` (M2), and sampling from the
+initial-state predicate (only expanded states are sampled).
 
 ## 5. Differential fuzzing
 
