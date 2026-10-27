@@ -237,6 +237,19 @@ impl WorkerSink<'_> {
             self.out.occs.push((self.action, Occ::Old { key }));
             return Ok(());
         }
+        if inside && !crate::fingerprintable(m, false)? {
+            let at = self.keep(m)?;
+            let error = Error::eval(crate::FP_MESSAGE);
+            self.out.occs.push((
+                self.action,
+                Occ::CheckErr {
+                    site: Site::Fingerprint,
+                    error,
+                    at,
+                },
+            ));
+            return Err(Error::stop());
+        }
         let mut inv = Inv::Holds;
         for (i, c) in plan.invariants.iter().enumerate() {
             match eval_check(m, &plan.code, c, skip, &mut self.metrics) {

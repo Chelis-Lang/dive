@@ -711,6 +711,11 @@ pub(crate) fn to_value(
         return Err("a value the core cannot report".into());
     }
     let kind = heap.view(h).kind;
+    // An infinite set is reported as the reference engine's lazy set, as TLC
+    // keeps it: a state may hold one until it is fingerprinted.
+    if !heap.is_finite(h) {
+        return infinite_value(heap, model, h, ctx);
+    }
     if kind.is_symbolic() {
         let m = heap.materialize(h).map_err(|e| e.message().to_owned())?;
         return to_value(heap, model, m, ctx);
@@ -760,6 +765,59 @@ pub(crate) fn to_value(
             }
             Value::fcn(pairs, ctx).map_err(|e| e.to_string())
         }
+    }
+}
+
+/// The reference engine's value of an infinite set of the core's.
+fn infinite_value(
+    heap: &mut dive_core::Heap,
+    model: &dive_model::Model,
+    h: dive_core::Handle,
+    ctx: dive_value::Ctx,
+) -> Result<Value, String> {
+    use dive_core::node::Kind;
+    let v = heap.view(h);
+    let (kind, data) = (v.kind, v.data.to_vec());
+    let mut parts = Vec::with_capacity(data.len());
+    let n = if kind == Kind::RecSet {
+        data.len() / 2
+    } else {
+        0
+    };
+    for (i, &d) in data.iter().enumerate() {
+        // A record set's field names are strings, which convert as they are.
+        parts.push(to_value(heap, model, d, ctx).map_err(|e| {
+            if i < n {
+                format!("a record set's field name: {e}")
+            } else {
+                e
+            }
+        })?);
+    }
+    let one = |parts: &mut Vec<Value>| parts.pop().ok_or("a set without its parts");
+    match kind {
+        Kind::Nat => Ok(Value::nat(ctx)),
+        Kind::Int => Ok(Value::int_set(ctx)),
+        Kind::SeqSet => Ok(Value::seq_set(one(&mut parts)?, ctx)),
+        Kind::Subset => Ok(Value::subset(one(&mut parts)?, ctx)),
+        Kind::FcnSet if parts.len() == 2 => {
+            let range = one(&mut parts)?;
+            Ok(Value::fcn_set(one(&mut parts)?, range, ctx))
+        }
+        Kind::Product => Ok(Value::product(parts, ctx)),
+        Kind::RecSet => {
+            let sets = parts.split_off(n);
+            let fields = parts
+                .into_iter()
+                .zip(sets)
+                .map(|(k, x)| match k {
+                    Value::Str(a) => Ok((a, x)),
+                    _ => Err("a record set's field name that is not a string".to_owned()),
+                })
+                .collect::<Result<_, _>>()?;
+            Value::record_set(fields, ctx).map_err(|e| e.to_string())
+        }
+        _ => Err(format!("an infinite {kind:?} the core cannot report")),
     }
 }
 
