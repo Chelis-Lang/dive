@@ -1041,6 +1041,27 @@ impl Compiler<'_> {
     // Roles
     // ------------------------------------------------------------------
 
+    /// Binds the `LET` values of a role's frame that splitting left unbound
+    /// (the role sits inside their `LET`): lazy values, as TLC's
+    /// `getActions` binds them, forced at most once per evaluation of the
+    /// action (its frame starts empty).
+    fn bind_role_lets(&mut self, env: usize, def: DefId) {
+        let owner = self.reset_stack.len().saturating_sub(1);
+        for (i, info) in self.ir.def(def).frame.iter().enumerate() {
+            let dive_ir::SlotKind::LetValue(d) = info.kind else {
+                continue;
+            };
+            if let Some(s @ Sb::Unset) = self.envs[env].slots.get_mut(i) {
+                *s = Sb::LetVal {
+                    def: d,
+                    env,
+                    thunk: None,
+                    owner,
+                };
+            }
+        }
+    }
+
     fn role_env(&mut self, r: &Role) -> Result<(usize, Vec<(u32, Handle)>), Error> {
         self.next_slot = 0;
         self.role_env_after(r)
@@ -1069,6 +1090,8 @@ impl Compiler<'_> {
             }
             preset.push((flat, h));
         }
+        self.reset_stack.push(Vec::new());
+        self.bind_role_lets(env, r.def);
         // Substitutions around the role: values are evaluated by name in
         // their own frame, outside any substitution (TLC's generator binds
         // them uncached: B5).
@@ -1106,6 +1129,7 @@ impl Compiler<'_> {
                         }
                         preset.push((flat, h));
                     }
+                    self.bind_role_lets(senv, *def);
                     SubstEntry {
                         decl: *decl,
                         value: Ok(Arg::Expr {
