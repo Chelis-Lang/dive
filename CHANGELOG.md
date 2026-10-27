@@ -1,5 +1,10 @@
 # Changelog
 
+- `--engine=auto` now runs `--compat=tlc` checks on the core too, and falls
+  back to the reference engine where the core refuses. On the small
+  conformance tier the result is the reference engine's own: 150 models
+  agree with TLC and 6 are unsupported.
+
 - `--engine core --compat=tlc` runs at any worker count (`--workers N`),
   with the one-worker result, as in the default profile.
 

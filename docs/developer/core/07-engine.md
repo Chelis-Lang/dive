@@ -378,9 +378,8 @@ its own switch:
 - **Fingerprints.** The core keeps its own 64-bit state keys. TLC's
   fingerprint values are an internal (ADR 0086); only collisions could
   differ, and TLC's optimistic estimate is computed from the counts.
-- `--engine=auto` keeps `--compat=tlc` on the reference engine (fallback
-  `static`) until the compat shadow is clean on the small tier. The flip
-  will be its own PR, with numbers.
+- `--engine=auto` first kept `--compat=tlc` on the reference engine. It
+  runs it on the core since `core/engine-auto-compat`.
 
 Results:
 - `crates/dive-api/tests/core_compat.rs` runs every fixture under
@@ -413,10 +412,20 @@ commit phase gives the one-worker result as in the default profile.
   worker count, 106 are refused, 0 findings. The sample covered 2,451
   states with no mismatch.
 
-**Next (M2, stream 3):**
-1. Flip `--engine=auto` for `--compat=tlc` once the small tier is clean
-   against the TLC-profile goldens (`run --impl dive:core --impl-profile
-   tlc`).
+**Done (M2, `core/engine-auto-compat`).** `--engine=auto` runs
+`--compat=tlc` on the core, with the usual static and dynamic fallback.
+Against the TLC-profile goldens on the small tier (examples, probes,
+validation-smoke, configured-temporal-operators; 156 models at 1 and 4
+workers):
+- `--impl dive:auto`: 150 agree and 6 unsupported. That is the reference
+  engine's own result (`--impl dive:reference`: 150 and 6), with 0
+  disagreements. 48 models ran on the core, 100 fell back statically and 8
+  ended before any search.
+- `--impl dive:core`: 50 agree and 106 unsupported, with 0 disagreements.
+
+**Next (M2, stream 3):** widen the core's compat coverage. Shrink the
+static refusals that the fallback counts, starting with the most frequent
+ones, and replace the comparison guard with stream 2's exact port.
 
 **Next (M1, stream 3):**
 1. Scaling measurements on a quiet x86 machine, then profiling of the expand
