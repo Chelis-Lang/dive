@@ -81,17 +81,20 @@ impl Heap {
     /// The view of a compound handle. A stale or scalar handle gives an empty
     /// set view and poisons the heap.
     #[must_use]
+    #[inline]
     pub fn view(&self, h: Handle) -> View<'_> {
-        match h.tag() {
-            Tag::Persistent => self.store.node(h).view(),
-            Tag::Transient => match self.arena.lookup(h) {
-                Some(v) => v,
-                None => self.poison_view(),
-            },
-            _ => self.poison_view(),
+        if h.is_persistent() {
+            return self.store.view(h);
         }
+        if h.is_transient()
+            && let Some(v) = self.arena.lookup(h)
+        {
+            return v;
+        }
+        self.poison_view()
     }
 
+    #[cold]
     fn poison_view(&self) -> View<'_> {
         self.poisoned.set(true);
         View {
