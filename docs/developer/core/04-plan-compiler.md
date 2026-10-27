@@ -363,16 +363,18 @@ TLC's `EC` code and whether TLC raises it as an `EvalException`.
 Every other evaluation error is unclassified. Integers outside the core's
 61-bit range are refused (`unsupported`).
 
-**Defect fixed.** The M0 core computed `0^0` as 1. TLC raises "0^0 is
-undefined." (fixture `Pow0`: TLC and the reference engine report an
-evaluation error after 1 distinct, 1 generated). The core now raises the
-2180 error.
+**Defect fixed.** The M0 core computed `0^0` as 1 and reported success.
+TLC raises "0^0 is undefined." On fixture `Pow0`, TLC, the reference engine
+and now the core report the 2180 evaluation error after 1 distinct state and
+1 generated.
 
-**The engine's part (stream 3).** `crates/dive-explore` still reports every
-evaluation error as `unsupported`. Next, it should map classified errors
-through the site rules and produce the trace. The reference engine's table
-is `crates/dive-check/src/class.rs`. Its functions are `pub(crate)`, so
-sharing them is a layering decision.
+**The engine's part.** Stream 3's error endings (`crates/dive-api/src/core_ending.rs`,
+`07-engine.md` §5) reproduce each failing action or check with the reference
+evaluator, and classify that evaluator's error with `dive_check::classify`.
+The core's class is not yet read there. Two uses are planned:
+- a cross-check: the two classes must agree, or the run is refused;
+- dropping the reproduction for classified errors, once the classes cover
+  the fixtures.
 
 ## 6. Interpreter
 
@@ -423,10 +425,10 @@ fixtures in `crates/dive-api/tests/fixtures/core-m0`. Measurements are in
   core classifies them, §5.2; the engine does not yet report them.)
 
 Next (M1, stream 2), from the census:
-1. Error classes (§5.2): typed classes are built. Next comes the engine's
-   site mapping and traces (stream 3). Then extend classification to the
-   unclassified sites. Check each against a pinned-TLC probe before
-   classifying it.
+1. Error classes (§5.2): typed classes are built, and the engine reports
+   error endings by reproduction (stream 3). Next, cross-check the core's
+   class against the reproduced one. Then extend classification to the
+   unclassified sites, checking each against a pinned-TLC probe first.
 2. `INSTANCE` substitution: built (pass 2). Next comes EWD998PCal's
    speed. It needed Bags (below), and its properties are still the
    engine's (M3).

@@ -105,19 +105,13 @@ fn unsupported_features_are_named_without_fallback() {
 }
 
 #[test]
-fn an_evaluation_error_is_never_a_success() {
-    // The engine does not yet report the core's classified errors as
-    // verdicts; until it does, the error must be refused, never answered.
+fn zero_to_the_zero_is_tlcs_evaluation_error() {
+    // M0 answered 0^0 = 1 and reported success; TLC raises 2180.
     let reference = run("Pow0", Engine::Reference);
     assert_eq!(reference["verdict"], "evaluation-error", "{reference:#}");
     let core = run("Pow0", Engine::Core);
-    assert_eq!(core["verdict"], "unsupported", "{core:#}");
-    assert!(
-        core["message"]
-            .as_str()
-            .is_some_and(|m| m.contains("0^0 is undefined")),
-        "{core:#}"
-    );
+    assert_eq!(counts(&core), counts(&reference), "{core:#}");
+    assert_eq!(core["tlc"], reference["tlc"], "{core:#}");
 }
 
 #[test]
