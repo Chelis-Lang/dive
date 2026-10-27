@@ -59,10 +59,13 @@ fn specs(dir: &str) -> Vec<(String, PathBuf, PathBuf)> {
 }
 
 fn run(spec: &Path, engine: Engine) -> Value {
+    // The CommunityModules the reference engine's fixtures use.
+    let community = repo().join("crates/dive-eval/tests/fixtures/community-modules");
     let report = check_file_engine(
         &CheckRequest {
             config: Some(spec.with_extension("cfg")),
             file: spec.to_path_buf(),
+            library_paths: vec![community],
             workers: Some(1),
             seed: Some(0),
             fp: Some(0),
@@ -200,8 +203,9 @@ fn error_fixtures_match_the_reference() {
 fn library_fixtures_match_the_reference_and_tlc() {
     let agreed = check_dir("crates/dive-api/tests/fixtures/core-lib");
     // Bags: BagOps and four error endings (ErBagUnionNonBag is refused);
-    // TLC: TlcOps, Perm, PermViol and five error endings.
-    assert!(agreed >= 13, "only {agreed} library fixtures agreed");
+    // TLC: TlcOps, Perm, PermViol and five error endings;
+    // CommunityModules: CmOps, CmSeqsViol and three error endings.
+    assert!(agreed >= 18, "only {agreed} library fixtures agreed");
 }
 
 /// The M1 generator fixtures (`tests/fixtures/core-m1`): each agrees with
