@@ -54,6 +54,19 @@ fn core_matches_reference_counts_and_verdicts() {
     }
 }
 
+/// A false or failing ASSUME ends a core run with the reference engine's
+/// verdict (`04-plan-compiler.md` §2).
+#[test]
+fn assumptions_end_the_run_as_the_reference_engine_reports() {
+    for name in ["AsFalse", "AsErr"] {
+        let reference = run(name, Engine::Reference);
+        let core = run(name, Engine::Core);
+        assert_eq!(core["engine"], "core", "{name}");
+        assert_eq!(counts(&core), counts(&reference), "{name}: {core:#}");
+        assert_eq!(core["property"], reference["property"], "{name}");
+    }
+}
+
 /// R9: a closed filter beyond the fold budget is left to run time, the
 /// abandoned fold is reported, and the counts do not change.
 #[test]
