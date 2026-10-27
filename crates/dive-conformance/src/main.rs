@@ -41,6 +41,13 @@ COMMANDS:
     corpus list            list models with tier, mode and scope
     golden generate        generate goldens from an oracle
     run                    run an implementation against the goldens and write a report
+    shadow                 run dive's core and reference engines on every selected model the
+                           core accepts (default profile, --workers, default 1,4) and compare
+                           verdict, error class, exit, property, counts and depth; the core's
+                           counterexamples must validate. Exit 1 on any difference. Takes the
+                           selection options, --dive-bin, --jobs, budgets and --report-dir
+                           (default: no report file). --strict: a model the core refuses, or
+                           a timeout, is a finding too (for fixed gate lists)
     study final            observe dive's schema-2/3 final/short mode against pinned goldens;
                            truth/count evidence only, never a strict conformance outcome
     report summarise <report.json>...
@@ -156,6 +163,8 @@ struct Opts {
     oracle: Option<String>,
     reason: Option<String>,
     no_sany: bool,
+    /// `shadow --strict`: refusals and timeouts are findings too.
+    strict: bool,
     sany_only: bool,
     imp: Option<String>,
     golden_oracle: Option<String>,
@@ -204,6 +213,7 @@ fn parse_opts(args: &mut Args) -> Result<Opts> {
             "--oracle" => o.oracle = Some(args.value(&a)?),
             "--reason" => o.reason = Some(args.value(&a)?),
             "--no-sany" => o.no_sany = true,
+            "--strict" => o.strict = true,
             "--sany-only" => o.sany_only = true,
             "--impl" => o.imp = Some(args.value(&a)?),
             "--golden-oracle" => o.golden_oracle = Some(args.value(&a)?),
@@ -363,6 +373,7 @@ fn dispatch(cmd: &[String], o: &Opts) -> Result<bool> {
         }
         ["golden", "generate"] => cmd_golden_generate(&config, &cache, o),
         ["run"] => cmd_run(&config, &cache, &root, o),
+        ["shadow"] => cmd_shadow(&config, &cache, &root, o),
         ["report", "summarise"] => report_summarise(&root, o),
         ["report", "baseline"] => report_baseline(o),
         ["trace-controls"] => cmd_trace_controls(&config, &cache, &root, o),
@@ -729,6 +740,62 @@ fn print_and_gate(report: &dive_conformance::report::Report) -> bool {
     findings > 0
 }
 
+/// `shadow`: returns whether there were findings.
+fn cmd_shadow(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool> {
+    if o.imp.is_some() || o.impl_profile.is_some() || !o.impl_options.is_empty() {
+        return Err(Error::Usage(
+            "shadow runs dive's two engines in the default profile; it takes no --impl, --impl-profile or --impl-option".to_owned(),
+        ));
+    }
+    let golden_oracle = match &o.golden_oracle {
+        Some(id) => id.clone(),
+        None => config.oracles.default_oracle()?.id.clone(),
+    };
+    let bin = o.dive_bin.clone().unwrap_or_else(|| {
+        root.join("target")
+            .join("release")
+            .join(format!("dive{}", std::env::consts::EXE_SUFFIX))
+    });
+    let opts = dive_conformance::shadow::ShadowOptions {
+        corpora: if o.corpus.is_empty() {
+            vec!["examples".to_owned()]
+        } else {
+            o.corpus.clone()
+        },
+        selection: selection(o),
+        workers: o.workers.clone().unwrap_or_else(|| vec![1, 4]),
+        limits: limits(o),
+        report_dir: o.report_dir.clone(),
+        strict: o.strict,
+    };
+    let report = dive_conformance::shadow::run(config, cache, &golden_oracle, &bin, &opts)?;
+    out(&format!(
+        "{}\n",
+        serde_json::to_string_pretty(&serde_json::json!({
+            "run_id": report.run_id,
+            "summary": report.summary,
+        }))
+        .unwrap_or_default()
+    ));
+    let findings: Vec<_> = report.findings().collect();
+    for r in &findings {
+        eprintln_safe(&format!(
+            "shadow: {:?} {}:{} at {} worker(s): {}{}",
+            r.status,
+            r.corpus,
+            r.model,
+            r.workers,
+            r.diffs.join("; "),
+            r.detail
+                .as_deref()
+                .or(r.trace.as_deref())
+                .map(|d| format!(" ({d})"))
+                .unwrap_or_default()
+        ));
+    }
+    Ok(!findings.is_empty())
+}
+
 /// The engine of `--impl dive` (`DIVE_ENGINE`, else the reference
 /// engine) or `--impl dive:<engine>`; `None` for any other implementation.
 fn dive_engine(imp_spec: &str) -> Result<Option<DiveEngine>> {
@@ -891,7 +958,10 @@ fn main() -> ExitCode {
     let result = dive_conformance::process::install_signal_handler()
         .and_then(|()| parse_opts(&mut args))
         .and_then(|mut o| {
-            let n = if o.positional.first().map(String::as_str) == Some("run") {
+            let n = if matches!(
+                o.positional.first().map(String::as_str),
+                Some("run" | "shadow")
+            ) {
                 1
             } else {
                 2

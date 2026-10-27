@@ -18,9 +18,10 @@ const GATE_USAGE: &str = "usage: cargo xtask gate --fast | --full [--skip-corpus
                    cm1 and validation-smoke conformance gates at 1, 4 and 8
                    workers and the small corpus tier in both profiles, each
                    checked against its committed baseline
-                   (conformance/baselines/); writes <target-dir>/gate-report.md
-                   for the PR body
-    --skip-corpus  with --full: skip the small corpus tier runs
+                   (conformance/baselines/), then the shadow comparison of the
+                   core with the reference engine on the small tier; writes
+                   <target-dir>/gate-report.md for the PR body
+    --skip-corpus  with --full: skip the small corpus tier and shadow runs
 
 Respects CARGO_BUILD_JOBS and NEXTEST_TEST_THREADS for shared machines.";
 
@@ -340,6 +341,7 @@ fn conformance_steps(g: &mut Gate, skip_corpus: bool) {
             for p in CORPUS_PROFILES {
                 g.skip(&corpus_step_name(p.profile), "release build failed");
             }
+            g.skip(SHADOW_STEP, "release build failed");
         }
         return;
     }
@@ -408,7 +410,50 @@ fn conformance_steps(g: &mut Gate, skip_corpus: bool) {
             .arg(&report_dir);
         g.run(&name, corpus);
     }
+    shadow_step(g, &harness, &dive, skip_corpus);
 }
+
+/// The core against the reference engine on every small-tier model the core
+/// runs (`docs/developer/core/08-correctness.md` §4).
+fn shadow_step(g: &mut Gate, harness: &Path, dive: &Path, skip_corpus: bool) {
+    if skip_corpus {
+        g.skip(SHADOW_STEP, "--skip-corpus");
+        return;
+    }
+    let mut shadow = Command::new(harness);
+    shadow
+        .current_dir(&g.root)
+        .arg("shadow")
+        .args(SHADOW_ARGS)
+        .arg("--dive-bin")
+        .arg(dive);
+    g.run(SHADOW_STEP, shadow);
+}
+
+/// The full gate's shadow step.
+const SHADOW_STEP: &str = "shadow comparison (core vs reference, small tier, 1 and 4 workers)";
+
+/// Harness arguments of the shadow step: the small-tier selection of
+/// [`CORPUS_ARGS`], at 1 and 4 workers.
+const SHADOW_ARGS: &[&str] = &[
+    "--corpus",
+    "examples",
+    "--corpus",
+    "probes",
+    "--corpus",
+    "validation-smoke",
+    "--corpus",
+    "configured-temporal-operators",
+    "--tier",
+    "small",
+    "--workers",
+    "1,4",
+    "--jobs",
+    "2",
+    "--tlc-budgets",
+    "--budget-cap",
+    "900",
+];
 
 /// Outcome counts summed over the harness report(s) in `dir`.
 fn corpus_counts(dir: &Path) -> CorpusCounts {
