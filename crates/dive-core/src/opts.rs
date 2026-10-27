@@ -1,10 +1,11 @@
 //! Strategy switches for ablation (`09-performance-method.md` §5).
 //!
-//! Every switch disables one strategy and must leave every observable result
-//! unchanged. They are parsed from a list such as `-memo,-delta-hash`
-//! (`DIVE_CORE_OPT`).
+//! Every switch turns one strategy off (`-name`) or on (`+name`) and must
+//! leave every observable result unchanged. They are parsed from a list
+//! such as `-fold,-delta-hash` (`DIVE_CORE_OPT`).
 
-/// Which strategies are on. The default has all of them on.
+/// Which strategies are on. The default has all of them on except the memo
+/// tables (`06-memoization.md` §6: they did not pay for their memory).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[allow(
     clippy::struct_excessive_bools,
@@ -24,7 +25,8 @@ pub struct Opts {
     /// sets and `Seq(S)`. Off (`-symbolic-member`): the set is materialized
     /// (up to 2^24 elements; beyond that the run is refused).
     pub symbolic_member: bool,
-    /// S6: keyed result caches. Off (`-memo`).
+    /// S6: keyed result caches. Off by default (M1 decision,
+    /// `06-memoization.md` §6); on with `+memo`.
     pub memo: bool,
     /// S6: parent-delta skip of invariant and constraint conjuncts. Off
     /// (`-parent-skip`).
@@ -47,7 +49,7 @@ impl Default for Opts {
             early_probe: true,
             hashcons: true,
             symbolic_member: true,
-            memo: true,
+            memo: false,
             parent_skip: true,
             arena: true,
             eager: true,
@@ -73,8 +75,9 @@ impl Opts {
     /// Parses a comma-separated list of `-name` (off) and `+name` (on).
     ///
     /// ```
-    /// let o = dive_core::Opts::parse("-memo,-delta-hash").unwrap();
-    /// assert!(!o.memo && !o.delta_hash && o.arena);
+    /// let o = dive_core::Opts::parse("+memo,-delta-hash").unwrap();
+    /// assert!(o.memo && !o.delta_hash && o.arena);
+    /// assert!(!dive_core::Opts::default().memo);
     /// assert!(dive_core::Opts::parse("-inline-subst").is_err());
     /// ```
     ///
@@ -116,7 +119,8 @@ impl Opts {
         Ok(o)
     }
 
-    /// The switches that are off, as `-name` items.
+    /// The switches that differ from the default, as `-name` (off) and
+    /// `+name` (on) items, or `default`.
     #[must_use]
     pub fn describe(&self) -> String {
         let flags = [
@@ -130,15 +134,28 @@ impl Opts {
             ("eager", self.eager),
             ("fold", self.fold),
         ];
-        let off: Vec<String> = flags
+        let d = Self::default();
+        let defaults = [
+            d.delta_hash,
+            d.early_probe,
+            d.hashcons,
+            d.symbolic_member,
+            d.memo,
+            d.parent_skip,
+            d.arena,
+            d.eager,
+            d.fold,
+        ];
+        let changed: Vec<String> = flags
             .iter()
-            .filter(|(_, on)| !on)
-            .map(|(n, _)| format!("-{n}"))
+            .zip(defaults)
+            .filter(|((_, on), def)| on != def)
+            .map(|((n, on), _)| format!("{}{n}", if *on { '+' } else { '-' }))
             .collect();
-        if off.is_empty() {
-            "all".into()
+        if changed.is_empty() {
+            "default".into()
         } else {
-            off.join(",")
+            changed.join(",")
         }
     }
 }

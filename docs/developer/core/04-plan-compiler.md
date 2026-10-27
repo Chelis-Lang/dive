@@ -400,7 +400,8 @@ Next (M1, stream 2), from the census:
    - **Still to do in Bags:** `\oplus`, `\ominus`, `BagCardinality`,
      `BagUnion`, `\sqsubseteq`, `BagOfAll`, `IsABag`, and `FoldBag`
      (BagsExt).
-4. The memoization decision (`06-memoization.md`).
+4. The memoization decision: made. The memo tables are off by default
+   (`06-memoization.md` §6).
 5. Native action splitting and constant evaluation, to drop the reference
    binder from the handoff.
 

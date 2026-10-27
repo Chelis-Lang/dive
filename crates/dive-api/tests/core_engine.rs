@@ -120,8 +120,11 @@ fn every_strategy_switch_leaves_counts_unchanged() {
         let mut all = Vec::new();
         for switch in dive_core_switches() {
             all.push(format!("-{switch}"));
-            let r = dive_api::check_file_core_opts(&req, &format!("-{switch}")).expect("runs");
-            assert_eq!(counts(&r.to_json()), base, "{name} -{switch}");
+            for sign in ['-', '+'] {
+                let opt = format!("{sign}{switch}");
+                let r = dive_api::check_file_core_opts(&req, &opt).expect("runs");
+                assert_eq!(counts(&r.to_json()), base, "{name} {opt}");
+            }
         }
         let r = dive_api::check_file_core_opts(&req, &all.join(",")).expect("runs");
         assert_eq!(counts(&r.to_json()), base, "{name} all off");

@@ -1,8 +1,8 @@
 # Memoized pure evaluation
 
 Status: M0 spike implemented in `crates/dive-core/src/memo.rs` and in the
-parent-delta rule of `crates/dive-explore` on `core/m0-spike`; results in
-`m0-results.md`. This document covers strategy S6 from `01-motivation.md`.
+parent-delta rule of `crates/dive-explore`; results in `m0-results.md`. M1
+decision (§6): memo tables off by default, the parent-delta skip on. This document covers strategy S6 from `01-motivation.md`.
 
 ## 1. Idea
 
@@ -171,8 +171,30 @@ M0 implements both mechanisms:
 `DIVE_CORE_OPT=-memo` and `-parent-skip` turn each off. `m0-results.md` gives
 hit rates, the share skipped and the slowdown when each is off.
 
-Next (M1, stream 2):
-1. Size the tables from the site's observed key diversity. On MCLamportMutex
-   `Memo::get` is the top self-time entry, although 76% of lookups hit.
-2. Extend keys to sub-values (`f[p]` instead of all of `f`) after the read-set
-   analysis can name them.
+**M1 decision (stream 2): the memo tables are off by default.** They stay
+in the code behind `DIVE_CORE_OPT=+memo` until finer keys can make them pay.
+The parent-delta skip stays on: it costs nothing measurable and is exact.
+- **x86 (M0 ablation, `m0-results.md` §3).** `-memo` gives 0.96 on CoffeeCan,
+  0.97 on SimpleRegular, 1.04 on MCLamportMutex and 1.00 on GameOfLife. No
+  model gains more than noise.
+- **M3, M1 branch.** Medians of 3 alternating runs, user seconds, at load
+  10–22, so indicative:
+
+  | Model | memo on | memo off | RSS on / off (MB) |
+  |---|---|---|---|
+  | CoffeeCan1000BeansSafety | 0.71 | 0.58 | 213 / 213 |
+  | MCLamportMutex | 9.42 | 7.65 | 76 / 50 |
+  | GameOfLife | 7.16 | 6.49 | 83 / 83 |
+  | EWD998PCal (safety) | 2.14 | 2.14 | 30 / 23 |
+
+  The counts are identical in every run.
+- **Reading.** Where states share sub-values, hash-consing and the
+  parent-delta skip already remove the work the tables would save. The tables
+  then cost a lookup per site visit and their memory: 26 MB on
+  MCLamportMutex, 8 MB on EWD998PCal.
+- **What would change the decision.** Keys on sub-values (`f[p]` instead of
+  all of `f`), once the read-set analysis can name them. Then a guard on one
+  process's slot would hit across states that differ elsewhere. Also tables
+  sized from each site's observed key diversity. Revisit with the M2
+  benchmark campaign (`09-performance-method.md`). Rerun this table on x86
+  before relying on its magnitudes.
