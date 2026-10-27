@@ -16,10 +16,12 @@ use dive_ir::StdOp;
 
 use crate::eval::Machine;
 use crate::node::Kind;
+use crate::plan::{Code, P};
 use crate::{Error, Handle, TlcClass};
 
 mod bags;
 mod community;
+mod higher;
 mod tlc;
 
 /// Whether the core implements `op` here.
@@ -34,6 +36,82 @@ pub fn implements(op: StdOp) -> bool {
 #[must_use]
 pub fn effectful(op: StdOp) -> bool {
     implements(op) && op.impure()
+}
+
+/// Whether the core implements `op` here as an operator with operator
+/// arguments (`Node::LibHo`).
+#[must_use]
+pub fn higher_order(op: StdOp) -> bool {
+    higher::implements(op)
+}
+
+/// The arity of argument `i` of a higher-order operator when it is an
+/// operator argument; `None` for a value argument.
+#[must_use]
+pub fn op_arity(op: StdOp, i: usize) -> Option<usize> {
+    higher::op_arity(op, i)
+}
+
+/// Whether `op` takes its operator argument as TLC's `OpValue`, which TLC
+/// cannot apply when the operator's body is a constant: the compiler
+/// refuses such a call.
+#[must_use]
+pub fn takes_op_value(op: StdOp) -> bool {
+    higher::takes_op_value(op)
+}
+
+/// An operator argument, compiled: its parameters' slots and its body.
+#[derive(Clone, Copy, Debug)]
+pub struct OpFn<'a> {
+    code: &'a Code,
+    params: &'a [u32],
+    body: P,
+}
+
+impl<'a> OpFn<'a> {
+    /// The operator whose parameters are `params` and whose body is `body`.
+    #[must_use]
+    pub fn new(code: &'a Code, params: &'a [u32], body: P) -> Self {
+        Self { code, params, body }
+    }
+
+    /// Applies the operator to `args`, as TLC applies an operator argument
+    /// from a Java override: the parameters are bound to the values, the
+    /// body is evaluated (normalized), and the slots are restored.
+    ///
+    /// # Errors
+    /// The body's evaluation errors; internal for an arity mismatch.
+    pub fn apply(&self, m: &mut Machine, args: &[Handle]) -> Result<Handle, Error> {
+        if args.len() != self.params.len() {
+            return Err(Error::internal("an operator argument's arity"));
+        }
+        let saved: Vec<Handle> = self.params.iter().map(|&s| m.slot(s)).collect();
+        for (&s, &v) in self.params.iter().zip(args) {
+            m.set_slot(s, v);
+        }
+        let r = m.eval_norm(self.code, self.body);
+        for (&s, &v) in self.params.iter().zip(&saved) {
+            m.set_slot(s, v);
+        }
+        r
+    }
+}
+
+/// An argument of a higher-order operator at the call.
+#[derive(Clone, Copy, Debug)]
+pub enum Ho<'a> {
+    /// A normalized value.
+    Value(Handle),
+    /// An operator.
+    Op(OpFn<'a>),
+}
+
+/// Calls the higher-order operator `op`.
+///
+/// # Errors
+/// As [`call`].
+pub fn call_ho(m: &mut Machine, op: StdOp, args: &[Ho<'_>]) -> Result<Handle, Error> {
+    higher::call(m, op, args)
 }
 
 /// Calls `op` on normalized arguments.
