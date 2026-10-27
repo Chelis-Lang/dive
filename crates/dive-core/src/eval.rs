@@ -1520,6 +1520,29 @@ impl Machine {
         }
     }
 
+    /// `Len(s)`: a sequence's length, or a string's in UTF-16 units, as
+    /// Java counts.
+    fn len(&self, s: Handle) -> Result<Handle, Error> {
+        if let Some(id) = s.as_str_id() {
+            let text = self
+                .heap
+                .store()
+                .strings()
+                .text(id)
+                .ok_or_else(|| Error::internal("unknown string"))?;
+            return mk_int(i64::try_from(text.encode_utf16().count()).unwrap_or(i64::MAX));
+        }
+        // Only a compound handle has a node to view.
+        if !s.is_compound() {
+            return Err(one_arg("Len", "sequence"));
+        }
+        let v = self.heap.view(s);
+        if v.kind != Kind::IntFcn || v.lo != 1 {
+            return Err(one_arg("Len", "sequence"));
+        }
+        mk_int(i64::try_from(v.data.len()).unwrap_or(i64::MAX))
+    }
+
     fn std(&mut self, code: &Code, f: StdFn, args: &[P]) -> Result<Handle, Error> {
         let mut a = Vec::with_capacity(args.len());
         for &x in args {
@@ -1531,17 +1554,7 @@ impl Machine {
                 .ok_or_else(|| Error::internal("missing argument"))
         };
         match f {
-            StdFn::Len => {
-                let s = arg(0)?;
-                let v = self.heap.view(s);
-                if s.as_str_id().is_some() {
-                    return Err(Error::unsupported("Len of a string (M1 core)"));
-                }
-                if !s.is_compound() || v.kind != Kind::IntFcn || v.lo != 1 {
-                    return Err(one_arg("Len", "sequence"));
-                }
-                mk_int(i64::try_from(v.data.len()).unwrap_or(i64::MAX))
-            }
+            StdFn::Len => self.len(arg(0)?),
             StdFn::Head => {
                 let vals = self.seq_vals(arg(0)?)?;
                 vals.first()

@@ -1,6 +1,8 @@
 //! CommunityModules operators that take only values: `SequencesExt`
-//! (`Contains`, `RemoveFirst`, `Suffixes`, `SetToSeq`, `IsPrefix`),
-//! `Functions` (`IsInjective`) and `Bitwise`. The reference is
+//! (`Contains`, `RemoveFirst`, `Suffixes`, `AllSubSeqs`, `SetToSeq`,
+//! `IsPrefix`, `LongestCommonPrefix`, and `ReplaceFirstSubSeq` and
+//! `ReplaceAllSubSeqs` on strings), `Functions` (`IsInjective`) and
+//! `Bitwise`. The reference is
 //! `crates/dive-eval/src/community.rs` (`call_ext`), which follows the Java
 //! overrides of `tlc2.overrides` (`docs/provenance.md`).
 
@@ -21,6 +23,10 @@ pub(super) fn implements(op: StdOp) -> bool {
             | StdOp::SequencesExtSetToSeq
             | StdOp::SequencesExtSetToSeqs
             | StdOp::SequencesExtIsPrefix
+            | StdOp::SequencesExtAllSubSeqs
+            | StdOp::SequencesExtLongestCommonPrefix
+            | StdOp::SequencesExtReplaceFirstSubSeq
+            | StdOp::SequencesExtReplaceAllSubSeqs
             | StdOp::FunctionsIsInjective
             | StdOp::FunctionsAntiFunction
             | StdOp::BitwiseAnd
@@ -80,6 +86,11 @@ pub(super) fn call(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle
             };
             Ok(m.heap.tuple(&elems))
         }
+        StdOp::SequencesExtAllSubSeqs => all_sub_seqs(m, op, arg(args, 0)?),
+        StdOp::SequencesExtLongestCommonPrefix => longest_common_prefix(m, op, arg(args, 0)?),
+        StdOp::SequencesExtReplaceFirstSubSeq | StdOp::SequencesExtReplaceAllSubSeqs => {
+            replace_sub_seq(m, op, arg(args, 0)?, arg(args, 1)?, arg(args, 2)?)
+        }
         StdOp::SequencesExtSetToSeqs => set_to_seqs(m, op, arg(args, 0)?),
         StdOp::SequencesExtIsPrefix => is_prefix(m, op, arg(args, 0)?, arg(args, 1)?),
         StdOp::FunctionsIsInjective => is_injective(m, op, arg(args, 0)?),
@@ -137,6 +148,159 @@ fn set_to_seqs(m: &mut Machine, op: StdOp, s: Handle) -> Result<Handle, Error> {
         }
     }
     Ok(m.heap.set_from(&mut out))
+}
+
+/// `AllSubSeqs(s)`. TLC builds the set unnormalized, in the order of the
+/// bit masks over the indices (a `Kind::SetEnum` under TLC's comparisons).
+fn all_sub_seqs(m: &mut Machine, op: StdOp, s: Handle) -> Result<Handle, Error> {
+    let Some(t) = tuple(m, op, s)? else {
+        return Err(one_arg_error("AllSubSeqs", "sequence"));
+    };
+    let n = t.len();
+    if n > 24 {
+        return Err(refuse(
+            op,
+            "a sequence of more than 24 elements (2^n subsequences)",
+        ));
+    }
+    let mut out = Vec::with_capacity(1 << n);
+    let mut sub = Vec::with_capacity(n);
+    for i in 0u32..(1 << n) {
+        sub.clear();
+        sub.extend((0..n).filter(|j| i & (1 << j) != 0).map(|j| t[j]));
+        out.push(m.heap.tuple(&sub));
+    }
+    // The order is observable only through TLC's comparisons: a membership
+    // test scans an unnormalized set (C1). D-009 answers it in the default
+    // profile, so there the set is normalized at once.
+    if m.heap.store().semantics().tlc_comparisons {
+        Ok(m.heap.set_enum(&out))
+    } else {
+        Ok(m.heap.set_from(&mut out))
+    }
+}
+
+/// `LongestCommonPrefix(S)` (`SequencesExt.longestCommonPrefix`): the
+/// first element in `S`'s order, cut where another element differs. On
+/// strings it compares UTF-16 units, as Java does; an element shorter than
+/// the prefix so far is TLC's Java exception, which the core refuses (it
+/// occurs only in TLC's string order, `--compat=tlc`).
+fn longest_common_prefix(m: &mut Machine, op: StdOp, s: Handle) -> Result<Handle, Error> {
+    let bad = || one_arg_error("LongestCommonPrefix", "non-empty set");
+    let Some(elems) = enumerable(m, op, s)? else {
+        return Err(bad());
+    };
+    let Some(&first) = elems.first() else {
+        return Err(bad());
+    };
+    let not_seq = || one_arg_error("LongestCommonPrefix", "sequence");
+    if let Some(id) = first.as_str_id() {
+        let text = |m: &Machine, id: u32| {
+            m.heap
+                .store()
+                .strings()
+                .text(id)
+                .map(|t| t.encode_utf16().collect::<Vec<u16>>())
+                .ok_or_else(|| Error::internal("unknown string"))
+        };
+        let prefix = text(m, id)?;
+        let mut upper = prefix.len();
+        for &other in &elems[1..] {
+            let Some(o) = other.as_str_id() else {
+                return Err(not_seq());
+            };
+            let other = text(m, o)?;
+            for (idx, &p) in prefix.iter().enumerate().take(upper) {
+                let Some(&c) = other.get(idx) else {
+                    return Err(refuse(
+                        op,
+                        "a string shorter than the first in the set's order (TLC fails with a StringIndexOutOfBoundsException) (M1 core)",
+                    ));
+                };
+                if p != c {
+                    upper = idx;
+                    break;
+                }
+            }
+            if upper == 0 {
+                break;
+            }
+        }
+        return m.heap.string(&String::from_utf16_lossy(&prefix[..upper]));
+    }
+    let Some(prefix) = tuple(m, op, first)? else {
+        return Err(not_seq());
+    };
+    let mut upper = prefix.len();
+    for &other in &elems[1..] {
+        let Some(other) = tuple(m, op, other)? else {
+            return Err(not_seq());
+        };
+        for (idx, &x) in prefix.iter().enumerate().take(upper) {
+            let Some(&y) = other.get(idx) else {
+                return Err(refuse(
+                    op,
+                    "a sequence shorter than the first in the set's order (TLC fails with an ArrayIndexOutOfBoundsException)",
+                ));
+            };
+            if !compare::equals(&m.heap, x, y)? {
+                upper = idx;
+                break;
+            }
+        }
+        if upper == 0 {
+            break;
+        }
+    }
+    Ok(m.heap.tuple(&prefix[..upper]))
+}
+
+/// `ReplaceFirstSubSeq(r, s, t)` and `ReplaceAllSubSeqs(r, s, t)` on
+/// strings, as TLC's override computes them. On other values TLC evaluates
+/// the TLA+ definition, which the core does not yet do.
+fn replace_sub_seq(
+    m: &mut Machine,
+    op: StdOp,
+    r: Handle,
+    s: Handle,
+    t: Handle,
+) -> Result<Handle, Error> {
+    let (Some(r), Some(s), Some(t)) = (r.as_str_id(), s.as_str_id(), t.as_str_id()) else {
+        return Err(refuse(
+            op,
+            "arguments that are not all strings, for which TLC evaluates the TLA+ definition (M1 core)",
+        ));
+    };
+    let strings = m.heap.store().strings();
+    let (Some(r), Some(s), Some(t)) = (strings.text(r), strings.text(s), strings.text(t)) else {
+        return Err(Error::internal("unknown string"));
+    };
+    let (r, s, t) = (&*r, &*s, &*t);
+    let out = if op == StdOp::SequencesExtReplaceFirstSubSeq {
+        if s.is_empty() {
+            format!("{r}{t}")
+        } else {
+            t.replacen(s, r, 1)
+        }
+    } else if s.is_empty() {
+        if t.chars().any(|c| u32::from(c) > 0xFFFF) {
+            return Err(refuse(
+                op,
+                "a string with characters outside the Basic Multilingual Plane (TLC splits them into UTF-16 halves)",
+            ));
+        }
+        let mut out = String::from(r);
+        for (i, c) in t.chars().enumerate() {
+            if i != 0 {
+                out.push_str(r);
+            }
+            out.push(c);
+        }
+        out
+    } else {
+        t.replace(s, r)
+    };
+    m.heap.string(&out)
 }
 
 /// `EC.TLC_MODULE_ONE_ARGUMENT_ERROR` (2283).

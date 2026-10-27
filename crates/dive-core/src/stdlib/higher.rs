@@ -1,13 +1,17 @@
 //! Operators with operator arguments: `Sequences.SelectSeq`, `TLC.SortSeq`,
-//! `Bags.BagOfAll`, `BagsExt.FoldBag`, `FiniteSetsExt.Quantify`,
-//! `Functions.FoldFunction` and `SequencesExt`'s folds and selections. The
-//! reference is the reference engine's `std.rs` and `community.rs`
-//! (`bag_of_all`, `fold_bag`, `select_in`, `fold_function`, `test_bool`).
+//! `Bags.BagOfAll`, `BagsExt.FoldBag`, `FiniteSetsExt.Quantify` and
+//! `FoldSet`, `Functions.FoldFunction` and `FoldFunctionOnSet`, and
+//! `SequencesExt`'s folds and selections. The reference is the reference
+//! engine's `std.rs` and `community.rs` (`bag_of_all`, `fold_bag`,
+//! `select_in`, `fold_function`, `fold_over`, `test_bool`).
 //!
 //! Each operator applies its operator argument in an order fixed by a
-//! sequence, or by the normalized order of a function or set where the
-//! result does not depend on it. Folds over sets and unnormalized
-//! functions, whose order is TLC's internal order, are not here.
+//! sequence, or by the normalized order of a function or set. `FoldSet`
+//! and `FoldFunctionOnSet` walk the set's normalized order: the pinned TLC
+//! folds `S \cup T`, `UNION`, `SUBSET`, `[S -> T]`, `S \X T` and set maps
+//! in that order, without repeats (`04-plan-compiler.md`, fixture
+//! `FoldOps`). Unnormalized functions, whose order is TLC's internal
+//! order, are not here.
 
 use dive_ir::StdOp;
 
@@ -25,7 +29,9 @@ pub(super) fn implements(op: StdOp) -> bool {
             | StdOp::BagsBagOfAll
             | StdOp::BagsExtFoldBag
             | StdOp::FiniteSetsExtQuantify
+            | StdOp::FiniteSetsExtFoldSet
             | StdOp::FunctionsFoldFunction
+            | StdOp::FunctionsFoldFunctionOnSet
             | StdOp::SequencesExtFoldSeq
             | StdOp::SequencesExtFoldLeft
             | StdOp::SequencesExtFoldRight
@@ -47,7 +53,9 @@ pub(super) fn takes_op_value(op: StdOp) -> bool {
         op,
         StdOp::BagsBagOfAll
             | StdOp::BagsExtFoldBag
+            | StdOp::FiniteSetsExtFoldSet
             | StdOp::FunctionsFoldFunction
+            | StdOp::FunctionsFoldFunctionOnSet
             | StdOp::SequencesExtFoldSeq
             | StdOp::SequencesExtFoldLeft
             | StdOp::SequencesExtFoldRight
@@ -70,7 +78,9 @@ pub(super) fn op_arity(op: StdOp, i: usize) -> Option<usize> {
         (StdOp::TlcSortSeq, 1)
         | (
             StdOp::BagsExtFoldBag
+            | StdOp::FiniteSetsExtFoldSet
             | StdOp::FunctionsFoldFunction
+            | StdOp::FunctionsFoldFunctionOnSet
             | StdOp::SequencesExtFoldSeq
             | StdOp::SequencesExtFoldLeft
             | StdOp::SequencesExtFoldRight
@@ -89,6 +99,10 @@ pub(super) fn call(m: &mut Machine, op: StdOp, args: &[Ho<'_>]) -> Result<Handle
         StdOp::BagsBagOfAll => bag_of_all(m, op, func(args, 0)?, value(args, 1)?),
         StdOp::BagsExtFoldBag => fold_bag(m, op, func(args, 0)?, value(args, 1)?, value(args, 2)?),
         StdOp::FiniteSetsExtQuantify => quantify(m, op, value(args, 0)?, func(args, 1)?),
+        StdOp::FiniteSetsExtFoldSet => {
+            fold_set(m, op, func(args, 0)?, value(args, 1)?, value(args, 2)?)
+        }
+        StdOp::FunctionsFoldFunctionOnSet => fold_function_on_set(m, op, args),
         StdOp::FunctionsFoldFunction | StdOp::SequencesExtFoldSeq => {
             fold_function(m, op, func(args, 0)?, value(args, 1)?, value(args, 2)?)
         }
@@ -316,6 +330,55 @@ fn quantify(m: &mut Machine, op: StdOp, s: Handle, test: OpFn<'_>) -> Result<Han
         }
     }
     int(n)
+}
+
+/// `FoldSet(op, base, S)`: `op(x, acc)` for each `x` of `S`, in `S`'s
+/// normalized order. A value that is not an enumerable set fails in TLC
+/// with a Java `ClassCastException`, which the core refuses.
+fn fold_set(
+    m: &mut Machine,
+    op: StdOp,
+    f: OpFn<'_>,
+    base: Handle,
+    s: Handle,
+) -> Result<Handle, Error> {
+    let Some(elems) = enumerable(m, op, s)? else {
+        return Err(refuse(
+            op,
+            "a value that is not an enumerable set (TLC fails with a ClassCastException) (M1 core)",
+        ));
+    };
+    let mut acc = base;
+    for x in elems {
+        acc = f.apply(m, &[x, acc])?;
+    }
+    Ok(acc)
+}
+
+/// `FoldFunctionOnSet(op, base, f, S)`: `op(f[x], acc)` for each `x` of
+/// `S`, in `S`'s normalized order; `f[x]` fails as an application does.
+fn fold_function_on_set(m: &mut Machine, op: StdOp, args: &[Ho<'_>]) -> Result<Handle, Error> {
+    let (f, base, fun, s) = (
+        func(args, 0)?,
+        value(args, 1)?,
+        value(args, 2)?,
+        value(args, 3)?,
+    );
+    let kind = fun.is_compound().then(|| m.heap.view(fun).kind);
+    match kind {
+        Some(Kind::IntFcn | Kind::Fcn) => {}
+        Some(Kind::Lambda) => return Err(refuse(op, "a function argument the core keeps lazy")),
+        _ => return Err(arg_error("third", "FoldFunctionOnSet", "function")),
+    }
+    let Some(elems) = enumerable(m, op, s)? else {
+        return Err(arg_error("fourth", "FoldFunctionOnSet", "set"));
+    };
+    let mut acc = base;
+    for x in elems {
+        let y = m.apply(fun, x)?;
+        acc = f.apply(m, &[y, acc])?;
+    }
+    Ok(acc)
 }
 
 /// `FoldFunction(op, base, f)` (and `FoldSeq`): folds `op(f[x], acc)`

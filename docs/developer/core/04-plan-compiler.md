@@ -627,18 +627,37 @@ Next (M1, stream 2), from the census:
      (TLC's trace-rebuilding prints), and `RandomElement` (seed rules, B6).
      `SortSeq` is done (operator arguments, below).
    - **CommunityModules, values (stream 1, `stdlib/community.rs`):** see
-     §8. Still to do: the rest of `SequencesExt` and `Functions` that take
-     only values (`LongestCommonPrefix`, `ReplaceFirstSubSeq`,
-     `ReplaceAllSubSeqs`, `AllSubSeqs`), `FiniteSetsExt`'s
-     `kSubset`.
+     §8. `AllSubSeqs`, `LongestCommonPrefix`, and `ReplaceFirstSubSeq` and
+     `ReplaceAllSubSeqs` on strings are in, with `Len` of a string (UTF-16
+     units, as Java counts). `AllSubSeqs` builds TLC's unnormalized set
+     under TLC's comparisons, where membership in it is refused (C1); the
+     default profile normalizes it, as D-009 answers membership. A string
+     shorter than the first in TLC's string order (`LongestCommonPrefix`,
+     TLC's Java exception) is refused. Fixtures `CmSubSeqs` (285 distinct,
+     891 generated, as TLC), `CmSubSeqsViol` (143 distinct, 168
+     generated, 131 left, as TLC), `ErCmLcpEmpty`, `ErCmLcpNonSet` and
+     `ErCmAllSubSeqsNonSeq`. Still to do: `ReplaceFirstSubSeq` and
+     `ReplaceAllSubSeqs` on sequences (TLC evaluates their TLA+
+     definitions), and `FiniteSetsExt`'s `kSubset`, which the reference
+     engine does not implement either.
    - **Operator arguments (stream 1, `stdlib/higher.rs`, `Node::LibHo`):**
      `SelectSeq`, `SortSeq`, `BagOfAll`, `FoldBag`, `Quantify`,
      `FoldFunction`, `FoldSeq`, `FoldLeft`, `FoldRight` and their `Domain`
-     forms, `SelectInSeq`, `SelectLastInSeq` and `RemoveFirstMatch`. Still
-     to do, because TLC applies the operator in its internal order of a set
-     or of an unnormalized function: `FoldSet`, `FoldFunctionOnSet`,
-     `MapThenFoldSet` and the `Folds` module, and the `SubSeq` forms of
-     the selections (their argument-not-in-domain error class is not mapped yet).
+     forms, `SelectInSeq`, `SelectLastInSeq`, `RemoveFirstMatch`,
+     `FoldSet` and `FoldFunctionOnSet`. The last two walk TLC's
+     `elements()` of the set, which the pinned TLC gives in the normalized
+     order, without repeats, for every set probed: `S \cup T` with
+     overlap, `UNION`, `S \ T`, set maps, `SUBSET`, `[S -> T]`, `S \X T`
+     and strings, in actions, invariants and `ASSUME`s, in both profiles.
+     The core folds in its normalized order. Fixtures `FoldOps` (55
+     distinct, 256 generated, as TLC), `ErFoldOnSetNonFcn`,
+     `ErFoldOnSetNonSet` and `ErFoldOnSetDomain` (2154, the application
+     error inside the override). A `FoldSet` argument that is not an
+     enumerable set (TLC's `ClassCastException`) is refused. Still to do:
+     `MapThenFoldSet` and the `Folds` module (TLA+ definitions with
+     `CHOOSE` and recursion, no override), and the `SubSeq` forms of the
+     selections (their argument-not-in-domain error class is not mapped
+     yet).
 4. The memoization decision: made. The memo tables are off by default
    (`06-memoization.md` §6).
 5. Native action splitting and constant evaluation, to drop the reference

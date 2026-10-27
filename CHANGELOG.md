@@ -1,5 +1,11 @@
 # Changelog
 
+- `--engine core` runs `AllSubSeqs`, `LongestCommonPrefix`, and
+  `ReplaceFirstSubSeq` and `ReplaceAllSubSeqs` on strings (SequencesExt),
+  `FoldSet` (FiniteSetsExt), `FoldFunctionOnSet` (Functions), and `Len` of
+  a string. `Len` of a string in an invariant used to end in
+  an internal error on the core.
+
 - `--engine core` scales better at high worker counts: interning a value
   that is already stored no longer takes a lock.
 
