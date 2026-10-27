@@ -1,5 +1,9 @@
 # Changelog
 
+- `--engine core` reports a model that fails to bind (for example a numeral
+  TLC cannot handle under `--compat=tlc`) as the reference engine does,
+  instead of refusing it.
+
 - `dive check --engine core --compat=tlc` runs TLC's profile on the new core,
   on one worker. It covers TLC's string order, 32-bit integers, `\div` from
   `Naturals` and TLC's `x' \in S` order. Comparisons TLC could fail on, and

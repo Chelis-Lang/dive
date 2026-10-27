@@ -391,12 +391,19 @@ Results:
 - Against the TLC-profile goldens (`dive-conformance run --impl dive:core
   --impl-profile tlc`), all 26 smoke models agree, every one on the core.
 
+**Done (M2, `core/engine-bindfail`).** A model that fails to bind, in
+either profile, ends the run as on the reference engine. The core binds
+without the run's host, so `core_engine::binding_failure` confirms the
+failure with the reference engine's own binding (`dive_check::check`,
+which stops at the same point) and reports that result, printed output and
+warnings included, when the verdict is the same. Otherwise it refuses. The
+fixture `CompatBigNumeral` (a numeral outside 32 bits) is a model error
+under `--compat=tlc` and a success in the default profile, on both engines.
+
 **Next (M2, stream 3):**
-1. Report a failing binding under compat (`TLC_INTEGER_TOO_BIG`) as the
-   reference engine does.
-2. Parallel compat runs: shadow them at 4 and 8 workers, then lift the
+1. Parallel compat runs: shadow them at 4 and 8 workers, then lift the
    one-worker rule.
-3. Flip `--engine=auto` for `--compat=tlc` once the small tier is clean
+2. Flip `--engine=auto` for `--compat=tlc` once the small tier is clean
    against the TLC-profile goldens (`run --impl dive:core --impl-profile
    tlc`).
 

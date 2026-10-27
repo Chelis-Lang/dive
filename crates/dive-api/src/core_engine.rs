@@ -425,6 +425,32 @@ fn store_for(
     Ok(store)
 }
 
+/// A model that fails to bind ends the run before any search, as on the
+/// reference engine (for example TLC's `TLC_INTEGER_TOO_BIG` for a numeral
+/// outside 32 bits under `--compat=tlc`). The core binds without the run's
+/// host, so its failure is confirmed by the reference engine's own binding:
+/// when that fails the same way, its result (verdict, printed output and
+/// warnings) is the run's; otherwise the run is refused.
+fn binding_failure(
+    ir: &Arc<Ir>,
+    config: &dive_config::ModelConfig,
+    options: &CheckOptions,
+    failure: &dive_model::Failure,
+) -> CheckResult {
+    let mine = Verdict::from(&failure.error);
+    let reference = dive_check::check(ir, config, options);
+    if reference.verdict == mine && reference.stats.is_none() {
+        return reference;
+    }
+    result(
+        unsupported(format!(
+            "a binding failure the reference engine does not reproduce under the core engine: {failure}"
+        )),
+        options,
+        ir,
+    )
+}
+
 /// Runs the core engine.
 #[allow(clippy::too_many_lines, reason = "the stages of a core run, in order")]
 pub(crate) fn check(
@@ -472,16 +498,7 @@ pub(crate) fn check(
     };
     let model = match dive_model::bind(Arc::clone(ir), config, &bind) {
         Ok(m) => m,
-        Err(f) => {
-            return (
-                finish(result(
-                    unsupported(format!("a binding failure under the M0 core engine: {f}")),
-                    options,
-                    ir,
-                )),
-                run,
-            );
-        }
+        Err(f) => return (finish(binding_failure(ir, config, options, &f)), run),
     };
     if let Some(feature) = refusal(&model) {
         return (finish(result(unsupported(feature), options, ir)), run);

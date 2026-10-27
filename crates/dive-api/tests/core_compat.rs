@@ -8,7 +8,8 @@
 //! The `core-compat` fixtures pin each compat component: TLC's string
 //! order (`CompatStrOrder`), 32-bit integers (`CompatOverflow`), `\div`
 //! from `Naturals` (`CompatDivNat`), comparisons whose shapes agree
-//! (`CompatQueue`), and the refusal of a comparison TLC fails on
+//! (`CompatQueue`), a numeral TLC rejects at start-up
+//! (`CompatBigNumeral`), and the refusal of a comparison TLC fails on
 //! (`CompatShape`).
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
 
@@ -176,7 +177,7 @@ fn check_all(fixtures: Vec<(String, PathBuf, Option<PathBuf>)>) -> (usize, Vec<S
 fn compat_fixtures_pin_each_component() {
     let (agreed, refused) = check_all(flat("tests/fixtures/core-compat"));
     assert_eq!(refused, ["CompatShape"]);
-    assert!(agreed >= 4, "only {agreed} compat fixtures agreed");
+    assert!(agreed >= 5, "only {agreed} compat fixtures agreed");
     // The string order is observable: the two profiles differ.
     let spec = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures/core-compat/CompatStrOrder.tla");
@@ -184,6 +185,11 @@ fn compat_fixtures_pin_each_component() {
         run(&spec, Engine::Core, true)["verdict"],
         "invariant-violation"
     );
+    assert_eq!(run(&spec, Engine::Core, false)["verdict"], "success");
+    // A binding failure is reported as the reference engine reports it.
+    let spec = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/core-compat/CompatBigNumeral.tla");
+    assert_eq!(run(&spec, Engine::Core, true)["verdict"], "model-error");
     assert_eq!(run(&spec, Engine::Core, false)["verdict"], "success");
 }
 
