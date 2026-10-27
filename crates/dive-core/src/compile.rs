@@ -2285,6 +2285,95 @@ impl Compiler<'_> {
         self.g_inline(d, args, env, def_env)
     }
 
+    /// An operator argument as a function of `arity` fresh frame slots, for
+    /// the standard modules' higher-order operators (`SelectSeq`, the
+    /// Folds, ...): the slots, and its body compiled with its parameters
+    /// bound to them. The caller sets the slots and evaluates the body for
+    /// each element. The body's free slots include the parameter slots,
+    /// which the caller's node must treat as bound, as a binder's are.
+    ///
+    /// The operator is resolved as an application of it would be:
+    /// - through operator parameters passed on;
+    /// - through constant operators bound in the configuration
+    ///   (`F <- D`);
+    /// - through `INSTANCE` substitutions.
+    ///
+    /// A `LAMBDA` or `LET` operator's body is compiled in the environment
+    /// where it was written, so it reads the caller's locals.
+    ///
+    /// # Errors
+    /// Unsupported for a std or built-in operator passed as the argument
+    /// (`FoldSet(+, 0, S)`), a recursive operator, or an expression
+    /// argument; internal for an arity mismatch.
+    #[allow(
+        dead_code,
+        reason = "the entry point for stream 1's higher-order stdlib node (Node::LibHo)"
+    )]
+    pub(crate) fn op_fn(
+        &mut self,
+        a: &Arg,
+        env: usize,
+        arity: usize,
+    ) -> Result<(Box<[u32]>, P), Error> {
+        let Arg::Op { op, .. } = a else {
+            return Err(Error::unsupported(
+                "an expression where an operator argument is expected (M1 core)",
+            ));
+        };
+        let (op, aenv) = match op {
+            OpRef::Param(r) => self.resolve_param(*r, env)?,
+            OpRef::Subst(decl) => (self.subst_op(*decl)?, env),
+            op => (op.clone(), env),
+        };
+        let d = match op {
+            OpRef::Def(d) => d,
+            OpRef::Const(c) => match self.h.constants.get(c.index()).cloned().flatten() {
+                Some(ConstBinding::Def(d)) => d,
+                _ => {
+                    return Err(Error::unsupported(
+                        "a constant operator the configuration does not bind to a definition (M1 core)",
+                    ));
+                }
+            },
+            _ => {
+                return Err(Error::unsupported(
+                    "a std or built-in operator passed to a higher-order operator (M1 core)",
+                ));
+            }
+        };
+        let d = self.redirect(d);
+        let def = self.ir.def(d);
+        if def.std.is_some() || def.recursive {
+            return Err(Error::unsupported(
+                "a std or recursive operator passed to a higher-order operator (M1 core)",
+            ));
+        }
+        if def.params.len() != arity {
+            return Err(Error::internal(format!(
+                "{} passed where an operator of {arity} arguments is expected",
+                def.name
+            )));
+        }
+        let body = def.body;
+        let def_env = if def.scope == DefScope::TopLevel {
+            env
+        } else {
+            aenv
+        };
+        let parent = self.lexical_parent(d, def_env)?;
+        let inner = self.new_env(d, parent);
+        let mut slots = Vec::with_capacity(arity);
+        for i in 0..arity {
+            let slot = self.alloc();
+            if let Some(s) = self.envs[inner].slots.get_mut(i) {
+                *s = Sb::Flat(slot);
+            }
+            slots.push(slot);
+        }
+        let b = self.p(body, inner, Mode::Plain)?;
+        Ok((slots.into(), b))
+    }
+
     /// The operator argument an operator parameter is bound to, following
     /// parameters passed on, and the environment it was passed in.
     fn resolve_param(&self, r: LocalRef, look_env: usize) -> Result<(OpRef, usize), Error> {
