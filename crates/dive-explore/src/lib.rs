@@ -1,5 +1,7 @@
-//! `dive-explore`: single-threaded breadth-first exploration over a compiled
-//! [`dive_core::Plan`] (the M0 spike of `docs/developer/core/07-engine.md`).
+//! `dive-explore`: breadth-first exploration over a compiled
+//! [`dive_core::Plan`] (`docs/developer/core/07-engine.md`). With several
+//! workers, each level is expanded in parallel and committed in order
+//! (`parallel.rs`), so every result is the one-worker result.
 //!
 //! The loop follows TLC's `ModelChecker` with one worker:
 //!

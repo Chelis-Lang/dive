@@ -1,5 +1,11 @@
 # Changelog
 
+- Add `dive check --engine auto` (or `DIVE_ENGINE=auto`). It runs the new
+  core where the core implements the check, and otherwise the whole check on
+  the reference engine. The report names the engine that ran and the core's
+  refusal. `--engine core` now refuses `--store exact`, disk spilling,
+  `--chaos` and non-default evaluation options, which it used to ignore.
+
 - `--engine core` runs with `--workers N`. Each level is expanded in
   parallel and committed in order, so results equal the one-worker results.
 

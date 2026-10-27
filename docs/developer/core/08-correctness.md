@@ -18,26 +18,38 @@ This document says how the new core uses them.
 
 ## 2. Engine selection
 
-- `dive check --engine=core|reference`. The default stays `reference` until
-  M4. The same choice is available on `dive-api` `CheckRequest`.
-- **JSON report.** It names the engine that ran, and the fallback reason if
-  the core refused.
-- **Harness and bench.** They run either engine unchanged, because they invoke
+- `dive check --engine=reference|core|auto`, or `DIVE_ENGINE`. The default
+  stays `reference` until M4. The same choice is available through
+  `dive_api::check_file_engine`.
+- **JSON report.** It names the engine that ran (`engine`). Under `auto` it
+  also carries `engine_requested` and the fallback (`engine_fallback`: stage
+  and reason, or `null`).
+- **Harness and bench.** They run any engine unchanged, because they invoke
   the binary as a black box (`crates/dive-conformance/src/dive.rs`;
   `crates/dive-bench/src/main.rs`).
 
-## 3. Static fallback
+## 3. Static fallback (`--engine=auto`, built in M1)
 
-- **Refusal before the run.** The plan compiler refuses, naming the feature,
-  any construct or option the core does not support. With `--engine=core`, the
-  run then uses the reference engine and the report says so.
-- **Runtime refusal.** If the core meets an unsupported case during the run,
-  it aborts. It discards buffered output, reruns the whole check on the
-  reference engine and reports both facts. It never continues mid-run on
+- **`--engine=core` never falls back.** A refusal is an `unsupported`
+  result naming the feature, so tests and benchmarks cannot be satisfied by
+  the reference engine. This is the role the design gave `--no-fallback`.
+- **Refusal before the search (static).** The core refuses, naming the
+  feature, any construct or run option it does not implement. Examples are
+  `--compat=tlc`, `--store exact`, non-default evaluation options, disk
+  spilling, `--chaos`, temporal properties, `VIEW`, `SYMMETRY`, a refused
+  plan construct, and checkpoints. With `--engine=auto`, the reference
+  engine then runs the check.
+- **Refusal during the search (dynamic).** The core aborts when it meets an
+  unsupported case during the run: a lazily represented value it cannot
+  enumerate, a mixed-class set, or an error ending it cannot reproduce. Auto
+  discards the core's result, counts and output (the core buffers all
+  output), reruns the whole check on the reference engine under the same
+  armed budget, and reports both facts. It never continues mid-run on
   another engine.
-- **No silent fallback.** `--engine=core --no-fallback` turns a refusal into
-  an `unsupported` result, so tests and benchmarks cannot be satisfied by the
-  reference engine.
+- **Implementation.** `crates/dive-api/src/check.rs` (the dispatch) and
+  `core_engine::Fallback`. `crates/dive-api/tests/core_auto.rs` runs every
+  core fixture under auto. Each run must equal the core's result, or the
+  reference engine's result with a named fallback. Both stages are covered.
 
 ## 4. Shadow comparison
 
@@ -105,4 +117,5 @@ The thresholds are in `10-plan.md`. In short:
 ## 9. Next step
 
 M0 needs only the golden check through `dive-bench` on the spike models. The
-`--engine` flag, fallback and shadow comparison are built at the start of M1.
+`--engine` flag and the fallback (`--engine=auto`, §3) are built in M1. The
+shadow comparison (§4) is next.

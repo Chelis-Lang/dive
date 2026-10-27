@@ -251,6 +251,10 @@ pub struct CheckReport {
     phase: Phase,
     /// The core engine's run, when `--engine=core` ran the check.
     core: Option<Box<crate::core_engine::CoreRun>>,
+    /// The engine requested.
+    engine: crate::Engine,
+    /// Why `--engine=auto` ran the reference engine.
+    fallback: Option<crate::core_engine::Fallback>,
 }
 
 fn admit_storage_request(req: &CheckRequest) -> Result<(), crate::ApiError> {
@@ -513,6 +517,8 @@ fn check_file_in(
         temporal_configuration: crate::temporal::file_configuration(),
         phase: Phase::Unlowered(String::new()),
         core: None,
+        engine,
+        fallback: None,
     };
     // TLC's Spec constructor parses ModelConfig before creating SpecProcessor
     // (tlaplus 94d0c50). Keep the file API's existing module-first order.
@@ -587,12 +593,31 @@ fn check_file_in(
         ));
         let native = dive_check::checkpoint::check(&ir, &model, &armed, &request);
         report.checkpoint_receipt = native.receipt;
+        if engine == crate::Engine::Auto {
+            report.fallback = Some(crate::core_engine::Fallback {
+                stage: "static",
+                reason: "checkpoints under the core engine".into(),
+            });
+        }
         Phase::Checked(Box::new(native.check))
     } else if engine == crate::Engine::Core {
         let (result, run) =
             crate::core_engine::check(&ir, &model, &armed, req.compat_tlc, core_switches);
         report.core = Some(Box::new(run));
         Phase::Checked(Box::new(result))
+    } else if engine == crate::Engine::Auto {
+        let (result, run) =
+            crate::core_engine::check(&ir, &model, &armed, req.compat_tlc, core_switches);
+        if let Some(fallback) = crate::core_engine::Fallback::of(&result, &run) {
+            // The whole check again, on the reference engine; the core's
+            // partial results (counts, output, metrics) are discarded.
+            report.fallback = Some(fallback);
+            drop(result);
+            check_backend(&ir, &model, &armed, req.temporal, req.periodic)
+        } else {
+            report.core = Some(Box::new(run));
+            Phase::Checked(Box::new(result))
+        }
     } else {
         check_backend(&ir, &model, &armed, req.temporal, req.periodic)
     };
@@ -1493,6 +1518,15 @@ impl CheckReport {
         if let Some(core) = &self.core {
             doc["engine"] = json!(crate::Engine::Core.name());
             doc["core"] = json!({"disabled": core.opts, "metrics": core.metrics});
+        } else if self.fallback.is_some() {
+            doc["engine"] = json!(crate::Engine::Reference.name());
+        }
+        if self.engine == crate::Engine::Auto {
+            doc["engine_requested"] = json!(crate::Engine::Auto.name());
+            doc["engine_fallback"] = self.fallback.as_ref().map_or(
+                Value::Null,
+                |f| json!({"stage": f.stage, "reason": f.reason}),
+            );
         }
         doc
     }
@@ -1537,6 +1571,19 @@ impl CheckReport {
             && let Some(why) = &r.workers.reason
         {
             let _ = writeln!(out, "{why}");
+        }
+        // A check that ends before the search (loading, ASSUME) names no
+        // engine.
+        if self.engine == crate::Engine::Auto {
+            if let Some(f) = &self.fallback {
+                let _ = writeln!(
+                    out,
+                    "engine auto: the reference engine ran; the core refused ({}): {}",
+                    f.stage, f.reason
+                );
+            } else if self.core.is_some() {
+                let _ = writeln!(out, "engine auto: the core ran");
+            }
         }
         if let Some(request) = &self.checkpoint_request {
             let _ = writeln!(
@@ -2057,6 +2104,8 @@ mod evidence_controls {
             },
             phase,
             core: None,
+            engine: crate::Engine::Reference,
+            fallback: None,
         }
     }
 
