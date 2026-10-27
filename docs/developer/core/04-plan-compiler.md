@@ -3,7 +3,8 @@
 Status: M1 stream 2 in progress. The M0 spike is on `main`
 (`crates/dive-core/src/compile.rs`, `plan.rs`, `eval.rs`, `convert.rs`;
 results in `m0-results.md`). M1 adds the comparison rules of §5.1
-(`compare.rs`), the coverage census of §8 and the fold bound of §3.1 (R9). This document covers strategy
+(`compare.rs`), the coverage census of §8, the fold bound of §3 (R9) and the
+laziness of values (§4.1). This document covers strategy
 S8 from `01-motivation.md`, and the compiler side of S5 and S6. It supersedes
 the evaluation-plan section of ADR 0014 §1.
 
@@ -166,6 +167,92 @@ correctness is checked by shadow comparison (`08-correctness.md`) and by the
 laziness fixtures. Under `crates/dive-eval/tests/fixtures/specs/` these
 include `EvLazy` and the `next/` fixtures.
 
+### 4.1 Lazy values (built)
+
+Operator arguments and `LET` values are already thunks (M0). M1 adds TLC's
+laziness of values: TLC builds a filter, a function constructor or a set
+operation lazily unless its operands are `Reducible`, and applies a function
+lazily in `f[a]`. Laziness is observable only through errors, because the
+core has no effects yet (B6), so the rules below are about which errors
+happen.
+
+**Reducibility.** The compiler records for every node whether TLC's value is
+`Reducible` (a set enumeration or an interval;
+`crates/dive-eval/src/core.rs`, `is_reducible`): `Yes`, `No` or `Maybe`
+(`Info::red` in `compile.rs`). The value is `Yes` for an enumeration, an
+interval, a set map, a filter or set operation over `Yes` operands, and a
+constant of those kinds. It is `No` for `Nat`, `Int`, `Seq(S)`, `SUBSET`,
+products, function sets, record sets, and filters or set operations over `No`
+operands. Every other node, such as a state variable, a bound variable or a
+call, is `Maybe`. Folding keeps the expression's value.
+
+**Rules.**
+- **Eager where TLC is eager.** A filter, a function constructor or a set
+  operation (`\cup`, `\cap`: both operands; `\`: the left operand) over
+  `Yes` operands is built eagerly, as TLC builds it.
+- **Speculative elsewhere.** Otherwise the core still builds it eagerly, under
+  `Node::Spec`. An evaluation error inside becomes `unsupported`, naming the
+  laziness, because TLC might never raise it. The plan statistic
+  `speculative` counts these nodes.
+- **Membership.** `x \in S`, where `S` is a filter or a set operation that
+  TLC certainly keeps lazy (`No`), is decided structurally, as TLC's
+  `SetPredValue`, `SetCupValue`, `SetCapValue` and `SetDiffValue` decide it:
+  the domain first, then the predicate, short-circuiting left to right
+  (`Node::InLazy`). This is exact, so it is not speculative. It also makes
+  membership in a filter over `Nat` work.
+- **Application.** TLC evaluates `f` in `f[a]` with `KEEP_LAZY`. So a function
+  constructor reached directly, through inlined operators, or through a
+  top-level definition stays lazy. So does one over a `No` domain. One
+  reached through a `LET` value or an operator argument (TLC's `LazyValue`)
+  over reducible domains is built eagerly (probe `LzApplyDef` below). A lazy
+  constructor with one bound variable is applied without being built
+  (`Node::Beta`): its domain, then the argument, a domain check, then the body
+  for that argument alone (`FcnLambdaValue.apply`). The plan statistic `beta`
+  counts these. A lazy one with several bound variables is built
+  speculatively.
+- **`DOMAIN`.** `DOMAIN f` of a constructor over a `No` domain is its domain,
+  without building it (`FcnLambdaValue.getDomain`). `EXCEPT` bases and
+  `DOMAIN` are not `KEEP_LAZY` positions (`crates/dive-eval/src/eval.rs`,
+  `OPCODE_fa` only).
+- **Recursive functions.** `f[x \in S] == e` (top level, one bound variable)
+  is compiled as a function of its argument: `Node::DomCheck` checks that the
+  argument is in `S`, then evaluates `e`. `f[a]`, outside or inside `e`, is a
+  call. Other uses of `f` as a value are refused, and so are `LET`-defined
+  recursive functions.
+- **Recursive operators.** TLC passes their arguments lazily. The core
+  evaluates them at the call, so a non-trivial argument is speculative.
+- **Nested recursive definitions.** A recursive `LET` operator is
+  lambda-lifted. Its references to enclosing locals become captures, passed by
+  every call after the arguments and by the recursive calls inside it
+  (`Lift`, `Fun::caps`). A captured thunk is forced at the call, so it is
+  speculative. Mutually recursive nested definitions, and captures under a
+  prime, are refused.
+- **Startup values.** TLC's startup value of a constant definition may be
+  lazy, for example a filter over `Nat`. When it cannot be converted, the core
+  compiles the definition's body instead. Configuration overrides
+  (`Handoff::overrides`) are never recompiled.
+
+**Not yet.** These have no effect until the core has effects (B6, M2):
+- the demand-order analysis proper;
+- the B2 and B4 cache rules, which need `ENABLED` and `INSTANCE` (both still
+  refused, so D-027 is not yet observable);
+- streaming a lazy filter as a quantifier or `CHOOSE` domain with
+  short-circuit.
+
+A speculative region therefore never yields a wrong verdict, only
+`unsupported`. Error classification (§5) can rely on every remaining
+evaluation error being one TLC raises.
+
+**Probes.** These are run against the reference engine, and the raw outputs
+are kept outside the repository:
+- `LzApplyRed`, `LzApplyDef`, `LzDomain`, `LzDomOut`, `LzExcept`;
+- `LzNatApply`, `LzNatOut`, `LzFilterOk`, `LzFilterErr`;
+- `LzLetRec`, `LzLetRecErr`, `LzNestRec`, `LzRecOut`.
+
+Every one agrees with the reference engine, or is refused. The fixture
+`crates/dive-api/tests/fixtures/core-m0/Lazy.tla` covers the successful paths
+in the test suite.
+
 ## 5. Error classes
 
 Compiled nodes raise typed errors that carry the error-class (EC) code. They
@@ -249,7 +336,7 @@ fixtures in `crates/dive-api/tests/fixtures/core-m0`. Measurements are in
 - **Caching.** A zero-arity top-level definition of state level is evaluated
   at most once per frame activation (for example `sc` in GameOfLife).
 - **Recursive operators.** They are compiled once into their own frame, with
-  eager arguments. Function constructors are materialized.
+  eager arguments. Function constructors are materialized. (M1: see §4.1.)
 - **Folding.** Closed subexpressions are folded by evaluating them at compile
   time, within the R9 bound (§3, pass 1). A folding failure leaves the node
   alone. Filters and `CHOOSE` enumerate a symbolic domain through its cursor
@@ -257,12 +344,20 @@ fixtures in `crates/dive-api/tests/fixtures/core-m0`. Measurements are in
 - **Errors.** Evaluation errors are reported as `unsupported`. M0 does not
   classify them (§5 is not built).
 
-Next (M1, stream 2):
-1. Native action splitting and constant evaluation, to drop the reference
+Next (M1, stream 2), from the census:
+1. Error classes (§5). The speculation of §4.1 makes every remaining
+   evaluation error one TLC raises. Its site and code need the engine
+   (stream 3, `crates/dive-explore`).
+2. `INSTANCE` substitution (pass 2; EWD998PCal and 6 latent models).
+3. Operator breadth in census order: `TLC!Print`/`PrintT`/`Assert`/
+   `ToString`, which need effects (B6), and the standard modules.
+4. The memoization decision (`06-memoization.md`).
+5. Native action splitting and constant evaluation, to drop the reference
    binder from the handoff.
-2. The demand-order analysis of §4, replacing the conservative rule above.
-   Lazy function values are needed to remove GameOfLife's materialization.
-3. Error classes (§5) and the INSTANCE and `ENABLED` passes.
+
+GameOfLife's `sc` has a product domain, so TLC keeps it lazy. The core still
+caches its materialization once per activation, under `Node::Spec`, so its
+speed is unchanged. Laziness is not GameOfLife's speed answer: profile it.
 
 ## 8. Coverage
 

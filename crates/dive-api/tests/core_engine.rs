@@ -42,7 +42,7 @@ fn counts(v: &Value) -> (Value, Value, Value, Value) {
 
 #[test]
 fn core_matches_reference_counts_and_verdicts() {
-    for name in ["Mix", "Viol", "Dead", "Fold"] {
+    for name in ["Mix", "Viol", "Dead", "Fold", "Lazy"] {
         let reference = run(name, Engine::Reference);
         let core = run(name, Engine::Core);
         assert_eq!(core["engine"], "core", "{name}");
@@ -67,6 +67,23 @@ fn large_folds_are_bounded_and_reported() {
     assert_eq!(counts(&core), counts(&run("Fold", Engine::Reference)));
 }
 
+/// Laziness (`04-plan-compiler.md` §4.1): recursive functions, lazy
+/// functions over `Nat` applied without being built, structural membership
+/// in lazy sets, and recursive operators run in the core, with the
+/// reference engine's counts.
+#[test]
+fn lazy_values_are_applied_without_being_built() {
+    let core = run("Lazy", Engine::Core);
+    assert_eq!(core["verdict"], "success", "{core:#}");
+    let plan = &core["core"]["metrics"]["plan"];
+    assert!(plan["beta"].as_u64().is_some_and(|b| b >= 1), "{plan:#}");
+    assert!(
+        plan["speculative"].as_u64().is_some_and(|s| s >= 1),
+        "{plan:#}"
+    );
+    assert_eq!(counts(&core), counts(&run("Lazy", Engine::Reference)));
+}
+
 #[test]
 fn violations_and_deadlocks_are_reported() {
     assert_eq!(run("Viol", Engine::Core)["verdict"], "invariant-violation");
@@ -89,7 +106,7 @@ fn unsupported_features_are_named_without_fallback() {
 
 #[test]
 fn every_strategy_switch_leaves_counts_unchanged() {
-    for name in ["Mix", "Fold"] {
+    for name in ["Mix", "Fold", "Lazy"] {
         let file = fixture(name);
         let req = CheckRequest {
             config: Some(file.with_extension("cfg")),
