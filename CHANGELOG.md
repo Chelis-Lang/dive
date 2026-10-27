@@ -80,6 +80,9 @@
   evaluated lazily, as TLC does; before, the core refused them as "a split
   argument that is not constant".
 
+- `--engine core` no longer enumerates `S` in `x \in UNION {S}`: MCDisruptor_MPMC
+  runs about 40 times faster on the core.
+
 - `--engine core` runs with `--workers N`. Each level is expanded in
   parallel and committed in order, so results equal the one-worker results.
 

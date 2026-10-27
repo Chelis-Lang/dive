@@ -167,6 +167,18 @@ fn unions_with_an_infinite_side_stay_lazy() {
     assert_eq!(core["property"], reference["property"], "{name}");
 }
 
+/// `UNION {S}` of a set constructor stays lazy; fixture `UnionOne` (TLC:
+/// `Inv` violated, 8 distinct, 11 generated, depth 2).
+#[test]
+fn a_union_of_one_set_constructor_stays_lazy() {
+    let name = "UnionOne";
+    let reference = run(name, Engine::Reference);
+    let core = run(name, Engine::Core);
+    assert_eq!(core["engine"], "core", "{name}");
+    assert_eq!(counts(&core), counts(&reference), "{name}: {core:#}");
+    assert_eq!(core["property"], reference["property"], "{name}");
+}
+
 #[test]
 fn zero_to_the_zero_is_tlcs_evaluation_error() {
     // M0 answered 0^0 = 1 and reported success; TLC raises 2180.

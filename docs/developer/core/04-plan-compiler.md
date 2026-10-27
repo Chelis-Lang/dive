@@ -5,7 +5,7 @@ Status: M1 stream 2 in progress. The M0 spike is on `main`
 results in `m0-results.md`). M1 adds the comparison rules of §5.1
 (`compare.rs`), the coverage census of §8, the fold bound of §3 (R9), the
 laziness of values (§4.1), `INSTANCE` substitution (§3, pass 2), Bags, typed
-TLC error classes (§5.2), model values (§5.3), operator arguments (§5.4) and the memo decision
+TLC error classes (§5.2), model values (§5.3), operator arguments (§5.4), lazy unions (§4.2) and the memo decision
 (`06-memoization.md` §6).
 This document covers strategy S8 from `01-motivation.md`, and the compiler side of S5 and S6. It supersedes
 the evaluation-plan section of ADR 0014 §1.
@@ -343,6 +343,17 @@ Fixture `InfCup` (18 distinct, 100 generated, depth 3, as TLC) covers:
 
 MCDisruptor_MPMC (112929 distinct, 422781 generated, depth 81) agrees
 with the reference engine once §2.1 is in as well.
+
+**`UNION {S}`.** When `S` is a set constructor (`[D -> R]`, `[a : R]`,
+`SUBSET R` or `A \X B`), `UNION {S}` compiles as `S`. TLC's `UnionValue`
+tests membership in each member, so this is exact. Other operands keep the
+check that the member is a set. Compiling the set enumeration would
+normalize `S` as its element. For
+RingBuffer's `UNION { [0 .. LastIndex -> SUBSET Readers] }` that enumerates
+and sorts 4096 functions in every state, because `Readers` is an instance
+substitution and is not folded. MCDisruptor_MPMC at one worker, user time:
+core 35.3 s before and 0.9 s after; the reference engine takes 3.8 s.
+Fixture `UnionOne`: TLC reports `Inv` violated, 8/11/2.
 
 ## 5. Error classes
 
