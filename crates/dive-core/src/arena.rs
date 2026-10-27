@@ -26,6 +26,7 @@ const EPOCH_MASK: u32 = (1 << 29) - 1;
 #[derive(Clone, Copy, Debug)]
 struct ANode {
     kind: Kind,
+    flags: u8,
     epoch: u32,
     lo: i64,
     hash: u64,
@@ -173,9 +174,11 @@ impl Arena {
     }
 
     /// Allocates a node with the given contents.
+    #[allow(clippy::too_many_arguments, reason = "the node header, flat")]
     pub(crate) fn alloc(
         &mut self,
         kind: Kind,
+        flags: u8,
         lo: i64,
         hash: u64,
         sum: u64,
@@ -203,6 +206,7 @@ impl Arena {
         };
         self.nodes.push(ANode {
             kind,
+            flags,
             epoch: self.epoch,
             lo,
             hash,
@@ -231,6 +235,7 @@ impl Arena {
         };
         Some(View {
             kind: n.kind,
+            flags: n.flags,
             lo: n.lo,
             hash: n.hash,
             sum: n.sum,
@@ -262,12 +267,12 @@ mod tests {
         for heap in [false, true] {
             let mut a = Arena::new(heap);
             let one = Handle::int(1).unwrap_or(Handle::EMPTY);
-            let h = a.alloc(Kind::Set, 0, 7, 7, &[one]);
+            let h = a.alloc(Kind::Set, 0, 0, 7, 7, &[one]);
             assert_eq!(a.lookup(h).map(|v| v.data.len()), Some(1));
             a.reset();
             assert!(a.lookup(h).is_none(), "stale handle must not resolve");
             // A new node at the same index has a new epoch.
-            let g = a.alloc(Kind::Set, 0, 9, 9, &[]);
+            let g = a.alloc(Kind::Set, 0, 0, 9, 9, &[]);
             assert_ne!(g, h);
             assert!(a.lookup(h).is_none());
             assert!(!a.stale(), "a plain lookup does not record a miss");
@@ -280,16 +285,16 @@ mod tests {
         for heap in [false, true] {
             let mut a = Arena::new(heap);
             let one = Handle::int(1).unwrap_or(Handle::EMPTY);
-            let keep = a.alloc(Kind::Set, 0, 1, 1, &[one]);
+            let keep = a.alloc(Kind::Set, 0, 0, 1, 1, &[one]);
             let m = a.mark();
-            let gone = a.alloc(Kind::Set, 0, 2, 2, &[one, one]);
+            let gone = a.alloc(Kind::Set, 0, 0, 2, 2, &[one, one]);
             a.rollback(m);
             assert_eq!(a.len(), 1);
             assert_eq!(a.lookup(keep).map(|v| v.hash), Some(1));
             assert!(a.lookup(gone).is_none());
             // The freed slot is reused under a new epoch: the old handle
             // still does not resolve.
-            let again = a.alloc(Kind::Set, 0, 3, 3, &[]);
+            let again = a.alloc(Kind::Set, 0, 0, 3, 3, &[]);
             assert_ne!(again, gone);
             assert!(a.lookup(gone).is_none());
             assert_eq!(a.lookup(again).map(|v| v.hash), Some(3));

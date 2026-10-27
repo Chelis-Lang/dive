@@ -47,13 +47,30 @@ pub enum Kind {
     Int,
     /// `S1 \X ... \X Sn`: the factors.
     Product,
+    /// `A \cup B`, kept lazy: `data = [A, B]`.
+    Union,
+    /// `[x \in D |-> e]` before it is materialized: `lo` is the closure id
+    /// (the evaluator's), `data = [D, captures...]`. Lazy.
+    Lambda,
+    /// `{x \in S : P}` before it is enumerated: `lo` is the closure id,
+    /// `data = [S, captures...]`. Lazy.
+    SetPred,
+}
+
+/// [`View::flags`] bits. They describe a value's representation, never its
+/// identity: hashing, equality, order and interning ignore them
+/// (`03-value-model.md` §8, §11.5 rule 6).
+pub mod flags {
+    /// The value contains a [`super::Kind::Lambda`] or
+    /// [`super::Kind::SetPred`] node, so only the evaluator can close it.
+    pub const LAZY: u8 = 1;
 }
 
 impl Kind {
     /// Whether the kind is a set.
     #[must_use]
     pub const fn is_set(self) -> bool {
-        !matches!(self, Self::IntFcn | Self::Fcn)
+        !matches!(self, Self::IntFcn | Self::Fcn | Self::Lambda)
     }
 
     /// Whether the kind is a function.
@@ -62,10 +79,21 @@ impl Kind {
         matches!(self, Self::IntFcn | Self::Fcn)
     }
 
-    /// Whether the kind is a symbolic set.
+    /// Whether the kind is a symbolic set that the heap can enumerate on its
+    /// own (not [`Kind::SetPred`], which needs the evaluator).
     #[must_use]
     pub const fn is_symbolic(self) -> bool {
-        !matches!(self, Self::Set | Self::IntFcn | Self::Fcn)
+        !matches!(
+            self,
+            Self::Set | Self::IntFcn | Self::Fcn | Self::Lambda | Self::SetPred
+        )
+    }
+
+    /// Whether the kind is a closure the evaluator forces: a lazy function
+    /// or a set predicate.
+    #[must_use]
+    pub const fn is_lazy(self) -> bool {
+        matches!(self, Self::Lambda | Self::SetPred)
     }
 }
 
@@ -80,11 +108,20 @@ pub struct View<'a> {
     pub hash: u64,
     /// The raw additive sum the hash finalizes (sets and functions).
     pub sum: u64,
+    /// Representation bits ([`flags`]); not part of identity.
+    pub flags: u8,
     /// The contents.
     pub data: &'a [Handle],
 }
 
 impl View<'_> {
+    /// Whether the value must be closed by the evaluator first
+    /// ([`flags::LAZY`]).
+    #[must_use]
+    pub fn is_lazy(&self) -> bool {
+        self.flags & flags::LAZY != 0
+    }
+
     /// The number of elements (sets) or entries (functions).
     #[must_use]
     pub fn len(&self) -> usize {

@@ -731,7 +731,11 @@ impl Machine {
             return Err(eval_err("membership in a value that is not a set"));
         }
         let kind = self.heap.view(set).kind;
-        if kind != Kind::Set && !self.opts.symbolic_member && self.heap.is_finite(set) {
+        if kind != Kind::Set
+            && !self.opts.symbolic_member
+            && self.heap.is_finite(set)
+            && !self.heap.is_lazy(set)
+        {
             let m = self.heap.materialize_cached(set)?;
             return self.member(x, m);
         }
@@ -850,7 +854,15 @@ impl Machine {
                 }
                 Ok(true)
             }
-            Kind::IntFcn | Kind::Fcn => Err(eval_err("membership in a function")),
+            Kind::IntFcn | Kind::Fcn | Kind::Lambda => Err(eval_err("membership in a function")),
+            // TLC's `SetCupValue.member`: either side, left first.
+            Kind::Union => {
+                let (a, b) = (v.data[0], v.data[1]);
+                Ok(self.member(x, a)? || self.member(x, b)?)
+            }
+            Kind::SetPred => Err(Error::unsupported(
+                "membership in a lazy set predicate (the evaluator side is not built)",
+            )),
         }
     }
 

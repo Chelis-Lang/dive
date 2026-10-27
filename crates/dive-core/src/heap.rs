@@ -8,7 +8,7 @@ use std::sync::Arc;
 use crate::Error;
 use crate::arena::{Arena, Mark};
 use crate::handle::{Handle, K_FCN, K_SET, K_SYM, Tag, fin, int_hash, mix2, mix64, scalar_hash};
-use crate::node::{Kind, View};
+use crate::node::{Kind, View, flags};
 use crate::store::Store;
 
 /// The largest set the core materializes.
@@ -28,6 +28,19 @@ pub struct Heap {
     /// Interned enumerations of persistent finite symbolic sets, for
     /// [`Heap::materialize_cached`].
     materialized: std::collections::HashMap<Handle, Handle>,
+}
+
+/// The closure of a lazy node ([`Heap::closure`]).
+#[derive(Clone, Copy, Debug)]
+pub struct Closure<'a> {
+    /// `Lambda` or `SetPred`.
+    pub kind: Kind,
+    /// The evaluator's closure id.
+    pub id: u32,
+    /// The function's domain, or the predicate's base set.
+    pub domain: Handle,
+    /// The captured values, in the evaluator's order.
+    pub captures: &'a [Handle],
 }
 
 /// The hash of a set with the given element-hash sum.
@@ -116,8 +129,38 @@ impl Heap {
             lo: 0,
             hash: 0,
             sum: 0,
+            flags: 0,
             data: &EMPTY_DATA,
         }
+    }
+
+    /// Records an internal error: a lazy value reached an operation that
+    /// needs a closed one (`03-value-model.md` §11.3).
+    #[cold]
+    fn lazy_misuse(&self) {
+        self.poisoned.set(true);
+    }
+
+    /// The hash and flags of a child, for builders: no closedness check.
+    #[inline]
+    fn child(&self, h: Handle) -> (u64, u8) {
+        if let Some(s) = scalar_hash(h) {
+            return (s, 0);
+        }
+        let v = self.view(h);
+        let hash = if self.full_hash {
+            self.deep_hash(h)
+        } else {
+            v.hash
+        };
+        (hash, v.flags & flags::LAZY)
+    }
+
+    /// Whether a value must be closed by the evaluator before it is hashed,
+    /// compared or interned (§11.3).
+    #[must_use]
+    pub fn is_lazy(&self, h: Handle) -> bool {
+        h.is_compound() && self.view(h).is_lazy()
     }
 
     /// The kind of a compound, `None` for a scalar.
@@ -126,16 +169,21 @@ impl Heap {
         h.is_compound().then(|| self.view(h).kind)
     }
 
-    /// The value hash. Finite symbolic sets must be normalized first.
+    /// The value hash of a closed value. Finite symbolic sets must be
+    /// normalized first. A lazy value poisons the heap.
     #[must_use]
     pub fn hash(&self, h: Handle) -> u64 {
         if let Some(s) = scalar_hash(h) {
             return s;
         }
+        let v = self.view(h);
+        if v.is_lazy() {
+            self.lazy_misuse();
+        }
         if self.full_hash {
             return self.deep_hash(h);
         }
-        self.view(h).hash
+        v.hash
     }
 
     /// The hash recomputed from the leaves, ignoring cached child hashes
@@ -187,10 +235,19 @@ impl Heap {
         if !a.is_compound() || !b.is_compound() {
             return false;
         }
-        if a.is_persistent() && b.is_persistent() && self.store.hashcons() {
+        if a.is_persistent()
+            && b.is_persistent()
+            && self.store.hashcons()
+            && !a.is_lazy_persistent()
+            && !b.is_lazy_persistent()
+        {
             return false;
         }
         let (va, vb) = (self.view(a), self.view(b));
+        if va.is_lazy() || vb.is_lazy() {
+            self.lazy_misuse();
+            return false;
+        }
         if va.hash != vb.hash
             || va.kind != vb.kind
             || va.lo != vb.lo
@@ -246,6 +303,10 @@ impl Heap {
 
     fn cmp_compound(&self, a: Handle, b: Handle) -> Ordering {
         let (va, vb) = (self.view(a), self.view(b));
+        if va.is_lazy() || vb.is_lazy() {
+            self.lazy_misuse();
+            return Ordering::Equal;
+        }
         let (ra, rb) = (Self::kind_rank(va.kind), Self::kind_rank(vb.kind));
         if ra != rb {
             return ra.cmp(&rb);
@@ -307,13 +368,21 @@ impl Heap {
         self.set_sorted(elems)
     }
 
-    /// A set from sorted, distinct, normalized elements.
+    /// A set from sorted, distinct, closed elements. A lazy element poisons
+    /// the heap (§11.3).
     pub fn set_sorted(&mut self, elems: &[Handle]) -> Handle {
-        let sum = elems
-            .iter()
-            .fold(0u64, |a, &e| a.wrapping_add(self.hash(e)));
+        let mut sum = 0u64;
+        let mut lazy = 0;
+        for &e in elems {
+            let (h, f) = self.child(e);
+            sum = sum.wrapping_add(h);
+            lazy |= f;
+        }
+        if lazy != 0 {
+            self.lazy_misuse();
+        }
         self.arena
-            .alloc(Kind::Set, 0, set_hash(elems.len(), sum), sum, elems)
+            .alloc(Kind::Set, 0, 0, set_hash(elems.len(), sum), sum, elems)
     }
 
     /// The empty set.
@@ -325,13 +394,16 @@ impl Heap {
     pub fn int_fcn(&mut self, lo: i64, vals: &[Handle]) -> Handle {
         let lo = if vals.is_empty() { 1 } else { lo };
         let mut sum = 0u64;
+        let mut fl = 0;
         for (i, &v) in vals.iter().enumerate() {
             #[allow(clippy::cast_possible_wrap, reason = "domains fit in i64")]
             let k = lo + i as i64;
-            sum = sum.wrapping_add(mix2(int_hash(k), self.hash(v)));
+            let (h, f) = self.child(v);
+            sum = sum.wrapping_add(mix2(int_hash(k), h));
+            fl |= f;
         }
         self.arena
-            .alloc(Kind::IntFcn, lo, fcn_hash(vals.len(), sum), sum, vals)
+            .alloc(Kind::IntFcn, fl, lo, fcn_hash(vals.len(), sum), sum, vals)
     }
 
     /// A tuple (a function over `1..n`).
@@ -339,21 +411,28 @@ impl Heap {
         self.int_fcn(1, vals)
     }
 
-    /// A function from sorted, distinct, normalized keys and their values,
-    /// in canonical form.
+    /// A function from sorted, distinct, closed keys and their values (which
+    /// may be lazy), in canonical form.
     pub fn fcn_sorted(&mut self, keys: &[Handle], vals: &[Handle]) -> Handle {
         if let Some(lo) = contiguous_ints(keys) {
             return self.int_fcn(lo, vals);
         }
         let mut sum = 0u64;
+        let mut fl = 0;
         for (&k, &v) in keys.iter().zip(vals) {
-            sum = sum.wrapping_add(mix2(self.hash(k), self.hash(v)));
+            let (kh, kf) = self.child(k);
+            let (vh, vf) = self.child(v);
+            if kf != 0 {
+                self.lazy_misuse();
+            }
+            sum = sum.wrapping_add(mix2(kh, vh));
+            fl |= vf;
         }
         let mut data = Vec::with_capacity(keys.len() * 2);
         data.extend_from_slice(keys);
         data.extend_from_slice(vals);
         self.arena
-            .alloc(Kind::Fcn, 0, fcn_hash(keys.len(), sum), sum, &data)
+            .alloc(Kind::Fcn, fl, 0, fcn_hash(keys.len(), sum), sum, &data)
     }
 
     /// A function from `(key, value)` pairs with distinct keys, any order.
@@ -372,7 +451,7 @@ impl Heap {
     )]
     pub fn fcn_with(&mut self, f: Handle, i: usize, new: Handle) -> Handle {
         let v = self.view(f);
-        let (kind, lo, sum, n) = (v.kind, v.lo, v.sum, v.len());
+        let (kind, lo, sum, n, was_lazy) = (v.kind, v.lo, v.sum, v.len(), v.is_lazy());
         let mut data = v.data.to_vec();
         let (key_hash, slot) = match kind {
             Kind::IntFcn => {
@@ -380,10 +459,21 @@ impl Heap {
                 let k = lo + i as i64;
                 (int_hash(k), i)
             }
-            _ => (self.hash(data[i]), n + i),
+            _ => (self.child(data[i]).0, n + i),
         };
         let old = data[slot];
         data[slot] = new;
+        // Recount laziness only when it may have changed; O(1) otherwise.
+        let fl = if was_lazy {
+            let vals = if kind == Kind::IntFcn {
+                &data[..]
+            } else {
+                &data[n..]
+            };
+            vals.iter().fold(0, |a, &x| a | self.child(x).1)
+        } else {
+            self.child(new).1
+        };
         let sum = if self.full_hash {
             // `-delta-hash`: recompute the sum from every entry.
             let mut s = 0u64;
@@ -394,25 +484,99 @@ impl Heap {
                         let k = lo + j as i64;
                         (int_hash(k), data[j])
                     }
-                    _ => (self.hash(data[j]), data[n + j]),
+                    _ => (self.child(data[j]).0, data[n + j]),
                 };
-                s = s.wrapping_add(mix2(kh, self.hash(x)));
+                s = s.wrapping_add(mix2(kh, self.child(x).0));
             }
             s
         } else {
-            sum.wrapping_sub(mix2(key_hash, self.hash(old)))
-                .wrapping_add(mix2(key_hash, self.hash(new)))
+            sum.wrapping_sub(mix2(key_hash, self.child(old).0))
+                .wrapping_add(mix2(key_hash, self.child(new).0))
         };
-        self.arena.alloc(kind, lo, fcn_hash(n, sum), sum, &data)
+        self.arena.alloc(kind, fl, lo, fcn_hash(n, sum), sum, &data)
     }
 
-    /// A symbolic set node.
+    /// A symbolic set node. Its hash is structural, not extensional: a
+    /// finite symbolic set is normalized before it is hashed as a value.
     pub fn symbolic(&mut self, kind: Kind, lo: i64, data: &[Handle]) -> Handle {
         let mut h = mix64(K_SYM ^ (kind as u64) ^ lo.cast_unsigned().rotate_left(17));
+        let mut fl = if kind.is_lazy() { flags::LAZY } else { 0 };
         for &d in data {
-            h = mix2(h, self.hash(d));
+            let (dh, df) = self.child(d);
+            h = mix2(h, dh);
+            fl |= df;
         }
-        self.arena.alloc(kind, lo, h, 0, data)
+        self.arena.alloc(kind, fl, lo, h, 0, data)
+    }
+
+    /// `[x \in domain |-> e]`, unmaterialized: the evaluator's closure
+    /// `closure` over `captures` (§11.2). Lazy.
+    pub fn lambda(&mut self, closure: u32, domain: Handle, captures: &[Handle]) -> Handle {
+        self.closure_node(Kind::Lambda, closure, domain, captures)
+    }
+
+    /// `{x \in base : P}`, unenumerated: the evaluator's closure `closure`
+    /// over `captures` (§11.2). Lazy.
+    pub fn set_pred(&mut self, closure: u32, base: Handle, captures: &[Handle]) -> Handle {
+        self.closure_node(Kind::SetPred, closure, base, captures)
+    }
+
+    fn closure_node(&mut self, kind: Kind, id: u32, first: Handle, captures: &[Handle]) -> Handle {
+        let mut data = Vec::with_capacity(captures.len() + 1);
+        data.push(first);
+        data.extend_from_slice(captures);
+        self.symbolic(kind, i64::from(id), &data)
+    }
+
+    /// `a \cup b`, kept symbolic (TLC's `SetCupValue`): membership is
+    /// either side's, and it is enumerated only when normalized.
+    pub fn union(&mut self, a: Handle, b: Handle) -> Handle {
+        self.symbolic(Kind::Union, 0, &[a, b])
+    }
+
+    /// The closure of a `Lambda` or `SetPred` node.
+    #[must_use]
+    pub fn closure(&self, h: Handle) -> Option<Closure<'_>> {
+        if !h.is_compound() {
+            return None;
+        }
+        let v = self.view(h);
+        if !v.kind.is_lazy() {
+            return None;
+        }
+        let (&first, captures) = v.data.split_first()?;
+        Some(Closure {
+            kind: v.kind,
+            id: u32::try_from(v.lo).ok()?,
+            domain: first,
+            captures,
+        })
+    }
+
+    /// The same kind as `h` with new contents, in canonical form and
+    /// rehashed: a set is re-sorted, a function keeps its keys and takes new
+    /// values. The evaluator closes a lazy value bottom-up with it
+    /// (§11.5 rule 4). For a `Fcn`, `data` is the keys then the values, as
+    /// in its view.
+    pub fn rebuild(&mut self, h: Handle, data: &[Handle]) -> Handle {
+        if !h.is_compound() {
+            return h;
+        }
+        let v = self.view(h);
+        let (kind, lo, n) = (v.kind, v.lo, v.data.len());
+        if data.len() != n {
+            self.lazy_misuse();
+            return h;
+        }
+        match kind {
+            Kind::Set => self.set_from(&mut data.to_vec()),
+            Kind::IntFcn => self.int_fcn(lo, data),
+            Kind::Fcn => {
+                let (keys, vals) = data.split_at(n / 2);
+                self.fcn_sorted(keys, vals)
+            }
+            _ => self.symbolic(kind, lo, data),
+        }
     }
 
     /// `lo..hi`.
@@ -433,7 +597,7 @@ impl Heap {
         }
         let v = self.view(h);
         match v.kind {
-            Kind::Set | Kind::IntFcn | Kind::Fcn | Kind::Interval => true,
+            Kind::Set | Kind::IntFcn | Kind::Fcn | Kind::Lambda | Kind::Interval => true,
             Kind::Nat | Kind::Int => false,
             Kind::SeqSet => self.view_is_empty_set(v.data[0]),
             Kind::Subset | Kind::FcnSet | Kind::Product => {
@@ -442,6 +606,8 @@ impl Heap {
             Kind::RecSet => v.data[v.data.len() / 2..]
                 .iter()
                 .all(|&d| self.is_finite(d)),
+            Kind::Union => v.data.iter().all(|&d| self.is_finite(d)),
+            Kind::SetPred => self.is_finite(v.data[0]),
         }
     }
 
@@ -461,8 +627,8 @@ impl Heap {
         if !h.is_compound() {
             return Ok(h);
         }
-        let k = self.view(h).kind;
-        if !k.is_symbolic() || !self.is_finite(h) {
+        let v = self.view(h);
+        if !v.kind.is_symbolic() || v.is_lazy() || !self.is_finite(h) {
             return Ok(h);
         }
         self.materialize(h)
@@ -598,11 +764,23 @@ impl Heap {
                     started: false,
                 }
             }
+            Kind::Union => {
+                let (a, b) = (self.norm(data[0])?, self.norm(data[1])?);
+                let mut v = self.elements(a)?;
+                v.extend(self.elements(b)?);
+                let set = self.set_from(&mut v);
+                Cursor::Array { set, i: 0 }
+            }
             Kind::Nat | Kind::Int | Kind::SeqSet => {
                 return Err(Error::eval("attempted to enumerate an infinite set"));
             }
-            Kind::IntFcn | Kind::Fcn => {
+            Kind::IntFcn | Kind::Fcn | Kind::Lambda => {
                 return Err(Error::eval("attempted to enumerate a function as a set"));
+            }
+            Kind::SetPred => {
+                return Err(Error::internal(
+                    "a set predicate reached the heap's enumeration; the evaluator closes it",
+                ));
             }
         })
     }
@@ -616,6 +794,11 @@ impl Heap {
             return Err(Error::eval("Cardinality of a value that is not a set"));
         }
         let v = self.view(h);
+        if v.is_lazy() {
+            return Err(Error::internal(
+                "Cardinality of an unclosed lazy value; the evaluator closes it",
+            ));
+        }
         match v.kind {
             Kind::Set => Ok(v.data.len() as u64),
             #[allow(clippy::cast_sign_loss, reason = "checked non-negative")]
@@ -646,6 +829,9 @@ impl Heap {
         match h.tag() {
             Tag::Transient => {}
             Tag::Persistent => {
+                if h.is_lazy_persistent() {
+                    return Err(Error::internal("interning an unclosed lazy value"));
+                }
                 let k = self.view(h).kind;
                 if k.is_symbolic() && self.is_finite(h) {
                     let m = self.materialize(h)?;
@@ -664,6 +850,11 @@ impl Heap {
             return Ok(done);
         }
         let v = self.view(h);
+        if v.is_lazy() {
+            return Err(Error::internal(
+                "interning an unclosed lazy value; the evaluator closes it first",
+            ));
+        }
         if v.kind.is_symbolic() && self.is_finite(h) {
             let m = self.materialize(h)?;
             let p = self.intern(m)?;
@@ -677,13 +868,15 @@ impl Heap {
                 *d = self.intern(*d)?;
             }
         }
-        let p = self.store.intern(kind, lo, hash, sum, &data);
+        let p = self.store.intern(kind, 0, lo, hash, sum, &data);
         self.arena.interned[idx] = p;
         Ok(p)
     }
 
     /// Interns a constant, keeping a top-level symbolic set symbolic (its
     /// components are interned normally), so that membership stays symbolic.
+    /// A lazy constant (for example `[x \in Nat |-> x + 1]`) stays lazy: it
+    /// is interned structurally, never compared by handle (§11.1).
     ///
     /// # Errors
     /// As [`Heap::intern`].
@@ -692,15 +885,32 @@ impl Heap {
             return Ok(h);
         }
         let v = self.view(h);
-        if !v.kind.is_symbolic() {
+        if !v.kind.is_symbolic() && !v.is_lazy() {
             return self.intern(h);
         }
-        let (kind, lo, hash, sum) = (v.kind, v.lo, v.hash, v.sum);
+        let (kind, fl, lo, hash, sum) = (v.kind, v.flags, v.lo, v.hash, v.sum);
         let mut data = v.data.to_vec();
         for d in &mut data {
             *d = self.intern_const(*d)?;
         }
-        Ok(self.store.intern(kind, lo, hash, sum, &data))
+        Ok(self.store.intern(kind, fl, lo, hash, sum, &data))
+    }
+
+    /// Interns a state value with its lazy view (§8): the identity handle
+    /// (as [`Heap::intern`]) and, when the value is a symbolic set at the
+    /// top level, that set interned symbolically (as [`Heap::intern_const`]);
+    /// otherwise [`Handle::EMPTY`]. The engine keeps the view in a side table
+    /// only where the plan asks for it; hashing and equality use the identity.
+    ///
+    /// # Errors
+    /// As [`Heap::intern`].
+    pub fn intern_view(&mut self, h: Handle) -> Result<(Handle, Handle), Error> {
+        let view = if h.is_compound() && self.view(h).kind.is_symbolic() {
+            self.intern_const(h)?
+        } else {
+            Handle::EMPTY
+        };
+        Ok((self.intern(h)?, view))
     }
 
     /// The string id of `text`.
@@ -977,6 +1187,131 @@ mod tests {
         let _ = h.tuple(&[int(8)]);
         let _ = h.view(gone);
         assert!(h.poisoned(), "a handle freed by rollback must not resolve");
+    }
+
+    #[test]
+    fn lazy_values_carry_their_closure_and_propagate() {
+        let mut h = heap(false);
+        let dom = h.interval(1, 3);
+        let f = h.lambda(7, dom, &[int(5)]);
+        assert!(h.is_lazy(f));
+        let c = h
+            .closure(f)
+            .map(|c| (c.kind, c.id, c.domain, c.captures.to_vec()));
+        assert_eq!(c, Some((Kind::Lambda, 7, dom, vec![int(5)])));
+        // A record holding it is lazy; a closed one is not.
+        let a = h.string("a").unwrap_or(Handle::EMPTY);
+        let r = h.fcn_sorted(&[a], &[f]);
+        assert!(h.is_lazy(r));
+        let closed = h.fcn_sorted(&[a], &[int(1)]);
+        assert!(!h.is_lazy(closed));
+        assert!(!h.poisoned());
+        // Interning an unclosed value is refused.
+        assert!(h.intern(r).is_err());
+        assert!(!h.poisoned());
+        // EXCEPT replacing the only lazy entry recounts laziness.
+        let r2 = h.fcn_with(r, 0, int(1));
+        assert!(!h.is_lazy(r2));
+        assert!(h.eq(r2, closed));
+        let p = h.set_pred(2, dom, &[]);
+        assert!(h.is_lazy(p));
+        assert_eq!(h.norm(p).ok(), Some(p), "only the evaluator enumerates it");
+        assert!(h.cursor(p).is_err());
+        assert!(!h.poisoned());
+    }
+
+    #[test]
+    fn lazy_values_in_closed_positions_poison() {
+        for op in 0..3 {
+            let mut h = heap(false);
+            let dom = h.interval(1, 3);
+            let f = h.lambda(0, dom, &[]);
+            match op {
+                0 => {
+                    let _ = h.hash(f);
+                }
+                1 => {
+                    let _ = h.set_sorted(&[f]);
+                }
+                _ => {
+                    let g = h.lambda(1, dom, &[]);
+                    let _ = h.eq(f, g);
+                }
+            }
+            assert!(h.poisoned(), "op {op}");
+        }
+    }
+
+    #[test]
+    fn rebuild_closes_a_value_bottom_up() {
+        let mut h = heap(false);
+        let dom = h.interval(1, 2);
+        let f = h.lambda(0, dom, &[]);
+        let t = h.tuple(&[int(9), f]);
+        // The evaluator materializes `f` and rebuilds the parent.
+        let m = h.int_fcn(1, &[int(10), int(20)]);
+        let data = h.view(t).data.to_vec();
+        let closed = h.rebuild(t, &[data[0], m]);
+        assert!(!h.is_lazy(closed));
+        let direct = h.tuple(&[int(9), m]);
+        assert!(h.eq(closed, direct));
+        assert_eq!(h.hash(closed), h.hash(direct));
+        assert!(h.intern(closed).is_ok());
+        // A rebuilt set is re-sorted.
+        let s = h.set_from(&mut vec![int(1), int(2)]);
+        let s2 = h.rebuild(s, &[int(5), int(3)]);
+        assert_eq!(h.view(s2).data, &[int(3), int(5)]);
+        assert!(!h.poisoned());
+    }
+
+    #[test]
+    fn lazy_constants_stay_lazy_and_are_never_compared_by_handle() {
+        let mut h = heap(false);
+        let nat = h.symbolic(Kind::Nat, 0, &[]);
+        let f = h.lambda(3, nat, &[]);
+        let p = h.intern_const(f).unwrap_or(Handle::EMPTY);
+        assert!(p.is_lazy_persistent());
+        h.reset();
+        assert_eq!(h.closure(p).map(|c| c.id), Some(3));
+        assert!(h.intern(p).is_err());
+        let nat = h.symbolic(Kind::Nat, 0, &[]);
+        let g = h.lambda(4, nat, &[]);
+        let q = h.intern_const(g).unwrap_or(Handle::EMPTY);
+        assert!(!h.poisoned());
+        let _ = h.eq(p, q);
+        assert!(h.poisoned(), "two lazy constants cannot be compared");
+    }
+
+    #[test]
+    fn unions_stay_symbolic_until_normalized() {
+        let mut h = heap(false);
+        let a = h.interval(1, 3);
+        let b = h.set_from(&mut vec![int(0), int(2), int(7)]);
+        let u = h.union(a, b);
+        assert_eq!(h.kind(u), Some(Kind::Union));
+        assert!(h.is_finite(u));
+        assert_eq!(h.cardinality(u).ok(), Some(5));
+        let n = h.norm(u).unwrap_or(Handle::EMPTY);
+        assert_eq!(h.view(n).data, &[int(0), int(1), int(2), int(3), int(7)]);
+        let nat = h.symbolic(Kind::Nat, 0, &[]);
+        let inf = h.union(nat, b);
+        assert!(!h.is_finite(inf));
+        assert_eq!(h.norm(inf).ok(), Some(inf));
+        assert!(!h.poisoned());
+    }
+
+    #[test]
+    fn intern_view_keeps_the_representation_beside_the_identity() {
+        let mut h = heap(false);
+        let iv = h.interval(1, 3);
+        let (id, view) = h.intern_view(iv).unwrap_or((Handle::EMPTY, Handle::EMPTY));
+        assert_eq!(h.kind(id), Some(Kind::Set));
+        assert_eq!(h.kind(view), Some(Kind::Interval));
+        let e = h.set_from(&mut vec![int(3), int(2), int(1)]);
+        let (id2, none) = h.intern_view(e).unwrap_or((Handle::EMPTY, Handle::TRUE));
+        assert_eq!(id, id2, "identity is extensional");
+        assert!(none.is_empty());
+        assert!(!h.poisoned());
     }
 
     #[test]
