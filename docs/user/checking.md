@@ -50,10 +50,11 @@ core currently covers:
 - safety only: invariants, constraints, `ACTION_CONSTRAINT`, deadlock, and
   the parts of a `PROPERTY` that are safety: `[]P`, its initial predicates
   and its actions `[][A]_v` (a refinement `PROPERTY` of another
-  specification is of this kind), and `SYMMETRY` in the default profile. A
-  `PROPERTY` that needs liveness checking, `VIEW`, `ALIAS`,
-  `POSTCONDITION`, and `SYMMETRY` under `--compat=tlc` are reported as
-  unsupported, naming the feature;
+  specification is of this kind), `SYMMETRY` in the default profile, and
+  `ALIAS` as the reference engine handles it (not applied yet, with a note).
+  A `PROPERTY` that needs liveness checking, `VIEW`, `POSTCONDITION`, and
+  `SYMMETRY` under `--compat=tlc` are reported as unsupported, naming the
+  feature;
 - verdicts, TLC's distinct and generated counts and depth, counterexample
   traces in the reference engine's format, TLC's evaluation-error endings
   where the core can reproduce them, and the run budgets (`--time-limit`,
