@@ -48,6 +48,8 @@ pub enum Site {
     /// [`Failure::state`], a new state inside the model, holds a set TLC
     /// cannot fingerprint, such as `Nat` (TLC's `fingerPrint` error).
     Fingerprint,
+    /// In the `VIEW`, on [`Failure::state`], a new state inside the model.
+    View,
 }
 
 /// An evaluation error that ended the search, or the search's replay.
@@ -250,33 +252,22 @@ pub(crate) fn replay_after(
             };
             let mut new = true;
             if inside {
-                let key = state_key(m, plan)?;
+                let key = match state_key(m, plan) {
+                    Ok(k) => k,
+                    Err(e) if e.kind() == ErrorKind::Eval && plan.view.is_some() => {
+                        out.error = Some(ex.failure_at(m, Site::View, e.message().to_owned())?);
+                        return Ok(out);
+                    }
+                    Err(e) => return Err(e),
+                };
                 new = !ex.seen.contains(key) && !added.contains(&key);
                 if new {
                     added.insert(key);
                     out.distinct += 1;
                 }
             }
-            if new {
-                for (c_i, c) in plan.invariants.iter().enumerate() {
-                    match ex.check(m, code, c) {
-                        Ok(true) => {}
-                        // A violation ends the replay quietly.
-                        Ok(false) => return Ok(out),
-                        Err(e) => {
-                            if e.kind() != ErrorKind::Eval {
-                                return Err(e);
-                            }
-                            ex.in_model = inside;
-                            out.error = Some(ex.failure_at(
-                                m,
-                                Site::Invariant(c_i),
-                                e.message().to_owned(),
-                            )?);
-                            return Ok(out);
-                        }
-                    }
-                }
+            if new && !replay_invariants(m, ex, inside, &mut out)? {
+                return Ok(out);
             }
             if !replay_implied(m, ex, &mut out)? {
                 return Ok(out);
@@ -287,6 +278,33 @@ pub(crate) fn replay_after(
         }
     }
     Ok(out)
+}
+
+/// The invariants on the replayed state `m.s1`: whether the replay goes
+/// on. A violation ends it quietly; an error ends it with the error
+/// recorded.
+fn replay_invariants(
+    m: &mut Machine,
+    ex: &mut Explorer<'_>,
+    inside: bool,
+    out: &mut Replayed,
+) -> Result<bool, Error> {
+    let plan = ex.plan;
+    for (i, c) in plan.invariants.iter().enumerate() {
+        match ex.check(m, &plan.code, c) {
+            Ok(true) => {}
+            Ok(false) => return Ok(false),
+            Err(e) => {
+                if e.kind() != ErrorKind::Eval {
+                    return Err(e);
+                }
+                ex.in_model = inside;
+                out.error = Some(ex.failure_at(m, Site::Invariant(i), e.message().to_owned())?);
+                return Ok(false);
+            }
+        }
+    }
+    Ok(true)
 }
 
 /// The implied actions on the replayed step from `m.s0` to `m.s1`: whether

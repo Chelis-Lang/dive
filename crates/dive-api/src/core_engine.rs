@@ -319,8 +319,9 @@ fn refusal(model: &dive_model::Model) -> Option<String> {
     if !model.implied_temporals.is_empty() {
         return Some("temporal properties (M0 core engine)".into());
     }
-    if model.view.is_some() {
-        return Some("VIEW (M0 core engine)".into());
+    if model.view.is_some() && model.symmetry.is_some() {
+        // TLC evaluates the VIEW on the canonical image.
+        return Some("VIEW with SYMMETRY (M0 core engine)".into());
     }
     if model
         .postconditions
@@ -394,6 +395,11 @@ fn handoff<'a>(
         implied_actions: named_roles(model, &model.implied_actions)?,
         check_deadlock: model.settings.check_deadlock,
         symmetry,
+        view: model
+            .view
+            .as_ref()
+            .map(|n| role(model, n.name.clone(), n.pred.expr, &n.pred.scope))
+            .transpose()?,
     })
 }
 
