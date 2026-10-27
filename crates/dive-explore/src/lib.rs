@@ -59,6 +59,17 @@ pub enum Verdict {
     },
     /// A reachable state has no successors.
     Deadlock,
+    /// An implied initial predicate of a `PROPERTY` is false on an initial
+    /// state.
+    PropertyViolatedInitially {
+        /// The property's name.
+        property: String,
+    },
+    /// An implied action `[A]_v` of a `PROPERTY` is false on a step.
+    ActionPropertyViolated {
+        /// The property's name.
+        property: String,
+    },
     /// An evaluation error, or a state that is not completely specified,
     /// ended the search: [`Outcome::failure`] says where.
     Failed,
@@ -409,7 +420,13 @@ impl Explorer<'_> {
         }
         let (probe, in_model) = self.probe(m)?;
         if matches!(probe, Probe::Seen) {
-            return Ok(());
+            // TLC checks the implied actions on every step, to a seen state
+            // too (`Search::successor`).
+            return if self.initial {
+                Ok(())
+            } else {
+                self.implied_actions(m)
+            };
         }
         if in_model && !fingerprintable(m, self.initial)? {
             self.failure = Some(self.failure_at(m, Site::Fingerprint, FP_MESSAGE.into())?);
@@ -449,8 +466,57 @@ impl Explorer<'_> {
                 return Err(Error::stop());
             }
         }
+        if self.initial {
+            for (i, c) in plan.implied_inits.iter().enumerate() {
+                let holds = match self.check(m, code, c) {
+                    Ok(b) => b,
+                    Err(e) => {
+                        let e = self.fail_check(m, Site::ImpliedInit(i), e);
+                        if self.failure.is_some() {
+                            self.end_here(m)?;
+                        }
+                        return Err(e);
+                    }
+                };
+                if !holds {
+                    self.stop = Some(Verdict::PropertyViolatedInitially {
+                        property: c.name.clone(),
+                    });
+                    self.end_here(m)?;
+                    return Err(Error::stop());
+                }
+            }
+        } else {
+            self.implied_actions(m)?;
+        }
         if in_model && !enqueue_first {
             self.enqueue(m)?;
+        }
+        Ok(())
+    }
+
+    /// The implied actions on the step from `m.s0` to `m.s1`: the first
+    /// false one stops the search, its trace ending with the successor.
+    fn implied_actions(&mut self, m: &mut Machine) -> Result<(), Error> {
+        let plan = self.plan;
+        for (i, c) in plan.implied_actions.iter().enumerate() {
+            let holds = match check_step(m, &plan.code, c) {
+                Ok(b) => b,
+                Err(e) => {
+                    let e = self.fail_check(m, Site::ImpliedAction(i), e);
+                    if self.failure.is_some() {
+                        self.end_here(m)?;
+                    }
+                    return Err(e);
+                }
+            };
+            if !holds {
+                self.stop = Some(Verdict::ActionPropertyViolated {
+                    property: c.name.clone(),
+                });
+                self.end_here(m)?;
+                return Err(Error::stop());
+            }
         }
         Ok(())
     }
