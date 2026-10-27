@@ -54,6 +54,11 @@
   the configuration assigns a value (`NoVal = NoVal`). The empty function
   `[k \in {} |-> e]` is now the same value as `<<>>` in the core.
 
+- Fix `--engine core` on a specification whose initial predicate has
+  several conjuncts (`Spec == Init /\ y \in S /\ [][Next]_v`). The core ran
+  each conjunct as a separate initial predicate. It now conjoins them, as
+  TLC does.
+
 - `dive-conformance run --impl dive:core` and `--impl dive:auto` run the
   harness on the new core. Reports record the engine requested and, per
   run, the engine that ran and any fallback (`summary.by_engine`), and
