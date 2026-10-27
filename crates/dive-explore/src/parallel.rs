@@ -52,9 +52,16 @@ struct Claims {
 /// Successors per state that a position can name.
 const POS_BITS: u32 = 24;
 
+/// The most slots a claim probes. A key it does not place within them is
+/// treated as possibly new, so a crowded table costs checks, never time.
+const PROBES: usize = 32;
+
+/// The largest claim table: 2^23 slots, 128 MiB with both columns.
+const MAX_SLOTS: usize = 1 << 23;
+
 impl Claims {
     fn new(capacity: usize) -> Self {
-        let size = capacity.next_power_of_two().clamp(1 << 12, 1 << 26);
+        let size = capacity.next_power_of_two().clamp(1 << 12, MAX_SLOTS);
         Self {
             keys: (0..size).map(|_| AtomicU64::new(0)).collect(),
             pos: (0..size).map(|_| AtomicU64::new(u64::MAX)).collect(),
@@ -67,7 +74,7 @@ impl Claims {
         let mask = self.keys.len() - 1;
         #[allow(clippy::cast_possible_truncation, reason = "masked to the table size")]
         let mut i = (k as usize) & mask;
-        for _ in 0..self.keys.len() {
+        for _ in 0..PROBES {
             match self.keys[i].compare_exchange(0, k, Ordering::AcqRel, Ordering::Acquire) {
                 Ok(_) => return Some(i),
                 Err(x) if x == k => return Some(i),
@@ -93,7 +100,7 @@ impl Claims {
         let mask = self.keys.len() - 1;
         #[allow(clippy::cast_possible_truncation, reason = "masked to the table size")]
         let mut i = (k as usize) & mask;
-        for _ in 0..self.keys.len() {
+        for _ in 0..PROBES {
             match self.keys[i].load(Ordering::Acquire) {
                 0 => return false,
                 x if x == k => return self.pos[i].load(Ordering::Acquire) < pos,
@@ -549,5 +556,45 @@ impl crate::Explorer<'_> {
                 Err(error.clone())
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use super::Claims;
+
+    /// A claim may report a duplicate only when an earlier position
+    /// claimed the key, also when the table is too crowded to place keys.
+    #[test]
+    fn claims_never_invent_a_duplicate() {
+        let claims = Claims::new(0);
+        let mut first: HashMap<u64, u64> = HashMap::new();
+        let mut placed_out = 0;
+        let mut x: u64 = 0x9e37_79b9_7f4a_7c15;
+        for pos in 0..60_000u64 {
+            x ^= x << 13;
+            x ^= x >> 7;
+            x ^= x << 17;
+            // Few distinct keys repeat, so most probes meet a crowded table.
+            let key = if pos % 3 == 0 { x % 512 } else { x };
+            let holds = claims.claim(key, pos);
+            // The seen set's key: 0 and 1 are one key there too.
+            let earlier = first.get(&key.max(1)).copied();
+            if !holds {
+                assert!(earlier.is_some_and(|q| q < pos), "key {key} at {pos}");
+            }
+            if claims.held_before(key, pos) {
+                assert!(earlier.is_some_and(|q| q < pos), "held {key} at {pos}");
+            }
+            if holds && earlier.is_some() {
+                placed_out += 1;
+            }
+            first.entry(key.max(1)).or_insert(pos);
+        }
+        // The table (4096 slots) cannot place most of the 40,000 distinct
+        // keys, so some repeated keys fall back to "possibly new".
+        assert!(first.len() > 4096 && placed_out > 0, "{placed_out}");
     }
 }

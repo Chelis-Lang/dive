@@ -281,8 +281,9 @@ the initial states run in two phases:
   Duplicates are found by lock-free minimum-position claims: an `AtomicU64`
   key table with `fetch_min` on a packed (state, emission) position. A
   successor inside the model whose key is held by an earlier position is not
-  new, and is neither interned nor checked. A claim only saves work: when the
-  table is full, the successor is checked anyway.
+  new, and is neither interned nor checked. A claim only saves work: a key
+  that is not placed within 32 probes (the table is at most 2^23 slots), or
+  a position past 2^24 successors of one state, is checked anyway.
 - **Commit** (sequential, in position order). The explorer replays the
   one-worker decisions over the recorded successors, without evaluating
   anything: counting, admission limits, seen-set insertion (the first
@@ -295,12 +296,11 @@ Every observable result is therefore the one-worker result:
 at 2, 3 and 8 workers, with and without `--max-states`, and
 `core_golden.rs` checks the spike models at 4 workers.
 
-Scaling is not measured yet, because the M3 development machine was
-saturated by other work (load averages 15–60 on 4 performance and 4
-efficiency cores). Indicative figures, explore time at 1 / 2 / 4 / 8
-workers:
-- MCLamportMutex: 8.2 / 6.1 / 4.2 / 4.0 s.
-- GameOfLife: 6.1 / 4.3 / 2.8 / 2.6 s.
+Scaling is not measured yet, because the M3 development machine was busy
+with other work (load averages 12–19 on 4 performance and 4 efficiency
+cores). Indicative figures, explore time at 1 / 4 / 8 workers:
+- MCLamportMutex: 9.1 / 4.3 / 3.2 s.
+- GameOfLife: 7.5 / 2.2 / 1.7 s.
 
 The commit phase takes about 0.2 s of MCLamportMutex's run (`commit_ms` in
 the core metrics), so it is not the limit. The ≥ 6× target at 8 workers
