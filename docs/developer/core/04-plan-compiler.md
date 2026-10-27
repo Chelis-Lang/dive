@@ -616,10 +616,21 @@ Next (M1, stream 2), from the census:
        (MCInternalMemory) and nested operator substitutions (TLCSailfish1):
        built (§5.4);
      - `TLC!PrintT` (MCEcho, effects B6): the stdlib (stream 1).
-7. Next: constant evaluation, to drop the reference binder's split-argument
-   refusal. The small tier has 6 models refused as "a split argument that is
-   not constant": MCDieHarder, MCDisruptor_MPMC, ElevatorSafetySmall,
-   SlidingPuzzles, MCbtree and kvstore.
+7. The split-argument refusal ("a split argument that is not constant").
+   The small tier had 6 models refused this way: MCDieHarder,
+   MCDisruptor_MPMC, ElevatorSafetySmall, SlidingPuzzles, MCbtree and
+   kvstore.
+   - It was not a resolution bug. The 2280 "undefined or not an operator"
+     in the message came from the reference binder evaluating a split
+     action's `LET` value (`isLeaf`, `next_sequence`) outside its scope.
+     With `LET` values bound lazily (§2.1), MCbtree, MCDisruptor_MPMC,
+     MCDieHarder and kvstore agree with their goldens.
+   - The nested substitution TLCSailfish1 needed is built (§5.4).
+   - `crates/dive-api/tests/core_golden.rs` checks MCbtree,
+     MCDisruptor_MPMC and TLCSailfish1 against the pinned goldens at 1 and
+     4 workers.
+   - Next: constant evaluation, to drop the reference binder from the
+     handoff.
 
 GameOfLife's `sc` has a product domain, so TLC keeps it lazy. The core still
 caches its materialization once per activation, under `Node::Spec`, so its
