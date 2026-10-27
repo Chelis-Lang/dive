@@ -35,6 +35,15 @@ pub struct Heap {
     /// every worker would otherwise share (#550). Ids never change their
     /// text, so a copy never goes stale.
     texts: std::cell::RefCell<Vec<Arc<str>>>,
+    /// This heap's view of the store's deduplication tables, for interning
+    /// a value already present without the shard lock (#550).
+    cache: crate::store::InternCache,
+}
+
+impl Drop for Heap {
+    fn drop(&mut self) {
+        self.store.flush_hits(&mut self.cache);
+    }
 }
 
 /// The closure of a lazy node ([`Heap::closure`]).
@@ -75,6 +84,7 @@ impl Heap {
             int_mode,
             materialized: std::collections::HashMap::new(),
             texts: std::cell::RefCell::new(Vec::new()),
+            cache: crate::store::InternCache::default(),
         }
     }
 
@@ -115,6 +125,7 @@ impl Heap {
     /// Frees the transients of the current expansion.
     pub fn reset(&mut self) {
         self.arena.reset();
+        self.store.flush_hits(&mut self.cache);
     }
 
     /// The current transient allocation point (§11.5 rule 2 of
@@ -968,7 +979,15 @@ impl Heap {
                         for d in &mut data {
                             *d = self.intern(*d)?;
                         }
-                        return Ok(self.store.intern(kind, 0, lo, hash, sum, &data));
+                        return Ok(self.store.intern(
+                            &mut self.cache,
+                            kind,
+                            0,
+                            lo,
+                            hash,
+                            sum,
+                            &data,
+                        ));
                     }
                 }
                 let k = self.view(h).kind;
@@ -1007,7 +1026,9 @@ impl Heap {
                 *d = self.intern(*d)?;
             }
         }
-        let p = self.store.intern(kind, 0, lo, hash, sum, &data);
+        let p = self
+            .store
+            .intern(&mut self.cache, kind, 0, lo, hash, sum, &data);
         self.arena.interned[idx] = p;
         Ok(p)
     }
@@ -1043,7 +1064,9 @@ impl Heap {
         for d in &mut data {
             *d = self.intern_const(*d)?;
         }
-        Ok(self.store.intern(kind, fl, lo, hash, sum, &data))
+        Ok(self
+            .store
+            .intern(&mut self.cache, kind, fl, lo, hash, sum, &data))
     }
 
     /// Interns a state value with its lazy view (§8): the identity handle
