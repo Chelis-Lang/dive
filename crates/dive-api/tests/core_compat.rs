@@ -208,13 +208,13 @@ fn rule_fixtures_and_probes_match_the_reference_under_compat() {
 #[test]
 fn error_fixtures_match_the_reference_under_compat() {
     let (agreed, _) = check_all(specs("crates/dive-check/tests/fixtures/errors"));
-    assert!(agreed >= 84, "only {agreed} error fixtures agreed");
+    assert!(agreed >= 100, "only {agreed} error fixtures agreed");
 }
 
 #[test]
 fn m1_fixtures_match_the_reference_under_compat() {
     let (agreed, _) = check_all(flat("tests/fixtures/core-m1"));
-    assert!(agreed >= 11, "only {agreed} M1 fixtures agreed");
+    assert!(agreed >= 15, "only {agreed} M1 fixtures agreed");
 }
 
 /// Parallel compat runs give the one-worker result: every fixture, at 2, 3

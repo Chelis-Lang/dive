@@ -29,8 +29,6 @@ const REFUSED: &[(&str, &str)] = &[
     ("NxInLazyCup", "lazily represented set"),
     // Stream 2 (plan compiler): ENABLED.
     ("NxEnabled", "ENABLED"),
-    // Implied action properties (not yet in the core).
-    ("ImpliedActionSeen", "temporal"),
     // A set of an integer and a function: TLC's error depends on when it
     // normalizes the set (C1, C2).
     ("ErBagUnionNonBag", "depends on when it normalizes"),
@@ -187,10 +185,12 @@ fn tlc_probes_match_the_reference_and_tlc() {
 #[test]
 fn error_fixtures_match_the_reference() {
     let agreed = check_dir("crates/dive-check/tests/fixtures/errors");
-    // 175 fixtures: 85 agree, `ErFpInfinite` among them; the rest use VIEW,
-    // ALIAS, POSTCONDITION, properties, Print, Assert, ENABLED, ASSUME
-    // errors or recursive functions, which the core does not run yet.
-    assert!(agreed >= 85, "only {agreed} error fixtures agreed");
+    // 175 fixtures: 100 or more agree, `ErFpInfinite` and the implied
+    // action errors (`ErProp*`) among them; the rest use VIEW, ALIAS,
+    // POSTCONDITION, Print, Assert, ENABLED, non-constant split arguments,
+    // ASSUME errors or recursive functions, which the core does not run
+    // yet.
+    assert!(agreed >= 100, "only {agreed} error fixtures agreed");
 }
 
 /// The standard-library fixtures (`tests/fixtures/core-lib`): one model

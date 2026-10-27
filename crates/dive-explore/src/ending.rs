@@ -36,6 +36,12 @@ pub enum Site {
     ActionConstraint(usize),
     /// In the invariant at this index, on [`Failure::state`].
     Invariant(usize),
+    /// In the implied initial predicate at this index, on the initial
+    /// [`Failure::state`].
+    ImpliedInit(usize),
+    /// In the implied action at this index, on the step to
+    /// [`Failure::state`].
+    ImpliedAction(usize),
     /// [`Failure::state`] leaves variables unassigned (not an evaluation
     /// error, but an ending with the same shape).
     Incomplete,
@@ -221,19 +227,16 @@ pub(crate) fn replay_after(
                 // `doNextSetErr`: an incomplete state ends it quietly.
                 return Ok(out);
             }
-            if o == ordinal {
-                // Implied actions would be checked here; the core refuses
-                // them.
-                continue;
-            }
             m.s0.copy_from_slice(&s0);
             m.s1.copy_from_slice(&values);
-            ex.changed = 0;
-            for (j, (before, after)) in s0.iter().zip(&values).enumerate() {
-                if before != after {
-                    ex.changed |= 1u64 << j;
+            if o == ordinal {
+                // The failing state's own step: only its implied actions.
+                if !replay_implied(m, ex, &mut out)? {
+                    return Ok(out);
                 }
+                continue;
             }
+            ex.changed = crate::changed_vars(m);
             let inside = match ex.in_model_of(m) {
                 Ok(b) => b,
                 Err((site, e)) => {
@@ -275,10 +278,39 @@ pub(crate) fn replay_after(
                     }
                 }
             }
+            if !replay_implied(m, ex, &mut out)? {
+                return Ok(out);
+            }
             if inside && new {
                 out.queued += 1;
             }
         }
     }
     Ok(out)
+}
+
+/// The implied actions on the replayed step from `m.s0` to `m.s1`: whether
+/// the replay goes on. A violation ends it quietly; an error ends it with
+/// the error recorded (the reference engine's `record_error`).
+fn replay_implied(
+    m: &mut Machine,
+    ex: &mut Explorer<'_>,
+    out: &mut Replayed,
+) -> Result<bool, Error> {
+    let plan = ex.plan;
+    for (i, c) in plan.implied_actions.iter().enumerate() {
+        match crate::check_step(m, &plan.code, c) {
+            Ok(true) => {}
+            Ok(false) => return Ok(false),
+            Err(e) => {
+                if e.kind() != ErrorKind::Eval {
+                    return Err(e);
+                }
+                out.error =
+                    Some(ex.failure_at(m, Site::ImpliedAction(i), e.message().to_owned())?);
+                return Ok(false);
+            }
+        }
+    }
+    Ok(true)
 }

@@ -154,7 +154,7 @@ fn slot_value(model: &dive_model::Model, view: SlotView) -> Result<Option<Value>
                 .evaluator
                 .eval_scoped(&scope, expr, &St::constant())
                 .map(Some)
-                .map_err(|e| format!("a split argument that is not constant ({e})"))
+                .map_err(|e| format!("a split argument that is not constant (M1 core: {e})"))
         }
         _ => Err("a split binding the M0 core cannot read".into()),
     }
@@ -314,11 +314,10 @@ fn refusal(model: &dive_model::Model) -> Option<String> {
     if let Some(u) = model.unsupported.first() {
         return Some(u.feature.clone());
     }
-    if !model.implied_temporals.is_empty() || !model.configured_properties.is_empty() {
+    // Implied initial predicates and actions run on the core; a genuine
+    // temporal property needs `dive-liveness`.
+    if !model.implied_temporals.is_empty() {
         return Some("temporal properties (M0 core engine)".into());
-    }
-    if !model.implied_inits.is_empty() || !model.implied_actions.is_empty() {
-        return Some("implied initial or action properties (M0 core engine)".into());
     }
     if model.view.is_some() || model.alias.is_some() {
         return Some("VIEW or ALIAS (M0 core engine)".into());
@@ -387,6 +386,8 @@ fn handoff<'a>(model: &'a dive_model::Model, ir: &'a Ir) -> Result<Handoff<'a>, 
         invariants: named_roles(model, &model.invariants)?,
         constraints: named_roles(model, &model.constraints)?,
         action_constraints: named_roles(model, &model.action_constraints)?,
+        implied_inits: named_roles(model, &model.implied_inits)?,
+        implied_actions: named_roles(model, &model.implied_actions)?,
         check_deadlock: model.settings.check_deadlock,
     })
 }
@@ -619,6 +620,12 @@ pub(crate) fn check(
             Verdict::InvariantViolated { property, initial }
         }
         dive_explore::Verdict::Deadlock => Verdict::Deadlock,
+        dive_explore::Verdict::PropertyViolatedInitially { property } => {
+            Verdict::PropertyViolatedInitially { property }
+        }
+        dive_explore::Verdict::ActionPropertyViolated { property } => {
+            Verdict::ActionPropertyViolated { property }
+        }
         dive_explore::Verdict::Failed => Verdict::InternalError {
             message: "a core failure without its site".into(),
         },
@@ -652,12 +659,17 @@ pub(crate) fn check(
         verdict,
         Verdict::Success
             | Verdict::InvariantViolated { .. }
+            | Verdict::PropertyViolatedInitially { .. }
+            | Verdict::ActionPropertyViolated { .. }
             | Verdict::Deadlock
             | Verdict::Stopped(_)
     );
     let mut verdict = verdict;
-    let mut in_init = matches!(verdict, Verdict::InvariantViolated { initial: true, .. })
-        || (matches!(verdict, Verdict::Stopped(_)) && out.in_init);
+    let mut in_init = matches!(
+        verdict,
+        Verdict::InvariantViolated { initial: true, .. }
+            | Verdict::PropertyViolatedInitially { .. }
+    ) || (matches!(verdict, Verdict::Stopped(_)) && out.in_init);
     let mut trace = out.trace.clone();
     let mut stats = out.stats;
     if let Some(f) = out.failure.as_ref().filter(|_| failed) {

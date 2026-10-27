@@ -90,6 +90,14 @@ fn check_of(model: &Model, site: Site) -> Option<(&Named, ErrorSite)> {
             .get(i)
             .map(|c| (c, ErrorSite::ActionConstraint)),
         Site::Invariant(i) => model.invariants.get(i).map(|c| (c, ErrorSite::Invariant)),
+        Site::ImpliedInit(i) => model
+            .implied_inits
+            .get(i)
+            .map(|c| (c, ErrorSite::ImpliedInit)),
+        Site::ImpliedAction(i) => model
+            .implied_actions
+            .get(i)
+            .map(|c| (c, ErrorSite::ImpliedAction)),
         Site::Init | Site::Next(_) | Site::Incomplete | Site::Fingerprint => None,
     }
 }
@@ -173,7 +181,7 @@ fn reproduce(
                     .ok_or("a check failure without its state")?,
             )?;
             let st = match (site, parent) {
-                (Site::ActionConstraint(_), Some(s0)) => St::action(s0, t),
+                (Site::ActionConstraint(_) | Site::ImpliedAction(_), Some(s0)) => St::action(s0, t),
                 _ => St::state(t),
             };
             match model.eval(&c.pred, &st) {

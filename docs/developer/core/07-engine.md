@@ -160,6 +160,37 @@ The reference engine handles this by forcing a single worker
 
 ## 7. Liveness, simulation and other modes
 
+**Implied properties first (M1).** Most `PROPERTY` entries in the bench
+and the corpus hold no genuine temporal obligation. The binder splits each
+property into TLC's roles (`dive_model::Model`): `[]P` joins the
+invariants, a state-level part becomes an implied initial predicate
+(`implied_inits`), and `[][A]_v` becomes an implied action
+(`implied_actions`). Only what is left is a temporal property for
+`dive-liveness` (`implied_temporals`). The reference engine checks the first
+three in its safety search (`crates/dive-check/src/engine.rs`,
+`check_implied_actions`), and reports `"check_kind": "safety"` for such a
+model. Both bench models the lead routed to the liveness adapter are of this
+kind: EWD998PCal (`PROPERTIES EWD998Spec`, a refinement whose only roles are
+implied initial predicates and actions) and BufferedRandomAccessFile (nine
+properties, all `[]P` or `[][A]_v`). Their time is spent in those checks,
+not in a tableau: on an 8-core laptop under load, the reference engine takes
+9.4 s for EWD998PCal without its property and 85 s with it. The core needs
+no graph or adapter for them, only the two roles in its own search:
+- Plan: `implied_inits` are state predicates and `implied_actions` step
+  predicates, compiled as `INVARIANT`s and `ACTION_CONSTRAINT`s are.
+- Order, as the reference engine's `Search::successor`: on a new initial
+  state, the implied initial predicates come after the invariants, and a
+  false one is `PropertyViolatedInitially`. On every step, new or seen,
+  inside the model or not, the implied actions come after the new state's
+  invariants. A false one is `ActionPropertyViolated`; the trace ends with
+  the successor.
+- An evaluation error in either is reported at `ErrorSite::ImpliedInit` or
+  `ErrorSite::ImpliedAction`, reproduced by the reference evaluator as other
+  check errors are.
+- A model that also has a genuine temporal property still falls back. So do
+  TLC's replay after an invariant error and SYMMETRY, until each is shown to
+  agree.
+
 **Liveness.**
 - In M3 the engine gains a graph-capture mode. It records states and edges
   with labels, as `dive_check::capture::BehaviorGraph` does
@@ -422,6 +453,31 @@ workers):
   disagreements. 48 models ran on the core, 100 fell back statically and 8
   ended before any search.
 - `--impl dive:core`: 50 agree and 106 unsupported, with 0 disagreements.
+
+**Refusal census (2026-10-27, `main` at #549).** `--impl dive:auto` over
+the small tier (156 models, 1 worker), static fallbacks by reason. Default
+profile: 144 agree, 7 expected divergences, 5 unsupported; 48 models ran on
+the core, 101 fell back, 7 ended before any search. `--compat=tlc`: 150
+agree, 6 unsupported; 48 on the core, 100 fell back, 8 ended before a
+search. The two profiles refuse for the same reasons; the counts below are
+the default profile's, with the compat count where it differs.
+
+| Count | Reason | Owner |
+|---:|---|---|
+| 55 (52) | temporal properties (liveness checking, the reference engine's own refusal) | lead, M3 |
+| 13 | temporal properties (core): mostly implied properties, see §7 | stream 3 (`core/engine-implied`) |
+| 11 | SYMMETRY | stream 3 (`core/engine-symmetry`) |
+| 4 | VIEW (2) or ALIAS (2) | stream 3 (`core/engine-view`, `core/engine-alias`) |
+| 6 | a split argument that is not constant | stream 2 |
+| 2 | `--action-composition=tlc` (compat only) | stream 2 |
+| 1 | operator arguments | stream 2 |
+| 1 | a false or failing ASSUME | stream 2 |
+| 1 | `x' \in` an operator building a lazy set | stream 2 |
+| 1 | constant operators | stream 2 |
+| 1 | a split action inside nested INSTANCE substitutions | stream 2 |
+| 1 | INSTANCE substitution by a non-top-level operator | stream 2 |
+| 1 | start-up evaluation of `RandomSuccSet` | stream 1 |
+| 5 | TLC!PrintT, TLCExt!Trace, Json!ToJson, TLC!TLCGet, TLC!RandomElement | stream 1 |
 
 **Next (M2, stream 3):** widen the core's compat coverage. Shrink the
 static refusals that the fallback counts, starting with the most frequent
