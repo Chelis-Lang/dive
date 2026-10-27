@@ -247,6 +247,10 @@ struct Info {
     calls: bool,
     /// Contains a fold that ran out of fuel: enclosing folds would too.
     heavy: bool,
+    /// Reaches an operator with an effect (`Print`, `PrintT`): TLC performs
+    /// it on every evaluation, so the node is never folded, memoized,
+    /// cached or skipped (`04-plan-compiler.md` §3).
+    effect: bool,
     /// Whether TLC's value of a set expression is `Reducible`
     /// (`04-plan-compiler.md` §4.1), so that TLC builds a filter, function
     /// or set operation over it eagerly.
@@ -268,6 +272,9 @@ enum Red {
     #[default]
     Maybe,
 }
+
+/// The most nodes of a constant [`Compiler::holds_lazy_set`] looks at.
+const LAZY_SCAN: usize = 4096;
 
 fn union(a: &mut Vec<u32>, b: &[u32]) {
     if b.is_empty() {
@@ -294,6 +301,7 @@ pub fn compile(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<Plan, E
     }
     let mut c = Compiler {
         h,
+        effects: false,
         ir: h.ir,
         code: Code::default(),
         info: Vec::new(),
@@ -384,12 +392,15 @@ pub fn compile(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<Plan, E
         implied_actions,
         check_deadlock: h.check_deadlock,
         symmetry,
+        effects: c.effects,
         stats: c.stats,
     })
 }
 
 struct Compiler<'a> {
     h: &'a Handoff<'a>,
+    /// Whether any compiled node reaches an effect (`Info::effect`).
+    effects: bool,
     ir: &'a Ir,
     code: Code,
     info: Vec<Info>,
@@ -519,6 +530,7 @@ impl Compiler<'_> {
                 i.primed |= c.primed;
                 i.calls |= c.calls;
                 i.heavy |= c.heavy;
+                i.effect |= c.effect;
                 union(&mut i.free, &c.free);
             }
         };
@@ -534,6 +546,7 @@ impl Compiler<'_> {
                 i.primed |= inner.primed;
                 i.calls |= inner.calls;
                 i.heavy |= inner.heavy;
+                i.effect |= inner.effect;
                 union(&mut i.free, &inner.free);
                 for b in binds {
                     add(b.domain, i);
@@ -576,11 +589,16 @@ impl Compiler<'_> {
             | Node::SetEnum(xs)
             | Node::Product(xs)
             | Node::Tuple(xs)
-            | Node::Std(_, xs)
-            | Node::Lib(_, xs) => {
+            | Node::Std(_, xs) => {
                 for &x in xs {
                     add(x, &mut i);
                 }
+            }
+            Node::Lib(op, xs) => {
+                for &x in xs {
+                    add(x, &mut i);
+                }
+                i.effect |= crate::stdlib::effectful(*op);
             }
             Node::Implies(a, b)
             | Node::Equiv(a, b)
@@ -638,6 +656,7 @@ impl Compiler<'_> {
                     i.primed |= inner.primed;
                     i.calls |= inner.calls;
                     i.heavy |= inner.heavy;
+                    i.effect |= inner.effect;
                     union(&mut i.free, &inner.free);
                 }
             }
@@ -653,6 +672,7 @@ impl Compiler<'_> {
                             i.primed |= inner.primed;
                             i.calls |= inner.calls;
                             i.heavy |= inner.heavy;
+                            i.effect |= inner.effect;
                             union(&mut i.free, &inner.free);
                         }
                     }
@@ -965,6 +985,67 @@ impl Compiler<'_> {
         p
     }
 
+    /// Refuses an effect inside an expression whose evaluation order or
+    /// count is TLC's representation choice rather than the expression's:
+    /// a function constructor, filter or set map (TLC may build it eagerly,
+    /// lazily or once per application), a speculative evaluation, and an
+    /// operator argument of a library operator (applied in TLC's internal
+    /// order).
+    fn effect_allowed(&self, n: &Node) -> Result<(), Error> {
+        let inside = |p: P| self.info.get(p as usize).is_some_and(|i| i.effect);
+        let lazy = match n {
+            Node::FcnCons { body, .. } | Node::Map { body, .. } => inside(*body),
+            Node::Filter { pred, .. } => inside(*pred),
+            Node::Spec(b) => inside(*b),
+            Node::LibHo(_, args) => args
+                .iter()
+                .any(|a| matches!(a, LibArg::Op { body, .. } if inside(*body))),
+            _ => false,
+        };
+        if lazy {
+            return Err(Error::unsupported(
+                "Print or PrintT inside a function constructor, set filter, set map or operator argument, which TLC may evaluate lazily or in its own order (M1 core)",
+            ));
+        }
+        Ok(())
+    }
+
+    /// Whether a node may build a value TLC keeps as an interval or a lazy
+    /// set, which printing must know (`Store::note_lazy_sets`).
+    fn builds_lazy_set(&self, n: &Node) -> bool {
+        match n {
+            Node::Range(..)
+            | Node::Domain(_)
+            | Node::Powerset(_)
+            | Node::FcnSet(..)
+            | Node::RecSet(_)
+            | Node::Product(_) => true,
+            Node::Const(h) => self.holds_lazy_set(*h, &mut 0),
+            _ => false,
+        }
+    }
+
+    /// Whether a constant holds an interval or a lazy set, looking at most
+    /// at [`LAZY_SCAN`] nodes (beyond, it is assumed to).
+    fn holds_lazy_set(&self, h: Handle, seen: &mut usize) -> bool {
+        if !h.is_compound() {
+            return false;
+        }
+        *seen += 1;
+        if *seen > LAZY_SCAN {
+            return true;
+        }
+        let v = self.m.heap.view(h);
+        if matches!(
+            v.kind,
+            Kind::Interval | Kind::Subset | Kind::FcnSet | Kind::RecSet | Kind::Product
+        ) {
+            return true;
+        }
+        let data = v.data.to_vec();
+        data.into_iter().any(|d| self.holds_lazy_set(d, seen))
+    }
+
     fn push(&mut self, n: Node) -> Result<P, Error> {
         if self.code.nodes.len() >= MAX_NODES {
             return Err(Error::unsupported(
@@ -972,6 +1053,13 @@ impl Compiler<'_> {
             ));
         }
         let info = self.info_of(&n);
+        if !self.m.heap.store().lazy_sets() && self.builds_lazy_set(&n) {
+            self.m.heap.store().note_lazy_sets();
+        }
+        if info.effect {
+            self.effect_allowed(&n)?;
+            self.effects = true;
+        }
         let foldable = !matches!(
             n,
             Node::Const(_) | Node::Slot(_) | Node::Var(_) | Node::Primed(_) | Node::Memo { .. }
@@ -983,7 +1071,8 @@ impl Compiler<'_> {
             && info.primed == 0
             && info.free.is_empty()
             && !info.calls
-            && !info.heavy;
+            && !info.heavy
+            && !info.effect;
         self.info.push(info);
         if self.opts.fold && foldable && closed {
             self.fold(id);
@@ -1062,7 +1151,10 @@ impl Compiler<'_> {
         let Some(info) = self.info.get(p as usize) else {
             return Ok(None);
         };
-        if info.primed != 0 || matches!(self.code.nodes.get(p as usize), Some(Node::Const(_))) {
+        if info.primed != 0
+            || info.effect
+            || matches!(self.code.nodes.get(p as usize), Some(Node::Const(_)))
+        {
             return Ok(None);
         }
         #[allow(clippy::cast_possible_truncation, reason = "at most 64 variables")]
@@ -1253,7 +1345,7 @@ impl Compiler<'_> {
         for (k, (e, env)) in parts.into_iter().enumerate() {
             let p = self.p(e, env, Mode::Plain)?;
             let info = self.info[p as usize].clone();
-            let skippable = info.free.is_empty() && info.primed == 0;
+            let skippable = info.free.is_empty() && info.primed == 0 && !info.effect;
             let reads = info.vars;
             let (p, site) = match self.site(format!("{}#{k}", r.name), p)? {
                 Some(m) => {
@@ -1617,7 +1709,7 @@ impl Compiler<'_> {
             Expr::StepBox { action, sub } | Expr::StepAngle { action, sub } => {
                 if mode == Mode::Primed || self.init_mode {
                     return Err(Error::unsupported(
-                        "[A]_v under a prime or in an initial predicate (core)",
+                        "[A]_v under a prime or in an initial predicate (M1 core)",
                     ));
                 }
                 let boxed = matches!(expr, Expr::StepBox { .. });
@@ -2216,7 +2308,12 @@ impl Compiler<'_> {
         // evaluate it at most once per frame activation (the state does not
         // change within one). TLC re-evaluates it; the result is the same.
         let info = &self.info[body as usize];
-        if cacheable && info.free.is_empty() && info.primed == 0 && !self.is_trivial(body) {
+        if cacheable
+            && info.free.is_empty()
+            && info.primed == 0
+            && !info.effect
+            && !self.is_trivial(body)
+        {
             let slot = self.alloc();
             self.def_cache.insert(d, (slot, body));
             self.def_slots.insert(slot);

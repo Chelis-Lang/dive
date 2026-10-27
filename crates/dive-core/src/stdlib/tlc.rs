@@ -1,5 +1,7 @@
 //! The value operators of the `TLC` module (`tlc2.module.TLC`): `:>`, `@@`
-//! `Assert` and `Permutations`. The reference is
+//! `Assert`, `Permutations` and `ToString` (printed by `crate::print`), and
+//! the effects `Print` and `PrintT`, whose output the machine keeps in
+//! order (`Machine::printed`). The reference is
 //! `crates/dive-eval/src/std.rs` (`TlcMakeFcn`, `combine_fcn`, `TlcAssert`,
 //! `permutations`).
 
@@ -15,7 +17,13 @@ use crate::{Error, Handle};
 pub(super) fn implements(op: StdOp) -> bool {
     matches!(
         op,
-        StdOp::TlcMakeFcn | StdOp::TlcCombineFcn | StdOp::TlcAssert | StdOp::TlcPermutations
+        StdOp::TlcMakeFcn
+            | StdOp::TlcCombineFcn
+            | StdOp::TlcAssert
+            | StdOp::TlcPermutations
+            | StdOp::TlcToString
+            | StdOp::TlcPrint
+            | StdOp::TlcPrintT
     )
 }
 
@@ -37,6 +45,25 @@ pub(super) fn call(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle
             ))
         }
         StdOp::TlcPermutations => permutations(m, op, arg(args, 0)?),
+        StdOp::TlcPrint => {
+            let (a, b) = (arg(args, 0)?, arg(args, 1)?);
+            let text = format!(
+                "{}  {}",
+                crate::print::pretty(&mut m.heap, a)?,
+                crate::print::pretty(&mut m.heap, b)?
+            );
+            m.printed.push(text);
+            Ok(b)
+        }
+        StdOp::TlcPrintT => {
+            let text = crate::print::pretty(&mut m.heap, arg(args, 0)?)?;
+            m.printed.push(text);
+            Ok(Handle::TRUE)
+        }
+        StdOp::TlcToString => {
+            let text = crate::print::tlc_string(&mut m.heap, arg(args, 0)?)?;
+            m.heap.string(&text)
+        }
         _ => Err(Error::internal("not a TLC operator")),
     }
 }

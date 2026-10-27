@@ -430,6 +430,10 @@ fn store_for(
     semantics: dive_core::Semantics,
 ) -> Result<dive_core::Store, String> {
     let store = dive_core::Store::with_semantics(hashcons, semantics);
+    store.set_printer(dive_core::print::Printer {
+        names: Arc::clone(&model.names),
+        ctx: model.evaluator.options().ctx,
+    });
     if semantics.string_order == dive_core::strings::StringOrder::Token {
         let n = model.evaluator.startup_names();
         let mut texts = Vec::with_capacity(n);
@@ -648,6 +652,17 @@ pub(crate) fn check(
         };
         return (finish(result(v, options, ir)), run);
     }
+    // What the binder printed at start-up (constant definitions, then the
+    // ASSUMEs) comes first, as the reference engine reports it.
+    let mut startup: Vec<String> = model
+        .output
+        .iter()
+        .filter_map(|m| match m {
+            dive_model::Message::Print(text) => Some(text.clone()),
+            dive_model::Message::Warning { .. } => None,
+        })
+        .collect();
+    startup.extend(model.take_output());
     let h = match handoff(&model, ir, std::mem::take(&mut sym.maps)) {
         Ok(h) => h,
         Err(e) => return (finish(result(unsupported(e), options, ir)), run),
@@ -711,6 +726,19 @@ pub(crate) fn check(
             sample,
             &out.sampled,
         );
+    }
+    if plan.effects && (out.verdict != dive_explore::Verdict::Success || !out.warnings.is_empty()) {
+        // TLC prints again while it rebuilds a trace or reports an error,
+        // and interleaves warnings with the output; the core does not
+        // reproduce either yet.
+        let v = match out.verdict {
+            dive_explore::Verdict::Unsupported { feature } => unsupported(feature),
+            dive_explore::Verdict::Internal { message } => Verdict::InternalError { message },
+            _ => unsupported(
+                "Print or PrintT in a run that does not end in success, or that warns (M1 core)",
+            ),
+        };
+        return (finish(result(v, options, ir)), run);
     }
     let failed = out.verdict == dive_explore::Verdict::Failed;
     let verdict = match out.verdict {
@@ -808,8 +836,17 @@ pub(crate) fn check(
     if !profile_tlc && r.verdict.is_verdict() && r.verdict != Verdict::Success {
         r.notes.push(CANONICAL_STOP_NOTE.to_owned());
     }
-    r.workers.used = workers;
-    r.workers.reason = None;
+    r.output = startup;
+    r.output.extend(out.printed.iter().cloned());
+    if plan.effects && workers > 1 {
+        r.workers.used = 1;
+        r.workers.reason = Some(
+            "the specification prints (Print or PrintT): the core keeps TLC's order of the output with one worker".into(),
+        );
+    } else {
+        r.workers.used = workers;
+        r.workers.reason = None;
+    }
     for (var, at) in &out.warnings {
         let name = plan.vars.get(usize::from(*var)).map_or("?", String::as_str);
         r.output.push(format!(
@@ -921,145 +958,13 @@ pub(crate) fn to_value(
     h: dive_core::Handle,
     ctx: dive_value::Ctx,
 ) -> Result<Value, String> {
-    use dive_core::node::Kind;
-    if let Some(b) = h.as_bool() {
-        return Ok(Value::Bool(b));
-    }
-    if let Some(i) = h.as_int() {
-        return Ok(Value::Int(i));
-    }
-    if let Some(id) = h.as_str_id() {
-        let text = heap
-            .store()
-            .strings()
-            .text(id)
-            .ok_or_else(|| format!("unknown string {id}"))?;
-        return Ok(Value::Str(model.names.intern(&text)));
-    }
-    if let Some(id) = h.as_model_id() {
-        let text = heap
-            .store()
-            .strings()
-            .text(id)
-            .ok_or_else(|| format!("unknown model value {id}"))?;
-        return Ok(Value::Model(model.names.intern(&text)));
-    }
-    if !h.is_compound() {
-        return Err("a value the core cannot report".into());
-    }
-    let kind = heap.view(h).kind;
-    if kind == Kind::BigInt {
-        let b = heap.big(h).ok_or("a malformed integer")?;
-        return Ok(Value::int(dive_value::Int::from_big(b)));
-    }
-    // An infinite set is reported as the reference engine's lazy set, as TLC
-    // keeps it: a state may hold one until it is fingerprinted.
-    if !heap.is_finite(h) {
-        return infinite_value(heap, model, h, ctx);
-    }
-    if kind.is_symbolic() {
-        let m = heap.materialize(h).map_err(|e| e.message().to_owned())?;
-        return to_value(heap, model, m, ctx);
-    }
-    let v = heap.view(h);
-    let (lo, keys, vals) = (v.lo, v.keys().to_vec(), v.values().to_vec());
-    match kind {
-        Kind::Set => {
-            let mut elems = Vec::with_capacity(vals.len());
-            for e in vals {
-                elems.push(to_value(heap, model, e, ctx)?);
-            }
-            Value::set(elems, ctx).map_err(|e| e.to_string())
-        }
-        Kind::IntFcn => {
-            let mut elems = Vec::with_capacity(vals.len());
-            for e in vals {
-                elems.push(to_value(heap, model, e, ctx)?);
-            }
-            if lo == 1 {
-                return Ok(Value::tuple(elems));
-            }
-            let pairs = elems
-                .into_iter()
-                .zip(lo..)
-                .map(|(v, k)| (Value::Int(k), v))
-                .collect();
-            Value::fcn(pairs, ctx).map_err(|e| e.to_string())
-        }
-        _ => {
-            let mut pairs = Vec::with_capacity(keys.len());
-            for (k, x) in keys.into_iter().zip(vals) {
-                pairs.push((
-                    to_value(heap, model, k, ctx)?,
-                    to_value(heap, model, x, ctx)?,
-                ));
-            }
-            if pairs.iter().all(|(k, _)| matches!(k, Value::Str(_))) {
-                let fields = pairs
-                    .into_iter()
-                    .filter_map(|(k, x)| match k {
-                        Value::Str(a) => Some((a, x)),
-                        _ => None,
-                    })
-                    .collect();
-                return Value::record(fields, ctx).map_err(|e| e.to_string());
-            }
-            Value::fcn(pairs, ctx).map_err(|e| e.to_string())
-        }
-    }
-}
-
-/// The reference engine's value of an infinite set of the core's.
-fn infinite_value(
-    heap: &mut dive_core::Heap,
-    model: &dive_model::Model,
-    h: dive_core::Handle,
-    ctx: dive_value::Ctx,
-) -> Result<Value, String> {
-    use dive_core::node::Kind;
-    let v = heap.view(h);
-    let (kind, data) = (v.kind, v.data.to_vec());
-    let mut parts = Vec::with_capacity(data.len());
-    let n = if kind == Kind::RecSet {
-        data.len() / 2
-    } else {
-        0
-    };
-    for (i, &d) in data.iter().enumerate() {
-        // A record set's field names are strings, which convert as they are.
-        parts.push(to_value(heap, model, d, ctx).map_err(|e| {
-            if i < n {
-                format!("a record set's field name: {e}")
-            } else {
-                e
-            }
-        })?);
-    }
-    let one = |parts: &mut Vec<Value>| parts.pop().ok_or("a set without its parts");
-    match kind {
-        Kind::Nat => Ok(Value::nat(ctx)),
-        Kind::Int => Ok(Value::int_set(ctx)),
-        Kind::SeqSet => Ok(Value::seq_set(one(&mut parts)?, ctx)),
-        Kind::Subset => Ok(Value::subset(one(&mut parts)?, ctx)),
-        Kind::FcnSet if parts.len() == 2 => {
-            let range = one(&mut parts)?;
-            Ok(Value::fcn_set(one(&mut parts)?, range, ctx))
-        }
-        Kind::Product => Ok(Value::product(parts, ctx)),
-        Kind::RecSet => {
-            let sets = parts.split_off(n);
-            let fields = parts
-                .into_iter()
-                .zip(sets)
-                .map(|(k, x)| match k {
-                    Value::Str(a) => Ok((a, x)),
-                    _ => Err("a record set's field name that is not a string".to_owned()),
-                })
-                .collect::<Result<_, _>>()?;
-            Value::record_set(fields, ctx).map_err(|e| e.to_string())
-        }
-        _ => Err(format!("an infinite {kind:?} the core cannot report")),
-    }
+    dive_core::print::to_value(
+        heap,
+        &model.names,
+        h,
+        ctx,
+        dive_core::print::Conversion::Report,
+    )
 }
 
 fn metrics_json(
