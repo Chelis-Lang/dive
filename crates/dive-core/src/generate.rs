@@ -476,17 +476,28 @@ impl Machine {
         if cur.is_empty()
             && let Some(Node::Filter { bind, pred }) = code.nodes.get(set as usize)
         {
+            // Enumerated without normalizing, so that a symbolic domain's
+            // candidates are built one at a time.
             let dom = self.eval(code, bind.domain)?;
             let mut c = self.heap.cursor(dom)?;
             let mark = self.save(bind.slots.iter().copied());
             let r = (|| {
-                while let Some(e) = c.next(&mut self.heap)? {
+                loop {
+                    let before = self.heap.mark();
+                    let Some(e) = c.next(&mut self.heap)? else {
+                        break;
+                    };
+                    let forced = self.stats.transient_thunks;
                     self.bind_one(bind, e)?;
                     if self.eval_bool(code, *pred)? {
                         self.bind_var(var, e);
                         let r = self.cont(code, acts, sink);
                         self.unbind_var(var);
                         r?;
+                    } else if self.stats.transient_thunks == forced {
+                        // A rejected candidate is freed (R10; as in
+                        // `Machine::filter`).
+                        self.heap.rollback(before);
                     }
                 }
                 Ok(())
