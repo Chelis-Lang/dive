@@ -131,6 +131,18 @@ fn violations_and_deadlocks_are_reported() {
     assert_eq!(run("Dead", Engine::Core)["verdict"], "deadlock");
 }
 
+/// `LET` values around a split action are bound lazily
+/// (`04-plan-compiler.md` §2.1).
+#[test]
+fn let_values_of_split_actions_are_lazy() {
+    let name = "RoleLet";
+    let reference = run(name, Engine::Reference);
+    let core = run(name, Engine::Core);
+    assert_eq!(core["engine"], "core", "{name}");
+    assert_eq!(counts(&core), counts(&reference), "{name}: {core:#}");
+    assert_eq!(core["property"], reference["property"], "{name}");
+}
+
 #[test]
 fn unsupported_features_are_named_without_fallback() {
     let core = run("Unsup", Engine::Core);

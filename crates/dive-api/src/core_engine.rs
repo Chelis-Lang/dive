@@ -173,6 +173,10 @@ fn role(
     for i in 0..n {
         #[allow(clippy::cast_possible_truncation, reason = "frames are small")]
         let slot = Slot(i as u32);
+        // The core binds `LET` values itself, lazily (`bind_role_lets`).
+        if is_let_slot(model, def, slot) {
+            continue;
+        }
         let view = model.evaluator.scope_slot(scope, LocalRef { up: 0, slot });
         if let Some(v) = slot_value(model, view)? {
             slots.push((slot, v));
@@ -187,6 +191,16 @@ fn role(
     })
 }
 
+/// Whether a frame slot holds a `LET` value.
+fn is_let_slot(model: &dive_model::Model, def: dive_ir::DefId, slot: Slot) -> bool {
+    model
+        .ir
+        .def(def)
+        .frame
+        .get(slot.index())
+        .is_some_and(|s| matches!(s.kind, dive_ir::SlotKind::LetValue(_)))
+}
+
 /// The bound slots of a scope's frame.
 fn frame_slots(
     model: &dive_model::Model,
@@ -197,6 +211,10 @@ fn frame_slots(
     for i in 0..n {
         #[allow(clippy::cast_possible_truncation, reason = "frames are small")]
         let slot = Slot(i as u32);
+        // The core binds `LET` values itself, lazily (`bind_role_lets`).
+        if is_let_slot(model, scope.def(), slot) {
+            continue;
+        }
         let view = model.evaluator.scope_slot(scope, LocalRef { up: 0, slot });
         if let Some(v) = slot_value(model, view)? {
             slots.push((slot, v));
