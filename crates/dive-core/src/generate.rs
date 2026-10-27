@@ -494,9 +494,11 @@ impl Machine {
                         let r = self.cont(code, acts, sink);
                         self.unbind_var(var);
                         r?;
-                    } else if self.stats.transient_thunks == forced {
-                        // A rejected candidate is freed (R10; as in
-                        // `Machine::filter`).
+                    }
+                    // A rejected candidate is freed (R10; as in
+                    // `Machine::filter`), and so is an accepted one once its
+                    // continuation has emitted its states (#551).
+                    if self.stats.transient_thunks == forced {
                         self.heap.rollback(before);
                     }
                 }
@@ -520,17 +522,42 @@ impl Machine {
             return Err(Error::eval("The right side of \\IN is not enumerable"));
         }
         let mut c = self.heap.cursor(s)?;
-        while let Some(e) = c.next(&mut self.heap)? {
-            self.bind_var(var, e);
-            let r = self.cont(code, acts, sink);
-            self.unbind_var(var);
-            r?;
-        }
-        Ok(())
+        self.each_in(&mut c, code, var, acts, sink)
     }
 }
 
 impl Machine {
+    /// Binds `var` to each element of `c` in turn and runs the
+    /// continuation. An element and the continuation's transients are freed
+    /// once it returns (R10, #551): an `Init` over a large set would
+    /// otherwise hold every candidate state until the level ends. Only when
+    /// no thunk was forced to a transient meanwhile, whose slot may hold a
+    /// value built after the mark (`03-value-model.md` §11.5 rule 2); the
+    /// cursor's own state predates the mark.
+    fn each_in(
+        &mut self,
+        c: &mut crate::heap::Cursor,
+        code: &Code,
+        var: u16,
+        acts: u32,
+        sink: &mut dyn Sink,
+    ) -> Result<(), Error> {
+        loop {
+            let before = self.heap.mark();
+            let Some(e) = c.next(&mut self.heap)? else {
+                return Ok(());
+            };
+            let forced = self.stats.transient_thunks;
+            self.bind_var(var, e);
+            let r = self.cont(code, acts, sink);
+            self.unbind_var(var);
+            r?;
+            if self.stats.transient_thunks == forced {
+                self.heap.rollback(before);
+            }
+        }
+    }
+
     /// `x' \in S` over a set whose TLC `elements()` may repeat elements
     /// (§6): TLC's multiplicity is computed, and the run refuses when it
     /// differs from the normalized set's, because which one TLC walks
@@ -584,13 +611,7 @@ impl Machine {
             ));
         }
         let mut c = self.heap.cursor(s)?;
-        while let Some(e) = c.next(&mut self.heap)? {
-            self.bind_var(var, e);
-            let r = self.cont(code, acts, sink);
-            self.unbind_var(var);
-            r?;
-        }
-        Ok(())
+        self.each_in(&mut c, code, var, acts, sink)
     }
 
     fn finite_elems(&mut self, h: Handle) -> Result<Vec<Handle>, Error> {
