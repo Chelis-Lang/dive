@@ -136,9 +136,16 @@ fn check_dir(dir: &str) -> usize {
         }
         let reference = run(&spec, Engine::Reference);
         if core["verdict"] == "unsupported" && observed(&core) != observed(&reference) {
-            // Only a construct the core names as not implemented yet.
+            // Only a construct the core names as not implemented yet, or
+            // an error in an expression TLC keeps lazy, which the core
+            // refuses rather than reports (`04-plan-compiler.md` §4.1).
             let m = core["message"].as_str().unwrap_or("");
-            assert!(m.contains("(M0 core"), "{name}: {core:#}");
+            assert!(
+                m.contains("(M0 core")
+                    || m.contains("(M1 core")
+                    || m.starts_with("an evaluation error in an expression TLC evaluates lazily"),
+                "{name}: {core:#}"
+            );
             continue;
         }
         assert_eq!(observed(&core), observed(&reference), "{name}");
