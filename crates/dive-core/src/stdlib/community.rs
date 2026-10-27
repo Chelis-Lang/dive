@@ -22,6 +22,7 @@ pub(super) fn implements(op: StdOp) -> bool {
             | StdOp::SequencesExtSetToSeqs
             | StdOp::SequencesExtIsPrefix
             | StdOp::FunctionsIsInjective
+            | StdOp::FunctionsAntiFunction
             | StdOp::BitwiseAnd
             | StdOp::BitwiseOr
             | StdOp::BitwiseXor
@@ -82,6 +83,7 @@ pub(super) fn call(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle
         StdOp::SequencesExtSetToSeqs => set_to_seqs(m, op, arg(args, 0)?),
         StdOp::SequencesExtIsPrefix => is_prefix(m, op, arg(args, 0)?, arg(args, 1)?),
         StdOp::FunctionsIsInjective => is_injective(m, op, arg(args, 0)?),
+        StdOp::FunctionsAntiFunction => anti_function(m, op, arg(args, 0)?),
         StdOp::BitwiseAnd | StdOp::BitwiseOr | StdOp::BitwiseXor => {
             let x = java_int(op, arg(args, 0)?)?;
             let y = java_int(op, arg(args, 1)?)?;
@@ -237,4 +239,54 @@ fn is_injective(m: &mut Machine, op: StdOp, f: Handle) -> Result<Handle, Error> 
         }
     }
     Ok(Handle::TRUE)
+}
+
+/// `AntiFunction(f)`: `[y \in Range(f) |-> x]`, keeping for each value the
+/// first argument in the order of a stable sort of `f`'s entries by value
+/// (TLC's `Arrays.sort`). Values TLC cannot compare are refused, as the
+/// reference engine refuses them.
+fn anti_function(m: &mut Machine, op: StdOp, f: Handle) -> Result<Handle, Error> {
+    let pairs: Vec<(Handle, Handle)> = if f.is_compound() {
+        let v = m.heap.view(f);
+        match v.kind {
+            Kind::IntFcn => {
+                let mut out = Vec::with_capacity(v.data.len());
+                for (k, &x) in (v.lo..).zip(v.data) {
+                    out.push((int(k)?, x));
+                }
+                out
+            }
+            Kind::Fcn => v
+                .keys()
+                .iter()
+                .copied()
+                .zip(v.values().iter().copied())
+                .collect(),
+            Kind::Lambda => return Err(refuse(op, "a function argument the core keeps lazy")),
+            _ => return Err(one_arg_error("AntiFunction", "functions")),
+        }
+    } else {
+        return Err(one_arg_error("AntiFunction", "functions"));
+    };
+    let mut order: Vec<usize> = (0..pairs.len()).collect();
+    order.sort_by(|&a, &b| m.heap.cmp(pairs[a].1, pairs[b].1));
+    let sorted: Vec<Handle> = order.iter().map(|&i| pairs[i].1).collect();
+    if compare::check_set(&m.heap, &sorted).is_err() {
+        return Err(refuse(
+            op,
+            "values TLC cannot compare (TLC's error depends on its sort's order of comparisons)",
+        ));
+    }
+    let mut out: Vec<(Handle, Handle)> = Vec::new();
+    for i in order {
+        let (arg, value) = pairs[i];
+        let dup = match out.last() {
+            Some(&(prev, _)) => compare::equals(&m.heap, value, prev)?,
+            None => false,
+        };
+        if !dup {
+            out.push((value, arg));
+        }
+    }
+    Ok(m.heap.fcn_from_pairs(&mut out))
 }
