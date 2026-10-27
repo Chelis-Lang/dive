@@ -1,6 +1,6 @@
 ---- MODULE CmOps ----
 \* CommunityModules value operators in crates/dive-core/src/stdlib/community.rs:
-\* SequencesExt's Contains, RemoveFirst, Suffixes, SetToSeq and IsPrefix,
+\* SequencesExt's Contains, RemoveFirst, Suffixes, SetToSeq, SetToSeqs and IsPrefix,
 \* Functions' IsInjective and Bitwise's &, |, ^^, Not and shiftR.
 EXTENDS Naturals, Sequences, SequencesExt, Functions, Bitwise
 VARIABLE s
@@ -14,6 +14,9 @@ Inv == /\ IsInjective(s)
        /\ IsPrefix("ab", "abc") /\ ~IsPrefix("b", "abc")
        /\ SetToSeq({3, 1, 2}) = <<1, 2, 3>>
        /\ Len(SetToSeq(ToSet(s))) = Len(s)
+       /\ SetToSeqs({1, 2}) = {<<1, 2>>, <<2, 1>>} /\ SetToSeqs({}) = {<<>>}
+       /\ (CHOOSE q \in SetToSeqs(1..3) : TRUE) = <<1, 2, 3>>
+       /\ \A q \in SetToSeqs(ToSet(s)) : Len(q) = Len(s)
        /\ ~IsInjective(<<1, 1>>) /\ IsInjective([a |-> 1, b |-> 2])
        /\ RemoveFirst(<<1, 2, 1>>, 1) = <<2, 1>>
        /\ (Len(s) & 2) <= 2 /\ (5 | 2) = 7 /\ (6 ^^ 3) = 5

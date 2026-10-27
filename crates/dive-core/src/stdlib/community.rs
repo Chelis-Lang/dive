@@ -19,6 +19,7 @@ pub(super) fn implements(op: StdOp) -> bool {
             | StdOp::SequencesExtRemoveFirst
             | StdOp::SequencesExtSuffixes
             | StdOp::SequencesExtSetToSeq
+            | StdOp::SequencesExtSetToSeqs
             | StdOp::SequencesExtIsPrefix
             | StdOp::FunctionsIsInjective
             | StdOp::BitwiseAnd
@@ -78,6 +79,7 @@ pub(super) fn call(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle
             };
             Ok(m.heap.tuple(&elems))
         }
+        StdOp::SequencesExtSetToSeqs => set_to_seqs(m, op, arg(args, 0)?),
         StdOp::SequencesExtIsPrefix => is_prefix(m, op, arg(args, 0)?, arg(args, 1)?),
         StdOp::FunctionsIsInjective => is_injective(m, op, arg(args, 0)?),
         StdOp::BitwiseAnd | StdOp::BitwiseOr | StdOp::BitwiseXor => {
@@ -109,6 +111,30 @@ pub(super) fn call(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle
         }
         _ => Err(Error::internal("not a CommunityModules operator")),
     }
+}
+
+/// `SetToSeqs(S)`: every ordering of `S` as a sequence. TLC builds them
+/// unnormalized, in the lexicographic order of the index permutations
+/// over `S`'s normalized elements; for tuples of one length that is the
+/// normalized order, in either profile, so the core returns the set.
+fn set_to_seqs(m: &mut Machine, op: StdOp, s: Handle) -> Result<Handle, Error> {
+    let Some(elems) = enumerable(m, op, s)? else {
+        return Err(super::wrong_value("SetToSeqs", "a finite set"));
+    };
+    if elems.len() > 12 {
+        // TLC's `int factorial` overflows from 13 elements on.
+        return Err(refuse(op, "a set of more than 12 elements"));
+    }
+    let mut idx: Vec<usize> = (0..elems.len()).collect();
+    let mut out = Vec::new();
+    loop {
+        let vals: Vec<Handle> = idx.iter().map(|&i| elems[i]).collect();
+        out.push(m.heap.tuple(&vals));
+        if !super::tlc::next_permutation(&mut idx) {
+            break;
+        }
+    }
+    Ok(m.heap.set_from(&mut out))
 }
 
 /// `EC.TLC_MODULE_ONE_ARGUMENT_ERROR` (2283).
