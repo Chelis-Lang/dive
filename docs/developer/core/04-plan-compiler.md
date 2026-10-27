@@ -469,6 +469,16 @@ applies it there. The compiler reproduces this by inlining.
   - std operators applied to operator arguments (`FoldSet(LAMBDA ...)`),
     which belong to the stdlib (stream 1).
 
+**For the stdlib.** `Compiler::op_fn(arg, env, arity)` compiles an operator
+argument as a function of `arity` fresh frame slots: the slots, and the body
+with the operator's parameters bound to them. The operator is resolved as
+`apply_param` resolves it. It is the entry point for the standard modules'
+higher-order operators (`SelectSeq`, `FoldSet`, ...; stream 1's
+`Node::LibHo`). That node sets the slots and evaluates the body for each
+element, and treats the slots as bound in `info_of`, as a binder does. Std
+and built-in operators passed as the argument (`FoldSet(+, 0, S)`) are
+refused for now.
+
 **Fixtures.** `OpArg` (6 distinct, 7 generated, depth 4) and `OpSub` (6/7/5)
 match the pinned TLC.
 
