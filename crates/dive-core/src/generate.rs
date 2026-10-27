@@ -477,7 +477,6 @@ impl Machine {
             && let Some(Node::Filter { bind, pred }) = code.nodes.get(set as usize)
         {
             let dom = self.eval(code, bind.domain)?;
-            let dom = self.heap.norm(dom)?;
             let mut c = self.heap.cursor(dom)?;
             let mark = self.save(bind.slots.iter().copied());
             let r = (|| {

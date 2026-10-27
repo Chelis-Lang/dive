@@ -287,6 +287,14 @@ same. A plan-compile budget belongs to M1. One option is to fold only below a
 size bound and stream larger filters, as the generator already does for
 unfolded filters.
 
+M1 (stream 2) bounds folding (`04-plan-compiler.md` §3, pass 1): the filter is
+no longer folded, and the filter's domain is enumerated through its cursor
+instead of being materialized. On M3 (indicative, load 8–23) the plan now
+compiles in under 1 ms, against 54–70 ms for an abandoned fold that still
+materialized the domain. Peak RSS is 212 MB, against 243–304 MB with the
+bounded fold and 317 MB with `-fold`. The remaining RSS is the arena during
+Init (R10).
+
 **R10: CoffeeCan's peak RSS.** The core used 268 MB against 126 MB for the
 reference engine. There were two causes:
 1. A materialization cache (fixed at `11dd6573`). Normalizing a persistent

@@ -54,6 +54,17 @@ mod generator;
 /// The largest plan the compiler builds (inlining blow-up guard).
 const MAX_NODES: usize = 4_000_000;
 
+/// The most loop iterations one constant fold may spend (R9). A larger
+/// closed expression, such as `CoffeeCan`'s initial filter over 1,002,001
+/// records, is left to run time, where the generator streams it instead of
+/// building it in the compile arena.
+pub const FOLD_FUEL: u64 = 1 << 12;
+
+/// The most loop iterations all constant folds of one compile may spend
+/// together: the compile-time budget (R9). Once it is spent, nothing more
+/// is folded.
+pub const FOLD_BUDGET: u64 = 1 << 22;
+
 /// A role as the reference binder split it: an expression evaluated in a
 /// definition's frame, with some of that frame's slots bound to values.
 #[derive(Clone, Debug)]
@@ -154,6 +165,8 @@ struct Info {
     primed: u64,
     free: Vec<u32>,
     calls: bool,
+    /// Contains a fold that ran out of fuel: enclosing folds would too.
+    heavy: bool,
 }
 
 fn union(a: &mut Vec<u32>, b: &[u32]) {
@@ -353,6 +366,7 @@ impl Compiler<'_> {
                 i.vars |= c.vars;
                 i.primed |= c.primed;
                 i.calls |= c.calls;
+                i.heavy |= c.heavy;
                 union(&mut i.free, &c.free);
             }
         };
@@ -367,6 +381,7 @@ impl Compiler<'_> {
                 i.vars |= inner.vars;
                 i.primed |= inner.primed;
                 i.calls |= inner.calls;
+                i.heavy |= inner.heavy;
                 union(&mut i.free, &inner.free);
                 for b in binds {
                     add(b.domain, i);
@@ -453,6 +468,7 @@ impl Compiler<'_> {
                     i.vars |= inner.vars;
                     i.primed |= inner.primed;
                     i.calls |= inner.calls;
+                    i.heavy |= inner.heavy;
                     union(&mut i.free, &inner.free);
                 }
             }
@@ -481,7 +497,11 @@ impl Compiler<'_> {
         #[allow(clippy::cast_possible_truncation, reason = "bounded by MAX_NODES")]
         let id = self.code.nodes.len() as P;
         self.code.nodes.push(n);
-        let closed = info.vars == 0 && info.primed == 0 && info.free.is_empty() && !info.calls;
+        let closed = info.vars == 0
+            && info.primed == 0
+            && info.free.is_empty()
+            && !info.calls
+            && !info.heavy;
         self.info.push(info);
         if self.opts.fold && foldable && closed {
             self.fold(id);
@@ -489,18 +509,39 @@ impl Compiler<'_> {
         Ok(id)
     }
 
+    /// Folds a closed node to a constant, within [`FOLD_FUEL`] and what is
+    /// left of [`FOLD_BUDGET`]. A fold that fails or runs out of fuel leaves
+    /// the node alone: its error, if any, surfaces where TLC raises it.
     fn fold(&mut self, id: P) {
+        let left = FOLD_BUDGET.saturating_sub(self.stats.fold_fuel);
+        if left == 0 {
+            self.stats.fold_skipped += 1;
+            return;
+        }
+        let fuel = FOLD_FUEL.min(left);
+        let started = std::time::Instant::now();
+        self.m.fuel = fuel;
         let old = self.m.enter(self.next_slot + 1);
         let r = self.m.eval(&self.code, id);
         self.m.leave(old);
+        let spent = fuel - self.m.fuel;
+        let exhausted = self.m.fuel == 0;
+        self.m.fuel = u64::MAX;
         let r = r.and_then(|h| self.m.heap.intern_const(h));
         self.m.heap.reset();
-        if let Ok(h) = r
-            && !h.is_empty()
-        {
-            self.code.nodes[id as usize] = Node::Const(h);
-            self.info[id as usize] = Info::default();
-            self.stats.folded += 1;
+        self.stats.fold_fuel += spent;
+        self.stats.fold_nanos += u64::try_from(started.elapsed().as_nanos()).unwrap_or(u64::MAX);
+        match r {
+            Ok(h) if !exhausted && !h.is_empty() => {
+                self.code.nodes[id as usize] = Node::Const(h);
+                self.info[id as usize] = Info::default();
+                self.stats.folded += 1;
+            }
+            _ if exhausted => {
+                self.info[id as usize].heavy = true;
+                self.stats.fold_abandoned += 1;
+            }
+            _ => {}
         }
     }
 

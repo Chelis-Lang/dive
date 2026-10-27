@@ -42,7 +42,7 @@ fn counts(v: &Value) -> (Value, Value, Value, Value) {
 
 #[test]
 fn core_matches_reference_counts_and_verdicts() {
-    for name in ["Mix", "Viol", "Dead"] {
+    for name in ["Mix", "Viol", "Dead", "Fold"] {
         let reference = run(name, Engine::Reference);
         let core = run(name, Engine::Core);
         assert_eq!(core["engine"], "core", "{name}");
@@ -50,6 +50,21 @@ fn core_matches_reference_counts_and_verdicts() {
         assert_eq!(counts(&core), counts(&reference), "{name}: {core:#}");
         assert_eq!(core["property"], reference["property"], "{name}");
     }
+}
+
+/// R9: a closed filter beyond the fold budget is left to run time, the
+/// abandoned fold is reported, and the counts do not change.
+#[test]
+fn large_folds_are_bounded_and_reported() {
+    let core = run("Fold", Engine::Core);
+    let plan = &core["core"]["metrics"]["plan"];
+    assert_eq!(plan["fold_abandoned"], 1, "{plan:#}");
+    assert!(
+        plan["fold_fuel"].as_u64().is_some_and(|f| f <= 1 << 22),
+        "{plan:#}"
+    );
+    assert!(plan["fold_ms"].is_number(), "{plan:#}");
+    assert_eq!(counts(&core), counts(&run("Fold", Engine::Reference)));
 }
 
 #[test]
@@ -74,24 +89,26 @@ fn unsupported_features_are_named_without_fallback() {
 
 #[test]
 fn every_strategy_switch_leaves_counts_unchanged() {
-    let file = fixture("Mix");
-    let req = CheckRequest {
-        config: Some(file.with_extension("cfg")),
-        file,
-        workers: Some(1),
-        seed: Some(0),
-        fp: Some(0),
-        ..CheckRequest::default()
-    };
-    let base = counts(&run("Mix", Engine::Reference));
-    let mut all = Vec::new();
-    for switch in dive_core_switches() {
-        all.push(format!("-{switch}"));
-        let r = dive_api::check_file_core_opts(&req, &format!("-{switch}")).expect("runs");
-        assert_eq!(counts(&r.to_json()), base, "-{switch}");
+    for name in ["Mix", "Fold"] {
+        let file = fixture(name);
+        let req = CheckRequest {
+            config: Some(file.with_extension("cfg")),
+            file,
+            workers: Some(1),
+            seed: Some(0),
+            fp: Some(0),
+            ..CheckRequest::default()
+        };
+        let base = counts(&run(name, Engine::Reference));
+        let mut all = Vec::new();
+        for switch in dive_core_switches() {
+            all.push(format!("-{switch}"));
+            let r = dive_api::check_file_core_opts(&req, &format!("-{switch}")).expect("runs");
+            assert_eq!(counts(&r.to_json()), base, "{name} -{switch}");
+        }
+        let r = dive_api::check_file_core_opts(&req, &all.join(",")).expect("runs");
+        assert_eq!(counts(&r.to_json()), base, "{name} all off");
     }
-    let r = dive_api::check_file_core_opts(&req, &all.join(",")).expect("runs");
-    assert_eq!(counts(&r.to_json()), base, "all off");
 }
 
 fn dive_core_switches() -> [&'static str; 9] {
