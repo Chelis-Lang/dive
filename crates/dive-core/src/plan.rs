@@ -528,4 +528,12 @@ pub struct CompileStats {
     pub folded: usize,
     /// State-level definitions cached once per frame activation.
     pub cached_defs: usize,
+    /// Folds abandoned because they ran out of fuel (R9).
+    pub fold_abandoned: usize,
+    /// Folds not attempted because the compile-time budget was spent.
+    pub fold_skipped: usize,
+    /// Loop iterations spent folding.
+    pub fold_fuel: u64,
+    /// Wall time spent folding, in nanoseconds.
+    pub fold_nanos: u64,
 }
