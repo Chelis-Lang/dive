@@ -78,6 +78,33 @@ pub struct Role {
     /// Slots of that frame bound by splitting (`\E` variables and inlined
     /// parameters), with their values.
     pub slots: Vec<(Slot, Value)>,
+    /// The `INSTANCE` substitutions active where splitting found the role
+    /// (it found it inside an instantiated definition).
+    pub substs: Vec<RoleSubst>,
+}
+
+/// An `INSTANCE` substitution active at a split role.
+#[derive(Clone, Debug)]
+pub enum RoleSubst {
+    /// `decl <- expr`, with `expr` evaluated in the frame of `def` with
+    /// `slots` bound, outside any substitution.
+    Expr {
+        /// The substituted declaration.
+        decl: dive_ir::DeclId,
+        /// The expression.
+        expr: ExprId,
+        /// The definition whose frame it is evaluated in.
+        def: DefId,
+        /// That frame's bound slots.
+        slots: Vec<(Slot, Value)>,
+    },
+    /// `decl` bound to a value.
+    Value {
+        /// The substituted declaration.
+        decl: dive_ir::DeclId,
+        /// The value.
+        value: Value,
+    },
 }
 
 /// A configured constant.
@@ -171,6 +198,22 @@ struct Lift {
     self_calls: Vec<P>,
 }
 
+/// One active `INSTANCE` substitution `decl <- value` (`Expr::Subst`), in
+/// the dynamic context TLC binds it in (`Expr::SubstRef`).
+#[derive(Clone, Debug)]
+struct SubstEntry {
+    decl: dive_ir::DeclId,
+    /// The value: an argument, or a constant (`RoleSubst::Value`).
+    value: Result<Arg, P>,
+    /// The environment outside the substitution.
+    env: usize,
+    /// How an expression value is passed (as an operator argument is).
+    how: ArgHow,
+    /// The dynamic context outside the substitution: the stack below its
+    /// group.
+    depth: usize,
+}
+
 /// Saved slot bindings: environment, slot, old binding.
 type Saved = Vec<(usize, usize, Sb)>;
 
@@ -251,6 +294,7 @@ pub fn compile(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<Plan, E
         recfuns: HashMap::new(),
         def_slots: std::collections::HashSet::new(),
         lifts: Vec::new(),
+        substs: Vec::new(),
         fun_caps: HashMap::new(),
         def_cache: HashMap::new(),
         opts,
@@ -326,6 +370,8 @@ struct Compiler<'a> {
     def_slots: std::collections::HashSet<u32>,
     /// The nested functions being compiled, innermost last.
     lifts: Vec<Lift>,
+    /// The active `INSTANCE` substitutions, innermost last.
+    substs: Vec<SubstEntry>,
     /// Each lifted function's captures: frames out from the definition's
     /// lexical parent, and slot there.
     fun_caps: HashMap<u32, Vec<(u32, usize)>>,
@@ -1008,6 +1054,57 @@ impl Compiler<'_> {
             }
             preset.push((flat, h));
         }
+        // Substitutions around the role: values are evaluated by name in
+        // their own frame, outside any substitution (TLC's generator binds
+        // them uncached: B5).
+        self.substs.clear();
+        for rs in &r.substs {
+            let entry = match rs {
+                RoleSubst::Value { decl, value } => {
+                    let h = self.convert(value)?;
+                    let p = self.konst(h)?;
+                    SubstEntry {
+                        decl: *decl,
+                        value: Err(p),
+                        env,
+                        how: ArgHow::Alias(p),
+                        depth: 0,
+                    }
+                }
+                RoleSubst::Expr {
+                    decl,
+                    expr,
+                    def,
+                    slots,
+                } => {
+                    if self.ir.def(*def).depth != 0 {
+                        return Err(Error::unsupported(
+                            "an INSTANCE substitution inside a LET or LAMBDA (M1 core)",
+                        ));
+                    }
+                    let senv = self.new_env(*def, None);
+                    for (slot, v) in slots {
+                        let flat = self.alloc();
+                        let h = self.convert(v)?;
+                        if let Some(s) = self.envs[senv].slots.get_mut(slot.index()) {
+                            *s = Sb::Flat(flat);
+                        }
+                        preset.push((flat, h));
+                    }
+                    SubstEntry {
+                        decl: *decl,
+                        value: Ok(Arg::Expr {
+                            expr: *expr,
+                            pass: dive_ir::Pass::Lazy,
+                        }),
+                        env: senv,
+                        how: ArgHow::ByName,
+                        depth: 0,
+                    }
+                }
+            };
+            self.substs.push(entry);
+        }
         Ok((env, preset))
     }
 
@@ -1145,20 +1242,13 @@ impl Compiler<'_> {
                     (true, Mode::Primed) => Err(Error::unsupported("a doubly primed variable")),
                 }
             }
-            Expr::Const(c) => match self.h.constants.get(c.index()).cloned().flatten() {
-                Some(ConstBinding::Value(v)) => {
-                    let h = if let Some(&h) = self.consts.get(&c.index()) {
-                        h
-                    } else {
-                        let h = self.convert(&v)?;
-                        self.consts.insert(c.index(), h);
-                        h
-                    };
-                    self.konst(h)
+            Expr::Const(c) => {
+                let c = *c;
+                match self.h.constants.get(c.index()).cloned().flatten() {
+                    Some(ConstBinding::Def(d)) => self.def_use(d, env, mode),
+                    _ => self.const_expr(c),
                 }
-                Some(ConstBinding::Def(d)) => self.def_use(d, env, mode),
-                None => Err(Error::unsupported("an unbound constant")),
-            },
+            }
             Expr::Local(r) => self.local(*r, env, mode),
             Expr::Def(d) => self.def_use(*d, env, mode),
             Expr::Apply { callee, args } => self.apply(callee, args, env, mode),
@@ -1360,8 +1450,26 @@ impl Compiler<'_> {
                 self.p(*a, env, Mode::Primed)
             }
             Expr::Unchanged(a) => self.unchanged_value(*a, env, mode),
-            Expr::Subst { .. } | Expr::SubstRef { .. } => {
-                Err(Error::unsupported("INSTANCE substitution (M0 core)"))
+            Expr::Subst { bindings, body } => {
+                let (bindings, body) = (bindings.clone(), *body);
+                let (b, reset) =
+                    self.subst_scope(&bindings, env, mode, |c| c.p(body, env, mode))?;
+                if reset.is_empty() {
+                    Ok(b)
+                } else {
+                    self.push(Node::Scope {
+                        reset: reset.into(),
+                        body: b,
+                    })
+                }
+            }
+            Expr::SubstRef { decl, primed } => {
+                let (decl, primed) = (*decl, *primed);
+                if primed && mode == Mode::Primed {
+                    return Err(Error::unsupported("a doubly primed expression"));
+                }
+                let mode = if primed { Mode::Primed } else { mode };
+                self.subst_ref(decl, mode)
             }
             // `[A]_v` is `A \/ UNCHANGED v`; `<<A>>_v` is `A /\ v' # v`
             // (TLC's `OPCODE_sa`, `OPCODE_aa` in `eval`).
@@ -1397,6 +1505,26 @@ impl Compiler<'_> {
             )),
             Expr::Unbound(n) => Err(Error::unsupported(format!("the unbound name {n}"))),
             Expr::Unevaluable(_) => Err(Error::unsupported("an unevaluable expression")),
+        }
+    }
+
+    /// A constant bound to a value by the configuration.
+    fn const_expr(&mut self, c: dive_ir::ConstId) -> Result<P, Error> {
+        match self.h.constants.get(c.index()).cloned().flatten() {
+            Some(ConstBinding::Value(v)) => {
+                let h = if let Some(&h) = self.consts.get(&c.index()) {
+                    h
+                } else {
+                    let h = self.convert(&v)?;
+                    self.consts.insert(c.index(), h);
+                    h
+                };
+                self.konst(h)
+            }
+            Some(ConstBinding::Def(_)) => Err(Error::unsupported(
+                "a constant substituted by a definition, inside an instance (M1 core)",
+            )),
+            None => Err(Error::unsupported("an unbound constant")),
         }
     }
 
@@ -1726,6 +1854,155 @@ impl Compiler<'_> {
         Ok(())
     }
 
+    /// Binds an instance's substitutions for `f`, as operator arguments are
+    /// bound (`inline`): each expression value is compiled outside the
+    /// substitution, then aliased, made a thunk, or passed by name. Returns
+    /// `f`'s result with the thunk slots to reset on entry.
+    fn subst_scope<T>(
+        &mut self,
+        bindings: &[dive_ir::SubstBinding],
+        env: usize,
+        mode: Mode,
+        f: impl FnOnce(&mut Self) -> Result<T, Error>,
+    ) -> Result<(T, Vec<u32>), Error> {
+        let depth = self.substs.len();
+        let mut reset = Vec::new();
+        let mut entries = Vec::with_capacity(bindings.len());
+        for b in bindings {
+            let how = match &b.value {
+                Arg::Expr { expr, .. } => {
+                    let cp = self.p(*expr, env, mode)?;
+                    if self.opts.eager && self.is_trivial(cp) {
+                        self.stats.aliased += 1;
+                        ArgHow::Alias(cp)
+                    } else if self.info[cp as usize].primed == 0 {
+                        self.stats.thunks += 1;
+                        let slot = self.alloc();
+                        reset.push(slot);
+                        ArgHow::Thunk(slot, cp)
+                    } else {
+                        ArgHow::ByName
+                    }
+                }
+                Arg::Op { .. } => ArgHow::ByName,
+            };
+            entries.push(SubstEntry {
+                decl: b.decl,
+                value: Ok(b.value.clone()),
+                env,
+                how,
+                depth,
+            });
+        }
+        self.stats.substituted += entries.len();
+        self.substs.extend(entries);
+        let r = f(self);
+        self.substs.truncate(depth);
+        Ok((r?, reset))
+    }
+
+    /// Runs `f` in the dynamic context of depth `depth` (outside the
+    /// substitutions above it).
+    fn outside<T>(&mut self, depth: usize, f: impl FnOnce(&mut Self) -> T) -> T {
+        let inner = self.substs.split_off(depth.min(self.substs.len()));
+        let r = f(self);
+        self.substs.extend(inner);
+        r
+    }
+
+    /// A reference to a substituted declaration: the innermost active
+    /// substitution, or else the declaration itself (a root variable or a
+    /// constant).
+    fn subst_ref(&mut self, decl: dive_ir::DeclId, mode: Mode) -> Result<P, Error> {
+        let Some(i) = self.substs.iter().rposition(|s| s.decl == decl) else {
+            let d = self.ir.decl(decl);
+            #[allow(clippy::cast_possible_truncation, reason = "at most 64 variables")]
+            return match (d.var, d.constant) {
+                (Some(v), _) if self.init_mode => {
+                    if mode == Mode::Primed {
+                        return Err(Error::unsupported(
+                            "a primed variable in an initial predicate",
+                        ));
+                    }
+                    self.push(Node::Primed(v.index() as u16))
+                }
+                (Some(v), _) => match mode {
+                    Mode::Plain => self.push(Node::Var(v.index() as u16)),
+                    Mode::Primed => self.push(Node::Primed(v.index() as u16)),
+                },
+                (None, Some(c)) => {
+                    let e = self.const_expr(c)?;
+                    Ok(e)
+                }
+                (None, None) => Err(Error::unsupported(format!(
+                    "the unsubstituted variable {} of an instantiated module (M1 core)",
+                    d.name
+                ))),
+            };
+        };
+        let SubstEntry {
+            value,
+            env,
+            how,
+            depth,
+            ..
+        } = self.substs[i].clone();
+        let expr = match value {
+            Ok(Arg::Expr { expr, .. }) => expr,
+            Err(p) => return Ok(p),
+            Ok(Arg::Op { .. }) => {
+                return Err(Error::unsupported(
+                    "an operator substitution used as a value (M1 core)",
+                ));
+            }
+        };
+        match (how, mode) {
+            (ArgHow::Alias(p), Mode::Plain) => Ok(p),
+            (ArgHow::Alias(p), Mode::Primed) => match self.code.nodes.get(p as usize) {
+                Some(Node::Var(v)) => {
+                    let v = *v;
+                    self.push(Node::Primed(v))
+                }
+                Some(Node::Const(_) | Node::Slot(_)) => Ok(p),
+                _ => {
+                    self.stats.by_name += 1;
+                    self.outside(depth, |c| c.p(expr, env, Mode::Primed))
+                }
+            },
+            (ArgHow::Thunk(slot, body), Mode::Plain) => self.push(Node::Lazy { slot, body }),
+            (ArgHow::Thunk(..), Mode::Primed) | (ArgHow::ByName, _) => {
+                self.stats.by_name += 1;
+                self.outside(depth, |c| c.p(expr, env, mode))
+            }
+        }
+    }
+
+    /// Whether the innermost substitution of a declaration is a value
+    /// (`RoleSubst::Value`).
+    fn subst_is_value(&self, decl: dive_ir::DeclId) -> bool {
+        self.substs
+            .iter()
+            .rev()
+            .find(|s| s.decl == decl)
+            .is_some_and(|s| s.value.is_err())
+    }
+
+    /// The substitution for a declaration, if one is active: its expression,
+    /// environment and dynamic depth.
+    fn subst_expr(&self, decl: dive_ir::DeclId) -> Option<Result<(ExprId, usize, usize), Error>> {
+        let i = self.substs.iter().rposition(|s| s.decl == decl)?;
+        let s = &self.substs[i];
+        Some(match &s.value {
+            Ok(Arg::Expr { expr, .. }) => Ok((*expr, s.env, s.depth)),
+            Ok(Arg::Op { .. }) => Err(Error::unsupported(
+                "an operator substitution used as a value (M1 core)",
+            )),
+            Err(_) => Err(Error::unsupported(
+                "a substitution by a value used as an action or a variable (M1 core)",
+            )),
+        })
+    }
+
     /// A use of a zero-arity definition.
     fn def_use(&mut self, d: DefId, env: usize, mode: Mode) -> Result<P, Error> {
         let d = self.redirect(d);
@@ -1804,7 +2081,33 @@ impl Compiler<'_> {
                 op.sany_name()
             ))),
             OpRef::Const(_) => Err(Error::unsupported("constant operators (M0 core)")),
-            OpRef::Subst(_) => Err(Error::unsupported("INSTANCE substitution (M0 core)")),
+            OpRef::Subst(decl) => match self.substs.iter().rposition(|s| s.decl == *decl) {
+                Some(i) => {
+                    let value = self.substs[i].value.clone();
+                    match value {
+                        // The operator is resolved outside the substitution;
+                        // the arguments are compiled here.
+                        Ok(Arg::Op {
+                            op: op @ (OpRef::Def(_) | OpRef::Std(_)),
+                            ..
+                        }) if !matches!(&op, OpRef::Def(d) if self.ir.def(self.redirect(*d)).scope != DefScope::TopLevel) =>
+                        {
+                            // TLC applies the operator in the current
+                            // (dynamic) context.
+                            self.apply(&op, args, env, mode)
+                        }
+                        _ => Err(Error::unsupported(
+                            "an INSTANCE substitution of an operator by a non-top-level operator (M1 core)",
+                        )),
+                    }
+                }
+                None => match self.ir.decl(*decl).constant {
+                    Some(c) => self.apply(&OpRef::Const(c), args, env, mode),
+                    None => Err(Error::unsupported(
+                        "an unsubstituted operator declaration (M1 core)",
+                    )),
+                },
+            },
             OpRef::Unbound(n) => Err(Error::unsupported(format!("the unbound operator {n}"))),
         }
     }
@@ -2335,6 +2638,32 @@ impl Compiler<'_> {
                 }
             }
             Expr::Selected(a) | Expr::Label { body: a, .. } => self.g(*a, env),
+            Expr::Subst { bindings, body } => {
+                let (bindings, body) = (bindings.clone(), *body);
+                let (g, reset) =
+                    self.subst_scope(&bindings, env, Mode::Plain, |c| c.g(body, env))?;
+                if reset.is_empty() {
+                    Ok(g)
+                } else {
+                    Ok(self.gpush(GNode::Scope {
+                        reset: reset.into(),
+                        body: g,
+                    }))
+                }
+            }
+            // A substituted name used as an action is enumerated by name
+            // (TLC binds substitutions uncached in the generator: B5).
+            Expr::SubstRef {
+                decl,
+                primed: false,
+            } if !self.subst_is_value(*decl) => match self.subst_expr(*decl) {
+                Some(r) => {
+                    let (expr, aenv, depth) = r?;
+                    self.stats.by_name += 1;
+                    self.outside(depth, |c| c.g(expr, aenv))
+                }
+                None => self.guard_expr(e, env),
+            },
             Expr::Def(d) => {
                 let d = self.redirect(*d);
                 let def = self.ir.def(d);
@@ -2421,6 +2750,27 @@ impl Compiler<'_> {
                 self.target(args[0], env, true)
             }
             Expr::Label { body: a, .. } | Expr::Selected(a) => self.target(*a, env, under_prime),
+            // `x'` with `x` substituted is the substitution's variable
+            // (`getPrimedVar`); unsubstituted, the root variable.
+            Expr::SubstRef { decl, primed } => {
+                let (decl, primed) = (*decl, *primed);
+                if primed && under_prime {
+                    return Ok(None);
+                }
+                let under = under_prime || primed;
+                if self.subst_is_value(decl) {
+                    return Ok(None);
+                }
+                if let Some(r) = self.subst_expr(decl) {
+                    let (expr, aenv, depth) = r?;
+                    return self.outside(depth, |c| c.target(expr, aenv, under));
+                }
+                let Some(v) = self.ir.decl(decl).var else {
+                    return Ok(None);
+                };
+                let ok = if self.init_mode { !under } else { under };
+                Ok(ok.then_some(v.index() as u16))
+            }
             Expr::Local(r) => {
                 let fe = self.frame_env(env, r.up)?;
                 match self.envs[fe].slots.get(r.slot.index()).cloned() {
