@@ -164,7 +164,11 @@ fn check_dir(dir: &str) -> usize {
             continue;
         }
         assert_eq!(observed(&core), observed(&reference), "{name}");
+        // The default profile draws from dive's streams, not TLC's (D-002):
+        // `tests/core_random.rs` checks the `Rd*` fixtures against TLC under
+        // `--compat=tlc`.
         if core["verdict"] == "success"
+            && !name.starts_with("Rd")
             && let Some((g, d, q)) = tlc_counts(&transcript)
         {
             assert_eq!(
@@ -222,8 +226,9 @@ fn library_fixtures_match_the_reference_and_tlc() {
     // refused);
     // CommunityModules: CmOps, CmSeqsViol, CmSubSeqs, CmSubSeqsViol and six
     // error endings;
-    // operator arguments: HoOps, FoldOps and six error endings.
-    assert!(agreed >= 35, "only {agreed} library fixtures agreed");
+    // operator arguments: HoOps, FoldOps and six error endings;
+    // RandomElement: RdBfs, RdShapes, RdViol and RdErr.
+    assert!(agreed >= 39, "only {agreed} library fixtures agreed");
 }
 
 /// What TLC printed (`Print`, `PrintT`): the transcript's lines outside

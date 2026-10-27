@@ -453,6 +453,8 @@ pub struct Store {
     /// Whether the plan may build an interval or a lazy set
     /// ([`Store::lazy_sets`]).
     lazy_sets: AtomicBool,
+    /// The run's random streams ([`Store::set_draws`]).
+    draws: OnceLock<std::sync::Arc<dyn crate::random::Draws>>,
 }
 
 /// The value semantics of a run, fixed for the store's life: the default
@@ -542,6 +544,7 @@ impl Store {
             poisoned: AtomicBool::new(false),
             printer: OnceLock::new(),
             lazy_sets: AtomicBool::new(false),
+            draws: OnceLock::new(),
         }
     }
 
@@ -565,6 +568,18 @@ impl Store {
     #[must_use]
     pub fn lazy_sets(&self) -> bool {
         self.lazy_sets.load(Ordering::Relaxed)
+    }
+
+    /// Sets the run's random streams (`RandomElement`). The first call
+    /// wins.
+    pub fn set_draws(&self, draws: std::sync::Arc<dyn crate::random::Draws>) {
+        let _ = self.draws.set(draws);
+    }
+
+    /// The run's random streams, once set.
+    #[must_use]
+    pub fn draws(&self) -> Option<&std::sync::Arc<dyn crate::random::Draws>> {
+        self.draws.get()
     }
 
     /// The printer, once set.

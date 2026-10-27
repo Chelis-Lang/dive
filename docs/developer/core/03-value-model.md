@@ -245,6 +245,78 @@ the existing FP64 implementation in `crates/dive-value/src/fp64.rs`, which is
 ported as a function over handles. A state's FP64 follows TLC variable order
 (`dive_ir::Ir::tlc_vars`). Runs that cannot reach these uses never compute FP64.
 
+### 6.1 Random draws (B6)
+
+`TLC!RandomElement` draws from the run's random streams
+(`02-semantic-contract.md` B6, D-002). The core draws exactly what the
+reference engine draws, so that a run gives the reference engine's counts
+and traces in both profiles: TLC's draws bit for bit under `--compat=tlc`,
+and D-002's replayable streams in the default profile. `--seed` replays
+the run, and the seed is always reported.
+
+- **Streams.** `dive_core::random` defines the trait `Draws`: a startup
+  stream, and a stream for expanding a state. `crates/dive-api/src/core_engine.rs`
+  implements it with the reference engine's parts:
+  - `dive_stdlib::random::Streams` for the run's seed and mode;
+  - `dive_store::state::StateFingerprinter::tlc` for the state key. This
+    is TLC's FP64 state fingerprint, over the state converted to reference
+    values (`print::to_value`).
+
+  This adds no layering edge: `dive-core` defines the trait, and `dive-api`
+  already depends on `dive-stdlib` and `dive-store`. Converting and
+  fingerprinting each expanded state costs time, but only in plans that
+  draw (`Plan::effects`). Computing FP64 over handles (§6) would remove
+  that cost later. `crates/dive-api/src/core_random.rs` holds the
+  implementation.
+- **Where draws come from.**
+  - Constants and `ASSUME`s draw from the startup stream, on the reference
+    binder's host. If they drew and the plan draws too, the core refuses
+    the run: `Init` would continue that stream, and TLC's trace rebuild
+    starts `Init` from a fresh one (D-002, fixture `RndTraceAssume`).
+  - `Init` draws from the startup stream.
+  - Expanding a state starts that state's stream (TLC reseeds with
+    `fingerprint ^ seed`). The next-state relation draws from it, action
+    by action, in TLC's order.
+- **Checks.** TLC's checks on a successor draw from the same stream as the
+  expansion. A draw in a check (an invariant, a constraint, an action
+  constraint or an implied action) is refused by name. The trace rebuild
+  replays the actions without the checks, so it would see the stream at
+  another position.
+- **Rebuilding traces.** The rebuild uses the same streams: the startup
+  stream for `Init`, and each predecessor's own stream after that. TLC's
+  call-stack replay after a failing check (`ending.rs`) is refused in a
+  plan that draws.
+- **Evaluation counts.** A draw is an effect (`Info::effect`). It is never
+  folded, memoized or cached. Inside a function constructor, a filter, a
+  set map or an operator argument's body, TLC evaluates lazily, so a draw
+  there is refused. A `LET`-bound definition or an operator argument with
+  an effect is TLC's `LazyValue`: forced once within one expression, but
+  evaluated again in each conjunct of `Init` or an action that uses it
+  (fixture `RndLetRedraw`). The core forces its thunk once, so a use in a
+  second generator expression is refused (`Compiler::effect_thunk_use`).
+  This applies to `Print` and `PrintT` too.
+- **Workers.** A plan with an effect runs one worker, and the report says
+  why. Draws themselves are per state, and could run in parallel later.
+  `--core-sample` is refused in a plan that draws.
+- **Argument shape.** TLC draws one value per component from a lazy
+  `[S -> T]`, `[a : S]` or `S \X T`, but one index from an enumerated set.
+  So:
+  - the argument keeps the core's symbolic sets symbolic;
+  - an enumerated set of functions is refused when the plan may build
+    such lazy sets (`Store::lazy_sets`), because TLC may hold it lazily.
+
+  Intervals and `SUBSET` draw an index into the normalized order either
+  way, so they need no such rule.
+- **Not done.** `RandomSubset`, `RandomSetOfSubsets` and
+  `TLCGet("seed")`.
+- **Tests.** `crates/dive-api/tests/core_random.rs` runs the `Rd*`
+  fixtures (`tests/fixtures/core-lib`) and the reference engine's `Rnd*`
+  fixtures at four seeds in both profiles against the reference engine,
+  checks that `--seed` replays at any worker count, and checks the `Rd*`
+  fixtures' counts and printed lines against the pinned TLC at `-seed 0`
+  under `--compat=tlc`. No new divergence: the default profile's draws are
+  D-002's.
+
 ## 7. Order
 
 Sets are stored in a canonical sorted order, and the order depends on the
@@ -641,6 +713,9 @@ M1, stream 1. The steps below are the ones §11 refers to.
    `expand_level` costs about 1.7% of samples at 8 workers (stream 3).
 
 Next (stream 1, after the open PRs merge):
+- `TLCSet` and `TLCGet` on the effect bit (§6.1's rules: one worker, the
+  reference engine's registers, TLC's values under `--compat=tlc`), then
+  the reference engine's refusal of a constant-body `LAMBDA` (#557).
 - Persistent 32-way trees are deferred by a negative result (§4.1).
 - An x86 measurement of steps 2 and 3 (`09-performance-method.md`):
   `store_views`, `store_scaling`, and the four spike models' time and RSS.

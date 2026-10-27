@@ -303,7 +303,7 @@ pub fn compile(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<Plan, E
     }
     let mut c = Compiler {
         h,
-        effects: false,
+        effects: crate::plan::Effects::default(),
         ir: h.ir,
         code: Code::default(),
         info: Vec::new(),
@@ -322,6 +322,8 @@ pub fn compile(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<Plan, E
         substs: Vec::new(),
         fun_caps: HashMap::new(),
         def_cache: HashMap::new(),
+        effect_thunks: HashMap::new(),
+        leaf: 0,
         opts,
         stats: CompileStats::default(),
         site_names: Vec::new(),
@@ -403,8 +405,8 @@ pub fn compile(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<Plan, E
 
 struct Compiler<'a> {
     h: &'a Handoff<'a>,
-    /// Whether any compiled node reaches an effect (`Info::effect`).
-    effects: bool,
+    /// The effects compiled nodes reach (`Info::effect`).
+    effects: crate::plan::Effects,
     ir: &'a Ir,
     code: Code,
     info: Vec<Info>,
@@ -432,6 +434,11 @@ struct Compiler<'a> {
     /// Zero-arity top-level definitions of state level, cached once per
     /// frame activation: their thunk slot and body.
     def_cache: HashMap<DefId, (u32, P)>,
+    /// The generator expression of the first use of each thunk whose body
+    /// has an effect (`Compiler::effect_thunk_use`).
+    effect_thunks: HashMap<u32, u32>,
+    /// The generator expression being compiled (`Compiler::g`).
+    leaf: u32,
     opts: Opts,
     stats: CompileStats,
     site_names: Vec<String>,
@@ -1008,7 +1015,26 @@ impl Compiler<'_> {
         };
         if lazy {
             return Err(Error::unsupported(
-                "Print or PrintT inside a function constructor, set filter, set map or operator argument, which TLC may evaluate lazily or in its own order (M1 core)",
+                "Print, PrintT or RandomElement inside a function constructor, set filter, set map or operator argument, which TLC may evaluate lazily or in its own order (M1 core)",
+            ));
+        }
+        Ok(())
+    }
+
+    /// Records a use of the thunk `slot`. A `LET`-bound definition or an
+    /// operator argument whose body has an effect is TLC's `LazyValue`.
+    /// Within one expression TLC forces it once, as the core does; across
+    /// the conjuncts of `Init` or an action it evaluates the body again
+    /// (fixture `RndLetRedraw`), where the core's thunk is forced once. So
+    /// a use in a second generator expression is refused.
+    fn effect_thunk_use(&mut self, slot: u32, body: P) -> Result<(), Error> {
+        if !self.info.get(body as usize).is_some_and(|i| i.effect) {
+            return Ok(());
+        }
+        let leaf = self.leaf;
+        if *self.effect_thunks.entry(slot).or_insert(leaf) != leaf {
+            return Err(Error::unsupported(
+                "a LET-bound definition or operator argument with an effect (Print, PrintT, RandomElement) used in more than one conjunct, which TLC evaluates again in each (M1 core)",
             ));
         }
         Ok(())
@@ -1062,7 +1088,14 @@ impl Compiler<'_> {
         }
         if info.effect {
             self.effect_allowed(&n)?;
-            self.effects = true;
+            self.effects.any = true;
+        }
+        if let Node::Lib(op, _) = &n {
+            match op {
+                StdOp::TlcPrint | StdOp::TlcPrintT => self.effects.prints = true,
+                StdOp::TlcRandomElement => self.effects.draws = true,
+                _ => {}
+            }
         }
         let foldable = !matches!(
             n,
@@ -1929,7 +1962,10 @@ impl Compiler<'_> {
                         self.p(expr, aenv, Mode::Primed)
                     }
                 },
-                (ArgHow::Thunk(slot, body), Mode::Plain) => self.push(Node::Lazy { slot, body }),
+                (ArgHow::Thunk(slot, body), Mode::Plain) => {
+                    self.effect_thunk_use(slot, body)?;
+                    self.push(Node::Lazy { slot, body })
+                }
                 (ArgHow::Thunk(..), Mode::Primed) | (ArgHow::ByName, _) => {
                     self.stats.by_name += 1;
                     self.p(expr, aenv, mode)
@@ -1963,6 +1999,7 @@ impl Compiler<'_> {
                 if self.is_trivial(body) {
                     return Ok(body);
                 }
+                self.effect_thunk_use(slot, body)?;
                 self.push(Node::Lazy { slot, body })
             }
             Sb::RecSelf(_) => Err(Error::unsupported(
@@ -2269,7 +2306,10 @@ impl Compiler<'_> {
                     self.outside(depth, |c| c.p(expr, env, Mode::Primed))
                 }
             },
-            (ArgHow::Thunk(slot, body), Mode::Plain) => self.push(Node::Lazy { slot, body }),
+            (ArgHow::Thunk(slot, body), Mode::Plain) => {
+                self.effect_thunk_use(slot, body)?;
+                self.push(Node::Lazy { slot, body })
+            }
             (ArgHow::Thunk(..), Mode::Primed) | (ArgHow::ByName, _) => {
                 self.stats.by_name += 1;
                 self.outside(depth, |c| c.p(expr, env, mode))
@@ -3028,6 +3068,9 @@ impl Compiler<'_> {
         reason = "one arm per generator rule"
     )]
     fn g(&mut self, e: ExprId, env: usize) -> Result<G, Error> {
+        // Each generator expression is evaluated by its own TLC call
+        // (`Compiler::effect_thunk_use`).
+        self.leaf += 1;
         let expr = &self.ir.node(e).expr;
         match expr {
             Expr::Junction { kind, items, .. } => match kind {

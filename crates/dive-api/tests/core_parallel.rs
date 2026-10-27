@@ -109,10 +109,12 @@ fn every_worker_count_gives_the_one_worker_result() {
                     reference["options"]["workers"]["used"].clone()
                 } else if many["options"]["workers"]["reason"]
                     .as_str()
-                    .is_some_and(|r| r.contains("(Print or PrintT)"))
+                    .is_some_and(|r| {
+                        r.contains("(Print or PrintT)") || r.contains("(RandomElement)")
+                    })
                 {
-                    // A specification that prints runs one worker, so that
-                    // its output is in TLC's order.
+                    // A specification that prints or draws runs one worker,
+                    // so that its output and draws are in TLC's order.
                     Value::from(1)
                 } else {
                     Value::from(workers)

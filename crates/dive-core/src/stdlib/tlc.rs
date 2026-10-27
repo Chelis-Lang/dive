@@ -1,7 +1,8 @@
 //! The value operators of the `TLC` module (`tlc2.module.TLC`): `:>`, `@@`
 //! `Assert`, `Permutations` and `ToString` (printed by `crate::print`), and
 //! the effects `Print` and `PrintT`, whose output the machine keeps in
-//! order (`Machine::printed`). The reference is
+//! order (`Machine::printed`), and `RandomElement`, which draws from the
+//! machine's stream (`crate::random`). The reference is
 //! `crates/dive-eval/src/std.rs` (`TlcMakeFcn`, `combine_fcn`, `TlcAssert`,
 //! `permutations`).
 
@@ -24,6 +25,7 @@ pub(super) fn implements(op: StdOp) -> bool {
             | StdOp::TlcToString
             | StdOp::TlcPrint
             | StdOp::TlcPrintT
+            | StdOp::TlcRandomElement
     )
 }
 
@@ -60,11 +62,71 @@ pub(super) fn call(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle
             m.printed.push(text);
             Ok(Handle::TRUE)
         }
+        StdOp::TlcRandomElement => random_element(m, op, arg(args, 0)?),
         StdOp::TlcToString => {
             let text = crate::print::tlc_string(&mut m.heap, arg(args, 0)?)?;
             m.heap.string(&text)
         }
         _ => Err(Error::internal("not a TLC operator")),
+    }
+}
+
+/// `RandomElement(S)`, drawn by the reference engine's operator from the
+/// machine's stream, on `S` converted with its lazy form
+/// (`03-value-model.md` §6.1).
+fn random_element(m: &mut Machine, op: StdOp, s: Handle) -> Result<Handle, Error> {
+    let s = if s.is_compound() && m.heap.view(s).is_lazy() {
+        m.heap.norm(s)?
+    } else {
+        s
+    };
+    if let Some(why) = draw_ambiguous(m, s) {
+        return Err(refuse(op, why));
+    }
+    let Some(p) = m.heap.store().printer().cloned() else {
+        return Err(refuse(op, "a draw without the model's names (M1 core)"));
+    };
+    let v = crate::print::to_value(
+        &mut m.heap,
+        &p.names,
+        s,
+        p.ctx,
+        crate::print::Conversion::Draw,
+    )
+    .map_err(Error::unsupported)?;
+    let Some(stream) = m.draw.as_mut() else {
+        return Err(refuse(
+            op,
+            "a draw outside the search's random streams (M1 core)",
+        ));
+    };
+    m.draws += 1;
+    let out = stream.draw(op, &[v], p.ctx)?;
+    crate::convert::from_value(&mut m.heap, &out, p.ctx)
+}
+
+/// Why TLC might draw otherwise from `s`: one value per component from a
+/// lazy `[S -> T]`, `[a : S]` or `S \X T`, which the core may hold
+/// enumerated when the plan builds such sets.
+fn draw_ambiguous(m: &Machine, s: Handle) -> Option<&'static str> {
+    if !s.is_compound() || !m.heap.store().lazy_sets() {
+        return None;
+    }
+    let v = m.heap.view(s);
+    match v.kind {
+        Kind::Set => v
+            .values()
+            .iter()
+            .any(|&e| {
+                e.is_compound() && matches!(m.heap.view(e).kind, Kind::IntFcn | Kind::Fcn)
+            })
+            .then_some(
+                "an enumerated set of functions, which TLC may hold as a lazy function, record or product set and draw from per component (M1 core)",
+            ),
+        Kind::FcnSet | Kind::RecSet | Kind::Product | Kind::Subset => {
+            v.data.iter().find_map(|&d| draw_ambiguous(m, d))
+        }
+        _ => None,
     }
 }
 

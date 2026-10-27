@@ -110,8 +110,10 @@ pub fn replay(
     for step in path {
         let got = if let Some(prev) = out.last() {
             m.s0.copy_from_slice(&prev.values);
+            crate::start_stream(&mut m, plan, Some(&prev.values))?;
             run(&mut m, &plan.code, &plan.next, step.ordinal)?.map(|(a, v)| (Some(a), v))
         } else {
+            crate::start_stream(&mut m, plan, None)?;
             run(&mut m, &plan.code, &plan.init, step.ordinal)?.map(|(_, v)| (None, v))
         };
         let Some((action, values)) = got else {

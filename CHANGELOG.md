@@ -1,5 +1,13 @@
 # Changelog
 
+- `--engine core` runs specifications that use `RandomElement`, drawing
+  what the reference engine draws at every seed: under `--compat=tlc`,
+  TLC's own draws. The run uses one worker and `--seed` replays it. A draw
+  in an invariant or constraint, a `LET`-bound draw used in more than one
+  conjunct (TLC draws it again at each), and a draw in `Init` after
+  constants or `ASSUME`s drew still fall back to the reference engine
+  under `--engine=auto`.
+
 - `--engine core` runs models with a `VIEW`: states are told apart by the
   view's value, and an error in the view is reported as the reference engine
   reports it.
