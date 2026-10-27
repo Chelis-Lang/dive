@@ -470,6 +470,7 @@ mod tests {
     ) -> OracleResult {
         OracleResult {
             native_unreduced_symmetry: false,
+            engine: None,
             verdict,
             verdict_code: None,
             error_class: None,

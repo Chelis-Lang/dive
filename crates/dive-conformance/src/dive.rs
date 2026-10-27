@@ -87,11 +87,88 @@ pub struct DiveProvenance {
     pub module_path: Vec<ClasspathEntry>,
 }
 
+/// Which `dive check` engine a run requests (`--impl dive:<engine>`, or
+/// `DIVE_ENGINE`; ADR 0117). Every engine must give the same observable
+/// results, so the choice never makes a run incomparable with a golden or
+/// baseline; reports record it, and each row the engine that ran.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub enum DiveEngine {
+    /// The reference checker, `dive check`'s default.
+    #[default]
+    Reference,
+    /// The new core, which refuses what it does not implement.
+    Core,
+    /// The core where it runs the check, the reference engine otherwise.
+    Auto,
+}
+
+impl DiveEngine {
+    /// Parses `reference`, `core` or `auto`.
+    ///
+    /// # Errors
+    /// A usage error naming the accepted engines.
+    pub fn parse(s: &str) -> Result<Self> {
+        match s {
+            "reference" => Ok(Self::Reference),
+            "core" => Ok(Self::Core),
+            "auto" => Ok(Self::Auto),
+            _ => Err(Error::Usage(format!(
+                "unknown dive engine `{s}`: expected reference, core or auto"
+            ))),
+        }
+    }
+
+    /// `DIVE_ENGINE`, if set and not empty.
+    ///
+    /// # Errors
+    /// An unknown engine name.
+    pub fn from_env() -> Result<Option<Self>> {
+        match std::env::var("DIVE_ENGINE") {
+            Ok(s) if !s.is_empty() => Self::parse(&s).map(Some),
+            _ => Ok(None),
+        }
+    }
+
+    /// The name `dive check --engine` takes.
+    #[must_use]
+    pub const fn name(self) -> &'static str {
+        match self {
+            Self::Reference => "reference",
+            Self::Core => "core",
+            Self::Auto => "auto",
+        }
+    }
+}
+
+/// The engine `dive check` reports in its JSON (`engine`,
+/// `engine_fallback`). The reference engine reports none.
+fn engine_run(v: &Value) -> Option<crate::tlc::result::EngineRun> {
+    let engine = v["engine"].as_str()?;
+    let fallback = v["engine_fallback"].as_object().map(|f| {
+        let text = |k: &str| {
+            f.get(k)
+                .and_then(Value::as_str)
+                .unwrap_or_default()
+                .to_owned()
+        };
+        crate::tlc::result::EngineFallback {
+            stage: text("stage"),
+            reason: text("reason"),
+        }
+    });
+    Some(crate::tlc::result::EngineRun {
+        engine: engine.to_owned(),
+        fallback,
+    })
+}
+
 /// `dive` itself.
 #[derive(Debug, Clone)]
 pub struct DiveImplementation {
     /// Options `dive` runs under (`--impl-option`).
     pub options: Vec<ImplOption>,
+    /// The engine `dive check` runs (`--impl dive:<engine>`).
+    pub engine: DiveEngine,
     /// The profile (`--impl-profile`, or `DIVE_COMPAT=tlc`).
     pub profile: Profile,
     bin: PathBuf,
@@ -181,6 +258,7 @@ impl DiveImplementation {
         };
         Ok(Self {
             options: Vec::new(),
+            engine: DiveEngine::default(),
             profile: Profile::default(),
             bin: executable,
             module_path,
@@ -251,6 +329,14 @@ impl DiveImplementation {
             extra
                 .extend::<[&std::ffi::OsStr; 2]>(["--action-composition".as_ref(), "tlc".as_ref()]);
         }
+        // Older binaries have no `--engine`; the reference engine is their
+        // only one, so the flag is passed only for another engine.
+        if self.engine != DiveEngine::Reference {
+            extra.extend::<[&std::ffi::OsStr; 2]>([
+                "--engine".as_ref(),
+                self.engine.name().as_ref(),
+            ]);
+        }
         if final_short {
             extra.extend::<[&std::ffi::OsStr; 4]>([
                 "--lncheck".as_ref(),
@@ -295,6 +381,8 @@ impl DiveImplementation {
         let mut cmd = Command::new(&self.bin);
         cmd.current_dir(dir)
             .env_remove("DIVE_COMPAT")
+            // The engine is passed explicitly (`run_model`).
+            .env_remove("DIVE_ENGINE")
             .args([command, "--output", "json"])
             .args(extra)
             .arg(file);
@@ -570,6 +658,7 @@ pub enum CheckMapping {
 fn bare(verdict: Verdict, exit_code: Option<i32>, note: String) -> OracleResult {
     OracleResult {
         native_unreduced_symmetry: false,
+        engine: None,
         verdict,
         verdict_code: None,
         error_class: None,
@@ -1098,6 +1187,7 @@ fn map_check_document(
         .filter_map(Value::as_str)
         .collect();
     CheckMapping::Result(Box::new(OracleResult {
+        engine: engine_run(v),
         native_unreduced_symmetry: temporal.is_some()
             && symmetry_metadata(v).is_ok_and(|fields| fields.unreduced),
         verdict: oracle_verdict,
@@ -1124,6 +1214,10 @@ fn map_check_document(
 impl Implementation for DiveImplementation {
     fn profile(&self) -> Option<Profile> {
         Some(self.profile.clone())
+    }
+
+    fn engine(&self) -> Option<&'static str> {
+        Some(self.engine.name())
     }
 
     fn options(&self) -> &[ImplOption] {
@@ -1265,6 +1359,26 @@ impl Implementation for DiveImplementation {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn engine_run_reads_the_engine_and_its_fallback() -> Result<()> {
+        assert_eq!(engine_run(&serde_json::json!({"verdict": "success"})), None);
+        let core = engine_run(&serde_json::json!({"engine": "core"}));
+        assert_eq!(
+            core.map(|e| (e.engine, e.fallback)),
+            Some(("core".to_owned(), None))
+        );
+        let fell = engine_run(&serde_json::json!({
+            "engine": "reference", "engine_requested": "auto",
+            "engine_fallback": {"stage": "static", "reason": "SYMMETRY"}
+        }));
+        let fallback = fell.and_then(|e| e.fallback);
+        assert_eq!(fallback.as_ref().map(|f| f.stage.as_str()), Some("static"));
+        assert_eq!(fallback.map(|f| f.reason), Some("SYMMETRY".to_owned()));
+        assert_eq!(DiveEngine::parse("auto")?, DiveEngine::Auto);
+        assert!(DiveEngine::parse("fast").is_err());
+        Ok(())
+    }
 
     #[test]
     #[cfg(unix)]

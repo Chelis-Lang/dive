@@ -110,9 +110,55 @@ The thresholds are in `10-plan.md`. In short:
 | Milestone | Required |
 |---|---|
 | M0 | Spike models match the goldens |
-| M1 | Small tier at or above baseline with `--engine=core` (fallback allowed, and the fallback count is reported); shadow comparison clean on the small tier; ablation matrix clean |
+| M1 | Small tier at or above baseline with `--engine=core` (fallback allowed, and the fallback count is reported: `--impl dive:auto`, §8.1); shadow comparison clean on the small tier; ablation matrix clean |
 | M2 | Full tier at or above the current 182 agreements with `--engine=core`, and at most 5% of models falling back |
 | M4 | The core is the default; the reference engine remains for validation and comparison |
+
+### 8.1 Fallback census (M1, 2026-10-27)
+
+This is the small tier: 156 models in the examples, probes, validation-smoke
+and configured-temporal-operators corpora, default profile, 1 worker. It ran
+under `dive-conformance run --impl dive:auto --impl-profile dive --no-sany`
+with `--baseline conformance/baselines/small-dive-w1.json`, on `main` at
+`431d6f95` plus the harness's `--impl dive:<engine>`. The counts come from
+the report's `summary.by_engine`.
+
+| Engine that ran | Models |
+|---|---|
+| core | 29 |
+| reference, static fallback | 119 |
+| reference, dynamic fallback | 1 |
+| none (ended before the search, or refused by both engines) | 7 |
+
+Outcomes: 144 agree, 7 expected divergences, 5 unsupported (refused by both
+engines), **0 disagree**. That is 0 regressions against the reference
+engine's baseline, so the M1 gate's first clause holds with fallback.
+
+Fallback reasons (the first run's `engine_fallback.reason`, grouped):
+
+| Reason | Models |
+|---|---|
+| temporal properties (`PROPERTY`, liveness) | 68 |
+| model values | 18 |
+| `SYMMETRY` | 11 |
+| value overrides (`<-` in the config) | 5 |
+| standard operators (`TLCGet`, `RandomElement`, `ToJson`, `Trace`) | 5 |
+| non-constant split arguments | 5 |
+| `VIEW` or `ALIAS` | 4 |
+| a split action inside nested `INSTANCE` substitutions | 1 |
+| `x' \in` a lazily represented set | 1 |
+| a false or failing `ASSUME` | 1 |
+| dynamic: an error the reference evaluator does not reproduce | 1 |
+
+The dynamic fallback is `LearnProofs/MCFindHighest`. The core raises an
+error on `Len` of a function over `1..0`, which TLC treats as `<<>>` (issue
+#527). After temporal properties, model values and `SYMMETRY` are the
+largest wins for core coverage. The M2 target of at most 5% falling back
+needs the liveness work.
+
+To reproduce, run the command above. `jq '.summary.by_engine'` gives the
+first table, and `jq '.models[].runs[0].engine_fallback'` gives the
+reasons.
 
 ## 9. Next step
 
