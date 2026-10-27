@@ -590,6 +590,13 @@ Next (M1, stream 2), from the census:
      `ToString` (a TLC printer in the core), `SortSeq` (an operator
      argument, through stream 2's `Compiler::op_fn`) and `RandomElement`
      (seed rules, B6).
+   - **CommunityModules, values (stream 1, `stdlib/community.rs`):** see
+     §8. Still to do: the rest of `SequencesExt` and `Functions` that take
+     only values (`SetToSeqs`, `LongestCommonPrefix`, `ReplaceFirstSubSeq`,
+     `ReplaceAllSubSeqs`, `AllSubSeqs`, `AntiFunction`), `FiniteSetsExt`'s
+     `kSubset`, and every operator with an operator argument (`Folds`,
+     `FoldSet`, `Quantify`, `SelectInSeq` and the rest), which wait for
+     `Compiler::op_fn`.
 4. The memoization decision: made. The memo tables are off by default
    (`06-memoization.md` §6).
 5. Native action splitting and constant evaluation, to drop the reference
@@ -688,6 +695,7 @@ with TLC's counts.
 |---|---|---|---|
 | Bags | `\oplus`, `\ominus`, `BagCardinality`, `BagUnion`, `\sqsubseteq`, `IsABag` | `BagOps` (32 distinct, 95 generated, depth 9; TLC agrees); errors `ErBagCardNonBag` (2176), `ErBagCupNonBag` (2169), `ErBagDiffNonFcn` (2169), `ErBagSqNonFcn` (2176) | all agree; `ErBagUnionNonBag` (TLC 2154, comparing `2` with `<<1>>`) is refused: a set of an integer and a function (C1, C2) |
 | TLC | `:>`, `@@`, `Assert`, `Permutations` | `TlcOps` (48 distinct, 145 generated, depth 9), `Perm` (6, 42, depth 1), `PermViol` (violation after 36 generated, trace 3), all equal to TLC; errors `ErAssertInv` (2132 in an invariant), `ErAssertNext` (assertion failure in the next-state relation, exit 14), `ErCombineNonFcn`, `ErCombineSecond` (2169), `ErPermNonSet` (2176) | all agree. `Permutations` is refused over strings or model values in the default profile and over compound elements: TLC enumerates the result in its own order (D-010) |
+| CommunityModules, values | `SequencesExt`: `Contains`, `RemoveFirst`, `Suffixes`, `SetToSeq`, `IsPrefix`; `Functions`: `IsInjective`; `Bitwise`: `And`, `Or`, `Xor`, `Not`, `shiftR` | `CmOps` (16 distinct, 51 generated, depth 4; TLC agrees); errors `ErCmContainsNonSeq`, `ErCmInjectiveNonFcn` (2283), `ErCmRemoveFirstNonSeq` (2169) | all agree. Refused as the reference engine refuses them: Java exceptions (`SetToSeq` and `IsPrefix` of a non-sequence, Bitwise of a non-integer or beyond 32 bits) and `IsInjective` over values TLC cannot compare |
 
 **Disagreements found, and their owners.**
 - *Comparison errors (fixed, §5.1).* `ErWrapSetMember` passed in the core and
