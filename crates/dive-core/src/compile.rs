@@ -156,6 +156,8 @@ pub struct Handoff<'a> {
     /// `SYMMETRY`: the closure's nonidentity maps, each as its moved
     /// model values `(from, to)` by name; empty without one.
     pub symmetry: Vec<Vec<(String, String)>>,
+    /// `VIEW`: states are keyed by its value.
+    pub view: Option<Role>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -340,6 +342,7 @@ pub fn compile(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<Plan, E
     for r in &h.invariants {
         invariants.push(c.check(r)?);
     }
+    let view = h.view.as_ref().map(|r| c.view(r)).transpose()?;
     let mut constraints = Vec::new();
     for r in &h.constraints {
         constraints.push(c.check(r)?);
@@ -393,6 +396,7 @@ pub fn compile(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<Plan, E
         check_deadlock: h.check_deadlock,
         symmetry,
         effects: c.effects,
+        view,
         stats: c.stats,
     })
 }
@@ -1378,6 +1382,27 @@ impl Compiler<'_> {
         let mut k = self.check(r)?;
         k.conjuncts.iter_mut().for_each(|j| j.skippable = false);
         Ok(k)
+    }
+
+    /// `VIEW`: one value-valued conjunct, the whole expression.
+    fn view(&mut self, r: &Role) -> Result<Check, Error> {
+        self.init_mode = false;
+        let (env, preset) = self.role_env(r)?;
+        if !preset.is_empty() {
+            return Err(Error::unsupported("a VIEW with bound parameters (core)"));
+        }
+        let p = self.p(r.expr, env, Mode::Plain)?;
+        let reads = self.info[p as usize].vars;
+        Ok(Check {
+            name: r.name.clone(),
+            conjuncts: vec![Conjunct {
+                p,
+                reads,
+                skippable: false,
+                site: None,
+            }],
+            frame: self.next_slot,
+        })
     }
 
     /// Flattens a conjunction, through zero-arity definitions, into its

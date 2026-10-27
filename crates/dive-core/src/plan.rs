@@ -592,6 +592,8 @@ pub struct Plan {
     /// Whether the plan prints (`Print`, `PrintT`): the engine then runs
     /// one worker, in TLC's order, and keeps the output in order.
     pub effects: bool,
+    /// `VIEW`: its value, the one conjunct, keys the state.
+    pub view: Option<Check>,
     /// Compile statistics.
     pub stats: CompileStats,
 }

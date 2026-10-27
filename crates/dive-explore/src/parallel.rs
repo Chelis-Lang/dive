@@ -208,6 +208,16 @@ impl WorkerSink<'_> {
         Ok(at)
     }
 
+    /// Records an evaluation error of a check at `site` on the current
+    /// candidate, and returns the stop that ends its expansion.
+    fn check_err(&mut self, m: &mut Machine, site: Site, error: Error) -> Result<Error, Error> {
+        let at = self.keep(m)?;
+        self.out
+            .occs
+            .push((self.action, Occ::CheckErr { site, error, at }));
+        Ok(Error::stop())
+    }
+
     fn record(&mut self, m: &mut Machine) -> Result<(), Error> {
         let plan = self.plan;
         if m.assigned != m.s1.len() {
@@ -218,18 +228,22 @@ impl WorkerSink<'_> {
         let skip = self.opts.parent_skip.then(|| changed_vars(m));
         let inside = match in_model(m, plan, true, skip, &mut self.metrics) {
             Ok(b) => b,
-            Err((site, error)) => {
-                let at = self.keep(m)?;
-                self.out
-                    .occs
-                    .push((self.action, Occ::CheckErr { site, error, at }));
-                return Err(Error::stop());
+            Err((site, error)) => return Err(self.check_err(m, site, error)?),
+        };
+        // Under symmetry or a VIEW a state outside the model is checked
+        // without a lookup, as TLC checks it (see `Explorer::probe`).
+        let unkeyed = !inside && (plan.symmetry.is_some() || plan.view.is_some());
+        let key = if unkeyed {
+            0
+        } else {
+            match state_key(m, plan) {
+                Ok(k) => k,
+                Err(error) if error.kind() == ErrorKind::Eval && plan.view.is_some() => {
+                    return Err(self.check_err(m, Site::View, error)?);
+                }
+                Err(e) => return Err(e),
             }
         };
-        // Under symmetry a state outside the model is checked without a
-        // lookup, as TLC checks it (see `Explorer::probe`).
-        let unkeyed = !inside && plan.symmetry.is_some();
-        let key = if unkeyed { 0 } else { state_key(m, plan)? };
         self.metrics.probed += 1;
         // TLC checks the implied actions on every step (`Search::successor`).
         let mut imp = Inv::Holds;
@@ -261,18 +275,9 @@ impl WorkerSink<'_> {
             self.out.occs.push((self.action, Occ::Old { key }));
             return Ok(());
         }
-        if inside && !crate::fingerprintable(m, false)? {
-            let at = self.keep(m)?;
+        if inside && plan.view.is_none() && !crate::fingerprintable(m, false)? {
             let error = Error::eval(crate::FP_MESSAGE);
-            self.out.occs.push((
-                self.action,
-                Occ::CheckErr {
-                    site: Site::Fingerprint,
-                    error,
-                    at,
-                },
-            ));
-            return Err(Error::stop());
+            return Err(self.check_err(m, Site::Fingerprint, error)?);
         }
         let mut inv = Inv::Holds;
         for (i, c) in plan.invariants.iter().enumerate() {
@@ -568,7 +573,9 @@ impl crate::Explorer<'_> {
                     let new = if *in_model {
                         self.seen.insert(*key)
                     } else {
-                        self.plan.symmetry.is_some() || !self.seen.contains(*key)
+                        self.plan.symmetry.is_some()
+                            || self.plan.view.is_some()
+                            || !self.seen.contains(*key)
                     };
                     if !new {
                         self.apply_implied(m, imp)?;
