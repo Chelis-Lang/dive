@@ -353,22 +353,58 @@ pub(crate) fn check(
             warn: options.eval.warnings,
         },
     );
+    let failed = out.verdict == dive_explore::Verdict::Failed;
     let verdict = match out.verdict {
         dive_explore::Verdict::Success => Verdict::Success,
         dive_explore::Verdict::InvariantViolated { property, initial } => {
             Verdict::InvariantViolated { property, initial }
         }
         dive_explore::Verdict::Deadlock => Verdict::Deadlock,
+        dive_explore::Verdict::Failed => Verdict::InternalError {
+            message: "a core failure without its site".into(),
+        },
         dive_explore::Verdict::Unsupported { feature } => unsupported(feature),
         dive_explore::Verdict::TimeLimit => Verdict::ResourceLimit {
             message: "the time limit was reached (core engine)".into(),
         },
         dive_explore::Verdict::Internal { message } => Verdict::InternalError { message },
     };
-    let counted = matches!(
+    let mut counted = matches!(
         verdict,
         Verdict::Success | Verdict::InvariantViolated { .. } | Verdict::Deadlock
     );
+    let mut verdict = verdict;
+    let mut in_init = matches!(verdict, Verdict::InvariantViolated { initial: true, .. });
+    let mut trace = out.trace.clone();
+    let mut stats = out.stats;
+    if let Some(f) = out.failure.as_ref().filter(|_| failed) {
+        match crate::core_ending::ending(&model, &store, f, out.replayed.as_ref()) {
+            Ok(end) => {
+                verdict = end.verdict;
+                in_init = end.in_init;
+                counted = true;
+                if !end.with
+                    && f.state.is_some()
+                    && let Some(Ok(t)) = &mut trace
+                {
+                    t.pop();
+                }
+                if let Some(rp) = &out.replayed {
+                    stats.distinct += rp.distinct;
+                    stats.left_on_queue += rp.queued;
+                }
+                if in_init {
+                    // After an error in the initial states TLC prints its
+                    // statistics: every state it inserted is on the queue,
+                    // and the depth is 1 once a state was generated.
+                    stats.left_on_queue = stats.distinct;
+                    stats.depth = u64::from(stats.generated > 0);
+                }
+            }
+            Err(refusal) => verdict = refusal,
+        }
+    }
+    let prints = !in_init || matches!(verdict, Verdict::EvaluationError { .. });
     let mut r = result(verdict, options, ir);
     for (var, at) in &out.warnings {
         let name = plan.vars.get(usize::from(*var)).map_or("?", String::as_str);
@@ -379,15 +415,19 @@ pub(crate) fn check(
     }
     if counted {
         r.stats = Some(Stats {
-            generated: out.stats.generated,
-            distinct: out.stats.distinct,
-            left_on_queue: out.stats.left_on_queue,
-            depth: out.stats.depth,
-            initial_generated: out.stats.initial_generated,
+            generated: stats.generated,
+            distinct: stats.distinct,
+            left_on_queue: stats.left_on_queue,
+            depth: stats.depth,
+            initial_generated: stats.initial_generated,
         });
-        r.tlc_prints_stats = true;
+        r.tlc_prints_stats = prints;
     }
-    if counted && let Some(trace) = &out.trace {
+    if counted
+        && let Some(trace) = trace
+            .as_ref()
+            .filter(|t| !matches!(t, Ok(t) if t.is_empty()))
+    {
         match trace
             .as_ref()
             .map_err(Clone::clone)
@@ -419,12 +459,22 @@ fn counterexample(
     let mut states = Vec::with_capacity(trace.len());
     for t in trace {
         let mut values = Vec::with_capacity(t.values.len());
+        let mut partial = Vec::with_capacity(t.values.len());
         for &h in &t.values {
-            if h.is_empty() {
-                return Err("a trace state with an unassigned variable".into());
-            }
-            values.push(to_value(&mut heap, model, h, ctx)?);
+            partial.push(if h.is_empty() {
+                None
+            } else {
+                Some(to_value(&mut heap, model, h, ctx)?)
+            });
         }
+        // A state that leaves variables unassigned is described by TLC's
+        // text alone, as the reference engine describes it.
+        let text = if partial.iter().any(Option::is_none) {
+            Some(crate::core_ending::state_text(model, &partial))
+        } else {
+            values.extend(partial.into_iter().flatten());
+            None
+        };
         let (label, action) = match t.action {
             None => ("<Initial predicate>".to_owned(), None),
             Some(i) => {
@@ -439,14 +489,17 @@ fn counterexample(
             label,
             action,
             values,
-            text: None,
+            text,
         });
     }
     Ok(dive_check::Counterexample { states })
 }
 
 /// The action's name in traces, as the reference engine gives it.
-fn action_name(model: &dive_model::Model, a: &dive_eval::next::Action) -> Option<String> {
+pub(crate) fn action_name(
+    model: &dive_model::Model,
+    a: &dive_eval::next::Action,
+) -> Option<String> {
     use dive_ir::actions::ActionName;
     match a.name() {
         ActionName::Def(d) => Some(model.ir.def(d).name.clone()),
@@ -458,7 +511,7 @@ fn action_name(model: &dive_model::Model, a: &dive_eval::next::Action) -> Option
 
 /// Converts a persistent handle to a reference value (the reverse of the
 /// binder boundary, `dive_core::convert`), for reports and validation.
-fn to_value(
+pub(crate) fn to_value(
     heap: &mut dive_core::Heap,
     model: &dive_model::Model,
     h: dive_core::Handle,

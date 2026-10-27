@@ -67,6 +67,7 @@ pub mod budget;
 pub mod capture;
 pub mod checkpoint;
 mod class;
+pub mod classify;
 pub mod dfid;
 pub mod engine;
 pub mod final_roles;
