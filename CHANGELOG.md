@@ -54,6 +54,11 @@
   run, the engine that ran and any fallback (`summary.by_engine`), and
   baselines record a non-reference engine without making it incomparable.
 
+- `--engine core` runs operator arguments, including `LAMBDA` and `LET`
+  operators passed to operators. It also runs constant operators bound in
+  the configuration (`F <- D`), and operator declarations that nested
+  `INSTANCE`s substitute.
+
 - Add `dive check --engine auto` (or `DIVE_ENGINE=auto`). It runs the new
   core where the core implements the check, and otherwise the whole check on
   the reference engine. The report names the engine that ran and the core's

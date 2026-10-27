@@ -99,6 +99,19 @@ fn lazy_values_are_applied_without_being_built() {
     assert_eq!(counts(&core), counts(&run("Lazy", Engine::Reference)));
 }
 
+/// Operator arguments, constant operators and nested operator
+/// substitutions (`04-plan-compiler.md` §5.4).
+#[test]
+fn operator_arguments_are_applied_where_passed() {
+    for name in ["OpArg", "OpSub"] {
+        let reference = run(name, Engine::Reference);
+        let core = run(name, Engine::Core);
+        assert_eq!(core["engine"], "core", "{name}");
+        assert_eq!(counts(&core), counts(&reference), "{name}: {core:#}");
+        assert_eq!(core["property"], reference["property"], "{name}");
+    }
+}
+
 #[test]
 fn violations_and_deadlocks_are_reported() {
     assert_eq!(run("Viol", Engine::Core)["verdict"], "invariant-violation");
@@ -131,7 +144,7 @@ fn zero_to_the_zero_is_tlcs_evaluation_error() {
 
 #[test]
 fn every_strategy_switch_leaves_counts_unchanged() {
-    for name in ["Mix", "Fold", "Lazy", "Inst", "Bag", "Mv"] {
+    for name in ["Mix", "Fold", "Lazy", "Inst", "Bag", "Mv", "OpArg", "OpSub"] {
         let file = fixture(name);
         let req = CheckRequest {
             config: Some(file.with_extension("cfg")),
