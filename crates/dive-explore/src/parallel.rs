@@ -127,11 +127,15 @@ pub(crate) enum Occ {
     /// admission check).
     Old { key: u64 },
     /// Possibly new: its key, whether it is inside the model, the
-    /// invariants' verdict, and its values at `at` in the result's values.
+    /// invariants' verdict (applied if it is new), the implied actions'
+    /// verdict (applied in any case), and its values at `at` in the
+    /// result's values. A seen successor whose implied actions do not hold
+    /// is recorded here too, for its values.
     Cand {
         key: u64,
         in_model: bool,
         inv: Inv,
+        imp: Inv,
         at: usize,
     },
     /// Leaves variables unassigned (values at `at`).
@@ -224,6 +228,21 @@ impl WorkerSink<'_> {
         };
         let key = state_key(m);
         self.metrics.probed += 1;
+        // TLC checks the implied actions on every step (`Search::successor`).
+        let mut imp = Inv::Holds;
+        for (i, c) in plan.implied_actions.iter().enumerate() {
+            match crate::check_step(m, &plan.code, c) {
+                Ok(true) => {}
+                Ok(false) => {
+                    imp = Inv::Violated(i);
+                    break;
+                }
+                Err(e) => {
+                    imp = Inv::Error(i, e);
+                    break;
+                }
+            }
+        }
         let pos = (self.emitted - 1 < 1 << POS_BITS).then_some(self.base | (self.emitted - 1));
         let duplicate = if inside {
             self.seen.contains(key) || pos.is_some_and(|p| !self.claims.claim(key, p))
@@ -232,7 +251,7 @@ impl WorkerSink<'_> {
             // inserts it first.
             pos.is_some_and(|p| self.claims.held_before(key, p))
         };
-        if duplicate {
+        if duplicate && matches!(imp, Inv::Holds) {
             self.metrics.discarded_before_intern += 1;
             self.out.occs.push((self.action, Occ::Old { key }));
             return Ok(());
@@ -271,6 +290,7 @@ impl WorkerSink<'_> {
                 key,
                 in_model: inside,
                 inv,
+                imp,
                 at,
             },
         ));
@@ -432,6 +452,32 @@ pub(crate) fn expand_level(
 }
 
 impl crate::Explorer<'_> {
+    /// Applies a successor's implied-action verdict, with its values in
+    /// `m.s1`: a violation or error ends the search there.
+    fn apply_implied(&mut self, m: &mut Machine, imp: &Inv) -> Result<(), Error> {
+        match imp {
+            Inv::Holds => Ok(()),
+            Inv::Violated(i) => {
+                let property = self
+                    .plan
+                    .implied_actions
+                    .get(*i)
+                    .map(|c| c.name.clone())
+                    .unwrap_or_default();
+                self.stop = Some(crate::Verdict::ActionPropertyViolated { property });
+                self.end_here(m)?;
+                Err(Error::stop())
+            }
+            Inv::Error(i, error) => {
+                let e = self.fail_check(m, Site::ImpliedAction(*i), error.clone());
+                if self.failure.is_some() {
+                    self.end_here(m)?;
+                }
+                Err(e)
+            }
+        }
+    }
+
     /// Records a warning in the one-worker order (first raise wins).
     fn warn(&mut self, w: (u16, u32)) {
         if !self.warnings.contains(&w) {
@@ -504,6 +550,7 @@ impl crate::Explorer<'_> {
                     key,
                     in_model,
                     inv,
+                    imp,
                     at,
                 } => {
                     load(m, *at);
@@ -519,6 +566,7 @@ impl crate::Explorer<'_> {
                         !self.seen.contains(*key)
                     };
                     if !new {
+                        self.apply_implied(m, imp)?;
                         continue;
                     }
                     if *in_model {
@@ -548,6 +596,7 @@ impl crate::Explorer<'_> {
                             return Err(e);
                         }
                     }
+                    self.apply_implied(m, imp)?;
                     if *in_model {
                         self.enqueue(m)?;
                     }

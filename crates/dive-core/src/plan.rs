@@ -562,6 +562,12 @@ pub struct Plan {
     pub constraints: Vec<Check>,
     /// `ACTION_CONSTRAINT`s.
     pub action_constraints: Vec<Check>,
+    /// Implied initial predicates (`PROPERTY` parts checked on the initial
+    /// states).
+    pub implied_inits: Vec<Check>,
+    /// Implied actions (`[A]_v` of `[][A]_v` in `PROPERTY`s), step
+    /// predicates.
+    pub implied_actions: Vec<Check>,
     /// Whether deadlock is checked.
     pub check_deadlock: bool,
     /// Compile statistics.

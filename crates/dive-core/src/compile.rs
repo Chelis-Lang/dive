@@ -145,6 +145,12 @@ pub struct Handoff<'a> {
     /// `ACTION_CONSTRAINT`s, evaluated on a step: unprimed variables read
     /// the parent, primed ones the successor.
     pub action_constraints: Vec<Role>,
+    /// Implied initial predicates: the state-level parts of `PROPERTY`s,
+    /// checked on the initial states.
+    pub implied_inits: Vec<Role>,
+    /// Implied actions: the `[A]_v` of `[][A]_v` in `PROPERTY`s, evaluated
+    /// on every step as `ACTION_CONSTRAINT`s are.
+    pub implied_actions: Vec<Role>,
     /// Whether deadlock is checked.
     pub check_deadlock: bool,
 }
@@ -329,11 +335,15 @@ pub fn compile(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<Plan, E
     }
     let mut action_constraints = Vec::new();
     for r in &h.action_constraints {
-        let mut k = c.check(r)?;
-        // The parent-delta skip compares a state with its parent; a step
-        // predicate has no such parent.
-        k.conjuncts.iter_mut().for_each(|j| j.skippable = false);
-        action_constraints.push(k);
+        action_constraints.push(c.step_check(r)?);
+    }
+    let mut implied_inits = Vec::new();
+    for r in &h.implied_inits {
+        implied_inits.push(c.check(r)?);
+    }
+    let mut implied_actions = Vec::new();
+    for r in &h.implied_actions {
+        implied_actions.push(c.step_check(r)?);
     }
     c.stats.nodes = c.code.nodes.len();
     c.stats.gnodes = c.code.gnodes.len();
@@ -353,6 +363,8 @@ pub fn compile(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<Plan, E
         invariants,
         constraints,
         action_constraints,
+        implied_inits,
+        implied_actions,
         check_deadlock: h.check_deadlock,
         stats: c.stats,
     })
@@ -1230,6 +1242,15 @@ impl Compiler<'_> {
             conjuncts,
             frame: self.next_slot,
         })
+    }
+
+    /// A step predicate: a check whose conjuncts are never skipped, since
+    /// the parent-delta skip compares a state with its parent and a step
+    /// predicate has no such parent.
+    fn step_check(&mut self, r: &Role) -> Result<Check, Error> {
+        let mut k = self.check(r)?;
+        k.conjuncts.iter_mut().for_each(|j| j.skippable = false);
+        Ok(k)
     }
 
     /// Flattens a conjunction, through zero-arity definitions, into its
