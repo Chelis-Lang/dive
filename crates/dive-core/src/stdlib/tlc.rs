@@ -139,7 +139,7 @@ fn permutations(m: &mut Machine, op: StdOp, s: Handle) -> Result<Handle, Error> 
 
 /// Advances `idx` to its next permutation in lexicographic order; false
 /// after the last.
-fn next_permutation(idx: &mut [usize]) -> bool {
+pub(super) fn next_permutation(idx: &mut [usize]) -> bool {
     let Some(i) = idx.windows(2).rposition(|w| w[0] < w[1]) else {
         return false;
     };
