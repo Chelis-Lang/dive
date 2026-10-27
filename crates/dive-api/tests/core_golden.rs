@@ -15,6 +15,7 @@ use dive_api::{CheckRequest, Engine, check_file_engine};
 const EXAMPLES: &str = "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f";
 const TLAPM: &str = "tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library";
 const ORACLE: &str = "tlc-2026.10.06.014338";
+const COMMUNITY: &str = "community-modules/78b98ae9939d2fe7a6615e9a4b21dd6c23ef8ff3/modules";
 
 fn cache() -> PathBuf {
     std::env::var_os("DIVE_CACHE_DIR").map_or_else(
@@ -38,14 +39,25 @@ fn golden(model: &str) -> serde_json::Value {
 }
 
 fn check(spec: &Path, cfg: &Path, model: &str) {
+    check_with(spec, cfg, model, &[]);
+}
+
+/// [`check`] with further module libraries (`--library-path`).
+fn check_with(spec: &Path, cfg: &Path, model: &str, libraries: &[&str]) {
     assert!(spec.exists(), "missing corpus file {}", spec.display());
+    let mut module_paths = vec![cache().join("git").join(TLAPM)];
+    for l in libraries {
+        let p = cache().join("git").join(l);
+        assert!(p.exists(), "missing module library {}", p.display());
+        module_paths.push(p);
+    }
     // One worker, and the parallel level, whose results are the same.
     for workers in [1, 4] {
         let report = check_file_engine(
             &CheckRequest {
                 file: spec.to_path_buf(),
                 config: Some(cfg.to_path_buf()),
-                module_paths: vec![cache().join("git").join(TLAPM)],
+                module_paths: module_paths.clone(),
                 workers: Some(workers),
                 seed: Some(0),
                 fp: Some(0),
@@ -131,4 +143,32 @@ fn coffee_can_safety_matches_the_golden() {
         "specifications/CoffeeCan/CoffeeCan1000Beans.cfg",
     );
     let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// M1 bench models the core used to refuse (`04-plan-compiler.md` §2.1,
+/// §4.2, §5.4): `LET` values around split actions, a union with `Int`, and
+/// an operator declaration substituted through nested instances.
+#[test]
+#[ignore = "minutes in a debug build; run with `--release --run-ignored all`"]
+fn mc_btree_matches_the_golden() {
+    let specs = cache().join("git/examples").join(EXAMPLES);
+    let model = "specifications/btree/MCbtree.cfg";
+    check_with(
+        &specs.join("specifications/btree/MCbtree.tla"),
+        &specs.join(model),
+        model,
+        &[COMMUNITY],
+    );
+}
+
+#[test]
+#[ignore = "minutes in a debug build; run with `--release --run-ignored all`"]
+fn mc_disruptor_mpmc_matches_the_golden() {
+    example("specifications/Disruptor/MCDisruptor_MPMC.cfg");
+}
+
+#[test]
+#[ignore = "minutes in a debug build; run with `--release --run-ignored all`"]
+fn tlc_sailfish1_matches_the_golden() {
+    example("specifications/dag-consensus/TLCSailfish1.cfg");
 }
