@@ -5,7 +5,7 @@ Status: M1 stream 2 in progress. The M0 spike is on `main`
 results in `m0-results.md`). M1 adds the comparison rules of §5.1
 (`compare.rs`), the coverage census of §8, the fold bound of §3 (R9), the
 laziness of values (§4.1), `INSTANCE` substitution (§3, pass 2), Bags, typed
-TLC error classes (§5.2), model values (§5.3) and the memo decision
+TLC error classes (§5.2), model values (§5.3), operator arguments (§5.4) and the memo decision
 (`06-memoization.md` §6).
 This document covers strategy S8 from `01-motivation.md`, and the compiler side of S5 and S6. It supersedes
 the evaluation-plan section of ADR 0014 §1.
@@ -412,6 +412,42 @@ no keys from `fcn_sorted`, and the empty tuple). So `[k \in {} |-> 1] =
 <<>>` was `FALSE`, and `Len` of the first failed. `fcn_sorted` now builds the
 empty tuple (fixture `Emp`; MCMajority).
 
+### 5.4 Operator arguments and constant operators (built)
+
+TLC passes an operator argument as a closure over the caller's context, and
+applies it there. The compiler reproduces this by inlining.
+- **Binding.** A parameter bound to an operator argument is an `Sb::OpArg`:
+  the operator, and the environment it was passed in. `resolve_param` follows
+  parameters that are passed on (`Through(F, v) == Twice(F, v)`).
+- **Application.** The argument is applied the same way in expressions
+  (`apply_param`) and in actions (`g_apply_op`). The call's arguments are
+  compiled at the application site. A `LAMBDA` or `LET` operator's body is
+  compiled in the environment where it was passed, so it reads the caller's
+  locals. A top-level operator or a std operator is applied as usual.
+- **Constant operators.** `CONSTANT F(_)` with `F <- D` in the
+  configuration applies `D`.
+- **Declarations an instance substitutes.** These are followed through
+  nested instances by `subst_op` (`INSTANCE M WITH G <- F`, where `F` is
+  itself substituted). Each link is looked up in the context outside its own
+  substitution.
+- **Refused:**
+  - an operator parameter of a recursive operator;
+  - a recursive `LET` operator passed as an argument;
+  - an `INSTANCE`-substituted operator passed as an argument;
+  - an enclosing operator parameter read inside a lifted recursive `LET`;
+  - built-ins passed as arguments (`Op(\cup)`);
+  - std operators applied to operator arguments (`FoldSet(LAMBDA ...)`),
+    which belong to the stdlib (stream 1).
+
+**Fixtures.** `OpArg` (6 distinct, 7 generated, depth 4) and `OpSub` (6/7/5)
+match the pinned TLC.
+
+**Models.** These models now agree with the reference engine, properties
+stripped:
+- CigaretteSmokers: 6/15/2;
+- MCInternalMemory: 4408/21400/10;
+- TLCSailfish1: 109604/314144/16.
+
 ## 6. Interpreter
 
 The plan is executed by a recursive `match` over compact node arrays: an enum
@@ -493,11 +529,14 @@ Next (M1, stream 2), from the census:
    - SlushSmall has no JSON result in either.
    - The rest are refused for other reasons, which are the next work, in
      census order:
-     - operator arguments (CigaretteSmokers);
-     - constant operators (MCInternalMemory);
-     - an `INSTANCE` substitution of an operator by a non-top-level operator
-       (TLCSailfish1);
-     - `TLC!PrintT` (MCEcho, effects B6).
+     - operator arguments (CigaretteSmokers), constant operators
+       (MCInternalMemory) and nested operator substitutions (TLCSailfish1):
+       built (§5.4);
+     - `TLC!PrintT` (MCEcho, effects B6): the stdlib (stream 1).
+7. Next: constant evaluation, to drop the reference binder's split-argument
+   refusal. The small tier has 6 models refused as "a split argument that is
+   not constant": MCDieHarder, MCDisruptor_MPMC, ElevatorSafetySmall,
+   SlidingPuzzles, MCbtree and kvstore.
 
 GameOfLife's `sc` has a product domain, so TLC keeps it lazy. The core still
 caches its materialization once per activation, under `Node::Spec`, so its
