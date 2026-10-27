@@ -70,11 +70,15 @@ fn flat(dir: &str) -> Vec<(String, PathBuf, Option<PathBuf>)> {
 }
 
 fn run(spec: &Path, engine: Engine, compat_tlc: bool) -> Value {
+    run_at(spec, engine, compat_tlc, 1)
+}
+
+fn run_at(spec: &Path, engine: Engine, compat_tlc: bool, workers: usize) -> Value {
     let report = check_file_engine(
         &CheckRequest {
             config: Some(spec.with_extension("cfg")),
             file: spec.to_path_buf(),
-            workers: Some(1),
+            workers: Some(workers),
             seed: Some(0),
             fp: Some(0),
             compat_tlc,
@@ -211,6 +215,34 @@ fn error_fixtures_match_the_reference_under_compat() {
 fn m1_fixtures_match_the_reference_under_compat() {
     let (agreed, _) = check_all(flat("tests/fixtures/core-m1"));
     assert!(agreed >= 11, "only {agreed} M1 fixtures agreed");
+}
+
+/// Parallel compat runs give the one-worker result: every fixture, at 2, 3
+/// and 8 workers.
+#[test]
+fn parallel_compat_runs_give_the_one_worker_result() {
+    let mut all = flat("tests/fixtures/core-compat");
+    all.extend(flat("tests/fixtures/core-m1"));
+    all.extend(specs("crates/dive-eval/tests/fixtures/next"));
+    all.extend(specs("crates/dive-check/tests/fixtures/tlc-probes"));
+    all.extend(specs("crates/dive-check/tests/fixtures/errors"));
+    let mut ran = 0;
+    for (name, spec, _) in all {
+        let one = run_at(&spec, Engine::Core, true, 1);
+        if one["verdict"] == "unsupported" || one["verdict"] == "rejected" {
+            continue;
+        }
+        for workers in [2, 3, 8] {
+            let many = run_at(&spec, Engine::Core, true, workers);
+            assert_eq!(
+                observed(&many),
+                observed(&one),
+                "{name} at {workers} workers"
+            );
+        }
+        ran += 1;
+    }
+    assert!(ran >= 130, "only {ran} fixtures ran");
 }
 
 /// `--engine=auto` keeps `--compat=tlc` on the reference engine for now.

@@ -1,5 +1,8 @@
 # Changelog
 
+- `--engine core --compat=tlc` runs at any worker count (`--workers N`),
+  with the one-worker result, as in the default profile.
+
 - `--engine core` reports a model that fails to bind (for example a numeral
   TLC cannot handle under `--compat=tlc`) as the reference engine does,
   instead of refusing it.

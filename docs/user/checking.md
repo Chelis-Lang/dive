@@ -79,7 +79,8 @@ no engine. After a dynamic refusal, the reference run gets what is left of
 `--time-limit`. For now auto runs every `--compat=tlc` check on the
 reference engine.
 
-`--engine core --compat=tlc` runs TLC's profile on the core, on one worker.
+`--engine core --compat=tlc` runs TLC's profile on the core, at any worker
+count, with the one-worker result.
 It covers TLC's string order, 32-bit integers, `\div` from `Naturals` and
 TLC's `x' \in S` order. Where TLC's comparisons could fail, or could answer
 differently from TLA+, the core refuses instead of answering. This happens,
