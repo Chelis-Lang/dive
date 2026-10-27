@@ -489,6 +489,10 @@ non-constant split arguments (stream 2), and are refused naming them.
 - The explorer's `state_key` keys a state by its image, in the one-worker
   level, the parallel level and TLC's call-stack replay. The explored state,
   the predecessor log and the traces stay concrete.
+- A state outside the model is checked without a lookup, as TLC checks it
+  (`isSeenState` is only for states inside the model). Without symmetry a
+  lookup only skips a state already checked; with it, a seen image can hide
+  a concrete state that was not. Fixture `SymOutside`.
 - Refused: `SYMMETRY` under `--compat=tlc`, where TLC compares in its own
   argument order and may fail; `SYMMETRY` with temporal properties; and
   states holding lazily represented sets or functions.
