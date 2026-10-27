@@ -59,6 +59,12 @@ With `--engine core`, anything the core does not implement yields an
 `unsupported` verdict that names it, and the run never falls back. The JSON
 report adds `"engine": "core"` and a `core` object with strategy metrics.
 
+`--core-sample N` (with `--engine core`) is a diagnostic for the core's
+developers. After the search, it takes `N` of the expanded states, chosen
+by the run's seed, and compares each one's successors with the reference
+evaluator's. The result is in the JSON report as `core.sample`. It changes
+no result and has no TLC equivalent; TLC-equivalent runs leave it off.
+
 `--engine auto` (or `DIVE_ENGINE=auto`) runs the core where it can. Where the
 core refuses, auto runs the whole check again on the reference engine and
 reports the reference result. The refusal can come before the search

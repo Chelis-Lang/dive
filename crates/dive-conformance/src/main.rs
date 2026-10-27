@@ -47,7 +47,9 @@ COMMANDS:
                            counterexamples must validate. Exit 1 on any difference. Takes the
                            selection options, --dive-bin, --jobs, budgets and --report-dir
                            (default: no report file). --strict: a model the core refuses, or
-                           a timeout, is a finding too (for fixed gate lists)
+                           a timeout, is a finding too (for fixed gate lists). --sample N
+                           (default 32, 0 for none): compare the successors of N sampled
+                           states per core run with the reference evaluator's
     study final            observe dive's schema-2/3 final/short mode against pinned goldens;
                            truth/count evidence only, never a strict conformance outcome
     report summarise <report.json>...
@@ -165,6 +167,8 @@ struct Opts {
     no_sany: bool,
     /// `shadow --strict`: refusals and timeouts are findings too.
     strict: bool,
+    /// `shadow --sample N`: sampled states per core run.
+    sample: Option<usize>,
     sany_only: bool,
     imp: Option<String>,
     golden_oracle: Option<String>,
@@ -214,6 +218,7 @@ fn parse_opts(args: &mut Args) -> Result<Opts> {
             "--reason" => o.reason = Some(args.value(&a)?),
             "--no-sany" => o.no_sany = true,
             "--strict" => o.strict = true,
+            "--sample" => o.sample = Some(parse_num(&a, &args.value(&a)?)?),
             "--sany-only" => o.sany_only = true,
             "--impl" => o.imp = Some(args.value(&a)?),
             "--golden-oracle" => o.golden_oracle = Some(args.value(&a)?),
@@ -740,6 +745,9 @@ fn print_and_gate(report: &dive_conformance::report::Report) -> bool {
     findings > 0
 }
 
+/// The default `shadow --sample`.
+const SHADOW_SAMPLE: usize = 32;
+
 /// `shadow`: returns whether there were findings.
 fn cmd_shadow(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool> {
     if o.imp.is_some() || o.impl_profile.is_some() || !o.impl_options.is_empty() {
@@ -767,6 +775,7 @@ fn cmd_shadow(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<b
         limits: limits(o),
         report_dir: o.report_dir.clone(),
         strict: o.strict,
+        sample: o.sample.unwrap_or(SHADOW_SAMPLE),
     };
     let report = dive_conformance::shadow::run(config, cache, &golden_oracle, &bin, &opts)?;
     out(&format!(

@@ -47,6 +47,9 @@ pub struct ShadowOptions {
     /// Whether a refusal or a timeout is a finding too: for a fixed list of
     /// models the core is expected to run (`--strict`).
     pub strict: bool,
+    /// Sample this many expanded states per core run and compare their
+    /// successors with the reference evaluator's (`--sample`; 0: none).
+    pub sample: usize,
 }
 
 /// The outcome of one model at one worker count.
@@ -62,6 +65,9 @@ pub enum ShadowStatus {
     Differ,
     /// The core's counterexample was refuted (a finding).
     TraceRefuted,
+    /// A sampled state's successors differ from the reference evaluator's
+    /// (a finding).
+    SuccessorsDiffer,
     /// Either engine hit its time or memory budget, or the harness timeout.
     Timeout,
 }
@@ -72,7 +78,7 @@ impl ShadowStatus {
     #[must_use]
     pub const fn is_finding(self, strict: bool) -> bool {
         match self {
-            Self::Differ | Self::TraceRefuted => true,
+            Self::Differ | Self::TraceRefuted | Self::SuccessorsDiffer => true,
             Self::Refused | Self::Timeout => strict,
             Self::Agree => false,
         }
@@ -103,6 +109,9 @@ pub struct ShadowRow {
     /// The refusal, or another detail.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub detail: Option<String>,
+    /// The core's successor sample, when one was taken.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sample: Option<crate::tlc::result::CoreSample>,
     /// Wall-clock milliseconds of the core run.
     pub core_ms: u64,
     /// Wall-clock milliseconds of the reference run (0 if it did not run).
@@ -217,6 +226,7 @@ fn row(corpus: &CorpusIndex, m: &ModelEntry, workers: u32, status: ShadowStatus)
         verdict: None,
         trace: None,
         detail: None,
+        sample: None,
         core_ms: 0,
         reference_ms: 0,
     }
@@ -252,6 +262,7 @@ fn shadow_model(
     };
     let mut out = row(corpus, m, workers, ShadowStatus::Agree);
     out.verdict = Some(core_result.verdict);
+    out.sample = core_result.engine.as_ref().and_then(|e| e.sample.clone());
     out.core_ms = millis(core_elapsed);
     if stopped(&core_result) {
         out.status = ShadowStatus::Timeout;
@@ -284,6 +295,13 @@ fn shadow_model(
     out.diffs = differences(&core_result, &reference_result, workers);
     if !out.diffs.is_empty() {
         out.status = ShadowStatus::Differ;
+    } else if let Some(s) = out.sample.as_ref().filter(|s| s.mismatches > 0) {
+        out.status = ShadowStatus::SuccessorsDiffer;
+        out.diffs.push(format!(
+            "successors: {} of {} sampled (state, action) pairs differ",
+            s.mismatches, s.compared
+        ));
+        out.diffs.extend(s.shown.iter().cloned());
     }
     if core_result.trace.is_some() {
         let check = core.trace_validated(&req, &core_result, &reference_result);
@@ -312,6 +330,7 @@ pub fn run(
     core.engine = DiveEngine::Core;
     let mut reference = core.clone();
     reference.engine = DiveEngine::Reference;
+    core.core_sample = (opts.sample > 0).then_some(opts.sample);
     let corpora = opts
         .corpora
         .iter()

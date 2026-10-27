@@ -15,9 +15,10 @@ protect-main`:
   `scripts/conformance-gate.sh conformance/gates/smoke.txt --workers 1,4`
   and the shadow gate `scripts/shadow-gate.sh
   conformance/gates/shadow-smoke.txt`. The shadow gate runs the new core
-  against the reference engine on ten fast models at 1 and 4 workers, under
-  `--strict` (`docs/developer/core/08-correctness.md` §4). The full gate
-  shadows the whole small tier.
+  against the reference engine on 26 fast examples models at 1 and 4
+  workers, under `--strict` and with successor sampling
+  (`docs/developer/core/08-correctness.md` §4). The full gate shadows the
+  cm1 list at 1, 4 and 8 workers and the whole small tier.
 
 The push run on `main` checks the merged result (branch protection is not
 strict) and saves the rust-cache entries that PR runs restore.

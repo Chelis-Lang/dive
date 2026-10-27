@@ -1,5 +1,15 @@
 # Changelog
 
+- `dive check --engine core --core-sample N` compares the successors of `N`
+  sampled states with the reference evaluator's and reports the result in
+  the JSON report (`core.sample`); it changes no result.
+  `dive-conformance shadow` samples 32 states per core run by default
+  (`--sample N`) and reports a difference as `successors-differ`. CI's
+  shadow gate now covers 26 examples models, and `cargo xtask gate --full`
+  also shadows the cm1 list at 1, 4 and 8 workers.
+- Fixed: `--engine core` reported integers outside its inline 61-bit range
+  as `<<>>` in counterexamples (#540).
+
 - `--engine core` reports a new state that holds a set TLC cannot
   fingerprint (`Nat`, `Int`, an infinite `Seq(S)`, or a set whose
   fingerprint enumerates one, such as `SUBSET Nat`) as TLC does: the same

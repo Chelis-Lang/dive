@@ -28,6 +28,7 @@
 
 pub mod ending;
 mod parallel;
+pub mod sample;
 pub mod trace;
 
 use std::sync::Arc;
@@ -160,6 +161,9 @@ pub struct Outcome {
     /// What TLC's call-stack replay changed after an invariant failed to
     /// evaluate on a new successor.
     pub replayed: Option<Replayed>,
+    /// The sampled expanded states ([`Config::sample`]), as persistent
+    /// handles.
+    pub sampled: Vec<Vec<Handle>>,
 }
 
 /// Run settings.
@@ -176,6 +180,8 @@ pub struct Config {
     /// TLC's warning switch (`-nowarning` turns it off): it also selects
     /// the all-assigned shortcut for successors (`05` §5).
     pub warn: bool,
+    /// Keep a sample of the expanded states ([`Outcome::sampled`]).
+    pub sample: Option<sample::Sample>,
 }
 
 /// A set of 64-bit state keys (open addressing, linear probing).
@@ -760,7 +766,14 @@ pub fn explore(
         warnings: Vec::new(),
     };
     let mut replayed = None;
-    let result = run(&mut machines, &mut ex, plan, &mut replayed);
+    let mut reservoir = config.sample.map(sample::Reservoir::new);
+    let result = run(
+        &mut machines,
+        &mut ex,
+        plan,
+        &mut replayed,
+        reservoir.as_mut(),
+    );
     let parallel = machines.len() > 1;
     let mut m = machines.swap_remove(0);
     let trace = ex
@@ -807,6 +820,7 @@ pub fn explore(
         failure: ex.failure,
         in_init: ex.initial,
         replayed,
+        sampled: reservoir.map(|r| r.states).unwrap_or_default(),
     }
 }
 
@@ -862,6 +876,7 @@ fn run(
     ex: &mut Explorer<'_>,
     plan: &Plan,
     replayed: &mut Option<Replayed>,
+    mut reservoir: Option<&mut sample::Reservoir>,
 ) -> Result<(), Error> {
     let code = &plan.code;
     let nvars = plan.vars.len();
@@ -929,6 +944,9 @@ fn run(
                 return Err(Error::stop());
             }
             m.s0.copy_from_slice(state);
+            if let Some(r) = reservoir.as_deref_mut() {
+                r.offer(state);
+            }
             ex.cur_id = cur_ids.get(k).copied();
             ex.emitted = 0;
             let r = match res {

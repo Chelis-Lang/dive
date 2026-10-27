@@ -237,6 +237,26 @@ pub struct EngineRun {
     /// The core's refusal, when `auto` ran the reference engine.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub fallback: Option<EngineFallback>,
+    /// The core's successor sample (`dive check --core-sample`).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sample: Option<CoreSample>,
+}
+
+/// The core's successor sample: sampled states whose successors were
+/// compared with the reference evaluator's, action by action.
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CoreSample {
+    /// States sampled.
+    pub states: u64,
+    /// (state, action) pairs compared.
+    pub compared: u64,
+    /// Successors compared.
+    pub successors: u64,
+    /// Pairs whose successor multisets differ.
+    pub mismatches: u64,
+    /// The first mismatches, described.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub shown: Vec<String>,
 }
 
 /// An `--engine auto` fallback to the reference engine.
