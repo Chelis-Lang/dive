@@ -1,5 +1,8 @@
 # Changelog
 
+- `--engine core` scales better at high worker counts: interning a value
+  that is already stored no longer takes a lock.
+
 - `--engine core` runs specifications that use `ToString`, `Print` and
   `PrintT`, printing what TLC prints in TLC's order (with one worker). It
   now also reports what constant definitions and `ASSUME`s print at

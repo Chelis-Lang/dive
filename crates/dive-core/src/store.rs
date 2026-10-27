@@ -6,17 +6,23 @@
 //!   header and its handles inline (the largest class boxes its handles). A
 //!   slot is written once, under the shard's lock, and read without a lock,
 //!   so reading a node is one chunk load and one slot load.
-//! - The deduplication index is an open-addressing table of `u64` entries,
-//!   consulted and updated only while interning, under the shard's `Mutex`.
-//!   Each shard's lock lives on its own cache line, apart from the columns
-//!   that readers touch.
+//! - The deduplication index is an open-addressing table of atomic `u64`
+//!   entries. An intern that finds its node (a hit, by far the common case)
+//!   probes it without a lock, through the interning heap's
+//!   [`InternCache`] of the shard's current table; a miss takes the shard's
+//!   `Mutex`, probes again, and inserts. Growing replaces the table and
+//!   bumps the shard's generation, so a cached table is refreshed (under
+//!   the lock) when the generation moves; an old table stays valid for the
+//!   readers that still hold it, because nodes never move (#550).
+//!   Each shard's lock and generation live on their own cache lines, apart
+//!   from the columns that readers touch.
 //!
 //! All of this is safe Rust. A handle the store did not issue is an internal
 //! error: reads return an empty poison view and set [`Store::poisoned`], which
 //! the engine reports as a bug, never as a verdict.
 
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Mutex, OnceLock, PoisonError};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::sync::{Arc, Mutex, OnceLock, PoisonError};
 
 use crate::handle::{CLASSES, Handle, LAZY_CLASS, MAX_CLASS_INDEX};
 use crate::node::{Kind, View};
@@ -205,6 +211,41 @@ impl<T: Slot> Column<T> {
     }
 }
 
+/// The class and index a table entry names.
+fn unpack(e: u64) -> (u8, u64) {
+    #[allow(clippy::cast_possible_truncation, reason = "packed entry")]
+    let local = (e as u32).wrapping_sub(1);
+    #[allow(clippy::cast_possible_truncation, reason = "three class bits")]
+    let class = (local >> LOCAL_CLASS_SHIFT) as u8;
+    (class, u64::from(local & ((1 << LOCAL_CLASS_SHIFT) - 1)))
+}
+
+/// Probes `table` for a node with the low hash bits `h32` that `same`
+/// accepts, without a lock. `None` is a miss in this table only: an entry
+/// written meanwhile, or into a newer table, is found under the lock.
+#[inline]
+fn probe(table: &[AtomicU64], h32: u32, same: impl Fn(u8, u64) -> bool) -> Option<(u8, u64)> {
+    if table.is_empty() {
+        return None;
+    }
+    let mask = table.len() - 1;
+    let mut p = h32 as usize & mask;
+    loop {
+        let e = table[p].load(Ordering::Acquire);
+        if e == 0 {
+            return None;
+        }
+        #[allow(clippy::cast_possible_truncation, reason = "packed entry")]
+        if (e >> 32) as u32 == h32 {
+            let (class, i) = unpack(e);
+            if same(class, i) {
+                return Some((class, i));
+            }
+        }
+        p = (p + 1) & mask;
+    }
+}
+
 /// The chunk and offset of slot `index` in a column with first chunk
 /// `2^base`.
 #[inline]
@@ -271,33 +312,59 @@ impl Columns {
 /// `(low 32 bits of the hash) << 32 | (local + 1)`, where `local` is
 /// `class << 29 | index`; zero is empty. The probe position is the low bits
 /// of the hash, so growing needs no node reads.
-#[derive(Default)]
 struct Index {
     lens: [u64; CLASSES],
-    table: Vec<u64>,
+    table: Table,
     used: usize,
     hits: u64,
     misses: u64,
     handles: u64,
 }
 
+/// A shard's deduplication table. Entries are written once, under the
+/// shard's lock, after the node they name; readers load them without it.
+type Table = Arc<[AtomicU64]>;
+
+fn empty_table(cap: usize) -> Table {
+    (0..cap).map(|_| AtomicU64::new(0)).collect()
+}
+
 const LOCAL_CLASS_SHIFT: u32 = 29;
 
+impl Default for Index {
+    fn default() -> Self {
+        Self {
+            lens: [0; CLASSES],
+            table: empty_table(0),
+            used: 0,
+            hits: 0,
+            misses: 0,
+            handles: 0,
+        }
+    }
+}
+
 impl Index {
+    /// Doubles the table into a new one; the old one stays valid for the
+    /// readers that hold it.
     fn grow(&mut self) {
         let cap = (self.table.len() * 2).max(64);
-        let mut t = vec![0u64; cap];
-        let mask = cap - 1;
-        for &e in &self.table {
-            if e != 0 {
-                let mut p = (e >> 32) as usize & mask;
-                while t[p] != 0 {
-                    p = (p + 1) & mask;
+        let t: Vec<u64> = {
+            let mut t = vec![0u64; cap];
+            let mask = cap - 1;
+            for e in self.table.iter() {
+                let e = e.load(Ordering::Relaxed);
+                if e != 0 {
+                    let mut p = (e >> 32) as usize & mask;
+                    while t[p] != 0 {
+                        p = (p + 1) & mask;
+                    }
+                    t[p] = e;
                 }
-                t[p] = e;
             }
-        }
-        self.table = t;
+            t
+        };
+        self.table = t.into_iter().map(AtomicU64::new).collect();
     }
 }
 
@@ -305,6 +372,54 @@ impl Index {
 #[repr(align(128))]
 struct Shard {
     index: Mutex<Index>,
+}
+
+/// One shard's table generation, on its own cache line: bumped, under the
+/// lock, each time the table is replaced.
+#[repr(align(128))]
+#[derive(Default)]
+struct Generation(AtomicU64);
+
+/// A counter on its own cache line.
+#[repr(align(128))]
+#[derive(Default)]
+struct Padded(AtomicU64);
+
+/// Stripes of the lock-free hit counter.
+const HIT_STRIPES: usize = 16;
+
+/// A heap's view of the store's deduplication tables, for interning
+/// without the shard locks (#550): the table of each shard it has
+/// interned into, with the generation it was read at, and the hits it has
+/// not yet added to the store's statistics.
+pub struct InternCache {
+    tables: Vec<Option<(u64, Table)>>,
+    hits: u64,
+    stripe: usize,
+}
+
+impl Default for InternCache {
+    fn default() -> Self {
+        static NEXT: AtomicU64 = AtomicU64::new(0);
+        #[allow(
+            clippy::cast_possible_truncation,
+            reason = "reduced modulo the stripes"
+        )]
+        let stripe = (NEXT.fetch_add(1, Ordering::Relaxed) as usize) % HIT_STRIPES;
+        Self {
+            tables: vec![None; SHARDS],
+            hits: 0,
+            stripe,
+        }
+    }
+}
+
+impl std::fmt::Debug for InternCache {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("InternCache")
+            .field("hits", &self.hits)
+            .finish_non_exhaustive()
+    }
 }
 
 /// Intern statistics.
@@ -327,6 +442,8 @@ pub struct StoreStats {
 pub struct Store {
     cols: Box<[Columns]>,
     shards: Box<[Shard]>,
+    generations: Box<[Generation]>,
+    hits: Box<[Padded]>,
     strings: Strings,
     hashcons: bool,
     semantics: Semantics,
@@ -417,6 +534,8 @@ impl Store {
                     index: Mutex::new(Index::default()),
                 })
                 .collect(),
+            generations: (0..SHARDS).map(|_| Generation::default()).collect(),
+            hits: (0..HIT_STRIPES).map(|_| Padded::default()).collect(),
             strings: Strings::new(semantics.string_order),
             hashcons,
             semantics,
@@ -498,10 +617,12 @@ impl Store {
     }
 
     /// Interns a node whose children are all persistent or scalar. Returns
-    /// the existing handle when an equal node is present.
+    /// the existing handle when an equal node is present. `cache` is the
+    /// interning heap's: a hit is found without the shard's lock.
     #[allow(clippy::too_many_arguments, reason = "the node header, flat")]
     pub(crate) fn intern(
         &self,
+        cache: &mut InternCache,
         kind: Kind,
         flags: u8,
         lo: i64,
@@ -511,42 +632,61 @@ impl Store {
     ) -> Handle {
         #[allow(clippy::cast_possible_truncation, reason = "the top eight bits")]
         let s = (hash >> 56) as u8;
-        let (Some(shard), Some(cols)) = (
+        let (Some(shard), Some(cols), Some(generation)) = (
             self.shards.get(usize::from(s)),
             self.cols.get(usize::from(s)),
+            self.generations.get(usize::from(s)),
         ) else {
             self.poisoned.store(true, Ordering::Relaxed);
             return Handle::EMPTY;
         };
-        let mut index = shard.index.lock().unwrap_or_else(PoisonError::into_inner);
         #[allow(clippy::cast_possible_truncation, reason = "the low 32 bits")]
         let h32 = hash as u32;
+        let same = |class: u8, i: u64| {
+            cols.view(class, i).is_some_and(|n| {
+                n.kind == kind && n.flags == flags && n.lo == lo && n.hash == hash && n.data == data
+            })
+        };
+        if self.hashcons {
+            // The lock-free probe of the cached table.
+            let g = generation.0.load(Ordering::Acquire);
+            let entry = cache.tables.get_mut(usize::from(s));
+            if let Some(entry) = entry {
+                if entry.as_ref().is_none_or(|(cg, _)| *cg != g) {
+                    let index = shard.index.lock().unwrap_or_else(PoisonError::into_inner);
+                    *entry = Some((
+                        generation.0.load(Ordering::Relaxed),
+                        Arc::clone(&index.table),
+                    ));
+                }
+                if let Some((_, table)) = entry.as_ref()
+                    && let Some(found) = probe(table, h32, same)
+                {
+                    cache.hits += 1;
+                    let (class, i) = found;
+                    return Handle::persistent(s, class, i);
+                }
+            }
+        }
+        let mut index = shard.index.lock().unwrap_or_else(PoisonError::into_inner);
         let mut slot = None;
         if self.hashcons {
             if (index.used + 1) * 4 > index.table.len() * 3 {
                 index.grow();
+                generation.0.fetch_add(1, Ordering::Release);
             }
             let mask = index.table.len() - 1;
             let mut p = h32 as usize & mask;
             loop {
-                let e = index.table[p];
+                let e = index.table[p].load(Ordering::Relaxed);
                 if e == 0 {
                     slot = Some(p);
                     break;
                 }
                 #[allow(clippy::cast_possible_truncation, reason = "packed entry")]
                 if (e >> 32) as u32 == h32 {
-                    let local = (e as u32).wrapping_sub(1);
-                    #[allow(clippy::cast_possible_truncation, reason = "three class bits")]
-                    let class = (local >> LOCAL_CLASS_SHIFT) as u8;
-                    let i = u64::from(local & ((1 << LOCAL_CLASS_SHIFT) - 1));
-                    if cols.view(class, i).is_some_and(|n| {
-                        n.kind == kind
-                            && n.flags == flags
-                            && n.lo == lo
-                            && n.hash == hash
-                            && n.data == data
-                    }) {
+                    let (class, i) = unpack(e);
+                    if same(class, i) {
                         index.hits += 1;
                         return Handle::persistent(s, class, i);
                     }
@@ -582,16 +722,33 @@ impl Store {
                 reason = "bounded by MAX_CLASS_INDEX"
             )]
             let local = (u32::from(class) << LOCAL_CLASS_SHIFT) | i as u32;
-            index.table[p] = (u64::from(h32) << 32) | u64::from(local + 1);
+            // After the node: a reader that sees the entry sees the node.
+            index.table[p].store(
+                (u64::from(h32) << 32) | u64::from(local + 1),
+                Ordering::Release,
+            );
             index.used += 1;
         }
         Handle::persistent(s, class, i)
+    }
+
+    /// Adds a heap's lock-free hits to the statistics.
+    pub(crate) fn flush_hits(&self, cache: &mut InternCache) {
+        if cache.hits != 0 {
+            if let Some(c) = self.hits.get(cache.stripe) {
+                c.0.fetch_add(cache.hits, Ordering::Relaxed);
+            }
+            cache.hits = 0;
+        }
     }
 
     /// Intern statistics, summed over the shards.
     #[must_use]
     pub fn stats(&self) -> StoreStats {
         let mut st = StoreStats::default();
+        for c in &self.hits {
+            st.hits += c.0.load(Ordering::Relaxed);
+        }
         for shard in &self.shards {
             let index = shard.index.lock().unwrap_or_else(PoisonError::into_inner);
             st.hits += index.hits;
@@ -637,21 +794,23 @@ mod tests {
     #[test]
     fn every_size_class_round_trips_and_dedupes() {
         let store = Store::default();
+        let mut c = InternCache::default();
         let mut got = Vec::new();
         for len in [0i64, 1, 4, 5, 8, 9, 16, 17, 32, 33, 100] {
             let data: Vec<Handle> = (0..len).map(int).collect();
             let hash = crate::handle::mix64(len.unsigned_abs() + 1);
-            let h = store.intern(Kind::Set, 0, 7, hash, 3, &data);
+            let h = store.intern(&mut c, Kind::Set, 0, 7, hash, 3, &data);
             let v = store.view(h);
             assert_eq!(v.data, data.as_slice(), "len {len}");
             assert_eq!((v.kind, v.lo, v.hash, v.sum), (Kind::Set, 7, hash, 3));
             assert_eq!(
-                store.intern(Kind::Set, 0, 7, hash, 3, &data),
+                store.intern(&mut c, Kind::Set, 0, 7, hash, 3, &data),
                 h,
                 "len {len}"
             );
             got.push(h);
         }
+        store.flush_hits(&mut c);
         let st = store.stats();
         assert_eq!(st.nodes, got.len() as u64);
         assert_eq!(st.hits, got.len() as u64);
@@ -662,30 +821,68 @@ mod tests {
     #[test]
     fn colliding_hashes_are_told_apart_and_the_table_grows() {
         let store = Store::default();
+        let mut c = InternCache::default();
         // Every node has the same hash: probing must compare contents.
         let hash = 0xabcd_0000_0000_1234;
         let hs: Vec<Handle> = (0..500)
-            .map(|i| store.intern(Kind::Set, 0, 0, hash, 0, &[int(i)]))
+            .map(|i| store.intern(&mut c, Kind::Set, 0, 0, hash, 0, &[int(i)]))
             .collect();
         for (i, &h) in (0..).zip(&hs) {
             assert_eq!(store.view(h).data, &[int(i)]);
-            assert_eq!(store.intern(Kind::Set, 0, 0, hash, 0, &[int(i)]), h);
+            assert_eq!(store.intern(&mut c, Kind::Set, 0, 0, hash, 0, &[int(i)]), h);
         }
         // Distinct hashes in one shard, enough to grow the table repeatedly.
         for i in 0..5000u64 {
             let hash = (0x11u64 << 56) | crate::handle::mix64(i) >> 8;
-            let a = store.intern(Kind::Set, 0, 0, hash, 0, &[int(1)]);
-            assert_eq!(store.intern(Kind::Set, 0, 0, hash, 0, &[int(1)]), a);
+            let a = store.intern(&mut c, Kind::Set, 0, 0, hash, 0, &[int(1)]);
+            assert_eq!(store.intern(&mut c, Kind::Set, 0, 0, hash, 0, &[int(1)]), a);
         }
         assert_eq!(store.stats().nodes, 5500);
         assert!(!store.poisoned());
     }
 
     #[test]
+    fn concurrent_interns_dedupe_while_tables_grow() {
+        // Every thread interns the same values, in different orders, so
+        // that hits race inserts and growth, and every lock-free probe
+        // either finds the node or falls back to the lock.
+        let store = std::sync::Arc::new(Store::default());
+        let threads: Vec<_> = (0..8u64)
+            .map(|t| {
+                let store = std::sync::Arc::clone(&store);
+                std::thread::spawn(move || {
+                    let mut c = InternCache::default();
+                    let mut out = vec![Handle::EMPTY; 20_011];
+                    for k in 0..20_011u64 {
+                        let i = (k * (2 * t + 1)) % 20_011; // prime, so a permutation
+                        let hash = crate::handle::mix64(i);
+                        let v = i64::try_from(i).unwrap_or(0);
+                        out[usize::try_from(i).unwrap_or(0)] =
+                            store.intern(&mut c, Kind::Set, 0, 0, hash, 0, &[int(v)]);
+                    }
+                    store.flush_hits(&mut c);
+                    out
+                })
+            })
+            .collect();
+        let all: Vec<Vec<Handle>> = threads.into_iter().filter_map(|t| t.join().ok()).collect();
+        assert_eq!(all.len(), 8);
+        for (i, h) in (0..).zip(&all[0]) {
+            assert_eq!(store.view(*h).data, &[int(i)]);
+        }
+        assert!(all.iter().all(|o| *o == all[0]));
+        let st = store.stats();
+        assert_eq!(st.nodes, 20_011);
+        assert_eq!(st.hits + st.misses, 8 * 20_011);
+        assert!(!store.poisoned());
+    }
+
+    #[test]
     fn without_hashconsing_every_intern_inserts() {
         let store = Store::new(false);
-        let a = store.intern(Kind::Set, 0, 0, 9, 9, &[int(1)]);
-        let b = store.intern(Kind::Set, 0, 0, 9, 9, &[int(1)]);
+        let mut c = InternCache::default();
+        let a = store.intern(&mut c, Kind::Set, 0, 0, 9, 9, &[int(1)]);
+        let b = store.intern(&mut c, Kind::Set, 0, 0, 9, 9, &[int(1)]);
         assert_ne!(a, b);
         assert_eq!(store.view(a).data, store.view(b).data);
         assert_eq!(store.stats().nodes, 2);

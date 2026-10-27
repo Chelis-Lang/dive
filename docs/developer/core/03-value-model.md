@@ -5,7 +5,8 @@ Status: M0 spike on `main` in `crates/dive-core` (`handle`, `strings`,
 the value interface is frozen in §11, node data is inline in the store
 (step 2), the arena rolls back rejected candidates (step 3), and lazy values
 exist on the value side (step 4), integers have any size (step 5), and
-strings can compare by TLC token (step 6); the remaining M1 steps are in §12. This document covers strategies S1, S2, S4, S5 and S7 from
+strings can compare by TLC token (step 6), and intern hits take no lock
+(step 8); the remaining M1 steps are in §12. This document covers strategies S1, S2, S4, S5 and S7 from
 `01-motivation.md`.
 
 ## 1. Goals
@@ -63,17 +64,25 @@ all constants.
     two classes hold the node header and its handles inline in the slot; the
     last boxes its handles. Reads need no lock: a read is one chunk-pointer
     load and one slot load. The class is part of the persistent handle.
-  - **Deduplication index.** An open-addressing table of `u64` entries (the
-    low 32 bits of the hash, and the class and index), consulted and updated
-    only while interning, under a per-shard `Mutex` on its own cache line.
+  - **Deduplication index.** An open-addressing table of atomic `u64`
+    entries (the low 32 bits of the hash, and the class and index). An
+    intern first probes it without a lock, through the interning heap's
+    cached copy of the shard's table (`InternCache`), and returns on a hit.
+    A miss takes the per-shard `Mutex` (on its own cache line), probes
+    again and inserts. An entry is written once, after its node, with
+    release ordering. Growing replaces the table and bumps the shard's
+    generation; a heap refreshes its copy when the generation moves, and an
+    old table stays valid for whoever still holds it, because nodes never
+    move. All of this is safe Rust (#550, step 8).
 - **Hash-consing.** A compound is interned once. Interning looks up the hash,
   compares candidates structurally, and inserts if none matches. Two retained
   values are equal exactly when their handles are equal.
 - **Intern after claim.** A successor's values are interned only after its
   state fingerprint wins the seen-set claim (`07-engine.md`). Duplicate
   successors, 74% of them on MCLamportMutex, never touch the store. Interning
-  is therefore rare relative to evaluation, and the shard mutex is not a hot
-  lock.
+  is therefore rare relative to evaluation. Most interns are hits (about
+  93% on SimpleRegular), and hits take no lock; only inserts take the shard
+  mutex.
 - **Node contents.** Every node records its kind, its element or entry handles,
   its hash (section 5), and a lazily computed FP64 (section 6).
 - **Permanent region.** Constants and config values are interned at startup
@@ -530,8 +539,8 @@ arena nodes directly.
    `View::flags` (except to refuse a lazy value), and the store hash-conses
    a view-flagged node apart from identities (§8, view bits). The engine keeps a state slot's view handle in a
    side table when the plan asks for it.
-7. **Sharing.** `Store` is `Sync` and shared through `Arc`. Interning takes a
-   per-shard lock; reads take none. A persistent handle may be passed to any
+7. **Sharing.** `Store` is `Sync` and shared through `Arc`. Inserting takes a
+   per-shard lock; reads and intern hits take none. A persistent handle may be passed to any
    worker once it has been returned by `intern`.
 
 ## 12. Next step
@@ -615,6 +624,21 @@ M1, stream 1. The steps below are the ones §11 refers to.
    - the evaluator's TLC-order membership in a `SetEnum` and the C2/C5
      comparisons that read the bits (stream 2, with the compat order, M2);
    - the engine's view side table for state slots (stream 3).
+
+8. **Lock-free intern hits.** Done: §3.1 (#550). Only inserts take the
+   shard mutex. Measured on M3 (indicative, load 5.5–11, 4 performance and
+   4 efficiency cores), SimpleRegular with `N = 10` (6,375,622 distinct,
+   41,739,274 generated at 1, 4 and 8 workers, unchanged): at 8 workers,
+   time sampled in the shard mutex wait falls from 1,312–1,507 samples to
+   17–327 (of about 40,000), and wall time from 20.2–20.5 s to 19.4–19.5 s;
+   at 1 worker the time is unchanged (42.1–42.5 s against 42.4–42.8 s).
+   The default `N = 8` model and `store_scaling` are within noise on M3,
+   where the lock was rarely contended (0.17% of interns at 8 workers).
+   Instructions on the four spike models are within ±0.2%. The hit counter
+   is per heap and is added to the store's statistics when the heap is
+   reset or dropped. Open: an x86 measurement at 8 and 16 workers, where
+   #550 was found. A worker-side `memset` in `dive-explore`'s
+   `expand_level` costs about 1.7% of samples at 8 workers (stream 3).
 
 Next (stream 1, after the open PRs merge):
 - Persistent 32-way trees are deferred by a negative result (§4.1).
