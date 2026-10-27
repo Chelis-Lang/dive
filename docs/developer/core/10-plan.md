@@ -94,6 +94,44 @@ A change outside a stream's own modules is kept minimal and flagged in the PR.
 | 2026-10-26 | M0 x86 result: counts equal on all four models; 1.81× TLC and 5.21× the reference (geomean); kill criterion not triggered; proceed to M1. The second kill criterion (most of the gain reproducible by porting handles and arenas into the old evaluator) was not tested; the ablation attributes most of the gain to the base design rather than to any portable piece | `m0-results.md` §3.0 |
 | 2026-10-26 | M0 merged as experimental `--engine=core` (#505); M1 streams 1–3 started from `main` with module ownership; owner approved the plan | this directory |
 | 2026-10-26 | Where TLC is semantically wrong (stale lazy reuse, B2 and B4), the default profile evaluates soundly and `--compat=tlc` reproduces TLC; error caching is allowed in both profiles | `02-semantic-contract.md` §3a; ADR 0117 item 7 |
+| 2026-10-26 | Memo tables off by default: no measured gain on x86 (0.96–1.04×); kept behind `DIVE_CORE_OPT` for later models | `06-memoization.md` (#530) |
+| 2026-10-26 | Persistent function trees deferred after a negative measurement | `03-value-model.md` (#532) |
+| 2026-10-27 | `--engine=auto` runs the core and falls back to the reference engine on a static refusal, before the search; it refuses result-changing options under the core. `--engine` still defaults to `reference` | `07-engine.md` (#524, #549) |
+| 2026-10-27 | CI shadows the core against the reference engine on the smoke models; the full gate shadows the small tier, with sampled successor comparison | `08-correctness.md` (#534, #542) |
+| 2026-10-27 | `--compat=tlc` runs on the core at any worker count: the string table is sealed after start-up names, so workers never create TLC string tokens. Small tier against the TLC-profile goldens under auto: 150 agree, 6 unsupported, 0 disagree (same as the reference engine) | `07-engine.md` (#545, #548, #549) |
+| 2026-10-27 | M1 x86 checkpoint at `f1ed932a`: on the 5 of 10 bench models the core runs, 1.51× TLC (1 worker) and 1.27× (8 workers) geomean; counts equal the goldens. The liveness adapter is pulled forward from M3 into M1, because two bench models (EWD998PCal, BufferedRandomAccessFile) are refused only for temporal properties and the M1 gate needs 8 of 10 | §5a below; `conformance/reports/perf/2026-10-27-core-m1-x86.json` |
+
+## 5a. M1 checkpoint on x86 (2026-10-27)
+
+Bench set of 10 models, default profile, main `f1ed932a`, c7i.metal-24xl
+(SMT and turbo off, CPUs 0–15), median of 5. The core ran without fallback,
+so refused models have no core time. Every core run that produced a verdict
+matched the goldens. Record: `conformance/reports/perf/2026-10-27-core-m1-x86.json`.
+
+| Model | Core 1w | TLC 1w | ×TLC 1w | Core 8w | TLC 8w | ×TLC 8w | Core RSS 1w/8w (MB) |
+|---|---|---|---|---|---|---|---|
+| CoffeeCan1000BeansSafety | 0.94 | 2.27 | 2.40 | 0.69 | 1.67 | 2.41 | 165 / 417 |
+| SimpleRegular | 2.98 | 5.46 | 1.83 | 3.68 | 2.32 | 0.63 | 56 / 154 |
+| MCLamportMutex | 12.53 | 17.02 | 1.36 | 2.78 | 4.41 | 1.59 | 78 / 194 |
+| MCBakery | 8.99 | 11.27 | 1.25 | 7.16 | 7.86 | 1.10 | 1026 / 1465 |
+| GameOfLife | 11.73 | 12.08 | 1.03 | 2.07 | 2.60 | 1.25 | 102 / 152 |
+| EWD998PCal | refused: temporal properties | 42.16 | — | — | 7.80 | — | — |
+| BufferedRandomAccessFile | refused: temporal properties | 51.06 | — | — | 8.11 | — | — |
+| MCbtree | refused: non-constant split argument | 40.96 | — | — | 7.97 | — | — |
+| MCDisruptor_MPMC | refused: non-constant split argument | 4.45 | — | — | 1.59 | — | — |
+| TLCSailfish1 | refused: INSTANCE by a non-top-level operator | 51.69 | — | — | 8.29 | — | — |
+
+- Geomean over the five models the core runs: 1.51× TLC and 4.31× the
+  reference engine at 1 worker; 1.27× TLC and 2.98× the reference at 8.
+- Core scaling, 1 worker over 8: GameOfLife 5.67×, MCLamportMutex 4.51×,
+  CoffeeCan 1.36×, MCBakery 1.26×, SimpleRegular 0.81× (#550).
+- MCBakery's RSS is about 4× the reference engine's (#551).
+- Against M0 (`m0-results.md` §3.0), one-worker times rose 10–20%
+  (MCLamportMutex 10.47 → 12.53 s, GameOfLife 10.44 → 11.73 s, SimpleRegular
+  2.58 → 2.98 s, CoffeeCan 0.85 → 0.94 s), the cost of M1's semantic
+  coverage. Not yet attributed.
+- Gate status (≥1× TLC on 8 of 10): 5 of 10 at 1 worker, 4 of 10 at 8. The
+  gap is coverage first: the five refused models.
 
 ## 6. Open questions
 
@@ -110,6 +148,16 @@ The semantic contract lists seven more, in `02-semantic-contract.md` §6.
 
 Add a new entry at the top for every working session that ends with work in
 progress. Give the date, branch, state and the exact next step.
+
+- **2026-10-27 (M1 checkpoint).**
+  - **State.** 41 PRs merged since #505 (see §5). M1 x86 checkpoint
+    recorded in §5a. Stream 1 is on stdlib and CommunityModules operators;
+    stream 2 on non-constant split arguments and INSTANCE by non-top-level
+    operators (MCbtree, MCDisruptor_MPMC, TLCSailfish1); stream 3 on a refusal
+    census, then the liveness adapter (EWD998PCal, BufferedRandomAccessFile),
+    then #550 and #551.
+  - **Next.** Rerun the x86 bench once those five models run on the core.
+    Attribute the 10–20% one-worker rise since M0.
 
 - **2026-10-26 (M0).** Umbrella issue #498.
   - **State.** `core/m0-spike` is rebased on `main` and pushed; no PR is open.
