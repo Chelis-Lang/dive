@@ -42,14 +42,17 @@ core (ADR 0117), which is under construction. The reference engine stays the
 default (`--engine reference`), and it is also the TLC-equivalent setting. The
 core currently covers:
 
-- the default profile only. `--compat=tlc` is reported as unsupported, and
-  so are `--store exact`, disk spilling of the seen set, frontier or
-  predecessor log, and `--chaos`;
+- the default profile, and `--compat=tlc` (below). `--store exact`, disk
+  spilling of the seen set, frontier or predecessor log, and `--chaos` are
+  reported as unsupported;
 - any number of workers. Every result (counts, verdict, trace, output) is
   the one-worker result;
-- safety only: invariants, constraints, `ACTION_CONSTRAINT` and deadlock.
-  `PROPERTY`, implied properties, `VIEW`, `ALIAS`, `POSTCONDITION` and
-  `SYMMETRY` are reported as unsupported, naming the feature;
+- safety only: invariants, constraints, `ACTION_CONSTRAINT`, deadlock, and
+  the parts of a `PROPERTY` that are safety: `[]P`, its initial predicates
+  and its actions `[][A]_v` (a refinement `PROPERTY` of another
+  specification is of this kind). A `PROPERTY` that needs liveness
+  checking, `VIEW`, `ALIAS`, `POSTCONDITION` and `SYMMETRY` are reported as
+  unsupported, naming the feature;
 - verdicts, TLC's distinct and generated counts and depth, counterexample
   traces in the reference engine's format, TLC's evaluation-error endings
   where the core can reproduce them, and the run budgets (`--time-limit`,

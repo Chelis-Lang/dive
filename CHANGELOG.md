@@ -1,5 +1,11 @@
 # Changelog
 
+- `--engine core` checks the safety parts of `PROPERTY` entries: implied
+  initial predicates and actions (`[][A]_v`), as in a refinement property.
+  A property that needs liveness checking is still refused (and `auto` falls
+  back). EWD998PCal now runs on the core: 20 s against the reference
+  engine's 80 s, on one worker.
+
 - `--engine=auto` now runs `--compat=tlc` checks on the core too, and falls
   back to the reference engine where the core refuses. On the small
   conformance tier the result is the reference engine's own: 150 models
