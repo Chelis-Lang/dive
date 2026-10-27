@@ -579,9 +579,11 @@ Next (M1, stream 2), from the census:
      321,370 distinct, 2,808,396 generated, depth 47. M3, indicative, load
      11: 2.9 s user and 30 MB RSS, against 11.0 s and 127 MB for the
      reference engine.
-   - **Still to do in Bags:** `\oplus`, `\ominus`, `BagCardinality`,
-     `BagUnion`, `\sqsubseteq`, `BagOfAll`, `IsABag`, and `FoldBag`
-     (BagsExt).
+   - **Bags, the rest (stream 1, `stdlib/bags.rs`):** `\oplus`,
+     `\ominus`, `BagCardinality`, `BagUnion`, `\sqsubseteq` and `IsABag`.
+     Fixtures are in `tests/fixtures/core-lib` (§8, library fixtures).
+     Still to do: `BagOfAll` and `FoldBag` (BagsExt), which take operator
+     arguments.
 4. The memoization decision: made. The memo tables are off by default
    (`06-memoization.md` §6).
 5. Native action splitting and constant evaluation, to drop the reference
@@ -669,6 +671,17 @@ false `ASSUME`s (210), temporal properties (about 400), unclassified
 evaluation errors (about 110, §5), `VIEW`/`ALIAS` (26), `PrintT` (20),
 `SYMMETRY` (28), INSTANCE (15) and `ENABLED` (14).
 
+**Library fixtures** (`crates/dive-api/tests/fixtures/core-lib`, test
+`core_rules::library_fixtures_match_the_reference_and_tlc`). There is one
+model per operator family of `crates/dive-core/src/stdlib/`, and one per
+error case. Each has a pinned-TLC transcript (`dive-conformance dev
+capture`). The core must agree with the reference engine and, on success,
+with TLC's counts.
+
+| Family | Operators | Fixtures | Result |
+|---|---|---|---|
+| Bags | `\oplus`, `\ominus`, `BagCardinality`, `BagUnion`, `\sqsubseteq`, `IsABag` | `BagOps` (32 distinct, 95 generated, depth 9; TLC agrees); errors `ErBagCardNonBag` (2176), `ErBagCupNonBag` (2169), `ErBagDiffNonFcn` (2169), `ErBagSqNonFcn` (2176) | all agree; `ErBagUnionNonBag` (TLC 2154, comparing `2` with `<<1>>`) is refused: a set of an integer and a function (C1, C2) |
+
 **Disagreements found, and their owners.**
 - *Comparison errors (fixed, §5.1).* `ErWrapSetMember` passed in the core and
   is an evaluation error in TLC. Thirty probe specifications of comparisons
@@ -690,6 +703,22 @@ sound only once the core raises no error TLC would not.
 
 Changes made by other streams to the plan and compiler, recorded here as
 `10-plan.md` §3 asks.
+
+- **Stream 1, `core/stdlib-bags`: the library hook.**
+  - `plan.rs`: `Node::Lib(StdOp, Box<[P]>)`, a call of an operator in
+    `crate::stdlib` on normalized arguments.
+  - `compile.rs`: `std_apply` emits it for any `StdOp` that
+    `stdlib::implements` accepts and the compiler does not build itself;
+    `info_of` walks its arguments.
+  - `eval.rs`: evaluates the arguments with `eval_norm` and calls
+    `stdlib::call`.
+  - Contract: a library operator is a function of normalized values.
+    `stdlib::effectful(op)` is true for an operator with an effect (`Print`,
+    `TLCSet`, randomness); none is implemented yet. When one is, the
+    compiler will treat its node as not foldable and not memoizable.
+    Operators with operator arguments (`SelectSeq`, `BagOfAll`, the folds)
+    need an evaluator callback, to be agreed with stream 2 when the first
+    one lands.
 
 - **Stream 3, `core/engine-getnext`.**
   - `plan.rs`: new generator nodes `AssignInRaw`, `StepAngle` and

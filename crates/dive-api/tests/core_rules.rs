@@ -31,6 +31,9 @@ const REFUSED: &[(&str, &str)] = &[
     ("NxEnabled", "ENABLED"),
     // Implied action properties (not yet in the core).
     ("ImpliedActionSeen", "temporal"),
+    // A set of an integer and a function: TLC's error depends on when it
+    // normalizes the set (C1, C2).
+    ("ErBagUnionNonBag", "depends on when it normalizes"),
 ];
 
 fn repo() -> PathBuf {
@@ -188,6 +191,16 @@ fn error_fixtures_match_the_reference() {
     // ALIAS, POSTCONDITION, properties, Print, Assert, ENABLED, ASSUME
     // errors or recursive functions, which the core does not run yet.
     assert!(agreed >= 85, "only {agreed} error fixtures agreed");
+}
+
+/// The standard-library fixtures (`tests/fixtures/core-lib`): one model
+/// per operator family of `crates/dive-core/src/stdlib/`, and one per error
+/// case, with pinned-TLC transcripts.
+#[test]
+fn library_fixtures_match_the_reference_and_tlc() {
+    let agreed = check_dir("crates/dive-api/tests/fixtures/core-lib");
+    // Bags: BagOps and four error endings; ErBagUnionNonBag is refused.
+    assert!(agreed >= 5, "only {agreed} library fixtures agreed");
 }
 
 /// The M1 generator fixtures (`tests/fixtures/core-m1`): each agrees with
