@@ -512,7 +512,8 @@ higher-order operators (`SelectSeq`, `FoldSet`, ...; stream 1's
 `Node::LibHo`). That node sets the slots and evaluates the body for each
 element, and treats the slots as bound in `info_of`, as a binder does. Std
 and built-in operators passed as the argument (`FoldSet(+, 0, S)`) are
-refused for now.
+refused for now. `Node::LibHo` is built (§9); `stdlib::op_arity` says which
+arguments are operators and at what arity.
 
 **Fixtures.** `OpArg` (6 distinct, 7 generated, depth 4) and `OpSub` (6/7/5)
 match the pinned TLC.
@@ -598,16 +599,21 @@ Next (M1, stream 2), from the census:
    - **TLC, values (stream 1, `stdlib/tlc.rs`):** `:>`, `@@`, `Assert` and
      `Permutations`. Still to do: `Print`, `PrintT` and `TLCSet` (effects:
      an `Info` effect bit that blocks folding, speculation and memo sites),
-     `ToString` (a TLC printer in the core), `SortSeq` (an operator
-     argument, through stream 2's `Compiler::op_fn`) and `RandomElement`
-     (seed rules, B6).
+     `ToString` (a TLC printer in the core) and `RandomElement` (seed
+     rules, B6). `SortSeq` is done (operator arguments, below).
    - **CommunityModules, values (stream 1, `stdlib/community.rs`):** see
      §8. Still to do: the rest of `SequencesExt` and `Functions` that take
      only values (`LongestCommonPrefix`, `ReplaceFirstSubSeq`,
      `ReplaceAllSubSeqs`, `AllSubSeqs`), `FiniteSetsExt`'s
-     `kSubset`, and every operator with an operator argument (`Folds`,
-     `FoldSet`, `Quantify`, `SelectInSeq` and the rest), which wait for
-     `Compiler::op_fn`.
+     `kSubset`.
+   - **Operator arguments (stream 1, `stdlib/higher.rs`, `Node::LibHo`):**
+     `SelectSeq`, `SortSeq`, `BagOfAll`, `FoldBag`, `Quantify`,
+     `FoldFunction`, `FoldSeq`, `FoldLeft`, `FoldRight` and their `Domain`
+     forms, `SelectInSeq`, `SelectLastInSeq` and `RemoveFirstMatch`. Still
+     to do, because TLC applies the operator in its internal order of a set
+     or of an unnormalized function: `FoldSet`, `FoldFunctionOnSet`,
+     `MapThenFoldSet` and the `Folds` module, and the `SubSeq` forms of
+     the selections (their argument-not-in-domain error class is not mapped yet).
 4. The memoization decision: made. The memo tables are off by default
    (`06-memoization.md` §6).
 5. Native action splitting and constant evaluation, to drop the reference
@@ -717,6 +723,7 @@ with TLC's counts.
 |---|---|---|---|
 | Bags | `\oplus`, `\ominus`, `BagCardinality`, `BagUnion`, `\sqsubseteq`, `IsABag` | `BagOps` (32 distinct, 95 generated, depth 9; TLC agrees); errors `ErBagCardNonBag` (2176), `ErBagCupNonBag` (2169), `ErBagDiffNonFcn` (2169), `ErBagSqNonFcn` (2176) | all agree; `ErBagUnionNonBag` (TLC 2154, comparing `2` with `<<1>>`) is refused: a set of an integer and a function (C1, C2) |
 | TLC | `:>`, `@@`, `Assert`, `Permutations` | `TlcOps` (48 distinct, 145 generated, depth 9), `Perm` (6, 42, depth 1), `PermViol` (violation after 36 generated, trace 3), all equal to TLC; errors `ErAssertInv` (2132 in an invariant), `ErAssertNext` (assertion failure in the next-state relation, exit 14), `ErCombineNonFcn`, `ErCombineSecond` (2169), `ErPermNonSet` (2176) | all agree. `Permutations` is refused over strings or model values in the default profile and over compound elements: TLC enumerates the result in its own order (D-010) |
+| Operator arguments | `SelectSeq`, `SortSeq`, `BagOfAll`, `FoldBag`, `Quantify`, `FoldFunction`, `FoldSeq`, `FoldLeft`, `FoldRight`, `FoldLeftDomain`, `FoldRightDomain`, `SelectInSeq`, `SelectLastInSeq`, `RemoveFirstMatch` (as LAMBDAs, definitions, LET operators and operator parameters) | `HoOps` (121 distinct, 364 generated; TLC agrees); errors `ErHoSelectSeqNonSeq`, `ErHoFoldLeftNonSeq` (2169), `ErHoInBody` (2179 inside the operator) | all agree. *Disagreement found:* passed an operator whose body is a constant (`LAMBDA y : 0`), TLC fails in the overrides that take an `OpValue` (`BagOfAll` 2266, `FoldLeft` and the other folds 2154), while the reference engine applies it (issue #557; `ErHoConstBagOfAll` and `ErHoConstFoldLeft` are refused by the core) |
 | CommunityModules, values | `SequencesExt`: `Contains`, `RemoveFirst`, `Suffixes`, `SetToSeq`, `SetToSeqs`, `IsPrefix`; `Functions`: `IsInjective`, `AntiFunction`; `Bitwise`: `And`, `Or`, `Xor`, `Not`, `shiftR` | `CmOps` (16 distinct, 51 generated, depth 4), `CmSeqsViol` (violation after 543 generated, whose counts depend on `SetToSeqs`' order), both equal to TLC; errors `ErCmContainsNonSeq`, `ErCmInjectiveNonFcn` (2283), `ErCmRemoveFirstNonSeq` (2169) | all agree. Refused as the reference engine refuses them: Java exceptions (`SetToSeq` and `IsPrefix` of a non-sequence, Bitwise of a non-integer or beyond 32 bits) and `IsInjective` over values TLC cannot compare |
 
 **Disagreements found, and their owners.**
@@ -753,9 +760,13 @@ Changes made by other streams to the plan and compiler, recorded here as
     `stdlib::effectful(op)` is true for an operator with an effect (`Print`,
     `TLCSet`, randomness); none is implemented yet. When one is, the
     compiler will treat its node as not foldable and not memoizable.
-    Operators with operator arguments (`SelectSeq`, `BagOfAll`, the folds)
-    need an evaluator callback, to be agreed with stream 2 when the first
-    one lands.
+    Operators with operator arguments use `Node::LibHo(StdOp,
+    Box<[LibArg]>)`: `compile.rs` `lib_ho` compiles each operator argument
+    with `op_fn` at `stdlib::op_arity`, and `eval.rs` passes
+    `stdlib::OpFn`s, which bind the slots, evaluate the body (normalized)
+    and restore the slots. For an override that takes an `OpValue`
+    (`stdlib::takes_op_value`), an operator whose body compiles to a
+    constant is refused (§8).
 
 - **Stream 3, `core/engine-getnext`.**
   - `plan.rs`: new generator nodes `AssignInRaw`, `StepAngle` and

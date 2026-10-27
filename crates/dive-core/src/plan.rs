@@ -124,6 +124,21 @@ pub struct Update {
     pub value: P,
 }
 
+/// An argument of a higher-order library operator ([`Node::LibHo`]).
+#[derive(Clone, Debug)]
+pub enum LibArg {
+    /// A value, evaluated (normalized) before the call.
+    Value(P),
+    /// An operator: its parameters' slots and its body, which the library
+    /// evaluates once per application.
+    Op {
+        /// The parameters' slots.
+        params: Box<[u32]>,
+        /// The body.
+        body: P,
+    },
+}
+
 /// A value node.
 #[derive(Clone, Debug)]
 pub enum Node {
@@ -256,6 +271,8 @@ pub enum Node {
     /// A standard or CommunityModules operator implemented in
     /// [`crate::stdlib`], on normalized arguments.
     Lib(dive_ir::StdOp, Box<[P]>),
+    /// A [`crate::stdlib`] operator with operator arguments.
+    LibHo(dive_ir::StdOp, Box<[LibArg]>),
     /// An expression the core evaluates eagerly where TLC evaluates it
     /// lazily (`04-plan-compiler.md` §4.1): an evaluation error inside it
     /// is reported as `unsupported`, because TLC might never raise it.

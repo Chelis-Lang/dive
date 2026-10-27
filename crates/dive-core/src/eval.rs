@@ -11,7 +11,7 @@ use crate::int::{IntMode, IntOp};
 use crate::memo::{MAX_KEY, Memo};
 use crate::node::Kind;
 use crate::opts::Opts;
-use crate::plan::{Arith, Bind, Cmp, Code, Node, P, Quant, SetOp, StdFn, Update};
+use crate::plan::{Arith, Bind, Cmp, Code, LibArg, Node, P, Quant, SetOp, StdFn, Update};
 use crate::store::Store;
 
 /// The deepest recursive-operator nesting the interpreter allows.
@@ -548,6 +548,18 @@ impl Machine {
                     a.push(self.eval_norm(code, x)?);
                 }
                 crate::stdlib::call(self, *op, &a)
+            }
+            Node::LibHo(op, args) => {
+                let mut a = Vec::with_capacity(args.len());
+                for x in args {
+                    a.push(match x {
+                        LibArg::Value(p) => crate::stdlib::Ho::Value(self.eval_norm(code, *p)?),
+                        LibArg::Op { params, body } => {
+                            crate::stdlib::Ho::Op(crate::stdlib::OpFn::new(code, params, *body))
+                        }
+                    });
+                }
+                crate::stdlib::call_ho(self, *op, &a)
             }
             Node::Memo { site, body } => self.memo_eval(code, *site, *body),
             Node::Spec(b) => self.eval(code, *b).map_err(speculative),

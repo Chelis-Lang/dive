@@ -43,8 +43,8 @@ use crate::memo::{MAX_KEY, Memo};
 use crate::node::Kind;
 use crate::opts::Opts;
 use crate::plan::{
-    Action, Arith, Bind, Check, Cmp, Code, CompileStats, Conjunct, Fun, G, GNode, MemoSite, Node,
-    P, Plan, Quant, SetOp, StdFn, Update,
+    Action, Arith, Bind, Check, Cmp, Code, CompileStats, Conjunct, Fun, G, GNode, LibArg, MemoSite,
+    Node, P, Plan, Quant, SetOp, StdFn, Update,
 };
 use crate::store::Store;
 
@@ -621,6 +621,23 @@ impl Compiler<'_> {
                     i.calls |= inner.calls;
                     i.heavy |= inner.heavy;
                     union(&mut i.free, &inner.free);
+                }
+            }
+            Node::LibHo(_, args) => {
+                for a in args {
+                    match a {
+                        LibArg::Value(p) => add(*p, &mut i),
+                        LibArg::Op { params, body } => {
+                            let mut inner = Info::default();
+                            add(*body, &mut inner);
+                            minus(&mut inner.free, params);
+                            i.vars |= inner.vars;
+                            i.primed |= inner.primed;
+                            i.calls |= inner.calls;
+                            i.heavy |= inner.heavy;
+                            union(&mut i.free, &inner.free);
+                        }
+                    }
                 }
             }
             Node::Call { args, .. } => {
@@ -2327,10 +2344,6 @@ impl Compiler<'_> {
     /// Unsupported for a std or built-in operator passed as the argument
     /// (`FoldSet(+, 0, S)`), a recursive operator, or an expression
     /// argument; internal for an arity mismatch.
-    #[allow(
-        dead_code,
-        reason = "the entry point for stream 1's higher-order stdlib node (Node::LibHo)"
-    )]
     pub(crate) fn op_fn(
         &mut self,
         a: &Arg,
@@ -2607,6 +2620,45 @@ impl Compiler<'_> {
         Ok(id)
     }
 
+    /// A [`crate::stdlib`] operator with operator arguments
+    /// (`Node::LibHo`): each operator argument is compiled with
+    /// [`Self::op_fn`] at the arity the library expects.
+    fn lib_ho(&mut self, op: StdOp, args: &[Arg], env: usize, mode: Mode) -> Result<P, Error> {
+        if mode == Mode::Primed {
+            return Err(Error::unsupported(format!(
+                "{} under a prime (M1 core)",
+                op.qualified_name()
+            )));
+        }
+        let mut out = Vec::with_capacity(args.len());
+        for (i, a) in args.iter().enumerate() {
+            match (crate::stdlib::op_arity(op, i), a) {
+                (Some(arity), _) => {
+                    let (params, body) = self.op_fn(a, env, arity)?;
+                    if crate::stdlib::takes_op_value(op)
+                        && matches!(self.code.nodes.get(body as usize), Some(Node::Const(_)))
+                    {
+                        return Err(Error::unsupported(format!(
+                            "{} with an operator whose body is constant: TLC may fail to apply it",
+                            op.qualified_name()
+                        )));
+                    }
+                    out.push(LibArg::Op { params, body });
+                }
+                (None, Arg::Expr { expr, .. }) => {
+                    out.push(LibArg::Value(self.p(*expr, env, mode)?));
+                }
+                (None, Arg::Op { .. }) => {
+                    return Err(Error::unsupported(format!(
+                        "{} with an operator where a value is expected",
+                        op.qualified_name()
+                    )));
+                }
+            }
+        }
+        self.push(Node::LibHo(op, out.into()))
+    }
+
     fn std_apply(&mut self, op: StdOp, args: &[Arg], env: usize, mode: Mode) -> Result<P, Error> {
         use StdOp as S;
         if let Some(&t) = self.h.std_redirects.get(&op) {
@@ -2615,6 +2667,9 @@ impl Compiler<'_> {
             } else {
                 self.apply(&OpRef::Def(t), args, env, mode)
             };
+        }
+        if crate::stdlib::higher_order(op) {
+            return self.lib_ho(op, args, env, mode);
         }
         let mut ps = Vec::with_capacity(args.len());
         for a in args {
