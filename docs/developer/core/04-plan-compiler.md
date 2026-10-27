@@ -5,7 +5,8 @@ Status: M1 stream 2 in progress. The M0 spike is on `main`
 results in `m0-results.md`). M1 adds the comparison rules of §5.1
 (`compare.rs`), the coverage census of §8, the fold bound of §3 (R9), the
 laziness of values (§4.1), `INSTANCE` substitution (§3, pass 2), Bags, typed
-TLC error classes (§5.2) and the memo decision (`06-memoization.md` §6).
+TLC error classes (§5.2), model values (§5.3) and the memo decision
+(`06-memoization.md` §6).
 This document covers strategy S8 from `01-motivation.md`, and the compiler side of S5 and S6. It supersedes
 the evaluation-plan section of ADR 0014 §1.
 
@@ -377,6 +378,40 @@ The core's class is not yet read there. Two uses are planned:
 - dropping the reproduction for classified errors, once the classes cover
   the fixtures.
 
+### 5.3 Model values (built)
+
+A model value is a scalar handle (tag 3, `03-value-model.md` §11.1): the
+name's id in the string table, distinct from the string with the same text.
+Its rules follow TLC's `ModelValue`, as the reference engine ports them
+(`crates/dive-value/src/tlc.rs`, `crates/dive-eval/src/tla_cmp.rs`):
+- **Order.** Model values sort first, by name (D2), before booleans.
+- **Untyped.** An untyped model value is unequal to every other value,
+  without error. It is in no interval, `Nat`, `Int`, sequence, function,
+  record or tuple set (`FALSE`).
+- **Typed.** A model value is typed when its name has more than two
+  characters and the second is `_` (`t_a`). It compares with model values of
+  its own type and with untyped ones. Any other comparison or membership is
+  TLC's `GENERAL` error.
+- **Refusals.** Sets that mix a typed model value with values it cannot be
+  compared with are refused (C1, C2), as are memberships whose error depends
+  on TLC's search order (D3).
+- **Value overrides.** `Op = v` for a definition the binder does not
+  precompute (`NoVal = NoVal`) reaches the core through
+  `Evaluator::value_override`.
+
+Probes against the pinned TLC (`t_a = 1`, `t_a \in Nat`, `t_a \in 1..3`,
+`t_a = s_b`, `t_a \in [{1} -> {1}]`, `u = 1`, `u \in [{1} -> {1}]`,
+`t_a \in {u, t_b}`, `t_a < 1`) agree with the reference engine and TLC.
+Two cases are refused: `t_a \in {1, 2}`, and `1 \in {t_a, s_b}`.
+`<<t_a>> = <<1>>` is `FALSE` in the default profile, as in the reference
+engine (D-009); TLC raises an error. Fixture `Mv`: 31 distinct, 35
+generated, depth 6, as TLC.
+
+**Defect fixed with it.** The empty function had two forms (`Kind::Fcn` with
+no keys from `fcn_sorted`, and the empty tuple). So `[k \in {} |-> 1] =
+<<>>` was `FALSE`, and `Len` of the first failed. `fcn_sorted` now builds the
+empty tuple (fixture `Emp`; MCMajority).
+
 ## 6. Interpreter
 
 The plan is executed by a recursive `match` over compact node arrays: an enum
@@ -451,6 +486,18 @@ Next (M1, stream 2), from the census:
    (`06-memoization.md` §6).
 5. Native action splitting and constant evaluation, to drop the reference
    binder from the handoff.
+6. Model values: built (§5.3). Of the 23 small-tier models refused for
+   model values or value overrides, 16 now agree with the reference engine
+   once their properties are removed (MCMajority among them).
+   - Two are rejected in both engines.
+   - SlushSmall has no JSON result in either.
+   - The rest are refused for other reasons, which are the next work, in
+     census order:
+     - operator arguments (CigaretteSmokers);
+     - constant operators (MCInternalMemory);
+     - an `INSTANCE` substitution of an operator by a non-top-level operator
+       (TLCSailfish1);
+     - `TLC!PrintT` (MCEcho, effects B6).
 
 GameOfLife's `sc` has a product domain, so TLC keeps it lazy. The core still
 caches its materialization once per activation, under `Node::Spec`, so its

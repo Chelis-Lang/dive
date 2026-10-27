@@ -35,7 +35,7 @@ A value is a `Handle`, a `u64` newtype. Its low three bits are a tag.
 | 0 | Small integer | 61-bit signed integer |
 | 1 | Boolean | 1 bit |
 | 2 | String | string id (u32) into the string table |
-| 3 | Model value | id (u32) into the string table; the entry carries the TLC model-value type |
+| 3 | Model value | id (u32) into the string table; the TLC model-value type is the name's first character when its second is `_` (`compare.rs`) |
 | 4 | Persistent compound | shard (8 bits), size class (3 bits) and index in the persistent store |
 | 5 | Transient compound | epoch (16 bits) and index (32 bits) in the owning worker's arena |
 | 6 | Reserved | — (big integers are compound nodes of kind `BigInt`, §11.1) |
@@ -327,7 +327,7 @@ private to `handle.rs`, and other modules use only the methods named here.
 | 0 | Integer, 61-bit two's complement | value | `Handle::int(i64) -> Option`, `as_int` |
 | 1 | Boolean | 1 bit | `Handle::TRUE`, `FALSE`, `bool`, `as_bool` |
 | 2 | String | id (u32) in the string table | `Heap::string(&str)`, `as_str_id` |
-| 3 | Model value | *(reserved; M2)* | — |
+| 3 | Model value | name's id (u32) in the string table; the TLC type is read from the name | `Handle::model(id)`, `as_model_id` |
 | 4 | Persistent compound | shard (8 bits), size class (3 bits), index | issued by the store only; `is_persistent` |
 | 5 | Transient compound | epoch (29 bits), index (32 bits) | issued by the arena only; `is_transient` |
 | 6 | *(reserved)* | — | — |

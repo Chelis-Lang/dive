@@ -347,11 +347,11 @@ fn handoff<'a>(model: &'a dive_model::Model, ir: &'a Ir) -> Result<Handoff<'a>, 
                 overrides.insert(d);
             }
             precomputed.insert(d, v);
-        } else if ev.is_value_override(d) {
-            return Err(format!(
-                "the value override of {} (M0 core engine)",
-                def.name
-            ));
+        } else if let Some(v) = ev.value_override(d) {
+            // `Op = v` for a definition the binder did not precompute (for
+            // example `NoVal = NoVal`, a model value).
+            overrides.insert(d);
+            precomputed.insert(d, v);
         }
     }
     Ok(Handoff {
@@ -698,6 +698,14 @@ pub(crate) fn to_value(
             .text(id)
             .ok_or_else(|| format!("unknown string {id}"))?;
         return Ok(Value::Str(model.names.intern(&text)));
+    }
+    if let Some(id) = h.as_model_id() {
+        let text = heap
+            .store()
+            .strings()
+            .text(id)
+            .ok_or_else(|| format!("unknown model value {id}"))?;
+        return Ok(Value::Model(model.names.intern(&text)));
     }
     if !h.is_compound() {
         return Err("a value the core cannot report".into());

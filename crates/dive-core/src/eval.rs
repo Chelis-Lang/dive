@@ -761,9 +761,23 @@ impl Machine {
         if x.is_compound() && self.heap.view(x).kind.is_fcn() {
             return Ok(false);
         }
+        if x.as_model_id().is_some() {
+            return self.mv_member(x);
+        }
         Err(eval_err(&format!(
             "Attempted to check if a value that is not a function is in {what}"
         )))
+    }
+
+    /// `ModelValue.modelValueMember`: an untyped model value is in no set of
+    /// another kind; a typed one is TLC's error.
+    fn mv_member(&self, x: Handle) -> Result<bool, Error> {
+        if compare::mv_type(&self.heap, x).is_none() {
+            return Ok(false);
+        }
+        Err(general(
+            "Attempted to check if the typed model value is an element of a set of another kind",
+        ))
     }
 
     /// Whether `x` (normalized) is in `set`.
@@ -798,8 +812,14 @@ impl Machine {
                 let lo = v.lo;
                 match x.as_int() {
                     Some(i) => Ok(lo <= i && i <= hi),
-                    // TLC answers FALSE for an empty interval.
+                    // TLC answers FALSE for an empty interval, and for an
+                    // untyped model value.
                     None if lo > hi => Ok(false),
+                    None if x.as_model_id().is_some()
+                        && compare::mv_type(&self.heap, x).is_none() =>
+                    {
+                        Ok(false)
+                    }
                     // Bounds are inline, so a big integer is outside.
                     None if self.heap.is_int(x) => Ok(false),
                     None => Err(general(
@@ -818,6 +838,7 @@ impl Machine {
                             == Some(std::cmp::Ordering::Greater)
                 }
             }),
+            Kind::Nat | Kind::Int if x.as_model_id().is_some() => self.mv_member(x),
             Kind::Nat | Kind::Int => Err(eval_exc(
                 2158,
                 "Attempted to check if the value:\na value that is not an integer\nis an element of Nat or Int.",

@@ -42,7 +42,9 @@ fn counts(v: &Value) -> (Value, Value, Value, Value) {
 
 #[test]
 fn core_matches_reference_counts_and_verdicts() {
-    for name in ["Mix", "Viol", "Dead", "Fold", "Lazy", "Inst", "Big", "Bag"] {
+    for name in [
+        "Mix", "Viol", "Dead", "Fold", "Lazy", "Inst", "Big", "Bag", "Mv", "Emp",
+    ] {
         let reference = run(name, Engine::Reference);
         let core = run(name, Engine::Core);
         assert_eq!(core["engine"], "core", "{name}");
@@ -116,7 +118,7 @@ fn zero_to_the_zero_is_tlcs_evaluation_error() {
 
 #[test]
 fn every_strategy_switch_leaves_counts_unchanged() {
-    for name in ["Mix", "Fold", "Lazy", "Inst", "Bag"] {
+    for name in ["Mix", "Fold", "Lazy", "Inst", "Bag", "Mv"] {
         let file = fixture(name);
         let req = CheckRequest {
             config: Some(file.with_extension("cfg")),
