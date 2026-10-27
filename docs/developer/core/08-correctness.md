@@ -93,8 +93,12 @@ Where it runs:
 
 - CI's `Conformance gate` job runs `scripts/shadow-gate.sh` on
   `conformance/gates/shadow-smoke.txt`, under `--strict`. The list has ten
-  fast examples models the core runs, covering an invariant violation, a
-  deadlock, a parallel stop and successful searches.
+  fast examples models the core runs: invariant violations (stops, whose
+  counts are compared at one worker only) and complete searches. It takes
+  a few seconds.
+- Results on the small tier (2026-10-27, 156 models at 1 and 4 workers):
+  31 models agree at both worker counts, 125 are refused by the core, and
+  there is no difference, refuted trace or timeout.
 - `cargo xtask gate --full` shadows the whole small tier (the four corpora
   of the small-tier runs) at 1 and 4 workers, without `--strict`, so models
   the core refuses are counted, not failed.
