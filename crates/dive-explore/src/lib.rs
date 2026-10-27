@@ -401,6 +401,13 @@ impl Explorer<'_> {
                 m.s1[i] = m.heap.intern(m.s1[i])?;
             }
         }
+        if !in_model && self.plan.symmetry.is_some() {
+            // TLC checks a state outside the model without looking it up
+            // (`isSeenState` is for states inside it). Without symmetry a
+            // lookup only skips a state already checked; with it, an image
+            // seen before may hide a concrete state that is not.
+            return Ok((Probe::New, false));
+        }
         let key = state_key(m, self.plan)?;
         self.metrics.probed += 1;
         if in_model && (self.max_states.is_some() || self.max_depth.is_some()) {

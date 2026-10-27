@@ -226,7 +226,10 @@ impl WorkerSink<'_> {
                 return Err(Error::stop());
             }
         };
-        let key = state_key(m, plan)?;
+        // Under symmetry a state outside the model is checked without a
+        // lookup, as TLC checks it (see `Explorer::probe`).
+        let unkeyed = !inside && plan.symmetry.is_some();
+        let key = if unkeyed { 0 } else { state_key(m, plan)? };
         self.metrics.probed += 1;
         // TLC checks the implied actions on every step (`Search::successor`).
         let mut imp = Inv::Holds;
@@ -246,6 +249,8 @@ impl WorkerSink<'_> {
         let pos = (self.emitted - 1 < 1 << POS_BITS).then_some(self.base | (self.emitted - 1));
         let duplicate = if inside {
             self.seen.contains(key) || pos.is_some_and(|p| !self.claims.claim(key, p))
+        } else if unkeyed {
+            false
         } else {
             // Not inserted; new unless an earlier position inside the model
             // inserts it first.
@@ -563,7 +568,7 @@ impl crate::Explorer<'_> {
                     let new = if *in_model {
                         self.seen.insert(*key)
                     } else {
-                        !self.seen.contains(*key)
+                        self.plan.symmetry.is_some() || !self.seen.contains(*key)
                     };
                     if !new {
                         self.apply_implied(m, imp)?;
