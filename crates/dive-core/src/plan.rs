@@ -570,6 +570,8 @@ pub struct Plan {
     pub implied_actions: Vec<Check>,
     /// Whether deadlock is checked.
     pub check_deadlock: bool,
+    /// `SYMMETRY`: states are keyed by their canonical image.
+    pub symmetry: Option<crate::symmetry::Symmetry>,
     /// Compile statistics.
     pub stats: CompileStats,
 }

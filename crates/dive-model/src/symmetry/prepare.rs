@@ -443,6 +443,19 @@ fn prepare_group(
 }
 
 impl Reduction {
+    /// The model values the closure permutes; a map's images index into it.
+    #[must_use]
+    pub fn universe(&self) -> &[Atom] {
+        &self.universe
+    }
+
+    /// The closure's nonidentity maps, in the order canonicalization tries
+    /// them (the state itself is the initial candidate).
+    #[must_use]
+    pub fn maps(&self) -> &[crate::symmetry::Permutation] {
+        self.group.maps()
+    }
+
     /// Canonical values in the supplied variable order. The original values
     /// remain the explored state. TLC mode compares each candidate in TLC's
     /// argument order; canonical mode uses its approved total value order.

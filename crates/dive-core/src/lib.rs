@@ -50,6 +50,7 @@ pub mod plan;
 pub mod stdlib;
 pub mod store;
 pub mod strings;
+pub mod symmetry;
 
 pub use compile::{Handoff, Role, compile};
 pub use eval::Machine;

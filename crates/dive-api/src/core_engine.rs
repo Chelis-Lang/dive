@@ -329,13 +329,17 @@ fn refusal(model: &dive_model::Model) -> Option<String> {
     {
         return Some("POSTCONDITION (M0 core engine)".into());
     }
-    if model.symmetry.is_some() {
+    if model.symmetry.is_some() && !model.implied_temporals.is_empty() {
         return Some("SYMMETRY (M0 core engine)".into());
     }
     None
 }
 
-fn handoff<'a>(model: &'a dive_model::Model, ir: &'a Ir) -> Result<Handoff<'a>, String> {
+fn handoff<'a>(
+    model: &'a dive_model::Model,
+    ir: &'a Ir,
+    symmetry: Vec<Vec<(String, String)>>,
+) -> Result<Handoff<'a>, String> {
     let ev = &model.evaluator;
     let constants = (0..ir.consts().len())
         .map(|i| {
@@ -389,6 +393,7 @@ fn handoff<'a>(model: &'a dive_model::Model, ir: &'a Ir) -> Result<Handoff<'a>, 
         implied_inits: named_roles(model, &model.implied_inits)?,
         implied_actions: named_roles(model, &model.implied_actions)?,
         check_deadlock: model.settings.check_deadlock,
+        symmetry,
     })
 }
 
@@ -470,6 +475,93 @@ fn binding_failure(
     )
 }
 
+/// `SYMMETRY`, prepared as the reference engine prepares it: its maps by
+/// model-value name, its start-up warnings and the default profile's
+/// D-010 note.
+#[derive(Default)]
+struct Symmetry {
+    maps: Vec<Vec<(String, String)>>,
+    warnings: Vec<(u32, String)>,
+    note: Option<String>,
+}
+
+/// Why `symmetry` ended the run before the search.
+enum SymmetryEnd {
+    Refused(String),
+    Model(Verdict),
+}
+
+impl SymmetryEnd {
+    fn into_result(self, options: &CheckOptions, ir: &Ir) -> CheckResult {
+        match self {
+            Self::Refused(feature) => result(unsupported(feature), options, ir),
+            Self::Model(v) => {
+                let mut r = result(v, options, ir);
+                r.binding_model_error = matches!(r.verdict, Verdict::ModelError { .. });
+                r
+            }
+        }
+    }
+}
+
+const SYMMETRY_NOTE: &str = "The default profile canonicalizes symmetry keys in canonical value order (D-010). A non-invariant VIEW or asymmetric specification may differ under --compat=tlc; order relevance is not yet detected.";
+
+fn symmetry(
+    model: &mut dive_model::Model,
+    config: &dive_config::ModelConfig,
+    profile_tlc: bool,
+) -> Result<Symmetry, SymmetryEnd> {
+    if profile_tlc {
+        return Err(SymmetryEnd::Refused(
+            "SYMMETRY under --compat=tlc (core)".into(),
+        ));
+    }
+    let prepared = model
+        .prepare_symmetry(
+            config,
+            dive_model::symmetry::Mode::Checked,
+            dive_model::symmetry::Limits::default(),
+        )
+        .map_err(|e| SymmetryEnd::Model(Verdict::from(&e)))?;
+    let mut out = Symmetry::default();
+    let Some(prepared) = prepared else {
+        return Ok(out);
+    };
+    for w in &prepared.warnings {
+        match w {
+            dive_model::Message::Warning { code, message } => {
+                out.warnings.push((code.code(), message.clone()));
+            }
+            dive_model::Message::Print(_) => {
+                return Err(SymmetryEnd::Refused(
+                    "printed output while preparing SYMMETRY (core)".into(),
+                ));
+            }
+        }
+    }
+    if let Some(reduction) = &prepared.reduction {
+        let universe = reduction.universe();
+        for map in reduction.maps() {
+            let mut pairs = Vec::new();
+            for (from, &to) in map.images().iter().enumerate() {
+                if from != to {
+                    let (Some(a), Some(b)) = (universe.get(from), universe.get(to)) else {
+                        return Err(SymmetryEnd::Refused(
+                            "a SYMMETRY map outside its universe (core)".into(),
+                        ));
+                    };
+                    pairs.push((a.as_str().to_owned(), b.as_str().to_owned()));
+                }
+            }
+            out.maps.push(pairs);
+        }
+    }
+    let symmetry = format!("SYMMETRY {}", model.symmetry.as_deref().unwrap_or_default());
+    model.unsupported.retain(|u| u.feature != symmetry);
+    out.note = Some(SYMMETRY_NOTE.into());
+    Ok(out)
+}
+
 /// Runs the core engine.
 #[allow(clippy::too_many_lines, reason = "the stages of a core run, in order")]
 pub(crate) fn check(
@@ -515,10 +607,17 @@ pub(crate) fn check(
         host: None,
         ..dive_model::BindOptions::dive()
     };
-    let model = match dive_model::bind(Arc::clone(ir), config, &bind) {
+    let mut model = match dive_model::bind(Arc::clone(ir), config, &bind) {
         Ok(m) => m,
         Err(f) => return (finish(binding_failure(ir, config, options, &f)), run),
     };
+    let mut sym = Symmetry::default();
+    if model.symmetry.is_some() && model.implied_temporals.is_empty() {
+        match symmetry(&mut model, config, profile_tlc) {
+            Ok(s) => sym = s,
+            Err(r) => return (finish(r.into_result(options, ir)), run),
+        }
+    }
     if let Some(feature) = refusal(&model) {
         return (finish(result(unsupported(feature), options, ir)), run);
     }
@@ -549,7 +648,7 @@ pub(crate) fn check(
         };
         return (finish(result(v, options, ir)), run);
     }
-    let h = match handoff(&model, ir) {
+    let h = match handoff(&model, ir, std::mem::take(&mut sym.maps)) {
         Ok(h) => h,
         Err(e) => return (finish(result(unsupported(e), options, ir)), run),
     };
@@ -701,9 +800,11 @@ pub(crate) fn check(
     }
     let prints = !in_init || matches!(verdict, Verdict::EvaluationError { .. });
     let mut r = result(verdict, options, ir);
+    r.warnings.append(&mut sym.warnings);
+    r.notes.extend(sym.note.take());
     // The reference engine's D-010 qualification of a stop in the default
-    // profile (`dive_check::note_canonical_stop`); the core refuses
-    // `--compat=tlc`, where TLC's order needs no note.
+    // profile (`dive_check::note_canonical_stop`); under `--compat=tlc`
+    // TLC's order needs no note.
     if !profile_tlc && r.verdict.is_verdict() && r.verdict != Verdict::Success {
         r.notes.push(CANONICAL_STOP_NOTE.to_owned());
     }
