@@ -9,8 +9,8 @@
 //! overrides (`docs/provenance.md`). Where the reference refuses a case,
 //! so does the core.
 //!
-//! Every operator here is pure: [`effectful`] is false for all of them,
-//! so the compiler may fold and memoize their calls.
+//! Every operator here is pure except `Print` and `PrintT` ([`effectful`]),
+//! whose calls the compiler never folds, memoizes or skips.
 
 use dive_ir::StdOp;
 
@@ -32,7 +32,7 @@ pub fn implements(op: StdOp) -> bool {
 
 /// Whether a call of `op` has an effect TLC performs once per evaluation
 /// (output, registers, randomness): such a call is never folded or
-/// memoized. None of the operators implemented so far has one.
+/// memoized. Of the operators implemented here, `Print` and `PrintT`.
 #[must_use]
 pub fn effectful(op: StdOp) -> bool {
     implements(op) && op.impure()

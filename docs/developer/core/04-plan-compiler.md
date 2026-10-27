@@ -182,6 +182,18 @@ section 4 decide.
      semantics.
    - Memoization uses these flags (`06-memoization.md`). The engine uses the
      per-action write sets for delta hashing.
+   - **Built (M1): the effect bit.** `Info::effect` marks a node that
+     reaches `Print` or `PrintT` (`stdlib::effectful`). Such a node is never
+     folded, never a memo site, never a cached state-level definition, and
+     never a skippable invariant conjunct, since TLC prints on every
+     evaluation. An effect inside a function constructor, filter, set map,
+     speculative evaluation or library operator argument is refused: there
+     TLC's evaluation count and order follow its value representation, not
+     the expression. `Plan::effects` makes the engine run one worker, so
+     the output is in TLC's order, and refuse a run that does not succeed
+     (TLC prints again while it rebuilds the trace) or that warns. Fixtures
+     `PrOps` (printed output equal to TLC's, at 1 and 4 workers), `PrViol`
+     and `PrLazy` (refused).
 
 ## 4. Laziness: the demand-order analysis
 
@@ -596,11 +608,24 @@ Next (M1, stream 2), from the census:
      Fixtures are in `tests/fixtures/core-lib` (§8, library fixtures).
      Still to do: `BagOfAll` and `FoldBag` (BagsExt), which take operator
      arguments.
-   - **TLC, values (stream 1, `stdlib/tlc.rs`):** `:>`, `@@`, `Assert` and
-     `Permutations`. Still to do: `Print`, `PrintT` and `TLCSet` (effects:
-     an `Info` effect bit that blocks folding, speculation and memo sites),
-     `ToString` (a TLC printer in the core) and `RandomElement` (seed
-     rules, B6). `SortSeq` is done (operator arguments, below).
+   - **TLC, values (stream 1, `stdlib/tlc.rs`):** `:>`, `@@`, `Assert`,
+     `Permutations` and `ToString`. `ToString` prints through
+     `crates/dive-core/src/print.rs`: a core value converts to the reference
+     engine's value (symbolic sets stay symbolic) and `dive_value::print`
+     prints it, with the model's names (`Store::set_printer`). The printed
+     argument keeps its form (an interval prints as `1..3`), but the core
+     enumerates intervals and lazy sets inside other values, in states, and
+     as `DOMAIN` of a sequence, where TLC keeps them. So when the plan may
+     build one (`a..b`, `DOMAIN`, `SUBSET`, `[S -> T]`, `[a : S]`,
+     `S \X T`, or a constant holding one: `Store::note_lazy_sets`),
+     printing refuses an enumerated set of consecutive integers, or of at
+     least 128 elements (`TsStored`, `TsDomain`, `PrAmbig`). `Print` and `PrintT` print the same text (pretty-printed,
+     as the reference engine prints it), under the effect bit (§3, pass 6).
+     Still to do: `TLCSet` and `TLCGet` (registers, sequential), printing
+     with several workers (each state's output buffered and released in
+     TLC's order, as the reference engine does), output with a violation
+     (TLC's trace-rebuilding prints), and `RandomElement` (seed rules, B6).
+     `SortSeq` is done (operator arguments, below).
    - **CommunityModules, values (stream 1, `stdlib/community.rs`):** see
      §8. Still to do: the rest of `SequencesExt` and `Functions` that take
      only values (`LongestCommonPrefix`, `ReplaceFirstSubSeq`,
@@ -722,7 +747,7 @@ with TLC's counts.
 | Family | Operators | Fixtures | Result |
 |---|---|---|---|
 | Bags | `\oplus`, `\ominus`, `BagCardinality`, `BagUnion`, `\sqsubseteq`, `IsABag` | `BagOps` (32 distinct, 95 generated, depth 9; TLC agrees); errors `ErBagCardNonBag` (2176), `ErBagCupNonBag` (2169), `ErBagDiffNonFcn` (2169), `ErBagSqNonFcn` (2176) | all agree; `ErBagUnionNonBag` (TLC 2154, comparing `2` with `<<1>>`) is refused: a set of an integer and a function (C1, C2) |
-| TLC | `:>`, `@@`, `Assert`, `Permutations` | `TlcOps` (48 distinct, 145 generated, depth 9), `Perm` (6, 42, depth 1), `PermViol` (violation after 36 generated, trace 3), all equal to TLC; errors `ErAssertInv` (2132 in an invariant), `ErAssertNext` (assertion failure in the next-state relation, exit 14), `ErCombineNonFcn`, `ErCombineSecond` (2169), `ErPermNonSet` (2176) | all agree. `Permutations` is refused over strings or model values in the default profile and over compound elements: TLC enumerates the result in its own order (D-010) |
+| TLC | `:>`, `@@`, `Assert`, `Permutations`, `ToString`, `Print`, `PrintT` | `TlcOps` (48 distinct, 145 generated, depth 9), `Perm` (6, 42, depth 1), `PermViol` (violation after 36 generated, trace 3), `TsOps` (4 distinct, 13 generated; 16 printed forms, among them `Seq({1})`, `[a |-> 3]` for `"a" :> 3` and `<<3>>` for `1 :> 3`), `TsLazy` (1 distinct, 2 generated; `1..3`, `SUBSET (1..7)` and small lazy sets expanded), `PrOps` (4 distinct, 11 generated, 58 printed lines in TLC's order: start-up, initial states, constraints, invariants, a `LET` forced once, a definition used twice), `PrRange` (2 distinct, 4 generated, 6 lines), all equal to TLC; errors `ErAssertInv` (2132 in an invariant), `ErAssertNext` (assertion failure in the next-state relation, exit 14), `ErCombineNonFcn`, `ErCombineSecond` (2169), `ErPermNonSet` (2176) | all agree. `Permutations` is refused over strings or model values in the default profile and over compound elements: TLC enumerates the result in its own order (D-010). `TsStored` (`ToString` of a stored `1..2`), `TsDomain` (`DOMAIN` of a sequence), `PrAmbig` (`{x}` printed where intervals occur), `PrViol` (output with a violation) and `PrLazy` (`PrintT` in a function constructor) are refused |
 | Operator arguments | `SelectSeq`, `SortSeq`, `BagOfAll`, `FoldBag`, `Quantify`, `FoldFunction`, `FoldSeq`, `FoldLeft`, `FoldRight`, `FoldLeftDomain`, `FoldRightDomain`, `SelectInSeq`, `SelectLastInSeq`, `RemoveFirstMatch` (as LAMBDAs, definitions, LET operators and operator parameters) | `HoOps` (121 distinct, 364 generated; TLC agrees); errors `ErHoSelectSeqNonSeq`, `ErHoFoldLeftNonSeq` (2169), `ErHoInBody` (2179 inside the operator) | all agree. *Disagreement found:* passed an operator whose body is a constant (`LAMBDA y : 0`), TLC fails in the overrides that take an `OpValue` (`BagOfAll` 2266, `FoldLeft` and the other folds 2154), while the reference engine applies it (issue #557; `ErHoConstBagOfAll` and `ErHoConstFoldLeft` are refused by the core) |
 | CommunityModules, values | `SequencesExt`: `Contains`, `RemoveFirst`, `Suffixes`, `SetToSeq`, `SetToSeqs`, `IsPrefix`; `Functions`: `IsInjective`, `AntiFunction`; `Bitwise`: `And`, `Or`, `Xor`, `Not`, `shiftR` | `CmOps` (16 distinct, 51 generated, depth 4), `CmSeqsViol` (violation after 543 generated, whose counts depend on `SetToSeqs`' order), both equal to TLC; errors `ErCmContainsNonSeq`, `ErCmInjectiveNonFcn` (2283), `ErCmRemoveFirstNonSeq` (2169) | all agree. Refused as the reference engine refuses them: Java exceptions (`SetToSeq` and `IsPrefix` of a non-sequence, Bitwise of a non-integer or beyond 32 bits) and `IsInjective` over values TLC cannot compare |
 

@@ -589,6 +589,9 @@ pub struct Plan {
     pub check_deadlock: bool,
     /// `SYMMETRY`: states are keyed by their canonical image.
     pub symmetry: Option<crate::symmetry::Symmetry>,
+    /// Whether the plan prints (`Print`, `PrintT`): the engine then runs
+    /// one worker, in TLC's order, and keeps the output in order.
+    pub effects: bool,
     /// Compile statistics.
     pub stats: CompileStats,
 }

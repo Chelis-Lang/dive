@@ -175,6 +175,9 @@ pub struct Outcome {
     /// The sampled expanded states ([`Config::sample`]), as persistent
     /// handles.
     pub sampled: Vec<Vec<Handle>>,
+    /// What `Print` and `PrintT` printed during the search, in TLC's order
+    /// (a plan that prints runs one worker: [`Plan::effects`]).
+    pub printed: Vec<String>,
 }
 
 /// Run settings.
@@ -814,6 +817,16 @@ fn run_actions(
     Ok(())
 }
 
+/// The workers a run uses: one for a plan that prints, so that its output
+/// is in TLC's order ([`Plan::effects`]).
+fn workers(plan: &Plan, config: &Config) -> usize {
+    if plan.effects {
+        1
+    } else {
+        config.workers.max(1)
+    }
+}
+
 /// Explores the plan's state space.
 #[must_use]
 pub fn explore(
@@ -830,7 +843,7 @@ pub fn explore(
         .iter()
         .map(|s| s.vars.len() + s.slots.len())
         .collect();
-    let mut machines: Vec<Machine> = (0..config.workers.max(1))
+    let mut machines: Vec<Machine> = (0..workers(plan, &config))
         .map(|_| {
             let mut m = Machine::new(Arc::clone(store), nvars, config.opts, Memo::new(&keys));
             m.warn = config.warn;
@@ -918,6 +931,7 @@ pub fn explore(
         in_init: ex.initial,
         replayed,
         sampled: reservoir.map(|r| r.states).unwrap_or_default(),
+        printed: std::mem::take(&mut m.printed),
     }
 }
 
