@@ -1,5 +1,9 @@
 # Changelog
 
+- `--engine core` reports counterexamples for invariant violations and
+  deadlocks, rebuilt from a predecessor log by replay, in the same JSON trace
+  format as the reference engine. Every one validates with `dive-trace`.
+
 - `--engine core` now runs `<<A>>_v`, `UNCHANGED` of any expression, `x'
   \subseteq S`, functions applied as actions and `ACTION_CONSTRAINT`, reports
   TLC's warning 2143, and reports the queue at a deadlock or an initial-state

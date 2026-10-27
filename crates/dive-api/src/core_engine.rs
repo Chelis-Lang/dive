@@ -387,8 +387,152 @@ pub(crate) fn check(
         });
         r.tlc_prints_stats = true;
     }
+    if counted && let Some(trace) = &out.trace {
+        match trace
+            .as_ref()
+            .map_err(Clone::clone)
+            .and_then(|t| counterexample(&model, &store, t))
+        {
+            Ok(cx) => r.counterexample = Some(cx),
+            Err(message) => {
+                r.verdict = Verdict::InternalError {
+                    message: format!("core trace reconstruction: {message}"),
+                };
+                r.stats = None;
+                r.tlc_prints_stats = false;
+            }
+        }
+    }
     run.metrics = metrics_json(&plan, &out.metrics, compile_time);
     (finish(r), run)
+}
+
+/// The counterexample of a core run, in the reference engine's form, so
+/// that the report and its `dive-trace` document are built the same way.
+fn counterexample(
+    model: &dive_model::Model,
+    store: &Arc<dive_core::Store>,
+    trace: &[dive_explore::TraceState],
+) -> Result<dive_check::Counterexample, String> {
+    let ctx = model.evaluator.options().ctx;
+    let mut heap = dive_core::Heap::new(Arc::clone(store), false, false);
+    let mut states = Vec::with_capacity(trace.len());
+    for t in trace {
+        let mut values = Vec::with_capacity(t.values.len());
+        for &h in &t.values {
+            if h.is_empty() {
+                return Err("a trace state with an unassigned variable".into());
+            }
+            values.push(to_value(&mut heap, model, h, ctx)?);
+        }
+        let (label, action) = match t.action {
+            None => ("<Initial predicate>".to_owned(), None),
+            Some(i) => {
+                let a = model
+                    .actions
+                    .get(i)
+                    .ok_or_else(|| format!("trace action {i} out of range"))?;
+                (a.label().to_owned(), action_name(model, a))
+            }
+        };
+        states.push(dive_check::TraceState {
+            label,
+            action,
+            values,
+            text: None,
+        });
+    }
+    Ok(dive_check::Counterexample { states })
+}
+
+/// The action's name in traces, as the reference engine gives it.
+fn action_name(model: &dive_model::Model, a: &dive_eval::next::Action) -> Option<String> {
+    use dive_ir::actions::ActionName;
+    match a.name() {
+        ActionName::Def(d) => Some(model.ir.def(d).name.clone()),
+        ActionName::Std(op) => Some(op.name().to_owned()),
+        ActionName::Builtin(name) => Some(name.to_owned()),
+        ActionName::Unnamed => None,
+    }
+}
+
+/// Converts a persistent handle to a reference value (the reverse of the
+/// binder boundary, `dive_core::convert`), for reports and validation.
+fn to_value(
+    heap: &mut dive_core::Heap,
+    model: &dive_model::Model,
+    h: dive_core::Handle,
+    ctx: dive_value::Ctx,
+) -> Result<Value, String> {
+    use dive_core::node::Kind;
+    if let Some(b) = h.as_bool() {
+        return Ok(Value::Bool(b));
+    }
+    if let Some(i) = h.as_int() {
+        return Ok(Value::Int(i));
+    }
+    if let Some(id) = h.as_str_id() {
+        let text = heap
+            .store()
+            .strings()
+            .text(id)
+            .ok_or_else(|| format!("unknown string {id}"))?;
+        return Ok(Value::Str(model.names.intern(&text)));
+    }
+    if !h.is_compound() {
+        return Err("a value the core cannot report".into());
+    }
+    let kind = heap.view(h).kind;
+    if kind.is_symbolic() {
+        let m = heap.materialize(h).map_err(|e| e.message().to_owned())?;
+        return to_value(heap, model, m, ctx);
+    }
+    let v = heap.view(h);
+    let (lo, keys, vals) = (v.lo, v.keys().to_vec(), v.values().to_vec());
+    match kind {
+        Kind::Set => {
+            let mut elems = Vec::with_capacity(vals.len());
+            for e in vals {
+                elems.push(to_value(heap, model, e, ctx)?);
+            }
+            Value::set(elems, ctx).map_err(|e| e.to_string())
+        }
+        Kind::IntFcn => {
+            let mut elems = Vec::with_capacity(vals.len());
+            for e in vals {
+                elems.push(to_value(heap, model, e, ctx)?);
+            }
+            if lo == 1 {
+                return Ok(Value::tuple(elems));
+            }
+            let pairs = elems
+                .into_iter()
+                .zip(lo..)
+                .map(|(v, k)| (Value::Int(k), v))
+                .collect();
+            Value::fcn(pairs, ctx).map_err(|e| e.to_string())
+        }
+        _ => {
+            let mut pairs = Vec::with_capacity(keys.len());
+            for (k, x) in keys.into_iter().zip(vals) {
+                pairs.push((
+                    to_value(heap, model, k, ctx)?,
+                    to_value(heap, model, x, ctx)?,
+                ));
+            }
+            if pairs.iter().all(|(k, _)| matches!(k, Value::Str(_))) {
+                let fields = pairs
+                    .into_iter()
+                    .filter_map(|(k, x)| match k {
+                        Value::Str(a) => Some((a, x)),
+                        _ => None,
+                    })
+                    .collect();
+                return Value::record(fields, ctx).map_err(|e| e.to_string());
+            }
+            Value::fcn(pairs, ctx).map_err(|e| e.to_string())
+        }
+    }
 }
 
 fn metrics_json(

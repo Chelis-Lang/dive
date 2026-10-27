@@ -1,7 +1,8 @@
 # Exploration engine
 
-Status: M0 spike implemented in `crates/dive-explore` on `core/m0-spike`;
-results in `m0-results.md`. This document covers strategies S3 and S9 from
+Status: M1 stream 3. Single-thread BFS in `crates/dive-explore`, with the
+predecessor log and replayed traces (§4, `core/engine-traces`). The parallel
+level (§3, S9) is not built yet. This document covers strategies S3 and S9 from
 `01-motivation.md`. The new engine lives in `dive-explore`.
 
 ## 1. Contract
@@ -171,18 +172,42 @@ The reference engine handles this by forcing a single worker
 
 ## 8. Next step
 
-M0 built a single-thread breadth-first search. It follows TLC's
-`ModelChecker` order of counting, constraint, seen and invariant checks. It
-uses an open-addressing seen set of 64-bit state keys, and probes each
-successor with the incremental hash before any interning. Only new states are
-interned. `dive check --engine=core` (or `DIVE_ENGINE=core`) reaches it
-through `crates/dive-api/src/core_engine.rs`. It honours `--time-limit`.
+**Done (M0).** A single-thread breadth-first search in TLC's `ModelChecker`
+order of counting, constraint, seen and invariant checks. It uses an
+open-addressing seen set of 64-bit state keys and probes each successor with
+the incremental hash before any interning, so only new states are interned.
+`dive check --engine=core` (or `DIVE_ENGINE=core`) reaches it through
+`crates/dive-api/src/core_engine.rs`. It honours `--time-limit`.
 
-Not built in M0: the predecessor log, traces, error classification,
-`--max-memory` enforcement inside the core, and parallelism.
+**Done (M1, `core/engine-traces`).**
+- Every enqueued state is logged in a `dive_store::PredecessorLog` as
+  `(parent, ordinal)`. The ordinal is the successor's index among all
+  emissions of its parent's expansion, across actions in order, or its index
+  among the initial states. The frontier carries the log ids beside the
+  handle arrays. The log costs 16 bytes per distinct state: MCLamportMutex
+  peaks at 92–97 MB instead of 73 MB (M3, indicative, load 10).
+- At a stop, the explorer records where the behavior ends: the parent and the
+  violating successor (interned from the buffer before the arena is reset),
+  or the deadlocked state. `dive_explore::trace::replay` regenerates the path
+  with memoization off and checks that it reproduces the state the search
+  held. A mismatch is an internal error, never a trace.
+- `core_engine.rs` converts the handles back to reference values. It builds
+  the reference engine's `Counterexample`, with the same labels and action
+  names, so the report and its `dive-trace` document come from the same
+  code (`dive check --output json`, `counterexample.trace`).
+- `crates/dive-api/tests/core_traces.rs` runs the rule fixtures, the TLC
+  probes and the core fixtures. For each one, the core's trace document
+  equals the reference engine's (both are minimal-depth BFS traces over the
+  same successor order), and `dive-trace` validates it. For deadlocks the
+  validator checks the steps and reports the ending itself as unsupported.
 
-Next (M1, stream 3):
-1. Add the predecessor log and traces through `dive-trace`.
-2. Build the parallel level of section 3 on the store measured in
-   `m0-results.md`.
-3. Add budgets and the static fallback (`08-correctness.md`).
+**Not built yet:** error endings (traces for evaluation errors and incomplete
+states, the call-stack replay), budgets other than `--time-limit`, and the
+parallel level.
+
+**Next (M1, stream 3):**
+1. Error endings and replay (`02-semantic-contract.md` §3(e)).
+2. Budgets: `--max-memory`, `--max-states` and `--time-limit` with the
+   reference engine's structured stop.
+3. The parallel level of §3.
+4. The static fallback (`08-correctness.md` §3).

@@ -10,6 +10,7 @@ repository.workspace = true
 
 [dependencies]
 dive-core.workspace = true
+dive-store.workspace = true
 
 [lints]
 workspace = true

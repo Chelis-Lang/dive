@@ -24,6 +24,8 @@
 //! `tests/golden.rs` for complete runs from TLA+ sources.
 #![forbid(unsafe_code)]
 
+pub mod trace;
+
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
@@ -32,6 +34,10 @@ use dive_core::memo::{Memo, SiteStats};
 use dive_core::plan::{Check, Code};
 use dive_core::store::StoreStats;
 use dive_core::{Error, ErrorKind, Handle, Machine, Opts, Plan, Sink, Store};
+use dive_store::predecessor::PredecessorLog;
+use dive_store::trace::StateId;
+
+pub use trace::TraceState;
 
 /// How a run ended.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -111,6 +117,9 @@ pub struct Outcome {
     /// Warnings 2143 (variable, `UNCHANGED` site as an `ExprId` index), once each, in the
     /// order raised.
     pub warnings: Vec<(u16, u32)>,
+    /// The counterexample of a violation or deadlock, initial state first,
+    /// rebuilt by replay; `Err` when the replay failed (a core bug).
+    pub trace: Option<Result<Vec<TraceState>, String>>,
 }
 
 /// Run settings.
@@ -238,6 +247,29 @@ struct Explorer<'p> {
     level: u64,
     opts: Opts,
     stop: Option<Verdict>,
+    /// The index of the action being run (`None` for initial predicates).
+    action: Option<usize>,
+    /// Parent pointers and ordinals of every enqueued state.
+    log: PredecessorLog,
+    /// The log ids of the states in `next`, in order.
+    next_ids: Vec<StateId>,
+    /// The log id of the state being expanded.
+    cur_id: Option<StateId>,
+    /// How the trace of a stop ends: the state to replay up to, and the
+    /// last state when it is not a logged one.
+    end: Option<End>,
+}
+
+/// The end of a counterexample, recorded at the stop.
+struct End {
+    /// The last logged state of the behavior (`None`: an initial state).
+    upto: Option<StateId>,
+    /// The final state, when it is not logged: the violating successor,
+    /// with the action that emitted it.
+    last: Option<(Option<usize>, Vec<Handle>)>,
+    /// The values of `upto` as the search held them; the replay must
+    /// reproduce them.
+    expect: Vec<Handle>,
 }
 
 enum Probe {
@@ -361,10 +393,7 @@ impl Explorer<'_> {
         // (`Worker.addElement`).
         let enqueue_first = self.initial && in_model;
         if enqueue_first {
-            for i in 0..m.s1.len() {
-                let h = m.heap.intern(m.s1[i])?;
-                self.next.push(h);
-            }
+            self.enqueue(m)?;
         }
         for c in &plan.invariants {
             if !self.check(m, code, c)? {
@@ -372,15 +401,50 @@ impl Explorer<'_> {
                     property: c.name.clone(),
                     initial: self.initial,
                 });
+                self.end_here(m)?;
                 return Err(Error::stop());
             }
         }
         if in_model && !enqueue_first {
-            for i in 0..m.s1.len() {
-                let h = m.heap.intern(m.s1[i])?;
-                self.next.push(h);
-            }
+            self.enqueue(m)?;
         }
+        Ok(())
+    }
+
+    /// Interns the successor in `m.s1`, queues it and logs its parent and
+    /// ordinal.
+    fn enqueue(&mut self, m: &mut Machine) -> Result<(), Error> {
+        for i in 0..m.s1.len() {
+            let h = m.heap.intern(m.s1[i])?;
+            self.next.push(h);
+        }
+        let ordinal = u32::try_from(self.emitted.saturating_sub(1))
+            .map_err(|_| Error::unsupported("more than 2^32 successors of one state"))?;
+        let id = match self.cur_id {
+            None => self.log.push_initial(ordinal),
+            Some(parent) => self.log.push(parent, ordinal),
+        }
+        .map_err(|e| Error::internal(format!("predecessor log: {e}")))?;
+        self.next_ids.push(id);
+        Ok(())
+    }
+
+    /// Records the successor in `m.s1` as the last state of the trace.
+    fn end_here(&mut self, m: &mut Machine) -> Result<(), Error> {
+        let mut values = Vec::with_capacity(m.s1.len());
+        for &h in &m.s1 {
+            values.push(if h.is_empty() { h } else { m.heap.intern(h)? });
+        }
+        let expect = if self.cur_id.is_some() {
+            m.s0.clone()
+        } else {
+            Vec::new()
+        };
+        self.end = Some(End {
+            upto: self.cur_id,
+            last: Some((self.action, values)),
+            expect,
+        });
         Ok(())
     }
 }
@@ -423,7 +487,8 @@ fn run_actions(
     actions: &[dive_core::plan::Action],
     code: &Code,
 ) -> Result<(), Error> {
-    for a in actions {
+    for (i, a) in actions.iter().enumerate() {
+        ex.action = (!ex.initial).then_some(i);
         let old = m.enter(a.frame);
         for &(slot, v) in &a.preset {
             if let Some(x) = m.frame.get_mut(m.base + slot as usize) {
@@ -462,8 +527,17 @@ pub fn explore(plan: &Plan, store: &Arc<Store>, config: Config) -> Outcome {
         level: 1,
         opts: config.opts,
         stop: None,
+        action: None,
+        log: PredecessorLog::new(None, None),
+        next_ids: Vec::new(),
+        cur_id: None,
+        end: None,
     };
     let result = run(&mut m, &mut ex, plan, config);
+    let trace = ex
+        .end
+        .take()
+        .map(|end| reconstruct(plan, store, &config, &ex.log, end));
     let verdict = match result {
         Ok(()) => Verdict::Success,
         Err(e) => match e.into_parts() {
@@ -497,7 +571,34 @@ pub fn explore(plan: &Plan, store: &Arc<Store>, config: Config) -> Outcome {
         stats: ex.stats,
         metrics,
         warnings,
+        trace,
     }
+}
+
+/// Rebuilds the behavior that ends at `end` (`07-engine.md` §4).
+fn reconstruct(
+    plan: &Plan,
+    store: &Arc<Store>,
+    config: &Config,
+    log: &PredecessorLog,
+    end: End,
+) -> Result<Vec<TraceState>, String> {
+    let mut states = match end.upto {
+        None => Vec::new(),
+        Some(id) => {
+            let path = log.path(id).map_err(|e| format!("predecessor log: {e}"))?;
+            let states = trace::replay(plan, store, config.opts, config.warn, &path)
+                .map_err(|e| e.message().to_owned())?;
+            if states.last().map(|s| s.values.as_slice()) != Some(end.expect.as_slice()) {
+                return Err("trace replay produced a different state than the search".into());
+            }
+            states
+        }
+    };
+    if let Some((action, values)) = end.last {
+        states.push(TraceState { action, values });
+    }
+    Ok(states)
 }
 
 fn run(m: &mut Machine, ex: &mut Explorer<'_>, plan: &Plan, config: Config) -> Result<(), Error> {
@@ -510,6 +611,7 @@ fn run(m: &mut Machine, ex: &mut Explorer<'_>, plan: &Plan, config: Config) -> R
     m.heap.reset();
     ex.initial = false;
     let mut cur = std::mem::take(&mut ex.next);
+    let mut cur_ids = std::mem::take(&mut ex.next_ids);
     let mut count = 0u64;
     while !cur.is_empty() {
         ex.level += 1;
@@ -518,6 +620,7 @@ fn run(m: &mut Machine, ex: &mut Explorer<'_>, plan: &Plan, config: Config) -> R
                 break;
             }
             m.s0.copy_from_slice(state);
+            ex.cur_id = cur_ids.get(k).copied();
             ex.emitted = 0;
             let r = run_actions(m, ex, &plan.next, code);
             m.heap.reset();
@@ -529,6 +632,11 @@ fn run(m: &mut Machine, ex: &mut Explorer<'_>, plan: &Plan, config: Config) -> R
             if ex.emitted == 0 && plan.check_deadlock {
                 ex.stats.left_on_queue = left;
                 ex.stop = Some(Verdict::Deadlock);
+                ex.end = Some(End {
+                    upto: ex.cur_id,
+                    last: None,
+                    expect: state.to_vec(),
+                });
                 return Err(Error::stop());
             }
             count += 1;
@@ -541,7 +649,9 @@ fn run(m: &mut Machine, ex: &mut Explorer<'_>, plan: &Plan, config: Config) -> R
             }
         }
         cur.clear();
+        cur_ids.clear();
         std::mem::swap(&mut cur, &mut ex.next);
+        std::mem::swap(&mut cur_ids, &mut ex.next_ids);
     }
     Ok(())
 }
