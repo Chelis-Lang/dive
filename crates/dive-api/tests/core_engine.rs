@@ -105,6 +105,16 @@ fn unsupported_features_are_named_without_fallback() {
 }
 
 #[test]
+fn zero_to_the_zero_is_tlcs_evaluation_error() {
+    // M0 answered 0^0 = 1 and reported success; TLC raises 2180.
+    let reference = run("Pow0", Engine::Reference);
+    assert_eq!(reference["verdict"], "evaluation-error", "{reference:#}");
+    let core = run("Pow0", Engine::Core);
+    assert_eq!(counts(&core), counts(&reference), "{core:#}");
+    assert_eq!(core["tlc"], reference["tlc"], "{core:#}");
+}
+
+#[test]
 fn every_strategy_switch_leaves_counts_unchanged() {
     for name in ["Mix", "Fold", "Lazy", "Inst", "Bag"] {
         let file = fixture(name);

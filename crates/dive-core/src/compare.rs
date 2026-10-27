@@ -81,12 +81,16 @@ pub(crate) fn class(heap: &Heap, h: Handle) -> Class {
 }
 
 fn mismatch(a: Class, b: Class) -> Error {
-    Error::eval(format!(
-        "Attempted to check equality of {} with a non-{} value: {}",
-        a.a(),
-        a.noun(),
-        b.a()
-    ))
+    // `Assert.fail(EC.GENERAL)` in the values' `equals`/`compareTo`.
+    Error::eval_class(
+        crate::TlcClass::GENERAL,
+        format!(
+            "Attempted to check equality of {} with a non-{} value: {}",
+            a.a(),
+            a.noun(),
+            b.a()
+        ),
+    )
 }
 
 /// `a = b` on normalized handles.
@@ -207,6 +211,10 @@ mod tests {
         assert!(equals(&h, one, a).is_err());
         assert!(equals(&h, s, one).is_err());
         assert!(equals(&h, t, s).is_err());
+        assert_eq!(
+            equals(&h, one, a).unwrap_err().tlc(),
+            Some(crate::TlcClass::GENERAL)
+        );
         assert!(equals(&h, Handle::TRUE, one).is_err());
         assert!(equals(&h, one, one).unwrap());
         let sa = h.set_from(&mut vec![a]);
