@@ -74,6 +74,8 @@ pub(crate) struct CoreRun {
     /// Whether the search started: a refusal before it is static, one
     /// during it dynamic.
     pub(crate) searched: bool,
+    /// The successor sample (`--core-sample`), as JSON; `Null` without one.
+    pub(crate) sample: Json,
 }
 
 /// Why `--engine=auto` ran the reference engine.
@@ -379,6 +381,7 @@ pub(crate) fn check(
     options: &CheckOptions,
     profile_tlc: bool,
     switches: Option<&str>,
+    sample: Option<usize>,
 ) -> (CheckResult, CoreRun) {
     let started = Instant::now();
     let text = switches
@@ -400,6 +403,7 @@ pub(crate) fn check(
         opts: core_opts.describe(),
         metrics: Json::Null,
         searched: false,
+        sample: Json::Null,
     };
     let finish = |mut r: CheckResult| {
         r.elapsed = started.elapsed();
@@ -482,6 +486,10 @@ pub(crate) fn check(
     let poll = || !matches!(budget.poll(), Ok(None));
     let explore_started = Instant::now();
     run.searched = true;
+    let sample = sample.map(|states| dive_explore::sample::Sample {
+        seed: options.seed.cast_unsigned(),
+        states,
+    });
     let out = dive_explore::explore(
         &plan,
         &store,
@@ -491,9 +499,21 @@ pub(crate) fn check(
             max_depth: options.max_depth,
             workers,
             warn: options.eval.warnings,
+            sample,
         },
         &poll,
     );
+    if let Some(sample) = sample {
+        run.sample = crate::core_sample::compare(
+            &model,
+            &plan,
+            &store,
+            core_opts,
+            options.eval.warnings,
+            sample,
+            &out.sampled,
+        );
+    }
     let failed = out.verdict == dive_explore::Verdict::Failed;
     let verdict = match out.verdict {
         dive_explore::Verdict::Success => Verdict::Success,
@@ -711,6 +731,10 @@ pub(crate) fn to_value(
         return Err("a value the core cannot report".into());
     }
     let kind = heap.view(h).kind;
+    if kind == Kind::BigInt {
+        let b = heap.big(h).ok_or("a malformed integer")?;
+        return Ok(Value::int(dive_value::Int::from_big(b)));
+    }
     // An infinite set is reported as the reference engine's lazy set, as TLC
     // keeps it: a state may hold one until it is fingerprinted.
     if !heap.is_finite(h) {

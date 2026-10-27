@@ -19,9 +19,11 @@ const GATE_USAGE: &str = "usage: cargo xtask gate --fast | --full [--skip-corpus
                    workers and the small corpus tier in both profiles, each
                    checked against its committed baseline
                    (conformance/baselines/), then the shadow comparison of the
-                   core with the reference engine on the small tier; writes
-                   <target-dir>/gate-report.md for the PR body
-    --skip-corpus  with --full: skip the small corpus tier and shadow runs
+                   core with the reference engine on cm1 (1/4/8 workers) and
+                   the small tier; writes <target-dir>/gate-report.md for the
+                   PR body
+    --skip-corpus  with --full: skip the small corpus tier runs (both
+                   profiles and the shadow)
 
 Respects CARGO_BUILD_JOBS and NEXTEST_TEST_THREADS for shared machines.";
 
@@ -334,6 +336,7 @@ fn conformance_steps(g: &mut Gate, skip_corpus: bool) {
             "oracle and corpus fetch",
             "cm1 gate",
             "validation-smoke gate",
+            SHADOW_CM1_STEP,
         ] {
             g.skip(name, "release build failed");
         }
@@ -416,6 +419,16 @@ fn conformance_steps(g: &mut Gate, skip_corpus: bool) {
 /// The core against the reference engine on every small-tier model the core
 /// runs (`docs/developer/core/08-correctness.md` §4).
 fn shadow_step(g: &mut Gate, harness: &Path, dive: &Path, skip_corpus: bool) {
+    // The cm1 list at 1, 4 and 8 workers, not strict: the core refuses some
+    // of its models (symmetry, for one), which are counted, not failed.
+    let mut cm1 = Command::new("scripts/shadow-gate.sh");
+    cm1.current_dir(&g.root)
+        .env("HARNESS", harness)
+        .env("SHADOW_STRICT", "0")
+        .arg("conformance/gates/cm1.txt")
+        .args(["--workers", "1,4,8", "--dive-bin"])
+        .arg(dive);
+    g.run(SHADOW_CM1_STEP, cm1);
     if skip_corpus {
         g.skip(SHADOW_STEP, "--skip-corpus");
         return;
@@ -430,7 +443,10 @@ fn shadow_step(g: &mut Gate, harness: &Path, dive: &Path, skip_corpus: bool) {
     g.run(SHADOW_STEP, shadow);
 }
 
-/// The full gate's shadow step.
+/// The full gate's shadow step over the cm1 list.
+const SHADOW_CM1_STEP: &str = "shadow comparison (core vs reference, cm1, 1, 4 and 8 workers)";
+
+/// The full gate's shadow step over the small tier.
 const SHADOW_STEP: &str = "shadow comparison (core vs reference, small tier, 1 and 4 workers)";
 
 /// Harness arguments of the shadow step: the small-tier selection of
