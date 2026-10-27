@@ -21,6 +21,11 @@
   then ends in a violation or an error, `TLCSet("exit")`, and `TLCGet` of
   the counters or `"config"` still fall back to the reference engine under
   `--engine=auto`.
+- `dive check` reports TLC's error when an operator whose body is a numeral
+  or a string literal, such as `LAMBDA a, x : 0`, is passed to an operator
+  TLC implements in Java (`FoldLeft` and the other folds, `Quantify`,
+  `SelectInSeq`, `BagOfAll`, `SelectSeq`, `SortSeq`): TLC passes the value
+  instead of the operator. It used to apply the operator (#557).
 
 - `--engine core` runs models with both `VIEW` and `SYMMETRY`, evaluating
   the view on each state's canonical image as TLC does.
