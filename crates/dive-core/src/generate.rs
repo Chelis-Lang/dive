@@ -245,7 +245,7 @@ impl Machine {
                     let r = self.cont(code, next, sink);
                     self.unbind_var(var);
                     r
-                } else if self.heap.eq(cur, old) {
+                } else if crate::compare::equals(&self.heap, cur, old)? {
                     self.cont(code, next, sink)
                 } else {
                     // TLC prints warning 2143 here (`Tool.java:1676`).
@@ -414,7 +414,7 @@ impl Machine {
                     let res = self.cont(code, acts, sink);
                     self.unbind_var(*var);
                     res
-                } else if self.heap.eq(cur, r) {
+                } else if crate::compare::equals(&self.heap, cur, r)? {
                     self.cont(code, acts, sink)
                 } else {
                     Ok(())

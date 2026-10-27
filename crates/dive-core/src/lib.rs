@@ -34,6 +34,7 @@
 #![forbid(unsafe_code)]
 
 pub mod arena;
+mod compare;
 pub mod compile;
 pub mod convert;
 pub mod eval;
