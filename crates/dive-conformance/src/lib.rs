@@ -40,6 +40,7 @@ pub mod pipeline;
 pub mod process;
 pub mod report;
 pub mod sany;
+pub mod shadow;
 pub mod tlc;
 pub mod trace_check;
 pub mod upstream;

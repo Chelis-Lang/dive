@@ -146,7 +146,10 @@ golden generate [--oracle ID] [--tier T] [--filter GLOB]... [--reason TEXT] [--n
 run --impl tlc|tlc:<oracle-id>|dive|dive:<engine>|adapter:<file.toml>
     [--corpus ID]... [--golden-oracle ID] [--workers 1,4] [--crosscheck-manifest] [--tier T] [--filter GLOB]...
     [--sany-phase full|parse] [--dive-bin PATH] [--impl-profile P] [--impl-option N[=V]]...
+shadow [--corpus ID]... [--tier T] [--filter GLOB]... [--workers 1,4] [--dive-bin PATH] [--report-dir DIR] [--strict]
 ```
+
+`shadow` compares dive's new core with its reference engine, in the default profile, on every selected model the core accepts. No golden is involved. Both must give the same verdict, error class and code, exit and violated property, plus the same counts and depth at one worker or for a complete search. The core's counterexamples must validate with `dive-trace`. A difference or a refuted trace is a finding (exit 1). With `--strict`, a refusal or a timeout is a finding too. See `docs/developer/core/08-correctness.md` §4. `scripts/shadow-gate.sh <list>` runs it strictly on a model list, as CI does with `conformance/gates/shadow-smoke.txt`.
 
 `run` takes several `--corpus`, into one report and one summary (default: `examples`).
 

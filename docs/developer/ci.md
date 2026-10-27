@@ -12,7 +12,12 @@ protect-main`:
   PR changes `Cargo.lock` or `deny.toml` (a step condition, so the required
   check always reports), and on every push to `main`.
 - **Conformance gate**: release builds of the harness and `dive`, then
-  `scripts/conformance-gate.sh conformance/gates/smoke.txt --workers 1,4`.
+  `scripts/conformance-gate.sh conformance/gates/smoke.txt --workers 1,4`
+  and the shadow gate `scripts/shadow-gate.sh
+  conformance/gates/shadow-smoke.txt`. The shadow gate runs the new core
+  against the reference engine on ten fast models at 1 and 4 workers, under
+  `--strict` (`docs/developer/core/08-correctness.md` §4). The full gate
+  shadows the whole small tier.
 
 The push run on `main` checks the merged result (branch protection is not
 strict) and saves the rust-cache entries that PR runs restore.
@@ -90,8 +95,8 @@ handling; these controls are not a process sandbox.
 
 ```sh
 cargo xtask gate --fast                 # what CI's Workspace gate runs
-cargo xtask gate --full                 # whole suite, cm1 + validation-smoke at 1/4/8, small corpus tier vs baselines
-cargo xtask gate --full --skip-corpus   # without the small corpus tier
+cargo xtask gate --full                 # whole suite, cm1 + validation-smoke at 1/4/8, small corpus tier vs baselines, shadow
+cargo xtask gate --full --skip-corpus   # without the small corpus tier and shadow
 ```
 
 `--full` keeps going after a failure and writes `target/gate-report.md` (under
