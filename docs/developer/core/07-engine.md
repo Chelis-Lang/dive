@@ -343,6 +343,63 @@ engine's D-010 note, so the core's text output equals the reference
 engine's on violations, deadlocks and error endings. Under `--compat=tlc`
 there is no note. `core_rules.rs` compares the notes on every fixture.
 
+**Done (M2, `core/engine-compat`).** `--engine=core --compat=tlc`, on
+one worker. The run's evaluation options map to `dive_core::Semantics`,
+which the store holds for its lifetime and every heap reads, so constant
+folding, the search and trace replay all compute alike. Each component has
+its own switch:
+- **String order** (`StringOrder::Token`, D1). The table is preloaded with
+  the reference binder's start-up names (`Model::names`, tokens below
+  `Evaluator::startup_names`) and then sealed. A string first met later,
+  during compilation or the search, is refused, so §6's runtime-name rule
+  holds without forcing anything: such a run never reaches the search.
+- **Integers** (`IntMode::Tlc`). The heaps compute in Java `int`, and
+  `\div` from `Naturals` alone compiles to `IntOp::DivNaturals`. A numeral
+  outside 32 bits is refused at compile time. The reference binder already
+  fails on it (`TLC_INTEGER_TOO_BIG`), and the core refuses that binding
+  failure.
+- **Comparisons** (C1–C5). `compare.rs` keeps the D-009 answers and adds a
+  shape guard. Under TLC's comparisons, an equality between unequal compound
+  values, a membership miss of a compound value, and the elements of a new
+  set must have shapes that unify: the same class at every position TLC's
+  `equals` or `compareTo` could inspect, with records and tuples kept apart.
+  When the shapes unify, TLC cannot fail, and its answer is TLA+'s. When
+  they do not, the core refuses. Membership of a function in `Seq(S)`, in a
+  record set or in a product, where D-009 answers `FALSE` but TLC's `member`
+  fails, is refused too. Stream 2's exact port of TLC's checked comparisons
+  replaces the guard.
+- **Exploration order** (A6). `x' \in S` over a lazily represented set (the
+  `Raw` structures) is refused when TLC's `elements()` sequence is not in
+  normalized order. Otherwise the normalized order is TLC's order.
+- **Fingerprints.** The core keeps its own 64-bit state keys. TLC's
+  fingerprint values are an internal (ADR 0086); only collisions could
+  differ, and TLC's optimistic estimate is computed from the counts.
+- `--engine=auto` keeps `--compat=tlc` on the reference engine (fallback
+  `static`) until the compat shadow is clean on the small tier. The flip
+  will be its own PR, with numbers.
+
+Results:
+- `crates/dive-api/tests/core_compat.rs` runs every fixture under
+  `--compat=tlc` on both engines and compares verdict, counts, exit,
+  output, notes and the counterexample's states. It also checks TLC's
+  counts where TLC completes. Agreement: 84 error fixtures, 16 rule
+  fixtures, 18 probes, 11 M1 fixtures, and the five `core-compat` fixtures,
+  of which `CompatShape` is refused by rule. `CompatStrOrder` shows that
+  the string order is observable.
+- Shadow, `--impl-profile tlc`: the 26 smoke models agree, and so do 49
+  small-tier models (`08-correctness.md` §4).
+- Against the TLC-profile goldens (`dive-conformance run --impl dive:core
+  --impl-profile tlc`), all 26 smoke models agree, every one on the core.
+
+**Next (M2, stream 3):**
+1. Report a failing binding under compat (`TLC_INTEGER_TOO_BIG`) as the
+   reference engine does.
+2. Parallel compat runs: shadow them at 4 and 8 workers, then lift the
+   one-worker rule.
+3. Flip `--engine=auto` for `--compat=tlc` once the small tier is clean
+   against the TLC-profile goldens (`run --impl dive:core --impl-profile
+   tlc`).
+
 **Next (M1, stream 3):**
 1. Scaling measurements on a quiet x86 machine, then profiling of the expand
    phase. Per-worker memo tables are a known cost: each worker warms its own.
