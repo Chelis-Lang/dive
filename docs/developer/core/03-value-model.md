@@ -132,10 +132,9 @@ with the sorted domain.
 - **Interval domain.** Application is `values[x - a]` for an integer interval
   domain `a..b`.
 - **Other domains.** Application looks up the domain's side index.
-- **Large functions and sequences.** Above a size threshold (initially 64),
-  the value array is a persistent 32-way tree. An `EXCEPT` copies one path,
-  O(log32 n). Interned trees share their unchanged chunks across every state
-  that references them.
+- **Large functions and sequences.** Flat arrays at every size. Persistent
+  32-way trees (an `EXCEPT` copying one path, with chunks shared across
+  states) were planned above 64 entries but are deferred; see §4.1.
 
 **Records.**
 - The sorted field names are interned as a shape. A record is a shape id plus
@@ -153,6 +152,40 @@ flag.
 
 **Big integers** are nodes holding a `BigInt`, used only outside the 61-bit
 inline range in the default profile.
+
+### 4.1 Measured: persistent function trees deferred (negative result)
+
+Trees were to land only if they showed a gain on MCbtree and EWD998PCal (M3).
+They do not, for three reasons.
+
+- **Neither model runs on the core yet.** MCbtree needs model values ("the
+  value override of NIL"), and EWD998PCal needs `Bags!SetToBag` (even with a
+  safety-only configuration); both are refused. The reference engine takes
+  18.0 s and 8.7 s on them (1 worker, M3, safety only for EWD998PCal).
+- **Their functions are small.** MCbtree's largest are `childOf` and `valOf`
+  over `Nodes \X Keys`, 8 × 4 = 32 entries. EWD998PCal's are over `0..N-1`
+  with `N = 3`. The four spike models peak at 16 entries (GameOfLife's
+  grid). A 32-way tree at 32 entries or fewer is a single leaf, so `EXCEPT`
+  would copy the same array.
+- **A flat `EXCEPT` is cheap at those sizes.** On M3, at load 8–12, the
+  costs of `fcn_with`, without and with interning the result, were:
+
+  | Entries | `EXCEPT` (ns) | `EXCEPT` and intern (ns) |
+  |---|---|---|
+  | 8 | 54 | 110 |
+  | 32 | 62 | 194 |
+  | 64 | 77 | 259 |
+  | 256 | 148 | 628 |
+  | 1024 | 583 | 1,917 |
+
+  Those numbers come from a throwaway benchmark over a tuple, with the index
+  cycling and the store hit on most interns; the benchmark is not kept.
+  Generating one MCLamportMutex state costs about 2,300 ns, so below 64
+  entries a tree could save at most a few percent of that.
+
+**Revisit when** a core-supported model in the corpus holds a function or
+sequence above 256 entries that its actions update with `EXCEPT` or
+`Append`. Measure that model first.
 
 ## 5. Hashing
 
@@ -530,7 +563,6 @@ M1, stream 1. The steps below are the ones §11 refers to.
 Next (stream 1, after the open PRs merge):
 - The `isNorm` and record/tuple literal bits of `View::flags` (C1, C5 of
   `02-semantic-contract.md`), with the view side table, for `--compat=tlc`.
-- Persistent 32-way trees for functions above 64 entries (§4), so that
-  `EXCEPT` copies one path; measure on MCbtree and EWD998PCal first.
+- Persistent 32-way trees are deferred by a negative result (§4.1).
 - An x86 measurement of steps 2 and 3 (`09-performance-method.md`):
   `store_views`, `store_scaling`, and the four spike models' time and RSS.
