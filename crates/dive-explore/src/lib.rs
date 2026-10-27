@@ -63,13 +63,32 @@ pub enum Verdict {
         /// What it was.
         feature: String,
     },
-    /// The time limit was reached.
-    TimeLimit,
+    /// The run's budget (time or memory) ran out: the caller's poll said so.
+    Budget,
+    /// The next new state would exceed a state or depth limit.
+    Admission {
+        /// Which limit.
+        limit: Limit,
+        /// Its value.
+        max: u64,
+        /// The admission that was prevented: the distinct count or the depth
+        /// the state would have had.
+        observed: u64,
+    },
     /// A bug in the core.
     Internal {
         /// What happened.
         message: String,
     },
+}
+
+/// An admission limit (`--max-states`, `--max-depth`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Limit {
+    /// Distinct states inside the model.
+    States,
+    /// Breadth-first depth (initial states have depth one).
+    Depth,
 }
 
 /// TLC's statistics.
@@ -128,6 +147,8 @@ pub struct Outcome {
     pub trace: Option<Result<Vec<TraceState>, String>>,
     /// Where the search failed ([`Verdict::Failed`]).
     pub failure: Option<Failure>,
+    /// Whether the run stopped while generating the initial states.
+    pub in_init: bool,
     /// What TLC's call-stack replay changed after an invariant failed to
     /// evaluate on a new successor.
     pub replayed: Option<Replayed>,
@@ -138,8 +159,10 @@ pub struct Outcome {
 pub struct Config {
     /// Strategy switches.
     pub opts: Opts,
-    /// When to stop.
-    pub deadline: Option<Instant>,
+    /// At most this many distinct states (`--max-states`).
+    pub max_states: Option<u64>,
+    /// At most this depth (`--max-depth`).
+    pub max_depth: Option<u64>,
     /// TLC's warning switch (`-nowarning` turns it off): it also selects
     /// the all-assigned shortcut for successors (`05` §5).
     pub warn: bool,
@@ -275,6 +298,11 @@ struct Explorer<'p> {
     action_start: u64,
     /// The failure that stopped the search.
     failure: Option<Failure>,
+    /// Whether the budget has run out (polled once per expanded state and
+    /// per initial state).
+    poll: &'p dyn Fn() -> bool,
+    max_states: Option<u64>,
+    max_depth: Option<u64>,
 }
 
 /// The end of a counterexample, recorded at the stop.
@@ -371,6 +399,9 @@ impl Explorer<'_> {
         }
         let key = state_key(m);
         self.metrics.probed += 1;
+        if in_model && (self.max_states.is_some() || self.max_depth.is_some()) {
+            self.admit(key)?;
+        }
         let new = if in_model {
             self.seen.insert(key)
         } else {
@@ -449,6 +480,36 @@ impl Explorer<'_> {
         Ok(())
     }
 
+    /// Stops before a new state inside the model that would exceed
+    /// `--max-states` or `--max-depth` (the reference engine's
+    /// `admission_stop`); a state already seen is never refused.
+    fn admit(&mut self, key: u64) -> Result<(), Error> {
+        if self.seen.contains(key) {
+            return Ok(());
+        }
+        let states = self.stats.distinct + 1;
+        let stop = if let Some(max) = self.max_states
+            && states > max
+        {
+            Some((Limit::States, max, states))
+        } else if let Some(max) = self.max_depth
+            && self.level > max
+        {
+            Some((Limit::Depth, max, self.level))
+        } else {
+            None
+        };
+        if let Some((limit, max, observed)) = stop {
+            self.stop = Some(Verdict::Admission {
+                limit,
+                max,
+                observed,
+            });
+            return Err(Error::stop());
+        }
+        Ok(())
+    }
+
     /// Interns the successor in `m.s1`, queues it and logs its parent and
     /// ordinal.
     fn enqueue(&mut self, m: &mut Machine) -> Result<(), Error> {
@@ -506,6 +567,12 @@ fn check_step(m: &mut Machine, code: &Code, c: &Check) -> Result<bool, Error> {
 
 impl Sink for Explorer<'_> {
     fn emit(&mut self, m: &mut Machine, _code: &Code) -> Result<(), Error> {
+        // One poll per initial state: the budget can stop a long `Init`
+        // enumeration between its states (ADR 0107).
+        if self.initial && (self.poll)() {
+            self.stop = Some(Verdict::Budget);
+            return Err(Error::stop());
+        }
         self.stats.generated += 1;
         self.emitted += 1;
         if self.initial {
@@ -543,7 +610,12 @@ fn run_actions(
 
 /// Explores the plan's state space.
 #[must_use]
-pub fn explore(plan: &Plan, store: &Arc<Store>, config: Config) -> Outcome {
+pub fn explore(
+    plan: &Plan,
+    store: &Arc<Store>,
+    config: Config,
+    poll: &dyn Fn() -> bool,
+) -> Outcome {
     let start = Instant::now();
     let nvars = plan.vars.len();
     let keys: Vec<usize> = plan
@@ -574,9 +646,12 @@ pub fn explore(plan: &Plan, store: &Arc<Store>, config: Config) -> Outcome {
         in_model: true,
         action_start: 0,
         failure: None,
+        poll,
+        max_states: config.max_states,
+        max_depth: config.max_depth,
     };
     let mut replayed = None;
-    let result = run(&mut m, &mut ex, plan, config, &mut replayed);
+    let result = run(&mut m, &mut ex, plan, &mut replayed);
     let trace = ex
         .end
         .take()
@@ -617,6 +692,7 @@ pub fn explore(plan: &Plan, store: &Arc<Store>, config: Config) -> Outcome {
         warnings,
         trace,
         failure: ex.failure,
+        in_init: ex.initial,
         replayed,
     }
 }
@@ -668,7 +744,6 @@ fn run(
     m: &mut Machine,
     ex: &mut Explorer<'_>,
     plan: &Plan,
-    config: Config,
     replayed: &mut Option<Replayed>,
 ) -> Result<(), Error> {
     let code = &plan.code;
@@ -681,12 +756,16 @@ fn run(
     ex.initial = false;
     let mut cur = std::mem::take(&mut ex.next);
     let mut cur_ids = std::mem::take(&mut ex.next_ids);
-    let mut count = 0u64;
     while !cur.is_empty() {
         ex.level += 1;
         for (k, state) in cur.chunks_exact(nvars.max(1)).enumerate() {
             if nvars == 0 {
                 break;
+            }
+            if (ex.poll)() {
+                ex.stats.left_on_queue = (cur.len() / nvars - k + ex.next.len() / nvars) as u64;
+                ex.stop = Some(Verdict::Budget);
+                return Err(Error::stop());
             }
             m.s0.copy_from_slice(state);
             ex.cur_id = cur_ids.get(k).copied();
@@ -714,14 +793,6 @@ fn run(
                     last: None,
                     expect: state.to_vec(),
                 });
-                return Err(Error::stop());
-            }
-            count += 1;
-            if count.is_multiple_of(64)
-                && let Some(d) = config.deadline
-                && Instant::now() >= d
-            {
-                ex.stop = Some(Verdict::TimeLimit);
                 return Err(Error::stop());
             }
         }

@@ -251,7 +251,6 @@ pub(crate) fn check(
     ir: &Arc<Ir>,
     config: &dive_config::ModelConfig,
     options: &CheckOptions,
-    time_limit: Option<std::time::Duration>,
     profile_tlc: bool,
     switches: Option<&str>,
 ) -> (CheckResult, CoreRun) {
@@ -343,15 +342,22 @@ pub(crate) fn check(
         }
     };
     let compile_time = compile_started.elapsed();
-    let deadline = time_limit.map(|t| started + t);
+    // The armed budget (time and memory, ADR 0107) is polled once per
+    // expanded state and per initial state, as the reference engine polls
+    // it; `--max-states` and `--max-depth` are admission limits.
+    let budget = &options.budget;
+    let poll = || !matches!(budget.poll(), Ok(None));
+    let explore_started = Instant::now();
     let out = dive_explore::explore(
         &plan,
         &store,
         dive_explore::Config {
             opts: core_opts,
-            deadline,
+            max_states: options.max_states,
+            max_depth: options.max_depth,
             warn: options.eval.warnings,
         },
+        &poll,
     );
     let failed = out.verdict == dive_explore::Verdict::Failed;
     let verdict = match out.verdict {
@@ -364,17 +370,41 @@ pub(crate) fn check(
             message: "a core failure without its site".into(),
         },
         dive_explore::Verdict::Unsupported { feature } => unsupported(feature),
-        dive_explore::Verdict::TimeLimit => Verdict::ResourceLimit {
-            message: "the time limit was reached (core engine)".into(),
+        dive_explore::Verdict::Budget => match budget.poll() {
+            Ok(Some(exhausted)) => Verdict::Stopped(Box::new(
+                exhausted.during(dive_check::budget::Phase::Search),
+            )),
+            Err(error) => Verdict::BudgetMeasurement { error },
+            Ok(None) => Verdict::InternalError {
+                message: "the core stopped for a budget that is not exhausted".into(),
+            },
         },
+        dive_explore::Verdict::Admission {
+            limit,
+            max,
+            observed,
+        } => Verdict::Stopped(Box::new(dive_check::budget::Stopped {
+            resource: match limit {
+                dive_explore::Limit::States => dive_check::budget::Resource::States,
+                dive_explore::Limit::Depth => dive_check::budget::Resource::Depth,
+            },
+            limit: max,
+            observed,
+            elapsed_ms: u64::try_from(explore_started.elapsed().as_millis()).unwrap_or(u64::MAX),
+            phase: dive_check::budget::Phase::Search,
+        })),
         dive_explore::Verdict::Internal { message } => Verdict::InternalError { message },
     };
     let mut counted = matches!(
         verdict,
-        Verdict::Success | Verdict::InvariantViolated { .. } | Verdict::Deadlock
+        Verdict::Success
+            | Verdict::InvariantViolated { .. }
+            | Verdict::Deadlock
+            | Verdict::Stopped(_)
     );
     let mut verdict = verdict;
-    let mut in_init = matches!(verdict, Verdict::InvariantViolated { initial: true, .. });
+    let mut in_init = matches!(verdict, Verdict::InvariantViolated { initial: true, .. })
+        || (matches!(verdict, Verdict::Stopped(_)) && out.in_init);
     let mut trace = out.trace.clone();
     let mut stats = out.stats;
     if let Some(f) = out.failure.as_ref().filter(|_| failed) {
