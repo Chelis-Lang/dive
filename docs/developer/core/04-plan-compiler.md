@@ -53,6 +53,24 @@ The handoff has two parts.
   `05-successor-generation.md` specifies.
 - The plan itself.
 
+### 2.1 Roles inside a `LET` (built)
+
+TLC's `getActions` splits through a `LET` (DieHarder's `JugToJug(j, k) ==
+LET amountPoured == ... IN contents' = ...`), and binds the `LET` values
+lazily in the action's context.
+- **Before.** The handoff read every slot of the role's frame, and evaluated
+  each lazy one as a constant. A `LET` value that reads the state therefore
+  refused the model: "a split argument that is not constant". A constant one
+  was evaluated eagerly, which TLC never does.
+- **Now.** The handoff skips `LET` slots (`is_let_slot` in
+  `crates/dive-api/src/core_engine.rs`). `bind_role_lets` binds them as
+  `Sb::LetVal`, a thunk forced at most once per evaluation of the action,
+  since the action's frame starts empty.
+
+Fixture `RoleLet` (54 distinct, 649 generated, depth 7, as TLC) has a
+state-reading `LET` value and an unused failing one. MCDieHarder (violation,
+14/73/7) and kvstore (2641/28585/9) now agree with the reference engine.
+
 ## 3. Static passes
 
 The passes run in this order. Each must preserve the semantic contract. Where

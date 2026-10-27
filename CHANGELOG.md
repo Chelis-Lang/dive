@@ -56,6 +56,11 @@
   refusal. `--engine core` now refuses `--store exact`, disk spilling,
   `--chaos` and non-default evaluation options, which it used to ignore.
 
+- `--engine core` runs actions that TLC splits inside a `LET`, such as
+  `Pour(j, k) == LET amount == ... IN c' = ...`. Their `LET` values are
+  evaluated lazily, as TLC does; before, the core refused them as "a split
+  argument that is not constant".
+
 - `--engine core` runs with `--workers N`. Each level is expanded in
   parallel and committed in order, so results equal the one-worker results.
 
