@@ -66,7 +66,8 @@ This is enforced by `.githooks/commit-msg` (installed with
 Every change lands through a squash-merged PR that passes the required checks
 (`No AI authorship markers`, `Workspace gate` and `Conformance gate`); admins are
 not exempt. CI's conformance gate runs `conformance/gates/smoke.txt` at 1 and 4
-workers; the full cm1 gate runs locally with `cargo xtask gate --full`. Keep `main` green: gate locally before pushing, never merge
+workers, then shadows `conformance/gates/shadow-smoke.txt` (the new core against
+the reference engine); the full cm1 gate runs locally with `cargo xtask gate --full`. Keep `main` green: gate locally before pushing, never merge
 on red, and fix a red `main` first (label the issue `failing-on-main`).
 
 - Small, single-scope PRs from `main`. No long-lived integration or compose
@@ -133,7 +134,10 @@ cargo deny --locked check                       # only when Cargo.lock or deny.t
 The `ci` nextest profile (`.config/nextest.toml`) leaves out slow,
 evidence-oriented and multi-worker matrix tests; everything it excludes still
 runs in the full gate. The `Conformance gate` job checks the eight models of
-`conformance/gates/smoke.txt` at 1 and 4 workers.
+`conformance/gates/smoke.txt` at 1 and 4 workers, then runs
+`scripts/shadow-gate.sh` over `conformance/gates/shadow-smoke.txt`: the new
+execution core (`--engine core`) must agree with the reference engine and its
+counterexamples must validate (`docs/developer/core/08-correctness.md`).
 
 **Full gate.** `cargo xtask gate --full` runs the fast gate with the whole
 nextest suite, then `scripts/conformance-gate.sh` over `conformance/gates/cm1.txt`
