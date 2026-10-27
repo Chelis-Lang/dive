@@ -152,6 +152,6 @@ mod tests {
         assert_ne!(picks(1, 1000), picks(2, 1000));
         let mut r = Reservoir::new(Sample { seed: 1, states: 0 });
         r.offer(&[Handle::EMPTY]);
-        assert!(r.states.is_empty());
+        assert_eq!(r.states.len(), 0);
     }
 }
