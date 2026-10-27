@@ -253,6 +253,9 @@ pub enum Node {
     },
     /// A standard operator.
     Std(StdFn, Box<[P]>),
+    /// A standard or CommunityModules operator implemented in
+    /// [`crate::stdlib`], on normalized arguments.
+    Lib(dive_ir::StdOp, Box<[P]>),
     /// An expression the core evaluates eagerly where TLC evaluates it
     /// lazily (`04-plan-compiler.md` §4.1): an evaluation error inside it
     /// is reported as `unsupported`, because TLC might never raise it.

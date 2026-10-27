@@ -542,6 +542,13 @@ impl Machine {
             }
             Node::Call { fun, args } => self.call(code, *fun, args),
             Node::Std(f, args) => self.std(code, *f, args),
+            Node::Lib(op, args) => {
+                let mut a = Vec::with_capacity(args.len());
+                for &x in args {
+                    a.push(self.eval_norm(code, x)?);
+                }
+                crate::stdlib::call(self, *op, &a)
+            }
             Node::Memo { site, body } => self.memo_eval(code, *site, *body),
             Node::Spec(b) => self.eval(code, *b).map_err(speculative),
             Node::Beta { chain, fc, arg } => self.beta(code, *chain, *fc, *arg),
