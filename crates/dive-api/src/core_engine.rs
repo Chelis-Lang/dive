@@ -503,18 +503,32 @@ pub(crate) fn check(
     if let Some(feature) = refusal(&model) {
         return (finish(result(unsupported(feature), options, ir)), run);
     }
-    match model.check_assumptions() {
-        dive_eval::AssumptionOutcome::AllTrue => {}
-        _ => {
-            return (
-                finish(result(
-                    unsupported("a false or failing ASSUME (M0 core engine)"),
-                    options,
-                    ir,
-                )),
-                run,
-            );
+    // The ASSUMEs are startup evaluation (the binder's, `04-plan-compiler.md`
+    // §2): a false or failing one ends the run as the reference engine
+    // reports it, before any core work.
+    let assumed = match model.check_assumptions() {
+        dive_eval::AssumptionOutcome::AllTrue => None,
+        dive_eval::AssumptionOutcome::False { message, .. } => {
+            Some(Verdict::AssumptionFalse { message })
         }
+        dive_eval::AssumptionOutcome::Error { error, message, .. } => {
+            Some(dive_check::classify::assumption_error(&error, message))
+        }
+    };
+    if let Some(v) = assumed {
+        // Output printed while evaluating the ASSUMEs is the reference
+        // engine's to order; the core does not report it.
+        let printed = !model.take_output().is_empty()
+            || model
+                .output
+                .iter()
+                .any(|m| matches!(m, dive_model::Message::Print(_)));
+        let v = if printed {
+            unsupported("output printed at startup before a false or failing ASSUME (core engine)")
+        } else {
+            v
+        };
+        return (finish(result(v, options, ir)), run);
     }
     let h = match handoff(&model, ir) {
         Ok(h) => h,

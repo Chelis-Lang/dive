@@ -40,6 +40,10 @@
   refutes. CI shadows ten examples models at 1 and 4 workers
   (`scripts/shadow-gate.sh`), and `cargo xtask gate --full` the small tier.
 
+- `--engine core` reports a false or failing `ASSUME` as the reference engine
+  and TLC do: the same message and class, and exit 10. It used to refuse the
+  run.
+
 - `--engine core` runs model values: constants assigned model values, sets
   of them, typed model values with TLC's comparison rules, and definitions
   the configuration assigns a value (`NoVal = NoVal`). The empty function

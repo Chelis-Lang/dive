@@ -31,6 +31,10 @@ fn specs(dir: &Path, out: &mut Vec<PathBuf>) {
 }
 
 fn run(spec: &Path, workers: usize, max_states: Option<u64>) -> Value {
+    run_on(spec, workers, max_states, Engine::Core)
+}
+
+fn run_on(spec: &Path, workers: usize, max_states: Option<u64>, engine: Engine) -> Value {
     let report = check_file_engine(
         &CheckRequest {
             config: Some(spec.with_extension("cfg")),
@@ -41,7 +45,7 @@ fn run(spec: &Path, workers: usize, max_states: Option<u64>) -> Value {
             max_states,
             ..CheckRequest::default()
         },
-        Engine::Core,
+        engine,
     )
     .expect("check runs");
     let mut j = report.to_json();
@@ -93,7 +97,20 @@ fn every_worker_count_gives_the_one_worker_result() {
                     observed(&one),
                     "{name} at {workers} workers, --max-states {limit:?}"
                 );
-                assert_eq!(many["options"]["workers"]["used"], workers, "{name}");
+                // A run that ends at startup (a false or failing ASSUME)
+                // starts no worker, in the reference engine too.
+                let used = if one["options"]["workers"]["used"] == 0 {
+                    let reference = run_on(spec, workers, limit, Engine::Reference);
+                    assert_eq!(
+                        observed(&reference)["verdict"],
+                        observed(&one)["verdict"],
+                        "{name}"
+                    );
+                    reference["options"]["workers"]["used"].clone()
+                } else {
+                    Value::from(workers)
+                };
+                assert_eq!(many["options"]["workers"]["used"], used, "{name}");
             }
             checked += 1;
         }
