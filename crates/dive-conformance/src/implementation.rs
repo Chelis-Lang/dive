@@ -14,7 +14,7 @@
 //!   with a command template, an exit-code map and output rules. It is
 //!   parsed and validated, but not executed yet; every request is refused.
 
-pub use crate::dive::DiveImplementation;
+pub use crate::dive::{DiveEngine, DiveImplementation};
 
 use crate::corpus::{ModelEntry, ModelMode};
 use crate::error::{Error, Result};
@@ -151,6 +151,12 @@ pub trait Implementation: Sync {
     /// `tlc+overrides`. `None` for TLC oracles and external tools, which
     /// have no profile and are never excused by the divergence registry.
     fn profile(&self) -> Option<crate::divergence::Profile> {
+        None
+    }
+
+    /// The `dive check` engine this instance requests (`reference`, `core`
+    /// or `auto`). `None` for anything but `dive`.
+    fn engine(&self) -> Option<&'static str> {
         None
     }
 
