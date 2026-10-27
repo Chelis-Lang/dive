@@ -160,6 +160,17 @@ fn accumulate(
     Ok(())
 }
 
+/// The bag of `pairs`. Elements of a result come from two bags compared
+/// with `equals`; a mixture TLC cannot normalize is refused, as building a
+/// set of them is.
+fn bag(m: &mut Machine, pairs: &mut [(Handle, Handle)]) -> Result<Handle, Error> {
+    pairs.sort_unstable_by(|a, b| m.heap.cmp(a.0, b.0));
+    let keys: Vec<Handle> = pairs.iter().map(|p| p.0).collect();
+    compare::check_set(&m.heap, &keys)?;
+    let vals: Vec<Handle> = pairs.iter().map(|p| p.1).collect();
+    Ok(m.heap.fcn_sorted(&keys, &vals))
+}
+
 fn cup(m: &mut Machine, op: StdOp, b1: Handle, b2: Handle) -> Result<Handle, Error> {
     let (Some((k1, v1)), Some((k2, v2))) = (entries(m, op, b1)?, entries(m, op, b2)?) else {
         return Err(refuse(
@@ -179,7 +190,7 @@ fn cup(m: &mut Machine, op: StdOp, b1: Handle, b2: Handle) -> Result<Handle, Err
     for (d, n) in k2.into_iter().zip(v2) {
         accumulate(m, op, &mut acc, d, n)?;
     }
-    Ok(m.heap.fcn_from_pairs(&mut acc))
+    bag(m, &mut acc)
 }
 
 fn diff(m: &mut Machine, op: StdOp, b1: Handle, b2: Handle) -> Result<Handle, Error> {
@@ -204,7 +215,7 @@ fn diff(m: &mut Machine, op: StdOp, b1: Handle, b2: Handle) -> Result<Handle, Er
             out.push((d, n));
         }
     }
-    Ok(m.heap.fcn_from_pairs(&mut out))
+    bag(m, &mut out)
 }
 
 fn union(m: &mut Machine, op: StdOp, s: Handle) -> Result<Handle, Error> {
@@ -244,7 +255,7 @@ fn union(m: &mut Machine, op: StdOp, s: Handle) -> Result<Handle, Error> {
             accumulate(m, op, &mut acc, d, n)?;
         }
     }
-    Ok(m.heap.fcn_from_pairs(&mut acc))
+    bag(m, &mut acc)
 }
 
 fn sq_subseteq(m: &mut Machine, op: StdOp, b1: Handle, b2: Handle) -> Result<Handle, Error> {
