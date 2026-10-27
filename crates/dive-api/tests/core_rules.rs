@@ -32,6 +32,10 @@ const REFUSED: &[(&str, &str)] = &[
     // A set of an integer and a function: TLC's error depends on when it
     // normalizes the set (C1, C2).
     ("ErBagUnionNonBag", "depends on when it normalizes"),
+    // TLC cannot apply an operator with a constant body passed as an
+    // `OpValue`; the reference engine applies it (`04-plan-compiler.md` §8).
+    ("ErHoConstBagOfAll", "body is constant"),
+    ("ErHoConstFoldLeft", "body is constant"),
 ];
 
 fn repo() -> PathBuf {
@@ -204,8 +208,9 @@ fn library_fixtures_match_the_reference_and_tlc() {
     let agreed = check_dir("crates/dive-api/tests/fixtures/core-lib");
     // Bags: BagOps and four error endings (ErBagUnionNonBag is refused);
     // TLC: TlcOps, Perm, PermViol and five error endings;
-    // CommunityModules: CmOps, CmSeqsViol and three error endings.
-    assert!(agreed >= 18, "only {agreed} library fixtures agreed");
+    // CommunityModules: CmOps, CmSeqsViol and three error endings;
+    // operator arguments: HoOps and three error endings.
+    assert!(agreed >= 22, "only {agreed} library fixtures agreed");
 }
 
 /// The M1 generator fixtures (`tests/fixtures/core-m1`): each agrees with

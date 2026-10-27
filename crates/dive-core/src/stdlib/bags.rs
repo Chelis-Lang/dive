@@ -50,9 +50,9 @@ pub(super) fn call(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle
 
 /// A function's keys and values in canonical order; `None` for a value that
 /// is not a function (TLC's `toFcnRcd` returns `null`).
-type Entries = (Vec<Handle>, Vec<Handle>);
+pub(super) type Entries = (Vec<Handle>, Vec<Handle>);
 
-fn entries(m: &Machine, op: StdOp, h: Handle) -> Result<Option<Entries>, Error> {
+pub(super) fn entries(m: &Machine, op: StdOp, h: Handle) -> Result<Option<Entries>, Error> {
     if !h.is_compound() {
         return Ok(None);
     }
@@ -77,7 +77,7 @@ fn entries(m: &Machine, op: StdOp, h: Handle) -> Result<Option<Entries>, Error> 
 }
 
 /// A count TLC accepts: an integer greater than zero.
-fn positive(m: &Machine, x: Handle) -> bool {
+pub(super) fn positive(m: &Machine, x: Handle) -> bool {
     match x.as_int() {
         Some(n) => n > 0,
         None => sign(m, x) == Some(Ordering::Greater),
@@ -91,7 +91,7 @@ fn sign(m: &Machine, x: Handle) -> Option<Ordering> {
 }
 
 /// The counts of a bag, which TLC casts to `IntValue` without checking.
-fn counts(m: &Machine, op: StdOp, vals: &[Handle]) -> Result<(), Error> {
+pub(super) fn counts(m: &Machine, op: StdOp, vals: &[Handle]) -> Result<(), Error> {
     if vals.iter().all(|&x| m.heap.is_int(x)) {
         Ok(())
     } else {
@@ -143,7 +143,7 @@ fn cardinality(m: &mut Machine, op: StdOp, b: Handle) -> Result<Handle, Error> {
 }
 
 /// Adds `(d, n)` into `acc`, comparing `d` with each element in turn.
-fn accumulate(
+pub(super) fn accumulate(
     m: &mut Machine,
     op: StdOp,
     acc: &mut Vec<(Handle, Handle)>,
@@ -163,7 +163,7 @@ fn accumulate(
 /// The bag of `pairs`. Elements of a result come from two bags compared
 /// with `equals`; a mixture TLC cannot normalize is refused, as building a
 /// set of them is.
-fn bag(m: &mut Machine, pairs: &mut [(Handle, Handle)]) -> Result<Handle, Error> {
+pub(super) fn bag(m: &mut Machine, pairs: &mut [(Handle, Handle)]) -> Result<Handle, Error> {
     pairs.sort_unstable_by(|a, b| m.heap.cmp(a.0, b.0));
     let keys: Vec<Handle> = pairs.iter().map(|p| p.0).collect();
     compare::check_set(&m.heap, &keys)?;
