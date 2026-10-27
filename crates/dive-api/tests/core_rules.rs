@@ -199,8 +199,9 @@ fn error_fixtures_match_the_reference() {
 #[test]
 fn library_fixtures_match_the_reference_and_tlc() {
     let agreed = check_dir("crates/dive-api/tests/fixtures/core-lib");
-    // Bags: BagOps and four error endings; ErBagUnionNonBag is refused.
-    assert!(agreed >= 5, "only {agreed} library fixtures agreed");
+    // Bags: BagOps and four error endings (ErBagUnionNonBag is refused);
+    // TLC: TlcOps, Perm, PermViol and five error endings.
+    assert!(agreed >= 13, "only {agreed} library fixtures agreed");
 }
 
 /// The M1 generator fixtures (`tests/fixtures/core-m1`): each agrees with

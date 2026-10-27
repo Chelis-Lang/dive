@@ -15,14 +15,16 @@
 use dive_ir::StdOp;
 
 use crate::eval::Machine;
+use crate::node::Kind;
 use crate::{Error, Handle, TlcClass};
 
 mod bags;
+mod tlc;
 
 /// Whether the core implements `op` here.
 #[must_use]
 pub fn implements(op: StdOp) -> bool {
-    bags::implements(op)
+    bags::implements(op) || tlc::implements(op)
 }
 
 /// Whether a call of `op` has an effect TLC performs once per evaluation
@@ -42,10 +44,39 @@ pub fn call(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle, Error
     if bags::implements(op) {
         return bags::call(m, op, args);
     }
+    if tlc::implements(op) {
+        return tlc::call(m, op, args);
+    }
     Err(Error::internal(format!(
         "{} is not a core library operator",
         op.qualified_name()
     )))
+}
+
+/// The elements of a set TLC enumerates (`Enumerable`: not `Nat`, `Int`
+/// or `Seq(S)`, and finite); `None` for any other value.
+///
+/// # Errors
+/// `unsupported` for a set the core keeps lazy.
+fn enumerable(m: &mut Machine, op: StdOp, s: Handle) -> Result<Option<Vec<Handle>>, Error> {
+    let set = s.is_compound()
+        && !matches!(
+            m.heap.view(s).kind,
+            Kind::IntFcn
+                | Kind::Fcn
+                | Kind::Lambda
+                | Kind::BigInt
+                | Kind::Nat
+                | Kind::Int
+                | Kind::SeqSet
+        );
+    if !set || !m.heap.is_finite(s) {
+        return Ok(None);
+    }
+    if m.heap.is_lazy(s) {
+        return Err(refuse(op, "a set the core keeps lazy"));
+    }
+    m.heap.elements(s).map(Some)
 }
 
 /// Argument `i`.
