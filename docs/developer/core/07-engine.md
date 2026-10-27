@@ -494,7 +494,8 @@ non-constant split arguments (stream 2), and are refused naming them.
   lookup only skips a state already checked; with it, a seen image can hide
   a concrete state that was not. Fixture `SymOutside`.
 - Refused: `SYMMETRY` under `--compat=tlc`, where TLC compares in its own
-  argument order and may fail; `SYMMETRY` with temporal properties; and
+  argument order and may fail; `SYMMETRY` with a property that needs
+  liveness checking; and
   states holding lazily represented sets or functions.
 - Fixtures `SymOwner` (a violation) and `SymSets` (a deadlock) in
   `core-m1` agree with the reference engine in counts and traces, at every
