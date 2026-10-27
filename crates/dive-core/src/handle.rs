@@ -212,6 +212,9 @@ impl Handle {
     /// Whether this is a persistent lazy node (a lazy constant), which is
     /// not hash-consed by value: such handles must not be compared.
     #[must_use]
+    /// Lazy values and view-flagged nodes ([`crate::node::flags::VIEW`])
+    /// share this class: both are interned structurally, apart from
+    /// identities.
     pub const fn is_lazy_persistent(self) -> bool {
         self.is_persistent() && self.persistent_parts().1 == LAZY_CLASS
     }
