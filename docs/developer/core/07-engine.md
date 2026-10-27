@@ -1,9 +1,10 @@
 # Exploration engine
 
-Status: M1 stream 3. Single-thread BFS in `crates/dive-explore`, with the
-predecessor log and replayed traces (§4, `core/engine-traces`), TLC's
-error endings (§4, `core/engine-errors`), budgets (`core/engine-budgets`)
-and the parallel level (§3, `core/engine-parallel`). This document covers strategies S3 and S9 from
+Status: M1 stream 3. BFS in `crates/dive-explore`, with the predecessor log
+and replayed traces (§4, `core/engine-traces`), TLC's error endings (§4,
+`core/engine-errors`), budgets (`core/engine-budgets`), the parallel level
+(§3, `core/engine-parallel`) and `--engine=auto` (`core/engine-auto`,
+`08-correctness.md` §3). This document covers strategies S3 and S9 from
 `01-motivation.md`. The new engine lives in `dive-explore`.
 
 ## 1. Contract
@@ -309,7 +310,14 @@ needs a quiet x86 machine to assess (`09-performance-method.md`).
 **Not built yet:** fingerprint-site errors, an exact store (`--store exact`)
 and spilling for the core.
 
+**Done (M1, `core/engine-auto`).** `--engine=auto`, the static and dynamic
+fallback of `08-correctness.md` §3. With it, run options the core does not
+implement (`--store exact`, TLC fingerprints, non-default evaluation
+options, disk spilling, `--chaos`) are static refusals. `--engine=core`
+used to ignore them.
+
 **Next (M1, stream 3):**
-1. The static fallback (`08-correctness.md` §3).
-2. Scaling measurements on a quiet x86 machine, then profiling of the expand
+1. Scaling measurements on a quiet x86 machine, then profiling of the expand
    phase. Per-worker memo tables are a known cost: each worker warms its own.
+2. The small tier under `--engine=auto`, counting fallbacks
+   (`08-correctness.md` §8, M1 gate).
