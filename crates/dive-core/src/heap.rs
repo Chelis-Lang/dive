@@ -421,6 +421,10 @@ impl Heap {
 
     /// A function over `lo..lo+n-1` from normalized values.
     pub fn int_fcn(&mut self, lo: i64, vals: &[Handle]) -> Handle {
+        self.int_fcn_as(lo, vals, 0)
+    }
+
+    fn int_fcn_as(&mut self, lo: i64, vals: &[Handle], view: u8) -> Handle {
         let lo = if vals.is_empty() { 1 } else { lo };
         let mut sum = 0u64;
         let mut fl = 0;
@@ -431,8 +435,14 @@ impl Heap {
             sum = sum.wrapping_add(mix2(int_hash(k), h));
             fl |= f;
         }
-        self.arena
-            .alloc(Kind::IntFcn, fl, lo, fcn_hash(vals.len(), sum), sum, vals)
+        self.arena.alloc(
+            Kind::IntFcn,
+            fl | view,
+            lo,
+            fcn_hash(vals.len(), sum),
+            sum,
+            vals,
+        )
     }
 
     /// A tuple (a function over `1..n`).
@@ -440,9 +450,19 @@ impl Heap {
         self.int_fcn(1, vals)
     }
 
+    /// A tuple literal `<<v1, ...>>`: the tuple [`Heap::tuple`] builds, with
+    /// the view bit [`flags::TUPLE`] (as [`Heap::record`]).
+    pub fn tuple_literal(&mut self, vals: &[Handle]) -> Handle {
+        self.int_fcn_as(1, vals, flags::TUPLE)
+    }
+
     /// A function from sorted, distinct, closed keys and their values (which
     /// may be lazy), in canonical form.
     pub fn fcn_sorted(&mut self, keys: &[Handle], vals: &[Handle]) -> Handle {
+        self.fcn_sorted_as(keys, vals, 0)
+    }
+
+    fn fcn_sorted_as(&mut self, keys: &[Handle], vals: &[Handle], view: u8) -> Handle {
         if let Some(lo) = contiguous_ints(keys) {
             return self.int_fcn(lo, vals);
         }
@@ -460,8 +480,14 @@ impl Heap {
         let mut data = Vec::with_capacity(keys.len() * 2);
         data.extend_from_slice(keys);
         data.extend_from_slice(vals);
-        self.arena
-            .alloc(Kind::Fcn, fl, 0, fcn_hash(keys.len(), sum), sum, &data)
+        self.arena.alloc(
+            Kind::Fcn,
+            fl | view,
+            0,
+            fcn_hash(keys.len(), sum),
+            sum,
+            &data,
+        )
     }
 
     /// A function from `(key, value)` pairs with distinct keys, any order.
@@ -470,6 +496,23 @@ impl Heap {
         let keys: Vec<Handle> = pairs.iter().map(|p| p.0).collect();
         let vals: Vec<Handle> = pairs.iter().map(|p| p.1).collect();
         self.fcn_sorted(&keys, &vals)
+    }
+
+    /// A record literal `[f1 |-> v1, ...]` from sorted, distinct string keys:
+    /// the function [`Heap::fcn_sorted`] builds, with [`flags::RECORD`]. The
+    /// bit is a view bit: equality, hashing, order and [`Heap::intern`]
+    /// ignore it, and [`Heap::intern_view`] keeps it.
+    pub fn record(&mut self, keys: &[Handle], vals: &[Handle]) -> Handle {
+        self.fcn_sorted_as(keys, vals, flags::RECORD)
+    }
+
+    /// A set enumeration `{e1, ...}` as TLC builds it before normalizing:
+    /// the normalized, closed elements in construction order, duplicates kept, as a
+    /// [`Kind::SetEnum`] view with [`flags::UNNORM`] (C1). It is normalized,
+    /// hashed and interned as the set of its elements; only membership and
+    /// error paths that the contract names read its order.
+    pub fn set_enum(&mut self, elems: &[Handle]) -> Handle {
+        self.symbolic(Kind::SetEnum, 0, elems)
     }
 
     /// The same function with the entry at index `i` replaced, hashing in
@@ -481,6 +524,8 @@ impl Heap {
     pub fn fcn_with(&mut self, f: Handle, i: usize, new: Handle) -> Handle {
         let v = self.view(f);
         let (kind, lo, sum, n, was_lazy) = (v.kind, v.lo, v.sum, v.len(), v.is_lazy());
+        // TLC's `RecordValue` and `TupleValue` EXCEPT keep their class.
+        let record = v.flags & (flags::RECORD | flags::TUPLE);
         let mut data = v.data.to_vec();
         let (key_hash, slot) = match kind {
             Kind::IntFcn => {
@@ -522,7 +567,8 @@ impl Heap {
             sum.wrapping_sub(mix2(key_hash, self.child(old).0))
                 .wrapping_add(mix2(key_hash, self.child(new).0))
         };
-        self.arena.alloc(kind, fl, lo, fcn_hash(n, sum), sum, &data)
+        self.arena
+            .alloc(kind, fl | record, lo, fcn_hash(n, sum), sum, &data)
     }
 
     /// A symbolic set node. Its hash is structural, not extensional: a
@@ -534,6 +580,12 @@ impl Heap {
             let (dh, df) = self.child(d);
             h = mix2(h, dh);
             fl |= df;
+        }
+        if kind == Kind::SetEnum {
+            if fl & flags::LAZY != 0 {
+                self.lazy_misuse();
+            }
+            fl |= flags::UNNORM;
         }
         self.arena.alloc(kind, fl, lo, h, 0, data)
     }
@@ -626,9 +678,13 @@ impl Heap {
         }
         let v = self.view(h);
         match v.kind {
-            Kind::Set | Kind::IntFcn | Kind::Fcn | Kind::Lambda | Kind::BigInt | Kind::Interval => {
-                true
-            }
+            Kind::Set
+            | Kind::IntFcn
+            | Kind::Fcn
+            | Kind::Lambda
+            | Kind::BigInt
+            | Kind::Interval
+            | Kind::SetEnum => true,
             Kind::Nat | Kind::Int => false,
             Kind::SeqSet => self.view_is_empty_set(v.data[0]),
             Kind::Subset | Kind::FcnSet | Kind::Product => {
@@ -795,6 +851,11 @@ impl Heap {
                     started: false,
                 }
             }
+            Kind::SetEnum => {
+                let mut v = data;
+                let set = self.set_from(&mut v);
+                Cursor::Array { set, i: 0 }
+            }
             Kind::Union => {
                 let (a, b) = (self.norm(data[0])?, self.norm(data[1])?);
                 let mut v = self.elements(a)?;
@@ -866,7 +927,20 @@ impl Heap {
             Tag::Transient => {}
             Tag::Persistent => {
                 if h.is_lazy_persistent() {
-                    return Err(Error::internal("interning an unclosed lazy value"));
+                    let v = self.view(h);
+                    if v.is_lazy() {
+                        return Err(Error::internal("interning an unclosed lazy value"));
+                    }
+                    if !v.kind.is_symbolic() {
+                        // A record literal's view (`intern_view`): its identity
+                        // has no view bit.
+                        let (kind, lo, hash, sum) = (v.kind, v.lo, v.hash, v.sum);
+                        let mut data = v.data.to_vec();
+                        for d in &mut data {
+                            *d = self.intern(*d)?;
+                        }
+                        return Ok(self.store.intern(kind, 0, lo, hash, sum, &data));
+                    }
                 }
                 let k = self.view(h).kind;
                 if k.is_symbolic() && self.is_finite(h) {
@@ -922,8 +996,19 @@ impl Heap {
         }
         let v = self.view(h);
         if !v.kind.is_symbolic() && !v.is_lazy() {
+            // A record literal's bit is dropped here, so that constants keep
+            // their identity handles; `--compat=tlc` keeps constant views
+            // through `intern_view` (M2).
             return self.intern(h);
         }
+        self.intern_structural(h)
+    }
+
+    /// Interns a node as it is, view bits included, with its components
+    /// interned as constants: apart from identities (class 3) when it is
+    /// lazy or a view.
+    fn intern_structural(&mut self, h: Handle) -> Result<Handle, Error> {
+        let v = self.view(h);
         let (kind, fl, lo, hash, sum) = (v.kind, v.flags, v.lo, v.hash, v.sum);
         let mut data = v.data.to_vec();
         for d in &mut data {
@@ -933,16 +1018,25 @@ impl Heap {
     }
 
     /// Interns a state value with its lazy view (§8): the identity handle
-    /// (as [`Heap::intern`]) and, when the value is a symbolic set at the
-    /// top level, that set interned symbolically (as [`Heap::intern_const`]);
-    /// otherwise [`Handle::EMPTY`]. The engine keeps the view in a side table
+    /// (as [`Heap::intern`]) and, when the value is a symbolic set or carries
+    /// a view bit ([`flags::VIEW`]) at the top level, that representation
+    /// interned apart from identities; otherwise [`Handle::EMPTY`]. Nested
+    /// view bits are not kept. The engine keeps the view in a side table
     /// only where the plan asks for it; hashing and equality use the identity.
     ///
     /// # Errors
     /// As [`Heap::intern`].
     pub fn intern_view(&mut self, h: Handle) -> Result<(Handle, Handle), Error> {
-        let view = if h.is_compound() && self.view(h).kind.is_symbolic() {
+        let view = if !h.is_compound() {
+            Handle::EMPTY
+        } else if self.view(h).kind.is_symbolic() {
             self.intern_const(h)?
+        } else if self.view(h).flags & flags::VIEW != 0 {
+            if h.is_transient() {
+                self.intern_structural(h)?
+            } else {
+                h
+            }
         } else {
             Handle::EMPTY
         };
@@ -1379,6 +1473,88 @@ mod tests {
                 .collect();
             assert_eq!(got, want, "{order:?}");
         }
+    }
+
+    #[test]
+    fn a_record_literal_bit_is_a_view_bit() {
+        let mut h = heap(false);
+        let (a, b) = (
+            h.string("a").unwrap_or(Handle::EMPTY),
+            h.string("b").unwrap_or(Handle::EMPTY),
+        );
+        let (keys, vals) = ([a, b], [int(1), int(2)]);
+        let lit = h.record(&keys, &vals);
+        let fcn = h.fcn_sorted(&keys, &vals);
+        assert!(h.view(lit).is_record_literal());
+        assert!(!h.view(fcn).is_record_literal());
+        assert!(h.eq(lit, fcn), "equality ignores the bit");
+        assert_eq!(h.hash(lit), h.hash(fcn));
+        assert_eq!(h.cmp(lit, fcn), Ordering::Equal);
+        let changed = h.fcn_with(lit, 0, int(9));
+        assert!(h.view(changed).is_record_literal(), "EXCEPT keeps it");
+
+        // The identity never carries the bit, whichever is interned first.
+        let id_lit = h.intern(lit).unwrap_or(Handle::EMPTY);
+        let id_fcn = h.intern(fcn).unwrap_or(Handle::TRUE);
+        assert_eq!(id_lit, id_fcn);
+        assert!(!h.view(id_lit).is_record_literal());
+        let lit2 = h.record(&keys, &vals);
+        let (id, view) = h
+            .intern_view(lit2)
+            .unwrap_or((Handle::EMPTY, Handle::EMPTY));
+        assert_eq!(id, id_fcn);
+        assert!(h.view(view).is_record_literal());
+        assert_ne!(view, id, "the view is interned apart from the identity");
+        assert!(h.eq(view, id));
+        assert_eq!(h.intern(view).ok(), Some(id));
+        let again = h.record(&keys, &vals);
+        let (_, view2) = h
+            .intern_view(again)
+            .unwrap_or((Handle::EMPTY, Handle::EMPTY));
+        assert_eq!(view2, view, "views are hash-consed among themselves");
+        let k = h.record(&keys, &vals);
+        assert_eq!(
+            h.intern_const(k).ok(),
+            Some(id),
+            "constants keep identities"
+        );
+        // A set holding the view and the identity has one element.
+        let set = h.set_from(&mut vec![view, id]);
+        assert_eq!(h.view(set).data.len(), 1);
+        // Tuple literals likewise.
+        let t = h.tuple_literal(&[int(1), int(2)]);
+        let plain = h.tuple(&[int(1), int(2)]);
+        assert!(h.view(t).is_tuple_literal() && !h.view(plain).is_tuple_literal());
+        assert!(h.eq(t, plain));
+        let t2 = h.fcn_with(t, 1, int(5));
+        assert!(h.view(t2).is_tuple_literal());
+        let (tid, tview) = h.intern_view(t).unwrap_or((Handle::EMPTY, Handle::EMPTY));
+        assert_eq!(h.intern(plain).ok(), Some(tid));
+        assert!(h.view(tview).is_tuple_literal() && !h.view(tid).is_tuple_literal());
+        assert!(!h.poisoned());
+    }
+
+    #[test]
+    fn a_set_enumeration_keeps_tlc_construction_order_as_a_view() {
+        let mut h = heap(false);
+        let e = h.set_enum(&[int(3), int(1), int(3), int(2)]);
+        let v = h.view(e);
+        assert_eq!(v.kind, Kind::SetEnum);
+        assert!(!v.is_norm());
+        assert_eq!(v.data, &[int(3), int(1), int(3), int(2)]);
+        assert!(h.is_finite(e));
+        assert_eq!(h.cardinality(e).ok(), Some(3));
+        let n = h.norm(e).unwrap_or(Handle::EMPTY);
+        assert!(h.view(n).is_norm());
+        assert_eq!(h.view(n).data, &[int(1), int(2), int(3)]);
+        let plain = h.set_from(&mut vec![int(1), int(2), int(3)]);
+        let id_plain = h.intern(plain).unwrap_or(Handle::EMPTY);
+        let (id, view) = h.intern_view(e).unwrap_or((Handle::EMPTY, Handle::EMPTY));
+        assert_eq!(id, id_plain);
+        assert_eq!(h.kind(view), Some(Kind::SetEnum));
+        assert!(!h.view(view).is_norm());
+        assert_eq!(h.intern(view).ok(), Some(id));
+        assert!(!h.poisoned());
     }
 
     #[test]

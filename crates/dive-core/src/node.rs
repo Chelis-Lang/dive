@@ -15,9 +15,11 @@
 //! membership and streaming (S5); a finite symbolic set is materialized to a
 //! `Set` before it is hashed, compared or stored in a state.
 //!
-//! M0 drops TLC's tuple/record literal flag (`dive-value`'s `literal` bit):
-//! it is not observable in the spike models, and putting it in node identity
-//! would break extensional equality. It returns as a lazy-view bit in M1.
+//! TLC's representation state that is observable under `--compat=tlc` is
+//! kept out of identity as view bits ([`flags`]): a set enumeration that is
+//! not yet normalized is a [`Kind::SetEnum`] node (flag [`flags::UNNORM`]),
+//! a record literal is a `Fcn` with [`flags::RECORD`], and a tuple literal
+//! an `IntFcn` with [`flags::TUPLE`] (`02-semantic-contract.md` C1, C2, C5).
 
 use crate::handle::Handle;
 
@@ -59,6 +61,12 @@ pub enum Kind {
     /// the magnitude's 32-bit digits (least significant first) as inline
     /// integers. Not a set (`int.rs`).
     BigInt,
+    /// A set enumeration that TLC has not normalized yet
+    /// (`SetEnumValue` with `isNorm` false): its elements in construction
+    /// order, duplicates kept. Carries [`flags::UNNORM`]. A view, never an
+    /// identity: it is normalized like any finite symbolic set
+    /// (`03-value-model.md` §8).
+    SetEnum,
 }
 
 /// [`View::flags`] bits. They describe a value's representation, never its
@@ -68,6 +76,20 @@ pub mod flags {
     /// The value contains a [`super::Kind::Lambda`] or
     /// [`super::Kind::SetPred`] node, so only the evaluator can close it.
     pub const LAZY: u8 = 1;
+    /// TLC's `isNorm` is false: the node is a [`super::Kind::SetEnum`] in
+    /// construction order (`02-semantic-contract.md` C1).
+    pub const UNNORM: u8 = 2;
+    /// The function was built by a record literal (TLC's `RecordValue`),
+    /// not by `:>`, `@@` or a constructor (`FcnRcdValue`)
+    /// (`02-semantic-contract.md` C5). Set only on a `Fcn` node.
+    pub const RECORD: u8 = 4;
+    /// The function was built by a tuple literal (TLC's `TupleValue`), not
+    /// as a function over `1..n` (`FcnRcdValue`) (`02-semantic-contract.md`
+    /// C2). Set only on an `IntFcn` node with `lo = 1`.
+    pub const TUPLE: u8 = 8;
+    /// The view bits: a node carrying one is a lazy view, so it is
+    /// interned apart from identities (`03-value-model.md` §11.3).
+    pub const VIEW: u8 = UNNORM | RECORD | TUPLE;
 }
 
 impl Kind {
@@ -124,6 +146,24 @@ impl View<'_> {
     #[must_use]
     pub fn is_lazy(&self) -> bool {
         self.flags & flags::LAZY != 0
+    }
+
+    /// TLC's `isNorm`: false only for a [`Kind::SetEnum`] view.
+    #[must_use]
+    pub fn is_norm(&self) -> bool {
+        self.flags & flags::UNNORM == 0
+    }
+
+    /// Whether a function was built by a record literal ([`flags::RECORD`]).
+    #[must_use]
+    pub fn is_record_literal(&self) -> bool {
+        self.flags & flags::RECORD != 0
+    }
+
+    /// Whether a function was built by a tuple literal ([`flags::TUPLE`]).
+    #[must_use]
+    pub fn is_tuple_literal(&self) -> bool {
+        self.flags & flags::TUPLE != 0
     }
 
     /// The number of elements (sets) or entries (functions).

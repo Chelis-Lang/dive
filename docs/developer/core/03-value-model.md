@@ -144,11 +144,11 @@ with the sorted domain.
   table.
 - TLC distinguishes a record literal (`RecordValue`) from a string-domain
   function (`FcnRcdValue`), and a tuple (`TupleValue`) from a `1..n` function.
-  That distinction is a one-bit literal flag, as in `dive-value` today
-  (`crates/dive-value/src/value.rs:752`).
+  That distinction is a view bit, `flags::RECORD` or `flags::TUPLE` (§8),
+  as `dive-value`'s literal flag is (`crates/dive-value/src/value.rs:752`).
 
-**Tuples and sequences** are functions with domain `1..n`, plus the literal
-flag.
+**Tuples and sequences** are functions with domain `1..n`; a tuple literal
+carries `flags::TUPLE`.
 
 **Big integers** are nodes holding a `BigInt`, used only outside the 61-bit
 inline range in the default profile.
@@ -283,6 +283,32 @@ and normalization flag travel separately, as a **lazy view**:
 - **Memoization.** S6 cache keys include the view handles of their inputs
   (`06-memoization.md`).
 
+**View bits.** TLC's representation state that is not a symbolic kind is
+kept in `View::flags`, which identity ignores:
+
+| Bit | Set on | TLC | Contract |
+|---|---|---|---|
+| `UNNORM` | every `Kind::SetEnum` node: `Heap::set_enum`, elements in construction order with duplicates | `SetEnumValue` with `isNorm` false | C1 |
+| `RECORD` | a `Fcn` built by `Heap::record` (the evaluator's record literal) | `RecordValue` | C5 |
+| `TUPLE` | an `IntFcn` over `1..n` built by `Heap::tuple_literal` (the evaluator's tuple literal) | `TupleValue` | C2 |
+
+Rules for the bits:
+- `hash`, `eq` and `cmp` ignore them, and `intern` and `intern_const` drop
+  them, so identities and constants never carry one.
+- `fcn_with` (`EXCEPT`) keeps `RECORD` and `TUPLE`, as TLC's `takeExcept`
+  keeps the class.
+- `intern_view` keeps a top-level bit. The view node is hash-consed with
+  its flags, in the structural class, apart from the identities. Nested
+  bits are not kept.
+- A `SetEnum` is a finite symbolic set: `norm`, `cursor`, `cardinality` and
+  `intern` treat it as the set of its elements.
+- The evaluator refuses membership in a `SetEnum` (unsupported) until
+  TLC's linear `equals` scan is built with the compat order (M2).
+- Only the record and tuple literals carry a bit so far. Nothing builds a
+  `SetEnum` yet. TLC's sequence operators (`Append`, `Tail`, `\o`,
+  `SubSeq`) return a `TupleValue`, but their core results carry no bit:
+  that is stream 2's work, for `--compat=tlc` (M2).
+
 Which cases need a retained view is listed in `02-semantic-contract.md`
 (normalization and membership). In M0 the view side table is empty, because
 the spike models do not need it.
@@ -404,6 +430,7 @@ method.
 | `SetPred` | closure id | `[S, captures...]`: `{x \in S : P}` before it is enumerated |
 | `Union` | 0 | `[A, B]`: a lazy `A \cup B` |
 | `BigInt` | sign (`1` or `-1`) | the magnitude's 32-bit digits, least significant first, as inline integers; read only through `Heap::big` |
+| `SetEnum` | 0 | the elements in construction order, duplicates kept: TLC's unnormalized `SetEnumValue` (flag `UNNORM`, §8) |
 
 `View` has `kind`, `lo`, `hash`, `sum`, `flags` and `data`. Use
 `len`, `keys` and `values` rather than indexing `data` by kind. Every kind
@@ -500,7 +527,8 @@ arena nodes directly.
 6. **Views and identity** (§8). A value's identity handle is its normalized,
    closed form. A lazy view (a symbolic class, or TLC's `isNorm` state) is
    kept beside it, never in it: `hash`, `eq`, `cmp` and `intern` ignore
-   `View::flags` (except to refuse a lazy value). The engine keeps a state slot's view handle in a
+   `View::flags` (except to refuse a lazy value), and the store hash-conses
+   a view-flagged node apart from identities (§8, view bits). The engine keeps a state slot's view handle in a
    side table when the plan asks for it.
 7. **Sharing.** `Store` is `Sync` and shared through `Arc`. Interning takes a
    per-shard lock; reads take none. A persistent handle may be passed to any
@@ -526,7 +554,8 @@ M0 built the following. Measurements are in `m0-results.md`.
 - The store microbenchmark `crates/dive-core/examples/store_scaling.rs`.
 
 Deviations, to resolve in M1:
-- The literal flag for tuples and records is not part of identity.
+- The literal flag for tuples and records is not part of identity (since M1
+  step 7 it is a view bit, §8).
 - The store has no compaction. Memo tables are cleared when the store remaps.
 
 M1, stream 1. The steps below are the ones §11 refers to.
@@ -557,9 +586,7 @@ M1, stream 1. The steps below are the ones §11 refers to.
    Left to stream 2, the evaluator side: compiling `[x \in S |-> e]`,
    recursive functions and `{x \in S : P}` to these nodes, application of a
    `Lambda`, `SetPred` membership and enumeration, and the `close` walk.
-   Still open on the value side: the `isNorm` and record/tuple literal bits
-   of `View::flags` (C1, C5 of `02-semantic-contract.md`), which `--compat=tlc`
-   needs (M2).
+   The `isNorm` and literal bits followed in step 7.
 5. **Big integers.** Done: §9. Numerals, startup constants, arithmetic,
    comparison, `Nat`, `Int` and interval membership handle integers of any
    size. A new `dive-api` fixture (`core-m0/Big`) agrees with the reference
@@ -579,9 +606,17 @@ M1, stream 1. The steps below are the ones §11 refers to.
    engine must pick `Token` under `--compat=tlc` (stream 3). Runtime names
    with several workers are `07-engine.md` §6.
 
+7. **View bits.** Done: §8. `flags::{UNNORM, RECORD, TUPLE}`, with
+   `Kind::SetEnum`, `Heap::{set_enum, record, tuple_literal}` and
+   `View::{is_norm, is_record_literal, is_tuple_literal}`. Record and tuple
+   literals carry their bit. The store keeps view-flagged nodes apart from
+   identities. Cost on M3 (indicative): within +0.3% instructions on the
+   four spike models; counts unchanged. Open:
+   - the evaluator's TLC-order membership in a `SetEnum` and the C2/C5
+     comparisons that read the bits (stream 2, with the compat order, M2);
+   - the engine's view side table for state slots (stream 3).
+
 Next (stream 1, after the open PRs merge):
-- The `isNorm` and record/tuple literal bits of `View::flags` (C1, C5 of
-  `02-semantic-contract.md`), with the view side table, for `--compat=tlc`.
 - Persistent 32-way trees are deferred by a negative result (§4.1).
 - An x86 measurement of steps 2 and 3 (`09-performance-method.md`):
   `store_views`, `store_scaling`, and the four spike models' time and RSS.
