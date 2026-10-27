@@ -231,6 +231,9 @@ version = "0.0.0"
 dependencies = [
  "dive-ir",
  "dive-value",
+ "num-bigint",
+ "num-integer",
+ "num-traits",
 ]
 
 [[package]]

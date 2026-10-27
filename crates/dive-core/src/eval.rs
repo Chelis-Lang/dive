@@ -7,6 +7,7 @@ use crate::Error;
 use crate::compare;
 use crate::handle::Handle;
 use crate::heap::Heap;
+use crate::int::{IntMode, IntOp};
 use crate::memo::{MAX_KEY, Memo};
 use crate::node::Kind;
 use crate::opts::Opts;
@@ -326,26 +327,43 @@ impl Machine {
                 Ok(Handle::TRUE)
             }
             Node::Arith(op, a, b) => {
-                let x = int_of(self.eval(code, *a)?)?;
-                let y = int_of(self.eval(code, *b)?)?;
-                arith(*op, x, y)
+                let x = self.eval(code, *a)?;
+                let y = self.eval(code, *b)?;
+                // Inline operands whose result is inline (and, in TLC mode,
+                // a Java `int`) take the fast path; anything else is the
+                // heap's (big integers, TLC overflow, domain errors).
+                if let (Some(i), Some(j)) = (x.as_int(), y.as_int())
+                    && let Some(h) = fast_arith(*op, i, j, self.heap.int_mode())
+                {
+                    return Ok(h);
+                }
+                self.heap.int_arith(int_op(*op), x, y)
             }
             Node::Cmp(op, a, b) => {
-                let x = int_of(self.eval(code, *a)?)?;
-                let y = int_of(self.eval(code, *b)?)?;
+                let x = self.eval(code, *a)?;
+                let y = self.eval(code, *b)?;
+                let o = match (x.as_int(), y.as_int()) {
+                    (Some(i), Some(j)) => i.cmp(&j),
+                    _ => self
+                        .heap
+                        .int_cmp(x, y)
+                        .ok_or_else(|| eval_err("expected an integer"))?,
+                };
                 Ok(Handle::bool(match op {
-                    Cmp::Lt => x < y,
-                    Cmp::Le => x <= y,
-                    Cmp::Gt => x > y,
-                    Cmp::Ge => x >= y,
+                    Cmp::Lt => o.is_lt(),
+                    Cmp::Le => o.is_le(),
+                    Cmp::Gt => o.is_gt(),
+                    Cmp::Ge => o.is_ge(),
                 }))
             }
             Node::Neg(a) => {
-                let x = int_of(self.eval(code, *a)?)?;
-                mk_int(
-                    x.checked_neg()
-                        .ok_or_else(|| Error::unsupported("integer overflow"))?,
-                )
+                let x = self.eval(code, *a)?;
+                if self.heap.int_mode() == IntMode::Big
+                    && let Some(h) = x.as_int().and_then(i64::checked_neg).and_then(Handle::int)
+                {
+                    return Ok(h);
+                }
+                self.heap.int_neg(x)
             }
             Node::Range(a, b) => {
                 let x = int_of(self.eval(code, *a)?)?;
@@ -755,17 +773,27 @@ impl Machine {
                     Some(i) => Ok(lo <= i && i <= hi),
                     // TLC answers FALSE for an empty interval.
                     None if lo > hi => Ok(false),
+                    // Bounds are inline, so a big integer is outside.
+                    None if self.heap.is_int(x) => Ok(false),
                     None => Err(eval_err(
                         "Attempted to check if a value that is not an integer is in an integer interval",
                     )),
                 }
             }
-            Kind::Nat | Kind::Int => match x.as_int() {
-                Some(i) => Ok(v.kind == Kind::Int || i >= 0),
-                None => Err(eval_err(
-                    "Attempted to check if a value that is not an integer is an element of Nat or Int",
-                )),
-            },
+            Kind::Nat | Kind::Int if self.heap.is_int(x) => Ok(match x.as_int() {
+                Some(i) => v.kind == Kind::Int || i >= 0,
+                // A big integer: in `Int`, and in `Nat` when positive.
+                None => {
+                    v.kind == Kind::Int
+                        || self
+                            .heap
+                            .int_cmp(x, Handle::int(0).unwrap_or(Handle::EMPTY))
+                            == Some(std::cmp::Ordering::Greater)
+                }
+            }),
+            Kind::Nat | Kind::Int => Err(eval_err(
+                "Attempted to check if a value that is not an integer is an element of Nat or Int",
+            )),
             Kind::Subset => {
                 let base = v.data[0];
                 if !x.is_compound() || self.heap.view(x).kind != Kind::Set {
@@ -855,6 +883,7 @@ impl Machine {
                 Ok(true)
             }
             Kind::IntFcn | Kind::Fcn | Kind::Lambda => Err(eval_err("membership in a function")),
+            Kind::BigInt => Err(eval_err("membership in a value that is not a set")),
             // TLC's `SetCupValue.member`: either side, left first.
             Kind::Union => {
                 let (a, b) = (v.data[0], v.data[1]);
@@ -1369,40 +1398,34 @@ pub(crate) struct Unit {
     pub(crate) var: Option<usize>,
 }
 
-fn arith(op: Arith, x: i64, y: i64) -> Result<Handle, Error> {
-    let overflow = || Error::unsupported("integer outside the M0 core's 61-bit range");
+/// The plan's operator as the heap's.
+const fn int_op(op: Arith) -> IntOp {
+    match op {
+        Arith::Add => IntOp::Add,
+        Arith::Sub => IntOp::Sub,
+        Arith::Mul => IntOp::Mul,
+        Arith::Div => IntOp::Div,
+        Arith::Mod => IntOp::Mod,
+        Arith::Pow => IntOp::Pow,
+    }
+}
+
+/// Integer arithmetic on inline operands when its result is certain to be
+/// inline and error-free in `mode`; `None` sends it to
+/// [`crate::Heap::int_arith`], which handles every other case exactly.
+fn fast_arith(op: Arith, x: i64, y: i64, mode: IntMode) -> Option<Handle> {
     let r = match op {
-        Arith::Add => x.checked_add(y).ok_or_else(overflow)?,
-        Arith::Sub => x.checked_sub(y).ok_or_else(overflow)?,
-        Arith::Mul => x.checked_mul(y).ok_or_else(overflow)?,
-        Arith::Div => {
-            if y == 0 {
-                return Err(eval_err("The second argument of \\div is 0."));
-            }
-            // Floor division, as TLC. Inline integers are 61-bit, so the
-            // quotient cannot overflow.
-            let q = x / y;
-            if (x % y != 0) && ((x < 0) != (y < 0)) {
-                q - 1
-            } else {
-                q
-            }
-        }
-        Arith::Mod => {
-            if y <= 0 {
-                return Err(eval_err(
-                    "The second argument of % should be a positive number",
-                ));
-            }
-            x.rem_euclid(y)
-        }
-        Arith::Pow => {
-            if y < 0 {
-                return Err(eval_err("negative exponent"));
-            }
-            let e = u32::try_from(y).map_err(|_| overflow())?;
-            x.checked_pow(e).ok_or_else(overflow)?
-        }
+        Arith::Add => x.checked_add(y)?,
+        Arith::Sub => x.checked_sub(y)?,
+        Arith::Mul => x.checked_mul(y)?,
+        // Floored division; in TLC mode only where `Naturals` and
+        // `Integers` agree.
+        Arith::Div if y > 0 && (mode == IntMode::Big || x >= 0) => x.div_euclid(y),
+        Arith::Mod if y > 0 => x.rem_euclid(y),
+        _ => return None,
     };
-    mk_int(r)
+    if mode == IntMode::Tlc && i32::try_from(r).is_err() {
+        return None;
+    }
+    Handle::int(r)
 }
