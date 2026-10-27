@@ -104,7 +104,9 @@ mark): after each accepted state's checks, and after each element of an
 this, MCBakery (655,200 initial states, depth 1) held every candidate's
 values until the level ended: 769 MB against the reference engine's 216 MB
 at 1 worker. After it, 136 MB at 1 worker and 174 MB at 8 (local, under
-load).
+load). Fixtures `WideLevel` and `WideRepeat` (levels wider than a chunk,
+with states repeated across chunks) agree with the reference engine at 1,
+2, 3 and 8 workers.
 
 ## 4. Errors, traces and replay
 

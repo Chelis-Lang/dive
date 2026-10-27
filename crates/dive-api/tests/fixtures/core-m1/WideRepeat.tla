@@ -1,4 +1,4 @@
----- MODULE WideDup ----
+---- MODULE WideRepeat ----
 \* A level wider than the parallel engine's chunk (4,096 states per worker):
 \* x % 5000 repeats a state across chunks. No violation.
 EXTENDS Naturals
