@@ -245,12 +245,16 @@ fn parallel_compat_runs_give_the_one_worker_result() {
     assert!(ran >= 130, "only {ran} fixtures ran");
 }
 
-/// `--engine=auto` keeps `--compat=tlc` on the reference engine for now.
+/// `--engine=auto` runs `--compat=tlc` on the core, and falls back to the
+/// reference engine where the core refuses.
 #[test]
-fn auto_keeps_compat_on_the_reference_engine() {
-    let spec = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("tests/fixtures/core-compat/CompatQueue.tla");
-    let j = run(&spec, Engine::Auto, true);
-    assert_eq!(j["engine"], "reference", "{j:#}");
+fn auto_runs_compat_on_the_core() {
+    let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/core-compat");
+    let j = run(&dir.join("CompatQueue.tla"), Engine::Auto, true);
+    assert_eq!(j["engine"], "core", "{j:#}");
     assert_eq!(j["verdict"], "invariant-violation");
+    let j = run(&dir.join("CompatShape.tla"), Engine::Auto, true);
+    assert_eq!(j["engine"], "reference", "{j:#}");
+    assert_eq!(j["verdict"], "evaluation-error");
+    assert_eq!(j["engine_fallback"]["stage"], "dynamic", "{j:#}");
 }
