@@ -12,7 +12,7 @@ use std::cmp::Ordering;
 
 use dive_ir::StdOp;
 
-use super::{arg, arg_error, exc, refuse, wrong_value};
+use super::{arg, arg_error, enumerable, exc, refuse, wrong_value};
 use crate::compare;
 use crate::eval::Machine;
 use crate::int::{IntMode, IntOp};
@@ -219,24 +219,9 @@ fn diff(m: &mut Machine, op: StdOp, b1: Handle, b2: Handle) -> Result<Handle, Er
 }
 
 fn union(m: &mut Machine, op: StdOp, s: Handle) -> Result<Handle, Error> {
-    let enumerable = s.is_compound()
-        && !matches!(
-            m.heap.view(s).kind,
-            Kind::IntFcn
-                | Kind::Fcn
-                | Kind::Lambda
-                | Kind::BigInt
-                | Kind::Nat
-                | Kind::Int
-                | Kind::SeqSet
-        );
-    if !enumerable || !m.heap.is_finite(s) {
+    let Some(elems) = enumerable(m, op, s)? else {
         return Err(wrong_value("BagUnion", "a finite enumerable set"));
-    }
-    if m.heap.is_lazy(s) {
-        return Err(refuse(op, "a set the core keeps lazy"));
-    }
-    let elems = m.heap.elements(s)?;
+    };
     match elems.len() {
         0 => return Ok(m.heap.fcn_sorted(&[], &[])),
         1 => return Ok(elems[0]),
