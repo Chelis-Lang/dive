@@ -2682,6 +2682,31 @@ impl Compiler<'_> {
         self.push(n)
     }
 
+    /// `S` in `UNION {S}` when `S` is a set constructor (`[D -> R]`,
+    /// `[a : R]`, `SUBSET R`, `A \X B`). `UNION {S}` is then `S`: TLC's
+    /// `UnionValue` tests membership in each member, so `S` stays lazy
+    /// instead of being enumerated as the element of a set in every state.
+    /// Other operands keep TLC's check that the member is a set.
+    fn union_of_one_constructor(&self, args: &[ExprId]) -> Option<ExprId> {
+        let a = *args.first()?;
+        let Expr::SetEnum(items) = &self.ir.node(a).expr else {
+            return None;
+        };
+        let [item] = items.as_ref() else {
+            return None;
+        };
+        matches!(
+            &self.ir.node(*item).expr,
+            Expr::FcnSet { .. }
+                | Expr::RecordSet(_)
+                | Expr::Builtin {
+                    op: BuiltinOp::PowerSet | BuiltinOp::Times,
+                    ..
+                }
+        )
+        .then_some(*item)
+    }
+
     fn builtin(
         &mut self,
         op: BuiltinOp,
@@ -2713,6 +2738,11 @@ impl Compiler<'_> {
                 let h = self.m.heap.set_from(&mut v);
                 let h = self.m.heap.intern_const(h)?;
                 return self.konst(h);
+            }
+            B::BigUnion => {
+                if let Some(item) = self.union_of_one_constructor(args) {
+                    return self.p(item, env, mode);
+                }
             }
             B::String => return Err(Error::unsupported("STRING (M0 core)")),
             B::Enabled => return Err(Error::unsupported("ENABLED (M0 core)")),
