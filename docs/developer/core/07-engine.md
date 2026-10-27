@@ -1,9 +1,9 @@
 # Exploration engine
 
 Status: M1 stream 3. Single-thread BFS in `crates/dive-explore`, with the
-predecessor log and replayed traces (§4, `core/engine-traces`) and TLC's
-error endings (§4, `core/engine-errors`). The parallel level (§3, S9) is not
-built yet. This document covers strategies S3 and S9 from
+predecessor log and replayed traces (§4, `core/engine-traces`), TLC's
+error endings (§4, `core/engine-errors`) and budgets (`core/engine-budgets`).
+The parallel level (§3, S9) is not built yet. This document covers strategies S3 and S9 from
 `01-motivation.md`. The new engine lives in `dive-explore`.
 
 ## 1. Contract
@@ -250,11 +250,27 @@ the incremental hash before any interning, so only new states are interned.
     `dive-trace`. The validator's known refutations #490 and #499 are
     allowed, as for the reference engine.
 
-**Not built yet:** fingerprint-site errors, budgets other than
-`--time-limit`, and the parallel level.
+**Done (M1, `core/engine-budgets`).** Budgets (ADR 0107).
+- The run's armed budget (`--time-limit`, `--max-memory`; the watchdog is
+  `dive-api`'s, shared with the reference engine) is polled where the
+  reference engine polls it: before each state is expanded, and before each
+  initial state. A poll is one relaxed atomic load.
+- `--max-states` and `--max-depth` are admission limits. A new state inside
+  the model that would exceed one stops the search before it is inserted,
+  as the reference engine's `admission_stop` does. A state already seen is
+  never refused.
+- The stop is the reference engine's structured `stopped` verdict: the
+  resource, limit and observation, the phase `safety-search`, the
+  statistics at the stop, and the exit code. TLC's statistics are not
+  printed for a stop in the initial states. The report's `options` and
+  `resources` sections, which `dive-bench` reads, are unchanged.
+- `crates/dive-api/tests/core_budgets.rs`:
+  - every probe and core fixture runs under six admission limits, and the
+    report equals the reference engine's;
+  - the time and memory limits each stop an endless model.
+
+**Not built yet:** fingerprint-site errors and the parallel level.
 
 **Next (M1, stream 3):**
-1. Budgets: `--max-memory`, `--max-states` and `--time-limit` with the
-   reference engine's structured stop.
-2. The parallel level of §3.
-3. The static fallback (`08-correctness.md` §3).
+1. The parallel level of §3.
+2. The static fallback (`08-correctness.md` §3).
