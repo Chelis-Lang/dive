@@ -1,5 +1,8 @@
 # Changelog
 
+- `--engine core` runs with `--workers N`. Each level is expanded in
+  parallel and committed in order, so results equal the one-worker results.
+
 - `--engine core` honours `--time-limit`, `--max-memory`, `--max-states` and
   `--max-depth` with the reference engine's structured `stopped` verdict and
   exit code. Before, it reported a time limit as a resource limit and

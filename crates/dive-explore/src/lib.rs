@@ -25,6 +25,7 @@
 #![forbid(unsafe_code)]
 
 pub mod ending;
+mod parallel;
 pub mod trace;
 
 use std::sync::Arc;
@@ -127,6 +128,11 @@ pub struct Metrics {
     pub thunks: (u64, u64),
     /// Wall time spent exploring (after compilation).
     pub explore_time: Duration,
+    /// With several workers: wall time in the parallel expand phase, and in
+    /// the sequential commit phase (`parallel.rs`).
+    pub expand_time: Duration,
+    /// See [`Metrics::expand_time`].
+    pub commit_time: Duration,
 }
 
 /// The result of a run.
@@ -163,6 +169,8 @@ pub struct Config {
     pub max_states: Option<u64>,
     /// At most this depth (`--max-depth`).
     pub max_depth: Option<u64>,
+    /// Worker threads. Every observable result is the one-worker result.
+    pub workers: usize,
     /// TLC's warning switch (`-nowarning` turns it off): it also selects
     /// the all-assigned shortcut for successors (`05` §5).
     pub warn: bool,
@@ -300,9 +308,12 @@ struct Explorer<'p> {
     failure: Option<Failure>,
     /// Whether the budget has run out (polled once per expanded state and
     /// per initial state).
-    poll: &'p dyn Fn() -> bool,
+    poll: &'p (dyn Fn() -> bool + Sync),
     max_states: Option<u64>,
     max_depth: Option<u64>,
+    /// Warnings in the order raised, when levels run in parallel (each
+    /// worker's machine keeps its own).
+    warnings: Vec<(u16, u32)>,
 }
 
 /// The end of a counterexample, recorded at the stop.
@@ -325,59 +336,21 @@ enum Probe {
 impl Explorer<'_> {
     /// Evaluates a check on the state in `m.s1`.
     fn check(&mut self, m: &mut Machine, code: &Code, c: &Check) -> Result<bool, Error> {
-        std::mem::swap(&mut m.s0, &mut m.s1);
-        let old = m.enter(c.frame);
-        let mut r = Ok(true);
-        for conj in &c.conjuncts {
-            self.metrics.conjuncts_total += 1;
-            if self.opts.parent_skip
-                && !self.initial
-                && conj.skippable
-                && conj.reads & self.changed == 0
-            {
-                self.metrics.conjuncts_skipped += 1;
-                continue;
-            }
-            match m.eval_bool(code, conj.p) {
-                Ok(true) => {}
-                Ok(false) => {
-                    r = Ok(false);
-                    break;
-                }
-                Err(e) => {
-                    r = Err(e);
-                    break;
-                }
-            }
-        }
-        m.leave(old);
-        std::mem::swap(&mut m.s0, &mut m.s1);
-        r
+        let skip = self.opts.parent_skip && !self.initial;
+        eval_check(m, code, c, skip.then_some(self.changed), &mut self.metrics)
     }
 
     /// Whether the state in `m.s1` satisfies the constraints, and the
     /// action constraints on the step to it; on an error, its site.
     fn in_model_of(&mut self, m: &mut Machine) -> Result<bool, (Site, Error)> {
-        let plan = self.plan;
-        let code = &plan.code;
-        for (i, c) in plan.constraints.iter().enumerate() {
-            if !self
-                .check(m, code, c)
-                .map_err(|e| (Site::Constraint(i), e))?
-            {
-                return Ok(false);
-            }
-        }
-        // `ACTION_CONSTRAINT`s, on the step from the parent (TLC's
-        // `isInActions`, after `isInModel`); never on initial states.
-        if !self.initial {
-            for (i, c) in plan.action_constraints.iter().enumerate() {
-                if !check_step(m, code, c).map_err(|e| (Site::ActionConstraint(i), e))? {
-                    return Ok(false);
-                }
-            }
-        }
-        Ok(true)
+        let skip = self.opts.parent_skip && !self.initial;
+        in_model(
+            m,
+            self.plan,
+            !self.initial,
+            skip.then_some(self.changed),
+            &mut self.metrics,
+        )
     }
 
     fn probe(&mut self, m: &mut Machine) -> Result<(Probe, bool), Error> {
@@ -418,24 +391,13 @@ impl Explorer<'_> {
         let plan = self.plan;
         let code = &plan.code;
         if m.assigned != m.s1.len() {
-            let missing: Vec<&str> =
-                m.s1.iter()
-                    .zip(&plan.vars)
-                    .filter(|(h, _)| h.is_empty())
-                    .map(|(_, n)| n.as_str())
-                    .collect();
-            let message = format!("not completely specified: {}", missing.join(", "));
+            let message = incomplete_message(plan, m);
             self.failure = Some(self.failure_at(m, Site::Incomplete, message)?);
             self.end_here(m)?;
             return Err(Error::stop());
         }
         if !self.initial {
-            self.changed = 0;
-            for (i, (a, b)) in m.s0.iter().zip(&m.s1).enumerate() {
-                if a != b {
-                    self.changed |= 1u64 << i;
-                }
-            }
+            self.changed = changed_vars(m);
         }
         let (probe, in_model) = self.probe(m)?;
         if matches!(probe, Probe::Seen) {
@@ -548,6 +510,95 @@ impl Explorer<'_> {
     }
 }
 
+/// Evaluates a check on the state in `m.s1`. With `skip`, the variables the
+/// step changed: a conjunct that reads none of them is skipped, since the
+/// parent satisfied it (S6).
+pub(crate) fn eval_check(
+    m: &mut Machine,
+    code: &Code,
+    c: &Check,
+    skip: Option<u64>,
+    metrics: &mut Metrics,
+) -> Result<bool, Error> {
+    std::mem::swap(&mut m.s0, &mut m.s1);
+    let old = m.enter(c.frame);
+    let mut r = Ok(true);
+    for conj in &c.conjuncts {
+        metrics.conjuncts_total += 1;
+        if let Some(changed) = skip
+            && conj.skippable
+            && conj.reads & changed == 0
+        {
+            metrics.conjuncts_skipped += 1;
+            continue;
+        }
+        match m.eval_bool(code, conj.p) {
+            Ok(true) => {}
+            Ok(false) => {
+                r = Ok(false);
+                break;
+            }
+            Err(e) => {
+                r = Err(e);
+                break;
+            }
+        }
+    }
+    m.leave(old);
+    std::mem::swap(&mut m.s0, &mut m.s1);
+    r
+}
+
+/// Whether the state in `m.s1` satisfies the constraints, and (`step`) the
+/// action constraints on the step from `m.s0`; on an error, its site.
+pub(crate) fn in_model(
+    m: &mut Machine,
+    plan: &Plan,
+    step: bool,
+    skip: Option<u64>,
+    metrics: &mut Metrics,
+) -> Result<bool, (Site, Error)> {
+    let code = &plan.code;
+    for (i, c) in plan.constraints.iter().enumerate() {
+        if !eval_check(m, code, c, skip, metrics).map_err(|e| (Site::Constraint(i), e))? {
+            return Ok(false);
+        }
+    }
+    // `ACTION_CONSTRAINT`s, on the step from the parent (TLC's
+    // `isInActions`, after `isInModel`); never on initial states.
+    if step {
+        for (i, c) in plan.action_constraints.iter().enumerate() {
+            if !check_step(m, code, c).map_err(|e| (Site::ActionConstraint(i), e))? {
+                return Ok(false);
+            }
+        }
+    }
+    Ok(true)
+}
+
+/// The core's message for a state in `m.s1` that leaves variables
+/// unassigned.
+pub(crate) fn incomplete_message(plan: &Plan, m: &Machine) -> String {
+    let missing: Vec<&str> =
+        m.s1.iter()
+            .zip(&plan.vars)
+            .filter(|(h, _)| h.is_empty())
+            .map(|(_, n)| n.as_str())
+            .collect();
+    format!("not completely specified: {}", missing.join(", "))
+}
+
+/// The variables that differ between `m.s0` and `m.s1` (bit per variable).
+pub(crate) fn changed_vars(m: &Machine) -> u64 {
+    let mut changed = 0;
+    for (i, (a, b)) in m.s0.iter().zip(&m.s1).enumerate() {
+        if a != b {
+            changed |= 1u64 << i;
+        }
+    }
+    changed
+}
+
 /// Evaluates a step predicate on `(m.s0, m.s1)`.
 fn check_step(m: &mut Machine, code: &Code, c: &Check) -> Result<bool, Error> {
     let old = m.enter(c.frame);
@@ -614,7 +665,7 @@ pub fn explore(
     plan: &Plan,
     store: &Arc<Store>,
     config: Config,
-    poll: &dyn Fn() -> bool,
+    poll: &(dyn Fn() -> bool + Sync),
 ) -> Outcome {
     let start = Instant::now();
     let nvars = plan.vars.len();
@@ -624,8 +675,13 @@ pub fn explore(
         .iter()
         .map(|s| s.vars.len() + s.slots.len())
         .collect();
-    let mut m = Machine::new(Arc::clone(store), nvars, config.opts, Memo::new(&keys));
-    m.warn = config.warn;
+    let mut machines: Vec<Machine> = (0..config.workers.max(1))
+        .map(|_| {
+            let mut m = Machine::new(Arc::clone(store), nvars, config.opts, Memo::new(&keys));
+            m.warn = config.warn;
+            m
+        })
+        .collect();
     let mut ex = Explorer {
         plan,
         stats: Stats::default(),
@@ -649,9 +705,12 @@ pub fn explore(
         poll,
         max_states: config.max_states,
         max_depth: config.max_depth,
+        warnings: Vec::new(),
     };
     let mut replayed = None;
-    let result = run(&mut m, &mut ex, plan, &mut replayed);
+    let result = run(&mut machines, &mut ex, plan, &mut replayed);
+    let parallel = machines.len() > 1;
+    let mut m = machines.swap_remove(0);
     let trace = ex
         .end
         .take()
@@ -680,10 +739,12 @@ pub fn explore(
     metrics.arena_peak = m.heap.arena().peak();
     metrics.thunks = (m.stats.forced, m.stats.cached);
     metrics.explore_time = start.elapsed();
-    let warnings = if config.warn {
-        std::mem::take(&mut m.warnings)
-    } else {
+    let warnings = if !config.warn {
         Vec::new()
+    } else if parallel {
+        std::mem::take(&mut ex.warnings)
+    } else {
+        std::mem::take(&mut m.warnings)
     };
     Outcome {
         verdict,
@@ -740,29 +801,77 @@ fn generator_error(m: &Machine, ex: &mut Explorer<'_>, e: Error) -> Error {
     Error::stop()
 }
 
+#[allow(
+    clippy::too_many_lines,
+    reason = "TLC's ordered level loop: expansion, stops, replay and deadlock"
+)]
 fn run(
-    m: &mut Machine,
+    machines: &mut [Machine],
     ex: &mut Explorer<'_>,
     plan: &Plan,
     replayed: &mut Option<Replayed>,
 ) -> Result<(), Error> {
     let code = &plan.code;
     let nvars = plan.vars.len();
+    let parallel = machines.len() > 1;
+    let Some(m) = machines.first_mut() else {
+        return Err(Error::internal("no core machine"));
+    };
     if let Err(e) = run_actions(m, ex, &plan.init, code) {
         ex.stats.left_on_queue = (ex.next.len() / nvars.max(1)) as u64;
         return Err(generator_error(m, ex, e));
     }
     m.heap.reset();
     ex.initial = false;
+    ex.warnings.clone_from(&m.warnings);
     let mut cur = std::mem::take(&mut ex.next);
     let mut cur_ids = std::mem::take(&mut ex.next_ids);
+    let mut generated_before = 0;
     while !cur.is_empty() {
         ex.level += 1;
+        // Claims are sized from the previous level's successors.
+        let estimate = usize::try_from(ex.stats.generated - generated_before).unwrap_or(1 << 20);
+        generated_before = ex.stats.generated;
+        let level_started = Instant::now();
+        let expanded = if parallel && nvars > 0 {
+            let mut metrics = Metrics::default();
+            let r = parallel::expand_level(
+                plan,
+                machines,
+                &cur,
+                nvars,
+                &ex.seen,
+                ex.opts,
+                ex.poll,
+                estimate,
+                &mut metrics,
+            )?;
+            ex.metrics.conjuncts_total += metrics.conjuncts_total;
+            ex.metrics.conjuncts_skipped += metrics.conjuncts_skipped;
+            ex.metrics.discarded_before_intern += metrics.discarded_before_intern;
+            ex.metrics.expand_time += level_started.elapsed();
+            Some(r)
+        } else {
+            None
+        };
+        let Some(m) = machines.first_mut() else {
+            return Err(Error::internal("no core machine"));
+        };
         for (k, state) in cur.chunks_exact(nvars.max(1)).enumerate() {
             if nvars == 0 {
                 break;
             }
-            if (ex.poll)() {
+            let res = expanded
+                .as_ref()
+                .and_then(|all| all.get(k).and_then(Option::as_ref));
+            // Phase 1 polled the budget before each state it expanded, and
+            // stopped before this one if it ran out.
+            let exhausted = if expanded.is_some() {
+                res.is_none()
+            } else {
+                (ex.poll)()
+            };
+            if exhausted {
                 ex.stats.left_on_queue = (cur.len() / nvars - k + ex.next.len() / nvars) as u64;
                 ex.stop = Some(Verdict::Budget);
                 return Err(Error::stop());
@@ -770,14 +879,26 @@ fn run(
             m.s0.copy_from_slice(state);
             ex.cur_id = cur_ids.get(k).copied();
             ex.emitted = 0;
-            let r = run_actions(m, ex, &plan.next, code).map_err(|e| generator_error(m, ex, e));
+            let r = match res {
+                Some(res) => ex.commit(m, res),
+                None => run_actions(m, ex, &plan.next, code),
+            }
+            .map_err(|e| generator_error(m, ex, e));
             if r.is_err()
                 && let Some(f) = &ex.failure
                 && f.site_resumes()
             {
                 // TLC's call-stack replay (`ending.rs`).
                 let ordinal = ex.emitted - 1;
+                let saved = std::mem::take(&mut m.warnings);
                 *replayed = Some(ending::replay_after(m, ex, ordinal)?);
+                for w in std::mem::replace(&mut m.warnings, saved) {
+                    if parallel && !ex.warnings.contains(&w) {
+                        ex.warnings.push(w);
+                    } else if !parallel && !m.warnings.contains(&w) {
+                        m.warnings.push(w);
+                    }
+                }
             }
             m.heap.reset();
             let left = (cur.len() / nvars - k - 1 + ex.next.len() / nvars) as u64;
@@ -795,6 +916,9 @@ fn run(
                 });
                 return Err(Error::stop());
             }
+        }
+        if expanded.is_some() {
+            ex.metrics.commit_time += level_started.elapsed();
         }
         cur.clear();
         cur_ids.clear();

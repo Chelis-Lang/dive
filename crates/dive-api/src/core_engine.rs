@@ -3,7 +3,7 @@
 //!
 //! The reference binder builds the model (constants, overrides, split
 //! actions and startup values); the core compiles it into a plan and
-//! explores it single-threaded. Anything the core does not implement is an
+//! explores it, level by level, on `--workers` threads. Anything the core does not implement is an
 //! `unsupported` verdict naming it; there is no fallback to the reference
 //! engine.
 
@@ -24,8 +24,8 @@ pub enum Engine {
     /// The reference checker (`dive-check`).
     #[default]
     Reference,
-    /// The new core (`dive-core` and `dive-explore`), M0: default profile,
-    /// one worker, safety only.
+    /// The new core (`dive-core` and `dive-explore`): default profile,
+    /// safety only.
     Core,
 }
 
@@ -92,9 +92,10 @@ fn result(verdict: Verdict, opts: &CheckOptions, ir: &Ir) -> CheckResult {
         notes: Vec::new(),
         workers: Workers {
             requested: opts.workers.max(1),
-            used: 1,
+            // The search sets it; 0 for a run that ends before it.
+            used: 0,
             sequential: false,
-            reason: (opts.workers > 1).then(|| "the M0 core engine is single-threaded".to_owned()),
+            reason: None,
         },
         elapsed: std::time::Duration::ZERO,
     }
@@ -346,6 +347,9 @@ pub(crate) fn check(
     // expanded state and per initial state, as the reference engine polls
     // it; `--max-states` and `--max-depth` are admission limits.
     let budget = &options.budget;
+    // Every observable result is the one-worker result
+    // (`docs/developer/core/07-engine.md` §3).
+    let workers = options.workers.max(1);
     let poll = || !matches!(budget.poll(), Ok(None));
     let explore_started = Instant::now();
     let out = dive_explore::explore(
@@ -355,6 +359,7 @@ pub(crate) fn check(
             opts: core_opts,
             max_states: options.max_states,
             max_depth: options.max_depth,
+            workers,
             warn: options.eval.warnings,
         },
         &poll,
@@ -436,6 +441,8 @@ pub(crate) fn check(
     }
     let prints = !in_init || matches!(verdict, Verdict::EvaluationError { .. });
     let mut r = result(verdict, options, ir);
+    r.workers.used = workers;
+    r.workers.reason = None;
     for (var, at) in &out.warnings {
         let name = plan.vars.get(usize::from(*var)).map_or("?", String::as_str);
         r.output.push(format!(
@@ -632,6 +639,8 @@ fn metrics_json(
     json!({
         "compile_ms": compile_time.as_secs_f64() * 1e3,
         "explore_ms": m.explore_time.as_secs_f64() * 1e3,
+        "expand_ms": m.expand_time.as_secs_f64() * 1e3,
+        "commit_ms": m.commit_time.saturating_sub(m.expand_time).as_secs_f64() * 1e3,
         "plan": {
             "nodes": plan.stats.nodes, "generator_nodes": plan.stats.gnodes,
             "inlined": plan.stats.inlined, "aliased_args": plan.stats.aliased,
