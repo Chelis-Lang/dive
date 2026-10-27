@@ -57,7 +57,13 @@ fn known(ending: Option<&Ending>, f: &Failure, last: usize) -> bool {
     let raises = matches!(ending, Some(Ending::Error { .. } | Ending::Assertion));
     f.state == last
         && ((raises
-            && ["invariant", "constraint", "action-constraint"].contains(&check)
+            && [
+                "invariant",
+                "constraint",
+                "action-constraint",
+                "implied-action",
+            ]
+            .contains(&check)
             && !f.detail.contains("may lie outside the model"))
             || (check == "constraint"
                 && f.detail.contains(
