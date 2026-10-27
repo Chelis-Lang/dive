@@ -68,10 +68,13 @@ pub(crate) fn class(heap: &Heap, h: Handle) -> Class {
         Tag::Int => Class::Int,
         Tag::Str => Class::Str,
         Tag::Persistent | Tag::Transient | Tag::Empty => {
-            if h.is_compound() && heap.view(h).kind.is_fcn() {
-                Class::Fcn
-            } else {
-                Class::Set
+            if !h.is_compound() {
+                return Class::Set;
+            }
+            match heap.view(h).kind {
+                Kind::BigInt => Class::Int,
+                k if k.is_fcn() => Class::Fcn,
+                _ => Class::Set,
             }
         }
     }

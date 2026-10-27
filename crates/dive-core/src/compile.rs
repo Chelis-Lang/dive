@@ -1213,11 +1213,18 @@ impl Compiler<'_> {
         match expr {
             Expr::Bool(b) => self.konst(Handle::bool(*b)),
             Expr::Num(s) => {
-                let v = s.parse::<i64>().ok().and_then(Handle::int).ok_or_else(|| {
-                    Error::unsupported(format!(
-                        "the numeral {s} (beyond the M0 core's 61-bit integers)"
-                    ))
-                })?;
+                let v = if let Some(h) = s.parse::<i64>().ok().and_then(Handle::int) {
+                    h
+                } else {
+                    // Outside the inline range: a big integer constant (D-004).
+                    let b = s
+                        .parse::<num_bigint::BigInt>()
+                        .map_err(|_| Error::unsupported(format!("the numeral {s}")))?;
+                    let h = self.m.heap.int_from_big(&b);
+                    let h = self.m.heap.intern_const(h);
+                    self.m.heap.reset();
+                    h?
+                };
                 self.konst(v)
             }
             Expr::Decimal { .. } => Err(Error::unsupported("decimal numbers")),

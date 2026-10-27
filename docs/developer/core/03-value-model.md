@@ -4,7 +4,8 @@ Status: M0 spike on `main` in `crates/dive-core` (`handle`, `strings`,
 `store`, `arena`, `node`, `heap`); results in `m0-results.md`. M1 (stream 1):
 the value interface is frozen in §11, node data is inline in the store
 (step 2), the arena rolls back rejected candidates (step 3), and lazy values
-exist on the value side (step 4); the remaining M1 steps are in §12. This document covers strategies S1, S2, S4, S5 and S7 from
+exist on the value side (step 4), and integers have any size (step 5); the
+remaining M1 steps are in §12. This document covers strategies S1, S2, S4, S5 and S7 from
 `01-motivation.md`.
 
 ## 1. Goals
@@ -255,12 +256,21 @@ the spike models do not need it.
 
 ## 9. Integers
 
-- **Default profile.** Integers are inline while they fit 61 bits; arithmetic
-  checks for overflow and promotes to a big-integer node.
-- **`--int=tlc`.** TLC's 32-bit semantics: arithmetic outside the TLC range
-  raises TLC's overflow error, with the same error class.
+- **Default profile** (`IntMode::Big`, D-004). Integers are inline while they
+  fit 61 bits; arithmetic checks for overflow and promotes to a `BigInt` node
+  (`int.rs`).
+- **`--int=tlc`** (`IntMode::Tlc`). TLC's 32-bit semantics: operands and
+  results are Java `int`s, and arithmetic outside the TLC range raises TLC's
+  overflow error with TLC's message (`Overflow when computing 2147483647+1`).
+  `Naturals.Divide` (`IntOp::DivNaturals`) is available for a specification
+  that loads `Naturals` but not `Integers`.
 
-The compiler emits integer fast paths per profile (`04-plan-compiler.md`).
+The semantics, messages included, are those of the reference engine's
+`dive_value::Int` (`docs/provenance.md`). The evaluator keeps an inline fast
+path for `+`, `-`, `*`, `\div` and `%` whose result is certain to be inline
+(and, in TLC mode, a Java `int`), and calls `Heap::int_arith` for everything
+else. The mode is set per heap with `Heap::set_int_mode`; the default is
+`Big`.
 
 ## 10. Memory bound
 
@@ -309,10 +319,10 @@ Rules:
 - **Equality.** Equal handles are equal values. Two *persistent* handles of
   closed values (§11.3) are equal values exactly when the handles are equal,
   in the default (hash-consing) store. For anything else use `Heap::eq`.
-- **Integers outside 61 bits** are compound nodes of kind `BigInt`
-  *(step 5)*, never inline. A canonical integer is inline whenever it
-  fits, so an inline and a big handle are never equal. Use `Heap::int_of`
-  *(step 5)* rather than `as_int` where a big integer is possible.
+- **Integers outside 61 bits** are compound nodes of kind `BigInt`, never
+  inline. A canonical integer is inline whenever it fits, so an inline and a
+  big handle are never equal. Where a big integer is possible, use
+  `Heap::is_int`, `Heap::big` and `Heap::int_cmp` rather than `as_int`.
 - **`Handle::bits`** is for hash keys only; it carries no order.
 - **Lazy constants.** A lazy value interned by `intern_const` (for example
   `[x \in Nat |-> x + 1]`) is stored structurally, in a class of its own, so
@@ -341,7 +351,7 @@ method.
 | `Lambda` | closure id | `[D, captures...]`: `[x \in D \|-> e]` before it is materialized |
 | `SetPred` | closure id | `[S, captures...]`: `{x \in S : P}` before it is enumerated |
 | `Union` | 0 | `[A, B]`: a lazy `A \cup B` |
-| `BigInt` *(step 5)* | sign | magnitude limbs; read only through `Heap::big` |
+| `BigInt` | sign (`1` or `-1`) | the magnitude's 32-bit digits, least significant first, as inline integers; read only through `Heap::big` |
 
 `View` has `kind`, `lo`, `hash`, `sum`, `flags` and `data`. Use
 `len`, `keys` and `values` rather than indexing `data` by kind. Every kind
@@ -395,7 +405,7 @@ worker (and the compiler, while folding) owns exactly one `Heap`; it is not
 | `closure(h) -> Option<Closure>` | the closure id, domain and captures of a `Lambda` or `SetPred` | yes | no | no |
 | `rebuild(h, data)` | the same kind with new contents, canonicalized and rehashed (used to close a value bottom-up) | yes | no | yes |
 | `is_lazy` | whether the value must be closed first | yes | yes | yes |
-| `int_of`, `big`, `int_from_big`, `arith` *(step 5)* | integers of any size, profile-aware arithmetic | yes | yes | no |
+| `is_int`, `big`, `int_from_i64`, `int_from_big`, `int_cmp`, `int_arith`, `int_neg`, `set_int_mode` | integers of any size, and arithmetic in the run's `IntMode` | yes | yes | mode: engine setup |
 | `mark`, `rollback` *(step 3)* | discard transients built since a mark | yes | yes | no |
 | `intern` | deep-close a closed value into the store | no | no | engine, after the claim |
 | `intern_const` | intern a constant, keeping a top-level symbolic set symbolic and a lazy value lazy | no | yes | no |
@@ -463,7 +473,6 @@ M0 built the following. Measurements are in `m0-results.md`.
 - The store microbenchmark `crates/dive-core/examples/store_scaling.rs`.
 
 Deviations, to resolve in M1:
-- Big integers are refused, not represented.
 - The literal flag for tuples and records is not part of identity.
 - The store has no compaction. Memo tables are cleared when the store remaps.
 
@@ -498,5 +507,15 @@ M1, stream 1. The steps below are the ones §11 refers to.
    Still open on the value side: the `isNorm` and record/tuple literal bits
    of `View::flags` (C1, C5 of `02-semantic-contract.md`), which `--compat=tlc`
    needs (M2).
-5. Big integers out of line (D-004), with `--int=tlc` overflow errors.
+5. **Big integers.** Done: §9. Numerals, startup constants, arithmetic,
+   comparison, `Nat`, `Int` and interval membership handle integers of any
+   size. A new `dive-api` fixture (`core-m0/Big`) agrees with the reference
+   engine: 21 distinct, 24 generated, depth 7. Cost on M3 (indicative):
+   within ±0.4% instructions on the four spike models. Open:
+   - the engine does not yet pass `--int=tlc` to `Heap::set_int_mode`
+     (stream 3), since the core refuses `--compat=tlc` in M1;
+   - the compiler does not yet choose `DivNaturals` for `Naturals`-only
+     specifications, nor raise TLC's "integer too big" for numerals in TLC
+     mode (stream 2);
+   - interval bounds, `Len` and similar remain 61-bit (refused beyond).
 6. The compat-order intern path for strings (§7).

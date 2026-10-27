@@ -25,6 +25,8 @@ pub struct Heap {
     poisoned: std::cell::Cell<bool>,
     /// `-delta-hash`: recompute hashes in full instead of incrementally.
     pub(crate) full_hash: bool,
+    /// The integer semantics (`int.rs`).
+    pub(crate) int_mode: crate::int::IntMode,
     /// Interned enumerations of persistent finite symbolic sets, for
     /// [`Heap::materialize_cached`].
     materialized: std::collections::HashMap<Handle, Handle>,
@@ -64,6 +66,7 @@ impl Heap {
             arena: Arena::new(heap_arena),
             poisoned: std::cell::Cell::new(false),
             full_hash,
+            int_mode: crate::int::IntMode::Big,
             materialized: std::collections::HashMap::new(),
         }
     }
@@ -285,9 +288,19 @@ impl Heap {
         if a == b {
             return Ordering::Equal;
         }
-        let (ra, rb) = (Self::scalar_rank(a), Self::scalar_rank(b));
+        let (mut ra, mut rb) = (Self::scalar_rank(a), Self::scalar_rank(b));
         if ra != rb {
-            return ra.cmp(&rb);
+            // A big integer is a compound that ranks among the integers.
+            if a.is_compound() && self.view(a).kind == Kind::BigInt {
+                ra = 2;
+            }
+            if b.is_compound() && self.view(b).kind == Kind::BigInt {
+                rb = 2;
+            }
+            if ra != rb {
+                return ra.cmp(&rb);
+            }
+            return self.int_cmp(a, b).unwrap_or(Ordering::Equal);
         }
         match a.tag() {
             Tag::Bool => a.as_bool().cmp(&b.as_bool()),
@@ -306,6 +319,13 @@ impl Heap {
         if va.is_lazy() || vb.is_lazy() {
             self.lazy_misuse();
             return Ordering::Equal;
+        }
+        if va.kind == Kind::BigInt || vb.kind == Kind::BigInt {
+            return match (va.kind == Kind::BigInt, vb.kind == Kind::BigInt) {
+                (true, true) => self.int_cmp(a, b).unwrap_or(Ordering::Equal),
+                (true, false) => Ordering::Less,
+                _ => Ordering::Greater,
+            };
         }
         let (ra, rb) = (Self::kind_rank(va.kind), Self::kind_rank(vb.kind));
         if ra != rb {
@@ -597,7 +617,9 @@ impl Heap {
         }
         let v = self.view(h);
         match v.kind {
-            Kind::Set | Kind::IntFcn | Kind::Fcn | Kind::Lambda | Kind::Interval => true,
+            Kind::Set | Kind::IntFcn | Kind::Fcn | Kind::Lambda | Kind::BigInt | Kind::Interval => {
+                true
+            }
             Kind::Nat | Kind::Int => false,
             Kind::SeqSet => self.view_is_empty_set(v.data[0]),
             Kind::Subset | Kind::FcnSet | Kind::Product => {
@@ -776,6 +798,11 @@ impl Heap {
             }
             Kind::IntFcn | Kind::Fcn | Kind::Lambda => {
                 return Err(Error::eval("attempted to enumerate a function as a set"));
+            }
+            Kind::BigInt => {
+                return Err(Error::eval(
+                    "attempted to enumerate a value that is not a set",
+                ));
             }
             Kind::SetPred => {
                 return Err(Error::internal(
