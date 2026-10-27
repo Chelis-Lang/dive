@@ -67,6 +67,19 @@ fn eval_err(what: &str) -> Error {
     Error::eval(what)
 }
 
+/// An error raised inside `Node::Spec`: an evaluation error TLC might not
+/// raise, because TLC would not have evaluated the expression yet.
+fn speculative(e: Error) -> Error {
+    if e.kind() == crate::ErrorKind::Eval {
+        Error::unsupported(format!(
+            "an evaluation error in an expression TLC evaluates lazily, where it may not fail: {}",
+            e.message()
+        ))
+    } else {
+        e
+    }
+}
+
 fn int_of(h: Handle) -> Result<i64, Error> {
     h.as_int().ok_or_else(|| eval_err("expected an integer"))
 }
@@ -467,6 +480,134 @@ impl Machine {
             Node::Call { fun, args } => self.call(code, *fun, args),
             Node::Std(f, args) => self.std(code, *f, args),
             Node::Memo { site, body } => self.memo_eval(code, *site, *body),
+            Node::Spec(b) => self.eval(code, *b).map_err(speculative),
+            Node::Beta { chain, fc, arg } => self.beta(code, *chain, *fc, *arg),
+            Node::DomCheck { slot, domain, body } => {
+                let d = self.eval(code, *domain).map_err(speculative)?;
+                let x = self.slot(*slot);
+                if !self.member(x, d)? {
+                    return Err(eval_err(
+                        "In applying a recursive function, the argument is not in its domain",
+                    ));
+                }
+                self.eval(code, *body)
+            }
+            Node::InLazy { elem, set, neg } => {
+                let x = self.eval_norm(code, *elem)?;
+                let r = self.member_lazy(code, x, *set)?;
+                Ok(Handle::bool(r != *neg))
+            }
+        }
+    }
+
+    /// `Node::Beta`: TLC's `FcnLambdaValue.apply` on a function constructor
+    /// with one bound variable. The function's domain is evaluated first
+    /// (TLC builds the lazy function before evaluating the argument), then
+    /// the argument; the argument must be in the domain.
+    fn beta(&mut self, code: &Code, chain: P, fc: P, arg: P) -> Result<Handle, Error> {
+        match code.nodes.get(chain as usize) {
+            Some(Node::Lazy { slot, body }) => {
+                let v = self.slot(*slot);
+                if v.is_empty() {
+                    self.beta(code, *body, fc, arg)
+                } else {
+                    let a = self.eval_norm(code, arg)?;
+                    self.apply(v, a)
+                }
+            }
+            Some(Node::Scope { reset, body }) => {
+                for &s in reset {
+                    self.set_slot(s, Handle::EMPTY);
+                }
+                self.beta(code, *body, fc, arg)
+            }
+            Some(Node::Spec(b)) => self.beta(code, *b, fc, arg),
+            Some(Node::FcnCons { binds, body }) if chain == fc => {
+                let (Some(bind), Some(&slot)) =
+                    (binds.first(), binds.first().and_then(|b| b.slots.first()))
+                else {
+                    return Err(Error::internal(
+                        "a lazy application without a bound variable",
+                    ));
+                };
+                let dom = self.eval(code, bind.domain)?;
+                let x = self.eval_norm(code, arg)?;
+                if !self.member(x, dom)? {
+                    return Err(eval_err(
+                        "In applying a function, the argument is not in its domain",
+                    ));
+                }
+                let old = self.slot(slot);
+                self.set_slot(slot, x);
+                let out = self.eval(code, *body);
+                self.set_slot(slot, old);
+                out
+            }
+            _ => Err(Error::internal("a lazy application of a non-function node")),
+        }
+    }
+
+    /// Membership in a set node TLC keeps lazy (`Node::InLazy`), without
+    /// building the set. Any other node is evaluated and tested.
+    fn member_lazy(&mut self, code: &Code, x: Handle, set: P) -> Result<bool, Error> {
+        match code.nodes.get(set as usize) {
+            // TLC's `SetPredValue.member`: the domain first, then the
+            // predicate on the element.
+            Some(Node::Filter { bind, pred }) => {
+                if !self.member_lazy(code, x, bind.domain)? {
+                    return Ok(false);
+                }
+                let mark = self.saved.len();
+                for &s in &bind.slots {
+                    let v = self.slot(s);
+                    self.saved.push(v);
+                }
+                let r = self
+                    .bind_one(bind, x)
+                    .and_then(|()| self.eval_bool(code, *pred));
+                for (k, &s) in bind.slots.iter().enumerate() {
+                    let v = self.saved.get(mark + k).copied().unwrap_or(Handle::EMPTY);
+                    self.set_slot(s, v);
+                }
+                self.saved.truncate(mark);
+                r
+            }
+            // `SetCupValue`, `SetCapValue`, `SetDiffValue`: short-circuit, left
+            // operand first.
+            Some(Node::SetBin(op, a, b)) => {
+                let (op, a, b) = (*op, *a, *b);
+                let left = self.member_lazy(code, x, a)?;
+                match op {
+                    SetOp::Cup if left => Ok(true),
+                    SetOp::Cap | SetOp::Minus if !left => Ok(false),
+                    SetOp::Cup | SetOp::Cap => self.member_lazy(code, x, b),
+                    SetOp::Minus => Ok(!self.member_lazy(code, x, b)?),
+                }
+            }
+            // A thunk not yet forced is not forced: TLC's value behind it is
+            // the lazy set.
+            Some(Node::Lazy { slot, body }) => {
+                let v = self.slot(*slot);
+                if v.is_empty() {
+                    self.member_lazy(code, x, *body)
+                } else {
+                    self.member(x, v)
+                }
+            }
+            Some(Node::Scope { reset, body }) => {
+                for &s in reset {
+                    self.set_slot(s, Handle::EMPTY);
+                }
+                self.member_lazy(code, x, *body)
+            }
+            // The compiler emits `InLazy` only for sets TLC certainly keeps
+            // lazy, so deciding membership structurally is exactly TLC's
+            // evaluation: no speculation.
+            Some(Node::Spec(b)) => self.member_lazy(code, x, *b),
+            _ => {
+                let s = self.eval(code, set)?;
+                self.member(x, s)
+            }
         }
     }
 
@@ -537,7 +678,12 @@ impl Machine {
                 clippy::cast_possible_truncation,
                 reason = "parameter counts are small"
             )]
-            self.set_slot(i as u32, v);
+            let i = i as u32;
+            let s = match i.checked_sub(f.params) {
+                None => i,
+                Some(c) => f.caps.get(c as usize).copied().unwrap_or(i),
+            };
+            self.set_slot(s, v);
         }
         self.give_scratch(vals);
         self.depth += 1;

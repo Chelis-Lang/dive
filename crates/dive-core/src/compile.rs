@@ -104,6 +104,9 @@ pub struct Handoff<'a> {
     pub std_redirects: HashMap<StdOp, DefId>,
     /// Startup values of constant definitions.
     pub precomputed: HashMap<DefId, Value>,
+    /// The definitions among `precomputed` whose value is a configuration
+    /// override (`Op <- value`): their body is not their value.
+    pub overrides: std::collections::HashSet<DefId>,
     /// Initial predicates.
     pub init: Vec<Role>,
     /// Next-state actions, split, in TLC's order.
@@ -147,6 +150,25 @@ enum Sb {
         thunk: Option<(u32, P)>,
         owner: usize,
     },
+    /// The function name inside a recursive function definition.
+    RecSelf(u32),
+}
+
+/// A function being compiled from a definition nested in others (a
+/// recursive `LET` operator or function): its references to enclosing
+/// locals become captures, passed by every call (lambda lifting).
+#[derive(Debug)]
+struct Lift {
+    /// The first environment of the function: lower ones enclose it.
+    floor: usize,
+    /// The definition's lexical parent environment.
+    parent: Option<usize>,
+    /// The function.
+    fun: u32,
+    /// Captures: frames out from `parent`, slot there, capture slot.
+    caps: Vec<(u32, usize, u32)>,
+    /// Recursive calls inside the body, completed with the captures.
+    self_calls: Vec<P>,
 }
 
 /// Saved slot bindings: environment, slot, old binding.
@@ -167,6 +189,26 @@ struct Info {
     calls: bool,
     /// Contains a fold that ran out of fuel: enclosing folds would too.
     heavy: bool,
+    /// Whether TLC's value of a set expression is `Reducible`
+    /// (`04-plan-compiler.md` §4.1), so that TLC builds a filter, function
+    /// or set operation over it eagerly.
+    red: Red,
+}
+
+/// Whether TLC's value of a set expression is `Reducible`: a set
+/// enumeration or an interval (`crates/dive-eval/src/core.rs`,
+/// `is_reducible`). TLC builds `{x \in S : P}`, `[x \in S |-> e]` and
+/// `S \cup T` eagerly over reducible operands and keeps them lazy
+/// otherwise.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+enum Red {
+    /// Always reducible.
+    Yes,
+    /// Never reducible.
+    No,
+    /// Not known statically.
+    #[default]
+    Maybe,
 }
 
 fn union(a: &mut Vec<u32>, b: &[u32]) {
@@ -206,6 +248,10 @@ pub fn compile(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<Plan, E
         at_stack: Vec::new(),
         init_mode: false,
         funs: HashMap::new(),
+        recfuns: HashMap::new(),
+        def_slots: std::collections::HashSet::new(),
+        lifts: Vec::new(),
+        fun_caps: HashMap::new(),
         def_cache: HashMap::new(),
         opts,
         stats: CompileStats::default(),
@@ -273,6 +319,16 @@ struct Compiler<'a> {
     at_stack: Vec<u32>,
     init_mode: bool,
     funs: HashMap<(DefId, bool), u32>,
+    /// Recursive function definitions `f[x \in S] == e` compiled as
+    /// functions of their argument.
+    recfuns: HashMap<(DefId, bool), u32>,
+    /// The thunk slots of `def_cache`.
+    def_slots: std::collections::HashSet<u32>,
+    /// The nested functions being compiled, innermost last.
+    lifts: Vec<Lift>,
+    /// Each lifted function's captures: frames out from the definition's
+    /// lexical parent, and slot there.
+    fun_caps: HashMap<u32, Vec<(u32, usize)>>,
     /// Zero-arity top-level definitions of state level, cached once per
     /// frame activation: their thunk slot and body.
     def_cache: HashMap<DefId, (u32, P)>,
@@ -311,7 +367,18 @@ impl Compiler<'_> {
         let Some(v) = self.h.precomputed.get(&d) else {
             return Ok(None);
         };
-        let h = self.convert(v)?;
+        // TLC's startup value of a constant definition may be lazy (a
+        // filter or function over `Nat`, a recursive function): the core
+        // then compiles the definition's body, which has the same value.
+        let h = match self.convert(v) {
+            Ok(h) => h,
+            Err(e)
+                if e.kind() == crate::ErrorKind::Unsupported && !self.h.overrides.contains(&d) =>
+            {
+                return Ok(None);
+            }
+            Err(e) => return Err(e),
+        };
         self.pre.insert(d, h);
         Ok(Some(h))
     }
@@ -390,8 +457,24 @@ impl Compiler<'_> {
         match n {
             Node::Const(_) => {}
             Node::Slot(s) => i.free.push(*s),
-            Node::Lazy { body, .. } | Node::Scope { body, .. } | Node::Memo { body, .. } => {
+            Node::Lazy { body, .. }
+            | Node::Scope { body, .. }
+            | Node::Memo { body, .. }
+            | Node::Spec(body) => {
                 add(*body, &mut i);
+            }
+            Node::InLazy { elem, set, .. } => {
+                add(*elem, &mut i);
+                add(*set, &mut i);
+            }
+            Node::Beta { chain, arg, .. } => {
+                add(*chain, &mut i);
+                add(*arg, &mut i);
+            }
+            Node::DomCheck { slot, domain, body } => {
+                add(*domain, &mut i);
+                add(*body, &mut i);
+                minus(&mut i.free, &[*slot]);
             }
             Node::Var(v) => i.vars |= 1u64 << v,
             Node::Primed(v) => i.primed |= 1u64 << v,
@@ -480,7 +563,303 @@ impl Compiler<'_> {
                 i.vars = u64::MAX;
             }
         }
+        i.red = self.red_of(n);
         i
+    }
+
+    fn red(&self, p: P) -> Red {
+        self.info.get(p as usize).map_or(Red::Maybe, |i| i.red)
+    }
+
+    /// TLC's reducibility of a node's value (`Info::red`).
+    fn red_of(&self, n: &Node) -> Red {
+        match n {
+            Node::Const(h) => {
+                if !h.is_compound() {
+                    return Red::Yes;
+                }
+                match self.m.heap.view(*h).kind {
+                    Kind::Product
+                    | Kind::FcnSet
+                    | Kind::RecSet
+                    | Kind::Subset
+                    | Kind::Nat
+                    | Kind::Int
+                    | Kind::SeqSet => Red::No,
+                    _ => Red::Yes,
+                }
+            }
+            Node::SetEnum(_) | Node::Range(..) | Node::Map { .. } => Red::Yes,
+            Node::Product(_)
+            | Node::FcnSet(..)
+            | Node::RecSet(_)
+            | Node::Powerset(_)
+            | Node::Std(StdFn::Seq, _) => Red::No,
+            Node::Filter { bind, .. } => match self.red(bind.domain) {
+                Red::Yes => Red::Yes,
+                Red::No => Red::No,
+                Red::Maybe => Red::Maybe,
+            },
+            // `S \ T` is reducible as `S` is; `S \cup T` and `S \cap T` are
+            // reducible when both are, and lazy when neither is.
+            Node::SetBin(SetOp::Minus, a, _) => self.red(*a),
+            Node::SetBin(_, a, b) => match (self.red(*a), self.red(*b)) {
+                (Red::Yes, Red::Yes) => Red::Yes,
+                (Red::No, Red::No) => Red::No,
+                _ => Red::Maybe,
+            },
+            Node::Spec(b)
+            | Node::Lazy { body: b, .. }
+            | Node::Scope { body: b, .. }
+            | Node::Memo { body: b, .. } => self.red(*b),
+            _ => Red::Maybe,
+        }
+    }
+
+    /// Pushes a filter, function constructor or set operation, wrapped in
+    /// `Node::Spec` when TLC would build it lazily: the core builds it
+    /// eagerly, so an evaluation error inside it may be one TLC never
+    /// raises (`04-plan-compiler.md` §4.1).
+    fn push_lazy(&mut self, n: Node) -> Result<P, Error> {
+        let eager = match &n {
+            Node::Filter { bind, .. } => self.red(bind.domain) == Red::Yes,
+            Node::FcnCons { binds, .. } => binds.iter().all(|b| self.red(b.domain) == Red::Yes),
+            Node::SetBin(SetOp::Minus, a, _) => self.red(*a) == Red::Yes,
+            Node::SetBin(_, a, b) => self.red(*a) == Red::Yes && self.red(*b) == Red::Yes,
+            _ => true,
+        };
+        let p = self.push(n)?;
+        if eager {
+            Ok(p)
+        } else {
+            self.stats.speculative += 1;
+            self.push(Node::Spec(p))
+        }
+    }
+
+    /// Whether a set node is one TLC certainly keeps lazy, a filter or a
+    /// set operation over non-reducible sets: membership in it is decided
+    /// structurally (`Node::InLazy`), as TLC decides it.
+    fn lazy_set(&self, p: P) -> bool {
+        let p = self.unspec(p);
+        match self.code.nodes.get(p as usize) {
+            Some(Node::Filter { .. } | Node::SetBin(..)) => self.red(p) == Red::No,
+            Some(Node::Lazy { body, .. } | Node::Scope { body, .. }) => self.lazy_set(*body),
+            _ => false,
+        }
+    }
+
+    /// The function constructor a function expression leads to through
+    /// thunks, scopes and speculation wrappers, if any.
+    fn lambda(&self, mut p: P) -> Option<P> {
+        loop {
+            match self.code.nodes.get(p as usize)? {
+                Node::Spec(b) | Node::Lazy { body: b, .. } | Node::Scope { body: b, .. } => p = *b,
+                Node::FcnCons { .. } => return Some(p),
+                _ => return None,
+            }
+        }
+    }
+
+    /// `f[a]`. TLC evaluates `f` with `KEEP_LAZY`, so a function
+    /// constructor reached directly, or through a definition, stays lazy,
+    /// and so does one over a non-reducible domain. One reached through a
+    /// `LET` value or an operator argument (a `LazyValue`) over reducible
+    /// domains is built eagerly (fixture `LzApplyDef`). A lazy one with one
+    /// bound variable is applied without being built (`Node::Beta`); a
+    /// lazy one of several is built speculatively.
+    fn apply_value(&mut self, f: P, a: P) -> Result<P, Error> {
+        let Some(fc) = self.lambda(f) else {
+            return self.push(Node::Apply(f, a));
+        };
+        let Some(Node::FcnCons { binds, .. }) = self.code.nodes.get(fc as usize) else {
+            return self.push(Node::Apply(f, a));
+        };
+        let single = binds.len() == 1 && binds[0].slots.len() == 1 && !binds[0].tuple;
+        let non_reducible = binds.iter().any(|b| self.red(b.domain) == Red::No);
+        let mut thunk = false;
+        let mut p = f;
+        while let Some(
+            n @ (Node::Spec(b) | Node::Lazy { body: b, .. } | Node::Scope { body: b, .. }),
+        ) = self.code.nodes.get(p as usize)
+        {
+            if let Node::Lazy { slot, .. } = n {
+                thunk |= !self.def_slots.contains(slot);
+            }
+            p = *b;
+        }
+        if !non_reducible && thunk {
+            // Built eagerly, as TLC builds it (speculatively already when
+            // its domains may not be reducible: `push_lazy`).
+            return self.push(Node::Apply(f, a));
+        }
+        if single {
+            self.stats.beta += 1;
+            return self.push(Node::Beta {
+                chain: f,
+                fc,
+                arg: a,
+            });
+        }
+        let f = if matches!(self.code.nodes.get(f as usize), Some(Node::Spec(_))) {
+            f
+        } else {
+            self.stats.speculative += 1;
+            self.push(Node::Spec(f))?
+        };
+        self.push(Node::Apply(f, a))
+    }
+
+    /// `DOMAIN f` of a function constructor TLC certainly keeps lazy (over
+    /// a non-reducible domain): its domain, without building it
+    /// (`FcnLambdaValue.getDomain`). `None` otherwise.
+    fn lambda_domain(&mut self, f: P) -> Result<Option<P>, Error> {
+        let Some(fc) = self.lambda(f) else {
+            return Ok(None);
+        };
+        let Some(Node::FcnCons { binds, .. }) = self.code.nodes.get(fc as usize) else {
+            return Ok(None);
+        };
+        if !binds.iter().any(|b| self.red(b.domain) == Red::No) {
+            return Ok(None);
+        }
+        if binds.len() == 1 && (binds[0].tuple || binds[0].slots.len() == 1) {
+            return Ok(Some(binds[0].domain));
+        }
+        let mut ds = Vec::new();
+        for b in binds {
+            if b.tuple {
+                ds.push(b.domain);
+            } else {
+                ds.extend(std::iter::repeat_n(b.domain, b.slots.len()));
+            }
+        }
+        Ok(Some(self.push(Node::Product(ds.into()))?))
+    }
+
+    /// The recursive function a function expression names, if it is the
+    /// name of `f[x \in S] == e` (outside or inside its body), compiled as
+    /// a function of its argument.
+    fn rec_target(&mut self, fcn: ExprId, env: usize) -> Result<Option<(DefId, u32)>, Error> {
+        let d = match &self.ir.node(fcn).expr {
+            Expr::Local(r) => {
+                let fe = self.frame_env(env, r.up)?;
+                let Some(Sb::RecSelf(f)) = self.envs[fe].slots.get(r.slot.index()) else {
+                    return Ok(None);
+                };
+                let f = *f;
+                if self.lifts.last().is_some_and(|l| fe < l.floor) {
+                    return Err(Error::unsupported(
+                        "a recursive function used inside a nested recursive definition (M1 core)",
+                    ));
+                }
+                let d = self.envs[fe].def;
+                return Ok(Some((d, f)));
+            }
+            Expr::Def(d) => *d,
+            Expr::Apply {
+                callee: OpRef::Def(d),
+                args,
+            } if args.is_empty() => *d,
+            _ => return Ok(None),
+        };
+        let d = self.redirect(d);
+        if self.precomputed(d)?.is_some() {
+            return Ok(None);
+        }
+        let def = self.ir.def(d);
+        if !def.params.is_empty() || def.std.is_some() {
+            return Ok(None);
+        }
+        let Expr::RecFcn { .. } = &self.ir.node(def.body).expr else {
+            return Ok(None);
+        };
+        self.recfun(d, env).map(|f| Some((d, f)))
+    }
+
+    /// Compiles `f[x \in S] == e` as a function of its argument, in slot 0:
+    /// `DomCheck { 0, S, e }`, with `f[...]` inside `e` a recursive call.
+    fn recfun(&mut self, d: DefId, call_env: usize) -> Result<u32, Error> {
+        let key = (d, self.init_mode);
+        if let Some(&f) = self.recfuns.get(&key) {
+            return Ok(f);
+        }
+        let def = self.ir.def(d);
+        let Expr::RecFcn { name, bounds, body } = &self.ir.node(def.body).expr else {
+            return Err(Error::internal("not a recursive function definition"));
+        };
+        let (name, body) = (*name, *body);
+        let [b] = &bounds[..] else {
+            return Err(Error::unsupported(
+                "a recursive function of several bound groups (M1 core)",
+            ));
+        };
+        let ([x], false, Some(domain)) = (&b.vars[..], b.tuple, b.domain) else {
+            return Err(Error::unsupported(
+                "a recursive function of several arguments or a tuple pattern (M1 core)",
+            ));
+        };
+        let x = *x;
+        #[allow(clippy::cast_possible_truncation, reason = "bounded")]
+        let id = self.code.funs.len() as u32;
+        self.code.funs.push(Fun {
+            name: def.name.clone(),
+            params: 1,
+            frame: 1,
+            body: 0,
+            caps: Box::new([]),
+        });
+        self.recfuns.insert(key, id);
+        let saved_slot = self.next_slot;
+        let saved_resets = std::mem::take(&mut self.reset_stack);
+        let saved_cache = std::mem::take(&mut self.def_cache);
+        let saved_at = std::mem::take(&mut self.at_stack);
+        self.next_slot = 1;
+        let (env, lifted) = match self.begin_fun(d, id, call_env) {
+            Ok(x) => x,
+            Err(e) => {
+                self.next_slot = saved_slot;
+                self.reset_stack = saved_resets;
+                self.def_cache = saved_cache;
+                self.at_stack = saved_at;
+                return Err(e);
+            }
+        };
+        if let Some(s) = self.envs[env].slots.get_mut(name.index()) {
+            *s = Sb::RecSelf(id);
+        }
+        if let Some(s) = self.envs[env].slots.get_mut(x.index()) {
+            *s = Sb::Flat(0);
+        }
+        let r = self
+            .p(domain, env, Mode::Plain)
+            .and_then(|dom| Ok((dom, self.p(body, env, Mode::Plain)?)));
+        let ended = self.end_fun(id, lifted);
+        let frame = self.next_slot;
+        self.next_slot = saved_slot;
+        self.reset_stack = saved_resets;
+        self.def_cache = saved_cache;
+        self.at_stack = saved_at;
+        let (dom, b) = r?;
+        ended?;
+        let checked = self.push(Node::DomCheck {
+            slot: 0,
+            domain: dom,
+            body: b,
+        })?;
+        if let Some(f) = self.code.funs.get_mut(id as usize) {
+            f.body = checked;
+            f.frame = frame;
+        }
+        Ok(id)
+    }
+
+    /// The node under any `Node::Spec` wrappers.
+    fn unspec(&self, mut p: P) -> P {
+        while let Some(Node::Spec(b)) = self.code.nodes.get(p as usize) {
+            p = *b;
+        }
+        p
     }
 
     fn push(&mut self, n: Node) -> Result<P, Error> {
@@ -534,7 +913,12 @@ impl Compiler<'_> {
         match r {
             Ok(h) if !exhausted && !h.is_empty() => {
                 self.code.nodes[id as usize] = Node::Const(h);
-                self.info[id as usize] = Info::default();
+                // The folded node keeps TLC's reducibility of the expression.
+                let red = self.info[id as usize].red;
+                self.info[id as usize] = Info {
+                    red,
+                    ..Info::default()
+                };
                 self.stats.folded += 1;
             }
             _ if exhausted => {
@@ -846,7 +1230,7 @@ impl Compiler<'_> {
                 let bind = binds
                     .pop()
                     .ok_or_else(|| Error::internal("filter without a bound"))?;
-                self.push(Node::Filter { bind, pred: b })
+                self.push_lazy(Node::Filter { bind, pred: b })
             }
             Expr::SetMap { expr, bounds } => {
                 let (binds, saved) = self.binds(bounds, env, mode)?;
@@ -863,13 +1247,13 @@ impl Compiler<'_> {
                 let b = self.p(*body, env, mode);
                 self.unbind(saved);
                 let b = b?;
-                self.push(Node::FcnCons {
+                self.push_lazy(Node::FcnCons {
                     binds: binds.into(),
                     body: b,
                 })
             }
             Expr::RecFcn { .. } => Err(Error::unsupported(
-                "recursive function definitions (M0 core)",
+                "a recursive function used other than applied (M1 core)",
             )),
             Expr::SetEnum(items) => {
                 let ps = self.ps(items, env, mode)?;
@@ -907,9 +1291,19 @@ impl Compiler<'_> {
                 self.push(Node::FcnSet(d, r))
             }
             Expr::FcnApply { fcn, arg } => {
-                let f = self.p(*fcn, env, mode)?;
-                let a = self.p(*arg, env, mode)?;
-                self.push(Node::Apply(f, a))
+                let (fcn, arg) = (*fcn, *arg);
+                if let Some((d, fun)) = self.rec_target(fcn, env)? {
+                    if mode == Mode::Primed {
+                        return Err(Error::unsupported(
+                            "a recursive function under a prime (M1 core)",
+                        ));
+                    }
+                    let a = self.p(arg, env, mode)?;
+                    return self.fun_call(d, fun, vec![a], env);
+                }
+                let f = self.p(fcn, env, mode)?;
+                let a = self.p(arg, env, mode)?;
+                self.apply_value(f, a)
             }
             Expr::RecordSelect { record, field } => {
                 let r = self.p(*record, env, mode)?;
@@ -1122,6 +1516,9 @@ impl Compiler<'_> {
 
     fn local(&mut self, r: LocalRef, env: usize, mode: Mode) -> Result<P, Error> {
         let fe = self.frame_env(env, r.up)?;
+        if self.lifts.last().is_some_and(|l| fe < l.floor) {
+            return self.capture(fe, r.slot.index(), mode);
+        }
         let sb = self.envs[fe]
             .slots
             .get(r.slot.index())
@@ -1182,6 +1579,9 @@ impl Compiler<'_> {
                 }
                 self.push(Node::Lazy { slot, body })
             }
+            Sb::RecSelf(_) => Err(Error::unsupported(
+                "a recursive function used other than applied (M1 core)",
+            )),
             Sb::Unset => Err(Error::internal(format!(
                 "unbound local {} in {}",
                 self.ir
@@ -1192,6 +1592,138 @@ impl Compiler<'_> {
                 self.ir.def(self.envs[fe].def).name
             ))),
         }
+    }
+
+    /// A reference, inside a lifted function, to a local of an enclosing
+    /// definition: a capture slot of the function.
+    fn capture(&mut self, fe: usize, slot: usize, mode: Mode) -> Result<P, Error> {
+        if mode == Mode::Primed {
+            return Err(Error::unsupported(
+                "a recursive LET definition reading an enclosing local under a prime (M1 core)",
+            ));
+        }
+        if matches!(self.envs[fe].slots.get(slot), Some(Sb::RecSelf(_))) {
+            return Err(Error::unsupported(
+                "a recursive function used inside a nested recursive definition (M1 core)",
+            ));
+        }
+        let Some(l) = self.lifts.last() else {
+            return Err(Error::internal("a capture outside a lifted function"));
+        };
+        let mut k = 0u32;
+        let mut e = l.parent;
+        loop {
+            match e {
+                Some(x) if x == fe => break,
+                Some(x) => {
+                    e = self.envs[x].parent;
+                    k += 1;
+                }
+                None => return Err(Error::internal("a capture outside the definition's scope")),
+            }
+        }
+        if let Some(&(_, _, c)) = l.caps.iter().find(|c| c.0 == k && c.1 == slot) {
+            return self.push(Node::Slot(c));
+        }
+        let c = self.alloc();
+        if let Some(l) = self.lifts.last_mut() {
+            l.caps.push((k, slot, c));
+        }
+        self.push(Node::Slot(c))
+    }
+
+    /// A call of a compiled function: the arguments, then the captures
+    /// (compiled at the call site), or, inside the function itself, its own
+    /// capture slots (filled in when its body is complete).
+    fn fun_call(&mut self, d: DefId, fun: u32, mut ps: Vec<P>, env: usize) -> Result<P, Error> {
+        if let Some(i) = self.lifts.iter().position(|l| l.fun == fun) {
+            if i + 1 != self.lifts.len() {
+                return Err(Error::unsupported(
+                    "mutually recursive nested definitions (M1 core)",
+                ));
+            }
+            let call = self.push(Node::Call {
+                fun,
+                args: ps.into(),
+            })?;
+            if let Some(l) = self.lifts.last_mut() {
+                l.self_calls.push(call);
+            }
+            return Ok(call);
+        }
+        let caps = self.fun_caps.get(&fun).cloned().unwrap_or_default();
+        if !caps.is_empty() {
+            let Some(parent) = self.lexical_parent(d, env)? else {
+                return Err(Error::internal("captures of a top-level definition"));
+            };
+            for (k, slot) in caps {
+                #[allow(clippy::cast_possible_truncation, reason = "frame slots are u32")]
+                let r = LocalRef {
+                    up: k,
+                    slot: dive_ir::Slot(slot as u32),
+                };
+                let v = self.local(r, parent, Mode::Plain)?;
+                let v = if self.is_trivial(v) {
+                    v
+                } else {
+                    self.stats.speculative += 1;
+                    self.push(Node::Spec(v))?
+                };
+                ps.push(v);
+            }
+        }
+        self.push(Node::Call {
+            fun,
+            args: ps.into(),
+        })
+    }
+
+    /// Starts compiling a function for `d`: its environment, with the
+    /// lexical parent for a nested definition (whose enclosing locals then
+    /// become captures).
+    fn begin_fun(&mut self, d: DefId, fun: u32, env: usize) -> Result<(usize, bool), Error> {
+        let parent = self.lexical_parent(d, env)?;
+        let inner = self.new_env(d, parent);
+        let lifted = parent.is_some();
+        if lifted {
+            self.lifts.push(Lift {
+                floor: inner,
+                parent,
+                fun,
+                caps: Vec::new(),
+                self_calls: Vec::new(),
+            });
+        }
+        Ok((inner, lifted))
+    }
+
+    /// Ends `begin_fun`: records the captures and completes the recursive
+    /// calls with them.
+    fn end_fun(&mut self, fun: u32, lifted: bool) -> Result<(), Error> {
+        if !lifted {
+            return Ok(());
+        }
+        let Some(l) = self.lifts.pop() else {
+            return Err(Error::internal("unbalanced lifted function"));
+        };
+        let slots: Vec<u32> = l.caps.iter().map(|c| c.2).collect();
+        for &call in &l.self_calls {
+            let mut extra = Vec::with_capacity(slots.len());
+            for &c in &slots {
+                extra.push(self.push(Node::Slot(c))?);
+            }
+            if let Some(Node::Call { args, .. }) = self.code.nodes.get_mut(call as usize) {
+                let mut v = args.to_vec();
+                v.extend(extra);
+                *args = v.into();
+            }
+        }
+        if let Some(f) = self.code.funs.get_mut(fun as usize) {
+            f.caps = slots.clone().into();
+        }
+        self.fun_caps
+            .insert(fun, l.caps.iter().map(|c| (c.0, c.1)).collect());
+        Ok(())
     }
 
     /// A use of a zero-arity definition.
@@ -1227,6 +1759,7 @@ impl Compiler<'_> {
         if cacheable && info.free.is_empty() && info.primed == 0 && !self.is_trivial(body) {
             let slot = self.alloc();
             self.def_cache.insert(d, (slot, body));
+            self.def_slots.insert(slot);
             self.stats.cached_defs += 1;
             return self.push(Node::Lazy { slot, body });
         }
@@ -1330,29 +1863,32 @@ impl Compiler<'_> {
                 "a recursive operator under a prime (M0 core)",
             ));
         }
-        let fun = self.fun(d)?;
+        let fun = self.fun(d, env)?;
         let mut ps = Vec::with_capacity(args.len());
         for a in args {
             let Arg::Expr { expr, .. } = a else {
                 return Err(Error::unsupported("operator arguments (M0 core)"));
             };
-            ps.push(self.p(*expr, env, mode)?);
+            // TLC passes a recursive operator's arguments lazily; the core
+            // evaluates them at the call, speculatively.
+            let a = self.p(*expr, env, mode)?;
+            let a = if self.is_trivial(a) {
+                a
+            } else {
+                self.stats.speculative += 1;
+                self.push(Node::Spec(a))?
+            };
+            ps.push(a);
         }
-        self.push(Node::Call {
-            fun,
-            args: ps.into(),
-        })
+        self.fun_call(d, fun, ps, env)
     }
 
-    fn fun(&mut self, d: DefId) -> Result<u32, Error> {
+    fn fun(&mut self, d: DefId, call_env: usize) -> Result<u32, Error> {
         let key = (d, self.init_mode);
         if let Some(&f) = self.funs.get(&key) {
             return Ok(f);
         }
         let def = self.ir.def(d);
-        if def.scope != DefScope::TopLevel {
-            return Err(Error::unsupported("a recursive LET operator (M0 core)"));
-        }
         #[allow(clippy::cast_possible_truncation, reason = "bounded")]
         let id = self.code.funs.len() as u32;
         #[allow(
@@ -1365,6 +1901,7 @@ impl Compiler<'_> {
             params,
             frame: params,
             body: 0,
+            caps: Box::new([]),
         });
         self.funs.insert(key, id);
         let saved_slot = self.next_slot;
@@ -1372,7 +1909,16 @@ impl Compiler<'_> {
         let saved_cache = std::mem::take(&mut self.def_cache);
         let saved_at = std::mem::take(&mut self.at_stack);
         self.next_slot = params;
-        let env = self.new_env(d, None);
+        let (env, lifted) = match self.begin_fun(d, id, call_env) {
+            Ok(x) => x,
+            Err(e) => {
+                self.next_slot = saved_slot;
+                self.reset_stack = saved_resets;
+                self.def_cache = saved_cache;
+                self.at_stack = saved_at;
+                return Err(e);
+            }
+        };
         for i in 0..def.params.len() {
             #[allow(
                 clippy::cast_possible_truncation,
@@ -1384,12 +1930,14 @@ impl Compiler<'_> {
             }
         }
         let body = self.p(def.body, env, Mode::Plain);
+        let ended = self.end_fun(id, lifted);
         let frame = self.next_slot;
         self.next_slot = saved_slot;
         self.reset_stack = saved_resets;
         self.def_cache = saved_cache;
         self.at_stack = saved_at;
         let body = body?;
+        ended?;
         if let Some(f) = self.code.funs.get_mut(id as usize) {
             f.body = body;
             f.frame = frame;
@@ -1514,17 +2062,41 @@ impl Compiler<'_> {
                 .ok_or_else(|| Error::internal("missing operand"))
         };
         let n = match op {
+            B::Cup | B::Cap | B::SetMinus => {
+                let o = match op {
+                    B::Cup => SetOp::Cup,
+                    B::Cap => SetOp::Cap,
+                    _ => SetOp::Minus,
+                };
+                return self.push_lazy(Node::SetBin(o, a(0)?, a(1)?));
+            }
+            B::In | B::NotIn => {
+                let (x, set) = (a(0)?, a(1)?);
+                if self.lazy_set(set) {
+                    return self.push(Node::InLazy {
+                        elem: x,
+                        set,
+                        neg: op == B::NotIn,
+                    });
+                }
+                if op == B::In {
+                    Node::In(x, set)
+                } else {
+                    Node::NotIn(x, set)
+                }
+            }
             B::Eq => Node::Eq(a(0)?, a(1)?),
             B::Neq => Node::Neq(a(0)?, a(1)?),
-            B::In => Node::In(a(0)?, a(1)?),
-            B::NotIn => Node::NotIn(a(0)?, a(1)?),
             B::Subseteq => Node::Subseteq(a(0)?, a(1)?),
-            B::Cup => Node::SetBin(SetOp::Cup, a(0)?, a(1)?),
-            B::Cap => Node::SetBin(SetOp::Cap, a(0)?, a(1)?),
-            B::SetMinus => Node::SetBin(SetOp::Minus, a(0)?, a(1)?),
             B::PowerSet => Node::Powerset(a(0)?),
             B::BigUnion => Node::BigUnion(a(0)?),
-            B::Domain => Node::Domain(a(0)?),
+            B::Domain => {
+                let f = a(0)?;
+                if let Some(d) = self.lambda_domain(f)? {
+                    return Ok(d);
+                }
+                Node::Domain(f)
+            }
             B::Times => Node::Product(ps.clone().into()),
             B::Not => Node::Not(a(0)?),
             B::And => Node::And(ps.clone().into()),
@@ -1658,7 +2230,10 @@ impl Compiler<'_> {
                 args,
             } if args.len() == 2 => {
                 if let Some(var) = self.target(args[0], env, false)? {
+                    // TLC enumerates a lazy set in full, as the core does:
+                    // no speculation.
                     let set = self.p(args[1], env, Mode::Plain)?;
+                    let set = self.unspec(set);
                     // TLC enumerates a lazy union without normalizing it,
                     // so its elements can repeat (§6).
                     if let Some(raw) = self.raw_plan(args[1], env)? {
