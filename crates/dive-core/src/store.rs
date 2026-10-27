@@ -18,7 +18,7 @@
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Mutex, OnceLock, PoisonError};
 
-use crate::handle::{CLASSES, Handle, MAX_CLASS_INDEX};
+use crate::handle::{CLASSES, Handle, LAZY_CLASS, MAX_CLASS_INDEX};
 use crate::node::{Kind, View};
 use crate::strings::Strings;
 
@@ -27,7 +27,7 @@ const SHARDS: usize = 256;
 /// [`MAX_CLASS_INDEX`] for any base.
 const CHUNKS: usize = 31;
 /// The inline capacities of classes `0..CLASSES - 1`; the last class boxes.
-const CAPS: [usize; CLASSES - 1] = [4, 8];
+const CAPS: [usize; 2] = [4, 8];
 
 static EMPTY_DATA: [Handle; 0] = [];
 
@@ -36,11 +36,16 @@ const POISON_VIEW: View<'static> = View {
     lo: 0,
     hash: 0,
     sum: 0,
+    flags: 0,
     data: &EMPTY_DATA,
 };
 
-/// The size class of a node with `len` handles.
-fn class_of(len: usize) -> u8 {
+/// The size class of a node with `len` handles. Lazy nodes (constants
+/// only) have a class of their own, so that a handle tells it.
+fn class_of(len: usize, fl: u8) -> u8 {
+    if fl & crate::node::flags::LAZY != 0 {
+        return LAZY_CLASS;
+    }
     match len {
         0..=4 => 0,
         5..=8 => 1,
@@ -52,6 +57,7 @@ fn class_of(len: usize) -> u8 {
 #[derive(Clone, Copy)]
 struct Head {
     kind: Kind,
+    flags: u8,
     lo: i64,
     hash: u64,
     sum: u64,
@@ -67,6 +73,7 @@ trait Slot: Sized {
 #[derive(Debug)]
 struct Inline<const K: usize> {
     kind: Kind,
+    flags: u8,
     len: u8,
     lo: i64,
     hash: u64,
@@ -78,6 +85,7 @@ impl<const K: usize> Slot for Inline<K> {
     fn make(
         Head {
             kind,
+            flags,
             lo,
             hash,
             sum,
@@ -91,6 +99,7 @@ impl<const K: usize> Slot for Inline<K> {
         let len = n as u8;
         Self {
             kind,
+            flags,
             len,
             lo,
             hash,
@@ -106,6 +115,7 @@ impl<const K: usize> Slot for Inline<K> {
             lo: self.lo,
             hash: self.hash,
             sum: self.sum,
+            flags: self.flags,
             data: self
                 .data
                 .get(..usize::from(self.len))
@@ -118,6 +128,7 @@ impl<const K: usize> Slot for Inline<K> {
 #[derive(Debug)]
 struct Boxed {
     kind: Kind,
+    flags: u8,
     lo: i64,
     hash: u64,
     sum: u64,
@@ -128,6 +139,7 @@ impl Slot for Boxed {
     fn make(
         Head {
             kind,
+            flags,
             lo,
             hash,
             sum,
@@ -136,6 +148,7 @@ impl Slot for Boxed {
     ) -> Self {
         Self {
             kind,
+            flags,
             lo,
             hash,
             sum,
@@ -150,6 +163,7 @@ impl Slot for Boxed {
             lo: self.lo,
             hash: self.hash,
             sum: self.sum,
+            flags: self.flags,
             data: &self.data,
         }
     }
@@ -209,6 +223,7 @@ struct Columns {
     c4: Column<Inline<{ CAPS[0] }>>,
     c8: Column<Inline<{ CAPS[1] }>>,
     boxed: Column<Boxed>,
+    lazy: Column<Boxed>,
 }
 
 impl Columns {
@@ -217,6 +232,7 @@ impl Columns {
             c4: Column::new(),
             c8: Column::new(),
             boxed: Column::new(),
+            lazy: Column::new(),
         }
     }
 
@@ -231,8 +247,10 @@ impl Columns {
             self.c4.get(at).map(Slot::view)
         } else if class == 1 {
             self.c8.get(at).map(Slot::view)
-        } else {
+        } else if class == 2 {
             self.boxed.get(at).map(Slot::view)
+        } else {
+            self.lazy.get(at).map(Slot::view)
         }
     }
 
@@ -241,6 +259,7 @@ impl Columns {
             0 => self.c4.put(index, Slot::make(h, d)),
             1 => self.c8.put(index, Slot::make(h, d)),
             2 => self.boxed.put(index, Slot::make(h, d)),
+            3 => self.lazy.put(index, Slot::make(h, d)),
             _ => false,
         }
     }
@@ -299,7 +318,8 @@ pub struct StoreStats {
     pub nodes: u64,
     /// Handles held by nodes.
     pub handles: u64,
-    /// Nodes per size class (inline capacity 4, 8, then boxed).
+    /// Nodes per size class (inline capacity 4, 8, then boxed, then lazy
+    /// constants).
     pub classes: [u64; CLASSES],
 }
 
@@ -377,9 +397,11 @@ impl Store {
 
     /// Interns a node whose children are all persistent or scalar. Returns
     /// the existing handle when an equal node is present.
+    #[allow(clippy::too_many_arguments, reason = "the node header, flat")]
     pub(crate) fn intern(
         &self,
         kind: Kind,
+        flags: u8,
         lo: i64,
         hash: u64,
         sum: u64,
@@ -426,7 +448,7 @@ impl Store {
                 p = (p + 1) & mask;
             }
         }
-        let class = class_of(data.len());
+        let class = class_of(data.len(), flags);
         let i = index.lens[usize::from(class)];
         if i >= MAX_CLASS_INDEX
             || !cols.put(
@@ -434,6 +456,7 @@ impl Store {
                 i,
                 Head {
                     kind,
+                    flags,
                     lo,
                     hash,
                     sum,
@@ -512,17 +535,21 @@ mod tests {
         for len in [0i64, 1, 4, 5, 8, 9, 16, 17, 32, 33, 100] {
             let data: Vec<Handle> = (0..len).map(int).collect();
             let hash = crate::handle::mix64(len.unsigned_abs() + 1);
-            let h = store.intern(Kind::Set, 7, hash, 3, &data);
+            let h = store.intern(Kind::Set, 0, 7, hash, 3, &data);
             let v = store.view(h);
             assert_eq!(v.data, data.as_slice(), "len {len}");
             assert_eq!((v.kind, v.lo, v.hash, v.sum), (Kind::Set, 7, hash, 3));
-            assert_eq!(store.intern(Kind::Set, 7, hash, 3, &data), h, "len {len}");
+            assert_eq!(
+                store.intern(Kind::Set, 0, 7, hash, 3, &data),
+                h,
+                "len {len}"
+            );
             got.push(h);
         }
         let st = store.stats();
         assert_eq!(st.nodes, got.len() as u64);
         assert_eq!(st.hits, got.len() as u64);
-        assert_eq!(st.classes, [3, 2, 6]);
+        assert_eq!(st.classes, [3, 2, 6, 0]);
         assert!(!store.poisoned());
     }
 
@@ -532,17 +559,17 @@ mod tests {
         // Every node has the same hash: probing must compare contents.
         let hash = 0xabcd_0000_0000_1234;
         let hs: Vec<Handle> = (0..500)
-            .map(|i| store.intern(Kind::Set, 0, hash, 0, &[int(i)]))
+            .map(|i| store.intern(Kind::Set, 0, 0, hash, 0, &[int(i)]))
             .collect();
         for (i, &h) in (0..).zip(&hs) {
             assert_eq!(store.view(h).data, &[int(i)]);
-            assert_eq!(store.intern(Kind::Set, 0, hash, 0, &[int(i)]), h);
+            assert_eq!(store.intern(Kind::Set, 0, 0, hash, 0, &[int(i)]), h);
         }
         // Distinct hashes in one shard, enough to grow the table repeatedly.
         for i in 0..5000u64 {
             let hash = (0x11u64 << 56) | crate::handle::mix64(i) >> 8;
-            let a = store.intern(Kind::Set, 0, hash, 0, &[int(1)]);
-            assert_eq!(store.intern(Kind::Set, 0, hash, 0, &[int(1)]), a);
+            let a = store.intern(Kind::Set, 0, 0, hash, 0, &[int(1)]);
+            assert_eq!(store.intern(Kind::Set, 0, 0, hash, 0, &[int(1)]), a);
         }
         assert_eq!(store.stats().nodes, 5500);
         assert!(!store.poisoned());
@@ -551,8 +578,8 @@ mod tests {
     #[test]
     fn without_hashconsing_every_intern_inserts() {
         let store = Store::new(false);
-        let a = store.intern(Kind::Set, 0, 9, 9, &[int(1)]);
-        let b = store.intern(Kind::Set, 0, 9, 9, &[int(1)]);
+        let a = store.intern(Kind::Set, 0, 0, 9, 9, &[int(1)]);
+        let b = store.intern(Kind::Set, 0, 0, 9, 9, &[int(1)]);
         assert_ne!(a, b);
         assert_eq!(store.view(a).data, store.view(b).data);
         assert_eq!(store.stats().nodes, 2);

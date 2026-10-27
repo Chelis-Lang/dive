@@ -34,7 +34,9 @@ const T_EMPTY: u64 = 7;
 const SHARD_BITS: u32 = 8;
 const CLASS_BITS: u32 = 2;
 /// The number of store size classes (`store.rs`).
-pub(crate) const CLASSES: usize = 3;
+pub(crate) const CLASSES: usize = 4;
+/// The store class of persistent lazy nodes (constants only).
+pub(crate) const LAZY_CLASS: u8 = 3;
 /// The bound on a node index within one shard and size class.
 pub(crate) const MAX_CLASS_INDEX: u64 = (1 << 29) - 1;
 
@@ -183,6 +185,13 @@ impl Handle {
     #[must_use]
     pub const fn is_persistent(self) -> bool {
         self.0 & TAG_MASK == T_PERSISTENT
+    }
+
+    /// Whether this is a persistent lazy node (a lazy constant), which is
+    /// not hash-consed by value: such handles must not be compared.
+    #[must_use]
+    pub const fn is_lazy_persistent(self) -> bool {
+        self.is_persistent() && self.persistent_parts().1 == LAZY_CLASS
     }
 
     /// Whether this is the empty marker.
