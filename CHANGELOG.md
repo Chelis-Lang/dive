@@ -9,6 +9,11 @@
   TLC's warning 2143, and reports the queue at a deadlock or an initial-state
   violation. It now refuses `x' \in` a lazily represented union whose
   enumeration repeats elements, which M0 answered with wrong counts.
+- Fixed: `--engine core` no longer answers `FALSE` to a comparison across
+  kinds (`1 = "a"`, `{} = <<>>`, `"a" \in Nat`, `0 \in SUBSET S`). As
+  with the reference engine, it is an evaluation error. Until the core
+  classifies evaluation errors, the run is refused, as is a set whose
+  elements mix kinds.
 
 - Add `dive check --engine core` (or `DIVE_ENGINE=core`), the experimental M0
   spike of the new execution core (ADR 0117). It covers the default profile, one
