@@ -27,13 +27,20 @@ pub enum Engine {
     /// The new core (`dive-core` and `dive-explore`): default profile,
     /// safety only.
     Core,
+    /// The new core where it implements the run, the reference checker
+    /// otherwise (`docs/developer/core/08-correctness.md` §3). A refusal
+    /// before the search (static) or during it (dynamic) runs the whole
+    /// check again on the reference engine, and the report names the
+    /// engine that ran and why.
+    Auto,
 }
 
 impl Engine {
-    /// Parses `reference` or `core`.
+    /// Parses `reference`, `core` or `auto`.
     ///
     /// ```
     /// assert_eq!(dive_api::Engine::parse("core"), Some(dive_api::Engine::Core));
+    /// assert_eq!(dive_api::Engine::parse("auto"), Some(dive_api::Engine::Auto));
     /// assert_eq!(dive_api::Engine::parse("fast"), None);
     /// ```
     #[must_use]
@@ -41,6 +48,7 @@ impl Engine {
         match s {
             "reference" => Some(Self::Reference),
             "core" => Some(Self::Core),
+            "auto" => Some(Self::Auto),
             _ => None,
         }
     }
@@ -51,6 +59,7 @@ impl Engine {
         match self {
             Self::Reference => "reference",
             Self::Core => "core",
+            Self::Auto => "auto",
         }
     }
 }
@@ -62,6 +71,31 @@ pub(crate) struct CoreRun {
     pub(crate) opts: String,
     /// Strategy metrics, as JSON.
     pub(crate) metrics: Json,
+    /// Whether the search started: a refusal before it is static, one
+    /// during it dynamic.
+    pub(crate) searched: bool,
+}
+
+/// Why `--engine=auto` ran the reference engine.
+#[derive(Clone, Debug)]
+pub(crate) struct Fallback {
+    /// `static` (refused before the search) or `dynamic` (during it).
+    pub(crate) stage: &'static str,
+    /// The feature the core refused.
+    pub(crate) reason: String,
+}
+
+impl Fallback {
+    /// The fallback for a core run that ended in `unsupported`, if it did.
+    pub(crate) fn of(result: &CheckResult, run: &CoreRun) -> Option<Self> {
+        match &result.verdict {
+            Verdict::Unsupported { feature } => Some(Self {
+                stage: if run.searched { "dynamic" } else { "static" },
+                reason: feature.clone(),
+            }),
+            _ => None,
+        }
+    }
 }
 
 fn unsupported(feature: impl Into<String>) -> Verdict {
@@ -227,6 +261,35 @@ fn action_roles(
 }
 
 /// Refuses what M0 does not model, before any work.
+/// A run option the core does not implement, which would change the
+/// result if the core ignored it.
+fn option_refusal(options: &CheckOptions) -> Option<String> {
+    let default_eval = dive_eval::Options {
+        warnings: options.eval.warnings,
+        ..dive_eval::Options::dive()
+    };
+    let refused = if options.store == dive_store::StoreMode::Exact {
+        "--store exact (the core keeps 64-bit state keys)"
+    } else if options.tlc_fingerprints {
+        "TLC fingerprints"
+    } else if options.eval != default_eval {
+        "evaluation options other than the default profile's \
+         (comparisons, exploration order, evaluation depth or action composition)"
+    } else if options.seen_disk.is_some()
+        || options.frontier_memory_bytes.is_some()
+        || options.frontier_directory.is_some()
+        || options.predecessor_memory_bytes.is_some()
+        || options.predecessor_directory.is_some()
+    {
+        "spilling the seen set, frontier or predecessor log to disk"
+    } else if options.chaos.is_some() {
+        "--chaos"
+    } else {
+        return None;
+    };
+    Some(format!("{refused} under the core engine"))
+}
+
 fn refusal(model: &dive_model::Model) -> Option<String> {
     if let Some(u) = model.unsupported.first() {
         return Some(u.feature.clone());
@@ -336,6 +399,7 @@ pub(crate) fn check(
     let mut run = CoreRun {
         opts: core_opts.describe(),
         metrics: Json::Null,
+        searched: false,
     };
     let finish = |mut r: CheckResult| {
         r.elapsed = started.elapsed();
@@ -352,6 +416,9 @@ pub(crate) fn check(
             )),
             run,
         );
+    }
+    if let Some(feature) = option_refusal(options) {
+        return (finish(result(unsupported(feature), options, ir)), run);
     }
     let bind = dive_model::BindOptions {
         eval: options.eval,
@@ -414,6 +481,7 @@ pub(crate) fn check(
     let workers = options.workers.max(1);
     let poll = || !matches!(budget.poll(), Ok(None));
     let explore_started = Instant::now();
+    run.searched = true;
     let out = dive_explore::explore(
         &plan,
         &store,

@@ -32,7 +32,8 @@ EWD998ChanID remains unsupported. Other temporal restrictions also remain.
 ## Experimental core engine
 
 ```sh
-dive check Spec.tla --engine core --workers 1 --output json
+dive check Spec.tla --engine core --workers 4 --output json
+dive check Spec.tla --engine auto
 DIVE_ENGINE=core dive check Spec.tla --output json
 ```
 
@@ -41,20 +42,40 @@ core (ADR 0117), which is under construction. The reference engine stays the
 default (`--engine reference`), and it is also the TLC-equivalent setting. The
 core currently covers:
 
-- the default profile only. `--compat=tlc` is reported as unsupported;
-- one worker. A larger `--workers` request runs one worker and reports why;
-- safety only: invariants, constraints and deadlock. `PROPERTY`, implied
-  actions, `ACTION_CONSTRAINT`, `VIEW`, `ALIAS`, `POSTCONDITION`, `SYMMETRY`,
-  INSTANCE and `ENABLED` are reported as unsupported, naming the feature;
-- verdicts and TLC's distinct and generated counts and depth, without a
-  counterexample trace. Evaluation errors are reported as unsupported.
+- the default profile only. `--compat=tlc` is reported as unsupported, and
+  so are `--store exact`, disk spilling of the seen set, frontier or
+  predecessor log, and `--chaos`;
+- any number of workers. Every result (counts, verdict, trace, output) is
+  the one-worker result;
+- safety only: invariants, constraints, `ACTION_CONSTRAINT` and deadlock.
+  `PROPERTY`, implied properties, `VIEW`, `ALIAS`, `POSTCONDITION` and
+  `SYMMETRY` are reported as unsupported, naming the feature;
+- verdicts, TLC's distinct and generated counts and depth, counterexample
+  traces in the reference engine's format, TLC's evaluation-error endings
+  where the core can reproduce them, and the run budgets (`--time-limit`,
+  `--max-memory`, `--max-states`, `--max-depth`).
 
-Anything the core does not implement yields an `unsupported` verdict that names
-it. The run never falls back to the reference engine. The JSON report adds
-`"engine": "core"` and a `core` object with strategy metrics. The
-`DIVE_CORE_OPT` variable (for example `-memo,-delta-hash`) turns individual
-strategies off for measurement. Every switch leaves the results unchanged. See
-`docs/developer/core/m0-results.md`.
+With `--engine core`, anything the core does not implement yields an
+`unsupported` verdict that names it, and the run never falls back. The JSON
+report adds `"engine": "core"` and a `core` object with strategy metrics.
+
+`--engine auto` (or `DIVE_ENGINE=auto`) runs the core where it can. Where the
+core refuses, auto runs the whole check again on the reference engine and
+reports the reference result. The refusal can come before the search
+(`static`) or during it (`dynamic`). The core's partial counts and output are
+discarded, so results are never mixed. The report names the engine that ran:
+- in JSON, `"engine": "core"` or `"reference"`, `"engine_requested":
+  "auto"`, and `"engine_fallback"` with the `stage` and `reason` (or `null`);
+- in text, a line `engine auto: ...`.
+
+A check that ends before any search, for example at a false `ASSUME`, names
+no engine. After a dynamic refusal, the reference run gets what is left of
+`--time-limit`. Under `--compat=tlc` the core always refuses, so auto runs
+the reference engine and stays TLC-equivalent.
+
+The `DIVE_CORE_OPT` variable (for example `-memo,-delta-hash`) turns
+individual strategies off for measurement. Every switch leaves the results
+unchanged. See `docs/developer/core/m0-results.md`.
 
 ## TLC checking entrypoints
 
