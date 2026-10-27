@@ -244,9 +244,7 @@ the incremental hash before any interning, so only new states are interned.
     `ErInvReplayError` gives 4 / 5 / 1 and exit 75.
   - The other 90 use constructs the core does not run yet (VIEW, ALIAS,
     POSTCONDITION, properties, `Print`, `Assert`, ENABLED, failing ASSUMEs,
-    recursive functions). `ErFpInfinite` is the one exception: it is refused
-    because the core raises its error while assigning `x' = Nat`, where TLC
-    raises it only when fingerprinting the successor.
+    recursive functions).
   - Every trace equals the reference engine's and validates with
     `dive-trace`. The validator's known refutations #490 and #499 are
     allowed, as for the reference engine.
@@ -307,14 +305,37 @@ The commit phase takes about 0.2 s of MCLamportMutex's run (`commit_ms` in
 the core metrics), so it is not the limit. The ≥ 6× target at 8 workers
 needs a quiet x86 machine to assess (`09-performance-method.md`).
 
-**Not built yet:** fingerprint-site errors, an exact store (`--store exact`)
-and spilling for the core.
+**Not built yet:** an exact store (`--store exact`) and spilling for the
+core.
 
 **Done (M1, `core/engine-auto`).** `--engine=auto`, the static and dynamic
 fallback of `08-correctness.md` §3. With it, run options the core does not
 implement (`--store exact`, TLC fingerprints, non-default evaluation
 options, disk spilling, `--chaos`) are static refusals. `--engine=core`
 used to ignore them.
+
+**Done (M1, `core/engine-fperror`).** Fingerprint-site errors. TLC
+fingerprints a new state inside the model before inserting it, and fails on
+a value holding `Nat`, `Int`, an infinite `Seq(S)`, or an infinite set whose
+fingerprint enumerates one (`SUBSET Nat`, `[Nat -> S]`, record sets and
+products). States outside the model are not fingerprinted.
+- The core checks the same new states, after the constraints and before the
+  insertion, in both the one-worker and the parallel level. It interns the
+  variables that differ from the parent's, which closes every finite set, so
+  any set kind left is infinite; such a state ends the run at
+  `Site::Fingerprint`.
+- The ending converts the state to the reference engine's values (infinite
+  sets as its lazy sets) and fingerprints it with `dive-store`'s
+  `StateFingerprinter`. That error is classified at `ErrorSite::Fingerprint`,
+  as the reference engine does, and the trace ends at the predecessor. If
+  the reference fingerprints the state, the run is refused, never reported.
+- `ErFpInfinite` now agrees (85 error fixtures). Fixtures `Fp*` in
+  `crates/dive-api/tests/fixtures/core-m1` cover `Int` in a tuple,
+  `Seq({1})` in a record, `SUBSET Nat`, a record set, an initial state and a
+  state outside the model, at 1, 2, 3 and 8 workers (`core_parallel.rs`).
+- Still refused: a state holding `{Nat, 3}`, whose TLC error depends on
+  when TLC normalizes the set (C1, C2), and lazy functions over `Nat`
+  (`ErFpLambda`, which the reference engine refuses too).
 
 **Next (M1, stream 3):**
 1. Scaling measurements on a quiet x86 machine, then profiling of the expand

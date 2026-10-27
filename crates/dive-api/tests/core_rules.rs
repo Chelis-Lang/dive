@@ -31,9 +31,6 @@ const REFUSED: &[(&str, &str)] = &[
     ("NxEnabled", "ENABLED"),
     // Implied action properties (not yet in the core).
     ("ImpliedActionSeen", "temporal"),
-    // The core raises the error while assigning `x' = Nat`; TLC (and the
-    // reference engine) only when fingerprinting the successor.
-    ("ErFpInfinite", "does not reproduce"),
 ];
 
 fn repo() -> PathBuf {
@@ -186,14 +183,15 @@ fn tlc_probes_match_the_reference_and_tlc() {
 #[test]
 fn error_fixtures_match_the_reference() {
     let agreed = check_dir("crates/dive-check/tests/fixtures/errors");
-    // 175 fixtures: 84 agree; the rest use VIEW, ALIAS, POSTCONDITION,
-    // properties, Print, Assert, ENABLED, ASSUME errors or recursive
-    // functions, which the core does not run yet.
-    assert!(agreed >= 84, "only {agreed} error fixtures agreed");
+    // 175 fixtures: 85 agree, `ErFpInfinite` among them; the rest use VIEW,
+    // ALIAS, POSTCONDITION, properties, Print, Assert, ENABLED, ASSUME
+    // errors or recursive functions, which the core does not run yet.
+    assert!(agreed >= 85, "only {agreed} error fixtures agreed");
 }
 
 /// The M1 generator fixtures (`tests/fixtures/core-m1`): each agrees with
 /// the reference engine, or is one of the lazy-union cases both refuse.
+/// The `Fp*` fixtures are states holding a set TLC cannot fingerprint.
 #[test]
 fn m1_generator_fixtures_match_the_reference() {
     let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/core-m1");
@@ -203,7 +201,7 @@ fn m1_generator_fixtures_match_the_reference() {
         .filter(|p| p.extension().is_some_and(|x| x == "tla"))
         .collect();
     names.sort();
-    assert!(names.len() >= 7);
+    assert!(names.len() >= 13);
     for spec in names {
         let name = spec
             .file_stem()

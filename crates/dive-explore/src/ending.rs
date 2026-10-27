@@ -39,6 +39,9 @@ pub enum Site {
     /// [`Failure::state`] leaves variables unassigned (not an evaluation
     /// error, but an ending with the same shape).
     Incomplete,
+    /// [`Failure::state`], a new state inside the model, holds a set TLC
+    /// cannot fingerprint, such as `Nat` (TLC's `fingerPrint` error).
+    Fingerprint,
 }
 
 /// An evaluation error that ended the search, or the search's replay.

@@ -1,5 +1,10 @@
 # Changelog
 
+- `--engine core` reports a new state that holds a set TLC cannot
+  fingerprint (`Nat`, `Int`, an infinite `Seq(S)`, or a set whose
+  fingerprint enumerates one, such as `SUBSET Nat`) as TLC does: the same
+  error, class, exit code, counts and trace. It used to refuse the run.
+
 - `dive-conformance shadow` runs dive's new core and its reference engine on
   a corpus selection and reports any difference in verdict, error class,
   exit, property, counts or depth, and any core counterexample `dive-trace`
