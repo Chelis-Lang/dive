@@ -4,7 +4,7 @@ Status: M1 stream 2 in progress. The M0 spike is on `main`
 (`crates/dive-core/src/compile.rs`, `plan.rs`, `eval.rs`, `convert.rs`;
 results in `m0-results.md`). M1 adds the comparison rules of §5.1
 (`compare.rs`), the coverage census of §8, the fold bound of §3 (R9) and the
-laziness of values (§4.1). This document covers strategy
+laziness of values (§4.1), and `INSTANCE` substitution (§3, pass 2). This document covers strategy
 S8 from `01-motivation.md`, and the compiler side of S5 and S6. It supersedes
 the evaluation-plan section of ADR 0014 §1.
 
@@ -85,6 +85,41 @@ section 4 decide.
      where a substitution is reachable under `ENABLED`, under prime cutoffs,
      or where the argument has effects. See the `lazy-enabled-cache` corpus
      and `02-semantic-contract.md`.
+   - **Built (M1).** The compiler keeps a dynamic substitution stack
+     (`SubstEntry` in `compile.rs`). It is a stack, not a rewrite, so the
+     innermost active substitution wins, as in TLC's dynamic lookup.
+     - **Binding.** `Expr::Subst` binds its substitutions as operator
+       arguments are bound. Each value is compiled outside the substitution,
+       then aliased when it is trivial, made a per-activation thunk when it
+       reads no primed variable, or else passed by name.
+     - **`SubstRef`.** It reads the innermost binding, or else falls back to
+       the root variable or the configured constant. `x'` with `x <- e` is
+       `e'`, compiled by name.
+     - **Generator.** It sees through substitutions for assignments
+       (`getPrimedVar`: `v' = e` with `v <- x` assigns `x`), for `UNCHANGED`,
+       and for substituted names used as actions (by name, B5).
+     - **Operators.** An operator substitution `F <- G`, with `G` a top-level
+       or standard operator, is applied in the current context, as TLC does.
+     - **Split roles.** For actions and checks that the reference binder
+       found inside an instantiated definition (`Init == I!Init`), the
+       handoff passes the substitutions active there (`Role::substs`, from
+       `scope_subst_slot`). They are bound by name. Values evaluated under
+       substitutions of their own are refused.
+     - **Not yet.** `ENABLED`, and with it the B2 and B4 cache rules, is still
+       refused, so the thunk caching is sound in both profiles.
+     - **Evidence.** The fixture `crates/dive-api/tests/fixtures/core-m0/Inst.tla`
+       gives 32 distinct, 65 generated, depth 8 with the pinned TLC, the
+       reference engine and the core. So do the probes run against the pinned
+       TLC (raw outputs outside the repository):
+       - a parametrized instance;
+       - a nested instance (`M!I!Init`);
+       - `v <- x + y` under a prime;
+       - an operator substitution;
+       - a lazy substituted argument.
+
+       Two of the probes found a reference-engine defect (#515, a spurious
+       2280 on `2 * v` with `v` substituted), where the core agrees with TLC.
+       MCChangRoberts now runs in the core with TLC's counts.
 3. **Operator inlining.** Non-recursive user operators whose bodies are below a
    size threshold are inlined. Each parameter is either substituted (when the
    demand-order analysis allows eager or by-name use) or bound to a thunk.
@@ -348,7 +383,8 @@ Next (M1, stream 2), from the census:
 1. Error classes (§5). The speculation of §4.1 makes every remaining
    evaluation error one TLC raises. Its site and code need the engine
    (stream 3, `crates/dive-explore`).
-2. `INSTANCE` substitution (pass 2; EWD998PCal and 6 latent models).
+2. `INSTANCE` substitution: built (pass 2). Next comes EWD998PCal's
+   speed. It needs Bags, and its properties are still the engine's (M3).
 3. Operator breadth in census order: `TLC!Print`/`PrintT`/`Assert`/
    `ToString`, which need effects (B6), and the standard modules.
 4. The memoization decision (`06-memoization.md`).

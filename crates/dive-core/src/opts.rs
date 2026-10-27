@@ -80,7 +80,7 @@ impl Opts {
     ///
     /// # Errors
     /// An unknown switch. `-inline-subst` is reported as not applicable:
-    /// the M0 core refuses INSTANCE.
+    /// the core binds substitutions dynamically, never by inlining.
     pub fn parse(text: &str) -> Result<Self, String> {
         let mut o = Self::default();
         for item in text.split(',').map(str::trim).filter(|s| !s.is_empty()) {
@@ -101,7 +101,7 @@ impl Opts {
                 "fold" => &mut o.fold,
                 "inline-subst" => {
                     return Err(
-                        "`inline-subst` does not apply: the M0 core refuses INSTANCE".into(),
+                        "`inline-subst` does not apply: the core binds INSTANCE substitutions dynamically (`04-plan-compiler.md` §3)".into(),
                     );
                 }
                 other => {
