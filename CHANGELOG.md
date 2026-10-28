@@ -1,5 +1,8 @@
 # Changelog
 
+- `--engine core` runs models with both `VIEW` and `SYMMETRY`, evaluating
+  the view on each state's canonical image as TLC does.
+
 - `--engine core --compat=tlc` runs models with `SYMMETRY`, comparing
   states as TLC does. A comparison TLC could fail on is reported as
   unsupported, and `--engine=auto` runs the reference engine for it.

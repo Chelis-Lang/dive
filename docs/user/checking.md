@@ -52,10 +52,10 @@ core currently covers:
   and its actions `[][A]_v` (a refinement `PROPERTY` of another
   specification is of this kind), `SYMMETRY` (under `--compat=tlc`, with
   TLC's comparison; a comparison TLC could fail on is refused),
-  `VIEW`, and `ALIAS` as the reference engine handles it (not applied yet,
-  with a note). A `PROPERTY` that needs liveness checking, `POSTCONDITION`,
-  and `VIEW` together with `SYMMETRY` are
-  reported as unsupported, naming the feature;
+  `VIEW` (with `SYMMETRY` too, evaluated on the canonical state as TLC
+  does), and `ALIAS` as the reference engine handles it (not applied yet,
+  with a note). A `PROPERTY` that needs liveness checking and
+  `POSTCONDITION` are reported as unsupported, naming the feature;
 - verdicts, TLC's distinct and generated counts and depth, counterexample
   traces in the reference engine's format, TLC's evaluation-error endings
   where the core can reproduce them, and the run budgets (`--time-limit`,
