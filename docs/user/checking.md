@@ -89,6 +89,16 @@ distinct states, 4 generated states and depth 3:
 dive check crates/dive-api/tests/fixtures/core-m0/EnabStepCache.tla --engine core --compat=tlc --workers 4 --seed 0 --fp 0 --output json
 ```
 
+When constraints exclude every initial candidate, the core completes with
+zero distinct states and no counterexample. As in TLC, the reported depth is
+one if Init generated any candidate, and zero if Init generated none.
+
+If Init retains states but the model defines no next-state action, the core
+reports TLC's model error 2115 (exit 75), without a counterexample or TLC
+statistics. This error also occurs with deadlock checking disabled. A defined
+action that generates no successors instead follows the deadlock setting;
+an empty Init completes without either error.
+
 With `--engine core`, anything the core does not implement yields an
 `unsupported` verdict that names it, and the run never falls back. The JSON
 report adds `"engine": "core"` and a `core` object with strategy metrics.

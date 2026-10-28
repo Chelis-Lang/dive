@@ -860,6 +860,11 @@ pub(crate) fn safety_result(
             Verdict::InvariantViolated { property, initial }
         }
         dive_explore::Verdict::Deadlock => Verdict::Deadlock,
+        dive_explore::Verdict::NoNextAction => Verdict::ModelError {
+            code: 2115,
+            name: "TLC_STATES_AND_NO_NEXT_ACTION".into(),
+            message: "No next state actions defined to generate successor states from.".into(),
+        },
         dive_explore::Verdict::PropertyViolatedInitially { property } => {
             Verdict::PropertyViolatedInitially { property }
         }
@@ -908,6 +913,7 @@ pub(crate) fn safety_result(
             | Verdict::PropertyViolatedInitially { .. }
             | Verdict::ActionPropertyViolated { .. }
             | Verdict::Deadlock
+            | Verdict::ModelError { code: 2115, .. }
             | Verdict::Stopped(_)
     );
     let mut verdict = verdict;
@@ -915,6 +921,7 @@ pub(crate) fn safety_result(
         verdict,
         Verdict::InvariantViolated { initial: true, .. }
             | Verdict::PropertyViolatedInitially { .. }
+            | Verdict::ModelError { code: 2115, .. }
     ) || (matches!(verdict, Verdict::Stopped(_)) && out.in_init);
     let mut trace = out.trace.clone();
     let mut stats = out.stats;

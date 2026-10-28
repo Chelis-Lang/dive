@@ -164,6 +164,12 @@
   each conjunct as a separate initial predicate. It now conjoins them, as
   TLC does.
 
+- `--engine core` preserves TLC's initial-state endings: generated candidates
+  excluded by constraints still give depth one, while a truly empty Init
+  gives depth zero. Retained initial states without a next-state action report
+  model error 2115 (exit 75), even with deadlock checking disabled. Excluded
+  initial states with no Next complete with zero distinct states and depth one.
+
 - `dive-conformance run --impl dive:core` and `--impl dive:auto` run the
   harness on the new core. Reports record the engine requested and, per
   run, the engine that ran and any fallback (`summary.by_engine`), and
