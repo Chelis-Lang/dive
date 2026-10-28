@@ -1,5 +1,9 @@
 # Changelog
 
+- Fix core counterexample reconstruction with `DIVE_CORE_OPT=-hashcons`: compound
+  states now retain the invariant verdict and independently replayable word
+  instead of an internal trace error (#603).
+
 - `--engine core` evaluates `ENABLED` (outside an `INSTANCE` with
   substitutions, which is still refused): BufferedRandomAccessFile now runs on
   the core, about 7 times faster than on the reference engine.
