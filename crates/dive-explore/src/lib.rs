@@ -186,8 +186,8 @@ pub struct Outcome {
     /// evaluate on a new successor.
     pub replayed: Option<Replayed>,
     /// The sampled expanded states ([`Config::sample`]), as persistent
-    /// handles.
-    pub sampled: Vec<Vec<Handle>>,
+    /// handles and their actual source evaluation levels.
+    pub sampled: Vec<sample::SampledState>,
     /// What `Print` and `PrintT` printed during the search, in TLC's order
     /// (a plan that prints runs one worker: [`Plan::effects`]).
     pub printed: Vec<String>,
@@ -1313,12 +1313,13 @@ fn run(
                 return Err(Error::stop());
             }
             m.s0.copy_from_slice(state);
+            let level = i64::try_from(ex.level - 1).unwrap_or(i64::MAX);
             if res.is_none() {
                 start_stream(m, plan, Some(state))?;
-                m.level = i64::try_from(ex.level - 1).unwrap_or(i64::MAX);
+                m.level = level;
             }
             if let Some(r) = reservoir.as_deref_mut() {
-                r.offer(state);
+                r.offer(state, level);
             }
             ex.cur_id = cur_ids.get(k).copied();
             ex.emitted = 0;

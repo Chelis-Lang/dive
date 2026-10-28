@@ -34,10 +34,12 @@ fn key(model: &Model, s: &[Option<Value>]) -> Result<Vec<u8>, String> {
 /// The reference evaluator's successors of `s0` under action `i`: sorted
 /// keys, or its error.
 fn reference(
-    model: &Model,
+    (model, host): (&Model, &dive_stdlib::host::RunHost),
     i: usize,
     s0: &dive_eval::next::StateVals,
+    level: i64,
 ) -> Result<Vec<Vec<u8>>, String> {
+    host.set_level(level);
     let a = model
         .actions
         .get(i)
@@ -62,17 +64,40 @@ fn reference(
     Ok(keys)
 }
 
+fn core_keys(
+    model: &Model,
+    heap: &mut dive_core::Heap,
+    result: &dive_explore::sample::ActionSuccessors,
+) -> Result<Vec<Vec<u8>>, String> {
+    let ctx = model.evaluator.options().ctx;
+    let states = result.as_ref().map_err(Clone::clone)?;
+    let mut keys = Vec::with_capacity(states.len());
+    for state in states {
+        let mut vals = Vec::with_capacity(state.len());
+        for &h in state {
+            vals.push(if h.is_empty() {
+                None
+            } else {
+                Some(crate::core_engine::to_value(heap, model, h, ctx)?)
+            });
+        }
+        keys.push(key(model, &vals)?);
+    }
+    keys.sort_unstable();
+    Ok(keys)
+}
+
 /// Compares the sampled states' successors; the report's `core_sample`.
 pub(crate) fn compare(
-    model: &Model,
+    (model, host): (&Model, &dive_stdlib::host::RunHost),
     plan: &dive_core::Plan,
     store: &Arc<dive_core::Store>,
     opts: dive_core::Opts,
     warn: bool,
     sample: dive_explore::sample::Sample,
-    sampled: &[Vec<dive_core::Handle>],
+    sampled: &[dive_explore::sample::SampledState],
 ) -> Json {
-    let ctx = model.evaluator.options().ctx;
+    let previous_level = dive_eval::Host::level(host);
     let mut compared = 0u64;
     let mut successors = 0u64;
     let mut skipped = 0u64;
@@ -83,13 +108,20 @@ pub(crate) fn compare(
             shown.push(json!({"state": state, "action": action, "difference": what}));
         }
     };
-    for s0 in sampled {
-        let Ok(t0) = crate::core_ending::state(model, store, s0) else {
+    for state in sampled {
+        let Ok(t0) = crate::core_ending::state(model, store, &state.values) else {
             skipped += 1;
             continue;
         };
         let text = crate::core_ending::state_text(model, &t0);
-        let core = match dive_explore::sample::successors(plan, store, opts, warn, s0) {
+        let core = match dive_explore::sample::successors(
+            plan,
+            store,
+            opts,
+            warn,
+            &state.values,
+            state.level,
+        ) {
             Ok(c) => c,
             Err(e) => {
                 mismatches += 1;
@@ -100,23 +132,8 @@ pub(crate) fn compare(
         let mut heap = dive_core::Heap::new(Arc::clone(store), false, false);
         for (i, got) in core.iter().enumerate() {
             compared += 1;
-            let want = reference(model, i, &t0);
-            let got = got.as_ref().map_err(Clone::clone).and_then(|states| {
-                let mut keys = Vec::with_capacity(states.len());
-                for st in states {
-                    let mut vals = Vec::with_capacity(st.len());
-                    for &h in st {
-                        vals.push(if h.is_empty() {
-                            None
-                        } else {
-                            Some(crate::core_engine::to_value(&mut heap, model, h, ctx)?)
-                        });
-                    }
-                    keys.push(key(model, &vals)?);
-                }
-                keys.sort_unstable();
-                Ok(keys)
-            });
+            let want = reference((model, host), i, &t0, state.level);
+            let got = core_keys(model, &mut heap, got);
             match (got, want) {
                 (Ok(g), Ok(w)) => {
                     successors += g.len() as u64;
@@ -163,6 +180,12 @@ pub(crate) fn compare(
             }
         }
     }
+    // Sampling is diagnostic: preserve the host used by startup and any
+    // later ending classification, including an originally unavailable level.
+    match previous_level {
+        Some(level) => host.set_level(level),
+        None => host.clear_level(),
+    }
     json!({
         "seed": sample.seed,
         "requested": sample.states,
@@ -174,3 +197,7 @@ pub(crate) fn compare(
         "shown": shown,
     })
 }
+
+#[cfg(test)]
+#[path = "core_sample_level_tests.rs"]
+mod tests;
