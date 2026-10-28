@@ -140,6 +140,16 @@ shape triple, and cold/warm tests compare complete results against the
 original full miss implementation. A failed witness proof takes that full
 path, retaining its refusal and demand site.
 
+**Streaming general guards.** Equality, full membership misses and set
+construction use the `include_shape` helper and guard bodies copied unchanged
+from `d4c404317626a55e653122803dbdbd792cd505d8` (#598). They add constraints
+directly to one accumulator instead of constructing a second temporary tree
+and removing/reinserting existing map keys. The original `shape` and `unify`
+remain unchanged. The exact copied differential test checks 750,592 paired
+and longer input sequences against that original oracle; complete cold/warm
+miss tests retain the pre-streaming guard as their result/error oracle.
+Witness admission and the tuple proof below are unchanged by this composition.
+
 **Tuple proof without temporary maps.** Only after a certified lookup, a
 success-only helper can discharge the witness guard without constructing
 `Shape` trees. Its precondition is that the witness's complete shape exists,

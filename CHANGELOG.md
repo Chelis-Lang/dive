@@ -9,6 +9,7 @@
   persistent sets under `--engine core --compat=tlc`, within the existing
   bounded memo allowance. Certified tuple proofs avoid temporary comparison
   maps, and model-value type checks use the worker's immutable name copy.
+  General comparison guards stream constraints into one accumulator.
   `DIVE_CORE_OPT=-memo` disables proof reuse.
 
 - Fix core counterexample reconstruction with `DIVE_CORE_OPT=-hashcons`: compound

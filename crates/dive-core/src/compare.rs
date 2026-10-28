@@ -469,6 +469,98 @@ fn unify(a: Shape, b: Shape) -> Option<Shape> {
     })
 }
 
+/// Adds a value's comparison constraints to one accumulated shape. This is
+/// `unify(acc, shape(value))` without constructing a second tree or removing
+/// and reinserting keys already present in the accumulator.
+fn include_shape(heap: &Heap, acc: &mut Shape, h: Handle) -> Option<()> {
+    use Shape as S;
+    // The first value supplies the tree. An empty function can acquire the
+    // shape of a non-record function, exactly as in `unify`.
+    if matches!(acc, S::Hole | S::EmptyFcn) {
+        let incoming = shape(heap, h)?;
+        let old = std::mem::replace(acc, S::Hole);
+        *acc = unify(old, incoming)?;
+        return Some(());
+    }
+    match h.tag() {
+        Tag::Bool | Tag::Int | Tag::Str | Tag::Model => {
+            let incoming = shape(heap, h)?;
+            return (incoming == S::Hole || *acc == incoming).then_some(());
+        }
+        Tag::Persistent | Tag::Transient | Tag::Empty => {}
+    }
+    if !h.is_compound() {
+        return matches!(acc, S::Set(_)).then_some(());
+    }
+    let v = heap.view(h);
+    match v.kind {
+        Kind::BigInt => matches!(acc, S::Int).then_some(()),
+        Kind::Set => {
+            let S::Set(inner) = acc else {
+                return None;
+            };
+            for &e in v.data {
+                include_shape(heap, inner, e)?;
+            }
+            Some(())
+        }
+        Kind::Interval => {
+            let S::Set(inner) = acc else {
+                return None;
+            };
+            if **inner == S::Hole {
+                **inner = S::Int;
+            }
+            matches!(**inner, S::Int).then_some(())
+        }
+        Kind::IntFcn if v.data.is_empty() => {
+            matches!(acc, S::IntKeyed(_) | S::Gen(..)).then_some(())
+        }
+        Kind::IntFcn => {
+            let S::IntKeyed(fields) = acc else {
+                return None;
+            };
+            for (i, &e) in (v.lo..).zip(v.data) {
+                include_shape(heap, fields.entry(i).or_insert(S::Hole), e)?;
+            }
+            Some(())
+        }
+        Kind::Fcn => {
+            let (keys, vals) = (v.keys(), v.values());
+            if keys.is_empty() {
+                return matches!(acc, S::IntKeyed(_) | S::Gen(..)).then_some(());
+            }
+            if keys.iter().all(|k| k.as_str_id().is_some()) {
+                let S::Rec(fields) = acc else {
+                    return None;
+                };
+                for (k, &e) in keys.iter().zip(vals) {
+                    include_shape(heap, fields.entry(k.as_str_id()?).or_insert(S::Hole), e)?;
+                }
+                return Some(());
+            }
+            if keys.iter().all(|k| k.as_int().is_some()) {
+                let S::IntKeyed(fields) = acc else {
+                    return None;
+                };
+                for (k, &e) in keys.iter().zip(vals) {
+                    include_shape(heap, fields.entry(k.as_int()?).or_insert(S::Hole), e)?;
+                }
+                return Some(());
+            }
+            let S::Gen(ks, vs) = acc else {
+                return None;
+            };
+            for (&k, &e) in keys.iter().zip(vals) {
+                include_shape(heap, ks, k)?;
+                include_shape(heap, vs, e)?;
+            }
+            Some(())
+        }
+        _ => None,
+    }
+}
+
 /// Finds a persistent member whose exact shape is the join of all members.
 /// The partial join is associative: holes add no constraint, function maps
 /// join independently at each key, and incompatible constructors stay
@@ -557,10 +649,7 @@ fn guard_equals(heap: &Heap, a: Handle, b: Handle) -> Result<(), Error> {
     if !heap.store().semantics().tlc_comparisons {
         return Ok(());
     }
-    let ok = match (shape(heap, a), shape(heap, b)) {
-        (Some(x), Some(y)) => unify(x, y).is_some(),
-        _ => false,
-    };
+    let ok = shape(heap, a).is_some_and(|mut acc| include_shape(heap, &mut acc, b).is_some());
     if ok {
         Ok(())
     } else {
@@ -580,7 +669,7 @@ fn guard_member(heap: &Heap, x: Handle, elems: &[Handle]) -> Result<(), Error> {
     let ok = (|| {
         let mut acc = shape(heap, x)?;
         for &e in elems {
-            acc = unify(acc, shape(heap, e)?)?;
+            include_shape(heap, &mut acc, e)?;
         }
         Some(acc)
     })()
@@ -604,7 +693,7 @@ fn guard_set(heap: &Heap, elems: &[Handle]) -> Result<(), Error> {
     let ok = (|| {
         let mut acc = Shape::Hole;
         for &e in elems {
-            acc = unify(acc, shape(heap, e)?)?;
+            include_shape(heap, &mut acc, e)?;
         }
         Some(acc)
     })()
@@ -643,6 +732,32 @@ mod tests {
 
     fn heap() -> Heap {
         Heap::new(Arc::new(Store::default()), false, false)
+    }
+
+    fn original_guard_member(heap: &Heap, x: Handle, elems: &[Handle]) -> Result<(), Error> {
+        if !heap.store().semantics().tlc_comparisons || !x.is_compound() || elems.is_empty() {
+            return Ok(());
+        }
+        let ok = (|| {
+            let mut acc = shape(heap, x)?;
+            for &e in elems {
+                acc = unify(acc, shape(heap, e)?)?;
+            }
+            Some(acc)
+        })()
+        .is_some();
+        if ok {
+            Ok(())
+        } else {
+            Err(guard_refusal(
+                "a membership test of a value of another shape",
+            ))
+        }
+    }
+
+    fn original_miss(heap: &Heap, x: Handle, elems: &[Handle]) -> Result<(), Error> {
+        original_guard_member(heap, x, elems)?;
+        miss_scalars(heap, x, elems)
     }
 
     fn shape_values(h: &mut Heap) -> Vec<Handle> {
@@ -721,7 +836,7 @@ mod tests {
                 if tuple_proof(&h, query, witness) {
                     proved += 1;
                     assert!(
-                        guard_member(&h, query, &[witness]).is_ok(),
+                        original_guard_member(&h, query, &[witness]).is_ok(),
                         "invalid success for {query:?}, {witness:?}"
                     );
                     assert!(
@@ -752,14 +867,14 @@ mod tests {
         let mut proved = 0;
         for &query in &vertices {
             assert!(tuple_proof(&h, query, witness));
-            assert!(guard_member(&h, query, &[witness]).is_ok());
+            assert!(original_guard_member(&h, query, &[witness]).is_ok());
             proved += 1;
         }
         for &source in &vertices[1..] {
             for &target in &vertices {
                 let query = h.tuple(&[source, target]);
                 assert!(tuple_proof(&h, query, edge_witness));
-                assert!(guard_member(&h, query, &[edge_witness]).is_ok());
+                assert!(original_guard_member(&h, query, &[edge_witness]).is_ok());
                 proved += 1;
             }
         }
@@ -795,13 +910,13 @@ mod tests {
         assert!(!tuple_proof(&h, different_domain, witness));
         let invalid_extra_position = h.tuple(&[one, invalid]);
         assert!(!tuple_proof(&h, invalid_extra_position, witness));
-        assert!(guard_member(&h, invalid_extra_position, &[witness]).is_err());
+        assert!(original_guard_member(&h, invalid_extra_position, &[witness]).is_err());
         let record = h.record(&[text], &[one]);
         assert!(!tuple_proof(&h, empty, record));
         let hole_witness = h.tuple(&[untyped]);
         let invalid_query = h.tuple(&[invalid]);
         assert!(!tuple_proof(&h, invalid_query, hole_witness));
-        assert!(guard_member(&h, invalid_query, &[hole_witness]).is_err());
+        assert!(original_guard_member(&h, invalid_query, &[hole_witness]).is_err());
         let nested_query = h.tuple(&[query]);
         assert!(tuple_proof(&h, nested_query, hole_witness));
     }
@@ -820,7 +935,7 @@ mod tests {
         let set = h.intern_exact(set).unwrap();
         let query = h.tuple(&[invalid, two]);
         let elems = h.view(set).data;
-        let expected = miss(&h, query, elems);
+        let expected = original_miss(&h, query, elems);
         assert!(expected.is_err());
         let mut memo = crate::memo::Memo::new(&[]);
         memo.reserve_members(true);
@@ -854,9 +969,9 @@ mod tests {
         let right = h.intern_exact(right).unwrap();
         assert_eq!(member_witness(&h, &[left, right]), None);
         let query = h.tuple(&[one, Handle::TRUE]);
-        assert!(guard_member(&h, query, &[right]).is_err());
-        assert!(guard_member(&h, query, &[left]).is_ok());
-        assert!(guard_member(&h, query, &[left, right]).is_err());
+        assert!(original_guard_member(&h, query, &[right]).is_err());
+        assert!(original_guard_member(&h, query, &[left]).is_ok());
+        assert!(original_guard_member(&h, query, &[left, right]).is_err());
         // A kind-only or merely compatible witness would hide the failure.
         assert_eq!(h.view(left).kind, h.view(right).kind);
         assert_eq!(member_witness(&h, &[genesis, left, right]), None);
@@ -881,7 +996,7 @@ mod tests {
                     let elems = h.view(set).data;
                     for &x in &probes {
                         memo.clear();
-                        let expected = miss(&h, x, elems);
+                        let expected = original_miss(&h, x, elems);
                         assert_eq!(miss_cached(&h, &mut memo, x, set, elems), expected);
                         assert_eq!(miss_cached(&h, &mut memo, x, set, elems), expected);
                         admitted += usize::from(memo.member_witness(h.store(), set).is_some());
@@ -911,7 +1026,7 @@ mod tests {
             let mut memo = crate::memo::Memo::new(&[]);
             memo.reserve_members(true);
             let elems = h.view(set).data;
-            let expected = miss(&h, query, elems);
+            let expected = original_miss(&h, query, elems);
             assert!(expected.is_err());
             assert_eq!(miss_cached(&h, &mut memo, query, set, elems), expected);
             assert_eq!(memo.bytes(), 0, "a refusal does not admit a certificate");
@@ -1057,6 +1172,88 @@ mod tests {
             let compatible = h.tuple(&[two, two]);
             let set = h.set_from(&mut vec![t, compatible]);
             assert!(check_set(&h, h.view(set).data).is_ok());
+        }
+    }
+
+    #[test]
+    fn streaming_shape_constraints_match_the_original_guard() {
+        let mut h = heap();
+        let (one, two, three) = (
+            Handle::int(1).unwrap(),
+            Handle::int(2).unwrap(),
+            Handle::int(3).unwrap(),
+        );
+        let (a, b) = (h.string("a").unwrap(), h.string("b").unwrap());
+        let mv = |name| Handle::model(h.store().strings().intern(name).unwrap());
+        let mut values = vec![
+            Handle::TRUE,
+            Handle::FALSE,
+            one,
+            two,
+            a,
+            b,
+            mv("u"),
+            mv("v"),
+            mv("t_a"),
+            mv("t_b"),
+            mv("s_c"),
+            h.int_from_i64(i64::MAX),
+            h.tuple(&[]),
+            h.tuple(&[one]),
+            h.tuple(&[one, a]),
+            h.int_fcn(-2, &[one, a]),
+            h.fcn_sorted(&[one, three], &[one, a]),
+            h.record(&[a], &[one]),
+            h.record(&[a, b], &[one, a]),
+            h.fcn_sorted(&[Handle::FALSE, Handle::TRUE], &[one, two]),
+            h.fcn_sorted(&[one, a], &[one, two]),
+            h.set_from(&mut vec![]),
+            h.set_from(&mut vec![one, a]),
+            h.interval(1, 3),
+            h.set_enum(&[one, two]),
+            h.symbolic(Kind::Nat, 0, &[]),
+            h.symbolic(Kind::SeqSet, 0, &[one]),
+        ];
+        // Include nested disagreements, empty holes, different tuple lengths,
+        // record fields and generic-function domains, and exact persistent
+        // copies alongside transient values and literal views.
+        for _ in 0..2 {
+            let previous = values.clone();
+            for &v in &previous {
+                values.push(h.tuple(&[v]));
+                values.push(h.record(&[a], &[v]));
+                values.push(h.set_from(&mut vec![v]));
+            }
+        }
+        let exact: Vec<_> = values.iter().map(|&v| h.intern_exact(v).unwrap()).collect();
+        values.extend(exact);
+        let original = |items: &[Handle]| {
+            items
+                .iter()
+                .try_fold(Shape::Hole, |acc, &v| unify(acc, shape(&h, v)?))
+        };
+        let streaming = |items: &[Handle]| {
+            let mut acc = Shape::Hole;
+            for &v in items {
+                include_shape(&h, &mut acc, v)?;
+            }
+            Some(acc)
+        };
+        for &a in &values {
+            for &b in &values {
+                assert_eq!(streaming(&[a, b]), original(&[a, b]), "{a:?}, {b:?}");
+            }
+        }
+        // Longer input orders exercise partial unification and late refusals.
+        let mut seed = 0x588_593_u64;
+        for _ in 0..4096 {
+            let mut items = Vec::new();
+            for _ in 0..5 {
+                seed = seed.wrapping_mul(6_364_136_223_846_793_005).wrapping_add(1);
+                let index = usize::try_from(seed >> 32).unwrap() % values.len();
+                items.push(values[index]);
+            }
+            assert_eq!(streaming(&items), original(&items), "{items:?}");
         }
     }
 
