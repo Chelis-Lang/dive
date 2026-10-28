@@ -103,6 +103,64 @@ inputs are always persistent.
 than evaluating the body. The engine reports per-site statistics with
 `--stats`.
 
+### 2.2a Exact explicit-set membership certificates
+
+Under TLC comparisons with `Opts::memo`, a worker can reuse a successful
+compound-membership miss's comparison proof for a persistent explicit set.
+This is derived comparison metadata, not a cached membership answer: the
+normal membership search still runs, and the scalar/model-value checks still
+run on a miss. The original full miss check runs before first admission.
+Transient sets, symbolic/lazy dispatch, function-key misses and scalar
+queries retain that original path. No value is interned for the cache.
+
+Admission computes the exact aggregate `Shape` of the set's members, then
+finds any persistent member whose complete recursive shape equals that
+aggregate. It retains only the set and witness handles. For Sailfish,
+`Genesis = <<>>` adds no constraints to ordinary vertex tuples, but cannot
+itself witness their aggregate; an ordinary vertex can. There need not be a
+witness: tuples with complementary model-value holes may jointly constrain
+both positions without either tuple expressing both constraints. Such sets
+remain on the original path; no general Shape tree cache is built.
+
+**Proof.** Define `a join b` to be `unify(a, b)`, including failure. `Hole`
+is the identity. Matching scalar constructors join only when equal. Set
+constructors join their child constraints recursively. Record and
+integer-keyed maps join by taking the union of keys and recursively joining
+each value, treating absent keys as `Hole`. Generic functions join keys and
+values recursively. `EmptyFcn` is below the integer-keyed and generic
+function constructors and incompatible with records; those two nonempty
+constructors are mutually incompatible. All other constructor conflicts
+remain conflicts after adding constraints. These cases, by structural
+induction, make the partial join associative, including failures. Therefore
+joining a query's shape with each member equals joining it with their
+aggregate. Exact equality of a witness's shape with that aggregate permits
+substitution. Kind equality or mere compatibility is insufficient. The
+bounded constructor/nesting matrix tests compare both regroupings of every
+shape triple, and cold/warm tests compare complete results against the
+original full miss implementation. A failed witness proof takes that full
+path, retaining its refusal and demand site.
+
+**Memory and lifetime.** `Memo` owns a private two-way table of complete
+`(set, witness)` handles. Hashes select buckets; complete set-handle equality
+establishes hits. Allocation is lazy. Its reservation is the largest power
+of two no greater than both 64 KiB and one-sixteenth of the existing worker
+memo cap; reservations below two entries are disabled. The ordinary memo
+tables' growth allowance is reduced by that reservation, so the combined
+allocation stays within the existing cap. `Memo::bytes()` includes the
+allocated witness table; the CLI has no separate memo-byte report field.
+Default-profile machines and `-memo` reserve and allocate nothing for it.
+Eviction only causes recomputation. Both handles are persistent, immutable
+and deeply closed, so arena reset and rollback do not invalidate them. Each
+worker has its own table. Machine construction discards prior certificates,
+and `Memo::clear()` clears them with the body caches when store handles are
+remapped. Admission does not force views, change normalization, intern names
+or alter TLC's sealed runtime-name refusal. Process RSS still includes other
+memory outside memo tables; the cache allowance is not a whole-process bound.
+
+This is a bounded prototype for the existing performance plan, with no
+throughput claim until measurements at a fixed source pass the method in
+`09-performance-method.md`. Issue #597 remains open.
+
 ### 2.3 Step predicates: thunks and memo sites on the pair
 
 A step predicate (an implied action `[][A]_v`, an action constraint) is

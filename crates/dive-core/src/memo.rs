@@ -21,6 +21,58 @@ const MIN_SETS_LOG: u32 = 6;
 pub const DEFAULT_CAP: usize = 64 << 20;
 const PROBATION: u64 = 4096;
 const MIN_HIT_PERCENT: u64 = 30;
+const MEMBER_CAP: usize = 64 << 10;
+
+/// A bounded, worker-local certificate that one persistent member has the
+/// exact aggregate comparison shape of its persistent set. Keys and witnesses
+/// are complete handles; the hash selects a set, never establishes a hit.
+#[derive(Debug, Default)]
+struct Members {
+    entries: Vec<[Handle; 2]>,
+    cap: usize,
+    flip: bool,
+}
+
+impl Members {
+    fn bytes(&self) -> usize {
+        self.entries.capacity() * std::mem::size_of::<[Handle; 2]>()
+    }
+
+    fn base(set: Handle, entries: usize) -> usize {
+        #[allow(clippy::cast_possible_truncation, reason = "masked to the table size")]
+        let slot = (mix64(set.bits()) as usize) & (entries / 2 - 1);
+        slot * 2
+    }
+
+    fn get(&self, set: Handle) -> Option<Handle> {
+        if self.entries.is_empty() {
+            return None;
+        }
+        let base = Self::base(set, self.entries.len());
+        self.entries[base..base + 2]
+            .iter()
+            .find(|entry| entry[0] == set)
+            .map(|entry| entry[1])
+    }
+
+    fn put(&mut self, set: Handle, witness: Handle) {
+        if self.cap == 0 || !set.is_persistent() || !witness.is_persistent() {
+            return;
+        }
+        if self.entries.is_empty() {
+            self.entries = vec![[Handle::EMPTY; 2]; self.cap / 16];
+        }
+        let base = Self::base(set, self.entries.len());
+        let way = self.entries[base..base + 2]
+            .iter()
+            .position(|entry| entry[0] == set || entry[0] == Handle::EMPTY)
+            .unwrap_or_else(|| {
+                self.flip = !self.flip;
+                usize::from(self.flip)
+            });
+        self.entries[base + way] = [set, witness];
+    }
+}
 
 /// Per-site statistics.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -62,6 +114,7 @@ pub struct Memo {
     bytes: usize,
     /// The most the tables may hold, in bytes.
     cap: usize,
+    members: Members,
 }
 
 impl Memo {
@@ -84,6 +137,7 @@ impl Memo {
                 .collect(),
             bytes: 0,
             cap: DEFAULT_CAP,
+            members: Members::default(),
         }
     }
 
@@ -94,10 +148,38 @@ impl Memo {
         self.cap = bytes;
     }
 
+    /// Reserves part of the existing cap for exact membership certificates.
+    /// No new allowance is added; disabled/default-profile machines reserve
+    /// nothing. Allocation stays lazy, and the size is a power of two for
+    /// two-way indexing. Only a fresh machine configures its tables.
+    pub(crate) fn reserve_members(&mut self, enabled: bool) {
+        // Machine construction must not reuse certificates from another
+        // store, whose handles may have the same bits.
+        self.members.entries = Vec::new();
+        let bytes = if enabled {
+            (self.cap / 16).min(MEMBER_CAP)
+        } else {
+            0
+        };
+        self.members.cap = if bytes < 32 { 0 } else { 1 << bytes.ilog2() };
+    }
+
+    pub(crate) fn member_witness(&self, set: Handle) -> Option<Handle> {
+        self.members.get(set)
+    }
+
+    pub(crate) fn remember_member(&mut self, set: Handle, witness: Handle) {
+        self.members.put(set, witness);
+    }
+
+    pub(crate) fn members_active(&self) -> bool {
+        self.members.cap != 0
+    }
+
     /// Bytes held by the tables.
     #[must_use]
     pub fn bytes(&self) -> usize {
-        self.bytes
+        self.bytes + self.members.bytes()
     }
 
     /// Whether the site is usable.
@@ -179,7 +261,7 @@ impl Memo {
         let stride = 1 + t.klen;
         let bytes_for = |sets_log: u32| (1usize << (sets_log + WAYS_LOG)) * stride * 8;
         if t.words.is_empty() {
-            if self.bytes + bytes_for(t.sets_log) > self.cap {
+            if self.bytes + bytes_for(t.sets_log) > self.cap.saturating_sub(self.members.cap) {
                 return;
             }
             t.words = vec![Handle::EMPTY.bits(); bytes_for(t.sets_log) / 8];
@@ -197,7 +279,7 @@ impl Memo {
         let grown = bytes_for(t.sets_log + 1);
         if t.evictions > 1 << (t.sets_log + WAYS_LOG - 2)
             && t.sets_log < SETS_LOG
-            && self.bytes - t.bytes() + grown <= self.cap
+            && self.bytes - t.bytes() + grown <= self.cap.saturating_sub(self.members.cap)
         {
             // Rehash every entry into a table twice the size.
             let mut words = vec![Handle::EMPTY.bits(); grown / 8];
@@ -228,6 +310,7 @@ impl Memo {
             t.words = Vec::new();
         }
         self.bytes = 0;
+        self.members.entries = Vec::new();
     }
 }
 
@@ -279,5 +362,76 @@ mod tests {
             }
             assert!(m.bytes() <= cap, "cap {cap}: {} bytes", m.bytes());
         }
+    }
+
+    #[test]
+    fn member_certificates_are_exact_bounded_and_cleared() {
+        let persistent = |i| Handle::persistent(0, 0, i);
+        for cap in [0, 31, 512, 4096, 1 << 20, DEFAULT_CAP] {
+            let mut m = Memo::new(&[1]);
+            m.set_cap(cap);
+            m.reserve_members(true);
+            assert!(m.members.cap <= cap / 16);
+            assert!(m.members.cap <= MEMBER_CAP);
+            assert_eq!(m.bytes(), 0, "allocation is lazy");
+            for i in 1..20_000 {
+                let set = persistent(i);
+                let witness = persistent(i + 20_000);
+                if let Some(found) = m.member_witness(set) {
+                    assert_eq!(found, witness, "a hash collision is not a hit");
+                }
+                m.remember_member(set, witness);
+                if m.members_active() {
+                    assert_eq!(m.member_witness(set), Some(witness));
+                }
+                m.put(0, &[set], witness);
+                assert!(m.bytes() <= cap);
+                assert_eq!(m.bytes(), m.bytes + m.members.bytes());
+            }
+            assert!(m.members.entries.len() <= m.members.cap / 16);
+            m.clear();
+            assert_eq!(m.bytes(), 0);
+            assert_eq!(m.member_witness(persistent(1)), None);
+        }
+    }
+
+    #[test]
+    fn member_certificates_do_not_reserve_when_disabled_or_store_transients() {
+        let mut m = Memo::new(&[1]);
+        m.reserve_members(false);
+        assert!(!m.members_active());
+        assert_eq!(m.cap - m.members.cap, DEFAULT_CAP);
+        m.reserve_members(true);
+        let persistent = Handle::persistent(0, 0, 1);
+        let transient = Handle::transient(1, 1);
+        m.remember_member(transient, persistent);
+        m.remember_member(persistent, transient);
+        assert_eq!(m.bytes(), 0);
+        assert_eq!(m.member_witness(persistent), None);
+    }
+
+    #[test]
+    fn member_collision_eviction_never_answers_for_a_different_key() {
+        let mut m = Memo::new(&[]);
+        m.set_cap(512);
+        m.reserve_members(true);
+        // A 32-byte reservation has exactly one two-way bucket. All keys
+        // below deliberately collide, independently of the hash function.
+        let a = Handle::persistent(0, 0, 1);
+        let b = Handle::persistent(0, 0, 2);
+        let c = Handle::persistent(0, 0, 3);
+        m.remember_member(a, a);
+        m.remember_member(b, b);
+        assert_eq!(m.member_witness(c), None);
+        assert_eq!(m.member_witness(a), Some(a));
+        assert_eq!(m.member_witness(b), Some(b));
+        m.remember_member(c, c);
+        assert_eq!(m.member_witness(c), Some(c));
+        for key in [a, b] {
+            if let Some(witness) = m.member_witness(key) {
+                assert_eq!(witness, key);
+            }
+        }
+        assert_eq!(m.bytes(), 32);
     }
 }

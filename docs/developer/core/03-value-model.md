@@ -473,6 +473,12 @@ a level boundary it:
 2. remaps the frontier handles;
 3. clears the memoization caches.
 
+The worker's bounded explicit-set comparison certificates also contain
+persistent handles and are cleared with those caches. They retain an exact
+aggregate-shape witness, without changing stored nodes or interning values
+for lookup (`06-memoization.md` §2.2a). Arena reset and rollback leave these
+persistent handles valid; compaction and machine/store replacement do not.
+
 ### 10.1 Measured: the MCLamportMutex bisection
 
 A reported rise in RSS from 85 MB (main at #523) to 98 MB (main at #514) was

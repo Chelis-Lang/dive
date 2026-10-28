@@ -141,6 +141,7 @@ impl Machine {
     #[must_use]
     pub fn new(store: Arc<Store>, nvars: usize, opts: Opts, mut memo: Memo) -> Self {
         memo.set_cap(opts.memo_cap);
+        memo.reserve_members(opts.memo && store.semantics().tlc_comparisons);
         Self {
             heap: Heap::new(store, !opts.arena, !opts.delta_hash),
             frame: Vec::new(),
@@ -916,7 +917,7 @@ impl Machine {
                 if v.data.binary_search_by(|&e| self.heap.cmp(e, x)).is_ok() {
                     return Ok(true);
                 }
-                compare::miss(&self.heap, x, v.data)?;
+                compare::miss_cached(&self.heap, &mut self.memo, x, set, v.data)?;
                 Ok(false)
             }
             Kind::Interval => {
@@ -1813,6 +1814,73 @@ mod tests {
     #![allow(clippy::unwrap_used, reason = "tests")]
     use super::*;
     use crate::TlcClass;
+
+    #[test]
+    fn membership_certificates_respect_profiles_epochs_and_machine_stores() {
+        let one = Handle::int(1).unwrap();
+        let two = Handle::int(2).unwrap();
+        for hashcons in [false, true] {
+            let store = Arc::new(Store::with_semantics(hashcons, crate::Semantics::tlc()));
+            let opts = Opts {
+                memo_cap: 512,
+                ..Opts::default()
+            };
+            let mut m = Machine::new(store.clone(), 0, opts, Memo::new(&[]));
+            let u = Handle::model(store.strings().intern("u").unwrap());
+            let genesis = m.heap.tuple(&[]);
+            let vertex = m.heap.tuple(&[u, one]);
+            let set = m.heap.set_from(&mut vec![genesis, vertex]);
+            let set = m.heap.intern_exact(set).unwrap();
+            let query = m.heap.tuple(&[u, two]);
+            assert_eq!(m.member(query, set), Ok(false));
+            let vertex = m.memo.member_witness(set).unwrap();
+            assert_eq!(m.memo.bytes(), 32);
+            m.heap.reset();
+            let mark = m.heap.mark();
+            let query = m.heap.tuple(&[u, two]);
+            assert_eq!(m.member(query, set), Ok(false));
+            m.heap.rollback(mark);
+            let query = m.heap.tuple(&[u, two]);
+            assert_eq!(m.member(query, set), Ok(false));
+            let ephemeral = m.heap.set_from(&mut vec![query]);
+            assert_eq!(m.member(vertex, ephemeral), Ok(false));
+            assert_eq!(m.memo.member_witness(ephemeral), None);
+            assert!(!m.heap.poisoned());
+
+            let mut worker = Machine::new(store, 0, opts, Memo::new(&[]));
+            assert_eq!(worker.memo.member_witness(set), None);
+            let query = worker.heap.tuple(&[u, two]);
+            assert_eq!(worker.member(query, set), Ok(false));
+            assert!(worker.memo.member_witness(set).is_some());
+            let reused = std::mem::take(&mut worker.memo);
+            let other = Arc::new(Store::with_semantics(hashcons, crate::Semantics::tlc()));
+            let worker = Machine::new(other, 0, opts, reused);
+            assert_eq!(worker.memo.member_witness(set), None);
+            assert_eq!(worker.memo.bytes(), 0);
+        }
+        for (semantics, memo_enabled) in [
+            (crate::Semantics::default(), true),
+            (crate::Semantics::tlc(), false),
+        ] {
+            let store = Arc::new(Store::with_semantics(true, semantics));
+            let mut m = Machine::new(
+                store,
+                0,
+                Opts {
+                    memo: memo_enabled,
+                    ..Opts::default()
+                },
+                Memo::new(&[]),
+            );
+            assert!(!m.memo.members_active());
+            let vertex = m.heap.tuple(&[one]);
+            let set = m.heap.set_from(&mut vec![vertex]);
+            let set = m.heap.intern_exact(set).unwrap();
+            let query = m.heap.tuple(&[two]);
+            assert_eq!(m.member(query, set), Ok(false));
+            assert_eq!(m.memo.bytes(), 0);
+        }
+    }
 
     #[test]
     fn arithmetic_errors_carry_tlc_classes() {
