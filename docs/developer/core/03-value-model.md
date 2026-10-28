@@ -767,3 +767,45 @@ Next (stream 1, after the open PRs merge):
 - Persistent 32-way trees are deferred by a negative result (§4.1).
 - An x86 measurement of steps 2 and 3 (`09-performance-method.md`):
   `store_views`, `store_scaling`, and the four spike models' time and RSS.
+
+### `kSubset` boundary assessment (2026-10-28)
+
+`FiniteSetsExt!kSubset` remains refused by both engines. Eighteen small probes
+run through `dive-conformance dev capture` against `tlc-2026.10.06.014338`
+(seed/fingerprint 0, one worker) confirm that this requires a symbolic value
+slice, not an eager set-valued library function. The pinned implementation is
+CommunityModules `FiniteSetsExt.kSubset` at `78b98ae9`, returning TLC's
+`KSubsetValue` at `94d0c507` (a subclass of `SubsetValue`).
+
+- Negative k and k above a finite base's size produce the empty set; k=0
+  produces the singleton empty set. Enumerating `kSubset(2, {1,2,3})` gives
+  three distinct states, six generated states and depth one.
+- `Cardinality(kSubset(0, Nat)) = 1` and
+  `Cardinality(kSubset(-1, Nat)) = 0` succeed without enumerating the base.
+- `<<1,2>> \notin kSubset(1, 1..3)` succeeds, whereas membership of `<<1>>`
+  errors. Scalar membership errors too, except when the result is empty.
+  Replacing the value with an ordinary enumerated set would change these
+  observable membership/error rules under `--compat=tlc`.
+- Cardinality with k=0 over `0..2147483647` succeeds; membership of `{}` in
+  that same value errors while sizing the base. Cardinality at k=2 over
+  `1..65537` raises the Java-override error 2154. Non-integer k and non-set
+  bases raise argument error 2169, with the first argument's type checked
+  before the second's after their values are evaluated; a negative k does
+  not suppress validation of a non-set base. The probes put these
+  errors in `ASSUME`, where TLC's deciding wrapper is 2105, exit 10.
+
+The current core has no k-subset representation or cardinality-bounded subset
+cursor; its ordinary `SUBSET` cursor enumerates every size and refuses bases
+over 24 elements. A future slice needs the k and base retained through the
+existing symbolic-value paths (cardinality, membership, comparison, enumeration,
+printing, interning and conversion), with bounded work and the observed error
+order. Reusing `SUBSET` followed by filtering would lose the operator's
+capacity and demand behavior.
+
+There is a separate startup/validation dependency: the reference binder still
+evaluates constants and `ASSUME`s before core compilation, and the independent
+validator uses that evaluator. Neither implements `kSubset`. Extending only
+the core's stdlib dispatch would therefore leave those paths refused. Resolve
+that boundary under the frozen-reference policy before attempting full operator
+coverage. No runtime change, corpus agreement or performance credit follows
+from this assessment; raw probe output stays outside the repository.
