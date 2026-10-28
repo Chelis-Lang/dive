@@ -4,8 +4,7 @@
 //! leave every observable result unchanged. They are parsed from a list
 //! such as `-fold,-delta-hash` (`DIVE_CORE_OPT`).
 
-/// Which strategies are on. The default has all of them on except the memo
-/// tables (`06-memoization.md` §6: they did not pay for their memory).
+/// Which strategies are on. The default has all of them on.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[allow(
     clippy::struct_excessive_bools,
@@ -25,8 +24,7 @@ pub struct Opts {
     /// sets and `Seq(S)`. Off (`-symbolic-member`): the set is materialized
     /// (up to 2^24 elements; beyond that the run is refused).
     pub symbolic_member: bool,
-    /// S6: keyed result caches. Off by default (M1 decision,
-    /// `06-memoization.md` §6); on with `+memo`.
+    /// S6: keyed result caches. Off (`-memo`; `06-memoization.md` §6).
     pub memo: bool,
     /// S6: parent-delta skip of invariant and constraint conjuncts. Off
     /// (`-parent-skip`).
@@ -49,7 +47,7 @@ impl Default for Opts {
             early_probe: true,
             hashcons: true,
             symbolic_member: true,
-            memo: false,
+            memo: true,
             parent_skip: true,
             arena: true,
             eager: true,
@@ -75,9 +73,9 @@ impl Opts {
     /// Parses a comma-separated list of `-name` (off) and `+name` (on).
     ///
     /// ```
-    /// let o = dive_core::Opts::parse("+memo,-delta-hash").unwrap();
-    /// assert!(o.memo && !o.delta_hash && o.arena);
-    /// assert!(!dive_core::Opts::default().memo);
+    /// let o = dive_core::Opts::parse("-memo,+delta-hash").unwrap();
+    /// assert!(!o.memo && o.delta_hash && o.arena);
+    /// assert!(dive_core::Opts::default().memo);
     /// assert!(dive_core::Opts::parse("-inline-subst").is_err());
     /// ```
     ///
