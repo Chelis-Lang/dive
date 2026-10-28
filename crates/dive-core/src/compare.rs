@@ -231,7 +231,8 @@ fn record_like(heap: &Heap, f: Handle) -> bool {
 }
 
 /// Refuses a set, given its sorted elements, whose elements TLC cannot all
-/// compare: values of different classes, or records with tuples.
+/// compare: values of different classes, records with tuples, or compound
+/// elements whose nested comparisons are not proved safe.
 ///
 /// # Errors
 /// [`crate::ErrorKind::Unsupported`], naming the mixture.
@@ -258,7 +259,10 @@ pub(crate) fn check_set(heap: &Heap, elems: &[Handle]) -> Result<(), Error> {
         return Ok(());
     }
     // Model values are holes or refused above.
-    guard_set(heap, elems)?;
+    let tlc = heap.store().semantics().tlc_comparisons;
+    if tlc {
+        guard_set(heap, elems)?;
+    }
     let (cf, cl) = (class(heap, first), class(heap, last));
     let refuse = |a: Class, b: Class| {
         Err(Error::unsupported(format!(
@@ -288,11 +292,18 @@ pub(crate) fn check_set(heap: &Heap, elems: &[Handle]) -> Result<(), Error> {
             Ok(())
         }
         _ => Ok(()),
+    }?;
+    // D-009 changes equality and membership, not normalization (C2). Keep
+    // the default profile's existing class/record refusals above, then prove
+    // nested comparisons safe. Scalar sets need no recursive shape walk.
+    if !tlc && !cf.is_scalar() {
+        guard_set(heap, elems)?;
     }
+    Ok(())
 }
 
 // ----------------------------------------------------------------------
-// --compat=tlc: the shape guard
+// Comparison shape guards (set normalization applies in both profiles)
 // ----------------------------------------------------------------------
 
 /// The comparison shape of a value under TLC's comparisons: what any
@@ -473,12 +484,13 @@ fn guard_member(heap: &Heap, x: Handle, elems: &[Handle]) -> Result<(), Error> {
     }
 }
 
-/// Under TLC's comparisons, refuses a set whose elements TLC could fail to
-/// sort (C2): their shapes must unify.
+/// In either profile, refuses a set whose elements TLC could fail to sort
+/// (C2): their shapes must unify.
 fn guard_set(heap: &Heap, elems: &[Handle]) -> Result<(), Error> {
-    if !heap.store().semantics().tlc_comparisons || elems.len() < 2 {
+    if elems.len() < 2 {
         return Ok(());
     }
+    let tlc = heap.store().semantics().tlc_comparisons;
     let ok = (|| {
         let mut acc = Shape::Hole;
         for &e in elems {
@@ -489,8 +501,12 @@ fn guard_set(heap: &Heap, elems: &[Handle]) -> Result<(), Error> {
     .is_some();
     if ok {
         Ok(())
-    } else {
+    } else if tlc {
         Err(guard_refusal("a set of values of different shapes"))
+    } else {
+        Err(Error::unsupported(
+            "a set of values of different shapes: TLC's checked normalization may fail (C1, C2; the exact comparison order is not built)",
+        ))
     }
 }
 
@@ -626,6 +642,33 @@ mod tests {
         let s1 = d.set_from(&mut vec![one]);
         let sa = d.set_from(&mut vec![a]);
         assert!(!equals(&d, s1, sa).unwrap());
+    }
+
+    #[test]
+    fn compound_set_normalization_is_guarded_in_both_profiles() {
+        for semantics in [crate::Semantics::default(), crate::Semantics::tlc()] {
+            let store = Arc::new(Store::with_semantics(true, semantics));
+            let mut h = Heap::new(store, false, false);
+            let one = Handle::int(1).unwrap();
+            let two = Handle::int(2).unwrap();
+            let yes = Handle::bool(true);
+            let field = h.string("a").unwrap();
+            let t = h.tuple(&[one, one]);
+            let other = h.tuple(&[yes, two]);
+            let later = h.tuple(&[one, yes]);
+            let r = h.fcn_sorted(&[field], &[one]);
+            let rb = h.fcn_sorted(&[field], &[yes]);
+            let s = h.set_from(&mut vec![one]);
+            let sb = h.set_from(&mut vec![yes]);
+            for pair in [[t, other], [t, later], [r, rb], [s, sb]] {
+                let set = h.set_from(&mut pair.to_vec());
+                let err = check_set(&h, h.view(set).data).unwrap_err();
+                assert_eq!(err.kind(), crate::ErrorKind::Unsupported);
+            }
+            let compatible = h.tuple(&[two, two]);
+            let set = h.set_from(&mut vec![t, compatible]);
+            assert!(check_set(&h, h.view(set).data).is_ok());
+        }
     }
 
     #[test]
