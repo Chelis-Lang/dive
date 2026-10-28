@@ -95,6 +95,11 @@ too, for a fixed list of models the core is expected to run. The JSON
 report (`schema: 1`) is written only with `--report-dir`. The summary,
 printed as JSON, counts each status.
 
+An unclassified or internally contradictory report from either engine is a
+`differ` finding, naming the engine and preserving its reason. Matching unusable
+reports cannot establish agreement. Classified evaluation errors still compare
+normally, and time or memory stops retain their separate `timeout` status.
+
 An absent mandatory counterexample, a missing/unreadable word, or a named
 validator refusal is `trace-unconfirmed`, never agreement, even if both engines
 report identical observables. Safety/action/liveness violations and deadlocks

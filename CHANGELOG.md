@@ -1,5 +1,9 @@
 # Changelog
 
+- Shadow comparison rejects unclassified or contradictory reports as findings,
+  even when both engines return the same unusable result. Classified evaluation
+  errors can still agree; budget stops retain their separate timeout status.
+
 - The core/reference shadow gate reports an absent or independently unconfirmed
   counterexample as a `trace-unconfirmed` finding (exit 1), rather than agreement.
   A validator refusal cannot establish parity, with or without `--strict`.

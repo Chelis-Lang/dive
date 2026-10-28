@@ -151,6 +151,11 @@ shadow [--corpus ID]... [--tier T] [--filter GLOB]... [--workers 1,4] [--dive-bi
 
 `shadow` compares dive's new core with its reference engine, in the default profile (or both under `--compat=tlc` with `--impl-profile tlc`), on every selected model the core accepts. No golden is involved. Both must give the same verdict, error class and code, exit and violated property, plus the same counts and depth at one worker or for a complete search. The core's counterexamples must validate with `dive-trace`. Each core run also samples `--sample N` expanded states (default 32, 0 for none) and compares their successors, action by action, with the reference evaluator's (`dive check --core-sample`). A difference, a refuted trace, an unconfirmed trace or a successor difference is a finding (exit 1). A required counterexample that is absent, unreadable or refused by the validator is `trace-unconfirmed`, even without `--strict`; it never earns agreement. With `--strict`, an engine refusal or a timeout is a finding too. See `docs/developer/core/08-correctness.md` §4. `scripts/shadow-gate.sh <list>` runs it strictly on a model list, as CI does with `conformance/gates/shadow-smoke.txt`.
 
+An `unclassified` or `oracle-error` result from either engine is a `differ`
+finding, even when both reports match. Its detail names the engine and retains
+the classification reason. Classified evaluation errors can agree normally;
+time and memory stops remain `timeout` outcomes.
+
 `run` takes several `--corpus`, into one report and one summary (default: `examples`).
 
 `trace-controls [--corpus ID]... [--tier T] [--filter GLOB]... [--golden-oracle ID]` runs the trace validator's controls (ADR 0016 §3) over every golden counterexample of the selection, under `--compat=tlc`, in-process: each TLC `-dumpTrace json` document must validate (positive controls; a deadlock may be refused by name if every other check passed), and every by-construction mutant of it (`dive_trace::mutate`) must be rejected (negative controls). Goldens with `trace.json_unavailable` or an omitted trace are skipped and counted. It prints a Markdown table and exits 1 on any finding. Named validator refusals remain listed; they are not validation credit. The table reports the actual positive and mutation outcomes for the selected goldens.

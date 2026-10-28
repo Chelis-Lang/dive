@@ -58,7 +58,7 @@ pub struct ShadowOptions {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum ShadowStatus {
-    /// Both engines gave the same observables, and the core's
+    /// Both engines gave the same classified observables, and the core's
     /// counterexample (if any) validated.
     Agree,
     /// The core refused the model.
@@ -173,6 +173,25 @@ fn stopped(r: &OracleResult) -> bool {
     matches!(r.verdict, Verdict::Timeout | Verdict::ResourceLimit)
 }
 
+fn nonsemantic_result(
+    result: &OracleResult,
+    engine: &str,
+) -> Option<(ShadowStatus, Option<String>)> {
+    if stopped(result) {
+        return Some((ShadowStatus::Timeout, result.note.clone()));
+    }
+    (!result.verdict.is_oracle_fact()).then(|| {
+        (
+            ShadowStatus::Differ,
+            Some(format!(
+                "the {engine} result is {} and cannot establish agreement: {}",
+                result.verdict.as_str(),
+                result.note.as_deref().unwrap_or("no classified result")
+            )),
+        )
+    })
+}
+
 /// The fields on which `core` and `reference` differ. Counts and depth are
 /// compared at one worker, and at any worker count for a complete search
 /// (`success`): a violation found by several workers may end at a
@@ -274,9 +293,9 @@ fn shadow_model(
     out.verdict = Some(core_result.verdict);
     out.sample = core_result.engine.as_ref().and_then(|e| e.sample.clone());
     out.core_ms = millis(core_elapsed);
-    if stopped(&core_result) {
-        out.status = ShadowStatus::Timeout;
-        out.detail.clone_from(&core_result.note);
+    if let Some((status, detail)) = nonsemantic_result(&core_result, "core") {
+        out.status = status;
+        out.detail = detail;
         return out;
     }
     let (reference_result, reference_elapsed) = match reference.check_model(&req) {
@@ -297,9 +316,9 @@ fn shadow_model(
         }) => (result, elapsed),
     };
     out.reference_ms = millis(reference_elapsed);
-    if stopped(&reference_result) {
-        out.status = ShadowStatus::Timeout;
-        out.detail.clone_from(&reference_result.note);
+    if let Some((status, detail)) = nonsemantic_result(&reference_result, "reference") {
+        out.status = status;
+        out.detail = detail;
         return out;
     }
     out.diffs = differences(&core_result, &reference_result, workers);
@@ -540,6 +559,82 @@ mod tests {
                 Err(error) => TraceCheck::no(error.to_string()),
             }
         }
+    }
+
+    #[test]
+    fn unclassified_and_contradictory_results_never_earn_agreement()
+    -> std::result::Result<(), Box<dyn std::error::Error>> {
+        let manifest = serde_json::from_value(json!({
+            "sources": [], "authors": [], "tags": [],
+            "modules": [{"path": "X.tla", "features": [], "models": [{
+                "path": "X.cfg", "mode": "exhaustive search", "runtime": "unknown", "result": "unknown"
+            }]}]
+        }))?;
+        let (modules, models) = crate::corpus::models_of(&manifest)?;
+        let corpus = CorpusIndex {
+            id: "verdict-controls".into(),
+            commit: "test".into(),
+            in_repo: true,
+            root: PathBuf::new(),
+            modules,
+            models,
+            unfetched_submodules: vec![],
+            uncovered: vec![],
+        };
+        let model = corpus.models.first().ok_or("missing control model")?;
+        let limits = Limits {
+            jobs: 1,
+            xmx: "1g".into(),
+            timeout: Some(Duration::from_secs(5)),
+            timeout_cap: Duration::from_secs(5),
+            budget_cap: None,
+        };
+        let mut error = result(Verdict::EvaluationError, 0);
+        error.verdict_code = Some(2179);
+        error.error_class = Some("TLC_MODULE_DIVISION_BY_ZERO".into());
+        error.exit_code = Some(255);
+        let replay = |result| Replay {
+            result,
+            refusal: None,
+        };
+        for workers in [1, 4] {
+            let classified = replay(error.clone());
+            let row = shadow_model(&classified, &classified, &corpus, model, workers, &limits);
+            assert_eq!(row.status, ShadowStatus::Agree, "{row:?}");
+            for verdict in [Verdict::Unclassified, Verdict::OracleError] {
+                let mut invalid = result(verdict, 0);
+                invalid.note = Some("the native report could not be trusted".into());
+                for (core_result, reference_result, engine) in [
+                    (invalid.clone(), invalid.clone(), "core"),
+                    (invalid.clone(), error.clone(), "core"),
+                    (error.clone(), invalid.clone(), "reference"),
+                ] {
+                    let row = shadow_model(
+                        &replay(core_result),
+                        &replay(reference_result),
+                        &corpus,
+                        model,
+                        workers,
+                        &limits,
+                    );
+                    assert_eq!(row.status, ShadowStatus::Differ, "{verdict:?}: {row:?}");
+                    let detail = row.detail.as_deref().ok_or("missing finding detail")?;
+                    assert!(detail.contains(engine), "{detail}");
+                    assert!(detail.contains(verdict.as_str()), "{detail}");
+                    assert!(detail.contains("could not be trusted"), "{detail}");
+                    assert!(row.status.is_finding(false) && row.status.is_finding(true));
+                }
+            }
+            // Resource stops retain their existing separate classification.
+            for verdict in [Verdict::Timeout, Verdict::ResourceLimit] {
+                let stopped = replay(result(verdict, 0));
+                let row = shadow_model(&stopped, &stopped, &corpus, model, workers, &limits);
+                assert_eq!(row.status, ShadowStatus::Timeout, "{row:?}");
+                let row = shadow_model(&classified, &stopped, &corpus, model, workers, &limits);
+                assert_eq!(row.status, ShadowStatus::Timeout, "{row:?}");
+            }
+        }
+        Ok(())
     }
 
     #[test]
