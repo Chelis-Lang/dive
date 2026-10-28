@@ -180,8 +180,10 @@ stdout, stderr and physical exit under `raw/`, with the harness logs and JSON
 reports alongside them. `census.json` names native `stopped` and `resource-limit`
 runs, their phases and exits separately from processes that never completed.
 Neither timeout nor refusal earns agreement credit. The true candidate binary
-hash is in `census.json`; the shadow report's executable hash names the recording
-wrapper. Runtime measurement through this recorder earns no performance credit.
+hash and the fixture checkout's revision/dirty status are in `census.json`; the
+shadow report's executable hash names the recording wrapper. The timeout is the
+native time budget; the harness permits its existing 30-second termination grace.
+Runtime measurement through this recorder earns no performance credit.
 
 Preparation at source `e2183389` finds 1,450 configurations: 99 parser exclusions,
 1,337 selected models and 14 ambiguous skips. These are selection counts, not

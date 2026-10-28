@@ -12,7 +12,6 @@ import argparse
 from collections import Counter
 import hashlib
 import json
-import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -87,7 +86,13 @@ def prepare(repo, out):
                 "distinctStates": None, "totalStates": None, "stateDepth": None})
         write_json(target / "manifest.json", {
             "sources": [], "authors": [], "tags": [], "modules": list(modules.values())})
+    revision = subprocess.run(["git", "-C", str(repo), "rev-parse", "HEAD"],
+                              capture_output=True, text=True)
+    dirty = subprocess.run(["git", "-C", str(repo), "status", "--porcelain", "--untracked-files=all"],
+                           capture_output=True, text=True)
     selection = {"schema_version": 1, "seed": 0, "fp": 0,
+                 "source_revision": revision.stdout.strip() if revision.returncode == 0 else None,
+                 "source_dirty": bool(dirty.stdout.strip()) if dirty.returncode == 0 else None,
                  "selection_counts": dict(Counter(r["selection"] for r in rows)), "fixtures": rows}
     write_json(out / "selection.json", selection)
     return selection
@@ -200,6 +205,7 @@ def run(repo, out, selection, harness, dive, profiles, workers, jobs, timeout, m
     with dive.open("rb") as stream:
         dive_sha256 = hashlib.file_digest(stream, "sha256").hexdigest()
     result = {"schema_version": 1, "kind": "fixture-shadow-census", "seed": 0, "fp": 0,
+              "source_revision": selection["source_revision"], "source_dirty": selection["source_dirty"],
               "workers": workers, "timeout_seconds": timeout, "max_memory": memory, "sample": sample,
               "fixture_count": len(selection["fixtures"]), "selection_counts": selection["selection_counts"],
               "dive_sha256": dive_sha256, "profiles": reports, "incomplete_runs": incomplete_runs(out, selection)}
