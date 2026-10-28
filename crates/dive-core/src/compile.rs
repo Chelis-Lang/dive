@@ -1202,35 +1202,38 @@ impl Compiler<'_> {
     /// `ENABLED A` (`04-plan-compiler.md` §5.5): `A` compiled as an action
     /// in the current frame, searched for one successor at run time.
     ///
-    /// Refused inside an `INSTANCE` with substitutions. TLC evaluates the
-    /// body in `Context.branch`, which hides substitutions made outside the
-    /// `ENABLED` from primed lookups (`02-semantic-contract.md` B3), and its
-    /// lazy-value cache reuses stale values across hidden instance variables
-    /// there (B2, corpus `lazy-enabled-cache`). The core reproduces
-    /// neither yet.
+    /// An instance environment is supported when its variable substitutions
+    /// resolve to the same root variables by name. TLC's branch cutoff then
+    /// leaves every primed lookup unchanged, and no hidden candidate state
+    /// requires the B2/B4 lazy-cache machinery. Other variable substitutions
+    /// remain refused (`02-semantic-contract.md` B2--B4).
     fn enabled(&mut self, a: Option<ExprId>, env: usize, mode: Mode) -> Result<P, Error> {
         let a = a.ok_or_else(|| Error::internal("ENABLED without operand"))?;
         if mode == Mode::Primed {
             return Err(Error::unsupported("a primed ENABLED (M1 core)"));
         }
-        if !self.substs.is_empty() {
+        if self.init_mode && !self.substs.is_empty() {
             return Err(Error::unsupported(
-                "ENABLED inside an INSTANCE with substitutions (B2, B3; M1 core)",
+                "ENABLED in an INSTANCE inside an initial predicate (M1 core)",
             ));
         }
+        let instance = !self.substs.is_empty();
         let first_slot = self.next_slot;
         // ENABLED evaluates its action on successors of its own, so its body
         // must not reuse a step predicate's primed thunks or memo sites.
         let init = std::mem::replace(&mut self.init_mode, false);
         let step = std::mem::replace(&mut self.step, false);
         let cache = std::mem::take(&mut self.def_cache);
-        let g = self.g(a, env);
+        let g = (|| {
+            self.enabled_substs()?;
+            self.g(a, env)
+        })();
         self.init_mode = init;
         self.step = step;
         self.def_cache = cache;
         let g = g?;
         let mut free = Vec::new();
-        self.g_free(g, &mut free, 0)?;
+        self.g_free(g, &mut free, 0, instance)?;
         free.retain(|&s| s < first_slot);
         self.push(Node::Enabled {
             g,
@@ -1238,15 +1241,67 @@ impl Compiler<'_> {
         })
     }
 
+    /// Proves that hiding outer variable substitutions at an ENABLED branch
+    /// changes no variable lookup. Constants are not hidden by TLC's cutoff.
+    fn enabled_substs(&mut self) -> Result<(), Error> {
+        if self.substs.is_empty() {
+            return Ok(());
+        }
+        // Configuration operator overrides bypass SANY's level constraint
+        // on source INSTANCE constant/operator parameters. Their captured
+        // state and cutoff behavior needs a separate proof before admission.
+        let stateful_config = self.h.constants.iter().flatten().any(|binding| {
+            matches!(binding, ConstBinding::Def(d) if self.ir.def(self.redirect(*d)).level != Level::Constant)
+        }) || self.h.redirects.values().any(|&d| self.ir.def(d).level != Level::Constant);
+        if stateful_config {
+            return Err(Error::unsupported(
+                "ENABLED in an INSTANCE with a state-dependent configured operator (M1 core)",
+            ));
+        }
+        for subst in self.substs.clone() {
+            let decl = self.ir.decl(subst.decl);
+            if !decl.variable {
+                // Source constant/operator actuals are level zero, including
+                // formal forwarding. Configuration bypasses were refused above.
+                // Query effects and unknown calls are checked after generation.
+                continue;
+            }
+            let root = self
+                .ir
+                .vars()
+                .iter()
+                .position(|&root| self.ir.decl(root).name == decl.name);
+            let Some(root) = root else {
+                return Err(Error::unsupported(
+                    "ENABLED with a hidden INSTANCE variable (B2, B3, B4; M1 core)",
+                ));
+            };
+            let target = match subst.value {
+                Ok(Arg::Expr { expr, .. }) => {
+                    self.outside(subst.depth, |c| c.target(expr, subst.env, true))?
+                }
+                Ok(Arg::Op { .. }) | Err(_) => None,
+            };
+            if target.map(usize::from) != Some(root) {
+                return Err(Error::unsupported(
+                    "ENABLED with a nonidentity INSTANCE variable substitution (B3; M1 core)",
+                ));
+            }
+        }
+        Ok(())
+    }
+
     /// The free slots of the value nodes a generator node reads, its own
     /// binders included (the caller drops the slots the action allocated).
-    fn g_free(&self, g: G, out: &mut Vec<u32>, depth: u32) -> Result<(), Error> {
+    fn g_free(&self, g: G, out: &mut Vec<u32>, depth: u32, instance: bool) -> Result<(), Error> {
         if depth > 10_000 {
             return Err(Error::unsupported("an action nested too deeply (M1 core)"));
         }
+        let mut unproved = false;
         let mut p = |p: P, out: &mut Vec<u32>| {
             if let Some(i) = self.info.get(p as usize) {
                 union(out, &i.free);
+                unproved |= instance && (i.effect || i.calls);
             }
         };
         let unch = |items: &[crate::plan::Unch],
@@ -1265,12 +1320,12 @@ impl Compiler<'_> {
             GNode::Conj(items) => {
                 for &(g, x) in items {
                     p(x, out);
-                    self.g_free(g, out, depth + 1)?;
+                    self.g_free(g, out, depth + 1, instance)?;
                 }
             }
             GNode::Disj(gs) => {
                 for &g in gs {
-                    self.g_free(g, out, depth + 1)?;
+                    self.g_free(g, out, depth + 1, instance)?;
                 }
             }
             GNode::Exists {
@@ -1287,49 +1342,54 @@ impl Compiler<'_> {
                     p(b.domain, out);
                 }
                 p(*body_p, out);
-                self.g_free(*body, out, depth + 1)?;
+                self.g_free(*body, out, depth + 1, instance)?;
             }
             GNode::If { cond, then, other } => {
                 p(*cond, out);
-                self.g_free(*then, out, depth + 1)?;
-                self.g_free(*other, out, depth + 1)?;
+                self.g_free(*then, out, depth + 1, instance)?;
+                self.g_free(*other, out, depth + 1, instance)?;
             }
             GNode::Case { arms, other } => {
                 for &(c, g) in arms {
                     p(c, out);
-                    self.g_free(g, out, depth + 1)?;
+                    self.g_free(g, out, depth + 1, instance)?;
                 }
                 if let Some(o) = other {
-                    self.g_free(*o, out, depth + 1)?;
+                    self.g_free(*o, out, depth + 1, instance)?;
                 }
             }
             GNode::Implies { lhs, rhs } => {
                 p(*lhs, out);
-                self.g_free(*rhs, out, depth + 1)?;
+                self.g_free(*rhs, out, depth + 1, instance)?;
             }
             GNode::Assign { rhs, .. } => p(*rhs, out),
             GNode::AssignIn { set, .. } | GNode::AssignInRaw { set, .. } => p(*set, out),
             GNode::Unchanged(items) => unch(items, out, &mut p),
             GNode::StepBox { action, vars } => {
                 unch(vars, out, &mut p);
-                self.g_free(*action, out, depth + 1)?;
+                self.g_free(*action, out, depth + 1, instance)?;
             }
             GNode::StepAngle { action, same } => {
                 p(*same, out);
-                self.g_free(*action, out, depth + 1)?;
+                self.g_free(*action, out, depth + 1, instance)?;
             }
             GNode::FcnAction { binds, arg, body } => {
                 for b in binds {
                     p(b.domain, out);
                 }
                 p(*arg, out);
-                self.g_free(*body, out, depth + 1)?;
+                self.g_free(*body, out, depth + 1, instance)?;
             }
             GNode::Scope { reset, body } => {
                 union(out, reset);
-                self.g_free(*body, out, depth + 1)?;
+                self.g_free(*body, out, depth + 1, instance)?;
             }
             GNode::Guard(x) => p(*x, out),
+        }
+        if unproved {
+            return Err(Error::unsupported(
+                "ENABLED in an INSTANCE with effects or recursive/nested calls (M1 core)",
+            ));
         }
         Ok(())
     }
