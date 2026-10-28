@@ -105,7 +105,7 @@ impl Core {
     /// including one raised while evaluating the arguments or the TLA+
     /// definition it falls back to, becomes
     /// `TLC_MODULE_VALUE_JAVA_METHOD_OVERRIDE` (fixtures `ErCmTlcGet*`).
-    fn wrap_evaluating(&self, op: StdOp, err: EvalError) -> EvalError {
+    pub(crate) fn wrap_evaluating(&self, op: StdOp, err: EvalError) -> EvalError {
         if !err.is_eval() {
             return err;
         }

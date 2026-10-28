@@ -228,8 +228,9 @@ fn library_fixtures_match_the_reference_and_tlc() {
     // error endings;
     // operator arguments: HoOps, FoldOps and six error endings;
     // RandomElement: RdBfs, RdShapes, RdViol, RdErr and RdView (refused
-    // by both engines).
-    assert!(agreed >= 39, "only {agreed} library fixtures agreed");
+    // by both engines);
+    // TLCSet and TLCGet: RgCount, RgAll, RgLevel and RgLevelViol.
+    assert!(agreed >= 43, "only {agreed} library fixtures agreed");
 }
 
 /// What TLC printed (`Print`, `PrintT`): the transcript's lines outside

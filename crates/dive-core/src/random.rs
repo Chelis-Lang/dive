@@ -35,3 +35,14 @@ pub trait Draws: Send + Sync {
     /// A state that cannot be converted or fingerprinted.
     fn state(&self, heap: &mut Heap, vars: &[Handle]) -> Result<Box<dyn DrawStream>, Error>;
 }
+
+/// The run's `TLCSet`/`TLCGet` registers (`03-value-model.md` §6.2): the
+/// reference evaluator's, which constant definitions and `ASSUME`s wrote.
+pub trait Registers: Send + Sync {
+    /// Applies `TLCSet(key, value)` or `TLCGet(key)` to evaluated
+    /// arguments. `TLCGet("level")` never reaches it.
+    ///
+    /// # Errors
+    /// TLC's evaluation error, or a refusal.
+    fn call(&self, op: StdOp, args: &[Value]) -> Result<Value, Error>;
+}

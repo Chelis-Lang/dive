@@ -110,7 +110,9 @@ fn every_worker_count_gives_the_one_worker_result() {
                 } else if many["options"]["workers"]["reason"]
                     .as_str()
                     .is_some_and(|r| {
-                        r.contains("(Print or PrintT)") || r.contains("(RandomElement)")
+                        r.contains("(Print or PrintT)")
+                            || r.contains("(RandomElement)")
+                            || r.contains("TLCSet or TLCGet")
                     })
                 {
                     // A specification that prints or draws runs one worker,

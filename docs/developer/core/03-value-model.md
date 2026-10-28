@@ -324,6 +324,43 @@ the run, and the seed is always reported.
   under `--compat=tlc`. No new divergence: the default profile's draws are
   D-002's.
 
+### 6.2 Registers and the level (B6)
+
+`TLC!TLCSet` and `TLC!TLCGet` read and write the run's registers, and
+`TLCGet("level")` reads the level of the state TLC evaluates against.
+
+- **Registers.** `dive_core::random::Registers` is the interface;
+  `crates/dive-api/src/core_random.rs` implements it with the reference
+  evaluator's own registers (`dive_eval::Evaluator::tlc_register`). They
+  hold what the constant definitions and `ASSUME`s wrote, and the
+  reference engine's code computes every result and error, so the core
+  gives TLC's values under `--compat=tlc` too. Arguments and results are
+  converted as reports are (`Conversion::Report`). Supported keys:
+  integer registers, `"s:..."` names, `"all"` and `"all:named"`.
+- **Level.** `Machine::level` is set by the engine: 0 in `Init`, the
+  checked state's level in invariants, constraints and implied initial
+  predicates, the expanded state's level in the next-state relation,
+  action constraints and implied actions. The trace rebuild sets each
+  predecessor's level.
+- **Order.** Both are effects (`Info::effect`), so a plan that uses them
+  runs one worker, in TLC's order, and they are never folded or cached.
+- **The argument of `TLCGet`** must be a literal: TLC reports an error
+  raised while evaluating the argument inside `TLCGet`'s own wrapper.
+- **Refused by name.**
+  - a run with registers that does not end in success, because TLC
+    writes and reads them again while it rebuilds a trace or replays an
+    error;
+  - TLC's call-stack replay after a failing check, in a plan with
+    registers or the level;
+  - `TLCSet("exit")`, `TLCSet("pause")`, `TLCSet("-D...")`, and `TLCGet`
+    of the counters, `"config"`, `"stats"` and other keys;
+  - `--core-sample` with registers.
+- **Tests.** `crates/dive-api/tests/core_registers.rs` runs the `Rg*`
+  fixtures in both profiles at 1 and 4 workers against the reference
+  engine and the pinned TLC (counts and printed lines), and the `Tm*`
+  fixtures of `dive-check` against the reference engine or a named
+  refusal.
+
 ## 7. Order
 
 Sets are stored in a canonical sorted order, and the order depends on the
@@ -720,9 +757,11 @@ M1, stream 1. The steps below are the ones §11 refers to.
    `expand_level` costs about 1.7% of samples at 8 workers (stream 3).
 
 Next (stream 1, after the open PRs merge):
-- `TLCSet` and `TLCGet` on the effect bit (§6.1's rules: one worker, the
-  reference engine's registers, TLC's values under `--compat=tlc`), then
-  the reference engine's refusal of a constant-body `LAMBDA` (#557).
+- `TLCSet` and `TLCGet` are done (§6.2). Next: `TLCSet("exit")` (the
+  engine stops after the current state), `TLCGet("config")` and the
+  counters, and runs with registers that end in a violation (TLC's trace
+  rebuild writes them again). #557 (the reference engine passes a
+  literal-bodied operator argument as its value) is in its own PR.
 - Persistent 32-way trees are deferred by a negative result (§4.1).
 - An x86 measurement of steps 2 and 3 (`09-performance-method.md`):
   `store_views`, `store_scaling`, and the four spike models' time and RSS.

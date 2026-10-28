@@ -2,7 +2,8 @@
 //! `Assert`, `Permutations` and `ToString` (printed by `crate::print`), and
 //! the effects `Print` and `PrintT`, whose output the machine keeps in
 //! order (`Machine::printed`), and `RandomElement`, which draws from the
-//! machine's stream (`crate::random`). The reference is
+//! machine's stream (`crate::random`), and `TLCGet`/`TLCSet`, against the
+//! run's registers. The reference is
 //! `crates/dive-eval/src/std.rs` (`TlcMakeFcn`, `combine_fcn`, `TlcAssert`,
 //! `permutations`).
 
@@ -26,6 +27,8 @@ pub(super) fn implements(op: StdOp) -> bool {
             | StdOp::TlcPrint
             | StdOp::TlcPrintT
             | StdOp::TlcRandomElement
+            | StdOp::TlcTLCGet
+            | StdOp::TlcTLCSet
     )
 }
 
@@ -63,12 +66,50 @@ pub(super) fn call(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle
             Ok(Handle::TRUE)
         }
         StdOp::TlcRandomElement => random_element(m, op, arg(args, 0)?),
+        StdOp::TlcTLCGet | StdOp::TlcTLCSet => register(m, op, args),
         StdOp::TlcToString => {
             let text = crate::print::tlc_string(&mut m.heap, arg(args, 0)?)?;
             m.heap.string(&text)
         }
         _ => Err(Error::internal("not a TLC operator")),
     }
+}
+
+/// `TLCGet(key)` or `TLCSet(key, value)`: `TLCGet("level")` from the
+/// machine, any other key against the run's registers
+/// (`03-value-model.md` §6.2), on the arguments converted to reference
+/// values and the result converted back.
+fn register(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle, Error> {
+    let Some(p) = m.heap.store().printer().cloned() else {
+        return Err(refuse(op, "registers without the model's names (M1 core)"));
+    };
+    let mut vals = Vec::with_capacity(args.len());
+    for &h in args {
+        vals.push(
+            crate::print::to_value(
+                &mut m.heap,
+                &p.names,
+                h,
+                p.ctx,
+                crate::print::Conversion::Report,
+            )
+            .map_err(Error::unsupported)?,
+        );
+    }
+    if op == StdOp::TlcTLCGet
+        && matches!(vals.first(), Some(dive_value::Value::Str(k)) if k.as_str() == "level")
+    {
+        return Handle::int(m.level)
+            .ok_or_else(|| Error::unsupported("a level beyond the core's integers (M1 core)"));
+    }
+    let Some(registers) = m.heap.store().registers().cloned() else {
+        return Err(refuse(
+            op,
+            "registers outside a model-checking run (M1 core)",
+        ));
+    };
+    let out = registers.call(op, &vals)?;
+    crate::convert::from_value(&mut m.heap, &out, p.ctx)
 }
 
 /// `RandomElement(S)`, drawn by the reference engine's operator from the
