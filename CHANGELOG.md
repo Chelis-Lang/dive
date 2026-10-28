@@ -86,6 +86,11 @@
   engine. `dive-conformance shadow --impl-profile tlc` shadows the two engines
   under `--compat=tlc`.
 
+- `--engine core` bounds its memo tables: they start small, grow only
+  while they evict, and stay within a share of `--max-memory`. With the
+  tables on, MCLamportMutex at 8 workers drops from 308 MB to 185 MB, with
+  no loss of speed.
+
 - `--engine core` adds the default profile's D-010 note to a stop (a
   violation, deadlock or error), as the reference engine does. Its text
   output now equals the reference engine's on those endings.

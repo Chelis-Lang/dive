@@ -38,6 +38,9 @@ pub struct Opts {
     /// S8: constant folding of closed constant-level subexpressions. Off
     /// (`-fold`).
     pub fold: bool,
+    /// The byte cap of each worker's memo tables (not a switch; the engine
+    /// derives it from the run's memory budget, `06-memoization.md` §6).
+    pub memo_cap: usize,
 }
 
 impl Default for Opts {
@@ -52,6 +55,7 @@ impl Default for Opts {
             arena: true,
             eager: true,
             fold: true,
+            memo_cap: crate::memo::DEFAULT_CAP,
         }
     }
 }

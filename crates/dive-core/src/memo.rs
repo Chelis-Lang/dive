@@ -3,6 +3,12 @@
 //! Each site has a per-worker, two-way set-associative table. An entry holds
 //! the full key (the handles of the site's inputs) and the result. A site
 //! whose hit rate is under 30% after 4,096 lookups turns itself off.
+//!
+//! A table starts small and doubles when it evicts more entries than it
+//! holds, up to 2^13 sets, while the worker's tables stay within their byte
+//! cap ([`Memo::set_cap`]). Eviction only drops a cached result, which is
+//! recomputed on the next lookup, so neither the cap nor the eviction
+//! changes a result.
 
 use crate::handle::{Handle, mix2, mix64};
 
@@ -10,6 +16,9 @@ use crate::handle::{Handle, mix2, mix64};
 pub const MAX_KEY: usize = 8;
 const WAYS_LOG: u32 = 1;
 const SETS_LOG: u32 = 13;
+const MIN_SETS_LOG: u32 = 6;
+/// The default byte cap of one worker's tables.
+pub const DEFAULT_CAP: usize = 64 << 20;
 const PROBATION: u64 = 4096;
 const MIN_HIT_PERCENT: u64 = 30;
 
@@ -33,12 +42,26 @@ struct Table {
     words: Vec<u64>,
     stats: SiteStats,
     flip: bool,
+    /// The table has `1 << sets_log` sets once allocated.
+    sets_log: u32,
+    /// Evictions since the table last grew.
+    evictions: usize,
+}
+
+impl Table {
+    fn bytes(&self) -> usize {
+        self.words.len() * 8
+    }
 }
 
 /// The memo tables of one worker.
 #[derive(Debug, Default)]
 pub struct Memo {
     tables: Vec<Option<Table>>,
+    /// Bytes held by the tables.
+    bytes: usize,
+    /// The most the tables may hold, in bytes.
+    cap: usize,
 }
 
 impl Memo {
@@ -54,10 +77,27 @@ impl Memo {
                         words: Vec::new(),
                         stats: SiteStats::default(),
                         flip: false,
+                        sets_log: MIN_SETS_LOG,
+                        evictions: 0,
                     })
                 })
                 .collect(),
+            bytes: 0,
+            cap: DEFAULT_CAP,
         }
+    }
+
+    /// Bounds the bytes this worker's tables may hold. A table that would
+    /// exceed it stops growing, and one that cannot be allocated at all is
+    /// left empty (every lookup misses).
+    pub fn set_cap(&mut self, bytes: usize) {
+        self.cap = bytes;
+    }
+
+    /// Bytes held by the tables.
+    #[must_use]
+    pub fn bytes(&self) -> usize {
+        self.bytes
     }
 
     /// Whether the site is usable.
@@ -76,14 +116,31 @@ impl Memo {
         }
     }
 
-    fn slot_of(key: &[Handle]) -> usize {
+    fn slot_of(key: &[Handle], sets_log: u32) -> usize {
         let mut h = mix64(key.len() as u64);
         for k in key {
             h = mix2(h, k.bits());
         }
         #[allow(clippy::cast_possible_truncation, reason = "masked to the table size")]
-        let s = (h as usize) & ((1 << SETS_LOG) - 1);
+        let s = (h as usize) & ((1 << sets_log) - 1);
         s << WAYS_LOG
+    }
+
+    /// Places an entry (`1 + klen` words) in a table of `sets_log` sets,
+    /// evicting a way of a full set. Returns whether it evicted.
+    fn place(words: &mut [u64], flip: &mut bool, sets_log: u32, entry: &[u64]) -> bool {
+        let stride = entry.len();
+        let key: Vec<Handle> = entry[1..].iter().map(|&b| Handle(b)).collect();
+        let base = Self::slot_of(&key, sets_log);
+        let free =
+            (0..(1 << WAYS_LOG)).find(|w| words[(base + w) * stride] == Handle::EMPTY.bits());
+        let way = free.unwrap_or_else(|| {
+            *flip = !*flip;
+            usize::from(*flip)
+        });
+        let at = (base + way) * stride;
+        words[at..at + stride].copy_from_slice(entry);
+        free.is_none()
     }
 
     /// Looks a key up.
@@ -94,7 +151,7 @@ impl Memo {
             return None;
         }
         let stride = 1 + t.klen;
-        let base = Self::slot_of(key);
+        let base = Self::slot_of(key, t.sets_log);
         for way in 0..(1 << WAYS_LOG) {
             let at = (base + way) * stride;
             let w = &t.words[at..at + stride];
@@ -105,6 +162,7 @@ impl Memo {
         }
         if t.stats.lookups >= PROBATION && t.stats.hits * 100 < t.stats.lookups * MIN_HIT_PERCENT {
             t.stats.off = true;
+            self.bytes -= t.bytes();
             t.words = Vec::new();
         }
         None
@@ -119,20 +177,39 @@ impl Memo {
             return;
         }
         let stride = 1 + t.klen;
+        let bytes_for = |sets_log: u32| (1usize << (sets_log + WAYS_LOG)) * stride * 8;
         if t.words.is_empty() {
-            t.words = vec![Handle::EMPTY.bits(); (1 << (SETS_LOG + WAYS_LOG)) * stride];
+            if self.bytes + bytes_for(t.sets_log) > self.cap {
+                return;
+            }
+            t.words = vec![Handle::EMPTY.bits(); bytes_for(t.sets_log) / 8];
+            self.bytes += t.bytes();
         }
-        let base = Self::slot_of(key);
-        let mut way =
-            (0..(1 << WAYS_LOG)).find(|w| t.words[(base + w) * stride] == Handle::EMPTY.bits());
-        if way.is_none() {
-            t.flip = !t.flip;
-            way = Some(usize::from(t.flip));
-        }
-        let at = (base + way.unwrap_or(0)) * stride;
-        t.words[at] = result.bits();
+        let mut entry = [0u64; 1 + MAX_KEY];
+        entry[0] = result.bits();
         for (i, k) in key.iter().enumerate() {
-            t.words[at + 1 + i] = k.bits();
+            entry[1 + i] = k.bits();
+        }
+        let entry = &entry[..stride];
+        if Self::place(&mut t.words, &mut t.flip, t.sets_log, entry) {
+            t.evictions += 1;
+        }
+        let grown = bytes_for(t.sets_log + 1);
+        if t.evictions > 1 << (t.sets_log + WAYS_LOG - 2)
+            && t.sets_log < SETS_LOG
+            && self.bytes - t.bytes() + grown <= self.cap
+        {
+            // Rehash every entry into a table twice the size.
+            let mut words = vec![Handle::EMPTY.bits(); grown / 8];
+            for old in t.words.chunks_exact(stride) {
+                if old[0] != Handle::EMPTY.bits() {
+                    Self::place(&mut words, &mut t.flip, t.sets_log + 1, old);
+                }
+            }
+            self.bytes = self.bytes - t.bytes() + grown;
+            t.words = words;
+            t.sets_log += 1;
+            t.evictions = 0;
         }
     }
 
@@ -150,6 +227,7 @@ impl Memo {
         for t in self.tables.iter_mut().flatten() {
             t.words = Vec::new();
         }
+        self.bytes = 0;
     }
 }
 
@@ -181,5 +259,25 @@ mod tests {
         }
         assert!(m.stats()[0].off);
         assert!(!m.active(0));
+        assert_eq!(m.bytes(), 0);
+    }
+
+    #[test]
+    fn tables_grow_within_the_cap_and_never_answer_wrongly() {
+        let key = |i: i64| [Handle::int(i).unwrap_or(Handle::EMPTY)];
+        let val = |i: i64| Handle::int(i * 7).unwrap_or(Handle::EMPTY);
+        for cap in [0, 4096, 64 << 10, DEFAULT_CAP] {
+            let mut m = Memo::new(&[1]);
+            m.set_cap(cap);
+            for round in 0..3 {
+                for i in 0..20_000 {
+                    match m.get(0, &key(i)) {
+                        Some(v) => assert_eq!(v, val(i), "cap {cap} round {round}"),
+                        None => m.put(0, &key(i), val(i)),
+                    }
+                }
+            }
+            assert!(m.bytes() <= cap, "cap {cap}: {} bytes", m.bytes());
+        }
     }
 }

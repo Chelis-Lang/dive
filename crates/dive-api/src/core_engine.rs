@@ -614,6 +614,18 @@ pub(crate) struct Prepared {
     compile_time: std::time::Duration,
 }
 
+/// The byte cap of each worker's memo tables: a sixty-fourth of the run's
+/// memory ceiling, shared by the workers, between 1 MiB and
+/// [`dive_core::memo::DEFAULT_CAP`] (`06-memoization.md` §6). The cap only
+/// bounds a cache, so it never changes a result.
+fn memo_cap(ceiling: Option<u64>, workers: usize) -> usize {
+    let most = dive_core::memo::DEFAULT_CAP;
+    ceiling.map_or(most, |bytes| {
+        let share = bytes / 64 / u64::try_from(workers).unwrap_or(u64::MAX).max(1);
+        usize::try_from(share).unwrap_or(most).clamp(1 << 20, most)
+    })
+}
+
 /// Binds, checks the ASSUMEs and compiles the plan, as `check` does before
 /// its search; `temporal` admits genuine temporal properties (the liveness
 /// route). The `Err` is the run's result.
@@ -775,6 +787,10 @@ pub(crate) fn check(
             }
         },
         None => dive_core::Opts::default(),
+    };
+    let core_opts = dive_core::Opts {
+        memo_cap: memo_cap(options.budget.memory, options.workers.max(1)),
+        ..core_opts
     };
     let mut run = CoreRun {
         opts: core_opts.describe(),
