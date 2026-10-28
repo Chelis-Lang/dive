@@ -310,13 +310,18 @@ fn option_refusal(options: &CheckOptions, profile_tlc: bool) -> Option<String> {
     Some(format!("{refused} under the core engine"))
 }
 
-fn refusal(model: &dive_model::Model) -> Option<String> {
-    if let Some(u) = model.unsupported.first() {
+fn refusal(model: &dive_model::Model, temporal: bool) -> Option<String> {
+    // The liveness route checks the temporal properties the binder lists.
+    if let Some(u) = model
+        .unsupported
+        .iter()
+        .find(|u| !(temporal && matches!(u.kind, dive_model::UnsupportedKind::TemporalProperty)))
+    {
         return Some(u.feature.clone());
     }
     // Implied initial predicates and actions run on the core; a genuine
-    // temporal property needs `dive-liveness`.
-    if !model.implied_temporals.is_empty() {
+    // temporal property needs `dive-liveness`, on the liveness route.
+    if !temporal && !model.implied_temporals.is_empty() {
         return Some("temporal properties (M0 core engine)".into());
     }
     if model.view.is_some() && model.symmetry.is_some() {
@@ -604,6 +609,147 @@ fn arm_draws(
     Ok(())
 }
 
+/// A model compiled for the core: what `check` explores.
+pub(crate) struct Prepared {
+    pub(crate) model: dive_model::Model,
+    sym: Symmetry,
+    startup: Vec<String>,
+    pub(crate) store: Arc<dive_core::Store>,
+    pub(crate) plan: dive_core::Plan,
+    compile_time: std::time::Duration,
+}
+
+/// Binds, checks the ASSUMEs and compiles the plan, as `check` does before
+/// its search; `temporal` admits genuine temporal properties (the liveness
+/// route). The `Err` is the run's result.
+#[allow(
+    clippy::too_many_lines,
+    reason = "the start-up stages of a core run, in order"
+)]
+pub(crate) fn prepare(
+    ir: &Arc<Ir>,
+    config: &dive_config::ModelConfig,
+    options: &CheckOptions,
+    profile_tlc: bool,
+    core_opts: dive_core::Opts,
+    temporal: bool,
+) -> Result<Prepared, Box<CheckResult>> {
+    // The reference engine's refusal of random streams under VIEW or
+    // SYMMETRY, before binding runs start-up draws.
+    if let Some(feature) = dive_model::transformed_randomness(ir, config) {
+        return Err(Box::new(result(unsupported(feature), options, ir)));
+    }
+    // The reference engine's host: constant definitions and `ASSUME`s
+    // draw from the startup stream, which `Init` continues
+    // (`03-value-model.md` §6.1).
+    let mode = if profile_tlc {
+        dive_stdlib::random::RandomMode::Tlc
+    } else {
+        dive_stdlib::random::RandomMode::Dive
+    };
+    let host = Arc::new(dive_stdlib::host::RunHost::new(
+        dive_stdlib::random::Streams::new(options.seed, mode),
+        None,
+    ));
+    let bind = dive_model::BindOptions {
+        eval: options.eval,
+        no_deadlock: options.no_deadlock,
+        host: Some(Arc::clone(&host) as Arc<dyn dive_eval::Host>),
+        ..dive_model::BindOptions::dive()
+    };
+    let mut model = match dive_model::bind(Arc::clone(ir), config, &bind) {
+        Ok(m) => m,
+        Err(f) => return Err(Box::new(binding_failure(ir, config, options, &f))),
+    };
+    let mut sym = Symmetry::default();
+    if model.symmetry.is_some() && model.implied_temporals.is_empty() {
+        match symmetry(&mut model, config, profile_tlc) {
+            Ok(s) => sym = s,
+            Err(r) => return Err(Box::new(r.into_result(options, ir))),
+        }
+    }
+    if let Some(feature) = refusal(&model, temporal) {
+        return Err(Box::new(result(unsupported(feature), options, ir)));
+    }
+    // The ASSUMEs are startup evaluation (the binder's, `04-plan-compiler.md`
+    // §2): a false or failing one ends the run as the reference engine
+    // reports it, before any core work.
+    let assumed = match model.check_assumptions() {
+        dive_eval::AssumptionOutcome::AllTrue => None,
+        dive_eval::AssumptionOutcome::False { message, .. } => {
+            Some(Verdict::AssumptionFalse { message })
+        }
+        dive_eval::AssumptionOutcome::Error { error, message, .. } => {
+            Some(dive_check::classify::assumption_error(&error, message))
+        }
+    };
+    if let Some(v) = assumed {
+        // Output printed while evaluating the ASSUMEs is the reference
+        // engine's to order; the core does not report it.
+        let printed = !model.take_output().is_empty()
+            || model
+                .output
+                .iter()
+                .any(|m| matches!(m, dive_model::Message::Print(_)));
+        let v = if printed {
+            unsupported("output printed at startup before a false or failing ASSUME (core engine)")
+        } else {
+            v
+        };
+        return Err(Box::new(result(v, options, ir)));
+    }
+    // What the binder printed at start-up (constant definitions, then the
+    // ASSUMEs) comes first, as the reference engine reports it.
+    let mut startup: Vec<String> = model
+        .output
+        .iter()
+        .filter_map(|m| match m {
+            dive_model::Message::Print(text) => Some(text.clone()),
+            dive_model::Message::Warning { .. } => None,
+        })
+        .collect();
+    startup.extend(model.take_output());
+    let h = match handoff(&model, ir, std::mem::take(&mut sym.maps)) {
+        Ok(h) => h,
+        Err(e) => return Err(Box::new(result(unsupported(e), options, ir))),
+    };
+    let store = match store_for(&model, core_opts.hashcons, semantics(&options.eval)) {
+        Ok(s) => Arc::new(s),
+        Err(message) => {
+            return Err(Box::new(result(
+                Verdict::InternalError { message },
+                options,
+                ir,
+            )));
+        }
+    };
+    let compile_started = Instant::now();
+    let plan = match dive_core::compile(&h, Arc::clone(&store), core_opts) {
+        Ok(p) => p,
+        Err(e) => {
+            let v = match e.into_parts() {
+                (dive_core::ErrorKind::Internal, message) => Verdict::InternalError { message },
+                (_, message) => unsupported(message),
+            };
+            return Err(Box::new(result(v, options, ir)));
+        }
+    };
+    let compile_time = compile_started.elapsed();
+    if plan.effects.draws
+        && let Err(feature) = arm_draws(&store, &host, ir, options)
+    {
+        return Err(Box::new(result(unsupported(feature), options, ir)));
+    }
+    Ok(Prepared {
+        model,
+        sym,
+        startup,
+        store,
+        plan,
+        compile_time,
+    })
+}
+
 /// Runs the core engine.
 #[allow(clippy::too_many_lines, reason = "the stages of a core run, in order")]
 pub(crate) fn check(
@@ -643,120 +789,26 @@ pub(crate) fn check(
     if let Some(feature) = option_refusal(options, profile_tlc) {
         return (finish(result(unsupported(feature), options, ir)), run);
     }
-    // The reference engine's refusal of random streams under VIEW or
-    // SYMMETRY, before binding runs start-up draws.
-    if let Some(feature) = dive_model::transformed_randomness(ir, config) {
-        return (finish(result(unsupported(feature), options, ir)), run);
-    }
-    // The reference engine's host: constant definitions and `ASSUME`s
-    // draw from the startup stream, which `Init` continues
-    // (`03-value-model.md` §6.1).
-    let mode = if profile_tlc {
-        dive_stdlib::random::RandomMode::Tlc
-    } else {
-        dive_stdlib::random::RandomMode::Dive
-    };
-    let host = Arc::new(dive_stdlib::host::RunHost::new(
-        dive_stdlib::random::Streams::new(options.seed, mode),
-        None,
-    ));
-    let bind = dive_model::BindOptions {
-        eval: options.eval,
-        no_deadlock: options.no_deadlock,
-        host: Some(Arc::clone(&host) as Arc<dyn dive_eval::Host>),
-        ..dive_model::BindOptions::dive()
-    };
-    let mut model = match dive_model::bind(Arc::clone(ir), config, &bind) {
-        Ok(m) => m,
-        Err(f) => return (finish(binding_failure(ir, config, options, &f)), run),
-    };
-    let mut sym = Symmetry::default();
-    if model.symmetry.is_some() && model.implied_temporals.is_empty() {
-        match symmetry(&mut model, config, profile_tlc) {
-            Ok(s) => sym = s,
-            Err(r) => return (finish(r.into_result(options, ir)), run),
-        }
-    }
-    if let Some(feature) = refusal(&model) {
-        return (finish(result(unsupported(feature), options, ir)), run);
-    }
-    // The ASSUMEs are startup evaluation (the binder's, `04-plan-compiler.md`
-    // §2): a false or failing one ends the run as the reference engine
-    // reports it, before any core work.
-    let assumed = match model.check_assumptions() {
-        dive_eval::AssumptionOutcome::AllTrue => None,
-        dive_eval::AssumptionOutcome::False { message, .. } => {
-            Some(Verdict::AssumptionFalse { message })
-        }
-        dive_eval::AssumptionOutcome::Error { error, message, .. } => {
-            Some(dive_check::classify::assumption_error(&error, message))
-        }
-    };
-    if let Some(v) = assumed {
-        // Output printed while evaluating the ASSUMEs is the reference
-        // engine's to order; the core does not report it.
-        let printed = !model.take_output().is_empty()
-            || model
-                .output
-                .iter()
-                .any(|m| matches!(m, dive_model::Message::Print(_)));
-        let v = if printed {
-            unsupported("output printed at startup before a false or failing ASSUME (core engine)")
-        } else {
-            v
-        };
-        return (finish(result(v, options, ir)), run);
-    }
-    // What the binder printed at start-up (constant definitions, then the
-    // ASSUMEs) comes first, as the reference engine reports it.
-    let mut startup: Vec<String> = model
-        .output
-        .iter()
-        .filter_map(|m| match m {
-            dive_model::Message::Print(text) => Some(text.clone()),
-            dive_model::Message::Warning { .. } => None,
-        })
-        .collect();
-    startup.extend(model.take_output());
-    let h = match handoff(&model, ir, std::mem::take(&mut sym.maps)) {
-        Ok(h) => h,
-        Err(e) => return (finish(result(unsupported(e), options, ir)), run),
-    };
-    let store = match store_for(&model, core_opts.hashcons, semantics(&options.eval)) {
-        Ok(s) => Arc::new(s),
-        Err(message) => {
-            return (
-                finish(result(Verdict::InternalError { message }, options, ir)),
-                run,
-            );
-        }
-    };
-    let compile_started = Instant::now();
-    let plan = match dive_core::compile(&h, Arc::clone(&store), core_opts) {
+    let Prepared {
+        model,
+        mut sym,
+        startup,
+        store,
+        plan,
+        compile_time,
+    } = match prepare(ir, config, options, profile_tlc, core_opts, false) {
         Ok(p) => p,
-        Err(e) => {
-            let v = match e.into_parts() {
-                (dive_core::ErrorKind::Internal, message) => Verdict::InternalError { message },
-                (_, message) => unsupported(message),
-            };
-            return (finish(result(v, options, ir)), run);
-        }
+        Err(r) => return (finish(*r), run),
     };
-    let compile_time = compile_started.elapsed();
-    if plan.effects.draws {
-        if let Err(feature) = arm_draws(&store, &host, ir, options) {
-            return (finish(result(unsupported(feature), options, ir)), run);
-        }
-        if sample.is_some() {
-            return (
-                finish(result(
-                    unsupported("--core-sample with RandomElement (M1 core)"),
-                    options,
-                    ir,
-                )),
-                run,
-            );
-        }
+    if plan.effects.draws && sample.is_some() {
+        return (
+            finish(result(
+                unsupported("--core-sample with RandomElement (M1 core)"),
+                options,
+                ir,
+            )),
+            run,
+        );
     }
     // The armed budget (time and memory, ADR 0107) is polled once per
     // expanded state and per initial state, as the reference engine polls
@@ -853,6 +905,12 @@ pub(crate) fn check(
             phase: dive_check::budget::Phase::Search,
         })),
         dive_explore::Verdict::Internal { message } => Verdict::InternalError { message },
+        // The safety route has no graph sink.
+        dive_explore::Verdict::GraphStop | dive_explore::Verdict::PrefixStop { .. } => {
+            Verdict::InternalError {
+                message: "a graph stop without a graph sink".into(),
+            }
+        }
     };
     let mut counted = matches!(
         verdict,

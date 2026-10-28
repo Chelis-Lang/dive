@@ -51,6 +51,7 @@ mod analyze;
 mod check;
 mod core_ending;
 mod core_engine;
+mod core_graph;
 mod core_random;
 mod core_sample;
 pub use core_engine::Engine;

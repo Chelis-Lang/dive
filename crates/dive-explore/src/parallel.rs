@@ -124,8 +124,8 @@ pub(crate) enum Inv {
 pub(crate) enum Occ {
     /// Inside the model and seen in an earlier level, or a duplicate of an
     /// earlier position in this level: only counted (`key` for the
-    /// admission check).
-    Old { key: u64 },
+    /// admission check), and reported to the graph when `inside` the model.
+    Old { key: u64, inside: bool },
     /// Possibly new: its key, whether it is inside the model, the
     /// invariants' verdict (applied if it is new), the implied actions'
     /// verdict (applied in any case), and its values at `at` in the
@@ -272,7 +272,7 @@ impl WorkerSink<'_> {
         };
         if duplicate && matches!(imp, Inv::Holds) {
             self.metrics.discarded_before_intern += 1;
-            self.out.occs.push((self.action, Occ::Old { key }));
+            self.out.occs.push((self.action, Occ::Old { key, inside }));
             return Ok(());
         }
         if inside && plan.view.is_none() && !crate::fingerprintable(m, false)? {
@@ -525,19 +525,23 @@ impl crate::Explorer<'_> {
             self.action_start = action_start;
             self.stats.generated += 1;
             self.emitted += 1;
+            self.report_emitted()?;
             let load = |m: &mut Machine, at: usize| {
                 if let Some(v) = res.values.get(at..at + nvars) {
                     m.s1.copy_from_slice(v);
                 }
             };
             match occ {
-                Occ::Old { key } => {
+                Occ::Old { key, inside } => {
                     self.metrics.probed += 1;
                     // Already inserted: never refused by a limit.
                     if !self.seen.contains(*key) {
                         return Err(Error::internal(
                             "a duplicate successor whose first occurrence was not inserted",
                         ));
+                    }
+                    if *inside {
+                        self.record(m, *key, false)?;
                     }
                 }
                 Occ::Incomplete { at } => {
@@ -579,6 +583,9 @@ impl crate::Explorer<'_> {
                     };
                     if !new {
                         self.apply_implied(m, imp)?;
+                        if *in_model {
+                            self.record(m, *key, false)?;
+                        }
                         continue;
                     }
                     if *in_model {
@@ -611,6 +618,7 @@ impl crate::Explorer<'_> {
                     self.apply_implied(m, imp)?;
                     if *in_model {
                         self.enqueue(m)?;
+                        self.record(m, *key, true)?;
                     }
                 }
             }
