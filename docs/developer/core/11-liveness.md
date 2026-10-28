@@ -279,9 +279,9 @@ These follow the liveness-budgets rule:
   additive `dive-liveness::StateSource` interface and a bounded cache.
   - **State and topology access.** `labels`, `selected_targets` and lasso
     extraction currently index `BehaviorGraph` directly. Product
-    `BehaviorView` supports only the dense and captured reference graphs;
-    CSR topology access is also required. Keep the reference adapter and
-    existing entrypoints unchanged while introducing compact access.
+    `BehaviorView` supports dense, captured and borrowed CSR topology (see
+    §7.1). State access and the end-to-end compact backend remain to be built.
+    Keep the reference adapter and existing entrypoints unchanged.
   - **Retained states.** The store retains values, but the explorer keeps
     only the current/next frontier's state-handle rows. L5 must retain an
     addressable handle row or state root for every graph vertex. Those
