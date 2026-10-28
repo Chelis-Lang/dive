@@ -572,6 +572,38 @@ fn symmetry(
     Ok(out)
 }
 
+/// Gives the store the run's random streams: the startup stream where the
+/// binder left it, and states keyed by the reference engine's seeder.
+fn arm_draws(
+    store: &dive_core::Store,
+    host: &dive_stdlib::host::RunHost,
+    ir: &Ir,
+    options: &CheckOptions,
+) -> Result<(), String> {
+    let streams = host.streams();
+    let startup = host.stream();
+    let tlc_order: Vec<usize> = ir.tlc_var_order().iter().map(|v| v.index()).collect();
+    let seeder = dive_store::state::StateFingerprinter::tlc(options.fp_index, &tlc_order)
+        .ok_or_else(|| {
+            format!(
+                "fingerprint polynomial index {} out of range",
+                options.fp_index
+            )
+        })?;
+    let Some(printer) = store.printer() else {
+        return Err("RandomElement without the model's names (core)".into());
+    };
+    store.set_draws(Arc::new(crate::core_random::CoreDraws {
+        streams,
+        startup,
+        startup_drew: startup != streams.startup(),
+        seeder,
+        names: Arc::clone(&printer.names),
+        ctx: printer.ctx,
+    }));
+    Ok(())
+}
+
 /// Runs the core engine.
 #[allow(clippy::too_many_lines, reason = "the stages of a core run, in order")]
 pub(crate) fn check(
@@ -611,10 +643,27 @@ pub(crate) fn check(
     if let Some(feature) = option_refusal(options, profile_tlc) {
         return (finish(result(unsupported(feature), options, ir)), run);
     }
+    // The reference engine's refusal of random streams under VIEW or
+    // SYMMETRY, before binding runs start-up draws.
+    if let Some(feature) = dive_model::transformed_randomness(ir, config) {
+        return (finish(result(unsupported(feature), options, ir)), run);
+    }
+    // The reference engine's host: constant definitions and `ASSUME`s
+    // draw from the startup stream, which `Init` continues
+    // (`03-value-model.md` §6.1).
+    let mode = if profile_tlc {
+        dive_stdlib::random::RandomMode::Tlc
+    } else {
+        dive_stdlib::random::RandomMode::Dive
+    };
+    let host = Arc::new(dive_stdlib::host::RunHost::new(
+        dive_stdlib::random::Streams::new(options.seed, mode),
+        None,
+    ));
     let bind = dive_model::BindOptions {
         eval: options.eval,
         no_deadlock: options.no_deadlock,
-        host: None,
+        host: Some(Arc::clone(&host) as Arc<dyn dive_eval::Host>),
         ..dive_model::BindOptions::dive()
     };
     let mut model = match dive_model::bind(Arc::clone(ir), config, &bind) {
@@ -694,6 +743,21 @@ pub(crate) fn check(
         }
     };
     let compile_time = compile_started.elapsed();
+    if plan.effects.draws {
+        if let Err(feature) = arm_draws(&store, &host, ir, options) {
+            return (finish(result(unsupported(feature), options, ir)), run);
+        }
+        if sample.is_some() {
+            return (
+                finish(result(
+                    unsupported("--core-sample with RandomElement (M1 core)"),
+                    options,
+                    ir,
+                )),
+                run,
+            );
+        }
+    }
     // The armed budget (time and memory, ADR 0107) is polled once per
     // expanded state and per initial state, as the reference engine polls
     // it; `--max-states` and `--max-depth` are admission limits.
@@ -733,7 +797,9 @@ pub(crate) fn check(
             &out.sampled,
         );
     }
-    if plan.effects && (out.verdict != dive_explore::Verdict::Success || !out.warnings.is_empty()) {
+    if plan.effects.prints
+        && (out.verdict != dive_explore::Verdict::Success || !out.warnings.is_empty())
+    {
         // TLC prints again while it rebuilds a trace or reports an error,
         // and interleaves warnings with the output; the core does not
         // reproduce either yet.
@@ -805,12 +871,19 @@ pub(crate) fn check(
     ) || (matches!(verdict, Verdict::Stopped(_)) && out.in_init);
     let mut trace = out.trace.clone();
     let mut stats = out.stats;
+    // Whether the trace ends in the successor a check failed on (the
+    // reference engine's `Stop::then`).
+    let mut then = matches!(
+        verdict,
+        Verdict::InvariantViolated { initial: false, .. } | Verdict::ActionPropertyViolated { .. }
+    );
     if let Some(f) = out.failure.as_ref().filter(|_| failed) {
         match crate::core_ending::ending(&model, &store, f, out.replayed.as_ref()) {
             Ok(end) => {
                 verdict = end.verdict;
                 in_init = end.in_init;
                 counted = true;
+                then = end.with && f.state.is_some() && !in_init;
                 if !end.with
                     && f.state.is_some()
                     && let Some(Ok(t)) = &mut trace
@@ -832,17 +905,38 @@ pub(crate) fn check(
             Err(refusal) => verdict = refusal,
         }
     }
+    // The reference engine's boundary for a plan that draws: TLC rebuilds
+    // a trace whose predecessor is initial from the original state object,
+    // whose stream is already consumed, so its last state can go missing
+    // (`docs/tlc-differences.md`, D-002). The reference engine refuses it
+    // with the statistics of the stop.
+    let mut draw_note = None;
+    if plan.effects.draws
+        && then
+        && verdict.is_verdict()
+        && matches!(&trace, Some(Ok(t)) if t.len() == 2)
+    {
+        draw_note = Some(format!(
+            "The search reached {verdict:?}; its first-successor random trace has an unproved TLC replay/printing contract (D-002). Statistics record that stopping prefix, not a completed certification."
+        ));
+        verdict = unsupported("TLC initial-predecessor random counterexample replay is not proved");
+        trace = None;
+    }
     let prints = !in_init || matches!(verdict, Verdict::EvaluationError { .. });
     let mut r = result(verdict, options, ir);
+    r.notes.extend(draw_note);
     r.warnings.append(&mut sym.warnings);
     r.notes.extend(sym.note.take());
     r.output = startup;
     r.output.extend(out.printed.iter().cloned());
-    if plan.effects && workers > 1 {
+    if plan.effects.any && workers > 1 {
         r.workers.used = 1;
-        r.workers.reason = Some(
-            "the specification prints (Print or PrintT): the core keeps TLC's order of the output with one worker".into(),
-        );
+        r.workers.reason = Some(if plan.effects.prints {
+            "the specification prints (Print or PrintT): the core keeps TLC's order of the output with one worker".into()
+        } else {
+            "the specification draws (RandomElement): the core draws in TLC's order with one worker"
+                .into()
+        });
     } else {
         r.workers.used = workers;
         r.workers.reason = None;

@@ -49,6 +49,9 @@ pub enum Conversion {
     /// Printing: symbolic sets stay symbolic, and a stored set TLC could
     /// print otherwise is refused.
     Print,
+    /// A random draw's argument: symbolic sets stay symbolic, as TLC draws
+    /// from them (`random.rs`).
+    Draw,
 }
 
 /// Converts a handle to a reference value.
@@ -98,7 +101,7 @@ pub fn to_value(
     }
     // An infinite set is the reference engine's lazy set, as TLC keeps it:
     // a state may hold one until it is fingerprinted.
-    let keep = conv == Conversion::Print
+    let keep = conv != Conversion::Report
         && matches!(
             kind,
             Kind::Interval | Kind::Subset | Kind::FcnSet | Kind::RecSet | Kind::Product

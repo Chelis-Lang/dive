@@ -831,7 +831,15 @@ impl Sink for Explorer<'_> {
         // the mark, and the frontier holds them interned.
         let before = m.heap.mark();
         let forced = m.stats.transient_thunks;
+        let draws = m.draws;
         let r = self.accept(m);
+        if m.draws != draws {
+            // TLC's checks draw from the expansion's stream, which the
+            // trace rebuild replays without them (`03-value-model.md` §6.1).
+            return Err(Error::unsupported(
+                "RandomElement in an invariant, constraint or implied action (M1 core)",
+            ));
+        }
         if r.is_ok() && m.stats.transient_thunks == forced {
             m.heap.rollback(before);
         }
@@ -864,10 +872,10 @@ fn run_actions(
     Ok(())
 }
 
-/// The workers a run uses: one for a plan that prints, so that its output
-/// is in TLC's order ([`Plan::effects`]).
+/// The workers a run uses: one for a plan with an effect, so that its
+/// output and draws are in TLC's order ([`Plan::effects`]).
 fn workers(plan: &Plan, config: &Config) -> usize {
-    if plan.effects {
+    if plan.effects.any {
         1
     } else {
         config.workers.max(1)
@@ -1025,6 +1033,28 @@ fn generator_error(m: &Machine, ex: &mut Explorer<'_>, e: Error) -> Error {
     Error::stop()
 }
 
+/// Starts the random stream draws come from: the startup stream for
+/// `Init`, or the stream of expanding `state` (`03-value-model.md` §6.1).
+pub(crate) fn start_stream(
+    m: &mut Machine,
+    plan: &Plan,
+    state: Option<&[Handle]>,
+) -> Result<(), Error> {
+    if !plan.effects.draws {
+        return Ok(());
+    }
+    let Some(draws) = m.heap.store().draws().cloned() else {
+        return Err(Error::unsupported(
+            "RandomElement without the run's random streams (M1 core)",
+        ));
+    };
+    m.draw = Some(match state {
+        None => draws.startup(),
+        Some(vars) => draws.state(&mut m.heap, vars)?,
+    });
+    Ok(())
+}
+
 /// The states of a parallel level each worker expands per chunk (#551).
 const CHUNK_PER_WORKER: usize = 4096;
 
@@ -1045,6 +1075,7 @@ fn run(
     let Some(m) = machines.first_mut() else {
         return Err(Error::internal("no core machine"));
     };
+    start_stream(m, plan, None)?;
     if let Err(e) = run_actions(m, ex, &plan.init, code) {
         ex.stats.left_on_queue = (ex.next.len() / nvars.max(1)) as u64;
         return Err(generator_error(m, ex, e));
@@ -1115,6 +1146,9 @@ fn run(
                 return Err(Error::stop());
             }
             m.s0.copy_from_slice(state);
+            if res.is_none() {
+                start_stream(m, plan, Some(state))?;
+            }
             if let Some(r) = reservoir.as_deref_mut() {
                 r.offer(state);
             }
@@ -1130,6 +1164,11 @@ fn run(
                 && f.site_resumes()
             {
                 // TLC's call-stack replay (`ending.rs`).
+                if plan.effects.draws {
+                    return Err(Error::unsupported(
+                        "TLC's replay after a failing check, in a specification that draws (RandomElement) (M1 core)",
+                    ));
+                }
                 let ordinal = ex.emitted - 1;
                 let saved = std::mem::take(&mut m.warnings);
                 *replayed = Some(ending::replay_after(m, ex, ordinal)?);

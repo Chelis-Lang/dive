@@ -60,6 +60,12 @@ pub struct Machine {
     /// What `Print` and `PrintT` printed, one line each, in evaluation
     /// order.
     pub printed: Vec<String>,
+    /// The random stream draws come from: the startup stream or the
+    /// expanded state's (`random.rs`); `None` outside a search.
+    pub draw: Option<Box<dyn crate::random::DrawStream>>,
+    /// How many draws were made, which the engine reads to refuse a draw
+    /// in a check.
+    pub draws: u64,
     pub(crate) conts: Vec<crate::generate::ContNode>,
     pub(crate) cvals: Vec<Handle>,
     pub(crate) saved: Vec<Handle>,
@@ -143,6 +149,8 @@ impl Machine {
             warn: true,
             warnings: Vec::new(),
             printed: Vec::new(),
+            draw: None,
+            draws: 0,
             conts: Vec::new(),
             cvals: Vec::new(),
             saved: Vec::new(),
@@ -548,12 +556,14 @@ impl Machine {
             Node::Std(f, args) => self.std(code, *f, args),
             Node::Lib(op, args) => {
                 // A value printed keeps its form: TLC prints an interval as
-                // `1..3` (`crate::print`).
+                // `1..3` (`crate::print`), and draws from a lazy `[S -> T]`
+                // one value per component (`crate::random`).
                 let prints = matches!(
                     op,
                     dive_ir::StdOp::TlcPrint
                         | dive_ir::StdOp::TlcPrintT
                         | dive_ir::StdOp::TlcToString
+                        | dive_ir::StdOp::TlcRandomElement
                 );
                 let mut a = Vec::with_capacity(args.len());
                 for &x in args {

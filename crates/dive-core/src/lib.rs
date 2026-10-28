@@ -48,6 +48,7 @@ pub mod node;
 pub mod opts;
 pub mod plan;
 pub mod print;
+pub mod random;
 pub mod stdlib;
 pub mod store;
 pub mod strings;
