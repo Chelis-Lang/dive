@@ -858,3 +858,33 @@ another eager string-style replacement routine.
 Source mutation controls fail when overlapping matches are retained, when an
 extra trailing empty-pattern insertion is added, or when the repeated-demand
 guard is bypassed. The restored implementation passes the same focused tests.
+
+### Rejected greedy ReplaceAll rule (fresh review, 2026-10-28)
+
+The implementation at `7e1195f1` is rejected: its claim that maximum-count,
+leftmost absolute match positions reproduce the fallback is false. The pinned
+TLC prints `<<0,1,2>>` for
+`ReplaceAllSubSeqs(<<2>>, <<1,1>>, <<0,1,1,1>>)`, while that core prints
+`<<0,2,1>>`. `core-replace/SeqReplacePartitionChoice` asserts the oracle result
+and succeeds with 1 distinct / 2 generated / depth 1, code 2193 / exit 0.
+The old core instead reports an invariant violation. The original rejected
+commit and external review captures remain intact; its exhaustive test encoded
+the same incorrect greedy assumption and did not establish parity.
+
+The pinned source's comment says overlaps prefer the beginning, but the actual
+`match(f)` contains **partition component indices**, not absolute text positions.
+`T` maximizes the count of components equal to the pattern; the CHOOSE predicate
+compares their sorted component indices. Grouping a nonmatching prefix into one
+component can make different absolute positions tie. The exact remaining choice
+then depends on the normalized set's enumeration. That choice must not be
+replaced by an invented earliest-position rule.
+
+Repair scope: preserve ReplaceFirst's separate least-prefix definition, and
+admit ReplaceAll's early CASE arms, empty pattern, no occurrences and texts in
+which nonempty pattern occurrences do not overlap. Refuse overlapping All
+occurrences until the remaining partition choice is implemented and verified.
+The next independent test enumerates bounded weak compositions of the text into
+at most Len(text) components, including empty components, then applies the
+source's maximum-count and component-index predicate. It checks every possible
+satisfying partition's output for admitted cases, without using absolute match
+positions as its oracle. Refused overlaps earn no coverage credit.

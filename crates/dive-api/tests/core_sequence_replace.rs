@@ -157,3 +157,25 @@ fn existing_effectful_string_override_keeps_its_output() {
         assert_eq!(observed(&core), expected);
     }
 }
+
+#[test]
+fn partition_choice_overlap_is_explicitly_refused() {
+    // Pinned TLC returns <<0,1,2>>; the rejected absolute-position greedy
+    // rule returned <<0,2,1>> and falsely reported an invariant violation.
+    for compat in [false, true] {
+        let req = request("SeqReplacePartitionChoice", compat, 1);
+        let reference = check_file_engine(&req, Engine::Reference).expect("reference runs");
+        let expected = observed(&reference);
+        assert_eq!(expected["verdict"], "success");
+        assert_eq!(expected["code"], 2193);
+        assert_eq!(expected["exit"], 0);
+        assert_eq!(expected["distinct"], 1);
+        assert_eq!(expected["generated"], 2);
+        assert_eq!(expected["depth"], 1);
+        let core = check_file_engine(&req, Engine::Core).expect("core reports");
+        assert_eq!(core.to_json()["verdict"], "unsupported");
+        let auto = check_file_engine(&req, Engine::Auto).expect("auto falls back");
+        assert_eq!(auto.to_json()["engine"], "reference");
+        assert_eq!(observed(&auto), expected);
+    }
+}
