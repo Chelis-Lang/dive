@@ -592,6 +592,7 @@ impl Machine {
                 }
                 crate::stdlib::call_ho(self, *op, &a)
             }
+            Node::Enabled { g, .. } => self.enabled(code, *g),
             Node::Memo { site, body } => self.memo_eval(code, *site, *body),
             Node::Spec(b) => self.eval(code, *b).map_err(speculative),
             Node::Beta { chain, fc, arg } => self.beta(code, *chain, *fc, *arg),

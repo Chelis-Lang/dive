@@ -709,6 +709,13 @@ impl Compiler<'_> {
                 i.calls = true;
                 i.vars = u64::MAX;
             }
+            // The action's reads are not tracked variable by variable: it
+            // reads every variable, so it is never folded or skipped.
+            Node::Enabled { free, .. } => {
+                union(&mut i.free, free);
+                i.calls = true;
+                i.vars = u64::MAX;
+            }
         }
         i.red = self.red_of(n);
         i
@@ -1170,6 +1177,135 @@ impl Compiler<'_> {
             }
             _ => {}
         }
+    }
+
+    /// `ENABLED A` (`04-plan-compiler.md` §5.5): `A` compiled as an action
+    /// in the current frame, searched for one successor at run time.
+    ///
+    /// Refused inside an `INSTANCE` with substitutions. TLC evaluates the
+    /// body in `Context.branch`, which hides substitutions made outside the
+    /// `ENABLED` from primed lookups (`02-semantic-contract.md` B3), and its
+    /// lazy-value cache reuses stale values across hidden instance variables
+    /// there (B2, corpus `lazy-enabled-cache`). The core reproduces
+    /// neither yet.
+    fn enabled(&mut self, a: Option<ExprId>, env: usize, mode: Mode) -> Result<P, Error> {
+        let a = a.ok_or_else(|| Error::internal("ENABLED without operand"))?;
+        if mode == Mode::Primed {
+            return Err(Error::unsupported("a primed ENABLED (M1 core)"));
+        }
+        if !self.substs.is_empty() {
+            return Err(Error::unsupported(
+                "ENABLED inside an INSTANCE with substitutions (B2, B3; M1 core)",
+            ));
+        }
+        let first_slot = self.next_slot;
+        let init = std::mem::replace(&mut self.init_mode, false);
+        let g = self.g(a, env);
+        self.init_mode = init;
+        let g = g?;
+        let mut free = Vec::new();
+        self.g_free(g, &mut free, 0)?;
+        free.retain(|&s| s < first_slot);
+        self.push(Node::Enabled {
+            g,
+            free: free.into(),
+        })
+    }
+
+    /// The free slots of the value nodes a generator node reads, its own
+    /// binders included (the caller drops the slots the action allocated).
+    fn g_free(&self, g: G, out: &mut Vec<u32>, depth: u32) -> Result<(), Error> {
+        if depth > 10_000 {
+            return Err(Error::unsupported("an action nested too deeply (M1 core)"));
+        }
+        let mut p = |p: P, out: &mut Vec<u32>| {
+            if let Some(i) = self.info.get(p as usize) {
+                union(out, &i.free);
+            }
+        };
+        let unch = |items: &[crate::plan::Unch],
+                    out: &mut Vec<u32>,
+                    p: &mut dyn FnMut(P, &mut Vec<u32>)| {
+            for u in items {
+                if let crate::plan::Unch::Verify(x) = u {
+                    p(*x, out);
+                }
+            }
+        };
+        let Some(node) = self.code.gnodes.get(g as usize) else {
+            return Err(Error::internal("generator node out of range"));
+        };
+        match node {
+            GNode::Conj(items) => {
+                for &(g, x) in items {
+                    p(x, out);
+                    self.g_free(g, out, depth + 1)?;
+                }
+            }
+            GNode::Disj(gs) => {
+                for &g in gs {
+                    self.g_free(g, out, depth + 1)?;
+                }
+            }
+            GNode::Exists {
+                binds,
+                body,
+                body_p,
+            }
+            | GNode::Forall {
+                binds,
+                body,
+                body_p,
+            } => {
+                for b in binds {
+                    p(b.domain, out);
+                }
+                p(*body_p, out);
+                self.g_free(*body, out, depth + 1)?;
+            }
+            GNode::If { cond, then, other } => {
+                p(*cond, out);
+                self.g_free(*then, out, depth + 1)?;
+                self.g_free(*other, out, depth + 1)?;
+            }
+            GNode::Case { arms, other } => {
+                for &(c, g) in arms {
+                    p(c, out);
+                    self.g_free(g, out, depth + 1)?;
+                }
+                if let Some(o) = other {
+                    self.g_free(*o, out, depth + 1)?;
+                }
+            }
+            GNode::Implies { lhs, rhs } => {
+                p(*lhs, out);
+                self.g_free(*rhs, out, depth + 1)?;
+            }
+            GNode::Assign { rhs, .. } => p(*rhs, out),
+            GNode::AssignIn { set, .. } | GNode::AssignInRaw { set, .. } => p(*set, out),
+            GNode::Unchanged(items) => unch(items, out, &mut p),
+            GNode::StepBox { action, vars } => {
+                unch(vars, out, &mut p);
+                self.g_free(*action, out, depth + 1)?;
+            }
+            GNode::StepAngle { action, same } => {
+                p(*same, out);
+                self.g_free(*action, out, depth + 1)?;
+            }
+            GNode::FcnAction { binds, arg, body } => {
+                for b in binds {
+                    p(b.domain, out);
+                }
+                p(*arg, out);
+                self.g_free(*body, out, depth + 1)?;
+            }
+            GNode::Scope { reset, body } => {
+                union(out, reset);
+                self.g_free(*body, out, depth + 1)?;
+            }
+            GNode::Guard(x) => p(*x, out),
+        }
+        Ok(())
     }
 
     fn konst(&mut self, h: Handle) -> Result<P, Error> {
@@ -1797,7 +1933,7 @@ impl Compiler<'_> {
                     self.push(Node::And([a, changed].into()))
                 }
             }
-            Expr::Enabled(_) => Err(Error::unsupported("ENABLED (M0 core)")),
+            Expr::Enabled(a) => self.enabled(Some(*a), env, mode),
             Expr::Cdot(..) => Err(Error::unsupported("action composition (M0 core)")),
             Expr::Always(_)
             | Expr::Eventually(_)
@@ -3015,7 +3151,7 @@ impl Compiler<'_> {
                 }
             }
             B::String => return Err(Error::unsupported("STRING (M0 core)")),
-            B::Enabled => return Err(Error::unsupported("ENABLED (M0 core)")),
+            B::Enabled => return self.enabled(args.first().copied(), env, mode),
             B::Cdot => return Err(Error::unsupported("action composition (M0 core)")),
             B::Always | B::Eventually | B::LeadsTo | B::WhilePlus => {
                 return Err(Error::unsupported(

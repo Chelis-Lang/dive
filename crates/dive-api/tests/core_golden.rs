@@ -172,3 +172,10 @@ fn mc_disruptor_mpmc_matches_the_golden() {
 fn tlc_sailfish1_matches_the_golden() {
     example("specifications/dag-consensus/TLCSailfish1.cfg");
 }
+
+/// `ENABLED` in implied safety properties (`04-plan-compiler.md` §5.5).
+#[test]
+#[ignore = "minutes in a debug build; run with `--release --run-ignored all`"]
+fn buffered_random_access_file_matches_the_golden() {
+    example("specifications/braf/BufferedRandomAccessFile.cfg");
+}
