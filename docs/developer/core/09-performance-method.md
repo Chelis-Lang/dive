@@ -82,8 +82,9 @@ The M0 spike uses only these four:
 
 ## 5. Ablation switches
 
-Each switch disables one strategy. Every switch must leave all observables
-unchanged (`08-correctness.md` §6).
+Set `DIVE_CORE_OPT=-name` for one disabled strategy, or a comma-separated
+list. The current names come from `dive_core::opts::SWITCHES`. Every switch
+must leave all observables unchanged (`08-correctness.md` §6).
 
 | Switch | Disables |
 |---|---|
@@ -91,11 +92,15 @@ unchanged (`08-correctness.md` §6).
 | `-early-probe` | S3: every successor is materialized before the probe |
 | `-hashcons` | S4, S5: values are not deduplicated, and equality is structural |
 | `-symbolic-member` | S5: membership enumerates symbolic sets |
-| `-memo` | S6: no memoization |
+| `-memo` | S6: no pure-result memoization |
+| `-step-memo` | S6: no step-predicate body memoization |
 | `-parent-skip` | S6: no parent-delta skip |
 | `-arena` | S7: transients are heap-allocated |
-| `-inline-subst` | S8: INSTANCE substitutions stay dynamic |
 | `-eager` | S8: every lazy argument is a thunk |
+| `-fold` | S8: no constant folding |
+
+`inline-subst` is not an available switch: the implementation always binds
+INSTANCE substitutions dynamically. The parser explicitly rejects it.
 
 The share of a strategy is the slowdown when it alone is disabled. Shares
 interact, so the report gives each one's slowdown and the total.

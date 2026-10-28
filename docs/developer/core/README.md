@@ -10,7 +10,8 @@ The documents exist so that any engineer or agent can take over at any point.
 Read this page, then `10-plan.md` (status and handoff log), then the documents
 for the workstream you are joining.
 
-**Start here at handover:** `m1-status.md` summarizes what M1 built, the measured results, the decisions, what is open and the next steps.
+**Start here:** `m1-status.md` records the current acceptance findings, source-bound
+measurements and next steps. M1 remains open; the default engine is `reference`.
 
 ## Status board
 
@@ -20,10 +21,10 @@ for the workstream you are joining.
 | Host-hook lock (#495), old engine | Day 0 | done | #497 | `01-motivation.md` |
 | Rebaseline on x86 | Day 0 | done | #522 | `09-performance-method.md` |
 | M0 spike | M0 | done: 1.81× TLC, 5.21× reference (x86 geomean); merged as `--engine=core` | #505 | `m0-results.md` |
-| 1. Values and store | M1 | paused at handover; done: inline node data, lazy values, big ints, model values, `isNorm`, intern-token strings, lock-free intern hits, Bags, most stdlib and CommunityModules operators, Print/PrintT/ToString, RandomElement, TLCSet/TLCGet; next: `10-plan.md` §7 | `core/values-*` | `03-value-model.md` |
-| 2. Plan compiler and laziness | M1 | paused at handover; done: fold bound (R9), TLC lazy values, INSTANCE, error classes, operator arguments, lazy LET, failing ASSUME, `ENABLED` (#581), memo on and bounded (#575, #584); next: `ENABLED` under INSTANCE substitutions | `core/compiler-*` | `04-plan-compiler.md`, `06-memoization.md` |
-| 3. Successor generation and engine | M1 | paused at handover; done: traces, error endings, budgets, parallel engine, `--engine=auto`, `--compat=tlc` at any worker count, implied properties, SYMMETRY (both profiles), ALIAS, VIEW, VIEW+SYMMETRY, liveness L1–L4 (#572, #573, #577, #582), #550, #551; next: L5, `P4SymLive` | `core/engine-*` | `05-successor-generation.md`, `07-engine.md`, `11-liveness.md` |
-| 4. Harness, shadow comparison, bench | M1 | lead; done: harness engine selection, shadow gate in CI, successor sampling, x86 checkpoint and memo A/B (`10-plan.md` §5a, §5b), AWS bench and gate scripts, reproducible seeded fixture-census runner; classified results and confirmed traces required (#590, #596); next: the M1 gate run and fresh census | — | `08-correctness.md`, `09-performance-method.md` |
+| 1. Values and store | M1 | implemented M1 scope; remaining work below; done: inline node data, lazy values, big ints, model values, `isNorm`, intern-token strings, lock-free intern hits, Bags, most stdlib and CommunityModules operators, Print/PrintT/ToString, RandomElement, TLCSet/TLCGet; next: `10-plan.md` §7 | `core/values-*` | `03-value-model.md` |
+| 2. Plan compiler and laziness | M1 | implemented M1 scope; remaining work below; done: fold bound (R9), TLC lazy values, INSTANCE, error classes, operator arguments, lazy LET, failing ASSUME, `ENABLED` (#581), memo on and bounded (#575, #584); next: `ENABLED` under INSTANCE substitutions | `core/compiler-*` | `04-plan-compiler.md`, `06-memoization.md` |
+| 3. Successor generation and engine | M1 | implemented M1 scope; remaining work below; done: traces, error endings, budgets, parallel engine, `--engine=auto`, `--compat=tlc` at any worker count, implied properties, SYMMETRY (both profiles), ALIAS, VIEW, VIEW+SYMMETRY, liveness L1–L4 (#572, #573, #577, #582), #550, #551; next: L5, `P4SymLive` | `core/engine-*` | `05-successor-generation.md`, `07-engine.md`, `11-liveness.md` |
+| 4. Harness, shadow comparison, bench | M1 | lead; done: harness engine selection, shadow gate in CI, successor sampling, x86 checkpoint and memo A/B (`10-plan.md` §5a, §5b), AWS bench and gate scripts, reproducible seeded fixture-census runner; classified results and confirmed traces required (#590, #596); next: resolve the failed seeded census, finish matched M1 measurements and retain explicit engine accounting | — | `08-correctness.md`, `09-performance-method.md` |
 
 The umbrella issue is #498. The M0 spike landed on `main` in #505; its results
 are in `m0-results.md`. M1 streams 1–3 started 2026-10-26, each in its own
