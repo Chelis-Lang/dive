@@ -90,18 +90,22 @@ worker count.
 
 ## 3. Graph capture on the core (`dive-explore`)
 
-A new optional `GraphSink` on the explorer receives these events, all from
-the single-threaded commit, in commit order:
+A `GraphSink` passed to `dive_explore::explore_with` (`graph.rs`) receives
+these events, all from the single-threaded commit, in commit order:
 
 | Event | When | Reference rule (`dive-check/src/engine.rs`, `on_state_checks`) |
 |---|---|---|
-| `state(id, &[Handle])` | a successor or initial state inside the model is inserted | `capture.state`; `id` is the dense discovery index |
-| `root(id)` | an initial state inside the model, new or seen | `capture.root` |
-| `edge(from, to, ordinal, action)` | a successor inside the model, new or seen, after its checks pass | `capture.record`; `ordinal` is the source-wide emission ordinal and `action` the plan's next-state action |
-| `stutter(from)` | a source is fully expanded with no stop | `capture.stutter` |
-| `level_done(level, stats) -> Control` | the commit of a completed level | `Observer::level_done`; `Control::Stop` ends the run as a prefix (`stop_after_level`) |
+| `emitted(generated, ordinal)` | every generated state, before its checks (`ordinal` is `None` for an initial state) | `capture.allow_emitted` |
+| `state(heap, Step)` | a state inside the model that passed its checks, new or seen. `Step` carries the key, the new id and values (persistent handles) when it is new, the parent, the ordinal and the action index | `capture.record`; a root when `parent` is `None` |
+| `stutter(source)` | a source is fully expanded with no stop | `capture.stutter` |
+| `level_done(level, stats) -> bool` | the commit of a completed level; `true` stops the search there (`Verdict::PrefixStop`) | `Observer::level_done` and `stop_after_level` |
 
-The sink keeps the key-to-id map (`u64` key to `u32` id). Two states with
+Each event may return `Stopped`; the search then ends with
+`Verdict::GraphStop` and the sink keeps the reason. Vertex ids are the
+predecessor log's ids, which are the discovery indexes.
+
+The sink (`dive-api`, `core_graph.rs`) keeps the key-to-id map (`u64` key
+to vertex id), to reuse a seen state's values. Two states with
 equal keys are the same graph vertex. This is exactly the reference's
 fingerprint-mode identity and collision qualification. In exact mode the
 core's keys are exact (`07-engine.md`).

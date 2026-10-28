@@ -27,6 +27,7 @@
 #![forbid(unsafe_code)]
 
 pub mod ending;
+pub mod graph;
 mod parallel;
 pub mod sample;
 pub mod trace;
@@ -89,6 +90,15 @@ pub enum Verdict {
         /// The admission that was prevented: the distinct count or the depth
         /// the state would have had.
         observed: u64,
+    },
+    /// The graph sink ended the search ([`graph::GraphSink`]); it keeps the
+    /// reason.
+    GraphStop,
+    /// The graph sink stopped the search after a completed level, whose
+    /// frontier is not exhausted.
+    PrefixStop {
+        /// The completed level (the initial states are level 1).
+        level: u64,
     },
     /// A bug in the core.
     Internal {
@@ -346,6 +356,8 @@ fn view_key(m: &mut Machine, plan: &Plan, view: &Check) -> Result<u64, Error> {
 
 struct Explorer<'p> {
     plan: &'p Plan,
+    /// The behavior graph's sink, when a temporal check needs it.
+    graph: Option<&'p mut dyn graph::GraphSink>,
     stats: Stats,
     metrics: Metrics,
     seen: Seen,
@@ -423,7 +435,7 @@ impl Explorer<'_> {
         )
     }
 
-    fn probe(&mut self, m: &mut Machine) -> Result<(Probe, bool), Error> {
+    fn probe(&mut self, m: &mut Machine) -> Result<(Probe, bool, u64), Error> {
         let in_model = match self.in_model_of(m) {
             Ok(b) => b,
             Err((site, e)) => {
@@ -446,7 +458,7 @@ impl Explorer<'_> {
             // VIEW a lookup only skips a state already checked; with them,
             // a seen image or view value may hide a concrete state that is
             // not.
-            return Ok((Probe::New, false));
+            return Ok((Probe::New, false, 0));
         }
         let key = match state_key(m, self.plan) {
             Ok(k) => k,
@@ -468,9 +480,9 @@ impl Explorer<'_> {
         };
         if !new {
             self.metrics.discarded_before_intern += u64::from(self.opts.early_probe);
-            return Ok((Probe::Seen, in_model));
+            return Ok((Probe::Seen, in_model, key));
         }
-        Ok((Probe::New, in_model))
+        Ok((Probe::New, in_model, key))
     }
 
     fn accept(&mut self, m: &mut Machine) -> Result<(), Error> {
@@ -485,14 +497,17 @@ impl Explorer<'_> {
         if !self.initial {
             self.changed = changed_vars(m);
         }
-        let (probe, in_model) = self.probe(m)?;
+        let (probe, in_model, key) = self.probe(m)?;
         if matches!(probe, Probe::Seen) {
             // TLC checks the implied actions on every step, to a seen state
             // too (`Search::successor`).
-            return if self.initial {
-                Ok(())
+            if !self.initial {
+                self.implied_actions(m)?;
+            }
+            return if in_model {
+                self.record(m, key, false)
             } else {
-                self.implied_actions(m)
+                Ok(())
             };
         }
         // With a VIEW, TLC fingerprints the view's value instead
@@ -560,6 +575,58 @@ impl Explorer<'_> {
         }
         if in_model && !enqueue_first {
             self.enqueue(m)?;
+        }
+        if in_model {
+            self.record(m, key, true)?;
+        }
+        Ok(())
+    }
+
+    /// Reports the accepted state inside the model with key `key` to the
+    /// graph sink; a `new` state is the last one enqueued.
+    fn record(&mut self, m: &mut Machine, key: u64, new: bool) -> Result<(), Error> {
+        let Some(sink) = self.graph.as_deref_mut() else {
+            return Ok(());
+        };
+        let nvars = m.s1.len();
+        let new = if new {
+            let id = self
+                .next_ids
+                .last()
+                .copied()
+                .ok_or_else(|| Error::internal("a new state was not enqueued"))?;
+            let values = self
+                .next
+                .get(self.next.len().saturating_sub(nvars)..)
+                .ok_or_else(|| Error::internal("a new state's values were not enqueued"))?;
+            Some((id, values))
+        } else {
+            None
+        };
+        let step = graph::Step {
+            key,
+            new,
+            parent: self.cur_id,
+            ordinal: self.emitted.saturating_sub(1),
+            action: self.action,
+        };
+        if sink.state(&mut m.heap, step).is_err() {
+            self.stop = Some(Verdict::GraphStop);
+            return Err(Error::stop());
+        }
+        Ok(())
+    }
+
+    /// Reports the `emitted`-th state of its source to the graph sink,
+    /// before its checks.
+    fn report_emitted(&mut self) -> Result<(), Error> {
+        let ordinal = (!self.initial).then(|| self.emitted.saturating_sub(1));
+        let generated = self.stats.generated;
+        if let Some(sink) = self.graph.as_deref_mut()
+            && sink.emitted(generated, ordinal).is_err()
+        {
+            self.stop = Some(Verdict::GraphStop);
+            return Err(Error::stop());
         }
         Ok(())
     }
@@ -822,6 +889,7 @@ impl Sink for Explorer<'_> {
         if self.initial {
             self.stats.initial_generated += 1;
         }
+        self.report_emitted()?;
         // The checks' transients are freed once the state is accepted (R10):
         // an `Init` that enumerates many states, or a state with many
         // successors, would otherwise hold them all until the expansion
@@ -890,6 +958,19 @@ pub fn explore(
     config: Config,
     poll: &(dyn Fn() -> bool + Sync),
 ) -> Outcome {
+    explore_with(plan, store, config, poll, None)
+}
+
+/// Explores the plan's state space, reporting its behavior graph to `graph`
+/// ([`graph::GraphSink`]) in the one-worker order.
+#[must_use]
+pub fn explore_with<'p>(
+    plan: &'p Plan,
+    store: &Arc<Store>,
+    config: Config,
+    poll: &'p (dyn Fn() -> bool + Sync),
+    graph: Option<&'p mut dyn graph::GraphSink>,
+) -> Outcome {
     let start = Instant::now();
     let nvars = plan.vars.len();
     let keys: Vec<usize> = plan
@@ -907,6 +988,7 @@ pub fn explore(
         .collect();
     let mut ex = Explorer {
         plan,
+        graph,
         stats: Stats::default(),
         metrics: Metrics::default(),
         seen: Seen::default(),
@@ -1055,6 +1137,32 @@ pub(crate) fn start_stream(
     Ok(())
 }
 
+/// Reports the completed level to the graph sink, which may stop the
+/// search after it.
+fn level_done(ex: &mut Explorer<'_>, nvars: usize) -> Result<(), Error> {
+    let Some(sink) = ex.graph.as_deref_mut() else {
+        return Ok(());
+    };
+    let counts = Stats {
+        left_on_queue: (ex.next.len() / nvars.max(1)) as u64,
+        ..ex.stats
+    };
+    let level = ex.level - 1;
+    let stop = sink.level_done(level, counts);
+    if stop == Ok(false) {
+        return Ok(());
+    }
+    ex.stats.left_on_queue = counts.left_on_queue;
+    ex.stop = Some(match stop {
+        Ok(_) if counts.left_on_queue > 0 => Verdict::PrefixStop { level },
+        Ok(_) => Verdict::Internal {
+            message: "a prefix stop with an exhausted frontier".into(),
+        },
+        Err(graph::Stopped) => Verdict::GraphStop,
+    });
+    Err(Error::stop())
+}
+
 /// The states of a parallel level each worker expands per chunk (#551).
 const CHUNK_PER_WORKER: usize = 4096;
 
@@ -1169,6 +1277,8 @@ fn run(
                         "TLC's replay after a failing check, in a specification that draws (RandomElement) (M1 core)",
                     ));
                 }
+                // The search ends here; the graph has no part in the replay.
+                ex.graph = None;
                 let ordinal = ex.emitted - 1;
                 let saved = std::mem::take(&mut m.warnings);
                 *replayed = Some(ending::replay_after(m, ex, ordinal)?);
@@ -1196,7 +1306,16 @@ fn run(
                 });
                 return Err(Error::stop());
             }
+            if let Some(id) = ex.cur_id
+                && let Some(sink) = ex.graph.as_deref_mut()
+                && sink.stutter(id).is_err()
+            {
+                ex.stats.left_on_queue = left;
+                ex.stop = Some(Verdict::GraphStop);
+                return Err(Error::stop());
+            }
         }
+        level_done(ex, nvars)?;
         if parallel {
             ex.metrics.expand_time += expand_time;
             ex.metrics.commit_time += level_started.elapsed().saturating_sub(expand_time);
