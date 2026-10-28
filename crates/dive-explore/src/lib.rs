@@ -1129,7 +1129,10 @@ fn reconstruct(
             let path = log.path(id).map_err(|e| format!("predecessor log: {e}"))?;
             let states = trace::replay(plan, store, config.opts, config.warn, &path)
                 .map_err(|e| e.message().to_owned())?;
-            if states.last().map(|s| s.values.as_slice()) != Some(end.expect.as_slice()) {
+            if !states
+                .last()
+                .is_some_and(|s| replay_values_match(store, &s.values, &end.expect))
+            {
                 return Err("trace replay produced a different state than the search".into());
             }
             states
@@ -1139,6 +1142,19 @@ fn reconstruct(
         states.push(TraceState { action, values });
     }
     Ok(states)
+}
+
+/// Replay allocates fresh persistent compounds when hash-consing is disabled.
+/// Their values must still match; unequal handles alone are not a mismatch.
+fn replay_values_match(store: &Arc<Store>, actual: &[Handle], expected: &[Handle]) -> bool {
+    if actual == expected {
+        return true;
+    }
+    if store.hashcons() || actual.len() != expected.len() {
+        return false;
+    }
+    let heap = dive_core::Heap::new(Arc::clone(store), false, false);
+    actual.iter().zip(expected).all(|(&a, &b)| heap.eq(a, b))
 }
 
 /// Turns an evaluation error raised by the generator itself (not by a
@@ -1397,6 +1413,38 @@ fn run(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn replay_checks_compound_values_without_hashconsing() -> Result<(), Error> {
+        let store = Arc::new(Store::new(false));
+        let mut heap = dive_core::Heap::new(Arc::clone(&store), false, false);
+        let one = heap.int_from_i64(1);
+        let two = heap.int_from_i64(2);
+        let a = heap.tuple(&[one]);
+        let a = heap.intern(a)?;
+        let equal = heap.tuple(&[one]);
+        let equal = heap.intern(equal)?;
+        let different = heap.tuple(&[two]);
+        let different = heap.intern(different)?;
+        assert_ne!(a, equal, "the control must allocate distinct handles");
+        assert!(replay_values_match(&store, &[a], &[equal]));
+        assert!(!replay_values_match(&store, &[a], &[different]));
+        assert!(!replay_values_match(&store, &[a], &[equal, equal]));
+        assert!(!replay_values_match(&store, &[], &[equal]));
+        let nested_a = heap.tuple(&[a]);
+        let nested_a = heap.intern(nested_a)?;
+        let nested_equal = heap.tuple(&[equal]);
+        let nested_equal = heap.intern(nested_equal)?;
+        let nested_different = heap.tuple(&[different]);
+        let nested_different = heap.intern(nested_different)?;
+        assert!(replay_values_match(&store, &[nested_a], &[nested_equal]));
+        assert!(!replay_values_match(
+            &store,
+            &[nested_a],
+            &[nested_different]
+        ));
+        Ok(())
+    }
 
     #[test]
     fn seen_set_inserts_and_grows() {

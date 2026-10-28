@@ -139,7 +139,8 @@ built by `ToString`. Each of these refusals names `--compat=tlc`.
 
 The `DIVE_CORE_OPT` variable (for example `-fold,-delta-hash`) turns
 individual strategies off (`-name`) or on (`+name`) for measurement. Every
-switch leaves the results unchanged. See `docs/developer/core/06-memoization.md` and
+switch must leave the results unchanged, including independently replayable
+counterexamples when hash-consing is disabled. See `docs/developer/core/06-memoization.md` and
 `docs/developer/core/m0-results.md`.
 
 ## TLC checking entrypoints
