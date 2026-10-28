@@ -179,6 +179,22 @@ fn a_union_of_one_set_constructor_stays_lazy() {
     assert_eq!(core["property"], reference["property"], "{name}");
 }
 
+/// `ENABLED` searches its action for one successor; fixture `Enab` (TLC:
+/// `Inv` violated, 216 distinct, 672 generated, depth 12).
+#[test]
+fn enabled_matches_the_reference_engine() {
+    // `EnabStep` (TLC: success, 3 distinct, 4 generated, depth 3): ENABLED
+    // in an implied action and an action constraint, where a primed
+    // definition must read the ENABLED action's successor, not the step's.
+    for name in ["Enab", "EnabStep"] {
+        let reference = run(name, Engine::Reference);
+        let core = run(name, Engine::Core);
+        assert_eq!(core["engine"], "core", "{name}");
+        assert_eq!(counts(&core), counts(&reference), "{name}: {core:#}");
+        assert_eq!(core["property"], reference["property"], "{name}");
+    }
+}
+
 #[test]
 fn zero_to_the_zero_is_tlcs_evaluation_error() {
     // M0 answered 0^0 = 1 and reported success; TLC raises 2180.

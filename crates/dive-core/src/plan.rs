@@ -273,6 +273,15 @@ pub enum Node {
     Lib(dive_ir::StdOp, Box<[P]>),
     /// A [`crate::stdlib`] operator with operator arguments.
     LibHo(dive_ir::StdOp, Box<[LibArg]>),
+    /// `ENABLED A`: whether the action `A` has a successor from the current
+    /// state, complete or not (TLC's `Tool.enabled`). `free` holds the
+    /// frame slots `A` reads from outside it.
+    Enabled {
+        /// The action.
+        g: G,
+        /// The slots read from outside the action.
+        free: Box<[u32]>,
+    },
     /// An expression the core evaluates eagerly where TLC evaluates it
     /// lazily (`04-plan-compiler.md` §4.1): an evaluation error inside it
     /// is reported as `unsupported`, because TLC might never raise it.

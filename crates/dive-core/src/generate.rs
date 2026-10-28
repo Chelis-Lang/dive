@@ -110,6 +110,35 @@ impl Machine {
         r
     }
 
+    /// `ENABLED A` in the current state `s0` (TLC's `Tool.enabled`): runs
+    /// `A` with a fresh successor buffer and stops at the first successor,
+    /// complete or not. The buffer and the continuation stack of an
+    /// enclosing generation are saved and restored around it.
+    ///
+    /// # Errors
+    /// Evaluation errors and refusals inside `A`.
+    pub(crate) fn enabled(&mut self, code: &Code, g: G) -> Result<Handle, Error> {
+        struct First(bool);
+        impl Sink for First {
+            fn emit(&mut self, _: &mut Machine, _: &Code) -> Result<(), Error> {
+                self.0 = true;
+                Err(Error::stop())
+            }
+        }
+        let saved = std::mem::take(&mut self.s1);
+        self.s1 = vec![Handle::EMPTY; saved.len()];
+        let assigned = self.assigned;
+        let mut first = First(false);
+        let r = self.run_action(code, g, &mut first);
+        self.s1 = saved;
+        self.assigned = assigned;
+        match r {
+            Ok(()) => Ok(Handle::bool(first.0)),
+            Err(e) if first.0 && e.kind() == crate::ErrorKind::Stop => Ok(Handle::TRUE),
+            Err(e) => Err(e),
+        }
+    }
+
     fn cont(&mut self, code: &Code, acts: u32, sink: &mut dyn Sink) -> Result<(), Error> {
         if acts == NONE {
             return sink.emit(self, code);

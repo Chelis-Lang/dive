@@ -27,8 +27,6 @@ const ORACLE: &str = "tlc-2026.10.06.014338";
 const REFUSED: &[(&str, &str)] = &[
     // §6: TLC's multiplicity depends on the set object's history.
     ("NxInLazyCup", "lazily represented set"),
-    // Stream 2 (plan compiler): ENABLED.
-    ("NxEnabled", "ENABLED"),
     // A set of an integer and a function: TLC's error depends on when it
     // normalizes the set (C1, C2).
     ("ErBagUnionNonBag", "depends on when it normalizes"),
@@ -189,9 +187,9 @@ fn check_dir(dir: &str) -> usize {
 #[test]
 fn rule_fixtures_match_the_reference_and_tlc() {
     let agreed = check_dir("crates/dive-eval/tests/fixtures/next");
-    // 18 fixtures: 14 agree, NxInLazyCup is refused by rule, and
-    // NxEnabled and NxInstance wait for stream 2.
-    assert!(agreed >= 14, "only {agreed} rule fixtures agreed");
+    // 18 fixtures: 15 agree (NxEnabled among them), NxInLazyCup is refused
+    // by rule, and NxInstance waits for stream 2.
+    assert!(agreed >= 15, "only {agreed} rule fixtures agreed");
 }
 
 #[test]
