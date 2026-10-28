@@ -323,8 +323,9 @@ scheduling, independent validation and the full gate remain acceptance gates.
 and root slices without constructing a nested adjacency copy.
 `Product::from_csr` and `with_csr_recurrences` use the same product builder as
 the existing dense input. The internal compact product uses that topology view
-too. Roots and outgoing edges retain order and duplicates; empty rows stay dead
-ends, and witness edge numbers remain original per-row positions. Existing
+too. The input view retains root/edge order and duplicates; product construction
+keeps its existing canonical root handling. Empty rows stay dead ends, and
+witness edge numbers remain original per-row positions. Existing
 product limits and acceptance-buffer policies retain their dense-input results.
 This view validates references, not producer completion or temporal acceptance.
 
@@ -333,7 +334,10 @@ still reads `BehaviorGraph` state representatives and concrete target rows;
 lasso extraction and Complete/Prefix still retain the reference graph. Next:
 introduce the state/concrete-target access boundary, retained all-vertex roots,
 and compact-compatible completion/results before routing the checker through
-CSR. Its builder must retain action/ordinal metadata and poll/account allocations
+CSR. Concrete targets must preserve the original generated values; substituting
+`states[edge.to]` is not equivalent. Retained original target values or their
+exact reconstruction/cache must enter the memory and work accounting. Its
+builder must retain action/ordinal metadata and poll/account allocations
 under the run budget. No graph limit is raised and no capacity or throughput
 claim follows from this product-input support.
 

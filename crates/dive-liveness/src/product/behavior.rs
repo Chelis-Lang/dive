@@ -8,11 +8,11 @@ use dive_check::capture::BehaviorGraph;
 pub(crate) enum BehaviorView<'a> {
     Dense(&'a Graph),
     Captured(&'a BehaviorGraph),
-    Csr(CsrTopology<'a>),
+    Csr(&'a CsrTopology<'a>),
 }
 
-impl<'a> From<CsrTopology<'a>> for BehaviorView<'a> {
-    fn from(graph: CsrTopology<'a>) -> Self {
+impl<'a> From<&'a CsrTopology<'a>> for BehaviorView<'a> {
+    fn from(graph: &'a CsrTopology<'a>) -> Self {
         Self::Csr(graph)
     }
 }

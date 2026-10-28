@@ -456,7 +456,7 @@ fn csr_preserves_owned_and_compact_products_and_original_edge_positions() {
                         },
                     ] {
                         assert_eq!(
-                            snapshot(csr.into(), &labels, Limits::default(), policy, recurring),
+                            snapshot((&csr).into(), &labels, Limits::default(), policy, recurring),
                             snapshot(
                                 (&dense).into(),
                                 &labels,
@@ -501,7 +501,13 @@ fn csr_keeps_every_existing_product_and_acceptance_limit() {
             },
         ] {
             assert_eq!(
-                snapshot(csr.into(), &labels, limits, AcceptancePolicy::Legacy, true),
+                snapshot(
+                    (&csr).into(),
+                    &labels,
+                    limits,
+                    AcceptancePolicy::Legacy,
+                    true
+                ),
                 snapshot(
                     (&dense).into(),
                     &labels,
@@ -522,7 +528,7 @@ fn csr_keeps_every_existing_product_and_acceptance_limit() {
             },
         ] {
             assert_eq!(
-                snapshot(csr.into(), &labels, Limits::default(), policy, true),
+                snapshot((&csr).into(), &labels, Limits::default(), policy, true),
                 snapshot((&dense).into(), &labels, Limits::default(), policy, true)
             );
         }
@@ -655,4 +661,9 @@ fn captured_behavior_domain_and_product_fallback_are_both_explicitly_exercised()
             }
         }
     }
+}
+
+#[test]
+fn csr_support_keeps_the_hot_topology_view_within_two_words() {
+    assert!(size_of::<BehaviorView<'_>>() <= 2 * size_of::<usize>());
 }

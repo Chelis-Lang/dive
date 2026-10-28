@@ -370,7 +370,7 @@ impl Product {
         conditions: &[Recurrence],
         limits: Limits,
     ) -> Result<Self, ProductError> {
-        Self::with_behavior(graph.into(), tableau, labels, conditions, limits)
+        Self::with_behavior((&graph).into(), tableau, labels, conditions, limits)
     }
 
     fn with_behavior(

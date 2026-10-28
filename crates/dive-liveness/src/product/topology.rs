@@ -87,27 +87,27 @@ impl<'a> CsrTopology<'a> {
 
     /// Number of behavior vertices, including unreachable vertices.
     #[must_use]
-    pub const fn vertex_count(self) -> usize {
+    pub const fn vertex_count(&self) -> usize {
         self.offsets.len() - 1
     }
 
     /// Number of supplied behavior edges, including duplicates and stutters.
     #[must_use]
-    pub const fn edge_count(self) -> usize {
+    pub const fn edge_count(&self) -> usize {
         self.targets.len()
     }
 
     /// Initial roots in the caller's original order, including duplicates.
     #[must_use]
-    pub const fn roots(self) -> &'a [usize] {
+    pub const fn roots(&self) -> &'a [usize] {
         self.roots
     }
 
-    pub(super) fn row_len(self, source: usize) -> usize {
+    pub(super) fn row_len(&self, source: usize) -> usize {
         self.offsets[source + 1] - self.offsets[source]
     }
 
-    pub(super) fn target(self, source: usize, edge: usize) -> usize {
+    pub(super) fn target(&self, source: usize, edge: usize) -> usize {
         #[allow(
             clippy::cast_possible_truncation,
             reason = "the constructor checked every target against the host vertex domain"
