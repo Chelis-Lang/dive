@@ -82,6 +82,30 @@ support in temporal planning; TLC/TestGraphs needs effects in finite-binding
 preflight; EWD998ChanTrace needs IOEnv. TLC also refuses P4SymLive's SYMMETRY
 quotient liveness. Packed L5 storage alone cannot implement these semantics.
 
+### Ablation matrix qualification
+
+All twenty distinct combinations (ten real switches × both profiles) have
+complete 156-model records. The source-bound matrix is
+`conformance/reports/core/2026-10-28-core-ablation-matrix.json`.
+At source `0f0c6ad1`, eight switches preserve normalized observables and actual
+engine/fallback records. Disabling symbolic membership preserves auto outcomes
+through five explicit >2^24-materialization fallbacks; those five are not proof
+that the disabled core completed the models. Disabling hash-consing originally
+lost ten invariant traces in each profile (#603). Corrected source `f582d791`
+then completes both full populations with native exit 0, zero baseline/tuple/
+engine changes versus all-on, and all twenty original failures repaired.
+Per-case before/after observations are in
+`conformance/reports/core/2026-10-28-hashcons-trace-repair.json`.
+
+Original TLC model-only invocations mistakenly used the full SANY baseline:
+their raw exit 1 is preserved as a protocol error. Separate model-only
+comparisons retain every original 156-model record and observable, with exact
+baseline hashes and negative controls; corrected continuation invocations use
+that explicitly scoped input and exit 0. The full all-on TLC control separately
+passes all 458 SANY modules. Snapshot-only duplicate tails receive no credit.
+This is explicit accounting across recorded sources, not a claim that one final
+executable ran every matrix slot or that the broader fixture census is clean.
+
 ### Trace candidate qualification
 
 The qualification is `conformance/reports/core/2026-10-28-invariant-error-candidate.json`,
@@ -187,7 +211,7 @@ context and independent replay, not a blanket wrapper exemption.
 - **Memory.** The core's peak RSS is far below TLC's: tens to a few hundred
   MB, against 0.8–1.5 GB. With memo on, 8-worker RSS roughly doubled on some
   models (MCLamportMutex 184 → 419 MB). The cap in #584 brought that down on
-  the M3 (308 → 185 MB) but has **not been checked on x86**.
+  the M3 (308 → 185 MB) but had not been checked on x86 at that checkpoint. The completed measurement below records the later cap and its remaining tradeoffs.
 
 ### Completed matched default campaign
 
@@ -239,6 +263,18 @@ establish no verdict. The bounded measurements address the specific R9 probe;
 R10 memory tradeoffs above remain. Record:
 `conformance/reports/perf/2026-10-28-core-startup-fold-x86.json`.
 
+### Single matched compat-guard diagnostic
+
+The unchanged prototype #598 and its exact parent (`1374df4e` / `e2183389`)
+complete the original TLC-profile Sailfish model in 300.021 / 836.998 seconds,
+with identical success, 109,604 distinct / 314,144 generated / depth 16. This
+is a 2.790× improvement in **one matched pair**, with peak RSS
+77,602,816 / 78,966,784 bytes. It confirms direction; it is not five-repeat
+acceptance and is still much slower than the earlier approximately 52-second
+TLC observation. The prototype stays draft, no further optimization was folded
+into this tranche, and no new all-model compat speedup is claimed. Record:
+`conformance/reports/perf/2026-10-28-core-tlc-guard-quiet-pair.json`.
+
 ## 4. Decisions taken in M1, and why
 
 - **Memo on by default (#575).** I first held this PR. The M3 showed fewer
@@ -288,6 +324,11 @@ replace forms, `MapThenFoldSet`/`Folds`, TLC-profile `AllSubSeqs` membership and
 the two printing refusals. L5 requires state storage as well as packed topology
 (`11-liveness.md`); `kSubset` needs a symbolic value and startup/validator support
 (`03-value-model.md`). Neither is a one-function completion.
+Carry-forward defects #504 (failed ASSUME name), #515 (reference instantiated
+Naturals error) and #527 (core Len on an empty-domain function) remain open;
+this closeout does not retire them. The earlier checkpoint's approximately
+11-billion-instruction MCLamportMutex increase was not causally attributed;
+the new wall-time results do not retroactively explain that historical cost.
 
 M2 still requires full-tier core coverage, at most 5% fallback, a 2× TLC
 geometric mean at both worker counts and no slower benchmark. M3 retains the
