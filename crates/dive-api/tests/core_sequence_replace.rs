@@ -111,6 +111,8 @@ fn replacement_steps_have_independently_validated_counterexamples() {
 fn unimplemented_sequence_demands_stay_explicitly_refused() {
     // Pinned TLC succeeds on each. The LET thunk prints once per state;
     // named/operator calls print twice; the three inline arguments print six.
+    // These are pinned counts, not proof of TLC effect-demand order: #612
+    // records the existing reference order bug. Auto must preserve reference.
     for (name, output_count) in [
         ("SeqReplaceMixed", 0),
         ("SeqReplaceNested", 0),

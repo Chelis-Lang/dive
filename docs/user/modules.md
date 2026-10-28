@@ -83,7 +83,8 @@ dive check crates/dive-api/tests/fixtures/op-literal/specs/OlBagOfAll/OlBagOfAll
 run with `--engine core` on strings and on pure, materialized sequences whose
 combined elements are all integers, all booleans or all strings. Empty
 sequences are allowed. This holds in both profiles and at any worker count.
-ReplaceFirst finds the earliest occurrence, including when occurrences overlap.
+For sequence arguments, ReplaceFirst finds the earliest occurrence, including
+when occurrences overlap.
 ReplaceAll replaces every occurrence when none overlap; overlapping nonempty
 occurrences remain unsupported unless its early pattern=text or
 replacement=pattern CASE arm applies. TLC's remaining partition choice does
@@ -101,6 +102,11 @@ with a single evaluation would change `PrintT` or checker-register behavior.
 Existing effectful string arguments retain their single evaluation. Inputs and
 materialized outputs are bounded at 2^24 elements. `--engine auto` reruns refused
 cases on the reference engine; the default remains `reference`.
+
+Auto preserves the frozen reference engine's result and output. For effectful
+sequence arguments, that engine has a known reevaluation-order difference from
+TLC (issue #612); equal output counts do not establish argument-order parity.
+The core continues to refuse those calls.
 
 This checked fixture needs the CommunityModules source path and completes with
 success, 1 distinct state, 2 generated states, depth 1 and exit 0:

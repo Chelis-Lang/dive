@@ -835,6 +835,14 @@ below. Non-string
 arguments with effects remain explicitly refused; existing effectful string
 calls retain the override's single evaluation.
 
+The Auto effect controls establish preservation of the frozen reference output,
+not exact TLC argument-demand order. Existing defect #612 reproduces on the
+rejected historical source too: for the inline sequence fixture the reference
+and Auto print `r,s,t,r,s,t` at each state, versus TLC's `r,s,t,s,t,r`. Counts
+match (12 across two states), but order does not. This remains a separate
+frozen-reference bugfix obligation; neither refused effectful sequence calls
+nor their Auto fallback earn pinned-TLC effect-order parity credit here.
+
 The supported slice is pure materialized sequences whose combined elements
 are all integers, all booleans or all strings (including empty sequences).
 ReplaceAll additionally refuses overlapping nonempty occurrences after its two
