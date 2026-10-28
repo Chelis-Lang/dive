@@ -1,7 +1,9 @@
 # 11. Liveness on the core
 
 Status: phase 1 (L1–L4) built, 2026-10-28; pulled forward from M3.
-The remaining phase is L5, after M1 acceptance, with the prerequisites in §7.
+Preparatory L5 topology support is implemented in the product API (§7.1).
+Checker state retention, completion/results and measured capacity remain L5 work
+with the prerequisites in §7.
 
 This document describes how `--engine core` checks genuine temporal properties
 (`<>P`, `[]<>P`, `P ~> Q`, `WF`/`SF` fairness). The safety parts of properties
@@ -277,9 +279,9 @@ These follow the liveness-budgets rule:
   additive `dive-liveness::StateSource` interface and a bounded cache.
   - **State and topology access.** `labels`, `selected_targets` and lasso
     extraction currently index `BehaviorGraph` directly. Product
-    `BehaviorView` supports only the dense and captured reference graphs;
-    CSR topology access is also required. Keep the reference adapter and
-    existing entrypoints unchanged while introducing compact access.
+    `BehaviorView` supports dense, captured and borrowed CSR topology (see
+    §7.1). State access and the end-to-end compact backend remain to be built.
+    Keep the reference adapter and existing entrypoints unchanged.
   - **Retained states.** The store retains values, but the explorer keeps
     only the current/next frontier's state-handle rows. L5 must retain an
     addressable handle row or state root for every graph vertex. Those
@@ -315,6 +317,30 @@ and effects boundary. Those remain separate obligations even if capture fits
 in memory. Graph/report equality, both semantic profiles, completed-level
 scheduling, independent validation and the full gate remain acceptance gates.
 
+### 7.1 Implemented first dependency: borrowed CSR topology
+
+`dive_liveness::product::CsrTopology` validates borrowed offset, 32-bit target
+and root slices without constructing a nested adjacency copy.
+`Product::from_csr` and `with_csr_recurrences` use the same product builder as
+the existing dense input. The internal compact product uses that topology view
+too. The input view retains root/edge order and duplicates; product construction
+keeps its existing canonical root handling. Empty rows stay dead ends, and
+witness edge numbers remain original per-row positions. Existing
+product limits and acceptance-buffer policies retain their dense-input results.
+This view validates references, not producer completion or temporal acceptance.
+
+This is the topology dependency, not compact checker graph capture. Analysis
+still reads `BehaviorGraph` state representatives and concrete target rows;
+lasso extraction and Complete/Prefix still retain the reference graph. Next:
+introduce the state/concrete-target access boundary, retained all-vertex roots,
+and compact-compatible completion/results before routing the checker through
+CSR. Concrete targets must preserve the original generated values; substituting
+`states[edge.to]` is not equivalent. Retained original target values or their
+exact reconstruction/cache must enter the memory and work accounting. Its
+builder must retain action/ordinal metadata and poll/account allocations
+under the run budget. No graph limit is raised and no capacity or throughput
+claim follows from this product-input support.
+
 ## 8. Tests
 
 - **Graph equality** (the main test). For every temporal fixture (the
@@ -342,7 +368,7 @@ scheduling, independent validation and the full gate remain acceptance gates.
 | L2 (built) | `capture::refusal` and `GraphBuilder` (`dive-check`); `GraphCheck` (`dive-liveness`); tests: a graph rebuilt through `GraphBuilder` equals the reference capture, and `GraphCheck` over it equals `analyze_final` and `analyze_periodic` | full |
 | L3 (built) | `GraphSink` in `dive-explore`; the `dive-api` converting sink; graph-equality tests (§8) against the reference capture | fast |
 | L4 (built) | The temporal route in `core_engine` (both profiles), refusals, report-equality tests, harness census, user guide and CHANGELOG | fast (full if L2 needs follow-up) |
-| L5 (remaining) | Handle-backed graph, state/topology access and compact-compatible completion/results (§7), measured against TLC | full |
+| L5 (partial) | Borrowed CSR product input built (§7.1); checker state access/retention and compact-compatible completion/results remain, followed by TLC capacity measurement (§7) | full |
 
 Each PR updates this document's status, the status board and the handoff log.
 

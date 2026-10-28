@@ -200,6 +200,15 @@ The semantic contract lists seven more, in `02-semantic-contract.md` §6.
 Add a new entry at the top for every working session that ends with work in
 progress. Give the date, branch, state and the exact next step.
 
+- **2026-10-28 (engine, `l5/borrowed-topology-source`).** First L5 dependency:
+  checked borrowed CSR topology reaches the existing owned/compact product
+  engines, preserving roots, duplicate edges, original positions and limits.
+  The dense/captured route and checker graph retention remain unchanged. Next:
+  state and original concrete-target access, retained handle roots, and
+  compact-compatible completion/results before any native capacity measurement.
+  L5 remains incomplete; this preparatory product API supplies no new verdict
+  or capacity authority. Full-gate evidence belongs in its PR.
+
 - **2026-10-28 (acceptance closeout).** Main `f1acc846` contains the scoped
   ENABLED, Init/Next, sampler, named-error trace and disabled-hashcons replay
   repairs. Full source-bound results and remaining obligations are in

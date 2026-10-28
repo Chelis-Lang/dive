@@ -17,6 +17,8 @@ use csr::{CsrGraph, FlatRows, OwnedRows, ProductRows, RowStorage};
 
 mod behavior;
 pub(crate) use behavior::BehaviorView;
+mod topology;
+pub use topology::CsrTopology;
 
 mod budget;
 pub use budget::AcceptancePolicy;
@@ -315,8 +317,71 @@ impl Product {
         conditions: &[Recurrence],
         limits: Limits,
     ) -> Result<Self, ProductError> {
-        let parts = build::<_, OwnedRows>(
+        Self::with_behavior(
             BehaviorView::Dense(graph),
+            tableau,
+            labels,
+            conditions,
+            limits,
+        )
+    }
+
+    /// Constructs the same product from checked borrowed CSR adjacency.
+    /// The caller supplies state/action labels and all intended stutters.
+    /// This does not check a bound specification or certify graph completion.
+    ///
+    /// ```
+    /// use dive_liveness::formula::{self, Formula, Node};
+    /// use dive_liveness::product::{CsrTopology, Labels, Limits, Product};
+    /// let offsets = [0, 1];
+    /// let targets = [0];
+    /// let roots = [0];
+    /// let topology = CsrTopology::new(&offsets, &targets, &roots)?;
+    /// let formula = Formula::new(vec![Node::Bool(true)], 0)?;
+    /// let tableau = formula::compile(&formula, formula::Limits::default())?;
+    /// let labels = Labels { states: vec![], actions: vec![] };
+    /// let product = Product::from_csr(topology, &tableau, &labels, Limits::default())?;
+    /// assert!(product.find_lasso()?.is_some());
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
+    /// ```
+    ///
+    /// # Errors
+    /// Malformed tableau/label dimensions or an explicit product resource limit.
+    pub fn from_csr(
+        graph: CsrTopology<'_>,
+        tableau: &Tableau,
+        labels: &Labels,
+        limits: Limits,
+    ) -> Result<Self, ProductError> {
+        Self::with_csr_recurrences(graph, tableau, labels, &[], limits)
+    }
+
+    /// Constructs a borrowed-CSR product with recurring conditions.
+    /// Conditions, edge positions and resource bounds have the same meaning as
+    /// in [`Self::with_recurrences`]; no adjacency copy is made before building
+    /// the product.
+    ///
+    /// # Errors
+    /// Malformed tableau/labels, condition atom references or product limits.
+    pub fn with_csr_recurrences(
+        graph: CsrTopology<'_>,
+        tableau: &Tableau,
+        labels: &Labels,
+        conditions: &[Recurrence],
+        limits: Limits,
+    ) -> Result<Self, ProductError> {
+        Self::with_behavior((&graph).into(), tableau, labels, conditions, limits)
+    }
+
+    fn with_behavior(
+        graph: BehaviorView<'_>,
+        tableau: &Tableau,
+        labels: &Labels,
+        conditions: &[Recurrence],
+        limits: Limits,
+    ) -> Result<Self, ProductError> {
+        let parts = build::<_, OwnedRows>(
+            graph,
             tableau,
             labels,
             conditions,
