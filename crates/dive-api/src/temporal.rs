@@ -1460,6 +1460,42 @@ fn finish_periodic(
     Ok((outcome, checks))
 }
 
+/// The report of a temporal check whose graph the core engine produced
+/// (`docs/developer/core/11-liveness.md` §6): the analysis result goes
+/// through the reference engine's own validation and report path, with
+/// the file configuration. `periodic` says whether the default profile's
+/// completed-level schedule ran.
+pub(crate) fn core_report(
+    ir: &Arc<Ir>,
+    config: &ModelConfig,
+    options: &CheckOptions,
+    result: Result<(PeriodicAnalysis, Checks), dive_liveness::analyze::periodic::PeriodicFailure>,
+    periodic: bool,
+    symmetry_liveness: dive_model::SymmetryLivenessResolution,
+    started: Instant,
+) -> Result<Report, Failure> {
+    match finish_periodic(ir, config, options, result) {
+        Ok((outcome, checks)) => Ok(Report {
+            outcome,
+            symmetry_liveness: Some(symmetry_liveness),
+            options: options.clone(),
+            elapsed: started.elapsed(),
+            periodic: periodic.then_some(checks),
+            configuration: Some(file_configuration()),
+            memory_samples: options.budget.memory_samples(),
+        }),
+        Err(mut failure) => {
+            failure.elapsed = started.elapsed();
+            failure.configuration = Some(Box::new(file_configuration()));
+            failure.symmetry_liveness = Some(Box::new(symmetry_liveness));
+            if !periodic {
+                failure.periodic = None;
+            }
+            Err(failure)
+        }
+    }
+}
+
 // Ordinary requests use only the accepted default-memory role dispatch. Keep
 // its original model/host through analysis, and its complete safety results.
 // This is private source/configuration dispatch, never a prebound caller API.
