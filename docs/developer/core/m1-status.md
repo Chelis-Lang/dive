@@ -6,30 +6,56 @@ contract and this page for current evidence and the next bounded steps.
 
 ## 1. Current qualification
 
-- All ten benchmark models run on the core. The prior memo A/B establishes
-  useful default-profile improvements, but its cross-campaign TLC ratios below
-  are historical indications, not the quiet matched M1 decision.
-- The repeatable, seeded fixture census is now implemented (#595). Its first
-  complete run selects 1,361 of 1,474 configurations: 99 parser exclusions and
-  14 ambiguous module selections are explicitly accounted for. It runs both
-  profiles at one worker with a 20-second native limit and 3-GiB memory limit.
-- That run is **not clean shadow acceptance**. Default: 983 agree, 242 refused,
-  three successor findings, six budget stops, 100 trace-refuted and 27
-  trace-unconfirmed. TLC: 959 agree, 258 refused, three successor findings,
-  four stops, 104 trace-refuted and 33 trace-unconfirmed. These are core/reference
-  shadow outcomes, never TLC parity counts. Exact source and qualification:
-  `conformance/reports/core/2026-10-28-fixture-census-v1.json`.
-- The stronger harness (#594) rejects absent, independently unconfirmed or
-  refuted required words and matching unclassified outcomes. Earlier census
-  totals cannot be promoted through that change retrospectively.
-- The takeover found and fixed an `ENABLED` step-cache leak (#593) capable of
-  both false and missed violations; the old assertion that no wrong result
-  was known is withdrawn. Mutation controls exercise the actual boundary.
-- Excluded Init depth and omitted Next endings now match pinned TLC (#589).
-  The reference literal-bodied operator-argument bug is fixed (#580), with
-  a passing full gate; its checked user example was corrected in #599.
-- Static fallback, named refusals and independent validation remain required.
-  No default-engine change is proposed while the acceptance findings remain.
+- All ten benchmark models run on the core. The complete matched five-repeat
+  default campaign at `2d55317a` has 300 correct rows and beats TLC on all ten
+  at both worker counts, with paired geometric means 2.649× / 2.645× (§3).
+  TLC-compatible performance, scaling and memory versus the reference have
+  separate open targets; default speed does not settle them.
+- Main `f1acc846` includes the `ENABLED` cache-boundary fix (#593), Init/Next
+  ending fixes (#589), sampled-level fix (#601), named invariant-error trace
+  validation (#604), and compound trace reconstruction without hash-consing
+  (#605). The reference literal-bodied operator bug is fixed (#580), with
+  a passing full gate and corrected checked example (#599).
+- Required words must validate independently. The stricter harness (#594)
+  rejects missing/unconfirmed words and matching unclassified outcomes;
+  earlier measurements earn no retrospective credit through that change.
+- The prior assertion that no wrong result was known was disproved by the
+  `ENABLED` step-cache leak: it caused both false and missed violations.
+  The repair has real path and source-mutation controls. Equality between
+  two engines alone is not an independent correctness oracle.
+- The default engine remains `reference`. No default flip is proposed while
+  the acceptance findings remain. No new full-tier core result is claimed.
+
+### Final actual-main fixture census
+
+Exact source `f1acc846885f6764d2ce3b40c8c757d9912b25c8`, both profiles, one
+worker, seed/fp 0, 32 sampled states, 20-second native limit and 3-GiB ceiling.
+The repeatable runner selects 1,363 of 1,476 configurations, with all 99 parser
+exclusions and 14 ambiguous module selections explicitly retained.
+
+| Profile | Shadow agree | Refused | Native stops | Trace refuted | Unconfirmed | Successor findings |
+|---|---:|---:|---:|---:|---:|---:|
+| default | 1,025 | 242 | 6 | 63 | 27 | 0 |
+| TLC | 1,002 | 258 | 4 | 66 | 33 | 0 |
+
+The job correctly exits **1**: this is not clean M1 acceptance and these are
+not pinned-TLC parity counts. Against the original 1,361 common fixture IDs,
+37 default / 38 TLC invariant-error findings and all three successor findings
+per profile move to shadow agreement. Every other original fixture status
+stays unchanged. The two added fixtures, LevelChain and CompoundTrace, agree
+in both profiles and receive new-population credit only.
+
+All native stop/resource-refusal identities and physical exits remain unchanged.
+Remaining refutations include 50 wrapper/ending metadata cases per profile and
+13 default / 16 TLC constraint/action cases. Unconfirmed outcomes include
+17 / 23 final-expansion errors and ten missing native documents per profile.
+Each remains a finding; no equality-only or metadata certificate replaces a word.
+
+Source/binary identities, every non-agreement ID, complete accounting and the
+external archive hash are in
+`conformance/reports/core/2026-10-28-fixture-census-final.json`, with a per-ID
+comparison beside it. The failed starting run remains intact at
+`conformance/reports/core/2026-10-28-fixture-census-v1.json`.
 
 ### Fresh small-tier control
 
@@ -244,16 +270,16 @@ The census identifies distinct obligations; one fix cannot waive another family:
 
 | Obligation | Evidence and next action |
 |---|---|
-| Sampled level context | Fixed in #601; the three original findings per profile now have source-level and independently expected-successor controls. Actual-main census verification follows. |
+| Sampled level context | Fixed in #601; the three original findings per profile now have source-level and independently expected-successor controls. The final actual-main census has zero successor findings. |
 | Invariant evaluation-error words | Fixed in #604 for 37 default / 38 TLC cases, with exact named cause, prefix and failure-order validation. Other #490 families remain. |
-| Other terminal error words | 50 findings per profile still compare a 2103 wrapper with an underlying ending cause; retain #490 and classify each evaluation site before changing representation. |
+| Other terminal error words | 50 findings per profile still compare a 2103 wrapper with an underlying ending cause (#606); classify each evaluation site before changing representation. |
 | Constraint/action error words | 13 default / 16 TLC refuted words remain in the #499 families. Preserve actual terminal evaluation ordering; do not exempt the last state broadly. |
 | Errors while expanding the final state | 17 default / 23 TLC words are independently unconfirmed; #434 needs an independent successor-generator strategy. |
-| Missing words | Ten required counterexample documents per profile are absent. Matching reports supply no substitute. |
+| Missing words | Ten native documents per profile are absent for reported partial-state words (#607). Matching reports supply no substitute; independent generator/partial-state semantics need their own strategy. |
 | Resource stops | Six default / four TLC runs stop with native exit 5. They remain incomplete. `ErDeepRecursion` separately returns a classified resource-limit refusal in both profiles. |
 | M1 performance decision | Complete at `2d55317a`: all 300 rows correct, ten of ten faster than TLC at both worker counts. Both-profile five-repeat acceptance remains outstanding. |
 | Compat performance | #597: one completed quiet Sailfish repetition takes core 841.01 s versus TLC 52.02 s at one worker, despite correct counts. The comparison-guard prototype #598 is diagnostic until matched quiet measurements and gates pass. |
-| Correctness coverage | Fresh small-tier `auto` comparison in both profiles, with actual engine/fallback accounting, plus the M1 ablation matrix. Do not substitute reference-only gate results for core coverage. |
+| Correctness coverage | Both small-tier auto controls pass with explicit engine accounting. The ten-switch matrix retains original failures, declared materialization fallbacks and separate corrected-source hashcons retests; see qualification below. |
 | Startup and memory | Trivial startup and Coffee compile/fold measured above. Retain explicit eight-worker RSS and large-model scaling regressions. |
 
 Known implementation gaps remain: `ENABLED` inside INSTANCE substitutions,
@@ -271,16 +297,22 @@ core reboot and do not establish current core breadth.
 
 ## 6. Execution order
 
-1. Finish the small, source-bound correctness fixes and their required gates;
-   retain failing baseline census evidence and rerun the same selection.
-2. Complete and preserve the quiet matched default campaign; evaluate its gate
-   independently of the TLC-compatible slowdown. Test the single guard prototype
-   against its original algorithm before any performance merge.
-3. Run `auto` against both small-tier baselines with full accounting. Keep the
-   reference default while required words or supported paths remain unproven.
-4. Address remaining error-word families by evaluation site, with smallest
-   pinned reproducers and independent validation controls. Then resume the
-   documented stdlib/compiler/L5 streams, each as a single-scope PR.
+1. Resolve the remaining terminal-error families by typed evaluation site:
+   nested-wrapper claims (#606), constraint/action boundaries (#499 and #490),
+   final-expansion certification (#434), and missing partial-state words (#607).
+   Use minimal pinned reproducers and independent negative controls. Do not
+   exempt the last state or accept a matching wrapper as a certificate.
+2. Evaluate the single comparison-guard prototype (#598) against its preserved
+   original algorithm and quiet matched diagnostic. Then run a complete
+   five-repeat both-profile performance campaign before claiming M2's target;
+   the original Sailfish compat slowdown (#597) is reproducible.
+3. Retain explicit fallback and ablation accounting; broaden to the full tier
+   on the core for M2 instead of promoting the historical reference result.
+   Preserve the reference default while supported words remain unproven.
+4. Resume the existing stdlib, INSTANCE-substitution and L5 workstream plans.
+   L5 first needs state-storage and graph-access boundaries, not merely packed
+   edges; kSubset first needs symbolic/startup/validator support. Keep each
+   deliverable in a small source-bound PR.
 
 The corrective discipline is concrete: no invented agreement credit, no weakened
 validator, no stale build identity, no source sharing between heavy jobs, no

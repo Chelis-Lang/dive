@@ -200,6 +200,17 @@ The semantic contract lists seven more, in `02-semantic-contract.md` §6.
 Add a new entry at the top for every working session that ends with work in
 progress. Give the date, branch, state and the exact next step.
 
+- **2026-10-28 (acceptance closeout).** Main `f1acc846` contains the scoped
+  ENABLED, Init/Next, sampler, named-error trace and disabled-hashcons replay
+  repairs. Full source-bound results and remaining obligations are in
+  `m1-status.md`: the final fixture census is still failed acceptance; default
+  matched throughput clears ten of ten, but compat, scaling, memory tradeoffs
+  and broad trace certification remain. Keep the reference default. Next:
+  resolve the remaining terminal-error families by evaluation site and the
+  independent final-expansion strategy, then resume the existing stdlib,
+  INSTANCE-substitution and L5 prerequisite plans. No graph rewrite or default
+  flip follows from these measurements.
+
 - **2026-10-28 (harness, `test/seeded-fixture-census`).** Added the repeatable
   fixture census runner described in `08-correctness.md`. Preparation at
   `e2183389` accounts for all 1,450 configs (99 parser exclusions, 1,337 selected,
