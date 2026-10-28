@@ -563,6 +563,24 @@ an action constraint. A primed definition inside it must read the
 `ENABLED` action's successor, never the step's, so a step predicate's
 cache of primed bodies (#579) must not reach inside `ENABLED`.
 
+**Cache boundary defect (#588, 2026-10-28).** The original `EnabStep`
+uses `NX == x'`, which is too trivial to enter `step_cached`. Replacing it
+with `NX == x' + 1` and adjusting the checks to `NX < 4` and `NX = 8`
+exposed an enclosing step thunk reused inside the query: pinned TLC and the
+reference engine succeed (3 distinct, 4 generated, depth 3), while the core
+reported an action-property violation in both profiles. **Fixed:** the query
+compiles with a fresh `def_cache`, restoring the enclosing cache afterward,
+as well as generator compilation with `step` off. `EnabStepCache` retains
+that holding control; `EnabStepCacheBad` instead violates `Prop` (2/2/2,
+exit 13, independently validated trace `x=0 -> x=1`). `EnabStepSearch`
+searches `x' \in 0..2` for `NX = 3`; its witness occurs only on the third
+candidate, so it exercises the step-clear boundary independently, with an
+impossible `NX = 4` query as a negative control. Pinned TLC gives success
+(3/4/3) for both holding fixtures. `core_enabled_step` checks both profiles,
+1/4/8 workers, and the keyed and step memo tables independently on/off.
+Removing cache isolation fails the first test; retaining `step` while
+compiling the query fails the second. Restoring both passes both tests.
+
 **Model.** BufferedRandomAccessFile matches its golden on the core: 3316 distinct, 128581 generated, depth 10. M3, 1 worker, indicative: core 10.5 s user, reference engine 79.0 s (`crates/dive-api/tests/core_golden.rs`).
 
 ## 6. Interpreter

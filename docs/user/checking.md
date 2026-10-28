@@ -79,6 +79,16 @@ core currently covers:
   in a specification that uses `..` or `DOMAIN`) are reported as
   unsupported.
 
+`ENABLED A` inside an action constraint or implied action property searches
+for a successor of `A` from the current state. Its primed expressions read
+that query's candidate, including definitions also used by the surrounding
+property. This example checks both contexts and returns success with 3
+distinct states, 4 generated states and depth 3:
+
+```sh
+dive check crates/dive-api/tests/fixtures/core-m0/EnabStepCache.tla --engine core --compat=tlc --workers 4 --seed 0 --fp 0 --output json
+```
+
 With `--engine core`, anything the core does not implement yields an
 `unsupported` verdict that names it, and the run never falls back. The JSON
 report adds `"engine": "core"` and a `core` object with strategy metrics.
