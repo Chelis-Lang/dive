@@ -2394,7 +2394,12 @@
       "Cargo targets",
       "executables",
       "generated recorder source"
-    ]
+    ],
+    "external_preservation": {
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "m1-closeout/2026-10-28/fixture-census-v1-results.tar.gz",
+      "verified": "local SHA-256 and regular-file archive inspection; S3 object length and sha256 metadata confirmed"
+    }
   },
   "preservation": "Original result directory and failed job status remain untouched; any later rerun must use a distinct output location."
 }
