@@ -58,31 +58,28 @@ fn a_due_prefix_inherits_its_budget_and_parent_reports_a_typed_stop() {
     let planning = super::super::evaluator_control(&CheckOptions::tlc(0, 0)).expect("control");
     let plans = prepare(&model, limits, &planning).expect("plans before the budget expires");
     let watchdog = crate::budget::expired_for_test();
+    let control = dive_check::budget::EvaluationControl::new(
+        watchdog.budget(),
+        dive_check::budget::Phase::Temporal,
+    )
+    .expect("control");
     let mut observer = Observe {
-        budget: watchdog.budget(),
-        control: dive_check::budget::EvaluationControl::new(
-            watchdog.budget(),
-            dive_check::budget::Phase::Temporal,
-        )
-        .expect("control"),
-        model: &model,
-        plans: &plans,
-        limits,
-        policy: AcceptancePolicy::Legacy,
-        graph_labels: GraphLabelPolicy::Cells(limits.atom_cells),
-        checks: Checks {
+        inputs: Inputs {
+            budget: watchdog.budget(),
+            control: &control,
+            model: &model,
+            plans: &plans,
+            limits,
+            policy: AcceptancePolicy::Legacy,
+            graph_labels: GraphLabelPolicy::Cells(limits.atom_cells),
+        },
+        d: Decisions::new(Checks {
             schedule: Schedule {
                 min_states: 1,
                 growth_factor: 2,
             },
             ..Checks::default()
-        },
-        stage: Stage::Capture,
-        evaluations: EvaluationErrors {
-            periodic: true,
-            ..EvaluationErrors::default()
-        },
-        decision: None,
+        }),
     };
     // Keep capture itself unlimited so it deterministically reaches a due
     // callback with the already-expired temporal budget. The production path
@@ -107,18 +104,18 @@ fn a_due_prefix_inherits_its_budget_and_parent_reports_a_typed_stop() {
         panic!("budget exhaustion must stop the due callback before completion");
     };
     assert!(prefix.stats.left_on_queue > 0);
-    let Err(error) = observer.decision.take().expect("callback decision") else {
+    let Err(error) = observer.d.decision.take().expect("callback decision") else {
         panic!("an exhausted callback cannot manufacture a candidate");
     };
     assert!(super::super::budget_limit(&error));
     let progress = prefix.stats;
     let failed = failure(
         error,
-        observer.stage,
+        observer.d.stage,
         Some(Box::new((&*prefix).into())),
-        observer.evaluations,
+        observer.d.evaluations,
         Some(false),
-        observer.checks,
+        observer.d.checks,
     );
     let stopped = budget_failure(failed, watchdog.budget());
     assert_eq!(stopped.capture_completed, Some(false));

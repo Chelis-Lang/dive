@@ -117,18 +117,186 @@ pub struct PeriodicFailure {
     pub checks: Checks,
 }
 
-struct Observe<'a> {
+/// The fixed inputs of a level or final check.
+#[derive(Clone, Copy)]
+struct Inputs<'a> {
     budget: &'a dive_check::budget::Budget,
-    control: std::sync::Arc<dive_check::budget::EvaluationControl>,
+    control: &'a std::sync::Arc<dive_check::budget::EvaluationControl>,
     model: &'a Model,
     plans: &'a [super::PreparedProperty],
     limits: Limits,
     policy: AcceptancePolicy,
     graph_labels: GraphLabelPolicy,
+}
+
+/// What the checks of one run have done and decided so far.
+struct Decisions {
     checks: Checks,
     stage: Stage,
     evaluations: EvaluationErrors,
     decision: Option<Result<CandidateWord, AnalysisError>>,
+}
+
+impl Decisions {
+    fn new(checks: Checks) -> Self {
+        Self {
+            checks,
+            stage: Stage::Capture,
+            evaluations: EvaluationErrors {
+                periodic: true,
+                ..EvaluationErrors::default()
+            },
+            decision: None,
+        }
+    }
+
+    /// Checks the graph after the completed `level`, if the schedule says so.
+    fn level(
+        &mut self,
+        inputs: Inputs<'_>,
+        level: u64,
+        graph: &capture::BehaviorGraph,
+        stats: Stats,
+    ) {
+        if stats.left_on_queue == 0
+            || !self
+                .checks
+                .schedule
+                .due(stats.distinct, self.checks.last_size)
+        {
+            return;
+        }
+        self.checks.prefixes += 1;
+        self.checks.last_level = Some(level);
+        self.checks.last_size = stats.distinct;
+        // Capture invokes this callback on its own thread. Thread-local run
+        // budgets do not cross that boundary; install the same armed signal
+        // only while a due prefix analysis runs.
+        let _scope = crate::budget::enter(inputs.budget);
+        // Due prefixes retain legacy frontier labels and attribution. A row
+        // cache covers expanded sources only and cannot replace that demand.
+        // Only the first property can decide a prefix: a word for it on a
+        // subgraph is a word on the complete graph, which the final search
+        // would also report first. Later properties wait for the final check.
+        match analyze_captured(
+            inputs.model,
+            inputs.plans,
+            1,
+            graph,
+            inputs.limits,
+            inputs.policy,
+            inputs.graph_labels,
+            &mut self.stage,
+            &mut self.evaluations,
+            inputs.control,
+            None,
+        ) {
+            Ok(None) => {}
+            Ok(Some(word)) => self.decision = Some(Ok(word)),
+            Err(error) => self.decision = Some(Err(error)),
+        }
+    }
+
+    /// The result of a stop after a completed level, with the kept decision.
+    fn prefix(
+        self,
+        prefix: capture::Prefix,
+    ) -> Result<(PeriodicAnalysis, Checks), PeriodicFailure> {
+        let word = self
+            .decision
+            .unwrap_or_else(|| {
+                Err(AnalysisError::Inconsistent(
+                    "prefix stopped without an analysis decision",
+                ))
+            })
+            .map_err(|error| {
+                failure(
+                    error,
+                    self.stage,
+                    Some(Box::new((&prefix).into())),
+                    self.evaluations,
+                    Some(false),
+                    self.checks,
+                )
+            })?;
+        Ok((
+            PeriodicAnalysis::Prefix(PrefixCandidate {
+                target_property: word.target_property,
+                properties: word.properties,
+                states: word.states,
+                back_to: word.back_to,
+                edges: word.edges,
+                exploration: prefix,
+            }),
+            self.checks,
+        ))
+    }
+
+    /// The final check of a complete exploration.
+    fn complete(
+        mut self,
+        inputs: Inputs<'_>,
+        complete: capture::Complete,
+        cache: Option<&std::sync::Mutex<super::row_demand::Cache>>,
+    ) -> Result<(PeriodicAnalysis, Checks), PeriodicFailure> {
+        let _control = inputs.control.enter(&inputs.model.evaluator).map_err(|_| {
+            failure(
+                AnalysisError::Inconsistent("another driver owns evaluator control"),
+                Stage::Product,
+                Some(Box::new((&complete).into())),
+                EvaluationErrors::default(),
+                Some(true),
+                self.checks,
+            )
+        })?;
+        self.checks.exhausted = true;
+        self.checks.final_check = true;
+        self.evaluations.periodic = false;
+        let cached = cache
+            .map(std::sync::Mutex::lock)
+            .transpose()
+            .map_err(|_| {
+                failure(
+                    AnalysisError::Inconsistent("temporal cache lock poisoned"),
+                    Stage::Product,
+                    Some(Box::new((&complete).into())),
+                    EvaluationErrors::default(),
+                    Some(true),
+                    self.checks,
+                )
+            })?
+            .filter(|cache| cache.active());
+        let word = analyze_captured(
+            inputs.model,
+            inputs.plans,
+            usize::MAX,
+            &complete.graph,
+            inputs.limits,
+            inputs.policy,
+            inputs.graph_labels,
+            &mut self.stage,
+            &mut self.evaluations,
+            inputs.control,
+            cached.as_deref(),
+        )
+        .map_err(|error| {
+            failure(
+                error,
+                self.stage,
+                Some(Box::new((&complete).into())),
+                self.evaluations,
+                Some(true),
+                self.checks,
+            )
+        })?;
+        let analysis = super::final_analysis(word, complete);
+        Ok((PeriodicAnalysis::Final(analysis), self.checks))
+    }
+}
+
+struct Observe<'a> {
+    inputs: Inputs<'a>,
+    d: Decisions,
 }
 impl capture::Observer for Observe<'_> {
     fn level_done(
@@ -137,47 +305,11 @@ impl capture::Observer for Observe<'_> {
         graph: &capture::BehaviorGraph,
         stats: Stats,
     ) -> Result<(), String> {
-        if stats.left_on_queue == 0
-            || !self
-                .checks
-                .schedule
-                .due(stats.distinct, self.checks.last_size)
-        {
-            return Ok(());
-        }
-        self.checks.prefixes += 1;
-        self.checks.last_level = Some(level);
-        self.checks.last_size = stats.distinct;
-        // Capture invokes this callback on its own thread. Thread-local run
-        // budgets do not cross that boundary; install the same armed signal
-        // only while a due prefix analysis runs.
-        let _scope = crate::budget::enter(self.budget);
-        // Due prefixes retain legacy frontier labels and attribution. A row
-        // cache covers expanded sources only and cannot replace that demand.
-        // Only the first property can decide a prefix: a word for it on a
-        // subgraph is a word on the complete graph, which the final search
-        // would also report first. Later properties wait for the final check.
-        match analyze_captured(
-            self.model,
-            self.plans,
-            1,
-            graph,
-            self.limits,
-            self.policy,
-            self.graph_labels,
-            &mut self.stage,
-            &mut self.evaluations,
-            &self.control,
-            None,
-        ) {
-            Ok(None) => {}
-            Ok(Some(word)) => self.decision = Some(Ok(word)),
-            Err(error) => self.decision = Some(Err(error)),
-        }
+        self.d.level(self.inputs, level, graph, stats);
         Ok(())
     }
     fn stop_after_level(&self) -> bool {
-        self.decision.is_some()
+        self.d.decision.is_some()
     }
 }
 
@@ -318,7 +450,16 @@ pub(super) fn analyze_periodic_bound(
         authority,
     )
     .map_err(|failure| budget_failure(failure, &armed.budget));
-    if let Some(watchdog) = &mut watchdog {
+    close_budget(watchdog.as_mut(), result)
+}
+
+/// The run's final budget check for the entry point that armed it: a
+/// result is replaced by a stop when the budget ran out while finishing.
+fn close_budget(
+    watchdog: Option<&mut dive_check::budget::Watchdog>,
+    result: Result<(PeriodicAnalysis, Checks), PeriodicFailure>,
+) -> Result<(PeriodicAnalysis, Checks), PeriodicFailure> {
+    if let Some(watchdog) = watchdog {
         let finished = watchdog.finish();
         if let Ok((analysis, checks)) = &result {
             let error = match finished {
@@ -383,23 +524,19 @@ fn budget_failure(
     failure
 }
 
-#[allow(
-    clippy::too_many_lines,
-    reason = "keep producer outcomes and their distinct failure evidence together"
-)]
-fn periodic_unbudgeted(
+/// Validates the context and plans every property once, before capture.
+fn planned(
     model: &Model,
     options: &CheckOptions,
     limits: Limits,
-    policy: AcceptancePolicy,
-    graph_labels: GraphLabelPolicy,
-    schedule: Schedule,
-    authority: Option<&super::owned::Authority<'_>>,
-) -> Result<(PeriodicAnalysis, Checks), PeriodicFailure> {
-    let checks = Checks {
-        schedule,
-        ..Checks::default()
-    };
+    checks: Checks,
+) -> Result<
+    (
+        std::sync::Arc<dive_check::budget::EvaluationControl>,
+        Vec<super::PreparedProperty>,
+    ),
+    PeriodicFailure,
+> {
     // Before lowering, touching bound scopes or starting a capture host.
     validate_analysis_context(model).map_err(|error| {
         failure(
@@ -443,6 +580,27 @@ fn periodic_unbudgeted(
             )
         })?
     };
+    Ok((control, plans))
+}
+
+#[allow(
+    clippy::too_many_lines,
+    reason = "keep producer outcomes and their distinct failure evidence together"
+)]
+fn periodic_unbudgeted(
+    model: &Model,
+    options: &CheckOptions,
+    limits: Limits,
+    policy: AcceptancePolicy,
+    graph_labels: GraphLabelPolicy,
+    schedule: Schedule,
+    authority: Option<&super::owned::Authority<'_>>,
+) -> Result<(PeriodicAnalysis, Checks), PeriodicFailure> {
+    let checks = Checks {
+        schedule,
+        ..Checks::default()
+    };
+    let (control, plans) = planned(model, options, limits, checks)?;
     let demand = super::row_demand::prepare(
         model,
         &plans,
@@ -466,20 +624,16 @@ fn periodic_unbudgeted(
         .as_ref()
         .map(|program| std::sync::Mutex::new(super::row_demand::Cache::new(program)));
     let mut observer = Observe {
-        budget: &options.budget,
-        control: control.clone(),
-        model,
-        plans: &plans,
-        limits,
-        policy,
-        graph_labels,
-        checks,
-        stage: Stage::Capture,
-        evaluations: EvaluationErrors {
-            periodic: true,
-            ..EvaluationErrors::default()
+        inputs: Inputs {
+            budget: &options.budget,
+            control: &control,
+            model,
+            plans: &plans,
+            limits,
+            policy,
+            graph_labels,
         },
-        decision: None,
+        d: Decisions::new(checks),
     };
     let native_hooks = super::owned::native_hooks(authority, model);
     let captured = if let (Some(program), Some(cache)) = (&demand, &cache) {
@@ -504,7 +658,7 @@ fn periodic_unbudgeted(
                     exploration,
                     errors,
                     Some(false),
-                    observer.checks,
+                    observer.d.checks,
                 )
             })?
     } else {
@@ -522,7 +676,7 @@ fn periodic_unbudgeted(
                 None,
                 EvaluationErrors::default(),
                 None,
-                observer.checks,
+                observer.d.checks,
             )
         })?
     };
@@ -533,95 +687,18 @@ fn periodic_unbudgeted(
             None,
             EvaluationErrors::default(),
             Some(false),
-            observer.checks,
+            observer.d.checks,
         )),
-        capture::ControlledExploration::Prefix(prefix) => {
-            let word = observer
-                .decision
-                .unwrap_or_else(|| {
-                    Err(AnalysisError::Inconsistent(
-                        "prefix stopped without an analysis decision",
-                    ))
-                })
-                .map_err(|error| {
-                    failure(
-                        error,
-                        observer.stage,
-                        Some(Box::new((&*prefix).into())),
-                        observer.evaluations,
-                        Some(false),
-                        observer.checks,
-                    )
-                })?;
-            Ok((
-                PeriodicAnalysis::Prefix(PrefixCandidate {
-                    target_property: word.target_property,
-                    properties: word.properties,
-                    states: word.states,
-                    back_to: word.back_to,
-                    edges: word.edges,
-                    exploration: *prefix,
-                }),
-                observer.checks,
-            ))
-        }
+        capture::ControlledExploration::Prefix(prefix) => observer.d.prefix(*prefix),
         capture::ControlledExploration::Complete(complete) => {
-            let _control = control.enter(&model.evaluator).map_err(|_| {
-                failure(
-                    AnalysisError::Inconsistent("another driver owns evaluator control"),
-                    Stage::Product,
-                    Some(Box::new((&*complete).into())),
-                    EvaluationErrors::default(),
-                    Some(true),
-                    observer.checks,
-                )
-            })?;
-            observer.checks.exhausted = true;
-            observer.checks.final_check = true;
-            observer.evaluations.periodic = false;
-            let cached = cache
-                .as_ref()
-                .map(std::sync::Mutex::lock)
-                .transpose()
-                .map_err(|_| {
-                    failure(
-                        AnalysisError::Inconsistent("temporal cache lock poisoned"),
-                        Stage::Product,
-                        Some(Box::new((&*complete).into())),
-                        EvaluationErrors::default(),
-                        Some(true),
-                        observer.checks,
-                    )
-                })?
-                .filter(|cache| cache.active());
-            let word = analyze_captured(
-                model,
-                &plans,
-                usize::MAX,
-                &complete.graph,
-                limits,
-                policy,
-                graph_labels,
-                &mut observer.stage,
-                &mut observer.evaluations,
-                &control,
-                cached.as_deref(),
-            )
-            .map_err(|error| {
-                failure(
-                    error,
-                    observer.stage,
-                    Some(Box::new((&*complete).into())),
-                    observer.evaluations,
-                    Some(true),
-                    observer.checks,
-                )
-            })?;
-            let analysis = super::final_analysis(word, *complete);
-            Ok((PeriodicAnalysis::Final(analysis), observer.checks))
+            observer
+                .d
+                .complete(observer.inputs, *complete, cache.as_ref())
         }
     }
 }
+
+pub mod external;
 
 #[cfg(test)]
 mod budget_tests;
