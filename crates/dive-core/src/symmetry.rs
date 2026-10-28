@@ -5,9 +5,13 @@
 //! change, as in the reference engine
 //! (`crates/dive-model/src/symmetry/prepare.rs`, `Reduction::canonical_values`).
 //!
-//! The core implements the default profile's canonicalization (D-010: the
-//! canonical value order, variables in declaration order). Values it cannot
-//! permute exactly, lazily represented sets and functions, are refused.
+//! The default profile's canonicalization (D-010) compares in the canonical
+//! value order, variables in declaration order. TLC's (`--compat=tlc`,
+//! [`Symmetry::tlc`]) compares with TLC's `compareTo`, variables in TLC's
+//! order (`Ir::tlc_var_order`), as `TLCStateMut` does: where `compareTo`
+//! would fail, or the core cannot tell that it orders as the canonical
+//! order does, the core refuses. Values it cannot permute exactly, lazily
+//! represented sets and functions, are refused.
 
 use std::cmp::Ordering;
 
@@ -21,6 +25,9 @@ use crate::node::Kind;
 #[derive(Clone, Debug, Default)]
 pub struct Symmetry {
     maps: Vec<Vec<(u32, u32)>>,
+    /// TLC's comparison, in this variable order (`None`: the canonical
+    /// order, in declaration order).
+    tlc: Option<Vec<usize>>,
 }
 
 impl Symmetry {
@@ -31,7 +38,15 @@ impl Symmetry {
             m.retain(|(a, b)| a != b);
             m.sort_unstable();
         }
-        Self { maps }
+        Self { maps, tlc: None }
+    }
+
+    /// TLC's canonicalization: candidates compared with TLC's `compareTo`,
+    /// variable by variable in `order` (indexes of the state's variables).
+    #[must_use]
+    pub fn tlc(mut self, order: Vec<usize>) -> Self {
+        self.tlc = Some(order);
+        self
     }
 
     /// The number of nonidentity maps.
@@ -61,15 +76,30 @@ impl Symmetry {
     ) -> Result<(), Error> {
         out.clear();
         out.extend_from_slice(state);
-        let mut cand = Vec::with_capacity(state.len());
+        let identity: Vec<usize>;
+        let order = match &self.tlc {
+            Some(order) if order.len() == state.len() => order.as_slice(),
+            Some(_) => return Err(Error::internal("a SYMMETRY variable order of another size")),
+            None => {
+                identity = (0..state.len()).collect();
+                &identity
+            }
+        };
+        let mut cand = state.to_vec();
         for map in &self.maps {
-            cand.clear();
             let mut ord = Ordering::Equal;
-            for (i, &h) in state.iter().enumerate() {
+            for &i in order {
+                let (Some(&h), Some(&best)) = (state.get(i), out.get(i)) else {
+                    return Err(Error::internal("a SYMMETRY variable outside the state"));
+                };
                 let img = permute(heap, map, h)?;
-                cand.push(img);
+                cand[i] = img;
                 if ord == Ordering::Equal {
-                    ord = heap.cmp(img, out[i]);
+                    ord = if self.tlc.is_some() {
+                        tlc_cmp(heap, img, best)?
+                    } else {
+                        heap.cmp(img, best)
+                    };
                     if ord == Ordering::Greater {
                         break;
                     }
@@ -81,6 +111,89 @@ impl Symmetry {
         }
         Ok(())
     }
+}
+
+/// TLC's `a.compareTo(b)` (`dive_value::tlc::compare`) on two finite
+/// normalized values, where it orders as [`Heap::cmp`] does: values of one
+/// class, and untyped model values, which TLC orders before any other
+/// value. What TLC would refuse to compare (a typed model value with
+/// another kind of value, values of two classes), and symbolic sets, are
+/// refused.
+fn tlc_cmp(heap: &Heap, a: Handle, b: Handle) -> Result<Ordering, Error> {
+    use crate::compare::{Class, class, mv_type};
+    if a == b {
+        return Ok(Ordering::Equal);
+    }
+    let refuse = || {
+        Error::unsupported(
+            "SYMMETRY under --compat=tlc comparing values TLC may refuse to compare, or a symbolic set (core)",
+        )
+    };
+    let (ca, cb) = (class(heap, a), class(heap, b));
+    match (ca, cb) {
+        (Class::Model, Class::Model) => {
+            let (ta, tb) = (mv_type(heap, a), mv_type(heap, b));
+            if ta.is_some() && tb.is_some() && ta != tb {
+                return Err(refuse());
+            }
+            return Ok(heap.cmp(a, b));
+        }
+        (Class::Model, _) | (_, Class::Model) => {
+            let model = if ca == Class::Model { a } else { b };
+            if mv_type(heap, model).is_some() {
+                return Err(refuse());
+            }
+            return Ok(heap.cmp(a, b));
+        }
+        _ if ca != cb => return Err(refuse()),
+        (Class::Bool | Class::Int | Class::Str, _) => return Ok(heap.cmp(a, b)),
+        _ => {}
+    }
+    let finite = |h: Handle| {
+        !h.is_compound() || {
+            let k = heap.view(h).kind;
+            k == Kind::Set || k.is_fcn()
+        }
+    };
+    if !finite(a) || !finite(b) {
+        return Err(refuse());
+    }
+    if !a.is_compound() || !b.is_compound() {
+        // The empty set or function: size decides.
+        return Ok(heap.cmp(a, b));
+    }
+    let (va, vb) = (heap.view(a), heap.view(b));
+    if va.kind == Kind::Set {
+        let (xa, xb) = (va.data.to_vec(), vb.data.to_vec());
+        if xa.len() != xb.len() {
+            return Ok(xa.len().cmp(&xb.len()));
+        }
+        for (x, y) in xa.into_iter().zip(xb) {
+            let c = tlc_cmp(heap, x, y)?;
+            if c != Ordering::Equal {
+                return Ok(c);
+            }
+        }
+        return Ok(Ordering::Equal);
+    }
+    let n = va.len();
+    if n != vb.len() {
+        return Ok(n.cmp(&vb.len()));
+    }
+    let keys_a: Vec<Handle> = (0..n).map(|i| crate::heap::fcn_key(&va, i)).collect();
+    let keys_b: Vec<Handle> = (0..n).map(|i| crate::heap::fcn_key(&vb, i)).collect();
+    let (vals_a, vals_b) = (va.values().to_vec(), vb.values().to_vec());
+    for (x, y) in keys_a
+        .into_iter()
+        .zip(keys_b)
+        .chain(vals_a.into_iter().zip(vals_b))
+    {
+        let c = tlc_cmp(heap, x, y)?;
+        if c != Ordering::Equal {
+            return Ok(c);
+        }
+    }
+    Ok(Ordering::Equal)
 }
 
 /// The image of `h` under `map`; `h` itself when nothing in it moves.
@@ -187,5 +300,38 @@ mod tests {
         let s = h.set_from(&mut vec![one, two]);
         sym.canonical(&mut h, &[s], &mut x).unwrap();
         assert_eq!(x, vec![s]);
+    }
+
+    #[test]
+    fn tlc_comparison_follows_its_variable_order_and_refuses_what_tlc_fails_on() {
+        let mut h = Heap::new(Arc::new(Store::default()), false, false);
+        let mv = |h: &Heap, t: &str| Handle::model(h.store().strings().intern(t).unwrap());
+        let (a, b) = (mv(&h, "a"), mv(&h, "b"));
+        let swap = vec![
+            (a.as_model_id().unwrap(), b.as_model_id().unwrap()),
+            (b.as_model_id().unwrap(), a.as_model_id().unwrap()),
+        ];
+        // <<a, b>> and <<b, a>>: in declaration order the image starts
+        // with `a`; with the second variable first, the second is `a`.
+        let mut out = Vec::new();
+        Symmetry::new(vec![swap.clone()])
+            .canonical(&mut h, &[b, a], &mut out)
+            .unwrap();
+        assert_eq!(out, vec![a, b]);
+        Symmetry::new(vec![swap.clone()])
+            .tlc(vec![1, 0])
+            .canonical(&mut h, &[a, b], &mut out)
+            .unwrap();
+        assert_eq!(out, vec![b, a]);
+        // An untyped model value comes before any other value.
+        let one = Handle::int(1).unwrap();
+        assert_eq!(tlc_cmp(&h, a, one).unwrap(), Ordering::Less);
+        assert_eq!(tlc_cmp(&h, one, a).unwrap(), Ordering::Greater);
+        // TLC fails on a typed model value against an integer, and on two
+        // classes.
+        let typed = mv(&h, "A_x");
+        assert!(tlc_cmp(&h, typed, one).is_err());
+        let s = h.set_from(&mut vec![one]);
+        assert!(tlc_cmp(&h, s, one).is_err());
     }
 }

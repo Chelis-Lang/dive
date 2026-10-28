@@ -521,11 +521,6 @@ fn symmetry(
     config: &dive_config::ModelConfig,
     profile_tlc: bool,
 ) -> Result<Symmetry, SymmetryEnd> {
-    if profile_tlc {
-        return Err(SymmetryEnd::Refused(
-            "SYMMETRY under --compat=tlc (core)".into(),
-        ));
-    }
     let prepared = model
         .prepare_symmetry(
             config,
@@ -568,7 +563,11 @@ fn symmetry(
     }
     let symmetry = format!("SYMMETRY {}", model.symmetry.as_deref().unwrap_or_default());
     model.unsupported.retain(|u| u.feature != symmetry);
-    out.note = Some(SYMMETRY_NOTE.into());
+    // The default profile's canonical keys may differ from TLC's (D-010);
+    // under `--compat=tlc` the keys are TLC's.
+    if !profile_tlc {
+        out.note = Some(SYMMETRY_NOTE.into());
+    }
     Ok(out)
 }
 

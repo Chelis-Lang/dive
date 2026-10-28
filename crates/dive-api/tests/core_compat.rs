@@ -213,8 +213,11 @@ fn error_fixtures_match_the_reference_under_compat() {
 
 #[test]
 fn m1_fixtures_match_the_reference_under_compat() {
-    let (agreed, _) = check_all(flat("tests/fixtures/core-m1"));
-    assert!(agreed >= 17, "only {agreed} M1 fixtures agreed");
+    let (agreed, refused) = check_all(flat("tests/fixtures/core-m1"));
+    assert!(agreed >= 22, "only {agreed} M1 fixtures agreed");
+    // `SYMMETRY` runs under `--compat=tlc` too, with TLC's comparison in
+    // TLC's variable order.
+    assert!(refused.iter().all(|n| !n.starts_with("Sym")), "{refused:?}");
 }
 
 /// Parallel compat runs give the one-worker result: every fixture, at 2, 3

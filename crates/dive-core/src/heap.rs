@@ -1105,7 +1105,7 @@ impl Heap {
 }
 
 /// The key of entry `i` of a function view.
-fn fcn_key(v: &View<'_>, i: usize) -> Handle {
+pub(crate) fn fcn_key(v: &View<'_>, i: usize) -> Handle {
     match v.kind {
         #[allow(clippy::cast_possible_wrap, reason = "domains fit in i64")]
         Kind::IntFcn => Handle::int(v.lo + i as i64).unwrap_or(Handle::EMPTY),
