@@ -382,6 +382,7 @@ pub enum Exploration {
     Stopped(Box<CheckResult>),
 }
 
+#[derive(Debug)]
 pub(crate) struct Collector<K> {
     ids: BTreeMap<K, usize>,
     graph: BehaviorGraph,
@@ -570,6 +571,145 @@ impl<K: Ord> Collector<K> {
 
     pub(crate) fn finish(self) -> BehaviorGraph {
         self.graph
+    }
+}
+
+/// A behavior graph built by a producer outside this crate, such as the
+/// execution core: the same collector, limits and messages as capture
+/// through the shared safety engine, and the same completion checks.
+///
+/// The producer reports, in its commit order, each accepted state inside the
+/// model ([`Self::record`]) and each fully expanded source
+/// ([`Self::stutter`]), as the shared engine does. States are identified by
+/// a caller key; equal keys are one vertex. Before the search, the producer
+/// applies [`refusal`].
+///
+/// ```
+/// use dive_check::capture::{GraphBuilder, Limits};
+/// use dive_eval::next::StateVals;
+/// let mut graph = GraphBuilder::new(Limits::default());
+/// let s: StateVals = vec![Some(dive_value::Value::Bool(true))].into();
+/// graph.record(7, s.clone(), Some(0), None, 0, "Init")?;
+/// graph.record(7, s, None, Some(0), 0, "Next")?;
+/// graph.stutter(0)?;
+/// assert_eq!(graph.graph().edges[0].len(), 2);
+/// assert_eq!(graph.graph().roots, [0]);
+/// # Ok::<(), dive_check::Verdict>(())
+/// ```
+#[derive(Debug)]
+pub struct GraphBuilder {
+    collector: Collector<u64>,
+}
+
+impl GraphBuilder {
+    /// An empty graph with the given entry limits.
+    #[must_use]
+    pub fn new(limits: Limits) -> Self {
+        Self {
+            collector: Collector::new(limits),
+        }
+    }
+
+    /// Admits the `generated`-th generated state, emitted at `ordinal` of its
+    /// source (`None` for an initial state), before its checks.
+    ///
+    /// # Errors
+    /// The capture's generated-state or per-source resource limit.
+    pub fn allow_emitted(&self, generated: u64, ordinal: Option<u64>) -> Result<(), Verdict> {
+        self.collector.allow_emitted(generated, ordinal)
+    }
+
+    /// Records an accepted state inside the model with key `key` and values
+    /// `state`. `id` is its new discovery index when it is new, `None` when it
+    /// was seen. `parent` is the expanded source (`None` for an initial
+    /// state), `ordinal` its emission index there and `label` the action's
+    /// label.
+    ///
+    /// # Errors
+    /// A capture resource limit, or an id that is not the next discovery
+    /// index (an internal error).
+    pub fn record(
+        &mut self,
+        key: u64,
+        state: StateVals,
+        id: Option<u64>,
+        parent: Option<u64>,
+        ordinal: u64,
+        label: &str,
+    ) -> Result<(), Verdict> {
+        self.collector
+            .record_fields(key, state, id, parent, ordinal, label)
+    }
+
+    /// The implicit stutter of the fully expanded source `from`.
+    ///
+    /// # Errors
+    /// The capture's edge limit.
+    pub fn stutter(&mut self, from: u64) -> Result<(), Verdict> {
+        self.collector.stutter(from)
+    }
+
+    /// The graph so far.
+    #[must_use]
+    pub fn graph(&self) -> &BehaviorGraph {
+        self.collector.graph()
+    }
+
+    /// The completed exploration: `safety` is the producer's successful
+    /// safety result, with its statistics.
+    ///
+    /// # Errors
+    /// Missing statistics, or a graph whose shape disagrees with them
+    /// (internal errors), or a capture entry limit.
+    pub fn complete(self, safety: CheckResult, options: CheckOptions) -> Result<Complete, Verdict> {
+        let limits = self.collector.limits();
+        let graph = self.collector.finish();
+        let Some(stats) = safety.stats else {
+            return Err(bug("completed exploration did not return statistics"));
+        };
+        let completion = GraphCompletion::finalize(&graph, stats, limits)?;
+        Ok(Complete {
+            completion,
+            options,
+            graph,
+            stats,
+            collision: safety.collision.clone(),
+            workers: safety.workers.clone(),
+            output: safety.output.clone(),
+            warnings: safety.warnings.clone(),
+            safety_result: Box::new(safety),
+        })
+    }
+
+    /// The exploration stopped after the fully committed `level`, whose
+    /// frontier is not exhausted.
+    ///
+    /// # Errors
+    /// Missing statistics or an exhausted frontier (internal errors).
+    pub fn prefix(
+        self,
+        level: u64,
+        safety: CheckResult,
+        options: CheckOptions,
+    ) -> Result<Prefix, Verdict> {
+        let graph = self.collector.finish();
+        let Some(stats) = safety.stats else {
+            return Err(bug("prefix did not return statistics"));
+        };
+        if stats.left_on_queue == 0 {
+            return Err(bug("prefix has exhausted frontier"));
+        }
+        Ok(Prefix {
+            level,
+            options,
+            graph,
+            stats,
+            collision: safety.collision.clone(),
+            workers: safety.workers.clone(),
+            output: safety.output.clone(),
+            warnings: safety.warnings.clone(),
+            result: Box::new(safety),
+        })
     }
 }
 
@@ -882,6 +1022,84 @@ fn context_stop(model: &Model, opts: &CheckOptions) -> Option<Exploration> {
     None
 }
 
+/// Why graph capture refuses `model` under `opts` before any search, or
+/// `None`: the admission checks of the shared capture entry points, in their
+/// order, with their messages. `parallel` selects the concrete-pool checks.
+/// A producer outside this crate ([`GraphBuilder`]) applies the same checks,
+/// so that it refuses exactly what capture refuses.
+#[must_use]
+pub fn refusal(model: &Model, opts: &CheckOptions, parallel: bool) -> Option<String> {
+    if opts.frontier_memory_bytes.is_some() {
+        return Some("frontier spill with behavior graph capture is not yet certified".into());
+    }
+    if opts.predecessor_memory_bytes.is_some() || opts.predecessor_directory.is_some() {
+        return Some("predecessor spill with behavior graph capture is not implemented".into());
+    }
+    if parallel
+        && model
+            .evaluator
+            .validate_model_context(&model.ir, &model.names)
+            .is_err()
+    {
+        return Some("concrete pool capture foreign IR or name table".into());
+    }
+    if model.evaluator.options() != &opts.eval {
+        return Some("graph capture evaluator profile mismatch".into());
+    }
+    if model.symmetry.is_some() && model.symmetry_liveness().requested() != opts.symmetry_liveness {
+        return Some("graph capture symmetry-liveness policy mismatch".into());
+    }
+    if model.view.is_some() {
+        return Some(
+            "graph capture with VIEW requires quotient edge and closing-state evidence".into(),
+        );
+    }
+    if model.symmetry_reduction.is_some()
+        || (model.symmetry.is_some() && !model.unreduced_symmetry_liveness())
+    {
+        if !model.symmetry_liveness().genuine_temporal() {
+            return Some(
+                "graph capture with SYMMETRY needs a genuine temporal unreduced policy".into(),
+            );
+        }
+        return Some(match opts.symmetry_liveness {
+            dive_model::SymmetryLiveness::Refuse => {
+                "SYMMETRY with liveness explicitly refused".into()
+            }
+            dive_model::SymmetryLiveness::Tlc => {
+                "TLC quotient liveness with SYMMETRY is not implemented".into()
+            }
+            dive_model::SymmetryLiveness::Unreduced => {
+                "graph capture with active or inconsistent SYMMETRY".into()
+            }
+        });
+    }
+    match engine::bound_configured_random(model) {
+        Ok(true) => {
+            return Some("graph capture with configured native random replacements".into());
+        }
+        Err(error) => return Some(format!("graph capture invalid native authority: {error}")),
+        Ok(false) => {}
+    }
+    if engine::uses_random(&model.ir) {
+        return Some("graph capture with random operators".into());
+    }
+    if let Some(s) = model.stateful_checking() {
+        return Some(format!("graph capture with stateful checking: {s}"));
+    }
+    if let Some(u) = model
+        .unsupported
+        .iter()
+        .find(|u| u.kind != UnsupportedKind::TemporalProperty)
+    {
+        return Some(u.feature.clone());
+    }
+    if parallel && (!model.sequential.is_empty() || crate::effectful(model)) {
+        return Some("concrete pool capture with effects or runtime names".into());
+    }
+    None
+}
+
 #[allow(
     clippy::too_many_lines,
     clippy::too_many_arguments,
@@ -896,76 +1114,12 @@ fn explore_inner<'obs>(
     primary: Option<&mut CheckpointHooks<'obs>>,
     native_hooks: dive_eval::NativeHooks,
 ) -> ControlledExploration {
-    let refuse = |s: String| {
-        ControlledExploration::from(stopped(Verdict::Unsupported { feature: s }, model, opts))
-    };
-    if opts.frontier_memory_bytes.is_some() {
-        return refuse("frontier spill with behavior graph capture is not yet certified".into());
-    }
-    if opts.predecessor_memory_bytes.is_some() || opts.predecessor_directory.is_some() {
-        return refuse("predecessor spill with behavior graph capture is not implemented".into());
-    }
-    if parallel
-        && model
-            .evaluator
-            .validate_model_context(&model.ir, &model.names)
-            .is_err()
-    {
-        return refuse("concrete pool capture foreign IR or name table".into());
-    }
-    if model.evaluator.options() != &opts.eval {
-        return refuse("graph capture evaluator profile mismatch".into());
-    }
-    if model.symmetry.is_some() && model.symmetry_liveness().requested() != opts.symmetry_liveness {
-        return refuse("graph capture symmetry-liveness policy mismatch".into());
-    }
-    if model.view.is_some() {
-        return refuse(
-            "graph capture with VIEW requires quotient edge and closing-state evidence".into(),
-        );
-    }
-    if model.symmetry_reduction.is_some()
-        || (model.symmetry.is_some() && !model.unreduced_symmetry_liveness())
-    {
-        if !model.symmetry_liveness().genuine_temporal() {
-            return refuse(
-                "graph capture with SYMMETRY needs a genuine temporal unreduced policy".into(),
-            );
-        }
-        return refuse(match opts.symmetry_liveness {
-            dive_model::SymmetryLiveness::Refuse => {
-                "SYMMETRY with liveness explicitly refused".into()
-            }
-            dive_model::SymmetryLiveness::Tlc => {
-                "TLC quotient liveness with SYMMETRY is not implemented".into()
-            }
-            dive_model::SymmetryLiveness::Unreduced => {
-                "graph capture with active or inconsistent SYMMETRY".into()
-            }
-        });
-    }
-    match engine::bound_configured_random(model) {
-        Ok(true) => {
-            return refuse("graph capture with configured native random replacements".into());
-        }
-        Err(error) => return refuse(format!("graph capture invalid native authority: {error}")),
-        Ok(false) => {}
-    }
-    if engine::uses_random(&model.ir) {
-        return refuse("graph capture with random operators".into());
-    }
-    if let Some(s) = model.stateful_checking() {
-        return refuse(format!("graph capture with stateful checking: {s}"));
-    }
-    if let Some(u) = model
-        .unsupported
-        .iter()
-        .find(|u| u.kind != UnsupportedKind::TemporalProperty)
-    {
-        return refuse(u.feature.clone());
-    }
-    if parallel && (!model.sequential.is_empty() || crate::effectful(model)) {
-        return refuse("concrete pool capture with effects or runtime names".into());
+    if let Some(s) = refusal(model, opts, parallel) {
+        return ControlledExploration::from(stopped(
+            Verdict::Unsupported { feature: s },
+            model,
+            opts,
+        ));
     }
     let host = Arc::new(engine::run_host(opts));
     model

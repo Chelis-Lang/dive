@@ -19,6 +19,21 @@ mod tests;
 
 const CACHE: &str = "certified temporal row cache is incomplete";
 
+/// Whether a row program can apply to these plans: one worker, uncapped
+/// labels and only state-predicate atoms. An owned model whose producers
+/// are stable is further required; this is the part that needs no model.
+pub(super) fn may_apply(
+    plans: &[PreparedProperty],
+    options: &CheckOptions,
+    graph_labels: super::GraphLabelPolicy,
+) -> bool {
+    matches!(graph_labels, super::GraphLabelPolicy::NoCellLimit)
+        && options.workers == 1
+        && plans.iter().flat_map(|p| &p.plan.atoms).all(|atom| {
+            atom.kind == AtomKind::State && matches!(atom.test, crate::plan::AtomTest::Predicate)
+        })
+}
+
 pub(super) fn prepare(
     model: &Model,
     plans: &[PreparedProperty],
@@ -32,12 +47,8 @@ pub(super) fn prepare(
     ),
 ) -> Result<Option<Program>, AnalysisError> {
     let (authority, control) = owned_control;
-    if !matches!(graph_labels, super::GraphLabelPolicy::NoCellLimit)
+    if !may_apply(plans, options, graph_labels)
         || !authority.is_some_and(|authority| authority.owns(model))
-        || options.workers != 1
-        || plans.iter().flat_map(|p| &p.plan.atoms).any(|atom| {
-            atom.kind != AtomKind::State || !matches!(atom.test, crate::plan::AtomTest::Predicate)
-        })
     {
         return Ok(None);
     }
