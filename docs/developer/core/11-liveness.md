@@ -1,14 +1,14 @@
 # 11. Liveness on the core
 
-Status: design, 2026-10-27 (stream 3; pulled forward from M3). Next step:
-§9, PR L2.
+Status: phase 1 (L1–L4) built, 2026-10-28; pulled forward from M3.
+The remaining phase is L5, after M1 acceptance, with the prerequisites in §7.
 
-This document designs how `--engine core` checks genuine temporal properties
-(`<>P`, `[]<>P`, `P ~> Q`, `WF`/`SF` fairness), which the core refuses today
-with "temporal properties (M0 core engine)". The safety parts of properties
+This document describes how `--engine core` checks genuine temporal properties
+(`<>P`, `[]<>P`, `P ~> Q`, `WF`/`SF` fairness). The safety parts of properties
 (implied initial predicates and implied actions) already run on the core
-(`07-engine.md` §7). Genuine temporal properties are the largest remaining
-reason for `--engine auto` to fall back in the small tier (§10).
+(`07-engine.md` §7). Phase 1 reuses the reference graph representation and
+its limits. The dated census in §10 records its measured coverage; L5 does
+not yet establish broader coverage or capacity.
 
 ## 1. What the reference engine does
 
@@ -80,9 +80,9 @@ Stages 2–4 are deterministic functions of the graph. So:
   schedule reads only the graph's size;
 - validation stays independent of the core: `dive-trace` checks the lasso
   on a freshly bound model with the reference evaluator (ADR 0103);
-- `ENABLED`, fairness, and action predicates in properties need nothing from
-  the core. They are evaluated by `dive-liveness`, as today. The core still
-  refuses `ENABLED` inside `Next` or an invariant until stream 2 adds it.
+- `ENABLED`, fairness, and action predicates in properties are evaluated by
+  `dive-liveness`. The core also supports `ENABLED` in safety predicates;
+  its remaining INSTANCE-substitution refusal is separate from this adapter.
 
 The strongest test (§8) is therefore graph equality: the core's
 `BehaviorGraph` must equal the reference capture's, field by field, at every
@@ -271,25 +271,49 @@ These follow the liveness-budgets rule:
 
   Exhaustion is `AnalysisError::Stopped`, reported as a stop with the phase
   in which it happened, never a verdict.
-- **Phase 2 (PR L5): capacity at least TLC's.** TLC keeps fingerprints and an
-  on-disk behaviour graph, not values. The core already holds every state in
-  its store.
-  - A handle-backed graph keeps only `u32` vertex ids and a compact edge
-    list (CSR, about 8 bytes per edge plus labels as action indices). It
-    converts states to `StateVals` on demand, through an additive
-    `dive-liveness` trait (`StateSource`, used by `labels`,
-    `selected_targets` and lasso extraction), with a bounded cache.
-  - The count limits are then replaced by the memory budget alone. The
-    capture's own memory is about 12 bytes per vertex plus 8 per edge, on top
-    of the store. This is less than TLC's fingerprint set plus its
-    tableau-graph file per state, at every size where TLC's in-memory
-    fingerprint set fits.
-  - The capacity claim is measured, not assumed, against TLC on the largest
-    temporal model in the corpus, and recorded in `09-performance-method.md`
-    format.
+- **Phase 2 (PR L5): measured capacity at least TLC's.** The planned graph
+  uses compact vertex ids and CSR edges, with action indices instead of
+  repeated labels. On-demand conversion to `StateVals` uses the planned
+  additive `dive-liveness::StateSource` interface and a bounded cache.
+  - **State and topology access.** `labels`, `selected_targets` and lasso
+    extraction currently index `BehaviorGraph` directly. Product
+    `BehaviorView` supports only the dense and captured reference graphs;
+    CSR topology access is also required. Keep the reference adapter and
+    existing entrypoints unchanged while introducing compact access.
+  - **Retained states.** The store retains values, but the explorer keeps
+    only the current/next frontier's state-handle rows. L5 must retain an
+    addressable handle row or state root for every graph vertex. Those
+    retained roots must remain valid until analysis and lasso extraction end.
+  - **Completion and results.** `capture::Complete` and `Prefix`, and the
+    liveness `Analysis`/candidate results, currently retain a concrete
+    `BehaviorGraph`. Compact-compatible completion and result handling is
+    needed so finishing a run does not materialize the whole reference graph.
+    Preserve the existing producer completion/prefix checks and actual
+    counters; compact storage creates no new temporal proof authority.
+  - **Complete memory accounting.** The earlier estimate of 12 bytes per
+    vertex plus 8 per edge was a topology estimate, not a total footprint
+    or a capacity proof. Count retained handle rows/roots, key-to-id lookup,
+    CSR construction scratch and growth, original ordinals, action metadata,
+    conversion cache, the persistent store, labels and product/search memory.
+    Preserve duplicate edges, ordinal gaps and implicit stutters exactly.
+  - Replace the core's fixed capture counts with budget-backed retention
+    only after those paths have bounded allocations and cooperative stops.
+    Preserve explicit reference-library limits. Measure end-to-end capacity
+    against pinned TLC on the largest temporal corpus model, under recorded
+    comparable memory/time policies, including peak RSS and every phase.
+    Record completion, all compared observables and independently validated
+    counterexamples in `09-performance-method.md` format. Partial work or a
+    resource stop earns no completion or capacity credit.
   - Raising a default limit changes results only from "refused" to a
     verdict. It is result-preserving against TLC and needs no divergence
     entry.
+
+L5 keeps the reference evaluator, temporal analysis and independent validator.
+It does not implement quotient-edge or closing-state semantics for VIEW or
+symmetry, repair temporal error-demand order, or widen the temporal language
+and effects boundary. Those remain separate obligations even if capture fits
+in memory. Graph/report equality, both semantic profiles, completed-level
+scheduling, independent validation and the full gate remain acceptance gates.
 
 ## 8. Tests
 
@@ -314,11 +338,11 @@ These follow the liveness-budgets rule:
 
 | PR | Scope | Gate |
 |---|---|---|
-| L1 | This design; status board and plan entries | fast |
-| L2 | `capture::refusal` and `GraphBuilder` (`dive-check`); `GraphCheck` (`dive-liveness`); tests: a graph rebuilt through `GraphBuilder` equals the reference capture, and `GraphCheck` over it equals `analyze_final` and `analyze_periodic` | full |
-| L3 | `GraphSink` in `dive-explore`; the `dive-api` converting sink; graph-equality tests (§8) against the reference capture | fast |
-| L4 | The temporal route in `core_engine` (both profiles), refusals, report-equality tests, harness census, user guide and CHANGELOG | fast (full if L2 needs follow-up) |
-| L5 | Handle-backed graph and `StateSource` (phase 2), measured against TLC | full |
+| L1 (built) | This design; status board and plan entries | fast |
+| L2 (built) | `capture::refusal` and `GraphBuilder` (`dive-check`); `GraphCheck` (`dive-liveness`); tests: a graph rebuilt through `GraphBuilder` equals the reference capture, and `GraphCheck` over it equals `analyze_final` and `analyze_periodic` | full |
+| L3 (built) | `GraphSink` in `dive-explore`; the `dive-api` converting sink; graph-equality tests (§8) against the reference capture | fast |
+| L4 (built) | The temporal route in `core_engine` (both profiles), refusals, report-equality tests, harness census, user guide and CHANGELOG | fast (full if L2 needs follow-up) |
+| L5 (remaining) | Handle-backed graph, state/topology access and compact-compatible completion/results (§7), measured against TLC | full |
 
 Each PR updates this document's status, the status board and the handoff log.
 

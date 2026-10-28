@@ -1,6 +1,7 @@
 # Plan, status and handoff log
 
-Status: M0 spike on `core/m0-spike`, awaiting x86 measurement. Decision: ADR
+Status: M0 passed; M1 implementation is broad but acceptance remains open.
+Current source-bound findings and next steps: `m1-status.md`. Decision: ADR
 0117. Umbrella issue: #498.
 
 ## 1. Milestones
