@@ -110,6 +110,19 @@ impl Heap {
         }
     }
 
+    /// TLC's model-value type for a name, using this heap's append-only
+    /// text copy. The rule counts UTF-16 units, as `ModelValue` does.
+    pub(crate) fn model_type(&self, id: u32) -> Option<u16> {
+        let mut texts = self.texts.borrow_mut();
+        if id as usize >= texts.len() {
+            let more = self.store.strings().texts_from(texts.len());
+            texts.extend(more);
+        }
+        let mut units = texts.get(id as usize)?.encode_utf16();
+        let (first, second) = (units.next()?, units.next()?);
+        (second == u16::from(b'_') && units.next().is_some()).then_some(first)
+    }
+
     /// The store.
     #[must_use]
     pub fn store(&self) -> &Arc<Store> {
@@ -1348,6 +1361,42 @@ mod tests {
         let (c, aa) = (id("c"), id("aa"));
         for (x, y) in [(a, b), (b, c), (aa, a), (aa, b), (c, aa), (c, c)] {
             assert_eq!(h.str_cmp(x, y), t.cmp(x, y), "{x} {y}");
+        }
+    }
+
+    #[test]
+    fn model_types_follow_utf16_names_across_append_and_reset() {
+        use crate::strings::StringOrder;
+
+        for order in [StringOrder::Text, StringOrder::Token] {
+            let mut h = Heap::new(
+                Arc::new(Store::with_string_order(true, order)),
+                false,
+                false,
+            );
+            for names in [
+                ["", "a", "A_", "A_x", "_x", "n1", "é_x", "😀_x"],
+                ["é_😀", "𐀀_x", "A_é", "A_😀", "__x", "_", "😀", "x_y"],
+            ] {
+                for name in names {
+                    let id = h.store.strings().intern(name).unwrap_or(u32::MAX);
+                    let units: Vec<_> = name.encode_utf16().collect();
+                    let expected = if units.len() > 2 && units[1] == u16::from(b'_') {
+                        Some(units[0])
+                    } else {
+                        None
+                    };
+                    for _ in 0..2 {
+                        assert_eq!(h.model_type(id), expected, "{order:?} {name:?}");
+                        assert_eq!(crate::compare::mv_type(&h, Handle::model(id)), expected);
+                        h.reset();
+                    }
+                }
+            }
+            assert_eq!(h.model_type(u32::MAX), None);
+            assert_eq!(crate::compare::mv_type(&h, Handle::TRUE), None);
+            h.store.strings().seal();
+            assert_eq!(h.model_type(3), Some(u16::from(b'A')));
         }
     }
 

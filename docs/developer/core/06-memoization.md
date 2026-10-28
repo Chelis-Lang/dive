@@ -2,7 +2,8 @@
 
 Status: M0 spike implemented in `crates/dive-core/src/memo.rs` and in the
 parent-delta rule of `crates/dive-explore`; results in `m0-results.md`. M1
-decision (§6): memo tables off by default, the parent-delta skip on. This document covers strategy S6 from `01-motivation.md`.
+decision (§6): memo tables and the parent-delta skip are on by default. This
+document covers strategy S6 from `01-motivation.md`.
 
 ## 1. Idea
 
@@ -102,6 +103,128 @@ inputs are always persistent.
 (initially 30%) turns itself off. At that hit rate, hashing the key costs more
 than evaluating the body. The engine reports per-site statistics with
 `--stats`.
+
+### 2.2a Exact explicit-set membership certificates
+
+Under TLC comparisons with `Opts::memo`, a worker can reuse a successful
+compound-membership miss's comparison proof for a persistent explicit set.
+This is derived comparison metadata, not a cached membership answer: the
+normal membership search still runs, and the scalar/model-value checks still
+run on a miss. The original full miss check runs before first admission.
+Transient sets, symbolic/lazy dispatch, function-key misses and scalar
+queries retain that original path. No value is interned for the cache.
+
+Admission computes the exact aggregate `Shape` of the set's members, then
+finds any persistent member whose complete recursive shape equals that
+aggregate. It retains only the set and witness handles. For Sailfish,
+`Genesis = <<>>` adds no constraints to ordinary vertex tuples, but cannot
+itself witness their aggregate; an ordinary vertex can. There need not be a
+witness: tuples with complementary model-value holes may jointly constrain
+both positions without either tuple expressing both constraints. Such sets
+remain on the original path; no general Shape tree cache is built.
+
+**Proof.** Define `a join b` to be `unify(a, b)`, including failure. `Hole`
+is the identity. Matching scalar constructors join only when equal. Set
+constructors join their child constraints recursively. Record and
+integer-keyed maps join by taking the union of keys and recursively joining
+each value, treating absent keys as `Hole`. Generic functions join keys and
+values recursively. `EmptyFcn` is below the integer-keyed and generic
+function constructors and incompatible with records; those two nonempty
+constructors are mutually incompatible. All other constructor conflicts
+remain conflicts after adding constraints. These cases, by structural
+induction, make the partial join associative, including failures. Therefore
+joining a query's shape with each member equals joining it with their
+aggregate. Exact equality of a witness's shape with that aggregate permits
+substitution. Kind equality or mere compatibility is insufficient. The
+bounded constructor/nesting matrix tests compare both regroupings of every
+shape triple, and cold/warm tests compare complete results against the
+original full miss implementation. A failed witness proof takes that full
+path, retaining its refusal and demand site.
+
+**Streaming general guards.** The `include_shape` helper and streaming
+accumulation come unchanged from `d4c404317626a55e653122803dbdbd792cd505d8`
+(#598). Equality and full-miss guard bodies retain that source; set
+construction composes the same accumulation with #621's both-profile C2
+boundary and default refusal message. They add constraints
+directly to one accumulator instead of constructing a second temporary tree
+and removing/reinserting existing map keys. The original `shape` and `unify`
+remain unchanged. The exact copied differential test checks 750,592 paired
+and longer input sequences against that original oracle; complete cold/warm
+miss tests retain the pre-streaming guard as their result/error oracle.
+Witness admission and the tuple proof below are unchanged by this composition.
+
+**Tuple proof without temporary maps.** Only after a certified lookup, a
+success-only helper can discharge the witness guard without constructing
+`Shape` trees. Its precondition is that the witness's complete shape exists,
+which also establishes validity of every witness subtree. Equal handles
+therefore need no further inspection. Boolean, inline integer and string
+leaves match only their own classes. An untyped query model value is `Hole`
+and adds no constraints to a valid witness; typed query model values accept
+only equal types or an untyped witness. An untyped witness supplies no
+query-validity evidence, so that case separately validates a tree containing
+only scalar/model leaves and `IntFcn` tuples with lower bound one.
+
+For two such tuples with equal nonempty domains, the helper recurses by
+position. An empty query tuple is compatible with a known-valid tuple
+witness; a nonempty query against an empty witness falls back. Different
+lengths or domains and other representations also fall back. Identity and
+model holes can discharge a valid subtree independently of representation,
+but do not permit an uncertified call: a shared invalid set inside two
+tuples would make an unconditional identity shortcut unsound. Structural
+induction on the successful recursive cases proves the same shape join as
+the general guard. The helper returns only proof success or a request to
+fall back; it never supplies a membership result or an error. All unknowns
+run the original witness guard and, if needed, the original full guard.
+The scalar/model-value miss checks still run afterward. Name classification
+uses the heap's existing immutable text copy (`03-value-model.md` §2), whose
+initial missing suffix can allocate; the tuple proof creates no temporary
+comparison maps or other proof allocations.
+
+**Memory and lifetime.** `Memo` owns a private two-way table of complete
+`(set, witness)` handles. Hashes select buckets; complete set-handle equality
+establishes hits. Allocation is lazy. Its reservation is the largest power
+of two no greater than 64 KiB, one-sixteenth of the existing worker memo cap,
+and the remaining allowance after existing body-table allocations. A caller
+may pass a populated `Memo` into `Machine::new`; a full allowance leaves
+certificate caching disabled without evicting body results. Reservations
+below two entries are disabled. The ordinary memo
+tables' growth allowance is reduced by that reservation, so the combined
+allocation stays within the existing cap. `Memo::bytes()` includes the
+allocated witness table; the CLI has no separate memo-byte report field.
+Public `Memo::set_cap` drops and reconfigures existing certificate storage
+within the new available allowance; admission also checks that allowance
+before allocating. This releases its weak owner, including after warm use
+or before a `Memo` is moved into another machine. Existing body allocations
+are not evicted: shrinking below those allocations retains their previous
+contract, and the certificate table adds no further bytes in that case.
+Default-profile machines and `-memo` reserve and allocate nothing for it.
+Eviction only causes recomputation. Both handles are persistent, immutable
+and deeply closed, so arena reset and rollback do not invalidate them. Each
+worker has its own table. The certificate table binds to the exact store
+allocation through a weak owner, checked before each lookup and admission.
+The weak owner prevents allocation-address reuse even after the store's
+contents are destroyed; a hit only compares identities and performs no
+reference-count operation. Rebinding drops the old entries. This also covers
+replacement of the public `Machine::heap`, where complete raw handles can
+collide between different stores with different model-value names. Machine
+construction discards prior certificates, and `Memo::clear()` releases their
+owner and entries with the body caches when store handles are remapped.
+This store binding is specific to the new certificate table, not a changed
+contract for the existing body memo tables. Admission does not force views,
+change normalization, intern names or alter TLC's sealed runtime-name
+refusal. Process RSS still includes other
+memory outside memo tables; the cache allowance is not a whole-process bound.
+
+The completed five-repeat record is
+`conformance/reports/perf/2026-10-28-core-checked-membership-x86.json`,
+source `75f0ac4f`, PRE-C2: all 300 observations are correct, with original
+runner quiet=false and separately observed host controls retained.
+`m1-status.md` §3 records the measured gains, remaining compatibility/scaling
+limits and separate `e0cce6f5` integration gates/review. The 300-row timings
+do not
+measure the C2 integration; its separate one-repetition Sailfish diagnostic
+is qualified in that status page. #597 remains open; the certificate memo is not
+the generic S5 membership index, which is not built.
 
 ### 2.3 Step predicates: thunks and memo sites on the pair
 
