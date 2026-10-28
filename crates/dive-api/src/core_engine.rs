@@ -628,6 +628,7 @@ fn arm_draws(
 /// A model compiled for the core: what `check` explores.
 pub(crate) struct Prepared {
     pub(crate) model: dive_model::Model,
+    pub(crate) host: Arc<dive_stdlib::host::RunHost>,
     pub(crate) start: Startup,
     pub(crate) store: Arc<dive_core::Store>,
     pub(crate) plan: dive_core::Plan,
@@ -781,6 +782,7 @@ pub(crate) fn prepare(
     }
     Ok(Prepared {
         model,
+        host,
         start: Startup { sym, startup },
         store,
         plan,
@@ -1144,6 +1146,7 @@ pub(crate) fn check(
     }
     let Prepared {
         model,
+        host,
         start,
         store,
         plan,
@@ -1179,7 +1182,7 @@ pub(crate) fn check(
     );
     if let Some(sample) = sample {
         run.sample = crate::core_sample::compare(
-            &model,
+            (&model, &host),
             &plan,
             &store,
             core_opts,

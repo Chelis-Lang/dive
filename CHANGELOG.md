@@ -126,6 +126,10 @@
   (`--sample N`) and reports a difference as `successors-differ`. CI's
   shadow gate now covers 26 examples models, and `cargo xtask gate --full`
   also shadows the cm1 list at 1, 4 and 8 workers.
+- Successor sampling retains each source state's actual TLC level and restores
+  it in both evaluators, fixing false sampler differences on
+  `TLCGet("level")` models (#600). Reservoir selection and checked results
+  are unchanged.
 - Fixed: `--engine core` reported integers outside its inline 61-bit range
   as `<<>>` in counterexamples (#540).
 

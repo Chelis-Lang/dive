@@ -88,6 +88,7 @@ pub(crate) fn check(
     let configuration = crate::temporal::file_configuration();
     let Prepared {
         model,
+        host: _,
         start,
         store,
         plan,
