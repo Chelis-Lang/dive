@@ -59,6 +59,23 @@ A pure safety run admitting these operators does not mean simulation, temporal
 capture, checkpoint recovery or independent trace validation admits them too.
 Read each mode's supported/refused combinations.
 
+An operator argument with a numeral or string literal as its entire body follows
+TLC's startup substitution rules. For example, `LAMBDA x : 0` is passed to a
+native library override as the value `0`. An override that requires an operator
+then reports TLC's evaluation error in both profiles: `BagOfAll` reports 2266,
+`SelectSeq` and `SortSeq` report 2169, and CommunityModules folds report 2154.
+Bodies such as `x + 1`, `1 + 1` and `TRUE` remain operator applications; a
+TLA+ definition that applies its operator argument also retains its ordinary
+behavior. An empty `SelectSeq` does not apply its callback.
+
+The following consumed fixture reports the `BagOfAll` evaluation error (CLI
+status 255). The core currently refuses this literal-body callback; `auto`
+falls back to the reference engine.
+
+```sh
+dive check crates/dive-api/tests/fixtures/op-literal/specs/OlBagOfAll/OlBagOfAll.tla --engine reference --compat=tlc --seed 0 --fp 0 --workers 1 --output json
+```
+
 ## Pure JSON conversion
 
 Pure `Json!ToJson(value)` has a bounded native conversion path. It uses the
