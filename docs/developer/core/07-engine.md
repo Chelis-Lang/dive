@@ -545,9 +545,17 @@ the predecessor, as for a fingerprint error. A state outside the model is
 checked without a lookup, as under SYMMETRY. Fixtures `ViewMerge` (an
 invariant that reads a variable the view ignores, violated on a state
 outside the model whose view was seen) and `ViewSets`; nine `ErView*`
-error fixtures agree (`ErViewEnabled` waits for `ENABLED`). VIEW together
-with SYMMETRY, where TLC evaluates the view on the canonical image, is
-refused.
+error fixtures agree (`ErViewEnabled` waits for `ENABLED`).
+
+**Done (M2, `core/engine-view-symmetry`).** VIEW together with SYMMETRY.
+TLC evaluates the view on the state's canonical image
+(`TLCStateMut.fingerPrint`; the reference engine's `state_key_of`), so
+`view_key` computes the image first and evaluates the view with the image
+as the current state. The checks, the predecessor log and the traces stay
+concrete. Fixtures `SymView` (a view that is not symmetric: one
+process's counter) and `SymViewSets` (sets and sequences, to a deadlock)
+agree with the reference engine; evaluating the view on the concrete state
+instead gives 15 and 13 distinct states where the reference gives 8 and 4.
 
 **Refusal census (2026-10-27, `main` at #549).** `--impl dive:auto` over
 the small tier (156 models, 1 worker), static fallbacks by reason. Default

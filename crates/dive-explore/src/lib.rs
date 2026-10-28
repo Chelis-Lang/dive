@@ -340,11 +340,32 @@ fn view_key(m: &mut Machine, plan: &Plan, view: &Check) -> Result<u64, Error> {
             "a VIEW over a state holding an infinite or lazily represented set (core)",
         ));
     }
-    std::mem::swap(&mut m.s0, &mut m.s1);
+    // Under SYMMETRY, TLC evaluates the VIEW on the canonical image
+    // (`TLCStateMut.fingerPrint`, the reference engine's `state_key_of`).
+    let image = match &plan.symmetry {
+        Some(sym) => {
+            let mut out = Vec::with_capacity(m.s1.len());
+            let s1 = m.s1.clone();
+            sym.canonical(&mut m.heap, &s1, &mut out)?;
+            Some(out)
+        }
+        None => None,
+    };
+    // The VIEW reads the image, or the state itself, as its current state.
+    let saved = if let Some(image) = image {
+        Some(std::mem::replace(&mut m.s0, image))
+    } else {
+        std::mem::swap(&mut m.s0, &mut m.s1);
+        None
+    };
     let old = m.enter(view.frame);
     let r = m.eval_norm(&plan.code, conj.p);
     m.leave(old);
-    std::mem::swap(&mut m.s0, &mut m.s1);
+    if let Some(s0) = saved {
+        m.s0 = s0;
+    } else {
+        std::mem::swap(&mut m.s0, &mut m.s1);
+    }
     let v = m.heap.intern(r?)?;
     if !closed_fingerprintable(&m.heap, v) {
         return Err(Error::unsupported(
