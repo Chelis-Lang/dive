@@ -1,13 +1,5 @@
 # Changelog
 
-- Shadow comparison rejects unclassified or contradictory reports as findings,
-  even when both engines return the same unusable result. Classified evaluation
-  errors can still agree; budget stops retain their separate timeout status.
-
-- The core/reference shadow gate reports an absent or independently unconfirmed
-  counterexample as a `trace-unconfirmed` finding (exit 1), rather than agreement.
-  A validator refusal cannot establish parity, with or without `--strict`.
-
 - `--engine core` evaluates `ENABLED` (outside an `INSTANCE` with
   substitutions, which is still refused): BufferedRandomAccessFile now runs on
   the core, about 7 times faster than on the reference engine.
@@ -147,6 +139,12 @@
   exit, property, counts or depth, and any core counterexample `dive-trace`
   refutes. CI shadows ten examples models at 1 and 4 workers
   (`scripts/shadow-gate.sh`), and `cargo xtask gate --full` the small tier.
+
+- Shadow comparison requires classified results and independently validated
+  counterexamples for agreement. Matching unclassified or contradictory reports
+  are findings, and an absent, unreadable or refused required word is a
+  `trace-unconfirmed` finding (exit 1), with or without `--strict`. Classified
+  evaluation errors can still agree; budget stops retain their timeout status.
 
 - `--engine core` reports a false or failing `ASSUME` as the reference engine
   and TLC do: the same message and class, and exit 10. It used to refuse the
