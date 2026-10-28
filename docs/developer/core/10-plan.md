@@ -99,6 +99,7 @@ A change outside a stream's own modules is kept minimal and flagged in the PR.
 | 2026-10-27 | `--engine=auto` runs the core and falls back to the reference engine on a static refusal, before the search; it refuses result-changing options under the core. `--engine` still defaults to `reference` | `07-engine.md` (#524, #549) |
 | 2026-10-27 | CI shadows the core against the reference engine on the smoke models; the full gate shadows the small tier, with sampled successor comparison | `08-correctness.md` (#534, #542) |
 | 2026-10-27 | `--compat=tlc` runs on the core at any worker count: the string table is sealed after start-up names, so workers never create TLC string tokens. Small tier against the TLC-profile goldens under auto: 150 agree, 6 unsupported, 0 disagree (same as the reference engine) | `07-engine.md` (#545, #548, #549) |
+| 2026-10-27 | Liveness on the core replaces only the producer: the core captures the same behaviour graph as the reference capture, and `dive-liveness` analysis, scheduling, `dive-trace` validation and the report stay the reference's code. First phase keeps the reference's capture limits; a handle-backed graph then lifts capacity to the memory budget | `11-liveness.md` |
 | 2026-10-27 | M1 x86 checkpoint at `f1ed932a`: on the 5 of 10 bench models the core runs, 1.51× TLC (1 worker) and 1.27× (8 workers) geomean; counts equal the goldens. The liveness adapter is pulled forward from M3 into M1, because two bench models (EWD998PCal, BufferedRandomAccessFile) are refused only for temporal properties and the M1 gate needs 8 of 10 | §5a below; `conformance/reports/perf/2026-10-27-core-m1-x86.json` |
 
 ## 5a. M1 checkpoint on x86 (2026-10-27)
@@ -148,6 +149,14 @@ The semantic contract lists seven more, in `02-semantic-contract.md` §6.
 
 Add a new entry at the top for every working session that ends with work in
 progress. Give the date, branch, state and the exact next step.
+
+- **2026-10-27 (stream 3, liveness).**
+  - **State.** Implied properties (#560), SYMMETRY (#563), ALIAS (#565),
+    VIEW (#570), #550 (#562) and #551 (#566) merged. EWD998PCal runs on the
+    core and matches its golden; BufferedRandomAccessFile waits for
+    `ENABLED` (stream 2). Liveness design in `11-liveness.md`.
+  - **Next.** PR L2 of `11-liveness.md` §9: the additive `dive-check` and
+    `dive-liveness` entry points, with the full gate.
 
 - **2026-10-27 (M1 checkpoint).**
   - **State.** 41 PRs merged since #505 (see §5). M1 x86 checkpoint
