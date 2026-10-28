@@ -15,8 +15,9 @@
 //! | `drop-first`: remove the initial state | if `s1` were initial, it would be at distance 0 |
 //! | `swap-k`: exchange states `k` and `k+1` | the step into the earlier position would put `s(k+1)` at distance `k` (or make it initial) |
 //! | `change-k-var`: one variable of a middle state becomes a model value with a reserved Boolean keyword | the step into the state would have to set the variable to a value no expression of the specification can produce |
-//! | `truncate`: remove the last state, keep the claim (invariant and property endings only) | the claimed invariant or property held at the new last state, or the search would have stopped there |
+//! | `truncate`: remove the last state, keep the claim (invariant, named invariant-error and property endings) | the claimed invariant or property held, or did not raise the claimed error, at the new last state, or the search would have stopped there |
 //! | `claim-Q`: claim a different invariant or property `Q` | `Q` either holds at the end, or is listed after the violated one, which is then false first |
+//! | `claim-error`: change a named invariant error's cause | the exact cause differs from the known valid claim |
 //! | `relabel-k`: label step `k` with another action of the trace that is false on it | the label must hold on the step |
 //!
 //! Labels on the steps a mutation touches are removed, so a mutant is
@@ -131,10 +132,15 @@ pub fn mutants_with_mode(model: &Model, trace: &Trace, mode: ControlMode) -> Vec
             push(format!("change-{k}-{name}"), t);
         }
     }
-    // Only a violation can be refuted at the new end: for a deadlock, an
-    // error or a liveness ending, the validator cannot check the claim
-    // itself (ADR 0016, amendment 1).
-    if n >= 2 && matches!(trace.ending, Ending::Invariant(_) | Ending::Property(_)) {
+    // Violations and named invariant errors must first arise at the original
+    // end. Generic expansion-error and liveness endings retain their existing
+    // validation boundary (ADR 0016, amendment 1).
+    if n >= 2
+        && matches!(
+            trace.ending,
+            Ending::Invariant(_) | Ending::Property(_) | Ending::InvariantError { .. }
+        )
+    {
         let mut t = base.clone();
         t.states.pop();
         t.labels.pop();
@@ -143,6 +149,24 @@ pub fn mutants_with_mode(model: &Model, trace: &Trace, mode: ControlMode) -> Vec
     let names =
         |list: &[dive_model::Named]| list.iter().map(|x| x.name.clone()).collect::<Vec<_>>();
     let claims: Vec<Ending> = match &trace.ending {
+        Ending::InvariantError { name, ec } => names(&model.invariants)
+            .into_iter()
+            .filter(|other| other != name)
+            .chain(std::iter::once(format!("{name}_dive_trace_mutant")))
+            .map(|name| Ending::InvariantError {
+                name,
+                ec: ec.clone(),
+            })
+            .chain(std::iter::once(Ending::InvariantError {
+                name: name.clone(),
+                ec: if ec == "TLC_MODULE_DIVISION_BY_ZERO" {
+                    "TLC_VALUE_ASSERT_FAILED"
+                } else {
+                    "TLC_MODULE_DIVISION_BY_ZERO"
+                }
+                .to_owned(),
+            }))
+            .collect(),
         Ending::Invariant(p) => names(&model.invariants)
             .into_iter()
             .filter(|q| q != p)

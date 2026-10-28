@@ -7,6 +7,13 @@
 //! never runs the model checker's successor generator. Register-dependent Init
 //! uses an independent ordered single-candidate operation from empty slots.
 //!
+//! Named invariant evaluation errors use native trace version 2 with
+//! `Ending::InvariantError { name, ec }`: `ec` is the underlying cause, while
+//! the check report retains TLC's deciding wrapper 2111. Independent replay
+//! requires that exact final invariant/cause after earlier checks pass. All
+//! existing ending kinds retain native version 1; both versions are read.
+//! Neither native payload version changes the report schema version.
+//!
 //! This is also how a Rust project checks its *own implementation's*
 //! traces: record each state of a run as a JSON object from variable names
 //! to values (in dive's JSON form, [`dive_trace::value_json`]), and validate

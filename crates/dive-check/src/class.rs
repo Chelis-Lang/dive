@@ -161,6 +161,7 @@ fn verdict(
     reported: u32,
     message: String,
     e: &EvalError,
+    invariant: Option<String>,
 ) -> Verdict {
     Verdict::EvaluationError {
         site,
@@ -170,6 +171,7 @@ fn verdict(
         message,
         verified,
         cause: e.clone(),
+        invariant,
     }
 }
 
@@ -205,6 +207,7 @@ pub(crate) fn search_error(e: &EvalError, site: ErrorSite, name: Option<&str>) -
     if let Some(v) = not_eval(e) {
         return v;
     }
+    let invariant = name;
     let name = name.unwrap_or("?");
     match site {
         ErrorSite::Invariant => verdict(
@@ -214,6 +217,7 @@ pub(crate) fn search_error(e: &EvalError, site: ErrorSite, name: Option<&str>) -
             2111,
             format!("Evaluating invariant {name} failed.\n{}", e.tool_text()),
             e,
+            invariant.map(str::to_owned),
         ),
         ErrorSite::ImpliedAction => {
             let (code, verified) = replayed(e);
@@ -227,11 +231,12 @@ pub(crate) fn search_error(e: &EvalError, site: ErrorSite, name: Option<&str>) -
                     e.tool_text()
                 ),
                 e,
+                None,
             )
         }
         ErrorSite::Startup => {
             let code = e.ec().code();
-            verdict(site, code, true, code, e.message().to_owned(), e)
+            verdict(site, code, true, code, e.message().to_owned(), e, None)
         }
         _ => {
             let (code, verified) = replayed(e);
@@ -240,7 +245,7 @@ pub(crate) fn search_error(e: &EvalError, site: ErrorSite, name: Option<&str>) -
             } else {
                 (1000, format!("{GENERAL_PREFIX}{}", e.tool_text()))
             };
-            verdict(site, code, verified, reported, message, e)
+            verdict(site, code, verified, reported, message, e, None)
         }
     }
 }
@@ -255,10 +260,11 @@ pub(crate) fn recurring(v: Verdict) -> Verdict {
             reported,
             message,
             cause,
+            invariant,
             ..
         } => {
             let (code, verified) = replayed(&cause);
-            verdict(site, code, verified, reported, message, &cause)
+            verdict(site, code, verified, reported, message, &cause, invariant)
         }
         other => other,
     }
@@ -274,13 +280,14 @@ pub(crate) fn replay_error(v: Verdict, e2: &EvalError) -> Verdict {
             reported,
             message,
             cause,
+            invariant,
             ..
         } => {
             if let Some(refused) = not_eval(e2) {
                 return refused;
             }
             let (code, verified) = replayed(e2);
-            verdict(site, code, verified, reported, message, &cause)
+            verdict(site, code, verified, reported, message, &cause, invariant)
         }
         other => other,
     }
@@ -293,7 +300,13 @@ pub(crate) fn replay_error(v: Verdict, e2: &EvalError) -> Verdict {
 /// `None` for an error while generating them.
 #[must_use]
 pub(crate) fn init_error(v: Verdict, state: Option<&str>) -> Verdict {
-    let Verdict::EvaluationError { site, cause, .. } = v else {
+    let Verdict::EvaluationError {
+        site,
+        cause,
+        invariant,
+        ..
+    } = v
+    else {
         return v;
     };
     let (reported, message) = match state {
@@ -311,7 +324,7 @@ pub(crate) fn init_error(v: Verdict, state: Option<&str>) -> Verdict {
     // The replay (`doInit(cTool, true)`) reports every exception it meets
     // again as `TLC_NESTED_EXPRESSION` (fixtures `ErInit*`, `ErPropInit*`).
     let verified = replay_class_known(&cause);
-    verdict(site, 2103, verified, reported, message, &cause)
+    verdict(site, 2103, verified, reported, message, &cause, invariant)
 }
 
 /// An `ASSUME` that fails to evaluate: `TLC_ASSUMPTION_EVALUATION_ERROR`
@@ -321,7 +334,7 @@ pub(crate) fn assumption_error(e: &EvalError, message: String) -> Verdict {
     if let Some(v) = not_eval(e) {
         return v;
     }
-    verdict(ErrorSite::Assumption, 2105, true, 2105, message, e)
+    verdict(ErrorSite::Assumption, 2105, true, 2105, message, e, None)
 }
 
 /// A `POSTCONDITION` that fails to evaluate after a complete search
@@ -342,6 +355,7 @@ pub(crate) fn postcondition_error(e: &EvalError, name: &str, location: &str) -> 
             e.tool_text()
         ),
         e,
+        None,
     )
 }
 

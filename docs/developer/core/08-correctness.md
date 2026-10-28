@@ -299,3 +299,15 @@ reasons.
 M0 needs only the golden check through `dive-bench` on the spike models. The
 `--engine` flag and the fallback (`--engine=auto`, §3) are built in M1. The
 shadow comparison (§4) is next.
+
+Invariant evaluation-error witnesses retain the configured invariant name and
+underlying cause independently of TLC's deciding wrapper. For invariant-site
+2111, both engines emit a named `invariant-error` claim. The harness requires the
+2111 report wrapper and independent replay of that exact name/cause. The
+validator checks the finite word, earlier states and earlier configured
+invariants before admitting the final error. It does not accept an arbitrary
+last-state error or replace the observed cause with 2111. The pinned
+`ErAssertInv`, `ErBagCardNonBag` and `ErBagCupNonBag` fixtures exercise both engines,
+both profiles and workers 1 and 4; forged names/causes, absent errors and earlier
+failures are negative controls. Generic expansion, constraint and action-property
+error claims remain separate (#490); this is not closure of that whole family.

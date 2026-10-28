@@ -55,14 +55,12 @@ const FAST_SEEDS: &[&str] = &[
     "crates/dive-check/tests/fixtures/tlc-probes/specs/ImpliedActionSeen/ImpliedActionSeen.tla",
     "crates/dive-conformance/tests/fixtures/specs/ActionProperty/ActionProperty.tla",
     "crates/dive-conformance/tests/fixtures/specs/InitProperty/InitProperty.tla",
+    // Named invariant evaluation error (#490).
+    "crates/dive-check/tests/fixtures/errors/specs/ErInvDivZero/ErInvDivZero.tla",
 ];
 
 /// One seed per known refutation, with the refutation it shows.
 const KNOWN_SEEDS: &[(&str, &str)] = &[
-    (
-        "crates/dive-check/tests/fixtures/errors/specs/ErInvDivZero/ErInvDivZero.tla",
-        KNOWN_ERROR_RERAISED,
-    ),
     (
         "crates/dive-check/tests/fixtures/errors/specs/ErConstrDivZero/ErConstrDivZero.tla",
         KNOWN_ERROR_RERAISED,
@@ -142,7 +140,7 @@ fn ending_matches(verdict: &str, property: Option<&str>, ending: &Ending) -> boo
         )
         | (
             "evaluation-error" | "overflow",
-            Ending::Error { .. } | Ending::TemporalStateError { .. },
+            Ending::Error { .. } | Ending::InvariantError { .. } | Ending::TemporalStateError { .. },
         ) => true,
         _ => false,
     }

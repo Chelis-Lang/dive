@@ -1,4 +1,4 @@
-//! Counterexample transports: dive's format (version 1) and TLC's JSON.
+//! Counterexample transports: dive's format (versions 1 and 2) and TLC's JSON.
 //!
 //! # dive's format
 //!
@@ -32,6 +32,18 @@
 //!   | `lasso` | `back_to` | the last state's successor is state `back_to` (0-based); a liveness counterexample |
 //!   | `stuttering` | | the behavior stutters forever after the last state |
 //!   | `assertion`, `error` | `ec` (`error`, optional) | expanding the last state fails |
+//!   | `invariant-error` | `name`, `ec` | evaluating the named invariant on the last state raises the given underlying error |
+//!
+//! Existing endings retain version 1. `invariant-error` requires version 2;
+//! readers accept both versions and reject a version-1 document using the new
+//! ending. Unknown versions and ending kinds fail closed (ADR 0108/0118).
+//!
+//! `invariant-error.ec` is the underlying evaluation cause. The enclosing
+//! check report retains TLC's deciding `TLC_INVARIANT_EVALUATION_FAILED`
+//! (2111); replacing the cause with that wrapper is invalid. Validation
+//! requires the named invariant to raise exactly that cause, with all
+//! earlier states and earlier configured invariants passing.
+//!
 //! - `length` (optional) is the claimed number of states; it must match.
 //! - `properties` lists all temporal properties violated by a lasso or
 //!   stuttering word. Legacy documents without names remain unsupported for
@@ -55,8 +67,11 @@ use serde_json::{Map, Value as J, json};
 /// The format name in [`TraceDoc::to_json`].
 pub const FORMAT: &str = "dive-trace";
 
-/// The format version written and read.
+/// The legacy format version, still written for all existing ending kinds.
 pub const VERSION: u64 = 1;
+
+/// The format version required by named invariant-error endings (ADR 0118).
+pub const INVARIANT_ERROR_VERSION: u64 = 2;
 
 /// What a trace claims about its end.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -85,6 +100,15 @@ pub enum Ending {
         /// TLC's error class, if known (`EC` name).
         ec: Option<String>,
     },
+    /// The named invariant fails to evaluate in the last state. Earlier
+    /// invariants and earlier states must pass. `ec` names the underlying
+    /// error, not TLC's `TLC_INVARIANT_EVALUATION_FAILED` wrapper.
+    InvariantError {
+        /// The configured invariant name.
+        name: String,
+        /// The underlying evaluation error's `EC` name.
+        ec: String,
+    },
     /// A source-state demand error, checked only by a fresh source-bound session.
     /// Its descriptor requests independent replay, never grants authority.
     TemporalStateError {
@@ -108,6 +132,9 @@ impl Ending {
             Self::Stuttering => json!({"kind": "stuttering"}),
             Self::Assertion => json!({"kind": "assertion"}),
             Self::Error { ec } => json!({"kind": "error", "ec": ec}),
+            Self::InvariantError { name, ec } => {
+                json!({"kind": "invariant-error", "name": name, "ec": ec})
+            }
             Self::TemporalStateError { ec, endpoint } => {
                 json!({"kind":"error", "ec":ec, "endpoint":endpoint.to_json()})
             }
@@ -160,6 +187,15 @@ impl Ending {
             "assertion" => Self::Assertion,
             "error" => Self::Error {
                 ec: j.get("ec").and_then(J::as_str).map(str::to_owned),
+            },
+            "invariant-error" => Self::InvariantError {
+                name: name()?,
+                ec: j
+                    .get("ec")
+                    .and_then(J::as_str)
+                    .filter(|ec| !ec.is_empty())
+                    .ok_or("an invariant-error ending needs an underlying `ec`")?
+                    .to_owned(),
             },
             other => return Err(format!("unknown ending kind `{other}`")),
         })
@@ -367,9 +403,9 @@ impl TraceDoc {
 
     fn from_dive(j: &J) -> Result<Self, String> {
         let version = j.get("version").and_then(J::as_u64);
-        if version != Some(VERSION) {
+        if !matches!(version, Some(VERSION | INVARIANT_ERROR_VERSION)) {
             return Err(format!(
-                "unsupported {FORMAT} version {version:?}; this build reads version {VERSION}"
+                "unsupported {FORMAT} version {version:?}; this build reads versions {VERSION} and {INVARIANT_ERROR_VERSION}"
             ));
         }
         let variables = strings(j.get("variables")).ok_or("`variables` must be a list of names")?;
@@ -401,6 +437,9 @@ impl TraceDoc {
             None | Some(J::Null) => None,
             Some(e) => Some(Ending::from_json(e)?),
         };
+        if version == Some(VERSION) && matches!(ending, Some(Ending::InvariantError { .. })) {
+            return Err("`invariant-error` requires dive-trace version 2".to_owned());
+        }
         let length = match j.get("length") {
             None | Some(J::Null) => None,
             Some(l) => Some(
@@ -543,9 +582,14 @@ impl TraceDoc {
                 })
             })
             .collect();
+        let version = if matches!(self.ending, Some(Ending::InvariantError { .. })) {
+            INVARIANT_ERROR_VERSION
+        } else {
+            VERSION
+        };
         let mut j = json!({
             "format": FORMAT,
-            "version": VERSION,
+            "version": version,
             "variables": self.variables,
             "states": states,
             "ending": self.ending.as_ref().map(Ending::to_json),
