@@ -400,6 +400,20 @@ TLC distinguishes how a set is represented, and the distinction is observable:
   error that the normalized set does not (fixtures `RvMemUnnorm` and
   `RvMemNorm`; ADR 0012).
 
+**Current boundary and next sequence.** Persistence, `Kind::Set` and
+`View::is_norm` do not certify TLC construction or normalization history.
+Current canonical builders/imports can discard raw order and duplicates;
+normalization through one alias must also remain distinct from an independent
+equal construction. The identity/view separation below is the planned
+framework, not proof that those transitions are implemented. First retain
+covered literal/map/union order, actual demand and alias lifetime, including
+new successor values before commitment. Then consume exact scalar/tuple
+normalization and raw equality-scan versus normalized checked-search behavior;
+class widening and E7 reporting provenance follow separately (`04-plan-compiler.md`
+§7). #621 keeps unknown C2 cases refused in both profiles. The witness memo
+in `06-memoization.md` proves comparison constraints only; it supplies neither
+normalization history nor the generic S5 membership index, which is not built.
+
 Identity is extensional: equal sets have one handle. The representation class
 and normalization flag travel separately, as a **lazy view**:
 

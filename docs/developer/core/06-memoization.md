@@ -2,7 +2,8 @@
 
 Status: M0 spike implemented in `crates/dive-core/src/memo.rs` and in the
 parent-delta rule of `crates/dive-explore`; results in `m0-results.md`. M1
-decision (§6): memo tables off by default, the parent-delta skip on. This document covers strategy S6 from `01-motivation.md`.
+decision (§6): memo tables and the parent-delta skip are on by default. This
+document covers strategy S6 from `01-motivation.md`.
 
 ## 1. Idea
 
@@ -140,9 +141,11 @@ shape triple, and cold/warm tests compare complete results against the
 original full miss implementation. A failed witness proof takes that full
 path, retaining its refusal and demand site.
 
-**Streaming general guards.** Equality, full membership misses and set
-construction use the `include_shape` helper and guard bodies copied unchanged
-from `d4c404317626a55e653122803dbdbd792cd505d8` (#598). They add constraints
+**Streaming general guards.** The `include_shape` helper and streaming
+accumulation come unchanged from `d4c404317626a55e653122803dbdbd792cd505d8`
+(#598). Equality and full-miss guard bodies retain that source; set
+construction composes the same accumulation with #621's both-profile C2
+boundary and default refusal message. They add constraints
 directly to one accumulator instead of constructing a second temporary tree
 and removing/reinserting existing map keys. The original `shape` and `unify`
 remain unchanged. The exact copied differential test checks 750,592 paired
@@ -212,9 +215,16 @@ change normalization, intern names or alter TLC's sealed runtime-name
 refusal. Process RSS still includes other
 memory outside memo tables; the cache allowance is not a whole-process bound.
 
-This is a bounded prototype for the existing performance plan, with no
-throughput claim until measurements at a fixed source pass the method in
-`09-performance-method.md`. Issue #597 remains open.
+The completed five-repeat record is
+`conformance/reports/perf/2026-10-28-core-checked-membership-x86.json`,
+source `75f0ac4f`, PRE-C2: all 300 observations are correct, with original
+runner quiet=false and separately observed host controls retained.
+`m1-status.md` §3 records the measured gains, remaining compatibility/scaling
+limits and separate `e0cce6f5` integration gates/review. The 300-row timings
+do not
+measure the C2 integration; its separate one-repetition Sailfish diagnostic
+is qualified in that status page. #597 remains open; the certificate memo is not
+the generic S5 membership index, which is not built.
 
 ### 2.3 Step predicates: thunks and memo sites on the pair
 
