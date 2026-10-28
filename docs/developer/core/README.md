@@ -13,6 +13,12 @@ for the workstream you are joining.
 **Start here:** `m1-status.md` records the current acceptance findings, source-bound
 measurements and next steps. M1 remains open; the default engine is `reference`.
 
+The final fixture census on main `f1acc846` records 1,025 default / 1,002
+TLC-profile shadow agreements and zero sampled-successor findings, with remaining
+trace, refusal and stop findings. The five-repeat default benchmark beats TLC
+on ten of ten models at both worker counts. These are separate qualifications:
+M1 acceptance stays open, and `reference` remains the default.
+
 ## Status board
 
 | Workstream | Milestone | State | Branch / PR | Doc |

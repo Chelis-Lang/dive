@@ -1,0 +1,603 @@
+{
+  "schema_version": 1,
+  "kind": "fixture-census-common-input-comparison",
+  "before_source_revision": "2d55317a21c5d14336e274b27378ef1b2a462806",
+  "after_source_revision": "f1acc846885f6764d2ce3b40c8c757d9912b25c8",
+  "before_population": 1474,
+  "after_population": 1476,
+  "common_population": 1474,
+  "added_fixture_ids": [
+    "crates/dive-api/tests/fixtures/core-m0/CompoundTrace.cfg",
+    "crates/dive-api/tests/fixtures/core-sample/LevelChain.cfg"
+  ],
+  "removed_fixture_ids": [],
+  "changed_common_module_pairings_or_selection": [],
+  "profiles": [
+    {
+      "profile": "default",
+      "common_before": {
+        "agree": 983,
+        "trace-unconfirmed": 27,
+        "excluded-config-parser": 99,
+        "refused": 242,
+        "timeout": 6,
+        "trace-refuted": 100,
+        "skipped-ambiguous-module": 14,
+        "successors-differ": 3
+      },
+      "common_after": {
+        "agree": 1023,
+        "trace-unconfirmed": 27,
+        "excluded-config-parser": 99,
+        "refused": 242,
+        "timeout": 6,
+        "trace-refuted": 63,
+        "skipped-ambiguous-module": 14
+      },
+      "changed_common_cases": {
+        "trace-refuted -> agree": [
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErAssertInv/ErAssertInv.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErBagCardNonBag/ErBagCardNonBag.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErBagCupNonBag/ErBagCupNonBag.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErBagDiffNonFcn/ErBagDiffNonFcn.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErBagSqNonFcn/ErBagSqNonFcn.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErCmAllSubSeqsNonSeq/ErCmAllSubSeqsNonSeq.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErCmContainsNonSeq/ErCmContainsNonSeq.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErCmInjectiveNonFcn/ErCmInjectiveNonFcn.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErCmLcpEmpty/ErCmLcpEmpty.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErCmLcpNonSet/ErCmLcpNonSet.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErCmRemoveFirstNonSeq/ErCmRemoveFirstNonSeq.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErCombineNonFcn/ErCombineNonFcn.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErCombineSecond/ErCombineSecond.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErFoldOnSetDomain/ErFoldOnSetDomain.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErFoldOnSetNonFcn/ErFoldOnSetNonFcn.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErFoldOnSetNonSet/ErFoldOnSetNonSet.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErHoFoldLeftNonSeq/ErHoFoldLeftNonSeq.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErHoInBody/ErHoInBody.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErHoSelectSeqNonSeq/ErHoSelectSeqNonSeq.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErPermNonSet/ErPermNonSet.cfg",
+          "crates/dive-check/tests/fixtures/disk-seen/ReplayLaterViolation/ReplayLaterViolation.cfg",
+          "crates/dive-check/tests/fixtures/disk-seen/ReplayMembership/ReplayMembership.cfg",
+          "crates/dive-check/tests/fixtures/disk-seen/ReplayNew/ReplayNew.cfg",
+          "crates/dive-check/tests/fixtures/disk-seen/ReplayPrintWrapper/ReplayPrintWrapper.cfg",
+          "crates/dive-check/tests/fixtures/errors/specs/ErInvAssert/ErInvAssert.cfg",
+          "crates/dive-check/tests/fixtures/errors/specs/ErInvChoose/ErInvChoose.cfg",
+          "crates/dive-check/tests/fixtures/errors/specs/ErInvDivZero/ErInvDivZero.cfg",
+          "crates/dive-check/tests/fixtures/errors/specs/ErInvDomain/ErInvDomain.cfg",
+          "crates/dive-check/tests/fixtures/errors/specs/ErInvEnabled/ErInvEnabled.cfg",
+          "crates/dive-check/tests/fixtures/errors/specs/ErInvNonBool/ErInvNonBool.cfg",
+          "crates/dive-check/tests/fixtures/errors/specs/ErInvNonBoolIf/ErInvNonBoolIf.cfg",
+          "crates/dive-check/tests/fixtures/errors/specs/ErInvNonEnum/ErInvNonEnum.cfg",
+          "crates/dive-check/tests/fixtures/errors/specs/ErInvReplayProp/ErInvReplayProp.cfg",
+          "crates/dive-check/tests/fixtures/errors/specs/ErInvSecond/ErInvSecond.cfg",
+          "crates/dive-check/tests/fixtures/errors/specs/ErInvTypeErr/ErInvTypeErr.cfg",
+          "crates/dive-check/tests/fixtures/errors/specs/ErWrapInvTuple/ErWrapInvTuple.cfg",
+          "crates/dive-sim/tests/fixtures/SimInvariantError.cfg"
+        ],
+        "successors-differ -> agree": [
+          "crates/dive-api/tests/fixtures/core-lib/specs/RgLevel/RgLevel.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/RgLevelViol/RgLevelViol.cfg",
+          "crates/dive-check/tests/fixtures/dfid/DfidLiveGet.cfg"
+        ]
+      },
+      "changed_common_count": 40,
+      "unchanged_common_count": 1434,
+      "added": [
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-m0/CompoundTrace.cfg",
+          "selection": "selected",
+          "status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-sample/LevelChain.cfg",
+          "selection": "selected",
+          "status": "agree"
+        }
+      ],
+      "removed": []
+    },
+    {
+      "profile": "tlc",
+      "common_before": {
+        "agree": 959,
+        "trace-unconfirmed": 33,
+        "excluded-config-parser": 99,
+        "refused": 258,
+        "timeout": 4,
+        "trace-refuted": 104,
+        "skipped-ambiguous-module": 14,
+        "successors-differ": 3
+      },
+      "common_after": {
+        "agree": 1000,
+        "trace-unconfirmed": 33,
+        "excluded-config-parser": 99,
+        "refused": 258,
+        "timeout": 4,
+        "trace-refuted": 66,
+        "skipped-ambiguous-module": 14
+      },
+      "changed_common_cases": {
+        "trace-refuted -> agree": [
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErAssertInv/ErAssertInv.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErBagCardNonBag/ErBagCardNonBag.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErBagCupNonBag/ErBagCupNonBag.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErBagDiffNonFcn/ErBagDiffNonFcn.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErBagSqNonFcn/ErBagSqNonFcn.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErCmAllSubSeqsNonSeq/ErCmAllSubSeqsNonSeq.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErCmContainsNonSeq/ErCmContainsNonSeq.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErCmInjectiveNonFcn/ErCmInjectiveNonFcn.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErCmLcpEmpty/ErCmLcpEmpty.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErCmLcpNonSet/ErCmLcpNonSet.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErCmRemoveFirstNonSeq/ErCmRemoveFirstNonSeq.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErCombineNonFcn/ErCombineNonFcn.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErCombineSecond/ErCombineSecond.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErFoldOnSetDomain/ErFoldOnSetDomain.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErFoldOnSetNonFcn/ErFoldOnSetNonFcn.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErFoldOnSetNonSet/ErFoldOnSetNonSet.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErHoFoldLeftNonSeq/ErHoFoldLeftNonSeq.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErHoInBody/ErHoInBody.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErHoSelectSeqNonSeq/ErHoSelectSeqNonSeq.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/ErPermNonSet/ErPermNonSet.cfg",
+          "crates/dive-check/tests/fixtures/disk-seen/ReplayLaterViolation/ReplayLaterViolation.cfg",
+          "crates/dive-check/tests/fixtures/disk-seen/ReplayMembership/ReplayMembership.cfg",
+          "crates/dive-check/tests/fixtures/disk-seen/ReplayNew/ReplayNew.cfg",
+          "crates/dive-check/tests/fixtures/disk-seen/ReplayPrintWrapper/ReplayPrintWrapper.cfg",
+          "crates/dive-check/tests/fixtures/errors/specs/ErInvAssert/ErInvAssert.cfg",
+          "crates/dive-check/tests/fixtures/errors/specs/ErInvChoose/ErInvChoose.cfg",
+          "crates/dive-check/tests/fixtures/errors/specs/ErInvDivZero/ErInvDivZero.cfg",
+          "crates/dive-check/tests/fixtures/errors/specs/ErInvDomain/ErInvDomain.cfg",
+          "crates/dive-check/tests/fixtures/errors/specs/ErInvEnabled/ErInvEnabled.cfg",
+          "crates/dive-check/tests/fixtures/errors/specs/ErInvNonBool/ErInvNonBool.cfg",
+          "crates/dive-check/tests/fixtures/errors/specs/ErInvNonBoolIf/ErInvNonBoolIf.cfg",
+          "crates/dive-check/tests/fixtures/errors/specs/ErInvNonEnum/ErInvNonEnum.cfg",
+          "crates/dive-check/tests/fixtures/errors/specs/ErInvOverflow/ErInvOverflow.cfg",
+          "crates/dive-check/tests/fixtures/errors/specs/ErInvReplayProp/ErInvReplayProp.cfg",
+          "crates/dive-check/tests/fixtures/errors/specs/ErInvSecond/ErInvSecond.cfg",
+          "crates/dive-check/tests/fixtures/errors/specs/ErInvTypeErr/ErInvTypeErr.cfg",
+          "crates/dive-check/tests/fixtures/errors/specs/ErWrapInvTuple/ErWrapInvTuple.cfg",
+          "crates/dive-sim/tests/fixtures/SimInvariantError.cfg"
+        ],
+        "successors-differ -> agree": [
+          "crates/dive-api/tests/fixtures/core-lib/specs/RgLevel/RgLevel.cfg",
+          "crates/dive-api/tests/fixtures/core-lib/specs/RgLevelViol/RgLevelViol.cfg",
+          "crates/dive-check/tests/fixtures/dfid/DfidLiveGet.cfg"
+        ]
+      },
+      "changed_common_count": 41,
+      "unchanged_common_count": 1433,
+      "added": [
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-m0/CompoundTrace.cfg",
+          "selection": "selected",
+          "status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-sample/LevelChain.cfg",
+          "selection": "selected",
+          "status": "agree"
+        }
+      ],
+      "removed": []
+    }
+  ],
+  "qualification": "Status transitions on common fixture IDs only; additions/removals receive separate accounting. Shadow results do not establish TLC parity, and original failures remain intact.",
+  "original_invariant_error_2111_cases": [
+    {
+      "profile": "default",
+      "expected_target_count": 37,
+      "after_statuses": {
+        "agree": 37
+      },
+      "cases": [
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErAssertInv/ErAssertInv.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErBagCardNonBag/ErBagCardNonBag.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErBagCupNonBag/ErBagCupNonBag.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErBagDiffNonFcn/ErBagDiffNonFcn.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErBagSqNonFcn/ErBagSqNonFcn.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErCmAllSubSeqsNonSeq/ErCmAllSubSeqsNonSeq.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErCmContainsNonSeq/ErCmContainsNonSeq.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErCmInjectiveNonFcn/ErCmInjectiveNonFcn.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErCmLcpEmpty/ErCmLcpEmpty.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErCmLcpNonSet/ErCmLcpNonSet.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErCmRemoveFirstNonSeq/ErCmRemoveFirstNonSeq.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErCombineNonFcn/ErCombineNonFcn.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErCombineSecond/ErCombineSecond.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErFoldOnSetDomain/ErFoldOnSetDomain.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErFoldOnSetNonFcn/ErFoldOnSetNonFcn.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErFoldOnSetNonSet/ErFoldOnSetNonSet.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErHoFoldLeftNonSeq/ErHoFoldLeftNonSeq.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErHoInBody/ErHoInBody.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErHoSelectSeqNonSeq/ErHoSelectSeqNonSeq.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErPermNonSet/ErPermNonSet.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/disk-seen/ReplayLaterViolation/ReplayLaterViolation.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/disk-seen/ReplayMembership/ReplayMembership.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/disk-seen/ReplayNew/ReplayNew.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/disk-seen/ReplayPrintWrapper/ReplayPrintWrapper.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvAssert/ErInvAssert.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvChoose/ErInvChoose.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvDivZero/ErInvDivZero.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvDomain/ErInvDomain.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvEnabled/ErInvEnabled.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvNonBool/ErInvNonBool.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvNonBoolIf/ErInvNonBoolIf.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvNonEnum/ErInvNonEnum.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvReplayProp/ErInvReplayProp.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvSecond/ErInvSecond.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvTypeErr/ErInvTypeErr.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErWrapInvTuple/ErWrapInvTuple.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-sim/tests/fixtures/SimInvariantError.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        }
+      ]
+    },
+    {
+      "profile": "tlc",
+      "expected_target_count": 38,
+      "after_statuses": {
+        "agree": 38
+      },
+      "cases": [
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErAssertInv/ErAssertInv.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErBagCardNonBag/ErBagCardNonBag.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErBagCupNonBag/ErBagCupNonBag.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErBagDiffNonFcn/ErBagDiffNonFcn.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErBagSqNonFcn/ErBagSqNonFcn.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErCmAllSubSeqsNonSeq/ErCmAllSubSeqsNonSeq.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErCmContainsNonSeq/ErCmContainsNonSeq.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErCmInjectiveNonFcn/ErCmInjectiveNonFcn.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErCmLcpEmpty/ErCmLcpEmpty.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErCmLcpNonSet/ErCmLcpNonSet.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErCmRemoveFirstNonSeq/ErCmRemoveFirstNonSeq.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErCombineNonFcn/ErCombineNonFcn.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErCombineSecond/ErCombineSecond.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErFoldOnSetDomain/ErFoldOnSetDomain.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErFoldOnSetNonFcn/ErFoldOnSetNonFcn.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErFoldOnSetNonSet/ErFoldOnSetNonSet.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErHoFoldLeftNonSeq/ErHoFoldLeftNonSeq.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErHoInBody/ErHoInBody.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErHoSelectSeqNonSeq/ErHoSelectSeqNonSeq.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErPermNonSet/ErPermNonSet.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/disk-seen/ReplayLaterViolation/ReplayLaterViolation.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/disk-seen/ReplayMembership/ReplayMembership.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/disk-seen/ReplayNew/ReplayNew.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/disk-seen/ReplayPrintWrapper/ReplayPrintWrapper.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvAssert/ErInvAssert.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvChoose/ErInvChoose.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvDivZero/ErInvDivZero.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvDomain/ErInvDomain.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvEnabled/ErInvEnabled.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvNonBool/ErInvNonBool.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvNonBoolIf/ErInvNonBoolIf.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvNonEnum/ErInvNonEnum.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvOverflow/ErInvOverflow.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvReplayProp/ErInvReplayProp.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvSecond/ErInvSecond.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvTypeErr/ErInvTypeErr.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErWrapInvTuple/ErWrapInvTuple.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        },
+        {
+          "fixture": "crates/dive-sim/tests/fixtures/SimInvariantError.cfg",
+          "before_status": "trace-refuted",
+          "after_status": "agree"
+        }
+      ]
+    }
+  ],
+  "invariant_error_credit_scope": "Actual merged main includes the approved trace v2 change. Original 37/38 invariant-error cases are measured again here; credit depends on these observed actual-main statuses. The earlier c831 diagnostic remains a separate execution.",
+  "source_input_freeze": {
+    "source_revision": "f1acc846885f6764d2ce3b40c8c757d9912b25c8",
+    "v1_fixture_source_revision": "2d55317a21c5d14336e274b27378ef1b2a462806",
+    "fixture_count": 1476,
+    "selection_counts": {
+      "selected": 1363,
+      "skipped-ambiguous-module": 14,
+      "excluded-config-parser": 99
+    },
+    "added_source_files": [
+      "crates/dive-api/tests/fixtures/core-m0/CompoundTrace.cfg",
+      "crates/dive-api/tests/fixtures/core-m0/CompoundTrace.tla",
+      "crates/dive-api/tests/fixtures/core-sample/LevelChain.cfg",
+      "crates/dive-api/tests/fixtures/core-sample/LevelChain.tla"
+    ],
+    "added_fixture_ids": [
+      "crates/dive-api/tests/fixtures/core-m0/CompoundTrace.cfg",
+      "crates/dive-api/tests/fixtures/core-sample/LevelChain.cfg"
+    ],
+    "removed_fixture_ids": [],
+    "changed_common_fixture_source_files": []
+  }
+}

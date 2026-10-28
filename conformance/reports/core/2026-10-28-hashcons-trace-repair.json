@@ -1,0 +1,739 @@
+{
+  "old_backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+  "new_backend_revision": "f582d791fbaa0490cdfc75502b69e9af76a0cb72",
+  "harness_validator_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+  "issue": 603,
+  "scope": "all original ten failing corpus rows in each full156 profile",
+  "records": [
+    {
+      "profile": "dive",
+      "fixed_rows": [
+        {
+          "id": "examples:specifications/CheckpointCoordination/MCCheckpointCoordinationFailure.cfg",
+          "original_failed": {
+            "verdict": "unclassified",
+            "verdict_code": null,
+            "exit_code": 4,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null
+          },
+          "all_on_expected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "SafetyInvariant",
+            "distinct_states": 88152,
+            "states_generated": 1302999,
+            "depth": 12
+          },
+          "corrected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "SafetyInvariant",
+            "distinct_states": 88152,
+            "states_generated": 1302999,
+            "depth": 12
+          },
+          "corrected_outcome": "agree",
+          "trace_length": 12,
+          "independent_validation_findings": []
+        },
+        {
+          "id": "examples:specifications/DieHard/MCDieHarder.cfg",
+          "original_failed": {
+            "verdict": "unclassified",
+            "verdict_code": null,
+            "exit_code": 4,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null
+          },
+          "all_on_expected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "NotSolved",
+            "distinct_states": 14,
+            "states_generated": 73,
+            "depth": 7
+          },
+          "corrected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "NotSolved",
+            "distinct_states": 14,
+            "states_generated": 73,
+            "depth": 7
+          },
+          "corrected_outcome": "agree",
+          "trace_length": 7,
+          "independent_validation_findings": []
+        },
+        {
+          "id": "examples:specifications/MissionariesAndCannibals/MissionariesAndCannibals.cfg",
+          "original_failed": {
+            "verdict": "unclassified",
+            "verdict_code": null,
+            "exit_code": 4,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null
+          },
+          "all_on_expected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "Solution",
+            "distinct_states": 61,
+            "states_generated": 226,
+            "depth": 12
+          },
+          "corrected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "Solution",
+            "distinct_states": 61,
+            "states_generated": 226,
+            "depth": 12
+          },
+          "corrected_outcome": "expected-divergence",
+          "trace_length": 12,
+          "independent_validation_findings": []
+        },
+        {
+          "id": "examples:specifications/N-Queens/Queens.toolbox/FourQueens/MC.cfg",
+          "original_failed": {
+            "verdict": "unclassified",
+            "verdict_code": null,
+            "exit_code": 4,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null
+          },
+          "all_on_expected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "NoSolutions",
+            "distinct_states": 40,
+            "states_generated": 62,
+            "depth": 5
+          },
+          "corrected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "NoSolutions",
+            "distinct_states": 40,
+            "states_generated": 62,
+            "depth": 5
+          },
+          "corrected_outcome": "agree",
+          "trace_length": 5,
+          "independent_validation_findings": []
+        },
+        {
+          "id": "examples:specifications/N-Queens/QueensPluscal.toolbox/FourQueens/MC.cfg",
+          "original_failed": {
+            "verdict": "unclassified",
+            "verdict_code": null,
+            "exit_code": 4,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null
+          },
+          "all_on_expected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "NoSolutions",
+            "distinct_states": 40,
+            "states_generated": 62,
+            "depth": 5
+          },
+          "corrected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "NoSolutions",
+            "distinct_states": 40,
+            "states_generated": 62,
+            "depth": 5
+          },
+          "corrected_outcome": "agree",
+          "trace_length": 5,
+          "independent_validation_findings": []
+        },
+        {
+          "id": "examples:specifications/SDP_Verification/SDP_Attack_Spec/MC.cfg",
+          "original_failed": {
+            "verdict": "unclassified",
+            "verdict_code": null,
+            "exit_code": 4,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null
+          },
+          "all_on_expected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "DataAccessSafeLaw",
+            "distinct_states": 526,
+            "states_generated": 1103,
+            "depth": 11
+          },
+          "corrected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "DataAccessSafeLaw",
+            "distinct_states": 526,
+            "states_generated": 1103,
+            "depth": 11
+          },
+          "corrected_outcome": "agree",
+          "trace_length": 11,
+          "independent_validation_findings": []
+        },
+        {
+          "id": "examples:specifications/acp/ACP_NB_WRONG_TLC.cfg",
+          "original_failed": {
+            "verdict": "unclassified",
+            "verdict_code": null,
+            "exit_code": 4,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null
+          },
+          "all_on_expected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "AC1",
+            "distinct_states": 12645,
+            "states_generated": 64357,
+            "depth": 13
+          },
+          "corrected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "AC1",
+            "distinct_states": 12645,
+            "states_generated": 64357,
+            "depth": 13
+          },
+          "corrected_outcome": "expected-divergence",
+          "trace_length": 13,
+          "independent_validation_findings": []
+        },
+        {
+          "id": "examples:specifications/spanning/MC_spanning.cfg",
+          "original_failed": {
+            "verdict": "unclassified",
+            "verdict_code": null,
+            "exit_code": 4,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null
+          },
+          "all_on_expected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "TypeOK",
+            "distinct_states": 5,
+            "states_generated": 19,
+            "depth": 3
+          },
+          "corrected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "TypeOK",
+            "distinct_states": 5,
+            "states_generated": 19,
+            "depth": 3
+          },
+          "corrected_outcome": "agree",
+          "trace_length": 3,
+          "independent_validation_findings": []
+        },
+        {
+          "id": "examples:specifications/tower_of_hanoi/Hanoi.toolbox/Model_1/MC.cfg",
+          "original_failed": {
+            "verdict": "unclassified",
+            "verdict_code": null,
+            "exit_code": 4,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null
+          },
+          "all_on_expected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "NotSolved",
+            "distinct_states": 233,
+            "states_generated": 768,
+            "depth": 32
+          },
+          "corrected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "NotSolved",
+            "distinct_states": 233,
+            "states_generated": 768,
+            "depth": 32
+          },
+          "corrected_outcome": "agree",
+          "trace_length": 32,
+          "independent_validation_findings": []
+        },
+        {
+          "id": "examples:specifications/tower_of_hanoi/Hanoi_anim.cfg",
+          "original_failed": {
+            "verdict": "unclassified",
+            "verdict_code": null,
+            "exit_code": 4,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null
+          },
+          "all_on_expected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "NotSolved",
+            "distinct_states": 25,
+            "states_generated": 80,
+            "depth": 8
+          },
+          "corrected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "NotSolved",
+            "distinct_states": 25,
+            "states_generated": 80,
+            "depth": 8
+          },
+          "corrected_outcome": "agree",
+          "trace_length": 8,
+          "independent_validation_findings": []
+        }
+      ]
+    },
+    {
+      "profile": "tlc",
+      "fixed_rows": [
+        {
+          "id": "examples:specifications/CheckpointCoordination/MCCheckpointCoordinationFailure.cfg",
+          "original_failed": {
+            "verdict": "unclassified",
+            "verdict_code": null,
+            "exit_code": 4,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null
+          },
+          "all_on_expected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "SafetyInvariant",
+            "distinct_states": 88152,
+            "states_generated": 1302999,
+            "depth": 12
+          },
+          "corrected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "SafetyInvariant",
+            "distinct_states": 88152,
+            "states_generated": 1302999,
+            "depth": 12
+          },
+          "corrected_outcome": "agree",
+          "trace_length": 12,
+          "independent_validation_findings": []
+        },
+        {
+          "id": "examples:specifications/DieHard/MCDieHarder.cfg",
+          "original_failed": {
+            "verdict": "unclassified",
+            "verdict_code": null,
+            "exit_code": 4,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null
+          },
+          "all_on_expected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "NotSolved",
+            "distinct_states": 14,
+            "states_generated": 73,
+            "depth": 7
+          },
+          "corrected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "NotSolved",
+            "distinct_states": 14,
+            "states_generated": 73,
+            "depth": 7
+          },
+          "corrected_outcome": "agree",
+          "trace_length": 7,
+          "independent_validation_findings": []
+        },
+        {
+          "id": "examples:specifications/MissionariesAndCannibals/MissionariesAndCannibals.cfg",
+          "original_failed": {
+            "verdict": "unclassified",
+            "verdict_code": null,
+            "exit_code": 4,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null
+          },
+          "all_on_expected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "Solution",
+            "distinct_states": 61,
+            "states_generated": 225,
+            "depth": 12
+          },
+          "corrected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "Solution",
+            "distinct_states": 61,
+            "states_generated": 225,
+            "depth": 12
+          },
+          "corrected_outcome": "agree",
+          "trace_length": 12,
+          "independent_validation_findings": []
+        },
+        {
+          "id": "examples:specifications/N-Queens/Queens.toolbox/FourQueens/MC.cfg",
+          "original_failed": {
+            "verdict": "unclassified",
+            "verdict_code": null,
+            "exit_code": 4,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null
+          },
+          "all_on_expected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "NoSolutions",
+            "distinct_states": 40,
+            "states_generated": 62,
+            "depth": 5
+          },
+          "corrected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "NoSolutions",
+            "distinct_states": 40,
+            "states_generated": 62,
+            "depth": 5
+          },
+          "corrected_outcome": "agree",
+          "trace_length": 5,
+          "independent_validation_findings": []
+        },
+        {
+          "id": "examples:specifications/N-Queens/QueensPluscal.toolbox/FourQueens/MC.cfg",
+          "original_failed": {
+            "verdict": "unclassified",
+            "verdict_code": null,
+            "exit_code": 4,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null
+          },
+          "all_on_expected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "NoSolutions",
+            "distinct_states": 40,
+            "states_generated": 62,
+            "depth": 5
+          },
+          "corrected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "NoSolutions",
+            "distinct_states": 40,
+            "states_generated": 62,
+            "depth": 5
+          },
+          "corrected_outcome": "agree",
+          "trace_length": 5,
+          "independent_validation_findings": []
+        },
+        {
+          "id": "examples:specifications/SDP_Verification/SDP_Attack_Spec/MC.cfg",
+          "original_failed": {
+            "verdict": "unclassified",
+            "verdict_code": null,
+            "exit_code": 4,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null
+          },
+          "all_on_expected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "DataAccessSafeLaw",
+            "distinct_states": 526,
+            "states_generated": 1103,
+            "depth": 11
+          },
+          "corrected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "DataAccessSafeLaw",
+            "distinct_states": 526,
+            "states_generated": 1103,
+            "depth": 11
+          },
+          "corrected_outcome": "agree",
+          "trace_length": 11,
+          "independent_validation_findings": []
+        },
+        {
+          "id": "examples:specifications/acp/ACP_NB_WRONG_TLC.cfg",
+          "original_failed": {
+            "verdict": "unclassified",
+            "verdict_code": null,
+            "exit_code": 4,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null
+          },
+          "all_on_expected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "AC1",
+            "distinct_states": 11852,
+            "states_generated": 59286,
+            "depth": 13
+          },
+          "corrected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "AC1",
+            "distinct_states": 11852,
+            "states_generated": 59286,
+            "depth": 13
+          },
+          "corrected_outcome": "agree",
+          "trace_length": 13,
+          "independent_validation_findings": []
+        },
+        {
+          "id": "examples:specifications/spanning/MC_spanning.cfg",
+          "original_failed": {
+            "verdict": "unclassified",
+            "verdict_code": null,
+            "exit_code": 4,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null
+          },
+          "all_on_expected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "TypeOK",
+            "distinct_states": 5,
+            "states_generated": 19,
+            "depth": 3
+          },
+          "corrected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "TypeOK",
+            "distinct_states": 5,
+            "states_generated": 19,
+            "depth": 3
+          },
+          "corrected_outcome": "agree",
+          "trace_length": 3,
+          "independent_validation_findings": []
+        },
+        {
+          "id": "examples:specifications/tower_of_hanoi/Hanoi.toolbox/Model_1/MC.cfg",
+          "original_failed": {
+            "verdict": "unclassified",
+            "verdict_code": null,
+            "exit_code": 4,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null
+          },
+          "all_on_expected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "NotSolved",
+            "distinct_states": 233,
+            "states_generated": 768,
+            "depth": 32
+          },
+          "corrected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "NotSolved",
+            "distinct_states": 233,
+            "states_generated": 768,
+            "depth": 32
+          },
+          "corrected_outcome": "agree",
+          "trace_length": 32,
+          "independent_validation_findings": []
+        },
+        {
+          "id": "examples:specifications/tower_of_hanoi/Hanoi_anim.cfg",
+          "original_failed": {
+            "verdict": "unclassified",
+            "verdict_code": null,
+            "exit_code": 4,
+            "error_class": null,
+            "violated_property": null,
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null
+          },
+          "all_on_expected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "NotSolved",
+            "distinct_states": 25,
+            "states_generated": 80,
+            "depth": 8
+          },
+          "corrected": {
+            "verdict": "safety-violation",
+            "verdict_code": 2110,
+            "exit_code": 12,
+            "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+            "violated_property": "NotSolved",
+            "distinct_states": 25,
+            "states_generated": 80,
+            "depth": 8
+          },
+          "corrected_outcome": "agree",
+          "trace_length": 8,
+          "independent_validation_findings": []
+        }
+      ]
+    }
+  ]
+}

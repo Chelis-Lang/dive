@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "source_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+  "binaries": {
+    "dive": {
+      "sha256": "82629a86db65e7525dd6cf59080b6d49ef9be72dc342af613ac0bc2b35ef2b02",
+      "revision": "0f0c6ad1b385846128a1889dea205ac87c468e33"
+    },
+    "dive-conformance": {
+      "sha256": "99afa8ae44e49ed1368cb22755f279d44503afe76d17b1af2fecf2bfc85a8398",
+      "revision": "0f0c6ad1b385846128a1889dea205ac87c468e33"
+    }
+  },
+  "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+  "scope": "small tier auto census; does not establish universal parity or complete the ablation acceptance gate",
+  "limits": {
+    "model_jobs": 2,
+    "workers": [
+      1
+    ],
+    "tlc_budgets": true,
+    "budget_cap_seconds": 900,
+    "xmx": "8g"
+  },
+  "core_strategy_overrides": [],
+  "profiles": {
+    "dive": {
+      "report_id": "20261028T164508775-dive-small",
+      "report_sha256": "98b3c2676de5d30b6a8541dab812d26f9fa4a7a358178a40586043598c7d8cc9",
+      "golden_oracle": "tlc-2026.10.06.014338",
+      "golden_oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+      "raw_harness_rc": 0,
+      "baseline_result": [
+        "baseline 20261023T014009568-dive-small: 0 regression(s), 0 improvement(s), 0 other change(s)"
+      ],
+      "models_selected": 156,
+      "model_outcomes": {
+        "agree": 144,
+        "disagree": 0,
+        "unsupported": 5,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 7,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "modules_selected": 0,
+      "module_outcomes": {
+        "agree": 0,
+        "disagree": 0,
+        "unsupported": 0,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "engine_counts": {
+        "core": 125,
+        "dynamic-fallback": 1,
+        "none": 7,
+        "static-fallback": 23
+      },
+      "outcomes_by_engine": {
+        "core": {
+          "agree": 121,
+          "expected-divergence": 4
+        },
+        "static-fallback": {
+          "agree": 20,
+          "expected-divergence": 3
+        },
+        "none": {
+          "unsupported": 5,
+          "agree": 2
+        },
+        "dynamic-fallback": {
+          "agree": 1
+        }
+      },
+      "fallback_reasons": {
+        "static: TLCGet(\"config\") (this run does not provide it)": 1,
+        "static: action composition (M0 core)": 2,
+        "static: x' \\in an operator application whose body builds a lazily represented set (core)": 3,
+        "static: x' \\in a startup value TLC represents lazily, whose enumeration depends on its history (core)": 1,
+        "static: a constant substituted by a definition, inside an instance (M1 core)": 1,
+        "static: a recursive function used other than applied (M1 core)": 8,
+        "static: the split action <Init line 5, col 1 to line 5, col 17 of module MCTwoPhase> inside nested INSTANCE substitutions (M1 core)": 1,
+        "static: ENABLED inside an INSTANCE with substitutions (B2, B3; M1 core)": 1,
+        "static: the standard operator UndirectedGraphs!ConnectedComponents (M0 core)": 1,
+        "static: the standard operator TLCExt!Trace (M0 core)": 1,
+        "static: a recursive operator under a prime (M0 core)": 1,
+        "static: the standard operator Json!ToJson (M0 core)": 1,
+        "static: SYMMETRY (M0 core engine)": 1,
+        "dynamic: TLCSet or TLCGet in a run that does not end in success (M1 core)": 1
+      },
+      "unsupported_models": [
+        {
+          "id": "examples:specifications/FiniteMonotonic/MCDistributedReplicatedLog.cfg",
+          "reason": "unsupported: graph capture with VIEW requires quotient edge and closing-state evidence"
+        },
+        {
+          "id": "examples:specifications/SpanningTree/SpanTreeRandom.cfg",
+          "reason": "unsupported: DIVE-L0020: unsupported liveness planning in line 66, col 34 to line 66, col 46 of module SpanTreeRandom: effects or dynamic bindings in temporal planning (at line 66, col 34 to line 66, col 46 of module SpanTreeRandom)"
+        },
+        {
+          "id": "examples:specifications/TLC/TestGraphs.cfg",
+          "reason": "unsupported: DIVE-L0020: unsupported liveness planning in line 315, col 12 to line 315, col 24 of module TLCMC: unsupported: effects in finite binding preflight (at line 12, col 145 to line 12, col 155 of module TestGraphs)"
+        },
+        {
+          "id": "examples:specifications/ewd998/EWD998ChanID.cfg",
+          "reason": "unsupported: graph capture with VIEW requires quotient edge and closing-state evidence"
+        },
+        {
+          "id": "examples:specifications/ewd998/EWD998ChanTrace.cfg",
+          "reason": "unsupported: splitting the next-state relation: IOUtils!IOEnv (an operator that performs file, process or environment I/O)"
+        }
+      ]
+    },
+    "tlc": {
+      "report_id": "20261028T165727304-dive-small",
+      "report_sha256": "2b2ef79b414b3a7c8ac8c31765d10673d4934b0ab00eb61e5295e27c91e2a870",
+      "golden_oracle": "tlc-2026.10.06.014338",
+      "golden_oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+      "raw_harness_rc": 0,
+      "baseline_result": [
+        "baseline 20261023T013135052-dive-small: 0 regression(s), 0 improvement(s), 0 other change(s)"
+      ],
+      "models_selected": 156,
+      "model_outcomes": {
+        "agree": 150,
+        "disagree": 0,
+        "unsupported": 6,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "modules_selected": 458,
+      "module_outcomes": {
+        "agree": 458,
+        "disagree": 0,
+        "unsupported": 0,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "engine_counts": {
+        "core": 125,
+        "dynamic-fallback": 1,
+        "none": 8,
+        "static-fallback": 22
+      },
+      "outcomes_by_engine": {
+        "core": {
+          "agree": 125
+        },
+        "static-fallback": {
+          "agree": 22
+        },
+        "none": {
+          "unsupported": 6,
+          "agree": 2
+        },
+        "dynamic-fallback": {
+          "agree": 1
+        }
+      },
+      "fallback_reasons": {
+        "static: TLCGet(\"config\") (this run does not provide it)": 1,
+        "static: --action-composition=tlc under the core engine": 2,
+        "static: x' \\in an operator application whose body builds a lazily represented set (core)": 3,
+        "static: x' \\in a startup value TLC represents lazily, whose enumeration depends on its history (core)": 1,
+        "static: a constant substituted by a definition, inside an instance (M1 core)": 1,
+        "static: a recursive function used other than applied (M1 core)": 8,
+        "static: the split action <Init line 5, col 1 to line 5, col 17 of module MCTwoPhase> inside nested INSTANCE substitutions (M1 core)": 1,
+        "static: ENABLED inside an INSTANCE with substitutions (B2, B3; M1 core)": 1,
+        "static: the standard operator UndirectedGraphs!ConnectedComponents (M0 core)": 1,
+        "static: the standard operator TLCExt!Trace (M0 core)": 1,
+        "static: a recursive operator under a prime (M0 core)": 1,
+        "static: the standard operator Json!ToJson (M0 core)": 1,
+        "dynamic: TLCSet or TLCGet in a run that does not end in success (M1 core)": 1
+      },
+      "unsupported_models": [
+        {
+          "id": "examples:specifications/FiniteMonotonic/MCDistributedReplicatedLog.cfg",
+          "reason": "unsupported: graph capture with VIEW requires quotient edge and closing-state evidence"
+        },
+        {
+          "id": "examples:specifications/SpanningTree/SpanTreeRandom.cfg",
+          "reason": "unsupported: DIVE-L0020: unsupported liveness planning in line 66, col 34 to line 66, col 46 of module SpanTreeRandom: effects or dynamic bindings in temporal planning (at line 66, col 34 to line 66, col 46 of module SpanTreeRandom)"
+        },
+        {
+          "id": "examples:specifications/TLC/TestGraphs.cfg",
+          "reason": "unsupported: DIVE-L0020: unsupported liveness planning in line 315, col 12 to line 315, col 24 of module TLCMC: unsupported: effects in finite binding preflight (at line 12, col 145 to line 12, col 155 of module TestGraphs)"
+        },
+        {
+          "id": "examples:specifications/ewd998/EWD998ChanID.cfg",
+          "reason": "unsupported: graph capture with VIEW requires quotient edge and closing-state evidence"
+        },
+        {
+          "id": "examples:specifications/ewd998/EWD998ChanTrace.cfg",
+          "reason": "unsupported: splitting the next-state relation: IOUtils!IOEnv (an operator that performs file, process or environment I/O)"
+        },
+        {
+          "id": "probes:specifications/P4SymLive/P4SymLive.cfg",
+          "reason": "unsupported: TLC quotient liveness with SYMMETRY is not implemented"
+        }
+      ]
+    }
+  },
+  "notes": [
+    "Later trace/performance merges do not relabel this source.",
+    "M1 acceptance remains open after hashcons ablation defect #603.",
+    "No performance credit: shared gate host."
+  ],
+  "identical_model_ids_both_profiles": true,
+  "model_id_set_sha256": "3cd9eae7d19a34d98938df55b301ae81636e8e212560e588b82f53bc4eaf5533"
+}

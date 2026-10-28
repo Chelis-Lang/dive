@@ -1,0 +1,2251 @@
+{
+  "schema_version": 1,
+  "snapshot_utc": "2026-10-28T17:54:11.507547+00:00",
+  "sources": {
+    "original_backend_harness_validator": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+    "hashcons_repair_backend": "f582d791fbaa0490cdfc75502b69e9af76a0cb72",
+    "hashcons_repair_harness_validator": "0f0c6ad1b385846128a1889dea205ac87c468e33"
+  },
+  "scope": "full156 model-only individual-strategy ablations; all attempts including failures, protocol errors and pending work retained",
+  "normalized_fields": [
+    "verdict",
+    "verdict_code",
+    "exit_code",
+    "error_class",
+    "violated_property",
+    "distinct_states",
+    "states_generated",
+    "depth"
+  ],
+  "trace_policy": "actual words independently validated by unchanged harness; no lasso identity equality; validation findings are trace.validated/trace.invalid",
+  "expected_unique_switch_profile_cases": 20,
+  "case_population": 156,
+  "switches": [
+    "delta-hash",
+    "early-probe",
+    "hashcons",
+    "symbolic-member",
+    "memo",
+    "step-memo",
+    "parent-skip",
+    "arena",
+    "eager",
+    "fold"
+  ],
+  "not_applicable": {
+    "inline-subst": "not a real Opts switch; substitutions are dynamic"
+  },
+  "performance_credit": false,
+  "M1_complete_claim": false,
+  "notes": [
+    "All-on full TLC independently includes all458 SANY and passed original full baseline.",
+    "Original TLC ablation calls paired no-SANY with full SANY baseline: their native exit1 is retained as a protocol error. Separate unchanged Baseline::compare model-only postcomparisons retain every original156 model record and exclude only declared SANY rows; they are not retrofitted native full-baseline successes.",
+    "Corrected TLC continuations and f582 retests use explicit external model-only baselines, with model records/hash unchanged.",
+    "Source0f hashcons failures remain preserved; f582 repair retests are separate executions.",
+    "A symbolic-member fallback is no evidence that the disabled core completed that model.",
+    "Later actual-main fixture census findings remain separate and prevent clean M1 acceptance."
+  ],
+  "all_on": {
+    "dive": {
+      "run_id": "20261028T164508775-dive-small",
+      "models_selected": 156,
+      "models": {
+        "agree": 144,
+        "disagree": 0,
+        "unsupported": 5,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 7,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "modules_selected": 0,
+      "modules": {
+        "agree": 0,
+        "disagree": 0,
+        "unsupported": 0,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "engines": {
+        "core": 125,
+        "static-fallback": 23,
+        "none": 7,
+        "dynamic-fallback": 1
+      },
+      "outcomes_by_engine": {
+        "core": {
+          "agree": 121,
+          "expected-divergence": 4
+        },
+        "dynamic-fallback": {
+          "agree": 1
+        },
+        "none": {
+          "unsupported": 5,
+          "agree": 2
+        },
+        "static-fallback": {
+          "agree": 20,
+          "expected-divergence": 3
+        }
+      }
+    },
+    "tlc": {
+      "run_id": "20261028T165727304-dive-small",
+      "models_selected": 156,
+      "models": {
+        "agree": 150,
+        "disagree": 0,
+        "unsupported": 6,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "modules_selected": 458,
+      "modules": {
+        "agree": 458,
+        "disagree": 0,
+        "unsupported": 0,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "engines": {
+        "core": 125,
+        "static-fallback": 22,
+        "none": 8,
+        "dynamic-fallback": 1
+      },
+      "outcomes_by_engine": {
+        "core": {
+          "agree": 125
+        },
+        "dynamic-fallback": {
+          "agree": 1
+        },
+        "none": {
+          "unsupported": 6,
+          "agree": 2
+        },
+        "static-fallback": {
+          "agree": 22
+        }
+      }
+    }
+  },
+  "cases": {
+    "arena-dive": [
+      {
+        "attempt": "original",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": 0,
+        "status": "completed",
+        "run_id": "20261028T174207619-dive-small",
+        "report_sha256": "cbf7f5627f7dfddd73e9a42fa0e8480033ab55798b5f1c3a353826f336784da0",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 144,
+          "disagree": 0,
+          "unsupported": 5,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 7,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 125,
+          "static-fallback": 23,
+          "none": 7,
+          "dynamic-fallback": 1
+        },
+        "observable_change_count": 0,
+        "observable_changes": [],
+        "engine_changes": [],
+        "independent_validation_findings": [],
+        "separate_model_only_baseline_comparison": {
+          "rc": 0,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 0,
+          "negative_controls_passed": true,
+          "regressions": []
+        }
+      },
+      {
+        "attempt": "default-continuation",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": 0,
+        "status": "completed",
+        "run_id": "20261028T171302147-dive-small",
+        "report_sha256": "188101a381ed525fa925f1c39ed1839c29c57b7c09809a8d79b88e85cd78f31a",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 144,
+          "disagree": 0,
+          "unsupported": 5,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 7,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 125,
+          "static-fallback": 23,
+          "none": 7,
+          "dynamic-fallback": 1
+        },
+        "observable_change_count": 0,
+        "observable_changes": [],
+        "engine_changes": [],
+        "independent_validation_findings": [],
+        "separate_model_only_baseline_comparison": {
+          "rc": 0,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 0,
+          "negative_controls_passed": true,
+          "regressions": []
+        }
+      }
+    ],
+    "arena-tlc": [
+      {
+        "attempt": "original",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": null,
+        "status": "running-or-unadmitted"
+      },
+      {
+        "attempt": "corrected-tlc-continuation",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": 0,
+        "status": "completed",
+        "run_id": "20261028T175345318-dive-small",
+        "report_sha256": "9482e92bb0a9041c6310d3ec61f1358478bd0d9250feebaf95c68be8e3970c9a",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 150,
+          "disagree": 0,
+          "unsupported": 6,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 125,
+          "static-fallback": 22,
+          "none": 8,
+          "dynamic-fallback": 1
+        },
+        "observable_change_count": 0,
+        "observable_changes": [],
+        "engine_changes": [],
+        "independent_validation_findings": [],
+        "separate_model_only_baseline_comparison": {
+          "rc": 0,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 458,
+          "negative_controls_passed": true,
+          "regressions": []
+        }
+      }
+    ],
+    "delta-hash-dive": [
+      {
+        "attempt": "original",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": 0,
+        "status": "completed",
+        "run_id": "20261028T164541763-dive-small",
+        "report_sha256": "4912b3acb2de8d4c2ddc012ada398ada52735ced78e391fe74676c66cea78143",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 144,
+          "disagree": 0,
+          "unsupported": 5,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 7,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 125,
+          "static-fallback": 23,
+          "none": 7,
+          "dynamic-fallback": 1
+        },
+        "observable_change_count": 0,
+        "observable_changes": [],
+        "engine_changes": [],
+        "independent_validation_findings": [],
+        "separate_model_only_baseline_comparison": {
+          "rc": 0,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 0,
+          "negative_controls_passed": true,
+          "regressions": []
+        }
+      }
+    ],
+    "delta-hash-tlc": [
+      {
+        "attempt": "original",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": 1,
+        "status": "completed",
+        "run_id": "20261028T165354178-dive-small",
+        "report_sha256": "7351bdd1f3766280b4729f4896648a63c71224019fbf7f65f82e3cc84333299e",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 150,
+          "disagree": 0,
+          "unsupported": 6,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 125,
+          "static-fallback": 22,
+          "none": 8,
+          "dynamic-fallback": 1
+        },
+        "observable_change_count": 0,
+        "observable_changes": [],
+        "engine_changes": [],
+        "independent_validation_findings": [],
+        "native_protocol_error": "no-SANY/full-baseline mismatch; native rc is not success",
+        "separate_model_only_baseline_comparison": {
+          "rc": 0,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 458,
+          "negative_controls_passed": true,
+          "regressions": []
+        }
+      }
+    ],
+    "eager-dive": [
+      {
+        "attempt": "original",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": 0,
+        "status": "completed",
+        "run_id": "20261028T174625334-dive-small",
+        "report_sha256": "0b282b95d3a9681d79f01b3f2e02555f097515a2f8e0ba1b5eacac136008b425",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 144,
+          "disagree": 0,
+          "unsupported": 5,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 7,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 125,
+          "static-fallback": 23,
+          "none": 7,
+          "dynamic-fallback": 1
+        },
+        "observable_change_count": 0,
+        "observable_changes": [],
+        "engine_changes": [],
+        "independent_validation_findings": [],
+        "separate_model_only_baseline_comparison": {
+          "rc": 0,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 0,
+          "negative_controls_passed": true,
+          "regressions": []
+        }
+      },
+      {
+        "attempt": "default-continuation",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": 0,
+        "status": "completed",
+        "run_id": "20261028T171507163-dive-small",
+        "report_sha256": "cac628f11ba3c70f54b4783f540c13937458b8be1f0db5e3166b2544b2e98c8b",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 144,
+          "disagree": 0,
+          "unsupported": 5,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 7,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 125,
+          "static-fallback": 23,
+          "none": 7,
+          "dynamic-fallback": 1
+        },
+        "observable_change_count": 0,
+        "observable_changes": [],
+        "engine_changes": [],
+        "independent_validation_findings": [],
+        "separate_model_only_baseline_comparison": {
+          "rc": 0,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 0,
+          "negative_controls_passed": true,
+          "regressions": []
+        }
+      }
+    ],
+    "eager-tlc": [
+      {
+        "attempt": "original",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": null,
+        "status": "running-or-unadmitted"
+      },
+      {
+        "attempt": "corrected-tlc-continuation",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": 0,
+        "status": "completed",
+        "run_id": "20261028T174136889-dive-small",
+        "report_sha256": "dd3b35858201895af7114b239ac467d11fbbbe5e113fce61d7b9ceae4848d0fa",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 150,
+          "disagree": 0,
+          "unsupported": 6,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 125,
+          "static-fallback": 22,
+          "none": 8,
+          "dynamic-fallback": 1
+        },
+        "observable_change_count": 0,
+        "observable_changes": [],
+        "engine_changes": [],
+        "independent_validation_findings": [],
+        "separate_model_only_baseline_comparison": {
+          "rc": 0,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 458,
+          "negative_controls_passed": true,
+          "regressions": []
+        }
+      }
+    ],
+    "early-probe-dive": [
+      {
+        "attempt": "original",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": 0,
+        "status": "completed",
+        "run_id": "20261028T164934380-dive-small",
+        "report_sha256": "fd34494695583ebfe6aed4b3e282f691f7b1515a389db7369c8321e32f4948c9",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 144,
+          "disagree": 0,
+          "unsupported": 5,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 7,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 125,
+          "static-fallback": 23,
+          "none": 7,
+          "dynamic-fallback": 1
+        },
+        "observable_change_count": 0,
+        "observable_changes": [],
+        "engine_changes": [],
+        "independent_validation_findings": [],
+        "separate_model_only_baseline_comparison": {
+          "rc": 0,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 0,
+          "negative_controls_passed": true,
+          "regressions": []
+        }
+      }
+    ],
+    "early-probe-tlc": [
+      {
+        "attempt": "original",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": 1,
+        "status": "completed",
+        "run_id": "20261028T170152984-dive-small",
+        "report_sha256": "44653a477af65018e3ff705aa3bad2c624b3c23ba2d70af3b32f356d5defc1f6",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 150,
+          "disagree": 0,
+          "unsupported": 6,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 125,
+          "static-fallback": 22,
+          "none": 8,
+          "dynamic-fallback": 1
+        },
+        "observable_change_count": 0,
+        "observable_changes": [],
+        "engine_changes": [],
+        "independent_validation_findings": [],
+        "native_protocol_error": "no-SANY/full-baseline mismatch; native rc is not success",
+        "separate_model_only_baseline_comparison": {
+          "rc": 0,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 458,
+          "negative_controls_passed": true,
+          "regressions": []
+        }
+      }
+    ],
+    "hashcons-dive": [
+      {
+        "attempt": "original",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": 1,
+        "status": "completed",
+        "run_id": "20261028T165755184-dive-small",
+        "report_sha256": "f97abf8b6f5307dac105215ff64da59115280ec266f66dca0380bd0a98a7b5ed",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 136,
+          "disagree": 10,
+          "unsupported": 5,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 5,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 115,
+          "none": 17,
+          "static-fallback": 23,
+          "dynamic-fallback": 1
+        },
+        "observable_change_count": 10,
+        "observable_changes": [
+          {
+            "id": "examples:specifications/CheckpointCoordination/MCCheckpointCoordinationFailure.cfg:1",
+            "fields": [
+              "verdict",
+              "verdict_code",
+              "exit_code",
+              "error_class",
+              "violated_property",
+              "distinct_states",
+              "states_generated",
+              "depth"
+            ]
+          },
+          {
+            "id": "examples:specifications/DieHard/MCDieHarder.cfg:1",
+            "fields": [
+              "verdict",
+              "verdict_code",
+              "exit_code",
+              "error_class",
+              "violated_property",
+              "distinct_states",
+              "states_generated",
+              "depth"
+            ]
+          },
+          {
+            "id": "examples:specifications/MissionariesAndCannibals/MissionariesAndCannibals.cfg:1",
+            "fields": [
+              "verdict",
+              "verdict_code",
+              "exit_code",
+              "error_class",
+              "violated_property",
+              "distinct_states",
+              "states_generated",
+              "depth"
+            ]
+          },
+          {
+            "id": "examples:specifications/N-Queens/Queens.toolbox/FourQueens/MC.cfg:1",
+            "fields": [
+              "verdict",
+              "verdict_code",
+              "exit_code",
+              "error_class",
+              "violated_property",
+              "distinct_states",
+              "states_generated",
+              "depth"
+            ]
+          },
+          {
+            "id": "examples:specifications/N-Queens/QueensPluscal.toolbox/FourQueens/MC.cfg:1",
+            "fields": [
+              "verdict",
+              "verdict_code",
+              "exit_code",
+              "error_class",
+              "violated_property",
+              "distinct_states",
+              "states_generated",
+              "depth"
+            ]
+          },
+          {
+            "id": "examples:specifications/SDP_Verification/SDP_Attack_Spec/MC.cfg:1",
+            "fields": [
+              "verdict",
+              "verdict_code",
+              "exit_code",
+              "error_class",
+              "violated_property",
+              "distinct_states",
+              "states_generated",
+              "depth"
+            ]
+          },
+          {
+            "id": "examples:specifications/acp/ACP_NB_WRONG_TLC.cfg:1",
+            "fields": [
+              "verdict",
+              "verdict_code",
+              "exit_code",
+              "error_class",
+              "violated_property",
+              "distinct_states",
+              "states_generated",
+              "depth"
+            ]
+          },
+          {
+            "id": "examples:specifications/spanning/MC_spanning.cfg:1",
+            "fields": [
+              "verdict",
+              "verdict_code",
+              "exit_code",
+              "error_class",
+              "violated_property",
+              "distinct_states",
+              "states_generated",
+              "depth"
+            ]
+          },
+          {
+            "id": "examples:specifications/tower_of_hanoi/Hanoi.toolbox/Model_1/MC.cfg:1",
+            "fields": [
+              "verdict",
+              "verdict_code",
+              "exit_code",
+              "error_class",
+              "violated_property",
+              "distinct_states",
+              "states_generated",
+              "depth"
+            ]
+          },
+          {
+            "id": "examples:specifications/tower_of_hanoi/Hanoi_anim.cfg:1",
+            "fields": [
+              "verdict",
+              "verdict_code",
+              "exit_code",
+              "error_class",
+              "violated_property",
+              "distinct_states",
+              "states_generated",
+              "depth"
+            ]
+          }
+        ],
+        "engine_changes": [
+          {
+            "id": "examples:specifications/CheckpointCoordination/MCCheckpointCoordinationFailure.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": null,
+              "fallback": null
+            }
+          },
+          {
+            "id": "examples:specifications/DieHard/MCDieHarder.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": null,
+              "fallback": null
+            }
+          },
+          {
+            "id": "examples:specifications/MissionariesAndCannibals/MissionariesAndCannibals.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": null,
+              "fallback": null
+            }
+          },
+          {
+            "id": "examples:specifications/N-Queens/Queens.toolbox/FourQueens/MC.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": null,
+              "fallback": null
+            }
+          },
+          {
+            "id": "examples:specifications/N-Queens/QueensPluscal.toolbox/FourQueens/MC.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": null,
+              "fallback": null
+            }
+          },
+          {
+            "id": "examples:specifications/SDP_Verification/SDP_Attack_Spec/MC.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": null,
+              "fallback": null
+            }
+          },
+          {
+            "id": "examples:specifications/acp/ACP_NB_WRONG_TLC.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": null,
+              "fallback": null
+            }
+          },
+          {
+            "id": "examples:specifications/spanning/MC_spanning.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": null,
+              "fallback": null
+            }
+          },
+          {
+            "id": "examples:specifications/tower_of_hanoi/Hanoi.toolbox/Model_1/MC.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": null,
+              "fallback": null
+            }
+          },
+          {
+            "id": "examples:specifications/tower_of_hanoi/Hanoi_anim.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": null,
+              "fallback": null
+            }
+          }
+        ],
+        "independent_validation_findings": [],
+        "separate_model_only_baseline_comparison": {
+          "rc": 1,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 0,
+          "negative_controls_passed": true,
+          "regressions": [
+            {
+              "id": "examples:specifications/CheckpointCoordination/MCCheckpointCoordinationFailure.cfg",
+              "kind": "model",
+              "what": "agree -> disagree; w1: verdict safety-violation -> unclassified; w1: verdict_code 2110 -> -; w1: error_class TLC_INVARIANT_VIOLATED_BEHAVIOR -> -; w1: exit_code 12 -> 4; w1: violated_property SafetyInvariant -> -; w1: distinct_states 88152 -> -; w1: states_generated 1302999 -> -; w1: depth 12 -> -"
+            },
+            {
+              "id": "examples:specifications/DieHard/MCDieHarder.cfg",
+              "kind": "model",
+              "what": "agree -> disagree; w1: verdict safety-violation -> unclassified; w1: verdict_code 2110 -> -; w1: error_class TLC_INVARIANT_VIOLATED_BEHAVIOR -> -; w1: exit_code 12 -> 4; w1: violated_property NotSolved -> -; w1: distinct_states 14 -> -; w1: states_generated 73 -> -; w1: depth 7 -> -"
+            },
+            {
+              "id": "examples:specifications/MissionariesAndCannibals/MissionariesAndCannibals.cfg",
+              "kind": "model",
+              "what": "expected-divergence -> disagree; w1: verdict safety-violation -> unclassified; w1: verdict_code 2110 -> -; w1: error_class TLC_INVARIANT_VIOLATED_BEHAVIOR -> -; w1: exit_code 12 -> 4; w1: violated_property Solution -> -; w1: distinct_states 61 -> -; w1: states_generated 226 -> -; w1: depth 12 -> -"
+            },
+            {
+              "id": "examples:specifications/N-Queens/Queens.toolbox/FourQueens/MC.cfg",
+              "kind": "model",
+              "what": "agree -> disagree; w1: verdict safety-violation -> unclassified; w1: verdict_code 2110 -> -; w1: error_class TLC_INVARIANT_VIOLATED_BEHAVIOR -> -; w1: exit_code 12 -> 4; w1: violated_property NoSolutions -> -; w1: distinct_states 40 -> -; w1: states_generated 62 -> -; w1: depth 5 -> -"
+            },
+            {
+              "id": "examples:specifications/N-Queens/QueensPluscal.toolbox/FourQueens/MC.cfg",
+              "kind": "model",
+              "what": "agree -> disagree; w1: verdict safety-violation -> unclassified; w1: verdict_code 2110 -> -; w1: error_class TLC_INVARIANT_VIOLATED_BEHAVIOR -> -; w1: exit_code 12 -> 4; w1: violated_property NoSolutions -> -; w1: distinct_states 40 -> -; w1: states_generated 62 -> -; w1: depth 5 -> -"
+            },
+            {
+              "id": "examples:specifications/SDP_Verification/SDP_Attack_Spec/MC.cfg",
+              "kind": "model",
+              "what": "agree -> disagree; w1: verdict safety-violation -> unclassified; w1: verdict_code 2110 -> -; w1: error_class TLC_INVARIANT_VIOLATED_BEHAVIOR -> -; w1: exit_code 12 -> 4; w1: violated_property DataAccessSafeLaw -> -; w1: distinct_states 526 -> -; w1: states_generated 1103 -> -; w1: depth 11 -> -"
+            },
+            {
+              "id": "examples:specifications/acp/ACP_NB_WRONG_TLC.cfg",
+              "kind": "model",
+              "what": "expected-divergence -> disagree; w1: verdict safety-violation -> unclassified; w1: verdict_code 2110 -> -; w1: error_class TLC_INVARIANT_VIOLATED_BEHAVIOR -> -; w1: exit_code 12 -> 4; w1: violated_property AC1 -> -; w1: distinct_states 12645 -> -; w1: states_generated 64357 -> -; w1: depth 13 -> -"
+            },
+            {
+              "id": "examples:specifications/spanning/MC_spanning.cfg",
+              "kind": "model",
+              "what": "agree -> disagree; w1: verdict safety-violation -> unclassified; w1: verdict_code 2110 -> -; w1: error_class TLC_INVARIANT_VIOLATED_BEHAVIOR -> -; w1: exit_code 12 -> 4; w1: violated_property TypeOK -> -; w1: distinct_states 5 -> -; w1: states_generated 19 -> -; w1: depth 3 -> -"
+            },
+            {
+              "id": "examples:specifications/tower_of_hanoi/Hanoi.toolbox/Model_1/MC.cfg",
+              "kind": "model",
+              "what": "agree -> disagree; w1: verdict safety-violation -> unclassified; w1: verdict_code 2110 -> -; w1: error_class TLC_INVARIANT_VIOLATED_BEHAVIOR -> -; w1: exit_code 12 -> 4; w1: violated_property NotSolved -> -; w1: distinct_states 233 -> -; w1: states_generated 768 -> -; w1: depth 32 -> -"
+            },
+            {
+              "id": "examples:specifications/tower_of_hanoi/Hanoi_anim.cfg",
+              "kind": "model",
+              "what": "agree -> disagree; w1: verdict safety-violation -> unclassified; w1: verdict_code 2110 -> -; w1: error_class TLC_INVARIANT_VIOLATED_BEHAVIOR -> -; w1: exit_code 12 -> 4; w1: violated_property NotSolved -> -; w1: distinct_states 25 -> -; w1: states_generated 80 -> -; w1: depth 8 -> -"
+            }
+          ]
+        }
+      },
+      {
+        "attempt": "hashcons-repair",
+        "backend_revision": "f582d791fbaa0490cdfc75502b69e9af76a0cb72",
+        "native_rc": 0,
+        "status": "completed",
+        "run_id": "20261028T172227985-dive-small",
+        "report_sha256": "7d7ee5ed240985a7629380cfc4e7aca98691d93c7c8e96b5961cf4f30bcf9654",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 144,
+          "disagree": 0,
+          "unsupported": 5,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 7,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 125,
+          "static-fallback": 23,
+          "none": 7,
+          "dynamic-fallback": 1
+        },
+        "observable_change_count": 0,
+        "observable_changes": [],
+        "engine_changes": [],
+        "independent_validation_findings": [],
+        "separate_model_only_baseline_comparison": {
+          "rc": 0,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 0,
+          "negative_controls_passed": true,
+          "regressions": []
+        }
+      }
+    ],
+    "hashcons-tlc": [
+      {
+        "attempt": "original",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": 1,
+        "status": "completed",
+        "run_id": "20261028T171017637-dive-small",
+        "report_sha256": "db910c75aa96d1c3d5d49c8cdbb41ef81416eb44feddc818f97f34c9cd671623",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 140,
+          "disagree": 10,
+          "unsupported": 6,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 115,
+          "none": 18,
+          "static-fallback": 22,
+          "dynamic-fallback": 1
+        },
+        "observable_change_count": 10,
+        "observable_changes": [
+          {
+            "id": "examples:specifications/CheckpointCoordination/MCCheckpointCoordinationFailure.cfg:1",
+            "fields": [
+              "verdict",
+              "verdict_code",
+              "exit_code",
+              "error_class",
+              "violated_property",
+              "distinct_states",
+              "states_generated",
+              "depth"
+            ]
+          },
+          {
+            "id": "examples:specifications/DieHard/MCDieHarder.cfg:1",
+            "fields": [
+              "verdict",
+              "verdict_code",
+              "exit_code",
+              "error_class",
+              "violated_property",
+              "distinct_states",
+              "states_generated",
+              "depth"
+            ]
+          },
+          {
+            "id": "examples:specifications/MissionariesAndCannibals/MissionariesAndCannibals.cfg:1",
+            "fields": [
+              "verdict",
+              "verdict_code",
+              "exit_code",
+              "error_class",
+              "violated_property",
+              "distinct_states",
+              "states_generated",
+              "depth"
+            ]
+          },
+          {
+            "id": "examples:specifications/N-Queens/Queens.toolbox/FourQueens/MC.cfg:1",
+            "fields": [
+              "verdict",
+              "verdict_code",
+              "exit_code",
+              "error_class",
+              "violated_property",
+              "distinct_states",
+              "states_generated",
+              "depth"
+            ]
+          },
+          {
+            "id": "examples:specifications/N-Queens/QueensPluscal.toolbox/FourQueens/MC.cfg:1",
+            "fields": [
+              "verdict",
+              "verdict_code",
+              "exit_code",
+              "error_class",
+              "violated_property",
+              "distinct_states",
+              "states_generated",
+              "depth"
+            ]
+          },
+          {
+            "id": "examples:specifications/SDP_Verification/SDP_Attack_Spec/MC.cfg:1",
+            "fields": [
+              "verdict",
+              "verdict_code",
+              "exit_code",
+              "error_class",
+              "violated_property",
+              "distinct_states",
+              "states_generated",
+              "depth"
+            ]
+          },
+          {
+            "id": "examples:specifications/acp/ACP_NB_WRONG_TLC.cfg:1",
+            "fields": [
+              "verdict",
+              "verdict_code",
+              "exit_code",
+              "error_class",
+              "violated_property",
+              "distinct_states",
+              "states_generated",
+              "depth"
+            ]
+          },
+          {
+            "id": "examples:specifications/spanning/MC_spanning.cfg:1",
+            "fields": [
+              "verdict",
+              "verdict_code",
+              "exit_code",
+              "error_class",
+              "violated_property",
+              "distinct_states",
+              "states_generated",
+              "depth"
+            ]
+          },
+          {
+            "id": "examples:specifications/tower_of_hanoi/Hanoi.toolbox/Model_1/MC.cfg:1",
+            "fields": [
+              "verdict",
+              "verdict_code",
+              "exit_code",
+              "error_class",
+              "violated_property",
+              "distinct_states",
+              "states_generated",
+              "depth"
+            ]
+          },
+          {
+            "id": "examples:specifications/tower_of_hanoi/Hanoi_anim.cfg:1",
+            "fields": [
+              "verdict",
+              "verdict_code",
+              "exit_code",
+              "error_class",
+              "violated_property",
+              "distinct_states",
+              "states_generated",
+              "depth"
+            ]
+          }
+        ],
+        "engine_changes": [
+          {
+            "id": "examples:specifications/CheckpointCoordination/MCCheckpointCoordinationFailure.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": null,
+              "fallback": null
+            }
+          },
+          {
+            "id": "examples:specifications/DieHard/MCDieHarder.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": null,
+              "fallback": null
+            }
+          },
+          {
+            "id": "examples:specifications/MissionariesAndCannibals/MissionariesAndCannibals.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": null,
+              "fallback": null
+            }
+          },
+          {
+            "id": "examples:specifications/N-Queens/Queens.toolbox/FourQueens/MC.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": null,
+              "fallback": null
+            }
+          },
+          {
+            "id": "examples:specifications/N-Queens/QueensPluscal.toolbox/FourQueens/MC.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": null,
+              "fallback": null
+            }
+          },
+          {
+            "id": "examples:specifications/SDP_Verification/SDP_Attack_Spec/MC.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": null,
+              "fallback": null
+            }
+          },
+          {
+            "id": "examples:specifications/acp/ACP_NB_WRONG_TLC.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": null,
+              "fallback": null
+            }
+          },
+          {
+            "id": "examples:specifications/spanning/MC_spanning.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": null,
+              "fallback": null
+            }
+          },
+          {
+            "id": "examples:specifications/tower_of_hanoi/Hanoi.toolbox/Model_1/MC.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": null,
+              "fallback": null
+            }
+          },
+          {
+            "id": "examples:specifications/tower_of_hanoi/Hanoi_anim.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": null,
+              "fallback": null
+            }
+          }
+        ],
+        "independent_validation_findings": [],
+        "native_protocol_error": "no-SANY/full-baseline mismatch; native rc is not success",
+        "separate_model_only_baseline_comparison": {
+          "rc": 1,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 458,
+          "negative_controls_passed": true,
+          "regressions": [
+            {
+              "id": "examples:specifications/CheckpointCoordination/MCCheckpointCoordinationFailure.cfg",
+              "kind": "model",
+              "what": "agree -> disagree; w1: verdict safety-violation -> unclassified; w1: verdict_code 2110 -> -; w1: error_class TLC_INVARIANT_VIOLATED_BEHAVIOR -> -; w1: exit_code 12 -> 4; w1: violated_property SafetyInvariant -> -; w1: distinct_states 88152 -> -; w1: states_generated 1302999 -> -; w1: depth 12 -> -"
+            },
+            {
+              "id": "examples:specifications/DieHard/MCDieHarder.cfg",
+              "kind": "model",
+              "what": "agree -> disagree; w1: verdict safety-violation -> unclassified; w1: verdict_code 2110 -> -; w1: error_class TLC_INVARIANT_VIOLATED_BEHAVIOR -> -; w1: exit_code 12 -> 4; w1: violated_property NotSolved -> -; w1: distinct_states 14 -> -; w1: states_generated 73 -> -; w1: depth 7 -> -"
+            },
+            {
+              "id": "examples:specifications/MissionariesAndCannibals/MissionariesAndCannibals.cfg",
+              "kind": "model",
+              "what": "agree -> disagree; w1: verdict safety-violation -> unclassified; w1: verdict_code 2110 -> -; w1: error_class TLC_INVARIANT_VIOLATED_BEHAVIOR -> -; w1: exit_code 12 -> 4; w1: violated_property Solution -> -; w1: distinct_states 61 -> -; w1: states_generated 225 -> -; w1: depth 12 -> -"
+            },
+            {
+              "id": "examples:specifications/N-Queens/Queens.toolbox/FourQueens/MC.cfg",
+              "kind": "model",
+              "what": "agree -> disagree; w1: verdict safety-violation -> unclassified; w1: verdict_code 2110 -> -; w1: error_class TLC_INVARIANT_VIOLATED_BEHAVIOR -> -; w1: exit_code 12 -> 4; w1: violated_property NoSolutions -> -; w1: distinct_states 40 -> -; w1: states_generated 62 -> -; w1: depth 5 -> -"
+            },
+            {
+              "id": "examples:specifications/N-Queens/QueensPluscal.toolbox/FourQueens/MC.cfg",
+              "kind": "model",
+              "what": "agree -> disagree; w1: verdict safety-violation -> unclassified; w1: verdict_code 2110 -> -; w1: error_class TLC_INVARIANT_VIOLATED_BEHAVIOR -> -; w1: exit_code 12 -> 4; w1: violated_property NoSolutions -> -; w1: distinct_states 40 -> -; w1: states_generated 62 -> -; w1: depth 5 -> -"
+            },
+            {
+              "id": "examples:specifications/SDP_Verification/SDP_Attack_Spec/MC.cfg",
+              "kind": "model",
+              "what": "agree -> disagree; w1: verdict safety-violation -> unclassified; w1: verdict_code 2110 -> -; w1: error_class TLC_INVARIANT_VIOLATED_BEHAVIOR -> -; w1: exit_code 12 -> 4; w1: violated_property DataAccessSafeLaw -> -; w1: distinct_states 526 -> -; w1: states_generated 1103 -> -; w1: depth 11 -> -"
+            },
+            {
+              "id": "examples:specifications/acp/ACP_NB_WRONG_TLC.cfg",
+              "kind": "model",
+              "what": "agree -> disagree; w1: verdict safety-violation -> unclassified; w1: verdict_code 2110 -> -; w1: error_class TLC_INVARIANT_VIOLATED_BEHAVIOR -> -; w1: exit_code 12 -> 4; w1: violated_property AC1 -> -; w1: distinct_states 11852 -> -; w1: states_generated 59286 -> -; w1: depth 13 -> -"
+            },
+            {
+              "id": "examples:specifications/spanning/MC_spanning.cfg",
+              "kind": "model",
+              "what": "agree -> disagree; w1: verdict safety-violation -> unclassified; w1: verdict_code 2110 -> -; w1: error_class TLC_INVARIANT_VIOLATED_BEHAVIOR -> -; w1: exit_code 12 -> 4; w1: violated_property TypeOK -> -; w1: distinct_states 5 -> -; w1: states_generated 19 -> -; w1: depth 3 -> -"
+            },
+            {
+              "id": "examples:specifications/tower_of_hanoi/Hanoi.toolbox/Model_1/MC.cfg",
+              "kind": "model",
+              "what": "agree -> disagree; w1: verdict safety-violation -> unclassified; w1: verdict_code 2110 -> -; w1: error_class TLC_INVARIANT_VIOLATED_BEHAVIOR -> -; w1: exit_code 12 -> 4; w1: violated_property NotSolved -> -; w1: distinct_states 233 -> -; w1: states_generated 768 -> -; w1: depth 32 -> -"
+            },
+            {
+              "id": "examples:specifications/tower_of_hanoi/Hanoi_anim.cfg",
+              "kind": "model",
+              "what": "agree -> disagree; w1: verdict safety-violation -> unclassified; w1: verdict_code 2110 -> -; w1: error_class TLC_INVARIANT_VIOLATED_BEHAVIOR -> -; w1: exit_code 12 -> 4; w1: violated_property NotSolved -> -; w1: distinct_states 25 -> -; w1: states_generated 80 -> -; w1: depth 8 -> -"
+            }
+          ]
+        }
+      },
+      {
+        "attempt": "hashcons-repair",
+        "backend_revision": "f582d791fbaa0490cdfc75502b69e9af76a0cb72",
+        "native_rc": 0,
+        "status": "completed",
+        "run_id": "20261028T173038642-dive-small",
+        "report_sha256": "146d4f8c9b7ae172eab0288ccaec8a7b013800f5511fe543c60d9414e61bc7dd",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 150,
+          "disagree": 0,
+          "unsupported": 6,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 125,
+          "static-fallback": 22,
+          "none": 8,
+          "dynamic-fallback": 1
+        },
+        "observable_change_count": 0,
+        "observable_changes": [],
+        "engine_changes": [],
+        "independent_validation_findings": [],
+        "separate_model_only_baseline_comparison": {
+          "rc": 0,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 458,
+          "negative_controls_passed": true,
+          "regressions": []
+        }
+      }
+    ],
+    "memo-dive": [
+      {
+        "attempt": "original",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": 0,
+        "status": "completed",
+        "run_id": "20261028T171414541-dive-small",
+        "report_sha256": "1ce1274cc50b3638c42ca6d8ea2d1b101cda98a580a2d538f6badf3d8241621d",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 144,
+          "disagree": 0,
+          "unsupported": 5,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 7,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 125,
+          "static-fallback": 23,
+          "none": 7,
+          "dynamic-fallback": 1
+        },
+        "observable_change_count": 0,
+        "observable_changes": [],
+        "engine_changes": [],
+        "independent_validation_findings": [],
+        "separate_model_only_baseline_comparison": {
+          "rc": 0,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 0,
+          "negative_controls_passed": true,
+          "regressions": []
+        }
+      },
+      {
+        "attempt": "default-continuation",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": 0,
+        "status": "completed",
+        "run_id": "20261028T170504813-dive-small",
+        "report_sha256": "a5d99a37643e102466d1e9ec7c1dc70baec8a183f8640c59efd8c6bf4d7c6932",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 144,
+          "disagree": 0,
+          "unsupported": 5,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 7,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 125,
+          "static-fallback": 23,
+          "none": 7,
+          "dynamic-fallback": 1
+        },
+        "observable_change_count": 0,
+        "observable_changes": [],
+        "engine_changes": [],
+        "independent_validation_findings": [],
+        "separate_model_only_baseline_comparison": {
+          "rc": 0,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 0,
+          "negative_controls_passed": true,
+          "regressions": []
+        }
+      }
+    ],
+    "memo-tlc": [
+      {
+        "attempt": "original",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": 1,
+        "status": "completed",
+        "run_id": "20261028T172635617-dive-small",
+        "report_sha256": "66a5a3a24fb081a203334e3b526a37ab3e46dc2261da5c41f3f83e09e0108b2a",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 150,
+          "disagree": 0,
+          "unsupported": 6,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 125,
+          "static-fallback": 22,
+          "none": 8,
+          "dynamic-fallback": 1
+        },
+        "observable_change_count": 0,
+        "observable_changes": [],
+        "engine_changes": [],
+        "independent_validation_findings": [],
+        "native_protocol_error": "no-SANY/full-baseline mismatch; native rc is not success",
+        "separate_model_only_baseline_comparison": {
+          "rc": 0,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 458,
+          "negative_controls_passed": true,
+          "regressions": []
+        }
+      }
+    ],
+    "parent-skip-dive": [
+      {
+        "attempt": "original",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": 0,
+        "status": "completed",
+        "run_id": "20261028T173025089-dive-small",
+        "report_sha256": "757fab354b7cfb0860ec7ae546b1ed397a37739bde0cd719ba005eaa708081af",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 144,
+          "disagree": 0,
+          "unsupported": 5,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 7,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 125,
+          "static-fallback": 23,
+          "none": 7,
+          "dynamic-fallback": 1
+        },
+        "observable_change_count": 0,
+        "observable_changes": [],
+        "engine_changes": [],
+        "independent_validation_findings": [],
+        "separate_model_only_baseline_comparison": {
+          "rc": 0,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 0,
+          "negative_controls_passed": true,
+          "regressions": []
+        }
+      },
+      {
+        "attempt": "default-continuation",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": 0,
+        "status": "completed",
+        "run_id": "20261028T171115511-dive-small",
+        "report_sha256": "2fe4a8a11eab2c7d58a199332496d8cb78ea4e124e4cf52cc36295fbee9ab7f8",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 144,
+          "disagree": 0,
+          "unsupported": 5,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 7,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 125,
+          "static-fallback": 23,
+          "none": 7,
+          "dynamic-fallback": 1
+        },
+        "observable_change_count": 0,
+        "observable_changes": [],
+        "engine_changes": [],
+        "independent_validation_findings": [],
+        "separate_model_only_baseline_comparison": {
+          "rc": 0,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 0,
+          "negative_controls_passed": true,
+          "regressions": []
+        }
+      }
+    ],
+    "parent-skip-tlc": [
+      {
+        "attempt": "original",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": 1,
+        "status": "completed",
+        "run_id": "20261028T174234551-dive-small",
+        "report_sha256": "de52815cec2776f7b692c15bd8de8a2c2b8ffcac24920be0b5255215dac630b3",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 150,
+          "disagree": 0,
+          "unsupported": 6,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 125,
+          "static-fallback": 22,
+          "none": 8,
+          "dynamic-fallback": 1
+        },
+        "observable_change_count": 0,
+        "observable_changes": [],
+        "engine_changes": [],
+        "independent_validation_findings": [],
+        "native_protocol_error": "no-SANY/full-baseline mismatch; native rc is not success",
+        "separate_model_only_baseline_comparison": {
+          "rc": 0,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 458,
+          "negative_controls_passed": true,
+          "regressions": []
+        }
+      },
+      {
+        "attempt": "corrected-tlc-continuation",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": null,
+        "status": "running-or-unadmitted"
+      }
+    ],
+    "step-memo-dive": [
+      {
+        "attempt": "original",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": 0,
+        "status": "completed",
+        "run_id": "20261028T172601475-dive-small",
+        "report_sha256": "ab5de73f7f47ca7ad927911bec3bb4be4c6d9e7c74ab5e8ba954e8285e70d190",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 144,
+          "disagree": 0,
+          "unsupported": 5,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 7,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 125,
+          "static-fallback": 23,
+          "none": 7,
+          "dynamic-fallback": 1
+        },
+        "observable_change_count": 0,
+        "observable_changes": [],
+        "engine_changes": [],
+        "independent_validation_findings": [],
+        "separate_model_only_baseline_comparison": {
+          "rc": 0,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 0,
+          "negative_controls_passed": true,
+          "regressions": []
+        }
+      },
+      {
+        "attempt": "default-continuation",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": 0,
+        "status": "completed",
+        "run_id": "20261028T170902136-dive-small",
+        "report_sha256": "e94d5ed548c06882d42ef993a35bb15878c080c39f5feff6d1298bbb560deacf",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 144,
+          "disagree": 0,
+          "unsupported": 5,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 7,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 125,
+          "static-fallback": 23,
+          "none": 7,
+          "dynamic-fallback": 1
+        },
+        "observable_change_count": 0,
+        "observable_changes": [],
+        "engine_changes": [],
+        "independent_validation_findings": [],
+        "separate_model_only_baseline_comparison": {
+          "rc": 0,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 0,
+          "negative_controls_passed": true,
+          "regressions": []
+        }
+      }
+    ],
+    "step-memo-tlc": [
+      {
+        "attempt": "original",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": 1,
+        "status": "completed",
+        "run_id": "20261028T173810390-dive-small",
+        "report_sha256": "b90f17908d71030a3701b9d0b704841b1c938b36a7b7912c9d48ae1307bf499f",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 150,
+          "disagree": 0,
+          "unsupported": 6,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 125,
+          "static-fallback": 22,
+          "none": 8,
+          "dynamic-fallback": 1
+        },
+        "observable_change_count": 0,
+        "observable_changes": [],
+        "engine_changes": [],
+        "independent_validation_findings": [],
+        "native_protocol_error": "no-SANY/full-baseline mismatch; native rc is not success",
+        "separate_model_only_baseline_comparison": {
+          "rc": 0,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 458,
+          "negative_controls_passed": true,
+          "regressions": []
+        }
+      },
+      {
+        "attempt": "corrected-tlc-continuation",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": null,
+        "status": "not-started-admission-deadline"
+      }
+    ],
+    "symbolic-member-dive": [
+      {
+        "attempt": "original",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": 0,
+        "status": "completed",
+        "run_id": "20261028T170804457-dive-small",
+        "report_sha256": "58b5aaf62a055db984f3dc815f8a03f24b6d6b7215a79f6bc78bf0776086f093",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 144,
+          "disagree": 0,
+          "unsupported": 5,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 7,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 120,
+          "static-fallback": 23,
+          "none": 7,
+          "dynamic-fallback": 6
+        },
+        "observable_change_count": 0,
+        "observable_changes": [],
+        "engine_changes": [
+          {
+            "id": "examples:specifications/NanoBlockchain/MCNanoMedium.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": "reference",
+              "fallback": {
+                "stage": "dynamic",
+                "reason": "materializing a set of more than 2^24 elements"
+              }
+            }
+          },
+          {
+            "id": "examples:specifications/NanoBlockchain/MCNanoSmall.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": "reference",
+              "fallback": {
+                "stage": "dynamic",
+                "reason": "materializing a set of more than 2^24 elements"
+              }
+            }
+          },
+          {
+            "id": "examples:specifications/YoYo/MCYoYoNoPruning.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": "reference",
+              "fallback": {
+                "stage": "dynamic",
+                "reason": "materializing a set of more than 2^24 elements"
+              }
+            }
+          },
+          {
+            "id": "examples:specifications/btree/MCbtree.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": "reference",
+              "fallback": {
+                "stage": "dynamic",
+                "reason": "materializing a set of more than 2^24 elements"
+              }
+            }
+          },
+          {
+            "id": "examples:specifications/lamport_mutex/MCLamportMutex.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": "reference",
+              "fallback": {
+                "stage": "dynamic",
+                "reason": "materializing a set of more than 2^24 elements"
+              }
+            }
+          }
+        ],
+        "independent_validation_findings": [],
+        "separate_model_only_baseline_comparison": {
+          "rc": 0,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 0,
+          "negative_controls_passed": true,
+          "regressions": []
+        }
+      },
+      {
+        "attempt": "default-continuation",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": 0,
+        "status": "completed",
+        "run_id": "20261028T170719776-dive-small",
+        "report_sha256": "9f699cd34c7013c12b6ac25c2e516cb27b39386b8b88b86227c996be8da79de3",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 144,
+          "disagree": 0,
+          "unsupported": 5,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 7,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 120,
+          "static-fallback": 23,
+          "none": 7,
+          "dynamic-fallback": 6
+        },
+        "observable_change_count": 0,
+        "observable_changes": [],
+        "engine_changes": [
+          {
+            "id": [
+              "examples",
+              "specifications/NanoBlockchain/MCNanoMedium.cfg",
+              1
+            ],
+            "fields": {
+              "engine": [
+                "core",
+                "reference"
+              ],
+              "engine_fallback": [
+                null,
+                {
+                  "stage": "dynamic",
+                  "reason": "materializing a set of more than 2^24 elements"
+                }
+              ]
+            }
+          },
+          {
+            "id": [
+              "examples",
+              "specifications/NanoBlockchain/MCNanoSmall.cfg",
+              1
+            ],
+            "fields": {
+              "engine": [
+                "core",
+                "reference"
+              ],
+              "engine_fallback": [
+                null,
+                {
+                  "stage": "dynamic",
+                  "reason": "materializing a set of more than 2^24 elements"
+                }
+              ]
+            }
+          },
+          {
+            "id": [
+              "examples",
+              "specifications/YoYo/MCYoYoNoPruning.cfg",
+              1
+            ],
+            "fields": {
+              "engine": [
+                "core",
+                "reference"
+              ],
+              "engine_fallback": [
+                null,
+                {
+                  "stage": "dynamic",
+                  "reason": "materializing a set of more than 2^24 elements"
+                }
+              ]
+            }
+          },
+          {
+            "id": [
+              "examples",
+              "specifications/btree/MCbtree.cfg",
+              1
+            ],
+            "fields": {
+              "engine": [
+                "core",
+                "reference"
+              ],
+              "engine_fallback": [
+                null,
+                {
+                  "stage": "dynamic",
+                  "reason": "materializing a set of more than 2^24 elements"
+                }
+              ]
+            }
+          },
+          {
+            "id": [
+              "examples",
+              "specifications/lamport_mutex/MCLamportMutex.cfg",
+              1
+            ],
+            "fields": {
+              "engine": [
+                "core",
+                "reference"
+              ],
+              "engine_fallback": [
+                null,
+                {
+                  "stage": "dynamic",
+                  "reason": "materializing a set of more than 2^24 elements"
+                }
+              ]
+            }
+          }
+        ],
+        "independent_validation_findings": [],
+        "separate_model_only_baseline_comparison": {
+          "rc": 0,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 0,
+          "negative_controls_passed": true,
+          "regressions": []
+        }
+      }
+    ],
+    "symbolic-member-tlc": [
+      {
+        "attempt": "original",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": 1,
+        "status": "completed",
+        "run_id": "20261028T172207899-dive-small",
+        "report_sha256": "df6aa691858b3294db0e4b16b162b4fcecb38109c8dd4ecf93bdf88da41ebff9",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 150,
+          "disagree": 0,
+          "unsupported": 6,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 120,
+          "static-fallback": 22,
+          "none": 8,
+          "dynamic-fallback": 6
+        },
+        "observable_change_count": 0,
+        "observable_changes": [],
+        "engine_changes": [
+          {
+            "id": "examples:specifications/NanoBlockchain/MCNanoMedium.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": "reference",
+              "fallback": {
+                "stage": "dynamic",
+                "reason": "materializing a set of more than 2^24 elements"
+              }
+            }
+          },
+          {
+            "id": "examples:specifications/NanoBlockchain/MCNanoSmall.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": "reference",
+              "fallback": {
+                "stage": "dynamic",
+                "reason": "materializing a set of more than 2^24 elements"
+              }
+            }
+          },
+          {
+            "id": "examples:specifications/YoYo/MCYoYoNoPruning.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": "reference",
+              "fallback": {
+                "stage": "dynamic",
+                "reason": "materializing a set of more than 2^24 elements"
+              }
+            }
+          },
+          {
+            "id": "examples:specifications/btree/MCbtree.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": "reference",
+              "fallback": {
+                "stage": "dynamic",
+                "reason": "materializing a set of more than 2^24 elements"
+              }
+            }
+          },
+          {
+            "id": "examples:specifications/lamport_mutex/MCLamportMutex.cfg:1",
+            "before": {
+              "engine": "core",
+              "fallback": null
+            },
+            "after": {
+              "engine": "reference",
+              "fallback": {
+                "stage": "dynamic",
+                "reason": "materializing a set of more than 2^24 elements"
+              }
+            }
+          }
+        ],
+        "independent_validation_findings": [],
+        "native_protocol_error": "no-SANY/full-baseline mismatch; native rc is not success",
+        "separate_model_only_baseline_comparison": {
+          "rc": 0,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 458,
+          "negative_controls_passed": true,
+          "regressions": []
+        }
+      }
+    ],
+    "fold-dive": [
+      {
+        "attempt": "default-continuation",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": 0,
+        "status": "completed",
+        "run_id": "20261028T171844624-dive-small",
+        "report_sha256": "a0f965434bea6e56105d658c50ede99ec54e7f68cd08a619704fcd8715909ca2",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 144,
+          "disagree": 0,
+          "unsupported": 5,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 7,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 125,
+          "static-fallback": 23,
+          "none": 7,
+          "dynamic-fallback": 1
+        },
+        "observable_change_count": 0,
+        "observable_changes": [],
+        "engine_changes": [],
+        "independent_validation_findings": [],
+        "separate_model_only_baseline_comparison": {
+          "rc": 0,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 0,
+          "negative_controls_passed": true,
+          "regressions": []
+        }
+      }
+    ],
+    "fold-tlc": [
+      {
+        "attempt": "corrected-tlc-continuation",
+        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "native_rc": 0,
+        "status": "completed",
+        "run_id": "20261028T174341548-dive-small",
+        "report_sha256": "05ba980d46571614d4b933dd3b974c9e18a244eab42792291aef981b541069cd",
+        "models_selected": 156,
+        "outcomes": {
+          "agree": 150,
+          "disagree": 0,
+          "unsupported": 6,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "engines": {
+          "core": 125,
+          "static-fallback": 22,
+          "none": 8,
+          "dynamic-fallback": 1
+        },
+        "observable_change_count": 0,
+        "observable_changes": [],
+        "engine_changes": [],
+        "independent_validation_findings": [],
+        "separate_model_only_baseline_comparison": {
+          "rc": 0,
+          "models": 156,
+          "exact_original_model_ids": true,
+          "original_model_records_unchanged": true,
+          "excluded_original_sany_rows": 458,
+          "negative_controls_passed": true,
+          "regressions": []
+        }
+      }
+    ]
+  },
+  "pending_attempts": [
+    {
+      "case": "arena-tlc",
+      "attempt": "original",
+      "status": "running-or-unadmitted"
+    },
+    {
+      "case": "eager-tlc",
+      "attempt": "original",
+      "status": "running-or-unadmitted"
+    },
+    {
+      "case": "parent-skip-tlc",
+      "attempt": "corrected-tlc-continuation",
+      "status": "running-or-unadmitted"
+    },
+    {
+      "case": "step-memo-tlc",
+      "attempt": "corrected-tlc-continuation",
+      "status": "not-started-admission-deadline"
+    }
+  ],
+  "duplicate_consistency": {
+    "default-continuation:arena-dive": {
+      "normalized_change_count": 0,
+      "original_native_rc": null,
+      "continuation_native_rc": 0
+    },
+    "default-continuation:eager-dive": {
+      "normalized_change_count": 0,
+      "original_native_rc": null,
+      "continuation_native_rc": 0
+    },
+    "default-continuation:memo-dive": {
+      "normalized_change_count": 0,
+      "original_native_rc": null,
+      "continuation_native_rc": 0
+    },
+    "default-continuation:parent-skip-dive": {
+      "normalized_change_count": 0,
+      "original_native_rc": null,
+      "continuation_native_rc": 0
+    },
+    "default-continuation:step-memo-dive": {
+      "normalized_change_count": 0,
+      "original_native_rc": null,
+      "continuation_native_rc": 0
+    },
+    "default-continuation:symbolic-member-dive": {
+      "normalized_change_count": 0,
+      "original_native_rc": null,
+      "continuation_native_rc": 0
+    }
+  },
+  "completed_unique_switch_profile_cases": 20,
+  "missing_unique_cases": [],
+  "binary_sha256": {
+    "source0f_backend": "82629a86db65e7525dd6cf59080b6d49ef9be72dc342af613ac0bc2b35ef2b02",
+    "source0f_harness_validator": "99afa8ae44e49ed1368cb22755f279d44503afe76d17b1af2fecf2bfc85a8398",
+    "f582_backend": "b66ffa88b048870bcfce79e69da72fef814472f440ddf87b897a2bdde34e9bd4",
+    "f582_harness_validator": "99afa8ae44e49ed1368cb22755f279d44503afe76d17b1af2fecf2bfc85a8398"
+  },
+  "original_baseline_sha256": {
+    "small-dive-w1.json": "0d6842422b798618af5be64533877ad9cf8d8ebca4a24021f07acf9d41ed8f2e",
+    "small-tlc-w1.json": "2d7289f3320827cef61c009618e16ae1b7e9efb8e9d82ba447a1f24d0e94b650"
+  },
+  "unadmitted_original_plan_entries": [
+    "fold-dive",
+    "fold-tlc"
+  ],
+  "archive_preservation": {
+    "file": "m1-ablation-final-20261028.tar.xz",
+    "sha256": "6b64f2b4aa0e6fa4557582238b16c3cce571a8f19d542d41be739401af070142",
+    "bytes": 76212,
+    "all_json_parsed": 127,
+    "completed_report_hashes_and_full156_ids_checked": 28
+  }
+}
