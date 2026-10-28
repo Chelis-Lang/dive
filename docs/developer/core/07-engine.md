@@ -508,10 +508,20 @@ non-constant split arguments (stream 2), and are refused naming them.
   (`isSeenState` is only for states inside the model). Without symmetry a
   lookup only skips a state already checked; with it, a seen image can hide
   a concrete state that was not. Fixture `SymOutside`.
-- Refused: `SYMMETRY` under `--compat=tlc`, where TLC compares in its own
-  argument order and may fail; `SYMMETRY` with a property that needs
-  liveness checking; and
+- Refused: `SYMMETRY` with a property that needs liveness checking, and
   states holding lazily represented sets or functions.
+- Under `--compat=tlc` (`core/engine-symmetry-compat`), `Symmetry::tlc`
+  compares candidates as `TLCStateMut` does and as the reference engine's
+  `Reduction::canonical_values` does in TLC's order: TLC's `compareTo`
+  (`dive_value::tlc::compare`), variable by variable in
+  `Ir::tlc_var_order`. The core's `tlc_cmp` answers where `compareTo` orders
+  as `Heap::cmp` does under TLC's string order: values of one class, and
+  untyped model values, which come first. It refuses what `compareTo` would
+  fail on (a typed model value against another kind of value or type,
+  values of two classes) and symbolic sets. No D-010 note is added. For a
+  valid symmetry, the choice of image does not change the orbits, so the
+  counts are the default profile's; the order matters for the refusals and
+  the errors.
 - Fixtures `SymOwner` (a violation) and `SymSets` (a deadlock) in
   `core-m1` agree with the reference engine in counts and traces, at every
   worker count `core_parallel.rs` checks.

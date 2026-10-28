@@ -1,5 +1,9 @@
 # Changelog
 
+- `--engine core --compat=tlc` runs models with `SYMMETRY`, comparing
+  states as TLC does. A comparison TLC could fail on is reported as
+  unsupported, and `--engine=auto` runs the reference engine for it.
+
 - `--engine core` runs specifications that use `RandomElement`, drawing
   what the reference engine draws at every seed: under `--compat=tlc`,
   TLC's own draws. The run uses one worker and `--seed` replays it. A draw
