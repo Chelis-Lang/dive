@@ -293,14 +293,16 @@ into this tranche, and no new all-model compat speedup is claimed. Record:
   prints runs on one worker, so output comes in TLC's order.
 - **`RandomElement`.** The draws come from a stream that the API supplies to
   the core, which needs no new crate dependency.
-- **`ENABLED` inside an INSTANCE with substitutions** is refused for now.
-  Open question 8 (the B3 cutoff) keeps its default: TLC's cutoff in both
-  profiles.
+- **`ENABLED` inside an INSTANCE** supports constant/operator parameters
+  and proved identity mappings of root variables. Hidden/nonidentity variable
+  substitutions, initial queries, state-dependent configured operators and
+  query effects/recursive/nested calls remain refused. Open question 8 (the B3 cutoff) keeps its default: TLC's cutoff in both profiles.
 - **Persistent function trees deferred (#532).** The measurement was
   negative.
-- **Where TLC is wrong (stale lazy reuse, B2 and B4),** the default profile
-  is sound and `--compat=tlc` reproduces TLC (`02-semantic-contract.md`
-  §3a). D-027 is registered when that code lands.
+- **Where TLC is wrong (stale lazy reuse, B2 and B4),** the approved contract
+  requires sound evaluation by default and TLC reuse under `--compat=tlc`
+  (`02-semantic-contract.md` §3a). Hidden-query cache support remains pending;
+  D-027 is registered when that code lands.
 
 ## 5. Remaining acceptance and implementation
 
@@ -320,7 +322,8 @@ The census identifies distinct obligations; one fix cannot waive another family:
 | Correctness coverage | Both small-tier auto controls pass with explicit engine accounting. The ten-switch matrix retains original failures, declared materialization fallbacks and separate corrected-source hashcons retests; see the recorded matrix qualification. |
 | Startup and memory | Trivial startup and Coffee compile/fold measured above. Retain explicit eight-worker RSS and large-model scaling regressions. |
 
-Known implementation gaps remain: `ENABLED` inside INSTANCE substitutions,
+Known implementation gaps remain: `ENABLED` with hidden/nonidentity INSTANCE
+variables or in an instantiated initial predicate,
 SYMMETRY with liveness (`P4SymLive`), L5 graph capacity, `kSubset`, sequence
 replace forms, `MapThenFoldSet`/`Folds`, TLC-profile `AllSubSeqs` membership and
 the two printing refusals. L5 requires state storage as well as packed topology

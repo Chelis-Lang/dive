@@ -4,9 +4,13 @@
   states now retain the invariant verdict and independently replayable word
   instead of an internal trace error (#603).
 
-- `--engine core` evaluates `ENABLED` (outside an `INSTANCE` with
-  substitutions, which is still refused): BufferedRandomAccessFile now runs on
-  the core, about 7 times faster than on the reference engine.
+- `--engine core` evaluates `ENABLED`, including pure nonrecursive queries
+  through `INSTANCE` constant/operator parameters whose variable mappings
+  preserve root names. Hidden or renamed
+  variables, initial queries, state-dependent configured operators and query
+  effects/recursive/nested calls remain explicitly unsupported.
+  BufferedRandomAccessFile runs on the core, about 7 times faster than on the
+  reference engine.
 - Fix `--engine core` checking of `ENABLED` inside action constraints and
   implied action properties: primed definitions now use the query's own
   successor, preventing false violations and missed action-property violations
