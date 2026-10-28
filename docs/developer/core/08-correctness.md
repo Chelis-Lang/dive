@@ -1,6 +1,8 @@
 # Correctness net
 
-Status: design. There is no code yet.
+Status: implemented shadow harness, sampled successor checks and repeatable
+fixture census. Acceptance is still open; the current findings and source-bound
+qualification are in `m1-status.md`.
 
 A rewrite of the core is safe only if every behaviour is checked mechanically
 against independent references. This repository already has those references.
@@ -217,11 +219,12 @@ by hand, or in the deep tier.
 ## 6. Ablation runs
 
 Every performance strategy has a switch:
-- `--core-opt=-memo`, `-delta-hash` and similar, for S1–S8;
+- `DIVE_CORE_OPT=-memo`, `-delta-hash` and similar, for S1–S8;
 - the switches are listed in `09-performance-method.md`.
 
-A test matrix runs the small tier with each switch off and asserts that all
-observables are identical. A strategy that changes an observable is a bug in
+M1 acceptance requires a recorded small-tier matrix with each actual switch
+off, asserting that all observables are identical. Focused unit matrices do not
+substitute for that population. A strategy that changes an observable is a bug in
 that strategy.
 
 ## 7. Validator independence

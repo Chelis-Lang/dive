@@ -1,25 +1,35 @@
-# M1 status at handover (2026-10-28)
+# M1 acceptance status (2026-10-28)
 
-This summarizes the core reboot from the end of M0 (#505, 2026-10-26) to the
-handover on 2026-10-28. It is meant to be read first. The decision log and
-the per-stream next steps are in `10-plan.md` (§5 and the 2026-10-28 handoff
-entry). Each area's design doc has its own "Next step".
+M1 is implemented across the main workstreams, but **acceptance remains open**.
+The default engine remains `reference`. Use `10-plan.md` for the milestone
+contract and this page for current evidence and the next bounded steps.
 
-## 1. Where it stands
+## 1. Current qualification
 
-- `--engine=core` runs all 10 bench models. On every model, the counts,
-  depth and verdict equal the TLC goldens.
-- On quiet x86, the 9 models measured with memo on are faster than TLC at
-  both 1 and 8 workers. The ratios range from 1.06× (TLCSailfish1, 8
-  workers) to 9.4× (MCbtree, 1 worker); see §3.
-- The M1 gate is ≥1× TLC on 8 of 10 bench models and the small tier at
-  baseline. It is **expected to pass but not yet decided**: it needs one
-  quiet x86 run of core, reference and TLC together (§6, step 1).
-- The default engine is still `reference`.
-  - `--engine=auto` runs the core and falls back to the reference engine
-    before the search on any refusal the core names.
-  - CI shadows the core against the reference engine on the smoke models.
-- No known wrong result on the core. Every refusal names the feature.
+- All ten benchmark models run on the core. The prior memo A/B establishes
+  useful default-profile improvements, but its cross-campaign TLC ratios below
+  are historical indications, not the quiet matched M1 decision.
+- The repeatable, seeded fixture census is now implemented (#595). Its first
+  complete run selects 1,361 of 1,474 configurations: 99 parser exclusions and
+  14 ambiguous module selections are explicitly accounted for. It runs both
+  profiles at one worker with a 20-second native limit and 3-GiB memory limit.
+- That run is **not clean shadow acceptance**. Default: 983 agree, 242 refused,
+  three successor findings, six budget stops, 100 trace-refuted and 27
+  trace-unconfirmed. TLC: 959 agree, 258 refused, three successor findings,
+  four stops, 104 trace-refuted and 33 trace-unconfirmed. These are core/reference
+  shadow outcomes, never TLC parity counts. Exact source and qualification:
+  `conformance/reports/core/2026-10-28-fixture-census-v1.json`.
+- The stronger harness (#594) rejects absent, independently unconfirmed or
+  refuted required words and matching unclassified outcomes. Earlier census
+  totals cannot be promoted through that change retrospectively.
+- The takeover found and fixed an `ENABLED` step-cache leak (#593) capable of
+  both false and missed violations; the old assertion that no wrong result
+  was known is withdrawn. Mutation controls exercise the actual boundary.
+- Excluded Init depth and omitted Next endings now match pinned TLC (#589).
+  The reference literal-bodied operator-argument bug is fixed (#580), with
+  a passing full gate; its checked user example was corrected in #599.
+- Static fallback, named refusals and independent validation remain required.
+  No default-engine change is proposed while the acceptance findings remain.
 
 ## 2. What was built (about 70 PRs since #505)
 
@@ -74,7 +84,7 @@ entry). Each area's design doc has its own "Next step".
 - The AWS bench and gate scripts (`scripts/aws/`) and the shared gate lock
   (`scripts/gate-lock.sh`).
 
-## 3. Measured results (x86, c7i.metal-24xl, the measurement of record)
+## 3. Historical checkpoint (x86, c7i.metal-24xl)
 
 | Model | ×TLC, 1 worker | ×TLC, 8 workers |
 |---|---|---|
@@ -129,70 +139,54 @@ entry). Each area's design doc has its own "Next step".
   is sound and `--compat=tlc` reproduces TLC (`02-semantic-contract.md`
   §3a). D-027 is registered when that code lands.
 
-## 5. Open at handover
+## 5. Remaining acceptance and implementation
 
-**PR #580**, the fix for #557: the reference engine wrongly applies a
-constant-body `LAMBDA` passed to the folds, where TLC raises 2266 or 2154.
-It is rebased onto `main` and touches `dive-eval`, so it needs a fresh full
-gate before it merges.
+The census identifies distinct obligations; one fix cannot waive another family:
 
-**Known gaps.**
-- `ENABLED` inside an INSTANCE with substitutions.
-- SYMMETRY with liveness (`P4SymLive`).
-- Liveness phase 2 (L5).
-- `kSubset`; the sequence forms of the replace operators; `MapThenFoldSet`
-  and the `Folds` module.
-- `AllSubSeqs` membership under `--compat=tlc`.
-- Two `Print` refusals: a run that prints and then ends in an error, and
-  printing a lazy set.
-
-**To triage.** The fixture shadow census has 10 differences:
-- 6 are attributed to time-limit stops. They need naming and confirming.
-- 2 are unseeded `RandomElement` runs in the census script, so the script
-  needs `--seed`.
-- `DfidInitialOnly` and `SimExcludedInitial` need a real triage.
-
-**Untested path.** No fixture reaches the `Compiler::step` clear inside
-`ENABLED`; disabling it leaves every test green.
-
-**Unexplained regression.** About 11 G of MCLamportMutex's instruction
-increase since M0 is spread over #510, #535–#545, #509 and smaller changes.
-It is not yet measured in cycles.
-
-**Open issues from this work.**
-
-| Issue | What |
+| Obligation | Evidence and next action |
 |---|---|
-| #557 | The reference engine applies a constant-body operator that TLC rejects (fix in #580) |
-| #527 | The core's `Len` of a function over `1..0` |
-| #515 | The reference engine's 2280 on an instantiated Naturals operator |
-| #504 | The JSON report omits a failed `ASSUME`'s name |
-| #498 | Umbrella issue |
+| Sampled level context | Three findings per profile lose `TLCGet("level")` context. #600/#601 preserve the actual sampled expansion level and independently check expected successors. |
+| Invariant evaluation-error words | 37 default / 38 TLC findings need a named invariant and exact underlying cause, with independent prefix and failure-order validation. The scoped trace-v2 candidate addresses this part of #490 only. |
+| Other terminal error words | 50 findings per profile still compare a 2103 wrapper with an underlying ending cause; retain #490 and classify each evaluation site before changing representation. |
+| Constraint/action error words | 13 default / 16 TLC refuted words remain in the #499 families. Preserve actual terminal evaluation ordering; do not exempt the last state broadly. |
+| Errors while expanding the final state | 17 default / 23 TLC words are independently unconfirmed; #434 needs an independent successor-generator strategy. |
+| Missing words | Ten required counterexample documents per profile are absent. Matching reports supply no substitute. |
+| Resource stops | Six default / four TLC runs stop with native exit 5. They remain incomplete. `ErDeepRecursion` separately returns a classified resource-limit refusal in both profiles. |
+| M1 performance decision | Complete the matched five-repetition default campaign, all ten models, 1/8 workers; record medians, correctness and memo-capped RSS. |
+| Compat performance | #597: one completed quiet Sailfish repetition takes core 841.01 s versus TLC 52.02 s at one worker, despite correct counts. The comparison-guard prototype #598 is diagnostic until matched quiet measurements and gates pass. |
+| Correctness coverage | Fresh small-tier `auto` comparison in both profiles, with actual engine/fallback accounting, plus the M1 ablation matrix. Do not substitute reference-only gate results for core coverage. |
+| Startup and memory | Re-measure startup and retain memo-cap RSS evidence; identify remaining regressions before claiming the risks closed. |
 
-#550 (SimpleRegular scaling), #551 (MCBakery RSS) and #555 (MCDisruptor
-speed) are fixed and closed.
+Known implementation gaps remain: `ENABLED` inside INSTANCE substitutions,
+SYMMETRY with liveness (`P4SymLive`), L5 graph capacity, `kSubset`, sequence
+replace forms, `MapThenFoldSet`/`Folds`, TLC-profile `AllSubSeqs` membership and
+the two printing refusals. L5 requires state storage as well as packed topology
+(`11-liveness.md`); `kSubset` needs a symbolic value and startup/validator support
+(`03-value-model.md`). Neither is a one-function completion.
 
-**Watched risks.** Startup time (R9) and RSS (R10) have not been re-measured
-on x86 since memo went back on.
+M2 still requires full-tier core coverage, at most 5% fallback, a 2× TLC
+geometric mean at both worker counts and no slower benchmark. M3 retains the
+remaining execution modes, checkpoints and storage work. M4 default replacement
+requires its own decision. Historical 182/217 full-tier agreements predate the
+core reboot and do not establish current core breadth.
 
-## 6. Next steps, in order
+## 6. Execution order
 
-1. **The M1 gate run.** Launch the bench node with
-   `scripts/aws/bench-node.sh <main sha> --dive-bin ~/bins/dive-core --dive-revision <sha>+core --baseline-bin ~/bins/dive --baseline-revision <sha>+reference --profile default --workers 1,8 --reps 5 --tlc --timeout 900 --xmx 3g`.
-   It covers all 10 models, core against reference and TLC. Record a compact
-   JSON and a §5c in `10-plan.md`, including RSS with the memo cap. Then
-   terminate the node.
-2. **Merge #580** after a full gate, local or through
-   `scripts/aws/gate-node.sh` and `remote-gate.sh`.
-3. **Small-tier census under `--engine=auto` in both profiles.** If the
-   evidence holds, propose `auto` as the default engine in
-   `docs/open-questions.md`. That is M4 in the plan, but it may be ready
-   earlier.
-4. **Restart the three streams** from the handoff entry in `10-plan.md`:
-   - stream 1: the stdlib gaps;
-   - stream 2: `ENABLED` under substitutions plus D-027, the census fixes
-     and the `Compiler::step` test;
-   - stream 3: the two triages, L5 and `P4SymLive`.
+1. Finish the small, source-bound correctness fixes and their required gates;
+   retain failing baseline census evidence and rerun the same selection.
+2. Complete and preserve the quiet matched default campaign; evaluate its gate
+   independently of the TLC-compatible slowdown. Test the single guard prototype
+   against its original algorithm before any performance merge.
+3. Run `auto` against both small-tier baselines with full accounting. Keep the
+   reference default while required words or supported paths remain unproven.
+4. Address remaining error-word families by evaluation site, with smallest
+   pinned reproducers and independent validation controls. Then resume the
+   documented stdlib/compiler/L5 streams, each as a single-scope PR.
+
+The corrective discipline is concrete: no invented agreement credit, no weakened
+validator, no stale build identity, no source sharing between heavy jobs, no
+performance inference from instruction counts or mismatched campaigns, and no
+large graph rewrite before the existing state-storage boundary is explicit.
 
 ## 7. Working notes for the next machine
 

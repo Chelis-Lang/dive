@@ -1,7 +1,8 @@
 # Semantic contract
 
-Status: design contract, 2026-10-26. There is no new-core code yet. Every
-citation below was read at the time of writing. When a rule here and the
+Status: active implementation contract, first written 2026-10-26. Current
+acceptance evidence and remaining gaps are in `m1-status.md`. Every citation
+below was read at the time of writing. When a rule here and the
 reference engine disagree, the pinned TLC golden decides, and this document is
 corrected with the evidence.
 
