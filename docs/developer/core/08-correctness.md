@@ -152,6 +152,44 @@ Where it runs:
 Not built yet: sampling from the initial-state predicate (only expanded
 states are sampled).
 
+### Fixture census
+
+`scripts/fixture-shadow-census.py` stages the complete `crates/*/tests/fixtures`
+population outside the checkout and runs the same shadow command. Its fixed
+seed and fingerprint are both 0, supplied by the harness to both engines.
+It compares ordinary checking of each configuration, even when a fixture's
+other tests exercise simulation or DFID. It does not claim those mode tests ran.
+
+```sh
+python3 scripts/fixture-shadow-census.py --out /tmp/dive-fixture-shadow \
+  --harness target/release/dive-conformance --dive-bin target/release/dive \
+  --profile both --workers 1 --jobs 2 --timeout 20 --max-memory 3g
+```
+
+The output directory must be fresh and outside the checkout. Selection prefers
+the `.tla` matching the configuration's stem, then the sole adjacent `.tla`.
+Missing or ambiguous modules are explicitly skipped; `dive-config` parser
+fixtures are explicitly excluded. Every config has exactly one outcome per
+worker count and profile, including these unrun cases. Missing, duplicate or
+extra report rows fail accounting. No filter or implicit retry narrows the
+population, and no oracle golden is generated or edited.
+
+The existing harness supplies the observable comparison, successor sampling
+and independent trace validation. The recorder preserves every child command,
+stdout, stderr and physical exit under `raw/`, with the harness logs and JSON
+reports alongside them. `census.json` names native `stopped` and `resource-limit`
+runs, their phases and exits separately from processes that never completed.
+Neither timeout nor refusal earns agreement credit. The true candidate binary
+hash is in `census.json`; the shadow report's executable hash names the recording
+wrapper. Runtime measurement through this recorder earns no performance credit.
+
+Preparation at source `e2183389` finds 1,450 configurations: 99 parser exclusions,
+1,337 selected models and 14 ambiguous skips. These are selection counts, not
+new agreement results. The handover's 845 agreements, 493 refusals and ten
+differences sum to 1,348, rather than its stated 1,269 fixtures; that historical
+summary remains unreconciled without its original report. A fresh run records
+its own complete population and does not retroactively repair that measurement.
+
 ## 5. Differential fuzzing
 
 Specification mutants are generated from corpus models by deterministic
