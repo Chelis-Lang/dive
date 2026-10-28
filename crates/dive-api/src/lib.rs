@@ -54,6 +54,7 @@ mod core_engine;
 mod core_graph;
 mod core_random;
 mod core_sample;
+mod core_temporal;
 pub use core_engine::Engine;
 /// Native safety checkpoint request and format API (ADR0033).
 pub use dive_check::checkpoint;

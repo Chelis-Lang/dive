@@ -8,6 +8,12 @@
   definition or substitution they use is evaluated once per step, and once
   per distinct value of the variables it reads. EWD998PCal with its
   refinement property runs in 5.5 s instead of 14 s.
+- `--engine core` checks temporal properties (liveness, with fairness):
+  the core explores and builds the behavior graph, and the reference
+  engine's liveness checker checks it, so verdicts, counts and
+  counterexamples are the reference engine's. `VIEW`, `SYMMETRY` and
+  `Print` with a temporal property, and a liveness check that ends in an
+  error, still fall back to the reference engine under `--engine=auto`.
 
 - `--engine core` runs specifications that use `TLCSet` and `TLCGet` with
   integer or `"s:"` registers, `"all"`, `"all:named"` and `"level"`, with
