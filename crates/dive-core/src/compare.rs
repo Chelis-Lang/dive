@@ -200,7 +200,7 @@ pub(crate) fn miss_cached(
     {
         return miss(heap, x, elems);
     }
-    if let Some(witness) = memo.member_witness(set) {
+    if let Some(witness) = memo.member_witness(heap.store(), set) {
         // A failed proof always takes the original full path. In particular,
         // no cached shape certificate changes the refusal or its demand site.
         if guard_member(heap, x, &[witness]).is_ok() {
@@ -211,7 +211,7 @@ pub(crate) fn miss_cached(
     // Admission happens only after the demanded original miss succeeds.
     miss(heap, x, elems)?;
     if let Some(witness) = member_witness(heap, elems) {
-        memo.remember_member(set, witness);
+        memo.remember_member(heap.store(), set, witness);
     }
     Ok(())
 }
@@ -701,7 +701,7 @@ mod tests {
                         let expected = miss(&h, x, elems);
                         assert_eq!(miss_cached(&h, &mut memo, x, set, elems), expected);
                         assert_eq!(miss_cached(&h, &mut memo, x, set, elems), expected);
-                        admitted += usize::from(memo.member_witness(set).is_some());
+                        admitted += usize::from(memo.member_witness(h.store(), set).is_some());
                     }
                 }
             }
@@ -735,7 +735,7 @@ mod tests {
             let compatible = h.tuple(&[two]);
             let elems = h.view(set).data;
             assert_eq!(miss_cached(&h, &mut memo, compatible, set, elems), Ok(()));
-            assert!(memo.member_witness(set).is_some());
+            assert!(memo.member_witness(h.store(), set).is_some());
             assert_eq!(miss_cached(&h, &mut memo, query, set, elems), expected);
         }
         assert!(!h.poisoned(), "comparison proofs do not force lazy values");

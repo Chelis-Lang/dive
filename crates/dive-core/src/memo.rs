@@ -10,7 +10,10 @@
 //! recomputed on the next lookup, so neither the cap nor the eviction
 //! changes a result.
 
+use std::sync::{Arc, Weak};
+
 use crate::handle::{Handle, mix2, mix64};
+use crate::store::Store;
 
 /// The largest key, in handles.
 pub const MAX_KEY: usize = 8;
@@ -31,9 +34,30 @@ struct Members {
     entries: Vec<[Handle; 2]>,
     cap: usize,
     flip: bool,
+    owner: Option<Weak<Store>>,
 }
 
 impl Members {
+    fn bind(&mut self, store: &Arc<Store>) {
+        if self
+            .owner
+            .as_ref()
+            .is_some_and(|owner| std::ptr::eq(owner.as_ptr(), Arc::as_ptr(store)))
+        {
+            return;
+        }
+        // Weak retains the allocation identity even after Store destruction,
+        // preventing pointer ABA without retaining the store's contents. Hits
+        // only compare pointers: no upgrade or reference-count operation.
+        self.clear();
+        self.owner = Some(Arc::downgrade(store));
+    }
+
+    fn clear(&mut self) {
+        self.entries = Vec::new();
+        self.owner = None;
+    }
+
     fn bytes(&self) -> usize {
         self.entries.capacity() * std::mem::size_of::<[Handle; 2]>()
     }
@@ -155,7 +179,7 @@ impl Memo {
     pub(crate) fn reserve_members(&mut self, enabled: bool) {
         // Machine construction must not reuse certificates from another
         // store, whose handles may have the same bits.
-        self.members.entries = Vec::new();
+        self.members.clear();
         let bytes = if enabled {
             (self.cap / 16).min(MEMBER_CAP)
         } else {
@@ -164,11 +188,19 @@ impl Memo {
         self.members.cap = if bytes < 32 { 0 } else { 1 << bytes.ilog2() };
     }
 
-    pub(crate) fn member_witness(&self, set: Handle) -> Option<Handle> {
+    pub(crate) fn member_witness(&mut self, store: &Arc<Store>, set: Handle) -> Option<Handle> {
+        if !self.members_active() {
+            return None;
+        }
+        self.members.bind(store);
         self.members.get(set)
     }
 
-    pub(crate) fn remember_member(&mut self, set: Handle, witness: Handle) {
+    pub(crate) fn remember_member(&mut self, store: &Arc<Store>, set: Handle, witness: Handle) {
+        if !self.members_active() {
+            return;
+        }
+        self.members.bind(store);
         self.members.put(set, witness);
     }
 
@@ -310,7 +342,7 @@ impl Memo {
             t.words = Vec::new();
         }
         self.bytes = 0;
-        self.members.entries = Vec::new();
+        self.members.clear();
     }
 }
 
@@ -369,6 +401,7 @@ mod tests {
         let persistent = |i| Handle::persistent(0, 0, i);
         for cap in [0, 31, 512, 4096, 1 << 20, DEFAULT_CAP] {
             let mut m = Memo::new(&[1]);
+            let store = Arc::new(Store::default());
             m.set_cap(cap);
             m.reserve_members(true);
             assert!(m.members.cap <= cap / 16);
@@ -377,12 +410,12 @@ mod tests {
             for i in 1..20_000 {
                 let set = persistent(i);
                 let witness = persistent(i + 20_000);
-                if let Some(found) = m.member_witness(set) {
+                if let Some(found) = m.member_witness(&store, set) {
                     assert_eq!(found, witness, "a hash collision is not a hit");
                 }
-                m.remember_member(set, witness);
+                m.remember_member(&store, set, witness);
                 if m.members_active() {
-                    assert_eq!(m.member_witness(set), Some(witness));
+                    assert_eq!(m.member_witness(&store, set), Some(witness));
                 }
                 m.put(0, &[set], witness);
                 assert!(m.bytes() <= cap);
@@ -391,12 +424,13 @@ mod tests {
             assert!(m.members.entries.len() <= m.members.cap / 16);
             m.clear();
             assert_eq!(m.bytes(), 0);
-            assert_eq!(m.member_witness(persistent(1)), None);
+            assert_eq!(m.member_witness(&store, persistent(1)), None);
         }
     }
 
     #[test]
     fn member_certificates_do_not_reserve_when_disabled_or_store_transients() {
+        let store = Arc::new(Store::default());
         let mut m = Memo::new(&[1]);
         m.reserve_members(false);
         assert!(!m.members_active());
@@ -404,14 +438,15 @@ mod tests {
         m.reserve_members(true);
         let persistent = Handle::persistent(0, 0, 1);
         let transient = Handle::transient(1, 1);
-        m.remember_member(transient, persistent);
-        m.remember_member(persistent, transient);
+        m.remember_member(&store, transient, persistent);
+        m.remember_member(&store, persistent, transient);
         assert_eq!(m.bytes(), 0);
-        assert_eq!(m.member_witness(persistent), None);
+        assert_eq!(m.member_witness(&store, persistent), None);
     }
 
     #[test]
     fn member_collision_eviction_never_answers_for_a_different_key() {
+        let store = Arc::new(Store::default());
         let mut m = Memo::new(&[]);
         m.set_cap(512);
         m.reserve_members(true);
@@ -420,18 +455,65 @@ mod tests {
         let a = Handle::persistent(0, 0, 1);
         let b = Handle::persistent(0, 0, 2);
         let c = Handle::persistent(0, 0, 3);
-        m.remember_member(a, a);
-        m.remember_member(b, b);
-        assert_eq!(m.member_witness(c), None);
-        assert_eq!(m.member_witness(a), Some(a));
-        assert_eq!(m.member_witness(b), Some(b));
-        m.remember_member(c, c);
-        assert_eq!(m.member_witness(c), Some(c));
+        m.remember_member(&store, a, a);
+        m.remember_member(&store, b, b);
+        assert_eq!(m.member_witness(&store, c), None);
+        assert_eq!(m.member_witness(&store, a), Some(a));
+        assert_eq!(m.member_witness(&store, b), Some(b));
+        m.remember_member(&store, c, c);
+        assert_eq!(m.member_witness(&store, c), Some(c));
         for key in [a, b] {
-            if let Some(witness) = m.member_witness(key) {
+            if let Some(witness) = m.member_witness(&store, key) {
                 assert_eq!(witness, key);
             }
         }
         assert_eq!(m.bytes(), 32);
+    }
+
+    #[test]
+    fn member_owner_binding_releases_entries_and_weak_ownership() {
+        let mut m = Memo::new(&[]);
+        m.reserve_members(true);
+        let store = Arc::new(Store::default());
+        let other = Arc::new(Store::default());
+        let set = Handle::persistent(0, 0, 1);
+        let witness = Handle::persistent(0, 0, 2);
+        m.remember_member(&store, set, witness);
+        assert_eq!(Arc::weak_count(&store), 1);
+        for _ in 0..100 {
+            assert_eq!(m.member_witness(&store, set), Some(witness));
+        }
+        assert_eq!(Arc::weak_count(&store), 1);
+        assert_eq!(m.member_witness(&other, set), None);
+        assert_eq!(m.bytes(), 0);
+        assert_eq!(Arc::weak_count(&store), 0);
+        assert_eq!(Arc::weak_count(&other), 1);
+        m.remember_member(&other, set, witness);
+        m.clear();
+        assert_eq!(Arc::weak_count(&other), 0);
+        m.remember_member(&store, set, witness);
+        m.reserve_members(false);
+        assert_eq!(Arc::weak_count(&store), 0);
+        assert_eq!(m.member_witness(&store, set), None);
+        assert_eq!(Arc::weak_count(&store), 0);
+
+        m.reserve_members(true);
+        m.remember_member(&store, set, witness);
+        let identity = m.members.owner.as_ref().map(Weak::as_ptr);
+        assert!(identity.is_some());
+        drop(store);
+        assert!(
+            m.members
+                .owner
+                .as_ref()
+                .is_some_and(|owner| owner.upgrade().is_none())
+        );
+        // The retained Weak keeps the old allocation unavailable for reuse.
+        assert_ne!(identity, Some(Arc::as_ptr(&other)));
+        assert_eq!(m.member_witness(&other, set), None);
+        assert_eq!(m.bytes(), 0);
+        m.clear();
+        assert!(m.members.owner.is_none());
+        assert_eq!(Arc::weak_count(&other), 0);
     }
 }

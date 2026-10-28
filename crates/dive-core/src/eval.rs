@@ -1816,6 +1816,51 @@ mod tests {
     use crate::TlcClass;
 
     #[test]
+    fn public_heap_replacement_cannot_reuse_another_stores_membership_proof() {
+        fn values(heap: &mut Heap, name: &str) -> (Handle, Handle) {
+            let one = Handle::int(1).unwrap();
+            let model = Handle::model(heap.store().strings().intern(name).unwrap());
+            let witness = heap.tuple(&[one]);
+            let witness = heap.intern_exact(witness).unwrap();
+            let other = heap.tuple(&[model]);
+            let other = heap.intern_exact(other).unwrap();
+            let set = heap.set_from(&mut vec![witness, other]);
+            let set = heap.intern_exact(set).unwrap();
+            (set, witness)
+        }
+
+        for hashcons in [true, false] {
+            let store = Arc::new(Store::with_semantics(hashcons, crate::Semantics::tlc()));
+            let old_owner = Arc::downgrade(&store);
+            let mut m = Machine::new(store, 0, Opts::default(), Memo::new(&[]));
+            let (old_set, old_witness) = values(&mut m.heap, "u");
+            let two = Handle::int(2).unwrap();
+            let query = m.heap.tuple(&[two]);
+            assert_eq!(m.member(query, old_set), Ok(false));
+            assert!(m.memo.bytes() > 0);
+
+            let store = Arc::new(Store::with_semantics(hashcons, crate::Semantics::tlc()));
+            let mut replacement = Heap::new(store, false, false);
+            let (set, witness) = values(&mut replacement, "T_x");
+            assert_eq!(old_set, set, "complete set handles collide across stores");
+            assert_eq!(old_witness, witness, "witness handles also collide");
+            m.heap = replacement;
+            assert!(
+                old_owner.upgrade().is_none(),
+                "a certificate does not retain Store"
+            );
+            let query = m.heap.tuple(&[two]);
+            let expected = compare::miss(&m.heap, query, m.heap.view(set).data).map(|()| false);
+            assert!(expected.is_err(), "typed versus integer constraints refuse");
+            assert_eq!(m.member(query, set), expected, "warm equals the full miss");
+            assert_eq!(m.memo.bytes(), 0, "rebind drops the old entries");
+            m.memo.clear();
+            assert_eq!(m.member(query, set), expected, "cold equals the full miss");
+            assert!(!m.heap.poisoned());
+        }
+    }
+
+    #[test]
     fn membership_certificates_respect_profiles_epochs_and_machine_stores() {
         let one = Handle::int(1).unwrap();
         let two = Handle::int(2).unwrap();
@@ -1833,7 +1878,7 @@ mod tests {
             let set = m.heap.intern_exact(set).unwrap();
             let query = m.heap.tuple(&[u, two]);
             assert_eq!(m.member(query, set), Ok(false));
-            let vertex = m.memo.member_witness(set).unwrap();
+            let vertex = m.memo.member_witness(m.heap.store(), set).unwrap();
             assert_eq!(m.memo.bytes(), 32);
             m.heap.reset();
             let mark = m.heap.mark();
@@ -1844,18 +1889,23 @@ mod tests {
             assert_eq!(m.member(query, set), Ok(false));
             let ephemeral = m.heap.set_from(&mut vec![query]);
             assert_eq!(m.member(vertex, ephemeral), Ok(false));
-            assert_eq!(m.memo.member_witness(ephemeral), None);
+            assert_eq!(m.memo.member_witness(m.heap.store(), ephemeral), None);
             assert!(!m.heap.poisoned());
 
             let mut worker = Machine::new(store, 0, opts, Memo::new(&[]));
-            assert_eq!(worker.memo.member_witness(set), None);
+            assert_eq!(worker.memo.member_witness(worker.heap.store(), set), None);
             let query = worker.heap.tuple(&[u, two]);
             assert_eq!(worker.member(query, set), Ok(false));
-            assert!(worker.memo.member_witness(set).is_some());
+            assert!(
+                worker
+                    .memo
+                    .member_witness(worker.heap.store(), set)
+                    .is_some()
+            );
             let reused = std::mem::take(&mut worker.memo);
             let other = Arc::new(Store::with_semantics(hashcons, crate::Semantics::tlc()));
-            let worker = Machine::new(other, 0, opts, reused);
-            assert_eq!(worker.memo.member_witness(set), None);
+            let mut worker = Machine::new(other, 0, opts, reused);
+            assert_eq!(worker.memo.member_witness(worker.heap.store(), set), None);
             assert_eq!(worker.memo.bytes(), 0);
         }
         for (semantics, memo_enabled) in [

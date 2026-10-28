@@ -151,10 +151,19 @@ allocated witness table; the CLI has no separate memo-byte report field.
 Default-profile machines and `-memo` reserve and allocate nothing for it.
 Eviction only causes recomputation. Both handles are persistent, immutable
 and deeply closed, so arena reset and rollback do not invalidate them. Each
-worker has its own table. Machine construction discards prior certificates,
-and `Memo::clear()` clears them with the body caches when store handles are
-remapped. Admission does not force views, change normalization, intern names
-or alter TLC's sealed runtime-name refusal. Process RSS still includes other
+worker has its own table. The certificate table binds to the exact store
+allocation through a weak owner, checked before each lookup and admission.
+The weak owner prevents allocation-address reuse even after the store's
+contents are destroyed; a hit only compares identities and performs no
+reference-count operation. Rebinding drops the old entries. This also covers
+replacement of the public `Machine::heap`, where complete raw handles can
+collide between different stores with different model-value names. Machine
+construction discards prior certificates, and `Memo::clear()` releases their
+owner and entries with the body caches when store handles are remapped.
+This store binding is specific to the new certificate table, not a changed
+contract for the existing body memo tables. Admission does not force views,
+change normalization, intern names or alter TLC's sealed runtime-name
+refusal. Process RSS still includes other
 memory outside memo tables; the cache allowance is not a whole-process bound.
 
 This is a bounded prototype for the existing performance plan, with no
