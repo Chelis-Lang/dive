@@ -102,7 +102,7 @@ pub fn successors(
         .code
         .sites
         .iter()
-        .map(|s| s.vars.len() + s.slots.len())
+        .map(dive_core::plan::MemoSite::key_len)
         .collect();
     let mut m = Machine::new(Arc::clone(store), plan.vars.len(), opts, Memo::new(&keys));
     m.warn = warn;
