@@ -153,6 +153,32 @@ gate (≥1× TLC on 8 of 10) is therefore expected to pass, but it is decided by
 one quiet run of core, reference and TLC together (handoff log, lead step 1).
 SimpleRegular now scales 4.1× at 8 workers (#550 closed).
 
+## 5c. Acceptance measurements on 2026-10-28
+
+Current source-bound evidence and engine accounting are in `m1-status.md`.
+At `0f0c6ad1`, fresh all-on `auto` runs preserve both 156-model baselines:
+144 strict default agreements plus seven expected divergences, and 150 TLC
+agreements; all 458 SANY checks agree. Actual core strict agreements are
+121 default and 125 TLC, with fallback counted separately.
+
+The initial complete both-profile x86 repetition at `e2183389` records all
+100 rows correct. Default beats TLC on ten of ten models at both worker counts;
+TLC-compatible mode does so on eight of ten. Sailfish at one worker is
+841.01 s core versus 52.02 s TLC under compat, despite identical completed
+counts. This is **one repetition**, boundary-stopped from the intended
+five-repeat campaign, and cannot decide acceptance. Raw runner metadata has
+`quiet_window_certified=false`; no certificate is inferred from machine setup.
+The compact record is
+`conformance/reports/perf/2026-10-28-core-both-profile-prefix-x86.json`.
+The matched five-repeat default run at fixed source `2d55317a` is recorded
+separately; later changes never relabel that executable as latest main.
+
+The new seeded fixture census is not clean acceptance, even though the small
+tier controls pass. Its trace and sampled-context findings, and the #603
+hash-consing ablation reconstruction defect, are tracked separately. Do not
+propose an engine-default flip from benchmark completion or aggregate auto
+agreement alone.
+
 ## 6. Open questions
 
 These are for the owner. If one blocks work, add it to `docs/open-questions.md`.

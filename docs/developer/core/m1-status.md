@@ -31,6 +31,52 @@ contract and this page for current evidence and the next bounded steps.
 - Static fallback, named refusals and independent validation remain required.
   No default-engine change is proposed while the acceptance findings remain.
 
+### Fresh small-tier control
+
+Exact source `0f0c6ad1`, one worker, all four small-tier corpora, seed/fp 0,
+TLC-derived native budgets capped at 900 seconds and 8 GiB per run. Both
+profiles complete with raw harness exit 0 and zero baseline changes. The
+qualification is `conformance/reports/core/2026-10-28-small-auto-source0f.json`.
+
+| Profile | Strict agree | Expected divergence | Refused | Strict agreements actually on core | Static / dynamic fallback | Early agreements |
+|---|---:|---:|---:|---:|---:|---:|
+| default | 144/156 | 7 | 5 | 121 | 23 / 1 | 2 |
+| TLC | 150/156 | 0 | 6 | 125 | 22 / 1 | 2 |
+
+Default's 125 core executions include four expected divergences; its 23 static
+fallbacks include three. Thus 125 core executions is not 125 strict default
+agreements. TLC also has 458/458 SANY agreements. There are no disagreements,
+budget stops or pending required-word validations in these controls. This
+establishes `auto` baseline preservation, not universal core parity. The fallback
+rate still exceeds M2's 5% target.
+
+Five refusals are common: MCDistributedReplicatedLog and EWD998ChanID need VIEW
+quotient/closing-state evidence; SpanTreeRandom needs effects/dynamic-binding
+support in temporal planning; TLC/TestGraphs needs effects in finite-binding
+preflight; EWD998ChanTrace needs IOEnv. TLC also refuses P4SymLive's SYMMETRY
+quotient liveness. Packed L5 storage alone cannot implement these semantics.
+
+### Trace candidate qualification
+
+The qualification is `conformance/reports/core/2026-10-28-invariant-error-candidate.json`,
+with an explicit per-ID comparison beside it. The complete census at candidate
+`c831d615` has the same 1,361 fixture IDs and
+identical fixture bytes as the starting run. All 37 default / 38 TLC-profile
+invariant-error findings change to shadow agreement; every untargeted fixture
+status remains unchanged. Default is now 1,020 agree, 242 refused, six stops,
+63 trace-refuted, 27 unconfirmed and three sampler findings; TLC is
+997 / 258 / 4 / 66 / 33 / 3. This candidate predates the sampler fix and is
+**not a final-main run**. It adds no pinned-TLC agreement credit.
+
+PR #604 passed its full gate (37m41s, 2,688 whole-suite Rust tests, both small
+tier baselines and the required shadow selections) and a fresh independent
+adversarial review. It uses trace version 2 only for named invariant errors,
+with existing endings still writing version 1 and outer reports still schema 3.
+It remains unmerged until the required known-consumer advance notice is posted.
+The 50 residual ending-metadata findings per profile compare a reported
+`TLC_NESTED_EXPRESSION` wrapper with an inner cause; they need separate typed
+context and independent replay, not a blanket wrapper exemption.
+
 ## 2. What was built (about 70 PRs since #505)
 
 **Values and store (stream 1).**

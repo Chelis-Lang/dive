@@ -15,6 +15,14 @@ timing, thread or queue order, tableau numbering or SCC and lasso choice.
 
 ## Corpus scoreboard
 
+A fresh `--engine=auto` control at source `0f0c6ad1` on 2026-10-28 preserves
+both one-worker 156-model baselines and all 458 SANY comparisons. Actual strict
+agreements on the core are 121 default and 125 TLC; the remaining strict
+agreements use fallback or end before a search. Four further default core rows
+are registered expected divergences. See the
+[engine accounting](../conformance/reports/core/2026-10-28-small-auto-source0f.json).
+No core-only full-tier or engine-default credit follows.
+
 The core-reboot acceptance census on 2026-10-28 is a separate shadow population,
 not an update to the TLC agreement rows below. At backend `2d55317a` with the
 strengthened harness `16336b64`, 1,361 fixture configurations per profile yield
