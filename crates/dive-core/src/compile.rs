@@ -291,7 +291,8 @@ fn minus(a: &mut Vec<u32>, b: &[u32]) {
     a.retain(|x| !b.contains(x));
 }
 
-/// The `SYMMETRY` permutations over the store's string ids.
+/// The plan's `SYMMETRY`: the maps over the store's string ids, and under
+/// TLC's order TLC's canonicalization.
 fn symmetry(h: &Handoff<'_>, m: &Machine) -> Result<Option<crate::symmetry::Symmetry>, Error> {
     if h.symmetry.is_empty() {
         return Ok(None);
@@ -305,7 +306,15 @@ fn symmetry(h: &Handoff<'_>, m: &Machine) -> Result<Option<crate::symmetry::Symm
         }
         maps.push(pairs);
     }
-    Ok(Some(crate::symmetry::Symmetry::new(maps)))
+    let sym = crate::symmetry::Symmetry::new(maps);
+    // TLC's order (`--compat=tlc`): TLC's comparison, in TLC's variable
+    // order, as the reference engine canonicalizes
+    // (`dive_check::engine::state_key_of`).
+    Ok(Some(if h.ctx.order == dive_value::ValueOrder::Tlc {
+        sym.tlc(h.ir.tlc_var_order().iter().map(|v| v.index()).collect())
+    } else {
+        sym
+    }))
 }
 
 /// Compiles the handoff into a plan.
