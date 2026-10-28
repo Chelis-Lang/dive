@@ -200,6 +200,16 @@ The semantic contract lists seven more, in `02-semantic-contract.md` §6.
 Add a new entry at the top for every working session that ends with work in
 progress. Give the date, branch, state and the exact next step.
 
+- **2026-10-28 (engine, `l5/state-source-boundary`).** Extracted the private
+  state/concrete-target source used by the existing temporal analyzer; its
+  reference adapter preserves graph ownership, completion and all public
+  entrypoints. Lazy-source controls cover labels, selected originals, lasso
+  extraction, error demand and typed stops (issue #613; `11-liveness.md` §7.2).
+  Next: expose original accepted targets through sequential and parallel graph
+  events, retain all-vertex and differing-original persistent roots, then build
+  controlled conversion/cache and compact completion/results. Native routing,
+  bounded retention and measured TLC capacity remain unimplemented L5 work.
+
 - **2026-10-28 (engine, `l5/borrowed-topology-source`).** First L5 dependency:
   checked borrowed CSR topology reaches the existing owned/compact product
   engines, preserving roots, duplicate edges, original positions and limits.
