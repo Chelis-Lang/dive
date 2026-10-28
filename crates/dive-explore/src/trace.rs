@@ -98,7 +98,7 @@ pub fn replay(
         .code
         .sites
         .iter()
-        .map(|s| s.vars.len() + s.slots.len())
+        .map(dive_core::plan::MemoSite::key_len)
         .collect();
     let opts = Opts {
         memo: false,

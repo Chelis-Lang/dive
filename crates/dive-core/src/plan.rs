@@ -518,6 +518,20 @@ pub struct MemoSite {
     pub vars: Box<[u16]>,
     /// The free slots the body reads.
     pub slots: Box<[u32]>,
+    /// The primed variables the body reads: only in a step predicate,
+    /// whose pair is complete (`Compiler::step`).
+    pub primed: Box<[u16]>,
+    /// A step predicate's site (`Opts::step_memo`): on whatever
+    /// `Opts::memo` says, and its results are interned to be kept.
+    pub step: bool,
+}
+
+impl MemoSite {
+    /// The length of the site's key, in handles.
+    #[must_use]
+    pub fn key_len(&self) -> usize {
+        self.vars.len() + self.primed.len() + self.slots.len()
+    }
 }
 
 /// The node arrays.

@@ -160,10 +160,18 @@ pub struct Handoff<'a> {
     pub view: Option<Role>,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 enum Mode {
     Plain,
     Primed,
+}
+
+/// What a thunk of `Compiler::def_cache` stands for: a zero-arity
+/// definition, or a substitution used by name, in a mode.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+enum Cached {
+    Def(DefId, Mode),
+    Subst(u32, Mode),
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -219,6 +227,8 @@ struct Lift {
 /// the dynamic context TLC binds it in (`Expr::SubstRef`).
 #[derive(Clone, Debug)]
 struct SubstEntry {
+    /// Unique among the compiler's substitution entries (`Cached::Subst`).
+    id: u32,
     decl: dive_ir::DeclId,
     /// The value: an argument, or a constant (`RoleSubst::Value`).
     value: Result<Arg, P>,
@@ -348,6 +358,8 @@ pub fn compile(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<Plan, E
         substs: Vec::new(),
         fun_caps: HashMap::new(),
         def_cache: HashMap::new(),
+        step: false,
+        subst_ids: 0,
         effect_thunks: HashMap::new(),
         leaf: 0,
         opts,
@@ -444,9 +456,17 @@ struct Compiler<'a> {
     /// Each lifted function's captures: frames out from the definition's
     /// lexical parent, and slot there.
     fun_caps: HashMap<u32, Vec<(u32, usize)>>,
-    /// Zero-arity top-level definitions of state level, cached once per
-    /// frame activation: their thunk slot and body.
-    def_cache: HashMap<DefId, (u32, P)>,
+    /// Zero-arity top-level definitions of state level, and in a step
+    /// predicate any zero-arity definition or substitution used by name,
+    /// cached once per frame activation: their thunk slot and body.
+    def_cache: HashMap<Cached, (u32, P)>,
+    /// Whether the role being compiled is a step predicate (an implied
+    /// action or an action constraint), evaluated on a complete pair: its
+    /// primed variables, like its unprimed ones, are fixed while it is
+    /// evaluated.
+    step: bool,
+    /// The next `SubstEntry::id`.
+    subst_ids: u32,
     /// The generator expression of the first use of each thunk whose body
     /// has an effect (`Compiler::effect_thunk_use`).
     effect_thunks: HashMap<u32, u32>,
@@ -1199,9 +1219,13 @@ impl Compiler<'_> {
             ));
         }
         let first_slot = self.next_slot;
+        // ENABLED evaluates its action on successors of its own, so its body
+        // must not reuse a step predicate's primed thunks or memo sites.
         let init = std::mem::replace(&mut self.init_mode, false);
+        let step = std::mem::replace(&mut self.step, false);
         let g = self.g(a, env);
         self.init_mode = init;
+        self.step = step;
         let g = g?;
         let mut free = Vec::new();
         self.g_free(g, &mut free, 0)?;
@@ -1359,6 +1383,8 @@ impl Compiler<'_> {
             name: name.clone(),
             vars: vars.into(),
             slots: slots.into(),
+            primed: Box::new([]),
+            step: false,
         });
         self.site_names.push(name);
         Ok(Some(self.push(Node::Memo { site, body: p })?))
@@ -1429,6 +1455,7 @@ impl Compiler<'_> {
                     let h = self.convert(value)?;
                     let p = self.konst(h)?;
                     SubstEntry {
+                        id: self.subst_id(),
                         decl: *decl,
                         value: Err(p),
                         env,
@@ -1458,6 +1485,7 @@ impl Compiler<'_> {
                     }
                     self.bind_role_lets(senv, *def);
                     SubstEntry {
+                        id: self.subst_id(),
                         decl: *decl,
                         value: Ok(Arg::Expr {
                             expr: *expr,
@@ -1562,7 +1590,10 @@ impl Compiler<'_> {
     /// the parent-delta skip compares a state with its parent and a step
     /// predicate has no such parent.
     fn step_check(&mut self, r: &Role) -> Result<Check, Error> {
-        let mut k = self.check(r)?;
+        self.step = true;
+        let k = self.check(r);
+        self.step = false;
+        let mut k = k?;
         k.conjuncts.iter_mut().for_each(|j| j.skippable = false);
         Ok(k)
     }
@@ -2332,7 +2363,9 @@ impl Compiler<'_> {
                 }
                 Arg::Op { .. } => ArgHow::ByName,
             };
+            let id = self.subst_id();
             entries.push(SubstEntry {
+                id,
                 decl: b.decl,
                 value: Ok(b.value.clone()),
                 env,
@@ -2428,6 +2461,7 @@ impl Compiler<'_> {
             };
         };
         let SubstEntry {
+            id,
             value,
             env,
             how,
@@ -2462,9 +2496,112 @@ impl Compiler<'_> {
             }
             (ArgHow::Thunk(..), Mode::Primed) | (ArgHow::ByName, _) => {
                 self.stats.by_name += 1;
+                if self.step {
+                    return self.step_cached(Cached::Subst(id, mode), |c| {
+                        c.outside(depth, |c| c.p(expr, env, mode))
+                    });
+                }
                 self.outside(depth, |c| c.p(expr, env, mode))
             }
         }
+    }
+
+    /// A fresh `SubstEntry::id`.
+    fn subst_id(&mut self) -> u32 {
+        self.subst_ids += 1;
+        self.subst_ids
+    }
+
+    /// In a step predicate, a body evaluated at most once per frame
+    /// activation: the pair does not change within one, so a pure body
+    /// with no bound variable has one value. TLC evaluates it by name at
+    /// each use; the result, or the first error, is the same. The thunk
+    /// counts as by-name for the function-application rule
+    /// (`def_slots`).
+    fn step_cached(
+        &mut self,
+        key: Cached,
+        compile: impl FnOnce(&mut Self) -> Result<P, Error>,
+    ) -> Result<P, Error> {
+        if let Some(&(slot, body)) = self.def_cache.get(&key) {
+            return self.push(Node::Lazy { slot, body });
+        }
+        let body = compile(self)?;
+        let info = &self.info[body as usize];
+        if !info.free.is_empty() || info.effect || self.is_trivial(body) {
+            return Ok(body);
+        }
+        let body = self.step_site(key, body)?;
+        let slot = self.alloc();
+        self.def_cache.insert(key, (slot, body));
+        self.def_slots.insert(slot);
+        self.stats.cached_defs += 1;
+        self.push(Node::Lazy { slot, body })
+    }
+
+    /// Whether a body is already cached (a thunk or a memo site), or only
+    /// assembles a tuple, record or set from leaves and thunks (such as a
+    /// `vars` tuple): rebuilding it is cheaper than keeping an interned
+    /// copy of each.
+    fn assembles(&self, mut body: P) -> bool {
+        while let Some(Node::Scope { body: b, .. } | Node::Spec(b)) =
+            self.code.nodes.get(body as usize)
+        {
+            body = *b;
+        }
+        let leaf = |p: &P| {
+            matches!(
+                self.code.nodes.get(*p as usize),
+                Some(
+                    Node::Const(_)
+                        | Node::Slot(_)
+                        | Node::Var(_)
+                        | Node::Primed(_)
+                        | Node::Lazy { .. }
+                        | Node::Memo { .. }
+                )
+            )
+        };
+        match self.code.nodes.get(body as usize) {
+            Some(Node::Lazy { .. } | Node::Memo { .. }) => true,
+            Some(Node::Tuple(items) | Node::SetEnum(items)) => items.iter().all(leaf),
+            Some(Node::Record(fields)) => fields.iter().all(|(_, p)| leaf(p)),
+            _ => false,
+        }
+    }
+
+    /// A step predicate's cached body as a memo site keyed on the
+    /// variables it reads, primed and unprimed (`Opts::step_memo`): its
+    /// value is a function of them, the same for every pair that agrees
+    /// on them, such as the successors of one state.
+    fn step_site(&mut self, key: Cached, body: P) -> Result<P, Error> {
+        if !self.opts.step_memo || self.assembles(body) {
+            return Ok(body);
+        }
+        let info = &self.info[body as usize];
+        let bits = |m: u64| -> Vec<u16> {
+            #[allow(clippy::cast_possible_truncation, reason = "at most 64 variables")]
+            (0..64u16).filter(|&v| m & (1u64 << v) != 0).collect()
+        };
+        let (vars, primed) = (bits(info.vars), bits(info.primed));
+        if vars.len() + primed.len() > MAX_KEY || (vars.is_empty() && primed.is_empty()) {
+            return Ok(body);
+        }
+        let name = match key {
+            Cached::Def(d, mode) => format!("{} ({mode:?}, step)", self.ir.def(d).name),
+            Cached::Subst(id, mode) => format!("substitution {id} ({mode:?}, step)"),
+        };
+        #[allow(clippy::cast_possible_truncation, reason = "bounded")]
+        let site = self.code.sites.len() as u32;
+        self.code.sites.push(MemoSite {
+            name: name.clone(),
+            vars: vars.into(),
+            slots: Box::new([]),
+            primed: primed.into(),
+            step: true,
+        });
+        self.site_names.push(name);
+        self.push(Node::Memo { site, body })
     }
 
     /// Whether the innermost substitution of a declaration is a value
@@ -2512,8 +2649,15 @@ impl Compiler<'_> {
         if def.recursive {
             return self.call(d, &[], env, mode);
         }
+        if self.step && !self.init_mode && def.scope == DefScope::TopLevel {
+            let parent = self.lexical_parent(d, env)?;
+            return self.step_cached(Cached::Def(d, mode), |c| {
+                let inner = c.new_env(d, parent);
+                c.p(def.body, inner, mode)
+            });
+        }
         let cacheable = mode == Mode::Plain && !self.init_mode && def.scope == DefScope::TopLevel;
-        if cacheable && let Some(&(slot, body)) = self.def_cache.get(&d) {
+        if cacheable && let Some(&(slot, body)) = self.def_cache.get(&Cached::Def(d, mode)) {
             return self.push(Node::Lazy { slot, body });
         }
         let parent = self.lexical_parent(d, env)?;
@@ -2530,7 +2674,7 @@ impl Compiler<'_> {
             && !self.is_trivial(body)
         {
             let slot = self.alloc();
-            self.def_cache.insert(d, (slot, body));
+            self.def_cache.insert(Cached::Def(d, mode), (slot, body));
             self.def_slots.insert(slot);
             self.stats.cached_defs += 1;
             return self.push(Node::Lazy { slot, body });
