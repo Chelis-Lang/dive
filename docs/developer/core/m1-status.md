@@ -72,7 +72,10 @@ PR #604 passed its full gate (37m41s, 2,688 whole-suite Rust tests, both small
 tier baselines and the required shadow selections) and a fresh independent
 adversarial review. It uses trace version 2 only for named invariant errors,
 with existing endings still writing version 1 and outer reports still schema 3.
-It remains unmerged until the required known-consumer advance notice is posted.
+It merged as `390882b9` after the required
+[known-consumer notice](https://github.com/Chelis-Lang/oyster/issues/70#issuecomment-6475966845).
+The later actual-main census is recorded separately; this earlier run keeps its
+candidate source attribution.
 The 50 residual ending-metadata findings per profile compare a reported
 `TLC_NESTED_EXPRESSION` wrapper with an inner cause; they need separate typed
 context and independent replay, not a blanket wrapper exemption.
@@ -160,6 +163,56 @@ context and independent replay, not a blanket wrapper exemption.
   models (MCLamportMutex 184 → 419 MB). The cap in #584 brought that down on
   the M3 (308 → 185 MB) but has **not been checked on x86**.
 
+### Completed matched default campaign
+
+At exact source `2d55317a`, the dedicated c7i.metal-24xl run completes all
+300 planned rows: ten models × three arms (core/reference/TLC) × 1/8 workers ×
+five repetitions. Every row is correct; every requested worker count was used.
+SMT and turbo were off, frequency fixed at 2.4 GHz, CPUs 0–15 and NUMA node 0.
+The original runner's `quiet_window_certified=false` is retained; machine setup
+is not substituted for a missing certificate. Later main changes never relabel
+the measured executable. CoffeeCan uses the exact pinned safety benchmark
+configuration, not its original liveness property set.
+
+Paired per-repetition ratios give geometric means of **2.649× / 2.645× TLC**
+and **7.295× / 6.747× the reference** at 1 / 8 workers. All ten models beat TLC
+at both worker counts, exceeding M1's default-profile throughput threshold for
+this measured source. The five-repeat TLC-profile campaign remains undone;
+one completed both-profile repetition exposed the Sailfish compat regression
+(#597). This is not full semantic M1 acceptance or M2 performance acceptance.
+
+| Model | Core seconds 1w / 8w | ×TLC 1w / 8w | Core RSS MiB 1w / 8w | Reference RSS MiB 1w / 8w | Core scaling 1→8 |
+|---|---:|---:|---:|---:|---:|
+| GameOfLife | 8.117 / 1.622 | 1.49 / 1.64 | 51.6 / 141.6 | 83.9 / 90.1 | 5.01× |
+| TLCSailfish1 | 43.380 / 7.890 | 1.19 / 1.05 | 74.3 / 184.8 | 627.3 / 643.2 | 5.50× |
+| EWD998PCal | 11.152 / 2.349 | 3.76 / 3.29 | 39.2 / 172.1 | 142.8 / 162.1 | 4.75× |
+| MCBakery | 6.010 / 4.606 | 1.84 / 1.70 | 123.3 / 216.2 | 231.5 / 241.8 | 1.30× |
+| MCLamportMutex | 10.021 / 2.474 | 1.70 / 1.78 | 108.8 / 243.7 | 298.8 / 332.6 | 4.05× |
+| SimpleRegular | 2.750 / 0.719 | 1.98 / 3.23 | 53.3 / 192.1 | 187.3 / 228.8 | 3.83× |
+| MCbtree | 4.279 / 1.120 | 9.58 / 7.02 | 56.6 / 175.9 | 142.4 / 163.3 | 3.82× |
+| CoffeeCan1000BeansSafety | 1.020 / 0.669 | 2.23 / 2.50 | 107.9 / 206.1 | 147.8 / 155.4 | 1.53× |
+| MCDisruptor_MPMC | 0.894 / 0.343 | 4.97 / 4.66 | 35.8 / 88.1 | 53.1 / 65.3 | 2.61× |
+| BufferedRandomAccessFile | 13.180 / 2.173 | 3.86 / 3.69 | 39.5 / 146.0 | 31.5 / 41.6 | 6.07× |
+
+All core RSS peaks are below TLC's, but memory is not uniformly below the
+reference engine: at eight workers, BRAF is 3.51×, GameOfLife 1.57× and CoffeeCan
+1.33× reference RSS. For the ≥0.4-million-state population, measured core
+scaling is 1.30× MCBakery, 4.05× MCLamportMutex and 1.53× CoffeeCan; the broader
+ADR 0006 scaling target is unproven. These are remaining engineering targets,
+not reasons to change observable results. The complete source/binary/pin,
+per-repetition, CPU and RSS qualification is
+`conformance/reports/perf/2026-10-28-core-m1-default-x86.json`.
+
+Startup/fold observations at the same binary retain every sample: 30 fresh
+processes per engine/profile, core medians 3.144 ms default / 3.194 ms TLC,
+all 120 process times below 3.972 ms. This addresses the trivial-model 10-ms
+startup target (R8) on this host, not cold-cache or arbitrary-spec startup.
+CoffeeCan's one-state stopped prefixes report compile 1.132 / 1.066 ms and
+fold 1.069 / 1.014 ms, with whole-command 5.805 / 5.578 ms. Those prefixes
+establish no verdict. The bounded measurements address the specific R9 probe;
+R10 memory tradeoffs above remain. Record:
+`conformance/reports/perf/2026-10-28-core-startup-fold-x86.json`.
+
 ## 4. Decisions taken in M1, and why
 
 - **Memo on by default (#575).** I first held this PR. The M3 showed fewer
@@ -191,17 +244,17 @@ The census identifies distinct obligations; one fix cannot waive another family:
 
 | Obligation | Evidence and next action |
 |---|---|
-| Sampled level context | Three findings per profile lose `TLCGet("level")` context. #600/#601 preserve the actual sampled expansion level and independently check expected successors. |
-| Invariant evaluation-error words | 37 default / 38 TLC findings need a named invariant and exact underlying cause, with independent prefix and failure-order validation. The scoped trace-v2 candidate addresses this part of #490 only. |
+| Sampled level context | Fixed in #601; the three original findings per profile now have source-level and independently expected-successor controls. Actual-main census verification follows. |
+| Invariant evaluation-error words | Fixed in #604 for 37 default / 38 TLC cases, with exact named cause, prefix and failure-order validation. Other #490 families remain. |
 | Other terminal error words | 50 findings per profile still compare a 2103 wrapper with an underlying ending cause; retain #490 and classify each evaluation site before changing representation. |
 | Constraint/action error words | 13 default / 16 TLC refuted words remain in the #499 families. Preserve actual terminal evaluation ordering; do not exempt the last state broadly. |
 | Errors while expanding the final state | 17 default / 23 TLC words are independently unconfirmed; #434 needs an independent successor-generator strategy. |
 | Missing words | Ten required counterexample documents per profile are absent. Matching reports supply no substitute. |
 | Resource stops | Six default / four TLC runs stop with native exit 5. They remain incomplete. `ErDeepRecursion` separately returns a classified resource-limit refusal in both profiles. |
-| M1 performance decision | Complete the matched five-repetition default campaign, all ten models, 1/8 workers; record medians, correctness and memo-capped RSS. |
+| M1 performance decision | Complete at `2d55317a`: all 300 rows correct, ten of ten faster than TLC at both worker counts. Both-profile five-repeat acceptance remains outstanding. |
 | Compat performance | #597: one completed quiet Sailfish repetition takes core 841.01 s versus TLC 52.02 s at one worker, despite correct counts. The comparison-guard prototype #598 is diagnostic until matched quiet measurements and gates pass. |
 | Correctness coverage | Fresh small-tier `auto` comparison in both profiles, with actual engine/fallback accounting, plus the M1 ablation matrix. Do not substitute reference-only gate results for core coverage. |
-| Startup and memory | Re-measure startup and retain memo-cap RSS evidence; identify remaining regressions before claiming the risks closed. |
+| Startup and memory | Trivial startup and Coffee compile/fold measured above. Retain explicit eight-worker RSS and large-model scaling regressions. |
 
 Known implementation gaps remain: `ENABLED` inside INSTANCE substitutions,
 SYMMETRY with liveness (`P4SymLive`), L5 graph capacity, `kSubset`, sequence

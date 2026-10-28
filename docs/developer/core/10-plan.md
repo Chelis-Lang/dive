@@ -170,8 +170,13 @@ five-repeat campaign, and cannot decide acceptance. Raw runner metadata has
 `quiet_window_certified=false`; no certificate is inferred from machine setup.
 The compact record is
 `conformance/reports/perf/2026-10-28-core-both-profile-prefix-x86.json`.
-The matched five-repeat default run at fixed source `2d55317a` is recorded
-separately; later changes never relabel that executable as latest main.
+The matched five-repeat default run at fixed source `2d55317a` completes all
+300 planned rows correctly. It beats TLC on ten of ten models at both worker
+counts: paired geometric means 2.649× / 2.645× TLC and 7.295× / 6.747× the
+reference. RSS is below TLC throughout, with several eight-worker regressions
+against the reference; large-model scaling is only 1.30–4.05×. See
+`conformance/reports/perf/2026-10-28-core-m1-default-x86.json` and the table in
+`m1-status.md`. Later changes never relabel that executable as latest main.
 
 The new seeded fixture census is not clean acceptance, even though the small
 tier controls pass. Its trace and sampled-context findings, and the #603
