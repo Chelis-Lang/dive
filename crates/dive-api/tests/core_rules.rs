@@ -227,7 +227,8 @@ fn library_fixtures_match_the_reference_and_tlc() {
     // CommunityModules: CmOps, CmSeqsViol, CmSubSeqs, CmSubSeqsViol and six
     // error endings;
     // operator arguments: HoOps, FoldOps and six error endings;
-    // RandomElement: RdBfs, RdShapes, RdViol and RdErr.
+    // RandomElement: RdBfs, RdShapes, RdViol, RdErr and RdView (refused
+    // by both engines).
     assert!(agreed >= 39, "only {agreed} library fixtures agreed");
 }
 

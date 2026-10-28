@@ -30,7 +30,13 @@ const REFUSED: &[(&str, &str)] = &[
     ("RndStartup", "ASSUMEs drew"),
     ("RndTraceAssume", "ASSUMEs drew"),
     ("TmRandom", "RandomSubset"),
+    // The reference engine refuses random streams under VIEW or SYMMETRY.
+    ("RdView", "randomness under VIEW is not supported"),
 ];
+
+fn refused(name: &str) -> bool {
+    REFUSED.iter().any(|(n, _)| *n == name)
+}
 
 fn repo() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..")
@@ -131,6 +137,9 @@ fn draws_match_the_reference_engine() {
 #[test]
 fn a_seed_replays() {
     for (name, spec) in specs("crates/dive-api/tests/fixtures/core-lib", "Rd") {
+        if refused(&name) {
+            continue;
+        }
         for &compat in &[false, true] {
             let first = run(&spec, Engine::Core, compat, 7, 1);
             let again = run(&spec, Engine::Core, compat, 7, 4);
@@ -193,6 +202,9 @@ fn tlc_counts(transcript: &Path) -> Option<(u64, u64)> {
 fn compat_draws_match_tlc() {
     let root = repo().join("crates/dive-api/tests/fixtures/core-lib");
     for (name, spec) in specs("crates/dive-api/tests/fixtures/core-lib", "Rd") {
+        if refused(&name) {
+            continue;
+        }
         let transcript = root.join(ORACLE).join(format!("{name}.stdout"));
         let core = run(&spec, Engine::Core, true, 0, 1);
         let (g, d) = tlc_counts(&transcript).expect("TLC counts");

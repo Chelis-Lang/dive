@@ -643,6 +643,11 @@ pub(crate) fn check(
     if let Some(feature) = option_refusal(options, profile_tlc) {
         return (finish(result(unsupported(feature), options, ir)), run);
     }
+    // The reference engine's refusal of random streams under VIEW or
+    // SYMMETRY, before binding runs start-up draws.
+    if let Some(feature) = dive_model::transformed_randomness(ir, config) {
+        return (finish(result(unsupported(feature), options, ir)), run);
+    }
     // The reference engine's host: constant definitions and `ASSUME`s
     // draw from the startup stream, which `Init` continues
     // (`03-value-model.md` §6.1).

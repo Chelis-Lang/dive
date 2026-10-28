@@ -291,6 +291,23 @@ fn minus(a: &mut Vec<u32>, b: &[u32]) {
     a.retain(|x| !b.contains(x));
 }
 
+/// The `SYMMETRY` permutations over the store's string ids.
+fn symmetry(h: &Handoff<'_>, m: &Machine) -> Result<Option<crate::symmetry::Symmetry>, Error> {
+    if h.symmetry.is_empty() {
+        return Ok(None);
+    }
+    let strings = m.heap.store().strings();
+    let mut maps = Vec::with_capacity(h.symmetry.len());
+    for perm in &h.symmetry {
+        let mut pairs = Vec::with_capacity(perm.len());
+        for (a, b) in perm {
+            pairs.push((strings.intern(a)?, strings.intern(b)?));
+        }
+        maps.push(pairs);
+    }
+    Ok(Some(crate::symmetry::Symmetry::new(maps)))
+}
+
 /// Compiles the handoff into a plan.
 ///
 /// # Errors
@@ -371,20 +388,7 @@ pub fn compile(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<Plan, E
     if c.m.heap.poisoned() {
         return Err(Error::internal("a stale handle was read while compiling"));
     }
-    let symmetry = if h.symmetry.is_empty() {
-        None
-    } else {
-        let strings = c.m.heap.store().strings();
-        let mut maps = Vec::with_capacity(h.symmetry.len());
-        for m in &h.symmetry {
-            let mut pairs = Vec::with_capacity(m.len());
-            for (a, b) in m {
-                pairs.push((strings.intern(a)?, strings.intern(b)?));
-            }
-            maps.push(pairs);
-        }
-        Some(crate::symmetry::Symmetry::new(maps))
-    };
+    let symmetry = symmetry(h, &c.m)?;
     Ok(Plan {
         code: c.code,
         vars,

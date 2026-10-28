@@ -299,6 +299,9 @@ the run, and the seed is always reported.
   (fixture `RndLetRedraw`). The core forces its thunk once, so a use in a
   second generator expression is refused (`Compiler::effect_thunk_use`).
   This applies to `Print` and `PrintT` too.
+- **VIEW and SYMMETRY.** A specification with randomness and a `VIEW` or
+  `SYMMETRY` is refused before binding, as the reference engine refuses it
+  (`dive_model::transformed_randomness`, fixture `RdView`).
 - **Workers.** A plan with an effect runs one worker, and the report says
   why. Draws themselves are per state, and could run in parallel later.
   `--core-sample` is refused in a plan that draws.
