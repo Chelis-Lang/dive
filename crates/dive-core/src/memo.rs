@@ -170,18 +170,26 @@ impl Memo {
     /// left empty (every lookup misses).
     pub fn set_cap(&mut self, bytes: usize) {
         self.cap = bytes;
+        if self.members_active() {
+            // Only the new certificate storage is discarded/reconfigured.
+            // Existing body-table allocations retain their prior contract.
+            self.reserve_members(true);
+        }
     }
 
     /// Reserves part of the existing cap for exact membership certificates.
     /// No new allowance is added; disabled/default-profile machines reserve
     /// nothing. Allocation stays lazy, and the size is a power of two for
-    /// two-way indexing. Only a fresh machine configures its tables.
+    /// two-way indexing. Machine construction and public cap changes
+    /// configure this reservation.
     pub(crate) fn reserve_members(&mut self, enabled: bool) {
         // Machine construction must not reuse certificates from another
         // store, whose handles may have the same bits.
         self.members.clear();
         let bytes = if enabled {
-            (self.cap / 16).min(MEMBER_CAP)
+            (self.cap / 16)
+                .min(MEMBER_CAP)
+                .min(self.cap.saturating_sub(self.bytes))
         } else {
             0
         };
@@ -197,7 +205,7 @@ impl Memo {
     }
 
     pub(crate) fn remember_member(&mut self, store: &Arc<Store>, set: Handle, witness: Handle) {
-        if !self.members_active() {
+        if !self.members_active() || self.members.cap > self.cap.saturating_sub(self.bytes) {
             return;
         }
         self.members.bind(store);

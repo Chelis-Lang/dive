@@ -143,11 +143,20 @@ path, retaining its refusal and demand site.
 **Memory and lifetime.** `Memo` owns a private two-way table of complete
 `(set, witness)` handles. Hashes select buckets; complete set-handle equality
 establishes hits. Allocation is lazy. Its reservation is the largest power
-of two no greater than both 64 KiB and one-sixteenth of the existing worker
-memo cap; reservations below two entries are disabled. The ordinary memo
+of two no greater than 64 KiB, one-sixteenth of the existing worker memo cap,
+and the remaining allowance after existing body-table allocations. A caller
+may pass a populated `Memo` into `Machine::new`; a full allowance leaves
+certificate caching disabled without evicting body results. Reservations
+below two entries are disabled. The ordinary memo
 tables' growth allowance is reduced by that reservation, so the combined
 allocation stays within the existing cap. `Memo::bytes()` includes the
 allocated witness table; the CLI has no separate memo-byte report field.
+Public `Memo::set_cap` drops and reconfigures existing certificate storage
+within the new available allowance; admission also checks that allowance
+before allocating. This releases its weak owner, including after warm use
+or before a `Memo` is moved into another machine. Existing body allocations
+are not evicted: shrinking below those allocations retains their previous
+contract, and the certificate table adds no further bytes in that case.
 Default-profile machines and `-memo` reserve and allocate nothing for it.
 Eviction only causes recomputation. Both handles are persistent, immutable
 and deeply closed, so arena reset and rollback do not invalidate them. Each
