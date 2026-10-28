@@ -624,7 +624,10 @@ Next (M1, stream 2), from the census:
      Still to do: `TLCSet` and `TLCGet` (registers, sequential), printing
      with several workers (each state's output buffered and released in
      TLC's order, as the reference engine does), output with a violation
-     (TLC's trace-rebuilding prints), and `RandomElement` (seed rules, B6).
+     (TLC's trace-rebuilding prints). `RandomElement` is done
+     (`03-value-model.md` §6.1): the reference engine's streams, one
+     worker, and a `LET`-bound effect used in more than one conjunct
+     refused.
      `SortSeq` is done (operator arguments, below).
    - **CommunityModules, values (stream 1, `stdlib/community.rs`):** see
      §8. `AllSubSeqs`, `LongestCommonPrefix`, and `ReplaceFirstSubSeq` and

@@ -589,13 +589,29 @@ pub struct Plan {
     pub check_deadlock: bool,
     /// `SYMMETRY`: states are keyed by their canonical image.
     pub symmetry: Option<crate::symmetry::Symmetry>,
-    /// Whether the plan prints (`Print`, `PrintT`): the engine then runs
-    /// one worker, in TLC's order, and keeps the output in order.
-    pub effects: bool,
+    /// The plan's effects: the engine then runs one worker, in TLC's
+    /// order.
+    pub effects: Effects,
     /// `VIEW`: its value, the one conjunct, keys the state.
     pub view: Option<Check>,
     /// Compile statistics.
     pub stats: CompileStats,
+}
+
+/// What effects a plan has (`Info::effect`).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "independent facts about the plan"
+)]
+pub struct Effects {
+    /// Any effect (`Print`, `PrintT`, `RandomElement`).
+    pub any: bool,
+    /// `Print` or `PrintT`.
+    pub prints: bool,
+    /// `RandomElement`: the engine starts each expansion's random stream
+    /// (`crate::random`).
+    pub draws: bool,
 }
 
 /// What the compiler did.
