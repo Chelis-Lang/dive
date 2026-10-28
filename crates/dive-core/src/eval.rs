@@ -1075,6 +1075,9 @@ impl Machine {
                 if !fx {
                     return Err(Error::unsupported("difference of an infinite set"));
                 }
+                if let Some(r) = self.minus_small(x, y)? {
+                    return Ok(r);
+                }
                 let mut out = Vec::new();
                 for e in self.heap.elements(x)? {
                     if !self.member(e, y)? {
@@ -1084,6 +1087,37 @@ impl Machine {
                 Ok(self.heap.set_sorted(&out))
             }
         }
+    }
+
+    /// `x \ y` for enumerated sets with `y` smaller than `x` (`S \ {e}` in
+    /// a recursive fold): each element of `y` is looked up in `x`, instead
+    /// of each element of `x` in `y`. The elements of `x` kept are checked
+    /// against `y` as a failed membership test checks them
+    /// ([`compare::miss`]), so errors are those of the general path.
+    fn minus_small(&mut self, x: Handle, y: Handle) -> Result<Option<Handle>, Error> {
+        if !x.is_compound() || !y.is_compound() {
+            return Ok(None);
+        }
+        let (vx, vy) = (self.heap.view(x), self.heap.view(y));
+        if vx.kind != Kind::Set || vy.kind != Kind::Set || vy.data.len() >= vx.data.len() {
+            return Ok(None);
+        }
+        let (xs, ys) = (vx.data, vy.data);
+        let mut drop = Vec::with_capacity(ys.len());
+        for &z in ys {
+            if let Ok(i) = xs.binary_search_by(|&e| self.heap.cmp(e, z)) {
+                drop.push(i);
+            }
+        }
+        drop.sort_unstable();
+        let mut out = Vec::with_capacity(xs.len() - drop.len());
+        for (i, &e) in xs.iter().enumerate() {
+            if drop.binary_search(&i).is_err() {
+                compare::miss(&self.heap, e, ys)?;
+                out.push(e);
+            }
+        }
+        Ok(Some(self.heap.set_sorted(&out)))
     }
 
     fn filter(&mut self, code: &Code, bind: &Bind, pred: P) -> Result<Handle, Error> {
@@ -1335,11 +1369,47 @@ impl Machine {
                 let keys = v.keys();
                 if key.as_str_id().is_some() || keys.len() <= 8 {
                     Ok(keys.iter().position(|&k| self.heap.eq(k, key)))
+                } else if let Some(i) = self.grid_index(keys, key) {
+                    Ok(Some(i))
                 } else {
                     Ok(keys.binary_search_by(|&k| self.heap.cmp(k, key)).ok())
                 }
             }
             _ => Err(eval_err("application of a set as a function")),
+        }
+    }
+
+    /// The position of the pair `<<a, b>>` of integers in the keys of a
+    /// function whose domain is a dense rectangle `l1..h1 \X l2..h2` in
+    /// canonical order (`grid` and `sc` in `GameOfLife`): computed, then
+    /// checked against the key found there. `None` sends the caller to the
+    /// binary search, so a domain of another shape is still exact.
+    fn grid_index(&self, keys: &[Handle], key: Handle) -> Option<usize> {
+        let (row, col) = self.int_pair(key)?;
+        let (l1, l2) = self.int_pair(*keys.first()?)?;
+        let (h1, h2) = self.int_pair(*keys.last()?)?;
+        let rows = usize::try_from(h1.checked_sub(l1)?.checked_add(1)?).ok()?;
+        let width = usize::try_from(h2.checked_sub(l2)?.checked_add(1)?).ok()?;
+        if rows.checked_mul(width)? != keys.len()
+            || !(l1..=h1).contains(&row)
+            || !(l2..=h2).contains(&col)
+        {
+            return None;
+        }
+        let at = usize::try_from(row - l1).ok()? * width + usize::try_from(col - l2).ok()?;
+        let k = *keys.get(at)?;
+        self.heap.eq(k, key).then_some(at)
+    }
+
+    /// `<<a, b>>` for a pair of small integers.
+    fn int_pair(&self, h: Handle) -> Option<(i64, i64)> {
+        if !h.is_compound() {
+            return None;
+        }
+        let v = self.heap.view(h);
+        match (v.kind, v.lo, v.data) {
+            (Kind::IntFcn, 1, &[a, b]) => Some((a.as_int()?, b.as_int()?)),
+            _ => None,
         }
     }
 

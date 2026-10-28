@@ -60,6 +60,10 @@
 - `--engine core --compat=tlc` runs at any worker count (`--workers N`),
   with the one-worker result, as in the default profile.
 
+- `--engine core` looks up functions on pair domains (`f[<<x, y>>]`) by
+  position, and takes small set differences directly: GameOfLife runs about
+  30% fewer instructions.
+
 - `--engine core` reports a model that fails to bind (for example a numeral
   TLC cannot handle under `--compat=tlc`) as the reference engine does,
   instead of refusing it.
