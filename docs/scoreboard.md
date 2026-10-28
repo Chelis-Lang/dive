@@ -1,5 +1,12 @@
 # Scoreboard
 
+#619 soundness boundary: compound set normalization uses the existing shape
+proof in both core profiles. Unproved nested comparisons return unsupported;
+homogeneous, record-domain and lazy controls remain supported. Twelve pinned
+consumed cases are in `crates/dive-api/tests/fixtures/core-normalization/`.
+This does not add a completed parity surface; the separate reference initial
+fingerprint classification finding remains open as #620.
+
 Parity means observable results (ADR 0086). For every corpus model, dive must
 match the pinned TLC on:
 

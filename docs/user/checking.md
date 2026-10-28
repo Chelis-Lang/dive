@@ -571,8 +571,12 @@ this support is limited to memory checking. Other unproved lazy representations
 remain unsupported.
 
 The current D-009 comparison improvements do not make every mixed structure
-normalizable. A reversed heterogeneous set may refuse even in the default
-profile. A forward heterogeneous set can produce a checker report whose
+normalizable. The core refuses compound sets whose nested comparison shapes do not
+unify in both profiles, including `Cardinality({<<1>>, <<TRUE>>})`. This
+conservative refusal also covers some sets TLC can sort by an earlier field or
+size without inspecting the conflict. `--engine auto` retries the whole check
+on the reference engine. A reversed heterogeneous set may refuse even in the
+default profile. A forward heterogeneous set can produce a checker report whose
 canonical structured trace then fails decoder shape admission in both profiles.
 Treat that report as an unvalidated witness; checking counts or a displayed
 trace do not confer independent validation. See the measured selection and

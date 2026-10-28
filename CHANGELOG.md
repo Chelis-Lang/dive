@@ -1,5 +1,10 @@
 # Changelog
 
+- Fix default `--engine core` success for compound sets whose elements TLC
+  cannot compare while normalizing (#619). Both profiles now report unsupported
+  when the existing shape proof cannot establish safe normalization;
+  `--engine auto` retries the reference engine.
+
 - Fix core counterexample reconstruction with `DIVE_CORE_OPT=-hashcons`: compound
   states now retain the invariant verdict and independently replayable word
   instead of an internal trace error (#603).

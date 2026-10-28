@@ -1,0 +1,164 @@
+{
+  "oracle": "tlc-2026.10.06.014338",
+  "upstream": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "workers": 1,
+  "seed": 19,
+  "fp": 0,
+  "cases": {
+    "StreamConstructionClash": {
+      "exit": 76,
+      "code": 2111,
+      "generated": 2,
+      "distinct": 2,
+      "depth": 2,
+      "core": "unsupported",
+      "error_codes": [
+        2111,
+        2121
+      ],
+      "verdict": "evaluation-error",
+      "error_class": "TLC_INVARIANT_EVALUATION_FAILED"
+    },
+    "TupleReverseClash": {
+      "exit": 76,
+      "code": 2111,
+      "generated": 2,
+      "distinct": 2,
+      "depth": 2,
+      "core": "unsupported",
+      "error_codes": [
+        2111,
+        2121
+      ],
+      "verdict": "evaluation-error",
+      "error_class": "TLC_INVARIANT_EVALUATION_FAILED"
+    },
+    "TupleLaterClash": {
+      "exit": 76,
+      "code": 2111,
+      "generated": 2,
+      "distinct": 2,
+      "depth": 2,
+      "core": "unsupported",
+      "error_codes": [
+        2111,
+        2121
+      ],
+      "verdict": "evaluation-error",
+      "error_class": "TLC_INVARIANT_EVALUATION_FAILED"
+    },
+    "RecordClash": {
+      "exit": 76,
+      "code": 2111,
+      "generated": 2,
+      "distinct": 2,
+      "depth": 2,
+      "core": "unsupported",
+      "error_codes": [
+        2111,
+        2121
+      ],
+      "verdict": "evaluation-error",
+      "error_class": "TLC_INVARIANT_EVALUATION_FAILED"
+    },
+    "NestedSetClash": {
+      "exit": 76,
+      "code": 2111,
+      "generated": 2,
+      "distinct": 2,
+      "depth": 2,
+      "core": "unsupported",
+      "error_codes": [
+        2111,
+        2121
+      ],
+      "verdict": "evaluation-error",
+      "error_class": "TLC_INVARIANT_EVALUATION_FAILED"
+    },
+    "SizeShortCircuit": {
+      "exit": 0,
+      "code": 2193,
+      "generated": 3,
+      "distinct": 3,
+      "depth": 3,
+      "core": "unsupported",
+      "error_codes": [],
+      "verdict": "success",
+      "error_class": "TLC_SUCCESS"
+    },
+    "OrderShortCircuit": {
+      "exit": 0,
+      "code": 2193,
+      "generated": 3,
+      "distinct": 3,
+      "depth": 3,
+      "core": "unsupported",
+      "error_codes": [],
+      "verdict": "success",
+      "error_class": "TLC_SUCCESS"
+    },
+    "RecordDomainControl": {
+      "exit": 0,
+      "code": 2193,
+      "generated": 3,
+      "distinct": 3,
+      "depth": 3,
+      "core": "success",
+      "error_codes": [],
+      "verdict": "success",
+      "error_class": "TLC_SUCCESS"
+    },
+    "HomogeneousControl": {
+      "exit": 0,
+      "code": 2193,
+      "generated": 3,
+      "distinct": 3,
+      "depth": 3,
+      "core": "success",
+      "error_codes": [],
+      "verdict": "success",
+      "error_class": "TLC_SUCCESS"
+    },
+    "LazyControl": {
+      "exit": 0,
+      "code": 2193,
+      "generated": 3,
+      "distinct": 3,
+      "depth": 3,
+      "core": "success",
+      "error_codes": [],
+      "verdict": "success",
+      "error_class": "TLC_SUCCESS"
+    },
+    "ScalarClash": {
+      "exit": 76,
+      "code": 2111,
+      "generated": 2,
+      "distinct": 2,
+      "depth": 2,
+      "core": "unsupported",
+      "error_codes": [
+        2111,
+        2121
+      ],
+      "verdict": "evaluation-error",
+      "error_class": "TLC_INVARIANT_EVALUATION_FAILED"
+    },
+    "DefaultEqualityControl": {
+      "exit": 75,
+      "code": 2147,
+      "generated": 1,
+      "distinct": 1,
+      "depth": 1,
+      "core": "default-success-tlc-refusal",
+      "error_codes": [
+        2102,
+        2147
+      ],
+      "verdict": "evaluation-error",
+      "error_class": "TLC_FINGERPRINT_EXCEPTION"
+    }
+  },
+  "classifier": "dive_conformance::tlc::result::classify"
+}
