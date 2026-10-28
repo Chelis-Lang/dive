@@ -156,6 +156,14 @@ finding, even when both reports match. Its detail names the engine and retains
 the classification reason. Classified evaluation errors can agree normally;
 time and memory stops remain `timeout` outcomes.
 
+For the repository's complete configuration-fixture census, use
+`python3 scripts/fixture-shadow-census.py --out /tmp/dive-fixture-shadow --profile both`
+from the repository root after building the release harness and CLI. It stages
+inputs in that fresh external directory, records all exclusions and ambiguous
+module pairings, and runs this same shadow command with seed/fingerprint 0,
+explicit budgets and raw process capture. See the fixture-census subsection of
+`docs/developer/core/08-correctness.md` for options and accounting boundaries.
+
 `run` takes several `--corpus`, into one report and one summary (default: `examples`).
 
 `trace-controls [--corpus ID]... [--tier T] [--filter GLOB]... [--golden-oracle ID]` runs the trace validator's controls (ADR 0016 §3) over every golden counterexample of the selection, under `--compat=tlc`, in-process: each TLC `-dumpTrace json` document must validate (positive controls; a deadlock may be refused by name if every other check passed), and every by-construction mutant of it (`dive_trace::mutate`) must be rejected (negative controls). Goldens with `trace.json_unavailable` or an omitted trace are skipped and counted. It prints a Markdown table and exits 1 on any finding. Named validator refusals remain listed; they are not validation credit. The table reports the actual positive and mutation outcomes for the selected goldens.

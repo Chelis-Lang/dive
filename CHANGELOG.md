@@ -150,6 +150,10 @@
   `trace-unconfirmed` finding (exit 1), with or without `--strict`. Classified
   evaluation errors can still agree; budget stops retain their timeout status.
 
+- `scripts/fixture-shadow-census.py` accounts for every configuration fixture,
+  uses seeded core/reference shadow comparisons, and keeps raw process output
+  and complete outcome accounting outside the checkout.
+
 - `--engine core` reports a false or failing `ASSUME` as the reference engine
   and TLC do: the same message and class, and exit 10. It used to refuse the
   run.

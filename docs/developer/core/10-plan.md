@@ -168,6 +168,14 @@ The semantic contract lists seven more, in `02-semantic-contract.md` §6.
 Add a new entry at the top for every working session that ends with work in
 progress. Give the date, branch, state and the exact next step.
 
+- **2026-10-28 (harness, `test/seeded-fixture-census`).** Added the repeatable
+  fixture census runner described in `08-correctness.md`. Preparation at
+  `e2183389` accounts for all 1,450 configs (99 parser exclusions, 1,337 selected,
+  14 ambiguous skips). The original untracked/unseeded runner was not recovered;
+  historical totals are explicitly unreconciled. Next: run the current fixed
+  shadow harness in both profiles, preserve raw output externally, and triage
+  every finding and incomplete run. Preparation adds no agreement credit.
+
 - **2026-10-28 (harness, `fix/shadow-trace-confirmation`).** The fixture-census
   preparation exposed #590: shadow counted an independently unconfirmed trace
   as agreement and did not require missing violation words. Such rows are now
