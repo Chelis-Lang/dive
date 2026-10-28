@@ -1,5 +1,12 @@
 # Changelog
 
+- `--engine core` runs specifications that use `TLCSet` and `TLCGet` with
+  integer or `"s:"` registers, `"all"`, `"all:named"` and `"level"`, with
+  one worker and the values TLC computes. A run that writes registers and
+  then ends in a violation or an error, `TLCSet("exit")`, and `TLCGet` of
+  the counters or `"config"` still fall back to the reference engine under
+  `--engine=auto`.
+
 - `--engine core` runs models with both `VIEW` and `SYMMETRY`, evaluating
   the view on each state's canonical image as TLC does.
 

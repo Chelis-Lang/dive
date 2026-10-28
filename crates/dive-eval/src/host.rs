@@ -700,9 +700,14 @@ impl Core {
         };
         let vidx = self.eval_v(env, st, *expr)?;
         let _g = self.enter(e)?;
-        match &vidx {
+        self.tlc_get_value(&vidx, st).map(Ev::V)
+    }
+
+    /// `TLCGetSet.TLCGetEval` on its evaluated argument.
+    pub(crate) fn tlc_get_value(&self, vidx: &Value, st: &St) -> Result<Value> {
+        match vidx {
             Value::Int(_) | Value::BigInt(_) => {
-                let idx = self.register_index(&vidx)?;
+                let idx = self.register_index(vidx)?;
                 if idx >= 0 {
                     self.check_register_access()?;
                     let regs = self
@@ -711,19 +716,19 @@ impl Core {
                         .lock()
                         .unwrap_or_else(PoisonError::into_inner);
                     return match regs.ints.get(&idx) {
-                        Some(v) => Ok(Ev::V(v.clone())),
+                        Some(v) => Ok(v.clone()),
                         None => Err(undefined(&idx.to_string())),
                     };
                 }
             }
-            Value::Str(s) => return self.tlc_get_string(s.as_str(), st).map(Ev::V),
+            Value::Str(s) => return self.tlc_get_string(s.as_str(), st),
             _ => {}
         }
         Err(EvalError::eval_exception(
             Ec::OneArgumentError,
             format!(
                 "The argument of TLCGet should be a nonnegative integer, but instead it is:\n{}",
-                self.ppr(&vidx)
+                self.ppr(vidx)
             ),
         ))
     }

@@ -1,4 +1,5 @@
-//! The core's random streams (`docs/developer/core/03-value-model.md` §6.1):
+//! The core's random streams (`docs/developer/core/03-value-model.md` §6.1)
+//! and `TLCSet`/`TLCGet` registers (§6.2):
 //! the reference engine's seeding and state fingerprint behind
 //! `dive_core::random::Draws`, so that the core draws what the reference
 //! engine draws.
@@ -93,5 +94,26 @@ fn draw_error(e: &RandomError) -> Error {
             Error::unsupported(v.message().to_owned())
         }
         _ => Error::eval_class(TlcClass::eval_exception(e.tlc_code()), e.message()),
+    }
+}
+
+/// The run's registers: the reference evaluator's, which start-up wrote.
+pub(crate) struct CoreRegisters(pub(crate) dive_eval::Evaluator);
+
+impl dive_core::random::Registers for CoreRegisters {
+    fn call(&self, op: StdOp, args: &[Value]) -> Result<Value, Error> {
+        self.0.tlc_register(op, args).map_err(|e| {
+            if e.is_eval() {
+                Error::eval_class(
+                    TlcClass {
+                        code: e.ec().code(),
+                        eval_exception: e.is_eval_exception(),
+                    },
+                    e.message(),
+                )
+            } else {
+                Error::unsupported(format!("{} (M1 core)", e.message()))
+            }
+        })
     }
 }

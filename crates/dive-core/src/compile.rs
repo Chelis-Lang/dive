@@ -1028,7 +1028,7 @@ impl Compiler<'_> {
         };
         if lazy {
             return Err(Error::unsupported(
-                "Print, PrintT or RandomElement inside a function constructor, set filter, set map or operator argument, which TLC may evaluate lazily or in its own order (M1 core)",
+                "Print, PrintT, RandomElement, TLCSet or TLCGet inside a function constructor, set filter, set map or operator argument, which TLC may evaluate lazily or in its own order (M1 core)",
             ));
         }
         Ok(())
@@ -1107,6 +1107,7 @@ impl Compiler<'_> {
             match op {
                 StdOp::TlcPrint | StdOp::TlcPrintT => self.effects.prints = true,
                 StdOp::TlcRandomElement => self.effects.draws = true,
+                StdOp::TlcTLCSet => self.effects.registers = true,
                 _ => {}
             }
         }
@@ -2919,6 +2920,27 @@ impl Compiler<'_> {
             S::BagsBagToSet => Node::Std(StdFn::BagToSet, ps.into()),
             S::BagsBagIn => Node::Std(StdFn::BagIn, ps.into()),
             S::BagsCopiesIn => Node::Std(StdFn::CopiesIn, ps.into()),
+            S::TlcTLCGet => {
+                // TLC wraps an error raised while evaluating the argument as
+                // TLCGet's own (`TLCGetEval`), so the argument is a literal;
+                // `"level"` is the engine's, any other key a register.
+                let lit = match args {
+                    [Arg::Expr { expr, .. }] => match &self.ir.node(*expr).expr {
+                        Expr::Str(k) => Some(k.as_ref() != "level"),
+                        Expr::Num(_) => Some(true),
+                        _ => None,
+                    },
+                    _ => None,
+                };
+                let Some(register) = lit else {
+                    return Err(Error::unsupported(
+                        "TLCGet of an expression other than a literal, whose errors TLC reports inside TLCGet (M1 core)",
+                    ));
+                };
+                self.effects.registers |= register;
+                self.effects.level |= !register;
+                Node::Lib(op, ps.into())
+            }
             other if crate::stdlib::implements(other) => Node::Lib(other, ps.into()),
             other => {
                 return Err(Error::unsupported(format!(

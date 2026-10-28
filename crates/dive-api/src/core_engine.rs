@@ -735,6 +735,11 @@ pub(crate) fn prepare(
     {
         return Err(Box::new(result(unsupported(feature), options, ir)));
     }
+    if plan.effects.registers {
+        store.set_registers(Arc::new(crate::core_random::CoreRegisters(
+            model.evaluator.clone(),
+        )));
+    }
     Ok(Prepared {
         model,
         sym,
@@ -795,6 +800,16 @@ pub(crate) fn check(
         Ok(p) => p,
         Err(r) => return (finish(*r), run),
     };
+    if plan.effects.registers && sample.is_some() {
+        return (
+            finish(result(
+                unsupported("--core-sample with TLCSet or TLCGet (M1 core)"),
+                options,
+                ir,
+            )),
+            run,
+        );
+    }
     if plan.effects.draws && sample.is_some() {
         return (
             finish(result(
@@ -843,6 +858,16 @@ pub(crate) fn check(
             sample,
             &out.sampled,
         );
+    }
+    if plan.effects.registers && out.verdict != dive_explore::Verdict::Success {
+        // TLC writes and reads its registers again while it rebuilds a
+        // trace or replays an error; the core does not reproduce that yet.
+        let v = match out.verdict {
+            dive_explore::Verdict::Unsupported { feature } => unsupported(feature),
+            dive_explore::Verdict::Internal { message } => Verdict::InternalError { message },
+            _ => unsupported("TLCSet or TLCGet in a run that does not end in success (M1 core)"),
+        };
+        return (finish(result(v, options, ir)), run);
     }
     if plan.effects.prints
         && (out.verdict != dive_explore::Verdict::Success || !out.warnings.is_empty())
@@ -986,9 +1011,11 @@ pub(crate) fn check(
         r.workers.used = 1;
         r.workers.reason = Some(if plan.effects.prints {
             "the specification prints (Print or PrintT): the core keeps TLC's order of the output with one worker".into()
-        } else {
+        } else if plan.effects.draws {
             "the specification draws (RandomElement): the core draws in TLC's order with one worker"
                 .into()
+        } else {
+            "the specification uses TLCSet or TLCGet: the core keeps TLC's order of their effects with one worker".into()
         });
     } else {
         r.workers.used = workers;
