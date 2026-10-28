@@ -1,5 +1,8 @@
 # Changelog
 
+- Core model-value type checks reuse each worker's copy of immutable names,
+  avoiding a shared string-table lock on each comparison.
+
 - Fix core counterexample reconstruction with `DIVE_CORE_OPT=-hashcons`: compound
   states now retain the invariant verdict and independently replayable word
   instead of an internal trace error (#603).

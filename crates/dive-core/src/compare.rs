@@ -104,10 +104,7 @@ fn mismatch(a: Class, b: Class) -> Error {
 /// two UTF-16 units whose second unit is `_` (`ModelValue`'s constructor).
 /// `None` for an untyped model value or a value that is not one.
 pub(crate) fn mv_type(heap: &Heap, h: Handle) -> Option<u16> {
-    let text = heap.store().strings().text(h.as_model_id()?)?;
-    let mut units = text.encode_utf16();
-    let (first, second) = (units.next()?, units.next()?);
-    (second == u16::from(b'_') && units.next().is_some()).then_some(first)
+    heap.model_type(h.as_model_id()?)
 }
 
 /// Whether TLC can compare `a` and `b` when either is a model value

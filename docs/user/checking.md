@@ -103,6 +103,10 @@ With `--engine core`, anything the core does not implement yields an
 `unsupported` verdict that names it, and the run never falls back. The JSON
 report adds `"engine": "core"` and a `core` object with strategy metrics.
 
+Core comparisons reuse each worker's copy of immutable model-value names in
+both compatibility profiles. This avoids repeated shared string-table access;
+TLC's typed model-value rules still apply under `--compat=tlc`.
+
 `--core-sample N` (with `--engine core`) is a diagnostic for the core's
 developers. After the search, it takes `N` of the expanded states, chosen
 by the run's seed, and compares each one's successors with the reference
