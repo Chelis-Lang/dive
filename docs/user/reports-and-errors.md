@@ -142,7 +142,12 @@ stable. The same applies to existing native `dive-trace` version 1 fields, tagge
 values, property endings and zero-based `ending.back_to` loop targets. The outer
 check report's `counterexample.back_to` summary is one-based. The trace payload version
 is independent of the report version: `validate-trace` emits report version 3
-while reading and validating native trace version 1.
+while reading and validating native trace versions 1 and 2. Version 2 adds the
+closed `invariant-error` ending with an exact configured name and underlying error
+cause (ADR 0118). Writers retain version 1 for all existing ending kinds; readers
+retain legacy version-1 support and reject a version-1 document using the new
+ending. Consumers update their readers before advancing an immutable producer
+pin. The outer report schema remains 3.
 
 Readers select the operation and supported version before interpreting results.
 They may ignore unknown optional fields and preserve unfamiliar diagnostic codes,
@@ -220,7 +225,7 @@ completion and progress. Stops and measurement failures mark retained statistics
 earlier error or already validated witness keeps its actual precedence; a later
 sampling failure is still reported as unavailable rather than an enforced
 ceiling. Optional diagnostic identifiers and resource metadata are additive
-under ADR 0108; the `dive-trace` payload remains version 1.
+under ADR 0108; these resource fields do not change native trace encoding.
 
 
 For D-005, check reports may add `options.symmetry_liveness` and its source,
@@ -230,4 +235,4 @@ A supplied requested mode has the closed vocabulary `unreduced`, `refuse`, `tlc`
 unknown or contradictory values fail closed. The summary retains the declared
 name and actual bound temporal applicability. It is neither an execution claim
 nor a proof. Existing verdicts, execution facts and independent counterexample
-validation remain required. Native trace payloads stay version 1.
+validation remain required. This symmetry metadata does not change native trace encoding.

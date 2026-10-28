@@ -25,6 +25,16 @@
   then ends in a violation or an error, `TLCSet("exit")`, and `TLCGet` of
   the counters or `"config"` still fall back to the reference engine under
   `--engine=auto`.
+- Invariant evaluation-error counterexamples now retain the invariant name and
+  underlying error cause. The independent validator and conformance harness
+  verify that exact error in the final invariant instead of confusing its cause
+  with TLC's deciding wrapper 2111. Earlier failures and forged names or causes
+  remain invalid; other error-ending families remain tracked separately (#490).
+  Migration: this new `invariant-error {name, ec}` ending uses native trace
+  version 2. Readers must accept it and check its named cause before moving
+  producer pins. All existing endings retain version-1 output and decoding;
+  unknown versions/endings and a version-1 `invariant-error` fail closed. Outer
+  check/validation reports remain schema 3 (ADR 0118).
 - `dive check` reports TLC's error when an operator whose body is a numeral
   or a string literal, such as `LAMBDA a, x : 0`, is passed to an operator
   TLC implements in Java (`FoldLeft` and the other folds, `Quantify`,

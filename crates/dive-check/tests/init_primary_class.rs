@@ -78,6 +78,7 @@ fn error(site: ErrorSite, code: u32, reported: u32, verified: bool, cause: EvalE
         reported,
         verified,
         message: cause.tool_text(),
+        invariant: None,
         cause,
     }
 }

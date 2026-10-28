@@ -142,6 +142,9 @@ pub enum Verdict {
         verified: bool,
         /// The evaluation error itself.
         cause: EvalError,
+        /// The invariant whose evaluation raised `cause`, retained separately
+        /// from TLC's deciding error class and diagnostic replay.
+        invariant: Option<String>,
     },
     /// dive refused, naming the feature. Never a verdict about the model.
     Unsupported {
