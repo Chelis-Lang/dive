@@ -1230,6 +1230,12 @@ fn run(
         ex.stats.left_on_queue = (ex.next.len() / nvars.max(1)) as u64;
         return Err(generator_error(m, ex, e));
     }
+    // TLC reports depth one after Init emits a state, even when the
+    // constraints exclude every candidate from the retained graph.
+    ex.stats.depth = ex
+        .stats
+        .depth
+        .max(u64::from(ex.stats.initial_generated > 0));
     m.heap.reset();
     ex.initial = false;
     ex.warnings.clone_from(&m.warnings);

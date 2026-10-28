@@ -1,5 +1,9 @@
 # Changelog
 
+- `--engine core` reports depth one when constraints exclude every generated
+  initial state, matching TLC and the reference engine; an Init predicate
+  that generates no states still reports depth zero.
+
 - `--engine core` evaluates `ENABLED` (outside an `INSTANCE` with
   substitutions, which is still refused): BufferedRandomAccessFile now runs on
   the core, about 7 times faster than on the reference engine.

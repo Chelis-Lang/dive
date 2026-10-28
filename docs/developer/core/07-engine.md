@@ -110,6 +110,16 @@ with states repeated across chunks) agree with the reference engine at 1,
 
 ## 4. Errors, traces and replay
 
+**Initial depth (M1 closeout).** After successful initial-state generation,
+depth is at least one if any candidate was emitted, even when constraints
+exclude every candidate. A truly empty Init keeps depth zero. Pinned TLC BFS
+(`tlc-2026.10.06.014338`, one worker, seed/fp 0) confirms
+`SimExcludedInitial` has 1 generated, 0 distinct and depth 1; the three-state
+`ExcludedInitial` control has 3 / 0 / 1 and `EmptyInitial` has 0 / 0 / 0.
+`core_initial_depth` checks both profiles, one and four requested workers,
+and reference/core/auto routing. Init failures retain their existing
+stop-specific accounting.
+
 An evaluation error at a position is an event like a violation. The minimum
 event wins.
 
