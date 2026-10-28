@@ -21,6 +21,18 @@ counter cannot see lock contention, atomics or cache misses: #495, the largest
   (`docs/developer/performance.md`).
 - It is launched for a campaign and terminated afterwards.
 - Every milestone gate is decided on this host.
+- Launch it with `scripts/aws/bench-node.sh <sha> <dive-bench arguments>`
+  (an SSO `AWS_PROFILE` for the dive account; nodes are tagged
+  `project=dive`). It builds the revision, sets SMT and turbo off at 2.4 GHz,
+  pins CPUs 0–15 and leaves `runs.jsonl` and `summary.json` under
+  `/home/bench/out`. Fetch them with `scripts/aws/ssm.sh` in gzip+base64
+  chunks (SSM truncates output at about 24 KB), keep only a compact JSON
+  summary, and terminate the node.
+
+**Linux gate node.** `scripts/aws/gate-node.sh` starts a c7i.16xlarge that
+runs `cargo xtask gate --fast|--full` for pushed revisions, one at a time in
+fresh worktrees; `scripts/aws/remote-gate.sh` drives it and prints the gate
+report. Use it when local gates are slow. It is not a benchmark host.
 
 **Local Apple Silicon.** Used for development measurements, labelled as
 indicative. Before each run, record `uptime` and the top CPU consumers. Discard

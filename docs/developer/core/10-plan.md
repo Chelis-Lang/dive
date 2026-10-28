@@ -101,6 +101,10 @@ A change outside a stream's own modules is kept minimal and flagged in the PR.
 | 2026-10-27 | `--compat=tlc` runs on the core at any worker count: the string table is sealed after start-up names, so workers never create TLC string tokens. Small tier against the TLC-profile goldens under auto: 150 agree, 6 unsupported, 0 disagree (same as the reference engine) | `07-engine.md` (#545, #548, #549) |
 | 2026-10-27 | Liveness on the core replaces only the producer: the core captures the same behaviour graph as the reference capture, and `dive-liveness` analysis, scheduling, `dive-trace` validation and the report stay the reference's code. First phase keeps the reference's capture limits; a handle-backed graph then lifts capacity to the memory budget | `11-liveness.md` |
 | 2026-10-27 | M1 x86 checkpoint at `f1ed932a`: on the 5 of 10 bench models the core runs, 1.51× TLC (1 worker) and 1.27× (8 workers) geomean; counts equal the goldens. The liveness adapter is pulled forward from M3 into M1, because two bench models (EWD998PCal, BufferedRandomAccessFile) are refused only for temporal properties and the M1 gate needs 8 of 10 | §5a below; `conformance/reports/perf/2026-10-27-core-m1-x86.json` |
+| 2026-10-28 | Memo tables back on by default (reverses #530): x86 A/B 1.16× at 1 worker and 1.23× at 8 (geomean, 9 models), counts identical; M0's four-model ablation had missed it. Perf PRs are judged by cycles or x86 wall time, not instruction counts alone | `06-memoization.md` §6 (#575); `conformance/reports/perf/2026-10-28-core-memo-ab-x86.json` |
+| 2026-10-28 | Memo tables bounded by the run's memory budget (a sixty-fourth of `--max-memory`, 1–64 MiB, shared by the workers); eviction only drops cached values | `06-memoization.md` (#584) |
+| 2026-10-28 | `ENABLED` on the core, refused inside an `INSTANCE` with substitutions; open question 8 (B3 cutoff) stays at its default, the cutoff in both profiles | `04-plan-compiler.md` (#581) |
+| 2026-10-28 | `Print`, `PrintT`, `TLCSet`/`TLCGet`: an effect bit excludes them from folding, speculation and memoization; a spec that prints runs on one worker so output is in TLC's order. `RandomElement` draws through a stream trait the API supplies (no new layering edge) | `03-value-model.md` (#568, #571, #583) |
 
 ## 5a. M1 checkpoint on x86 (2026-10-27)
 
@@ -134,6 +138,20 @@ matched the goldens. Record: `conformance/reports/perf/2026-10-27-core-m1-x86.js
 - Gate status (≥1× TLC on 8 of 10): 5 of 10 at 1 worker, 4 of 10 at 8. The
   gap is coverage first: the five refused models.
 
+## 5b. Memo A/B and core times on x86 (2026-10-28)
+
+Main `fdaf57a2`, same node type and method as §5a, core only (memo on vs off);
+the record is `conformance/reports/perf/2026-10-28-core-memo-ab-x86.json`.
+With memo on, the core's times against §5a's TLC times (a separate node of the
+same type, so the ratios are indicative): MCbtree 9.4× / 7.4× (1 / 8
+workers), MCDisruptor_MPMC 5.1× / 4.7×, CoffeeCan 2.3× / 2.5×, SimpleRegular
+2.0× / 3.2×, MCBakery 1.8× / 1.7×, MCLamportMutex 1.8× / 1.7×, EWD998PCal
+1.5× / 1.6×, GameOfLife 1.5× / 1.6×, TLCSailfish1 1.2× / 1.06×.
+BufferedRandomAccessFile ran on the core only after `ENABLED` (#581). The M1
+gate (≥1× TLC on 8 of 10) is therefore expected to pass, but it is decided by
+one quiet run of core, reference and TLC together (handoff log, lead step 1).
+SimpleRegular now scales 4.1× at 8 workers (#550 closed).
+
 ## 6. Open questions
 
 These are for the owner. If one blocks work, add it to `docs/open-questions.md`.
@@ -149,6 +167,53 @@ The semantic contract lists seven more, in `02-semantic-contract.md` §6.
 
 Add a new entry at the top for every working session that ends with work in
 progress. Give the date, branch, state and the exact next step.
+
+- **2026-10-28 (lead, handover to a new machine).** All M1 agents stopped;
+  every worktree was clean and every branch pushed. No AWS nodes are running.
+  - **State on `main`.** About 70 PRs merged since #505. All 10 bench models
+    run on `--engine=core` with counts equal to the goldens; under
+    `--engine=auto` the core also takes temporal properties (liveness through
+    the reference's `dive-liveness` analysis, `11-liveness.md`), SYMMETRY
+    (both profiles), VIEW, ALIAS, implied properties, `ENABLED`, `Print`,
+    `RandomElement`, `TLCSet`/`TLCGet` and most standard and CommunityModules
+    operators. Fixture shadow census (stream 2, 1,269 fixtures, core vs
+    reference): 845 agree, 493 refused, 10 differ (6 time-limit stops, 2
+    unseeded `RandomElement` runs in the census script, 2 below).
+  - **Open PRs at handover** (merge in this order, each refreshed onto `main`
+    with green CI first): #579 step-predicate thunks (EWD998PCal 14 → 5.5 s;
+    rebased onto #581 by the lead, with `Compiler::step` cleared inside
+    `ENABLED`), #584 memo cap, #582 temporal properties on the core (L4),
+    #580 the #557 reference fix (full gate in its body).
+  - **Lead, next.**
+    1. One quiet x86 run of core, reference and TLC on the 10 bench models at
+       1 and 8 workers (`scripts/aws/bench-node.sh`, §5a's arguments, with
+       `--tlc`); it decides the M1 gate and checks #584's memory cap. Record a
+       compact JSON and §5c here; terminate the node.
+    2. Small-tier census under `--engine=auto` in both profiles, then propose
+       making `auto` the default engine (`docs/open-questions.md`; M4 in the
+       plan, but the evidence may support it earlier).
+    3. Restart the three streams from the "Next step" sections of their docs.
+  - **Stream 1 (values, stdlib), next.** `kSubset`; the sequence forms of the
+    replace operators; `MapThenFoldSet` and the `Folds` module; `AllSubSeqs`
+    membership under `--compat=tlc` (`CmSubSeqs` is refused); the two `Print`
+    refusals (a run that prints and then ends in an error; lazy-set printing).
+  - **Stream 2 (compiler), next.** `ENABLED` inside an `INSTANCE` with
+    substitutions, keeping TLC's cutoff in both profiles, and D-027 for the
+    default profile's cache rules in the same PR. Fix the fixture census
+    script to pass `--seed`; name the six time-limit differences so the lead
+    can confirm they are budget stops. No current fixture reaches the
+    `Compiler::step` clear inside `ENABLED` (disabling it leaves every test
+    green): add one that does, or show the path is unreachable.
+  - **Stream 3 (engine), next.** Triage `DfidInitialOnly` and
+    `SimExcludedInitial` (fix, or classify in the shadow); liveness phase 2
+    (L5, handle-backed graph, capacity measured against TLC); SYMMETRY with
+    liveness (`P4SymLive`).
+  - **Tooling.** `scripts/gate-lock.sh` serializes gates and corpus runs
+    across worktrees (FIFO, separate fast lane). `scripts/aws/` launches the
+    quiet bench node and a Linux gate node (`remote-gate.sh`), see
+    `09-performance-method.md` §2. Machine note: on the old Mac, macOS
+    scanned every newly linked test binary, which stretched fast gates to
+    hours; adding the terminal as a Developer Tool avoids it.
 
 - **2026-10-27 (stream 3, liveness).**
   - **State.** Implied properties (#560), SYMMETRY (#563), ALIAS (#565),

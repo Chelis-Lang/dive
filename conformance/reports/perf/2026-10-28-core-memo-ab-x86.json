@@ -1,0 +1,190 @@
+{
+ "format_version": 1,
+ "date": "2026-10-28",
+ "campaign": "core-memo-ab-x86",
+ "purpose": "Core memo tables on vs off (DIVE_CORE_OPT=+memo / -memo), default profile, the 9 bench models the core ran; decides #575",
+ "host": {
+  "instance_type": "c7i.metal-24xl",
+  "cpu": "Intel Xeon Platinum 8488C",
+  "smt": "off",
+  "turbo": "off",
+  "governor": "performance, min=max 2.4 GHz",
+  "affinity": "CPUs 0-15, numactl membind 0",
+  "ami": "ami-02a9cdd4e98bc3c78"
+ },
+ "binary": {
+  "commit": "fdaf57a2ce937da27dfbae1268bbe86470abfb54",
+  "build": "release profile",
+  "rustc": "1.99.0"
+ },
+ "method": "dive-bench, 5 repetitions per arm, medians; same binary in both arms; BufferedRandomAccessFile was refused by the core at this commit (ENABLED)",
+ "summary": {
+  "geomean_speedup_w1": 1.162,
+  "geomean_speedup_w8": 1.228,
+  "note": "raw runs.jsonl not kept; regenerate with scripts/aws/bench-node.sh <sha> --dive-bin ~/bins/core-memo --baseline-bin ~/bins/core-nomemo --profile default --workers 1,8 --reps 5"
+ },
+ "runs": [
+  {
+   "model": "CoffeeCan1000BeansSafety",
+   "w1_off_s": 0.97,
+   "w1_on_s": 0.97,
+   "w1_speedup": 1.0,
+   "w8_off_s": 0.67,
+   "w8_on_s": 0.66,
+   "w8_speedup": 1.02,
+   "rss_mb_w1_off_on": [
+    113,
+    115
+   ],
+   "rss_mb_w8_off_on": [
+    212,
+    208
+   ],
+   "counts_ok": true
+  },
+  {
+   "model": "EWD998PCal",
+   "w1_off_s": 27.78,
+   "w1_on_s": 27.91,
+   "w1_speedup": 1.0,
+   "w8_off_s": 4.86,
+   "w8_on_s": 4.76,
+   "w8_speedup": 1.02,
+   "rss_mb_w1_off_on": [
+    41,
+    55
+   ],
+   "rss_mb_w8_off_on": [
+    160,
+    230
+   ],
+   "counts_ok": true
+  },
+  {
+   "model": "GameOfLife",
+   "w1_off_s": 8.12,
+   "w1_on_s": 8.12,
+   "w1_speedup": 1.0,
+   "w8_off_s": 1.64,
+   "w8_on_s": 1.65,
+   "w8_speedup": 0.99,
+   "rss_mb_w1_off_on": [
+    54,
+    52
+   ],
+   "rss_mb_w8_off_on": [
+    151,
+    147
+   ],
+   "counts_ok": true
+  },
+  {
+   "model": "MCBakery",
+   "w1_off_s": 8.47,
+   "w1_on_s": 6.11,
+   "w1_speedup": 1.39,
+   "w8_off_s": 6.61,
+   "w8_on_s": 4.66,
+   "w8_speedup": 1.42,
+   "rss_mb_w1_off_on": [
+    156,
+    137
+   ],
+   "rss_mb_w8_off_on": [
+    242,
+    330
+   ],
+   "counts_ok": true
+  },
+  {
+   "model": "MCDisruptor_MPMC",
+   "w1_off_s": 1.47,
+   "w1_on_s": 0.87,
+   "w1_speedup": 1.69,
+   "w8_off_s": 0.44,
+   "w8_on_s": 0.34,
+   "w8_speedup": 1.29,
+   "rss_mb_w1_off_on": [
+    33,
+    48
+   ],
+   "rss_mb_w8_off_on": [
+    84,
+    172
+   ],
+   "counts_ok": true
+  },
+  {
+   "model": "MCLamportMutex",
+   "w1_off_s": 12.23,
+   "w1_on_s": 9.54,
+   "w1_speedup": 1.28,
+   "w8_off_s": 2.5,
+   "w8_on_s": 2.57,
+   "w8_speedup": 0.97,
+   "rss_mb_w1_off_on": [
+    75,
+    117
+   ],
+   "rss_mb_w8_off_on": [
+    184,
+    419
+   ],
+   "counts_ok": true
+  },
+  {
+   "model": "MCbtree",
+   "w1_off_s": 5.11,
+   "w1_on_s": 4.35,
+   "w1_speedup": 1.17,
+   "w8_off_s": 3.67,
+   "w8_on_s": 1.07,
+   "w8_speedup": 3.43,
+   "rss_mb_w1_off_on": [
+    57,
+    78
+   ],
+   "rss_mb_w8_off_on": [
+    167,
+    333
+   ],
+   "counts_ok": true
+  },
+  {
+   "model": "SimpleRegular",
+   "w1_off_s": 2.95,
+   "w1_on_s": 2.72,
+   "w1_speedup": 1.08,
+   "w8_off_s": 0.72,
+   "w8_on_s": 0.72,
+   "w8_speedup": 1.0,
+   "rss_mb_w1_off_on": [
+    58,
+    59
+   ],
+   "rss_mb_w8_off_on": [
+    176,
+    258
+   ],
+   "counts_ok": true
+  },
+  {
+   "model": "TLCSailfish1",
+   "w1_off_s": 44.18,
+   "w1_on_s": 43.21,
+   "w1_speedup": 1.02,
+   "w8_off_s": 7.86,
+   "w8_on_s": 7.81,
+   "w8_speedup": 1.01,
+   "rss_mb_w1_off_on": [
+    78,
+    79
+   ],
+   "rss_mb_w8_off_on": [
+    182,
+    217
+   ],
+   "counts_ok": true
+  }
+ ]
+}
