@@ -139,7 +139,8 @@ fn mk_int(v: i64) -> Result<Handle, Error> {
 impl Machine {
     /// A machine over `store` for states of `nvars` variables.
     #[must_use]
-    pub fn new(store: Arc<Store>, nvars: usize, opts: Opts, memo: Memo) -> Self {
+    pub fn new(store: Arc<Store>, nvars: usize, opts: Opts, mut memo: Memo) -> Self {
+        memo.set_cap(opts.memo_cap);
         Self {
             heap: Heap::new(store, !opts.arena, !opts.delta_hash),
             frame: Vec::new(),
