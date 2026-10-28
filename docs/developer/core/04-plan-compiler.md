@@ -412,6 +412,18 @@ against the reference engine: each one gets the reference result or a
 refusal, and only the mixed-class set may be refused where the reference
 engine answers.
 
+**TLC-profile shape checks.** The conservative guards accumulate comparison
+constraints in one mutable shape, visiting each incoming value directly.
+They no longer build a temporary shape tree for every element and remove
+and reinsert existing fields while merging it. There is no retained cache;
+literal and symbolic views keep their existing classifications and every
+guard's refusal boundary is unchanged. The original `shape`/`unify`
+algorithm remains unchanged and is the differential test's oracle for
+nested transient and exact persistent values, typed/untyped model values,
+records, tuples, empty values, generic functions and literal views. This
+optimizes the existing guard; the M2 exact checked-comparison port remains
+separate work.
+
 ### 5.2 Typed classes (built)
 
 An evaluation error carries `Option<TlcClass>` (`crates/dive-core/src/lib.rs`):
