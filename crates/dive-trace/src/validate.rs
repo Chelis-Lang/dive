@@ -274,6 +274,7 @@ impl From<Stop> for Validation {
 /// What the end of the trace must show.
 enum Goal {
     Invariant(usize),
+    InvariantError(usize, String),
     ImpliedInit(usize),
     ImpliedAction(usize),
     Deadlock,
@@ -570,6 +571,12 @@ impl<'a> Run<'a> {
                 (Goal::Invariant(i), true) => {
                     self.claimed(&m.invariants, *i, &here, k, Check::Invariant, "invariant")?;
                 }
+                (Goal::InvariantError(i, ec), true) => {
+                    self.invariant_error(*i, ec, &here, k)?;
+                    // An invariant evaluation error decides before implied
+                    // properties or later invariants are checked.
+                    return Ok(None);
+                }
                 _ => {
                     for inv in &m.invariants {
                         self.require(&inv.pred, &here, k, Check::Invariant, || {
@@ -661,11 +668,13 @@ impl<'a> Run<'a> {
             }
             // The fallible entrypoint separately reconstructs the program
             // before this path validation and replays it afterward.
-            Goal::TemporalStateError => None,
+            Goal::TemporalStateError
+            | Goal::Invariant(_)
+            | Goal::InvariantError(..)
+            | Goal::ImpliedInit(_)
+            | Goal::ImpliedAction(_)
+            | Goal::Behavior => None,
             Goal::Liveness(why) | Goal::ErrorEnd(why) => Some(why.to_owned()),
-            Goal::Invariant(_) | Goal::ImpliedInit(_) | Goal::ImpliedAction(_) | Goal::Behavior => {
-                None
-            }
         })
     }
 
@@ -836,6 +845,12 @@ impl<'a> Run<'a> {
             Ending::Invariant(name) => Goal::Invariant(find(&m.invariants, name).ok_or_else(|| {
                 invalid(last, Check::Ending, format!("the model has no invariant named `{name}`"))
             })?),
+            Ending::InvariantError { name, ec } => Goal::InvariantError(
+                find(&m.invariants, name).ok_or_else(|| {
+                    invalid(last, Check::Ending, format!("the model has no invariant named `{name}`"))
+                })?,
+                ec.clone(),
+            ),
             Ending::Property(name) if last == 0 => {
                 Goal::ImpliedInit(find(&m.implied_inits, name).ok_or_else(|| {
                     invalid(
@@ -1008,6 +1023,54 @@ impl<'a> Run<'a> {
         } else {
             Err(invalid(k, check, detail()))
         }
+    }
+
+    /// The named final invariant raises the claimed underlying error. All
+    /// earlier invariants still have to hold, in configuration order.
+    fn invariant_error(&mut self, i: usize, ec: &str, st: &St, k: usize) -> Result<(), Stop> {
+        let m = self.model;
+        for earlier in &m.invariants[..i] {
+            self.require(&earlier.pred, st, k, Check::Invariant, || {
+                format!(
+                    "invariant {} comes before {}, so it would decide first",
+                    earlier.name, m.invariants[i].name
+                )
+            })?;
+        }
+        let named = &m.invariants[i];
+        self.host
+            .level
+            .store(i64::try_from(k + 1).unwrap_or(i64::MAX), Ordering::Relaxed);
+        let actual = match m.eval(&named.pred, st) {
+            Err(error) if error.class() == ErrorClass::Eval => error.ec(),
+            Err(error) => return Err(self.evaluation_refusal(&error, Some(k), Check::Invariant)),
+            // Checking an invariant requires a boolean, so a non-boolean
+            // result independently establishes TLC_EXPECTED_VALUE.
+            Ok(value) if !matches!(value, Value::Bool(_)) => dive_eval::Ec::ExpectedValue,
+            Ok(_) => {
+                return Err(invalid(
+                    k,
+                    Check::Ending,
+                    format!(
+                        "invariant {} does not raise the claimed evaluation error",
+                        named.name
+                    ),
+                ));
+            }
+        };
+        if actual.name() != ec {
+            return Err(invalid(
+                k,
+                Check::Ending,
+                format!(
+                    "invariant {} raises {}, not the claimed {ec}",
+                    named.name,
+                    actual.name()
+                ),
+            ));
+        }
+        self.passed += 1;
+        Ok(())
     }
 
     fn evaluation_refusal(

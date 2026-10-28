@@ -164,6 +164,15 @@ pub fn validate_counterexample(
     };
     let reported = ending_of(result);
     let matching = match &doc.ending {
+        // This claim names the underlying error and the invariant that
+        // raised it; the report names TLC's site wrapper. Independent
+        // validation below must establish the exact named claim.
+        Some(Ending::InvariantError { .. }) => {
+            reported
+                == Some(Ending::Error {
+                    ec: Some("TLC_INVARIANT_EVALUATION_FAILED".to_owned()),
+                })
+        }
         Some(Ending::TemporalStateError { ec, .. }) => {
             reported
                 == Some(Ending::Error {
@@ -286,6 +295,7 @@ fn control_mode(mode: ModelMode, workers: u32, ending: Option<&Ending>) -> Contr
             ending,
             Some(
                 Ending::Invariant(_)
+                    | Ending::InvariantError { .. }
                     | Ending::Property(_)
                     | Ending::Deadlock
                     | Ending::Assertion
@@ -479,6 +489,10 @@ mod control_mode_tests {
     fn shortest_controls_require_single_worker_bfs_and_a_finite_claim() {
         let finite = [
             Ending::Invariant("P".to_owned()),
+            Ending::InvariantError {
+                name: "P".to_owned(),
+                ec: "TLC_VALUE_ASSERT_FAILED".to_owned(),
+            },
             Ending::Property("P".to_owned()),
             Ending::Deadlock,
             Ending::Assertion,

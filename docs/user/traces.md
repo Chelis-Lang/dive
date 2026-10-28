@@ -11,9 +11,37 @@ dive validate-trace docs/user/examples/Counter.tla --config docs/user/examples/C
 
 The JSON validation report uses `schema_version: 3`, `command: "validate-trace"`
 and `result: "valid" | "invalid" | "unsupported"`. Its report version is
-independent of the native trace document's `format: "dive-trace", version: 1`.
+independent of the native trace document's `format: "dive-trace"` and payload
+version (1 for existing endings, 2 for named invariant errors).
 Existing trace tags, endings and loop indexing follow the compatibility policy
 in [reports and automation](reports-and-errors.md).
+
+A final invariant evaluation error carries `kind: "invariant-error"`, its
+configured `name`, and the underlying error's `ec`, for example
+`TLC_VALUE_ASSERT_FAILED`. The check report still uses the deciding class
+`TLC_INVARIANT_EVALUATION_FAILED` (2111) and TLC exit 76. These identify different
+parts of the same result: the validator must reproduce the claimed cause at the
+named invariant, after all earlier states and earlier configured invariants
+pass. A false Boolean invariant is not an evaluation error. Wrong names, wrong
+causes, an absent error, or an earlier failure invalidate the claim. An
+unsupported evaluation remains unsupported. The harness requires this proof
+before counting the witness as validated.
+
+This new closed ending requires native trace version 2 (ADR 0118). Existing
+endings still write version 1; readers accept both. A version-1 document carrying
+`invariant-error`, an unknown version, or an unknown ending fails closed. Consumer
+readers must support version 2 and its named error obligation before updating a
+producer pin; they must not relabel the payload as version 1. Example:
+
+```json
+{"format":"dive-trace","version":2,"variables":["x"],"states":[{"action":null,"values":{"x":0}},{"action":null,"values":{"x":1}},{"action":null,"values":{"x":2}}],"ending":{"kind":"invariant-error","name":"Inv","ec":"TLC_VALUE_ASSERT_FAILED"}}
+```
+
+This support applies to invariant-site errors decided by 2111. Initial-state,
+constraint, action-property and successor-expansion error claims retain their
+existing checks and refusals; a generic error ending cannot stand in for a named
+invariant error. Counterexamples outside constraints retain their existing
+validation boundary (#499).
 
 A certified temporal state-row error can carry `kind: "error"` with an optional
 `endpoint` describing its stage and original source context (ADR 0113). The
@@ -36,7 +64,7 @@ is unchanged.
 The validator evaluates Init and the original next-state relation as predicates
 over supplied concrete states. It is independent of the checker's successor
 enumerator. Every state must assign every spec variable; missing/partial states
-are not completed by guessing. Trace format version 1 normalizes value JSON and has known representation
+are not completed by guessing. Native trace formats normalize value JSON and has known representation
 gaps. Successful decoding is separate from semantic validation. TLC dumpTrace
 JSON is also an accepted input format within the validator's documented boundary.
 

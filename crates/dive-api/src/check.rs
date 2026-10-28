@@ -1718,6 +1718,16 @@ fn trace_doc(
         V::Deadlock => Ending::Deadlock,
         // The ending names the error itself, not the class TLC's site and
         // replay give it.
+        V::EvaluationError {
+            site: dive_check::ErrorSite::Invariant,
+            code: 2111,
+            invariant: Some(name),
+            cause,
+            ..
+        } => Ending::InvariantError {
+            name: name.clone(),
+            ec: cause.ec().name().to_owned(),
+        },
         V::EvaluationError { cause, .. } => {
             if cause.ec() == dive_eval::Ec::AssertFailed {
                 Ending::Assertion
