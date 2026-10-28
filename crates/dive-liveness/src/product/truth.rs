@@ -66,6 +66,7 @@ impl TruthAccess for Labels {
     }
 }
 
+#[cfg_attr(test, derive(Debug, PartialEq, Eq))]
 struct Column {
     kind: AtomKind,
     words: Vec<u64>,
@@ -73,6 +74,7 @@ struct Column {
 
 /// Each global atom retains its original identity but owns only its actual
 /// state or action domain. Edge offsets are shared across action columns.
+#[cfg_attr(test, derive(Debug, PartialEq, Eq))]
 pub(crate) struct PackedTruth {
     vertices: usize,
     columns: Vec<Column>,

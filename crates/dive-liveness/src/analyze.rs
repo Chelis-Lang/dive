@@ -17,6 +17,9 @@ use crate::product::{self, AcceptancePolicy, CompactProduct, PackedTruth};
 #[doc(hidden)]
 pub mod owned;
 mod row_demand;
+mod state_source;
+
+use state_source::{CapturedStates, StateSource};
 
 /// Combined bounds on planning, exploration and explicit product construction.
 #[derive(Clone, Copy, Debug)]
@@ -608,33 +611,37 @@ fn state_failure(
 fn selected_targets(
     graph: &capture::BehaviorGraph,
     source: usize,
+    states: &mut (impl StateSource + ?Sized),
 ) -> Result<std::collections::BTreeMap<usize, StateVals>, AnalysisError> {
     let malformed = || AnalysisError::Inconsistent("original action target row shape");
-    let mut originals = graph.concrete.get(source).ok_or_else(malformed)?.iter();
+    let originals = states.concrete_count(source).ok_or_else(malformed)?;
+    let mut original = 0;
     let mut selected = std::collections::BTreeMap::new();
     for edge in &graph.edges[source] {
-        if edge.to >= graph.states.len() {
+        if edge.to >= states.representative_count() {
             return Err(malformed());
         }
         if let Some(ordinal) = edge.ordinal {
-            let original = originals.next().ok_or_else(malformed)?;
-            if original.ordinal != ordinal || edge.label.as_deref() != Some(original.label.as_str())
-            {
+            let metadata = states
+                .concrete_metadata(source, original)
+                .ok_or_else(malformed)?;
+            if metadata.ordinal != ordinal || edge.label.as_deref() != Some(metadata.label) {
                 return Err(malformed());
             }
-            selected
-                .entry(edge.to)
-                .or_insert_with(|| original.state.clone());
+            if let std::collections::btree_map::Entry::Vacant(entry) = selected.entry(edge.to) {
+                entry.insert(states.concrete(source, original)?);
+            }
+            original += 1;
         } else {
             if edge.to != source {
                 return Err(malformed());
             }
-            selected
-                .entry(source)
-                .or_insert_with(|| graph.states[source].clone());
+            if let std::collections::btree_map::Entry::Vacant(entry) = selected.entry(source) {
+                entry.insert(states.representative(source)?.into_owned());
+            }
         }
     }
-    if originals.next().is_some() {
+    if original != originals {
         return Err(malformed());
     }
     Ok(selected)
@@ -648,6 +655,7 @@ fn labels(
     model: &Model,
     plan: &Plan,
     graph: &capture::BehaviorGraph,
+    states: &mut (impl StateSource + ?Sized),
     shape: product::BehaviorView<'_>,
     property: &str,
     policy: GraphLabelPolicy,
@@ -660,10 +668,12 @@ fn labels(
         .iter()
         .try_fold(0_usize, |n, r| n.checked_add(r.len()))
         .ok_or(AnalysisError::Limit("atom cells"))?;
-    policy.admit(graph.states.len(), edges, plan.atoms.len())?;
+    policy.admit(states.representative_count(), edges, plan.atoms.len())?;
     // Owned rows took their vertex dimension from actual captured states.
     // Packing must not turn a missing state row into unwritten FALSE bits.
-    if graph.states.len() != shape.vertex_count() || graph.edges.len() != shape.vertex_count() {
+    if states.representative_count() != shape.vertex_count()
+        || graph.edges.len() != shape.vertex_count()
+    {
         return Err(AnalysisError::Product(product::ProductError::Shape(
             "state predicate dimensions".into(),
         )));
@@ -677,12 +687,13 @@ fn labels(
         attribution: false,
     };
     for (index, pred) in plan.atoms.iter().enumerate() {
-        for (v, vals) in graph.states.iter().enumerate() {
+        for v in 0..states.representative_count() {
             if crate::budget::exhausted() {
                 return Err(AnalysisError::Limit(crate::budget::EXHAUSTED));
             }
             if pred.kind == AtomKind::State {
-                let value = atom(model, plan, index, &St::state(vals.clone()), &mut context)?;
+                let vals = states.representative(v)?.into_owned();
+                let value = atom(model, plan, index, &St::state(vals), &mut context)?;
                 labels
                     .set_state(index, v, value)
                     .map_err(AnalysisError::Product)?;
@@ -691,7 +702,11 @@ fn labels(
             if !active.0.contains(&index) {
                 continue; // The actual action-domain column is already FALSE.
             }
-            let targets = selected_targets(graph, v)?;
+            let targets = selected_targets(graph, v, states)?;
+            if graph.edges[v].is_empty() {
+                continue;
+            }
+            let vals = states.representative(v)?;
             let mut evaluated = std::collections::BTreeMap::new();
             for (position, edge) in graph.edges[v].iter().enumerate() {
                 let value = if let Some(target) = targets.get(&edge.to) {
@@ -699,7 +714,10 @@ fn labels(
                         *value
                     } else {
                         let value = pred
-                            .evaluate_detailed(model, &St::action(vals.clone(), target.clone()))
+                            .evaluate_detailed(
+                                model,
+                                &St::action(vals.as_ref().clone(), target.clone()),
+                            )
                             .map_err(|failure| {
                                 let core = matches!(&failure, plan::AtomError::Core(_));
                                 let cause = failure.into_error();
@@ -1335,14 +1353,19 @@ type OriginalWord = (Vec<StateVals>, Vec<usize>, Vec<capture::Edge>);
 
 fn original_word(
     captured: &capture::BehaviorGraph,
+    source: &mut (impl StateSource + ?Sized),
     projection: Option<&row_demand::Projection>,
     lasso: &crate::search::Lasso,
-) -> OriginalWord {
+) -> Result<OriginalWord, AnalysisError> {
     let steps = lasso.prefix.iter().chain(&lasso.cycle);
-    let states: Vec<StateVals> = steps
+    let states = steps
         .clone()
-        .map(|s| captured.states[projection.map_or(s.from, |p| p.sources[s.from])].clone())
-        .collect();
+        .map(|s| {
+            source
+                .representative(projection.map_or(s.from, |p| p.sources[s.from]))
+                .map(std::borrow::Cow::into_owned)
+        })
+        .collect::<Result<Vec<_>, _>>()?;
     let source_ids = steps
         .clone()
         .map(|s| projection.map_or(s.from, |p| p.sources[s.from]))
@@ -1355,7 +1378,7 @@ fn original_word(
             captured.edges[source][edge].clone()
         })
         .collect();
-    (states, source_ids, edges)
+    Ok((states, source_ids, edges))
 }
 
 /// Searches the first `searched` properties in configuration order for an
@@ -1372,6 +1395,40 @@ fn analyze_captured(
     plans: &[PreparedProperty],
     searched: usize,
     captured: &capture::BehaviorGraph,
+    limits: Limits,
+    policy: AcceptancePolicy,
+    graph_labels: GraphLabelPolicy,
+    stage: &mut Stage,
+    evaluations: &mut EvaluationErrors,
+    control: &dive_check::budget::EvaluationControl,
+    cache: Option<&row_demand::Cache>,
+) -> Result<Option<CandidateWord>, AnalysisError> {
+    analyze_source(
+        model,
+        plans,
+        searched,
+        captured,
+        &mut CapturedStates(captured),
+        limits,
+        policy,
+        graph_labels,
+        stage,
+        evaluations,
+        control,
+        cache,
+    )
+}
+
+#[allow(
+    clippy::too_many_arguments,
+    reason = "the private source boundary preserves existing analysis inputs and ownership"
+)]
+fn analyze_source(
+    model: &Model,
+    plans: &[PreparedProperty],
+    searched: usize,
+    captured: &capture::BehaviorGraph,
+    states: &mut (impl StateSource + ?Sized),
     limits: Limits,
     policy: AcceptancePolicy,
     graph_labels: GraphLabelPolicy,
@@ -1413,6 +1470,7 @@ fn analyze_captured(
                 model,
                 plan,
                 captured,
+                states,
                 graph,
                 &p.name,
                 graph_labels,
@@ -1439,7 +1497,7 @@ fn analyze_captured(
                     .map_err(AnalysisError::Product)?
                 {
                     let (states, source_ids, edges) =
-                        original_word(captured, projection.as_ref(), &lasso);
+                        original_word(captured, states, projection.as_ref(), &lasso)?;
                     *stage = Stage::Attribution;
                     let properties = attribute(
                         model,

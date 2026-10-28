@@ -1,7 +1,7 @@
 # 11. Liveness on the core
 
 Status: phase 1 (L1–L4) built, 2026-10-28; pulled forward from M3.
-Preparatory L5 topology support is implemented in the product API (§7.1).
+Preparatory L5 topology and private state-value access are implemented (§7.1–§7.2).
 Checker state retention, completion/results and measured capacity remain L5 work
 with the prerequisites in §7.
 
@@ -275,13 +275,15 @@ These follow the liveness-budgets rule:
   in which it happened, never a verdict.
 - **Phase 2 (PR L5): measured capacity at least TLC's.** The planned graph
   uses compact vertex ids and CSR edges, with action indices instead of
-  repeated labels. On-demand conversion to `StateVals` uses the planned
-  additive `dive-liveness::StateSource` interface and a bounded cache.
+  repeated labels. On-demand conversion to `StateVals` is planned over the
+  state-value source boundary (§7.2) with a bounded cache. Its public interface
+  remains unset until a controlled native adapter is implemented.
   - **State and topology access.** `labels`, `selected_targets` and lasso
-    extraction currently index `BehaviorGraph` directly. Product
-    `BehaviorView` supports dense, captured and borrowed CSR topology (see
-    §7.1). State access and the end-to-end compact backend remain to be built.
-    Keep the reference adapter and existing entrypoints unchanged.
+    extraction use a private state-value source with a reference adapter (§7.2).
+    Topology and edge metadata still come from `BehaviorGraph`. Product
+    `BehaviorView` supports dense, captured and borrowed CSR topology (§7.1).
+    Native state retention, controlled conversion and the end-to-end compact
+    backend remain to be built. Keep reference entrypoints unchanged.
   - **Retained states.** The store retains values, but the explorer keeps
     only the current/next frontier's state-handle rows. L5 must retain an
     addressable handle row or state root for every graph vertex. Those
@@ -330,16 +332,52 @@ product limits and acceptance-buffer policies retain their dense-input results.
 This view validates references, not producer completion or temporal acceptance.
 
 This is the topology dependency, not compact checker graph capture. Analysis
-still reads `BehaviorGraph` state representatives and concrete target rows;
-lasso extraction and Complete/Prefix still retain the reference graph. Next:
-introduce the state/concrete-target access boundary, retained all-vertex roots,
-and compact-compatible completion/results before routing the checker through
-CSR. Concrete targets must preserve the original generated values; substituting
+reads reference representatives and original targets through the private source
+boundary (§7.2); topology, metadata and Complete/Prefix still retain the reference
+graph. Next: retain all-vertex roots, implement controlled conversion/cache and
+compact-compatible completion/results before routing the checker through CSR. Concrete targets must preserve the original generated values; substituting
 `states[edge.to]` is not equivalent. Retained original target values or their
 exact reconstruction/cache must enter the memory and work accounting. Its
 builder must retain action/ordinal metadata and poll/account allocations
 under the run budget. No graph limit is raised and no capacity or throughput
 claim follows from this product-input support.
+
+### 7.2 Implemented state-value access prerequisite
+
+The private `analyze::state_source::StateSource` separates representative values
+and original concrete successors from graph topology. The production analyzer
+uses `CapturedStates`, which borrows the existing `BehaviorGraph`; reference
+entrypoints, graph ownership and completion/result receipts stay unchanged.
+Representatives may borrow an existing row or own a lazily converted row.
+Original metadata can be inspected without converting its values. No public
+conversion, cancellation or error interface is established by this extraction.
+
+`selected_targets` checks ordinal/label correspondence in original row order,
+keeps the first original successor for each destination, and reads no later
+duplicate's values. Implicit stutters use their source representative only when
+that destination has not already selected an original. Labels retain per-atom,
+per-vertex demand and action evaluation once per destination. Inactive action
+atoms and empty frontier rows request no values. Lasso extraction reads only
+the chosen representatives and retains original edge positions and metadata,
+including through a row-cache projection. Source failures and typed stops
+propagate as errors; they never mean absence of an accepting word.
+
+Tests compare the reference adapter with a lazy owner of separate value rows:
+complete packed labels, candidate states, edges, property attribution and
+lasso positions agree in both profiles, including `ENABLED`, WF and SF. They
+also cover differing originals for one destination, ordinal gaps, malformed
+metadata, untouched atom-error priority, every demanded read's failure/stop,
+and a mutation that incorrectly replaces original values by representatives.
+
+This is not native compact capture. Before a core source can implement the
+boundary, capture must expose original targets even for seen states: `Step`
+currently carries values only for new vertices, and parallel `Occ::Old` omits
+them. Retain persistent handle rows for every vertex and any differing original
+target, keep their store alive, and bound both committed and speculative
+retention. Controlled conversion/cache, compact-compatible completion/results,
+CSR metadata and end-to-end memory/capacity measurements remain §7 requirements.
+The private source itself supplies no resource bound or completion authority;
+no checker limit, supported model population or performance claim changes.
 
 ## 8. Tests
 
@@ -368,7 +406,7 @@ claim follows from this product-input support.
 | L2 (built) | `capture::refusal` and `GraphBuilder` (`dive-check`); `GraphCheck` (`dive-liveness`); tests: a graph rebuilt through `GraphBuilder` equals the reference capture, and `GraphCheck` over it equals `analyze_final` and `analyze_periodic` | full |
 | L3 (built) | `GraphSink` in `dive-explore`; the `dive-api` converting sink; graph-equality tests (§8) against the reference capture | fast |
 | L4 (built) | The temporal route in `core_engine` (both profiles), refusals, report-equality tests, harness census, user guide and CHANGELOG | fast (full if L2 needs follow-up) |
-| L5 (partial) | Borrowed CSR product input built (§7.1); checker state access/retention and compact-compatible completion/results remain, followed by TLC capacity measurement (§7) | full |
+| L5 (partial) | Borrowed CSR product input and private state-value source built (§7.1–§7.2); native state retention/conversion and compact-compatible completion/results remain, followed by TLC capacity measurement (§7) | full |
 
 Each PR updates this document's status, the status board and the handoff log.
 

@@ -140,6 +140,7 @@ fn label_path(
             &model,
             &prepared.plan,
             &graph,
+            &mut CapturedStates(&graph),
             shape,
             &model.property_claims()[0].name,
             GraphLabelPolicy::Cells(limits.atom_cells),
