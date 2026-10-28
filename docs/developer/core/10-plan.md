@@ -179,11 +179,16 @@ progress. Give the date, branch, state and the exact next step.
     operators. Fixture shadow census (stream 2, 1,269 fixtures, core vs
     reference): 845 agree, 493 refused, 10 differ (6 time-limit stops, 2
     unseeded `RandomElement` runs in the census script, 2 below).
-  - **Open PRs at handover** (merge in this order, each refreshed onto `main`
-    with green CI first): #579 step-predicate thunks (EWD998PCal 14 → 5.5 s;
-    rebased onto #581 by the lead, with `Compiler::step` cleared inside
-    `ENABLED`), #584 memo cap, #582 temporal properties on the core (L4),
-    #580 the #557 reference fix (full gate in its body).
+  - **Last PRs of M1 so far**, merged by the lead at handover in this order,
+    each refreshed onto `main` with green CI first. If any is still open,
+    finish it first.
+    - #581 `ENABLED`.
+    - #579 step-predicate thunks (EWD998PCal 14 → 5.5 s). The lead rebased it
+      onto #581, with `Compiler::step` cleared inside `ENABLED`.
+    - #584 memo cap.
+    - #582 temporal properties on the core (L4). The lead rebased it onto #584,
+      keeping L4's `core_engine.rs` and reapplying `memo_cap`.
+    - #580 the #557 reference fix, with the full gate in its body.
   - **Lead, next.**
     1. One quiet x86 run of core, reference and TLC on the 10 bench models at
        1 and 8 workers (`scripts/aws/bench-node.sh`, §5a's arguments, with
