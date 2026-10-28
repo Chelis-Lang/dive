@@ -77,6 +77,39 @@ Its CommunityModules fixture sources require an explicit library path.
 dive check crates/dive-api/tests/fixtures/op-literal/specs/OlBagOfAll/OlBagOfAll.tla --library-path crates/dive-eval/tests/fixtures/community-modules --engine reference --compat=tlc --seed 0 --fp 0 --workers 1 --output json
 ```
 
+## Sequence replacement on the core
+
+`SequencesExt!ReplaceFirstSubSeq(r, s, t)` and `ReplaceAllSubSeqs(r, s, t)`
+run with `--engine core` on strings and on pure, materialized sequences whose
+combined elements are all integers, all booleans or all strings. Empty
+sequences are allowed. This holds in both profiles and at any worker count.
+The sequence replacement finds the first match, or all leftmost non-overlapping
+matches, respectively. For an empty pattern, ReplaceFirst prepends `r`;
+ReplaceAll inserts `r` before each element, without a trailing insertion. When
+both pattern and text are empty, ReplaceAll returns `r`.
+
+Mixed or nested elements, lazy sequence functions and sequence arguments with
+effects, compiled calls or free local slots remain named `unsupported` results
+on the core. Calls and free slots are conservatively refused because their
+repeated-demand effects are unproved. In particular, the
+TLA+ fallback can evaluate a sequence argument more than once; replacing it
+with a single evaluation would change `PrintT` or checker-register behavior.
+Existing effectful string arguments retain their single evaluation. Inputs and
+materialized outputs are bounded at 2^24 elements. `--engine auto` reruns refused
+cases on the reference engine; the default remains `reference`.
+
+This checked fixture needs the CommunityModules source path and completes with
+success, 1 distinct state, 2 generated states, depth 1 and exit 0:
+
+```sh
+dive check crates/dive-api/tests/fixtures/core-replace/SeqReplacePure.tla --library-path crates/dive-eval/tests/fixtures/community-modules --engine core --compat=tlc --seed 0 --fp 0 --workers 4 --output json
+```
+
+The Rust API uses the same `CheckRequest.library_paths` and
+`check_file_engine(&request, Engine::Core)`; see the
+[Rust API guide](rust-api.md). The pinned semantics and remaining boundaries are
+recorded in the [value-model notes](../developer/core/03-value-model.md#sequence-replacement-fallback-semantics).
+
 ## Pure JSON conversion
 
 Pure `Json!ToJson(value)` has a bounded native conversion path. It uses the

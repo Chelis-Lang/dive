@@ -809,3 +809,52 @@ the core's stdlib dispatch would therefore leave those paths refused. Resolve
 that boundary under the frozen-reference policy before attempting full operator
 coverage. No runtime change, corpus agreement or performance credit follows
 from this assessment; raw probe output stays outside the repository.
+
+### Sequence replacement fallback semantics
+
+Pinned `tlc-2026.10.06.014338` and CommunityModules `SequencesExt.tla`
+(SHA-256 `8b96d0ff74836cca2adfb7da3b32846ca64c4d466d543b55c8d05c32b64aa0f6`)
+confirm that the evaluating override handles strings and otherwise evaluates
+the TLA+ definition. `ReplaceFirstSubSeq` chooses the first occurrence;
+`ReplaceAllSubSeqs` maximizes non-overlapping fixed-pattern occurrences and
+then chooses their leftmost positions. On a nonempty sequence an empty pattern
+inserts before each element, with no trailing insertion. If both pattern and
+text are empty, ReplaceAll returns the replacement. The pure oracle fixture
+`core-replace/SeqReplacePure` checks fourteen such results and completes with
+1 distinct / 2 generated / depth 1, success/exit 0.
+
+Effects must not be treated as a single value snapshot. On
+`core-replace/SeqReplaceInlineEffect`, the pinned oracle prints argument tags
+`r,s,t,s,t,r` at each of two states, versus only `r,s,t` for the otherwise
+equivalent string fixture. Both complete with 2 distinct / 2 generated / depth
+2, success/exit 0. These exact order/count observations were captured before
+implementing the new supported slice; raw outputs remain external. Pure
+sequence arguments can use the direct fixed-pattern algorithm. Non-string
+arguments with effects remain explicitly refused; existing effectful string
+calls retain the override's single evaluation.
+
+The supported slice is now pure materialized sequences whose combined elements
+are all integers, all booleans or all strings (including empty sequences).
+Uniform scalar classes avoid skipping the comparison errors that normalization
+of the fallback's `SubSeqs(t)` can expose. Mixed, compound, model-value and lazy
+sequence arguments remain refused even when an early CASE arm might succeed.
+The direct matcher uses a KMP prefix table and consumes each selected match,
+so its work is linear in input plus output size. Inputs and materialized output
+are bounded at 2^24 elements; scans and copies charge constant-fold fuel.
+The repeatability proof also refuses compiled calls and free slots, whose
+callee/capture effects are not represented by the expression's effect bit.
+The existing string path is unchanged.
+
+`core_sequence_replace` checks the pinned pure results and 3-state first-match /
+2-state all-match violations in both profiles at 1, 4 and 8 workers, with folding,
+memoization and hash-consing controls. Each word validates independently and a
+changed intermediate state is rejected. Refusal fixtures check auto fallback,
+including retained output for effectful sequence arguments. An exhaustive
+13,230-case test independently enumerates non-overlapping occurrence subsets to
+check the maximum-count/leftmost rule. Remaining work is general fallback demand
+and comparison order for compound, mixed, lazy or effectful arguments, not
+another eager string-style replacement routine.
+
+Source mutation controls fail when overlapping matches are retained, when an
+extra trailing empty-pattern insertion is added, or when the repeated-demand
+guard is bypassed. The restored implementation passes the same focused tests.

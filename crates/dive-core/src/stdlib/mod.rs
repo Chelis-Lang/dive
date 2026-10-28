@@ -2,7 +2,7 @@
 //! table (`dive_ir::StdOp`, `crates/dive-ir/src/std_op.rs`).
 //!
 //! The compiler asks [`implements`] for a standard operator it does not
-//! compile itself and emits `Node::Lib(op, args)`; the evaluator evaluates
+//! compile itself and emits `Node::Lib`; the evaluator evaluates
 //! the arguments (normalized) and calls [`call`]. Semantics, error points
 //! and error classes are the reference engine's
 //! (`crates/dive-eval/src/community.rs`, `std.rs`), which follow TLC's Java

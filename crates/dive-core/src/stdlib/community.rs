@@ -1,7 +1,7 @@
 //! CommunityModules operators that take only values: `SequencesExt`
 //! (`Contains`, `RemoveFirst`, `Suffixes`, `AllSubSeqs`, `SetToSeq`,
 //! `IsPrefix`, `LongestCommonPrefix`, and `ReplaceFirstSubSeq` and
-//! `ReplaceAllSubSeqs` on strings), `Functions` (`IsInjective`) and
+//! `ReplaceAllSubSeqs` on strings and pure scalar sequences), `Functions` (`IsInjective`) and
 //! `Bitwise`. The reference is
 //! `crates/dive-eval/src/community.rs` (`call_ext`), which follows the Java
 //! overrides of `tlc2.overrides` (`docs/provenance.md`).
@@ -256,8 +256,8 @@ fn longest_common_prefix(m: &mut Machine, op: StdOp, s: Handle) -> Result<Handle
 }
 
 /// `ReplaceFirstSubSeq(r, s, t)` and `ReplaceAllSubSeqs(r, s, t)` on
-/// strings, as TLC's override computes them. On other values TLC evaluates
-/// the TLA+ definition, which the core does not yet do.
+/// strings, as TLC's override computes them, or pure scalar sequences,
+/// matching the fallback definition in `SequencesExt.tla`.
 fn replace_sub_seq(
     m: &mut Machine,
     op: StdOp,
@@ -266,10 +266,7 @@ fn replace_sub_seq(
     t: Handle,
 ) -> Result<Handle, Error> {
     let (Some(r), Some(s), Some(t)) = (r.as_str_id(), s.as_str_id(), t.as_str_id()) else {
-        return Err(refuse(
-            op,
-            "arguments that are not all strings, for which TLC evaluates the TLA+ definition (M1 core)",
-        ));
+        return replace_sequence(m, op, r, s, t);
     };
     let strings = m.heap.store().strings();
     let (Some(r), Some(s), Some(t)) = (strings.text(r), strings.text(s), strings.text(t)) else {
@@ -301,6 +298,139 @@ fn replace_sub_seq(
         t.replace(s, r)
     };
     m.heap.string(&out)
+}
+
+/// The fallback's maximum number of non-overlapping fixed-length matches
+/// is obtained by choosing the earliest match each time. Exchanging a
+/// later first match for the earliest cannot remove a later match. Repeating
+/// that exchange also gives the componentwise-leftmost choice in the TLA+
+/// definition. KMP finds those positions without constructing `SubSeqs(t)`.
+/// Scalar classes are kept uniform so its normalized set cannot raise a
+/// comparison error that this direct scan would skip.
+fn replace_sequence(
+    m: &mut Machine,
+    op: StdOp,
+    replacement: Handle,
+    pattern: Handle,
+    text: Handle,
+) -> Result<Handle, Error> {
+    let (Some(r), Some(s), Some(t)) = (
+        tuple(m, op, replacement)?,
+        tuple(m, op, pattern)?,
+        tuple(m, op, text)?,
+    ) else {
+        return Err(refuse(
+            op,
+            "arguments that are neither all strings nor all materialized sequences",
+        ));
+    };
+    if [r.len(), s.len(), t.len()]
+        .into_iter()
+        .any(|len| len > crate::heap::MAX_MATERIALIZE)
+    {
+        return Err(refuse(op, "a sequence argument of more than 2^24 elements"));
+    }
+    m.charge(r.len() + s.len() + t.len())?;
+    let mut class = None;
+    for &value in r.iter().chain(&s).chain(&t) {
+        let next = compare::class(&m.heap, value);
+        if !matches!(
+            next,
+            compare::Class::Bool | compare::Class::Int | compare::Class::Str
+        ) || class.is_some_and(|previous| previous != next)
+        {
+            return Err(refuse(
+                op,
+                "sequence elements outside one scalar class (booleans, integers or strings), whose fallback comparison order is not implemented",
+            ));
+        }
+        class = Some(next);
+    }
+    let all = op == StdOp::SequencesExtReplaceAllSubSeqs;
+    let equal = |a: &[Handle], b: &[Handle]| {
+        a.len() == b.len() && a.iter().zip(b).all(|(&x, &y)| m.heap.eq(x, y))
+    };
+    // These are the first two CASE arms, before the empty-pattern arm.
+    if all && equal(&s, &t) {
+        return Ok(replacement);
+    }
+    if all && equal(&r, &s) {
+        return Ok(text);
+    }
+    let mut out = Vec::new();
+    if s.is_empty() {
+        if all {
+            for value in t {
+                replacement_extend(m, op, &mut out, &r)?;
+                replacement_extend(m, op, &mut out, &[value])?;
+            }
+        } else {
+            replacement_extend(m, op, &mut out, &r)?;
+            replacement_extend(m, op, &mut out, &t)?;
+        }
+        return Ok(m.heap.tuple(&out));
+    }
+    if s.len() > t.len() {
+        return Ok(text);
+    }
+    let mut failure = vec![0; s.len()];
+    let mut matched = 0;
+    for i in 1..s.len() {
+        while matched > 0 && !m.heap.eq(s[i], s[matched]) {
+            m.charge(1)?;
+            matched = failure[matched - 1];
+        }
+        m.charge(1)?;
+        if m.heap.eq(s[i], s[matched]) {
+            matched += 1;
+        }
+        failure[i] = matched;
+    }
+    let mut copied = 0;
+    matched = 0;
+    for (i, &value) in t.iter().enumerate() {
+        while matched > 0 && !m.heap.eq(value, s[matched]) {
+            m.charge(1)?;
+            matched = failure[matched - 1];
+        }
+        m.charge(1)?;
+        if m.heap.eq(value, s[matched]) {
+            matched += 1;
+        }
+        if matched == s.len() {
+            replacement_extend(m, op, &mut out, &t[copied..i + 1 - s.len()])?;
+            replacement_extend(m, op, &mut out, &r)?;
+            copied = i + 1;
+            if !all {
+                break;
+            }
+            matched = 0; // A match consumes the whole pattern; overlaps lose.
+        }
+    }
+    if copied == 0 {
+        return Ok(text);
+    }
+    replacement_extend(m, op, &mut out, &t[copied..])?;
+    Ok(m.heap.tuple(&out))
+}
+
+/// Bounds materialized output before allocating or copying it, and accounts
+/// for that work in the compiler's existing constant-fold fuel.
+fn replacement_extend(
+    m: &mut Machine,
+    op: StdOp,
+    out: &mut Vec<Handle>,
+    values: &[Handle],
+) -> Result<(), Error> {
+    if out.len().saturating_add(values.len()) > crate::heap::MAX_MATERIALIZE {
+        return Err(refuse(
+            op,
+            "a replacement result of more than 2^24 elements",
+        ));
+    }
+    m.charge(values.len())?;
+    out.extend_from_slice(values);
+    Ok(())
 }
 
 /// `EC.TLC_MODULE_ONE_ARGUMENT_ERROR` (2283).
@@ -453,4 +583,137 @@ fn anti_function(m: &mut Machine, op: StdOp, f: Handle) -> Result<Handle, Error>
         }
     }
     Ok(m.heap.fcn_from_pairs(&mut out))
+}
+
+#[cfg(test)]
+mod replacement_tests {
+    use std::sync::Arc;
+
+    use crate::memo::Memo;
+    use crate::{Opts, Store};
+
+    use super::*;
+
+    fn words(alphabet: [Handle; 2], maximum: usize) -> Vec<Vec<Handle>> {
+        (0..=maximum)
+            .flat_map(|len| {
+                (0..1usize << len)
+                    .map(move |mask| (0..len).map(|i| alphabet[(mask >> i) & 1]).collect())
+            })
+            .collect()
+    }
+
+    // Directly enumerate the TLA+ choice's non-overlapping match positions,
+    // maximize their count and choose the lexicographically earliest list.
+    // This oracle does not use the implementation's prefix table or scan.
+    fn expected(r: &[Handle], s: &[Handle], t: &[Handle], all: bool) -> Vec<Handle> {
+        if all && s == t {
+            return r.to_vec();
+        }
+        if all && r == s {
+            return t.to_vec();
+        }
+        if s.is_empty() {
+            return if all {
+                t.iter()
+                    .flat_map(|&x| r.iter().copied().chain([x]))
+                    .collect()
+            } else {
+                r.iter().chain(t).copied().collect()
+            };
+        }
+        let positions: Vec<usize> = t
+            .windows(s.len())
+            .enumerate()
+            .filter_map(|(i, values)| (values == s).then_some(i))
+            .collect();
+        let mut best = Vec::new();
+        for mask in 0..1usize << positions.len() {
+            let selected: Vec<usize> = positions
+                .iter()
+                .enumerate()
+                .filter_map(|(i, &p)| (mask & (1 << i) != 0).then_some(p))
+                .collect();
+            if selected.windows(2).any(|p| p[1] < p[0] + s.len()) {
+                continue;
+            }
+            if selected.len() > best.len() || (selected.len() == best.len() && selected < best) {
+                best = selected;
+            }
+        }
+        if !all {
+            best = positions.into_iter().take(1).collect();
+        }
+        let mut result = Vec::new();
+        let mut copied = 0;
+        for p in best {
+            result.extend_from_slice(&t[copied..p]);
+            result.extend_from_slice(r);
+            copied = p + s.len();
+        }
+        result.extend_from_slice(&t[copied..]);
+        result
+    }
+
+    #[test]
+    fn scalar_replacements_equal_exhaustive_leftmost_maximum_choice() -> Result<(), Error> {
+        let mut m = Machine::new(
+            Arc::new(Store::new(false)),
+            0,
+            Opts::default(),
+            Memo::new(&[]),
+        );
+        let alphabet = [m.heap.int_from_i64(0), m.heap.int_from_i64(1)];
+        let replacements = words(alphabet, 2);
+        let patterns = words(alphabet, 3);
+        let texts = words(alphabet, 5);
+        let mut compared = 0;
+        for r in &replacements {
+            for s in &patterns {
+                for t in &texts {
+                    for op in [
+                        StdOp::SequencesExtReplaceFirstSubSeq,
+                        StdOp::SequencesExtReplaceAllSubSeqs,
+                    ] {
+                        let rh = m.heap.tuple(r);
+                        let sh = m.heap.tuple(s);
+                        let th = m.heap.tuple(t);
+                        let result = replace_sequence(&mut m, op, rh, sh, th)?;
+                        let actual = m.heap.view(result).data.to_vec();
+                        assert_eq!(
+                            actual,
+                            expected(r, s, t, op == StdOp::SequencesExtReplaceAllSubSeqs)
+                        );
+                        compared += 1;
+                        m.heap.reset();
+                    }
+                }
+            }
+        }
+        assert_eq!(compared, 13_230);
+        Ok(())
+    }
+
+    #[test]
+    fn sequence_replacement_accounts_for_constant_fold_work() {
+        let mut m = Machine::new(
+            Arc::new(Store::new(false)),
+            0,
+            Opts::default(),
+            Memo::new(&[]),
+        );
+        let value = m.heap.int_from_i64(1);
+        let sequence = m.heap.tuple(&[value]);
+        m.fuel = 0;
+        let result = replace_sequence(
+            &mut m,
+            StdOp::SequencesExtReplaceFirstSubSeq,
+            sequence,
+            sequence,
+            sequence,
+        );
+        assert!(
+            matches!(result, Err(ref error) if error.message().contains("constant-folding budget"))
+        );
+    }
 }

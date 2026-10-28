@@ -638,7 +638,7 @@ impl Compiler<'_> {
                     add(x, &mut i);
                 }
             }
-            Node::Lib(op, xs) => {
+            Node::Lib { op, args: xs, .. } => {
                 for &x in xs {
                     add(x, &mut i);
                 }
@@ -1130,7 +1130,7 @@ impl Compiler<'_> {
             self.effect_allowed(&n)?;
             self.effects.any = true;
         }
-        if let Node::Lib(op, _) = &n {
+        if let Node::Lib { op, .. } = &n {
             match op {
                 StdOp::TlcPrint | StdOp::TlcPrintT => self.effects.prints = true,
                 StdOp::TlcRandomElement => self.effects.draws = true,
@@ -3195,6 +3195,21 @@ impl Compiler<'_> {
         self.push(Node::LibHo(op, out.into()))
     }
 
+    /// Records whether a value-only library call can replace a repeated-demand
+    /// TLA+ definition without changing argument effects.
+    fn lib_node(&self, op: StdOp, args: Vec<P>) -> Node {
+        let repeatable_args = args.iter().all(|&p| {
+            let info = &self.info[p as usize];
+            // Calls and free slots can hide effects in a callee or capture.
+            !info.effect && !info.calls && info.free.is_empty()
+        });
+        Node::Lib {
+            op,
+            args: args.into(),
+            repeatable_args,
+        }
+    }
+
     fn std_apply(&mut self, op: StdOp, args: &[Arg], env: usize, mode: Mode) -> Result<P, Error> {
         use StdOp as S;
         if let Some(&t) = self.h.std_redirects.get(&op) {
@@ -3281,9 +3296,9 @@ impl Compiler<'_> {
                 };
                 self.effects.registers |= register;
                 self.effects.level |= !register;
-                Node::Lib(op, ps.into())
+                self.lib_node(op, ps)
             }
-            other if crate::stdlib::implements(other) => Node::Lib(other, ps.into()),
+            other if crate::stdlib::implements(other) => self.lib_node(other, ps),
             other => {
                 return Err(Error::unsupported(format!(
                     "the standard operator {} (M0 core)",
