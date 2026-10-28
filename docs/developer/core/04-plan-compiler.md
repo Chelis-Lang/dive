@@ -424,6 +424,15 @@ records, tuples, empty values, generic functions and literal views. This
 optimizes the existing guard; the M2 exact checked-comparison port remains
 separate work.
 
+The shared Linux gate-node diagnostic measured a 2.33× TLC-profile
+improvement on the same 1,000-state TLCSailfish1 prefix (three interleaved
+repetitions; 0.630 s to 0.270 s), with unchanged observables. The default
+profile stayed at 0.082 s. The prototype also completed the original model
+under TLC semantics with the golden's 109,604 distinct / 314,144 generated /
+depth 16 in 202.1 s. This is not a quiet x86 gate or a complete-run speedup
+claim: the full baseline was not repeated on that host. See
+`conformance/reports/perf/2026-10-28-core-tlc-comparison-guard-diagnostic.json`.
+
 ### 5.2 Typed classes (built)
 
 An evaluation error carries `Option<TlcClass>` (`crates/dive-core/src/lib.rs`):

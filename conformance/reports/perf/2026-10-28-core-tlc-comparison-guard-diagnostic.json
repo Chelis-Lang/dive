@@ -1,0 +1,146 @@
+{
+  "format_version": 1,
+  "date": "2026-10-28",
+  "campaign": "core-tlc-comparison-guard-diagnostic",
+  "purpose": "One bounded streaming-accumulator prototype after the TLC-profile TLCSailfish1 performance finding; not milestone performance acceptance",
+  "host": {
+    "instance_type": "c7i.16xlarge",
+    "role": "shared Linux gate node",
+    "quiet_window_certified": false,
+    "smt_turbo_affinity": "not controlled as on the reference benchmark node"
+  },
+  "binary": {
+    "baseline_commit": "277613e870445dacf607f170f8cbb86692788730",
+    "baseline_core_runtime": "identical to e2183389 per handover gate revision",
+    "baseline_sha256": "fb8baade736d1b3a56d273f84d67f898c913f3b254e91fa046d775cd9ea325d0",
+    "prototype_commit": "1374df4ebd395c07255e1691256ba9c0f8d132f7",
+    "prototype_sha256": "f9dd683b0766db5eaab99f246536c6043bb27c2f8dc54aadce68fc07fce42b6e",
+    "rustc": "1.99.0",
+    "build": "release, fresh prototype worktree and exclusive target"
+  },
+  "inputs": {
+    "model": "specifications/dag-consensus/TLCSailfish1.cfg",
+    "corpus_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "golden_oracle": "tlc-2026.10.06.014338",
+    "workers": 1,
+    "seed": 0,
+    "fp": 0
+  },
+  "prefix": {
+    "repetitions": 3,
+    "schedule": "default then TLC; baseline/prototype arms reversed on odd repetitions",
+    "max_states": 1000,
+    "time_limit_s": 30,
+    "max_memory_bytes": 3221225472,
+    "external_backstop_s": 40,
+    "all_observables_unchanged": true,
+    "counts": {
+      "distinct": 1000,
+      "generated": 2087,
+      "depth": 10,
+      "left_on_queue": 575
+    },
+    "outcome": "stopped at state limit, exit 5; no model verdict",
+    "median_wall_s": {
+      "default-baseline": 0.08234495399983643,
+      "default-prototype": 0.08252192000009018,
+      "tlc-baseline": 0.6296526569999514,
+      "tlc-prototype": 0.2698572829999648
+    },
+    "tlc_profile_speedup": 2.3332802064861577,
+    "runs": [
+      {
+        "profile": "default",
+        "arm": "baseline",
+        "wall_s": 0.08333009199986918
+      },
+      {
+        "profile": "default",
+        "arm": "prototype",
+        "wall_s": 0.08385081999995236
+      },
+      {
+        "profile": "tlc",
+        "arm": "baseline",
+        "wall_s": 0.6296526569999514
+      },
+      {
+        "profile": "tlc",
+        "arm": "prototype",
+        "wall_s": 0.2698572829999648
+      },
+      {
+        "profile": "default",
+        "arm": "prototype",
+        "wall_s": 0.08229286100004174
+      },
+      {
+        "profile": "default",
+        "arm": "baseline",
+        "wall_s": 0.08234495399983643
+      },
+      {
+        "profile": "tlc",
+        "arm": "prototype",
+        "wall_s": 0.2682625959996585
+      },
+      {
+        "profile": "tlc",
+        "arm": "baseline",
+        "wall_s": 0.6289152729996204
+      },
+      {
+        "profile": "default",
+        "arm": "baseline",
+        "wall_s": 0.08210114300027271
+      },
+      {
+        "profile": "default",
+        "arm": "prototype",
+        "wall_s": 0.08252192000009018
+      },
+      {
+        "profile": "tlc",
+        "arm": "baseline",
+        "wall_s": 0.6306487039996682
+      },
+      {
+        "profile": "tlc",
+        "arm": "prototype",
+        "wall_s": 0.27000159299996085
+      }
+    ]
+  },
+  "complete_prototype_run": {
+    "profile": "tlc",
+    "wall_s": 202.1328461789999,
+    "time_limit_s": 900,
+    "max_memory_bytes": 3221225472,
+    "external_backstop_s": 930,
+    "verdict": "success",
+    "exit_code": 0,
+    "counts": {
+      "depth": 16,
+      "distinct": 109604,
+      "generated": 314144,
+      "initial_generated": 1,
+      "left_on_queue": 0,
+      "reported_by_tlc": true
+    },
+    "matches_golden": true
+  },
+  "validation": {
+    "core_unit_tests": 45,
+    "api_semantic_tests": 13,
+    "ordered_shape_pairs": 746496,
+    "five_value_sequences": 4096,
+    "original_shape_and_unify_unchanged": true
+  },
+  "limitations": [
+    "Shared-host diagnostic, not a quiet x86 gate.",
+    "Complete baseline run was not repeated on this host; no full-run speedup ratio is claimed.",
+    "No new broad benchmark, scaling, startup or peak-memory acceptance follows.",
+    "The existing conservative comparison refusals remain; the M2 exact checked-comparison port remains open."
+  ],
+  "preservation": "Raw reports and commands retained outside the repository; regenerate from the recorded revisions and pinned input."
+}

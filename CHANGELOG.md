@@ -3,6 +3,8 @@
 - Fix core counterexample reconstruction with `DIVE_CORE_OPT=-hashcons`: compound
   states now retain the invariant verdict and independently replayable word
   instead of an internal trace error (#603).
+- Reduce temporary comparison-shape allocations in the core's TLC profile,
+  preserving the current comparison errors and named refusals.
 
 - `--engine core` evaluates `ENABLED` (outside an `INSTANCE` with
   substitutions, which is still refused): BufferedRandomAccessFile now runs on
