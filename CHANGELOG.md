@@ -1,5 +1,9 @@
 # Changelog
 
+- `--engine core` reports TLC's model error (2115, exit 75) when initial
+  states exist but no next-state action was defined. Disabling deadlock
+  checking does not turn this error into success; an empty Init still succeeds.
+
 - `--engine core` evaluates `ENABLED` (outside an `INSTANCE` with
   substitutions, which is still refused): BufferedRandomAccessFile now runs on
   the core, about 7 times faster than on the reference engine.
