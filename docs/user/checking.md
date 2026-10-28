@@ -47,15 +47,26 @@ core currently covers:
   reported as unsupported;
 - any number of workers. Every result (counts, verdict, trace, output) is
   the one-worker result;
-- safety only: invariants, constraints, `ACTION_CONSTRAINT`, deadlock, and
+- safety: invariants, constraints, `ACTION_CONSTRAINT`, deadlock, and
   the parts of a `PROPERTY` that are safety: `[]P`, its initial predicates
   and its actions `[][A]_v` (a refinement `PROPERTY` of another
   specification is of this kind), `SYMMETRY` (under `--compat=tlc`, with
   TLC's comparison; a comparison TLC could fail on is refused),
   `VIEW` (with `SYMMETRY` too, evaluated on the canonical state as TLC
   does), and `ALIAS` as the reference engine handles it (not applied yet,
-  with a note). A `PROPERTY` that needs liveness checking and
-  `POSTCONDITION` are reported as unsupported, naming the feature;
+  with a note). `POSTCONDITION` is reported as unsupported, naming the
+  feature;
+- liveness: a `PROPERTY` that needs liveness checking, with fairness. The
+  core explores the states and builds the behavior graph; the reference
+  engine's liveness checker then checks it, with the same schedule (in the
+  default profile, at completed levels, D-014; under `--compat=tlc`, once
+  the search is complete), the same independent validation of a
+  counterexample, and the same report. A temporal property together with
+  `VIEW`, `SYMMETRY`, `Print`, `RandomElement`, `TLCSet`, `TLCGet`,
+  `--max-states` or `--max-depth` is reported as unsupported. So, for now,
+  is a run whose liveness check fails rather than answers (a planning or
+  evaluation error, or a graph limit): `--engine auto` reports the
+  reference engine's result for it;
 - verdicts, TLC's distinct and generated counts and depth, counterexample
   traces in the reference engine's format, TLC's evaluation-error endings
   where the core can reproduce them, and the run budgets (`--time-limit`,

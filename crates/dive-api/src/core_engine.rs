@@ -78,6 +78,26 @@ pub(crate) struct CoreRun {
     pub(crate) sample: Json,
 }
 
+/// What a core run produced: a safety result, or a temporal report.
+#[derive(Debug)]
+pub(crate) enum CoreOutcome {
+    /// A safety result (also a refusal, or the safety ending of a temporal
+    /// run).
+    Checked(Box<CheckResult>),
+    /// A temporal report, finished by the reference engine's path.
+    Temporal(Box<crate::temporal::Report>),
+}
+
+impl CoreOutcome {
+    /// The safety result, if this is one.
+    pub(crate) fn checked(&self) -> Option<&CheckResult> {
+        match self {
+            Self::Checked(r) => Some(r),
+            Self::Temporal(_) => None,
+        }
+    }
+}
+
 /// Why `--engine=auto` ran the reference engine.
 #[derive(Clone, Debug)]
 pub(crate) struct Fallback {
@@ -89,7 +109,8 @@ pub(crate) struct Fallback {
 
 impl Fallback {
     /// The fallback for a core run that ended in `unsupported`, if it did.
-    pub(crate) fn of(result: &CheckResult, run: &CoreRun) -> Option<Self> {
+    pub(crate) fn of(outcome: &CoreOutcome, run: &CoreRun) -> Option<Self> {
+        let result = outcome.checked()?;
         match &result.verdict {
             Verdict::Unsupported { feature } => Some(Self {
                 stage: if run.searched { "dynamic" } else { "static" },
@@ -106,7 +127,7 @@ fn unsupported(feature: impl Into<String>) -> Verdict {
     }
 }
 
-fn result(verdict: Verdict, opts: &CheckOptions, ir: &Ir) -> CheckResult {
+pub(crate) fn result(verdict: Verdict, opts: &CheckOptions, ir: &Ir) -> CheckResult {
     CheckResult {
         symmetry_liveness: None,
         seen: None,
@@ -607,11 +628,10 @@ fn arm_draws(
 /// A model compiled for the core: what `check` explores.
 pub(crate) struct Prepared {
     pub(crate) model: dive_model::Model,
-    sym: Symmetry,
-    startup: Vec<String>,
+    pub(crate) start: Startup,
     pub(crate) store: Arc<dive_core::Store>,
     pub(crate) plan: dive_core::Plan,
-    compile_time: std::time::Duration,
+    pub(crate) compile_time: std::time::Duration,
 }
 
 /// The byte cap of each worker's memo tables: a sixty-fourth of the run's
@@ -658,11 +678,18 @@ pub(crate) fn prepare(
         dive_stdlib::random::Streams::new(options.seed, mode),
         None,
     ));
+    let defaults = dive_model::BindOptions::dive();
     let bind = dive_model::BindOptions {
         eval: options.eval,
         no_deadlock: options.no_deadlock,
         host: Some(Arc::clone(&host) as Arc<dyn dive_eval::Host>),
-        ..dive_model::BindOptions::dive()
+        // The temporal route reports the requested policy, as the reference
+        // engine binds it; it only matters with temporal properties.
+        symmetry_liveness: if temporal {
+            options.symmetry_liveness
+        } else {
+            defaults.symmetry_liveness
+        },
     };
     let mut model = match dive_model::bind(Arc::clone(ir), config, &bind) {
         Ok(m) => m,
@@ -754,127 +781,53 @@ pub(crate) fn prepare(
     }
     Ok(Prepared {
         model,
-        sym,
-        startup,
+        start: Startup { sym, startup },
         store,
         plan,
         compile_time,
     })
 }
 
-/// Runs the core engine.
-#[allow(clippy::too_many_lines, reason = "the stages of a core run, in order")]
-pub(crate) fn check(
-    ir: &Arc<Ir>,
-    config: &dive_config::ModelConfig,
-    options: &CheckOptions,
-    profile_tlc: bool,
-    switches: Option<&str>,
-    sample: Option<usize>,
-) -> (CheckResult, CoreRun) {
-    let started = Instant::now();
-    let text = switches
-        .map(str::to_owned)
-        .or_else(|| std::env::var("DIVE_CORE_OPT").ok());
-    let core_opts = match text {
-        Some(text) => match dive_core::Opts::parse(&text) {
-            Ok(o) => o,
-            Err(e) => {
-                return (
-                    result(unsupported(format!("DIVE_CORE_OPT: {e}")), options, ir),
-                    CoreRun::default(),
-                );
-            }
-        },
-        None => dive_core::Opts::default(),
-    };
-    let core_opts = dive_core::Opts {
-        memo_cap: memo_cap(options.budget.memory, options.workers.max(1)),
-        ..core_opts
-    };
-    let mut run = CoreRun {
-        opts: core_opts.describe(),
-        metrics: Json::Null,
-        searched: false,
-        sample: Json::Null,
-    };
-    let finish = |mut r: CheckResult| {
-        r.elapsed = started.elapsed();
-        r
-    };
-    if let Some(feature) = option_refusal(options, profile_tlc) {
-        return (finish(result(unsupported(feature), options, ir)), run);
-    }
-    let Prepared {
-        model,
-        mut sym,
-        startup,
-        store,
-        plan,
-        compile_time,
-    } = match prepare(ir, config, options, profile_tlc, core_opts, false) {
-        Ok(p) => p,
-        Err(r) => return (finish(*r), run),
-    };
-    if plan.effects.registers && sample.is_some() {
-        return (
-            finish(result(
-                unsupported("--core-sample with TLCSet or TLCGet (M1 core)"),
-                options,
-                ir,
-            )),
-            run,
-        );
-    }
-    if plan.effects.draws && sample.is_some() {
-        return (
-            finish(result(
-                unsupported("--core-sample with RandomElement (M1 core)"),
-                options,
-                ir,
-            )),
-            run,
-        );
-    }
-    // The armed budget (time and memory, ADR 0107) is polled once per
-    // expanded state and per initial state, as the reference engine polls
-    // it; `--max-states` and `--max-depth` are admission limits.
+/// What a core search ran with, for its report.
+pub(crate) struct Search<'a> {
+    pub(crate) ir: &'a Arc<Ir>,
+    pub(crate) config: &'a dive_config::ModelConfig,
+    pub(crate) options: &'a CheckOptions,
+    pub(crate) profile_tlc: bool,
+    pub(crate) workers: usize,
+    pub(crate) explore_started: Instant,
+}
+
+/// What the start-up adds to a report: `SYMMETRY`'s warnings and note, and
+/// the binder's output.
+pub(crate) struct Startup {
+    sym: Symmetry,
+    startup: Vec<String>,
+}
+
+/// The safety result of a core search, in the reference engine's form.
+#[allow(
+    clippy::too_many_lines,
+    reason = "the endings of a core search, in order"
+)]
+pub(crate) fn safety_result(
+    search: &Search<'_>,
+    model: &dive_model::Model,
+    store: &Arc<dive_core::Store>,
+    plan: &dive_core::Plan,
+    start: Startup,
+    out: dive_explore::Outcome,
+) -> CheckResult {
+    let Search {
+        ir,
+        config,
+        options,
+        profile_tlc,
+        workers,
+        explore_started,
+    } = *search;
+    let Startup { mut sym, startup } = start;
     let budget = &options.budget;
-    // Every observable result is the one-worker result
-    // (`docs/developer/core/07-engine.md` §3), in both profiles: under
-    // TLC's string order the table is sealed, so no worker creates a token.
-    let workers = options.workers.max(1);
-    let poll = || !matches!(budget.poll(), Ok(None));
-    let explore_started = Instant::now();
-    run.searched = true;
-    let sample = sample.map(|states| dive_explore::sample::Sample {
-        seed: options.seed.cast_unsigned(),
-        states,
-    });
-    let out = dive_explore::explore(
-        &plan,
-        &store,
-        dive_explore::Config {
-            opts: core_opts,
-            max_states: options.max_states,
-            max_depth: options.max_depth,
-            workers,
-            warn: options.eval.warnings,
-            sample,
-        },
-        &poll,
-    );
-    if let Some(sample) = sample {
-        run.sample = crate::core_sample::compare(
-            &model,
-            &plan,
-            &store,
-            core_opts,
-            options.eval.warnings,
-            sample,
-            &out.sampled,
-        );
-    }
     if plan.effects.registers && out.verdict != dive_explore::Verdict::Success {
         // TLC writes and reads its registers again while it rebuilds a
         // trace or replays an error; the core does not reproduce that yet.
@@ -883,7 +836,7 @@ pub(crate) fn check(
             dive_explore::Verdict::Internal { message } => Verdict::InternalError { message },
             _ => unsupported("TLCSet or TLCGet in a run that does not end in success (M1 core)"),
         };
-        return (finish(result(v, options, ir)), run);
+        return result(v, options, ir);
     }
     if plan.effects.prints
         && (out.verdict != dive_explore::Verdict::Success || !out.warnings.is_empty())
@@ -898,7 +851,7 @@ pub(crate) fn check(
                 "Print or PrintT in a run that does not end in success, or that warns (M1 core)",
             ),
         };
-        return (finish(result(v, options, ir)), run);
+        return result(v, options, ir);
     }
     let failed = out.verdict == dive_explore::Verdict::Failed;
     let verdict = match out.verdict {
@@ -972,7 +925,7 @@ pub(crate) fn check(
         Verdict::InvariantViolated { initial: false, .. } | Verdict::ActionPropertyViolated { .. }
     );
     if let Some(f) = out.failure.as_ref().filter(|_| failed) {
-        match crate::core_ending::ending(&model, &store, f, out.replayed.as_ref()) {
+        match crate::core_ending::ending(model, store, f, out.replayed.as_ref()) {
             Ok(end) => {
                 verdict = end.verdict;
                 in_init = end.in_init;
@@ -1062,7 +1015,7 @@ pub(crate) fn check(
         match trace
             .as_ref()
             .map_err(Clone::clone)
-            .and_then(|t| counterexample(&model, &store, t))
+            .and_then(|t| counterexample(model, store, t))
         {
             Ok(cx) => r.counterexample = Some(cx),
             Err(message) => {
@@ -1090,8 +1043,201 @@ pub(crate) fn check(
     if !profile_tlc && r.verdict.is_verdict() && r.verdict != Verdict::Success {
         r.notes.push(CANONICAL_STOP_NOTE.to_owned());
     }
+    r
+}
+
+/// Runs the core engine.
+#[allow(clippy::too_many_lines, reason = "the stages of a core run, in order")]
+pub(crate) fn check(
+    ir: &Arc<Ir>,
+    config: &dive_config::ModelConfig,
+    options: &CheckOptions,
+    profile_tlc: bool,
+    switches: Option<&str>,
+    sample: Option<usize>,
+    route: Option<crate::core_temporal::Route>,
+) -> (CoreOutcome, CoreRun) {
+    let started = Instant::now();
+    let text = switches
+        .map(str::to_owned)
+        .or_else(|| std::env::var("DIVE_CORE_OPT").ok());
+    let core_opts = match text {
+        Some(text) => match dive_core::Opts::parse(&text) {
+            Ok(o) => o,
+            Err(e) => {
+                return (
+                    CoreOutcome::Checked(Box::new(result(
+                        unsupported(format!("DIVE_CORE_OPT: {e}")),
+                        options,
+                        ir,
+                    ))),
+                    CoreRun::default(),
+                );
+            }
+        },
+        None => dive_core::Opts::default(),
+    };
+    let core_opts = dive_core::Opts {
+        memo_cap: memo_cap(options.budget.memory, options.workers.max(1)),
+        ..core_opts
+    };
+    let mut run = CoreRun {
+        opts: core_opts.describe(),
+        metrics: Json::Null,
+        searched: false,
+        sample: Json::Null,
+    };
+    let finish = |mut r: CheckResult| {
+        r.elapsed = started.elapsed();
+        CoreOutcome::Checked(Box::new(r))
+    };
+    if let Some(feature) = option_refusal(options, profile_tlc) {
+        return (finish(result(unsupported(feature), options, ir)), run);
+    }
+    let prepared = match prepare(ir, config, options, profile_tlc, core_opts, route.is_some()) {
+        Ok(p) => p,
+        Err(r) => return (finish(*r), run),
+    };
+    if prepared.plan.effects.registers && sample.is_some() {
+        return (
+            finish(result(
+                unsupported("--core-sample with TLCSet or TLCGet (M1 core)"),
+                options,
+                ir,
+            )),
+            run,
+        );
+    }
+    if prepared.plan.effects.draws && sample.is_some() {
+        return (
+            finish(result(
+                unsupported("--core-sample with RandomElement (M1 core)"),
+                options,
+                ir,
+            )),
+            run,
+        );
+    }
+    if let Some(route) = route
+        && !prepared.model.implied_temporals.is_empty()
+    {
+        let outcome = temporal_on_stack(
+            ir,
+            config,
+            options,
+            (profile_tlc, core_opts),
+            prepared,
+            route,
+            &mut run,
+        );
+        return match outcome {
+            CoreOutcome::Checked(r) => (finish(*r), run),
+            t @ CoreOutcome::Temporal(_) => (t, run),
+        };
+    }
+    let Prepared {
+        model,
+        start,
+        store,
+        plan,
+        compile_time,
+    } = prepared;
+    // The armed budget (time and memory, ADR 0107) is polled once per
+    // expanded state and per initial state, as the reference engine polls
+    // it; `--max-states` and `--max-depth` are admission limits.
+    let budget = &options.budget;
+    // Every observable result is the one-worker result
+    // (`docs/developer/core/07-engine.md` §3), in both profiles: under
+    // TLC's string order the table is sealed, so no worker creates a token.
+    let workers = options.workers.max(1);
+    let poll = || !matches!(budget.poll(), Ok(None));
+    let explore_started = Instant::now();
+    run.searched = true;
+    let sample = sample.map(|states| dive_explore::sample::Sample {
+        seed: options.seed.cast_unsigned(),
+        states,
+    });
+    let out = dive_explore::explore(
+        &plan,
+        &store,
+        dive_explore::Config {
+            opts: core_opts,
+            max_states: options.max_states,
+            max_depth: options.max_depth,
+            workers,
+            warn: options.eval.warnings,
+            sample,
+        },
+        &poll,
+    );
+    if let Some(sample) = sample {
+        run.sample = crate::core_sample::compare(
+            &model,
+            &plan,
+            &store,
+            core_opts,
+            options.eval.warnings,
+            sample,
+            &out.sampled,
+        );
+    }
     run.metrics = metrics_json(&plan, &out.metrics, compile_time);
+    let search = Search {
+        ir,
+        config,
+        options,
+        profile_tlc,
+        workers,
+        explore_started,
+    };
+    let r = safety_result(&search, &model, &store, &plan, start, out);
     (finish(r), run)
+}
+
+/// Runs the temporal route on a thread with the evaluator's stack, as the
+/// reference engine runs its temporal checks.
+fn temporal_on_stack(
+    ir: &Arc<Ir>,
+    config: &dive_config::ModelConfig,
+    options: &CheckOptions,
+    (profile_tlc, core_opts): (bool, dive_core::Opts),
+    prepared: Prepared,
+    route: crate::core_temporal::Route,
+    run: &mut CoreRun,
+) -> CoreOutcome {
+    let joined = std::thread::scope(|scope| {
+        std::thread::Builder::new()
+            .stack_size(dive_eval::RECOMMENDED_STACK)
+            .spawn_scoped(scope, || {
+                crate::core_temporal::check(
+                    ir,
+                    config,
+                    options,
+                    (profile_tlc, core_opts),
+                    prepared,
+                    route,
+                    run,
+                )
+            })
+            .map(std::thread::ScopedJoinHandle::join)
+    });
+    match joined {
+        Ok(Ok(outcome)) => outcome,
+        Ok(Err(_)) => CoreOutcome::Checked(Box::new(result(
+            Verdict::InternalError {
+                message: "the core temporal thread panicked".into(),
+            },
+            options,
+            ir,
+        ))),
+        Err(e) => CoreOutcome::Checked(Box::new(result(
+            Verdict::InternalError {
+                message: format!("the core temporal thread did not start: {e}"),
+            },
+            options,
+            ir,
+        ))),
+    }
 }
 
 /// The counterexample of a core run, in the reference engine's form, so
@@ -1173,7 +1319,7 @@ pub(crate) fn to_value(
     )
 }
 
-fn metrics_json(
+pub(crate) fn metrics_json(
     plan: &dive_core::Plan,
     m: &dive_explore::Metrics,
     compile_time: std::time::Duration,

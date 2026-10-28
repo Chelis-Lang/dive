@@ -613,9 +613,10 @@ fn check_file_in(
             req.compat_tlc,
             core_switches,
             req.core_sample,
+            core_route(req, &armed),
         );
         report.core = Some(Box::new(run));
-        Phase::Checked(Box::new(result))
+        result.into()
     } else if engine == crate::Engine::Auto {
         let (result, run) = crate::core_engine::check(
             &ir,
@@ -624,6 +625,7 @@ fn check_file_in(
             req.compat_tlc,
             core_switches,
             req.core_sample,
+            core_route(req, &armed),
         );
         if let Some(fallback) = crate::core_engine::Fallback::of(&result, &run) {
             // The whole check again, on the reference engine; the core's
@@ -633,7 +635,7 @@ fn check_file_in(
             check_backend(&ir, &model, &armed, req.temporal, req.periodic)
         } else {
             report.core = Some(Box::new(run));
-            Phase::Checked(Box::new(result))
+            result.into()
         }
     } else {
         check_backend(&ir, &model, &armed, req.temporal, req.periodic)
@@ -645,6 +647,23 @@ fn check_file_in(
     report.memory_samples = armed.budget.memory_samples();
     drop(watchdog);
     Ok(report)
+}
+
+/// The core's temporal route for this request: ordinary checking only,
+/// with the default profile's completed-level schedule or, under the TLC
+/// profile, the final check alone (as `check_backend` routes it).
+fn core_route(req: &CheckRequest, options: &CheckOptions) -> Option<crate::core_temporal::Route> {
+    (req.temporal == TemporalMode::Ordinary)
+        .then(|| (options.profile == dive_eval::Profile::Dive).then_some(req.periodic))
+}
+
+impl From<crate::core_engine::CoreOutcome> for Phase {
+    fn from(outcome: crate::core_engine::CoreOutcome) -> Self {
+        match outcome {
+            crate::core_engine::CoreOutcome::Checked(r) => Self::Checked(r),
+            crate::core_engine::CoreOutcome::Temporal(r) => Self::Temporal(r),
+        }
+    }
 }
 
 fn resolve_memory(

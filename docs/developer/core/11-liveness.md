@@ -210,25 +210,48 @@ engine's path.
 
 ## 6. Verdicts, counts and the report (`dive-api`)
 
-`core_engine::check` gains a temporal route. When a model has
-`implied_temporals` and none of the §3 refusals applies, it:
+`core_engine::check` has a temporal route (`core_temporal.rs`), for
+ordinary checking (`TemporalMode::Ordinary`): with the completed-level
+schedule in the default profile, the final check alone under
+`--compat=tlc`, as `check_backend` routes the reference engine. `prepare`
+binds, checks the `ASSUME`s and compiles the plan for both routes; on the
+temporal route the binder's temporal-property entry is not a refusal, and
+the model is bound with the requested symmetry-liveness policy. When the
+model has `implied_temporals`, the route:
 
-1. compiles the plan as for safety, including the implied initial and
-   action checks;
-2. prepares a `GraphCheck`, so planning errors and refusals come before the
-   search, as on the reference engine;
-3. runs the explorer with the sink. The safety checks behave as now, and a
-   safety ending is reported exactly as the safety route reports it;
-4. on `level_done`, passes the converted graph so far to `GraphCheck::level`.
-   A candidate stops the search after that level;
-5. at exhaustion, completes the graph with `GraphBuilder::complete` and
-   calls `GraphCheck::finish`;
-6. returns `Phase::Temporal`, built by `finish_periodic` or `finish_final`.
+1. refuses what the reference capture refuses (`capture::refusal`), what
+   the reference's ordinary temporal dispatch excludes
+   (`final_roles::route_exclusion`), `Print`, `--max-states` and
+   `--max-depth`;
+2. prepares a `GraphCheck`, so planning comes before the search, as on the
+   reference engine;
+3. runs the explorer with the sink, on a thread with the evaluator's stack
+   (`RECOMMENDED_STACK`), as the reference runs its temporal checks. The
+   safety checks behave as on the safety route, and a safety ending is
+   reported as the reference's temporal route reports it (a safety result,
+   with the bound model's symmetry resolution);
+4. on `level_done`, passes the graph so far to `GraphCheck::level`. A
+   candidate stops the search after that level;
+5. completes the graph with `GraphBuilder::complete` (or builds the prefix
+   with `GraphBuilder::prefix`) and calls `GraphCheck::finish` (or
+   `finish_prefix`);
+6. returns the report built by `temporal::core_report`, which runs the
+   reference's `finish_periodic` (validation and report). A report whose
+   outcome is a safety result is returned as one.
+
+For now, a temporal failure is refused rather than reported: a planning
+failure, a graph limit or conversion failure (`GraphStop`), an analysis
+error and a validation failure. `--engine auto` then reports the
+reference engine's failure. This keeps the row-order question of §11 out
+of L4: every atom error falls back. Reporting the failures on the core is
+later work.
 
 `Fallback::of` treats the temporal route's refusals like any other refusal,
 so `--engine auto` falls back with the reason named. The JSON report gains
-the core's `liveness` metrics under `core`, which are not compared. All
-other fields equal the reference engine's.
+the core's `liveness` metrics under `core.metrics` (`convert_ms`,
+`converted_nodes`, `memo_entries`, `graph_states`), which are not compared.
+All other fields equal the reference engine's, except the fingerprint
+collision estimate, which the core does not report on any route.
 
 ## 7. Budgets
 
@@ -301,10 +324,30 @@ Each PR updates this document's status, the status board and the handoff log.
 
 ## 10. Census and results
 
-The small tier at `main`, before L4: to be filled from the `--impl
-dive:auto` census, giving the temporal models refused by the core and why.
-After L4: how many models moved to the core, and their counts against the
-goldens.
+**Before L4.** The core refused every genuine temporal property
+statically ("temporal properties (M0 core engine)"), so under `--engine
+auto` every such model ran on the reference engine.
+
+**After L4** (2026-10-28, `--impl dive:auto`, small tier of examples,
+probes, validation-smoke and configured-temporal-operators, 1 worker, TLC
+budgets capped at 900 s; harness reports kept outside the repository):
+
+| Profile | models | agree on the core | agree after a fallback | unsupported | disagree |
+|---|---|---|---|---|---|
+| default | 156 | 114 (+4 expected divergences) | 28 (+3 expected divergences) | 5 | 0 |
+| `--compat=tlc` | 156 | 108 | 40 | 6 | 0 |
+
+- 31 models with genuine temporal properties now run on the core and agree
+  with the goldens in both profiles: 29 from the examples (among them
+  CoffeeCan1000Beans, 501,500 distinct; TokenRing, 46,656; nbacg_guer01,
+  24,922; ReadersWriters, 21,527; and MCRealTimeHourClock, a liveness
+  violation) and the two configured-temporal-operators models.
+- Indicative timing, CoffeeCan1000Beans at one worker on M3: 0.77 s and
+  94 MB on the core, against 2.28 s and 134 MB on the reference engine.
+  The conversion took 152 ms for 501,500 states.
+- The temporal models still on the reference engine are refused for
+  constructs the core does not run yet: `ENABLED` (6), `SYMMETRY` with a
+  temporal property (P4SymLive), and other refusals of the safety route.
 
 ## 11. Risks and open points
 
@@ -334,6 +377,7 @@ goldens.
 - **Conversion memory in phase 1.** The memo bounds the cost, but a model
   near `capture::Limits` holds both the core store and the converted values.
   Phase 2 removes that duplication.
-- **Symmetry and VIEW liveness.** These follow the reference's
-  `symmetry_liveness` resolution, which is planned after phase 1 alongside
-  SYMMETRY under `--compat=tlc` (assignment item 2).
+- **Symmetry and VIEW liveness.** A temporal property with `SYMMETRY`
+  is refused for now; it will follow the reference's `symmetry_liveness`
+  resolution. SYMMETRY under `--compat=tlc` (#574) and VIEW with SYMMETRY
+  (#576) run on the safety route.

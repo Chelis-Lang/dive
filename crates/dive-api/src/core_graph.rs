@@ -8,13 +8,6 @@
 //! reference's. Compound values are converted once per handle: equal
 //! persistent handles are equal values, so the memo shares the converted
 //! value between states.
-#![cfg_attr(
-    not(test),
-    allow(
-        dead_code,
-        reason = "the temporal route of `core_engine` uses it next (L4)"
-    )
-)]
 
 use std::collections::HashMap;
 use std::time::{Duration, Instant};
