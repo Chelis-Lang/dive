@@ -60,6 +60,9 @@ pub enum Verdict {
     },
     /// A reachable state has no successors.
     Deadlock,
+    /// Initial states were retained, but no next-state action was defined
+    /// (TLC's `TLC_STATES_AND_NO_NEXT_ACTION`, rather than a deadlock).
+    NoNextAction,
     /// An implied initial predicate of a `PROPERTY` is false on an initial
     /// state.
     PropertyViolatedInitially {
@@ -1236,6 +1239,14 @@ fn run(
         .stats
         .depth
         .max(u64::from(ex.stats.initial_generated > 0));
+    // ModelChecker checks this after Init, before starting any workers.
+    // An empty initial frontier succeeds; defining a disabled action instead
+    // reaches the ordinary deadlock check, if enabled.
+    if plan.next.is_empty() && !ex.next.is_empty() {
+        ex.stats.left_on_queue = (ex.next.len() / nvars.max(1)) as u64;
+        ex.stop = Some(Verdict::NoNextAction);
+        return Err(Error::stop());
+    }
     m.heap.reset();
     ex.initial = false;
     ex.warnings.clone_from(&m.warnings);

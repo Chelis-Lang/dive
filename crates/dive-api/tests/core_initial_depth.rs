@@ -18,6 +18,7 @@ fn initial_depth_counts_emitted_states_instead_of_retained_states() {
             1,
         ),
         ("tests/fixtures/core-initial-depth/EmptyInitial.tla", 0, 0),
+        ("tests/fixtures/core-no-next/ExcludedNoNext.tla", 1, 1),
     ];
     for (fixture, generated, depth) in cases {
         for compat_tlc in [false, true] {

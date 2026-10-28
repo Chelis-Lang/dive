@@ -1,9 +1,5 @@
 # Changelog
 
-- `--engine core` reports depth one when constraints exclude every generated
-  initial state, matching TLC and the reference engine; an Init predicate
-  that generates no states still reports depth zero.
-
 - `--engine core` evaluates `ENABLED` (outside an `INSTANCE` with
   substitutions, which is still refused): BufferedRandomAccessFile now runs on
   the core, about 7 times faster than on the reference engine.
@@ -161,6 +157,12 @@
   several conjuncts (`Spec == Init /\ y \in S /\ [][Next]_v`). The core ran
   each conjunct as a separate initial predicate. It now conjoins them, as
   TLC does.
+
+- `--engine core` preserves TLC's initial-state endings: generated candidates
+  excluded by constraints still give depth one, while a truly empty Init
+  gives depth zero. Retained initial states without a next-state action report
+  model error 2115 (exit 75), even with deadlock checking disabled. Excluded
+  initial states with no Next complete with zero distinct states and depth one.
 
 - `dive-conformance run --impl dive:core` and `--impl dive:auto` run the
   harness on the new core. Reports record the engine requested and, per
