@@ -76,7 +76,14 @@ For every selected model and worker count (default 1 and 4):
   `--core-sample N` (`shadow --sample N`, default 32; 0 turns it off). The
   explorer keeps a uniform reservoir sample of `N` expanded states, seeded
   by the run's seed, so it picks the same states at any worker count
-  (`dive-explore/src/sample.rs`). After the search, `dive-api`
+  (`dive-explore/src/sample.rs`). Each sample also retains the expanded
+  source's actual TLC level (initial states are level 1), supplied to both
+  regenerated evaluators for `TLCGet("level")`. The reference host's previous
+  level, including its absence, is restored afterward; its other capabilities
+  and the reservoir's selection algorithm are unchanged. `LevelChain` pins
+  the varying-level convention against normal TLC execution, while direct
+  regeneration controls reject a shared wrong constant level (#600).
+  After the search, `dive-api`
   (`core_sample.rs`) regenerates each sampled state's successors on the
   core, action by action, and compares them with the reference evaluator's
   `next_states` on the same state. They are compared as multisets of

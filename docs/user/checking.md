@@ -109,6 +109,11 @@ by the run's seed, and compares each one's successors with the reference
 evaluator's. The result is in the JSON report as `core.sample`. It changes
 no result and has no TLC equivalent; TLC-equivalent runs leave it off.
 
+Sampling retains each expanded state's actual level for `TLCGet("level")`
+in its next-state relation. Both regenerated evaluations use that source
+level, starting at one for initial states, so level-dependent successors
+can be compared without an unavailable or invented level.
+
 `--engine auto` (or `DIVE_ENGINE=auto`) runs the core where it can. Where the
 core refuses, auto runs the whole check again on the reference engine and
 reports the reference result. The refusal can come before the search

@@ -3,7 +3,8 @@
 //!
 //! A run with [`Config::sample`](crate::Config::sample) keeps a uniform
 //! sample of the states it expanded (reservoir sampling, seeded, so the same
-//! seed picks the same states at any worker count). [`successors`] then
+//! seed picks the same states at any worker count), retaining each source's
+//! actual evaluation level. [`successors`] then
 //! regenerates each sampled state's successors, action by action, for the
 //! caller to compare with the reference evaluator's.
 
@@ -22,13 +23,22 @@ pub struct Sample {
     pub states: usize,
 }
 
+/// An expanded state and the evaluation level used for its successors.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct SampledState {
+    /// Persistent state handles, in the plan's variable order.
+    pub values: Vec<Handle>,
+    /// The source state's `TLCGet("level")` (initial states have level 1).
+    pub level: i64,
+}
+
 /// A reservoir of expanded states (Algorithm R).
 #[derive(Debug)]
 pub(crate) struct Reservoir {
     want: usize,
     rng: u64,
     seen: u64,
-    pub(crate) states: Vec<Vec<Handle>>,
+    pub(crate) states: Vec<SampledState>,
 }
 
 impl Reservoir {
@@ -51,18 +61,24 @@ impl Reservoir {
     }
 
     /// Offers the state about to be expanded.
-    pub(crate) fn offer(&mut self, state: &[Handle]) {
+    pub(crate) fn offer(&mut self, state: &[Handle], level: i64) {
         if self.want == 0 {
             return;
         }
         self.seen += 1;
         if self.states.len() < self.want {
-            self.states.push(state.to_vec());
+            self.states.push(SampledState {
+                values: state.to_vec(),
+                level,
+            });
             return;
         }
         let j = self.next() % self.seen;
         if let Some(slot) = usize::try_from(j).ok().and_then(|j| self.states.get_mut(j)) {
-            *slot = state.to_vec();
+            *slot = SampledState {
+                values: state.to_vec(),
+                level,
+            };
         }
     }
 }
@@ -87,7 +103,8 @@ impl Sink for Collect {
     }
 }
 
-/// The successors of `s0` under each action of [`Plan::next`], in order.
+/// The successors of `s0` under each action of [`Plan::next`], in order,
+/// evaluated at the sampled source state's actual `level`.
 ///
 /// # Errors
 /// An error other than an evaluation error (a refusal or a core bug).
@@ -97,6 +114,7 @@ pub fn successors(
     opts: Opts,
     warn: bool,
     s0: &[Handle],
+    level: i64,
 ) -> Result<Vec<ActionSuccessors>, Error> {
     let keys: Vec<usize> = plan
         .code
@@ -106,6 +124,7 @@ pub fn successors(
         .collect();
     let mut m = Machine::new(Arc::clone(store), plan.vars.len(), opts, Memo::new(&keys));
     m.warn = warn;
+    m.level = level;
     if s0.len() != m.s0.len() {
         return Err(Error::internal("a sampled state of the wrong width"));
     }
@@ -133,13 +152,13 @@ pub fn successors(
 
 #[cfg(test)]
 mod tests {
-    use super::{Reservoir, Sample};
+    use super::{Reservoir, Sample, SampledState};
     use dive_core::Handle;
 
-    fn picks(seed: u64, n: i64) -> Vec<Vec<Handle>> {
+    fn picks(seed: u64, n: i64) -> Vec<SampledState> {
         let mut r = Reservoir::new(Sample { seed, states: 4 });
         for i in 0..n {
-            r.offer(&[Handle::int(i).unwrap_or(Handle::EMPTY)]);
+            r.offer(&[Handle::int(i).unwrap_or(Handle::EMPTY)], i + 1);
         }
         r.states
     }
@@ -151,7 +170,17 @@ mod tests {
         assert_eq!(picks(1, 1000), picks(1, 1000));
         assert_ne!(picks(1, 1000), picks(2, 1000));
         let mut r = Reservoir::new(Sample { seed: 1, states: 0 });
-        r.offer(&[Handle::EMPTY]);
+        r.offer(&[Handle::EMPTY], 1);
         assert_eq!(r.states.len(), 0);
+    }
+
+    #[test]
+    fn levels_are_retained_without_changing_algorithm_r_selection() {
+        let sample = picks(1, 1000);
+        let selected: Vec<_> = sample.iter().map(|s| s.values[0].as_int()).collect();
+        assert_eq!(selected, vec![Some(669), Some(231), Some(180), Some(745)]);
+        for state in sample {
+            assert_eq!(state.values[0].as_int().map(|n| n + 1), Some(state.level));
+        }
     }
 }

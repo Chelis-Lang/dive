@@ -110,6 +110,21 @@ impl RunHost {
         self.level.store(level, Ordering::Relaxed);
     }
 
+    /// Stops providing `TLCGet("level")`, restoring the state before the
+    /// engine supplied a level. Other host capabilities are unchanged.
+    ///
+    /// ```
+    /// use dive_eval::Host;
+    /// use dive_stdlib::{host::RunHost, random::{RandomMode, Streams}};
+    /// let host = RunHost::new(Streams::new(0, RandomMode::Dive), None);
+    /// host.set_level(3);
+    /// host.clear_level();
+    /// assert_eq!(host.level(), None);
+    /// ```
+    pub fn clear_level(&self) {
+        self.level.store(UNSET, Ordering::Relaxed);
+    }
+
     /// Sets a live counter (`None`: not provided, so reading it is refused).
     pub fn set_counter(&self, c: Counter, value: Option<i64>) {
         self.counters[counter_index(c)].store(value.unwrap_or(UNSET), Ordering::Relaxed);
@@ -202,6 +217,8 @@ mod tests {
         assert_eq!(host.level(), None);
         host.set_level(3);
         assert_eq!(host.level(), Some(3));
+        host.clear_level();
+        assert_eq!(host.level(), None);
         assert!(!host.exit_requested());
         assert!(host.request_exit());
         assert!(host.exit_requested());
