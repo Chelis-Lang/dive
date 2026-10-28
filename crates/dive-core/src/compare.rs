@@ -104,10 +104,7 @@ fn mismatch(a: Class, b: Class) -> Error {
 /// two UTF-16 units whose second unit is `_` (`ModelValue`'s constructor).
 /// `None` for an untyped model value or a value that is not one.
 pub(crate) fn mv_type(heap: &Heap, h: Handle) -> Option<u16> {
-    let text = heap.store().strings().text(h.as_model_id()?)?;
-    let mut units = text.encode_utf16();
-    let (first, second) = (units.next()?, units.next()?);
-    (second == u16::from(b'_') && units.next().is_some()).then_some(first)
+    heap.model_type(h.as_model_id()?)
 }
 
 /// Whether TLC can compare `a` and `b` when either is a model value
@@ -203,7 +200,7 @@ pub(crate) fn miss_cached(
     if let Some(witness) = memo.member_witness(heap.store(), set) {
         // A failed proof always takes the original full path. In particular,
         // no cached shape certificate changes the refusal or its demand site.
-        if guard_member(heap, x, &[witness]).is_ok() {
+        if tuple_proof(heap, x, witness) || guard_member(heap, x, &[witness]).is_ok() {
             return miss_scalars(heap, x, elems);
         }
         return miss(heap, x, elems);
@@ -489,6 +486,64 @@ fn member_witness(heap: &Heap, elems: &[Handle]) -> Option<Handle> {
     })
 }
 
+/// A success-only proof against a witness whose complete shape is known to
+/// exist from its certificate. It constructs no temporary Shape trees.
+///
+/// Identity is safe only under that witness-validity precondition. Model
+/// holes remove constraints, but a hole in the witness does not establish
+/// that the query has a shape: that case validates the supported query tree.
+/// Tuple domains must match, except that an empty query adds no constraints
+/// to a known-valid nonrecord tuple witness. Any unknown or mismatch returns
+/// false to request the original witness/full guards, never a refusal or a
+/// membership result.
+fn tuple_proof(heap: &Heap, query: Handle, witness: Handle) -> bool {
+    if query == witness {
+        return true;
+    }
+    match (query.tag(), witness.tag()) {
+        (Tag::Model, _) => {
+            let Some(ty) = mv_type(heap, query) else {
+                return true;
+            };
+            return witness.tag() == Tag::Model
+                && mv_type(heap, witness).is_none_or(|other| ty == other);
+        }
+        (_, Tag::Model) => {
+            return mv_type(heap, witness).is_none() && tuple_tree_valid(heap, query);
+        }
+        (Tag::Bool, Tag::Bool) | (Tag::Int, Tag::Int) | (Tag::Str, Tag::Str) => return true,
+        _ => {}
+    }
+    if !query.is_compound() || !witness.is_compound() {
+        return false;
+    }
+    let (a, b) = (heap.view(query), heap.view(witness));
+    if a.kind != Kind::IntFcn || b.kind != Kind::IntFcn || a.lo != 1 || b.lo != 1 {
+        return false;
+    }
+    a.data.is_empty()
+        || (a.data.len() == b.data.len()
+            && a.data
+                .iter()
+                .zip(b.data)
+                .all(|(&x, &y)| tuple_proof(heap, x, y)))
+}
+
+/// Whether the query has a shape in the deliberately narrow tuple-tree
+/// subset. Used when an untyped witness model value supplies no constraints.
+fn tuple_tree_valid(heap: &Heap, query: Handle) -> bool {
+    match query.tag() {
+        Tag::Bool | Tag::Int | Tag::Str | Tag::Model => true,
+        Tag::Persistent | Tag::Transient => {
+            let value = heap.view(query);
+            value.kind == Kind::IntFcn
+                && value.lo == 1
+                && value.data.iter().all(|&x| tuple_tree_valid(heap, x))
+        }
+        Tag::Empty => false,
+    }
+}
+
 fn guard_refusal(what: &str) -> Error {
     Error::unsupported(format!(
         "{what} under --compat=tlc, where TLC's checked comparison may fail or answer by its asymmetric rules (C1–C5; the exact port is not built)"
@@ -646,6 +701,134 @@ mod tests {
                 }
             }
         }
+    }
+
+    #[test]
+    fn tuple_proof_successes_match_the_original_guard_for_valid_witnesses() {
+        let store = Arc::new(Store::with_semantics(true, crate::Semantics::tlc()));
+        let mut h = Heap::new(store, false, false);
+        let mut values = shape_values(&mut h);
+        let persistent: Vec<_> = values.iter().map(|&v| h.intern_exact(v).unwrap()).collect();
+        values.extend(persistent);
+        let mut proved = 0;
+        let mut checked = 0;
+        for &witness in &values {
+            if shape(&h, witness).is_none() {
+                continue;
+            }
+            for &query in &values {
+                checked += 1;
+                if tuple_proof(&h, query, witness) {
+                    proved += 1;
+                    assert!(
+                        guard_member(&h, query, &[witness]).is_ok(),
+                        "invalid success for {query:?}, {witness:?}"
+                    );
+                    assert!(
+                        unify(shape(&h, query).unwrap(), shape(&h, witness).unwrap()).is_some()
+                    );
+                }
+            }
+        }
+        assert!(proved > 0);
+        assert!(proved < checked, "unknown cases must retain the old guard");
+        eprintln!("tuple proof coverage: {proved} successes / {checked} valid-witness pairs");
+    }
+
+    #[test]
+    fn tuple_proof_covers_sailfish_vertex_and_edge_shapes() {
+        let store = Arc::new(Store::with_semantics(true, crate::Semantics::tlc()));
+        let mut h = Heap::new(store, false, false);
+        let genesis = h.tuple(&[]);
+        let mut vertices = vec![genesis];
+        for name in ["n1", "n2", "n3"] {
+            let node = Handle::model(h.store().strings().intern(name).unwrap());
+            for round in 1..=5 {
+                vertices.push(h.tuple(&[node, Handle::int(round).unwrap()]));
+            }
+        }
+        let witness = vertices[1];
+        let edge_witness = h.tuple(&[witness, witness]);
+        let mut proved = 0;
+        for &query in &vertices {
+            assert!(tuple_proof(&h, query, witness));
+            assert!(guard_member(&h, query, &[witness]).is_ok());
+            proved += 1;
+        }
+        for &source in &vertices[1..] {
+            for &target in &vertices {
+                let query = h.tuple(&[source, target]);
+                assert!(tuple_proof(&h, query, edge_witness));
+                assert!(guard_member(&h, query, &[edge_witness]).is_ok());
+                proved += 1;
+            }
+        }
+        assert_eq!(proved, 256);
+        eprintln!("Sailfish-shaped tuple proof coverage: {proved} successes / 256 pairs");
+    }
+
+    #[test]
+    fn tuple_proof_leaves_domains_and_holes_do_not_hide_refusals() {
+        let store = Arc::new(Store::with_semantics(true, crate::Semantics::tlc()));
+        let mut h = Heap::new(store, false, false);
+        let one = Handle::int(1).unwrap();
+        let two = Handle::int(2).unwrap();
+        let text = h.string("a").unwrap();
+        let untyped = Handle::model(h.store().strings().intern("u").unwrap());
+        let typed_a = Handle::model(h.store().strings().intern("A_x").unwrap());
+        let typed_b = Handle::model(h.store().strings().intern("B_x").unwrap());
+        assert!(tuple_proof(&h, typed_a, untyped));
+        assert!(tuple_proof(&h, untyped, typed_a));
+        assert!(!tuple_proof(&h, typed_a, typed_b));
+        assert!(!tuple_proof(&h, typed_a, one));
+        assert!(!tuple_proof(&h, one, typed_a));
+        assert!(!tuple_proof(&h, Handle::TRUE, one));
+        assert!(!tuple_proof(&h, one, text));
+        let invalid = h.set_from(&mut vec![one, text]);
+        let empty = h.tuple(&[]);
+        let witness = h.tuple(&[one]);
+        let query = h.tuple(&[two]);
+        assert!(tuple_proof(&h, query, witness));
+        assert!(tuple_proof(&h, empty, witness));
+        assert!(!tuple_proof(&h, query, empty));
+        let different_domain = h.int_fcn(0, &[one]);
+        assert!(!tuple_proof(&h, different_domain, witness));
+        let invalid_extra_position = h.tuple(&[one, invalid]);
+        assert!(!tuple_proof(&h, invalid_extra_position, witness));
+        assert!(guard_member(&h, invalid_extra_position, &[witness]).is_err());
+        let record = h.record(&[text], &[one]);
+        assert!(!tuple_proof(&h, empty, record));
+        let hole_witness = h.tuple(&[untyped]);
+        let invalid_query = h.tuple(&[invalid]);
+        assert!(!tuple_proof(&h, invalid_query, hole_witness));
+        assert!(guard_member(&h, invalid_query, &[hole_witness]).is_err());
+        let nested_query = h.tuple(&[query]);
+        assert!(tuple_proof(&h, nested_query, hole_witness));
+    }
+
+    #[test]
+    fn uncertified_shared_invalid_subtrees_cannot_use_tuple_identity_proofs() {
+        let store = Arc::new(Store::with_semantics(true, crate::Semantics::tlc()));
+        let mut h = Heap::new(store, false, false);
+        let one = Handle::int(1).unwrap();
+        let two = Handle::int(2).unwrap();
+        let text = h.string("a").unwrap();
+        let invalid = h.set_from(&mut vec![one, text]);
+        let invalid = h.intern_exact(invalid).unwrap();
+        let witness = h.tuple(&[invalid, one]);
+        let set = h.set_from(&mut vec![witness]);
+        let set = h.intern_exact(set).unwrap();
+        let query = h.tuple(&[invalid, two]);
+        let elems = h.view(set).data;
+        let expected = miss(&h, query, elems);
+        assert!(expected.is_err());
+        let mut memo = crate::memo::Memo::new(&[]);
+        memo.reserve_members(true);
+        for _ in 0..2 {
+            assert_eq!(miss_cached(&h, &mut memo, query, set, elems), expected);
+            assert_eq!(memo.member_witness(h.store(), set), None);
+        }
+        assert!(!h.poisoned());
     }
 
     #[test]

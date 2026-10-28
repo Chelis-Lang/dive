@@ -49,6 +49,13 @@ is a shift and a mask.
 The string table is global and append-only. Ids are assigned on first
 encounter. Section 7 covers the order rules.
 
+Each heap keeps an append-only copy of name texts. String comparisons and
+model-value type classification extend it on an id miss, taking the shared
+table's read lock once for the missing suffix. Model-value checks then read
+the local copy in both profiles. Classification retains TLC's UTF-16 rule:
+the name has more than two code units and its second unit is `_`; its type is
+the first unit. Arena reset does not invalidate immutable names or their ids.
+
 ## 3. Regions
 
 ### 3.1 Persistent store

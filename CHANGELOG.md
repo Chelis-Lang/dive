@@ -7,7 +7,9 @@
 
 - Reuse exact comparison proofs for repeated compound membership misses in
   persistent sets under `--engine core --compat=tlc`, within the existing
-  bounded memo allowance. `DIVE_CORE_OPT=-memo` disables this reuse.
+  bounded memo allowance. Certified tuple proofs avoid temporary comparison
+  maps, and model-value type checks use the worker's immutable name copy.
+  `DIVE_CORE_OPT=-memo` disables proof reuse.
 
 - Fix core counterexample reconstruction with `DIVE_CORE_OPT=-hashcons`: compound
   states now retain the invariant verdict and independently replayable word

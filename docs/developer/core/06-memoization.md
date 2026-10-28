@@ -140,6 +140,33 @@ shape triple, and cold/warm tests compare complete results against the
 original full miss implementation. A failed witness proof takes that full
 path, retaining its refusal and demand site.
 
+**Tuple proof without temporary maps.** Only after a certified lookup, a
+success-only helper can discharge the witness guard without constructing
+`Shape` trees. Its precondition is that the witness's complete shape exists,
+which also establishes validity of every witness subtree. Equal handles
+therefore need no further inspection. Boolean, inline integer and string
+leaves match only their own classes. An untyped query model value is `Hole`
+and adds no constraints to a valid witness; typed query model values accept
+only equal types or an untyped witness. An untyped witness supplies no
+query-validity evidence, so that case separately validates a tree containing
+only scalar/model leaves and `IntFcn` tuples with lower bound one.
+
+For two such tuples with equal nonempty domains, the helper recurses by
+position. An empty query tuple is compatible with a known-valid tuple
+witness; a nonempty query against an empty witness falls back. Different
+lengths or domains and other representations also fall back. Identity and
+model holes can discharge a valid subtree independently of representation,
+but do not permit an uncertified call: a shared invalid set inside two
+tuples would make an unconditional identity shortcut unsound. Structural
+induction on the successful recursive cases proves the same shape join as
+the general guard. The helper returns only proof success or a request to
+fall back; it never supplies a membership result or an error. All unknowns
+run the original witness guard and, if needed, the original full guard.
+The scalar/model-value miss checks still run afterward. Name classification
+uses the heap's existing immutable text copy (`03-value-model.md` §2), whose
+initial missing suffix can allocate; the tuple proof creates no temporary
+comparison maps or other proof allocations.
+
 **Memory and lifetime.** `Memo` owns a private two-way table of complete
 `(set, witness)` handles. Hashes select buckets; complete set-handle equality
 establishes hits. Allocation is lazy. Its reservation is the largest power
