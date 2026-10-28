@@ -144,6 +144,12 @@
   refutes. CI shadows ten examples models at 1 and 4 workers
   (`scripts/shadow-gate.sh`), and `cargo xtask gate --full` the small tier.
 
+- Shadow comparison requires classified results and independently validated
+  counterexamples for agreement. Matching unclassified or contradictory reports
+  are findings, and an absent, unreadable or refused required word is a
+  `trace-unconfirmed` finding (exit 1), with or without `--strict`. Classified
+  evaluation errors can still agree; budget stops retain their timeout status.
+
 - `--engine core` reports a false or failing `ASSUME` as the reference engine
   and TLC do: the same message and class, and exit 10. It used to refuse the
   run.
