@@ -183,7 +183,9 @@ context and independent replay, not a blanket wrapper exemption.
 - The AWS bench and gate scripts (`scripts/aws/`) and the shared gate lock
   (`scripts/gate-lock.sh`).
 
-## 3. Historical checkpoint (x86, c7i.metal-24xl)
+## 3. Performance measurements
+
+### Historical checkpoint (x86, c7i.metal-24xl)
 
 | Model | ×TLC, 1 worker | ×TLC, 8 workers |
 |---|---|---|
@@ -315,7 +317,7 @@ The census identifies distinct obligations; one fix cannot waive another family:
 | Resource stops | Six default / four TLC runs stop with native exit 5. They remain incomplete. `ErDeepRecursion` separately returns a classified resource-limit refusal in both profiles. |
 | M1 performance decision | Complete at `2d55317a`: all 300 rows correct, ten of ten faster than TLC at both worker counts. Both-profile five-repeat acceptance remains outstanding. |
 | Compat performance | #597: one completed quiet Sailfish repetition takes core 841.01 s versus TLC 52.02 s at one worker, despite correct counts. The comparison-guard prototype #598 is diagnostic until matched quiet measurements and gates pass. |
-| Correctness coverage | Both small-tier auto controls pass with explicit engine accounting. The ten-switch matrix retains original failures, declared materialization fallbacks and separate corrected-source hashcons retests; see qualification below. |
+| Correctness coverage | Both small-tier auto controls pass with explicit engine accounting. The ten-switch matrix retains original failures, declared materialization fallbacks and separate corrected-source hashcons retests; see the recorded matrix qualification. |
 | Startup and memory | Trivial startup and Coffee compile/fold measured above. Retain explicit eight-worker RSS and large-model scaling regressions. |
 
 Known implementation gaps remain: `ENABLED` inside INSTANCE substitutions,
