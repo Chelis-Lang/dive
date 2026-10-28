@@ -26,6 +26,10 @@ pub struct Opts {
     pub symbolic_member: bool,
     /// S6: keyed result caches. Off (`-memo`; `06-memoization.md` §6).
     pub memo: bool,
+    /// S6: keyed result caches for the cached bodies of step predicates
+    /// (implied actions, action constraints), keyed on the primed and
+    /// unprimed variables they read. Off (`-step-memo`).
+    pub step_memo: bool,
     /// S6: parent-delta skip of invariant and constraint conjuncts. Off
     /// (`-parent-skip`).
     pub parent_skip: bool,
@@ -51,6 +55,7 @@ impl Default for Opts {
             hashcons: true,
             symbolic_member: true,
             memo: true,
+            step_memo: true,
             parent_skip: true,
             arena: true,
             eager: true,
@@ -67,6 +72,7 @@ pub const SWITCHES: &[&str] = &[
     "hashcons",
     "symbolic-member",
     "memo",
+    "step-memo",
     "parent-skip",
     "arena",
     "eager",
@@ -100,6 +106,7 @@ impl Opts {
                 "hashcons" => &mut o.hashcons,
                 "symbolic-member" => &mut o.symbolic_member,
                 "memo" => &mut o.memo,
+                "step-memo" => &mut o.step_memo,
                 "parent-skip" => &mut o.parent_skip,
                 "arena" => &mut o.arena,
                 "eager" => &mut o.eager,
@@ -131,6 +138,7 @@ impl Opts {
             ("hashcons", self.hashcons),
             ("symbolic-member", self.symbolic_member),
             ("memo", self.memo),
+            ("step-memo", self.step_memo),
             ("parent-skip", self.parent_skip),
             ("arena", self.arena),
             ("eager", self.eager),
@@ -143,6 +151,7 @@ impl Opts {
             d.hashcons,
             d.symbolic_member,
             d.memo,
+            d.step_memo,
             d.parent_skip,
             d.arena,
             d.eager,

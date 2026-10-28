@@ -1080,6 +1080,35 @@ impl Heap {
             .intern(&mut self.cache, kind, fl, lo, hash, sum, &data))
     }
 
+    /// Interns a closed value exactly as it is: every node keeps its kind
+    /// and view bits (a symbolic set stays symbolic, a record literal stays
+    /// one), so the persistent handle reads like `h` everywhere, and two
+    /// handles it returns are equal exactly when the representations are.
+    /// Only a step predicate's memo sites use it (`06-memoization.md`
+    /// §2.3), for their keys and results.
+    ///
+    /// # Errors
+    /// `h` is lazy (holds a closure only the evaluator can force).
+    pub fn intern_exact(&mut self, h: Handle) -> Result<Handle, Error> {
+        if !h.is_transient() {
+            return Ok(h);
+        }
+        let v = self.view(h);
+        if v.is_lazy() {
+            return Err(Error::internal("interning an unclosed lazy value"));
+        }
+        let (kind, fl, lo, hash, sum) = (v.kind, v.flags, v.lo, v.hash, v.sum);
+        let mut data = v.data.to_vec();
+        for d in &mut data {
+            if d.is_transient() {
+                *d = self.intern_exact(*d)?;
+            }
+        }
+        Ok(self
+            .store
+            .intern(&mut self.cache, kind, fl, lo, hash, sum, &data))
+    }
+
     /// Interns a state value with its lazy view (§8): the identity handle
     /// (as [`Heap::intern`]) and, when the value is a symbolic set or carries
     /// a view bit ([`flags::VIEW`]) at the top level, that representation
@@ -1551,6 +1580,33 @@ mod tests {
                 .collect();
             assert_eq!(got, want, "{order:?}");
         }
+    }
+
+    #[test]
+    fn an_exact_copy_keeps_every_view_bit_and_symbolic_set() {
+        let mut h = heap(false);
+        let (a, b) = (
+            h.string("a").unwrap_or(Handle::EMPTY),
+            h.string("b").unwrap_or(Handle::EMPTY),
+        );
+        let span = h.interval(1, 3);
+        let inner = h.record(&[a], &[int(1)]);
+        let lit = h.record(&[a, b], &[inner, span]);
+        let exact = h.intern_exact(lit).unwrap_or(Handle::EMPTY);
+        assert!(exact.is_persistent());
+        let v = h.view(exact);
+        assert!(v.is_record_literal());
+        let (first, second) = (v.values()[0], v.values()[1]);
+        assert!(h.view(first).is_record_literal(), "nested bits are kept");
+        assert_eq!(h.view(second).kind, Kind::Interval, "symbolic sets stay");
+        assert!(h.eq(exact, lit));
+        // Equal representations share one handle; the identity is apart.
+        let inner2 = h.record(&[a], &[int(1)]);
+        let span2 = h.interval(1, 3);
+        let lit2 = h.record(&[a, b], &[inner2, span2]);
+        assert_eq!(h.intern_exact(lit2).ok(), Some(exact));
+        let fcn = h.fcn_sorted(&[a, b], &[inner2, span2]);
+        assert_ne!(h.intern_exact(fcn).ok(), Some(exact));
     }
 
     #[test]

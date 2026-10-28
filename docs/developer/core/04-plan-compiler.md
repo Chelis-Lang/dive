@@ -138,8 +138,9 @@ section 4 decide.
        handoff passes the substitutions active there (`Role::substs`, from
        `scope_subst_slot`). They are bound by name. Values evaluated under
        substitutions of their own are refused.
-     - **Not yet.** `ENABLED`, and with it the B2 and B4 cache rules, is still
-       refused, so the thunk caching is sound in both profiles.
+     - **`ENABLED` under substitutions is refused** (§5.5), and with it the
+       B2 and B4 cache rules, so the thunk caching is sound in both
+       profiles.
      - **Evidence.** The fixture `crates/dive-api/tests/fixtures/core-m0/Inst.tla`
        gives 32 distinct, 65 generated, depth 8 with the pinned TLC, the
        reference engine and the core. So do the probes run against the pinned
@@ -314,8 +315,8 @@ call, is `Maybe`. Folding keeps the expression's value.
 
 **Not yet.** These have no effect until the core has effects (B6, M2):
 - the demand-order analysis proper;
-- the B2 and B4 cache rules, which need `ENABLED` and `INSTANCE` (both still
-  refused, so D-027 is not yet observable);
+- the B2 and B4 cache rules, which need `ENABLED` under an `INSTANCE` (still
+  refused, §5.5, so D-027 is not yet observable);
 - streaming a lazy filter as a quantifier or `CHOOSE` domain with
   short-circuit.
 
@@ -537,6 +538,33 @@ stripped:
 - MCInternalMemory: 4408/21400/10;
 - TLCSailfish1: 109604/314144/16.
 
+### 5.5 `ENABLED` (built)
+
+`ENABLED A` compiles `A` as an action in the current frame (`Compiler::enabled`, `Node::Enabled`). At run time `Machine::enabled` searches it for one successor from the current state, as TLC's `Tool.enabled` does:
+- **Search.** `A` runs with a fresh successor buffer, and the search stops at the first successor, complete or not. TLC returns its partial state function there. So `ENABLED (x' = 1)` is true in a model with other variables.
+- **Enclosing generation.** The buffer and the continuation stack of an enclosing generation (`ENABLED` in an action's guard) are saved and restored.
+- **Plan facts.** The node reads every variable, so it is never folded, skipped by the parent-delta skip or memoized on a partial key. Its free slots are those the action's value nodes read from outside it (`Compiler::g_free`).
+- **Refused:**
+  - `ENABLED` inside an `INSTANCE` with substitutions. TLC evaluates the body in `Context.branch`, which hides outer substitutions from primed lookups (`02-semantic-contract.md` B3, open question 8). Its lazy-value cache also reuses stale values across hidden instance variables there (B2, corpus `lazy-enabled-cache`; B4, `lazy-query-lifetimes`). Every control in those corpora and in `lazy-enabled-capture` is refused in both profiles.
+  - A primed `ENABLED`.
+- **Lazy arguments.** Operator arguments that read primed variables are passed by name, as everywhere in the core. TLC's root-module `LazyValue` reuse gives the same answer: corpus `root_remove_two` succeeds with 1 distinct state in both profiles, as with TLC.
+
+**Fixture.** `Enab` (TLC: `Inv` violated, 216 distinct, 672 generated, depth 12) covers:
+- guards;
+- partial assignment;
+- a conflicting assignment;
+- `\E` inside the action;
+- `[A]_v` and `<<A>>_v`;
+- operator arguments from a binder;
+- `ENABLED` in an action's guard.
+
+`EnabStep` (TLC: success, 3/4/3) puts `ENABLED` in an implied action and
+an action constraint. A primed definition inside it must read the
+`ENABLED` action's successor, never the step's, so a step predicate's
+cache of primed bodies (#579) must not reach inside `ENABLED`.
+
+**Model.** BufferedRandomAccessFile matches its golden on the core: 3316 distinct, 128581 generated, depth 10. M3, 1 worker, indicative: core 10.5 s user, reference engine 79.0 s (`crates/dive-api/tests/core_golden.rs`).
+
 ## 6. Interpreter
 
 The plan is executed by a recursive `match` over compact node arrays: an enum
@@ -641,6 +669,10 @@ Next (M1, stream 2), from the census:
      `CopiesIn` are in (`Machine::bag`). Fixture `Bag.tla` gives 27 distinct,
      111 generated, depth 5 with the pinned TLC, the reference engine and the
      core.
+   - **Done: `ENABLED`** (§5.5), outside an `INSTANCE` with substitutions.
+     Next: `ENABLED` under substitutions, with TLC's branch cutoff (B3) in
+     both profiles until open question 8 is ruled on, and the B2/B4 cache
+     rules under `--compat=tlc` (D-027 in the default profile).
    - **EWD998PCal**, safety with its constraint and without its properties
      and alias, now runs in the core with the reference engine's counts:
      321,370 distinct, 2,808,396 generated, depth 47. M3, indicative, load

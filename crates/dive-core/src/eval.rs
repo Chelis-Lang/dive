@@ -593,6 +593,7 @@ impl Machine {
                 }
                 crate::stdlib::call_ho(self, *op, &a)
             }
+            Node::Enabled { g, .. } => self.enabled(code, *g),
             Node::Memo { site, body } => self.memo_eval(code, *site, *body),
             Node::Spec(b) => self.eval(code, *b).map_err(speculative),
             Node::Beta { chain, fc, arg } => self.beta(code, *chain, *fc, *arg),
@@ -727,12 +728,12 @@ impl Machine {
 
     /// Evaluates a memo site's body through its table.
     fn memo_eval(&mut self, code: &Code, site: u32, body: P) -> Result<Handle, Error> {
-        if !self.opts.memo || !self.memo.active(site) {
-            return self.eval(code, body);
-        }
         let Some(s) = code.sites.get(site as usize) else {
             return self.eval(code, body);
         };
+        if !(self.opts.memo || s.step) || !self.memo.active(site) {
+            return self.eval(code, body);
+        }
         let mut key = [Handle::EMPTY; MAX_KEY];
         let mut n = 0;
         for &v in &s.vars {
@@ -745,6 +746,25 @@ impl Machine {
                 self.memo.bypass(site);
                 return self.eval(code, body);
             }
+            key[n] = h;
+            n += 1;
+        }
+        for &v in &s.primed {
+            let h = self
+                .s1
+                .get(usize::from(v))
+                .copied()
+                .unwrap_or(Handle::EMPTY);
+            // The successor's value is keyed by an exact persistent copy
+            // (`Heap::intern_exact`): equal keys are equal representations.
+            // The successor itself is left as it is.
+            let h = match self.heap.intern_exact(h) {
+                Ok(k) if !h.is_empty() && n < MAX_KEY => k,
+                _ => {
+                    self.memo.bypass(site);
+                    return self.eval(code, body);
+                }
+            };
             key[n] = h;
             n += 1;
         }
@@ -761,10 +781,17 @@ impl Machine {
             return Ok(r);
         }
         let r = self.eval(code, body)?;
-        if !r.is_transient() {
-            self.memo.put(site, &key[..n], r);
+        // A step site keeps an exact persistent copy of its result; one
+        // that cannot be kept (lazy) is returned uncached.
+        let kept = if s.step && r.is_transient() {
+            self.heap.intern_exact(r).unwrap_or(r)
+        } else {
+            r
+        };
+        if !kept.is_transient() {
+            self.memo.put(site, &key[..n], kept);
         }
-        Ok(r)
+        Ok(kept)
     }
 
     fn call(&mut self, code: &Code, fun: u32, args: &[P]) -> Result<Handle, Error> {

@@ -1,5 +1,14 @@
 # Changelog
 
+- `--engine core` evaluates `ENABLED` (outside an `INSTANCE` with
+  substitutions, which is still refused): BufferedRandomAccessFile now runs on
+  the core, about 7 times faster than on the reference engine.
+- `--engine core` checks implied actions (`PROPERTY [][A]_v`, such as a
+  refinement through `INSTANCE`) and action constraints faster: each
+  definition or substitution they use is evaluated once per step, and once
+  per distinct value of the variables it reads. EWD998PCal with its
+  refinement property runs in 5.5 s instead of 14 s.
+
 - `--engine core` runs specifications that use `TLCSet` and `TLCGet` with
   integer or `"s:"` registers, `"all"`, `"all:named"` and `"level"`, with
   one worker and the values TLC computes. A run that writes registers and

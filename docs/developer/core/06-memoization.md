@@ -103,6 +103,60 @@ inputs are always persistent.
 than evaluating the body. The engine reports per-site statistics with
 `--stats`.
 
+### 2.3 Step predicates: thunks and memo sites on the pair
+
+A step predicate (an implied action `[][A]_v`, an action constraint) is
+evaluated on a complete pair: while it is evaluated, its primed variables
+are as fixed as its unprimed ones. The compiler knows it is compiling one
+(`Compiler::step`), and caches more there (`core/engine-step-thunks`):
+
+- **Thunks.** Each zero-arity top-level definition, and each substitution
+  used by name (the role's own `INSTANCE` substitutions, and a substitution
+  used primed), is a thunk evaluated at most once per evaluation of the
+  predicate, primed or not (`Compiler::step_cached`, keyed by
+  `Cached::Def` or `Cached::Subst` with the mode). Outside step predicates
+  a definition is cached only unprimed and a role substitution not at all:
+  the generator's primed variables are still being assigned. A body with a
+  bound variable (a free slot) or an effect is not cached. TLC evaluates
+  such a body at each use; the value, or the first error, is the same. The
+  thunk counts as by-name for the function-application rule
+  (`Compiler::def_slots`, `04-plan-compiler.md` §4.1).
+- **Memo sites** (`Opts::step_memo`, on by default; `-step-memo` turns
+  them off). Each such thunk's body is also a memo site keyed on the
+  handles of the variables it reads, unprimed from the source and primed
+  from the successor (`MemoSite::primed`). So `token`, a function of
+  `network`, is evaluated once per distinct value of `network`, not once
+  per step. `-memo` leaves these sites on; `-step-memo` turns only them
+  off.
+  - A successor's value is transient. The key uses an *exact* persistent
+    copy of it (`Heap::intern_exact`): every node keeps its kind and view
+    bits, so equal keys are equal representations, and the result cannot
+    depend on anything the key does not hold. The successor itself is left
+    as it is. Its values are mostly already in the store (a seen state's
+    values were interned when it was claimed), so the copies cost little
+    memory: 2,500 nodes on EWD998PCal.
+  - A result is kept as an exact persistent copy too. A lazy key or result
+    is not kept: the site is evaluated as if it had none.
+  - A body that only assembles leaves and thunks into a tuple, record or set
+    (a `vars` tuple), or that is already a thunk or a site, gets no site:
+    keeping a copy of each costs more than rebuilding it. On EWD998PCal a
+    site on `EWD998!vars` kept 300,000 tuples, 60 MB.
+  - The adaptivity rule of §2.2 applies: a site under 30% hits after 4,096
+    lookups turns itself off (`EWD998!Next`, a boolean of the whole pair).
+- **Measured** (M3, 1 worker, indicative, load 6–7). EWD998PCal with its
+  refinement `PROPERTY` (`EWD998!Spec` through `INSTANCE`, with `token` and
+  `pending` substituted by definitions): 13.96 s user and 21 MB before;
+  thunks alone 11.47 s; thunks and sites 5.5 s and 34 MB. The safety part
+  alone takes 2.0 s; the reference engine takes 53.9 s and 113 MB. The
+  sites `token` and `pending`, unprimed and primed, hit 99.7%. Counts are
+  identical in every run. The ablation over the corpus models with step
+  predicates is in the PR.
+
+Fixtures `StepCache` (holds) and `StepCacheBad` (violated, with a cached
+definition read at both ends of the step) in `core-m1`, through
+`StepAbs`. Keying the sites on the unprimed variables only makes both
+fail.
+
 ## 3. Read-set analysis
 
 The compiler computes read sets during the pass that records reads and purity
