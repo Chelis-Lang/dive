@@ -111,9 +111,12 @@ pub fn replay(
         let got = if let Some(prev) = out.last() {
             m.s0.copy_from_slice(&prev.values);
             crate::start_stream(&mut m, plan, Some(&prev.values))?;
+            // The predecessor's level (initial states are level 1).
+            m.level = i64::try_from(out.len()).unwrap_or(i64::MAX);
             run(&mut m, &plan.code, &plan.next, step.ordinal)?.map(|(a, v)| (Some(a), v))
         } else {
             crate::start_stream(&mut m, plan, None)?;
+            m.level = 0;
             run(&mut m, &plan.code, &plan.init, step.ordinal)?.map(|(_, v)| (None, v))
         };
         let Some((action, values)) = got else {

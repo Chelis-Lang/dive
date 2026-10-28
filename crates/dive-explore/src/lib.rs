@@ -655,6 +655,14 @@ impl Explorer<'_> {
     /// The implied actions on the step from `m.s0` to `m.s1`: the first
     /// false one stops the search, its trace ending with the successor.
     fn implied_actions(&mut self, m: &mut Machine) -> Result<(), Error> {
+        // An action check reads the expanded state's `TLCGet("level")`.
+        m.level -= 1;
+        let r = self.implied_actions_at(m);
+        m.level += 1;
+        r
+    }
+
+    fn implied_actions_at(&mut self, m: &mut Machine) -> Result<(), Error> {
         let plan = self.plan;
         for (i, c) in plan.implied_actions.iter().enumerate() {
             let holds = match check_step(m, &plan.code, c) {
@@ -803,11 +811,18 @@ pub(crate) fn in_model(
     // `ACTION_CONSTRAINT`s, on the step from the parent (TLC's
     // `isInActions`, after `isInModel`); never on initial states.
     if step {
-        for (i, c) in plan.action_constraints.iter().enumerate() {
-            if !check_step(m, code, c).map_err(|e| (Site::ActionConstraint(i), e))? {
-                return Ok(false);
+        // An action check reads the expanded state's `TLCGet("level")`.
+        m.level -= 1;
+        let r = (|| {
+            for (i, c) in plan.action_constraints.iter().enumerate() {
+                if !check_step(m, code, c).map_err(|e| (Site::ActionConstraint(i), e))? {
+                    return Ok(false);
+                }
             }
-        }
+            Ok(true)
+        })();
+        m.level += 1;
+        return r;
     }
     Ok(true)
 }
@@ -921,7 +936,11 @@ impl Sink for Explorer<'_> {
         let before = m.heap.mark();
         let forced = m.stats.transient_thunks;
         let draws = m.draws;
+        // State checks read the checked state's `TLCGet("level")`.
+        let level = m.level;
+        m.level = i64::try_from(self.level).unwrap_or(i64::MAX);
         let r = self.accept(m);
+        m.level = level;
         if m.draws != draws {
             // TLC's checks draw from the expansion's stream, which the
             // trace rebuild replays without them (`03-value-model.md` §6.1).
@@ -1205,6 +1224,8 @@ fn run(
         return Err(Error::internal("no core machine"));
     };
     start_stream(m, plan, None)?;
+    // `TLCGet("level")` is 0 in `Init` (TLC's `INIT_LEVEL - 1`).
+    m.level = 0;
     if let Err(e) = run_actions(m, ex, &plan.init, code) {
         ex.stats.left_on_queue = (ex.next.len() / nvars.max(1)) as u64;
         return Err(generator_error(m, ex, e));
@@ -1277,6 +1298,7 @@ fn run(
             m.s0.copy_from_slice(state);
             if res.is_none() {
                 start_stream(m, plan, Some(state))?;
+                m.level = i64::try_from(ex.level - 1).unwrap_or(i64::MAX);
             }
             if let Some(r) = reservoir.as_deref_mut() {
                 r.offer(state);
@@ -1296,6 +1318,11 @@ fn run(
                 if plan.effects.draws {
                     return Err(Error::unsupported(
                         "TLC's replay after a failing check, in a specification that draws (RandomElement) (M1 core)",
+                    ));
+                }
+                if plan.effects.registers || plan.effects.level {
+                    return Err(Error::unsupported(
+                        "TLC's replay after a failing check, in a specification that uses TLCSet or TLCGet (M1 core)",
                     ));
                 }
                 // The search ends here; the graph has no part in the replay.

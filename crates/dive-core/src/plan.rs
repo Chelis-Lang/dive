@@ -605,13 +605,17 @@ pub struct Plan {
     reason = "independent facts about the plan"
 )]
 pub struct Effects {
-    /// Any effect (`Print`, `PrintT`, `RandomElement`).
+    /// Any effect (`Print`, `PrintT`, `RandomElement`, `TLCSet`, `TLCGet`).
     pub any: bool,
     /// `Print` or `PrintT`.
     pub prints: bool,
     /// `RandomElement`: the engine starts each expansion's random stream
     /// (`crate::random`).
     pub draws: bool,
+    /// `TLCSet` or `TLCGet` of a register (not of `"level"`).
+    pub registers: bool,
+    /// `TLCGet("level")`: the engine sets `Machine::level`.
+    pub level: bool,
 }
 
 /// What the compiler did.

@@ -664,7 +664,8 @@ Next (M1, stream 2), from the census:
      printing refuses an enumerated set of consecutive integers, or of at
      least 128 elements (`TsStored`, `TsDomain`, `PrAmbig`). `Print` and `PrintT` print the same text (pretty-printed,
      as the reference engine prints it), under the effect bit (§3, pass 6).
-     Still to do: `TLCSet` and `TLCGet` (registers, sequential), printing
+     `TLCSet` and `TLCGet` are done (`03-value-model.md` §6.2). Still to
+     do: printing
      with several workers (each state's output buffered and released in
      TLC's order, as the reference engine does), output with a violation
      (TLC's trace-rebuilding prints). `RandomElement` is done

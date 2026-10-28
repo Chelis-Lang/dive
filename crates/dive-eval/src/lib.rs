@@ -570,6 +570,58 @@ impl Evaluator {
         self.core.force_fcn(ev)
     }
 
+    /// `TLCSet(key, value)` or `TLCGet(key)` on evaluated arguments, against
+    /// this evaluator's registers, which start-up evaluation (constant
+    /// definitions, `ASSUME`s) wrote: integer registers, named `"s:..."`
+    /// registers, `"all"` and `"all:named"`. Errors are wrapped as TLC
+    /// wraps them: `TLCGet`'s as its `EvaluatingValue`'s, `TLCSet`'s as a
+    /// Java override's. Another engine evaluating the specification calls
+    /// it to share the run's registers. `TLCGet` of any other string, and
+    /// `TLCSet` of `"exit"`, `"pause"` or a `"-D"` property, is refused by
+    /// name: the caller knows the run's level, counters and stop.
+    ///
+    /// # Errors
+    /// TLC's evaluation error, or a refusal.
+    pub fn tlc_register(&self, op: dive_ir::StdOp, args: &[Value]) -> Result<Value> {
+        let refuse = |k: &str| {
+            EvalError::unsupported(format!(
+                "{}(\"{k}\") outside the evaluator",
+                op.qualified_name()
+            ))
+        };
+        let plain = |k: &Value| match k {
+            Value::Str(s) => {
+                let s = s.as_str();
+                let ok = if op == dive_ir::StdOp::TlcTLCGet {
+                    s.starts_with("s:") || s == "all" || s == "all:named"
+                } else {
+                    // Any other string is TLC's argument error.
+                    !(s == "exit" || s == "pause" || s.starts_with("-D"))
+                };
+                if ok { Ok(()) } else { Err(refuse(s)) }
+            }
+            _ => Ok(()),
+        };
+        match (op, args) {
+            (dive_ir::StdOp::TlcTLCGet, [k]) => {
+                plain(k)?;
+                self.core
+                    .tlc_get_value(k, &St::constant())
+                    .map_err(|e| self.core.wrap_evaluating(op, e))
+            }
+            (dive_ir::StdOp::TlcTLCSet, [k, v]) => {
+                plain(k)?;
+                self.core
+                    .tlc_set(k, v)
+                    .map_err(|e| self.core.wrap_override(op, e))
+            }
+            _ => Err(EvalError::bug(format!(
+                "{} is not a register operator",
+                op.qualified_name()
+            ))),
+        }
+    }
+
     /// Evaluates the body of a top-level definition as a predicate or value
     /// in its own frame: `expr` must belong to `def`'s frame.
     ///

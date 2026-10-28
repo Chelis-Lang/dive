@@ -455,6 +455,8 @@ pub struct Store {
     lazy_sets: AtomicBool,
     /// The run's random streams ([`Store::set_draws`]).
     draws: OnceLock<std::sync::Arc<dyn crate::random::Draws>>,
+    /// The run's registers ([`Store::set_registers`]).
+    registers: OnceLock<std::sync::Arc<dyn crate::random::Registers>>,
 }
 
 /// The value semantics of a run, fixed for the store's life: the default
@@ -545,6 +547,7 @@ impl Store {
             printer: OnceLock::new(),
             lazy_sets: AtomicBool::new(false),
             draws: OnceLock::new(),
+            registers: OnceLock::new(),
         }
     }
 
@@ -580,6 +583,17 @@ impl Store {
     #[must_use]
     pub fn draws(&self) -> Option<&std::sync::Arc<dyn crate::random::Draws>> {
         self.draws.get()
+    }
+
+    /// Sets the run's `TLCSet`/`TLCGet` registers. The first call wins.
+    pub fn set_registers(&self, registers: std::sync::Arc<dyn crate::random::Registers>) {
+        let _ = self.registers.set(registers);
+    }
+
+    /// The run's registers, once set.
+    #[must_use]
+    pub fn registers(&self) -> Option<&std::sync::Arc<dyn crate::random::Registers>> {
+        self.registers.get()
     }
 
     /// The printer, once set.

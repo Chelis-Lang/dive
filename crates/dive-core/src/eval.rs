@@ -66,6 +66,10 @@ pub struct Machine {
     /// How many draws were made, which the engine reads to refuse a draw
     /// in a check.
     pub draws: u64,
+    /// `TLCGet("level")`: 0 in `Init`, the expanded state's level in the
+    /// next-state relation and action checks, the checked state's level in
+    /// state checks (initial states are level 1). The engine sets it.
+    pub level: i64,
     pub(crate) conts: Vec<crate::generate::ContNode>,
     pub(crate) cvals: Vec<Handle>,
     pub(crate) saved: Vec<Handle>,
@@ -151,6 +155,7 @@ impl Machine {
             printed: Vec::new(),
             draw: None,
             draws: 0,
+            level: 0,
             conts: Vec::new(),
             cvals: Vec::new(),
             saved: Vec::new(),

@@ -298,7 +298,10 @@ relation and the checks on its successors.
 - Core: `RandomElement` draws from the reference engine's streams
   (`03-value-model.md` §6.1). A draw in a check, a draw in `Init` after
   start-up drew, and an effect-bearing `LET` or argument used in more than
-  one conjunct are refused.
+  one conjunct are refused. `TLCSet` and `TLCGet` use the reference
+  evaluator's registers, and `TLCGet("level")` the engine's level
+  (§6.2 there); a run with registers that does not end in success is
+  refused.
 - Profile: tlc for bit-exact draws; both for "the same seed gives the same
   run".
 - Evidence: `crates/dive-model/src/reach.rs:229-248`;
