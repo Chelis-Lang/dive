@@ -15,7 +15,15 @@ timing, thread or queue order, tableau numbering or SCC and lasso choice.
 
 ## Corpus scoreboard
 
-The core-reboot acceptance census on 2026-10-28 is a separate shadow population,
+A fresh `--engine=auto` control at source `0f0c6ad1` on 2026-10-28 preserves
+both one-worker 156-model baselines and all 458 SANY comparisons. Actual strict
+agreements on the core are 121 default and 125 TLC; the remaining strict
+agreements use fallback or end before a search. Four further default core rows
+are registered expected divergences. See the
+[engine accounting](../conformance/reports/core/2026-10-28-small-auto-source0f.json).
+No core-only full-tier or engine-default credit follows.
+
+The initial core-reboot acceptance census on 2026-10-28 is a separate shadow population,
 not an update to the TLC agreement rows below. At backend `2d55317a` with the
 strengthened harness `16336b64`, 1,361 fixture configurations per profile yield
 983 default / 959 TLC-profile shadow agreements, with explicit refusals, budget
@@ -24,6 +32,14 @@ stops and successor/trace findings. It is not clean M1 acceptance. The
 preserves every non-agreement ID, source/binary identity and accounting; the
 [current core status](developer/core/m1-status.md) separates the remaining
 families. No full-tier, core-only or default-engine promotion credit follows.
+The final actual-main run at `f1acc846` selects 1,363 fixtures per profile
+(1,476 configurations minus 99 parser exclusions and 14 ambiguous skips):
+1,025 default / 1,002 TLC-profile shadow agreements, zero sampled-successor
+findings, but still explicit trace/refusal/stop findings and job exit 1.
+The [final qualification](../conformance/reports/core/2026-10-28-fixture-census-final.json)
+separates 40 / 41 improved common IDs from two newly added fixtures in each
+profile. Every other original fixture status is unchanged. This adds no credit
+to the TLC parity table or historical full-tier measurement.
 
 The 13-phase full gate at runtime source `2c966c74` on 2026-10-25 passed,
 with conditional cargo-deny not applicable because dependency inputs did not
