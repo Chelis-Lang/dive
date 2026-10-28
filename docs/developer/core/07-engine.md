@@ -110,6 +110,30 @@ with states repeated across chunks) agree with the reference engine at 1,
 
 ## 4. Errors, traces and replay
 
+**Initial depth (M1 closeout).** After successful initial-state generation,
+depth is at least one if any candidate was emitted, even when constraints
+exclude every candidate. A truly empty Init keeps depth zero. Pinned TLC BFS
+(`tlc-2026.10.06.014338`, one worker, seed/fp 0) confirms
+`SimExcludedInitial` has 1 generated, 0 distinct and depth 1; the three-state
+`ExcludedInitial` control has 3 / 0 / 1 and `EmptyInitial` has 0 / 0 / 0.
+`core_initial_depth` checks both profiles, one, four and eight requested workers,
+and reference/core/auto routing. Init failures retain their existing
+stop-specific accounting.
+
+**No next-state action (M1 closeout).** After successful Init, a nonempty
+frontier with no bound next-state action ends with TLC's 2115 model error,
+before any state expansion. This is independent of the deadlock setting.
+Pinned TLC BFS (`tlc-2026.10.06.014338`, one worker, seed/fp 0) confirms
+`DfidInitialOnly` exits 75 without a trace or printed statistics. An empty
+Init succeeds; a defined but disabled action instead deadlocks unless
+deadlock checking is disabled. An invariant with no configured Next still
+fails earlier at binding (2232, exit 151). `core_no_next` checks these
+boundaries in both profiles at one, four and eight requested workers.
+The combined `ExcludedNoNext` control emits one initial state, excludes it
+by constraint, and defines no Next. Pinned TLC succeeds with 1 generated,
+0 distinct and depth 1, with deadlock checking on or off; both regression
+suites retain this interaction.
+
 An evaluation error at a position is an event like a violation. The minimum
 event wins.
 
