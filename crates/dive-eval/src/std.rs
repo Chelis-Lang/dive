@@ -21,7 +21,7 @@
 
 use std::sync::Arc;
 
-use dive_ir::{Arg, ExprId, StdKind, StdOp, StdSupport};
+use dive_ir::{Arg, Expr, ExprId, StdKind, StdOp, StdSupport};
 use dive_value::{Int, SetKind, Value, print, tlc};
 
 use crate::core::{Core, is_enumerable, java_class};
@@ -62,7 +62,13 @@ impl Core {
                 for a in args {
                     vals.push(match a {
                         Arg::Expr { expr, .. } => StdArg::V(self.eval_v(env, st, *expr)?),
-                        Arg::Op { op: o, .. } => StdArg::Op(self.op_value(env, o)?),
+                        Arg::Op { op: o, .. } => {
+                            let o = self.op_value(env, o)?;
+                            match self.literal_body(env, st, &o)? {
+                                Some(v) => StdArg::V(v),
+                                None => StdArg::Op(o),
+                            }
+                        }
                     });
                 }
                 let _g = self.enter(e)?;
@@ -75,6 +81,27 @@ impl Core {
                 .map_err(|err| self.wrap_evaluating(op, err)),
             StdKind::Callable => Err(refuse(op)),
         }
+    }
+
+    /// The value TLC passes for an operator argument whose body is a numeral
+    /// or a string literal: TLC evaluates such a definition once, at
+    /// start-up, and passes its value rather than an `OpValue`, so a Java
+    /// method that expects an operator fails (`BagOfAll` with error 2266,
+    /// `SelectSeq` and `SortSeq` with 2169, the `OpValue` parameters of the
+    /// CommunityModules overrides with 2154). `TRUE`, `-1` and `1 + 1` are
+    /// operator applications and are passed as operators (fixtures
+    /// `tests/fixtures/op-literal` of `dive-api`, issue #557).
+    fn literal_body(self: &Arc<Self>, env: &mut Env, st: &St, o: &OpVal) -> Result<Option<Value>> {
+        let OpVal::Def { def, .. } = o else {
+            return Ok(None);
+        };
+        let def = self.ir.def(*def);
+        if def.params.is_empty()
+            || !matches!(self.ir.node(def.body).expr, Expr::Num(_) | Expr::Str(_))
+        {
+            return Ok(None);
+        }
+        self.eval_v(env, st, def.body).map(Some)
     }
 
     /// `MethodValue.eval`: an error that is not an `EvalException` becomes
