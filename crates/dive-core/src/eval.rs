@@ -168,7 +168,7 @@ impl Machine {
 
     /// Spends `n` units of fuel: one per element a loop visits.
     #[inline]
-    fn charge(&mut self, n: usize) -> Result<(), Error> {
+    pub(crate) fn charge(&mut self, n: usize) -> Result<(), Error> {
         let n = n as u64;
         if self.fuel < n {
             self.fuel = 0;
@@ -560,7 +560,11 @@ impl Machine {
             }
             Node::Call { fun, args } => self.call(code, *fun, args),
             Node::Std(f, args) => self.std(code, *f, args),
-            Node::Lib(op, args) => {
+            Node::Lib {
+                op,
+                args,
+                repeatable_args,
+            } => {
                 // A value printed keeps its form: TLC prints an interval as
                 // `1..3` (`crate::print`), and draws from a lazy `[S -> T]`
                 // one value per component (`crate::random`).
@@ -578,6 +582,22 @@ impl Machine {
                     } else {
                         self.eval_norm(code, x)?
                     });
+                }
+                // The evaluating override returns null for nonstrings and
+                // TLC then evaluates the TLA+ definition. Its argument
+                // demands must not be replaced by a single value snapshot.
+                if !repeatable_args
+                    && matches!(
+                        op,
+                        dive_ir::StdOp::SequencesExtReplaceFirstSubSeq
+                            | dive_ir::StdOp::SequencesExtReplaceAllSubSeqs
+                    )
+                    && a.iter().any(|h| h.as_str_id().is_none())
+                {
+                    return Err(Error::unsupported(format!(
+                        "{} with sequence arguments whose repeated fallback demand is not proven effect-free",
+                        op.qualified_name()
+                    )));
                 }
                 crate::stdlib::call(self, *op, &a)
             }

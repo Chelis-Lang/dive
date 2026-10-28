@@ -1,7 +1,7 @@
 //! CommunityModules operators that take only values: `SequencesExt`
 //! (`Contains`, `RemoveFirst`, `Suffixes`, `AllSubSeqs`, `SetToSeq`,
 //! `IsPrefix`, `LongestCommonPrefix`, and `ReplaceFirstSubSeq` and
-//! `ReplaceAllSubSeqs` on strings), `Functions` (`IsInjective`) and
+//! `ReplaceAllSubSeqs` on strings and pure scalar sequences), `Functions` (`IsInjective`) and
 //! `Bitwise`. The reference is
 //! `crates/dive-eval/src/community.rs` (`call_ext`), which follows the Java
 //! overrides of `tlc2.overrides` (`docs/provenance.md`).
@@ -256,8 +256,8 @@ fn longest_common_prefix(m: &mut Machine, op: StdOp, s: Handle) -> Result<Handle
 }
 
 /// `ReplaceFirstSubSeq(r, s, t)` and `ReplaceAllSubSeqs(r, s, t)` on
-/// strings, as TLC's override computes them. On other values TLC evaluates
-/// the TLA+ definition, which the core does not yet do.
+/// strings, as TLC's override computes them, or pure scalar sequences,
+/// matching the fallback definition in `SequencesExt.tla`.
 fn replace_sub_seq(
     m: &mut Machine,
     op: StdOp,
@@ -266,10 +266,7 @@ fn replace_sub_seq(
     t: Handle,
 ) -> Result<Handle, Error> {
     let (Some(r), Some(s), Some(t)) = (r.as_str_id(), s.as_str_id(), t.as_str_id()) else {
-        return Err(refuse(
-            op,
-            "arguments that are not all strings, for which TLC evaluates the TLA+ definition (M1 core)",
-        ));
+        return replace_sequence(m, op, r, s, t);
     };
     let strings = m.heap.store().strings();
     let (Some(r), Some(s), Some(t)) = (strings.text(r), strings.text(s), strings.text(t)) else {
@@ -301,6 +298,154 @@ fn replace_sub_seq(
         t.replace(s, r)
     };
     m.heap.string(&out)
+}
+
+/// `ReplaceFirst` chooses the least prefix containing the pattern. For All,
+/// only non-overlapping occurrences are admitted after the early CASE arms:
+/// every maximum-count partition must then contain every occurrence, and
+/// replacing them has the same flattened result in every such partition.
+/// Overlaps are refused: the fallback compares partition-component indices,
+/// not absolute positions, before CHOOSE uses normalized tuple order.
+/// Uniform scalar classes avoid skipped fallback normalization errors.
+fn replace_sequence(
+    m: &mut Machine,
+    op: StdOp,
+    replacement: Handle,
+    pattern: Handle,
+    text: Handle,
+) -> Result<Handle, Error> {
+    let (Some(r), Some(s), Some(t)) = (
+        tuple(m, op, replacement)?,
+        tuple(m, op, pattern)?,
+        tuple(m, op, text)?,
+    ) else {
+        return Err(refuse(
+            op,
+            "arguments that are neither all strings nor all materialized sequences",
+        ));
+    };
+    if [r.len(), s.len(), t.len()]
+        .into_iter()
+        .any(|len| len > crate::heap::MAX_MATERIALIZE)
+    {
+        return Err(refuse(op, "a sequence argument of more than 2^24 elements"));
+    }
+    m.charge(r.len() + s.len() + t.len())?;
+    let mut class = None;
+    for &value in r.iter().chain(&s).chain(&t) {
+        let next = compare::class(&m.heap, value);
+        if !matches!(
+            next,
+            compare::Class::Bool | compare::Class::Int | compare::Class::Str
+        ) || class.is_some_and(|previous| previous != next)
+        {
+            return Err(refuse(
+                op,
+                "sequence elements outside one scalar class (booleans, integers or strings), whose fallback comparison order is not implemented",
+            ));
+        }
+        class = Some(next);
+    }
+    let all = op == StdOp::SequencesExtReplaceAllSubSeqs;
+    let equal = |a: &[Handle], b: &[Handle]| {
+        a.len() == b.len() && a.iter().zip(b).all(|(&x, &y)| m.heap.eq(x, y))
+    };
+    // These are the first two CASE arms, before the empty-pattern arm.
+    if all && equal(&s, &t) {
+        return Ok(replacement);
+    }
+    if all && equal(&r, &s) {
+        return Ok(text);
+    }
+    let mut out = Vec::new();
+    if s.is_empty() {
+        if all {
+            for value in t {
+                replacement_extend(m, op, &mut out, &r)?;
+                replacement_extend(m, op, &mut out, &[value])?;
+            }
+        } else {
+            replacement_extend(m, op, &mut out, &r)?;
+            replacement_extend(m, op, &mut out, &t)?;
+        }
+        return Ok(m.heap.tuple(&out));
+    }
+    if s.len() > t.len() {
+        return Ok(text);
+    }
+    let failure = replacement_failure(m, &s)?;
+    let mut copied = 0;
+    let mut matched = 0;
+    for (i, &value) in t.iter().enumerate() {
+        while matched > 0 && !m.heap.eq(value, s[matched]) {
+            m.charge(1)?;
+            matched = failure[matched - 1];
+        }
+        m.charge(1)?;
+        if m.heap.eq(value, s[matched]) {
+            matched += 1;
+        }
+        if matched == s.len() {
+            let start = i + 1 - s.len();
+            if start < copied {
+                return Err(refuse(
+                    op,
+                    "overlapping sequence occurrences, whose partition CHOOSE order is not implemented",
+                ));
+            }
+            replacement_extend(m, op, &mut out, &t[copied..start])?;
+            replacement_extend(m, op, &mut out, &r)?;
+            copied = i + 1;
+            if !all {
+                break;
+            }
+            // Continue through the prefix table to detect every occurrence,
+            // including an overlap that must refuse instead of being skipped.
+            matched = failure[matched - 1];
+        }
+    }
+    if copied == 0 {
+        return Ok(text);
+    }
+    replacement_extend(m, op, &mut out, &t[copied..])?;
+    Ok(m.heap.tuple(&out))
+}
+
+/// Prefix fallback lengths for the pattern, including overlapping matches.
+fn replacement_failure(m: &mut Machine, pattern: &[Handle]) -> Result<Vec<usize>, Error> {
+    let mut failure = vec![0; pattern.len()];
+    let mut matched = 0;
+    for i in 1..pattern.len() {
+        while matched > 0 && !m.heap.eq(pattern[i], pattern[matched]) {
+            m.charge(1)?;
+            matched = failure[matched - 1];
+        }
+        m.charge(1)?;
+        if m.heap.eq(pattern[i], pattern[matched]) {
+            matched += 1;
+        }
+        failure[i] = matched;
+    }
+    Ok(failure)
+}
+
+/// Bounds materialized output before allocating or copying it, and accounts
+/// for that work in the compiler's existing constant-fold fuel.
+fn replacement_extend(
+    m: &mut Machine,
+    op: StdOp,
+    out: &mut Vec<Handle>,
+    values: &[Handle],
+) -> Result<(), Error> {
+    if out.len().saturating_add(values.len()) > crate::heap::MAX_MATERIALIZE {
+        return Err(refuse(
+            op,
+            "a replacement result of more than 2^24 elements",
+        ));
+    }
+    m.charge(values.len())?;
+    out.extend_from_slice(values);
+    Ok(())
 }
 
 /// `EC.TLC_MODULE_ONE_ARGUMENT_ERROR` (2283).
@@ -453,4 +598,247 @@ fn anti_function(m: &mut Machine, op: StdOp, f: Handle) -> Result<Handle, Error>
         }
     }
     Ok(m.heap.fcn_from_pairs(&mut out))
+}
+
+#[cfg(test)]
+mod replacement_tests {
+    use std::sync::Arc;
+
+    use crate::memo::Memo;
+    use crate::{Opts, Store};
+
+    use super::*;
+
+    fn words(alphabet: [Handle; 2], maximum: usize) -> Vec<Vec<Handle>> {
+        (0..=maximum)
+            .flat_map(|len| {
+                (0..1usize << len)
+                    .map(move |mask| (0..len).map(|i| alphabet[(mask >> i) & 1]).collect())
+            })
+            .collect()
+    }
+
+    // Every flattening of k bounded components is a weak composition of the
+    // text length into k parts. Empty components and repeated values are
+    // retained. This enumerates S from the actual definition, not matches.
+    fn partitions(text: &[Handle]) -> Vec<Vec<Vec<Handle>>> {
+        fn extend(
+            text: &[Handle],
+            remaining: usize,
+            parts: &mut Vec<Vec<Handle>>,
+            out: &mut Vec<Vec<Vec<Handle>>>,
+        ) {
+            if remaining == 0 {
+                if text.is_empty() {
+                    out.push(parts.clone());
+                }
+                return;
+            }
+            for len in 0..=text.len() {
+                parts.push(text[..len].to_vec());
+                extend(&text[len..], remaining - 1, parts, out);
+                parts.pop();
+            }
+        }
+        let mut out = Vec::new();
+        for count in 1..=text.len() {
+            extend(text, count, &mut Vec::new(), &mut out);
+        }
+        out
+    }
+
+    // TLC TupleValue.compareTo compares length first, then contents; recurse
+    // once for partition tuples. The test alphabet uses only small integers.
+    fn partition_order(a: &[Vec<Handle>], b: &[Vec<Handle>]) -> std::cmp::Ordering {
+        a.len().cmp(&b.len()).then_with(|| {
+            a.iter()
+                .zip(b)
+                .map(|(x, y)| {
+                    x.len().cmp(&y.len()).then_with(|| {
+                        x.iter()
+                            .map(|h| h.as_int())
+                            .cmp(y.iter().map(|h| h.as_int()))
+                    })
+                })
+                .find(|&order| !order.is_eq())
+                .unwrap_or(std::cmp::Ordering::Equal)
+        })
+    }
+
+    fn is_subsequence(s: &[Handle], t: &[Handle]) -> bool {
+        (0..=t.len()).any(|start| (start..=t.len()).any(|end| &t[start..end] == s))
+    }
+
+    // IndexFirstSubSeq chooses the least prefix containing the pattern; its
+    // match ends there. This is separate from ReplaceAll's partition choice.
+    fn definition_first(r: &[Handle], s: &[Handle], t: &[Handle]) -> Vec<Handle> {
+        let Some(end) = (0..=t.len()).find(|&end| is_subsequence(s, &t[..end])) else {
+            return t.to_vec();
+        };
+        let start = end - s.len();
+        t[..start]
+            .iter()
+            .chain(r)
+            .chain(&t[end..])
+            .copied()
+            .collect()
+    }
+
+    // S, T, comp and normalized CHOOSE from the pinned TLA+ definition.
+    // Return the first normalized satisfying partition's result, plus every
+    // satisfying result so admitted cases prove choice-independent output.
+    fn definition_all(r: &[Handle], s: &[Handle], t: &[Handle]) -> (Vec<Handle>, Vec<Vec<Handle>>) {
+        let direct = if s == t {
+            Some(r.to_vec())
+        } else if r == s || !is_subsequence(s, t) {
+            Some(t.to_vec())
+        } else if s.is_empty() {
+            Some(
+                t.iter()
+                    .flat_map(|&x| r.iter().copied().chain([x]))
+                    .collect(),
+            )
+        } else {
+            None
+        };
+        if let Some(value) = direct {
+            return (value.clone(), vec![value]);
+        }
+        let mut candidates = partitions(t);
+        candidates.sort_by(|a, b| partition_order(a, b));
+        let indexed: Vec<_> = candidates
+            .into_iter()
+            .map(|parts| {
+                let matches: Vec<_> = parts
+                    .iter()
+                    .enumerate()
+                    .filter_map(|(i, chunk)| (chunk == s).then_some(i + 1))
+                    .collect();
+                (parts, matches)
+            })
+            .collect();
+        let maximum = indexed
+            .iter()
+            .map(|(_, matches)| matches.len())
+            .max()
+            .unwrap_or(0);
+        let maximal: Vec<_> = indexed
+            .iter()
+            .filter(|(_, matches)| matches.len() == maximum)
+            .collect();
+        let mut outputs: Vec<Vec<Handle>> = Vec::new();
+        for (parts, matches) in &maximal {
+            if maximal
+                .iter()
+                .all(|(_, other)| matches.iter().zip(other).all(|(a, b)| a <= b))
+            {
+                outputs.push(
+                    parts
+                        .iter()
+                        .flat_map(|chunk| if chunk == s { r } else { chunk })
+                        .copied()
+                        .collect(),
+                );
+            }
+        }
+        assert!(
+            !outputs.is_empty(),
+            "a dominating component-index partition exists"
+        );
+        (outputs[0].clone(), outputs)
+    }
+
+    #[test]
+    fn partition_oracle_reproduces_pinned_overlap_surprise() {
+        let h = |value| Handle::int(value).unwrap_or(Handle::FALSE);
+        let (chosen, outputs) = definition_all(&[h(2)], &[h(1), h(1)], &[h(0), h(1), h(1), h(1)]);
+        assert_eq!(chosen, vec![h(0), h(1), h(2)]);
+        assert!(outputs.contains(&vec![h(0), h(2), h(1)]));
+    }
+
+    #[test]
+    fn scalar_replacements_match_bounded_partition_definition() -> Result<(), Error> {
+        let mut m = Machine::new(
+            Arc::new(Store::new(false)),
+            0,
+            Opts::default(),
+            Memo::new(&[]),
+        );
+        let alphabet = [m.heap.int_from_i64(0), m.heap.int_from_i64(1)];
+        let replacements = words(alphabet, 2);
+        let patterns = words(alphabet, 3);
+        let texts = words(alphabet, 5);
+        let mut admitted = 0;
+        let mut refused = 0;
+        for r in &replacements {
+            for s in &patterns {
+                for t in &texts {
+                    for op in [
+                        StdOp::SequencesExtReplaceFirstSubSeq,
+                        StdOp::SequencesExtReplaceAllSubSeqs,
+                    ] {
+                        let all = op == StdOp::SequencesExtReplaceAllSubSeqs;
+                        let positions: Vec<_> = if s.is_empty() {
+                            Vec::new()
+                        } else {
+                            t.windows(s.len())
+                                .enumerate()
+                                .filter_map(|(i, values)| (values == s).then_some(i))
+                                .collect()
+                        };
+                        let overlap = all
+                            && s != t
+                            && r != s
+                            && positions.windows(2).any(|p| p[1] < p[0] + s.len());
+                        let rh = m.heap.tuple(r);
+                        let sh = m.heap.tuple(s);
+                        let th = m.heap.tuple(t);
+                        let result = replace_sequence(&mut m, op, rh, sh, th);
+                        if overlap {
+                            assert!(
+                                matches!(result, Err(ref error) if error.message().contains("overlapping sequence occurrences"))
+                            );
+                            refused += 1;
+                        } else {
+                            let actual = m.heap.view(result?).data.to_vec();
+                            if all {
+                                let (chosen, outputs) = definition_all(r, s, t);
+                                assert_eq!(actual, chosen);
+                                assert!(outputs.iter().all(|output| *output == actual));
+                            } else {
+                                assert_eq!(actual, definition_first(r, s, t));
+                            }
+                            admitted += 1;
+                        }
+                        m.heap.reset();
+                    }
+                }
+            }
+        }
+        assert_eq!((admitted, refused), (13_016, 214));
+        Ok(())
+    }
+
+    #[test]
+    fn sequence_replacement_accounts_for_constant_fold_work() {
+        let mut m = Machine::new(
+            Arc::new(Store::new(false)),
+            0,
+            Opts::default(),
+            Memo::new(&[]),
+        );
+        let value = m.heap.int_from_i64(1);
+        let sequence = m.heap.tuple(&[value]);
+        m.fuel = 0;
+        let result = replace_sequence(
+            &mut m,
+            StdOp::SequencesExtReplaceFirstSubSeq,
+            sequence,
+            sequence,
+            sequence,
+        );
+        assert!(
+            matches!(result, Err(ref error) if error.message().contains("constant-folding budget"))
+        );
+    }
 }

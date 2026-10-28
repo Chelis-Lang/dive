@@ -796,10 +796,14 @@ Next (M1, stream 2), from the census:
      TLC's Java exception) is refused. Fixtures `CmSubSeqs` (285 distinct,
      891 generated, as TLC), `CmSubSeqsViol` (143 distinct, 168
      generated, 131 left, as TLC), `ErCmLcpEmpty`, `ErCmLcpNonSet` and
-     `ErCmAllSubSeqsNonSeq`. Still to do: `ReplaceFirstSubSeq` and
-     `ReplaceAllSubSeqs` on sequences (TLC evaluates their TLA+
-     definitions), and `FiniteSetsExt`'s `kSubset`, which the reference
-     engine does not implement either.
+     `ErCmAllSubSeqsNonSeq`. Sequence replacement now supports pure,
+     materialized sequences with one scalar element class across all three
+     arguments (integers, booleans or strings), with bounded linear matching.
+     ReplaceAll refuses overlapping occurrences after its early CASE arms;
+     see `03-value-model.md` §12. Still to do: mixed, compound, lazy and
+     effectful sequence replacement arguments, overlapping All occurrences,
+     and `FiniteSetsExt`'s
+     `kSubset`, which the reference engine does not implement either.
    - **Operator arguments (stream 1, `stdlib/higher.rs`, `Node::LibHo`):**
      `SelectSeq`, `SortSeq`, `BagOfAll`, `FoldBag`, `Quantify`,
      `FoldFunction`, `FoldSeq`, `FoldLeft`, `FoldRight` and their `Domain`
@@ -954,8 +958,11 @@ Changes made by other streams to the plan and compiler, recorded here as
 `10-plan.md` §3 asks.
 
 - **Stream 1, `core/stdlib-bags`: the library hook.**
-  - `plan.rs`: `Node::Lib(StdOp, Box<[P]>)`, a call of an operator in
-    `crate::stdlib` on normalized arguments.
+  - `plan.rs`: `Node::Lib { op, args, repeatable_args }`, a call of an
+    operator in `crate::stdlib` on normalized arguments. The compiler records
+    whether the arguments are effect-free without calls or free slots;
+    non-string sequence replacement refuses unproved repeatability because
+    TLC's fallback demands the arguments again.
   - `compile.rs`: `std_apply` emits it for any `StdOp` that
     `stdlib::implements` accepts and the compiler does not build itself;
     `info_of` walks its arguments.
