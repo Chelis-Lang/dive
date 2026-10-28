@@ -1223,9 +1223,11 @@ impl Compiler<'_> {
         // must not reuse a step predicate's primed thunks or memo sites.
         let init = std::mem::replace(&mut self.init_mode, false);
         let step = std::mem::replace(&mut self.step, false);
+        let cache = std::mem::take(&mut self.def_cache);
         let g = self.g(a, env);
         self.init_mode = init;
         self.step = step;
+        self.def_cache = cache;
         let g = g?;
         let mut free = Vec::new();
         self.g_free(g, &mut free, 0)?;

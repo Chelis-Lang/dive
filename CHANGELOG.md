@@ -3,6 +3,10 @@
 - `--engine core` evaluates `ENABLED` (outside an `INSTANCE` with
   substitutions, which is still refused): BufferedRandomAccessFile now runs on
   the core, about 7 times faster than on the reference engine.
+- Fix `--engine core` checking of `ENABLED` inside action constraints and
+  implied action properties: primed definitions now use the query's own
+  successor, preventing false violations and missed action-property violations
+  caused by reuse of the enclosing step's value (#588).
 - `--engine core` checks implied actions (`PROPERTY [][A]_v`, such as a
   refinement through `INSTANCE`) and action constraints faster: each
   definition or substitution they use is evaluated once per step, and once
