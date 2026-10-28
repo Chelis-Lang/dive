@@ -68,12 +68,13 @@ Bodies such as `x + 1`, `1 + 1` and `TRUE` remain operator applications; a
 TLA+ definition that applies its operator argument also retains its ordinary
 behavior. An empty `SelectSeq` does not apply its callback.
 
-The following consumed fixture reports the `BagOfAll` evaluation error (CLI
-status 255). The core currently refuses this literal-body callback; `auto`
-falls back to the reference engine.
+The enclosing evaluation context determines the deciding error class and exit
+status. This consumed fixture calls `BagOfAll` in an `ASSUME`, so it reports
+`TLC_ASSUMPTION_EVALUATION_ERROR` (2105), with cause 2266 and CLI status 10.
+Its CommunityModules fixture sources require an explicit library path.
 
 ```sh
-dive check crates/dive-api/tests/fixtures/op-literal/specs/OlBagOfAll/OlBagOfAll.tla --engine reference --compat=tlc --seed 0 --fp 0 --workers 1 --output json
+dive check crates/dive-api/tests/fixtures/op-literal/specs/OlBagOfAll/OlBagOfAll.tla --library-path crates/dive-eval/tests/fixtures/community-modules --engine reference --compat=tlc --seed 0 --fp 0 --workers 1 --output json
 ```
 
 ## Pure JSON conversion
