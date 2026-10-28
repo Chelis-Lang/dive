@@ -225,7 +225,14 @@ Every performance strategy has a switch:
 M1 acceptance requires a recorded small-tier matrix with each actual switch
 off, asserting that all observables are identical. Focused unit matrices do not
 substitute for that population. A strategy that changes an observable is a bug in
-that strategy.
+that strategy. The small-tier matrix exposed #603: replay compared compound
+allocation handles when hash-consing was disabled and lost ten invariant
+verdicts. Reconstruction now retains the exact handle fast path with interning,
+and uses structural value equality without it. `core_trace_ablation` checks the
+three-state sequence counter against pinned TLC (Inv/2110/exit 12, counts and
+depth 3), checks 1/4/8 workers in both profiles, independently validates every
+word, and rejects a changed middle state. A direct negative control also rejects
+genuinely unequal nested values and unequal state arity.
 
 ## 7. Validator independence
 
