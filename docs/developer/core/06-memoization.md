@@ -71,8 +71,30 @@ inputs are always persistent.
   same point the evaluation would have raised it.
 
 **Cache.** Per worker, with no sharing and therefore no contention.
-- Each site has a set-associative table (2-way, initially 2^14 entries,
-  resized within a per-worker memory budget).
+- Each site has a set-associative table (2-way). It starts with 64 sets.
+  It doubles, rehashing its entries, once it has evicted more entries than
+  a quarter of its capacity since it last grew, up to 8,192 sets.
+- **Memory bound (built).** A worker's tables together stay under a byte
+  cap: a sixty-fourth of the run's memory ceiling (`--max-memory`) shared
+  by the workers, clamped to between 1 MiB and 64 MiB (`Opts::memo_cap`,
+  `core_engine.rs` `memo_cap`). A table that would exceed the cap stops
+  growing, and one that cannot be allocated stays empty. Eviction only
+  drops a cached result, which the next lookup recomputes, so neither the
+  cap nor the eviction changes a result. The unit test
+  `tables_grow_within_the_cap_and_never_answer_wrongly` covers caps of 0
+  to 64 MiB.
+- **Measured** on M3 (load 8–20, so cycles, medians of 2–3; memo on;
+  `DIVE_CORE_OPT=+memo` on main `e1cbdbfb` against this change; counts
+  identical):
+
+  | Model | 8w RSS before / after (MB) | 8w cycles before / after | 1w cycles before / after |
+  |---|---|---|---|
+  | MCLamportMutex | 308 / 185 | 30.4 G / 29.2 G | 20.0 G / 20.6 G |
+  | MCbtree | 221 / 121 | 10.3 G / 9.7 G | 7.4 G / 7.4 G |
+  | MCDisruptor_MPMC | 100 / 33 | 3.0 G / 2.9 G | 1.5 G / 1.5 G |
+  | SimpleRegular | 164 / 127 | 7.6 G / 7.5 G | 4.8 G / 4.8 G |
+
+  With the tables off, the 8-worker RSS is 130, 107, 29 and 109 MB.
 - Each entry holds the full key, for verification, and the result.
 - On a miss, the site is evaluated and its entry inserted.
 
