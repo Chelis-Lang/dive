@@ -10,6 +10,8 @@ The documents exist so that any engineer or agent can take over at any point.
 Read this page, then `10-plan.md` (status and handoff log), then the documents
 for the workstream you are joining.
 
+**Start here at handover:** `m1-status.md` summarizes what M1 built, the measured results, the decisions, what is open and the next steps.
+
 ## Status board
 
 | Workstream | Milestone | State | Branch / PR | Doc |
@@ -41,6 +43,7 @@ worktree, with module ownership as listed in `10-plan.md` §3. Update this table
 | `08-correctness.md` | Shadow comparison, mutation fuzzing, validator independence, fallback policy |
 | `09-performance-method.md` | Benchmarks, hosts, ablations, recording format, gates |
 | `10-plan.md` | Milestones, gates, workstreams, risks, decision and handoff log |
+| `m1-status.md` | M1 summary at handover: what was built, results, decisions, open items, next steps |
 | `11-liveness.md` | Liveness on the core: graph capture, conversion, analysis entry points, budgets, PR plan |
 | `m0-results.md` | M0 spike: what was built, counts, timings, ablation, store scaling, watched risks |
 | `tlc-baseline.md` | What TLC does per state, verified against the pinned TLC source |
