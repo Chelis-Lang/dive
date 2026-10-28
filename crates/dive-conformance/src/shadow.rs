@@ -11,7 +11,7 @@
 //! reference result's ending. No golden is involved, so any corpus model
 //! can be shadowed.
 //!
-//! A difference or a refuted counterexample is a finding: the command
+//! A difference, a refuted counterexample, or an unconfirmed counterexample is a finding: the command
 //! exits non-zero. A timeout on either side is reported, not a finding.
 
 use crate::cache::Cache;
@@ -58,7 +58,7 @@ pub struct ShadowOptions {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum ShadowStatus {
-    /// Both engines gave the same observables, and the core's
+    /// Both engines gave the same classified observables, and the core's
     /// counterexample (if any) validated.
     Agree,
     /// The core refused the model.
@@ -67,6 +67,9 @@ pub enum ShadowStatus {
     Differ,
     /// The core's counterexample was refuted (a finding).
     TraceRefuted,
+    /// The core's required counterexample could not be independently
+    /// confirmed (a finding, even without `--strict`).
+    TraceUnconfirmed,
     /// A sampled state's successors differ from the reference evaluator's
     /// (a finding).
     SuccessorsDiffer,
@@ -80,7 +83,9 @@ impl ShadowStatus {
     #[must_use]
     pub const fn is_finding(self, strict: bool) -> bool {
         match self {
-            Self::Differ | Self::TraceRefuted | Self::SuccessorsDiffer => true,
+            Self::Differ | Self::TraceRefuted | Self::TraceUnconfirmed | Self::SuccessorsDiffer => {
+                true
+            }
             Self::Refused | Self::Timeout => strict,
             Self::Agree => false,
         }
@@ -168,6 +173,25 @@ fn stopped(r: &OracleResult) -> bool {
     matches!(r.verdict, Verdict::Timeout | Verdict::ResourceLimit)
 }
 
+fn nonsemantic_result(
+    result: &OracleResult,
+    engine: &str,
+) -> Option<(ShadowStatus, Option<String>)> {
+    if stopped(result) {
+        return Some((ShadowStatus::Timeout, result.note.clone()));
+    }
+    (!result.verdict.is_oracle_fact()).then(|| {
+        (
+            ShadowStatus::Differ,
+            Some(format!(
+                "the {engine} result is {} and cannot establish agreement: {}",
+                result.verdict.as_str(),
+                result.note.as_deref().unwrap_or("no classified result")
+            )),
+        )
+    })
+}
+
 /// The fields on which `core` and `reference` differ. Counts and depth are
 /// compared at one worker, and at any worker count for a complete search
 /// (`success`): a violation found by several workers may end at a
@@ -238,8 +262,8 @@ fn row(corpus: &CorpusIndex, m: &ModelEntry, workers: u32, status: ShadowStatus)
 }
 
 fn shadow_model(
-    core: &DiveImplementation,
-    reference: &DiveImplementation,
+    core: &impl Implementation,
+    reference: &impl Implementation,
     corpus: &CorpusIndex,
     m: &ModelEntry,
     workers: u32,
@@ -269,9 +293,9 @@ fn shadow_model(
     out.verdict = Some(core_result.verdict);
     out.sample = core_result.engine.as_ref().and_then(|e| e.sample.clone());
     out.core_ms = millis(core_elapsed);
-    if stopped(&core_result) {
-        out.status = ShadowStatus::Timeout;
-        out.detail.clone_from(&core_result.note);
+    if let Some((status, detail)) = nonsemantic_result(&core_result, "core") {
+        out.status = status;
+        out.detail = detail;
         return out;
     }
     let (reference_result, reference_elapsed) = match reference.check_model(&req) {
@@ -292,9 +316,9 @@ fn shadow_model(
         }) => (result, elapsed),
     };
     out.reference_ms = millis(reference_elapsed);
-    if stopped(&reference_result) {
-        out.status = ShadowStatus::Timeout;
-        out.detail.clone_from(&reference_result.note);
+    if let Some((status, detail)) = nonsemantic_result(&reference_result, "reference") {
+        out.status = status;
+        out.detail = detail;
         return out;
     }
     out.diffs = differences(&core_result, &reference_result, workers);
@@ -308,11 +332,34 @@ fn shadow_model(
         ));
         out.diffs.extend(s.shown.iter().cloned());
     }
-    if core_result.trace.is_some() {
-        let check = core.trace_validated(&req, &core_result, &reference_result);
+    let requires_word = matches!(
+        core_result.verdict,
+        Verdict::SafetyViolation
+            | Verdict::ActionPropertyViolation
+            | Verdict::LivenessViolation
+            | Verdict::Deadlock
+    ) || (core_result.verdict == reference_result.verdict
+        && reference_result.trace.is_some());
+    if core_result.trace.is_some() || requires_word {
+        let check = match &core_result.trace {
+            None => crate::trace_check::TraceCheck::no(
+                "the verdict requires a counterexample, but the result carries none",
+            ),
+            Some(trace)
+                if trace.json.as_ref().is_none_or(serde_json::Value::is_null)
+                    && trace.steps.as_ref().is_none_or(Vec::is_empty) =>
+            {
+                crate::trace_check::TraceCheck::no("the counterexample carries no word payload")
+            }
+            Some(_) => core.trace_validated(&req, &core_result, &reference_result),
+        };
         out.trace = Some(check.detail.clone());
-        if check.refuted && out.status == ShadowStatus::Agree {
-            out.status = ShadowStatus::TraceRefuted;
+        if !check.validated && out.status == ShadowStatus::Agree {
+            out.status = if check.refuted {
+                ShadowStatus::TraceRefuted
+            } else {
+                ShadowStatus::TraceUnconfirmed
+            };
         }
     }
     out
@@ -417,7 +464,10 @@ pub fn run(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::tlc::result::Counts;
+    use crate::tlc::result::{Counts, Trace, TraceEnding};
+    use crate::trace_check::TraceCheck;
+    use dive_api::trace::{Ending, SpecModel, TraceDoc, TraceOptions};
+    use serde_json::json;
 
     fn result(verdict: Verdict, distinct: u64) -> OracleResult {
         OracleResult {
@@ -458,5 +508,289 @@ mod tests {
         assert!(ShadowStatus::Differ.is_finding(false));
         assert!(!ShadowStatus::Refused.is_finding(false) && ShadowStatus::Refused.is_finding(true));
         assert!(!ShadowStatus::Agree.is_finding(true));
+    }
+
+    struct Replay {
+        result: OracleResult,
+        refusal: Option<TraceCheck>,
+    }
+
+    impl Implementation for Replay {
+        fn name(&self) -> String {
+            "shadow-trace-control".into()
+        }
+
+        fn is_oracle(&self) -> bool {
+            false
+        }
+
+        fn check_model(&self, _: &ModelRequest<'_>) -> Result<ImplResult<OracleResult>> {
+            Ok(ImplResult::Completed {
+                result: self.result.clone(),
+                command: vec![],
+                elapsed: Duration::ZERO,
+            })
+        }
+
+        fn parse_module(
+            &self,
+            _: &std::path::Path,
+            _: &str,
+            _: Duration,
+        ) -> Result<ImplResult<crate::sany::SanyResult>> {
+            Ok(ImplResult::Unsupported("not selected".into()))
+        }
+
+        fn trace_validated(
+            &self,
+            req: &ModelRequest<'_>,
+            result: &OracleResult,
+            reference: &OracleResult,
+        ) -> TraceCheck {
+            if let Some(refusal) = &self.refusal {
+                return refusal.clone();
+            }
+            match SpecModel::load(
+                &req.corpus_root.join(&req.model.module),
+                &req.corpus_root.join(&req.model.id),
+                &TraceOptions::default(),
+            ) {
+                Ok(spec) => crate::trace_check::validate_counterexample(&spec, result, reference),
+                Err(error) => TraceCheck::no(error.to_string()),
+            }
+        }
+    }
+
+    #[test]
+    fn unclassified_and_contradictory_results_never_earn_agreement()
+    -> std::result::Result<(), Box<dyn std::error::Error>> {
+        let manifest = serde_json::from_value(json!({
+            "sources": [], "authors": [], "tags": [],
+            "modules": [{"path": "X.tla", "features": [], "models": [{
+                "path": "X.cfg", "mode": "exhaustive search", "runtime": "unknown", "result": "unknown"
+            }]}]
+        }))?;
+        let (modules, models) = crate::corpus::models_of(&manifest)?;
+        let corpus = CorpusIndex {
+            id: "verdict-controls".into(),
+            commit: "test".into(),
+            in_repo: true,
+            root: PathBuf::new(),
+            modules,
+            models,
+            unfetched_submodules: vec![],
+            uncovered: vec![],
+        };
+        let model = corpus.models.first().ok_or("missing control model")?;
+        let limits = Limits {
+            jobs: 1,
+            xmx: "1g".into(),
+            timeout: Some(Duration::from_secs(5)),
+            timeout_cap: Duration::from_secs(5),
+            budget_cap: None,
+        };
+        let mut error = result(Verdict::EvaluationError, 0);
+        error.verdict_code = Some(2179);
+        error.error_class = Some("TLC_MODULE_DIVISION_BY_ZERO".into());
+        error.exit_code = Some(255);
+        let replay = |result| Replay {
+            result,
+            refusal: None,
+        };
+        for workers in [1, 4] {
+            let classified = replay(error.clone());
+            let row = shadow_model(&classified, &classified, &corpus, model, workers, &limits);
+            assert_eq!(row.status, ShadowStatus::Agree, "{row:?}");
+            for verdict in [Verdict::Unclassified, Verdict::OracleError] {
+                let mut invalid = result(verdict, 0);
+                invalid.note = Some("the native report could not be trusted".into());
+                for (core_result, reference_result, engine) in [
+                    (invalid.clone(), invalid.clone(), "core"),
+                    (invalid.clone(), error.clone(), "core"),
+                    (error.clone(), invalid.clone(), "reference"),
+                ] {
+                    let row = shadow_model(
+                        &replay(core_result),
+                        &replay(reference_result),
+                        &corpus,
+                        model,
+                        workers,
+                        &limits,
+                    );
+                    assert_eq!(row.status, ShadowStatus::Differ, "{verdict:?}: {row:?}");
+                    let detail = row.detail.as_deref().ok_or("missing finding detail")?;
+                    assert!(detail.contains(engine), "{detail}");
+                    assert!(detail.contains(verdict.as_str()), "{detail}");
+                    assert!(detail.contains("could not be trusted"), "{detail}");
+                    assert!(row.status.is_finding(false) && row.status.is_finding(true));
+                }
+            }
+            // Resource stops retain their existing separate classification.
+            for verdict in [Verdict::Timeout, Verdict::ResourceLimit] {
+                let stopped = replay(result(verdict, 0));
+                let row = shadow_model(&stopped, &stopped, &corpus, model, workers, &limits);
+                assert_eq!(row.status, ShadowStatus::Timeout, "{row:?}");
+                let row = shadow_model(&classified, &stopped, &corpus, model, workers, &limits);
+                assert_eq!(row.status, ShadowStatus::Timeout, "{row:?}");
+            }
+        }
+        Ok(())
+    }
+
+    #[test]
+    #[allow(
+        clippy::too_many_lines,
+        reason = "one shadow run with paired trace controls"
+    )]
+    fn only_independently_validated_counterexamples_can_agree()
+    -> std::result::Result<(), Box<dyn std::error::Error>> {
+        let tmp = crate::util::TempDir::new("shadow-traces")?;
+        std::fs::write(
+            tmp.path().join("X.tla"),
+            "---- MODULE X ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == x'=1\nInv == x<1\n====\n",
+        )?;
+        std::fs::write(
+            tmp.path().join("X.cfg"),
+            "INIT Init\nNEXT Next\nINVARIANT Inv\n",
+        )?;
+        let manifest = serde_json::from_value(json!({
+            "sources": [], "authors": [], "tags": [],
+            "modules": [{"path": "X.tla", "features": [], "models": [{
+                "path": "X.cfg", "mode": "exhaustive search", "runtime": "unknown", "result": "unknown"
+            }]}]
+        }))?;
+        let (modules, models) = crate::corpus::models_of(&manifest)?;
+        let corpus = CorpusIndex {
+            id: "trace-controls".into(),
+            commit: "test".into(),
+            in_repo: true,
+            root: tmp.path().into(),
+            modules,
+            models,
+            unfetched_submodules: vec![],
+            uncovered: vec![],
+        };
+        let model = corpus.models.first().ok_or("missing control model")?;
+        let doc = TraceDoc::behavior(vec![json!({"x": 0}), json!({"x": 1})])?
+            .with_ending(Ending::Invariant("Inv".into()));
+        let mut valid = result(Verdict::SafetyViolation, 2);
+        valid.error_class = Some("TLC_INVARIANT_VIOLATED_BEHAVIOR".into());
+        valid.violated_property = Some("Inv".into());
+        valid.exit_code = Some(12);
+        valid.trace = Some(Trace {
+            length: 2,
+            ending: TraceEnding::Finite,
+            json: Some(doc.to_json()),
+            steps: None,
+            omitted: None,
+            json_unavailable: None,
+        });
+        let changed_trace = |json| {
+            let mut changed = valid.clone();
+            if let Some(trace) = changed.trace.as_mut() {
+                trace.json = json;
+            }
+            changed
+        };
+        let mut invalid_doc = doc.clone();
+        invalid_doc.states[0].insert("x".into(), json!(1));
+        let mut missing = valid.clone();
+        missing.trace = None;
+        let reference = Replay {
+            result: valid.clone(),
+            refusal: None,
+        };
+        let limits = Limits {
+            jobs: 1,
+            xmx: "1g".into(),
+            timeout: Some(Duration::from_secs(5)),
+            timeout_cap: Duration::from_secs(5),
+            budget_cap: None,
+        };
+        for (name, result, refusal, status, detail) in [
+            (
+                "valid",
+                valid.clone(),
+                None,
+                ShadowStatus::Agree,
+                "validated",
+            ),
+            (
+                "refuted",
+                changed_trace(Some(invalid_doc.to_json())),
+                None,
+                ShadowStatus::TraceRefuted,
+                "invalid",
+            ),
+            (
+                "unsupported",
+                valid.clone(),
+                Some(TraceCheck::no("unsupported: independent query")),
+                ShadowStatus::TraceUnconfirmed,
+                "unsupported",
+            ),
+            (
+                "absent trace",
+                missing,
+                None,
+                ShadowStatus::TraceUnconfirmed,
+                "carries none",
+            ),
+            (
+                "absent document",
+                changed_trace(None),
+                None,
+                ShadowStatus::TraceUnconfirmed,
+                "no word payload",
+            ),
+            (
+                "unreadable",
+                changed_trace(Some(json!({}))),
+                None,
+                ShadowStatus::TraceUnconfirmed,
+                "unreadable",
+            ),
+        ] {
+            let core = Replay { result, refusal };
+            let row = shadow_model(&core, &reference, &corpus, model, 1, &limits);
+            assert_eq!(row.status, status, "{name}: {row:?}");
+            assert!(
+                row.trace.as_deref().is_some_and(|s| s.contains(detail)),
+                "{name}: {row:?}"
+            );
+            assert_eq!(row.status.is_finding(false), name != "valid", "{name}");
+            assert_eq!(row.status.is_finding(true), name != "valid", "{name}");
+        }
+        // A verdict's mandatory word cannot disappear merely because both
+        // engines omitted it, and an existing observable difference is kept.
+        for verdict in [
+            Verdict::SafetyViolation,
+            Verdict::ActionPropertyViolation,
+            Verdict::LivenessViolation,
+            Verdict::Deadlock,
+        ] {
+            let absent = Replay {
+                result: result(verdict, 2),
+                refusal: None,
+            };
+            let row = shadow_model(&absent, &absent, &corpus, model, 1, &limits);
+            assert_eq!(row.status, ShadowStatus::TraceUnconfirmed, "{verdict:?}");
+        }
+        let mut different = valid;
+        different.trace = None;
+        different.counts.distinct_states = Some(3);
+        let core = Replay {
+            result: different,
+            refusal: None,
+        };
+        let row = shadow_model(&core, &reference, &corpus, model, 1, &limits);
+        assert_eq!(row.status, ShadowStatus::Differ);
+        assert_eq!(row.diffs.len(), 1);
+        assert!(
+            row.trace
+                .as_deref()
+                .is_some_and(|s| s.contains("carries none"))
+        );
+        Ok(())
     }
 }

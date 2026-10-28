@@ -168,6 +168,17 @@ The semantic contract lists seven more, in `02-semantic-contract.md` §6.
 Add a new entry at the top for every working session that ends with work in
 progress. Give the date, branch, state and the exact next step.
 
+- **2026-10-28 (harness, `fix/shadow-trace-confirmation`).** The fixture-census
+  preparation exposed #590: shadow counted an independently unconfirmed trace
+  as agreement and did not require missing violation words. Such rows are now
+  `trace-unconfirmed` findings in ordinary and strict runs. The paired controls
+  cover independently valid/refuted words, validator refusal, absent traces,
+  absent documents and unreadable documents. The same PR addresses #596:
+  unclassified or contradictory reports cannot earn agreement, even when equal;
+  classified evaluation errors and resource stops retain their own rules.
+  Next: run the workspace/shadow gates,
+  then rerun the census; this change gives no retrospective measurement credit.
+
 - **2026-10-28 (lead, handover to a new machine).** All M1 agents stopped;
   every worktree was clean and every branch pushed. No AWS nodes are running.
   - **State on `main`.** About 70 PRs merged since #505. All 10 bench models

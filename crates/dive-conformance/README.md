@@ -149,7 +149,12 @@ run --impl tlc|tlc:<oracle-id>|dive|dive:<engine>|adapter:<file.toml>
 shadow [--corpus ID]... [--tier T] [--filter GLOB]... [--workers 1,4] [--dive-bin PATH] [--report-dir DIR] [--strict] [--sample N] [--impl-profile dive|tlc]
 ```
 
-`shadow` compares dive's new core with its reference engine, in the default profile (or both under `--compat=tlc` with `--impl-profile tlc`), on every selected model the core accepts. No golden is involved. Both must give the same verdict, error class and code, exit and violated property, plus the same counts and depth at one worker or for a complete search. The core's counterexamples must validate with `dive-trace`. Each core run also samples `--sample N` expanded states (default 32, 0 for none) and compares their successors, action by action, with the reference evaluator's (`dive check --core-sample`). A difference, a refuted trace or a successor difference is a finding (exit 1). With `--strict`, a refusal or a timeout is a finding too. See `docs/developer/core/08-correctness.md` §4. `scripts/shadow-gate.sh <list>` runs it strictly on a model list, as CI does with `conformance/gates/shadow-smoke.txt`.
+`shadow` compares dive's new core with its reference engine, in the default profile (or both under `--compat=tlc` with `--impl-profile tlc`), on every selected model the core accepts. No golden is involved. Both must give the same verdict, error class and code, exit and violated property, plus the same counts and depth at one worker or for a complete search. The core's counterexamples must validate with `dive-trace`. Each core run also samples `--sample N` expanded states (default 32, 0 for none) and compares their successors, action by action, with the reference evaluator's (`dive check --core-sample`). A difference, a refuted trace, an unconfirmed trace or a successor difference is a finding (exit 1). A required counterexample that is absent, unreadable or refused by the validator is `trace-unconfirmed`, even without `--strict`; it never earns agreement. With `--strict`, an engine refusal or a timeout is a finding too. See `docs/developer/core/08-correctness.md` §4. `scripts/shadow-gate.sh <list>` runs it strictly on a model list, as CI does with `conformance/gates/shadow-smoke.txt`.
+
+An `unclassified` or `oracle-error` result from either engine is a `differ`
+finding, even when both reports match. Its detail names the engine and retains
+the classification reason. Classified evaluation errors can agree normally;
+time and memory stops remain `timeout` outcomes.
 
 `run` takes several `--corpus`, into one report and one summary (default: `examples`).
 
