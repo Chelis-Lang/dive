@@ -89,6 +89,21 @@ distinct states, 4 generated states and depth 3:
 dive check crates/dive-api/tests/fixtures/core-m0/EnabStepCache.tla --engine core --compat=tlc --workers 4 --seed 0 --fp 0 --output json
 ```
 
+The core also evaluates pure, nonrecursive `ENABLED` queries through
+`INSTANCE` constant and operator parameters when each instantiated variable maps to the root variable with the
+same name. This includes nested instances. For example, the following returns
+success with 4 distinct states, 5 generated states and depth 4 in both profiles:
+
+```sh
+dive check crates/dive-api/tests/fixtures/core-m0/EnabConstInstance.tla --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+```
+
+Hidden or renamed instance variables, instance queries inside an initial
+predicate, state-dependent configuration operator overrides, and query bodies
+with effects or recursive/nested calls remain explicitly unsupported by the
+core. `--engine auto` selects the reference engine for these cases. The same restrictions apply in both
+compatibility profiles.
+
 When constraints exclude every initial candidate, the core completes with
 zero distinct states and no counterexample. As in TLC, the reported depth is
 one if Init generated any candidate, and zero if Init generated none.

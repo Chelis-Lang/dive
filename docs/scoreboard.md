@@ -15,6 +15,14 @@ timing, thread or queue order, tableau numbering or SCC and lasso choice.
 
 ## Corpus scoreboard
 
+The core's bounded instance-query extension (#609) is checked separately by
+`core_enabled_instance`: 210 supported source/profile/worker/cache cells,
+124 explicit refusal cells and 28 frontend level-rejection cells. It admits
+constant/operator parameters with proved identity mappings of root variables;
+hidden/nonidentity query variables and instantiated initial queries remain
+refused. This adds no credit to the corpus populations below. See the
+[compiler boundary](developer/core/04-plan-compiler.md#55-enabled-built).
+
 A fresh `--engine=auto` control at source `0f0c6ad1` on 2026-10-28 preserves
 both one-worker 156-model baselines and all 458 SANY comparisons. Actual strict
 agreements on the core are 121 default and 125 TLC; the remaining strict
