@@ -88,12 +88,20 @@ For every selected model and worker count (default 1 and 4):
   result.
 
 Statuses are `agree`, `refused`, `differ`, `trace-refuted`,
-`successors-differ` and `timeout`. `differ`, `trace-refuted` and
-`successors-differ` are findings: the command exits 1 and prints
+`trace-unconfirmed`, `successors-differ` and `timeout`. `differ`,
+`trace-refuted`, `trace-unconfirmed` and `successors-differ` are findings: the command exits 1 and prints
 one line per finding. With `--strict`, `refused` and `timeout` are findings
 too, for a fixed list of models the core is expected to run. The JSON
 report (`schema: 1`) is written only with `--report-dir`. The summary,
 printed as JSON, counts each status.
+
+An absent mandatory counterexample, a missing/unreadable word, or a named
+validator refusal is `trace-unconfirmed`, never agreement, even if both engines
+report identical observables. Safety/action/liveness violations and deadlocks
+require a word; an error ending also requires one when the reference reports a
+counterexample. An existing observable or successor difference keeps its status
+and additionally records the validation detail. This closes issue #590; earlier
+shadow measurements were not rerun by this change.
 
 How to run it:
 
