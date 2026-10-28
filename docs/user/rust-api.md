@@ -94,6 +94,17 @@ For exact type signatures and compiled examples run `cargo doc -p dive-api --no-
 and consult [the API root](../../crates/dive-api/src/lib.rs),
 [trace guide](traces.md) and [temporal guide](temporal.md).
 
+For supplied low-level graph studies, `dive_liveness::product::CsrTopology`
+borrows checked CSR offsets, 32-bit targets and roots. `Product::from_csr` and
+`Product::with_csr_recurrences` build the same ordered product as their dense
+`Graph` counterparts, retaining parallel edges and witness positions. The
+compiled example is in the `from_csr` rustdoc. Arrays must describe every
+intended edge, including stutters; empty rows remain dead ends. Invalid CSR
+layout/references, label shape and product resource bounds return errors.
+This API consumes caller-supplied labels and does not enumerate a specification,
+certify graph completion or replace independent trace validation. Ordinary core
+checking still uses its existing graph representation and capacity limits.
+
 The [fair procedure guide](../pluscal-translation.md) includes a compiled
 Rust caller using `TranslationRequest.limits.fairness`. Shared finite process
 procedures retain per-ID ownership; their admitted translation reports still

@@ -1,5 +1,6 @@
 //! Borrowed input topology only; product CSR and search keep their own interfaces.
 
+use super::CsrTopology;
 use crate::{Graph, GraphError};
 use dive_check::capture::BehaviorGraph;
 
@@ -7,6 +8,13 @@ use dive_check::capture::BehaviorGraph;
 pub(crate) enum BehaviorView<'a> {
     Dense(&'a Graph),
     Captured(&'a BehaviorGraph),
+    Csr(&'a CsrTopology<'a>),
+}
+
+impl<'a> From<&'a CsrTopology<'a>> for BehaviorView<'a> {
+    fn from(graph: &'a CsrTopology<'a>) -> Self {
+        Self::Csr(graph)
+    }
 }
 
 impl<'a> From<&'a Graph> for BehaviorView<'a> {
@@ -44,6 +52,7 @@ impl<'a> BehaviorView<'a> {
         match self {
             Self::Dense(graph) => graph.edges.len(),
             Self::Captured(graph) => graph.edges.len(),
+            Self::Csr(graph) => graph.vertex_count(),
         }
     }
 
@@ -51,6 +60,7 @@ impl<'a> BehaviorView<'a> {
         match self {
             Self::Dense(graph) => &graph.roots,
             Self::Captured(graph) => &graph.roots,
+            Self::Csr(graph) => graph.roots(),
         }
     }
 
@@ -58,6 +68,7 @@ impl<'a> BehaviorView<'a> {
         match self {
             Self::Dense(graph) => graph.edges[source].len(),
             Self::Captured(graph) => graph.edges[source].len(),
+            Self::Csr(graph) => graph.row_len(source),
         }
     }
 
@@ -65,6 +76,7 @@ impl<'a> BehaviorView<'a> {
         match self {
             Self::Dense(graph) => graph.edges[source][edge],
             Self::Captured(graph) => graph.edges[source][edge].to,
+            Self::Csr(graph) => graph.target(source, edge),
         }
     }
 }
