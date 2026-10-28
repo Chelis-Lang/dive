@@ -560,7 +560,7 @@ not silently corrected.
 | | |
 |---|---|
 | **Kind** | Different answer |
-| **Default** | **TLA+ answers** for `=` and `\in` between functions, records, tuples and sets (`--comparisons=tla`; owner decision 2026-10-08). The error is kept only where TLA+ leaves the answer unspecified, such as `1 = "a"`. Set construction still follows TLC's rules. |
+| **Default** | **TLA+ answers** for `=` and `\in` between functions, records, tuples and sets (`--comparisons=tla`; owner decision 2026-10-08). The error is kept only where TLA+ leaves the answer unspecified, such as `1 = "a"`. Set construction still follows TLC's rules. The core refuses unproved compound normalization in both profiles (#619). |
 | **TLC behaviour** | `--comparisons=tlc`, part of `--compat=tlc` |
 | **Status** | default in `dive-eval` (`Comparisons::Tla`). TLC's behaviour is implemented and matched in `dive-value` and `dive-eval` under `--compat=tlc`. |
 

@@ -344,6 +344,12 @@ pair it happens to compare. `TupleValue.compareTo(record)` compares sizes, but
 is a set and `{<<1>>, [qfa |-> 1, qfb |-> 1]}` is an error.
 - Profile: both. Set construction keeps TLC's rules under D-009
   (`crates/dive-eval/src/tla_cmp.rs:15-16`).
+- Issue #619: compound elements can be incomparable below their outer class.
+  `Cardinality({<<1,1>>, <<TRUE,2>>})` fails during normalization even in
+  default. Until exact checked sorting is proved, the core refuses compound
+  sets whose existing comparison shapes do not unify in either profile.
+  Pinned cases and short-circuit controls are consumed from
+  `crates/dive-api/tests/fixtures/core-normalization/oracle.json`.
 - Evidence: `tlc2/value/impl/ValueVec.java:172-197`;
   `crates/dive-value/src/order.rs:947`; ADR 0012 §4; fixtures `AsymSet*`,
   `RvCanonAsym`.

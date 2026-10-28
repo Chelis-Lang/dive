@@ -438,8 +438,9 @@ its own switch:
   failure.
 - **Comparisons** (C1–C5). `compare.rs` keeps the D-009 answers and adds a
   shape guard. Under TLC's comparisons, an equality between unequal compound
-  values, a membership miss of a compound value, and the elements of a new
-  set must have shapes that unify: the same class at every position TLC's
+  values and a membership miss of a compound value must have shapes that unify.
+  In both profiles, the elements of a new compound set must also unify: the
+  same class at every position TLC's
   `equals` or `compareTo` could inspect, with records and tuples kept apart.
   When the shapes unify, TLC cannot fail, and its answer is TLA+'s. When
   they do not, the core refuses. Membership of a function in `Seq(S)`, in a

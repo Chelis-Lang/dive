@@ -727,6 +727,14 @@ the bounded source-context continuation. The retained
 missing-fairness reproduction and current source-span regression are distinct
 from reference CRC/Validator limitations. See the user log and issue #182.
 
+D-009 implementation boundary (#619): the core now applies its existing
+comparison-shape proof to compound set normalization in both profiles. Unproved
+nested comparisons return unsupported rather than default success; exact
+checked sorting remains pending. Size and earlier-field short circuits can
+cause conservative refusals even where TLC succeeds. This preserves C2,
+without adding an approved divergence. Pinned consumed controls are in
+`crates/dive-api/tests/fixtures/core-normalization/`.
+
 D-009 implementation boundary (#188): pure VIEW now deep-normalizes every
 concrete variable before projection. The pinned primary exits255/EC1000 for
 an ignored reverse-ordered tuple/record set; dive explicitly refuses the
