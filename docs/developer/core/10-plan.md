@@ -155,7 +155,8 @@ SimpleRegular now scales 4.1× at 8 workers (#550 closed).
 
 ## 5c. Acceptance measurements on 2026-10-28
 
-Current source-bound evidence and engine accounting are in `m1-status.md`.
+Current source-bound evidence and engine accounting are in `m1-status.md`
+§3. The checkpoints below retain their historical sources and populations.
 At `0f0c6ad1`, fresh all-on `auto` runs preserve both 156-model baselines:
 144 strict default agreements plus seven expected divergences, and 150 TLC
 agreements; all 458 SANY checks agree. Actual core strict agreements are
@@ -199,6 +200,34 @@ The semantic contract lists seven more, in `02-semantic-contract.md` §6.
 
 Add a new entry at the top for every working session that ends with work in
 progress. Give the date, branch, state and the exact next step.
+
+- **2026-10-28 (checked membership and acceptance handoff).** Main
+  `2efcb3bf` includes merged #611/#614/#616/#618 and #621, which closes
+  #619 with conservative C2 normalization refusal in both profiles. Exact
+  comparison/history support remains M2 work. Frozen PRE-C2 `75f0ac4f` has
+  300 correct five-repeat observations at actual 1/8 workers: paired TLC/core
+  geometric means are 2.620916× / 2.678114× default and 2.209552× / 2.358382×
+  TLC mode. Default wins ten of ten models, TLC mode eight of ten; GameOfLife
+  and Sailfish remain slower. Original quiet=false and separate host controls
+  remain in `conformance/reports/perf/2026-10-28-core-checked-membership-x86.json`.
+  Its full gate (40m05s, 2,730 tests) is also PRE-C2 evidence.
+  Integration `e0cce6f5` separately passes fast (2,198 tests), smoke eight
+  models at 1/4 workers, strict shadow 52 rows and fresh review (891,600
+  differential cases, 409 native runs and 22 validated counterexample words);
+  separately, both-profile Sailfish 10k prefixes matched. There is no new
+  full-gate or performance-population claim.
+  #620 remains `verified=false`/native-reader `Refused` diagnostic parity.
+  Next: typed terminal-error/independent-word acceptance; preserve raw
+  construction order, demand/history and alias lifetime before exact
+  scalar/tuple normalization and raw/normalized membership, then class/E7
+  widening. Persistence, `Kind::Set` and `is_norm` are not history certificates.
+  Generic S5 indexing is not built. Existing INSTANCE/stdlib and L5 retained-root,
+  controlled-conversion and completion work remains; native compact capture
+  and measured TLC capacity are not built. M1/M2 stay open and `reference`
+  remains the default. A separate post-C2 e0 one-worker Sailfish diagnostic
+  has three successful arms with matching counts; it is one repetition with
+  quiet=false, no eight-worker or population credit. Source qualifications
+  and exact times are in `m1-status.md`.
 
 - **2026-10-28 (engine, `l5/state-source-boundary`).** Extracted the private
   state/concrete-target source used by the existing temporal analyzer; its

@@ -104,10 +104,7 @@ fn mismatch(a: Class, b: Class) -> Error {
 /// two UTF-16 units whose second unit is `_` (`ModelValue`'s constructor).
 /// `None` for an untyped model value or a value that is not one.
 pub(crate) fn mv_type(heap: &Heap, h: Handle) -> Option<u16> {
-    let text = heap.store().strings().text(h.as_model_id()?)?;
-    let mut units = text.encode_utf16();
-    let (first, second) = (units.next()?, units.next()?);
-    (second == u16::from(b'_') && units.next().is_some()).then_some(first)
+    heap.model_type(h.as_model_id()?)
 }
 
 /// Whether TLC can compare `a` and `b` when either is a model value
@@ -179,6 +176,44 @@ pub(crate) fn equals(heap: &Heap, a: Handle, b: Handle) -> Result<bool, Error> {
 /// compounds), so the first and last elements decide.
 pub(crate) fn miss(heap: &Heap, x: Handle, elems: &[Handle]) -> Result<(), Error> {
     guard_member(heap, x, elems)?;
+    miss_scalars(heap, x, elems)
+}
+
+/// A demanded explicit-set miss. A certificate replaces the complete shape
+/// guard with its exact witness, but never the scalar/model-value checks.
+pub(crate) fn miss_cached(
+    heap: &Heap,
+    memo: &mut crate::memo::Memo,
+    x: Handle,
+    set: Handle,
+    elems: &[Handle],
+) -> Result<(), Error> {
+    if !memo.members_active()
+        || !heap.store().semantics().tlc_comparisons
+        || !x.is_compound()
+        || !set.is_persistent()
+        || heap.view(set).kind != Kind::Set
+        || elems.is_empty()
+    {
+        return miss(heap, x, elems);
+    }
+    if let Some(witness) = memo.member_witness(heap.store(), set) {
+        // A failed proof always takes the original full path. In particular,
+        // no cached shape certificate changes the refusal or its demand site.
+        if tuple_proof(heap, x, witness) || guard_member(heap, x, &[witness]).is_ok() {
+            return miss_scalars(heap, x, elems);
+        }
+        return miss(heap, x, elems);
+    }
+    // Admission happens only after the demanded original miss succeeds.
+    miss(heap, x, elems)?;
+    if let Some(witness) = member_witness(heap, elems) {
+        memo.remember_member(heap.store(), set, witness);
+    }
+    Ok(())
+}
+
+fn miss_scalars(heap: &Heap, x: Handle, elems: &[Handle]) -> Result<(), Error> {
     // Model values sort first. Which of them TLC compares `x` with depends
     // on its search, so any incomparable pair is refused (C1, D3).
     let k = elems.partition_point(|e| e.as_model_id().is_some());
@@ -434,6 +469,173 @@ fn unify(a: Shape, b: Shape) -> Option<Shape> {
     })
 }
 
+/// Adds a value's comparison constraints to one accumulated shape. This is
+/// `unify(acc, shape(value))` without constructing a second tree or removing
+/// and reinserting keys already present in the accumulator.
+fn include_shape(heap: &Heap, acc: &mut Shape, h: Handle) -> Option<()> {
+    use Shape as S;
+    // The first value supplies the tree. An empty function can acquire the
+    // shape of a non-record function, exactly as in `unify`.
+    if matches!(acc, S::Hole | S::EmptyFcn) {
+        let incoming = shape(heap, h)?;
+        let old = std::mem::replace(acc, S::Hole);
+        *acc = unify(old, incoming)?;
+        return Some(());
+    }
+    match h.tag() {
+        Tag::Bool | Tag::Int | Tag::Str | Tag::Model => {
+            let incoming = shape(heap, h)?;
+            return (incoming == S::Hole || *acc == incoming).then_some(());
+        }
+        Tag::Persistent | Tag::Transient | Tag::Empty => {}
+    }
+    if !h.is_compound() {
+        return matches!(acc, S::Set(_)).then_some(());
+    }
+    let v = heap.view(h);
+    match v.kind {
+        Kind::BigInt => matches!(acc, S::Int).then_some(()),
+        Kind::Set => {
+            let S::Set(inner) = acc else {
+                return None;
+            };
+            for &e in v.data {
+                include_shape(heap, inner, e)?;
+            }
+            Some(())
+        }
+        Kind::Interval => {
+            let S::Set(inner) = acc else {
+                return None;
+            };
+            if **inner == S::Hole {
+                **inner = S::Int;
+            }
+            matches!(**inner, S::Int).then_some(())
+        }
+        Kind::IntFcn if v.data.is_empty() => {
+            matches!(acc, S::IntKeyed(_) | S::Gen(..)).then_some(())
+        }
+        Kind::IntFcn => {
+            let S::IntKeyed(fields) = acc else {
+                return None;
+            };
+            for (i, &e) in (v.lo..).zip(v.data) {
+                include_shape(heap, fields.entry(i).or_insert(S::Hole), e)?;
+            }
+            Some(())
+        }
+        Kind::Fcn => {
+            let (keys, vals) = (v.keys(), v.values());
+            if keys.is_empty() {
+                return matches!(acc, S::IntKeyed(_) | S::Gen(..)).then_some(());
+            }
+            if keys.iter().all(|k| k.as_str_id().is_some()) {
+                let S::Rec(fields) = acc else {
+                    return None;
+                };
+                for (k, &e) in keys.iter().zip(vals) {
+                    include_shape(heap, fields.entry(k.as_str_id()?).or_insert(S::Hole), e)?;
+                }
+                return Some(());
+            }
+            if keys.iter().all(|k| k.as_int().is_some()) {
+                let S::IntKeyed(fields) = acc else {
+                    return None;
+                };
+                for (k, &e) in keys.iter().zip(vals) {
+                    include_shape(heap, fields.entry(k.as_int()?).or_insert(S::Hole), e)?;
+                }
+                return Some(());
+            }
+            let S::Gen(ks, vs) = acc else {
+                return None;
+            };
+            for (&k, &e) in keys.iter().zip(vals) {
+                include_shape(heap, ks, k)?;
+                include_shape(heap, vs, e)?;
+            }
+            Some(())
+        }
+        _ => None,
+    }
+}
+
+/// Finds a persistent member whose exact shape is the join of all members.
+/// The partial join is associative: holes add no constraint, function maps
+/// join independently at each key, and incompatible constructors stay
+/// incompatible. Thus joining a query with this witness succeeds exactly
+/// when joining the query with every member succeeds. Merely compatible
+/// witnesses are insufficient: an empty function, for example, must not
+/// represent a collection containing nonempty tuples. The equality below
+/// checks the complete recursive shape, never a hash or a value kind.
+fn member_witness(heap: &Heap, elems: &[Handle]) -> Option<Handle> {
+    let aggregate = elems
+        .iter()
+        .try_fold(Shape::Hole, |acc, &e| unify(acc, shape(heap, e)?))?;
+    elems.iter().copied().find(|&e| {
+        e.is_persistent() && shape(heap, e).is_some_and(|candidate| candidate == aggregate)
+    })
+}
+
+/// A success-only proof against a witness whose complete shape is known to
+/// exist from its certificate. It constructs no temporary Shape trees.
+///
+/// Identity is safe only under that witness-validity precondition. Model
+/// holes remove constraints, but a hole in the witness does not establish
+/// that the query has a shape: that case validates the supported query tree.
+/// Tuple domains must match, except that an empty query adds no constraints
+/// to a known-valid nonrecord tuple witness. Any unknown or mismatch returns
+/// false to request the original witness/full guards, never a refusal or a
+/// membership result.
+fn tuple_proof(heap: &Heap, query: Handle, witness: Handle) -> bool {
+    if query == witness {
+        return true;
+    }
+    match (query.tag(), witness.tag()) {
+        (Tag::Model, _) => {
+            let Some(ty) = mv_type(heap, query) else {
+                return true;
+            };
+            return witness.tag() == Tag::Model
+                && mv_type(heap, witness).is_none_or(|other| ty == other);
+        }
+        (_, Tag::Model) => {
+            return mv_type(heap, witness).is_none() && tuple_tree_valid(heap, query);
+        }
+        (Tag::Bool, Tag::Bool) | (Tag::Int, Tag::Int) | (Tag::Str, Tag::Str) => return true,
+        _ => {}
+    }
+    if !query.is_compound() || !witness.is_compound() {
+        return false;
+    }
+    let (a, b) = (heap.view(query), heap.view(witness));
+    if a.kind != Kind::IntFcn || b.kind != Kind::IntFcn || a.lo != 1 || b.lo != 1 {
+        return false;
+    }
+    a.data.is_empty()
+        || (a.data.len() == b.data.len()
+            && a.data
+                .iter()
+                .zip(b.data)
+                .all(|(&x, &y)| tuple_proof(heap, x, y)))
+}
+
+/// Whether the query has a shape in the deliberately narrow tuple-tree
+/// subset. Used when an untyped witness model value supplies no constraints.
+fn tuple_tree_valid(heap: &Heap, query: Handle) -> bool {
+    match query.tag() {
+        Tag::Bool | Tag::Int | Tag::Str | Tag::Model => true,
+        Tag::Persistent | Tag::Transient => {
+            let value = heap.view(query);
+            value.kind == Kind::IntFcn
+                && value.lo == 1
+                && value.data.iter().all(|&x| tuple_tree_valid(heap, x))
+        }
+        Tag::Empty => false,
+    }
+}
+
 fn guard_refusal(what: &str) -> Error {
     Error::unsupported(format!(
         "{what} under --compat=tlc, where TLC's checked comparison may fail or answer by its asymmetric rules (C1–C5; the exact port is not built)"
@@ -447,10 +649,7 @@ fn guard_equals(heap: &Heap, a: Handle, b: Handle) -> Result<(), Error> {
     if !heap.store().semantics().tlc_comparisons {
         return Ok(());
     }
-    let ok = match (shape(heap, a), shape(heap, b)) {
-        (Some(x), Some(y)) => unify(x, y).is_some(),
-        _ => false,
-    };
+    let ok = shape(heap, a).is_some_and(|mut acc| include_shape(heap, &mut acc, b).is_some());
     if ok {
         Ok(())
     } else {
@@ -470,7 +669,7 @@ fn guard_member(heap: &Heap, x: Handle, elems: &[Handle]) -> Result<(), Error> {
     let ok = (|| {
         let mut acc = shape(heap, x)?;
         for &e in elems {
-            acc = unify(acc, shape(heap, e)?)?;
+            include_shape(heap, &mut acc, e)?;
         }
         Some(acc)
     })()
@@ -494,7 +693,7 @@ fn guard_set(heap: &Heap, elems: &[Handle]) -> Result<(), Error> {
     let ok = (|| {
         let mut acc = Shape::Hole;
         for &e in elems {
-            acc = unify(acc, shape(heap, e)?)?;
+            include_shape(heap, &mut acc, e)?;
         }
         Some(acc)
     })()
@@ -533,6 +732,311 @@ mod tests {
 
     fn heap() -> Heap {
         Heap::new(Arc::new(Store::default()), false, false)
+    }
+
+    fn original_guard_member(heap: &Heap, x: Handle, elems: &[Handle]) -> Result<(), Error> {
+        if !heap.store().semantics().tlc_comparisons || !x.is_compound() || elems.is_empty() {
+            return Ok(());
+        }
+        let ok = (|| {
+            let mut acc = shape(heap, x)?;
+            for &e in elems {
+                acc = unify(acc, shape(heap, e)?)?;
+            }
+            Some(acc)
+        })()
+        .is_some();
+        if ok {
+            Ok(())
+        } else {
+            Err(guard_refusal(
+                "a membership test of a value of another shape",
+            ))
+        }
+    }
+
+    fn original_miss(heap: &Heap, x: Handle, elems: &[Handle]) -> Result<(), Error> {
+        original_guard_member(heap, x, elems)?;
+        miss_scalars(heap, x, elems)
+    }
+
+    fn shape_values(h: &mut Heap) -> Vec<Handle> {
+        let one = Handle::int(1).unwrap();
+        let three = Handle::int(3).unwrap();
+        let a = h.string("a").unwrap();
+        let b = h.string("b").unwrap();
+        let mv = |name| Handle::model(h.store().strings().intern(name).unwrap());
+        let mut values = vec![
+            Handle::TRUE,
+            one,
+            a,
+            mv("u"),
+            mv("t_a"),
+            mv("t_b"),
+            mv("s_c"),
+            h.int_from_i64(i64::MAX),
+            h.tuple(&[]),
+            h.tuple(&[one]),
+            h.tuple(&[one, a]),
+            h.int_fcn(-2, &[one, a]),
+            h.fcn_sorted(&[one, three], &[one, a]),
+            h.record(&[a], &[one]),
+            h.record(&[a, b], &[one, a]),
+            h.fcn_sorted(&[Handle::FALSE, Handle::TRUE], &[one, one]),
+            h.fcn_sorted(&[one, a], &[one, one]),
+            h.set_from(&mut vec![]),
+            h.set_from(&mut vec![one, a]),
+            h.interval(1, 3),
+            h.set_enum(&[one, three]),
+            h.symbolic(Kind::Nat, 0, &[]),
+            h.symbolic(Kind::SeqSet, 0, &[one]),
+        ];
+        let previous = values.clone();
+        for v in previous {
+            values.push(h.tuple(&[v]));
+            values.push(h.record(&[a], &[v]));
+            values.push(h.set_from(&mut vec![v]));
+        }
+        values
+    }
+
+    #[test]
+    fn shape_join_regrouping_preserves_success_and_complete_constraints() {
+        let mut h = heap();
+        let shapes: Vec<_> = shape_values(&mut h)
+            .iter()
+            .filter_map(|&v| shape(&h, v))
+            .collect();
+        for a in &shapes {
+            for b in &shapes {
+                for c in &shapes {
+                    let left = unify(a.clone(), b.clone()).and_then(|ab| unify(ab, c.clone()));
+                    let right = unify(b.clone(), c.clone()).and_then(|bc| unify(a.clone(), bc));
+                    assert_eq!(left, right, "{a:?}; {b:?}; {c:?}");
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn tuple_proof_successes_match_the_original_guard_for_valid_witnesses() {
+        let store = Arc::new(Store::with_semantics(true, crate::Semantics::tlc()));
+        let mut h = Heap::new(store, false, false);
+        let mut values = shape_values(&mut h);
+        let persistent: Vec<_> = values.iter().map(|&v| h.intern_exact(v).unwrap()).collect();
+        values.extend(persistent);
+        let mut proved = 0;
+        let mut checked = 0;
+        for &witness in &values {
+            if shape(&h, witness).is_none() {
+                continue;
+            }
+            for &query in &values {
+                checked += 1;
+                if tuple_proof(&h, query, witness) {
+                    proved += 1;
+                    assert!(
+                        original_guard_member(&h, query, &[witness]).is_ok(),
+                        "invalid success for {query:?}, {witness:?}"
+                    );
+                    assert!(
+                        unify(shape(&h, query).unwrap(), shape(&h, witness).unwrap()).is_some()
+                    );
+                }
+            }
+        }
+        assert!(proved > 0);
+        assert!(proved < checked, "unknown cases must retain the old guard");
+        eprintln!("tuple proof coverage: {proved} successes / {checked} valid-witness pairs");
+    }
+
+    #[test]
+    fn tuple_proof_covers_sailfish_vertex_and_edge_shapes() {
+        let store = Arc::new(Store::with_semantics(true, crate::Semantics::tlc()));
+        let mut h = Heap::new(store, false, false);
+        let genesis = h.tuple(&[]);
+        let mut vertices = vec![genesis];
+        for name in ["n1", "n2", "n3"] {
+            let node = Handle::model(h.store().strings().intern(name).unwrap());
+            for round in 1..=5 {
+                vertices.push(h.tuple(&[node, Handle::int(round).unwrap()]));
+            }
+        }
+        let witness = vertices[1];
+        let edge_witness = h.tuple(&[witness, witness]);
+        let mut proved = 0;
+        for &query in &vertices {
+            assert!(tuple_proof(&h, query, witness));
+            assert!(original_guard_member(&h, query, &[witness]).is_ok());
+            proved += 1;
+        }
+        for &source in &vertices[1..] {
+            for &target in &vertices {
+                let query = h.tuple(&[source, target]);
+                assert!(tuple_proof(&h, query, edge_witness));
+                assert!(original_guard_member(&h, query, &[edge_witness]).is_ok());
+                proved += 1;
+            }
+        }
+        assert_eq!(proved, 256);
+        eprintln!("Sailfish-shaped tuple proof coverage: {proved} successes / 256 pairs");
+    }
+
+    #[test]
+    fn tuple_proof_leaves_domains_and_holes_do_not_hide_refusals() {
+        let store = Arc::new(Store::with_semantics(true, crate::Semantics::tlc()));
+        let mut h = Heap::new(store, false, false);
+        let one = Handle::int(1).unwrap();
+        let two = Handle::int(2).unwrap();
+        let text = h.string("a").unwrap();
+        let untyped = Handle::model(h.store().strings().intern("u").unwrap());
+        let typed_a = Handle::model(h.store().strings().intern("A_x").unwrap());
+        let typed_b = Handle::model(h.store().strings().intern("B_x").unwrap());
+        assert!(tuple_proof(&h, typed_a, untyped));
+        assert!(tuple_proof(&h, untyped, typed_a));
+        assert!(!tuple_proof(&h, typed_a, typed_b));
+        assert!(!tuple_proof(&h, typed_a, one));
+        assert!(!tuple_proof(&h, one, typed_a));
+        assert!(!tuple_proof(&h, Handle::TRUE, one));
+        assert!(!tuple_proof(&h, one, text));
+        let invalid = h.set_from(&mut vec![one, text]);
+        let empty = h.tuple(&[]);
+        let witness = h.tuple(&[one]);
+        let query = h.tuple(&[two]);
+        assert!(tuple_proof(&h, query, witness));
+        assert!(tuple_proof(&h, empty, witness));
+        assert!(!tuple_proof(&h, query, empty));
+        let different_domain = h.int_fcn(0, &[one]);
+        assert!(!tuple_proof(&h, different_domain, witness));
+        let invalid_extra_position = h.tuple(&[one, invalid]);
+        assert!(!tuple_proof(&h, invalid_extra_position, witness));
+        assert!(original_guard_member(&h, invalid_extra_position, &[witness]).is_err());
+        let record = h.record(&[text], &[one]);
+        assert!(!tuple_proof(&h, empty, record));
+        let hole_witness = h.tuple(&[untyped]);
+        let invalid_query = h.tuple(&[invalid]);
+        assert!(!tuple_proof(&h, invalid_query, hole_witness));
+        assert!(original_guard_member(&h, invalid_query, &[hole_witness]).is_err());
+        let nested_query = h.tuple(&[query]);
+        assert!(tuple_proof(&h, nested_query, hole_witness));
+    }
+
+    #[test]
+    fn uncertified_shared_invalid_subtrees_cannot_use_tuple_identity_proofs() {
+        let store = Arc::new(Store::with_semantics(true, crate::Semantics::tlc()));
+        let mut h = Heap::new(store, false, false);
+        let one = Handle::int(1).unwrap();
+        let two = Handle::int(2).unwrap();
+        let text = h.string("a").unwrap();
+        let invalid = h.set_from(&mut vec![one, text]);
+        let invalid = h.intern_exact(invalid).unwrap();
+        let witness = h.tuple(&[invalid, one]);
+        let set = h.set_from(&mut vec![witness]);
+        let set = h.intern_exact(set).unwrap();
+        let query = h.tuple(&[invalid, two]);
+        let elems = h.view(set).data;
+        let expected = original_miss(&h, query, elems);
+        assert!(expected.is_err());
+        let mut memo = crate::memo::Memo::new(&[]);
+        memo.reserve_members(true);
+        for _ in 0..2 {
+            assert_eq!(miss_cached(&h, &mut memo, query, set, elems), expected);
+            assert_eq!(memo.member_witness(h.store(), set), None);
+        }
+        assert!(!h.poisoned());
+    }
+
+    #[test]
+    fn exact_witnesses_handle_genesis_positions_and_reject_partial_constraints() {
+        let store = Arc::new(Store::with_semantics(true, crate::Semantics::tlc()));
+        let mut h = Heap::new(store, false, false);
+        let one = Handle::int(1).unwrap();
+        let u = Handle::model(h.store().strings().intern("u").unwrap());
+        let genesis = h.tuple(&[]);
+        let genesis = h.intern_exact(genesis).unwrap();
+        let vertex = h.tuple(&[u, one]);
+        let vertex = h.intern_exact(vertex).unwrap();
+        for elems in [[genesis, vertex], [vertex, genesis]] {
+            assert_eq!(member_witness(&h, &elems), Some(vertex));
+        }
+        assert_eq!(
+            member_witness(&h, &[genesis, vertex, genesis]),
+            Some(vertex)
+        );
+        let left = h.tuple(&[one, u]);
+        let left = h.intern_exact(left).unwrap();
+        let right = h.tuple(&[u, one]);
+        let right = h.intern_exact(right).unwrap();
+        assert_eq!(member_witness(&h, &[left, right]), None);
+        let query = h.tuple(&[one, Handle::TRUE]);
+        assert!(original_guard_member(&h, query, &[right]).is_err());
+        assert!(original_guard_member(&h, query, &[left]).is_ok());
+        assert!(original_guard_member(&h, query, &[left, right]).is_err());
+        // A kind-only or merely compatible witness would hide the failure.
+        assert_eq!(h.view(left).kind, h.view(right).kind);
+        assert_eq!(member_witness(&h, &[genesis, left, right]), None);
+    }
+
+    #[test]
+    fn cold_and_warm_membership_certificates_match_the_full_miss() {
+        for hashcons in [true, false] {
+            let store = Arc::new(Store::with_semantics(hashcons, crate::Semantics::tlc()));
+            let mut h = Heap::new(store, false, false);
+            let mut probes = shape_values(&mut h);
+            let exact: Vec<_> = probes.iter().map(|&v| h.intern_exact(v).unwrap()).collect();
+            probes.extend(exact.iter().copied());
+            let mut memo = crate::memo::Memo::new(&[]);
+            memo.set_cap(512);
+            memo.reserve_members(true);
+            let mut admitted = 0;
+            for &a in &exact {
+                for &b in &exact {
+                    let set = h.set_from(&mut vec![a, b]);
+                    let set = h.intern_exact(set).unwrap();
+                    let elems = h.view(set).data;
+                    for &x in &probes {
+                        memo.clear();
+                        let expected = original_miss(&h, x, elems);
+                        assert_eq!(miss_cached(&h, &mut memo, x, set, elems), expected);
+                        assert_eq!(miss_cached(&h, &mut memo, x, set, elems), expected);
+                        admitted += usize::from(memo.member_witness(h.store(), set).is_some());
+                    }
+                }
+            }
+            assert!(admitted > 0, "exercise hits, not only the fallback");
+            assert!(!h.poisoned());
+        }
+    }
+
+    #[test]
+    fn lazy_queries_preserve_cold_refusals_and_failed_warm_proofs() {
+        let store = Arc::new(Store::with_semantics(true, crate::Semantics::tlc()));
+        let mut h = Heap::new(store, false, false);
+        let one = Handle::int(1).unwrap();
+        let two = Handle::int(2).unwrap();
+        let vertex = h.tuple(&[one]);
+        let set = h.set_from(&mut vec![vertex]);
+        let set = h.intern_exact(set).unwrap();
+        let domain = h.interval(1, 2);
+        let lambda = h.lambda(0, domain, &[]);
+        let predicate = h.set_pred(0, domain, &[]);
+        let persistent_lambda = h.intern_const(lambda).unwrap();
+        let persistent_predicate = h.intern_const(predicate).unwrap();
+        for query in [lambda, predicate, persistent_lambda, persistent_predicate] {
+            let mut memo = crate::memo::Memo::new(&[]);
+            memo.reserve_members(true);
+            let elems = h.view(set).data;
+            let expected = original_miss(&h, query, elems);
+            assert!(expected.is_err());
+            assert_eq!(miss_cached(&h, &mut memo, query, set, elems), expected);
+            assert_eq!(memo.bytes(), 0, "a refusal does not admit a certificate");
+            let compatible = h.tuple(&[two]);
+            let elems = h.view(set).data;
+            assert_eq!(miss_cached(&h, &mut memo, compatible, set, elems), Ok(()));
+            assert!(memo.member_witness(h.store(), set).is_some());
+            assert_eq!(miss_cached(&h, &mut memo, query, set, elems), expected);
+        }
+        assert!(!h.poisoned(), "comparison proofs do not force lazy values");
     }
 
     #[test]
@@ -668,6 +1172,88 @@ mod tests {
             let compatible = h.tuple(&[two, two]);
             let set = h.set_from(&mut vec![t, compatible]);
             assert!(check_set(&h, h.view(set).data).is_ok());
+        }
+    }
+
+    #[test]
+    fn streaming_shape_constraints_match_the_original_guard() {
+        let mut h = heap();
+        let (one, two, three) = (
+            Handle::int(1).unwrap(),
+            Handle::int(2).unwrap(),
+            Handle::int(3).unwrap(),
+        );
+        let (a, b) = (h.string("a").unwrap(), h.string("b").unwrap());
+        let mv = |name| Handle::model(h.store().strings().intern(name).unwrap());
+        let mut values = vec![
+            Handle::TRUE,
+            Handle::FALSE,
+            one,
+            two,
+            a,
+            b,
+            mv("u"),
+            mv("v"),
+            mv("t_a"),
+            mv("t_b"),
+            mv("s_c"),
+            h.int_from_i64(i64::MAX),
+            h.tuple(&[]),
+            h.tuple(&[one]),
+            h.tuple(&[one, a]),
+            h.int_fcn(-2, &[one, a]),
+            h.fcn_sorted(&[one, three], &[one, a]),
+            h.record(&[a], &[one]),
+            h.record(&[a, b], &[one, a]),
+            h.fcn_sorted(&[Handle::FALSE, Handle::TRUE], &[one, two]),
+            h.fcn_sorted(&[one, a], &[one, two]),
+            h.set_from(&mut vec![]),
+            h.set_from(&mut vec![one, a]),
+            h.interval(1, 3),
+            h.set_enum(&[one, two]),
+            h.symbolic(Kind::Nat, 0, &[]),
+            h.symbolic(Kind::SeqSet, 0, &[one]),
+        ];
+        // Include nested disagreements, empty holes, different tuple lengths,
+        // record fields and generic-function domains, and exact persistent
+        // copies alongside transient values and literal views.
+        for _ in 0..2 {
+            let previous = values.clone();
+            for &v in &previous {
+                values.push(h.tuple(&[v]));
+                values.push(h.record(&[a], &[v]));
+                values.push(h.set_from(&mut vec![v]));
+            }
+        }
+        let exact: Vec<_> = values.iter().map(|&v| h.intern_exact(v).unwrap()).collect();
+        values.extend(exact);
+        let original = |items: &[Handle]| {
+            items
+                .iter()
+                .try_fold(Shape::Hole, |acc, &v| unify(acc, shape(&h, v)?))
+        };
+        let streaming = |items: &[Handle]| {
+            let mut acc = Shape::Hole;
+            for &v in items {
+                include_shape(&h, &mut acc, v)?;
+            }
+            Some(acc)
+        };
+        for &a in &values {
+            for &b in &values {
+                assert_eq!(streaming(&[a, b]), original(&[a, b]), "{a:?}, {b:?}");
+            }
+        }
+        // Longer input orders exercise partial unification and late refusals.
+        let mut seed = 0x588_593_u64;
+        for _ in 0..4096 {
+            let mut items = Vec::new();
+            for _ in 0..5 {
+                seed = seed.wrapping_mul(6_364_136_223_846_793_005).wrapping_add(1);
+                let index = usize::try_from(seed >> 32).unwrap() % values.len();
+                items.push(values[index]);
+            }
+            assert_eq!(streaming(&items), original(&items), "{items:?}");
         }
     }
 

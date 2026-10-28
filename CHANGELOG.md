@@ -5,6 +5,13 @@
   when the existing shape proof cannot establish safe normalization;
   `--engine auto` retries the reference engine.
 
+- Reuse exact comparison proofs for repeated compound membership misses in
+  persistent sets under `--engine core --compat=tlc`, within the existing
+  bounded memo allowance. Certified tuple proofs avoid temporary comparison
+  maps, and model-value type checks use the worker's immutable name copy.
+  General comparison guards stream constraints into one accumulator.
+  `DIVE_CORE_OPT=-memo` disables proof reuse.
+
 - Fix core counterexample reconstruction with `DIVE_CORE_OPT=-hashcons`: compound
   states now retain the invariant verdict and independently replayable word
   instead of an internal trace error (#603).

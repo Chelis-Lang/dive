@@ -49,6 +49,13 @@ is a shift and a mask.
 The string table is global and append-only. Ids are assigned on first
 encounter. Section 7 covers the order rules.
 
+Each heap keeps an append-only copy of name texts. String comparisons and
+model-value type classification extend it on an id miss, taking the shared
+table's read lock once for the missing suffix. Model-value checks then read
+the local copy in both profiles. Classification retains TLC's UTF-16 rule:
+the name has more than two code units and its second unit is `_`; its type is
+the first unit. Arena reset does not invalidate immutable names or their ids.
+
 ## 3. Regions
 
 ### 3.1 Persistent store
@@ -393,6 +400,20 @@ TLC distinguishes how a set is represented, and the distinction is observable:
   error that the normalized set does not (fixtures `RvMemUnnorm` and
   `RvMemNorm`; ADR 0012).
 
+**Current boundary and next sequence.** Persistence, `Kind::Set` and
+`View::is_norm` do not certify TLC construction or normalization history.
+Current canonical builders/imports can discard raw order and duplicates;
+normalization through one alias must also remain distinct from an independent
+equal construction. The identity/view separation below is the planned
+framework, not proof that those transitions are implemented. First retain
+covered literal/map/union order, actual demand and alias lifetime, including
+new successor values before commitment. Then consume exact scalar/tuple
+normalization and raw equality-scan versus normalized checked-search behavior;
+class widening and E7 reporting provenance follow separately (`04-plan-compiler.md`
+§7). #621 keeps unknown C2 cases refused in both profiles. The witness memo
+in `06-memoization.md` proves comparison constraints only; it supplies neither
+normalization history nor the generic S5 membership index, which is not built.
+
 Identity is extensional: equal sets have one handle. The representation class
 and normalization flag travel separately, as a **lazy view**:
 
@@ -472,6 +493,12 @@ a level boundary it:
    fresh shards;
 2. remaps the frontier handles;
 3. clears the memoization caches.
+
+The worker's bounded explicit-set comparison certificates also contain
+persistent handles and are cleared with those caches. They retain an exact
+aggregate-shape witness, without changing stored nodes or interning values
+for lookup (`06-memoization.md` §2.2a). Arena reset and rollback leave these
+persistent handles valid; compaction and machine/store replacement do not.
 
 ### 10.1 Measured: the MCLamportMutex bisection
 

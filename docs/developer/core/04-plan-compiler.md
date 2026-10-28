@@ -707,9 +707,30 @@ At load 12, the core took 5.1 s wall and 4.8 s user, against TLC's 28.4 s and 15
 
 ## 7. Next step
 
-M1 stream 2 order: coverage census (§8), comparison errors (§5.1), the fold
-bound (R9), laziness (§4), operator breadth in census order, error classes
-(§5), then the memoization decision (`06-memoization.md`).
+The next checked-comparison delivery follows three dependencies:
+
+1. Preserve covered raw literal/map/union construction order and duplicates,
+   actual normalization demand/history, receiver class and alias lifetime
+   through imports, arguments, memo/fold and state handoff. Persistence,
+   `Kind::Set` and `is_norm` do not establish TLC history. Sailfish can query
+   newly assigned `es'` before commitment; a predecessor's normalized status
+   does not certify that successor set.
+2. Consume exact closed scalar/tuple normalization at the actual demand:
+   retain TLC's insertion order and first equal representative. Raw membership
+   scans member-to-query checked equality; a proved normalized view uses
+   query-to-pivot checked comparison. Stop at the first hit/error. Keep the
+   twelve #619 controls consumed and all uncovered paths guarded/refused;
+   metadata or an isolated helper alone is not a delivered live port.
+3. Widen record/function/nested/symbolic classes one bounded family at a time.
+   E7 diagnostic coverage separately needs receiver construction/source
+   ownership and replay-lifetime provenance. #620 is already unverified in
+   the reference and `Refused` by the native reader, not a false agreement;
+   no classifier mapping or exemption follows from it.
+
+The bounded witness memo is not the generic S5 index, which remains unbuilt.
+Hidden/nonidentity INSTANCE queries and B2/B4 lifetimes remain separate work.
+The earlier M0/census ordering below is historical context; current boundaries
+and completed work stay recorded in §§4–5 and §8.
 
 The state of M0, which M1 replaces item by item:
 

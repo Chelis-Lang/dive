@@ -158,6 +158,13 @@ switch must leave the results unchanged, including independently replayable
 counterexamples when hash-consing is disabled. See `docs/developer/core/06-memoization.md` and
 `docs/developer/core/m0-results.md`.
 
+In the TLC profile, `-memo` also disables reuse of checked set-membership
+proofs. These proofs share the existing memo memory allowance and preserve
+the same comparison refusals. Supported tuple comparisons reuse those proofs
+without building temporary comparison maps. Model-value type checks reuse
+each worker's immutable name copy in both profiles; TLC's typed model-value
+rules and runtime-name refusals still apply.
+
 ## TLC checking entrypoints
 
 The checking-only adapter accepts either `dive tlc [OPTIONS] SPEC[.tla]` or the

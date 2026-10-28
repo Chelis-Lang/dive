@@ -6,12 +6,23 @@ contract and this page for current evidence and the next bounded steps.
 
 ## 1. Current qualification
 
-- All ten benchmark models run on the core. The complete matched five-repeat
-  default campaign at `2d55317a` has 300 correct rows and beats TLC on all ten
-  at both worker counts, with paired geometric means 2.649× / 2.645× (§3).
-  TLC-compatible performance, scaling and memory versus the reference have
-  separate open targets; default speed does not settle them.
-- Main `f1acc846` includes the `ENABLED` cache-boundary fix (#593), Init/Next
+- Frozen `75f0ac4f769323de7be53a439ff5445ef4975b68` completes all 300
+  both-profile five-repeat observations correctly, with actual requested workers.
+  Paired TLC/core geometric means at 1/8 workers are 2.620916× / 2.678114×
+  default and 2.209552× / 2.358382× TLC mode. This PRE-C2 population and its
+  original runner quiet=false do not establish M1/M2 acceptance (§3).
+- Main `2efcb3bf` merges #621 after required checks: unproved compound-set
+  normalization now refuses in both profiles, fixing #619's default wrong
+  success. Exact C2 normalization and broader comparison-error parity remain.
+- Source `75f0ac4f` passed its own full gate in 40m05s (2,730 tests), external
+  archive SHA-256 `830296f05b7f5eb46c639e67038473ff47b3c7c7c35288c3078609cd92724152`.
+  That is PRE-C2 evidence. Integration `e0cce6f5` has separate fast/smoke/shadow
+  and fresh-review evidence (§3), with no new full-gate claim.
+- #620 triage at `eb91c523` covers 16 pinned-TLC controls and 192 API
+  executions. Reference `tlc.verified=false` and the actual native reader's
+  `Refused` outcome retain missing E7/Q3 diagnostic parity. This is not a
+  falsely certified agreement or permission for a classifier/code override.
+- Historical main `f1acc846` includes the `ENABLED` cache-boundary fix (#593), Init/Next
   ending fixes (#589), sampled-level fix (#601), named invariant-error trace
   validation (#604), and compound trace reconstruction without hash-consing
   (#605). The reference literal-bodied operator bug is fixed (#580), with
@@ -189,6 +200,62 @@ context and independent replay, not a blanket wrapper exemption.
 
 ## 3. Performance measurements
 
+### Completed checked-membership campaign (PRE-C2)
+
+The frozen source is `75f0ac4f769323de7be53a439ff5445ef4975b68`.
+All 300 planned cells are correct: ten explicitly selected models × six
+TLC/default-core/TLC-profile-core arms at 1/8 workers × five repetitions.
+Every requested worker count was used. The compact record is
+`conformance/reports/perf/2026-10-28-core-checked-membership-x86.json`
+(SHA-256 `9c69758013bc10915764cb23370cc0a285f76f5d410547ecc81eea51273373f1`).
+Original runner `quiet_window_certified=false` remains unchanged; separately
+observed preflight load, fixed-frequency, SMT/turbo and CPU/NUMA controls do
+not replace that missing certificate. Data validation passed; qualification
+remains incomplete and M1/M2 acceptance is not assessed.
+
+| Profile | Paired TLC/core geomean 1w / 8w | Models faster than TLC 1w / 8w |
+|---|---:|---:|
+| default | 2.620916× / 2.678114× | 10/10 / 10/10 |
+| TLC | 2.209552× / 2.358382× | 8/10 / 8/10 |
+
+Selected median wall seconds and median paired scaling:
+
+| Model | Profile | Core 1w / 8w | TLC 1w / 8w | Core scaling |
+|---|---|---:|---:|---:|
+| GameOfLife | default | 8.2430 / 1.5965 | 12.1021 / 2.5992 | 5.1478× |
+| GameOfLife | TLC | 20.9598 / 3.2763 | 12.1021 / 2.5992 | 6.3970× |
+| TLCSailfish1 | default | 43.8845 / 7.6144 | 51.3167 / 8.3403 | 5.7498× |
+| TLCSailfish1 | TLC | 61.9935 / 9.9963 | 51.3167 / 8.3403 | 6.2063× |
+
+GameOfLife and Sailfish remain slower than TLC in compatibility mode (#597).
+For the large-state population, default/TLC scaling is only 1.307× / 1.334×
+Bakery, 1.562× / 1.563× CoffeeCan and 4.061× / 3.865× Mutex. The all-model
+scaling geomeans are not acceptance for that population. Memory and broader
+capacity targets remain open. These timings precede #621 and do not validate
+its C2 repair or a later executable.
+
+Integration `e0cce6f534870898d261dddb7cc789a894429065` composes the five
+performance commits onto `2efcb3bf`, preserving #621's C2 boundary and all
+12 consumed cases. Its own complete fast gate passes 2,198 tests (34 declared
+profile skips), smoke passes eight models at 1/4 workers, and strict shadow
+passes 52 rows. Fresh review passes 891,600 differential comparison/cache
+cases, 409 native runs and 22 validated counterexample words. Separately,
+both-profile Sailfish 10k prefixes matched. Those are integration correctness
+controls, not a new full gate or five-repeat performance population.
+
+### Separate post-C2 Sailfish diagnostic
+
+A separate source-`e0cce6f5` diagnostic uses the release executable with
+SHA-256 `e0f365155354ffebe2d50d01374e390c9e71bded4c57e9c85148e7564e50182f`.
+All three one-worker runs succeed with actual workers used 1, 109,604 distinct /
+314,144 generated / depth 16. Wall times are 52.693730415 s pinned TLC,
+45.938790702 s default core and 61.311964963 s TLC-profile core. Raw evidence
+was archived and download hashes verified. The compact record is
+`conformance/reports/perf/2026-10-28-core-post-c2-sailfish-x86.json`.
+This is one repetition of three arms, with original runner quiet=false;
+it is separate from the PRE-C2 300-row campaign and supplies no eight-worker,
+whole-population, five-repeat or M1/M2 acceptance claim.
+
 ### Historical checkpoint (x86, c7i.metal-24xl)
 
 | Model | ×TLC, 1 worker | ×TLC, 8 workers |
@@ -219,7 +286,7 @@ context and independent replay, not a blanket wrapper exemption.
   models (MCLamportMutex 184 → 419 MB). The cap in #584 brought that down on
   the M3 (308 → 185 MB) but had not been checked on x86 at that checkpoint. The completed measurement below records the later cap and its remaining tradeoffs.
 
-### Completed matched default campaign
+### Historical matched default campaign
 
 At exact source `2d55317a`, the dedicated c7i.metal-24xl run completes all
 300 planned rows: ten models × three arms (core/reference/TLC) × 1/8 workers ×
@@ -233,9 +300,10 @@ configuration, not its original liveness property set.
 Paired per-repetition ratios give geometric means of **2.649× / 2.645× TLC**
 and **7.295× / 6.747× the reference** at 1 / 8 workers. All ten models beat TLC
 at both worker counts, exceeding M1's default-profile throughput threshold for
-this measured source. The five-repeat TLC-profile campaign remains undone;
-one completed both-profile repetition exposed the Sailfish compat regression
-(#597). This is not full semantic M1 acceptance or M2 performance acceptance.
+this measured source. At that source the five-repeat TLC-profile campaign had not yet run;
+one both-profile repetition exposed the Sailfish compat regression (#597).
+The completed PRE-C2 source-`75f0ac4f` population above supersedes that
+measurement status, without changing this historical source qualification. This is not full semantic M1 acceptance or M2 performance acceptance.
 
 | Model | Core seconds 1w / 8w | ×TLC 1w / 8w | Core RSS MiB 1w / 8w | Reference RSS MiB 1w / 8w | Core scaling 1→8 |
 |---|---:|---:|---:|---:|---:|
@@ -269,7 +337,7 @@ establish no verdict. The bounded measurements address the specific R9 probe;
 R10 memory tradeoffs above remain. Record:
 `conformance/reports/perf/2026-10-28-core-startup-fold-x86.json`.
 
-### Single matched compat-guard diagnostic
+### Historical single matched compat-guard diagnostic
 
 The unchanged prototype #598 and its exact parent (`1374df4e` / `e2183389`)
 complete the original TLC-profile Sailfish model in 300.021 / 836.998 seconds,
@@ -321,8 +389,9 @@ The census identifies distinct obligations; one fix cannot waive another family:
 | Errors while expanding the final state | 17 default / 23 TLC words are independently unconfirmed; #434 needs an independent successor-generator strategy. |
 | Missing words | Ten native documents per profile are absent for reported partial-state words (#607). Matching reports supply no substitute; independent generator/partial-state semantics need their own strategy. |
 | Resource stops | Six default / four TLC runs stop with native exit 5. They remain incomplete. `ErDeepRecursion` separately returns a classified resource-limit refusal in both profiles. |
-| M1 performance decision | Complete at `2d55317a`: all 300 rows correct, ten of ten faster than TLC at both worker counts. Both-profile five-repeat acceptance remains outstanding. |
-| Compat performance | #597: one completed quiet Sailfish repetition takes core 841.01 s versus TLC 52.02 s at one worker, despite correct counts. The comparison-guard prototype #598 is diagnostic until matched quiet measurements and gates pass. |
+| M1 performance decision | Source `75f0ac4f` has 300 correct PRE-C2 observations, default 10/10 and TLC 8/10 faster at both worker counts. Original quiet=false and separate host controls remain; M1/M2 acceptance is open. |
+| Compat performance | #597 remains: source `75f0ac4f` five-repeat Sailfish medians are 61.9935 s core versus 51.3167 s TLC at one worker; GameOfLife also remains slower. Keep PRE-C2 timing and later integration correctness evidence separate. |
+| Exact comparison and normalization | #619 is fixed conservatively by #621. Raw order, duplicates, demand/history and alias lifetime precede the exact checked port; `Kind::Set`/`is_norm` and persistence are not certificates. #620 remains unverified/refused diagnostic parity. |
 | Correctness coverage | Both small-tier auto controls pass with explicit engine accounting. The ten-switch matrix retains original failures, declared materialization fallbacks and separate corrected-source hashcons retests; see the recorded matrix qualification. |
 | Startup and memory | Trivial startup and Coffee compile/fold measured above. Retain explicit eight-worker RSS and large-model scaling regressions. |
 
@@ -352,10 +421,14 @@ core reboot and do not establish current core breadth.
    final-expansion certification (#434), and missing partial-state words (#607).
    Use minimal pinned reproducers and independent negative controls. Do not
    exempt the last state or accept a matching wrapper as a certificate.
-2. Evaluate the single comparison-guard prototype (#598) against its preserved
-   original algorithm and quiet matched diagnostic. Then run a complete
-   five-repeat both-profile performance campaign before claiming M2's target;
-   the original Sailfish compat slowdown (#597) is reproducible.
+2. Retain the completed source-`75f0ac4f` PRE-C2 campaign, original quiet=false
+   and separate host controls; its timings/full gate do not validate #621.
+   For exact comparison, first retain raw literal/map/union construction order,
+   duplicates, actual demand/history and alias lifetime, including pre-commit
+   successor values. Then consume exact scalar/tuple normalization and raw versus
+   normalized membership; widen classes and E7 provenance separately. Unknown
+   paths stay guarded/refused. The bounded witness memo is not the unbuilt
+   generic S5 membership index. #597 remains a measured target.
 3. Retain explicit fallback and ablation accounting; broaden to the full tier
    on the core for M2 instead of promoting the historical reference result.
    Preserve the reference default while supported words remain unproven.
