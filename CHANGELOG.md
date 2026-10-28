@@ -1,5 +1,9 @@
 # Changelog
 
+- `--engine core` evaluates `ENABLED` (outside an `INSTANCE` with
+  substitutions, which is still refused): BufferedRandomAccessFile now runs on
+  the core, about 7 times faster than on the reference engine.
+
 - `--engine core` runs specifications that use `TLCSet` and `TLCGet` with
   integer or `"s:"` registers, `"all"`, `"all:named"` and `"level"`, with
   one worker and the values TLC computes. A run that writes registers and
