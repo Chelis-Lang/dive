@@ -113,7 +113,7 @@ fn literal_bodies_reach_java_methods_as_values() {
             }
             match &error {
                 Some(text) => {
-                    assert_eq!(reference["message"].as_str(), Some(text.as_str()), "{at}")
+                    assert_eq!(reference["message"].as_str(), Some(text.as_str()), "{at}");
                 }
                 None => assert_eq!(reference["verdict"], "success", "{at}: {reference:#}"),
             }
