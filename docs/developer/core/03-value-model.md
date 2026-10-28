@@ -639,8 +639,10 @@ arena nodes directly.
    a rejected candidate).
 3. **Intern after claim.** The engine interns a successor's values only after
    its state key wins the seen-set claim (or, without the early probe,
-   before the probe). Nothing else interns state values. The compiler interns
-   constants with `intern_const`.
+   before the probe). Nothing else interns state values, except that a step
+   predicate's memo sites key on exact copies of a successor's values
+   (`Heap::intern_exact`, `06-memoization.md` §2.3), leaving the successor
+   as it is. The compiler interns constants with `intern_const`.
 4. **Deep close on intern.** `intern` walks a value children first, interning
    each child, and materializes finite symbolic sets (TLC fingerprints a state
    by normalizing it, so this adds no observable behaviour). A lazy value
