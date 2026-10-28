@@ -27,6 +27,11 @@
   `Print` with a temporal property, and a liveness check that ends in an
   error, still fall back to the reference engine under `--engine=auto`.
 
+- Low-level Rust temporal products accept checked borrowed CSR topology through
+  `CsrTopology`, `Product::from_csr` and `with_csr_recurrences`. Edge order,
+  duplicate edges and original witness positions are preserved. Checker graph
+  retention and capacity remain the next L5 integration work.
+
 - `--engine core` runs specifications that use `TLCSet` and `TLCGet` with
   integer or `"s:"` registers, `"all"`, `"all:named"` and `"level"`, with
   one worker and the values TLC computes. A run that writes registers and

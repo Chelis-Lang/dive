@@ -4,7 +4,10 @@
 use super::*;
 use crate::formula::{Atom, AtomKind, Formula, Node, Tableau, TableauNode};
 use crate::product::truth::TruthAccess;
-use crate::product::{AcceptancePolicy, CompactProduct, Labels, Limits, PackedTruth, ProductError};
+use crate::product::{
+    AcceptancePolicy, CompactProduct, CsrTopology, Labels, Limits, PackedTruth, Product,
+    ProductError,
+};
 use crate::search::Lasso;
 use dive_check::capture::{ConcreteSuccessor, Edge};
 use std::sync::Arc;
@@ -378,6 +381,190 @@ fn materialized_snapshot(product: &CompactProduct) -> Result<Snapshot, ProductEr
         materialization_work: product.parts.acceptance.materialization_work,
         lasso: product.find_lasso()?,
     })
+}
+
+fn csr_arrays(graph: &Graph) -> (Vec<usize>, Vec<u32>) {
+    let mut offsets = vec![0];
+    let mut targets = Vec::new();
+    for row in &graph.edges {
+        targets.extend(
+            row.iter()
+                .map(|&to| u32::try_from(to).expect("small fixture")),
+        );
+        offsets.push(targets.len());
+    }
+    (offsets, targets)
+}
+
+#[test]
+fn csr_preserves_owned_and_compact_products_and_original_edge_positions() {
+    // All ordered two-vertex rows of length 0, 1 or 2: this includes parallel
+    // edges, empty rows, unreachable vertices, self-loops and asymmetric cycles.
+    let rows = [
+        vec![],
+        vec![0],
+        vec![1],
+        vec![0, 0],
+        vec![0, 1],
+        vec![1, 0],
+        vec![1, 1],
+    ];
+    for first in &rows {
+        for second in &rows {
+            for roots in [vec![], vec![0], vec![1, 0, 1]] {
+                let dense = Graph::new(vec![first.clone(), second.clone()], roots)
+                    .expect("finite dense reference");
+                let (offsets, targets) = csr_arrays(&dense);
+                let csr = CsrTopology::new(&offsets, &targets, &dense.roots).expect("CSR");
+                let labels = Labels {
+                    states: vec![],
+                    actions: vec![
+                        dense
+                            .edges
+                            .iter()
+                            .enumerate()
+                            .map(|(v, row)| (0..row.len()).map(|e| (v + e) % 2 == 0).collect())
+                            .collect(),
+                    ],
+                };
+                for recurring in [false, true] {
+                    let recurrences = if recurring { conditions() } else { vec![] };
+                    let owned = Product::with_recurrences(
+                        &dense,
+                        &tableau(),
+                        &labels,
+                        &recurrences,
+                        Limits::default(),
+                    );
+                    let borrowed = Product::with_csr_recurrences(
+                        csr,
+                        &tableau(),
+                        &labels,
+                        &recurrences,
+                        Limits::default(),
+                    );
+                    assert_eq!(borrowed, owned);
+                    assert_eq!(
+                        borrowed.expect("CSR owned product").find_lasso(),
+                        owned.expect("dense owned product").find_lasso()
+                    );
+                    for policy in [
+                        AcceptancePolicy::Legacy,
+                        AcceptancePolicy::Buffers {
+                            bytes: 1_000_000,
+                            work: 1_000_000,
+                        },
+                    ] {
+                        assert_eq!(
+                            snapshot(csr.into(), &labels, Limits::default(), policy, recurring),
+                            snapshot(
+                                (&dense).into(),
+                                &labels,
+                                Limits::default(),
+                                policy,
+                                recurring
+                            )
+                        );
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn csr_keeps_every_existing_product_and_acceptance_limit() {
+    let dense = Graph::new(vec![vec![1, 0, 1], vec![1, 0]], vec![0, 1]).expect("dense");
+    let (offsets, targets) = csr_arrays(&dense);
+    let csr = CsrTopology::new(&offsets, &targets, &dense.roots).expect("CSR");
+    let labels = Labels {
+        states: vec![],
+        actions: vec![vec![vec![true; 3], vec![true; 2]]],
+    };
+    for ceiling in [0, 1, 2, 5, 100] {
+        for limits in [
+            Limits {
+                vertices: ceiling,
+                ..Limits::default()
+            },
+            Limits {
+                edges: ceiling,
+                ..Limits::default()
+            },
+            Limits {
+                acceptance_cells: ceiling,
+                ..Limits::default()
+            },
+            Limits {
+                steps: ceiling,
+                ..Limits::default()
+            },
+        ] {
+            assert_eq!(
+                snapshot(csr.into(), &labels, limits, AcceptancePolicy::Legacy, true),
+                snapshot(
+                    (&dense).into(),
+                    &labels,
+                    limits,
+                    AcceptancePolicy::Legacy,
+                    true
+                )
+            );
+        }
+        for policy in [
+            AcceptancePolicy::Buffers {
+                bytes: ceiling,
+                work: 1_000_000,
+            },
+            AcceptancePolicy::Buffers {
+                bytes: 1_000_000,
+                work: ceiling,
+            },
+        ] {
+            assert_eq!(
+                snapshot(csr.into(), &labels, Limits::default(), policy, true),
+                snapshot((&dense).into(), &labels, Limits::default(), policy, true)
+            );
+        }
+    }
+}
+
+#[test]
+fn csr_keeps_shape_refusals_and_does_not_add_dead_end_stutters() {
+    let graph = Graph::new(vec![vec![], vec![1]], vec![0]).expect("dead-end root");
+    let (offsets, targets) = csr_arrays(&graph);
+    let csr = CsrTopology::new(&offsets, &targets, &graph.roots).expect("CSR");
+    for labels in [
+        Labels {
+            states: vec![vec![true]],
+            actions: vec![],
+        },
+        Labels {
+            states: vec![],
+            actions: vec![vec![vec![]]],
+        },
+        Labels {
+            states: vec![],
+            actions: vec![vec![vec![true], vec![true]]],
+        },
+    ] {
+        assert_eq!(
+            Product::from_csr(csr, &tableau(), &labels, Limits::default()),
+            Product::new(&graph, &tableau(), &labels, Limits::default())
+        );
+        assert!(Product::from_csr(csr, &tableau(), &labels, Limits::default()).is_err());
+    }
+    let labels = Labels {
+        states: vec![],
+        actions: vec![],
+    };
+    assert_eq!(
+        Product::from_csr(csr, &tableau(), &labels, Limits::default())
+            .expect("valid dead-end graph")
+            .find_lasso()
+            .expect("search"),
+        None
+    );
 }
 
 #[test]
