@@ -258,7 +258,8 @@ surfaces.
 
 Core sequence replacement now supports pure materialized sequences with one
 integer, boolean or string element class across arguments (#610). Compound,
-mixed, lazy and effectful arguments remain refused; CommunityModules and
+mixed, lazy and effectful arguments, plus overlapping All occurrences after
+the early equality CASE arms, remain refused; CommunityModules and
 fallback definitions stay partial. Focused fixture results are not a new corpus
 census or milestone acceptance (`docs/developer/core/03-value-model.md` §12).
 

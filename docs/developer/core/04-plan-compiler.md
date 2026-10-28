@@ -798,9 +798,11 @@ Next (M1, stream 2), from the census:
      generated, 131 left, as TLC), `ErCmLcpEmpty`, `ErCmLcpNonSet` and
      `ErCmAllSubSeqsNonSeq`. Sequence replacement now supports pure,
      materialized sequences with one scalar element class across all three
-     arguments (integers, booleans or strings), with bounded linear matching;
+     arguments (integers, booleans or strings), with bounded linear matching.
+     ReplaceAll refuses overlapping occurrences after its early CASE arms;
      see `03-value-model.md` §12. Still to do: mixed, compound, lazy and
-     effectful sequence replacement arguments, and `FiniteSetsExt`'s
+     effectful sequence replacement arguments, overlapping All occurrences,
+     and `FiniteSetsExt`'s
      `kSubset`, which the reference engine does not implement either.
    - **Operator arguments (stream 1, `stdlib/higher.rs`, `Node::LibHo`):**
      `SelectSeq`, `SortSeq`, `BagOfAll`, `FoldBag`, `Quantify`,

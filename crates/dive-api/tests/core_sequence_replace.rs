@@ -114,6 +114,7 @@ fn unimplemented_sequence_demands_stay_explicitly_refused() {
     for (name, output_count) in [
         ("SeqReplaceMixed", 0),
         ("SeqReplaceNested", 0),
+        ("SeqReplaceOverlapAtStart", 0),
         ("SeqReplaceInlineEffect", 12),
         ("SeqReplaceNamedEffect", 4),
         ("SeqReplaceLetEffect", 2),
@@ -164,14 +165,14 @@ fn partition_choice_overlap_is_explicitly_refused() {
     // rule returned <<0,2,1>> and falsely reported an invariant violation.
     for compat in [false, true] {
         let req = request("SeqReplacePartitionChoice", compat, 1);
-        let reference = check_file_engine(&req, Engine::Reference).expect("reference runs");
-        let expected = observed(&reference);
-        assert_eq!(expected["verdict"], "success");
-        assert_eq!(expected["code"], 2193);
-        assert_eq!(expected["exit"], 0);
-        assert_eq!(expected["distinct"], 1);
-        assert_eq!(expected["generated"], 2);
-        assert_eq!(expected["depth"], 1);
+        // Auto itself executes the reference fallback. Compare its complete
+        // observed tuple directly to the pinned oracle instead of evaluating
+        // the expensive TLA+ partition definition a second time.
+        let expected = json!({
+            "verdict": "success", "property": null, "distinct": 1,
+            "generated": 2, "depth": 1, "code": 2193, "exit": 0,
+            "output": [], "trace": null,
+        });
         let core = check_file_engine(&req, Engine::Core).expect("core reports");
         assert_eq!(core.to_json()["verdict"], "unsupported");
         let auto = check_file_engine(&req, Engine::Auto).expect("auto falls back");

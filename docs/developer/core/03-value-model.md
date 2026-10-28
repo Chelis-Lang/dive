@@ -815,9 +815,10 @@ from this assessment; raw probe output stays outside the repository.
 Pinned `tlc-2026.10.06.014338` and CommunityModules `SequencesExt.tla`
 (SHA-256 `8b96d0ff74836cca2adfb7da3b32846ca64c4d466d543b55c8d05c32b64aa0f6`)
 confirm that the evaluating override handles strings and otherwise evaluates
-the TLA+ definition. `ReplaceFirstSubSeq` chooses the first occurrence;
-`ReplaceAllSubSeqs` maximizes non-overlapping fixed-pattern occurrences and
-then chooses their leftmost positions. On a nonempty sequence an empty pattern
+the TLA+ definition. `ReplaceFirstSubSeq` chooses the first occurrence.
+`ReplaceAllSubSeqs` maximizes matching partition components, then minimizes their
+component indices; this is not the same as earliest absolute text positions
+(see the rejected-rule finding below). On a nonempty sequence an empty pattern
 inserts before each element, with no trailing insertion. If both pattern and
 text are empty, ReplaceAll returns the replacement. The pure oracle fixture
 `core-replace/SeqReplacePure` checks fourteen such results and completes with
@@ -829,12 +830,16 @@ Effects must not be treated as a single value snapshot. On
 equivalent string fixture. Both complete with 2 distinct / 2 generated / depth
 2, success/exit 0. These exact order/count observations were captured before
 implementing the new supported slice; raw outputs remain external. Pure
-sequence arguments can use the direct fixed-pattern algorithm. Non-string
+sequence arguments can use the bounded direct algorithm within the boundary
+below. Non-string
 arguments with effects remain explicitly refused; existing effectful string
 calls retain the override's single evaluation.
 
-The supported slice is now pure materialized sequences whose combined elements
+The supported slice is pure materialized sequences whose combined elements
 are all integers, all booleans or all strings (including empty sequences).
+ReplaceAll additionally refuses overlapping nonempty occurrences after its two
+early equality CASE arms. That refusal includes cases where the rejected greedy
+rule happens to agree with TLC; no overlap implementation credit is claimed.
 Uniform scalar classes avoid skipping the comparison errors that normalization
 of the fallback's `SubSeqs(t)` can expose. Mixed, compound, model-value and lazy
 sequence arguments remain refused even when an early CASE arm might succeed.
@@ -850,14 +855,13 @@ The existing string path is unchanged.
 memoization and hash-consing controls. Each word validates independently and a
 changed intermediate state is rejected. Refusal fixtures check auto fallback,
 including retained output for effectful sequence arguments. An exhaustive
-13,230-case test independently enumerates non-overlapping occurrence subsets to
-check the maximum-count/leftmost rule. Remaining work is general fallback demand
-and comparison order for compound, mixed, lazy or effectful arguments, not
-another eager string-style replacement routine.
-
-Source mutation controls fail when overlapping matches are retained, when an
-extra trailing empty-pattern insertion is added, or when the repeated-demand
-guard is bypassed. The restored implementation passes the same focused tests.
+13,230-case test now checks 13,016 admitted results and 214 explicit overlap
+refusals. The admitted All results agree with an independent bounded partition
+interpreter and with every partition satisfying the CHOOSE predicate. First is
+checked against the least-prefix definition. The old occurrence-subset oracle
+is rejected, as described below. Remaining work includes normalized partition
+choice for overlapping All occurrences, plus fallback demand/comparison order
+for compound, mixed, lazy or effectful arguments.
 
 ### Rejected greedy ReplaceAll rule (fresh review, 2026-10-28)
 
@@ -883,8 +887,43 @@ Repair scope: preserve ReplaceFirst's separate least-prefix definition, and
 admit ReplaceAll's early CASE arms, empty pattern, no occurrences and texts in
 which nonempty pattern occurrences do not overlap. Refuse overlapping All
 occurrences until the remaining partition choice is implemented and verified.
-The next independent test enumerates bounded weak compositions of the text into
+The independent test enumerates bounded weak compositions of the text into
 at most Len(text) components, including empty components, then applies the
-source's maximum-count and component-index predicate. It checks every possible
-satisfying partition's output for admitted cases, without using absolute match
-positions as its oracle. Refused overlaps earn no coverage credit.
+source's maximum-count and component-index predicate. TLC's normalized CHOOSE
+order is modeled separately: tuple/function comparison first compares domain
+length, then corresponding contents recursively (`TupleValue.compareTo`,
+`FcnRcdValue.compareTo` and `Tool`'s BoundedChoose at `94d0c50`). It selects the
+first satisfying normalized partition and also checks every satisfying
+partition's output for admitted cases. The integer-alphabet model reproduces
+the actual pinned `<<0,1,2>>` choice and observes the alternate tied-predicate
+output; it does not use absolute match positions as its oracle. Refused overlaps
+earn no coverage credit.
+
+For nonempty patterns with no overlapping occurrences, every matching partition
+component consumes a distinct occurrence. A partition can contain all of them:
+make each occurrence one component, and each nonempty intervening gap one
+component. All components consume at least one text element, so their number
+is at most Len(text), satisfying the bound on R. Thus the maximum count equals
+the number of occurrences, and every maximum-count partition must contain all
+of them; omission cannot attain that count and repetition cannot reuse consumed
+text. Coalescing or splitting the remaining gaps, or adding empty components,
+cannot change the flattened replacement result. The coalesced partition also
+minimizes each match's component index and witnesses a satisfying CHOOSE
+predicate. The chosen partition's remaining normalized order is therefore
+irrelevant to the admitted output. This is a uniqueness proof for the supported
+subset, not an interpretation of the comment's general overlap claim.
+
+ReplaceFirst has a separate proof: the least prefix containing a nonempty
+fixed-length pattern ends at its earliest occurrence's end, so subtracting
+Len(pattern) gives the earliest start. For the empty pattern the least prefix
+is empty, giving index 1 and a prepended replacement. The corrected pure pinned
+fixture includes the prefix/overlap case where First yields `<<0,2,1>>` while
+All yields `<<0,1,2>>`. The formerly admitted all-overlap example remains a
+separate pinned success fixture, now checked as a core refusal and clean Auto
+fallback; it was moved, not discarded.
+
+Corrective source mutations fail when the matcher skips overlap detection, when
+the independent oracle reverses normalized tuple length ordering, or when the
+repeatability guard is bypassed. The restored implementation and oracle pass
+the same controls. Earlier mutation results and smoke/shadow runs on the
+rejected greedy commit do not qualify the corrected source.

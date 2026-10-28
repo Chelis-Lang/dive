@@ -213,11 +213,15 @@ progress. Give the date, branch, state and the exact next step.
   - **State.** Sequence replacement now implements pure, materialized sequences
     with a uniform integer, boolean or string element class across arguments,
     through the existing library hook. Pinned fallback observations, the
-    leftmost/maximal-choice proof and bounds are in `03-value-model.md` §12.
+    corrected partition-choice proof and bounds are in `03-value-model.md` §12.
+    The absolute-position greedy implementation at `7e1195f1` was rejected by
+    fresh review. All overlaps now refuse after the exact early CASE arms;
+    ReplaceFirst retains its independently checked least-prefix semantics.
     Focused tests cover both profiles, worker counts, optimization switches,
     independent words and refused-case auto fallback. This is a bounded feature,
     not full sequence-operator or milestone acceptance.
-  - **Next.** Mixed/compound/lazy sequences need fallback comparison/demand
+  - **Next.** Overlapping All occurrences need exact normalized partition
+    CHOOSE semantics. Mixed/compound/lazy sequences need fallback comparison/demand
     order; effectful arguments need repeated evaluation, not value snapshots.
     `kSubset` still needs the symbolic/startup/validator boundary already
     assessed in `03-value-model.md`; `MapThenFoldSet`/`Folds` and TLC-profile

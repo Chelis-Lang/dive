@@ -83,8 +83,12 @@ dive check crates/dive-api/tests/fixtures/op-literal/specs/OlBagOfAll/OlBagOfAll
 run with `--engine core` on strings and on pure, materialized sequences whose
 combined elements are all integers, all booleans or all strings. Empty
 sequences are allowed. This holds in both profiles and at any worker count.
-The sequence replacement finds the first match, or all leftmost non-overlapping
-matches, respectively. For an empty pattern, ReplaceFirst prepends `r`;
+ReplaceFirst finds the earliest occurrence, including when occurrences overlap.
+ReplaceAll replaces every occurrence when none overlap; overlapping nonempty
+occurrences remain unsupported unless its early pattern=text or
+replacement=pattern CASE arm applies. TLC's remaining partition choice does
+not always select the earliest absolute positions. For an empty pattern,
+ReplaceFirst prepends `r`;
 ReplaceAll inserts `r` before each element, without a trailing insertion. When
 both pattern and text are empty, ReplaceAll returns `r`.
 

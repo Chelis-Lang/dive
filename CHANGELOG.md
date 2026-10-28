@@ -79,8 +79,10 @@
 - `--engine core` runs `SequencesExt!ReplaceFirstSubSeq` and
   `ReplaceAllSubSeqs` on pure materialized sequences whose combined elements
   are all integers, all booleans or all strings, in both profiles. Mixed,
-  nested, lazy or effectful sequence arguments remain explicit refusals;
-  `--engine auto` reruns them on the reference engine (#610).
+  nested, lazy or effectful sequence arguments remain explicit refusals.
+  ReplaceAll also refuses overlapping occurrences after its early equality
+  CASE arms, because TLC chooses by partition indices rather than absolute
+  match positions. `--engine auto` reruns them on the reference engine (#610).
 
 - `--engine core` runs `AllSubSeqs`, `LongestCommonPrefix`, and
   `ReplaceFirstSubSeq` and `ReplaceAllSubSeqs` on strings (SequencesExt),
