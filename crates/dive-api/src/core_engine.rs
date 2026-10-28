@@ -324,10 +324,6 @@ fn refusal(model: &dive_model::Model, temporal: bool) -> Option<String> {
     if !temporal && !model.implied_temporals.is_empty() {
         return Some("temporal properties (M0 core engine)".into());
     }
-    if model.view.is_some() && model.symmetry.is_some() {
-        // TLC evaluates the VIEW on the canonical image.
-        return Some("VIEW with SYMMETRY (M0 core engine)".into());
-    }
     if model
         .postconditions
         .as_ref()
