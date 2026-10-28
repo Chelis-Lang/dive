@@ -209,6 +209,24 @@ progress. Give the date, branch, state and the exact next step.
   L5 remains incomplete; this preparatory product API supplies no new verdict
   or capacity authority. Full-gate evidence belongs in its PR.
 
+- **2026-10-28 (stream 1, `feat/core-sequence-replacements`).**
+  - **State.** Sequence replacement now implements pure, materialized sequences
+    with a uniform integer, boolean or string element class across arguments,
+    through the existing library hook. Pinned fallback observations, the
+    corrected partition-choice proof and bounds are in `03-value-model.md` §12.
+    The absolute-position greedy implementation at `7e1195f1` was rejected by
+    fresh review. All overlaps now refuse after the exact early CASE arms;
+    ReplaceFirst retains its independently checked least-prefix semantics.
+    Focused tests cover both profiles, worker counts, optimization switches,
+    independent words and refused-case auto fallback. This is a bounded feature,
+    not full sequence-operator or milestone acceptance.
+  - **Next.** Overlapping All occurrences need exact normalized partition
+    CHOOSE semantics. Mixed/compound/lazy sequences need fallback comparison/demand
+    order; effectful arguments need repeated evaluation, not value snapshots.
+    `kSubset` still needs the symbolic/startup/validator boundary already
+    assessed in `03-value-model.md`; `MapThenFoldSet`/`Folds` and TLC-profile
+    `AllSubSeqs` membership remain separate deliverables.
+
 - **2026-10-28 (acceptance closeout).** Main `f1acc846` contains the scoped
   ENABLED, Init/Next, sampler, named-error trace and disabled-hashcons replay
   repairs. Full source-bound results and remaining obligations are in

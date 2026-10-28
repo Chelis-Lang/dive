@@ -146,6 +146,10 @@ context and independent replay, not a blanket wrapper exemption.
     `RandomElement` (#571) and `TLCSet`/`TLCGet` (#583);
   - CommunityModules `SequencesExt`, `Functions`, `Bitwise`, the folds,
     `FoldSet` and `FoldFunctionOnSet` (#561, #564, #569).
+- Pure materialized sequence replacement with one scalar class across all
+  arguments, with a bounded partition-definition oracle and independent
+  trace validation (`03-value-model.md` §12). All overlaps, mixed, nested, lazy and effectful
+  sequence forms remain refused; this is no new census or milestone credit.
 
 **Compiler and laziness (stream 2).**
 - TLC comparison errors (#509) and error classes (#531).
@@ -324,8 +328,8 @@ The census identifies distinct obligations; one fix cannot waive another family:
 
 Known implementation gaps remain: `ENABLED` with hidden/nonidentity INSTANCE
 variables or in an instantiated initial predicate,
-SYMMETRY with liveness (`P4SymLive`), L5 graph capacity, `kSubset`, sequence
-replace forms, `MapThenFoldSet`/`Folds`, TLC-profile `AllSubSeqs` membership and
+SYMMETRY with liveness (`P4SymLive`), L5 graph capacity, `kSubset`, mixed,
+compound, lazy and effectful sequence replace forms and overlapping All occurrences, `MapThenFoldSet`/`Folds`, TLC-profile `AllSubSeqs` membership and
 the two printing refusals. L5 requires state storage as well as packed topology
 (`11-liveness.md`); `kSubset` needs a symbolic value and startup/validator support
 (`03-value-model.md`). Neither is a one-function completion.

@@ -270,7 +270,14 @@ pub enum Node {
     Std(StdFn, Box<[P]>),
     /// A standard or CommunityModules operator implemented in
     /// [`crate::stdlib`], on normalized arguments.
-    Lib(dive_ir::StdOp, Box<[P]>),
+    Lib {
+        /// The library operator.
+        op: dive_ir::StdOp,
+        /// Its arguments, evaluated in source order.
+        args: Box<[P]>,
+        /// Whether reevaluation is proven effect-free without calls or free slots.
+        repeatable_args: bool,
+    },
     /// A [`crate::stdlib`] operator with operator arguments.
     LibHo(dive_ir::StdOp, Box<[LibArg]>),
     /// `ENABLED A`: whether the action `A` has a successor from the current
