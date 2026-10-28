@@ -116,7 +116,7 @@ exclude every candidate. A truly empty Init keeps depth zero. Pinned TLC BFS
 (`tlc-2026.10.06.014338`, one worker, seed/fp 0) confirms
 `SimExcludedInitial` has 1 generated, 0 distinct and depth 1; the three-state
 `ExcludedInitial` control has 3 / 0 / 1 and `EmptyInitial` has 0 / 0 / 0.
-`core_initial_depth` checks both profiles, one and four requested workers,
+`core_initial_depth` checks both profiles, one, four and eight requested workers,
 and reference/core/auto routing. Init failures retain their existing
 stop-specific accounting.
 

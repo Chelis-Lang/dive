@@ -21,7 +21,7 @@ fn initial_depth_counts_emitted_states_instead_of_retained_states() {
     ];
     for (fixture, generated, depth) in cases {
         for compat_tlc in [false, true] {
-            for workers in [1, 4] {
+            for workers in [1, 4, 8] {
                 let file = root.join(fixture);
                 let request = CheckRequest {
                     config: Some(file.with_extension("cfg")),
