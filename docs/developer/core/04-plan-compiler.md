@@ -5,7 +5,8 @@ Status: M1 stream 2 in progress. The M0 spike is on `main`
 results in `m0-results.md`). M1 adds the comparison rules of §5.1
 (`compare.rs`), the coverage census of §8, the fold bound of §3 (R9), the
 laziness of values (§4.1), `INSTANCE` substitution (§3, pass 2), Bags, typed
-TLC error classes (§5.2), model values (§5.3), operator arguments (§5.4), lazy unions (§4.2) and the memo decision
+TLC error classes (§5.2), model values (§5.3), operator arguments (§5.4), lazy unions (§4.2),
+GameOfLife's lookups (§6.1) and the memo decision
 (`06-memoization.md` §6).
 This document covers strategy S8 from `01-motivation.md`, and the compiler side of S5 and S6. It supersedes
 the evaluation-plan section of ADR 0014 §1.
@@ -554,6 +555,48 @@ Two possible later tiers are explicitly out of scope until M4: a closure tier
 and generated Rust. Either would implement the same evaluation interface and be
 shadow-compared against this interpreter.
 
+### 6.1 One-worker speed: GameOfLife and the slowdown since M0
+
+GameOfLife's `Sum(sc, points)` folds `sc[x]` over a set of pairs, removing one element at a time (`S \ {x}`). `grid` and `sc` are functions on pair domains. The core keeps `sc` materialized, once per activation (§7). Its cost was in three places. They are fixed at the value level and are exact:
+- **Pair-domain lookups.** `f[<<a, b>>]` on a function of more than 8 keys did a binary search, with a deep comparison per probe. When the domain is a dense rectangle `l1..h1 \X l2..h2` (the first and last keys give the bounds, and the size checks it), the position is computed and then checked against the key found there (`Machine::grid_index`). Any other domain falls back to the search.
+- **Small differences.** `S \ T` with `T` smaller than `S` looks up each element of `T` in `S`, instead of each element of `S` in `T` (`Machine::minus_small`). The kept elements still go through the failed-membership check (`compare::miss`), so its errors are those of TLC's `SetDiff`.
+- **Comparing tuples.** Two integer-domain functions with the same domain compare by their values only.
+
+Fixture `GridFcn` (TLC: `Inv` violated, 1665/5174/6) covers a rectangle, a near-rectangle whose computed position misses, and a triangle.
+
+GameOfLife on M3, 1 worker, instructions retired:
+
+| Build | Instructions |
+|---|---|
+| M0, `866c0978` | 101.2 G |
+| main, `0abc2844` | 113.4 G |
+| this change | 79.5 G |
+| pinned TLC, JVM start included | 153.8 G |
+
+At load 12, the core took 5.1 s wall and 4.8 s user, against TLC's 28.4 s and 15.3 s.
+
+**One-worker slowdown since M0** (lead's x86 bench: MCLamportMutex 10.47 to 12.53 s, GameOfLife 10.44 to 11.73 s, SimpleRegular 2.58 to 2.98 s). Bisected on M3 by instructions retired, core engine, 1 worker:
+
+| Commit | SimpleRegular | GameOfLife | MCLamportMutex |
+|---|---|---|---|
+| M0 `866c0978` | 24.4 G | 101.2 G | 89.9 G |
+| #508 `07e0fd8d` | 24.7 | 101.4 | 90.3 |
+| #509 `d344f0a3` (comparison errors, stream 2) | 25.1 | 110.5 | 92.1 |
+| #510 `57e9e679` (store columns) | 25.9 | 112.7 | 94.7 |
+| #524 `431d6f95` | 26.1 | 113.1 | 96.2 |
+| #526 `ddcbb6c1` (string tokens) | 26.1 | 113.6 | 97.0 |
+| #530 `0bff25aa` (memo off, stream 2) | 25.4 | 113.7 | 110.5 |
+| #545 `d81170b2` (#535 to #545) | 26.9 | 114.5 | 114.1 |
+| `0abc2844` | 26.8 | 113.9 | 114.4 |
+
+- **Mine, fixed.**
+  - #530 turned the memo tables off on wall-clock evidence taken under load. That cost MCLamportMutex 13.4 G. The tables are back on (`06-memoization.md` §6).
+  - #509's failed-membership checks cost GameOfLife 9 G. The paths above more than recover it.
+- **Others, reported.**
+  - #510's size-classed store: about 2 to 3 G on each model.
+  - The range #535 to #545: 2.6 G on MCLamportMutex and 0.8 G on SimpleRegular.
+  - #526's string tokens: 0.8 G on MCLamportMutex.
+
 ## 7. Next step
 
 M1 stream 2 order: coverage census (§8), comparison errors (§5.1), the fold
@@ -694,7 +737,8 @@ Next (M1, stream 2), from the census:
 
 GameOfLife's `sc` has a product domain, so TLC keeps it lazy. The core still
 caches its materialization once per activation, under `Node::Spec`, so its
-speed is unchanged. Laziness is not GameOfLife's speed answer: profile it.
+speed is unchanged. Laziness is not GameOfLife's speed answer. Profiled, its
+cost was pair-domain lookups and set differences, now fixed (§6.1).
 
 ## 8. Coverage
 
