@@ -104,6 +104,23 @@ with effects or recursive/nested calls remain explicitly unsupported by the
 core. `--engine auto` selects the reference engine for these cases. The same restrictions apply in both
 compatibility profiles.
 
+Cached core definitions also retain their own `INSTANCE` substitution context,
+including nested instances and primed definitions in a step property. A shared
+source definition can therefore read `x` through one instance and `x + 2`
+through another. The core previously reused the first compiled body, causing
+both false invariant violations and missed violations (#634). This example
+now succeeds with 3 distinct states, 4 generated states, depth 3 and exit 0 in
+both profiles:
+
+```sh
+dive check conformance/corpus/core-instance-scopes/specifications/ScopeHolding/ScopeHolding.tla --engine core --compat=tlc --workers 4 --seed 0 --fp 0 --output json
+```
+
+The adjacent `ScopeViolation` model fails its invariant immediately with exit
+12. These controls preserve existing unsupported query contexts; they do not
+claim complete INSTANCE support. The reference cache repair is a separate
+change (#515).
+
 When constraints exclude every initial candidate, the core completes with
 zero distinct states and no counterexample. As in TLC, the reported depth is
 one if Init generated any candidate, and zero if Init generated none.

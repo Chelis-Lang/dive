@@ -133,6 +133,16 @@ section 4 decide.
        and for substituted names used as actions (by name, B5).
      - **Operators.** An operator substitution `F <- G`, with `G` a top-level
        or standard operator, is applied in the current context, as TLC does.
+     - **Compiled definition identity (#634).** A zero-arity nonrecursive
+       definition's cached body is keyed by definition, plain/primed mode and
+       the active substitution context, in ordinary and step predicates.
+       SANY shares original definitions across nested instances, so the same
+       `DefId` can compile through different actuals. Each immutable substitution
+       entry has a unique id; the last id identifies its entire ordered active
+       prefix, since entries are only appended fresh, truncated or restored.
+       Empty context has its own key. `outside` therefore selects the outer
+       prefix's identity, rather than reusing an inner instance's body.
+       Existing free-slot/effect/candidate guards still decide eligibility.
      - **Split roles.** For actions and checks that the reference binder
        found inside an instantiated definition (`Init == I!Init`), the
        handoff passes the substitutions active there (`Role::substs`, from
