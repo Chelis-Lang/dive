@@ -114,6 +114,28 @@ statistics. This error also occurs with deadlock checking disabled. A defined
 action that generates no successors instead follows the deadlock setting;
 an empty Init completes without either error.
 
+The core can evaluate `SelectSeq(sequence, Test)'` when `Test` is pure and
+depends only on its element parameter and constants. The sequence reads the
+successor state. This also works through `INSTANCE` refinement substitutions,
+such as counting messages selected by `msg.type = "pl"`. A callback that reads
+state, captures an enclosing local, reaches an effect or makes an unproved
+recursive call remains unsupported under prime. Other higher-order operators
+under prime retain their existing refusals. These restrictions apply in both
+profiles; `--engine auto` retries the reference engine on a core refusal.
+
+For a small refinement example, this command completes with 3 distinct states,
+4 generated states, depth 3 and exit 0:
+
+```sh
+dive check crates/dive-api/tests/fixtures/core-primed-selectseq/PureInstance.tla --engine core --compat=tlc --workers 4 --seed 0 --fp 0 --output json
+```
+
+The original pinned `EWD998Chan` model also enters core search with its original
+configuration and refinement property. A one-second, one-GiB probe stops with
+exit 5; that probe establishes admission only, with no completed verdict or
+performance/capacity claim. It needs the configured CommunityModules and
+dependency module-library roots, as well as its adjacent `EWD998` module.
+
 With `--engine core`, anything the core does not implement yields an
 `unsupported` verdict that names it, and the run never falls back. The JSON
 report adds `"engine": "core"` and a `core` object with strategy metrics.

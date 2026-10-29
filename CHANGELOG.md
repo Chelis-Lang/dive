@@ -41,6 +41,13 @@
   definition or substitution they use is evaluated once per step, and once
   per distinct value of the variables it reads. EWD998PCal with its
   refinement property runs in 5.5 s instead of 14 s.
+- `--engine core` accepts `Sequences!SelectSeq` under prime when its predicate
+  depends only on its element parameter and constants. The sequence reads the
+  successor context, including through `INSTANCE` refinement substitutions.
+  State/captured/effectful predicates and other higher-order operators under
+  prime remain unsupported in both profiles. The original `EWD998Chan` model
+  now enters core search; its bounded admission probe establishes no completed
+  verdict, capacity or performance claim.
 - `--engine core` checks temporal properties (liveness, with fairness):
   the core explores and builds the behavior graph, and the reference
   engine's liveness checker checks it, so verdicts, counts and

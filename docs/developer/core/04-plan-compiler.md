@@ -530,6 +530,35 @@ and built-in operators passed as the argument (`FoldSet(+, 0, S)`) are
 refused for now. `Node::LibHo` is built (§9); `stdlib::op_arity` says which
 arguments are operators and at what arity.
 
+**`SelectSeq` under prime.** `lib_ho` admits only
+`Sequences!SelectSeq` in `Mode::Primed`, and still compiles its sequence
+argument in that mode. Its callback continues through `op_fn` in plain mode,
+but is admitted only when the compiled body's `Info` has no unprimed or primed
+state reads, effects, unknown calls, or free slots other than the callback's
+formal parameters. Resolved constants and locally bound expressions are
+allowed. Configuration redirects and `INSTANCE` substitutions are resolved
+before this check: their actual state reads and effects therefore contribute
+to the same metadata. A lexical capture contributes its free slot. Unknown
+calls remain conservatively refused.
+
+For this subset, the callback receives only each element of the successor's
+sequence; changing the surrounding state context cannot change its result or
+error. No closure context is moved or made eager. The existing `SelectSeq`
+runtime still checks its sequence first, applies the callback in sequence
+order, and never applies it to an empty sequence. Other higher-order operators
+under prime and state-dependent callbacks retain their refusals; free/double
+primes still undergo the existing frontend/compiler checks.
+
+`core_primed_selectseq.rs` consumes the compact official-harness facts in
+`crates/dive-api/tests/fixtures/core-primed-selectseq/oracle.json`: direct,
+configured/formal/LET and EWD-shaped refinement positives, a validated violated
+step, demand/error-order controls, and state/capture/effect/prime boundaries.
+The adjacent README records the one unclassified oracle negative and the
+separate final-expansion word obligation; neither earns agreement credit.
+The original pinned `EWD998Chan` config enters core search in both profiles
+under a one-second, one-GiB budget and then stops. This establishes admission,
+not a completed model verdict, capacity or performance result.
+
 **Fixtures.** `OpArg` (6 distinct, 7 generated, depth 4) and `OpSub` (6/7/5)
 match the pinned TLC.
 

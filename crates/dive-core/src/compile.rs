@@ -3160,7 +3160,7 @@ impl Compiler<'_> {
     /// (`Node::LibHo`): each operator argument is compiled with
     /// [`Self::op_fn`] at the arity the library expects.
     fn lib_ho(&mut self, op: StdOp, args: &[Arg], env: usize, mode: Mode) -> Result<P, Error> {
-        if mode == Mode::Primed {
+        if mode == Mode::Primed && op != StdOp::SequencesSelectSeq {
             return Err(Error::unsupported(format!(
                 "{} under a prime (M1 core)",
                 op.qualified_name()
@@ -3171,6 +3171,25 @@ impl Compiler<'_> {
             match (crate::stdlib::op_arity(op, i), a) {
                 (Some(arity), _) => {
                     let (params, body) = self.op_fn(a, env, arity)?;
+                    if mode == Mode::Primed {
+                        // `op_fn` compiles the callback in Plain mode. That is
+                        // unchanged by the surrounding prime only when its
+                        // sole inputs are its element parameters. In
+                        // particular, neither a state read hidden behind an
+                        // INSTANCE/configured operator nor a lexical capture
+                        // may retain the source-state context here.
+                        let info = &self.info[body as usize];
+                        if info.vars != 0
+                            || info.primed != 0
+                            || info.effect
+                            || info.calls
+                            || info.free.iter().any(|s| !params.contains(s))
+                        {
+                            return Err(Error::unsupported(
+                                "Sequences!SelectSeq under a prime with a state-dependent, captured or effectful predicate (M1 core)",
+                            ));
+                        }
+                    }
                     if crate::stdlib::takes_op_value(op)
                         && matches!(self.code.nodes.get(body as usize), Some(Node::Const(_)))
                     {
