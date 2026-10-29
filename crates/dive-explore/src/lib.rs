@@ -1058,6 +1058,10 @@ pub fn explore(
 /// Explores the plan's state space, reporting its behavior graph to `graph`
 /// ([`graph::GraphSink`]) in the one-worker order.
 #[must_use]
+#[allow(
+    clippy::too_many_lines,
+    reason = "ordered search setup and result assembly stay in one entrypoint"
+)]
 pub fn explore_with<'p>(
     plan: &'p Plan,
     store: &Arc<Store>,
