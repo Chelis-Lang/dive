@@ -2,8 +2,8 @@
 
 Status: phase 1 (L1–L4) built, 2026-10-28; pulled forward from M3.
 Preparatory L5 topology, private state-value access and graph-independent
-producer/result facts are implemented (§7.1–§7.3).
-Checker state retention, completion/results and measured capacity remain L5 work
+producer/result facts and checked CSR completion are implemented (§7.1–§7.4).
+Checker state retention, report routing and measured capacity remain L5 work
 with the prerequisites in §7.
 
 This document describes how `--engine core` checks genuine temporal properties
@@ -292,8 +292,8 @@ These follow the liveness-budgets rule:
   - **Completion and results.** `capture::Complete` and `Prefix`, and the
     liveness `Analysis`/candidate results, currently retain a concrete
     `BehaviorGraph`. Graph-independent sealed producer facts and private result
-    assembly are available (§7.3). A checked native producer constructor and
-    compact-compatible report routing remain needed so finishing a compact run
+    assembly are available (§7.3), with checked CSR completion (§7.4).
+    Native producer retention and compact-compatible report routing remain needed so finishing a compact run
     does not materialize the reference graph. Preserve existing producer
     completion/prefix checks and actual counters; compact storage creates no new
     temporal proof authority.
@@ -398,7 +398,7 @@ factories now preserve that distinction too: any non-success safety result
 returns its exact original verdict, before constructing either kind of evidence
 (#624). Successful completion still uses the existing `GraphCompletion::finalize`
 shape/counter checks; successful prefixes retain the nonzero-frontier check.
-No CSR shape, copied counters or caller completion flag creates these facts.
+No CSR shape, copied counters or caller completion flag alone creates these facts.
 
 Private liveness result assembly consumes the existing candidate word or error
 and the matching kind of producer evidence. Only complete evidence can assemble
@@ -414,12 +414,40 @@ completion counters/rows, preserve original factory failures/stops, and keep
 successful joined prefixes at 1, 4 and 8 workers in both profiles. Public
 rustdoc controls prevent constructing completion facts or promoting prefixes.
 
-This prerequisite does not implement a native compact producer constructor,
+This prerequisite does not implement a native retention producer,
 compact final report routing, retained handle roots or controlled conversion.
 The legacy public results still retain `BehaviorGraph`. The future store/source
 bridge must provide checked producer facts and the original selected values;
 it must not rebuild a reference graph just to assemble a result. No capture
 limit, supported model population or capacity claim changes (#625).
+
+### 7.4 Checked CSR completion boundary
+
+`capture::CsrCaptureInput` borrows adjacency and opaque retained-row metadata;
+`CsrCapture::checked` validates it under the actual `EvaluationControl`.
+Closed sources have one final implicit stutter, while frontier rows are empty.
+Generated duplicates, strictly increasing but potentially gapped ordinals,
+action labels and separate original target rows survive checking. Original
+positions index generated entries in a source row, not generation ordinals.
+
+`CsrComplete::from_producer` also requires successful safety EOF, actual matching
+statistics, an empty queue and every source closed. The completion header is
+shared with the legacy graph factory. `CsrPrefix::from_producer` instead requires
+a successful committed boundary with unfinished frontier and nonzero queue.
+Both reject any original safety failure before inspecting shape and preserve
+typed matching run interruptions. Their immutable facts can detach without
+building evaluator state values or a reference graph. See ADR 0122.
+
+Tests compare metadata and completion facts with actual captures, retain distinct
+original rows behind duplicate targets and ordinal gaps, reject malformed arrays,
+offsets, ordinals, labels, roots and stutters, and reject promoting a real prefix
+even after its public queue counter is edited. A deterministically expired armed
+budget produces an actual capture-phase stop.
+
+These are low-level trusted-producer APIs. Shape validation does not evaluate
+opaque rows, authenticate a supplied search history or validate a temporal word.
+The production core still uses the legacy value graph; this prerequisite changes
+no capture caps, model coverage or capacity/performance claims.
 
 ## 8. Tests
 
@@ -448,7 +476,7 @@ limit, supported model population or capacity claim changes (#625).
 | L2 (built) | `capture::refusal` and `GraphBuilder` (`dive-check`); `GraphCheck` (`dive-liveness`); tests: a graph rebuilt through `GraphBuilder` equals the reference capture, and `GraphCheck` over it equals `analyze_final` and `analyze_periodic` | full |
 | L3 (built) | `GraphSink` in `dive-explore`; the `dive-api` converting sink; graph-equality tests (§8) against the reference capture | fast |
 | L4 (built) | The temporal route in `core_engine` (both profiles), refusals, report-equality tests, harness census, user guide and CHANGELOG | fast (full if L2 needs follow-up) |
-| L5 (partial) | Borrowed CSR product input, private state-value source and graph-independent producer/result facts built (§7.1–§7.3); native retention/conversion, checked compact producer completion and report routing remain, followed by TLC capacity measurement (§7) | full |
+| L5 (partial) | Borrowed CSR product input, private state-value source, graph-independent producer/result facts and checked compact producer completion built (§7.1–§7.3, ADR 0122); native retention/conversion and report routing remain, followed by TLC capacity measurement (§7) | full |
 
 Each PR updates this document's status, the status board and the handoff log.
 

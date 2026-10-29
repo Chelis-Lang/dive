@@ -1,5 +1,10 @@
 # Scoreboard
 
+L5's checked borrowed CSR completion boundary is implemented (ADR 0122), with
+distinct complete and unfinished-prefix evidence. This is a producer API
+prerequisite; native retention, controlled conversion and compact report routing
+remain. It adds no corpus agreement, capacity or performance credit.
+
 #619 soundness boundary: compound set normalization uses the existing shape
 proof in both core profiles. Unproved nested comparisons return unsupported;
 homogeneous, record-domain and lazy controls remain supported. Twelve pinned
