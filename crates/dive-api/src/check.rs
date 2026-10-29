@@ -1720,7 +1720,11 @@ fn trace_doc(
         // replay give it.
         V::EvaluationError {
             site: dive_check::ErrorSite::Invariant,
-            code: 2111,
+            // A later diagnostic error can decide 2103 without changing
+            // the original named invariant error witnessed by this word.
+            code: 2111 | 2103,
+            reported: 2111,
+            verified: true,
             invariant: Some(name),
             cause,
             ..

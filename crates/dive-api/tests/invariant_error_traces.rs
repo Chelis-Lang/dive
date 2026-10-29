@@ -97,6 +97,95 @@ fn exact_cause_named_invariant_and_first_failure_are_required() {
 }
 
 #[test]
+fn named_invariant_word_survives_a_different_diagnostic_replay_error() {
+    let root =
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../dive-check/tests/fixtures/errors");
+    let file = root.join("specs/ErInvReplayError/ErInvReplayError.tla");
+    // The authoritative clean pinned run reports the original invariant
+    // error, then a separate nested replay error. This is not a claim that
+    // the canonical oracle classifier certifies the whole mixed stream.
+    let pinned =
+        std::fs::read_to_string(root.join("tlc-2026.10.06.014338/ErInvReplayError.stdout"))
+            .expect("pinned clean TLC transcript");
+    assert!(
+        pinned.find("STARTMSG 2111:1").expect("first error")
+            < pinned.find("STARTMSG 2103:1").expect("replay error")
+    );
+    for compat_tlc in [false, true] {
+        let model = SpecModel::load(
+            &file,
+            &file.with_extension("cfg"),
+            &TraceOptions {
+                compat_tlc,
+                run: Some((0, 0)),
+                ..TraceOptions::default()
+            },
+        )
+        .expect("model");
+        for engine in [Engine::Reference, Engine::Core] {
+            for workers in [1, 4] {
+                let report = check_file_engine(
+                    &CheckRequest {
+                        file: file.clone(),
+                        config: Some(file.with_extension("cfg")),
+                        compat_tlc,
+                        seed: Some(0),
+                        fp: Some(0),
+                        workers: Some(workers),
+                        ..CheckRequest::default()
+                    },
+                    engine,
+                )
+                .expect("check")
+                .to_json();
+                assert_eq!(report["error_site"], "invariant");
+                assert_eq!(report["tlc"]["reported"], 2111);
+                assert_eq!(report["tlc"]["code"], 2103);
+                assert_eq!(report["tlc"]["exit_status"], 75);
+                assert_eq!(report["tlc"]["verified"], true);
+                if workers == 1 {
+                    for (key, value) in [("distinct", 5), ("generated", 4), ("depth", 3)] {
+                        assert_eq!(report["statistics"][key], value, "{report}");
+                    }
+                }
+                let trace = &report["counterexample"]["trace"];
+                assert_eq!(trace["version"], 2);
+                let doc = TraceDoc::from_json(trace).expect("native version 2");
+                assert_eq!(
+                    doc.states,
+                    [
+                        json!({"x":0,"y":0}),
+                        json!({"x":1,"y":0}),
+                        json!({"x":2,"y":0})
+                    ]
+                    .map(|value| value.as_object().expect("state").clone())
+                );
+                assert_eq!(
+                    doc.ending,
+                    Some(claim("InvA", "TLC_MODULE_DIVISION_BY_ZERO"))
+                );
+                assert_eq!(model.validate(&doc).validation, Validation::Valid);
+                let controls = model.controls_with_mode(&doc, ControlMode::Counterexample);
+                assert!(controls.failures().is_empty(), "{controls:?}");
+                for (name, ec) in [
+                    ("InvB", "TLC_MODULE_DIVISION_BY_ZERO"),
+                    ("absent", "TLC_MODULE_DIVISION_BY_ZERO"),
+                    ("InvA", "GENERAL"),
+                    ("InvA", "TLC_NESTED_EXPRESSION"),
+                ] {
+                    assert!(!matches!(
+                        model
+                            .validate(&doc.clone().with_ending(claim(name, ec)))
+                            .validation,
+                        Validation::Valid
+                    ));
+                }
+            }
+        }
+    }
+}
+
+#[test]
 fn oracle_backed_invariant_errors_validate_for_both_engines_and_profiles() {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/core-lib/specs");
     // Pinned TLC transcripts in ../tlc-2026.10.06.014338 establish deciding

@@ -318,3 +318,19 @@ last-state error or replace the observed cause with 2111. The pinned
 both profiles and workers 1 and 4; forged names/causes, absent errors and earlier
 failures are negative controls. Generic expansion, constraint and action-property
 error claims remain separate (#490); this is not closure of that whole family.
+
+The pinned `ErInvReplayError` fixture separates a named invariant's error from
+a different error encountered during diagnostic replay. InvA raises division
+by zero (2179), the first report is 2111, and later replay raises a CHOOSE error;
+the native checker reports deciding 2103, exit 75, five distinct/four generated
+states, depth three. The finite word is `(0,0), (1,0), (2,0)`. Its logical
+claim is still the named InvA error, representable by the existing version-2
+ending. The producer uses its typed invariant-site/first-report context to
+distinguish this case from an anonymous Next error. Independent
+validation must check the exact name/cause and all earlier checks; it does not
+certify the separate diagnostic replay's class or counts. The strict harness
+still refutes this 2103 wrapper/word pair; matching native metadata cannot
+authorize agreement. The canonical classifier leaves the clean pinned stream
+unclassified, which must remain unknown rather than receive TLC agreement
+credit. This bounded producer repair does not certify generic final expansion
+(#434), missing partial-state words (#607), or the other #606 sites.
