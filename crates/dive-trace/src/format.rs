@@ -118,6 +118,14 @@ pub enum Ending {
         /// Untrusted stage and original inner source context.
         endpoint: crate::TemporalStateEndpoint,
     },
+    /// Next raises this underlying error before emitting any successor.
+    /// Only fresh source-bound replay can establish the original context.
+    NextStateError {
+        /// The underlying evaluation error class, never a replay wrapper.
+        ec: String,
+        /// Untrusted original source context.
+        endpoint: crate::NextStateEndpoint,
+    },
 }
 
 impl Ending {
@@ -139,6 +147,9 @@ impl Ending {
             Self::TemporalStateError { ec, endpoint } => {
                 json!({"kind":"error", "ec":ec, "endpoint":endpoint.to_json()})
             }
+            Self::NextStateError { ec, endpoint } => {
+                json!({"kind":"error", "ec":ec, "endpoint":endpoint.to_json()})
+            }
         }
     }
 
@@ -155,6 +166,16 @@ impl Ending {
             let object = j.as_object().ok_or("ending must be an object")?;
             if kind != "error" || object.len() != 3 || !object.contains_key("ec") {
                 return Err("endpoint requires an exact error ending".into());
+            }
+            if j["endpoint"]["stage"] == "next-before-successor" {
+                return Ok(Self::NextStateError {
+                    ec: j["ec"]
+                        .as_str()
+                        .filter(|ec| !ec.is_empty())
+                        .ok_or("a Next endpoint needs an underlying error class")?
+                        .to_owned(),
+                    endpoint: crate::NextStateEndpoint::from_json(&j["endpoint"])?,
+                });
             }
             let ec = j["ec"]
                 .as_str()

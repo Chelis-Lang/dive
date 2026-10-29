@@ -334,3 +334,32 @@ authorize agreement. The canonical classifier leaves the clean pinned stream
 unclassified, which must remain unknown rather than receive TLC agreement
 credit. This bounded producer repair does not certify generic final expansion
 (#434), missing partial-state words (#607), or the other #606 sites.
+
+## 10. First terminal Next replay slice
+
+ADR 0120 adds the optional `next-before-successor` error endpoint, using the
+existing version-1 endpoint pattern. Its untrusted source context is captured
+only from a typed native Next error. Validation reconstructs the prefix privately
+and checks all earlier obligations, then drops that runtime before fresh
+terminal binding, including the actual source-bound configured action split.
+The shared evaluator enumerates actual actions in order with a sink stopping
+at the first candidate. Any complete/partial candidate or composition work
+before the claimed error stays unsupported. The first genuine error must match
+the requested underlying class and original source, not its message text.
+The generator checks its host composition capability before private intermediate
+collection in both modes. TLA-mode intermediate states are absent from generated
+counts, so counters or the outer successor sink cannot establish this refusal.
+
+This needs no checker functor, visited set, graph or successor retention.
+Existing evaluator controls and recursion bounds apply; new endpoint-owned work
+retains fallible transport and phase/progress. Structural construction and
+existing quiet/bulk allocation units are not a hard memory ceiling. Print,
+registers, random operations and other unproved host effects retain refusals,
+including new-lane startup reconstruction. Borrowed-model and infallible readers
+cannot grant this fresh-source capability.
+
+`EnabledIntervalFirstError` and `ErWrapFcnGuard` provide pinned source controls.
+A valid underlying word does not authorize a 2103 wrapper or certify diagnostic
+counts. Unknown canonical oracle streams remain unknown. The remaining #434,
+#606 and #607 families are not closed by this conservative slice, and new
+agreement credit requires a separately measured real harness outcome.

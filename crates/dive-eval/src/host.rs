@@ -211,8 +211,8 @@ pub trait Host: Send + Sync + std::fmt::Debug {
         Ok(())
     }
 
-    /// Checks whether expression evaluation may use the successor generator
-    /// to decide action composition. Independent replay drivers refuse this
+    /// Checks whether expression evaluation or successor generation may search
+    /// intermediate states to decide action composition. Independent replay drivers refuse this
     /// before any intermediate state is generated; ordinary drivers permit it.
     ///
     /// # Errors

@@ -32,6 +32,7 @@ fn report(tlc: bool, capture: Option<bool>) -> CheckReport {
         },
         phase: Phase::TemporalError(Box::new(failure)),
         core: None,
+        next_error_endpoint: None,
         engine: crate::Engine::Reference,
         fallback: None,
     }

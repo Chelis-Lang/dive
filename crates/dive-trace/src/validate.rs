@@ -282,6 +282,7 @@ enum Goal {
     Liveness(&'static str),
     ErrorEnd(&'static str),
     TemporalStateError,
+    NextStateError,
 }
 
 /// One validation run. `passed` counts the checks passed, in order: the
@@ -312,6 +313,7 @@ impl<'a> Run<'a> {
             composition: AtomicBool::new(false),
             register_used: AtomicBool::new(false),
             startup: AtomicBool::new(false),
+            next_error: AtomicBool::new(false),
             effect: Mutex::new(None),
             private: false,
             run_config: Mutex::new(None),
@@ -420,8 +422,10 @@ impl<'a> Run<'a> {
     fn run(&mut self, trace: &Trace) -> Result<Option<String>, Stop> {
         self.poll(None, None)?;
         let m = self.model;
-        if matches!(trace.ending, Ending::TemporalStateError { .. })
-            && (!self.host.private || !self.endpoint_prepared)
+        if matches!(
+            trace.ending,
+            Ending::TemporalStateError { .. } | Ending::NextStateError { .. }
+        ) && (!self.host.private || !self.endpoint_prepared)
         {
             return Err(Stop::Unsupported(
                 "temporal error endpoint requires a privately reconstructed source session".into(),
@@ -673,7 +677,8 @@ impl<'a> Run<'a> {
             | Goal::InvariantError(..)
             | Goal::ImpliedInit(_)
             | Goal::ImpliedAction(_)
-            | Goal::Behavior => None,
+            | Goal::Behavior
+            | Goal::NextStateError => None,
             Goal::Liveness(why) | Goal::ErrorEnd(why) => Some(why.to_owned()),
         })
     }
@@ -875,6 +880,7 @@ impl<'a> Run<'a> {
             }
             Ending::Behavior => Goal::Behavior,
             Ending::TemporalStateError { .. } => Goal::TemporalStateError,
+            Ending::NextStateError { .. } => Goal::NextStateError,
             Ending::Lasso { back_to } => {
                 if *back_to > last {
                     return Err(invalid(last, Check::Shape, format!("the lasso loops back to state {back_to}, past the end")));
@@ -1174,6 +1180,8 @@ pub(crate) struct TraceHost {
     composition: AtomicBool,
     pub(crate) register_used: AtomicBool,
     pub(crate) startup: AtomicBool,
+    /// The narrow Next lane refuses output effects even during fresh startup.
+    pub(crate) next_error: AtomicBool,
     effect: Mutex<Option<String>>,
     private: bool,
     pub(crate) run_config: Mutex<Option<dive_eval::RunConfig>>,
@@ -1200,6 +1208,7 @@ impl TraceHost {
             composition: AtomicBool::new(false),
             register_used: AtomicBool::new(false),
             startup: AtomicBool::new(true),
+            next_error: AtomicBool::new(false),
             effect: Mutex::new(None),
             private: true,
             run_config: Mutex::new(None),
@@ -1258,6 +1267,9 @@ impl Host for TraceHost {
     }
 
     fn print_output(&self, _text: &str) -> Result<bool, HostError> {
+        if self.next_error.load(Ordering::Relaxed) {
+            self.refuse_effect("Print/PrintT in Next error reconstruction".into())?;
+        }
         // Reconstruct Print's value semantics without invoking any sink or
         // counting replay/startup reconstruction as producer output. The
         // evaluator still checks arguments and performs normal rendering.
@@ -1591,6 +1603,101 @@ pub(crate) fn validate_private_controlled(
     let mut run = Run::private(model, host, false);
     run.control = control;
     controlled_report(&mut run, trace)
+}
+
+/// Internal prefix result: Session must separately replay the terminal event
+/// on another freshly bound runtime before publishing a completed report.
+pub(crate) fn validate_next_prefix_controlled(
+    model: &Model,
+    host: Arc<TraceHost>,
+    trace: &Trace,
+    control: Option<Arc<dyn dive_eval::HostControl>>,
+) -> Result<(Report, u64), ValidationRunError> {
+    let _scope = control
+        .as_ref()
+        .map(|control| model.evaluator.host_control(Some(control.clone())))
+        .transpose()
+        .map_err(ValidationRunError::ControlConflict)?;
+    let mut run = Run::private(model, host, false);
+    run.control = control;
+    run.endpoint_prepared = true;
+    let report = controlled_report(&mut run, trace)?;
+    Ok((report, run.passed))
+}
+
+pub(crate) fn replay_next_controlled(
+    model: &Model,
+    host: Arc<TraceHost>,
+    trace: &Trace,
+    state: &crate::State,
+    checks_passed: u64,
+    control: Option<Arc<dyn dive_eval::HostControl>>,
+) -> Result<Report, ValidationRunError> {
+    let _scope = control
+        .as_ref()
+        .map(|control| model.evaluator.host_control(Some(control.clone())))
+        .transpose()
+        .map_err(ValidationRunError::ControlConflict)?;
+    let mut run = Run::private(model, host, false);
+    run.control = control;
+    run.passed = checks_passed;
+    let Some(last) = trace.states.len().checked_sub(1) else {
+        return Ok(Report {
+            validation: Validation::Invalid(Failure {
+                state: 0,
+                check: Check::Shape,
+                detail: "Next endpoint has no state".into(),
+            }),
+            notes: Vec::new(),
+            length: 0,
+        });
+    };
+    let Ending::NextStateError { ec, endpoint } = &trace.ending else {
+        return Ok(Report {
+            validation: Validation::Unsupported("missing Next endpoint".into()),
+            notes: Vec::new(),
+            length: trace.states.len(),
+        });
+    };
+    run.poll(Some(last), Some(Check::Ending))
+        .map_err(|stop| match stop {
+            Stop::Interrupted { error, .. } => ValidationRunError::Interrupted {
+                error,
+                progress: progress(&run, Some(last)),
+            },
+            _ => ValidationRunError::EvaluationFailure {
+                error: EvalError::bug("unexpected terminal replay poll outcome"),
+                progress: progress(&run, Some(last)),
+            },
+        })?;
+    run.host.level.store(
+        i64::try_from(last.saturating_add(1)).unwrap_or(i64::MAX),
+        Ordering::Relaxed,
+    );
+    let mut validation =
+        crate::next_error::replay(model, state, last, ec, endpoint, run.control.as_deref())
+            .map_err(|error| match error.class() {
+                ErrorClass::Interrupted => ValidationRunError::Interrupted {
+                    error,
+                    progress: progress(&run, Some(last)),
+                },
+                ErrorClass::ResourceLimit => ValidationRunError::ResourceLimit {
+                    error,
+                    progress: progress(&run, Some(last)),
+                },
+                _ => ValidationRunError::EvaluationFailure {
+                    error,
+                    progress: progress(&run, Some(last)),
+                },
+            })?;
+    if let Some(feature) = run.refusal() {
+        validation = Validation::Unsupported(feature);
+    }
+    Ok(Report {
+        validation,
+        notes: Vec::new(),
+        length: trace.states.len(),
+    })
 }
 
 /// `report`, refused if a name was created after the model was bound
