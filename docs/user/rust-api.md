@@ -78,6 +78,19 @@ Neither kind proves a temporal property. `GraphBuilder::complete` and `prefix`
 return the original verdict when supplied a failed or stopped safety result.
 Existing public temporal reports and analysis results keep their graph owners.
 
+Producers retaining their own state rows can supply borrowed adjacency through
+`capture::CsrCaptureInput`. `CsrCapture::checked` checks bounds, roots, ordinals,
+original row ids and implicit stutters under an actual `EvaluationControl`.
+`CsrComplete::from_producer` additionally requires the producer's successful EOF
+and matching statistics; `CsrPrefix::from_producer` requires a successful committed
+boundary with an unfinished frontier. Both preserve original failures and budget
+stops. Their `evidence()` and `into_evidence()` expose the same graph-independent
+facts as reference capture. These low-level APIs do not evaluate the opaque rows
+or certify temporal properties. Existing `capture::Limits` remain unchanged;
+there is no new CLI option or TLC divergence. The ordinary core temporal route
+still retains the reference value graph. `capture_csr` tests build checked CSR
+from actual captures; run `cargo test -p dive-check --test capture_csr --locked`.
+
 | Entry | Meaning |
 | --- | --- |
 | `parse_source` / `parse_file` | Syntax/CST and source diagnostics |
