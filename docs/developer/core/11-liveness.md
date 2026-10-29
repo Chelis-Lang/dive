@@ -151,9 +151,15 @@ How the events follow the reference engine:
 ## 4. Conversion to `StateVals` (`dive-api`)
 
 `dive-liveness` reads `StateVals` (`Arc<[Option<Value>]>`). The `dive-api`
-sink converts each new vertex once, with
-`dive_core::print::to_value(.., Conversion::Report)`, the conversion the
-core's traces already use.
+sink converts accepted originals with
+`dive_core::print::to_value(.., Conversion::Graph)`. Graph values are used for
+evaluation: general functions remain general functions, and tuple/record literal
+flags are preserved recursively. `Conversion::Report` remains the separate trace
+formatting path. Extensional `Value` equality alone cannot certify this boundary:
+a general string-domain function can compare unequal to a tuple where a record
+literal raises an incomparable-value error. Raw or symbolic set representations
+without certified normalization history remain explicitly refused by this
+conversion; the adapter does not reconstruct missing history or admit new shapes.
 
 - **Sharing.** A memo from a persistent compound handle to its `Value`
   shares structure: a sub-value common to many states becomes one `Arc`.

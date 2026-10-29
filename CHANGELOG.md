@@ -54,7 +54,9 @@
   retention and capacity remain the next L5 integration work.
 
 - Core graph capture delivers original accepted values for new and seen
-  targets, retaining their representation and action/ordinal metadata. Parallel
+  targets, retaining their representation and action/ordinal metadata. Temporal
+  conversion preserves general-function versus tuple/record literal classes
+  recursively, independently of report formatting. Parallel
   buffering uses the existing eight-source and per-source successor bounds;
   overflow and budget stops cannot become completed captures. Native compact
   state retention and larger graph capacity remain unimplemented.

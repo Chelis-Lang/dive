@@ -113,3 +113,47 @@ fn what_the_core_refuses_falls_back_under_auto() {
     let reference = run("Viewed", Engine::Reference, 1, false, false);
     assert_eq!(auto["verdict"], reference["verdict"]);
 }
+
+#[test]
+fn temporal_atoms_keep_general_functions_distinct_from_record_literals() {
+    let file = fixture("Representation/Representation");
+    for property in ["Action", "State", "Holds"] {
+        for tlc in [false, true] {
+            let request = CheckRequest {
+                config: Some(file.with_file_name(format!("{property}.cfg"))),
+                file: file.clone(),
+                seed: Some(0),
+                fp: Some(0),
+                compat_tlc: tlc,
+                ..CheckRequest::default()
+            };
+            let reference = check_file_engine(&request, Engine::Reference)
+                .expect("reference check")
+                .to_json();
+            assert_eq!(reference["verdict"], "success", "{reference:#}");
+            for workers in [1, 2, 3, 8] {
+                let core = check_file_engine(
+                    &CheckRequest {
+                        workers: Some(workers),
+                        ..request.clone()
+                    },
+                    Engine::Core,
+                )
+                .expect("core check")
+                .to_json();
+                assert_eq!(core["engine"], "core");
+                assert_eq!(
+                    core["verdict"], "success",
+                    "{property} tlc={tlc} w={workers}: {core:#}"
+                );
+                let got = comparable(core);
+                let mut expected = comparable(reference.clone());
+                expected["options"]["workers"] = got["options"]["workers"].clone();
+                if let Some(workers) = got.get("workers") {
+                    expected["workers"] = workers.clone();
+                }
+                assert_eq!(got, expected, "{property} tlc={tlc} w={workers}");
+            }
+        }
+    }
+}

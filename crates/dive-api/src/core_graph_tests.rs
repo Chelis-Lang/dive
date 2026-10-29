@@ -285,6 +285,18 @@ fn seen_targets_keep_original_values_ordinals_and_representations() {
                             values, expected,
                             "tlc={tlc} hc={hashcons} ep={early_probe} w={workers}"
                         );
+                        for (target, literal) in row.iter().zip([true, false, true, true]) {
+                            assert_eq!(
+                                target.state[variable]
+                                    .as_ref()
+                                    .expect("assigned")
+                                    .as_fcn()
+                                    .expect("function")
+                                    .is_tuple_literal(),
+                                literal,
+                                "the converted value retains the tuple/function class too"
+                            );
+                        }
                         assert!(
                             row.iter().all(|c| c.state != graph.states[source]),
                             "representative substitution must fail"
@@ -305,6 +317,89 @@ fn seen_targets_keep_original_values_ordinals_and_representations() {
                         out.metrics.store,
                         prepared.store.stats(),
                         "speculative originals stay accounted in the store"
+                    );
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn converted_new_and_seen_originals_preserve_checked_equality() {
+    for nested in [false, true] {
+        let wrap = |value: &str| {
+            if nested {
+                format!("<<{value}>>")
+            } else {
+                value.to_owned()
+            }
+        };
+        let general = wrap("[i \\in {\"a\"} |-> k]");
+        let literal = wrap("[a |-> k]");
+        let body = format!(
+            "VARIABLES k, x\nInit == k \\in 0..3 /\\ x = {general}\nA == k' = k /\\ x' = {general}\nB == k' = k /\\ x' = {literal}\nNext == A \\/ B\nV == k"
+        );
+        let cfg = dive_config::parse("INIT Init\nNEXT Next\nVIEW V\n")
+            .into_config()
+            .expect("config");
+        for tlc in [false, true] {
+            let options = if tlc {
+                CheckOptions::tlc(0, 0)
+            } else {
+                CheckOptions::dive(0)
+            };
+            for workers in [1, 2, 3, 8] {
+                let opts = dive_core::Opts {
+                    fold: false,
+                    ..dive_core::Opts::default()
+                };
+                let prepared =
+                    crate::core_engine::prepare(&ir(&body), &cfg, &options, tlc, opts, false)
+                        .unwrap_or_else(|r| panic!("core refused: {:?}", r.verdict));
+                let variable = prepared.plan.vars.iter().position(|v| v == "x").expect("x");
+                let mut graph = Graph::new(&prepared.model, capture::Limits::default(), None);
+                let out = dive_explore::explore_with(
+                    &prepared.plan,
+                    &prepared.store,
+                    config(opts, workers),
+                    &|| false,
+                    Some(&mut graph),
+                );
+                assert_eq!(out.verdict, dive_explore::Verdict::Success);
+                let (builder, _) = graph.finish();
+                let graph = builder.graph();
+                let tuple = dive_value::Value::tuple(vec![
+                    dive_value::Value::Int(0),
+                    dive_value::Value::Int(0),
+                ]);
+                let rhs = if nested {
+                    dive_value::Value::tuple(vec![tuple])
+                } else {
+                    tuple
+                };
+                for (source, row) in graph.concrete.iter().enumerate() {
+                    let original = graph.states[source][variable].as_ref().expect("new state");
+                    assert!(
+                        !dive_value::tlc::equals(original, &rhs, options.eval.ctx)
+                            .expect("general function differs")
+                    );
+                    assert_eq!(row.len(), 2);
+                    assert!(
+                        !dive_value::tlc::equals(
+                            row[0].state[variable].as_ref().expect("seen general"),
+                            &rhs,
+                            options.eval.ctx
+                        )
+                        .expect("seen general function differs")
+                    );
+                    assert!(
+                        dive_value::tlc::equals(
+                            row[1].state[variable].as_ref().expect("seen literal"),
+                            &rhs,
+                            options.eval.ctx
+                        )
+                        .is_err(),
+                        "nested={nested} tlc={tlc} w={workers}: literal record must remain incomparable"
                     );
                 }
             }

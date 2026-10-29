@@ -94,7 +94,13 @@ impl<'a> Graph<'a> {
             let v = if let Some(v) = self.memo.get(&h) {
                 v.clone()
             } else {
-                let v = crate::core_engine::to_value(heap, self.model, h, self.ctx)?;
+                let v = dive_core::print::to_value(
+                    heap,
+                    &self.model.names,
+                    h,
+                    self.ctx,
+                    dive_core::print::Conversion::Graph,
+                )?;
                 self.metrics.converted += 1;
                 if !scalar
                     && self.memo.len()

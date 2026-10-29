@@ -70,7 +70,9 @@ core currently covers:
   including seen successors, with their action and ordinal. Parallel capture
   buffers at most eight source states and applies the existing per-source
   successor bound before retaining an overflow target; graph limits and
-  supported temporal combinations remain unchanged;
+  supported temporal combinations remain unchanged. Temporal expressions retain
+  the original distinction between general functions and tuple/record literals,
+  including nested values, independently of report formatting;
 - verdicts, TLC's distinct and generated counts and depth, counterexample
   traces in the reference engine's format, TLC's evaluation-error endings
   where the core can reproduce them, and the run budgets (`--time-limit`,
