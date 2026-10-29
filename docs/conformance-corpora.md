@@ -706,3 +706,22 @@ reference candidate `82b03ca0`, with the separate executable identity retained
 externally. No reference runtime change is composed into this compiler lane.
 These selected controls do not promote historical census/baseline totals or
 establish general INSTANCE completion.
+
+## Reference INSTANCE and native arithmetic
+
+`reference-instance-naturals` pins the exact #515 reproduction: `In6` declares
+`v` and `Double == 2 * v`; the root substitutes `v <- x` and checks the result
+against `2 * x`. Official generation with a recorded reason gives TLC success,
+2193 / exit 0, 1 distinct / 2 generated / depth 1. Select it with
+`--corpus reference-instance-naturals --tier all --no-sany`.
+
+`instance_naturals.rs` consumes that golden and 18 additional compact official
+oracle controls in `crates/dive-api/tests/fixtures/instance-naturals/`.
+Both profiles and 1/4/8 workers exercise actual arithmetic dependencies,
+configured targets, nested scopes, constants, stored startup output, unused
+actuals and named invariant-error causes. The original remains strict on
+reference/core/auto; the nested-scope control exposes separate core/auto
+disagreement #634 and earns reference agreement only. The assumption control
+checks error priority while #504 separately tracks name metadata. No historical
+baseline, whole-corpus population or milestone total is increased by these
+bounded controls.

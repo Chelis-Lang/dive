@@ -76,6 +76,10 @@ pub(crate) struct Core {
     /// (TLC precomputes them at start-up; only successes are kept, so a
     /// failing definition stays lazy, as in `SpecProcessor.processConstantDefns`).
     pub(crate) def_cache: Vec<OnceLock<Value>>,
+    /// Additional state-independence proof for opportunistic constant caching.
+    /// SANY levels can ignore native arguments (`Naturals` defines `a*b` as
+    /// `TRUE`); explicit binding-stage startup values do not use this guard.
+    pub(crate) constant_cache_safe: Vec<OnceLock<bool>>,
     /// Whether the configuration's `<-` bindings keep constant definitions
     /// constant: every definition a constant or definition is bound to is
     /// constant-level and pure. Then a definition that reads a constant
@@ -164,6 +168,7 @@ impl Core {
             });
         }
         let def_cache = (0..ir.defs().len()).map(|_| OnceLock::new()).collect();
+        let constant_cache_safe = (0..ir.defs().len()).map(|_| OnceLock::new()).collect();
         let constant_pure = |d: &DefId| {
             let def = ir.def(*d);
             def.level == dive_ir::Level::Constant
@@ -193,6 +198,7 @@ impl Core {
             frame_owners,
             frame_required,
             def_cache,
+            constant_cache_safe,
             open_ok,
             warned: Mutex::default(),
             startup,

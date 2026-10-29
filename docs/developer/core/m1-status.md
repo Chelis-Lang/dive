@@ -435,8 +435,15 @@ compound, lazy and effectful sequence replace forms and overlapping All occurren
 the two printing refusals. L5 requires state storage as well as packed topology
 (`11-liveness.md`); `kSubset` needs a symbolic value and startup/validator support
 (`03-value-model.md`). Neither is a one-function completion.
-Carry-forward defects #504 (failed ASSUME name) and #515 (reference instantiated
-Naturals error) remain open. Recheck #527 at `91742b3c` confirms the core already
+Carry-forward defect #504 (failed ASSUME name) remains separate. The #515
+reference instantiated-Naturals error is corrected by a bounded state-dependency
+guard on opportunistic constant caching; explicit startup precomputation stays
+unchanged. Its original pinned reproduction agrees on reference/core/auto in
+both profiles at 1/4/8 workers. Eighteen additional consumed controls preserve
+scope, demand, output and error order, but nested-scope core/auto disagreement
+#634 remains a phase finding: its one-state violation word is independently
+invalid with the repaired reference. This does not retire general INSTANCE or
+whole-population obligations. Recheck #527 at `91742b3c` confirms the core already
 handles empty-function length: MCFindHighest agrees with its existing pinned
 golden on the core in both profiles at 1/4 workers (742 distinct, 1,523 generated,
 depth 5). PR #533 had canonicalized empty function keys; no new runtime fix is

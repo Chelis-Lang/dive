@@ -1,0 +1,321 @@
+{
+  "schema": 1,
+  "generation": "Official dive-conformance golden generate, external Examples-layout instance-naturals-controls corpus; workers1/seed0/fp0/-lncheck final, --tier all --no-sany --jobs2 --timeout20 --xmx1g",
+  "harness_source": "91742b3c9cb4b7021785975f888d5cf9dd43625c",
+  "harness_sha256": "3604013c96cecbb39fcfc4b231c07e99b427f8306740951fffc111bbd5419b98",
+  "sources": {
+    "AssumePriority.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "AssumePriority.tla": "287bd9e95df98dc7df18f0e330fbead9e984fd68827ed9a9279afe7a64ad3348",
+    "ConfiguredRedirect.cfg": "d3b1cf44dd5dc04d1b66ec9605dd00eafe959fd8d2be66b3e9f8cda40cfe2929",
+    "ConfiguredRedirect.tla": "98ffc61a75be70c698fa7e814f598f362a1df5df791a9ed15e73aabe99c1aa29",
+    "ConfiguredState.cfg": "d3d1d1df13a04d81fc50b71cf8cde8f02572d05aaa61772f35bc18510b379fb9",
+    "ConfiguredState.tla": "3aaa98d58545dbd1b0543c22c90db9be802828763d18f85b56e98214b46b8403",
+    "ConstantInstance.cfg": "69cf30d1fca7518e1c7f29a76f00d4c070fec7861d2b0ee776d489a76b439754",
+    "ConstantInstance.tla": "d98ca42c592e814a12ec48f442cb36a59b133a6ba9d015efc1f6b2356044ee37",
+    "DirectState.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "DirectState.tla": "6a239bf5da51c1080b8f236ecb84251620af426c77a26ab53054948b1a3ede18",
+    "LazyUnusedActual.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "LazyUnusedActual.tla": "a58a7828476be4f5f589302f7750bfc0435dc5586521b1ed2076071f34ea976d",
+    "LazyUnusedEffect.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "LazyUnusedEffect.tla": "e9f17efc59eca1b1606218f81f83f045b87c8fbbac891ceec8c4d739e745dcc8",
+    "LeftErrorFirst.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "LeftErrorFirst.tla": "5ddccbf788119e2a93bafbd3e8fac063807aff329dfb4805a96d63a29ca90489",
+    "MulError.tla": "7a02553e02185e2086f632bfc56475aac95b1079d0e811c60bb0a5ee47bce26c",
+    "MulInner.tla": "dc2c83e54b7a48644653330f0cd53f563792cf4a0d22c49fdd5c4120bf077aa5",
+    "MulMiddle.tla": "df5df8bedf575c9a011c8d9d5b8edc5597ef63e627b6fab0e904cdcdb1ced30f",
+    "NestedScopes.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "NestedScopes.tla": "9260a435496696080601aa2e20a40a0ce01ca201baae98e14eb5d2ddd6163a83",
+    "RightErrorFirst.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "RightErrorFirst.tla": "70d0b23db066c4a7b37a195b7ef2855b6d3af3768a1a331561a7435f432f872e",
+    "StartupStored.cfg": "1c1089bd3ad2c3e75e651b0b24268e0bac8b0a246e07d59af9170e9586481e83",
+    "StartupStored.tla": "6fe5a6318d0e2890b1674739defd33c124763a811ebc99fedff0fda3214aa5d1",
+    "StartupStoredRedirect.cfg": "d3bb1d5ddce2c606c7886de527b4f43919d96413ffcff6db15acad6ab5dbfe1f",
+    "SubstEffect.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "SubstEffect.tla": "74cfa943eb4b8d56759e68970b9ab6624bd31f0a1eb374bedbec1d688a0f430d",
+    "SubstLeft.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "SubstLeft.tla": "ece39fc04a2fe6980e26056d95332f675a560452bc1f9dd081a00a3fffc2604d",
+    "SubstNestedArg.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "SubstNestedArg.tla": "12a18f154355579ece020da68fa2ba71bdb542c1e8eda1218dd1a0bb17d06530",
+    "SubstPair.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "SubstPair.tla": "aa24355298559057b3ef709d1810adb3f50974a39c6c5bc2391ed5ea5cdc97af",
+    "SubstPlus.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "SubstPlus.tla": "eb4fe818c310d00091963bda9f47625792e5b3096930988b02c55d702fb7aecd",
+    "SubstRight.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "SubstRight.tla": "8440cafd6b37832efa8a4d56c017f63c3e6118b7bc5301497b667f497c158cbd"
+  },
+  "cases": {
+    "AssumePriority": {
+      "module": "AssumePriority.tla",
+      "verdict": "assumption-failure",
+      "property": "line 7, col 8 to line 7, col 12 of module AssumePriority",
+      "code": 2104,
+      "error_class": "TLC_ASSUMPTION_FALSE",
+      "exit": 10,
+      "distinct": null,
+      "generated": null,
+      "depth": null,
+      "output": [],
+      "qualification": "Assumption priority/class/exit only; missing native assumption name is independently tracked by issue504."
+    },
+    "ConfiguredRedirect": {
+      "module": "ConfiguredRedirect.tla",
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 3,
+      "generated": 4,
+      "depth": 3,
+      "output": []
+    },
+    "ConfiguredState": {
+      "module": "ConfiguredState.tla",
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 3,
+      "generated": 4,
+      "depth": 3,
+      "output": []
+    },
+    "ConstantInstance": {
+      "module": "ConstantInstance.tla",
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 3,
+      "generated": 4,
+      "depth": 3,
+      "output": []
+    },
+    "DirectState": {
+      "module": "DirectState.tla",
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 3,
+      "generated": 4,
+      "depth": 3,
+      "output": []
+    },
+    "LazyUnusedActual": {
+      "module": "LazyUnusedActual.tla",
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 3,
+      "generated": 4,
+      "depth": 3,
+      "output": []
+    },
+    "LazyUnusedEffect": {
+      "module": "LazyUnusedEffect.tla",
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 3,
+      "generated": 4,
+      "depth": 3,
+      "output": []
+    },
+    "LeftErrorFirst": {
+      "module": "LeftErrorFirst.tla",
+      "verdict": "evaluation-error",
+      "property": null,
+      "code": 2111,
+      "error_class": "TLC_INVARIANT_EVALUATION_FAILED",
+      "exit": 76,
+      "distinct": 2,
+      "generated": 2,
+      "depth": 2,
+      "output": [],
+      "underlying_code": 2132,
+      "underlying_class": "TLC_VALUE_ASSERT_FAILED"
+    },
+    "NestedScopes": {
+      "module": "NestedScopes.tla",
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 3,
+      "generated": 4,
+      "depth": 3,
+      "output": []
+    },
+    "RightErrorFirst": {
+      "module": "RightErrorFirst.tla",
+      "verdict": "evaluation-error",
+      "property": null,
+      "code": 2111,
+      "error_class": "TLC_INVARIANT_EVALUATION_FAILED",
+      "exit": 76,
+      "distinct": 2,
+      "generated": 2,
+      "depth": 2,
+      "output": [],
+      "underlying_code": 2179,
+      "underlying_class": "TLC_MODULE_DIVISION_BY_ZERO"
+    },
+    "StartupStored": {
+      "module": "StartupStored.tla",
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 3,
+      "generated": 4,
+      "depth": 3,
+      "output": [
+        "42  6"
+      ]
+    },
+    "StartupStoredRedirect": {
+      "module": "StartupStored.tla",
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 3,
+      "generated": 4,
+      "depth": 3,
+      "output": [
+        "42  6",
+        "42  6",
+        "42  6"
+      ]
+    },
+    "SubstEffect": {
+      "module": "SubstEffect.tla",
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 3,
+      "generated": 4,
+      "depth": 3,
+      "output": [
+        "0  0",
+        "1  1",
+        "2  2"
+      ]
+    },
+    "SubstLeft": {
+      "module": "SubstLeft.tla",
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 3,
+      "generated": 4,
+      "depth": 3,
+      "output": []
+    },
+    "SubstNestedArg": {
+      "module": "SubstNestedArg.tla",
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 3,
+      "generated": 4,
+      "depth": 3,
+      "output": []
+    },
+    "SubstPair": {
+      "module": "SubstPair.tla",
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 3,
+      "generated": 4,
+      "depth": 3,
+      "output": []
+    },
+    "SubstPlus": {
+      "module": "SubstPlus.tla",
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 3,
+      "generated": 4,
+      "depth": 3,
+      "output": []
+    },
+    "SubstRight": {
+      "module": "SubstRight.tla",
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 3,
+      "generated": 4,
+      "depth": 3,
+      "output": []
+    }
+  },
+  "oracle": {
+    "id": "tlc-2026.10.06.014338",
+    "sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+    "classpath": [
+      {
+        "id": "community-modules-202610040242",
+        "pin": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+      },
+      {
+        "id": "community-modules-deps-202610040242",
+        "pin": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d"
+      }
+    ],
+    "module_libraries": [
+      {
+        "id": "apalache-modules-v0.62.3",
+        "pin": "3eb15b253482005222fabbf50bb7aae501eb9f8d"
+      },
+      {
+        "id": "tlapm-library-d8b9747",
+        "pin": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37"
+      }
+    ],
+    "capabilities": {
+      "dump_trace_json": true,
+      "no_generate_spec_te": true,
+      "sany_error_codes": true,
+      "names_temporal_properties": true,
+      "git_revision": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+      "implementation_version": "2.0 2026-10-06"
+    },
+    "java": {
+      "source": "pinned",
+      "version": "17.0.20.1+1",
+      "sha256": "0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62",
+      "platform": "linux-x86_64",
+      "version_line": "openjdk version \"17.0.20.1\" 2026-08-18"
+    }
+  },
+  "staged_corpus_commit": "sha256:b17e3740b5f7cd78303c8353f9f9c9fae771ac3df39479ef5d710b747d692d2c",
+  "reason": "Pin issue 515 native-argument and configured zero-arity cache guard mutation controls with preserved startup effects"
+}

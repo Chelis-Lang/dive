@@ -371,3 +371,38 @@ Q == \A v \in Domain : v
         }
     }
 }
+
+#[test]
+fn bound_constructor_slots_do_not_hide_native_state_dependencies() {
+    const STATE: &str = r"---- MODULE Redirects ----
+EXTENDS Naturals
+VARIABLE x
+Double(s) == 2 * s
+Direct == {f \in [{1} -> BOOLEAN] : f[1] = (2 * x = 2)}
+Through == {f \in [{1} -> BOOLEAN] : f[1] = (Double(x) = 2)}
+DomainState == {f \in [{2 * x} -> BOOLEAN] : TRUE}
+====";
+    for opts in [Options::tlc(), Options::dive()] {
+        for name in ["Direct", "Through", "DomainState"] {
+            let ev = Evaluator::new(model(STATE), opts).expect("valid evaluator");
+            let d = ev.ir().root_def(name).expect("domain");
+            assert_eq!(ev.ir().def(d).level, dive_ir::Level::Constant);
+            let state = |x| St::state(Arc::from([Some(Value::Int(x))]));
+            let before = ev.eval_def(d, &state(1)).expect("first state");
+            let first = before.as_set().expect("set");
+            let retained = first.elements(opts.ctx).expect("first elements");
+            let after = ev.eval_def(d, &state(2)).expect("second state");
+            let second = after
+                .as_set()
+                .expect("set")
+                .elements(opts.ctx)
+                .expect("second elements");
+            assert_ne!(retained, second, "{name}: native state input retained");
+            assert_eq!(
+                retained,
+                first.elements(opts.ctx).expect("original captured state"),
+                "{name}: later evaluation cannot overwrite earlier history"
+            );
+        }
+    }
+}

@@ -238,3 +238,10 @@ id = "core-instance-scopes"
 path = "conformance/corpus/core-instance-scopes"
 license = "MIT"
 layout = "examples-manifest"
+
+# Minimal reference INSTANCE/Naturals state-substitution regression (#515).
+[[corpus]]
+id = "reference-instance-naturals"
+path = "conformance/corpus/reference-instance-naturals"
+license = "MIT"
+layout = "examples-manifest"

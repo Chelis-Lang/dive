@@ -27,6 +27,13 @@ timing, thread or queue order, tableau numbering or SCC and lasso choice.
 
 ## Corpus scoreboard
 
+The #515 reference cache correction is checked by the explicit
+`reference-instance-naturals` corpus and 18 consumed scope/startup controls.
+The original reproduction remains strict for reference/core/auto; nested
+instances retain separate core/auto disagreement #634, and assumption-name
+metadata remains #504's obligation. These selected controls add no agreement
+credit to the historical populations below.
+
 The core's bounded instance-query extension (#609) is checked separately by
 `core_enabled_instance`: 210 supported source/profile/worker/cache cells,
 124 explicit refusal cells and 28 frontend level-rejection cells. It admits
