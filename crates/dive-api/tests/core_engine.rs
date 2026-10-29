@@ -54,6 +54,38 @@ fn core_matches_reference_counts_and_verdicts() {
     }
 }
 
+#[test]
+fn store_memory_metrics_report_components_and_their_coverage_gap() {
+    let core = run("Mix", Engine::Core);
+    let memory = &core["core"]["metrics"]["store"]["memory"];
+    let mut known = 0;
+    for field in [
+        "fixed_bytes",
+        "slab_bytes",
+        "boxed_payload_bytes",
+        "current_table_bytes",
+        "retired_table_bytes",
+        "retirement_tracking_bytes",
+    ] {
+        known += memory[field].as_u64().expect("measured component");
+    }
+    for field in [
+        "unique_payload_bytes",
+        "text_slots_bytes",
+        "index_entries_bytes_lower_bound",
+    ] {
+        known += memory["strings"][field].as_u64().expect("string component");
+    }
+    assert_eq!(memory["known_retained_bytes_lower_bound"], known);
+    assert_eq!(memory["accounting_complete"], false);
+    assert!(memory["fixed_bytes"].as_u64() > Some(0));
+    assert!(memory["slab_bytes"].as_u64() > Some(0));
+    let scope = memory["scope"].as_str().expect("scope");
+    assert!(scope.contains("lower bound, not RSS or peak"));
+    assert!(scope.contains("opaque string-index bucket"));
+    assert_eq!(counts(&core), counts(&run("Mix", Engine::Reference)));
+}
+
 /// A false or failing ASSUME ends a core run with the reference engine's
 /// verdict (`04-plan-compiler.md` §2).
 #[test]

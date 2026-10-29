@@ -22,11 +22,14 @@
 //! the engine reports as a bug, never as a verdict.
 
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
-use std::sync::{Arc, Mutex, OnceLock, PoisonError};
+use std::sync::{Arc, Mutex, OnceLock, PoisonError, Weak};
 
 use crate::handle::{CLASSES, Handle, LAZY_CLASS, MAX_CLASS_INDEX};
 use crate::node::{Kind, View};
 use crate::strings::{StringOrder, Strings};
+
+mod memory;
+pub use memory::StoreMemory;
 
 const SHARDS: usize = 256;
 /// Chunks per column: chunk `k` holds `2^(base + k)` slots, which covers
@@ -196,6 +199,14 @@ impl<T: Slot> Column<T> {
         self.chunks.get(c)?.get()?.get(off)?.get()
     }
 
+    fn allocated_bytes(&self) -> usize {
+        self.chunks
+            .iter()
+            .filter_map(OnceLock::get)
+            .map(|chunk| std::mem::size_of_val(chunk.as_ref()))
+            .sum()
+    }
+
     /// Writes slot `index`. Called under the shard's lock, in index order.
     fn put(&self, index: u64, node: T) -> bool {
         let (c, off) = locate(index, BASE);
@@ -319,11 +330,21 @@ struct Index {
     hits: u64,
     misses: u64,
     handles: u64,
+    boxed_payload_bytes: usize,
+    retired: Vec<RetiredTable>,
+    rehash_scratch_bytes: usize,
+    largest_rehash_scratch_bytes: usize,
 }
 
 /// A shard's deduplication table. Entries are written once, under the
 /// shard's lock, after the node they name; readers load them without it.
 type Table = Arc<[AtomicU64]>;
+
+/// Weak records do not keep old table payload alive. They let accounting see
+/// tables held by `InternCache` readers after the index replaces its own Arc.
+struct RetiredTable {
+    table: Weak<[AtomicU64]>,
+}
 
 fn empty_table(cap: usize) -> Table {
     (0..cap).map(|_| AtomicU64::new(0)).collect()
@@ -340,6 +361,10 @@ impl Default for Index {
             hits: 0,
             misses: 0,
             handles: 0,
+            boxed_payload_bytes: 0,
+            retired: Vec::new(),
+            rehash_scratch_bytes: 0,
+            largest_rehash_scratch_bytes: 0,
         }
     }
 }
@@ -364,7 +389,37 @@ impl Index {
             }
             t
         };
+        let scratch = t.capacity() * std::mem::size_of::<u64>();
+        self.rehash_scratch_bytes += scratch;
+        self.largest_rehash_scratch_bytes = self.largest_rehash_scratch_bytes.max(scratch);
+        if !self.table.is_empty() && Arc::strong_count(&self.table) > 1 {
+            self.retired.push(RetiredTable {
+                table: Arc::downgrade(&self.table),
+            });
+        }
         self.table = t.into_iter().map(AtomicU64::new).collect();
+    }
+
+    fn memory_usage(&mut self, out: &mut StoreMemory) {
+        out.boxed_payload_bytes += self.boxed_payload_bytes;
+        out.current_table_bytes += std::mem::size_of_val(self.table.as_ref());
+        // Upgrading pins the payload while it is measured; a second reader does
+        // not multiply its allocation. Dead records release their Weak metadata.
+        self.retired.retain(|retired| {
+            if let Some(table) = retired.table.upgrade() {
+                out.retired_table_bytes += std::mem::size_of_val(table.as_ref());
+                out.retired_tables += 1;
+                true
+            } else {
+                false
+            }
+        });
+        out.retirement_tracking_bytes +=
+            self.retired.capacity() * std::mem::size_of::<RetiredTable>();
+        out.rehash_scratch_bytes += self.rehash_scratch_bytes;
+        out.largest_rehash_scratch_bytes = out
+            .largest_rehash_scratch_bytes
+            .max(self.largest_rehash_scratch_bytes);
     }
 }
 
@@ -745,6 +800,7 @@ impl Store {
         index.lens[usize::from(class)] += 1;
         index.misses += 1;
         index.handles += data.len() as u64;
+        index.boxed_payload_bytes += usize::from(class >= 2) * std::mem::size_of_val(data);
         if let Some(p) = slot {
             #[allow(
                 clippy::cast_possible_truncation,
@@ -790,6 +846,46 @@ impl Store {
         }
         st
     }
+
+    /// Measures known requested retained bytes and capacities, including tables
+    /// still held by readers after index growth. Dead retirement records are
+    /// collected before reporting; their vector's spare capacity still counts.
+    ///
+    /// This read takes shard locks, without changing interning identities or
+    /// hit/miss counters. It is intended for phase boundaries, not the hot path.
+    /// See [`StoreMemory`] for opaque allocations and snapshot limitations.
+    ///
+    /// ```
+    /// let store = dive_core::Store::default();
+    /// let memory = store.memory_usage();
+    /// assert!(memory.fixed_bytes > 0);
+    /// assert_eq!(memory.slab_bytes, 0);
+    /// assert!(memory.known_retained_bytes().is_some());
+    /// ```
+    #[must_use]
+    pub fn memory_usage(&self) -> StoreMemory {
+        let mut out = StoreMemory {
+            fixed_bytes: std::mem::size_of::<Self>()
+                + std::mem::size_of_val(self.cols.as_ref())
+                + std::mem::size_of_val(self.shards.as_ref())
+                + std::mem::size_of_val(self.generations.as_ref())
+                + std::mem::size_of_val(self.hits.as_ref()),
+            strings: self.strings.memory_usage(),
+            has_printer: self.printer.get().is_some(),
+            has_draws: self.draws.get().is_some(),
+            has_registers: self.registers.get().is_some(),
+            ..StoreMemory::default()
+        };
+        for (cols, shard) in self.cols.iter().zip(&self.shards) {
+            let mut index = shard.index.lock().unwrap_or_else(PoisonError::into_inner);
+            out.slab_bytes += cols.c4.allocated_bytes()
+                + cols.c8.allocated_bytes()
+                + cols.boxed.allocated_bytes()
+                + cols.lazy.allocated_bytes();
+            index.memory_usage(&mut out);
+        }
+        out
+    }
 }
 
 #[cfg(test)]
@@ -818,6 +914,139 @@ mod tests {
 
     fn int(v: i64) -> Handle {
         Handle::int(v).unwrap_or(Handle::EMPTY)
+    }
+
+    #[test]
+    fn memory_counts_allocated_slabs_and_actual_boxed_payload() {
+        let store = Store::new(false);
+        let mut cache = InternCache::default();
+        let empty = store.memory_usage();
+        assert!(empty.fixed_bytes > 0);
+        assert_eq!(empty.slab_bytes, 0);
+        for i in 0..17 {
+            let _ = store.intern(&mut cache, Kind::Set, 0, 0, 0, 0, &[int(i)]);
+        }
+        let inline = store.memory_usage();
+        // Seventeen occupied slots retain both whole chunks: 16 + 32 slots.
+        assert_eq!(
+            inline.slab_bytes,
+            48 * std::mem::size_of::<OnceLock<Inline<4>>>()
+        );
+        assert_eq!(inline.boxed_payload_bytes, 0);
+        let five = [int(0); 5];
+        let nine = [int(0); 9];
+        let two = [int(0); 2];
+        let _ = store.intern(&mut cache, Kind::Set, 0, 0, 0, 0, &five);
+        let _ = store.intern(&mut cache, Kind::Set, 0, 0, 0, 0, &nine);
+        let _ = store.intern(
+            &mut cache,
+            Kind::Fcn,
+            crate::node::flags::RECORD,
+            0,
+            0,
+            0,
+            &two,
+        );
+        let all = store.memory_usage();
+        assert_eq!(all.fixed_bytes, empty.fixed_bytes);
+        assert_eq!(
+            all.slab_bytes,
+            inline.slab_bytes
+                + 16 * std::mem::size_of::<OnceLock<Inline<8>>>()
+                + 32 * std::mem::size_of::<OnceLock<Boxed>>()
+        );
+        assert_eq!(all.boxed_payload_bytes, 11 * std::mem::size_of::<Handle>());
+        assert_eq!(
+            all.current_table_bytes, 0,
+            "hashcons-off has no index tables"
+        );
+        assert_eq!(all.retired_tables, 0);
+        assert_eq!(all.rehash_scratch_bytes, 0);
+        assert!(all.known_retained_bytes() > inline.known_retained_bytes());
+    }
+
+    #[test]
+    fn memory_counts_shared_retired_tables_until_the_last_reader_drops() {
+        let store = Store::default();
+        let hash = 0xabcd_0000_0000_1234;
+        let mut first = InternCache::default();
+        let mut second = InternCache::default();
+        let mut writer = InternCache::default();
+        let initial = store.intern(&mut first, Kind::Set, 0, 0, hash, 0, &[int(0)]);
+        assert_eq!(
+            store.intern(&mut first, Kind::Set, 0, 0, hash, 0, &[int(0)]),
+            initial
+        );
+        assert_eq!(
+            store.intern(&mut second, Kind::Set, 0, 0, hash, 0, &[int(0)]),
+            initial
+        );
+        for i in 1..49 {
+            let _ = store.intern(&mut writer, Kind::Set, 0, 0, hash, 0, &[int(i)]);
+        }
+        let memory = store.memory_usage();
+        assert_eq!(memory.current_table_bytes, 128 * std::mem::size_of::<u64>());
+        assert_eq!(memory.retired_table_bytes, 64 * std::mem::size_of::<u64>());
+        assert_eq!(
+            memory.retired_tables, 1,
+            "three readers share one allocation"
+        );
+        assert!(memory.retirement_tracking_bytes >= std::mem::size_of::<RetiredTable>());
+        assert_eq!(
+            memory.rehash_scratch_bytes,
+            192 * std::mem::size_of::<u64>()
+        );
+        assert_eq!(
+            memory.largest_rehash_scratch_bytes,
+            memory.current_table_bytes
+        );
+        // Measuring is observational: counters and identities do not change.
+        let stats = store.stats();
+        assert_eq!(store.memory_usage(), memory);
+        assert_eq!(store.stats(), stats);
+        drop(writer);
+        drop(first);
+        assert_eq!(
+            store.memory_usage().retired_table_bytes,
+            memory.retired_table_bytes
+        );
+        drop(second);
+        let released = store.memory_usage();
+        assert_eq!(released.retired_table_bytes, 0);
+        assert_eq!(released.retired_tables, 0);
+        assert_eq!(released.current_table_bytes, memory.current_table_bytes);
+        assert_eq!(
+            released.retirement_tracking_bytes,
+            memory.retirement_tracking_bytes
+        );
+        let shard = &store.shards[0xab];
+        assert!(
+            shard
+                .index
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .retired
+                .is_empty(),
+            "dead Weak records are removed, without hiding spare Vec capacity"
+        );
+    }
+
+    #[test]
+    fn memory_does_not_charge_hashcons_hits_as_new_payload() {
+        let store = Store::default();
+        let mut cache = InternCache::default();
+        let data = [int(1); 12];
+        let original = store.intern(&mut cache, Kind::Set, 0, 0, 19, 0, &data);
+        let before = store.memory_usage();
+        for _ in 0..20 {
+            assert_eq!(
+                store.intern(&mut cache, Kind::Set, 0, 0, 19, 0, &data),
+                original
+            );
+        }
+        assert_eq!(store.memory_usage(), before);
+        assert_eq!(before.boxed_payload_bytes, std::mem::size_of_val(&data));
+        assert_eq!(store.stats().nodes, 1);
     }
 
     #[test]
@@ -903,6 +1132,13 @@ mod tests {
         let st = store.stats();
         assert_eq!(st.nodes, 20_011);
         assert_eq!(st.hits + st.misses, 8 * 20_011);
+        let memory = store.memory_usage();
+        assert!(memory.current_table_bytes > 0);
+        assert_eq!(
+            memory.retired_tables, 0,
+            "all worker caches have been dropped"
+        );
+        assert_eq!(memory.retired_table_bytes, 0);
         assert!(!store.poisoned());
     }
 
