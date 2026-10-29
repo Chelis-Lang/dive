@@ -145,16 +145,23 @@ and the validation-smoke corpus at 1, 4 and 8 workers, then the small corpus
 tier in both profiles through the harness, failing on any regression against
 `conformance/baselines/` (`--skip-corpus` leaves that out; see
 `docs/developer/ci.md`). It writes
-`target/gate-report.md`. Run it before opening any PR that touches
-`dive-eval`, `dive-check`, `dive-value`, `dive-store`, `dive-liveness`,
-`dive-model` or `dive-trace`, and paste the report into the PR body. On a
+`target/gate-report.md`. Run it on the integrated milestone candidate and before release qualification;
+record the exact source and paste the report into the milestone or release PR.
+Do not launch it for every edit or incremental checker PR. On a
 shared machine, set `CARGO_BUILD_JOBS` and `NEXTEST_TEST_THREADS`.
+
+**Development loop** (owner correction, 2026-10-29): use focused tests and checks
+with feedback in seconds to a few minutes, then integrate small working changes
+through required CI. Broad qualification and major performance campaigns belong
+at integrated milestone and release-candidate boundaries. Reuse passing evidence
+within its actual source/scope; do not relabel it as a newer source or replace
+implementation progress with additional prerequisite splits.
 
 **Testing tiers** (charter §Engineering practice):
 - *Fast:* CI's `Workspace gate` and `Conformance gate`, on every PR and push to
   `main` (`cargo xtask gate --fast` locally).
-- *Standard:* `cargo xtask gate --full`, run locally before checker PRs as
-  above. Every gate model must fully agree. `.github/workflows/conformance.yml`
+- *Standard:* `cargo xtask gate --full`, on the integrated milestone candidate
+  and before releases. Every gate model must fully agree. `.github/workflows/conformance.yml`
   runs the same small tier, plus the TLC self-checks, on manual dispatch.
 - *Deep:* `conformance.yml` with `tier=deep`, on manual dispatch and before
   releases. Its separate frontend job runs deterministic syntax/layout/semantic

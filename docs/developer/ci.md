@@ -106,9 +106,11 @@ tier's outcome counts per profile. The corpus tier runs the 156-model small
 selection (examples, probes, validation-smoke, configured-temporal-operators)
 at one worker in the `tlc` profile (models and modules) and the default `dive`
 profile (models), each with `run --baseline` against its committed baseline
-(see [Corpus baselines](#corpus-baselines)). A regression fails the step. Paste it into the PR body. It is required before PRs
-that touch `dive-eval`, `dive-check`, `dive-value`, `dive-store`,
-`dive-liveness`, `dive-model` or `dive-trace`. It needs `cargo-nextest`, and
+(see [Corpus baselines](#corpus-baselines)). A regression fails the step. Run it
+on integrated milestone and release candidates, recording the exact source in
+the milestone/release PR. Per the owner correction of 2026-10-29, routine edits
+use focused checks with seconds-to-minutes feedback, and incremental PRs integrate
+through required fast CI. Do not launch broad qualification for every candidate. It needs `cargo-nextest`, and
 `cargo-deny` when the dependency policy inputs change. On a shared machine,
 set `CARGO_BUILD_JOBS` and `NEXTEST_TEST_THREADS`.
 
