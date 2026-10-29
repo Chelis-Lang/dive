@@ -437,15 +437,19 @@ kept in `View::flags`, which identity ignores:
 | `UNNORM` | every `Kind::SetEnum` node: `Heap::set_enum`, elements in construction order with duplicates | `SetEnumValue` with `isNorm` false | C1 |
 | `RECORD` | a `Fcn` built by `Heap::record` (the evaluator's record literal) | `RecordValue` | C5 |
 | `TUPLE` | an `IntFcn` over `1..n` built by `Heap::tuple_literal` (the evaluator's tuple literal) | `TupleValue` | C2 |
+| `NESTED_VIEW` | a representation-preserving parent containing a child view | structural persistent class; no new literal class | ADR 0121 |
 
 Rules for the bits:
-- `hash`, `eq` and `cmp` ignore them, and `intern` and `intern_const` drop
-  them, so identities and constants never carry one.
+- `hash`, `eq` and `cmp` ignore them. `intern` drops them for canonical
+  identities. `intern_const` preserves available function literal classes
+  recursively for evaluation. A parent carrying `NESTED_VIEW` uses the existing
+  structural class, so unequal representation handles are not mistaken for
+  unequal values (ADR 0121). This supplies no set-normalization history proof.
 - `fcn_with` (`EXCEPT`) keeps `RECORD` and `TUPLE`, as TLC's `takeExcept`
   keeps the class.
-- `intern_view` keeps a top-level bit. The view node is hash-consed with
-  its flags, in the structural class, apart from the identities. Nested
-  bits are not kept.
+- `intern_view` keeps a top-level bit and recursively preserved function
+  metadata. View nodes are hash-consed with their flags in the structural class,
+  apart from canonical identities.
 - A `SetEnum` is a finite symbolic set: `norm`, `cursor`, `cardinality` and
   `intern` treat it as the set of its elements.
 - The evaluator refuses membership in a `SetEnum` (unsupported) until

@@ -81,15 +81,21 @@ pub mod flags {
     pub const UNNORM: u8 = 2;
     /// The function was built by a record literal (TLC's `RecordValue`),
     /// not by `:>`, `@@` or a constructor (`FcnRcdValue`)
-    /// (`02-semantic-contract.md` C5). Set only on a `Fcn` node.
+    /// (`02-semantic-contract.md` C5). Set only on a `Fcn` node. Canonical
+    /// identity interning drops it; its absence there is not provenance.
     pub const RECORD: u8 = 4;
     /// The function was built by a tuple literal (TLC's `TupleValue`), not
     /// as a function over `1..n` (`FcnRcdValue`) (`02-semantic-contract.md`
-    /// C2). Set only on an `IntFcn` node with `lo = 1`.
+    /// C2). Set only on an `IntFcn` node with `lo = 1`. An identity handle
+    /// without the bit is not proof of its original receiver class.
     pub const TUPLE: u8 = 8;
+    /// A representation-preserving parent contains a child view. It belongs
+    /// to the structural persistent class even when it is itself a general
+    /// function. This is not a literal-class or normalization-history proof.
+    pub const NESTED_VIEW: u8 = 16;
     /// The view bits: a node carrying one is a lazy view, so it is
     /// interned apart from identities (`03-value-model.md` §11.3).
-    pub const VIEW: u8 = UNNORM | RECORD | TUPLE;
+    pub const VIEW: u8 = UNNORM | RECORD | TUPLE | NESTED_VIEW;
 }
 
 impl Kind {

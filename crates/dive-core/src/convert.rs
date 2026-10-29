@@ -117,7 +117,11 @@ fn transient(heap: &mut Heap, v: &Value, ctx: Ctx) -> Result<Handle, Error> {
                     let h = transient(heap, e, ctx)?;
                     out.push(heap.norm(h)?);
                 }
-                Ok(heap.tuple(&out))
+                Ok(if f.is_tuple_literal() {
+                    heap.tuple_literal(&out)
+                } else {
+                    heap.tuple(&out)
+                })
             }
             FcnKind::Record | FcnKind::General => {
                 let mut pairs = Vec::with_capacity(f.len());
@@ -127,7 +131,14 @@ fn transient(heap: &mut Heap, v: &Value, ctx: Ctx) -> Result<Handle, Error> {
                     let x = transient(heap, x, ctx)?;
                     pairs.push((k, heap.norm(x)?));
                 }
-                Ok(heap.fcn_from_pairs(&mut pairs))
+                if f.is_record_literal() {
+                    pairs.sort_by(|a, b| heap.cmp(a.0, b.0));
+                    let keys: Vec<_> = pairs.iter().map(|(k, _)| *k).collect();
+                    let vals: Vec<_> = pairs.iter().map(|(_, v)| *v).collect();
+                    Ok(heap.record(&keys, &vals))
+                } else {
+                    Ok(heap.fcn_from_pairs(&mut pairs))
+                }
             }
         },
     }

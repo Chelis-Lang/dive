@@ -31,6 +31,10 @@ pub struct Step<'a> {
     pub key: u64,
     /// Its values (persistent handles) when it is new, with its new id.
     pub new: Option<(u64, &'a [Handle])>,
+    /// The actual accepted target, including already seen states. These
+    /// persistent handles retain the original closed representation (kind and
+    /// flags); equal keys do not permit replacing them with a representative.
+    pub original: &'a [Handle],
     /// The expanded source (`None` for an initial state).
     pub parent: Option<u64>,
     /// Its position among the states generated from the same source (or
@@ -43,6 +47,15 @@ pub struct Step<'a> {
 
 /// Receives the behavior graph of a run.
 pub trait GraphSink {
+    /// Maximum source states buffered by a parallel capture wave. This uses
+    /// the collector's existing source-wave bound, independently of workers.
+    fn max_expansion_units(&self) -> usize;
+
+    /// Maximum emitted successors of one source, before retaining values.
+    /// [`Self::emitted`] must refuse an ordinal at or above this bound, so
+    /// speculative admission is reported in the ordinary commit order.
+    fn max_successors_per_unit(&self) -> u64;
+
     /// The `generated`-th generated state, the `ordinal`-th of its source
     /// (`None` for an initial state), before its checks.
     ///
@@ -50,7 +63,9 @@ pub trait GraphSink {
     /// [`Stopped`] ends the search.
     fn emitted(&mut self, generated: u64, ordinal: Option<u64>) -> Result<(), Stopped>;
 
-    /// An accepted state inside the model. `heap` reads its values.
+    /// An accepted state inside the model. `heap` reads its values. A sink
+    /// retaining handles must also keep `heap.store()` alive; the borrowed
+    /// slices themselves last only for this call.
     ///
     /// # Errors
     /// [`Stopped`] ends the search.
