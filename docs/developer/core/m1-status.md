@@ -4,6 +4,13 @@ M1 is implemented across the main workstreams, but **acceptance remains open**.
 The default engine remains `reference`. Use `10-plan.md` for the milestone
 contract and this page for current evidence and the next bounded steps.
 
+The owner-approved next checkpoint is trusted core and temporal capacity
+(`10-plan.md` §1). ADR 0119 keeps default throughput targets but replaces
+compatibility's requirement to beat TLC everywhere with runtime/TLC ≤2 per
+model at 1/8 workers, investigated above 1.5. Semantic, independent-word and
+resource obligations are unchanged. Historical qualifications below remain
+attached to their original sources; no acceptance is granted retrospectively.
+
 ## 1. Current qualification
 
 - Frozen `75f0ac4f769323de7be53a439ff5445ef4975b68` completes all 300
@@ -408,8 +415,10 @@ this closeout does not retire them. The earlier checkpoint's approximately
 11-billion-instruction MCLamportMutex increase was not causally attributed;
 the new wall-time results do not retroactively explain that historical cost.
 
-M2 still requires full-tier core coverage, at most 5% fallback, a 2× TLC
-geometric mean at both worker counts and no slower benchmark. M3 retains the
+M2 still requires full-tier core coverage and at most 5% fallback. Default
+throughput targets remain a 2× TLC geometric mean at both worker counts and
+no slower benchmark; compatibility instead has ADR 0119's per-model runtime
+ceiling of 2× TLC, investigated above 1.5×. M3 retains the
 remaining execution modes, checkpoints and storage work. M4 default replacement
 requires its own decision. Historical 182/217 full-tier agreements predate the
 core reboot and do not establish current core breadth.
@@ -421,21 +430,24 @@ core reboot and do not establish current core breadth.
    final-expansion certification (#434), and missing partial-state words (#607).
    Use minimal pinned reproducers and independent negative controls. Do not
    exempt the last state or accept a matching wrapper as a certificate.
-2. Retain the completed source-`75f0ac4f` PRE-C2 campaign, original quiet=false
-   and separate host controls; its timings/full gate do not validate #621.
-   For exact comparison, first retain raw literal/map/union construction order,
-   duplicates, actual demand/history and alias lifetime, including pre-commit
-   successor values. Then consume exact scalar/tuple normalization and raw versus
-   normalized membership; widen classes and E7 provenance separately. Unknown
-   paths stay guarded/refused. The bounded witness memo is not the unbuilt
-   generic S5 membership index. #597 remains a measured target.
+2. Advance L5's original-target retention, graph-neutral completion, native
+   state source and CSR integration before lifting capacity limits. EWD998Chan
+   first needs the bounded primed-SelectSeq lane. Preserve current semantic
+   refusals for VIEW/symmetry quotient behavior and effects; memory work alone
+   does not implement them. Use original temporal configurations for capacity.
 3. Retain explicit fallback and ablation accounting; broaden to the full tier
    on the core for M2 instead of promoting the historical reference result.
    Preserve the reference default while supported words remain unproven.
-4. Resume the existing stdlib, INSTANCE-substitution and L5 workstream plans.
-   L5 first needs state-storage and graph-access boundaries, not merely packed
-   edges; kSubset first needs symbolic/startup/validator support. Keep each
-   deliverable in a small source-bound PR.
+4. Deliver #623's consumed closed scalar/tuple literal lane after preserving
+   covered construction order, duplicates, demand and alias history. Widen
+   map/union/import/state producers and E7 provenance separately. Resume bounded
+   stdlib and INSTANCE work from the measured refusal inventory; kSubset still
+   needs symbolic/startup/validator support. #621 already prevents the known
+   C2 false success, so the complete comparison port is not a prerequisite for
+   every sound default optimization. General S5 indexing remains unbuilt.
+5. Remeasure the final integrated source under ADR 0119. Retain source-75's
+   PRE-C2 campaign and original quiet=false unchanged; acceptable compatibility
+   deficits do not outrank correctness and capacity solely to exceed 1× TLC.
 
 The corrective discipline is concrete: no invented agreement credit, no weakened
 validator, no stale build identity, no source sharing between heavy jobs, no

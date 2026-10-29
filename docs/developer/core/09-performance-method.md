@@ -126,7 +126,7 @@ policy).
 |---|---|
 | M0 (spike models, 1 worker, default profile) | ≥1.5× TLC on MCLamportMutex and SimpleRegular; ≥2.5× TLC on CoffeeCan1000BeansSafety; RSS no higher than the current dive; the interning store scales ≥6× at 8 threads |
 | M1 | ≥1× TLC on 8 of 10 benchmarks at 1 worker |
-| M2 | ≥2× TLC geometric mean at 1 and 8 workers; ≥1× on every benchmark; ≥3.5× scaling (ADR 0006) |
+| M2 | Default: ≥2× TLC geometric mean at 1 and 8 workers and ≥1× on every benchmark. TLC compatibility: runtime/TLC ≤2 on every benchmark at both worker counts; investigate >1.5. Scaling remains ≥3.5× on the eligible population (ADRs 0006, 0119). |
 
 ## 8. Next step
 
