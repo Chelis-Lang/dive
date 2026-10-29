@@ -60,6 +60,12 @@
   producer pins. All existing endings retain version-1 output and decoding;
   unknown versions/endings and a version-1 `invariant-error` fail closed. Outer
   check/validation reports remain schema 3 (ADR 0118).
+- Preserve the original named invariant-error word when a different error in
+  diagnostic replay decides `TLC_NESTED_EXPRESSION` (#606). Native invariant
+  site and first-report context remain distinct from the deciding class.
+  Independent replay proves the original named cause; diagnostic class/counts
+  and unclassified oracle outcomes keep their separate obligations. This uses
+  existing trace version 2 and does not certify generic expansion errors.
 - `dive check` reports TLC's error when an operator whose body is a numeral
   or a string literal, such as `LAMBDA a, x : 0`, is passed to an operator
   TLC implements in Java (`FoldLeft` and the other folds, `Quantify`,

@@ -60,3 +60,21 @@ missing error, an earlier failing state or invariant, and false Boolean results.
 Source mutations that remove cause equality or earlier-invariant checking must
 fail. The remaining error-ending families under #490 are not closed by this
 change.
+
+## Qualified native replay context (2026-10-29)
+
+`ErInvReplayError` retains an original named invariant cause (InvA, 2179),
+first report 2111 and a different error during diagnostic replay (deciding
+2103, exit 75). Its word has the same named invariant-error obligation, so it
+uses the existing version-2 encoding. The producer uses the typed invariant
+site, first report and deciding class to retain that original claim. The strict
+harness does not admit the 2103 report distinction: native context metadata and
+a valid InvA word alone cannot establish the secondary replay. No error ending
+gains a wrapper exemption or new agreement credit.
+
+Independent replay still proves the original invariant name and cause, with
+earlier checks passing. It supplies no proof of diagnostic replay class or
+counts; ordinary result comparison retains those obligations. The canonical
+classifier leaves this pinned mixed-error stream unclassified. That outcome
+is unchanged and earns no pinned-TLC agreement credit. No new ending, payload
+version, report schema or consumer migration follows from this producer repair.
