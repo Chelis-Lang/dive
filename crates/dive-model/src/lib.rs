@@ -218,6 +218,35 @@ impl Recipe {
         host: Arc<dyn dive_eval::Host>,
         control: Option<Arc<dyn dive_eval::HostControl>>,
     ) -> Result<Model, ControlledBindError> {
+        self.bind_replay(host, control, true)
+    }
+
+    /// Reconstructs a fresh runtime including the real ordered Next actions.
+    /// This carries no checker state, counters, store or execution evidence.
+    ///
+    /// ```no_run
+    /// # fn reconstruct(recipe: &dive_model::Recipe, host: std::sync::Arc<dyn dive_eval::Host>) {
+    /// let fresh = recipe.bind_next_fallible(host, None);
+    /// # let _ = fresh;
+    /// # }
+    /// ```
+    ///
+    /// # Errors
+    /// As [`Self::bind_fallible`], including action construction failures.
+    pub fn bind_next_fallible(
+        &self,
+        host: Arc<dyn dive_eval::Host>,
+        control: Option<Arc<dyn dive_eval::HostControl>>,
+    ) -> Result<Model, ControlledBindError> {
+        self.bind_replay(host, control, false)
+    }
+
+    fn bind_replay(
+        &self,
+        host: Arc<dyn dive_eval::Host>,
+        control: Option<Arc<dyn dive_eval::HostControl>>,
+        predicate_only: bool,
+    ) -> Result<Model, ControlledBindError> {
         bind_in(
             self.ir.clone(),
             &self.config,
@@ -228,7 +257,7 @@ impl Recipe {
                 host: Some(host),
             },
             None,
-            true,
+            predicate_only,
             control,
             true,
         )

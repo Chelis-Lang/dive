@@ -35,14 +35,18 @@ impl TemporalStateEndpoint {
         {
             return None;
         }
-        let origin = model.ir.nodes().get(error.origin()?.index())?.origin;
-        let file = model.ir.files().get(origin.file?.index())?;
+        Self::from_origin(&model.ir, error)
+    }
+
+    fn from_origin(ir: &dive_ir::Ir, error: &EvalError) -> Option<Self> {
+        let origin = ir.nodes().get(error.origin()?.index())?.origin;
+        let file = ir.files().get(origin.file?.index())?;
         let instance = if let Some(definition) = origin.instance {
-            let definition = model.ir.defs().get(definition.index())?;
+            let definition = ir.defs().get(definition.index())?;
             Some(format!(
                 "{}: {}",
                 definition.name,
-                model.ir.location(&definition.origin)
+                ir.location(&definition.origin)
             ))
         } else {
             None
@@ -56,14 +60,22 @@ impl TemporalStateEndpoint {
     }
 
     pub(crate) fn to_json(&self) -> Value {
-        json!({"stage":"temporal-state-row", "source":{
+        self.to_stage("temporal-state-row")
+    }
+
+    fn to_stage(&self, stage: &str) -> Value {
+        json!({"stage":stage, "source":{
             "module":self.module,"start":self.start,"end":self.end,"instance":self.instance
         }})
     }
 
     pub(crate) fn from_json(value: &Value) -> Result<Self, String> {
+        Self::from_stage(value, "temporal-state-row")
+    }
+
+    fn from_stage(value: &Value, stage: &str) -> Result<Self, String> {
         let object = value.as_object().ok_or("endpoint must be an object")?;
-        if object.len() != 2 || value["stage"] != "temporal-state-row" {
+        if object.len() != 2 || value["stage"] != stage {
             return Err("unknown temporal error endpoint stage or fields".into());
         }
         let source = value["source"]
@@ -109,5 +121,46 @@ impl TemporalStateEndpoint {
             end,
             instance,
         })
+    }
+}
+
+/// Untrusted original source context for a Next error before any successor.
+/// The fresh validator enumerates the real configured actions independently;
+/// this descriptor selects no expression, action, scope or cached value.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct NextStateEndpoint {
+    source: TemporalStateEndpoint,
+}
+
+impl NextStateEndpoint {
+    pub(crate) fn instantiated(&self) -> bool {
+        self.source.instance.is_some()
+    }
+
+    /// Records an observed evaluation error's original source, without proof.
+    /// The producer separately requires the typed Next error site.
+    ///
+    /// ```no_run
+    /// # fn request(ir: &dive_ir::Ir, error: &dive_eval::EvalError) {
+    /// let origin = dive_trace::NextStateEndpoint::from_error(ir, error);
+    /// // The descriptor must still be checked by fresh independent replay.
+    /// # let _ = origin;
+    /// # }
+    /// ```
+    #[must_use]
+    pub fn from_error(ir: &dive_ir::Ir, error: &EvalError) -> Option<Self> {
+        (error.class() == ErrorClass::Eval)
+            .then(|| TemporalStateEndpoint::from_origin(ir, error))
+            .flatten()
+            .map(|source| Self { source })
+    }
+
+    pub(crate) fn to_json(&self) -> Value {
+        self.source.to_stage("next-before-successor")
+    }
+
+    pub(crate) fn from_json(value: &Value) -> Result<Self, String> {
+        TemporalStateEndpoint::from_stage(value, "next-before-successor")
+            .map(|source| Self { source })
     }
 }

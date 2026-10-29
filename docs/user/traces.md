@@ -60,6 +60,25 @@ an atom or scope. Generic errors without an endpoint remain unsupported; an
 endpoint is not a lasso, property violation, BFS-count or completion proof.
 Older trace1 readers retain the generic unsupported error ending.
 
+A Next error can request the closed `next-before-successor` stage (ADR 0120).
+The validator checks the supplied finite path and earlier safety obligations,
+then rebinds another private source/configuration runtime for terminal replay.
+It runs the real configured actions in order and stops at the first candidate.
+An error before any complete or partial successor must have the exact claimed
+underlying code and original source context. Emitting a candidate first remains
+unsupported; completing generation without an error refutes the claim. The
+descriptor selects no action or expression to evaluate. For example:
+
+```json
+{"kind":"error","ec":"TLC_MODULE_DIVISION_BY_ZERO","endpoint":{"stage":"next-before-successor","source":{"module":"M","start":40,"end":49,"instance":null}}}
+```
+
+This first lane retains explicit instantiated-origin, VIEW, symmetry, temporal, effect and
+partial-state refusals. It does not certify a diagnostic replay wrapper or
+checker counts, and gives class 2103 no blanket exemption. The payload remains
+version 1 with an optional endpoint; existing version-1/2 meanings are unchanged.
+Generic errors without a source endpoint keep their existing unsupported result.
+
 Rust callers must use `SpecModel::try_validate`/`try_read`, or the corresponding
 fresh `dive_trace::Session` fallible/controlled entrypoint, for these endpoints.
 The legacy infallible entrypoints refuse the request before replay. Resource,
