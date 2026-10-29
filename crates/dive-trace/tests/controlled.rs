@@ -397,3 +397,25 @@ fn runtime_name_refusal_cannot_mask_an_already_interrupted_check() {
         }
     });
 }
+
+#[test]
+fn final_invariant_claim_cannot_skip_an_interrupted_constraint() {
+    on_stack(|| {
+        let m = model(
+            "Init == x=0\nNext == x'=x+1\nLimit == IF x=0 THEN TRUE ELSE \\A k \\in 1..4096: k+x>=0\nInv == x<1",
+            "INIT Init\nNEXT Next\nCONSTRAINT Limit\nINVARIANT Inv\n",
+        );
+        let mut word = trace(&[0, 1]);
+        word.ending = Ending::Invariant("Inv".into());
+        interruption(
+            dive_trace::validate_controlled(&m, &word, Control::new(4))
+                .expect_err("constraint loop must remain demanded"),
+            Check::Constraint,
+            Some(1),
+        );
+        assert_eq!(
+            dive_trace::validate(&m, &word).validation,
+            Validation::Valid
+        );
+    });
+}

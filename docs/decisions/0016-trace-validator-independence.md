@@ -538,3 +538,27 @@ ADR 0103 supersedes §2's exclusion of the `enumerate` feature and Amendment 2's
 finite-cover search. The validator decides `ENABLED`, deadlock and fairness
 with the core evaluator's `ENABLED`; it still replays and checks every state
 and step of the counterexample, and still shares nothing on the search path.
+
+## Amendment 7: Terminal safety checks outside constraints (2026-10-29)
+
+The old invariant-only exception is incomplete (#499). A named invariant error
+or named initial/action-property violation can also decide on a generated state
+excluded by model constraints. The eight `constraint-error-endings` controls
+were pinned before the runtime repair. Four have classified model goldens; four
+invariant-error streams remain unclassified and earn no primary agreement credit.
+
+The validator evaluates state constraints, then applicable action constraints,
+in configuration order. The first false result stops constraint evaluation.
+Only at the final state of a named invariant violation/error or property
+violation may that false result coexist with a valid ending. A reached constraint
+error or non-Boolean value still rejects the claim before its terminal check.
+Every earlier state/step must stay inside the model, and the named endpoint
+must independently fail after all earlier safety checks pass. Generic error
+endings gain no exception; constraint/action-property error proof remains #490.
+
+An invariant-site error first reported as 2111 can reoccur on the excluded
+state during diagnostic replay, with its underlying cause deciding the report.
+The existing version-2 named ending retains that invariant/cause when the typed
+producer has a verified replay class. Logical word validation proves neither
+the separate replay's counters nor an unclassified primary stream. No harness
+comparison, wrapper requirement or golden classification is relaxed.

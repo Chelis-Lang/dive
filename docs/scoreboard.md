@@ -12,6 +12,12 @@ consumed cases are in `crates/dive-api/tests/fixtures/core-normalization/`.
 This does not add a completed parity surface; the separate reference initial
 fingerprint classification finding remains open as #620.
 
+Named terminal invariant-error and property words may end outside model
+constraints after ordered constraint evaluation (#499). Four new model controls
+have generated goldens; four invariant-error streams remain unclassified.
+This repairs logical witness validation and adds no historical corpus credit;
+generic constraint/action error proofs and partial-state words remain open.
+
 Parity means observable results (ADR 0086). For every corpus model, dive must
 match the pinned TLC on:
 

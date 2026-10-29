@@ -1733,15 +1733,16 @@ fn trace_doc(
         // replay give it.
         V::EvaluationError {
             site: dive_check::ErrorSite::Invariant,
-            // A later diagnostic error can decide 2103 without changing
-            // the original named invariant error witnessed by this word.
-            code: 2111 | 2103,
+            // Replay can decide a wrapper or re-raise the same underlying
+            // cause on an excluded candidate. The original invariant-site
+            // name and first report still identify this word's logical claim.
+            code,
             reported: 2111,
             verified: true,
             invariant: Some(name),
             cause,
             ..
-        } => Ending::InvariantError {
+        } if matches!(*code, 2111 | 2103) || *code == cause.ec().code() => Ending::InvariantError {
             name: name.clone(),
             ec: cause.ec().name().to_owned(),
         },
