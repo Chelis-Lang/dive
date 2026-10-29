@@ -71,7 +71,7 @@ fn known(ending: Option<&Ending>, f: &Failure, last: usize) -> bool {
                 )))
 }
 
-#[derive(PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 enum Checked {
     Valid,
     Unconfirmed,
@@ -128,7 +128,7 @@ fn validate(spec: &Path, trace: &Value) -> Result<Checked, String> {
 }
 
 #[test]
-fn core_counterexamples_equal_the_reference_and_validate() {
+fn core_counterexamples_equal_reference_with_explicit_unconfirmed_endings() {
     let mut all = Vec::new();
     for dir in [
         "crates/dive-eval/tests/fixtures/next/specs",
@@ -141,6 +141,7 @@ fn core_counterexamples_equal_the_reference_and_validate() {
     }
     let mut traced = 0;
     let mut validated = 0;
+    let mut unconfirmed_next = 0;
     for spec in &all {
         let name = spec.file_stem().and_then(|n| n.to_str()).unwrap_or("?");
         let core = run(spec, Engine::Core);
@@ -163,11 +164,14 @@ fn core_counterexamples_equal_the_reference_and_validate() {
             // the reference engine reports it (compared above).
             continue;
         }
-        match validate(spec, trace) {
-            Ok(Checked::Valid) => validated += 1,
-            Ok(Checked::Unconfirmed) => {}
-            Err(e) => panic!("{name}: {e}"),
+        let checked = validate(spec, trace).unwrap_or_else(|e| panic!("{name}: {e}"));
+        if ["EvalErrorMidLevel", "ErNextChoose", "ErNextTypeErr"].contains(&name) {
+            // These were already unconfirmed before the endpoint lane and
+            // still need successor-side ordering. Never count them as valid.
+            assert_eq!(checked, Checked::Unconfirmed, "{name}");
+            unconfirmed_next += 1;
         }
+        validated += usize::from(checked == Checked::Valid);
         traced += 1;
     }
     assert!(
@@ -175,7 +179,14 @@ fn core_counterexamples_equal_the_reference_and_validate() {
         "only {traced} core counterexamples were checked"
     );
     assert!(
-        validated >= 60,
+        // The same 151 words had 63 valid / 88 unconfirmed before this lane;
+        // the bounded implementation validates 99 and leaves 52 unconfirmed.
+        validated >= 99,
         "only {validated} core counterexamples independently validated ({traced} checked)"
+    );
+    assert_eq!(unconfirmed_next, 3);
+    eprintln!(
+        "core counterexamples: {validated} valid, {} unconfirmed, {traced} checked",
+        traced - validated
     );
 }
