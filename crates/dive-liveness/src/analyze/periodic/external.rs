@@ -18,6 +18,20 @@ use crate::analyze::{
 };
 use crate::product::AcceptancePolicy;
 
+pub use crate::analyze::finish::{Completed as NativeFinal, NativeWord, Prefix as NativePrefix};
+
+/// Temporal analysis with graph-independent completed or prefix producer facts.
+///
+/// Candidates remain unvalidated words; this type never replaces independent
+/// typed and serialized replay. A prefix cannot supply a holding result.
+#[derive(Clone, Debug)]
+pub enum NativeAnalysis {
+    /// Completed exploration and final analysis.
+    Final(NativeFinal),
+    /// A selected word on a successful, incomplete committed prefix.
+    Prefix(NativePrefix),
+}
+
 /// The temporal checks of one run over a graph supplied by its producer.
 ///
 /// [`Self::prepare`] plans every property before the search. During the

@@ -87,6 +87,35 @@ pub enum Analysis {
     Candidate(Candidate),
 }
 
+impl Analysis {
+    /// Releases the captured graph and retains the selected word and original
+    /// producer facts. Candidates still require independent validation.
+    ///
+    /// ```
+    /// use dive_liveness::analyze::{Analysis, Failure};
+    /// use dive_liveness::analyze::periodic::external::NativeFinal;
+    /// fn release_graph(result: Result<Analysis, Failure>) -> Result<NativeFinal, Failure> {
+    ///     result.map(Analysis::into_native)
+    /// }
+    /// ```
+    #[must_use]
+    pub fn into_native(self) -> periodic::external::NativeFinal {
+        match self {
+            Self::Holds(captured) => finish::Completed::Holds(captured.into_evidence()),
+            Self::Candidate(candidate) => finish::Completed::Candidate(
+                finish::NativeWord {
+                    target_property: candidate.target_property,
+                    properties: candidate.properties,
+                    states: candidate.states,
+                    back_to: candidate.back_to,
+                    edges: candidate.edges,
+                },
+                candidate.exploration.into_evidence(),
+            ),
+        }
+    }
+}
+
 /// A concrete periodic word projected from an accepting product walk.
 #[derive(Clone, Debug)]
 pub struct Candidate {
@@ -1328,13 +1357,7 @@ fn prepare(
     Ok(plans)
 }
 
-struct CandidateWord {
-    target_property: String,
-    properties: Vec<String>,
-    states: Vec<StateVals>,
-    back_to: usize,
-    edges: Vec<capture::Edge>,
-}
+type CandidateWord = finish::NativeWord;
 
 type OriginalWord = (Vec<StateVals>, Vec<usize>, Vec<capture::Edge>);
 

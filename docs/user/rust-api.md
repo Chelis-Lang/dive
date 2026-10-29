@@ -91,6 +91,16 @@ there is no new CLI option or TLC divergence. The ordinary core temporal route
 still retains the reference value graph. `capture_csr` tests build checked CSR
 from actual captures; run `cargo test -p dive-check --test capture_csr --locked`.
 
+After temporal analysis, `Analysis::into_native()` and
+`PeriodicAnalysis::into_native()` release that legacy graph storage. Their
+results live in `analyze::periodic::external`: `NativeFinal` retains completed
+producer facts and any `NativeWord`; `NativeAnalysis` distinguishes a final
+result from `NativePrefix`. Words retain their property set, concrete states,
+closing position and original edge metadata, and still require independent
+validation. Prefix facts cannot become a holding result. Existing analysis
+entrypoints and public reports keep their current return types; these consuming
+adapters add no native capture capacity or proof authority.
+
 | Entry | Meaning |
 | --- | --- |
 | `parse_source` / `parse_file` | Syntax/CST and source diagnostics |

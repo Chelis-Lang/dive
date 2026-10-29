@@ -205,13 +205,10 @@ fn analysis_failures_and_typed_stops_never_become_absence_of_acceptance() {
     ];
     for error in errors {
         let expected = format!("{error:?}");
-        let actual = super::complete(Err(error.clone()), complete.clone())
-            .err()
-            .expect("never Holds");
+        let actual =
+            super::complete(Err(error.clone()), complete.clone()).expect_err("never Holds");
         assert_eq!(format!("{actual:?}"), expected);
-        let actual = super::prefix(Err(error), prefix.clone())
-            .err()
-            .expect("never prefix candidate");
+        let actual = super::prefix(Err(error), prefix.clone()).expect_err("never prefix candidate");
         assert_eq!(format!("{actual:?}"), expected);
     }
     // Exercise the production final-only and periodic adapters with the same

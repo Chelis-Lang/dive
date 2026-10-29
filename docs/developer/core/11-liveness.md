@@ -441,6 +441,15 @@ use this boundary. Their compatibility adapters keep the original public
 `Complete`, `Prefix`, `Analysis`, candidate and API `Outcome` values, retaining
 the original graph allocations without copying or rebuilding rows.
 
+The same result carriers are exported narrowly through
+`analyze::periodic::external` as `NativeFinal`, `NativePrefix` and `NativeWord`,
+with `NativeAnalysis` distinguishing final and prefix results. Consuming
+`Analysis::into_native`/`PeriodicAnalysis::into_native` moves the selected word
+and actual sealed producer facts and releases the legacy graph. This supports
+the native report boundary without creating an empty placeholder graph or
+generifying the existing public analysis/report types. Candidates remain
+unvalidated; reference entrypoints keep their existing return types.
+
 Tests detach real producer evidence and observe graph rows being released,
 preserve every selected word/edge and legacy graph allocation, reject malformed
 completion counters/rows, preserve original factory failures/stops, and keep

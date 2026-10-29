@@ -376,8 +376,7 @@ fn source_errors_and_typed_stops_propagate_at_every_demanded_read() {
                     lazy.fail = Some(failed);
                     lazy.stopped = stopped;
                     let error = run(&model, &options, &graph, &mut lazy)
-                        .err()
-                        .expect("source failure never means success");
+                        .expect_err("source failure never means success");
                     assert_eq!(lazy.reads, normal.reads[..failed]);
                     if stopped {
                         let AnalysisError::Stopped(actual) = error else {

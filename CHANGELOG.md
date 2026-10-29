@@ -4,6 +4,11 @@
   completed or committed-prefix evidence without constructing evaluator state
   values. The core temporal route and capture limits remain unchanged.
 
+- Rust temporal analysis results can release their legacy capture graphs through
+  `Analysis::into_native()` and `PeriodicAnalysis::into_native()`, preserving the
+  owned candidate word and original complete or prefix producer facts. Candidate
+  validation and existing reference entrypoints are unchanged.
+
 - Low-level Rust graph captures expose immutable producer facts through
   `evidence()` and release graph storage through `into_evidence()`. Completed
   and successful committed-prefix facts remain distinct. External graph

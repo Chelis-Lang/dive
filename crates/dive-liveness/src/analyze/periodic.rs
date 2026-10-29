@@ -104,6 +104,37 @@ pub enum PeriodicAnalysis {
     Prefix(PrefixCandidate),
 }
 
+impl PeriodicAnalysis {
+    /// Releases legacy graph storage while retaining the actual complete or
+    /// prefix facts and any selected word. It does not validate a candidate or
+    /// promote incomplete exploration to a holding result.
+    ///
+    /// ```
+    /// use dive_liveness::analyze::periodic::{PeriodicAnalysis, PeriodicFailure, Checks};
+    /// use dive_liveness::analyze::periodic::external::NativeAnalysis;
+    /// fn release_graph(result: Result<(PeriodicAnalysis, Checks), PeriodicFailure>)
+    ///     -> Result<(NativeAnalysis, Checks), PeriodicFailure> {
+    ///     result.map(|(analysis, checks)| (analysis.into_native(), checks))
+    /// }
+    /// ```
+    #[must_use]
+    pub fn into_native(self) -> external::NativeAnalysis {
+        match self {
+            Self::Final(analysis) => external::NativeAnalysis::Final(analysis.into_native()),
+            Self::Prefix(candidate) => external::NativeAnalysis::Prefix(super::finish::Prefix {
+                word: super::finish::NativeWord {
+                    target_property: candidate.target_property,
+                    properties: candidate.properties,
+                    states: candidate.states,
+                    back_to: candidate.back_to,
+                    edges: candidate.edges,
+                },
+                exploration: candidate.exploration.into_evidence(),
+            }),
+        }
+    }
+}
+
 /// A failure with explicit capture-completion truth and actual scheduling facts.
 #[derive(Clone, Debug)]
 pub struct PeriodicFailure {
