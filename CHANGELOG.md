@@ -53,6 +53,12 @@
   duplicate edges and original witness positions are preserved. Checker graph
   retention and capacity remain the next L5 integration work.
 
+- Core graph capture delivers original accepted values for new and seen
+  targets, retaining their representation and action/ordinal metadata. Parallel
+  buffering uses the existing eight-source and per-source successor bounds;
+  overflow and budget stops cannot become completed captures. Native compact
+  state retention and larger graph capacity remain unimplemented.
+
 - `--engine core` runs specifications that use `TLCSet` and `TLCGet` with
   integer or `"s:"` registers, `"all"`, `"all:named"` and `"level"`, with
   one worker and the values TLC computes. A run that writes registers and

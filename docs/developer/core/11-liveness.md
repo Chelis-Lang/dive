@@ -99,7 +99,7 @@ these events, all from the single-threaded commit, in commit order:
 | Event | When | Reference rule (`dive-check/src/engine.rs`, `on_state_checks`) |
 |---|---|---|
 | `emitted(generated, ordinal)` | every generated state, before its checks (`ordinal` is `None` for an initial state) | `capture.allow_emitted` |
-| `state(heap, Step)` | a state inside the model that passed its checks, new or seen. `Step` carries the key, the new id and values (persistent handles) when it is new, the parent, the ordinal and the action index | `capture.record`; a root when `parent` is `None` |
+| `state(heap, Step)` | a state inside the model that passed its checks, new or seen. `Step.original` carries its actual closed persistent representation; `new` separately carries a new id and canonical frontier handles. The key, parent, ordinal and action index remain attached to the original | `capture.record`; a root when `parent` is `None` |
 | `stutter(source)` | a source is fully expanded with no stop | `capture.stutter` |
 | `level_done(level, stats) -> bool` | the commit of a completed level; `true` stops the search there (`Verdict::PrefixStop`) | `Observer::level_done` and `stop_after_level` |
 
@@ -107,11 +107,25 @@ Each event may return `Stopped`; the search then ends with
 `Verdict::GraphStop` and the sink keeps the reason. Vertex ids are the
 predecessor log's ids, which are the discovery indexes.
 
-The sink (`dive-api`, `core_graph.rs`) keeps the key-to-id map (`u64` key
-to vertex id), to reuse a seen state's values. Two states with
-equal keys are the same graph vertex. This is exactly the reference's
-fingerprint-mode identity and collision qualification. In exact mode the
-core's keys are exact (`07-engine.md`).
+The reference collector maps keys to discovery ids. Equal keys identify one
+graph vertex under fingerprint-mode identity and its collision qualification;
+they never license substituting that representative for an original successor.
+The sink (`dive-api`, `core_graph.rs`) converts every accepted original, including
+seen targets. Capture-only `intern_exact` retains available kind and view flags
+before fingerprinting can replace a row with canonical identity handles.
+The core still refuses exact storage (`07-engine.md`).
+
+Parallel capture uses the reference's `MAX_EXPANSION_UNITS` (eight sources per
+wave) and `Limits::successors_per_unit` (65,536 by default). An overflow emission
+retains only a stop marker; its emitted event delivers the existing named refusal
+in commit order. Original handle payload is therefore at most eight times the
+per-source limit times the variable count per wave, plus transient row snapshots.
+Workers also poll the armed budget before retaining each capture emission.
+This is an entry-count bound, not a byte bound: original compounds interned by
+speculative work remain in the shared store even when their wave is discarded.
+The final store node/handle statistics include that work, and whole-process RSS
+sampling includes its allocations. No graph means no added original retention,
+per-emission polling or change to the ordinary safety chunk size.
 
 How the events follow the reference engine:
 
@@ -145,16 +159,15 @@ core's traces already use.
   shares structure: a sub-value common to many states becomes one `Arc`.
   Without it, conversion would copy every state in full, which costs more
   memory than the reference capture.
-- **Concrete rows.** For each edge, the concrete successor is a clone of the
-  `StateVals` of `states[to]` when its handles equal the representative's.
-  Persistent handles are canonical, so equal handles mean equal values. This
-  is the only case in exact mode. A fingerprint collision, where the handles
-  differ, is converted separately, as the reference keeps the original
-  value.
+- **Concrete rows.** Every accepted original is converted from `Step.original`,
+  independently of its vertex key. The conversion memo may reuse the value of
+  that exact persistent handle; it never substitutes `states[to]`. Original
+  action labels and ordinal gaps are retained, including for repeated edges and
+  different originals that identify the same vertex.
 - **Cost budget.** Conversion work, in nodes visited, is counted in the
   run's metrics as `liveness.convert_ms`, `liveness.converted_nodes` and
   `liveness.memo_entries`. The memo is bounded by
-  `capture::Limits::states` × the variable count × a fixed factor. Past that
+  `capture::Limits::states` × the variable count. Past that
   it stops caching rather than grow, so the worst case is the copy cost.
   - Target (directional, `09-performance-method.md`): conversion costs at
     most 25% of exploration time on the corpus's temporal models.
@@ -372,13 +385,15 @@ also cover differing originals for one destination, ordinal gaps, malformed
 metadata, untouched atom-error priority, every demanded read's failure/stop,
 and a mutation that incorrectly replaces original values by representatives.
 
-This is not native compact capture. Before a core source can implement the
-boundary, capture must expose original targets even for seen states: `Step`
-currently carries values only for new vertices, and parallel `Occ::Old` omits
-them. Retain persistent handle rows for every vertex and any differing original
-target, keep their store alive, and bound both committed and speculative
-retention. Controlled conversion/cache, compact-compatible completion/results,
-CSR metadata and end-to-end memory/capacity measurements remain §7 requirements.
+This is not native compact capture. Original-target delivery is implemented:
+`Step.original` includes new and seen targets, and capture-only parallel
+`Occ::Old` retains their exact representation under the existing wave/source
+bounds (§3). The current sink still builds a reference `BehaviorGraph`.
+A native source must next retain addressable persistent handle rows for every
+vertex and any differing original target, keep their store alive, and account
+committed as well as speculative retention. Controlled conversion/cache,
+compact-compatible completion/results, CSR metadata and end-to-end memory/capacity
+measurements remain §7 requirements.
 The private source itself supplies no resource bound or completion authority;
 no checker limit, supported model population or performance claim changes.
 

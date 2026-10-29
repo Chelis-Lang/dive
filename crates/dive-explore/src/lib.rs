@@ -503,7 +503,8 @@ impl Explorer<'_> {
             !self.seen.contains(key)
         };
         if !new {
-            self.metrics.discarded_before_intern += u64::from(self.opts.early_probe);
+            self.metrics.discarded_before_intern +=
+                u64::from(self.opts.early_probe && (!in_model || self.graph.is_none()));
             return Ok((Probe::Seen, in_model, key));
         }
         Ok((Probe::New, in_model, key))
@@ -512,6 +513,9 @@ impl Explorer<'_> {
     fn accept(&mut self, m: &mut Machine) -> Result<(), Error> {
         let plan = self.plan;
         let code = &plan.code;
+        // The -early-probe control can replace m.s1 with canonical identity
+        // handles. Keep the emitted representation available to capture too.
+        let original = self.graph.is_some().then(|| m.s1.clone());
         if m.assigned != m.s1.len() {
             let message = incomplete_message(plan, m);
             self.failure = Some(self.failure_at(m, Site::Incomplete, message)?);
@@ -529,7 +533,7 @@ impl Explorer<'_> {
                 self.implied_actions(m)?;
             }
             return if in_model {
-                self.record(m, key, false)
+                self.record(m, key, false, original.as_deref())
             } else {
                 Ok(())
             };
@@ -601,18 +605,32 @@ impl Explorer<'_> {
             self.enqueue(m)?;
         }
         if in_model {
-            self.record(m, key, true)?;
+            self.record(m, key, true, original.as_deref())?;
         }
         Ok(())
     }
 
     /// Reports the accepted state inside the model with key `key` to the
     /// graph sink; a `new` state is the last one enqueued.
-    fn record(&mut self, m: &mut Machine, key: u64, new: bool) -> Result<(), Error> {
+    fn record(
+        &mut self,
+        m: &mut Machine,
+        key: u64,
+        new: bool,
+        original: Option<&[Handle]>,
+    ) -> Result<(), Error> {
         let Some(sink) = self.graph.as_deref_mut() else {
             return Ok(());
         };
         let nvars = m.s1.len();
+        // Capture preserves the original representation separately from the
+        // canonical identity queued for BFS. No graph means no extra interning
+        // or retained row, including on the duplicate fast path.
+        let original = original
+            .unwrap_or(&m.s1)
+            .iter()
+            .map(|&h| m.heap.intern_exact(h))
+            .collect::<Result<Vec<_>, _>>()?;
         let new = if new {
             let id = self
                 .next_ids
@@ -630,6 +648,7 @@ impl Explorer<'_> {
         let step = graph::Step {
             key,
             new,
+            original: &original,
             parent: self.cur_id,
             ordinal: self.emitted.saturating_sub(1),
             action: self.action,
@@ -929,6 +948,10 @@ impl Sink for Explorer<'_> {
             self.stats.initial_generated += 1;
         }
         self.report_emitted()?;
+        if !self.initial && self.graph.is_some() && (self.poll)() {
+            self.stop = Some(Verdict::Budget);
+            return Err(Error::stop());
+        }
         // The checks' transients are freed once the state is accepted (R10):
         // an `Init` that enumerates many states, or a state with many
         // successors, would otherwise hold them all until the expansion
@@ -1281,7 +1304,10 @@ fn run(
         // a time, so that phase 1 buffers one chunk's successors, not the
         // level's (#551). A chunk's commit fills the seen set before the
         // next chunk is expanded, which reads it as an earlier level's.
-        let chunk = (machines.len() * CHUNK_PER_WORKER).max(1);
+        let chunk = ex.graph.as_deref().map_or_else(
+            || (machines.len() * CHUNK_PER_WORKER).max(1),
+            |sink| sink.max_expansion_units().max(1),
+        );
         let mut expanded: Option<Vec<Option<parallel::Expanded>>> = None;
         let mut base = 0;
         for (k, state) in cur.chunks_exact(nvars.max(1)).enumerate() {
@@ -1299,6 +1325,9 @@ fn run(
                     nvars,
                     &ex.seen,
                     ex.opts,
+                    ex.graph
+                        .as_deref()
+                        .map(graph::GraphSink::max_successors_per_unit),
                     ex.poll,
                     estimate.saturating_mul(end - k) / states.max(1),
                     &mut metrics,

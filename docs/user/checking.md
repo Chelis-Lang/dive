@@ -66,7 +66,11 @@ core currently covers:
   `--max-states` or `--max-depth` is reported as unsupported. So, for now,
   is a run whose liveness check fails rather than answers (a planning or
   evaluation error, or a graph limit): `--engine auto` reports the
-  reference engine's result for it;
+  reference engine's result for it. Capture retains original accepted targets,
+  including seen successors, with their action and ordinal. Parallel capture
+  buffers at most eight source states and applies the existing per-source
+  successor bound before retaining an overflow target; graph limits and
+  supported temporal combinations remain unchanged;
 - verdicts, TLC's distinct and generated counts and depth, counterexample
   traces in the reference engine's format, TLC's evaluation-error endings
   where the core can reproduce them, and the run budgets (`--time-limit`,

@@ -1097,8 +1097,9 @@ impl Heap {
     /// and view bits (a symbolic set stays symbolic, a record literal stays
     /// one), so the persistent handle reads like `h` everywhere, and two
     /// handles it returns are equal exactly when the representations are.
-    /// Only a step predicate's memo sites use it (`06-memoization.md`
-    /// §2.3), for their keys and results.
+    /// Step-predicate memo sites use it for their keys and results
+    /// (`06-memoization.md` §2.3); graph capture uses it to retain original
+    /// target representations independently of canonical state identities.
     ///
     /// # Errors
     /// `h` is lazy (holds a closure only the evaluator can force).

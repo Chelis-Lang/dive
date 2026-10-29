@@ -39,8 +39,7 @@ pub(crate) struct Graph<'a> {
     model: &'a dive_model::Model,
     ctx: dive_value::Ctx,
     builder: GraphBuilder,
-    /// Vertex ids by state key, to reuse a seen state's values.
-    ids: HashMap<u64, usize>,
+    limits: Limits,
     memo: HashMap<Handle, Value>,
     on_level: Option<&'a mut OnLevel<'a>>,
     /// Why the sink stopped the search.
@@ -59,7 +58,7 @@ impl<'a> Graph<'a> {
             model,
             ctx: model.evaluator.options().ctx,
             builder: GraphBuilder::new(limits),
-            ids: HashMap::new(),
+            limits,
             memo: HashMap::new(),
             on_level,
             error: None,
@@ -97,7 +96,13 @@ impl<'a> Graph<'a> {
             } else {
                 let v = crate::core_engine::to_value(heap, self.model, h, self.ctx)?;
                 self.metrics.converted += 1;
-                if !scalar {
+                if !scalar
+                    && self.memo.len()
+                        < self
+                            .limits
+                            .states
+                            .saturating_mul(self.model.ir.vars().len())
+                {
                     self.memo.insert(h, v.clone());
                 }
                 v
@@ -120,6 +125,14 @@ fn to_check(s: dive_explore::Stats) -> dive_check::Stats {
 }
 
 impl GraphSink for Graph<'_> {
+    fn max_expansion_units(&self) -> usize {
+        dive_check::capture::MAX_EXPANSION_UNITS
+    }
+
+    fn max_successors_per_unit(&self) -> u64 {
+        self.limits.successors_per_unit
+    }
+
     fn emitted(&mut self, generated: u64, ordinal: Option<u64>) -> Result<(), Stopped> {
         self.builder
             .allow_emitted(generated, ordinal)
@@ -127,34 +140,14 @@ impl GraphSink for Graph<'_> {
     }
 
     fn state(&mut self, heap: &mut Heap, step: Step<'_>) -> Result<(), Stopped> {
-        let (vals, id) = if let Some((id, values)) = step.new {
-            let vals = self.convert(heap, values).map_err(|message| {
-                self.stop(Verdict::Unsupported {
-                    feature: format!(
-                        "a state value outside the reference values (core liveness): {message}"
-                    ),
-                })
-            })?;
-            let at = usize::try_from(id).map_err(|_| {
-                self.stop(Verdict::InternalError {
-                    message: "core graph: state id exceeds address space".into(),
-                })
-            })?;
-            self.ids.insert(step.key, at);
-            (vals, Some(id))
-        } else {
-            let vals = self
-                .ids
-                .get(&step.key)
-                .and_then(|&at| self.builder.graph().states.get(at))
-                .cloned();
-            let Some(vals) = vals else {
-                return Err(self.stop(Verdict::InternalError {
-                    message: "core graph: a seen state that was not recorded".into(),
-                }));
-            };
-            (vals, None)
-        };
+        let vals = self.convert(heap, step.original).map_err(|message| {
+            self.stop(Verdict::Unsupported {
+                feature: format!(
+                    "a state value outside the reference values (core liveness): {message}"
+                ),
+            })
+        })?;
+        let id = step.new.map(|(id, _)| id);
         let label = match step.action {
             Some(i) => match self.model.actions.get(i) {
                 Some(a) => a.label(),
