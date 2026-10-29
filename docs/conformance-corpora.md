@@ -1,16 +1,5 @@
 # Conformance corpora
 
-## Assumption report locations
-
-`assumption-reporting` contains five primary controls for false anonymous and
-named assumptions, earlier-assumption priority, an assumption evaluation error
-and a successful model. The pinned oracle yields three code-2104 failures with
-source-image property names, one code-2105 error with no property, and one
-success. All five modules are accepted by SANY. Generate with `golden generate
---corpus assumption-reporting --tier all --workers 1 --reason TEXT`; run with
-`run --corpus assumption-reporting --tier all --impl dive:core --workers 1,4`.
-The dedicated corpus keeps established corpus identities and denominators intact.
-
 ## Constant predicate binding capacity
 
 `constant-predicate-binders` contains two finite Boolean models with a pure
@@ -669,6 +658,17 @@ unchanged. The runtime correction skips conversion only after an actual zero
 BASE size; nonempty errors retain their existing named class refusals. Native
 qualification and whole-CLI comparison remain separate from these references;
 no new agreement is claimed here.
+
+## Assumption report locations
+
+`assumption-reporting` contains five primary controls for false anonymous and
+named assumptions, earlier-assumption priority, an assumption evaluation error
+and a successful model. The pinned oracle yields three code-2104 failures with
+source-image property names, one code-2105 error with no property, and one
+success. All five modules are accepted by SANY. Generate with `golden generate
+--corpus assumption-reporting --tier all --workers 1 --reason TEXT`; run with
+`run --corpus assumption-reporting --tier all --impl dive:core --workers 1,4`.
+The dedicated corpus keeps established corpus identities and denominators intact.
 
 ## Stored startup reads and configured redirects
 
