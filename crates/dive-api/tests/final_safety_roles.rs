@@ -530,6 +530,7 @@ fn genuine_temporal_startup_host_reads_keep_effect_and_error_priority() -> TestR
                 assert_eq!(
                     expected.verdict,
                     Verdict::AssumptionFalse {
+                        property: "line 3, col 8 to line 3, col 12 of module Roles".into(),
                         message:
                             "Assumption line 3, col 8 to line 3, col 12 of module Roles is false."
                                 .into()

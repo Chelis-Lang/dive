@@ -1260,9 +1260,9 @@ pub(crate) fn check_assumptions(
     };
     match model.check_assumptions() {
         dive_eval::AssumptionOutcome::AllTrue => None,
-        dive_eval::AssumptionOutcome::False { message, .. } => {
-            Some(crate::Verdict::AssumptionFalse { message })
-        }
+        dive_eval::AssumptionOutcome::False {
+            property, message, ..
+        } => Some(crate::Verdict::AssumptionFalse { property, message }),
         dive_eval::AssumptionOutcome::Error { error, message, .. } => Some(
             control
                 .verdict(&error)

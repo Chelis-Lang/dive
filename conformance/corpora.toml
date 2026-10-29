@@ -224,6 +224,13 @@ path = "conformance/corpus/empty-subset-base-primary"
 license = "MIT"
 layout = "examples-manifest"
 
+# Failed ASSUME names and earlier-assumption priority (issue #504).
+[[corpus]]
+id = "assumption-reporting"
+path = "conformance/corpus/assumption-reporting"
+license = "MIT"
+layout = "examples-manifest"
+
 # Primary-first stored startup reads versus configured redirects.
 # Separate microcorpus; existing small/full populations are unchanged.
 [[corpus]]

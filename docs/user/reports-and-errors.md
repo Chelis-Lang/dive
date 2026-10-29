@@ -24,6 +24,16 @@ not an independent CLI operation envelope.
 | Checkpoint pause | `checkpoint.status: paused-incomplete`; incomplete execution |
 | Budget stop | `verdict: stopped` and `stopped` (resource, limit, observed, unit, phase, hint); progress statistics; exit 5 |
 
+A false `ASSUME` reports `verdict: "assumption-failure"`, TLC code 2104 and
+TLC exit 10. Its `property` is the evaluated expression's source image, such as
+`line 4, col 8 to line 4, col 12 of module FalsePlain`, including for named
+assumptions. Earlier assumptions retain their configured/source priority. An
+error evaluating an assumption retains code 2105 and a null `property`.
+
+```sh
+dive check conformance/corpus/assumption-reporting/specifications/Assumptions/FalsePlain.tla --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+```
+
 A temporal `evaluation-error` at `error_site: "temporal-state-row"` retains
 actual partial statistics and `capture_completed: false`. Its finite trace may
 include the independently replayed error endpoint from ADR 0113, with no

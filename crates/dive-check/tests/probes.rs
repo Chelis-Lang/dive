@@ -77,6 +77,7 @@ fn tlc(stdout: &str) -> Tlc {
         between(&l, "Invariant ", " is violated")
             .or_else(|| between(&l, "Action property ", " is violated."))
             .or_else(|| between(&l, "Property ", " is violated"))
+            .or_else(|| between(&l, "Assumption ", " is false."))
     });
     let counts = ms.iter().rfind(|m| m.code == 2199).map(|m| {
         let b = m

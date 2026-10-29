@@ -50,6 +50,12 @@ are registered expected divergences. See the
 [engine accounting](../conformance/reports/core/2026-10-28-small-auto-source0f.json).
 No core-only full-tier or engine-default credit follows.
 
+The separate `assumption-reporting` corpus adds five pinned model facts and
+five accepted SANY modules for failed-ASSUME property names (#504). API controls
+compare actual source images, class/status, early termination and null error
+properties across both profiles, Reference/Core/Auto and workers 1/4. These
+are targeted controls, not an update to the historical populations below.
+
 The initial core-reboot acceptance census on 2026-10-28 is a separate shadow population,
 not an update to the TLC agreement rows below. At backend `2d55317a` with the
 strengthened harness `16336b64`, 1,361 fixture configurations per profile yield

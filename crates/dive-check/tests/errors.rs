@@ -243,7 +243,7 @@ fn dive(r: &CheckResult) -> (Report, u32, bool) {
         | Verdict::ModelError { message, .. }
         | Verdict::PostconditionFalse { message, .. }
         | Verdict::NotCompletelySpecified { message, .. }
-        | Verdict::AssumptionFalse { message } => Some(message.trim_end().to_owned()),
+        | Verdict::AssumptionFalse { message, .. } => Some(message.trim_end().to_owned()),
         Verdict::InvariantViolated { property, .. } => {
             Some(format!("Invariant {property} is violated."))
         }
