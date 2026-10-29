@@ -48,19 +48,24 @@ impl GraphCheck<'_> {
             self.d.checks.last_level = Some(level);
             self.d.checks.last_size = stats.distinct;
             let _budget = crate::budget::enter(&self.options.budget);
-            let word = analyze_native(
-                self.model,
-                &self.plans,
-                1,
-                graph,
-                read,
-                self.limits,
-                self.policy,
-                self.graph_labels,
-                &mut self.d.stage,
-                &mut self.d.evaluations,
-                &self.control,
-            );
+            let word = match self.control.enter(&self.model.evaluator) {
+                Ok(_registration) => analyze_native(
+                    self.model,
+                    &self.plans,
+                    1,
+                    graph,
+                    read,
+                    self.limits,
+                    self.policy,
+                    self.graph_labels,
+                    &mut self.d.stage,
+                    &mut self.d.evaluations,
+                    &self.control,
+                ),
+                Err(_) => Err(AnalysisError::Inconsistent(
+                    "another driver owns evaluator control",
+                )),
+            };
             match word {
                 Ok(None) => {}
                 Ok(Some(word)) => self.d.decision = Some(Ok(word)),

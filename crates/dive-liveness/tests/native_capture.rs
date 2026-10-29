@@ -357,3 +357,77 @@ fn native_readiness_matches_final_only_exhausted_and_growth_boundaries() {
         ..stats
     }));
 }
+
+#[test]
+fn native_prefix_rejects_another_evaluator_owner() {
+    let options = CheckOptions::dive(0);
+    let model = model("P == <>(x = 4)", &options);
+    let mut check = GraphCheck::prepare(
+        &model,
+        &options,
+        Limits::default(),
+        AcceptancePolicy::compact_default(),
+        GraphLabelPolicy::NoCellLimit,
+        Some(Schedule {
+            min_states: 2,
+            growth_factor: 1,
+        }),
+    )
+    .expect("prepare");
+    let control = EvaluationControl::new(&Budget::unlimited(), Phase::Capture).expect("control");
+    let graph = capture::CsrCapture::checked(
+        capture::CsrCaptureInput {
+            offsets: &[0, 2, 2],
+            targets: &[1, 0],
+            ordinals: &[Some(0), None],
+            actions: &[None, None],
+            edge_rows: &[1, 0],
+            representatives: &[0, 1],
+            roots: &[0],
+            action_labels: &[],
+            retained_rows: 2,
+            closed_rows: 1,
+        },
+        capture::Limits::default(),
+        &control,
+    )
+    .expect("prefix graph");
+    std::thread::scope(|scope| {
+        let (ready_tx, ready_rx) = std::sync::mpsc::sync_channel(0);
+        let (release_tx, release_rx) = std::sync::mpsc::channel();
+        let evaluator = &model.evaluator;
+        scope.spawn(move || {
+            let _owner = evaluator
+                .host_control(None)
+                .expect("other thread owns evaluator");
+            ready_tx.send(()).expect("owner ready");
+            release_rx.recv().expect("owner release");
+        });
+        ready_rx.recv().expect("owner installed");
+        let mut reads = 0;
+        let decided = check.level_native(
+            1,
+            &graph,
+            Stats {
+                distinct: 2,
+                generated: 2,
+                left_on_queue: 1,
+                depth: 2,
+                initial_generated: 1,
+            },
+            &mut |at, _| {
+                reads += 1;
+                Ok(vec![Some(dive_value::Value::from(
+                    i64::try_from(at).expect("small"),
+                ))]
+                .into())
+            },
+        );
+        release_tx.send(()).expect("release owner");
+        assert!(decided, "owner conflict must stop this prefix check");
+        assert_eq!(
+            reads, 0,
+            "prefix must reject owner conflict before reading or evaluating atoms"
+        );
+    });
+}
