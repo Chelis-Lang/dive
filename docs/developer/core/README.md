@@ -10,6 +10,12 @@ The documents exist so that any engineer or agent can take over at any point.
 Read this page, then `10-plan.md` (status and handoff log), then the documents
 for the workstream you are joining.
 
+The active next checkpoint is trusted core and temporal capacity
+(`10-plan.md` §1). ADR 0119 retains default throughput targets, with TLC
+compatibility runtime bounded at 2× TLC per model and investigated above
+1.5×. Correctness and independently validated words remain mandatory; an
+engine-default cutover is not a separate workstream.
+
 **Start here:** `m1-status.md` records the current acceptance findings, source-bound
 measurements and next steps. M1 remains open; the default engine is `reference`.
 

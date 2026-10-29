@@ -12,12 +12,60 @@ Current source-bound findings and next steps: `m1-status.md`. Decision: ADR
 | Day 0 | #495 lock fix in the reference engine; x86 and M3 rebaseline; umbrella issue; reference engine frozen | Rebaseline JSON recorded (`09-performance-method.md`) | 2–3 days |
 | M0 | Spike, default profile only. Covers handles, store, arena, hashing, a minimal plan compiler and generator for the 4 spike models, a single-thread BFS, memoization of invariants and guards, ablation switches, and an 8-thread store microbenchmark | Pass and kill criteria in section 2 | 2 weeks |
 | M1 | Safety core. Covers the full binder handoff, the complete `getNextStates`, laziness and normalization semantics, error classes and replay, INSTANCE and `ENABLED`, the parallel engine, traces through the validator, `--engine`, static fallback, shadow comparison in CI, and the ablation test matrix. EWD998PCal is probed early | Small tier at or above baseline with `--engine=core`; shadow comparison clean; ≥1× TLC on 8 of 10 benchmarks at 1 worker (x86) | 8–10 weeks |
-| M2 | Compat and breadth. Covers TLC intern order and runtime names in parallel; `TLCGet`/`TLCSet`, Random and FP64; VIEW; symmetry with hashing under permutation; standard and CommunityModules overrides; store compaction | Full tier ≥182 agreements with `--engine=core` and ≤5% fallback; ≥2× TLC geometric mean at 1 and 8 workers; ≥1× on every benchmark (x86) | 5–7 weeks |
+| M2 | Compat and breadth. Covers TLC intern order and runtime names in parallel; `TLCGet`/`TLCSet`, Random and FP64; VIEW; symmetry with hashing under permutation; standard and CommunityModules overrides; store compaction | Full tier ≥182 actual-core agreements and ≤5% fallback; default ≥2× TLC geometric mean and ≥1× on every benchmark at 1/8 workers; compatibility runtime/TLC ≤2 per model, investigate >1.5 (ADR 0119) | 5–7 weeks |
 | M3 | Liveness through a graph-capture adapter; simulation; DFID; checkpoints; budgets; spill; disk seen set | All modes run on the core; full gate clean | 6–8 weeks |
 | M4 | Core becomes the default; long tail of the corpus; x86 tuning; decision on a generated-code tier | ADR 0006 targets met; reference engine kept for validation | 3–4 weeks |
 
 The realistic total is 6–8 months to replace the default engine. M0 shows,
 after two weeks, whether the design reaches TLC-relative speed.
+
+### Next checkpoint: trusted core and temporal capacity (2026-10-29)
+
+The owner prioritized trusted capability and capacity, not an engine-cutover
+project. The milestone estimates above are the original planning context;
+this checkpoint has the following bounded deliverables and does not close
+M1/M2 merely because its implementation lands. ADR 0119 records the revised
+compatibility performance ceiling without weakening semantic obligations.
+
+1. Freeze a current-source census, small-tier core/auto accounting and
+   performance diagnostic. Preserve every selected fixture, refusal, stop and
+   unverified result; historical reference totals are not core coverage.
+2. Repair typed terminal-error/word families (#606, #490/#499, #434, #607)
+   in small independently reviewed changes. Reuse fresh reference-evaluator
+   replay; do not import checker/store authority into the validator. Add a
+   separately versioned terminal descriptor only when partial/expansion
+   certificates need it, keeping complete prefix rows distinct from partial
+   bindings. The already-unverified #620 boundary remains unclaimed.
+3. Complete the existing L5 dependency chain: original targets for seen/new
+   states in both explorers; retained native vertex/original roots; graph-neutral
+   completion/results; bounded on-demand conversion; CSR routing and complete
+   allocation accounting. Lift fixed capture limits only after those paths
+   cooperate with the same run budget. Reuse the analyzer and validator.
+4. Admit pure state-independent `SelectSeq` predicates under a prime before
+   treating EWD998Chan as a capacity target. Current-source bounded probes
+   enter CoffeeCan3000, aba_asyn_byz and bcastFolklore exploration in both
+   profiles, but EWD998Chan refuses this operator. Those probes establish no
+   completion/capacity. Then deliver #623's consumed scalar/tuple literal lane
+   and the bounded #504/#515/#527 repairs; do not widen every higher-order
+   operator, constructor or library in one change.
+5. Qualify the integrated runtime with a full gate, the original census and
+   affected ablations, and the ten-model five-repeat benchmark at actual 1/8
+   workers. Keep original CoffeeCan3000/EWD998Chan/aba_asyn_byz configurations
+   as primary capacity targets, with recorded comparable budgets; keep
+   bcastFolklore as a separately bounded deep stress run. Never substitute a
+   safety variant or a topology estimate for temporal completion.
+
+The lead owns qualification/review. Three initial authors own trace trust,
+explorer retention, and liveness completion/source access in separate
+worktrees/targets. Move the explorer slot to bounded breadth after its
+capture interface lands; release a slot for fresh review of frozen changes.
+Use at most one gate node and one dedicated benchmark/capacity node, with
+bounded jobs, automatic shutdown and verified external evidence preservation.
+
+General S5 indexing, finer S6 keys, broad scaling work and native modes/storage
+remain subsequent measured work. Persistent trees remain deferred after the
+negative experiment. No new code-generation tier, analyzer rewrite or default
+semantic divergence is introduced by this checkpoint.
 
 ## 2. M0 pass and kill criteria
 

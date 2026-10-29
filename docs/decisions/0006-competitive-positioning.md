@@ -79,7 +79,7 @@ The evidence that shapes the decision:
 
 ### Performance targets dive must beat
 
-All targets are measured as in `docs/survey/competitive.md`: the same container limits, interleaved reps, median of within-rep ratios against the pinned TLC, and correctness checked on every run. They apply to **both profiles**. Every target is result-preserving, so the default profile and `--compat=tlc` must meet the same numbers, with identical results under `--compat=tlc`.
+All targets are measured as in `docs/survey/competitive.md`: the same container limits, interleaved reps, median of within-rep ratios against the pinned TLC, and correctness checked on every run. The original decision applied the same numbers to **both profiles**. **Amended 2026-10-29 by ADR 0119:** default interpreted-throughput targets remain; TLC compatibility instead has a per-model runtime ceiling of 2× TLC, with investigation above 1.5×. Observable correctness and the other targets remain unchanged. The original target table below is retained as the historical decision.
 
 | Metric | Must beat (measured baseline) | Target |
 |---|---|---|
