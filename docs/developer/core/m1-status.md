@@ -435,9 +435,15 @@ compound, lazy and effectful sequence replace forms and overlapping All occurren
 the two printing refusals. L5 requires state storage as well as packed topology
 (`11-liveness.md`); `kSubset` needs a symbolic value and startup/validator support
 (`03-value-model.md`). Neither is a one-function completion.
-Carry-forward defects #504 (failed ASSUME name), #515 (reference instantiated
-Naturals error) and #527 (core Len on an empty-domain function) remain open;
-this closeout does not retire them. The earlier checkpoint's approximately
+Carry-forward defects #504 (failed ASSUME name) and #515 (reference instantiated
+Naturals error) remain open. Recheck #527 at `91742b3c` confirms the core already
+handles empty-function length: MCFindHighest agrees with its existing pinned
+golden on the core in both profiles at 1/4 workers (742 distinct, 1,523 generated,
+depth 5). PR #533 had canonicalized empty function keys; no new runtime fix is
+needed. Seven small oracle-backed length controls and unclassified non-sequence
+rejection controls retain this behavior. This targeted result, recorded in
+`conformance/reports/core/2026-10-29-empty-function-length.json`, does not replace
+the historical full-population engine accounting above. The earlier checkpoint's approximately
 11-billion-instruction MCLamportMutex increase was not causally attributed;
 the new wall-time results do not retroactively explain that historical cost.
 
