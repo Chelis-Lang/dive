@@ -1,0 +1,147 @@
+{
+  "schema": 1,
+  "reason": "Pin empty-domain function Len and non-sequence rejection controls for issue 527",
+  "generation": "Official dive-conformance golden generate, external len-empty staging corpus, --tier all --no-sany --workers 1 --jobs 2 --timeout20 --xmx1g; seed/fp0",
+  "harness_source": "91742b3c9cb4b7021785975f888d5cf9dd43625c",
+  "harness_sha256": "3604013c96cecbb39fcfc4b231c07e99b427f8306740951fffc111bbd5419b98",
+  "cases": {
+    "EmptyFunctionSet": {
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 1,
+      "generated": 2,
+      "depth": 1
+    },
+    "EmptyInterval": {
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 1,
+      "generated": 2,
+      "depth": 1
+    },
+    "EmptyIntervalOtherStart": {
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 1,
+      "generated": 2,
+      "depth": 1
+    },
+    "EmptySetDomain": {
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 1,
+      "generated": 2,
+      "depth": 1
+    },
+    "EmptyTuple": {
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 1,
+      "generated": 2,
+      "depth": 1
+    },
+    "NonemptySequence": {
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 1,
+      "generated": 2,
+      "depth": 1
+    },
+    "EmptyFunctionMember": {
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 1,
+      "generated": 2,
+      "depth": 1
+    }
+  },
+  "sources": {
+    "EmptyFunctionSet.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "EmptyFunctionSet.tla": "50b9ab279f83ba037e2504d2003dd98b577552f0fb12612ef625fe0852e82558",
+    "EmptyInterval.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "EmptyInterval.tla": "282fad103c92fd1d90de688eb5b2375db4129d21f712138c34ab5a6ab9fdeab7",
+    "EmptyIntervalOtherStart.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "EmptyIntervalOtherStart.tla": "768bf05e36476915dd7b2a61ea3f588f89a89759d670ad40b1988d1c5bb94925",
+    "EmptySet.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "EmptySet.tla": "581047d94e9411df67ad3f2f9a5cd39484f5f5fe4821816a8974fdfca94f7855",
+    "EmptySetDomain.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "EmptySetDomain.tla": "983445223c0964aa67d4e29286d0f1810dc655252ae4b979b51c762b423f7be2",
+    "EmptyTuple.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "EmptyTuple.tla": "1490dc90cde299c78e6b4a0dec03d7fb39def059584393dc7d24e867f9ce85b1",
+    "NonSequenceDomain.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "NonSequenceDomain.tla": "ce85da7d18c0322fb6e7d48ca28931520edaf7b6f5de0fa473888881bb5acbc1",
+    "NonemptySequence.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "NonemptySequence.tla": "a0fd0f1fa060aac2849fbb2b26db38b9855ef609f385ee6b7d16c37d00e815d4",
+    "Scalar.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "Scalar.tla": "821e8efecb8f6a87230a242bf252d1012ed08dd7ff8b44244df4a7eedcf8ad66",
+    "EmptyFunctionMember.tla": "1f7ea6a6e1454b387149fc3506fb09d123c40438c2a5d4158c1b1f40ace36558",
+    "EmptyFunctionMember.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf"
+  },
+  "oracle": {
+    "id": "tlc-2026.10.06.014338",
+    "sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+    "classpath": [
+      {
+        "id": "community-modules-202610040242",
+        "pin": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+      },
+      {
+        "id": "community-modules-deps-202610040242",
+        "pin": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d"
+      }
+    ],
+    "module_libraries": [
+      {
+        "id": "apalache-modules-v0.62.3",
+        "pin": "3eb15b253482005222fabbf50bb7aae501eb9f8d"
+      },
+      {
+        "id": "tlapm-library-d8b9747",
+        "pin": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37"
+      }
+    ],
+    "capabilities": {
+      "dump_trace_json": true,
+      "no_generate_spec_te": true,
+      "sany_error_codes": true,
+      "names_temporal_properties": true,
+      "git_revision": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+      "implementation_version": "2.0 2026-10-06"
+    },
+    "java": {
+      "source": "pinned",
+      "version": "17.0.20.1+1",
+      "sha256": "0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62",
+      "platform": "linux-x86_64",
+      "version_line": "openjdk version \"17.0.20.1\" 2026-08-18"
+    }
+  },
+  "unclassified_controls": [
+    "EmptySet",
+    "NonSequenceDomain",
+    "Scalar"
+  ],
+  "qualification": "The three rejection controls have context-only TLC error streams [1000,2103], so no golden or pinned parity credit. They test rejection and unchanged Auto/reference behavior only."
+}

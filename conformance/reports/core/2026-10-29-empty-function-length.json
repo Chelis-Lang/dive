@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "kind": "empty-function-length-recheck",
+  "source": "91742b3c9cb4b7021785975f888d5cf9dd43625c",
+  "dive_sha256": "a55e2f1dbac8a05911ef14b7bf5efe3be3e6fd9c1b005e41ee747ca5985f6064",
+  "harness_sha256": "3604013c96cecbb39fcfc4b231c07e99b427f8306740951fffc111bbd5419b98",
+  "historical_implementation": "d56f1a6f6 (PR #533): canonicalize empty function keys as IntFcn lower bound 1",
+  "runtime_change": false,
+  "golden_model": "examples/specifications/LearnProofs/MCFindHighest.cfg",
+  "profiles": [
+    {
+      "profile": "tlc",
+      "raw_report_sha256": "ff9850abdf739c4e5affda8149e4926eb64f5e86151d05bb23bb13304e7cbed6",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "engine": "core",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "error_class": "TLC_SUCCESS",
+          "exit_code": 0,
+          "distinct_states": 742,
+          "states_generated": 1523,
+          "depth": 5
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "engine": "core",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "error_class": "TLC_SUCCESS",
+          "exit_code": 0,
+          "distinct_states": 742,
+          "states_generated": 1523,
+          "depth": 5
+        }
+      ]
+    },
+    {
+      "profile": "default",
+      "raw_report_sha256": "762fc79ba077d9b7f9e72a5fdce41c172c0bc959083a1c7eca3537de0b97be59",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "engine": "core",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "error_class": "TLC_SUCCESS",
+          "exit_code": 0,
+          "distinct_states": 742,
+          "states_generated": 1523,
+          "depth": 5
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "engine": "core",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "error_class": "TLC_SUCCESS",
+          "exit_code": 0,
+          "distinct_states": 742,
+          "states_generated": 1523,
+          "depth": 5
+        }
+      ]
+    }
+  ],
+  "qualification": "Four source-bound runs of the existing golden, not a complete current small-tier census or performance measurement. No new parity population credit."
+}

@@ -19,6 +19,15 @@ order follow the resolved [compatibility profile](compatibility.md). An operator
 name in the registry is an inventory entry, not a promise of complete support
 for every argument and mode.
 
+`Len` accepts a function with an empty domain as the empty sequence, including
+`[k \in 1..0 |-> 0]`, in both profiles and on the core. A nonempty function
+must have domain `1..n`; an empty set or scalar remains an error. This checked
+example runs without core fallback:
+
+```sh
+dive check crates/dive-api/tests/fixtures/core-len-empty/EmptyInterval.tla --engine core --compat=tlc --workers 4 --seed 0 --fp 0 --output json
+```
+
 Repeat `--library-path DIR` to search before bundled standard modules or
 `--module-path DIR` to search after them. These directories contain TLA+ module
 sources; accepting a source module does not load arbitrary Java plugins. Read
