@@ -106,7 +106,7 @@ A Cargo workspace with small crates and strict dependency direction. Names and b
 
 **Testing tiers.**
 - *Fast:* unit tests, property-based tests for values, ordering, hashing and fingerprints, parser round-trip tests, and a small conformance subset. Runs on every change.
-- *Standard:* the main conformance corpus at small model sizes, worker-count invariance, and trace validation of every counterexample. Gates merges.
+- *Standard:* the main conformance corpus at small model sizes, worker-count invariance, and trace validation of every counterexample. Gates integrated milestones and release candidates; required fast CI gates incremental PR merges (owner correction, 2026-10-29).
 - *Deep:* the full corpus at full model sizes, liveness-heavy specs, both fingerprint and exact modes, and benchmarks. Runs on a schedule and before releases.
 - *Fuzzing:* `cargo-fuzz` on the parser and semantic analyzer with SANY as the oracle for acceptance; on the evaluator with TLC as the oracle where feasible.
 - *Metamorphic tests:* renaming variables, reordering conjuncts and definitions, and splitting modules must not change results.
@@ -115,7 +115,7 @@ A Cargo workspace with small crates and strict dependency direction. Names and b
 
 **Decisions and documentation.** Record architectural decisions as numbered ADRs in `docs/decisions/`. Keep `docs/divergences.md`, `docs/provenance.md` and the survey current. Public APIs are documented with examples. Maintain a changelog and follow semantic versioning once the library API is published.
 
-**Performance discipline.** Every performance change is benchmarked against the previous `dive` build and the pinned TLC, and must pass the standard conformance tier before merging. Benchmarks report startup time, peak memory, states per second and scaling across worker counts, with machine details recorded.
+**Performance discipline.** Every performance change is benchmarked against the previous `dive` build and the pinned TLC, with focused semantic controls before incremental integration and the standard conformance tier on the integrated milestone candidate. Broad performance acceptance campaigns run at milestone and release boundaries. Benchmarks report startup time, peak memory, states per second and scaling across worker counts, with machine details recorded.
 
 ## Ergonomics requirements
 
@@ -164,3 +164,5 @@ Each item was verified against primary sources on 2026-10-08. Details and conseq
 11. **M6 default decisions (owner, 2026-10-09).** Deterministic short lassos and periodic level-boundary checks are the intended defaults. Symmetry with liveness checks the full unreduced state space, replacing refusal as the intended default. Reject non-bijective symmetry functions; make symmetry auditing opt-in. TLC's lasso selection, wall-clock scheduling and symmetry behavior are built under `--compat=tlc`. Host I/O is the explicit exception to implicit compatibility: all profiles require category grants, with restrictions reported. See D-005 and D-013–D-017 in `docs/tlc-differences.md`.
 
 12. **Parity redefined as observable results (owner, 2026-10-12).** Conformance means matching the pinned TLC on the verdict, distinct and generated counts at 1 worker, the violated property name, the error class and exit code, the depth, and an independently validated counterexample. dive does not emulate arbitrary or nondeterministic TLC internals, such as wall-clock timing, thread or queue order, tableau numbering, SCC or lasso choice, or Java method projections. Where this appendix (including item 11) or an earlier ADR implies reproducing those internals, this item takes precedence. Committed evidence is limited to compact JSON or Markdown of at most 100 KB per item. See ADR 0086 and issue #241.
+
+13. **Rapid development loop (owner, 2026-10-29).** Routine development uses focused tests with feedback in seconds to a few minutes and prompt integration through required CI. Full corpus/worker qualification and major performance validation run on integrated milestone and release candidates, rather than every incremental source candidate. Soundness, observable parity, independent witness validation and the prohibition on weakening tests/goldens remain unchanged.
