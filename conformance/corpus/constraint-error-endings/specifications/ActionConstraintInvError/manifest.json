@@ -1,0 +1,26 @@
+{
+  "sources": [
+    "docs/user/traces.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "trace"
+  ],
+  "modules": [
+    {
+      "path": "specifications/ActionConstraintInvError/ActionConstraintInvError.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/ActionConstraintInvError/ActionConstraintInvError.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}

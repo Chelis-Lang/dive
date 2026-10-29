@@ -199,6 +199,13 @@ path = "conformance/corpus/liveness-atom-action-error-order"
 license = "MIT"
 layout = "examples-manifest"
 
+# Terminal safety checks on generated states outside constraints (#499).
+[[corpus]]
+id = "constraint-error-endings"
+path = "conformance/corpus/constraint-error-endings"
+license = "MIT"
+layout = "examples-manifest"
+
 # Primary-first discarded-atom and compiled-bin demand controls (#451).
 # Separate microcorpus; existing small/full populations are unchanged.
 [[corpus]]
