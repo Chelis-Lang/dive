@@ -711,9 +711,9 @@ pub(crate) fn prepare(
     // reports it, before any core work.
     let assumed = match model.check_assumptions() {
         dive_eval::AssumptionOutcome::AllTrue => None,
-        dive_eval::AssumptionOutcome::False { message, .. } => {
-            Some(Verdict::AssumptionFalse { message })
-        }
+        dive_eval::AssumptionOutcome::False {
+            property, message, ..
+        } => Some(Verdict::AssumptionFalse { property, message }),
         dive_eval::AssumptionOutcome::Error { error, message, .. } => {
             Some(dive_check::classify::assumption_error(&error, message))
         }

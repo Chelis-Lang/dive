@@ -86,6 +86,8 @@ pub enum Verdict {
     Deadlock,
     /// An `ASSUME` is false.
     AssumptionFalse {
+        /// The failed assumption's source image, as TLC names the property.
+        property: String,
         /// TLC's message.
         message: String,
     },
@@ -227,7 +229,8 @@ impl Verdict {
             Self::InvariantViolated { property, .. }
             | Self::PropertyViolatedInitially { property }
             | Self::ActionPropertyViolated { property }
-            | Self::PostconditionFalse { property, .. } => Some(property),
+            | Self::PostconditionFalse { property, .. }
+            | Self::AssumptionFalse { property, .. } => Some(property),
             _ => None,
         }
     }
