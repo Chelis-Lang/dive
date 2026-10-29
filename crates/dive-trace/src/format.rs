@@ -39,8 +39,9 @@
 //! ending. Unknown versions and ending kinds fail closed (ADR 0108/0118).
 //!
 //! `invariant-error.ec` is the underlying evaluation cause. The enclosing
-//! check report retains TLC's deciding `TLC_INVARIANT_EVALUATION_FAILED`
-//! (2111); replacing the cause with that wrapper is invalid. Validation
+//! check report retains TLC's deciding class, normally
+//! `TLC_INVARIANT_EVALUATION_FAILED` (2111), or a separately qualified
+//! diagnostic replay's class; replacing the cause with a wrapper is invalid. Validation
 //! requires the named invariant to raise exactly that cause, with all
 //! earlier states and earlier configured invariants passing.
 //!

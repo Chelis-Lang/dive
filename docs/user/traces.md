@@ -18,7 +18,7 @@ in [reports and automation](reports-and-errors.md).
 
 A final invariant evaluation error carries `kind: "invariant-error"`, its
 configured `name`, and the underlying error's `ec`, for example
-`TLC_VALUE_ASSERT_FAILED`. The check report still uses the deciding class
+`TLC_VALUE_ASSERT_FAILED`. The check report normally uses the deciding class
 `TLC_INVARIANT_EVALUATION_FAILED` (2111) and TLC exit 76. These identify different
 parts of the same result: the validator must reproduce the claimed cause at the
 named invariant, after all earlier states and earlier configured invariants
@@ -26,6 +26,15 @@ pass. A false Boolean invariant is not an evaluation error. Wrong names, wrong
 causes, an absent error, or an earlier failure invalidate the claim. An
 unsupported evaluation remains unsupported. The harness requires this proof
 before counting the witness as validated.
+
+A later diagnostic replay can encounter a different error. In the qualified
+native invariant-site case with first report 2111 and deciding
+`TLC_NESTED_EXPRESSION` (2103), the word still names the original invariant and
+its original cause. Independent validation proves that named error on the
+finite word. It does not prove the later diagnostic replay's class or counts.
+The strict harness still refutes this wrapper/word pair; matching metadata
+supplies no replacement proof. Anonymous expansion errors gain no exception,
+and unclassified oracle results remain unclassified.
 
 This new closed ending requires native trace version 2 (ADR 0118). Existing
 endings still write version 1; readers accept both. A version-1 document carrying
