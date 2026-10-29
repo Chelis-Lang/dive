@@ -40,11 +40,13 @@ now succeeds with 1 distinct state, 2 generated states, depth 1 and exit 0:
 dive check conformance/corpus/reference-instance-naturals/specifications/RefSubstDouble/RefSubstDouble.tla --engine reference --compat=tlc --workers 4 --seed 0 --fp 0 --output json
 ```
 
-Actual constant definitions still retain their startup values. Configuration
-redirects keep their existing evaluation behavior; this correction does not
-change startup output, lazy argument demands or error priority. A separately
-tracked core/auto disagreement across two nested instance scopes remains open
-(#634); this example is not a claim of general INSTANCE completion.
+Actual constant definitions still retain their startup values, including
+deferred-set identity and retained materialization history when a constructor
+uses its own bound values. Configuration redirects keep their existing
+evaluation behavior; this correction does not change startup output, lazy
+argument demands or error priority. The separate core cache correction (#634)
+covers definitions reached through two nested instance scopes. These bounded
+controls do not establish general INSTANCE completion.
 
 ## Experimental core engine
 

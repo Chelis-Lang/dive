@@ -926,15 +926,15 @@ impl Core {
     /// disable this cache; the binder's explicit startup processing is unchanged.
     fn constant_cache_state_free(&self, d: dive_ir::DefId) -> bool {
         const WORK: usize = 4096;
-        let mut todo = vec![self.ir.def(d).body];
+        let mut todo = vec![(self.ir.def(d).body, d)];
         let mut seen = std::collections::HashSet::new();
         let mut remaining = WORK;
-        while let Some(e) = todo.pop() {
+        while let Some((e, frame)) = todo.pop() {
             let Some(left) = remaining.checked_sub(1) else {
                 return false;
             };
             remaining = left;
-            if !seen.insert(e) {
+            if !seen.insert((e, frame)) {
                 continue;
             }
             let node = self.ir.node(e);
@@ -944,11 +944,27 @@ impl Core {
                     node.expr,
                     Expr::Var { .. }
                         | Expr::SubstRef { .. }
-                        | Expr::Local(_)
                         | Expr::ExceptAt
                         | Expr::Unbound(_)
                         | Expr::Unevaluable(_)
                 )
+            {
+                return false;
+            }
+            // Constructor bindings are values from domains visited below in
+            // this same proof. They are not caller/formal thunks: retaining
+            // their frame identity prevents a callee's slot number from being
+            // mistaken for a binding in the calling definition. Outer slots,
+            // parameters and LET thunks remain unknown and disable the cache.
+            if let Expr::Local(local) = node.expr
+                && (local.up != 0
+                    || !matches!(
+                        self.ir.def(frame).frame.get(local.slot.index()),
+                        Some(dive_ir::SlotInfo {
+                            kind: dive_ir::SlotKind::Bound,
+                            ..
+                        })
+                    ))
             {
                 return false;
             }
@@ -998,7 +1014,7 @@ impl Core {
                             return false;
                         }
                     } else {
-                        todo.push(def.body);
+                        todo.push((def.body, target));
                     }
                 }
             }
@@ -1006,7 +1022,7 @@ impl Core {
                 .expr
                 .try_for_each_child(|child| {
                     remaining = remaining.checked_sub(1).ok_or(())?;
-                    todo.push(child);
+                    todo.push((child, frame));
                     Ok::<(), ()>(())
                 })
                 .is_err()

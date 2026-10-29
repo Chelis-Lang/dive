@@ -171,8 +171,11 @@ section 4 decide.
        proves state independence instead of trusting SANY's level alone.
        A non-evaluating walk follows real native arguments and configured
        targets, charging at most 4,096 nodes, references and child edges.
-       State, unknown lexical/dynamic inputs, recursion and exhausted proof
-       work disable only that cache. The result is kept once per definition
+       Constructor-bound value slots remain eligible when the walk checks
+       their domains in the same definition frame; this preserves deferred
+       set identity and retained materialization history. Parameters, outer
+       captures and LET thunks remain unknown. State, unknown dynamic inputs,
+       recursion and exhausted proof work disable only that cache. The result is kept once per definition
        in private evaluator metadata; no source body is evaluated by the
        proof. Explicit successful startup values and configuration redirect
        semantics are unchanged. The consumed controls include constant
