@@ -33,6 +33,37 @@ pub struct Strings {
 struct Inner {
     ids: HashMap<Arc<str>, u32>,
     texts: Vec<Arc<str>>,
+    payload_bytes: usize,
+}
+
+/// Known storage and opaque index capacity of an append-only string table.
+///
+/// Text payload is counted once, even though the index, text vector and callers
+/// share each string. Arc control blocks, allocator overhead and the physical
+/// `HashMap` bucket allocation are not exposed by stable standard-library APIs.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct StringsMemory {
+    /// Unique UTF-8 payload bytes, excluding Arc control blocks.
+    pub payload_bytes: usize,
+    /// Allocated text-vector slots, including unused capacity.
+    pub text_slots_bytes: usize,
+    /// Live index key/value object bytes, excluding padding and vacant buckets.
+    pub index_entries_bytes: usize,
+    /// Logical `HashMap` capacity; this is not a physical bucket-byte count.
+    pub index_capacity: usize,
+    /// Unique strings retained by the table.
+    pub strings: usize,
+}
+
+impl StringsMemory {
+    /// A lower bound on dynamic retained bytes, or `None` on arithmetic overflow.
+    /// The containing [`Strings`] object itself is excluded.
+    #[must_use]
+    pub fn known_retained_bytes(self) -> Option<usize> {
+        self.payload_bytes
+            .checked_add(self.text_slots_bytes)?
+            .checked_add(self.index_entries_bytes)
+    }
 }
 
 impl Strings {
@@ -111,6 +142,7 @@ impl Strings {
         let id = u32::try_from(inner.texts.len())
             .map_err(|_| crate::Error::unsupported("more than 2^32 distinct strings"))?;
         let text: Arc<str> = text.into();
+        inner.payload_bytes += text.len();
         inner.texts.push(text.clone());
         inner.ids.insert(text, id);
         Ok(id)
@@ -172,6 +204,22 @@ impl Strings {
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
+
+    /// Measures known dynamic storage without counting shared text twice.
+    /// The index's opaque bucket allocation is reported as logical capacity,
+    /// rather than inventing a physical byte count from that capacity.
+    #[must_use]
+    pub fn memory_usage(&self) -> StringsMemory {
+        let inner = self.inner.read().unwrap_or_else(PoisonError::into_inner);
+        StringsMemory {
+            payload_bytes: inner.payload_bytes,
+            text_slots_bytes: inner.texts.capacity() * std::mem::size_of::<Arc<str>>(),
+            index_entries_bytes: inner.ids.len()
+                * (std::mem::size_of::<Arc<str>>() + std::mem::size_of::<u32>()),
+            index_capacity: inner.ids.capacity(),
+            strings: inner.texts.len(),
+        }
+    }
 }
 
 #[cfg(test)]
@@ -179,6 +227,42 @@ mod tests {
     use std::cmp::Ordering;
 
     use super::*;
+
+    #[test]
+    fn memory_counts_unique_utf8_and_exposes_opaque_index_capacity() {
+        let table = Strings::default();
+        let _ = table.intern("alpha");
+        let _ = table.intern("β");
+        let _ = table.intern("");
+        let before = table.memory_usage();
+        assert_eq!(before.payload_bytes, 7);
+        assert_eq!(before.strings, 3);
+        assert!(before.index_capacity >= 3);
+        assert!(before.text_slots_bytes >= 3 * std::mem::size_of::<Arc<str>>());
+        let reader = table.text(0);
+        let _ = table.intern("alpha");
+        assert_eq!(table.memory_usage(), before, "shared strings count once");
+        drop(reader);
+        {
+            let mut inner = table.inner.write().unwrap_or_else(PoisonError::into_inner);
+            inner.texts.reserve(100);
+            inner.ids.reserve(100);
+        }
+        let after = table.memory_usage();
+        assert_eq!(after.payload_bytes, before.payload_bytes);
+        assert_eq!(after.index_entries_bytes, before.index_entries_bytes);
+        assert!(after.text_slots_bytes > before.text_slots_bytes);
+        assert!(after.index_capacity > before.index_capacity);
+        assert_eq!(
+            after
+                .known_retained_bytes()
+                .and_then(|n| n.checked_sub(after.text_slots_bytes)),
+            before
+                .known_retained_bytes()
+                .and_then(|n| n.checked_sub(before.text_slots_bytes)),
+            "opaque hash bucket bytes are not invented from logical capacity"
+        );
+    }
 
     #[test]
     fn a_sealed_table_refuses_new_strings_only() {

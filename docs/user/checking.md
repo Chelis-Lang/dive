@@ -273,6 +273,14 @@ entrypoints implement a checking subset; full TLC toolchain parity remains open.
 
 ## Time and memory budgets
 
+Core JSON metrics include `core.metrics.store.memory`: known persistent-store
+allocation components and capacities, including unused slab slots and old index
+tables still held by readers. `known_retained_bytes_lower_bound` excludes opaque
+allocator, Arc and string-index bucket overhead, external shared objects and
+other engine regions. Rehash scratch fields describe allocation traffic and
+the largest individual temporary, rather than retained bytes or a process peak.
+These diagnostics do not change the limits or replace the whole-process budget.
+
 Every `dive check` runs under two budgets (ADR 0107):
 
 - `--time-limit DURATION|none` bounds wall-clock time for the whole check.

@@ -38,7 +38,7 @@ use std::time::{Duration, Instant};
 use dive_core::handle::{K_STATE, fin, state_term};
 use dive_core::memo::{Memo, SiteStats};
 use dive_core::plan::{Check, Code};
-use dive_core::store::StoreStats;
+use dive_core::store::{StoreMemory, StoreStats};
 use dive_core::{Error, ErrorKind, Handle, Machine, Opts, Plan, Sink, Store};
 use dive_store::predecessor::PredecessorLog;
 use dive_store::trace::StateId;
@@ -147,6 +147,9 @@ pub struct Metrics {
     pub conjuncts_skipped: u64,
     /// Store intern statistics at the end.
     pub store: StoreStats,
+    /// Known store storage before explorer workers are dropped; this is a
+    /// lower-bound component snapshot, not process RSS or peak memory.
+    pub store_memory: StoreMemory,
     /// Memo statistics per site, with the site names.
     pub memo: Vec<(String, SiteStats)>,
     /// The largest arena epoch: nodes, pool handles.
@@ -1133,6 +1136,7 @@ pub fn explore_with<'p>(
     };
     let mut metrics = ex.metrics;
     metrics.store = store.stats();
+    metrics.store_memory = store.memory_usage();
     metrics.memo = plan
         .code
         .sites
