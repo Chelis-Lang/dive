@@ -47,7 +47,7 @@ fn headline(v: &Verdict) -> String {
             format!("Error: Action property {property} is violated.")
         }
         Verdict::Deadlock => "Error: Deadlock reached.".to_owned(),
-        Verdict::AssumptionFalse { message } | Verdict::ModelError { message, .. } => {
+        Verdict::AssumptionFalse { message, .. } | Verdict::ModelError { message, .. } => {
             format!("Error: {message}")
         }
         Verdict::PostconditionFalse { message, .. }

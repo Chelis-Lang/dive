@@ -252,6 +252,9 @@
   uses seeded core/reference shadow comparisons, and keeps raw process output
   and complete outcome accounting outside the checkout.
 
+- Failed `ASSUME` reports retain the evaluated assumption’s source image in
+  `property`, matching TLC for anonymous and named assumptions (#504).
+
 - `--engine core` reports a false or failing `ASSUME` as the reference engine
   and TLC do: the same message and class, and exit 10. It used to refuse the
   run.

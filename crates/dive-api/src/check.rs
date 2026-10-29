@@ -1436,7 +1436,7 @@ impl CheckReport {
                 let v = &r.verdict;
                 doc["property"] = v.property().map_or(Value::Null, Value::from);
                 doc["message"] = match v {
-                    Verdict::AssumptionFalse { message }
+                    Verdict::AssumptionFalse { message, .. }
                     | Verdict::EvaluationError { message, .. }
                     | Verdict::ModelError { message, .. }
                     | Verdict::PostconditionFalse { message, .. }

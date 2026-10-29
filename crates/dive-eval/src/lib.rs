@@ -161,6 +161,8 @@ pub enum AssumptionOutcome {
     False {
         /// The assumption.
         def: DefId,
+        /// The evaluated assumption's source image, as TLC names it.
+        property: String,
         /// TLC's message.
         message: String,
     },
@@ -676,6 +678,7 @@ impl Evaluator {
             Ok(Ev::V(Value::Bool(false))) => AssumptionOutcome::False {
                 def: a,
                 message: format!("Assumption {loc} is false."),
+                property: loc,
             },
             Ok(_) => {
                 let error = EvalError::coded(

@@ -34,6 +34,12 @@ instances retain separate core/auto disagreement #634, and assumption-name
 metadata remains #504's obligation. These selected controls add no agreement
 credit to the historical populations below.
 
+The separate `assumption-reporting` corpus adds five pinned model facts and
+five accepted SANY modules for failed-ASSUME property names (#504). API controls
+compare actual source images, class/status, early termination and null error
+properties across both profiles, Reference/Core/Auto and workers 1/4. These
+are targeted controls, not an update to the historical populations below.
+
 The core's bounded instance-query extension (#609) is checked separately by
 `core_enabled_instance`: 210 supported source/profile/worker/cache cells,
 124 explicit refusal cells and 28 frontend level-rejection cells. It admits
