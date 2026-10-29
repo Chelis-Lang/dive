@@ -76,7 +76,8 @@ fields. Complete facts retain the existing graph-completion receipt; prefix
 facts retain their level and unexhausted queue and cannot become completion.
 Neither kind proves a temporal property. `GraphBuilder::complete` and `prefix`
 return the original verdict when supplied a failed or stopped safety result.
-Existing public temporal reports and analysis results keep their graph owners.
+Existing graph-owning variants keep their graph owners; native reports retain
+only sealed facts and any independently validated selected word.
 
 Producers retaining their own state rows can supply borrowed adjacency through
 `capture::CsrCaptureInput`. `CsrCapture::checked` checks bounds, roots, ordinals,
@@ -88,7 +89,8 @@ stops. Their `evidence()` and `into_evidence()` expose the same graph-independen
 facts as reference capture. These low-level APIs do not evaluate the opaque rows
 or certify temporal properties. Existing `capture::Limits` remain unchanged;
 there is no new CLI option or TLC divergence. The ordinary core temporal route
-still retains the reference value graph. `capture_csr` tests build checked CSR
+uses native retained rows and checked CSR, without a retained reference value
+graph. `capture_csr` tests build checked CSR
 from actual captures; run `cargo test -p dive-check --test capture_csr --locked`.
 
 After temporal analysis, `Analysis::into_native()` and
@@ -97,9 +99,37 @@ results live in `analyze::periodic::external`: `NativeFinal` retains completed
 producer facts and any `NativeWord`; `NativeAnalysis` distinguishes a final
 result from `NativePrefix`. Words retain their property set, concrete states,
 closing position and original edge metadata, and still require independent
-validation. Prefix facts cannot become a holding result. Existing analysis
-entrypoints and public reports keep their current return types; these consuming
-adapters add no native capture capacity or proof authority.
+validation. Prefix facts cannot become a holding result. Existing reference
+analysis entrypoints keep their current return types.
+The core now consumes these carriers directly for graph-neutral reports;
+detaching a graph alone adds no capture capacity or proof authority.
+
+The native producer uses `GraphCheck::native_level_due(stats)` before scanning
+CSR, then `level_native` at due committed levels. `finish_native` consumes
+`CsrComplete`; `finish_native_prefix` consumes `CsrPrefix`. Both return
+`(NativeAnalysis, Checks)` through the existing failure channel. A `NativeRead`
+callback receives a checked opaque row id and this run's `EvaluationControl`;
+it returns all model variables in IR order or an explicit failure. Missing
+values and typed stops cannot become FALSE truth or absence of acceptance.
+The initial core converter retains zero cached Value rows and reconverts
+requested rows. Reference `GraphCheck::level`/`finish`/`finish_prefix` remain.
+
+Core-native `temporal::Report::outcome()` adds these boxed variants alongside
+existing reference outcomes:
+
+| Native outcome | Accessible evidence |
+| --- | --- |
+| `NativeHolds` | `CompleteEvidence`: actual exhausted safety result, options, counters and completion receipt |
+| `NativeViolation` | `ValidatedNativeCounterexample`: `word()`, complete `evidence()`, `document()`, `validation()` |
+| `NativePrefixViolation` | `ValidatedNativePrefix`: `word()`, unfinished-prefix `evidence()`, `document()`, `validation()` |
+
+Validated wrappers have private constructors. Each selected word passes fresh
+independent typed and serialized replay after native graph/converter/store/plan
+owners are dropped. `NativeWord` alone is unvalidated; a validation marker or
+caller-supplied CSR cannot construct a validated outcome. Prefix facts never
+become complete facts or a holding result. JSON retains schema 3, existing trace
+endings and actual completion/worker/collision/output metadata. The core example
+and report meanings are in the [temporal guide](temporal.md#native-graph-capture-with-the-core-engine).
 
 | Entry | Meaning |
 | --- | --- |
@@ -124,6 +154,14 @@ graph studies. Public IR/model metadata is validated before execution; manually
 constructing a graph or marking a validation boolean does not supply a certified
 model result. The trace crate decides `ENABLED` with the core evaluator and
 shares nothing else with the checker.
+
+`Value::set_controlled`, `fcn_controlled` and `record_controlled` accept a
+cooperative `proceed` callback. Returning `false` discards the partial result
+with `ConstructionError::Interrupted`; scratch reservation failure and original
+value errors stay distinct. Closed materialized normalization is cooperative.
+Symbolic children use the existing constructor, and final shared allocations
+retain Rust's allocation behavior. These helpers establish no memory ceiling.
+
 For exact type signatures and compiled examples run `cargo doc -p dive-api --no-deps`
 and consult [the API root](../../crates/dive-api/src/lib.rs),
 [trace guide](traces.md) and [temporal guide](temporal.md).
@@ -137,7 +175,9 @@ intended edge, including stutters; empty rows remain dead ends. Invalid CSR
 layout/references, label shape and product resource bounds return errors.
 This API consumes caller-supplied labels and does not enumerate a specification,
 certify graph completion or replace independent trace validation. Ordinary core
-checking still uses its existing graph representation and capacity limits.
+temporal capture now uses checked native CSR, while its fixed capture limits
+remain unchanged. This standalone topology API supplies no
+capacity or memory-bound certificate.
 
 The [fair procedure guide](../pluscal-translation.md) includes a compiled
 Rust caller using `TranslationRequest.limits.fairness`. Shared finite process

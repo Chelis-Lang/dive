@@ -454,7 +454,7 @@ fn compare_fcn(f: &Fcn, a: &Value, b: &Value, ctx: Ctx) -> Result<Ordering> {
     }
 }
 
-fn non_int_domain(d: &Value, ctx: Ctx, an: bool) -> ValueError {
+pub(crate) fn non_int_domain(d: &Value, ctx: Ctx, an: bool) -> ValueError {
     let article = if an { "an integer" } else { "integer" };
     fail(format!(
         "Attempted to compare {article} with non-integer:\n{}.",

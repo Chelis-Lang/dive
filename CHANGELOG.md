@@ -1,13 +1,30 @@
 # Changelog
 
+- Ordinary `--engine core` temporal checks now retain persistent original rows
+  and CSR instead of a complete evaluator-value graph. Controlled eager Graph
+  admission preserves representation/refusal order; analysis reads values on
+  demand with zero retained Value cache. Native reports retain sealed complete
+  or prefix facts and independently validated selected words, releasing native
+  graph/store/plan owners before fresh replay. Rust reports add `NativeHolds`,
+  `NativeViolation` and `NativePrefixViolation`; schema 3 and existing trace
+  endings remain. Fixed capture counts and semantic refusals remain unchanged;
+  complete memory accounting and TLC-relative capacity/performance qualification
+  are still open.
+
 - Low-level Rust producers can validate borrowed CSR adjacency and detach
   completed or committed-prefix evidence without constructing evaluator state
-  values. The core temporal route and capture limits remain unchanged.
+  values. The native core producer consumes this boundary; capture limits
+  remain unchanged.
 
 - Rust temporal analysis results can release their legacy capture graphs through
   `Analysis::into_native()` and `PeriodicAnalysis::into_native()`, preserving the
   owned candidate word and original complete or prefix producer facts. Candidate
   validation and existing reference entrypoints are unchanged.
+- Core temporal graph conversion checks the capture budget during materialized
+  traversal, normalization and sorting, with explicit scratch allocation errors.
+  Low-level value constructors offer the same cooperative controls. Symbolic
+  materialization and final shared allocations retain their existing behavior;
+  capture limits remain unchanged.
 
 - Low-level Rust graph captures expose immutable producer facts through
   `evidence()` and release graph storage through `into_evidence()`. Completed
@@ -76,7 +93,8 @@
 - Low-level Rust temporal products accept checked borrowed CSR topology through
   `CsrTopology`, `Product::from_csr` and `with_csr_recurrences`. Edge order,
   duplicate edges and original witness positions are preserved. Checker graph
-  retention and capacity remain the next L5 integration work.
+  retention now uses this topology; complete capacity qualification remains
+  L5 work.
 
 - Core graph capture delivers original accepted values for new and seen
   targets, retaining their representation and action/ordinal metadata. Temporal

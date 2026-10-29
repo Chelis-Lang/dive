@@ -12,6 +12,38 @@ use dive_explore::graph::{GraphSink, Step, Stopped};
 
 use super::Graph;
 
+#[test]
+fn conversion_stops_require_this_captures_actual_budget_evidence() {
+    use dive_check::Verdict;
+    use dive_check::budget::{Budget, Phase};
+    use dive_core::print::ConversionError;
+    use dive_value::ConstructionError;
+    let watchdog = Budget::new(Some(std::time::Duration::ZERO), None)
+        .start()
+        .expect("watchdog")
+        .expect("limited budget");
+    let stopped = super::conversion_stop(watchdog.budget());
+    assert!(matches!(stopped, Some(Verdict::Stopped(ref stop)) if stop.phase == Phase::Capture));
+    assert!(matches!(
+        super::conversion_error(
+            ConversionError::Construction(ConstructionError::Interrupted),
+            stopped
+        ),
+        Verdict::Stopped(_)
+    ));
+    assert!(matches!(
+        super::conversion_error(
+            ConversionError::Construction(ConstructionError::Interrupted),
+            None
+        ),
+        Verdict::InternalError { .. }
+    ));
+    // A real conversion refusal is not converted into a coincident budget stop.
+    assert!(
+        matches!(super::conversion_error(ConversionError::Unsupported("actual value refusal".into()), super::conversion_stop(watchdog.budget())), Verdict::Unsupported { feature } if feature.contains("actual value refusal"))
+    );
+}
+
 /// Specifications (body, configuration) with temporal properties.
 const SPECS: &[(&str, &str)] = &[
     // Two actions, seen states and a stutter-only end.
@@ -77,7 +109,12 @@ fn core(
     let opts = dive_core::Opts::default();
     let prepared = crate::core_engine::prepare(ir, cfg, options, profile_tlc, opts, true)
         .unwrap_or_else(|r| panic!("core refused: {:?}", r.verdict));
-    let mut graph = Graph::new(&prepared.model, capture::Limits::default(), None);
+    let mut graph = Graph::new(
+        &prepared.model,
+        capture::Limits::default(),
+        None,
+        &options.budget,
+    );
     let poll = || false;
     let out = dive_explore::explore_with(
         &prepared.plan,
@@ -255,6 +292,7 @@ fn seen_targets_keep_original_values_ordinals_and_representations() {
                                 ..capture::Limits::default()
                             },
                             None,
+                            &dive_check::budget::Budget::unlimited(),
                         ),
                         rows: vec![],
                         variable,
@@ -363,7 +401,12 @@ fn converted_new_and_seen_originals_preserve_checked_equality() {
                         crate::core_engine::prepare(&ir(&body), &cfg, &options, tlc, opts, false)
                             .unwrap_or_else(|r| panic!("core refused: {:?}", r.verdict));
                     let variable = prepared.plan.vars.iter().position(|v| v == "x").expect("x");
-                    let mut graph = Graph::new(&prepared.model, capture::Limits::default(), None);
+                    let mut graph = Graph::new(
+                        &prepared.model,
+                        capture::Limits::default(),
+                        None,
+                        &dive_check::budget::Budget::unlimited(),
+                    );
                     let out = dive_explore::explore_with(
                         &prepared.plan,
                         &prepared.store,
@@ -431,6 +474,7 @@ fn capture_scratch_limit_stops_before_retaining_the_overflow_target() {
                 ..capture::Limits::default()
             },
             None,
+            &dive_check::budget::Budget::unlimited(),
         );
         let out = dive_explore::explore_with(
             &prepared.plan,
@@ -520,7 +564,12 @@ fn capture_polls_the_run_budget_before_retaining_each_original() {
         // Init, before source expansion, then each original. One source makes
         // these calls ordered at every width, including inside the worker pool.
         let poll = || polls.fetch_add(1, Ordering::Relaxed) >= 3;
-        let mut graph = Graph::new(&prepared.model, capture::Limits::default(), None);
+        let mut graph = Graph::new(
+            &prepared.model,
+            capture::Limits::default(),
+            None,
+            &dive_check::budget::Budget::unlimited(),
+        );
         let out = dive_explore::explore_with(
             &prepared.plan,
             &prepared.store,

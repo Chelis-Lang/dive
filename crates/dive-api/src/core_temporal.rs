@@ -2,7 +2,7 @@
 //! (`docs/developer/core/11-liveness.md` §6).
 //!
 //! The core replaces only the producer: it explores and reports its
-//! behavior graph ([`crate::core_graph::Graph`]), and the reference engine's
+//! native rows and CSR ([`crate::core_native_graph::NativeSink`]), and the reference engine's
 //! own planning, completed-level and final checks
 //! ([`dive_liveness::analyze::periodic::external::GraphCheck`]), validation
 //! and report finish the run. A safety ending is reported as the safety
@@ -15,12 +15,16 @@
 use std::sync::Arc;
 use std::time::Instant;
 
+use dive_check::budget::{EvaluationControl, Phase};
+use dive_check::capture::{CsrCapture, CsrComplete, CsrPrefix};
 use dive_check::{CheckOptions, CheckResult, Verdict};
 use dive_ir::Ir;
 use dive_liveness::analyze::periodic::Schedule;
-use dive_liveness::analyze::periodic::external::GraphCheck;
+use dive_liveness::analyze::periodic::external::{GraphCheck, NativeAnalysis};
 
 use crate::core_engine::{CoreOutcome, CoreRun, Prepared, Search};
+use crate::core_native_graph::{NativeGraph, NativeSink};
+use crate::core_native_values::NativeValues;
 
 /// How a temporal run's checks are scheduled: `Some` for the default
 /// profile's completed-level checks, `None` for the final check only
@@ -108,12 +112,42 @@ pub(crate) fn check(
     let budget = &options.budget;
     let poll = || !matches!(budget.poll(), Ok(None));
     let explore_started = Instant::now();
-    run.searched = true;
-    let mut on_level = |level: u64, graph: &dive_check::capture::BehaviorGraph, stats| {
-        graph_check.level(level, graph, stats)
+    let control = match EvaluationControl::new(budget, Phase::Capture) {
+        Ok(control) => control,
+        Err(error) => return internal(&error.to_string(), options, ir),
     };
-    let mut graph =
-        crate::core_graph::Graph::new(&model, configuration.limits.capture, Some(&mut on_level));
+    let mut on_level = |level: u64, graph: &NativeGraph, values: &mut NativeValues<'_>, stats| {
+        // Final-only and not-yet-due levels do not scan any retained CSR.
+        if !graph_check.native_level_due(stats) {
+            return Ok(false);
+        }
+        let csr = CsrCapture::checked(graph.input(), graph.limits(), &control)?;
+        let mut read = |row, control: &EvaluationControl| values.read(graph.row(row)?, control);
+        Ok(graph_check.level_native(level, &csr, stats, &mut read))
+    };
+    let mut sink = match NativeSink::new(
+        &model,
+        Arc::clone(&store),
+        configuration.limits.capture,
+        options,
+        Some(&mut on_level),
+    ) {
+        Ok(sink) => sink,
+        Err(verdict @ (Verdict::Stopped(_) | Verdict::BudgetMeasurement { .. })) => {
+            return CoreOutcome::Checked(Box::new(crate::core_engine::result(
+                verdict, options, ir,
+            )));
+        }
+        Err(Verdict::InternalError { message }) => return internal(&message, options, ir),
+        Err(reason) => {
+            return refused(
+                format!("the behavior graph on the core stopped: {reason:?}"),
+                options,
+                ir,
+            );
+        }
+    };
+    run.searched = true;
     let mut out = dive_explore::explore_with(
         &plan,
         &store,
@@ -126,37 +160,32 @@ pub(crate) fn check(
             sample: None,
         },
         &poll,
-        Some(&mut graph),
+        Some(&mut sink),
     );
-    let graph_error = graph.take_error();
-    let (builder, graph_metrics) = graph.finish();
+    let graph_error = sink.take_error();
+    let (graph, mut values) = sink.finish();
     run.metrics = crate::core_engine::metrics_json(&plan, &out.metrics, compile_time);
-    if let Some(m) = run.metrics.as_object_mut() {
-        m.insert(
-            "liveness".into(),
-            serde_json::json!({
-                "convert_ms": graph_metrics.convert.as_secs_f64() * 1e3,
-                "converted_nodes": graph_metrics.converted,
-                "memo_entries": graph_metrics.memo_entries,
-                "graph_states": builder.graph().states.len(),
-            }),
-        );
-    }
     let prefix = match out.verdict {
-        dive_explore::Verdict::GraphStop => {
-            let reason = graph_error.map_or_else(|| "no reason".to_owned(), |v| format!("{v:?}"));
-            return refused(
-                format!("the behavior graph on the core stopped: {reason}"),
-                options,
-                ir,
-            );
-        }
         dive_explore::Verdict::PrefixStop { level } => {
+            // The successful committed-prefix factory checks its own actual
+            // queue/shape facts; this cannot create completed EOF evidence.
             out.verdict = dive_explore::Verdict::Success;
             Some(level)
         }
         _ => None,
     };
+    let graph_stopped = out.verdict == dive_explore::Verdict::GraphStop;
+    if graph_stopped
+        && matches!(
+            &graph_error,
+            Some(Verdict::Stopped(_) | Verdict::BudgetMeasurement { .. })
+        )
+    {
+        // The sink's owned control actually observed this run's exhausted or
+        // unmeasurable budget. Use the ordinary budget report path for real
+        // counters/output/worker metadata, then retain its exact capture cause.
+        out.verdict = dive_explore::Verdict::Budget;
+    }
     let search = Search {
         ir,
         config,
@@ -166,14 +195,47 @@ pub(crate) fn check(
         explore_started,
     };
     let mut safety = crate::core_engine::safety_result(&search, &model, &store, &plan, start, out);
+    if graph_stopped {
+        match graph_error {
+            Some(verdict @ (Verdict::Stopped(_) | Verdict::BudgetMeasurement { .. })) => {
+                safety.verdict = verdict;
+            }
+            Some(Verdict::InternalError { message }) => {
+                record_metrics(run, &graph, &values);
+                return internal(&message, options, ir);
+            }
+            reason => {
+                record_metrics(run, &graph, &values);
+                let reason = reason.map_or_else(|| "no reason".to_owned(), |v| format!("{v:?}"));
+                return refused(
+                    format!("the behavior graph on the core stopped: {reason}"),
+                    options,
+                    ir,
+                );
+            }
+        }
+    }
+    if let Verdict::Stopped(stopped) = &mut safety.verdict {
+        stopped.phase = Phase::Capture;
+    }
     if safety.verdict != Verdict::Success {
+        record_metrics(run, &graph, &values);
         // A safety ending, a stop or a refusal: reported as the reference
         // engine's temporal route reports it, never a temporal verdict, with
         // the bound model's symmetry resolution.
         safety.symmetry_liveness = Some(model.symmetry_liveness().clone());
         return CoreOutcome::Checked(Box::new(safety));
     }
-    let analysis = finish(builder, graph_check, safety, prefix, options);
+    let analysis = finish(
+        &graph,
+        &mut values,
+        graph_check,
+        safety,
+        prefix,
+        options,
+        &control,
+    );
+    record_metrics(run, &graph, &values);
     let analysis = match analysis {
         Ok(a) => a,
         Err(Verdict::InternalError { message }) => return internal(&message, options, ir),
@@ -192,7 +254,13 @@ pub(crate) fn check(
             ir,
         );
     }
-    match crate::temporal::core_report(
+    // Analysis owns only the selected converted word and sealed facts now.
+    // Release the native capture/store before fresh independent rebinding.
+    drop(values);
+    drop(graph);
+    drop(plan);
+    drop(store);
+    match crate::temporal::core_native_report(
         ir,
         config,
         options,
@@ -214,28 +282,72 @@ pub(crate) fn check(
 }
 
 type Analysis = Result<
-    (
-        dive_liveness::analyze::periodic::PeriodicAnalysis,
-        dive_liveness::analyze::periodic::Checks,
-    ),
+    (NativeAnalysis, dive_liveness::analyze::periodic::Checks),
     dive_liveness::analyze::periodic::PeriodicFailure,
 >;
 
 /// Completes the graph and runs the final check, or finishes the prefix
 /// the level checks stopped at.
 fn finish(
-    builder: dive_check::capture::GraphBuilder,
+    graph: &NativeGraph,
+    values: &mut NativeValues<'_>,
     graph_check: GraphCheck<'_>,
     safety: CheckResult,
     prefix: Option<u64>,
     options: &CheckOptions,
+    control: &EvaluationControl,
 ) -> Result<Analysis, Verdict> {
+    let mut read = |row, control: &EvaluationControl| values.read(graph.row(row)?, control);
     if let Some(level) = prefix {
-        let prefix = builder.prefix(level, safety, options.clone())?;
-        Ok(graph_check.finish_prefix(prefix).map_err(|f| *f))
+        let prefix = CsrPrefix::from_producer(
+            graph.input(),
+            level,
+            safety,
+            options.clone(),
+            graph.limits(),
+            control,
+        )?;
+        Ok(graph_check
+            .finish_native_prefix(prefix, &mut read)
+            .map_err(|f| *f))
     } else {
-        let complete = builder.complete(safety, options.clone())?;
-        Ok(graph_check.finish(complete).map_err(|f| *f))
+        let complete = CsrComplete::from_producer(
+            graph.input(),
+            safety,
+            options.clone(),
+            graph.limits(),
+            control,
+        )?;
+        Ok(graph_check
+            .finish_native(complete, &mut read)
+            .map_err(|f| *f))
+    }
+}
+
+fn record_metrics(run: &mut CoreRun, graph: &NativeGraph, values: &NativeValues<'_>) {
+    if let Some(metrics) = run.metrics.as_object_mut() {
+        let memory = graph.memory();
+        let conversion = values.metrics();
+        metrics.insert(
+            "liveness".into(),
+            serde_json::json!({
+                "storage": "native-csr", "graph_states": graph.state_count(),
+                "convert_ms": conversion["convert_ms"],
+                "converted_nodes": conversion["converted_values"],
+                "memo_entries": 0,
+                "values": conversion,
+                "memory": {
+                    "fixed_bytes": memory.fixed_bytes,
+                    "buffer_bytes": memory.buffer_bytes,
+                    "growth_overlap_upper_bound_bytes": memory.growth_overlap_upper_bound_bytes,
+                    "capture_key_entries": memory.key_entries,
+                    "capture_key_capacity": memory.key_capacity,
+                    "key_index_retained_after_capture": false,
+                    "accounting_complete": false,
+                    "scope": "native collector buffers and action-label capacities; reserve overlap is an upper bound, not observed RSS; capture key index released before final analysis; opaque hash/allocator/Arc storage, Store, explorer frontiers/waves and transient conversion/analysis storage require separate accounting; no capacity or peak-memory claim",
+                },
+            }),
+        );
     }
 }
 

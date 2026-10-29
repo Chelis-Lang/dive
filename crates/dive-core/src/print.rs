@@ -204,6 +204,162 @@ fn function_value(
 #[cfg(test)]
 #[path = "print_tests.rs"]
 mod tests;
+/// Failure in cooperative graph conversion.
+#[derive(Debug)]
+pub enum ConversionError {
+    /// The persistent value cannot be represented by the reference engine.
+    Unsupported(String),
+    /// Normalization, scratch storage, or cooperative interruption failed.
+    Construction(dive_value::ConstructionError),
+}
+
+impl From<dive_value::ConstructionError> for ConversionError {
+    fn from(error: dive_value::ConstructionError) -> Self {
+        Self::Construction(error)
+    }
+}
+
+impl std::fmt::Display for ConversionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Unsupported(reason) => f.write_str(reason),
+            Self::Construction(error) => error.fmt(f),
+        }
+    }
+}
+impl std::error::Error for ConversionError {}
+
+/// Converts a graph value with checkpoints in materialized traversal and
+/// normalization. `proceed` returns false to interrupt.
+///
+/// Symbolic values retain the legacy conversion/materialization path, which is
+/// not yet cooperative. Final shared allocations and diagnostic rendering also
+/// retain their existing behavior. This helper does not establish a memory cap.
+///
+/// # Errors
+/// The existing conversion refusal, normalization error, interruption, or
+/// unavailable scratch storage.
+#[allow(
+    clippy::too_many_lines,
+    reason = "preserve conversion and name encounter order in one value-class match"
+)]
+pub fn to_value_controlled(
+    heap: &mut Heap,
+    names: &Interner,
+    h: Handle,
+    ctx: Ctx,
+    conv: Conversion,
+    proceed: &mut dyn FnMut() -> bool,
+) -> Result<Value, ConversionError> {
+    fn check(proceed: &mut dyn FnMut() -> bool) -> Result<(), ConversionError> {
+        if proceed() {
+            Ok(())
+        } else {
+            Err(dive_value::ConstructionError::Interrupted.into())
+        }
+    }
+    fn storage<T>(
+        len: usize,
+        proceed: &mut dyn FnMut() -> bool,
+    ) -> Result<Vec<T>, ConversionError> {
+        check(proceed)?;
+        let mut out = Vec::new();
+        out.try_reserve_exact(len).map_err(|_| {
+            ConversionError::Construction(dive_value::ConstructionError::Allocation)
+        })?;
+        Ok(out)
+    }
+    check(proceed)?;
+    if !h.is_compound()
+        || heap.view(h).is_lazy()
+        || heap.view(h).kind.is_symbolic()
+        || heap.view(h).kind == Kind::BigInt
+    {
+        let value = to_value(heap, names, h, ctx, conv).map_err(ConversionError::Unsupported)?;
+        check(proceed)?;
+        return Ok(value);
+    }
+    if conv == Conversion::Print
+        && let Some(reason) = ambiguous(heap, h)
+    {
+        return Err(ConversionError::Unsupported(reason));
+    }
+    let view = heap.view(h);
+    let (kind, lo, view_flags) = (view.kind, view.lo, view.flags);
+    let mut keys = storage(view.keys().len(), proceed)?;
+    for &key in view.keys() {
+        check(proceed)?;
+        keys.push(key);
+    }
+    let mut handles = storage(view.values().len(), proceed)?;
+    for &value in view.values() {
+        check(proceed)?;
+        handles.push(value);
+    }
+    match kind {
+        Kind::Set | Kind::SetEnum => {
+            let mut elements = storage(handles.len(), proceed)?;
+            for value in handles {
+                elements.push(to_value_controlled(heap, names, value, ctx, conv, proceed)?);
+            }
+            Value::set_controlled(elements, ctx, proceed).map_err(Into::into)
+        }
+        Kind::IntFcn => {
+            let mut elements = storage(handles.len(), proceed)?;
+            for value in handles {
+                elements.push(to_value_controlled(heap, names, value, ctx, conv, proceed)?);
+            }
+            check(proceed)?;
+            if lo == 1 {
+                return Ok(
+                    if conv == Conversion::Graph && view_flags & flags::TUPLE == 0 {
+                        Value::tuple_fcn(elements)
+                    } else {
+                        Value::tuple(elements)
+                    },
+                );
+            }
+            let mut pairs = storage(elements.len(), proceed)?;
+            for (value, key) in elements.into_iter().zip(lo..) {
+                check(proceed)?;
+                pairs.push((Value::Int(key), value));
+            }
+            Value::fcn_controlled(pairs, ctx, proceed).map_err(Into::into)
+        }
+        _ => {
+            let mut pairs = storage(keys.len(), proceed)?;
+            for (key, value) in keys.into_iter().zip(handles) {
+                pairs.push((
+                    to_value_controlled(heap, names, key, ctx, conv, proceed)?,
+                    to_value_controlled(heap, names, value, ctx, conv, proceed)?,
+                ));
+            }
+            let mut strings = true;
+            for (key, _) in &pairs {
+                check(proceed)?;
+                strings &= matches!(key, Value::Str(_));
+            }
+            let literal = conv == Conversion::Graph && view_flags & flags::RECORD != 0;
+            if literal && !strings {
+                return Err(ConversionError::Unsupported(
+                    "a core graph record literal with non-string fields".into(),
+                ));
+            }
+            if strings && (conv == Conversion::Report || literal) {
+                let mut fields = storage(pairs.len(), proceed)?;
+                for (key, value) in pairs {
+                    check(proceed)?;
+                    if let Value::Str(name) = key {
+                        fields.push((name, value));
+                    }
+                }
+                Value::record_controlled(fields, ctx, proceed).map_err(Into::into)
+            } else {
+                Value::fcn_controlled(pairs, ctx, proceed).map_err(Into::into)
+            }
+        }
+    }
+}
 
 /// The smallest stored set TLC might print in a lazy form: `SUBSET S` of a
 /// seven-element `S` (TLC expands smaller ones).
@@ -337,4 +493,152 @@ fn print_with(
     let v = to_value(heap, &p.names, h, p.ctx, Conversion::Print).map_err(Error::unsupported)?;
     f(&v, p.ctx)
         .map_err(|e| Error::unsupported(format!("an error while printing a value (M1 core): {e}")))
+}
+
+#[cfg(test)]
+#[allow(clippy::expect_used, reason = "conversion fixtures")]
+mod controlled_tests {
+    use super::*;
+    use crate::Store;
+
+    #[test]
+    fn materialized_conversion_keeps_results_and_name_interning_order() {
+        for ctx in [Ctx::tlc(), Ctx::default()] {
+            let source_names = Interner::new();
+            let input = Value::tuple(vec![
+                Value::string(&source_names, "z"),
+                Value::set(vec![Value::Int(2), Value::Int(1)], ctx).expect("set"),
+                Value::record(
+                    vec![(source_names.intern("a"), Value::model(&source_names, "M_x"))],
+                    ctx,
+                )
+                .expect("record"),
+            ]);
+            let mut heap = Heap::new(Arc::new(Store::default()), false, false);
+            let handle = crate::convert::from_value(&mut heap, &input, ctx).expect("import");
+            let baseline_names = Interner::new();
+            let controlled_names = Interner::new();
+            let expected = to_value(&mut heap, &baseline_names, handle, ctx, Conversion::Report)
+                .expect("baseline");
+            let mut checks = 0;
+            let actual = to_value_controlled(
+                &mut heap,
+                &controlled_names,
+                handle,
+                ctx,
+                Conversion::Report,
+                &mut || {
+                    checks += 1;
+                    true
+                },
+            )
+            .expect("controlled");
+            assert_eq!(expected, actual);
+            for at in 0..baseline_names.len() {
+                let at = u32::try_from(at).expect("small names");
+                assert_eq!(
+                    baseline_names
+                        .resolve(at)
+                        .map(|name| name.as_str().to_owned()),
+                    controlled_names
+                        .resolve(at)
+                        .map(|name| name.as_str().to_owned())
+                );
+            }
+            assert!(checks > 20);
+            for stop in 0..checks {
+                let mut visited = 0;
+                let result = to_value_controlled(
+                    &mut heap,
+                    &Interner::new(),
+                    handle,
+                    ctx,
+                    Conversion::Report,
+                    &mut || {
+                        let proceed = visited != stop;
+                        visited += 1;
+                        proceed
+                    },
+                );
+                assert!(
+                    matches!(
+                        result,
+                        Err(ConversionError::Construction(
+                            dive_value::ConstructionError::Interrupted
+                        ))
+                    ),
+                    "{stop}: {result:?}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn symbolic_report_conversion_keeps_explicit_legacy_fallback() {
+        let mut heap = Heap::new(Arc::new(Store::default()), false, false);
+        let interval = heap.interval(1, 3);
+        let names = Interner::new();
+        let expected = to_value(&mut heap, &names, interval, Ctx::tlc(), Conversion::Report)
+            .expect("baseline");
+        let actual = to_value_controlled(
+            &mut heap,
+            &names,
+            interval,
+            Ctx::tlc(),
+            Conversion::Report,
+            &mut || true,
+        )
+        .expect("controlled");
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn controlled_graph_conversion_keeps_literal_classes_and_history_refusals() {
+        for ctx in [Ctx::dive(), Ctx::tlc()] {
+            let mut heap = Heap::new(Arc::new(Store::default()), true, false);
+            let names = Interner::new();
+            let key = heap.string("a").expect("field");
+            let zero = Handle::int(0).expect("integer");
+            let functions = [
+                heap.fcn_sorted(&[key], &[zero]),
+                heap.record(&[key], &[zero]),
+                heap.tuple(&[zero]),
+                heap.tuple_literal(&[zero]),
+            ];
+            for handle in functions {
+                let original =
+                    to_value(&mut heap, &names, handle, ctx, Conversion::Graph).expect("baseline");
+                let converted = to_value_controlled(
+                    &mut heap,
+                    &names,
+                    handle,
+                    ctx,
+                    Conversion::Graph,
+                    &mut || true,
+                )
+                .expect("controlled");
+                let (original, converted) = (
+                    original.as_fcn().expect("function"),
+                    converted.as_fcn().expect("function"),
+                );
+                assert_eq!(original.kind(), converted.kind());
+                assert_eq!(original.is_record_literal(), converted.is_record_literal());
+                assert_eq!(original.is_tuple_literal(), converted.is_tuple_literal());
+            }
+            for handle in [heap.set_enum(&[zero]), heap.interval(0, 1)] {
+                let expected = to_value(&mut heap, &names, handle, ctx, Conversion::Graph)
+                    .expect_err("unknown history");
+                let actual = to_value_controlled(
+                    &mut heap,
+                    &names,
+                    handle,
+                    ctx,
+                    Conversion::Graph,
+                    &mut || true,
+                )
+                .expect_err("controlled unknown history");
+                assert_eq!(expected, actual.to_string());
+            }
+        }
+    }
 }

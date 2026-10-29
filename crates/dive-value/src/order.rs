@@ -352,7 +352,7 @@ fn set_eq_step<'a>(s: &'a Set, t: &'a Set, work: &mut Vec<(&'a Value, &'a Value)
 // The total order
 // ---------------------------------------------------------------------------------
 
-fn rank(v: &Value) -> u8 {
+pub(crate) fn rank(v: &Value) -> u8 {
     match v {
         Value::Model(_) => 0,
         Value::Bool(_) => 1,
@@ -517,7 +517,7 @@ fn pairs_in(f: &Fcn, order: ValueOrder) -> crate::function_domain::OrderedFcn<'_
 
 /// The order of scalars (and of values of different scalar kinds), or `None` when a
 /// compound value is involved.
-fn scalar_cmp(a: &Value, b: &Value, order: ValueOrder) -> Option<Ordering> {
+pub(crate) fn scalar_cmp(a: &Value, b: &Value, order: ValueOrder) -> Option<Ordering> {
     match (a, b) {
         (Value::Bool(p), Value::Bool(q)) => Some(p.cmp(q)),
         (Value::Int(p), Value::Int(q)) => Some(p.cmp(q)),
@@ -916,6 +916,257 @@ fn all_comparable(elems: &[Value]) -> bool {
     scalar_same || join_all(elems.iter()) != Shape::Conflict
 }
 
+/// Joins record shapes: per name list, field by field.
+fn join_rcd_controlled(
+    mut acc: Vec<(Vec<Atom>, Vec<Shape>)>,
+    other: Vec<(Vec<Atom>, Vec<Shape>)>,
+    poll: &mut dyn FnMut() -> bool,
+) -> std::result::Result<Shape, crate::ConstructionError> {
+    for (names, fields) in other {
+        if !join_fields_controlled(&mut acc, &names, |n| n, fields.into_iter().map(Ok), poll)? {
+            return Ok(Shape::Conflict);
+        }
+    }
+    Ok(Shape::Rcd(acc))
+}
+
+fn join_fields_controlled<'a, N>(
+    acc: &mut Vec<(Vec<Atom>, Vec<Shape>)>,
+    names: &'a [N],
+    name: impl Fn(&'a N) -> &'a Atom,
+    fields: impl Iterator<Item = std::result::Result<Shape, crate::ConstructionError>>,
+    poll: &mut dyn FnMut() -> bool,
+) -> std::result::Result<bool, crate::ConstructionError> {
+    let mut found = None;
+    for (at, (stored, _)) in acc.iter().enumerate() {
+        crate::construction::checkpoint(poll)?;
+        if stored.len() != names.len() {
+            continue;
+        }
+        let mut same = true;
+        for (a, b) in stored.iter().zip(names) {
+            crate::construction::checkpoint(poll)?;
+            same &= a == name(b);
+        }
+        if same {
+            found = Some(at);
+            break;
+        }
+    }
+    if let Some(at) = found {
+        for (field, theirs) in acc[at].1.iter_mut().zip(fields) {
+            let joined = join_controlled(std::mem::replace(field, Shape::Bottom), theirs?, poll)?;
+            if joined == Shape::Conflict {
+                return Ok(false);
+            }
+            *field = joined;
+        }
+        return Ok(true);
+    }
+    for (stored, _) in acc.iter() {
+        if stored.len() == names.len() {
+            let mut same_names = true;
+            for other in names {
+                let mut contains = false;
+                for key in stored {
+                    crate::construction::checkpoint(poll)?;
+                    contains |= key == name(other);
+                }
+                same_names &= contains;
+            }
+            if same_names {
+                return Ok(false);
+            }
+        }
+    }
+    let mut collected = Vec::new();
+    for field in fields {
+        crate::construction::reserve(&mut collected, 1, poll)?;
+        collected.push(field?);
+    }
+    if collected.contains(&Shape::Conflict) {
+        return Ok(false);
+    }
+    let mut keys = Vec::new();
+    crate::construction::reserve(&mut keys, names.len(), poll)?;
+    for field in names {
+        crate::construction::checkpoint(poll)?;
+        keys.push(name(field).clone());
+    }
+    crate::construction::reserve(acc, 1, poll)?;
+    acc.push((keys, collected));
+    Ok(true)
+}
+
+fn join_controlled(
+    a: Shape,
+    b: Shape,
+    poll: &mut dyn FnMut() -> bool,
+) -> std::result::Result<Shape, crate::ConstructionError> {
+    use Shape::{AnyMv, Bottom, Conflict, Fcn, Set, TypedMv};
+    crate::construction::checkpoint(poll)?;
+    Ok(match (a, b) {
+        (Conflict, _) | (_, Conflict) => Conflict,
+        (Bottom | AnyMv, x) | (x, Bottom | AnyMv) => x,
+        (TypedMv(s), TypedMv(t)) => {
+            if s == t {
+                TypedMv(s)
+            } else {
+                Conflict
+            }
+        }
+        (Set(x), Set(y)) => match join_controlled(*x, *y, poll)? {
+            Conflict => Conflict,
+            j => Set(Box::new(j)),
+        },
+        (Fcn(d1, v1), Fcn(d2, v2)) => match (
+            join_controlled(*d1, *d2, poll)?,
+            join_controlled(*v1, *v2, poll)?,
+        ) {
+            (Conflict, _) | (_, Conflict) => Conflict,
+            (d, v) => Fcn(Box::new(d), Box::new(v)),
+        },
+        (Shape::Rcd(a), Shape::Rcd(b)) => join_rcd_controlled(a, b, poll)?,
+        (Shape::Rcd(r), Fcn(d, v)) | (Fcn(d, v), Shape::Rcd(r)) if *d == Bottom && *v == Bottom => {
+            Shape::Rcd(r)
+        }
+        (x, y) => {
+            if x == y && matches!(x, Shape::Bool | Shape::Int | Shape::Str) {
+                x
+            } else {
+                Conflict
+            }
+        }
+    })
+}
+
+fn join_all_controlled<'a>(
+    vals: impl Iterator<Item = &'a Value>,
+    poll: &mut dyn FnMut() -> bool,
+) -> std::result::Result<Shape, crate::ConstructionError> {
+    let mut acc = Shape::Bottom;
+    for value in vals {
+        crate::construction::checkpoint(poll)?;
+        // Build this one field list before borrowing poll for the join_controlled.
+        // It retains the existing record grouping and field order.
+        if let (Shape::Rcd(entries), Value::Fcn(f)) = (&mut acc, value)
+            && let FcnRepr::Record(fields) = &f.0.repr
+        {
+            let Ok(_guard) = crate::depth::Guard::enter() else {
+                return Ok(Shape::Conflict);
+            };
+            let mut shapes = Vec::new();
+            crate::construction::reserve(&mut shapes, fields.len(), poll)?;
+            for (_, value) in fields {
+                shapes.push(shape_controlled(value, poll)?);
+            }
+            if !join_fields_controlled(
+                entries,
+                fields,
+                |(name, _)| name,
+                shapes.into_iter().map(Ok),
+                poll,
+            )? {
+                return Ok(Shape::Conflict);
+            }
+            continue;
+        }
+        acc = join_controlled(acc, shape_controlled(value, poll)?, poll)?;
+        if acc == Shape::Conflict {
+            break;
+        }
+    }
+    Ok(acc)
+}
+
+fn shape_controlled(
+    value: &Value,
+    poll: &mut dyn FnMut() -> bool,
+) -> std::result::Result<Shape, crate::ConstructionError> {
+    crate::construction::checkpoint(poll)?;
+    let Ok(_guard) = crate::depth::Guard::enter() else {
+        return Ok(Shape::Conflict);
+    };
+    Ok(match value {
+        Value::Bool(_) => Shape::Bool,
+        Value::Int(_) | Value::BigInt(_) => Shape::Int,
+        Value::Str(_) => Shape::Str,
+        Value::Model(atom) => atom.mv_type().map_or(Shape::AnyMv, Shape::TypedMv),
+        Value::Set(set) => match set.repr() {
+            SetRepr::Enum => match set.0.elems.get() {
+                Some(elements) => match join_all_controlled(elements.iter(), poll)? {
+                    Shape::Conflict => Shape::Conflict,
+                    joined => Shape::Set(Box::new(joined)),
+                },
+                None => Shape::Conflict,
+            },
+            SetRepr::Interval(..) => Shape::Set(Box::new(Shape::Int)),
+            _ => Shape::Conflict,
+        },
+        Value::Fcn(f) => match &f.0.repr {
+            FcnRepr::Tuple(elements) => {
+                let domain = if elements.is_empty() {
+                    Shape::Bottom
+                } else {
+                    Shape::Int
+                };
+                match join_all_controlled(elements.iter(), poll)? {
+                    Shape::Conflict => Shape::Conflict,
+                    joined => Shape::Fcn(Box::new(domain), Box::new(joined)),
+                }
+            }
+            FcnRepr::Record(fields) => {
+                let mut shapes = Vec::new();
+                crate::construction::reserve(&mut shapes, fields.len(), poll)?;
+                for (_, value) in fields {
+                    shapes.push(shape_controlled(value, poll)?);
+                }
+                let mut acc = Vec::new();
+                if join_fields_controlled(
+                    &mut acc,
+                    fields,
+                    |(name, _)| name,
+                    shapes.into_iter().map(Ok),
+                    poll,
+                )? {
+                    Shape::Rcd(acc)
+                } else {
+                    Shape::Conflict
+                }
+            }
+            FcnRepr::General(pairs) if pairs.is_empty() => Shape::Conflict,
+            FcnRepr::General(pairs) => match (
+                join_all_controlled(pairs.iter().map(|(key, _)| key), poll)?,
+                join_all_controlled(pairs.iter().map(|(_, value)| value), poll)?,
+            ) {
+                (Shape::Conflict, _) | (_, Shape::Conflict) => Shape::Conflict,
+                (domain, value) => Shape::Fcn(Box::new(domain), Box::new(value)),
+            },
+        },
+    })
+}
+
+/// The original comparability proof, with checkpoints in its structural walk.
+pub(crate) fn all_comparable_controlled(
+    elems: &[Value],
+    poll: &mut dyn FnMut() -> bool,
+) -> std::result::Result<bool, crate::ConstructionError> {
+    let Some(first) = elems.first() else {
+        crate::construction::checkpoint(poll)?;
+        return Ok(true);
+    };
+    let mut scalar_same = matches!(first, Value::Int(_) | Value::Str(_) | Value::Bool(_));
+    for value in elems {
+        crate::construction::checkpoint(poll)?;
+        scalar_same &= match first {
+            Value::Int(_) => matches!(value, Value::Int(_) | Value::BigInt(_)),
+            Value::Str(_) => matches!(value, Value::Str(_)),
+            Value::Bool(_) => matches!(value, Value::Bool(_)),
+            _ => false,
+        };
+    }
+    Ok(scalar_same || join_all_controlled(elems.iter(), poll)? != Shape::Conflict)
+}
 // ---------------------------------------------------------------------------------
 // Normalization
 // ---------------------------------------------------------------------------------

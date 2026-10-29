@@ -1328,6 +1328,35 @@ impl Value {
         crate::order::normalize_set(elems, ctx).map(|s| Self::Set(Set::from_sorted(ctx.order, s)))
     }
 
+    /// Constructs an explicit set with cooperative normalization checkpoints.
+    ///
+    /// `proceed` returns false to interrupt. Closed materialized values use
+    /// checked comparison, sorting and fallible temporary storage. Symbolic
+    /// children retain the legacy constructor, whose enumeration is not yet
+    /// cooperative. Final shared-value allocations retain Rust's allocation
+    /// behavior; this is not an allocation-time memory ceiling.
+    ///
+    /// # Errors
+    /// The original value error, interruption, or temporary allocation failure.
+    ///
+    /// ```
+    /// use dive_value::{ConstructionError, Ctx, Value};
+    /// let result = Value::set_controlled(vec![Value::Int(1)], Ctx::tlc(), &mut || false);
+    /// assert!(matches!(result, Err(ConstructionError::Interrupted)));
+    /// ```
+    pub fn set_controlled(
+        elems: Vec<Self>,
+        ctx: Ctx,
+        proceed: &mut dyn FnMut() -> bool,
+    ) -> Result<Self, crate::ConstructionError> {
+        for value in &elems {
+            if !crate::construction::closed(value, ctx, proceed)? {
+                return Self::set(elems, ctx).map_err(Into::into);
+            }
+        }
+        crate::construction::set(elems, ctx, proceed)
+    }
+
     /// A set exactly as TLC builds a set enumeration `{e1, ..., en}`: unnormalized
     /// until TLC would normalize it. Membership tests scan the elements with TLC's
     /// equality, so `1 \in {1, "a"}` is `TRUE` while `{1, "a"} = {}` is an error, as in
@@ -1462,6 +1491,40 @@ impl Value {
     /// function domain.`).
     pub fn fcn(pairs: Vec<(Self, Self)>, ctx: Ctx) -> Result<Self> {
         crate::order::make_fcn(pairs, ctx)
+    }
+
+    /// Constructs a function with the controls and legacy symbolic fallback
+    /// described by [`Self::set_controlled`].
+    ///
+    /// # Errors
+    /// The original domain error, interruption, or temporary allocation failure.
+    pub fn fcn_controlled(
+        pairs: Vec<(Self, Self)>,
+        ctx: Ctx,
+        proceed: &mut dyn FnMut() -> bool,
+    ) -> Result<Self, crate::ConstructionError> {
+        for (key, value) in &pairs {
+            if !crate::construction::closed(key, ctx, proceed)?
+                || !crate::construction::closed(value, ctx, proceed)?
+            {
+                return Self::fcn(pairs, ctx).map_err(Into::into);
+            }
+        }
+        crate::construction::fcn(pairs, ctx, proceed)
+    }
+
+    /// Constructs a record with cooperative field sorting and fallible scratch
+    /// storage. Final shared storage retains Rust's allocation behavior.
+    ///
+    /// # Errors
+    /// The original duplicate-field error, interruption, or scratch allocation
+    /// failure.
+    pub fn record_controlled(
+        fields: Vec<(Atom, Self)>,
+        ctx: Ctx,
+        proceed: &mut dyn FnMut() -> bool,
+    ) -> Result<Self, crate::ConstructionError> {
+        crate::construction::record(fields, ctx, proceed)
     }
 }
 

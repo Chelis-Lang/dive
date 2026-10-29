@@ -1,9 +1,13 @@
 # Scoreboard
 
-L5's checked borrowed CSR completion boundary is implemented (ADR 0122), with
-distinct complete and unfinished-prefix evidence. This is a producer API
-prerequisite; native retention, controlled conversion and compact report routing
-remain. It adds no corpus agreement, capacity or performance credit.
+L5's native capture/analysis/report path is implemented: persistent original
+rows, checked CSR, controlled eager Graph admission, on-demand values with zero
+retained Value cache, and sealed complete/prefix facts. Only selected-word values
+survive into fresh independent typed and serialized validation. Existing fixed
+capture limits remain; Store/native byte accounting is partial, and original
+TLC-relative capacity/performance qualification remains open. No corpus
+population, parity-surface, throughput or default-engine credit follows from
+this storage integration (ADRs 0117 and 0122).
 
 #619 soundness boundary: compound set normalization uses the existing shape
 proof in both core profiles. Unproved nested comparisons return unsupported;

@@ -51,7 +51,10 @@ mod analyze;
 mod check;
 mod core_ending;
 mod core_engine;
+#[cfg(test)]
 mod core_graph;
+mod core_native_graph;
+mod core_native_values;
 mod core_random;
 mod core_sample;
 mod core_temporal;

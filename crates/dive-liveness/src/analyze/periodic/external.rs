@@ -32,6 +32,17 @@ pub enum NativeAnalysis {
     Prefix(NativePrefix),
 }
 
+/// Reads an opaque retained-row id under this run's actual analysis control.
+/// The producer retains the persistent roots; successful rows must contain all
+/// model variables in IR order. A failed or interrupted read returns no row.
+pub type NativeRead<'a> = dyn FnMut(
+        usize,
+        &dive_check::budget::EvaluationControl,
+    ) -> Result<dive_eval::next::StateVals, AnalysisError>
+    + 'a;
+
+mod native;
+
 /// The temporal checks of one run over a graph supplied by its producer.
 ///
 /// [`Self::prepare`] plans every property before the search. During the

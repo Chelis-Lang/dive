@@ -85,6 +85,16 @@ impl<'a> CsrTopology<'a> {
         })
     }
 
+    /// Borrows references whose layout was already checked under producer
+    /// control. This grants topology access only, never completion authority.
+    pub(crate) fn from_capture(graph: &dive_check::capture::CsrCapture<'a>) -> Self {
+        Self {
+            offsets: graph.offsets(),
+            targets: graph.targets(),
+            roots: graph.roots(),
+        }
+    }
+
     /// Number of behavior vertices, including unreachable vertices.
     #[must_use]
     pub const fn vertex_count(&self) -> usize {
