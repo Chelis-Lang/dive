@@ -34,6 +34,16 @@ instances retain separate core/auto disagreement #634, and assumption-name
 metadata remains #504's obligation. These selected controls add no agreement
 credit to the historical populations below.
 
+The separate `literal-set-history-primary` microcorpus pins 18 controls for
+the first local name-free literal lane (#623). Ten primary successes and one
+independently validated safety word are consumed by the native API tests;
+four primary comparison errors and three uncovered producer controls remain
+explicit refusals under TLC comparisons. Two raw-prefix cases separately
+retain the approved default D-009 success. Internal comparison-sequence and
+rollback/alias checks establish consumption, not extra observable parity
+rows. This does not change the established corpus populations below, close
+#623, or qualify the wider comparison port.
+
 The core's bounded instance-query extension (#609) is checked separately by
 `core_enabled_instance`: 210 supported source/profile/worker/cache cells,
 124 explicit refusal cells and 28 frontend level-rejection cells. It admits

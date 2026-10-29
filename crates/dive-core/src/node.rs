@@ -154,7 +154,9 @@ impl View<'_> {
         self.flags & flags::LAZY != 0
     }
 
-    /// TLC's `isNorm`: false only for a [`Kind::SetEnum`] view.
+    /// The representation's `isNorm` bit, not a certificate of construction
+    /// history. Selected local literal views use their arena-owned phase;
+    /// an alias can be normalized while retaining its original raw view.
     #[must_use]
     pub fn is_norm(&self) -> bool {
         self.flags & flags::UNNORM == 0

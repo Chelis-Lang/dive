@@ -765,6 +765,20 @@ At load 12, the core took 5.1 s wall and 4.8 s user, against TLC's 28.4 s and 15
 
 ## 7. Next step
 
+The first consumed local lane in #623 selects closed name-free literal sets
+only at membership and `Cardinality` operands, directly or through a local
+LET group with no escaping uses. Bool/inline numeral and tuple literal
+receiver classes are retained. Construction history makes the selected
+producer and consumer subgraph ineligible for folding, keyed memoization,
+extra definition reuse and parent skips; genuine LET thunk sharing is kept.
+Its sparse arena history and exact insertion/raw/normalized operations are
+described in `03-value-model.md` §8. The 18 primary-first controls live in
+`conformance/corpus/literal-set-history-primary`; goldens were generated with
+a recorded reason before runtime changes. The twelve #619 controls remain
+consumed unchanged. Errors without E7 provenance are unsupported, not native
+error agreement. Names and their genuine TLC token ranks, broader producers,
+imports and state handoff remain subsequent increments; #623 is not complete.
+
 The next checked-comparison delivery follows three dependencies:
 
 1. Preserve covered raw literal/map/union construction order and duplicates,

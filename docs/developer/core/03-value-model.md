@@ -422,11 +422,14 @@ TLC distinguishes how a set is represented, and the distinction is observable:
 
 **Current boundary and next sequence.** Persistence, `Kind::Set` and
 `View::is_norm` do not certify TLC construction or normalization history.
-Current canonical builders/imports can discard raw order and duplicates;
+The consumed local lane retains raw order, duplicates and per-construction
+identity for compiler-selected Bool/inline-numeral/tuple literal sets in
+membership and `Cardinality`, including zero-arity local LET aliases. Other
+canonical builders/imports can discard raw order and duplicates;
 normalization through one alias must also remain distinct from an independent
 equal construction. The identity/view separation below is the planned
-framework, not proof that those transitions are implemented. First retain
-covered literal/map/union order, actual demand and alias lifetime, including
+framework, not proof that every transition is implemented. Continue with
+name-token ranks, then covered map/union order, actual demand and alias lifetime, including
 new successor values before commitment. Then consume exact scalar/tuple
 normalization and raw equality-scan versus normalized checked-search behavior;
 class widening and E7 reporting provenance follow separately (`04-plan-compiler.md`
@@ -473,9 +476,50 @@ Rules for the bits:
 - A `SetEnum` is a finite symbolic set: `norm`, `cursor`, `cardinality` and
   `intern` treat it as the set of its elements.
 - The evaluator refuses membership in a `SetEnum` (unsupported) until
-  TLC's linear `equals` scan is built with the compat order (M2).
-- Only the record and tuple literals carry a bit so far. Nothing builds a
-  `SetEnum` yet. TLC's sequence operators (`Append`, `Tail`, `\o`,
+  its producer and history are proved. The selected local literal lane now
+  consumes the actual `Node::SetEnum` path and runs raw receiver-to-query
+  equality or normalized query-to-pivot search. `Kind::SetEnum`, flags and
+  persistence alone do not admit a value.
+- The selected literal's arena-owned sparse sidecar is allocated at its
+  constructor. Independent equal constructions remain independent; local
+  aliases share the same raw handle. Successful normalization owns its
+  sorted element array, retaining the first equal representative. It never
+  caches a post-mark normalized handle. Thus normalizing a pre-mark alias
+  survives rollback, post-mark constructors are truncated, and reset drops
+  all history. The original raw representation bit is not the phase oracle.
+  Selected views use the otherwise-unused `SetEnum.lo` as a sidecar slot;
+  lookup also verifies the exact transient handle against that arena-owned
+  record. The slot, kind or flag alone proves nothing. This gives constant
+  lookup work without a value or membership index; generic views use zero.
+  A separate clone is canonically sorted/deduplicated to form the extensional
+  projection; the checked TLC array is never assumed canonical and is not
+  overwritten by that projection. Tracked alias views refuse interning across
+  the uncovered persistent/state boundary; a demanded extensional identity
+  remains internable.
+- The compiler admits only direct covered operands and local LET groups
+  whose uses terminate in membership or `Cardinality`. It preserves source
+  tuple receiver classes and propagates history sensitivity through those
+  consumers, excluding folding, memo sites, extra definition reuse and
+  parent skips. Genuine LET thunk aliasing remains intact.
+- Internal eligibility is at most 64 total set/tuple/scalar syntax nodes per
+  construction and 64 query nodes; larger source expressions retain their
+  unchanged prior route, without a new public limit. The runtime validator
+  mirrors this bound. A covered set has at most 63 members: checked insertion
+  uses at most 378 outer comparisons, each with at most 64 value-node visits,
+  and at most 1,953 handle moves. Its owned normalized array is at most 504
+  bytes on 64-bit hosts; sorting/projection temporary arrays each have at
+  most 63 handles. Sparse records are bounded by live arena constructors,
+  with record-vector capacity retained at its peak like the other arena
+  pools; reset/rollback drop the corresponding owned arrays. The inner
+  checked operation does not itself poll: this private bound limits the new
+  work before returning to the existing evaluator/engine budget boundaries.
+- Names/model values, arithmetic producers, nested sets, records, generic
+  functions, imports, state handoff, map/union and arbitrary consumers retain
+  the existing guarded/refused paths. Reached comparison errors remain
+  unsupported until E7 source provenance is proved. C2 uses checked insertion
+  in both profiles; default D-009 comparisons are unchanged. #623 remains
+  open, and no Sailfish map/union speed claim follows from this lane.
+- TLC's sequence operators (`Append`, `Tail`, `\o`,
   `SubSeq`) return a `TupleValue`, but their core results carry no bit:
   that is stream 2's work, for `--compat=tlc` (M2).
 
@@ -606,7 +650,7 @@ method.
 | `SetPred` | closure id | `[S, captures...]`: `{x \in S : P}` before it is enumerated |
 | `Union` | 0 | `[A, B]`: a lazy `A \cup B` |
 | `BigInt` | sign (`1` or `-1`) | the magnitude's 32-bit digits, least significant first, as inline integers; read only through `Heap::big` |
-| `SetEnum` | 0 | the elements in construction order, duplicates kept: TLC's unnormalized `SetEnumValue` (flag `UNNORM`, §8) |
+| `SetEnum` | 0, or a verified local history slot | the elements in construction order, duplicates kept: raw `SetEnumValue`; selected local views consult their separate owned phase (§8) |
 
 `View` has `kind`, `lo`, `hash`, `sum`, `flags` and `data`. Use
 `len`, `keys` and `values` rather than indexing `data` by kind. Every kind

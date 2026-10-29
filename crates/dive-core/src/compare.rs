@@ -10,10 +10,10 @@
 //! - Membership that fails to find the element raises TLC's error when the
 //!   set holds a scalar of another class than the element: TLC compares them
 //!   on its way and fails.
-//! - The core builds every set normalized, but TLC normalizes lazily, and
-//!   whether and which error a set mixing incomparable values raises depends
-//!   on when TLC normalizes it (C1, C2). The core refuses to build such a set
-//!   rather than guess.
+//! - Outside the selected local literal lane below, the core builds sets
+//!   normalized. TLC normalizes lazily, and whether and which error a set
+//!   mixing incomparable values raises depends on that demand (C1, C2).
+//!   Unproved construction/comparison paths remain unsupported.
 //!
 //! Model values follow TLC's `ModelValue` (`crates/dive-value/src/tlc.rs`):
 //! - an untyped model value is unequal to every other value, without error,
@@ -26,6 +26,95 @@ use crate::Error;
 use crate::handle::{Handle, Tag};
 use crate::heap::Heap;
 use crate::node::Kind;
+
+/// The first consumed literal lane: closed Bool/inline-Int/tuple literals.
+/// Function storage alone does not establish the tuple receiver class.
+pub(crate) const LITERAL_WORK: usize = 64;
+
+pub(crate) fn literal_value(heap: &Heap, value: Handle) -> bool {
+    let mut remaining = LITERAL_WORK;
+    literal_value_work(heap, value, &mut remaining)
+}
+
+/// Counts an admitted tree against the private eligibility bound.
+pub(crate) fn literal_value_work(heap: &Heap, value: Handle, remaining: &mut usize) -> bool {
+    if *remaining == 0 {
+        return false;
+    }
+    *remaining -= 1;
+    match value.tag() {
+        Tag::Bool | Tag::Int => true,
+        Tag::Persistent | Tag::Transient => {
+            let view = heap.view(value);
+            view.kind == Kind::IntFcn
+                && view.lo == 1
+                && view.is_tuple_literal()
+                && view
+                    .data
+                    .iter()
+                    .all(|&child| literal_value_work(heap, child, remaining))
+        }
+        Tag::Str | Tag::Model | Tag::Empty => false,
+    }
+}
+
+fn literal_refusal() -> Error {
+    Error::unsupported(
+        "a checked local scalar/tuple comparison whose value-source error provenance is not proved (C2, E7)",
+    )
+}
+
+/// TLC's checked comparison on the closed name-free literal subset. Length
+/// decides before fields; the first unequal field decides before later ones.
+/// A reached error remains unsupported until E7 provenance is proved.
+pub(crate) fn literal_cmp(
+    heap: &mut Heap,
+    a: Handle,
+    b: Handle,
+    operation: &'static str,
+) -> Result<std::cmp::Ordering, Error> {
+    heap.literal_step(operation, a, b);
+    literal_cmp_inner(heap, a, b)
+}
+
+fn literal_cmp_inner(heap: &Heap, a: Handle, b: Handle) -> Result<std::cmp::Ordering, Error> {
+    match (a.tag(), b.tag()) {
+        (Tag::Bool, Tag::Bool) => return Ok(a.as_bool().cmp(&b.as_bool())),
+        (Tag::Int, Tag::Int) => return Ok(a.as_int().cmp(&b.as_int())),
+        _ => {}
+    }
+    if !a.is_compound() || !b.is_compound() {
+        return Err(literal_refusal());
+    }
+    let (a, b) = (heap.view(a), heap.view(b));
+    if a.kind != Kind::IntFcn
+        || b.kind != Kind::IntFcn
+        || a.lo != 1
+        || b.lo != 1
+        || !a.is_tuple_literal()
+        || !b.is_tuple_literal()
+    {
+        return Err(literal_refusal());
+    }
+    let size = a.data.len().cmp(&b.data.len());
+    if !size.is_eq() {
+        return Ok(size);
+    }
+    for (&x, &y) in a.data.iter().zip(b.data) {
+        let order = literal_cmp_inner(heap, x, y)?;
+        if !order.is_eq() {
+            return Ok(order);
+        }
+    }
+    Ok(std::cmp::Ordering::Equal)
+}
+
+/// On Bool/Int/tuple receivers, TLC's equals has the same length and field
+/// demand sequence as compareTo, but returns false at the first inequality.
+pub(crate) fn literal_equals(heap: &mut Heap, a: Handle, b: Handle) -> Result<bool, Error> {
+    heap.literal_step("equals", a, b);
+    literal_cmp_inner(heap, a, b).map(std::cmp::Ordering::is_eq)
+}
 
 /// The comparison class of a value.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
