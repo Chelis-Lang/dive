@@ -689,7 +689,7 @@ impl crate::Explorer<'_> {
                     }
                     self.apply_implied(m, imp)?;
                     if *in_model {
-                        self.enqueue(m)?;
+                        self.enqueue(m, None)?;
                         self.record(m, *key, true, None)?;
                     }
                 }

@@ -6,7 +6,7 @@
 
 use std::path::PathBuf;
 
-use dive_api::{CheckRequest, Engine, PeriodicSchedule, check_file_engine};
+use dive_api::{CheckRequest, Engine, PeriodicSchedule, check_file_core_opts, check_file_engine};
 use serde_json::Value;
 
 fn fixture(name: &str) -> PathBuf {
@@ -156,4 +156,129 @@ fn temporal_atoms_keep_general_functions_distinct_from_record_literals() {
             }
         }
     }
+}
+
+const CLASS_SWITCHES: &[&str] = &[
+    "",
+    "-fold",
+    "-memo",
+    "-memo,-step-memo",
+    "-hashcons",
+    "-early-probe",
+    "-fold,-memo,-step-memo,-hashcons,-early-probe",
+];
+
+fn class_controls(module: &str, cases: &[(&str, bool)]) {
+    let file = fixture(module);
+    for &(case, literal) in cases {
+        for tlc in [false, true] {
+            for workers in [1, 2, 3, 8] {
+                let request = CheckRequest {
+                    config: Some(file.with_file_name(format!("{case}.cfg"))),
+                    file: file.clone(),
+                    seed: Some(0),
+                    fp: Some(0),
+                    workers: Some(workers),
+                    compat_tlc: tlc,
+                    ..CheckRequest::default()
+                };
+                let expected = if tlc && literal {
+                    "unsupported"
+                } else {
+                    "success"
+                };
+                let reference = check_file_engine(&request, Engine::Reference)
+                    .expect("reference")
+                    .to_json();
+                assert_eq!(reference["verdict"], expected);
+                if tlc && literal {
+                    assert!(
+                        reference["message"]
+                            .as_str()
+                            .expect("message")
+                            .contains("equality of record")
+                    );
+                }
+                for switches in CLASS_SWITCHES {
+                    let core = check_file_core_opts(&request, switches)
+                        .expect("core")
+                        .to_json();
+                    assert_eq!(
+                        core["verdict"], expected,
+                        "{case} tlc={tlc} workers={workers} switches={switches}: {core:#}"
+                    );
+                }
+                let auto = check_file_engine(&request, Engine::Auto)
+                    .expect("auto")
+                    .to_json();
+                assert_eq!(
+                    auto["verdict"], expected,
+                    "{case} tlc={tlc} workers={workers}: {auto:#}"
+                );
+                assert_eq!(
+                    auto["engine"],
+                    if tlc && literal { "reference" } else { "core" }
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn folded_literal_and_general_classes_do_not_change_temporal_verdicts() {
+    class_controls(
+        "Representation/Representation",
+        &[
+            ("State", false),
+            ("Literal", true),
+            ("NestedGeneral", false),
+            ("NestedLiteral", true),
+        ],
+    );
+}
+
+#[test]
+fn later_unchanged_states_keep_the_first_discovered_receiver_class() {
+    class_controls(
+        "DelayedClass/DelayedClass",
+        &[
+            ("General", false),
+            ("Literal", true),
+            ("AliasGeneral", false),
+            ("AliasLiteral", true),
+        ],
+    );
+}
+
+#[test]
+fn ordinary_safety_keeps_its_existing_checked_comparison_refusal() {
+    let file = fixture("DelayedClass/DelayedClass");
+    let request = CheckRequest {
+        config: Some(file.with_file_name("Safety.cfg")),
+        file,
+        compat_tlc: true,
+        seed: Some(0),
+        fp: Some(0),
+        workers: Some(2),
+        ..CheckRequest::default()
+    };
+    let reference = check_file_engine(&request, Engine::Reference)
+        .expect("reference")
+        .to_json();
+    assert_eq!(reference["verdict"], "evaluation-error");
+    assert!(
+        reference["message"]
+            .as_str()
+            .expect("message")
+            .contains("equality of record")
+    );
+    let core = check_file_engine(&request, Engine::Core)
+        .expect("core")
+        .to_json();
+    assert_eq!(core["verdict"], "unsupported");
+    let auto = check_file_engine(&request, Engine::Auto)
+        .expect("auto")
+        .to_json();
+    assert_eq!(auto["verdict"], reference["verdict"]);
+    assert_eq!(auto["engine"], "reference");
 }

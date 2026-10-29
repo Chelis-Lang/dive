@@ -115,6 +115,14 @@ seen targets. Capture-only `intern_exact` retains available kind and view flags
 before fingerprinting can replace a row with canonical identity handles.
 The core still refuses exact storage (`07-engine.md`).
 
+Capture also retains first-discovered original rows for the current/next
+frontier. Source evaluation uses these rows so `UNCHANGED` or `EXCEPT` does not
+inherit a class erased by canonical identity interning. Seen aliases never
+replace them. `Step.new` and replay expectations remain canonical. The extra
+frontier payload is eight bytes per variable per current/next frontier state;
+the existing capture admission bounds apply, and all interned values remain
+in store accounting. This is not an addressable all-vertex native state source.
+
 Parallel capture uses the reference's `MAX_EXPANSION_UNITS` (eight sources per
 wave) and `Limits::successors_per_unit` (65,536 by default). An overflow emission
 retains only a stop marker; its emitted event delivers the existing named refusal
@@ -154,7 +162,8 @@ How the events follow the reference engine:
 sink converts accepted originals with
 `dive_core::print::to_value(.., Conversion::Graph)`. Graph values are used for
 evaluation: general functions remain general functions, and tuple/record literal
-flags are preserved recursively. `Conversion::Report` remains the separate trace
+flags survive imports, folding and captured source frontiers recursively
+(ADR 0121). `Conversion::Report` remains the separate trace
 formatting path. Extensional `Value` equality alone cannot certify this boundary:
 a general string-domain function can compare unequal to a tuple where a record
 literal raises an incomparable-value error. Raw or symbolic set representations

@@ -49,6 +49,9 @@ pub enum Conversion {
     /// Temporal graph evaluation: preserve function/tuple/record literal
     /// classes recursively. Only closed materialized values are admitted;
     /// symbolic or raw sets need independent representation-history support.
+    /// The caller must supply original evaluation representations retained
+    /// through import, folding and capture, never canonical identity handles
+    /// whose receiver class was erased (ADR 0121).
     Graph,
     /// Printing: symbolic sets stay symbolic, and a stored set TLC could
     /// print otherwise is refused.

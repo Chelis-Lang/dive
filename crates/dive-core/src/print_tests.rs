@@ -86,3 +86,52 @@ fn graph_conversion_does_not_infer_missing_set_history() {
         assert!(to_value(&mut heap, &names, handle, Ctx::tlc(), Conversion::Report).is_ok());
     }
 }
+
+#[test]
+fn imported_functions_keep_available_literal_classes_recursively() {
+    for ctx in [Ctx::dive(), Ctx::tlc()] {
+        for hashcons in [false, true] {
+            let mut heap = Heap::new(Arc::new(Store::new(hashcons)), true, false);
+            let names = Interner::new();
+            for literal in [false, true] {
+                let field = names.intern("a");
+                let mut source = if literal {
+                    Value::record(vec![(field, Value::Int(0))], ctx).expect("record")
+                } else {
+                    Value::fcn(vec![(Value::Str(field), Value::Int(0))], ctx)
+                        .expect("general function")
+                };
+                let mut rhs = Value::tuple(vec![Value::Int(0), Value::Int(0)]);
+                for _ in 0..3 {
+                    let handle =
+                        crate::convert::from_value(&mut heap, &source, ctx).expect("import");
+                    heap.reset();
+                    let converted = to_value(&mut heap, &names, handle, ctx, Conversion::Graph)
+                        .expect("graph value");
+                    let compared = tlc::equals(&converted, &rhs, ctx);
+                    assert_eq!(compared.is_err(), literal);
+                    if !literal {
+                        assert!(!compared.expect("general function differs"));
+                    }
+                    source = Value::tuple_fcn(vec![source]);
+                    rhs = Value::tuple(vec![rhs]);
+                }
+            }
+            for source in [
+                Value::tuple(vec![Value::Int(0)]),
+                Value::tuple_fcn(vec![Value::Int(0)]),
+            ] {
+                let literal = source.as_fcn().expect("function").is_tuple_literal();
+                let handle = crate::convert::from_value(&mut heap, &source, ctx)
+                    .expect("import tuple class");
+                heap.reset();
+                let converted = to_value(&mut heap, &names, handle, ctx, Conversion::Graph)
+                    .expect("converted tuple class");
+                assert_eq!(
+                    converted.as_fcn().expect("function").is_tuple_literal(),
+                    literal
+                );
+            }
+        }
+    }
+}

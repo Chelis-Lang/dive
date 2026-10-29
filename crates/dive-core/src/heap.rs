@@ -1057,8 +1057,9 @@ impl Heap {
         Ok(p)
     }
 
-    /// Interns a constant, keeping a top-level symbolic set symbolic (its
-    /// components are interned normally), so that membership stays symbolic.
+    /// Interns a constant, preserving available function literal classes
+    /// recursively and keeping symbolic sets symbolic. This is a value used
+    /// for evaluation, not its canonical identity (`0121` in the ADRs).
     /// A lazy constant (for example `[x \in Nat |-> x + 1]`) stays lazy: it
     /// is interned structurally, never compared by handle (§11.1).
     ///
@@ -1068,13 +1069,6 @@ impl Heap {
         if !h.is_transient() {
             return Ok(h);
         }
-        let v = self.view(h);
-        if !v.kind.is_symbolic() && !v.is_lazy() {
-            // A record literal's bit is dropped here, so that constants keep
-            // their identity handles; `--compat=tlc` keeps constant views
-            // through `intern_view` (M2).
-            return self.intern(h);
-        }
         self.intern_structural(h)
     }
 
@@ -1083,10 +1077,13 @@ impl Heap {
     /// lazy or a view.
     fn intern_structural(&mut self, h: Handle) -> Result<Handle, Error> {
         let v = self.view(h);
-        let (kind, fl, lo, hash, sum) = (v.kind, v.flags, v.lo, v.hash, v.sum);
+        let (kind, mut fl, lo, hash, sum) = (v.kind, v.flags, v.lo, v.hash, v.sum);
         let mut data = v.data.to_vec();
         for d in &mut data {
             *d = self.intern_const(*d)?;
+            if d.is_compound() && self.view(*d).flags & flags::VIEW != 0 {
+                fl |= flags::NESTED_VIEW;
+            }
         }
         Ok(self
             .store
@@ -1111,11 +1108,14 @@ impl Heap {
         if v.is_lazy() {
             return Err(Error::internal("interning an unclosed lazy value"));
         }
-        let (kind, fl, lo, hash, sum) = (v.kind, v.flags, v.lo, v.hash, v.sum);
+        let (kind, mut fl, lo, hash, sum) = (v.kind, v.flags, v.lo, v.hash, v.sum);
         let mut data = v.data.to_vec();
         for d in &mut data {
             if d.is_transient() {
                 *d = self.intern_exact(*d)?;
+            }
+            if d.is_compound() && self.view(*d).flags & flags::VIEW != 0 {
+                fl |= flags::NESTED_VIEW;
             }
         }
         Ok(self
@@ -1574,6 +1574,52 @@ mod tests {
     }
 
     #[test]
+    fn nested_function_views_never_claim_canonical_identity() -> Result<(), Error> {
+        for hashcons in [true, false] {
+            for exact in [false, true] {
+                let store = Arc::new(Store::new(hashcons));
+                let mut h = Heap::new(store, false, false);
+                let a = h.string("a")?;
+                let record = h.record(&[a], &[int(0)]);
+                let general = h.fcn_sorted(&[a], &[int(0)]);
+                let left = h.fcn_sorted(&[int(1)], &[record]);
+                let right = h.fcn_sorted(&[int(1)], &[general]);
+                let left = h.fcn_sorted(&[int(1)], &[left]);
+                let right = h.fcn_sorted(&[int(1)], &[right]);
+                let (left, right) = if exact {
+                    (h.intern_exact(left)?, h.intern_exact(right)?)
+                } else {
+                    (h.intern_const(left)?, h.intern_const(right)?)
+                };
+                h.reset();
+                assert!(
+                    h.eq(left, right),
+                    "equal values cannot be rejected by the persistent identity fast path"
+                );
+                assert!(
+                    left.is_lazy_persistent(),
+                    "nested representation is structural"
+                );
+                assert_eq!(
+                    h.view(left).flags & flags::TUPLE,
+                    0,
+                    "the parent is still a general function"
+                );
+                assert_ne!(left, right, "representations remain distinct");
+                assert_eq!(h.hash(left), h.hash(right));
+                let a = h.intern(left)?;
+                let b = h.intern(right)?;
+                assert!(!a.is_lazy_persistent());
+                assert!(h.eq(a, b));
+                if hashcons {
+                    assert_eq!(a, b, "canonical identity is unchanged");
+                }
+            }
+        }
+        Ok(())
+    }
+
+    #[test]
     fn unions_stay_symbolic_until_normalized() {
         let mut h = heap(false);
         let a = h.interval(1, 3);
@@ -1697,10 +1743,12 @@ mod tests {
             .unwrap_or((Handle::EMPTY, Handle::EMPTY));
         assert_eq!(view2, view, "views are hash-consed among themselves");
         let k = h.record(&keys, &vals);
+        let constant = h.intern_const(k).unwrap_or(Handle::EMPTY);
+        assert!(h.view(constant).is_record_literal());
         assert_eq!(
-            h.intern_const(k).ok(),
+            h.intern(constant).ok(),
             Some(id),
-            "constants keep identities"
+            "identity remains canonical"
         );
         // A set holding the view and the identity has one element.
         let set = h.set_from(&mut vec![view, id]);

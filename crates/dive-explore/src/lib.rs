@@ -386,6 +386,9 @@ struct Explorer<'p> {
     metrics: Metrics,
     seen: Seen,
     next: Vec<Handle>,
+    /// Capture-only first-discovered representations, parallel to `next`.
+    /// Canonical frontier identities remain separate for logs and Step.new.
+    next_originals: Vec<Handle>,
     emitted: u64,
     initial: bool,
     /// Variables the current step changed (bit per variable); all ones for
@@ -556,7 +559,7 @@ impl Explorer<'_> {
         // (`Worker.addElement`).
         let enqueue_first = self.initial && in_model;
         if enqueue_first {
-            self.enqueue(m)?;
+            self.enqueue(m, original.as_deref())?;
         }
         for (i, c) in plan.invariants.iter().enumerate() {
             let holds = match self.check(m, code, c) {
@@ -602,7 +605,7 @@ impl Explorer<'_> {
             self.implied_actions(m)?;
         }
         if in_model && !enqueue_first {
-            self.enqueue(m)?;
+            self.enqueue(m, original.as_deref())?;
         }
         if in_model {
             self.record(m, key, true, original.as_deref())?;
@@ -626,11 +629,22 @@ impl Explorer<'_> {
         // Capture preserves the original representation separately from the
         // canonical identity queued for BFS. No graph means no extra interning
         // or retained row, including on the duplicate fast path.
-        let original = original
-            .unwrap_or(&m.s1)
-            .iter()
-            .map(|&h| m.heap.intern_exact(h))
-            .collect::<Result<Vec<_>, _>>()?;
+        let kept = if new {
+            Vec::new()
+        } else {
+            original
+                .unwrap_or(&m.s1)
+                .iter()
+                .map(|&h| m.heap.intern_exact(h))
+                .collect::<Result<Vec<_>, _>>()?
+        };
+        let original = if new {
+            self.next_originals
+                .get(self.next_originals.len().saturating_sub(nvars)..)
+                .ok_or_else(|| Error::internal("a new state's original values were not retained"))?
+        } else {
+            &kept
+        };
         let new = if new {
             let id = self
                 .next_ids
@@ -648,7 +662,7 @@ impl Explorer<'_> {
         let step = graph::Step {
             key,
             new,
-            original: &original,
+            original,
             parent: self.cur_id,
             ordinal: self.emitted.saturating_sub(1),
             action: self.action,
@@ -740,10 +754,15 @@ impl Explorer<'_> {
 
     /// Interns the successor in `m.s1`, queues it and logs its parent and
     /// ordinal.
-    fn enqueue(&mut self, m: &mut Machine) -> Result<(), Error> {
+    fn enqueue(&mut self, m: &mut Machine, original: Option<&[Handle]>) -> Result<(), Error> {
         for i in 0..m.s1.len() {
             let h = m.heap.intern(m.s1[i])?;
             self.next.push(h);
+        }
+        if self.graph.is_some() {
+            for &h in original.unwrap_or(&m.s1) {
+                self.next_originals.push(m.heap.intern_exact(h)?);
+            }
         }
         let ordinal = u32::try_from(self.emitted.saturating_sub(1))
             .map_err(|_| Error::unsupported("more than 2^32 successors of one state"))?;
@@ -763,7 +782,13 @@ impl Explorer<'_> {
             values.push(if h.is_empty() { h } else { m.heap.intern(h)? });
         }
         let expect = if self.cur_id.is_some() {
-            m.s0.clone()
+            if self.graph.is_some() {
+                m.s0.iter()
+                    .map(|&h| m.heap.intern(h))
+                    .collect::<Result<Vec<_>, _>>()?
+            } else {
+                m.s0.clone()
+            }
         } else {
             Vec::new()
         };
@@ -1059,6 +1084,7 @@ pub fn explore_with<'p>(
         metrics: Metrics::default(),
         seen: Seen::default(),
         next: Vec::new(),
+        next_originals: Vec::new(),
         emitted: 0,
         initial: true,
         changed: u64::MAX,
@@ -1290,9 +1316,15 @@ fn run(
     ex.initial = false;
     ex.warnings.clone_from(&m.warnings);
     let mut cur = std::mem::take(&mut ex.next);
+    let mut cur_originals = std::mem::take(&mut ex.next_originals);
     let mut cur_ids = std::mem::take(&mut ex.next_ids);
     let mut generated_before = 0;
     while !cur.is_empty() {
+        if ex.graph.is_some() && cur_originals.len() != cur.len() {
+            return Err(Error::internal(
+                "capture frontier original/identity row mismatch",
+            ));
+        }
         ex.level += 1;
         // Claims are sized from the previous level's successors.
         let estimate = usize::try_from(ex.stats.generated - generated_before).unwrap_or(1 << 20);
@@ -1321,7 +1353,11 @@ fn run(
                 let r = parallel::expand_level(
                     plan,
                     machines,
-                    &cur[k * nvars..end * nvars],
+                    if ex.graph.is_some() {
+                        &cur_originals[k * nvars..end * nvars]
+                    } else {
+                        &cur[k * nvars..end * nvars]
+                    },
                     nvars,
                     &ex.seen,
                     ex.opts,
@@ -1357,14 +1393,21 @@ fn run(
                 ex.stop = Some(Verdict::Budget);
                 return Err(Error::stop());
             }
-            m.s0.copy_from_slice(state);
+            let source = if ex.graph.is_some() {
+                cur_originals
+                    .get(k * nvars..(k + 1) * nvars)
+                    .ok_or_else(|| Error::internal("capture source original row missing"))?
+            } else {
+                state
+            };
+            m.s0.copy_from_slice(source);
             let level = i64::try_from(ex.level - 1).unwrap_or(i64::MAX);
             if res.is_none() {
-                start_stream(m, plan, Some(state))?;
+                start_stream(m, plan, Some(source))?;
                 m.level = level;
             }
             if let Some(r) = reservoir.as_deref_mut() {
-                r.offer(state, level);
+                r.offer(source, level);
             }
             ex.cur_id = cur_ids.get(k).copied();
             ex.emitted = 0;
@@ -1432,8 +1475,10 @@ fn run(
             ex.metrics.commit_time += level_started.elapsed().saturating_sub(expand_time);
         }
         cur.clear();
+        cur_originals.clear();
         cur_ids.clear();
         std::mem::swap(&mut cur, &mut ex.next);
+        std::mem::swap(&mut cur_originals, &mut ex.next_originals);
         std::mem::swap(&mut cur_ids, &mut ex.next_ids);
     }
     Ok(())

@@ -56,7 +56,8 @@
 - Core graph capture delivers original accepted values for new and seen
   targets, retaining their representation and action/ordinal metadata. Temporal
   conversion preserves general-function versus tuple/record literal classes
-  recursively, independently of report formatting. Parallel
+  recursively through imports, folding and captured source frontiers,
+  independently of report formatting. Parallel
   buffering uses the existing eight-source and per-source successor bounds;
   overflow and budget stops cannot become completed captures. Native compact
   state retention and larger graph capacity remain unimplemented.
