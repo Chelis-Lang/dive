@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "kind": "fixture-shadow-census-summary",
+  "source_revision": "91742b3c9cb4b7021785975f888d5cf9dd43625c",
+  "source_dirty": false,
+  "fixture_count": 1525,
+  "selection_counts": {
+    "selected": 1412,
+    "skipped-ambiguous-module": 14,
+    "excluded-config-parser": 99
+  },
+  "workers": [
+    1
+  ],
+  "timeout_seconds": 20,
+  "max_memory": "3g",
+  "sample": 32,
+  "dive_sha256": "42ee75f2491dcf4cae3937a6518e14531c487fbef5564cb8c5a0cd6bd1424484",
+  "profiles": [
+    {
+      "profile": "default",
+      "harness_exit": 1,
+      "totals": {
+        "agree": 1047,
+        "refused": 269,
+        "timeout": 6,
+        "trace-unconfirmed": 27,
+        "trace-refuted": 63,
+        "skipped-ambiguous-module": 14,
+        "excluded-config-parser": 99
+      }
+    },
+    {
+      "profile": "tlc",
+      "harness_exit": 1,
+      "totals": {
+        "agree": 1023,
+        "refused": 286,
+        "trace-unconfirmed": 33,
+        "trace-refuted": 66,
+        "timeout": 4,
+        "skipped-ambiguous-module": 14,
+        "excluded-config-parser": 99
+      }
+    }
+  ],
+  "qualification": "Core/reference shadow only. No pinned TLC parity percentage or complete trace-class certification inferred. Shared gate host timings not performance evidence.",
+  "raw_archive": {
+    "uri": "s3://dive-evidence-archive-010928226848-us-east-1/trusted-core/2026-10-29/baseline-91742/evidence.tar.gz",
+    "sha256": "109680cb099a71c20aafc3923646d67908fa4a5826c656d9f330dc7bb38026e6"
+  },
+  "harness_sha256": "6db251f99b8b1b6df4445bfdc0233b3a08144dc408eaa340dedf9be1fabc9051",
+  "runner_sha256": "44faa5526b91faf67279fa931cf5d77d261e8cbcf12c0cf76f17f3a47315eeae",
+  "comparison": "2026-10-29-fixture-census-comparison.json"
+}

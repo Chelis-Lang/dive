@@ -1,4 +1,4 @@
-# M1 acceptance status (2026-10-28)
+# M1 acceptance status (2026-10-29)
 
 M1 is implemented across the main workstreams, but **acceptance remains open**.
 The default engine remains `reference`. Use `10-plan.md` for the milestone
@@ -44,7 +44,33 @@ attached to their original sources; no acceptance is granted retrospectively.
 - The default engine remains `reference`. No default flip is proposed while
   the acceptance findings remain. No new full-tier core result is claimed.
 
-### Final actual-main fixture census
+### Current-source fixture baseline
+
+Exact merged source `91742b3c9cb4b7021785975f888d5cf9dd43625c`, both
+profiles, one worker, seed/fp 0, 32 sampled states, 20-second native limit
+and 3-GiB ceiling. The runner selects 1,412 of 1,525 configurations, retaining
+99 parser exclusions and 14 ambiguous modules. Both profile harnesses exit 1.
+
+| Profile | Shadow agree | Refused | Native stops | Trace refuted | Unconfirmed | Successor findings |
+|---|---:|---:|---:|---:|---:|---:|
+| default | 1,047 | 269 | 6 | 63 | 27 | 0 |
+| TLC | 1,023 | 286 | 4 | 66 | 33 | 0 |
+
+All 1,363 previously selected configuration IDs retain their historical status.
+There are 49 added configurations: 22 agree and 27 refuse in default mode;
+21 agree and 28 refuse in TLC mode. No configurations were removed. The raw
+agreement increase therefore comes entirely from the added population, rather
+than repair of the old trace findings. Newly added refusal controls include the
+conservative C2 normalization boundary; they receive no semantic parity credit.
+
+This is core/reference shadow evidence, not a pinned-TLC parity percentage or
+M1 acceptance. The shared gate host supplies no performance evidence. Compact
+source/binary identities, complete totals and external archive hash are in
+`conformance/reports/core/2026-10-29-fixture-census.json`; its comparison lists
+the added IDs and separate population counts. Earlier evidence remains intact.
+The approved execution order remains in §6 and `10-plan.md`.
+
+### Historical final fixture census (2026-10-28)
 
 Exact source `f1acc846885f6764d2ce3b40c8c757d9912b25c8`, both profiles, one
 worker, seed/fp 0, 32 sampled states, 20-second native limit and 3-GiB ceiling.
