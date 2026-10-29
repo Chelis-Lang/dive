@@ -95,6 +95,26 @@ all constants.
 - **Permanent region.** Constants and config values are interned at startup
   into a region that is never compacted.
 
+`Store::memory_usage` reports a lower bound on requested retained storage from
+actual slab allocations, boxed handle slices, current index tables, retired
+tables still held by cached readers, retirement-record vector capacity and
+unique string payload/vector slots. Slab spare capacity counts; a node-count
+times header-size estimate does not. Weak retirement records preserve no table
+payload and are collected when reporting after the last reader drops. Multiple
+readers of the same table or text do not multiply its payload. Known index
+rehash temporary-vector allocation traffic and its largest individual capacity
+are separate from retained bytes and do not measure a concurrent peak.
+
+The core's `store.memory` metrics expose these components before explorer worker
+teardown. They exclude allocator rounding/metadata, Arc control blocks, opaque
+standard-library string-index bucket overhead/spare capacity and external printer/name or host
+objects. The string index reports logical capacity and live key/value object
+bytes separately; logical capacity is not a physical allocation-byte count.
+Worker arenas/caches, graph buffers and concurrent growth scratch need their own
+accounting. The snapshot is not a whole-run memory bound or peak measurement;
+sampled process RSS remains necessary and cannot enforce allocation-time caps.
+This accounting prerequisite changes no capture limits or capacity claim.
+
 ### 3.2 Transient arena
 
 Each worker owns an arena: a vector of nodes plus an epoch counter.

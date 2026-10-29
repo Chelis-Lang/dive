@@ -9,6 +9,11 @@
 - Benchmark JSONL rows retain the child report’s actual engine, requested engine
   and fallback details, so campaign labels cannot hide reference-engine fallback.
 
+- Report known persistent-store allocation components and capacities in core
+  metrics, including unused slab slots, boxed payloads and retired index tables
+  retained by readers. Label the total as a lower bound with explicit opaque
+  allocation gaps; keep process-memory enforcement and graph limits unchanged.
+
 - Fix default `--engine core` success for compound sets whose elements TLC
   cannot compare while normalizing (#619). Both profiles now report unsupported
   when the existing shape proof cannot establish safe normalization;
