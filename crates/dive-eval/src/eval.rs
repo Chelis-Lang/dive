@@ -902,7 +902,8 @@ impl Core {
     /// Whether a definition's value can be computed once per run, as TLC's
     /// `SpecProcessor.processConstantDefns` does: zero arity, constant level,
     /// top level, and not from a module that is instantiated (whose
-    /// definitions depend on the instance's substitutions).
+    /// definitions depend on the instance's substitutions). SANY's constant
+    /// level alone is insufficient for native operators with dummy bodies.
     pub(crate) fn cacheable(&self, d: dive_ir::DefId) -> bool {
         let def = self.ir.def(d);
         def.params.is_empty()
@@ -915,6 +916,105 @@ impl Core {
             && !self.ir.module(def.module).instantiated
             && !def.effects.intersects(dive_ir::Effects::IMPURE)
             && (self.open_ok || !def.effects.intersects(dive_ir::Effects::OPEN))
+            && *self.constant_cache_safe[d.index()]
+                .get_or_init(|| self.constant_cache_state_free(d))
+    }
+
+    /// A bounded, non-evaluating guard for the optional empty-state cache.
+    /// Follow actual native arguments and configured targets rather than the
+    /// native module's SANY parameter weights. Unknown lexical/dynamic inputs
+    /// disable this cache; the binder's explicit startup processing is unchanged.
+    fn constant_cache_state_free(&self, d: dive_ir::DefId) -> bool {
+        const WORK: usize = 4096;
+        let mut todo = vec![self.ir.def(d).body];
+        let mut seen = std::collections::HashSet::new();
+        let mut remaining = WORK;
+        while let Some(e) = todo.pop() {
+            let Some(left) = remaining.checked_sub(1) else {
+                return false;
+            };
+            remaining = left;
+            if !seen.insert(e) {
+                continue;
+            }
+            let node = self.ir.node(e);
+            if node.level != dive_ir::Level::Constant
+                || node.effects.intersects(dive_ir::Effects::IMPURE)
+                || matches!(
+                    node.expr,
+                    Expr::Var { .. }
+                        | Expr::SubstRef { .. }
+                        | Expr::Local(_)
+                        | Expr::ExceptAt
+                        | Expr::Unbound(_)
+                        | Expr::Unevaluable(_)
+                )
+            {
+                return false;
+            }
+            let direct = match node.expr {
+                Expr::Def(d) => Some(OpRef::Def(d)),
+                Expr::Const(c) => Some(OpRef::Const(c)),
+                _ => None,
+            };
+            // Bound the temporary reference list before constructing it.
+            match &node.expr {
+                Expr::Apply { args, .. } if args.len() >= remaining => return false,
+                Expr::Subst { bindings, .. } if bindings.len() >= remaining => return false,
+                _ => {}
+            }
+            for op in node.expr.op_refs().into_iter().cloned().chain(direct) {
+                let Some(left) = remaining.checked_sub(1) else {
+                    return false;
+                };
+                remaining = left;
+                let target = match op {
+                    OpRef::Def(d) => Some(d),
+                    OpRef::Const(c) => match self.consts.get(c.index()).and_then(Option::as_ref) {
+                        Some(ConstBinding::Value(_)) => None,
+                        Some(ConstBinding::Def(d)) => Some(*d),
+                        None => return false,
+                    },
+                    OpRef::Std(op) => {
+                        if op.impure() {
+                            return false;
+                        }
+                        self.std_redirects.get(&op).copied()
+                    }
+                    OpRef::Builtin(_) => None,
+                    OpRef::Param(_) | OpRef::Subst(_) | OpRef::Unbound(_) => return false,
+                };
+                if let Some(target) = target {
+                    let target = self.redirect(target);
+                    if self.def_values.contains_key(&target) {
+                        continue;
+                    }
+                    let def = self.ir.def(target);
+                    if def.recursive || def.effects.intersects(dive_ir::Effects::IMPURE) {
+                        return false;
+                    }
+                    if let Some(op) = def.std {
+                        if op.impure() || self.std_redirects.contains_key(&op) {
+                            return false;
+                        }
+                    } else {
+                        todo.push(def.body);
+                    }
+                }
+            }
+            if node
+                .expr
+                .try_for_each_child(|child| {
+                    remaining = remaining.checked_sub(1).ok_or(())?;
+                    todo.push(child);
+                    Ok::<(), ()>(())
+                })
+                .is_err()
+            {
+                return false;
+            }
+        }
+        true
     }
 
     /// Calls a user definition: a new frame with the arguments bound

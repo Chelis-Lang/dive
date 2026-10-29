@@ -29,6 +29,23 @@ unproved contexts retain `DIVE-L0033` refusals. VIEW graph capture
 still requires quotient-edge and closing-state evidence (issue #428), so
 EWD998ChanID remains unsupported. Other temporal restrictions also remain.
 
+State substitutions through `INSTANCE` retain their caller's state when a
+native arithmetic operator reads them. For example, an instantiated
+`Double == 2 * v` with `v <- x` reads the current `x`, in both semantic
+profiles. The reference engine previously misclassified this expression as
+constant and raised an undefined-variable error (#515). This minimal example
+now succeeds with 1 distinct state, 2 generated states, depth 1 and exit 0:
+
+```sh
+dive check conformance/corpus/reference-instance-naturals/specifications/RefSubstDouble/RefSubstDouble.tla --engine reference --compat=tlc --workers 4 --seed 0 --fp 0 --output json
+```
+
+Actual constant definitions still retain their startup values. Configuration
+redirects keep their existing evaluation behavior; this correction does not
+change startup output, lazy argument demands or error priority. A separately
+tracked core/auto disagreement across two nested instance scopes remains open
+(#634); this example is not a claim of general INSTANCE completion.
+
 ## Experimental core engine
 
 ```sh

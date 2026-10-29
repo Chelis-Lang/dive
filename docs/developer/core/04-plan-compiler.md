@@ -162,8 +162,24 @@ section 4 decide.
        - an operator substitution;
        - a lazy substituted argument.
 
-       Two of the probes found a reference-engine defect (#515, a spurious
-       2280 on `2 * v` with `v` substituted), where the core agrees with TLC.
+       Two of the probes found reference defect #515, a spurious 2280 on
+       `2 * v` with `v` substituted. Its minimal corpus now agrees on both
+       engines. Naturals' dummy multiplication body gives SANY a constant
+       level even when native arguments read state. The binder's configured
+       level bound already skips startup precomputation correctly; the
+       reference evaluator's opportunistic empty-state cache now separately
+       proves state independence instead of trusting SANY's level alone.
+       A non-evaluating walk follows real native arguments and configured
+       targets, charging at most 4,096 nodes, references and child edges.
+       State, unknown lexical/dynamic inputs, recursion and exhausted proof
+       work disable only that cache. The result is kept once per definition
+       in private evaluator metadata; no source body is evaluated by the
+       proof. Explicit successful startup values and configuration redirect
+       semantics are unchanged. The consumed controls include constant
+       instance startup values, unused failing/effectful actuals, output,
+       multiplication argument-error order and a fresh independently checked
+       error word. Nested scopes expose a separate existing core/auto false
+       alarm (#634), so that case earns reference agreement only.
        MCChangRoberts now runs in the core with TLC's counts.
 3. **Operator inlining.** Non-recursive user operators whose bodies are below a
    size threshold are inlined. Each parameter is either substituted (when the
