@@ -289,8 +289,8 @@ pub fn explore_checkpoints_with_native_hooks<'observer>(
         (outcome, hooks.decision)
     })?;
     match &mut outcome {
-        ControlledExploration::Complete(c) => c.safety_result.elapsed = started.elapsed(),
-        ControlledExploration::Prefix(p) => p.result.elapsed = started.elapsed(),
+        ControlledExploration::Complete(c) => c.evidence.set_elapsed(started.elapsed()),
+        ControlledExploration::Prefix(p) => p.evidence.set_elapsed(started.elapsed()),
         ControlledExploration::Stopped(s) => s.elapsed = started.elapsed(),
     }
     if let Some(record) = &decision {

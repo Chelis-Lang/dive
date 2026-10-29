@@ -14,6 +14,7 @@ use crate::formula::{self, AtomKind, CycleConditions, Tableau};
 use crate::plan::{self, Plan, PlanningError};
 use crate::product::{self, AcceptancePolicy, CompactProduct, PackedTruth};
 
+mod finish;
 #[doc(hidden)]
 pub mod owned;
 mod row_demand;
@@ -1219,8 +1220,8 @@ fn analyze_unbudgeted(
     )
     .inspect_err(|_| {
         *exploration = Some(Box::new(ExplorationEvidence::from(&captured)));
-    })?;
-    Ok(final_analysis(word, captured))
+    });
+    finish::complete(word, captured.evidence().clone()).map(|result| result.reference(captured))
 }
 
 struct PreparedProperty {
@@ -1325,20 +1326,6 @@ fn prepare(
         })
         .collect::<Result<_, AnalysisError>>()?;
     Ok(plans)
-}
-
-fn final_analysis(word: Option<CandidateWord>, captured: capture::Complete) -> Analysis {
-    match word {
-        Some(word) => Analysis::Candidate(Candidate {
-            target_property: word.target_property,
-            properties: word.properties,
-            states: word.states,
-            back_to: word.back_to,
-            edges: word.edges,
-            exploration: captured,
-        }),
-        None => Analysis::Holds(captured),
-    }
 }
 
 struct CandidateWord {

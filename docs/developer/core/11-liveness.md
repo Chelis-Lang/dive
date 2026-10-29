@@ -1,7 +1,8 @@
 # 11. Liveness on the core
 
 Status: phase 1 (L1–L4) built, 2026-10-28; pulled forward from M3.
-Preparatory L5 topology and private state-value access are implemented (§7.1–§7.2).
+Preparatory L5 topology, private state-value access and graph-independent
+producer/result facts are implemented (§7.1–§7.3).
 Checker state retention, completion/results and measured capacity remain L5 work
 with the prerequisites in §7.
 
@@ -290,10 +291,12 @@ These follow the liveness-budgets rule:
     retained roots must remain valid until analysis and lasso extraction end.
   - **Completion and results.** `capture::Complete` and `Prefix`, and the
     liveness `Analysis`/candidate results, currently retain a concrete
-    `BehaviorGraph`. Compact-compatible completion and result handling is
-    needed so finishing a run does not materialize the whole reference graph.
-    Preserve the existing producer completion/prefix checks and actual
-    counters; compact storage creates no new temporal proof authority.
+    `BehaviorGraph`. Graph-independent sealed producer facts and private result
+    assembly are available (§7.3). A checked native producer constructor and
+    compact-compatible report routing remain needed so finishing a compact run
+    does not materialize the reference graph. Preserve existing producer
+    completion/prefix checks and actual counters; compact storage creates no new
+    temporal proof authority.
   - **Complete memory accounting.** The earlier estimate of 12 bytes per
     vertex plus 8 per edge was a topology estimate, not a total footprint
     or a capacity proof. Count retained handle rows/roots, key-to-id lookup,
@@ -379,6 +382,45 @@ CSR metadata and end-to-end memory/capacity measurements remain §7 requirements
 The private source itself supplies no resource bound or completion authority;
 no checker limit, supported model population or performance claim changes.
 
+### 7.3 Implemented producer-fact and result assembly prerequisite
+
+`capture::CompleteEvidence` retains the existing `GraphCompletion`, the actual
+ordinary safety result, original options and counters without graph rows.
+`PrefixEvidence` retains actual successful committed-prefix facts and its level,
+with a nonzero queue and no completion receipt. Their constructors remain
+private. `Complete::evidence`/`Prefix::evidence` borrow these immutable facts;
+`into_evidence` releases graph storage while retaining them. Edits to public
+capture fields do not change the original facts or recertify completion.
+
+The reference producer already distinguishes a successful unexhausted committed
+prefix from a safety failure or resource stop. The public `GraphBuilder`
+factories now preserve that distinction too: any non-success safety result
+returns its exact original verdict, before constructing either kind of evidence
+(#624). Successful completion still uses the existing `GraphCompletion::finalize`
+shape/counter checks; successful prefixes retain the nonzero-frontier check.
+No CSR shape, copied counters or caller completion flag creates these facts.
+
+Private liveness result assembly consumes the existing candidate word or error
+and the matching kind of producer evidence. Only complete evidence can assemble
+a holding decision. Prefix assembly requires a selected word, and analysis
+errors and typed stops remain errors. Existing final-only and periodic paths
+use this boundary. Their compatibility adapters keep the original public
+`Complete`, `Prefix`, `Analysis`, candidate and API `Outcome` values, retaining
+the original graph allocations without copying or rebuilding rows.
+
+Tests detach real producer evidence and observe graph rows being released,
+preserve every selected word/edge and legacy graph allocation, reject malformed
+completion counters/rows, preserve original factory failures/stops, and keep
+successful joined prefixes at 1, 4 and 8 workers in both profiles. Public
+rustdoc controls prevent constructing completion facts or promoting prefixes.
+
+This prerequisite does not implement a native compact producer constructor,
+compact final report routing, retained handle roots or controlled conversion.
+The legacy public results still retain `BehaviorGraph`. The future store/source
+bridge must provide checked producer facts and the original selected values;
+it must not rebuild a reference graph just to assemble a result. No capture
+limit, supported model population or capacity claim changes (#625).
+
 ## 8. Tests
 
 - **Graph equality** (the main test). For every temporal fixture (the
@@ -406,7 +448,7 @@ no checker limit, supported model population or performance claim changes.
 | L2 (built) | `capture::refusal` and `GraphBuilder` (`dive-check`); `GraphCheck` (`dive-liveness`); tests: a graph rebuilt through `GraphBuilder` equals the reference capture, and `GraphCheck` over it equals `analyze_final` and `analyze_periodic` | full |
 | L3 (built) | `GraphSink` in `dive-explore`; the `dive-api` converting sink; graph-equality tests (§8) against the reference capture | fast |
 | L4 (built) | The temporal route in `core_engine` (both profiles), refusals, report-equality tests, harness census, user guide and CHANGELOG | fast (full if L2 needs follow-up) |
-| L5 (partial) | Borrowed CSR product input and private state-value source built (§7.1–§7.2); native state retention/conversion and compact-compatible completion/results remain, followed by TLC capacity measurement (§7) | full |
+| L5 (partial) | Borrowed CSR product input, private state-value source and graph-independent producer/result facts built (§7.1–§7.3); native retention/conversion, checked compact producer completion and report routing remain, followed by TLC capacity measurement (§7) | full |
 
 Each PR updates this document's status, the status board and the handoff log.
 
