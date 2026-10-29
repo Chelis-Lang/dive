@@ -1,5 +1,9 @@
 # Changelog
 
+- Low-level Rust producers can validate borrowed CSR adjacency and detach
+  completed or committed-prefix evidence without constructing evaluator state
+  values. The core temporal route and capture limits remain unchanged.
+
 - Low-level Rust graph captures expose immutable producer facts through
   `evidence()` and release graph storage through `into_evidence()`. Completed
   and successful committed-prefix facts remain distinct. External graph

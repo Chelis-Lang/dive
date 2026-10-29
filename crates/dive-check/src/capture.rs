@@ -14,12 +14,14 @@ use crate::engine;
 use crate::{CheckOptions, CheckResult, Collision, Stats, Verdict, Workers};
 
 mod checkpoints;
+mod csr;
 mod evidence;
 pub(crate) use checkpoints::Hooks as CheckpointHooks;
 pub use checkpoints::{
     CheckpointDecision, CheckpointExploration, CheckpointObserver, CheckpointPhase,
     ReachedCheckpoint, explore_checkpoints_with_evidence, explore_checkpoints_with_native_hooks,
 };
+pub use csr::{CsrCapture, CsrCaptureInput, CsrComplete, CsrPrefix};
 pub use evidence::{CompleteEvidence, PrefixEvidence};
 
 /// Maximum concurrently expanded source units during parallel capture.
@@ -92,23 +94,9 @@ pub struct GraphCompletion {
 impl GraphCompletion {
     fn finalize(graph: &BehaviorGraph, counters: Stats, limits: Limits) -> Result<Self, Verdict> {
         let states = graph.states.len();
-        if states > limits.states || counters.generated > limits.generated {
-            return Err(limit("completion entries"));
-        }
-        if counters.distinct != u64::try_from(states).map_err(|_| bug("state count range"))?
-            || counters.left_on_queue != 0
-            || graph.edges.len() != states
-            || graph.concrete.len() != states
-            || (!graph.states.is_empty() && graph.roots.is_empty())
-        {
+        Self::check_header(states, &graph.roots, counters, limits, None)?;
+        if graph.edges.len() != states || graph.concrete.len() != states {
             return Err(bug("incomplete graph/statistics at successful EOF"));
-        }
-        let mut previous = None;
-        for &root in &graph.roots {
-            if root >= states || previous.is_some_and(|p| p >= root) {
-                return Err(bug("invalid completed initial roots"));
-            }
-            previous = Some(root);
         }
         let mut edges = 0usize;
         let mut concrete_successors = 0usize;
@@ -149,6 +137,41 @@ impl GraphCompletion {
             roots: graph.roots.len(),
             limits,
         })
+    }
+
+    // Both retained-value and CSR producers use the same completion header.
+    // Successful safety EOF is necessary; the representation-specific checks
+    // must additionally establish every expanded row and original successor.
+    fn check_header(
+        states: usize,
+        roots: &[usize],
+        counters: Stats,
+        limits: Limits,
+        control: Option<&crate::budget::EvaluationControl>,
+    ) -> Result<(), Verdict> {
+        if let Some(control) = control {
+            csr::poll(control)?;
+        }
+        if states > limits.states || counters.generated > limits.generated {
+            return Err(limit("completion entries"));
+        }
+        if counters.distinct != u64::try_from(states).map_err(|_| bug("state count range"))?
+            || counters.left_on_queue != 0
+            || (states != 0 && roots.is_empty())
+        {
+            return Err(bug("incomplete graph/statistics at successful EOF"));
+        }
+        let mut previous = None;
+        for (index, &root) in roots.iter().enumerate() {
+            if let Some(control) = control {
+                csr::checkpoint(control, index)?;
+            }
+            if root >= states || previous.is_some_and(|p| p >= root) {
+                return Err(bug("invalid completed initial roots"));
+            }
+            previous = Some(root);
+        }
+        Ok(())
     }
     /// Retained representatives, generated edges plus implicit stutters,
     /// original concrete successors, and distinct initial roots, respectively.
