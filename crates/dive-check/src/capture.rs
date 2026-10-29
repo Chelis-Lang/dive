@@ -14,11 +14,13 @@ use crate::engine;
 use crate::{CheckOptions, CheckResult, Collision, Stats, Verdict, Workers};
 
 mod checkpoints;
+mod evidence;
 pub(crate) use checkpoints::Hooks as CheckpointHooks;
 pub use checkpoints::{
     CheckpointDecision, CheckpointExploration, CheckpointObserver, CheckpointPhase,
     ReachedCheckpoint, explore_checkpoints_with_evidence, explore_checkpoints_with_native_hooks,
 };
+pub use evidence::{CompleteEvidence, PrefixEvidence};
 
 /// Maximum concurrently expanded source units during parallel capture.
 /// Fixed waves use this cap regardless of physical worker pool width.
@@ -268,8 +270,7 @@ pub struct BehaviorGraph {
 /// predicates, but this evidence never certifies temporal acceptance.
 #[derive(Clone, Debug)]
 pub struct Complete {
-    safety_result: Box<CheckResult>,
-    completion: GraphCompletion,
+    evidence: CompleteEvidence,
     /// Run settings, including the reported seed, profile and store mode.
     pub options: CheckOptions,
     /// The complete graph, including seen-state edges and implicit stutters.
@@ -292,22 +293,54 @@ impl Complete {
     /// publicly inspectable graph or counters. Edited fields cannot recertify it.
     #[must_use]
     pub fn completion(&self) -> &GraphCompletion {
-        &self.completion
+        self.evidence.completion()
     }
     /// Actual ordinary safety-engine outcome, retained without reconstructing
     /// counts, diagnostics, stopping facts or worker metadata from the graph.
     /// This receipt does not certify any temporal obligation.
     #[must_use]
     pub fn safety_result(&self) -> &CheckResult {
-        &self.safety_result
+        self.evidence.safety_result()
+    }
+
+    /// Original graph-independent producer facts. Public capture-field edits do
+    /// not recertify the completed graph or change these facts.
+    #[must_use]
+    pub fn evidence(&self) -> &CompleteEvidence {
+        &self.evidence
+    }
+
+    /// Releases graph storage and retains only original producer facts.
+    /// This operation performs no temporal check and creates no holding verdict.
+    #[must_use]
+    pub fn into_evidence(self) -> CompleteEvidence {
+        self.evidence
+    }
+
+    fn from_producer(
+        graph: BehaviorGraph,
+        result: CheckResult,
+        options: CheckOptions,
+        stats: Stats,
+        completion: GraphCompletion,
+    ) -> Self {
+        Self {
+            collision: result.collision.clone(),
+            workers: result.workers.clone(),
+            output: result.output.clone(),
+            warnings: result.warnings.clone(),
+            evidence: CompleteEvidence::new(result, options.clone(), stats, completion),
+            options,
+            graph,
+            stats,
+        }
     }
 }
 
 /// Actual committed-level exploration prefix, explicitly not completion.
 #[derive(Clone, Debug)]
 pub struct Prefix {
-    level: u64,
-    result: Box<CheckResult>,
+    evidence: PrefixEvidence,
     /// Original run settings.
     pub options: CheckOptions,
     /// Retained graph; unexpanded rows remain empty.
@@ -327,7 +360,39 @@ impl Prefix {
     /// Last fully committed expansion level. No complete verdict is implied.
     #[must_use]
     pub const fn level(&self) -> u64 {
-        self.level
+        self.evidence.level()
+    }
+
+    /// Original facts from the successful committed boundary, without completion.
+    #[must_use]
+    pub fn evidence(&self) -> &PrefixEvidence {
+        &self.evidence
+    }
+
+    /// Releases the partial graph and retains the actual incomplete-prefix facts.
+    /// It cannot promote a prefix to completed exploration.
+    #[must_use]
+    pub fn into_evidence(self) -> PrefixEvidence {
+        self.evidence
+    }
+
+    fn from_producer(
+        graph: BehaviorGraph,
+        result: CheckResult,
+        options: CheckOptions,
+        stats: Stats,
+        level: u64,
+    ) -> Self {
+        Self {
+            collision: result.collision.clone(),
+            workers: result.workers.clone(),
+            output: result.output.clone(),
+            warnings: result.warnings.clone(),
+            evidence: PrefixEvidence::new(result, options.clone(), stats, level),
+            options,
+            graph,
+            stats,
+        }
     }
 }
 
@@ -355,7 +420,7 @@ impl ControlledExploration {
             Self::Complete(c) => Exploration::Complete(c),
             Self::Stopped(s) => Exploration::Stopped(s),
             Self::Prefix(p) => {
-                let mut result = p.result;
+                let mut result = p.evidence.into_result();
                 result.verdict = Verdict::Unsupported {
                     feature: "prefix stop requires controlled capture entrypoint".into(),
                 };
@@ -368,7 +433,7 @@ impl ControlledExploration {
 fn elapsed(result: &mut Exploration, duration: std::time::Duration) {
     match result {
         Exploration::Stopped(stop) => stop.elapsed = duration,
-        Exploration::Complete(complete) => complete.safety_result.elapsed = duration,
+        Exploration::Complete(complete) => complete.evidence.set_elapsed(duration),
     }
 }
 
@@ -659,39 +724,39 @@ impl GraphBuilder {
     /// safety result, with its statistics.
     ///
     /// # Errors
-    /// Missing statistics, or a graph whose shape disagrees with them
+    /// The original non-success safety verdict, missing statistics, or a graph whose shape disagrees with them
     /// (internal errors), or a capture entry limit.
     pub fn complete(self, safety: CheckResult, options: CheckOptions) -> Result<Complete, Verdict> {
+        if safety.verdict != Verdict::Success {
+            return Err(safety.verdict);
+        }
         let limits = self.collector.limits();
         let graph = self.collector.finish();
         let Some(stats) = safety.stats else {
             return Err(bug("completed exploration did not return statistics"));
         };
         let completion = GraphCompletion::finalize(&graph, stats, limits)?;
-        Ok(Complete {
-            completion,
-            options,
-            graph,
-            stats,
-            collision: safety.collision.clone(),
-            workers: safety.workers.clone(),
-            output: safety.output.clone(),
-            warnings: safety.warnings.clone(),
-            safety_result: Box::new(safety),
-        })
+        Ok(Complete::from_producer(
+            graph, safety, options, stats, completion,
+        ))
     }
 
     /// The exploration stopped after the fully committed `level`, whose
     /// frontier is not exhausted.
     ///
     /// # Errors
-    /// Missing statistics or an exhausted frontier (internal errors).
+    /// The original non-success safety verdict, missing statistics or an
+    /// exhausted frontier (internal errors). Successful unexhausted prefixes
+    /// remain incomplete and cannot establish a holding temporal verdict.
     pub fn prefix(
         self,
         level: u64,
         safety: CheckResult,
         options: CheckOptions,
     ) -> Result<Prefix, Verdict> {
+        if safety.verdict != Verdict::Success {
+            return Err(safety.verdict);
+        }
         let graph = self.collector.finish();
         let Some(stats) = safety.stats else {
             return Err(bug("prefix did not return statistics"));
@@ -699,17 +764,7 @@ impl GraphBuilder {
         if stats.left_on_queue == 0 {
             return Err(bug("prefix has exhausted frontier"));
         }
-        Ok(Prefix {
-            level,
-            options,
-            graph,
-            stats,
-            collision: safety.collision.clone(),
-            workers: safety.workers.clone(),
-            output: safety.output.clone(),
-            warnings: safety.warnings.clone(),
-            result: Box::new(safety),
-        })
+        Ok(Prefix::from_producer(graph, safety, options, stats, level))
     }
 }
 
@@ -968,9 +1023,9 @@ pub fn explore_controlled_with_native_hooks(
         )
     })?;
     match &mut result {
-        ControlledExploration::Complete(c) => c.safety_result.elapsed = started.elapsed(),
+        ControlledExploration::Complete(c) => c.evidence.set_elapsed(started.elapsed()),
         ControlledExploration::Stopped(s) => s.elapsed = started.elapsed(),
-        ControlledExploration::Prefix(p) => p.result.elapsed = started.elapsed(),
+        ControlledExploration::Prefix(p) => p.evidence.set_elapsed(started.elapsed()),
     }
     Ok(result)
 }
@@ -1178,17 +1233,13 @@ fn explore_inner<'obs>(
             result.verdict = bug("prefix has exhausted frontier");
             return ControlledExploration::Stopped(Box::new(result));
         }
-        return ControlledExploration::Prefix(Box::new(Prefix {
-            level,
-            result: Box::new(result.clone()),
-            options: opts.clone(),
+        return ControlledExploration::Prefix(Box::new(Prefix::from_producer(
             graph,
+            result,
+            opts.clone(),
             stats,
-            collision: result.collision,
-            workers: result.workers,
-            output: result.output,
-            warnings: result.warnings,
-        }));
+            level,
+        )));
     }
     let completion = match GraphCompletion::finalize(&graph, stats, limits) {
         Ok(completion) => completion,
@@ -1197,17 +1248,13 @@ fn explore_inner<'obs>(
             return ControlledExploration::Stopped(Box::new(result));
         }
     };
-    ControlledExploration::Complete(Box::new(Complete {
-        completion,
-        safety_result: Box::new(result.clone()),
-        options: opts.clone(),
+    ControlledExploration::Complete(Box::new(Complete::from_producer(
         graph,
+        result,
+        opts.clone(),
         stats,
-        collision: result.collision,
-        workers: result.workers,
-        output: result.output,
-        warnings: result.warnings,
-    }))
+        completion,
+    )))
 }
 
 fn stopped(verdict: Verdict, model: &Model, opts: &CheckOptions) -> Exploration {

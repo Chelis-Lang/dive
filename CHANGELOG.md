@@ -1,5 +1,11 @@
 # Changelog
 
+- Low-level Rust graph captures expose immutable producer facts through
+  `evidence()` and release graph storage through `into_evidence()`. Completed
+  and successful committed-prefix facts remain distinct. External graph
+  factories preserve the original failure/stop verdict instead of admitting it
+  as completion or a successful prefix (#624).
+
 - Benchmark JSONL rows retain the child report’s actual engine, requested engine
   and fallback details, so campaign labels cannot hide reference-engine fallback.
 

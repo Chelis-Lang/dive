@@ -67,6 +67,17 @@ runnable example. Producer-clock requests and the former dispatch, stopped and
 terminal service APIs have been removed. Ordinary parallel graph capture remains
 available through the unobserved entry points.
 
+Completed graph consumers can retain original producer facts while releasing
+graph storage with `capture::Complete::into_evidence`; `Prefix::into_evidence`
+does the same for a successful committed prefix. `evidence()` borrows the
+facts while keeping the graph. These immutable values preserve the original
+safety result, options and counters independently of edits to public capture
+fields. Complete facts retain the existing graph-completion receipt; prefix
+facts retain their level and unexhausted queue and cannot become completion.
+Neither kind proves a temporal property. `GraphBuilder::complete` and `prefix`
+return the original verdict when supplied a failed or stopped safety result.
+Existing public temporal reports and analysis results keep their graph owners.
+
 | Entry | Meaning |
 | --- | --- |
 | `parse_source` / `parse_file` | Syntax/CST and source diagnostics |
