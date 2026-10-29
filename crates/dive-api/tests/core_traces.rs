@@ -1,9 +1,9 @@
 //! Counterexamples of the new core (`--engine=core`): rebuilt from the
 //! predecessor log by replay (`docs/developer/core/07-engine.md` §4), they
 //! equal the reference engine's at one worker (both are minimal-depth BFS
-//! traces over the same successor order), and every one is validated by
-//! `dive-trace`, the independent validator, which runs on the reference
-//! evaluator (`08-correctness.md` §7).
+//! traces over the same successor order). `dive-trace`, the independent
+//! validator, checks their words using the reference evaluator
+//! (`08-correctness.md` §7); known unconfirmed endings are counted separately.
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
 
 use std::path::{Path, PathBuf};
@@ -71,7 +71,13 @@ fn known(ending: Option<&Ending>, f: &Failure, last: usize) -> bool {
                 )))
 }
 
-fn validate(spec: &Path, trace: &Value) -> Result<(), String> {
+#[derive(PartialEq, Eq)]
+enum Checked {
+    Valid,
+    Unconfirmed,
+}
+
+fn validate(spec: &Path, trace: &Value) -> Result<Checked, String> {
     let doc = TraceDoc::from_json(trace).map_err(|e| format!("unreadable trace: {e}"))?;
     let options = TraceOptions {
         run: Some((0, 0)),
@@ -79,19 +85,43 @@ fn validate(spec: &Path, trace: &Value) -> Result<(), String> {
     };
     let model = SpecModel::load(spec, &spec.with_extension("cfg"), &options)
         .map_err(|e| format!("validator cannot bind: {e}"))?;
-    match model.validate(&doc).validation {
-        Validation::Valid => Ok(()),
+    let report = model
+        .try_validate(&doc)
+        .map_err(|e| format!("validator did not complete: {e}"))?;
+    match report.validation {
+        Validation::Valid => Ok(Checked::Valid),
         // The validator cannot confirm a deadlock on its own; the states and
         // steps it checks before saying so are still checked.
-        Validation::Unsupported(why) if why.contains("deadlock") => Ok(()),
+        Validation::Unsupported(why) if why.contains("deadlock") => Ok(Checked::Unconfirmed),
         // Nor re-raise an error while expanding the last state, which needs
         // the successor generator; it checks the steps before it says so.
-        Validation::Unsupported(why) if why.contains("the steps were checked") => Ok(()),
+        Validation::Unsupported(why) if why.contains("the steps were checked") => {
+            Ok(Checked::Unconfirmed)
+        }
+        Validation::Unsupported(why)
+            if matches!(doc.ending, Some(Ending::NextStateError { .. }))
+                && [
+                    "Next error replay emitted a candidate before the claimed error",
+                    "Next error replay needs successor-side ordering before its error",
+                ]
+                .contains(&why.as_str()) =>
+        {
+            // This bounded endpoint cannot confirm errors after any candidate.
+            // Check the finite prefix independently, and retain the unknown
+            // ending rather than counting it as an independently valid word.
+            let prefix = model
+                .try_validate(&doc.with_ending(Ending::Behavior))
+                .map_err(|e| format!("prefix validation did not complete: {e}"))?;
+            if prefix.validation != Validation::Valid {
+                return Err(format!("unconfirmed Next prefix: {:?}", prefix.validation));
+            }
+            Ok(Checked::Unconfirmed)
+        }
         Validation::Unsupported(why) => Err(format!("unsupported: {why}")),
         Validation::Invalid(f)
             if known(doc.ending.as_ref(), &f, doc.states.len().saturating_sub(1)) =>
         {
-            Ok(())
+            Ok(Checked::Unconfirmed)
         }
         Validation::Invalid(f) => Err(format!("invalid at state {}: {}", f.state + 1, f.detail)),
     }
@@ -110,6 +140,7 @@ fn core_counterexamples_equal_the_reference_and_validate() {
         specs(&repo().join(dir), &mut all);
     }
     let mut traced = 0;
+    let mut validated = 0;
     for spec in &all {
         let name = spec.file_stem().and_then(|n| n.to_str()).unwrap_or("?");
         let core = run(spec, Engine::Core);
@@ -132,13 +163,19 @@ fn core_counterexamples_equal_the_reference_and_validate() {
             // the reference engine reports it (compared above).
             continue;
         }
-        if let Err(e) = validate(spec, trace) {
-            panic!("{name}: {e}");
+        match validate(spec, trace) {
+            Ok(Checked::Valid) => validated += 1,
+            Ok(Checked::Unconfirmed) => {}
+            Err(e) => panic!("{name}: {e}"),
         }
         traced += 1;
     }
     assert!(
         traced >= 60,
         "only {traced} core counterexamples were checked"
+    );
+    assert!(
+        validated >= 60,
+        "only {validated} core counterexamples independently validated ({traced} checked)"
     );
 }
