@@ -202,32 +202,23 @@ impl Decisions {
         self,
         prefix: capture::Prefix,
     ) -> Result<(PeriodicAnalysis, Checks), PeriodicFailure> {
-        let word = self
-            .decision
-            .unwrap_or_else(|| {
-                Err(AnalysisError::Inconsistent(
-                    "prefix stopped without an analysis decision",
-                ))
-            })
-            .map_err(|error| {
-                failure(
-                    error,
-                    self.stage,
-                    Some(Box::new((&prefix).into())),
-                    self.evaluations,
-                    Some(false),
-                    self.checks,
-                )
-            })?;
+        let word = self.decision.unwrap_or_else(|| {
+            Err(AnalysisError::Inconsistent(
+                "prefix stopped without an analysis decision",
+            ))
+        });
+        let result = super::finish::prefix(word, prefix.evidence().clone()).map_err(|error| {
+            failure(
+                error,
+                self.stage,
+                Some(Box::new((&prefix).into())),
+                self.evaluations,
+                Some(false),
+                self.checks,
+            )
+        })?;
         Ok((
-            PeriodicAnalysis::Prefix(PrefixCandidate {
-                target_property: word.target_property,
-                properties: word.properties,
-                states: word.states,
-                back_to: word.back_to,
-                edges: word.edges,
-                exploration: prefix,
-            }),
+            PeriodicAnalysis::Prefix(result.reference(prefix)),
             self.checks,
         ))
     }
@@ -278,18 +269,19 @@ impl Decisions {
             &mut self.evaluations,
             inputs.control,
             cached.as_deref(),
-        )
-        .map_err(|error| {
-            failure(
-                error,
-                self.stage,
-                Some(Box::new((&complete).into())),
-                self.evaluations,
-                Some(true),
-                self.checks,
-            )
-        })?;
-        let analysis = super::final_analysis(word, complete);
+        );
+        let result =
+            super::finish::complete(word, complete.evidence().clone()).map_err(|error| {
+                failure(
+                    error,
+                    self.stage,
+                    Some(Box::new((&complete).into())),
+                    self.evaluations,
+                    Some(true),
+                    self.checks,
+                )
+            })?;
+        let analysis = result.reference(complete);
         Ok((PeriodicAnalysis::Final(analysis), self.checks))
     }
 }
