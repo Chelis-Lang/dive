@@ -1,5 +1,8 @@
 # Changelog
 
+- Benchmark JSONL rows retain the child report’s actual engine, requested engine
+  and fallback details, so campaign labels cannot hide reference-engine fallback.
+
 - Fix default `--engine core` success for compound sets whose elements TLC
   cannot compare while normalizing (#619). Both profiles now report unsupported
   when the existing shape proof cannot establish safe normalization;
