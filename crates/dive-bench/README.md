@@ -94,7 +94,10 @@ quantities; startup/parsing/reporting and the JVM remain included in wall time.
 JSONL schema 2 binds the binary hashes and source labels, runner revision/dirt,
 corpus/oracle/Java/module-library pins, effective cfg/module/local-source and
 golden hashes, worker use, arguments, heap, timeout, seed/fp and schedule/load.
-It retains each dive child's reported options. Timed dive runs remove inherited
+It retains each dive child's reported options, actual engine, requested engine and
+fallback details (`reported_engine`, `reported_engine_requested`,
+`reported_engine_fallback`). Missing fields stay null; an arm label never supplies
+engine evidence. Timed dive runs remove inherited
 `DIVE_COMPAT` and `DIVE_CHAOS`; the command selects compatibility explicitly.
 The optional JSON summary reports all selected arms, comparisons and aggregate
 population counts. It does not certify performance target acceptance. ADR 0006's

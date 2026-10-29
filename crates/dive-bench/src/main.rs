@@ -734,7 +734,7 @@ fn run_dive(
         error_class: v["tlc"]["name"].as_str().map(str::to_owned),
         exit_code: outcome.exit_code,
         property: v["property"].as_str().map(str::to_owned),
-        metadata: json!({"argv":invocation_args,"cwd":dir,"environment_removed":["DIVE_COMPAT","DIVE_CHAOS"],"requested_native_budget":{"reference_tlc_elapsed_ms":p.golden_elapsed_ms,"time_limit_ms":time_limit_ms,"max_memory":opts.xmx,"max_memory_bytes":max_memory},"reported_options":v["options"],"reported_stopped":v["stopped"],"reported_resources":v["resources"],"reported_execution":v["execution"],"load_before":load_before,"load_after":load_after,"inputs":p.provenance}),
+        metadata: json!({"argv":invocation_args,"cwd":dir,"environment_removed":["DIVE_COMPAT","DIVE_CHAOS"],"requested_native_budget":{"reference_tlc_elapsed_ms":p.golden_elapsed_ms,"time_limit_ms":time_limit_ms,"max_memory":opts.xmx,"max_memory_bytes":max_memory},"reported_options":v["options"],"reported_stopped":v["stopped"],"reported_resources":v["resources"],"reported_execution":v["execution"],"reported_engine":v["engine"],"reported_engine_requested":v["engine_requested"],"reported_engine_fallback":v["engine_fallback"],"load_before":load_before,"load_after":load_after,"inputs":p.provenance}),
     };
     (r.correct, r.note) = check(p, &r);
     let budget = &v["options"]["budget"];
@@ -1685,7 +1685,7 @@ while [ "$#" -gt 0 ]; do
     shift
 done
 [ "$limit" = 4500ms ] && [ "$memory" = 3g ] || exit 64
-printf '{"verdict":"stopped","statistics":{"distinct":1,"generated":2,"depth":1},"stopped":{"resource":"time","phase":"safety-search","limit":4500,"observed":4501},"options":{"workers":{"used":%s},"budget":{"time_limit_ms":4500,"max_memory_bytes":3221225472,"time_limit_source":"explicit","max_memory_source":"explicit"}},"resources":{"checking_started":true},"execution":null}\n' "$workers"
+printf '{"verdict":"stopped","statistics":{"distinct":1,"generated":2,"depth":1},"stopped":{"resource":"time","phase":"safety-search","limit":4500,"observed":4501},"options":{"workers":{"used":%s},"budget":{"time_limit_ms":4500,"max_memory_bytes":3221225472,"time_limit_source":"explicit","max_memory_source":"explicit"}},"resources":{"checking_started":true},"engine":"reference","engine_requested":"auto","engine_fallback":{"stage":"compile","reason":"fixture fallback"},"execution":null}\n' "$workers"
 exit 5
 "#).map_err(err)?;
         std::fs::set_permissions(&bin, std::fs::Permissions::from_mode(0o755)).map_err(err)?;
@@ -1717,6 +1717,14 @@ exit 5
                 stopped.metadata["reported_resources"]["checking_started"],
                 true
             );
+            // A producer label is not evidence that this child used the core.
+            // Preserve the actual engine even for baseline/core campaign arms.
+            assert_eq!(stopped.metadata["reported_engine"], "reference");
+            assert_eq!(stopped.metadata["reported_engine_requested"], "auto");
+            assert_eq!(
+                stopped.metadata["reported_engine_fallback"]["stage"],
+                "compile"
+            );
             append_json(&rows, &stopped, &json!({}))?;
             let aggregate = summarise(&[&stopped], 1);
             assert_eq!(
@@ -1737,6 +1745,12 @@ exit 5
             let row: Value = serde_json::from_str(row).map_err(err)?;
             assert_eq!(row["verdict"], "stopped");
             assert_eq!(row["run"]["reported_stopped"]["observed"], 4501);
+            assert_eq!(row["run"]["reported_engine"], "reference");
+            assert_eq!(row["run"]["reported_engine_requested"], "auto");
+            assert_eq!(
+                row["run"]["reported_engine_fallback"]["reason"],
+                "fixture fallback"
+            );
         }
         Ok(())
     }
@@ -1794,6 +1808,9 @@ exit 5
             ] {
                 let run = run_dive(&bin, &[], &p, arm, 0, &output, &opts)?;
                 assert_eq!(run.correct, case == "matching", "{case}: {}", run.note);
+                assert!(run.metadata["reported_engine"].is_null());
+                assert!(run.metadata["reported_engine_requested"].is_null());
+                assert!(run.metadata["reported_engine_fallback"].is_null());
                 let pairs = stats::pair(
                     &[sample("tlc-w1", 0, 1.0), run],
                     "model",
