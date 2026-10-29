@@ -231,3 +231,10 @@ id = "startup-stored-read-primary"
 path = "conformance/corpus/startup-stored-read-primary"
 license = "MIT"
 layout = "examples-manifest"
+
+# Definition-cache identity across nested INSTANCE substitutions (#634).
+[[corpus]]
+id = "core-instance-scopes"
+path = "conformance/corpus/core-instance-scopes"
+license = "MIT"
+layout = "examples-manifest"

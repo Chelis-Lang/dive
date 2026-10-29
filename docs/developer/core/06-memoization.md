@@ -233,6 +233,18 @@ evaluated on a complete pair: while it is evaluated, its primed variables
 are as fixed as its unprimed ones. The compiler knows it is compiling one
 (`Compiler::step`), and caches more there (`core/engine-step-thunks`):
 
+Before runtime result caching, a compiled definition body must have the right
+identity. Both ordinary state-definition thunks and step-definition thunks use
+`(DefId, Mode, substitution context)` (#634). A shared original definition can
+read different actuals in two nested `INSTANCE`s; a runtime read set cannot
+repair a body already compiled through the wrong one. The context is the last
+active immutable substitution entry's unique id (or empty): all stack changes
+append fresh entries or truncate/restore an existing prefix. The id therefore
+identifies the complete ordered prefix, including its captured environments.
+Substitution thunks retain their existing unique binding-id keys. `ENABLED`
+keeps its separate cache domain and existing refusals. This changes no runtime
+memo-table key, cache bound or option.
+
 - **Thunks.** Each zero-arity top-level definition, and each substitution
   used by name (the role's own `INSTANCE` substitutions, and a substitution
   used primed), is a thunk evaluated at most once per evaluation of the

@@ -40,6 +40,10 @@
   implied action properties: primed definitions now use the query's own
   successor, preventing false violations and missed action-property violations
   caused by reuse of the enclosing step's value (#588).
+- Fix false and missed core invariant/action-property violations across nested
+  `INSTANCE` substitutions (#634). Cached compiled definitions now distinguish
+  each substitution context in ordinary and primed step checks, preserving
+  existing query refusals and cache/alias options in both profiles.
 - `--engine core` checks implied actions (`PROPERTY [][A]_v`, such as a
   refinement through `INSTANCE`) and action constraints faster: each
   definition or substitution they use is evaluated once per step, and once

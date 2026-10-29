@@ -170,7 +170,10 @@ enum Mode {
 /// definition, or a substitution used by name, in a mode.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 enum Cached {
-    Def(DefId, Mode),
+    // The last substitution's unique id identifies the whole active prefix:
+    // entries are immutable, appended fresh, and only truncated/restored.
+    // A shared source definition can compile differently in two instances.
+    Def(DefId, Mode, Option<u32>),
     Subst(u32, Mode),
 }
 
@@ -2650,7 +2653,7 @@ impl Compiler<'_> {
             return Ok(body);
         }
         let name = match key {
-            Cached::Def(d, mode) => format!("{} ({mode:?}, step)", self.ir.def(d).name),
+            Cached::Def(d, mode, _) => format!("{} ({mode:?}, step)", self.ir.def(d).name),
             Cached::Subst(id, mode) => format!("substitution {id} ({mode:?}, step)"),
         };
         #[allow(clippy::cast_possible_truncation, reason = "bounded")]
@@ -2711,15 +2714,16 @@ impl Compiler<'_> {
         if def.recursive {
             return self.call(d, &[], env, mode);
         }
+        let key = Cached::Def(d, mode, self.substs.last().map(|s| s.id));
         if self.step && !self.init_mode && def.scope == DefScope::TopLevel {
             let parent = self.lexical_parent(d, env)?;
-            return self.step_cached(Cached::Def(d, mode), |c| {
+            return self.step_cached(key, |c| {
                 let inner = c.new_env(d, parent);
                 c.p(def.body, inner, mode)
             });
         }
         let cacheable = mode == Mode::Plain && !self.init_mode && def.scope == DefScope::TopLevel;
-        if cacheable && let Some(&(slot, body)) = self.def_cache.get(&Cached::Def(d, mode)) {
+        if cacheable && let Some(&(slot, body)) = self.def_cache.get(&key) {
             return self.push(Node::Lazy { slot, body });
         }
         let parent = self.lexical_parent(d, env)?;
@@ -2736,7 +2740,7 @@ impl Compiler<'_> {
             && !self.is_trivial(body)
         {
             let slot = self.alloc();
-            self.def_cache.insert(Cached::Def(d, mode), (slot, body));
+            self.def_cache.insert(key, (slot, body));
             self.def_slots.insert(slot);
             self.stats.cached_defs += 1;
             return self.push(Node::Lazy { slot, body });
