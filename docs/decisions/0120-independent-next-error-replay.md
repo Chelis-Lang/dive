@@ -39,6 +39,10 @@ without an error refutes the claim. This lane therefore needs no visited set,
 checker functor, successor retention, or duplicate search engine.
 
 Retain existing effect, random, register, runtime-name and composition refusals.
+The actual successor-generator composition entry checks the host capability
+before collecting any intermediate state, in both TLA and TLC composition modes.
+Generated-state statistics cannot establish that boundary: TLA mode does not
+count intermediate states. Untaken composition branches do not invoke the check.
 The first lane also refuses VIEW, symmetry and temporal requests whose earlier
 obligations it cannot establish. Reuse the evaluator's cooperative controls and
 resource limits, with fallible endpoint-owned allocations and polls at phase

@@ -78,6 +78,8 @@ partial-state refusals. It does not certify a diagnostic replay wrapper or
 checker counts, and gives class 2103 no blanket exemption. The payload remains
 version 1 with an optional endpoint; existing version-1/2 meanings are unchanged.
 Generic errors without a source endpoint keep their existing unsupported result.
+Reached action composition is refused before generating intermediate states in
+both composition modes; an untaken composition branch alone does not refuse replay.
 
 Rust callers must use `SpecModel::try_validate`/`try_read`, or the corresponding
 fresh `dive_trace::Session` fallible/controlled entrypoint, for these endpoints.

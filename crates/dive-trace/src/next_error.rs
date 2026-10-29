@@ -22,7 +22,8 @@ pub(crate) fn replay(
     poll()?;
     if let Some(feature) = model.unsupported.first() {
         return Ok(Validation::Unsupported(format!(
-            "Next error replay with an unsupported model feature: {}", feature.feature,
+            "Next error replay with an unsupported model feature: {}",
+            feature.feature,
         )));
     }
     if model.view.is_some()

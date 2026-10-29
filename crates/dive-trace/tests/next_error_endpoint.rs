@@ -1,5 +1,5 @@
 //! Next error authority comes from fresh ordered replay before the first candidate.
-use dive_eval::{HostControl, Interrupted, Options};
+use dive_eval::{ActionComposition, HostControl, Interrupted, Options};
 use dive_model::{BindOptions, Recipe};
 use dive_trace::{
     Ending, NextStateEndpoint, Session, Trace, TraceDoc, Validation, ValidationRunError,
@@ -233,6 +233,85 @@ fn instantiated_error_origins_remain_outside_the_first_slice() -> TestResult {
             input.session(options).try_read(&doc)?.0.validation,
             Validation::Unsupported(_)
         ));
+    }
+    Ok(())
+}
+
+#[test]
+fn reached_composition_refuses_before_private_collection_in_both_modes() -> TestResult {
+    for profile in [Options::dive(), Options::tlc()] {
+        for mode in [ActionComposition::Tla, ActionComposition::Tlc] {
+            let options = Options {
+                action_composition: mode,
+                ..profile
+            };
+            for next in [
+                "(x'=1) \\cdot (x'=1 \\div (x-x))",
+                "(x'=1) \\cdot ((x'=1) \\cdot (x'=1 \\div (x-x)))",
+            ] {
+                let input = Input::new(&format!("Init == x=0\nNext == {next}"), "")?;
+                // An ordinary allowed host still reaches the original native
+                // error. Warm its separate runtime before each fresh proof.
+                let model = dive_model::bind(
+                    input.ir.clone(),
+                    &input.config,
+                    &BindOptions {
+                        eval: options,
+                        ..BindOptions::tlc()
+                    },
+                )?;
+                let doc = input.request(options)?;
+                assert_eq!(doc.to_json()["ending"]["ec"], "TLC_MODULE_DIVISION_BY_ZERO");
+                let session = input.session(options);
+                for _ in 0..3 {
+                    let error = model
+                        .evaluator
+                        .successors(
+                            &model.actions,
+                            &Arc::from([Some(Value::Int(0))]),
+                            &mut |_| dive_eval::next::Flow::Continue,
+                        )
+                        .err()
+                        .ok_or("native composition error")?;
+                    assert_eq!(error.error.ec().name(), "TLC_MODULE_DIVISION_BY_ZERO");
+                    let validation = session.try_read(&doc)?.0.validation;
+                    assert!(
+                        matches!(&validation, Validation::Unsupported(reason) if reason.contains("action composition")),
+                        "{mode:?}: {validation:?}"
+                    );
+                }
+            }
+            // Refusal precedes A-side collection, even if no complete state
+            // reaches the outer sink and ordinary search would be enormous.
+            let input = Input::new(
+                "Init == x=0\nNext == (x' \\in 1..1000000000 /\\ FALSE) \\cdot (x'=x)",
+                "",
+            )?;
+            let doc = Input::new(DIV, "")?.request(options)?;
+            let control = Arc::new(StopAfter {
+                polls: AtomicUsize::new(0),
+                limit: 200,
+            });
+            assert!(matches!(
+                input
+                    .session(options)
+                    .read_controlled(&doc, control)?
+                    .0
+                    .validation,
+                Validation::Unsupported(_)
+            ));
+            // Only a reached composition is refused. Source presence in an
+            // untaken conditional is not a reason to reject the actual error.
+            let untaken = Input::new(
+                "Init == x=0\nNext == IF x#0 THEN ((x'=1) \\cdot (x'=x)) ELSE x'=1 \\div (x-x)",
+                "",
+            )?;
+            let doc = untaken.request(options)?;
+            assert_eq!(
+                untaken.session(options).try_read(&doc)?.0.validation,
+                Validation::Valid
+            );
+        }
     }
     Ok(())
 }

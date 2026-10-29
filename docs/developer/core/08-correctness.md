@@ -346,6 +346,9 @@ The shared evaluator enumerates actual actions in order with a sink stopping
 at the first candidate. Any complete/partial candidate or composition work
 before the claimed error stays unsupported. The first genuine error must match
 the requested underlying class and original source, not its message text.
+The generator checks its host composition capability before private intermediate
+collection in both modes. TLA-mode intermediate states are absent from generated
+counts, so counters or the outer successor sink cannot establish this refusal.
 
 This needs no checker functor, visited set, graph or successor retention.
 Existing evaluator controls and recursion bounds apply; new endpoint-owned work

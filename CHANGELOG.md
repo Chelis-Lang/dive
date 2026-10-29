@@ -114,7 +114,8 @@
 - Independently replay pure terminal Next errors that occur before any successor
   is emitted (#434). A source-bound optional error endpoint uses separate fresh
   prefix and terminal runtimes, preserving exact cause/source and earlier-check
-  priority. First candidates, unsupported effects and unproved sites stay
+  priority. Reached composition is refused before intermediate-state collection
+  in both modes. First candidates, unsupported effects and unproved sites stay
   refused; interrupted/resource-failed replay produces no validity report.
   This retains trace version 1 and adds no diagnostic-wrapper exemption.
 - `dive check` reports TLC's error when an operator whose body is a numeral
