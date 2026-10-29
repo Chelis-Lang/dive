@@ -105,6 +105,12 @@
   Independent replay proves the original named cause; diagnostic class/counts
   and unclassified oracle outcomes keep their separate obligations. This uses
   existing trace version 2 and does not certify generic expansion errors.
+- Fix reference checking of state substitutions used by native arithmetic,
+  such as `Double == 2 * v` through `INSTANCE ... WITH v <- x` (#515).
+  State-dependent bodies retain their caller's state instead of entering an
+  empty-state constant cache. Constructor-bound values retain deferred-set
+  cache identity and materialization history. Startup values, redirects, lazy
+  demands and error order keep their existing behavior in both profiles.
 - `dive check` reports TLC's error when an operator whose body is a numeral
   or a string literal, such as `LAMBDA a, x : 0`, is passed to an operator
   TLC implements in Java (`FoldLeft` and the other folds, `Quantify`,
