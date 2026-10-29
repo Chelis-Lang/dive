@@ -21,7 +21,7 @@ use dive_value::{Ctx, Interner, Value};
 use crate::Error;
 use crate::handle::Handle;
 use crate::heap::Heap;
-use crate::node::Kind;
+use crate::node::{Kind, flags};
 
 /// The run's name table and value semantics, as the reference engine
 /// prints with them ([`crate::Store::set_printer`]).
@@ -46,6 +46,13 @@ pub enum Conversion {
     /// Reports and validation: finite symbolic sets are enumerated, as a
     /// stored state holds them.
     Report,
+    /// Temporal graph evaluation: preserve function/tuple/record literal
+    /// classes recursively. Only closed materialized values are admitted;
+    /// symbolic or raw sets need independent representation-history support.
+    /// The caller must supply original evaluation representations retained
+    /// through import, folding and capture, never canonical identity handles
+    /// whose receiver class was erased (ADR 0121).
+    Graph,
     /// Printing: symbolic sets stay symbolic, and a stored set TLC could
     /// print otherwise is refused.
     Print,
@@ -95,6 +102,11 @@ pub fn to_value(
         return Err("printing a function or set the core keeps lazy (M1 core)".into());
     }
     let kind = heap.view(h).kind;
+    if conv == Conversion::Graph && kind.is_symbolic() {
+        return Err(format!(
+            "a {kind:?} representation without certified normalization history in core graph conversion"
+        ));
+    }
     if kind == Kind::BigInt {
         let b = heap.big(h).ok_or("a malformed integer")?;
         return Ok(Value::int(dive_value::Int::from_big(b)));
@@ -119,7 +131,7 @@ pub fn to_value(
         return Err(why);
     }
     let v = heap.view(h);
-    let (lo, keys, vals) = (v.lo, v.keys().to_vec(), v.values().to_vec());
+    let (lo, view_flags, keys, vals) = (v.lo, v.flags, v.keys().to_vec(), v.values().to_vec());
     match kind {
         Kind::Set | Kind::SetEnum => {
             let mut elems = Vec::with_capacity(vals.len());
@@ -134,7 +146,13 @@ pub fn to_value(
                 elems.push(to_value(heap, names, e, ctx, conv)?);
             }
             if lo == 1 {
-                return Ok(Value::tuple(elems));
+                return Ok(
+                    if conv == Conversion::Graph && view_flags & flags::TUPLE == 0 {
+                        Value::tuple_fcn(elems)
+                    } else {
+                        Value::tuple(elems)
+                    },
+                );
             }
             let pairs = elems
                 .into_iter()
@@ -151,23 +169,41 @@ pub fn to_value(
                     to_value(heap, names, x, ctx, conv)?,
                 ));
             }
-            // TLC prints a function of strings in record syntax when every
-            // string is a name, whether or not it is a record literal: the
-            // printer decides from the function (`Value::fcn`).
-            if conv == Conversion::Report && pairs.iter().all(|(k, _)| matches!(k, Value::Str(_))) {
-                let fields = pairs
-                    .into_iter()
-                    .filter_map(|(k, x)| match k {
-                        Value::Str(a) => Some((a, x)),
-                        _ => None,
-                    })
-                    .collect();
-                return Value::record(fields, ctx).map_err(|e| e.to_string());
-            }
-            Value::fcn(pairs, ctx).map_err(|e| e.to_string())
+            function_value(pairs, ctx, conv, view_flags)
         }
     }
 }
+
+fn function_value(
+    pairs: Vec<(Value, Value)>,
+    ctx: Ctx,
+    conv: Conversion,
+    view_flags: u8,
+) -> Result<Value, String> {
+    let strings = pairs.iter().all(|(k, _)| matches!(k, Value::Str(_)));
+    let literal = conv == Conversion::Graph && view_flags & flags::RECORD != 0;
+    if literal && !strings {
+        return Err("a core graph record literal with non-string fields".into());
+    }
+    // Report syntax stays unchanged. Evaluation preserves whether a string
+    // domain came from a record literal or a general function constructor.
+    if strings && (conv == Conversion::Report || literal) {
+        let fields = pairs
+            .into_iter()
+            .filter_map(|(k, x)| match k {
+                Value::Str(a) => Some((a, x)),
+                _ => None,
+            })
+            .collect();
+        Value::record(fields, ctx).map_err(|e| e.to_string())
+    } else {
+        Value::fcn(pairs, ctx).map_err(|e| e.to_string())
+    }
+}
+
+#[cfg(test)]
+#[path = "print_tests.rs"]
+mod tests;
 
 /// The smallest stored set TLC might print in a lazy form: `SUBSET S` of a
 /// seven-element `S` (TLC expands smaller ones).

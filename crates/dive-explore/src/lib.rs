@@ -386,6 +386,9 @@ struct Explorer<'p> {
     metrics: Metrics,
     seen: Seen,
     next: Vec<Handle>,
+    /// Capture-only first-discovered representations, parallel to `next`.
+    /// Canonical frontier identities remain separate for logs and Step.new.
+    next_originals: Vec<Handle>,
     emitted: u64,
     initial: bool,
     /// Variables the current step changed (bit per variable); all ones for
@@ -429,8 +432,8 @@ struct End {
     /// The final state, when it is not logged: the violating successor,
     /// with the action that emitted it.
     last: Option<(Option<usize>, Vec<Handle>)>,
-    /// The values of `upto` as the search held them; the replay must
-    /// reproduce them.
+    /// The canonical frontier identities of `upto`, not the original views
+    /// used to evaluate a captured source; replay must reproduce them.
     expect: Vec<Handle>,
 }
 
@@ -503,7 +506,8 @@ impl Explorer<'_> {
             !self.seen.contains(key)
         };
         if !new {
-            self.metrics.discarded_before_intern += u64::from(self.opts.early_probe);
+            self.metrics.discarded_before_intern +=
+                u64::from(self.opts.early_probe && (!in_model || self.graph.is_none()));
             return Ok((Probe::Seen, in_model, key));
         }
         Ok((Probe::New, in_model, key))
@@ -512,6 +516,9 @@ impl Explorer<'_> {
     fn accept(&mut self, m: &mut Machine) -> Result<(), Error> {
         let plan = self.plan;
         let code = &plan.code;
+        // The -early-probe control can replace m.s1 with canonical identity
+        // handles. Keep the emitted representation available to capture too.
+        let original = self.graph.is_some().then(|| m.s1.clone());
         if m.assigned != m.s1.len() {
             let message = incomplete_message(plan, m);
             self.failure = Some(self.failure_at(m, Site::Incomplete, message)?);
@@ -529,7 +536,7 @@ impl Explorer<'_> {
                 self.implied_actions(m)?;
             }
             return if in_model {
-                self.record(m, key, false)
+                self.record(m, key, false, original.as_deref())
             } else {
                 Ok(())
             };
@@ -552,7 +559,7 @@ impl Explorer<'_> {
         // (`Worker.addElement`).
         let enqueue_first = self.initial && in_model;
         if enqueue_first {
-            self.enqueue(m)?;
+            self.enqueue(m, original.as_deref())?;
         }
         for (i, c) in plan.invariants.iter().enumerate() {
             let holds = match self.check(m, code, c) {
@@ -598,21 +605,46 @@ impl Explorer<'_> {
             self.implied_actions(m)?;
         }
         if in_model && !enqueue_first {
-            self.enqueue(m)?;
+            self.enqueue(m, original.as_deref())?;
         }
         if in_model {
-            self.record(m, key, true)?;
+            self.record(m, key, true, original.as_deref())?;
         }
         Ok(())
     }
 
     /// Reports the accepted state inside the model with key `key` to the
     /// graph sink; a `new` state is the last one enqueued.
-    fn record(&mut self, m: &mut Machine, key: u64, new: bool) -> Result<(), Error> {
+    fn record(
+        &mut self,
+        m: &mut Machine,
+        key: u64,
+        new: bool,
+        original: Option<&[Handle]>,
+    ) -> Result<(), Error> {
         let Some(sink) = self.graph.as_deref_mut() else {
             return Ok(());
         };
         let nvars = m.s1.len();
+        // Capture preserves the original representation separately from the
+        // canonical identity queued for BFS. No graph means no extra interning
+        // or retained row, including on the duplicate fast path.
+        let kept = if new {
+            Vec::new()
+        } else {
+            original
+                .unwrap_or(&m.s1)
+                .iter()
+                .map(|&h| m.heap.intern_exact(h))
+                .collect::<Result<Vec<_>, _>>()?
+        };
+        let original = if new {
+            self.next_originals
+                .get(self.next_originals.len().saturating_sub(nvars)..)
+                .ok_or_else(|| Error::internal("a new state's original values were not retained"))?
+        } else {
+            &kept
+        };
         let new = if new {
             let id = self
                 .next_ids
@@ -630,6 +662,7 @@ impl Explorer<'_> {
         let step = graph::Step {
             key,
             new,
+            original,
             parent: self.cur_id,
             ordinal: self.emitted.saturating_sub(1),
             action: self.action,
@@ -721,10 +754,15 @@ impl Explorer<'_> {
 
     /// Interns the successor in `m.s1`, queues it and logs its parent and
     /// ordinal.
-    fn enqueue(&mut self, m: &mut Machine) -> Result<(), Error> {
+    fn enqueue(&mut self, m: &mut Machine, original: Option<&[Handle]>) -> Result<(), Error> {
         for i in 0..m.s1.len() {
             let h = m.heap.intern(m.s1[i])?;
             self.next.push(h);
+        }
+        if self.graph.is_some() {
+            for &h in original.unwrap_or(&m.s1) {
+                self.next_originals.push(m.heap.intern_exact(h)?);
+            }
         }
         let ordinal = u32::try_from(self.emitted.saturating_sub(1))
             .map_err(|_| Error::unsupported("more than 2^32 successors of one state"))?;
@@ -744,7 +782,13 @@ impl Explorer<'_> {
             values.push(if h.is_empty() { h } else { m.heap.intern(h)? });
         }
         let expect = if self.cur_id.is_some() {
-            m.s0.clone()
+            if self.graph.is_some() {
+                m.s0.iter()
+                    .map(|&h| m.heap.intern(h))
+                    .collect::<Result<Vec<_>, _>>()?
+            } else {
+                m.s0.clone()
+            }
         } else {
             Vec::new()
         };
@@ -929,6 +973,10 @@ impl Sink for Explorer<'_> {
             self.stats.initial_generated += 1;
         }
         self.report_emitted()?;
+        if !self.initial && self.graph.is_some() && (self.poll)() {
+            self.stop = Some(Verdict::Budget);
+            return Err(Error::stop());
+        }
         // The checks' transients are freed once the state is accepted (R10):
         // an `Init` that enumerates many states, or a state with many
         // successors, would otherwise hold them all until the expansion
@@ -1036,6 +1084,7 @@ pub fn explore_with<'p>(
         metrics: Metrics::default(),
         seen: Seen::default(),
         next: Vec::new(),
+        next_originals: Vec::new(),
         emitted: 0,
         initial: true,
         changed: u64::MAX,
@@ -1159,7 +1208,9 @@ fn replay_values_match(store: &Arc<Store>, actual: &[Handle], expected: &[Handle
 
 /// Turns an evaluation error raised by the generator itself (not by a
 /// check in the sink, which records its own failure) into a failure.
-fn generator_error(m: &Machine, ex: &mut Explorer<'_>, e: Error) -> Error {
+/// `identity` is the canonical frontier row, distinct from capture's original
+/// source in `m.s0`; the initial generator has no logged parent.
+fn generator_error(m: &Machine, ex: &mut Explorer<'_>, identity: &[Handle], e: Error) -> Error {
     if e.kind() != ErrorKind::Eval || ex.failure.is_some() {
         return e;
     }
@@ -1168,7 +1219,7 @@ fn generator_error(m: &Machine, ex: &mut Explorer<'_>, e: Error) -> Error {
         ex.end = Some(End {
             upto: Some(id),
             last: None,
-            expect: m.s0.clone(),
+            expect: identity.to_vec(),
         });
     }
     Error::stop()
@@ -1247,7 +1298,7 @@ fn run(
     m.level = 0;
     if let Err(e) = run_actions(m, ex, &plan.init, code) {
         ex.stats.left_on_queue = (ex.next.len() / nvars.max(1)) as u64;
-        return Err(generator_error(m, ex, e));
+        return Err(generator_error(m, ex, &[], e));
     }
     // TLC reports depth one after Init emits a state, even when the
     // constraints exclude every candidate from the retained graph.
@@ -1267,9 +1318,15 @@ fn run(
     ex.initial = false;
     ex.warnings.clone_from(&m.warnings);
     let mut cur = std::mem::take(&mut ex.next);
+    let mut cur_originals = std::mem::take(&mut ex.next_originals);
     let mut cur_ids = std::mem::take(&mut ex.next_ids);
     let mut generated_before = 0;
     while !cur.is_empty() {
+        if ex.graph.is_some() && cur_originals.len() != cur.len() {
+            return Err(Error::internal(
+                "capture frontier original/identity row mismatch",
+            ));
+        }
         ex.level += 1;
         // Claims are sized from the previous level's successors.
         let estimate = usize::try_from(ex.stats.generated - generated_before).unwrap_or(1 << 20);
@@ -1281,7 +1338,10 @@ fn run(
         // a time, so that phase 1 buffers one chunk's successors, not the
         // level's (#551). A chunk's commit fills the seen set before the
         // next chunk is expanded, which reads it as an earlier level's.
-        let chunk = (machines.len() * CHUNK_PER_WORKER).max(1);
+        let chunk = ex.graph.as_deref().map_or_else(
+            || (machines.len() * CHUNK_PER_WORKER).max(1),
+            |sink| sink.max_expansion_units().max(1),
+        );
         let mut expanded: Option<Vec<Option<parallel::Expanded>>> = None;
         let mut base = 0;
         for (k, state) in cur.chunks_exact(nvars.max(1)).enumerate() {
@@ -1295,10 +1355,17 @@ fn run(
                 let r = parallel::expand_level(
                     plan,
                     machines,
-                    &cur[k * nvars..end * nvars],
+                    if ex.graph.is_some() {
+                        &cur_originals[k * nvars..end * nvars]
+                    } else {
+                        &cur[k * nvars..end * nvars]
+                    },
                     nvars,
                     &ex.seen,
                     ex.opts,
+                    ex.graph
+                        .as_deref()
+                        .map(graph::GraphSink::max_successors_per_unit),
                     ex.poll,
                     estimate.saturating_mul(end - k) / states.max(1),
                     &mut metrics,
@@ -1328,14 +1395,21 @@ fn run(
                 ex.stop = Some(Verdict::Budget);
                 return Err(Error::stop());
             }
-            m.s0.copy_from_slice(state);
+            let source = if ex.graph.is_some() {
+                cur_originals
+                    .get(k * nvars..(k + 1) * nvars)
+                    .ok_or_else(|| Error::internal("capture source original row missing"))?
+            } else {
+                state
+            };
+            m.s0.copy_from_slice(source);
             let level = i64::try_from(ex.level - 1).unwrap_or(i64::MAX);
             if res.is_none() {
-                start_stream(m, plan, Some(state))?;
+                start_stream(m, plan, Some(source))?;
                 m.level = level;
             }
             if let Some(r) = reservoir.as_deref_mut() {
-                r.offer(state, level);
+                r.offer(source, level);
             }
             ex.cur_id = cur_ids.get(k).copied();
             ex.emitted = 0;
@@ -1343,7 +1417,7 @@ fn run(
                 Some(res) => ex.commit(m, res),
                 None => run_actions(m, ex, &plan.next, code),
             }
-            .map_err(|e| generator_error(m, ex, e));
+            .map_err(|e| generator_error(m, ex, state, e));
             if r.is_err()
                 && let Some(f) = &ex.failure
                 && f.site_resumes()
@@ -1403,8 +1477,10 @@ fn run(
             ex.metrics.commit_time += level_started.elapsed().saturating_sub(expand_time);
         }
         cur.clear();
+        cur_originals.clear();
         cur_ids.clear();
         std::mem::swap(&mut cur, &mut ex.next);
+        std::mem::swap(&mut cur_originals, &mut ex.next_originals);
         std::mem::swap(&mut cur_ids, &mut ex.next_ids);
     }
     Ok(())

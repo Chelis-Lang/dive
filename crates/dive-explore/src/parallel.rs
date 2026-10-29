@@ -125,7 +125,17 @@ pub(crate) enum Occ {
     /// Inside the model and seen in an earlier level, or a duplicate of an
     /// earlier position in this level: only counted (`key` for the
     /// admission check), and reported to the graph when `inside` the model.
-    Old { key: u64, inside: bool },
+    Old {
+        key: u64,
+        inside: bool,
+        /// Original values only when graph capture needs this accepted target.
+        at: Option<usize>,
+    },
+    /// The first emission beyond the collector's per-source admission bound.
+    /// It has no payload; commit delivers its ordinary emitted event and stop.
+    CaptureLimit,
+    /// The armed run budget expired before retaining a capture emission.
+    CaptureBudget,
     /// Possibly new: its key, whether it is inside the model, the
     /// invariants' verdict (applied if it is new), the implied actions'
     /// verdict (applied in any case), and its values at `at` in the
@@ -181,6 +191,9 @@ struct WorkerSink<'a> {
     /// The position of the state being expanded, shifted by [`POS_BITS`].
     base: u64,
     opts: Opts,
+    /// Capture's existing per-source bound; `None` retains the safety fast path.
+    capture_limit: Option<u64>,
+    poll: &'a (dyn Fn() -> bool + Sync),
     metrics: Metrics,
     out: Expanded,
     action: usize,
@@ -199,10 +212,23 @@ impl WorkerSink<'_> {
     }
 
     fn keep(&mut self, m: &mut Machine) -> Result<usize, Error> {
+        self.keep_values(m, None)
+    }
+
+    fn keep_values(
+        &mut self,
+        m: &mut Machine,
+        original: Option<&[Handle]>,
+    ) -> Result<usize, Error> {
         let at = self.out.values.len();
-        for i in 0..m.s1.len() {
-            let h = m.s1[i];
-            let h = if h.is_empty() { h } else { m.heap.intern(h)? };
+        for &h in original.unwrap_or(&m.s1) {
+            let h = if h.is_empty() {
+                h
+            } else if self.capture_limit.is_some() {
+                m.heap.intern_exact(h)?
+            } else {
+                m.heap.intern(h)?
+            };
             self.out.values.push(h);
         }
         Ok(at)
@@ -220,6 +246,9 @@ impl WorkerSink<'_> {
 
     fn record(&mut self, m: &mut Machine) -> Result<(), Error> {
         let plan = self.plan;
+        // Fingerprinting/VIEW can normalize m.s1 in place. Only capture needs
+        // the original emitted representation as well as its identity.
+        let original = self.capture_limit.map(|_| m.s1.clone());
         if m.assigned != m.s1.len() {
             let at = self.keep(m)?;
             self.out.occs.push((self.action, Occ::Incomplete { at }));
@@ -271,8 +300,15 @@ impl WorkerSink<'_> {
             pos.is_some_and(|p| self.claims.held_before(key, p))
         };
         if duplicate && matches!(imp, Inv::Holds) {
-            self.metrics.discarded_before_intern += 1;
-            self.out.occs.push((self.action, Occ::Old { key, inside }));
+            let at = if inside && self.capture_limit.is_some() {
+                Some(self.keep_values(m, original.as_deref())?)
+            } else {
+                self.metrics.discarded_before_intern += 1;
+                None
+            };
+            self.out
+                .occs
+                .push((self.action, Occ::Old { key, inside, at }));
             return Ok(());
         }
         if inside && plan.view.is_none() && !crate::fingerprintable(m, false)? {
@@ -293,7 +329,7 @@ impl WorkerSink<'_> {
                 }
             }
         }
-        let at = self.keep(m)?;
+        let at = self.keep_values(m, original.as_deref())?;
         self.out.occs.push((
             self.action,
             Occ::Cand {
@@ -312,6 +348,14 @@ impl Sink for WorkerSink<'_> {
     fn emit(&mut self, m: &mut Machine, _code: &Code) -> Result<(), Error> {
         self.take_warnings(m);
         self.emitted += 1;
+        if self.capture_limit.is_some_and(|limit| self.emitted > limit) {
+            self.out.occs.push((self.action, Occ::CaptureLimit));
+            return Err(Error::stop());
+        }
+        if self.capture_limit.is_some() && (self.poll)() {
+            self.out.occs.push((self.action, Occ::CaptureBudget));
+            return Err(Error::stop());
+        }
         let r = self.record(m);
         if m.heap.poisoned() {
             return Err(Error::internal("a stale value handle was read"));
@@ -329,6 +373,8 @@ fn expand_one(
     claims: &Claims,
     k: usize,
     opts: Opts,
+    capture_limit: Option<u64>,
+    poll: &(dyn Fn() -> bool + Sync),
     s0: &[Handle],
     metrics: &mut Metrics,
 ) -> Expanded {
@@ -339,6 +385,8 @@ fn expand_one(
         claims,
         base: (k as u64) << POS_BITS,
         opts,
+        capture_limit,
+        poll,
         metrics: Metrics::default(),
         out: Expanded {
             occs: Vec::new(),
@@ -399,6 +447,7 @@ pub(crate) fn expand_level(
     nvars: usize,
     seen: &Seen,
     opts: Opts,
+    capture_limit: Option<u64>,
     poll: &(dyn Fn() -> bool + Sync),
     estimate: usize,
     metrics: &mut Metrics,
@@ -430,7 +479,18 @@ pub(crate) fn expand_level(
                             let s0 = &cur[k * nvars..(k + 1) * nvars];
                             done.push((
                                 k,
-                                expand_one(m, plan, seen, claims, k, opts, s0, &mut local),
+                                expand_one(
+                                    m,
+                                    plan,
+                                    seen,
+                                    claims,
+                                    k,
+                                    opts,
+                                    capture_limit,
+                                    poll,
+                                    s0,
+                                    &mut local,
+                                ),
                             ));
                         }
                     }
@@ -532,7 +592,7 @@ impl crate::Explorer<'_> {
                 }
             };
             match occ {
-                Occ::Old { key, inside } => {
+                Occ::Old { key, inside, at } => {
                     self.metrics.probed += 1;
                     // Already inserted: never refused by a limit.
                     if !self.seen.contains(*key) {
@@ -541,8 +601,20 @@ impl crate::Explorer<'_> {
                         ));
                     }
                     if *inside {
-                        self.record(m, *key, false)?;
+                        if let Some(at) = at {
+                            load(m, *at);
+                        }
+                        self.record(m, *key, false, None)?;
                     }
+                }
+                Occ::CaptureLimit => {
+                    return Err(Error::internal(
+                        "graph sink accepted an emission beyond its scratch admission bound",
+                    ));
+                }
+                Occ::CaptureBudget => {
+                    self.stop = Some(crate::Verdict::Budget);
+                    return Err(Error::stop());
                 }
                 Occ::Incomplete { at } => {
                     load(m, *at);
@@ -584,7 +656,7 @@ impl crate::Explorer<'_> {
                     if !new {
                         self.apply_implied(m, imp)?;
                         if *in_model {
-                            self.record(m, *key, false)?;
+                            self.record(m, *key, false, None)?;
                         }
                         continue;
                     }
@@ -617,8 +689,8 @@ impl crate::Explorer<'_> {
                     }
                     self.apply_implied(m, imp)?;
                     if *in_model {
-                        self.enqueue(m)?;
-                        self.record(m, *key, true)?;
+                        self.enqueue(m, None)?;
+                        self.record(m, *key, true, None)?;
                     }
                 }
             }
