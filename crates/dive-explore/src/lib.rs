@@ -432,8 +432,8 @@ struct End {
     /// The final state, when it is not logged: the violating successor,
     /// with the action that emitted it.
     last: Option<(Option<usize>, Vec<Handle>)>,
-    /// The values of `upto` as the search held them; the replay must
-    /// reproduce them.
+    /// The canonical frontier identities of `upto`, not the original views
+    /// used to evaluate a captured source; replay must reproduce them.
     expect: Vec<Handle>,
 }
 
@@ -1208,7 +1208,9 @@ fn replay_values_match(store: &Arc<Store>, actual: &[Handle], expected: &[Handle
 
 /// Turns an evaluation error raised by the generator itself (not by a
 /// check in the sink, which records its own failure) into a failure.
-fn generator_error(m: &Machine, ex: &mut Explorer<'_>, e: Error) -> Error {
+/// `identity` is the canonical frontier row, distinct from capture's original
+/// source in `m.s0`; the initial generator has no logged parent.
+fn generator_error(m: &Machine, ex: &mut Explorer<'_>, identity: &[Handle], e: Error) -> Error {
     if e.kind() != ErrorKind::Eval || ex.failure.is_some() {
         return e;
     }
@@ -1217,7 +1219,7 @@ fn generator_error(m: &Machine, ex: &mut Explorer<'_>, e: Error) -> Error {
         ex.end = Some(End {
             upto: Some(id),
             last: None,
-            expect: m.s0.clone(),
+            expect: identity.to_vec(),
         });
     }
     Error::stop()
@@ -1296,7 +1298,7 @@ fn run(
     m.level = 0;
     if let Err(e) = run_actions(m, ex, &plan.init, code) {
         ex.stats.left_on_queue = (ex.next.len() / nvars.max(1)) as u64;
-        return Err(generator_error(m, ex, e));
+        return Err(generator_error(m, ex, &[], e));
     }
     // TLC reports depth one after Init emits a state, even when the
     // constraints exclude every candidate from the retained graph.
@@ -1415,7 +1417,7 @@ fn run(
                 Some(res) => ex.commit(m, res),
                 None => run_actions(m, ex, &plan.next, code),
             }
-            .map_err(|e| generator_error(m, ex, e));
+            .map_err(|e| generator_error(m, ex, state, e));
             if r.is_err()
                 && let Some(f) = &ex.failure
                 && f.site_resumes()

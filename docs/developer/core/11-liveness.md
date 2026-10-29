@@ -118,10 +118,13 @@ The core still refuses exact storage (`07-engine.md`).
 Capture also retains first-discovered original rows for the current/next
 frontier. Source evaluation uses these rows so `UNCHANGED` or `EXCEPT` does not
 inherit a class erased by canonical identity interning. Seen aliases never
-replace them. `Step.new` and replay expectations remain canonical. The extra
-frontier payload is eight bytes per variable per current/next frontier state;
-the existing capture admission bounds apply, and all interned values remain
-in store accounting. This is not an addressable all-vertex native state source.
+replace them. `Step.new` and replay expectations remain canonical. Generator
+errors take the replay expectation directly from the canonical frontier row,
+not the original source used for evaluation; checked successor endings
+canonicalize their expected parent, and deadlock uses the frontier identity.
+The extra frontier payload is eight bytes per variable per current/next
+frontier state; the existing capture admission bounds apply, and all interned
+values remain in store accounting. This is not an addressable all-vertex native state source.
 
 Parallel capture uses the reference's `MAX_EXPANSION_UNITS` (eight sources per
 wave) and `Limits::successors_per_unit` (65,536 by default). An overflow emission

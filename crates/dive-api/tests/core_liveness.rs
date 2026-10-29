@@ -282,3 +282,84 @@ fn ordinary_safety_keeps_its_existing_checked_comparison_refusal() {
     assert_eq!(auto["verdict"], reference["verdict"]);
     assert_eq!(auto["engine"], "reference");
 }
+
+/// Error words reconstruct canonical state identities while source evaluation
+/// retains original function receiver classes. All three `End` producers and
+/// invariant-error call-stack replay must keep that boundary.
+#[test]
+fn captured_source_error_endings_replay_the_canonical_frontier_identity() {
+    let file = fixture("GenError/GenError");
+    for (case, verdict) in [
+        ("Record", "evaluation-error"),
+        ("Tuple", "evaluation-error"),
+        ("Nested", "evaluation-error"),
+        ("General", "evaluation-error"),
+        ("Safety", "evaluation-error"),
+        ("Initial", "evaluation-error"),
+        ("Deadlock", "deadlock"),
+        ("Invariant", "invariant-violation"),
+        ("InvariantError", "evaluation-error"),
+    ] {
+        for tlc in [false, true] {
+            for workers in [1, 2, 3, 8] {
+                let request = CheckRequest {
+                    config: Some(file.with_file_name(format!("{case}.cfg"))),
+                    file: file.clone(),
+                    seed: Some(0),
+                    fp: Some(0),
+                    workers: Some(workers),
+                    compat_tlc: tlc,
+                    ..CheckRequest::default()
+                };
+                let reference = check_file_engine(&request, Engine::Reference)
+                    .expect("reference")
+                    .to_json();
+                assert_eq!(reference["verdict"], verdict, "{case}: {reference:#}");
+                if ["Record", "Tuple", "Nested", "General", "Safety"].contains(&case) {
+                    assert_eq!(reference["tlc"]["code"], 2179);
+                    assert_eq!(reference["tlc"]["exit_status"], 255);
+                    assert_eq!(reference["statistics"]["generated"], 2);
+                    assert_eq!(reference["statistics"]["distinct"], 2);
+                    assert_eq!(reference["statistics"]["depth"], 2);
+                    assert_eq!(reference["counterexample"]["length"], 2);
+                }
+                for switches in CLASS_SWITCHES {
+                    let core = check_file_core_opts(&request, switches)
+                        .expect("core")
+                        .to_json();
+                    assert_error_ending(&core, &reference, case, tlc, workers, switches);
+                    assert_eq!(core["engine"], "core");
+                }
+                let auto = check_file_engine(&request, Engine::Auto)
+                    .expect("auto")
+                    .to_json();
+                assert_error_ending(&auto, &reference, case, tlc, workers, "auto");
+                assert_eq!(auto["engine"], "core");
+            }
+        }
+    }
+}
+
+fn assert_error_ending(
+    actual: &Value,
+    reference: &Value,
+    case: &str,
+    tlc: bool,
+    workers: usize,
+    switches: &str,
+) {
+    for field in [
+        "verdict",
+        "statistics",
+        "tlc",
+        "exit_code",
+        "property",
+        "error_site",
+        "counterexample",
+    ] {
+        assert_eq!(
+            actual[field], reference[field],
+            "{case} tlc={tlc} workers={workers} switches={switches} {field}: {actual:#}"
+        );
+    }
+}
