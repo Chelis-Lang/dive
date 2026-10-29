@@ -1,0 +1,26 @@
+{
+  "sources": [
+    "docs/user/checking.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "instance"
+  ],
+  "modules": [
+    {
+      "path": "specifications/ScopeHolding/ScopeHolding.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/ScopeHolding/ScopeHolding.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}

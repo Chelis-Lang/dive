@@ -1,0 +1,184 @@
+{
+  "schema": 1,
+  "generation": "Official external Examples-layout core-instance-scope-controls golden generation, workers1/seed0/fp0/-lncheck final, --tier all --no-sany --jobs2 --timeout20 --xmx1g",
+  "harness_source": "91742b3c9cb4b7021785975f888d5cf9dd43625c",
+  "harness_sha256": "3604013c96cecbb39fcfc4b231c07e99b427f8306740951fffc111bbd5419b98",
+  "sources": {
+    "GuardError.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "GuardError.tla": "e167d67657f45f320609e427e184d0dbad4f3ead5394b8b1160345a871480078",
+    "GuardHolding.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "GuardHolding.tla": "f83c4436b06f5d3ea518b9d7883cef15d1dbb066ff2004a9611013630723b975",
+    "GuardInner.tla": "3045d4f725709fc6499393a33734d69a44e2830cc3af24fba3777cf248e13260",
+    "GuardMiddle.tla": "7f555bb2af166c0a78eda33c437bbcdf2dbaa39dc267d24e483038f002c04d51",
+    "GuardReordered.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "GuardReordered.tla": "9e6052fb8067b45217f9ead11ad419a8aa3660abbf8e17616a7dc5c261b5293a",
+    "GuardViolation.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "GuardViolation.tla": "f30bb96b9f8cdc83b9226373d01f1b5cb1db1dfec8496d50c4abab42cb25ad6f",
+    "QueryHolding.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "QueryHolding.tla": "0443e497e82052f9f019817485dc12eb48baf814019b0924f1f8c6fd89cdcce3",
+    "QueryInner.tla": "f1b43c2972b6fd235495b406db5d2ccc0e565712cd66c67730bc3bbc71b4af33",
+    "QueryMiddle.tla": "72b2181887170b8b25e8fe58d6152d3c0f0d392db30422f55da02bc49bcc515f",
+    "QueryViolation.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "QueryViolation.tla": "6ded25d38e459468828c8b2456556ab02f565d5b979ab9ee2698c14b52f4aeaa",
+    "ScopedCalls.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "ScopedCalls.tla": "bec9e92326cf51270c2f3e6c970d8297b1fc6f333123267b25cd2a02d1b27e45",
+    "StepHolding.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "StepHolding.tla": "552f5b13ad305977ee42a667213c804388af557a44b78256473209b49ac8d943",
+    "StepViolation.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "StepViolation.tla": "7b787d637879792c8afd8535c2dcb69b5f8ee1f18880affc28c46d0b28f79cef"
+  },
+  "cases": {
+    "GuardError": {
+      "role": "state",
+      "verdict": "evaluation-error",
+      "oracle_verdict": "evaluation-error",
+      "property": null,
+      "code": 2111,
+      "error_class": "TLC_INVARIANT_EVALUATION_FAILED",
+      "exit": 76,
+      "distinct": 2,
+      "generated": 2,
+      "depth": 2,
+      "underlying_code": 2179,
+      "underlying_class": "TLC_MODULE_DIVISION_BY_ZERO"
+    },
+    "GuardHolding": {
+      "role": "state",
+      "verdict": "success",
+      "oracle_verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 3,
+      "generated": 4,
+      "depth": 3
+    },
+    "GuardReordered": {
+      "role": "state",
+      "verdict": "success",
+      "oracle_verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 3,
+      "generated": 4,
+      "depth": 3
+    },
+    "GuardViolation": {
+      "role": "state",
+      "verdict": "invariant-violation",
+      "oracle_verdict": "safety-violation",
+      "property": "Inv",
+      "code": 2107,
+      "error_class": "TLC_INVARIANT_VIOLATED_INITIAL",
+      "exit": 12,
+      "distinct": null,
+      "generated": null,
+      "depth": null
+    },
+    "QueryHolding": {
+      "role": "state",
+      "verdict": "success",
+      "oracle_verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 3,
+      "generated": 4,
+      "depth": 3
+    },
+    "QueryViolation": {
+      "role": "state",
+      "verdict": "invariant-violation",
+      "oracle_verdict": "safety-violation",
+      "property": "Inv",
+      "code": 2110,
+      "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+      "exit": 12,
+      "distinct": 2,
+      "generated": 2,
+      "depth": 2
+    },
+    "ScopedCalls": {
+      "role": "state",
+      "verdict": "success",
+      "oracle_verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 3,
+      "generated": 4,
+      "depth": 3
+    },
+    "StepHolding": {
+      "role": "step",
+      "verdict": "success",
+      "oracle_verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 3,
+      "generated": 4,
+      "depth": 3
+    },
+    "StepViolation": {
+      "role": "step",
+      "verdict": "action-property-violation",
+      "oracle_verdict": "action-property-violation",
+      "property": "Prop",
+      "code": 2112,
+      "error_class": "TLC_ACTION_PROPERTY_VIOLATED_BEHAVIOR",
+      "exit": 13,
+      "distinct": 2,
+      "generated": 2,
+      "depth": 2
+    }
+  },
+  "oracle": {
+    "id": "tlc-2026.10.06.014338",
+    "sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+    "classpath": [
+      {
+        "id": "community-modules-202610040242",
+        "pin": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+      },
+      {
+        "id": "community-modules-deps-202610040242",
+        "pin": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d"
+      }
+    ],
+    "module_libraries": [
+      {
+        "id": "apalache-modules-v0.62.3",
+        "pin": "3eb15b253482005222fabbf50bb7aae501eb9f8d"
+      },
+      {
+        "id": "tlapm-library-d8b9747",
+        "pin": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37"
+      }
+    ],
+    "capabilities": {
+      "dump_trace_json": true,
+      "no_generate_spec_te": true,
+      "sany_error_codes": true,
+      "names_temporal_properties": true,
+      "git_revision": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+      "implementation_version": "2.0 2026-10-06"
+    },
+    "java": {
+      "source": "pinned",
+      "version": "17.0.20.1+1",
+      "sha256": "0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62",
+      "platform": "linux-x86_64",
+      "version_line": "openjdk version \"17.0.20.1\" 2026-08-18"
+    }
+  },
+  "staged_corpus_commit": "sha256:ec6a0d309b86ff62df8e9259268eda3c6adba165b5712b077e3183035c3503f6",
+  "reason": "Pin nested INSTANCE cache-context controls for plain primed query and lexical demands in issue 634"
+}

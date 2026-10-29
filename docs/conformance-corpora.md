@@ -685,3 +685,24 @@ Descriptor runtime/result fields remain `unknown`. Select only these inputs with
 `--corpus startup-stored-read-primary --tier all --no-sany`. This corpus changes
 no evaluator or liveness behavior and establishes no native agreement. Existing
 small/full selections and baselines are unchanged.
+
+## Core definition identity across instances
+
+`core-instance-scopes` contains two minimal nested-instance controls generated
+with an official oracle reason before the #634 compiler correction. Holding
+reports TLC success / 2193 / exit 0, 3 distinct / 4 generated / depth 3.
+Violation reports an initial `Inv` failure / 2107 / exit 12 and a one-row word;
+TLC does not print counts/depth for that initial failure. Native initial counts
+remain separate, with `reported_by_tlc=false`, under the existing classifier.
+Select this population with `--corpus core-instance-scopes --tier all --no-sany`.
+
+Nine additional consumed compact oracle controls in
+`crates/dive-api/tests/fixtures/core-instance-scopes/` cover reordered and lexical
+uses, named outer actuals, plain/primed step definitions, supported identity
+queries and demanded errors. Their independently checked words do not require
+the separate #515 repair. The original Naturals pair retains #515's reference
+failure on base `3dc31c0b`; its core words are independently checked by frozen
+reference candidate `82b03ca0`, with the separate executable identity retained
+externally. No reference runtime change is composed into this compiler lane.
+These selected controls do not promote historical census/baseline totals or
+establish general INSTANCE completion.
