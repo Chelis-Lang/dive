@@ -1,0 +1,295 @@
+{
+  "schema": 1,
+  "reason": "Pin primed SelectSeq closure-isolation and demand-order regression controls",
+  "generation": "Official dive-conformance golden generate, external primed-selectseq staging corpus, --tier all --no-sany --workers 1 --jobs 2 --timeout 20 --xmx 1g; seed/fp 0, -lncheck final",
+  "harness_source": "91742b3c9cb4b7021785975f888d5cf9dd43625c",
+  "harness_sha256": "3604013c96cecbb39fcfc4b231c07e99b427f8306740951fffc111bbd5419b98",
+  "cases": {
+    "CapturedLocal": {
+      "core": "unsupported",
+      "verdict": "action-property-violation",
+      "property": "Prop",
+      "code": 2112,
+      "error_class": "TLC_ACTION_PROPERTY_VIOLATED_BEHAVIOR",
+      "exit": 13,
+      "distinct": 2,
+      "generated": 2,
+      "depth": 2
+    },
+    "ConfiguredEffect": {
+      "core": "unsupported",
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 2,
+      "generated": 3,
+      "depth": 2
+    },
+    "ConfiguredState": {
+      "core": "unsupported",
+      "verdict": "action-property-violation",
+      "property": "Prop",
+      "code": 2112,
+      "error_class": "TLC_ACTION_PROPERTY_VIOLATED_BEHAVIOR",
+      "exit": 13,
+      "distinct": 2,
+      "generated": 2,
+      "depth": 2
+    },
+    "DoublePrime": {
+      "core": "rejected",
+      "verdict": "semantic-error",
+      "property": null,
+      "code": 3002,
+      "error_class": "TLC_PARSING_FAILED",
+      "exit": 150,
+      "distinct": null,
+      "generated": null,
+      "depth": null
+    },
+    "EffectPrint": {
+      "core": "unsupported",
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 2,
+      "generated": 3,
+      "depth": 2
+    },
+    "EmptyDemand": {
+      "core": "admitted",
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 2,
+      "generated": 3,
+      "depth": 2
+    },
+    "FreePrime": {
+      "core": "rejected",
+      "verdict": "semantic-error",
+      "property": null,
+      "code": 3002,
+      "error_class": "TLC_PARSING_FAILED",
+      "exit": 150,
+      "distinct": null,
+      "generated": null,
+      "depth": null
+    },
+    "GlobalState": {
+      "core": "unsupported",
+      "verdict": "action-property-violation",
+      "property": "Prop",
+      "code": 2112,
+      "error_class": "TLC_ACTION_PROPERTY_VIOLATED_BEHAVIOR",
+      "exit": 13,
+      "distinct": 2,
+      "generated": 2,
+      "depth": 2
+    },
+    "InstanceOpState": {
+      "core": "unsupported",
+      "verdict": "action-property-violation",
+      "property": "Prop",
+      "code": 2112,
+      "error_class": "TLC_ACTION_PROPERTY_VIOLATED_BEHAVIOR",
+      "exit": 13,
+      "distinct": 2,
+      "generated": 2,
+      "depth": 2
+    },
+    "InstanceState": {
+      "core": "unsupported",
+      "verdict": "action-property-violation",
+      "property": "Prop",
+      "code": 2112,
+      "error_class": "TLC_ACTION_PROPERTY_VIOLATED_BEHAVIOR",
+      "exit": 13,
+      "distinct": 2,
+      "generated": 2,
+      "depth": 2
+    },
+    "OtherHigherOrder": {
+      "core": "unsupported",
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 2,
+      "generated": 3,
+      "depth": 2
+    },
+    "PredicateError": {
+      "core": "admitted",
+      "verdict": "evaluation-error",
+      "property": null,
+      "code": 2179,
+      "error_class": "TLC_MODULE_DIVISION_BY_ZERO",
+      "exit": 255,
+      "distinct": 1,
+      "generated": 1,
+      "depth": 1
+    },
+    "PureBad": {
+      "core": "admitted",
+      "verdict": "action-property-violation",
+      "property": "Prop",
+      "code": 2112,
+      "error_class": "TLC_ACTION_PROPERTY_VIOLATED_BEHAVIOR",
+      "exit": 13,
+      "distinct": 2,
+      "generated": 2,
+      "depth": 2
+    },
+    "PureBindings": {
+      "core": "admitted",
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 2,
+      "generated": 3,
+      "depth": 2
+    },
+    "PureDirect": {
+      "core": "admitted",
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 2,
+      "generated": 3,
+      "depth": 2
+    },
+    "PureInstance": {
+      "core": "admitted",
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 3,
+      "generated": 4,
+      "depth": 3
+    },
+    "SequenceErrorFirst": {
+      "core": "admitted",
+      "verdict": "evaluation-error",
+      "property": null,
+      "code": 2169,
+      "error_class": "TLC_MODULE_ARGUMENT_ERROR",
+      "exit": 255,
+      "distinct": 1,
+      "generated": 1,
+      "depth": 1
+    },
+    "ShortCircuit": {
+      "core": "admitted",
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit": 0,
+      "distinct": 2,
+      "generated": 3,
+      "depth": 2
+    },
+    "ConfiguredPrime": {
+      "core": "unsupported",
+      "oracle_classification": "unclassified",
+      "note": "Existing harness cannot classify TLC action-property stream 2113/2121/2103 with physical exit 255; no golden written and no oracle parity credit. This case checks conservative core refusal and Auto/reference preservation only."
+    }
+  },
+  "sources": {
+    "CapturedLocal.cfg": "99f088222d2008ac89341820db852adc0d0e7d1f75704622c3491f4e24d85375",
+    "CapturedLocal.tla": "14fd591cd60bcc4921a7655151df462dc641e7996b13369a9a288469ab8c2742",
+    "ConfiguredEffect.cfg": "a585c5be56869eb273020bdeaff2db2d51ee7abb523a98f1f75386911e1590cb",
+    "ConfiguredEffect.tla": "eab2a13e8330468042935e4c74efd53225797be5033e4a1247388d11ea673d19",
+    "ConfiguredPrime.cfg": "b542b36bb9f88a2751d2eabb39332c7614c066fd4a3462567035f9f20d11de37",
+    "ConfiguredPrime.tla": "fa1b996662a45715d9cd4939f12a8ab40cd38edb03f4785b8a5a43022ccd5b92",
+    "ConfiguredState.cfg": "b542b36bb9f88a2751d2eabb39332c7614c066fd4a3462567035f9f20d11de37",
+    "ConfiguredState.tla": "5cdb3bf71640524855868007188f49c733771549f08382b2e290887740937642",
+    "DoublePrime.cfg": "99f088222d2008ac89341820db852adc0d0e7d1f75704622c3491f4e24d85375",
+    "DoublePrime.tla": "5b5e8bba05ad865a0307ab320c9d12d959e143c81f816b970ccfc57d6beedef3",
+    "EffectPrint.cfg": "99f088222d2008ac89341820db852adc0d0e7d1f75704622c3491f4e24d85375",
+    "EffectPrint.tla": "f536ba76524e841f36254abd397258f03de1fd0452f86996ecade0d61ee6f432",
+    "EmptyDemand.cfg": "99f088222d2008ac89341820db852adc0d0e7d1f75704622c3491f4e24d85375",
+    "EmptyDemand.tla": "3ce3f08668eef3800d8e75bcde3c1b04d1a69823e9de03e14f5c6bd0be02e740",
+    "FreePrime.cfg": "99f088222d2008ac89341820db852adc0d0e7d1f75704622c3491f4e24d85375",
+    "FreePrime.tla": "66b43ba7ec396b91b9c849afba4a9ab21b00e95a7e10ce53f15e89784673684c",
+    "GlobalState.cfg": "99f088222d2008ac89341820db852adc0d0e7d1f75704622c3491f4e24d85375",
+    "GlobalState.tla": "8f8706bccfb29847ece4706a6815db8873dd1dc821a598d75543ee7cabd44ad7",
+    "InstanceOpState.cfg": "b542b36bb9f88a2751d2eabb39332c7614c066fd4a3462567035f9f20d11de37",
+    "InstanceOpState.tla": "a06a249bc16d5906021cf8c930ad1f2b27760d4268322a31a1b83fa032f291a5",
+    "InstanceState.cfg": "99f088222d2008ac89341820db852adc0d0e7d1f75704622c3491f4e24d85375",
+    "InstanceState.tla": "4ee3e8d921a3abccb9f4a0dbdcf0b10960ad7615a2ffa93f9acda717796a1094",
+    "OtherHigherOrder.cfg": "99f088222d2008ac89341820db852adc0d0e7d1f75704622c3491f4e24d85375",
+    "OtherHigherOrder.tla": "862f0af09fc35e3fde9f1d1f188e057e8042791021fbdd67a6b79759fb5ba54b",
+    "PayloadAbs.tla": "5d9244b60a3a4de522c3b1bc2bf86ddb029f05fd13741714be442036d37df463",
+    "PredicateError.cfg": "817faebdc9fd7233e019188a206aa2785baf86be928714f2dfcd606d7e105f0f",
+    "PredicateError.tla": "0d0efc56f3ce6d7c8b03a03ccbfef03440e1febd24af2ecac877a918201fb14e",
+    "PureBad.cfg": "99f088222d2008ac89341820db852adc0d0e7d1f75704622c3491f4e24d85375",
+    "PureBad.tla": "073e06237247f2b6187e7f0fc4e5208462d7df64b8255a5e7d503d6896fb8930",
+    "PureBindings.cfg": "eac757745f3100342f9142ff3181334872e651b370114d45266557fc38d8c59c",
+    "PureBindings.tla": "ab8d49d459fc8eb7497ca2da2e85042706b03cbc12589214af074b12a67d5f8f",
+    "PureDirect.cfg": "99f088222d2008ac89341820db852adc0d0e7d1f75704622c3491f4e24d85375",
+    "PureDirect.tla": "56ecb01d2a5a3e3033446c28ba2ac81b31cdc7575600942bb8c3eb7595c000aa",
+    "PureInstance.cfg": "99f088222d2008ac89341820db852adc0d0e7d1f75704622c3491f4e24d85375",
+    "PureInstance.tla": "2b91f2bae3480a5f5b849db15f6226e9f08b3bd9672aab0f7469961d22aef591",
+    "SelectParam.tla": "4d077dc163a7f196ff86b37b8fb7468ce506ede266f7854f5c24adde69877dec",
+    "SequenceErrorFirst.cfg": "817faebdc9fd7233e019188a206aa2785baf86be928714f2dfcd606d7e105f0f",
+    "SequenceErrorFirst.tla": "15a95d9b730c0444013fe359288b994b0c52d0b6d5bc15f34fad5e8d62724552",
+    "ShortCircuit.cfg": "99f088222d2008ac89341820db852adc0d0e7d1f75704622c3491f4e24d85375",
+    "ShortCircuit.tla": "cf99afe3ab9025e5aacd73790965c4ef330f4fe59211243d3a842c1ce10117be"
+  },
+  "oracle": {
+    "id": "tlc-2026.10.06.014338",
+    "sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+    "classpath": [
+      {
+        "id": "community-modules-202610040242",
+        "pin": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+      },
+      {
+        "id": "community-modules-deps-202610040242",
+        "pin": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d"
+      }
+    ],
+    "module_libraries": [
+      {
+        "id": "apalache-modules-v0.62.3",
+        "pin": "3eb15b253482005222fabbf50bb7aae501eb9f8d"
+      },
+      {
+        "id": "tlapm-library-d8b9747",
+        "pin": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37"
+      }
+    ],
+    "capabilities": {
+      "dump_trace_json": true,
+      "no_generate_spec_te": true,
+      "sany_error_codes": true,
+      "names_temporal_properties": true,
+      "git_revision": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+      "implementation_version": "2.0 2026-10-06"
+    },
+    "java": {
+      "source": "pinned",
+      "version": "17.0.20.1+1",
+      "sha256": "0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62",
+      "platform": "linux-x86_64",
+      "version_line": "openjdk version \"17.0.20.1\" 2026-08-18"
+    }
+  },
+  "staged_corpus_commit": "sha256:2f1d35e21e95a1e18a32cac46041b652f5a65650ab41fca499685abbf62c9f5f"
+}
