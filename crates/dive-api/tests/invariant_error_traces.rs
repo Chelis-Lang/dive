@@ -291,7 +291,7 @@ fn named_error_wire_version_is_separate_from_legacy_endings() {
 }
 
 #[test]
-fn named_error_does_not_relax_constraint_or_effect_refusals() {
+fn named_error_precedes_final_constraint_but_preserves_earlier_checks_and_effect_refusals() {
     for compat_tlc in [false, true] {
         let opts = TraceOptions {
             compat_tlc,
@@ -300,7 +300,13 @@ fn named_error_does_not_relax_constraint_or_effect_refusals() {
         let good = doc(&[0, 1, 2], claim("Inv", ASSERT));
         let cfg = format!("{CFG}CONSTRAINT EarlierFalse\n");
         let constrained = SpecModel::from_source("Audit.tla", SOURCE, &cfg, &opts).expect("model");
-        invalid(&constrained, &good, Check::Constraint, 2);
+        // Like the primary ConstraintInvError control, the deciding named
+        // invariant error is checked before the final state's constraint.
+        assert_eq!(constrained.validate(&good).validation, Validation::Valid);
+        // Every earlier state still has to satisfy the configured constraint.
+        let source = SOURCE.replace("EarlierFalse == x<2", "EarlierFalse == x<1");
+        let earlier = SpecModel::from_source("Audit.tla", &source, &cfg, &opts).expect("model");
+        invalid(&earlier, &good, Check::Constraint, 1);
         for body in ["RandomElement({TRUE,FALSE})", "TLCGet(0)"] {
             let source = SOURCE.replace(
                 "Assert(x # 2, \"Inv\")",
