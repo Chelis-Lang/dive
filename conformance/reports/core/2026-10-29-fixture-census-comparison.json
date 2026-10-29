@@ -1,0 +1,85 @@
+{
+  "previous_source": "f1acc846885f6764d2ce3b40c8c757d9912b25c8",
+  "current_source": "91742b3c9cb4b7021785975f888d5cf9dd43625c",
+  "common_configs": 1476,
+  "added_configs": [
+    "crates/dive-api/tests/fixtures/core-enabled-boundaries/EnabConfiguredHiddenPrime.cfg",
+    "crates/dive-api/tests/fixtures/core-enabled-boundaries/EnabConfiguredHiddenState.cfg",
+    "crates/dive-api/tests/fixtures/core-enabled-boundaries/EnabConfiguredPrime.cfg",
+    "crates/dive-api/tests/fixtures/core-enabled-boundaries/EnabConfiguredRedirect.cfg",
+    "crates/dive-api/tests/fixtures/core-enabled-boundaries/EnabConfiguredState.cfg",
+    "crates/dive-api/tests/fixtures/core-enabled-boundaries/EnabPrint.cfg",
+    "crates/dive-api/tests/fixtures/core-enabled-boundaries/EnabRandom.cfg",
+    "crates/dive-api/tests/fixtures/core-enabled-boundaries/EnabRecursive.cfg",
+    "crates/dive-api/tests/fixtures/core-enabled-boundaries/EnabRegister.cfg",
+    "crates/dive-api/tests/fixtures/core-enabled-levels/EnabConstFormal.cfg",
+    "crates/dive-api/tests/fixtures/core-enabled-levels/EnabConstPrime.cfg",
+    "crates/dive-api/tests/fixtures/core-enabled-levels/EnabConstState.cfg",
+    "crates/dive-api/tests/fixtures/core-enabled-levels/EnabHiddenOperatorState.cfg",
+    "crates/dive-api/tests/fixtures/core-enabled-levels/EnabOperatorFormal.cfg",
+    "crates/dive-api/tests/fixtures/core-enabled-levels/EnabOperatorPrime.cfg",
+    "crates/dive-api/tests/fixtures/core-enabled-levels/EnabOperatorState.cfg",
+    "crates/dive-api/tests/fixtures/core-m0/EnabConstInstance.cfg",
+    "crates/dive-api/tests/fixtures/core-m0/EnabConstInstanceBad.cfg",
+    "crates/dive-api/tests/fixtures/core-m0/EnabConstInstanceChain.cfg",
+    "crates/dive-api/tests/fixtures/core-m0/EnabConstInstanceError.cfg",
+    "crates/dive-api/tests/fixtures/core-m0/EnabConstInstanceGuard.cfg",
+    "crates/dive-api/tests/fixtures/core-m0/EnabConstInstanceInit.cfg",
+    "crates/dive-api/tests/fixtures/core-m0/EnabConstInstanceLazy.cfg",
+    "crates/dive-api/tests/fixtures/core-m0/EnabConstInstanceOp.cfg",
+    "crates/dive-api/tests/fixtures/core-m0/EnabNonidentityInstance.cfg",
+    "crates/dive-api/tests/fixtures/core-normalization/DefaultEqualityControl.cfg",
+    "crates/dive-api/tests/fixtures/core-normalization/HomogeneousControl.cfg",
+    "crates/dive-api/tests/fixtures/core-normalization/LazyControl.cfg",
+    "crates/dive-api/tests/fixtures/core-normalization/NestedSetClash.cfg",
+    "crates/dive-api/tests/fixtures/core-normalization/OrderShortCircuit.cfg",
+    "crates/dive-api/tests/fixtures/core-normalization/RecordClash.cfg",
+    "crates/dive-api/tests/fixtures/core-normalization/RecordDomainControl.cfg",
+    "crates/dive-api/tests/fixtures/core-normalization/ScalarClash.cfg",
+    "crates/dive-api/tests/fixtures/core-normalization/SizeShortCircuit.cfg",
+    "crates/dive-api/tests/fixtures/core-normalization/StreamConstructionClash.cfg",
+    "crates/dive-api/tests/fixtures/core-normalization/TupleLaterClash.cfg",
+    "crates/dive-api/tests/fixtures/core-normalization/TupleReverseClash.cfg",
+    "crates/dive-api/tests/fixtures/core-replace/SeqReplaceAllTrace.cfg",
+    "crates/dive-api/tests/fixtures/core-replace/SeqReplaceFirstTrace.cfg",
+    "crates/dive-api/tests/fixtures/core-replace/SeqReplaceInlineEffect.cfg",
+    "crates/dive-api/tests/fixtures/core-replace/SeqReplaceLetEffect.cfg",
+    "crates/dive-api/tests/fixtures/core-replace/SeqReplaceMixed.cfg",
+    "crates/dive-api/tests/fixtures/core-replace/SeqReplaceNamedEffect.cfg",
+    "crates/dive-api/tests/fixtures/core-replace/SeqReplaceNested.cfg",
+    "crates/dive-api/tests/fixtures/core-replace/SeqReplaceOperatorEffect.cfg",
+    "crates/dive-api/tests/fixtures/core-replace/SeqReplaceOverlapAtStart.cfg",
+    "crates/dive-api/tests/fixtures/core-replace/SeqReplacePartitionChoice.cfg",
+    "crates/dive-api/tests/fixtures/core-replace/SeqReplacePure.cfg",
+    "crates/dive-api/tests/fixtures/core-replace/StringReplaceInlineEffect.cfg"
+  ],
+  "removed_configs": [],
+  "profiles": [
+    {
+      "profile": "default",
+      "common_selected": 1363,
+      "common_status_changes": [],
+      "added_statuses": {
+        "refused": 27,
+        "agree": 22
+      }
+    },
+    {
+      "profile": "tlc",
+      "common_selected": 1363,
+      "common_status_changes": [],
+      "added_statuses": {
+        "refused": 28,
+        "agree": 21
+      }
+    }
+  ],
+  "fixture_source_file_changes": {
+    "A": 100
+  },
+  "changed_common_fixture_files": [],
+  "selection_bindings": {
+    "previous": "a21f5c34dc747d0540b4cc9b62d34196f0c948b6623a95c6a98d2c4b7f41d58d",
+    "current": "443aa31009e944625e3185ce4f1b24fe07dea9171f1f766bc4b25410437c5ace"
+  }
+}
