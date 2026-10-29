@@ -256,6 +256,8 @@ pub struct CheckReport {
     phase: Phase,
     /// The core engine's run, when `--engine=core` ran the check.
     core: Option<Box<crate::core_engine::CoreRun>>,
+    /// Untrusted original source context captured while this run owns the IR.
+    next_error_endpoint: Option<dive_trace::NextStateEndpoint>,
     /// The engine requested.
     engine: crate::Engine,
     /// Why `--engine=auto` ran the reference engine.
@@ -522,6 +524,7 @@ fn check_file_in(
         temporal_configuration: crate::temporal::file_configuration(),
         phase: Phase::Unlowered(String::new()),
         core: None,
+        next_error_endpoint: None,
         engine,
         fallback: None,
     };
@@ -640,6 +643,15 @@ fn check_file_in(
     } else {
         check_backend(&ir, &model, &armed, req.temporal, req.periodic)
     };
+    if let Phase::Checked(result) = &report.phase
+        && let Verdict::EvaluationError {
+            site: dive_check::ErrorSite::Next,
+            cause,
+            ..
+        } = &result.verdict
+    {
+        report.next_error_endpoint = dive_trace::NextStateEndpoint::from_error(&ir, cause);
+    }
     if let Some(watchdog) = &mut watchdog {
         let finished = watchdog.finish();
         report.finish_budget(finished, checking_started.elapsed());
@@ -1506,7 +1518,7 @@ impl CheckReport {
                             })
                         })
                         .collect();
-                    let transported = trace_doc(r, cx, ctx);
+                    let transported = trace_doc(r, cx, ctx, self.next_error_endpoint.as_ref());
                     doc["counterexample"] = json!({
                         "length": states.len(),
                         "ending": "finite",
@@ -1707,6 +1719,7 @@ fn trace_doc(
     r: &dive_check::CheckResult,
     cx: &dive_check::Counterexample,
     ctx: dive_value::Ctx,
+    next_endpoint: Option<&dive_trace::NextStateEndpoint>,
 ) -> Result<Value, String> {
     use dive_check::Verdict as V;
     use dive_trace::Ending;
@@ -1731,6 +1744,14 @@ fn trace_doc(
         } => Ending::InvariantError {
             name: name.clone(),
             ec: cause.ec().name().to_owned(),
+        },
+        V::EvaluationError {
+            site: dive_check::ErrorSite::Next,
+            cause,
+            ..
+        } if next_endpoint.is_some() => Ending::NextStateError {
+            ec: cause.ec().name().to_owned(),
+            endpoint: next_endpoint.cloned().ok_or("missing Next error source")?,
         },
         V::EvaluationError { cause, .. } => {
             if cause.ec() == dive_eval::Ec::AssertFailed {
@@ -2157,6 +2178,7 @@ mod evidence_controls {
             },
             phase,
             core: None,
+            next_error_endpoint: None,
             engine: crate::Engine::Reference,
             fallback: None,
         }

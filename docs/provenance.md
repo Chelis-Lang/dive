@@ -2342,3 +2342,14 @@ that operative policy does not suppress a failing custom hook by inference.
 Safety keeps its original bound run state, while temporal capture preserves its
 existing fresh-host installation. This is dive's embedding/ownership protocol,
 not a TLC algorithm port or a membership/predicate cache.
+
+### Independent terminal Next replay
+
+ADR 0120 reuses `dive-eval::next::Evaluator::next_states`, the existing MIT
+port of TLC `Tool.getNextStates` at pinned commit `94d0c507`. The validator
+drives the freshly bound configured actions in order with a sink stopping at
+the first complete or partial candidate. It adds no checker functor, seen set,
+queue or independent successor algorithm. An error before any candidate must
+match its actual underlying code and original source context. Fresh Recipe
+bindings and cache/name domains follow ADR 0103's artifact-independence policy;
+source descriptors and matching result metadata supply no execution authority.

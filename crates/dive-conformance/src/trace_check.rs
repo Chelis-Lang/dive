@@ -173,7 +173,7 @@ pub fn validate_counterexample(
                     ec: Some("TLC_INVARIANT_EVALUATION_FAILED".to_owned()),
                 })
         }
-        Some(Ending::TemporalStateError { ec, .. }) => {
+        Some(Ending::TemporalStateError { ec, .. } | Ending::NextStateError { ec, .. }) => {
             reported
                 == Some(Ending::Error {
                     ec: Some(ec.clone()),

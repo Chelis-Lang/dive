@@ -4,7 +4,9 @@
 //! validates traces in dive's format ([`dive_trace::format`]) or TLC's
 //! `-dumpTrace json`, with the independent validator of `dive-trace`, which
 //! evaluates the next-state relation as a predicate over supplied states and
-//! never runs the model checker's successor generator. Register-dependent Init
+//! never runs the model checker's search. Source-bound Next endpoints may use
+//! the shared evaluator's ordered generator before its first candidate.
+//! Register-dependent Init
 //! uses an independent ordered single-candidate operation from empty slots.
 //!
 //! Named invariant evaluation errors use native trace version 2 with
@@ -291,7 +293,10 @@ impl SpecModel {
     /// # Errors
     /// As [`Self::try_validate`].
     pub fn try_read(&self, doc: &TraceDoc) -> Result<(Report, Option<Trace>), ValidationRunError> {
-        if !matches!(doc.ending, Some(Ending::TemporalStateError { .. })) {
+        if !matches!(
+            doc.ending,
+            Some(Ending::TemporalStateError { .. } | Ending::NextStateError { .. })
+        ) {
             return Ok(self.read(doc));
         }
         on_big_stack(|| {

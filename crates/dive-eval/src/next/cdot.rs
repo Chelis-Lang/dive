@@ -201,6 +201,9 @@ impl Gen<'_, '_> {
             }
             _ => {}
         }
+        // The private A-side collection bypasses the caller's successor sink
+        // in both modes. Ask the host before entering that intermediate search.
+        core.check_action_composition()?;
         // s -A-> t
         let mut iss: Vec<StateVals> = Vec::new();
         {

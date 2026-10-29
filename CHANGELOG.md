@@ -111,6 +111,13 @@
   empty-state constant cache. Constructor-bound values retain deferred-set
   cache identity and materialization history. Startup values, redirects, lazy
   demands and error order keep their existing behavior in both profiles.
+- Independently replay pure terminal Next errors that occur before any successor
+  is emitted (#434). A source-bound optional error endpoint uses separate fresh
+  prefix and terminal runtimes, preserving exact cause/source and earlier-check
+  priority. Reached composition is refused before intermediate-state collection
+  in both modes. First candidates, unsupported effects and unproved sites stay
+  refused; interrupted/resource-failed replay produces no validity report.
+  This retains trace version 1 and adds no diagnostic-wrapper exemption.
 - `dive check` reports TLC's error when an operator whose body is a numeral
   or a string literal, such as `LAMBDA a, x : 0`, is passed to an operator
   TLC implements in Java (`FoldLeft` and the other folds, `Quantify`,

@@ -31,6 +31,13 @@ pub struct Session {
     config: Option<dive_eval::RunConfig>,
 }
 
+#[derive(Clone, Copy)]
+enum FreshMode {
+    Temporal,
+    NextPrefix,
+    NextTerminal,
+}
+
 impl Session {
     /// Retains source/config inputs and typed run metadata, with no callbacks.
     #[must_use]
@@ -66,10 +73,13 @@ impl Session {
     /// Transport uses text/JSON; private interner atoms cannot escape the runtime.
     #[must_use]
     pub fn read(&self, doc: &TraceDoc) -> (Report, Option<TraceDoc>) {
-        if matches!(doc.ending, Some(crate::Ending::TemporalStateError { .. })) {
+        if matches!(
+            doc.ending,
+            Some(crate::Ending::TemporalStateError { .. } | crate::Ending::NextStateError { .. })
+        ) {
             return (
                 refusal(
-                    "temporal error endpoints require Session::try_read or read_controlled".into(),
+                    "source error endpoints require Session::try_read or read_controlled".into(),
                     doc.states.len(),
                 ),
                 None,
@@ -168,7 +178,10 @@ impl Session {
         &self,
         doc: &TraceDoc,
     ) -> Result<(Report, Option<TraceDoc>), crate::ValidationRunError> {
-        if !matches!(doc.ending, Some(crate::Ending::TemporalStateError { .. })) {
+        if !matches!(
+            doc.ending,
+            Some(crate::Ending::TemporalStateError { .. } | crate::Ending::NextStateError { .. })
+        ) {
             return Ok(self.read(doc));
         }
         self.read_fallible(doc, None)
@@ -210,12 +223,148 @@ impl Session {
                 None,
             );
         }
-        if !matches!(doc.ending, Some(crate::Ending::TemporalStateError { .. })) {
-            return finish(refusal("controlled fresh-session validation currently requires a native temporal-state error endpoint; use existing validation entrypoints for other documents".into(),doc.states.len()),None);
+        if !matches!(
+            doc.ending,
+            Some(crate::Ending::TemporalStateError { .. } | crate::Ending::NextStateError { .. })
+        ) {
+            return finish(refusal("controlled fresh-session validation currently requires a native source error endpoint; use existing validation entrypoints for other documents".into(),doc.states.len()),None);
         }
+        let next_error = matches!(doc.ending, Some(crate::Ending::NextStateError { .. }));
+        if next_error && !doc.properties.is_empty() {
+            return finish(
+                Report {
+                    validation: Validation::Invalid(crate::Failure {
+                        state: 0,
+                        check: crate::Check::Shape,
+                        detail: "finite Next error endpoint cannot claim temporal properties"
+                            .into(),
+                    }),
+                    notes: Vec::new(),
+                    length: doc.states.len(),
+                },
+                None,
+            );
+        }
+        let mode = if next_error {
+            FreshMode::NextPrefix
+        } else {
+            FreshMode::Temporal
+        };
+        let (model, host) = match self.fresh_binding(control, mode, 0)? {
+            Ok(runtime) => runtime,
+            Err(feature) => return finish(refusal(feature, doc.states.len()), None),
+        };
+        let trace = match Trace::decode(&model, doc) {
+            Ok(trace) => trace,
+            Err(error) => {
+                return finish(shape_refusal(error, doc.states.len()), None);
+            }
+        };
+        if next_error {
+            return self.read_next_endpoint(doc, model, host, trace, control);
+        }
+        let report =
+            crate::validate::validate_private_controlled(&model, host, &trace, control.cloned())?;
+        finish(report, trace.to_doc(&model).ok())
+    }
+
+    fn read_next_endpoint(
+        &self,
+        doc: &TraceDoc,
+        model: Model,
+        host: Arc<TraceHost>,
+        trace: Trace,
+        control: Option<&Arc<dyn dive_eval::HostControl>>,
+    ) -> Result<(Report, Option<TraceDoc>), crate::ValidationRunError> {
+        use crate::{ValidationProgress, ValidationRunError};
+        let (prefix, checks_passed) = crate::validate::validate_next_prefix_controlled(
+            &model,
+            host,
+            &trace,
+            control.cloned(),
+        )?;
+        let finish_next = |report, document| {
+            if let Some(control) = control {
+                control
+                    .check()
+                    .map_err(|error| ValidationRunError::Interrupted {
+                        error: dive_eval::EvalError::interrupted(error),
+                        progress: ValidationProgress {
+                            checks_passed,
+                            state: doc.states.len().checked_sub(1),
+                            check: Some(crate::Check::Ending),
+                        },
+                    })?;
+            }
+            Ok((report, document))
+        };
+        if prefix.validation != Validation::Valid {
+            return finish_next(prefix, trace.to_doc(&model).ok());
+        }
+        // Prefix predicates must not warm the terminal generator's lazy
+        // values or normalization state. No private atom is transferred.
+        drop(trace);
+        drop(model);
+        let (model, host) =
+            match self.fresh_binding(control, FreshMode::NextTerminal, checks_passed)? {
+                Ok(runtime) => runtime,
+                Err(feature) => return finish_next(refusal(feature, doc.states.len()), None),
+            };
+        let trace = match Trace::decode(&model, doc) {
+            Ok(trace) => trace,
+            Err(error) => return finish_next(shape_refusal(error, doc.states.len()), None),
+        };
+        let Some(state) = trace.states.last() else {
+            return finish_next(refusal("Next endpoint has no state".into(), 0), None);
+        };
+        let mut report = crate::validate::replay_next_controlled(
+            &model,
+            host,
+            &trace,
+            state,
+            checks_passed,
+            control.cloned(),
+        )?;
+        report.notes.extend(prefix.notes);
+        let plain = trace.to_doc(&model).ok();
+        finish_next(report, plain)
+    }
+
+    fn fresh_binding(
+        &self,
+        control: Option<&Arc<dyn dive_eval::HostControl>>,
+        mode: FreshMode,
+        checks_passed: u64,
+    ) -> Result<Result<(Model, Arc<TraceHost>), String>, crate::ValidationRunError> {
+        use crate::{ValidationProgress, ValidationRunError};
+        let progress = || ValidationProgress {
+            checks_passed,
+            state: None,
+            check: None,
+        };
+        let poll = || {
+            if let Some(control) = control {
+                control
+                    .check()
+                    .map_err(|error| ValidationRunError::Interrupted {
+                        error: dive_eval::EvalError::interrupted(error),
+                        progress: progress(),
+                    })?;
+            }
+            Ok(())
+        };
+        poll()?;
         let host = TraceHost::startup();
-        host.startup.store(true, Ordering::Relaxed);
-        let binding = self.recipe.bind_fallible(host.clone(), control.cloned());
+        host.startup
+            .store(matches!(mode, FreshMode::Temporal), Ordering::Relaxed);
+        host.next_error
+            .store(!matches!(mode, FreshMode::Temporal), Ordering::Relaxed);
+        let binding = if matches!(mode, FreshMode::NextTerminal) {
+            self.recipe
+                .bind_next_fallible(host.clone(), control.cloned())
+        } else {
+            self.recipe.bind_fallible(host.clone(), control.cloned())
+        };
         let model = match binding {
             Ok(model) => model,
             Err(dive_model::ControlledBindError::Interrupted { error, .. }) => {
@@ -247,13 +396,7 @@ impl Session {
                         progress: progress(),
                     });
                 }
-                return finish(
-                    refusal(
-                        format!("fresh validation binding: {}", failure.error),
-                        doc.states.len(),
-                    ),
-                    None,
-                );
+                return Ok(Err(format!("fresh validation binding: {}", failure.error)));
             }
         };
         poll()?;
@@ -266,15 +409,8 @@ impl Session {
                 .lock()
                 .unwrap_or_else(PoisonError::into_inner) = Some(config);
         }
-        let trace = match Trace::decode(&model, doc) {
-            Ok(trace) => trace,
-            Err(error) => {
-                return finish(shape_refusal(error, doc.states.len()), None);
-            }
-        };
-        let report =
-            crate::validate::validate_private_controlled(&model, host, &trace, control.cloned())?;
-        finish(report, trace.to_doc(&model).ok())
+        poll()?;
+        Ok(Ok((model, host)))
     }
 
     pub(crate) fn interpretation(&self, doc: &TraceDoc) -> (Report, Option<TraceDoc>) {
