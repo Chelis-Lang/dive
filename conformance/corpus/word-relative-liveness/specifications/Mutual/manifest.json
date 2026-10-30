@@ -1,0 +1,28 @@
+{
+  "sources": [
+    "docs/user/temporal.md",
+    "https://github.com/Chelis-Lang/dive/issues/489"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "liveness",
+    "property-attribution"
+  ],
+  "modules": [
+    {
+      "path": "specifications/Mutual/Mutual.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/Mutual/Mutual.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}

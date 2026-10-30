@@ -71,6 +71,9 @@ For every selected model and worker count (default 1 and 4):
   agree too, at one worker or when the search is complete. At a stop with
   several workers, which state ends the search depends on scheduling, so
   the counts are not compared there.
+  Liveness name lists may differ only when both actual words independently
+  validate with complete attribution and their reported names match those words
+  exactly (ADR 0126). The proof-free field comparison stays strict.
 - The core's counterexample, if any, must validate with `dive-trace`
   against the reference result's ending, as the harness validates dive's
   counterexamples against a golden.

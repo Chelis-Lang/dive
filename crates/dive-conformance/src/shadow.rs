@@ -261,6 +261,10 @@ fn row(corpus: &CorpusIndex, m: &ModelEntry, workers: u32, status: ShadowStatus)
     }
 }
 
+#[allow(
+    clippy::too_many_lines,
+    reason = "ordered engine comparison and independent replay remain in one driver"
+)]
 fn shadow_model(
     core: &impl Implementation,
     reference: &impl Implementation,
@@ -322,16 +326,6 @@ fn shadow_model(
         return out;
     }
     out.diffs = differences(&core_result, &reference_result, workers);
-    if !out.diffs.is_empty() {
-        out.status = ShadowStatus::Differ;
-    } else if let Some(s) = out.sample.as_ref().filter(|s| s.mismatches > 0) {
-        out.status = ShadowStatus::SuccessorsDiffer;
-        out.diffs.push(format!(
-            "successors: {} of {} sampled (state, action) pairs differ",
-            s.mismatches, s.compared
-        ));
-        out.diffs.extend(s.shown.iter().cloned());
-    }
     let requires_word = matches!(
         core_result.verdict,
         Verdict::SafetyViolation
@@ -354,6 +348,25 @@ fn shadow_model(
             Some(_) => core.trace_validated(&req, &core_result, &reference_result),
         };
         out.trace = Some(check.detail.clone());
+        if reference_result.verdict == Verdict::LivenessViolation
+            && check.confirms_liveness_property(&core_result)
+            && out
+                .diffs
+                .iter()
+                .any(|diff| diff.starts_with("violated_property:"))
+        {
+            // Neither implementation is an oracle here. Both actual words and
+            // reported lists must independently validate before names may differ.
+            let reference_check = reference.trace_validated(&req, &reference_result, &core_result);
+            if reference_check.confirms_liveness_property(&reference_result) {
+                out.diffs
+                    .retain(|diff| !diff.starts_with("violated_property:"));
+                out.trace = Some(
+                    "both words and their exact reported liveness names independently validated"
+                        .into(),
+                );
+            }
+        }
         if !check.validated && out.status == ShadowStatus::Agree {
             out.status = if check.refuted {
                 ShadowStatus::TraceRefuted
@@ -361,6 +374,16 @@ fn shadow_model(
                 ShadowStatus::TraceUnconfirmed
             };
         }
+    }
+    if !out.diffs.is_empty() {
+        out.status = ShadowStatus::Differ;
+    } else if let Some(s) = out.sample.as_ref().filter(|s| s.mismatches > 0) {
+        out.status = ShadowStatus::SuccessorsDiffer;
+        out.diffs.push(format!(
+            "successors: {} of {} sampled (state, action) pairs differ",
+            s.mismatches, s.compared
+        ));
+        out.diffs.extend(s.shown.iter().cloned());
     }
     out
 }
@@ -791,6 +814,118 @@ mod tests {
                 .as_deref()
                 .is_some_and(|s| s.contains("carries none"))
         );
+        Ok(())
+    }
+
+    #[test]
+    #[allow(
+        clippy::too_many_lines,
+        reason = "paired genuine and unproved word controls"
+    )]
+    fn different_shadow_names_need_both_independent_words()
+    -> std::result::Result<(), Box<dyn std::error::Error>> {
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../../conformance/corpus/word-relative-liveness");
+        let manifest = serde_json::from_str(&std::fs::read_to_string(
+            root.join("specifications/Mutual/manifest.json"),
+        )?)?;
+        let (modules, models) = crate::corpus::models_of(&manifest)?;
+        let corpus = CorpusIndex {
+            id: "word-relative-liveness".into(),
+            commit: "test".into(),
+            in_repo: true,
+            root,
+            modules,
+            models,
+            unfetched_submodules: vec![],
+            uncovered: vec![],
+        };
+        let model = corpus.models.first().ok_or("missing model")?;
+        let mut core = result(Verdict::LivenessViolation, 3);
+        core.verdict_code = Some(2116);
+        core.error_class = Some("TLC_TEMPORAL_PROPERTY_VIOLATED".into());
+        core.exit_code = Some(13);
+        core.violated_property = Some("P and Q".into());
+        let doc = TraceDoc::behavior(vec![json!({"x":0})])?
+            .with_ending(Ending::Lasso { back_to: 0 })
+            .with_properties(vec!["P".into(), "Q".into()]);
+        core.trace = Some(Trace {
+            length: 1,
+            ending: TraceEnding::Lasso { back_to: Some(1) },
+            json: Some(doc.to_json()),
+            steps: None,
+            omitted: None,
+            json_unavailable: None,
+        });
+        let mut reference = core.clone();
+        reference.violated_property = Some("P".into());
+        let doc = TraceDoc::behavior(vec![json!({"x":0}), json!({"x":2})])?
+            .with_ending(Ending::Lasso { back_to: 1 })
+            .with_properties(vec!["P".into()]);
+        reference.trace = Some(Trace {
+            length: 2,
+            ending: TraceEnding::Lasso { back_to: Some(2) },
+            json: Some(doc.to_json()),
+            steps: None,
+            omitted: None,
+            json_unavailable: None,
+        });
+        // The context-free comparison still reports the name difference.
+        assert_eq!(differences(&core, &reference, 1).len(), 1);
+        let limits = Limits {
+            jobs: 1,
+            xmx: "1g".into(),
+            timeout: Some(Duration::from_secs(5)),
+            timeout_cap: Duration::from_secs(5),
+            budget_cap: None,
+        };
+        for (core_claim, reference_claim, expected) in [
+            (None, None, ShadowStatus::Agree),
+            (
+                Some(TraceCheck::yes("claimed valid")),
+                None,
+                ShadowStatus::Differ,
+            ),
+            (
+                None,
+                Some(TraceCheck::yes("claimed valid")),
+                ShadowStatus::Differ,
+            ),
+            (Some(TraceCheck::no("refused")), None, ShadowStatus::Differ),
+        ] {
+            let row = shadow_model(
+                &Replay {
+                    result: core.clone(),
+                    refusal: core_claim,
+                },
+                &Replay {
+                    result: reference.clone(),
+                    refusal: reference_claim,
+                },
+                &corpus,
+                model,
+                1,
+                &limits,
+            );
+            assert_eq!(row.status, expected, "{row:?}");
+        }
+        let mut forged = reference;
+        forged.violated_property = Some("Q".into());
+        let row = shadow_model(
+            &Replay {
+                result: core,
+                refusal: None,
+            },
+            &Replay {
+                result: forged,
+                refusal: None,
+            },
+            &corpus,
+            model,
+            1,
+            &limits,
+        );
+        assert_eq!(row.status, ShadowStatus::Differ, "{row:?}");
         Ok(())
     }
 }

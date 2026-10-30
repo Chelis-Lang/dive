@@ -1049,7 +1049,7 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
   - every random draw made while checking the trace, even with the run's `-seed` and `-fp`: only the successor generator determines its stream position, which independent replay does not assume (ADR 0016, amendment 3).
 
   A step label that names an operator with parameters is noted and not checked.
-- **TLC's exact liveness counterexample.** TLC picks its lasso through hash-table and SCC visitation order, which depends on the fingerprint polynomial. dive reports a deterministic short lasso that the independent validator accepts, with the same verdict, counts and violated property. `--lasso tlc` is refused as a usage error (D-013).
+- **TLC's exact liveness counterexample.** TLC picks its lasso through hash-table and SCC visitation order, which depends on the fingerprint polynomial. dive reports a deterministic short lasso that the independent validator accepts, with the same verdict and required state-space facts. Each report names the complete property set independently proved false on its own word; different valid lassos can name different sets (ADR 0126). `--lasso tlc` is refused as a usage error (D-013).
 - **Configurations embedded in a `.tla` file.** TLC can read a configuration from a `---- CONFIG Name ----` section of a `.tla` file. `dive parse --config X.tla` refuses this as `unsupported`.
 - **Binding refusals** (`dive-model`). Binding a specification to its configuration refuses, naming the feature:
   - a constant operator given values in the `.cfg` (`F(1) = 2`), which TLC holds as a table of values (`OpRcdValue`);

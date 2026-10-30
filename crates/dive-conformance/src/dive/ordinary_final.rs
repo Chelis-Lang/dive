@@ -175,17 +175,15 @@ fn lasso(value: &Value) -> Result<Trace, String> {
     let claims = value["properties"]
         .as_array()
         .ok_or("missing temporal claims")?;
-    let names: std::collections::BTreeSet<_> = claims.iter().filter_map(Value::as_str).collect();
-    let inner: std::collections::BTreeSet<_> =
-        document.properties.iter().map(String::as_str).collect();
+    let names: Vec<_> = claims.iter().filter_map(Value::as_str).collect();
+    let unique: std::collections::BTreeSet<_> = names.iter().copied().collect();
+    let inner: Vec<_> = document.properties.iter().map(String::as_str).collect();
     if names.is_empty()
-        || names.contains("")
-        || names.len() != claims.len()
-        || inner.len() != document.properties.len()
+        || unique.contains("")
+        || unique.len() != claims.len()
         || names != inner
-        || !value["property"]
-            .as_str()
-            .is_some_and(|name| names.contains(name))
+        || value["property"].as_str()
+            != Some(crate::trace_check::property_names(&document.properties).as_str())
     {
         return Err("periodic property claims are empty, duplicate or contradictory".into());
     }
@@ -305,6 +303,22 @@ mod tests {
                     "ending":{"kind":"error","ec":"TLC_MODULE_DIVISION_BY_ZERO","endpoint":{"stage":"temporal-state-row","source":{"module":"M","start":10,"end":20,"instance":null}}}}}
         })
     }
+    #[test]
+    fn periodic_display_keeps_exact_property_order() -> Result<(), String> {
+        let document = dive_api::trace::TraceDoc::behavior(vec![json!({"x":0})])?
+            .with_ending(dive_api::trace::Ending::Lasso { back_to: 0 })
+            .with_properties(vec!["P".into(), "Q".into()]);
+        let mut report = json!({
+            "property":"P and Q", "properties":["P","Q"],
+            "counterexample":{"ending":"lasso","length":1,"back_to":1,
+                "states":[{"index":1,"values":{"x":0}}],"trace":document.to_json()}
+        });
+        assert!(lasso(&report).is_ok());
+        report["properties"] = json!(["Q", "P"]);
+        assert!(lasso(&report).is_err());
+        Ok(())
+    }
+
     #[test]
     fn finite_temporal_error_requires_exact_endpoint_transport_and_partial_counts()
     -> Result<(), String> {

@@ -57,8 +57,14 @@ fn named_set_is_complete_and_legacy_claims_stay_unsupported() {
     assert!(
         matches!(result(&m, &word()), Validation::Invalid(f) if f.check == Check::Temporal && f.detail.contains("omitted"))
     );
-    let all = word().with_properties(vec!["Q".into(), "P".into()]);
+    let all = word().with_properties(vec!["P".into(), "Q".into()]);
     assert_eq!(result(&m, &all), Validation::Valid);
+    let reversed = word().with_properties(vec!["Q".into(), "P".into()]);
+    assert!(
+        matches!(result(&m, &reversed), Validation::Invalid(f) if f.check == Check::Ending && f.detail.contains("configured order"))
+    );
+    let reversed_model = bound(SPEC, "SPECIFICATION Spec\nPROPERTY Q P\n");
+    assert_eq!(result(&reversed_model, &reversed), Validation::Valid);
     let duplicate = all.clone().with_properties(vec!["P".into(), "P".into()]);
     assert!(matches!(result(&m, &duplicate), Validation::Invalid(f) if f.check == Check::Ending));
     let legacy = word().with_properties(vec![]);
@@ -128,7 +134,12 @@ fn wrapper_claims_cannot_disagree_with_the_inner_document() {
     assert!(TraceDoc::from_json(&wrapped).is_err());
     let all = word().with_properties(vec!["P".into(), "Q".into()]);
     let wrapped = json!({"counterexample":{"properties":["Q","P"],"trace":all.to_json()}});
-    assert_eq!(TraceDoc::from_json(&wrapped).expect("same set"), all);
+    assert!(TraceDoc::from_json(&wrapped).is_err());
+    let wrapped = json!({"counterexample":{"properties":["P","Q"],"trace":all.to_json()}});
+    assert_eq!(
+        TraceDoc::from_json(&wrapped).expect("same ordered names"),
+        all
+    );
 }
 
 #[test]
