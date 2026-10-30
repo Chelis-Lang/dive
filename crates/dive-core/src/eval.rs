@@ -280,10 +280,7 @@ impl Machine {
     /// Evaluation errors.
     pub fn eval_norm(&mut self, code: &Code, p: P) -> Result<Handle, Error> {
         let v = self.eval(code, p)?;
-        if self.fuel != u64::MAX && v.is_compound() && self.heap.view(v).kind.is_symbolic() {
-            self.domain_work(v, true, 0)?;
-        }
-        self.heap.norm(v)
+        self.work_norm(v)
     }
 
     /// Evaluates a node.
@@ -414,9 +411,9 @@ impl Machine {
             }
             Node::Subseteq(a, b) => {
                 let x = self.eval(code, *a)?;
-                let x = self.heap.norm(x)?;
+                let x = self.work_norm(x)?;
                 let y = self.eval(code, *b)?;
-                let elems = self.heap.elements(x)?;
+                let elems = self.work_elements(x)?;
                 self.charge(elems.len())?;
                 for e in elems {
                     if !self.member(e, y)? {
@@ -500,13 +497,13 @@ impl Machine {
             }
             Node::BigUnion(a) => {
                 let x = self.eval_norm(code, *a)?;
-                let members = self.heap.elements(x)?;
+                let members = self.work_elements(x)?;
                 // TLC's `UnionValue` stays lazy: membership tests the
                 // members in turn. The core keeps it lazy only when some
                 // member cannot be enumerated.
                 let mut normed = Vec::with_capacity(members.len());
                 for m in members {
-                    normed.push(self.heap.norm(m)?);
+                    normed.push(self.work_norm(m)?);
                 }
                 if normed.iter().any(|&m| !self.heap.is_finite(m)) {
                     let mut it = normed.into_iter();
@@ -517,8 +514,8 @@ impl Machine {
                 }
                 let mut out = Vec::new();
                 for m in normed {
-                    let m = self.heap.norm(m)?;
-                    let es = self.heap.elements(m)?;
+                    let m = self.work_norm(m)?;
+                    let es = self.work_elements(m)?;
                     self.charge(es.len())?;
                     out.extend(es);
                 }
@@ -963,6 +960,9 @@ impl Machine {
     /// `set` is not a set, or membership is undefined.
     #[allow(clippy::too_many_lines, reason = "one arm per set kind")]
     pub fn member(&mut self, x: Handle, set: Handle) -> Result<bool, Error> {
+        if self.fuel != u64::MAX && set.is_compound() && self.heap.view(set).kind == Kind::SetEnum {
+            self.domain_work(set, false, 0)?;
+        }
         if let Some(result) = self.heap.literal_member(x, set) {
             return result;
         }
@@ -975,7 +975,7 @@ impl Machine {
             && self.heap.is_finite(set)
             && !self.heap.is_lazy(set)
         {
-            let m = self.heap.materialize_cached(set)?;
+            let m = self.work_materialize_cached(set)?;
             return self.member(x, m);
         }
         let v = self.heap.view(set);
@@ -1068,8 +1068,8 @@ impl Machine {
                     return self.non_fcn_member(x, "a set of functions");
                 }
                 let d = self.domain(x)?;
-                let d = self.heap.norm(d)?;
-                let dom = self.heap.norm(dom)?;
+                let d = self.work_norm(d)?;
+                let dom = self.work_norm(dom)?;
                 if !self.heap.eq(d, dom) {
                     // TLC compares the domains with `equals`, which may fail.
                     if self.heap.store().semantics().tlc_comparisons {
@@ -1155,7 +1155,7 @@ impl Machine {
     }
 
     fn set_bin(&mut self, op: SetOp, x: Handle, y: Handle) -> Result<Handle, Error> {
-        let (x, y) = (self.heap.norm(x)?, self.heap.norm(y)?);
+        let (x, y) = (self.work_norm(x)?, self.work_norm(y)?);
         let fx = self.heap.is_finite(x);
         let fy = self.heap.is_finite(y);
         for (s, finite) in [(x, fx), (y, fy)] {
@@ -1171,8 +1171,8 @@ impl Machine {
                 if !fx || !fy {
                     return Ok(self.heap.union(x, y));
                 }
-                let mut v = self.heap.elements(x)?;
-                v.extend(self.heap.elements(y)?);
+                let mut v = self.work_elements(x)?;
+                v.extend(self.work_elements(y)?);
                 let r = self.heap.set_from(&mut v);
                 self.checked_set(r)
             }
@@ -1185,7 +1185,7 @@ impl Machine {
                     return Err(Error::unsupported("intersection of infinite sets"));
                 };
                 let mut out = Vec::new();
-                for e in self.heap.elements(a)? {
+                for e in self.work_elements(a)? {
                     if self.member(e, b)? {
                         out.push(e);
                     }
@@ -1200,7 +1200,7 @@ impl Machine {
                     return Ok(r);
                 }
                 let mut out = Vec::new();
-                for e in self.heap.elements(x)? {
+                for e in self.work_elements(x)? {
                     if !self.member(e, y)? {
                         out.push(e);
                     }
@@ -1303,11 +1303,8 @@ impl Machine {
         let mut out = Vec::new();
         for (bi, b) in binds.iter().enumerate() {
             let d = self.eval(code, b.domain)?;
-            if self.fuel != u64::MAX {
-                self.domain_work(d, true, 0)?;
-            }
-            let d = self.heap.norm(d)?;
-            let elems = self.heap.elements(d)?;
+            let d = self.work_norm(d)?;
+            let elems = self.work_elements(d)?;
             if b.tuple {
                 out.push((
                     Unit {
@@ -1582,6 +1579,8 @@ impl Machine {
         if !f.is_compound() {
             return Err(eval_err("DOMAIN of a value that is not a function"));
         }
+        let len = self.heap.view(f).len();
+        self.charge(len.saturating_mul(2))?;
         let v = self.heap.view(f);
         match v.kind {
             #[allow(clippy::cast_possible_wrap, reason = "domains fit in i64")]
@@ -1744,7 +1743,7 @@ impl Machine {
                         "The argument of SetToBag should be a finite set, but instead it is not",
                     ));
                 }
-                let keys = self.heap.elements(set)?;
+                let keys = self.work_elements(set)?;
                 let one = mk_int(1)?;
                 let ones = vec![one; keys.len()];
                 Ok(self.heap.fcn_sorted(&keys, &ones))
@@ -1884,7 +1883,7 @@ impl Machine {
                     Some(_) if !self.heap.is_finite(s) => return Err(cardinality_error()),
                     Some(_) => {}
                 }
-                let n = self.heap.cardinality(s)?;
+                let n = self.work_cardinality(s)?;
                 mk_int(i64::try_from(n).unwrap_or(i64::MAX))
             }
             StdFn::Seq => {

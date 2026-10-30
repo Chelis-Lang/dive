@@ -73,6 +73,42 @@ impl Machine {
         }
     }
 
+    /// Central bounded boundary for every interpreter/library normalization.
+    pub(crate) fn work_norm(&mut self, h: Handle) -> Result<Handle, Error> {
+        if self.fuel != u64::MAX && h.is_compound() && self.heap.view(h).kind.is_symbolic() {
+            self.domain_work(h, true, 0)?;
+        }
+        self.heap.norm(h)
+    }
+
+    /// Central bounded boundary for every eager interpreter/library enumeration.
+    pub(crate) fn work_elements(&mut self, h: Handle) -> Result<Vec<Handle>, Error> {
+        if self.fuel != u64::MAX {
+            self.domain_work(h, true, 0)?;
+        }
+        self.heap.elements(h)
+    }
+
+    pub(crate) fn work_cardinality(&mut self, h: Handle) -> Result<u64, Error> {
+        if self.fuel != u64::MAX
+            && h.is_compound()
+            && !matches!(self.heap.view(h).kind, Kind::Interval | Kind::Set)
+        {
+            self.domain_work(h, true, 0)?;
+        }
+        self.heap.cardinality(h)
+    }
+
+    pub(crate) fn work_materialize_cached(&mut self, h: Handle) -> Result<Handle, Error> {
+        if self.fuel == u64::MAX {
+            return self.heap.materialize_cached(h);
+        }
+        self.domain_work(h, true, 0)?;
+        // Optional analysis must not intern a normalized result in the producer
+        // Store. Its isolated arena owns this temporary projection.
+        self.heap.materialize(h)
+    }
+
     pub(crate) fn work_cursor(&mut self, h: Handle) -> Result<Cursor, Error> {
         if self.fuel != u64::MAX {
             self.domain_work(h, false, 0)?;
@@ -271,6 +307,46 @@ mod tests {
                 .is_err(),
             "the second original domain is still evaluated/validated"
         );
+        machine.leave(frame);
+    }
+    #[test]
+    fn admitted_higher_order_sequence_copies_are_charged_before_allocation() {
+        use crate::stdlib::{Ho, OpFn};
+        let mut machine = Machine::new(
+            Arc::new(Store::default()),
+            0,
+            Opts::default(),
+            crate::memo::Memo::default(),
+        );
+        let huge = machine.heap.tuple(&vec![Handle::TRUE; 10000]);
+        let small = machine.heap.tuple(&[Handle::TRUE, Handle::TRUE]);
+        let code = Code {
+            nodes: vec![Node::Const(Handle::FALSE)],
+            ..Code::default()
+        };
+        let frame = machine.enter(2);
+        for (op, params) in [
+            (dive_ir::StdOp::TlcSortSeq, vec![0, 1]),
+            (dive_ir::StdOp::SequencesSelectSeq, vec![0]),
+        ] {
+            machine.set_fuel(4096);
+            let before = machine.heap.arena().peak();
+            let function = OpFn::new(&code, &params, 0);
+            assert!(
+                crate::stdlib::call_ho(&mut machine, op, &[Ho::Value(huge), Ho::Op(function)])
+                    .is_err()
+            );
+            assert_eq!(
+                machine.fuel, 0,
+                "copy is denied before allocating its vector"
+            );
+            assert_eq!(machine.heap.arena().peak(), before);
+            machine.set_fuel(4096);
+            assert!(
+                crate::stdlib::call_ho(&mut machine, op, &[Ho::Value(small), Ho::Op(function)])
+                    .is_ok()
+            );
+        }
         machine.leave(frame);
     }
 }

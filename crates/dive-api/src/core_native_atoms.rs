@@ -972,33 +972,44 @@ mod tests {
                 self.owner.check().is_ok()
             }
         }
-        let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == \\E i \\in 1..10000: x'=i /\\ i=x\nSpec == Init /\\ [][Next]_x\nP == <> (ENABLED A)\n====\n";
-        for tlc in [false, true] {
-            with_wrappers(source, tlc, |_, driver, atoms, _| {
-                let watchdog = Budget::new(Some(std::time::Duration::from_millis(50)), None)
-                    .start()
-                    .expect("watchdog")
-                    .expect("finite");
-                let owner =
-                    EvaluationControl::new(watchdog.budget(), Phase::Capture).expect("owner");
-                let phase =
-                    EvaluationControl::new(watchdog.budget(), Phase::Temporal).expect("phase");
-                let poll = Arc::new(Pause {
-                    owner: owner.clone(),
-                    calls: AtomicUsize::new(0),
+        for action in [
+            "\\E i \\in 1..10000: x'=i /\\ i=x",
+            "((1..10000) \\subseteq (1..10000)) /\\ x'=x",
+        ] {
+            let source = format!(
+                "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == {action}\nSpec == Init /\\ [][Next]_x\nP == <> (ENABLED A)\n====\n"
+            );
+            for tlc in [false, true] {
+                with_wrappers(&source, tlc, |_, driver, atoms, _| {
+                    let watchdog = Budget::new(Some(std::time::Duration::from_millis(50)), None)
+                        .start()
+                        .expect("watchdog")
+                        .expect("finite");
+                    let owner =
+                        EvaluationControl::new(watchdog.budget(), Phase::Capture).expect("owner");
+                    let phase =
+                        EvaluationControl::new(watchdog.budget(), Phase::Temporal).expect("phase");
+                    let poll = Arc::new(Pause {
+                        owner: owner.clone(),
+                        calls: AtomicUsize::new(0),
+                    });
+                    atoms.control = owner;
+                    atoms.machine.set_work_control(Some(poll.clone()));
+                    let atom = driver.native_predicates().next().expect("enabled");
+                    assert!(
+                        matches!(atoms.evaluate(atom,&[Handle::int(0).expect("zero")],None,&phase),Err(AnalysisError::Stopped(ref stop)) if stop.phase==Phase::Temporal)
+                    );
+                    assert!(
+                        poll.calls.load(Ordering::Relaxed) >= 4,
+                        "query reached its internal checkpoint"
+                    );
+                    assert_eq!(atoms.evaluated, 0);
+                    assert!(
+                        atoms.machine.heap.arena().peak().1 < 100,
+                        "owned interruption precedes materialization"
+                    );
                 });
-                atoms.control = owner;
-                atoms.machine.set_work_control(Some(poll.clone()));
-                let atom = driver.native_predicates().next().expect("enabled");
-                assert!(
-                    matches!(atoms.evaluate(atom,&[Handle::int(0).expect("zero")],None,&phase),Err(AnalysisError::Stopped(ref stop)) if stop.phase==Phase::Temporal)
-                );
-                assert!(
-                    poll.calls.load(Ordering::Relaxed) >= 4,
-                    "query reached its internal checkpoint"
-                );
-                assert_eq!(atoms.evaluated, 0);
-            });
+            }
         }
     }
 
@@ -1151,5 +1162,135 @@ mod tests {
                 );
             });
         }
+    }
+
+    #[test]
+    fn subseteq_materialization_respects_preallocation_quota() {
+        let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == ((1..10000) \\subseteq (1..10000)) /\\ x'=x\nSpec == Init /\\ [][Next]_x\nP == <> (ENABLED A)\n====\n";
+        for tlc in [false, true] {
+            with_wrappers(source, tlc, |_, driver, atoms, control| {
+                assert_eq!(atoms.eligible, 1, "probe must reach actual native code");
+                let atom = driver.native_predicates().next().expect("atom");
+                let got = atoms
+                    .evaluate(atom, &[Handle::int(0).expect("zero")], None, control)
+                    .expect("optional query");
+                assert_eq!(got, None, "large work declines");
+                assert!(
+                    atoms.machine.heap.arena().peak().1 < 100,
+                    "optional preflight must reject before large allocation; actual peak={:?}, tlc={tlc}",
+                    atoms.machine.heap.arena().peak()
+                );
+            });
+        }
+    }
+
+    #[test]
+    fn huge_first_partial_success_and_fake_hook_authority() {
+        #[derive(Debug)]
+        struct Deny;
+        impl dive_core::eval::WorkControl for Deny {
+            fn proceed(&self) -> bool {
+                false
+            }
+        }
+        let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLES x,y\nInit == x=0 /\\ y=0\nNext == UNCHANGED <<x,y>>\nA == \\E i \\in 1..1000000000: x'=i\nSpec == Init /\\ [][Next]_<<x,y>>\nP == <> (ENABLED A)\n====\n";
+        for tlc in [false, true] {
+            with_wrappers(source, tlc, |_, driver, atoms, control| {
+                assert_eq!(atoms.eligible, 1);
+                let atom = driver.native_predicates().next().expect("atom");
+                let z = Handle::int(0).expect("zero");
+                assert_eq!(
+                    atoms
+                        .evaluate(atom, &[z, z], None, control)
+                        .expect("large partial"),
+                    Some(true)
+                );
+                assert!(atoms.machine.heap.arena().peak().1 < 100);
+                atoms.machine.set_work_control(Some(Arc::new(Deny)));
+                assert_eq!(
+                    atoms
+                        .evaluate(atom, &[z, z], None, control)
+                        .expect("fake stop cannot become owned stop"),
+                    None
+                );
+                atoms
+                    .machine
+                    .set_work_control(Some(Arc::new(QueryControl(atoms.control.clone()))));
+                assert_eq!(
+                    atoms
+                        .evaluate(atom, &[z, z], None, control)
+                        .expect("clean reset after fake stop"),
+                    Some(true)
+                );
+                assert_eq!(atoms.machine.frame.len(), 0);
+                assert_eq!(atoms.machine.assigned, 0);
+            });
+        }
+    }
+    #[test]
+    fn admitted_bulk_operations_preflight_and_recover_on_small_rows() {
+        for tlc in [false, true] {
+            for expression in ["((1..x) \\subseteq (1..x))", "Cardinality(1..x)=x"] {
+                let source = format!(
+                    "---- MODULE Atoms ----\nEXTENDS Naturals, FiniteSets\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == {expression} /\\ x'=x\nSpec == Init /\\ [][Next]_x\nP == <> (ENABLED A)\n====\n"
+                );
+                with_wrappers(&source, tlc, |_, driver, atoms, control| {
+                    assert_eq!(atoms.eligible, 1, "actual admitted source");
+                    let atom = driver.native_predicates().next().expect("enabled");
+                    assert_eq!(
+                        atoms
+                            .evaluate(atom, &[Handle::int(10000).expect("large")], None, control)
+                            .expect("preflight"),
+                        None
+                    );
+                    assert!(
+                        atoms.machine.heap.arena().peak().1 < 100,
+                        "large payload never allocated"
+                    );
+                    assert_eq!(
+                        atoms
+                            .evaluate(atom, &[Handle::int(2).expect("small")], None, control)
+                            .expect("clean next row"),
+                        Some(true)
+                    );
+                });
+            }
+        }
+    }
+
+    #[test]
+    fn optional_materialization_does_not_intern_in_the_producer_store() {
+        use dive_liveness::analyze::{GraphLabelPolicy, Limits};
+        use dive_liveness::product::AcceptancePolicy;
+        let (prepared, options) = prepare_source("x \\in 1..3");
+        let driver = GraphCheck::prepare(
+            &prepared.model,
+            &options,
+            Limits::default(),
+            AcceptancePolicy::compact_default(),
+            GraphLabelPolicy::NoCellLimit,
+            None,
+        )
+        .expect("driver");
+        let control = EvaluationControl::new(&options.budget, Phase::Capture).expect("control");
+        let mut atoms = NativeAtoms::prepare(
+            &prepared.model,
+            &prepared.store,
+            &driver,
+            &control,
+            Opts::default(),
+        )
+        .expect("prepare");
+        atoms.machine.opts.symbolic_member = false;
+        let atom = driver.native_predicates().next().expect("predicate");
+        let before = prepared.store.stats();
+        assert_eq!(
+            atoms
+                .evaluate(atom, &[Handle::int(2).expect("two")], None, &control)
+                .expect("materialized member"),
+            Some(true)
+        );
+        let after = prepared.store.stats();
+        assert_eq!((before.nodes, before.handles), (after.nodes, after.handles));
     }
 }

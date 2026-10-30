@@ -303,7 +303,12 @@ fairness wrappers continue through reference evaluation. Unknown representations
 bounds and semantic failures use the same reference fallback. Actual owned
 budget stops propagate; foreign interruption evidence is rejected. Optional query
 binding streams the existing cursors under its work quota, preflights eager
-materialization before allocation and charges universal context buffers. Its
+materialization before allocation and charges universal context buffers. Central
+bounded Machine normalization/enumeration/cardinality boundaries cover all direct
+interpreter, generator and library callers, including subset comparison and
+candidate values; higher-order sequence copies are charged before allocation.
+Unknown eager symbolic shapes fall back before calling Heap, and optional
+materialization never interns into the producer Store. Its
 in-query checkpoint uses the actual retained budget; quota exhaustion remains
 reference fallback, with no fabricated resource stop.
 

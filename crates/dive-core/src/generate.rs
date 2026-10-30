@@ -595,7 +595,7 @@ impl Machine {
         }
         let elems = self.raw_elems(code, raw)?;
         let listed = elems.len() as u64;
-        let distinct = self.heap.cardinality(s)?;
+        let distinct = self.work_cardinality(s)?;
         if listed != distinct {
             return Err(Error::unsupported(format!(
                 "x' \\in a lazily represented set: TLC's unnormalized enumeration of it ({listed} elements) differs from its normalized one ({distinct} elements), and which one TLC uses depends on whether it has already compared, sized or fingerprinted the same set object"
@@ -625,11 +625,8 @@ impl Machine {
                 "TLC's enumeration of a lazily represented set with an infinite part (core)",
             ));
         }
-        if self.fuel != u64::MAX {
-            self.domain_work(h, true, 0)?;
-        }
-        let n = self.heap.norm(h)?;
-        self.heap.elements(n)
+        let n = self.work_norm(h)?;
+        self.work_elements(n)
     }
 
     fn distinct(&mut self, elems: &[Handle]) -> usize {

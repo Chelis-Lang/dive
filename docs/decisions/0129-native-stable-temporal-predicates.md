@@ -97,8 +97,16 @@ first-variable-fastest order and partial first success. Before existing Heap
 normalization/cursor constructors can materialize a domain, a bounded preflight
 charges component cardinalities and payload bounds; large/nested products decline
 before allocation. Universal contexts and continuation payload are charged before
-growth and unwind on exhaustion. Ordinary unbounded machines keep their existing
-enumeration. Actual run interruptions are polled inside query work through a
+growth and unwind on exhaustion. The bounded Machine owns central normalization,
+eager enumeration, materialization-cache and cardinality boundaries; every
+interpreter, generator and library call to those Heap primitives routes through
+them. This includes Subseteq, set algebra/UNION, domains, library enumeration,
+candidate normalization and membership's materialization option. SortSeq/SelectSeq
+charge tuple copies before allocation. Only interval/eager-set/product shapes
+have preflight bounds; other eager symbolic shapes decline before their Heap
+primitive. Optional materialization stays in the analysis arena, never interning
+its result in the producer Store. Ordinary unbounded machines keep their existing
+enumeration and caches. Actual run interruptions are polled inside query work through a
 small core checkpoint backed by the original retained control, as well as before
 and after work, validated against producer and analysis owners, and propagated with
 the analysis phase. A foreign interruption cannot become this run's stop.
