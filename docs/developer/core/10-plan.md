@@ -30,26 +30,34 @@ compatibility performance ceiling without weakening semantic obligations.
 1. Freeze a current-source census, small-tier core/auto accounting and
    performance diagnostic. Preserve every selected fixture, refusal, stop and
    unverified result; historical reference totals are not core coverage.
-2. Repair typed terminal-error/word families (#606, #490/#499, #434, #607)
-   in small independently reviewed changes. Reuse fresh reference-evaluator
-   replay; do not import checker/store authority into the validator. Add a
-   separately versioned terminal descriptor only when partial/expansion
-   certificates need it, keeping complete prefix rows distinct from partial
-   bindings. The already-unverified #620 boundary remains unclaimed.
+2. Typed invariant/Next/partial endpoint replay is implemented in bounded
+   source-bound scopes, including ordered diagnostic execution (#659). Qualify
+   these scopes over the full selection without granting a class to an
+   unclassified oracle stream. Partial Init evidence is `error_witness`, not a
+   formal behavior word. Preserve independent evaluator replay; exact reached
+   fairness-primary #502 and the #620 diagnostic boundary remain open.
 3. The native L5 path is implemented: original targets for seen/new states,
    retained vertex/original rows, checked CSR, graph-neutral complete/prefix
    results and reports, controlled eager admission and on-demand conversion
-   with zero retained Value cache. Complete allocation accounting, bounded
-   remaining constructor/diagnostic units and original-workload capacity
-   measurements remain. Keep fixed capture counts until those obligations are
-   met; reuse the analyzer and independent validator (`11-liveness.md`).
-4. Admit pure state-independent `SelectSeq` predicates under a prime before
-   treating EWD998Chan as a capacity target. Current-source bounded probes
-   enter CoffeeCan3000, aba_asyn_byz and bcastFolklore exploration in both
-   profiles, but EWD998Chan refuses this operator. Those probes establish no
-   completion/capacity. Then deliver #623's consumed scalar/tuple literal lane
-   and the bounded #504/#515/#527 repairs; do not widen every higher-order
-   operator, constructor or library in one change.
+   with bounded closed-function read reuse and unchanged eager conversion for
+   every original. Ordinary core file count ceilings now use checked layouts,
+   fallible growth and actual budgets (ADR 0124); explicit caller/reference
+   limits stay exact. Complete accounting, remaining constructor/diagnostic
+   units and original-workload capacity qualification remain (`11-liveness.md`).
+4. Pure state-independent `SelectSeq` predicates under a prime are implemented;
+   original EWD998Chan now enters exploration. The uncached development run
+   stopped during periodic atom analysis after 900 seconds; closed-function
+   read reuse is implemented, but its original EWD run also stopped at 900 seconds;
+   the required temporal completion remains a blocker.
+   #623's consumed scalar/tuple literal lane and bounded #504/#515/#527 work
+   have controls; wider producers and error contracts remain separate. Exact
+   reached fairness/ENABLED primary classification (#502) remains open behind
+   honest refusal. #658/#659/#661 are merged in runtime `68dd8266`, with exact
+   scopes in `m1-status.md`; its census completed with findings and its full gate failed integrated Clippy.
+   All other executed gate phases pass, including the completed final shadow;
+   helper extraction is merged as `a79a024d` with separate exact-source
+   Clippy/required-CI passes. Original EWD and ABA temporal timeouts still block
+   full capacity acceptance.
 5. Qualify the integrated runtime with a full gate, the original census and
    affected ablations, and the ten-model five-repeat benchmark at actual 1/8
    workers. Keep original CoffeeCan3000/EWD998Chan/aba_asyn_byz configurations

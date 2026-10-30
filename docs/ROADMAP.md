@@ -139,11 +139,13 @@ language coverage and unreduced symmetry checking remain acceptance requirements
 
 Ordinary core-engine temporal checking now retains persistent original rows and
 checked CSR, admits original values in producer order, and reads evaluator
-values on demand without a retained Value cache. Shared analysis yields owned
+values on demand with bounded closed-function read reuse. Every original still
+receives eager controlled conversion. Shared analysis yields owned
 selected words and sealed complete/prefix facts; native capture owners are
 released before fresh independent typed and serialized validation. Existing
-reference APIs and fixed capture limits remain. Whole-run byte accounting and
-measured TLC-relative capacity/performance are still acceptance work; the default
+reference APIs and explicit Rust limits remain; ordinary core-file count
+ceilings now use checked layouts and actual run budgets. Whole-run byte accounting
+and measured TLC-relative capacity/performance are still acceptance work; the default
 engine remains `reference`. See [the core liveness contract](developer/core/11-liveness.md).
 
 The removed Phase-L receipt, producer-clock, request-owned, hook and terminal
@@ -153,3 +155,16 @@ choice (ADR 0082, ADR 0086 and charter appendix 12). Checkpoint/recovery and oth
 modes retain their observable contracts, including equivalent resumed and
 uninterrupted outcomes. Any new result-changing default still needs an approved
 and documented divergence under ADR 0010.
+
+The trusted-core checkpoint is implementation progress, not phase exit. The
+[implementation and acceptance status](developer/core/m1-status.md) separates
+merged storage/budget/cache and bounded error-word/name/admission work from
+pending qualification and source-bound development observations. The integrated
+fixture census completed with findings on runtime `68dd8266`; its full gate
+completed exit 1 only for integrated Clippy; other executed phases pass. The lint-only
+repair is merged as `a79a024d` and passes separate exact-source checks. All results
+remain attached to their actual sources. Original three-model temporal capacity
+at both profiles and 1/8 workers, integrated correctness qualification, and the
+quiet five-repeat ADR 0119 performance campaign remain incomplete. Reference
+remains the default; simulation/DFID/checkpoints/disk and broader parity remain
+their existing later scope.

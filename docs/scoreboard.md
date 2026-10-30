@@ -7,13 +7,29 @@ whole-word and exact complete-attribution validation. These targeted controls do
 not refresh historical corpus totals or establish general liveness parity.
 
 L5's native capture/analysis/report path is implemented: persistent original
-rows, checked CSR, controlled eager Graph admission, on-demand values with zero
-retained Value cache, and sealed complete/prefix facts. Only selected-word values
-survive into fresh independent typed and serialized validation. Existing fixed
-capture limits remain; Store/native byte accounting is partial, and original
+rows, checked CSR, controlled eager Graph admission, bounded closed-function
+read reuse, and sealed complete/prefix facts. Only selected-word values
+survive into fresh independent typed and serialized validation. Ordinary core
+file count ceilings use checked layouts/fallible growth and actual budgets;
+explicit caller/reference limits remain. Store/native byte accounting is partial;
+original
 TLC-relative capacity/performance qualification remains open. No corpus
 population, parity-surface, throughput or default-engine credit follows from
 this storage integration (ADRs 0117 and 0122).
+
+Runtime `68dd8266` includes #655/#656, native budget/cache work,
+#658 (word-relative names), #659 (ordered terminal/partial evidence) and
+#661 (runtime-name admission proof). Its fixture census is complete with findings;
+the completed `68dd` full gate exits 1 only for integrated Clippy; all other
+executed phases pass.
+The lint-only repair is merged as `a79a024d` with separate exact-source
+Clippy/required-CI passes.
+Exact fairness-primary
+#502 remains open. The [current checkpoint](developer/core/m1-status.md) and
+[development record](../conformance/reports/perf/2026-10-30-native-development.json)
+separate implemented work from unqualified capacity/performance. No historical
+corpus count below is relabeled as this source, and partial Init evidence is
+not a formal behavior word. Reference remains default.
 
 #619 soundness boundary: compound set normalization uses the existing shape
 proof in both core profiles. Unproved nested comparisons return unsupported;
@@ -26,7 +42,10 @@ Named terminal invariant-error and property words may end outside model
 constraints after ordered constraint evaluation (#499). Four new model controls
 have generated goldens; four invariant-error streams remain unclassified.
 This repairs logical witness validation and adds no historical corpus credit;
-generic constraint/action error proofs and partial-state words remain open.
+generic constraint/action proofs and uncovered terminal sites remain open.
+Scoped ordered Next/partial evidence is implemented in #659; partial Init is
+`error_witness`, not a formal `counterexample`, and unclassified primary outcomes
+gain no class agreement merely because their evidence validates.
 
 Parity means observable results (ADR 0086). For every corpus model, dive must
 match the pinned TLC on:
@@ -42,6 +61,21 @@ dive does not emulate arbitrary or nondeterministic TLC internals, such as
 timing, thread or queue order, tableau numbering or SCC and lasso choice.
 
 ## Corpus scoreboard
+
+The separate integrated fixture shadow census at `68dd8266` selects 1,497 of
+1,614 configurations (99 parser exclusions, 18 ambiguous skips): 1,161 default /
+1,135 TLC shadow agreements; 287/309 refusals, 6/4 stops, 36/39 refuted words,
+7/9 unconfirmed words and 0/1 differences. Both profiles improve 42 old IDs
+relative to `c21e5097`; no old agreement is lost. Ten new selected rows are
+separate from those repairs. TLC `LvPeriodic` remains an unwaived core-violation
+versus reference capture-limit difference (#664). Its original early comparison
+earns no word-agreement credit; the separately retained actual word now validates
+fresh in both profiles, without changing that difference or the census counts.
+The census exits 1; all 5,382 physical exits are recorded. These are not TLC
+parity or refreshed historical totals. Exact findings and qualifications are in
+[the current status](developer/core/m1-status.md) and its compact record; census
+S3 preservation is downloaded/hash-verified. The `68dd` full gate retains its
+distinct Clippy failure; repaired-source checks are separate evidence.
 
 The #515 reference cache correction is checked by the explicit
 `reference-instance-naturals` corpus and 18 consumed scope/startup controls.
@@ -338,7 +372,7 @@ census or milestone acceptance (`docs/developer/core/03-value-model.md` §12).
 | Temporal graph construction | partial |
 | WF/SF fairness | partial |
 | Liveness acceptance, counterexamples and attribution | partial |
-| Periodic/final/off liveness schedules | missing |
+| Periodic/final/off liveness schedules | partial |
 | Simulation, generation and random replay | partial |
 | DFID checking | partial |
 | Granted environment, file and process effects | missing |
