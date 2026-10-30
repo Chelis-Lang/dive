@@ -381,6 +381,26 @@ fn view_key(m: &mut Machine, plan: &Plan, view: &Check) -> Result<u64, Error> {
     Ok(fin(K_STATE, 1, state_term(0, m.heap.hash(v))))
 }
 
+// Capture-only provisional/frontier buffers use checked, fallible growth.
+// The ordinary safety route does not call this helper or retain extra rows.
+pub(crate) fn capture_reserve<T>(values: &mut Vec<T>, additional: usize) -> Result<(), Error> {
+    values
+        .len()
+        .checked_add(additional)
+        .and_then(|n| n.checked_mul(std::mem::size_of::<T>()))
+        .ok_or_else(|| Error::unsupported("capture buffer address space"))?;
+    values
+        .try_reserve(additional)
+        .map_err(|_| Error::unsupported("capture buffer allocation"))
+}
+
+pub(crate) fn capture_copy(values: &[Handle]) -> Result<Vec<Handle>, Error> {
+    let mut copy = Vec::new();
+    capture_reserve(&mut copy, values.len())?;
+    copy.extend_from_slice(values);
+    Ok(copy)
+}
+
 struct Explorer<'p> {
     plan: &'p Plan,
     /// The behavior graph's sink, when a temporal check needs it.
@@ -521,7 +541,11 @@ impl Explorer<'_> {
         let code = &plan.code;
         // The -early-probe control can replace m.s1 with canonical identity
         // handles. Keep the emitted representation available to capture too.
-        let original = self.graph.is_some().then(|| m.s1.clone());
+        let original = self
+            .graph
+            .is_some()
+            .then(|| capture_copy(&m.s1))
+            .transpose()?;
         if m.assigned != m.s1.len() {
             let message = incomplete_message(plan, m);
             self.failure = Some(self.failure_at(m, Site::Incomplete, message)?);
@@ -635,11 +659,13 @@ impl Explorer<'_> {
         let kept = if new {
             Vec::new()
         } else {
-            original
-                .unwrap_or(&m.s1)
-                .iter()
-                .map(|&h| m.heap.intern_exact(h))
-                .collect::<Result<Vec<_>, _>>()?
+            let values = original.unwrap_or(&m.s1);
+            let mut kept = Vec::new();
+            capture_reserve(&mut kept, values.len())?;
+            for &handle in values {
+                kept.push(m.heap.intern_exact(handle)?);
+            }
+            kept
         };
         let original = if new {
             self.next_originals
@@ -758,6 +784,11 @@ impl Explorer<'_> {
     /// Interns the successor in `m.s1`, queues it and logs its parent and
     /// ordinal.
     fn enqueue(&mut self, m: &mut Machine, original: Option<&[Handle]>) -> Result<(), Error> {
+        if self.graph.is_some() {
+            capture_reserve(&mut self.next, m.s1.len())?;
+            capture_reserve(&mut self.next_originals, m.s1.len())?;
+            capture_reserve(&mut self.next_ids, 1)?;
+        }
         for i in 0..m.s1.len() {
             let h = m.heap.intern(m.s1[i])?;
             self.next.push(h);
@@ -970,10 +1001,29 @@ impl Sink for Explorer<'_> {
             self.stop = Some(Verdict::Budget);
             return Err(Error::stop());
         }
-        self.stats.generated += 1;
-        self.emitted += 1;
-        if self.initial {
-            self.stats.initial_generated += 1;
+        if self.graph.is_some() {
+            self.stats.generated = self
+                .stats
+                .generated
+                .checked_add(1)
+                .ok_or_else(|| Error::unsupported("capture generated counter overflow"))?;
+            self.emitted = self
+                .emitted
+                .checked_add(1)
+                .ok_or_else(|| Error::unsupported("capture successor ordinal overflow"))?;
+            if self.initial {
+                self.stats.initial_generated = self
+                    .stats
+                    .initial_generated
+                    .checked_add(1)
+                    .ok_or_else(|| Error::unsupported("capture initial counter overflow"))?;
+            }
+        } else {
+            self.stats.generated += 1;
+            self.emitted += 1;
+            if self.initial {
+                self.stats.initial_generated += 1;
+            }
         }
         self.report_emitted()?;
         if !self.initial && self.graph.is_some() && (self.poll)() {
@@ -1497,6 +1547,15 @@ fn run(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn impossible_capture_growth_is_fallible_without_modifying_retained_payload() {
+        let mut values = vec![Handle::EMPTY];
+        let capacity = values.capacity();
+        assert!(capture_reserve(&mut values, usize::MAX).is_err());
+        assert_eq!(values, [Handle::EMPTY]);
+        assert_eq!(values.capacity(), capacity);
+    }
 
     #[test]
     fn replay_checks_compound_values_without_hashconsing() -> Result<(), Error> {

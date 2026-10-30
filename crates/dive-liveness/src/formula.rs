@@ -133,56 +133,81 @@ impl Formula {
             .filter(|n| *n <= max_cells)
             .ok_or(FormulaError::Limit("word truth cells"))?;
         let mut truth: Vec<Vec<bool>> = Vec::new();
+        truth
+            .try_reserve_exact(self.nodes.len())
+            .map_err(|_| FormulaError::Limit("word truth allocation"))?;
         for node in &self.nodes {
-            let values = match node {
-                Node::Bool(b) => vec![*b; states.len()],
-                Node::Atom(a) => (if a.kind == AtomKind::State {
-                    states
-                } else {
-                    actions
-                })
-                .iter()
-                .map(|r| {
-                    r.get(a.index).copied().ok_or_else(|| {
-                        FormulaError::Reference(format!("missing word atom {}", a.index))
-                    })
-                })
-                .collect::<Result<_, _>>()?,
-                Node::Not(child) => truth[*child].iter().map(|b| !b).collect(),
-                Node::And(children) | Node::Or(children) => {
-                    let all = matches!(node, Node::And(_));
-                    (0..states.len())
-                        .map(|pos| {
-                            if all {
-                                children.iter().all(|c| truth[*c][pos])
-                            } else {
-                                children.iter().any(|c| truth[*c][pos])
-                            }
-                        })
-                        .collect()
-                }
+            word_poll()?;
+            let mut values = Vec::new();
+            values
+                .try_reserve_exact(states.len())
+                .map_err(|_| FormulaError::Limit("word truth allocation"))?;
+            match node {
                 Node::Always(child) | Node::Eventually(child) => {
                     let all = matches!(node, Node::Always(_));
-                    let mut values = truth[*child].clone();
-                    let cycle = if all {
-                        values[back_to..].iter().all(|b| *b)
-                    } else {
-                        values[back_to..].iter().any(|b| *b)
-                    };
-                    values[back_to..].fill(cycle);
+                    for chunk in truth[*child].chunks(1024) {
+                        word_poll()?;
+                        values.extend_from_slice(chunk);
+                    }
+                    let mut cycle = all;
+                    for (pos, &value) in values.iter().enumerate().skip(back_to) {
+                        if pos.is_multiple_of(1024) {
+                            word_poll()?;
+                        }
+                        if all {
+                            cycle &= value;
+                        } else {
+                            cycle |= value;
+                        }
+                    }
+                    for chunk in values[back_to..].chunks_mut(1024) {
+                        word_poll()?;
+                        chunk.fill(cycle);
+                    }
                     for pos in (0..back_to).rev() {
+                        if pos.is_multiple_of(1024) {
+                            word_poll()?;
+                        }
                         values[pos] = if all {
                             truth[*child][pos] && values[pos + 1]
                         } else {
                             truth[*child][pos] || values[pos + 1]
                         };
                     }
-                    values
                 }
-            };
+                _ => {
+                    for pos in 0..states.len() {
+                        if pos.is_multiple_of(1024) {
+                            word_poll()?;
+                        }
+                        values.push(match node {
+                            Node::Bool(value) => *value,
+                            Node::Atom(atom) => {
+                                let rows = if atom.kind == AtomKind::State {
+                                    states
+                                } else {
+                                    actions
+                                };
+                                rows[pos].get(atom.index).copied().ok_or_else(|| {
+                                    FormulaError::Reference(format!(
+                                        "missing word atom {}",
+                                        atom.index
+                                    ))
+                                })?
+                            }
+                            Node::Not(child) => !truth[*child][pos],
+                            Node::And(children) => children.iter().all(|child| truth[*child][pos]),
+                            Node::Or(children) => children.iter().any(|child| truth[*child][pos]),
+                            // Temporal nodes use the separately checked branch above.
+                            Node::Always(_) | Node::Eventually(_) => unreachable_word_node()?,
+                        });
+                    }
+                }
+            }
             truth.push(values);
         }
-        Ok(truth[self.root].clone())
+        // Transfer the selected row rather than duplicating a potentially long word.
+        Ok(std::mem::take(&mut truth[self.root]))
     }
 
     /// Checks the root and the strict topological order of every child.
@@ -207,6 +232,20 @@ impl Formula {
         }
         Ok(Self { nodes, root })
     }
+}
+
+fn word_poll() -> Result<(), FormulaError> {
+    if crate::budget::exhausted() {
+        Err(FormulaError::Limit(crate::budget::EXHAUSTED))
+    } else {
+        Ok(())
+    }
+}
+
+fn unreachable_word_node() -> Result<bool, FormulaError> {
+    Err(FormulaError::Reference(
+        "unexpected temporal word node".into(),
+    ))
 }
 
 /// Explicit limits on formula normalization and tableau construction.
@@ -590,4 +629,33 @@ pub(crate) fn compile_residual(formula: &Formula, limits: Limits) -> Result<Tabl
         nodes: b.nodes,
         roots,
     })
+}
+
+#[cfg(test)]
+mod resource_tests {
+    use super::*;
+
+    #[test]
+    fn word_truth_honors_exact_cells_and_the_actual_owner_budget() -> Result<(), FormulaError> {
+        let formula = Formula::new(vec![Node::Bool(true), Node::Always(0)], 1)?;
+        let rows = vec![vec![]; 65];
+        assert!(matches!(
+            formula.evaluate_word(&rows, &rows, 0, 129),
+            Err(FormulaError::Limit("word truth cells"))
+        ));
+        assert_eq!(formula.evaluate_word(&rows, &rows, 0, 130)?, vec![true; 65]);
+        {
+            let watchdog = crate::budget::expired_for_test();
+            let _scope = crate::budget::enter(watchdog.budget());
+            assert!(matches!(
+                formula.evaluate_word(&rows, &rows, 0, usize::MAX),
+                Err(FormulaError::Limit(crate::budget::EXHAUSTED))
+            ));
+        }
+        assert_eq!(
+            formula.evaluate_word(&rows, &rows, 0, usize::MAX)?,
+            vec![true; 65]
+        );
+        Ok(())
+    }
 }

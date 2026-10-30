@@ -714,6 +714,9 @@ fn selected_targets<'a>(
     let mut original = 0;
     let mut selected = std::collections::BTreeMap::new();
     for position in 0..graph.len(source).ok_or_else(malformed)? {
+        if position.is_multiple_of(1024) && crate::budget::exhausted() {
+            return Err(AnalysisError::Limit(crate::budget::EXHAUSTED));
+        }
         let edge = graph.edge(source, position).ok_or_else(malformed)?;
         if edge.to >= states.representative_count() {
             return Err(malformed());
@@ -919,6 +922,9 @@ fn attribute(
 ) -> Result<Vec<String>, AnalysisError> {
     let (control, evaluations) = evaluation;
     let mut violated = Vec::new();
+    violated
+        .try_reserve(plans.len())
+        .map_err(|_| AnalysisError::Limit("attribution allocation"))?;
     for (property, (p, prepared)) in model.property_claims().iter().zip(plans).enumerate() {
         let plan = &prepared.plan;
         states
@@ -933,21 +939,28 @@ fn attribute(
             attribution: true,
         };
         let mut rows = Vec::new();
+        rows.try_reserve_exact(states.len())
+            .map_err(|_| AnalysisError::Limit("attribution allocation"))?;
         for (i, state) in states.iter().enumerate() {
+            if crate::budget::exhausted() {
+                return Err(AnalysisError::Limit(crate::budget::EXHAUSTED));
+            }
             let next = if i + 1 == states.len() { back } else { i + 1 };
             let st = St::action(state.clone(), states[next].clone());
-            let row = (0..plan.atoms.len())
-                .map(|a| {
-                    if let Some((cache, sources)) = cached {
-                        let source = *sources
-                            .get(i)
-                            .ok_or(AnalysisError::Inconsistent("attribution source map"))?;
-                        cache.read(property, a, source)
-                    } else {
-                        atom(model, plan, a, &st, &mut context)
-                    }
-                })
-                .collect::<Result<_, _>>()?;
+            let mut row = Vec::new();
+            row.try_reserve_exact(plan.atoms.len())
+                .map_err(|_| AnalysisError::Limit("attribution allocation"))?;
+            for a in 0..plan.atoms.len() {
+                let value = if let Some((cache, sources)) = cached {
+                    let source = *sources
+                        .get(i)
+                        .ok_or(AnalysisError::Inconsistent("attribution source map"))?;
+                    cache.read(property, a, source)?
+                } else {
+                    atom(model, plan, a, &st, &mut context)?
+                };
+                row.push(value);
+            }
             rows.push(row);
         }
         let truth = plan
@@ -1442,34 +1455,57 @@ fn original_word<'a>(
     lasso: &crate::search::Lasso,
 ) -> Result<OriginalWord, AnalysisError> {
     let captured = captured.into();
-    let steps = lasso.prefix.iter().chain(&lasso.cycle);
-    let states = steps
-        .clone()
-        .map(|s| {
-            source
-                .representative(projection.map_or(s.from, |p| p.sources[s.from]))
-                .map(std::borrow::Cow::into_owned)
-        })
-        .collect::<Result<Vec<_>, _>>()?;
-    let source_ids = steps
-        .clone()
-        .map(|s| projection.map_or(s.from, |p| p.sources[s.from]))
-        .collect::<Vec<_>>();
-    let edges = steps
-        .map(|s| {
-            let (source, edge) = projection.map_or((s.from, s.edge), |p| {
-                (p.sources[s.from], p.edges[s.from][s.edge])
-            });
-            let edge = captured
-                .edge(source, edge)
-                .ok_or(AnalysisError::Inconsistent("original word edge"))?;
-            Ok(capture::Edge {
-                to: edge.to,
-                ordinal: edge.ordinal,
-                label: edge.label.map(str::to_owned),
+    let count = lasso
+        .prefix
+        .len()
+        .checked_add(lasso.cycle.len())
+        .ok_or(AnalysisError::Limit("word layout"))?;
+    let mut states = Vec::new();
+    let mut source_ids = Vec::new();
+    let mut edges = Vec::new();
+    states
+        .try_reserve_exact(count)
+        .map_err(|_| AnalysisError::Limit("word allocation"))?;
+    source_ids
+        .try_reserve_exact(count)
+        .map_err(|_| AnalysisError::Limit("word allocation"))?;
+    edges
+        .try_reserve_exact(count)
+        .map_err(|_| AnalysisError::Limit("word allocation"))?;
+    for step in lasso.prefix.iter().chain(&lasso.cycle) {
+        if crate::budget::exhausted() {
+            return Err(AnalysisError::Limit(crate::budget::EXHAUSTED));
+        }
+        let id = projection.map_or(step.from, |p| p.sources[step.from]);
+        states.push(source.representative(id)?.into_owned());
+        source_ids.push(id);
+    }
+    for step in lasso.prefix.iter().chain(&lasso.cycle) {
+        if crate::budget::exhausted() {
+            return Err(AnalysisError::Limit(crate::budget::EXHAUSTED));
+        }
+        let (source, edge) = projection.map_or((step.from, step.edge), |p| {
+            (p.sources[step.from], p.edges[step.from][step.edge])
+        });
+        let edge = captured
+            .edge(source, edge)
+            .ok_or(AnalysisError::Inconsistent("original word edge"))?;
+        let label = edge
+            .label
+            .map(|label| {
+                let mut copy = String::new();
+                copy.try_reserve_exact(label.len())
+                    .map_err(|_| AnalysisError::Limit("word label allocation"))?;
+                copy.push_str(label);
+                Ok::<_, AnalysisError>(copy)
             })
-        })
-        .collect::<Result<Vec<_>, AnalysisError>>()?;
+            .transpose()?;
+        edges.push(capture::Edge {
+            to: edge.to,
+            ordinal: edge.ordinal,
+            label,
+        });
+    }
     Ok((states, source_ids, edges))
 }
 

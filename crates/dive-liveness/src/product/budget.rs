@@ -179,6 +179,7 @@ struct Requests {
 
 impl Requests {
     fn reserve<T>(&mut self, count: usize) -> Result<Vec<T>, ProductError> {
+        super::csr::poll()?;
         let requested = count.checked_mul(size_of::<T>()).ok_or(BYTES)?;
         self.add(requested)?;
         let mut values = Vec::new();
@@ -222,6 +223,7 @@ impl Programs {
             return Ok(result);
         }
         for condition in conditions {
+            super::csr::poll()?;
             let nodes = condition.scratch_len();
             result.inspected = result
                 .inspected
@@ -373,8 +375,11 @@ fn promise_columns(
     let mut states = requests.reserve(tableau.promise_count)?;
     for p in 0..tableau.promise_count {
         let mut words = requests.reserve(layout.state_words)?;
-        words.resize(layout.state_words, 0);
+        initialize(&mut words, layout.state_words, 0)?;
         for (v, &old) in input.order.iter().enumerate() {
+            if v.is_multiple_of(1024) {
+                super::csr::poll()?;
+            }
             set_bit(
                 &mut words,
                 v,
@@ -427,6 +432,9 @@ pub(super) fn materialize(
         edge_offsets.push(0);
         let mut offset = 0_usize;
         for v in 0..vertices {
+            if v.is_multiple_of(1024) {
+                super::csr::poll()?;
+            }
             offset = offset.checked_add(row_len(v)).ok_or(BYTES)?;
             edge_offsets.push(offset);
         }
@@ -435,18 +443,24 @@ pub(super) fn materialize(
         }
     }
     let mut scratch = requests.reserve(layout.scratch)?;
-    scratch.resize(layout.scratch, false);
+    initialize(&mut scratch, layout.scratch, false)?;
     let mut actions = requests.reserve(conditions.len())?;
     for condition in conditions {
         let mut words = requests.reserve(layout.action_words)?;
-        words.resize(layout.action_words, 0);
+        initialize(&mut words, layout.action_words, 0)?;
         for (id, offset) in edge_offsets.iter().copied().take(vertices).enumerate() {
+            if id.is_multiple_of(1024) {
+                super::csr::poll()?;
+            }
             let v = if layout.domain.behavior {
                 id
             } else {
                 input.pairs[input.order[id]].0
             };
             for position in 0..row_len(id) {
+                if position.is_multiple_of(1024) {
+                    super::csr::poll()?;
+                }
                 let e = if layout.domain.behavior {
                     position
                 } else {
@@ -471,6 +485,15 @@ pub(super) fn materialize(
         behavior_actions: layout.domain.behavior,
         materialization_work: work - remaining,
     })
+}
+
+fn initialize<T: Clone>(values: &mut Vec<T>, len: usize, value: T) -> Result<(), ProductError> {
+    // Reservation already succeeded; bounded fills keep actual budgets observable.
+    while values.len() < len {
+        super::csr::poll()?;
+        values.resize(values.len().saturating_add(1024).min(len), value.clone());
+    }
+    Ok(())
 }
 
 #[cfg(test)]

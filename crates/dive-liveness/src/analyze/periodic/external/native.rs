@@ -75,6 +75,42 @@ impl GraphCheck<'_> {
         self.d.decision.is_some()
     }
 
+    /// Takes an already observed level-check failure before any post-stop CSR
+    /// factory polls. This returns failure facts only, never prefix/completion
+    /// authority or a candidate. The actual producer supplies its stopped stats.
+    ///
+    /// ```no_run
+    /// # use dive_check::CheckResult;
+    /// # use dive_liveness::analyze::periodic::external::GraphCheck;
+    /// # fn stopped(driver: &mut GraphCheck<'_>, actual: &CheckResult) {
+    /// if let Some(failure) = driver.take_native_prefix_failure(actual) {
+    ///     assert_eq!(failure.capture_completed, Some(false));
+    /// }
+    /// # }
+    /// ```
+    #[must_use]
+    pub fn take_native_prefix_failure(
+        &mut self,
+        result: &CheckResult,
+    ) -> Option<Box<PeriodicFailure>> {
+        if !matches!(self.d.decision, Some(Err(_))) {
+            return None;
+        }
+        let stats = result.stats?;
+        let error = self.d.decision.take()?.err()?;
+        Some(Box::new(budget_failure(
+            failure(
+                error,
+                self.d.stage,
+                Some(Box::new(facts(result, stats))),
+                std::mem::take(&mut self.d.evaluations),
+                Some(false),
+                self.d.checks,
+            ),
+            &self.options.budget,
+        )))
+    }
+
     /// Finishes a real exhausted native capture with owned selected-word values
     /// and sealed producer facts. No `BehaviorGraph` is built or retained.
     ///

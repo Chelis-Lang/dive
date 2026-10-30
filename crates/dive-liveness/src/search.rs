@@ -35,6 +35,8 @@ pub enum SearchError {
     Invariant(&'static str),
     /// The installed run budget expired during search; no verdict is implied.
     Budget,
+    /// A checked search buffer could not be allocated.
+    Allocation,
 }
 
 impl std::fmt::Display for SearchError {
@@ -43,6 +45,7 @@ impl std::fmt::Display for SearchError {
             Self::Shape(s) => write!(f, "invalid acceptance labels: {s}"),
             Self::Invariant(s) => write!(f, "lasso search invariant: {s}"),
             Self::Budget => f.write_str("lasso search stopped by its run budget"),
+            Self::Allocation => f.write_str("lasso search buffer allocation failed"),
         }
     }
 }
@@ -81,6 +84,27 @@ impl Poll {
         }
         Ok(false)
     }
+}
+
+fn grow<T>(values: &mut Vec<T>, additional: usize) -> Result<(), SearchError> {
+    values
+        .len()
+        .checked_add(additional)
+        .and_then(|n| n.checked_mul(size_of::<T>()))
+        .ok_or(SearchError::Allocation)?;
+    values
+        .try_reserve(additional)
+        .map_err(|_| SearchError::Allocation)
+}
+
+fn initialized<T: Clone>(len: usize, value: T, poll: &mut Poll) -> Result<Vec<T>, SearchError> {
+    let mut values = Vec::new();
+    grow(&mut values, len)?;
+    while values.len() < len {
+        poll.step()?;
+        values.resize(values.len().saturating_add(1024).min(len), value.clone());
+    }
+    Ok(values)
 }
 
 /// One edge of a witness. Its position distinguishes parallel edges with
@@ -238,12 +262,14 @@ pub(crate) fn find_lasso_view(
     let mut poll = Poll::default();
     poll.step()?;
     let prefix = Paths::new(graph, graph.roots(), |_, _, _| true, &mut poll)?;
-    let mut edges = Vec::with_capacity(graph.vertex_count());
+    let mut edges = Vec::new();
+    grow(&mut edges, graph.vertex_count())?;
     for (v, targets) in (0..graph.vertex_count()).map(|v| (v, graph.successors(v))) {
         let mut row = Vec::new();
         for (e, &target) in targets.iter().enumerate() {
             poll.step()?;
             if labels.recurrent(v, e) {
+                grow(&mut row, 1)?;
                 row.push(target);
             }
         }
@@ -255,14 +281,15 @@ pub(crate) fn find_lasso_view(
     for (v, distance) in prefix.distance.iter().enumerate() {
         poll.step()?;
         if distance.is_some() {
+            grow(&mut roots, 1)?;
             roots.push(v);
         }
     }
     let restricted = Graph { edges, roots };
     let mut selected: Option<(usize, usize, Vec<usize>)> = None;
-    let mut membership = vec![0; graph.vertex_count()];
+    let mut membership = initialized(graph.vertex_count(), 0, &mut poll)?;
     for (i, component) in restricted
-        .try_components(|| poll.step())?
+        .try_components(|| poll.step(), Some(|| SearchError::Allocation))?
         .into_iter()
         .enumerate()
     {
@@ -304,7 +331,7 @@ pub(crate) fn find_lasso_view(
         }
         return Ok(None);
     };
-    let mut inside = vec![false; graph.vertex_count()];
+    let mut inside = initialized(graph.vertex_count(), false, &mut poll)?;
     for v in component {
         poll.step()?;
         inside[v] = true;
@@ -336,9 +363,11 @@ impl Paths {
         mut keep: impl FnMut(usize, usize, usize) -> bool,
         poll: &mut Poll,
     ) -> Result<Self, SearchError> {
-        let mut distance = vec![None; graph.vertex_count()];
-        let mut parent = vec![None; graph.vertex_count()];
-        let mut frontier = roots.to_vec();
+        let mut distance = initialized(graph.vertex_count(), None, poll)?;
+        let mut parent = initialized(graph.vertex_count(), None, poll)?;
+        let mut frontier = Vec::new();
+        grow(&mut frontier, roots.len())?;
+        frontier.extend_from_slice(roots);
         frontier.sort_unstable();
         frontier.dedup();
         for &v in &frontier {
@@ -354,6 +383,7 @@ impl Paths {
                     if keep(v, edge, to) && distance[to].is_none() {
                         distance[to] = Some(depth + 1);
                         parent[to] = Some(Step { from: v, edge, to });
+                        grow(&mut next, 1)?;
                         next.push(to);
                     }
                 }
@@ -373,6 +403,7 @@ impl Paths {
         let mut v = target;
         while let Some(step) = self.parent[v] {
             poll.step()?;
+            grow(&mut path, 1)?;
             path.push(step);
             v = step.from;
         }
@@ -453,8 +484,8 @@ fn covering_cycle(
         }
     }
     let mut missing = Outstanding {
-        states: vec![true; labels.state_count()],
-        actions: vec![true; labels.action_count()],
+        states: initialized(labels.state_count(), true, poll)?,
+        actions: initialized(labels.action_count(), true, poll)?,
     };
     missing.visit(labels, entry, poll)?;
     let mut current = entry;
@@ -498,6 +529,7 @@ fn covering_cycle(
         };
         let mut steps = paths.path(v, poll)?;
         if let Some(edge) = edge {
+            grow(&mut steps, 1)?;
             steps.push(Step {
                 from: v,
                 edge,
@@ -506,6 +538,7 @@ fn covering_cycle(
         }
         current = steps.last().map_or(v, |s| s.to);
         missing.traverse(labels, &steps, poll)?;
+        grow(&mut cycle, steps.len())?;
         cycle.extend(steps);
     }
     if cycle.is_empty() {
@@ -514,7 +547,7 @@ fn covering_cycle(
         // A reverse BFS finds return distances once, rather than running
         // a forward BFS for every outgoing edge of a high-degree entry.
         let mut reverse = Graph {
-            edges: vec![vec![]; graph.vertex_count()],
+            edges: initialized(graph.vertex_count(), Vec::new(), poll)?,
             roots: vec![entry],
         };
         for (v, targets) in (0..graph.vertex_count()).map(|v| (v, graph.successors(v))) {
@@ -525,6 +558,7 @@ fn covering_cycle(
             for (edge, &to) in targets.iter().enumerate() {
                 poll.step()?;
                 if keep(v, edge, to) {
+                    grow(&mut reverse.edges[to], 1)?;
                     reverse.edges[to].push(v);
                 }
             }
@@ -552,10 +586,14 @@ fn covering_cycle(
             edge,
             to,
         }];
-        steps.extend(Paths::new(graph, &[to], keep, poll)?.path(entry, poll)?);
+        let tail = Paths::new(graph, &[to], keep, poll)?.path(entry, poll)?;
+        grow(&mut steps, tail.len())?;
+        steps.extend(tail);
         return Ok(steps);
     }
-    cycle.extend(Paths::new(graph, &[current], keep, poll)?.path(entry, poll)?);
+    let tail = Paths::new(graph, &[current], keep, poll)?.path(entry, poll)?;
+    grow(&mut cycle, tail.len())?;
+    cycle.extend(tail);
     Ok(cycle)
 }
 
@@ -564,6 +602,19 @@ fn covering_cycle(
 mod tests {
     use super::*;
     use std::cell::{Cell, RefCell};
+
+    #[test]
+    fn impossible_search_buffers_fail_before_mutating_existing_values() {
+        let mut values = vec![7_usize];
+        let capacity = values.capacity();
+        assert_eq!(grow(&mut values, usize::MAX), Err(SearchError::Allocation));
+        assert_eq!(values, [7]);
+        assert_eq!(values.capacity(), capacity);
+        assert!(matches!(
+            crate::product::ProductError::search(SearchError::Allocation),
+            crate::product::ProductError::Limit("search allocation")
+        ));
+    }
 
     #[test]
     fn a_budget_trip_during_labelled_search_is_control_flow() {
@@ -616,14 +667,17 @@ mod tests {
         let graph =
             Graph::new((0..4096).map(|v| vec![(v + 1) % 4096]).collect(), vec![0]).expect("cycle");
         let mut steps = 0;
-        let result = graph.try_components(|| {
-            steps += 1;
-            if steps == 2048 {
-                Err("stopped inside SCC")
-            } else {
-                Ok(())
-            }
-        });
+        let result = graph.try_components(
+            || {
+                steps += 1;
+                if steps == 2048 {
+                    Err("stopped inside SCC")
+                } else {
+                    Ok(())
+                }
+            },
+            None,
+        );
         assert_eq!(result, Err("stopped inside SCC"));
         assert_eq!(steps, 2048);
         assert_eq!(graph.components().len(), 1);

@@ -4,13 +4,14 @@ Status: L1–L4 and the native L5 capture/analysis/report path are implemented,
 2026-10-29. The production core retains persistent original rows and CSR,
 converts demanded values without a retained Value cache, and releases native
 capture storage before independent candidate replay. The reference-library
-entrypoints remain available. Complete memory accounting, larger bounded capture
-limits and measured TLC capacity remain L5 acceptance work (§7).
+entrypoints and explicit caller limits remain available unchanged. Complete
+memory accounting and measured TLC capacity remain L5 acceptance work (§7).
 
 This document describes how `--engine core` checks genuine temporal properties
 (`<>P`, `[]<>P`, `P ~> Q`, `WF`/`SF` fairness). The safety parts of properties
 (implied initial predicates and implied actions) run on the core
-(`07-engine.md` §7). The fixed reference capture limits remain in force.
+(`07-engine.md` §7). Reference and explicit Rust capture limits remain in force; ordinary core file
+requests use actual run budgets and checked machine capacity (ADR 0124).
 The dated census in §10 precedes the native backend; it establishes no new
 coverage, performance or capacity for that backend.
 
@@ -128,10 +129,13 @@ values remain in store accounting. These frontier rows are separate from the add
 rows retained by `NativeGraph` (§4).
 
 Parallel capture uses the reference's `MAX_EXPANSION_UNITS` (eight sources per
-wave) and `Limits::successors_per_unit` (65,536 by default). An overflow emission
+wave). Explicit collectors retain `Limits::successors_per_unit` (65,536 by
+default); ordinary core file capture uses checked ordinal capacity instead. An overflow emission
 retains only a stop marker; its emitted event delivers the existing named refusal
-in commit order. Original handle payload is therefore at most eight times the
+in commit order. Explicitly limited original handle payload is at most eight times the
 per-source limit times the variable count per wave, plus transient row snapshots.
+The ordinary core route uses fallible provisional/frontier growth and actual
+run-budget checks instead of this artificial per-source count.
 Workers also poll the armed budget before retaining each capture emission.
 This is an entry-count bound, not a byte bound: original compounds interned by
 speculative work remain in the shared store even when their wave is discarded.
@@ -315,7 +319,9 @@ shape; no dummy graph or alternate completion flag is introduced.
 Planning, graph-limit/conversion, analysis and validation failures still use
 the core route's explicit refusal boundary. Matching actual capture budget
 exhaustion or measurement failure retains that run's actual capture cause and
-counters. `--engine auto` retries the reference route for the named refusals;
+counters. Planning, factory, analysis and validation budget failures use the
+existing detailed failure renderer, preserving actual stage and full/prefix truth.
+Already-observed periodic failures precede post-stop factory polls. `--engine auto` retries the reference route for the named refusals;
 it does not turn actual native budget stops into successful prefixes. Temporal
 error-demand/report parity remains separate work (§11).
 
@@ -329,10 +335,12 @@ collision estimate, which the core does not report on any route.
 ## 7. Budgets and remaining capacity acceptance
 
 The native backend is implemented; TLC-relative capacity acceptance remains
-open. Fixed `capture::Limits` are unchanged: 1,000,000 states, 8,000,000 edges,
-32,000,000 generated states and 65,536 successors per source. Parallel capture
-retains the eight-source wave bound. Reference-library callers keep their
-explicit limits; a stop or refusal establishes no holding result.
+open. Ordinary core file requests use checked machine capacity for capture,
+product edges/work, acceptance bytes/materialization and attribution/word cells,
+under their actual run time and sampled RSS/swap budgets (ADR 0124). Parallel
+capture retains the eight-source wave schedule. Formula/tableau/property planning
+limits, explicit Rust limits and reference-library routes retain their exact
+settings. No stop or refusal establishes a holding result.
 
 Implemented storage now includes all-vertex/original persistent roots, CSR
 metadata, eager controlled Graph admission, on-demand state access, graph-neutral
@@ -341,7 +349,7 @@ analyzer and independent validator. The initial converted-value cache is empty;
 adding one requires bounded weighting and measured justification, not a larger
 unaccounted second graph.
 
-Remaining work before lifting fixed counts or claiming TLC capacity:
+Remaining qualification and accounting work:
 
 - Complete accounting for persistent Store allocations, explorer frontiers and
   speculative waves, native rows/CSR/labels, retained and growing key/index
@@ -526,7 +534,7 @@ changed by checking adjacency and producer facts.
 |---|---|---|
 | L1–L4 | Original producer adapter, shared analysis, scheduling and report path built | Historical evidence in §10 |
 | L5 native backend (#638) | Persistent original rows, CSR, controlled admission/on-demand reads, zero retained Value cache, sealed facts and graph-neutral validated reports | Focused native/reference and negative controls; required CI |
-| L5 capacity | Fixed counts retained; partial byte accounting remains explicit | Complete accounting, bounded remaining units, original TLC-relative capacity/performance measurements and integrated full gate remain open |
+| L5 capacity | Ordinary core file capacity follows actual budgets and checked layouts; partial byte accounting remains explicit | Complete accounting, bounded remaining units, original TLC-relative capacity/performance measurements and integrated full gate remain open |
 
 ## 10. Census and results
 

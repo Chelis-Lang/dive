@@ -87,9 +87,13 @@ core currently covers:
   evaluation error, or a graph limit): `--engine auto` reports the
   reference engine's result for it. Capture retains original accepted targets,
   including seen successors, with their action and ordinal. Parallel capture
-  buffers at most eight source states and applies the existing per-source
-  successor bound before retaining an overflow target; graph limits and
-  supported temporal combinations remain unchanged. Temporal expressions retain
+  buffers at most eight source states. Ordinary core files use the actual run
+  time/memory budgets with checked layouts and fallible growth across capture,
+  products, acceptance and attributed words; inherited count ceilings no longer
+  decide capacity. Explicit Rust limits and reference routes retain their existing
+  bounds. Genuine budget stops preserve their stage, statistics and capture
+  completion instead of becoming generic refusals; supported temporal combinations
+  remain unchanged. Temporal expressions retain
   the original distinction between general functions and tuple/record literals,
   including nested values, independently of report formatting;
 - verdicts, TLC's distinct and generated counts and depth, counterexample

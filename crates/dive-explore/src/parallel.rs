@@ -221,6 +221,9 @@ impl WorkerSink<'_> {
         original: Option<&[Handle]>,
     ) -> Result<usize, Error> {
         let at = self.out.values.len();
+        if self.capture_limit.is_some() {
+            crate::capture_reserve(&mut self.out.values, original.unwrap_or(&m.s1).len())?;
+        }
         for &h in original.unwrap_or(&m.s1) {
             let h = if h.is_empty() {
                 h
@@ -248,7 +251,10 @@ impl WorkerSink<'_> {
         let plan = self.plan;
         // Fingerprinting/VIEW can normalize m.s1 in place. Only capture needs
         // the original emitted representation as well as its identity.
-        let original = self.capture_limit.map(|_| m.s1.clone());
+        let original = self
+            .capture_limit
+            .map(|_| crate::capture_copy(&m.s1))
+            .transpose()?;
         if m.assigned != m.s1.len() {
             let at = self.keep(m)?;
             self.out.occs.push((self.action, Occ::Incomplete { at }));
@@ -347,7 +353,13 @@ impl WorkerSink<'_> {
 impl Sink for WorkerSink<'_> {
     fn emit(&mut self, m: &mut Machine, _code: &Code) -> Result<(), Error> {
         self.take_warnings(m);
-        self.emitted += 1;
+        self.emitted = self
+            .emitted
+            .checked_add(1)
+            .ok_or_else(|| Error::unsupported("capture successor ordinal overflow"))?;
+        if self.capture_limit.is_some() {
+            crate::capture_reserve(&mut self.out.occs, 1)?;
+        }
         if self.capture_limit.is_some_and(|limit| self.emitted > limit) {
             self.out.occs.push((self.action, Occ::CaptureLimit));
             return Err(Error::stop());
