@@ -20,6 +20,23 @@ including the closing edge. This explicit mode does not use periodic
 scheduling or claim all evaluation-error timing. Explicit requests retain their
 existing `tlc+overrides` label when combined with TLC value semantics.
 
+A non-EvalException error actually raised while generating Next states with
+pending genuine temporal obligations is refused when its post-Next temporal
+demand/replay primary is unproved. The refusal keeps the actual counters, output
+and execution boundary; it publishes neither a verified TLC class/exit nor an
+uncertified error word. TLC can continue liveness-row evaluation after the Next
+error and suppress ordinary diagnostic replay if that later demand also fails.
+The presence of `WF` or `SF` alone therefore never selects `GENERAL`.
+
+Pinned `MinChooseFair` requires GENERAL/255, while an unrelated harmless fair
+action does not establish that class. The current implementation reports explicit
+unsupported for the unproved non-EvalException temporal Next path instead of
+claiming 2103/75. Successful fairness checks, measured 2179 Next controls and the
+separate certified temporal state-row error path remain unchanged. A safe Next
+followed by a fairness evaluation error retains its existing analysis refusal.
+The exact reached fairness/ENABLED demand and source-bound replay pipeline remains
+open under issue #502; this correction earns no new temporal-error parity credit.
+
 ## Native graph capture with the core engine
 
 Ordinary `--engine core` temporal checks retain persistent original state rows

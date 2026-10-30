@@ -1,0 +1,41 @@
+{
+  "oracle": "tlc-2026.10.06.014338",
+  "oracle_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "scope": "Existing pinned audit controls; this change refuses unproved primary/replay paths instead of claiming GENERAL implementation.",
+  "positive_goldens": {
+    "MinChooseFair": {
+      "sha256": "b2809d6145f1aefd8f6f7564d77bcc592d511e1ee3de0bafc61e31ecc7f0ce51",
+      "verdict": "other-error",
+      "error_class": "GENERAL",
+      "exit_code": 255,
+      "property": null,
+      "counts": {
+        "distinct_states": 1,
+        "states_generated": 1,
+        "states_left_on_queue": 0,
+        "depth": 1
+      },
+      "trace_length": 1
+    },
+    "MinChooseFairSafeNext": {
+      "sha256": "e6110e8391f9ad060eaccca9becdf208dc8289029f89d957f294666a0e858646",
+      "verdict": "other-error",
+      "error_class": "GENERAL",
+      "exit_code": 255,
+      "property": null,
+      "counts": {
+        "distinct_states": 1,
+        "states_generated": 2,
+        "states_left_on_queue": 0,
+        "depth": 1
+      },
+      "trace_length": 1
+    }
+  },
+  "unclassified_controls": [
+    "MinChoosePlain",
+    "MinChooseOtherFair"
+  ],
+  "unclassified_scope": "Physical exit75 observed for MinChoosePlain and MinChooseOtherFair; no classified golden or new parity credit."
+}
