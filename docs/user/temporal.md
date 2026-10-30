@@ -41,7 +41,8 @@ open under issue #502; this correction earns no new temporal-error parity credit
 
 Ordinary `--engine core` temporal checks retain persistent original state rows
 and compact CSR edges. The existing temporal analyzer reads values on demand;
-there is no retained converted-value cache or second complete evaluator-value
+a bounded cache reuses successful immediate/flat-record/flat-tuple values while
+other values use controlled conversion. It retains no second complete evaluator-value
 graph. This changes storage, not the supported temporal language, fairness,
 property attribution or completion requirements. The default engine remains
 `reference`.
@@ -61,14 +62,28 @@ their existing separate route.
 JSON schema 3 preserves the actual completion/counters and existing trace
 format. `core.metrics.liveness.storage: "native-csr"` identifies native capture;
 `convert_ms`, `converted_nodes`, `memo_entries` and `graph_states` remain,
-with `memo_entries: 0`. Additive `values` counters report admission and on-demand
-reads with zero cache entries/bytes. Collector `memory` fields cover native
+with additive `values` counters for admission, on-demand reads, cache hits/misses,
+entries, requested bytes, replacements and bypasses. `retained_rows` reports the
+physical native row count. `convert_ms_scope` makes explicit that conversion timing
+excludes one-variable cache hits. Cache allowance is the
+smaller of 128 MiB and 1/64 of the run memory budget (128 MiB when unlimited).
+It charges actual table capacity and known eligible payload; shared run-owned
+name payload and opaque Arc/allocator overhead are outside that metric. Collector `memory` fields cover native
 buffers and action-label capacities; growth overlap is an upper bound,
 `accounting_complete` is false, and sampled process memory is not a true peak
 or an allocation-time hard cap.
 
 Every accepted original is admitted in producer order through exact Graph
-conversion before retention. Unknown set normalization history is refused;
+conversion before retention, including when a prior read has cached that handle.
+Only successful Bool/Int or flat tuple/record conversions can be reused during
+reads; exact persistent handle identity and the fixed run/store/profile isolate
+entries. One-variable models reuse the cached shared row on a hit; multi-variable
+models assemble rows from cached components. In-range retained row IDs select
+one-variable cache slots directly, with exact handle equality still required;
+other reads use the bounded handle lookup. The cache charges the shared row
+array storage as well as its table and eligible value payload. Budget checks
+precede hits. The table initializes after 1,024 read
+lookups; unproved, oversize or unavailable cache storage bypasses reuse. Unknown set normalization history is refused;
 function versus tuple/record literal classes remain distinct. A selected word
 outlives capture, but the native graph, converter, store and plan owners are
 released before a freshly bound model independently replays both the typed word
