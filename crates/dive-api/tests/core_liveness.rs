@@ -412,3 +412,55 @@ fn bounded_flat_cache_reuses_records_without_changing_verified_reports() {
         assert_eq!(comparable(core), native_expected(reference));
     }
 }
+
+#[test]
+fn closed_function_reads_keep_nested_reports_and_do_not_reuse_admission() {
+    for tlc in [false, true] {
+        for workers in [1, 8] {
+            for (config, verdict) in [
+                ("ClosedFunctionsHolds", "success"),
+                ("ClosedFunctionsViolation", "liveness-violation"),
+            ] {
+                let file = fixture("ClosedFunctions");
+                let request = CheckRequest {
+                    config: Some(file.with_file_name(format!("{config}.cfg"))),
+                    file,
+                    workers: Some(workers),
+                    seed: Some(0),
+                    fp: Some(0),
+                    compat_tlc: tlc,
+                    ..CheckRequest::default()
+                };
+                let reference = check_file_engine(&request, Engine::Reference)
+                    .expect("reference")
+                    .to_json();
+                let core = check_file_engine(&request, Engine::Core)
+                    .expect("core")
+                    .to_json();
+                assert_eq!(core["verdict"], verdict);
+                assert_eq!(core["engine"], "core");
+                assert_eq!(core["statistics"]["distinct"], 1101);
+                if verdict == "liveness-violation" {
+                    assert_eq!(core["counterexample"]["validation"], "valid");
+                }
+                let cache = &core["core"]["metrics"]["liveness"]["values"];
+                assert!(cache["cache_hits"].as_u64() > Some(0), "{cache}");
+                assert_eq!(
+                    cache["cache_uncovered_misses"], 0,
+                    "all EWD-shaped closed functions are eligible"
+                );
+                assert!(cache["cache_bytes"].as_u64() <= cache["cache_limit_bytes"].as_u64());
+                assert!(
+                    cache["converted_values"].as_u64()
+                        >= cache["admitted_rows"].as_u64().map(|rows| rows * 4),
+                    "every original eagerly converts all four variables"
+                );
+                assert_eq!(
+                    comparable(core),
+                    native_expected(reference),
+                    "{config} tlc={tlc} workers={workers}"
+                );
+            }
+        }
+    }
+}

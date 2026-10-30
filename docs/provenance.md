@@ -2399,3 +2399,11 @@ official harness, with reasons, before runtime changes. Actual comparison
 traces test operand direction/pivots and alias transitions; these internal
 checks add no observable parity credit. Name-token ranks and wider producers
 remain subsequent work in #623.
+
+The native temporal closed-function read cache (`crates/dive-api/src/core_native_values.rs`,
+`crates/dive-value/src/atom.rs`) is an original implementation optimization over the
+existing Graph converter, not a new TLC algorithm. It preserves immutable
+function literal classes (ADR 0121), exact original handles and eager admission.
+Scalar-only general domains exclude allocating product indices; requested-byte
+accounting includes future TLC-order arrays. Set normalization history is never
+cache authority, including when nested in a function.
