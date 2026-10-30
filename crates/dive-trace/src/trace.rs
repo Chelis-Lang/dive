@@ -67,7 +67,7 @@ impl Trace {
     pub fn logical_length(&self) -> usize {
         self.states.len().saturating_add(usize::from(matches!(
             self.ending,
-            Ending::PartialNext { .. }
+            Ending::PartialNext { .. } | Ending::PartialInit { .. }
         )))
     }
     /// Reads a [`Source::Dive`] document's values against `model`, checking

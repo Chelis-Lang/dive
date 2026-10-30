@@ -427,6 +427,7 @@ impl<'a> Run<'a> {
             Ending::TemporalStateError { .. }
                 | Ending::NextStateError { .. }
                 | Ending::PartialNext { .. }
+                | Ending::PartialInit { .. }
         ) && (!self.host.private || !self.endpoint_prepared)
         {
             return Err(Stop::Unsupported(
@@ -881,7 +882,7 @@ impl<'a> Run<'a> {
             }
             Ending::Behavior => Goal::Behavior,
             Ending::TemporalStateError { .. } => Goal::TemporalStateError,
-            Ending::NextStateError { .. } | Ending::PartialNext { .. } => Goal::NextStateError,
+            Ending::NextStateError { .. } | Ending::PartialNext { .. } | Ending::PartialInit { .. } => Goal::NextStateError,
             Ending::Lasso { back_to } => {
                 if *back_to > last {
                     return Err(invalid(last, Check::Shape, format!("the lasso loops back to state {back_to}, past the end")));
@@ -1248,6 +1249,10 @@ pub(crate) fn next_cache_domain() -> u64 {
 }
 
 impl TraceHost {
+    pub(crate) fn set_replay_level(&self, level: usize) {
+        self.level
+            .store(i64::try_from(level).unwrap_or(i64::MAX), Ordering::Relaxed);
+    }
     pub(crate) fn startup() -> Arc<Self> {
         Arc::new(Self {
             level: AtomicI64::new(0),
@@ -1505,39 +1510,7 @@ fn controlled_report(run: &mut Run<'_>, trace: &Trace) -> Result<Report, Validat
         None
     };
     let result = run.validate_result(trace);
-    if let Some((error, state, check)) = run.endpoint_exception.take() {
-        let progress = ValidationProgress {
-            checks_passed: run.passed,
-            state,
-            check: Some(check),
-        };
-        return Err(if error.class() == ErrorClass::ResourceLimit {
-            ValidationRunError::ResourceLimit { error, progress }
-        } else {
-            ValidationRunError::EvaluationFailure { error, progress }
-        });
-    }
-    let mut validation = match result {
-        Ok(validation) => validation,
-        Err(Stop::Interrupted {
-            error,
-            state,
-            check,
-        }) => {
-            return Err(ValidationRunError::Interrupted {
-                error,
-                progress: ValidationProgress {
-                    checks_passed: run.passed,
-                    state,
-                    check,
-                },
-            });
-        }
-        Err(Stop::ControlConflict(error)) => {
-            return Err(ValidationRunError::ControlConflict(error));
-        }
-        Err(other) => other.into(),
-    };
+    let mut validation = controlled_result(run, result)?;
     if validation == Validation::Valid
         && let Some(program) = endpoint
     {
@@ -1593,6 +1566,46 @@ fn controlled_report(run: &mut Run<'_>, trace: &Trace) -> Result<Report, Validat
         notes: std::mem::take(&mut run.notes).into_iter().collect(),
         length: trace.logical_length(),
     })
+}
+
+fn controlled_result(
+    run: &mut Run<'_>,
+    result: Result<Validation, Stop>,
+) -> Result<Validation, ValidationRunError> {
+    if let Some((error, state, check)) = run.endpoint_exception.take() {
+        let progress = ValidationProgress {
+            checks_passed: run.passed,
+            state,
+            check: Some(check),
+        };
+        return Err(if error.class() == ErrorClass::ResourceLimit {
+            ValidationRunError::ResourceLimit { error, progress }
+        } else {
+            ValidationRunError::EvaluationFailure { error, progress }
+        });
+    }
+    let validation = match result {
+        Ok(validation) => validation,
+        Err(Stop::Interrupted {
+            error,
+            state,
+            check,
+        }) => {
+            return Err(ValidationRunError::Interrupted {
+                error,
+                progress: ValidationProgress {
+                    checks_passed: run.passed,
+                    state,
+                    check,
+                },
+            });
+        }
+        Err(Stop::ControlConflict(error)) => {
+            return Err(ValidationRunError::ControlConflict(error));
+        }
+        Err(other) => other.into(),
+    };
+    Ok(validation)
 }
 
 fn progress(run: &Run<'_>, state: Option<usize>) -> ValidationProgress {
@@ -1724,22 +1737,29 @@ pub(crate) fn replay_next_controlled(
         i64::try_from(last.saturating_add(1)).unwrap_or(i64::MAX),
         Ordering::Relaxed,
     );
-    let mut validation =
-        crate::next_error::replay(model, state, last, ec, endpoint, run.control.as_deref())
-            .map_err(|error| match error.class() {
-                ErrorClass::Interrupted => ValidationRunError::Interrupted {
-                    error,
-                    progress: progress(&run, Some(last)),
-                },
-                ErrorClass::ResourceLimit => ValidationRunError::ResourceLimit {
-                    error,
-                    progress: progress(&run, Some(last)),
-                },
-                _ => ValidationRunError::EvaluationFailure {
-                    error,
-                    progress: progress(&run, Some(last)),
-                },
-            })?;
+    let mut validation = crate::next_error::replay(
+        model,
+        state,
+        last,
+        ec,
+        endpoint,
+        &run.host,
+        run.control.as_deref(),
+    )
+    .map_err(|error| match error.class() {
+        ErrorClass::Interrupted => ValidationRunError::Interrupted {
+            error,
+            progress: progress(&run, Some(last)),
+        },
+        ErrorClass::ResourceLimit => ValidationRunError::ResourceLimit {
+            error,
+            progress: progress(&run, Some(last)),
+        },
+        _ => ValidationRunError::EvaluationFailure {
+            error,
+            progress: progress(&run, Some(last)),
+        },
+    })?;
     if let Some(feature) = run.refusal() {
         validation = Validation::Unsupported(feature);
     }
@@ -1797,6 +1817,7 @@ pub(crate) fn replay_partial_controlled(
         &trace.states[last],
         trace.states.len(),
         endpoint,
+        &run.host,
         run.control.as_deref(),
     )
     .map_err(|error| match error.class() {
@@ -1820,6 +1841,77 @@ pub(crate) fn replay_partial_controlled(
         validation,
         notes: Vec::new(),
         length: trace.states.len().saturating_add(1),
+    })
+}
+
+pub(crate) fn replay_initial_partial_controlled(
+    model: &Model,
+    host: Arc<TraceHost>,
+    endpoint: &crate::PartialStateEndpoint,
+    control: Option<Arc<dyn dive_eval::HostControl>>,
+) -> Result<Report, ValidationRunError> {
+    let _scope = control
+        .as_ref()
+        .map(|c| model.evaluator.host_control(Some(c.clone())))
+        .transpose()
+        .map_err(ValidationRunError::ControlConflict)?;
+    let mut run = Run::private(model, host, false);
+    run.control = control;
+    run.endpoint_prepared = true;
+    run.host.set_replay_level(0);
+    run.poll(None, Some(Check::Assumption))
+        .map_err(|stop| match stop {
+            Stop::Interrupted { error, .. } => ValidationRunError::Interrupted {
+                error,
+                progress: progress(&run, None),
+            },
+            _ => ValidationRunError::EvaluationFailure {
+                error: EvalError::bug("unexpected Init partial control failure"),
+                progress: progress(&run, None),
+            },
+        })?;
+    let result = run.assumptions().map(|()| Validation::Valid);
+    let mut validation = controlled_result(&mut run, result)?;
+    if validation == Validation::Valid {
+        let empty = Arc::from([]);
+        validation = crate::partial::replay(
+            model,
+            &empty,
+            0,
+            endpoint,
+            &run.host,
+            run.control.as_deref(),
+        )
+        .map_err(|error| match error.class() {
+            ErrorClass::Interrupted => ValidationRunError::Interrupted {
+                error,
+                progress: progress(&run, None),
+            },
+            ErrorClass::ResourceLimit => ValidationRunError::ResourceLimit {
+                error,
+                progress: progress(&run, None),
+            },
+            _ => ValidationRunError::EvaluationFailure {
+                error,
+                progress: progress(&run, None),
+            },
+        })?;
+    }
+    if let Some(feature) = run.refusal() {
+        validation = Validation::Unsupported(feature);
+    }
+    if let Some(control) = &run.control {
+        control
+            .check()
+            .map_err(|error| ValidationRunError::Interrupted {
+                error: EvalError::interrupted(error),
+                progress: progress(&run, None),
+            })?;
+    }
+    Ok(Report {
+        validation,
+        notes: Vec::new(),
+        length: 1,
     })
 }
 

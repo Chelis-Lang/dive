@@ -68,6 +68,8 @@ pub struct Failure {
     pub state: Option<Vec<Handle>>,
     /// The action that emitted [`Failure::state`] (`None`: initial).
     pub action: Option<usize>,
+    /// Actual compiled Init action index; distinct from a next-state action.
+    pub init_action: Option<usize>,
     /// Whether [`Failure::state`] passed the constraints (for an invariant).
     pub in_model: bool,
     /// For [`Site::Init`] and [`Site::Next`]: the states the failing
@@ -139,6 +141,7 @@ impl Explorer<'_> {
             parent,
             state,
             action: self.action,
+            init_action: self.init_action,
             in_model: self.in_model,
             emitted: 0,
         })
@@ -153,6 +156,7 @@ impl Explorer<'_> {
             parent: (!self.initial).then(|| m.s0.clone()),
             state: None,
             action: self.action,
+            init_action: self.init_action,
             in_model: false,
             emitted: self.emitted - self.action_start,
         }
@@ -214,6 +218,7 @@ pub(crate) fn replay_after(
                 parent: Some(s0),
                 state: None,
                 action: Some(index),
+                init_action: None,
                 in_model: false,
                 emitted: sink.states.len() as u64,
             });

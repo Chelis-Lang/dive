@@ -142,7 +142,7 @@ fn core_counterexamples_equal_reference_with_explicit_unconfirmed_endings() {
     }
     let mut traced = 0;
     let mut validated = 0;
-    let mut unconfirmed_next = 0;
+    let mut ordered_next = 0;
     for spec in &all {
         let name = spec.file_stem().and_then(|n| n.to_str()).unwrap_or("?");
         let core = run(spec, Engine::Core);
@@ -167,10 +167,10 @@ fn core_counterexamples_equal_reference_with_explicit_unconfirmed_endings() {
         }
         let checked = validate(spec, trace).unwrap_or_else(|e| panic!("{name}: {e}"));
         if ["EvalErrorMidLevel", "ErNextChoose", "ErNextTypeErr"].contains(&name) {
-            // These were already unconfirmed before the endpoint lane and
-            // still need successor-side ordering. Never count them as valid.
-            assert_eq!(checked, Checked::Unconfirmed, "{name}");
-            unconfirmed_next += 1;
+            // Actual ordered candidate and diagnostic replay now supplies the
+            // proof these formerly unconfirmed generator endings lacked.
+            assert_eq!(checked, Checked::Valid, "{name}");
+            ordered_next += 1;
         }
         validated += usize::from(checked == Checked::Valid);
         traced += 1;
@@ -180,12 +180,12 @@ fn core_counterexamples_equal_reference_with_explicit_unconfirmed_endings() {
         "only {traced} core counterexamples were checked"
     );
     assert!(
-        // The same 151 words had 63 valid / 88 unconfirmed before this lane;
-        // the bounded implementation validates 99 and leaves 52 unconfirmed.
-        validated >= 99,
+        // Measured ordered/partial inventory: 110 valid of 153 documents.
+        // Unknown endings remain outside this independently validated floor.
+        validated >= 110,
         "only {validated} core counterexamples independently validated ({traced} checked)"
     );
-    assert_eq!(unconfirmed_next, 3);
+    assert_eq!(ordered_next, 3);
     eprintln!(
         "core counterexamples: {validated} valid, {} unconfirmed, {traced} checked",
         traced - validated

@@ -2355,6 +2355,22 @@ match its actual underlying code and original source context. Fresh Recipe
 bindings and cache/name domains follow ADR 0103's artifact-independence policy;
 source descriptors and matching result metadata supply no execution authority.
 
+### Ordered terminal demand and diagnostic replay
+
+ADR 0125 follows TLC `94d0c5070852b37b801bb8998c436383ab7ee37b` (MIT),
+`tlc2/tool/Worker.doNext`, `ModelChecker.doNextSetErr`, `doNext`, and `doInit`:
+completeness before candidate checks; model/action constraints before fingerprint
+and invariant demand; diagnostic action generation before checking its retained
+candidates. The independent driver reuses `dive-eval::next`, never checker BFS,
+seen sets or stores. Constructor provenance follows TLC `EvalException` versus
+`Assert.TLCRuntimeException`, including `Naturals.Divide`/`Integers.Divide`'s
+typed division-by-zero exception; no message-derived constructor inference is
+used. The controlled fingerprint helper reuses existing closed materialized
+value traversal and TLC fingerprint folding. Source-context descriptors request
+proof; only actual private source execution establishes it. Partial Init uses
+actual emitted assignments/action identity, preserving TLC's absent formal
+counterexample and exposing optional untrusted native evidence separately.
+
 ### Partial terminal candidates (#607)
 
 `dive-check::engine::trace_state`, the core trace adapter and ADR 0123 preserve

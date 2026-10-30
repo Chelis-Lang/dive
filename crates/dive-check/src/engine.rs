@@ -659,6 +659,10 @@ pub(crate) fn incomplete(m: &Model, succ: &Successor<'_>, initial: bool, ctx: Ct
         initial,
         variables,
         message,
+        initial_candidate: initial.then(|| crate::PartialState {
+            values: succ.state.to_vec(),
+            expression: succ.action.expr(),
+        }),
     }
 }
 

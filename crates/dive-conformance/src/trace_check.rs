@@ -173,7 +173,20 @@ pub fn validate_counterexample(
                     ec: Some("TLC_INVARIANT_EVALUATION_FAILED".to_owned()),
                 })
         }
-        Some(Ending::TemporalStateError { ec, .. } | Ending::NextStateError { ec, .. }) => {
+        Some(Ending::NextStateError { ec, endpoint }) => {
+            let expected = match endpoint.deciding_code() {
+                Some(2103) => Some(Ending::Error {
+                    ec: Some("TLC_NESTED_EXPRESSION".into()),
+                }),
+                Some(2132) => Some(Ending::Assertion),
+                _ if ec == "TLC_VALUE_ASSERT_FAILED" => Some(Ending::Assertion),
+                _ => Some(Ending::Error {
+                    ec: Some(ec.clone()),
+                }),
+            };
+            reported == expected
+        }
+        Some(Ending::TemporalStateError { ec, .. }) => {
             reported
                 == Some(Ending::Error {
                     ec: Some(ec.clone()),

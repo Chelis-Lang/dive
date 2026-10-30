@@ -85,13 +85,24 @@ descriptor selects no action or expression to evaluate. For example:
 {"kind":"error","ec":"TLC_MODULE_DIVISION_BY_ZERO","endpoint":{"stage":"next-before-successor","source":{"module":"M","start":40,"end":49,"instance":null}}}
 ```
 
-This first lane retains explicit instantiated-origin, VIEW, symmetry, temporal, effect and
-partial-state refusals. It does not certify a diagnostic replay wrapper or
-checker counts, and gives class 2103 no blanket exemption. The payload remains
-version 1 with an optional endpoint; existing version-1/2 meanings are unchanged.
-Generic errors without a source endpoint keep their existing unsupported result.
-Reached action composition is refused before generating intermediate states in
-both composition modes; an untaken composition branch alone does not refuse replay.
+The legacy stage retains its before-first-candidate meaning. New producers can
+request `next-ordered-terminal` (ADR 0125), adding `reported` and `deciding`
+integer codes to the source descriptor. Independent replay must observe the
+same primary error and then actually run the per-action diagnostic sequence to
+establish those codes. Changing the source, underlying class or wrapper claims
+refutes the word. Matching report metadata alone grants no proof. Exact
+assertion 2132 also requires this actual replay. Complete words remain version 1;
+versions 1/2 keep their existing meanings.
+
+Earlier complete candidates receive ordered completeness, constraint,
+action-constraint, fingerprint and safety demands. Unknown global newness or
+alias history, raw/symbolic fingerprint representations, VIEW, symmetry,
+temporal obligations and executed effects remain named refusals. Reached action
+composition refuses before intermediate collection in both modes; an untaken
+composition branch alone does not refuse. Other terminal evaluation sites gain
+no wrapper exemption. Generic errors without a source endpoint remain unsupported.
+An independently valid word does not certify checker counts or turn an
+unclassified pinned TLC result into parity.
 
 A Next action that leaves variables unassigned can carry a version-3 partial
 terminal descriptor (ADR 0123). Its `states` array holds only the complete prefix;
@@ -111,15 +122,26 @@ dive validate-trace crates/dive-check/tests/fixtures/errors/specs/ErNextIncomple
 Validation separately reconstructs the complete prefix and terminal generator
 on fresh runtimes, requiring the first incomplete candidate's exact assignments
 and source. Every complete prefix row must pass configured constraints,
-invariants and implied safety properties before terminal replay. This first
-slice refuses any earlier complete candidate, whose
-ordered candidate checks still need implementation. `RoActions` and `SplitThrows`
-therefore have real words but remain unconfirmed; Init partial words and other
-terminal-error families remain separate work. Version 3 is reserved for this
-partial terminal form. Existing meanings/output of versions 1 and 2 stay
-unchanged, and older readers must refuse version 3. Use `logical_length()` for
-the whole word rather than counting only its complete rows. Resource and control
-failures still return no completed validation report.
+invariants and implied safety properties before terminal replay. Earlier complete
+candidates now receive the same bounded ordered demands, so `RoActions` and
+`SplitThrows` validate alongside the other eight original Next cases. Unknown
+newness/alias or unsupported demand still refuses rather than skipping checks.
+Version 3 is reserved for partial terminal bindings; older readers must refuse
+it. Use `logical_length()` rather than counting complete rows. Resource/control
+failures return no completed validation report.
+
+An incomplete Init can provide optional schema-3 `error_witness`, while its
+formal `counterexample` remains null. Extract `error_witness` instead of
+`counterexample.trace` in the example above and use fixture `ErInitIncomplete`.
+Its initial error exits 255. The native version-3 word has no complete rows,
+logical length one, and `init-partial-state` with EC `TLC_INITIAL_STATE`.
+Validation reconstructs actual Init actions and requires their first partial
+candidate's source and exact assignment partition, with earlier-event priority.
+The first complete Init candidate can receive safety checks; later candidates
+requiring global newness refuse. The producer captures scalar bindings under
+the existing budget and leaves compound/unavailable evidence explicitly
+unconfirmed. Optional evidence never changes the primary result or verified
+flags; source-bound validation is still required.
 
 Rust callers must use `SpecModel::try_validate`/`try_read`, or the corresponding
 fresh `dive_trace::Session` fallible/controlled entrypoint, for these endpoints.
