@@ -643,6 +643,9 @@ fn check_file_in(
     } else {
         check_backend(&ir, &model, &armed, req.temporal, req.periodic)
     };
+    if report.core.is_some() && req.temporal == TemporalMode::Ordinary {
+        report.temporal_configuration = crate::temporal::core_file_configuration();
+    }
     if let Phase::Checked(result) = &report.phase
         && let Verdict::EvaluationError {
             site: dive_check::ErrorSite::Next,
@@ -674,6 +677,7 @@ impl From<crate::core_engine::CoreOutcome> for Phase {
         match outcome {
             crate::core_engine::CoreOutcome::Checked(r) => Self::Checked(r),
             crate::core_engine::CoreOutcome::Temporal(r) => Self::Temporal(r),
+            crate::core_engine::CoreOutcome::TemporalFailure(f) => Self::TemporalError(f),
         }
     }
 }

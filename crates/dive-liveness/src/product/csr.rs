@@ -114,20 +114,31 @@ impl RowStorage for OwnedRows {
 const SIZE: ProductError = ProductError::Limit("product adjacency bytes");
 const ALLOCATION: ProductError = ProductError::Limit("product adjacency allocation");
 
-fn reserve<T>(count: usize) -> Result<Vec<T>, ProductError> {
+pub(super) fn reserve<T>(count: usize) -> Result<Vec<T>, ProductError> {
+    poll()?;
     count.checked_mul(size_of::<T>()).ok_or(SIZE)?;
     let mut values = Vec::new();
     values.try_reserve_exact(count).map_err(|_| ALLOCATION)?;
     Ok(values)
 }
 
-fn grow<T>(values: &mut Vec<T>, additional: usize) -> Result<(), ProductError> {
+pub(super) fn grow<T>(values: &mut Vec<T>, additional: usize) -> Result<(), ProductError> {
     values
         .len()
         .checked_add(additional)
         .and_then(|n| n.checked_mul(size_of::<T>()))
         .ok_or(SIZE)?;
-    values.try_reserve(additional).map_err(|_| ALLOCATION)
+    poll()?;
+    values.try_reserve(additional).map_err(|_| ALLOCATION)?;
+    poll()
+}
+
+pub(super) fn poll() -> Result<(), ProductError> {
+    if crate::budget::exhausted() {
+        Err(ProductError::Limit(crate::budget::EXHAUSTED))
+    } else {
+        Ok(())
+    }
 }
 
 /// Root/pair discovery can precede row expansion. `vertices` counts admitted

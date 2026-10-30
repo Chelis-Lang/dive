@@ -12,7 +12,7 @@ use dive_trace::{
 };
 
 use super::{
-    Error, Failure, Outcome, Report, Stage, bind_controlled, core_report, file_configuration,
+    Error, Failure, Outcome, Report, Stage, bind_controlled, core_file_configuration, core_report,
     validate_native_document, validation_binding_failure, validation_checkpoint,
     validation_control, validation_run_error,
 };
@@ -220,7 +220,7 @@ pub(crate) fn core_native_report(
         // Reuse the existing error/Safety transport. This branch constructs no
         // graph or completed result, and retains the actual failure facts.
         Err(failure) => {
-            return core_report(
+            let result = core_report(
                 ir,
                 config,
                 options,
@@ -229,6 +229,15 @@ pub(crate) fn core_native_report(
                 symmetry_liveness,
                 started,
             );
+            return result
+                .map(|mut report| {
+                    report.configuration = Some(core_file_configuration());
+                    report
+                })
+                .map_err(|mut failure| {
+                    failure.configuration = Some(Box::new(core_file_configuration()));
+                    failure
+                });
         }
     };
     match outcome(ir, config, options, analysis) {
@@ -239,16 +248,45 @@ pub(crate) fn core_native_report(
             elapsed: started.elapsed(),
             periodic: periodic.then_some(checks),
             memory_samples: options.budget.memory_samples(),
-            configuration: Some(file_configuration()),
+            configuration: Some(core_file_configuration()),
         }),
         Err(mut failure) => {
             failure.elapsed = started.elapsed();
             failure.periodic = periodic.then(|| Box::new(checks));
-            failure.configuration = Some(Box::new(file_configuration()));
+            failure.configuration = Some(Box::new(core_file_configuration()));
             failure.symmetry_liveness = Some(Box::new(symmetry_liveness));
             Err(failure)
         }
     }
+}
+
+/// Retains the actual producer boundary when a checked capture factory is
+/// interrupted. No completion evidence is manufactured by this failure path.
+pub(crate) fn core_capture_stop(
+    verdict: dive_check::Verdict,
+    safety: &CheckResult,
+    completed: bool,
+    started: Instant,
+) -> Failure {
+    let error = match verdict {
+        dive_check::Verdict::Stopped(stopped) => {
+            dive_liveness::analyze::AnalysisError::Stopped(stopped)
+        }
+        dive_check::Verdict::BudgetMeasurement { error } => {
+            dive_liveness::analyze::AnalysisError::BudgetMeasurement(error)
+        }
+        _ => dive_liveness::analyze::AnalysisError::Inconsistent("non-budget capture stop"),
+    };
+    let mut failure = Failure::before(
+        Error::Analysis(error),
+        Stage::Analysis(dive_liveness::analyze::Stage::Capture),
+    );
+    failure.exploration = safety.stats.map(|stats| Box::new(facts(safety, stats)));
+    failure.incomplete = !completed;
+    failure.elapsed = started.elapsed();
+    failure.configuration = Some(Box::new(core_file_configuration()));
+    failure.symmetry_liveness = safety.symmetry_liveness.clone().map(Box::new);
+    failure
 }
 
 #[cfg(test)]

@@ -60,6 +60,36 @@ impl GraphAccess for Graph {
     }
 }
 
+// Public graph-only methods retain their infallible allocation contract;
+// coordinated searches supply a typed allocation failure as well as their poll.
+fn component_grow<T, E>(
+    values: &mut Vec<T>,
+    n: usize,
+    allocation: Option<fn() -> E>,
+) -> Result<(), E> {
+    if let Some(error) = allocation {
+        values.try_reserve(n).map_err(|_| error())
+    } else {
+        values.reserve(n);
+        Ok(())
+    }
+}
+
+fn component_array<T: Clone, E>(
+    n: usize,
+    value: T,
+    poll: &mut impl FnMut() -> Result<(), E>,
+    allocation: Option<fn() -> E>,
+) -> Result<Vec<T>, E> {
+    let mut values = Vec::new();
+    component_grow(&mut values, n, allocation)?;
+    while values.len() < n {
+        poll()?;
+        values.resize(values.len().saturating_add(1024).min(n), value.clone());
+    }
+    Ok(values)
+}
+
 impl Graph {
     /// Checks all references before accepting the graph.
     ///
@@ -93,7 +123,7 @@ impl Graph {
     /// not a liveness violation until its acceptance conditions are checked.
     #[must_use]
     pub fn components(&self) -> Vec<Vec<usize>> {
-        match self.try_components(|| Ok::<(), std::convert::Infallible>(())) {
+        match self.try_components(|| Ok::<(), std::convert::Infallible>(()), None) {
             Ok(components) => components,
             Err(never) => match never {},
         }
@@ -104,12 +134,13 @@ impl Graph {
     pub(crate) fn try_components<E>(
         &self,
         mut poll: impl FnMut() -> Result<(), E>,
+        allocation: Option<fn() -> E>,
     ) -> Result<Vec<Vec<usize>>, E> {
         poll()?;
         let n = self.edges.len();
-        let mut index = vec![None; n];
-        let mut low = vec![0; n];
-        let mut active = vec![false; n];
+        let mut index = component_array(n, None, &mut poll, allocation)?;
+        let mut low = component_array(n, 0, &mut poll, allocation)?;
+        let mut active = component_array(n, false, &mut poll, allocation)?;
         let mut stack = Vec::new();
         let mut dfs: Vec<(usize, usize)> = Vec::new();
         let mut next_index = 0;
@@ -123,6 +154,8 @@ impl Graph {
             low[root] = next_index;
             next_index += 1;
             active[root] = true;
+            component_grow(&mut stack, 1, allocation)?;
+            component_grow(&mut dfs, 1, allocation)?;
             stack.push(root);
             dfs.push((root, 0));
             while let Some((v, edge)) = dfs.last_mut() {
@@ -139,6 +172,8 @@ impl Graph {
                         low[target] = next_index;
                         next_index += 1;
                         active[target] = true;
+                        component_grow(&mut stack, 1, allocation)?;
+                        component_grow(&mut dfs, 1, allocation)?;
                         stack.push(target);
                         dfs.push((target, 0));
                     }
@@ -150,12 +185,14 @@ impl Graph {
                     while let Some(member) = stack.pop() {
                         poll()?;
                         active[member] = false;
+                        component_grow(&mut component, 1, allocation)?;
                         component.push(member);
                         if member == v {
                             break;
                         }
                     }
                     component.sort_unstable();
+                    component_grow(&mut out, 1, allocation)?;
                     out.push(component);
                 }
                 if let Some(&(parent, _)) = dfs.last() {

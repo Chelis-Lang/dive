@@ -86,6 +86,8 @@ pub(crate) enum CoreOutcome {
     Checked(Box<CheckResult>),
     /// A temporal report, finished by the reference engine's path.
     Temporal(Box<crate::temporal::Report>),
+    /// A real temporal resource stop with actual execution facts.
+    TemporalFailure(Box<crate::temporal::Failure>),
 }
 
 impl CoreOutcome {
@@ -93,7 +95,7 @@ impl CoreOutcome {
     pub(crate) fn checked(&self) -> Option<&CheckResult> {
         match self {
             Self::Checked(r) => Some(r),
-            Self::Temporal(_) => None,
+            Self::Temporal(_) | Self::TemporalFailure(_) => None,
         }
     }
 }
@@ -1141,7 +1143,7 @@ pub(crate) fn check(
         );
         return match outcome {
             CoreOutcome::Checked(r) => (finish(*r), run),
-            t @ CoreOutcome::Temporal(_) => (t, run),
+            t @ (CoreOutcome::Temporal(_) | CoreOutcome::TemporalFailure(_)) => (t, run),
         };
     }
     let Prepared {

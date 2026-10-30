@@ -57,7 +57,15 @@ outlives capture, but the native graph, converter, store and plan owners are
 released before a freshly bound model independently replays both the typed word
 and serialized trace. Invalid or interrupted validation publishes no violation.
 
-Fixed capture counts, resource guards and existing core admission refusals remain.
+Ordinary core file requests use the actual `--time-limit` and `--max-memory`
+budgets across capture, analysis and validation, rather than artificial state,
+edge, generated-state, product-work, acceptance or attribution/word count ceilings.
+Checked machine layouts, 32-bit native row/vertex ids and fallible growth remain;
+parallel capture still expands at most eight sources per wave. Budget stops
+retain actual statistics, stage and capture-completion truth and never trigger
+an automatic retry on the reference engine. Explicit Rust limits, reference
+routes, final/short selection and formula/tableau/property planning bounds retain
+their existing policies. Existing core admission refusals remain.
 VIEW/symmetry quotient semantics, effects and temporal error-demand order are
 separate limitations. A core refusal is explicit; `--engine auto` can retry the
 reference route and reports fallback. This implementation establishes no larger
@@ -139,7 +147,8 @@ requests with excluded dive-profile options retain their existing routes and nam
 refusals. Real unsupported language features and resource limits remain explicit;
 a refusal, bound or external timeout is never a holding result.
 
-File-based temporal checking uses 8,000,000 covered acceptance-buffer bytes and
+Reference file-based temporal checking and explicit final/short selection use
+8,000,000 covered acceptance-buffer bytes and
 32,000,000 independent acceptance materialization work units, in both profiles.
 Packed words, column headers, optional edge offsets and Boolean scratch count;
 capture, labels, graph construction, search, runtime and allocator overhead do
@@ -166,8 +175,9 @@ explicit zero, exact boundaries and an explicitly supplied former default.
 Callers can already supply `usize::MAX` when they want machine-index capacity.
 No numeric value is interpreted as permission to ignore the admission check.
 
-Product edges, transition work, acceptance buffers, captured graph, tableau,
-attribution and periodic-word bounds retain their independent settings. Checked
+Outside the ordinary core file route described above, product edges, transition
+work, acceptance buffers, captured graph, tableau, attribution and periodic-word
+bounds retain their independent settings. Checked
 size/layout arithmetic and existing fallible reservations remain in place.
 Whole-process time and memory budgets retain their documented cooperative and
 sampling limits: individual allocations and uninterruptible units can still

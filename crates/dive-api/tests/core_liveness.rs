@@ -37,6 +37,35 @@ fn run(name: &str, engine: Engine, workers: usize, tlc: bool, every_level: bool)
         .to_json()
 }
 
+/// Assert the intentionally different native capacity policy while every other
+/// configuration and observable remains in the reference comparison.
+fn native_expected(mut v: Value) -> Value {
+    // Ordinary native files intentionally replace inherited count
+    // bounds with machine capacity. Assert every changed field,
+    // keeping all planning and reference settings compared.
+    if v["options"]["temporal_bounds"].is_object() {
+        let bounds = &mut v["options"]["temporal_bounds"];
+        for field in [
+            "states",
+            "edges",
+            "product_vertices",
+            "product_edges",
+            "product_steps",
+            "acceptance_buffer_bytes",
+            "acceptance_materialization_work",
+        ] {
+            bounds[field] = Value::from(usize::MAX);
+        }
+        bounds["generated"] = Value::from(u64::MAX);
+        bounds["successors_per_unit"] = Value::from(u64::MAX);
+        bounds["cell_limits"]["attribution_rows"]["cells"] = Value::from(usize::MAX);
+        bounds["cell_limits"]["word_truth"]["cells"] = Value::from(usize::MAX);
+        bounds["acceptance_policy"]["bytes"] = Value::from(usize::MAX);
+        bounds["acceptance_policy"]["materialization_work"] = Value::from(usize::MAX);
+    }
+    comparable(v)
+}
+
 /// The report without what legitimately differs: timings, memory samples,
 /// the engine's own fields, and the reference engine's fingerprint
 /// collision estimate, which the core does not report (on safety runs
@@ -74,7 +103,7 @@ fn temporal_reports_on_the_core_are_the_reference_reports() {
                     let core = run(name, Engine::Core, workers, tlc, every_level);
                     assert_eq!(core["engine"], "core", "{name}: {core:#}");
                     let what = format!("{name} tlc={tlc} every={every_level} w={workers}");
-                    let mut expected = comparable(reference.clone());
+                    let mut expected = native_expected(reference.clone());
                     let got = comparable(core);
                     // The worker request is the run's own.
                     expected["options"]["workers"] = got["options"]["workers"].clone();
@@ -147,7 +176,7 @@ fn temporal_atoms_keep_general_functions_distinct_from_record_literals() {
                     "{property} tlc={tlc} w={workers}: {core:#}"
                 );
                 let got = comparable(core);
-                let mut expected = comparable(reference.clone());
+                let mut expected = native_expected(reference.clone());
                 expected["options"]["workers"] = got["options"]["workers"].clone();
                 if let Some(workers) = got.get("workers") {
                     expected["workers"] = workers.clone();

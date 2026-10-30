@@ -725,3 +725,50 @@ fn all_small_complete_tableaux_match_independent_language_and_full_witness() {
         }
     }
 }
+
+#[test]
+fn actual_budget_stops_acceptance_materialization_without_a_count_ceiling() {
+    use crate::product::csr::OwnedGraph;
+    let graph = Graph::new(vec![vec![0]], vec![0]).expect("graph");
+    let retained = OwnedGraph {
+        graph: graph.clone(),
+        original_edges: vec![vec![0]],
+    };
+    let pairs = [(0, 0)];
+    let order = [0];
+    let input = Ordered {
+        pairs: &pairs,
+        order: &order,
+        graph: &retained,
+        edge_count: 1,
+        scratch_len: 0,
+    };
+    let t = tableau(1);
+    let labels = Labels {
+        states: vec![],
+        actions: vec![],
+    };
+    let run = || {
+        materialize(
+            &input,
+            &t,
+            &labels,
+            &[],
+            usize::MAX,
+            usize::MAX,
+            ((&graph).into(), 1),
+        )
+    };
+    {
+        let watchdog = crate::budget::expired_for_test();
+        let _scope = crate::budget::enter(watchdog.budget());
+        assert!(matches!(
+            run(),
+            Err(ProductError::Limit(crate::budget::EXHAUSTED))
+        ));
+    }
+    assert!(
+        run().is_ok(),
+        "the restored owner can materialize exact promise bits"
+    );
+}

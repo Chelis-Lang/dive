@@ -85,11 +85,37 @@ pub(crate) fn check(
     route: Route,
     run: &mut CoreRun,
 ) -> CoreOutcome {
+    check_configured(
+        ir,
+        config,
+        options,
+        (profile_tlc, core_opts),
+        prepared,
+        route,
+        run,
+        crate::temporal::core_file_configuration(),
+    )
+}
+
+#[allow(
+    clippy::too_many_arguments,
+    clippy::too_many_lines,
+    reason = "one producer route with injectable exact caller resource controls"
+)]
+fn check_configured(
+    ir: &Arc<Ir>,
+    config: &dive_config::ModelConfig,
+    options: &CheckOptions,
+    (profile_tlc, core_opts): (bool, dive_core::Opts),
+    prepared: Prepared,
+    route: Route,
+    run: &mut CoreRun,
+    configuration: crate::temporal::Configuration,
+) -> CoreOutcome {
     let started = Instant::now();
     if let Some(feature) = static_refusal(ir, config, options, &prepared) {
         return refused(feature, options, ir);
     }
-    let configuration = crate::temporal::file_configuration();
     let Prepared {
         model,
         host: _,
@@ -98,15 +124,30 @@ pub(crate) fn check(
         plan,
         compile_time,
     } = prepared;
-    let Ok(mut graph_check) = GraphCheck::prepare(
+    let mut graph_check = match GraphCheck::prepare(
         &model,
         options,
         configuration.limits,
         configuration.acceptance,
         configuration.graph_labels,
         route,
-    ) else {
-        return refused("a temporal planning failure (core)", options, ir);
+    ) {
+        Ok(check) => check,
+        Err(failure) => {
+            return report_outcome(
+                crate::temporal::core_native_report(
+                    ir,
+                    config,
+                    options,
+                    Err(*failure),
+                    route.is_some(),
+                    model.symmetry_liveness().clone(),
+                    started,
+                ),
+                options,
+                ir,
+            );
+        }
     };
     let workers = options.workers.max(1);
     let budget = &options.budget;
@@ -134,8 +175,10 @@ pub(crate) fn check(
     ) {
         Ok(sink) => sink,
         Err(verdict @ (Verdict::Stopped(_) | Verdict::BudgetMeasurement { .. })) => {
-            return CoreOutcome::Checked(Box::new(crate::core_engine::result(
-                verdict, options, ir,
+            let mut safety = crate::core_engine::result(verdict.clone(), options, ir);
+            safety.symmetry_liveness = Some(model.symmetry_liveness().clone());
+            return CoreOutcome::TemporalFailure(Box::new(crate::temporal::core_capture_stop(
+                verdict, &safety, false, started,
             )));
         }
         Err(Verdict::InternalError { message }) => return internal(&message, options, ir),
@@ -194,7 +237,17 @@ pub(crate) fn check(
         workers,
         explore_started,
     };
+    let producer_stats = out.stats;
     let mut safety = crate::core_engine::safety_result(&search, &model, &store, &plan, start, out);
+    if matches!(safety.verdict, Verdict::BudgetMeasurement { .. }) {
+        safety.stats = Some(dive_check::Stats {
+            generated: producer_stats.generated,
+            distinct: producer_stats.distinct,
+            left_on_queue: producer_stats.left_on_queue,
+            depth: producer_stats.depth,
+            initial_generated: producer_stats.initial_generated,
+        });
+    }
     if graph_stopped {
         match graph_error {
             Some(verdict @ (Verdict::Stopped(_) | Verdict::BudgetMeasurement { .. })) => {
@@ -220,12 +273,25 @@ pub(crate) fn check(
     }
     if safety.verdict != Verdict::Success {
         record_metrics(run, &graph, &values);
+        safety.symmetry_liveness = Some(model.symmetry_liveness().clone());
+        if matches!(
+            safety.verdict,
+            Verdict::Stopped(_) | Verdict::BudgetMeasurement { .. }
+        ) {
+            return CoreOutcome::TemporalFailure(Box::new(crate::temporal::core_capture_stop(
+                safety.verdict.clone(),
+                &safety,
+                false,
+                started,
+            )));
+        }
         // A safety ending, a stop or a refusal: reported as the reference
         // engine's temporal route reports it, never a temporal verdict, with
         // the bound model's symmetry resolution.
         safety.symmetry_liveness = Some(model.symmetry_liveness().clone());
         return CoreOutcome::Checked(Box::new(safety));
     }
+    let captured_safety = safety.clone();
     let analysis = finish(
         &graph,
         &mut values,
@@ -238,6 +304,14 @@ pub(crate) fn check(
     record_metrics(run, &graph, &values);
     let analysis = match analysis {
         Ok(a) => a,
+        Err(verdict @ (Verdict::Stopped(_) | Verdict::BudgetMeasurement { .. })) => {
+            return CoreOutcome::TemporalFailure(Box::new(crate::temporal::core_capture_stop(
+                verdict,
+                &captured_safety,
+                prefix.is_none(),
+                started,
+            )));
+        }
         Err(Verdict::InternalError { message }) => return internal(&message, options, ir),
         Err(v) => {
             return refused(
@@ -247,7 +321,14 @@ pub(crate) fn check(
             );
         }
     };
-    if analysis.is_err() {
+    if analysis.as_ref().is_err_and(|failure| {
+        !matches!(
+            failure.failure.failure().error,
+            dive_liveness::analyze::AnalysisError::Stopped(_)
+                | dive_liveness::analyze::AnalysisError::BudgetMeasurement(_)
+                | dive_liveness::analyze::AnalysisError::BudgetStartup(_)
+        )
+    }) {
         return refused(
             "a temporal failure (core): its report is the reference engine's for now",
             options,
@@ -260,19 +341,43 @@ pub(crate) fn check(
     drop(graph);
     drop(plan);
     drop(store);
-    match crate::temporal::core_native_report(
-        ir,
-        config,
+    report_outcome(
+        crate::temporal::core_native_report(
+            ir,
+            config,
+            options,
+            analysis,
+            route.is_some(),
+            model.symmetry_liveness().clone(),
+            started,
+        ),
         options,
-        analysis,
-        route.is_some(),
-        model.symmetry_liveness().clone(),
-        started,
-    ) {
+        ir,
+    )
+}
+
+fn report_outcome(
+    result: Result<crate::temporal::Report, crate::temporal::Failure>,
+    options: &CheckOptions,
+    ir: &Ir,
+) -> CoreOutcome {
+    match result {
         Ok(report) => match report.outcome() {
             crate::temporal::Outcome::Safety(result) => CoreOutcome::Checked(result.clone()),
             _ => CoreOutcome::Temporal(Box::new(report)),
         },
+        Err(failure)
+            if matches!(
+                failure.error(),
+                crate::temporal::Error::Analysis(
+                    dive_liveness::analyze::AnalysisError::Stopped(_)
+                        | dive_liveness::analyze::AnalysisError::BudgetMeasurement(_)
+                        | dive_liveness::analyze::AnalysisError::BudgetStartup(_)
+                )
+            ) =>
+        {
+            CoreOutcome::TemporalFailure(Box::new(failure))
+        }
         Err(_) => refused(
             "a temporal validation failure (core): its report is the reference engine's for now",
             options,
@@ -291,12 +396,17 @@ type Analysis = Result<
 fn finish(
     graph: &NativeGraph,
     values: &mut NativeValues<'_>,
-    graph_check: GraphCheck<'_>,
+    mut graph_check: GraphCheck<'_>,
     safety: CheckResult,
     prefix: Option<u64>,
     options: &CheckOptions,
     control: &EvaluationControl,
 ) -> Result<Analysis, Verdict> {
+    if prefix.is_some()
+        && let Some(failure) = graph_check.take_native_prefix_failure(&safety)
+    {
+        return Ok(Err(*failure));
+    }
     let mut read = |row, control: &EvaluationControl| values.read(graph.row(row)?, control);
     if let Some(level) = prefix {
         let prefix = CsrPrefix::from_producer(
@@ -334,7 +444,7 @@ fn record_metrics(run: &mut CoreRun, graph: &NativeGraph, values: &NativeValues<
                 "storage": "native-csr", "graph_states": graph.state_count(),
                 "convert_ms": conversion["convert_ms"],
                 "converted_nodes": conversion["converted_values"],
-                "memo_entries": 0,
+                "memo_entries": conversion["cache_entries"],
                 "values": conversion,
                 "memory": {
                     "fixed_bytes": memory.fixed_bytes,
@@ -360,3 +470,7 @@ fn internal(message: &str, options: &CheckOptions, ir: &Ir) -> CoreOutcome {
         ir,
     )))
 }
+
+#[cfg(test)]
+#[path = "core_temporal_resource_tests.rs"]
+mod resource_tests;
