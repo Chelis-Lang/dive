@@ -16,15 +16,25 @@ fn input(
     body: &str,
     options: Options,
 ) -> Result<(Session, dive_model::Model), Box<dyn std::error::Error>> {
+    configured_input(body, "", options)
+}
+
+fn configured_input(
+    body: &str,
+    extra: &str,
+    options: Options,
+) -> Result<(Session, dive_model::Model), Box<dyn std::error::Error>> {
     let source =
         format!("---- MODULE Partial ----\nEXTENDS Naturals,TLC\nVARIABLES x,y\n{body}\n====\n");
     let analysis =
         dive_sema::analyze_source("Partial.tla", &source, &dive_sema::Options::default());
     assert!(analysis.accepted(), "{analysis:?}");
     let ir = Arc::new(dive_ir::lower(&analysis)?);
-    let config = dive_config::parse("INIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n")
-        .into_config()
-        .ok_or("config")?;
+    let config = dive_config::parse(&format!(
+        "INIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n{extra}\n"
+    ))
+    .into_config()
+    .ok_or("config")?;
     let model = dive_model::bind(
         ir.clone(),
         &config,
@@ -39,13 +49,130 @@ fn input(
     ))
 }
 
+fn init_request(model: &dive_model::Model) -> Result<TraceDoc, Box<dyn std::error::Error>> {
+    let mut endpoint = None;
+    model
+        .evaluator
+        .init_states(&model.init_actions, &mut |candidate| {
+            if candidate.complete() {
+                return dive_eval::next::Flow::Continue;
+            }
+            let mut assignments = serde_json::Map::new();
+            let mut unassigned = Vec::new();
+            for (name, value) in dive_trace::variables(model).iter().zip(candidate.state) {
+                if let Some(value) = value {
+                    assignments.insert(
+                        name.clone(),
+                        dive_trace::value_json::to_json(value, model.evaluator.options().ctx)
+                            .unwrap_or(json!(null)),
+                    );
+                } else {
+                    unassigned.push(name.clone());
+                }
+            }
+            endpoint = dive_trace::PartialStateEndpoint::from_initial_candidate(
+                &model.ir,
+                candidate.action.expr(),
+                assignments,
+                unassigned,
+            );
+            dive_eval::next::Flow::Stop
+        })?;
+    Ok(TraceDoc {
+        variables: dive_trace::variables(model),
+        states: Vec::new(),
+        labels: Vec::new(),
+        ending: Some(Ending::PartialInit {
+            endpoint: endpoint.ok_or("initial partial candidate")?,
+        }),
+        length: Some(1),
+        source: dive_trace::Source::Dive,
+        properties: Vec::new(),
+    })
+}
+
+#[test]
+fn init_partial_completeness_precedes_checks_and_respects_control() -> TestResult {
+    for options in [Options::dive(), Options::tlc()] {
+        let (first, first_model) = configured_input(
+            "Init == x=0\nNext == x'=x /\\ y'=y\nInv == x#0",
+            "INVARIANT Inv",
+            options,
+        )?;
+        let doc = init_request(&first_model)?;
+        assert_eq!(first.try_read(&doc)?.0.validation, Validation::Valid);
+        let control = Arc::new(StopAfter {
+            calls: AtomicUsize::new(0),
+            limit: usize::MAX,
+        });
+        assert_eq!(
+            first.read_controlled(&doc, control.clone())?.0.validation,
+            Validation::Valid
+        );
+        let calls = control.calls.load(Ordering::SeqCst);
+        assert!(calls > 2);
+        for limit in [0, calls - 1] {
+            assert!(matches!(
+                first.read_controlled(
+                    &doc,
+                    Arc::new(StopAfter {
+                        calls: AtomicUsize::new(0),
+                        limit
+                    })
+                ),
+                Err(ValidationRunError::Interrupted { .. })
+            ));
+        }
+        let mut bad = doc.clone();
+        bad.properties.push("Fake".into());
+        let report = first.try_read(&bad)?.0;
+        assert!(matches!(report.validation, Validation::Invalid(_)));
+        assert_eq!(report.length, 1);
+        let (earlier, earlier_model) = configured_input(
+            "Init == (x=0 /\\ y=0) \\/ x=1\nNext == x'=x /\\ y'=y\nInv == x#0",
+            "INVARIANT Inv",
+            options,
+        )?;
+        assert!(
+            matches!(earlier.try_read(&init_request(&earlier_model)?)?.0.validation,Validation::Invalid(ref failure) if failure.check==dive_trace::Check::Invariant)
+        );
+        let (assumption, assumption_model) =
+            input("ASSUME FALSE\nInit == x=0\nNext == x'=x /\\ y'=y", options)?;
+        assert!(
+            matches!(assumption.try_read(&init_request(&assumption_model)?)?.0.validation,Validation::Invalid(ref failure) if failure.check==dive_trace::Check::Assumption)
+        );
+        let (newness, newness_model) = configured_input(
+            "Init == (x \\in {0,1} /\\ y=0) \\/ x=2\nNext == x'=x /\\ y'=y\nInv == x>=0",
+            "INVARIANT Inv",
+            options,
+        )?;
+        assert!(
+            matches!(newness.try_read(&init_request(&newness_model)?)?.0.validation,Validation::Unsupported(ref feature) if feature.contains("newness"))
+        );
+        let (effects, effects_model) = input(
+            "Init == PrintT(\"unconfirmed\") /\\ x=0\nNext == x'=x /\\ y'=y",
+            options,
+        )?;
+        assert!(matches!(
+            effects
+                .try_read(&init_request(&effects_model)?)?
+                .0
+                .validation,
+            Validation::Unsupported(_)
+        ));
+    }
+    Ok(())
+}
+
 fn request(model: &dive_model::Model) -> Result<TraceDoc, Box<dyn std::error::Error>> {
     let mut endpoint = None;
     model.evaluator.successors(
         &model.actions,
         &Arc::from([Some(Value::Int(0)), Some(Value::Int(0))]),
         &mut |candidate| {
-            assert!(!candidate.complete());
+            if candidate.complete() {
+                return dive_eval::next::Flow::Continue;
+            }
             let mut assignments = serde_json::Map::new();
             let mut unassigned = Vec::new();
             for (name, value) in dive_trace::variables(model).iter().zip(candidate.state) {
@@ -197,14 +324,18 @@ fn earlier_events_effects_and_typed_stops_do_not_certify_a_partial_terminal() ->
         assert!(
             matches!(earlier.try_read(&doc)?.0.validation,Validation::Invalid(ref failure) if failure.detail.contains("evaluation error before"))
         );
-        let (complete, _) = input(
+        let (complete, complete_model) = input(
             "Init == x=0 /\\ y=0\nNext == (x'=1 /\\ y'=1) \\/ x'=2",
             options,
         )?;
         assert!(matches!(
             complete.try_read(&doc)?.0.validation,
-            Validation::Unsupported(_)
+            Validation::Invalid(_)
         ));
+        assert_eq!(
+            complete.try_read(&request(&complete_model)?)?.0.validation,
+            Validation::Valid
+        );
         let (missing, _) = input("Init == x=0 /\\ y=0\nNext == x'=x /\\ FALSE", options)?;
         assert!(matches!(
             missing.try_read(&doc)?.0.validation,
@@ -244,6 +375,136 @@ fn earlier_events_effects_and_typed_stops_do_not_certify_a_partial_terminal() ->
                 impure.try_read(&doc)?.0.validation,
                 Validation::Unsupported(_)
             ));
+        }
+    }
+    Ok(())
+}
+
+fn level_request(
+    model: &dive_model::Model,
+    initial: bool,
+) -> Result<TraceDoc, Box<dyn std::error::Error>> {
+    let action = if initial {
+        model.init_actions.last()
+    } else {
+        model.actions.last()
+    }
+    .ok_or("action")?;
+    // An untrusted request is intentional: only independent execution
+    // can establish its source, level-dependent guard and bindings.
+    let assignments = serde_json::Map::from_iter([("x".into(), json!(2))]);
+    let endpoint = if initial {
+        dive_trace::PartialStateEndpoint::from_initial_candidate(
+            &model.ir,
+            action.expr(),
+            assignments,
+            vec!["y".into()],
+        )
+    } else {
+        dive_trace::PartialStateEndpoint::from_candidate(
+            &model.ir,
+            action.expr(),
+            assignments,
+            vec!["y".into()],
+        )
+    }
+    .ok_or("endpoint")?;
+    Ok(TraceDoc {
+        variables: dive_trace::variables(model),
+        states: if initial {
+            Vec::new()
+        } else {
+            TraceDoc::behavior(vec![json!({"x":0,"y":0})])?.states
+        },
+        labels: if initial { Vec::new() } else { vec![None] },
+        ending: Some(if initial {
+            Ending::PartialInit { endpoint }
+        } else {
+            Ending::PartialNext { endpoint }
+        }),
+        length: Some(if initial { 1 } else { 2 }),
+        source: dive_trace::Source::Dive,
+        properties: Vec::new(),
+    })
+}
+
+#[test]
+fn ordered_candidate_sites_keep_their_real_levels_and_restore_generation() -> TestResult {
+    for options in [Options::dive(), Options::tlc()] {
+        for (initial, definitions, configured, expected_check) in [
+            (
+                true,
+                "C == IF TLCGet(\"level\")=1 THEN TRUE ELSE 1 \\div 0=0",
+                "CONSTRAINT C",
+                dive_trace::Check::Ending,
+            ),
+            (
+                true,
+                "C == TLCGet(\"level\")=1",
+                "INVARIANT C",
+                dive_trace::Check::Invariant,
+            ),
+            (
+                true,
+                "C == TLCGet(\"level\")=1",
+                "PROPERTY C",
+                dive_trace::Check::ImpliedInit,
+            ),
+            (
+                false,
+                "C == IF x=0 THEN TRUE ELSE IF TLCGet(\"level\")=2 THEN TRUE ELSE 1 \\div 0=0",
+                "CONSTRAINT C",
+                dive_trace::Check::Ending,
+            ),
+            (
+                false,
+                "C == IF TLCGet(\"level\")=1 THEN TRUE ELSE 1 \\div 0=0",
+                "ACTION_CONSTRAINT C",
+                dive_trace::Check::Ending,
+            ),
+            (
+                false,
+                "C == [][TLCGet(\"level\")=1]_<<x,y>>",
+                "PROPERTY C",
+                dive_trace::Check::ImpliedAction,
+            ),
+        ] {
+            let generation = if initial {
+                "Init == x \\in {0,2} /\\ IF x=0 THEN y=0 ELSE TLCGet(\"level\")=0\nNext == UNCHANGED <<x,y>>"
+            } else {
+                "Init == x=0 /\\ y=0\nNext == x' \\in {1,2} /\\ IF x'=1 THEN y'=0 ELSE TLCGet(\"level\")=1"
+            };
+            let body = format!("{generation}\n{definitions}");
+            let (session, model) = configured_input(&body, configured, options)?;
+            assert_eq!(
+                if initial {
+                    model.init_actions.len()
+                } else {
+                    model.actions.len()
+                },
+                1
+            );
+            let doc = level_request(&model, initial)?;
+            assert_eq!(
+                session.try_read(&doc)?.0.validation,
+                Validation::Valid,
+                "{initial} {configured}"
+            );
+            let wrong_definition = if initial || configured != "CONSTRAINT C" {
+                definitions.replace("=1", "=0")
+            } else {
+                definitions.replace("=2", "=0")
+            };
+            let (wrong, _) = configured_input(
+                &format!("{generation}\n{wrong_definition}"),
+                configured,
+                options,
+            )?;
+            let report = wrong.try_read(&doc)?.0;
+            assert!(
+                matches!(report.validation, Validation::Invalid(ref failure) if failure.check == expected_check),
+                "{initial} {configured}: {report:?}"
+            );
         }
     }
     Ok(())

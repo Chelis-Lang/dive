@@ -199,6 +199,16 @@
   checks its exact bindings and generating source; earlier complete candidates
   remain unsupported in this slice. Versions 1/2 and report schema 3 retain
   their meanings; no missing variable becomes an ordinary value.
+- Independently replay ordered pure terminal Next failures, including preceding
+  complete candidates and the actual secondary diagnostic sequence (#434/#606).
+  Exact source/cause/wrapper claims require execution; unproved global newness,
+  alias history and value-source classes remain explicit unknowns. All ten
+  original partial Next words now validate. Native version 3 also carries
+  optional partial Init `error_witness`, keeping formal counterexample null,
+  primary results and verified flags unchanged. No blanket wrapper exemption or
+  TLC parity claim is added; trace versions 1/2 retain their meanings. Ordered
+  replay preserves candidate/predecessor levels for `TLCGet("level")`, including
+  earlier initial properties and generation resumed after a callback.
 - `dive check` reports TLC's error when an operator whose body is a numeral
   or a string literal, such as `LAMBDA a, x : 0`, is passed to an operator
   TLC implements in Java (`FoldLeft` and the other folds, `Quantify`,

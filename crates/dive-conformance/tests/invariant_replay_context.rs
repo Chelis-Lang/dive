@@ -212,12 +212,21 @@ fn secondary_replay_context_is_not_proven_by_the_invariant_word() {
 }
 
 #[test]
-fn generic_next_wrapper_keeps_its_existing_unconfirmed_validator_boundary() {
+fn qualified_next_word_preserves_legacy_refusal_and_unclassified_oracle() {
     let file = fixtures().join("specs/ErWrapFcnGuard/ErWrapFcnGuard.tla");
+    let stream =
+        std::fs::read_to_string(fixtures().join("tlc-2026.10.06.014338/ErWrapFcnGuard.stdout"))
+            .expect("pinned TLC stream");
+    let oracle = result::classify(
+        &messages::parse(&stream),
+        &RunFacts {
+            exit_code: Some(75),
+            ..RunFacts::default()
+        },
+    );
+    assert_eq!(oracle.verdict, Verdict::Unclassified);
+    assert_eq!(oracle.error_codes, [1000, 2121, 2103]);
     for compat in [false, true] {
-        let (report, exit) = native(&file, Engine::Core, compat);
-        let actual = mapped(&report, exit, compat);
-        let doc = TraceDoc::from_json(&report["counterexample"]["trace"]).expect("trace");
         let spec = SpecModel::load(
             &file,
             &file.with_extension("cfg"),
@@ -228,10 +237,58 @@ fn generic_next_wrapper_keeps_its_existing_unconfirmed_validator_boundary() {
             },
         )
         .expect("model");
-        assert!(matches!(
-            spec.validate(&doc).validation,
-            Validation::Unsupported(_)
-        ));
-        assert!(validate_counterexample(&spec, &actual, &actual).refuted);
+        for engine in [Engine::Reference, Engine::Core] {
+            let (report, exit) = native(&file, engine, compat);
+            let actual = mapped(&report, exit, compat);
+            let doc = TraceDoc::from_json(&report["counterexample"]["trace"]).expect("trace");
+            // The borrowed legacy API has no private source replay authority.
+            assert!(matches!(
+                spec.validate(&doc).validation,
+                Validation::Unsupported(_)
+            ));
+            let proof = validate_counterexample(&spec, &actual, &oracle);
+            assert!(proof.validated && !proof.refuted, "{proof:?}");
+            // A valid word does not classify the canonical unknown TLC stream.
+            assert_ne!(diff_verdict_and_class(&oracle, &actual), Vec::new());
+
+            let mut anonymous = actual.clone();
+            anonymous
+                .trace
+                .as_mut()
+                .expect("word")
+                .json
+                .as_mut()
+                .expect("document")["ending"] = json!({"kind":"error","ec":"GENERAL"});
+            assert!(validate_counterexample(&spec, &anonymous, &oracle).refuted);
+            for (pointer, value) in [
+                ("/ending/ec", json!("TLC_NESTED_EXPRESSION")),
+                ("/ending/endpoint/reported", json!(2179)),
+                ("/ending/endpoint/deciding", json!(2179)),
+            ] {
+                let mut forged = actual.clone();
+                *forged
+                    .trace
+                    .as_mut()
+                    .expect("word")
+                    .json
+                    .as_mut()
+                    .expect("document")
+                    .pointer_mut(pointer)
+                    .expect("endpoint field") = value;
+                assert!(validate_counterexample(&spec, &forged, &oracle).refuted);
+            }
+            let mut coordinated = actual.clone();
+            coordinated.verdict_code = Some(2132);
+            coordinated.error_class = Some("TLC_VALUE_ASSERT_FAILED".into());
+            coordinated.exit_code = Some(255);
+            coordinated
+                .trace
+                .as_mut()
+                .expect("word")
+                .json
+                .as_mut()
+                .expect("document")["ending"]["endpoint"]["deciding"] = json!(2132);
+            assert!(validate_counterexample(&spec, &coordinated, &oracle).refuted);
+        }
     }
 }

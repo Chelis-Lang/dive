@@ -135,6 +135,11 @@ pub enum Ending {
         /// Untrusted source context and assigned/unassigned bindings.
         endpoint: crate::PartialNextEndpoint,
     },
+    /// An actual partial Init candidate, with no complete prefix state.
+    PartialInit {
+        /// Untrusted observed bindings/source, requiring fresh Init generation.
+        endpoint: crate::PartialStateEndpoint,
+    },
 }
 
 impl Ending {
@@ -162,6 +167,9 @@ impl Ending {
             Self::PartialNext { endpoint } => {
                 json!({"kind":"partial-state", "ec":"TLC_STATE_NOT_COMPLETELY_SPECIFIED_NEXT", "endpoint":endpoint.to_json()})
             }
+            Self::PartialInit { endpoint } => {
+                json!({"kind":"partial-state","ec":"TLC_INITIAL_STATE","endpoint":endpoint.to_json()})
+            }
         }
     }
 
@@ -177,17 +185,25 @@ impl Ending {
         if j.get("endpoint").is_some() {
             let object = j.as_object().ok_or("ending must be an object")?;
             if kind == "partial-state" {
-                if object.len() != 3 || j["ec"] != "TLC_STATE_NOT_COMPLETELY_SPECIFIED_NEXT" {
+                if object.len() != 3 {
                     return Err("partial Next ending needs its exact incomplete-state class".into());
                 }
-                return Ok(Self::PartialNext {
-                    endpoint: crate::PartialNextEndpoint::from_json(&j["endpoint"])?,
-                });
+                let endpoint = crate::PartialStateEndpoint::from_json(&j["endpoint"])?;
+                return match (endpoint.initial(), j["ec"].as_str()) {
+                    (false, Some("TLC_STATE_NOT_COMPLETELY_SPECIFIED_NEXT")) => {
+                        Ok(Self::PartialNext { endpoint })
+                    }
+                    (true, Some("TLC_INITIAL_STATE")) => Ok(Self::PartialInit { endpoint }),
+                    _ => Err("partial terminal phase and error class disagree".into()),
+                };
             }
             if kind != "error" || object.len() != 3 || !object.contains_key("ec") {
                 return Err("endpoint requires an exact error ending".into());
             }
-            if j["endpoint"]["stage"] == "next-before-successor" {
+            if matches!(
+                j["endpoint"]["stage"].as_str(),
+                Some("next-before-successor" | "next-ordered-terminal")
+            ) {
                 return Ok(Self::NextStateError {
                     ec: j["ec"]
                         .as_str()
@@ -342,7 +358,7 @@ impl TraceDoc {
     pub fn logical_length(&self) -> usize {
         self.states.len().saturating_add(usize::from(matches!(
             self.ending,
-            Some(Ending::PartialNext { .. })
+            Some(Ending::PartialNext { .. } | Ending::PartialInit { .. })
         )))
     }
     /// A behavior in dive's format, from states given as JSON objects
@@ -399,6 +415,23 @@ impl TraceDoc {
     pub fn from_json(j: &J) -> Result<Self, String> {
         if j.get("format").and_then(J::as_str) == Some(FORMAT) {
             return Self::from_dive(j);
+        }
+        if let Some(witness) = j.get("error_witness")
+            && witness.get("format").and_then(J::as_str) == Some(FORMAT)
+        {
+            if j.get("counterexample")
+                .is_some_and(|value| !value.is_null())
+            {
+                return Err(
+                    "a report cannot carry both a formal counterexample and an Init error witness"
+                        .into(),
+                );
+            }
+            let doc = Self::from_dive(witness)?;
+            if !matches!(doc.ending, Some(Ending::PartialInit { .. })) {
+                return Err("error_witness requires an Init partial terminal".into());
+            }
+            return Ok(doc);
         }
         // `dive check --output json`'s counterexample object carries the
         // document as `trace`; accept the object or the whole report.
@@ -493,13 +526,18 @@ impl TraceDoc {
         if version == Some(VERSION) && matches!(ending, Some(Ending::InvariantError { .. })) {
             return Err("`invariant-error` requires dive-trace version 2".to_owned());
         }
-        if matches!(ending, Some(Ending::PartialNext { .. }))
-            && version != Some(PARTIAL_STATE_VERSION)
+        if matches!(
+            ending,
+            Some(Ending::PartialNext { .. } | Ending::PartialInit { .. })
+        ) && version != Some(PARTIAL_STATE_VERSION)
         {
             return Err("a partial terminal candidate requires dive-trace version 3".into());
         }
         if version == Some(PARTIAL_STATE_VERSION)
-            && !matches!(ending, Some(Ending::PartialNext { .. }))
+            && !matches!(
+                ending,
+                Some(Ending::PartialNext { .. } | Ending::PartialInit { .. })
+            )
         {
             return Err("dive-trace version 3 requires a partial terminal candidate".into());
         }
@@ -645,7 +683,10 @@ impl TraceDoc {
                 })
             })
             .collect();
-        let version = if matches!(self.ending, Some(Ending::PartialNext { .. })) {
+        let version = if matches!(
+            self.ending,
+            Some(Ending::PartialNext { .. } | Ending::PartialInit { .. })
+        ) {
             PARTIAL_STATE_VERSION
         } else if matches!(self.ending, Some(Ending::InvariantError { .. })) {
             INVARIANT_ERROR_VERSION

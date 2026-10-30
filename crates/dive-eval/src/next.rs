@@ -855,6 +855,10 @@ impl Gen<'_, '_> {
     /// `getNextStates(action, pred, acts, c, ...)` / `getInitStates(init,
     /// acts, c, ...)`.
     fn step(&mut self, e: ExprId, acts: &Acts, env: &Env) -> Result<Flow> {
+        self.step_inner(e, acts, env).map_err(|error| error.at(e))
+    }
+
+    fn step_inner(&mut self, e: ExprId, acts: &Acts, env: &Env) -> Result<Flow> {
         let core = self.core;
         let _g = core.enter(e)?;
         let node = core.ir.node(e);

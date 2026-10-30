@@ -76,6 +76,7 @@ pub mod format;
 mod initial;
 pub mod mutate;
 mod next_error;
+mod ordered;
 mod partial;
 mod row_demand;
 mod session;
@@ -87,7 +88,9 @@ pub mod value_json;
 
 use dive_model::Model;
 
-pub use endpoint::{NextStateEndpoint, PartialNextEndpoint, TemporalStateEndpoint};
+pub use endpoint::{
+    NextStateEndpoint, PartialNextEndpoint, PartialStateEndpoint, TemporalStateEndpoint,
+};
 pub use format::{Ending, Label, Source, TraceDoc};
 pub use session::Session;
 pub use trace::{ShapeError, State, Trace, variables};

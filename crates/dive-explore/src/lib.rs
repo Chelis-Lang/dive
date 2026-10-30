@@ -423,6 +423,8 @@ struct Explorer<'p> {
     stop: Option<Verdict>,
     /// The index of the action being run (`None` for initial predicates).
     action: Option<usize>,
+    /// Actual Init action currently generating a candidate.
+    init_action: Option<usize>,
     /// Parent pointers and ordinals of every enqueued state.
     log: PredecessorLog,
     /// The log ids of the states in `next`, in order.
@@ -1070,6 +1072,7 @@ fn run_actions(
 ) -> Result<(), Error> {
     for (i, a) in actions.iter().enumerate() {
         ex.action = (!ex.initial).then_some(i);
+        ex.init_action = ex.initial.then_some(i);
         ex.action_start = ex.emitted;
         let old = m.enter(a.frame);
         for &(slot, v) in &a.preset {
@@ -1149,6 +1152,7 @@ pub fn explore_with<'p>(
         opts: config.opts,
         stop: None,
         action: None,
+        init_action: None,
         log: PredecessorLog::new(None, None),
         next_ids: Vec::new(),
         cur_id: None,

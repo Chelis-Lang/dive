@@ -332,6 +332,56 @@ pub struct TlcFingerprint {
 }
 
 impl TlcFingerprint {
+    /// Fingerprints a closed, already normalized materialized value with
+    /// checkpoints across stored nodes. Raw-history and symbolic sets refuse
+    /// before forcing; primitive string/integer operations retain bulk units.
+    /// This changes no representation and grants no seen-state/newness fact.
+    ///
+    /// # Errors
+    /// The ordinary fingerprint error, unsupported representation, interruption
+    /// or unavailable temporary traversal storage.
+    pub fn fingerprint_materialized_controlled(
+        &self,
+        value: &Value,
+        ctx: Ctx,
+        proceed: &mut dyn FnMut() -> bool,
+    ) -> std::result::Result<u64, crate::ConstructionError> {
+        use crate::ConstructionError;
+        if !crate::construction::closed(value, ctx, proceed)? {
+            return Err(ConstructionError::Value(ValueError::new(
+                ErrorKind::NotEnumerable,
+                "ordered replay fingerprint demand requires normalized materialized values",
+            )));
+        }
+        let mut fp = self.fp.empty();
+        let mut stack = Vec::new();
+        crate::construction::reserve(&mut stack, 1, proceed)?;
+        stack.push(Frame::Ref(value));
+        while let Some(frame) = stack.pop() {
+            crate::construction::checkpoint(proceed)?;
+            match frame {
+                Frame::IntHdr(i) => fp = self.fp.extend_i32(self.fp.extend_byte(fp, kind::INT), i),
+                Frame::StrHdr(atom) => fp = self.header_str(fp, atom),
+                Frame::Ref(value) => {
+                    let children = match value {
+                        Value::Set(set) => set.stored_elements().map_or(0, <[Value]>::len),
+                        Value::Fcn(fcn) => fcn.len().saturating_mul(2),
+                        _ => 0,
+                    };
+                    crate::construction::reserve(&mut stack, children, proceed)?;
+                    fp = self.step(fp, value, ctx, &mut stack)?;
+                }
+                Frame::Own(_) | Frame::Elems(_) => {
+                    return Err(ConstructionError::Value(ValueError::new(
+                        ErrorKind::NotEnumerable,
+                        "unproved fingerprint traversal in ordered replay",
+                    )));
+                }
+            }
+        }
+        Ok(fp)
+    }
+
     /// Fingerprints with TLC's polynomial `index` (`-fp index`; the goldens use 0).
     #[must_use]
     pub fn new(index: usize) -> Option<Self> {
