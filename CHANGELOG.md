@@ -8,7 +8,8 @@
 
 - Reuse successful core-native temporal read conversions for exact persistent
   handles containing Bool/Int or flat tuple/record values. The bounded cache
-  charges its actual table capacity and known value payload within the smaller
+  reuses shared rows for one-variable models and charges its actual table
+  capacity, row arrays and known value payload within the smaller
   of 128 MiB and 1/64 of the run memory budget; opaque Arc/allocator overhead
   remains explicit. Budget checks precede hits, eager admission still converts
   every original, and representation/history refusals remain unchanged. Cache

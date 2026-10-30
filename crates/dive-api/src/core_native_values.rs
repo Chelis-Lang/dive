@@ -21,7 +21,7 @@ const CACHE_WARMUP: u64 = 1024;
 const CACHE_PROBES: usize = 16;
 struct Entry {
     key: Handle,
-    value: Value,
+    row: StateVals,
     bytes: usize,
 }
 #[derive(Default)]
@@ -48,7 +48,7 @@ impl ConversionCache {
         bits = (bits ^ (bits >> 27)).wrapping_mul(0x94d0_49bb_1331_11eb);
         usize::try_from((bits ^ (bits >> 31)) % self.slots.len() as u64).unwrap_or(0)
     }
-    fn get(&mut self, key: Handle) -> Option<Value> {
+    fn get(&mut self, key: Handle) -> Option<&StateVals> {
         if !key.is_transient() && !self.slots.is_empty() {
             let base = self.index(key);
             for probe in 0..CACHE_PROBES.min(self.slots.len()) {
@@ -56,7 +56,7 @@ impl ConversionCache {
                 if let Some(entry) = slot {
                     if entry.key == key {
                         self.hits += 1;
-                        return Some(entry.value.clone());
+                        return Some(&entry.row);
                     }
                 } else {
                     self.misses += 1;
@@ -117,12 +117,15 @@ impl ConversionCache {
             }
         }
         let previous = self.slots[at].as_ref().map_or(0, |entry| entry.bytes);
-        let Some(total) = self
-            .bytes
-            .checked_sub(previous)
-            .and_then(|rest| rest.checked_add(bytes))
-            .filter(|&total| total <= self.limit)
-        else {
+        let charged = bytes.checked_add(std::mem::size_of::<Option<Value>>());
+        let total = charged.and_then(|bytes| {
+            self.bytes
+                .checked_sub(previous)
+                .and_then(|rest| rest.checked_add(bytes))
+                .filter(|&total| total <= self.limit)
+                .map(|total| (bytes, total))
+        });
+        let Some((bytes, total)) = total else {
             self.bypasses += 1;
             self.byte_rejections += 1;
             return;
@@ -137,7 +140,7 @@ impl ConversionCache {
         }
         self.slots[at] = Some(Entry {
             key,
-            value: value.clone(),
+            row: [Some(value.clone())].into(),
             bytes,
         });
         self.bytes = total;
@@ -222,14 +225,26 @@ impl<'a> NativeValues<'a> {
             ));
         }
         let started = Instant::now();
+        let single = reuse && row.len() == 1;
+        if single {
+            check(&self.capture, control)?;
+            if let Some(values) = self.cache.get(row[0]) {
+                check(&self.capture, control)?;
+                self.conversion += started.elapsed();
+                return Ok(values.clone());
+            }
+        }
         let mut values = Vec::new();
         values
             .try_reserve_exact(row.len())
             .map_err(|_| AnalysisError::Limit("native conversion row storage"))?;
         for &handle in row {
             check(&self.capture, control)?;
-            if reuse && let Some(value) = self.cache.get(handle) {
-                values.push(Some(value));
+            if reuse
+                && !single
+                && let Some(row) = self.cache.get(handle)
+            {
+                values.push(row[0].clone());
                 continue;
             }
             let mut interrupted = None;
@@ -293,7 +308,7 @@ impl<'a> NativeValues<'a> {
             "cache_byte_rejections": self.cache.byte_rejections,
             "cache_allocation_bypasses": self.cache.allocation_bypasses,
             "cache_evictions": self.cache.evictions, "cache_bypasses": self.cache.bypasses,
-            "cache_scope": "requested table capacity and eligible function/boxed payload; field-name payload already pinned by run Interner; opaque Arc/allocator overhead excluded; not total RSS",
+            "cache_scope": "requested table capacity, single-component row arrays and eligible function/boxed payload; field-name payload already pinned by run Interner; opaque Arc/allocator overhead excluded; not total RSS",
         })
     }
 }
@@ -346,11 +361,13 @@ mod tests {
     use super::*;
 
     fn model() -> Model {
-        let parsed = dive_sema::analyze_source(
-            "V.tla",
+        model_source(
             "---- MODULE V ----\nVARIABLE x\nInit == x = 0\nNext == x' = x\nP == <>(x = 0)\n====\n",
-            &dive_sema::Options::default(),
-        );
+        )
+    }
+
+    fn model_source(source: &str) -> Model {
+        let parsed = dive_sema::analyze_source("V.tla", source, &dive_sema::Options::default());
         let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\n")
             .into_config()
             .expect("config");
@@ -431,6 +448,8 @@ mod tests {
             let first = values.read(&[handle], &control).expect("miss");
             let before = values.converted;
             let second = values.read(&[handle], &control).expect("hit");
+            let third = values.read(&[handle], &control).expect("second hit");
+            assert!(Arc::ptr_eq(&second, &third), "hits reuse the whole row");
             assert_eq!(values.converted, before, "a read hit does not reconvert");
             let a = first[0]
                 .as_ref()
@@ -456,7 +475,7 @@ mod tests {
             values.cache.entries, 4,
             "equal literal/general values have distinct exact handles"
         );
-        assert_eq!(values.cache.hits, 4);
+        assert_eq!(values.cache.hits, 8);
         assert_eq!(values.admitted, 8);
         let raw = heap.set_enum(&[one]);
         let raw = heap.intern_exact(raw).expect("raw");
@@ -471,6 +490,30 @@ mod tests {
     }
 
     #[test]
+    fn multi_variable_reads_reuse_components_without_aliasing_whole_rows() {
+        let model = model_source(
+            "---- MODULE V ----\nVARIABLE x, y\nInit == x = 0 /\\ y = 1\nNext == x' = x /\\ y' = y\nP == <>(x = 0)\n====\n",
+        );
+        let store = Arc::new(Store::default());
+        let mut values = NativeValues::new(&model, store, &Budget::unlimited()).expect("converter");
+        values.cache.limit = 4096;
+        values.cache.misses = CACHE_WARMUP;
+        let control =
+            EvaluationControl::new(&Budget::unlimited(), Phase::Temporal).expect("control");
+        let row = [Handle::int(1).expect("integer"), Handle::bool(true)];
+        let first = values.read(&row, &control).expect("misses");
+        let second = values.read(&row, &control).expect("hits");
+        assert_eq!(first, second);
+        assert!(!Arc::ptr_eq(&first, &second));
+        assert_eq!(values.converted, 2);
+        assert_eq!(values.cache.hits, 2);
+        assert_eq!(values.cache.misses, CACHE_WARMUP + 2);
+        values.admit(&row).expect("admit");
+        assert_eq!(values.converted, 4);
+        assert_eq!(values.cache.hits, 2);
+    }
+
+    #[test]
     fn table_payload_bound_collision_eviction_and_disabled_cache_are_explicit() {
         let mut cache = ConversionCache {
             limit: 4096,
@@ -480,7 +523,8 @@ mod tests {
         let first = Handle::int(0).expect("integer");
         cache.insert(first, &Value::Int(0), 0, &mut || true);
         let table_bytes = cache.slots.capacity() * std::mem::size_of::<Option<Entry>>();
-        assert_eq!(cache.bytes, table_bytes);
+        let row_bytes = std::mem::size_of::<Option<Value>>();
+        assert_eq!(cache.bytes, table_bytes + row_bytes);
         let at = cache.index(first);
         let collisions = (1..10000)
             .filter_map(Handle::int)
@@ -494,14 +538,14 @@ mod tests {
         assert_eq!(cache.evictions, 1);
         assert!(cache.get(first).is_none());
         assert!(cache.get(collisions[CACHE_PROBES - 1]).is_some());
-        assert_eq!(cache.bytes, table_bytes);
+        assert_eq!(cache.bytes, table_bytes + CACHE_PROBES * row_bytes);
         let before = cache.entries;
         let key = Handle::int(10001).expect("integer");
         cache.insert(key, &Value::Int(0), cache.limit, &mut || true);
         assert_eq!(cache.entries, before);
         assert_eq!(cache.bypasses, 1);
         assert!(cache.bytes <= cache.limit);
-        let payload = cache.limit - table_bytes;
+        let payload = cache.limit - cache.bytes;
         cache.insert(first, &Value::Int(0), payload, &mut || true);
         assert_eq!(
             cache.bytes, cache.limit,

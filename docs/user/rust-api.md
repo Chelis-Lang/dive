@@ -114,7 +114,9 @@ values and typed stops cannot become FALSE truth or absence of acceptance.
 The core converter reuses successful exact-handle Bool/Int and flat tuple/record
 values in a bounded run-local cache; other requested values still reconvert.
 Its allowance is `min(128 MiB, memory_budget / 64)` (128 MiB when unlimited),
-covering actual table capacity and known private function/boxed payload. Run-owned
+covering actual table capacity, one-component row arrays and known private
+function/boxed payload. One-variable model hits reuse the same shared row;
+multi-variable models assemble rows from cached components. Run-owned
 name payload is shared after pointer-identity checking; opaque Arc/allocator
 metadata is not a complete RSS charge. Hits still check actual run control and
 eager admission always converts. Only demanded values and the bounded cache are

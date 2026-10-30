@@ -203,10 +203,12 @@ conversion path. No failed conversion or normalization-history refusal is cached
 The fixed table uses bounded probing and collision replacement. It is initialized
 after 1,024 read lookups, avoiding a large allocation for tiny checks. Its
 allowance is `min(128 MiB, memory_budget / 64)`, or 128 MiB with unlimited memory.
-Actual table capacity plus requested eligible payload must fit before insertion;
-oversize, arithmetic/allocation failure or unproved eligibility bypasses caching.
-Immediate values have no extra heap payload. A narrow value-layer inspector
-counts the actual private function header/fingerprint cache and boxed tuple/field
+Actual table capacity plus requested eligible payload and one-component row arrays
+must fit before insertion. Oversize, arithmetic/allocation failure or unproved
+eligibility bypasses caching.
+Each cache entry retains a one-component shared row; its array storage is charged
+even for immediate values. A narrow value-layer inspector counts the actual
+private function header/fingerprint cache and boxed tuple/field
 storage. Record Atom owners are included in field storage; name payload is shared
 only after Arc identity proves the run Interner already pins it. Opaque Arc
 headers/allocator overhead remain outside this requested-payload metric. It is
@@ -214,7 +216,9 @@ not a total RSS or allocation-time hard cap.
 
 Actual owner/temporal control is checked before hits and misses and before a row
 returns. A cache hit supplies the same immutable converted Value, including
-representation flags, and does not change eager admission or independent word
+representation flags. For one-variable models, hits return the same shared row
+without allocating a new row; multi-variable models assemble their rows from
+cached components. This does not change eager admission or independent word
 validation. Cache speed and memory tradeoffs require source-bound measurement;
 this implementation alone earns no capacity or throughput credit.
 
