@@ -442,6 +442,12 @@ its own switch:
   In both profiles, the elements of a new compound set must also unify: the
   same class at every position TLC's
   `equals` or `compareTo` could inspect, with records and tuples kept apart.
+  A bounded allocation-free proof handles closed integer-domain functions
+  with an identical domain and matching Bool/inline-Int/owned-string classes
+  at each key. It inspects every field, including shared handles, within a
+  shared 64 function-and-entry budget. These functions have identical complete
+  comparison shapes; the original shape guard handles every other case,
+  including differing domains, nested sets and raw/history-bearing views.
   When the shapes unify, TLC cannot fail, and its answer is TLA+'s. When
   they do not, the core refuses. Membership of a function in `Seq(S)`, in a
   record set or in a product, where D-009 answers `FALSE` but TLC's `member`

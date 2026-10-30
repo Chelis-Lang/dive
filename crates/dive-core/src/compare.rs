@@ -725,6 +725,100 @@ fn tuple_tree_valid(heap: &Heap, query: Handle) -> bool {
     }
 }
 
+/// A success-only alternative to building `Shape::IntKeyed` maps. Every
+/// function has the same integer domain and the same scalar class at each
+/// key, so all of their complete shapes are equal. This proves the original
+/// join succeeds; it supplies neither a comparison result nor TLC history.
+///
+/// The shared entry budget bounds unsuccessful probes too. Unknown keys,
+/// nested values, model values, raw views and unsupported kinds return false
+/// to leave the original guard and its exact refusal unchanged. In particular,
+/// even identical handles are inspected: identity is not a shape certificate.
+fn scalar_function_shapes(heap: &Heap, first: Handle, rest: &[Handle]) -> bool {
+    const WORK: usize = 64;
+
+    fn scalar(heap: &Heap, h: Handle) -> bool {
+        match h.tag() {
+            Tag::Bool | Tag::Int => true,
+            Tag::Str => h
+                .as_str_id()
+                .is_some_and(|id| heap.store().strings().text(id).is_some()),
+            _ => false,
+        }
+    }
+
+    fn function(heap: &Heap, h: Handle) -> Option<crate::node::View<'_>> {
+        if !h.is_compound() {
+            return None;
+        }
+        let v = heap.view(h);
+        if !v.kind.is_fcn() || v.flags & !crate::node::flags::TUPLE != 0 {
+            return None;
+        }
+        Some(v)
+    }
+
+    let Some(base) = function(heap, first) else {
+        return false;
+    };
+    let mut remaining = WORK;
+    if base.len() >= remaining {
+        return false;
+    }
+    remaining -= base.len() + 1;
+    match base.kind {
+        Kind::IntFcn => {
+            if !base.data.is_empty()
+                && i64::try_from(base.len() - 1)
+                    .ok()
+                    .and_then(|n| base.lo.checked_add(n))
+                    .is_none()
+            {
+                return false;
+            }
+        }
+        Kind::Fcn => {
+            let mut previous = None;
+            for &key in base.keys() {
+                let Some(key) = key.as_int() else {
+                    return false;
+                };
+                if previous.is_some_and(|p| p >= key) {
+                    return false;
+                }
+                previous = Some(key);
+            }
+        }
+        _ => return false,
+    }
+    if !base.values().iter().all(|&h| scalar(heap, h)) {
+        return false;
+    }
+    for &h in rest {
+        let Some(other) = function(heap, h) else {
+            return false;
+        };
+        if other.kind != base.kind
+            || other.len() != base.len()
+            || other.lo != base.lo
+            || other.len() >= remaining
+        {
+            return false;
+        }
+        remaining -= other.len() + 1;
+        if other.keys() != base.keys()
+            || !base
+                .values()
+                .iter()
+                .zip(other.values())
+                .all(|(&a, &b)| a.tag() == b.tag() && scalar(heap, b))
+        {
+            return false;
+        }
+    }
+    true
+}
+
 fn guard_refusal(what: &str) -> Error {
     Error::unsupported(format!(
         "{what} under --compat=tlc, where TLC's checked comparison may fail or answer by its asymmetric rules (C1–C5; the exact port is not built)"
@@ -736,6 +830,9 @@ fn guard_refusal(what: &str) -> Error {
 /// model values and different classes.
 fn guard_equals(heap: &Heap, a: Handle, b: Handle) -> Result<(), Error> {
     if !heap.store().semantics().tlc_comparisons {
+        return Ok(());
+    }
+    if scalar_function_shapes(heap, a, &[b]) {
         return Ok(());
     }
     let ok = shape(heap, a).is_some_and(|mut acc| include_shape(heap, &mut acc, b).is_some());
@@ -753,6 +850,9 @@ fn guard_equals(heap: &Heap, a: Handle, b: Handle) -> Result<(), Error> {
 /// fail comparing `x` with any of them.
 fn guard_member(heap: &Heap, x: Handle, elems: &[Handle]) -> Result<(), Error> {
     if !heap.store().semantics().tlc_comparisons || !x.is_compound() || elems.is_empty() {
+        return Ok(());
+    }
+    if scalar_function_shapes(heap, x, elems) {
         return Ok(());
     }
     let ok = (|| {
@@ -776,6 +876,9 @@ fn guard_member(heap: &Heap, x: Handle, elems: &[Handle]) -> Result<(), Error> {
 /// (C2): their shapes must unify.
 fn guard_set(heap: &Heap, elems: &[Handle]) -> Result<(), Error> {
     if elems.len() < 2 {
+        return Ok(());
+    }
+    if scalar_function_shapes(heap, elems[0], &elems[1..]) {
         return Ok(());
     }
     let tlc = heap.store().semantics().tlc_comparisons;
@@ -887,6 +990,131 @@ mod tests {
             values.push(h.set_from(&mut vec![v]));
         }
         values
+    }
+
+    fn original_guard_set(heap: &Heap, elems: &[Handle]) -> Result<(), Error> {
+        if elems.len() < 2 {
+            return Ok(());
+        }
+        let ok = elems
+            .iter()
+            .try_fold(Shape::Hole, |acc, &h| unify(acc, shape(heap, h)?))
+            .is_some();
+        if ok {
+            Ok(())
+        } else if heap.store().semantics().tlc_comparisons {
+            Err(guard_refusal("a set of values of different shapes"))
+        } else {
+            Err(Error::unsupported(
+                "a set of values of different shapes: TLC's checked normalization may fail (C1, C2; the exact comparison order is not built)",
+            ))
+        }
+    }
+
+    #[test]
+    fn scalar_function_proofs_preserve_original_guards_in_both_profiles() {
+        for semantics in [crate::Semantics::default(), crate::Semantics::tlc()] {
+            let store = Arc::new(Store::with_semantics(true, semantics));
+            let mut h = Heap::new(store, false, false);
+            let mut values = shape_values(&mut h);
+            let one = Handle::int(1).unwrap();
+            let three = Handle::int(3).unwrap();
+            let text = h.string("a").unwrap();
+            values.extend([
+                h.tuple_literal(&[one, Handle::TRUE, text]),
+                h.tuple(&[three, Handle::FALSE, text]),
+                h.fcn_sorted(&[one, three], &[Handle::TRUE, one]),
+                h.fcn_sorted(&[one, three], &[Handle::FALSE, three]),
+                h.fcn_sorted(&[one, Handle::int(4).unwrap()], &[Handle::TRUE, one]),
+                h.set_enum(&[one, Handle::TRUE, one]),
+            ]);
+            let persistent: Vec<_> = values.iter().map(|&v| h.intern_exact(v).unwrap()).collect();
+            values.extend(persistent);
+            let mut proved = 0;
+            for &a in &values {
+                for &b in &values {
+                    let pair = [a, b];
+                    if scalar_function_shapes(&h, a, &[b]) {
+                        proved += 1;
+                        assert_eq!(shape(&h, a), shape(&h, b));
+                        assert!(original_guard_set(&h, &pair).is_ok());
+                    }
+                    assert_eq!(guard_set(&h, &pair), original_guard_set(&h, &pair));
+                    assert_eq!(
+                        guard_member(&h, a, &[b]),
+                        original_guard_member(&h, a, &[b])
+                    );
+                    let expected = if !semantics.tlc_comparisons
+                        || shape(&h, a)
+                            .is_some_and(|s| shape(&h, b).and_then(|t| unify(s, t)).is_some())
+                    {
+                        Ok(())
+                    } else {
+                        Err(guard_refusal(
+                            "an equality between values of different shapes",
+                        ))
+                    };
+                    assert_eq!(guard_equals(&h, a, b), expected);
+                }
+            }
+            assert!(proved > 20, "exercise successful proofs: {proved}");
+            assert!(!h.poisoned());
+        }
+    }
+
+    #[test]
+    fn scalar_function_proof_bounds_work_and_checks_every_field_and_member() {
+        let store = Arc::new(Store::with_semantics(true, crate::Semantics::tlc()));
+        let mut h = Heap::new(store, false, false);
+        let one = Handle::int(1).unwrap();
+        let text = h.string("owned").unwrap();
+        let a = h.tuple(&[one, Handle::TRUE, text]);
+        let b = h.tuple(&[Handle::int(2).unwrap(), Handle::FALSE, text]);
+        assert!(scalar_function_shapes(&h, a, &[b, a]));
+        let wrong = h.tuple(&[one, Handle::TRUE, one]);
+        assert!(!scalar_function_shapes(&h, a, &[b, wrong]));
+        assert_eq!(
+            guard_set(&h, &[a, b, wrong]),
+            original_guard_set(&h, &[a, b, wrong])
+        );
+        let raw = h.set_enum(&[one, Handle::TRUE]);
+        let nested = h.tuple(&[raw]);
+        assert!(!scalar_function_shapes(&h, nested, &[nested]));
+        assert!(guard_set(&h, &[nested, nested]).is_err());
+        let unknown = h.tuple(&[Handle::string(u32::MAX)]);
+        assert!(!scalar_function_shapes(&h, unknown, &[unknown]));
+        let large = h.tuple(&[one; 64]);
+        assert!(!scalar_function_shapes(&h, large, &[large]));
+        assert_eq!(
+            guard_set(&h, &[large, large]),
+            original_guard_set(&h, &[large, large])
+        );
+        assert!(!scalar_function_shapes(&h, a, &[b; 16]));
+        assert_eq!(
+            guard_member(&h, a, &[b; 16]),
+            original_guard_member(&h, a, &[b; 16])
+        );
+        // A shared invalid canonical subtree also cannot acquire a proof.
+        let invalid = h.set_from(&mut vec![one, Handle::TRUE]);
+        let invalid = h.intern_exact(invalid).unwrap();
+        let nested = h.tuple(&[invalid]);
+        assert!(!scalar_function_shapes(&h, nested, &[nested]));
+        assert!(guard_set(&h, &[nested, nested]).is_err());
+        assert!(!h.poisoned());
+    }
+
+    #[test]
+    fn scalar_function_proof_rejects_foreign_and_stale_handles() {
+        let one = Handle::int(1).unwrap();
+        let mut source = heap();
+        let value = source.tuple(&[one]);
+        let foreign = source.intern_exact(value).unwrap();
+        let other = heap();
+        assert!(!scalar_function_shapes(&other, foreign, &[foreign]));
+        assert!(other.poisoned(), "the original ownership check is consumed");
+        source.reset();
+        assert!(!scalar_function_shapes(&source, value, &[value]));
+        assert!(source.poisoned(), "the original stale check is consumed");
     }
 
     #[test]

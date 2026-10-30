@@ -1,5 +1,9 @@
 # Changelog
 
+- Avoid temporary comparison-shape maps for bounded collections of closed
+  integer-domain functions with matching scalar classes at each key. The
+  existing comparison and normalization guards retain all other cases.
+
 - Native trace version 4 adds independently replayed candidate-side terminal
   errors at constraint, action-constraint and implied-action sites (ADR 0128).
   Readers must implement the distinct final-candidate semantics and both primary
