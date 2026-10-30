@@ -35,7 +35,8 @@
 //!   | `invariant-error` | `name`, `ec` | evaluating the named invariant on the last state raises the given underlying error |
 //!
 //! Existing endings retain version 1. `invariant-error` requires version 2;
-//! readers accept both versions and reject a version-1 document using the new
+//! a separate partial terminal candidate requires version 3 (ADR 0123).
+//! readers accept all three versions and reject a version-1 document using the named
 //! ending. Unknown versions and ending kinds fail closed (ADR 0108/0118).
 //!
 //! `invariant-error.ec` is the underlying evaluation cause. The enclosing
@@ -73,6 +74,9 @@ pub const VERSION: u64 = 1;
 
 /// The format version required by named invariant-error endings (ADR 0118).
 pub const INVARIANT_ERROR_VERSION: u64 = 2;
+
+/// Version for a terminal partial candidate separate from complete prefix rows.
+pub const PARTIAL_STATE_VERSION: u64 = 3;
 
 /// What a trace claims about its end.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -126,6 +130,11 @@ pub enum Ending {
         /// Untrusted original source context.
         endpoint: crate::NextStateEndpoint,
     },
+    /// An actual incomplete Next candidate, separately replayed from its prefix.
+    PartialNext {
+        /// Untrusted source context and assigned/unassigned bindings.
+        endpoint: crate::PartialNextEndpoint,
+    },
 }
 
 impl Ending {
@@ -150,6 +159,9 @@ impl Ending {
             Self::NextStateError { ec, endpoint } => {
                 json!({"kind":"error", "ec":ec, "endpoint":endpoint.to_json()})
             }
+            Self::PartialNext { endpoint } => {
+                json!({"kind":"partial-state", "ec":"TLC_STATE_NOT_COMPLETELY_SPECIFIED_NEXT", "endpoint":endpoint.to_json()})
+            }
         }
     }
 
@@ -164,6 +176,14 @@ impl Ending {
             .ok_or("an ending needs a `kind`")?;
         if j.get("endpoint").is_some() {
             let object = j.as_object().ok_or("ending must be an object")?;
+            if kind == "partial-state" {
+                if object.len() != 3 || j["ec"] != "TLC_STATE_NOT_COMPLETELY_SPECIFIED_NEXT" {
+                    return Err("partial Next ending needs its exact incomplete-state class".into());
+                }
+                return Ok(Self::PartialNext {
+                    endpoint: crate::PartialNextEndpoint::from_json(&j["endpoint"])?,
+                });
+            }
             if kind != "error" || object.len() != 3 || !object.contains_key("ec") {
                 return Err("endpoint requires an exact error ending".into());
             }
@@ -317,6 +337,14 @@ pub struct TraceDoc {
 }
 
 impl TraceDoc {
+    /// Logical word length, including a separate terminal partial candidate.
+    #[must_use]
+    pub fn logical_length(&self) -> usize {
+        self.states.len().saturating_add(usize::from(matches!(
+            self.ending,
+            Some(Ending::PartialNext { .. })
+        )))
+    }
     /// A behavior in dive's format, from states given as JSON objects
     /// (variable name to value, in dive's JSON form), with no labels. The
     /// ending is [`Ending::Behavior`]: use it to check an implementation's
@@ -425,9 +453,12 @@ impl TraceDoc {
 
     fn from_dive(j: &J) -> Result<Self, String> {
         let version = j.get("version").and_then(J::as_u64);
-        if !matches!(version, Some(VERSION | INVARIANT_ERROR_VERSION)) {
+        if !matches!(
+            version,
+            Some(VERSION | INVARIANT_ERROR_VERSION | PARTIAL_STATE_VERSION)
+        ) {
             return Err(format!(
-                "unsupported {FORMAT} version {version:?}; this build reads versions {VERSION} and {INVARIANT_ERROR_VERSION}"
+                "unsupported {FORMAT} version {version:?}; this build reads versions {VERSION}, {INVARIANT_ERROR_VERSION} and {PARTIAL_STATE_VERSION}"
             ));
         }
         let variables = strings(j.get("variables")).ok_or("`variables` must be a list of names")?;
@@ -461,6 +492,16 @@ impl TraceDoc {
         };
         if version == Some(VERSION) && matches!(ending, Some(Ending::InvariantError { .. })) {
             return Err("`invariant-error` requires dive-trace version 2".to_owned());
+        }
+        if matches!(ending, Some(Ending::PartialNext { .. }))
+            && version != Some(PARTIAL_STATE_VERSION)
+        {
+            return Err("a partial terminal candidate requires dive-trace version 3".into());
+        }
+        if version == Some(PARTIAL_STATE_VERSION)
+            && !matches!(ending, Some(Ending::PartialNext { .. }))
+        {
+            return Err("dive-trace version 3 requires a partial terminal candidate".into());
         }
         let length = match j.get("length") {
             None | Some(J::Null) => None,
@@ -604,7 +645,9 @@ impl TraceDoc {
                 })
             })
             .collect();
-        let version = if matches!(self.ending, Some(Ending::InvariantError { .. })) {
+        let version = if matches!(self.ending, Some(Ending::PartialNext { .. })) {
+            PARTIAL_STATE_VERSION
+        } else if matches!(self.ending, Some(Ending::InvariantError { .. })) {
             INVARIANT_ERROR_VERSION
         } else {
             VERSION

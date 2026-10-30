@@ -1270,12 +1270,12 @@ fn counterexample(
                 Some(to_value(&mut heap, model, h, ctx)?)
             });
         }
-        // A state that leaves variables unassigned is described by TLC's
-        // text alone, as the reference engine describes it.
-        let text = if partial.iter().any(Option::is_none) {
+        // Keep display text and partial bindings separate from complete rows.
+        let incomplete = partial.iter().any(Option::is_none);
+        let text = if incomplete {
             Some(crate::core_ending::state_text(model, &partial))
         } else {
-            values.extend(partial.into_iter().flatten());
+            values.extend(partial.iter().flatten().cloned());
             None
         };
         let (label, action) = match t.action {
@@ -1293,6 +1293,16 @@ fn counterexample(
             action,
             values,
             text,
+            partial: if incomplete {
+                t.action
+                    .and_then(|i| model.actions.get(i))
+                    .map(|action| dive_check::PartialState {
+                        values: partial,
+                        expression: action.expr(),
+                    })
+            } else {
+                None
+            },
         });
     }
     Ok(dive_check::Counterexample { states })

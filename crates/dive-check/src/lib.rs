@@ -93,8 +93,8 @@ use dive_model::{BindError, BindOptions, ErrorKind, Message};
 pub use options::CheckOptions;
 pub use render::{format_trace_state, render_human};
 pub use result::{
-    CheckResult, Collision, Counterexample, ErrorSite, PredecessorUsage, Stats, TlcClass,
-    TraceState, Verdict, Workers, tlc_exit_status,
+    CheckResult, Collision, Counterexample, ErrorSite, PartialState, PredecessorUsage, Stats,
+    TlcClass, TraceState, Verdict, Workers, tlc_exit_status,
 };
 
 /// Checks the model `cfg` of the lowered specification `ir`.

@@ -12,7 +12,8 @@ dive validate-trace docs/user/examples/Counter.tla --config docs/user/examples/C
 The JSON validation report uses `schema_version: 3`, `command: "validate-trace"`
 and `result: "valid" | "invalid" | "unsupported"`. Its report version is
 independent of the native trace document's `format: "dive-trace"` and payload
-version (1 for existing endings, 2 for named invariant errors).
+version (1 for existing endings, 2 for named invariant errors, 3 for separate
+partial terminal bindings).
 Existing trace tags, endings and loop indexing follow the compatibility policy
 in [reports and automation](reports-and-errors.md).
 
@@ -91,6 +92,32 @@ version 1 with an optional endpoint; existing version-1/2 meanings are unchanged
 Generic errors without a source endpoint keep their existing unsupported result.
 Reached action composition is refused before generating intermediate states in
 both composition modes; an untaken composition branch alone does not refuse replay.
+
+A Next action that leaves variables unassigned can carry a version-3 partial
+terminal descriptor (ADR 0123). Its `states` array holds only the complete prefix;
+the ending separately names the assigned values, unassigned variables and actual
+generating source. Assigned and unassigned names must partition the model's
+variables. An unassigned slot is never the JSON encoding of an ordinary TLA
+value. Logical `length` includes the partial candidate: `ErNextIncomplete` has
+three complete rows plus its partial `x = 3`, `y` unassigned, so length four.
+
+```sh
+dive check crates/dive-check/tests/fixtures/errors/specs/ErNextIncomplete/ErNextIncomplete.tla --workers 1 --seed 0 --fp 0 --output json > partial-result.json
+# The expected incomplete successor exits 75; retain its actual document.
+python3 -c 'import json; r=json.load(open("partial-result.json")); json.dump(r["counterexample"]["trace"], open("partial-trace.json", "w"))'
+dive validate-trace crates/dive-check/tests/fixtures/errors/specs/ErNextIncomplete/ErNextIncomplete.tla --trace partial-trace.json --seed 0 --fp 0 --output json
+```
+
+Validation separately reconstructs the complete prefix and terminal generator
+on fresh runtimes, requiring the first incomplete candidate's exact assignments
+and source. This first slice refuses any earlier complete candidate, whose
+ordered candidate checks still need implementation. `RoActions` and `SplitThrows`
+therefore have real words but remain unconfirmed; Init partial words and other
+terminal-error families remain separate work. Version 3 is reserved for this
+partial terminal form. Existing meanings/output of versions 1 and 2 stay
+unchanged, and older readers must refuse version 3. Use `logical_length()` for
+the whole word rather than counting only its complete rows. Resource and control
+failures still return no completed validation report.
 
 Rust callers must use `SpecModel::try_validate`/`try_read`, or the corresponding
 fresh `dive_trace::Session` fallible/controlled entrypoint, for these endpoints.

@@ -368,12 +368,24 @@ pub struct TraceState {
     /// The action's name, when the state was produced by a named action.
     pub action: Option<String>,
     /// The state's values, by `VarId`. Empty for a state that leaves
-    /// variables unassigned, which only `text` describes.
+    /// variables unassigned; `partial` retains its structured bindings.
     pub values: Vec<Value>,
     /// TLC's text of a state that leaves variables unassigned (`null` for
     /// them), the last state of a `TLC_STATE_NOT_COMPLETELY_SPECIFIED_NEXT`
     /// counterexample; `None` otherwise.
     pub text: Option<String>,
+    /// Structured terminal bindings, kept separate from complete state values.
+    /// `None` entries are unassigned, never ordinary TLA values.
+    pub partial: Option<PartialState>,
+}
+
+/// The observed incomplete candidate and the action that actually emitted it.
+#[derive(Clone, Debug)]
+pub struct PartialState {
+    /// Bindings by variable id; absent assignments remain absent.
+    pub values: Vec<Option<Value>>,
+    /// Original generating expression, in the result's source IR.
+    pub expression: dive_ir::ExprId,
 }
 
 /// A counterexample: a finite behavior prefix.

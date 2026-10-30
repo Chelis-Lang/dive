@@ -141,3 +141,54 @@ fn next_word_validity_does_not_waive_an_unknown_or_mismatched_wrapper() {
         }
     }
 }
+
+#[test]
+fn pinned_partial_candidate_requires_the_exact_independent_terminal() {
+    let root = repo().join("crates/dive-check/tests/fixtures/errors");
+    let file = root.join("specs/ErNextIncomplete/ErNextIncomplete.tla");
+    let clean = std::fs::read_to_string(root.join("tlc-2026.10.06.014338/ErNextIncomplete.stdout"))
+        .expect("pinned clean BFS stream");
+    let oracle = result::classify(
+        &messages::parse(&clean),
+        &RunFacts {
+            exit_code: Some(75),
+            ..RunFacts::default()
+        },
+    );
+    assert_eq!(oracle.verdict_code, Some(2109));
+    for compat in [false, true] {
+        let spec = model(&file, compat);
+        for engine in [Engine::Core, Engine::Reference] {
+            let actual = native(&file, engine, compat);
+            assert_eq!(
+                diff_results(
+                    &oracle,
+                    &actual,
+                    CompareContext {
+                        workers: 1,
+                        counts_comparable: true
+                    }
+                ),
+                Vec::new()
+            );
+            let proof = validate_counterexample(&spec, &actual, &oracle);
+            assert!(proof.validated, "{proof:?}");
+            for (pointer, value) in [
+                ("/ending/endpoint/assignments/x", json!(4)),
+                ("/ending/endpoint/source/module", json!("Forged")),
+            ] {
+                let mut forged = actual.clone();
+                let wire = forged
+                    .trace
+                    .as_mut()
+                    .and_then(|trace| trace.json.as_mut())
+                    .expect("partial word");
+                *wire.pointer_mut(pointer).expect("field") = value;
+                assert!(validate_counterexample(&spec, &forged, &oracle).refuted);
+            }
+            let mut forged = actual.clone();
+            forged.error_class = Some("TLC_NESTED_EXPRESSION".into());
+            assert!(validate_counterexample(&spec, &forged, &oracle).refuted);
+        }
+    }
+}

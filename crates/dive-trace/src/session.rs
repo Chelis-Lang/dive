@@ -75,22 +75,26 @@ impl Session {
     pub fn read(&self, doc: &TraceDoc) -> (Report, Option<TraceDoc>) {
         if matches!(
             doc.ending,
-            Some(crate::Ending::TemporalStateError { .. } | crate::Ending::NextStateError { .. })
+            Some(
+                crate::Ending::TemporalStateError { .. }
+                    | crate::Ending::NextStateError { .. }
+                    | crate::Ending::PartialNext { .. }
+            )
         ) {
             return (
                 refusal(
                     "source error endpoints require Session::try_read or read_controlled".into(),
-                    doc.states.len(),
+                    doc.logical_length(),
                 ),
                 None,
             );
         }
         let (model, host) = match self.bind() {
             Ok(bound) => bound,
-            Err(feature) => return (refusal(feature, doc.states.len()), None),
+            Err(feature) => return (refusal(feature, doc.logical_length()), None),
         };
         if let Some(feature) = Run::private(&model, host, false).refusal() {
-            return (refusal(feature, doc.states.len()), None);
+            return (refusal(feature, doc.logical_length()), None);
         }
         if doc.source == Source::Tlc {
             let reading =
@@ -105,10 +109,10 @@ impl Session {
     fn plain(&self, doc: &TraceDoc, initial: bool) -> (Report, Option<TraceDoc>) {
         let (model, host) = match self.bind_in(initial) {
             Ok(bound) => bound,
-            Err(feature) => return (refusal(feature, doc.states.len()), None),
+            Err(feature) => return (refusal(feature, doc.logical_length()), None),
         };
         if let Some(feature) = Run::private(&model, host.clone(), initial).refusal() {
-            return (refusal(feature, doc.states.len()), None);
+            return (refusal(feature, doc.logical_length()), None);
         }
         let Ok(trace) = Trace::decode(&model, doc) else {
             let (report, _) = crate::validate_doc(&model, doc, self.recipe.model_values());
@@ -180,7 +184,11 @@ impl Session {
     ) -> Result<(Report, Option<TraceDoc>), crate::ValidationRunError> {
         if !matches!(
             doc.ending,
-            Some(crate::Ending::TemporalStateError { .. } | crate::Ending::NextStateError { .. })
+            Some(
+                crate::Ending::TemporalStateError { .. }
+                    | crate::Ending::NextStateError { .. }
+                    | crate::Ending::PartialNext { .. }
+            )
         ) {
             return Ok(self.read(doc));
         }
@@ -218,18 +226,25 @@ impl Session {
             return finish(
                 refusal(
                     "controlled private TLC document interpretation".into(),
-                    doc.states.len(),
+                    doc.logical_length(),
                 ),
                 None,
             );
         }
         if !matches!(
             doc.ending,
-            Some(crate::Ending::TemporalStateError { .. } | crate::Ending::NextStateError { .. })
+            Some(
+                crate::Ending::TemporalStateError { .. }
+                    | crate::Ending::NextStateError { .. }
+                    | crate::Ending::PartialNext { .. }
+            )
         ) {
             return finish(refusal("controlled fresh-session validation currently requires a native source error endpoint; use existing validation entrypoints for other documents".into(),doc.states.len()),None);
         }
-        let next_error = matches!(doc.ending, Some(crate::Ending::NextStateError { .. }));
+        let next_error = matches!(
+            doc.ending,
+            Some(crate::Ending::NextStateError { .. } | crate::Ending::PartialNext { .. })
+        );
         if next_error && !doc.properties.is_empty() {
             return finish(
                 Report {
@@ -252,8 +267,11 @@ impl Session {
         };
         let (model, host) = match self.fresh_binding(control, mode, 0)? {
             Ok(runtime) => runtime,
-            Err(feature) => return finish(refusal(feature, doc.states.len()), None),
+            Err(feature) => return finish(refusal(feature, doc.logical_length()), None),
         };
+        if matches!(doc.ending, Some(crate::Ending::PartialNext { .. })) {
+            return self.read_partial_endpoint(doc, model, host, control);
+        }
         let trace = match Trace::decode(&model, doc) {
             Ok(trace) => trace,
             Err(error) => {
@@ -308,7 +326,7 @@ impl Session {
         let (model, host) =
             match self.fresh_binding(control, FreshMode::NextTerminal, checks_passed)? {
                 Ok(runtime) => runtime,
-                Err(feature) => return finish_next(refusal(feature, doc.states.len()), None),
+                Err(feature) => return finish_next(refusal(feature, doc.logical_length()), None),
             };
         let trace = match Trace::decode(&model, doc) {
             Ok(trace) => trace,
@@ -328,6 +346,78 @@ impl Session {
         report.notes.extend(prefix.notes);
         let plain = trace.to_doc(&model).ok();
         finish_next(report, plain)
+    }
+
+    fn read_partial_endpoint(
+        &self,
+        doc: &TraceDoc,
+        model: Model,
+        host: Arc<TraceHost>,
+        control: Option<&Arc<dyn dive_eval::HostControl>>,
+    ) -> Result<(Report, Option<TraceDoc>), crate::ValidationRunError> {
+        let invalid = |detail: &str| {
+            (
+                Report {
+                    validation: Validation::Invalid(crate::Failure {
+                        state: doc.states.len(),
+                        check: crate::Check::Shape,
+                        detail: detail.into(),
+                    }),
+                    notes: Vec::new(),
+                    length: doc.logical_length(),
+                },
+                None,
+            )
+        };
+        if doc.states.is_empty() {
+            return Ok(invalid("partial Next needs a complete source prefix"));
+        }
+        if doc
+            .length
+            .is_some_and(|length| length != doc.logical_length())
+        {
+            return Ok(invalid(
+                "logical word length must include the partial terminal candidate",
+            ));
+        }
+        let mut prefix = doc.clone().with_ending(crate::Ending::Behavior);
+        prefix.length = Some(prefix.states.len());
+        let trace = match Trace::decode(&model, &prefix) {
+            Ok(trace) => trace,
+            Err(error) => return Ok(invalid(&error.detail)),
+        };
+        let (mut report, passed) = crate::validate::validate_next_prefix_controlled(
+            &model,
+            host,
+            &trace,
+            control.cloned(),
+        )?;
+        report.length = doc.logical_length();
+        if report.validation != Validation::Valid {
+            return Ok((report, None));
+        }
+        drop(trace);
+        drop(model);
+        let (model, host) = match self.fresh_binding(control, FreshMode::NextTerminal, passed)? {
+            Ok(runtime) => runtime,
+            Err(feature) => return Ok((refusal(feature, doc.logical_length()), None)),
+        };
+        let trace = match Trace::decode(&model, &prefix) {
+            Ok(trace) => trace,
+            Err(error) => return Ok(invalid(&error.detail)),
+        };
+        let Some(crate::Ending::PartialNext { endpoint }) = &doc.ending else {
+            return Ok(invalid("missing partial terminal descriptor"));
+        };
+        let report = crate::validate::replay_partial_controlled(
+            &model,
+            host,
+            &trace,
+            endpoint,
+            passed,
+            control.cloned(),
+        )?;
+        Ok((report, Some(doc.clone())))
     }
 
     fn fresh_binding(

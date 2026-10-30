@@ -153,6 +153,12 @@
   in both modes. First candidates, unsupported effects and unproved sites stay
   refused; interrupted/resource-failed replay produces no validity report.
   This retains trace version 1 and adds no diagnostic-wrapper exemption.
+- Preserve incomplete Next candidates as native trace version 3, with complete
+  prefix rows separate from assigned/unassigned terminal bindings (#607).
+  Logical word length includes the partial candidate. Fresh independent replay
+  checks its exact bindings and generating source; earlier complete candidates
+  remain unsupported in this slice. Versions 1/2 and report schema 3 retain
+  their meanings; no missing variable becomes an ordinary value.
 - `dive check` reports TLC's error when an operator whose body is a numeral
   or a string literal, such as `LAMBDA a, x : 0`, is passed to an operator
   TLC implements in Java (`FoldLeft` and the other folds, `Quantify`,

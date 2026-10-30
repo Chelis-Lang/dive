@@ -258,6 +258,8 @@ pub struct CheckReport {
     core: Option<Box<crate::core_engine::CoreRun>>,
     /// Untrusted original source context captured while this run owns the IR.
     next_error_endpoint: Option<dive_trace::NextStateEndpoint>,
+    /// Observed partial candidate captured while its original IR is owned.
+    partial_next_endpoint: Option<dive_trace::PartialNextEndpoint>,
     /// The engine requested.
     engine: crate::Engine,
     /// Why `--engine=auto` ran the reference engine.
@@ -525,6 +527,7 @@ fn check_file_in(
         phase: Phase::Unlowered(String::new()),
         core: None,
         next_error_endpoint: None,
+        partial_next_endpoint: None,
         engine,
         fallback: None,
     };
@@ -651,6 +654,41 @@ fn check_file_in(
         } = &result.verdict
     {
         report.next_error_endpoint = dive_trace::NextStateEndpoint::from_error(&ir, cause);
+    }
+    if let Phase::Checked(result) = &report.phase
+        && matches!(
+            result.verdict,
+            Verdict::NotCompletelySpecified { initial: false, .. }
+        )
+        && let Some(partial) = result
+            .counterexample
+            .as_ref()
+            .and_then(|cx| cx.states.last())
+            .and_then(|s| s.partial.as_ref())
+    {
+        let mut assignments = serde_json::Map::new();
+        let mut unassigned = Vec::new();
+        let mut encodable = true;
+        for (name, value) in result.var_names.iter().zip(&partial.values) {
+            if let Some(value) = value {
+                if let Ok(value) = dive_trace::value_json::to_json(value, report.opts.eval.ctx) {
+                    assignments.insert(name.clone(), value);
+                } else {
+                    encodable = false;
+                    break;
+                }
+            } else {
+                unassigned.push(name.clone());
+            }
+        }
+        if encodable && partial.values.len() == result.var_names.len() {
+            report.partial_next_endpoint = dive_trace::PartialNextEndpoint::from_candidate(
+                &ir,
+                partial.expression,
+                assignments,
+                unassigned,
+            );
+        }
     }
     if let Some(watchdog) = &mut watchdog {
         let finished = watchdog.finish();
@@ -1528,7 +1566,13 @@ impl CheckReport {
                             })
                         })
                         .collect();
-                    let transported = trace_doc(r, cx, ctx, self.next_error_endpoint.as_ref());
+                    let transported = trace_doc(
+                        r,
+                        cx,
+                        ctx,
+                        self.next_error_endpoint.as_ref(),
+                        self.partial_next_endpoint.as_ref(),
+                    );
                     doc["counterexample"] = json!({
                         "length": states.len(),
                         "ending": "finite",
@@ -1730,6 +1774,7 @@ fn trace_doc(
     cx: &dive_check::Counterexample,
     ctx: dive_value::Ctx,
     next_endpoint: Option<&dive_trace::NextStateEndpoint>,
+    partial_endpoint: Option<&dive_trace::PartialNextEndpoint>,
 ) -> Result<Value, String> {
     use dive_check::Verdict as V;
     use dive_trace::Ending;
@@ -1739,6 +1784,13 @@ fn trace_doc(
             Ending::Property(property.clone())
         }
         V::Deadlock => Ending::Deadlock,
+        V::NotCompletelySpecified { initial: false, .. } if partial_endpoint.is_some() => {
+            Ending::PartialNext {
+                endpoint: partial_endpoint
+                    .cloned()
+                    .ok_or("missing partial Next source")?,
+            }
+        }
         // The ending names the error itself, not the class TLC's site and
         // replay give it.
         V::EvaluationError {
@@ -1778,6 +1830,12 @@ fn trace_doc(
     let mut states = Vec::with_capacity(cx.states.len());
     let mut labels = Vec::with_capacity(cx.states.len());
     for (i, s) in cx.states.iter().enumerate() {
+        if s.partial.is_some() {
+            if i + 1 != cx.states.len() || !matches!(ending, Ending::PartialNext { .. }) {
+                return Err("partial bindings must be a separate final terminal descriptor".into());
+            }
+            continue;
+        }
         let mut m = serde_json::Map::new();
         for (k, name) in r.var_names.iter().enumerate() {
             let Some(v) = s.values.get(k) else {
@@ -2246,6 +2304,7 @@ mod evidence_controls {
             phase,
             core: None,
             next_error_endpoint: None,
+            partial_next_endpoint: None,
             engine: crate::Engine::Reference,
             fallback: None,
         }
