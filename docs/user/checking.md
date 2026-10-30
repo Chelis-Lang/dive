@@ -50,6 +50,31 @@ controls do not establish general INSTANCE completion.
 
 ## Experimental core engine
 
+Try the same small specification through four ordinary checking outcomes:
+
+```sh
+dive check docs/user/examples/Counter.tla --engine core --seed 0 --fp 0 --workers 1 --output json
+dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterViolation.cfg --engine core --seed 0 --fp 0 --workers 1 --output json
+dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterTemporal.cfg --engine core --seed 0 --fp 0 --workers 1 --output json
+dive check docs/user/examples/Counter.tla --engine core --seed 0 --fp 0 --workers 1 --max-states 2 --output json
+```
+
+These return safety success, a `StrictBound` invariant violation, an
+`EventuallyFour` temporal violation, and a structured state-limit stop,
+respectively. Their exit statuses are 0, 12, 13 and 5. The temporal violation
+is valid: the specification allows stuttering and declares no fairness.
+
+Rust callers can run all four outcomes and independently replay both
+counterexamples in a fresh source-bound validator:
+
+```sh
+cargo run -p dive-api --example checking_preview --locked
+```
+
+The example uses `check_file_engine`, `TraceDoc` and `SpecModel`; it runs the
+checker and validator in process. See the [Rust API guide](rust-api.md) for
+the supported library interfaces.
+
 ```sh
 dive check Spec.tla --engine core --workers 4 --output json
 dive check Spec.tla --engine auto
