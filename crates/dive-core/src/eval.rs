@@ -220,7 +220,7 @@ impl Machine {
         let n = n as u64;
         if self.fuel < n {
             self.fuel = 0;
-            return Err(Error::unsupported("the optional machine work budget"));
+            return Err(Error::unsupported("the constant-folding budget"));
         }
         self.fuel -= n;
         Ok(())
