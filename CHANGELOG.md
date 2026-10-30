@@ -15,6 +15,13 @@
   counters are additive; conversion timing now excludes one-variable cache hits
   and reports its scope. Throughput and whole-run capacity need measurement.
 
+- Reuse temporal read conversions for closed recursive functions, tuples and
+  records with Bool/Int/run-owned-string leaves and scalar general domains.
+  Exact representation handles keep literal classes distinct; all sets and
+  unproved shapes bypass reuse. Charge nested payload and possible domain-order
+  storage within the existing cache allowance. Every original still receives
+  eager Graph conversion; this adds no capacity or throughput claim.
+
 - The initial ordinary `--engine core` native temporal backend retained persistent original rows
   and CSR instead of a complete evaluator-value graph. Controlled eager Graph
   admission preserves representation/refusal order; analysis reads values on

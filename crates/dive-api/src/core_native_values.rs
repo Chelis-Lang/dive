@@ -1,7 +1,7 @@
 //! Controlled Graph admission and on-demand values for the compact producer.
 //!
 //! Persistent roots stay with `NativeGraph`. A bounded exact-handle cache reuses
-//! successful immediate/flat-value conversions during reads; eager admission
+//! successful closed function-tree conversions during reads; eager admission
 //! always converts, preserving its refusal and name encounter order.
 
 use std::sync::Arc;
@@ -303,7 +303,7 @@ impl<'a> NativeValues<'a> {
             if reuse {
                 let mut cache_proceed = || check(&self.capture, control).is_ok();
                 if let Some(bytes) =
-                    value.flat_cache_heap_bytes(&self.model.names, &mut cache_proceed)
+                    value.closed_function_cache_heap_bytes(&self.model.names, &mut cache_proceed)
                 {
                     self.cache.eligible += 1;
                     self.cache.insert(
@@ -345,7 +345,7 @@ impl<'a> NativeValues<'a> {
             "cache_direct_hits": self.cache.direct_hits,
             "cache_row_index_fallbacks": self.cache.row_index_fallbacks,
             "cache_evictions": self.cache.evictions, "cache_bypasses": self.cache.bypasses,
-            "cache_scope": "requested table capacity, single-component row arrays and eligible function/boxed payload; field-name payload already pinned by run Interner; opaque Arc/allocator overhead excluded; not total RSS",
+            "cache_scope": "requested table capacity, single-component row arrays and closed-function payload including potential scalar-domain order storage; string/field-name payload already pinned by run Interner; opaque Arc/allocator overhead excluded; not total RSS",
         })
     }
 }
@@ -729,5 +729,95 @@ mod tests {
         assert!(
             matches!(stopped.read(0, &[Handle::bool(true)], &foreign), Err(AnalysisError::Stopped(stop)) if stop.phase == Phase::Temporal)
         );
+    }
+
+    #[test]
+    fn nested_closed_function_hits_preserve_tlc_behavior_and_eager_admission() {
+        let model = model();
+        let store = Arc::new(Store::default());
+        let mut heap = Heap::new(store.clone(), false, false);
+        let key = heap.string("message").expect("field");
+        let text = heap.string("tok").expect("string");
+        let one = Handle::int(1).expect("integer");
+        let mut handles = Vec::new();
+        for literal in [false, true] {
+            let child = if literal {
+                heap.record(&[key], &[text])
+            } else {
+                heap.fcn_sorted(&[key], &[text])
+            };
+            let nested = heap.tuple_literal(&[child]);
+            handles.push(heap.intern_exact(nested).expect("exact original"));
+        }
+        let counter = heap.int_fcn(0, &[one, one]);
+        handles.push(heap.intern_exact(counter).expect("integer domain"));
+        let mut values = NativeValues::new(&model, store, &Budget::unlimited()).expect("converter");
+        values.cache.limit = 16384;
+        values.cache.misses = CACHE_WARMUP;
+        let control =
+            EvaluationControl::new(&Budget::unlimited(), Phase::Temporal).expect("control");
+        let rhs = Value::tuple(vec![Value::tuple(vec![Value::Int(0), Value::Int(0)])]);
+        for (row_id, &handle) in handles.iter().enumerate() {
+            values.admit(&[handle]).expect("eager conversion");
+            let first = values.read(row_id, &[handle], &control).expect("miss");
+            let before = values.converted;
+            let hit = values.read(row_id, &[handle], &control).expect("hit");
+            assert!(
+                first[0]
+                    .as_ref()
+                    .expect("first value")
+                    .as_fcn()
+                    .expect("first function")
+                    .ptr_eq(
+                        hit[0]
+                            .as_ref()
+                            .expect("hit value")
+                            .as_fcn()
+                            .expect("hit function")
+                    )
+            );
+            assert_eq!(values.converted, before);
+            if row_id < 2 {
+                let comparison = dive_value::tlc::equals(
+                    hit[0].as_ref().expect("value"),
+                    &rhs,
+                    dive_value::Ctx::tlc(),
+                );
+                assert_eq!(
+                    comparison.is_err(),
+                    row_id == 1,
+                    "literal record and general function remain behaviorally distinct"
+                );
+                if row_id == 0 {
+                    assert!(!comparison.expect("general comparison"));
+                }
+            }
+            values.admit(&[handle]).expect("repeat eager conversion");
+            assert_eq!(values.converted, before + 1);
+        }
+        assert_eq!(values.cache.entries, 3);
+        let other = NativeValues::new(&model, Arc::new(Store::default()), &Budget::unlimited())
+            .expect("other owner");
+        assert_eq!(other.cache.entries, 0);
+        // History-bearing descendants remain refused even with a hot cache.
+        let raw = heap.set_enum(&[one]);
+        let nested_raw = heap.tuple_literal(&[raw]);
+        let nested_raw = heap.intern_exact(nested_raw).expect("original raw child");
+        assert!(matches!(
+            values.read(7, &[nested_raw], &control),
+            Err(AnalysisError::UnsupportedValue(_))
+        ));
+        assert_eq!(values.cache.entries, 3);
+        let normalized = heap.set_sorted(&[one]);
+        let normalized = heap.intern_exact(normalized).expect("persistent set");
+        let before = values.converted;
+        values
+            .read(8, &[normalized], &control)
+            .expect("uncached normalized set");
+        values
+            .read(8, &[normalized], &control)
+            .expect("still uncached normalized set");
+        assert_eq!(values.converted, before + 2);
+        assert_eq!(values.cache.entries, 3);
     }
 }
