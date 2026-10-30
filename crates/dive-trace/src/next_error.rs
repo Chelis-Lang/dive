@@ -35,6 +35,7 @@ pub(crate) fn replay(
         crate::ordered::Event::Error {
             site: crate::ordered::Site::Next,
             error,
+            ..
         } => error,
         crate::ordered::Event::Error { .. } => {
             return Ok(invalid(
@@ -98,6 +99,7 @@ fn check_diagnostic(
             crate::ordered::Event::Error {
                 site: crate::ordered::Site::Next,
                 error,
+                ..
             } => error,
             crate::ordered::Event::Refused(reason) => return Ok(Validation::Unsupported(reason)),
             crate::ordered::Event::Error { .. } => {

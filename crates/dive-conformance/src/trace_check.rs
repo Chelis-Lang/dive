@@ -192,6 +192,24 @@ fn reported_liveness_property(
     Ok(Some(names))
 }
 
+// Header consistency is necessary; the candidate and both exception identities
+// still require actual source-bound execution in the validator below.
+fn candidate_error_header(ec: &str, deciding: Option<u32>) -> Option<Ending> {
+    match deciding {
+        Some(2103) => Some(Ending::Error {
+            ec: Some("TLC_NESTED_EXPRESSION".into()),
+        }),
+        Some(2132) => Some(Ending::Assertion),
+        Some(2179) if ec == "TLC_MODULE_DIVISION_BY_ZERO" => Some(Ending::Error {
+            ec: Some(ec.into()),
+        }),
+        Some(2178) if ec == "TLC_MODULE_OVERFLOW" => Some(Ending::Error {
+            ec: Some(ec.into()),
+        }),
+        _ => None,
+    }
+}
+
 /// Validates an implementation's counterexample (`result.trace.json`, in
 /// dive's format) against `spec`. `golden` is the oracle's result for the
 /// same model, consulted only to confirm a deadlock (see the module
@@ -236,6 +254,10 @@ pub fn validate_counterexample(
                 }),
             };
             reported == expected
+        }
+        Some(Ending::CandidateStateError { ec, endpoint }) => {
+            let expected = candidate_error_header(ec, endpoint.deciding_code());
+            reported == expected && expected.is_some()
         }
         Some(Ending::TemporalStateError { ec, .. }) => {
             reported

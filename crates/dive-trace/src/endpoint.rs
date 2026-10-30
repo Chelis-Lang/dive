@@ -357,3 +357,87 @@ impl PartialStateEndpoint {
         })
     }
 }
+
+/// The independently discovered candidate-side error site (ADR 0128).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum CandidateErrorSite {
+    /// An ordered state constraint.
+    Constraint,
+    /// An ordered action constraint.
+    ActionConstraint,
+    /// An ordered implied action property.
+    ImpliedAction,
+}
+impl CandidateErrorSite {
+    pub(crate) fn name(self) -> &'static str {
+        match self {
+            Self::Constraint => "constraint",
+            Self::ActionConstraint => "action-constraint",
+            Self::ImpliedAction => "implied-action",
+        }
+    }
+}
+
+/// Untrusted candidate-side primary and diagnostic identities. This never
+/// selects an expression, action or candidate during independent execution.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct CandidateStateEndpoint {
+    pub(crate) next: NextStateEndpoint,
+    pub(crate) site: CandidateErrorSite,
+}
+impl CandidateStateEndpoint {
+    /// Records a typed producer observation; only fresh replay can prove it.
+    #[must_use]
+    pub fn from_error(
+        ir: &dive_ir::Ir,
+        error: &EvalError,
+        site: CandidateErrorSite,
+        reported: u32,
+        deciding: u32,
+    ) -> Option<Self> {
+        Some(Self {
+            next: NextStateEndpoint::from_ordered_error(ir, error, reported, deciding)?,
+            site,
+        })
+    }
+
+    /// The untrusted deciding identity, checked against the report and replay.
+    #[must_use]
+    pub fn deciding_code(&self) -> Option<u32> {
+        self.next.deciding_code()
+    }
+
+    pub(crate) fn to_json(&self) -> Value {
+        let mut value = self.next.to_json();
+        value["stage"] = Value::from("candidate-ordered-terminal");
+        value["site"] = Value::from(self.site.name());
+        value
+    }
+
+    pub(crate) fn from_json(value: &Value) -> Result<Self, String> {
+        let mut value = value.clone();
+        let object = value
+            .as_object_mut()
+            .ok_or("candidate endpoint must be an object")?;
+        if object.len() != 5
+            || object.get("stage").and_then(Value::as_str) != Some("candidate-ordered-terminal")
+        {
+            return Err("unknown candidate endpoint fields or stage".into());
+        }
+        let site = match object
+            .remove("site")
+            .and_then(|v| v.as_str().map(str::to_owned))
+            .as_deref()
+        {
+            Some("constraint") => CandidateErrorSite::Constraint,
+            Some("action-constraint") => CandidateErrorSite::ActionConstraint,
+            Some("implied-action") => CandidateErrorSite::ImpliedAction,
+            _ => return Err("unknown candidate error site".into()),
+        };
+        object.insert("stage".into(), Value::from("next-ordered-terminal"));
+        Ok(Self {
+            next: NextStateEndpoint::from_json(&value)?,
+            site,
+        })
+    }
+}

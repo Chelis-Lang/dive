@@ -426,6 +426,7 @@ impl<'a> Run<'a> {
             trace.ending,
             Ending::TemporalStateError { .. }
                 | Ending::NextStateError { .. }
+                | Ending::CandidateStateError { .. }
                 | Ending::PartialNext { .. }
                 | Ending::PartialInit { .. }
         ) && (!self.host.private || !self.endpoint_prepared)
@@ -482,7 +483,20 @@ impl<'a> Run<'a> {
                 .startup
                 .store(self.private_init, Ordering::Relaxed);
         }
-        let last = n - 1;
+        // The candidate endpoint separately regenerates the final row on a
+        // fresh terminal runtime. Ordinary checks apply to its source prefix;
+        // shape/name/length checks above still cover the entire supplied word.
+        let last = if matches!(trace.ending, Ending::CandidateStateError { .. }) {
+            n.checked_sub(2).ok_or_else(|| {
+                invalid(
+                    0,
+                    Check::Shape,
+                    "candidate error requires a complete source prefix and terminal row",
+                )
+            })?
+        } else {
+            n - 1
+        };
         let goal = self.goal(&trace.ending, last)?;
         let terminal_before_exclusion = matches!(
             goal,
@@ -492,7 +506,7 @@ impl<'a> Run<'a> {
                 | Goal::ImpliedAction(_)
         );
         let behavior = matches!(goal, Goal::Behavior);
-        for k in 0..n {
+        for k in 0..=last {
             if k.is_multiple_of(1024) {
                 self.poll(Some(k), None)?;
             }
@@ -896,7 +910,8 @@ impl<'a> Run<'a> {
             }
             Ending::Behavior => Goal::Behavior,
             Ending::TemporalStateError { .. } => Goal::TemporalStateError,
-            Ending::NextStateError { .. } | Ending::PartialNext { .. } | Ending::PartialInit { .. } => Goal::NextStateError,
+            Ending::NextStateError { .. }
+                | Ending::CandidateStateError { .. } | Ending::PartialNext { .. } | Ending::PartialInit { .. } => Goal::NextStateError,
             Ending::Lasso { back_to } => {
                 if *back_to > last {
                     return Err(invalid(last, Check::Shape, format!("the lasso loops back to state {back_to}, past the end")));
@@ -1698,7 +1713,22 @@ pub(crate) fn validate_next_prefix_controlled(
     let mut run = Run::private(model, host, false);
     run.control = control;
     run.endpoint_prepared = true;
-    let report = controlled_report(&mut run, trace)?;
+    let mut report = controlled_report(&mut run, trace)?;
+    if report.validation == Validation::Valid
+        && matches!(trace.ending, Ending::CandidateStateError { .. })
+    {
+        let last = trace.states.len() - 1;
+        if let Some(label) = &trace.labels[last] {
+            run.host.set_replay_level(last);
+            let step = St::action(trace.states[last - 1].clone(), trace.states[last].clone());
+            let result = run
+                .label(&label.name, &step, last)
+                .map(|()| Validation::Valid);
+            report.validation = controlled_result(&mut run, result)?;
+            report.notes.extend(std::mem::take(&mut run.notes));
+        }
+        report.length = trace.logical_length();
+    }
     Ok((report, run.passed))
 }
 
@@ -1729,13 +1759,6 @@ pub(crate) fn replay_next_controlled(
             length: 0,
         });
     };
-    let Ending::NextStateError { ec, endpoint } = &trace.ending else {
-        return Ok(Report {
-            validation: Validation::Unsupported("missing Next endpoint".into()),
-            notes: Vec::new(),
-            length: trace.logical_length(),
-        });
-    };
     run.poll(Some(last), Some(Check::Ending))
         .map_err(|stop| match stop {
             Stop::Interrupted { error, .. } => ValidationRunError::Interrupted {
@@ -1751,16 +1774,47 @@ pub(crate) fn replay_next_controlled(
         i64::try_from(last.saturating_add(1)).unwrap_or(i64::MAX),
         Ordering::Relaxed,
     );
-    let mut validation = crate::next_error::replay(
-        model,
-        state,
-        last,
-        ec,
-        endpoint,
-        &run.host,
-        run.control.as_deref(),
-    )
-    .map_err(|error| match error.class() {
+    let replay = match &trace.ending {
+        Ending::CandidateStateError { ec, endpoint } => {
+            let Some(source) = last
+                .checked_sub(1)
+                .and_then(|index| trace.states.get(index))
+            else {
+                return Ok(Report {
+                    validation: Validation::Invalid(Failure {
+                        state: last,
+                        check: Check::Shape,
+                        detail: "candidate error has no predecessor".into(),
+                    }),
+                    notes: Vec::new(),
+                    length: trace.logical_length(),
+                });
+            };
+            crate::candidate_error::replay(
+                model,
+                source,
+                state,
+                last,
+                ec,
+                endpoint,
+                &run.host,
+                run.control.as_deref(),
+            )
+        }
+        Ending::NextStateError { ec, endpoint } => crate::next_error::replay(
+            model,
+            state,
+            last,
+            ec,
+            endpoint,
+            &run.host,
+            run.control.as_deref(),
+        ),
+        _ => Ok(Validation::Unsupported(
+            "missing source terminal endpoint".into(),
+        )),
+    };
+    let mut validation = replay.map_err(|error| match error.class() {
         ErrorClass::Interrupted => ValidationRunError::Interrupted {
             error,
             progress: progress(&run, Some(last)),

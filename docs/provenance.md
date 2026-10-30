@@ -2465,3 +2465,16 @@ function literal classes (ADR 0121), exact original handles and eager admission.
 Scalar-only general domains exclude allocating product indices; requested-byte
 accounting includes future TLC-order arrays. Set normalization history is never
 cache authority, including when nested in a function.
+
+
+### Candidate-side terminal error replay
+
+ADR 0128 extends the independent ADR 0125 driver using the same pinned MIT TLC
+`94d0c5070852b37b801bb8998c436383ab7ee37b` sources: `Worker.doNext` candidate
+callbacks, `ModelChecker.doNext` per-action enumerate-before-check diagnostic
+order, `doNextFailed`, and `doNextCheckImplied`/`doNextEvalFailed` primary wrapper
+sites. Actual typed evaluator exceptions establish constructor identity; source
+and report descriptors do not select execution or supply truth. Existing
+`dive-check/tests/fixtures/errors/tlc-2026.10.06.014338/` streams independently
+supply the primary-header controls. Canonical unknown classifications are not
+changed or granted agreement by the new word proof.

@@ -70,6 +70,7 @@
 //! ```
 #![forbid(unsafe_code)]
 
+mod candidate_error;
 pub mod enabled;
 mod endpoint;
 pub mod format;
@@ -89,7 +90,8 @@ pub mod value_json;
 use dive_model::Model;
 
 pub use endpoint::{
-    NextStateEndpoint, PartialNextEndpoint, PartialStateEndpoint, TemporalStateEndpoint,
+    CandidateErrorSite, CandidateStateEndpoint, NextStateEndpoint, PartialNextEndpoint,
+    PartialStateEndpoint, TemporalStateEndpoint,
 };
 pub use format::{Ending, Label, Source, TraceDoc};
 pub use session::Session;
