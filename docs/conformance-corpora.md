@@ -758,3 +758,22 @@ The six TLC/SANY references are generated from the pinned oracle with a recorded
 reason. These controls exercise ADR 0126's fresh independent whole-word and
 complete false-property attribution requirement; they do not refresh historical
 population totals or relax any other conformance field.
+
+## Failed constant pre-evaluation and lazy function selection
+
+`constant-retry-lazy` retains three minimal named/inline and fairness-action
+controls. Pinned TLC may fail to pre-evaluate a constant function at startup,
+then successfully select one of its defined entries later: it swallows the
+startup failure and evaluates the original definition in the actual call-site
+context (`SpecProcessor.processConstantDefns`, `Tool.evalApplImpl`, source
+`94d0c50`). A named function does not acquire a new eager demand merely because
+its startup evaluation failed. For example, selecting entry 0 from
+`[i \in 0..2 |-> IF i=0 THEN 0 ELSE 1 \div 0]` succeeds; selecting a failing
+entry or materializing the whole function still raises the demanded error.
+
+The named and inline invariant controls both succeed with 3 generated states,
+2 distinct states and depth 2. The named fairness-action control has a reachable
+`x'=1-x` graph and violates `P` (physical exit 13). These observations are
+separate from broader function-constructor or EWD capacity qualification. Model
+goldens are generated through the official harness with a recorded reason;
+raw clean/trace invocations remain outside the repository.
