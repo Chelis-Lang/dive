@@ -339,12 +339,74 @@ fn symmetry(h: &Handoff<'_>, m: &Machine) -> Result<Option<crate::symmetry::Symm
     }))
 }
 
+/// A source-bound optional atom wrapper. The role and subscript share one scope.
+#[derive(Clone, Copy, Debug)]
+pub enum BoundTest {
+    /// Ordinary predicate evaluation.
+    Predicate,
+    /// Successor existence, optionally requiring a subscript change.
+    Enabled(Option<ExprId>),
+    /// Check subscript change before evaluating the action.
+    Nonstuttering(ExprId),
+}
+
+/// Compiles one optional source-bound atom using existing evaluation/generation.
+/// Guarded single-key updates decline at run time when their domain is unproved.
+///
+/// Callers separately certify source/scope/effect history and closed actual
+/// input handles. This compiler acceptance alone supplies no such authority.
+///
+/// ```no_run
+/// # fn example(h: &dive_core::Handoff<'_>, store: std::sync::Arc<dive_core::Store>) -> Result<(), dive_core::Error> {
+/// let plan = dive_core::compile::compile_bound_test(
+///     h, store, dive_core::Opts::default(), dive_core::compile::BoundTest::Enabled(None))?;
+/// # let _ = plan;
+/// # Ok(()) }
+/// ```
+///
+/// # Errors
+/// The existing compiler refusal or an unproved wrapper/update shape.
+pub fn compile_bound_test(
+    h: &Handoff<'_>,
+    store: Arc<Store>,
+    opts: Opts,
+    test: BoundTest,
+) -> Result<Plan, Error> {
+    if h.implied_actions.len() != 1
+        || !h.init.is_empty()
+        || !h.next.is_empty()
+        || !h.invariants.is_empty()
+        || !h.constraints.is_empty()
+        || !h.action_constraints.is_empty()
+        || !h.implied_inits.is_empty()
+        || h.view.is_some()
+    {
+        return Err(Error::unsupported("one bound optional atom is required"));
+    }
+    let opts = Opts {
+        memo: false,
+        step_memo: false,
+        fold: false,
+        ..opts
+    };
+    compile_inner(h, store, opts, Some(test))
+}
+
 /// Compiles the handoff into a plan.
 ///
 /// # Errors
 /// [`crate::ErrorKind::Unsupported`] naming the first construct the M0 core
 /// does not implement.
 pub fn compile(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<Plan, Error> {
+    compile_inner(h, store, opts, None)
+}
+
+fn compile_inner(
+    h: &Handoff<'_>,
+    store: Arc<Store>,
+    opts: Opts,
+    test: Option<BoundTest>,
+) -> Result<Plan, Error> {
     let nvars = h.ir.vars().len();
     if nvars > 64 {
         return Err(Error::unsupported("more than 64 state variables (M0 core)"));
@@ -380,6 +442,8 @@ pub fn compile(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<Plan, E
         role_name: String::new(),
         literal_sets: std::collections::HashSet::new(),
         literal_tuples: std::collections::HashSet::new(),
+        guarded_updates: test.is_some(),
+        interval_slots: HashMap::new(),
     };
     // The initial predicates are conjoined, as TLC's (and the reference
     // engine's `init_states`): one action.
@@ -411,7 +475,11 @@ pub fn compile(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<Plan, E
     }
     let mut implied_actions = Vec::new();
     for r in &h.implied_actions {
-        implied_actions.push(c.step_check(r)?);
+        implied_actions.push(if let Some(test) = test {
+            c.bound_test(r, test)?
+        } else {
+            c.step_check(r)?
+        });
     }
     c.stats.nodes = c.code.nodes.len();
     c.stats.gnodes = c.code.gnodes.len();
@@ -492,6 +560,9 @@ struct Compiler<'a> {
     role_name: String,
     literal_sets: std::collections::HashSet<ExprId>,
     literal_tuples: std::collections::HashSet<ExprId>,
+    guarded_updates: bool,
+    // Actual flat binder slots, never source slot numbers or name guesses.
+    interval_slots: HashMap<u32, P>,
 }
 
 impl Compiler<'_> {
@@ -704,6 +775,16 @@ impl Compiler<'_> {
             | Node::FcnCons { binds, body }
             | Node::Quant { binds, body, .. } => {
                 binders(binds, &[*body], &mut i, &mut add);
+            }
+            Node::ClosedUpdate {
+                base,
+                key,
+                domain,
+                value,
+            } => {
+                for p in [base, key, domain, value] {
+                    add(*p, &mut i);
+                }
             }
             Node::Except { base, updates } => {
                 add(*base, &mut i);
@@ -1234,7 +1315,13 @@ impl Compiler<'_> {
     /// leaves every primed lookup unchanged, and no hidden candidate state
     /// requires the B2/B4 lazy-cache machinery. Other variable substitutions
     /// remain refused (`02-semantic-contract.md` B2--B4).
-    fn enabled(&mut self, a: Option<ExprId>, env: usize, mode: Mode) -> Result<P, Error> {
+    fn enabled(
+        &mut self,
+        a: Option<ExprId>,
+        sub: Option<ExprId>,
+        env: usize,
+        mode: Mode,
+    ) -> Result<P, Error> {
         let a = a.ok_or_else(|| Error::internal("ENABLED without operand"))?;
         if mode == Mode::Primed {
             return Err(Error::unsupported("a primed ENABLED (M1 core)"));
@@ -1253,7 +1340,13 @@ impl Compiler<'_> {
         let cache = std::mem::take(&mut self.def_cache);
         let g = (|| {
             self.enabled_substs()?;
-            self.g(a, env)
+            let action = self.g(a, env)?;
+            if let Some(sub) = sub {
+                let same = self.changed_test(sub, env)?;
+                Ok(self.gpush(GNode::StepAngle { action, same }))
+            } else {
+                Ok(action)
+            }
         })();
         self.init_mode = init;
         self.step = step;
@@ -1680,6 +1773,44 @@ impl Compiler<'_> {
         })
     }
 
+    fn bound_test(&mut self, r: &Role, test: BoundTest) -> Result<Check, Error> {
+        if matches!(test, BoundTest::Predicate) {
+            return self.step_check(r);
+        }
+        self.init_mode = false;
+        let (env, preset) = self.role_env(r)?;
+        if !preset.is_empty() {
+            return Err(Error::unsupported(
+                "a bound atom with unresolved preset slots",
+            ));
+        }
+        let p = match test {
+            BoundTest::Enabled(sub) => self.enabled(Some(r.expr), sub, env, Mode::Plain)?,
+            BoundTest::Nonstuttering(sub) => {
+                // This also proves the after-state read cannot be changed by
+                // a hidden/nonidentity INSTANCE prime cutoff (B3).
+                self.enabled_substs()?;
+                self.step = true;
+                let same = self.changed_test(sub, env)?;
+                let changed = self.push(Node::Not(same))?;
+                let action = self.p(r.expr, env, Mode::Plain)?;
+                self.step = false;
+                self.push(Node::And([changed, action].into()))?
+            }
+            BoundTest::Predicate => return Err(Error::internal("ordinary bound test dispatch")),
+        };
+        Ok(Check {
+            name: r.name.clone(),
+            conjuncts: vec![Conjunct {
+                p,
+                reads: u64::MAX,
+                skippable: false,
+                site: None,
+            }],
+            frame: self.next_slot,
+        })
+    }
+
     /// A step predicate: a check whose conjuncts are never skipped, since
     /// the parent-delta skip compares a state with its parent and a step
     /// predicate has no such parent.
@@ -1981,10 +2112,38 @@ impl Compiler<'_> {
                         value: v?,
                     });
                 }
-                self.push(Node::Except {
-                    base: b,
-                    updates: out.into(),
-                })
+                if self.guarded_updates {
+                    let [u] = out.as_slice() else {
+                        return Err(Error::unsupported("multiple optional EXCEPT clauses"));
+                    };
+                    let [key] = u.path.as_ref() else {
+                        return Err(Error::unsupported("nested optional EXCEPT path"));
+                    };
+                    let Node::Var(_) = self.code.nodes[b as usize] else {
+                        return Err(Error::unsupported(
+                            "optional EXCEPT base is not a root state read",
+                        ));
+                    };
+                    let Node::Slot(slot) = self.code.nodes[*key as usize] else {
+                        return Err(Error::unsupported(
+                            "optional EXCEPT key is not an interval binder",
+                        ));
+                    };
+                    let domain = *self.interval_slots.get(&slot).ok_or_else(|| {
+                        Error::unsupported("optional EXCEPT key has no immutable binder domain")
+                    })?;
+                    self.push(Node::ClosedUpdate {
+                        base: b,
+                        key: *key,
+                        domain,
+                        value: u.value,
+                    })
+                } else {
+                    self.push(Node::Except {
+                        base: b,
+                        updates: out.into(),
+                    })
+                }
             }
             Expr::ExceptAt => match self.at_stack.last() {
                 Some(&at) => self.push(Node::Slot(at)),
@@ -2058,7 +2217,7 @@ impl Compiler<'_> {
                     self.push(Node::And([a, changed].into()))
                 }
             }
-            Expr::Enabled(a) => self.enabled(Some(*a), env, mode),
+            Expr::Enabled(a) => self.enabled(Some(*a), None, env, mode),
             Expr::Cdot(..) => Err(Error::unsupported("action composition (M0 core)")),
             Expr::Always(_)
             | Expr::Eventually(_)
@@ -2142,6 +2301,18 @@ impl Compiler<'_> {
                 saved.push((env, v.index(), old));
                 if let Some(s) = self.envs[env].slots.get_mut(v.index()) {
                     *s = Sb::Flat(flat);
+                }
+                if self.guarded_updates && !b.tuple {
+                    let info = &self.info[domain as usize];
+                    if info.vars == 0
+                        && info.primed == 0
+                        && info.free.is_empty()
+                        && !info.effect
+                        && !info.calls
+                        && !info.history
+                    {
+                        self.interval_slots.insert(flat, domain);
+                    }
                 }
                 slots.push(flat);
             }
@@ -3425,7 +3596,7 @@ impl Compiler<'_> {
                 }
             }
             B::String => return Err(Error::unsupported("STRING (M0 core)")),
-            B::Enabled => return self.enabled(args.first().copied(), env, mode),
+            B::Enabled => return self.enabled(args.first().copied(), None, env, mode),
             B::Cdot => return Err(Error::unsupported("action composition (M0 core)")),
             B::Always | B::Eventually | B::LeadsTo | B::WhilePlus => {
                 return Err(Error::unsupported(

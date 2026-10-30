@@ -2,7 +2,7 @@
 
 use dive_check::{CheckResult, Stats, capture};
 
-use super::{GraphCheck, NativeAnalysis, NativeRead};
+use super::{GraphCheck, NativeAnalysis, NativeRead, NativeReader};
 use crate::analyze::periodic::{Checks, PeriodicFailure, budget_failure, failure};
 use crate::analyze::{
     AnalysisError, EvaluationErrors, ExplorationEvidence, Stage, analyze_native, finish,
@@ -42,6 +42,19 @@ impl GraphCheck<'_> {
         graph: &capture::CsrCapture<'_>,
         stats: Stats,
         read: &mut NativeRead<'_>,
+    ) -> bool {
+        let mut reader = |row, control: &dive_check::budget::EvaluationControl| read(row, control);
+        self.level_native_with_reader(level, graph, stats, &mut reader)
+    }
+
+    /// Checks a committed boundary with optional source-bound native predicates.
+    /// The original reader-only entrypoint retains its callback contract.
+    pub fn level_native_with_reader(
+        &mut self,
+        level: u64,
+        graph: &capture::CsrCapture<'_>,
+        stats: Stats,
+        read: &mut dyn NativeReader,
     ) -> bool {
         if self.native_level_due(stats) {
             self.d.checks.prefixes += 1;
@@ -117,9 +130,22 @@ impl GraphCheck<'_> {
     /// # Errors
     /// The existing analysis failures, with actual complete exploration facts.
     pub fn finish_native(
-        mut self,
+        self,
         complete: capture::CsrComplete<'_>,
         read: &mut NativeRead<'_>,
+    ) -> Result<(NativeAnalysis, Checks), Box<PeriodicFailure>> {
+        let mut reader = |row, control: &dive_check::budget::EvaluationControl| read(row, control);
+        self.finish_native_with_reader(complete, &mut reader)
+    }
+
+    /// Finishes exhausted capture with optional source-bound native predicates.
+    ///
+    /// # Errors
+    /// Existing analysis and original owned resource failures.
+    pub fn finish_native_with_reader(
+        mut self,
+        complete: capture::CsrComplete<'_>,
+        read: &mut dyn NativeReader,
     ) -> Result<(NativeAnalysis, Checks), Box<PeriodicFailure>> {
         let _budget = crate::budget::enter(&self.options.budget);
         let exploration = facts(

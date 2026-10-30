@@ -311,3 +311,209 @@ fn public_host_replacement_remains_visible_while_control_persists() {
     assert!(controls.load(Ordering::SeqCst) > before);
     assert_eq!(calls.load(Ordering::SeqCst), 2);
 }
+
+#[test]
+fn closed_predicate_quantified_intervals_do_not_widen_the_row_certificate() {
+    let (ev, _, _, pred) =
+        input("Init == x=0\nNext == UNCHANGED x\nP == \\A i \\in 1..3 : x[i] >= 0");
+    let scope = ev.scope(pred).expect("actual scope");
+    assert!(
+        ev.closed_predicate_stability_budgeted(&scope, ev.ir().def(pred).body, None)
+            .expect("inspection")
+    );
+    assert!(
+        ev.canonical_producer_stability_budgeted(&[], &[(ev.ir().def(pred).body, scope)], None)
+            .expect("original inspection")
+            .is_none(),
+        "old canonical producer contract unchanged"
+    );
+}
+
+#[test]
+fn closed_predicate_inspection_retains_unknown_history_effect_and_scope_refusals() {
+    for predicate in [
+        "LET s == {x,1} IN x \\in s",
+        "[i \\in {x,1} |-> i] = x",
+        "(CHOOSE i \\in {x,1} : TRUE) = x",
+        "[i \\in 1..3 |-> i] = x",
+        "(CHOOSE i \\in 1..3 : TRUE) = x",
+        "[x EXCEPT ![1] = @+1] = x",
+        "PrintT(x=x)",
+        "ENABLED (x'=x)",
+        "(\"a\" \\o \"b\") = x",
+    ] {
+        let (ev, _, _, pred) = input(&format!(
+            "Init == x=0\nNext == UNCHANGED x\nP == {predicate}"
+        ));
+        let scope = ev.scope(pred).expect("actual scope");
+        assert!(
+            !ev.closed_predicate_stability_budgeted(&scope, ev.ir().def(pred).body, None)
+                .expect("inspection"),
+            "{predicate}"
+        );
+        assert!(ev.take_output().is_empty(), "inspection does not evaluate");
+        let foreign =
+            Evaluator::new(Model::new(ev.ir().clone()), Options::tlc()).expect("foreign evaluator");
+        assert!(
+            !foreign
+                .closed_predicate_stability_budgeted(&scope, ev.ir().def(pred).body, None)
+                .expect("foreign scope refuses")
+        );
+    }
+}
+
+#[test]
+fn closed_predicate_scope_values_require_closed_scalar_keyed_function_storage() {
+    let (ev, _, _, pred) = input("Init == x=0\nNext == UNCHANGED x\nP(a) == a=a");
+    let body = ev.ir().def(pred).body;
+    let function = Value::fcn(
+        vec![
+            (Value::Int(0), Value::tuple(vec![Value::Int(1)])),
+            (Value::Int(2), Value::Bool(true)),
+        ],
+        ev.options().ctx,
+    )
+    .expect("closed general function");
+    let mut scope = ev.scope(pred).expect("scope");
+    scope.env.bind(0, Sv::Val(function));
+    assert!(
+        ev.closed_predicate_stability_budgeted(&scope, body, None)
+            .expect("closed inspection")
+    );
+    assert!(
+        ev.canonical_producer_stability_budgeted(&[], &[(body, scope.clone())], None)
+            .expect("old inspection")
+            .is_none()
+    );
+    for value in [
+        Value::fcn(
+            vec![(Value::tuple(vec![Value::Int(0)]), Value::Int(1))],
+            ev.options().ctx,
+        )
+        .expect("aggregate key"),
+        Value::fcn(
+            vec![(
+                Value::Int(0),
+                Value::set_raw(vec![Value::Int(1)], ev.options().ctx),
+            )],
+            ev.options().ctx,
+        )
+        .expect("raw nested value"),
+    ] {
+        scope.env.bind(0, Sv::Val(value));
+        assert!(
+            !ev.closed_predicate_stability_budgeted(&scope, body, None)
+                .expect("unproved storage")
+        );
+    }
+}
+
+#[test]
+fn closed_predicate_checks_nested_function_context_and_stored_domain_canonicality() {
+    let (ev, _, _, pred) = input("Init == x=0\nNext == UNCHANGED x\nP(a) == a=a");
+    let body = ev.ir().def(pred).body;
+    let mut scope = ev.scope(pred).expect("scope");
+    let canonical = Value::fcn(
+        vec![
+            (Value::Int(0), Value::Int(1)),
+            (Value::Int(2), Value::Int(2)),
+        ],
+        ev.options().ctx,
+    )
+    .expect("canonical function");
+    for value in [
+        canonical.clone(),
+        Value::tuple(vec![canonical.clone()]),
+        Value::tuple(vec![Value::tuple(vec![canonical])]),
+    ] {
+        scope.env.bind(0, Sv::Val(value));
+        assert!(
+            ev.closed_predicate_stability_budgeted(&scope, body, None)
+                .expect("canonical inspection")
+        );
+    }
+    let foreign = Value::fcn(
+        vec![
+            (Value::Int(0), Value::Int(1)),
+            (Value::Int(2), Value::Int(2)),
+        ],
+        Ctx::dive(),
+    )
+    .expect("foreign ordering");
+    for value in [
+        foreign.clone(),
+        Value::tuple(vec![foreign.clone()]),
+        Value::tuple(vec![Value::tuple(vec![foreign])]),
+    ] {
+        scope.env.bind(0, Sv::Val(value));
+        assert!(
+            !ev.closed_predicate_stability_budgeted(&scope, body, None)
+                .expect("foreign context declines")
+        );
+    }
+    // Lossless wire values retain the supplied domain order and multiplicity.
+    for bytes in [
+        [0x2b, 2, 2, 4, 2, 20, 2, 0, 2, 0], // 2->10, 0->0: unsorted
+        [0x2b, 2, 2, 4, 2, 20, 2, 4, 2, 0], // 2->10, 2->0: duplicate
+    ] {
+        let function = dive_value::codec::decode(&mut bytes.as_slice(), &mut |token| {
+            ev.core.names.resolve(token)
+        })
+        .expect("lossless scalar function");
+        let before = function
+            .as_fcn()
+            .expect("decoded function")
+            .iter()
+            .map(|(key, _)| key)
+            .collect::<Vec<_>>();
+        for value in [function.clone(), Value::tuple(vec![function.clone()])] {
+            scope.env.bind(0, Sv::Val(value));
+            assert!(
+                !ev.closed_predicate_stability_budgeted(&scope, body, None)
+                    .expect("uncanonical domain declines")
+            );
+        }
+        let after = function.as_fcn().expect("decoded function");
+        assert_eq!(
+            before,
+            after.iter().map(|(key, _)| key).collect::<Vec<_>>(),
+            "inspection never repairs the domain"
+        );
+    }
+}
+
+#[test]
+fn guarded_action_inspection_keeps_constructor_effect_and_foreign_scope_boundaries() {
+    for (body, eligible) in [
+        ("\\E i \\in 1..2: x'=[x EXCEPT ![i]=x[i]+1]", true),
+        ("x'=[x EXCEPT ![1]=@+1]", false),
+        ("x'=[x EXCEPT ![1][1]=0]", false),
+        ("x'=[x EXCEPT ![1]=0, ![2]=0]", false),
+        ("x'=[i \\in 1..2 |-> i]", false),
+        ("x'=(CHOOSE i \\in 1..2: TRUE)", false),
+        ("PrintT(TRUE) /\\ x'=x", false),
+        ("ENABLED (x'=x)", false),
+    ] {
+        let (ev, _, _, pred) = input(&format!("Init == x=0\nNext == UNCHANGED x\nP == {body}"));
+        let scope = ev.scope(pred).expect("scope");
+        let expr = ev.ir().def(pred).body;
+        assert_eq!(
+            ev.guarded_action_stability_budgeted(&scope, expr, None)
+                .expect("inspection"),
+            eligible,
+            "{body}"
+        );
+        assert!(
+            !ev.closed_predicate_stability_budgeted(&scope, expr, None)
+                .expect("ordinary proof unchanged"),
+            "{body}"
+        );
+        assert_eq!(ev.take_output(), Vec::<String>::new());
+        let foreign = Evaluator::new(Model::new(ev.ir().clone()), Options::tlc()).expect("foreign");
+        assert!(
+            !foreign
+                .guarded_action_stability_budgeted(&scope, expr, None)
+                .expect("foreign scope")
+        );
+    }
+}

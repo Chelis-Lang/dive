@@ -641,6 +641,35 @@ fn state_failure(
     error
 }
 
+fn action_failure(
+    model: &Model,
+    pred: &plan::PredicateAtom,
+    failure: plan::AtomError,
+    context: &mut StateContext<'_>,
+    direct: bool,
+) -> AnalysisError {
+    let core = matches!(&failure, plan::AtomError::Core(_));
+    let cause = failure.into_error();
+    if let Some(interruption) = evaluator_interruption(context.control, &cause) {
+        return interruption;
+    }
+    let source = Box::new(plan::Source::new(model, pred.pred.location));
+    let error = AnalysisError::Atom {
+        property: context.property.into(),
+        source: source.clone(),
+        detail: cause.to_string(),
+    };
+    context.errors.action = Some(Box::new(ActionEvaluation {
+        cause,
+        property: context.property.into(),
+        source,
+        properties: model.property_claims().len(),
+        core,
+        direct,
+    }));
+    error
+}
+
 /// Original edge metadata without owning or reconstructing state rows.
 #[derive(Clone, Copy)]
 enum OriginalEdges<'a> {
@@ -794,7 +823,10 @@ fn labels<'a>(
             }
             if pred.kind == AtomKind::State {
                 let vals = states.representative(v)?.into_owned();
-                let value = atom(model, plan, index, &St::state(vals), &mut context)?;
+                let value = match states.predicate(pred, v, None)? {
+                    Some(value) => value,
+                    None => atom(model, plan, index, &St::state(vals), &mut context)?,
+                };
                 labels
                     .set_state(index, v, value)
                     .map_err(AnalysisError::Product)?;
@@ -807,7 +839,7 @@ fn labels<'a>(
             if graph.len(v) == Some(0) {
                 continue;
             }
-            let vals = states.representative(v)?;
+            let vals = states.representative(v)?.into_owned();
             let mut evaluated = std::collections::BTreeMap::new();
             for position in 0..graph
                 .len(v)
@@ -820,34 +852,25 @@ fn labels<'a>(
                     if let Some(value) = evaluated.get(&edge.to) {
                         *value
                     } else {
-                        let value = pred
-                            .evaluate_detailed(
-                                model,
-                                &St::action(vals.as_ref().clone(), target.clone()),
-                            )
-                            .map_err(|failure| {
-                                let core = matches!(&failure, plan::AtomError::Core(_));
-                                let cause = failure.into_error();
-                                if let Some(interruption) = evaluator_interruption(control, &cause)
-                                {
-                                    return interruption;
-                                }
-                                let source = Box::new(plan::Source::new(model, pred.pred.location));
-                                let error = AnalysisError::Atom {
-                                    property: property.into(),
-                                    source: source.clone(),
-                                    detail: cause.to_string(),
-                                };
-                                context.errors.action = Some(Box::new(ActionEvaluation {
-                                    cause,
-                                    property: property.into(),
-                                    source,
-                                    properties: model.property_claims().len(),
-                                    core,
-                                    direct: active.1 == Some(index),
-                                }));
-                                error
-                            })?;
+                        let native = states.predicate(pred, v, Some(edge.to))?;
+                        let value = native.map_or_else(
+                            || {
+                                pred.evaluate_detailed(
+                                    model,
+                                    &St::action(vals.clone(), target.clone()),
+                                )
+                                .map_err(|failure| {
+                                    action_failure(
+                                        model,
+                                        pred,
+                                        failure,
+                                        &mut context,
+                                        active.1 == Some(index),
+                                    )
+                                })
+                            },
+                            Ok,
+                        )?;
                         evaluated.insert(edge.to, value);
                         value
                     }
@@ -1704,7 +1727,7 @@ fn analyze_native(
     plans: &[PreparedProperty],
     searched: usize,
     captured: &capture::CsrCapture<'_>,
-    read: &mut periodic::external::NativeRead<'_>,
+    read: &mut dyn periodic::external::NativeReader,
     limits: Limits,
     policy: AcceptancePolicy,
     graph_labels: GraphLabelPolicy,

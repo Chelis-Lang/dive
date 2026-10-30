@@ -300,6 +300,9 @@ impl Machine {
 
     #[allow(clippy::too_many_lines, reason = "one arm per generator rule")]
     fn gen_node(&mut self, code: &Code, g: G, acts: u32, sink: &mut dyn Sink) -> Result<(), Error> {
+        if self.fuel != u64::MAX {
+            self.charge(1)?;
+        }
         let Some(node) = code.gnodes.get(g as usize) else {
             return Err(Error::internal("generator node out of range"));
         };
@@ -324,83 +327,53 @@ impl Machine {
                 Ok(())
             }
             GNode::Exists { binds, body, .. } => {
-                let units = self.units(code, binds)?;
-                if units.iter().any(|(_, e)| e.is_empty()) {
-                    return Ok(());
-                }
+                self.charge(binds.iter().map(|b| b.slots.len()).sum())?;
                 let slots: Vec<u32> = binds.iter().flat_map(|b| b.slots.iter().copied()).collect();
                 let mark = self.save(slots.iter().copied());
-                let mut idx = vec![0usize; units.len()];
-                let r = (|| {
-                    loop {
-                        for (k, (u, elems)) in units.iter().enumerate() {
-                            self.bind_unit(binds, *u, elems[idx[k]])?;
-                        }
-                        self.gen_node(code, *body, acts, sink)?;
-                        let mut k = 0;
-                        loop {
-                            if k == units.len() {
-                                return Ok(());
-                            }
-                            idx[k] += 1;
-                            if idx[k] < units[k].1.len() {
-                                break;
-                            }
-                            idx[k] = 0;
-                            k += 1;
-                        }
-                    }
-                })();
+                let r = self.for_each_binding(code, binds, &mut |machine| {
+                    machine.gen_node(code, *body, acts, sink)?;
+                    Ok(true)
+                });
                 self.restore(mark, slots.iter().copied());
-                r
+                r.map(|_| ())
             }
             GNode::Forall { binds, body, .. } => {
-                // Every binding, first position fastest.
-                let units = self.units(code, binds)?;
+                self.charge(binds.iter().map(|b| b.slots.len()).sum())?;
                 let slots: Vec<u32> = binds.iter().flat_map(|b| b.slots.iter().copied()).collect();
                 let mark = self.save(slots.iter().copied());
-                let mut contexts: Vec<Vec<Handle>> = Vec::new();
-                if !units.iter().any(|(_, e)| e.is_empty()) {
-                    let mut idx = vec![0usize; units.len()];
-                    'outer: loop {
-                        for (k, (u, elems)) in units.iter().enumerate() {
-                            self.bind_unit(binds, *u, elems[idx[k]])?;
-                        }
-                        contexts.push(slots.iter().map(|&s| self.slot(s)).collect());
-                        let mut k = 0;
-                        loop {
-                            if k == units.len() {
-                                break 'outer;
-                            }
-                            idx[k] += 1;
-                            if idx[k] < units[k].1.len() {
-                                break;
-                            }
-                            idx[k] = 0;
-                            k += 1;
-                        }
+                let r = (|| {
+                    let mut contexts: Vec<Vec<Handle>> = Vec::new();
+                    self.for_each_binding(code, binds, &mut |machine| {
+                        machine.charge(slots.len() + 1)?;
+                        contexts.push(slots.iter().map(|&s| machine.slot(s)).collect());
+                        Ok(true)
+                    })?;
+                    if contexts.is_empty() {
+                        return self.cont(code, acts, sink);
                     }
-                }
-                let r = if contexts.is_empty() {
-                    self.cont(code, acts, sink)
-                } else {
                     let cmark = self.conts.len();
                     let vmark = self.cvals.len();
-                    let mut head = acts;
-                    for ctx in contexts.iter().skip(1) {
-                        #[allow(clippy::cast_possible_truncation, reason = "small value stacks")]
-                        let at = self.cvals.len() as u32;
-                        self.cvals.extend_from_slice(ctx);
-                        head = self.push_cont(Item::Under { g, vals: at }, head);
-                    }
-                    for (&s, &v) in slots.iter().zip(&contexts[0]) {
-                        self.set_slot(s, v);
-                    }
-                    let r = self.gen_node(code, *body, head, sink);
+                    let result = (|| {
+                        let mut head = acts;
+                        for ctx in contexts.iter().skip(1) {
+                            self.charge(ctx.len() + 1)?;
+                            #[allow(
+                                clippy::cast_possible_truncation,
+                                reason = "small value stacks"
+                            )]
+                            let at = self.cvals.len() as u32;
+                            self.cvals.extend_from_slice(ctx);
+                            head = self.push_cont(Item::Under { g, vals: at }, head);
+                        }
+                        for (&s, &v) in slots.iter().zip(&contexts[0]) {
+                            self.set_slot(s, v);
+                        }
+                        self.gen_node(code, *body, head, sink)
+                    })();
                     self.conts.truncate(cmark);
                     self.cvals.truncate(vmark);
-                    r
-                };
+                    result
+                })();
                 self.restore(mark, slots.iter().copied());
                 r
             }
@@ -508,12 +481,12 @@ impl Machine {
             // Enumerated without normalizing, so that a symbolic domain's
             // candidates are built one at a time.
             let dom = self.eval(code, bind.domain)?;
-            let mut c = self.heap.cursor(dom)?;
+            let mut c = self.work_cursor(dom)?;
             let mark = self.save(bind.slots.iter().copied());
             let r = (|| {
                 loop {
                     let before = self.heap.mark();
-                    let Some(e) = c.next(&mut self.heap)? else {
+                    let Some(e) = self.work_next(&mut c)? else {
                         break;
                     };
                     let forced = self.stats.transient_thunks;
@@ -550,7 +523,7 @@ impl Machine {
         if !self.heap.is_finite(s) {
             return Err(Error::eval("The right side of \\IN is not enumerable"));
         }
-        let mut c = self.heap.cursor(s)?;
+        let mut c = self.work_cursor(s)?;
         self.each_in(&mut c, code, var, acts, sink)
     }
 }
@@ -573,7 +546,7 @@ impl Machine {
     ) -> Result<(), Error> {
         loop {
             let before = self.heap.mark();
-            let Some(e) = c.next(&mut self.heap)? else {
+            let Some(e) = self.work_next(c)? else {
                 return Ok(());
             };
             let forced = self.stats.transient_thunks;
@@ -622,7 +595,7 @@ impl Machine {
         }
         let elems = self.raw_elems(code, raw)?;
         let listed = elems.len() as u64;
-        let distinct = self.heap.cardinality(s)?;
+        let distinct = self.work_cardinality(s)?;
         if listed != distinct {
             return Err(Error::unsupported(format!(
                 "x' \\in a lazily represented set: TLC's unnormalized enumeration of it ({listed} elements) differs from its normalized one ({distinct} elements), and which one TLC uses depends on whether it has already compared, sized or fingerprinted the same set object"
@@ -639,7 +612,7 @@ impl Machine {
                 "x' \\in a lazily represented set under --compat=tlc: TLC's unnormalized enumeration of it lists the elements in another order than its normalized one, and which one TLC uses depends on the set object's history (A6)",
             ));
         }
-        let mut c = self.heap.cursor(s)?;
+        let mut c = self.work_cursor(s)?;
         self.each_in(&mut c, code, var, acts, sink)
     }
 
@@ -652,8 +625,8 @@ impl Machine {
                 "TLC's enumeration of a lazily represented set with an infinite part (core)",
             ));
         }
-        let n = self.heap.norm(h)?;
-        self.heap.elements(n)
+        let n = self.work_norm(h)?;
+        self.work_elements(n)
     }
 
     fn distinct(&mut self, elems: &[Handle]) -> usize {

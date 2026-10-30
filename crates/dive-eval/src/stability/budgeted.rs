@@ -63,6 +63,8 @@ struct Walk<'a> {
     // In the subset proof, reject reads of the actual outer binder through any
     // resolved frame/capture. This is not a public analysis-scope attestation.
     forbidden: Option<(dive_ir::DefId, usize)>,
+    closed_functions: bool,
+    guarded_updates: bool,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -102,6 +104,8 @@ pub(super) fn prove(
         abstracts: Vec::new(),
         active: Vec::new(),
         forbidden: None,
+        closed_functions: false,
+        guarded_updates: false,
     };
     walk.poll()?;
     for (roots, mode) in [(producers, Mode::Producer), (predicates, Mode::Reordered)] {
@@ -126,6 +130,53 @@ pub(super) fn prove(
     }))
 }
 
+pub(super) fn closed_predicate(
+    evaluator: &Evaluator,
+    scope: &Scope,
+    expr: ExprId,
+    control: Option<&dyn crate::HostControl>,
+) -> crate::Result<bool> {
+    closed_test(evaluator, scope, expr, control, false)
+}
+
+pub(super) fn closed_action(
+    evaluator: &Evaluator,
+    scope: &Scope,
+    expr: ExprId,
+    control: Option<&dyn crate::HostControl>,
+) -> crate::Result<bool> {
+    closed_test(evaluator, scope, expr, control, true)
+}
+
+fn closed_test(
+    evaluator: &Evaluator,
+    scope: &Scope,
+    expr: ExprId,
+    control: Option<&dyn crate::HostControl>,
+    guarded_updates: bool,
+) -> crate::Result<bool> {
+    let mut walk = Walk {
+        evaluator,
+        control,
+        tasks: Vec::new(),
+        results: Vec::new(),
+        frames: Vec::new(),
+        abstracts: Vec::new(),
+        active: Vec::new(),
+        forbidden: None,
+        closed_functions: true,
+        guarded_updates,
+    };
+    if evaluator.admit_scoped_expr(scope, expr).is_err() {
+        return Ok(false);
+    }
+    walk.schedule([
+        Task::Environment(scope.env.clone()),
+        Task::Expression(scope.clone(), expr, Mode::Reordered, true),
+    ])?;
+    walk.run()
+}
+
 pub(super) fn closed_forall(
     evaluator: &Evaluator,
     original: Scope,
@@ -147,6 +198,8 @@ pub(super) fn closed_forall(
         abstracts: Vec::new(),
         active: Vec::new(),
         forbidden: Some((original.env.frame.def, outer_slot)),
+        closed_functions: false,
+        guarded_updates: false,
     };
     walk.poll()?;
     reserve(&mut walk.abstracts, 1)?;
@@ -601,6 +654,20 @@ impl Walk<'_> {
     fn value(&mut self, value: &Value) -> crate::Result<bool> {
         let ev = self.evaluator;
         let mut tasks = Vec::new();
+        if self.closed_functions {
+            match value {
+                Value::Str(_) => {
+                    let mut proceed = || self.poll().is_ok();
+                    let accepted = value
+                        .closed_function_cache_heap_bytes(&ev.core.names, &mut proceed)
+                        .is_some();
+                    self.poll()?;
+                    return Ok(accepted);
+                }
+                Value::Model(_) | Value::BigInt(_) => return Ok(false),
+                _ => {}
+            }
+        }
         match value {
             Value::Bool(_) | Value::Int(_) | Value::BigInt(_) => {}
             Value::Str(atom) | Value::Model(atom) => {
@@ -614,6 +681,9 @@ impl Walk<'_> {
                 }
             }
             Value::Fcn(function) => {
+                if self.closed_functions {
+                    return self.closed_function(value, function);
+                }
                 // The row proof retains its literal-only canonical contract.
                 // Closed-singleton inspection additionally admits immutable
                 // stored FcnRcdValues, auditing every key/value below. Their
@@ -634,6 +704,9 @@ impl Walk<'_> {
                 }
             }
             Value::Set(set) => {
+                if self.closed_functions && set.as_interval().is_some() {
+                    return Ok(true);
+                }
                 if set.kind() != SetKind::Enum || set.order() != ev.core.ctx.order {
                     return Ok(false);
                 }
@@ -647,6 +720,48 @@ impl Walk<'_> {
                 }
             }
         }
+        self.sequence(tasks)?;
+        Ok(true)
+    }
+
+    fn closed_function(
+        &mut self,
+        value: &Value,
+        function: &dive_value::Fcn,
+    ) -> crate::Result<bool> {
+        let ev = self.evaluator;
+        // Tuple domains are implicit 1..n in every profile. Every stored
+        // record/general domain must carry this run's order at every depth.
+        if function.as_tuple().is_none() && function.order() != ev.core.ctx.order {
+            return Ok(false);
+        }
+        let mut proceed = || self.poll().is_ok();
+        let accepted = value
+            .closed_function_cache_heap_bytes(&ev.core.names, &mut proceed)
+            .is_some();
+        self.poll()?;
+        if !accepted {
+            return Ok(false);
+        }
+        let mut tasks = Vec::new();
+        let mut previous: Option<Value> = None;
+        for (key, child) in function.iter() {
+            self.poll()?;
+            // The shape inspector established scalar keys. Inspect the actual
+            // stored sequence; codec decoding is lossless and does not certify
+            // sorted or distinct domains. Never sort, normalize or repair it.
+            if previous.as_ref().is_some_and(|prior| {
+                prior.cmp_with(&key, ev.core.ctx.order) != std::cmp::Ordering::Less
+            }) {
+                return Ok(false);
+            }
+            previous = Some(key.clone());
+            reserve(&mut tasks, 2)?;
+            tasks.extend([Task::Value(key), Task::Value(child.clone())]);
+        }
+        // Re-enter the same checks for every nested function, including those
+        // hidden under tuple/record values. Shape/byte eligibility alone does
+        // not attest the descendants' contexts or domain ordering.
         self.sequence(tasks)?;
         Ok(true)
     }
@@ -933,6 +1048,23 @@ impl Walk<'_> {
                 tasks.push(Task::Quantified(scope.clone(), expr, mode));
                 self.sequence(tasks)?;
             }
+            E::Except { base, updates } if self.guarded_updates => {
+                let [update] = updates.as_ref() else {
+                    return Ok(false);
+                };
+                let [key] = update.path.as_ref() else {
+                    return Ok(false);
+                };
+                // Compiler and runtime additionally prove a root closed base,
+                // the actual interval binder and its exact in-domain key.
+                self.children(
+                    scope,
+                    [*base, *key, update.value],
+                    mode,
+                    true,
+                    Info::canonical(false),
+                )?;
+            }
             E::FcnApply { fcn, arg } => {
                 self.children(scope, [*fcn, *arg], mode, true, Info::canonical(false))?;
             }
@@ -1007,6 +1139,10 @@ impl Walk<'_> {
                         non_string,
                         seen,
                     }))?;
+                } else if self.closed_functions
+                    && matches!(op, StdOp::NaturalsDotDot | StdOp::IntegersDotDot)
+                {
+                    self.result(Info::canonical(true))?;
                 } else if let Some(info) = native_info(op, non_string) {
                     self.result(info)?;
                 } else {
