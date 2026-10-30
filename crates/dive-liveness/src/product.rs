@@ -86,6 +86,7 @@ impl ProductError {
     pub(crate) fn search(error: SearchError) -> Self {
         match error {
             SearchError::Budget => Self::Limit(crate::budget::EXHAUSTED),
+            SearchError::Allocation => Self::Limit("search allocation"),
             other => Self::Search(other),
         }
     }
@@ -185,6 +186,7 @@ impl<T: TruthAccess, R: RowStorage> Builder<'_, T, R> {
             .filter(|n| *n <= self.limits.vertices)
             .ok_or(ProductError::Limit("vertices"))?;
         self.acceptance_cells(size, self.edge_count)?;
+        csr::grow(&mut self.pairs, 1)?;
         self.ids.insert((v, n), id);
         self.pairs.push((v, n));
         self.rows.add_vertex()?;
@@ -233,17 +235,31 @@ impl<T: TruthAccess, R: RowStorage> Builder<'_, T, R> {
         // Discovery order must never choose the witness. Renumber retained
         // pairs in the original Cartesian (behavior, tableau) order. Removing
         // unreachable ids preserves every reachable tie-break and edge order.
-        let ordered: Vec<usize> = self.ids.into_values().collect();
-        let mut renumber = vec![0; self.pairs.len()];
+        let mut ordered = csr::reserve(self.ids.len())?;
+        for (position, id) in self.ids.into_values().enumerate() {
+            if position.is_multiple_of(1024) {
+                csr::poll()?;
+            }
+            ordered.push(id);
+        }
+        let mut renumber = csr::reserve(self.pairs.len())?;
+        while renumber.len() < self.pairs.len() {
+            csr::poll()?;
+            renumber.resize((renumber.len() + 1024).min(self.pairs.len()), 0);
+        }
         for (new, &old) in ordered.iter().enumerate() {
             renumber[old] = new;
         }
-        let roots = roots
-            .into_iter()
-            .map(|old| renumber[old])
-            .collect::<BTreeSet<_>>()
-            .into_iter()
-            .collect();
+        let mut sorted_roots = BTreeSet::new();
+        for old in roots {
+            csr::poll()?;
+            sorted_roots.insert(renumber[old]);
+        }
+        let mut roots = csr::reserve(sorted_roots.len())?;
+        for root in sorted_roots {
+            csr::poll()?;
+            roots.push(root);
+        }
         let graph = self.rows.finish(&ordered, &renumber, roots)?;
         let acceptance = acceptance(Ordered {
             pairs: &self.pairs,
@@ -252,10 +268,17 @@ impl<T: TruthAccess, R: RowStorage> Builder<'_, T, R> {
             edge_count: self.edge_count,
             scratch_len: self.scratch_len,
         })?;
+        let mut behavior_states = csr::reserve(ordered.len())?;
+        for (position, &old) in ordered.iter().enumerate() {
+            if position.is_multiple_of(1024) {
+                csr::poll()?;
+            }
+            behavior_states.push(self.pairs[old].0);
+        }
         Ok(Parts {
             graph,
             acceptance,
-            behavior_states: ordered.iter().map(|&old| self.pairs[old].0).collect(),
+            behavior_states,
         })
     }
 }
@@ -452,7 +475,7 @@ impl Product {
             &lasso,
             &self.behavior_states,
             &self.original_edges,
-        )))
+        )?))
     }
 }
 
@@ -693,9 +716,9 @@ impl CompactProduct {
 
     pub(crate) fn find_lasso(&self) -> Result<Option<Lasso>, ProductError> {
         let lasso = find_lasso_view(&self.parts.graph, self).map_err(ProductError::search)?;
-        Ok(lasso.map(|lasso| {
-            project_lasso_rows(&lasso, &self.parts.behavior_states, &self.parts.graph)
-        }))
+        lasso
+            .map(|lasso| project_lasso_rows(&lasso, &self.parts.behavior_states, &self.parts.graph))
+            .transpose()
     }
 
     pub(crate) fn find_lasso_with_conditions(
@@ -794,9 +817,9 @@ impl CompactProduct {
         };
         let lasso =
             find_lasso_view(&self.parts.graph, &conditioned).map_err(ProductError::search)?;
-        Ok(lasso.map(|lasso| {
-            project_lasso_rows(&lasso, &self.parts.behavior_states, &self.parts.graph)
-        }))
+        lasso
+            .map(|lasso| project_lasso_rows(&lasso, &self.parts.behavior_states, &self.parts.graph))
+            .transpose()
     }
 }
 
@@ -890,13 +913,21 @@ impl<T: TruthAccess> AcceptanceAccess for Conditioned<'_, T> {
     }
 }
 
-fn project_lasso(lasso: &Lasso, behavior_states: &[usize], original_edges: &[Vec<usize>]) -> Lasso {
+fn project_lasso(
+    lasso: &Lasso,
+    behavior_states: &[usize],
+    original_edges: &[Vec<usize>],
+) -> Result<Lasso, ProductError> {
     project_lasso_with(lasso, behavior_states, |source, edge| {
         original_edges[source][edge]
     })
 }
 
-fn project_lasso_rows(lasso: &Lasso, behavior_states: &[usize], graph: &impl ProductRows) -> Lasso {
+fn project_lasso_rows(
+    lasso: &Lasso,
+    behavior_states: &[usize],
+    graph: &impl ProductRows,
+) -> Result<Lasso, ProductError> {
     project_lasso_with(lasso, behavior_states, |source, edge| {
         graph.original_edges(source)[edge]
     })
@@ -906,23 +937,27 @@ fn project_lasso_with(
     lasso: &Lasso,
     behavior_states: &[usize],
     original: impl Fn(usize, usize) -> usize,
-) -> Lasso {
-    let project = |steps: &[Step]| {
-        steps
-            .iter()
-            .map(|s| Step {
-                from: behavior_states[s.from],
-                edge: original(s.from, s.edge),
-                to: behavior_states[s.to],
-            })
-            .collect()
+) -> Result<Lasso, ProductError> {
+    let project = |steps: &[Step]| -> Result<Vec<Step>, ProductError> {
+        let mut projected = csr::reserve(steps.len())?;
+        for (position, step) in steps.iter().enumerate() {
+            if position.is_multiple_of(1024) {
+                csr::poll()?;
+            }
+            projected.push(Step {
+                from: behavior_states[step.from],
+                edge: original(step.from, step.edge),
+                to: behavior_states[step.to],
+            });
+        }
+        Ok(projected)
     };
-    Lasso {
+    Ok(Lasso {
         root: behavior_states[lasso.root],
         entry: behavior_states[lasso.entry],
-        prefix: project(&lasso.prefix),
-        cycle: project(&lasso.cycle),
-    }
+        prefix: project(&lasso.prefix)?,
+        cycle: project(&lasso.cycle)?,
+    })
 }
 
 #[cfg(test)]

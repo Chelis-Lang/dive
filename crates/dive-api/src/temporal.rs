@@ -24,8 +24,8 @@ use dive_trace::{
 };
 
 mod native;
-pub(crate) use native::core_native_report;
 pub use native::{ValidatedNativeCounterexample, ValidatedNativePrefix};
+pub(crate) use native::{core_capture_stop, core_native_report};
 
 /// The outcome of a bounded temporal run, distinguishing real prefixes.
 #[derive(Clone, Debug)]
@@ -126,6 +126,31 @@ pub(crate) fn file_configuration() -> Configuration {
         acceptance: AcceptancePolicy::compact_default(),
         graph_labels: GraphLabelPolicy::NoCellLimit,
     }
+}
+
+/// Ordinary core file requests use actual run budgets and checked machine layouts.
+/// Planning limits and explicit library/reference limits retain their exact scope.
+pub(crate) fn core_file_configuration() -> Configuration {
+    let mut configuration = file_configuration();
+    let limits = &mut configuration.limits;
+    limits.capture = capture::Limits {
+        states: usize::MAX,
+        edges: usize::MAX,
+        generated: u64::MAX,
+        // The explorer retains fixed eight-source waves. Its per-emission
+        // allocation and actual budget checks bound provisional growth.
+        successors_per_unit: u64::MAX,
+    };
+    limits.product.vertices = usize::MAX;
+    limits.product.edges = usize::MAX;
+    limits.product.acceptance_cells = usize::MAX;
+    limits.product.steps = usize::MAX;
+    limits.atom_cells = usize::MAX;
+    configuration.acceptance = AcceptancePolicy::Buffers {
+        bytes: usize::MAX,
+        work: usize::MAX,
+    };
+    configuration
 }
 
 /// A temporal result with total binding, exploration and validation time.
