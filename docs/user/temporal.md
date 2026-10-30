@@ -59,6 +59,25 @@ observables and selects final-only analysis. The default profile retains its
 deterministic completed-level schedule. Explicit final/short requests retain
 their existing separate route.
 
+Pure native temporal capture can use all requested workers under `--compat=tlc`
+when its real startup name table is fixed. For example:
+
+```sh
+dive check crates/dive-api/tests/fixtures/core-liveness/FixedNames/TupleSubSeq.tla --engine core --compat=tlc --workers 8 --seed 0 --fp 0 --output json
+```
+
+This tuple `SubSeq` cycle returns success with 3 distinct states, 4 generated
+states and depth 3, as pinned TLC does at one worker. The same default-profile
+request is supported. No model, operator-name or function-name whitelist is used.
+The native producer refuses any name absent from its sealed startup table;
+reference temporal evaluation must also leave its exact private name domain
+unchanged throughout planning, capture, final/prefix analysis and reporting.
+Actual new names in temporal atoms therefore yield explicit unsupported before
+a semantic result escapes. Independent replay has its own fresh-domain guard.
+Source/configured/captured effects, foreign scopes and unproved value shapes
+remain refused, and reference-pool scheduling is unchanged. This is no new
+runtime-string ordering capability or full-model performance qualification.
+
 JSON schema 3 preserves the actual completion/counters and existing trace
 format. `core.metrics.liveness.storage: "native-csr"` identifies native capture;
 `convert_ms`, `converted_nodes`, `memo_entries` and `graph_states` remain,

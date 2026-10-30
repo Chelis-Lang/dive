@@ -75,6 +75,14 @@
 - Benchmark JSONL rows retain the child report’s actual engine, requested engine
   and fallback details, so campaign labels cannot hide reference-engine fallback.
 
+- Admit pure native temporal tuple operations at all requested TLC worker
+  counts when actual startup name domains are fixed. The sealed producer table
+  and exact reference-domain guard prevent new-name demands from publishing a
+  semantic result; source/configured/captured effects and foreign contexts remain
+  refused. Reference-pool scheduling and original value representations are
+  unchanged. This removes EWD998Chan's false TLC/8 static refusal without claiming
+  original N=3 capacity or performance qualification.
+
 - Report known persistent-store allocation components and capacities in core
   metrics, including unused slab slots, boxed payloads and retired index tables
   retained by readers. Label the total as a lower bound with explicit opaque

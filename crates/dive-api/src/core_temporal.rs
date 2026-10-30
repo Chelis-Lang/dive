@@ -41,6 +41,26 @@ fn refused(feature: impl Into<String>, options: &CheckOptions, ir: &Ir) -> CoreO
     )))
 }
 
+/// Actual privately bound native and reference domains, never a source-name
+/// projection. Prepared is constructed only from IR/config via fresh binding;
+/// it accepts no external bound model, value provider or callable.
+fn fixed_name_domain(prepared: &Prepared) -> bool {
+    let model = &prepared.model;
+    let strings = prepared.store.strings();
+    let count = model.evaluator.startup_names();
+    strings.is_sealed()
+        && strings.order() == dive_core::strings::StringOrder::Token
+        && strings.len() == count
+        && model.names.len() == count
+        && model.validate_context().is_ok()
+        && (0..count).all(|i| {
+            u32::try_from(i).is_ok_and(|token| {
+                matches!((strings.text(token), model.names.resolve(token)),
+                    (Some(text), Some(atom)) if text.as_ref() == atom.as_str())
+            })
+        })
+}
+
 /// Why the core does not run this temporal check before its search.
 fn static_refusal(
     ir: &Arc<Ir>,
@@ -51,9 +71,13 @@ fn static_refusal(
     if let Some(reason) = dive_check::final_roles::route_exclusion(ir, config, options) {
         return Some(format!("temporal properties with {reason} (core)"));
     }
-    if let Some(reason) =
-        dive_check::capture::refusal(&prepared.model, options, options.workers > 1)
-    {
+    let guarded_names =
+        fixed_name_domain(prepared) && dive_check::capture::runtime_names_only(&prepared.model);
+    if let Some(reason) = dive_check::capture::refusal(
+        &prepared.model,
+        options,
+        options.workers > 1 && !guarded_names,
+    ) {
         return Some(format!("temporal properties: {reason} (core)"));
     }
     if prepared.plan.effects.prints {
@@ -99,10 +123,74 @@ pub(crate) fn check(
 
 #[allow(
     clippy::too_many_arguments,
+    reason = "same owned temporal-operation boundary"
+)]
+fn check_configured(
+    ir: &Arc<Ir>,
+    config: &dive_config::ModelConfig,
+    options: &CheckOptions,
+    profile: (bool, dive_core::Opts),
+    prepared: Prepared,
+    route: Route,
+    run: &mut CoreRun,
+    configuration: crate::temporal::Configuration,
+) -> CoreOutcome {
+    // Hold the exact reference Arc used by GraphCheck and its model's scopes.
+    // It is append-only; no successful branch can hide an intervening new token.
+    let names = Arc::clone(&prepared.model.names);
+    let guarded = fixed_name_domain(&prepared);
+    let count = names.len();
+    let outcome = check_configured_inner(
+        ir,
+        config,
+        options,
+        profile,
+        prepared,
+        route,
+        run,
+        configuration,
+    );
+    guard_outcome(guarded, &names, count, outcome, options, ir)
+}
+
+fn guard_outcome(
+    guarded: bool,
+    names: &dive_value::Interner,
+    count: usize,
+    outcome: CoreOutcome,
+    options: &CheckOptions,
+    ir: &Ir,
+) -> CoreOutcome {
+    if !guarded || names.len() == count {
+        return outcome;
+    }
+    match &outcome {
+        CoreOutcome::TemporalFailure(_) => outcome,
+        CoreOutcome::Checked(result)
+            if matches!(
+                result.verdict,
+                Verdict::Stopped(_)
+                    | Verdict::ResourceLimit { .. }
+                    | Verdict::BudgetMeasurement { .. }
+                    | Verdict::InternalError { .. }
+            ) =>
+        {
+            outcome
+        }
+        _ => refused(
+            "temporal reference evaluation created a name outside the proved startup domain (core)",
+            options,
+            ir,
+        ),
+    }
+}
+
+#[allow(
+    clippy::too_many_arguments,
     clippy::too_many_lines,
     reason = "one producer route with injectable exact caller resource controls"
 )]
-fn check_configured(
+fn check_configured_inner(
     ir: &Arc<Ir>,
     config: &dive_config::ModelConfig,
     options: &CheckOptions,
@@ -477,3 +565,7 @@ fn internal(message: &str, options: &CheckOptions, ir: &Ir) -> CoreOutcome {
 #[cfg(test)]
 #[path = "core_temporal_resource_tests.rs"]
 mod resource_tests;
+
+#[cfg(test)]
+#[path = "core_temporal_name_tests.rs"]
+mod name_tests;

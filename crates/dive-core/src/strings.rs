@@ -115,6 +115,12 @@ impl Strings {
         self.sealed.store(true, AtomicOrdering::Release);
     }
 
+    /// Whether this table refuses every name absent from its current domain.
+    #[must_use]
+    pub fn is_sealed(&self) -> bool {
+        self.sealed.load(AtomicOrdering::Acquire)
+    }
+
     /// The id of `text`, assigning one if it is new.
     ///
     /// # Errors

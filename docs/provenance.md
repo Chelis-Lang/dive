@@ -2332,6 +2332,21 @@ A process-unique deferred receipt transports this origin through the value
 layer, reusing the existing checked interruption receipt mechanism. Forged,
 stale, duplicated, cross-thread or exhausted receipts cannot supply an error
 class. Global EC exit mappings and report/trace schemas are unchanged.
+### Native capture name-domain guard
+
+ADR 0127 uses dive's existing sealed native startup table and append-only
+`dive-value::Interner`, not a new TLC algorithm or state-type inference. Actual
+private file binding supplies one Core/IR/Interner owner to scope construction,
+reference analysis and callbacks; the complete operation wrapper checks that
+same name Arc before semantic publication. Independent replay retains its own
+fresh runtime-name guard. Exact original graph representations remain ADR0121.
+The pinned TLC `94d0c50` primary at W1/seed0/fp0 confirms original EWD998Chan
+with only N=1 derived cfg: success, 6 distinct/13 generated/depth2. The new
+TupleSubSeq fixture is success3/4/3; NameAtom is success1/2/1 on TLC, while
+NameProducer is a liveness violation2/3/2. The latter name-creating demands stay
+explicitly unsupported where their actual native/reference startup domain is
+exceeded. No goldens were edited; no original N=3 completion claim follows.
+
 ### Operative native host bindings
 
 ADR 0115 separates permission-hook execution from a provider's claim of
