@@ -81,6 +81,10 @@
   validation and exact reported-to-word attribution; all other required fields
   remain strict (ADR 0126).
 
+- Failed constant pre-evaluation retains the actual caller's lazy function
+  selection: named functions no longer raise errors from undemanded entries.
+  Successful constant caching and genuine demanded errors, resource failures
+  and interruptions keep their existing behavior (#670).
 - Core temporal graph conversion checks the capture budget during materialized
   traversal, normalization and sorting, with explicit scratch allocation errors.
   Low-level value constructors offer the same cooperative controls. Symbolic

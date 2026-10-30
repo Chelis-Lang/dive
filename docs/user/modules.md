@@ -19,6 +19,18 @@ order follow the resolved [compatibility profile](compatibility.md). An operator
 name in the registry is an inventory entry, not a promise of complete support
 for every argument and mode.
 
+A constant definition whose startup evaluation fails remains lazy at its actual
+use. For example, `F == [i \in 0..2 |-> IF i=0 THEN 0 ELSE 1 \div 0]`
+can be selected as `F[0]` without demanding entries 1 and 2, whether the function
+is named or written inline. Selecting `F[1]` or materializing the whole function
+still raises division by zero. Successful startup values remain cached; genuine
+resource failures and interruptions propagate instead of retrying. This rule is
+the same in both profiles. A pinned runnable regression is:
+
+```sh
+dive check conformance/corpus/constant-retry-lazy/specifications/Named/Named.tla --config conformance/corpus/constant-retry-lazy/specifications/Named/Named.cfg --engine reference --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+```
+
 `Len` accepts a function with an empty domain as the empty sequence, including
 `[k \in 1..0 |-> 0]`, in both profiles and on the core. A nonempty function
 must have domain `1..n`; an empty set or scalar remains an error. This checked

@@ -6,6 +6,13 @@ name lists agree; a different oracle list is accepted only after fresh independe
 whole-word and exact complete-attribution validation. These targeted controls do
 not refresh historical corpus totals or establish general liveness parity.
 
+The separate `constant-retry-lazy` microcorpus pins three TLC model results and
+three SANY inputs for failed constant pre-evaluation (#670). At `36345f9c`,
+named and inline function selection preserve lazy demand; NamedAction's reported
+word validates independently. All six entries agree in both profiles at 1/4
+workers. This targeted result does not refresh historical populations or close
+a parity surface. Whole-function diagnostic-header parity remains open (#672).
+
 L5's native capture/analysis/report path is implemented: persistent original
 rows, checked CSR, controlled eager Graph admission, bounded closed-function
 read reuse, and sealed complete/prefix facts. Only selected-word values
