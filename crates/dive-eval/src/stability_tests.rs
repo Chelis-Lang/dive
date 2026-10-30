@@ -407,3 +407,77 @@ fn closed_predicate_scope_values_require_closed_scalar_keyed_function_storage() 
         );
     }
 }
+
+#[test]
+fn closed_predicate_checks_nested_function_context_and_stored_domain_canonicality() {
+    let (ev, _, _, pred) = input("Init == x=0\nNext == UNCHANGED x\nP(a) == a=a");
+    let body = ev.ir().def(pred).body;
+    let mut scope = ev.scope(pred).expect("scope");
+    let canonical = Value::fcn(
+        vec![
+            (Value::Int(0), Value::Int(1)),
+            (Value::Int(2), Value::Int(2)),
+        ],
+        ev.options().ctx,
+    )
+    .expect("canonical function");
+    for value in [
+        canonical.clone(),
+        Value::tuple(vec![canonical.clone()]),
+        Value::tuple(vec![Value::tuple(vec![canonical])]),
+    ] {
+        scope.env.bind(0, Sv::Val(value));
+        assert!(
+            ev.closed_predicate_stability_budgeted(&scope, body, None)
+                .expect("canonical inspection")
+        );
+    }
+    let foreign = Value::fcn(
+        vec![
+            (Value::Int(0), Value::Int(1)),
+            (Value::Int(2), Value::Int(2)),
+        ],
+        Ctx::dive(),
+    )
+    .expect("foreign ordering");
+    for value in [
+        foreign.clone(),
+        Value::tuple(vec![foreign.clone()]),
+        Value::tuple(vec![Value::tuple(vec![foreign])]),
+    ] {
+        scope.env.bind(0, Sv::Val(value));
+        assert!(
+            !ev.closed_predicate_stability_budgeted(&scope, body, None)
+                .expect("foreign context declines")
+        );
+    }
+    // Lossless wire values retain the supplied domain order and multiplicity.
+    for bytes in [
+        [0x2b, 2, 2, 4, 2, 20, 2, 0, 2, 0], // 2->10, 0->0: unsorted
+        [0x2b, 2, 2, 4, 2, 20, 2, 4, 2, 0], // 2->10, 2->0: duplicate
+    ] {
+        let function = dive_value::codec::decode(&mut bytes.as_slice(), &mut |token| {
+            ev.core.names.resolve(token)
+        })
+        .expect("lossless scalar function");
+        let before = function
+            .as_fcn()
+            .expect("decoded function")
+            .iter()
+            .map(|(key, _)| key)
+            .collect::<Vec<_>>();
+        for value in [function.clone(), Value::tuple(vec![function.clone()])] {
+            scope.env.bind(0, Sv::Val(value));
+            assert!(
+                !ev.closed_predicate_stability_budgeted(&scope, body, None)
+                    .expect("uncanonical domain declines")
+            );
+        }
+        let after = function.as_fcn().expect("decoded function");
+        assert_eq!(
+            before,
+            after.iter().map(|(key, _)| key).collect::<Vec<_>>(),
+            "inspection never repairs the domain"
+        );
+    }
+}

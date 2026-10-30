@@ -39,7 +39,11 @@ retaining the old producer certificate unchanged. It checks captured scopes,
 configured redirects/constants, cached bodies, source transfers, effects and
 name ownership. General functions require the run's domain ordering; scalar
 keys and recursively closed tuples/records/functions contain Bool/Int/run-owned
-string leaves. Raw/deferred set history, function constructors, CHOOSE, EXCEPT,
+string leaves. Inspect every nested function's context and the actual stored
+scalar-key sequence: keys must be strictly increasing in the run's order.
+Lossless decoding, a matching order label or shape/byte inspection alone supplies
+no canonical-domain fact. Unsorted or duplicate domains decline without sorting,
+forcing or normalization. Raw/deferred set history, function constructors, CHOOSE, EXCEPT,
 ENABLED, live TLCGet and effects remain unproved. Actual input handles must
 independently satisfy the closed set-free shape on every call.
 

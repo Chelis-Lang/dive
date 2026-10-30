@@ -659,15 +659,7 @@ impl Walk<'_> {
             }
             Value::Fcn(function) => {
                 if self.closed_functions {
-                    if function.as_tuple().is_none() && function.order() != ev.core.ctx.order {
-                        return Ok(false);
-                    }
-                    let mut proceed = || self.poll().is_ok();
-                    let accepted = value
-                        .closed_function_cache_heap_bytes(&ev.core.names, &mut proceed)
-                        .is_some();
-                    self.poll()?;
-                    return Ok(accepted);
+                    return self.closed_function(value, function);
                 }
                 // The row proof retains its literal-only canonical contract.
                 // Closed-singleton inspection additionally admits immutable
@@ -705,6 +697,48 @@ impl Walk<'_> {
                 }
             }
         }
+        self.sequence(tasks)?;
+        Ok(true)
+    }
+
+    fn closed_function(
+        &mut self,
+        value: &Value,
+        function: &dive_value::Fcn,
+    ) -> crate::Result<bool> {
+        let ev = self.evaluator;
+        // Tuple domains are implicit 1..n in every profile. Every stored
+        // record/general domain must carry this run's order at every depth.
+        if function.as_tuple().is_none() && function.order() != ev.core.ctx.order {
+            return Ok(false);
+        }
+        let mut proceed = || self.poll().is_ok();
+        let accepted = value
+            .closed_function_cache_heap_bytes(&ev.core.names, &mut proceed)
+            .is_some();
+        self.poll()?;
+        if !accepted {
+            return Ok(false);
+        }
+        let mut tasks = Vec::new();
+        let mut previous: Option<Value> = None;
+        for (key, child) in function.iter() {
+            self.poll()?;
+            // The shape inspector established scalar keys. Inspect the actual
+            // stored sequence; codec decoding is lossless and does not certify
+            // sorted or distinct domains. Never sort, normalize or repair it.
+            if previous.as_ref().is_some_and(|prior| {
+                prior.cmp_with(&key, ev.core.ctx.order) != std::cmp::Ordering::Less
+            }) {
+                return Ok(false);
+            }
+            previous = Some(key.clone());
+            reserve(&mut tasks, 2)?;
+            tasks.extend([Task::Value(key), Task::Value(child.clone())]);
+        }
+        // Re-enter the same checks for every nested function, including those
+        // hidden under tuple/record values. Shape/byte eligibility alone does
+        // not attest the descendants' contexts or domain ordering.
         self.sequence(tasks)?;
         Ok(true)
     }
