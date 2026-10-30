@@ -2211,14 +2211,25 @@ fn temporal_json(doc: &mut Value, report: &crate::temporal::Report, tlc_fingerpr
     temporal_evidence_json(doc, &evidence, tlc_fingerprints);
     doc["notes"] = json!([TEMPORAL_NOTE]);
     doc["elapsed_ms"] = json!(u64::try_from(report.elapsed().as_millis()).unwrap_or(u64::MAX));
-    if let Some((property, document, back_to)) = temporal_word(report) {
-        doc["property"] = json!(property);
+    if let Some((_, document, back_to)) = temporal_word(report) {
+        doc["property"] = json!(temporal_property_names(&document.properties));
         doc["properties"] = json!(document.properties);
         doc["counterexample"] = json!({
             "length": document.states.len(), "ending": "lasso", "back_to": back_to + 1,
             "states": document.states.iter().enumerate().map(|(i,s)| json!({"index":i+1,"label":null,"action":null,"values":s})).collect::<Vec<_>>(),
             "trace": document.to_json(), "validation": "valid",
         });
+    }
+}
+
+// Pinned TLC MP::TLC_TEMPORAL_PROPERTY_VIOLATED names the properties false
+// on the actual printed word, in configured order (ADR 0126).
+fn temporal_property_names(names: &[String]) -> String {
+    match names.split_last() {
+        None => String::new(),
+        Some((last, [])) => last.clone(),
+        Some((last, [first])) => format!("{first} and {last}"),
+        Some((last, rest)) => format!("{}, and {last}", rest.join(", ")),
     }
 }
 
@@ -2246,11 +2257,12 @@ fn temporal_human(report: &crate::temporal::Report) -> String {
             "Complete final temporal analysis: no error has been found."
         );
     } else if let Some((_, document, back_to)) = temporal_word(report) {
-        let _ = writeln!(
-            out,
-            "Temporal properties {} were violated.",
-            document.properties.join(", ")
-        );
+        let names = temporal_property_names(&document.properties);
+        if document.properties.len() == 1 {
+            let _ = writeln!(out, "Temporal property {names} was violated.");
+        } else {
+            let _ = writeln!(out, "Temporal properties {names} were violated.");
+        }
         let _ = writeln!(out, "Independently validated counterexample:");
         for (i, state) in document.states.iter().enumerate() {
             let _ = writeln!(out, "State {}: {}", i + 1, json!(state));

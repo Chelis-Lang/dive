@@ -266,3 +266,10 @@ id = "reference-instance-naturals"
 path = "conformance/corpus/reference-instance-naturals"
 license = "MIT"
 layout = "examples-manifest"
+
+# Actual-word temporal property attribution (ADR 0126, issue 489).
+[[corpus]]
+id = "word-relative-liveness"
+path = "conformance/corpus/word-relative-liveness"
+license = "MIT"
+layout = "examples-manifest"

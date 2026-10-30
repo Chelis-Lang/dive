@@ -2000,6 +2000,19 @@ edges. Raw output stays outside the repository and is regenerated from the
 pinned source, configuration and oracle.
 
 
+## Word-relative temporal property attribution
+
+The report list formatting follows pinned MIT `MP.java`'s
+`TLC_TEMPORAL_PROPERTY_VIOLATED` case; attribution semantics follow
+`Liveness.java::findViolatedProperties` and its `LiveWorker` caller at
+`94d0c5070852b37b801bb8998c436383ab7ee37b`. Every original configured property is
+evaluated on the printed concrete lasso, with configured order preserved.
+Dive retains its existing direct formula attribution and independent validator;
+no TLC SCC or lasso-selection algorithm is imported. ADR 0126's fresh validation
+guard is original harness code. The `word-relative-liveness` corpus pins the
+original four-property control, mutually distinct false sets and two-name
+formatting through the official harness; no golden is hand edited.
+
 ## Packed atomic truth in original domains
 
 The internal `dive-liveness::product::truth` storage follows the state/action

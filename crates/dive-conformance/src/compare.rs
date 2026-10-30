@@ -5,7 +5,9 @@
 //! - the verdict class and the error class (the `EC` name of the deciding
 //!   message);
 //! - the numeric process exit code, including an absent observed code;
-//! - the violated property, when the golden names one;
+//! - the violated property, when the golden names one; ADR 0126 permits a
+//!   different liveness list only after fresh whole-word and complete
+//!   attribution validation in the pipeline;
 //! - distinct state counts and depth, and generated counts at one worker;
 //! - the finite counterexample's length and ending. Valid periodic liveness
 //!   words may choose different lassos (ADR 0086); independent replay remains
@@ -29,7 +31,8 @@
 //! properties (Examples `MCDistributedReplicatedLog`: `AllExtending and
 //! InSync` vs `InSync`). Implementations other than TLC get no leniency: they
 //! must match the required observable fields of the single-worker golden at
-//! every worker count. Generated-count equality is required at one worker; the
+//! every worker count, subject to that independently validated word-relative
+//! liveness attribution rule. Generated-count equality is required at one worker; the
 //! separate historical TLC self-check policy below remains unchanged.
 //!
 //! [`ComparePolicy::may_omit_property`] lets an oracle that does not name
@@ -157,6 +160,22 @@ fn ending_kind(r: &OracleResult) -> Option<&'static str> {
         TraceEnding::Lasso { .. } => "lasso",
         TraceEnding::Stuttering => "stuttering",
     })
+}
+
+/// Retains strict fields while allowing names attributed independently to a
+/// different valid liveness word (ADR 0126). Returns whether a diff was removed.
+pub(crate) fn apply_word_attribution(
+    diffs: &mut Vec<FieldDiff>,
+    golden: &OracleResult,
+    observed: &OracleResult,
+    trace: &crate::trace_check::TraceCheck,
+) -> bool {
+    if golden.verdict != Verdict::LivenessViolation || !trace.confirms_liveness_property(observed) {
+        return false;
+    }
+    let before = diffs.len();
+    diffs.retain(|diff| diff.field != "violated_property");
+    diffs.len() != before
 }
 
 /// Field-by-field differences under the strict policy (no leniency), as
@@ -747,3 +766,7 @@ mod tests {
         assert_eq!(f[0].golden, serde_json::Value::from("safety failure"));
     }
 }
+
+#[cfg(test)]
+#[path = "compare_word_attribution_tests.rs"]
+mod word_attribution_tests;
