@@ -107,9 +107,12 @@ eager enumeration, materialization-cache and cardinality boundaries; every
 interpreter, generator and library call to those Heap primitives routes through
 them. This includes Subseteq, set algebra/UNION, domains, library enumeration,
 candidate normalization and membership's materialization option. SortSeq/SelectSeq
-charge tuple copies before allocation. Only interval/eager-set/product shapes
-have preflight bounds; other eager symbolic shapes decline before their Heap
-primitive. Optional materialization stays in the analysis arena, never interning
+charge tuple copies before allocation. Interval/eager-set/product and record-set cursor shapes with bounded component
+domains have preflight bounds; other eager symbolic shapes decline before their Heap
+primitive. Record-set preflight also serves the existing constant folder: known
+cost exhaustion consumes its fuel and reports an abandoned fold; an unproved
+shape stays unsupported without fabricated exhaustion. Source record-set
+constructors remain outside the optional atom certificate. Optional materialization stays in the analysis arena, never interning
 its result in the producer Store. Ordinary unbounded machines keep their existing
 enumeration and caches. Actual run interruptions are polled inside query work through a
 small core checkpoint backed by the original retained control, as well as before

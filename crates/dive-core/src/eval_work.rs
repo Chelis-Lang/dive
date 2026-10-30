@@ -48,9 +48,14 @@ impl Machine {
                 self.charge(len.checked_mul(3).ok_or_else(quota)?)?;
                 Ok(len)
             }
-            Kind::Product => {
+            Kind::Product | Kind::RecSet => {
                 self.charge(len)?;
-                let children = self.heap.view(h).data.to_vec();
+                let fields = if kind == Kind::RecSet { len / 2 } else { len };
+                let children = if kind == Kind::RecSet {
+                    self.heap.view(h).data[fields..].to_vec()
+                } else {
+                    self.heap.view(h).data.to_vec()
+                };
                 let mut count = 1usize;
                 for child in children {
                     let size = self.domain_work(child, true, depth + 1)?;
@@ -59,7 +64,12 @@ impl Machine {
                 if materialize {
                     self.charge(
                         count
-                            .checked_mul(len.checked_add(3).ok_or_else(quota)?)
+                            .checked_mul(
+                                fields
+                                    .saturating_mul(if kind == Kind::RecSet { 2 } else { 1 })
+                                    .checked_add(3)
+                                    .ok_or_else(quota)?,
+                            )
                             .ok_or_else(quota)?,
                     )?;
                 }
@@ -373,5 +383,56 @@ mod tests {
             );
             assert_eq!(machine.fuel, 4096 - text.len() as u64);
         }
+    }
+    #[test]
+    fn record_set_known_work_exhausts_quota_but_unknown_shapes_do_not() {
+        let mut machine = Machine::new(
+            Arc::new(Store::default()),
+            0,
+            Opts::default(),
+            crate::memo::Memo::default(),
+        );
+        let a = machine.heap.string("a").expect("field a");
+        let b = machine.heap.string("b").expect("field b");
+        let domain = machine.heap.interval(0, 100);
+        let large = machine
+            .heap
+            .symbolic(Kind::RecSet, 0, &[a, b, domain, domain]);
+        let before = machine.heap.arena().peak();
+        machine.set_fuel(4096);
+        let error = machine
+            .work_norm(large)
+            .expect_err("known materialization cost exceeds fuel");
+        assert_eq!(
+            machine.fuel, 0,
+            "same exhaustion signal used by abandoned-fold telemetry"
+        );
+        assert!(error.message().contains("constant-folding budget"));
+        assert_eq!(
+            machine.heap.arena().peak(),
+            before,
+            "denied before record payload allocation"
+        );
+        let small_domain = machine.heap.interval(0, 1);
+        let small = machine
+            .heap
+            .symbolic(Kind::RecSet, 0, &[a, b, small_domain, small_domain]);
+        machine.set_fuel(4096);
+        let result = machine.work_norm(small).expect("bounded small record set");
+        assert_eq!(machine.heap.view(result).data.len(), 4);
+        let unknown = machine.heap.symbolic(Kind::Subset, 0, &[small_domain]);
+        machine.set_fuel(4096);
+        let error = machine
+            .work_norm(unknown)
+            .expect_err("unknown shape remains unsupported");
+        assert!(
+            error
+                .message()
+                .contains("unproved optional domain materialization shape")
+        );
+        assert!(
+            machine.fuel > 0,
+            "no fabricated known-cost exhaustion for an unknown shape"
+        );
     }
 }
