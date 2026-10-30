@@ -285,3 +285,47 @@ fn init_partial_error_witness_preserves_the_absent_formal_counterexample() -> Te
     }
     Ok(())
 }
+
+#[test]
+fn initial_candidate_level_proves_earlier_property_priority() -> TestResult {
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/terminal-level");
+    let good = root.join("one/InitLevel.tla");
+    let bad = root.join("zero/InitLevel.tla");
+    for compat_tlc in [false, true] {
+        let options = TraceOptions {
+            compat_tlc,
+            run: Some((0, 0)),
+            ..TraceOptions::default()
+        };
+        let correct = SpecModel::load(&good, &good.with_extension("cfg"), &options)?;
+        let forged = SpecModel::load(&bad, &bad.with_extension("cfg"), &options)?;
+        for engine in [Engine::Reference, Engine::Core] {
+            let request = |file: &PathBuf| CheckRequest {
+                file: file.clone(),
+                config: Some(file.with_extension("cfg")),
+                compat_tlc,
+                workers: Some(1),
+                seed: Some(0),
+                fp: Some(0),
+                ..CheckRequest::default()
+            };
+            let genuine = check_file_engine(&request(&good), engine)?.to_json();
+            assert_eq!(genuine["tlc"]["code"], 2102);
+            assert_eq!(genuine["tlc"]["exit_status"], 255);
+            assert!(genuine["counterexample"].is_null());
+            let witness = TraceDoc::from_json(&genuine["error_witness"])?;
+            let earlier = check_file_engine(&request(&bad), engine)?.to_json();
+            assert_eq!(earlier["tlc"]["code"], 2108);
+            assert_eq!(earlier["tlc"]["exit_status"], 13);
+            assert_eq!(earlier["property"], "P");
+            assert!(earlier["error_witness"].is_null());
+            assert!(matches!(forged.try_validate(&witness)?.validation,
+                Validation::Invalid(ref failure) if failure.check == dive_api::trace::Check::ImpliedInit));
+            assert_eq!(
+                correct.try_validate(&witness)?.validation,
+                Validation::Valid
+            );
+        }
+    }
+    Ok(())
+}

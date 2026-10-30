@@ -138,7 +138,10 @@ logical length one, and `init-partial-state` with EC `TLC_INITIAL_STATE`.
 Validation reconstructs actual Init actions and requires their first partial
 candidate's source and exact assignment partition, with earlier-event priority.
 The first complete Init candidate can receive safety checks; later candidates
-requiring global newness refuse. The producer captures scalar bindings under
+requiring global newness refuse. `TLCGet("level")` observes level 1 in initial
+candidate checks, including implied initial properties; generation resumes at
+level 0 after each callback. Action checks use their predecessor level.
+The producer captures scalar bindings under
 the existing budget and leaves compound/unavailable evidence explicitly
 unconfirmed. Optional evidence never changes the primary result or verified
 flags; source-bound validation is still required.

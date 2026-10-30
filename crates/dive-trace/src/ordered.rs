@@ -46,6 +46,16 @@ pub(crate) struct Driver<'a> {
 }
 
 impl Driver<'_> {
+    // Candidate predicates observe the generated state's level. Action
+    // predicates and generation observe the predecessor (zero for Init).
+    fn at_site(&self, site: Site) {
+        let level = match site {
+            Site::Constraint | Site::Invariant | Site::ImpliedInit => self.level.saturating_add(1),
+            Site::Init | Site::Next | Site::ActionConstraint | Site::ImpliedAction => self.level,
+        };
+        self.host.set_replay_level(level);
+    }
+
     pub(crate) fn poll(&self) -> Result<(), EvalError> {
         self.control
             .map_or(Ok(()), |c| c.check().map_err(EvalError::interrupted))
@@ -60,13 +70,18 @@ impl Driver<'_> {
         };
         for action in actions {
             self.poll()?;
-            self.host.set_replay_level(self.level);
+            let generation = if self.initial { Site::Init } else { Site::Next };
+            self.at_site(generation);
             let mut decision = None;
             let mut stop = None;
             let mut sink = |candidate: &Successor<'_>| {
                 let known_new = self.initial && emitted == 0;
                 emitted = emitted.saturating_add(1);
-                match self.candidate(candidate, before_first, known_new) {
+                let result = self.candidate(candidate, before_first, known_new);
+                // The generator continues after a successful callback at its
+                // original source level, even when Init properties used level1.
+                self.at_site(generation);
+                match result {
                     Ok(Some(event)) => decision = Some(event),
                     Ok(None) => return Flow::Continue,
                     Err(error) => stop = Some(error),
@@ -106,7 +121,7 @@ impl Driver<'_> {
     pub(crate) fn diagnostic(&self) -> Result<Event, EvalError> {
         for action in &self.model.actions {
             self.poll()?;
-            self.host.set_replay_level(self.level);
+            self.at_site(Site::Next);
             let mut candidates = Vec::new();
             let mut stop = None;
             let outcome =
@@ -171,7 +186,7 @@ impl Driver<'_> {
         let state = slots(candidate.state)?;
         let here = St::state(state.clone());
         let step = St::action(self.source.clone(), state);
-        self.host.set_replay_level(self.level.saturating_add(1));
+        self.at_site(Site::Constraint);
         let mut inside = true;
         for constraint in &self.model.constraints {
             match self.holds(constraint, &here, Site::Constraint)? {
@@ -184,7 +199,7 @@ impl Driver<'_> {
             }
         }
         if inside && !self.initial {
-            self.host.set_replay_level(self.level);
+            self.at_site(Site::ActionConstraint);
             for constraint in &self.model.action_constraints {
                 match self.holds(constraint, &step, Site::ActionConstraint)? {
                     Ok(true) => {}
@@ -196,7 +211,7 @@ impl Driver<'_> {
                 }
             }
         }
-        self.host.set_replay_level(self.level.saturating_add(1));
+        self.at_site(Site::Invariant);
         if inside {
             if let Some(event) = self.fingerprint(candidate.state)? {
                 return Ok(Some(event));
@@ -226,7 +241,11 @@ impl Driver<'_> {
                 }
             }
         }
-        self.host.set_replay_level(self.level);
+        self.at_site(if self.initial {
+            Site::ImpliedInit
+        } else {
+            Site::ImpliedAction
+        });
         let properties = if self.initial {
             &self.model.implied_inits
         } else {

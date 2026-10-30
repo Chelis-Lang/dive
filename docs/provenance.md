@@ -2371,6 +2371,20 @@ proof; only actual private source execution establishes it. Partial Init uses
 actual emitted assignments/action identity, preserving TLC's absent formal
 counterexample and exposing optional untrusted native evidence separately.
 
+The `terminal-level/{one,zero}/InitLevel` API fixtures record a pinned primary
+boundary discovered during fresh review of ordered replay: with
+`Init == (x=0 /\ y=0) \/ x=1`, `P == TLCGet("level")=1` passes the
+first complete candidate and reaches partial Init EC2102/exit255. Changing only
+the final numeral to `0` instead stops earlier at initial property P,
+EC2108/exit13. The pinned `94d0c50` tool-mode BFS uses W1, seed0, fp0 and
+`tla2tools.jar` SHA256
+`7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d`.
+The files differ by one byte at the same source offset. Initial candidate
+constraints, invariants and implied initial properties observe level1; action
+constraints/implied actions observe their actual predecessor level, and the
+generator resumes at its source level after each callback. This primary fact
+precedes the repair; it supplies no broader corpus or classifier claim.
+
 ### Partial terminal candidates (#607)
 
 `dive-check::engine::trace_state`, the core trace adapter and ADR 0123 preserve

@@ -206,7 +206,9 @@
   original partial Next words now validate. Native version 3 also carries
   optional partial Init `error_witness`, keeping formal counterexample null,
   primary results and verified flags unchanged. No blanket wrapper exemption or
-  TLC parity claim is added; trace versions 1/2 retain their meanings.
+  TLC parity claim is added; trace versions 1/2 retain their meanings. Ordered
+  replay preserves candidate/predecessor levels for `TLCGet("level")`, including
+  earlier initial properties and generation resumed after a callback.
 - `dive check` reports TLC's error when an operator whose body is a numeral
   or a string literal, such as `LAMBDA a, x : 0`, is passed to an operator
   TLC implements in Java (`FoldLeft` and the other folds, `Quantify`,

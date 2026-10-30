@@ -22,7 +22,10 @@ privately, as in ADR 0103. Neither descriptor nor checker metadata chooses an
 AST node, action or evaluation context. The driver follows configured actions
 and actual generator callbacks, then completeness, constraints, action
 constraints, fingerprint demand, invariants and implied safety obligations.
-Earlier errors/failures take priority. A source-bound complete prefix retains
+Candidate constraints, invariants and implied initial properties observe the
+candidate level; action constraints/implied actions observe the predecessor
+level. Every generator callback restores the original source level before
+generation resumes. Earlier errors/failures take priority. A source-bound complete prefix retains
 all configured safety checks; public Behavior validation is unchanged.
 
 Global visited/newness and cross-state alias history are not reconstructed.
