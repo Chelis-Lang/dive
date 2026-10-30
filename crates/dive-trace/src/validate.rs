@@ -481,7 +481,13 @@ impl<'a> Run<'a> {
         }
         let last = n - 1;
         let goal = self.goal(&trace.ending, last)?;
-        let full_last = !matches!(goal, Goal::Invariant(_));
+        let terminal_before_exclusion = matches!(
+            goal,
+            Goal::Invariant(_)
+                | Goal::InvariantError(..)
+                | Goal::ImpliedInit(_)
+                | Goal::ImpliedAction(_)
+        );
         let behavior = matches!(goal, Goal::Behavior);
         for k in 0..n {
             if k.is_multiple_of(1024) {
@@ -555,22 +561,15 @@ impl<'a> Run<'a> {
                 continue;
             }
             let is_last = k == last;
-            if !is_last || full_last {
-                for c in &m.constraints {
-                    self.require(&c.pred, &here, k, Check::Constraint, || {
-                        format!("CONSTRAINT {} is false, but only the last state of an invariant violation may lie outside the model", c.name)
-                    })?;
-                }
-                if let Some(step) = &step
-                    && !(named_lasso && trace.states[k - 1] == trace.states[k])
-                {
-                    for c in &m.action_constraints {
-                        self.require(&c.pred, step, k, Check::ActionConstraint, || {
-                            format!("ACTION_CONSTRAINT {} is false, but only the last step of an invariant violation may lie outside the model", c.name)
-                        })?;
-                    }
-                }
-            }
+            let constrained_step = step
+                .as_ref()
+                .filter(|_| !(named_lasso && trace.states[k - 1] == trace.states[k]));
+            self.constraints(
+                &here,
+                constrained_step,
+                k,
+                is_last && terminal_before_exclusion,
+            )?;
             match (&goal, is_last) {
                 (Goal::Invariant(i), true) => {
                     self.claimed(&m.invariants, *i, &here, k, Check::Invariant, "invariant")?;
@@ -1076,6 +1075,55 @@ impl<'a> Run<'a> {
             ));
         }
         self.passed += 1;
+        Ok(())
+    }
+
+    // TLC first evaluates model constraints, stopping at their first false
+    // result, then still checks invariants and implied properties on an excluded
+    // candidate. A false constraint is admissible only for the last state of a
+    // named, independently checked safety ending. An error while evaluating a
+    // constraint decides earlier and must never be skipped, even for invariants.
+    fn constraints(
+        &mut self,
+        here: &St,
+        step: Option<&St>,
+        state: usize,
+        allow_excluded: bool,
+    ) -> Result<(), Stop> {
+        for constraint in &self.model.constraints {
+            if !self.holds(&constraint.pred, here, state, Check::Constraint)? {
+                return if allow_excluded {
+                    Ok(())
+                } else {
+                    Err(invalid(
+                        state,
+                        Check::Constraint,
+                        format!(
+                            "CONSTRAINT {} is false; only a checked terminal invariant or property may lie outside the model",
+                            constraint.name,
+                        ),
+                    ))
+                };
+            }
+        }
+        if let Some(step) = step {
+            for constraint in &self.model.action_constraints {
+                if !self.holds(&constraint.pred, step, state, Check::ActionConstraint)? {
+                    return if allow_excluded {
+                        Ok(())
+                    } else {
+                        Err(invalid(
+                            state,
+                            Check::ActionConstraint,
+                            format!(
+                                "ACTION_CONSTRAINT {} is false; only a checked terminal invariant or property may lie outside the model",
+                                constraint.name,
+                            ),
+                        ))
+                    };
+                }
+            }
+        }
         Ok(())
     }
 

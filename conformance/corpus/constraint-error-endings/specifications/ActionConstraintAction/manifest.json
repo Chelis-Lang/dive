@@ -1,0 +1,26 @@
+{
+  "sources": [
+    "docs/user/traces.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "trace"
+  ],
+  "modules": [
+    {
+      "path": "specifications/ActionConstraintAction/ActionConstraintAction.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/ActionConstraintAction/ActionConstraintAction.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}

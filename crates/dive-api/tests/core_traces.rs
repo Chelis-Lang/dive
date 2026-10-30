@@ -65,9 +65,10 @@ fn known(ending: Option<&Ending>, f: &Failure, last: usize) -> bool {
             ]
             .contains(&check)
             && !f.detail.contains("may lie outside the model"))
-            || (check == "constraint"
+            || (raises
+                && matches!(check, "constraint" | "action-constraint")
                 && f.detail.contains(
-                    "only the last state of an invariant violation may lie outside the model",
+                    "only a checked terminal invariant or property may lie outside the model",
                 )))
 }
 

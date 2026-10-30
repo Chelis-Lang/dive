@@ -335,6 +335,18 @@ unclassified, which must remain unknown rather than receive TLC agreement
 credit. This bounded producer repair does not certify generic final expansion
 (#434), missing partial-state words (#607), or the other #606 sites.
 
+The separate `constraint-error-endings` corpus pins eight controls before the
+#499 validator repair. TLC checks constraints in configuration order and stops
+their evaluation at the first false result. It still checks invariants and
+implied properties on the excluded generated state. `ConstraintAction` and
+`ActionConstraintAction` have exact action-violation goldens (exit 13, two
+generated/one distinct/depth one); `InitialConstraintProperty` has the initial
+property violation golden. The first-error constraint control has an evaluation
+error golden. Four invariant-error streams remain unclassified, so those
+controls establish only qualified logical-demand observations, not primary
+class or count agreement. The Init error prints no word. Full raw invocations
+remain external; no classifier or error-ending wrapper exemption is introduced.
+
 ## 10. First terminal Next replay slice
 
 ADR 0120 adds the optional `next-before-successor` error endpoint, using the

@@ -55,6 +55,9 @@ const FAST_SEEDS: &[&str] = &[
     "crates/dive-check/tests/fixtures/tlc-probes/specs/ImpliedActionSeen/ImpliedActionSeen.tla",
     "crates/dive-conformance/tests/fixtures/specs/ActionProperty/ActionProperty.tla",
     "crates/dive-conformance/tests/fixtures/specs/InitProperty/InitProperty.tla",
+    // Terminal invariant error and action property outside constraints (#499).
+    "crates/dive-check/tests/fixtures/errors/specs/ErInvConstrained/ErInvConstrained.tla",
+    "crates/dive-check/tests/fixtures/dfid/DfidActionConstrained.tla",
     // Named invariant evaluation error (#490).
     "crates/dive-check/tests/fixtures/errors/specs/ErInvDivZero/ErInvDivZero.tla",
 ];
@@ -72,14 +75,6 @@ const KNOWN_SEEDS: &[(&str, &str)] = &[
     (
         "crates/dive-check/tests/fixtures/errors/specs/ErPropDivZero/ErPropDivZero.tla",
         KNOWN_ERROR_RERAISED,
-    ),
-    (
-        "crates/dive-check/tests/fixtures/errors/specs/ErInvConstrained/ErInvConstrained.tla",
-        KNOWN_CONSTRAINED_LAST_STATE,
-    ),
-    (
-        "crates/dive-check/tests/fixtures/dfid/DfidActionConstrained.tla",
-        KNOWN_CONSTRAINED_LAST_STATE,
     ),
     (
         "conformance/corpus/compound-domain-emptiness/specifications/EmptyProductSkipsMixedInit/EmptyProductSkipsMixedInit.tla",
@@ -151,7 +146,7 @@ fn ending_matches(verdict: &str, property: Option<&str>, ending: &Ending) -> boo
 const KNOWN_ERROR_RERAISED: &str =
     "#490: a claimed evaluation error is re-raised by a last-state check and refuted";
 const KNOWN_CONSTRAINED_LAST_STATE: &str =
-    "#499: a last state outside CONSTRAINT is refuted unless the ending is an invariant violation";
+    "#499: anonymous error endings cannot yet prove terminal checks outside constraints";
 const KNOWN_SKIPPED_INIT_DISJUNCT: &str = "#443: Init membership raises on a disjunct TLC's generator skips (empty product or record set)";
 
 /// A refutation the sweep already found, so it does not fail the test.
@@ -172,11 +167,12 @@ fn known_refutation(ending: &Ending, failure: &Failure, last: usize) -> Option<&
     {
         return Some(KNOWN_ERROR_RERAISED);
     }
-    if check == "constraint"
+    if raises
+        && matches!(check, "constraint" | "action-constraint")
         && failure.state == last
         && failure
             .detail
-            .contains("only the last state of an invariant violation may lie outside the model")
+            .contains("only a checked terminal invariant or property may lie outside the model")
     {
         return Some(KNOWN_CONSTRAINED_LAST_STATE);
     }
