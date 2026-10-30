@@ -529,6 +529,12 @@ impl Machine {
                 let fv = self.eval(code, *f)?;
                 self.domain(fv)
             }
+            Node::ClosedUpdate {
+                base,
+                key,
+                domain,
+                value,
+            } => self.closed_update(code, *base, *key, *domain, *value),
             Node::Except { base, updates } => {
                 let mut f = self.eval_norm(code, *base)?;
                 for u in updates {
@@ -1548,6 +1554,67 @@ impl Machine {
             }
             _ => Err(eval_err("DOMAIN of a set")),
         }
+    }
+
+    fn closed_update(
+        &mut self,
+        code: &Code,
+        base: P,
+        key: P,
+        domain: P,
+        value: P,
+    ) -> Result<Handle, Error> {
+        let f = self.eval(code, base)?;
+        let key = self.eval(code, key)?;
+        let domain = self.eval(code, domain)?;
+        if !f.is_compound() || !domain.is_compound() {
+            return Err(Error::unsupported("unproved optional update inputs"));
+        }
+        let d = self.heap.view(domain);
+        if d.kind != Kind::Interval {
+            return Err(Error::unsupported(
+                "optional update binder is not an interval",
+            ));
+        }
+        let lo = d.lo;
+        let hi = d
+            .data
+            .first()
+            .and_then(|h| h.as_int())
+            .ok_or_else(|| Error::unsupported("optional interval bound"))?;
+        let n = hi
+            .checked_sub(lo)
+            .and_then(|v| v.checked_add(1))
+            .and_then(|v| usize::try_from(v).ok())
+            .ok_or_else(|| Error::unsupported("optional update interval size"))?;
+        let v = self.heap.view(f);
+        let same = match v.kind {
+            Kind::IntFcn => v.lo == lo && v.len() == n,
+            Kind::Fcn => {
+                v.len() == n
+                    && v.keys().iter().enumerate().all(|(i, h)| {
+                        i64::try_from(i).ok().and_then(|i| lo.checked_add(i)) == h.as_int()
+                    })
+            }
+            _ => false,
+        };
+        let index = key
+            .as_int()
+            .and_then(|k| k.checked_sub(lo))
+            .and_then(|i| usize::try_from(i).ok())
+            .filter(|&i| i < n);
+        let Some(index) = index.filter(|_| same) else {
+            return Err(Error::unsupported(
+                "optional update key/domain requires reference warning semantics",
+            ));
+        };
+        let new = self.eval(code, value)?;
+        if new.as_int().is_none() && new.as_bool().is_none() && new.as_str_id().is_none() {
+            return Err(Error::unsupported(
+                "optional update replacement is not scalar",
+            ));
+        }
+        Ok(self.heap.fcn_with(f, index, new))
     }
 
     fn except(

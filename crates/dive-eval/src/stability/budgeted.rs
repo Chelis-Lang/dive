@@ -64,6 +64,7 @@ struct Walk<'a> {
     // resolved frame/capture. This is not a public analysis-scope attestation.
     forbidden: Option<(dive_ir::DefId, usize)>,
     closed_functions: bool,
+    guarded_updates: bool,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -104,6 +105,7 @@ pub(super) fn prove(
         active: Vec::new(),
         forbidden: None,
         closed_functions: false,
+        guarded_updates: false,
     };
     walk.poll()?;
     for (roots, mode) in [(producers, Mode::Producer), (predicates, Mode::Reordered)] {
@@ -134,6 +136,25 @@ pub(super) fn closed_predicate(
     expr: ExprId,
     control: Option<&dyn crate::HostControl>,
 ) -> crate::Result<bool> {
+    closed_test(evaluator, scope, expr, control, false)
+}
+
+pub(super) fn closed_action(
+    evaluator: &Evaluator,
+    scope: &Scope,
+    expr: ExprId,
+    control: Option<&dyn crate::HostControl>,
+) -> crate::Result<bool> {
+    closed_test(evaluator, scope, expr, control, true)
+}
+
+fn closed_test(
+    evaluator: &Evaluator,
+    scope: &Scope,
+    expr: ExprId,
+    control: Option<&dyn crate::HostControl>,
+    guarded_updates: bool,
+) -> crate::Result<bool> {
     let mut walk = Walk {
         evaluator,
         control,
@@ -144,6 +165,7 @@ pub(super) fn closed_predicate(
         active: Vec::new(),
         forbidden: None,
         closed_functions: true,
+        guarded_updates,
     };
     if evaluator.admit_scoped_expr(scope, expr).is_err() {
         return Ok(false);
@@ -177,6 +199,7 @@ pub(super) fn closed_forall(
         active: Vec::new(),
         forbidden: Some((original.env.frame.def, outer_slot)),
         closed_functions: false,
+        guarded_updates: false,
     };
     walk.poll()?;
     reserve(&mut walk.abstracts, 1)?;
@@ -1024,6 +1047,23 @@ impl Walk<'_> {
                 reserve(&mut tasks, 1)?;
                 tasks.push(Task::Quantified(scope.clone(), expr, mode));
                 self.sequence(tasks)?;
+            }
+            E::Except { base, updates } if self.guarded_updates => {
+                let [update] = updates.as_ref() else {
+                    return Ok(false);
+                };
+                let [key] = update.path.as_ref() else {
+                    return Ok(false);
+                };
+                // Compiler and runtime additionally prove a root closed base,
+                // the actual interval binder and its exact in-domain key.
+                self.children(
+                    scope,
+                    [*base, *key, update.value],
+                    mode,
+                    true,
+                    Info::canonical(false),
+                )?;
             }
             E::FcnApply { fcn, arg } => {
                 self.children(scope, [*fcn, *arg], mode, true, Info::canonical(false))?;

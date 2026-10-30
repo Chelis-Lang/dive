@@ -34,6 +34,8 @@ pub(crate) struct NativeAtoms {
     eligible_action: usize,
     evaluated_state: u64,
     evaluated_action: u64,
+    evaluated_enabled: u64,
+    evaluated_nonstuttering: u64,
 }
 
 impl NativeAtoms {
@@ -67,21 +69,20 @@ impl NativeAtoms {
             eligible_action: 0,
             evaluated_state: 0,
             evaluated_action: 0,
+            evaluated_enabled: 0,
+            evaluated_nonstuttering: 0,
         };
         for atom in driver.native_predicates() {
             result.total += 1;
-            if atom.test != AtomTest::Predicate {
+            if matches!(atom.test, AtomTest::NegatedEnabled { .. }) {
                 continue;
             }
             // This existing callback-free certificate checks actual scopes,
             // configured constants, cached bodies, intermediate constructors,
             // effects and name capabilities. Native compiler acceptance alone
             // does not provide that representation/history guarantee.
-            let stable = match model.evaluator.closed_predicate_stability_budgeted(
-                &atom.pred.scope,
-                atom.pred.expr,
-                Some(control.as_ref()),
-            ) {
+            let inspected = stable(model, atom, control);
+            let stable = match inspected {
                 Ok(stable) => stable,
                 Err(error) => {
                     if let Some(verdict) = control.verdict(&error) {
@@ -124,7 +125,8 @@ impl NativeAtoms {
             "evaluated": self.evaluated, "fallback": self.fallback,
             "eligible_state_atoms": self.eligible_state, "eligible_action_atoms": self.eligible_action,
             "state_evaluations": self.evaluated_state, "action_evaluations": self.evaluated_action,
-            "eligibility": "closed function-tree inputs and source-scoped stable predicates with immutable interval domains"})
+            "enabled_evaluations": self.evaluated_enabled, "nonstuttering_evaluations": self.evaluated_nonstuttering,
+            "eligibility": "source-scoped closed predicates and fairness with immutable interval-bound scalar updates"})
     }
 
     fn evaluate(
@@ -159,6 +161,8 @@ impl NativeAtoms {
         self.machine.set_fuel(4096);
         let predicate = &compiled.plan.implied_actions[0];
         let frame = self.machine.enter(predicate.frame);
+        self.machine.warnings.clear();
+        self.machine.printed.clear();
         let result = predicate.conjuncts.iter().try_fold(true, |holds, part| {
             if holds {
                 self.machine.eval_bool(&compiled.plan.code, part.p)
@@ -169,8 +173,16 @@ impl NativeAtoms {
         self.machine.leave(frame);
         self.machine.heap.reset();
         check(&self.control, control)?;
-        if let Ok(value) = result {
+        if let Ok(value) = result
+            && self.machine.warnings.is_empty()
+            && self.machine.printed.is_empty()
+        {
             self.evaluated += 1;
+            match atom.test {
+                AtomTest::Enabled { .. } => self.evaluated_enabled += 1,
+                AtomTest::Nonstuttering { .. } => self.evaluated_nonstuttering += 1,
+                _ => {}
+            }
             match atom.kind {
                 dive_liveness::formula::AtomKind::State => self.evaluated_state += 1,
                 dive_liveness::formula::AtomKind::Action => self.evaluated_action += 1,
@@ -180,6 +192,35 @@ impl NativeAtoms {
             self.fallback += 1;
             Ok(None)
         }
+    }
+}
+
+fn stable(
+    model: &Model,
+    atom: &PredicateAtom,
+    control: &EvaluationControl,
+) -> Result<bool, EvalError> {
+    let ev = &model.evaluator;
+    let scoped = &atom.pred.scope;
+    match atom.test {
+        AtomTest::Predicate => {
+            ev.closed_predicate_stability_budgeted(scoped, atom.pred.expr, Some(control))
+        }
+        AtomTest::Enabled { sub } => {
+            if !ev.guarded_action_stability_budgeted(scoped, atom.pred.expr, Some(control))? {
+                return Ok(false);
+            }
+            sub.map_or(Ok(true), |sub| {
+                ev.closed_predicate_stability_budgeted(scoped, sub, Some(control))
+            })
+        }
+        AtomTest::Nonstuttering { sub } => {
+            Ok(
+                ev.guarded_action_stability_budgeted(scoped, atom.pred.expr, Some(control))?
+                    && ev.closed_predicate_stability_budgeted(scoped, sub, Some(control))?,
+            )
+        }
+        AtomTest::NegatedEnabled { .. } => Ok(false),
     }
 }
 
@@ -209,11 +250,26 @@ fn compile(
     handoff.implied_actions = vec![role];
     handoff.view = None;
     handoff.check_deadlock = false;
-    let Ok(plan) = dive_core::compile(&handoff, Arc::clone(store), opts) else {
-        return None;
-    };
+    let plan = match atom.test {
+        AtomTest::Predicate => dive_core::compile(&handoff, Arc::clone(store), opts),
+        AtomTest::Enabled { sub } => dive_core::compile::compile_bound_test(
+            &handoff,
+            Arc::clone(store),
+            opts,
+            dive_core::compile::BoundTest::Enabled(sub),
+        ),
+        AtomTest::Nonstuttering { sub } => dive_core::compile::compile_bound_test(
+            &handoff,
+            Arc::clone(store),
+            opts,
+            dive_core::compile::BoundTest::Nonstuttering(sub),
+        ),
+        AtomTest::NegatedEnabled { .. } => return None,
+    }
+    .ok()?;
     if plan.effects.any
         || plan.code.nodes.len() > 4096
+        || plan.code.gnodes.len() > 4096
         || !plan.code.funs.is_empty()
         || plan.code.nodes.iter().any(|node| {
             matches!(
@@ -344,18 +400,329 @@ mod tests {
         let source = format!(
             "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nP == <>({predicate})\n====\n"
         );
+        prepare_text(
+            &source,
+            "INIT Init\nNEXT Next\nPROPERTY P\nCHECK_DEADLOCK FALSE\n",
+            false,
+        )
+    }
+
+    fn prepare_text(
+        source: &str,
+        config: &str,
+        tlc: bool,
+    ) -> (crate::core_engine::Prepared, dive_check::CheckOptions) {
         let analysis =
-            dive_sema::analyze_source("Atoms.tla", &source, &dive_sema::Options::default());
+            dive_sema::analyze_source("Atoms.tla", source, &dive_sema::Options::default());
+        assert!(analysis.accepted(), "{analysis:?}");
         let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
-        let config = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\nCHECK_DEADLOCK FALSE\n")
-            .into_config()
-            .expect("config");
-        let mut options = dive_check::CheckOptions::dive(0);
+        let config = dive_config::parse(config).into_config().expect("config");
+        let mut options = if tlc {
+            dive_check::CheckOptions::tlc(0, 0)
+        } else {
+            dive_check::CheckOptions::dive(0)
+        };
         options.budget = Budget::unlimited();
         let prepared =
-            crate::core_engine::prepare(&ir, &config, &options, false, Opts::default(), true)
+            crate::core_engine::prepare(&ir, &config, &options, tlc, Opts::default(), true)
                 .expect("fresh source-bound core");
         (prepared, options)
+    }
+
+    fn with_wrappers(
+        source: &str,
+        tlc: bool,
+        test: impl FnOnce(
+            &crate::core_engine::Prepared,
+            &GraphCheck<'_>,
+            &mut NativeAtoms,
+            &EvaluationControl,
+        ),
+    ) {
+        use dive_liveness::analyze::{GraphLabelPolicy, Limits};
+        use dive_liveness::product::AcceptancePolicy;
+        let (prepared, options) = prepare_text(
+            source,
+            "SPECIFICATION Spec\nPROPERTY P\nCHECK_DEADLOCK FALSE\n",
+            tlc,
+        );
+        let driver = GraphCheck::prepare(
+            &prepared.model,
+            &options,
+            Limits::default(),
+            AcceptancePolicy::compact_default(),
+            GraphLabelPolicy::NoCellLimit,
+            None,
+        )
+        .expect("driver");
+        let control = EvaluationControl::new(&options.budget, Phase::Capture).expect("control");
+        let mut atoms = NativeAtoms::prepare(
+            &prepared.model,
+            &prepared.store,
+            &driver,
+            &control,
+            Opts::default(),
+        )
+        .expect("atoms");
+        test(&prepared, &driver, &mut atoms, &control);
+    }
+
+    #[test]
+    fn fairness_checks_use_closed_updates_and_require_the_actual_interval_domain() {
+        let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLES x,y\nInit == x = <<0,0>> /\\ y=0\nA == \\E i \\in 1..2: x'=[x EXCEPT ![i]=x[i]+1] /\\ UNCHANGED y\nSpec == Init /\\ [][A]_<<x,y>> /\\ WF_<<x,y>>(A)\nP == <> (y=1)\n====\n";
+        for tlc in [false, true] {
+            with_wrappers(source, tlc, |prepared, driver, atoms, control| {
+                assert_eq!(atoms.eligible, 3);
+                let mut heap = dive_core::Heap::new(prepared.store.clone(), false, false);
+                let zero = Handle::int(0).expect("zero");
+                let one = Handle::int(1).expect("one");
+                let x = heap.int_fcn(1, &[zero, zero]);
+                let x = heap.intern_exact(x).expect("before");
+                let y = heap.int_fcn(1, &[one, zero]);
+                let y = heap.intern_exact(y).expect("after");
+                let native_before = prepared.store.stats();
+                for atom in driver
+                    .native_predicates()
+                    .filter(|a| a.test != AtomTest::Predicate)
+                {
+                    let after =
+                        matches!(atom.test, AtomTest::Nonstuttering { .. }).then_some([y, zero]);
+                    assert_eq!(
+                        atoms
+                            .evaluate(
+                                atom,
+                                &[x, zero],
+                                after.as_ref().map(<[_; 2]>::as_slice),
+                                control
+                            )
+                            .expect("call"),
+                        Some(true)
+                    );
+                    if after.is_some() {
+                        assert_eq!(
+                            atoms
+                                .evaluate(atom, &[x, zero], Some(&[x, zero]), control)
+                                .expect("stutter"),
+                            Some(false)
+                        );
+                    }
+                }
+                assert_eq!(
+                    prepared.store.stats().nodes,
+                    native_before.nodes,
+                    "analysis never interns"
+                );
+                let enabled = driver
+                    .native_predicates()
+                    .find(|a| matches!(a.test, AtomTest::Enabled { .. }))
+                    .expect("enabled");
+                for (lo, values) in [
+                    (0, vec![zero, zero]),
+                    (1, vec![zero]),
+                    (1, vec![zero, zero, zero]),
+                ] {
+                    let wrong = heap.int_fcn(lo, &values);
+                    let wrong = heap.intern_exact(wrong).expect("wrong domain");
+                    assert_eq!(
+                        atoms
+                            .evaluate(enabled, &[wrong, zero], None, control)
+                            .expect("fallback"),
+                        None
+                    );
+                }
+                assert_eq!(
+                    atoms
+                        .evaluate(enabled, &[zero, zero], None, control)
+                        .expect("wrong class"),
+                    None
+                );
+                assert_eq!(
+                    atoms
+                        .evaluate(enabled, &[x, zero], None, control)
+                        .expect("clean after failures"),
+                    Some(true)
+                );
+            });
+        }
+    }
+
+    #[test]
+    fn missing_update_key_falls_back_before_reference_warning_history_changes() {
+        let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLES x,y\nInit == x = <<0,0>> /\\ y=0\nA == \\E i \\in 1..2: x'=[x EXCEPT ![i]=0] /\\ UNCHANGED y\nSpec == Init /\\ [][A]_<<x,y>> /\\ WF_<<x,y>>(A)\nP == <> (y=1)\n====\n";
+        for tlc in [false, true] {
+            with_wrappers(source, tlc, |prepared, driver, atoms, control| {
+                let atom = driver
+                    .native_predicates()
+                    .find(|a| matches!(a.test, AtomTest::Enabled { .. }))
+                    .expect("enabled");
+                let mut heap = dive_core::Heap::new(prepared.store.clone(), false, false);
+                let zero = Handle::int(0).expect("zero");
+                let wrong = heap.int_fcn(1, &[zero]);
+                let wrong = heap.intern_exact(wrong).expect("short domain");
+                let capture = dive_eval::capture::PrintCapture::start();
+                assert_eq!(
+                    atoms
+                        .evaluate(atom, &[wrong, zero], None, control)
+                        .expect("declines"),
+                    None
+                );
+                assert!(
+                    capture.take().is_empty(),
+                    "optional attempt does not alter warning history"
+                );
+                let state = dive_eval::St::state(Arc::from([
+                    Some(dive_value::Value::tuple(vec![dive_value::Value::Int(0)])),
+                    Some(dive_value::Value::Int(0)),
+                ]));
+                assert!(
+                    !atom
+                        .evaluate(&prepared.model, &state)
+                        .expect("reference false")
+                );
+                let lines = capture.take();
+                assert_eq!(lines.len(), 1);
+                assert!(lines[0].warning && lines[0].text.contains("2144"));
+            });
+        }
+    }
+
+    #[test]
+    fn instance_fairness_retains_the_original_identity_cutoff_proof() {
+        for mapping in ["x <- x, y <- y", "x <- y, y <- y"] {
+            let source = format!(
+                "---- MODULE Atoms ----\nEXTENDS Naturals\n---- MODULE Inner ----\nEXTENDS Naturals\nVARIABLES x,y\nStep == x'=0 /\\ y'=1\nFair == WF_<<x,y>>(Step)\n====\nVARIABLES x,y\nI == INSTANCE Inner WITH {mapping}\nInit == x=0 /\\ y=1\nNext == UNCHANGED <<x,y>>\nSpec == Init /\\ [][Next]_<<x,y>> /\\ I!Fair\nP == <> (x=1)\n====\n"
+            );
+            for tlc in [false, true] {
+                with_wrappers(&source, tlc, |_, driver, atoms, control| {
+                    let wrappers = driver
+                        .native_predicates()
+                        .filter(|a| a.test != AtomTest::Predicate);
+                    for atom in wrappers {
+                        let result = atoms
+                            .evaluate(
+                                atom,
+                                &[Handle::int(0).expect("zero"), Handle::int(1).expect("one")],
+                                matches!(atom.test, AtomTest::Nonstuttering { .. })
+                                    .then_some([
+                                        Handle::int(0).expect("zero"),
+                                        Handle::int(1).expect("one"),
+                                    ])
+                                    .as_ref()
+                                    .map(<[_; 2]>::as_slice),
+                                control,
+                            )
+                            .expect("attempt");
+                        if mapping.starts_with("x <- y") {
+                            assert_eq!(result, None);
+                        } else {
+                            assert_eq!(result, Some(false));
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    #[test]
+    fn nonstuttering_equal_subscript_does_not_evaluate_a_failing_action() {
+        let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == (1 \\div 0=0) /\\ x'=x\nSpec == Init /\\ [][Next]_x /\\ WF_x(A)\nP == <> (x=1)\n====\n";
+        for tlc in [false, true] {
+            with_wrappers(source, tlc, |_, driver, atoms, control| {
+                let atom = driver
+                    .native_predicates()
+                    .find(|a| matches!(a.test, AtomTest::Nonstuttering { .. }))
+                    .expect("nonstutter");
+                let zero = Handle::int(0).expect("zero");
+                let one = Handle::int(1).expect("one");
+                assert_eq!(
+                    atoms
+                        .evaluate(atom, &[zero], Some(&[zero]), control)
+                        .expect("same"),
+                    Some(false)
+                );
+                assert_eq!(
+                    atoms
+                        .evaluate(atom, &[zero], Some(&[one]), control)
+                        .expect("reference error fallback"),
+                    None
+                );
+                assert_eq!(
+                    atoms
+                        .evaluate(atom, &[one], Some(&[one]), control)
+                        .expect("frame reset"),
+                    Some(false)
+                );
+            });
+        }
+    }
+
+    #[test]
+    fn enabled_keeps_partial_first_success_and_searches_past_stuttering_candidates() {
+        for tlc in [false, true] {
+            for (action, fairness) in [
+                ("x'=1", false),
+                ("UNCHANGED <<x,y>> \\/ (x'=x+1 /\\ UNCHANGED y)", true),
+            ] {
+                let property = if fairness {
+                    "P == <> (x=1)"
+                } else {
+                    "P == <> (ENABLED A)"
+                };
+                let fair = if fairness { "/\\ WF_<<x,y>>(A)" } else { "" };
+                let source = format!(
+                    "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLES x,y\nInit == x=0 /\\ y=0\nNext == UNCHANGED <<x,y>>\nA == {action}\nSpec == Init /\\ [][Next]_<<x,y>> {fair}\n{property}\n====\n"
+                );
+                with_wrappers(&source, tlc, |_, driver, atoms, control| {
+                    let atom = driver
+                        .native_predicates()
+                        .find(|a| matches!(a.test, AtomTest::Enabled { .. }))
+                        .expect("enabled");
+                    assert_eq!(
+                        atoms
+                            .evaluate(atom, &[Handle::int(0).expect("zero"); 2], None, control)
+                            .expect("enabled"),
+                        Some(true)
+                    );
+                });
+            }
+        }
+    }
+
+    #[test]
+    fn pure_let_generator_bindings_and_query_frames_do_not_leak_between_rows() {
+        let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLES x,y\nInit == x=0 /\\ y=0\nNext == UNCHANGED <<x,y>>\nA == LET K == x+1 IN (x'=K /\\ UNCHANGED y) \\/ (x'=K+1 /\\ UNCHANGED y)\nSpec == Init /\\ [][Next]_<<x,y>> /\\ WF_<<x,y>>(A)\nP == <> (y=1)\n====\n";
+        for tlc in [false, true] {
+            with_wrappers(source, tlc, |_, driver, atoms, control| {
+                for x in [0, 5, 0] {
+                    let before = [
+                        Handle::int(x).expect("before"),
+                        Handle::int(0).expect("zero"),
+                    ];
+                    let after = [
+                        Handle::int(x + 1).expect("after"),
+                        Handle::int(0).expect("zero"),
+                    ];
+                    for atom in driver
+                        .native_predicates()
+                        .filter(|a| a.test != AtomTest::Predicate)
+                    {
+                        assert_eq!(
+                            atoms
+                                .evaluate(
+                                    atom,
+                                    &before,
+                                    matches!(atom.test, AtomTest::Nonstuttering { .. })
+                                        .then_some(after.as_slice()),
+                                    control
+                                )
+                                .expect("query/LET"),
+                            Some(true)
+                        );
+                    }
+                }
+                assert_eq!(atoms.fallback, 0);
+            });
+        }
     }
 
     #[test]

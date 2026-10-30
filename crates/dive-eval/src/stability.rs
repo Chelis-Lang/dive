@@ -99,6 +99,31 @@ impl Evaluator {
         budgeted::closed_predicate(self, scope, expr, control)
     }
 
+    /// Inspects an optional action closure whose single-key EXCEPT operations
+    /// require a separate compiler/runtime proof of closed base, immutable
+    /// interval binder, exact domain and scalar replacement. This fact alone
+    /// never licenses evaluating an update or skipping reference warnings.
+    /// EXCEPT @, constructors, CHOOSE and query/effect history remain refused.
+    ///
+    /// ```no_run
+    /// # fn inspect(ev: &dive_eval::Evaluator, scope: &dive_eval::Scope, expr: dive_ir::ExprId) -> dive_eval::Result<()> {
+    /// let closure = ev.guarded_action_stability_budgeted(scope, expr, None)?;
+    /// // A successful inspection still requires compiler/runtime update guards.
+    /// # let _ = closure;
+    /// # Ok(()) }
+    /// ```
+    ///
+    /// # Errors
+    /// An original interruption or inspection allocation failure.
+    pub fn guarded_action_stability_budgeted(
+        &self,
+        scope: &Scope,
+        expr: ExprId,
+        control: Option<&dyn crate::HostControl>,
+    ) -> crate::Result<bool> {
+        budgeted::closed_action(self, scope, expr, control)
+    }
+
     /// Inspects canonical producer and predicate storage under the run budget.
     ///
     /// This callback-free inspection uses explicit traversal stacks, without a

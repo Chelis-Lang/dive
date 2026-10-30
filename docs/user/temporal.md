@@ -278,6 +278,14 @@ fresh model. TLC exit conventions give success 0, temporal violation 13,
 named unsupported/resource refusal 3, and classified evaluation errors their
 reported TLC status; inspect the verdict and execution stage as well as the exit.
 
+Core analysis may evaluate certified closed-input predicates and bounded fairness
+tests directly from retained original states. Unproved scopes, values, updates
+and evaluation errors use the existing reference evaluator. The additive
+`core.metrics.liveness.atoms` counters show prepared eligibility, successful
+native evaluations by kind, and fallback; they do not establish throughput or
+whole-model completion. State admission and independent word validation retain
+their existing checks. See [the native evaluation boundary](../developer/core/11-liveness.md#41-optional-stable-native-predicate-evaluation).
+
 The ordinary conformance adapter retains those actual complete counters and
 requires coherent schema, class, physical status and word metadata. It still
 replays the word independently: a producer's `validation: valid` field is not

@@ -16,8 +16,11 @@ function storage and reordered interval domains.
 
 The original aba_asyn_byz configuration supplies a smaller useful boundary:
 its six ordinary state predicates quantify over an immutable integer interval,
-read closed integer-domain functions and compare scalar values. Its fairness
-wrappers remain separate reference demands. Original EWD's predicate closure
+read closed integer-domain functions and compare scalar values. Its fairness wrappers originally remained separate reference demands. A bounded
+follow-up covers their actual successor search and single-key scalar updates;
+the original predicate-only experiment still stopped at 900 seconds on ABA
+and showed only approximately six percent on CoffeeCan1000, so it did not earn
+inclusion by itself. Original EWD's predicate closure
 additionally constructs functions and uses CHOOSE/EXCEPT, so remains outside
 this boundary.
 
@@ -43,9 +46,44 @@ string leaves. Inspect every nested function's context and the actual stored
 scalar-key sequence: keys must be strictly increasing in the run's order.
 Lossless decoding, a matching order label or shape/byte inspection alone supplies
 no canonical-domain fact. Unsorted or duplicate domains decline without sorting,
-forcing or normalization. Raw/deferred set history, function constructors, CHOOSE, EXCEPT,
-ENABLED, live TLCGet and effects remain unproved. Actual input handles must
+forcing or normalization. Raw/deferred set history, function constructors, CHOOSE,
+live TLCGet and effects remain unproved. Actual input handles must
 independently satisfy the closed set-free shape on every call.
+
+For retained Enabled and Nonstuttering atoms, inspect the action and subscript
+in their actual original scope. An additive bound-test compiler entrypoint uses
+the same Role/Handoff, Compiler::enabled, generator and Machine value evaluation.
+The existing enabled_substs identity/cutoff proof and g_free effect/call refusals
+remain in force (semantic contract B2–B4). Enabled clears step-mode definition
+caching and searches the generator with a fresh successor buffer, preserving
+partial-first-success and B5's uncached generator LET/substitution behavior.
+A fairness subscript installs the existing generator Changed continuation; it
+must reject stuttering candidates and continue searching. Nonstuttering first
+evaluates the subscript in source and target order, returning false on equality,
+then evaluates the action. The existing value StepAngle action-first order is
+not substituted for that contract.
+
+The action inspector separately permits one EXCEPT clause with one path key;
+this is no standalone update certificate. The bound-test compiler additionally
+requires an unprimed root-variable base and a key that resolves to an actual
+flat binder slot with an immutable, state-independent domain. Its ClosedUpdate
+node confirms at invocation that this domain is an integer interval and the
+ACTUAL input function has exactly that domain and contains the key; only a
+scalar Bool/Int/run-owned-string replacement may succeed. FcnCons, CHOOSE,
+EXCEPT @, nested/multiple updates, non-root bases, raw sets, hidden/nonidentity
+INSTANCE queries and unknown source/value histories remain reference demands.
+Missing/mismatched domains decline before evaluating the replacement: reference
+EXCEPT can succeed unchanged while emitting warning 2144, so closed output alone
+would not license skipping it. Existing function range replacement preserves
+keys, order and tuple/record class, with no normalization/name/provider action.
+Optional warnings/printed events also require reference fallback.
+
+This generic rule covers the original ABA fairness action's interval-bound
+single-key scalar updates without spec/config/variable-name whitelists. Coffee's
+direct ENABLED Termination also qualifies; its fairness Next uses record/@
+updates, and EWD uses source FcnCons/CHOOSE, outside this decision. Prepared and
+consumed coverage on original sources must be measured; no descriptor count or
+short diagnostic schedule establishes a speed or capacity improvement.
 
 Use a separate analysis Machine, arena, frame and memo owner. Disable analysis
 memoization and folding; no native evaluation interns results into the producer

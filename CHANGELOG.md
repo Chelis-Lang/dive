@@ -13,11 +13,12 @@
   non-agreement. An actual source-qualified inner evaluator error, including
   `[A]_e` rejecting its non-Boolean action, can validate after both replay phases.
 
-- Core temporal analysis can evaluate source-certified ordinary predicates on
-  exact native original rows using the existing compiler and a separate analysis
-  Machine. Closed function inputs and immutable interval domains are checked;
-  unproved cases and semantic errors retain reference evaluation. Eager
-  admission, fairness, attribution and independent replay remain unchanged.
+- Core temporal analysis can evaluate source-certified predicates and bounded
+  fairness tests on exact native original rows using the existing compiler and
+  a separate analysis Machine. Closed inputs, immutable interval domains and
+  single-key scalar updates require actual domain/key checks. Unproved cases,
+  record/@ updates and semantic errors retain reference evaluation. Label demand,
+  eager admission, attribution and independent replay remain unchanged.
   Additive atom counters report actual use; throughput still requires measurement.
 
 - Human temporal-error reports print the same independently validated finite

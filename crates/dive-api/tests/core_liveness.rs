@@ -95,7 +95,14 @@ fn comparable(mut v: Value) -> Value {
 
 #[test]
 fn temporal_reports_on_the_core_are_the_reference_reports() {
-    for name in ["Fair", "Holds", "Wide", "Safety"] {
+    for name in [
+        "Fair",
+        "Holds",
+        "Wide",
+        "Safety",
+        "FairUpdate",
+        "HoldsUpdate",
+    ] {
         for tlc in [false, true] {
             for every_level in [false, true] {
                 let reference = run(name, Engine::Reference, 1, tlc, every_level);
@@ -538,6 +545,51 @@ fn native_predicate_lane_consumes_certified_scalar_truth() {
                 atoms["evaluated"].as_u64().is_some_and(|count| count > 0),
                 "{core:#}"
             );
+        }
+    }
+}
+
+#[test]
+fn native_fairness_words_validate_independently_and_reject_changed_initial_functions() {
+    use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
+    for tlc in [false, true] {
+        let file = fixture("FairUpdate");
+        let validator = SpecModel::load(
+            &file,
+            &file.with_extension("cfg"),
+            &TraceOptions {
+                compat_tlc: tlc,
+                run: Some((0, 0)),
+                ..TraceOptions::default()
+            },
+        )
+        .expect("fresh independent validator");
+        for workers in [1, 4] {
+            let report = run("FairUpdate", Engine::Core, workers, tlc, false);
+            assert_eq!(report["verdict"], "liveness-violation");
+            assert!(
+                report["core"]["metrics"]["liveness"]["atoms"]["enabled_evaluations"]
+                    .as_u64()
+                    .is_some_and(|n| n > 0)
+            );
+            assert!(
+                report["core"]["metrics"]["liveness"]["atoms"]["nonstuttering_evaluations"]
+                    .as_u64()
+                    .is_some_and(|n| n > 0)
+            );
+            let doc = &report["counterexample"]["trace"];
+            let word = TraceDoc::from_json(doc).expect("trace");
+            assert!(matches!(
+                validator.validate(&word).validation,
+                Validation::Valid
+            ));
+            let mut wrong = doc.clone();
+            wrong["states"][0]["values"]["x"] = serde_json::json!(42);
+            let wrong = TraceDoc::from_json(&wrong).expect("well-formed mutation");
+            assert!(matches!(
+                validator.validate(&wrong).validation,
+                Validation::Invalid(_)
+            ));
         }
     }
 }

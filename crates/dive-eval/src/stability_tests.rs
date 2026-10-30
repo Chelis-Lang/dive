@@ -481,3 +481,39 @@ fn closed_predicate_checks_nested_function_context_and_stored_domain_canonicalit
         );
     }
 }
+
+#[test]
+fn guarded_action_inspection_keeps_constructor_effect_and_foreign_scope_boundaries() {
+    for (body, eligible) in [
+        ("\\E i \\in 1..2: x'=[x EXCEPT ![i]=x[i]+1]", true),
+        ("x'=[x EXCEPT ![1]=@+1]", false),
+        ("x'=[x EXCEPT ![1][1]=0]", false),
+        ("x'=[x EXCEPT ![1]=0, ![2]=0]", false),
+        ("x'=[i \\in 1..2 |-> i]", false),
+        ("x'=(CHOOSE i \\in 1..2: TRUE)", false),
+        ("PrintT(TRUE) /\\ x'=x", false),
+        ("ENABLED (x'=x)", false),
+    ] {
+        let (ev, _, _, pred) = input(&format!("Init == x=0\nNext == UNCHANGED x\nP == {body}"));
+        let scope = ev.scope(pred).expect("scope");
+        let expr = ev.ir().def(pred).body;
+        assert_eq!(
+            ev.guarded_action_stability_budgeted(&scope, expr, None)
+                .expect("inspection"),
+            eligible,
+            "{body}"
+        );
+        assert!(
+            !ev.closed_predicate_stability_budgeted(&scope, expr, None)
+                .expect("ordinary proof unchanged"),
+            "{body}"
+        );
+        assert_eq!(ev.take_output(), Vec::<String>::new());
+        let foreign = Evaluator::new(Model::new(ev.ir().clone()), Options::tlc()).expect("foreign");
+        assert!(
+            !foreign
+                .guarded_action_stability_budgeted(&scope, expr, None)
+                .expect("foreign scope")
+        );
+    }
+}
