@@ -168,6 +168,30 @@ pub fn load_model(
     .map_err(|e| e.to_string())
 }
 
+// Checks report/display consistency only. Fresh independent validation below
+// must still establish the word and its complete property attribution.
+fn reported_liveness_property(
+    result: &OracleResult,
+    doc: &TraceDoc,
+) -> Result<Option<String>, TraceCheck> {
+    if result.verdict != crate::tlc::result::Verdict::LivenessViolation {
+        return Ok(None);
+    }
+    if doc.properties.is_empty() {
+        return Err(TraceCheck::refuted(
+            "a liveness report must name the properties false on its word",
+        ));
+    }
+    let names = property_names(&doc.properties);
+    if result.violated_property.as_deref() != Some(names.as_str()) {
+        return Err(TraceCheck::refuted(format!(
+            "reported liveness names {:?} differ from the word's names {names:?}",
+            result.violated_property
+        )));
+    }
+    Ok(Some(names))
+}
+
 /// Validates an implementation's counterexample (`result.trace.json`, in
 /// dive's format) against `spec`. `golden` is the oracle's result for the
 /// same model, consulted only to confirm a deadlock (see the module
@@ -185,22 +209,9 @@ pub fn validate_counterexample(
         Ok(d) => d,
         Err(e) => return TraceCheck::no(format!("unreadable counterexample: {e}")),
     };
-    let attributed = if result.verdict == crate::tlc::result::Verdict::LivenessViolation {
-        if doc.properties.is_empty() {
-            return TraceCheck::refuted(
-                "a liveness report must name the properties false on its word",
-            );
-        }
-        let names = property_names(&doc.properties);
-        if result.violated_property.as_deref() != Some(names.as_str()) {
-            return TraceCheck::refuted(format!(
-                "reported liveness names {:?} differ from the word's names {names:?}",
-                result.violated_property
-            ));
-        }
-        Some(names)
-    } else {
-        None
+    let attributed = match reported_liveness_property(result, &doc) {
+        Ok(names) => names,
+        Err(refuted) => return refuted,
     };
     let reported = ending_of(result);
     let matching = match &doc.ending {
