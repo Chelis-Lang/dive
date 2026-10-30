@@ -38,6 +38,12 @@
   materialization and final shared allocations retain their existing behavior;
   capture limits remain unchanged.
 
+- Refuse unproved non-EvalException Next primary classes when genuine temporal
+  obligations remain (#502). Both capture engines keep actual counts/output and
+  withdraw the old verified 2103/75 class and uncertified error word. Fairness
+  syntax never selects GENERAL. Successful fairness and measured 2179 error
+  controls stay unchanged; the reached fairness/replay pipeline remains open.
+
 - Low-level Rust graph captures expose immutable producer facts through
   `evidence()` and release graph storage through `into_evidence()`. Completed
   and successful committed-prefix facts remain distinct. External graph
