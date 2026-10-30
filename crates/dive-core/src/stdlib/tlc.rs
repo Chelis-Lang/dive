@@ -117,7 +117,7 @@ fn register(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle, Error
 /// (`03-value-model.md` §6.1).
 fn random_element(m: &mut Machine, op: StdOp, s: Handle) -> Result<Handle, Error> {
     let s = if s.is_compound() && m.heap.view(s).is_lazy() {
-        m.heap.norm(s)?
+        m.work_norm(s)?
     } else {
         s
     };

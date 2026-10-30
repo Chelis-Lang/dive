@@ -171,13 +171,17 @@ fn int(n: usize) -> Result<Handle, Error> {
 }
 
 /// The elements of a sequence; `None` for any other value.
-fn tuple(m: &Machine, op: StdOp, h: Handle) -> Result<Option<Vec<Handle>>, Error> {
+fn tuple(m: &mut Machine, op: StdOp, h: Handle) -> Result<Option<Vec<Handle>>, Error> {
     if !h.is_compound() {
         return Ok(None);
     }
     let v = m.heap.view(h);
     match v.kind {
-        Kind::IntFcn if v.lo == 1 || v.data.is_empty() => Ok(Some(v.data.to_vec())),
+        Kind::IntFcn if v.lo == 1 || v.data.is_empty() => {
+            let len = v.data.len();
+            m.charge(len.saturating_mul(2))?;
+            Ok(Some(m.heap.view(h).data.to_vec()))
+        }
         Kind::Lambda => Err(refuse(op, "a function argument the core keeps lazy")),
         _ => Ok(None),
     }

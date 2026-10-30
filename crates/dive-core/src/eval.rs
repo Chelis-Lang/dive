@@ -14,6 +14,9 @@ use crate::opts::Opts;
 use crate::plan::{Arith, Bind, Cmp, Code, LibArg, Node, P, Quant, SetOp, StdFn, Update};
 use crate::store::Store;
 
+#[path = "eval_work.rs"]
+mod work;
+
 /// The deepest recursive-operator nesting the interpreter allows.
 const MAX_CALL_DEPTH: usize = 2000;
 
@@ -27,6 +30,13 @@ pub struct EvalStats {
     /// Forced thunks whose value is transient (an arena rollback must not
     /// free it while its slot holds it).
     pub transient_thunks: u64,
+}
+
+/// An optional cooperative work checkpoint. A false result only interrupts
+/// the machine; the caller must classify its own actual run authority.
+pub trait WorkControl: std::fmt::Debug + Send + Sync {
+    /// Whether evaluation may continue.
+    fn proceed(&self) -> bool;
 }
 
 /// One worker's evaluation state.
@@ -76,8 +86,10 @@ pub struct Machine {
     scratch: Vec<Vec<Handle>>,
     depth: usize,
     /// Loop iterations left before evaluation gives up. Unbounded at run
-    /// time; the compiler bounds it while folding constants (R9).
+    /// time; the compiler bounds it while folding constants (R9), and an
+    /// isolated optional analysis machine bounds its own speculative work.
     pub(crate) fuel: u64,
+    work_control: Option<Arc<dyn WorkControl>>,
 }
 
 fn eval_err(what: &str) -> Error {
@@ -164,12 +176,47 @@ impl Machine {
             scratch: Vec::new(),
             depth: 0,
             fuel: u64::MAX,
+            work_control: None,
         }
+    }
+
+    /// Bounds optional speculative work. Exhaustion yields unsupported and
+    /// cannot be interpreted as a model verdict or a run-budget stop.
+    ///
+    /// ```
+    /// # fn configure(machine: &mut dive_core::Machine) {
+    /// machine.set_fuel(4096);
+    /// # }
+    /// ```
+    pub fn set_fuel(&mut self, units: u64) {
+        self.fuel = units;
+    }
+
+    /// Installs the optional caller-owned cooperative work checkpoint.
+    /// Ordinary machines have no checkpoint and unbounded fuel.
+    ///
+    /// ```
+    /// # fn example(machine: &mut dive_core::Machine) {
+    /// machine.set_work_control(None);
+    /// # }
+    /// ```
+    pub fn set_work_control(&mut self, control: Option<Arc<dyn WorkControl>>) {
+        self.work_control = control;
     }
 
     /// Spends `n` units of fuel: one per element a loop visits.
     #[inline]
     pub(crate) fn charge(&mut self, n: usize) -> Result<(), Error> {
+        if self
+            .work_control
+            .as_ref()
+            .is_some_and(|control| !control.proceed())
+        {
+            return Err(Error::stop());
+        }
+        if self.fuel == u64::MAX {
+            return Ok(());
+        }
         let n = n as u64;
         if self.fuel < n {
             self.fuel = 0;
@@ -233,7 +280,7 @@ impl Machine {
     /// Evaluation errors.
     pub fn eval_norm(&mut self, code: &Code, p: P) -> Result<Handle, Error> {
         let v = self.eval(code, p)?;
-        self.heap.norm(v)
+        self.work_norm(v)
     }
 
     /// Evaluates a node.
@@ -246,6 +293,9 @@ impl Machine {
         reason = "one arm per node kind, with operand names as in the semantics"
     )]
     pub fn eval(&mut self, code: &Code, p: P) -> Result<Handle, Error> {
+        if self.fuel != u64::MAX {
+            self.charge(1)?;
+        }
         let Some(node) = code.nodes.get(p as usize) else {
             return Err(Error::internal("plan node out of range"));
         };
@@ -361,9 +411,9 @@ impl Machine {
             }
             Node::Subseteq(a, b) => {
                 let x = self.eval(code, *a)?;
-                let x = self.heap.norm(x)?;
+                let x = self.work_norm(x)?;
                 let y = self.eval(code, *b)?;
-                let elems = self.heap.elements(x)?;
+                let elems = self.work_elements(x)?;
                 self.charge(elems.len())?;
                 for e in elems {
                     if !self.member(e, y)? {
@@ -447,13 +497,13 @@ impl Machine {
             }
             Node::BigUnion(a) => {
                 let x = self.eval_norm(code, *a)?;
-                let members = self.heap.elements(x)?;
+                let members = self.work_elements(x)?;
                 // TLC's `UnionValue` stays lazy: membership tests the
                 // members in turn. The core keeps it lazy only when some
                 // member cannot be enumerated.
                 let mut normed = Vec::with_capacity(members.len());
                 for m in members {
-                    normed.push(self.heap.norm(m)?);
+                    normed.push(self.work_norm(m)?);
                 }
                 if normed.iter().any(|&m| !self.heap.is_finite(m)) {
                     let mut it = normed.into_iter();
@@ -464,8 +514,8 @@ impl Machine {
                 }
                 let mut out = Vec::new();
                 for m in normed {
-                    let m = self.heap.norm(m)?;
-                    let es = self.heap.elements(m)?;
+                    let m = self.work_norm(m)?;
+                    let es = self.work_elements(m)?;
                     self.charge(es.len())?;
                     out.extend(es);
                 }
@@ -517,6 +567,12 @@ impl Machine {
                 let fv = self.eval(code, *f)?;
                 self.domain(fv)
             }
+            Node::ClosedUpdate {
+                base,
+                key,
+                domain,
+                value,
+            } => self.closed_update(code, *base, *key, *domain, *value),
             Node::Except { base, updates } => {
                 let mut f = self.eval_norm(code, *base)?;
                 for u in updates {
@@ -904,6 +960,9 @@ impl Machine {
     /// `set` is not a set, or membership is undefined.
     #[allow(clippy::too_many_lines, reason = "one arm per set kind")]
     pub fn member(&mut self, x: Handle, set: Handle) -> Result<bool, Error> {
+        if self.fuel != u64::MAX && set.is_compound() && self.heap.view(set).kind == Kind::SetEnum {
+            self.domain_work(set, false, 0)?;
+        }
         if let Some(result) = self.heap.literal_member(x, set) {
             return result;
         }
@@ -916,7 +975,7 @@ impl Machine {
             && self.heap.is_finite(set)
             && !self.heap.is_lazy(set)
         {
-            let m = self.heap.materialize_cached(set)?;
+            let m = self.work_materialize_cached(set)?;
             return self.member(x, m);
         }
         let v = self.heap.view(set);
@@ -1009,8 +1068,8 @@ impl Machine {
                     return self.non_fcn_member(x, "a set of functions");
                 }
                 let d = self.domain(x)?;
-                let d = self.heap.norm(d)?;
-                let dom = self.heap.norm(dom)?;
+                let d = self.work_norm(d)?;
+                let dom = self.work_norm(dom)?;
                 if !self.heap.eq(d, dom) {
                     // TLC compares the domains with `equals`, which may fail.
                     if self.heap.store().semantics().tlc_comparisons {
@@ -1096,7 +1155,7 @@ impl Machine {
     }
 
     fn set_bin(&mut self, op: SetOp, x: Handle, y: Handle) -> Result<Handle, Error> {
-        let (x, y) = (self.heap.norm(x)?, self.heap.norm(y)?);
+        let (x, y) = (self.work_norm(x)?, self.work_norm(y)?);
         let fx = self.heap.is_finite(x);
         let fy = self.heap.is_finite(y);
         for (s, finite) in [(x, fx), (y, fy)] {
@@ -1112,8 +1171,8 @@ impl Machine {
                 if !fx || !fy {
                     return Ok(self.heap.union(x, y));
                 }
-                let mut v = self.heap.elements(x)?;
-                v.extend(self.heap.elements(y)?);
+                let mut v = self.work_elements(x)?;
+                v.extend(self.work_elements(y)?);
                 let r = self.heap.set_from(&mut v);
                 self.checked_set(r)
             }
@@ -1126,7 +1185,7 @@ impl Machine {
                     return Err(Error::unsupported("intersection of infinite sets"));
                 };
                 let mut out = Vec::new();
-                for e in self.heap.elements(a)? {
+                for e in self.work_elements(a)? {
                     if self.member(e, b)? {
                         out.push(e);
                     }
@@ -1141,7 +1200,7 @@ impl Machine {
                     return Ok(r);
                 }
                 let mut out = Vec::new();
-                for e in self.heap.elements(x)? {
+                for e in self.work_elements(x)? {
                     if !self.member(e, y)? {
                         out.push(e);
                     }
@@ -1186,7 +1245,7 @@ impl Machine {
         // The cursor enumerates a symbolic domain in canonical order without
         // materializing it (R9, R10).
         let dom = self.eval(code, bind.domain)?;
-        let mut cur = self.heap.cursor(dom)?;
+        let mut cur = self.work_cursor(dom)?;
         let mut out = Vec::new();
         loop {
             // Free a rejected candidate, and the predicate's transients, by
@@ -1194,7 +1253,7 @@ impl Machine {
             // transient meanwhile: its slot may hold a value built after the
             // mark (`03-value-model.md` §11.5 rule 2).
             let before = self.heap.mark();
-            let Some(e) = cur.next(&mut self.heap)? else {
+            let Some(e) = self.work_next(&mut cur)? else {
                 break;
             };
             self.charge(1)?;
@@ -1244,8 +1303,8 @@ impl Machine {
         let mut out = Vec::new();
         for (bi, b) in binds.iter().enumerate() {
             let d = self.eval(code, b.domain)?;
-            let d = self.heap.norm(d)?;
-            let elems = self.heap.elements(d)?;
+            let d = self.work_norm(d)?;
+            let elems = self.work_elements(d)?;
             if b.tuple {
                 out.push((
                     Unit {
@@ -1256,6 +1315,7 @@ impl Machine {
                 ));
             } else {
                 for vi in 0..b.slots.len() {
+                    self.charge(elems.len() + 1)?;
                     out.push((
                         Unit {
                             bind: bi,
@@ -1288,6 +1348,9 @@ impl Machine {
         binds: &[Bind],
         f: &mut dyn FnMut(&mut Self) -> Result<bool, Error>,
     ) -> Result<bool, Error> {
+        if self.fuel != u64::MAX {
+            return self.binding_stream(code, binds, f);
+        }
         let units = self.units(code, binds)?;
         if units.iter().any(|(_, e)| e.is_empty()) {
             return Ok(true);
@@ -1345,8 +1408,8 @@ impl Machine {
                     return Err(Error::unsupported("CHOOSE with several bound variables"));
                 }
                 let d = self.eval(code, binds[0].domain)?;
-                let mut cur = self.heap.cursor(d)?;
-                while let Some(e) = cur.next(&mut self.heap)? {
+                let mut cur = self.work_cursor(d)?;
+                while let Some(e) = self.work_next(&mut cur)? {
                     self.charge(1)?;
                     self.bind_one(&binds[0], e)?;
                     if self.eval_bool(code, body)? {
@@ -1516,6 +1579,8 @@ impl Machine {
         if !f.is_compound() {
             return Err(eval_err("DOMAIN of a value that is not a function"));
         }
+        let len = self.heap.view(f).len();
+        self.charge(len.saturating_mul(2))?;
         let v = self.heap.view(f);
         match v.kind {
             #[allow(clippy::cast_possible_wrap, reason = "domains fit in i64")]
@@ -1536,6 +1601,67 @@ impl Machine {
             }
             _ => Err(eval_err("DOMAIN of a set")),
         }
+    }
+
+    fn closed_update(
+        &mut self,
+        code: &Code,
+        base: P,
+        key: P,
+        domain: P,
+        value: P,
+    ) -> Result<Handle, Error> {
+        let f = self.eval(code, base)?;
+        let key = self.eval(code, key)?;
+        let domain = self.eval(code, domain)?;
+        if !f.is_compound() || !domain.is_compound() {
+            return Err(Error::unsupported("unproved optional update inputs"));
+        }
+        let d = self.heap.view(domain);
+        if d.kind != Kind::Interval {
+            return Err(Error::unsupported(
+                "optional update binder is not an interval",
+            ));
+        }
+        let lo = d.lo;
+        let hi = d
+            .data
+            .first()
+            .and_then(|h| h.as_int())
+            .ok_or_else(|| Error::unsupported("optional interval bound"))?;
+        let n = hi
+            .checked_sub(lo)
+            .and_then(|v| v.checked_add(1))
+            .and_then(|v| usize::try_from(v).ok())
+            .ok_or_else(|| Error::unsupported("optional update interval size"))?;
+        let v = self.heap.view(f);
+        let same = match v.kind {
+            Kind::IntFcn => v.lo == lo && v.len() == n,
+            Kind::Fcn => {
+                v.len() == n
+                    && v.keys().iter().enumerate().all(|(i, h)| {
+                        i64::try_from(i).ok().and_then(|i| lo.checked_add(i)) == h.as_int()
+                    })
+            }
+            _ => false,
+        };
+        let index = key
+            .as_int()
+            .and_then(|k| k.checked_sub(lo))
+            .and_then(|i| usize::try_from(i).ok())
+            .filter(|&i| i < n);
+        let Some(index) = index.filter(|_| same) else {
+            return Err(Error::unsupported(
+                "optional update key/domain requires reference warning semantics",
+            ));
+        };
+        let new = self.eval(code, value)?;
+        if new.as_int().is_none() && new.as_bool().is_none() && new.as_str_id().is_none() {
+            return Err(Error::unsupported(
+                "optional update replacement is not scalar",
+            ));
+        }
+        Ok(self.heap.fcn_with(f, index, new))
     }
 
     fn except(
@@ -1585,7 +1711,7 @@ impl Machine {
     // Standard operators
     // ------------------------------------------------------------------
 
-    fn seq_vals(&self, s: Handle) -> Result<Vec<Handle>, Error> {
+    fn seq_vals(&mut self, s: Handle) -> Result<Vec<Handle>, Error> {
         if !s.is_compound() {
             return Err(eval_err("expected a sequence"));
         }
@@ -1593,7 +1719,9 @@ impl Machine {
         if v.kind != Kind::IntFcn || v.lo != 1 {
             return Err(eval_err("expected a sequence"));
         }
-        Ok(v.data.to_vec())
+        let len = v.data.len();
+        self.charge(len)?;
+        Ok(self.heap.view(s).data.to_vec())
     }
 
     /// Bags (`tlc2.module.Bags`; the reference engine's
@@ -1615,7 +1743,7 @@ impl Machine {
                         "The argument of SetToBag should be a finite set, but instead it is not",
                     ));
                 }
-                let keys = self.heap.elements(set)?;
+                let keys = self.work_elements(set)?;
                 let one = mk_int(1)?;
                 let ones = vec![one; keys.len()];
                 Ok(self.heap.fcn_sorted(&keys, &ones))
@@ -1664,7 +1792,7 @@ impl Machine {
 
     /// `Len(s)`: a sequence's length, or a string's in UTF-16 units, as
     /// Java counts.
-    fn len(&self, s: Handle) -> Result<Handle, Error> {
+    fn len(&mut self, s: Handle) -> Result<Handle, Error> {
         if let Some(id) = s.as_str_id() {
             let text = self
                 .heap
@@ -1672,6 +1800,9 @@ impl Machine {
                 .strings()
                 .text(id)
                 .ok_or_else(|| Error::internal("unknown string"))?;
+            // UTF-8 byte length is O(1) and bounds UTF-16 traversal work.
+            // Charge before scanning; the returned length remains Java's.
+            self.charge(text.len())?;
             return mk_int(i64::try_from(text.encode_utf16().count()).unwrap_or(i64::MAX));
         }
         // Only a compound handle has a node to view.
@@ -1755,7 +1886,7 @@ impl Machine {
                     Some(_) if !self.heap.is_finite(s) => return Err(cardinality_error()),
                     Some(_) => {}
                 }
-                let n = self.heap.cardinality(s)?;
+                let n = self.work_cardinality(s)?;
                 mk_int(i64::try_from(n).unwrap_or(i64::MAX))
             }
             StdFn::Seq => {

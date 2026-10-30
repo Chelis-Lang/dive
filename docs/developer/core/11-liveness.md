@@ -278,6 +278,55 @@ requested bytes exclude the opaque overhead above. `memory` describes covered co
 capacities and reserve-growth overlap; the overlap is an upper bound, not
 observed peak RSS. `accounting_complete: false` remains explicit (§7).
 
+### 4.1 Optional stable native predicate evaluation
+
+The native reader can additionally evaluate a prepared state/action Predicate,
+Enabled or Nonstuttering atom on the exact persistent source/original target
+handles. The
+existing Role/Handoff compiler and a separate analysis Machine perform that
+work (ADR 0129). Shared label demand order, first original successor selection,
+frontier handling, products, lassos, reference attribution and independent word
+validation remain unchanged. Legacy row-only callbacks retain their signatures.
+
+Eligibility requires the actual retained atom object and source-owned scope,
+callback-free closed-predicate inspection, run-owned names/constant contexts,
+and actual set-free closed input handles. Immutable interval domains support
+quantifiers over closed scalar-keyed general functions. The original canonical
+producer certificate is unchanged. Bound fairness tests reuse existing core
+successor search and INSTANCE identity/cutoff checks; Nonstuttering checks the
+subscript before the action. One-clause, one-key scalar EXCEPT can qualify only
+for a root input function whose actual domain exactly matches the key's immutable
+interval binder; missing domains/keys fall back before reference warning 2144
+could be suppressed. EXCEPT @, nested/multiple updates, source function
+constructors, CHOOSE, raw/deferred set history, effects, live TLCGet and unproved
+fairness wrappers continue through reference evaluation. Unknown representations, optional work
+bounds and semantic failures use the same reference fallback. Actual owned
+budget stops propagate; foreign interruption evidence is rejected. Optional query
+binding streams the existing cursors under its work quota, preflights eager
+materialization before allocation and charges universal context buffers. Central
+bounded Machine normalization/enumeration/cardinality boundaries cover all direct
+interpreter, generator and library callers, including subset comparison and
+candidate values; higher-order sequence copies are charged before allocation.
+Unknown eager symbolic shapes fall back before calling Heap, and optional
+materialization never interns into the producer Store. Its
+in-query checkpoint uses the actual retained budget; quota exhaustion remains
+reference fallback, with no fabricated resource stop. String Len charges its
+O(1) UTF-8 byte-length upper bound before computing Java's UTF-16 length; closed
+input/constant function trees also count string payload bytes so lexical key
+operations cannot hide arbitrarily long strings behind one scalar component.
+The 4,096 allowance counts explicit semantic traversal/copy work. It is not a
+hard CPU-instruction, allocator-latency or wall-clock guarantee for each primitive;
+existing whole-run cooperative time and sampled-memory limits retain their scope.
+Explicit loops such as UTF-16 length traversal are still precharged.
+
+The analysis Machine has separate arena/frame/memo owners, with memoization and
+folding disabled. It does not intern predicate results into the producer Store.
+Additive `core.metrics.liveness.atoms` counters distinguish prepared eligibility,
+actual native evaluations and fallback. These are capability measurements,
+not performance acceptance; original workload completion and paired timing are
+still required. The existing conversion-cache allowance and eager admission
+policy are unchanged.
+
 ## 5. Analysis entry points (additive APIs)
 
 Existing reference callers keep their entrypoints and result types. Development

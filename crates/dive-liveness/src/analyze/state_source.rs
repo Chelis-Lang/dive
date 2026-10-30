@@ -34,6 +34,15 @@ pub(super) trait StateSource {
     fn concrete_metadata(&self, source: usize, original: usize) -> Option<ConcreteMetadata<'_>>;
 
     fn concrete(&mut self, source: usize, original: usize) -> Result<StateVals, AnalysisError>;
+
+    fn predicate(
+        &mut self,
+        _atom: &crate::plan::PredicateAtom,
+        _source: usize,
+        _target: Option<usize>,
+    ) -> Result<Option<bool>, AnalysisError> {
+        Ok(None)
+    }
 }
 
 /// The existing reference representation, borrowed without copying graph rows.
@@ -82,14 +91,14 @@ impl StateSource for CapturedStates<'_> {
 /// On-demand rows supplied by the producer owning their persistent roots.
 pub(super) struct NativeStates<'a, 'b> {
     pub(super) graph: &'a dive_check::capture::CsrCapture<'a>,
-    pub(super) read: &'a mut super::periodic::external::NativeRead<'b>,
+    pub(super) read: &'a mut (dyn super::periodic::external::NativeReader + 'b),
     pub(super) control: &'a dive_check::budget::EvaluationControl,
     pub(super) variables: usize,
 }
 
 impl NativeStates<'_, '_> {
     fn read_row(&mut self, row: usize) -> Result<StateVals, AnalysisError> {
-        let values = (self.read)(row, self.control)?;
+        let values = self.read.read(row, self.control)?;
         if values.len() != self.variables || values.iter().any(Option::is_none) {
             return Err(AnalysisError::Inconsistent(
                 "native value row variable dimensions",
@@ -110,6 +119,44 @@ impl StateSource for NativeStates<'_, '_> {
             .representative_row(vertex)
             .ok_or(AnalysisError::Inconsistent("native representative row"))?;
         self.read_row(row).map(Cow::Owned)
+    }
+
+    fn predicate(
+        &mut self,
+        atom: &crate::plan::PredicateAtom,
+        source: usize,
+        target: Option<usize>,
+    ) -> Result<Option<bool>, AnalysisError> {
+        if !self.read.has_predicate(atom) {
+            return Ok(None);
+        }
+        let malformed = || AnalysisError::Inconsistent("native predicate original row");
+        let before = self
+            .graph
+            .representative_row(source)
+            .ok_or_else(malformed)?;
+        let mut after = None;
+        if let Some(target) = target {
+            let mut original = 0;
+            for edge in self.graph.outgoing_range(source).ok_or_else(malformed)? {
+                let ordinal = self.graph.ordinal(edge).ok_or_else(malformed)?;
+                if self.graph.target(edge) == Some(target) {
+                    after = Some(if ordinal.is_some() {
+                        self.graph
+                            .original_row(source, original)
+                            .ok_or_else(malformed)?
+                    } else {
+                        before
+                    });
+                    break;
+                }
+                original += usize::from(ordinal.is_some());
+            }
+            if after.is_none() {
+                return Err(malformed());
+            }
+        }
+        self.read.predicate(atom, before, after, self.control)
     }
 
     fn concrete_count(&self, source: usize) -> Option<usize> {
@@ -195,6 +242,97 @@ mod native_tests {
         assert_eq!(selected[&1][0], Some(dive_value::Value::Int(2)));
         assert_eq!(selected[&0][0], Some(dive_value::Value::Int(0)));
         assert_eq!(requests, [2, 0]);
+    }
+
+    #[test]
+    fn native_predicates_receive_first_original_rows_and_never_destination_representatives() {
+        use crate::analyze::periodic::external::NativeReader;
+        use crate::formula::AtomKind;
+        use crate::plan::{AtomTest, PredicateAtom};
+        struct Probe(Vec<(usize, Option<usize>)>);
+        impl NativeReader for Probe {
+            fn read(
+                &mut self,
+                _: usize,
+                _: &EvaluationControl,
+            ) -> Result<StateVals, AnalysisError> {
+                Err(AnalysisError::Inconsistent(
+                    "predicate metadata must not read values",
+                ))
+            }
+            fn has_predicate(&self, _: &PredicateAtom) -> bool {
+                true
+            }
+            fn predicate(
+                &mut self,
+                _: &PredicateAtom,
+                before: usize,
+                after: Option<usize>,
+                _: &EvaluationControl,
+            ) -> Result<Option<bool>, AnalysisError> {
+                self.0.push((before, after));
+                Ok(Some(true))
+            }
+        }
+        let analysis = dive_sema::analyze_source(
+            "Rows.tla",
+            "---- MODULE Rows ----\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\n====\n",
+            &dive_sema::Options::default(),
+        );
+        let ir = std::sync::Arc::new(dive_ir::lower(&analysis).expect("IR"));
+        let config = dive_config::parse("INIT Init\nNEXT Next\n")
+            .into_config()
+            .expect("config");
+        let model =
+            dive_model::bind(ir, &config, &dive_model::BindOptions::default()).expect("model");
+        let atom = PredicateAtom {
+            pred: model.init[0].pred.clone(),
+            kind: AtomKind::Action,
+            test: AtomTest::Predicate,
+        };
+        let control =
+            EvaluationControl::new(&Budget::unlimited(), Phase::Temporal).expect("control");
+        let graph = CsrCapture::checked(
+            CsrCaptureInput {
+                offsets: &[0, 3, 4],
+                targets: &[1, 1, 0, 1],
+                ordinals: &[Some(0), Some(3), None, None],
+                actions: &[None; 4],
+                edge_rows: &[2, 3, 0, 1],
+                representatives: &[0, 1],
+                roots: &[0],
+                action_labels: &[],
+                retained_rows: 4,
+                closed_rows: 2,
+            },
+            Limits::default(),
+            &control,
+        )
+        .expect("graph");
+        let mut probe = Probe(Vec::new());
+        let mut source = NativeStates {
+            graph: &graph,
+            read: &mut probe,
+            control: &control,
+            variables: 1,
+        };
+        assert_eq!(
+            source
+                .predicate(&atom, 0, Some(1))
+                .expect("original target"),
+            Some(true)
+        );
+        assert_eq!(
+            source
+                .predicate(&atom, 0, Some(0))
+                .expect("implicit stutter"),
+            Some(true)
+        );
+        assert_eq!(
+            source.predicate(&atom, 0, None).expect("state predicate"),
+            Some(true)
+        );
+        assert_eq!(probe.0, [(0, Some(2)), (0, Some(0)), (0, None)]);
     }
 
     #[test]

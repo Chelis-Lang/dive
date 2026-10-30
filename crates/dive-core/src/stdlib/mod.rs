@@ -158,7 +158,7 @@ fn enumerable(m: &mut Machine, op: StdOp, s: Handle) -> Result<Option<Vec<Handle
     if m.heap.is_lazy(s) {
         return Err(refuse(op, "a set the core keeps lazy"));
     }
-    m.heap.elements(s).map(Some)
+    m.work_elements(s).map(Some)
 }
 
 /// Argument `i`.
