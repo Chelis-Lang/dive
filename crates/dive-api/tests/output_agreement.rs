@@ -146,28 +146,29 @@ fn compare_verdict(doc: &Value, lines: &[&str], diff: &mut Differences) {
         });
     }
     if doc["verdict"] == "liveness-violation" {
-        let Some(line) = lines
-            .iter()
-            .find(|l| l.starts_with("Temporal properties ") && l.ends_with(" were violated."))
-        else {
-            diff.0
-                .push("verdict: liveness-violation without a violated-properties line".into());
-            return;
-        };
-        let named: Vec<&str> = line
-            ["Temporal properties ".len()..line.len() - " were violated.".len()]
-            .split(", ")
-            .collect();
         let listed: Vec<String> = doc["properties"]
             .as_array()
             .map(|a| a.iter().map(text).collect())
             .unwrap_or_default();
-        diff.expect("properties", named == listed, || {
-            format!("human names {named:?}, JSON `properties` {listed:?}")
-        });
+        let names = match listed.split_last() {
+            None => String::new(),
+            Some((last, [])) => last.clone(),
+            Some((last, [first])) => format!("{first} and {last}"),
+            Some((last, rest)) => format!("{}, and {last}", rest.join(", ")),
+        };
+        let headline = if listed.len() == 1 {
+            format!("Temporal property {names} was violated.")
+        } else {
+            format!("Temporal properties {names} were violated.")
+        };
+        diff.expect(
+            "properties",
+            !listed.is_empty() && lines.contains(&headline.as_str()),
+            || format!("JSON `properties` {listed:?} require human line {headline:?}"),
+        );
         let property = text(&doc["property"]);
-        diff.expect("property", named.contains(&property.as_str()), || {
-            format!("JSON `property` {property:?} is not among the human {named:?}")
+        diff.expect("property", property == names, || {
+            format!("JSON `property` {property:?} differs from its complete list {names:?}")
         });
     }
 }
