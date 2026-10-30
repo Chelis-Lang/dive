@@ -46,7 +46,9 @@ JSON schema 3 preserves the actual completion/counters and existing trace
 format. `core.metrics.liveness.storage: "native-csr"` identifies native capture;
 `convert_ms`, `converted_nodes`, `memo_entries` and `graph_states` remain,
 with additive `values` counters for admission, on-demand reads, cache hits/misses,
-entries, requested bytes, replacements and bypasses. Cache allowance is the
+entries, requested bytes, replacements and bypasses. `retained_rows` reports the
+physical native row count. `convert_ms_scope` makes explicit that conversion timing
+excludes one-variable cache hits. Cache allowance is the
 smaller of 128 MiB and 1/64 of the run memory budget (128 MiB when unlimited).
 It charges actual table capacity and known eligible payload; shared run-owned
 name payload and opaque Arc/allocator overhead are outside that metric. Collector `memory` fields cover native
@@ -59,7 +61,9 @@ conversion before retention, including when a prior read has cached that handle.
 Only successful Bool/Int or flat tuple/record conversions can be reused during
 reads; exact persistent handle identity and the fixed run/store/profile isolate
 entries. One-variable models reuse the cached shared row on a hit; multi-variable
-models assemble rows from cached components. The cache charges the shared row
+models assemble rows from cached components. In-range retained row IDs select
+one-variable cache slots directly, with exact handle equality still required;
+other reads use the bounded handle lookup. The cache charges the shared row
 array storage as well as its table and eligible value payload. Budget checks
 precede hits. The table initializes after 1,024 read
 lookups; unproved, oversize or unavailable cache storage bypasses reuse. Unknown set normalization history is refused;

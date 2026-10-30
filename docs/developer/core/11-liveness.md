@@ -200,7 +200,12 @@ literal and general representations never share entries merely by equality.
 Sets, nested values, foreign name owners and unproved shapes keep the controlled
 conversion path. No failed conversion or normalization-history refusal is cached.
 
-The fixed table uses bounded probing and collision replacement. It is initialized
+For one-variable reads, a retained row ID inside the table's current length
+selects its slot directly. The exact Handle is still compared before reuse: row
+IDs supply no value or completion authority. A changed handle at that ID misses;
+the same handle at another ID may reconvert. Larger row IDs and multi-variable
+components use bounded handle-hash probing and collision replacement. Both paths
+share one fixed table and the same byte allowance. It is initialized
 after 1,024 read lookups, avoiding a large allocation for tiny checks. Its
 allowance is `min(128 MiB, memory_budget / 64)`, or 128 MiB with unlimited memory.
 Actual table capacity plus requested eligible payload and one-component row arrays
@@ -229,9 +234,14 @@ budget stop. Constructor hashing, diagnostic rendering and final shared/Arc
 allocations retain legacy units; this is not an allocation-time hard cap.
 
 `core.metrics.liveness` retains `convert_ms`, `converted_nodes`, `memo_entries`
-and `graph_states`. Additive `storage: "native-csr"` and `values` report
+and `graph_states`; `retained_rows` reports the physical row-ID domain.
+`convert_ms_scope` identifies timed admission/read slow paths: one-variable cache
+hits avoid the per-read stopwatch and are excluded from `convert_ms`. These
+conversion timings cannot be compared with earlier all-read timings as identical
+units. Additive `storage: "native-csr"` and `values` report
 admission/read/conversion counts, cache hits/misses, entries, configured allowance,
-actual table/known-payload bytes, collision replacements and bypasses. These
+actual table/known-payload bytes, collision replacements, bypasses, direct-slot
+lookups/hits and large-row-ID hash fallbacks. These
 requested bytes exclude the opaque overhead above. `memory` describes covered collector buffers, action-label
 capacities and reserve-growth overlap; the overlap is an upper bound, not
 observed peak RSS. `accounting_complete: false` remains explicit (§7).

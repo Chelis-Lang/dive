@@ -40,6 +40,9 @@ struct ConversionCache {
     probe_exhaustions: u64,
     byte_rejections: u64,
     allocation_bypasses: u64,
+    direct_lookups: u64,
+    direct_hits: u64,
+    row_index_fallbacks: u64,
 }
 impl ConversionCache {
     fn index(&self, key: Handle) -> usize {
@@ -48,8 +51,25 @@ impl ConversionCache {
         bits = (bits ^ (bits >> 27)).wrapping_mul(0x94d0_49bb_1331_11eb);
         usize::try_from((bits ^ (bits >> 31)) % self.slots.len() as u64).unwrap_or(0)
     }
-    fn get(&mut self, key: Handle) -> Option<&StateVals> {
+    fn get(&mut self, key: Handle, row: Option<usize>) -> Option<&StateVals> {
         if !key.is_transient() && !self.slots.is_empty() {
+            if let Some(row) = row.filter(|&row| row < self.slots.len()) {
+                self.direct_lookups += 1;
+                // The row ID selects storage only; exact Handle equality is
+                // still required, including after replacement or a changed ID.
+                if let Some(entry) = &self.slots[row]
+                    && entry.key == key
+                {
+                    self.hits += 1;
+                    self.direct_hits += 1;
+                    return Some(&entry.row);
+                }
+                self.misses += 1;
+                return None;
+            }
+            if row.is_some() {
+                self.row_index_fallbacks += 1;
+            }
             let base = self.index(key);
             for probe in 0..CACHE_PROBES.min(self.slots.len()) {
                 let slot = &self.slots[(base + probe) % self.slots.len()];
@@ -73,6 +93,7 @@ impl ConversionCache {
         key: Handle,
         value: &Value,
         bytes: usize,
+        row: Option<usize>,
         proceed: &mut dyn FnMut() -> bool,
     ) {
         if key.is_transient() || self.misses < CACHE_WARMUP || !proceed() {
@@ -104,18 +125,23 @@ impl ConversionCache {
             }
             self.bytes = table_bytes;
         }
-        let base = self.index(key);
-        let mut at = base;
-        for probe in 0..CACHE_PROBES.min(self.slots.len()) {
-            let candidate = (base + probe) % self.slots.len();
-            if self.slots[candidate]
-                .as_ref()
-                .is_none_or(|entry| entry.key == key)
-            {
-                at = candidate;
-                break;
+        let at = if let Some(row) = row.filter(|&row| row < self.slots.len()) {
+            row
+        } else {
+            let base = self.index(key);
+            let mut at = base;
+            for probe in 0..CACHE_PROBES.min(self.slots.len()) {
+                let candidate = (base + probe) % self.slots.len();
+                if self.slots[candidate]
+                    .as_ref()
+                    .is_none_or(|entry| entry.key == key)
+                {
+                    at = candidate;
+                    break;
+                }
             }
-        }
+            at
+        };
         let previous = self.slots[at].as_ref().map_or(0, |entry| entry.bytes);
         let charged = bytes.checked_add(std::mem::size_of::<Option<Value>>());
         let total = charged.and_then(|bytes| {
@@ -197,17 +223,18 @@ impl<'a> NativeValues<'a> {
     /// Every accepted original is admitted before the producer retains metadata.
     pub(crate) fn admit(&mut self, row: &[Handle]) -> Result<(), Verdict> {
         let control = self.capture.clone();
-        self.convert(row, &control, false).map_err(capture_error)?;
+        self.convert(row, &control, None).map_err(capture_error)?;
         self.admitted = self.admitted.saturating_add(1);
         Ok(())
     }
 
     pub(crate) fn read(
         &mut self,
+        row_id: usize,
         row: &[Handle],
         control: &EvaluationControl,
     ) -> Result<StateVals, AnalysisError> {
-        let values = self.convert(row, control, true)?;
+        let values = self.convert(row, control, Some(row_id))?;
         self.read = self.read.saturating_add(1);
         Ok(values)
     }
@@ -216,7 +243,7 @@ impl<'a> NativeValues<'a> {
         &mut self,
         row: &[Handle],
         control: &EvaluationControl,
-        reuse: bool,
+        row_id: Option<usize>,
     ) -> Result<StateVals, AnalysisError> {
         check(&self.capture, control)?;
         if row.len() != self.model.ir.vars().len() {
@@ -224,16 +251,16 @@ impl<'a> NativeValues<'a> {
                 "native value row variable dimensions",
             ));
         }
-        let started = Instant::now();
+        let reuse = row_id.is_some();
         let single = reuse && row.len() == 1;
         if single {
             check(&self.capture, control)?;
-            if let Some(values) = self.cache.get(row[0]) {
+            if let Some(values) = self.cache.get(row[0], row_id) {
                 check(&self.capture, control)?;
-                self.conversion += started.elapsed();
                 return Ok(values.clone());
             }
         }
+        let started = Instant::now();
         let mut values = Vec::new();
         values
             .try_reserve_exact(row.len())
@@ -242,7 +269,7 @@ impl<'a> NativeValues<'a> {
             check(&self.capture, control)?;
             if reuse
                 && !single
-                && let Some(row) = self.cache.get(handle)
+                && let Some(row) = self.cache.get(handle, None)
             {
                 values.push(row[0].clone());
                 continue;
@@ -279,7 +306,13 @@ impl<'a> NativeValues<'a> {
                     value.flat_cache_heap_bytes(&self.model.names, &mut cache_proceed)
                 {
                     self.cache.eligible += 1;
-                    self.cache.insert(handle, &value, bytes, &mut cache_proceed);
+                    self.cache.insert(
+                        handle,
+                        &value,
+                        bytes,
+                        if single { row_id } else { None },
+                        &mut cache_proceed,
+                    );
                 } else {
                     self.cache.uncovered += 1;
                 }
@@ -296,6 +329,7 @@ impl<'a> NativeValues<'a> {
             "admitted_rows": self.admitted, "read_rows": self.read,
             "converted_values": self.converted,
             "convert_ms": self.conversion.as_secs_f64() * 1e3,
+            "convert_ms_scope": "admission and read slow paths; single-variable cache hits are not timed",
             "cache_entries": self.cache.entries, "cache_bytes": self.cache.bytes,
             "cache_enabled": !self.cache.slots.is_empty(),
             "cache_limit_bytes": self.cache.limit,
@@ -307,6 +341,9 @@ impl<'a> NativeValues<'a> {
             "cache_insertions": self.cache.insertions, "cache_probe_exhaustions": self.cache.probe_exhaustions,
             "cache_byte_rejections": self.cache.byte_rejections,
             "cache_allocation_bypasses": self.cache.allocation_bypasses,
+            "cache_direct_lookups": self.cache.direct_lookups,
+            "cache_direct_hits": self.cache.direct_hits,
+            "cache_row_index_fallbacks": self.cache.row_index_fallbacks,
             "cache_evictions": self.cache.evictions, "cache_bypasses": self.cache.bypasses,
             "cache_scope": "requested table capacity, single-component row arrays and eligible function/boxed payload; field-name payload already pinned by run Interner; opaque Arc/allocator overhead excluded; not total RSS",
         })
@@ -395,7 +432,7 @@ mod tests {
             EvaluationControl::new(&Budget::unlimited(), Phase::Temporal).expect("control");
         for (handle, literal) in [(function, false), (record, true)] {
             values.admit(&[handle]).expect("admission");
-            let row = values.read(&[handle], &control).expect("read");
+            let row = values.read(0, &[handle], &control).expect("read");
             assert_eq!(
                 row[0]
                     .as_ref()
@@ -443,12 +480,14 @@ mod tests {
         values.cache.misses = CACHE_WARMUP;
         let control =
             EvaluationControl::new(&Budget::unlimited(), Phase::Temporal).expect("control");
-        for handle in handles {
+        for (row_id, handle) in handles.into_iter().enumerate() {
             values.admit(&[handle]).expect("admit");
-            let first = values.read(&[handle], &control).expect("miss");
+            let first = values.read(row_id, &[handle], &control).expect("miss");
             let before = values.converted;
-            let second = values.read(&[handle], &control).expect("hit");
-            let third = values.read(&[handle], &control).expect("second hit");
+            let second = values.read(row_id, &[handle], &control).expect("hit");
+            let third = values
+                .read(row_id, &[handle], &control)
+                .expect("second hit");
             assert!(Arc::ptr_eq(&second, &third), "hits reuse the whole row");
             assert_eq!(values.converted, before, "a read hit does not reconvert");
             let a = first[0]
@@ -480,7 +519,7 @@ mod tests {
         let raw = heap.set_enum(&[one]);
         let raw = heap.intern_exact(raw).expect("raw");
         assert!(matches!(
-            values.read(&[raw], &control),
+            values.read(4, &[raw], &control),
             Err(AnalysisError::UnsupportedValue(_))
         ));
         assert_eq!(
@@ -501,8 +540,8 @@ mod tests {
         let control =
             EvaluationControl::new(&Budget::unlimited(), Phase::Temporal).expect("control");
         let row = [Handle::int(1).expect("integer"), Handle::bool(true)];
-        let first = values.read(&row, &control).expect("misses");
-        let second = values.read(&row, &control).expect("hits");
+        let first = values.read(0, &row, &control).expect("misses");
+        let second = values.read(0, &row, &control).expect("hits");
         assert_eq!(first, second);
         assert!(!Arc::ptr_eq(&first, &second));
         assert_eq!(values.converted, 2);
@@ -514,6 +553,68 @@ mod tests {
     }
 
     #[test]
+    fn retained_row_indices_are_only_hints_and_large_indices_use_exact_handle_fallback() {
+        let model = model();
+        let mut values =
+            NativeValues::new(&model, Arc::new(Store::default()), &Budget::unlimited())
+                .expect("converter");
+        values.cache.limit = 4096;
+        values.cache.misses = CACHE_WARMUP;
+        let control =
+            EvaluationControl::new(&Budget::unlimited(), Phase::Temporal).expect("control");
+        let one = Handle::int(1).expect("integer");
+        let two = Handle::int(2).expect("integer");
+        values.read(7, &[one], &control).expect("first miss");
+        let first = values.read(7, &[one], &control).expect("first hit");
+        let second = values.read(7, &[one], &control).expect("second hit");
+        assert!(Arc::ptr_eq(&first, &second));
+        assert_eq!(values.converted, 1);
+        let changed = values
+            .read(7, &[two], &control)
+            .expect("changed exact handle");
+        assert_eq!(changed[0], Some(Value::Int(2)));
+        assert_eq!(values.converted, 2, "a row ID alone cannot mint a hit");
+        values
+            .read(8, &[two], &control)
+            .expect("same handle at another ID");
+        assert_eq!(values.converted, 3, "cross-row aliases may reconvert");
+        let before = values.cache.row_index_fallbacks;
+        values
+            .read(usize::MAX, &[one], &control)
+            .expect("large ID miss");
+        let a = values
+            .read(usize::MAX, &[one], &control)
+            .expect("large ID hit");
+        let b = values
+            .read(usize::MAX, &[one], &control)
+            .expect("another large ID hit");
+        assert!(Arc::ptr_eq(&a, &b));
+        assert_eq!(values.cache.row_index_fallbacks, before + 3);
+        assert!(values.cache.bytes <= values.cache.limit);
+        assert_eq!(values.cache.direct_hits, 2);
+        assert_eq!(
+            first[0],
+            Some(Value::Int(1)),
+            "replacement preserves an owned row"
+        );
+        values.cache = ConversionCache {
+            limit: std::mem::size_of::<Option<Entry>>() * 4 - 1,
+            misses: CACHE_WARMUP,
+            ..ConversionCache::default()
+        };
+        let before = values.converted;
+        values
+            .read(0, &[one], &control)
+            .expect("tiny allowance bypass");
+        values
+            .read(usize::MAX, &[one], &control)
+            .expect("tiny large-ID bypass");
+        assert_eq!(values.converted, before + 2);
+        assert!(values.cache.slots.is_empty());
+        assert_eq!(values.cache.bytes, 0);
+    }
+
+    #[test]
     fn table_payload_bound_collision_eviction_and_disabled_cache_are_explicit() {
         let mut cache = ConversionCache {
             limit: 4096,
@@ -521,7 +622,7 @@ mod tests {
             ..ConversionCache::default()
         };
         let first = Handle::int(0).expect("integer");
-        cache.insert(first, &Value::Int(0), 0, &mut || true);
+        cache.insert(first, &Value::Int(0), 0, None, &mut || true);
         let table_bytes = cache.slots.capacity() * std::mem::size_of::<Option<Entry>>();
         let row_bytes = std::mem::size_of::<Option<Value>>();
         assert_eq!(cache.bytes, table_bytes + row_bytes);
@@ -533,31 +634,31 @@ mod tests {
             .collect::<Vec<_>>();
         assert_eq!(collisions.len(), CACHE_PROBES);
         for &key in &collisions {
-            cache.insert(key, &Value::Int(1), 0, &mut || true);
+            cache.insert(key, &Value::Int(1), 0, None, &mut || true);
         }
         assert_eq!(cache.evictions, 1);
-        assert!(cache.get(first).is_none());
-        assert!(cache.get(collisions[CACHE_PROBES - 1]).is_some());
+        assert!(cache.get(first, None).is_none());
+        assert!(cache.get(collisions[CACHE_PROBES - 1], None).is_some());
         assert_eq!(cache.bytes, table_bytes + CACHE_PROBES * row_bytes);
         let before = cache.entries;
         let key = Handle::int(10001).expect("integer");
-        cache.insert(key, &Value::Int(0), cache.limit, &mut || true);
+        cache.insert(key, &Value::Int(0), cache.limit, None, &mut || true);
         assert_eq!(cache.entries, before);
         assert_eq!(cache.bypasses, 1);
         assert!(cache.bytes <= cache.limit);
         let payload = cache.limit - cache.bytes;
-        cache.insert(first, &Value::Int(0), payload, &mut || true);
+        cache.insert(first, &Value::Int(0), payload, None, &mut || true);
         assert_eq!(
             cache.bytes, cache.limit,
             "exact requested-byte boundary is admitted"
         );
-        cache.insert(key, &Value::Int(0), payload + 1, &mut || true);
+        cache.insert(key, &Value::Int(0), payload + 1, None, &mut || true);
         assert!(cache.bytes <= cache.limit);
         let mut disabled = ConversionCache {
             misses: CACHE_WARMUP,
             ..ConversionCache::default()
         };
-        disabled.insert(first, &Value::Int(0), 0, &mut || true);
+        disabled.insert(first, &Value::Int(0), 0, None, &mut || true);
         assert!(disabled.slots.is_empty());
     }
 
@@ -582,11 +683,13 @@ mod tests {
             &mut || true,
         )
         .expect("successful immutable conversion");
-        values.cache.insert(handle, &converted, 0, &mut || true);
+        values
+            .cache
+            .insert(handle, &converted, 0, Some(0), &mut || true);
         assert_eq!(values.cache.entries, 1);
         let control = EvaluationControl::new(watchdog.budget(), Phase::Temporal).expect("control");
         assert!(
-            matches!(values.read(&[handle], &control), Err(AnalysisError::Stopped(stop)) if stop.phase == Phase::Temporal)
+            matches!(values.read(0, &[handle], &control), Err(AnalysisError::Stopped(stop)) if stop.phase == Phase::Temporal)
         );
         assert_eq!(values.cache.hits, 0);
         let limited = Budget::new(None, Some(64 * 4096));
@@ -609,13 +712,13 @@ mod tests {
         let foreign =
             EvaluationControl::new(watchdog.budget(), Phase::Temporal).expect("foreign control");
         assert!(matches!(
-            values.read(&[Handle::bool(true)], &foreign),
+            values.read(0, &[Handle::bool(true)], &foreign),
             Err(AnalysisError::Inconsistent(_))
         ));
         let control =
             EvaluationControl::new(&Budget::unlimited(), Phase::Temporal).expect("control");
         assert!(matches!(
-            values.read(&[], &control),
+            values.read(0, &[], &control),
             Err(AnalysisError::Inconsistent(_))
         ));
         let mut stopped = NativeValues::new(&model, Arc::new(Store::default()), watchdog.budget())
@@ -624,7 +727,7 @@ mod tests {
             matches!(stopped.admit(&[Handle::bool(true)]), Err(Verdict::Stopped(stop)) if stop.phase == Phase::Capture)
         );
         assert!(
-            matches!(stopped.read(&[Handle::bool(true)], &foreign), Err(AnalysisError::Stopped(stop)) if stop.phase == Phase::Temporal)
+            matches!(stopped.read(0, &[Handle::bool(true)], &foreign), Err(AnalysisError::Stopped(stop)) if stop.phase == Phase::Temporal)
         );
     }
 }

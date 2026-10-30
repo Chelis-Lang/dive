@@ -163,7 +163,8 @@ fn check_configured(
             return Ok(false);
         }
         let csr = CsrCapture::checked(graph.input(), graph.limits(), &control)?;
-        let mut read = |row, control: &EvaluationControl| values.read(graph.row(row)?, control);
+        let mut read =
+            |row, control: &EvaluationControl| values.read(row, graph.row(row)?, control);
         Ok(graph_check.level_native(level, &csr, stats, &mut read))
     };
     let mut sink = match NativeSink::new(
@@ -407,7 +408,7 @@ fn finish(
     {
         return Ok(Err(*failure));
     }
-    let mut read = |row, control: &EvaluationControl| values.read(graph.row(row)?, control);
+    let mut read = |row, control: &EvaluationControl| values.read(row, graph.row(row)?, control);
     if let Some(level) = prefix {
         let prefix = CsrPrefix::from_producer(
             graph.input(),
@@ -442,6 +443,7 @@ fn record_metrics(run: &mut CoreRun, graph: &NativeGraph, values: &NativeValues<
             "liveness".into(),
             serde_json::json!({
                 "storage": "native-csr", "graph_states": graph.state_count(),
+                "retained_rows": graph.input().retained_rows,
                 "convert_ms": conversion["convert_ms"],
                 "converted_nodes": conversion["converted_values"],
                 "memo_entries": conversion["cache_entries"],

@@ -4,16 +4,16 @@
   behavior as JSON. Capture statistics distinguish incomplete work from completed
   capture; uncertified diagnostic prefixes remain diagnostic only (#500).
 
-- Ordinary `--engine core` temporal checks now retain persistent original rows
-
 - Reuse successful core-native temporal read conversions for exact persistent
   handles containing Bool/Int or flat tuple/record values. The bounded cache
-  reuses shared rows for one-variable models and charges its actual table
+  reuses shared rows for one-variable models, selects in-range row slots directly
+  with an exact handle check, and charges its actual table
   capacity, row arrays and known value payload within the smaller
   of 128 MiB and 1/64 of the run memory budget; opaque Arc/allocator overhead
   remains explicit. Budget checks precede hits, eager admission still converts
   every original, and representation/history refusals remain unchanged. Cache
-  counters are additive; throughput and whole-run capacity need measurement.
+  counters are additive; conversion timing now excludes one-variable cache hits
+  and reports its scope. Throughput and whole-run capacity need measurement.
 
 - The initial ordinary `--engine core` native temporal backend retained persistent original rows
   and CSR instead of a complete evaluator-value graph. Controlled eager Graph
