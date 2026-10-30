@@ -13,7 +13,8 @@
 //! `Ending::InvariantError { name, ec }`: `ec` is the underlying cause, while
 //! the check report retains TLC's deciding wrapper 2111. Independent replay
 //! requires that exact final invariant/cause after earlier checks pass. All
-//! existing ending kinds retain native version 1; both versions are read.
+//! existing ending kinds retain native version 1; readers also accept version 3
+//! partial candidates and version 4 independently replayed candidate errors.
 //! Neither native payload version changes the report schema version.
 //!
 //! This is also how a Rust project checks its *own implementation's*
@@ -298,6 +299,7 @@ impl SpecModel {
             Some(
                 Ending::TemporalStateError { .. }
                     | Ending::NextStateError { .. }
+                    | Ending::CandidateStateError { .. }
                     | Ending::PartialNext { .. }
                     | Ending::PartialInit { .. }
             )

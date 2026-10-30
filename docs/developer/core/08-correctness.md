@@ -428,3 +428,25 @@ Fresh source replay proves that request independently. No whole-census, global
 BFS-count, TLC parity or milestone completion claim follows from these focused
 word controls. Constraints, implied safety and VIEW terminal endpoints remain
 separate acceptance work (#434/#490/#499/#606/#607 remain partial).
+
+
+## 13. Candidate-side terminal replay
+
+ADR 0128 adds a separate native version-4 `candidate-ordered-terminal` endpoint.
+The complete final row is the generated candidate. Fresh validation checks the
+complete source prefix on one private runtime, then reconstructs another to
+observe actual configured action generation and ordered candidate checks. The
+first real error must match site, source, cause and final bindings before actual
+per-action diagnostic replay proves reported/deciding identities. Descriptor
+metadata selects no operation. Plain errors and old Next stages keep strict
+header checks and their earlier semantics.
+
+The bounded sites are constraint, action constraint and implied action. Fifteen
+existing Choose/Domain/NonBoolIf/NonEnum/TypeErr fixtures validate in both
+profiles and engines while preserving their pinned primary headers. A separate
+control makes diagnostic generation reach a genuinely different error; a
+matching primary cannot certify the deciding code. VIEW, unproved top-level
+non-Boolean checks, global visited/alias obligations, unsupported materialized
+fingerprint demand, effects and temporal models remain refused. This is focused
+word evidence, not a fresh census or closure of the remaining error families.
+Native version-4 reader migration and consumer notice are required before landing.

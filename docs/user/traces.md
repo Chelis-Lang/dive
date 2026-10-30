@@ -13,7 +13,7 @@ The JSON validation report uses `schema_version: 3`, `command: "validate-trace"`
 and `result: "valid" | "invalid" | "unsupported"`. Its report version is
 independent of the native trace document's `format: "dive-trace"` and payload
 version (1 for existing endings, 2 for named invariant errors, 3 for separate
-partial terminal bindings).
+partial terminal bindings, 4 for candidate-side terminal errors).
 Existing trace tags, endings and loop indexing follow the compatibility policy
 in [reports and automation](reports-and-errors.md).
 
@@ -398,3 +398,17 @@ through an `INSTANCE`; replay evaluates them with the core evaluator, which keep
 the hidden-variable cutoff when inner and outer variables have the same name.
 Effectful callbacks remain refused. This
 query support does not admit action-valued callbacks as ordinary state helpers.
+
+Candidate-side errors use native trace version 4 (ADR 0128). The last complete
+row is the actual generated candidate, rather than the state whose expansion
+fails. The closed `candidate-ordered-terminal` endpoint carries untrusted
+`site`, original `source`, `reported` and `deciding` codes. Supported sites are
+`constraint`, `action-constraint` and `implied-action`. Fresh replay must discover
+the first real error and exact candidate after checking the complete source
+prefix, then actually execute diagnostic generation/checks to prove its deciding
+code. See [ADR 0128](../decisions/0128-candidate-terminal-error-replay.md) for the
+wire example. Readers must understand version 4 before updating producer pins;
+versions 1/2/3 retain their meanings and reject the new form. VIEW, unknown
+newness/alias history, unproved non-Boolean checks, raw fingerprint demand and
+executed effects remain unsupported. The witness certifies no BFS counts or
+TLC classifier result, and legacy infallible validation refuses it.

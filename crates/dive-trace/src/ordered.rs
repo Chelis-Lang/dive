@@ -23,6 +23,7 @@ pub(crate) enum Event {
     Error {
         site: Site,
         error: EvalError,
+        candidate: Option<State>,
     },
     Partial {
         state: State,
@@ -195,7 +196,7 @@ impl Driver<'_> {
                     inside = false;
                     break;
                 }
-                Err(event) => return Ok(Some(event)),
+                Err(event) => return Ok(Some(with_candidate(event, candidate.state)?)),
             }
         }
         if inside && !self.initial {
@@ -207,7 +208,7 @@ impl Driver<'_> {
                         inside = false;
                         break;
                     }
-                    Err(event) => return Ok(Some(event)),
+                    Err(event) => return Ok(Some(with_candidate(event, candidate.state)?)),
                 }
             }
         }
@@ -237,7 +238,7 @@ impl Driver<'_> {
                             ),
                         }));
                     }
-                    Err(event) => return Ok(Some(event)),
+                    Err(event) => return Ok(Some(with_candidate(event, candidate.state)?)),
                 }
             }
         }
@@ -265,7 +266,7 @@ impl Driver<'_> {
                         detail: format!("earlier candidate violates {}", property.name),
                     }));
                 }
-                Err(event) => return Ok(Some(event)),
+                Err(event) => return Ok(Some(with_candidate(event, candidate.state)?)),
             }
         }
         Ok(None)
@@ -348,8 +349,23 @@ fn slots(values: &[Option<Value>]) -> Result<State, EvalError> {
 
 fn execution_error(site: Site, error: EvalError) -> Result<Event, EvalError> {
     match error.class() {
-        ErrorClass::Eval => Ok(Event::Error { site, error }),
+        ErrorClass::Eval => Ok(Event::Error {
+            site,
+            error,
+            candidate: None,
+        }),
         ErrorClass::Unsupported => Ok(Event::Refused(error.to_string())),
         _ => Err(error),
     }
+}
+
+fn with_candidate(event: Event, values: &[Option<Value>]) -> Result<Event, EvalError> {
+    Ok(match event {
+        Event::Error { site, error, .. } => Event::Error {
+            site,
+            error,
+            candidate: Some(slots(values)?),
+        },
+        other => other,
+    })
 }

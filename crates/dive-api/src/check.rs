@@ -258,6 +258,8 @@ pub struct CheckReport {
     core: Option<Box<crate::core_engine::CoreRun>>,
     /// Untrusted original source context captured while this run owns the IR.
     next_error_endpoint: Option<dive_trace::NextStateEndpoint>,
+    /// Untrusted candidate-site observation; fresh replay proves its identities.
+    candidate_error_endpoint: Option<dive_trace::CandidateStateEndpoint>,
     /// Observed partial candidate captured while its original IR is owned.
     partial_terminal_endpoint: Option<dive_trace::PartialNextEndpoint>,
     /// The engine requested.
@@ -527,6 +529,7 @@ fn check_file_in(
         phase: Phase::Unlowered(String::new()),
         core: None,
         next_error_endpoint: None,
+        candidate_error_endpoint: None,
         partial_terminal_endpoint: None,
         engine,
         fallback: None,
@@ -664,6 +667,33 @@ fn check_file_in(
         } else {
             dive_trace::NextStateEndpoint::from_error(&ir, cause)
         };
+    }
+    if let Phase::Checked(result) = &report.phase
+        && let Verdict::EvaluationError {
+            site,
+            cause,
+            reported,
+            code,
+            verified: true,
+            ..
+        } = &result.verdict
+        && *code == 2103
+        && cause.exception_kind() == Some(dive_eval::ExceptionKind::ToolRuntime)
+    {
+        let site = match site {
+            dive_check::ErrorSite::Constraint => Some(dive_trace::CandidateErrorSite::Constraint),
+            dive_check::ErrorSite::ActionConstraint => {
+                Some(dive_trace::CandidateErrorSite::ActionConstraint)
+            }
+            dive_check::ErrorSite::ImpliedAction => {
+                Some(dive_trace::CandidateErrorSite::ImpliedAction)
+            }
+            _ => None,
+        };
+        if let Some(site) = site {
+            report.candidate_error_endpoint =
+                dive_trace::CandidateStateEndpoint::from_error(&ir, cause, site, *reported, *code);
+        }
     }
     if let Phase::Checked(result) = &report.phase
         && let Verdict::NotCompletelySpecified {
@@ -1617,6 +1647,7 @@ impl CheckReport {
                         ctx,
                         self.next_error_endpoint.as_ref(),
                         self.partial_terminal_endpoint.as_ref(),
+                        self.candidate_error_endpoint.as_ref(),
                     );
                     doc["counterexample"] = json!({
                         "length": states.len(),
@@ -1849,6 +1880,7 @@ fn trace_doc(
     ctx: dive_value::Ctx,
     next_endpoint: Option<&dive_trace::NextStateEndpoint>,
     partial_endpoint: Option<&dive_trace::PartialNextEndpoint>,
+    candidate_endpoint: Option<&dive_trace::CandidateStateEndpoint>,
 ) -> Result<Value, String> {
     use dive_check::Verdict as V;
     use dive_trace::Ending;
@@ -1890,6 +1922,14 @@ fn trace_doc(
             ec: cause.ec().name().to_owned(),
             endpoint: next_endpoint.cloned().ok_or("missing Next error source")?,
         },
+        V::EvaluationError { cause, .. } if candidate_endpoint.is_some() => {
+            Ending::CandidateStateError {
+                ec: cause.ec().name().to_owned(),
+                endpoint: candidate_endpoint
+                    .cloned()
+                    .ok_or("missing candidate source")?,
+            }
+        }
         V::EvaluationError { cause, .. } => {
             if cause.ec() == dive_eval::Ec::AssertFailed {
                 Ending::Assertion
@@ -2390,6 +2430,7 @@ mod evidence_controls {
             phase,
             core: None,
             next_error_endpoint: None,
+            candidate_error_endpoint: None,
             partial_terminal_endpoint: None,
             engine: crate::Engine::Reference,
             fallback: None,

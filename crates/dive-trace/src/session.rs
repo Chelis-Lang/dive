@@ -78,6 +78,7 @@ impl Session {
             Some(
                 crate::Ending::TemporalStateError { .. }
                     | crate::Ending::NextStateError { .. }
+                    | crate::Ending::CandidateStateError { .. }
                     | crate::Ending::PartialNext { .. }
                     | crate::Ending::PartialInit { .. }
             )
@@ -188,6 +189,7 @@ impl Session {
             Some(
                 crate::Ending::TemporalStateError { .. }
                     | crate::Ending::NextStateError { .. }
+                    | crate::Ending::CandidateStateError { .. }
                     | crate::Ending::PartialNext { .. }
                     | crate::Ending::PartialInit { .. }
             )
@@ -238,6 +240,7 @@ impl Session {
             Some(
                 crate::Ending::TemporalStateError { .. }
                     | crate::Ending::NextStateError { .. }
+                    | crate::Ending::CandidateStateError { .. }
                     | crate::Ending::PartialNext { .. }
                     | crate::Ending::PartialInit { .. }
             )
@@ -248,6 +251,7 @@ impl Session {
             doc.ending,
             Some(
                 crate::Ending::NextStateError { .. }
+                    | crate::Ending::CandidateStateError { .. }
                     | crate::Ending::PartialNext { .. }
                     | crate::Ending::PartialInit { .. }
             )

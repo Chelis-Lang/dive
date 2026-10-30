@@ -1,5 +1,12 @@
 # Changelog
 
+- Native trace version 4 adds independently replayed candidate-side terminal
+  errors at constraint, action-constraint and implied-action sites (ADR 0128).
+  Readers must implement the distinct final-candidate semantics and both primary
+  and diagnostic replay before advancing producer pins; versions 1/2/3 cannot
+  carry the new endpoint and keep their meanings. Outer reports remain schema 3.
+  VIEW, unproved history and non-Boolean checks retain explicit refusals.
+
 - Human temporal-error reports print the same independently validated finite
   behavior as JSON. Capture statistics distinguish incomplete work from completed
   capture; uncertified diagnostic prefixes remain diagnostic only (#500).
