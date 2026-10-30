@@ -179,6 +179,12 @@ pub fn validate_counterexample(
                     ec: Some(ec.clone()),
                 })
         }
+        Some(Ending::PartialNext { .. }) => {
+            reported
+                == Some(Ending::Error {
+                    ec: Some("TLC_STATE_NOT_COMPLETELY_SPECIFIED_NEXT".to_owned()),
+                })
+        }
         _ => doc.ending.is_some() && doc.ending == reported,
     };
     if !matching {

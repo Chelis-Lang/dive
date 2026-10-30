@@ -39,7 +39,11 @@ impl TemporalStateEndpoint {
     }
 
     fn from_origin(ir: &dive_ir::Ir, error: &EvalError) -> Option<Self> {
-        let origin = ir.nodes().get(error.origin()?.index())?.origin;
+        Self::from_expression(ir, error.origin()?)
+    }
+
+    fn from_expression(ir: &dive_ir::Ir, expression: dive_ir::ExprId) -> Option<Self> {
+        let origin = ir.nodes().get(expression.index())?.origin;
         let file = ir.files().get(origin.file?.index())?;
         let instance = if let Some(definition) = origin.instance {
             let definition = ir.defs().get(definition.index())?;
@@ -162,5 +166,96 @@ impl NextStateEndpoint {
     pub(crate) fn from_json(value: &Value) -> Result<Self, String> {
         TemporalStateEndpoint::from_stage(value, "next-before-successor")
             .map(|source| Self { source })
+    }
+}
+
+/// Untrusted terminal partial bindings, distinct from every complete prefix row.
+/// The source names the actual generating action; it selects no replay action.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct PartialNextEndpoint {
+    source: TemporalStateEndpoint,
+    assignments: serde_json::Map<String, Value>,
+    unassigned: Vec<String>,
+}
+
+impl PartialNextEndpoint {
+    /// Records an actual incomplete candidate without certifying it.
+    #[must_use]
+    pub fn from_candidate(
+        ir: &dive_ir::Ir,
+        expression: dive_ir::ExprId,
+        assignments: serde_json::Map<String, Value>,
+        unassigned: Vec<String>,
+    ) -> Option<Self> {
+        (!unassigned.is_empty()).then_some(Self {
+            source: TemporalStateEndpoint::from_expression(ir, expression)?,
+            assignments,
+            unassigned,
+        })
+    }
+
+    pub(crate) fn assignments(&self) -> &serde_json::Map<String, Value> {
+        &self.assignments
+    }
+
+    pub(crate) fn unassigned(&self) -> &[String] {
+        &self.unassigned
+    }
+
+    pub(crate) fn matches_source(&self, ir: &dive_ir::Ir, expression: dive_ir::ExprId) -> bool {
+        TemporalStateEndpoint::from_expression(ir, expression).as_ref() == Some(&self.source)
+    }
+
+    pub(crate) fn to_json(&self) -> Value {
+        let mut value = self.source.to_stage("next-partial-state");
+        value["assignments"] = Value::Object(self.assignments.clone());
+        value["unassigned"] = serde_json::json!(self.unassigned);
+        value
+    }
+
+    pub(crate) fn from_json(value: &Value) -> Result<Self, String> {
+        let object = value
+            .as_object()
+            .ok_or("partial endpoint must be an object")?;
+        if object.len() != 4
+            || !object.contains_key("assignments")
+            || !object.contains_key("unassigned")
+        {
+            return Err("unknown partial endpoint fields".into());
+        }
+        let mut context = value.clone();
+        let object = context
+            .as_object_mut()
+            .ok_or("partial endpoint must be an object")?;
+        object.remove("assignments");
+        object.remove("unassigned");
+        let source = TemporalStateEndpoint::from_stage(&context, "next-partial-state")?;
+        let assignments = value["assignments"]
+            .as_object()
+            .ok_or("partial assignments must be an object")?
+            .clone();
+        let unassigned: Vec<String> = value["unassigned"]
+            .as_array()
+            .ok_or("partial unassigned must be a list")?
+            .iter()
+            .map(|v| {
+                v.as_str()
+                    .filter(|s| !s.is_empty())
+                    .map(str::to_owned)
+                    .ok_or("partial unassigned needs variable names")
+            })
+            .collect::<Result<_, _>>()?;
+        let names: std::collections::BTreeSet<_> = unassigned.iter().collect();
+        if unassigned.is_empty()
+            || names.len() != unassigned.len()
+            || unassigned.iter().any(|name| assignments.contains_key(name))
+        {
+            return Err("partial assigned and unassigned variables must be disjoint, with at least one unassigned".into());
+        }
+        Ok(Self {
+            source,
+            assignments,
+            unassigned,
+        })
     }
 }

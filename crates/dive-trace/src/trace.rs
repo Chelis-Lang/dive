@@ -62,6 +62,14 @@ pub struct ShapeError {
 }
 
 impl Trace {
+    /// Logical length, counting a separate partial terminal candidate.
+    #[must_use]
+    pub fn logical_length(&self) -> usize {
+        self.states.len().saturating_add(usize::from(matches!(
+            self.ending,
+            Ending::PartialNext { .. }
+        )))
+    }
     /// Reads a [`Source::Dive`] document's values against `model`, checking
     /// that every state assigns exactly the model's variables. A
     /// [`Source::Tlc`] document is read by [`crate::tlc`] instead.

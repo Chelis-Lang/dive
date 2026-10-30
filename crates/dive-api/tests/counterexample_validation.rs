@@ -214,11 +214,11 @@ fn check_run(spec: &Path, profile: Profile) -> Result<Outcome> {
             ending, report["property"]
         )));
     }
-    if cx["length"].as_u64() != u64::try_from(doc.states.len()).ok() {
+    if cx["length"].as_u64() != u64::try_from(doc.logical_length()).ok() {
         return Ok(Outcome::Refuted(format!(
             "the report counts {} states, the trace document {}",
             cx["length"],
-            doc.states.len()
+            doc.logical_length()
         )));
     }
     let options = TraceOptions {

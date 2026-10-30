@@ -375,3 +375,25 @@ A valid underlying word does not authorize a 2103 wrapper or certify diagnostic
 counts. Unknown canonical oracle streams remain unknown. The remaining #434,
 #606 and #607 families are not closed by this conservative slice, and new
 agreement credit requires a separately measured real harness outcome.
+
+## 11. Partial terminal assignments
+
+ADR 0123 retains observed partial assignments in both producer adapters rather
+than parsing their display text. Native trace version 3 holds only complete
+prefix rows in `states`, and a closed `next-partial-state` terminal descriptor
+with the exact assignment partition and observed action source. Logical length
+counts both. Report schema 3 and native v1/v2 meanings/output remain unchanged.
+
+Fresh source-bound replay validates the complete prefix and reconstructs actual
+configured actions on another private runtime. It stops at the first incomplete
+candidate and compares exact source/assigned/unassigned bindings. An earlier
+evaluation error or missing candidate refutes the word; an earlier complete
+candidate remains unsupported until its ordered demand obligations are proved.
+No seen set, checker callback, metadata waiver or value for an empty slot is used.
+Typed interruptions/resource failures yield no completed validation report.
+
+The ten historical absent-document fixtures now preserve genuine partial words;
+eight validate in the first slice, with `RoActions`/`SplitThrows` still refused.
+These are independent-word results only, not a new TLC census or closure of
+#607/#434/#606. VIEW, symmetry, temporal, effects and composition remain bounded
+by existing independent-replay refusals.

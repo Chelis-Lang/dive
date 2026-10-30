@@ -20,34 +20,8 @@ pub(crate) fn replay(
         })
     };
     poll()?;
-    if let Some(feature) = model.unsupported.first() {
-        return Ok(Validation::Unsupported(format!(
-            "Next error replay with an unsupported model feature: {}",
-            feature.feature,
-        )));
-    }
-    if model.view.is_some()
-        || model.symmetry.is_some()
-        || !model.temporals.is_empty()
-        || !model.implied_temporals.is_empty()
-    {
-        return Ok(Validation::Unsupported(
-            "Next error replay with VIEW, symmetry or temporal obligations".into(),
-        ));
-    }
-    for action in &model.actions {
-        poll()?;
-        if model
-            .ir
-            .node(action.expr())
-            .effects
-            .intersects(dive_ir::Effects::IMPURE)
-            || model.evaluator.action_shares_side_effects(action)
-        {
-            return Ok(Validation::Unsupported(
-                "effects or dynamically shared scopes in Next error replay".into(),
-            ));
-        }
+    if let Some(refusal) = preflight(model, control)? {
+        return Ok(refusal);
     }
     let mut actions = model.actions.iter();
     let error = loop {
@@ -142,4 +116,42 @@ fn invalid(state: usize, detail: &str) -> Validation {
         check: Check::Ending,
         detail: detail.into(),
     })
+}
+
+pub(crate) fn preflight(
+    model: &Model,
+    control: Option<&dyn dive_eval::HostControl>,
+) -> Result<Option<Validation>, EvalError> {
+    if let Some(feature) = model.unsupported.first() {
+        return Ok(Some(Validation::Unsupported(format!(
+            "Next error replay with an unsupported model feature: {}",
+            feature.feature,
+        ))));
+    }
+    if model.view.is_some()
+        || model.symmetry.is_some()
+        || !model.temporals.is_empty()
+        || !model.implied_temporals.is_empty()
+    {
+        return Ok(Some(Validation::Unsupported(
+            "Next error replay with VIEW, symmetry or temporal obligations".into(),
+        )));
+    }
+    for action in &model.actions {
+        if let Some(control) = control {
+            control.check().map_err(EvalError::interrupted)?;
+        }
+        if model
+            .ir
+            .node(action.expr())
+            .effects
+            .intersects(dive_ir::Effects::IMPURE)
+            || model.evaluator.action_shares_side_effects(action)
+        {
+            return Ok(Some(Validation::Unsupported(
+                "effects or dynamically shared scopes in Next error replay".into(),
+            )));
+        }
+    }
+    Ok(None)
 }

@@ -2354,6 +2354,18 @@ match its actual underlying code and original source context. Fresh Recipe
 bindings and cache/name domains follow ADR 0103's artifact-independence policy;
 source descriptors and matching result metadata supply no execution authority.
 
+### Partial terminal candidates (#607)
+
+`dive-check::engine::trace_state`, the core trace adapter and ADR 0123 preserve
+the actual bindings emitted by the existing reference successor generator.
+The semantic ordering is TLC `94d0c50`, `ModelChecker.doNextSetErr` and
+`Worker.doNext`: completeness precedes constraints, fingerprint/invariant and
+action-property work. `ErNextIncomplete`'s clean pinned BFS stdout is the
+normative four-state word, including its partial final assignment. Independent
+replay reuses `dive-eval::next` (ADR 0103), with separately rebound source/cache
+domains and no checker/store dependency. The first slice refuses preceding
+complete candidates rather than porting or approximating their remaining checks.
+
 ### Local scalar/tuple literal normalization and membership (#623)
 
 The consumed name-free subset in `crates/dive-core/src/compare.rs` and the
