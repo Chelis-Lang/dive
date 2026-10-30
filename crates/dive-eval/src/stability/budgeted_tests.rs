@@ -367,3 +367,222 @@ fn successful_warm_thunks_do_not_replace_the_original_capture_proof() {
     );
     assert_eq!(ev.take_output(), [] as [String; 0]);
 }
+
+#[test]
+fn guarded_interval_construction_is_source_inspection_not_new_producer_authority() {
+    for body in [
+        "P == x'=[i \\in 0..2 |-> i+1]",
+        "P == x'=[i \\in 1..Len(x) |-> x[i]]",
+        "P == x'=[i \\in 2..1 |-> 1 \\div 0]",
+        "Node == 0..2\nP == x'=[i \\in Node |-> i]",
+        "P == x'=(CHOOSE i \\in 1..Len(x): x[i]=0)",
+        "P == x'=(CHOOSE i \\in 1..3: FALSE)",
+        "P == \\E i \\in (0..2) \\ {0}: x'=[x EXCEPT ![i]=@+1]",
+        "P == \\E i \\in 0..2: \\E j \\in (0..2) \\ {i}: x'=[x EXCEPT ![j]=@-1]",
+        "P == x'=[[i \\in 0..2 |-> i] EXCEPT ![0]=@+1]",
+        "P == x'=[x EXCEPT ![0]=LET old == @ IN old+1]",
+    ] {
+        let (ev, def) = input(body);
+        let (expr, scope) = root(&ev, def);
+        assert!(
+            ev.guarded_action_stability_budgeted(&scope, expr, None)
+                .expect("source inspection"),
+            "{body}"
+        );
+        assert!(
+            !ev.closed_predicate_stability_budgeted(&scope, expr, None)
+                .expect("old predicate boundary"),
+            "{body}"
+        );
+        assert!(
+            ev.canonical_producer_stability_budgeted(&[], &[(expr, scope.clone())], None)
+                .expect("old producer boundary")
+                .is_none(),
+            "{body}"
+        );
+        let foreign =
+            Evaluator::new(Model::new(ev.ir().clone()), Options::tlc()).expect("foreign owner");
+        assert!(
+            !foreign
+                .guarded_action_stability_budgeted(&scope, expr, None)
+                .expect("foreign refuses")
+        );
+        assert_eq!(ev.take_output(), [] as [String; 0]);
+    }
+}
+
+#[test]
+fn guarded_constructors_do_not_admit_unknown_domains_nested_updates_or_capture_history() {
+    for body in [
+        "P == x'=[i \\in {0,1} |-> i]",
+        "P == x'=[i \\in x |-> i]",
+        "P == x'=[i \\in 0..2,j \\in 0..2 |-> i+j]",
+        "P == x'=(CHOOSE i \\in {0,1}:TRUE)",
+        "P == x'=(CHOOSE i \\in x:TRUE)",
+        "P == \\E i \\in (0..2) \\ {x}: x'=i",
+        "P == \\E i \\in (0..2) \\ {TRUE}: x'=i",
+        "P == x'=[x EXCEPT ![0]=0, ![1]=1]",
+        "P == x'=[x EXCEPT ![0][1]=0]",
+        "P == x'=[[x EXCEPT ![0]=1] EXCEPT ![1]=2]",
+        "P == x'=[x EXCEPT ![0]=[x EXCEPT ![1]=@+1]]",
+        "P == x'=[i \\in 0..2 |-> PrintT(TRUE)]",
+        "P == x'=(CHOOSE i \\in 0..2:PrintT(TRUE))",
+        "P == x'=[i \\in 0..2 |-> \"a\" \\o \"b\"]",
+        "P == x'=[0..2 -> BOOLEAN]",
+        "P == x'=[a:0..2]",
+    ] {
+        let (ev, def) = input(body);
+        let (expr, scope) = root(&ev, def);
+        assert!(
+            !ev.guarded_action_stability_budgeted(&scope, expr, None)
+                .expect("unproved source refuses"),
+            "{body}"
+        );
+        assert_eq!(ev.take_output(), [] as [String; 0]);
+    }
+    let (ev, def) = input("P(unused) == x'=[x EXCEPT ![0]=@+1]");
+    let (expr, mut scope) = root(&ev, def);
+    scope.env.bind(
+        0,
+        Sv::Val(Value::set_raw(vec![Value::Int(1)], ev.options().ctx)),
+    );
+    assert!(
+        !ev.guarded_action_stability_budgeted(&scope, expr, None)
+            .expect("unused raw capture refuses")
+    );
+    let (ev, def) = input("P == x'=[x EXCEPT ![0]=@+1]");
+    let (expr, mut scope) = root(&ev, def);
+    scope.env.dynamic.at = Some(Value::Int(7));
+    assert!(
+        !ev.guarded_action_stability_budgeted(&scope, expr, None)
+            .expect("real dynamic at is never synthetic lexical authority")
+    );
+}
+
+#[test]
+fn guarded_construction_inspection_preserves_actual_controls_and_never_calls_host() {
+    let (ev, def) = input("P == x'=[i \\in 1..Len(x) |-> i+1]");
+    let (expr, scope) = root(&ev, def);
+    let calls = Arc::new(AtomicUsize::new(0));
+    ev.set_host(Arc::new(Permission(calls.clone())));
+    let control = StopAfter {
+        calls: AtomicUsize::new(0),
+        after: 12,
+        token: 911,
+    };
+    let error = ev
+        .guarded_action_stability_budgeted(&scope, expr, Some(&control))
+        .expect_err("actual bounded inspection interruption");
+    assert_eq!(error.interruption(), Some(Interrupted::new(911)));
+    assert_eq!(calls.load(Ordering::SeqCst), 0);
+    assert!(
+        ev.guarded_action_stability_budgeted(&scope, expr, None)
+            .expect("fresh walk resets")
+    );
+    assert_eq!(calls.load(Ordering::SeqCst), 0);
+}
+
+#[test]
+fn guarded_scoped_projection_preserves_lazy_instance_and_unused_capture_boundaries() {
+    for tlc in [false, true] {
+        let (ir, def) = lower_input(
+            "---- MODULE Inner ----\nVARIABLE projected\nvars == projected\nNext == projected'=[projected EXCEPT ![0]=@+1]\n====\n\
+             I == INSTANCE Inner WITH projected <- [i \\in 0..Len(x) |-> i]\nP == I!Next",
+        );
+        let ev = Evaluator::new(
+            Model::new(ir),
+            if tlc { Options::tlc() } else { Options::dive() },
+        )
+        .expect("actual profile");
+        let (expr, scope) = root(&ev, def);
+        assert!(
+            ev.guarded_action_stability_budgeted(&scope, expr, None)
+                .expect("actual lazy projection")
+        );
+        assert!(
+            !ev.closed_predicate_stability_budgeted(&scope, expr, None)
+                .expect("old predicate stays refused")
+        );
+        assert!(
+            ev.canonical_producer_stability_budgeted(&[], &[(expr, scope)], None)
+                .expect("old producer stays refused")
+                .is_none()
+        );
+    }
+    let (ev, def) = input("F(unused) == x'=[x EXCEPT ![0]=@+1]\nP == F(PrintT(TRUE))");
+    let (expr, scope) = root(&ev, def);
+    assert!(
+        !ev.guarded_action_stability_budgeted(&scope, expr, None)
+            .expect("unused original callback is still inspected")
+    );
+    assert_eq!(ev.take_output(), [] as [String; 0]);
+}
+
+#[test]
+fn constructor_inspection_does_not_force_keep_lazy_or_change_reference_choose_order() {
+    for tlc in [false, true] {
+        for domain in ["0..2", "1..3", "2..1"] {
+            let (ir, def) = lower_input(&format!("P == [i \\in {domain} |-> i+1]"));
+            let ev = Evaluator::new(
+                Model::new(ir),
+                if tlc { Options::tlc() } else { Options::dive() },
+            )
+            .expect("profile");
+            let (expr, scope) = root(&ev, def);
+            assert!(
+                ev.guarded_action_stability_budgeted(&scope, expr, None)
+                    .expect("source closure")
+            );
+            let value = ev
+                .core
+                .eval(&mut scope.env.clone(), &St::empty(), expr)
+                .expect("ordinary constructor");
+            let crate::env::Ev::V(Value::Fcn(function)) = value else {
+                panic!("reducible interval must materialize without KEEP_LAZY");
+            };
+            assert!(
+                !function.is_tuple_literal(),
+                "interval layout does not manufacture tuple literal class"
+            );
+            assert!(!function.is_record_literal());
+            assert!(matches!(
+                ev.core
+                    .eval(
+                        &mut scope.env.clone(),
+                        &St::empty().with_control(crate::env::control::KEEP_LAZY),
+                        expr
+                    )
+                    .expect("lazy constructor"),
+                crate::env::Ev::F(_)
+            ));
+        }
+        for (body, expected) in [
+            ("CHOOSE i \\in 1..3: i>1", Some(Value::Int(2))),
+            ("CHOOSE i \\in 1..3: TRUE", Some(Value::Int(1))),
+            ("CHOOSE i \\in 2..1: TRUE", None),
+            ("CHOOSE i \\in 1..3: FALSE", None),
+        ] {
+            let (ir, def) = lower_input(&format!("P == {body}"));
+            let ev = Evaluator::new(
+                Model::new(ir),
+                if tlc { Options::tlc() } else { Options::dive() },
+            )
+            .expect("profile");
+            let (expr, scope) = root(&ev, def);
+            assert!(
+                ev.guarded_action_stability_budgeted(&scope, expr, None)
+                    .expect("inspection never chooses a witness")
+            );
+            match expected {
+                Some(value) => assert_eq!(
+                    ev.eval_def(def, &St::empty()).expect("first witness"),
+                    value
+                ),
+                None => assert!(
+                    ev.eval_def(def, &St::empty()).is_err(),
+                    "no-witness error is not hidden by source certificate"
+                ),
+            }
+        }
+    }
+}

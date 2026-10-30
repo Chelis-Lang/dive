@@ -483,14 +483,14 @@ fn closed_predicate_checks_nested_function_context_and_stored_domain_canonicalit
 }
 
 #[test]
-fn guarded_action_inspection_keeps_constructor_effect_and_foreign_scope_boundaries() {
+fn guarded_action_inspection_keeps_bounded_constructor_effect_and_foreign_scope_boundaries() {
     for (body, eligible) in [
         ("\\E i \\in 1..2: x'=[x EXCEPT ![i]=x[i]+1]", true),
-        ("x'=[x EXCEPT ![1]=@+1]", false),
+        ("x'=[x EXCEPT ![1]=@+1]", true),
         ("x'=[x EXCEPT ![1][1]=0]", false),
         ("x'=[x EXCEPT ![1]=0, ![2]=0]", false),
-        ("x'=[i \\in 1..2 |-> i]", false),
-        ("x'=(CHOOSE i \\in 1..2: TRUE)", false),
+        ("x'=[i \\in 1..2 |-> i]", true),
+        ("x'=(CHOOSE i \\in 1..2: TRUE)", true),
         ("PrintT(TRUE) /\\ x'=x", false),
         ("ENABLED (x'=x)", false),
     ] {
