@@ -419,10 +419,9 @@ impl TraceDoc {
                     if outer_set.len() != names.len() {
                         return Err("enclosing report repeats a temporal property name".into());
                     }
-                    let inner_set: std::collections::BTreeSet<_> = doc.properties.iter().collect();
                     if doc.properties.is_empty() {
                         doc.properties = names;
-                    } else if inner_set != outer_set || inner_set.len() != doc.properties.len() {
+                    } else if doc.properties != names {
                         return Err("enclosing report and trace disagree on `properties`".into());
                     }
                 }

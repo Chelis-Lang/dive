@@ -717,6 +717,7 @@ impl<'a> Run<'a> {
                 "split temporal properties with ambiguous repeated names".into(),
             ));
         }
+        let mut previous = None;
         for name in properties {
             if name.is_empty() || !names.insert(name) {
                 return Err(invalid(
@@ -725,13 +726,26 @@ impl<'a> Run<'a> {
                     "empty or repeated temporal property name",
                 ));
             }
-            if !self.model.property_claims().iter().any(|p| p.name == *name) {
+            let Some(index) = self
+                .model
+                .property_claims()
+                .iter()
+                .position(|p| p.name == *name)
+            else {
                 return Err(invalid(
                     0,
                     Check::Ending,
                     format!("the model has no temporal property named `{name}`"),
                 ));
+            };
+            if previous.is_some_and(|prior| index <= prior) {
+                return Err(invalid(
+                    0,
+                    Check::Ending,
+                    "temporal property names are not in configured order",
+                ));
             }
+            previous = Some(index);
         }
         let check = |pred: &Pred| {
             crate::temporal::check_periodic_context(self.model, pred).map_err(|error| match error {

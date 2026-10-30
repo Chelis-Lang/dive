@@ -247,11 +247,10 @@ fn lasso_document(v: &Value) -> std::result::Result<TraceDoc, String> {
         })
         .collect::<std::result::Result<_, _>>()?;
     let distinct: BTreeSet<_> = names.iter().copied().collect();
-    let inner: BTreeSet<_> = doc.properties.iter().map(String::as_str).collect();
+    let inner: Vec<_> = doc.properties.iter().map(String::as_str).collect();
     if names.is_empty()
         || distinct.len() != names.len()
-        || inner.len() != doc.properties.len()
-        || distinct != inner
+        || names != inner
         || v["property"].as_str()
             != Some(crate::trace_check::property_names(&doc.properties).as_str())
     {
@@ -907,6 +906,17 @@ mod tests {
             Outcome::MalformedReport
         );
     }
+    #[test]
+    fn lasso_display_keeps_exact_property_order() {
+        let mut report = lasso();
+        report["property"] = json!("P and Q");
+        report["properties"] = json!(["P", "Q"]);
+        report["counterexample"]["trace"]["properties"] = json!(["P", "Q"]);
+        assert!(lasso_document(&report).is_ok());
+        report["properties"] = json!(["Q", "P"]);
+        assert!(lasso_document(&report).is_err());
+    }
+
     #[test]
     fn claimed_validation_never_certifies_a_lasso() {
         let v = lasso();

@@ -102,6 +102,7 @@ fn missing_forged_omitted_or_misreported_names_never_qualify() {
             "wrong-report",
             "unknown",
             "duplicate",
+            "reordered",
             "init",
         ] {
             let mut bad = observed.clone();
@@ -144,6 +145,10 @@ fn missing_forged_omitted_or_misreported_names_never_qualify() {
                     "duplicate" => {
                         doc.properties = vec!["P".into(), "P".into()];
                         bad.violated_property = Some("P and P".into());
+                    }
+                    "reordered" => {
+                        doc.properties = vec!["Q".into(), "P".into()];
+                        bad.violated_property = Some("Q and P".into());
                     }
                     "init" => {
                         doc.states[0] = json!({"x":9}).as_object().expect("state").clone();
