@@ -424,7 +424,9 @@ impl<'a> Run<'a> {
         let m = self.model;
         if matches!(
             trace.ending,
-            Ending::TemporalStateError { .. } | Ending::NextStateError { .. }
+            Ending::TemporalStateError { .. }
+                | Ending::NextStateError { .. }
+                | Ending::PartialNext { .. }
         ) && (!self.host.private || !self.endpoint_prepared)
         {
             return Err(Stop::Unsupported(
@@ -879,7 +881,7 @@ impl<'a> Run<'a> {
             }
             Ending::Behavior => Goal::Behavior,
             Ending::TemporalStateError { .. } => Goal::TemporalStateError,
-            Ending::NextStateError { .. } => Goal::NextStateError,
+            Ending::NextStateError { .. } | Ending::PartialNext { .. } => Goal::NextStateError,
             Ending::Lasso { back_to } => {
                 if *back_to > last {
                     return Err(invalid(last, Check::Shape, format!("the lasso loops back to state {back_to}, past the end")));
@@ -1394,7 +1396,7 @@ pub fn validate(model: &Model, trace: &Trace) -> Report {
         return Report {
             validation: Validation::Unsupported(error.to_string()),
             notes: Vec::new(),
-            length: trace.states.len(),
+            length: trace.logical_length(),
         };
     }
     let mut run = Run::new(model);
@@ -1402,7 +1404,7 @@ pub fn validate(model: &Model, trace: &Trace) -> Report {
     Report {
         validation,
         notes: std::mem::take(&mut run.notes).into_iter().collect(),
-        length: trace.states.len(),
+        length: trace.logical_length(),
     }
 }
 
@@ -1457,7 +1459,7 @@ pub fn validate_controlled(
         return Ok(Report {
             validation: Validation::Unsupported(error.to_string()),
             notes: Vec::new(),
-            length: trace.states.len(),
+            length: trace.logical_length(),
         });
     }
     let mut run = Run::new(model);
@@ -1478,7 +1480,7 @@ fn controlled_report(run: &mut Run<'_>, trace: &Trace) -> Result<Report, Validat
                         .into(),
                 ),
                 notes: Vec::new(),
-                length: trace.states.len(),
+                length: trace.logical_length(),
             });
         }
         if !trace.properties.is_empty() {
@@ -1489,7 +1491,7 @@ fn controlled_report(run: &mut Run<'_>, trace: &Trace) -> Result<Report, Validat
                     detail: "finite error endpoints cannot claim temporal properties".into(),
                 }),
                 notes: Vec::new(),
-                length: trace.states.len(),
+                length: trace.logical_length(),
             });
         }
         match crate::row_demand::prepare(run.model, &trace.states, run.control.as_deref()) {
@@ -1554,7 +1556,7 @@ fn controlled_report(run: &mut Run<'_>, trace: &Trace) -> Result<Report, Validat
             return Ok(Report {
                 validation: Validation::Unsupported("missing endpoint ending".into()),
                 notes: Vec::new(),
-                length: trace.states.len(),
+                length: trace.logical_length(),
             });
         };
         match program.replay(
@@ -1589,7 +1591,7 @@ fn controlled_report(run: &mut Run<'_>, trace: &Trace) -> Result<Report, Validat
     Ok(Report {
         validation,
         notes: std::mem::take(&mut run.notes).into_iter().collect(),
-        length: trace.states.len(),
+        length: trace.logical_length(),
     })
 }
 
@@ -1633,7 +1635,7 @@ fn endpoint_refusal(
     Ok(Report {
         validation: Validation::Unsupported(feature),
         notes: Vec::new(),
-        length: trace.states.len(),
+        length: trace.logical_length(),
     })
 }
 
@@ -1704,7 +1706,7 @@ pub(crate) fn replay_next_controlled(
         return Ok(Report {
             validation: Validation::Unsupported("missing Next endpoint".into()),
             notes: Vec::new(),
-            length: trace.states.len(),
+            length: trace.logical_length(),
         });
     };
     run.poll(Some(last), Some(Check::Ending))
@@ -1744,7 +1746,80 @@ pub(crate) fn replay_next_controlled(
     Ok(Report {
         validation,
         notes: Vec::new(),
-        length: trace.states.len(),
+        length: trace.logical_length(),
+    })
+}
+
+pub(crate) fn replay_partial_controlled(
+    model: &Model,
+    host: Arc<TraceHost>,
+    trace: &Trace,
+    endpoint: &crate::PartialNextEndpoint,
+    checks_passed: u64,
+    control: Option<Arc<dyn dive_eval::HostControl>>,
+) -> Result<Report, ValidationRunError> {
+    let _scope = control
+        .as_ref()
+        .map(|control| model.evaluator.host_control(Some(control.clone())))
+        .transpose()
+        .map_err(ValidationRunError::ControlConflict)?;
+    let mut run = Run::private(model, host, false);
+    run.control = control;
+    run.passed = checks_passed;
+    let Some(last) = trace.states.len().checked_sub(1) else {
+        return Ok(Report {
+            validation: Validation::Invalid(Failure {
+                state: 0,
+                check: Check::Shape,
+                detail: "Next endpoint has no state".into(),
+            }),
+            notes: Vec::new(),
+            length: 0,
+        });
+    };
+    run.poll(Some(last), Some(Check::Ending))
+        .map_err(|stop| match stop {
+            Stop::Interrupted { error, .. } => ValidationRunError::Interrupted {
+                error,
+                progress: progress(&run, Some(last)),
+            },
+            _ => ValidationRunError::EvaluationFailure {
+                error: EvalError::bug("unexpected terminal replay poll outcome"),
+                progress: progress(&run, Some(last)),
+            },
+        })?;
+    run.host.level.store(
+        i64::try_from(last.saturating_add(1)).unwrap_or(i64::MAX),
+        Ordering::Relaxed,
+    );
+    let mut validation = crate::partial::replay(
+        model,
+        &trace.states[last],
+        trace.states.len(),
+        endpoint,
+        run.control.as_deref(),
+    )
+    .map_err(|error| match error.class() {
+        ErrorClass::Interrupted => ValidationRunError::Interrupted {
+            error,
+            progress: progress(&run, Some(last)),
+        },
+        ErrorClass::ResourceLimit => ValidationRunError::ResourceLimit {
+            error,
+            progress: progress(&run, Some(last)),
+        },
+        _ => ValidationRunError::EvaluationFailure {
+            error,
+            progress: progress(&run, Some(last)),
+        },
+    })?;
+    if let Some(feature) = run.refusal() {
+        validation = Validation::Unsupported(feature);
+    }
+    Ok(Report {
+        validation,
+        notes: Vec::new(),
+        length: trace.states.len().saturating_add(1),
     })
 }
 

@@ -152,12 +152,18 @@ stable. The same applies to existing native `dive-trace` version 1 fields, tagge
 values, property endings and zero-based `ending.back_to` loop targets. The outer
 check report's `counterexample.back_to` summary is one-based. The trace payload version
 is independent of the report version: `validate-trace` emits report version 3
-while reading and validating native trace versions 1 and 2. Version 2 adds the
+while reading and validating native trace versions 1, 2 and 3. Version 2 adds the
 closed `invariant-error` ending with an exact configured name and underlying error
 cause (ADR 0118). Writers retain version 1 for all existing ending kinds; readers
 retain legacy version-1 support and reject a version-1 document using the new
 ending. Consumers update their readers before advancing an immutable producer
 pin. The outer report schema remains 3.
+
+Version 3 adds the closed partial terminal form (ADR 0123). Complete prefix rows
+stay in `states`; assigned/unassigned terminal bindings and generating source
+stay in the ending. Logical word length includes that candidate. Version 3 is
+reserved for this form, and versions 1/2 cannot carry it. Readers must support
+the separate bindings and independent replay obligation before using such words.
 
 Readers select the operation and supported version before interpreting results.
 They may ignore unknown optional fields and preserve unfamiliar diagnostic codes,

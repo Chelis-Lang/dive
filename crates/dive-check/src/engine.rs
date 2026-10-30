@@ -588,7 +588,7 @@ pub(crate) fn state_text(m: &Model, s: &[Option<Value>], ctx: Ctx) -> String {
 }
 
 /// The trace state of an emitted successor (or initial state). A successor
-/// that leaves variables unassigned is described by TLC's text alone.
+/// that leaves variables unassigned retains text and separate typed bindings.
 pub(crate) fn trace_state(m: &Model, succ: &Successor<'_>, initial: bool) -> TraceState {
     let ev = &m.evaluator;
     let (values, text) = match values(succ.state) {
@@ -611,6 +611,10 @@ pub(crate) fn trace_state(m: &Model, succ: &Successor<'_>, initial: bool) -> Tra
         },
         values,
         text,
+        partial: (!succ.complete()).then(|| crate::result::PartialState {
+            values: succ.state.to_vec(),
+            expression: succ.action.expr(),
+        }),
     }
 }
 

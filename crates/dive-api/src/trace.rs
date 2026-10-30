@@ -20,8 +20,8 @@
 //! traces: record each state of a run as a JSON object from variable names
 //! to values (in dive's JSON form, [`dive_trace::value_json`]), and validate
 //! the sequence as a [`Ending::Behavior`]. The trace must assign every
-//! variable in every state; partial traces need a search and are not
-//! supported yet (ADR 0016 §4).
+//! variable in every complete state. A version-3 terminal partial candidate
+//! is separate from those rows and requires fresh fallible replay (ADR 0123).
 //!
 //! # Example
 //!
@@ -295,7 +295,11 @@ impl SpecModel {
     pub fn try_read(&self, doc: &TraceDoc) -> Result<(Report, Option<Trace>), ValidationRunError> {
         if !matches!(
             doc.ending,
-            Some(Ending::TemporalStateError { .. } | Ending::NextStateError { .. })
+            Some(
+                Ending::TemporalStateError { .. }
+                    | Ending::NextStateError { .. }
+                    | Ending::PartialNext { .. }
+            )
         ) {
             return Ok(self.read(doc));
         }
