@@ -37,7 +37,10 @@ dive check conformance/corpus/assumption-reporting/specifications/Assumptions/Fa
 A temporal `evaluation-error` at `error_site: "temporal-state-row"` retains
 actual partial statistics and `capture_completed: false`. Its finite trace may
 include the independently replayed error endpoint from ADR 0113, with no
-violated property or lasso claim. The report family remains temporal.
+violated property or lasso claim. Human reports print the same certified finite
+states as JSON; an uncertified diagnostic prefix does not acquire a behavior
+claim. Capture statistics say whether capture completed or remained incomplete.
+The report family remains temporal.
 A validation operation aborted by a resource or execution exception emits
 `validation_completed: false` and an `error` envelope instead of a completed
 `result`; it must not be interpreted as `unsupported`, `valid` or a model verdict.

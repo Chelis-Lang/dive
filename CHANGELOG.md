@@ -1,5 +1,9 @@
 # Changelog
 
+- Human temporal-error reports print the same independently validated finite
+  behavior as JSON. Capture statistics distinguish incomplete work from completed
+  capture; uncertified diagnostic prefixes remain diagnostic only (#500).
+
 - Ordinary `--engine core` temporal checks now retain persistent original rows
   and CSR instead of a complete evaluator-value graph. Controlled eager Graph
   admission preserves representation/refusal order; analysis reads values on
