@@ -1,0 +1,26 @@
+{
+  "sources": [
+    "docs/user/traces.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "trace"
+  ],
+  "modules": [
+    {
+      "path": "specifications/FirstFalseConstraint/FirstFalseConstraint.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/FirstFalseConstraint/FirstFalseConstraint.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}

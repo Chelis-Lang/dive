@@ -127,6 +127,14 @@ The seeded entries explain the v1.7.4-vs-pin report: CommunityModules, `TLCExt`/
 - `tbd`: not yet enumerated.
 
 **In-repository corpora** (ADR 0005, amendment 1) give `path = "conformance/..."` instead of `repo` and `commit`. Their identity is the SHA-256 of their files (`sha256:<hex>`, recorded in goldens as the corpus commit), so changing any file makes `run` refuse the goldens until they are regenerated. `corpus fetch` skips them. These include:
+- `constraint-error-endings`: eight terminal safety/constraint demand controls
+  pinned before the validator repair (#499). Official generation wrote eight
+  SANY and four TLC goldens. The invariant-error streams for
+  `ConstraintInvError`, `ActionConstraintInvError`, `FirstFalseConstraint` and
+  `InitialConstraintInvError` remain unclassified, with no model golden or
+  agreement credit. Compact consumed source pins and qualified raw observations
+  are in `crates/dive-api/tests/fixtures/constraint-error-endings/oracle.json`.
+  Select the models with `--corpus constraint-error-endings --tier all`.
 - `configured-temporal-operators` (`conformance/corpus/configured-temporal-operators/`):
   two direct configured Reply temporal controls, holding and violated, with
   generated TLC/SANY goldens. This separate corpus preserves the existing

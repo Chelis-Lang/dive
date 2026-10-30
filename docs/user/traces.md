@@ -46,11 +46,22 @@ producer pin; they must not relabel the payload as version 1. Example:
 {"format":"dive-trace","version":2,"variables":["x"],"states":[{"action":null,"values":{"x":0}},{"action":null,"values":{"x":1}},{"action":null,"values":{"x":2}}],"ending":{"kind":"invariant-error","name":"Inv","ec":"TLC_VALUE_ASSERT_FAILED"}}
 ```
 
-This support applies to invariant-site errors decided by 2111. Initial-state,
-constraint, action-property and successor-expansion error claims retain their
-existing checks and refusals; a generic error ending cannot stand in for a named
-invariant error. Counterexamples outside constraints retain their existing
-validation boundary (#499).
+An excluded generated state may trigger the same invariant error again during
+diagnostic replay. Its deciding report can then use the underlying cause's code,
+while the first report remains 2111. The native word preserves the original
+invariant name and cause. Independent validation proves that logical claim;
+unclassified primary streams still earn no class/count agreement credit.
+
+The last state may be outside `CONSTRAINT`, or its entering step outside
+`ACTION_CONSTRAINT`, for a named invariant violation or evaluation error, or a
+named initial/action-property violation. Constraints are evaluated in order,
+stopping at the first false result. A constraint evaluation error or non-Boolean
+result invalidates a claim to a later safety failure; it is never skipped.
+Every earlier state and step must satisfy the applicable constraints. The named
+terminal check and all earlier configured safety checks must still pass their
+independent obligations. Generic constraint, action-property and expansion error
+claims retain their checks/refusals (#490/#499); an anonymous error ending cannot
+stand in for a named invariant error. Partial-state errors remain separate (#607).
 
 A certified temporal state-row error can carry `kind: "error"` with an optional
 `endpoint` describing its stage and original source context (ADR 0113). The

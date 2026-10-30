@@ -1,0 +1,266 @@
+{
+  "schema": 1,
+  "oracle": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "harness_binary_sha256": "2f8fc75799f64342fbb8c61b07090ab8ab1e3b7c4563221987628f401722e002",
+  "reason": "Pin terminal invariant error and property checks outside constraints with ordered constraint demand controls",
+  "scope": "Logical terminal proof controls. Unclassified primary streams earn no observable agreement credit. Generated goldens are unchanged official harness output.",
+  "cases": {
+    "ActionConstraintAction": {
+      "inputs": {
+        "conformance/corpus/constraint-error-endings/specifications/ActionConstraintAction/ActionConstraintAction.tla": "df2b8ced8bf1ec5f5330c7513e77b74e708a372454c0e3361daa05f0a05c324e",
+        "conformance/corpus/constraint-error-endings/specifications/ActionConstraintAction/ActionConstraintAction.cfg": "ff95562d2b651eda9d140b1206bcdb11a3223056e826f3f8fadbf7e4547f1d4e"
+      },
+      "codes": [
+        2262,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2190,
+        2112,
+        2121,
+        2217,
+        2217,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "counts": {
+        "generated": 2,
+        "distinct": 1,
+        "queued": 0
+      },
+      "depth": 1,
+      "raw_stdout_sha256": "92483ade626344c51ddd02f50b94db62ed47c9923821a5610a3d4b1a1fbb7e60",
+      "golden_written": true,
+      "physical_exit": 13
+    },
+    "ConstraintAction": {
+      "inputs": {
+        "conformance/corpus/constraint-error-endings/specifications/ConstraintAction/ConstraintAction.tla": "a7cb1c045fff968b13163770a6825c1614dbe12658ba443efd92d34e33dd055e",
+        "conformance/corpus/constraint-error-endings/specifications/ConstraintAction/ConstraintAction.cfg": "4f85f889b1185ffee58d1235d08be997ab1667f9bd1ce3b5f6197327acd1944a"
+      },
+      "codes": [
+        2262,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2190,
+        2112,
+        2121,
+        2217,
+        2217,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "counts": {
+        "generated": 2,
+        "distinct": 1,
+        "queued": 0
+      },
+      "depth": 1,
+      "raw_stdout_sha256": "09b62849c77783b42b2acd2a8a321a27104b4fd1c84ebc48c437163c8ef2102b",
+      "golden_written": true,
+      "physical_exit": 13
+    },
+    "ConstraintInvError": {
+      "inputs": {
+        "conformance/corpus/constraint-error-endings/specifications/ConstraintInvError/ConstraintInvError.tla": "4df1070b0f71377009b0923ee71d33790103c1595a2ba942f9cd78ee6d856c7d",
+        "conformance/corpus/constraint-error-endings/specifications/ConstraintInvError/ConstraintInvError.cfg": "0a32dfb89bd2242080d9ae9ddfa1fdb642a870fcce261d768a2107f866345fa0"
+      },
+      "codes": [
+        2262,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2190,
+        2111,
+        2179,
+        2121,
+        2217,
+        2217,
+        2217,
+        2103,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "counts": {
+        "generated": 3,
+        "distinct": 2,
+        "queued": 0
+      },
+      "depth": 2,
+      "raw_stdout_sha256": "7d05d49f514735327161bfe1366546233babf6541a089421562ae56cadefc433",
+      "golden_written": false,
+      "physical_exit": 255
+    },
+    "ActionConstraintInvError": {
+      "inputs": {
+        "conformance/corpus/constraint-error-endings/specifications/ActionConstraintInvError/ActionConstraintInvError.tla": "7eec7a88981149a70333e12eb7f053067ac45a5df4d96c00df0109ba5b0822a9",
+        "conformance/corpus/constraint-error-endings/specifications/ActionConstraintInvError/ActionConstraintInvError.cfg": "46cb6a5678ad90fd45eea3d6067f968b9295cf7a221fe492ffd19cbc53bcfc65"
+      },
+      "codes": [
+        2262,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2190,
+        2111,
+        2179,
+        2121,
+        2217,
+        2217,
+        2217,
+        2103,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "counts": {
+        "generated": 3,
+        "distinct": 2,
+        "queued": 0
+      },
+      "depth": 2,
+      "raw_stdout_sha256": "dcbf8a119e8717fbc67bd314955c37939841d7a7663460185c19c4da4fed9a62",
+      "golden_written": false,
+      "physical_exit": 255
+    },
+    "FirstErrorConstraint": {
+      "inputs": {
+        "conformance/corpus/constraint-error-endings/specifications/FirstErrorConstraint/FirstErrorConstraint.tla": "edf2696d740be785e4b9e5891a016ffa8a9c3be4b68c0fe817bbbb5025f854d4",
+        "conformance/corpus/constraint-error-endings/specifications/FirstErrorConstraint/FirstErrorConstraint.cfg": "de2fb9655b4375ae08ec691216d78253cf9c9a39387bc85c3a1c799ccdd69f5a"
+      },
+      "codes": [
+        2262,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2190,
+        2179,
+        2121,
+        2217,
+        2217,
+        2217,
+        2103,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "counts": {
+        "generated": 3,
+        "distinct": 2,
+        "queued": 0
+      },
+      "depth": 2,
+      "raw_stdout_sha256": "09d580e111844aaeaedb2c622f14c8b2db38a1634a06cdef6acf0701553a7169",
+      "golden_written": true,
+      "physical_exit": 255
+    },
+    "FirstFalseConstraint": {
+      "inputs": {
+        "conformance/corpus/constraint-error-endings/specifications/FirstFalseConstraint/FirstFalseConstraint.tla": "fdd995454530366ebcf97e4381a6f6248011c251e3959500aaa5739bc257b5e2",
+        "conformance/corpus/constraint-error-endings/specifications/FirstFalseConstraint/FirstFalseConstraint.cfg": "a2cbaf561583a42408331359d1cdf4919575784080e7d2330701749ccebd71aa"
+      },
+      "codes": [
+        2262,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2190,
+        2111,
+        2179,
+        2121,
+        2217,
+        2217,
+        2217,
+        2103,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "counts": {
+        "generated": 3,
+        "distinct": 2,
+        "queued": 0
+      },
+      "depth": 2,
+      "raw_stdout_sha256": "5e8d46f3b407c33fcf5bafdae5644cca8fae3a030d940a9e9bca7015523f30b3",
+      "golden_written": false,
+      "physical_exit": 255
+    },
+    "InitialConstraintInvError": {
+      "inputs": {
+        "conformance/corpus/constraint-error-endings/specifications/InitialConstraintInvError/InitialConstraintInvError.tla": "d21cb1d24e7af46e89137cb1d728d0fc6f66c94419b91d6d1f8f581425bea615",
+        "conformance/corpus/constraint-error-endings/specifications/InitialConstraintInvError/InitialConstraintInvError.cfg": "0a32dfb89bd2242080d9ae9ddfa1fdb642a870fcce261d768a2107f866345fa0"
+      },
+      "codes": [
+        2262,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        1000,
+        2179,
+        2103,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "counts": {
+        "generated": 1,
+        "distinct": 0,
+        "queued": 0
+      },
+      "depth": 1,
+      "raw_stdout_sha256": "a800aa5f06fb38b5f4247ab7dea7e36c55243bd8cd9bac9223761f0cb6f7c04c",
+      "golden_written": false,
+      "physical_exit": 75
+    },
+    "InitialConstraintProperty": {
+      "inputs": {
+        "conformance/corpus/constraint-error-endings/specifications/InitialConstraintProperty/InitialConstraintProperty.tla": "36331cc534439a6170a032b8da1e083d0d6c728ee6415481145cf2da0c85442f",
+        "conformance/corpus/constraint-error-endings/specifications/InitialConstraintProperty/InitialConstraintProperty.cfg": "4f85f889b1185ffee58d1235d08be997ab1667f9bd1ce3b5f6197327acd1944a"
+      },
+      "codes": [
+        2262,
+        2187,
+        2220,
+        2219,
+        2185,
+        2255,
+        2189,
+        2108,
+        2186
+      ],
+      "counts": null,
+      "depth": null,
+      "raw_stdout_sha256": "80319ac797963a485939c54b8eb2877ded29442ef2717e425124580c240f0ee3",
+      "golden_written": true,
+      "physical_exit": 13
+    }
+  },
+  "qualification": "Four model streams remain UNCLASSIFIED: ConstraintInvError, ActionConstraintInvError, FirstFalseConstraint, InitialConstraintInvError. No golden was written for those streams; no error/class or population agreement credit follows. The first three show a final x=2 invariant demand outside the constraint; the Init error has no printed word."
+}

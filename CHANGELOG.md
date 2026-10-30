@@ -128,6 +128,12 @@
   producer pins. All existing endings retain version-1 output and decoding;
   unknown versions/endings and a version-1 `invariant-error` fail closed. Outer
   check/validation reports remain schema 3 (ADR 0118).
+- Independently validate named invariant errors and property violations whose
+  final state or step lies outside model constraints. Constraint checks retain
+  their configured order and stop at the first false result; earlier constraint
+  errors invalidate a claim to a later safety failure. Repeated invariant errors
+  retain their original name and cause in the existing native version-2 ending.
+
 - Preserve the original named invariant-error word when a different error in
   diagnostic replay decides `TLC_NESTED_EXPRESSION` (#606). Native invariant
   site and first-report context remain distinct from the deciding class.

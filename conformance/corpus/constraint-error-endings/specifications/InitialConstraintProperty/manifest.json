@@ -1,0 +1,26 @@
+{
+  "sources": [
+    "docs/user/traces.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "trace"
+  ],
+  "modules": [
+    {
+      "path": "specifications/InitialConstraintProperty/InitialConstraintProperty.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/InitialConstraintProperty/InitialConstraintProperty.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}
