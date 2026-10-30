@@ -9,16 +9,41 @@ use dive_check::capture::{self, CompleteEvidence, PrefixEvidence};
 use super::periodic::PrefixCandidate;
 use super::{Analysis, AnalysisError, Candidate, CandidateWord};
 
+/// An owned candidate word, requiring fresh independent validation.
+///
+/// Constructing or editing a word establishes no temporal verdict. Its edge
+/// ordinals and labels describe the original graph occurrences.
+#[derive(Clone, Debug)]
+pub struct NativeWord {
+    /// Property whose negation selected the candidate.
+    pub target_property: String,
+    /// Complete attributed false-property set on this word.
+    pub properties: Vec<String>,
+    /// Concrete word positions, without repeating the closing target.
+    pub states: Vec<dive_eval::next::StateVals>,
+    /// Zero-based target of the final transition.
+    pub back_to: usize,
+    /// Original transitions, including the closing edge and stutters.
+    pub edges: Vec<capture::Edge>,
+}
+
 /// A final decision paired with actual completed exploration, never a prefix.
-pub(super) enum Completed {
+/// A candidate still requires independent validation.
+#[derive(Clone, Debug)]
+pub enum Completed {
+    /// No accepting word was found after completed exploration and analysis.
     Holds(CompleteEvidence),
-    Candidate(CandidateWord, CompleteEvidence),
+    /// Owned candidate and actual completed producer facts.
+    Candidate(NativeWord, CompleteEvidence),
 }
 
 /// A selected word paired with a real committed prefix, never completion.
-pub(super) struct Prefix {
-    word: CandidateWord,
-    exploration: PrefixEvidence,
+#[derive(Clone, Debug)]
+pub struct Prefix {
+    /// Owned candidate, requiring fresh independent validation.
+    pub word: NativeWord,
+    /// Actual incomplete producer facts, never completion.
+    pub exploration: PrefixEvidence,
 }
 
 pub(super) fn complete(

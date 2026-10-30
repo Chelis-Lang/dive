@@ -121,6 +121,11 @@ fn pinned_final_runs_preserve_counts_and_return_only_validated_periodic_claims()
                         );
                         &v.candidate().exploration
                     }
+                    Outcome::NativeHolds(_)
+                    | Outcome::NativeViolation(_)
+                    | Outcome::NativePrefixViolation(_) => {
+                        panic!("explicit reference API must retain its legacy result type")
+                    }
                     Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
                 };
@@ -310,6 +315,11 @@ fn pinned_constant_domain_quantifiers_match_verdicts_and_counts() {
                         );
                         assert_eq!(v.validation().validation, Validation::Valid);
                         &v.candidate().exploration
+                    }
+                    Outcome::NativeHolds(_)
+                    | Outcome::NativeViolation(_)
+                    | Outcome::NativePrefixViolation(_) => {
+                        panic!("explicit reference API must retain its legacy result type")
                     }
                     Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
@@ -538,6 +548,11 @@ fn pinned_temporal_conditionals_match_oracle_counts_in_both_profiles_and_stores(
                         assert_eq!(v.document().properties, ["P"]);
                         &v.candidate().exploration
                     }
+                    Outcome::NativeHolds(_)
+                    | Outcome::NativeViolation(_)
+                    | Outcome::NativePrefixViolation(_) => {
+                        panic!("explicit reference API must retain its legacy result type")
+                    }
                     Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
                 };
@@ -719,6 +734,11 @@ fn pinned_constant_temporal_calls_match_truth_counts_and_validate_independently(
                         assert_eq!(v.document().properties, ["P"]);
                         &v.candidate().exploration
                     }
+                    Outcome::NativeHolds(_)
+                    | Outcome::NativeViolation(_)
+                    | Outcome::NativePrefixViolation(_) => {
+                        panic!("explicit reference API must retain its legacy result type")
+                    }
                     Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
                 };
@@ -866,6 +886,11 @@ fn pinned_state_argument_operators_match_truth_counts_and_validate_independently
                         assert_eq!(v.document().properties, ["P"]);
                         &v.candidate().exploration
                     }
+                    Outcome::NativeHolds(_)
+                    | Outcome::NativeViolation(_)
+                    | Outcome::NativePrefixViolation(_) => {
+                        panic!("explicit reference API must retain its legacy result type")
+                    }
                     Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
                 };
@@ -939,6 +964,11 @@ fn scoped_fairness_and_enabledness_match_pinned_truth_and_independent_validation
                         );
                         &v.candidate().exploration
                     }
+                    Outcome::NativeHolds(_)
+                    | Outcome::NativeViolation(_)
+                    | Outcome::NativePrefixViolation(_) => {
+                        panic!("explicit reference API must retain its legacy result type")
+                    }
                     Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
                 };
@@ -996,6 +1026,11 @@ fn quantified_actions_and_predicates_match_pinned_final_truth_and_validate() {
                         assert_eq!(v.validation().validation, Validation::Valid, "{name}");
                         assert_eq!(v.document().properties, ["P"]);
                         &v.candidate().exploration
+                    }
+                    Outcome::NativeHolds(_)
+                    | Outcome::NativeViolation(_)
+                    | Outcome::NativePrefixViolation(_) => {
+                        panic!("explicit reference API must retain its legacy result type")
                     }
                     Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
@@ -1113,6 +1148,11 @@ fn let_scopes_match_pinned_final_truth_and_validate_independently() {
                         assert_eq!(v.validation().validation, Validation::Valid, "{name}");
                         assert_eq!(v.document().properties, ["P"]);
                         &v.candidate().exploration
+                    }
+                    Outcome::NativeHolds(_)
+                    | Outcome::NativeViolation(_)
+                    | Outcome::NativePrefixViolation(_) => {
+                        panic!("explicit reference API must retain its legacy result type")
                     }
                     Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
@@ -1255,6 +1295,11 @@ fn instance_substitutions_match_pinned_final_truth_and_validate_independently() 
                         assert_eq!(v.validation().validation, Validation::Valid, "{name}");
                         assert_eq!(v.document().properties, ["P"]);
                         &v.candidate().exploration
+                    }
+                    Outcome::NativeHolds(_)
+                    | Outcome::NativeViolation(_)
+                    | Outcome::NativePrefixViolation(_) => {
+                        panic!("explicit reference API must retain its legacy result type")
                     }
                     Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
@@ -1530,6 +1575,11 @@ fn finite_data_constructors_match_pinned_temporal_truth_and_counts() {
                         assert_eq!(v.validation().validation, Validation::Valid, "{name}");
                         assert_eq!(v.document().properties, ["P"]);
                         &v.candidate().exploration
+                    }
+                    Outcome::NativeHolds(_)
+                    | Outcome::NativeViolation(_)
+                    | Outcome::NativePrefixViolation(_) => {
+                        panic!("explicit reference API must retain its legacy result type")
                     }
                     Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
@@ -2028,6 +2078,11 @@ fn state_domain_models_match_pinned_final_truth_counts_and_independent_validatio
                         );
                         &v.candidate().exploration
                     }
+                    Outcome::NativeHolds(_)
+                    | Outcome::NativeViolation(_)
+                    | Outcome::NativePrefixViolation(_) => {
+                        panic!("explicit reference API must retain its legacy result type")
+                    }
                     Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
                 };
@@ -2254,6 +2309,11 @@ fn finite_choose_models_match_pinned_truth_counts_in_both_profiles_and_stores() 
                         assert_eq!(exit.trim(), "13", "{name}");
                         assert_eq!(v.validation().validation, Validation::Valid, "{name}");
                         &v.candidate().exploration
+                    }
+                    Outcome::NativeHolds(_)
+                    | Outcome::NativeViolation(_)
+                    | Outcome::NativePrefixViolation(_) => {
+                        panic!("explicit reference API must retain its legacy result type")
                     }
                     Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
@@ -2520,6 +2580,11 @@ fn pinned_multi_process_fairness_fits_bounded_products_and_rejects_unfair_mutant
                             assert_eq!(v.validation().validation, Validation::Valid);
                             fairness_validation_controls(&ir, &cfg, &opts, v.document());
                             &v.candidate().exploration
+                        }
+                        Outcome::NativeHolds(_)
+                        | Outcome::NativeViolation(_)
+                        | Outcome::NativePrefixViolation(_) => {
+                            panic!("explicit reference API must retain its legacy result type")
                         }
                         Outcome::PrefixViolation(_) => {
                             panic!("explicit Final cannot return a prefix")

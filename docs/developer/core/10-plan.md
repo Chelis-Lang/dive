@@ -36,11 +36,13 @@ compatibility performance ceiling without weakening semantic obligations.
    separately versioned terminal descriptor only when partial/expansion
    certificates need it, keeping complete prefix rows distinct from partial
    bindings. The already-unverified #620 boundary remains unclaimed.
-3. Complete the existing L5 dependency chain: original targets for seen/new
-   states in both explorers; retained native vertex/original roots; graph-neutral
-   completion/results; bounded on-demand conversion; CSR routing and complete
-   allocation accounting. Lift fixed capture limits only after those paths
-   cooperate with the same run budget. Reuse the analyzer and validator.
+3. The native L5 path is implemented: original targets for seen/new states,
+   retained vertex/original rows, checked CSR, graph-neutral complete/prefix
+   results and reports, controlled eager admission and on-demand conversion
+   with zero retained Value cache. Complete allocation accounting, bounded
+   remaining constructor/diagnostic units and original-workload capacity
+   measurements remain. Keep fixed capture counts until those obligations are
+   met; reuse the analyzer and independent validator (`11-liveness.md`).
 4. Admit pure state-independent `SelectSeq` predicates under a prime before
    treating EWD998Chan as a capacity target. Current-source bounded probes
    enter CoffeeCan3000, aba_asyn_byz and bcastFolklore exploration in both

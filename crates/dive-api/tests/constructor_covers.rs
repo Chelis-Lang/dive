@@ -173,6 +173,11 @@ fn pinned_constructor_fairness_runs_have_independently_valid_counterexamples() {
                         assert_eq!(v.document().properties, ["P"]);
                         &v.candidate().exploration
                     }
+                    Outcome::NativeHolds(_)
+                    | Outcome::NativeViolation(_)
+                    | Outcome::NativePrefixViolation(_) => {
+                        panic!("explicit reference API must retain its legacy result type")
+                    }
                     Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
                 };

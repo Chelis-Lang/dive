@@ -1,0 +1,508 @@
+//! Native original-value retention and ordered CSR capture.
+//!
+//! No reference value graph is retained. The converter still admits every
+//! original before graph admission, including seen occurrences, in event order.
+
+use std::collections::HashMap;
+use std::sync::Arc;
+
+use dive_check::budget::{EvaluationControl, Phase};
+use dive_check::capture::{CsrCaptureInput, Limits, MAX_EXPANSION_UNITS};
+use dive_check::{CheckOptions, Stats, Verdict};
+use dive_core::{Handle, Heap, Store};
+use dive_eval::HostControl;
+use dive_explore::graph::{GraphSink, Step, Stopped};
+use dive_liveness::analyze::AnalysisError;
+
+use crate::core_native_values::NativeValues;
+
+pub(crate) type OnLevel<'model, 'callback> = dyn FnMut(u64, &NativeGraph, &mut NativeValues<'model>, Stats) -> Result<bool, Verdict>
+    + 'callback;
+
+/// Capture-local buffer accounting; opaque hash allocation remains separate.
+#[derive(Clone, Copy, Debug, Default)]
+pub(crate) struct NativeMemory {
+    pub(crate) fixed_bytes: usize,
+    pub(crate) buffer_bytes: usize,
+    pub(crate) growth_overlap_upper_bound_bytes: usize,
+    pub(crate) key_entries: usize,
+    pub(crate) key_capacity: usize,
+}
+
+/// Persistent exact originals and one CSR, kept alive through analysis.
+pub(crate) struct NativeGraph {
+    store: Arc<Store>,
+    nvars: usize,
+    rows: Vec<Handle>,
+    retained_rows: usize,
+    representatives: Vec<u32>,
+    offsets: Vec<usize>,
+    targets: Vec<u32>,
+    ordinals: Vec<Option<u64>>,
+    actions: Vec<Option<u32>>,
+    edge_rows: Vec<u32>,
+    roots: Vec<usize>,
+    action_labels: Vec<String>,
+    closed_rows: usize,
+    limits: Limits,
+    memory: NativeMemory,
+}
+
+impl NativeGraph {
+    pub(crate) fn input(&self) -> CsrCaptureInput<'_> {
+        CsrCaptureInput {
+            offsets: &self.offsets,
+            targets: &self.targets,
+            ordinals: &self.ordinals,
+            actions: &self.actions,
+            edge_rows: &self.edge_rows,
+            representatives: &self.representatives,
+            roots: &self.roots,
+            action_labels: &self.action_labels,
+            retained_rows: self.retained_rows,
+            closed_rows: self.closed_rows,
+        }
+    }
+
+    pub(crate) fn row(&self, id: usize) -> Result<&[Handle], AnalysisError> {
+        if id >= self.retained_rows {
+            return Err(AnalysisError::Inconsistent("native retained state row"));
+        }
+        let start = id
+            .checked_mul(self.nvars)
+            .ok_or(AnalysisError::Inconsistent("native state row offset"))?;
+        let end = start
+            .checked_add(self.nvars)
+            .ok_or(AnalysisError::Inconsistent("native state row end"))?;
+        self.rows
+            .get(start..end)
+            .ok_or(AnalysisError::Inconsistent("native state row width"))
+    }
+
+    pub(crate) fn state_count(&self) -> usize {
+        self.representatives.len()
+    }
+
+    pub(crate) const fn limits(&self) -> Limits {
+        self.limits
+    }
+
+    pub(crate) const fn memory(&self) -> NativeMemory {
+        self.memory
+    }
+
+    fn retain_row(
+        &mut self,
+        original: &[Handle],
+        control: &EvaluationControl,
+    ) -> Result<u32, Verdict> {
+        let row =
+            u32::try_from(self.retained_rows).map_err(|_| limit("native retained row ids"))?;
+        reserve(&mut self.rows, original.len(), &mut self.memory, control)?;
+        for (i, &handle) in original.iter().enumerate() {
+            checkpoint(control, i)?;
+            if handle.is_transient() || handle.is_empty() {
+                return Err(bug("native original is not a complete persistent row"));
+            }
+            self.rows.push(handle);
+        }
+        self.retained_rows = self
+            .retained_rows
+            .checked_add(1)
+            .ok_or_else(|| limit("native retained rows"))?;
+        Ok(row)
+    }
+
+    fn reserve_edge(&mut self, control: &EvaluationControl) -> Result<(), Verdict> {
+        if self.targets.len() >= self.limits.edges {
+            return Err(limit("edges"));
+        }
+        reserve(&mut self.targets, 1, &mut self.memory, control)?;
+        reserve(&mut self.ordinals, 1, &mut self.memory, control)?;
+        reserve(&mut self.actions, 1, &mut self.memory, control)?;
+        reserve(&mut self.edge_rows, 1, &mut self.memory, control)
+    }
+
+    fn push_edge(&mut self, to: u32, ordinal: Option<u64>, action: Option<u32>, row: u32) {
+        self.targets.push(to);
+        self.ordinals.push(ordinal);
+        self.actions.push(action);
+        self.edge_rows.push(row);
+    }
+}
+
+/// The actual explorer sink: converts eagerly, retains native rows, closes CSR
+/// sources in discovery order, and exposes only completed levels to analysis.
+pub(crate) struct NativeSink<'model, 'callback> {
+    graph: NativeGraph,
+    values: NativeValues<'model>,
+    ids: HashMap<u64, u32>,
+    control: Arc<EvaluationControl>,
+    on_level: Option<&'callback mut OnLevel<'model, 'callback>>,
+    error: Option<Verdict>,
+    last_level: u64,
+    expanding: bool,
+}
+
+impl<'model, 'callback> NativeSink<'model, 'callback> {
+    pub(crate) fn new(
+        model: &'model dive_model::Model,
+        store: Arc<Store>,
+        limits: Limits,
+        options: &CheckOptions,
+        on_level: Option<&'callback mut OnLevel<'model, 'callback>>,
+    ) -> Result<Self, Verdict> {
+        let control = EvaluationControl::new(&options.budget, Phase::Capture)
+            .map_err(|error| bug(&error.to_string()))?;
+        let values = NativeValues::new(model, Arc::clone(&store), &options.budget)?;
+        let mut graph = NativeGraph {
+            store,
+            nvars: model.ir.vars().len(),
+            rows: Vec::new(),
+            retained_rows: 0,
+            representatives: Vec::new(),
+            offsets: Vec::new(),
+            targets: Vec::new(),
+            ordinals: Vec::new(),
+            actions: Vec::new(),
+            edge_rows: Vec::new(),
+            roots: Vec::new(),
+            action_labels: Vec::new(),
+            closed_rows: 0,
+            limits,
+            memory: NativeMemory {
+                fixed_bytes: std::mem::size_of::<NativeGraph>(),
+                ..NativeMemory::default()
+            },
+        };
+        reserve(&mut graph.offsets, 1, &mut graph.memory, &control)?;
+        graph.offsets.push(0);
+        reserve(
+            &mut graph.action_labels,
+            model.actions.len(),
+            &mut graph.memory,
+            &control,
+        )?;
+        for (i, action) in model.actions.iter().enumerate() {
+            checkpoint(&control, i)?;
+            let label = action.label();
+            let mut retained = String::new();
+            poll(&control)?;
+            retained
+                .try_reserve(label.len())
+                .map_err(|_| limit("native action label allocation"))?;
+            graph.memory.buffer_bytes = graph
+                .memory
+                .buffer_bytes
+                .checked_add(retained.capacity())
+                .ok_or_else(|| limit("native retained bytes"))?;
+            graph.memory.growth_overlap_upper_bound_bytes = graph
+                .memory
+                .growth_overlap_upper_bound_bytes
+                .max(graph.memory.buffer_bytes);
+            for (i, character) in label.chars().enumerate() {
+                checkpoint(&control, i)?;
+                retained.push(character);
+            }
+            graph.action_labels.push(retained);
+        }
+        poll(&control)?;
+        Ok(Self {
+            graph,
+            values,
+            ids: HashMap::new(),
+            control,
+            on_level,
+            error: None,
+            last_level: 0,
+            expanding: false,
+        })
+    }
+
+    pub(crate) fn take_error(&mut self) -> Option<Verdict> {
+        self.error.take()
+    }
+
+    pub(crate) fn finish(self) -> (NativeGraph, NativeValues<'model>) {
+        // The discovery index is no longer required by the immutable graph.
+        // Its opaque allocation is released before final temporal analysis.
+        (self.graph, self.values)
+    }
+
+    fn stop(&mut self, verdict: Verdict) -> Stopped {
+        self.error.get_or_insert(verdict);
+        Stopped
+    }
+
+    #[allow(
+        clippy::too_many_lines,
+        reason = "ordered admission and exact original retention"
+    )]
+    fn record(&mut self, heap: &mut Heap, step: Step<'_>) -> Result<(), Verdict> {
+        // Preserve the legacy converter-before-state/edge-admission precedence,
+        // including seen originals and run-local name interning order.
+        self.values.admit(step.original)?;
+        if !Arc::ptr_eq(heap.store(), &self.graph.store) || step.original.len() != self.graph.nvars
+        {
+            return Err(bug("native original store or row width differs"));
+        }
+        poll(&self.control)?;
+        let parent = step
+            .parent
+            .map(usize::try_from)
+            .transpose()
+            .map_err(|_| bug("native source exceeds address space"))?;
+        if parent.is_some_and(|source| source != self.graph.closed_rows)
+            || (parent.is_none() && self.expanding)
+        {
+            return Err(bug("native sources are not committed in discovery order"));
+        }
+        self.expanding |= parent.is_some();
+        let action = step
+            .action
+            .map(u32::try_from)
+            .transpose()
+            .map_err(|_| bug("native action index exceeds 32 bits"))?;
+        if action.is_some_and(|id| id as usize >= self.graph.action_labels.len()) {
+            return Err(bug("native action index out of range"));
+        }
+        // Conversion has already happened. Match the legacy state-before-edge
+        // limit precedence before adding capture-specific retention buffers.
+        if step.new.is_some() && self.graph.state_count() >= self.graph.limits.states {
+            return Err(limit("states"));
+        }
+        if parent.is_some() && self.graph.targets.len() >= self.graph.limits.edges {
+            return Err(limit("edges"));
+        }
+        let (target, original) = if let Some((id, canonical)) = step.new {
+            let target = u32::try_from(id).map_err(|_| limit("native vertex ids"))?;
+            if target as usize != self.graph.state_count()
+                || self.ids.contains_key(&step.key)
+                || canonical.len() != self.graph.nvars
+            {
+                return Err(bug("native discovery ids differ from trace log"));
+            }
+            reserve(
+                &mut self.graph.representatives,
+                1,
+                &mut self.graph.memory,
+                &self.control,
+            )?;
+            reserve(
+                &mut self.graph.offsets,
+                1,
+                &mut self.graph.memory,
+                &self.control,
+            )?;
+            poll(&self.control)?;
+            self.ids
+                .try_reserve(1)
+                .map_err(|_| limit("native discovery index allocation"))?;
+            self.graph.memory.key_capacity = self.ids.capacity();
+            poll(&self.control)?;
+            let row = self.graph.retain_row(step.original, &self.control)?;
+            self.graph.representatives.push(row);
+            self.graph.offsets.push(self.graph.targets.len());
+            self.ids.insert(step.key, target);
+            self.graph.memory.key_entries = self.ids.len();
+            self.graph.memory.key_capacity = self.ids.capacity();
+            (target, row)
+        } else {
+            let target = *self
+                .ids
+                .get(&step.key)
+                .ok_or_else(|| bug("native seen state has no discovery id"))?;
+            let representative = self.graph.representatives[target as usize];
+            let original = if parent.is_none()
+                || same_rows(
+                    self.graph
+                        .row(representative as usize)
+                        .map_err(|_| bug("native representative row missing"))?,
+                    step.original,
+                    &self.control,
+                )? {
+                representative
+            } else {
+                self.graph.retain_row(step.original, &self.control)?
+            };
+            (target, original)
+        };
+        if parent.is_some() {
+            self.graph.reserve_edge(&self.control)?;
+            self.graph
+                .push_edge(target, Some(step.ordinal), action, original);
+        } else {
+            if self.graph.closed_rows != 0 || !self.graph.targets.is_empty() {
+                return Err(bug("native root emitted after source expansion"));
+            }
+            let root = target as usize;
+            if let Err(at) = self.graph.roots.binary_search(&root) {
+                reserve(
+                    &mut self.graph.roots,
+                    1,
+                    &mut self.graph.memory,
+                    &self.control,
+                )?;
+                self.graph.roots.insert(at, root);
+            }
+        }
+        Ok(())
+    }
+}
+
+impl GraphSink for NativeSink<'_, '_> {
+    fn max_expansion_units(&self) -> usize {
+        MAX_EXPANSION_UNITS
+    }
+
+    fn max_successors_per_unit(&self) -> u64 {
+        self.graph.limits.successors_per_unit
+    }
+
+    fn emitted(&mut self, generated: u64, ordinal: Option<u64>) -> Result<(), Stopped> {
+        let result = if generated > self.graph.limits.generated {
+            Err(limit("generated states"))
+        } else if ordinal.is_some_and(|ordinal| ordinal >= self.graph.limits.successors_per_unit) {
+            Err(limit("successors per source (scratch admission)"))
+        } else {
+            Ok(())
+        };
+        result.map_err(|error| self.stop(error))
+    }
+
+    fn state(&mut self, heap: &mut Heap, step: Step<'_>) -> Result<(), Stopped> {
+        self.record(heap, step).map_err(|error| self.stop(error))
+    }
+
+    fn stutter(&mut self, source: u64) -> Result<(), Stopped> {
+        let result = (|| {
+            poll(&self.control)?;
+            let source = u32::try_from(source).map_err(|_| limit("native vertex ids"))?;
+            if source as usize != self.graph.closed_rows {
+                return Err(bug("native stutter source out of order"));
+            }
+            self.expanding = true;
+            let row = *self
+                .graph
+                .representatives
+                .get(source as usize)
+                .ok_or_else(|| bug("native stutter source not discovered"))?;
+            self.graph.reserve_edge(&self.control)?;
+            self.graph.push_edge(source, None, None, row);
+            self.graph.closed_rows += 1;
+            self.graph.offsets[self.graph.closed_rows] = self.graph.targets.len();
+            Ok(())
+        })();
+        result.map_err(|error| self.stop(error))
+    }
+
+    fn level_done(&mut self, level: u64, stats: dive_explore::Stats) -> Result<bool, Stopped> {
+        let result = (|| {
+            if self.last_level.checked_add(1) != Some(level) {
+                return Err(bug("native completed levels out of order"));
+            }
+            for (i, offset) in self
+                .graph
+                .offsets
+                .iter_mut()
+                .skip(self.graph.closed_rows + 1)
+                .enumerate()
+            {
+                checkpoint(&self.control, i)?;
+                *offset = self.graph.targets.len();
+            }
+            poll(&self.control)?;
+            self.last_level = level;
+            let Some(on_level) = self.on_level.as_deref_mut() else {
+                return Ok(false);
+            };
+            on_level(
+                level,
+                &self.graph,
+                &mut self.values,
+                Stats {
+                    generated: stats.generated,
+                    distinct: stats.distinct,
+                    left_on_queue: stats.left_on_queue,
+                    depth: stats.depth,
+                    initial_generated: stats.initial_generated,
+                },
+            )
+        })();
+        result.map_err(|error| self.stop(error))
+    }
+}
+
+fn same_rows(a: &[Handle], b: &[Handle], control: &EvaluationControl) -> Result<bool, Verdict> {
+    if a.len() != b.len() {
+        return Ok(false);
+    }
+    for (i, (a, b)) in a.iter().zip(b).enumerate() {
+        checkpoint(control, i)?;
+        if a != b {
+            return Ok(false);
+        }
+    }
+    Ok(true)
+}
+
+fn reserve<T>(
+    buffer: &mut Vec<T>,
+    additional: usize,
+    memory: &mut NativeMemory,
+    control: &EvaluationControl,
+) -> Result<(), Verdict> {
+    poll(control)?;
+    let before = buffer.capacity() * std::mem::size_of::<T>();
+    buffer
+        .len()
+        .checked_add(additional)
+        .ok_or_else(|| limit("native buffer entries"))?;
+    buffer
+        .try_reserve(additional)
+        .map_err(|_| limit("native buffer allocation"))?;
+    let after = buffer.capacity() * std::mem::size_of::<T>();
+    if after != before {
+        memory.buffer_bytes = memory
+            .buffer_bytes
+            .checked_add(after - before)
+            .ok_or_else(|| limit("native retained buffer bytes"))?;
+        // A realloc may temporarily keep its old buffer alongside the new one.
+        // This is a requested-buffer upper bound, not an observed RSS peak.
+        memory.growth_overlap_upper_bound_bytes = memory
+            .growth_overlap_upper_bound_bytes
+            .max(memory.buffer_bytes.saturating_add(before));
+    }
+    poll(control)
+}
+
+fn checkpoint(control: &EvaluationControl, position: usize) -> Result<(), Verdict> {
+    if position.is_multiple_of(256) {
+        poll(control)?;
+    }
+    Ok(())
+}
+
+fn poll(control: &EvaluationControl) -> Result<(), Verdict> {
+    control.check().map_err(|interrupted| {
+        control
+            .verdict(&dive_eval::EvalError::interrupted(interrupted))
+            .unwrap_or_else(|| bug("native control interrupted without matching exhaustion"))
+    })
+}
+
+fn bug(message: &str) -> Verdict {
+    Verdict::InternalError {
+        message: format!("native core graph: {message}"),
+    }
+}
+
+fn limit(feature: &str) -> Verdict {
+    Verdict::ResourceLimit {
+        message: format!("behavior graph capture {feature}"),
+    }
+}
+
+#[cfg(test)]
+#[path = "core_native_graph_tests.rs"]
+mod tests;

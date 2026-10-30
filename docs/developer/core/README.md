@@ -41,6 +41,12 @@ three-row, one-repetition Sailfish diagnostic; it adds no population credit.
 #620 remains unverified/refused diagnostic parity, not a certified agreement.
 M1 and M2 acceptance stay open.
 
+The native temporal backend now retains persistent original rows and checked CSR,
+uses controlled admission/on-demand reads with zero retained Value cache, and
+releases native capture owners before fresh word validation. Fixed capture counts
+remain; whole-run byte accounting and TLC-relative capacity/performance are still
+open. This does not alter the historical measurements above or the engine default.
+
 ## Status board
 
 | Workstream | Milestone | State | Branch / PR | Doc |
@@ -51,7 +57,7 @@ M1 and M2 acceptance stay open.
 | M0 spike | M0 | done: 1.81× TLC, 5.21× reference (x86 geomean); merged as `--engine=core` | #505 | `m0-results.md` |
 | 1. Values and store | M1 | implemented M1 scope; remaining work below; done: inline node data, lazy values, big ints, model values, `isNorm`, intern-token strings, lock-free intern hits, Bags, most stdlib and CommunityModules operators, Print/PrintT/ToString, RandomElement, TLCSet/TLCGet, pure scalar sequence replacement (All overlaps refused); next: raw construction order, normalization demand/history and alias lifetime before exact checked comparison; conservative C2 refusal built, generic S5 index not built; retain §12 stdlib boundaries | `core/values-*` | `03-value-model.md` |
 | 2. Plan compiler and laziness | M1 | implemented M1 scope; remaining work below; done: fold bound (R9), TLC lazy values, INSTANCE, error classes, operator arguments, lazy LET, failing ASSUME, `ENABLED` (#581), memo on and bounded (#575, #584); done: `ENABLED` with constant/operator INSTANCE parameters and identity variable mappings; next: raw construction/demand/history, exact scalar/tuple normalization and membership, then class/E7 widening; hidden/nonidentity INSTANCE queries and B2/B4 lifetimes remain | `core/compiler-*` | `04-plan-compiler.md`, `06-memoization.md` |
-| 3. Successor generation and engine | M1 | implemented M1 scope; remaining work below; done: traces, error endings, budgets, parallel engine, `--engine=auto`, `--compat=tlc` at any worker count, implied properties, SYMMETRY (both profiles), ALIAS, VIEW, VIEW+SYMMETRY, liveness L1–L4 (#572, #573, #577, #582), #550, #551; L5 preparatory borrowed CSR product input and private state-value source; next: native retained roots, controlled conversion/cache and completion/results, `P4SymLive` | `core/engine-*` | `05-successor-generation.md`, `07-engine.md`, `11-liveness.md` |
+| 3. Successor generation and engine | M1 | implemented M1 scope; remaining work below; done: traces, error endings, budgets, parallel engine, `--engine=auto`, `--compat=tlc` at any worker count, implied properties, SYMMETRY (both profiles), ALIAS, VIEW, VIEW+SYMMETRY, liveness L1–L4 (#572, #573, #577, #582), #550, #551; L5 native retained roots/CSR, controlled admission/on-demand reads, zero Value cache and graph-neutral validated reports; next: complete memory accounting, original-workload TLC capacity qualification, `P4SymLive` | `core/engine-*` | `05-successor-generation.md`, `07-engine.md`, `11-liveness.md` |
 | 4. Harness, shadow comparison, bench | M1 | lead; done: harness engine selection, shadow gate in CI, successor sampling, x86 checkpoint and memo A/B (`10-plan.md` §5a, §5b), AWS bench and gate scripts, reproducible seeded fixture-census runner; classified results and confirmed traces required (#590, #596); next: retain completed PRE-C2 campaign and separate integration validation, original quiet=false and host controls; resolve remaining census/ablation findings (#603 fixed) and retain engine accounting | — | `08-correctness.md`, `09-performance-method.md` |
 
 The umbrella issue is #498. The M0 spike landed on `main` in #505; its results

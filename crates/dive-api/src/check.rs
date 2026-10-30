@@ -801,9 +801,13 @@ impl CheckReport {
             Phase::Unlowered(_) => "unsupported",
             Phase::Checked(r) => r.verdict.kind(),
             Phase::Temporal(r) => match r.outcome() {
-                crate::temporal::Outcome::Holds(_) => "success",
+                crate::temporal::Outcome::Holds(_) | crate::temporal::Outcome::NativeHolds(_) => {
+                    "success"
+                }
                 crate::temporal::Outcome::Violation(_)
-                | crate::temporal::Outcome::PrefixViolation(_) => "liveness-violation",
+                | crate::temporal::Outcome::PrefixViolation(_)
+                | crate::temporal::Outcome::NativeViolation(_)
+                | crate::temporal::Outcome::NativePrefixViolation(_) => "liveness-violation",
                 crate::temporal::Outcome::Safety(_) => "internal-error",
             },
             Phase::TemporalError(e) => temporal_failure_kind(e),
@@ -849,9 +853,13 @@ impl CheckReport {
             }
             Phase::Unlowered(_) => exit::UNSUPPORTED,
             Phase::Temporal(r) => match r.outcome() {
-                crate::temporal::Outcome::Holds(_) => exit::SUCCESS,
+                crate::temporal::Outcome::Holds(_) | crate::temporal::Outcome::NativeHolds(_) => {
+                    exit::SUCCESS
+                }
                 crate::temporal::Outcome::Violation(_)
-                | crate::temporal::Outcome::PrefixViolation(_) => {
+                | crate::temporal::Outcome::PrefixViolation(_)
+                | crate::temporal::Outcome::NativeViolation(_)
+                | crate::temporal::Outcome::NativePrefixViolation(_) => {
                     if tlc {
                         13
                     } else {
@@ -1279,6 +1287,8 @@ impl CheckReport {
                         r.outcome(),
                         crate::temporal::Outcome::Violation(_)
                             | crate::temporal::Outcome::PrefixViolation(_)
+                            | crate::temporal::Outcome::NativeViolation(_)
+                            | crate::temporal::Outcome::NativePrefixViolation(_)
                     );
                     doc["execution"]["exhausted"] =
                         json!(r.periodic().is_none_or(|checks| checks.exhausted));
@@ -1885,7 +1895,8 @@ fn temporal_failure_kind(failure: &crate::temporal::Failure) -> &'static str {
         Error::Analysis(AnalysisError::Planning(PlanningError::Evaluation { .. })) => {
             "evaluation-error"
         }
-        Error::Validation { report, .. }
+        Error::NativeValidation { report, .. }
+        | Error::Validation { report, .. }
         | Error::PrefixValidation { report, .. }
         | Error::EndpointValidation { report }
             if matches!(report.validation, dive_trace::Validation::Invalid(_)) =>
@@ -1928,7 +1939,34 @@ fn temporal_complete(report: &crate::temporal::Report) -> Option<&dive_check::ca
     match report.outcome() {
         crate::temporal::Outcome::Holds(c) => Some(c),
         crate::temporal::Outcome::Violation(v) => Some(&v.candidate().exploration),
-        crate::temporal::Outcome::Safety(_) | crate::temporal::Outcome::PrefixViolation(_) => None,
+        crate::temporal::Outcome::Safety(_)
+        | crate::temporal::Outcome::PrefixViolation(_)
+        | crate::temporal::Outcome::NativeHolds(_)
+        | crate::temporal::Outcome::NativeViolation(_)
+        | crate::temporal::Outcome::NativePrefixViolation(_) => None,
+    }
+}
+
+fn temporal_native_complete(
+    report: &crate::temporal::Report,
+) -> Option<&dive_check::capture::CompleteEvidence> {
+    match report.outcome() {
+        crate::temporal::Outcome::NativeHolds(evidence) => Some(evidence),
+        crate::temporal::Outcome::NativeViolation(word) => Some(word.evidence()),
+        _ => None,
+    }
+}
+
+fn producer_facts(
+    result: &CheckResult,
+    stats: dive_check::Stats,
+) -> dive_liveness::analyze::ExplorationEvidence {
+    dive_liveness::analyze::ExplorationEvidence {
+        stats,
+        workers: result.workers.clone(),
+        collision: result.collision.clone(),
+        output: result.output.clone(),
+        warnings: result.warnings.clone(),
     }
 }
 
@@ -1938,8 +1976,17 @@ fn temporal_evidence(
     if let Some(complete) = temporal_complete(report) {
         return Some(complete.into());
     }
+    if let Some(complete) = temporal_native_complete(report) {
+        return Some(producer_facts(complete.safety_result(), complete.stats()));
+    }
     if let crate::temporal::Outcome::PrefixViolation(word) = report.outcome() {
         return Some((&word.candidate().exploration).into());
+    }
+    if let crate::temporal::Outcome::NativePrefixViolation(word) = report.outcome() {
+        return Some(producer_facts(
+            word.evidence().safety_result(),
+            word.evidence().stats(),
+        ));
     }
     None
 }
@@ -1956,7 +2003,19 @@ fn temporal_word(report: &crate::temporal::Report) -> Option<(&str, &dive_trace:
             word.document(),
             word.candidate().back_to,
         )),
-        crate::temporal::Outcome::Holds(_) | crate::temporal::Outcome::Safety(_) => None,
+        crate::temporal::Outcome::NativeViolation(word) => Some((
+            &word.word().target_property,
+            word.document(),
+            word.word().back_to,
+        )),
+        crate::temporal::Outcome::NativePrefixViolation(word) => Some((
+            &word.word().target_property,
+            word.document(),
+            word.word().back_to,
+        )),
+        crate::temporal::Outcome::Holds(_)
+        | crate::temporal::Outcome::NativeHolds(_)
+        | crate::temporal::Outcome::Safety(_) => None,
     }
 }
 
@@ -2004,10 +2063,14 @@ fn temporal_json(doc: &mut Value, report: &crate::temporal::Report, tlc_fingerpr
         doc["message"] = json!("safety stop was not routed through the safety report");
         return;
     };
-    let complete = temporal_complete(report).is_some();
+    let complete =
+        temporal_complete(report).is_some() || temporal_native_complete(report).is_some();
     doc["execution"] = json!({"stage": if complete {"complete"} else {"prefix"}, "capture_completed": complete, "exhausted": complete});
     if let crate::temporal::Outcome::PrefixViolation(word) = report.outcome() {
         doc["execution"]["level"] = json!(word.candidate().exploration.level());
+    }
+    if let crate::temporal::Outcome::NativePrefixViolation(word) = report.outcome() {
+        doc["execution"]["level"] = json!(word.evidence().level());
     }
     if let Some(checks) = report.periodic() {
         doc["periodic"] = periodic_json(checks);
@@ -2041,7 +2104,10 @@ fn temporal_human(report: &crate::temporal::Report) -> String {
     if let Some(reason) = &complete.workers.reason {
         let _ = writeln!(out, "{reason}");
     }
-    if matches!(report.outcome(), crate::temporal::Outcome::Holds(_)) {
+    if matches!(
+        report.outcome(),
+        crate::temporal::Outcome::Holds(_) | crate::temporal::Outcome::NativeHolds(_)
+    ) {
         let _ = writeln!(
             out,
             "Complete final temporal analysis: no error has been found."

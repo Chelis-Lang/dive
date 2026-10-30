@@ -334,6 +334,11 @@ fn pinned_paired_forwarding_controls_keep_full_census_and_reference_refusals() {
                                 );
                                 &v.candidate().exploration
                             }
+                            Outcome::NativeHolds(_)
+                            | Outcome::NativeViolation(_)
+                            | Outcome::NativePrefixViolation(_) => {
+                                panic!("explicit reference API must retain its legacy result type")
+                            }
                             Outcome::PrefixViolation(_) => {
                                 panic!("explicit Final cannot return a prefix")
                             }

@@ -38,6 +38,7 @@ pub(crate) struct GraphMetrics {
 pub(crate) struct Graph<'a> {
     model: &'a dive_model::Model,
     ctx: dive_value::Ctx,
+    budget: dive_check::budget::Budget,
     builder: GraphBuilder,
     limits: Limits,
     memo: HashMap<Handle, Value>,
@@ -53,10 +54,12 @@ impl<'a> Graph<'a> {
         model: &'a dive_model::Model,
         limits: Limits,
         on_level: Option<&'a mut OnLevel<'a>>,
+        budget: &dive_check::budget::Budget,
     ) -> Self {
         Self {
             model,
             ctx: model.evaluator.options().ctx,
+            budget: budget.clone(),
             builder: GraphBuilder::new(limits),
             limits,
             memo: HashMap::new(),
@@ -83,10 +86,17 @@ impl<'a> Graph<'a> {
         Stopped
     }
 
-    fn convert(&mut self, heap: &mut Heap, values: &[Handle]) -> Result<StateVals, String> {
+    fn convert(&mut self, heap: &mut Heap, values: &[Handle]) -> Result<StateVals, Verdict> {
         let started = Instant::now();
-        let mut out = Vec::with_capacity(values.len());
+        let mut out = Vec::new();
+        out.try_reserve_exact(values.len())
+            .map_err(|_| Verdict::InternalError {
+                message: "core graph: conversion row storage unavailable".into(),
+            })?;
         for &h in values {
+            if let Some(verdict) = conversion_stop(&self.budget) {
+                return Err(verdict);
+            }
             let scalar = h.as_bool().is_some()
                 || h.as_int().is_some()
                 || h.as_str_id().is_some()
@@ -94,13 +104,20 @@ impl<'a> Graph<'a> {
             let v = if let Some(v) = self.memo.get(&h) {
                 v.clone()
             } else {
-                let v = dive_core::print::to_value(
+                let mut stopped = None;
+                let mut proceed = || {
+                    stopped = conversion_stop(&self.budget);
+                    stopped.is_none()
+                };
+                let v = dive_core::print::to_value_controlled(
                     heap,
                     &self.model.names,
                     h,
                     self.ctx,
                     dive_core::print::Conversion::Graph,
-                )?;
+                    &mut proceed,
+                )
+                .map_err(|error| conversion_error(error, stopped))?;
                 self.metrics.converted += 1;
                 if !scalar
                     && self.memo.len()
@@ -115,8 +132,43 @@ impl<'a> Graph<'a> {
             };
             out.push(Some(v));
         }
+        if let Some(verdict) = conversion_stop(&self.budget) {
+            return Err(verdict);
+        }
         self.metrics.convert += started.elapsed();
         Ok(out.into())
+    }
+}
+
+/// This direct callback is owned by this capture's actual run budget. It does
+/// not turn arbitrary evaluator interruptions or string errors into stops.
+fn conversion_stop(budget: &dive_check::budget::Budget) -> Option<Verdict> {
+    match budget.poll() {
+        Ok(None) => None,
+        Ok(Some(exhausted)) => Some(Verdict::Stopped(Box::new(
+            exhausted.during(dive_check::budget::Phase::Capture),
+        ))),
+        Err(error) => Some(Verdict::BudgetMeasurement { error }),
+    }
+}
+
+fn conversion_error(error: dive_core::print::ConversionError, stopped: Option<Verdict>) -> Verdict {
+    use dive_core::print::ConversionError;
+    use dive_value::ConstructionError;
+    match error {
+        ConversionError::Construction(ConstructionError::Interrupted) => {
+            stopped.unwrap_or_else(|| Verdict::InternalError {
+                message:
+                    "core graph: conversion interrupted without this capture's budget evidence"
+                        .into(),
+            })
+        }
+        ConversionError::Construction(ConstructionError::Allocation) => Verdict::InternalError {
+            message: "core graph: conversion scratch storage unavailable".into(),
+        },
+        error => Verdict::Unsupported {
+            feature: format!("a state value outside the reference values (core liveness): {error}"),
+        },
     }
 }
 
@@ -146,13 +198,9 @@ impl GraphSink for Graph<'_> {
     }
 
     fn state(&mut self, heap: &mut Heap, step: Step<'_>) -> Result<(), Stopped> {
-        let vals = self.convert(heap, step.original).map_err(|message| {
-            self.stop(Verdict::Unsupported {
-                feature: format!(
-                    "a state value outside the reference values (core liveness): {message}"
-                ),
-            })
-        })?;
+        let vals = self
+            .convert(heap, step.original)
+            .map_err(|verdict| self.stop(verdict))?;
         let id = step.new.map(|(id, _)| id);
         let label = match step.action {
             Some(i) => match self.model.actions.get(i) {

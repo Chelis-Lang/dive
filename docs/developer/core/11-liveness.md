@@ -1,17 +1,18 @@
 # 11. Liveness on the core
 
-Status: phase 1 (L1–L4) built, 2026-10-28; pulled forward from M3.
-Preparatory L5 topology, private state-value access and graph-independent
-producer/result facts and checked CSR completion are implemented (§7.1–§7.4).
-Checker state retention, report routing and measured capacity remain L5 work
-with the prerequisites in §7.
+Status: L1–L4 and the native L5 capture/analysis/report path are implemented,
+2026-10-29. The production core retains persistent original rows and CSR,
+converts demanded values without a retained Value cache, and releases native
+capture storage before independent candidate replay. The reference-library
+entrypoints remain available. Complete memory accounting, larger bounded capture
+limits and measured TLC capacity remain L5 acceptance work (§7).
 
 This document describes how `--engine core` checks genuine temporal properties
 (`<>P`, `[]<>P`, `P ~> Q`, `WF`/`SF` fairness). The safety parts of properties
-(implied initial predicates and implied actions) already run on the core
-(`07-engine.md` §7). Phase 1 reuses the reference graph representation and
-its limits. The dated census in §10 records its measured coverage; L5 does
-not yet establish broader coverage or capacity.
+(implied initial predicates and implied actions) run on the core
+(`07-engine.md` §7). The fixed reference capture limits remain in force.
+The dated census in §10 precedes the native backend; it establishes no new
+coverage, performance or capacity for that backend.
 
 ## 1. What the reference engine does
 
@@ -62,34 +63,33 @@ stages, each with its own owner:
      `check.rs` renders as `Phase::Temporal`. A lasso that does not
      validate is a validation failure, never a verdict.
 
-## 2. Principle: the core replaces only the producer
+## 2. Principle: reuse the analyzer and independent validator
 
-The core takes over stage 1, exploring and capturing the graph. Stages 2–4
-stay the reference engine's code, unchanged:
-- planning, and evaluating state atoms, action atoms and `ENABLED` with the
-  reference evaluator;
-- the tableau, the product, the SCC search and the lasso selection;
-- the periodic schedule;
-- validation by `dive-trace`, and the report.
+The core explores and captures native original state rows and CSR metadata.
+It reuses the existing property planning, predicate evaluation, tableau,
+product/SCC search, attribution and deterministic schedule. Private adapters
+separate topology, original-edge metadata and state-value demand; they do not
+introduce a new liveness algorithm.
 
-The core produces the same graph as the reference capture: the same states
-in the same order, the same edges in the same order, and the same roots.
-Stages 2–4 are deterministic functions of the graph. So:
+`NativeGraph` owns addressable persistent rows and keeps their `Store` alive.
+`NativeValues` admits every accepted original in producer order, then converts
+rows again only when the analyzer requests them. Production capture never
+constructs a `BehaviorGraph`; `core_graph.rs` remains a test-only legacy adapter.
+The same graph-independent producer facts and selected-word assembly serve both
+representations. Counts and completion facts come from the actual producer.
 
-- verdicts, the violated property and counterexamples equal the reference
-  engine's by construction, including which lasso is chosen;
-- counts at a stop are the core's own, already equal to the reference's
-  (`07-engine.md`), and periodic checks fire at the same levels, since the
-  schedule reads only the graph's size;
-- validation stays independent of the core: `dive-trace` checks the lasso
-  on a freshly bound model with the reference evaluator (ADR 0103);
-- `ENABLED`, fairness, and action predicates in properties are evaluated by
-  `dive-liveness`. The core also supports `ENABLED` in safety predicates;
-  its remaining INSTANCE-substitution refusal is separate from this adapter.
+A selected word retains concrete values, original edge positions and property
+attribution. The native graph, converter, plan and store owners are explicitly
+dropped before `dive-trace` rebinds the model and validates the typed word and
+serialized document. A validation failure publishes no temporal violation.
+The original model remains available for report qualifications; native storage
+supplies no authority to the independent validator.
 
-The strongest test (§8) is therefore graph equality: the core's
-`BehaviorGraph` must equal the reference capture's, field by field, at every
-worker count.
+Storage/result equivalence controls compare the native path with reference
+capture and analysis in both profiles, including original aliases, duplicates,
+ordinal gaps and committed prefixes (§8). Observable parity remains ADR 0086's
+contract; temporal error-demand order, VIEW/symmetry quotient semantics and
+broader language support remain separate work.
 
 ## 3. Graph capture on the core (`dive-explore`)
 
@@ -110,8 +110,8 @@ predecessor log's ids, which are the discovery indexes.
 The reference collector maps keys to discovery ids. Equal keys identify one
 graph vertex under fingerprint-mode identity and its collision qualification;
 they never license substituting that representative for an original successor.
-The sink (`dive-api`, `core_graph.rs`) converts every accepted original, including
-seen targets. Capture-only `intern_exact` retains available kind and view flags
+The production sink (`dive-api`, `core_native_graph.rs`) admits every accepted
+original through `NativeValues`, including seen targets. Capture-only `intern_exact` retains available kind and view flags
 before fingerprinting can replace a row with canonical identity handles.
 The core still refuses exact storage (`07-engine.md`).
 
@@ -124,7 +124,8 @@ not the original source used for evaluation; checked successor endings
 canonicalize their expected parent, and deadlock uses the frontier identity.
 The extra frontier payload is eight bytes per variable per current/next
 frontier state; the existing capture admission bounds apply, and all interned
-values remain in store accounting. This is not an addressable all-vertex native state source.
+values remain in store accounting. These frontier rows are separate from the addressable all-vertex/original
+rows retained by `NativeGraph` (§4).
 
 Parallel capture uses the reference's `MAX_EXPANSION_UNITS` (eight sources per
 wave) and `Limits::successors_per_unit` (65,536 by default). An overflow emission
@@ -144,9 +145,9 @@ How the events follow the reference engine:
   no vertex and no edge.
 - **Ordinals** are the generator's emission index within the source.
   `selected_targets` in `dive-liveness` checks them against `concrete`.
-- **Labels** are `model.next[action].label()`, the same strings as
+- **Labels** are `model.actions[action].label()`, the same strings as
   `Successor::action.label()`. The core keeps the action index, and
-  `dive-api` maps it to the label.
+  the native collector retains a run-local label table.
 - **The parallel engine** commits in position order (`07-engine.md` §3), so
   the events, and therefore the graph, are identical at every worker count.
   Expansion stays parallel. Only the event delivery is ordered.
@@ -157,45 +158,60 @@ How the events follow the reference engine:
   - `POSTCONDITION` with temporal properties (the reference refuses it too).
   - Checkpoints, DFID, `--temporal final-short` and host I/O hooks.
 
+Initial-state recording alone does not trigger a completed-level callback. The
+first callback follows expansion of the initial BFS frontier, with completed
+source rows and any newly discovered frontier. `native_level_due(stats)` checks
+the exact schedule/decision/nonzero-queue predicate before a full CSR validation
+scan. Final-only and not-yet-due callbacks skip that scan. A checked-shape or
+budget failure travels through the sink as its original failure, not a successful
+prefix.
+
 `dive-explore` gains no dependency: the sink is a trait over core handles.
 
-## 4. Conversion to `StateVals` (`dive-api`)
+## 4. Native rows and on-demand `StateVals` (`dive-api`)
 
-`dive-liveness` reads `StateVals` (`Arc<[Option<Value>]>`). The `dive-api`
-sink converts accepted originals with
-`dive_core::print::to_value(.., Conversion::Graph)`. Graph values are used for
-evaluation: general functions remain general functions, and tuple/record literal
-flags survive imports, folding and captured source frontiers recursively
-(ADR 0121). `Conversion::Report` remains the separate trace
-formatting path. Extensional `Value` equality alone cannot certify this boundary:
-a general string-domain function can compare unequal to a tuple where a record
-literal raises an incomparable-value error. Raw or symbolic set representations
-without certified normalization history remain explicitly refused by this
-conversion; the adapter does not reconstruct missing history or admit new shapes.
+`core_native_graph.rs` retains flat persistent handle rows, representative row
+ids, CSR offsets/32-bit targets, original ordinals, action indices/labels,
+original target row ids and roots. An edge shares its destination representative
+row only when the handle slices match exactly. Extensional value equality or a
+matching fingerprint never licenses representation substitution. Every vertex
+and differing original remains addressable until analysis and lasso extraction
+finish. The capture-only key index is released before final analysis.
 
-- **Sharing.** A memo from a persistent compound handle to its `Value`
-  shares structure: a sub-value common to many states becomes one `Arc`.
-  Without it, conversion would copy every state in full, which costs more
-  memory than the reference capture.
-- **Concrete rows.** Every accepted original is converted from `Step.original`,
-  independently of its vertex key. The conversion memo may reuse the value of
-  that exact persistent handle; it never substitutes `states[to]`. Original
-  action labels and ordinal gaps are retained, including for repeated edges and
-  different originals that identify the same vertex.
-- **Cost budget.** Conversion work, in nodes visited, is counted in the
-  run's metrics as `liveness.convert_ms`, `liveness.converted_nodes` and
-  `liveness.memo_entries`. The memo is bounded by
-  `capture::Limits::states` × the variable count. Past that
-  it stops caching rather than grow, so the worst case is the copy cost.
-  - Target (directional, `09-performance-method.md`): conversion costs at
-    most 25% of exploration time on the corpus's temporal models.
-  - The work is charged to the run budget (§7). It can end in a structured
-    stop, never in an unbounded allocation.
+`core_native_values.rs` uses
+`dive_core::print::to_value_controlled(.., Conversion::Graph)`. Every accepted
+original, new or seen, is converted before state/edge retention admission;
+emitted-count admission still comes first. This preserves conversion refusals
+and runtime name-interning order. Graph conversion preserves general-function
+versus tuple/record literal classes recursively (ADR 0121). Raw or symbolic set
+representations without certified normalization history are refused; report
+formatting conversion does not supply that history.
+
+The admitted row is dropped immediately. The initial native backend retains
+**zero converted-value cache entries**: a demanded representative or original
+is reconverted under the same run's temporal `EvaluationControl`. This avoids a
+second complete evaluator-value graph, at the cost of repeated conversion.
+Only currently demanded rows and the selected word's values remain live as
+needed by the existing analyzer. No cache speedup is claimed.
+
+Materialized traversal, comparability proofs, deep normalization comparisons
+and sorting cooperate with run control; temporary vectors use fallible
+reservation. A foreign or missing interruption receipt cannot become this run's
+budget stop. Constructor hashing, diagnostic rendering and final shared/Arc
+allocations retain legacy units; this is not an allocation-time hard cap.
+
+`core.metrics.liveness` retains `convert_ms`, `converted_nodes`, `memo_entries`
+and `graph_states`, with `memo_entries: 0`. Additive `storage: "native-csr"`,
+`values` admission/read/conversion counters and zero-cache fields distinguish
+this route. `memory` describes covered collector buffers, action-label
+capacities and reserve-growth overlap; the overlap is an upper bound, not
+observed peak RSS. `accounting_complete: false` remains explicit (§7).
 
 ## 5. Analysis entry points (additive APIs)
 
-Existing callers are unchanged. Both crates are reference crates, so each
-change needs the full gate.
+Existing reference callers keep their entrypoints and result types. Development
+uses focused checks and required CI; the integrated milestone receives the full
+gate (AGENTS.md).
 
 - **`dive-check`.**
   - `capture::refusal(model, options, parallel) -> Option<String>` returns
@@ -237,10 +253,22 @@ change needs the full gate.
     temporal verdict.
   - `GraphCheck::row_order(&self) -> bool` says whether the reference may
     evaluate atoms in TLC's row order (§11).
+  - `native_level_due(Stats)` exposes readiness only, without scanning CSR or
+    granting completion authority. `level_native(level, &CsrCapture, Stats,
+    &mut NativeRead)` checks due committed levels through the same analyzer.
+  - `finish_native(CsrComplete, &mut NativeRead)` and
+    `finish_native_prefix(CsrPrefix, &mut NativeRead)` return
+    `Result<(NativeAnalysis, Checks), Box<PeriodicFailure>>`.
+    `NativeRead` receives a checked opaque row id and the actual temporal
+    `EvaluationControl`, returning a complete row in IR variable order or an
+    explicit error. A missing variable is an inconsistency, never FALSE truth.
+    Final assembly consumes complete facts; prefix assembly requires a selected
+    word and cannot assemble Holds.
 
-`dive-api` then passes these results to the existing `finish_periodic` or
-`finish_final`. Validation and the report are byte-for-byte the reference
-engine's path.
+The legacy APIs still finish through `finish_periodic` or `finish_final`.
+The production native route uses `temporal::core_native_report` with owned
+selected-word values and sealed facts. It reuses fresh independent typed and
+serialized replay without reconstructing a reference graph.
 
 ## 6. Verdicts, counts and the report (`dive-api`)
 
@@ -264,94 +292,81 @@ model has `implied_temporals`, the route:
    safety checks behave as on the safety route, and a safety ending is
    reported as the reference's temporal route reports it (a safety result,
    with the bound model's symmetry resolution);
-4. on `level_done`, passes the graph so far to `GraphCheck::level`. A
-   candidate stops the search after that level;
-5. completes the graph with `GraphBuilder::complete` (or builds the prefix
-   with `GraphBuilder::prefix`) and calls `GraphCheck::finish` (or
-   `finish_prefix`);
-6. returns the report built by `temporal::core_report`, which runs the
-   reference's `finish_periodic` (validation and report). A report whose
-   outcome is a safety result is returned as one.
+4. after a fully expanded level, tests `native_level_due` before validating
+   borrowed CSR and calling `level_native`. A deciding candidate stops the search
+   after that real committed boundary;
+5. finalizes native metadata through `CsrComplete::from_producer` or
+   `CsrPrefix::from_producer`, preserving actual successful EOF/prefix counters,
+   and calls `finish_native` or `finish_native_prefix`;
+6. retains only the selected word and sealed facts, drops native graph/converter/
+   store/plan owners, then calls `temporal::core_native_report` for independent
+   validation and reporting. Safety endings and actual capture budget failures
+   retain ordinary safety reports and their actual counters.
 
-For now, a temporal failure is refused rather than reported: a planning
-failure, a graph limit or conversion failure (`GraphStop`), an analysis
-error and a validation failure. `--engine auto` then reports the
-reference engine's failure. This keeps the row-order question of §11 out
-of L4: every atom error falls back. Reporting the failures on the core is
-later work.
+The Rust `Outcome` adds `NativeHolds(CompleteEvidence)`,
+`NativeViolation(ValidatedNativeCounterexample)` and
+`NativePrefixViolation(ValidatedNativePrefix)` (boxed in the public enum).
+Private validated wrappers expose `word()`, `evidence()`, `document()` and
+`validation()`; successful callers cannot construct them from an unchecked word.
+Existing graph-owning variants remain available to reference callers. JSON
+continues to report schema 3 and the existing independently validated trace
+shape; no dummy graph or alternate completion flag is introduced.
+
+Planning, graph-limit/conversion, analysis and validation failures still use
+the core route's explicit refusal boundary. Matching actual capture budget
+exhaustion or measurement failure retains that run's actual capture cause and
+counters. `--engine auto` retries the reference route for the named refusals;
+it does not turn actual native budget stops into successful prefixes. Temporal
+error-demand/report parity remains separate work (§11).
 
 `Fallback::of` treats the temporal route's refusals like any other refusal,
 so `--engine auto` falls back with the reason named. The JSON report gains
-the core's `liveness` metrics under `core.metrics` (`convert_ms`,
-`converted_nodes`, `memo_entries`, `graph_states`), which are not compared.
+the core's `liveness` metrics under `core.metrics` (§4), which are not parity
+observables.
 All other fields equal the reference engine's, except the fingerprint
 collision estimate, which the core does not report on any route.
 
-## 7. Budgets
+## 7. Budgets and remaining capacity acceptance
 
-These follow the liveness-budgets rule:
-- capacity at least TLC's;
-- a structured stop with a stable reason;
-- no runaway work.
+The native backend is implemented; TLC-relative capacity acceptance remains
+open. Fixed `capture::Limits` are unchanged: 1,000,000 states, 8,000,000 edges,
+32,000,000 generated states and 65,536 successors per source. Parallel capture
+retains the eight-source wave bound. Reference-library callers keep their
+explicit limits; a stop or refusal establishes no holding result.
 
-- **Phase 1 (PRs L2–L4): the reference's limits.** The core uses the same
-  `capture::Limits` as the reference capture. A model the reference refuses
-  for graph size is refused by the core with the same message. This keeps
-  results identical. The armed run budget (`--max-memory`, `--time-limit`)
-  covers exploration, conversion and analysis together:
-  - `dive-explore` already polls it once per chunk;
-  - the sink polls it once per converted state;
-  - `dive-liveness` polls it in its stages (`crate::budget::exhausted`).
+Implemented storage now includes all-vertex/original persistent roots, CSR
+metadata, eager controlled Graph admission, on-demand state access, graph-neutral
+completion/results and native validated reporting (§7.1–§7.4). It reuses the
+analyzer and independent validator. The initial converted-value cache is empty;
+adding one requires bounded weighting and measured justification, not a larger
+unaccounted second graph.
 
-  Exhaustion is `AnalysisError::Stopped`, reported as a stop with the phase
-  in which it happened, never a verdict.
-- **Phase 2 (PR L5): measured capacity at least TLC's.** The planned graph
-  uses compact vertex ids and CSR edges, with action indices instead of
-  repeated labels. On-demand conversion to `StateVals` is planned over the
-  state-value source boundary (§7.2) with a bounded cache. Its public interface
-  remains unset until a controlled native adapter is implemented.
-  - **State and topology access.** `labels`, `selected_targets` and lasso
-    extraction use a private state-value source with a reference adapter (§7.2).
-    Topology and edge metadata still come from `BehaviorGraph`. Product
-    `BehaviorView` supports dense, captured and borrowed CSR topology (§7.1).
-    Native state retention, controlled conversion and the end-to-end compact
-    backend remain to be built. Keep reference entrypoints unchanged.
-  - **Retained states.** The store retains values, but the explorer keeps
-    only the current/next frontier's state-handle rows. L5 must retain an
-    addressable handle row or state root for every graph vertex. Those
-    retained roots must remain valid until analysis and lasso extraction end.
-  - **Completion and results.** `capture::Complete` and `Prefix`, and the
-    liveness `Analysis`/candidate results, currently retain a concrete
-    `BehaviorGraph`. Graph-independent sealed producer facts and private result
-    assembly are available (§7.3), with checked CSR completion (§7.4).
-    Native producer retention and compact-compatible report routing remain needed so finishing a compact run
-    does not materialize the reference graph. Preserve existing producer
-    completion/prefix checks and actual counters; compact storage creates no new
-    temporal proof authority.
-  - **Complete memory accounting.** The earlier estimate of 12 bytes per
-    vertex plus 8 per edge was a topology estimate, not a total footprint
-    or a capacity proof. Count retained handle rows/roots, key-to-id lookup,
-    CSR construction scratch and growth, original ordinals, action metadata,
-    conversion cache, the persistent store, labels and product/search memory.
-    Preserve duplicate edges, ordinal gaps and implicit stutters exactly.
-  - Replace the core's fixed capture counts with budget-backed retention
-    only after those paths have bounded allocations and cooperative stops.
-    Preserve explicit reference-library limits. Measure end-to-end capacity
-    against pinned TLC on the largest temporal corpus model, under recorded
-    comparable memory/time policies, including peak RSS and every phase.
-    Record completion, all compared observables and independently validated
-    counterexamples in `09-performance-method.md` format. Partial work or a
-    resource stop earns no completion or capacity credit.
-  - Raising a default limit changes results only from "refused" to a
-    verdict. It is result-preserving against TLC and needs no divergence
-    entry.
+Remaining work before lifting fixed counts or claiming TLC capacity:
 
-L5 keeps the reference evaluator, temporal analysis and independent validator.
-It does not implement quotient-edge or closing-state semantics for VIEW or
-symmetry, repair temporal error-demand order, or widen the temporal language
-and effects boundary. Those remain separate obligations even if capture fits
-in memory. Graph/report equality, both semantic profiles, completed-level
-scheduling, independent validation and the full gate remain acceptance gates.
+- Complete accounting for persistent Store allocations, explorer frontiers and
+  speculative waves, native rows/CSR/labels, retained and growing key/index
+  storage, transient conversion, labels and product/search memory. Native
+  collector metrics cover buffers and action-label capacities, with growth
+  overlap reported separately as an upper bound. Store accounting is partial;
+  opaque hash tables, Arc/allocator overhead and other owners are not a complete
+  whole-run byte proof. The old 12-byte/vertex plus 8-byte/edge figure describes
+  topology only.
+- Bound or expose remaining uninterruptible units, including constructor
+  hashing, diagnostic rendering and final shared allocation. Whole-process
+  RSS/swap sampling and time checks are cooperative guards, not allocation-time
+  hard caps or measurements of every transient peak.
+- Measure end-to-end native completion against pinned TLC on original temporal
+  configurations with comparable recorded memory/time policies, actual worker
+  widths, peak-memory observations, every parity observable and independently
+  validated words. Use `09-performance-method.md`; partial exploration or a
+  timeout earns no capacity/performance credit.
+- Qualify the integrated milestone with the full gate. Incremental development
+  uses focused controls and required CI under the current AGENTS.md policy.
+
+L5 does not implement VIEW quotient edges, symmetry closing-state semantics,
+temporal error-demand order, new temporal language or effects. Those remain
+separate semantic obligations. `reference` remains the default engine; native
+storage alone supplies no default-engine, corpus, throughput or capacity credit.
 
 ### 7.1 Implemented first dependency: borrowed CSR topology
 
@@ -365,26 +380,21 @@ witness edge numbers remain original per-row positions. Existing
 product limits and acceptance-buffer policies retain their dense-input results.
 This view validates references, not producer completion or temporal acceptance.
 
-This is the topology dependency, not compact checker graph capture. Analysis
-reads reference representatives and original targets through the private source
-boundary (§7.2); topology, metadata and Complete/Prefix still retain the reference
-graph. Next: retain all-vertex roots, implement controlled conversion/cache and
-compact-compatible completion/results before routing the checker through CSR. Concrete targets must preserve the original generated values; substituting
-`states[edge.to]` is not equivalent. Retained original target values or their
-exact reconstruction/cache must enter the memory and work accounting. Its
-builder must retain action/ordinal metadata and poll/account allocations
-under the run budget. No graph limit is raised and no capacity or throughput
-claim follows from this product-input support.
+The native checker now supplies this same product builder with topology
+borrowed from checked `CsrCapture`, without constructing nested adjacency or a
+`BehaviorGraph`. The standalone product API still accepts caller-supplied
+labels; it grants neither producer completion nor model-validation authority.
 
 ### 7.2 Implemented state-value access prerequisite
 
 The private `analyze::state_source::StateSource` separates representative values
-and original concrete successors from graph topology. The production analyzer
-uses `CapturedStates`, which borrows the existing `BehaviorGraph`; reference
-entrypoints, graph ownership and completion/result receipts stay unchanged.
+and original concrete successors from graph topology. Reference analysis uses
+`CapturedStates`, which borrows the existing `BehaviorGraph`. Native analysis uses `NativeStates`, mapping representatives
+and original physical edge positions to checked retained-row ids and the
+`NativeRead` callback. Reference entrypoints and their graph owners remain.
 Representatives may borrow an existing row or own a lazily converted row.
-Original metadata can be inspected without converting its values. No public
-conversion, cancellation or error interface is established by this extraction.
+Original metadata can be inspected without converting its values. Native
+reads use the actual temporal control and preserve typed stop/error results.
 
 `selected_targets` checks ordinal/label correspondence in original row order,
 keeps the first original successor for each destination, and reads no later
@@ -403,17 +413,13 @@ also cover differing originals for one destination, ordinal gaps, malformed
 metadata, untouched atom-error priority, every demanded read's failure/stop,
 and a mutation that incorrectly replaces original values by representatives.
 
-This is not native compact capture. Original-target delivery is implemented:
-`Step.original` includes new and seen targets, and capture-only parallel
-`Occ::Old` retains their exact representation under the existing wave/source
-bounds (§3). The current sink still builds a reference `BehaviorGraph`.
-A native source must next retain addressable persistent handle rows for every
-vertex and any differing original target, keep their store alive, and account
-committed as well as speculative retention. Controlled conversion/cache,
-compact-compatible completion/results, CSR metadata and end-to-end memory/capacity
-measurements remain §7 requirements.
-The private source itself supplies no resource bound or completion authority;
-no checker limit, supported model population or performance claim changes.
+Native capture now retains addressable persistent handle rows for every
+vertex and differing original target, alongside `Arc<Store>` ownership.
+`Step.original` and capture-only `Occ::Old` preserve exact new/seen originals
+under the existing wave/source bounds (§3). Native storage uses the shared
+labels, selected-target, product and lasso path; it does not recreate a reference
+value graph. The private source grants no completion or resource authority of
+its own. Complete byte accounting and measured capacity remain §7 obligations.
 
 ### 7.3 Implemented producer-fact and result assembly prerequisite
 
@@ -441,18 +447,26 @@ use this boundary. Their compatibility adapters keep the original public
 `Complete`, `Prefix`, `Analysis`, candidate and API `Outcome` values, retaining
 the original graph allocations without copying or rebuilding rows.
 
+The same result carriers are exported narrowly through
+`analyze::periodic::external` as `NativeFinal`, `NativePrefix` and `NativeWord`,
+with `NativeAnalysis` distinguishing final and prefix results. Consuming
+`Analysis::into_native`/`PeriodicAnalysis::into_native` moves the selected word
+and actual sealed producer facts and releases the legacy graph. This supports
+the native report boundary without creating an empty placeholder graph or
+generifying the existing public analysis/report types. Candidates remain
+unvalidated; reference entrypoints keep their existing return types.
+
 Tests detach real producer evidence and observe graph rows being released,
 preserve every selected word/edge and legacy graph allocation, reject malformed
 completion counters/rows, preserve original factory failures/stops, and keep
 successful joined prefixes at 1, 4 and 8 workers in both profiles. Public
 rustdoc controls prevent constructing completion facts or promoting prefixes.
 
-This prerequisite does not implement a native retention producer,
-compact final report routing, retained handle roots or controlled conversion.
-The legacy public results still retain `BehaviorGraph`. The future store/source
-bridge must provide checked producer facts and the original selected values;
-it must not rebuild a reference graph just to assemble a result. No capture
-limit, supported model population or capacity claim changes (#625).
+The production native path now consumes these facts and result carriers
+through `CsrComplete`/`CsrPrefix` and `GraphCheck`'s native methods. Native API
+reports retain selected-word values and complete or prefix facts, not graph
+rows. Reference result variants retain their original graph owners. No capture
+limit or supported model population changes merely from this separation.
 
 ### 7.4 Checked CSR completion boundary
 
@@ -479,41 +493,45 @@ budget produces an actual capture-phase stop.
 
 These are low-level trusted-producer APIs. Shape validation does not evaluate
 opaque rows, authenticate a supplied search history or validate a temporal word.
-The production core still uses the legacy value graph; this prerequisite changes
-no capture caps, model coverage or capacity/performance claims.
+The production native collector now uses this boundary for complete and prefix
+finalization. No capture cap, model-coverage or capacity/performance claim is
+changed by checking adjacency and producer facts.
 
 ## 8. Tests
 
-- **Graph equality** (the main test). For every temporal fixture (the
-  liveness fixtures of `dive-liveness` and `dive-api`, and the
-  `configured-temporal-operators` corpus), the core's `BehaviorGraph` equals
-  `capture::explore`'s field by field, at 1, 2, 3 and 8 workers, in both
-  profiles. The test lives in `dive-api` (`tests/core_liveness.rs`).
-- **Report equality.** The JSON report from `--engine core` equals the
-  reference engine's, except `engine`, `core` and timings, for every
-  fixture above. That covers holds, violations with validated lassos,
-  periodic prefixes, and safety endings during capture.
-- **Budgets.** Fixtures where `--max-states`, `--max-memory` and capture
-  limits trip before, during and after capture each end in the reference
-  engine's stop.
-- **Harness.** `--impl dive:auto` over the small tier in both profiles:
-  - no regression against `conformance/baselines/`;
-  - the count of temporal models that move to the core (§10);
-  - the shadow comparison (core against reference) on those models.
+- `core_graph_tests.rs` retains the test-only legacy converting collector as a
+  reference. `core_native_graph_tests.rs` compares native rows, CSR metadata and
+  original classes, including new/seen aliases, ordinal gaps, prefix frontiers,
+  malformed events and actual budget stops.
+- `dive-liveness/tests/native_capture.rs` compares native CSR/readers with the
+  existing external graph analyzer in both profiles: final and prefix words,
+  action labels, state-atom failures, facts and scheduling. Private state-source
+  controls check first-original demand, untouched duplicates, failed reads and
+  original lasso edge positions.
+- Controlled conversion tests preserve values, literal classes, name interning,
+  comparison-error order and exact history refusals, and interrupt normalization
+  at its checkpoints. NativeValues tests retain no converted rows and reject
+  foreign/missing interruption authority and malformed variable dimensions.
+- `dive-api/tests/core_liveness.rs` checks native/reference reports, both profiles,
+  completed-level scheduling and independently validated words. Native report
+  controls reject forged words and validation stops; existing temporal evidence
+  and core-budget tests retain completion truth and actual stopping counters.
+- The integrated milestone still needs current-source corpus accounting,
+  original capacity targets and the full gate. Earlier corpus populations and
+  performance measurements are not silently promoted to native-backend evidence.
 
-## 9. PR plan
+## 9. Delivery status
 
-| PR | Scope | Gate |
+| Scope | Implementation | Qualification |
 |---|---|---|
-| L1 (built) | This design; status board and plan entries | fast |
-| L2 (built) | `capture::refusal` and `GraphBuilder` (`dive-check`); `GraphCheck` (`dive-liveness`); tests: a graph rebuilt through `GraphBuilder` equals the reference capture, and `GraphCheck` over it equals `analyze_final` and `analyze_periodic` | full |
-| L3 (built) | `GraphSink` in `dive-explore`; the `dive-api` converting sink; graph-equality tests (§8) against the reference capture | fast |
-| L4 (built) | The temporal route in `core_engine` (both profiles), refusals, report-equality tests, harness census, user guide and CHANGELOG | fast (full if L2 needs follow-up) |
-| L5 (partial) | Borrowed CSR product input, private state-value source, graph-independent producer/result facts and checked compact producer completion built (§7.1–§7.3, ADR 0122); native retention/conversion and report routing remain, followed by TLC capacity measurement (§7) | full |
-
-Each PR updates this document's status, the status board and the handoff log.
+| L1–L4 | Original producer adapter, shared analysis, scheduling and report path built | Historical evidence in §10 |
+| L5 native backend (#638) | Persistent original rows, CSR, controlled admission/on-demand reads, zero retained Value cache, sealed facts and graph-neutral validated reports | Focused native/reference and negative controls; required CI |
+| L5 capacity | Fixed counts retained; partial byte accounting remains explicit | Complete accounting, bounded remaining units, original TLC-relative capacity/performance measurements and integrated full gate remain open |
 
 ## 10. Census and results
+
+These historical measurements precede the native L5 backend. They retain their
+original source/population and do not establish its throughput or capacity.
 
 **Before L4.** The core refused every genuine temporal property
 statically ("temporal properties (M0 core engine)"), so under `--engine
@@ -553,21 +571,21 @@ budgets capped at 900 s; harness reports kept outside the repository):
   TLC's counts. The core evaluates atoms after capture (or at a due level).
   For holding and violated properties the result is the same, because the
   row cache only saves work. An atom error can differ, though.
-  `GraphCheck::row_order` reports whether a row program may be active (a
-  conservative superset of the reference's condition). If it is,
-  and the analysis then fails on an atom, the core returns `unsupported`
-  ("a liveness atom error in TLC's row order (core)"), and `--engine auto`
-  falls back after the search ("dynamic", as for other dynamic refusals).
-  Reproducing the row order on the core is later work, if the corpus shows
-  a need.
+  `GraphCheck::row_order` indicates whether such reference row demand may be
+  active. The native core route currently refuses analysis/atom failures and
+  `--engine auto` retries the reference route. Storage integration does not
+  reproduce that earlier evaluation order or supply counts for it.
 
 - **Label strings.** If a core action's label differs from the reference's
   `Successor::action.label()` (for example, split actions inside INSTANCE),
   the graph-equality test fails and the model is refused until the two
   agree. Labels are never derived independently.
-- **Conversion memory in phase 1.** The memo bounds the cost, but a model
-  near `capture::Limits` holds both the core store and the converted values.
-  Phase 2 removes that duplication.
+- **Conversion work and memory.** The native path removes the retained
+  evaluator-value graph and keeps its Value cache empty. Eager admission and
+  later demand repeat conversion; transient source/target rows and analysis
+  allocations still coexist with persistent storage. Their cost and remaining
+  accounting need measurement before adding a bounded weighted cache or lifting
+  capture limits.
 - **Symmetry and VIEW liveness.** A temporal property with `SYMMETRY`
   is refused for now; it will follow the reference's `symmetry_liveness`
   resolution. SYMMETRY under `--compat=tlc` (#574) and VIEW with SYMMETRY
