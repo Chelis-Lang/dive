@@ -8,6 +8,14 @@ family, not execution or proof: final/short safety stops remain temporal-family
 reports with their actual `capture_completed: false` evidence. Ordinary safety
 reports carry no temporal capture or exhaustive-temporal claim.
 Use its result fields; do not interpret all commands through safety-check keys.
+
+For a liveness violation, `property` is the display form of the complete
+`properties` list: `P`, `P and Q`, or `P, Q, and R`. The human headline and Rust
+word's `properties` name that same list, independently established on the actual
+reported word. Another valid counterexample, including TLC's, can have a different
+false-property set. Names are never copied from another behavior or unioned over
+the model. The Rust `target_property` identifies the analysis target, while
+`properties` carries complete attribution (ADR 0126).
 Nested configuration and diagnostic objects inherit their enclosing operation's
 report version; the Rust `ConfigReport::to_json` helper emits such a fragment,
 not an independent CLI operation envelope.

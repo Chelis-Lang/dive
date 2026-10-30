@@ -14,6 +14,8 @@ owner. The charter's appendix records later corrections.
   counterexample that `dive-trace` independently validates. Do not emulate
   arbitrary or nondeterministic TLC internals, such as timing, thread or queue
   order, tableau numbering, SCC or lasso choice, or Java method projections.
+  Liveness names are the complete independently validated false-property set of
+  the actual reported word; different valid words may name different sets (ADR 0126).
 - **Soundness first.** Anything dive does not implement exactly yields an
   explicit `unsupported` result naming the feature. Never approximate, never
   report success you have not proven, and never weaken a test, golden or

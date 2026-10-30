@@ -37,6 +37,15 @@ followed by a fairness evaluation error retains its existing analysis refusal.
 The exact reached fairness/ENABLED demand and source-bound replay pipeline remains
 open under issue #502; this correction earns no new temporal-error parity credit.
 
+Property attribution is relative to the actual independently validated word.
+The report's `properties` is the complete configured false-property list on that
+word; `property` and the human headline format the same list. A different valid
+lasso can violate a different set of configured properties. Compatibility does
+not require copying TLC's set onto a word where some named property holds.
+The harness accepts this difference only after fresh independent whole-word and
+complete-attribution validation; all required verdict/count/depth/class/exit
+comparisons remain in force (ADR 0126).
+
 ## Native graph capture with the core engine
 
 Ordinary `--engine core` temporal checks retain persistent original state rows

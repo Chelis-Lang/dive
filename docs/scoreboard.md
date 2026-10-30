@@ -1,5 +1,11 @@
 # Scoreboard
 
+The `word-relative-liveness` microcorpus pins three TLC model results and three
+SANY modules for actual-word property attribution (ADR 0126, #489). JSON/human/Rust
+name lists agree; a different oracle list is accepted only after fresh independent
+whole-word and exact complete-attribution validation. These targeted controls do
+not refresh historical corpus totals or establish general liveness parity.
+
 L5's native capture/analysis/report path is implemented: persistent original
 rows, checked CSR, controlled eager Graph admission, on-demand values with zero
 retained Value cache, and sealed complete/prefix facts. Only selected-word values

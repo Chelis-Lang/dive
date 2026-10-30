@@ -1132,6 +1132,19 @@ fn run_model(
                         }
                         Some(_) => imp.trace_validated(&req, &result, &validation_golden.result),
                     };
+                    if crate::compare::apply_word_attribution(
+                        &mut diffs,
+                        &validation_golden.result,
+                        &result,
+                        &check,
+                    ) {
+                        let note =
+                            "liveness names independently attributed to the actual word (ADR 0126)";
+                        trace_note = Some(match trace_note {
+                            Some(n) => format!("{n}; {note}"),
+                            None => note.to_owned(),
+                        });
+                    }
                     if !check.validated {
                         // Unconfirmed (refused by name) can at best be
                         // pending; shown wrong is a disagreement.

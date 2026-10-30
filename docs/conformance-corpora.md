@@ -748,3 +748,13 @@ disagreement #634 and earns reference agreement only. The assumption control
 checks error priority while #504 separately tracks name metadata. No historical
 baseline, whole-corpus population or milestone total is increased by these
 bounded controls.
+
+## Word-relative liveness attribution
+
+`word-relative-liveness` contains three small exhaustive configurations and three
+modules: the original multi-property `Liveness` reproduction, the minimal
+`Mutual` distinct-lasso property sets, and `Identical` two-name formatting.
+The six TLC/SANY references are generated from the pinned oracle with a recorded
+reason. These controls exercise ADR 0126's fresh independent whole-word and
+complete false-property attribution requirement; they do not refresh historical
+population totals or relax any other conformance field.

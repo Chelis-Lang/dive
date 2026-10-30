@@ -36,6 +36,9 @@ pub struct TraceCheck {
     pub refuted: bool,
     /// What the validator said.
     pub detail: String,
+    // Only fresh independent validation below records this exact reported list.
+    // Generic `yes` hooks cannot grant word-relative property comparison.
+    liveness_property: Option<String>,
 }
 
 impl TraceCheck {
@@ -46,6 +49,7 @@ impl TraceCheck {
             validated: true,
             refuted: false,
             detail: detail.into(),
+            liveness_property: None,
         }
     }
 
@@ -56,6 +60,7 @@ impl TraceCheck {
             validated: false,
             refuted: false,
             detail: detail.into(),
+            liveness_property: None,
         }
     }
 
@@ -66,7 +71,15 @@ impl TraceCheck {
             validated: false,
             refuted: true,
             detail: detail.into(),
+            liveness_property: None,
         }
+    }
+
+    pub(crate) fn confirms_liveness_property(&self, result: &OracleResult) -> bool {
+        self.validated
+            && result.verdict == crate::tlc::result::Verdict::LivenessViolation
+            && self.liveness_property.is_some()
+            && self.liveness_property == result.violated_property
     }
 }
 
@@ -88,6 +101,16 @@ pub fn ending_of(result: &OracleResult) -> Option<Ending> {
     match (&ending, &trace.ending) {
         (Ending::Lasso { .. }, TraceEnding::Lasso { back_to: None }) => None,
         _ => Some(ending),
+    }
+}
+
+// Same pinned MP list formatting as the report; no name is inferred from text.
+fn property_names(names: &[String]) -> String {
+    match names.split_last() {
+        None => String::new(),
+        Some((last, [])) => last.clone(),
+        Some((last, [first])) => format!("{first} and {last}"),
+        Some((last, rest)) => format!("{}, and {last}", rest.join(", ")),
     }
 }
 
@@ -162,6 +185,23 @@ pub fn validate_counterexample(
         Ok(d) => d,
         Err(e) => return TraceCheck::no(format!("unreadable counterexample: {e}")),
     };
+    let attributed = if result.verdict == crate::tlc::result::Verdict::LivenessViolation {
+        if doc.properties.is_empty() {
+            return TraceCheck::refuted(
+                "a liveness report must name the properties false on its word",
+            );
+        }
+        let names = property_names(&doc.properties);
+        if result.violated_property.as_deref() != Some(names.as_str()) {
+            return TraceCheck::refuted(format!(
+                "reported liveness names {:?} differ from the word's names {names:?}",
+                result.violated_property
+            ));
+        }
+        Some(names)
+    } else {
+        None
+    };
     let reported = ending_of(result);
     let matching = match &doc.ending {
         // This claim names the underlying error and the invariant that
@@ -200,7 +240,11 @@ pub fn validate_counterexample(
         }
     };
     match &report.validation {
-        Validation::Valid => TraceCheck::yes("validated"),
+        Validation::Valid => {
+            let mut check = TraceCheck::yes("validated");
+            check.liveness_property = attributed;
+            check
+        }
         Validation::Unsupported(u) if u == dive_trace_deadlock() => {
             let Some(trace) = trace else {
                 return TraceCheck::no("deadlock: no trace");

@@ -54,6 +54,12 @@
   `Analysis::into_native()` and `PeriodicAnalysis::into_native()`, preserving the
   owned candidate word and original complete or prefix producer facts. Candidate
   validation and existing reference entrypoints are unchanged.
+- Liveness JSON, human and Rust reports name the same complete property list
+  false on their actual independently validated word, using TLC list formatting.
+  Conformance accepts different liveness name lists only after fresh whole-word
+  validation and exact reported-to-word attribution; all other required fields
+  remain strict (ADR 0126).
+
 - Core temporal graph conversion checks the capture budget during materialized
   traversal, normalization and sorting, with explicit scratch allocation errors.
   Low-level value constructors offer the same cooperative controls. Symbolic
