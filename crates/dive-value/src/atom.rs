@@ -77,6 +77,138 @@ impl crate::Value {
             _ => None,
         }
     }
+
+    /// Conservative requested payload for a closed function-tree read cache.
+    ///
+    /// Admits Bool/Int, strings pinned by this exact `names` interner, and
+    /// recursively closed tuples, records and functions. General function keys
+    /// must be Bool/Int or run-owned strings. All sets (including normalized
+    /// sets), model values, big integers and other shapes decline without
+    /// evaluation or normalization. Function literal classes remain unchanged.
+    ///
+    /// Counts each occurrence, conservatively overcharging shared children.
+    /// Includes function headers, boxed arrays, general-domain headers and the
+    /// maximum future scalar-domain TLC-order array. Scalar keys cannot create
+    /// the allocating product-domain index. Fingerprint and scalar lookup caches
+    /// are fixed header fields and have no normalization-history side effects.
+    /// The caller separately charges its table and row array. Opaque Arc headers
+    /// and allocator overhead remain excluded; this is not a process memory cap.
+    /// Inspection checks `proceed` at each step and declines after 4,096 values
+    /// or 64 function levels. Declining only bypasses caching.
+    ///
+    /// ```
+    /// use dive_value::{Ctx, Interner, Value};
+    /// let names = Interner::new();
+    /// let nested = Value::fcn(vec![(Value::Int(0),
+    ///     Value::tuple(vec![Value::string(&names, "tok")]))], Ctx::tlc())?;
+    /// assert!(nested.closed_function_cache_heap_bytes(&names, &mut || true).is_some());
+    /// # Ok::<(), dive_value::ValueError>(())
+    /// ```
+    #[must_use]
+    pub fn closed_function_cache_heap_bytes(
+        &self,
+        names: &Interner,
+        proceed: &mut dyn FnMut() -> bool,
+    ) -> Option<usize> {
+        closed_cache_bytes(self, names, &mut 4096, 0, proceed)
+    }
+}
+
+fn run_owned(name: &Atom, names: &Interner) -> bool {
+    names
+        .resolve(name.tok())
+        .is_some_and(|known| Arc::ptr_eq(&name.0, &known.0))
+}
+
+fn closed_cache_bytes(
+    value: &crate::Value,
+    names: &Interner,
+    remaining: &mut usize,
+    depth: usize,
+    proceed: &mut dyn FnMut() -> bool,
+) -> Option<usize> {
+    use crate::Value;
+    use crate::function_domain::DomainInner;
+    use crate::value::{FcnInner, FcnRepr};
+    *remaining = remaining.checked_sub(1)?;
+    if !proceed() {
+        return None;
+    }
+    match value {
+        Value::Bool(_) | Value::Int(_) => Some(0),
+        Value::Str(name) if run_owned(name, names) => Some(0),
+        Value::Fcn(function) if depth < 64 => {
+            let mut bytes = std::mem::size_of::<FcnInner>();
+            match &function.0.repr {
+                FcnRepr::Tuple(elements) => {
+                    bytes = bytes.checked_add(std::mem::size_of_val(elements.as_ref()))?;
+                    for child in elements {
+                        bytes = bytes.checked_add(closed_cache_bytes(
+                            child,
+                            names,
+                            remaining,
+                            depth + 1,
+                            proceed,
+                        )?)?;
+                    }
+                }
+                FcnRepr::Record(fields) => {
+                    bytes = bytes.checked_add(std::mem::size_of_val(fields.as_ref()))?;
+                    for (name, child) in fields {
+                        if !proceed() || !run_owned(name, names) {
+                            return None;
+                        }
+                        bytes = bytes.checked_add(closed_cache_bytes(
+                            child,
+                            names,
+                            remaining,
+                            depth + 1,
+                            proceed,
+                        )?)?;
+                    }
+                }
+                FcnRepr::General(general) => {
+                    bytes = bytes.checked_add(std::mem::size_of::<DomainInner>())?;
+                    bytes =
+                        bytes.checked_add(std::mem::size_of_val(general.domain.keys.as_ref()))?;
+                    bytes = bytes.checked_add(std::mem::size_of_val(general.values.as_ref()))?;
+                    // DomainIndex::of can only choose Integers or Unknown for
+                    // scalar keys: Product requires a tuple first key. The sole
+                    // later retained allocation is tlc_order's boxed usize[n].
+                    bytes = bytes.checked_add(
+                        general
+                            .domain
+                            .keys
+                            .len()
+                            .checked_mul(std::mem::size_of::<usize>())?,
+                    )?;
+                    for key in &general.domain.keys {
+                        if !matches!(key, Value::Bool(_) | Value::Int(_) | Value::Str(_)) {
+                            return None;
+                        }
+                        bytes = bytes.checked_add(closed_cache_bytes(
+                            key,
+                            names,
+                            remaining,
+                            depth + 1,
+                            proceed,
+                        )?)?;
+                    }
+                    for child in &general.values {
+                        bytes = bytes.checked_add(closed_cache_bytes(
+                            child,
+                            names,
+                            remaining,
+                            depth + 1,
+                            proceed,
+                        )?)?;
+                    }
+                }
+            }
+            Some(bytes)
+        }
+        _ => None,
+    }
 }
 
 /// An interned name. Cloning is a reference-count increment.
@@ -355,6 +487,103 @@ mod flat_cache_tests {
         assert_eq!(
             Value::Int(1).flat_cache_heap_bytes(&names, &mut || true),
             Some(0)
+        );
+    }
+
+    #[test]
+    fn closed_function_charge_covers_nested_arrays_and_future_domain_order() {
+        use crate::function_domain::DomainInner;
+        use crate::value::{FcnInner, FcnRepr};
+        for ctx in [Ctx::dive(), Ctx::tlc()] {
+            let names = Interner::new();
+            let child = Value::record(
+                vec![(
+                    names.intern("message"),
+                    Value::tuple(vec![Value::string(&names, "tok"), Value::Int(3)]),
+                )],
+                ctx,
+            )
+            .expect("record");
+            let child_bytes = child
+                .closed_function_cache_heap_bytes(&names, &mut || true)
+                .expect("closed child");
+            let value = Value::fcn(
+                vec![(Value::Int(0), child.clone()), (Value::Int(1), child)],
+                ctx,
+            )
+            .expect("integer-domain function");
+            let expected = std::mem::size_of::<FcnInner>()
+                + std::mem::size_of::<DomainInner>()
+                + 4 * std::mem::size_of::<Value>()
+                + 2 * std::mem::size_of::<usize>()
+                + 2 * child_bytes;
+            assert_eq!(
+                value.closed_function_cache_heap_bytes(&names, &mut || true),
+                Some(expected)
+            );
+            let repr = &value.as_fcn().expect("function").0.repr;
+            assert!(matches!(repr, FcnRepr::General(_)));
+            if let FcnRepr::General(general) = repr {
+                assert_eq!(
+                    general.domain.checked_index(&Value::Int(1)),
+                    crate::DomainLookup::Found(1)
+                );
+                assert_eq!(general.domain.tlc_order().expect("pure order").len(), 2);
+            }
+            assert_eq!(
+                value.closed_function_cache_heap_bytes(&names, &mut || true),
+                Some(expected),
+                "lazy header facts/order allocation were prepaid"
+            );
+        }
+    }
+
+    #[test]
+    fn closed_inspection_declines_history_foreign_names_and_product_keys_without_effects() {
+        let names = Interner::new();
+        let foreign = Interner::new();
+        for leaf in [
+            Value::empty_set(Ctx::dive()),
+            Value::set_raw(vec![Value::Int(1)], Ctx::dive()),
+            Value::string(&foreign, "foreign"),
+            Value::model(&names, "model"),
+            Value::int(crate::Int::from_big(num_bigint::BigInt::from(1u64) << 80)),
+        ] {
+            let tree = Value::tuple(vec![leaf]);
+            assert_eq!(
+                tree.closed_function_cache_heap_bytes(&names, &mut || true),
+                None
+            );
+        }
+        let key = Value::tuple(vec![Value::Int(0)]);
+        let product =
+            Value::fcn(vec![(key, Value::Int(1))], Ctx::dive()).expect("product-domain function");
+        assert_eq!(
+            product.closed_function_cache_heap_bytes(&names, &mut || true),
+            None
+        );
+        let value = Value::tuple(vec![Value::Int(1)]);
+        assert_eq!(
+            value.closed_function_cache_heap_bytes(&names, &mut || false),
+            None
+        );
+        let mut deep = Value::Int(0);
+        for _ in 0..65 {
+            deep = Value::tuple(vec![deep]);
+        }
+        assert_eq!(
+            deep.closed_function_cache_heap_bytes(&names, &mut || true),
+            None
+        );
+        let wide = Value::tuple(vec![Value::Int(0); 4096]);
+        assert_eq!(
+            wide.closed_function_cache_heap_bytes(&names, &mut || true),
+            None
+        );
+        assert!(
+            Value::tuple(vec![Value::Int(0); 4095])
+                .closed_function_cache_heap_bytes(&names, &mut || true)
+                .is_some()
         );
     }
 }

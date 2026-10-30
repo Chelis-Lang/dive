@@ -41,7 +41,7 @@ open under issue #502; this correction earns no new temporal-error parity credit
 
 Ordinary `--engine core` temporal checks retain persistent original state rows
 and compact CSR edges. The existing temporal analyzer reads values on demand;
-a bounded cache reuses successful immediate/flat-record/flat-tuple values while
+a bounded cache reuses successful closed function-tree values while
 other values use controlled conversion. It retains no second complete evaluator-value
 graph. This changes storage, not the supported temporal language, fairness,
 property attribution or completion requirements. The default engine remains
@@ -75,13 +75,16 @@ or an allocation-time hard cap.
 
 Every accepted original is admitted in producer order through exact Graph
 conversion before retention, including when a prior read has cached that handle.
-Only successful Bool/Int or flat tuple/record conversions can be reused during
-reads; exact persistent handle identity and the fixed run/store/profile isolate
-entries. One-variable models reuse the cached shared row on a hit; multi-variable
+Successful Bool/Int/run-owned-string leaves and recursive tuple/record/function
+conversions can be reused during reads; general function keys must be scalar.
+Sets, BigInt/model values and unproved shapes continue through conversion.
+Inspection exceeding its work/depth bound bypasses caching. Exact persistent
+handle identity and the fixed run/store/profile isolate entries. One-variable models reuse the cached shared row on a hit; multi-variable
 models assemble rows from cached components. In-range retained row IDs select
 one-variable cache slots directly, with exact handle equality still required;
 other reads use the bounded handle lookup. The cache charges the shared row
-array storage as well as its table and eligible value payload. Budget checks
+array storage as well as its table and eligible value payload, including
+possible later scalar-domain ordering storage. Budget checks
 precede hits. The table initializes after 1,024 read
 lookups; unproved, oversize or unavailable cache storage bypasses reuse. Unknown set normalization history is refused;
 function versus tuple/record literal classes remain distinct. A selected word
