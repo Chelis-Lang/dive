@@ -1736,9 +1736,14 @@ impl CheckReport {
                         let _ = writeln!(out, "{line}");
                     }
                     let stats = &capture.stats;
+                    let completion = match e.capture_completed() {
+                        Some(true) => "completed",
+                        Some(false) => "incomplete",
+                        None => "completion unknown",
+                    };
                     let _ = writeln!(
                         out,
-                        "Capture completed: {} generated, {} distinct, depth {}; no temporal verdict.",
+                        "Capture {completion}: {} generated, {} distinct, depth {}; no temporal verdict.",
                         stats.generated, stats.distinct, stats.depth
                     );
                 } else if !matches!(e.error(), crate::temporal::Error::Binding(_)) {
@@ -1751,6 +1756,12 @@ impl CheckReport {
                                 let _ = writeln!(out, "Warning: {message}");
                             }
                         }
+                    }
+                }
+                if let Some((_, document, _)) = e.capture_row_error() {
+                    let _ = writeln!(out, "The behavior up to this point is:");
+                    for (index, state) in document.states.iter().enumerate() {
+                        let _ = writeln!(out, "State {}: {}", index + 1, json!(state));
                     }
                 }
             }
@@ -2647,6 +2658,7 @@ mod evidence_controls {
         let json = report.to_json();
         assert_eq!(json["execution"]["stage"], "capture");
         assert_eq!(json["execution"]["capture_completed"], false);
+        assert!(report.render_human().contains("Capture incomplete:"));
         assert_eq!(json["options"]["workers"]["used"], 4);
         assert_eq!(json["verdict"], "resource-limit");
         assert!(!json["statistics"].is_null());

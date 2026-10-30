@@ -23,6 +23,13 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 /// Seeds for the fast test: one or more per verdict family, plus warnings
 /// and output that span several lines.
 const FAST_SEEDS: &[&str] = &[
+    "conformance/corpus/selectseq-concat-type-capability/specifications/ConcatFirstTypeError/ConcatFirstTypeError.tla",
+    "conformance/corpus/selectseq-concat-type-capability/specifications/ConcatSecondTypeError/ConcatSecondTypeError.tla",
+    "conformance/corpus/selectseq-concat-type-capability/specifications/RightChildErrorBeforeKernel/RightChildErrorBeforeKernel.tla",
+    "conformance/corpus/liveness-atom-error-timing/specifications/DelayedSiblingStateError/DelayedSiblingStateError.tla",
+    "conformance/corpus/temporal-demand-primary-probes/specifications/CurrentStateBinPriority/CurrentStateBinPriority.tla",
+    "conformance/corpus/temporal-demand-primary-probes/specifications/UnusedDemandTautology/UnusedDemandTautology.tla",
+    "conformance/corpus/liveness-atom-error-timing/specifications/TableauInitAtomError/TableauInitAtomError.tla",
     "crates/dive-conformance/tests/fixtures/specs/ActionProperty/ActionProperty.tla",
     "crates/dive-conformance/tests/fixtures/specs/AssertFailure/AssertFailure.tla",
     "crates/dive-conformance/tests/fixtures/specs/Assumption/Assumption.tla",
@@ -273,21 +280,6 @@ fn compare(doc: &Value, human: &str) -> Vec<String> {
     diff.0
 }
 
-/// A temporal evaluation error's JSON report carries the counterexample to
-/// the failing state; the human report says only that capture completed.
-const KNOWN_TEMPORAL_ERROR_TRACE: &str =
-    "#500: a temporal evaluation error's counterexample is in the JSON report only";
-
-/// A difference the sweep already found, so it does not fail the test.
-/// [`known_differences_still_reproduce`] fails once one is fixed.
-fn known_difference(doc: &Value, human: &str, found: &[String]) -> Option<&'static str> {
-    (doc["check_kind"] == "temporal"
-        && doc["verdict"] == "evaluation-error"
-        && human.contains("no temporal verdict")
-        && found.iter().all(|d| d.starts_with("counterexample.")))
-    .then_some(KNOWN_TEMPORAL_ERROR_TRACE)
-}
-
 // ---------------------------------------------------------------------------
 // Seeds and the sweep
 
@@ -331,7 +323,6 @@ fn all_seeds(workspace: &Path) -> Vec<String> {
 struct Tally {
     runs: usize,
     agree: BTreeMap<String, usize>,
-    known: BTreeMap<&'static str, Vec<String>>,
     differences: Vec<Value>,
 }
 
@@ -345,12 +336,6 @@ fn check_seeds(seeds: &[String]) -> Result<Tally> {
             let found = compare(&doc, &human);
             if found.is_empty() {
                 *tally.agree.entry(text(&doc["verdict"])).or_default() += 1;
-            } else if let Some(known) = known_difference(&doc, &human, &found) {
-                tally
-                    .known
-                    .entry(known)
-                    .or_default()
-                    .push(format!("{seed} [{profile}]"));
             } else {
                 tally.differences.push(json!({
                     "seed": seed, "profile": profile, "verdict": doc["verdict"],
@@ -370,9 +355,6 @@ fn summary(tally: &Tally) -> String {
         tally.agree,
         tally.differences.len()
     );
-    for (known, at) in &tally.known {
-        let _ = writeln!(out, "  known ({}): {known}", at.len());
-    }
     for d in &tally.differences {
         let _ = writeln!(
             out,
@@ -391,25 +373,6 @@ fn fixed_seeds_agree() -> Result<()> {
     Ok(())
 }
 
-/// Fails once a known difference is fixed: then remove its entry from
-/// [`known_difference`].
-#[test]
-fn known_differences_still_reproduce() -> Result<()> {
-    let spec = workspace_root().join(
-        "conformance/corpus/selectseq-concat-type-capability/specifications/ConcatFirstTypeError/ConcatFirstTypeError.tla",
-    );
-    for compat_tlc in [false, true] {
-        let (doc, human) = run(&spec, compat_tlc)?;
-        let found = compare(&doc, &human);
-        assert_eq!(
-            known_difference(&doc, &human, &found),
-            Some(KNOWN_TEMPORAL_ERROR_TRACE),
-            "{found:?}"
-        );
-    }
-    Ok(())
-}
-
 #[test]
 fn every_fixture_renders_agreeing_reports_when_requested() -> Result<()> {
     if std::env::var("DIVE_OUTPUT_AGREEMENT").as_deref() != Ok("all") {
@@ -423,7 +386,6 @@ fn every_fixture_renders_agreeing_reports_when_requested() -> Result<()> {
             "seeds": seeds.len(),
             "runs": tally.runs,
             "agree": tally.agree,
-            "known": tally.known,
             "differences": tally.differences,
         });
         std::fs::write(path, serde_json::to_string_pretty(&report)?)?;
