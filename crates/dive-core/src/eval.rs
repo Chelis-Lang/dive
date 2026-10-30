@@ -1792,7 +1792,7 @@ impl Machine {
 
     /// `Len(s)`: a sequence's length, or a string's in UTF-16 units, as
     /// Java counts.
-    fn len(&self, s: Handle) -> Result<Handle, Error> {
+    fn len(&mut self, s: Handle) -> Result<Handle, Error> {
         if let Some(id) = s.as_str_id() {
             let text = self
                 .heap
@@ -1800,6 +1800,9 @@ impl Machine {
                 .strings()
                 .text(id)
                 .ok_or_else(|| Error::internal("unknown string"))?;
+            // UTF-8 byte length is O(1) and bounds UTF-16 traversal work.
+            // Charge before scanning; the returned length remains Java's.
+            self.charge(text.len())?;
             return mk_int(i64::try_from(text.encode_utf16().count()).unwrap_or(i64::MAX));
         }
         // Only a compound handle has a node to view.

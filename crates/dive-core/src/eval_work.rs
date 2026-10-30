@@ -349,4 +349,29 @@ mod tests {
         }
         machine.leave(frame);
     }
+    #[test]
+    fn utf16_len_precharges_a_constant_time_utf8_bound() {
+        let mut machine = Machine::new(
+            Arc::new(Store::default()),
+            0,
+            Opts::default(),
+            crate::memo::Memo::default(),
+        );
+        let long = machine
+            .heap
+            .string(&"a".repeat(10000))
+            .expect("owned long name");
+        machine.set_fuel(4096);
+        assert!(machine.len(long).is_err());
+        assert_eq!(machine.fuel, 0, "denied before UTF16 traversal");
+        for (text, len) in [("", 0), ("a", 1), ("é😀", 3)] {
+            let value = machine.heap.string(text).expect("owned name");
+            machine.set_fuel(4096);
+            assert_eq!(
+                machine.len(value).expect("UTF16 length").as_int(),
+                Some(len)
+            );
+            assert_eq!(machine.fuel, 4096 - text.len() as u64);
+        }
+    }
 }

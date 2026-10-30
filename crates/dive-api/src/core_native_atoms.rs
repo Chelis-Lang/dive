@@ -105,7 +105,7 @@ impl NativeAtoms {
             if !stable {
                 continue;
             }
-            let Some(plan) = compile(model, store, atom, opts) else {
+            let Some(plan) = compile(model, store, atom, opts, &result.machine.heap) else {
                 continue;
             };
             if result.compiled.try_reserve(1).is_err() {
@@ -240,6 +240,7 @@ fn compile(
     store: &Arc<Store>,
     atom: &PredicateAtom,
     opts: Opts,
+    heap: &dive_core::Heap,
 ) -> Option<dive_core::plan::Plan> {
     let Ok(mut handoff) = crate::core_engine::handoff(model, &model.ir, Vec::new()) else {
         return None;
@@ -283,6 +284,23 @@ fn compile(
         || plan.code.gnodes.len() > 4096
         || !plan.code.funs.is_empty()
         || plan.code.nodes.iter().any(|node| {
+            let value = match node {
+                dive_core::plan::Node::Const(value)
+                    if value.as_str_id().is_some()
+                        || value.is_compound()
+                            && matches!(
+                                heap.view(*value).kind,
+                                dive_core::node::Kind::IntFcn | dive_core::node::Kind::Fcn
+                            ) =>
+                {
+                    Some(*value)
+                }
+                dive_core::plan::Node::Select(_, key) => Some(*key),
+                _ => None,
+            };
+            value.is_some_and(|value| !closed(heap, &[value]))
+        })
+        || plan.code.nodes.iter().any(|node| {
             matches!(
                 node,
                 dive_core::plan::Node::Memo { .. }
@@ -318,6 +336,20 @@ fn check(owner: &EvaluationControl, control: &EvaluationControl) -> Result<(), A
         })
 }
 
+fn string_payload(heap: &dive_core::Heap, value: Handle, work: &mut usize) -> bool {
+    let Some(id) = value.as_str_id() else {
+        return true;
+    };
+    let Some(text) = heap.store().strings().text(id) else {
+        return false;
+    };
+    if text.len() > 4096usize.saturating_sub(*work) {
+        return false;
+    }
+    *work += text.len();
+    true
+}
+
 fn closed(heap: &dive_core::Heap, roots: &[Handle]) -> bool {
     let mut pending = Vec::new();
     if pending.try_reserve(roots.len()).is_err() {
@@ -330,7 +362,13 @@ fn closed(heap: &dive_core::Heap, roots: &[Handle]) -> bool {
         if work > 4096 || handle.is_empty() || handle.is_transient() {
             return false;
         }
-        if handle.as_bool().is_some() || handle.as_int().is_some() || handle.as_str_id().is_some() {
+        if handle.as_str_id().is_some() {
+            if !string_payload(heap, handle, &mut work) {
+                return false;
+            }
+            continue;
+        }
+        if handle.as_bool().is_some() || handle.as_int().is_some() {
             continue;
         }
         if !handle.is_compound() {
@@ -347,6 +385,13 @@ fn closed(heap: &dive_core::Heap, roots: &[Handle]) -> bool {
             && view.keys().iter().any(|key| {
                 key.as_int().is_none() && key.as_bool().is_none() && key.as_str_id().is_none()
             })
+        {
+            return false;
+        }
+        if view
+            .keys()
+            .iter()
+            .any(|&key| !string_payload(heap, key, &mut work))
         {
             return false;
         }
@@ -972,15 +1017,18 @@ mod tests {
                 self.owner.check().is_ok()
             }
         }
-        for action in [
-            "\\E i \\in 1..10000: x'=i /\\ i=x",
-            "((1..10000) \\subseteq (1..10000)) /\\ x'=x",
+        let owned_text = "a";
+        for (action, text) in [
+            ("\\E i \\in 1..10000: x'=i /\\ i=x", None),
+            ("((1..10000) \\subseteq (1..10000)) /\\ x'=x", None),
+            ("Len(x)=1 /\\ x'=x", Some(owned_text)),
         ] {
+            let init = text.map_or_else(|| "0".into(), |text| format!("\"{text}\""));
             let source = format!(
-                "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == {action}\nSpec == Init /\\ [][Next]_x\nP == <> (ENABLED A)\n====\n"
+                "---- MODULE Atoms ----\nEXTENDS Naturals, Sequences\nVARIABLE x\nInit == x={init}\nNext == UNCHANGED x\nA == {action}\nSpec == Init /\\ [][Next]_x\nP == <> (ENABLED A)\n====\n"
             );
             for tlc in [false, true] {
-                with_wrappers(&source, tlc, |_, driver, atoms, _| {
+                with_wrappers(&source, tlc, |prepared, driver, atoms, _| {
                     let watchdog = Budget::new(Some(std::time::Duration::from_millis(50)), None)
                         .start()
                         .expect("watchdog")
@@ -996,8 +1044,20 @@ mod tests {
                     atoms.control = owner;
                     atoms.machine.set_work_control(Some(poll.clone()));
                     let atom = driver.native_predicates().next().expect("enabled");
+                    let value = text.map_or_else(
+                        || Handle::int(0).expect("zero"),
+                        |text| {
+                            Handle::string(
+                                prepared
+                                    .store
+                                    .strings()
+                                    .intern(text)
+                                    .expect("startup-owned name"),
+                            )
+                        },
+                    );
                     assert!(
-                        matches!(atoms.evaluate(atom,&[Handle::int(0).expect("zero")],None,&phase),Err(AnalysisError::Stopped(ref stop)) if stop.phase==Phase::Temporal)
+                        matches!(atoms.evaluate(atom,&[value],None,&phase),Err(AnalysisError::Stopped(ref stop)) if stop.phase==Phase::Temporal)
                     );
                     assert!(
                         poll.calls.load(Ordering::Relaxed) >= 4,
@@ -1292,5 +1352,66 @@ mod tests {
         );
         let after = prepared.store.stats();
         assert_eq!((before.nodes, before.handles), (after.nodes, after.handles));
+    }
+
+    #[test]
+    fn utf16_length_work_is_charged() {
+        let long = "a".repeat(10000);
+        let source = format!(
+            "---- MODULE Atoms ----\nEXTENDS Naturals, Sequences\nVARIABLE x\nInit == x=\"{long}\"\nNext == UNCHANGED x\nA == (Len(x)=10000) /\\ x'=x\nSpec == Init /\\ [][Next]_x\nP == <> (ENABLED A)\n====\n"
+        );
+        for tlc in [false, true] {
+            with_wrappers(&source, tlc, |prepared, driver, atoms, control| {
+                assert_eq!(atoms.eligible, 1, "actual admitted native source");
+                let h = Handle::string(
+                    prepared
+                        .store
+                        .strings()
+                        .intern(&long)
+                        .expect("already-owned startup name"),
+                );
+                let atom = driver.native_predicates().next().expect("atom");
+                assert_eq!(
+                    atoms.evaluate(atom, &[h], None, control).expect("query"),
+                    None,
+                    "10000 UTF16 units exceed4096 loop fuel, tlc={tlc}"
+                );
+            });
+        }
+    }
+
+    #[test]
+    fn scalar_string_length_preserves_utf16_units_and_recovers_after_quota() {
+        let long = "a".repeat(10000);
+        let source = format!(
+            "---- MODULE Atoms ----\nEXTENDS Naturals, Sequences\nVARIABLE x\nInit == x \\in {{\"{long}\",\"a\",\"é😀\",\"\"}}\nNext == UNCHANGED x\nA == Len(x)=(IF x=\"\" THEN 0 ELSE IF x=\"é😀\" THEN 3 ELSE 1) /\\ x'=x\nSpec == Init /\\ [][Next]_x\nP == <> (ENABLED A)\n====\n"
+        );
+        for tlc in [false, true] {
+            with_wrappers(&source, tlc, |prepared, driver, atoms, control| {
+                assert_eq!(atoms.eligible, 1);
+                let atom = driver.native_predicates().next().expect("atom");
+                for (text, expected) in [
+                    (&long[..], None),
+                    ("a", Some(true)),
+                    ("é😀", Some(true)),
+                    ("", Some(true)),
+                ] {
+                    let value = Handle::string(
+                        prepared
+                            .store
+                            .strings()
+                            .intern(text)
+                            .expect("startup-owned string"),
+                    );
+                    assert_eq!(
+                        atoms
+                            .evaluate(atom, &[value], None, control)
+                            .expect("query"),
+                        expected,
+                        "{tlc}"
+                    );
+                }
+            });
+        }
     }
 }

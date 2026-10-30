@@ -88,8 +88,13 @@ short diagnostic schedule establishes a speed or capacity improvement.
 Use a separate analysis Machine, arena, frame and memo owner. Disable analysis
 memoization and folding; no native evaluation interns results into the producer
 Store or warms its worker caches. Existing strategy switches otherwise apply.
-Bound optional code and input inspection to 4,096 nodes/components and machine
-loop work to 4,096 units; exponentiation and recursive code stay on reference
+Bound optional code and input inspection to 4,096 nodes/components, including
+owned string payload bytes in closed inputs/constants. Precharge Len's safe
+UTF-8 byte-length upper bound before scanning for the actual UTF-16 result.
+Machine semantic traversal/copy work has 4,096 units; this is not a hard CPU,
+allocator-latency or wall-clock bound on opaque primitive operations. Explicit
+loops are not exempt. Unproved long lexical input/constant payloads use reference
+fallback. Exponentiation and recursive code stay on reference
 execution. These optional limits and any semantic
 failure abandons only the optional native attempt and runs the existing
 reference predicate. Finite optional generator binding uses existing set cursors, preserving the

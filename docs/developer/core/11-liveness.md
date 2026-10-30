@@ -310,7 +310,14 @@ candidate values; higher-order sequence copies are charged before allocation.
 Unknown eager symbolic shapes fall back before calling Heap, and optional
 materialization never interns into the producer Store. Its
 in-query checkpoint uses the actual retained budget; quota exhaustion remains
-reference fallback, with no fabricated resource stop.
+reference fallback, with no fabricated resource stop. String Len charges its
+O(1) UTF-8 byte-length upper bound before computing Java's UTF-16 length; closed
+input/constant function trees also count string payload bytes so lexical key
+operations cannot hide arbitrarily long strings behind one scalar component.
+The 4,096 allowance counts explicit semantic traversal/copy work. It is not a
+hard CPU-instruction, allocator-latency or wall-clock guarantee for each primitive;
+existing whole-run cooperative time and sampled-memory limits retain their scope.
+Explicit loops such as UTF-16 length traversal are still precharged.
 
 The analysis Machine has separate arena/frame/memo owners, with memoization and
 folding disabled. It does not intern predicate results into the producer Store.
