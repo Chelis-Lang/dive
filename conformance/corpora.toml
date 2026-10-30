@@ -207,6 +207,13 @@ path = "conformance/corpus/temporal-demand-primary-probes"
 license = "MIT"
 layout = "examples-manifest"
 
+# Bounded primary-first local scalar/tuple literal history controls (#623).
+[[corpus]]
+id = "literal-set-history-primary"
+path = "conformance/corpus/literal-set-history-primary"
+license = "MIT"
+layout = "examples-manifest"
+
 # Primary-first nested powerset Init enumeration controls (#459).
 # Input metadata stays pinned; eight generated primary references are separate
 # from established tiers and do not establish native enumeration support.

@@ -1,0 +1,26 @@
+{
+  "sources": [
+    "docs/developer/core/03-value-model.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "core-literal-set-history"
+  ],
+  "modules": [
+    {
+      "path": "specifications/TuplePermutationForward/TuplePermutationForward.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/TuplePermutationForward/TuplePermutationForward.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}

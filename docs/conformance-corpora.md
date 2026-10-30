@@ -1,5 +1,17 @@
 # Conformance corpora
 
+The separate `literal-set-history-primary` corpus contains 18 small
+primary-first local set-literal controls for #623. Its generated goldens use
+`tlc-2026.10.06.014338` at one worker, seed/fingerprint zero, with a recorded
+generation reason before native runtime changes. They cover raw early hits
+and incompatible prefixes, actual normalization, tuple length/first-field
+short circuits, insertion permutations, duplicates, aliases versus equal
+independent constructions, a safety word, and uncovered named/record/union
+producers. Four primary evaluation errors are oracle facts only: the local
+native lane refuses them without E7 provenance. Default D-009 controls are
+kept separate from TLC facts. These controls do not enlarge the historical
+156-model baseline or establish a full comparison/performance milestone.
+
 ## Constant predicate binding capacity
 
 `constant-predicate-binders` contains two finite Boolean models with a pure

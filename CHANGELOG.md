@@ -45,6 +45,12 @@
   when the existing shape proof cannot establish safe normalization;
   `--engine auto` retries the reference engine.
 
+- `--engine core` consumes a bounded local Bool/inline numeral/tuple literal
+  set lane in membership and `Cardinality`, with raw order, duplicate and
+  alias normalization history retained. C2 normalization is checked in both
+  profiles; default D-009 comparisons stay unchanged. Unproved comparison
+  errors and wider producers remain unsupported (#623, still partial).
+
 - Reuse exact comparison proofs for repeated compound membership misses in
   persistent sets under `--engine core --compat=tlc`, within the existing
   bounded memo allowance. Certified tuple proofs avoid temporary comparison
