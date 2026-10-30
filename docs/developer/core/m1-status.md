@@ -1,6 +1,6 @@
-# M1 acceptance status (2026-10-29)
+# M1 acceptance status (2026-10-30)
 
-M1 is implemented across the main workstreams, but **acceptance remains open**.
+M1 has broad implementation across the main workstreams, but **acceptance remains open**.
 The default engine remains `reference`. Use `10-plan.md` for the milestone
 contract and this page for current evidence and the next bounded steps.
 
@@ -11,14 +11,144 @@ model at 1/8 workers, investigated above 1.5. Semantic, independent-word and
 resource obligations are unchanged. Historical qualifications below remain
 attached to their original sources; no acceptance is granted retrospectively.
 
-The native L5 storage/report path now retains original persistent rows and CSR,
-uses eager Graph admission plus on-demand conversion with zero retained Value
-cache, and releases capture owners before fresh independent word validation.
-Fixed capture counts remain. Store/native accounting is partial; native
-TLC-relative capacity/performance and integrated qualification are still open.
-Historical populations below are not measurements of this backend.
+At implementation snapshot `a79a024d453096c85b29a8cfc839981f233c1dc7`, native temporal capture retains original
+persistent rows and CSR, with sealed completion/prefix facts and fresh word
+validation. Ordinary core files use actual time/memory budgets and checked,
+fallible growth in place of artificial capture/product/acceptance/word ceilings;
+explicit Rust/reference limits and temporal-language planning bounds remain.
+Read reuse covers bounded closed recursive functions with scalar domains; every
+original still receives eager Graph conversion. Store/native accounting remains
+partial. These implementations do not establish capacity or performance acceptance.
 
-## 1. Current qualification
+### Current checkpoint: implemented versus unqualified
+
+| Area | Current state |
+|---|---|
+| Native storage, budget transport and read reuse | Implemented through #638/#653/#652/#660; typed stops retain real stage/counts/completion truth. |
+| Error reporting and trust | #655 prints certified temporal error words; #656 refuses unproved post-Next temporal primary classes. Exact reached fairness/ENABLED classification (#502) remains open. |
+| Ordered terminal replay | Implemented #659: source-bound ordered Next/partial evidence and diagnostic execution; partial Init uses `error_witness`, not a formal `counterexample` word. Unclassified primary results remain unclassified despite valid evidence. |
+| Actual-word liveness names | Implemented #658: owner-approved complete false-property list in configured order, independently proved on the actual word. Other observables remain strict; no historical census credit is transferred. |
+| Parallel runtime-name admission | Implemented #661: generic native startup-domain proof and run-wide new-name guard; original EWD completion remains unproved. |
+| Integrated qualification | `68dd8266` census completed with findings/exit 1. Its 66m12s full gate completed exit 1 only for combined-function Clippy (101/100 lines); all other executed phases pass. Helper-extraction repair #662 is merged as `a79a024d`, with exact-source Clippy and required CI passing separately. Capacity and quiet performance acceptance remain incomplete. |
+
+### Integrated fixture census at `68dd8266`
+
+This completed core/reference shadow census is bound to exact runtime
+`68dd8266740740bb6dce4f4d916b724762732a15`, tree
+`47d18ebc5e39ed4a37c8fdbb7287e05aa784f7ac`: 1,614 configurations,
+1,497 selected, 99 parser exclusions and 18 ambiguous skips. Relative to
+`c21e5097`, all original selections remain, with 13 added configurations:
+ten selected and three newly ambiguous configs (`ClosedFunctionsHolds`,
+`ClosedFunctionsViolation` and `NoTemporal`). These are shadow counts, not a
+TLC parity percentage or a refreshed historical corpus table.
+
+| Profile | Shadow agree | Refused | Native stop | Trace refuted | Unconfirmed | Differ |
+|---|---:|---:|---:|---:|---:|---:|
+| default | 1,161 | 287 | 6 | 36 | 7 | 0 |
+| TLC | 1,135 | 309 | 4 | 39 | 9 | 1 |
+
+In each profile, 42 old selected IDs improved: 27 trace-refuted and 15
+unconfirmed rows now agree. No old agreement was lost or moved to refusal.
+New selected rows add five agreements/five refusals in default and four/six in
+TLC. TLC `LvPeriodic` separately changes refusal to `differ`: the core reports
+a liveness violation while the reference reaches its artificial graph-state
+limit. The original early comparison earns no word-agreement credit and remains an
+unwaived finding (#664); it is not a TLC-bug or parity claim. All 5,382 invocations have
+physical exit records; the census exits 1, honestly retaining its findings.
+
+Separately, the actual retained core TLC word now passes fresh CLI validation
+against unchanged original source/config in both profiles (exit 0, logical
+length 3). This proof uses exact `68dd` binary `8555de2d`, not the gate's
+separate build; its actual core counts are 2,253,003 distinct, 4,503,005 generated,
+depth 3,001. The verified archive binds that operation. It does not change the
+original census difference/counts, waive #664 or establish TLC parity.
+
+Remaining refuted rows include 24 underlying-code/deciding-wrapper header
+mismatches and two named-invariant/anonymous-header mismatches per profile,
+plus ten default/thirteen TLC terminal constraint/action/property replay
+rejections. Seven/nine unconfirmed rows retain explicit temporal-Next, VIEW and
+other ending refusals. These trace rows have no whole-checker observable
+verdict difference, but matching results do not certify either verdict or word.
+No missing/partial-word shape error remains in these reported findings. The
+compact record preserves exact remaining IDs/reasons, changed old IDs and
+source/ELF/report hashes. Raw census evidence now has a downloaded/hash-verified S3 archive, recorded
+separately from earlier benchmark archives. Issues #434/#490/#499/#606/#607/#620 are not blanket-closed.
+
+The full gate at `68dd8266` completed in 66m12s, exit 1: 13 phases pass,
+one fails and cargo-deny is skipped because dependency inputs are unchanged.
+The only failure is Clippy's combined-function 101/100-line limit. All 2,891
+executed nextest tests pass, with six declared skips; 167 doctests pass.
+Documentation/layering, CM1 (21 models) and validation smoke (16 models) pass
+at 1/4/8 workers. Reference-engine small-tier TLC has 150 agreements/six refusals and 458 SANY
+agreements; default has 144 agreements/seven registered divergences/five refusals.
+There are zero baseline regressions or changes. Existing nonstrict shadow gates
+pass: CM1 has 57 agreements/six refusals among 63 rows; small tier has 254
+agreements/58 refusals among 312 rows (29 refused models at 1/4 workers), with
+no mismatches or timeouts. Those refusals are not successful-checking credit.
+
+Helper extraction `7adbdee0` merged as `a79a024d` without semantic or lint-allow
+changes. Exact merged-source conformance all-target Clippy and all three required
+CI checks pass separately (run `41070771048`). The completed `68dd` runtime
+phases and separately bound repair checks are reused within those scopes;
+the original failed command is never relabeled as a clean full-gate pass.
+Only the after-build ELF hashes qualify `68dd`; before-build release hashes
+belong to warm `1857` preparation. Census, gate and separate capacity binaries
+retain their own hashes even when their source revision is the same.
+
+The [compact development record](../../../conformance/reports/perf/2026-10-30-native-development.json)
+preserves exact source/host/budget and archive bindings. Uncached `f8e627c4`
+completed original CoffeeCan3000Beans at default/W1: 4,504,500 distinct,
+18,000,002 generated, depth 1, 317.652 seconds and 4,667,887,616 peak RSS bytes.
+Its original EWD998Chan default/W1 run stopped after 900.084 seconds in periodic
+atom analysis: 792,928 distinct, 5,922,913 generated, depth 16 and 569,479,168 RSS
+bytes. Pinned TLC on that host completed EWD in 608.358 seconds. The native run
+included a ten-second 49-Hz attach sample; this is development evidence, not a
+quiet performance comparison. After authentication renewal, original EWD at `7aa3d37a` also stopped:
+900.055 seconds, 607,862,784 RSS bytes, 792,928 distinct, 5,922,913 generated
+and depth 16. Recursive read reuse did not achieve the required completion.
+The same reported checkpoint does not prove equal progress inside atom analysis
+or measure throughput improvement. A separate sampled 60-second diagnostic
+at `7aa3d37a` has 99.965% read-cache hits and 1.890 seconds in conversion;
+reference predicate evaluation remains prominent in exclusive samples. This
+does not establish inclusive call-chain costs or a shipped predicate change.
+A predicate experiment is not shipped and earns no EWD completion credit.
+Actual `a79a024d` ABA TLC/W1 stops after 900.063 seconds during atoms,
+with capture complete: 5,843,977 distinct, 85,612,896 generated, depth 45 and
+4,478,537,728 RSS bytes. Complete counts alone do not prove temporal success.
+
+Original CoffeeCan3000Beans passes all four actual `a79a024d` capacity arms,
+retaining 4,504,500 distinct/18,000,002 generated/depth 1:
+
+| Profile/workers | Seconds | Peak RSS bytes |
+|---|---:|---:|
+| TLC/1 | 329.869 | 4,840,296,448 |
+| default/1 | 314.796 | 4,828,897,280 |
+| TLC/8 | 418.240 | 4,832,780,288 |
+| default/8 | 400.356 | 4,827,889,664 |
+
+Its binary is `add40aff`; ABA's separate node/build uses `9a0c215d`, both at
+source `a79a024d`. Five of twelve matrix arms are observed: four successes
+and the ABA stop; the other seven are pending. Capacity archives are only
+scheduled, not yet verified. This remains incomplete capacity acceptance and
+supplies no quiet five-repeat performance claim.
+
+The one-repeat VM Coffee1000 screen preserves both experiments. Candidate
+`e3f859e8` failed the time screen (ratios 1.122/1.138/1.129/1.142). Later
+`1e02a967`, paired with old bridge `b5f6af4c`, passes all four development points:
+time ratios 1.043/1.049/1.036/1.039 and RSS ratios .622/.627/.624/.603 in
+TLC1/default1/TLC8/default8 order; all ten observations are correct. Neither
+source earns integrated acceptance. New slow-path-only `convert_ms` excludes
+one-variable cache hits and is not comparable with older all-read stage timing.
+
+Remaining exit work is the original CoffeeCan3000Beans/EWD998Chan/aba_asyn_byz
+matrix at both profiles and 1/8 workers under native 900-second/16-GiB budgets,
+including every required observable and independently validated words; the quiet
+ten-model five-repeat ADR 0119 panel; and repeated original-Coffee old-bridge
+time/RSS comparison. Startup, scaling, whole-run memory/accounting and remaining
+cooperative units stay explicit obligations. No new population, waiver, baseline
+or default-engine switch is part of this update.
+
+## 1. Source-bound qualification history
 
 - Frozen `75f0ac4f769323de7be53a439ff5445ef4975b68` completes all 300
   both-profile five-repeat observations correctly, with actual requested workers.
@@ -51,7 +181,7 @@ Historical populations below are not measurements of this backend.
 - The default engine remains `reference`. No default flip is proposed while
   the acceptance findings remain. No new full-tier core result is claimed.
 
-### Current-source fixture baseline
+### Historical fixture baseline at `91742b3c`
 
 Exact merged source `91742b3c9cb4b7021785975f888d5cf9dd43625c`, both
 profiles, one worker, seed/fp 0, 32 sampled states, 20-second native limit
@@ -472,16 +602,17 @@ core reboot and do not establish current core breadth.
 
 ## 6. Execution order
 
-1. Resolve the remaining terminal-error families by typed evaluation site:
-   nested-wrapper claims (#606), constraint/action boundaries (#499 and #490),
-   final-expansion certification (#434), and missing partial-state words (#607).
-   Use minimal pinned reproducers and independent negative controls. Do not
-   exempt the last state or accept a matching wrapper as a certificate.
+1. Qualify the merged typed terminal replay over the complete selection, keeping
+   uncovered sites explicit. Ordered Next/diagnostic and partial evidence are
+   implemented through #659; valid evidence alone does not establish an unknown
+   deciding class. Partial Init remains a separate error witness, not a formal
+   behavior word. Exact fairness-primary #502 and #620 diagnostic parity remain
+   open; do not exempt a final state or infer proof from matching metadata.
 2. Qualify the implemented native L5 retention/source/CSR/report path: finish
-   whole-run allocation accounting and bound remaining work before lifting
-   fixed capture counts. Recheck original EWD998Chan temporal configuration
-   after the bounded primed-SelectSeq work; operator admission alone establishes
-   no capacity. Preserve VIEW/symmetry/effects refusals and separate error-demand
+   whole-run allocation accounting and bound remaining work while qualifying
+   the implemented budgeted route. Primed SelectSeq is implemented; recheck
+   original EWD998Chan temporal completion rather than treating operator
+   admission or reduced-instance success as capacity. Preserve VIEW/symmetry/effects refusals and separate error-demand
    obligations. Use original temporal configurations for TLC capacity.
 3. Retain explicit fallback and ablation accounting; broaden to the full tier
    on the core for M2 instead of promoting the historical reference result.

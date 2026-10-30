@@ -1,0 +1,2026 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-30",
+  "status": "development_only_integrated_acceptance_open",
+  "implementation_snapshot": "a79a024d453096c85b29a8cfc839981f233c1dc7",
+  "scope": "Derived compact facts from preserved development runs. No rerun, quiet-host qualification, latest-source relabeling, new corpus population or milestone acceptance.",
+  "cache_screen": {
+    "model": "CoffeeCan1000Beans original temporal configuration",
+    "repetitions": 1,
+    "machine": "c7i.4xlarge",
+    "memory_limit_bytes": 17179869184,
+    "native_time_limit_ms": 564520,
+    "time_ratio_max": 1.1,
+    "rss_ratio_max": 0.65,
+    "earlier_failed_candidate": {
+      "candidate": "e3f859e88a0f7103a083261d37c90843f9712cad",
+      "baseline": "b5f6af4c340e7321c0a1225d2b576cd50de46ec7",
+      "model": "CoffeeCan1000Beans original temporal properties",
+      "machine": "c7i.4xlarge",
+      "quiet_window_certified": false,
+      "repetitions": 1,
+      "scope": "development diagnostic; no integrated performance acceptance",
+      "acceptance": {
+        "time_ratio_at_most": 1.1,
+        "rss_ratio_at_most": 0.65
+      },
+      "observations": [
+        {
+          "profile": "tlc",
+          "workers": 1,
+          "old_wall_seconds": 28.064690963,
+          "candidate_wall_seconds": 31.489434974,
+          "time_ratio": 1.122030348223507,
+          "old_peak_rss_bytes": 1080340480,
+          "candidate_peak_rss_bytes": 687063040,
+          "rss_ratio": 0.6359689863699266,
+          "both_correct": true
+        },
+        {
+          "profile": "default",
+          "workers": 1,
+          "old_wall_seconds": 25.958281202,
+          "candidate_wall_seconds": 29.543617715,
+          "time_ratio": 1.138119179968039,
+          "old_peak_rss_bytes": 1073172480,
+          "candidate_peak_rss_bytes": 685305856,
+          "rss_ratio": 0.6385794164233507,
+          "both_correct": true
+        },
+        {
+          "profile": "tlc",
+          "workers": 8,
+          "old_wall_seconds": 39.589788892,
+          "candidate_wall_seconds": 44.692045523,
+          "time_ratio": 1.128878096443475,
+          "old_peak_rss_bytes": 1086435328,
+          "candidate_peak_rss_bytes": 653156352,
+          "rss_ratio": 0.601192114400757,
+          "both_correct": true
+        },
+        {
+          "profile": "default",
+          "workers": 8,
+          "old_wall_seconds": 37.013409309,
+          "candidate_wall_seconds": 42.281061189,
+          "time_ratio": 1.1423173919490617,
+          "old_peak_rss_bytes": 1086242816,
+          "candidate_peak_rss_bytes": 663638016,
+          "rss_ratio": 0.6109481289310548,
+          "both_correct": true
+        }
+      ]
+    },
+    "later_candidate": {
+      "source": "1e02a967ab75c0b1b7b80c07877d8ad7f4b23c23",
+      "baseline": "b5f6af4c340e7321c0a1225d2b576cd50de46ec7",
+      "model": "CoffeeCan1000Beans original temporal configuration",
+      "node": "i-09e3c9b027d6fa7b4",
+      "machine": "c7i.4xlarge",
+      "quiet_window_certified": false,
+      "repetitions": 1,
+      "scope": "development diagnostic, not integrated performance qualification",
+      "observations": [
+        {
+          "profile": "tlc",
+          "workers": 1,
+          "baseline_wall_s": 24.464431493,
+          "candidate_wall_s": 25.518554058,
+          "wall_ratio": 1.043087964880836,
+          "baseline_peak_rss_bytes": 1079533568,
+          "candidate_peak_rss_bytes": 671846400,
+          "rss_ratio": 0.6223487809134991,
+          "both_correct": true
+        },
+        {
+          "profile": "default",
+          "workers": 1,
+          "baseline_wall_s": 22.383570457,
+          "candidate_wall_s": 23.487152461,
+          "wall_ratio": 1.0493032157724809,
+          "baseline_peak_rss_bytes": 1074450432,
+          "candidate_peak_rss_bytes": 673918976,
+          "rss_ratio": 0.6272220252595142,
+          "both_correct": true
+        },
+        {
+          "profile": "tlc",
+          "workers": 8,
+          "baseline_wall_s": 34.387646524,
+          "candidate_wall_s": 35.641661334,
+          "wall_ratio": 1.0364670146625123,
+          "baseline_peak_rss_bytes": 1053351936,
+          "candidate_peak_rss_bytes": 657014784,
+          "rss_ratio": 0.6237371969856046,
+          "both_correct": true
+        },
+        {
+          "profile": "default",
+          "workers": 8,
+          "baseline_wall_s": 32.681809763,
+          "candidate_wall_s": 33.961383233,
+          "wall_ratio": 1.0391524667476844,
+          "baseline_peak_rss_bytes": 1085722624,
+          "candidate_peak_rss_bytes": 654209024,
+          "rss_ratio": 0.6025563155253915,
+          "both_correct": true
+        }
+      ]
+    },
+    "later_actual_rows": 10,
+    "later_all_rows_correct": true,
+    "later_identity": {
+      "runner_revision": "1e02a967ab75c0b1b7b80c07877d8ad7f4b23c23",
+      "cpu": "Intel(R) Xeon(R) Platinum 8488C",
+      "cpus": 16,
+      "os": "Linux x86_64",
+      "quiet_window_certified": false,
+      "corpus_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "oracle": {
+        "id": "tlc-2026.10.06.014338",
+        "sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+      },
+      "binary_sha256": "8649df3bd350959f724c9a18f7d4add1cdae9b5104acd7a798d183a8c49fbd44"
+    },
+    "later_baseline_binary_sha256": "1d109193492b8047c9c3bfe92fdae67dad54735830fbf70499e091824fdf7922",
+    "later_candidate_binary_sha256": "8649df3bd350959f724c9a18f7d4add1cdae9b5104acd7a798d183a8c49fbd44",
+    "acceptance": "Later four paired points pass this development screen; earlier candidate fails its time screen. Neither is the five-repeat original-Coffee or ADR0119 qualification.",
+    "timing_scope": "The later convert_ms excludes one-variable read cache hits, unlike older all-read timing; those stage timings cannot be compared as identical units."
+  },
+  "capacity": {
+    "source": "f8e627c4616cbe07f54521d390d00be1c9007022",
+    "machine": "c7i.4xlarge",
+    "identity": {
+      "runner_revision": "f8e627c4616cbe07f54521d390d00be1c9007022",
+      "cpu": "Intel(R) Xeon(R) Platinum 8488C",
+      "cpus": 16,
+      "os": "Linux x86_64",
+      "quiet_window_certified": false,
+      "corpus_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "oracle": {
+        "id": "tlc-2026.10.06.014338",
+        "sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+      },
+      "binary_sha256": "8e957b811aad3a73cf6f12b34bc0f8549cc5f8c89dcc7db94d263b8d72a82f54"
+    },
+    "configuration_scope": "Original temporal module/configuration/PROPERTY; no safety-only substitute.",
+    "observations": [
+      {
+        "bench": "CoffeeCan3000Beans",
+        "impl": "dive-default-w1",
+        "verdict": "success",
+        "distinct": 4504500,
+        "generated": 18000002,
+        "depth": 1,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "property": null,
+        "workers_requested": 1,
+        "workers_used": 1,
+        "wall_s": 317.652080327,
+        "max_rss_bytes": 4667887616,
+        "correct": true,
+        "native_budget": {
+          "max_memory": "16g",
+          "max_memory_bytes": 17179869184,
+          "reference_tlc_elapsed_ms": 175337,
+          "time_limit_ms": 900000
+        },
+        "execution": {
+          "capture_completed": true,
+          "exhausted": true,
+          "stage": "complete"
+        },
+        "stopped": null
+      },
+      {
+        "bench": "EWD998Chan",
+        "impl": "tlc-w1",
+        "verdict": "success",
+        "distinct": 1524022,
+        "generated": 12882257,
+        "depth": 58,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "property": null,
+        "workers_requested": 1,
+        "workers_used": 1,
+        "wall_s": 608.357521573,
+        "max_rss_bytes": 3661979648,
+        "correct": true,
+        "native_budget": null,
+        "execution": null,
+        "stopped": null
+      },
+      {
+        "bench": "EWD998Chan",
+        "impl": "dive-default-w1",
+        "verdict": "stopped",
+        "distinct": 792928,
+        "generated": 5922913,
+        "depth": 16,
+        "error_class": null,
+        "exit_code": 5,
+        "property": null,
+        "workers_requested": 1,
+        "workers_used": 1,
+        "wall_s": 900.083671136,
+        "max_rss_bytes": 569479168,
+        "correct": false,
+        "native_budget": {
+          "max_memory": "16g",
+          "max_memory_bytes": 17179869184,
+          "reference_tlc_elapsed_ms": 443583,
+          "time_limit_ms": 900000
+        },
+        "execution": {
+          "capture_completed": false,
+          "stage": "atoms"
+        },
+        "stopped": {
+          "elapsed_ms": 900047,
+          "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+          "limit": 900000,
+          "observed": 900046,
+          "phase": "temporal-analysis",
+          "resource": "time",
+          "unit": "ms"
+        }
+      }
+    ],
+    "sampling": "EWD native observation includes a ten-second 49Hz attach sample around700s; explicitly timing-perturbed, not quiet performance qualification.",
+    "latest_closed_function_candidate": {
+      "source": "7aa3d37ab25954d2de672dc4a6b1afbd1e1eafc8",
+      "original_ewd_result": {
+        "engine": "core",
+        "profile": "default",
+        "workers": 1,
+        "verdict": "stopped",
+        "wall_s": 900.054876101,
+        "max_rss_bytes": 607862784,
+        "distinct": 792928,
+        "generated": 5922913,
+        "depth": 16,
+        "binary_sha256": "96f038fa970a5a51460e375ac3a0c691248977f2307e4324e7cd5219afa0ba93",
+        "native_time_limit_ms": 900000,
+        "native_memory_limit_bytes": 17179869184
+      },
+      "reason": "Collected after AWS authentication renewal. The recursive read-cache candidate still does not complete original EWD within 900 seconds.",
+      "aba_original_result": "Separately measured at a79: TLC1stopped after complete capture during atoms; see later_integrated_observations.",
+      "interpretation": "Same reported distinct/generated/depth checkpoint as uncached f8; this is a stopped development observation, not a throughput comparison or proof of equal progress within atom analysis. Earlier f8 run also had an explicit profiling perturbation."
+    },
+    "acceptance": "Four original Coffee3000 arms pass at actual1/8workers/bothprofiles. ABA TLC1stops after fullcapture. Other7arms pending; no fullmatrix acceptance, no quiet performance qualification.",
+    "later_integrated_observations": [
+      {
+        "source": "a79a024d453096c85b29a8cfc839981f233c1dc7",
+        "model": "CoffeeCan3000Beans original temporal configuration",
+        "engine": "core",
+        "profile": "tlc",
+        "workers_requested": 1,
+        "workers_used": 1,
+        "verdict": "success",
+        "wall_s": 329.868946479,
+        "max_rss_bytes": 4840296448,
+        "distinct": 4504500,
+        "generated": 18000002,
+        "depth": 1,
+        "native_time_limit_ms": 900000,
+        "native_memory_limit_bytes": 17179869184,
+        "binary_sha256": "add40afff7c518a393bbe8da106a43168e5e8aa9fe76e5550b1fa7b8859ece2d",
+        "node": "i-0a165c61a32381d4c",
+        "scope": "Actual original temporal capacity observation; archive pending, no quiet repeated performance qualification."
+      },
+      {
+        "source": "a79a024d453096c85b29a8cfc839981f233c1dc7",
+        "model": "CoffeeCan3000Beans original temporal configuration",
+        "engine": "core",
+        "profile": "default",
+        "workers_requested": 1,
+        "workers_used": 1,
+        "verdict": "success",
+        "wall_s": 314.796191373,
+        "max_rss_bytes": 4828897280,
+        "distinct": 4504500,
+        "generated": 18000002,
+        "depth": 1,
+        "native_time_limit_ms": 900000,
+        "native_memory_limit_bytes": 17179869184,
+        "binary_sha256": "add40afff7c518a393bbe8da106a43168e5e8aa9fe76e5550b1fa7b8859ece2d",
+        "node": "i-0a165c61a32381d4c",
+        "scope": "Actual original temporal capacity observation; archive pending, no quiet repeated performance qualification."
+      },
+      {
+        "source": "a79a024d453096c85b29a8cfc839981f233c1dc7",
+        "model": "CoffeeCan3000Beans original temporal configuration",
+        "engine": "core",
+        "profile": "tlc",
+        "workers_requested": 8,
+        "workers_used": 8,
+        "verdict": "success",
+        "wall_s": 418.239705266,
+        "max_rss_bytes": 4832780288,
+        "distinct": 4504500,
+        "generated": 18000002,
+        "depth": 1,
+        "native_time_limit_ms": 900000,
+        "native_memory_limit_bytes": 17179869184,
+        "binary_sha256": "add40afff7c518a393bbe8da106a43168e5e8aa9fe76e5550b1fa7b8859ece2d",
+        "node": "i-0a165c61a32381d4c",
+        "scope": "Actual original temporal capacity observation; archive pending, no quiet repeated performance qualification."
+      },
+      {
+        "source": "a79a024d453096c85b29a8cfc839981f233c1dc7",
+        "model": "CoffeeCan3000Beans original temporal configuration",
+        "engine": "core",
+        "profile": "default",
+        "workers_requested": 8,
+        "workers_used": 8,
+        "verdict": "success",
+        "wall_s": 400.355718909,
+        "max_rss_bytes": 4827889664,
+        "distinct": 4504500,
+        "generated": 18000002,
+        "depth": 1,
+        "native_time_limit_ms": 900000,
+        "native_memory_limit_bytes": 17179869184,
+        "binary_sha256": "add40afff7c518a393bbe8da106a43168e5e8aa9fe76e5550b1fa7b8859ece2d",
+        "node": "i-0a165c61a32381d4c",
+        "scope": "Actual original temporal capacity observation; archive pending, no quiet repeated performance qualification."
+      },
+      {
+        "source": "a79a024d453096c85b29a8cfc839981f233c1dc7",
+        "model": "aba_asyn_byz original temporal configuration",
+        "engine": "core",
+        "profile": "tlc",
+        "workers_requested": 1,
+        "workers_used": 1,
+        "verdict": "stopped",
+        "wall_s": 900.063338594,
+        "max_rss_bytes": 4478537728,
+        "stage": "atoms",
+        "capture_completed": true,
+        "distinct": 5843977,
+        "generated": 85612896,
+        "depth": 45,
+        "native_time_limit_ms": 900000,
+        "native_memory_limit_bytes": 17179869184,
+        "binary_sha256": "9a0c215df293966ae79935b0bb057ec2f8a6c243a06c2accf2aad8a8004b7598",
+        "node": "i-09e3c9b027d6fa7b4",
+        "scope": "Complete capture counts match pin but atom analysis did not finish; no holding/violation claim or capacity acceptance."
+      }
+    ],
+    "matrix_status": {
+      "source": "a79a024d453096c85b29a8cfc839981f233c1dc7",
+      "required_arms": 12,
+      "observed_success": 4,
+      "observed_stopped": 1,
+      "other_arms_pending": 7,
+      "archives": "Only scheduled at campaign end; not yet verified.",
+      "status": "incomplete_with_actual_timeout_blocker"
+    }
+  },
+  "archives": {
+    "native_diagnostics": {
+      "sources": [
+        "c21e509798bfee97a544b39419ceb7743a042071",
+        "b5f6af4c340e7321c0a1225d2b576cd50de46ec7",
+        "84aeb71bd404cab133dfbe069235cad45f5b47a1",
+        "e3f859e88a0f7103a083261d37c90843f9712cad",
+        "f8e627c4616cbe07f54521d390d00be1c9007022"
+      ],
+      "node": "i-0a165c61a32381d4c",
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "trusted-checking/2026-10-30/native-diagnostics/native-diagnostics.tar.gz",
+      "sha256": "eda6b906036dd315d551b58c6ed7018f894ff89c1ebada1de9f75ab7d0055469",
+      "bytes": 71276030,
+      "verified_local_download": true
+    },
+    "cache_direct": {
+      "source": "1e02a967ab75c0b1b7b80c07877d8ad7f4b23c23",
+      "node": "i-09e3c9b027d6fa7b4",
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "trusted-checking/2026-10-30/cache-direct-1e02/cache-direct.tar.gz",
+      "sha256": "34118797b99b3453ec1bcfad8862860890b1d0b0a14394fb642fe97c67b08391",
+      "bytes": 38240727,
+      "verified_local_download": true
+    },
+    "ewd_development": {
+      "source": "f8e627c4616cbe07f54521d390d00be1c9007022",
+      "scope": "development; native run includes ten seconds of 49Hz sampling and is not quiet performance acceptance",
+      "node": "i-0a165c61a32381d4c",
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "trusted-checking/2026-10-30/ewd-development-f8e627c4/ewd-development.tar.gz",
+      "sha256": "70b754f4115508b95dbd5748a98a1611ff2c08cbc586bee0285ca0e4d16d8672",
+      "bytes": 13710342,
+      "verified_local_download": true
+    },
+    "baseline_c21": {
+      "source": "c21e509798bfee97a544b39419ceb7743a042071",
+      "node": "i-0a165c61a32381d4c",
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "trusted-checking/2026-10-30/baseline-c21/baseline-c21.tar.gz",
+      "sha256": "8c72a938b963bcc33754e2d61cf5165ed37a7ca9adf1fa3f48129ca29a8f2c94",
+      "bytes": 4420508,
+      "verified_local_download": true
+    },
+    "closed_functions": {
+      "source": "7aa3d37ab25954d2de672dc4a6b1afbd1e1eafc8",
+      "scope": "development; original EWD default1 native900s/16GiB stopped, not quiet final qualification",
+      "node": "i-0a165c61a32381d4c",
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "trusted-checking/2026-10-30/closed-functions-7aa3d37a/closed-functions.tar.gz",
+      "sha256": "fde70dbc4b536960362388650ce31df9a93405eb11e11b80adeb1d6732e7e588",
+      "bytes": 13214203,
+      "verified_local_download": true
+    },
+    "final_census": {
+      "source": "68dd8266740740bb6dce4f4d916b724762732a15",
+      "scope": "complete integrated core/reference shadow census, exit1 with unwaived findings, not TLC parity",
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "trusted-checking/2026-10-30/final-census-68dd8266/final-census.tar.gz",
+      "sha256": "c8baaeb331111dfd54fa1987dc4bf843bbf991e0b77adba6acbc3338700a783d",
+      "bytes": 5288043,
+      "verified_local_download": true
+    },
+    "milestone_gate": {
+      "source": "68dd8266740740bb6dce4f4d916b724762732a15",
+      "scope": "one integrated fullgate at68dd exit1 onlyClippy failure; all13runtime/phases passed, deny skipped, a79lintrepair separatelybound; no performance or release qualification",
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "trusted-checking/2026-10-30/milestone-gate-68dd8266/milestone-gate.tar.gz",
+      "sha256": "51a254742ee5dbdccc61413183c865f564f1b849bea54f2a86e4f1da045ef4c2",
+      "bytes": 22800563,
+      "verified_local_download": true
+    },
+    "lvperiodic_validation": {
+      "source": "68dd8266740740bb6dce4f4d916b724762732a15",
+      "scope": "actual retained coreTLCword freshindependent validation bothprofiles valid; capacitydifference unwaived",
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "trusted-checking/2026-10-30/lvperiodic-validation/lvperiodic-validation.tar.gz",
+      "sha256": "ccd8c37320f1fbb09ea269de4202aa514fefdee5bfd7b26ad45b990a38fb3179",
+      "bytes": 1023,
+      "verified_local_download": true
+    }
+  },
+  "remaining": [
+    "Remaining census/strict-shadow findings and capacity/performance acceptance; original68ddgate complete with lintfailure, exacta79repair verified separately.",
+    "Original CoffeeCan3000Beans, EWD998Chan and aba_asyn_byz, both profiles and workers1/8, native900s16GiB, all observable facts and independently valid words",
+    "Quiet ADR0119ten-modelfive-repeat performance panel plus startup/RSS/scaling obligations",
+    "Original Coffee temporal old-bridge paired acceptance screen with repeated source-bound evidence",
+    "Complete remaining opaque-owner accounting and bounded cooperative units; no hardallocation-time memory guarantee",
+    "Exact reached fairness/ENABLED primary error pipeline#502; explicit refusal remains",
+    "Broader modes/storage and complete semantic parity remain separate roadmap work"
+  ],
+  "integrated_qualification": {
+    "source": "68dd8266740740bb6dce4f4d916b724762732a15",
+    "tree": "47d18ebc5e39ed4a37c8fdbb7287e05aa784f7ac",
+    "full_gate": "complete_exit1_clippy_failure_only",
+    "fixture_census": "complete_with_findings_exit1",
+    "scope": "Original68ddfullgate completed exit1 onlyClippyfailure. Its passed runtime phases combine with separatelybound exacta79Clippy/requiredCI under existing evidence-reuse policy; no fullgate pass is relabeled onto either source.",
+    "clippy_failure": "Combined validate_counterexample function has101lines against100line lint; preserve failed68dd source.",
+    "repair_candidate": {
+      "source": "7adbdee02d842a33065d920d0caa090f90e06ccf",
+      "scope": "Pure helper extraction for#662 merged as a79; exact-source conformance all-target Clippy and required CI pass. No semantic, golden, lint allow or comparison change.",
+      "required_ci": "all three required checks success on actual merged source",
+      "merged_source": "a79a024d453096c85b29a8cfc839981f233c1dc7",
+      "exact_merged_conformance_all_target_clippy": "passed",
+      "required_ci_run": 41070771048
+    },
+    "observed_passed_stages": {
+      "nextest_tests": 2891,
+      "documentation_phases": "passed",
+      "layering": "passed",
+      "cm1": {
+        "models": 21,
+        "workers": [
+          1,
+          4,
+          8
+        ],
+        "status": "passed"
+      },
+      "validation_smoke": {
+        "models": 16,
+        "workers": [
+          1,
+          4,
+          8
+        ],
+        "status": "passed"
+      }
+    },
+    "small_corpus": {
+      "tlc": {
+        "models": 156,
+        "agree": 150,
+        "unsupported": 6,
+        "sany_agree": 458,
+        "engine": "reference"
+      },
+      "default": {
+        "models": 156,
+        "agree": 144,
+        "expected_divergences": 7,
+        "unsupported": 5,
+        "engine": "reference"
+      },
+      "baseline_regressions": 0,
+      "baseline_changes": 0,
+      "status": "passed"
+    },
+    "cm1_shadow": {
+      "rows": 63,
+      "agree": 57,
+      "refused": 6,
+      "status": "passed_existing_nonstrict_gate"
+    },
+    "final_small_shadow": {
+      "rows": 312,
+      "agree": 254,
+      "refused": 58,
+      "refused_models": 29,
+      "workers": [
+        1,
+        4
+      ],
+      "strict": false,
+      "mismatches": 0,
+      "timeouts": 0,
+      "status": "passed_existing_nonstrict_gate"
+    },
+    "elapsed": "66m12s",
+    "exit_code": 1,
+    "phase_counts": {
+      "pass": 13,
+      "fail": 1,
+      "skip": 1
+    },
+    "phases": [
+      {
+        "name": "rustfmt",
+        "result": "pass",
+        "duration": "1.7s"
+      },
+      {
+        "name": "clippy",
+        "result": "**FAIL** (exit 101)",
+        "duration": "19.3s"
+      },
+      {
+        "name": "nextest (whole suite)",
+        "result": "pass",
+        "duration": "37m16s"
+      },
+      {
+        "name": "doctests",
+        "result": "pass",
+        "duration": "5.4s"
+      },
+      {
+        "name": "rustdoc",
+        "result": "pass",
+        "duration": "11.4s"
+      },
+      {
+        "name": "crate layering",
+        "result": "pass",
+        "duration": "0.0s"
+      },
+      {
+        "name": "cargo-deny",
+        "result": "skipped (Cargo.lock and deny.toml unchanged)",
+        "duration": "0.0s"
+      },
+      {
+        "name": "release build (harness, dive)",
+        "result": "pass",
+        "duration": "1m57s"
+      },
+      {
+        "name": "oracle and corpus fetch",
+        "result": "pass",
+        "duration": "0.0s"
+      },
+      {
+        "name": "cm1 gate (1, 4, 8 workers)",
+        "result": "pass",
+        "duration": "5.6s"
+      },
+      {
+        "name": "validation-smoke gate (1, 4, 8 workers)",
+        "result": "pass",
+        "duration": "1.3s"
+      },
+      {
+        "name": "small corpus tier (dive, tlc profile, vs baseline)",
+        "result": "pass",
+        "duration": "6m49s"
+      },
+      {
+        "name": "small corpus tier (dive, dive profile, vs baseline)",
+        "result": "pass",
+        "duration": "6m27s"
+      },
+      {
+        "name": "shadow comparison (core vs reference, cm1, 1, 4 and 8 workers)",
+        "result": "pass",
+        "duration": "5.1s"
+      },
+      {
+        "name": "shadow comparison (core vs reference, small tier, 1 and 4 workers)",
+        "result": "pass",
+        "duration": "12m52s"
+      }
+    ],
+    "tests": {
+      "nextest": {
+        "selected_and_run": 2891,
+        "passed": 2891,
+        "skipped": 6,
+        "test_execution_seconds": 2124.388
+      },
+      "doctests": {
+        "passed": 167,
+        "successful_crate_results": 21
+      }
+    },
+    "strict_conformance_gates": {
+      "cm1": {
+        "models": 21,
+        "workers": [
+          1,
+          4,
+          8
+        ],
+        "result": "pass"
+      },
+      "validation_smoke": {
+        "models": 16,
+        "workers": [
+          1,
+          4,
+          8
+        ],
+        "result": "pass"
+      }
+    },
+    "qualified_files_after": {
+      "Cargo.lock": {
+        "sha256": "48a5e53ab9ea85ab4c862325957f0168d385471658fb43a6b08cd667b14b184d",
+        "bytes": 22887
+      },
+      "rust-toolchain.toml": {
+        "sha256": "5c93b0bc9781994987494808030f259cb11c2a9c9b733e6a63b8b6d49598d14e",
+        "bytes": 226
+      },
+      "target/release/dive": {
+        "sha256": "3d90bf553bb75baa871462f41320c296f6bc3df128561e06b373e812354227b6",
+        "bytes": 46188136
+      },
+      "target/release/dive-conformance": {
+        "sha256": "9563f5f19d20902aa85eedcfdcce73ba7344e5c38f4f162863de9d15f2d529ad",
+        "bytes": 33697816
+      },
+      "target/debug/xtask": {
+        "sha256": "303cc546bf2e5ba04186c54c257000577e61147b5817197dabda6d792defd88a",
+        "bytes": 9446752
+      }
+    },
+    "binary_binding": "Only AFTER hashes bind68dd qualified runtime; BEFORE release ELFs belonged to warm1857 preparation. Different census68dd binaries retain their own recorded hashes.",
+    "qualification_receipt_sha256": "4df0b3fab79b5e0ba347d1a461dd51427b16c567700531a4d4a4c97a654e9ecb",
+    "gate_report_sha256": "3ae8caecacae35d3affa0155b1dd886f30a61de68ed556b363758f962772f48b",
+    "lint_repair_scope": {
+      "file": "crates/dive-conformance/src/trace_check.rs",
+      "scope": "Original broad gate on first source; second source only extracts reported liveness display consistency into a private helper. Separate repaired-source checks must be cited independently.",
+      "sources": [
+        {
+          "commit": "68dd8266740740bb6dce4f4d916b724762732a15",
+          "tree": "47d18ebc5e39ed4a37c8fdbb7287e05aa784f7ac",
+          "git_blob": "e32d503e0a6b604c1ec3f12b7f0e41f0910754da",
+          "sha256": "1300fd4f408de78699ba2326d4abc3d23d05202046158d5203aa9d62e39caa4b"
+        },
+        {
+          "commit": "a79a024d453096c85b29a8cfc839981f233c1dc7",
+          "tree": "047c2a046448d1c3fa2e814daf10eab801686c35",
+          "git_blob": "4b5c572a0c38574bab6ab82d8ab0fd041ae748cd",
+          "sha256": "6fb58319dd9e5afbd7b8a0bb589569cd0a103445e769211f73fec0ce5b9dde83"
+        }
+      ],
+      "changed_files": [
+        "crates/dive-conformance/src/trace_check.rs"
+      ]
+    }
+  },
+  "fixture_census": {
+    "source": "68dd8266740740bb6dce4f4d916b724762732a15",
+    "tree": "47d18ebc5e39ed4a37c8fdbb7287e05aa784f7ac",
+    "kind": "fixture core-reference shadow census; not TLC parity or performance evidence",
+    "qualification": "Shadow core/reference agreement only, not TLC parity or a performance measure. Complete measurement with remaining findings, exit1.",
+    "baseline_source": "c21e509798bfee97a544b39419ceb7743a042071",
+    "population_configs": 1614,
+    "selected_configs": 1497,
+    "selection": {
+      "baseline_counts": {
+        "selected": 1487,
+        "skipped-ambiguous-module": 15,
+        "excluded-config-parser": 99
+      },
+      "candidate_counts": {
+        "selected": 1497,
+        "skipped-ambiguous-module": 18,
+        "excluded-config-parser": 99
+      },
+      "removed": [],
+      "changed": [],
+      "added": [
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-liveness/ClosedFunctionsHolds.cfg",
+          "selection": "skipped-ambiguous-module"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-liveness/ClosedFunctionsViolation.cfg",
+          "selection": "skipped-ambiguous-module"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-liveness/FixedNames/NameAtom.cfg",
+          "selection": "selected"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-liveness/FixedNames/NameProducer.cfg",
+          "selection": "selected"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-liveness/FixedNames/TupleSubSeq.cfg",
+          "selection": "selected"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-liveness/FlatCache.cfg",
+          "selection": "selected"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/fairness-primary/MinChooseFair.cfg",
+          "selection": "selected"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/fairness-primary/MinChooseFairSafeNext.cfg",
+          "selection": "selected"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/fairness-primary/MinChooseOtherFair.cfg",
+          "selection": "selected"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/fairness-primary/MinChoosePlain.cfg",
+          "selection": "selected"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/fairness-primary/NoTemporal.cfg",
+          "selection": "skipped-ambiguous-module"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/terminal-level/one/InitLevel.cfg",
+          "selection": "selected"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/terminal-level/zero/InitLevel.cfg",
+          "selection": "selected"
+        }
+      ]
+    },
+    "policy": {
+      "workers": [
+        1
+      ],
+      "timeout_seconds": 20,
+      "max_memory": "3g",
+      "sample": 32,
+      "seed": 0,
+      "fp": 0
+    },
+    "profiles": [
+      {
+        "profile": "default",
+        "totals": {
+          "agree": 1161,
+          "refused": 287,
+          "timeout": 6,
+          "trace-unconfirmed": 7,
+          "trace-refuted": 36,
+          "skipped-ambiguous-module": 18,
+          "excluded-config-parser": 99
+        },
+        "comparison_baseline_totals": {
+          "agree": 1114,
+          "refused": 282,
+          "timeout": 6,
+          "trace-unconfirmed": 22,
+          "trace-refuted": 63,
+          "skipped-ambiguous-module": 15,
+          "excluded-config-parser": 99
+        },
+        "common_selected_ids": 1487,
+        "status_matrix": {
+          "agree -> agree": 1114,
+          "refused -> refused": 282,
+          "timeout -> timeout": 6,
+          "trace-unconfirmed -> agree": 15,
+          "trace-unconfirmed -> trace-unconfirmed": 7,
+          "trace-refuted -> trace-refuted": 36,
+          "trace-refuted -> agree": 27
+        },
+        "old_agree_to_refused": 0,
+        "lost_agreement": 0,
+        "changed_old_ids": [
+          {
+            "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErAssertNext/ErAssertNext.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/dfid/DfidActionPrecedence.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/dfid/DfidIncomplete.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/dfid/DfidNextPrecedence.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextAfterAssert/ErNextAfterAssert.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextAfterChoose/ErNextAfterChoose.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextAfterDomain/ErNextAfterDomain.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextAfterNonBool/ErNextAfterNonBool.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextAfterNonBoolIf/ErNextAfterNonBoolIf.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextAfterNonEnum/ErNextAfterNonEnum.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextAfterTypeErr/ErNextAfterTypeErr.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextAssert/ErNextAssert.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextChoose/ErNextChoose.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextDomain/ErNextDomain.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextIncomplete/ErNextIncomplete.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextNonBool/ErNextNonBool.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextNonBoolIf/ErNextNonBoolIf.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextNonEnum/ErNextNonEnum.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextRhsAssert/ErNextRhsAssert.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextRhsChoose/ErNextRhsChoose.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextRhsDomain/ErNextRhsDomain.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextRhsNonBool/ErNextRhsNonBool.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextRhsNonBoolIf/ErNextRhsNonBoolIf.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextRhsNonEnum/ErNextRhsNonEnum.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextRhsTypeErr/ErNextRhsTypeErr.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextTypeErr/ErNextTypeErr.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextUnassigned/ErNextUnassigned.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErWrapFcnGuard/ErWrapFcnGuard.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErWrapFcnRhs/ErWrapFcnRhs.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErWrapFilter/ErWrapFilter.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErWrapLambdaBody/ErWrapLambdaBody.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErWrapLambdaDomain/ErWrapLambdaDomain.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErWrapRecursive/ErWrapRecursive.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/tlc-probes/specs/EvalErrorMidLevel/EvalErrorMidLevel.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-conformance/tests/fixtures/specs/AssertFailure/AssertFailure.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-eval/tests/fixtures/next/specs/NxUnassigned/NxUnassigned.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-ir/tests/fixtures/actions/specs/SplitThrows/SplitThrows.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-model/tests/fixtures/action-inventory/DirectTrue.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-model/tests/fixtures/action-inventory/FailedConstantEvaluation.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-model/tests/fixtures/action-inventory/SharedTrue.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-model/tests/fixtures/specs/RoActions/RoActions.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-sim/tests/fixtures/SimIncomplete.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          }
+        ],
+        "added_selected_rows": [
+          {
+            "fixture": "crates/dive-api/tests/fixtures/core-liveness/FixedNames/NameAtom.cfg",
+            "status": "agree",
+            "verdict": "success"
+          },
+          {
+            "fixture": "crates/dive-api/tests/fixtures/core-liveness/FixedNames/NameProducer.cfg",
+            "status": "refused"
+          },
+          {
+            "fixture": "crates/dive-api/tests/fixtures/core-liveness/FixedNames/TupleSubSeq.cfg",
+            "status": "agree",
+            "verdict": "success"
+          },
+          {
+            "fixture": "crates/dive-api/tests/fixtures/core-liveness/FlatCache.cfg",
+            "status": "agree",
+            "verdict": "liveness-violation"
+          },
+          {
+            "fixture": "crates/dive-api/tests/fixtures/fairness-primary/MinChooseFair.cfg",
+            "status": "refused"
+          },
+          {
+            "fixture": "crates/dive-api/tests/fixtures/fairness-primary/MinChooseFairSafeNext.cfg",
+            "status": "refused"
+          },
+          {
+            "fixture": "crates/dive-api/tests/fixtures/fairness-primary/MinChooseOtherFair.cfg",
+            "status": "refused"
+          },
+          {
+            "fixture": "crates/dive-api/tests/fixtures/fairness-primary/MinChoosePlain.cfg",
+            "status": "refused"
+          },
+          {
+            "fixture": "crates/dive-api/tests/fixtures/terminal-level/one/InitLevel.cfg",
+            "status": "agree",
+            "verdict": "other-error"
+          },
+          {
+            "fixture": "crates/dive-api/tests/fixtures/terminal-level/zero/InitLevel.cfg",
+            "status": "agree",
+            "verdict": "safety-violation"
+          }
+        ],
+        "remaining_validation_groups": {
+          "Next terminal replay explicitly refuses temporal model": 4,
+          "terminal constraint/action/property evaluation rejected during word replay": 10,
+          "underlying error code versus deciding wrapper header": 24,
+          "named-invariant ending versus reported anonymous error header": 2,
+          "VIEW terminal expansion error lacks independent ending replay": 3
+        },
+        "remaining_validation_findings": [
+          {
+            "fixture": "crates/dive-api/tests/fixtures/core-liveness/GenError/General.cfg",
+            "status": "trace-unconfirmed",
+            "trace": "unsupported: Next error replay with an unsupported model feature: temporal properties (liveness checking): P"
+          },
+          {
+            "fixture": "crates/dive-api/tests/fixtures/core-liveness/GenError/Nested.cfg",
+            "status": "trace-unconfirmed",
+            "trace": "unsupported: Next error replay with an unsupported model feature: temporal properties (liveness checking): P"
+          },
+          {
+            "fixture": "crates/dive-api/tests/fixtures/core-liveness/GenError/Record.cfg",
+            "status": "trace-unconfirmed",
+            "trace": "unsupported: Next error replay with an unsupported model feature: temporal properties (liveness checking): P"
+          },
+          {
+            "fixture": "crates/dive-api/tests/fixtures/core-liveness/GenError/Tuple.cfg",
+            "status": "trace-unconfirmed",
+            "trace": "unsupported: Next error replay with an unsupported model feature: temporal properties (liveness checking): P"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErActConstrAssert/ErActConstrAssert.cfg",
+            "status": "trace-refuted",
+            "trace": "invalid at state 3 (action-constraint): evaluating line 10, col 14 to line 10, col 19 of module ErActConstrAssert fails: The first argument of Assert evaluated to FALSE; the second argument was:\n\"boom\""
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErActConstrChoose/ErActConstrChoose.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErActConstrDivZero/ErActConstrDivZero.cfg",
+            "status": "trace-refuted",
+            "trace": "invalid at state 3 (action-constraint): evaluating line 10, col 14 to line 10, col 19 of module ErActConstrDivZero fails: The second argument of \\div is 0."
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErActConstrDomain/ErActConstrDomain.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErActConstrEnabled/ErActConstrEnabled.cfg",
+            "status": "trace-refuted",
+            "trace": "invalid at state 3 (action-constraint): evaluating line 10, col 14 to line 10, col 19 of module ErActConstrEnabled fails: The second argument of \\div is 0."
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErActConstrNonBool/ErActConstrNonBool.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"TLC_EXPECTED_VALUE\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErActConstrNonBoolIf/ErActConstrNonBoolIf.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErActConstrNonEnum/ErActConstrNonEnum.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErActConstrTypeErr/ErActConstrTypeErr.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"TLC_MODULE_VALUE_JAVA_METHOD_OVERRIDE\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErConstrAssert/ErConstrAssert.cfg",
+            "status": "trace-refuted",
+            "trace": "invalid at state 2 (constraint): evaluating line 10, col 11 to line 10, col 16 of module ErConstrAssert fails: The first argument of Assert evaluated to FALSE; the second argument was:\n\"boom\""
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErConstrChoose/ErConstrChoose.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErConstrDivZero/ErConstrDivZero.cfg",
+            "status": "trace-refuted",
+            "trace": "invalid at state 2 (constraint): evaluating line 10, col 11 to line 10, col 16 of module ErConstrDivZero fails: The second argument of \\div is 0."
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErConstrDomain/ErConstrDomain.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErConstrEnabled/ErConstrEnabled.cfg",
+            "status": "trace-refuted",
+            "trace": "invalid at state 2 (constraint): evaluating line 10, col 11 to line 10, col 16 of module ErConstrEnabled fails: The second argument of \\div is 0."
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErConstrNonBool/ErConstrNonBool.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"TLC_EXPECTED_VALUE\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErConstrNonBoolIf/ErConstrNonBoolIf.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErConstrNonEnum/ErConstrNonEnum.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErConstrTypeErr/ErConstrTypeErr.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"TLC_MODULE_VALUE_JAVA_METHOD_OVERRIDE\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvConstrained/ErInvConstrained.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(InvariantError { name: \"Inv\", ec: \"TLC_MODULE_DIVISION_BY_ZERO\" }), but the result reports Some(Error { ec: Some(\"TLC_MODULE_DIVISION_BY_ZERO\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvReplayError/ErInvReplayError.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(InvariantError { name: \"InvA\", ec: \"TLC_MODULE_DIVISION_BY_ZERO\" }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErPropAssert/ErPropAssert.cfg",
+            "status": "trace-refuted",
+            "trace": "invalid at state 3 (implied-action): evaluating line 10, col 11 to line 10, col 27 of module ErPropAssert fails: The first argument of Assert evaluated to FALSE; the second argument was:\n\"boom\""
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErPropChoose/ErPropChoose.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErPropDivZero/ErPropDivZero.cfg",
+            "status": "trace-refuted",
+            "trace": "invalid at state 3 (implied-action): evaluating line 10, col 11 to line 10, col 27 of module ErPropDivZero fails: The second argument of \\div is 0."
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErPropDomain/ErPropDomain.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErPropEnabled/ErPropEnabled.cfg",
+            "status": "trace-refuted",
+            "trace": "invalid at state 3 (implied-action): evaluating line 10, col 11 to line 10, col 27 of module ErPropEnabled fails: The second argument of \\div is 0."
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErPropNonBool/ErPropNonBool.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErPropNonBoolIf/ErPropNonBoolIf.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErPropNonEnum/ErPropNonEnum.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErPropSeen/ErPropSeen.cfg",
+            "status": "trace-refuted",
+            "trace": "invalid at state 3 (implied-action): evaluating line 9, col 11 to line 9, col 61 of module ErPropSeen fails: The second argument of \\div is 0."
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErPropTypeErr/ErPropTypeErr.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"TLC_MODULE_VALUE_JAVA_METHOD_OVERRIDE\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErViewAssert/ErViewAssert.cfg",
+            "status": "trace-unconfirmed",
+            "trace": "unsupported: an error while expanding the last state: the steps were checked, but re-raising the error needs the successor generator, which the independent validator does not have"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErViewChoose/ErViewChoose.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErViewDivZero/ErViewDivZero.cfg",
+            "status": "trace-unconfirmed",
+            "trace": "unsupported: an error while expanding the last state: the steps were checked, but re-raising the error needs the successor generator, which the independent validator does not have"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErViewDomain/ErViewDomain.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErViewEnabled/ErViewEnabled.cfg",
+            "status": "trace-unconfirmed",
+            "trace": "unsupported: an error while expanding the last state: the steps were checked, but re-raising the error needs the successor generator, which the independent validator does not have"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErViewNonBool/ErViewNonBool.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErViewNonBoolIf/ErViewNonBoolIf.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErViewNonEnum/ErViewNonEnum.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErViewTypeErr/ErViewTypeErr.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"TLC_MODULE_VALUE_JAVA_METHOD_OVERRIDE\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          }
+        ]
+      },
+      {
+        "profile": "tlc",
+        "totals": {
+          "agree": 1135,
+          "refused": 309,
+          "trace-unconfirmed": 9,
+          "timeout": 4,
+          "trace-refuted": 39,
+          "differ": 1,
+          "skipped-ambiguous-module": 18,
+          "excluded-config-parser": 99
+        },
+        "comparison_baseline_totals": {
+          "agree": 1089,
+          "refused": 304,
+          "trace-unconfirmed": 24,
+          "timeout": 4,
+          "trace-refuted": 66,
+          "skipped-ambiguous-module": 15,
+          "excluded-config-parser": 99
+        },
+        "common_selected_ids": 1487,
+        "status_matrix": {
+          "agree -> agree": 1089,
+          "refused -> refused": 303,
+          "trace-unconfirmed -> agree": 15,
+          "trace-unconfirmed -> trace-unconfirmed": 9,
+          "timeout -> timeout": 4,
+          "trace-refuted -> trace-refuted": 39,
+          "trace-refuted -> agree": 27,
+          "refused -> differ": 1
+        },
+        "old_agree_to_refused": 0,
+        "lost_agreement": 0,
+        "changed_old_ids": [
+          {
+            "fixture": "crates/dive-api/tests/fixtures/core-lib/specs/ErAssertNext/ErAssertNext.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/dfid/DfidActionPrecedence.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/dfid/DfidIncomplete.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/dfid/DfidNextPrecedence.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextAfterAssert/ErNextAfterAssert.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextAfterChoose/ErNextAfterChoose.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextAfterDomain/ErNextAfterDomain.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextAfterNonBool/ErNextAfterNonBool.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextAfterNonBoolIf/ErNextAfterNonBoolIf.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextAfterNonEnum/ErNextAfterNonEnum.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextAfterTypeErr/ErNextAfterTypeErr.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextAssert/ErNextAssert.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextChoose/ErNextChoose.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextDomain/ErNextDomain.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextIncomplete/ErNextIncomplete.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextNonBool/ErNextNonBool.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextNonBoolIf/ErNextNonBoolIf.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextNonEnum/ErNextNonEnum.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextRhsAssert/ErNextRhsAssert.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextRhsChoose/ErNextRhsChoose.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextRhsDomain/ErNextRhsDomain.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextRhsNonBool/ErNextRhsNonBool.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextRhsNonBoolIf/ErNextRhsNonBoolIf.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextRhsNonEnum/ErNextRhsNonEnum.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextRhsTypeErr/ErNextRhsTypeErr.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextTypeErr/ErNextTypeErr.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextUnassigned/ErNextUnassigned.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErWrapFcnGuard/ErWrapFcnGuard.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErWrapFcnRhs/ErWrapFcnRhs.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErWrapFilter/ErWrapFilter.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErWrapLambdaBody/ErWrapLambdaBody.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErWrapLambdaDomain/ErWrapLambdaDomain.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErWrapRecursive/ErWrapRecursive.cfg",
+            "before": "trace-refuted",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/tlc-probes/specs/EvalErrorMidLevel/EvalErrorMidLevel.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-conformance/tests/fixtures/specs/AssertFailure/AssertFailure.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-eval/tests/fixtures/next/specs/NxUnassigned/NxUnassigned.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-ir/tests/fixtures/actions/specs/SplitThrows/SplitThrows.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-liveness/tests/fixtures/tlc-probes/specs/LvPeriodic/LvPeriodic.cfg",
+            "before": "refused",
+            "after": "differ"
+          },
+          {
+            "fixture": "crates/dive-model/tests/fixtures/action-inventory/DirectTrue.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-model/tests/fixtures/action-inventory/FailedConstantEvaluation.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-model/tests/fixtures/action-inventory/SharedTrue.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-model/tests/fixtures/specs/RoActions/RoActions.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          },
+          {
+            "fixture": "crates/dive-sim/tests/fixtures/SimIncomplete.cfg",
+            "before": "trace-unconfirmed",
+            "after": "agree"
+          }
+        ],
+        "added_selected_rows": [
+          {
+            "fixture": "crates/dive-api/tests/fixtures/core-liveness/FixedNames/NameAtom.cfg",
+            "status": "refused"
+          },
+          {
+            "fixture": "crates/dive-api/tests/fixtures/core-liveness/FixedNames/NameProducer.cfg",
+            "status": "refused"
+          },
+          {
+            "fixture": "crates/dive-api/tests/fixtures/core-liveness/FixedNames/TupleSubSeq.cfg",
+            "status": "agree",
+            "verdict": "success"
+          },
+          {
+            "fixture": "crates/dive-api/tests/fixtures/core-liveness/FlatCache.cfg",
+            "status": "agree",
+            "verdict": "liveness-violation"
+          },
+          {
+            "fixture": "crates/dive-api/tests/fixtures/fairness-primary/MinChooseFair.cfg",
+            "status": "refused"
+          },
+          {
+            "fixture": "crates/dive-api/tests/fixtures/fairness-primary/MinChooseFairSafeNext.cfg",
+            "status": "refused"
+          },
+          {
+            "fixture": "crates/dive-api/tests/fixtures/fairness-primary/MinChooseOtherFair.cfg",
+            "status": "refused"
+          },
+          {
+            "fixture": "crates/dive-api/tests/fixtures/fairness-primary/MinChoosePlain.cfg",
+            "status": "refused"
+          },
+          {
+            "fixture": "crates/dive-api/tests/fixtures/terminal-level/one/InitLevel.cfg",
+            "status": "agree",
+            "verdict": "other-error"
+          },
+          {
+            "fixture": "crates/dive-api/tests/fixtures/terminal-level/zero/InitLevel.cfg",
+            "status": "agree",
+            "verdict": "safety-violation"
+          }
+        ],
+        "remaining_validation_groups": {
+          "Next terminal replay explicitly refuses temporal model": 4,
+          "terminal constraint/action/property evaluation rejected during word replay": 13,
+          "underlying error code versus deciding wrapper header": 24,
+          "named-invariant ending versus reported anonymous error header": 2,
+          "Next terminal replay explicitly refuses earlier candidate": 1,
+          "VIEW terminal expansion error lacks independent ending replay": 4
+        },
+        "remaining_validation_findings": [
+          {
+            "fixture": "crates/dive-api/tests/fixtures/core-liveness/GenError/General.cfg",
+            "status": "trace-unconfirmed",
+            "trace": "unsupported: Next error replay with an unsupported model feature: temporal properties (liveness checking): P"
+          },
+          {
+            "fixture": "crates/dive-api/tests/fixtures/core-liveness/GenError/Nested.cfg",
+            "status": "trace-unconfirmed",
+            "trace": "unsupported: Next error replay with an unsupported model feature: temporal properties (liveness checking): P"
+          },
+          {
+            "fixture": "crates/dive-api/tests/fixtures/core-liveness/GenError/Record.cfg",
+            "status": "trace-unconfirmed",
+            "trace": "unsupported: Next error replay with an unsupported model feature: temporal properties (liveness checking): P"
+          },
+          {
+            "fixture": "crates/dive-api/tests/fixtures/core-liveness/GenError/Tuple.cfg",
+            "status": "trace-unconfirmed",
+            "trace": "unsupported: Next error replay with an unsupported model feature: temporal properties (liveness checking): P"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErActConstrAssert/ErActConstrAssert.cfg",
+            "status": "trace-refuted",
+            "trace": "invalid at state 3 (action-constraint): evaluating line 10, col 14 to line 10, col 19 of module ErActConstrAssert fails: The first argument of Assert evaluated to FALSE; the second argument was:\n\"boom\""
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErActConstrChoose/ErActConstrChoose.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErActConstrDivZero/ErActConstrDivZero.cfg",
+            "status": "trace-refuted",
+            "trace": "invalid at state 3 (action-constraint): evaluating line 10, col 14 to line 10, col 19 of module ErActConstrDivZero fails: The second argument of \\div is 0."
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErActConstrDomain/ErActConstrDomain.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErActConstrEnabled/ErActConstrEnabled.cfg",
+            "status": "trace-refuted",
+            "trace": "invalid at state 3 (action-constraint): evaluating line 10, col 14 to line 10, col 19 of module ErActConstrEnabled fails: The second argument of \\div is 0."
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErActConstrNonBool/ErActConstrNonBool.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"TLC_EXPECTED_VALUE\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErActConstrNonBoolIf/ErActConstrNonBoolIf.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErActConstrNonEnum/ErActConstrNonEnum.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErActConstrOverflow/ErActConstrOverflow.cfg",
+            "status": "trace-refuted",
+            "trace": "invalid at state 3 (action-constraint): evaluating line 10, col 14 to line 10, col 19 of module ErActConstrOverflow fails: Overflow when computing 2147483647+2"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErActConstrTypeErr/ErActConstrTypeErr.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"TLC_MODULE_VALUE_JAVA_METHOD_OVERRIDE\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErConstrAssert/ErConstrAssert.cfg",
+            "status": "trace-refuted",
+            "trace": "invalid at state 2 (constraint): evaluating line 10, col 11 to line 10, col 16 of module ErConstrAssert fails: The first argument of Assert evaluated to FALSE; the second argument was:\n\"boom\""
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErConstrChoose/ErConstrChoose.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErConstrDivZero/ErConstrDivZero.cfg",
+            "status": "trace-refuted",
+            "trace": "invalid at state 2 (constraint): evaluating line 10, col 11 to line 10, col 16 of module ErConstrDivZero fails: The second argument of \\div is 0."
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErConstrDomain/ErConstrDomain.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErConstrEnabled/ErConstrEnabled.cfg",
+            "status": "trace-refuted",
+            "trace": "invalid at state 2 (constraint): evaluating line 10, col 11 to line 10, col 16 of module ErConstrEnabled fails: The second argument of \\div is 0."
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErConstrNonBool/ErConstrNonBool.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"TLC_EXPECTED_VALUE\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErConstrNonBoolIf/ErConstrNonBoolIf.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErConstrNonEnum/ErConstrNonEnum.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErConstrOverflow/ErConstrOverflow.cfg",
+            "status": "trace-refuted",
+            "trace": "invalid at state 2 (constraint): evaluating line 10, col 11 to line 10, col 16 of module ErConstrOverflow fails: Overflow when computing 2147483647+2"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErConstrTypeErr/ErConstrTypeErr.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"TLC_MODULE_VALUE_JAVA_METHOD_OVERRIDE\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvConstrained/ErInvConstrained.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(InvariantError { name: \"Inv\", ec: \"TLC_MODULE_DIVISION_BY_ZERO\" }), but the result reports Some(Error { ec: Some(\"TLC_MODULE_DIVISION_BY_ZERO\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErInvReplayError/ErInvReplayError.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(InvariantError { name: \"InvA\", ec: \"TLC_MODULE_DIVISION_BY_ZERO\" }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErNextOverflow/ErNextOverflow.cfg",
+            "status": "trace-unconfirmed",
+            "trace": "unsupported: Next error replay emitted a candidate before the claimed error"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErPropAssert/ErPropAssert.cfg",
+            "status": "trace-refuted",
+            "trace": "invalid at state 3 (implied-action): evaluating line 10, col 11 to line 10, col 27 of module ErPropAssert fails: The first argument of Assert evaluated to FALSE; the second argument was:\n\"boom\""
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErPropChoose/ErPropChoose.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErPropDivZero/ErPropDivZero.cfg",
+            "status": "trace-refuted",
+            "trace": "invalid at state 3 (implied-action): evaluating line 10, col 11 to line 10, col 27 of module ErPropDivZero fails: The second argument of \\div is 0."
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErPropDomain/ErPropDomain.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErPropEnabled/ErPropEnabled.cfg",
+            "status": "trace-refuted",
+            "trace": "invalid at state 3 (implied-action): evaluating line 10, col 11 to line 10, col 27 of module ErPropEnabled fails: The second argument of \\div is 0."
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErPropNonBool/ErPropNonBool.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErPropNonBoolIf/ErPropNonBoolIf.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErPropNonEnum/ErPropNonEnum.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErPropOverflow/ErPropOverflow.cfg",
+            "status": "trace-refuted",
+            "trace": "invalid at state 3 (implied-action): evaluating line 10, col 11 to line 10, col 27 of module ErPropOverflow fails: Overflow when computing 2147483647+2"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErPropSeen/ErPropSeen.cfg",
+            "status": "trace-refuted",
+            "trace": "invalid at state 3 (implied-action): evaluating line 9, col 11 to line 9, col 61 of module ErPropSeen fails: The second argument of \\div is 0."
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErPropTypeErr/ErPropTypeErr.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"TLC_MODULE_VALUE_JAVA_METHOD_OVERRIDE\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErViewAssert/ErViewAssert.cfg",
+            "status": "trace-unconfirmed",
+            "trace": "unsupported: an error while expanding the last state: the steps were checked, but re-raising the error needs the successor generator, which the independent validator does not have"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErViewChoose/ErViewChoose.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErViewDivZero/ErViewDivZero.cfg",
+            "status": "trace-unconfirmed",
+            "trace": "unsupported: an error while expanding the last state: the steps were checked, but re-raising the error needs the successor generator, which the independent validator does not have"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErViewDomain/ErViewDomain.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErViewEnabled/ErViewEnabled.cfg",
+            "status": "trace-unconfirmed",
+            "trace": "unsupported: an error while expanding the last state: the steps were checked, but re-raising the error needs the successor generator, which the independent validator does not have"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErViewNonBool/ErViewNonBool.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErViewNonBoolIf/ErViewNonBoolIf.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErViewNonEnum/ErViewNonEnum.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"GENERAL\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErViewOverflow/ErViewOverflow.cfg",
+            "status": "trace-unconfirmed",
+            "trace": "unsupported: an error while expanding the last state: the steps were checked, but re-raising the error needs the successor generator, which the independent validator does not have"
+          },
+          {
+            "fixture": "crates/dive-check/tests/fixtures/errors/specs/ErViewTypeErr/ErViewTypeErr.cfg",
+            "status": "trace-refuted",
+            "trace": "the counterexample claims Some(Error { ec: Some(\"TLC_MODULE_VALUE_JAVA_METHOD_OVERRIDE\") }), but the result reports Some(Error { ec: Some(\"TLC_NESTED_EXPRESSION\") })"
+          }
+        ]
+      }
+    ],
+    "census_exit": 1,
+    "raw_invocations": 5382,
+    "physical_exit_reports": 5382,
+    "source_clean_before_and_after": true,
+    "post_run_file_hashes_unchanged": true,
+    "files": {
+      "target/release/dive": {
+        "sha256": "8555de2d509c554ad779d12ea8d952dd4cd6825a4d3aa3d8b9978fcb0a2e833a",
+        "bytes": 46188152
+      },
+      "target/release/dive-conformance": {
+        "sha256": "ff18b533fbbd08eac5d119605eb07b014acd0c112c3833ce8c6be5bb3eeb156c",
+        "bytes": 33697816
+      },
+      "scripts/fixture-shadow-census.py": {
+        "sha256": "44faa5526b91faf67279fa931cf5d77d261e8cbcf12c0cf76f17f3a47315eeae",
+        "bytes": 13285
+      },
+      "Cargo.lock": {
+        "sha256": "48a5e53ab9ea85ab4c862325957f0168d385471658fb43a6b08cd667b14b184d",
+        "bytes": 22887
+      },
+      "rust-toolchain.toml": {
+        "sha256": "5c93b0bc9781994987494808030f259cb11c2a9c9b733e6a63b8b6d49598d14e",
+        "bytes": 226
+      },
+      "conformance/oracles.toml": {
+        "sha256": "f618f1b6e55e7e7859ddb65b7195c06c6131485a837be1e444f206a05e9f35b7",
+        "bytes": 4978
+      }
+    },
+    "report_hashes": {
+      "census.json": "472c60fb9c37f98aa7be5f0564a0775800d135f4d4a0193e3dec7c7641da2e14",
+      "selection.json": "56f43d18c19d9fbee378c173932892211cfeedb2b55110c89d4ab2d9f5a638b0",
+      "default/20261030T134357Z-shadow-all.json": "8bef0e92c1949f685dc5bdff2e8be2cb5cd637bf237b1dd3469956915bf26cec",
+      "tlc/20261030T134714Z-shadow-all-tlc.json": "4d8a6d8c8951053231a68215052da1a4263a244f3d810a2d6d2737250ffa7db5"
+    },
+    "derived_input_hashes": {
+      "source-qualification.json": "8812f87cf16d19584a803df4d6d6331b3401d7ff39c6c6e7eb28348a99140787",
+      "comparison-c21.json": "218fa72f6f354f94e695dc0044ff55a691bbda81717ef1d7a57c06e980d5ef2d",
+      "remaining-validation-findings.json": "799cc7e08e06f8bf9e203b9b1be08d21dd031666a8891ee01afe0c4ed254b05a",
+      "receipt.md": "fff5341be5f27900ec0344700586f7a936c833754ab1b1dc94939da7935ae8d6"
+    },
+    "storage": "Raw census and source/ELF/report receipts preserved in the final_census archive; full local download/hash verification is recorded separately in archives.final_census.",
+    "remaining_trace_scope": "No core/reference observable verdict difference in remaining trace-refuted/unconfirmed rows, but neither verdict nor word is certified by agreement. No remaining missing/partial-word shape error reported.",
+    "new_tlc_difference": {
+      "fixture": "crates/dive-liveness/tests/fixtures/tlc-probes/specs/LvPeriodic/LvPeriodic.cfg",
+      "before": "refused",
+      "after": "differ",
+      "core_verdict": "liveness-violation",
+      "reference_verdict": "resource limit: behavior graph capture states",
+      "scope": "Original early shadow difference remains unwaived/no comparison agreement. Separately retained actual core word is now freshly independently valid in both profiles; that does not alter census counts or establish TLC parity.",
+      "tracking_issue": 664,
+      "subsequent_independent_validation": {
+        "source": "68dd8266740740bb6dce4f4d916b724762732a15",
+        "binary_sha256": "8555de2d509c554ad779d12ea8d952dd4cd6825a4d3aa3d8b9978fcb0a2e833a",
+        "input": "actual retained core TLC word from original run",
+        "profiles": [
+          "default",
+          "tlc"
+        ],
+        "exit_codes": [
+          0,
+          0
+        ],
+        "validation": "valid",
+        "logical_length": 3,
+        "core_stats": {
+          "distinct": 2253003,
+          "generated": 4503005,
+          "depth": 3001
+        },
+        "archive": "archives.lvperiodic_validation",
+        "credit": "Fresh logical word proof only; original early comparison credit/counts unchanged;#664remainsopen."
+      }
+    },
+    "host_platform": "Linux-7.1.5-100.fc43.x86_64-x86_64-with-glibc2.42",
+    "tools": {
+      "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+      "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+      "python": "Python 3.14.6"
+    },
+    "build_jobs": 2,
+    "test_threads": 2
+  },
+  "closed_function_hotpath_diagnostic": {
+    "source": "7aa3d37ab25954d2de672dc4a6b1afbd1e1eafc8",
+    "binary_sha256": "96f038fa970a5a51460e375ac3a0c691248977f2307e4324e7cd5219afa0ba93",
+    "examples_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "fixture": "specifications/ewd998/EWD998Chan.cfg",
+    "node": "i-0a165c61a32381d4c",
+    "quiet_performance_acceptance": false,
+    "arms": [
+      {
+        "profile": "default",
+        "sampled": true,
+        "native_limit_ms": 60000,
+        "wall_s": 60.07166676900124,
+        "distinct": 108116,
+        "generated": 621199,
+        "depth": 9,
+        "stage": "capture",
+        "capture_completed": false,
+        "convert_ms": 1890.016318,
+        "admitted_rows": 537744,
+        "read_rows": 1264908,
+        "cache_hits": 5057876,
+        "cache_misses": 1756,
+        "cache_entries": 733,
+        "cache_bytes": 34133968,
+        "converted_values": 2152732
+      },
+      {
+        "profile": "tlc",
+        "sampled": false,
+        "native_limit_ms": 30000,
+        "wall_s": 30.075970417999997,
+        "distinct": 476533,
+        "generated": 3279339,
+        "depth": 14,
+        "stage": "capture",
+        "capture_completed": false,
+        "convert_ms": 8984.013953,
+        "admitted_rows": 2775312,
+        "read_rows": 0,
+        "cache_hits": 0,
+        "cache_misses": 0,
+        "cache_entries": 0,
+        "cache_bytes": 0,
+        "converted_values": 11101248
+      }
+    ],
+    "sample": {
+      "source_arm": "default60s",
+      "offset_s": 15,
+      "duration_s": 20,
+      "frequency_hz": 99,
+      "reported_samples": 1985,
+      "lost_samples": 0,
+      "call_graph": "dwarf16384 attempted; exported inclusive equals self, do not infer complete call chains",
+      "exclusive_percent": {
+        "dive_eval::Core::eval_inner": 16.07,
+        "dive_eval::Core::eval_std": 12.62,
+        "dive_eval::Core::apply_fcn": 4.9,
+        "dive_eval::Core::eval_v": 3.75,
+        "dive_eval::Env::bind": 3.64,
+        "dive_eval::St::keep_lazy": 3.53
+      },
+      "conversion_not_present_above_percent": 0.7
+    },
+    "archive": {
+      "source": "7aa3d37ab25954d2de672dc4a6b1afbd1e1eafc8",
+      "scope": "diagnostic default60s sampled20s99Hz; TLC30s unsampled; original capacity input exact modulepaths; no performance acceptance",
+      "node": "i-0a165c61a32381d4c",
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "trusted-checking/2026-10-30/ewd-7aa-hotpath/ewd-7aa-hotpath.tar.gz",
+      "sha256": "0c82087c544c58dc80bb61ab3859899a7b615e7dc64fa580bab7198a5d385492",
+      "bytes": 6045834,
+      "verified_local_download": true
+    }
+  }
+}

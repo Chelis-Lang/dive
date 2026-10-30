@@ -413,8 +413,10 @@ Implemented storage now includes all-vertex/original persistent roots, CSR
 metadata, eager controlled Graph admission, on-demand state access, graph-neutral
 completion/results and native validated reporting (§7.1–§7.4). It reuses the
 analyzer and independent validator. Conversion reuse is limited to the bounded closed-function cache (§4).
-Nested/set/general-domain retention needs its own proved weighting and measured
-justification; it must not recreate an unaccounted complete Value graph.
+Sets, nonscalar general domains and opaque values still need their own proved
+weighting and measured justification. Closed recursive functions with scalar
+domains are eligible under §4; no cache may recreate an unaccounted complete
+Value graph.
 
 Remaining qualification and accounting work:
 
@@ -660,8 +662,8 @@ budgets capped at 900 s; harness reports kept outside the repository):
   conversion; eager admission still converts every original, and unproved classes
   still reconvert on demand; transient source/target rows and analysis
   allocations still coexist with persistent storage. Their cost and remaining
-  accounting need measurement before adding a bounded weighted cache or lifting
-  capture limits.
+  accounting need measurement before extending cache eligibility or claiming
+  original-workload capacity.
 - **Symmetry and VIEW liveness.** A temporal property with `SYMMETRY`
   is refused for now; it will follow the reference's `symmetry_liveness`
   resolution. SYMMETRY under `--compat=tlc` (#574) and VIEW with SYMMETRY
