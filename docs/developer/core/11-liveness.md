@@ -2,7 +2,7 @@
 
 Status: L1–L4 and the native L5 capture/analysis/report path are implemented,
 2026-10-29. The production core retains persistent original rows and CSR,
-converts demanded values without a retained Value cache, and releases native
+reuses bounded flat-value conversions during demanded reads, and releases native
 capture storage before independent candidate replay. The reference-library
 entrypoints and explicit caller limits remain available unchanged. Complete
 memory accounting and measured TLC capacity remain L5 acceptance work (§7).
@@ -191,12 +191,32 @@ versus tuple/record literal classes recursively (ADR 0121). Raw or symbolic set
 representations without certified normalization history are refused; report
 formatting conversion does not supply that history.
 
-The admitted row is dropped immediately. The initial native backend retains
-**zero converted-value cache entries**: a demanded representative or original
-is reconverted under the same run's temporal `EvaluationControl`. This avoids a
-second complete evaluator-value graph, at the cost of repeated conversion.
-Only currently demanded rows and the selected word's values remain live as
-needed by the existing analyzer. No cache speedup is claimed.
+The admitted row is dropped immediately; eager admission always performs the
+controlled Graph conversion. Reads can reuse successful values by exact
+persistent `Handle` identity in a cache owned by this fixed run/store/profile.
+Eligibility is limited to Bool/Int and flat tuple/record values whose children
+are Bool/Int. General string-domain functions retain their nonliteral flag;
+literal and general representations never share entries merely by equality.
+Sets, nested values, foreign name owners and unproved shapes keep the controlled
+conversion path. No failed conversion or normalization-history refusal is cached.
+
+The fixed table uses bounded probing and collision replacement. It is initialized
+after 1,024 read lookups, avoiding a large allocation for tiny checks. Its
+allowance is `min(128 MiB, memory_budget / 64)`, or 128 MiB with unlimited memory.
+Actual table capacity plus requested eligible payload must fit before insertion;
+oversize, arithmetic/allocation failure or unproved eligibility bypasses caching.
+Immediate values have no extra heap payload. A narrow value-layer inspector
+counts the actual private function header/fingerprint cache and boxed tuple/field
+storage. Record Atom owners are included in field storage; name payload is shared
+only after Arc identity proves the run Interner already pins it. Opaque Arc
+headers/allocator overhead remain outside this requested-payload metric. It is
+not a total RSS or allocation-time hard cap.
+
+Actual owner/temporal control is checked before hits and misses and before a row
+returns. A cache hit supplies the same immutable converted Value, including
+representation flags, and does not change eager admission or independent word
+validation. Cache speed and memory tradeoffs require source-bound measurement;
+this implementation alone earns no capacity or throughput credit.
 
 Materialized traversal, comparability proofs, deep normalization comparisons
 and sorting cooperate with run control; temporary vectors use fallible
@@ -205,9 +225,10 @@ budget stop. Constructor hashing, diagnostic rendering and final shared/Arc
 allocations retain legacy units; this is not an allocation-time hard cap.
 
 `core.metrics.liveness` retains `convert_ms`, `converted_nodes`, `memo_entries`
-and `graph_states`, with `memo_entries: 0`. Additive `storage: "native-csr"`,
-`values` admission/read/conversion counters and zero-cache fields distinguish
-this route. `memory` describes covered collector buffers, action-label
+and `graph_states`. Additive `storage: "native-csr"` and `values` report
+admission/read/conversion counts, cache hits/misses, entries, configured allowance,
+actual table/known-payload bytes, collision replacements and bypasses. These
+requested bytes exclude the opaque overhead above. `memory` describes covered collector buffers, action-label
 capacities and reserve-growth overlap; the overlap is an upper bound, not
 observed peak RSS. `accounting_complete: false` remains explicit (§7).
 
@@ -345,9 +366,9 @@ settings. No stop or refusal establishes a holding result.
 Implemented storage now includes all-vertex/original persistent roots, CSR
 metadata, eager controlled Graph admission, on-demand state access, graph-neutral
 completion/results and native validated reporting (§7.1–§7.4). It reuses the
-analyzer and independent validator. The initial converted-value cache is empty;
-adding one requires bounded weighting and measured justification, not a larger
-unaccounted second graph.
+analyzer and independent validator. Conversion reuse is limited to the bounded immediate/flat-value cache (§4).
+Nested/set/general-domain retention needs its own proved weighting and measured
+justification; it must not recreate an unaccounted complete Value graph.
 
 Remaining qualification and accounting work:
 
@@ -533,7 +554,7 @@ changed by checking adjacency and producer facts.
 | Scope | Implementation | Qualification |
 |---|---|---|
 | L1–L4 | Original producer adapter, shared analysis, scheduling and report path built | Historical evidence in §10 |
-| L5 native backend (#638) | Persistent original rows, CSR, controlled admission/on-demand reads, zero retained Value cache, sealed facts and graph-neutral validated reports | Focused native/reference and negative controls; required CI |
+| L5 native backend (#638, #651) | Persistent original rows, CSR, controlled admission/on-demand reads, bounded flat-value reuse, sealed facts and graph-neutral validated reports | Focused native/reference and negative controls; required CI |
 | L5 capacity | Ordinary core file capacity follows actual budgets and checked layouts; partial byte accounting remains explicit | Complete accounting, bounded remaining units, original TLC-relative capacity/performance measurements and integrated full gate remain open |
 
 ## 10. Census and results
@@ -589,8 +610,9 @@ budgets capped at 900 s; harness reports kept outside the repository):
   the graph-equality test fails and the model is refused until the two
   agree. Labels are never derived independently.
 - **Conversion work and memory.** The native path removes the retained
-  evaluator-value graph and keeps its Value cache empty. Eager admission and
-  later demand repeat conversion; transient source/target rows and analysis
+  evaluator-value graph. Bounded immediate/flat-value read reuse addresses repeated
+  conversion; eager admission still converts every original, and unproved classes
+  still reconvert on demand; transient source/target rows and analysis
   allocations still coexist with persistent storage. Their cost and remaining
   accounting need measurement before adding a bounded weighted cache or lifting
   capture limits.

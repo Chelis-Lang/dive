@@ -392,3 +392,21 @@ fn assert_error_ending(
         );
     }
 }
+
+#[test]
+fn bounded_flat_cache_reuses_records_without_changing_verified_reports() {
+    for tlc in [false, true] {
+        let reference = run("FlatCache", Engine::Reference, 1, tlc, false);
+        let core = run("FlatCache", Engine::Core, 1, tlc, false);
+        assert_eq!(core["verdict"], "liveness-violation");
+        assert_eq!(core["property"], "Q");
+        assert_eq!(core["counterexample"]["validation"], "valid");
+        assert_eq!(core["statistics"]["distinct"], 1101);
+        let cache = &core["core"]["metrics"]["liveness"]["values"];
+        assert!(cache["cache_hits"].as_u64() > Some(0), "{cache}");
+        assert!(cache["cache_eligible_misses"].as_u64() > Some(0));
+        assert_eq!(cache["cache_uncovered_misses"], 0);
+        assert!(cache["cache_bytes"].as_u64() <= cache["cache_limit_bytes"].as_u64());
+        assert_eq!(comparable(core), comparable(reference));
+    }
+}
