@@ -2353,3 +2353,36 @@ queue or independent successor algorithm. An error before any candidate must
 match its actual underlying code and original source context. Fresh Recipe
 bindings and cache/name domains follow ADR 0103's artifact-independence policy;
 source descriptors and matching result metadata supply no execution authority.
+
+### Local scalar/tuple literal normalization and membership (#623)
+
+The consumed name-free subset in `crates/dive-core/src/compare.rs` and the
+literal-history methods of `heap.rs` follow tlaplus/tlaplus commit
+`94d0c5070852b37b801bb8998c436383ab7ee37b` (MIT):
+
+- `tlc2/value/impl/ValueVec.java`, `sort(boolean)` and `search(Value, boolean)`:
+  binary insertion with the incoming value as receiver, first-equal retention,
+  raw member-to-query equality scan and normalized query-to-pivot search.
+- `TupleValue.java`, `equals` and `compareTo`: length decides first, then
+  fields left to right, stopping at the first inequality/error.
+- `BoolValue.java` and `IntValue.java`, checked scalar comparison/equality.
+
+This is a bounded semantic port using Rust vectors and existing handles. On
+Bool/inline-Int/tuple literals, equality and the zero result of comparison
+have the same length/field demand sequence; that equivalence does not extend
+the kernel to names, records, functions or nested sets. Reached comparison
+failures stay unsupported until E7 receiver-source/replay provenance is proved.
+The default D-009 branch retains the reference evaluator's structural tuple
+membership and deferred unspecified scalar-comparison behavior.
+
+Compiler consumer selection and the sparse arena-owned construction identity
+are dive's implementation of `docs/developer/core/03-value-model.md` §8. They
+are not inferred from persistence, view bits or extensional identity and are
+not an S5 index. History is allocated with each admitted raw constructor;
+owned normalized arrays survive rollback of later allocations, while later
+constructors and all reset history are dropped. The 18 primary controls in
+`conformance/corpus/literal-set-history-primary` were generated through the
+official harness, with reasons, before runtime changes. Actual comparison
+traces test operand direction/pivots and alias transitions; these internal
+checks add no observable parity credit. Name-token ranks and wider producers
+remain subsequent work in #623.

@@ -190,8 +190,9 @@ pub enum Node {
     Neg(P),
     /// `a..b`
     Range(P, P),
-    /// `{a, b, ...}`
-    SetEnum(Box<[P]>),
+    /// `{a, b, ...}`. The flag selects the compiler-proved local name-free
+    /// literal lane; otherwise the existing guarded canonical builder runs.
+    SetEnum(Box<[P]>, bool),
     /// `A \cup B` and friends.
     SetBin(SetOp, P, P),
     /// `SUBSET S`

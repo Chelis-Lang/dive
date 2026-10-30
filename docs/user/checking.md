@@ -222,6 +222,27 @@ switch must leave the results unchanged, including independently replayable
 counterexamples when hash-consing is disabled. See `docs/developer/core/06-memoization.md` and
 `docs/developer/core/m0-results.md`.
 
+The core preserves construction order, duplicates and shared normalization
+history for a bounded local literal-set lane: booleans, inline numeral
+literals and tuples of those literals, used directly or through local
+zero-argument `LET` bindings in membership and `Cardinality`. A membership
+hit does not force normalization. `Cardinality` normalizes the same local
+object, so later uses of that alias search its normalized array. Independent
+equal constructions keep independent history. For example:
+
+```sh
+dive check conformance/corpus/literal-set-history-primary/specifications/RawScalarEarlyHit/RawScalarEarlyHit.tla --engine core --compat=tlc --seed 0 --fp 0
+```
+
+This check succeeds: the raw membership hits `TRUE` before comparing it with
+the following integer. Reversing that prefix under TLC comparisons remains
+unsupported because the comparison's error-source provenance is unproved;
+it is not reported as a verified TLC error. C2 normalization is checked in
+both profiles, while the default profile retains D-009 comparisons. Named
+values, wider expressions, records/functions, nested sets, imports, state
+handoff and map/union producers retain the existing guarded boundaries.
+This is partial #623 coverage, with no Sailfish map/union performance claim.
+
 In the TLC profile, `-memo` also disables reuse of checked set-membership
 proofs. These proofs share the existing memo memory allowance and preserve
 the same comparison refusals. Supported tuple comparisons reuse those proofs

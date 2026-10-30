@@ -346,8 +346,9 @@ is a set and `{<<1>>, [qfa |-> 1, qfb |-> 1]}` is an error.
   (`crates/dive-eval/src/tla_cmp.rs:15-16`).
 - Issue #619: compound elements can be incomparable below their outer class.
   `Cardinality({<<1,1>>, <<TRUE,2>>})` fails during normalization even in
-  default. Until exact checked sorting is proved, the core refuses compound
-  sets whose existing comparison shapes do not unify in either profile.
+  default. Outside the selected closed local literal lane
+  (`03-value-model.md` §8), the core refuses compound sets whose existing
+  comparison shapes do not unify in either profile.
   Pinned cases and short-circuit controls are consumed from
   `crates/dive-api/tests/fixtures/core-normalization/oracle.json`.
 - Evidence: `tlc2/value/impl/ValueVec.java:172-197`;

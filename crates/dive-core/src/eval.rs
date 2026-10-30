@@ -416,7 +416,7 @@ impl Machine {
                 let y = int_of(self.eval(code, *b)?)?;
                 Ok(self.heap.interval(x, y))
             }
-            Node::SetEnum(items) => {
+            Node::SetEnum(items, local) => {
                 let mut v = self.take_scratch();
                 for &i in items {
                     match self.eval_norm(code, i) {
@@ -426,6 +426,11 @@ impl Machine {
                             return Err(e);
                         }
                     }
+                }
+                if *local {
+                    let r = self.heap.local_literal(&v);
+                    self.give_scratch(v);
+                    return r;
                 }
                 let r = self.heap.set_from(&mut v);
                 self.give_scratch(v);
@@ -899,6 +904,9 @@ impl Machine {
     /// `set` is not a set, or membership is undefined.
     #[allow(clippy::too_many_lines, reason = "one arm per set kind")]
     pub fn member(&mut self, x: Handle, set: Handle) -> Result<bool, Error> {
+        if let Some(result) = self.heap.literal_member(x, set) {
+            return result;
+        }
         if !set.is_compound() {
             return Err(eval_err("membership in a value that is not a set"));
         }

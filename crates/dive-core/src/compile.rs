@@ -51,6 +51,9 @@ use crate::store::Store;
 #[path = "compile_gen.rs"]
 mod generator;
 
+#[path = "compile_literal.rs"]
+mod literal;
+
 /// The largest plan the compiler builds (inlining blow-up guard).
 const MAX_NODES: usize = 4_000_000;
 
@@ -255,6 +258,10 @@ struct EnvFrame {
 }
 
 #[derive(Clone, Debug, Default)]
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "independent read, effect, budget and history eligibility facts"
+)]
 struct Info {
     vars: u64,
     primed: u64,
@@ -266,6 +273,8 @@ struct Info {
     /// it on every evaluation, so the node is never folded, memoized,
     /// cached or skipped (`04-plan-compiler.md` §3).
     effect: bool,
+    /// Local mutable construction history must not be folded or memoized.
+    history: bool,
     /// Whether TLC's value of a set expression is `Reducible`
     /// (`04-plan-compiler.md` §4.1), so that TLC builds a filter, function
     /// or set operation over it eagerly.
@@ -369,6 +378,8 @@ pub fn compile(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<Plan, E
         stats: CompileStats::default(),
         site_names: Vec::new(),
         role_name: String::new(),
+        literal_sets: std::collections::HashSet::new(),
+        literal_tuples: std::collections::HashSet::new(),
     };
     // The initial predicates are conjoined, as TLC's (and the reference
     // engine's `init_states`): one action.
@@ -479,6 +490,8 @@ struct Compiler<'a> {
     stats: CompileStats,
     site_names: Vec<String>,
     role_name: String,
+    literal_sets: std::collections::HashSet<ExprId>,
+    literal_tuples: std::collections::HashSet<ExprId>,
 }
 
 impl Compiler<'_> {
@@ -578,6 +591,7 @@ impl Compiler<'_> {
                 i.calls |= c.calls;
                 i.heavy |= c.heavy;
                 i.effect |= c.effect;
+                i.history |= c.history;
                 union(&mut i.free, &c.free);
             }
         };
@@ -594,6 +608,7 @@ impl Compiler<'_> {
                 i.calls |= inner.calls;
                 i.heavy |= inner.heavy;
                 i.effect |= inner.effect;
+                i.history |= inner.history;
                 union(&mut i.free, &inner.free);
                 for b in binds {
                     add(b.domain, i);
@@ -633,7 +648,7 @@ impl Compiler<'_> {
             }
             Node::And(xs)
             | Node::Or(xs)
-            | Node::SetEnum(xs)
+            | Node::SetEnum(xs, _)
             | Node::Product(xs)
             | Node::Tuple(xs)
             | Node::Std(_, xs) => {
@@ -704,6 +719,7 @@ impl Compiler<'_> {
                     i.calls |= inner.calls;
                     i.heavy |= inner.heavy;
                     i.effect |= inner.effect;
+                    i.history |= inner.history;
                     union(&mut i.free, &inner.free);
                 }
             }
@@ -720,6 +736,7 @@ impl Compiler<'_> {
                             i.calls |= inner.calls;
                             i.heavy |= inner.heavy;
                             i.effect |= inner.effect;
+                            i.history |= inner.history;
                             union(&mut i.free, &inner.free);
                         }
                     }
@@ -740,6 +757,7 @@ impl Compiler<'_> {
                 i.vars = u64::MAX;
             }
         }
+        i.history |= matches!(n, Node::SetEnum(_, true));
         i.red = self.red_of(n);
         i
     }
@@ -766,7 +784,7 @@ impl Compiler<'_> {
                     _ => Red::Yes,
                 }
             }
-            Node::SetEnum(_) | Node::Range(..) | Node::Map { .. } => Red::Yes,
+            Node::SetEnum(..) | Node::Range(..) | Node::Map { .. } => Red::Yes,
             Node::Product(_)
             | Node::FcnSet(..)
             | Node::RecSet(_)
@@ -1120,12 +1138,17 @@ impl Compiler<'_> {
     }
 
     fn push(&mut self, n: Node) -> Result<P, Error> {
+        self.push_sensitive(n, false)
+    }
+
+    fn push_sensitive(&mut self, n: Node, history: bool) -> Result<P, Error> {
         if self.code.nodes.len() >= MAX_NODES {
             return Err(Error::unsupported(
                 "a plan larger than the M0 core's inlining limit",
             ));
         }
-        let info = self.info_of(&n);
+        let mut info = self.info_of(&n);
+        info.history |= history;
         if !self.m.heap.store().lazy_sets() && self.builds_lazy_set(&n) {
             self.m.heap.store().note_lazy_sets();
         }
@@ -1153,7 +1176,8 @@ impl Compiler<'_> {
             && info.free.is_empty()
             && !info.calls
             && !info.heavy
-            && !info.effect;
+            && !info.effect
+            && !info.history;
         self.info.push(info);
         if self.opts.fold && foldable && closed {
             self.fold(id);
@@ -1429,6 +1453,7 @@ impl Compiler<'_> {
         };
         if info.primed != 0
             || info.effect
+            || info.history
             || matches!(self.code.nodes.get(p as usize), Some(Node::Const(_)))
         {
             return Ok(None);
@@ -1490,6 +1515,8 @@ impl Compiler<'_> {
     fn role_env_after(&mut self, r: &Role) -> Result<(usize, Vec<(u32, Handle)>), Error> {
         self.reset_stack.clear();
         self.def_cache.clear();
+        self.literal_sets.clear();
+        self.literal_tuples.clear();
         self.at_stack.clear();
         self.role_name.clone_from(&r.name);
         let def = self.ir.def(r.def);
@@ -1623,9 +1650,11 @@ impl Compiler<'_> {
         self.conjuncts(r.expr, env, &mut parts)?;
         let mut conjuncts = Vec::new();
         for (k, (e, env)) in parts.into_iter().enumerate() {
+            self.select_literal_history(e);
             let p = self.p(e, env, Mode::Plain)?;
             let info = self.info[p as usize].clone();
-            let skippable = info.free.is_empty() && info.primed == 0 && !info.effect;
+            let skippable =
+                info.free.is_empty() && info.primed == 0 && !info.effect && !info.history;
             let reads = info.vars;
             let (p, site) = match self.site(format!("{}#{k}", r.name), p)? {
                 Some(m) => {
@@ -1884,11 +1913,11 @@ impl Compiler<'_> {
             )),
             Expr::SetEnum(items) => {
                 let ps = self.ps(items, env, mode)?;
-                self.push(Node::SetEnum(ps.into()))
+                self.push(Node::SetEnum(ps.into(), self.literal_sets.contains(&e)))
             }
             Expr::Tuple(items) => {
                 let ps = self.ps(items, env, mode)?;
-                self.push(Node::Tuple(ps.into()))
+                self.push_sensitive(Node::Tuple(ps.into()), self.literal_tuples.contains(&e))
             }
             Expr::Cartesian(items) => {
                 let ps = self.ps(items, env, mode)?;
@@ -2593,7 +2622,7 @@ impl Compiler<'_> {
         }
         let body = compile(self)?;
         let info = &self.info[body as usize];
-        if !info.free.is_empty() || info.effect || self.is_trivial(body) {
+        if !info.free.is_empty() || info.effect || info.history || self.is_trivial(body) {
             return Ok(body);
         }
         let body = self.step_site(key, body)?;
@@ -2629,7 +2658,7 @@ impl Compiler<'_> {
         };
         match self.code.nodes.get(body as usize) {
             Some(Node::Lazy { .. } | Node::Memo { .. }) => true,
-            Some(Node::Tuple(items) | Node::SetEnum(items)) => items.iter().all(leaf),
+            Some(Node::Tuple(items) | Node::SetEnum(items, _)) => items.iter().all(leaf),
             Some(Node::Record(fields)) => fields.iter().all(|(_, p)| leaf(p)),
             _ => false,
         }
@@ -2640,7 +2669,7 @@ impl Compiler<'_> {
     /// value is a function of them, the same for every pair that agrees
     /// on them, such as the successors of one state.
     fn step_site(&mut self, key: Cached, body: P) -> Result<P, Error> {
-        if !self.opts.step_memo || self.assembles(body) {
+        if !self.opts.step_memo || self.assembles(body) || self.info[body as usize].history {
             return Ok(body);
         }
         let info = &self.info[body as usize];
@@ -2737,6 +2766,7 @@ impl Compiler<'_> {
             && info.free.is_empty()
             && info.primed == 0
             && !info.effect
+            && !info.history
             && !self.is_trivial(body)
         {
             let slot = self.alloc();
