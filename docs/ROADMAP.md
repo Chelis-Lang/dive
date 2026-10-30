@@ -137,6 +137,15 @@ at deterministic completed-level boundaries with a geometric growth threshold
 exploration can prove success. Independent validation, named-property attribution, temporal
 language coverage and unreduced symmetry checking remain acceptance requirements.
 
+Ordinary core-engine temporal checking now retains persistent original rows and
+checked CSR, admits original values in producer order, and reads evaluator
+values on demand without a retained Value cache. Shared analysis yields owned
+selected words and sealed complete/prefix facts; native capture owners are
+released before fresh independent typed and serialized validation. Existing
+reference APIs and fixed capture limits remain. Whole-run byte accounting and
+measured TLC-relative capacity/performance are still acceptance work; the default
+engine remains `reference`. See [the core liveness contract](developer/core/11-liveness.md).
+
 The removed Phase-L receipt, producer-clock, request-owned, hook and terminal
 service diagnostics are historical. Ordinary liveness does not require matching
 TLC's wall-clock thresholds, queue suspension order, tableau numbering or lasso

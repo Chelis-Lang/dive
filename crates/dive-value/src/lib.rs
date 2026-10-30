@@ -39,6 +39,8 @@
 
 mod atom;
 pub mod codec;
+mod construction;
+pub use construction::ConstructionError;
 mod ctx;
 mod depth;
 mod enumerate;

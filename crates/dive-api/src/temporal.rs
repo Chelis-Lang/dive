@@ -23,6 +23,10 @@ use dive_trace::{
     ValidationRunError,
 };
 
+mod native;
+pub(crate) use native::core_native_report;
+pub use native::{ValidatedNativeCounterexample, ValidatedNativePrefix};
+
 /// The outcome of a bounded temporal run, distinguishing real prefixes.
 #[derive(Clone, Debug)]
 pub enum Outcome {
@@ -34,6 +38,12 @@ pub enum Outcome {
     Violation(Box<ValidatedCounterexample>),
     /// Independently validated word on a real incomplete capture prefix.
     PrefixViolation(Box<ValidatedPrefix>),
+    /// All properties hold after complete native capture, without retained rows.
+    NativeHolds(Box<capture::CompleteEvidence>),
+    /// Independently validated native word with complete producer facts.
+    NativeViolation(Box<ValidatedNativeCounterexample>),
+    /// Independently validated native word with unfinished-prefix facts.
+    NativePrefixViolation(Box<ValidatedNativePrefix>),
     /// The ordinary safety result when no properties are configured, when
     /// configured properties bind entirely to safety roles on the supported
     /// default-memory route, or a safety stop before temporal checking completes.
@@ -209,6 +219,21 @@ pub(crate) fn finish_report(
             failure.symmetry_liveness = report.symmetry_liveness.clone().map(Box::new);
             Some(failure)
         }
+        Outcome::NativeHolds(capture) => {
+            let mut failure = Failure::before(
+                error,
+                Stage::Analysis(dive_liveness::analyze::Stage::Finalization),
+            );
+            failure.exploration = Some(Box::new(native::facts(
+                capture.safety_result(),
+                capture.stats(),
+            )));
+            failure.elapsed = report.elapsed;
+            failure.periodic = report.periodic.map(Box::new);
+            failure.configuration = report.configuration.map(Box::new);
+            failure.symmetry_liveness = report.symmetry_liveness.clone().map(Box::new);
+            Some(failure)
+        }
         Outcome::Safety(result) => {
             dive_check::budget::finish_result(
                 result,
@@ -218,7 +243,10 @@ pub(crate) fn finish_report(
             None
         }
         // These witnesses already passed fresh independent validation.
-        Outcome::Violation(_) | Outcome::PrefixViolation(_) => None,
+        Outcome::Violation(_)
+        | Outcome::PrefixViolation(_)
+        | Outcome::NativeViolation(_)
+        | Outcome::NativePrefixViolation(_) => None,
     }
 }
 
@@ -228,6 +256,13 @@ pub(crate) fn finish_report(
 pub enum Error {
     /// Binding failed, preserving diagnostics and startup output.
     Binding(Box<dive_model::Failure>),
+    /// A graph-independent native candidate failed independent validation.
+    NativeValidation {
+        /// The unvalidated selected word, without retained graph storage.
+        word: Box<dive_liveness::analyze::periodic::external::NativeWord>,
+        /// Actual independent validation result, which is not valid.
+        report: ValidationReport,
+    },
     /// Planning, product construction, atom evaluation or an explicit bound.
     Analysis(AnalysisError),
     /// The independent validator cannot decide the candidate, or refutes it.
@@ -265,14 +300,16 @@ impl Error {
         match self {
             Self::Binding(_) => "DIVE-A0030",
             Self::Analysis(e) => e.code(),
-            Self::Validation { report, .. }
+            Self::NativeValidation { report, .. }
+            | Self::Validation { report, .. }
             | Self::PrefixValidation { report, .. }
             | Self::EndpointValidation { report }
                 if matches!(report.validation, Validation::Invalid(_)) =>
             {
                 "DIVE-A0031"
             }
-            Self::Validation { .. }
+            Self::NativeValidation { .. }
+            | Self::Validation { .. }
             | Self::PrefixValidation { .. }
             | Self::EndpointValidation { .. } => "DIVE-A0032",
             Self::ValidationResource(_) => "DIVE-L0034",
@@ -286,7 +323,8 @@ impl std::fmt::Display for Error {
         match self {
             Self::Binding(e) => e.fmt(f),
             Self::Analysis(e) => e.fmt(f),
-            Self::Validation { report, .. }
+            Self::NativeValidation { report, .. }
+            | Self::Validation { report, .. }
             | Self::PrefixValidation { report, .. }
             | Self::EndpointValidation { report } => write!(
                 f,

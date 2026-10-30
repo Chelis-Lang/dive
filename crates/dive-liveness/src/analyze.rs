@@ -87,6 +87,35 @@ pub enum Analysis {
     Candidate(Candidate),
 }
 
+impl Analysis {
+    /// Releases the captured graph and retains the selected word and original
+    /// producer facts. Candidates still require independent validation.
+    ///
+    /// ```
+    /// use dive_liveness::analyze::{Analysis, Failure};
+    /// use dive_liveness::analyze::periodic::external::NativeFinal;
+    /// fn release_graph(result: Result<Analysis, Failure>) -> Result<NativeFinal, Failure> {
+    ///     result.map(Analysis::into_native)
+    /// }
+    /// ```
+    #[must_use]
+    pub fn into_native(self) -> periodic::external::NativeFinal {
+        match self {
+            Self::Holds(captured) => finish::Completed::Holds(captured.into_evidence()),
+            Self::Candidate(candidate) => finish::Completed::Candidate(
+                finish::NativeWord {
+                    target_property: candidate.target_property,
+                    properties: candidate.properties,
+                    states: candidate.states,
+                    back_to: candidate.back_to,
+                    edges: candidate.edges,
+                },
+                candidate.exploration.into_evidence(),
+            ),
+        }
+    }
+}
+
 /// A concrete periodic word projected from an accepting product walk.
 #[derive(Clone, Debug)]
 pub struct Candidate {
@@ -140,6 +169,8 @@ pub enum AnalysisError {
     Limit(&'static str),
     /// The requested mode is not implemented by this coordinator.
     Unsupported(&'static str),
+    /// A concrete producer value cannot be reconstructed exactly.
+    UnsupportedValue(String),
     /// Internal disagreement between acceptance and direct attribution.
     Inconsistent(&'static str),
     /// A capture thread failure lost execution evidence.
@@ -170,7 +201,7 @@ impl AnalysisError {
             Self::Exploration(_) => "DIVE-L0032",
             Self::Atom { .. } => "DIVE-L0033",
             Self::Limit(_) => "DIVE-L0034",
-            Self::Unsupported(_) => "DIVE-L0035",
+            Self::Unsupported(_) | Self::UnsupportedValue(_) => "DIVE-L0035",
             Self::Inconsistent(_) => "DIVE-L0036",
             Self::CaptureThread(_) => "DIVE-L0037",
             Self::BudgetStartup(_) => dive_check::budget::START_FAILURE_CODE,
@@ -202,6 +233,7 @@ impl std::fmt::Display for AnalysisError {
             ),
             Self::Limit(s) => write!(f, "liveness analysis resource limit: {s}"),
             Self::Unsupported(s) => write!(f, "unsupported liveness analysis: {s}"),
+            Self::UnsupportedValue(s) => write!(f, "unsupported liveness analysis: {s}"),
             Self::Inconsistent(s) => write!(f, "internal liveness analysis error: {s}"),
             Self::CaptureThread(s) => write!(f, "liveness capture thread failure: {s}"),
             Self::BudgetStartup(s) => f.write_str(s),
@@ -609,16 +641,80 @@ fn state_failure(
     error
 }
 
-fn selected_targets(
-    graph: &capture::BehaviorGraph,
+/// Original edge metadata without owning or reconstructing state rows.
+#[derive(Clone, Copy)]
+enum OriginalEdges<'a> {
+    Legacy(&'a capture::BehaviorGraph),
+    Native(&'a capture::CsrCapture<'a>),
+}
+
+#[derive(Clone, Copy)]
+struct OriginalEdge<'a> {
+    to: usize,
+    ordinal: Option<u64>,
+    label: Option<&'a str>,
+}
+
+impl<'a> From<&'a capture::BehaviorGraph> for OriginalEdges<'a> {
+    fn from(graph: &'a capture::BehaviorGraph) -> Self {
+        Self::Legacy(graph)
+    }
+}
+
+impl<'a> OriginalEdges<'a> {
+    fn states(self) -> usize {
+        match self {
+            Self::Legacy(graph) => graph.edges.len(),
+            Self::Native(graph) => graph.state_count(),
+        }
+    }
+    fn len(self, source: usize) -> Option<usize> {
+        match self {
+            Self::Legacy(graph) => graph.edges.get(source).map(Vec::len),
+            Self::Native(graph) => graph.outgoing_range(source).map(|range| range.len()),
+        }
+    }
+    fn edge(self, source: usize, position: usize) -> Option<OriginalEdge<'a>> {
+        match self {
+            Self::Legacy(graph) => {
+                graph
+                    .edges
+                    .get(source)?
+                    .get(position)
+                    .map(|edge| OriginalEdge {
+                        to: edge.to,
+                        ordinal: edge.ordinal,
+                        label: edge.label.as_deref(),
+                    })
+            }
+            Self::Native(graph) => {
+                let range = graph.outgoing_range(source)?;
+                let at = range.start.checked_add(position)?;
+                if at >= range.end {
+                    return None;
+                }
+                Some(OriginalEdge {
+                    to: graph.target(at)?,
+                    ordinal: graph.ordinal(at)?,
+                    label: graph.label(at)?,
+                })
+            }
+        }
+    }
+}
+
+fn selected_targets<'a>(
+    graph: impl Into<OriginalEdges<'a>>,
     source: usize,
     states: &mut (impl StateSource + ?Sized),
 ) -> Result<std::collections::BTreeMap<usize, StateVals>, AnalysisError> {
+    let graph = graph.into();
     let malformed = || AnalysisError::Inconsistent("original action target row shape");
     let originals = states.concrete_count(source).ok_or_else(malformed)?;
     let mut original = 0;
     let mut selected = std::collections::BTreeMap::new();
-    for edge in &graph.edges[source] {
+    for position in 0..graph.len(source).ok_or_else(malformed)? {
+        let edge = graph.edge(source, position).ok_or_else(malformed)?;
         if edge.to >= states.representative_count() {
             return Err(malformed());
         }
@@ -626,7 +722,7 @@ fn selected_targets(
             let metadata = states
                 .concrete_metadata(source, original)
                 .ok_or_else(malformed)?;
-            if metadata.ordinal != ordinal || edge.label.as_deref() != Some(metadata.label) {
+            if metadata.ordinal != ordinal || edge.label != Some(metadata.label) {
                 return Err(malformed());
             }
             if let std::collections::btree_map::Entry::Vacant(entry) = selected.entry(edge.to) {
@@ -652,10 +748,10 @@ fn selected_targets(
     clippy::too_many_arguments,
     reason = "concrete values and validated original-edge shape have separate owners"
 )]
-fn labels(
+fn labels<'a>(
     model: &Model,
     plan: &Plan,
-    graph: &capture::BehaviorGraph,
+    graph: impl Into<OriginalEdges<'a>>,
     states: &mut (impl StateSource + ?Sized),
     shape: product::BehaviorView<'_>,
     property: &str,
@@ -664,16 +760,17 @@ fn labels(
     evaluations: &mut EvaluationErrors,
     control: &dive_check::budget::EvaluationControl,
 ) -> Result<(PackedTruth, usize), AnalysisError> {
-    let edges = graph
-        .edges
-        .iter()
-        .try_fold(0_usize, |n, r| n.checked_add(r.len()))
+    let graph = graph.into();
+    let edges = (0..graph.states())
+        .try_fold(0_usize, |total, source| {
+            total.checked_add(graph.len(source)?)
+        })
         .ok_or(AnalysisError::Limit("atom cells"))?;
     policy.admit(states.representative_count(), edges, plan.atoms.len())?;
     // Owned rows took their vertex dimension from actual captured states.
     // Packing must not turn a missing state row into unwritten FALSE bits.
     if states.representative_count() != shape.vertex_count()
-        || graph.edges.len() != shape.vertex_count()
+        || graph.states() != shape.vertex_count()
     {
         return Err(AnalysisError::Product(product::ProductError::Shape(
             "state predicate dimensions".into(),
@@ -704,12 +801,18 @@ fn labels(
                 continue; // The actual action-domain column is already FALSE.
             }
             let targets = selected_targets(graph, v, states)?;
-            if graph.edges[v].is_empty() {
+            if graph.len(v) == Some(0) {
                 continue;
             }
             let vals = states.representative(v)?;
             let mut evaluated = std::collections::BTreeMap::new();
-            for (position, edge) in graph.edges[v].iter().enumerate() {
+            for position in 0..graph
+                .len(v)
+                .ok_or(AnalysisError::Inconsistent("original edge row"))?
+            {
+                let edge = graph
+                    .edge(v, position)
+                    .ok_or(AnalysisError::Inconsistent("original edge reference"))?;
                 let value = if let Some(target) = targets.get(&edge.to) {
                     if let Some(value) = evaluated.get(&edge.to) {
                         *value
@@ -1328,22 +1431,17 @@ fn prepare(
     Ok(plans)
 }
 
-struct CandidateWord {
-    target_property: String,
-    properties: Vec<String>,
-    states: Vec<StateVals>,
-    back_to: usize,
-    edges: Vec<capture::Edge>,
-}
+type CandidateWord = finish::NativeWord;
 
 type OriginalWord = (Vec<StateVals>, Vec<usize>, Vec<capture::Edge>);
 
-fn original_word(
-    captured: &capture::BehaviorGraph,
+fn original_word<'a>(
+    captured: impl Into<OriginalEdges<'a>>,
     source: &mut (impl StateSource + ?Sized),
     projection: Option<&row_demand::Projection>,
     lasso: &crate::search::Lasso,
 ) -> Result<OriginalWord, AnalysisError> {
+    let captured = captured.into();
     let steps = lasso.prefix.iter().chain(&lasso.cycle);
     let states = steps
         .clone()
@@ -1362,9 +1460,16 @@ fn original_word(
             let (source, edge) = projection.map_or((s.from, s.edge), |p| {
                 (p.sources[s.from], p.edges[s.from][s.edge])
             });
-            captured.edges[source][edge].clone()
+            let edge = captured
+                .edge(source, edge)
+                .ok_or(AnalysisError::Inconsistent("original word edge"))?;
+            Ok(capture::Edge {
+                to: edge.to,
+                ordinal: edge.ordinal,
+                label: edge.label.map(str::to_owned),
+            })
         })
-        .collect();
+        .collect::<Result<Vec<_>, AnalysisError>>()?;
     Ok((states, source_ids, edges))
 }
 
@@ -1434,6 +1539,44 @@ fn analyze_source(
     let graph = projection.as_ref().map_or(original, |projection| {
         product::BehaviorView::from(&projection.graph)
     });
+    analyze_graph(
+        model,
+        plans,
+        searched,
+        OriginalEdges::Legacy(captured),
+        states,
+        graph,
+        projection.as_ref(),
+        cache,
+        limits,
+        policy,
+        graph_labels,
+        stage,
+        evaluations,
+        control,
+    )
+}
+
+#[allow(
+    clippy::too_many_arguments,
+    reason = "shared existing product loop over separate topology, metadata and state owners"
+)]
+fn analyze_graph(
+    model: &Model,
+    plans: &[PreparedProperty],
+    searched: usize,
+    captured: OriginalEdges<'_>,
+    states: &mut (impl StateSource + ?Sized),
+    graph: product::BehaviorView<'_>,
+    projection: Option<&row_demand::Projection>,
+    cache: Option<&row_demand::Cache>,
+    limits: Limits,
+    policy: AcceptancePolicy,
+    graph_labels: GraphLabelPolicy,
+    stage: &mut Stage,
+    evaluations: &mut EvaluationErrors,
+    control: &dive_check::budget::EvaluationControl,
+) -> Result<Option<CandidateWord>, AnalysisError> {
     for (property, (p, prepared)) in model
         .property_claims()
         .iter()
@@ -1449,23 +1592,25 @@ fn analyze_source(
         } else {
             (std::collections::BTreeSet::new(), None)
         };
-        let (labels, behavior_edges) = if let (Some(cache), Some(projection)) = (cache, &projection)
-        {
-            cached_labels(property, plan, captured, projection, cache, graph_labels)?
-        } else {
-            labels(
-                model,
-                plan,
-                captured,
-                states,
-                graph,
-                &p.name,
-                graph_labels,
-                &active,
-                evaluations,
-                control,
-            )?
-        };
+        let (labels, behavior_edges) =
+            if let (Some(cache), Some(projection), OriginalEdges::Legacy(captured)) =
+                (cache, projection, captured)
+            {
+                cached_labels(property, plan, captured, projection, cache, graph_labels)?
+            } else {
+                labels(
+                    model,
+                    plan,
+                    captured,
+                    states,
+                    graph,
+                    &p.name,
+                    graph_labels,
+                    &active,
+                    evaluations,
+                    control,
+                )?
+            };
         *stage = Stage::Product;
         for group in &prepared.groups {
             let product = CompactProduct::with_policy_and_edges(
@@ -1484,7 +1629,7 @@ fn analyze_source(
                     .map_err(AnalysisError::Product)?
                 {
                     let (states, source_ids, edges) =
-                        original_word(captured, states, projection.as_ref(), &lasso)?;
+                        original_word(captured, states, projection, &lasso)?;
                     *stage = Stage::Attribution;
                     let properties = attribute(
                         model,
@@ -1512,6 +1657,49 @@ fn analyze_source(
         }
     }
     Ok(None)
+}
+
+#[allow(
+    clippy::too_many_arguments,
+    reason = "native adapter preserves the same analysis inputs without a retained Value graph"
+)]
+fn analyze_native(
+    model: &Model,
+    plans: &[PreparedProperty],
+    searched: usize,
+    captured: &capture::CsrCapture<'_>,
+    read: &mut periodic::external::NativeRead<'_>,
+    limits: Limits,
+    policy: AcceptancePolicy,
+    graph_labels: GraphLabelPolicy,
+    stage: &mut Stage,
+    evaluations: &mut EvaluationErrors,
+    control: &dive_check::budget::EvaluationControl,
+) -> Result<Option<CandidateWord>, AnalysisError> {
+    *stage = Stage::Product;
+    let topology = product::CsrTopology::from_capture(captured);
+    let mut states = state_source::NativeStates {
+        graph: captured,
+        read,
+        control,
+        variables: model.ir.vars().len(),
+    };
+    analyze_graph(
+        model,
+        plans,
+        searched,
+        OriginalEdges::Native(captured),
+        &mut states,
+        product::BehaviorView::from(&topology),
+        None,
+        None,
+        limits,
+        policy,
+        graph_labels,
+        stage,
+        evaluations,
+        control,
+    )
 }
 
 /// Completed-level deterministic scheduling without weakening final completion.

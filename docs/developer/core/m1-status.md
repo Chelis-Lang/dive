@@ -11,6 +11,13 @@ model at 1/8 workers, investigated above 1.5. Semantic, independent-word and
 resource obligations are unchanged. Historical qualifications below remain
 attached to their original sources; no acceptance is granted retrospectively.
 
+The native L5 storage/report path now retains original persistent rows and CSR,
+uses eager Graph admission plus on-demand conversion with zero retained Value
+cache, and releases capture owners before fresh independent word validation.
+Fixed capture counts remain. Store/native accounting is partial; native
+TLC-relative capacity/performance and integrated qualification are still open.
+Historical populations below are not measurements of this backend.
+
 ## 1. Current qualification
 
 - Frozen `75f0ac4f769323de7be53a439ff5445ef4975b68` completes all 300
@@ -392,7 +399,8 @@ into this tranche, and no new all-model compat speedup is claimed. Record:
 - **Liveness pulled from M3 into M1, producer only (`11-liveness.md`).** Two
   bench models needed it. The core builds the graph, and the existing
   analysis and validator check it, so their results are proven ones. Phase
-  2 (L5, a compact graph sized to TLC's capacity) is still to do.
+  2 now has native persistent rows/CSR and graph-neutral reports. Full byte
+  accounting and TLC-relative capacity qualification remain open (§6).
 - **`Print` and effects.** An effect bit keeps printing and register
   expressions out of folding, speculation and memoization. A spec that
   prints runs on one worker, so output comes in TLC's order.
@@ -469,11 +477,12 @@ core reboot and do not establish current core breadth.
    final-expansion certification (#434), and missing partial-state words (#607).
    Use minimal pinned reproducers and independent negative controls. Do not
    exempt the last state or accept a matching wrapper as a certificate.
-2. Advance L5's original-target retention, graph-neutral completion, native
-   state source and CSR integration before lifting capacity limits. EWD998Chan
-   first needs the bounded primed-SelectSeq lane. Preserve current semantic
-   refusals for VIEW/symmetry quotient behavior and effects; memory work alone
-   does not implement them. Use original temporal configurations for capacity.
+2. Qualify the implemented native L5 retention/source/CSR/report path: finish
+   whole-run allocation accounting and bound remaining work before lifting
+   fixed capture counts. Recheck original EWD998Chan temporal configuration
+   after the bounded primed-SelectSeq work; operator admission alone establishes
+   no capacity. Preserve VIEW/symmetry/effects refusals and separate error-demand
+   obligations. Use original temporal configurations for TLC capacity.
 3. Retain explicit fallback and ablation accounting; broaden to the full tier
    on the core for M2 instead of promoting the historical reference result.
    Preserve the reference default while supported words remain unproven.
@@ -499,10 +508,11 @@ large graph rewrite before the existing state-storage boundary is explicit.
   `CARGO_TARGET_DIR` per worktree.
   - Wrap heavy runs in `scripts/gate-lock.sh`. It is first-in first-out,
     with a separate lane for `gate --fast`.
-  - Open a PR as a draft until its local gate passes.
-  - Run the full gate for any PR that touches `dive-eval`, `dive-check`,
-    `dive-value`, `dive-store`, `dive-liveness`, `dive-model` or
-    `dive-trace`.
+  - Use focused checks with feedback in seconds to a few minutes, then required
+    CI for incremental PRs. Keep a draft while required checks/review are pending.
+  - Run the full gate on the integrated milestone candidate and before release
+    qualification, recording its exact source. Do not repeat it for every edit
+    or split implementation into extra unconsumed prerequisites (AGENTS.md).
 - **AWS.** Nodes run on credits, are tagged `project=dive`, and are
   terminated after use, at most two at a time.
   - `scripts/aws/` needs an SSO `AWS_PROFILE` for the dive account.

@@ -20,6 +20,50 @@ including the closing edge. This explicit mode does not use periodic
 scheduling or claim all evaluation-error timing. Explicit requests retain their
 existing `tlc+overrides` label when combined with TLC value semantics.
 
+## Native graph capture with the core engine
+
+Ordinary `--engine core` temporal checks retain persistent original state rows
+and compact CSR edges. The existing temporal analyzer reads values on demand;
+there is no retained converted-value cache or second complete evaluator-value
+graph. This changes storage, not the supported temporal language, fairness,
+property attribution or completion requirements. The default engine remains
+`reference`.
+
+```sh
+dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterTemporal.cfg --engine core --workers 1 --seed 7 --output json
+```
+
+This checked example returns `liveness-violation` for `EventuallyFour`, exit 13:
+5 distinct states, 6 generated states and depth 5. Its one-state word stutters
+at `x = 0` and has `counterexample.validation: "valid"`. Capture is exhausted;
+no prefix check is due for this small graph. Adding `--compat=tlc` keeps those
+observables and selects final-only analysis. The default profile retains its
+deterministic completed-level schedule. Explicit final/short requests retain
+their existing separate route.
+
+JSON schema 3 preserves the actual completion/counters and existing trace
+format. `core.metrics.liveness.storage: "native-csr"` identifies native capture;
+`convert_ms`, `converted_nodes`, `memo_entries` and `graph_states` remain,
+with `memo_entries: 0`. Additive `values` counters report admission and on-demand
+reads with zero cache entries/bytes. Collector `memory` fields cover native
+buffers and action-label capacities; growth overlap is an upper bound,
+`accounting_complete` is false, and sampled process memory is not a true peak
+or an allocation-time hard cap.
+
+Every accepted original is admitted in producer order through exact Graph
+conversion before retention. Unknown set normalization history is refused;
+function versus tuple/record literal classes remain distinct. A selected word
+outlives capture, but the native graph, converter, store and plan owners are
+released before a freshly bound model independently replays both the typed word
+and serialized trace. Invalid or interrupted validation publishes no violation.
+
+Fixed capture counts, resource guards and existing core admission refusals remain.
+VIEW/symmetry quotient semantics, effects and temporal error-demand order are
+separate limitations. A core refusal is explicit; `--engine auto` can retry the
+reference route and reports fallback. This implementation establishes no larger
+TLC-relative capacity, throughput improvement or engine-default change. Complete
+memory accounting and original-workload qualification remain open.
+
 ## Ordinary checking in the dive profile
 
 With profile-default evaluation, resident fingerprint storage and no storage,
@@ -423,6 +467,16 @@ recursive or higher-order redirects and unsupported lexical contexts do not
 qualify for this extension. Two tiny filtered-WF models exercise success and a
 genuine independently replayed violation. Coverage of original Quicksort and
 other corpus models is not established by these controls.
+
+Core-native Rust reports add `temporal::Outcome::NativeHolds`,
+`NativeViolation` and `NativePrefixViolation`. The holding variant retains sealed
+complete producer facts. Validated violation wrappers expose `word()` (selected
+states, edges, properties and loop position), `evidence()`, `document()` and
+`validation()`. Complete evidence and unfinished-prefix evidence stay distinct;
+a prefix cannot prove Holds. The wrappers' constructors are private and are
+published only after fresh typed and serialized validation. Existing reference
+variants remain available. See [the Rust guide](rust-api.md) for the low-level
+CSR/read interfaces.
 
 `dive_api::temporal` is the Rust entry point (see
 [the temporal API contract](../temporal-api.md)). `dive-liveness` exposes the

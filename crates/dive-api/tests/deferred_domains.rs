@@ -75,6 +75,11 @@ fn deferred_domains_match_final_truth_counts_and_independent_word_controls() {
                                 assert_eq!(v.validation().validation, Validation::Valid);
                                 &v.candidate().exploration
                             }
+                            Outcome::NativeHolds(_)
+                            | Outcome::NativeViolation(_)
+                            | Outcome::NativePrefixViolation(_) => {
+                                panic!("explicit reference API must retain its legacy result type")
+                            }
                             Outcome::PrefixViolation(_) => {
                                 panic!("explicit Final cannot return a prefix")
                             }

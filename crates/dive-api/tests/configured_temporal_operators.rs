@@ -45,6 +45,10 @@ fn state(x: i64) -> dive_trace::State {
 }
 
 #[test]
+#[allow(
+    clippy::too_many_lines,
+    reason = "one oracle and witness matrix includes explicit reference-route guards"
+)]
 fn configured_reply_matches_pinned_counts_and_rejects_forged_words() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     for suffix in ["Holds", "Fails"] {
@@ -122,6 +126,11 @@ fn configured_reply_matches_pinned_counts_and_rejects_forged_words() {
                         Validation::Invalid(_)
                     ));
                     &v.candidate().exploration
+                }
+                Outcome::NativeHolds(_)
+                | Outcome::NativeViolation(_)
+                | Outcome::NativePrefixViolation(_) => {
+                    panic!("explicit reference API must retain its legacy result type")
                 }
                 Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
                 Outcome::Safety(s) => panic!("unexpected safety result: {:?}", s.verdict),
