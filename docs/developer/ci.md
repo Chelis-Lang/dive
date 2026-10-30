@@ -207,9 +207,10 @@ reports of one `dive check` run agree: the header's profile, store, seed and
 workers, the verdict line and violated properties, the statistics, the
 counterexample (state count, each state, the loop-back state), the printed
 output in order and the warnings. Both renderings come from the same report,
-so a difference is a rendering defect. It does not compare dive with TLC:
-#489, where the property names differ from TLC's but agree between the two
-reports, is a parity issue.
+so a difference is a rendering defect. This does not compare dive with TLC
+or establish semantic parity. Liveness property attribution is checked against
+the actual independently validated word; different valid words may name different
+false-property sets (ADR 0126).
 
 The `ci` profile runs a fixed list of seeds covering each verdict family. To
 check every fixture in both profiles:
@@ -219,11 +220,15 @@ DIVE_OUTPUT_AGREEMENT=all DIVE_OUTPUT_AGREEMENT_REPORT="$TMPDIR/output-agreement
   cargo test -p dive-api --release --test output_agreement -- every_fixture --nocapture
 ```
 
-One known difference is reported separately and does not fail the sweep: a
-temporal evaluation error's JSON report carries the counterexample to the
-failing state, while the human report says only that capture completed
-(`ConcatFirstTypeError`; #500). `known_differences_still_reproduce` fails once it is
-fixed.
+Temporal evaluation-error reports print the same independently validated finite
+word in human and JSON output, preserving state order and length (#500).
+Capture statistics distinguish completed from incomplete capture; an uncertified
+diagnostic prefix does not become a behavior claim. `fixed_seeds_agree` includes
+temporal error positives in both profiles, and
+`every_fixture_renders_agreeing_reports_when_requested` applies the same strict
+comparisons to the full sweep. There is no temporal-error rendering exemption.
+Planning errors and unsupported results without words do not supply positive
+word evidence; rendering agreement alone does not prove the checker verdict.
 
 ## Directional metamorphic tests
 
