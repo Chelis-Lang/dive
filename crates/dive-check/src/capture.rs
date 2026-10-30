@@ -1148,6 +1148,16 @@ fn context_stop(model: &Model, opts: &CheckOptions) -> Option<Exploration> {
     None
 }
 
+/// Whether only runtime-name scheduling blocks a parallel producer.
+///
+/// This grants no producer or evaluation authority: a native caller must prove
+/// its actual fixed name domains separately. Reference pool refusal is unchanged.
+/// All source/configured/captured effects retain the conservative shared check.
+#[must_use]
+pub fn runtime_names_only(model: &Model) -> bool {
+    !model.sequential.is_empty() && model.sequential_names_only && !crate::effectful(model)
+}
+
 /// Why graph capture refuses `model` under `opts` before any search, or
 /// `None`: the admission checks of the shared capture entry points, in their
 /// order, with their messages. `parallel` selects the concrete-pool checks.

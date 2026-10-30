@@ -172,6 +172,32 @@ prefix.
 
 `dive-explore` gains no dependency: the sink is a trait over core handles.
 
+### Native name-domain admission
+
+ADR 0127 discharges only the binder's typed runtime-name-only sequential
+restriction for the private freshly bound native producer. Full conservative
+source/configured/captured effect checks remain. Admission verifies actual scope
+Core/IR/Interner ownership and every startup token/text against the actual sealed
+native Store; arbitrary public bound models/providers are not accepted by this
+private entrypoint. Native generation retains the existing new-name refusal.
+
+A wrapper observes the exact append-only reference Interner across the entire
+temporal operation, including all early returns, planning, capture, periodic and
+final analysis, attribution and report construction. Growth prevents semantic
+publication; nonsemantic resource/interruption/bug transport retains its phase.
+Fresh independent replay separately refuses new names in its own domain. The
+reference concrete-pool source policy is unchanged. Actual callback and original
+row evaluation still supplies truth; absence of new names is no state-space,
+class, representation or word proof.
+
+The unchanged original pinned EWD998Chan source/property, with only N=1 derived
+configuration, agrees with fresh pinned TLC and reference at 6 distinct /13
+generated /depth2 in both native profiles at W1/W8. Original N=3 capacity and
+performance require separate qualification. Tuple SubSeq, new-name producer and
+state-atom demands, early periodic/error returns, foreign scopes/configured
+captures and nonsemantic stop priority have focused controls. No source rewrite,
+worker fallback, new mode or static state-type approximation is used.
+
 ## 4. Native rows and on-demand `StateVals` (`dive-api`)
 
 `core_native_graph.rs` retains flat persistent handle rows, representative row

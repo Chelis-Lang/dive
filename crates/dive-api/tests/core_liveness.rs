@@ -464,3 +464,55 @@ fn closed_function_reads_keep_nested_reports_and_do_not_reuse_admission() {
         }
     }
 }
+
+#[test]
+fn fixed_native_names_admit_pure_tuple_calls_but_refuse_new_name_demands() {
+    for tlc in [false, true] {
+        let reference = run("FixedNames/TupleSubSeq", Engine::Reference, 1, tlc, false);
+        assert_eq!(reference["statistics"]["distinct"], 3);
+        assert_eq!(reference["statistics"]["generated"], 4);
+        assert_eq!(reference["statistics"]["depth"], 3);
+        for workers in [1, 8] {
+            let actual = run("FixedNames/TupleSubSeq", Engine::Core, workers, tlc, false);
+            assert_eq!(actual["engine"], "core");
+            assert_eq!(actual["options"]["workers"]["used"], workers);
+            for field in [
+                "verdict",
+                "statistics",
+                "tlc",
+                "property",
+                "exit_code",
+                "counterexample",
+            ] {
+                assert_eq!(actual[field], reference[field], "{tlc} w{workers} {field}");
+            }
+            let producer = run("FixedNames/NameProducer", Engine::Core, workers, tlc, false);
+            assert_eq!(producer["verdict"], "unsupported", "{producer}");
+            assert!(producer["counterexample"].is_null());
+            if tlc {
+                assert!(
+                    producer["message"]
+                        .as_str()
+                        .expect("reason")
+                        .contains("after start-up")
+                );
+            }
+            for every in [false, true] {
+                let atom = run("FixedNames/NameAtom", Engine::Core, workers, tlc, every);
+                if tlc {
+                    assert_eq!(atom["verdict"], "unsupported", "{atom}");
+                    assert!(
+                        atom["message"]
+                            .as_str()
+                            .expect("reason")
+                            .contains("outside the proved startup domain")
+                    );
+                    assert!(atom["counterexample"].is_null());
+                    assert!(atom["tlc"].is_null());
+                } else {
+                    assert_eq!(atom["verdict"], "success", "{atom}");
+                }
+            }
+        }
+    }
+}
