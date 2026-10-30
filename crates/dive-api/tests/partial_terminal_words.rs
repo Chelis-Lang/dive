@@ -99,3 +99,92 @@ fn partial_next_words_preserve_the_pinned_bfs_terminal_and_logical_length() -> T
     }
     Ok(())
 }
+
+#[test]
+fn complete_prefix_must_pass_configured_safety_before_partial_replay() -> TestResult {
+    use dive_api::trace::Check;
+    let file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../..")
+        .join(
+            "crates/dive-check/tests/fixtures/errors/specs/ErNextIncomplete/ErNextIncomplete.tla",
+        );
+    let original = std::fs::read_to_string(&file)?;
+    let additions =
+        "\nBadInit == x#0\nActionProperty == [][x'=x]_<<x,y>>\nBadInvariant == 1 \\div x=0\n";
+    let marker = original.rfind("====").ok_or("module end")?;
+    let source = format!(
+        "{}{}{}",
+        &original[..marker],
+        additions,
+        &original[marker..]
+    );
+    for compat_tlc in [false, true] {
+        let actual = check_file_engine(
+            &CheckRequest {
+                file: file.clone(),
+                config: Some(file.with_extension("cfg")),
+                compat_tlc,
+                workers: Some(1),
+                seed: Some(0),
+                fp: Some(0),
+                ..CheckRequest::default()
+            },
+            Engine::Core,
+        )?
+        .to_json();
+        let doc = TraceDoc::from_json(&actual["counterexample"]["trace"])?;
+        for (config, source, expected, state) in [
+            ("INVARIANT Init", original.as_str(), Check::Invariant, 1),
+            ("CONSTRAINT Init", original.as_str(), Check::Constraint, 1),
+            (
+                "ACTION_CONSTRAINT Init",
+                original.as_str(),
+                Check::ActionConstraint,
+                2,
+            ),
+            ("PROPERTY BadInit", source.as_str(), Check::ImpliedInit, 0),
+            (
+                "PROPERTY ActionProperty",
+                source.as_str(),
+                Check::ImpliedAction,
+                1,
+            ),
+            (
+                "INVARIANT BadInvariant",
+                source.as_str(),
+                Check::Invariant,
+                0,
+            ),
+            // Constraint failure must retain priority over the invariant.
+            (
+                "CONSTRAINT Init\nINVARIANT Init",
+                original.as_str(),
+                Check::Constraint,
+                1,
+            ),
+        ] {
+            let model = SpecModel::from_source(
+                "ErNextIncomplete.tla",
+                source,
+                &format!("INIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n{config}\n"),
+                &TraceOptions {
+                    compat_tlc,
+                    run: Some((0, 0)),
+                    ..TraceOptions::default()
+                },
+            )?;
+            let report = model.try_validate(&doc)?;
+            let Validation::Invalid(failure) = report.validation else {
+                return Err(format!("{config}: {report:?}").into());
+            };
+            assert_eq!(failure.check, expected, "{config}: {failure:?}");
+            assert_eq!(failure.state, state, "{config}: {failure:?}");
+            assert_eq!(report.length, 4);
+            // The original public Behavior contract remains plain membership.
+            let mut behavior = doc.clone().with_ending(dive_api::trace::Ending::Behavior);
+            behavior.length = Some(behavior.states.len());
+            assert_eq!(model.try_validate(&behavior)?.validation, Validation::Valid);
+        }
+    }
+    Ok(())
+}

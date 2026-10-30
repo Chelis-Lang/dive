@@ -380,7 +380,10 @@ impl Session {
                 "logical word length must include the partial terminal candidate",
             ));
         }
-        let mut prefix = doc.clone().with_ending(crate::Ending::Behavior);
+        // Retain the error-witness goal: ordinary Behavior deliberately omits
+        // configured safety obligations, while every complete prefix row here
+        // must pass them before a terminal event can be certified.
+        let mut prefix = doc.clone();
         prefix.length = Some(prefix.states.len());
         let trace = match Trace::decode(&model, &prefix) {
             Ok(trace) => trace,

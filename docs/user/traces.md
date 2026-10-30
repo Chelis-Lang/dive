@@ -110,7 +110,9 @@ dive validate-trace crates/dive-check/tests/fixtures/errors/specs/ErNextIncomple
 
 Validation separately reconstructs the complete prefix and terminal generator
 on fresh runtimes, requiring the first incomplete candidate's exact assignments
-and source. This first slice refuses any earlier complete candidate, whose
+and source. Every complete prefix row must pass configured constraints,
+invariants and implied safety properties before terminal replay. This first
+slice refuses any earlier complete candidate, whose
 ordered candidate checks still need implementation. `RoActions` and `SplitThrows`
 therefore have real words but remain unconfirmed; Init partial words and other
 terminal-error families remain separate work. Version 3 is reserved for this

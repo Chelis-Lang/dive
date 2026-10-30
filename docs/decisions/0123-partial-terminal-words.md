@@ -40,6 +40,9 @@ generating source. An earlier genuine evaluation error refutes the claim;
 completed generation without the partial candidate refutes it too. In this
 first slice any earlier complete candidate remains unsupported: its ordered
 fingerprint, constraint, invariant and action-check demands are not skipped.
+The complete prefix retains the error-witness validation goal, which checks
+configured safety obligations in order. Ordinary behavior validation deliberately
+checks plain membership and cannot establish this error-witness prefix.
 
 Keep the existing host, composition, runtime-name, VIEW/symmetry and temporal
 refusals. Reuse cooperative evaluator control and typed resource transport;
