@@ -188,6 +188,13 @@ it, and plain errors/earlier endpoint stages keep their meanings. Consumers must
 update readers before advancing a producer pin; see the exact wire example and
 landing notice requirement in [ADR 0128](../decisions/0128-candidate-terminal-error-replay.md).
 
+A non-Boolean value returned by a named constraint/action/property role remains
+unproved by this terminal lane. This differs from an actual source-qualified
+error raised inside expression evaluation, such as `[A]_e` rejecting a
+non-Boolean inner action: fresh replay can prove that constructor and its
+wrapper identities. The distinction uses actual execution and source, never a
+fixture name or rendered exception message.
+
 Readers select the operation and supported version before interpreting results.
 They may ignore unknown optional fields and preserve unfamiliar diagnostic codes,
 resource names or phase descriptions as data. They must reject unknown versions,

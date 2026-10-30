@@ -46,7 +46,7 @@ enumerating each action before checking its candidates. Its first supported
 error determines the deciding identity from its typed constructor. A different
 secondary candidate site remains unsupported; an actual Next error can decide
 instead. An unknown constructor, global newness/alias requirement, unproved
-non-Boolean check, VIEW, symmetry, temporal model or executed effect remains a
+top-level non-Boolean role result, VIEW, symmetry, temporal model or executed effect remains a
 refusal. Resource, interruption and internal failures transport no completed
 validity report. No checker/store dependency or BFS statistics proof is added.
 
@@ -69,9 +69,22 @@ The producer admits only verified deciding-2103 tool/runtime candidate errors
 with original source provenance. Assertions and direct module errors, including
 DivZero and Enabled controls, retain their old unproved endings.
 
-Fifteen existing source fixtures cover Choose, Domain, NonBoolIf, NonEnum and
-TypeErr at constraint/action-constraint/implied-action sites in both profiles
-and engines. Their pinned primary headers remain unchanged. Mutations of
+Sixteen existing source fixtures cover Choose, Domain, NonBoolIf, NonEnum and
+TypeErr at constraint/action-constraint/implied-action sites, plus
+`ErPropNonBool`, in both profiles/engines at one and four workers. Their pinned
+primary headers remain unchanged.
+
+The non-Boolean boundary concerns the operation actually reached, not a fixture
+name or message. If a named role returns a non-Boolean value, the driver has not
+proved that role's `isValid` classification and refuses it. `ErConstrNonBool`
+and `ErActConstrNonBool` explicitly retain non-agreement. In contrast,
+`ErPropNonBool` evaluates `[Err(x)]_<<x, y>>`; the evaluator's actual `StepBox`
+constructor raises a source-qualified tool/runtime error when the inner action
+is non-Boolean. The driver independently reaches that error, rather than
+synthesizing a role failure from a returned value. Its pinned stream reports
+2113 at that expression and diagnostic 2103 at the same source. Exact source,
+wrapper and earlier-constraint-priority controls accompany this qualified case;
+it does not prove every non-Boolean role error. Mutations of
 bindings, source, site, underlying cause, wrapper codes, length and versions
 must fail closed; controls exercise a genuinely different diagnostic error,
 unknown newness, VIEW, effects and interruption. This supplies no whole-census,

@@ -5,7 +5,9 @@
   Readers must implement the distinct final-candidate semantics and both primary
   and diagnostic replay before advancing producer pins; versions 1/2/3 cannot
   carry the new endpoint and keep their meanings. Outer reports remain schema 3.
-  VIEW, unproved history and non-Boolean checks retain explicit refusals.
+  VIEW, unproved history and top-level non-Boolean role results retain explicit
+  non-agreement. An actual source-qualified inner evaluator error, including
+  `[A]_e` rejecting its non-Boolean action, can validate after both replay phases.
 
 - Human temporal-error reports print the same independently validated finite
   behavior as JSON. Capture statistics distinguish incomplete work from completed

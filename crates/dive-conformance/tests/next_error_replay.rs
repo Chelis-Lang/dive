@@ -234,79 +234,83 @@ fn pinned_partial_candidate_requires_the_exact_independent_terminal() {
 #[test]
 fn candidate_wrapper_replay_preserves_pinned_primary_headers_and_strict_report_checks() {
     let root = repo().join("crates/dive-check/tests/fixtures/errors");
-    for site in ["Constr", "ActConstr", "Prop"] {
-        for kind in ["Choose", "Domain", "NonBoolIf", "NonEnum", "TypeErr"] {
-            let name = format!("Er{site}{kind}");
-            let file = root.join(format!("specs/{name}/{name}.tla"));
-            let clean =
-                std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.stdout")))
-                    .expect("pinned stream");
-            let transcript = messages::parse(&clean);
-            assert_eq!(transcript.anomalies, Vec::<String>::new());
-            let first = transcript
+    let cases = ["Constr", "ActConstr", "Prop"]
+        .into_iter()
+        .flat_map(|site| {
+            ["Choose", "Domain", "NonBoolIf", "NonEnum", "TypeErr"].map(|kind| (site, kind))
+        })
+        .chain([("Prop", "NonBool")]);
+    for (site, kind) in cases {
+        let name = format!("Er{site}{kind}");
+        let file = root.join(format!("specs/{name}/{name}.tla"));
+        let clean =
+            std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.stdout")))
+                .expect("pinned stream");
+        let transcript = messages::parse(&clean);
+        assert_eq!(transcript.anomalies, Vec::<String>::new());
+        let first = transcript
+            .messages()
+            .find(|m| m.class == messages::class::ERROR)
+            .expect("first primary error");
+        assert!(
+            transcript
                 .messages()
-                .find(|m| m.class == messages::class::ERROR)
-                .expect("first primary error");
-            assert!(
-                transcript
-                    .messages()
-                    .any(|m| m.code == 2103 && m.class == messages::class::ERROR)
-            );
-            let oracle = result::classify(
-                &transcript,
-                &RunFacts {
-                    exit_code: Some(75),
-                    ..RunFacts::default()
-                },
-            );
-            for compat in [false, true] {
-                let spec = model(&file, compat);
-                for engine in [Engine::Core, Engine::Reference] {
-                    let actual = native(&file, engine, compat);
-                    let wire = actual
-                        .trace
-                        .as_ref()
-                        .and_then(|t| t.json.as_ref())
-                        .expect("actual word");
-                    assert_eq!(wire["ending"]["endpoint"]["reported"], first.code);
-                    assert_eq!(actual.verdict_code, Some(2103));
-                    assert!(
-                        validate_counterexample(&spec, &actual, &actual).validated,
-                        "{name}"
+                .any(|m| m.code == 2103 && m.class == messages::class::ERROR)
+        );
+        let oracle = result::classify(
+            &transcript,
+            &RunFacts {
+                exit_code: Some(75),
+                ..RunFacts::default()
+            },
+        );
+        for compat in [false, true] {
+            let spec = model(&file, compat);
+            for engine in [Engine::Core, Engine::Reference] {
+                let actual = native(&file, engine, compat);
+                let wire = actual
+                    .trace
+                    .as_ref()
+                    .and_then(|t| t.json.as_ref())
+                    .expect("actual word");
+                assert_eq!(wire["ending"]["endpoint"]["reported"], first.code);
+                assert_eq!(actual.verdict_code, Some(2103));
+                assert!(
+                    validate_counterexample(&spec, &actual, &actual).validated,
+                    "{name}"
+                );
+                if oracle.verdict == Verdict::Unclassified {
+                    assert_ne!(
+                        diff_results(
+                            &oracle,
+                            &actual,
+                            CompareContext {
+                                workers: 1,
+                                counts_comparable: true
+                            }
+                        ),
+                        Vec::new()
                     );
-                    if oracle.verdict == Verdict::Unclassified {
-                        assert_ne!(
-                            diff_results(
-                                &oracle,
-                                &actual,
-                                CompareContext {
-                                    workers: 1,
-                                    counts_comparable: true
-                                }
-                            ),
-                            Vec::new()
-                        );
-                    }
-                    let mut bad = actual.clone();
-                    bad.error_class = Some("GENERAL".into());
-                    assert!(validate_counterexample(&spec, &bad, &actual).refuted);
-                    let mut bad = actual.clone();
-                    bad.trace
-                        .as_mut()
-                        .expect("trace")
-                        .json
-                        .as_mut()
-                        .expect("word")["ending"]["endpoint"]["deciding"] = json!(2179);
-                    assert!(validate_counterexample(&spec, &bad, &actual).refuted);
-                    let mut bad = actual.clone();
-                    bad.trace
-                        .as_mut()
-                        .expect("trace")
-                        .json
-                        .as_mut()
-                        .expect("word")["ending"]["endpoint"]["source"]["module"] = json!("Forged");
-                    assert!(validate_counterexample(&spec, &bad, &actual).refuted);
                 }
+                let mut bad = actual.clone();
+                bad.error_class = Some("GENERAL".into());
+                assert!(validate_counterexample(&spec, &bad, &actual).refuted);
+                let mut bad = actual.clone();
+                bad.trace
+                    .as_mut()
+                    .expect("trace")
+                    .json
+                    .as_mut()
+                    .expect("word")["ending"]["endpoint"]["deciding"] = json!(2179);
+                assert!(validate_counterexample(&spec, &bad, &actual).refuted);
+                let mut bad = actual.clone();
+                bad.trace
+                    .as_mut()
+                    .expect("trace")
+                    .json
+                    .as_mut()
+                    .expect("word")["ending"]["endpoint"]["source"]["module"] = json!("Forged");
+                assert!(validate_counterexample(&spec, &bad, &actual).refuted);
             }
         }
     }

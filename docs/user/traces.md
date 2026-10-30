@@ -409,6 +409,14 @@ prefix, then actually execute diagnostic generation/checks to prove its deciding
 code. See [ADR 0128](../decisions/0128-candidate-terminal-error-replay.md) for the
 wire example. Readers must understand version 4 before updating producer pins;
 versions 1/2/3 retain their meanings and reject the new form. VIEW, unknown
-newness/alias history, unproved non-Boolean checks, raw fingerprint demand and
+newness/alias history, unproved top-level non-Boolean role results, raw fingerprint demand and
 executed effects remain unsupported. The witness certifies no BFS counts or
 TLC classifier result, and legacy infallible validation refuses it.
+
+This non-Boolean boundary depends on the actual operation reached. A named role
+that returns a non-Boolean value still has an unproved role classification and
+receives no agreement credit. An expression such as `[A]_e` can instead raise
+an actual source-qualified evaluator error when its inner action is not
+Boolean. That inner constructor error can be proved by both fresh replay phases;
+`ErPropNonBool` supplies a pinned control. This does not certify every
+non-Boolean check or authorize a synthesized error from a returned role value.

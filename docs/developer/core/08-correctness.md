@@ -441,12 +441,17 @@ per-action diagnostic replay proves reported/deciding identities. Descriptor
 metadata selects no operation. Plain errors and old Next stages keep strict
 header checks and their earlier semantics.
 
-The bounded sites are constraint, action constraint and implied action. Fifteen
-existing Choose/Domain/NonBoolIf/NonEnum/TypeErr fixtures validate in both
-profiles and engines while preserving their pinned primary headers. A separate
+The bounded sites are constraint, action constraint and implied action. Sixteen
+existing fixtures validate in both profiles/engines at one and four workers:
+Choose/Domain/NonBoolIf/NonEnum/TypeErr at each site, plus `ErPropNonBool`.
+Their pinned primary headers remain unchanged. The last case raises an actual
+source-qualified `StepBox` error inside `[Err(x)]_<<x, y>>`; it is distinct from
+a named role returning a non-Boolean value. The latter remains unproved, with
+`ErConstrNonBool`/`ErActConstrNonBool` explicit non-agreement controls. The inner
+case checks its exact source and rejects an earlier actual constraint error. A separate
 control makes diagnostic generation reach a genuinely different error; a
 matching primary cannot certify the deciding code. VIEW, unproved top-level
-non-Boolean checks, global visited/alias obligations, unsupported materialized
+non-Boolean role results, global visited/alias obligations, unsupported materialized
 fingerprint demand, effects and temporal models remain refused. This is focused
 word evidence, not a fresh census or closure of the remaining error families.
 Native version-4 reader migration and consumer notice are required before landing.
