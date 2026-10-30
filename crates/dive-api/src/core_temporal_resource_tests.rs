@@ -250,6 +250,14 @@ fn native_final_and_due_prefix_stops_keep_actual_analysis_phase_and_counts() {
             )
             .expect("plan before expiry");
             let control = EvaluationControl::new(&options.budget, Phase::Capture).expect("control");
+            let mut atoms = crate::core_native_atoms::NativeAtoms::prepare(
+                &model,
+                &store,
+                &driver,
+                &control,
+                dive_core::Opts::default(),
+            )
+            .expect("native predicates before expiry");
             let mut callback =
                 |level, graph: &NativeGraph, values: &mut NativeValues<'_>, stats| {
                     if !driver.native_level_due(stats) {
@@ -316,7 +324,7 @@ fn native_final_and_due_prefix_stops_keep_actual_analysis_phase_and_counts() {
                 finish(
                     &graph,
                     &mut values,
-                    driver,
+                    (driver, &mut atoms),
                     safety,
                     prefix,
                     &options,
@@ -416,6 +424,16 @@ fn interrupted_capture_factories_keep_real_complete_and_prefix_statistics() {
             None,
         )
         .expect("plans");
+        let atom_control =
+            EvaluationControl::new(&options.budget, Phase::Capture).expect("control");
+        let mut atoms = crate::core_native_atoms::NativeAtoms::prepare(
+            &model,
+            &store,
+            &driver,
+            &atom_control,
+            dive_core::Opts::default(),
+        )
+        .expect("native predicates before expiry");
         let mut callback =
             |level, _: &NativeGraph, _: &mut NativeValues<'_>, _| Ok(prefix && level == 1);
         let mut sink = NativeSink::new(
@@ -475,7 +493,7 @@ fn interrupted_capture_factories_keep_real_complete_and_prefix_statistics() {
         let verdict = finish(
             &graph,
             &mut values,
-            driver,
+            (driver, &mut atoms),
             safety.clone(),
             level,
             &stopped_options,

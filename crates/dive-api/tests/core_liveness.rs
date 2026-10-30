@@ -443,6 +443,9 @@ fn closed_function_reads_keep_nested_reports_and_do_not_reuse_admission() {
                 if verdict == "liveness-violation" {
                     assert_eq!(core["counterexample"]["validation"], "valid");
                 }
+                let atoms = &core["core"]["metrics"]["liveness"]["atoms"];
+                assert!(atoms["eligible_atoms"].as_u64() > Some(0), "{atoms}");
+                assert!(atoms["evaluated"].as_u64() > Some(0), "{atoms}");
                 let cache = &core["core"]["metrics"]["liveness"]["values"];
                 assert!(cache["cache_hits"].as_u64() > Some(0), "{cache}");
                 assert_eq!(
@@ -513,6 +516,28 @@ fn fixed_native_names_admit_pure_tuple_calls_but_refuse_new_name_demands() {
                     assert_eq!(atom["verdict"], "success", "{atom}");
                 }
             }
+        }
+    }
+}
+
+#[test]
+fn native_predicate_lane_consumes_certified_scalar_truth() {
+    for tlc in [false, true] {
+        for name in ["Holds", "Wide"] {
+            let core = run(name, Engine::Core, 1, tlc, false);
+            let reference = run(name, Engine::Reference, 1, tlc, false);
+            assert_eq!(core["verdict"], reference["verdict"], "{name} tlc={tlc}");
+            let atoms = &core["core"]["metrics"]["liveness"]["atoms"];
+            assert!(
+                atoms["eligible_atoms"]
+                    .as_u64()
+                    .is_some_and(|count| count > 0),
+                "{core:#}"
+            );
+            assert!(
+                atoms["evaluated"].as_u64().is_some_and(|count| count > 0),
+                "{core:#}"
+            );
         }
     }
 }

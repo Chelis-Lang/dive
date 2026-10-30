@@ -183,7 +183,7 @@ fn slot_value(model: &dive_model::Model, view: SlotView) -> Result<Option<Value>
     }
 }
 
-fn role(
+pub(crate) fn role(
     model: &dive_model::Model,
     name: String,
     expr: ExprId,
@@ -360,7 +360,7 @@ fn refusal(model: &dive_model::Model, temporal: bool) -> Option<String> {
     None
 }
 
-fn handoff<'a>(
+pub(crate) fn handoff<'a>(
     model: &'a dive_model::Model,
     ir: &'a Ir,
     symmetry: Vec<Vec<(String, String)>>,

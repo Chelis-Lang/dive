@@ -278,6 +278,33 @@ requested bytes exclude the opaque overhead above. `memory` describes covered co
 capacities and reserve-growth overlap; the overlap is an upper bound, not
 observed peak RSS. `accounting_complete: false` remains explicit (§7).
 
+### 4.1 Optional stable native predicate evaluation
+
+The native reader can additionally evaluate a prepared ordinary state/action
+Predicate atom on the exact persistent source/original target handles. The
+existing Role/Handoff compiler and a separate analysis Machine perform that
+work (ADR 0129). Shared label demand order, first original successor selection,
+frontier handling, products, lassos, reference attribution and independent word
+validation remain unchanged. Legacy row-only callbacks retain their signatures.
+
+Eligibility requires the actual retained atom object and source-owned scope,
+callback-free closed-predicate inspection, run-owned names/constant contexts,
+and actual set-free closed input handles. Immutable interval domains support
+quantifiers over closed scalar-keyed general functions. The original canonical
+producer certificate is unchanged. Source function constructors, CHOOSE,
+EXCEPT, raw/deferred set history, effects, live TLCGet and all fairness wrappers
+continue through reference evaluation. Unknown representations, optional work
+bounds and semantic failures use the same reference fallback. Actual owned
+budget stops propagate; foreign interruption evidence is rejected.
+
+The analysis Machine has separate arena/frame/memo owners, with memoization and
+folding disabled. It does not intern predicate results into the producer Store.
+Additive `core.metrics.liveness.atoms` counters distinguish prepared eligibility,
+actual native evaluations and fallback. These are capability measurements,
+not performance acceptance; original workload completion and paired timing are
+still required. The existing conversion-cache allowance and eager admission
+policy are unchanged.
+
 ## 5. Analysis entry points (additive APIs)
 
 Existing reference callers keep their entrypoints and result types. Development

@@ -167,6 +167,18 @@ impl Machine {
         }
     }
 
+    /// Bounds optional speculative work. Exhaustion yields unsupported and
+    /// cannot be interpreted as a model verdict or a run-budget stop.
+    ///
+    /// ```
+    /// # fn configure(machine: &mut dive_core::Machine) {
+    /// machine.set_fuel(4096);
+    /// # }
+    /// ```
+    pub fn set_fuel(&mut self, units: u64) {
+        self.fuel = units;
+    }
+
     /// Spends `n` units of fuel: one per element a loop visits.
     #[inline]
     pub(crate) fn charge(&mut self, n: usize) -> Result<(), Error> {

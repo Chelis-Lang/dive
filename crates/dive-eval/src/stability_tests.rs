@@ -311,3 +311,99 @@ fn public_host_replacement_remains_visible_while_control_persists() {
     assert!(controls.load(Ordering::SeqCst) > before);
     assert_eq!(calls.load(Ordering::SeqCst), 2);
 }
+
+#[test]
+fn closed_predicate_quantified_intervals_do_not_widen_the_row_certificate() {
+    let (ev, _, _, pred) =
+        input("Init == x=0\nNext == UNCHANGED x\nP == \\A i \\in 1..3 : x[i] >= 0");
+    let scope = ev.scope(pred).expect("actual scope");
+    assert!(
+        ev.closed_predicate_stability_budgeted(&scope, ev.ir().def(pred).body, None)
+            .expect("inspection")
+    );
+    assert!(
+        ev.canonical_producer_stability_budgeted(&[], &[(ev.ir().def(pred).body, scope)], None)
+            .expect("original inspection")
+            .is_none(),
+        "old canonical producer contract unchanged"
+    );
+}
+
+#[test]
+fn closed_predicate_inspection_retains_unknown_history_effect_and_scope_refusals() {
+    for predicate in [
+        "LET s == {x,1} IN x \\in s",
+        "[i \\in {x,1} |-> i] = x",
+        "(CHOOSE i \\in {x,1} : TRUE) = x",
+        "[i \\in 1..3 |-> i] = x",
+        "(CHOOSE i \\in 1..3 : TRUE) = x",
+        "[x EXCEPT ![1] = @+1] = x",
+        "PrintT(x=x)",
+        "ENABLED (x'=x)",
+        "(\"a\" \\o \"b\") = x",
+    ] {
+        let (ev, _, _, pred) = input(&format!(
+            "Init == x=0\nNext == UNCHANGED x\nP == {predicate}"
+        ));
+        let scope = ev.scope(pred).expect("actual scope");
+        assert!(
+            !ev.closed_predicate_stability_budgeted(&scope, ev.ir().def(pred).body, None)
+                .expect("inspection"),
+            "{predicate}"
+        );
+        assert!(ev.take_output().is_empty(), "inspection does not evaluate");
+        let foreign =
+            Evaluator::new(Model::new(ev.ir().clone()), Options::tlc()).expect("foreign evaluator");
+        assert!(
+            !foreign
+                .closed_predicate_stability_budgeted(&scope, ev.ir().def(pred).body, None)
+                .expect("foreign scope refuses")
+        );
+    }
+}
+
+#[test]
+fn closed_predicate_scope_values_require_closed_scalar_keyed_function_storage() {
+    let (ev, _, _, pred) = input("Init == x=0\nNext == UNCHANGED x\nP(a) == a=a");
+    let body = ev.ir().def(pred).body;
+    let function = Value::fcn(
+        vec![
+            (Value::Int(0), Value::tuple(vec![Value::Int(1)])),
+            (Value::Int(2), Value::Bool(true)),
+        ],
+        ev.options().ctx,
+    )
+    .expect("closed general function");
+    let mut scope = ev.scope(pred).expect("scope");
+    scope.env.bind(0, Sv::Val(function));
+    assert!(
+        ev.closed_predicate_stability_budgeted(&scope, body, None)
+            .expect("closed inspection")
+    );
+    assert!(
+        ev.canonical_producer_stability_budgeted(&[], &[(body, scope.clone())], None)
+            .expect("old inspection")
+            .is_none()
+    );
+    for value in [
+        Value::fcn(
+            vec![(Value::tuple(vec![Value::Int(0)]), Value::Int(1))],
+            ev.options().ctx,
+        )
+        .expect("aggregate key"),
+        Value::fcn(
+            vec![(
+                Value::Int(0),
+                Value::set_raw(vec![Value::Int(1)], ev.options().ctx),
+            )],
+            ev.options().ctx,
+        )
+        .expect("raw nested value"),
+    ] {
+        scope.env.bind(0, Sv::Val(value));
+        assert!(
+            !ev.closed_predicate_stability_budgeted(&scope, body, None)
+                .expect("unproved storage")
+        );
+    }
+}

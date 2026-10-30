@@ -63,6 +63,7 @@ struct Walk<'a> {
     // In the subset proof, reject reads of the actual outer binder through any
     // resolved frame/capture. This is not a public analysis-scope attestation.
     forbidden: Option<(dive_ir::DefId, usize)>,
+    closed_functions: bool,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -102,6 +103,7 @@ pub(super) fn prove(
         abstracts: Vec::new(),
         active: Vec::new(),
         forbidden: None,
+        closed_functions: false,
     };
     walk.poll()?;
     for (roots, mode) in [(producers, Mode::Producer), (predicates, Mode::Reordered)] {
@@ -126,6 +128,33 @@ pub(super) fn prove(
     }))
 }
 
+pub(super) fn closed_predicate(
+    evaluator: &Evaluator,
+    scope: &Scope,
+    expr: ExprId,
+    control: Option<&dyn crate::HostControl>,
+) -> crate::Result<bool> {
+    let mut walk = Walk {
+        evaluator,
+        control,
+        tasks: Vec::new(),
+        results: Vec::new(),
+        frames: Vec::new(),
+        abstracts: Vec::new(),
+        active: Vec::new(),
+        forbidden: None,
+        closed_functions: true,
+    };
+    if evaluator.admit_scoped_expr(scope, expr).is_err() {
+        return Ok(false);
+    }
+    walk.schedule([
+        Task::Environment(scope.env.clone()),
+        Task::Expression(scope.clone(), expr, Mode::Reordered, true),
+    ])?;
+    walk.run()
+}
+
 pub(super) fn closed_forall(
     evaluator: &Evaluator,
     original: Scope,
@@ -147,6 +176,7 @@ pub(super) fn closed_forall(
         abstracts: Vec::new(),
         active: Vec::new(),
         forbidden: Some((original.env.frame.def, outer_slot)),
+        closed_functions: false,
     };
     walk.poll()?;
     reserve(&mut walk.abstracts, 1)?;
@@ -601,6 +631,20 @@ impl Walk<'_> {
     fn value(&mut self, value: &Value) -> crate::Result<bool> {
         let ev = self.evaluator;
         let mut tasks = Vec::new();
+        if self.closed_functions {
+            match value {
+                Value::Str(_) => {
+                    let mut proceed = || self.poll().is_ok();
+                    let accepted = value
+                        .closed_function_cache_heap_bytes(&ev.core.names, &mut proceed)
+                        .is_some();
+                    self.poll()?;
+                    return Ok(accepted);
+                }
+                Value::Model(_) | Value::BigInt(_) => return Ok(false),
+                _ => {}
+            }
+        }
         match value {
             Value::Bool(_) | Value::Int(_) | Value::BigInt(_) => {}
             Value::Str(atom) | Value::Model(atom) => {
@@ -614,6 +658,17 @@ impl Walk<'_> {
                 }
             }
             Value::Fcn(function) => {
+                if self.closed_functions {
+                    if function.as_tuple().is_none() && function.order() != ev.core.ctx.order {
+                        return Ok(false);
+                    }
+                    let mut proceed = || self.poll().is_ok();
+                    let accepted = value
+                        .closed_function_cache_heap_bytes(&ev.core.names, &mut proceed)
+                        .is_some();
+                    self.poll()?;
+                    return Ok(accepted);
+                }
                 // The row proof retains its literal-only canonical contract.
                 // Closed-singleton inspection additionally admits immutable
                 // stored FcnRcdValues, auditing every key/value below. Their
@@ -634,6 +689,9 @@ impl Walk<'_> {
                 }
             }
             Value::Set(set) => {
+                if self.closed_functions && set.as_interval().is_some() {
+                    return Ok(true);
+                }
                 if set.kind() != SetKind::Enum || set.order() != ev.core.ctx.order {
                     return Ok(false);
                 }
@@ -1007,6 +1065,10 @@ impl Walk<'_> {
                         non_string,
                         seen,
                     }))?;
+                } else if self.closed_functions
+                    && matches!(op, StdOp::NaturalsDotDot | StdOp::IntegersDotDot)
+                {
+                    self.result(Info::canonical(true))?;
                 } else if let Some(info) = native_info(op, non_string) {
                     self.result(info)?;
                 } else {

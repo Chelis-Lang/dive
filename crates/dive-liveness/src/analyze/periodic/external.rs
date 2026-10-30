@@ -41,6 +41,69 @@ pub type NativeRead<'a> = dyn FnMut(
     ) -> Result<dive_eval::next::StateVals, AnalysisError>
     + 'a;
 
+/// Value rows and optional source-bound predicate evaluation from one producer.
+/// This supplies values/truth only, never completion or independent validation.
+///
+/// ```
+/// use dive_liveness::analyze::periodic::external::NativeReader;
+/// use dive_check::budget::EvaluationControl;
+/// use dive_liveness::analyze::AnalysisError;
+/// let mut read = |_: usize, _: &EvaluationControl| {
+///     Ok::<_, AnalysisError>(vec![Some(dive_value::Value::Int(0))].into())
+/// };
+/// let _reader: &mut dyn NativeReader = &mut read;
+/// ```
+pub trait NativeReader {
+    /// Reads a complete original row under the actual analysis control.
+    ///
+    /// # Errors
+    /// The original read refusal, interruption or resource failure.
+    fn read(
+        &mut self,
+        row: usize,
+        control: &dive_check::budget::EvaluationControl,
+    ) -> Result<dive_eval::next::StateVals, AnalysisError>;
+
+    /// Whether this reader has prepared this exact retained predicate object.
+    /// This is a scheduling hint only; it cannot grant semantic authority.
+    fn has_predicate(&self, _atom: &crate::plan::PredicateAtom) -> bool {
+        false
+    }
+
+    /// Optionally evaluates the exact retained atom on original row IDs.
+    /// `None` preserves ordinary reference evaluation. Predicate wrappers,
+    /// unknown scopes and unproved representations must use that fallback.
+    ///
+    /// # Errors
+    /// Only an original owned interruption/resource failure; semantic errors
+    /// must retain the existing reference evaluator and its error evidence.
+    fn predicate(
+        &mut self,
+        _atom: &crate::plan::PredicateAtom,
+        _before: usize,
+        _after: Option<usize>,
+        _control: &dive_check::budget::EvaluationControl,
+    ) -> Result<Option<bool>, AnalysisError> {
+        Ok(None)
+    }
+}
+
+impl<F> NativeReader for F
+where
+    F: FnMut(
+        usize,
+        &dive_check::budget::EvaluationControl,
+    ) -> Result<dive_eval::next::StateVals, AnalysisError>,
+{
+    fn read(
+        &mut self,
+        row: usize,
+        control: &dive_check::budget::EvaluationControl,
+    ) -> Result<dive_eval::next::StateVals, AnalysisError> {
+        self(row, control)
+    }
+}
+
 mod native;
 
 /// The temporal checks of one run over a graph supplied by its producer.
@@ -164,6 +227,20 @@ impl<'m> GraphCheck<'m> {
             periodic: schedule.is_some(),
             d: Decisions::new(checks),
         })
+    }
+
+    /// The actual retained source-scoped predicates, in configured order.
+    /// Inspection grants no evaluation or completion authority. References
+    /// remain in these fixed plan allocations until this driver is consumed.
+    ///
+    /// ```
+    /// # fn inspect(driver: &dive_liveness::analyze::periodic::external::GraphCheck<'_>) {
+    /// let atom_count = driver.native_predicates().count();
+    /// # let _ = atom_count;
+    /// # }
+    /// ```
+    pub fn native_predicates(&self) -> impl Iterator<Item = &crate::plan::PredicateAtom> {
+        self.plans.iter().flat_map(|property| &property.plan.atoms)
     }
 
     /// Whether the reference engine may evaluate this run's atoms during its

@@ -245,15 +245,33 @@ fn check_configured_inner(
         Ok(control) => control,
         Err(error) => return internal(&error.to_string(), options, ir),
     };
+    let mut atoms = match crate::core_native_atoms::NativeAtoms::prepare(
+        &model,
+        &store,
+        &graph_check,
+        &control,
+        core_opts,
+    ) {
+        Ok(atoms) => atoms,
+        Err(verdict) => {
+            let safety = crate::core_engine::result(verdict.clone(), options, ir);
+            return CoreOutcome::TemporalFailure(Box::new(crate::temporal::core_capture_stop(
+                verdict, &safety, false, started,
+            )));
+        }
+    };
     let mut on_level = |level: u64, graph: &NativeGraph, values: &mut NativeValues<'_>, stats| {
         // Final-only and not-yet-due levels do not scan any retained CSR.
         if !graph_check.native_level_due(stats) {
             return Ok(false);
         }
         let csr = CsrCapture::checked(graph.input(), graph.limits(), &control)?;
-        let mut read =
-            |row, control: &EvaluationControl| values.read(row, graph.row(row)?, control);
-        Ok(graph_check.level_native(level, &csr, stats, &mut read))
+        let mut read = crate::core_native_atoms::Reader {
+            graph,
+            values,
+            atoms: &mut atoms,
+        };
+        Ok(graph_check.level_native_with_reader(level, &csr, stats, &mut read))
     };
     let mut sink = match NativeSink::new(
         &model,
@@ -343,11 +361,11 @@ fn check_configured_inner(
                 safety.verdict = verdict;
             }
             Some(Verdict::InternalError { message }) => {
-                record_metrics(run, &graph, &values);
+                record_metrics(run, &graph, &values, &atoms);
                 return internal(&message, options, ir);
             }
             reason => {
-                record_metrics(run, &graph, &values);
+                record_metrics(run, &graph, &values, &atoms);
                 let reason = reason.map_or_else(|| "no reason".to_owned(), |v| format!("{v:?}"));
                 return refused(
                     format!("the behavior graph on the core stopped: {reason}"),
@@ -362,7 +380,7 @@ fn check_configured_inner(
     }
     dive_check::capture::refuse_unproved_temporal_next_error(&model, &mut safety);
     if safety.verdict != Verdict::Success {
-        record_metrics(run, &graph, &values);
+        record_metrics(run, &graph, &values, &atoms);
         safety.symmetry_liveness = Some(model.symmetry_liveness().clone());
         if matches!(
             safety.verdict,
@@ -385,13 +403,13 @@ fn check_configured_inner(
     let analysis = finish(
         &graph,
         &mut values,
-        graph_check,
+        (graph_check, &mut atoms),
         safety,
         prefix,
         options,
         &control,
     );
-    record_metrics(run, &graph, &values);
+    record_metrics(run, &graph, &values, &atoms);
     let analysis = match analysis {
         Ok(a) => a,
         Err(verdict @ (Verdict::Stopped(_) | Verdict::BudgetMeasurement { .. })) => {
@@ -427,6 +445,7 @@ fn check_configured_inner(
     }
     // Analysis owns only the selected converted word and sealed facts now.
     // Release the native capture/store before fresh independent rebinding.
+    drop(atoms);
     drop(values);
     drop(graph);
     drop(plan);
@@ -486,19 +505,26 @@ type Analysis = Result<
 fn finish(
     graph: &NativeGraph,
     values: &mut NativeValues<'_>,
-    mut graph_check: GraphCheck<'_>,
+    driver: (GraphCheck<'_>, &mut crate::core_native_atoms::NativeAtoms),
     safety: CheckResult,
     prefix: Option<u64>,
     options: &CheckOptions,
     control: &EvaluationControl,
 ) -> Result<Analysis, Verdict> {
+    let (mut graph_check, atoms) = driver;
     if prefix.is_some()
         && let Some(failure) = graph_check.take_native_prefix_failure(&safety)
     {
         return Ok(Err(*failure));
     }
-    let mut read = |row, control: &EvaluationControl| values.read(row, graph.row(row)?, control);
+    let mut read = crate::core_native_atoms::Reader {
+        graph,
+        values,
+        atoms,
+    };
     if let Some(level) = prefix {
+        let mut read =
+            |row, control: &EvaluationControl| read.values.read(row, graph.row(row)?, control);
         let prefix = CsrPrefix::from_producer(
             graph.input(),
             level,
@@ -519,12 +545,17 @@ fn finish(
             control,
         )?;
         Ok(graph_check
-            .finish_native(complete, &mut read)
+            .finish_native_with_reader(complete, &mut read)
             .map_err(|f| *f))
     }
 }
 
-fn record_metrics(run: &mut CoreRun, graph: &NativeGraph, values: &NativeValues<'_>) {
+fn record_metrics(
+    run: &mut CoreRun,
+    graph: &NativeGraph,
+    values: &NativeValues<'_>,
+    atoms: &crate::core_native_atoms::NativeAtoms,
+) {
     if let Some(metrics) = run.metrics.as_object_mut() {
         let memory = graph.memory();
         let conversion = values.metrics();
@@ -536,7 +567,7 @@ fn record_metrics(run: &mut CoreRun, graph: &NativeGraph, values: &NativeValues<
                 "convert_ms": conversion["convert_ms"],
                 "converted_nodes": conversion["converted_values"],
                 "memo_entries": conversion["cache_entries"],
-                "values": conversion,
+                "values": conversion, "atoms": atoms.metrics(),
                 "memory": {
                     "fixed_bytes": memory.fixed_bytes,
                     "buffer_bytes": memory.buffer_bytes,
