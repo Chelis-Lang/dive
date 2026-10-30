@@ -271,6 +271,7 @@ fn check_configured(
     if let Verdict::Stopped(stopped) = &mut safety.verdict {
         stopped.phase = Phase::Capture;
     }
+    dive_check::capture::refuse_unproved_temporal_next_error(&model, &mut safety);
     if safety.verdict != Verdict::Success {
         record_metrics(run, &graph, &values);
         safety.symmetry_liveness = Some(model.symmetry_liveness().clone());

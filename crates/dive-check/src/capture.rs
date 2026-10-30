@@ -24,6 +24,54 @@ pub use checkpoints::{
 pub use csr::{CsrCapture, CsrCaptureInput, CsrComplete, CsrPrefix};
 pub use evidence::{CompleteEvidence, PrefixEvidence};
 
+/// Refuses an actual Next error whose TLC primary depends on unproved later
+/// temporal demand. This is an admission guard, not evidence that fairness
+/// failed, and never changes an error into GENERAL.
+///
+/// TLC's worker continues liveness-row processing after a Next exception.
+/// A reached row error can clear `keepCallStack`, preserving the original
+/// primary instead of the ordinary replay class. Neither a temporal clause nor
+/// an unconfirmed Next word certifies that subsequent demand/replay. This
+/// guard adds no authority to existing `EvalException` classifications; measured
+/// division-by-zero Next controls retain their existing behavior.
+///
+/// Statistics, output, workers and elapsed time remain the actual producer's.
+/// The old uncertified error-ending claim and TLC-class/reporting flag are
+/// removed. Successful searches and safety-only Next errors are unchanged.
+///
+/// ```no_run
+/// # fn stopped(model: &dive_model::Model, result: &mut dive_check::CheckResult) {
+/// if dive_check::capture::refuse_unproved_temporal_next_error(model, result) {
+///     assert!(!result.verdict.is_verdict());
+///     assert!(result.verdict.tlc().is_none());
+/// }
+/// # }
+/// ```
+pub fn refuse_unproved_temporal_next_error(model: &Model, result: &mut CheckResult) -> bool {
+    if model.implied_temporals.is_empty() {
+        return false;
+    }
+    let Verdict::EvaluationError {
+        site: crate::ErrorSite::Next,
+        cause,
+        ..
+    } = &result.verdict
+    else {
+        return false;
+    };
+    if cause.is_eval_exception() {
+        return false;
+    }
+    let observed = format!("Observed Next evaluation error: {}", cause.tool_text());
+    result.verdict = Verdict::Unsupported {
+        feature: "post-Next temporal-demand primary error classification without a reached-row replay certificate".into(),
+    };
+    result.tlc_prints_stats = false;
+    result.counterexample = None;
+    result.notes.push(observed);
+    true
+}
+
 /// Maximum concurrently expanded source units during parallel capture.
 /// Fixed waves use this cap regardless of physical worker pool width.
 pub const MAX_EXPANSION_UNITS: usize = 8;
@@ -1243,6 +1291,7 @@ fn explore_inner<'obs>(
     result.workers = outcome.workers;
     result.output.extend(outcome.output);
     result.notes = outcome.notes;
+    refuse_unproved_temporal_next_error(model, &mut result);
     crate::note_canonical_stop(opts, &result.verdict, &mut result.notes);
     if result.verdict != Verdict::Success {
         return ControlledExploration::Stopped(Box::new(result));
