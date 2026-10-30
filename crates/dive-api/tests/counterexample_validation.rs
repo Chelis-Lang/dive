@@ -129,6 +129,8 @@ fn ending_matches(verdict: &str, property: Option<&str>, ending: &Ending) -> boo
         // A failed `Assert` while checking a property is an evaluation error
         // to TLC, but the trace names the assertion itself.
         | ("assertion-failure" | "evaluation-error", Ending::Assertion)
+        | ("assertion-failure" | "evaluation-error" | "overflow", Ending::NextStateError {..})
+        | ("incomplete-state" | "evaluation-error", Ending::PartialNext {..})
         | (
             "property-violation" | "liveness-violation",
             Ending::Lasso { .. } | Ending::Stuttering | Ending::TemporalStateError { .. },

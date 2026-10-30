@@ -134,6 +134,7 @@ impl TemporalStateEndpoint {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct NextStateEndpoint {
     source: TemporalStateEndpoint,
+    ordered: Option<(u32, u32)>,
 }
 
 impl NextStateEndpoint {
@@ -156,29 +157,98 @@ impl NextStateEndpoint {
         (error.class() == ErrorClass::Eval)
             .then(|| TemporalStateEndpoint::from_origin(ir, error))
             .flatten()
-            .map(|source| Self { source })
+            .map(|source| Self {
+                source,
+                ordered: None,
+            })
+    }
+
+    /// Requests actual ordered primary and diagnostic Next replay. Reported
+    /// and deciding codes are untrusted claims, not classifier overrides.
+    #[must_use]
+    pub fn from_ordered_error(
+        ir: &dive_ir::Ir,
+        error: &EvalError,
+        reported: u32,
+        deciding: u32,
+    ) -> Option<Self> {
+        let mut request = Self::from_error(ir, error)?;
+        request.ordered = Some((reported, deciding));
+        Some(request)
+    }
+
+    /// Claimed deciding code, requiring independent diagnostic replay.
+    #[must_use]
+    pub fn deciding_code(&self) -> Option<u32> {
+        self.ordered.map(|(_, deciding)| deciding)
+    }
+
+    pub(crate) fn ordered_codes(&self) -> Option<(u32, u32)> {
+        self.ordered
+    }
+
+    pub(crate) fn matches_error_source(&self, ir: &dive_ir::Ir, error: &EvalError) -> bool {
+        TemporalStateEndpoint::from_origin(ir, error).as_ref() == Some(&self.source)
     }
 
     pub(crate) fn to_json(&self) -> Value {
-        self.source.to_stage("next-before-successor")
+        if let Some((reported, deciding)) = self.ordered {
+            let mut value = self.source.to_stage("next-ordered-terminal");
+            value["reported"] = Value::from(reported);
+            value["deciding"] = Value::from(deciding);
+            value
+        } else {
+            self.source.to_stage("next-before-successor")
+        }
     }
 
     pub(crate) fn from_json(value: &Value) -> Result<Self, String> {
-        TemporalStateEndpoint::from_stage(value, "next-before-successor")
-            .map(|source| Self { source })
+        if value["stage"] == "next-ordered-terminal" {
+            let object = value.as_object().ok_or("Next endpoint must be an object")?;
+            if object.len() != 4 {
+                return Err("unknown ordered Next endpoint fields".into());
+            }
+            let code = |name: &str| {
+                value[name]
+                    .as_u64()
+                    .and_then(|code| u32::try_from(code).ok())
+                    .filter(|code| *code != 0)
+                    .ok_or("invalid ordered Next error code")
+            };
+            let ordered = Some((code("reported")?, code("deciding")?));
+            let mut source = value.clone();
+            let context = source
+                .as_object_mut()
+                .ok_or("Next endpoint must be an object")?;
+            context.remove("reported");
+            context.remove("deciding");
+            Ok(Self {
+                source: TemporalStateEndpoint::from_stage(&source, "next-ordered-terminal")?,
+                ordered,
+            })
+        } else {
+            TemporalStateEndpoint::from_stage(value, "next-before-successor").map(|source| Self {
+                source,
+                ordered: None,
+            })
+        }
     }
 }
 
 /// Untrusted terminal partial bindings, distinct from every complete prefix row.
 /// The source names the actual generating action; it selects no replay action.
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct PartialNextEndpoint {
+pub struct PartialStateEndpoint {
+    initial: bool,
     source: TemporalStateEndpoint,
     assignments: serde_json::Map<String, Value>,
     unassigned: Vec<String>,
 }
 
-impl PartialNextEndpoint {
+/// Compatibility name for the original Next partial request.
+pub type PartialNextEndpoint = PartialStateEndpoint;
+
+impl PartialStateEndpoint {
     /// Records an actual incomplete candidate without certifying it.
     #[must_use]
     pub fn from_candidate(
@@ -188,10 +258,28 @@ impl PartialNextEndpoint {
         unassigned: Vec<String>,
     ) -> Option<Self> {
         (!unassigned.is_empty()).then_some(Self {
+            initial: false,
             source: TemporalStateEndpoint::from_expression(ir, expression)?,
             assignments,
             unassigned,
         })
+    }
+
+    /// Records actual partial Init bindings and the observed generating source.
+    #[must_use]
+    pub fn from_initial_candidate(
+        ir: &dive_ir::Ir,
+        expression: dive_ir::ExprId,
+        assignments: serde_json::Map<String, Value>,
+        unassigned: Vec<String>,
+    ) -> Option<Self> {
+        let mut endpoint = Self::from_candidate(ir, expression, assignments, unassigned)?;
+        endpoint.initial = true;
+        Some(endpoint)
+    }
+
+    pub(crate) fn initial(&self) -> bool {
+        self.initial
     }
 
     pub(crate) fn assignments(&self) -> &serde_json::Map<String, Value> {
@@ -207,7 +295,11 @@ impl PartialNextEndpoint {
     }
 
     pub(crate) fn to_json(&self) -> Value {
-        let mut value = self.source.to_stage("next-partial-state");
+        let mut value = self.source.to_stage(if self.initial {
+            "init-partial-state"
+        } else {
+            "next-partial-state"
+        });
         value["assignments"] = Value::Object(self.assignments.clone());
         value["unassigned"] = serde_json::json!(self.unassigned);
         value
@@ -229,7 +321,12 @@ impl PartialNextEndpoint {
             .ok_or("partial endpoint must be an object")?;
         object.remove("assignments");
         object.remove("unassigned");
-        let source = TemporalStateEndpoint::from_stage(&context, "next-partial-state")?;
+        let stage = match value["stage"].as_str() {
+            Some("next-partial-state") => "next-partial-state",
+            Some("init-partial-state") => "init-partial-state",
+            _ => return Err("unknown partial terminal stage".into()),
+        };
+        let source = TemporalStateEndpoint::from_stage(&context, stage)?;
         let assignments = value["assignments"]
             .as_object()
             .ok_or("partial assignments must be an object")?
@@ -253,6 +350,7 @@ impl PartialNextEndpoint {
             return Err("partial assigned and unassigned variables must be disjoint, with at least one unassigned".into());
         }
         Ok(Self {
+            initial: stage == "init-partial-state",
             source,
             assignments,
             unassigned,

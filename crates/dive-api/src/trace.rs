@@ -299,6 +299,7 @@ impl SpecModel {
                 Ending::TemporalStateError { .. }
                     | Ending::NextStateError { .. }
                     | Ending::PartialNext { .. }
+                    | Ending::PartialInit { .. }
             )
         ) {
             return Ok(self.read(doc));

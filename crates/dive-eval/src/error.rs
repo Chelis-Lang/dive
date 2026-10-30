@@ -215,6 +215,16 @@ pub enum ErrorClass {
     Bug,
 }
 
+/// Actual evaluator exception constructor, retained across typed value transport.
+/// This is not evidence that diagnostic replay executed or reached this error.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ExceptionKind {
+    /// A module's explicit TLC `EvalException`.
+    EvalException,
+    /// The evaluator's explicit tool/runtime exception.
+    ToolRuntime,
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 struct Inner {
     class: ErrorClass,
@@ -224,6 +234,7 @@ struct Inner {
     /// Whether TLC raises this as an `EvalException` (not wrapped by a Java
     /// override) rather than as a `TLCRuntimeException`.
     eval_exception: bool,
+    exception_kind: Option<ExceptionKind>,
     /// Static-analysis binders are not runtime values. Keep this typed so an
     /// unrelated refusal with the same text can never authorize lazy retry.
     analysis_only: bool,
@@ -248,6 +259,7 @@ impl EvalError {
             message,
             origin: None,
             eval_exception,
+            exception_kind: None,
             analysis_only: false,
             interruption: None,
             override_cause: None,
@@ -258,21 +270,34 @@ impl EvalError {
     /// raises it.
     #[must_use]
     pub fn general(message: impl Into<String>) -> Self {
-        Self::make(ErrorClass::Eval, Ec::General, message.into(), false)
+        let mut error = Self::make(ErrorClass::Eval, Ec::General, message.into(), false);
+        error.0.exception_kind = Some(ExceptionKind::ToolRuntime);
+        error
     }
 
     /// An evaluation error with a specific code, as `Assert.fail(EC, params)`
     /// raises it (a `TLCRuntimeException`).
     #[must_use]
     pub fn coded(ec: Ec, message: impl Into<String>) -> Self {
-        Self::make(ErrorClass::Eval, ec, message.into(), false)
+        let mut error = Self::make(ErrorClass::Eval, ec, message.into(), false);
+        error.0.exception_kind = Some(ExceptionKind::ToolRuntime);
+        error
     }
 
     /// An evaluation error raised by a module as an `EvalException`: a Java
     /// override passes it through unwrapped.
     #[must_use]
     pub fn eval_exception(ec: Ec, message: impl Into<String>) -> Self {
-        Self::make(ErrorClass::Eval, ec, message.into(), true)
+        let mut error = Self::make(ErrorClass::Eval, ec, message.into(), true);
+        error.0.exception_kind = Some(ExceptionKind::EvalException);
+        error
+    }
+
+    /// Observed constructor provenance. Unclassified value-method errors have
+    /// no such authority, even if their code or message resembles a tool error.
+    #[must_use]
+    pub fn exception_kind(&self) -> Option<ExceptionKind> {
+        self.0.exception_kind
     }
 
     /// Constructs the actual native wrapper without recovering its cause from
@@ -467,8 +492,8 @@ thread_local! {
 }
 
 // Process uniqueness is necessary: a ValueError can cross a worker boundary.
-// Zero marks exhausted identity space, never a receipt. Interruption and sealed
-// native-cause errors take this cold path; successful evaluation does not.
+// Zero marks exhausted identity space, never a receipt. Interruption and actual
+// evaluator exceptions take this cold path; successful evaluation does not.
 static NEXT_RECEIPT: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(1);
 
 fn receipt(counter: &std::sync::atomic::AtomicU32) -> Option<u32> {
@@ -487,18 +512,17 @@ pub(crate) fn stash(error: EvalError) -> ValueError {
 }
 
 fn stash_with_counter(error: EvalError, counter: &std::sync::atomic::AtomicU32) -> ValueError {
-    let (error, receipt) =
-        if error.class() == ErrorClass::Interrupted || error.override_cause().is_some() {
-            match receipt(counter) {
-                Some(receipt) => (error, Some(receipt)),
-                None => (
-                    EvalError::bug("deferred evaluator receipt identity space exhausted"),
-                    None,
-                ),
-            }
-        } else {
-            (error, None)
-        };
+    let (error, receipt) = if matches!(error.class(), ErrorClass::Interrupted | ErrorClass::Eval) {
+        match receipt(counter) {
+            Some(receipt) => (error, Some(receipt)),
+            None => (
+                EvalError::bug("deferred evaluator receipt identity space exhausted"),
+                None,
+            ),
+        }
+    } else {
+        (error, None)
+    };
     let kind = match (error.class(), error.ec(), receipt) {
         (ErrorClass::Interrupted, _, Some(receipt)) => ErrorKind::Interrupted { receipt },
         (_, _, Some(receipt)) => ErrorKind::DeferredError { receipt },
@@ -525,7 +549,7 @@ impl From<ValueError> for EvalError {
                             && if interruption {
                                 pending.error.class() == ErrorClass::Interrupted
                             } else {
-                                pending.error.override_cause().is_some()
+                                pending.error.class() == ErrorClass::Eval
                             }
                     }) {
                         stash.take().map(|pending| pending.error)
@@ -563,12 +587,19 @@ impl From<ValueError> for EvalError {
                     && !error
                         .message()
                         .starts_with("Overflow when computing the number of elements");
-                Self::make(
+                let mut raised = Self::make(
                     ErrorClass::Eval,
                     ec,
                     error.message().to_owned(),
                     eval_exception,
-                )
+                );
+                // This typed integer operation is Naturals/Integers.Divide's
+                // actual EvalException, not a code/message-based projection
+                // of an arbitrary value method's replay behavior.
+                if kind == ErrorKind::DivisionByZero {
+                    raised.0.exception_kind = Some(ExceptionKind::EvalException);
+                }
+                raised
             }
         }
     }
@@ -582,6 +613,21 @@ pub type Result<T, E = EvalError> = std::result::Result<T, E>;
 mod interruption_transport {
     use super::*;
     use crate::Interrupted;
+
+    #[test]
+    fn generic_exception_provenance_requires_typed_transport_not_message_resemblance() {
+        let actual = EvalError::general("same presentation");
+        assert_eq!(actual.exception_kind(), Some(ExceptionKind::ToolRuntime));
+        let transported = stash(actual.clone());
+        let ordinary = ValueError::new(ErrorKind::NotEnumerable, actual.message());
+        assert_eq!(EvalError::from(ordinary).exception_kind(), None);
+        assert_eq!(EvalError::from(transported), actual);
+        let module = EvalError::eval_exception(Ec::AssertFailed, "actual assertion");
+        assert_eq!(
+            EvalError::from(stash(module)).exception_kind(),
+            Some(ExceptionKind::EvalException)
+        );
+    }
 
     #[test]
     fn stale_receipts_and_ordinary_errors_do_not_consume_another_interruption() {

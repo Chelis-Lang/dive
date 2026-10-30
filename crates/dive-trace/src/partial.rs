@@ -1,7 +1,6 @@
 //! Partial terminal candidates are generated, never decoded as complete states.
 
-use dive_eval::next::Flow;
-use dive_eval::{ErrorClass, EvalError, HostControl};
+use dive_eval::{EvalError, HostControl};
 use dive_model::Model;
 
 use crate::{Check, Failure, PartialNextEndpoint, State, Validation};
@@ -11,11 +10,12 @@ pub(crate) fn replay(
     state: &State,
     terminal: usize,
     endpoint: &PartialNextEndpoint,
+    host: &crate::validate::TraceHost,
     control: Option<&dyn HostControl>,
 ) -> Result<Validation, EvalError> {
     let poll = || control.map_or(Ok(()), |c| c.check().map_err(EvalError::interrupted));
     poll()?;
-    if let Some(refusal) = crate::next_error::preflight(model, control)? {
+    if let Some(refusal) = crate::next_error::preflight(model, endpoint.initial(), control)? {
         return Ok(refusal);
     }
     let variables = crate::variables(model);
@@ -48,70 +48,57 @@ pub(crate) fn replay(
             None
         });
     }
-    for action in &model.actions {
-        poll()?;
-        let mut decision = None;
-        let mut error = None;
-        let outcome = model
-            .evaluator
-            .next_states(action, state, 0, &mut |candidate| {
-                let checked = (|| {
-                    poll()?;
-                    if candidate.complete() {
-                        return Ok(Validation::Unsupported(
-                            "partial terminal replay requires earlier complete-candidate checks"
-                                .into(),
-                        ));
-                    }
-                    if !endpoint.matches_source(&model.ir, candidate.action.expr()) {
+    let driver = crate::ordered::Driver {
+        initial: endpoint.initial(),
+        model,
+        source: state,
+        level: terminal,
+        host,
+        control,
+    };
+    match driver.primary(false)? {
+        crate::ordered::Event::Partial { state, expression } => {
+            if !endpoint.matches_source(&model.ir, expression) {
+                return Ok(invalid(
+                    terminal,
+                    "first incomplete candidate has a different source",
+                ));
+            }
+            for (actual, expected) in state.iter().zip(&expected) {
+                match (actual, expected) {
+                    (None, None) => {}
+                    (Some(actual), Some(expected))
+                        if model.evaluator.equal_values(actual, expected)? => {}
+                    _ => {
                         return Ok(invalid(
                             terminal,
-                            "first incomplete candidate has a different source",
+                            "first incomplete candidate has different assignments",
                         ));
                     }
-                    for (actual, expected) in candidate.state.iter().zip(&expected) {
-                        match (actual, expected) {
-                            (None, None) => {}
-                            (Some(actual), Some(expected))
-                                if model.evaluator.equal_values(actual, expected)? => {}
-                            _ => {
-                                return Ok(invalid(
-                                    terminal,
-                                    "first incomplete candidate has different assignments",
-                                ));
-                            }
-                        }
-                    }
-                    Ok(Validation::Valid)
-                })();
-                match checked {
-                    Ok(validation) => decision = Some(validation),
-                    Err(failure) => error = Some(failure),
                 }
-                Flow::Stop
-            });
-        if let Some(error) = error {
-            return Err(error);
+            }
+            poll()?;
+            Ok(Validation::Valid)
         }
-        poll()?;
-        if let Some(decision) = decision {
-            return Ok(decision);
-        }
-        if let Err(error) = outcome {
-            return match error.error.class() {
-                ErrorClass::Eval => Ok(invalid(
-                    terminal,
-                    "Next raises an evaluation error before the partial candidate",
-                )),
-                ErrorClass::Unsupported => Ok(Validation::Unsupported(error.error.to_string())),
-                _ => Err(error.error),
-            };
-        }
+        crate::ordered::Event::Error { .. } => Ok(invalid(
+            terminal,
+            if endpoint.initial() {
+                "Init raises an evaluation error before the partial candidate"
+            } else {
+                "Next raises an evaluation error before the partial candidate"
+            },
+        )),
+        crate::ordered::Event::Failed { check, detail } => Ok(Validation::Invalid(Failure {
+            state: terminal,
+            check,
+            detail,
+        })),
+        crate::ordered::Event::Refused(reason) => Ok(Validation::Unsupported(reason)),
+        crate::ordered::Event::End => Ok(invalid(
+            terminal,
+            "Next completed without the claimed partial candidate",
+        )),
     }
-    Ok(invalid(
-        terminal,
-        "Next completed without the claimed partial candidate",
-    ))
 }
 
 fn invalid(state: usize, detail: &str) -> Validation {

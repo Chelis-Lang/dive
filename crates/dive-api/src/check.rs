@@ -259,7 +259,7 @@ pub struct CheckReport {
     /// Untrusted original source context captured while this run owns the IR.
     next_error_endpoint: Option<dive_trace::NextStateEndpoint>,
     /// Observed partial candidate captured while its original IR is owned.
-    partial_next_endpoint: Option<dive_trace::PartialNextEndpoint>,
+    partial_terminal_endpoint: Option<dive_trace::PartialNextEndpoint>,
     /// The engine requested.
     engine: crate::Engine,
     /// Why `--engine=auto` ran the reference engine.
@@ -527,7 +527,7 @@ fn check_file_in(
         phase: Phase::Unlowered(String::new()),
         core: None,
         next_error_endpoint: None,
-        partial_next_endpoint: None,
+        partial_terminal_endpoint: None,
         engine,
         fallback: None,
     };
@@ -653,27 +653,50 @@ fn check_file_in(
         && let Verdict::EvaluationError {
             site: dive_check::ErrorSite::Next,
             cause,
+            reported,
+            code,
+            verified,
             ..
         } = &result.verdict
     {
-        report.next_error_endpoint = dive_trace::NextStateEndpoint::from_error(&ir, cause);
+        report.next_error_endpoint = if *verified && cause.exception_kind().is_some() {
+            dive_trace::NextStateEndpoint::from_ordered_error(&ir, cause, *reported, *code)
+        } else {
+            dive_trace::NextStateEndpoint::from_error(&ir, cause)
+        };
     }
     if let Phase::Checked(result) = &report.phase
-        && matches!(
-            result.verdict,
-            Verdict::NotCompletelySpecified { initial: false, .. }
-        )
-        && let Some(partial) = result
-            .counterexample
-            .as_ref()
-            .and_then(|cx| cx.states.last())
-            .and_then(|s| s.partial.as_ref())
+        && let Verdict::NotCompletelySpecified {
+            initial,
+            initial_candidate,
+            ..
+        } = &result.verdict
+        && let Some(partial) = if *initial {
+            initial_candidate.as_ref()
+        } else {
+            result
+                .counterexample
+                .as_ref()
+                .and_then(|cx| cx.states.last())
+                .and_then(|state| state.partial.as_ref())
+        }
     {
         let mut assignments = serde_json::Map::new();
         let mut unassigned = Vec::new();
         let mut encodable = true;
         for (name, value) in result.var_names.iter().zip(&partial.values) {
+            if *initial && !matches!(armed.budget.poll(), Ok(None)) {
+                encodable = false;
+                break;
+            }
             if let Some(value) = value {
+                // Init evidence must not force compound/deferred diagnostics
+                // after the actual controlled deciding event. Scalars retain
+                // the report's existing primitive serialization units.
+                if *initial && (value.as_set().is_some() || value.as_fcn().is_some()) {
+                    encodable = false;
+                    break;
+                }
                 if let Ok(value) = dive_trace::value_json::to_json(value, report.opts.eval.ctx) {
                     assignments.insert(name.clone(), value);
                 } else {
@@ -685,13 +708,31 @@ fn check_file_in(
             }
         }
         if encodable && partial.values.len() == result.var_names.len() {
-            report.partial_next_endpoint = dive_trace::PartialNextEndpoint::from_candidate(
-                &ir,
-                partial.expression,
-                assignments,
-                unassigned,
-            );
+            report.partial_terminal_endpoint = if *initial {
+                dive_trace::PartialStateEndpoint::from_initial_candidate(
+                    &ir,
+                    partial.expression,
+                    assignments,
+                    unassigned,
+                )
+            } else {
+                dive_trace::PartialStateEndpoint::from_candidate(
+                    &ir,
+                    partial.expression,
+                    assignments,
+                    unassigned,
+                )
+            };
         }
+    }
+    if report.partial_terminal_endpoint.is_none()
+        && let Phase::Checked(result) = &mut report.phase
+        && matches!(
+            result.verdict,
+            Verdict::NotCompletelySpecified { initial: true, .. }
+        )
+    {
+        result.notes.push("Init partial error witness remains unconfirmed: its observed source/bindings were unavailable, its compound assignment encoding is unsupported, or the controlling budget stopped evidence capture.".into());
     }
     if let Some(watchdog) = &mut watchdog {
         let finished = watchdog.finish();
@@ -1575,7 +1616,7 @@ impl CheckReport {
                         cx,
                         ctx,
                         self.next_error_endpoint.as_ref(),
-                        self.partial_next_endpoint.as_ref(),
+                        self.partial_terminal_endpoint.as_ref(),
                     );
                     doc["counterexample"] = json!({
                         "length": states.len(),
@@ -1583,6 +1624,24 @@ impl CheckReport {
                         "states": states,
                         "trace": transported.unwrap_or(Value::Null),
                     });
+                }
+                if matches!(
+                    r.verdict,
+                    Verdict::NotCompletelySpecified { initial: true, .. }
+                ) && let Some(endpoint) = &self.partial_terminal_endpoint
+                {
+                    let witness = dive_trace::TraceDoc {
+                        variables: r.var_names.clone(),
+                        states: Vec::new(),
+                        labels: Vec::new(),
+                        ending: Some(dive_trace::Ending::PartialInit {
+                            endpoint: endpoint.clone(),
+                        }),
+                        length: Some(1),
+                        source: dive_trace::Source::Dive,
+                        properties: Vec::new(),
+                    };
+                    doc["error_witness"] = witness.to_json();
                 }
                 if let Some(c) = &r.collision {
                     doc["collision"] = json!({
@@ -2319,7 +2378,7 @@ mod evidence_controls {
             phase,
             core: None,
             next_error_endpoint: None,
-            partial_next_endpoint: None,
+            partial_terminal_endpoint: None,
             engine: crate::Engine::Reference,
             fallback: None,
         }

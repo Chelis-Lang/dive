@@ -63,18 +63,11 @@ fn partial_next_words_preserve_the_pinned_bfs_terminal_and_logical_length() -> T
                 ));
                 let validation = model.try_validate(&doc)?;
                 assert_eq!(validation.length, doc.logical_length());
-                if path.contains("RoActions") || path.contains("SplitThrows") {
-                    assert!(
-                        matches!(validation.validation, Validation::Unsupported(_)),
-                        "{path}: {validation:?}"
-                    );
-                } else {
-                    assert_eq!(
-                        validation.validation,
-                        Validation::Valid,
-                        "{path}: {validation:?}"
-                    );
-                }
+                assert_eq!(
+                    validation.validation,
+                    Validation::Valid,
+                    "{path}: {validation:?}"
+                );
                 if path.contains("ErNextIncomplete") {
                     assert_eq!(doc.states.len(), 3);
                     assert_eq!(
@@ -184,6 +177,154 @@ fn complete_prefix_must_pass_configured_safety_before_partial_replay() -> TestRe
             let mut behavior = doc.clone().with_ending(dive_api::trace::Ending::Behavior);
             behavior.length = Some(behavior.states.len());
             assert_eq!(model.try_validate(&behavior)?.validation, Validation::Valid);
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn init_partial_error_witness_preserves_the_absent_formal_counterexample() -> TestResult {
+    let file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../..")
+        .join(
+            "crates/dive-check/tests/fixtures/errors/specs/ErInitIncomplete/ErInitIncomplete.tla",
+        );
+    for compat_tlc in [false, true] {
+        let spec = SpecModel::load(
+            &file,
+            &file.with_extension("cfg"),
+            &TraceOptions {
+                compat_tlc,
+                run: Some((0, 0)),
+                ..TraceOptions::default()
+            },
+        )?;
+        let mut reference: Option<serde_json::Value> = None;
+        for engine in [Engine::Reference, Engine::Core] {
+            let actual = check_file_engine(
+                &CheckRequest {
+                    file: file.clone(),
+                    config: Some(file.with_extension("cfg")),
+                    compat_tlc,
+                    workers: Some(1),
+                    seed: Some(0),
+                    fp: Some(0),
+                    ..CheckRequest::default()
+                },
+                engine,
+            )?
+            .to_json();
+            assert_eq!(actual["tlc"]["code"], 2102);
+            assert_eq!(actual["tlc"]["exit_status"], 255);
+            assert!(actual["counterexample"].is_null());
+            assert_eq!(actual["statistics"]["reported_by_tlc"], false);
+            let wire = &actual["error_witness"];
+            assert_eq!(wire["version"], 3, "{engine:?}: {actual}");
+            assert_eq!(wire["length"], 1);
+            assert_eq!(wire["states"], serde_json::json!([]));
+            assert_eq!(wire["ending"]["endpoint"]["stage"], "init-partial-state");
+            assert_eq!(
+                wire["ending"]["endpoint"]["assignments"],
+                serde_json::json!({"x":0})
+            );
+            assert_eq!(
+                wire["ending"]["endpoint"]["unassigned"],
+                serde_json::json!(["y"])
+            );
+            let doc = TraceDoc::from_json(&actual)?;
+            let report = spec.try_validate(&doc)?;
+            assert_eq!(report.validation, Validation::Valid);
+            assert_eq!(report.length, 1);
+            assert!(matches!(
+                spec.validate(&doc).validation,
+                Validation::Unsupported(_)
+            ));
+            for (pointer, value) in [
+                ("/ending/endpoint/assignments/x", serde_json::json!(1)),
+                ("/ending/endpoint/source/module", serde_json::json!("Wrong")),
+                ("/length", serde_json::json!(0)),
+                ("/variables", serde_json::json!([])),
+                (
+                    "/states",
+                    serde_json::json!([{"action":null,"values":{"x":0,"y":0}}]),
+                ),
+            ] {
+                let mut bad = wire.clone();
+                *bad.pointer_mut(pointer).ok_or("field")? = value;
+                assert!(
+                    matches!(
+                        spec.try_validate(&TraceDoc::from_json(&bad)?)?.validation,
+                        Validation::Invalid(_)
+                    ),
+                    "{bad}"
+                );
+            }
+            for (pointer, value) in [
+                ("/version", serde_json::json!(2)),
+                (
+                    "/ending/ec",
+                    serde_json::json!("TLC_STATE_NOT_COMPLETELY_SPECIFIED_NEXT"),
+                ),
+                (
+                    "/ending/endpoint/stage",
+                    serde_json::json!("next-partial-state"),
+                ),
+            ] {
+                let mut bad = wire.clone();
+                *bad.pointer_mut(pointer).ok_or("field")? = value;
+                assert!(TraceDoc::from_json(&bad).is_err());
+            }
+            if let Some(reference) = &reference {
+                for field in ["tlc", "statistics", "counterexample", "error_witness"] {
+                    assert_eq!(actual[field], reference[field]);
+                }
+            } else {
+                reference = Some(actual);
+            }
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn initial_candidate_level_proves_earlier_property_priority() -> TestResult {
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/terminal-level");
+    let good = root.join("one/InitLevel.tla");
+    let bad = root.join("zero/InitLevel.tla");
+    for compat_tlc in [false, true] {
+        let options = TraceOptions {
+            compat_tlc,
+            run: Some((0, 0)),
+            ..TraceOptions::default()
+        };
+        let correct = SpecModel::load(&good, &good.with_extension("cfg"), &options)?;
+        let forged = SpecModel::load(&bad, &bad.with_extension("cfg"), &options)?;
+        for engine in [Engine::Reference, Engine::Core] {
+            let request = |file: &PathBuf| CheckRequest {
+                file: file.clone(),
+                config: Some(file.with_extension("cfg")),
+                compat_tlc,
+                workers: Some(1),
+                seed: Some(0),
+                fp: Some(0),
+                ..CheckRequest::default()
+            };
+            let genuine = check_file_engine(&request(&good), engine)?.to_json();
+            assert_eq!(genuine["tlc"]["code"], 2102);
+            assert_eq!(genuine["tlc"]["exit_status"], 255);
+            assert!(genuine["counterexample"].is_null());
+            let witness = TraceDoc::from_json(&genuine["error_witness"])?;
+            let earlier = check_file_engine(&request(&bad), engine)?.to_json();
+            assert_eq!(earlier["tlc"]["code"], 2108);
+            assert_eq!(earlier["tlc"]["exit_status"], 13);
+            assert_eq!(earlier["property"], "P");
+            assert!(earlier["error_witness"].is_null());
+            assert!(matches!(forged.try_validate(&witness)?.validation,
+                Validation::Invalid(ref failure) if failure.check == dive_api::trace::Check::ImpliedInit));
+            assert_eq!(
+                correct.try_validate(&witness)?.validation,
+                Validation::Valid
+            );
         }
     }
     Ok(())

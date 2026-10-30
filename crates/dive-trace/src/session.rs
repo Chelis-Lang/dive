@@ -79,6 +79,7 @@ impl Session {
                 crate::Ending::TemporalStateError { .. }
                     | crate::Ending::NextStateError { .. }
                     | crate::Ending::PartialNext { .. }
+                    | crate::Ending::PartialInit { .. }
             )
         ) {
             return (
@@ -188,6 +189,7 @@ impl Session {
                 crate::Ending::TemporalStateError { .. }
                     | crate::Ending::NextStateError { .. }
                     | crate::Ending::PartialNext { .. }
+                    | crate::Ending::PartialInit { .. }
             )
         ) {
             return Ok(self.read(doc));
@@ -237,13 +239,18 @@ impl Session {
                 crate::Ending::TemporalStateError { .. }
                     | crate::Ending::NextStateError { .. }
                     | crate::Ending::PartialNext { .. }
+                    | crate::Ending::PartialInit { .. }
             )
         ) {
             return finish(refusal("controlled fresh-session validation currently requires a native source error endpoint; use existing validation entrypoints for other documents".into(),doc.states.len()),None);
         }
         let next_error = matches!(
             doc.ending,
-            Some(crate::Ending::NextStateError { .. } | crate::Ending::PartialNext { .. })
+            Some(
+                crate::Ending::NextStateError { .. }
+                    | crate::Ending::PartialNext { .. }
+                    | crate::Ending::PartialInit { .. }
+            )
         );
         if next_error && !doc.properties.is_empty() {
             return finish(
@@ -255,12 +262,14 @@ impl Session {
                             .into(),
                     }),
                     notes: Vec::new(),
-                    length: doc.states.len(),
+                    length: doc.logical_length(),
                 },
                 None,
             );
         }
-        let mode = if next_error {
+        let mode = if matches!(doc.ending, Some(crate::Ending::PartialInit { .. })) {
+            FreshMode::NextTerminal
+        } else if next_error {
             FreshMode::NextPrefix
         } else {
             FreshMode::Temporal
@@ -269,6 +278,9 @@ impl Session {
             Ok(runtime) => runtime,
             Err(feature) => return finish(refusal(feature, doc.logical_length()), None),
         };
+        if matches!(doc.ending, Some(crate::Ending::PartialInit { .. })) {
+            return Self::read_initial_partial_endpoint(doc, &model, host, control);
+        }
         if matches!(doc.ending, Some(crate::Ending::PartialNext { .. })) {
             return self.read_partial_endpoint(doc, model, host, control);
         }
@@ -369,6 +381,9 @@ impl Session {
                 None,
             )
         };
+        if matches!(&doc.ending,Some(crate::Ending::PartialNext {endpoint}) if endpoint.initial()) {
+            return Ok(invalid("partial Next descriptor has an Init phase"));
+        }
         if doc.states.is_empty() {
             return Ok(invalid("partial Next needs a complete source prefix"));
         }
@@ -418,6 +433,59 @@ impl Session {
             &trace,
             endpoint,
             passed,
+            control.cloned(),
+        )?;
+        Ok((report, Some(doc.clone())))
+    }
+
+    fn read_initial_partial_endpoint(
+        doc: &TraceDoc,
+        model: &Model,
+        host: Arc<TraceHost>,
+        control: Option<&Arc<dyn dive_eval::HostControl>>,
+    ) -> Result<(Report, Option<TraceDoc>), crate::ValidationRunError> {
+        let invalid = |detail: &str| {
+            (
+                Report {
+                    validation: Validation::Invalid(crate::Failure {
+                        state: 0,
+                        check: crate::Check::Shape,
+                        detail: detail.into(),
+                    }),
+                    notes: Vec::new(),
+                    length: doc.logical_length(),
+                },
+                None,
+            )
+        };
+        if !doc.states.is_empty()
+            || !doc.labels.is_empty()
+            || doc.length.is_some_and(|length| length != 1)
+        {
+            return Ok(invalid(
+                "partial Init has no complete prefix and logical length one",
+            ));
+        }
+        let variables = crate::variables(model);
+        let header: std::collections::BTreeSet<_> = doc.variables.iter().collect();
+        if header.len() != variables.len()
+            || doc.variables.len() != variables.len()
+            || variables.iter().any(|name| !header.contains(name))
+        {
+            return Ok(invalid(
+                "partial Init variable header differs from the model",
+            ));
+        }
+        let Some(crate::Ending::PartialInit { endpoint }) = &doc.ending else {
+            return Ok(invalid("missing Init partial descriptor"));
+        };
+        if !endpoint.initial() {
+            return Ok(invalid("partial Init descriptor has a Next phase"));
+        }
+        let report = crate::validate::replay_initial_partial_controlled(
+            model,
+            host,
+            endpoint,
             control.cloned(),
         )?;
         Ok((report, Some(doc.clone())))

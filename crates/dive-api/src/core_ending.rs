@@ -257,6 +257,16 @@ fn incomplete(model: &Model, f: &Failure, t: &[Option<Value>]) -> Verdict {
         initial: f.initial,
         variables,
         message,
+        initial_candidate: if f.initial {
+            f.init_action
+                .and_then(|index| model.init_actions.get(index))
+                .map(|action| dive_check::PartialState {
+                    values: t.to_vec(),
+                    expression: action.expr(),
+                })
+        } else {
+            None
+        },
     }
 }
 

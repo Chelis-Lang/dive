@@ -130,7 +130,45 @@ fn next_word_validity_does_not_waive_an_unknown_or_mismatched_wrapper() {
                 spec.try_validate(&doc).expect("fresh replay").validation,
                 Validation::Valid
             );
-            assert!(validate_counterexample(&spec, &actual, &actual).refuted);
+            assert!(validate_counterexample(&spec, &actual, &actual).validated);
+            // Word/diagnostic proof does not turn the canonical unclassified
+            // pinned stream into TLC agreement.
+            assert_ne!(
+                diff_results(
+                    &oracle,
+                    &actual,
+                    CompareContext {
+                        workers: 1,
+                        counts_comparable: true
+                    }
+                ),
+                Vec::new()
+            );
+            let mut legacy = actual.clone();
+            let endpoint = &mut legacy
+                .trace
+                .as_mut()
+                .and_then(|trace| trace.json.as_mut())
+                .expect("word")["ending"]["endpoint"];
+            endpoint["stage"] = json!("next-before-successor");
+            let object = endpoint.as_object_mut().expect("endpoint");
+            object.remove("reported");
+            object.remove("deciding");
+            let legacy_doc = TraceDoc::from_json(
+                legacy
+                    .trace
+                    .as_ref()
+                    .and_then(|trace| trace.json.as_ref())
+                    .expect("legacy word"),
+            )
+            .expect("legacy decode");
+            assert_eq!(
+                spec.try_validate(&legacy_doc)
+                    .expect("logical-only replay")
+                    .validation,
+                Validation::Valid
+            );
+            assert!(validate_counterexample(&spec, &legacy, &actual).refuted);
             let mut forged = actual.clone();
             forged
                 .trace

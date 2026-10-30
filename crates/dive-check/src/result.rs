@@ -117,6 +117,9 @@ pub enum Verdict {
         /// TLC's message (`TLC_STATE_NOT_COMPLETELY_SPECIFIED_NEXT`, or
         /// `TLC_INITIAL_STATE` for an initial state).
         message: String,
+        /// Actual partial Init candidate, printed inside TLC's error message,
+        /// separately from its absent formal counterexample.
+        initial_candidate: Option<PartialState>,
     },
     /// Evaluation failed with an error TLC also raises (including a failed
     /// `Assert` and integer overflow), classified as TLC classifies it at
@@ -380,7 +383,7 @@ pub struct TraceState {
 }
 
 /// The observed incomplete candidate and the action that actually emitted it.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PartialState {
     /// Bindings by variable id; absent assignments remain absent.
     pub values: Vec<Option<Value>>,

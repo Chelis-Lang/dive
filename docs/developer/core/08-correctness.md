@@ -397,3 +397,31 @@ eight validate in the first slice, with `RoActions`/`SplitThrows` still refused.
 These are independent-word results only, not a new TLC census or closure of
 #607/#434/#606. VIEW, symmetry, temporal, effects and composition remain bounded
 by existing independent-replay refusals.
+
+
+## 12. Ordered terminal replay
+
+ADR 0125 consumes one pure driver in Next-error and partial Init/Next replay.
+Complete candidates before a terminal event now execute ordered demand checks;
+unknown visited/newness and alias history remain refusals, with no checker/store
+import. The first actual Init candidate is constructively new. Materialized
+fingerprint demand is cooperatively polled and never used as a seen-set proof.
+The ten historical partial Next fixtures now validate, including `RoActions`
+and `SplitThrows`; this supersedes section 11's first-slice eight-of-ten limit.
+
+The new closed `next-ordered-terminal` stage proves actual primary exception
+provenance and executes the real per-action diagnostic sequence, establishing
+reported and deciding codes separately. Twenty-five Next/generator wrapper
+fixtures plus exact assertion cases are tested in both profiles and engines.
+The old before-first endpoint remains unchanged. Typed source origin attaches
+at the actual generator step only when missing; native/classifier results and
+canonical unclassified outcomes are unchanged. Other wrapper sites and raw
+unproved value-source classification remain open (#606/#620).
+
+Version-3 `partial-state` also admits `init-partial-state` with EC2102. Actual
+Init action identity and scalar partial assignments can produce optional schema-3
+`error_witness`, never a formal TLC behavior counterexample or verified flag.
+Fresh source replay proves that request independently. No whole-census, global
+BFS-count, TLC parity or milestone completion claim follows from these focused
+word controls. Constraints, implied safety and VIEW terminal endpoints remain
+separate acceptance work (#434/#490/#499/#606/#607 remain partial).
