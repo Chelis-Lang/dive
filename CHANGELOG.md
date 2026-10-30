@@ -23,6 +23,10 @@
   routes and temporal-language/planning limits are unchanged; original capacity
   and performance qualification remain required (#650).
 
+- Add a runnable CLI/Rust checking walkthrough covering safety success,
+  independently replayed safety and temporal counterexamples, and a structured
+  resource stop, using the existing Counter example.
+
 - Low-level Rust producers can validate borrowed CSR adjacency and detach
   completed or committed-prefix evidence without constructing evaluator state
   values. The native core producer consumes this boundary; capture limits
