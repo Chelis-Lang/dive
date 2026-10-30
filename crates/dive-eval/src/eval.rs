@@ -890,11 +890,19 @@ impl Core {
             // context; only successes are kept.
             let _g = self.enter(e)?;
             let mut fresh = Env::new(d, def.depth, def.frame.len(), None, Dyn::default());
-            let v = self.eval(&mut fresh, &St::constant(), def.body)?;
-            if let Ev::V(v) = &v {
-                let _ = self.def_cache[d.index()].set(v.clone());
+            match self.eval(&mut fresh, &St::constant(), def.body) {
+                Ok(value) => {
+                    if let Ev::V(value) = &value {
+                        let _ = self.def_cache[d.index()].set(value.clone());
+                    }
+                    return Ok(value);
+                }
+                // A failed startup pre-evaluation leaves the original body
+                // lazy in TLC. Retry through the actual call context below;
+                // function selection may carry KEEP_LAZY and demand one entry.
+                Err(error) if error.class() == crate::ErrorClass::Eval => {}
+                Err(error) => return Err(error),
             }
-            return Ok(v);
         }
         self.call_def(env, st, d, None, &[], e)
     }

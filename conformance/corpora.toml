@@ -273,3 +273,10 @@ id = "word-relative-liveness"
 path = "conformance/corpus/word-relative-liveness"
 license = "MIT"
 layout = "examples-manifest"
+
+# Failed constant pre-evaluation retains actual lazy call-site demand.
+[[corpus]]
+id = "constant-retry-lazy"
+path = "conformance/corpus/constant-retry-lazy"
+license = "MIT"
+layout = "examples-manifest"
