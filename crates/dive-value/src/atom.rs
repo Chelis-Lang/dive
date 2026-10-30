@@ -14,6 +14,71 @@ use std::sync::{Arc, Mutex, PoisonError};
 
 use crate::ctx::ValueOrder;
 
+impl crate::Value {
+    /// Requested heap payload retained by a narrow immutable conversion cache.
+    ///
+    /// Admits only booleans, inline integers and flat tuples/records containing
+    /// those values. The caller separately charges its table capacity, including
+    /// inline Value/Atom owners. Record name payload is shared only when its Arc
+    /// is already pinned by `names`; foreign owners and all other shapes decline.
+    /// Includes private function headers (and fixed fingerprint cache) and boxed
+    /// element/field storage. Opaque Arc headers and allocator overhead are not
+    /// measured; this is not a whole-process memory allowance.
+    /// `proceed` checks work before each component; false declines caching.
+    ///
+    /// ```
+    /// use dive_value::{Ctx, Interner, Value};
+    /// let names = Interner::new();
+    /// let record = Value::record(vec![(names.intern("x"), Value::Int(1))], Ctx::dive())?;
+    /// assert!(record.flat_cache_heap_bytes(&names, &mut || true).is_some());
+    /// assert_eq!(record.flat_cache_heap_bytes(&names, &mut || false), None);
+    /// # Ok::<(), dive_value::ValueError>(())
+    /// ```
+    #[must_use]
+    pub fn flat_cache_heap_bytes(
+        &self,
+        names: &Interner,
+        proceed: &mut dyn FnMut() -> bool,
+    ) -> Option<usize> {
+        use crate::value::{FcnInner, FcnRepr};
+        if !proceed() {
+            return None;
+        }
+        let immediate = |value: &Self| matches!(value, Self::Bool(_) | Self::Int(_));
+        match self {
+            Self::Bool(_) | Self::Int(_) => Some(0),
+            Self::Fcn(function) => {
+                let payload = match &function.0.repr {
+                    FcnRepr::Tuple(elements) => {
+                        for value in elements {
+                            if !proceed() || !immediate(value) {
+                                return None;
+                            }
+                        }
+                        std::mem::size_of_val(elements.as_ref())
+                    }
+                    FcnRepr::Record(fields) => {
+                        for (name, value) in fields {
+                            if !proceed()
+                                || !immediate(value)
+                                || !names
+                                    .resolve(name.tok())
+                                    .is_some_and(|known| Arc::ptr_eq(&name.0, &known.0))
+                            {
+                                return None;
+                            }
+                        }
+                        std::mem::size_of_val(fields.as_ref())
+                    }
+                    FcnRepr::General(_) => return None,
+                };
+                std::mem::size_of::<FcnInner>().checked_add(payload)
+            }
+            _ => None,
+        }
+    }
+}
+
 /// An interned name. Cloning is a reference-count increment.
 ///
 /// Equality is by text, so atoms from different interners still compare correctly for
@@ -236,5 +301,60 @@ impl fmt::Debug for Interner {
         f.debug_struct("Interner")
             .field("len", &self.len())
             .finish()
+    }
+}
+
+#[cfg(test)]
+#[allow(
+    clippy::expect_used,
+    reason = "flat-cache storage and ownership fixtures"
+)]
+mod flat_cache_tests {
+    use super::*;
+    use crate::{Ctx, Value};
+
+    #[test]
+    fn only_flat_immediates_with_run_owned_names_receive_known_payload_charge() {
+        let names = Interner::new();
+        let key = names.intern("x");
+        let record =
+            Value::record(vec![(key.clone(), Value::Int(1))], Ctx::dive()).expect("record");
+        let general =
+            Value::fcn(vec![(Value::Str(key), Value::Int(1))], Ctx::dive()).expect("function");
+        let expected =
+            std::mem::size_of::<crate::value::FcnInner>() + std::mem::size_of::<(Atom, Value)>();
+        assert_eq!(
+            record.flat_cache_heap_bytes(&names, &mut || true),
+            Some(expected)
+        );
+        assert_eq!(
+            general.flat_cache_heap_bytes(&names, &mut || true),
+            Some(expected)
+        );
+        let tuple = Value::tuple(vec![Value::Int(1), Value::Bool(true)]);
+        assert_eq!(
+            tuple.flat_cache_heap_bytes(&names, &mut || true),
+            Some(std::mem::size_of::<crate::value::FcnInner>() + 2 * std::mem::size_of::<Value>())
+        );
+        let foreign = Interner::new();
+        let other = Value::record(vec![(foreign.intern("x"), Value::Int(1))], Ctx::dive())
+            .expect("foreign record");
+        assert_eq!(other.flat_cache_heap_bytes(&names, &mut || true), None);
+        for unsupported in [
+            Value::tuple(vec![tuple]),
+            Value::string(&names, "x"),
+            Value::empty_set(Ctx::dive()),
+            Value::fcn(vec![(Value::Int(0), Value::Int(1))], Ctx::dive()).expect("general domain"),
+        ] {
+            assert_eq!(
+                unsupported.flat_cache_heap_bytes(&names, &mut || true),
+                None
+            );
+        }
+        assert_eq!(record.flat_cache_heap_bytes(&names, &mut || false), None);
+        assert_eq!(
+            Value::Int(1).flat_cache_heap_bytes(&names, &mut || true),
+            Some(0)
+        );
     }
 }

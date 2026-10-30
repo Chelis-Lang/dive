@@ -111,8 +111,19 @@ CSR, then `level_native` at due committed levels. `finish_native` consumes
 callback receives a checked opaque row id and this run's `EvaluationControl`;
 it returns all model variables in IR order or an explicit failure. Missing
 values and typed stops cannot become FALSE truth or absence of acceptance.
-The initial core converter retains zero cached Value rows and reconverts
-requested rows. Reference `GraphCheck::level`/`finish`/`finish_prefix` remain.
+The core converter reuses successful exact-handle Bool/Int and flat tuple/record
+values in a bounded run-local cache; other requested values still reconvert.
+Its allowance is `min(128 MiB, memory_budget / 64)` (128 MiB when unlimited),
+covering actual table capacity, one-component row arrays and known private
+function/boxed payload. One-variable model hits reuse the same shared row;
+multi-variable models assemble rows from cached components. In-range opaque row
+IDs select single-variable slots directly; exact Handle comparison still guards
+reuse. Other reads retain the bounded handle-hash path. Conversion timing excludes
+single-variable hits, as reported by `convert_ms_scope`. Run-owned
+name payload is shared after pointer-identity checking; opaque Arc/allocator
+metadata is not a complete RSS charge. Hits still check actual run control and
+eager admission always converts. Only demanded values and the bounded cache are
+retained; this is not an unbounded Value graph or a new capacity claim. Reference `GraphCheck::level`/`finish`/`finish_prefix` remain.
 
 Core-native `temporal::Report::outcome()` adds these boxed variants alongside
 existing reference outcomes:

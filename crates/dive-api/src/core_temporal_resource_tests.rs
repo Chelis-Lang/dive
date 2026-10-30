@@ -257,7 +257,7 @@ fn native_final_and_due_prefix_stops_keep_actual_analysis_phase_and_counts() {
                     }
                     let csr = CsrCapture::checked(graph.input(), graph.limits(), &control)?;
                     let mut read = |row, control: &EvaluationControl| {
-                        wait_and_read(values, graph.row(row)?, control, &options.budget)
+                        wait_and_read(values, row, graph.row(row)?, control, &options.budget)
                     };
                     Ok(driver.level_native(level, &csr, stats, &mut read))
                 };
@@ -333,7 +333,7 @@ fn native_final_and_due_prefix_stops_keep_actual_analysis_phase_and_counts() {
                 )
                 .expect("complete before expiry");
                 let mut read = |row, control: &EvaluationControl| {
-                    wait_and_read(&mut values, graph.row(row)?, control, &options.budget)
+                    wait_and_read(&mut values, row, graph.row(row)?, control, &options.budget)
                 };
                 driver.finish_native(complete, &mut read).map_err(|f| *f)
             };
@@ -371,6 +371,7 @@ fn native_final_and_due_prefix_stops_keep_actual_analysis_phase_and_counts() {
 
 fn wait_and_read(
     values: &mut NativeValues<'_>,
+    row_id: usize,
     row: &[dive_core::Handle],
     control: &EvaluationControl,
     budget: &Budget,
@@ -379,7 +380,7 @@ fn wait_and_read(
     while budget.poll().expect("poll").is_none() && start.elapsed() < Duration::from_secs(10) {
         std::thread::sleep(Duration::from_millis(1));
     }
-    values.read(row, control)
+    values.read(row_id, row, control)
 }
 
 #[test]

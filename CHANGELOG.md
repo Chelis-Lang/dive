@@ -4,10 +4,21 @@
   behavior as JSON. Capture statistics distinguish incomplete work from completed
   capture; uncertified diagnostic prefixes remain diagnostic only (#500).
 
-- Ordinary `--engine core` temporal checks now retain persistent original rows
+- Reuse successful core-native temporal read conversions for exact persistent
+  handles containing Bool/Int or flat tuple/record values. The bounded cache
+  reuses shared rows for one-variable models, selects in-range row slots directly
+  with an exact handle check, and charges its actual table
+  capacity, row arrays and known value payload within the smaller
+  of 128 MiB and 1/64 of the run memory budget; opaque Arc/allocator overhead
+  remains explicit. Budget checks precede hits, eager admission still converts
+  every original, and representation/history refusals remain unchanged. Cache
+  counters are additive; conversion timing now excludes one-variable cache hits
+  and reports its scope. Throughput and whole-run capacity need measurement.
+
+- The initial ordinary `--engine core` native temporal backend retained persistent original rows
   and CSR instead of a complete evaluator-value graph. Controlled eager Graph
   admission preserves representation/refusal order; analysis reads values on
-  demand with zero retained Value cache. Native reports retain sealed complete
+  demand with zero retained Value cache at that checkpoint (#638). Native reports retain sealed complete
   or prefix facts and independently validated selected words, releasing native
   graph/store/plan owners before fresh replay. Rust reports add `NativeHolds`,
   `NativeViolation` and `NativePrefixViolation`; schema 3 and existing trace
