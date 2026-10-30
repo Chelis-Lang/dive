@@ -214,6 +214,119 @@ mod tests {
     use std::sync::Arc;
 
     #[test]
+    fn scalar_updates_bind_at_preserve_domains_and_decline_before_missing_rhs() {
+        let mut m = Machine::new(
+            Arc::new(Store::default()),
+            0,
+            Opts::default(),
+            crate::memo::Memo::default(),
+        );
+        let zero = Handle::int(0).expect("zero");
+        let one = Handle::int(1).expect("one");
+        let two = Handle::int(2).expect("two");
+        let source = m.heap.int_fcn(0, &[one, two]);
+        let code = Code {
+            nodes: vec![
+                Node::Const(source),
+                Node::Const(zero),
+                Node::Slot(0),
+                Node::Const(one),
+                Node::Arith(crate::plan::Arith::Add, 2, 3),
+                Node::ClosedUpdate {
+                    base: 0,
+                    key: 1,
+                    domain: None,
+                    at: 0,
+                    value: 4,
+                },
+                Node::Const(Handle::int(9).expect("missing")),
+                Node::Arith(crate::plan::Arith::Div, 1, 1),
+                Node::ClosedUpdate {
+                    base: 0,
+                    key: 6,
+                    domain: None,
+                    at: 0,
+                    value: 7,
+                },
+                Node::ClosedUpdate {
+                    base: 0,
+                    key: 1,
+                    domain: None,
+                    at: 0,
+                    value: 7,
+                },
+            ],
+            ..Code::default()
+        };
+        let frame = m.enter(1);
+        m.set_slot(0, Handle::TRUE);
+        m.set_fuel(4096);
+        let changed = m.eval(&code, 5).expect("scalar @ update");
+        assert_eq!(m.heap.view(changed).kind, m.heap.view(source).kind);
+        assert_eq!(m.heap.view(changed).lo, 0);
+        assert_eq!(m.heap.view(changed).values(), &[two, two]);
+        assert_eq!(m.heap.view(source).values(), &[one, two]);
+        assert_eq!(m.slot(0), Handle::TRUE, "lexical @ restores after success");
+        let missing = m.eval(&code, 8).expect_err("missing key declines");
+        assert_eq!(missing.kind(), crate::ErrorKind::Unsupported);
+        assert!(missing.message().contains("warning semantics"));
+        assert_eq!(m.slot(0), Handle::TRUE);
+        assert!(
+            m.eval(&code, 9).is_err(),
+            "existing key demands failing RHS"
+        );
+        assert_eq!(m.slot(0), Handle::TRUE, "lexical @ restores after error");
+        m.set_fuel(4096);
+        assert!(m.eval(&code, 5).is_ok(), "clean call after failures");
+        m.leave(frame);
+    }
+
+    #[test]
+    fn scalar_update_copy_is_precharged_and_compound_old_leaves_decline() {
+        let mut m = Machine::new(
+            Arc::new(Store::default()),
+            0,
+            Opts::default(),
+            crate::memo::Memo::default(),
+        );
+        let zero = Handle::int(0).expect("zero");
+        let huge = m.heap.int_fcn(0, &vec![zero; 3000]);
+        let inner = m.heap.tuple(&[zero]);
+        let compound = m.heap.int_fcn(0, &[inner]);
+        let code = Code {
+            nodes: vec![
+                Node::Const(huge),
+                Node::Const(zero),
+                Node::Const(compound),
+                Node::ClosedUpdate {
+                    base: 0,
+                    key: 1,
+                    domain: None,
+                    at: 0,
+                    value: 1,
+                },
+                Node::ClosedUpdate {
+                    base: 2,
+                    key: 1,
+                    domain: None,
+                    at: 0,
+                    value: 1,
+                },
+            ],
+            ..Code::default()
+        };
+        let frame = m.enter(1);
+        m.set_fuel(4096);
+        let before = m.heap.arena().peak();
+        assert!(m.eval(&code, 3).is_err());
+        assert_eq!(m.fuel, 0);
+        assert_eq!(m.heap.arena().peak(), before, "no update copy before quota");
+        m.set_fuel(4096);
+        assert!(m.eval(&code, 4).is_err(), "compound @ leaf stays reference");
+        m.leave(frame);
+    }
+
+    #[test]
     fn large_materialization_and_nested_product_components_decline_before_allocation() {
         let mut machine = Machine::new(
             Arc::new(Store::default()),

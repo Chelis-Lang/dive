@@ -137,7 +137,7 @@ impl NativeAtoms {
             "eligible_state_atoms": self.eligible_state, "eligible_action_atoms": self.eligible_action,
             "state_evaluations": self.evaluated_state, "action_evaluations": self.evaluated_action,
             "enabled_evaluations": self.evaluated_enabled, "nonstuttering_evaluations": self.evaluated_nonstuttering,
-            "eligibility": "source-scoped closed predicates and fairness with immutable interval-bound scalar updates"})
+            "eligibility": "source-scoped closed ordinary constructions and scalar updates; identity-scoped fairness queries"})
     }
 
     fn evaluate(
@@ -215,7 +215,7 @@ fn stable(
     let scoped = &atom.pred.scope;
     match atom.test {
         AtomTest::Predicate => {
-            ev.closed_predicate_stability_budgeted(scoped, atom.pred.expr, Some(control))
+            ev.guarded_action_stability_budgeted(scoped, atom.pred.expr, Some(control))
         }
         AtomTest::Enabled { sub } => {
             if !ev.guarded_action_stability_budgeted(scoped, atom.pred.expr, Some(control))? {
@@ -228,7 +228,7 @@ fn stable(
         AtomTest::Nonstuttering { sub } => {
             Ok(
                 ev.guarded_action_stability_budgeted(scoped, atom.pred.expr, Some(control))?
-                    && ev.closed_predicate_stability_budgeted(scoped, sub, Some(control))?,
+                    && ev.guarded_action_stability_budgeted(scoped, sub, Some(control))?,
             )
         }
         AtomTest::NegatedEnabled { .. } => Ok(false),
@@ -263,7 +263,12 @@ fn compile(
     handoff.view = None;
     handoff.check_deadlock = false;
     let plan = match atom.test {
-        AtomTest::Predicate => dive_core::compile(&handoff, Arc::clone(store), opts),
+        AtomTest::Predicate => dive_core::compile::compile_bound_test(
+            &handoff,
+            Arc::clone(store),
+            opts,
+            dive_core::compile::BoundTest::Predicate,
+        ),
         AtomTest::Enabled { sub } => dive_core::compile::compile_bound_test(
             &handoff,
             Arc::clone(store),
@@ -643,13 +648,13 @@ mod tests {
     }
 
     #[test]
-    fn instance_fairness_retains_the_original_identity_cutoff_proof() {
+    fn enabled_retains_cutoff_while_ordinary_nonstuttering_preserves_substitution_truth() {
         for mapping in ["x <- x, y <- y", "x <- y, y <- y"] {
             let source = format!(
                 "---- MODULE Atoms ----\nEXTENDS Naturals\n---- MODULE Inner ----\nEXTENDS Naturals\nVARIABLES x,y\nStep == x'=0 /\\ y'=1\nFair == WF_<<x,y>>(Step)\n====\nVARIABLES x,y\nI == INSTANCE Inner WITH {mapping}\nInit == x=0 /\\ y=1\nNext == UNCHANGED <<x,y>>\nSpec == Init /\\ [][Next]_<<x,y>> /\\ I!Fair\nP == <> (x=1)\n====\n"
             );
             for tlc in [false, true] {
-                with_wrappers(&source, tlc, |_, driver, atoms, control| {
+                with_wrappers(&source, tlc, |prepared, driver, atoms, control| {
                     let wrappers = driver
                         .native_predicates()
                         .filter(|a| a.test != AtomTest::Predicate);
@@ -668,14 +673,93 @@ mod tests {
                                 control,
                             )
                             .expect("attempt");
-                        if mapping.starts_with("x <- y") {
-                            assert_eq!(result, None);
+                        if mapping.starts_with("x <- y")
+                            && matches!(atom.test, AtomTest::Enabled { .. })
+                        {
+                            assert_eq!(result, None, "ENABLED retains its branch cutoff proof");
                         } else {
                             assert_eq!(result, Some(false));
+                            if matches!(atom.test, AtomTest::Nonstuttering { .. }) {
+                                let row: Arc<[Option<dive_value::Value>]> = Arc::from([
+                                    Some(dive_value::Value::Int(0)),
+                                    Some(dive_value::Value::Int(1)),
+                                ]);
+                                assert_eq!(
+                                    result,
+                                    Some(
+                                        atom.evaluate(
+                                            &prepared.model,
+                                            &dive_eval::St::action(row.clone(), row)
+                                        )
+                                        .expect("reference scoped truth")
+                                    )
+                                );
+                            }
                         }
                     }
                 });
             }
+        }
+    }
+
+    #[test]
+    fn constructed_instance_nonstuttering_compares_actual_before_and_after_projections() {
+        let source = "---- MODULE Atoms ----\nEXTENDS Integers\n---- MODULE Inner ----\nEXTENDS Integers\nVARIABLE a\nStep == a'=[a EXCEPT ![0]=@+1]\nFair == WF_a(Step)\n====\nVARIABLE x\nProjection == [i \\in 0..1 |-> x[i]]\nI == INSTANCE Inner WITH a <- Projection\nInit == x=[i \\in 0..1 |-> 0]\nNext == UNCHANGED x\nSpec == Init /\\ [][Next]_x /\\ I!Fair\nP == <> (x[0]=2)\n====\n";
+        for tlc in [false, true] {
+            with_wrappers(source, tlc, |prepared, driver, atoms, control| {
+                let atom = driver
+                    .native_predicates()
+                    .find(|a| matches!(a.test, AtomTest::Nonstuttering { .. }))
+                    .expect("ordinary scoped wrapper");
+                let enabled = driver
+                    .native_predicates()
+                    .find(|a| matches!(a.test, AtomTest::Enabled { .. }))
+                    .expect("hidden query wrapper");
+                let mut heap = dive_core::Heap::new(prepared.store.clone(), false, false);
+                let zero = Handle::int(0).expect("zero");
+                let before = heap.int_fcn(0, &[zero, zero]);
+                let before = heap.intern_exact(before).expect("before");
+                let ctx = if tlc {
+                    dive_value::Ctx::tlc()
+                } else {
+                    dive_value::Ctx::dive()
+                };
+                let reference = |first| {
+                    Arc::from([Some(
+                        dive_value::Value::fcn(
+                            vec![
+                                (dive_value::Value::Int(0), dive_value::Value::Int(first)),
+                                (dive_value::Value::Int(1), dive_value::Value::Int(0)),
+                            ],
+                            ctx,
+                        )
+                        .expect("closed original"),
+                    )])
+                };
+                for first in [0, 1, 2, 0] {
+                    let after = heap.int_fcn(0, &[Handle::int(first).expect("first"), zero]);
+                    let after = heap.intern_exact(after).expect("after");
+                    let truth = atom
+                        .evaluate(
+                            &prepared.model,
+                            &dive_eval::St::action(reference(0), reference(first)),
+                        )
+                        .expect("reference");
+                    assert_eq!(
+                        atoms
+                            .evaluate(atom, &[before], Some(&[after]), control)
+                            .expect("native scoped wrapper"),
+                        Some(truth),
+                        "{tlc}/{first}"
+                    );
+                }
+                assert_eq!(
+                    atoms
+                        .evaluate(enabled, &[before], None, control)
+                        .expect("hidden query remains reference"),
+                    None
+                );
+            });
         }
     }
 

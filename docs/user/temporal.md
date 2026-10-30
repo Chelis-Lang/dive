@@ -279,8 +279,12 @@ named unsupported/resource refusal 3, and classified evaluation errors their
 reported TLC status; inspect the verdict and execution stage as well as the exit.
 
 Core analysis may evaluate certified closed-input predicates and bounded fairness
-tests directly from retained original states. Unproved scopes, values, updates
-and evaluation errors use the existing reference evaluator. The additive
+tests directly from retained original states. Proved ordinary action atoms may
+construct functions over integer intervals, use bounded interval CHOOSE and make
+single-key scalar EXCEPT/@ updates. Scoped non-stuttering tests compare the
+before and after projections first; hidden ENABLED queries retain their existing
+reference boundary. Unproved scopes, values, updates and evaluation errors use
+the existing reference evaluator. The additive
 `core.metrics.liveness.atoms` counters show prepared eligibility, successful
 native evaluations by kind, and fallback; they do not establish throughput or
 whole-model completion. State admission and independent word validation retain

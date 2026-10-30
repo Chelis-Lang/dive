@@ -241,17 +241,20 @@ pub enum Node {
     Select(P, Handle),
     /// `DOMAIN f`
     Domain(P),
-    /// An optional single-key update of a closed root input function. Its
-    /// actual domain must equal the immutable interval that bound the key.
-    /// A miss/incompatible shape declines instead of suppressing a warning.
+    /// An optional scalar single-key update of a certified closed function.
+    /// A missing key or incompatible shape declines before evaluating the RHS,
+    /// preserving reference warning semantics. Existing root/binder updates
+    /// additionally retain their exact immutable interval-domain guard.
     ClosedUpdate {
-        /// Original root function input.
+        /// Original closed input or constructed function.
         base: P,
-        /// Actual flat interval-binder slot.
+        /// Actual scalar key.
         key: P,
-        /// Source-bound immutable interval.
-        domain: P,
-        /// Scalar replacement, with no EXCEPT @ binding.
+        /// Source-bound immutable interval for the root/binder source class.
+        domain: Option<P>,
+        /// Lexical slot holding this update's old scalar leaf for `@`.
+        at: u32,
+        /// Scalar replacement.
         value: P,
     },
     /// `[f EXCEPT ...]`
