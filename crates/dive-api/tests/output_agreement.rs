@@ -177,6 +177,22 @@ fn compare_statistics(doc: &Value, lines: &[&str], diff: &mut Differences) {
     if s.is_null() {
         return;
     }
+    if lines.iter().any(|line| line.starts_with("Capture ")) {
+        let completion = match doc["execution"]["capture_completed"].as_bool() {
+            Some(true) => "completed",
+            Some(false) => "incomplete",
+            None => "completion unknown",
+        };
+        let expected = format!(
+            "Capture {completion}: {} generated, {} distinct, depth {}; no temporal verdict.",
+            s["generated"], s["distinct"], s["depth"]
+        );
+        diff.expect(
+            "statistics.capture",
+            lines.contains(&expected.as_str()),
+            || format!("human capture statistics lack {expected:?}"),
+        );
+    }
     let safety = format!(
         "{} states generated, {} distinct states found, {} states left on queue.",
         s["generated"], s["distinct"], s["left_on_queue"]
