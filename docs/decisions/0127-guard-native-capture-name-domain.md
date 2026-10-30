@@ -26,8 +26,9 @@ runtime-name-only sequential restriction, retaining every source/configured/
 captured-effect and other capture restriction. Verify actual model scope
 ownership and exact startup token/text correspondence to the actual sealed
 native Store. The native table refuses every new name. Its bound reference
-Interner is append-only: length increases on each newly interned name and tokens
-are never removed or reused. Observe that exact Arc across the entire temporal
+Interner is append-only: length increases on each newly interned text and entries are never removed.
+The admitted startup tokens are checked exactly against the native domain; the
+guard relies on monotone length, not later token assignment. Observe that exact Arc across the entire temporal
 operation, including planning, capture, periodic/final analysis, attribution,
 error reconstruction and independent report validation. Any growth prevents a
 semantic result from escaping; actual resource/interruption/bug transport is

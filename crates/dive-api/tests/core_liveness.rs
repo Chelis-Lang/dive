@@ -465,7 +465,6 @@ fn closed_function_reads_keep_nested_reports_and_do_not_reuse_admission() {
     }
 }
 
-
 #[test]
 fn fixed_native_names_admit_pure_tuple_calls_but_refuse_new_name_demands() {
     for tlc in [false, true] {
