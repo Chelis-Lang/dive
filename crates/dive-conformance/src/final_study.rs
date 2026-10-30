@@ -252,7 +252,8 @@ fn lasso_document(v: &Value) -> std::result::Result<TraceDoc, String> {
         || distinct.len() != names.len()
         || inner.len() != doc.properties.len()
         || distinct != inner
-        || !v["property"].as_str().is_some_and(|n| distinct.contains(n))
+        || v["property"].as_str()
+            != Some(crate::trace_check::property_names(&doc.properties).as_str())
     {
         return Err("lasso property claims are empty, duplicate or contradictory".into());
     }

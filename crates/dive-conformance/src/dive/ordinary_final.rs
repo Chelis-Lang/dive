@@ -183,9 +183,8 @@ fn lasso(value: &Value) -> Result<Trace, String> {
         || names.len() != claims.len()
         || inner.len() != document.properties.len()
         || names != inner
-        || !value["property"]
-            .as_str()
-            .is_some_and(|name| names.contains(name))
+        || value["property"].as_str()
+            != Some(crate::trace_check::property_names(&document.properties).as_str())
     {
         return Err("periodic property claims are empty, duplicate or contradictory".into());
     }

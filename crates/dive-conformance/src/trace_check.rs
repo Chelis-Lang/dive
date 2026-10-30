@@ -105,7 +105,7 @@ pub fn ending_of(result: &OracleResult) -> Option<Ending> {
 }
 
 // Same pinned MP list formatting as the report; no name is inferred from text.
-fn property_names(names: &[String]) -> String {
+pub(crate) fn property_names(names: &[String]) -> String {
     match names.split_last() {
         None => String::new(),
         Some((last, [])) => last.clone(),
