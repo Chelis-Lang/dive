@@ -301,7 +301,11 @@ could be suppressed. EXCEPT @, nested/multiple updates, source function
 constructors, CHOOSE, raw/deferred set history, effects, live TLCGet and unproved
 fairness wrappers continue through reference evaluation. Unknown representations, optional work
 bounds and semantic failures use the same reference fallback. Actual owned
-budget stops propagate; foreign interruption evidence is rejected.
+budget stops propagate; foreign interruption evidence is rejected. Optional query
+binding streams the existing cursors under its work quota, preflights eager
+materialization before allocation and charges universal context buffers. Its
+in-query checkpoint uses the actual retained budget; quota exhaustion remains
+reference fallback, with no fabricated resource stop.
 
 The analysis Machine has separate arena/frame/memo owners, with memoization and
 folding disabled. It does not intern predicate results into the producer Store.

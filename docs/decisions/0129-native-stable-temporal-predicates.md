@@ -92,8 +92,15 @@ Bound optional code and input inspection to 4,096 nodes/components and machine
 loop work to 4,096 units; exponentiation and recursive code stay on reference
 execution. These optional limits and any semantic
 failure abandons only the optional native attempt and runs the existing
-reference predicate. Actual run interruptions are polled before and after work,
-validated against the producer and analysis control owners, and propagated with
+reference predicate. Finite optional generator binding uses existing set cursors, preserving the
+first-variable-fastest order and partial first success. Before existing Heap
+normalization/cursor constructors can materialize a domain, a bounded preflight
+charges component cardinalities and payload bounds; large/nested products decline
+before allocation. Universal contexts and continuation payload are charged before
+growth and unwind on exhaustion. Ordinary unbounded machines keep their existing
+enumeration. Actual run interruptions are polled inside query work through a
+small core checkpoint backed by the original retained control, as well as before
+and after work, validated against producer and analysis owners, and propagated with
 the analysis phase. A foreign interruption cannot become this run's stop.
 
 Every original still undergoes the same eager Graph admission, including seen

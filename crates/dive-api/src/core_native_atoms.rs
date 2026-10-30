@@ -22,6 +22,14 @@ struct Compiled {
     plan: dive_core::plan::Plan,
 }
 
+#[derive(Debug)]
+struct QueryControl(Arc<EvaluationControl>);
+impl dive_core::eval::WorkControl for QueryControl {
+    fn proceed(&self) -> bool {
+        self.0.check().is_ok()
+    }
+}
+
 pub(crate) struct NativeAtoms {
     machine: Machine,
     control: Arc<EvaluationControl>,
@@ -72,6 +80,9 @@ impl NativeAtoms {
             evaluated_enabled: 0,
             evaluated_nonstuttering: 0,
         };
+        result
+            .machine
+            .set_work_control(Some(Arc::new(QueryControl(Arc::clone(control)))));
         for atom in driver.native_predicates() {
             result.total += 1;
             if matches!(atom.test, AtomTest::NegatedEnabled { .. }) {
@@ -838,5 +849,307 @@ mod tests {
             check(&owner, &unrelated),
             Err(AnalysisError::Inconsistent(_))
         ));
+    }
+
+    #[test]
+    fn actual_binder_alias_and_shadow_controls() {
+        for tlc in [false, true] {
+            for (defs, action, eligible) in [
+                (
+                    "U(k) == [x EXCEPT ![k] = x[k]+1]",
+                    "\\E j \\in 1..2: x'=U(j) /\\ UNCHANGED y",
+                    true,
+                ),
+                (
+                    "U(k) == [x EXCEPT ![k] = x[k]+1]",
+                    "\\E j \\in 1..2: x'=U(j+0) /\\ UNCHANGED y",
+                    false,
+                ),
+                (
+                    "",
+                    "\\E j \\in 1..2: (\\E k \\in 3..4: x'=[x EXCEPT ![k]=0]) /\\ UNCHANGED y",
+                    true,
+                ),
+                (
+                    "",
+                    "\\E j \\in 1..y: x'=[x EXCEPT ![j]=0] /\\ UNCHANGED y",
+                    false,
+                ),
+                (
+                    "",
+                    "\\E j \\in {1,2}: x'=[x EXCEPT ![j]=0] /\\ UNCHANGED y",
+                    true,
+                ),
+                (
+                    "",
+                    "\\E j \\in 1..2: x'=[x EXCEPT ![j]=@+1] /\\ UNCHANGED y",
+                    false,
+                ),
+                (
+                    "",
+                    "\\E j \\in 1..2: x'=[x EXCEPT ![j]=1, ![j]=2] /\\ UNCHANGED y",
+                    false,
+                ),
+                (
+                    "",
+                    "\\E j \\in 1..2: x'=[x EXCEPT ![j][1]=1] /\\ UNCHANGED y",
+                    false,
+                ),
+                (
+                    "",
+                    "\\E j \\in 1..2: x'=[(IF TRUE THEN x ELSE x) EXCEPT ![j]=1] /\\ UNCHANGED y",
+                    false,
+                ),
+            ] {
+                let source = format!(
+                    "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLES x,y\nInit == x = <<0,0>> /\\ y=2\nNext == UNCHANGED <<x,y>>\n{defs}\nA == {action}\nSpec == Init /\\ [][Next]_<<x,y>> /\\ WF_<<x,y>>(A)\nP == <> (y=1)\n====\n"
+                );
+                with_wrappers(&source, tlc, |prepared, driver, atoms, control| {
+                    let enabled = driver
+                        .native_predicates()
+                        .find(|a| matches!(a.test, AtomTest::Enabled { .. }))
+                        .expect("enabled");
+                    let mut heap = dive_core::Heap::new(prepared.store.clone(), false, false);
+                    let zero = Handle::int(0).expect("zero");
+                    let x = heap.int_fcn(1, &[zero, zero]);
+                    let x = heap.intern_exact(x).expect("persistent");
+                    let two = Handle::int(2).expect("two");
+                    let got = atoms
+                        .evaluate(enabled, &[x, two], None, control)
+                        .expect("optional");
+                    if !eligible || action.contains("3..4") || action.contains("{1,2}") {
+                        assert_eq!(got, None, "{action}, tlc={tlc}");
+                    } else {
+                        assert_eq!(got, Some(true), "{action}, tlc={tlc}");
+                        let state = dive_eval::St::state(Arc::from([
+                            Some(dive_value::Value::tuple(vec![
+                                dive_value::Value::Int(0),
+                                dive_value::Value::Int(0),
+                            ])),
+                            Some(dive_value::Value::Int(2)),
+                        ]));
+                        assert!(
+                            enabled
+                                .evaluate(&prepared.model, &state)
+                                .expect("reference")
+                        );
+                    }
+                });
+            }
+        }
+    }
+
+    #[test]
+    fn negated_enabled_retains_reference_lane() {
+        let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == x'=1\nSpec == Init /\\ [][Next]_x\nP == <> (~ENABLED A)\n====\n";
+        for tlc in [false, true] {
+            with_wrappers(source, tlc, |_, driver, atoms, control| {
+                for atom in driver.native_predicates() {
+                    let got = atoms
+                        .evaluate(atom, &[Handle::int(0).expect("zero")], None, control)
+                        .expect("query");
+                    if matches!(atom.test, AtomTest::NegatedEnabled { .. }) {
+                        assert_eq!(got, None);
+                    }
+                }
+            });
+        }
+    }
+
+    #[test]
+    fn native_query_reports_an_owned_interruption_from_inside_enumeration() {
+        use std::sync::atomic::{AtomicUsize, Ordering};
+        #[derive(Debug)]
+        struct Pause {
+            owner: Arc<EvaluationControl>,
+            calls: AtomicUsize,
+        }
+        impl dive_core::eval::WorkControl for Pause {
+            fn proceed(&self) -> bool {
+                if self.calls.fetch_add(1, Ordering::Relaxed) == 3 {
+                    std::thread::sleep(std::time::Duration::from_millis(120));
+                }
+                self.owner.check().is_ok()
+            }
+        }
+        let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == \\E i \\in 1..10000: x'=i /\\ i=x\nSpec == Init /\\ [][Next]_x\nP == <> (ENABLED A)\n====\n";
+        for tlc in [false, true] {
+            with_wrappers(source, tlc, |_, driver, atoms, _| {
+                let watchdog = Budget::new(Some(std::time::Duration::from_millis(50)), None)
+                    .start()
+                    .expect("watchdog")
+                    .expect("finite");
+                let owner =
+                    EvaluationControl::new(watchdog.budget(), Phase::Capture).expect("owner");
+                let phase =
+                    EvaluationControl::new(watchdog.budget(), Phase::Temporal).expect("phase");
+                let poll = Arc::new(Pause {
+                    owner: owner.clone(),
+                    calls: AtomicUsize::new(0),
+                });
+                atoms.control = owner;
+                atoms.machine.set_work_control(Some(poll.clone()));
+                let atom = driver.native_predicates().next().expect("enabled");
+                assert!(
+                    matches!(atoms.evaluate(atom,&[Handle::int(0).expect("zero")],None,&phase),Err(AnalysisError::Stopped(ref stop)) if stop.phase==Phase::Temporal)
+                );
+                assert!(
+                    poll.calls.load(Ordering::Relaxed) >= 4,
+                    "query reached its internal checkpoint"
+                );
+                assert_eq!(atoms.evaluated, 0);
+            });
+        }
+    }
+
+    #[test]
+    fn universal_and_nested_query_contexts_respect_the_optional_quota() {
+        for tlc in [false, true] {
+            for action in [
+                "\\A i \\in 1..10000: x'=x",
+                "\\E i \\in 1..100: \\E j \\in 1..100: x'=i+j /\\ x=i+j",
+                "\\E i,j \\in 1..100: x'=i+j /\\ x=i+j",
+            ] {
+                let source = format!(
+                    "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == {action}\nSpec == Init /\\ [][Next]_x\nP == <> (ENABLED A)\n====\n"
+                );
+                with_wrappers(&source, tlc, |_, driver, atoms, control| {
+                    let atom = driver.native_predicates().next().expect("enabled");
+                    assert_eq!(
+                        atoms
+                            .evaluate(atom, &[Handle::int(0).expect("zero")], None, control)
+                            .expect("bounded"),
+                        None,
+                        "{action}"
+                    );
+                    assert_eq!(atoms.machine.frame.len(), 0);
+                    assert_eq!(atoms.machine.assigned, 0);
+                });
+            }
+        }
+    }
+
+    #[test]
+    fn unproved_product_sources_stay_reference_and_forall_recovers_after_quota() {
+        for tlc in [false, true] {
+            for (domain, expected) in [
+                ("(1..2) \\X (1..2)", None),
+                ("(1..1000000000) \\X (1..2)", None),
+                ("(1..2) \\X ((1..1000000000) \\X (1..2))", None),
+            ] {
+                let source = format!(
+                    "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == \\E <<i,j>> \\in {domain}: x'=i /\\ x=i\nSpec == Init /\\ [][Next]_x\nP == <> (ENABLED A)\n====\n"
+                );
+                with_wrappers(&source, tlc, |_, driver, atoms, control| {
+                    assert_eq!(
+                        atoms.eligible, 0,
+                        "existing product source certificate stays conservative"
+                    );
+                    let atom = driver.native_predicates().next().expect("enabled");
+                    assert_eq!(
+                        atoms
+                            .evaluate(atom, &[Handle::int(0).expect("zero")], None, control)
+                            .expect("bounded product"),
+                        expected
+                    );
+                });
+            }
+            let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == \\A i \\in 1..x: x'=x\nSpec == Init /\\ [][Next]_x\nP == <> (ENABLED A)\n====\n";
+            with_wrappers(source, tlc, |_, driver, atoms, control| {
+                let atom = driver.native_predicates().next().expect("enabled");
+                assert_eq!(
+                    atoms
+                        .evaluate(atom, &[Handle::int(10000).expect("large")], None, control)
+                        .expect("forall quota"),
+                    None
+                );
+                assert_eq!(
+                    atoms
+                        .evaluate(atom, &[Handle::int(1).expect("one")], None, control)
+                        .expect("forall frame after quota"),
+                    Some(true)
+                );
+            });
+        }
+    }
+
+    #[test]
+    fn query_candidate_value_normalization_is_preflighted_before_materialization() {
+        let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == x'=(1..1000000000) /\\ FALSE\nSpec == Init /\\ [][Next]_x\nP == <> (ENABLED A)\n====\n";
+        for tlc in [false, true] {
+            with_wrappers(source, tlc, |_, driver, atoms, control| {
+                assert_eq!(atoms.eligible, 1);
+                let atom = driver.native_predicates().next().expect("enabled");
+                assert_eq!(
+                    atoms
+                        .evaluate(atom, &[Handle::int(0).expect("zero")], None, control)
+                        .expect("optional value allocation quota"),
+                    None
+                );
+                assert!(
+                    atoms.machine.heap.arena().peak().1 < 100,
+                    "no large candidate payload was allocated"
+                );
+            });
+        }
+    }
+
+    #[test]
+    fn generic_function_domain_membership_and_optional_fuel() {
+        for tlc in [false, true] {
+            let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLES x,y\nInit == x = <<0,0>> /\\ y=0\nNext == UNCHANGED <<x,y>>\nA == \\E i \\in 1..2: x'=[x EXCEPT ![i]=1] /\\ UNCHANGED y\nSpec == Init /\\ [][Next]_<<x,y>> /\\ WF_<<x,y>>(A)\nP == <> (y=1)\n====\n";
+            with_wrappers(source, tlc, |prepared, driver, atoms, control| {
+                let atom = driver
+                    .native_predicates()
+                    .find(|a| matches!(a.test, AtomTest::Enabled { .. }))
+                    .expect("enabled");
+                let mut heap = dive_core::Heap::new(prepared.store.clone(), false, false);
+                let z = Handle::int(0).expect("zero");
+                let one = Handle::int(1).expect("one");
+                let two = Handle::int(2).expect("two");
+                for (keys, want) in [
+                    (vec![one, two], Some(true)),
+                    (vec![z, one], None),
+                    (vec![one], None),
+                    (vec![one, two, Handle::int(3).expect("three")], None),
+                    (vec![Handle::bool(false), Handle::bool(true)], None),
+                ] {
+                    let f = heap.fcn_sorted(&keys, &vec![z; keys.len()]);
+                    let f = heap.intern_exact(f).expect("persistent");
+                    assert_eq!(
+                        atoms.evaluate(atom, &[f, z], None, control).expect("query"),
+                        want,
+                        "keys={keys:?}"
+                    );
+                }
+            });
+            let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == \\E i \\in 1..10000: x'=i /\\ i=x\nSpec == Init /\\ [][Next]_x\nP == <> (ENABLED A)\n====\n";
+            with_wrappers(source, tlc, |prepared, driver, atoms, control| {
+                let atom = driver
+                    .native_predicates()
+                    .find(|a| matches!(a.test, AtomTest::Enabled { .. }))
+                    .expect("enabled");
+                assert_eq!(
+                    atoms
+                        .evaluate(atom, &[Handle::int(0).expect("zero")], None, control)
+                        .expect("fuel fallback"),
+                    None
+                );
+                assert!(
+                    !atom
+                        .evaluate(
+                            &prepared.model,
+                            &dive_eval::St::state(Arc::from([Some(dive_value::Value::Int(0))]))
+                        )
+                        .expect("reference false")
+                );
+                assert_eq!(
+                    atoms
+                        .evaluate(atom, &[Handle::int(1).expect("one")], None, control)
+                        .expect("clean next call"),
+                    Some(true)
+                );
+            });
+        }
     }
 }

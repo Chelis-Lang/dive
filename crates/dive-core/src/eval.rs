@@ -14,6 +14,9 @@ use crate::opts::Opts;
 use crate::plan::{Arith, Bind, Cmp, Code, LibArg, Node, P, Quant, SetOp, StdFn, Update};
 use crate::store::Store;
 
+#[path = "eval_work.rs"]
+mod work;
+
 /// The deepest recursive-operator nesting the interpreter allows.
 const MAX_CALL_DEPTH: usize = 2000;
 
@@ -27,6 +30,13 @@ pub struct EvalStats {
     /// Forced thunks whose value is transient (an arena rollback must not
     /// free it while its slot holds it).
     pub transient_thunks: u64,
+}
+
+/// An optional cooperative work checkpoint. A false result only interrupts
+/// the machine; the caller must classify its own actual run authority.
+pub trait WorkControl: std::fmt::Debug + Send + Sync {
+    /// Whether evaluation may continue.
+    fn proceed(&self) -> bool;
 }
 
 /// One worker's evaluation state.
@@ -76,8 +86,10 @@ pub struct Machine {
     scratch: Vec<Vec<Handle>>,
     depth: usize,
     /// Loop iterations left before evaluation gives up. Unbounded at run
-    /// time; the compiler bounds it while folding constants (R9).
+    /// time; the compiler bounds it while folding constants (R9), and an
+    /// isolated optional analysis machine bounds its own speculative work.
     pub(crate) fuel: u64,
+    work_control: Option<Arc<dyn WorkControl>>,
 }
 
 fn eval_err(what: &str) -> Error {
@@ -164,6 +176,7 @@ impl Machine {
             scratch: Vec::new(),
             depth: 0,
             fuel: u64::MAX,
+            work_control: None,
         }
     }
 
@@ -179,13 +192,35 @@ impl Machine {
         self.fuel = units;
     }
 
+    /// Installs the optional caller-owned cooperative work checkpoint.
+    /// Ordinary machines have no checkpoint and unbounded fuel.
+    ///
+    /// ```
+    /// # fn example(machine: &mut dive_core::Machine) {
+    /// machine.set_work_control(None);
+    /// # }
+    /// ```
+    pub fn set_work_control(&mut self, control: Option<Arc<dyn WorkControl>>) {
+        self.work_control = control;
+    }
+
     /// Spends `n` units of fuel: one per element a loop visits.
     #[inline]
     pub(crate) fn charge(&mut self, n: usize) -> Result<(), Error> {
+        if self
+            .work_control
+            .as_ref()
+            .is_some_and(|control| !control.proceed())
+        {
+            return Err(Error::stop());
+        }
+        if self.fuel == u64::MAX {
+            return Ok(());
+        }
         let n = n as u64;
         if self.fuel < n {
             self.fuel = 0;
-            return Err(Error::unsupported("the constant-folding budget"));
+            return Err(Error::unsupported("the optional machine work budget"));
         }
         self.fuel -= n;
         Ok(())
@@ -245,6 +280,9 @@ impl Machine {
     /// Evaluation errors.
     pub fn eval_norm(&mut self, code: &Code, p: P) -> Result<Handle, Error> {
         let v = self.eval(code, p)?;
+        if self.fuel != u64::MAX && v.is_compound() && self.heap.view(v).kind.is_symbolic() {
+            self.domain_work(v, true, 0)?;
+        }
         self.heap.norm(v)
     }
 
@@ -258,6 +296,9 @@ impl Machine {
         reason = "one arm per node kind, with operand names as in the semantics"
     )]
     pub fn eval(&mut self, code: &Code, p: P) -> Result<Handle, Error> {
+        if self.fuel != u64::MAX {
+            self.charge(1)?;
+        }
         let Some(node) = code.nodes.get(p as usize) else {
             return Err(Error::internal("plan node out of range"));
         };
@@ -1204,7 +1245,7 @@ impl Machine {
         // The cursor enumerates a symbolic domain in canonical order without
         // materializing it (R9, R10).
         let dom = self.eval(code, bind.domain)?;
-        let mut cur = self.heap.cursor(dom)?;
+        let mut cur = self.work_cursor(dom)?;
         let mut out = Vec::new();
         loop {
             // Free a rejected candidate, and the predicate's transients, by
@@ -1212,7 +1253,7 @@ impl Machine {
             // transient meanwhile: its slot may hold a value built after the
             // mark (`03-value-model.md` §11.5 rule 2).
             let before = self.heap.mark();
-            let Some(e) = cur.next(&mut self.heap)? else {
+            let Some(e) = self.work_next(&mut cur)? else {
                 break;
             };
             self.charge(1)?;
@@ -1262,6 +1303,9 @@ impl Machine {
         let mut out = Vec::new();
         for (bi, b) in binds.iter().enumerate() {
             let d = self.eval(code, b.domain)?;
+            if self.fuel != u64::MAX {
+                self.domain_work(d, true, 0)?;
+            }
             let d = self.heap.norm(d)?;
             let elems = self.heap.elements(d)?;
             if b.tuple {
@@ -1274,6 +1318,7 @@ impl Machine {
                 ));
             } else {
                 for vi in 0..b.slots.len() {
+                    self.charge(elems.len() + 1)?;
                     out.push((
                         Unit {
                             bind: bi,
@@ -1306,6 +1351,9 @@ impl Machine {
         binds: &[Bind],
         f: &mut dyn FnMut(&mut Self) -> Result<bool, Error>,
     ) -> Result<bool, Error> {
+        if self.fuel != u64::MAX {
+            return self.binding_stream(code, binds, f);
+        }
         let units = self.units(code, binds)?;
         if units.iter().any(|(_, e)| e.is_empty()) {
             return Ok(true);
@@ -1363,8 +1411,8 @@ impl Machine {
                     return Err(Error::unsupported("CHOOSE with several bound variables"));
                 }
                 let d = self.eval(code, binds[0].domain)?;
-                let mut cur = self.heap.cursor(d)?;
-                while let Some(e) = cur.next(&mut self.heap)? {
+                let mut cur = self.work_cursor(d)?;
+                while let Some(e) = self.work_next(&mut cur)? {
                     self.charge(1)?;
                     self.bind_one(&binds[0], e)?;
                     if self.eval_bool(code, body)? {
@@ -1664,7 +1712,7 @@ impl Machine {
     // Standard operators
     // ------------------------------------------------------------------
 
-    fn seq_vals(&self, s: Handle) -> Result<Vec<Handle>, Error> {
+    fn seq_vals(&mut self, s: Handle) -> Result<Vec<Handle>, Error> {
         if !s.is_compound() {
             return Err(eval_err("expected a sequence"));
         }
@@ -1672,7 +1720,9 @@ impl Machine {
         if v.kind != Kind::IntFcn || v.lo != 1 {
             return Err(eval_err("expected a sequence"));
         }
-        Ok(v.data.to_vec())
+        let len = v.data.len();
+        self.charge(len)?;
+        Ok(self.heap.view(s).data.to_vec())
     }
 
     /// Bags (`tlc2.module.Bags`; the reference engine's
