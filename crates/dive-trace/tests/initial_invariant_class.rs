@@ -93,6 +93,10 @@ fn original_eight_initial_words_get_independent_class_evidence() -> TestResult {
         );
         let fresh = input.session();
         assert_eq!(
+            fresh.initial_error_stage(None)?.1,
+            Some(dive_trace::InitialErrorStage::InvariantReceiver)
+        );
+        assert_eq!(
             fresh.try_read(&doc)?.0.validation,
             Validation::Valid,
             "{name}"
@@ -102,6 +106,60 @@ fn original_eight_initial_words_get_independent_class_evidence() -> TestResult {
             assert_eq!(report.validation, Validation::Valid, "{name}: {report:?}");
             let class = class.ok_or("missing independently reconstructed wrapper")?;
             assert_eq!((class.reported_code(), class.deciding_code()), (2102, 2147));
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn actual_no_word_generation_and_function_routes_reconstruct_diagnostic_catches() -> TestResult {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../conformance/corpus");
+    for (corpus, name, expected) in [
+        (
+            "comparison-receiver-primary",
+            "InitGeneration",
+            dive_trace::InitialErrorStage::Generation,
+        ),
+        (
+            "constant-retry-lazy",
+            "WholeFunctionError",
+            dive_trace::InitialErrorStage::LegacyInvariant,
+        ),
+    ] {
+        let file = root
+            .join(corpus)
+            .join("specifications")
+            .join(name)
+            .join(format!("{name}.tla"));
+        let analysis = dive_sema::analyze_file(&file, &dive_sema::Options::default())?;
+        let input = Input {
+            ir: Arc::new(dive_ir::lower(&analysis)?),
+            config: dive_config::parse(&std::fs::read_to_string(file.with_extension("cfg"))?)
+                .into_config()
+                .ok_or("cfg")?,
+        };
+        let (report, stage) = input.session().initial_error_stage(None)?;
+        assert_eq!(report.validation, Validation::Valid, "{name}: {report:?}");
+        assert_eq!(stage, Some(expected));
+        let count = Arc::new(Control {
+            calls: AtomicUsize::new(0),
+            stop: usize::MAX,
+        });
+        assert_eq!(
+            input.session().initial_error_stage(Some(count.clone()))?.1,
+            Some(expected)
+        );
+        let total = count.calls.load(Ordering::Relaxed);
+        for stop in [total / 2, total] {
+            let error = input
+                .session()
+                .initial_error_stage(Some(Arc::new(Control {
+                    calls: AtomicUsize::new(0),
+                    stop,
+                })))
+                .err()
+                .ok_or("typed routing stop")?;
+            assert!(matches!(error, ValidationRunError::Interrupted { .. }));
         }
     }
     Ok(())
