@@ -765,12 +765,27 @@ impl Heap {
     }
 
     /// Executes the actual raw or normalized search for a covered literal.
+    #[cfg(test)]
     pub(crate) fn literal_member(
         &mut self,
         query: Handle,
         set: Handle,
     ) -> Option<Result<bool, Error>> {
-        self.construction_member(query, set, self.store.semantics().tlc_comparisons)
+        self.construction_member(query, set, self.store.semantics().tlc_comparisons, None)
+    }
+
+    pub(crate) fn literal_member_indexed(
+        &mut self,
+        query: Handle,
+        set: Handle,
+        index: &mut crate::member_index::MemberIndex,
+    ) -> Option<Result<bool, Error>> {
+        self.construction_member(
+            query,
+            set,
+            self.store.semantics().tlc_comparisons,
+            Some(index),
+        )
     }
 
     fn construction_member(
@@ -778,6 +793,7 @@ impl Heap {
         query: Handle,
         set: Handle,
         tlc: bool,
+        member_index: Option<&mut crate::member_index::MemberIndex>,
     ) -> Option<Result<bool, Error>> {
         let index = self.local_literal_index(set);
         let retained = set.is_compound()
@@ -787,7 +803,7 @@ impl Heap {
         if index.is_none() && !retained {
             return None;
         }
-        Some(self.construction_member_owned(query, set, index, tlc))
+        Some(self.construction_member_owned(query, set, index, tlc, member_index))
     }
 
     // Only the checked entrypoint or a Cup whose exact receiver was validated
@@ -798,6 +814,7 @@ impl Heap {
         set: Handle,
         index: Option<usize>,
         tlc: bool,
+        member_index: Option<&mut crate::member_index::MemberIndex>,
     ) -> Result<bool, Error> {
         use crate::arena::LiteralPhase;
         if self.construction_len(index, set) == 0 {
@@ -830,7 +847,7 @@ impl Heap {
         // mismatches are deferred until no extensional hit exists, as in
         // the reference's tla_cmp::member, then the checked search decides.
         if !tlc && !self.is_lazy(query) && !self.has_raw_construction(query) {
-            match self.construction_tla_result(query, set, index, normalized, count) {
+            match self.construction_tla_result(query, set, index, normalized, count, member_index) {
                 Ok(Some(answer)) => return Ok(answer),
                 Err(error) => return Err(error),
                 Ok(None) => {}
@@ -929,11 +946,16 @@ impl Heap {
         index: Option<usize>,
         normalized: bool,
         count: usize,
+        member_index: Option<&mut crate::member_index::MemberIndex>,
     ) -> Result<Option<bool>, Error> {
         if normalized {
             let view = index.map_or(set, |i| self.arena.literal_sets[i].normalized);
             let values = self.view(view).data;
-            if values.binary_search_by(|&e| self.cmp(e, query)).is_ok() {
+            let indexed = match member_index {
+                Some(index) => index.search(self, set, query, values)?,
+                None => None,
+            };
+            if indexed.unwrap_or_else(|| values.binary_search_by(|&e| self.cmp(e, query)).is_ok()) {
                 return Ok(Some(true));
             }
             return Ok((!self.construction_sorted_needs_checked(query, values)?).then_some(false));
@@ -1050,7 +1072,7 @@ impl Heap {
             for position in 0..count {
                 self.history_poll()?;
                 let value = self.construction_at(right_index, b, position);
-                if !self.construction_member_owned(value, a, receiver_index, true)? {
+                if !self.construction_member_owned(value, a, receiver_index, true, None)? {
                     out.push(value);
                 }
             }
@@ -1674,7 +1696,7 @@ impl Heap {
         self.work_interrupted.get()
     }
 
-    fn history_poll(&self) -> Result<(), Error> {
+    pub(crate) fn history_poll(&self) -> Result<(), Error> {
         let steps = self.history_steps.get();
         self.history_steps.set(steps.wrapping_add(1));
         if steps.trailing_zeros() >= 6
@@ -2367,7 +2389,7 @@ mod tests {
         let set = h.local_literal(&values).unwrap_or(Handle::EMPTY);
         h.set_history_control(Some(Arc::new(Stop(AtomicUsize::new(0)))));
         assert!(
-            matches!(h.construction_member(int(-1), set, true), Some(Err(error)) if error.kind() == crate::ErrorKind::Stop)
+            matches!(h.construction_member(int(-1), set, true, None), Some(Err(error)) if error.kind() == crate::ErrorKind::Stop)
         );
     }
 

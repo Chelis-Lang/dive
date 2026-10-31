@@ -92,6 +92,7 @@ must leave all observables unchanged (`08-correctness.md` §6).
 | `-early-probe` | S3: every successor is materialized before the probe |
 | `-hashcons` | S4, S5: values are not deduplicated, and equality is structural |
 | `-symbolic-member` | S5: membership enumerates symbolic sets |
+| `-member-index` | S5: repeated normalized membership uses the original search; TLC comparisons always use that search |
 | `-memo` | S6: no pure-result memoization |
 | `-step-memo` | S6: no step-predicate body memoization |
 | `-parent-skip` | S6: no parent-delta skip |

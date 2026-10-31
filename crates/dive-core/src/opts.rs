@@ -24,6 +24,9 @@ pub struct Opts {
     /// sets and `Seq(S)`. Off (`-symbolic-member`): the set is materialized
     /// (up to 2^24 elements; beyond that the run is refused).
     pub symbolic_member: bool,
+    /// S5: bounded hash indexes for repeated default normalized membership.
+    /// Off (`-member-index`); TLC comparisons always use the original search.
+    pub member_index: bool,
     /// S6: keyed result caches. Off (`-memo`; `06-memoization.md` §6).
     pub memo: bool,
     /// S6: keyed result caches for the cached bodies of step predicates
@@ -54,6 +57,7 @@ impl Default for Opts {
             early_probe: true,
             hashcons: true,
             symbolic_member: true,
+            member_index: true,
             memo: true,
             step_memo: true,
             parent_skip: true,
@@ -71,6 +75,7 @@ pub const SWITCHES: &[&str] = &[
     "early-probe",
     "hashcons",
     "symbolic-member",
+    "member-index",
     "memo",
     "step-memo",
     "parent-skip",
@@ -105,6 +110,7 @@ impl Opts {
                 "early-probe" => &mut o.early_probe,
                 "hashcons" => &mut o.hashcons,
                 "symbolic-member" => &mut o.symbolic_member,
+                "member-index" => &mut o.member_index,
                 "memo" => &mut o.memo,
                 "step-memo" => &mut o.step_memo,
                 "parent-skip" => &mut o.parent_skip,
@@ -137,6 +143,7 @@ impl Opts {
             ("early-probe", self.early_probe),
             ("hashcons", self.hashcons),
             ("symbolic-member", self.symbolic_member),
+            ("member-index", self.member_index),
             ("memo", self.memo),
             ("step-memo", self.step_memo),
             ("parent-skip", self.parent_skip),
@@ -150,6 +157,7 @@ impl Opts {
             d.early_probe,
             d.hashcons,
             d.symbolic_member,
+            d.member_index,
             d.memo,
             d.step_memo,
             d.parent_skip,
