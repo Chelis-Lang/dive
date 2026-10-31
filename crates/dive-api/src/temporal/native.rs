@@ -267,6 +267,7 @@ pub(crate) fn core_capture_stop(
     safety: &CheckResult,
     completed: bool,
     started: Instant,
+    checks: Option<Checks>,
 ) -> Failure {
     let error = match verdict {
         dive_check::Verdict::Stopped(stopped) => {
@@ -284,6 +285,7 @@ pub(crate) fn core_capture_stop(
     failure.exploration = safety.stats.map(|stats| Box::new(facts(safety, stats)));
     failure.incomplete = !completed;
     failure.elapsed = started.elapsed();
+    failure.periodic = checks.map(Box::new);
     failure.configuration = Some(Box::new(core_file_configuration()));
     failure.symmetry_liveness = safety.symmetry_liveness.clone().map(Box::new);
     failure

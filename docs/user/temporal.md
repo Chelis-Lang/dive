@@ -166,6 +166,10 @@ so the reported property is the one `--lncheck final` reports.
 
 Schema 3 reports the schedule (`min_states`, `growth_factor`), prefix check
 count, last checked level/size, exhaustion and final-check truth in `periodic`.
+Native capture interrupted by its run budget retains these actual facts,
+including zero checks when no level was due. Such a default-profile run keeps
+`options.lncheck: deterministic`; a final-only run keeps `final` and omits
+`periodic`. Interruption supplies no holding result or counterexample.
 Rust callers can choose another schedule with `CheckRequest::periodic`
 (`dive_api::PeriodicSchedule`); the CLI always uses the default. Capture bounds are
 cumulative across the search. Planning happens once; label/product/formula

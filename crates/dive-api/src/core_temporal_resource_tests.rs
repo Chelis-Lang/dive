@@ -490,6 +490,7 @@ fn interrupted_capture_factories_keep_real_complete_and_prefix_statistics() {
         let control = EvaluationControl::new(watchdog.budget(), Phase::Capture).expect("control");
         let mut stopped_options = options.clone();
         stopped_options.budget = watchdog.budget().clone();
+        let checks = driver.periodic_checks();
         let verdict = finish(
             &graph,
             &mut values,
@@ -503,7 +504,9 @@ fn interrupted_capture_factories_keep_real_complete_and_prefix_statistics() {
         assert!(
             matches!(verdict, Verdict::Stopped(ref stopped) if stopped.phase == Phase::Capture)
         );
-        let failure = crate::temporal::core_capture_stop(verdict, &safety, !prefix, Instant::now());
+        let failure =
+            crate::temporal::core_capture_stop(verdict, &safety, !prefix, Instant::now(), checks);
+        assert_eq!(failure.periodic(), checks);
         assert_eq!(
             failure.stage(),
             crate::temporal::Stage::Analysis(Stage::Capture)
