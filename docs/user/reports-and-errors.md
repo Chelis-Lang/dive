@@ -74,7 +74,7 @@ violated property or lasso claim. Human reports print the same certified finite
 states as JSON; an uncertified diagnostic prefix does not acquire a behavior
 claim. Capture statistics say whether capture completed or remained incomplete.
 The report family remains temporal.
-A qualified `error_site: "temporal-source-row"` reports GENERAL1000/TLC exit255
+A qualified `error_site: "temporal-source-row"` reports GENERAL1000/TLC exit 255
 after actual source-row execution, diagnostic suppression and fresh independent
 replay. It likewise has partial actual statistics, `capture_completed: false`,
 a finite source word and no property/lasso. This bounded one-worker path uses
@@ -229,7 +229,14 @@ The same version-4 endpoint also covers assertions, division by zero (including
 inside `ENABLED`) and TLC-mode integer arithmetic overflow at these three sites.
 Their deciding codes remain 2132, 2179 and 2178; they do not become nested errors.
 Both normal and diagnostic execution must independently reproduce the claimed
-identities. For example, the existing action-constraint division control runs as:
+identities. The file producer performs this fresh controlled replay before
+publishing a verified result. If diagnostic execution differs or remains
+unproved, the report returns unsupported (exit 3), omits the formal word/TLC class,
+and retains actual search statistics/output plus the observed primary in notes.
+A canonical oracle stream with physical 255 can remain unclassified even when
+the native word validates: division and overflow share that exit, so a printed
+primary cause alone does not identify the diagnostic cause.
+For example, the existing action-constraint division control runs as:
 
 ```sh
 dive check crates/dive-check/tests/fixtures/errors/specs/ErActConstrDivZero/ErActConstrDivZero.tla --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json

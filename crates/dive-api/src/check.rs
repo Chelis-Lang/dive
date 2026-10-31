@@ -13,6 +13,9 @@ use serde_json::{Value, json};
 
 use crate::{AnalyzeReport, ConfigReport};
 
+#[path = "candidate_error.rs"]
+mod candidate_error;
+
 /// Version of ordinary safety JSON documents produced by [`CheckReport::to_json`].
 pub const CHECK_SCHEMA_VERSION: u32 = crate::REPORT_SCHEMA_VERSION;
 
@@ -701,6 +704,7 @@ fn check_file_in(
                 dive_trace::CandidateStateEndpoint::from_error(&ir, cause, site, *reported, *code);
         }
     }
+    candidate_error::certify(&mut report, &ir, &model, &armed);
     if let Phase::Checked(result) = &report.phase
         && let Verdict::NotCompletelySpecified {
             initial,

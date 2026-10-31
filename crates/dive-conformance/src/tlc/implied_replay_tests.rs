@@ -56,14 +56,8 @@ fn block(stdout: &str, code: i32) -> String {
 }
 
 #[test]
-fn only_owned_implied_action_causes_gain_the_deciding_module_identity() {
-    for (kind, code, exit) in [
-        ("Assert", 2132, 14),
-        ("DivZero", 2179, 255),
-        ("Enabled", 2179, 255),
-        ("Overflow", 2178, 255),
-        ("Seen", 2179, 255),
-    ] {
+fn only_an_unambiguous_owned_assertion_exit_gains_the_deciding_identity() {
+    for (kind, code, exit) in [("Assert", 2132, 14)] {
         let text = raw(kind);
         assert!(special(&text, exit));
         let parsed = messages::parse_owned(&text);
@@ -103,12 +97,21 @@ fn only_owned_implied_action_causes_gain_the_deciding_module_identity() {
             assert!(!classify_owned(&parsed, &altered).verdict.is_oracle_fact());
         }
     }
+    for kind in ["DivZero", "Enabled", "Overflow", "Seen"] {
+        let text = raw(kind);
+        assert!(!special(&text, 255));
+        assert_eq!(
+            classify_owned(&messages::parse_owned(&text), &facts(255)).verdict,
+            Verdict::Unclassified,
+            "a primary child and physical255 cannot identify the diagnostic module cause"
+        );
+    }
 }
 
 #[test]
 fn altered_parent_child_order_classes_and_injected_markers_supply_no_authority() {
-    let text = raw("DivZero");
-    let child = block(&text, 2179);
+    let text = raw("Assert");
+    let child = block(&text, 2132);
     let parent = block(&text, 2113);
     let header = block(&text, 2121);
     let first_state = block(&text, 2217);
@@ -117,17 +120,27 @@ fn altered_parent_child_order_classes_and_injected_markers_supply_no_authority()
     let mutants = [
         text.replace("2113", "2102"),
         text.replace("2113:1", "2113:0"),
-        text.replace("2179:0", "2179:1"),
-        text.replace("2179", "2215"),
+        text.replace("2132:0", "2132:1"),
+        text.replace("2132", "2215"),
         text.replace(
             "Evaluating action property Prop failed.",
             "unproved wrapper",
         ),
-        text.replace("2179:0", "2179: 0"),
-        text.replace("@!@!@ENDMSG 2179 @!@!@", "@!@!@ENDMSG 2179  @!@!@"),
-        text.replace("@!@!@STARTMSG 2179:0", "quoted @!@!@STARTMSG 2179:0"),
+        text.replace("2132:0", "2132: 0"),
+        text.replace("@!@!@ENDMSG 2132 @!@!@", "@!@!@ENDMSG 2132  @!@!@"),
+        text.replace("@!@!@STARTMSG 2132:0", "quoted @!@!@STARTMSG 2132:0"),
         text.replace(&child, &format!("{child}{child}")),
         text.replace(&child, &format!("{child}unproved suffix\n")),
+        text.replace(
+            &parent,
+            &format!("{parent}{}", message(2178, 0, "unrelated module cause")),
+        ),
+        text.replace(
+            &parent,
+            &format!("{parent}{}", message(1000, 0, "unrelated general cause")),
+        ),
+        format!("{text}{}", message(2179, 0, "trailing cause")),
+        format!("{text}{}", message(2262, 0, "trailing known frame")),
         text.replace(
             &parent,
             &format!("{}{}", parent, message(1000, 1, "extra error")),
@@ -146,7 +159,7 @@ fn altered_parent_child_order_classes_and_injected_markers_supply_no_authority()
         reversed,
     ];
     for (index, mutant) in mutants.into_iter().enumerate() {
-        assert!(!special(&mutant, 255), "mutant {index}");
+        assert!(!special(&mutant, 14), "mutant {index}");
     }
     // An initial context-only stream cannot inherit this post-Init proof.
     let initial = text.replace("2113", "2102");
@@ -199,7 +212,7 @@ fn model(file: &Path, compat: bool) -> SpecModel {
 }
 
 #[test]
-fn candidate_module_errors_preserve_pinned_observables_and_require_real_words() {
+fn candidate_words_require_actual_replay_and_ambiguous_oracles_cannot_earn_agreement() {
     let root = repo().join("crates/dive-check/tests/fixtures/errors");
     let mut disagreements = Vec::new();
     for site in ["Constr", "ActConstr", "Prop"] {
@@ -245,7 +258,13 @@ fn candidate_module_errors_preserve_pinned_observables_and_require_real_words() 
                             counts_comparable: true,
                         },
                     );
-                    if !diffs.is_empty() {
+                    if site == "Prop" && kind != "Assert" {
+                        assert_eq!(oracle.verdict, Verdict::Unclassified, "{name}");
+                        assert!(
+                            !diffs.is_empty(),
+                            "an ambiguous oracle cannot earn agreement"
+                        );
+                    } else if !diffs.is_empty() {
                         disagreements.push(format!(
                             "{name}/{compat}/{engine:?}/{workers}: oracle {oracle:?}; differences {diffs:?}"
                         ));
@@ -270,4 +289,41 @@ fn candidate_module_errors_preserve_pinned_observables_and_require_real_words() 
         }
     }
     assert_eq!(disagreements, Vec::<String>::new());
+}
+
+#[test]
+fn different_actual_diagnostic_causes_sharing_255_are_not_canonical_oracle_facts() {
+    let fixture = repo().join("crates/dive-api/tests/fixtures/candidate-diagnostic-mismatch");
+    let metadata: serde_json::Value = serde_json::from_str(
+        &std::fs::read_to_string(fixture.join("oracle.json")).expect("pinned facts"),
+    )
+    .expect("JSON facts");
+    for name in ["LaterDivDiagnosticOverflow", "LaterOverflowDiagnosticDiv"] {
+        let raw = std::fs::read_to_string(repo().join(format!(
+            "crates/dive-conformance/tests/fixtures/candidate-diagnostic-mismatch/{name}.stdout"
+        )))
+        .expect("unchanged normal pinned stream");
+        let record = &metadata["cases"][name];
+        assert_eq!(
+            crate::hash::sha256_bytes(raw.as_bytes()),
+            record["normal_stdout_sha256"]
+        );
+        for ext in ["tla", "cfg"] {
+            assert_eq!(
+                crate::hash::sha256_bytes(
+                    &std::fs::read(fixture.join(format!("{name}.{ext}")))
+                        .expect("minimal source/config")
+                ),
+                record[format!("{ext}_sha256")]
+            );
+        }
+        assert_ne!(
+            record["primary_none_code"],
+            record["diagnostic_bridge_code"]
+        );
+        let actual = classify_owned(&messages::parse_owned(&raw), &facts(255));
+        assert_eq!(actual.verdict, Verdict::Unclassified);
+        assert_eq!(actual.exit_code, Some(255));
+        assert!(!special(&raw, 255));
+    }
 }

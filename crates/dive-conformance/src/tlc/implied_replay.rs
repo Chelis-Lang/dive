@@ -9,7 +9,8 @@ use super::{OwnedTranscript, RunFacts, class, ec_name, exit_statuses_for, extrac
 )]
 pub(super) fn cause(parsed: &OwnedTranscript, facts: &RunFacts<'_>) -> Option<i32> {
     let t = parsed.transcript();
-    if facts.simulate
+    if facts.exit_code != Some(14)
+        || facts.simulate
         || facts.trace_json.is_some()
         || !t.anomalies.is_empty()
         || t.messages().any(|message| {
@@ -88,7 +89,7 @@ pub(super) fn cause(parsed: &OwnedTranscript, facts: &RunFacts<'_>) -> Option<i3
         || message.class != class::NONE
         || message.body.is_empty()
         || frame.parent_body_prefix_len != parsed.frames()[phases[3]].own_body_len
-        || !matches!(message.code, 2132 | 2179 | 2178)
+        || message.code != 2132
         || parsed.unique(message.code)? != *index
         || !exit_statuses_for(message.code).contains(&facts.exit_code?)
     {
@@ -97,6 +98,32 @@ pub(super) fn cause(parsed: &OwnedTranscript, facts: &RunFacts<'_>) -> Option<i3
     let mut count = 0_u64;
     for (index, frame) in parsed.frames().iter().enumerate() {
         let state = parsed.message(index)?;
+        // Only the observed launch/phase/progress frames may be top-level
+        // NONE messages. An unrelated cause, including one after Finished,
+        // cannot borrow the real assertion parent's ownership authority.
+        if frame.parent.is_none()
+            && state.class == class::NONE
+            && (!matches!(
+                state.code,
+                2262 | 2187 | 2220 | 2219 | 2185 | 2189 | 2190 | 2200 | 2199 | 2194 | 2186
+            ) || frame.start > parsed.frames()[phases[8]].start)
+        {
+            return None;
+        }
+        if matches!(state.code, 2262 | 2187 | 2220 | 2219)
+            && (parsed.unique(state.code)? != index
+                || frame.parent.is_some()
+                || frame.end? > parsed.frames()[phases[0]].start)
+        {
+            return None;
+        }
+        if state.code == 2200
+            && (frame.parent.is_some()
+                || frame.start < parsed.frames()[phases[5]].end?
+                || frame.end? > parsed.frames()[phases[6]].start)
+        {
+            return None;
+        }
         if state.code != 2217 {
             continue;
         }

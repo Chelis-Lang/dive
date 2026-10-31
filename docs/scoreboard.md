@@ -1,14 +1,15 @@
 # Scoreboard
 
-Focused candidate-error controls now require native version-4 independent replay
-for nine existing Assert/DivZero/Enabled cases per profile and three additional
-TLC integer-overflow cases, on reference/core at one/four workers. Exact pinned
-primary/deciding headers and counts remain checked; these repairs do not refresh
-historical census totals. VIEW, top-level non-Boolean roles, temporal candidate
-lifecycles and unclassified initial errors retain their existing boundaries.
-The additional `ErPropSeen` control validates the implied-action demand on a
-seen-target edge. Parser-owned implied-action cause classification is tracked
-as #697; matching native metadata never substitutes for the independent word.
+Focused candidate-error controls require actual controlled fresh word and
+diagnostic replay before a verified candidate result is published. The 92
+fixture/profile/engine/worker words validate, including `ErPropSeen`; 64 have
+strict classified-oracle agreement and 28 retain Unclassified oracle streams.
+Primary NONE 2178/2179 and physical 255 do not prove diagnostic class. Only the
+strict owned assertion 2132/14 classifier route is admitted. Two minimal pinned
+primary/diagnostic mismatch controls now require explicit producer refusal.
+The rejected earlier 92-agreement claim is retracted, and historical census
+totals are unchanged. VIEW, temporal candidate lifetimes, top-level non-Boolean
+roles and context-only initial errors remain open; broader #697 is not closed.
 
 The `word-relative-liveness` microcorpus pins three TLC model results and three
 SANY modules for actual-word property attribution (ADR 0126, #489). JSON/human/Rust

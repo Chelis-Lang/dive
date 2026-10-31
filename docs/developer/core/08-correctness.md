@@ -456,37 +456,45 @@ fingerprint demand, effects and temporal models remain refused. This is focused
 word evidence, not a fresh census or closure of the remaining error families.
 Native version-4 reader migration and consumer notice are required before landing.
 
-The same version-4 producer now includes typed assertion, division-by-zero and
-actual integer-arithmetic overflow errors at these sites. The original nine
-Assert/DivZero/Enabled controls in each profile and three additional TLC overflow
-controls require exact pinned observables and fresh consumer validation on both
-engines at one/four workers. The additional `ErPropSeen` control proves the
-implied-action demand on an edge into a previously seen state. Its admission
-does not authorize inferring global newness where invariants require it.
-Their deciding codes stay 2132/2179/2178. Source,
-site, final bindings and diagnostic identities retain the same mutation controls.
-General value-layer overflow, top-level non-Boolean roles, VIEW, temporal models
-and unproved newness/alias obligations gain no authority. This focused repair
-does not refresh the historical census population or close the broader error
-issues; original sources retain their refutations.
+The initial typed-family proposal at `aca6fa43` was rejected by independent
+review. Its 92 positive fixture runs did not prove the general diagnostic
+contract, and the claim of 92 qualified pinned agreements is retracted.
+`candidate-diagnostic-mismatch` retains two minimal sources, configurations,
+normal pinned stdout and hash-bound oracle facts before the correction:
+`LaterDivDiagnosticOverflow` reports primary NONE 2179 but the separate unchanged
+jar's `TLC.process()` diagnostic returns 2178; the symmetric
+`LaterOverflowDiagnosticDiv` reports primary NONE 2178 but returns 2179. Both
+normal processes exit 255. The bridge is diagnostic evidence only, not a
+canonical deciding-class golden. Those normal streams remain unclassified.
+Both former producers published verified version4 words that fresh independent
+replay refuted. Primary source framing and a shared physical exit do not prove
+the diagnostic class. Subsequent admission requires actual controlled fresh
+word and diagnostic execution; an unproved or different lifecycle must refuse.
 
-The pinned clean `ErPropAssert`, `ErPropDivZero`, `ErPropEnabled` and
-`ErPropOverflow` streams expose a separate harness classification boundary.
-Each prints an actual 2113 ERROR parent containing a 2132/2179/2178 NONE child,
-then the finite behavior and context-only 2103 stack. Physical exits are 14 for
-Assert and 255 for division/overflow. E4 in `02-semantic-contract.md` already
-requires 2113 as the reported class and the actual replayed module error as the
-deciding class. Filtering out every NONE message had left these clean streams
-oracle-error or unclassified even though the native primary/replay identities
-were correct. The complete pre-fix consumer failure remains retained externally;
-no original source-bound census total is revised.
+The corrected producer requires a fresh controlled source/configuration replay
+before retaining a verified candidate class or publishing its word. It uses the
+actual file check's IR, configuration, options and armed budget. Prefix and
+terminal runtimes are fresh; neither a caller's evaluator nor a serialized claim
+supplies authority. Invalid or unproved diagnostic execution yields unsupported
+with no formal word or TLC class, preserving actual search statistics/output and
+the observed primary cause in notes. Owned interruption/resource/internal errors
+keep their actual transports. Different diagnostic causes are not numerically
+retagged into a new claimed result.
 
-Only immutable parser-owned, canonical parent/child framing and the demonstrated
-whole post-Init/behavior/replay lifecycle may establish these three deciding
-causes. A mutable flat `Transcript`, arbitrary NONE message, altered parent,
-additional error, malformed order or mismatched physical exit supplies no such
-authority. Context-only initial errors (#685), other causes and old Init
-ownership rules retain their existing classifications. This is not a global
-NONE-message promotion, and matching native metadata cannot supply the proof.
-The same parser-owned framing covers `ErPropSeen`; issue #697 tracks this
-classification defect separately from the independent-word obligation.
+The typed assertion/division/ENABLED/TLC arithmetic controls and `ErPropSeen`
+retain 92 independently valid fixture/profile/engine/worker words. Of those,
+64 comparisons have a classified pinned oracle and must match every compared
+observable. The remaining 28 implied-action division/overflow observations
+remain explicit non-agreements because their canonical oracle streams are
+Unclassified. Independent word validity cannot invent the oracle's deciding
+class. The source833 whole-census totals are not refreshed.
+
+The owned classifier admits only the unambiguous 2132/physical14 assertion
+family under canonical 2113 framing and the demonstrated completed-Init,
+finite-word and replay-stack lifecycle. It rejects unrelated/trailing NONE
+causes, additional errors, altered parents/classes/order and mutable flat
+transcripts. Codes 2178 and 2179 share255 and receive no NONE promotion, even when
+the primary child and an independently valid native word agree. Context-only
+initial errors (#685), old Init ownership rules, VIEW, temporal candidate and
+unproved newness/receiver lifetimes retain their existing boundaries. Issue #697
+tracks the still-ambiguous cases; it is not closed by this bounded repair.

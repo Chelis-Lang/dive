@@ -1130,7 +1130,7 @@ AST CRC, termination cfg requirements and requested label locations. These are
 translator controls, not model-check parity. API and CLI tests keep both profiles,
 source overrides, replacement/checksum consistency and no-write/no-proof results.
 The external preparation histories retain the forced-CRLF writer experiment,
-writeAST exit255, debug CRC difference, illegal-source-option exit0 and corrected
+writeAST exit 255, debug CRC difference, illegal-source-option exit0 and corrected
 local-spec x=42 output; no primary was rerun for this implementation cut.
 
 The earlier simple original-AST increment ports `AST.lineCol`, `Indent`/`EndIndent`,
@@ -1170,7 +1170,7 @@ post-generation shared-transfer Writer remains independent.
 `-debug -writeAST` artifacts captured before fixing or generation, eight supported
 debug-header/body controls, three SANY-valid debug headers with unfinished native
 labelled-transfer ownership, and four invalid source families. Successful WriteAST
-controls produce AST.tla and exit255 through the pinned null translation path;
+controls produce AST.tla and exit 255 through the pinned null translation path;
 these records do not establish a universal exit rule or native file-write parity.
 All eleven separately captured debug translations pass pinned SANY. No post-generation
 AstDump export is relabelled as an original-stage measurement. The modern original
@@ -2407,7 +2407,7 @@ counterexample and exposing optional untrusted native evidence separately.
 The `terminal-level/{one,zero}/InitLevel` API fixtures record a pinned primary
 boundary discovered during fresh review of ordered replay: with
 `Init == (x=0 /\ y=0) \/ x=1`, `P == TLCGet("level")=1` passes the
-first complete candidate and reaches partial Init EC2102/exit255. Changing only
+first complete candidate and reaches partial Init EC2102/exit 255. Changing only
 the final numeral to `0` instead stops earlier at initial property P,
 EC2108/exit13. The pinned `94d0c50` tool-mode BFS uses W1, seed0, fp0 and
 `tla2tools.jar` SHA256
@@ -2494,10 +2494,17 @@ the exact primary, deciding, exit and count controls; no golden is edited.
 
 The implied-action classifier consumes the existing scanner's immutable actual
 frames rather than porting a new parser. Pinned `Worker.doNext` prints 2113 with
-the module cause nested as NONE; `ModelChecker.doNext` diagnostic replay and
-`EC.errorConstantToExitStatus` establish the separately deciding module class
-(E4, issue #697). The bounded source-owned framing/lifecycle admission is original
-Rust harness code. It promotes no arbitrary NONE message or mutable transcript.
+the primary cause nested as NONE. The corrected admission permits only the
+unambiguous assertion 2132/14 family; `EC.errorConstantToExitStatus` maps both
+division and overflow to 255 and cannot identify their diagnostic cause.
+`candidate-diagnostic-mismatch` retains two normal clean pinned streams and
+minimal specs showing opposite primary/diagnostic roles. Separate unchanged-jar
+`TLC.process()` bridge returns establish that diagnostic observation, not a
+canonical golden. The producer requires actual controlled fresh independent
+word/diagnostic replay before certification, using the existing ADR 0128 driver
+and this run's budget owner. Bounded framing and admission are original Rust
+code; no arbitrary NONE message, guessed numeric retag or mutable transcript
+supplies authority (E4, issue #697).
 
 
 ### Closed ordinary native action atoms

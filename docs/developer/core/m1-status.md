@@ -20,13 +20,16 @@ capabilities with explicit refusal boundaries, not complete value-method or
 liveness parity. Store/native byte accounting and broader history producers
 remain unfinished.
 
-Focused candidate-error replay additionally covers Assert/DivZero/Enabled at
-constraint, action-constraint and implied-action sites, plus TLC arithmetic
-overflow and the seen-target implied-action control. Native version 4 retains its
-meaning. Exact typed primary/diagnostic replay and parser-owned implied-action
-cause classification (#697) are checked on both engines/profiles at 1/4 workers.
-These targeted controls do not refresh the source833 census totals below;
-unproved receiver lifetimes, VIEW and temporal candidate scopes remain open.
+Focused candidate-error replay additionally covers typed assertions, division
+and TLC arithmetic overflow only after actual controlled fresh word/diagnostic
+execution. A different or unproved diagnostic lifetime now refuses without a
+formal word or TLC class. Independent review rejected the initial 92-agreement
+claim: two pinned minimal controls have opposite primary/diagnostic module
+errors sharing physical 255. The corrected scope has 92 valid focused words,
+64 strict classified-oracle comparisons and 28 explicit ambiguous non-agreements.
+Only the owned2132/14 assertion classifier route is admitted; shared 255 streams
+remain Unclassified (#697). These controls do not refresh the source833 census
+below; unproved receiver lifetimes, VIEW and temporal candidate scopes stay open.
 
 ### Current checkpoint: implemented versus unqualified
 

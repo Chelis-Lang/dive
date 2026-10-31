@@ -77,6 +77,16 @@ overflow constructor provenance comes only from an actual integer module
 operation, not a numeric code, message or general value-layer overflow conversion.
 Set-size overflow remains outside that constructor proof. Fresh replay still
 discovers the candidate and separately executes the diagnostic sequence.
+The file producer now requires this actual controlled fresh replay before
+retaining a verified result. A mismatched or unproved diagnostic sequence
+returns unsupported with no formal word/class, preserving actual search facts
+and the observed primary cause. It does not retag the primary to a guessed
+diagnostic class. Two pinned minimal controls prove that division and overflow
+can exchange primary/diagnostic roles while both physically exit 255. Canonical
+shared 255 streams remain unclassified; only the strictly framed 2132/14 assertion
+route gains owned-reader classification. The initial 92-agreement assertion was
+rejected by independent review; 92 valid focused words do not imply 92 oracle
+agreements. No endpoint shape or native version changes.
 
 Sixteen existing source fixtures cover Choose, Domain, NonBoolIf, NonEnum and
 TypeErr at constraint/action-constraint/implied-action sites, plus
