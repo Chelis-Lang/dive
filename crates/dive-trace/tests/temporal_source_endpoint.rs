@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use dive_eval::Options;
+use dive_eval::{HostControl, Interrupted, Options, St};
 use dive_model::{BindOptions, Recipe};
 use dive_trace::{Ending, Session, TemporalSourceEndpoint, TraceDoc, Validation};
 use dive_value::Value;
@@ -18,6 +18,15 @@ fn input(
     source: &str,
     options: Options,
 ) -> Result<(Session, TraceDoc), Box<dyn std::error::Error>> {
+    input_request(source, options, "", "Pick")
+}
+
+fn input_request(
+    source: &str,
+    options: Options,
+    extra_config: &str,
+    error_name: &str,
+) -> Result<(Session, TraceDoc), Box<dyn std::error::Error>> {
     let name = source.split_whitespace().nth(2).ok_or("module name")?;
     let parsed = dive_sema::analyze_source(
         &format!("{name}.tla"),
@@ -26,9 +35,11 @@ fn input(
     );
     assert!(parsed.accepted(), "{parsed:?}");
     let ir = Arc::new(dive_ir::lower(&parsed)?);
-    let config = dive_config::parse("SPECIFICATION Spec\nPROPERTY Live\n")
-        .into_config()
-        .ok_or("config")?;
+    let config = dive_config::parse(&format!(
+        "SPECIFICATION Spec\nPROPERTY Live\n{extra_config}\n"
+    ))
+    .into_config()
+    .ok_or("config")?;
     let model = dive_model::bind(
         ir.clone(),
         &config,
@@ -37,18 +48,21 @@ fn input(
             ..BindOptions::tlc()
         },
     )?;
-    let pick = ir.root_def("Pick").ok_or("Pick")?;
+    let pick = ir.root_def(error_name).ok_or("error definition")?;
     let scope = model.evaluator.scope(pick)?;
-    let error = model
-        .evaluator
-        .enabled_scoped(
-            &scope,
-            ir.def(pick).body,
-            None,
-            Arc::from([Some(Value::Int(0)), Some(Value::Int(0))]),
-        )
-        .err()
-        .ok_or("observed enabled error")?;
+    let state = Arc::from([Some(Value::Int(0)), Some(Value::Int(0))]);
+    let error = if error_name == "Pick" {
+        model
+            .evaluator
+            .enabled_scoped(&scope, ir.def(pick).body, None, state)
+    } else {
+        model
+            .evaluator
+            .eval_def(pick, &St::state(state))
+            .map(|_| false)
+    }
+    .err()
+    .ok_or("observed enabled error")?;
     let endpoint = TemporalSourceEndpoint::from_error(&model, &error).ok_or("source")?;
     let document = TraceDoc::behavior(vec![serde_json::json!({"s":0,"x":0})])?.with_ending(
         Ending::TemporalSourceError {
@@ -115,6 +129,86 @@ fn next_failure_and_completed_self_row_are_independently_replayed() -> TestResul
             ));
         }
     }
+    Ok(())
+}
+
+#[test]
+fn actual_self_emission_and_earlier_candidate_errors_keep_their_priority() -> TestResult {
+    for options in [Options::dive(), Options::tlc()] {
+        let source = FAIL_NEXT.replace("Next == Pick", "Next == UNCHANGED <<s,x>> \\/ Pick");
+        let (session, document) = input(&source, options)?;
+        assert_eq!(session.try_read(&document)?.0.validation, Validation::Valid);
+        let source = FAIL_NEXT.replace("Next == Pick", "Next == s'=1 /\\ x'=1 \\div (x-x)");
+        let (session, document) = input(&source, options)?;
+        assert!(matches!(
+            session.try_read(&document)?.0.validation,
+            Validation::Unsupported(_)
+        ));
+        let source = SAFE_NEXT.replace("====", "Bad == (CHOOSE v \\in {1,2}: v>9)=0\n====");
+        let (session, document) = input_request(&source, options, "ACTION_CONSTRAINT Bad", "Pick")?;
+        assert!(matches!(
+            session.try_read(&document)?.0.validation,
+            Validation::Invalid(_)
+        ));
+    }
+    Ok(())
+}
+
+#[test]
+fn action_bins_precede_state_bins_and_quiet_actions_do_not_skip_state_errors() -> TestResult {
+    let source = SAFE_NEXT.replace(
+        "Live == <>(s = 1)",
+        "BadState == (CHOOSE v \\in {1,2}: v>9+x)=0\nLive == <>[]BadState",
+    );
+    for options in [Options::dive(), Options::tlc()] {
+        let (session, action) = input(&source, options)?;
+        assert_eq!(session.try_read(&action)?.0.validation, Validation::Valid);
+        let (_, state) = input_request(&source, options, "", "BadState")?;
+        assert!(matches!(
+            session.try_read(&state)?.0.validation,
+            Validation::Invalid(_)
+        ));
+        let quiet = source.replace("x' = CHOOSE v \\in {1, 2} : v > 5", "x'=0");
+        let (session, state) = input_request(&quiet, options, "", "BadState")?;
+        assert_eq!(session.try_read(&state)?.0.validation, Validation::Valid);
+    }
+    Ok(())
+}
+
+#[derive(Debug)]
+struct StopAfter {
+    polls: std::sync::atomic::AtomicUsize,
+    limit: usize,
+}
+
+impl HostControl for StopAfter {
+    fn check(&self) -> Result<(), Interrupted> {
+        if self.polls.fetch_add(1, std::sync::atomic::Ordering::SeqCst) >= self.limit {
+            Err(Interrupted::new(502))
+        } else {
+            Ok(())
+        }
+    }
+}
+
+#[test]
+fn owned_replay_interruptions_never_become_valid_error_words() -> TestResult {
+    let (session, document) = input(SAFE_NEXT, Options::tlc())?;
+    for limit in [0, 1, 20, 100, 300] {
+        let control = Arc::new(StopAfter {
+            polls: std::sync::atomic::AtomicUsize::new(0),
+            limit,
+        });
+        let result = session.read_controlled(&document, control);
+        assert!(
+            matches!(
+                result,
+                Err(dive_trace::ValidationRunError::Interrupted { .. })
+            ),
+            "limit {limit}: {result:?}"
+        );
+    }
+    assert_eq!(session.try_read(&document)?.0.validation, Validation::Valid);
     Ok(())
 }
 

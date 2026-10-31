@@ -36,8 +36,9 @@
 //!
 //! Existing endings retain version 1. `invariant-error` requires version 2;
 //! a separate partial terminal candidate requires version 3 (ADR 0123).
-//! candidate-side ordered errors require version 4 (ADR 0128). Readers accept
-//! all four versions and reject a version-1 document using the named
+//! candidate-side ordered errors require version 4 (ADR 0128); post-Next
+//! temporal-source-row errors require version 5 (ADR 0132). Readers accept
+//! all five versions and reject a version-1 document using the named
 //! ending. Unknown versions and ending kinds fail closed (ADR 0108/0118).
 //!
 //! `invariant-error.ec` is the underlying evaluation cause. The enclosing
