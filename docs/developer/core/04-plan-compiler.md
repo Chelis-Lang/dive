@@ -765,19 +765,19 @@ At load 12, the core took 5.1 s wall and 4.8 s user, against TLC's 28.4 s and 15
 
 ## 7. Next step
 
-The first consumed local lane in #623 selects closed name-free literal sets
-only at membership and `Cardinality` operands, directly or through a local
-LET group with no escaping uses. Bool/inline numeral and tuple literal
-receiver classes are retained. Construction history makes the selected
-producer and consumer subgraph ineligible for folding, keyed memoization,
-extra definition reuse and parent skips; genuine LET thunk sharing is kept.
-Its sparse arena history and exact insertion/raw/normalized operations are
-described in `03-value-model.md` §8. The 18 primary-first controls live in
-`conformance/corpus/literal-set-history-primary`; goldens were generated with
-a recorded reason before runtime changes. The twelve #619 controls remain
-consumed unchanged. Errors without E7 provenance are unsupported, not native
-error agreement. Names and their genuine TLC token ranks, broader producers,
-imports and state handoff remain subsequent increments; #623 is not complete.
+The #623 constructor path now consumes actual scalar/model-value/nested-tuple
+literal, MAP and covered union histories, including newly assigned successor
+queries and sparse normalized state views. Constructor/consumer history is
+ineligible for speculative folding, keyed memoization, extra definition reuse
+and parent skips; actual LET thunk sharing remains. The old closed-predicate and
+canonical-producer source certificates are not widened. The original 18 primary
+controls remain, alongside twelve TLC models/twelve SANY inputs in
+`conformance/corpus/construction-set-history`. All goldens come from the official
+harness with recorded reasons. Covered old positive controls now require exact
+primary agreement; failing C2 cases and unproved E7 classifications still refuse.
+Actual persistent view ownership and rollback are described in
+`03-value-model.md` §8 and ADR 0131. Whole-model Sailfish performance remains
+unqualified; this is not the generic S5 index.
 
 The next checked-comparison delivery follows three dependencies:
 

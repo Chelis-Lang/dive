@@ -201,6 +201,7 @@ impl Machine {
     /// # }
     /// ```
     pub fn set_work_control(&mut self, control: Option<Arc<dyn WorkControl>>) {
+        self.heap.set_history_control(control.clone());
         self.work_control = control;
     }
 
@@ -212,6 +213,7 @@ impl Machine {
             .as_ref()
             .is_some_and(|control| !control.proceed())
         {
+            self.heap.mark_work_interrupted();
             return Err(Error::stop());
         }
         if self.fuel == u64::MAX {
@@ -281,6 +283,59 @@ impl Machine {
     pub fn eval_norm(&mut self, code: &Code, p: P) -> Result<Handle, Error> {
         let v = self.eval(code, p)?;
         self.work_norm(v)
+    }
+
+    pub(crate) fn demand_equals(&mut self, a: Handle, b: Handle) -> Result<bool, Error> {
+        let a = self.work_norm(a)?;
+        let b = self.work_norm(b)?;
+        self.normalized_equals(a, b)
+    }
+
+    fn normalized_equals(&mut self, a: Handle, b: Handle) -> Result<bool, Error> {
+        if !self.heap.has_raw_construction(a) && !self.heap.has_raw_construction(b) {
+            return compare::equals(&self.heap, a, b);
+        }
+        if !self.heap.store().semantics().tlc_comparisons {
+            // Value::semantic_eq uses quiet set elements: equality must not
+            // normalize an actual nested set merely to inspect its value.
+            if compare::class(&self.heap, a) != compare::class(&self.heap, b) {
+                return compare::equals(&self.heap, a, b);
+            }
+            return self.heap.quiet_construction_equals(a, b);
+        }
+        // TupleValue.equals / interval FcnRcdValue.equals demand fields from
+        // left to right, only after equal domains. Never normalize later fields
+        // after an earlier inequality, nor infer a record receiver class.
+        if !a.is_compound() || !b.is_compound() {
+            return compare::equals(&self.heap, a, b);
+        }
+        let (va, vb) = (self.heap.view(a), self.heap.view(b));
+        if va.kind != Kind::IntFcn || vb.kind != Kind::IntFcn {
+            return Err(Error::unsupported(
+                "nested raw equality outside interval functions",
+            ));
+        }
+        let (lo, len) = (va.lo, va.data.len());
+        if lo != vb.lo || len != vb.data.len() {
+            return Ok(false);
+        }
+        for index in 0..len {
+            self.charge(1)?;
+            let (x, y) = (self.heap.view(a).data[index], self.heap.view(b).data[index]);
+            if !self.demand_equals(x, y)? {
+                return Ok(false);
+            }
+        }
+        Ok(true)
+    }
+
+    pub(crate) fn eval_component(&mut self, code: &Code, p: P) -> Result<Handle, Error> {
+        let value = self.eval(code, p)?;
+        if self.heap.has_construction_history(value) {
+            Ok(value)
+        } else {
+            self.work_norm(value)
+        }
     }
 
     /// Evaluates a node.
@@ -392,12 +447,12 @@ impl Machine {
             Node::Eq(a, b) => {
                 let x = self.eval_norm(code, *a)?;
                 let y = self.eval_norm(code, *b)?;
-                Ok(Handle::bool(compare::equals(&self.heap, x, y)?))
+                Ok(Handle::bool(self.normalized_equals(x, y)?))
             }
             Node::Neq(a, b) => {
                 let x = self.eval_norm(code, *a)?;
                 let y = self.eval_norm(code, *b)?;
-                Ok(Handle::bool(!compare::equals(&self.heap, x, y)?))
+                Ok(Handle::bool(!self.normalized_equals(x, y)?))
             }
             Node::In(a, s) => {
                 let x = self.eval_norm(code, *a)?;
@@ -469,7 +524,7 @@ impl Machine {
             Node::SetEnum(items, local) => {
                 let mut v = self.take_scratch();
                 for &i in items {
-                    match self.eval_norm(code, i) {
+                    match self.eval_component(code, i) {
                         Ok(e) => v.push(e),
                         Err(e) => {
                             self.give_scratch(v);
@@ -477,10 +532,16 @@ impl Machine {
                         }
                     }
                 }
-                if *local {
+                if *local
+                    || v.iter()
+                        .all(|&h| crate::compare::literal_value(&self.heap, h))
+                {
                     let r = self.heap.local_literal(&v);
                     self.give_scratch(v);
                     return r;
+                }
+                for value in &mut v {
+                    *value = self.heap.normalize_construction(*value)?;
                 }
                 let r = self.heap.set_from(&mut v);
                 self.give_scratch(v);
@@ -546,9 +607,18 @@ impl Machine {
                 let mut out = Vec::new();
                 self.for_each_binding(code, binds, &mut |m: &mut Self| {
                     let v = m.eval_norm(code, *body)?;
+                    m.charge(1)?;
+                    out.try_reserve(1)
+                        .map_err(|_| Error::unsupported("MAP construction allocation"))?;
                     out.push(v);
                     Ok(true)
                 })?;
+                if out
+                    .iter()
+                    .all(|&h| crate::compare::literal_value(&self.heap, h))
+                {
+                    return self.heap.local_literal(&out);
+                }
                 let r = self.heap.set_from(&mut out);
                 self.checked_set(r)
             }
@@ -584,7 +654,7 @@ impl Machine {
             Node::Tuple(items) => {
                 let mut v = self.take_scratch();
                 for &i in items {
-                    match self.eval_norm(code, i) {
+                    match self.eval_component(code, i) {
                         Ok(e) => v.push(e),
                         Err(e) => {
                             self.give_scratch(v);
@@ -601,7 +671,7 @@ impl Machine {
                 let mut vals = self.take_scratch();
                 for &(k, e) in fields {
                     keys.push(k);
-                    match self.eval_norm(code, e) {
+                    match self.eval_component(code, e) {
                         Ok(v) => vals.push(v),
                         Err(e) => {
                             self.give_scratch(keys);
@@ -1156,6 +1226,11 @@ impl Machine {
     }
 
     fn set_bin(&mut self, op: SetOp, x: Handle, y: Handle) -> Result<Handle, Error> {
+        if op == SetOp::Cup
+            && let Some(result) = self.heap.construction_union(x, y)
+        {
+            return result;
+        }
         let (x, y) = (self.work_norm(x)?, self.work_norm(y)?);
         let fx = self.heap.is_finite(x);
         let fy = self.heap.is_finite(y);
@@ -1717,7 +1792,7 @@ impl Machine {
         let old = self.heap.view(f).values()[i];
         let new = if depth + 1 == u.path.len() {
             self.set_slot(u.at, old);
-            self.eval_norm(code, u.value)?
+            self.eval_component(code, u.value)?
         } else {
             self.except(code, old, u, depth + 1)?
         };
@@ -1973,6 +2048,42 @@ mod tests {
     #![allow(clippy::unwrap_used, reason = "tests")]
     use super::*;
     use crate::TlcClass;
+
+    #[test]
+    fn nested_set_equality_demands_only_reached_fields_and_preserves_quiet_aliases() {
+        let one = Handle::int(1).unwrap();
+        let two = Handle::int(2).unwrap();
+        for tlc in [false, true] {
+            for hashcons in [false, true] {
+                let semantics = if tlc {
+                    crate::Semantics::tlc()
+                } else {
+                    crate::Semantics::default()
+                };
+                let store = Arc::new(Store::with_semantics(hashcons, semantics));
+                let mut m = Machine::new(store, 0, Opts::default(), Memo::new(&[]));
+                let raw = m.heap.local_literal(&[two, one, two]).unwrap();
+                let other = m.heap.local_literal(&[one, two]).unwrap();
+                let a = m.heap.tuple_literal(&[raw]);
+                let b = m.heap.tuple_literal(&[other]);
+                assert_eq!(m.demand_equals(a, b), Ok(true));
+                assert_eq!(m.heap.has_raw_construction(raw), !tlc);
+                assert_eq!(m.heap.has_raw_construction(other), !tlc);
+
+                // A later incomparable set must remain raw after an earlier
+                // unequal tuple field. D-009 also keeps actual aliases quiet.
+                let bad = m.heap.local_literal(&[one, Handle::TRUE]).unwrap();
+                let a = m.heap.tuple_literal(&[one, bad]);
+                let b = m.heap.tuple_literal(&[two, bad]);
+                assert_eq!(m.demand_equals(a, b), Ok(false));
+                assert!(m.heap.has_raw_construction(bad));
+                if !tlc {
+                    assert_eq!(m.demand_equals(a, a), Ok(true));
+                    assert!(m.heap.has_raw_construction(bad));
+                }
+            }
+        }
+    }
 
     #[test]
     fn public_cap_shrink_and_memo_move_cannot_add_over_budget_certificates() {

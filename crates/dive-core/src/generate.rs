@@ -274,7 +274,7 @@ impl Machine {
                     let r = self.cont(code, next, sink);
                     self.unbind_var(var);
                     r
-                } else if crate::compare::equals(&self.heap, cur, old)? {
+                } else if self.demand_equals(cur, old)? {
                     self.cont(code, next, sink)
                 } else {
                     // TLC prints warning 2143 here (`Tool.java:1676`).
@@ -405,7 +405,7 @@ impl Machine {
                 }
             }
             GNode::Assign { var, rhs } => {
-                let r = self.eval_norm(code, *rhs)?;
+                let r = self.eval_component(code, *rhs)?;
                 let cur = self
                     .s1
                     .get(usize::from(*var))
@@ -416,7 +416,7 @@ impl Machine {
                     let res = self.cont(code, acts, sink);
                     self.unbind_var(*var);
                     res
-                } else if crate::compare::equals(&self.heap, cur, r)? {
+                } else if self.demand_equals(cur, r)? {
                     self.cont(code, acts, sink)
                 } else {
                     Ok(())

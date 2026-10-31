@@ -63,6 +63,9 @@ pub struct Arena {
 pub(crate) struct LiteralSet {
     pub(crate) handle: Handle,
     pub(crate) phase: LiteralPhase,
+    pub(crate) normalized: Handle,
+    pub(crate) origin: i64,
+    pub(crate) snapshots: [Handle; 2],
 }
 
 /// Successful normalization owns its array independently of arena rollback.
