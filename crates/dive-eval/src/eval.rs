@@ -146,6 +146,7 @@ impl Core {
     #[inline]
     pub(crate) fn eval(self: &Arc<Self>, env: &mut Env, st: &St, e: ExprId) -> Result<Ev> {
         match self.eval_inner(env, st, e) {
+            Ok(Ev::F(f)) if st.is(control::DIAGNOSTIC) => Ok(Ev::F(f.diagnostic_copy())),
             Ok(v) => Ok(v),
             Err(err) => Err(err.at(e)),
         }
@@ -224,6 +225,12 @@ impl Core {
     }
 
     pub(crate) fn materialize(self: &Arc<Self>, f: &Arc<LazyFcn>) -> Result<Value> {
+        self.materialize_inner(f).map_err(|error| {
+            error.in_value_method(crate::ValueMethod::FunctionMaterialize, f.node, f.source)
+        })
+    }
+
+    fn materialize_inner(self: &Arc<Self>, f: &Arc<LazyFcn>) -> Result<Value> {
         let domain = self.expression_cache();
         if let Some(v) = f.materialized.get(domain) {
             return Ok(v);
@@ -1814,6 +1821,7 @@ impl Core {
         let f = Arc::new(LazyFcn {
             core: self.clone(),
             node: e,
+            source: st.is(control::DIAGNOSTIC).then_some(e),
             bounds: vals,
             body,
             env: env.clone(),

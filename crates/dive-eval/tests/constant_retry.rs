@@ -97,6 +97,65 @@ fn demanded_errors_and_nonlazy_consumers_are_not_hidden_or_cached() {
 }
 
 #[test]
+fn diagnostic_source_belongs_to_the_actual_materializing_receiver() {
+    for options in [Options::tlc(), Options::dive()] {
+        let ev = evaluator(
+            &format!(
+                "F == {FUNCTION}\nWhole == F=F\nBad == F[1]\nRead == F[0]\nDirect == 1 \\div 0"
+            ),
+            options,
+        );
+        let original = run(&ev, "Whole").expect_err("actual whole-function failure");
+        let receiver = original.value_method().expect("materialization catch");
+        assert_eq!(
+            receiver.method(),
+            dive_eval::ValueMethod::FunctionMaterialize
+        );
+        assert!(
+            receiver.source().is_none(),
+            "ordinary tool has no source hook"
+        );
+        let context = St::state(Arc::from([Some(Value::Int(7))])).diagnostic();
+        let whole = ev.ir().root_def("Whole").expect("Whole");
+        let replay = ev
+            .eval_def(whole, &context)
+            .expect_err("actual diagnostic replay");
+        let actual = replay
+            .value_method()
+            .expect("new receiver caught the body error");
+        assert_eq!(actual.constructor(), receiver.constructor());
+        assert_eq!(actual.source(), Some(actual.constructor()));
+        assert_eq!(
+            replay.ec(),
+            original.ec(),
+            "underlying division is preserved"
+        );
+        for name in ["Bad", "Direct"] {
+            let definition = ev.ir().root_def(name).expect("definition");
+            let error = ev
+                .eval_def(definition, &context)
+                .expect_err("demanded division");
+            assert_eq!(error.ec().code(), 2179);
+            assert!(
+                error.value_method().is_none(),
+                "{name}: no materialization catch"
+            );
+        }
+        let read = ev.ir().root_def("Read").expect("Read");
+        assert_eq!(
+            ev.eval_def(read, &context)
+                .expect("only good entry demanded"),
+            Value::Int(0)
+        );
+        assert!(
+            dive_eval::EvalError::coded(original.ec(), original.message())
+                .value_method()
+                .is_none()
+        );
+    }
+}
+
+#[test]
 fn successful_startup_values_and_stateful_overrides_keep_their_cache_boundaries() {
     for options in [Options::tlc(), Options::dive()] {
         let ev = evaluator("F == [i \\in 0..2 |-> i+1]\nRead == F[0]", options);

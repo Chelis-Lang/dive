@@ -1,5 +1,11 @@
 # Reports, errors and automation
 
+A whole-function failure inside a pure initial invariant can report
+`TLC_FINGERPRINT_EXCEPTION` (2147) after diagnostic replay constructs the actual
+source-bearing function receiver. The underlying error remains unchanged.
+An unsourced value-method failure does not inherit verified classification from
+its underlying module error; unproved receiver lifetimes remain unverified.
+
 Request `--output json` and retain the whole document, source/configuration,
 resolved options and replay seed. Every public operation now emits report
 `schema_version: 3`, with `command` identifying the operation. `check` also emits

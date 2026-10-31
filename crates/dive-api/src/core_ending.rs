@@ -322,7 +322,11 @@ pub(crate) fn ending(
         // `DoInitFunctor` records the state checked; `doInit` prints it for
         // a `RuntimeException` only (`class::init_error`).
         let text = t.as_deref().map(|t| state_text(model, t));
-        verdict = classify::init_error(verdict, text.as_deref());
+        verdict = if let Some(state) = &t {
+            classify::initial_check_error(model, verdict, state)
+        } else {
+            classify::init_error(verdict, text.as_deref())
+        };
         with = with
             && !matches!(
                 verdict,

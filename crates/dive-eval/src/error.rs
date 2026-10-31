@@ -225,6 +225,42 @@ pub enum ExceptionKind {
     ToolRuntime,
 }
 
+/// The value method that actually caught an evaluation failure.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ValueMethod {
+    /// `FcnLambdaValue.toFcnRcd`, while computing the function's body.
+    FunctionMaterialize,
+}
+
+/// Receiver construction provenance retained by a value-method catch.
+/// Its fields can only be supplied by the evaluator's actual receiver.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct ValueMethodFailure {
+    method: ValueMethod,
+    constructor: ExprId,
+    source: Option<ExprId>,
+}
+
+impl ValueMethodFailure {
+    /// The method that caught the error.
+    #[must_use]
+    pub fn method(self) -> ValueMethod {
+        self.method
+    }
+
+    /// The receiver's constructor in this evaluator's IR.
+    #[must_use]
+    pub fn constructor(self) -> ExprId {
+        self.constructor
+    }
+
+    /// The source attached when the diagnostic tool constructed the receiver.
+    #[must_use]
+    pub fn source(self) -> Option<ExprId> {
+        self.source
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 struct Inner {
     class: ErrorClass,
@@ -242,6 +278,7 @@ struct Inner {
     /// Original typed cause of a built-in Java-override wrapper. Rendered
     /// message text, including apparent tool frames, grants no provenance.
     override_cause: Option<(dive_ir::StdOp, Ec)>,
+    value_method: Option<ValueMethodFailure>,
 }
 
 const ANALYSIS_ONLY: &str = "analysis-only binder has no runtime value";
@@ -263,6 +300,7 @@ impl EvalError {
             analysis_only: false,
             interruption: None,
             override_cause: None,
+            value_method: None,
         }))
     }
 
@@ -298,6 +336,35 @@ impl EvalError {
     #[must_use]
     pub fn exception_kind(&self) -> Option<ExceptionKind> {
         self.0.exception_kind
+    }
+
+    /// The actual value-method catch, independent of numeric codes or text.
+    #[must_use]
+    pub fn value_method(&self) -> Option<ValueMethodFailure> {
+        self.0.value_method
+    }
+
+    pub(crate) fn in_value_method(
+        mut self,
+        method: ValueMethod,
+        constructor: ExprId,
+        source: Option<ExprId>,
+    ) -> Self {
+        // Unsupported operations, host stops and internal errors are never
+        // promoted to a TLC exception by a receiver's source location.
+        if self.is_eval()
+            && self
+                .0
+                .value_method
+                .is_none_or(|failure| failure.source.is_none())
+        {
+            self.0.value_method = Some(ValueMethodFailure {
+                method,
+                constructor,
+                source,
+            });
+        }
+        self
     }
 
     /// Constructs the actual native wrapper without recovering its cause from

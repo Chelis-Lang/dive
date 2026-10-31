@@ -761,7 +761,7 @@ population totals or relax any other conformance field.
 
 ## Failed constant pre-evaluation and lazy function selection
 
-`constant-retry-lazy` retains three minimal named/inline and fairness-action
+`constant-retry-lazy` retains four minimal named/inline, whole-function-error and fairness-action
 controls. Pinned TLC may fail to pre-evaluate a constant function at startup,
 then successfully select one of its defined entries later: it swallows the
 startup failure and evaluates the original definition in the actual call-site
@@ -777,3 +777,10 @@ The named and inline invariant controls both succeed with 3 generated states,
 separate from broader function-constructor or EWD capacity qualification. Model
 goldens are generated through the official harness with a recorded reason;
 raw clean/trace invocations remain outside the repository.
+
+The whole-function-error control forces `F=F` for that partial function. Its
+fresh diagnostic receiver catches the underlying division2179 and decides
+TLC_FINGERPRINT_EXCEPTION2147 with exit75, 1 generated and distinct state,
+depth1 and one queued state. This differs from selecting the defined entry;
+the source-bearing receiver, rather than the division's numeric code, determines
+the wrapper. See [the source mechanism](survey/value-method-error-provenance.md).
