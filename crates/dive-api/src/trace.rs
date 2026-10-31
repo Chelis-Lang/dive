@@ -51,8 +51,8 @@ use std::sync::Arc;
 
 pub use dive_trace::mutate::{ControlMode, Mutant};
 pub use dive_trace::{
-    Check, DEADLOCK_UNSUPPORTED, Ending, Failure, Report, State, Trace, TraceDoc, Validation,
-    ValidationRunError,
+    Check, DEADLOCK_UNSUPPORTED, Ending, Failure, InitialErrorStage, InitialInvariantClass, Report,
+    State, Trace, TraceDoc, Validation, ValidationRunError,
 };
 use serde_json::{Value, json};
 
