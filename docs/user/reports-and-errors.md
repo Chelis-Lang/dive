@@ -6,6 +6,24 @@ source-bearing function receiver. The underlying error remains unchanged.
 An unsourced value-method failure does not inherit verified classification from
 its underlying module error; unproved receiver lifetimes remain unverified.
 
+Source-qualified tuple/record comparison failures in the first initial
+invariant can use the same deciding class after actual Init and diagnostic
+replay. TLC records an initial diagnostic state without a formal counterexample
+for these controls. The report therefore keeps `counterexample: null` and
+provides optional `diagnostic_witness`: an existing native version-2 named
+invariant-error word containing the original cause, not the deciding wrapper.
+This field is separate from the partial-Init `error_witness`.
+
+For this newly admitted initial classification, automation must require both
+independent checks: the named cause word and fresh first-Init/invariant
+diagnostic execution proving the receiver's source and lifetime. A valid word
+alone, a producer verification flag or matching metadata cannot establish the
+2147/2102 relationship. Missing or unproved diagnostic evidence remains a
+refusal, including when TLC has no formal trace. VIEW, symmetry, constraints,
+effects, earlier invariants and unproved state history remain outside this
+bounded route (ADR 0133). Report schema 3 and existing native payload versions
+retain their meanings.
+
 Request `--output json` and retain the whole document, source/configuration,
 resolved options and replay seed. Every public operation now emits report
 `schema_version: 3`, with `command` identifying the operation. `check` also emits
