@@ -2481,3 +2481,17 @@ and report descriptors do not select execution or supply truth. Existing
 `dive-check/tests/fixtures/errors/tlc-2026.10.06.014338/` streams independently
 supply the primary-header controls. Canonical unknown classifications are not
 changed or granted agreement by the new word proof.
+
+
+### Closed ordinary native action atoms
+
+ADR 0130 reuses the existing compiler and reference semantic ports from pinned
+MIT TLC `94d0c5070852b37b801bb8998c436383ab7ee37b`: `Tool` bounded CHOOSE,
+function construction/application and EXCEPT, `FcnLambdaValue` KEEP_LAZY demand,
+`FcnRcdValue` domain/range replacement and `Context.branch` variable cutoff.
+Reference `dive-eval/src/eval.rs` preserves constructor/choice/update demand;
+`dive-liveness/src/plan.rs` supplies the separate changed-first Nonstuttering
+contract. The optional callback-free source certificate, exact actual-key
+warning guard, lexical scalar @ and finite work precharge are original Rust
+optimizations over those semantics. They do not port hidden Enabled caching or
+change independent word validation.

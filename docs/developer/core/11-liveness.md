@@ -192,8 +192,15 @@ class, representation or word proof.
 
 The unchanged original pinned EWD998Chan source/property, with only N=1 derived
 configuration, agrees with fresh pinned TLC and reference at 6 distinct /13
-generated /depth2 in both native profiles at W1/W8. Original N=3 capacity and
-performance require separate qualification. Tuple SubSeq, new-name producer and
+generated /depth2 in both native profiles at W1/W8. Original N=3 also completes
+at W1 in both profiles on reviewed source `3d242d83`: 1,524,022 distinct /
+12,882,257 generated /depth58, verified success and exhausted capture. Under
+unchanged 900-second/16-GiB limits, TLC takes 535.537s with 1,866,358,784-byte
+peak RSS; default takes 861.826s with 1,938,173,952-byte peak RSS. These are
+single-run capacity observations, not quiet TLC-relative throughput or W8
+qualification. See the [source-bound record](../../../conformance/reports/perf/2026-10-30-ewd-native-actions-capacity.json).
+The complete joint matrix and final performance panel remain open.
+Tuple SubSeq, new-name producer and
 state-atom demands, early periodic/error returns, foreign scopes/configured
 captures and nonsemantic stop priority have focused controls. No source rewrite,
 worker fallback, new mode or static state-type approximation is used.
@@ -292,14 +299,24 @@ Eligibility requires the actual retained atom object and source-owned scope,
 callback-free closed-predicate inspection, run-owned names/constant contexts,
 and actual set-free closed input handles. Immutable interval domains support
 quantifiers over closed scalar-keyed general functions. The original canonical
-producer certificate is unchanged. Bound fairness tests reuse existing core
-successor search and INSTANCE identity/cutoff checks; Nonstuttering checks the
-subscript before the action. One-clause, one-key scalar EXCEPT can qualify only
-for a root input function whose actual domain exactly matches the key's immutable
-interval binder; missing domains/keys fall back before reference warning 2144
-could be suppressed. EXCEPT @, nested/multiple updates, source function
-constructors, CHOOSE, raw/deferred set history, effects, live TLCGet and unproved
-fairness wrappers continue through reference evaluation. Unknown representations, optional work
+producer certificate is unchanged. Enabled fairness tests reuse existing core
+successor search and INSTANCE identity/cutoff checks. Ordinary Nonstuttering
+compares the retained before/after scoped subscript before the action; unlike
+Enabled, it creates no branch cutoff and preserves nonidentity substitutions.
+
+The optional ordinary action lane additionally admits one-scalar-binder interval
+function constructors and bounded interval CHOOSE, with their actual retained
+scopes and existing Red/KEEP_LAZY/Beta demand behavior (ADR 0130). Source-local
+finite integer enumeration/difference supplies domains without authorizing raw
+set history. One-clause, one-key scalar EXCEPT/@ can use a certified closed
+constructed base: actual key membership is checked before RHS demand and lexical
+@ receives the old scalar leaf. Keys, domain order and literal/general class are
+preserved. Missing/incompatible keys fall back before reference warning 2144
+could be suppressed. The old root/immutable-binder class retains its exact
+actual-domain check. Enabled retains that narrower update subset; constructors
+and @ do not widen query admission. Nested/multiple updates, opaque domains,
+raw/deferred set history, effects, live TLCGet and hidden/nonidentity queries
+continue through reference evaluation. Unknown representations, optional work
 bounds and semantic failures use the same reference fallback. Actual owned
 budget stops propagate; foreign interruption evidence is rejected. Optional query
 binding streams the existing cursors under its work quota, preflights eager
