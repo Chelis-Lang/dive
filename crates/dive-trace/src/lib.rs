@@ -75,6 +75,7 @@ pub mod enabled;
 mod endpoint;
 pub mod format;
 mod initial;
+mod invariant_error;
 pub mod mutate;
 mod next_error;
 mod ordered;
@@ -94,6 +95,7 @@ pub use endpoint::{
     PartialStateEndpoint, TemporalStateEndpoint,
 };
 pub use format::{Ending, Label, Source, TraceDoc};
+pub use invariant_error::InitialInvariantClass;
 pub use session::Session;
 pub use trace::{ShapeError, State, Trace, variables};
 pub use validate::{
