@@ -10,10 +10,11 @@ use crate::graph::GraphAccess;
 use crate::search::{
     Acceptance, AcceptanceAccess, Lasso, SearchError, Step, find_lasso, find_lasso_view,
 };
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeSet, HashMap};
 
 mod csr;
 use csr::{CsrGraph, FlatRows, OwnedRows, ProductRows, RowStorage};
+mod pair_order;
 
 mod behavior;
 pub(crate) use behavior::BehaviorView;
@@ -128,7 +129,7 @@ struct Builder<'a, T: TruthAccess, R: RowStorage> {
     behavior_edges: usize,
     scratch_len: usize,
     pairs: Vec<(usize, usize)>,
-    ids: BTreeMap<(usize, usize), usize>,
+    ids: HashMap<(usize, usize), usize>,
     rows: R,
     edge_count: usize,
     steps: usize,
@@ -187,6 +188,12 @@ impl<T: TruthAccess, R: RowStorage> Builder<'_, T, R> {
             .ok_or(ProductError::Limit("vertices"))?;
         self.acceptance_cells(size, self.edge_count)?;
         csr::grow(&mut self.pairs, 1)?;
+        size.checked_mul(size_of::<((usize, usize), usize)>())
+            .ok_or(ProductError::Limit("product pair index bytes"))?;
+        self.ids
+            .try_reserve(1)
+            .map_err(|_| ProductError::Limit("product pair index allocation"))?;
+        csr::poll()?;
         self.ids.insert((v, n), id);
         self.pairs.push((v, n));
         self.rows.add_vertex()?;
@@ -235,19 +242,15 @@ impl<T: TruthAccess, R: RowStorage> Builder<'_, T, R> {
         // Discovery order must never choose the witness. Renumber retained
         // pairs in the original Cartesian (behavior, tableau) order. Removing
         // unreachable ids preserves every reachable tie-break and edge order.
-        let mut ordered = csr::reserve(self.ids.len())?;
-        for (position, id) in self.ids.into_values().enumerate() {
-            if position.is_multiple_of(1024) {
+        // The private hash table never determines iteration or witness order.
+        // Release it before allocating final order; reuse the merge scratch as
+        // the existing renumber vector instead of retaining another owner.
+        drop(self.ids);
+        let (ordered, mut renumber) = pair_order::cartesian(&self.pairs)?;
+        for (new, &old) in ordered.iter().enumerate() {
+            if new.is_multiple_of(1024) {
                 csr::poll()?;
             }
-            ordered.push(id);
-        }
-        let mut renumber = csr::reserve(self.pairs.len())?;
-        while renumber.len() < self.pairs.len() {
-            csr::poll()?;
-            renumber.resize((renumber.len() + 1024).min(self.pairs.len()), 0);
-        }
-        for (new, &old) in ordered.iter().enumerate() {
             renumber[old] = new;
         }
         let mut sorted_roots = BTreeSet::new();
@@ -510,7 +513,7 @@ fn build<A, R: RowStorage>(
             .max()
             .unwrap_or(0),
         pairs: Vec::new(),
-        ids: BTreeMap::new(),
+        ids: HashMap::new(),
         rows: R::default(),
         edge_count: 0,
         steps: 0,
