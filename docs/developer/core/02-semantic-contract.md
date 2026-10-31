@@ -473,21 +473,28 @@ the replayed error's.
 **E6. Initial-state errors.**
 - The reported code is `GENERAL`, or `TLC_INITIAL_STATE` (2102) naming the
   state for a non-`EvalException` raised while checking an initial state.
-- The replay (`doInit(cTool, true)`) decides 2103, with exit 75.
+- The replay (`doInit(cTool, true)`) normally decides 2103, with exit 75;
+  a source-bearing value-method receiver can instead wrap2147 (E7).
 - At an initial-state violation the adapter reports no counts.
 - Profile: both.
 - Evidence: `class.rs:290-315`; `ErInitDivZero` (exit 75); ADR 0015 §3.
 
 **E7. `FingerprintException` wrapping.** Errors from the methods of a value
 that has a source location are wrapped, and decide 2147 with exit 75. Whether a
-value has a source depends on where it was built, which dive does not track.
-Such classes are explicitly unverified, and the harness treats them as
-`unsupported`.
+value has a source depends on where it was built. The reference evaluator now
+tracks actual lazy-function construction and `toFcnRcd` catches, including
+CallStackTool's returned-lambda copy dropping source. A pure failed initial
+invariant is actually reevaluated with source attachment; a matching newly
+constructed receiver can establish2147 without changing its underlying cause.
+Both execution engines consume that replay. Other value methods, stored and
+precomputed receivers remain explicitly unverified until their lifetime is
+proved; the harness treats unverified classes as `unsupported`.
 - Profile: both.
 - Evidence: `ModelChecker.java:302-305`; `class.rs:26-31`, `:86-99`; fixtures
   `ErWrap*`; `crates/dive-check/tests/fixtures/errors/README.md`.
-- Core: keep the "unverified, never agreement" status unless value source
-  provenance is added (section 6, Q3).
+- Core: receiver provenance comes from the actual reference diagnostic replay,
+  never the core error's text or numeric code. Keep other cases unverified
+  (section 6, Q3).
 
 **E8. An error ends the enumeration of the state.** Successors emitted before
 it keep their counts (probe `EvalErrorMidLevel`: 4 / 3 / 1; ADR 0014 §3).

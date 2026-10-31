@@ -560,6 +560,37 @@ pub(crate) fn holds(
     }
 }
 
+/// Re-evaluates the actual failed initial invariant with the diagnostic tool's
+/// source hook. Cached values stay cached; only newly constructed receivers
+/// acquire a source. A pure named role is enough here because materialization
+/// failed within that role, before the receiver could become a state value.
+pub(crate) fn initial_value_method_replay(
+    m: &Model,
+    verdict: &Verdict,
+    state: &[Option<Value>],
+) -> Option<EvalError> {
+    let Verdict::EvaluationError {
+        site: ErrorSite::Invariant,
+        cause,
+        invariant: Some(name),
+        ..
+    } = verdict
+    else {
+        return None;
+    };
+    cause.value_method()?;
+    let role = m.invariants.iter().find(|role| role.name == *name)?;
+    if m.ir
+        .node(role.pred.expr)
+        .effects
+        .intersects(dive_ir::Effects::IMPURE)
+    {
+        return None;
+    }
+    let context = St::state(std::sync::Arc::from(state)).diagnostic();
+    role_boolean(m, role, &context).err()
+}
+
 /// TLC's text of a state (`TLCStateMut.toString`): `/\ x = v` per variable
 /// in TLC's variable order (`x = v` for a single variable), `null` for an
 /// unassigned one.
@@ -1388,7 +1419,12 @@ impl<S: Keyed> Search<'_, '_, S> {
                 Some((verdict, with, _)) => {
                     // An error in a check of an initial state names the state
                     // (`DoInitFunctor` records it).
-                    let verdict = class::init_error(verdict, Some(&state_text(m, succ.state, ctx)));
+                    let diagnostic = initial_value_method_replay(m, &verdict, succ.state);
+                    let verdict = class::init_error(
+                        verdict,
+                        Some(&state_text(m, succ.state, ctx)),
+                        diagnostic.as_ref(),
+                    );
                     // doInit prints the recorded state for a RuntimeException,
                     // but not for an EvalException (reported as GENERAL).
                     let with = with
@@ -1419,6 +1455,7 @@ impl<S: Keyed> Search<'_, '_, S> {
             stop = Some(Stop {
                 verdict: class::init_error(
                     error_verdict(&e.error, ErrorSite::Init, &self.control),
+                    None,
                     None,
                 ),
                 in_init: true,

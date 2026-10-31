@@ -74,7 +74,9 @@ use dive_value::{Interner, Value};
 
 pub use crate::core::{CollectSink, PrintSink};
 pub use crate::env::{St, StateRef};
-pub use crate::error::{Ec, ErrorClass, EvalError, ExceptionKind, Result};
+pub use crate::error::{
+    Ec, ErrorClass, EvalError, ExceptionKind, Result, ValueMethod, ValueMethodFailure,
+};
 pub use crate::host::{
     Counter, Host, HostBinding, HostBindingScope, HostBindingStamp, HostControl,
     HostControlConflict, HostControlScope, HostError, Interrupted, NativeHooks, RunConfig,

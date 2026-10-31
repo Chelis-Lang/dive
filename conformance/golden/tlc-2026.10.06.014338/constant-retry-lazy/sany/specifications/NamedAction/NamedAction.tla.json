@@ -54,7 +54,7 @@
         "version_line": "openjdk version \"17.0.20.1\" 2026-08-18"
       }
     },
-    "corpus_commit": "sha256:aaa56b79cedba3c8969efe63b165a9ad0697f3a587d9fe5785949c90c5da6d42",
+    "corpus_commit": "sha256:8b12836475151e52e042b3cac4fd8857e3f3c3ccd73cd124e8404438985a931c",
     "command": [
       "$DIVE_CACHE_DIR/jre/0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62/jdk-17.0.20.1+1-jre/bin/java",
       "-XX:+UseParallelGC",
@@ -71,10 +71,10 @@
       "-error-codes",
       "NamedAction.tla"
     ],
-    "timeout_seconds": 30,
-    "reason": "Pin failed constant pre-evaluation fallback to actual lazy function selection before reference evaluator repair",
+    "timeout_seconds": 300,
+    "reason": "Issue 672: add whole-function source-receiver error control; regenerate unchanged alias controls for the new corpus identity",
     "generator": "dive-conformance 0.0.0",
-    "generated_at": "2026-10-30T18:06:29Z",
-    "elapsed_ms": 167
+    "generated_at": "2026-10-31T11:17:54Z",
+    "elapsed_ms": 164
   }
 }

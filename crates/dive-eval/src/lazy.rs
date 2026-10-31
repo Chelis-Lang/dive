@@ -58,6 +58,9 @@ pub struct LazyFcn {
     pub(crate) core: Arc<Core>,
     /// The constructor node, for error locations.
     pub(crate) node: ExprId,
+    /// Source attached to this actual receiver by diagnostic construction.
+    /// `CallStackTool`'s returned-lambda copy deliberately does not retain it.
+    pub(crate) source: Option<ExprId>,
     pub(crate) bounds: Vec<BoundVal>,
     pub(crate) body: ExprId,
     pub(crate) env: Env,
@@ -78,6 +81,20 @@ pub struct LazyFcn {
 pub(crate) struct Materialized {
     ordinary: OnceLock<Value>,
     foreign: Mutex<Option<(u64, Value)>>,
+}
+
+impl Clone for Materialized {
+    fn clone(&self) -> Self {
+        Self {
+            ordinary: self.ordinary.clone(),
+            foreign: Mutex::new(
+                self.foreign
+                    .lock()
+                    .unwrap_or_else(PoisonError::into_inner)
+                    .clone(),
+            ),
+        }
+    }
 }
 
 impl Materialized {
@@ -131,6 +148,7 @@ impl LazyFcn {
         Arc::new(Self {
             core: self.core.clone(),
             node: self.node,
+            source: None,
             bounds: self.bounds.clone(),
             body: self.body,
             env: self.env.clone(),
@@ -149,6 +167,22 @@ impl LazyFcn {
             env.bind(slot, Sv::Fcn(self.clone()));
         }
         env
+    }
+
+    /// CallStackTool.eval's lambda copy: rebind the tool, not the source field.
+    pub(crate) fn diagnostic_copy(self: &Arc<Self>) -> Arc<Self> {
+        Arc::new(Self {
+            core: self.core.clone(),
+            node: self.node,
+            source: None,
+            bounds: self.bounds.clone(),
+            body: self.body,
+            env: self.env.clone(),
+            st: self.st.diagnostic(),
+            rec_slot: self.rec_slot,
+            excepts: self.excepts.clone(),
+            materialized: self.materialized.clone(),
+        })
     }
 }
 
