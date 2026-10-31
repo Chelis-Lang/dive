@@ -20,22 +20,39 @@ including the closing edge. This explicit mode does not use periodic
 scheduling or claim all evaluation-error timing. Explicit requests retain their
 existing `tlc+overrides` label when combined with TLC value semantics.
 
-A non-EvalException error actually raised while generating Next states with
-pending genuine temporal obligations is refused when its post-Next temporal
-demand/replay primary is unproved. The refusal keeps the actual counters, output
-and execution boundary; it publishes neither a verified TLC class/exit nor an
-uncertified error word. TLC can continue liveness-row evaluation after the Next
-error and suppress ordinary diagnostic replay if that later demand also fails.
-The presence of `WF` or `SF` alone therefore never selects `GENERAL`.
+At one worker, a bounded temporal source-row error can now retain TLC's
+GENERAL1000 and TLC exit255 in either execution engine. The checker must reach
+the first actual source boundary after exactly one generated and accepted Init
+state, prove that its concrete destinations are the source itself, execute
+ordered temporal demand and its diagnostic replay, and then
+independently validate the finite original word on a fresh runtime. This covers
+both a Next failure before any complete emission and a successful self successor
+followed by a fairness error. A complete self emission before a later Next error
+is covered too. The report has no violated property or lasso, and capture remains
+incomplete. Native trace version5 carries the source-only endpoint (ADR 0132).
+An unproved or quiet first row disables this optional lane; it cannot skip that
+row or its opaque residual and later certify another source as first.
 
-Pinned `MinChooseFair` requires GENERAL/255, while an unrelated harmless fair
-action does not establish that class. The current implementation reports explicit
-unsupported for the unproved non-EvalException temporal Next path instead of
-claiming 2103/75. Successful fairness checks, measured 2179 Next controls and the
-separate certified temporal state-row error path remain unchanged. A safe Next
-followed by a fairness evaluation error retains its existing analysis refusal.
-The exact reached fairness/ENABLED demand and source-bound replay pipeline remains
-open under issue #502; this correction earns no new temporal-error parity credit.
+The original `MinChooseFair` and `MinChooseFairSafeNext` controls now agree with
+the pinned oracle, as do action-before-state demand and prior-self-emission
+controls. `WF`/`SF` syntax alone grants no classification. A quiet earlier action
+bin may reach a later state error; an earlier failing action bin takes priority.
+State-only residual tableau work is an opaque boundary: reaching it supplies no
+holding, completed-row or residual-truth certificate.
+
+Unknown source order, non-self targets, effects, VIEW/symmetry, cached/history
+questions and unsupported parallel source events remain explicit refusals.
+Other retained-primary or candidate-ending lifecycles also remain unproved.
+In particular, an action-candidate error with pending temporal obligations may
+not borrow the ordinary2103/75 classification or the new source ending. These
+refusals retain actual counters, output and diagnostic context. Successful
+fairness checks and the separate2179/2182 temporal-state-row meaning remain
+unchanged. Issue #502 remains open for the uncovered boundaries.
+
+The native optional lane performs no source binding or reference row evaluation
+for compound roots. It uses a callback-free eligibility check, waits for an
+actual scalar source event before binding, and reuses one hidden owned row
+runtime. Existing native constructed-action execution remains available.
 
 Property attribution is relative to the actual independently validated word.
 The report's `properties` is the complete configured false-property list on that

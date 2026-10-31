@@ -254,6 +254,24 @@ impl<'m> GraphCheck<'m> {
         crate::analyze::row_demand::may_apply(&self.plans, &self.options, self.graph_labels)
     }
 
+    /// Callback-free optional source-row admission hint. This borrowed driver
+    /// supplies no ownership certificate; the actual lane must consume a fresh
+    /// [`crate::analyze::owned::OwnedTemporal`] before evaluating any row.
+    ///
+    /// # Errors
+    /// The original controlled inspection/resource failure.
+    pub fn source_rows_possible(&self) -> Result<bool, AnalysisError> {
+        let _budget = crate::budget::enter(&self.options.budget);
+        crate::analyze::row_demand::source_possible(
+            self.model,
+            &self.plans,
+            &self.options,
+            self.limits.formula,
+            self.graph_labels,
+            &self.control,
+        )
+    }
+
     /// The run options with the armed budget, for the producer's search.
     #[must_use]
     pub fn options(&self) -> &CheckOptions {

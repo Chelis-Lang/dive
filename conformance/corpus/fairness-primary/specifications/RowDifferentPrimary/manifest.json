@@ -1,0 +1,20 @@
+{
+  "sources": [
+    "docs/user/temporal.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "liveness",
+    "errors"
+  ],
+  "modules": [
+    {
+      "path": "specifications/RowDifferentPrimary/RowDifferentPrimary.tla",
+      "features": [],
+      "models": []
+    }
+  ]
+}

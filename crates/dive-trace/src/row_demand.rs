@@ -289,10 +289,32 @@ struct Lower<'a> {
     model: &'a Model,
     build: Build<'a>,
     atoms: Vec<Pred>,
+    tests: Vec<AtomTest>,
     constant: Vec<bool>,
+    source_row: bool,
     control: Option<&'a dyn dive_eval::HostControl>,
 }
+
+#[derive(Clone, Copy)]
+enum AtomTest {
+    Predicate,
+    Enabled { sub: Option<dive_ir::ExprId> },
+    Nonstuttering { sub: dive_ir::ExprId },
+}
+
 impl Lower<'_> {
+    fn atom(&mut self, pred: Pred, level: Level, test: AtomTest) -> Result<usize, FormulaError> {
+        let id = self.atoms.len();
+        push(&mut self.atoms, pred)?;
+        push(&mut self.tests, test)?;
+        push(&mut self.constant, level == Level::Constant)?;
+        push(
+            &mut self.build.atom_levels,
+            if level <= Level::State { 1 } else { 2 },
+        )?;
+        self.build.push(Node::Atom(id))
+    }
+
     #[allow(
         clippy::too_many_lines,
         reason = "one iterative temporal lowering dispatch preserves original scoped occurrences"
@@ -372,11 +394,8 @@ impl Lower<'_> {
                         .evaluator
                         .validate_predicate(&pred.scope, pred.expr)?;
                     let level = metadata::level(self.model, &pred, self.control)?;
-                    if level <= Level::State {
-                        let id = self.atoms.len();
-                        push(&mut self.atoms, pred)?;
-                        push(&mut self.constant, level == Level::Constant)?;
-                        let atom = self.build.push(Node::Atom(id))?;
+                    if level <= Level::State || self.source_row && level == Level::Action {
+                        let atom = self.atom(pred, level, AtomTest::Predicate)?;
                         push(&mut values, atom)?;
                         continue;
                     }
@@ -431,6 +450,39 @@ impl Lower<'_> {
                         }
                         Expr::Selected(expr) | Expr::Label { body: expr, .. } => {
                             push(&mut tasks, Task::Enter(Pred::new(*expr, scope.clone())))?;
+                        }
+                        Expr::Wf { sub, action } | Expr::Sf { sub, action } if self.source_row => {
+                            if metadata::level(
+                                self.model,
+                                &Pred::new(*sub, scope.clone()),
+                                self.control,
+                            )? > Level::State
+                            {
+                                return Err(refused("action-level endpoint fairness subscript"));
+                            }
+                            let enabled = self.atom(
+                                Pred::new(*action, scope.clone()),
+                                Level::State,
+                                AtomTest::Enabled { sub: Some(*sub) },
+                            )?;
+                            let action = self.atom(
+                                Pred::new(*action, scope.clone()),
+                                Level::Action,
+                                AtomTest::Nonstuttering { sub: *sub },
+                            )?;
+                            let disabled = self.build.push(Node::Not(enabled))?;
+                            let node = if matches!(self.model.ir.expr(pred.expr), Expr::Wf { .. }) {
+                                let disj = self.build.junction(false, vec![disabled, action])?;
+                                let eventual = self.build.push(Node::Eventually(disj))?;
+                                self.build.push(Node::Always(eventual))?
+                            } else {
+                                let eventual = self.build.push(Node::Eventually(action))?;
+                                let recurring = self.build.push(Node::Always(eventual))?;
+                                let all = self.build.push(Node::Always(disabled))?;
+                                let disabled = self.build.push(Node::Eventually(all))?;
+                                self.build.junction(false, vec![disabled, recurring])?
+                            };
+                            push(&mut values, node)?;
                         }
                         Expr::Not(expr) | Expr::Always(expr) | Expr::Eventually(expr) => {
                             let kind = match self.model.ir.expr(pred.expr) {
@@ -554,8 +606,11 @@ impl Lower<'_> {
             )?;
         }
         let mut atoms = Vec::new();
-        for pred in &self.atoms {
+        for (pred, test) in self.atoms.iter().zip(&self.tests) {
             push(&mut atoms, (pred.expr, pred.scope.clone()))?;
+            if let AtomTest::Enabled { sub: Some(sub) } | AtomTest::Nonstuttering { sub } = test {
+                push(&mut atoms, (*sub, pred.scope.clone()))?;
+            }
         }
         let proof = self.model.evaluator.canonical_producer_stability_budgeted(
             &producers,
@@ -585,7 +640,11 @@ fn unique(checks: &mut Vec<Check>, check: Check) -> Result<(), FormulaError> {
     }
     Ok(())
 }
-fn bins(build: &mut Build<'_>, dnf: usize) -> Result<Vec<Check>, FormulaError> {
+fn bins(
+    build: &mut Build<'_>,
+    dnf: usize,
+    source_row: bool,
+) -> Result<(Vec<Check>, bool), FormulaError> {
     if build.nodes[dnf] == Node::Bool(false) {
         return Err(refused("TLC startup tautology has no row endpoint"));
     }
@@ -599,6 +658,11 @@ fn bins(build: &mut Build<'_>, dnf: usize) -> Result<Vec<Check>, FormulaError> {
     };
     let mut actions = Vec::new();
     let mut states = Vec::new();
+    let branch_count = branches.len();
+    if source_row && branch_count != 1 {
+        return Err(refused("multiple solution orders in source-row endpoint"));
+    }
+    let mut opaque = false;
     for branch in branches {
         let branch = build.flatten(branch, 0)?;
         let cs = if let Node::And(cs) = &build.nodes[branch] {
@@ -609,31 +673,52 @@ fn bins(build: &mut Build<'_>, dnf: usize) -> Result<Vec<Check>, FormulaError> {
         } else {
             vec![branch]
         };
+        let mut eventual_always = Vec::new();
+        let mut always_eventual_actions = Vec::new();
         for c in cs {
             if let Node::Eventually(a) = build.nodes[c]
                 && let Node::Always(body) = build.nodes[a]
                 && build.level_action(body, 0)?.0 < 3
             {
-                unique(&mut actions, Check::copy(build, body)?)?;
-            } else if let Some(body) = build.ae_body(c)
-                && build.level_action(body, 0)?.0 <= 1
-            {
-                unique(&mut states, Check::copy(build, body)?)?;
+                push(&mut eventual_always, Check::copy(build, body)?)?;
+            } else if let Some(body) = build.ae_body(c) {
+                let level = build.level_action(body, 0)?.0;
+                if level <= 1 {
+                    unique(&mut states, Check::copy(build, body)?)?;
+                } else if source_row && level == 2 {
+                    push(&mut always_eventual_actions, Check::copy(build, body)?)?;
+                } else {
+                    return Err(refused("successor-dependent temporal endpoint solution"));
+                }
+            } else if source_row && !build.level_action(c, 0)?.1 {
+                // Known bins execute before the tableau. Reaching this barrier
+                // refuses; an earlier independently reproduced error is enough.
+                opaque = true;
             } else {
                 return Err(refused(
                     "residual/tableau or successor-dependent endpoint solution",
                 ));
             }
         }
+        for check in always_eventual_actions.into_iter().chain(eventual_always) {
+            unique(&mut actions, check)?;
+        }
+    }
+    if opaque && branch_count != 1 {
+        return Err(refused(
+            "multiple tableau solution orders in source-row endpoint",
+        ));
     }
     reserve(&mut actions, states.len())?;
     actions.extend(states);
-    Ok(actions)
+    Ok((actions, opaque))
 }
 
 pub(crate) struct Program {
     atoms: Vec<Pred>,
+    tests: Vec<AtomTest>,
     checks: Vec<Check>,
+    opaque: bool,
 }
 
 /// Reconstruct before any finite-path or endpoint expression is evaluated.
@@ -641,6 +726,23 @@ pub(crate) fn prepare(
     model: &Model,
     states: &[crate::State],
     control: Option<&dyn dive_eval::HostControl>,
+) -> Result<Program, FormulaError> {
+    prepare_mode(model, states, control, false)
+}
+
+pub(crate) fn prepare_source_row(
+    model: &Model,
+    states: &[crate::State],
+    control: Option<&dyn dive_eval::HostControl>,
+) -> Result<Program, FormulaError> {
+    prepare_mode(model, states, control, true)
+}
+
+fn prepare_mode(
+    model: &Model,
+    states: &[crate::State],
+    control: Option<&dyn dive_eval::HostControl>,
+    source_row: bool,
 ) -> Result<Program, FormulaError> {
     model.validate_context()?;
     if model.view.is_some() || model.symmetry.is_some() || model.has_runtime_names() {
@@ -657,7 +759,9 @@ pub(crate) fn prepare(
         model,
         build: Build::new(control),
         atoms: Vec::new(),
+        tests: Vec::new(),
         constant: Vec::new(),
+        source_row,
         control,
     };
     let mut behavior = Vec::new();
@@ -700,7 +804,7 @@ pub(crate) fn prepare(
     let root = lower.build.junction(true, behavior)?;
     let root = lower.build.simplified(root)?;
     let dnf = lower.build.dnf(root, 0)?;
-    let checks = bins(&mut lower.build, dnf)?;
+    let (checks, opaque) = bins(&mut lower.build, dnf, source_row)?;
     let mut must = Vec::new();
     reserve(&mut must, lower.atoms.len())?;
     must.resize(lower.atoms.len(), false);
@@ -709,21 +813,83 @@ pub(crate) fn prepare(
             must[atom] = true;
         }
     }
-    if lower
-        .constant
-        .iter()
-        .enumerate()
-        .any(|(i, c)| !*c && !must[i])
+    if !source_row
+        && lower
+            .constant
+            .iter()
+            .enumerate()
+            .any(|(i, c)| !*c && !must[i])
     {
         return Err(refused("incomplete independent temporal MUST coverage"));
     }
     Ok(Program {
         atoms: lower.atoms,
+        tests: lower.tests,
         checks,
+        opaque,
     })
 }
 
 impl Program {
+    pub(crate) fn first_source_error(
+        &self,
+        model: &Model,
+        state: &crate::State,
+        control: Option<&dyn dive_eval::HostControl>,
+    ) -> Result<Option<EvalError>, FormulaError> {
+        for check in &self.checks {
+            let result = check.evaluate(
+                &mut |at| {
+                    if let Some(control) = control {
+                        control.check().map_err(EvalError::interrupted)?;
+                    }
+                    let pred = &self.atoms[at];
+                    let ev = &model.evaluator;
+                    let st = match self.tests[at] {
+                        AtomTest::Enabled { sub } => {
+                            return crate::enabled::source_enabled(model, pred, sub, state);
+                        }
+                        AtomTest::Nonstuttering { sub } => {
+                            // The separately replayed local destination is the source itself.
+                            // Preserve the reference's changed-first subscript demand.
+                            let here = St::state(state.clone());
+                            let before = ev.eval_scoped(&pred.scope, sub, &here)?;
+                            let after = ev.eval_scoped(&pred.scope, sub, &here)?;
+                            if ev.equal_values(&before, &after)? {
+                                return Ok(false);
+                            }
+                            St::action(state.clone(), state.clone())
+                        }
+                        AtomTest::Predicate => St::action(state.clone(), state.clone()),
+                    };
+                    match ev.eval_scoped(&pred.scope, pred.expr, &st)? {
+                        Value::Bool(value) => Ok(value),
+                        _ => Err(EvalError::unsupported(
+                            "nonboolean source-row endpoint atom",
+                        )),
+                    }
+                },
+                control,
+            );
+            if let Err(error) = result {
+                return match error {
+                    FormulaError::Evaluation(error)
+                        if error.class() == dive_eval::ErrorClass::Eval =>
+                    {
+                        Ok(Some(error))
+                    }
+                    other => Err(other),
+                };
+            }
+        }
+        if self.opaque {
+            return Err(refused(
+                "source-row endpoint reached the unimplemented tableau demand",
+            ));
+        }
+        Ok(None)
+    }
+
     /// The request supplies no selector: execute all own bins until first error.
     pub(crate) fn replay(
         &self,

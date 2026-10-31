@@ -425,6 +425,7 @@ impl<'a> Run<'a> {
         if matches!(
             trace.ending,
             Ending::TemporalStateError { .. }
+                | Ending::TemporalSourceError { .. }
                 | Ending::NextStateError { .. }
                 | Ending::CandidateStateError { .. }
                 | Ending::PartialNext { .. }
@@ -910,7 +911,7 @@ impl<'a> Run<'a> {
             }
             Ending::Behavior => Goal::Behavior,
             Ending::TemporalStateError { .. } => Goal::TemporalStateError,
-            Ending::NextStateError { .. }
+            Ending::NextStateError { .. } | Ending::TemporalSourceError { .. }
                 | Ending::CandidateStateError { .. } | Ending::PartialNext { .. } | Ending::PartialInit { .. } => Goal::NextStateError,
             Ending::Lasso { back_to } => {
                 if *back_to > last {
@@ -1732,6 +1733,10 @@ pub(crate) fn validate_next_prefix_controlled(
     Ok((report, run.passed))
 }
 
+#[allow(
+    clippy::too_many_lines,
+    reason = "one typed control boundary dispatches independently replayed terminal sites"
+)]
 pub(crate) fn replay_next_controlled(
     model: &Model,
     host: Arc<TraceHost>,
@@ -1801,6 +1806,15 @@ pub(crate) fn replay_next_controlled(
                 run.control.as_deref(),
             )
         }
+        Ending::TemporalSourceError { ec, endpoint } => crate::source_row::replay(
+            model,
+            state,
+            last,
+            ec,
+            endpoint,
+            &run.host,
+            run.control.as_deref(),
+        ),
         Ending::NextStateError { ec, endpoint } => crate::next_error::replay(
             model,
             state,

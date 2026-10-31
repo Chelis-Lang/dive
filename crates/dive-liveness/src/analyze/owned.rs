@@ -16,6 +16,8 @@ use dive_model::{ControlledBindError, Model, SymmetryLivenessResolution};
 use super::{Analysis, DetailedFailure, GraphLabelPolicy, Limits, periodic};
 use crate::product::AcceptancePolicy;
 
+pub use super::row_demand::SourceRowDriver;
+
 #[cfg(test)]
 #[path = "owned_tests.rs"]
 mod tests;
@@ -88,6 +90,46 @@ pub(super) fn native_hooks(
 }
 
 impl OwnedTemporal {
+    /// Consumes the fresh hidden runtime for the bounded native producer's
+    /// source-row error lane. Unknown source/provenance shapes return `None`.
+    /// No ordinary row or endpoint validity is established by construction.
+    ///
+    /// ```no_run
+    /// # fn select(runtime: dive_liveness::analyze::owned::OwnedTemporal)
+    /// # -> Result<bool, dive_liveness::analyze::AnalysisError> {
+    /// use dive_liveness::analyze::{GraphLabelPolicy, Limits};
+    /// let driver = runtime.source_row_driver(Limits::default(), GraphLabelPolicy::NoCellLimit)?;
+    /// // The native producer still supplies real events and validates any word.
+    /// # Ok(driver.is_some()) }
+    /// ```
+    ///
+    /// # Errors
+    /// The existing controlled planning, inspection or resource failure.
+    pub fn source_row_driver(
+        self,
+        limits: Limits,
+        graph_labels: GraphLabelPolicy,
+    ) -> Result<Option<SourceRowDriver>, super::AnalysisError> {
+        let _budget = crate::budget::enter(&self.options.budget);
+        let control = super::evaluator_control(&self.options)?;
+        let registration = control
+            .enter(&self.model.evaluator)
+            .map_err(|_| super::AnalysisError::Inconsistent("owned source-row control conflict"))?;
+        let plans = super::prepare(&self.model, limits, &control)?;
+        let authority = Authority { model: &self.model };
+        let program = super::row_demand::prepare_source(
+            &self.model,
+            &plans,
+            &self.options,
+            self.model.temporals.len(),
+            limits.formula,
+            graph_labels,
+            (Some(&authority), &control),
+        )?;
+        drop(registration);
+        Ok(program.map(|program| SourceRowDriver::new(self.model, plans, program, control)))
+    }
+
     /// The actual bound symmetry resolution, with no runtime handle.
     #[must_use]
     pub fn symmetry_liveness(&self) -> &SymmetryLivenessResolution {

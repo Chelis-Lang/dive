@@ -210,6 +210,16 @@ fn candidate_error_header(ec: &str, deciding: Option<u32>) -> Option<Ending> {
     }
 }
 
+fn source_error_header(ec: &str, result: &OracleResult, reported: Option<&Ending>) -> bool {
+    ec == "GENERAL"
+        && result.verdict == crate::tlc::result::Verdict::OtherError
+        && result.verdict_code == Some(1000)
+        && result.exit_code == Some(255)
+        && result.error_class.as_deref() == Some("GENERAL")
+        && result.violated_property.is_none()
+        && matches!(reported, Some(Ending::Error { ec: Some(code) }) if code == "GENERAL")
+}
+
 /// Validates an implementation's counterexample (`result.trace.json`, in
 /// dive's format) against `spec`. `golden` is the oracle's result for the
 /// same model, consulted only to confirm a deadlock (see the module
@@ -264,6 +274,9 @@ pub fn validate_counterexample(
                 == Some(Ending::Error {
                     ec: Some(ec.clone()),
                 })
+        }
+        Some(Ending::TemporalSourceError { ec, .. }) => {
+            source_error_header(ec, result, reported.as_ref())
         }
         Some(Ending::PartialNext { .. }) => {
             reported

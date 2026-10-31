@@ -294,3 +294,11 @@ id = "comparison-receiver-primary"
 path = "conformance/corpus/comparison-receiver-primary"
 license = "MIT"
 layout = "examples-manifest"
+
+# Original post-Next singleton source-row primary/error controls. Negative
+# unclassified configurations remain test controls, not invented oracle facts.
+[[corpus]]
+id = "fairness-primary"
+path = "conformance/corpus/fairness-primary"
+license = "MIT"
+layout = "examples-manifest"

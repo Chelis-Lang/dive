@@ -76,6 +76,54 @@ fn shape(heap: &Heap, h: Handle) -> String {
 }
 
 #[test]
+fn compound_native_sources_do_not_bind_the_optional_scalar_row_runtime() {
+    for tlc in [false, true] {
+        let opts = dive_core::Opts::default();
+        let cfg = "INIT Init\nNEXT Next\n";
+        let prepared = prepare(
+            "VARIABLE x\nInit == x = <<0>>\nNext == UNCHANGED x",
+            cfg,
+            tlc,
+            opts,
+        );
+        let options = options(tlc);
+        let mut sink = NativeSink::new(
+            &prepared.model,
+            prepared.store.clone(),
+            Limits::default(),
+            &options,
+            None,
+        )
+        .expect("sink");
+        sink.prepare_source_rows(SourceRowSetup {
+            ir: prepared.model.ir.clone(),
+            config: dive_config::parse("INIT Missing\nNEXT Missing\nPROPERTY Missing\n")
+                .into_config()
+                .expect("valid syntax but binding must never be attempted"),
+            options,
+            limits: dive_liveness::analyze::Limits::default(),
+            graph_labels: dive_liveness::analyze::GraphLabelPolicy::NoCellLimit,
+        });
+        let result = dive_explore::explore_with(
+            &prepared.plan,
+            &prepared.store,
+            config(opts, 1),
+            &|| false,
+            Some(&mut sink),
+        );
+        assert_eq!(result.verdict, dive_explore::Verdict::Success);
+        assert!(
+            sink.source_setup.is_none(),
+            "actual compound first source retires optional binding without attempting it"
+        );
+        assert!(sink.source_rows.is_none());
+        assert!(sink.take_source_error().is_none());
+        assert!(sink.take_error().is_none());
+        assert_eq!((result.stats.generated, result.stats.distinct), (2, 1));
+    }
+}
+
+#[test]
 #[allow(
     clippy::too_many_lines,
     reason = "one ordered alias and original-row matrix"

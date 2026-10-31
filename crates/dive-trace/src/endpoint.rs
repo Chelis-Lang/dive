@@ -128,6 +128,45 @@ impl TemporalStateEndpoint {
     }
 }
 
+/// Untrusted source of the first post-Next temporal-row error (native version 5).
+/// Fresh replay reconstructs Next and the complete ordered demand lifecycle;
+/// this descriptor contains no predicate selector or diagnostic-suppression flag.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct TemporalSourceEndpoint {
+    source: TemporalStateEndpoint,
+}
+
+impl TemporalSourceEndpoint {
+    /// Records an observed row error's source without establishing its class.
+    ///
+    /// ```no_run
+    /// # fn request(model: &dive_model::Model, error: &dive_eval::EvalError) {
+    /// let request = dive_trace::TemporalSourceEndpoint::from_error(model, error);
+    /// # let _ = request;
+    /// # }
+    /// ```
+    #[must_use]
+    pub fn from_error(model: &Model, error: &EvalError) -> Option<Self> {
+        (error.class() == ErrorClass::Eval)
+            .then(|| TemporalStateEndpoint::from_origin(&model.ir, error))
+            .flatten()
+            .map(|source| Self { source })
+    }
+
+    pub(crate) fn matches_error(&self, model: &Model, error: &EvalError) -> bool {
+        Self::from_error(model, error).as_ref() == Some(self)
+    }
+
+    pub(crate) fn to_json(&self) -> Value {
+        self.source.to_stage("temporal-source-row")
+    }
+
+    pub(crate) fn from_json(value: &Value) -> Result<Self, String> {
+        TemporalStateEndpoint::from_stage(value, "temporal-source-row")
+            .map(|source| Self { source })
+    }
+}
+
 /// Untrusted original source context for a Next error before any successor.
 /// The fresh validator enumerates the real configured actions independently;
 /// this descriptor selects no expression, action, scope or cached value.

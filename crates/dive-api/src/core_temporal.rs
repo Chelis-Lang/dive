@@ -245,6 +245,27 @@ fn check_configured_inner(
         Ok(control) => control,
         Err(error) => return internal(&error.to_string(), options, ir),
     };
+    let source_setup = match graph_check.source_rows_possible() {
+        Ok(true) => Some(crate::core_native_graph::SourceRowSetup {
+            ir: ir.clone(),
+            config: config.clone(),
+            options: options.clone(),
+            limits: configuration.limits,
+            graph_labels: configuration.graph_labels,
+        }),
+        Ok(false) => None,
+        Err(error) => {
+            let verdict = crate::core_native_graph::source_error(error);
+            let safety = crate::core_engine::result(verdict.clone(), options, ir);
+            return CoreOutcome::TemporalFailure(Box::new(crate::temporal::core_capture_stop(
+                verdict,
+                &safety,
+                false,
+                started,
+                graph_check.periodic_checks(),
+            )));
+        }
+    };
     let mut atoms = match crate::core_native_atoms::NativeAtoms::prepare(
         &model,
         &store,
@@ -305,6 +326,9 @@ fn check_configured_inner(
             );
         }
     };
+    if let Some(setup) = source_setup {
+        sink.prepare_source_rows(setup);
+    }
     run.searched = true;
     let mut out = dive_explore::explore_with_control(
         &plan,
@@ -322,6 +346,8 @@ fn check_configured_inner(
         Some(&crate::core_engine::search_work_control(budget)),
     );
     let graph_error = sink.take_error();
+    let source_error = sink.take_source_error();
+    let source_rows = sink.take_source_rows();
     let (graph, mut values) = sink.finish();
     run.metrics = crate::core_engine::metrics_json(&plan, &out.metrics, compile_time);
     let prefix = match out.verdict {
@@ -354,7 +380,79 @@ fn check_configured_inner(
         explore_started,
     };
     let producer_stats = out.stats;
+    let source_trace = source_rows
+        .as_ref()
+        .filter(|rows| rows.has_error())
+        .and(out.trace.clone());
     let mut safety = crate::core_engine::safety_result(&search, &model, &store, &plan, start, out);
+    if let Some(rows) =
+        source_rows.filter(dive_liveness::analyze::owned::SourceRowDriver::has_error)
+    {
+        if !matches!(&graph_error, Some(Verdict::Unsupported { feature }) if feature == crate::core_native_graph::SOURCE_ROW_STOP)
+        {
+            return internal("native source row lost its actual graph stop", options, ir);
+        }
+        let word = match source_trace {
+            Some(Ok(trace)) => match crate::core_engine::counterexample(&model, &store, &trace) {
+                Ok(word) => word,
+                Err(error) => return internal(&error, options, ir),
+            },
+            Some(Err(error)) => return internal(&error, options, ir),
+            None => {
+                return internal(
+                    "native source row has no reconstructed source word",
+                    options,
+                    ir,
+                );
+            }
+        };
+        safety.verdict = Verdict::Unsupported {
+            feature: crate::core_native_graph::SOURCE_ROW_STOP.into(),
+        };
+        safety.stats = Some(dive_check::Stats {
+            generated: producer_stats.generated,
+            distinct: producer_stats.distinct,
+            depth: producer_stats.depth,
+            left_on_queue: producer_stats.left_on_queue,
+            initial_generated: producer_stats.initial_generated,
+        });
+        safety.counterexample = Some(word);
+        let state = match rows.finish(&safety) {
+            Ok(Some(state)) => state,
+            Ok(None) => return internal("native source row lost its sealed evidence", options, ir),
+            Err(error) => return internal(&error.to_string(), options, ir),
+        };
+        let failure = crate::temporal::core_source_row_failure(
+            ir,
+            config,
+            options,
+            state,
+            &safety,
+            graph_check.periodic_checks(),
+            started,
+        );
+        record_metrics(run, &graph, &values, &atoms);
+        return CoreOutcome::TemporalFailure(Box::new(failure));
+    }
+    if let Some(error) = source_error {
+        safety.verdict = error.clone();
+        safety.stats = Some(dive_check::Stats {
+            generated: producer_stats.generated,
+            distinct: producer_stats.distinct,
+            depth: producer_stats.depth,
+            left_on_queue: producer_stats.left_on_queue,
+            initial_generated: producer_stats.initial_generated,
+        });
+        let failure = crate::temporal::core_capture_stop(
+            error,
+            &safety,
+            false,
+            started,
+            graph_check.periodic_checks(),
+        );
+        record_metrics(run, &graph, &values, &atoms);
+        return CoreOutcome::TemporalFailure(Box::new(failure));
+    }
     if matches!(safety.verdict, Verdict::BudgetMeasurement { .. }) {
         safety.stats = Some(dive_check::Stats {
             generated: producer_stats.generated,

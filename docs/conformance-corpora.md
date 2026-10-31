@@ -790,6 +790,24 @@ separate from broader function-constructor or EWD capacity qualification. Model
 goldens are generated through the official harness with a recorded reason;
 raw clean/trace invocations remain outside the repository.
 
+## Bounded temporal source-row errors
+
+`fairness-primary` retains five classified one-worker GENERAL1000/255 controls:
+the original Next-failure and safe-Next specimens, action-before-state priority,
+a quiet action before a state error, and a complete self emission before a Next
+failure. All require exact generated/distinct/depth facts, no named property and
+an independently validated finite source word. The API fixtures and corpus
+inputs are byte-bound in the reader integration test.
+
+Four additional modules are SANY controls only. The Plain/OtherFair oracle
+streams remain unclassified; DifferentPrimary and CandidateBeforeTemporal have
+different retained-primary or terminal-word contracts outside this capability.
+They must not acquire the new GENERAL source ending. Their existing configs are
+kept as negative tests, with no invented model golden or agreement credit.
+All five model and nine SANY goldens come from the official harness with a
+recorded reason. Raw runs remain external. This adds no parity population or
+performance acceptance claim beyond these selected controls.
+
 The whole-function-error control forces `F=F` for that partial function. Its
 fresh diagnostic receiver catches the underlying division2179 and decides
 TLC_FINGERPRINT_EXCEPTION2147 with exit75, 1 generated and distinct state,

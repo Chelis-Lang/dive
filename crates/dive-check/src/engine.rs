@@ -1059,6 +1059,7 @@ impl<S: Keyed> Search<'_, '_, S> {
         source: StateId,
         values: &StateVals,
         stats: Stats,
+        next_error: Option<&EvalError>,
     ) -> Result<(), Verdict> {
         if self.primary.is_none() {
             return Ok(());
@@ -1090,6 +1091,7 @@ impl<S: Keyed> Search<'_, '_, S> {
                     stats,
                     edges,
                     concrete,
+                    next_error,
                 },
                 &self.control,
             )?;
@@ -1423,7 +1425,7 @@ impl<S: Keyed> Search<'_, '_, S> {
                 ..self.stats(next.len() as u64)
             };
             if let Err(verdict) =
-                self.observe_checkpoint(crate::capture::CheckpointPhase::Init, id, &t, stats)
+                self.observe_checkpoint(crate::capture::CheckpointPhase::Init, id, &t, stats, None)
             {
                 let with = self
                     .primary
@@ -1718,6 +1720,26 @@ impl<S: Keyed> Search<'_, '_, S> {
                             .then(|| (id, s0.clone())),
                         then: None,
                     });
+                    // TLC still processes the liveness row after a genuine
+                    // Next failure. This event records that terminal boundary;
+                    // it does not add a stutter or close the errored row.
+                    if e.error.class() == dive_eval::ErrorClass::Eval && self.primary.is_some() {
+                        let stats = self.stats(((count - i - 1) + next.len()) as u64);
+                        if let Err(verdict) = self.observe_checkpoint(
+                            crate::capture::CheckpointPhase::TerminalSourceRow,
+                            id,
+                            s0,
+                            stats,
+                            Some(&e.error),
+                        ) {
+                            stop = Some(Stop {
+                                verdict,
+                                in_init: false,
+                                path: Some((id, s0.clone())),
+                                then: None,
+                            });
+                        }
+                    }
                 }
                 // Composition intermediates consume the capture generation
                 // bound too. Check before stutter/level publication, preserving
@@ -1778,6 +1800,7 @@ impl<S: Keyed> Search<'_, '_, S> {
                         id,
                         s0,
                         stats,
+                        None,
                     ) {
                         let path = self
                             .primary

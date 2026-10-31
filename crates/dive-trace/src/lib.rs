@@ -82,6 +82,7 @@ mod ordered;
 mod partial;
 mod row_demand;
 mod session;
+mod source_row;
 pub mod temporal;
 pub mod tlc;
 mod trace;
@@ -92,7 +93,7 @@ use dive_model::Model;
 
 pub use endpoint::{
     CandidateErrorSite, CandidateStateEndpoint, NextStateEndpoint, PartialNextEndpoint,
-    PartialStateEndpoint, TemporalStateEndpoint,
+    PartialStateEndpoint, TemporalSourceEndpoint, TemporalStateEndpoint,
 };
 pub use format::{Ending, Label, Source, TraceDoc};
 pub use invariant_error::{InitialErrorStage, InitialInvariantClass};

@@ -5,6 +5,16 @@
   and generated-count pairs are bound; TLC-mode results, goldens, trace checks
   and strict agreement are unchanged.
 
+- Native trace version5 adds independently replayed `temporal-source-row`
+  errors. At one worker, bounded scalar self rows retain TLC's GENERAL1000/255
+  after actual Next/ordered-row/diagnostic execution and fresh word validation,
+  in both engines. The native path binds at most once, after its sole Init state
+  reaches the first scalar source event; compound action execution keeps its existing path.
+  Reports stay schema3 and traces1–4 keep their meanings. Unproved temporal
+  action-candidate primaries now refuse instead of claiming ordinary2103/75.
+  Consumers need advance migration notice and updated readers before landing
+  or advancing pins (ADR 0132).
+
 - Core temporal analysis can evaluate proved interval function construction,
   bounded interval CHOOSE and single-key scalar EXCEPT/@ inside ordinary
   action predicates and scoped non-stuttering checks. Exact original values,

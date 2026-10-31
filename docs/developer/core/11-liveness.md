@@ -456,7 +456,34 @@ counters. Planning, factory, analysis and validation budget failures use the
 existing detailed failure renderer, preserving actual stage and full/prefix truth.
 Already-observed periodic failures precede post-stop factory polls. `--engine auto` retries the reference route for the named refusals;
 it does not turn actual native budget stops into successful prefixes. Temporal
-error-demand/report parity remains separate work (§11).
+error-demand/report parity remains bounded by the source-row lane below (§11).
+
+The optional source-error lane consumes a source-bound `OwnedTemporal` into a
+hidden row driver. A borrowed `GraphCheck` supplies only callback-free eligibility
+inspection. Native binding occurs at most once, at the first actual scalar source
+event; compound roots do not bind or run reference
+fairness work. Existing constructed native action evaluation remains independent.
+This first slice requires exactly one actual initial emission and accepted root,
+then attempts only the first actually reached source. An unproved or quiet first
+row disables it permanently, so no earlier row/residual is skipped
+to promote a later error; ordinary analysis continues with its existing boundary.
+
+`GraphSink::source_row` and reference checkpoint transport distinguish a real
+Next-error terminal boundary from successful source expansion. Terminal events
+retain the original failure, accepted concrete targets and actual counters; they
+publish no implicit stutter, closed row or complete/prefix receipt. Native
+generation is locally reproduced against its actual scalar self inventory
+before row predicates run. Candidate-check errors retain their earlier event
+priority and do not become source-row errors.
+
+Separate `SourceProgram`/`SourceCertificate` types preserve the old full-MUST
+row cache. They reuse normalization, support one DNF solution's AEAction and
+EAAction bins before state bins, and treat later state-only tableau work as an
+opaque barrier. Actual row and diagnostic errors can establish bounded primary
+suppression before that barrier, with no residual/holding truth. Only fresh
+independent version5 source replay permits publication of GENERAL1000/255 and
+the original finite word. Other primary, candidate-ending and parallel scopes
+remain explicit refusals (#502/#678); candidate scope earns no new parity credit.
 
 `Fallback::of` treats the temporal route's refusals like any other refusal,
 so `--engine auto` falls back with the reason named. The JSON report gains

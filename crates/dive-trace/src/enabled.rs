@@ -156,6 +156,49 @@ pub fn enabled(
     })
 }
 
+/// Typed source-row query after independent canonical/context admission.
+pub(crate) fn source_enabled(
+    model: &Model,
+    action: &Pred,
+    nonstuttering: Option<dive_ir::ExprId>,
+    state: &State,
+) -> Result<bool, dive_eval::EvalError> {
+    model
+        .evaluator
+        .validate_predicate(&action.scope, action.expr)?;
+    if let Some(sub) = nonstuttering {
+        model.evaluator.validate_predicate(&action.scope, sub)?;
+    }
+    let guard = ComposeGuard::install(model);
+    let result =
+        model
+            .evaluator
+            .enabled_scoped(&action.scope, action.expr, nonstuttering, state.clone());
+    let composed = guard.composed();
+    drop(guard);
+    if let Err(error) = &result
+        && matches!(
+            error.class(),
+            dive_eval::ErrorClass::Interrupted
+                | dive_eval::ErrorClass::ResourceLimit
+                | dive_eval::ErrorClass::Bug
+        )
+    {
+        return Err(error.clone());
+    }
+    if composed {
+        return Err(dive_eval::EvalError::unsupported(
+            crate::COMPOSITION_UNSUPPORTED,
+        ));
+    }
+    if model.has_runtime_names() {
+        return Err(dive_eval::EvalError::unsupported(
+            crate::RUNTIME_NAMES_UNSUPPORTED,
+        ));
+    }
+    result
+}
+
 /// The host an `ENABLED` search runs under: the installed host, except that
 /// action composition is refused ([`crate::COMPOSITION_UNSUPPORTED`]) as
 /// replay refuses it, and lazy values live in a cache domain of the

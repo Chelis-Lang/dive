@@ -5,6 +5,7 @@ use super::{FormulaError, Node, push, reserve};
 
 pub(super) struct Build<'a> {
     pub(super) nodes: Vec<Node>,
+    pub(super) atom_levels: Vec<u8>,
     control: Option<&'a dyn dive_eval::HostControl>,
 }
 
@@ -31,6 +32,7 @@ impl<'a> Build<'a> {
     pub(super) fn new(control: Option<&'a dyn dive_eval::HostControl>) -> Self {
         Self {
             nodes: Vec::new(),
+            atom_levels: Vec::new(),
             control,
         }
     }
@@ -343,11 +345,16 @@ impl<'a> Build<'a> {
         let mut pending = Vec::new();
         push(&mut pending, root)?;
         let mut level = 0;
+        let mut action = false;
         while let Some(at) = pending.pop() {
             self.step(0)?;
             match &self.nodes[at] {
                 Node::Bool(_) => {}
-                Node::Atom(_) => level = level.max(1),
+                Node::Atom(atom) => {
+                    let atom_level = self.atom_levels.get(*atom).copied().unwrap_or(1);
+                    level = level.max(atom_level);
+                    action |= atom_level == 2;
+                }
                 Node::Always(c) | Node::Eventually(c) => {
                     level = 3;
                     push(&mut pending, *c)?;
@@ -359,7 +366,7 @@ impl<'a> Build<'a> {
                 }
             }
         }
-        Ok((level, false))
+        Ok((level, action))
     }
 }
 fn copy(values: &[usize]) -> Result<Vec<usize>, FormulaError> {
