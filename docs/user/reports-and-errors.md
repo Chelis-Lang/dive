@@ -10,8 +10,9 @@ Source-qualified tuple/record comparison failures in the first initial
 invariant can use the same deciding class after actual Init and diagnostic
 replay. TLC records an initial diagnostic state without a formal counterexample
 for these controls. The report therefore keeps `counterexample: null` and
-provides optional `diagnostic_witness`: an existing native version-2 named
-invariant-error word containing the original cause, not the deciding wrapper.
+provides optional `diagnostic_witness: {"trace": ...}`. Extract
+`diagnostic_witness.trace` as the existing native version-2 named invariant-error
+word containing the original cause, not the deciding wrapper.
 This field is separate from the partial-Init `error_witness`.
 
 For this newly admitted initial classification, automation must require both

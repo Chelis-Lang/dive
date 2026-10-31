@@ -340,6 +340,21 @@ impl SpecModel {
             .map_err(|error| ValidationRunError::ThreadFailure(error.to_string()))?
     }
 
+    /// Independently reconstructs the actual first initial error stage on a
+    /// fresh source-bound runtime. Header fields do not select this route.
+    /// An invariant-receiver stage still needs its auxiliary word and separate
+    /// [`Self::initial_invariant_class`] proof before a wrapper is established.
+    ///
+    /// # Errors
+    /// Actual interruption, resource, binding, control or isolated-thread failure.
+    pub fn initial_error_stage(
+        &self,
+        control: Option<Arc<dyn dive_eval::HostControl>>,
+    ) -> Result<(Report, Option<dive_trace::InitialErrorStage>), ValidationRunError> {
+        on_big_stack(|| self.session.initial_error_stage(control))
+            .map_err(|error| ValidationRunError::ThreadFailure(error.to_string()))?
+    }
+
     /// Validates a trace already read against this model.
     #[must_use]
     pub fn validate_trace(&self, trace: &Trace) -> Report {

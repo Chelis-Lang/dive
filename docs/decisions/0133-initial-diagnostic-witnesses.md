@@ -27,7 +27,9 @@ meaning must not be widened to cover a complete initial diagnostic state.
 
 1. Preserve the formal initial counterexample's absence, including in the public
    report. Add optional schema-3 `diagnostic_witness` for the separately owned
-   initial diagnostic source. Keep existing `error_witness`, `counterexample`,
+   initial diagnostic source, shaped as `{"trace": <native-v2 document>}`.
+   Extract the auxiliary word at `diagnostic_witness.trace`. Keep existing
+   `error_witness`, `counterexample`,
    native versions and ordinary trace comparison rules unchanged.
 2. The auxiliary payload uses the existing native version-2
    `invariant-error` ending, with the configured invariant name and original
@@ -49,6 +51,10 @@ meaning must not be widened to cover a complete initial diagnostic state.
    oracle's formal trace is absent. Missing, mutated, unproved or refused
    diagnostic evidence cannot earn agreement. The normalized formal trace stays
    absent; exits, classes, counts and depth retain their ordinary comparisons.
+   Fresh actual initial execution determines whether this auxiliary is required;
+   removing it and mutating claimed report/site metadata cannot select a legacy
+   no-witness route. Genuine generation and legacy materialization paths require
+   their own source-derived stage and classification facts.
 
 ## Consequences
 

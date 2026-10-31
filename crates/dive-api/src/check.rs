@@ -1314,6 +1314,7 @@ impl CheckReport {
     ///                       "states": [ { "index", "label", "action",
     ///                                     "values": { var: TLC JSON }, "text" } ],
     ///                       "trace": dive-trace document | null } | null,
+    ///   "diagnostic_witness": { "trace": native-v2 named cause document }, // optional
     ///   "collision": { "store", "scheme", "optimistic", "actual", "assumption" } | null,
     ///   "output": [ string ], "warnings": [ { "code", "message" } ],
     ///   "diagnostics": [ ... ], "notes": [ string ],
