@@ -43,6 +43,15 @@
   permission or strict-profile waiver and never counts as agreement. This does
   not specify the answer to arbitrary mixed-type comparisons.
 
+- **Receiver comparison controls (D-009).** Eleven exact models in
+  `comparison-receiver-primary` preserve the existing extensional function
+  comparison policy. Default successes were reproduced before and after the
+  receiver-provenance change, in both engines. The registry binds each exit
+  and generated-count pair separately; only `NextLiteral` and
+  `SubsequentInvariant` need the existing finite-error-word versus success
+  length/ending distinction. No invalid-word or independent-validation field
+  is permitted. These outcomes are expected divergences, never agreement.
+
 - **Introspecting specs.** Specs can legitimately depend on `TLCGet("config").worker`. The owner-approved default reports logical 1; `--compat=tlc` reports the requested physical count, matching TLC. `MCDieHardest` therefore runs in the default profile at any width but fails its assumption under multi-worker compat mode. Physical threads remain visible in the result (D-011).
 
 - **Finite temporal prefixes (D-008).** `QtEmpty` prints temporal violation 2116

@@ -301,3 +301,127 @@ fields = []
 unreduced_symmetry_counts = { expected = [1, 2, 1], actual = [2, 3, 2] }
 justification = "D-005: approved whole-run unreduced symmetry, with the exact no-SYMMETRY primary reference (2 distinct, 3 generated, depth 2). The reduced TLC original is 1/2/1. The actual native unreduced mode and every tuple fact are required; no arbitrary verdict or count difference is excused."
 link = "docs/divergences.md#symmetry-with-liveness"
+
+# D-009: existing default behavior of the receiver-provenance controls.
+# Each exact path, exit and generated pair is measured; no TLC or trace-validation waiver.
+
+[[divergence]]
+id = "d009-receiver-initgeneration"
+pattern = "specifications/InitGeneration/InitGeneration.cfg"
+profile = "dive"
+exit_code_pair = { expected = 75, actual = 0 }
+generated_count_pair = { expected = 0, actual = 2 }
+expected_verdict = "success"
+fields = ["verdict", "error_class", "counts.distinct_states", "counts.depth"]
+justification = "Existing D-009 extensional equality distinguishes tuple and record function domains, so the configured comparison succeeds by default. This exact control completes with 1 distinct/2 generated/depth1; TLC stops with TLC_FINGERPRINT_EXCEPTION. No strict-profile or trace-validation difference is authorized."
+link = "docs/divergences.md#registry"
+
+[[divergence]]
+id = "d009-receiver-initialliteral"
+pattern = "specifications/InitialLiteral/InitialLiteral.cfg"
+profile = "dive"
+exit_code_pair = { expected = 75, actual = 0 }
+generated_count_pair = { expected = 1, actual = 3 }
+expected_verdict = "success"
+fields = ["verdict", "error_class", "counts.distinct_states", "counts.depth"]
+justification = "Existing D-009 extensional equality distinguishes tuple and record function domains, so the configured comparison succeeds by default. This exact control completes with 3 distinct/3 generated/depth3; TLC stops with TLC_FINGERPRINT_EXCEPTION. No strict-profile or trace-validation difference is authorized."
+link = "docs/divergences.md#registry"
+
+[[divergence]]
+id = "d009-receiver-initialstateleft"
+pattern = "specifications/InitialStateLeft/InitialStateLeft.cfg"
+profile = "dive"
+exit_code_pair = { expected = 75, actual = 0 }
+generated_count_pair = { expected = 1, actual = 2 }
+expected_verdict = "success"
+fields = ["verdict", "error_class"]
+justification = "Existing D-009 extensional equality distinguishes tuple and record function domains, so the configured comparison succeeds by default. This exact control completes with 1 distinct/2 generated/depth1; TLC stops with TLC_FINGERPRINT_EXCEPTION. No strict-profile or trace-validation difference is authorized."
+link = "docs/divergences.md#registry"
+
+[[divergence]]
+id = "d009-receiver-initialstateright"
+pattern = "specifications/InitialStateRight/InitialStateRight.cfg"
+profile = "dive"
+exit_code_pair = { expected = 75, actual = 0 }
+generated_count_pair = { expected = 1, actual = 2 }
+expected_verdict = "success"
+fields = ["verdict", "error_class"]
+justification = "Existing D-009 extensional equality distinguishes tuple and record function domains, so the configured comparison succeeds by default. This exact control completes with 1 distinct/2 generated/depth1; TLC stops with TLC_FINGERPRINT_EXCEPTION. No strict-profile or trace-validation difference is authorized."
+link = "docs/divergences.md#registry"
+
+[[divergence]]
+id = "d009-receiver-initialtuplenested"
+pattern = "specifications/InitialTupleNested/InitialTupleNested.cfg"
+profile = "dive"
+exit_code_pair = { expected = 75, actual = 0 }
+generated_count_pair = { expected = 1, actual = 3 }
+expected_verdict = "success"
+fields = ["verdict", "error_class", "counts.distinct_states", "counts.depth"]
+justification = "Existing D-009 recursive function equality treats the nested integer/Boolean tuple values as unequal; direct scalar comparison rules stay unchanged. This exact control completes with 3 distinct/3 generated/depth3; TLC stops with TLC_FINGERPRINT_EXCEPTION. No strict-profile or trace-validation difference is authorized."
+link = "docs/divergences.md#registry"
+
+[[divergence]]
+id = "d009-receiver-instancetuple"
+pattern = "specifications/InstanceTuple/InstanceTuple.cfg"
+profile = "dive"
+exit_code_pair = { expected = 75, actual = 0 }
+generated_count_pair = { expected = 1, actual = 3 }
+expected_verdict = "success"
+fields = ["verdict", "error_class", "counts.distinct_states", "counts.depth"]
+justification = "Existing D-009 extensional equality distinguishes tuple and record function domains, so the configured comparison succeeds by default. This exact control completes with 3 distinct/3 generated/depth3; TLC stops with TLC_FINGERPRINT_EXCEPTION. No strict-profile or trace-validation difference is authorized."
+link = "docs/divergences.md#registry"
+
+[[divergence]]
+id = "d009-receiver-issue620"
+pattern = "specifications/Issue620/Issue620.cfg"
+profile = "dive"
+exit_code_pair = { expected = 75, actual = 0 }
+generated_count_pair = { expected = 1, actual = 3 }
+expected_verdict = "success"
+fields = ["verdict", "error_class", "counts.distinct_states", "counts.depth"]
+justification = "Existing D-009 extensional equality distinguishes tuple and record function domains, so the configured comparison succeeds by default. This exact control completes with 3 distinct/3 generated/depth3; TLC stops with TLC_FINGERPRINT_EXCEPTION. No strict-profile or trace-validation difference is authorized."
+link = "docs/divergences.md#registry"
+
+[[divergence]]
+id = "d009-receiver-lettuple"
+pattern = "specifications/LetTuple/LetTuple.cfg"
+profile = "dive"
+exit_code_pair = { expected = 75, actual = 0 }
+generated_count_pair = { expected = 1, actual = 3 }
+expected_verdict = "success"
+fields = ["verdict", "error_class", "counts.distinct_states", "counts.depth"]
+justification = "Existing D-009 extensional equality distinguishes tuple and record function domains, so the configured comparison succeeds by default. This exact control completes with 3 distinct/3 generated/depth3; TLC stops with TLC_FINGERPRINT_EXCEPTION. No strict-profile or trace-validation difference is authorized."
+link = "docs/divergences.md#registry"
+
+[[divergence]]
+id = "d009-receiver-nextliteral"
+pattern = "specifications/NextLiteral/NextLiteral.cfg"
+profile = "dive"
+exit_code_pair = { expected = 75, actual = 0 }
+generated_count_pair = { expected = 1, actual = 3 }
+expected_verdict = "success"
+fields = ["verdict", "error_class", "counts.distinct_states", "counts.depth", "trace.length", "trace.ending"]
+justification = "Existing D-009 extensional equality distinguishes tuple and record function domains, so the configured comparison succeeds by default. This exact control completes with 3 distinct/3 generated/depth3; TLC stops with TLC_FINGERPRINT_EXCEPTION. No strict-profile or trace-validation difference is authorized."
+link = "docs/divergences.md#registry"
+
+[[divergence]]
+id = "d009-receiver-recordliteral"
+pattern = "specifications/RecordLiteral/RecordLiteral.cfg"
+profile = "dive"
+exit_code_pair = { expected = 75, actual = 0 }
+generated_count_pair = { expected = 1, actual = 3 }
+expected_verdict = "success"
+fields = ["verdict", "error_class", "counts.distinct_states", "counts.depth"]
+justification = "Existing D-009 extensional equality distinguishes tuple and record function domains, so the configured comparison succeeds by default. This exact control completes with 3 distinct/3 generated/depth3; TLC stops with TLC_FINGERPRINT_EXCEPTION. No strict-profile or trace-validation difference is authorized."
+link = "docs/divergences.md#registry"
+
+[[divergence]]
+id = "d009-receiver-subsequentinvariant"
+pattern = "specifications/SubsequentInvariant/SubsequentInvariant.cfg"
+profile = "dive"
+exit_code_pair = { expected = 76, actual = 0 }
+generated_count_pair = { expected = 2, actual = 3 }
+expected_verdict = "success"
+fields = ["verdict", "error_class", "counts.distinct_states", "counts.depth", "trace.length", "trace.ending"]
+justification = "Existing D-009 extensional equality distinguishes tuple and record function domains, so the configured comparison succeeds by default. This exact control completes with 3 distinct/3 generated/depth3; TLC stops with TLC_INVARIANT_EVALUATION_FAILED. No strict-profile or trace-validation difference is authorized."
+link = "docs/divergences.md#registry"

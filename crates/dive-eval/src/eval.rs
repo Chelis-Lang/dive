@@ -148,7 +148,7 @@ impl Core {
         match self.eval_inner(env, st, e) {
             Ok(Ev::F(f)) if st.is(control::DIAGNOSTIC) => Ok(Ev::F(f.diagnostic_copy())),
             Ok(v) => Ok(v),
-            Err(err) => Err(err.at(e)),
+            Err(err) => Err(err.qualify_receiver(self.receiver_domain.as_ref()).at(e)),
         }
     }
 
@@ -473,7 +473,11 @@ impl Core {
                 for &i in items {
                     vals.push(self.eval_embed(env, st, i)?);
                 }
-                Ok(Ev::V(Value::tuple(vals)))
+                let value = match &self.receiver_domain {
+                    Some(domain) => domain.tuple(vals, e.0, st.is(control::DIAGNOSTIC)),
+                    None => Value::tuple(vals),
+                };
+                Ok(Ev::V(value))
             }
             Expr::Record(fields) => {
                 // OPCODE_rc
@@ -482,7 +486,13 @@ impl Core {
                 for (f, a) in fields.iter().zip(names.iter()) {
                     out.push((a.clone(), self.eval_embed(env, st, f.value)?));
                 }
-                Ok(Ev::V(Value::record(out, self.ctx)?))
+                let value = match &self.receiver_domain {
+                    Some(domain) => {
+                        domain.record(out, self.ctx, e.0, st.is(control::DIAGNOSTIC))?
+                    }
+                    None => Value::record(out, self.ctx)?,
+                };
+                Ok(Ev::V(value))
             }
             Expr::RecordSet(fields) => {
                 // OPCODE_sor

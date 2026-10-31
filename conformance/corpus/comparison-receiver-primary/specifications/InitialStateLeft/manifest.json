@@ -1,0 +1,26 @@
+{
+  "sources": [
+    "docs/developer/core/02-semantic-contract.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "comparison-receiver-primary"
+  ],
+  "modules": [
+    {
+      "path": "specifications/InitialStateLeft/InitialStateLeft.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/InitialStateLeft/InitialStateLeft.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}

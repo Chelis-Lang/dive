@@ -486,9 +486,15 @@ tracks actual lazy-function construction and `toFcnRcd` catches, including
 CallStackTool's returned-lambda copy dropping source. A pure failed initial
 invariant is actually reevaluated with source attachment; a matching newly
 constructed receiver can establish2147 without changing its underlying cause.
-Both execution engines consume that replay. Other value methods, stored and
-precomputed receivers remain explicitly unverified until their lifetime is
-proved; the harness treats unverified classes as `unsupported`.
+Both execution engines consume that replay. The reference also retains sealed
+constructor/source-hook facts for actual tuple/record equality catches. A pure
+initial invariant can replay the actual Init generator for its first, history-free emission and
+first invariant (without constraints, VIEW or symmetry), rebuilding an initial-state receiver with its real diagnostic lifetime.
+Constructor facts are evaluator-owned and excluded from value identity/storage;
+foreign, precomputed and stored-Next receivers acquire no source by reuse.
+Other value methods and unproved lifetimes remain explicitly unverified; the
+harness treats unverified classes as `unsupported`. TLC-core comparison refusals
+remain unchanged for these selected tuple/record controls.
 - Profile: both.
 - Evidence: `ModelChecker.java:302-305`; `class.rs:26-31`, `:86-99`; fixtures
   `ErWrap*`; `crates/dive-check/tests/fixtures/errors/README.md`.

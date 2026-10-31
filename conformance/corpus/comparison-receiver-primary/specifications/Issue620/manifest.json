@@ -1,0 +1,26 @@
+{
+  "sources": [
+    "docs/developer/core/02-semantic-contract.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "comparison-receiver-primary"
+  ],
+  "modules": [
+    {
+      "path": "specifications/Issue620/Issue620.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/Issue620/Issue620.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}

@@ -93,8 +93,8 @@ use dive_model::{BindError, BindOptions, ErrorKind, Message};
 pub use options::CheckOptions;
 pub use render::{format_trace_state, render_human};
 pub use result::{
-    CheckResult, Collision, Counterexample, ErrorSite, PartialState, PredecessorUsage, Stats,
-    TlcClass, TraceState, Verdict, Workers, tlc_exit_status,
+    CheckResult, Collision, Counterexample, DiagnosticWitness, ErrorSite, PartialState,
+    PredecessorUsage, Stats, TlcClass, TraceState, Verdict, Workers, tlc_exit_status,
 };
 
 /// Checks the model `cfg` of the lowered specification `ir`.
@@ -339,6 +339,7 @@ fn bare(verdict: Verdict, opts: &CheckOptions, ir: &Ir) -> CheckResult {
         stats: None,
         tlc_prints_stats: false,
         counterexample: None,
+        diagnostic_witness: None,
         collision: None,
         store: opts.store,
         fp_index: (opts.store == dive_store::StoreMode::Fingerprint).then_some(opts.fp_index),
@@ -607,6 +608,24 @@ fn finish_bound_check(
     r.stats = outcome.stats;
     r.tlc_prints_stats = outcome.tlc_prints_stats;
     r.counterexample = outcome.counterexample;
+    if matches!(
+        &r.verdict,
+        Verdict::EvaluationError {
+            site: ErrorSite::Invariant,
+            code: 2147,
+            reported: 2102,
+            verified: true,
+            invariant: Some(_),
+            ..
+        }
+    ) {
+        // TLC records this initial diagnostic state, not a behavior trace.
+        // Preserve its original values separately without cloning or granting
+        // a formal counterexample/independent-wrapper certificate.
+        r.diagnostic_witness = r.counterexample.take().map(|context| DiagnosticWitness {
+            states: context.states,
+        });
+    }
     r.collision = outcome.collision;
     r.workers = outcome.workers;
     r.output.extend(outcome.output);

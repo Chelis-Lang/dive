@@ -133,6 +133,7 @@ impl Core {
         let mut g = Gen {
             core: self,
             init: false,
+            diagnostic: false,
             s0,
             s1: t,
             action: &action,
@@ -214,6 +215,7 @@ impl Gen<'_, '_> {
             let mut g = Gen {
                 core,
                 init: false,
+                diagnostic: false,
                 s0: self.s0.clone(),
                 s1: copy_with(&core.composition_current(&self.s0)?, &self.s1),
                 action: self.action,
@@ -234,6 +236,7 @@ impl Gen<'_, '_> {
             let mut g = Gen {
                 core,
                 init: false,
+                diagnostic: false,
                 s0: StateRef::Vals(t),
                 s1: self.s1.clone(),
                 action,

@@ -51,8 +51,8 @@ use std::sync::Arc;
 
 pub use dive_trace::mutate::{ControlMode, Mutant};
 pub use dive_trace::{
-    Check, DEADLOCK_UNSUPPORTED, Ending, Failure, Report, State, Trace, TraceDoc, Validation,
-    ValidationRunError,
+    Check, DEADLOCK_UNSUPPORTED, Ending, Failure, InitialErrorStage, InitialInvariantClass, Report,
+    State, Trace, TraceDoc, Validation, ValidationRunError,
 };
 use serde_json::{Value, json};
 
@@ -312,6 +312,47 @@ impl SpecModel {
             Ok((report, trace))
         })
         .map_err(|error| ValidationRunError::ThreadFailure(error.to_string()))?
+    }
+
+    /// Validates a named invariant-error word and separately reconstructs its
+    /// actual first-Init diagnostic classification on a fresh private runtime.
+    /// A valid word alone does not grant a deciding-wrapper certificate.
+    ///
+    /// ```no_run
+    /// # fn check(model: &dive_api::trace::SpecModel, doc: &dive_api::trace::TraceDoc)
+    /// # -> Result<(), dive_api::trace::ValidationRunError> {
+    /// let (word, class) = model.initial_invariant_class(doc, None)?;
+    /// if let Some(class) = class {
+    ///     assert_eq!(class.deciding_code(), 2147);
+    /// }
+    /// # let _ = word; Ok(()) }
+    /// ```
+    ///
+    /// # Errors
+    /// Resource exhaustion, actual host interruption, control conflict or
+    /// isolated thread failure; no completed class proof is returned then.
+    pub fn initial_invariant_class(
+        &self,
+        doc: &TraceDoc,
+        control: Option<Arc<dyn dive_eval::HostControl>>,
+    ) -> Result<(Report, Option<dive_trace::InitialInvariantClass>), ValidationRunError> {
+        on_big_stack(|| self.session.initial_invariant_class(doc, control))
+            .map_err(|error| ValidationRunError::ThreadFailure(error.to_string()))?
+    }
+
+    /// Independently reconstructs the actual first initial error stage on a
+    /// fresh source-bound runtime. Header fields do not select this route.
+    /// An invariant-receiver stage still needs its auxiliary word and separate
+    /// [`Self::initial_invariant_class`] proof before a wrapper is established.
+    ///
+    /// # Errors
+    /// Actual interruption, resource, binding, control or isolated-thread failure.
+    pub fn initial_error_stage(
+        &self,
+        control: Option<Arc<dyn dive_eval::HostControl>>,
+    ) -> Result<(Report, Option<dive_trace::InitialErrorStage>), ValidationRunError> {
+        on_big_stack(|| self.session.initial_error_stage(control))
+            .map_err(|error| ValidationRunError::ThreadFailure(error.to_string()))?
     }
 
     /// Validates a trace already read against this model.

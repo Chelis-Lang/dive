@@ -1,0 +1,26 @@
+{
+  "sources": [
+    "docs/developer/core/02-semantic-contract.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "comparison-receiver-primary"
+  ],
+  "modules": [
+    {
+      "path": "specifications/NextDivZero/NextDivZero.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/NextDivZero/NextDivZero.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}

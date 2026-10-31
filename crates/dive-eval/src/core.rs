@@ -56,6 +56,7 @@ impl PrintSink for CollectSink {
 
 /// The shared evaluator state.
 pub(crate) struct Core {
+    pub(crate) receiver_domain: Option<dive_value::ReceiverDomain>,
     pub(crate) ir: Arc<Ir>,
     pub(crate) opts: Options,
     pub(crate) ctx: Ctx,
@@ -185,6 +186,7 @@ impl Core {
             .filter_map(|(d, t)| ir.def(*d).std.map(|op| (op, *t)))
             .collect();
         Self {
+            receiver_domain: dive_value::ReceiverDomain::new(),
             ir,
             ctx: opts.ctx,
             opts,

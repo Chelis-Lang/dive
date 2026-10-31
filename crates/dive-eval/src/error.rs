@@ -230,6 +230,10 @@ pub enum ExceptionKind {
 pub enum ValueMethod {
     /// `FcnLambdaValue.toFcnRcd`, while computing the function's body.
     FunctionMaterialize,
+    /// An actual `TupleValue.equals` catch.
+    TupleEquals,
+    /// An actual `RecordValue.equals` catch.
+    RecordEquals,
 }
 
 /// Receiver construction provenance retained by a value-method catch.
@@ -279,6 +283,7 @@ struct Inner {
     /// message text, including apparent tool frames, grants no provenance.
     override_cause: Option<(dive_ir::StdOp, Ec)>,
     value_method: Option<ValueMethodFailure>,
+    receiver: Option<dive_value::ReceiverFailure>,
 }
 
 const ANALYSIS_ONLY: &str = "analysis-only binder has no runtime value";
@@ -301,6 +306,7 @@ impl EvalError {
             interruption: None,
             override_cause: None,
             value_method: None,
+            receiver: None,
         }))
     }
 
@@ -342,6 +348,20 @@ impl EvalError {
     #[must_use]
     pub fn value_method(&self) -> Option<ValueMethodFailure> {
         self.0.value_method
+    }
+
+    pub(crate) fn qualify_receiver(mut self, owner: Option<&dive_value::ReceiverDomain>) -> Self {
+        let Some(failure) = self.0.receiver.take() else {
+            return self;
+        };
+        let Some((node, diagnostic)) = owner.and_then(|owner| owner.recover(failure)) else {
+            return self;
+        };
+        let method = match failure.method() {
+            dive_value::ReceiverMethod::TupleEquals => ValueMethod::TupleEquals,
+            dive_value::ReceiverMethod::RecordEquals => ValueMethod::RecordEquals,
+        };
+        self.in_value_method(method, ExprId(node), diagnostic.then_some(ExprId(node)))
     }
 
     pub(crate) fn in_value_method(
@@ -604,6 +624,15 @@ fn stash_with_counter(error: EvalError, counter: &std::sync::atomic::AtomicU32) 
 
 impl From<ValueError> for EvalError {
     fn from(error: ValueError) -> Self {
+        let receiver = error.receiver_failure();
+        let mut raised = Self::from_value_error(&error);
+        raised.0.receiver = receiver;
+        raised
+    }
+}
+
+impl EvalError {
+    fn from_value_error(error: &ValueError) -> Self {
         if let ErrorKind::Interrupted { receipt } | ErrorKind::DeferredError { receipt } =
             error.kind()
         {
@@ -742,7 +771,9 @@ mod interruption_transport {
         assert_eq!(EvalError::from(exhausted).class(), ErrorClass::Bug);
         #[cfg(target_pointer_width = "64")]
         {
-            assert_eq!(std::mem::size_of::<ValueError>(), 32);
+            // Receiver diagnostics live in the rare boxed error payload;
+            // successful Result slots shrink rather than carrying those facts.
+            assert_eq!(std::mem::size_of::<ValueError>(), 16);
             assert_eq!(std::mem::size_of::<ErrorKind>(), 8);
         }
     }
