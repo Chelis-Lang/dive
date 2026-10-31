@@ -125,6 +125,7 @@ fn general(error: &EvalError) -> bool {
     error.class() == ErrorClass::Eval
         && error.ec() == Ec::General
         && error.exception_kind() == Some(ExceptionKind::ToolRuntime)
+        && error.value_method().is_none()
 }
 
 fn refusal(error: crate::row_demand::FormulaError) -> Result<Validation, EvalError> {
