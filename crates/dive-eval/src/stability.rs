@@ -141,6 +141,9 @@ impl Evaluator {
     /// No provider, expression or native permission callback is invoked.
     /// This grants neither private-host ownership nor completeness of the
     /// supplied producer roots.
+    /// A single scalar CHOOSE binder may consume its own closed integer
+    /// enumeration after element and scoped-body inspection. This does not
+    /// relabel a retained raw set or certify an error, truth or demand order.
     ///
     /// ```no_run
     /// # fn inspect(ev: &dive_eval::Evaluator, root: (dive_ir::ExprId, dive_eval::Scope))

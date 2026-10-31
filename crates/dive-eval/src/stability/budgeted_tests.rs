@@ -412,6 +412,44 @@ fn guarded_interval_construction_is_source_inspection_not_new_producer_authority
 }
 
 #[test]
+fn scalar_choice_inspection_consumes_only_its_own_proved_integer_domain() {
+    for body in [
+        "P == x'=(CHOOSE i \\in {1,2}: i>5)",
+        "P == x'=(CHOOSE i \\in {2,1,2}: i>1)",
+        "P == x'=(CHOOSE i \\in {}: TRUE)",
+        "P == x'=(CHOOSE i \\in {1,2}: IF i=1 THEN FALSE ELSE (1 \\div 0)=0)",
+        "P == LET bound == 2 IN x'=(CHOOSE i \\in {1,bound}: i>0)",
+    ] {
+        let (ev, def) = input(body);
+        let roots = [root(&ev, def)];
+        assert!(
+            ev.canonical_producer_stability_budgeted(&roots, &[], None)
+                .expect("budgeted inspection")
+                .is_some(),
+            "{body}"
+        );
+        assert_eq!(ev.take_output(), [] as [String; 0]);
+    }
+    for body in [
+        "P == x'=(CHOOSE i \\in {TRUE,1}: TRUE)",
+        "P == x'=(CHOOSE i \\in {x,1}: TRUE)",
+        "Domain == {1,2}\\nP == x'=(CHOOSE i \\in Domain: TRUE)",
+        "P == x'=(CHOOSE i \\in {1,2}: PrintT(TRUE))",
+        "P == x'={1,2}",
+        "P == x'=(CHOOSE i \\in {<<1>>,<<2>>}: TRUE)",
+    ] {
+        let (ev, def) = input(&body.replace("\\n", "\n"));
+        assert!(
+            ev.canonical_producer_stability_budgeted(&[root(&ev, def)], &[], None)
+                .expect("conservative inspection")
+                .is_none(),
+            "{body}"
+        );
+        assert_eq!(ev.take_output(), [] as [String; 0]);
+    }
+}
+
+#[test]
 fn guarded_constructors_do_not_admit_unknown_domains_nested_updates_or_capture_history() {
     for body in [
         "P == x'=[i \\in {0,1} |-> i]",
