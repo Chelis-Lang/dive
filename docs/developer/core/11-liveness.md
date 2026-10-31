@@ -555,6 +555,17 @@ borrowed from checked `CsrCapture`, without constructing nested adjacency or a
 `BehaviorGraph`. The standalone product API still accepts caller-supplied
 labels; it grants neither producer completion nor model-validation authority.
 
+Reachable-product construction now looks up exact `(behavior vertex, tableau
+node)` pairs in a private hash table. Bucket order never selects a witness:
+after discovery, the table is released and a fallible, budget-polled merge
+orders retained discovery IDs in the existing Cartesian order. Its scratch
+becomes the existing renumber vector. Roots, duplicate edges, original edge
+positions, acceptance conditions and explicit product limits keep their
+existing semantics. Index growth uses checked logical entry sizes and fallible
+reservation; opaque hash bucket/allocator overhead is not a whole-process
+memory metric. This optimization alone does not establish original ABA
+completion or capacity acceptance.
+
 ### 7.2 Implemented state-value access prerequisite
 
 The private `analyze::state_source::StateSource` separates representative values
