@@ -64,7 +64,9 @@ The persistent store holds every value reachable from a retained state, plus
 all constants.
 
 - **Shards.** It is split into 256 shards, selected by the top bits of the
-  value hash. Each shard has two parts:
+  interning hash: the value hash for canonical nodes, a private structural key
+  for retained construction histories and their parents (§8). Each shard has
+  two parts:
   - **Node storage.** One append-only column per size class: nodes with at
     most 4 handles, at most 8, and more. A column is a chunked vector of
     write-once `OnceLock` slots (chunk `k` holds `2^(4+k)` slots). The first
@@ -72,7 +74,7 @@ all constants.
     last boxes its handles. Reads need no lock: a read is one chunk-pointer
     load and one slot load. The class is part of the persistent handle.
   - **Deduplication index.** An open-addressing table of atomic `u64`
-    entries (the low 32 bits of the hash, and the class and index). An
+    entries (the low 32 bits of the interning hash, and the class and index). An
     intern first probes it without a lock, through the interning heap's
     cached copy of the shard's table (`InternCache`), and returns on a hit.
     A miss takes the per-shard `Mutex` (on its own cache line), probes
@@ -81,9 +83,10 @@ all constants.
     generation; a heap refreshes its copy when the generation moves, and an
     old table stays valid for whoever still holds it, because nodes never
     move. All of this is safe Rust (#550, step 8).
-- **Hash-consing.** A compound is interned once. Interning looks up the hash,
-  compares candidates structurally, and inserts if none matches. Two retained
-  values are equal exactly when their handles are equal.
+- **Hash-consing.** A canonical compound is interned once. Interning looks up
+  the private index key, compares candidates structurally, and inserts if none
+  matches. Equal canonical values share a handle; retained representations can
+  differ by their actual construction origin or phase (§8).
 - **Intern after claim.** A successor's values are interned only after its
   state fingerprint wins the seen-set claim (`07-engine.md`). Duplicate
   successors, 74% of them on MCLamportMutex, never touch the store. Interning
@@ -435,7 +438,12 @@ private origin table validates exact snapshot handles. `Kind::Set`, view flags,
 persistence and an extensional key alone do not prove history. Canonical keys
 and replay expectations remain separate; rollback rebuilds a freed projection
 from the owned normalization array. A seen emission does not replace a bound
-generator root with that temporary projection. Symmetry uses a normalized local
+generator root with that temporary projection. The Store indexes retained
+`HISTORY`/`NESTED_VIEW` nodes with a private structural hash of their exact
+header and child handles. Equal independent constructions keep their origins
+without forming one linear-probing cluster under their shared extensional
+hash. The stored value hash and canonical-node index key are unchanged; the
+index key supplies no history authority. Symmetry uses a normalized local
 image; tuple equality preserves TLC's reached-field demand and D-009's quiet
 comparison without normalizing actual aliases. Empty owned receivers answer
 without demanding the query class; a closed unit-interval function query may

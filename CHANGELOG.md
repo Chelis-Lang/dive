@@ -1,5 +1,9 @@
 # Changelog
 
+- Avoid quadratic interning of equal independent construction histories and
+  their enclosing functions. Exact origins, aliases, normalization phases and
+  semantic value hashes remain intact in both profiles.
+
 - Register the existing default D-009 reflexive membership behavior of
   `ModelBadPrefix` as an exact model-specific expected divergence. Its exit
   and generated-count pairs are bound; TLC-mode results, goldens, trace checks

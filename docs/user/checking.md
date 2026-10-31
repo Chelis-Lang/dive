@@ -256,7 +256,9 @@ history for covered literal and mapped sets of booleans, inline integers,
 owned strings/model values and nested literal tuples. A covered union preserves
 its actual operand demand and aliasing. Queries can read a newly assigned set
 before commitment; normalized construction views survive frontier handoff,
-including a set inside an updated function. For example:
+including a set inside an updated function. Repeated equal set updates retain
+their separate construction histories without quadratic interning work, in
+both semantic profiles. For example:
 
 ```sh
 dive check conformance/corpus/construction-set-history/specifications/ModelMapUnion/ModelMapUnion.tla --engine core --compat=tlc --seed 0 --fp 0
