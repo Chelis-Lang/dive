@@ -1,5 +1,10 @@
 # Changelog
 
+- Register the existing default D-009 reflexive membership behavior of
+  `ModelBadPrefix` as an exact model-specific expected divergence. Its exit
+  and generated-count pairs are bound; TLC-mode results, goldens, trace checks
+  and strict agreement are unchanged.
+
 - Core temporal analysis can evaluate proved interval function construction,
   bounded interval CHOOSE and single-key scalar EXCEPT/@ inside ordinary
   action predicates and scoped non-stuttering checks. Exact original values,
