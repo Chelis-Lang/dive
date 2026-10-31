@@ -33,6 +33,16 @@
 
 ## Oracle facts behind the registry
 
+- **Reflexive model-value membership (D-009).** The exact
+  `construction-set-history/ModelBadPrefix` model checks `a \in {1,a}`.
+  Its default run succeeds with 2 distinct/generated states and depth 2;
+  pinned TLC reaches the earlier typed-model prefix comparison and stops with
+  fingerprint exception2147, exit75, at 1/1/depth1. The registry recognizes
+  only this model's default success, exact exit75→0 and generated1→2 pairs,
+  and its differing verdict/class/distinct/depth fields. It supplies no trace
+  permission or strict-profile waiver and never counts as agreement. This does
+  not specify the answer to arbitrary mixed-type comparisons.
+
 - **Introspecting specs.** Specs can legitimately depend on `TLCGet("config").worker`. The owner-approved default reports logical 1; `--compat=tlc` reports the requested physical count, matching TLC. `MCDieHardest` therefore runs in the default profile at any width but fails its assumption under multi-worker compat mode. Physical threads remain visible in the result (D-011).
 
 - **Finite temporal prefixes (D-008).** `QtEmpty` prints temporal violation 2116
