@@ -11,7 +11,8 @@ three SANY inputs for failed constant pre-evaluation (#670). At `36345f9c`,
 named and inline function selection preserve lazy demand; NamedAction's reported
 word validates independently. All six entries agree in both profiles at 1/4
 workers. This targeted result does not refresh historical populations or close
-a parity surface. Whole-function diagnostic-header parity remains open (#672).
+a parity surface. Selected whole-function diagnostic-header replay is repaired
+by #676; unproved receiver lifetimes remain unverified.
 
 Original EWD998Chan N=3 now completes on reviewed source `3d242d83` in both
 native W1 profiles under the unchanged 900-second/16-GiB policy: TLC 535.537s,
@@ -105,6 +106,15 @@ history, raw successor demand, excluded successors and nested EXCEPT/state
 handoff (#623, ADR 0131). Targeted both-profile worker/ablation and independent
 lifetime controls do not refresh historical populations or close #623; whole
 Sailfish/performance qualification remains open.
+
+The `comparison-receiver-primary` microcorpus pins twelve TLC deciding models
+and twelve SANY inputs for actual tuple/record equality source hooks (#620).
+Nine initial receiver/rebuild controls are consumed by reference/Auto at workers
+1/4 under TLC comparisons; default D-009 success and native refusals remain.
+Seven context-only negative fixtures have no invented primary golden. The
+original sixteen-case matrix plus three scoped constructor controls covers 228
+API calls; dynamic Next receiver replay remains unproved. This is partial #620
+coverage, not a historical population refresh or general value-method parity.
 
 The separate `literal-set-history-primary` microcorpus pins 18 controls for
 the first local name-free literal lane (#623). Ten primary successes and one

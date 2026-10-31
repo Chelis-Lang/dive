@@ -136,7 +136,15 @@ impl ErrorKind {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ValueError {
     kind: ErrorKind,
+    // Keep ordinary Result slots small. This allocation occurs only when an
+    // actual error is created, never for a successful value or comparison.
+    details: Box<Details>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct Details {
     message: String,
+    receiver: Option<crate::ReceiverFailure>,
 }
 
 impl ValueError {
@@ -145,8 +153,32 @@ impl ValueError {
     pub fn new(kind: ErrorKind, message: impl Into<String>) -> Self {
         Self {
             kind,
-            message: message.into(),
+            details: Box::new(Details {
+                message: message.into(),
+                receiver: None,
+            }),
         }
+    }
+
+    /// Actual receiver-method provenance; arbitrary messages carry none.
+    #[must_use]
+    pub fn receiver_failure(&self) -> Option<crate::ReceiverFailure> {
+        self.details.receiver
+    }
+
+    pub(crate) fn caught_by(mut self, function: &crate::Fcn) -> Self {
+        if !matches!(
+            self.kind,
+            ErrorKind::Interrupted { .. } | ErrorKind::DiveLimit | ErrorKind::Codec
+        ) && self
+            .details
+            .receiver
+            .is_none_or(|failure| !failure.sourced())
+            && let Some(failure) = crate::ReceiverFailure::equals(function)
+        {
+            self.details.receiver = Some(failure);
+        }
+        self
     }
 
     /// The error class.
@@ -158,13 +190,13 @@ impl ValueError {
     /// The TLC-format message.
     #[must_use]
     pub fn message(&self) -> &str {
-        &self.message
+        &self.details.message
     }
 }
 
 impl fmt::Display for ValueError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}: {}", self.kind.dive_code(), self.message)
+        write!(f, "{}: {}", self.kind.dive_code(), self.details.message)
     }
 }
 

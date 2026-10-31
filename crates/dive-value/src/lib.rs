@@ -54,6 +54,7 @@ pub mod ops;
 mod order;
 mod pprint;
 pub mod print;
+mod receiver;
 mod stream;
 pub mod tlc;
 mod value;
@@ -65,6 +66,7 @@ pub use enumerate::MAX_ENUMERATION;
 pub use error::{ErrorKind, Result, ValueError};
 pub use int::Int;
 pub use names::NameError;
+pub use receiver::{ReceiverDomain, ReceiverFailure, ReceiverMethod};
 pub use stream::{ConcreteSubsetStream, SubsetCommit, SubsetScratch};
 pub use value::{
     DeferredKind, DeferredSet, DomainLookup, Fcn, FcnKind, Set, SetKind, Value,

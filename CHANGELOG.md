@@ -17,6 +17,11 @@
   execution engines. The underlying cause and counts are preserved; stored or
   unproved receiver lifetimes remain unverified.
 
+- Reproduce selected initial tuple/record equality fingerprint wrappers after
+  actual diagnostic receiver construction, including an Init-built receiver.
+  Preserve D-009, native refusal boundaries, cached receiver lifetimes and owned
+  interruptions; no source is inferred from error text or expression kind.
+
 - Avoid temporary comparison-shape maps for bounded collections of closed
   integer-domain functions with matching scalar classes at each key. The
   existing comparison and normalization guards retain all other cases.

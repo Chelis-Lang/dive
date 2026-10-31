@@ -547,6 +547,18 @@ Human output displays the selected convention and process status. The existing
 `tlc` object describes the deciding error class, independently of the selected
 exit convention; `verified: false` stays unverified.
 
+Under TLC comparisons, a source-qualified tuple/record equality error in an
+initial invariant can report `TLC_FINGERPRINT_EXCEPTION` (2147), exit75. The
+reference replays actual receiver construction, including a receiver rebuilt by
+the first history-free Init emission, without constraints, VIEW or symmetry;
+cached constants, later initial rows and stored Next values gain no source by
+reuse. This changes diagnostic classification only. The default keeps D-009, and unproved
+core comparisons remain `unsupported`. For example:
+
+```sh
+dive check conformance/corpus/comparison-receiver-primary/specifications/InitialStateLeft/InitialStateLeft.tla --engine reference --compat=tlc --seed 19 --fp 0
+```
+
 For source-qualified errors during Init, `tlc.code` can remain GENERAL (1000)
 while `tlc.exit_status` is 75: TLC reports the original exception, then its
 diagnostic replay determines the process status. Native override provenance

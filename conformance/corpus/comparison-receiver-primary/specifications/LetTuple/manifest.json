@@ -1,0 +1,26 @@
+{
+  "sources": [
+    "docs/developer/core/02-semantic-contract.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "comparison-receiver-primary"
+  ],
+  "modules": [
+    {
+      "path": "specifications/LetTuple/LetTuple.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/LetTuple/LetTuple.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}

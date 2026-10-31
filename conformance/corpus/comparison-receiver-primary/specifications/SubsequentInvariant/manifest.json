@@ -1,0 +1,26 @@
+{
+  "sources": [
+    "docs/developer/core/02-semantic-contract.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "comparison-receiver-primary"
+  ],
+  "modules": [
+    {
+      "path": "specifications/SubsequentInvariant/SubsequentInvariant.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/SubsequentInvariant/SubsequentInvariant.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}
