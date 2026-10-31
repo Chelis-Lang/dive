@@ -158,6 +158,43 @@ pub(crate) struct Certificate {
     _stability: dive_eval::ProducerStability,
 }
 
+/// Ordered known bins before a single solution's opaque tableau boundary.
+/// This can prove a reached error, never complete labels or tableau truth.
+pub(crate) struct SourceProgram {
+    checks: Vec<Check>,
+    pub(crate) slots: Vec<Slot>,
+    stability: Option<dive_eval::ProducerStability>,
+}
+
+#[derive(Clone, Debug)]
+pub(crate) struct SourceCertificate {
+    _stability: dive_eval::ProducerStability,
+}
+
+impl SourceProgram {
+    pub(crate) fn bind_stability(&mut self, stability: dive_eval::ProducerStability) {
+        self.stability = Some(stability);
+    }
+
+    pub(crate) fn certificate(&self) -> Option<SourceCertificate> {
+        self.stability.clone().map(|stability| SourceCertificate {
+            _stability: stability,
+        })
+    }
+
+    /// Executes only actual known ordered bins. Success stops at the opaque
+    /// boundary and establishes no complete row, residual or holding result.
+    pub(crate) fn evaluate<E>(
+        &self,
+        mut predicate: impl FnMut(usize) -> Result<bool, E>,
+    ) -> Result<(), E> {
+        for check in &self.checks {
+            check.evaluate(check.root, &mut predicate)?;
+        }
+        Ok(())
+    }
+}
+
 impl Program {
     pub(crate) fn bind_stability(&mut self, stability: dive_eval::ProducerStability) {
         self.stability = Some(stability);
@@ -344,6 +381,69 @@ impl Normalized {
             stability: None,
         }))
     }
+
+    pub(crate) fn into_source_program(self) -> Result<Option<SourceProgram>, FormulaError> {
+        if self.zero_solutions() {
+            return Ok(None);
+        }
+        let Self {
+            mut build,
+            dnf,
+            slots,
+            ..
+        } = self;
+        let branches = if let Node::Or(branches) = &build.nodes[dnf] {
+            branches.clone()
+        } else {
+            vec![dnf]
+        };
+        let [branch] = branches.as_slice() else {
+            return Ok(None);
+        };
+        let branch = build.flatten(*branch, 0)?;
+        let conjuncts = if let Node::And(children) = &build.nodes[branch] {
+            children.clone()
+        } else {
+            vec![branch]
+        };
+        let mut ae_actions = Vec::new();
+        let mut ae_states = Vec::new();
+        let mut ea_actions = Vec::new();
+        for conjunct in conjuncts {
+            if let Node::Eventually(always) = build.nodes[conjunct]
+                && let Node::Always(body) = build.nodes[always]
+                && build.level_action(body, 0)?.0 < 3
+            {
+                unique(&mut ea_actions, Check::copy(&mut build, body)?);
+            } else if let Some(body) = build.ae_body(conjunct)
+                && build.level_action(body, 0)?.0 <= 2
+            {
+                if build.level_action(body, 0)?.0 == 2 {
+                    unique(&mut ae_actions, Check::copy(&mut build, body)?);
+                } else {
+                    unique(&mut ae_states, Check::copy(&mut build, body)?);
+                }
+            } else if build.level_action(conjunct, 0)?.1 {
+                return Ok(None);
+            }
+            // A state-only residual is an opaque barrier after these bins.
+            // It never contributes a truth or MUST-completeness certificate.
+        }
+        // Liveness.addToBin inserts AEAction, AEState, then EAAction;
+        // LiveCheck executes the entire action bin before the state bin.
+        for check in ea_actions {
+            unique(&mut ae_actions, check);
+        }
+        ae_actions.extend(ae_states);
+        if ae_actions.is_empty() {
+            return Ok(None);
+        }
+        Ok(Some(SourceProgram {
+            checks: ae_actions,
+            slots,
+            stability: None,
+        }))
+    }
 }
 
 pub(crate) fn compile(
@@ -353,6 +453,17 @@ pub(crate) fn compile(
 ) -> Result<Option<Program>, FormulaError> {
     normalize(formulas, fairness, limits)?
         .map(Normalized::into_program)
+        .transpose()
+        .map(Option::flatten)
+}
+
+pub(crate) fn compile_source(
+    formulas: &[(&Formula, usize)],
+    fairness: usize,
+    limits: Limits,
+) -> Result<Option<SourceProgram>, FormulaError> {
+    normalize(formulas, fairness, limits)?
+        .map(Normalized::into_source_program)
         .transpose()
         .map(Option::flatten)
 }

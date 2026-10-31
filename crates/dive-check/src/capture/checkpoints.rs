@@ -20,6 +20,9 @@ pub enum CheckpointPhase {
     Init,
     /// A source whose successors and implicit stutter were admitted successfully.
     SourceRow,
+    /// A source whose Next generator failed, before stutter or row completion.
+    /// The original failure and any already admitted concrete targets survive.
+    TerminalSourceRow,
 }
 
 /// Borrowed facts at an actually reached checkpoint, never a demand certificate.
@@ -32,6 +35,7 @@ pub struct ReachedCheckpoint<'a> {
     pub(crate) stats: Stats,
     pub(crate) edges: &'a [Edge],
     pub(crate) concrete: &'a [ConcreteSuccessor],
+    pub(crate) next_error: Option<&'a EvalError>,
 }
 impl<'a> ReachedCheckpoint<'a> {
     /// Actual Init or completed-source boundary.
@@ -63,6 +67,12 @@ impl<'a> ReachedCheckpoint<'a> {
     #[must_use]
     pub const fn concrete_successors(&self) -> &'a [ConcreteSuccessor] {
         self.concrete
+    }
+    /// Original generator failure at a terminal source boundary. This is
+    /// absent at Init and successfully completed source rows.
+    #[must_use]
+    pub const fn next_error(&self) -> Option<&'a EvalError> {
+        self.next_error
     }
 }
 
@@ -100,6 +110,7 @@ pub struct CheckpointDecision {
     source: usize,
     cause: EvalError,
     stats: Stats,
+    next_error: Option<EvalError>,
 }
 impl CheckpointDecision {
     /// Actual reached boundary, not a reconstructed earlier analysis site.
@@ -121,6 +132,12 @@ impl CheckpointDecision {
     #[must_use]
     pub const fn stats(&self) -> Stats {
         self.stats
+    }
+    /// Original Next failure preceding the observer's row error, if any.
+    /// It is retained as typed execution evidence, not a deciding class.
+    #[must_use]
+    pub const fn next_error(&self) -> Option<&EvalError> {
+        self.next_error.as_ref()
     }
 }
 
@@ -182,6 +199,7 @@ impl Hooks<'_> {
                     source: event.source,
                     cause,
                     stats: event.stats,
+                    next_error: event.next_error.cloned(),
                 }));
                 Err(Verdict::Unsupported {
                     feature: DECISION.into(),

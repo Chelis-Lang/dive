@@ -646,6 +646,29 @@ fn periodic_unbudgeted(
     let cache = demand
         .as_ref()
         .map(|program| std::sync::Mutex::new(super::row_demand::Cache::new(program)));
+    let source_demand = if demand.is_none() {
+        super::row_demand::prepare_source(
+            model,
+            &plans,
+            options,
+            model.temporals.len(),
+            limits.formula,
+            graph_labels,
+            (authority, &control),
+        )
+        .map_err(|error| {
+            failure(
+                error,
+                Stage::Planning,
+                None,
+                EvaluationErrors::default(),
+                Some(false),
+                checks,
+            )
+        })?
+    } else {
+        None
+    };
     let mut observer = Observe {
         inputs: Inputs {
             budget: &options.budget,
@@ -666,6 +689,31 @@ fn periodic_unbudgeted(
         };
         let mut exploration = None;
         super::row_demand::Observe::new(model, &plans, program, cache)
+            .explore(
+                options,
+                limits.capture,
+                Some(&mut observer),
+                &mut errors,
+                &mut exploration,
+                native_hooks,
+            )
+            .map_err(|error| {
+                failure(
+                    error,
+                    Stage::Capture,
+                    exploration,
+                    errors,
+                    Some(false),
+                    observer.d.checks,
+                )
+            })?
+    } else if let Some(program) = &source_demand {
+        let mut errors = EvaluationErrors {
+            periodic: true,
+            ..EvaluationErrors::default()
+        };
+        let mut exploration = None;
+        super::row_demand::SourceObserve::new(model, &plans, program)
             .explore(
                 options,
                 limits.capture,

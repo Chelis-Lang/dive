@@ -25,6 +25,123 @@ fn control(options: &CheckOptions) -> Arc<EvaluationControl> {
     EvaluationControl::new(&options.budget, Phase::Binding).expect("binding owner")
 }
 
+#[test]
+fn original_fairness_errors_retain_actual_first_primary_and_unfinished_source_word() {
+    let fixtures = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../dive-api/tests/fixtures/fairness-primary");
+    for (name, generated) in [("MinChooseFair", 1), ("MinChooseFairSafeNext", 2)] {
+        let path = fixtures.join(format!("{name}.tla"));
+        let analysis = dive_sema::analyze_file(&path, &dive_sema::Options::default())
+            .expect("original source");
+        assert!(analysis.accepted());
+        let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+        let config =
+            dive_config::parse(&std::fs::read_to_string(path.with_extension("cfg")).expect("cfg"))
+                .into_config()
+                .expect("actual configuration");
+        for options in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
+            let Dispatch::Temporal(runtime) =
+                dispatch_controlled(&ir, &config, &options, control(&options))
+                    .expect("temporal dispatch")
+                    .expect("source binding")
+            else {
+                panic!("temporal runtime")
+            };
+            let failure = runtime
+                .final_analysis(
+                    Limits::default(),
+                    AcceptancePolicy::Legacy,
+                    GraphLabelPolicy::NoCellLimit,
+                )
+                .expect_err("actual known ordered-bin failure before residual");
+            let state = failure.state_evaluation().expect("typed row cause");
+            assert_eq!(
+                state.site(),
+                super::super::StateEvaluationSite::CaptureSourceRow
+            );
+            let row = state
+                .capture_source_row()
+                .expect("separate source-row certificate");
+            assert_eq!(row.source(), 0);
+            assert_eq!(
+                row.primary().exception_kind(),
+                Some(dive_eval::ExceptionKind::ToolRuntime)
+            );
+            assert_eq!(row.primary().ec(), dive_eval::Ec::General);
+            assert_eq!(
+                row.diagnostic().exception_kind(),
+                Some(dive_eval::ExceptionKind::ToolRuntime)
+            );
+            let counts = row.result().stats.expect("actual producer statistics");
+            assert_eq!(
+                (
+                    counts.generated,
+                    counts.distinct,
+                    counts.depth,
+                    counts.left_on_queue
+                ),
+                (generated, 1, 1, 0)
+            );
+            let word = row
+                .result()
+                .counterexample
+                .as_ref()
+                .expect("original source word");
+            assert_eq!(word.states.len(), 1);
+            assert_eq!(
+                word.states[0].values,
+                [dive_value::Value::Int(0), dive_value::Value::Int(0)]
+            );
+            assert!(matches!(
+                row.result().verdict,
+                dive_check::Verdict::Unsupported { .. }
+            ));
+            assert_eq!(failure.failure().stage, super::super::Stage::Capture);
+        }
+    }
+}
+
+#[test]
+fn source_row_errors_cannot_skip_an_earlier_unproved_row_or_initial_emission() {
+    for (initial, next) in [
+        ("x = 0", "IF x = 0 THEN x' = 1 ELSE UNCHANGED x"),
+        ("x \\in {0,1}", "UNCHANGED x"),
+        ("(x = 0) \\/ (x = 0)", "UNCHANGED x"),
+    ] {
+        let (ir, _) = input(
+            &format!(
+                "Init == {initial}\nNext == {next}\nPick == x' = CHOOSE n \\in {{1,2}}: FALSE\nSpec == Init /\\ [][Next]_x /\\ WF_x(Pick)\nLive == <>(x = 2)"
+            ),
+            "Live",
+        );
+        let config = dive_config::parse("SPECIFICATION Spec\nPROPERTY Live\n")
+            .into_config()
+            .expect("temporal configuration");
+        for options in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
+            let Dispatch::Temporal(runtime) =
+                dispatch_controlled(&ir, &config, &options, control(&options))
+                    .expect("owned dispatch")
+                    .expect("source binding")
+            else {
+                panic!("temporal source runtime")
+            };
+            let failure = runtime
+                .final_analysis(
+                    Limits::default(),
+                    AcceptancePolicy::Legacy,
+                    GraphLabelPolicy::NoCellLimit,
+                )
+                .expect_err("unproved temporal error is not a success");
+            assert!(
+                failure
+                    .state_evaluation()
+                    .is_none_or(|state| state.capture_source_row().is_none()),
+                "a later self row cannot borrow an earlier unproved row: {initial}/{next}"
+            );
+        }
+    }
+}
+
 fn demand_admitted(runtime: &OwnedTemporal) {
     let control = super::super::evaluator_control(&runtime.options).expect("analysis control");
     let plans =

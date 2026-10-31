@@ -25,7 +25,7 @@ use dive_trace::{
 
 mod native;
 pub use native::{ValidatedNativeCounterexample, ValidatedNativePrefix};
-pub(crate) use native::{core_capture_stop, core_native_report};
+pub(crate) use native::{core_capture_stop, core_native_report, core_source_row_failure};
 
 /// The outcome of a bounded temporal run, distinguishing real prefixes.
 #[derive(Clone, Debug)]
@@ -437,19 +437,29 @@ impl Failure {
 
     fn row_candidate(&self) -> Option<&dive_liveness::analyze::StateEvaluation> {
         let state = self.state_evaluation()?;
-        let row = state.capture_row()?;
         let cause = state.core_cause()?;
-        (state.site() == dive_liveness::analyze::StateEvaluationSite::CaptureRow
-            && cause.class() == dive_eval::ErrorClass::Eval
-            && cause.is_eval_exception()
-            && matches!(
-                cause.ec(),
-                dive_eval::Ec::DivisionByZero | dive_eval::Ec::ModuleEvaluating
-            )
+        let result = match state.site() {
+            dive_liveness::analyze::StateEvaluationSite::CaptureRow
+                if cause.is_eval_exception()
+                    && matches!(
+                        cause.ec(),
+                        dive_eval::Ec::DivisionByZero | dive_eval::Ec::ModuleEvaluating
+                    ) =>
+            {
+                state.capture_row()?.result()
+            }
+            dive_liveness::analyze::StateEvaluationSite::CaptureSourceRow
+                if cause.exception_kind() == Some(dive_eval::ExceptionKind::ToolRuntime)
+                    && cause.ec() == dive_eval::Ec::General =>
+            {
+                state.capture_source_row()?.result()
+            }
+            _ => return None,
+        };
+        (cause.class() == dive_eval::ErrorClass::Eval
             && cause.origin().is_some()
-            && row.result().stats.is_some()
-            && row
-                .result()
+            && result.stats.is_some()
+            && result
                 .counterexample
                 .as_ref()
                 .is_some_and(|path| !path.states.is_empty()))
@@ -938,19 +948,61 @@ fn validate_native_document(
     dive_trace::validate_controlled(model, &trace, control.clone())
 }
 
+fn row_ending(
+    model: &Model,
+    state: &dive_liveness::analyze::StateEvaluation,
+    cause: &dive_eval::EvalError,
+) -> Result<Ending, (Error, Option<ValidationProgress>)> {
+    Ok(
+        if state.site() == dive_liveness::analyze::StateEvaluationSite::CaptureSourceRow {
+            let endpoint = dive_trace::TemporalSourceEndpoint::from_error(model, cause)
+                .ok_or_else(|| {
+                    (
+                        Error::Document("source-row endpoint lost its source context".into()),
+                        None,
+                    )
+                })?;
+            Ending::TemporalSourceError {
+                ec: cause.ec().name().into(),
+                endpoint,
+            }
+        } else {
+            let endpoint =
+                dive_trace::TemporalStateEndpoint::from_error(model, cause).ok_or_else(|| {
+                    (
+                        Error::Document("row endpoint has no original source context".into()),
+                        None,
+                    )
+                })?;
+            Ending::TemporalStateError {
+                ec: cause.ec().name().into(),
+                endpoint,
+            }
+        },
+    )
+}
+
 fn validate_row(
     ir: &Arc<Ir>,
     config: &ModelConfig,
     options: &CheckOptions,
     state: &dive_liveness::analyze::StateEvaluation,
 ) -> Result<RowValidation, (Error, Option<ValidationProgress>)> {
-    let row = state.capture_row().ok_or_else(|| {
-        (
-            Error::Analysis(AnalysisError::Inconsistent("missing row certificate")),
-            None,
-        )
-    })?;
-    let path = row.result().counterexample.as_ref().ok_or_else(|| {
+    let result = state
+        .capture_row()
+        .map(dive_liveness::analyze::CaptureRowEvidence::result)
+        .or_else(|| {
+            state
+                .capture_source_row()
+                .map(dive_liveness::analyze::SourceRowEvidence::result)
+        })
+        .ok_or_else(|| {
+            (
+                Error::Analysis(AnalysisError::Inconsistent("missing row certificate")),
+                None,
+            )
+        })?;
+    let path = result.counterexample.as_ref().ok_or_else(|| {
         (
             Error::Analysis(AnalysisError::Inconsistent("missing row source path")),
             None,
@@ -1003,20 +1055,11 @@ fn validate_row(
             None,
         )
     })?;
-    let endpoint =
-        dive_trace::TemporalStateEndpoint::from_error(&model, cause).ok_or_else(|| {
-            (
-                Error::Document("row endpoint has no original source context".into()),
-                None,
-            )
-        })?;
+    let ending = row_ending(&model, state, cause)?;
     let document = trace
         .to_doc(&model)
         .map_err(|error| (Error::Document(error), None))?
-        .with_ending(Ending::TemporalStateError {
-            ec: cause.ec().name().into(),
-            endpoint,
-        });
+        .with_ending(ending);
     let session = dive_trace::Session::new(recipe, None);
     let (report, _) = session
         .read_controlled(&document, control.clone())
@@ -1284,7 +1327,11 @@ fn finish_final(
                 Ok(Outcome::Safety(result))
             } else {
                 let incomplete = state_evaluation.as_deref().is_some_and(|state| {
-                    state.site() == dive_liveness::analyze::StateEvaluationSite::CaptureRow
+                    matches!(
+                        state.site(),
+                        dive_liveness::analyze::StateEvaluationSite::CaptureRow
+                            | dive_liveness::analyze::StateEvaluationSite::CaptureSourceRow
+                    )
                 });
                 Err(finish_row_failure(
                     ir,

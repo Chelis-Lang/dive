@@ -17,6 +17,11 @@ use crate::tlc_plan::demand::{self, Program};
 #[path = "row_demand_tests.rs"]
 mod tests;
 
+mod source;
+pub use source::SourceRowDriver;
+pub(in crate::analyze) use source::source_possible;
+pub(super) use source::{SourceObserve, prepare_source};
+
 const CACHE: &str = "certified temporal row cache is incomplete";
 
 /// Whether a row program can apply to these plans: one worker, uncapped
@@ -149,7 +154,16 @@ fn stable_producers(
     }
     let mut predicates = Vec::new();
     for atom in plans.iter().flat_map(|prepared| &prepared.plan.atoms) {
-        root(&mut predicates, atom.pred.expr, atom.pred.scope.clone())?;
+        let expression = match atom.test {
+            crate::plan::AtomTest::NegatedEnabled { action } => action,
+            _ => atom.pred.expr,
+        };
+        root(&mut predicates, expression, atom.pred.scope.clone())?;
+        if let crate::plan::AtomTest::Enabled { sub: Some(sub) }
+        | crate::plan::AtomTest::Nonstuttering { sub } = atom.test
+        {
+            root(&mut predicates, sub, atom.pred.scope.clone())?;
+        }
     }
     let proof = model.evaluator.canonical_producer_stability_budgeted(
         &producers,
@@ -366,6 +380,7 @@ impl<'a> Observe<'a> {
             core: failed.core,
             site: StateEvaluationSite::CaptureRow,
             row,
+            source_row: None,
         }));
         Some(error)
     }
@@ -373,7 +388,7 @@ impl<'a> Observe<'a> {
 
 impl capture::CheckpointObserver for Observe<'_> {
     fn reached(&mut self, event: capture::ReachedCheckpoint<'_>) -> Result<(), EvalError> {
-        if event.phase() == capture::CheckpointPhase::Init
+        if event.phase() != capture::CheckpointPhase::SourceRow
             || !self
                 .cache
                 .lock()

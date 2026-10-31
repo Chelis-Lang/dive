@@ -121,6 +121,150 @@ impl Driver<'_> {
         Ok((Event::End, emitted))
     }
 
+    /// Reconstructs the first slice's sole complete initial emission.
+    pub(crate) fn initial_source(&self) -> Result<Event, EvalError> {
+        let mut emitted = false;
+        for action in &self.model.init_actions {
+            self.poll()?;
+            self.at_site(Site::Init);
+            let mut decision = None;
+            let mut stop = None;
+            let outcome =
+                self.model
+                    .evaluator
+                    .init_states(std::slice::from_ref(action), &mut |candidate| {
+                        let result = (|| {
+                            if emitted {
+                                return Ok(Some(Event::Refused(
+                                "temporal source-row replay requires exactly one initial emission"
+                                    .into(),
+                            )));
+                            }
+                            emitted = true;
+                            if !candidate.complete()
+                                || slots(candidate.state)?.as_ref() != self.source.as_ref()
+                            {
+                                return Ok(Some(Event::Refused(
+                                    "initial emission differs from the single concrete source"
+                                        .into(),
+                                )));
+                            }
+                            let mut admitted = false;
+                            let event = self.candidate_observed(
+                                candidate,
+                                false,
+                                true,
+                                Some(&mut admitted),
+                            )?;
+                            if event.is_none() && !admitted {
+                                return Ok(Some(Event::Refused(
+                                    "initial source is excluded by its constraints".into(),
+                                )));
+                            }
+                            Ok(event)
+                        })();
+                        self.at_site(Site::Init);
+                        match result {
+                            Ok(None) => Flow::Continue,
+                            Ok(Some(event)) => {
+                                decision = Some(event);
+                                Flow::Stop
+                            }
+                            Err(error) => {
+                                stop = Some(error);
+                                Flow::Stop
+                            }
+                        }
+                    });
+            self.poll()?;
+            if let Some(error) = stop {
+                return Err(error);
+            }
+            if let Some(event) = decision {
+                return Ok(event);
+            }
+            if let Err(error) = outcome {
+                return execution_error(Site::Init, error.error);
+            }
+        }
+        Ok(if emitted {
+            Event::End
+        } else {
+            Event::Refused("Init has no complete source emission".into())
+        })
+    }
+
+    /// Replays Next and candidate checks, admitting only the concrete source
+    /// as a row destination. The implicit stutter therefore has the same sole
+    /// destination whether Next completes or fails before a full emission.
+    pub(crate) fn source_row(&self) -> Result<Event, EvalError> {
+        if self.initial {
+            return Ok(Event::Refused(
+                "post-Next row cannot use Init generation".into(),
+            ));
+        }
+        let mut emitted = false;
+        for action in &self.model.actions {
+            self.poll()?;
+            self.at_site(Site::Next);
+            let mut decision = None;
+            let mut stop = None;
+            let outcome =
+                self.model
+                    .evaluator
+                    .next_states(action, self.source, 0, &mut |candidate| {
+                        emitted = true;
+                        let result = (|| {
+                            let mut admitted = false;
+                            if let Some(event) = self.candidate_observed(
+                                candidate,
+                                false,
+                                false,
+                                Some(&mut admitted),
+                            )? {
+                                return Ok(Some(event));
+                            }
+                            if admitted && slots(candidate.state)?.as_ref() != self.source.as_ref()
+                            {
+                                return Ok(Some(Event::Refused(
+                            "temporal source-row replay has a distinct concrete destination".into(),
+                        )));
+                            }
+                            Ok(None)
+                        })();
+                        self.at_site(Site::Next);
+                        match result {
+                            Ok(None) => Flow::Continue,
+                            Ok(Some(event)) => {
+                                decision = Some(event);
+                                Flow::Stop
+                            }
+                            Err(error) => {
+                                stop = Some(error);
+                                Flow::Stop
+                            }
+                        }
+                    });
+            self.poll()?;
+            if let Some(error) = stop {
+                return Err(error);
+            }
+            if let Some(event) = decision {
+                return Ok(event);
+            }
+            if let Err(error) = outcome {
+                return execution_error(Site::Next, error.error);
+            }
+        }
+        if !emitted && self.model.settings.check_deadlock {
+            return Ok(Event::Failed {
+                check: Check::Ending,
+                detail: "Next completes without a successor before temporal row checking".into(),
+            });
+        }
+        Ok(Event::End)
+    }
+
     /// TLC diagnostic doNext enumerates each action before checking that
     /// action's candidates. Retain only that action, with checked reservations.
     /// The runtime is the independently reconstructed primary runtime, whose
@@ -177,6 +321,16 @@ impl Driver<'_> {
         candidate: &Successor<'_>,
         before_first: bool,
         known_new: bool,
+    ) -> Result<Option<Event>, EvalError> {
+        self.candidate_observed(candidate, before_first, known_new, None)
+    }
+
+    fn candidate_observed(
+        &self,
+        candidate: &Successor<'_>,
+        before_first: bool,
+        known_new: bool,
+        admission: Option<&mut bool>,
     ) -> Result<Option<Event>, EvalError> {
         self.poll()?;
         if before_first {
@@ -274,6 +428,9 @@ impl Driver<'_> {
                 }
                 Err(event) => return Ok(Some(with_candidate(event, candidate.state)?)),
             }
+        }
+        if let Some(admission) = admission {
+            *admission = inside;
         }
         Ok(None)
     }

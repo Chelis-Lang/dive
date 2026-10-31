@@ -74,6 +74,12 @@ violated property or lasso claim. Human reports print the same certified finite
 states as JSON; an uncertified diagnostic prefix does not acquire a behavior
 claim. Capture statistics say whether capture completed or remained incomplete.
 The report family remains temporal.
+A qualified `error_site: "temporal-source-row"` reports GENERAL1000/TLC exit255
+after actual source-row execution, diagnostic suppression and fresh independent
+replay. It likewise has partial actual statistics, `capture_completed: false`,
+a finite source word and no property/lasso. This bounded one-worker path uses
+native trace version5; unsupported source order or a different primary/candidate
+ending cannot inherit that verified class.
 A validation operation aborted by a resource or execution exception emits
 `validation_completed: false` and an `error` envelope instead of a completed
 `result`; it must not be interpreted as `unsupported`, `valid` or a model verdict.
@@ -212,6 +218,20 @@ supply no proof. Version 4 is reserved for this form; versions 1/2/3 cannot carr
 it, and plain errors/earlier endpoint stages keep their meanings. Consumers must
 update readers before advancing a producer pin; see the exact wire example and
 landing notice requirement in [ADR 0128](../decisions/0128-candidate-terminal-error-replay.md).
+
+Version 5 reserves the `temporal-source-row` error endpoint (ADR 0132). All
+complete `states` form the original source prefix. Its last state is the failing
+source, including when Next failed before emitting a complete candidate.
+`endpoint` contains only `stage` and the existing four-field `source` descriptor;
+top-level `ec` is an untrusted underlying error name. Readers independently replay
+unique exhausted Init generation, the first source's Next completion/error, the
+local singleton row, ordered action/state demand and the row diagnostic before
+accepting GENERAL1000/255. The finite word contains one state; multiple initial
+emissions or an earlier unproved row are outside this version's bounded route.
+There are no serialized selectors, proof flags or wrapper overrides. Versions1–4 retain their meanings
+and cannot carry this endpoint. Known consumers must receive advance notice and
+implement the new fresh fallible replay before advancing producer pins; see the
+exact wire/reader example in [ADR 0132](../decisions/0132-temporal-source-row-error-replay.md).
 
 A non-Boolean value returned by a named constraint/action/property role remains
 unproved by this terminal lane. This differs from an actual source-qualified

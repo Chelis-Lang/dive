@@ -1,4 +1,4 @@
-//! Counterexample transports: dive's format (versions 1 through 4) and TLC's JSON.
+//! Counterexample transports: dive's format (versions 1 through 5) and TLC's JSON.
 //!
 //! # dive's format
 //!
@@ -36,8 +36,9 @@
 //!
 //! Existing endings retain version 1. `invariant-error` requires version 2;
 //! a separate partial terminal candidate requires version 3 (ADR 0123).
-//! candidate-side ordered errors require version 4 (ADR 0128). Readers accept
-//! all four versions and reject a version-1 document using the named
+//! candidate-side ordered errors require version 4 (ADR 0128); post-Next
+//! temporal-source-row errors require version 5 (ADR 0132). Readers accept
+//! all five versions and reject a version-1 document using the named
 //! ending. Unknown versions and ending kinds fail closed (ADR 0108/0118).
 //!
 //! `invariant-error.ec` is the underlying evaluation cause. The enclosing
@@ -82,6 +83,9 @@ pub const PARTIAL_STATE_VERSION: u64 = 3;
 /// Version for an ordered candidate-side error with independent wrapper replay.
 pub const CANDIDATE_ERROR_VERSION: u64 = 4;
 
+/// Version for an independently replayed post-Next temporal-source-row error.
+pub const TEMPORAL_SOURCE_ERROR_VERSION: u64 = 5;
+
 /// What a trace claims about its end.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Ending {
@@ -125,6 +129,13 @@ pub enum Ending {
         ec: String,
         /// Untrusted stage and original inner source context.
         endpoint: crate::TemporalStateEndpoint,
+    },
+    /// A post-Next row error with independently reconstructed primary lifecycle.
+    TemporalSourceError {
+        /// Untrusted underlying row-error class, distinct from outer wrappers.
+        ec: String,
+        /// Original row-error source only; fresh replay supplies all authority.
+        endpoint: crate::TemporalSourceEndpoint,
     },
     /// Next raises this underlying error before emitting any successor.
     /// Only fresh source-bound replay can establish the original context.
@@ -172,6 +183,9 @@ impl Ending {
             Self::TemporalStateError { ec, endpoint } => {
                 json!({"kind":"error", "ec":ec, "endpoint":endpoint.to_json()})
             }
+            Self::TemporalSourceError { ec, endpoint } => {
+                json!({"kind":"error", "ec":ec, "endpoint":endpoint.to_json()})
+            }
             Self::CandidateStateError { ec, endpoint } => {
                 json!({"kind":"error", "ec":ec, "endpoint":endpoint.to_json()})
             }
@@ -213,6 +227,16 @@ impl Ending {
             }
             if kind != "error" || object.len() != 3 || !object.contains_key("ec") {
                 return Err("endpoint requires an exact error ending".into());
+            }
+            if j["endpoint"]["stage"] == "temporal-source-row" {
+                return Ok(Self::TemporalSourceError {
+                    ec: j["ec"]
+                        .as_str()
+                        .filter(|ec| !ec.is_empty())
+                        .ok_or("temporal source endpoint needs an underlying error class")?
+                        .to_owned(),
+                    endpoint: crate::TemporalSourceEndpoint::from_json(&j["endpoint"])?,
+                });
             }
             if j["endpoint"]["stage"] == "candidate-ordered-terminal" {
                 return Ok(Self::CandidateStateError {
@@ -512,11 +536,15 @@ impl TraceDoc {
         if !matches!(
             version,
             Some(
-                VERSION | INVARIANT_ERROR_VERSION | PARTIAL_STATE_VERSION | CANDIDATE_ERROR_VERSION
+                VERSION
+                    | INVARIANT_ERROR_VERSION
+                    | PARTIAL_STATE_VERSION
+                    | CANDIDATE_ERROR_VERSION
+                    | TEMPORAL_SOURCE_ERROR_VERSION
             )
         ) {
             return Err(format!(
-                "unsupported {FORMAT} version {version:?}; this build reads versions {VERSION}, {INVARIANT_ERROR_VERSION} {PARTIAL_STATE_VERSION} and {CANDIDATE_ERROR_VERSION}"
+                "unsupported {FORMAT} version {version:?}; this build reads versions {VERSION}, {INVARIANT_ERROR_VERSION}, {PARTIAL_STATE_VERSION}, {CANDIDATE_ERROR_VERSION} and {TEMPORAL_SOURCE_ERROR_VERSION}"
             ));
         }
         let variables = strings(j.get("variables")).ok_or("`variables` must be a list of names")?;
@@ -570,6 +598,11 @@ impl TraceDoc {
             != (version == Some(CANDIDATE_ERROR_VERSION))
         {
             return Err("an ordered candidate error requires exactly dive-trace version 4".into());
+        }
+        if matches!(ending, Some(Ending::TemporalSourceError { .. }))
+            != (version == Some(TEMPORAL_SOURCE_ERROR_VERSION))
+        {
+            return Err("a temporal source-row error requires exactly dive-trace version 5".into());
         }
         let length = match j.get("length") {
             None | Some(J::Null) => None,
@@ -720,6 +753,8 @@ impl TraceDoc {
             PARTIAL_STATE_VERSION
         } else if matches!(self.ending, Some(Ending::CandidateStateError { .. })) {
             CANDIDATE_ERROR_VERSION
+        } else if matches!(self.ending, Some(Ending::TemporalSourceError { .. })) {
+            TEMPORAL_SOURCE_ERROR_VERSION
         } else if matches!(self.ending, Some(Ending::InvariantError { .. })) {
             INVARIANT_ERROR_VERSION
         } else {

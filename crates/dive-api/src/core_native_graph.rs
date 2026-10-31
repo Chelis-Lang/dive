@@ -11,10 +11,71 @@ use dive_check::capture::{CsrCaptureInput, Limits, MAX_EXPANSION_UNITS};
 use dive_check::{CheckOptions, Stats, Verdict};
 use dive_core::{Handle, Heap, Store};
 use dive_eval::HostControl;
-use dive_explore::graph::{GraphSink, Step, Stopped};
+use dive_explore::graph::{GraphSink, SourceRow, Step, Stopped};
 use dive_liveness::analyze::AnalysisError;
 
 use crate::core_native_values::NativeValues;
+
+pub(crate) const SOURCE_ROW_STOP: &str =
+    "native source-row execution stopped at a retained temporal error";
+
+pub(crate) struct SourceRowSetup {
+    pub(crate) ir: Arc<dive_ir::Ir>,
+    pub(crate) config: dive_config::ModelConfig,
+    pub(crate) options: CheckOptions,
+    pub(crate) limits: dive_liveness::analyze::Limits,
+    pub(crate) graph_labels: dive_liveness::analyze::GraphLabelPolicy,
+}
+
+impl SourceRowSetup {
+    fn bind(self) -> Result<Option<dive_liveness::analyze::owned::SourceRowDriver>, Verdict> {
+        use dive_liveness::analyze::owned::{self, Dispatch};
+        let control = EvaluationControl::new(&self.options.budget, Phase::Binding)
+            .map_err(|error| bug(&error.to_string()))?;
+        let Some(bound) =
+            owned::dispatch_controlled(&self.ir, &self.config, &self.options, control.clone())
+        else {
+            return Ok(None);
+        };
+        match bound {
+            Ok(Dispatch::Temporal(runtime)) => runtime
+                .source_row_driver(self.limits, self.graph_labels)
+                .map_err(source_error),
+            Ok(Dispatch::Safety(_)) => Ok(None),
+            Err(dive_model::ControlledBindError::Interrupted { error, .. }) => Err(control
+                .verdict(&error)
+                .unwrap_or_else(|| bug("native source-row foreign binding interruption"))),
+            Err(dive_model::ControlledBindError::EvaluationFailure { error, .. }) => {
+                Err(if error.class() == dive_eval::ErrorClass::ResourceLimit {
+                    Verdict::ResourceLimit {
+                        message: error.to_string(),
+                    }
+                } else {
+                    bug(&error.to_string())
+                })
+            }
+            Err(error) => Err(bug(&format!(
+                "native source-row source binding failed: {error}"
+            ))),
+        }
+    }
+}
+
+pub(crate) fn source_error(error: AnalysisError) -> Verdict {
+    match error {
+        AnalysisError::Stopped(stopped) => Verdict::Stopped(stopped),
+        AnalysisError::BudgetMeasurement(error) => Verdict::BudgetMeasurement { error },
+        AnalysisError::Limit(bound) => Verdict::ResourceLimit {
+            message: bound.into(),
+        },
+        AnalysisError::Unsupported(_) | AnalysisError::UnsupportedValue(_) => {
+            Verdict::Unsupported {
+                feature: error.to_string(),
+            }
+        }
+        _ => bug(&error.to_string()),
+    }
+}
 
 pub(crate) type OnLevel<'model, 'callback> = dyn FnMut(u64, &NativeGraph, &mut NativeValues<'model>, Stats) -> Result<bool, Verdict>
     + 'callback;
@@ -142,6 +203,9 @@ pub(crate) struct NativeSink<'model, 'callback> {
     error: Option<Verdict>,
     last_level: u64,
     expanding: bool,
+    source_setup: Option<SourceRowSetup>,
+    source_rows: Option<dive_liveness::analyze::owned::SourceRowDriver>,
+    source_error: Option<Verdict>,
 }
 
 impl<'model, 'callback> NativeSink<'model, 'callback> {
@@ -216,11 +280,28 @@ impl<'model, 'callback> NativeSink<'model, 'callback> {
             error: None,
             last_level: 0,
             expanding: false,
+            source_setup: None,
+            source_rows: None,
+            source_error: None,
         })
     }
 
     pub(crate) fn take_error(&mut self) -> Option<Verdict> {
         self.error.take()
+    }
+
+    pub(crate) fn prepare_source_rows(&mut self, setup: SourceRowSetup) {
+        self.source_setup = Some(setup);
+    }
+
+    pub(crate) fn take_source_rows(
+        &mut self,
+    ) -> Option<dive_liveness::analyze::owned::SourceRowDriver> {
+        self.source_rows.take()
+    }
+
+    pub(crate) fn take_source_error(&mut self) -> Option<Verdict> {
+        self.source_error.take()
     }
 
     pub(crate) fn finish(self) -> (NativeGraph, NativeValues<'model>) {
@@ -394,6 +475,98 @@ impl GraphSink for NativeSink<'_, '_> {
             Ok(())
         })();
         result.map_err(|error| self.stop(error))
+    }
+
+    fn source_row(&mut self, _heap: &mut Heap, row: SourceRow<'_>) -> Result<(), Stopped> {
+        if self.source_setup.is_none() && self.source_rows.is_none() {
+            return Ok(());
+        }
+        if row.source != 0
+            || row.stats.initial_generated != 1
+            || self.graph.roots.len() != 1
+            || row.original.iter().any(|&value| {
+                !matches!(
+                    value.tag(),
+                    dive_core::handle::Tag::Bool
+                        | dive_core::handle::Tag::Int
+                        | dive_core::handle::Tag::Str
+                        | dive_core::handle::Tag::Model
+                )
+            })
+        {
+            self.source_setup = None;
+            self.source_rows = None;
+            return Ok(());
+        }
+        let result = (|| {
+            if let Some(setup) = self.source_setup.take() {
+                self.source_rows = setup.bind()?;
+            }
+            if self.source_rows.is_none() {
+                return Ok(());
+            }
+            let source = usize::try_from(row.source).map_err(|_| bug("native source row index"))?;
+            let original = *self
+                .graph
+                .representatives
+                .get(source)
+                .ok_or_else(|| bug("native source row representative"))?
+                as usize;
+            let state = self
+                .values
+                .read(original, row.original, &self.control)
+                .map_err(source_error)?;
+            let start = *self
+                .graph
+                .offsets
+                .get(source)
+                .ok_or_else(|| bug("native source row offset"))?;
+            let mut targets = Vec::new();
+            for index in start..self.graph.targets.len() {
+                if self.graph.ordinals[index].is_some() {
+                    let retained = self.graph.edge_rows[index] as usize;
+                    targets.try_reserve(1).map_err(|_| Verdict::ResourceLimit {
+                        message: "native source-row targets allocation".into(),
+                    })?;
+                    targets.push(
+                        self.values
+                            .read(
+                                retained,
+                                self.graph.row(retained).map_err(source_error)?,
+                                &self.control,
+                            )
+                            .map_err(source_error)?,
+                    );
+                }
+            }
+            let counts = Stats {
+                generated: row.stats.generated,
+                distinct: row.stats.distinct,
+                depth: row.stats.depth,
+                left_on_queue: row.stats.left_on_queue,
+                initial_generated: row.stats.initial_generated,
+            };
+            let Some(driver) = self.source_rows.as_mut() else {
+                return Ok(());
+            };
+            let failed = if row.next_error.is_some() {
+                driver.failed_source(source, &state, &targets, row.emitted, counts)
+            } else {
+                driver.completed_source(source, &state, &targets, row.emitted, counts)
+            }
+            .map_err(source_error)?;
+            if failed {
+                return Err(Verdict::Unsupported {
+                    feature: SOURCE_ROW_STOP.into(),
+                });
+            }
+            self.source_rows = None;
+            Ok(())
+        })();
+        result.map_err(|error| {
+            self.source_error = Some(error.clone());
+            self.stop(error)
+        })
     }
 
     fn level_done(&mut self, level: u64, stats: dive_explore::Stats) -> Result<bool, Stopped> {

@@ -2,7 +2,7 @@
   "oracle": "tlc-2026.10.06.014338",
   "oracle_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
   "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
-  "scope": "Existing pinned audit controls; this change refuses unproved primary/replay paths instead of claiming GENERAL implementation.",
+  "scope": "Retained pre-implementation audit facts and original external golden hashes; current capability qualification uses the separately generated fairness-primary corpus.",
   "positive_goldens": {
     "MinChooseFair": {
       "sha256": "b2809d6145f1aefd8f6f7564d77bcc592d511e1ee3de0bafc61e31ecc7f0ce51",

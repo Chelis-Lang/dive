@@ -62,6 +62,7 @@ enum Task {
     CachedBody(Scope, ExprId, Mode, bool),
     IntegerEnum(usize),
     IntegerDifference(usize),
+    ScalarChoice(Scope, ExprId, ExprId, Mode),
     ClosedBinder(Scope, ExprId, ExprId, Mode, bool),
     AtBody(Scope, ExprId, Mode),
     EndAt,
@@ -710,6 +711,32 @@ impl Walk<'_> {
                     info.int_domain = Some(IntDomain::Finite);
                     self.result(info)?;
                 }
+                Task::ScalarChoice(scope, expr, body, mode) => {
+                    if self
+                        .results
+                        .last()
+                        .is_none_or(|info| info.int_domain != Some(IntDomain::Finite))
+                    {
+                        return Ok(false);
+                    }
+                    let Ok(called) = ev.scope_binder_analysis(&scope, expr) else {
+                        return Ok(false);
+                    };
+                    let Expr::Quant { bounds, .. } = ev.ir().expr(expr) else {
+                        return Ok(false);
+                    };
+                    reserve(&mut self.abstracts, 1)?;
+                    self.abstracts.push(called.env.frame.clone());
+                    reserve(&mut self.integer_slots, 1)?;
+                    self.integer_slots
+                        .push((called.env.frame.clone(), bounds[0].vars[0].index()));
+                    let mut info = Info::canonical(true);
+                    info.integer = true;
+                    self.schedule([
+                        Task::Expression(called, body, mode, true),
+                        Task::Result(info),
+                    ])?;
+                }
                 Task::ClosedBinder(scope, expr, body, mode, constructor) => {
                     if self
                         .results
@@ -1180,6 +1207,38 @@ impl Walk<'_> {
             }
             E::Let { body, .. } | E::Subst { body, .. } => {
                 self.push(Task::Nested(scope.clone(), expr, *body, mode))?;
+            }
+            E::Quant {
+                kind: QuantKind::Choose,
+                bounds,
+                body,
+            } if !self.closed_functions => {
+                let [bound] = bounds.as_ref() else {
+                    return Ok(false);
+                };
+                if bound.tuple || bound.vars.len() != 1 {
+                    return Ok(false);
+                }
+                let Some(domain) = bound.domain else {
+                    return Ok(false);
+                };
+                let E::SetEnum(items) = ev.ir().expr(domain) else {
+                    return Ok(false);
+                };
+                // Only this locally constructed integer domain is normalized
+                // and consumed. No raw-set fact escapes to a caller, state or
+                // reordered comparison, and inspection evaluates no CHOOSE.
+                let base = self.results.len();
+                let mut tasks = Vec::new();
+                for &item in items {
+                    self.poll()?;
+                    reserve(&mut tasks, 1)?;
+                    tasks.push(Task::Expression(scope.clone(), item, mode, true));
+                }
+                reserve(&mut tasks, 2)?;
+                tasks.push(Task::IntegerEnum(base));
+                tasks.push(Task::ScalarChoice(scope.clone(), expr, *body, mode));
+                self.sequence(tasks)?;
             }
             E::FcnCons { bounds, body }
             | E::Quant {

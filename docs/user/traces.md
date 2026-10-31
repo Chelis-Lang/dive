@@ -416,6 +416,28 @@ the hidden-variable cutoff when inner and outer variables have the same name.
 Effectful callbacks remain refused. This
 query support does not admit action-valued callbacks as ordinary state helpers.
 
+Post-Next temporal source errors use native trace version5 (ADR 0132). Complete
+rows form the original finite prefix; its last row is the failing source.
+The closed `temporal-source-row` endpoint carries only the original row-error
+source (`module`, byte `start`/`end`, nullable `instance`); `ec` names its
+underlying error. A fresh source session independently enumerates Next and its
+candidate checks, proves the singleton self row, executes ordered action/state
+demand and its diagnostic, and derives the retained GENERAL1000/exit255
+lifecycle. A serialized flag or matching header cannot certify that sequence.
+Distinct admitted targets, unproved lifetimes/order and reached tableau work
+remain unsupported. No partial successor, lasso or temporal-property violation
+is claimed. Use `Session::try_read` or `read_controlled`; the legacy infallible
+entrypoint refuses this form. Version5 is reserved for this endpoint and cannot
+be relabeled as versions1/2/3/4, whose meanings stay unchanged. Consumers must
+implement the new replay obligation before advancing a producer pin. See
+[ADR 0132](../decisions/0132-temporal-source-row-error-replay.md) for the wire
+shape and advance-notice requirement.
+
+The initial supported slice has a one-state word and exactly one complete Init
+emission, independently enumerated before terminal replay. Multi-state source
+prefixes and multiple initial emissions remain unsupported; no earlier temporal
+row is silently skipped.
+
 Candidate-side errors use native trace version 4 (ADR 0128). The last complete
 row is the actual generated candidate, rather than the state whose expansion
 fails. The closed `candidate-ordered-terminal` endpoint carries untrusted

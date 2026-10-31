@@ -276,6 +276,12 @@ pub(crate) fn core_capture_stop(
         dive_check::Verdict::BudgetMeasurement { error } => {
             dive_liveness::analyze::AnalysisError::BudgetMeasurement(error)
         }
+        dive_check::Verdict::ResourceLimit { .. } => dive_liveness::analyze::AnalysisError::Limit(
+            "native source-row allocation or evaluation resources",
+        ),
+        dive_check::Verdict::Unsupported { feature } => {
+            dive_liveness::analyze::AnalysisError::UnsupportedValue(feature)
+        }
         _ => dive_liveness::analyze::AnalysisError::Inconsistent("non-budget capture stop"),
     };
     let mut failure = Failure::before(
@@ -288,6 +294,39 @@ pub(crate) fn core_capture_stop(
     failure.periodic = checks.map(Box::new);
     failure.configuration = Some(Box::new(core_file_configuration()));
     failure.symmetry_liveness = safety.symmetry_liveness.clone().map(Box::new);
+    failure
+}
+
+#[allow(
+    clippy::too_many_arguments,
+    reason = "same native producer and source-validation boundary"
+)]
+pub(crate) fn core_source_row_failure(
+    ir: &Arc<Ir>,
+    config: &ModelConfig,
+    options: &CheckOptions,
+    state: dive_liveness::analyze::StateEvaluation,
+    safety: &CheckResult,
+    checks: Option<Checks>,
+    started: Instant,
+) -> Failure {
+    let error = dive_liveness::analyze::AnalysisError::Atom {
+        property: state.property().into(),
+        source: Box::new(state.source().clone()),
+        detail: state.cause().to_string(),
+    };
+    let mut failure = Failure::before(
+        Error::Analysis(error),
+        Stage::Analysis(dive_liveness::analyze::Stage::Capture),
+    );
+    failure.exploration = safety.stats.map(|stats| Box::new(facts(safety, stats)));
+    failure.state_evaluation = Some(Box::new(state));
+    failure.incomplete = true;
+    failure.periodic = checks.map(Box::new);
+    failure.configuration = Some(Box::new(core_file_configuration()));
+    failure.symmetry_liveness = safety.symmetry_liveness.clone().map(Box::new);
+    let mut failure = super::finish_row_failure(ir, config, options, failure);
+    failure.elapsed = started.elapsed();
     failure
 }
 
