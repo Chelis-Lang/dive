@@ -1,5 +1,9 @@
 # Changelog
 
+- Speed up default-profile membership misses in normalized owned construction
+  sets. Actual history, checked comparison behavior, raw construction order
+  and cooperative resource stops are preserved.
+
 - Avoid quadratic interning of equal independent construction histories and
   their enclosing functions. Exact origins, aliases, normalization phases and
   semantic value hashes remain intact in both profiles.
