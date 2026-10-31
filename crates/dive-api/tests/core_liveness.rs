@@ -37,6 +37,65 @@ fn run(name: &str, engine: Engine, workers: usize, tlc: bool, every_level: bool)
         .to_json()
 }
 
+#[test]
+fn capture_budget_stop_retains_actual_periodic_checks() {
+    for (tlc, min_states) in [(false, 2), (false, u64::MAX), (true, 2)] {
+        for workers in [1, 4] {
+            let file = fixture("CaptureStop");
+            let report = check_file_engine(
+                &CheckRequest {
+                    config: Some(file.with_extension("cfg")),
+                    file,
+                    workers: Some(workers),
+                    seed: Some(0),
+                    fp: Some(0),
+                    compat_tlc: tlc,
+                    periodic: PeriodicSchedule {
+                        min_states,
+                        growth_factor: u64::MAX,
+                    },
+                    time_limit: dive_api::BudgetSetting::Explicit(
+                        std::time::Duration::from_millis(500),
+                    ),
+                    max_memory: dive_api::BudgetSetting::Unlimited,
+                    ..CheckRequest::default()
+                },
+                Engine::Core,
+            )
+            .expect("budgeted native capture")
+            .to_json();
+            assert_eq!(report["engine"], "core", "{report:#}");
+            assert_eq!(report["verdict"], "stopped", "{report:#}");
+            assert_eq!(report["stopped"]["phase"], "graph-capture", "{report:#}");
+            assert_eq!(report["execution"]["capture_completed"], false);
+            assert!(report["statistics"]["distinct"].as_u64() >= Some(2));
+            assert!(report["counterexample"].is_null());
+            assert!(report["tlc"].is_null());
+            assert_eq!(report["options"]["workers"]["requested"], workers);
+            assert_eq!(report["options"]["workers"]["used"], workers);
+            if tlc {
+                assert_eq!(report["options"]["lncheck"], "final");
+                assert!(report["periodic"].is_null());
+            } else {
+                assert_eq!(report["options"]["lncheck"], "deterministic");
+                assert_eq!(report["periodic"]["min_states"], min_states);
+                assert_eq!(report["periodic"]["growth_factor"], u64::MAX);
+                if min_states == 2 {
+                    assert_eq!(report["periodic"]["prefix_checks"], 1);
+                    assert_eq!(report["periodic"]["last_size"], 2);
+                    assert_eq!(report["periodic"]["last_level"], 1);
+                } else {
+                    assert_eq!(report["periodic"]["prefix_checks"], 0);
+                    assert_eq!(report["periodic"]["last_size"], 0);
+                    assert!(report["periodic"]["last_level"].is_null());
+                }
+                assert_eq!(report["periodic"]["exhausted"], false);
+                assert_eq!(report["periodic"]["final_check"], false);
+            }
+        }
+    }
+}
+
 /// Assert the intentionally different native capacity policy while every other
 /// configuration and observable remains in the reference comparison.
 fn native_expected(mut v: Value) -> Value {
