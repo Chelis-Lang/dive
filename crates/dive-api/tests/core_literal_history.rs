@@ -72,6 +72,8 @@ fn selected_literal_producers_and_local_aliases_reach_checked_consumers() {
         "TupleLengthDemand",
         "TuplePermutationForward",
         "TuplePermutationReverse",
+        "TypedHoleUncovered",
+        "UncoveredUnionProducer",
     ] {
         let oracle = primary(name);
         assert_eq!(oracle["verdict"], "success");
@@ -143,9 +145,7 @@ fn raw_prefix_failures_stay_unclaimed_and_default_d009_is_unchanged() {
     for name in [
         "LiteralNormalizationError",
         "TupleLaterFieldError",
-        "TypedHoleUncovered",
         "UncoveredRecordProducer",
-        "UncoveredUnionProducer",
     ] {
         for compat in [false, true] {
             for opts in OPTS {
@@ -207,7 +207,7 @@ fn covered_literal_violation_words_validate_independently() {
 }
 
 #[test]
-fn larger_literals_keep_the_existing_source_route_without_a_new_limit() {
+fn larger_literal_collections_use_actual_work_budgets_without_a_new_count_limit() {
     let suffix = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .expect("clock")
@@ -239,15 +239,6 @@ fn larger_literals_keep_the_existing_source_route_without_a_new_limit() {
             let report = check_file_core_opts(&req, opts).expect("existing large-literal route");
             assert_eq!(report.to_json()["verdict"], "success");
             assert_eq!(report.to_json()["statistics"]["distinct"], 3);
-            if opts.is_empty() {
-                assert!(
-                    report.to_json()["core"]["metrics"]["plan"]["folded"]
-                        .as_u64()
-                        .expect("fold count")
-                        > 0,
-                    "larger literals are not marked history-sensitive"
-                );
-            }
         }
     }
     std::fs::remove_dir_all(dir).expect("remove temporary inputs");

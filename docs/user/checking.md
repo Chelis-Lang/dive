@@ -252,25 +252,27 @@ counterexamples when hash-consing is disabled. See `docs/developer/core/06-memoi
 `docs/developer/core/m0-results.md`.
 
 The core preserves construction order, duplicates and shared normalization
-history for a bounded local literal-set lane: booleans, inline numeral
-literals and tuples of those literals, used directly or through local
-zero-argument `LET` bindings in membership and `Cardinality`. A membership
-hit does not force normalization. `Cardinality` normalizes the same local
-object, so later uses of that alias search its normalized array. Independent
-equal constructions keep independent history. For example:
+history for covered literal and mapped sets of booleans, inline integers,
+owned strings/model values and nested literal tuples. A covered union preserves
+its actual operand demand and aliasing. Queries can read a newly assigned set
+before commitment; normalized construction views survive frontier handoff,
+including a set inside an updated function. For example:
 
 ```sh
-dive check conformance/corpus/literal-set-history-primary/specifications/RawScalarEarlyHit/RawScalarEarlyHit.tla --engine core --compat=tlc --seed 0 --fp 0
+dive check conformance/corpus/construction-set-history/specifications/ModelMapUnion/ModelMapUnion.tla --engine core --compat=tlc --seed 0 --fp 0
 ```
 
-This check succeeds: the raw membership hits `TRUE` before comparing it with
-the following integer. Reversing that prefix under TLC comparisons remains
-unsupported because the comparison's error-source provenance is unproved;
-it is not reported as a verified TLC error. C2 normalization is checked in
-both profiles, while the default profile retains D-009 comparisons. Named
-values, wider expressions, records/functions, nested sets, imports, state
-handoff and map/union producers retain the existing guarded boundaries.
-This is partial #623 coverage, with no Sailfish map/union performance claim.
+Raw membership scans the receiver's construction order. Normalization uses
+checked insertion and retains the first equal representative; normalized
+membership uses the actual checked search. The default keeps D-009's documented
+comparison policy. Reached errors whose value-source diagnostic provenance is
+unproved remain `unsupported`; raw persistent snapshots without a live owner,
+unknown imported histories, set-valued elements and unproved function receiver
+classes do not gain support from this path. Existing time/memory budgets stop
+new bulk work without a model verdict, including after printed output or register
+effects; effect-related model errors retain their existing refusal. Empty owned
+receivers do not inspect query class. This is partial #623 coverage; unchanged
+whole-model Sailfish and performance qualification remain separate.
 
 In the TLC profile, `-memo` also disables reuse of checked set-membership
 proofs. These proofs share the existing memo memory allowance and preserve

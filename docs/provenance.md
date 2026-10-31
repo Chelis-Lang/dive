@@ -2496,3 +2496,25 @@ contract. The optional callback-free source certificate, exact actual-key
 warning guard, lexical scalar @ and finite work precharge are original Rust
 optimizations over those semantics. They do not port hidden Enabled caching or
 change independent word validation.
+
+### Owned set construction history
+
+Construction-history extension (#623, ADR 0131): `dive-core`'s checked insertion,
+receiver-to-query raw scan and query-to-pivot normalized search follow pinned
+`SetEnumValue.java` membership/normalization and `ValueVec.sort(true)` at
+`94d0c5070852b37b801bb8998c436383ab7ee37b`. Covered union follows
+`SetEnumValue.cup`: empty receiver returns its RHS, otherwise enumerate/normalize
+the RHS and check additions against the original receiver. MAP follows
+`Tool`'s eager context enumeration (`OPCODE_soa`). The official
+`construction-set-history` goldens record pre-change primary observations;
+unknown source/error provenance remains unsupported. Store origin and sparse
+frontier/replay lifetime handling are native ownership design, not TLC internals.
+
+The #623 review correction also follows `TupleValue.equals` / interval
+`FcnRcdValue.equals` reached-field order and the existing D-009 `semantic_eq`
+quiet comparison. `FcnRcdValue.toTuple` supplies query conversion only: an
+already closed `1..n` query does not acquire literal-producer authority.
+Uniform primitive receiver failures retain the existing typed error and
+reference-replay path; mixed-prefix errors keep the checked history guard.
+Owned empty searches do not inspect query class. Projection scratch is fallible
+and polled; seen emissions retain their original generator roots through rollback.

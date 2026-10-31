@@ -1,0 +1,26 @@
+{
+  "sources": [
+    "docs/developer/core/03-value-model.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "core-construction-set-history"
+  ],
+  "modules": [
+    {
+      "path": "specifications/ExceptSetHandoff/ExceptSetHandoff.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/ExceptSetHandoff/ExceptSetHandoff.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}

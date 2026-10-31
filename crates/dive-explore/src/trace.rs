@@ -27,22 +27,33 @@ pub struct TraceState {
     pub values: Vec<Handle>,
 }
 
+// Action, canonical reported row, and optional actual construction-view row.
+type Captured = (usize, Vec<Handle>, Vec<Handle>);
+
 /// Captures the emission at one ordinal.
 struct Capture {
     want: u32,
     seen: u32,
     action: usize,
-    got: Option<(usize, Vec<Handle>)>,
+    got: Option<Captured>,
 }
 
 impl Sink for Capture {
     fn emit(&mut self, m: &mut Machine, _code: &Code) -> Result<(), Error> {
         if self.seen == self.want {
+            let mut views = Vec::new();
+            if m.s1.iter().any(|&h| m.heap.has_construction_history(h)) {
+                crate::capture_reserve(&mut views, m.s1.len())?;
+                for &h in &m.s1 {
+                    let h = m.heap.normalize_construction(h)?;
+                    views.push(m.heap.intern_exact(h)?);
+                }
+            }
             let mut values = Vec::with_capacity(m.s1.len());
             for &h in &m.s1 {
                 values.push(if h.is_empty() { h } else { m.heap.intern(h)? });
             }
-            self.got = Some((self.action, values));
+            self.got = Some((self.action, values, views));
             return Err(Error::stop());
         }
         self.seen += 1;
@@ -55,7 +66,7 @@ fn run(
     code: &Code,
     actions: &[Action],
     want: u32,
-) -> Result<Option<(usize, Vec<Handle>)>, Error> {
+) -> Result<Option<Captured>, Error> {
     let mut sink = Capture {
         want,
         seen: 0,
@@ -107,24 +118,31 @@ pub fn replay(
     let mut m = Machine::new(Arc::clone(store), plan.vars.len(), opts, Memo::new(&keys));
     m.warn = warn;
     let mut out: Vec<TraceState> = Vec::with_capacity(path.len());
+    let mut source_views = Vec::new();
     for step in path {
         let got = if let Some(prev) = out.last() {
-            m.s0.copy_from_slice(&prev.values);
+            m.s0.copy_from_slice(if source_views.is_empty() {
+                &prev.values
+            } else {
+                &source_views
+            });
             crate::start_stream(&mut m, plan, Some(&prev.values))?;
             // The predecessor's level (initial states are level 1).
             m.level = i64::try_from(out.len()).unwrap_or(i64::MAX);
-            run(&mut m, &plan.code, &plan.next, step.ordinal)?.map(|(a, v)| (Some(a), v))
+            run(&mut m, &plan.code, &plan.next, step.ordinal)?
+                .map(|(a, v, views)| (Some(a), v, views))
         } else {
             crate::start_stream(&mut m, plan, None)?;
             m.level = 0;
-            run(&mut m, &plan.code, &plan.init, step.ordinal)?.map(|(_, v)| (None, v))
+            run(&mut m, &plan.code, &plan.init, step.ordinal)?.map(|(_, v, views)| (None, v, views))
         };
-        let Some((action, values)) = got else {
+        let Some((action, values, views)) = got else {
             return Err(Error::internal(format!(
                 "trace replay did not reach ordinal {} of state {}",
                 step.ordinal, step.id
             )));
         };
+        source_views = views;
         out.push(TraceState { action, values });
     }
     Ok(out)
