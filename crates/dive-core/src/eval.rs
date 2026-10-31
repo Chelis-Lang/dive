@@ -191,6 +191,11 @@ impl Machine {
     /// ```
     pub fn set_fuel(&mut self, units: u64) {
         self.fuel = units;
+        self.memo.reserve_member_index(
+            units == u64::MAX
+                && self.opts.member_index
+                && !self.heap.store.semantics().tlc_comparisons,
+        );
     }
 
     /// Installs the optional caller-owned cooperative work checkpoint.
@@ -1035,10 +1040,12 @@ impl Machine {
         if self.fuel != u64::MAX && set.is_compound() && self.heap.view(set).kind == Kind::SetEnum {
             self.domain_work(set, false, 0)?;
         }
-        if let Some(result) = self
-            .heap
-            .literal_member_indexed(x, set, &mut self.memo.member_index)
-        {
+        let index = if self.fuel == u64::MAX {
+            Some(&mut self.memo.member_index)
+        } else {
+            None
+        };
+        if let Some(result) = self.heap.literal_member_indexed(x, set, index) {
             return result;
         }
         if !set.is_compound() {
@@ -1056,7 +1063,8 @@ impl Machine {
         let v = self.heap.view(set);
         match v.kind {
             Kind::Set => {
-                let indexed = if v.flags & crate::node::flags::HISTORY == 0 {
+                let indexed = if self.fuel == u64::MAX && v.flags & crate::node::flags::HISTORY == 0
+                {
                     self.memo.member_index.search(&self.heap, set, x, v.data)?
                 } else {
                     None

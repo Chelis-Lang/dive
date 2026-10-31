@@ -778,14 +778,9 @@ impl Heap {
         &mut self,
         query: Handle,
         set: Handle,
-        index: &mut crate::member_index::MemberIndex,
+        index: Option<&mut crate::member_index::MemberIndex>,
     ) -> Option<Result<bool, Error>> {
-        self.construction_member(
-            query,
-            set,
-            self.store.semantics().tlc_comparisons,
-            Some(index),
-        )
+        self.construction_member(query, set, self.store.semantics().tlc_comparisons, index)
     }
 
     fn construction_member(

@@ -121,7 +121,11 @@ impl MemberIndex {
         query: Handle,
         values: &[Handle],
     ) -> Result<Option<bool>, Error> {
-        if self.cap == 0 || values.len() < MIN_MEMBERS || heap.store.semantics().tlc_comparisons {
+        if self.cap == 0
+            || !query.is_compound()
+            || values.len() < MIN_MEMBERS
+            || heap.store.semantics().tlc_comparisons
+        {
             return Ok(None);
         }
         if !Self::eligible(heap, query, 0)? {
@@ -474,13 +478,17 @@ mod tests {
         assert_eq!(indexed(&m), 1);
         let old = Arc::downgrade(m.heap.store());
         m.heap = Heap::new(Arc::new(Store::default()), false, false);
-        let mut values: Vec<_> = (100..132).map(|i| Handle::int(i).unwrap()).collect();
+        let mut values: Vec<_> = (100..132)
+            .map(|i| m.heap.tuple(&[Handle::int(i).unwrap()]))
+            .collect();
         let new = m.heap.set_from(&mut values);
         let new = m.heap.intern_exact(new).unwrap();
-        assert_eq!(m.member(Handle::int(0).unwrap(), new), Ok(false));
+        let miss = m.heap.tuple(&[Handle::int(0).unwrap()]);
+        assert_eq!(m.member(miss, new), Ok(false));
         assert_eq!(indexed(&m), 0);
         assert!(old.upgrade().is_none());
-        assert_eq!(m.member(Handle::int(100).unwrap(), new), Ok(true));
+        let hit = m.heap.tuple(&[Handle::int(100).unwrap()]);
+        assert_eq!(m.member(hit, new), Ok(true));
         assert_eq!(indexed(&m), 1);
         assert!(!m.heap.poisoned());
     }
@@ -497,7 +505,9 @@ mod tests {
         }
         let mut sets = Vec::new();
         for i in 0..256 {
-            let mut values: Vec<_> = (0..32).map(|v| Handle::int(i * 32 + v).unwrap()).collect();
+            let mut values: Vec<_> = (0..32)
+                .map(|v| m.heap.tuple(&[Handle::int(i * 32 + v).unwrap()]))
+                .collect();
             let set = m.heap.set_from(&mut values);
             sets.push((set, values[0]));
             for _ in 0..2 {
@@ -505,15 +515,67 @@ mod tests {
             }
             assert!(m.memo.bytes() <= 1 << 20);
         }
+        assert!(indexed(&m) > 0);
         // More set keys than slots force replacement. Recompute every answer.
         for (set, query) in sets {
             assert_eq!(m.member(query, set), Ok(true));
-            assert_eq!(m.member(Handle::int(-1).unwrap(), set), Ok(false));
+            let miss = m.heap.tuple(&[Handle::int(-1).unwrap()]);
+            assert_eq!(m.member(miss, set), Ok(false));
         }
         assert!(m.memo.bytes() <= 1 << 20);
         m.memo.clear();
         assert_eq!(m.memo.bytes(), 0);
         assert!(!m.heap.poisoned());
+    }
+
+    #[test]
+    fn scalar_queries_keep_the_original_search_without_index_allocation() {
+        let mut m = machine(false, true);
+        let values: Vec<_> = (0..32).map(|i| Handle::int(i).unwrap()).collect();
+        let set = m.heap.local_literal(&values).unwrap();
+        let set = m.heap.norm(set).unwrap();
+        for i in -1..33 {
+            let query = Handle::int(i).unwrap();
+            for _ in 0..3 {
+                assert_eq!(
+                    m.member(query, set),
+                    m.heap.literal_member(query, set).unwrap()
+                );
+            }
+        }
+        assert_eq!(m.memo.member_index.bytes(), 0);
+    }
+
+    #[test]
+    fn finite_fuel_retains_positive_and_exhausted_old_paths_without_reservation() {
+        for enabled in [false, true] {
+            let mut m = machine(false, true);
+            m.opts.member_index = enabled;
+            let set = tuple_set(&mut m);
+            let query = m.heap.view(set).data[0];
+            m.set_fuel(10000);
+            for _ in 0..3 {
+                assert_eq!(m.member(query, set), Ok(true));
+            }
+            assert_eq!(m.memo.member_index.cap, 0);
+            assert_eq!(m.memo.member_index.bytes(), 0);
+            let values: Vec<_> = (0..32).map(|i| Handle::int(i).unwrap()).collect();
+            let raw = m.heap.local_literal(&values).unwrap();
+            m.set_fuel(0);
+            let error = m.member(values[0], raw).unwrap_err();
+            assert_eq!(error.kind(), crate::ErrorKind::Unsupported);
+            assert_eq!(error.message(), "the constant-folding budget");
+            assert!(!m.heap.work_interrupted());
+            assert_eq!(m.memo.member_index.cap, 0);
+            m.set_fuel(u64::MAX);
+            assert_eq!(m.memo.member_index.cap != 0, enabled);
+            assert_eq!(m.charge(1_000_000), Ok(()));
+            assert_eq!(m.fuel, u64::MAX);
+            for _ in 0..2 {
+                assert_eq!(m.member(query, set), Ok(true));
+            }
+            assert_eq!(indexed(&m), usize::from(enabled));
+        }
     }
 
     #[derive(Debug)]
