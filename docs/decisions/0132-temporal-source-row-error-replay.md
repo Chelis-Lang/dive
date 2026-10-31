@@ -75,6 +75,13 @@ runtime names, unknown construction history and unproved parallel source
 ordering retain explicit refusal. Direct2179/2182 state-row errors and all
 earlier endpoints keep their existing meanings.
 
+This first slice requires exactly one complete initial emission and a one-state
+source word. Independent terminal replay enumerates Init to exhaustion and
+checks that actual sole emission before executing Next. An unproved or quiet
+first source event disables the producer's optional lane. Later rows or multiple
+initial emissions cannot borrow a skipped predecessor's temporal-row authority;
+they require a future extension that reconstructs every earlier row.
+
 Interruption, resource and internal failures carry typed progress and no Valid
 certificate, holding result or fabricated completion. Validation proves the
 word and error lifecycle, not BFS counts; counters remain actual producer

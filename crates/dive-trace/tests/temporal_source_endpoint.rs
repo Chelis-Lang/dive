@@ -252,6 +252,24 @@ fn distinct_destination_and_irrelevant_fairness_never_certify_the_claim() -> Tes
         let source = SAFE_NEXT.replace("Next == UNCHANGED <<s,x>>", "Next == FALSE");
         let (session, document) = input(&source, options)?;
         assert_ne!(session.try_read(&document)?.0.validation, Validation::Valid);
+        let source = SAFE_NEXT.replace("Init == s = 0 /\\ x = 0", "Init == s=0 /\\ x \\in {0,1}");
+        let (session, document) = input(&source, options)?;
+        assert!(matches!(
+            session.try_read(&document)?.0.validation,
+            Validation::Unsupported(_)
+        ));
+        let (session, document) = input(SAFE_NEXT, options)?;
+        let mut longer = document.to_json();
+        let row = longer["states"][0].clone();
+        longer["states"].as_array_mut().ok_or("states")?.push(row);
+        longer["length"] = serde_json::json!(2);
+        assert!(matches!(
+            session
+                .try_read(&TraceDoc::from_json(&longer)?)?
+                .0
+                .validation,
+            Validation::Unsupported(_)
+        ));
     }
     Ok(())
 }

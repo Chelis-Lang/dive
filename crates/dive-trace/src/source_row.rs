@@ -7,6 +7,10 @@ use dive_value::Value;
 use crate::ordered::{Driver, Event, Site};
 use crate::{Check, Failure, State, TemporalSourceEndpoint, Validation};
 
+#[allow(
+    clippy::too_many_lines,
+    reason = "one Init/Next/row/diagnostic lifecycle retains the same source and owned control"
+)]
 pub(crate) fn replay(
     model: &Model,
     state: &State,
@@ -16,6 +20,11 @@ pub(crate) fn replay(
     host: &crate::validate::TraceHost,
     control: Option<&dyn HostControl>,
 ) -> Result<Validation, EvalError> {
+    if index != 0 {
+        return Ok(Validation::Unsupported(
+            "temporal source-row replay covers only the first source row".into(),
+        ));
+    }
     let invalid = |detail: &str| {
         Validation::Invalid(Failure {
             state: index,
@@ -23,17 +32,20 @@ pub(crate) fn replay(
             detail: detail.into(),
         })
     };
-    if state.iter().any(|value| {
-        !matches!(
+    for value in state.iter() {
+        if let Some(control) = control {
+            control.check().map_err(EvalError::interrupted)?;
+        }
+        if !matches!(
             value,
             Some(
                 Value::Bool(_) | Value::Int(_) | Value::BigInt(_) | Value::Str(_) | Value::Model(_)
             )
-        )
-    }) {
-        return Ok(Validation::Unsupported(
-            "temporal source-row replay requires concrete closed scalar state values".into(),
-        ));
+        ) {
+            return Ok(Validation::Unsupported(
+                "temporal source-row replay requires concrete closed scalar state values".into(),
+            ));
+        }
     }
     if model.view.is_some()
         || model.symmetry.is_some()
@@ -51,6 +63,23 @@ pub(crate) fn replay(
             Ok(program) => program,
             Err(error) => return refusal(error),
         };
+    let initial = Driver {
+        initial: true,
+        model,
+        source: state,
+        level: 0,
+        host,
+        control,
+    };
+    match initial.initial_source()? {
+        Event::End => {}
+        Event::Refused(feature) => return Ok(Validation::Unsupported(feature)),
+        _ => {
+            return Ok(invalid(
+                "Init fails before the alleged first temporal source row",
+            ));
+        }
+    }
     let driver = Driver {
         initial: false,
         model,

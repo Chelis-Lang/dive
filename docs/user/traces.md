@@ -433,6 +433,11 @@ implement the new replay obligation before advancing a producer pin. See
 [ADR 0132](../decisions/0132-temporal-source-row-error-replay.md) for the wire
 shape and advance-notice requirement.
 
+The initial supported slice has a one-state word and exactly one complete Init
+emission, independently enumerated before terminal replay. Multi-state source
+prefixes and multiple initial emissions remain unsupported; no earlier temporal
+row is silently skipped.
+
 Candidate-side errors use native trace version 4 (ADR 0128). The last complete
 row is the actual generated candidate, rather than the state whose expansion
 fails. The closed `candidate-ordered-terminal` endpoint carries untrusted
