@@ -256,7 +256,11 @@ fn check_configured_inner(
         Err(verdict) => {
             let safety = crate::core_engine::result(verdict.clone(), options, ir);
             return CoreOutcome::TemporalFailure(Box::new(crate::temporal::core_capture_stop(
-                verdict, &safety, false, started,
+                verdict,
+                &safety,
+                false,
+                started,
+                graph_check.periodic_checks(),
             )));
         }
     };
@@ -285,7 +289,11 @@ fn check_configured_inner(
             let mut safety = crate::core_engine::result(verdict.clone(), options, ir);
             safety.symmetry_liveness = Some(model.symmetry_liveness().clone());
             return CoreOutcome::TemporalFailure(Box::new(crate::temporal::core_capture_stop(
-                verdict, &safety, false, started,
+                verdict,
+                &safety,
+                false,
+                started,
+                graph_check.periodic_checks(),
             )));
         }
         Err(Verdict::InternalError { message }) => return internal(&message, options, ir),
@@ -391,6 +399,7 @@ fn check_configured_inner(
                 &safety,
                 false,
                 started,
+                graph_check.periodic_checks(),
             )));
         }
         // A safety ending, a stop or a refusal: reported as the reference
@@ -400,6 +409,7 @@ fn check_configured_inner(
         return CoreOutcome::Checked(Box::new(safety));
     }
     let captured_safety = safety.clone();
+    let checks = graph_check.periodic_checks();
     let analysis = finish(
         &graph,
         &mut values,
@@ -418,6 +428,7 @@ fn check_configured_inner(
                 &captured_safety,
                 prefix.is_none(),
                 started,
+                checks,
             )));
         }
         Err(Verdict::InternalError { message }) => return internal(&message, options, ir),

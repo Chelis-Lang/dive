@@ -32,6 +32,10 @@
   behavior as JSON. Capture statistics distinguish incomplete work from completed
   capture; uncertified diagnostic prefixes remain diagnostic only (#500).
 
+- Native temporal capture stops retain the selected periodic schedule and the
+  checks actually attempted before interruption. A stopped periodic run keeps
+  `lncheck: deterministic`; final-only runs keep `lncheck: final` (#671).
+
 - Reuse successful core-native temporal read conversions for exact persistent
   handles containing Bool/Int or flat tuple/record values. The bounded cache
   reuses shared rows for one-variable models, selects in-range row slots directly

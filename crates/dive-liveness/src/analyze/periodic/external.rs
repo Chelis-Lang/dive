@@ -260,6 +260,22 @@ impl<'m> GraphCheck<'m> {
         &self.options
     }
 
+    /// Actual completed-level check facts, or `None` for final-only analysis.
+    /// A snapshot records execution so far and supplies no verdict authority.
+    ///
+    /// ```
+    /// # fn inspect(driver: &dive_liveness::analyze::periodic::external::GraphCheck<'_>) {
+    /// if let Some(checks) = driver.periodic_checks() {
+    ///     let completed_prefix_checks = checks.prefixes;
+    ///     # let _ = completed_prefix_checks;
+    /// }
+    /// # }
+    /// ```
+    #[must_use]
+    pub fn periodic_checks(&self) -> Option<Checks> {
+        self.periodic.then_some(self.d.checks)
+    }
+
     /// Checks `graph` after the completed `level`, whose counters are
     /// `stats`, when the schedule says so: whether the search stops after
     /// this level, to finish with [`Self::finish_prefix`].
