@@ -13,6 +13,14 @@ word validates independently. All six entries agree in both profiles at 1/4
 workers. This targeted result does not refresh historical populations or close
 a parity surface. Whole-function diagnostic-header parity remains open (#672).
 
+Original EWD998Chan N=3 now completes on reviewed source `3d242d83` in both
+native W1 profiles under the unchanged 900-second/16-GiB policy: TLC 535.537s,
+default 861.826s, each 1,524,022 distinct /12,882,257 generated /depth58, verified
+success and exhausted capture. The [source-bound capacity record](../conformance/reports/perf/2026-10-30-ewd-native-actions-capacity.json)
+preserves raw hashes, native use and limits. These two cells do not complete the
+joint three-model W1/W8 matrix, quiet performance qualification or phase exit.
+The default run's 38.174-second wall-time margin remains a performance target.
+
 L5's native capture/analysis/report path is implemented: persistent original
 rows, checked CSR, controlled eager Graph admission, bounded closed-function
 read reuse, and sealed complete/prefix facts. Only selected-word values

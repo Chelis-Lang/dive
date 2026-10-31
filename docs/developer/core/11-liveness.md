@@ -192,8 +192,15 @@ class, representation or word proof.
 
 The unchanged original pinned EWD998Chan source/property, with only N=1 derived
 configuration, agrees with fresh pinned TLC and reference at 6 distinct /13
-generated /depth2 in both native profiles at W1/W8. Original N=3 capacity and
-performance require separate qualification. Tuple SubSeq, new-name producer and
+generated /depth2 in both native profiles at W1/W8. Original N=3 also completes
+at W1 in both profiles on reviewed source `3d242d83`: 1,524,022 distinct /
+12,882,257 generated /depth58, verified success and exhausted capture. Under
+unchanged 900-second/16-GiB limits, TLC takes 535.537s with 1,866,358,784-byte
+peak RSS; default takes 861.826s with 1,938,173,952-byte peak RSS. These are
+single-run capacity observations, not quiet TLC-relative throughput or W8
+qualification. See the [source-bound record](../../../conformance/reports/perf/2026-10-30-ewd-native-actions-capacity.json).
+The complete joint matrix and final performance panel remain open.
+Tuple SubSeq, new-name producer and
 state-atom demands, early periodic/error returns, foreign scopes/configured
 captures and nonsemantic stop priority have focused controls. No source rewrite,
 worker fallback, new mode or static state-type approximation is used.
