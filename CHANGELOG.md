@@ -173,6 +173,11 @@
   when the existing shape proof cannot establish safe normalization;
   `--engine auto` retries the reference engine.
 
+- Allow parallel ownership probes of retained construction snapshots, while
+  origin allocation and exact-handle registration remain exclusive. Construction
+  identity, normalization phases, refusal boundaries and memory accounting stay
+  unchanged.
+
 - Extend core set-construction history to actual scalar/model-value/nested-tuple
   literal, MAP and covered union producers, including raw successor queries,
   nested EXCEPT, sparse normalized state handoff and replay. Preserve alias and
