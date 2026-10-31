@@ -144,7 +144,9 @@
   literal, MAP and covered union producers, including raw successor queries,
   nested EXCEPT, sparse normalized state handoff and replay. Preserve alias and
   first-representative behavior; unknown histories/error provenance still refuse.
-  New bulk work uses the actual run budget. This remains partial #623 coverage,
+  New bulk work uses the actual run budget, retaining actual stops after effects.
+  Empty queries, repeated seen emissions, symmetry and nested tuple demand retain
+  their existing supported behavior. This remains partial #623 coverage,
   without whole-model Sailfish performance qualification.
 - `--engine core` consumes a bounded local Bool/inline numeral/tuple literal
   set lane in membership and `Cardinality`, with raw order, duplicate and

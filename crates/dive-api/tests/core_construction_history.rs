@@ -43,6 +43,10 @@ fn literal_map_union_and_nested_except_cross_the_real_state_boundary() {
         "ModelRawPrefix",
         "ExceptSetHandoff",
         "ExcludedRawState",
+        "EmptyRecordQuery",
+        "EmptySetQuery",
+        "RepeatedCandidateSet",
+        "RepeatedCandidateNested",
     ] {
         let oracle = primary(name);
         for compat in [false, true] {
@@ -199,4 +203,104 @@ fn actual_history_handoff_words_replay_and_reject_mutated_middle_states() {
             }
         }
     }
+}
+
+#[test]
+fn printed_and_register_effects_do_not_erase_an_actual_bulk_budget_stop() {
+    use dive_api::BudgetSetting;
+    use std::time::Duration;
+    let dir =
+        std::env::temp_dir().join(format!("dive-effect-history-budget-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).expect("temporary directory");
+    for initial in [true, false] {
+        for print in [true, false] {
+            let effect = if print {
+                "PrintT(\"owned-budget-effect\")"
+            } else {
+                "TLCSet(0,42)"
+            };
+            let file = dir.join("Effects.tla");
+            let bulk = "Cardinality({<<i,j>>:i \\in 1..10000,j \\in 1..10000})";
+            let init = if initial {
+                format!("{effect} /\\ x={bulk}")
+            } else {
+                "x=0".into()
+            };
+            let next = if initial {
+                "UNCHANGED x".into()
+            } else {
+                format!("x=0 /\\ {effect} /\\ {bulk}>0 /\\ x'=1")
+            };
+            std::fs::write(&file,format!("---- MODULE Effects ----\nEXTENDS Naturals,FiniteSets,TLC\nVARIABLE x\nInit == {init}\nNext == {next}\n====\n")).expect("source");
+            std::fs::write(
+                file.with_extension("cfg"),
+                "INIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n",
+            )
+            .expect("config");
+            for compat in [false, true] {
+                for workers in [1, 8] {
+                    let req = CheckRequest {
+                        file: file.clone(),
+                        config: Some(file.with_extension("cfg")),
+                        compat_tlc: compat,
+                        workers: Some(workers),
+                        time_limit: BudgetSetting::Explicit(Duration::from_millis(100)),
+                        max_memory: BudgetSetting::Explicit(1024 * 1024 * 1024),
+                        ..CheckRequest::default()
+                    };
+                    let report = check_file_core_opts(&req, "").expect("actual file route");
+                    let doc = report.to_json();
+                    assert_eq!(
+                        doc["verdict"], "stopped",
+                        "{initial}/{print}/{compat}/{workers}: {doc}"
+                    );
+                    assert_eq!(report.exit_code(), 5);
+                    assert!(doc["tlc"].is_null());
+                    assert_eq!(doc["stopped"]["resource"], "time", "{doc}");
+                    assert_eq!(doc["stopped"]["phase"], "safety-search", "{doc}");
+                    assert_eq!(doc["options"]["workers"]["requested"], workers);
+                    assert_eq!(doc["options"]["workers"]["used"], 1);
+                    assert_eq!(doc["statistics"]["distinct"], u64::from(!initial));
+                    assert_eq!(doc["statistics"]["generated"], u64::from(!initial));
+                    assert_eq!(doc["statistics"]["depth"], u64::from(!initial));
+                    if print {
+                        assert_eq!(doc["output"].as_array().expect("output").len(), 1);
+                        assert!(
+                            doc["output"][0]
+                                .as_str()
+                                .expect("printed text")
+                                .contains("owned-budget-effect")
+                        );
+                    }
+                }
+            }
+        }
+    }
+    for print in [false, true] {
+        let effect = if print {
+            "PrintT(\"effect-error\")"
+        } else {
+            "TLCSet(0,42)"
+        };
+        let file = dir.join("Effects.tla");
+        std::fs::write(&file,format!("---- MODULE Effects ----\nEXTENDS Naturals,TLC\nVARIABLE x\nInit == x=0\nNext == {effect} /\\ x'=1 \\div 0\n====\n")).expect("source");
+        for compat in [false, true] {
+            for workers in [1, 8] {
+                let req = CheckRequest {
+                    file: file.clone(),
+                    config: Some(file.with_extension("cfg")),
+                    compat_tlc: compat,
+                    workers: Some(workers),
+                    ..CheckRequest::default()
+                };
+                let report = check_file_core_opts(&req, "").expect("effect error");
+                let doc = report.to_json();
+                assert_eq!(doc["verdict"], "unsupported", "{doc}");
+                assert_eq!(report.exit_code(), 3);
+                assert!(doc["stopped"].is_null());
+                assert!(doc["tlc"].is_null());
+            }
+        }
+    }
+    std::fs::remove_dir_all(dir).expect("remove inputs");
 }

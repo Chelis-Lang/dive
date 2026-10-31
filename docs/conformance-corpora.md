@@ -1,12 +1,14 @@
 # Conformance corpora
 
-The `construction-set-history` microcorpus pins eight TLC models and eight SANY
+The `construction-set-history` microcorpus pins twelve TLC models and twelve SANY
 inputs for #623's scalar/model-value/nested-tuple literal, MAP and covered union
 path. Initial primary observations were captured before runtime changes;
 subsequent official regeneration records the final corpus digest and reason.
 The reversed typed-model prefix errors while the early hit succeeds. Excluded
 successors retain raw demand before fingerprinting; nested EXCEPT and a violated
 invariant exercise actual state handoff and fresh independent word validation.
+Empty record/set queries and a seen successor followed by additional emissions
+pin empty-search demand and bound-root rollback lifetime.
 Raw logs stay external. These controls establish neither a new corpus percentage
 nor whole-model Sailfish performance; E7 diagnostic provenance remains guarded.
 

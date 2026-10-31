@@ -771,7 +771,7 @@ queries and sparse normalized state views. Constructor/consumer history is
 ineligible for speculative folding, keyed memoization, extra definition reuse
 and parent skips; actual LET thunk sharing remains. The old closed-predicate and
 canonical-producer source certificates are not widened. The original 18 primary
-controls remain, alongside eight TLC models/eight SANY inputs in
+controls remain, alongside twelve TLC models/twelve SANY inputs in
 `conformance/corpus/construction-set-history`. All goldens come from the official
 harness with recorded reasons. Covered old positive controls now require exact
 primary agreement; failing C2 cases and unproved E7 classifications still refuse.

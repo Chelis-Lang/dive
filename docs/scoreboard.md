@@ -99,8 +99,8 @@ instances retain separate core/auto disagreement #634, and assumption-name
 metadata remains #504's obligation. These selected controls add no agreement
 credit to the historical populations below.
 
-The `construction-set-history` microcorpus adds eight pinned TLC models and
-eight SANY inputs for owned scalar/model-value/nested-tuple literal/MAP/union
+The `construction-set-history` microcorpus adds twelve pinned TLC models and
+twelve SANY inputs for owned scalar/model-value/nested-tuple literal/MAP/union
 history, raw successor demand, excluded successors and nested EXCEPT/state
 handoff (#623, ADR 0131). Targeted both-profile worker/ablation and independent
 lifetime controls do not refresh historical populations or close #623; whole

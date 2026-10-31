@@ -2509,3 +2509,12 @@ the RHS and check additions against the original receiver. MAP follows
 `construction-set-history` goldens record pre-change primary observations;
 unknown source/error provenance remains unsupported. Store origin and sparse
 frontier/replay lifetime handling are native ownership design, not TLC internals.
+
+The #623 review correction also follows `TupleValue.equals` / interval
+`FcnRcdValue.equals` reached-field order and the existing D-009 `semantic_eq`
+quiet comparison. `FcnRcdValue.toTuple` supplies query conversion only: an
+already closed `1..n` query does not acquire literal-producer authority.
+Uniform primitive receiver failures retain the existing typed error and
+reference-replay path; mixed-prefix errors keep the checked history guard.
+Owned empty searches do not inspect query class. Projection scratch is fallible
+and polled; seen emissions retain their original generator roots through rollback.

@@ -832,7 +832,10 @@ pub(crate) fn safety_result(
     } = *search;
     let Startup { mut sym, startup } = start;
     let budget = &options.budget;
-    if plan.effects.registers && out.verdict != dive_explore::Verdict::Success {
+    let owned_budget = out.verdict == dive_explore::Verdict::Budget;
+    // A reached owned budget publishes observed prefix facts, not a model
+    // verdict or an effect/replay parity claim. Preserve that stop and output.
+    if plan.effects.registers && !owned_budget && out.verdict != dive_explore::Verdict::Success {
         // TLC writes and reads its registers again while it rebuilds a
         // trace or replays an error; the core does not reproduce that yet.
         let v = match out.verdict {
@@ -843,6 +846,7 @@ pub(crate) fn safety_result(
         return result(v, options, ir);
     }
     if plan.effects.prints
+        && !owned_budget
         && (out.verdict != dive_explore::Verdict::Success || !out.warnings.is_empty())
     {
         // TLC prints again while it rebuilds a trace or reports an error,

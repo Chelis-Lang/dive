@@ -61,9 +61,43 @@ pub(crate) fn literal_value_work(heap: &Heap, value: Handle, remaining: &mut usi
     }
 }
 
+/// A query can be a genuine tuple or an already closed unit-interval
+/// function: TupleValue.toTuple/FcnRcdValue.toTuple agree on this complete
+/// domain and range. This grants no producer receiver-class/history authority.
+pub(crate) fn literal_query(heap: &Heap, value: Handle) -> bool {
+    fn covered(heap: &Heap, value: Handle, work: &mut usize) -> bool {
+        if *work == 0 {
+            return false;
+        }
+        *work -= 1;
+        match value.tag() {
+            Tag::Bool | Tag::Int => true,
+            Tag::Model => value.as_model_id().is_some_and(|id| heap.known_name(id)),
+            Tag::Str => value.as_str_id().is_some_and(|id| heap.known_name(id)),
+            Tag::Persistent | Tag::Transient => {
+                let v = heap.view(value);
+                v.kind == Kind::IntFcn
+                    && v.lo == 1
+                    && v.data.iter().all(|&h| covered(heap, h, work))
+            }
+            Tag::Empty => false,
+        }
+    }
+    let mut work = LITERAL_WORK;
+    covered(heap, value, &mut work)
+}
+
+pub(crate) fn default_member_needs_checked(heap: &Heap, a: Handle, b: Handle) -> bool {
+    if let Some(comparable) = mv_comparable(heap, a, b) {
+        return !comparable;
+    }
+    let (a, b) = (class(heap, a), class(heap, b));
+    a != b && (a.is_scalar() || b.is_scalar())
+}
+
 fn literal_refusal() -> Error {
     Error::unsupported(
-        "a checked local scalar/tuple comparison whose value-source error provenance is not proved (C2, E7)",
+        "a checked local scalar/tuple comparison whose value-source error provenance is not proved (C2, E7); reporting depends on when it normalizes",
     )
 }
 
@@ -122,8 +156,7 @@ fn literal_cmp_inner(
         || b.kind != Kind::IntFcn
         || a.lo != 1
         || b.lo != 1
-        || !a.is_tuple_literal()
-        || !b.is_tuple_literal()
+        || (!a.is_tuple_literal() && !b.is_tuple_literal())
     {
         return Err(literal_refusal());
     }
@@ -166,7 +199,7 @@ pub(crate) enum Class {
 }
 
 impl Class {
-    const fn is_scalar(self) -> bool {
+    pub(crate) const fn is_scalar(self) -> bool {
         matches!(self, Self::Bool | Self::Int | Self::Str)
     }
 

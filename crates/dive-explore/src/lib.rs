@@ -975,7 +975,10 @@ const FP_MESSAGE: &str = "a state holds a set that cannot be fingerprinted";
 fn normalize_state_history(m: &mut Machine) -> Result<(), Error> {
     for i in 0..m.s1.len() {
         if m.heap.has_construction_history(m.s1[i]) {
-            m.s1[i] = m.heap.normalize_construction(m.s1[i])?;
+            // A seen candidate is rolled back to the emission mark. Demand
+            // normalization on the actual object, but do not replace a bound
+            // generator root with a projection allocated after that mark.
+            let _ = m.heap.normalize_construction(m.s1[i])?;
         }
     }
     Ok(())

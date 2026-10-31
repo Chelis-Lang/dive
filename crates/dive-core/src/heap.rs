@@ -16,14 +16,6 @@ pub const MAX_MATERIALIZE: usize = 1 << 24;
 
 static EMPTY_DATA: [Handle; 0] = [];
 
-fn history_copy(values: &[Handle]) -> Result<Vec<Handle>, Error> {
-    let mut out = Vec::new();
-    out.try_reserve(values.len())
-        .map_err(|_| Error::unsupported("construction view allocation"))?;
-    out.extend_from_slice(values);
-    Ok(out)
-}
-
 /// A worker's view of the value regions: the shared persistent store and its
 /// own arena.
 #[derive(Debug)]
@@ -633,7 +625,7 @@ impl Heap {
             .map_err(|_| Error::unsupported("construction history allocation"))?;
         // This is an extensional projection, not a normalization demand. It
         // cannot mutate this object's raw phase or decide a checked error.
-        let mut projection = history_copy(elems)?;
+        let mut projection = self.history_copy(elems)?;
         let identity = self.set_from(&mut projection);
         let view = self.view(identity);
         let handle = self.arena.alloc(
@@ -694,7 +686,7 @@ impl Heap {
                 }
                 // The logical normalization predates rollback. Its owned array
                 // survives, while a projection allocated after the mark does not.
-                let mut projection = history_copy(elems)?;
+                let mut projection = self.history_copy(elems)?;
                 let identity = self.set_from(&mut projection);
                 let view = self.view(identity);
                 let slot = self.view(self.arena.literal_sets[index].handle).lo;
@@ -716,7 +708,7 @@ impl Heap {
             }
             LiteralPhase::Raw => {}
         }
-        let raw = history_copy(self.view(self.arena.literal_sets[index].handle).data)?;
+        let raw = self.history_copy(self.view(self.arena.literal_sets[index].handle).data)?;
         let mut sorted = Vec::new();
         sorted
             .try_reserve(raw.len())
@@ -751,7 +743,7 @@ impl Heap {
         }
         // The checked TLC array owns history and representatives. Its order
         // is never assumed to certify the separate canonical projection.
-        let mut projection = history_copy(&sorted)?;
+        let mut projection = self.history_copy(&sorted)?;
         let identity = self.set_from(&mut projection);
         let view = self.view(identity);
         let slot = self.view(self.arena.literal_sets[index].handle).lo;
@@ -783,7 +775,6 @@ impl Heap {
         set: Handle,
         tlc: bool,
     ) -> Option<Result<bool, Error>> {
-        use crate::arena::LiteralPhase;
         let index = self.local_literal_index(set);
         let retained = set.is_compound()
             && self.view(set).flags & flags::HISTORY != 0
@@ -792,36 +783,62 @@ impl Heap {
         if index.is_none() && !retained {
             return None;
         }
-        if !crate::compare::literal_value(self, query) {
-            return Some(Err(Error::unsupported(
-                "a query outside the closed Bool/Int/tuple literal lane",
-            )));
+        Some(self.construction_member_owned(query, set, index, tlc))
+    }
+
+    // Only the checked entrypoint or a Cup whose exact receiver was validated
+    // calls this loop. The private arena index remains stable across RHS norm.
+    fn construction_member_owned(
+        &mut self,
+        query: Handle,
+        set: Handle,
+        index: Option<usize>,
+        tlc: bool,
+    ) -> Result<bool, Error> {
+        use crate::arena::LiteralPhase;
+        if self.construction_len(index, set) == 0 {
+            return Ok(false);
+        }
+        if query
+            .as_model_id()
+            .or_else(|| query.as_str_id())
+            .is_some_and(|id| !self.known_name(id))
+        {
+            return Err(Error::unsupported("an unknown construction query name"));
         }
         let normalized = match index.map(|i| &self.arena.literal_sets[i].phase) {
             None | Some(LiteralPhase::Normalized(_)) => true,
             Some(LiteralPhase::Raw) => false,
             Some(LiteralPhase::Refused) => {
-                return Some(Err(Error::unsupported(
+                return Err(Error::unsupported(
                     "a previously refused construction comparison",
-                )));
+                ));
             }
         };
         if normalized
             && let Some(index) = index
             && let Err(error) = self.normalize_literal(index)
         {
-            return Some(Err(error));
+            return Err(error);
         }
         let count = self.construction_len(index, set);
         // D-009's structural tuple membership is unchanged. Scalar-class
         // mismatches are deferred until no extensional hit exists, as in
         // the reference's tla_cmp::member, then the checked search decides.
-        if !tlc {
+        if !tlc && !self.is_lazy(query) && !self.has_raw_construction(query) {
             match self.construction_tla_result(query, set, index, normalized, count) {
-                Ok(Some(answer)) => return Some(Ok(answer)),
-                Err(error) => return Some(Err(error)),
+                Ok(Some(answer)) => return Ok(answer),
+                Err(error) => return Err(error),
                 Ok(None) => {}
             }
+        }
+        if let Some(answer) = self.construction_scalar_miss(query, set, index, count)? {
+            return Ok(answer);
+        }
+        if !crate::compare::literal_query(self, query) {
+            return Err(Error::unsupported(
+                "a query outside the closed scalar/tuple-convertible construction lane",
+            ));
         }
         let result = if normalized {
             let (mut low, mut high) = (0, count);
@@ -850,9 +867,7 @@ impl Heap {
         } else {
             let mut found = Ok(false);
             for position in 0..count {
-                if let Err(error) = self.history_poll() {
-                    return Some(Err(error));
-                }
+                self.history_poll()?;
                 let member = self.construction_at(index, set, position);
                 match crate::compare::literal_equals(self, member, query) {
                     Ok(true) => {
@@ -873,7 +888,34 @@ impl Heap {
         {
             self.arena.literal_sets[index].phase = LiteralPhase::Refused;
         }
-        Some(result)
+        result
+    }
+
+    fn construction_scalar_miss(
+        &self,
+        query: Handle,
+        set: Handle,
+        index: Option<usize>,
+        count: usize,
+    ) -> Result<Option<bool>, Error> {
+        let first = self.construction_at(index, set, 0);
+        let class = crate::compare::class(self, first);
+        if !class.is_scalar()
+            || crate::compare::class(self, query) == class
+            || query.as_model_id().is_some()
+        {
+            return Ok(None);
+        }
+        // All possible pivots have the same primitive scalar receiver class.
+        // Reuse the old typed error/refusal path; source replay owns its class.
+        for i in 1..count {
+            self.history_poll()?;
+            if crate::compare::class(self, self.construction_at(index, set, i)) != class {
+                return Ok(None);
+            }
+        }
+        crate::compare::miss(self, query, &[first])?;
+        Ok(Some(false))
     }
 
     fn construction_tla_result(
@@ -905,11 +947,7 @@ impl Heap {
         for i in 0..count {
             self.history_poll()?;
             let e = self.construction_at(index, set, i);
-            if crate::compare::class(self, e) != crate::compare::class(self, query)
-                || query
-                    .as_model_id()
-                    .is_some_and(|_| crate::compare::literal_equals(self, query, e).is_err())
-            {
+            if crate::compare::default_member_needs_checked(self, query, e) {
                 return Ok(None);
             }
         }
@@ -930,11 +968,23 @@ impl Heap {
         }
     }
 
-    fn construction_elements(&self, h: Handle) -> Option<Vec<Handle>> {
+    fn history_copy(&self, values: &[Handle]) -> Result<Vec<Handle>, Error> {
+        self.history_poll()?;
+        let mut out = Vec::new();
+        out.try_reserve(values.len())
+            .map_err(|_| Error::unsupported("construction view allocation"))?;
+        for chunk in values.chunks(64) {
+            self.history_poll()?;
+            out.extend_from_slice(chunk);
+        }
+        Ok(out)
+    }
+
+    fn construction_elements(&self, h: Handle) -> Option<&[Handle]> {
         if let Some(index) = self.local_literal_index(h) {
             return match &self.arena.literal_sets[index].phase {
-                crate::arena::LiteralPhase::Raw => Some(self.view(h).data.to_vec()),
-                crate::arena::LiteralPhase::Normalized(elems) => Some(elems.to_vec()),
+                crate::arena::LiteralPhase::Raw => Some(self.view(h).data),
+                crate::arena::LiteralPhase::Normalized(elems) => Some(elems),
                 crate::arena::LiteralPhase::Refused => None,
             };
         }
@@ -942,7 +992,7 @@ impl Heap {
             && self.view(h).kind == Kind::Set
             && self.view(h).flags & flags::HISTORY != 0
             && self.store.owns_history(h))
-        .then(|| self.view(h).data.to_vec())
+        .then(|| self.view(h).data)
     }
 
     /// Exact reducible SetEnumValue.cup for actual owned constructions.
@@ -951,25 +1001,29 @@ impl Heap {
         a: Handle,
         b: Handle,
     ) -> Option<Result<Handle, Error>> {
-        let mut out = self.construction_elements(a)?;
+        let receiver = self.construction_elements(a)?;
         // Empty receiver returns the actual RHS object without demanding it.
-        if out.is_empty() {
+        if receiver.is_empty() {
             return Some(Ok(b));
         }
         self.construction_elements(b)?;
+        // Capture the original receiver before RHS normalization can mutate an
+        // alias. Eligibility itself borrows and copies nothing.
+        let mut out = match self.history_copy(receiver) {
+            Ok(out) => out,
+            Err(error) => return Some(Err(error)),
+        };
         Some((|| {
             let b = self.norm(b)?;
-            let elems = self
-                .construction_elements(b)
-                .ok_or_else(|| Error::unsupported("UNION construction history"))?;
-            out.try_reserve(elems.len())
+            let right_index = self.local_literal_index(b);
+            let receiver_index = self.local_literal_index(a);
+            let count = self.construction_len(right_index, b);
+            out.try_reserve(count)
                 .map_err(|_| Error::unsupported("UNION construction allocation"))?;
-            for value in elems {
+            for position in 0..count {
                 self.history_poll()?;
-                if !self
-                    .construction_member(value, a, true)
-                    .ok_or_else(|| Error::unsupported("UNION receiver history"))??
-                {
+                let value = self.construction_at(right_index, b, position);
+                if !self.construction_member_owned(value, a, receiver_index, true)? {
                     out.push(value);
                 }
             }
@@ -1656,11 +1710,64 @@ impl Heap {
             };
         }
         let (kind, fl, lo, hash, sum) = (view.kind, view.flags, view.lo, view.hash, view.sum);
-        let mut data = history_copy(view.data)?;
+        let mut data = self.history_copy(view.data)?;
         for child in &mut data {
             *child = self.normalize_construction(*child)?;
         }
         Ok(self.arena.alloc(kind, fl, lo, hash, sum, &data))
+    }
+
+    /// D-009's quiet, extensional equality on affected children. Like Value's
+    /// `semantic_eq`, pointer/hash/domain checks precede reverse field demand.
+    /// Actual constructor objects retain their phase.
+    pub(crate) fn quiet_construction_equals(
+        &mut self,
+        a: Handle,
+        b: Handle,
+    ) -> Result<bool, Error> {
+        self.history_poll()?;
+        if a == b {
+            return Ok(true);
+        }
+        if crate::compare::class(self, a) != crate::compare::class(self, b)
+            || self.hash(a) != self.hash(b)
+        {
+            return Ok(false);
+        }
+        if self.local_literal_index(a).is_some() || self.local_literal_index(b).is_some() {
+            let a = self.quiet_literal(a)?;
+            let b = self.quiet_literal(b)?;
+            return Ok(self.eq(a, b));
+        }
+        if !self.has_raw_construction(a) && !self.has_raw_construction(b) {
+            return Ok(self.eq(a, b));
+        }
+        let (va, vb) = (self.view(a), self.view(b));
+        if va.kind != Kind::IntFcn || vb.kind != Kind::IntFcn {
+            return Err(Error::unsupported(
+                "quiet nested raw equality outside interval functions",
+            ));
+        }
+        let (lo, len) = (va.lo, va.data.len());
+        if lo != vb.lo || len != vb.data.len() {
+            return Ok(false);
+        }
+        for index in (0..len).rev() {
+            let (x, y) = (self.view(a).data[index], self.view(b).data[index]);
+            if !self.quiet_construction_equals(x, y)? {
+                return Ok(false);
+            }
+        }
+        Ok(true)
+    }
+
+    fn quiet_literal(&mut self, h: Handle) -> Result<Handle, Error> {
+        if self.local_literal_index(h).is_none() {
+            return Ok(h);
+        }
+        let values = self.history_copy(self.view(h).data)?;
+        let copy = self.local_literal(&values)?;
+        self.norm(copy)
     }
 
     fn snapshot_history(&mut self, index: usize) -> Result<Handle, Error> {
@@ -1688,7 +1795,7 @@ impl Heap {
         let origin = entry.origin;
         let view = self.view(h);
         let (kind, flags, hash, sum) = (view.kind, view.flags, view.hash, view.sum);
-        let mut data = history_copy(view.data)?;
+        let mut data = self.history_copy(view.data)?;
         for child in &mut data {
             *child = self.intern_exact(*child)?;
         }
@@ -2077,6 +2184,32 @@ mod tests {
     }
 
     #[test]
+    fn construction_projection_copy_polls_the_installed_owner_mid_copy() {
+        use std::sync::atomic::{AtomicUsize, Ordering as AtomicOrdering};
+        #[derive(Debug)]
+        struct Stop(AtomicUsize);
+        impl crate::eval::WorkControl for Stop {
+            fn proceed(&self) -> bool {
+                self.0.fetch_add(1, AtomicOrdering::Relaxed) < 2
+            }
+        }
+        let mut h = heap(false);
+        let values = vec![int(1); 16384];
+        let owner = Arc::new(Stop(AtomicUsize::new(0)));
+        h.history_steps.set(0);
+        h.set_history_control(Some(owner.clone()));
+        assert!(
+            matches!(h.history_copy(&values), Err(error) if error.kind() == crate::ErrorKind::Stop)
+        );
+        assert_eq!(owner.0.load(AtomicOrdering::Relaxed), 3);
+        assert!(h.work_interrupted());
+        assert!(
+            h.arena.literal_sets.is_empty(),
+            "an interrupted copy creates no constructor"
+        );
+    }
+
+    #[test]
     fn normalization_and_raw_scan_poll_the_installed_owner() {
         use std::sync::atomic::{AtomicUsize, Ordering as AtomicOrdering};
         #[derive(Debug)]
@@ -2190,6 +2323,15 @@ mod tests {
         );
         let name = h.string("name").unwrap_or(Handle::EMPTY);
         assert!(h.local_literal(&[name]).is_ok());
+        let set = h.local_literal(&[one]).unwrap_or(Handle::EMPTY);
+        assert!(matches!(
+            h.literal_member(Handle::model(u32::MAX), set),
+            Some(Err(_))
+        ));
+        assert!(matches!(
+            h.literal_member(Handle::string(u32::MAX), set),
+            Some(Err(_))
+        ));
         let unknown = h.set_enum(&[one]);
         assert_eq!(
             h.literal_member(one, unknown),

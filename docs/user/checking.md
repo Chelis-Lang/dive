@@ -269,7 +269,9 @@ comparison policy. Reached errors whose value-source diagnostic provenance is
 unproved remain `unsupported`; raw persistent snapshots without a live owner,
 unknown imported histories, set-valued elements and unproved function receiver
 classes do not gain support from this path. Existing time/memory budgets stop
-new bulk work without a model verdict. This is partial #623 coverage; unchanged
+new bulk work without a model verdict, including after printed output or register
+effects; effect-related model errors retain their existing refusal. Empty owned
+receivers do not inspect query class. This is partial #623 coverage; unchanged
 whole-model Sailfish and performance qualification remain separate.
 
 In the TLC profile, `-memo` also disables reuse of checked set-membership

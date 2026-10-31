@@ -434,7 +434,12 @@ handoff through sparse view rows, including nested EXCEPT parents. The Store's
 private origin table validates exact snapshot handles. `Kind::Set`, view flags,
 persistence and an extensional key alone do not prove history. Canonical keys
 and replay expectations remain separate; rollback rebuilds a freed projection
-from the owned normalization array. Raw persistent snapshots without a live
+from the owned normalization array. A seen emission does not replace a bound
+generator root with that temporary projection. Symmetry uses a normalized local
+image; tuple equality preserves TLC's reached-field demand and D-009's quiet
+comparison without normalizing actual aliases. Empty owned receivers answer
+without demanding the query class; a closed unit-interval function query may
+convert to a tuple, without becoming a certified tuple producer. Raw persistent snapshots without a live
 mutable owner, unknown imports, set-valued elements and unproved receiver
 classes remain guarded/refused. See ADR 0131 and the source-pinned
 `construction-set-history` controls. These extend the original local lane;

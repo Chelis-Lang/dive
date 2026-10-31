@@ -48,7 +48,12 @@ Unaffected rows use the existing canonical frontier without an extra retained
 row. Parallel expansion overlays only the affected chunk; first discovery still
 wins. Replay carries its own actual source views while reporting canonical
 states. A rollback retains the logical normalization array and can rebuild a
-freed arena projection; reset discards expansion-local history.
+freed arena projection; reset discards expansion-local history. A seen emission
+keeps its generator-bound original root instead of a projection allocated after
+the emission mark. Symmetry uses a local normalized image. Reached tuple fields
+follow checked TLC demand; default extensional equality keeps actual aliases
+quiet. Empty receivers do not demand query class; tuple-convertible query
+functions gain no producer-history authority.
 
 The ordinary file routes pass their existing armed Budget through an additive
 controlled explorer entrypoint, preserving existing entrypoints and explicit

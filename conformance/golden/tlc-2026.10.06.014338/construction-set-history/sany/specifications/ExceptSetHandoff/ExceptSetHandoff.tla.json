@@ -54,7 +54,7 @@
         "version_line": "openjdk version \"17.0.20.1\" 2026-08-18"
       }
     },
-    "corpus_commit": "sha256:200a2e889d1536017acd95ec7e8218d63ac16087404fd55a05984feb67ebf654",
+    "corpus_commit": "sha256:a4954a36ce54ec2ba309f4e9e639a9c32b552c09e5a218ef8f6c9a80216180f2",
     "command": [
       "$DIVE_CACHE_DIR/jre/0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62/jdk-17.0.20.1+1-jre/bin/java",
       "-XX:+UseParallelGC",
@@ -72,9 +72,9 @@
       "ExceptSetHandoff.tla"
     ],
     "timeout_seconds": 30,
-    "reason": "Refresh #623 microcorpus digest after adding C4 and mandatory-word controls; original primary observations retained externally",
+    "reason": "Pin #623 repeated-candidate normalization lifetime after a seen successor and retain existing ten primary facts at final corpus digest",
     "generator": "dive-conformance 0.0.0",
-    "generated_at": "2026-10-31T11:44:06Z",
-    "elapsed_ms": 167
+    "generated_at": "2026-10-31T12:07:42Z",
+    "elapsed_ms": 161
   }
 }
