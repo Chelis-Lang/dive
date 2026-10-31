@@ -30,12 +30,13 @@ compatibility performance ceiling without weakening semantic obligations.
 1. Freeze a current-source census, small-tier core/auto accounting and
    performance diagnostic. Preserve every selected fixture, refusal, stop and
    unverified result; historical reference totals are not core coverage.
-2. Typed invariant/Next/partial endpoint replay is implemented in bounded
-   source-bound scopes, including ordered diagnostic execution (#659). Qualify
-   these scopes over the full selection without granting a class to an
-   unclassified oracle stream. Partial Init evidence is `error_witness`, not a
-   formal behavior word. Preserve independent evaluator replay; exact reached
-   fairness-primary #502 and the #620 diagnostic boundary remain open.
+2. Typed invariant/Next endpoint replay and bounded first-Init diagnostic
+   receiver replay are implemented (#659/#683). Formal initial counterexamples
+   stay null; `diagnostic_witness.trace` requires independent cause-word and
+   fresh source/lifetime proof (ADR 0133). The former partial-Init `error_witness`
+   route stays closed. Version 5 independently proves a bounded post-Next
+   temporal source row (#679, ADR 0132); later rows and broader #502 remain
+   explicit refusals. No unclassified oracle stream gains a deciding class.
 3. The native L5 path is implemented: original targets for seen/new states,
    retained vertex/original rows, checked CSR, graph-neutral complete/prefix
    results and reports, controlled eager admission and on-demand conversion
@@ -44,20 +45,14 @@ compatibility performance ceiling without weakening semantic obligations.
    fallible growth and actual budgets (ADR 0124); explicit caller/reference
    limits stay exact. Complete accounting, remaining constructor/diagnostic
    units and original-workload capacity qualification remain (`11-liveness.md`).
-4. Pure state-independent `SelectSeq` predicates under a prime are implemented;
-   original EWD998Chan now enters exploration. The uncached development run
-   stopped during periodic atom analysis after 900 seconds; closed-function
-   read reuse is implemented, but its original EWD run also stopped at 900 seconds;
-   the required temporal completion remains a blocker.
-   #623's consumed scalar/tuple literal lane and bounded #504/#515/#527 work
-   have controls; wider producers and error contracts remain separate. Exact
-   reached fairness/ENABLED primary classification (#502) remains open behind
-   honest refusal. #658/#659/#661 are merged in runtime `68dd8266`, with exact
-   scopes in `m1-status.md`; its census completed with findings and its full gate failed integrated Clippy.
-   All other executed gate phases pass, including the completed final shadow;
-   helper extraction is merged as `a79a024d` with separate exact-source
-   Clippy/required-CI passes. Original EWD and ABA temporal timeouts still block
-   full capacity acceptance.
+4. Pure state-independent `SelectSeq` predicates under a prime and closed
+   action execution are implemented. Original EWD998Chan has completed in both
+   W1 profiles on source-bound development runs; the full capacity matrix is
+   still required. #623 now includes bounded owned constructor histories and
+   state handoff; broader producers remain open. Integrated `9fc88333` exposed
+   quadratic private history indexing (#686); reviewed #687 restores exact
+   SimpleRegular results without discarding histories. Its corrected-source
+   qualification must replace neither failed source evidence nor later scope.
 5. Qualify the integrated runtime with a full gate, the original census and
    affected ablations, and the ten-model five-repeat benchmark at actual 1/8
    workers. Keep original CoffeeCan3000/EWD998Chan/aba_asyn_byz configurations
@@ -72,10 +67,32 @@ capture interface lands; release a slot for fresh review of frozen changes.
 Use at most one gate node and one dedicated benchmark/capacity node, with
 bounded jobs, automatic shutdown and verified external evidence preservation.
 
-General S5 indexing, finer S6 keys, broad scaling work and native modes/storage
-remain subsequent measured work. Persistent trees remain deferred after the
-negative experiment. No new code-generation tier, analyzer rewrite or default
-semantic divergence is introduced by this checkpoint.
+The next measured default-performance priority is S5 normalized membership
+indexing, with the current actual normalization/authority admission, query
+demand, collision verification and miss/error checks retained. Raw or unproved
+cases keep their existing path. The combined-source bounded profile has 28
+valid stack observations: seven membership/filter paths, seven construction
+projection/normalization, three frontier interning, and eleven hashing/scratch/
+evaluation. These are observations, not precise time shares; remaining cost is
+distributed and repeated canonical projection is also visible.
+
+For ABA capacity, separately benchmark the existing reachable-product ID
+lookup before changing SCC/search machinery. A reduced N3/T0/F0 diagnostic
+finds construction larger than search for Corr/Agreement, with tableau widths
+5/2/3; it does not measure the original N4/T1/F1 cost share. `Builder::visit`
+currently uses ordered exact-pair lookup for admitted destinations, while
+Cartesian ordering is consumed at finalization. A checked exact-pair hash
+lookup with separately preserved deterministic final order is a bounded
+candidate, not an established 900-second fix. Keep edges/duplicates, guards,
+limits, fallible growth, budget inspections and independent witnesses exact.
+The TLC/W8 atom-analysis stop means product work alone may be insufficient.
+
+Finer S6 keys follow only when eligibility is proved: Sailfish's reduction from
+13 to six memo sites reflects intentional history safeguards, which finer keys
+alone cannot remove. Broad scaling and native modes/storage remain later work.
+Persistent trees remain deferred after the negative experiment. No new
+code-generation tier, analyzer rewrite or default semantic divergence is
+introduced by this checkpoint.
 
 ## 2. M0 pass and kill criteria
 

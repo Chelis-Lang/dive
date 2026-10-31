@@ -156,17 +156,25 @@ modes retain their observable contracts, including equivalent resumed and
 uninterrupted outcomes. Any new result-changing default still needs an approved
 and documented divergence under ADR 0010.
 
-The trusted-core checkpoint is implementation progress, not phase exit. The
-[implementation and acceptance status](developer/core/m1-status.md) separates
-merged storage/budget/cache and bounded error-word/name/admission work from
-pending qualification and source-bound development observations. The integrated
-fixture census completed with findings on runtime `68dd8266`; its full gate
-completed exit 1 only for integrated Clippy; other executed phases pass. The lint-only
-repair is merged as `a79a024d` and passes separate exact-source checks. All results
-remain attached to their actual sources. Reviewed `3d242d83` completes original
-EWD998Chan N=3 in both W1 profiles; its [two-cell capacity record](../conformance/reports/perf/2026-10-30-ewd-native-actions-capacity.json)
-does not close the full matrix. Original three-model temporal capacity
-at both profiles and 1/8 workers, integrated correctness qualification, and the
-quiet five-repeat ADR 0119 performance campaign remain incomplete. Reference
-remains the default; simulation/DFID/checkpoints/disk and broader parity remain
-their existing later scope.
+The trusted-core checkpoint has landed bounded construction-history, diagnostic
+receiver and temporal-source-row replay, together with native closed-action
+execution and accurate periodic capture reports (#674–#677, #679 and #683).
+The [implementation and acceptance status](developer/core/m1-status.md) records
+exact boundaries and source-bound results. The `9fc88333` fixture census loses
+no prior agreement and gains 20 old-ID agreements in each profile; it still
+contains refusals, refuted words and an existing comparison difference.
+
+Integrated qualification exposed quadratic history interning (#686). The
+merged private structural-index correction in #687 restores SimpleRegular's
+original counts without removing history semantics. The corrected base `83356b01` passes its full gate and small Auto baselines.
+The original twelve-cell capacity matrix and quiet five-repeat ADR 0119
+performance acceptance remain open. Earlier partial/failed campaigns keep their original source
+and supply no corrected-source acceptance. Merged #688/#689 remove a redundant normalized-membership scan and allow
+concurrent authority reads without changing origin/phase checks. The combined
+24-row development diagnostic retains exact results and improves parallel
+timing, but default Sailfish/SimpleRegular remain slower than paired TLC.
+Broader history (#623), temporal
+source scopes (#502), Next receiver lifecycle (#680), default multi-worker
+comparison registration (#684) and anonymous initial-error replay (#685) remain
+explicit work. Reference remains the default; simulation, DFID, checkpoints,
+disk storage and full-tier breadth retain their existing later scope.

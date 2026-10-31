@@ -16,6 +16,9 @@ The standard is an **unimpeachably sound port**. Every result is verified contin
 > symmetry interactions retain named refusals. Configured native random replacements refuse
 > before startup until their stream authority is proved. See `docs/scoreboard.md`
 > for measured coverage and `docs/ROADMAP.md` for the remaining roadmap.
+> The reference engine remains the default. Bounded native construction histories
+> and independent initial-diagnostic/temporal-source replay are implemented;
+> integrated capacity and TLC-relative performance acceptance remain open.
 
 The checking-only `dive tlc` and installed `tlc` adapter accepts common TLC
 checking flags and module/configuration basenames. `-lncheck final` selects the

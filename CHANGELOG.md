@@ -7,6 +7,10 @@
 - Avoid quadratic interning of equal independent construction histories and
   their enclosing functions. Exact origins, aliases, normalization phases and
   semantic value hashes remain intact in both profiles.
+- Record the version 5 migration notice posted before #679 landed, and update
+  the roadmap/checkpoint to distinguish landed construction-history and error
+  replay from remaining parity and corrected-source qualification. The earlier
+  integrated performance failure remains attached to its original source.
 
 - Register the existing default D-009 reflexive membership behavior of
   `ModelBadPrefix` as an exact model-specific expected divergence. Its exit
