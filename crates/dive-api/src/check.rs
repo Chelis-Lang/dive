@@ -677,8 +677,14 @@ fn check_file_in(
             verified: true,
             ..
         } = &result.verdict
-        && *code == 2103
-        && cause.exception_kind() == Some(dive_eval::ExceptionKind::ToolRuntime)
+        && matches!(
+            (cause.exception_kind(), *code),
+            (Some(dive_eval::ExceptionKind::ToolRuntime), 2103)
+                | (
+                    Some(dive_eval::ExceptionKind::EvalException),
+                    2132 | 2179 | 2178
+                )
+        )
     {
         let site = match site {
             dive_check::ErrorSite::Constraint => Some(dive_trace::CandidateErrorSite::Constraint),

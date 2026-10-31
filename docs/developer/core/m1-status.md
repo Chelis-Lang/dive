@@ -20,6 +20,14 @@ capabilities with explicit refusal boundaries, not complete value-method or
 liveness parity. Store/native byte accounting and broader history producers
 remain unfinished.
 
+Focused candidate-error replay additionally covers Assert/DivZero/Enabled at
+constraint, action-constraint and implied-action sites, plus TLC arithmetic
+overflow and the seen-target implied-action control. Native version 4 retains its
+meaning. Exact typed primary/diagnostic replay and parser-owned implied-action
+cause classification (#697) are checked on both engines/profiles at 1/4 workers.
+These targeted controls do not refresh the source833 census totals below;
+unproved receiver lifetimes, VIEW and temporal candidate scopes remain open.
+
 ### Current checkpoint: implemented versus unqualified
 
 | Area | Current state |

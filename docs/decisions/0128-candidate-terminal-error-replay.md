@@ -1,6 +1,6 @@
 # 0128: Independently replayed candidate-side terminal errors
 
-- **Status:** proposed (implementation prepared; landing requires consumer notice)
+- **Status:** accepted
 - **Date:** 2026-10-30
 
 ## Context
@@ -15,6 +15,10 @@ matching metadata from header checks, cannot establish either event.
 ADR 0125's independent ordered driver already executes the actual candidate
 checks and TLC's per-action enumerate-before-check diagnostic sequence. Its
 Next stage deliberately refuses primary errors at other evaluation sites.
+
+The version-4 [consumer notice](https://github.com/Chelis-Lang/oyster/issues/61#issuecomment-6526681302)
+was posted before the initial implementation landed in #666. The extension below
+uses the same endpoint, final-candidate interpretation and two replay obligations.
 
 ## Decision
 
@@ -62,12 +66,17 @@ Readers must support version 4, its distinct candidate semantics, exact site
 vocabulary and both replay obligations before advancing an immutable producer
 pin. They must reject unknown versions/stages and cannot relabel version 4 as
 version 1. Advance notice to known consumers is required before landing; this
-ADR does not record or authorize that notice. The legacy infallible validation
+initial notice is recorded above. The legacy infallible validation
 entrypoints refuse the new request; fallible source-bound entrypoints read it.
 
-The producer admits only verified deciding-2103 tool/runtime candidate errors
-with original source provenance. Assertions and direct module errors, including
-DivZero and Enabled controls, retain their old unproved endings.
+The producer admits verified deciding-2103 tool/runtime candidate errors and
+typed assertion, division-by-zero and integer-arithmetic overflow exceptions
+with original source provenance. The last three families retain their actual
+2132/2179/2178 identities rather than receiving the nested wrapper. Integer
+overflow constructor provenance comes only from an actual integer module
+operation, not a numeric code, message or general value-layer overflow conversion.
+Set-size overflow remains outside that constructor proof. Fresh replay still
+discovers the candidate and separately executes the diagnostic sequence.
 
 Sixteen existing source fixtures cover Choose, Domain, NonBoolIf, NonEnum and
 TypeErr at constraint/action-constraint/implied-action sites, plus

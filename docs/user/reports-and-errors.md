@@ -225,6 +225,21 @@ it, and plain errors/earlier endpoint stages keep their meanings. Consumers must
 update readers before advancing a producer pin; see the exact wire example and
 landing notice requirement in [ADR 0128](../decisions/0128-candidate-terminal-error-replay.md).
 
+The same version-4 endpoint also covers assertions, division by zero (including
+inside `ENABLED`) and TLC-mode integer arithmetic overflow at these three sites.
+Their deciding codes remain 2132, 2179 and 2178; they do not become nested errors.
+Both normal and diagnostic execution must independently reproduce the claimed
+identities. For example, the existing action-constraint division control runs as:
+
+```sh
+dive check crates/dive-check/tests/fixtures/errors/specs/ErActConstrDivZero/ErActConstrDivZero.tla --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+```
+
+It reports evaluation-error, deciding code 2179/TLC exit 255 and a version-4 final
+candidate word. Default mode has the same division behavior; integer overflow is
+specific to TLC integer mode. Set-sizing and unproved value-method exceptions
+receive no new constructor or replay authority.
+
 Version 5 reserves the `temporal-source-row` error endpoint (ADR 0132). All
 complete `states` form the original source prefix. Its last state is the failing
 source, including when Next failed before emitting a complete candidate.

@@ -2484,6 +2484,21 @@ and report descriptors do not select execution or supply truth. Existing
 supply the primary-header controls. Canonical unknown classifications are not
 changed or granted agreement by the new word proof.
 
+The typed assertion/division/integer-overflow extension consumes the same
+candidate and diagnostic order. At the actual `Naturals`/`Integers` arithmetic
+operation in `dive-eval/src/std.rs`, integer overflow preserves the module's
+`EvalException` constructor (`Naturals.java`/`Integers.java` at the same pin).
+It does not infer that constructor from the 2178 numeric code or set-size error
+text. Existing clean Assert/DivZero/Enabled/Overflow error-matrix streams supply
+the exact primary, deciding, exit and count controls; no golden is edited.
+
+The implied-action classifier consumes the existing scanner's immutable actual
+frames rather than porting a new parser. Pinned `Worker.doNext` prints 2113 with
+the module cause nested as NONE; `ModelChecker.doNext` diagnostic replay and
+`EC.errorConstantToExitStatus` establish the separately deciding module class
+(E4, issue #697). The bounded source-owned framing/lifecycle admission is original
+Rust harness code. It promotes no arbitrary NONE message or mutable transcript.
+
 
 ### Closed ordinary native action atoms
 

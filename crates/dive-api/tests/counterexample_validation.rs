@@ -60,27 +60,16 @@ const FAST_SEEDS: &[&str] = &[
     "crates/dive-check/tests/fixtures/dfid/DfidActionConstrained.tla",
     // Named invariant evaluation error (#490).
     "crates/dive-check/tests/fixtures/errors/specs/ErInvDivZero/ErInvDivZero.tla",
+    "crates/dive-check/tests/fixtures/errors/specs/ErConstrDivZero/ErConstrDivZero.tla",
+    "crates/dive-check/tests/fixtures/errors/specs/ErActConstrDivZero/ErActConstrDivZero.tla",
+    "crates/dive-check/tests/fixtures/errors/specs/ErPropDivZero/ErPropDivZero.tla",
 ];
 
 /// One seed per known refutation, with the refutation it shows.
-const KNOWN_SEEDS: &[(&str, &str)] = &[
-    (
-        "crates/dive-check/tests/fixtures/errors/specs/ErConstrDivZero/ErConstrDivZero.tla",
-        KNOWN_ERROR_RERAISED,
-    ),
-    (
-        "crates/dive-check/tests/fixtures/errors/specs/ErActConstrDivZero/ErActConstrDivZero.tla",
-        KNOWN_ERROR_RERAISED,
-    ),
-    (
-        "crates/dive-check/tests/fixtures/errors/specs/ErPropDivZero/ErPropDivZero.tla",
-        KNOWN_ERROR_RERAISED,
-    ),
-    (
-        "conformance/corpus/compound-domain-emptiness/specifications/EmptyProductSkipsMixedInit/EmptyProductSkipsMixedInit.tla",
-        KNOWN_SKIPPED_INIT_DISJUNCT,
-    ),
-];
+const KNOWN_SEEDS: &[(&str, &str)] = &[(
+    "conformance/corpus/compound-domain-emptiness/specifications/EmptyProductSkipsMixedInit/EmptyProductSkipsMixedInit.tla",
+    KNOWN_SKIPPED_INIT_DISJUNCT,
+)];
 
 /// States explored per run; a stopped run has no counterexample to check.
 const MAX_STATES: u64 = 20_000;
@@ -129,7 +118,7 @@ fn ending_matches(verdict: &str, property: Option<&str>, ending: &Ending) -> boo
         // A failed `Assert` while checking a property is an evaluation error
         // to TLC, but the trace names the assertion itself.
         | ("assertion-failure" | "evaluation-error", Ending::Assertion)
-        | ("assertion-failure" | "evaluation-error" | "overflow", Ending::NextStateError {..})
+        | ("assertion-failure" | "evaluation-error" | "overflow", Ending::NextStateError {..} | Ending::CandidateStateError {..})
         | ("incomplete-state" | "evaluation-error", Ending::PartialNext {..})
         | (
             "property-violation" | "liveness-violation",

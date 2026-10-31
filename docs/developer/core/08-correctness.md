@@ -455,3 +455,38 @@ non-Boolean role results, global visited/alias obligations, unsupported material
 fingerprint demand, effects and temporal models remain refused. This is focused
 word evidence, not a fresh census or closure of the remaining error families.
 Native version-4 reader migration and consumer notice are required before landing.
+
+The same version-4 producer now includes typed assertion, division-by-zero and
+actual integer-arithmetic overflow errors at these sites. The original nine
+Assert/DivZero/Enabled controls in each profile and three additional TLC overflow
+controls require exact pinned observables and fresh consumer validation on both
+engines at one/four workers. The additional `ErPropSeen` control proves the
+implied-action demand on an edge into a previously seen state. Its admission
+does not authorize inferring global newness where invariants require it.
+Their deciding codes stay 2132/2179/2178. Source,
+site, final bindings and diagnostic identities retain the same mutation controls.
+General value-layer overflow, top-level non-Boolean roles, VIEW, temporal models
+and unproved newness/alias obligations gain no authority. This focused repair
+does not refresh the historical census population or close the broader error
+issues; original sources retain their refutations.
+
+The pinned clean `ErPropAssert`, `ErPropDivZero`, `ErPropEnabled` and
+`ErPropOverflow` streams expose a separate harness classification boundary.
+Each prints an actual 2113 ERROR parent containing a 2132/2179/2178 NONE child,
+then the finite behavior and context-only 2103 stack. Physical exits are 14 for
+Assert and 255 for division/overflow. E4 in `02-semantic-contract.md` already
+requires 2113 as the reported class and the actual replayed module error as the
+deciding class. Filtering out every NONE message had left these clean streams
+oracle-error or unclassified even though the native primary/replay identities
+were correct. The complete pre-fix consumer failure remains retained externally;
+no original source-bound census total is revised.
+
+Only immutable parser-owned, canonical parent/child framing and the demonstrated
+whole post-Init/behavior/replay lifecycle may establish these three deciding
+causes. A mutable flat `Transcript`, arbitrary NONE message, altered parent,
+additional error, malformed order or mismatched physical exit supplies no such
+authority. Context-only initial errors (#685), other causes and old Init
+ownership rules retain their existing classifications. This is not a global
+NONE-message promotion, and matching native metadata cannot supply the proof.
+The same parser-owned framing covers `ErPropSeen`; issue #697 tracks this
+classification defect separately from the independent-word obligation.
