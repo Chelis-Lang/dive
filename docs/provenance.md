@@ -2520,6 +2520,14 @@ reference-replay path; mixed-prefix errors keep the checked history guard.
 Owned empty searches do not inspect query class. Projection scratch is fallible
 and polled; seen emissions retain their original generator roots through rollback.
 
+Default normalized-construction miss classification reuses dive's canonical
+class-order argument from `compare::miss_scalars`: inspect the model-value
+prefix, then the first/last non-model classes. This is an original
+result-preserving algorithm over the already admitted canonical projection;
+it grants no normalization/history authority and changes no raw or checked
+comparison demand. Exhaustive heterogeneous subset/query controls compare it
+with the prior complete class scan, including typed-model and big-integer cases.
+
 Tuple/record comparison diagnostic lifetime (#620): actual constructor hooks
 follow `CallStackTool.setSource` and `Tool` tuple/record construction, with
 `TupleValue.equals`93–114 and `RecordValue.equals`336–365 catches at pinned

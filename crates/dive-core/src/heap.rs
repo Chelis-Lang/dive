@@ -928,20 +928,16 @@ impl Heap {
     ) -> Result<Option<bool>, Error> {
         if normalized {
             let view = index.map_or(set, |i| self.arena.literal_sets[i].normalized);
-            if self
-                .view(view)
-                .data
-                .binary_search_by(|&e| self.cmp(e, query))
-                .is_ok()
-            {
+            let values = self.view(view).data;
+            if values.binary_search_by(|&e| self.cmp(e, query)).is_ok() {
                 return Ok(Some(true));
             }
-        } else {
-            for i in 0..count {
-                self.history_poll()?;
-                if self.eq(query, self.construction_at(index, set, i)) {
-                    return Ok(Some(true));
-                }
+            return Ok((!self.construction_sorted_needs_checked(query, values)?).then_some(false));
+        }
+        for i in 0..count {
+            self.history_poll()?;
+            if self.eq(query, self.construction_at(index, set, i)) {
+                return Ok(Some(true));
             }
         }
         for i in 0..count {
@@ -952,6 +948,33 @@ impl Heap {
             }
         }
         Ok(Some(false))
+    }
+
+    // This array is the canonical projection of an already proved normalized
+    // construction. Its ordering supplies no phase or history authority. Model
+    // values precede the primitive scalar classes, which precede compounds.
+    // Only model names need individual inspection; primitive class clashes
+    // are decided by the non-model endpoints, as in compare::miss_scalars.
+    fn construction_sorted_needs_checked(
+        &self,
+        query: Handle,
+        values: &[Handle],
+    ) -> Result<bool, Error> {
+        self.history_poll()?;
+        let models = values.partition_point(|h| h.as_model_id().is_some());
+        for &value in &values[..models] {
+            self.history_poll()?;
+            if crate::compare::default_member_needs_checked(self, query, value) {
+                return Ok(true);
+            }
+        }
+        let remaining = &values[models..];
+        Ok(remaining
+            .first()
+            .is_some_and(|&first| crate::compare::default_member_needs_checked(self, query, first))
+            || remaining.last().is_some_and(|&last| {
+                crate::compare::default_member_needs_checked(self, query, last)
+            }))
     }
 
     fn construction_len(&self, index: Option<usize>, set: Handle) -> usize {
@@ -2006,6 +2029,109 @@ mod tests {
 
     fn heap(full: bool) -> Heap {
         Heap::new(Arc::new(Store::default()), false, full)
+    }
+
+    #[test]
+    fn sorted_construction_miss_matches_every_original_class_scan() {
+        for semantics in [crate::Semantics::default(), crate::Semantics::tlc()] {
+            let mut h = Heap::new(
+                Arc::new(Store::with_semantics(true, semantics)),
+                false,
+                false,
+            );
+            let names: Vec<_> = ["u", "A_x", "B_x", "z", "A_y"]
+                .into_iter()
+                .map(|s| Handle::model(h.store().strings().intern(s).unwrap_or(u32::MAX)))
+                .collect();
+            let text = h.string("text").unwrap_or(Handle::EMPTY);
+            let big = h.int_from_i64(i64::MAX);
+            let tuple = h.tuple_literal(&[int(1), names[0]]);
+            let record = h.record(&[text], &[int(1)]);
+            let set = h.set_from(&mut vec![int(1), int(2)]);
+            let empty = h.set_from(&mut Vec::new());
+            let values = [
+                names[0],
+                names[1],
+                names[2],
+                Handle::FALSE,
+                Handle::TRUE,
+                int(1),
+                big,
+                text,
+                empty,
+                set,
+                tuple,
+                record,
+            ];
+            let nested = h.tuple_literal(&[tuple]);
+            let queries = [
+                names[0],
+                names[1],
+                names[2],
+                names[3],
+                names[4],
+                Handle::FALSE,
+                Handle::TRUE,
+                int(2),
+                big,
+                text,
+                empty,
+                set,
+                tuple,
+                record,
+                nested,
+            ];
+            for mask in 0..(1 << values.len()) {
+                let mut sorted: Vec<_> = values
+                    .iter()
+                    .enumerate()
+                    .filter_map(|(i, &v)| (mask & (1 << i) != 0).then_some(v))
+                    .collect();
+                sorted.sort_unstable_by(|&a, &b| h.cmp(a, b));
+                for query in queries {
+                    let original = sorted.iter().any(|&value| {
+                        crate::compare::default_member_needs_checked(&h, query, value)
+                    });
+                    assert_eq!(
+                        h.construction_sorted_needs_checked(query, &sorted),
+                        Ok(original),
+                        "query {query:?}, values {sorted:?}"
+                    );
+                }
+            }
+            assert!(!h.poisoned());
+        }
+    }
+
+    #[test]
+    fn sorted_construction_model_prefix_polls_the_existing_owner() {
+        use std::sync::atomic::{AtomicUsize, Ordering as AtomicOrdering};
+        #[derive(Debug)]
+        struct Stop(AtomicUsize);
+        impl crate::eval::WorkControl for Stop {
+            fn proceed(&self) -> bool {
+                self.0.fetch_add(1, AtomicOrdering::Relaxed) < 2
+            }
+        }
+        let mut h = heap(false);
+        let mut values: Vec<_> = (0..4096)
+            .map(|i| {
+                Handle::model(
+                    h.store()
+                        .strings()
+                        .intern(&format!("u{i}"))
+                        .unwrap_or(u32::MAX),
+                )
+            })
+            .collect();
+        values.sort_unstable_by(|&a, &b| h.cmp(a, b));
+        h.history_steps.set(0);
+        h.set_history_control(Some(Arc::new(Stop(AtomicUsize::new(0)))));
+        assert!(matches!(
+            h.construction_sorted_needs_checked(int(1), &values),
+            Err(error) if error.kind() == crate::ErrorKind::Stop
+        ));
+        assert!(h.work_interrupted());
     }
 
     /// The heap's copy of the string texts orders strings as the table

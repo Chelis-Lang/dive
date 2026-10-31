@@ -453,6 +453,14 @@ classes remain guarded/refused. See ADR 0131 and the source-pinned
 `construction-set-history` controls. These extend the original local lane;
 #623 remains partial and supplies no Sailfish throughput claim.
 
+After actual normalization and owned-history admission, a default-profile miss
+uses the canonical projection's class order for the existing D-009 class check.
+Model values still receive individual compatibility checks; the first and last
+non-model classes decide primitive scalar clashes. This replaces a repeated
+full scan of normalized tuple collections. It creates no membership cache and
+supplies no phase or origin authority. Raw constructions keep their original
+scan, and the remaining model-prefix loop polls the same resource owner.
+
 New construction work polls the actual existing file-route Budget through the
 controlled explorer hook. Origin-vector capacity is part of Store memory
 reporting; arena history and sparse frontier buffers still require whole-process
