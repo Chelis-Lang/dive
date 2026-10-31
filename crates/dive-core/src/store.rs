@@ -24,7 +24,7 @@
 //! the engine reports as a bug, never as a verdict.
 
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
-use std::sync::{Arc, Mutex, OnceLock, PoisonError, Weak};
+use std::sync::{Arc, Mutex, OnceLock, PoisonError, RwLock, Weak};
 
 use crate::handle::{CLASSES, Handle, LAZY_CLASS, MAX_CLASS_INDEX, mix2};
 use crate::node::{Kind, View, flags};
@@ -511,7 +511,8 @@ pub struct StoreStats {
 
 /// The persistent store.
 pub struct Store {
-    history_views: Mutex<Vec<[Handle; 2]>>,
+    // Exact snapshot registration is exclusive; ownership probes never mutate it.
+    history_views: RwLock<Vec<[Handle; 2]>>,
     cols: Box<[Columns]>,
     shards: Box<[Shard]>,
     generations: Box<[Generation]>,
@@ -604,7 +605,7 @@ impl Store {
     #[must_use]
     pub fn with_semantics(hashcons: bool, semantics: Semantics) -> Self {
         Self {
-            history_views: Mutex::new(Vec::new()),
+            history_views: RwLock::new(Vec::new()),
             cols: (0..SHARDS).map(|_| Columns::new()).collect(),
             shards: (0..SHARDS)
                 .map(|_| Shard {
@@ -628,7 +629,7 @@ impl Store {
     pub(crate) fn history_origin(&self) -> Result<i64, crate::Error> {
         let mut views = self
             .history_views
-            .lock()
+            .write()
             .unwrap_or_else(PoisonError::into_inner);
         let origin = i64::try_from(views.len())
             .ok()
@@ -649,7 +650,7 @@ impl Store {
     ) -> Result<(), crate::Error> {
         let mut views = self
             .history_views
-            .lock()
+            .write()
             .unwrap_or_else(PoisonError::into_inner);
         let index = usize::try_from(origin)
             .ok()
@@ -671,7 +672,7 @@ impl Store {
             return false;
         };
         self.history_views
-            .lock()
+            .read()
             .unwrap_or_else(PoisonError::into_inner)
             .get(index)
             .is_some_and(|slot| slot.contains(&handle))
@@ -945,7 +946,7 @@ impl Store {
             strings: self.strings.memory_usage(),
             history_view_bytes: self
                 .history_views
-                .lock()
+                .read()
                 .unwrap_or_else(PoisonError::into_inner)
                 .capacity()
                 * std::mem::size_of::<[Handle; 2]>(),
@@ -1228,6 +1229,55 @@ mod tests {
             .unwrap_or(0);
         assert!(longest < 256, "history probe cluster has {longest} entries");
         assert!(!heap.poisoned());
+        Ok(())
+    }
+
+    #[test]
+    fn concurrent_history_registration_keeps_exact_snapshot_authority() -> Result<(), crate::Error>
+    {
+        let store = Arc::new(Store::default());
+        let threads: Vec<_> = (0..8)
+            .map(|_| {
+                let store = Arc::clone(&store);
+                std::thread::spawn(move || -> Result<Vec<_>, crate::Error> {
+                    let mut heap = crate::Heap::new(Arc::clone(&store), false, false);
+                    let mut retained = Vec::new();
+                    for _ in 0..64 {
+                        let raw = heap.local_literal(&[int(1), int(0), int(1)])?;
+                        let before = heap.intern_exact(raw)?;
+                        let normalized = heap.norm(raw)?;
+                        let after = heap.intern_exact(normalized)?;
+                        assert_ne!(before, after);
+                        retained.push((before, after));
+                        heap.reset();
+                        for &(before, after) in &retained {
+                            assert!(store.owns_history(before));
+                            assert!(store.owns_history(after));
+                        }
+                        assert!(store.memory_usage().history_view_bytes > 0);
+                    }
+                    Ok(retained)
+                })
+            })
+            .collect();
+        let mut origins = std::collections::BTreeSet::new();
+        for thread in threads {
+            let rows = thread
+                .join()
+                .map_err(|_| crate::Error::internal("construction registration worker failed"))??;
+            for (before, after) in rows {
+                let origin = store.view(before).lo;
+                assert_eq!(origin, store.view(after).lo);
+                assert!(
+                    origins.insert(origin),
+                    "equal constructions need independent origins"
+                );
+                assert!(store.owns_history(before));
+                assert!(store.owns_history(after));
+            }
+        }
+        assert_eq!(origins.len(), 512);
+        assert!(!store.poisoned());
         Ok(())
     }
 

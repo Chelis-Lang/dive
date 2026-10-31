@@ -434,7 +434,10 @@ actual demand. D-009 remains unchanged.
 
 The arena owns mutable phase; normalized immutable snapshots cross real state
 handoff through sparse view rows, including nested EXCEPT parents. The Store's
-private origin table validates exact snapshot handles. `Kind::Set`, view flags,
+private origin table validates exact snapshot handles. Ownership probes and
+capacity accounting share read access; origin allocation and snapshot registration
+keep exclusive access. The lock changes neither origin indexing nor Store-local
+exact-handle authority. `Kind::Set`, view flags,
 persistence and an extensional key alone do not prove history. Canonical keys
 and replay expectations remain separate; rollback rebuilds a freed projection
 from the owned normalization array. A seen emission does not replace a bound
@@ -785,8 +788,9 @@ arena nodes directly.
    a view-flagged node apart from identities (§8, view bits). The engine keeps a state slot's view handle in a
    side table when the plan asks for it.
 7. **Sharing.** `Store` is `Sync` and shared through `Arc`. Inserting takes a
-   per-shard lock; reads and intern hits take none. A persistent handle may be passed to any
-   worker once it has been returned by `intern`.
+   per-shard lock; canonical node reads and intern hits take none. Construction
+   snapshot checks use the shared origin-table access in §8. A persistent handle
+   may be passed to any worker once it has been returned by `intern`.
 
 ## 12. Next step
 
