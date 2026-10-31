@@ -202,6 +202,54 @@ fn compact_preserves_prefix_parallel_and_closing_edges() {
 }
 
 #[test]
+fn hashed_pair_discovery_keeps_exact_cartesian_rows_and_original_edge_positions() {
+    let graph = Graph::new(vec![vec![2, 1, 1], vec![0, 2], vec![1, 0]], vec![2, 0])
+        .expect("reverse roots, duplicate and reverse targets");
+    let t = Tableau {
+        nodes: (0..3)
+            .map(|_| TableauNode {
+                literals: vec![],
+                successors: vec![2, 0, 1],
+                fulfilled: vec![true],
+            })
+            .collect(),
+        roots: vec![2, 1, 0],
+        promise_count: 1,
+    };
+    let labels = Labels {
+        states: vec![],
+        actions: vec![],
+    };
+    let expected_rows: Vec<Vec<usize>> = graph
+        .edges
+        .iter()
+        .flat_map(|row| {
+            (0..3).map(move |_| {
+                row.iter()
+                    .flat_map(|target| [target * 3 + 2, target * 3, target * 3 + 1])
+                    .collect()
+            })
+        })
+        .collect();
+    let expected_originals: Vec<Vec<usize>> = graph
+        .edges
+        .iter()
+        .flat_map(|row| (0..3).map(move |_| (0..row.len()).flat_map(|edge| [edge; 3]).collect()))
+        .collect();
+    // A new randomized lookup table is constructed for every repetition.
+    // Its bucket order must affect neither public nor compact products.
+    for _ in 0..8 {
+        let owned = Product::new(&graph, &t, &labels, Limits::default()).expect("product");
+        assert_eq!(owned.graph.edges, expected_rows);
+        assert_eq!(owned.graph.roots, [0, 1, 2, 6, 7, 8]);
+        assert_eq!(owned.behavior_states, [0, 0, 0, 1, 1, 1, 2, 2, 2]);
+        assert_eq!(owned.original_edges, expected_originals);
+        assert!(owned.acceptance.states.iter().flatten().all(|value| *value));
+        compare(&graph, &t, &labels, &[], Limits::default()).expect("matching compact product");
+    }
+}
+
+#[test]
 fn compact_empty_dead_end_and_unreachable_languages_match_owned() {
     for (edges, roots) in [
         (vec![], vec![]),

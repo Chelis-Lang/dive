@@ -1,5 +1,10 @@
 # Changelog
 
+- Index reachable temporal-product pairs by exact keys during construction,
+  then explicitly restore deterministic Cartesian order for search and witness
+  projection. Index growth and ordering cooperate with the existing run budget;
+  product limits, duplicate edges and original edge positions are preserved.
+
 - Speed up default-profile membership misses in normalized owned construction
   sets. Actual history, checked comparison behavior, raw construction order
   and cooperative resource stops are preserved.

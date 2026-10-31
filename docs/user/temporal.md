@@ -152,6 +152,10 @@ reference route and reports fallback. This implementation establishes no larger
 TLC-relative capacity, throughput improvement or engine-default change. Complete
 memory accounting and original-workload qualification remain open.
 
+Temporal product construction uses exact pair lookup and restores deterministic
+search order before choosing a witness. The optimization applies in both
+profiles under the existing budgets; it changes no option or supported formula.
+
 ## Ordinary checking in the dive profile
 
 With profile-default evaluation, resident fingerprint storage and no storage,
