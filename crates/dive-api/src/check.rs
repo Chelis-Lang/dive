@@ -1911,38 +1911,26 @@ fn trace_doc(
                     .ok_or("missing partial Next source")?,
             }
         }
-        // The ending names the error itself, not the class TLC's site and
-        // replay give it.
-        // Source-qualified initial diagnostic replay still reports the
-        // original configured invariant and underlying cause. The independent
-        // consumer must separately establish its 2147 replay wrapper.
+        // A named word preserves its original cause. The independent reader
+        // must separately prove the initial2147/2102 diagnostic relationship;
+        // the successor2111 relationship retains its existing checks.
         V::EvaluationError {
             site: dive_check::ErrorSite::Invariant,
-            code: 2147,
-            reported: 2102,
-            verified: true,
-            invariant: Some(name),
-            cause,
-            ..
-        } => Ending::InvariantError {
-            name: name.clone(),
-            ec: cause.ec().name().to_owned(),
-        },
-        V::EvaluationError {
-            site: dive_check::ErrorSite::Invariant,
-            // Replay can decide a wrapper or re-raise the same underlying
-            // cause on an excluded candidate. The original invariant-site
-            // name and first report still identify this word's logical claim.
             code,
-            reported: 2111,
+            reported,
             verified: true,
             invariant: Some(name),
             cause,
             ..
-        } if matches!(*code, 2111 | 2103) || *code == cause.ec().code() => Ending::InvariantError {
-            name: name.clone(),
-            ec: cause.ec().name().to_owned(),
-        },
+        } if (*reported == 2102 && *code == 2147)
+            || (*reported == 2111
+                && (matches!(*code, 2111 | 2103) || *code == cause.ec().code())) =>
+        {
+            Ending::InvariantError {
+                name: name.clone(),
+                ec: cause.ec().name().to_owned(),
+            }
+        }
         V::EvaluationError {
             site: dive_check::ErrorSite::Next,
             cause,
