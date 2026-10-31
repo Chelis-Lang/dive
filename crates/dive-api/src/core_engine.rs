@@ -140,6 +140,7 @@ pub(crate) fn result(verdict: Verdict, opts: &CheckOptions, ir: &Ir) -> CheckRes
         stats: None,
         tlc_prints_stats: false,
         counterexample: None,
+        diagnostic_witness: None,
         collision: None,
         store: opts.store,
         fp_index: None,

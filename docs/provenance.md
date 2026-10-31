@@ -2518,3 +2518,12 @@ Uniform primitive receiver failures retain the existing typed error and
 reference-replay path; mixed-prefix errors keep the checked history guard.
 Owned empty searches do not inspect query class. Projection scratch is fallible
 and polled; seen emissions retain their original generator roots through rollback.
+
+Tuple/record comparison diagnostic lifetime (#620): actual constructor hooks
+follow `CallStackTool.setSource` and `Tool` tuple/record construction, with
+`TupleValue.equals`93–114 and `RecordValue.equals`336–365 catches at pinned
+`94d0c5070852b37b801bb8998c436383ab7ee37b`. Initial replay uses the existing
+initial generator, following `ModelChecker.doInit`'s separate source-bearing
+exception catch. The packed owner namespace is native lifetime design, not
+semantic identity or an inference from expression shape/error text. Context-only
+negative outcomes remain unclassified; dynamic Next lifetime is not claimed.

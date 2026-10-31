@@ -37,6 +37,23 @@ The strict harness still refutes this wrapper/word pair; matching metadata
 supplies no replacement proof. Anonymous expansion errors gain no exception,
 and unclassified oracle results remain unclassified.
 
+Initial diagnostic states are separate from formal behavior counterexamples
+(ADR 0133). The bounded initial receiver-error route keeps `counterexample`
+null and carries its original one-state word at `diagnostic_witness.trace`.
+That word still uses version 2, the configured invariant name and underlying
+`GENERAL` cause. Ordinary word validation proves that named cause; it does not
+establish fingerprint wrapper2147 or first report2102.
+
+Consumers must separately reconstruct the first actual Init emission and
+invariant, then the diagnostic receiver's actual method, constructor and source
+lifetime on a fresh session. `SpecModel::initial_invariant_class` supplies this
+distinct evidence. The strict source-bound reader also determines the actual
+initial lifecycle, so removing the auxiliary word and changing claimed report
+or site fields cannot select a no-word generation route. Genuine generation
+and existing materialization cases require their own matching diagnostic replay.
+This adds no trace version, ordinary counterexample, trace-comparison waiver or
+BFS-count certificate. Partial-Init `error_witness` keeps its separate meaning.
+
 This new closed ending requires native trace version 2 (ADR 0118). Existing
 endings still write version 1; readers accept both. A version-1 document carrying
 `invariant-error`, an unknown version, or an unknown ending fails closed. Consumer

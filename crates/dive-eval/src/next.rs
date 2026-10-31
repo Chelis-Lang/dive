@@ -441,6 +441,29 @@ impl Evaluator {
         inits: &[Action],
         sink: &mut dyn FnMut(&Successor<'_>) -> Flow,
     ) -> std::result::Result<Outcome, NextError> {
+        self.init_states_mode(inits, sink, false)
+    }
+
+    /// Runs the same initial generator with the diagnostic tool's source hook.
+    /// Cached/stored values are not relabelled; only actual fresh constructors
+    /// acquire diagnostic sources. The current host owner remains installed.
+    ///
+    /// # Errors
+    /// The actual generation error, refusal or owned interruption.
+    pub fn init_states_diagnostic(
+        &self,
+        inits: &[Action],
+        sink: &mut dyn FnMut(&Successor<'_>) -> Flow,
+    ) -> std::result::Result<Outcome, NextError> {
+        self.init_states_mode(inits, sink, true)
+    }
+
+    fn init_states_mode(
+        &self,
+        inits: &[Action],
+        sink: &mut dyn FnMut(&Successor<'_>) -> Flow,
+        diagnostic: bool,
+    ) -> std::result::Result<Outcome, NextError> {
         for action in inits {
             self.validate_scope(&action.scope())
                 .map_err(|error| NextError {
@@ -465,6 +488,7 @@ impl Evaluator {
         let mut g = Gen {
             core: &self.core,
             init: true,
+            diagnostic,
             s0: StateRef::Empty,
             s1: vec![None; nvars].into(),
             action: first,
@@ -502,6 +526,7 @@ impl Evaluator {
         let mut g = Gen {
             core: &self.core,
             init: false,
+            diagnostic: false,
             s0: StateRef::Vals(s0.clone()),
             s1: vec![None; s0.len()].into(),
             action,
@@ -614,6 +639,7 @@ fn cons(acts: &Acts, kind: Kind, expr: ExprId, env: &Env) -> Acts {
 struct Gen<'a, 's> {
     core: &'a Arc<Core>,
     init: bool,
+    diagnostic: bool,
     /// The current state (`Empty` for initial states).
     s0: StateRef,
     /// The successor being built (`ps`, the initial state, with `init`).
@@ -654,7 +680,12 @@ impl Gen<'_, '_> {
             St {
                 s0: StateRef::Vals(self.s1.clone()),
                 s1: StateRef::Empty,
-                control: control::INIT,
+                control: control::INIT
+                    | if self.diagnostic {
+                        control::DIAGNOSTIC
+                    } else {
+                        0
+                    },
             }
         } else {
             St {

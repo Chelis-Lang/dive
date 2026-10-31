@@ -616,6 +616,15 @@ case as `expected-divergence`, never `agree`. TLC mode retains its actual
 reference error or native refusal. No trace difference is excused, and this
 case grants no answer for other mixed-type queries.
 
+The `comparison-receiver-primary` corpus retains eleven existing default
+comparison results as model-specific expected divergences. Its tuple/record
+domain controls and nested tuple-value control complete by default; TLC stops
+at construction-dependent comparison errors. Each registration binds its exact
+exit and generated-count pair and only the fields that actually differ. The
+Next division-by-zero control remains ordinary agreement. These registrations
+change no evaluator behavior, grant no TLC-mode or trace-validation exception,
+and add no strict parity credit.
+
 **Evidence.**
 
 - ADR 0012.

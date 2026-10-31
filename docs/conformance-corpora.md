@@ -796,3 +796,13 @@ TLC_FINGERPRINT_EXCEPTION2147 with exit75, 1 generated and distinct state,
 depth1 and one queued state. This differs from selecting the defined entry;
 the source-bearing receiver, rather than the division's numeric code, determines
 the wrapper. See [the source mechanism](survey/value-method-error-provenance.md).
+
+The `comparison-receiver-primary` corpus records twelve TLC deciding models and
+twelve accepted SANY modules for #620. Literal tuples/records, scoped LET/INSTANCE
+construction and an initial-state receiver rebuilt during diagnostic Init replay
+retain2147/75 under TLC comparisons. Direct integer and subsequent-invariant
+errors are precedence controls; dynamic Next comparison remains unverified.
+Seven additional context-only streams were deliberately not written as goldens
+by the official generator and live as negative API fixtures. All primary results
+were generated with recorded reasons; no context message was promoted into an
+oracle fact. These selected controls do not refresh historical totals.

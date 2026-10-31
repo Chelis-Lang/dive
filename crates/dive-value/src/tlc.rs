@@ -583,7 +583,7 @@ pub fn equals(a: &Value, b: &Value, ctx: Ctx) -> Result<bool> {
         }
         Value::Fcn(f) => {
             let _guard = Guard::enter()?;
-            equals_fcn(f, a, b, ctx)
+            equals_fcn(f, a, b, ctx).map_err(|error| error.caught_by(f))
         }
     }
 }

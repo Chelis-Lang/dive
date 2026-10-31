@@ -42,6 +42,7 @@
 //! `dive` once it matters.
 
 use crate::cache::Cache;
+mod initial_invariant;
 use crate::config::Config;
 use crate::corpus::ModelMode;
 use crate::divergence::Profile;
@@ -837,6 +838,26 @@ pub fn check_result(outcome: &ProcessOutcome, tlc_profile: bool) -> CheckMapping
     check_result_with_budget(outcome, tlc_profile, None)
 }
 
+/// Reads a report with fresh source validation of an initial diagnostic witness.
+/// The source-free [`check_result`] cannot admit that independently qualified
+/// route. Formal counterexamples and ordinary comparisons retain their meanings.
+///
+/// ```no_run
+/// # fn read(outcome: &dive_conformance::process::ProcessOutcome,
+/// # spec: &dive_api::trace::SpecModel) {
+/// let result = dive_conformance::dive::check_result_with_model(outcome, true, spec);
+/// # let _ = result;
+/// # }
+/// ```
+#[must_use]
+pub fn check_result_with_model(
+    outcome: &ProcessOutcome,
+    tlc_profile: bool,
+    model: &dive_api::trace::SpecModel,
+) -> CheckMapping {
+    check_result_with_source(outcome, tlc_profile, None, None, Some(model))
+}
+
 /// A harness-selected time budget is the sole admitted compat override.
 /// Its reported value and the semantic settings must match the request.
 #[allow(clippy::too_many_lines, reason = "one mapping, field by field")]
@@ -857,6 +878,20 @@ fn check_result_with_policy(
     tlc_profile: bool,
     time_limit: Option<Duration>,
     requested_policy: Option<&str>,
+) -> CheckMapping {
+    check_result_with_source(outcome, tlc_profile, time_limit, requested_policy, None)
+}
+
+#[allow(
+    clippy::too_many_lines,
+    reason = "strict report/profile and optional source qualification"
+)]
+fn check_result_with_source(
+    outcome: &ProcessOutcome,
+    tlc_profile: bool,
+    time_limit: Option<Duration>,
+    requested_policy: Option<&str>,
+    source: Option<&dive_api::trace::SpecModel>,
 ) -> CheckMapping {
     if outcome.timed_out {
         return CheckMapping::Result(Box::new(bare(
@@ -978,7 +1013,7 @@ fn check_result_with_policy(
             );
         }
     };
-    map_check_document(outcome, tlc_profile, &v, temporal.as_ref())
+    map_check_document(outcome, tlc_profile, &v, temporal.as_ref(), source)
 }
 
 /// Validates only the new owner-policy envelope; it establishes no verdict.
@@ -997,7 +1032,7 @@ pub(crate) fn safety_result(
     tlc_profile: bool,
     value: &Value,
 ) -> CheckMapping {
-    map_check_document(outcome, tlc_profile, value, None)
+    map_check_document(outcome, tlc_profile, value, None, None)
 }
 
 #[allow(clippy::too_many_lines, reason = "one mapping, field by field")]
@@ -1006,6 +1041,7 @@ fn map_check_document(
     tlc_profile: bool,
     v: &Value,
     temporal: Option<&ordinary_final::Fields>,
+    source: Option<&dive_api::trace::SpecModel>,
 ) -> CheckMapping {
     if let Err(error) = symmetry_metadata(v) {
         return unclassified(outcome.exit_code, error);
@@ -1131,6 +1167,9 @@ fn map_check_document(
         return CheckMapping::Refused(format!(
             "TLC's error class for this result{site} is not reproduced yet (WP-C4); dive found {verdict} ({code}): {message}"
         ));
+    }
+    if let Err(reason) = initial_invariant::read(v, code, outcome.exit_code, source) {
+        return CheckMapping::Refused(reason);
     }
     let tlc_exit = tlc.get("exit_status").and_then(as_i32);
     if tlc_profile && outcome.exit_code != tlc_exit {
@@ -1324,12 +1363,40 @@ impl Implementation for DiveImplementation {
             )));
         }
         let (command, outcome) = self.run_model(req, false)?;
+        // Only this additive auxiliary route needs source validation before
+        // classification. It must not create a formal counterexample solely
+        // to trigger the ordinary word hook or waive an absent oracle trace.
+        let needs_source = serde_json::from_str::<Value>(&outcome.stdout)
+            .is_ok_and(|value| initial_invariant::requested(&value));
+        let source = if needs_source && matches!(&self.profile, Profile::Dive | Profile::Tlc) {
+            let paths = self
+                .module_path
+                .iter()
+                .map(|entry| entry.path.clone())
+                .collect::<Vec<_>>();
+            match crate::trace_check::load_model(
+                req.corpus_root,
+                req.model,
+                &paths,
+                self.profile == Profile::Tlc,
+            ) {
+                Ok(model) => Some(model),
+                Err(error) => {
+                    return Ok(ImplResult::Unsupported(format!(
+                        "initial diagnostic source binding: {error}"
+                    )));
+                }
+            }
+        } else {
+            None
+        };
         Ok(
-            match check_result_with_policy(
+            match check_result_with_source(
                 &outcome,
                 self.profile == Profile::Tlc,
                 req.budgets.then_some(req.timeout),
                 self.symmetry_policy(),
+                source.as_ref(),
             ) {
                 CheckMapping::Refused(why) => ImplResult::Unsupported(why),
                 CheckMapping::Result(result) => ImplResult::Completed {

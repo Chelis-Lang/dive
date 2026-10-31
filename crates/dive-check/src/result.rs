@@ -398,6 +398,22 @@ pub struct Counterexample {
     pub states: Vec<TraceState>,
 }
 
+/// The original initial-state diagnostic context, not a formal counterexample.
+/// Its values and named underlying error still require independent replay;
+/// neither this typed transport nor a reported wrapper supplies proof.
+#[derive(Clone, Debug)]
+pub struct DiagnosticWitness {
+    pub(crate) states: Vec<TraceState>,
+}
+
+impl DiagnosticWitness {
+    /// The actual recorded diagnostic states, in generation order.
+    #[must_use]
+    pub fn states(&self) -> &[TraceState] {
+        &self.states
+    }
+}
+
 /// The fingerprint-collision figures TLC prints on success, as their text.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Collision {
@@ -445,6 +461,8 @@ pub struct CheckResult {
     pub tlc_prints_stats: bool,
     /// The counterexample, for violations, deadlock and errors in a state.
     pub counterexample: Option<Counterexample>,
+    /// Separate complete initial diagnostic context; never a behavior word.
+    pub diagnostic_witness: Option<DiagnosticWitness>,
     /// Collision figures (fingerprint mode, on success).
     pub collision: Option<Collision>,
     /// The store used.

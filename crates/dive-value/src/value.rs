@@ -744,14 +744,9 @@ pub struct Fcn(pub(crate) Arc<FcnInner>);
 
 pub(crate) struct FcnInner {
     pub(crate) hash: u64,
-    /// The order records' fields and general domains are sorted in.
-    pub(crate) order: ValueOrder,
-    /// For a record: TLC `RecordValue` (a record literal) rather than a string-domain
-    /// `FcnRcdValue`. For a tuple: TLC `TupleValue` rather than a `FcnRcdValue` with
-    /// domain `1..n`.
-    pub(crate) literal: bool,
-    /// The cached FP64 fingerprint of this function alone (see
-    /// [`crate::fp64::FpCache`]).
+    /// Order, literal receiver class and sealed constructor/source-hook facts.
+    /// Replaces the old two bytes plus padding without growing the header.
+    pub(crate) metadata: crate::receiver::FunctionMetadata,
     pub(crate) fp: crate::fp64::FpCache,
     pub(crate) repr: FcnRepr,
 }
@@ -800,6 +795,16 @@ impl Fcn {
     }
 
     fn tuple_as(elems: Vec<Value>, literal: bool) -> Self {
+        Self::tuple_metadata(
+            elems,
+            crate::receiver::FunctionMetadata::new(ValueOrder::default(), literal),
+        )
+    }
+
+    pub(crate) fn tuple_metadata(
+        elems: Vec<Value>,
+        metadata: crate::receiver::FunctionMetadata,
+    ) -> Self {
         let hash = fcn_hash(
             elems
                 .iter()
@@ -809,22 +814,30 @@ impl Fcn {
         );
         Self(Arc::new(FcnInner {
             hash,
-            order: ValueOrder::default(),
-            literal,
+            metadata,
             fp: crate::fp64::FpCache::new(),
             repr: FcnRepr::Tuple(elems.into_boxed_slice()),
         }))
     }
 
     pub(crate) fn record(fields: Vec<(Atom, Value)>, order: ValueOrder, literal: bool) -> Self {
+        Self::record_metadata(
+            fields,
+            crate::receiver::FunctionMetadata::new(order, literal),
+        )
+    }
+
+    pub(crate) fn record_metadata(
+        fields: Vec<(Atom, Value)>,
+        metadata: crate::receiver::FunctionMetadata,
+    ) -> Self {
         let hash = fcn_hash(
             fields.iter().map(|(a, v)| (mix2(K_STR, a.text_hash()), v)),
             fields.len(),
         );
         Self(Arc::new(FcnInner {
             hash,
-            order,
-            literal,
+            metadata,
             fp: crate::fp64::FpCache::new(),
             repr: FcnRepr::Record(fields.into_boxed_slice()),
         }))
@@ -834,8 +847,7 @@ impl Fcn {
         let hash = fcn_hash(pairs.iter().map(|(d, v)| (d.hash64(), v)), pairs.len());
         Self(Arc::new(FcnInner {
             hash,
-            order,
-            literal: false,
+            metadata: crate::receiver::FunctionMetadata::new(order, false),
             fp: crate::fp64::FpCache::new(),
             repr: FcnRepr::General(GeneralFcn::new(pairs, order)),
         }))
@@ -855,20 +867,20 @@ impl Fcn {
     /// that has a string domain (see [`Fcn`]).
     #[must_use]
     pub fn is_record_literal(&self) -> bool {
-        self.0.literal && matches!(self.0.repr, FcnRepr::Record(_))
+        self.0.metadata.literal() && matches!(self.0.repr, FcnRepr::Record(_))
     }
 
     /// Whether this is a tuple literal (TLC `TupleValue`), as opposed to a function
     /// with domain `1..n` that TLC keeps as a `FcnRcdValue` (see [`Fcn`]).
     #[must_use]
     pub fn is_tuple_literal(&self) -> bool {
-        self.0.literal && matches!(self.0.repr, FcnRepr::Tuple(_))
+        self.0.metadata.literal() && matches!(self.0.repr, FcnRepr::Tuple(_))
     }
 
     /// The order the fields or domain are sorted in.
     #[must_use]
     pub fn order(&self) -> ValueOrder {
-        self.0.order
+        self.0.metadata.order()
     }
 
     /// The number of domain elements.
@@ -1015,7 +1027,7 @@ impl Fcn {
             FcnRepr::Tuple(values) => {
                 let mut values = values.to_vec();
                 values[i] = new;
-                Ok(Self::tuple_as(values, self.0.literal))
+                Ok(Self::tuple_as(values, self.0.metadata.literal()))
             }
             FcnRepr::Record(fields) => {
                 if self.order() != ctx.order {
@@ -1023,7 +1035,11 @@ impl Fcn {
                 }
                 let mut fields = fields.to_vec();
                 fields[i].1 = new;
-                Ok(Self::record(fields, self.order(), self.0.literal))
+                Ok(Self::record(
+                    fields,
+                    self.order(),
+                    self.0.metadata.literal(),
+                ))
             }
             FcnRepr::General(general) => {
                 if self.order() != ctx.order || !general.domain.canonical() {
@@ -1042,8 +1058,10 @@ impl Fcn {
                 );
                 Ok(Self(Arc::new(FcnInner {
                     hash,
-                    order: self.order(),
-                    literal: self.0.literal,
+                    metadata: crate::receiver::FunctionMetadata::new(
+                        self.order(),
+                        self.0.metadata.literal(),
+                    ),
                     fp: crate::fp64::FpCache::new(),
                     repr: FcnRepr::General(GeneralFcn {
                         domain: Arc::clone(&general.domain),
