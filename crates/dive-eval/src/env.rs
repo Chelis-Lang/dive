@@ -31,13 +31,16 @@ pub(crate) mod control {
     pub(crate) const INIT: u8 = 1 << 3;
     /// `Const`.
     pub(crate) const CONST: u8 = 1 << 4;
+    /// Source attachment by the diagnostic tool. This changes error provenance,
+    /// never a specification's value or the ordinary evaluation controls.
+    pub(crate) const DIAGNOSTIC: u8 = 1 << 5;
     /// `EvalControl.Clear`.
     pub(crate) const CLEAR: u8 = 0;
 
     /// `EvalControl.semanticallyEquivalent`: equal up to `KeepLazy`, `Init`
     /// and `Const`.
     pub(crate) fn equivalent(a: u8, b: u8) -> bool {
-        let mask = !(KEEP_LAZY | INIT | CONST);
+        let mask = !(KEEP_LAZY | INIT | CONST | DIAGNOSTIC);
         a & mask == b & mask
     }
 }
@@ -102,6 +105,15 @@ pub struct St {
 }
 
 impl St {
+    /// Re-evaluates this context with TLC's diagnostic source-attachment hook.
+    ///
+    /// Only receivers actually constructed in the evaluation acquire a source;
+    /// previously computed or stored values retain their original provenance.
+    #[must_use]
+    pub fn diagnostic(&self) -> Self {
+        self.with_control(self.control | control::DIAGNOSTIC)
+    }
+
     /// Constant-level evaluation, as TLC evaluates `ASSUME`s
     /// (`Tool.isValid(expr)`: `Empty`, `Empty`, `EvalControl.Const`).
     #[must_use]

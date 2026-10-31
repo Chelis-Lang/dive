@@ -32,7 +32,22 @@ pub fn assumption_error(e: &EvalError, message: String) -> Verdict {
 /// check of a state, and `None` for an error while generating them.
 #[must_use]
 pub fn init_error(v: Verdict, state: Option<&str>) -> Verdict {
-    class::init_error(v, state)
+    class::init_error(v, state, None)
+}
+
+/// Classifies a failed check of an actual initial state, including the bounded
+/// diagnostic replay of a pure invariant's newly constructed value receiver.
+/// The replay retains the role's real scope and all previously computed values;
+/// unrelated, effectful or stored-receiver failures gain no source authority.
+#[must_use]
+pub fn initial_check_error(
+    model: &dive_model::Model,
+    verdict: Verdict,
+    state: &[Option<dive_value::Value>],
+) -> Verdict {
+    let diagnostic = crate::engine::initial_value_method_replay(model, &verdict, state);
+    let text = crate::engine::state_text(model, state, model.evaluator.options().ctx);
+    class::init_error(verdict, Some(&text), diagnostic.as_ref())
 }
 
 /// An invariant that failed to evaluate on a state outside the model, which

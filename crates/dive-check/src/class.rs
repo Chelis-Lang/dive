@@ -28,13 +28,14 @@
 //!   source wrap their errors in a `FingerprintException`, which TLC reports
 //!   as `TLC_FINGERPRINT_EXCEPTION` instead (fixtures `ErWrapTupleGuard`,
 //!   `ErWrapRecord`, `ErWrapSetMember`, harness fixture `EvalError`).
-//!   Whether a value has a source depends on where it was built, which dive
-//!   does not track; such errors keep an unverified class.
+//!   Whether a value has a source depends on where it was built. Actual lazy
+//!   function construction and materialization catches retain that provenance;
+//!   other unproved receiver lifetimes keep an unverified class.
 //! - **Initial states** (`ModelChecker.modelCheckImpl`, the `doInit`
 //!   catch): `GENERAL` with the error's text, or `TLC_INITIAL_STATE` naming
 //!   the state when a check of an initial state raised a non-`EvalException`;
-//!   the replay (`doInit(cTool, true)`) then returns `TLC_NESTED_EXPRESSION`
-//!   for every exception.
+//!   the replay (`doInit(cTool, true)`) then returns `TLC_NESTED_EXPRESSION`,
+//!   unless a source-bearing receiver raises `TLC_FINGERPRINT_EXCEPTION`.
 //!   For owned NONE2215 or native2154/NONE2178, the source-qualified harness
 //!   retains GENERAL1000 as primary and the actual replay exit 75. Native
 //!   wrapper causes are retained as typed provenance, never parsed from text.
@@ -88,6 +89,9 @@ const TOOL_MESSAGES: [&str; 8] = [
 /// value's own methods (a tuple index, a record field, a comparison) depend
 /// on where the value was built (see the module documentation).
 fn replay_class_known(e: &EvalError) -> bool {
+    if let Some(receiver) = e.value_method() {
+        return receiver.source().is_some();
+    }
     let code = e.ec().code();
     if e.is_eval_exception() {
         MEASURED_EVAL_EXCEPTIONS.contains(&code)
@@ -130,6 +134,7 @@ pub(crate) fn ec_name(code: u32) -> &'static str {
         2105 => "TLC_ASSUMPTION_EVALUATION_ERROR",
         2111 => "TLC_INVARIANT_EVALUATION_FAILED",
         2113 => "TLC_ACTION_PROPERTY_EVALUATION_FAILED",
+        2147 => "TLC_FINGERPRINT_EXCEPTION",
         2405 => "TLC_POSTCONDITION_EVALUATION_ERROR",
         c => crate::eval_code_name(c),
     }
@@ -178,7 +183,12 @@ fn verdict(
 /// The deciding code when TLC's replay raises `e` again, and whether it is
 /// verified.
 fn replayed(e: &EvalError) -> (u32, bool) {
-    let code = if e.is_eval_exception() {
+    let code = if e
+        .value_method()
+        .is_some_and(|failure| failure.source().is_some())
+    {
+        2147
+    } else if e.is_eval_exception() {
         e.ec().code()
     } else {
         2103
@@ -299,7 +309,11 @@ pub(crate) fn replay_error(v: Verdict, e2: &EvalError) -> Verdict {
 /// (constraints, fingerprint, invariants, implied initial predicates), and
 /// `None` for an error while generating them.
 #[must_use]
-pub(crate) fn init_error(v: Verdict, state: Option<&str>) -> Verdict {
+pub(crate) fn init_error(
+    v: Verdict,
+    state: Option<&str>,
+    diagnostic: Option<&EvalError>,
+) -> Verdict {
     let Verdict::EvaluationError {
         site,
         cause,
@@ -321,10 +335,24 @@ pub(crate) fn init_error(v: Verdict, state: Option<&str>) -> Verdict {
         ),
         _ => (1000, cause.tool_text()),
     };
-    // The replay (`doInit(cTool, true)`) reports every exception it meets
-    // again as `TLC_NESTED_EXPRESSION` (fixtures `ErInit*`, `ErPropInit*`).
-    let verified = replay_class_known(&cause);
-    verdict(site, 2103, verified, reported, message, &cause, invariant)
+    // The replay (`doInit(cTool, true)`) normally reports exceptions as
+    // `TLC_NESTED_EXPRESSION` (fixtures `ErInit*`, `ErPropInit*`). An actual
+    // source-bearing value-method catch takes the separate outer 2147 branch.
+    let sourced_receiver = diagnostic.filter(|replay| {
+        replay.is_eval()
+            && replay.ec() == cause.ec()
+            && replay.exception_kind() == cause.exception_kind()
+            && cause.value_method().is_some_and(|original| {
+                replay.value_method().is_some_and(|actual| {
+                    original.method() == actual.method()
+                        && original.constructor() == actual.constructor()
+                        && actual.source().is_some()
+                })
+            })
+    });
+    let (code, verified) =
+        sourced_receiver.map_or_else(|| (2103, replay_class_known(&cause)), |_| (2147, true));
+    verdict(site, code, verified, reported, message, &cause, invariant)
 }
 
 /// An `ASSUME` that fails to evaluate: `TLC_ASSUMPTION_EVALUATION_ERROR`

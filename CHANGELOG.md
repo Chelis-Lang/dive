@@ -7,6 +7,11 @@
   hidden ENABLED queries and unproved updates retain reference evaluation.
   Eligibility counters alone do not establish speed or model completion.
 
+- Correct initial-invariant whole-function errors to TLC's source-qualified
+  fingerprint exception2147 after actual diagnostic receiver replay, in both
+  execution engines. The underlying cause and counts are preserved; stored or
+  unproved receiver lifetimes remain unverified.
+
 - Avoid temporary comparison-shape maps for bounded collections of closed
   integer-domain functions with matching scalar classes at each key. The
   existing comparison and normalization guards retain all other cases.
