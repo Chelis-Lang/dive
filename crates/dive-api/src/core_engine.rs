@@ -1261,7 +1261,7 @@ fn temporal_on_stack(
 
 /// The counterexample of a core run, in the reference engine's form, so
 /// that the report and its `dive-trace` document are built the same way.
-fn counterexample(
+pub(crate) fn counterexample(
     model: &dive_model::Model,
     store: &Arc<dive_core::Store>,
     trace: &[dive_explore::TraceState],

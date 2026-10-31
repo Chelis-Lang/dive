@@ -383,6 +383,9 @@ impl ActionEvaluation {
 pub enum StateEvaluationSite {
     /// An actually reached source-row call, before the next source expands.
     CaptureRow,
+    /// An actual singleton temporal source-row error after Next was processed,
+    /// with its separate first-primary and diagnostic-suppression evidence.
+    CaptureSourceRow,
     /// Graph labels evaluated after complete exploration.
     FinalLabels,
     /// Graph labels evaluated during a due completed-level prefix check.
@@ -420,6 +423,7 @@ pub struct StateEvaluation {
     core: bool,
     site: StateEvaluationSite,
     row: Option<Box<CaptureRowEvidence>>,
+    source_row: Option<Box<SourceRowEvidence>>,
 }
 
 /// Opaque producer proof for an ordered, MUST-complete source-row demand.
@@ -442,6 +446,43 @@ pub struct CaptureRowEvidence {
     source: usize,
     result: Box<CheckResult>,
     _proof: crate::tlc_plan::demand::Certificate,
+}
+
+/// Producer execution evidence for an error in known ordered temporal bins.
+/// It proves no residual/tableau truth, graph completion or independent word.
+#[derive(Clone, Debug)]
+pub struct SourceRowEvidence {
+    source: usize,
+    result: Box<CheckResult>,
+    primary: dive_eval::EvalError,
+    diagnostic: dive_eval::EvalError,
+    _proof: crate::tlc_plan::demand::SourceCertificate,
+}
+
+impl SourceRowEvidence {
+    /// Actual source identity of the row event.
+    #[must_use]
+    pub const fn source(&self) -> usize {
+        self.source
+    }
+
+    /// Original unsupported capture stop with actual counters and source word.
+    #[must_use]
+    pub fn result(&self) -> &CheckResult {
+        &self.result
+    }
+
+    /// First actual primary: the preceding Next failure, or the row failure.
+    #[must_use]
+    pub fn primary(&self) -> &dive_eval::EvalError {
+        &self.primary
+    }
+
+    /// Error actually reached by the row's diagnostic replay.
+    #[must_use]
+    pub fn diagnostic(&self) -> &dive_eval::EvalError {
+        &self.diagnostic
+    }
 }
 
 impl CaptureRowEvidence {
@@ -491,6 +532,13 @@ impl StateEvaluation {
     #[must_use]
     pub fn capture_row(&self) -> Option<&CaptureRowEvidence> {
         self.row.as_deref()
+    }
+
+    /// Sealed actual singleton source-row error and diagnostic execution.
+    /// Fresh independent source replay is still required before reporting it.
+    #[must_use]
+    pub fn capture_source_row(&self) -> Option<&SourceRowEvidence> {
+        self.source_row.as_deref()
     }
 }
 
@@ -636,6 +684,7 @@ fn state_failure(
             core,
             site: context.errors.state_site(context.attribution),
             row: None,
+            source_row: None,
         }));
     }
     error
@@ -1266,6 +1315,18 @@ fn budget_limit(error: &AnalysisError) -> bool {
     }
 }
 
+fn final_capture(
+    outcome: capture::ControlledExploration,
+) -> Result<capture::Complete, AnalysisError> {
+    match outcome {
+        capture::ControlledExploration::Complete(complete) => Ok(*complete),
+        capture::ControlledExploration::Stopped(result) => Err(AnalysisError::Exploration(result)),
+        capture::ControlledExploration::Prefix(_) => Err(AnalysisError::Inconsistent(
+            "final row capture returned a prefix",
+        )),
+    }
+}
+
 #[allow(
     clippy::too_many_arguments,
     reason = "explicit owner policies and separate typed execution evidence"
@@ -1301,27 +1362,43 @@ fn analyze_unbudgeted(
     let cache = demand
         .as_ref()
         .map(|program| std::sync::Mutex::new(row_demand::Cache::new(program)));
+    let source_demand = if demand.is_none() {
+        row_demand::prepare_source(
+            model,
+            &plans,
+            opts,
+            model.temporals.len(),
+            limits.formula,
+            graph_labels,
+            (authority, &control),
+        )?
+    } else {
+        None
+    };
     let native_hooks = owned::native_hooks(authority, model);
     *stage = Stage::Capture;
     let captured = if let (Some(program), Some(cache)) = (&demand, &cache) {
-        match row_demand::Observe::new(model, &plans, program, cache).explore(
-            opts,
-            limits.capture,
-            None,
-            evaluations,
-            exploration,
-            native_hooks,
-        )? {
-            capture::ControlledExploration::Complete(complete) => *complete,
-            capture::ControlledExploration::Stopped(result) => {
-                return Err(AnalysisError::Exploration(result));
-            }
-            capture::ControlledExploration::Prefix(_) => {
-                return Err(AnalysisError::Inconsistent(
-                    "final row capture returned a prefix",
-                ));
-            }
-        }
+        final_capture(
+            row_demand::Observe::new(model, &plans, program, cache).explore(
+                opts,
+                limits.capture,
+                None,
+                evaluations,
+                exploration,
+                native_hooks,
+            )?,
+        )?
+    } else if let Some(program) = &source_demand {
+        final_capture(
+            row_demand::SourceObserve::new(model, &plans, program).explore(
+                opts,
+                limits.capture,
+                None,
+                evaluations,
+                exploration,
+                native_hooks,
+            )?,
+        )?
     } else {
         match capture::explore_with_native_hooks(model, opts, limits.capture, native_hooks)
             .map_err(|message| {

@@ -298,6 +298,7 @@ impl SpecModel {
             doc.ending,
             Some(
                 Ending::TemporalStateError { .. }
+                    | Ending::TemporalSourceError { .. }
                     | Ending::NextStateError { .. }
                     | Ending::CandidateStateError { .. }
                     | Ending::PartialNext { .. }

@@ -1353,6 +1353,43 @@ fn generator_error(m: &Machine, ex: &mut Explorer<'_>, identity: &[Handle], e: E
     Error::stop()
 }
 
+fn source_row(
+    machine: &mut Machine,
+    explorer: &mut Explorer<'_>,
+    identity: &[Handle],
+    left: u64,
+    terminal: bool,
+) -> Result<(), Error> {
+    let Some(source) = explorer.cur_id else {
+        return Ok(());
+    };
+    let error = terminal.then_some(explorer.failure.as_ref()).flatten();
+    let Some(sink) = explorer.graph.as_deref_mut() else {
+        return Ok(());
+    };
+    let row = graph::SourceRow {
+        source,
+        original: &machine.s0,
+        emitted: explorer.emitted,
+        next_error: error,
+        stats: Stats {
+            left_on_queue: left,
+            ..explorer.stats
+        },
+    };
+    if sink.source_row(&mut machine.heap, row).is_err() {
+        explorer.stats.left_on_queue = left;
+        explorer.stop = Some(Verdict::GraphStop);
+        explorer.end = Some(End {
+            upto: Some(source),
+            last: None,
+            expect: identity.to_vec(),
+        });
+        return Err(Error::stop());
+    }
+    Ok(())
+}
+
 /// Starts the random stream draws come from: the startup stream for
 /// `Init`, or the stream of expanding `state` (`03-value-model.md` §6.1).
 pub(crate) fn start_stream(
@@ -1563,6 +1600,15 @@ fn run(
             }
             .map_err(|e| generator_error(m, ex, state, e));
             if r.is_err()
+                && ex
+                    .failure
+                    .as_ref()
+                    .is_some_and(|failure| matches!(failure.site, Site::Next(_)))
+            {
+                let row_left = (cur.len() / nvars - k - 1 + ex.next.len() / nvars) as u64;
+                source_row(m, ex, state, row_left, true)?;
+            }
+            if r.is_err()
                 && let Some(f) = &ex.failure
                 && f.site_resumes()
             {
@@ -1614,6 +1660,7 @@ fn run(
                 ex.stop = Some(Verdict::GraphStop);
                 return Err(Error::stop());
             }
+            source_row(m, ex, state, left, false)?;
         }
         level_done(ex, nvars)?;
         if parallel {

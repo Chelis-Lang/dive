@@ -201,13 +201,15 @@ fn lasso(value: &Value) -> Result<Trace, String> {
 
 /// Strict finite endpoint transport. Validity remains fresh `SpecModel` replay.
 fn finite_error(value: &Value, physical_exit: Option<i32>) -> Result<Option<Fields>, String> {
-    if value["error_site"] != "temporal-state-row" {
+    let source_row = value["error_site"] == "temporal-source-row";
+    if !source_row && value["error_site"] != "temporal-state-row" {
         return Ok(None);
     }
     let code = value["tlc"]["code"].as_i64();
     let expected = match code {
-        Some(2179) => "TLC_MODULE_DIVISION_BY_ZERO",
-        Some(2182) => "TLC_MODULE_EVALUATING",
+        Some(1000) if source_row => "GENERAL",
+        Some(2179) if !source_row => "TLC_MODULE_DIVISION_BY_ZERO",
+        Some(2182) if !source_row => "TLC_MODULE_EVALUATING",
         _ => return Err("unknown finite temporal error class".into()),
     };
     let properties_empty = |v: &Value| v.is_null() || v.as_array().is_some_and(Vec::is_empty);
@@ -234,8 +236,14 @@ fn finite_error(value: &Value, physical_exit: Option<i32>) -> Result<Option<Fiel
         return Err("contradictory finite temporal error endpoint report".into());
     }
     let document = dive_api::trace::TraceDoc::from_json(&value["counterexample"]["trace"])?;
-    let Some(dive_api::trace::Ending::TemporalStateError { ec, .. }) = &document.ending else {
-        return Err("finite temporal error needs its source-bound endpoint request".into());
+    let ec = match &document.ending {
+        Some(dive_api::trace::Ending::TemporalSourceError { ec, .. }) if source_row => ec,
+        Some(dive_api::trace::Ending::TemporalStateError { ec, .. }) if !source_row => ec,
+        _ => {
+            return Err(
+                "finite temporal error needs its matching source-bound endpoint request".into(),
+            );
+        }
     };
     if ec != expected
         || !document.properties.is_empty()

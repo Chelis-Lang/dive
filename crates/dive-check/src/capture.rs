@@ -24,8 +24,8 @@ pub use checkpoints::{
 pub use csr::{CsrCapture, CsrCaptureInput, CsrComplete, CsrPrefix};
 pub use evidence::{CompleteEvidence, PrefixEvidence};
 
-/// Refuses an actual Next error whose TLC primary depends on unproved later
-/// temporal demand. This is an admission guard, not evidence that fairness
+/// Refuses an actual Next or action-candidate error whose TLC primary depends
+/// on unproved later temporal demand. This is an admission guard, not evidence that fairness
 /// failed, and never changes an error into GENERAL.
 ///
 /// TLC's worker continues liveness-row processing after a Next exception.
@@ -37,7 +37,7 @@ pub use evidence::{CompleteEvidence, PrefixEvidence};
 ///
 /// Statistics, output, workers and elapsed time remain the actual producer's.
 /// The old uncertified error-ending claim and TLC-class/reporting flag are
-/// removed. Successful searches and safety-only Next errors are unchanged.
+/// removed. Successful searches and safety-only errors are unchanged.
 ///
 /// ```no_run
 /// # fn stopped(model: &dive_model::Model, result: &mut dive_check::CheckResult) {
@@ -51,18 +51,21 @@ pub fn refuse_unproved_temporal_next_error(model: &Model, result: &mut CheckResu
     if model.implied_temporals.is_empty() {
         return false;
     }
-    let Verdict::EvaluationError {
-        site: crate::ErrorSite::Next,
-        cause,
-        ..
-    } = &result.verdict
-    else {
+    let Verdict::EvaluationError { site, cause, .. } = &result.verdict else {
         return false;
     };
+    if !matches!(
+        site,
+        crate::ErrorSite::Next
+            | crate::ErrorSite::ActionConstraint
+            | crate::ErrorSite::ImpliedAction
+    ) {
+        return false;
+    }
     if cause.is_eval_exception() {
         return false;
     }
-    let observed = format!("Observed Next evaluation error: {}", cause.tool_text());
+    let observed = format!("Observed {site:?} evaluation error: {}", cause.tool_text());
     result.verdict = Verdict::Unsupported {
         feature: "post-Next temporal-demand primary error classification without a reached-row replay certificate".into(),
     };

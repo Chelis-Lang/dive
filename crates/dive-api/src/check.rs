@@ -1511,7 +1511,14 @@ impl CheckReport {
                 }
                 if let Some((error, document, _)) = e.capture_row_error() {
                     doc["message"] = json!(error.to_string());
-                    doc["error_site"] = json!("temporal-state-row");
+                    doc["error_site"] =
+                        json!(if e.state_evaluation().is_some_and(|state| state.site()
+                            == dive_liveness::analyze::StateEvaluationSite::CaptureSourceRow)
+                        {
+                            "temporal-source-row"
+                        } else {
+                            "temporal-state-row"
+                        });
                     doc["tlc"]["reported"] = json!(error.ec().code());
                     doc["statistics"]["reported_by_tlc"] = json!(true);
                     doc["counterexample"] = json!({
@@ -1520,7 +1527,7 @@ impl CheckReport {
                         "trace": document.to_json(), "validation": "valid",
                     });
                     doc["notes"] = json!([
-                        "The finite behavior and first source-state temporal demand error were independently reconstructed and validated on a fresh source-bound runtime. No BFS counters, lasso or violated-property claim is certified by endpoint validation."
+                        "The finite behavior and first ordered temporal demand error were independently reconstructed and validated on a fresh source-bound runtime. No BFS counters, lasso or violated-property claim is certified by endpoint validation."
                     ]);
                 }
             }

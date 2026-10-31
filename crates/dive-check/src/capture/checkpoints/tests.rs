@@ -67,6 +67,62 @@ const LOOP: &str = "Init == x = 0\nNext == x' = 1 - x";
 const CFG: &str = "INIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n";
 
 #[test]
+fn actual_next_error_emits_terminal_row_without_a_successful_stutter_boundary() {
+    for opts in profiles() {
+        for (prefix, emitted) in [("", 0), ("UNCHANGED x \\/ ", 1)] {
+            let m = model(
+                &format!("Init == x=0\nNext == {prefix}x'=(CHOOSE v \\in {{1,2}}: FALSE)"),
+                CFG,
+                &opts,
+            );
+            let mut phases = Vec::new();
+            let result = run(
+                &m,
+                &opts,
+                &mut Visit(|event: ReachedCheckpoint<'_>| {
+                    phases.push(event.phase());
+                    if event.phase() == CheckpointPhase::TerminalSourceRow {
+                        let next = event.next_error().expect("actual generator error");
+                        assert_eq!(next.class(), ErrorClass::Eval);
+                        assert_eq!(
+                            next.exception_kind(),
+                            Some(dive_eval::ExceptionKind::ToolRuntime)
+                        );
+                        assert_eq!(event.stats().generated, 1 + emitted);
+                        assert_eq!(event.stats().distinct, 1);
+                        assert_eq!(event.stats().left_on_queue, 0);
+                        assert_eq!(event.concrete_successors().len() as u64, emitted);
+                        assert!(
+                            event.edges().iter().all(|edge| edge.ordinal.is_some()),
+                            "failed row has no implicit stutter"
+                        );
+                        return Err(EvalError::general("observed row failure"));
+                    }
+                    assert!(event.next_error().is_none());
+                    Ok(())
+                }),
+            );
+            assert_eq!(
+                phases,
+                [CheckpointPhase::Init, CheckpointPhase::TerminalSourceRow]
+            );
+            let decision = result.decision().expect("separate actual row decision");
+            assert_eq!(decision.phase(), CheckpointPhase::TerminalSourceRow);
+            assert!(decision.next_error().is_some());
+            assert_eq!(
+                stopped(&result)
+                    .counterexample
+                    .as_ref()
+                    .expect("source word")
+                    .states
+                    .len(),
+                1
+            );
+        }
+    }
+}
+
+#[test]
 fn init_is_really_queued_before_invariant_and_transports_original_core_cause() {
     for opts in profiles() {
         let m = model(
