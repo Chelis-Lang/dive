@@ -57,6 +57,25 @@ fn actual_initial_receivers_match_pinned_source_wrappers() {
                         "{name}/{engine:?}/{workers}: {doc}"
                     );
                     assert_eq!(doc["tlc"]["verified"], true, "{doc}");
+                    if name != "InitGeneration" {
+                        assert!(
+                            report
+                                .result()
+                                .expect("safety result")
+                                .counterexample
+                                .is_none()
+                        );
+                        assert_eq!(
+                            report
+                                .diagnostic_witness()
+                                .expect("typed diagnostic context")
+                                .states()
+                                .len(),
+                            1
+                        );
+                        validate_initial_word(&file, name, &doc);
+                    }
+
                     assert_eq!(
                         Value::from(report.exit_code_for(ExitConvention::Tlc)),
                         golden["result"]["exit_code"]
@@ -289,6 +308,54 @@ fn unchanged_counts(name: &str, compat: bool, doc: &Value) {
         assert_eq!(
             doc["statistics"][field], expected,
             "{name}/{compat}/{field}: {doc}"
+        );
+    }
+}
+
+fn validate_initial_word(file: &std::path::Path, name: &str, doc: &Value) {
+    use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
+    assert!(
+        doc["counterexample"].is_null(),
+        "TLC has no formal word: {doc}"
+    );
+    assert_eq!(doc["diagnostic_witness"]["trace"]["version"], 2, "{doc}");
+    assert_eq!(
+        doc["diagnostic_witness"]["trace"]["ending"],
+        serde_json::json!({"kind":"invariant-error","name":"Inv","ec":"GENERAL"}),
+        "{doc}"
+    );
+    let options = TraceOptions {
+        compat_tlc: true,
+        run: Some((19, 0)),
+        ..TraceOptions::default()
+    };
+    let model = SpecModel::load(file, &file.with_extension("cfg"), &options)
+        .expect("fresh independent model");
+    let word = TraceDoc::from_json(&doc["diagnostic_witness"]["trace"]).expect("word");
+    let (report, class) = model
+        .initial_invariant_class(&word, None)
+        .expect("fresh source replay");
+    assert!(
+        matches!(report.validation, Validation::Valid),
+        "{name}: actual named word"
+    );
+    let class = class.expect("independent actual first Init/Inv wrapper proof");
+    assert_eq!(class.deciding_code(), 2147);
+    assert_eq!(class.reported_code(), 2102);
+    for (key, bad) in [("ec", "TLC_FINGERPRINT_EXCEPTION"), ("name", "Forged")] {
+        let mut changed = doc["diagnostic_witness"]["trace"].clone();
+        changed["ending"][key] = Value::from(bad);
+        let mutant = TraceDoc::from_json(&changed).expect("mutant");
+        let (report, class) = model
+            .initial_invariant_class(&mutant, None)
+            .expect("fresh mutant replay");
+        assert!(
+            matches!(report.validation, Validation::Invalid(_)),
+            "{name}/{key}: mutant must fail"
+        );
+        assert!(
+            class.is_none(),
+            "invalid word cannot supply a wrapper certificate"
         );
     }
 }

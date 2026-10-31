@@ -894,6 +894,14 @@ impl CheckReport {
         }
     }
 
+    /// Separate original initial-state diagnostic context. This is not a formal
+    /// counterexample; its named cause and deciding replay need independent proof.
+    #[must_use]
+    pub fn diagnostic_witness(&self) -> Option<&dive_check::DiagnosticWitness> {
+        self.result()
+            .and_then(|result| result.diagnostic_witness.as_ref())
+    }
+
     /// The validated temporal result, when final/short checking ran. Safety
     /// stops are exposed through [`Self::result`] instead.
     #[must_use]
@@ -1643,7 +1651,7 @@ impl CheckReport {
                         .collect();
                     let transported = trace_doc(
                         r,
-                        cx,
+                        &cx.states,
                         ctx,
                         self.next_error_endpoint.as_ref(),
                         self.partial_terminal_endpoint.as_ref(),
@@ -1655,6 +1663,11 @@ impl CheckReport {
                         "states": states,
                         "trace": transported.unwrap_or(Value::Null),
                     });
+                }
+                if let Some(witness) = &r.diagnostic_witness {
+                    let transported = trace_doc(r, witness.states(), ctx, None, None, None);
+                    doc["diagnostic_witness"] =
+                        json!({"trace": transported.unwrap_or(Value::Null)});
                 }
                 if matches!(
                     r.verdict,
@@ -1876,7 +1889,7 @@ impl CheckReport {
 /// verdict has no ending the format names.
 fn trace_doc(
     r: &dive_check::CheckResult,
-    cx: &dive_check::Counterexample,
+    recorded: &[dive_check::TraceState],
     ctx: dive_value::Ctx,
     next_endpoint: Option<&dive_trace::NextStateEndpoint>,
     partial_endpoint: Option<&dive_trace::PartialNextEndpoint>,
@@ -1899,6 +1912,21 @@ fn trace_doc(
         }
         // The ending names the error itself, not the class TLC's site and
         // replay give it.
+        // Source-qualified initial diagnostic replay still reports the
+        // original configured invariant and underlying cause. The independent
+        // consumer must separately establish its 2147 replay wrapper.
+        V::EvaluationError {
+            site: dive_check::ErrorSite::Invariant,
+            code: 2147,
+            reported: 2102,
+            verified: true,
+            invariant: Some(name),
+            cause,
+            ..
+        } => Ending::InvariantError {
+            name: name.clone(),
+            ec: cause.ec().name().to_owned(),
+        },
         V::EvaluationError {
             site: dive_check::ErrorSite::Invariant,
             // Replay can decide a wrapper or re-raise the same underlying
@@ -1941,11 +1969,11 @@ fn trace_doc(
         }
         _ => return Err("verdict has no supported trace ending".into()),
     };
-    let mut states = Vec::with_capacity(cx.states.len());
-    let mut labels = Vec::with_capacity(cx.states.len());
-    for (i, s) in cx.states.iter().enumerate() {
+    let mut states = Vec::with_capacity(recorded.len());
+    let mut labels = Vec::with_capacity(recorded.len());
+    for (i, s) in recorded.iter().enumerate() {
         if s.partial.is_some() {
-            if i + 1 != cx.states.len() || !matches!(ending, Ending::PartialNext { .. }) {
+            if i + 1 != recorded.len() || !matches!(ending, Ending::PartialNext { .. }) {
                 return Err("partial bindings must be a separate final terminal descriptor".into());
             }
             continue;
@@ -1972,7 +2000,7 @@ fn trace_doc(
         states,
         labels,
         ending: Some(ending),
-        length: Some(cx.states.len()),
+        length: Some(recorded.len()),
         source: dive_trace::Source::Dive,
         properties: Vec::new(),
     };

@@ -553,7 +553,10 @@ reference replays actual receiver construction, including a receiver rebuilt by
 the first history-free Init emission, without constraints, VIEW or symmetry;
 cached constants, later initial rows and stored Next values gain no source by
 reuse. This changes diagnostic classification only. The default keeps D-009, and unproved
-core comparisons remain `unsupported`. For example:
+core comparisons remain `unsupported`. This recorded initial state is diagnostic
+context, not a formal counterexample: schema 3 exposes it separately through
+`diagnostic_witness`. Strict consumption requires independent replay of both the
+named cause and the diagnostic wrapper. For example:
 
 ```sh
 dive check conformance/corpus/comparison-receiver-primary/specifications/InitialStateLeft/InitialStateLeft.tla --engine reference --compat=tlc --seed 19 --fp 0

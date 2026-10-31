@@ -6,6 +6,9 @@ use dive_eval::{
 use dive_value::Value;
 use std::sync::Arc;
 fn evaluator(source: &str) -> Evaluator {
+    evaluator_with_options(source, Options::tlc())
+}
+fn evaluator_with_options(source: &str, options: Options) -> Evaluator {
     let text = format!(
         "---- MODULE Receiver ----\nEXTENDS Integers,FiniteSets\nVARIABLE x\n{source}\n====\n"
     );
@@ -13,7 +16,7 @@ fn evaluator(source: &str) -> Evaluator {
     assert!(analysis.accepted(), "{analysis:?}");
     Evaluator::new(
         Model::new(Arc::new(dive_ir::lower(&analysis).expect("IR"))),
-        Options::tlc(),
+        options,
     )
     .expect("evaluator")
 }
@@ -74,4 +77,43 @@ fn diagnostic_constructor_evaluation_keeps_the_actual_interrupt_owner() {
             .value_method()
             .is_some_and(|failure| failure.source().is_some())
     );
+}
+
+#[test]
+fn fresh_literal_catches_preserve_scopes_unused_arguments_and_warm_cache_lifetimes() {
+    for options in [Options::tlc(), Options::dive()] {
+        for body in [
+            "T==<<x>>\nRead==T#FALSE",
+            "Read==[a|->x]#FALSE",
+            "Read==LET T==<<x>> IN T#FALSE",
+            "Ignore(a)==<<x>>#FALSE\nRead==Ignore(1 \\div 0)",
+            "---- MODULE Inner ----\nVARIABLE y\nRead==<<y>>#FALSE\n====\nI==INSTANCE Inner WITH y<-x\nRead==I!Read",
+        ] {
+            let ev = evaluator_with_options(body, options);
+            let def = ev.ir().root_def("Read").expect("Read");
+            for _ in 0..3 {
+                let original = ev
+                    .eval_def(def, &state())
+                    .expect_err("actual ordinary receiver error");
+                assert_eq!(
+                    original.ec().code(),
+                    1000,
+                    "unused division must stay unforced"
+                );
+                let receiver = original
+                    .value_method()
+                    .expect("actual literal receiver catch");
+                assert!(receiver.source().is_none());
+                let diagnostic = ev
+                    .eval_def(def, &state().diagnostic())
+                    .expect_err("fresh diagnostic construction");
+                let actual = diagnostic
+                    .value_method()
+                    .expect("actual diagnostic receiver catch");
+                assert_eq!(actual.method(), receiver.method());
+                assert_eq!(actual.constructor(), receiver.constructor());
+                assert_eq!(actual.source(), Some(actual.constructor()));
+            }
+        }
+    }
 }

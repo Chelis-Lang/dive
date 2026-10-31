@@ -314,6 +314,32 @@ impl SpecModel {
         .map_err(|error| ValidationRunError::ThreadFailure(error.to_string()))?
     }
 
+    /// Validates a named invariant-error word and separately reconstructs its
+    /// actual first-Init diagnostic classification on a fresh private runtime.
+    /// A valid word alone does not grant a deciding-wrapper certificate.
+    ///
+    /// ```no_run
+    /// # fn check(model: &dive_api::trace::SpecModel, doc: &dive_api::trace::TraceDoc)
+    /// # -> Result<(), dive_api::trace::ValidationRunError> {
+    /// let (word, class) = model.initial_invariant_class(doc, None)?;
+    /// if let Some(class) = class {
+    ///     assert_eq!(class.deciding_code(), 2147);
+    /// }
+    /// # let _ = word; Ok(()) }
+    /// ```
+    ///
+    /// # Errors
+    /// Resource exhaustion, actual host interruption, control conflict or
+    /// isolated thread failure; no completed class proof is returned then.
+    pub fn initial_invariant_class(
+        &self,
+        doc: &TraceDoc,
+        control: Option<Arc<dyn dive_eval::HostControl>>,
+    ) -> Result<(Report, Option<dive_trace::InitialInvariantClass>), ValidationRunError> {
+        on_big_stack(|| self.session.initial_invariant_class(doc, control))
+            .map_err(|error| ValidationRunError::ThreadFailure(error.to_string()))?
+    }
+
     /// Validates a trace already read against this model.
     #[must_use]
     pub fn validate_trace(&self, trace: &Trace) -> Report {

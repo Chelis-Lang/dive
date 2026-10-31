@@ -771,7 +771,9 @@ mod interruption_transport {
         assert_eq!(EvalError::from(exhausted).class(), ErrorClass::Bug);
         #[cfg(target_pointer_width = "64")]
         {
-            assert_eq!(std::mem::size_of::<ValueError>(), 32);
+            // Receiver diagnostics live in the rare boxed error payload;
+            // successful Result slots shrink rather than carrying those facts.
+            assert_eq!(std::mem::size_of::<ValueError>(), 16);
             assert_eq!(std::mem::size_of::<ErrorKind>(), 8);
         }
     }
