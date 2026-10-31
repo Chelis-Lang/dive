@@ -1169,7 +1169,7 @@ pub(crate) fn check(
         seed: options.seed.cast_unsigned(),
         states,
     });
-    let out = dive_explore::explore(
+    let out = dive_explore::explore_with_control(
         &plan,
         &store,
         dive_explore::Config {
@@ -1181,6 +1181,8 @@ pub(crate) fn check(
             sample,
         },
         &poll,
+        None,
+        Some(&search_work_control(budget)),
     );
     if let Some(sample) = sample {
         run.sample = crate::core_sample::compare(
@@ -1380,6 +1382,7 @@ pub(crate) fn metrics_json(
                 "retired_table_bytes": m.store_memory.retired_table_bytes,
                 "retired_tables": m.store_memory.retired_tables,
                 "retirement_tracking_bytes": m.store_memory.retirement_tracking_bytes,
+                "construction_history_view_bytes": m.store_memory.history_view_bytes,
                 "rehash_scratch_bytes_cumulative": m.store_memory.rehash_scratch_bytes,
                 "largest_individual_rehash_scratch_bytes": m.store_memory.largest_rehash_scratch_bytes,
                 "strings": {
@@ -1401,4 +1404,19 @@ pub(crate) fn metrics_json(
         "thunks": {"forced": m.thunks.0, "cached": m.thunks.1},
         "memo": memo,
     })
+}
+
+/// Existing armed budget shared by history work; reporting keeps the actual
+/// Search/Capture owner at the ordinary explorer/temporal boundaries.
+pub(crate) fn search_work_control(
+    budget: &dive_check::budget::Budget,
+) -> Arc<dyn dive_core::eval::WorkControl> {
+    #[derive(Debug)]
+    struct Control(dive_check::budget::Budget);
+    impl dive_core::eval::WorkControl for Control {
+        fn proceed(&self) -> bool {
+            matches!(self.0.poll(), Ok(None))
+        }
+    }
+    Arc::new(Control(budget.clone()))
 }

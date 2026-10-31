@@ -280,3 +280,10 @@ id = "constant-retry-lazy"
 path = "conformance/corpus/constant-retry-lazy"
 license = "MIT"
 layout = "examples-manifest"
+
+# Source-qualified literal/map/union set histories and state handoff (#623).
+[[corpus]]
+id = "construction-set-history"
+path = "conformance/corpus/construction-set-history"
+license = "MIT"
+layout = "examples-manifest"

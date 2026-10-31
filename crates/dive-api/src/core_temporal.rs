@@ -306,7 +306,7 @@ fn check_configured_inner(
         }
     };
     run.searched = true;
-    let mut out = dive_explore::explore_with(
+    let mut out = dive_explore::explore_with_control(
         &plan,
         &store,
         dive_explore::Config {
@@ -319,6 +319,7 @@ fn check_configured_inner(
         },
         &poll,
         Some(&mut sink),
+        Some(&crate::core_engine::search_work_control(budget)),
     );
     let graph_error = sink.take_error();
     let (graph, mut values) = sink.finish();

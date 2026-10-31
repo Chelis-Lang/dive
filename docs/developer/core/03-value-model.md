@@ -420,22 +420,32 @@ TLC distinguishes how a set is represented, and the distinction is observable:
   error that the normalized set does not (fixtures `RvMemUnnorm` and
   `RvMemNorm`; ADR 0012).
 
-**Current boundary and next sequence.** Persistence, `Kind::Set` and
-`View::is_norm` do not certify TLC construction or normalization history.
-The consumed local lane retains raw order, duplicates and per-construction
-identity for compiler-selected Bool/inline-numeral/tuple literal sets in
-membership and `Cardinality`, including zero-arity local LET aliases. Other
-canonical builders/imports can discard raw order and duplicates;
-normalization through one alias must also remain distinct from an independent
-equal construction. The identity/view separation below is the planned
-framework, not proof that every transition is implemented. Continue with
-name-token ranks, then covered map/union order, actual demand and alias lifetime, including
-new successor values before commitment. Then consume exact scalar/tuple
-normalization and raw equality-scan versus normalized checked-search behavior;
-class widening and E7 reporting provenance follow separately (`04-plan-compiler.md`
-§7). #621 keeps unknown C2 cases refused in both profiles. The witness memo
-in `06-memoization.md` proves comparison constraints only; it supplies neither
-normalization history nor the generic S5 membership index, which is not built.
+**Current consumed boundary.** Actual literal and MAP constructors now retain
+raw order, duplicate positions and independent object identities for closed
+Bool/inline-Int/owned-string/model-value leaves and nested literal tuples. A
+covered union preserves the empty-left alias, normalizes the right operand when
+required, checks additions against the original left receiver, and returns a
+fresh raw construction. Exact checked insertion, first equal representatives,
+raw receiver equality and normalized query/pivot comparison are consumed at the
+actual demand. D-009 remains unchanged.
+
+The arena owns mutable phase; normalized immutable snapshots cross real state
+handoff through sparse view rows, including nested EXCEPT parents. The Store's
+private origin table validates exact snapshot handles. `Kind::Set`, view flags,
+persistence and an extensional key alone do not prove history. Canonical keys
+and replay expectations remain separate; rollback rebuilds a freed projection
+from the owned normalization array. Raw persistent snapshots without a live
+mutable owner, unknown imports, set-valued elements and unproved receiver
+classes remain guarded/refused. See ADR 0131 and the source-pinned
+`construction-set-history` controls. These extend the original local lane;
+#623 remains partial and supplies no Sailfish throughput claim.
+
+New construction work polls the actual existing file-route Budget through the
+controlled explorer hook. Origin-vector capacity is part of Store memory
+reporting; arena history and sparse frontier buffers still require whole-process
+RSS measurement. The witness memo in `06-memoization.md` proves comparison
+constraints only; it is neither normalization authority nor the unbuilt generic
+S5 membership index.
 
 Identity is extensional: equal sets have one handle. The representation class
 and normalization flag travel separately, as a **lazy view**:
@@ -460,6 +470,7 @@ kept in `View::flags`, which identity ignores:
 | `UNNORM` | every `Kind::SetEnum` node: `Heap::set_enum`, elements in construction order with duplicates | `SetEnumValue` with `isNorm` false | C1 |
 | `RECORD` | a `Fcn` built by `Heap::record` (the evaluator's record literal) | `RecordValue` | C5 |
 | `TUPLE` | an `IntFcn` over `1..n` built by `Heap::tuple_literal` (the evaluator's tuple literal) | `TupleValue` | C2 |
+| `HISTORY` | actual owned construction snapshot; exact handle registered by its producer | retained raw/normalized object view | ADR 0131 |
 | `NESTED_VIEW` | a representation-preserving parent containing a child view | structural persistent class; no new literal class | ADR 0121 |
 
 Rules for the bits:

@@ -273,7 +273,7 @@ struct Info {
     /// it on every evaluation, so the node is never folded, memoized,
     /// cached or skipped (`04-plan-compiler.md` §3).
     effect: bool,
-    /// Local mutable construction history must not be folded or memoized.
+    /// Actual mutable construction history must not be folded or memoized.
     history: bool,
     /// Whether TLC's value of a set expression is `Reducible`
     /// (`04-plan-compiler.md` §4.1), so that TLC builds a filter, function
@@ -845,7 +845,10 @@ impl Compiler<'_> {
                 i.vars = u64::MAX;
             }
         }
-        i.history |= matches!(n, Node::SetEnum(_, true));
+        i.history |= matches!(
+            n,
+            Node::SetEnum(..) | Node::Map { .. } | Node::SetBin(SetOp::Cup, ..)
+        );
         i.red = self.red_of(n);
         i
     }

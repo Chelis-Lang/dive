@@ -201,6 +201,7 @@ impl Machine {
     /// # }
     /// ```
     pub fn set_work_control(&mut self, control: Option<Arc<dyn WorkControl>>) {
+        self.heap.set_history_control(control.clone());
         self.work_control = control;
     }
 
@@ -212,6 +213,7 @@ impl Machine {
             .as_ref()
             .is_some_and(|control| !control.proceed())
         {
+            self.heap.mark_work_interrupted();
             return Err(Error::stop());
         }
         if self.fuel == u64::MAX {
@@ -281,6 +283,21 @@ impl Machine {
     pub fn eval_norm(&mut self, code: &Code, p: P) -> Result<Handle, Error> {
         let v = self.eval(code, p)?;
         self.work_norm(v)
+    }
+
+    pub(crate) fn demand_equals(&mut self, a: Handle, b: Handle) -> Result<bool, Error> {
+        let a = self.work_norm(a)?;
+        let b = self.work_norm(b)?;
+        compare::equals(&self.heap, a, b)
+    }
+
+    pub(crate) fn eval_component(&mut self, code: &Code, p: P) -> Result<Handle, Error> {
+        let value = self.eval(code, p)?;
+        if self.heap.has_construction_history(value) {
+            Ok(value)
+        } else {
+            self.work_norm(value)
+        }
     }
 
     /// Evaluates a node.
@@ -469,7 +486,7 @@ impl Machine {
             Node::SetEnum(items, local) => {
                 let mut v = self.take_scratch();
                 for &i in items {
-                    match self.eval_norm(code, i) {
+                    match self.eval_component(code, i) {
                         Ok(e) => v.push(e),
                         Err(e) => {
                             self.give_scratch(v);
@@ -477,10 +494,16 @@ impl Machine {
                         }
                     }
                 }
-                if *local {
+                if *local
+                    || v.iter()
+                        .all(|&h| crate::compare::literal_value(&self.heap, h))
+                {
                     let r = self.heap.local_literal(&v);
                     self.give_scratch(v);
                     return r;
+                }
+                for value in &mut v {
+                    *value = self.heap.normalize_construction(*value)?;
                 }
                 let r = self.heap.set_from(&mut v);
                 self.give_scratch(v);
@@ -546,9 +569,18 @@ impl Machine {
                 let mut out = Vec::new();
                 self.for_each_binding(code, binds, &mut |m: &mut Self| {
                     let v = m.eval_norm(code, *body)?;
+                    m.charge(1)?;
+                    out.try_reserve(1)
+                        .map_err(|_| Error::unsupported("MAP construction allocation"))?;
                     out.push(v);
                     Ok(true)
                 })?;
+                if out
+                    .iter()
+                    .all(|&h| crate::compare::literal_value(&self.heap, h))
+                {
+                    return self.heap.local_literal(&out);
+                }
                 let r = self.heap.set_from(&mut out);
                 self.checked_set(r)
             }
@@ -584,7 +616,7 @@ impl Machine {
             Node::Tuple(items) => {
                 let mut v = self.take_scratch();
                 for &i in items {
-                    match self.eval_norm(code, i) {
+                    match self.eval_component(code, i) {
                         Ok(e) => v.push(e),
                         Err(e) => {
                             self.give_scratch(v);
@@ -601,7 +633,7 @@ impl Machine {
                 let mut vals = self.take_scratch();
                 for &(k, e) in fields {
                     keys.push(k);
-                    match self.eval_norm(code, e) {
+                    match self.eval_component(code, e) {
                         Ok(v) => vals.push(v),
                         Err(e) => {
                             self.give_scratch(keys);
@@ -1156,6 +1188,11 @@ impl Machine {
     }
 
     fn set_bin(&mut self, op: SetOp, x: Handle, y: Handle) -> Result<Handle, Error> {
+        if op == SetOp::Cup
+            && let Some(result) = self.heap.construction_union(x, y)
+        {
+            return result;
+        }
         let (x, y) = (self.work_norm(x)?, self.work_norm(y)?);
         let fx = self.heap.is_finite(x);
         let fy = self.heap.is_finite(y);
@@ -1717,7 +1754,7 @@ impl Machine {
         let old = self.heap.view(f).values()[i];
         let new = if depth + 1 == u.path.len() {
             self.set_slot(u.at, old);
-            self.eval_norm(code, u.value)?
+            self.eval_component(code, u.value)?
         } else {
             self.except(code, old, u, depth + 1)?
         };

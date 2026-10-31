@@ -159,6 +159,8 @@ pub(crate) enum Occ {
 pub(crate) enum Ending {
     /// Every action ran to the end, or the last successor ends the search.
     Done,
+    /// Actual caller-owned work stopped before another emitted successor.
+    Budget,
     /// The generator itself raised `error` in `action`, after that action
     /// had emitted `emitted` successors.
     GenError {
@@ -227,7 +229,7 @@ impl WorkerSink<'_> {
         for &h in original.unwrap_or(&m.s1) {
             let h = if h.is_empty() {
                 h
-            } else if self.capture_limit.is_some() {
+            } else if self.capture_limit.is_some() || m.heap.has_construction_history(h) {
                 m.heap.intern_exact(h)?
             } else {
                 m.heap.intern(h)?
@@ -267,6 +269,9 @@ impl WorkerSink<'_> {
         };
         // Under symmetry or a VIEW a state outside the model is checked
         // without a lookup, as TLC checks it (see `Explorer::probe`).
+        if inside {
+            crate::normalize_state_history(m)?;
+        }
         let unkeyed = !inside && (plan.symmetry.is_some() || plan.view.is_some());
         let key = if unkeyed {
             0
@@ -425,7 +430,12 @@ fn expand_one(
         match r {
             Ok(()) => {}
             // The last successor recorded ends the search.
-            Err(e) if e.kind() == ErrorKind::Stop => break,
+            Err(e) if e.kind() == ErrorKind::Stop => {
+                if m.heap.work_interrupted() {
+                    sink.out.end = Ending::Budget;
+                }
+                break;
+            }
             Err(error) => {
                 sink.out.end = Ending::GenError {
                     action: i,
@@ -712,6 +722,10 @@ impl crate::Explorer<'_> {
         }
         match &res.end {
             Ending::Done => Ok(()),
+            Ending::Budget => {
+                self.stop = Some(crate::Verdict::Budget);
+                Err(Error::stop())
+            }
             Ending::GenError {
                 action,
                 emitted,

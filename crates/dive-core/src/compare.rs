@@ -27,8 +27,9 @@ use crate::handle::{Handle, Tag};
 use crate::heap::Heap;
 use crate::node::Kind;
 
-/// The first consumed literal lane: closed Bool/inline-Int/tuple literals.
-/// Function storage alone does not establish the tuple receiver class.
+/// Per-value eligibility work for closed scalar/model-value/literal-tuple
+/// trees. Collection work is governed by actual budgets, not this bound.
+/// Function storage alone does not establish a tuple receiver class.
 pub(crate) const LITERAL_WORK: usize = 64;
 
 pub(crate) fn literal_value(heap: &Heap, value: Handle) -> bool {
@@ -44,6 +45,8 @@ pub(crate) fn literal_value_work(heap: &Heap, value: Handle, remaining: &mut usi
     *remaining -= 1;
     match value.tag() {
         Tag::Bool | Tag::Int => true,
+        Tag::Model => value.as_model_id().is_some_and(|id| heap.known_name(id)),
+        Tag::Str => value.as_str_id().is_some_and(|id| heap.known_name(id)),
         Tag::Persistent | Tag::Transient => {
             let view = heap.view(value);
             view.kind == Kind::IntFcn
@@ -54,7 +57,7 @@ pub(crate) fn literal_value_work(heap: &Heap, value: Handle, remaining: &mut usi
                     .iter()
                     .all(|&child| literal_value_work(heap, child, remaining))
         }
-        Tag::Str | Tag::Model | Tag::Empty => false,
+        Tag::Empty => false,
     }
 }
 
@@ -64,7 +67,7 @@ fn literal_refusal() -> Error {
     )
 }
 
-/// TLC's checked comparison on the closed name-free literal subset. Length
+/// TLC's checked comparison on the closed named scalar/tuple subset. Length
 /// decides before fields; the first unequal field decides before later ones.
 /// A reached error remains unsupported until E7 provenance is proved.
 pub(crate) fn literal_cmp(
@@ -74,10 +77,38 @@ pub(crate) fn literal_cmp(
     operation: &'static str,
 ) -> Result<std::cmp::Ordering, Error> {
     heap.literal_step(operation, a, b);
-    literal_cmp_inner(heap, a, b)
+    literal_cmp_inner(heap, a, b, operation == "insert")
 }
 
-fn literal_cmp_inner(heap: &Heap, a: Handle, b: Handle) -> Result<std::cmp::Ordering, Error> {
+fn literal_cmp_inner(
+    heap: &Heap,
+    a: Handle,
+    b: Handle,
+    normalization: bool,
+) -> Result<std::cmp::Ordering, Error> {
+    if let Some(comparable) = mv_comparable(heap, a, b) {
+        if !comparable {
+            return Err(literal_refusal());
+        }
+        return Ok(match (a.as_model_id(), b.as_model_id()) {
+            (Some(x), Some(y)) => {
+                if normalization {
+                    x.cmp(&y)
+                } else {
+                    heap.str_cmp(x, y)
+                }
+            }
+            (Some(_), None) => std::cmp::Ordering::Less,
+            _ => std::cmp::Ordering::Greater,
+        });
+    }
+    if let (Some(x), Some(y)) = (a.as_str_id(), b.as_str_id()) {
+        return Ok(if normalization {
+            x.cmp(&y)
+        } else {
+            heap.str_cmp(x, y)
+        });
+    }
     match (a.tag(), b.tag()) {
         (Tag::Bool, Tag::Bool) => return Ok(a.as_bool().cmp(&b.as_bool())),
         (Tag::Int, Tag::Int) => return Ok(a.as_int().cmp(&b.as_int())),
@@ -101,7 +132,7 @@ fn literal_cmp_inner(heap: &Heap, a: Handle, b: Handle) -> Result<std::cmp::Orde
         return Ok(size);
     }
     for (&x, &y) in a.data.iter().zip(b.data) {
-        let order = literal_cmp_inner(heap, x, y)?;
+        let order = literal_cmp_inner(heap, x, y, normalization)?;
         if !order.is_eq() {
             return Ok(order);
         }
@@ -113,7 +144,14 @@ fn literal_cmp_inner(heap: &Heap, a: Handle, b: Handle) -> Result<std::cmp::Orde
 /// demand sequence as compareTo, but returns false at the first inequality.
 pub(crate) fn literal_equals(heap: &mut Heap, a: Handle, b: Handle) -> Result<bool, Error> {
     heap.literal_step("equals", a, b);
-    literal_cmp_inner(heap, a, b).map(std::cmp::Ordering::is_eq)
+    if let Some(comparable) = mv_comparable(heap, a, b) {
+        return if comparable {
+            Ok(a == b)
+        } else {
+            Err(literal_refusal())
+        };
+    }
+    literal_cmp_inner(heap, a, b, true).map(std::cmp::Ordering::is_eq)
 }
 
 /// The comparison class of a value.
@@ -239,6 +277,11 @@ fn mv_error(heap: &Heap, a: Handle, b: Handle) -> Error {
 /// # Errors
 /// TLC's error for values of different classes.
 pub(crate) fn equals(heap: &Heap, a: Handle, b: Handle) -> Result<bool, Error> {
+    if heap.has_raw_construction(a) || heap.has_raw_construction(b) {
+        return Err(Error::unsupported(
+            "equality requiring nested raw construction demand not yet proved",
+        ));
+    }
     if a == b {
         return Ok(true);
     }

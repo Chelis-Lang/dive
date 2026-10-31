@@ -140,6 +140,12 @@
   when the existing shape proof cannot establish safe normalization;
   `--engine auto` retries the reference engine.
 
+- Extend core set-construction history to actual scalar/model-value/nested-tuple
+  literal, MAP and covered union producers, including raw successor queries,
+  nested EXCEPT, sparse normalized state handoff and replay. Preserve alias and
+  first-representative behavior; unknown histories/error provenance still refuse.
+  New bulk work uses the actual run budget. This remains partial #623 coverage,
+  without whole-model Sailfish performance qualification.
 - `--engine core` consumes a bounded local Bool/inline numeral/tuple literal
   set lane in membership and `Cardinality`, with raw order, duplicate and
   alias normalization history retained. C2 normalization is checked in both

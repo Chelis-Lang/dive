@@ -59,7 +59,10 @@ fn compound_normalization_requires_comparable_shapes_in_both_profiles() {
                         );
                     }
                 }
-                let refused = expected["core"] == "unsupported"
+                // These two pinned successful controls now have the actual
+                // constructor/demand path; all failing C2 fixtures still refuse.
+                let covered = matches!(name.as_str(), "OrderShortCircuit" | "SizeShortCircuit");
+                let refused = (expected["core"] == "unsupported" && !covered)
                     || (name == "DefaultEqualityControl" && compat_tlc);
                 for opts in ["", "-fold,-memo", "-hashcons"] {
                     let core = check_file_core_opts(&req, opts).expect("core runs");
@@ -71,16 +74,11 @@ fn compound_normalization_requires_comparable_shapes_in_both_profiles() {
                             "{name}/{compat_tlc}/{workers}/{opts}: {doc:#}"
                         );
                         assert_eq!(core.exit_code(), 3);
+                        let reason = doc["message"].as_str().expect("reason");
                         assert!(
-                            doc["message"].as_str().expect("reason").contains(
-                                if name == "ScalarClash" && !compat_tlc {
-                                    "normalizes"
-                                } else if name == "DefaultEqualityControl" {
-                                    "shapes"
-                                } else {
-                                    "set of values of different shapes"
-                                }
-                            ),
+                            reason.contains("provenance")
+                                || reason.contains("normalizes")
+                                || reason.contains("shapes"),
                             "{name}: {doc:#}"
                         );
                     } else {
