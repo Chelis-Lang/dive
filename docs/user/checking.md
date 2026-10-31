@@ -267,8 +267,9 @@ dive check conformance/corpus/construction-set-history/specifications/ModelMapUn
 Raw membership scans the receiver's construction order. Normalization uses
 checked insertion and retains the first equal representative; normalized
 membership uses the actual checked search. The default keeps D-009's documented
-comparison policy. Reached errors whose value-source diagnostic provenance is
-unproved remain `unsupported`; raw persistent snapshots without a live owner,
+comparison policy and avoids repeated full scans of normalized tuple collections
+after an unsuccessful membership search. Reached errors whose value-source
+diagnostic provenance is unproved remain `unsupported`; raw persistent snapshots without a live owner,
 unknown imported histories, set-valued elements and unproved function receiver
 classes do not gain support from this path. Existing time/memory budgets stop
 new bulk work without a model verdict, including after printed output or register
