@@ -1,5 +1,9 @@
 # Changelog
 
+- Avoid repeated successor-row scans during native temporal action-predicate
+  evaluation. The first original successor, implicit stutter, value-conversion
+  demand and error ordering are preserved.
+
 - Index reachable temporal-product pairs by exact keys during construction,
   then explicitly restore deterministic Cartesian order for search and witness
   projection. Index growth and ordering cooperate with the existing run budget;
