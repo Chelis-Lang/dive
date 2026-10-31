@@ -608,6 +608,14 @@ results for defined comparisons that TLC stops with an evaluation error; the
 TLC counterpart remains implemented and tested. Set construction still follows
 TLC's normalization rules, so some heterogeneous set literals remain refusals.
 
+In the `ModelBadPrefix` corpus control, the configured model value `a` is a
+member of `{1,a}` by reflexivity. The default answers `TRUE` and finishes with
+two states; TLC encounters a typed-model comparison error before reaching that
+element and exits75 after one state. The harness records this exact default
+case as `expected-divergence`, never `agree`. TLC mode retains its actual
+reference error or native refusal. No trace difference is excused, and this
+case grants no answer for other mixed-type queries.
+
 **Evidence.**
 
 - ADR 0012.

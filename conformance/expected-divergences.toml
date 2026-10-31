@@ -107,6 +107,19 @@ fields = ["verdict", "error_class", "violated_property", "counts.*", "trace.leng
 justification = "Canonical CHOOSE order (D-006): CHOOSE e \\in {\"zeta\", \"alpha\", \"mid\"} : TRUE is \"alpha\" in the canonical order and \"zeta\" in TLC's interning order. TLA+ fixes neither, so SLex holds under dive's default and is violated under TLC's"
 link = "docs/divergences.md#registry"
 
+# D-009: reflexive membership succeeds before an unrelated raw prefix refusal.
+# Exact existing model/default profile only; no new comparison policy.
+[[divergence]]
+id = "d009-modelbadprefix-reflexive-membership"
+pattern = "specifications/ModelBadPrefix/ModelBadPrefix.cfg"
+profile = "dive"
+exit_code_pair = { expected = 75, actual = 0 }
+generated_count_pair = { expected = 1, actual = 2 }
+expected_verdict = "success"
+fields = ["verdict", "error_class", "counts.distinct_states", "counts.depth"]
+justification = "D-009: reflexive a \\in {1,a} succeeds in the default profile despite TLC's earlier typed-model comparison refusal; pinned TLC fingerprint exception2147 stops at 1 distinct/1 generated/depth1, while default completes at 2/2/depth2. No trace or TLC-profile differences are authorized."
+link = "docs/divergences.md#registry"
+
 # D-023: established native exit statuses previously omitted by comparison.
 # Exact measured model paths only; no wildcard for future liveness outcomes.
 # Every other compared field and independent trace validation must still agree.
