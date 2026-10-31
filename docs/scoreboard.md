@@ -6,21 +6,23 @@ name lists agree; a different oracle list is accepted only after fresh independe
 whole-word and exact complete-attribution validation. These targeted controls do
 not refresh historical corpus totals or establish general liveness parity.
 
-The separate `constant-retry-lazy` microcorpus pins three TLC model results and
-three SANY inputs for failed constant pre-evaluation (#670). At `36345f9c`,
-named and inline function selection preserve lazy demand; NamedAction's reported
-word validates independently. All six entries agree in both profiles at 1/4
-workers. This targeted result does not refresh historical populations or close
-a parity surface. Selected whole-function diagnostic-header replay is repaired
-by #676; unproved receiver lifetimes remain unverified.
+The separate `constant-retry-lazy` microcorpus now pins four TLC model results
+and four SANY inputs for failed constant pre-evaluation and the source-qualified
+WholeFunctionError diagnostic (#670/#676). At historical `36345f9c`, its first
+three named/inline/action controls preserve lazy demand; NamedAction's reported
+word validates independently, with all six original entries agreeing in both
+profiles at 1/4 workers. The later whole-function diagnostic repair retains its
+own scope; unproved receiver lifetimes remain unverified. These targeted
+controls do not refresh historical populations or close a parity surface.
 
-Original EWD998Chan N=3 now completes on reviewed source `3d242d83` in both
+Earlier reviewed source `3d242d83` completed original EWD998Chan N=3 in both
 native W1 profiles under the unchanged 900-second/16-GiB policy: TLC 535.537s,
 default 861.826s, each 1,524,022 distinct /12,882,257 generated /depth58, verified
 success and exhausted capture. The [source-bound capacity record](../conformance/reports/perf/2026-10-30-ewd-native-actions-capacity.json)
 preserves raw hashes, native use and limits. These two cells do not complete the
 joint three-model W1/W8 matrix, quiet performance qualification or phase exit.
-The default run's 38.174-second wall-time margin remains a performance target.
+That historical default run had only 38.174 seconds of wall-time margin; the
+newer source-bound matrix is recorded separately in the current checkpoint.
 
 L5's native capture/analysis/report path is implemented: persistent original
 rows, checked CSR, controlled eager Graph admission, bounded closed-function
@@ -33,35 +35,33 @@ TLC-relative capacity/performance qualification remains open. No corpus
 population, parity-surface, throughput or default-engine credit follows from
 this storage integration (ADRs 0117 and 0122).
 
-Runtime `68dd8266` includes #655/#656, native budget/cache work,
-#658 (word-relative names), #659 (ordered terminal/partial evidence) and
-#661 (runtime-name admission proof). Its fixture census is complete with findings;
-the completed `68dd` full gate exits 1 only for integrated Clippy; all other
-executed phases pass.
-The lint-only repair is merged as `a79a024d` with separate exact-source
-Clippy/required-CI passes.
-Exact fairness-primary
-#502 remains open. The [current checkpoint](developer/core/m1-status.md) and
-[development record](../conformance/reports/perf/2026-10-30-native-development.json)
-separate implemented work from unqualified capacity/performance. No historical
-corpus count below is relabeled as this source, and partial Init evidence is
-not a formal behavior word. Reference remains default.
+The current 2026-10-31 implementation includes native closed-action evaluation,
+actual periodic capture metadata, owned construction-history handoff, bounded
+initial tuple/record diagnostic replay and version-5 temporal source-row replay
+(#674–#677, #679 and #683). The [current checkpoint](developer/core/m1-status.md)
+separates these capabilities from remaining refusals and qualification. The
+`9fc88333` integrated campaign exposed a real history-interner performance
+regression (#686); reviewed correction #687 preserves history and semantic hashes.
+The failed/partial source results are retained. Corrected-source capacity and
+quiet throughput remain unqualified; reference remains default.
 
 #619 soundness boundary: compound set normalization uses the existing shape
 proof in both core profiles. Unproved nested comparisons return unsupported;
 homogeneous, record-domain and lazy controls remain supported. Twelve pinned
 consumed cases are in `crates/dive-api/tests/fixtures/core-normalization/`.
 This does not add a completed parity surface; the separate reference initial
-fingerprint classification finding remains open as #620.
+fingerprint classification finding #620 is repaired in its bounded first-Init
+receiver scope by #683; broader Next receiver lifecycle remains #680.
 
 Named terminal invariant-error and property words may end outside model
 constraints after ordered constraint evaluation (#499). Four new model controls
 have generated goldens; four invariant-error streams remain unclassified.
 This repairs logical witness validation and adds no historical corpus credit;
 generic constraint/action proofs and uncovered terminal sites remain open.
-Scoped ordered Next/partial evidence is implemented in #659; partial Init is
-`error_witness`, not a formal `counterexample`, and unclassified primary outcomes
-gain no class agreement merely because their evidence validates.
+Scoped ordered Next/partial evidence is implemented in #659. The former
+partial-Init `error_witness` route is closed. The separate initial receiver
+diagnostic route uses `diagnostic_witness.trace` and a null formal
+`counterexample` (ADR 0133); a valid word alone never grants class agreement.
 
 Parity means observable results (ADR 0086). For every corpus model, dive must
 match the pinned TLC on:
@@ -76,9 +76,47 @@ match the pinned TLC on:
 dive does not emulate arbitrary or nondeterministic TLC internals, such as
 timing, thread or queue order, tableau numbering or SCC and lasso choice.
 
+The [complete original twelve-cell source833 capacity matrix](../conformance/reports/perf/2026-10-31-original-capacity.json) records ten
+successes: all CoffeeCan3000/EWD998Chan cells and both default ABA cells. ABA
+TLC/W1 stops in product analysis and TLC/W8 in atoms at the unchanged
+900-second limit. Default ABA/W8 finishes at889seconds with little margin.
+Capacity acceptance remains open; completed capture counts are not temporal
+success. Source-qualified rows and limitations are in the
+[current checkpoint](developer/core/m1-status.md).
+
 ## Corpus scoreboard
 
-The separate integrated fixture shadow census at `68dd8266` selects 1,497 of
+The corrected base `83356b01` passes its full gate (2,997 tests; six declared
+skips) and both 156-model Auto baselines: 150 TLC agreements/six unsupported,
+and 144 default agreements/seven expected divergences/five unsupported. All
+458 SANY comparisons agree. Actual core strict agreements are 124 TLC and
+120 default; fallback, frontend and expected-divergence credit stays separate.
+The [local qualification record](../conformance/reports/core/2026-10-31-local-qualification.json)
+binds complete raw evidence and distinct gate/census ELFs. Its repeated fixture
+census preserves all 1,191 default / 1,161 TLC agreements and every prior
+non-agreement ID. TLC `LvPeriodic` now stops at its time budget; the finding
+remains open. These are source-bound results, not release acceptance or
+qualification of subsequent performance changes.
+
+The superseded integrated `9fc88333` shadow census selects 1,512 of 1,629
+configurations, retaining 99 parser exclusions and 18 ambiguous selections.
+No prior agreement is lost against either `68dd8266` or `c21e5097`; each
+profile gains 20 old-ID agreements versus the former and 60 versus the latter.
+Fifteen new selected configurations are counted separately.
+
+| Profile | Shadow agree | Refused | Stops | Trace refuted | Unconfirmed | Differ |
+|---|---:|---:|---:|---:|---:|---:|
+| default | 1,191 | 285 | 8 | 21 | 7 | 0 |
+| TLC | 1,161 | 311 | 6 | 24 | 9 | 1 |
+
+The [source-bound record](../conformance/reports/core/2026-10-31-superseded-local-qualification.json)
+preserves all 5,438 physical exits, remaining findings and a downloaded/hash-verified
+external archive. Its small Auto panel times out on SimpleRegular in both
+profiles; its full gate was stopped after the history-interner regression was
+confirmed. These are failed/partial source results, not a clean release gate,
+current corrected-source credit or pinned-TLC parity counts.
+
+The historical integrated fixture shadow census at `68dd8266` selects 1,497 of
 1,614 configurations (99 parser exclusions, 18 ambiguous skips): 1,161 default /
 1,135 TLC shadow agreements; 287/309 refusals, 6/4 stops, 36/39 refuted words,
 7/9 unconfirmed words and 0/1 differences. Both profiles improve 42 old IDs
@@ -109,12 +147,15 @@ Sailfish/performance qualification remains open.
 
 The `comparison-receiver-primary` microcorpus pins twelve TLC deciding models
 and twelve SANY inputs for actual tuple/record equality source hooks (#620).
-Nine initial receiver/rebuild controls are consumed by reference/Auto at workers
-1/4 under TLC comparisons; default D-009 success and native refusals remain.
-Seven context-only negative fixtures have no invented primary golden. The
-original sixteen-case matrix plus three scoped constructor controls covers 228
-API calls; dynamic Next receiver replay remains unproved. This is partial #620
-coverage, not a historical population refresh or general value-method parity.
+Bounded first-Init reference/Auto controls now consume independent cause
+words and fresh source/lifetime diagnostic replay (#683, ADR 0133). The formal
+counterexample remains null; `diagnostic_witness.trace` is separate evidence.
+At TLC workers 1/4, reference records 11 agreements and one known Next-literal
+refusal; core records one agreement and 11 explicit comparison refusals.
+Default retains D-009 success; W4 registration failures remain open as #684 rather than weakening
+numeric registry matching. Context-only negative fixtures have no invented
+primary golden; dynamic Next receiver replay remains #680. This adds no
+historical population or general value-method parity credit.
 
 The separate `literal-set-history-primary` microcorpus pins 18 controls for
 the first local name-free literal lane (#623). Ten primary successes and one

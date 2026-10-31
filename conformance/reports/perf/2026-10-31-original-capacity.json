@@ -1,0 +1,1521 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-10-31T18:32:50.679840+00:00",
+  "decision": {
+    "evidence": "APPROVE-EVIDENCE-ONLY",
+    "capacity_acceptance": "REJECT-CAPACITY-ACCEPTANCE",
+    "reason": "All twelve original cells executed and preserved: ten successes and two ABA TLC native time-budget stops."
+  },
+  "scope": "One observation per original temporal-capacity cell on the frozen source and VM; no quiet throughput, TLC-relative speed or milestone-completion acceptance.",
+  "source": "83356b0102983f118ff1aa80d761680fee8adf7c",
+  "tree": "acf40c1a5c5f9d6d0d55b7bab55a7c113fd88038",
+  "binary_sha256": "6772fde89ebff60324ce233765f7ee5ad8e7e2b9b13fdb225c4118336aca4df0",
+  "binaries_sha256": {
+    "dive": "6772fde89ebff60324ce233765f7ee5ad8e7e2b9b13fdb225c4118336aca4df0",
+    "dive-bench": "232ea99fa6799c2d5ff98672672133eca6bf67aecdfa7906916c0916a8bc063f",
+    "dive-conformance": "eb3dbff144c8553ac031a8fd81b6951e96c828d21b7bdc5cf16ddabc117d30d2"
+  },
+  "source_pin_files_sha256": {
+    "conformance/oracles.toml": "f618f1b6e55e7e7859ddb65b7195c06c6131485a837be1e444f206a05e9f35b7",
+    "conformance/corpora.toml": "62015c59ce395c8d3d89f1abd18d5547e8ba551047c46fbf0631033f9181f380",
+    "crates/dive-bench/benchmarks.toml": "5a1a11b0398324394a2cc0b3ca8679b744bd20ced27cb6c4cfe662c8da942c8e",
+    "Cargo.lock": "48a5e53ab9ea85ab4c862325957f0168d385471658fb43a6b08cd667b14b184d",
+    "rust-toolchain.toml": "5c93b0bc9781994987494808030f259cb11c2a9c9b733e6a63b8b6d49598d14e"
+  },
+  "source_qualification": {
+    "executed_source_only": true,
+    "newer_sources_qualified": false,
+    "superseded_9fc_evidence_credited": false,
+    "later_688_689_cdaf_sources_qualified": false,
+    "reproducible_build_reperformed": false,
+    "assurance": "Archived source/ELF receipt, actual archived ELF hashes, and preserved driver checks of checkout identity and clean status before each row."
+  },
+  "corpus": {
+    "id": "examples",
+    "commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f"
+  },
+  "oracle": {
+    "id": "tlc-2026.10.06.014338",
+    "sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "golden_workers": 1,
+    "fresh_tlc_timing_performed": false
+  },
+  "execution_policy": {
+    "seed": 0,
+    "fingerprint_polynomial": 0,
+    "engine": "core",
+    "native_budget_ms": 900000,
+    "sampled_memory_budget_bytes": 17179869184,
+    "external_backstop_seconds": 930,
+    "max_states": null,
+    "max_depth": null,
+    "retries": 0,
+    "substitutions": 0,
+    "whole_run_fallbacks": 0,
+    "workers": [
+      1,
+      8
+    ],
+    "profiles": [
+      "tlc",
+      "default"
+    ],
+    "original_template_order_preserved": true,
+    "driver_sha256": "1a2bc2688d55fc17fd8d65642cc1ac4a36a1e235356d9c02276718cf06ea0769",
+    "templates_sha256": "9e30672372fe6997d94eb4ad66023d9dd5b3f67a3c26d7b3050217d00faeef7a",
+    "capacity_bindings_sha256": "f651b2d8dab7a18b85a3e0e33f7226f94a2baf545f5ecd8f2790f4b23e4c9a06",
+    "budget_scope": "the check after loading: evaluator-backed fresh model binding after structural configuration/evaluator construction, safety search, graph capture, temporal analysis and fresh native temporal-candidate validation including its rebinding, and producer ASSUME using existing amortized loop checkpoints; structural binding, independent validation ASSUME, post-binding symmetry preparation, serialization, quiet value/bulk/native units, deferred providers retained by other evaluators and diagnostic reconstruction after a deciding event are not interrupted; legacy TLC/session and standalone validation are not controlled; memory of the whole process",
+    "memory_scope": "Sampled process RSS plus swap and GNU time maximum RSS are separate observations. Cooperative sampling is not an allocation-time hard cap; collector accounting remains incomplete."
+  },
+  "machine": {
+    "instance": "i-0e6be2fb5ec1c55af",
+    "instance_type": "c7i.4xlarge",
+    "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+    "physical_cores": 8,
+    "logical_cpus": 16,
+    "smt": "on",
+    "numa_nodes": 1,
+    "affinity_cpus": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "memtotal_kib": 32306632,
+    "quiet_window_certified": false,
+    "host_preflight_sha256": "0d8f55fbd2d9721432caad9b590b79da3493b590d9adf28070b2633eb95e4946"
+  },
+  "inputs": {
+    "CoffeeCan3000Beans": {
+      "cfg_scope": "original pinned configuration",
+      "effective_cfg_sha256": "7904ab6bc7fa788828f04c5db64f85c96859bca2e7019341d6294ab1d032cf83",
+      "golden_sha256": "f974757cf9d20f8d14938e84b050a8c05f1fe7e900663d748c50ca0eff967cef",
+      "model": "specifications/CoffeeCan/CoffeeCan3000Beans.cfg",
+      "module": "specifications/CoffeeCan/CoffeeCan.tla",
+      "module_sha256": "32c5d9c900104c0d8be0d3730a6013d141dc90901e08ccaea403fb0be731cd90",
+      "scaling_population_at_least_400000_distinct": true,
+      "source_files": {
+        "APCoffeeCan.tla": "1de47b998ded67418cdab386f9ddde0122dcdaf553b8cca126c670045d67dbc3",
+        "CoffeeCan.tla": "32c5d9c900104c0d8be0d3730a6013d141dc90901e08ccaea403fb0be731cd90",
+        "CoffeeCan_proof.tla": "afed664aed94d10e6cdde95895ee79b41d60a27116bdf40d08813dcc5f2b00ab"
+      },
+      "constants": {
+        "MaxBeanCount": 3000
+      },
+      "properties": [
+        "EventuallyTerminates",
+        "MonotonicDecrease",
+        "LoopInvariant",
+        "TerminationHypothesis"
+      ]
+    },
+    "EWD998Chan": {
+      "cfg_scope": "original pinned configuration",
+      "effective_cfg_sha256": "259100c5161cf1e04dce4c9898957c5ff7ba81f790c840396a2a7b5e618eb044",
+      "golden_sha256": "a2563fc08eecd0ec85b27ff26685a2560e6e4bdf74ef15b0c38fbb127f749ba5",
+      "model": "specifications/ewd998/EWD998Chan.cfg",
+      "module": "specifications/ewd998/EWD998Chan.tla",
+      "module_sha256": "ebdb5e9c6469fb1afc3b12198e1e2159b3ff3fa76d7bd15e5e11dce92b72313c",
+      "scaling_population_at_least_400000_distinct": true,
+      "source_files": {
+        "AsyncTerminationDetection.tla": "c1b15be68a73c6e5f69c5c09f2736870182a9b0765ad9860452240119911b030",
+        "AsyncTerminationDetection_proof.tla": "87cc4e25be553691b1819b1be20b0addec2f724cec9ffe081014b23f99722ec7",
+        "EWD998.tla": "b51ba3587e0d1b88a38cc15cd667b7a50ccb72e7f5f79f7260c97e473f9392e8",
+        "EWD998Chan.tla": "ebdb5e9c6469fb1afc3b12198e1e2159b3ff3fa76d7bd15e5e11dce92b72313c",
+        "EWD998ChanID.tla": "c498e5e35a83d84257016fdf4ba359ddb40dbb5f3b2234656e32b419a5499e93",
+        "EWD998ChanID_export.tla": "638f814c422250d6debe1209419971b66ead59c8aa8aca4a2efcc29feb379985",
+        "EWD998ChanID_shiviz.tla": "43739b7a7c0754fbb2cf5a7606df9bd9610fc4bc3f22b79aab559e2f4e630c98",
+        "EWD998ChanTrace.tla": "da182795698ff457ae8979b7d97cd47842d75e3d860323ca02031dc47c940171",
+        "EWD998Chan_opts.tla": "4f29c2b6208a54f1ba954fe455f47c70898789b9549d97b6deca6c9efbeaacab",
+        "EWD998PCal.tla": "d1622e16901edfa5b01d4e9c00779408b97483156d241c7b0f22515a1d81dc0d",
+        "EWD998PCal_proof.tla": "fdf1114b7c47216f4b4a3c81db0cc34dd92c0712bad6c31eef09751835d906fd",
+        "EWD998_anim.tla": "6265b417dc405685a3e860493bb21bc4481b2ac278daff99e281a25e7324e209",
+        "EWD998_opts.tla": "5eab17aa1ab6cff0df0cda646453e240c92ed7378e51b4c97b3597fb732a8f85",
+        "EWD998_optsSC.tla": "bf863afe83e52cc6c08e671100a1c15bb4d9ad6735b7887f8ac5cd254ef2334d",
+        "EWD998_proof.tla": "2469117c5148dd3971326c0cc80cdc7665fbe859688f3c635681d3a069029517",
+        "Folds.tla": "2f8c0a7de9a64a5276a78cb7b048e18038d37787439bb9e60df126dc7608a35a",
+        "SmokeEWD998.tla": "c59b406bc1d54108b3d842e41bc2444c915adde416ebd8a02cb5fe4f6b13f808",
+        "SmokeEWD998_SC.tla": "063fe7c67a95789aeb793a67b8ac0135be60749356824e5d85fbe1fed09599d3",
+        "Utils.tla": "386c5319fd101fdde36610466f82151e8a39e01d1c6c8c44e894f7589bcc2b7b"
+      },
+      "constants": {
+        "N": 3
+      },
+      "properties": [
+        "EWD998Spec"
+      ]
+    },
+    "aba_asyn_byz": {
+      "cfg_scope": "original pinned configuration",
+      "effective_cfg_sha256": "07d4cdd82bab8afc2055adcf3d7202ade9223e573b9fdc41e03e978601df97f2",
+      "golden_sha256": "7a362a8e283e2f8e16bb562f72e65848f3cb73a4b134486fa5c517ad65776fd1",
+      "model": "specifications/aba-asyn-byz/aba_asyn_byz.cfg",
+      "module": "specifications/aba-asyn-byz/aba_asyn_byz.tla",
+      "module_sha256": "8d58bba250c826ed5655364210152c873b52f9837c5592d1a688020abe4eab6c",
+      "scaling_population_at_least_400000_distinct": true,
+      "source_files": {
+        "aba_asyn_byz.tla": "8d58bba250c826ed5655364210152c873b52f9837c5592d1a688020abe4eab6c"
+      },
+      "constants": {
+        "N": 4,
+        "T": 1,
+        "F": 1
+      },
+      "properties": [
+        "Unforg_Ltl",
+        "Corr_Ltl",
+        "Agreement_Ltl"
+      ]
+    }
+  },
+  "campaign": {
+    "started_utc": "2026-10-31T16:25:22.861426+00:00",
+    "finished_utc": "2026-10-31T18:24:24.841290+00:00",
+    "planned_cells": 12,
+    "actual_cells": 12,
+    "complete": true,
+    "successes": 10,
+    "native_time_stops": 2,
+    "all_expected_success": false,
+    "driver_exit_status": 1,
+    "raw_receipt_sha256": "b0f066caf530a0370e6de5ec07cac3547d774d6e91c245424715f86a48752ba0"
+  },
+  "rows": [
+    {
+      "index": 0,
+      "model": "CoffeeCan3000Beans",
+      "arm": "dive-tlc-w1",
+      "profile": "tlc",
+      "requested_workers": 1,
+      "used_workers": 1,
+      "verdict": "success",
+      "qualified_expected_success": true,
+      "physical_exit": 0,
+      "json_exit_code": 0,
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "verified": true
+      },
+      "diagnostic_codes": [],
+      "property": null,
+      "counterexample_present": false,
+      "statistics": {
+        "depth": 1,
+        "distinct": 4504500,
+        "generated": 18000002,
+        "initial_generated": 4504500,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "execution": {
+        "capture_completed": true,
+        "exhausted": true,
+        "stage": "complete"
+      },
+      "stopped": null,
+      "engine": "core",
+      "engine_fallback": null,
+      "seed": 0,
+      "fingerprint": {
+        "polynomial_index": 0,
+        "polynomial_source": "flag",
+        "scheme": "tlc"
+      },
+      "lncheck": "final",
+      "native_budget_ms": 900000,
+      "memory_budget_bytes": 17179869184,
+      "external_backstop_seconds": 930,
+      "external_timeout": false,
+      "started_utc": "2026-10-31T16:25:22.932129+00:00",
+      "finished_utc": "2026-10-31T16:30:46.659289+00:00",
+      "controller_wall_seconds": 323.726959175,
+      "json_elapsed_ms": 323659,
+      "sampled_memory": {
+        "final_sampled": true,
+        "initial_sampled": true,
+        "metric": "rss+swap",
+        "observed_max_bytes": 4819505152,
+        "samples": 3231,
+        "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+        "status": "sampled",
+        "unavailable_at": null
+      },
+      "gnu_time_maximum_rss_bytes": 4834701312,
+      "gnu_time_exit_status": 0,
+      "gnu_time_swaps": 0,
+      "native_storage": "native-csr",
+      "collector_accounting_complete": false,
+      "raw_archive_directory": "reports/final-capacity-original-12/00-CoffeeCan3000Beans-dive-tlc-w1",
+      "raw_files": {
+        "MODEL_STARTED.json": {
+          "sha256": "82af3f66130ca1877dc9ac980b12a82c2e441866bcfe7678679bd9e97d8634a1",
+          "bytes": 111
+        },
+        "argv-source-binding.json": {
+          "sha256": "84754e5b2a8cf0b3c9a3564343b6fb6e816c55ba72fdcc753fb776d2a6c987db",
+          "bytes": 2306
+        },
+        "physical.rc": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        "receipt.json": {
+          "sha256": "d73f7ca473a203f97a4cfc483b1040c229d6ebdec3646497086d901887bc91f0",
+          "bytes": 6655
+        },
+        "resource-v.txt": {
+          "sha256": "11372fb4236a866aaa2326438daa208ad6a3eff0aff177db392bfaa9e8ed5e2f",
+          "bytes": 1483
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout.json": {
+          "sha256": "ac24669588d76e35f209996a9f2b187841dd9d57d26cd3735abc1eddf9e6b25d",
+          "bytes": 9018
+        }
+      }
+    },
+    {
+      "index": 1,
+      "model": "CoffeeCan3000Beans",
+      "arm": "dive-default-w1",
+      "profile": "default",
+      "requested_workers": 1,
+      "used_workers": 1,
+      "verdict": "success",
+      "qualified_expected_success": true,
+      "physical_exit": 0,
+      "json_exit_code": 0,
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "verified": true
+      },
+      "diagnostic_codes": [],
+      "property": null,
+      "counterexample_present": false,
+      "statistics": {
+        "depth": 1,
+        "distinct": 4504500,
+        "generated": 18000002,
+        "initial_generated": 4504500,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "execution": {
+        "capture_completed": true,
+        "exhausted": true,
+        "stage": "complete"
+      },
+      "stopped": null,
+      "engine": "core",
+      "engine_fallback": null,
+      "seed": 0,
+      "fingerprint": {
+        "polynomial_index": 0,
+        "polynomial_source": "flag",
+        "scheme": "dive"
+      },
+      "lncheck": "deterministic",
+      "native_budget_ms": 900000,
+      "memory_budget_bytes": 17179869184,
+      "external_backstop_seconds": 930,
+      "external_timeout": false,
+      "started_utc": "2026-10-31T16:30:46.733358+00:00",
+      "finished_utc": "2026-10-31T16:35:56.180184+00:00",
+      "controller_wall_seconds": 309.446498284,
+      "json_elapsed_ms": 309419,
+      "sampled_memory": {
+        "final_sampled": true,
+        "initial_sampled": true,
+        "metric": "rss+swap",
+        "observed_max_bytes": 4820000768,
+        "samples": 3089,
+        "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+        "status": "sampled",
+        "unavailable_at": null
+      },
+      "gnu_time_maximum_rss_bytes": 4819664896,
+      "gnu_time_exit_status": 0,
+      "gnu_time_swaps": 0,
+      "native_storage": "native-csr",
+      "collector_accounting_complete": false,
+      "raw_archive_directory": "reports/final-capacity-original-12/01-CoffeeCan3000Beans-dive-default-w1",
+      "raw_files": {
+        "MODEL_STARTED.json": {
+          "sha256": "cc82ca7e372541ae9d0f937fe8924e76936d75945e8a180cae41c4114f9a482e",
+          "bytes": 111
+        },
+        "argv-source-binding.json": {
+          "sha256": "d72a8c3e6d45fef15ade22c1644fe340e6958ce5b5de2183b80da1dddaeeff71",
+          "bytes": 2294
+        },
+        "physical.rc": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        "receipt.json": {
+          "sha256": "77e1d828dd6aebcb2c9eb24ef87a2a31d612da54add0bdbd32bb9f296de30b8d",
+          "bytes": 6658
+        },
+        "resource-v.txt": {
+          "sha256": "561bf73ff4770f8e6467bae445b8e7e4d8583783d36d98f3c62b53550871691a",
+          "bytes": 1470
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout.json": {
+          "sha256": "879d4ef58569f9728e9b5dead86f46b54fcdabe783d9f9cdca7a92010896ff99",
+          "bytes": 9268
+        }
+      }
+    },
+    {
+      "index": 2,
+      "model": "CoffeeCan3000Beans",
+      "arm": "dive-tlc-w8",
+      "profile": "tlc",
+      "requested_workers": 8,
+      "used_workers": 8,
+      "verdict": "success",
+      "qualified_expected_success": true,
+      "physical_exit": 0,
+      "json_exit_code": 0,
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "verified": true
+      },
+      "diagnostic_codes": [],
+      "property": null,
+      "counterexample_present": false,
+      "statistics": {
+        "depth": 1,
+        "distinct": 4504500,
+        "generated": 18000002,
+        "initial_generated": 4504500,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "execution": {
+        "capture_completed": true,
+        "exhausted": true,
+        "stage": "complete"
+      },
+      "stopped": null,
+      "engine": "core",
+      "engine_fallback": null,
+      "seed": 0,
+      "fingerprint": {
+        "polynomial_index": 0,
+        "polynomial_source": "flag",
+        "scheme": "tlc"
+      },
+      "lncheck": "final",
+      "native_budget_ms": 900000,
+      "memory_budget_bytes": 17179869184,
+      "external_backstop_seconds": 930,
+      "external_timeout": false,
+      "started_utc": "2026-10-31T16:35:56.253133+00:00",
+      "finished_utc": "2026-10-31T16:42:44.251199+00:00",
+      "controller_wall_seconds": 407.9976462189999,
+      "json_elapsed_ms": 407970,
+      "sampled_memory": {
+        "final_sampled": true,
+        "initial_sampled": true,
+        "metric": "rss+swap",
+        "observed_max_bytes": 4817321984,
+        "samples": 4073,
+        "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+        "status": "sampled",
+        "unavailable_at": null
+      },
+      "gnu_time_maximum_rss_bytes": 4824293376,
+      "gnu_time_exit_status": 0,
+      "gnu_time_swaps": 0,
+      "native_storage": "native-csr",
+      "collector_accounting_complete": false,
+      "raw_archive_directory": "reports/final-capacity-original-12/02-CoffeeCan3000Beans-dive-tlc-w8",
+      "raw_files": {
+        "MODEL_STARTED.json": {
+          "sha256": "e32d7725055d16cdb12e5c26921069f6ac37b3eacf713e1b5f3ded7222a4ae22",
+          "bytes": 111
+        },
+        "argv-source-binding.json": {
+          "sha256": "a1f3ea728e28dcca148b53735b8f0757d18a862da6b97194e994acf7d206d1e1",
+          "bytes": 2306
+        },
+        "physical.rc": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        "receipt.json": {
+          "sha256": "df7d2f574f589307c9adf6dd417f389cef8154c34e77cbd81db8e907d4815ce5",
+          "bytes": 6659
+        },
+        "resource-v.txt": {
+          "sha256": "e75b2db33c09230661d533321b7524adaaba2348005a87e6a850575919784fac",
+          "bytes": 1489
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout.json": {
+          "sha256": "a14c6376e8bd0be24d3a98fc645b3163c3fdf243f78fa32036934accd9ace20b",
+          "bytes": 9027
+        }
+      }
+    },
+    {
+      "index": 3,
+      "model": "CoffeeCan3000Beans",
+      "arm": "dive-default-w8",
+      "profile": "default",
+      "requested_workers": 8,
+      "used_workers": 8,
+      "verdict": "success",
+      "qualified_expected_success": true,
+      "physical_exit": 0,
+      "json_exit_code": 0,
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "verified": true
+      },
+      "diagnostic_codes": [],
+      "property": null,
+      "counterexample_present": false,
+      "statistics": {
+        "depth": 1,
+        "distinct": 4504500,
+        "generated": 18000002,
+        "initial_generated": 4504500,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "execution": {
+        "capture_completed": true,
+        "exhausted": true,
+        "stage": "complete"
+      },
+      "stopped": null,
+      "engine": "core",
+      "engine_fallback": null,
+      "seed": 0,
+      "fingerprint": {
+        "polynomial_index": 0,
+        "polynomial_source": "flag",
+        "scheme": "dive"
+      },
+      "lncheck": "deterministic",
+      "native_budget_ms": 900000,
+      "memory_budget_bytes": 17179869184,
+      "external_backstop_seconds": 930,
+      "external_timeout": false,
+      "started_utc": "2026-10-31T16:42:44.322949+00:00",
+      "finished_utc": "2026-10-31T16:49:16.837806+00:00",
+      "controller_wall_seconds": 392.514373321,
+      "json_elapsed_ms": 392484,
+      "sampled_memory": {
+        "final_sampled": true,
+        "initial_sampled": true,
+        "metric": "rss+swap",
+        "observed_max_bytes": 4819972096,
+        "samples": 3918,
+        "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+        "status": "sampled",
+        "unavailable_at": null
+      },
+      "gnu_time_maximum_rss_bytes": 4825575424,
+      "gnu_time_exit_status": 0,
+      "gnu_time_swaps": 0,
+      "native_storage": "native-csr",
+      "collector_accounting_complete": false,
+      "raw_archive_directory": "reports/final-capacity-original-12/03-CoffeeCan3000Beans-dive-default-w8",
+      "raw_files": {
+        "MODEL_STARTED.json": {
+          "sha256": "6ed4ef6f800b1d75ed12c0dd478e1f7f2d8d56433dd12be60fd87b77ebd07416",
+          "bytes": 113
+        },
+        "argv-source-binding.json": {
+          "sha256": "aa7b80c49fa5680364e3092b678138786a93cd45f2f42406d5a302b2bb3cd98a",
+          "bytes": 2294
+        },
+        "physical.rc": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        "receipt.json": {
+          "sha256": "0f8a82f6a1ade6039823dc332c3b22298cf2855d1358ee588576a812c575831f",
+          "bytes": 6660
+        },
+        "resource-v.txt": {
+          "sha256": "2b6fb88c9f913b0b9c20370255dcb38ac47ddc71588c9389bf04a28f025ac234",
+          "bytes": 1476
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout.json": {
+          "sha256": "559995d3f453c90877f4b0b4a6e7a0fc2dccc914cce54dc7984d336dd1e02cea",
+          "bytes": 9288
+        }
+      }
+    },
+    {
+      "index": 4,
+      "model": "EWD998Chan",
+      "arm": "dive-default-w1",
+      "profile": "default",
+      "requested_workers": 1,
+      "used_workers": 1,
+      "verdict": "success",
+      "qualified_expected_success": true,
+      "physical_exit": 0,
+      "json_exit_code": 0,
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "verified": true
+      },
+      "diagnostic_codes": [],
+      "property": null,
+      "counterexample_present": false,
+      "statistics": {
+        "depth": 58,
+        "distinct": 1524022,
+        "generated": 12882257,
+        "initial_generated": 192,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "execution": {
+        "capture_completed": true,
+        "exhausted": true,
+        "stage": "complete"
+      },
+      "stopped": null,
+      "engine": "core",
+      "engine_fallback": null,
+      "seed": 0,
+      "fingerprint": {
+        "polynomial_index": 0,
+        "polynomial_source": "flag",
+        "scheme": "dive"
+      },
+      "lncheck": "deterministic",
+      "native_budget_ms": 900000,
+      "memory_budget_bytes": 17179869184,
+      "external_backstop_seconds": 930,
+      "external_timeout": false,
+      "started_utc": "2026-10-31T16:49:16.909281+00:00",
+      "finished_utc": "2026-10-31T17:00:58.944777+00:00",
+      "controller_wall_seconds": 702.0348975260001,
+      "json_elapsed_ms": 701960,
+      "sampled_memory": {
+        "final_sampled": true,
+        "initial_sampled": true,
+        "metric": "rss+swap",
+        "observed_max_bytes": 1875656704,
+        "samples": 7007,
+        "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+        "status": "sampled",
+        "unavailable_at": null
+      },
+      "gnu_time_maximum_rss_bytes": 1875230720,
+      "gnu_time_exit_status": 0,
+      "gnu_time_swaps": 0,
+      "native_storage": "native-csr",
+      "collector_accounting_complete": false,
+      "raw_archive_directory": "reports/final-capacity-original-12/04-EWD998Chan-dive-default-w1",
+      "raw_files": {
+        "MODEL_STARTED.json": {
+          "sha256": "3a91b50646905386fe933d96e736abef59bed8f794e45568f1a5fd7babf649d7",
+          "bytes": 113
+        },
+        "argv-source-binding.json": {
+          "sha256": "0674bf797fe039d7f11e84c220b9d2855028064507349924bda54b1179bb1128",
+          "bytes": 3797
+        },
+        "physical.rc": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        "receipt.json": {
+          "sha256": "51d3ab427d12acf12da64e45115216fcc74abad4e521b5830fdbba5c859f7875",
+          "bytes": 8164
+        },
+        "resource-v.txt": {
+          "sha256": "d5b41e6e1b08432092c7635f6d60fde8b428e23d49597c17e879961c01c2720e",
+          "bytes": 1461
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout.json": {
+          "sha256": "e4552a184b5a3f4b99aabe9f6fd3635f9b1a2c341fb808cf57c9cf43416274bd",
+          "bytes": 11970
+        }
+      }
+    },
+    {
+      "index": 5,
+      "model": "EWD998Chan",
+      "arm": "dive-default-w8",
+      "profile": "default",
+      "requested_workers": 8,
+      "used_workers": 8,
+      "verdict": "success",
+      "qualified_expected_success": true,
+      "physical_exit": 0,
+      "json_exit_code": 0,
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "verified": true
+      },
+      "diagnostic_codes": [],
+      "property": null,
+      "counterexample_present": false,
+      "statistics": {
+        "depth": 58,
+        "distinct": 1524022,
+        "generated": 12882257,
+        "initial_generated": 192,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "execution": {
+        "capture_completed": true,
+        "exhausted": true,
+        "stage": "complete"
+      },
+      "stopped": null,
+      "engine": "core",
+      "engine_fallback": null,
+      "seed": 0,
+      "fingerprint": {
+        "polynomial_index": 0,
+        "polynomial_source": "flag",
+        "scheme": "dive"
+      },
+      "lncheck": "deterministic",
+      "native_budget_ms": 900000,
+      "memory_budget_bytes": 17179869184,
+      "external_backstop_seconds": 930,
+      "external_timeout": false,
+      "started_utc": "2026-10-31T17:00:59.019405+00:00",
+      "finished_utc": "2026-10-31T17:12:02.777429+00:00",
+      "controller_wall_seconds": 663.7573495199999,
+      "json_elapsed_ms": 663700,
+      "sampled_memory": {
+        "final_sampled": true,
+        "initial_sampled": true,
+        "metric": "rss+swap",
+        "observed_max_bytes": 1943535616,
+        "samples": 6626,
+        "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+        "status": "sampled",
+        "unavailable_at": null
+      },
+      "gnu_time_maximum_rss_bytes": 1942769664,
+      "gnu_time_exit_status": 0,
+      "gnu_time_swaps": 0,
+      "native_storage": "native-csr",
+      "collector_accounting_complete": false,
+      "raw_archive_directory": "reports/final-capacity-original-12/05-EWD998Chan-dive-default-w8",
+      "raw_files": {
+        "MODEL_STARTED.json": {
+          "sha256": "e01fdfb60758f22ca8a00771a1bff665e0168cef94376bdee2075a839c16b73d",
+          "bytes": 113
+        },
+        "argv-source-binding.json": {
+          "sha256": "ce250aac2ee814dd523c7d7cddbadea72a724213dcdfed6e7aa5af74189c878c",
+          "bytes": 3797
+        },
+        "physical.rc": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        "receipt.json": {
+          "sha256": "f4ba5112d489569f27ef4fe277af1485961f23ff4953e19333cf15ecdf11ab57",
+          "bytes": 8164
+        },
+        "resource-v.txt": {
+          "sha256": "41749e12d68dcf671852fb2f909fb1d023a4ff17dc7172a9222e475d383864e3",
+          "bytes": 1465
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout.json": {
+          "sha256": "0dde6291130aef3a310e3754dc8fa5de4be9ba8c0f2176b5cb671d2d16f714b2",
+          "bytes": 11991
+        }
+      }
+    },
+    {
+      "index": 6,
+      "model": "EWD998Chan",
+      "arm": "dive-tlc-w8",
+      "profile": "tlc",
+      "requested_workers": 8,
+      "used_workers": 8,
+      "verdict": "success",
+      "qualified_expected_success": true,
+      "physical_exit": 0,
+      "json_exit_code": 0,
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "verified": true
+      },
+      "diagnostic_codes": [],
+      "property": null,
+      "counterexample_present": false,
+      "statistics": {
+        "depth": 58,
+        "distinct": 1524022,
+        "generated": 12882257,
+        "initial_generated": 192,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "execution": {
+        "capture_completed": true,
+        "exhausted": true,
+        "stage": "complete"
+      },
+      "stopped": null,
+      "engine": "core",
+      "engine_fallback": null,
+      "seed": 0,
+      "fingerprint": {
+        "polynomial_index": 0,
+        "polynomial_source": "flag",
+        "scheme": "tlc"
+      },
+      "lncheck": "final",
+      "native_budget_ms": 900000,
+      "memory_budget_bytes": 17179869184,
+      "external_backstop_seconds": 930,
+      "external_timeout": false,
+      "started_utc": "2026-10-31T17:12:02.848817+00:00",
+      "finished_utc": "2026-10-31T17:19:06.931587+00:00",
+      "controller_wall_seconds": 424.0820261879999,
+      "json_elapsed_ms": 424022,
+      "sampled_memory": {
+        "final_sampled": true,
+        "initial_sampled": true,
+        "metric": "rss+swap",
+        "observed_max_bytes": 1929170944,
+        "samples": 4234,
+        "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+        "status": "sampled",
+        "unavailable_at": null
+      },
+      "gnu_time_maximum_rss_bytes": 1928523776,
+      "gnu_time_exit_status": 0,
+      "gnu_time_swaps": 0,
+      "native_storage": "native-csr",
+      "collector_accounting_complete": false,
+      "raw_archive_directory": "reports/final-capacity-original-12/06-EWD998Chan-dive-tlc-w8",
+      "raw_files": {
+        "MODEL_STARTED.json": {
+          "sha256": "3777be5c56c1c47ac64ed729775c53cc63583b3ea1cf61f020abcc257c19a158",
+          "bytes": 114
+        },
+        "argv-source-binding.json": {
+          "sha256": "2e0173d68bf78872376c15ace8caa93cd6cb5a708bee67b8838f872150edfa4b",
+          "bytes": 3809
+        },
+        "physical.rc": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        "receipt.json": {
+          "sha256": "383dd2b9fdaa5827424ea198b4aa53be5dc9ec45bbcaad4cf86f1e29c04689e4",
+          "bytes": 8162
+        },
+        "resource-v.txt": {
+          "sha256": "979dd2599bfa746755a557beeb3e7803cb110aca7b5e6e8ed1da680125d31a2d",
+          "bytes": 1476
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout.json": {
+          "sha256": "6c820bd358db877c3aa2e469121ef8eb2dc37da152a8bbb5e633aca73b344d38",
+          "bytes": 11691
+        }
+      }
+    },
+    {
+      "index": 7,
+      "model": "aba_asyn_byz",
+      "arm": "dive-tlc-w1",
+      "profile": "tlc",
+      "requested_workers": 1,
+      "used_workers": 1,
+      "verdict": "stopped",
+      "qualified_expected_success": false,
+      "physical_exit": 5,
+      "json_exit_code": 5,
+      "tlc": null,
+      "diagnostic_codes": [
+        "DIVE-L0038"
+      ],
+      "property": null,
+      "counterexample_present": false,
+      "statistics": {
+        "depth": 45,
+        "distinct": 5843977,
+        "exhaustive": false,
+        "generated": 85612896,
+        "initial_generated": 16,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "execution": {
+        "capture_completed": true,
+        "stage": "product"
+      },
+      "stopped": {
+        "elapsed_ms": 900055,
+        "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+        "limit": 900000,
+        "observed": 900017,
+        "phase": "temporal-analysis",
+        "resource": "time",
+        "unit": "ms"
+      },
+      "engine": "core",
+      "engine_fallback": null,
+      "seed": 0,
+      "fingerprint": {
+        "polynomial_index": 0,
+        "polynomial_source": "flag",
+        "scheme": "tlc"
+      },
+      "lncheck": "final",
+      "native_budget_ms": 900000,
+      "memory_budget_bytes": 17179869184,
+      "external_backstop_seconds": 930,
+      "external_timeout": false,
+      "started_utc": "2026-10-31T17:19:07.005983+00:00",
+      "finished_utc": "2026-10-31T17:34:07.115437+00:00",
+      "controller_wall_seconds": 900.1085294430004,
+      "json_elapsed_ms": 900060,
+      "sampled_memory": {
+        "final_sampled": true,
+        "initial_sampled": true,
+        "metric": "rss+swap",
+        "observed_max_bytes": 5411131392,
+        "samples": 8983,
+        "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+        "status": "sampled",
+        "unavailable_at": null
+      },
+      "gnu_time_maximum_rss_bytes": 5410971648,
+      "gnu_time_exit_status": 5,
+      "gnu_time_swaps": 0,
+      "native_storage": "native-csr",
+      "collector_accounting_complete": false,
+      "raw_archive_directory": "reports/final-capacity-original-12/07-aba_asyn_byz-dive-tlc-w1",
+      "raw_files": {
+        "MODEL_STARTED.json": {
+          "sha256": "4ee24f250112a241ded31e05595f2b5afffc626a19596d56e2a67df6807ab912",
+          "bytes": 114
+        },
+        "argv-source-binding.json": {
+          "sha256": "8b6cdffc3e46629d1e1eef006c43f1eb1cd6ac9a7c866580f0f74640cdea0d45",
+          "bytes": 2119
+        },
+        "physical.rc": {
+          "sha256": "f0b5c2c2211c8d67ed15e75e656c7862d086e9245420892a7de62cd9ec582a06",
+          "bytes": 2
+        },
+        "receipt.json": {
+          "sha256": "3465b11be83e2bdd3c10719c2457bea0d934261f9ae5490f50ec0eb1dfc9177d",
+          "bytes": 6382
+        },
+        "resource-v.txt": {
+          "sha256": "3ae8a2eb21fc4b70bd7cf19c0210eeffed36b0927981d920f4d98a0edd2960ae",
+          "bytes": 1522
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout.json": {
+          "sha256": "356466a664b571c5e56880bd52f7c422467add225bc4e5b110351371e57768ba",
+          "bytes": 10634
+        }
+      }
+    },
+    {
+      "index": 8,
+      "model": "aba_asyn_byz",
+      "arm": "dive-default-w1",
+      "profile": "default",
+      "requested_workers": 1,
+      "used_workers": 1,
+      "verdict": "success",
+      "qualified_expected_success": true,
+      "physical_exit": 0,
+      "json_exit_code": 0,
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "verified": true
+      },
+      "diagnostic_codes": [],
+      "property": null,
+      "counterexample_present": false,
+      "statistics": {
+        "depth": 45,
+        "distinct": 5843977,
+        "generated": 85612896,
+        "initial_generated": 16,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "execution": {
+        "capture_completed": true,
+        "exhausted": true,
+        "stage": "complete"
+      },
+      "stopped": null,
+      "engine": "core",
+      "engine_fallback": null,
+      "seed": 0,
+      "fingerprint": {
+        "polynomial_index": 0,
+        "polynomial_source": "flag",
+        "scheme": "dive"
+      },
+      "lncheck": "deterministic",
+      "native_budget_ms": 900000,
+      "memory_budget_bytes": 17179869184,
+      "external_backstop_seconds": 930,
+      "external_timeout": false,
+      "started_utc": "2026-10-31T17:34:07.188235+00:00",
+      "finished_utc": "2026-10-31T17:46:55.484811+00:00",
+      "controller_wall_seconds": 768.2957024540001,
+      "json_elapsed_ms": 768240,
+      "sampled_memory": {
+        "final_sampled": true,
+        "initial_sampled": true,
+        "metric": "rss+swap",
+        "observed_max_bytes": 12287283200,
+        "samples": 7668,
+        "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+        "status": "sampled",
+        "unavailable_at": null
+      },
+      "gnu_time_maximum_rss_bytes": 12287098880,
+      "gnu_time_exit_status": 0,
+      "gnu_time_swaps": 0,
+      "native_storage": "native-csr",
+      "collector_accounting_complete": false,
+      "raw_archive_directory": "reports/final-capacity-original-12/08-aba_asyn_byz-dive-default-w1",
+      "raw_files": {
+        "MODEL_STARTED.json": {
+          "sha256": "bac7ce745a2a98ce2f74a6a6506d0f66bf418c81000d60b5964da363dc6c92df",
+          "bytes": 114
+        },
+        "argv-source-binding.json": {
+          "sha256": "46d5e9a18644fa04ecd23e5dbc8a1e66abd8748d9b6b0e1ed9b603daecadb713",
+          "bytes": 2107
+        },
+        "physical.rc": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        "receipt.json": {
+          "sha256": "59850e55c9fcf97906b8203f9b3454183648c959106e2e8159597b8051ed37e4",
+          "bytes": 6475
+        },
+        "resource-v.txt": {
+          "sha256": "9c96a78191ebd1baa76f45af4257add22865b3ad447c989c9e73c6db176dcd74",
+          "bytes": 1472
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout.json": {
+          "sha256": "961933c5454ef9f603846371602337befe21afa15ce3af8c328253893f95b06a",
+          "bytes": 10263
+        }
+      }
+    },
+    {
+      "index": 9,
+      "model": "aba_asyn_byz",
+      "arm": "dive-tlc-w8",
+      "profile": "tlc",
+      "requested_workers": 8,
+      "used_workers": 8,
+      "verdict": "stopped",
+      "qualified_expected_success": false,
+      "physical_exit": 5,
+      "json_exit_code": 5,
+      "tlc": null,
+      "diagnostic_codes": [
+        "DIVE-L0038"
+      ],
+      "property": null,
+      "counterexample_present": false,
+      "statistics": {
+        "depth": 45,
+        "distinct": 5843977,
+        "exhaustive": false,
+        "generated": 85612896,
+        "initial_generated": 16,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "execution": {
+        "capture_completed": true,
+        "stage": "atoms"
+      },
+      "stopped": {
+        "elapsed_ms": 900047,
+        "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+        "limit": 900000,
+        "observed": 900047,
+        "phase": "temporal-analysis",
+        "resource": "time",
+        "unit": "ms"
+      },
+      "engine": "core",
+      "engine_fallback": null,
+      "seed": 0,
+      "fingerprint": {
+        "polynomial_index": 0,
+        "polynomial_source": "flag",
+        "scheme": "tlc"
+      },
+      "lncheck": "final",
+      "native_budget_ms": 900000,
+      "memory_budget_bytes": 17179869184,
+      "external_backstop_seconds": 930,
+      "external_timeout": false,
+      "started_utc": "2026-10-31T17:46:55.559033+00:00",
+      "finished_utc": "2026-10-31T18:01:55.665203+00:00",
+      "controller_wall_seconds": 900.105168563,
+      "json_elapsed_ms": 900053,
+      "sampled_memory": {
+        "final_sampled": true,
+        "initial_sampled": true,
+        "metric": "rss+swap",
+        "observed_max_bytes": 5383544832,
+        "samples": 8985,
+        "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+        "status": "sampled",
+        "unavailable_at": null
+      },
+      "gnu_time_maximum_rss_bytes": 5418303488,
+      "gnu_time_exit_status": 5,
+      "gnu_time_swaps": 0,
+      "native_storage": "native-csr",
+      "collector_accounting_complete": false,
+      "raw_archive_directory": "reports/final-capacity-original-12/09-aba_asyn_byz-dive-tlc-w8",
+      "raw_files": {
+        "MODEL_STARTED.json": {
+          "sha256": "82176bbd005707f47af27e287c84efef26dfcbc6189ef1f5eef5241320b7e7f3",
+          "bytes": 114
+        },
+        "argv-source-binding.json": {
+          "sha256": "85988bb917334c0d318d42ced34334f9875c6c2bc88ffa80e337152ac27424ee",
+          "bytes": 2119
+        },
+        "physical.rc": {
+          "sha256": "f0b5c2c2211c8d67ed15e75e656c7862d086e9245420892a7de62cd9ec582a06",
+          "bytes": 2
+        },
+        "receipt.json": {
+          "sha256": "d80419b83d22bbbc078f7dbbab2558a5a70b4e4dcce2fdfbbfa8f894ce10858d",
+          "bytes": 6376
+        },
+        "resource-v.txt": {
+          "sha256": "2f9f4e15f7b499141a695665d9836d94b7ddc6a4334998dc299d72d6cc8cc53e",
+          "bytes": 1527
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout.json": {
+          "sha256": "78679d4269314aabd78fa776618f95fdbe74ced69d1f4f6ee1ae32f251e33579",
+          "bytes": 10633
+        }
+      }
+    },
+    {
+      "index": 10,
+      "model": "aba_asyn_byz",
+      "arm": "dive-default-w8",
+      "profile": "default",
+      "requested_workers": 8,
+      "used_workers": 8,
+      "verdict": "success",
+      "qualified_expected_success": true,
+      "physical_exit": 0,
+      "json_exit_code": 0,
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "verified": true
+      },
+      "diagnostic_codes": [],
+      "property": null,
+      "counterexample_present": false,
+      "statistics": {
+        "depth": 45,
+        "distinct": 5843977,
+        "generated": 85612896,
+        "initial_generated": 16,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "execution": {
+        "capture_completed": true,
+        "exhausted": true,
+        "stage": "complete"
+      },
+      "stopped": null,
+      "engine": "core",
+      "engine_fallback": null,
+      "seed": 0,
+      "fingerprint": {
+        "polynomial_index": 0,
+        "polynomial_source": "flag",
+        "scheme": "dive"
+      },
+      "lncheck": "deterministic",
+      "native_budget_ms": 900000,
+      "memory_budget_bytes": 17179869184,
+      "external_backstop_seconds": 930,
+      "external_timeout": false,
+      "started_utc": "2026-10-31T18:01:55.737762+00:00",
+      "finished_utc": "2026-10-31T18:16:44.918899+00:00",
+      "controller_wall_seconds": 889.1800807899999,
+      "json_elapsed_ms": 889119,
+      "sampled_memory": {
+        "final_sampled": true,
+        "initial_sampled": true,
+        "metric": "rss+swap",
+        "observed_max_bytes": 12226289664,
+        "samples": 8876,
+        "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+        "status": "sampled",
+        "unavailable_at": null
+      },
+      "gnu_time_maximum_rss_bytes": 12225703936,
+      "gnu_time_exit_status": 0,
+      "gnu_time_swaps": 0,
+      "native_storage": "native-csr",
+      "collector_accounting_complete": false,
+      "raw_archive_directory": "reports/final-capacity-original-12/10-aba_asyn_byz-dive-default-w8",
+      "raw_files": {
+        "MODEL_STARTED.json": {
+          "sha256": "182f4312225721a2b0f83cf84933706e7e9efc6215bfaef562d89073772549ee",
+          "bytes": 114
+        },
+        "argv-source-binding.json": {
+          "sha256": "6b324c58d0565752ca9d3e62468c3b129515e5843559ae1e244b68f584574b70",
+          "bytes": 2107
+        },
+        "physical.rc": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        "receipt.json": {
+          "sha256": "b4899b21283227dd3c75c0510dbe868ce8ea87531d595b751d91bd2370df4265",
+          "bytes": 6475
+        },
+        "resource-v.txt": {
+          "sha256": "32ffaffe3dde6eae008932e1fe2ffab91ebdb21f2dedc694707e03814030f631",
+          "bytes": 1478
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout.json": {
+          "sha256": "f648d068336519054aa57b466ad6d126dc3f8ecce3a241b4e9e83399e109c31e",
+          "bytes": 10281
+        }
+      }
+    },
+    {
+      "index": 11,
+      "model": "EWD998Chan",
+      "arm": "dive-tlc-w1",
+      "profile": "tlc",
+      "requested_workers": 1,
+      "used_workers": 1,
+      "verdict": "success",
+      "qualified_expected_success": true,
+      "physical_exit": 0,
+      "json_exit_code": 0,
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "verified": true
+      },
+      "diagnostic_codes": [],
+      "property": null,
+      "counterexample_present": false,
+      "statistics": {
+        "depth": 58,
+        "distinct": 1524022,
+        "generated": 12882257,
+        "initial_generated": 192,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "execution": {
+        "capture_completed": true,
+        "exhausted": true,
+        "stage": "complete"
+      },
+      "stopped": null,
+      "engine": "core",
+      "engine_fallback": null,
+      "seed": 0,
+      "fingerprint": {
+        "polynomial_index": 0,
+        "polynomial_source": "flag",
+        "scheme": "tlc"
+      },
+      "lncheck": "final",
+      "native_budget_ms": 900000,
+      "memory_budget_bytes": 17179869184,
+      "external_backstop_seconds": 930,
+      "external_timeout": false,
+      "started_utc": "2026-10-31T18:16:44.993022+00:00",
+      "finished_utc": "2026-10-31T18:24:24.839839+00:00",
+      "controller_wall_seconds": 459.84568814700015,
+      "json_elapsed_ms": 459776,
+      "sampled_memory": {
+        "final_sampled": true,
+        "initial_sampled": true,
+        "metric": "rss+swap",
+        "observed_max_bytes": 1907552256,
+        "samples": 4590,
+        "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+        "status": "sampled",
+        "unavailable_at": null
+      },
+      "gnu_time_maximum_rss_bytes": 1907134464,
+      "gnu_time_exit_status": 0,
+      "gnu_time_swaps": 0,
+      "native_storage": "native-csr",
+      "collector_accounting_complete": false,
+      "raw_archive_directory": "reports/final-capacity-original-12/11-EWD998Chan-dive-tlc-w1",
+      "raw_files": {
+        "MODEL_STARTED.json": {
+          "sha256": "d0e86e906f376d1117d2fc506b833f75b0d9c78fca91d57d09d39f0f20f40443",
+          "bytes": 114
+        },
+        "argv-source-binding.json": {
+          "sha256": "7419faf7d1e344d2a1b8bbaa73f81b490134f3bf5af369eaadfe438d19d9b4e0",
+          "bytes": 3809
+        },
+        "physical.rc": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        "receipt.json": {
+          "sha256": "d514177493d10a1c2dc453e153463dcd655f6ea513c97ce72faf5f950a25597c",
+          "bytes": 8163
+        },
+        "resource-v.txt": {
+          "sha256": "7b2b8beb8a71b6036166fb976c7c56829ade1643c19bb69d9405aa918c32d450",
+          "bytes": 1472
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout.json": {
+          "sha256": "ce003bc369098d074971843d41721b3638e2afb85287ce1bf76eb602368f4fd6",
+          "bytes": 11722
+        }
+      }
+    }
+  ],
+  "controls": {
+    "prepare_exit_status": 0,
+    "module_preflight_count": 12,
+    "actual_core_models_per_profile": 3,
+    "actual_core_controls_total": 6,
+    "actual_core_controls_workers": [
+      1
+    ],
+    "reports": [
+      {
+        "archive_member": "reports/final-capacity-preparation/preflight-engine-dive/20261031T162240614-dive-all.json",
+        "sha256": "360a735037d62937ecdc1af9b682524d5a0bde6523caacb39696d4d84e65def6",
+        "profile": "dive",
+        "models": 3,
+        "modules": 0,
+        "all_agree": true
+      },
+      {
+        "archive_member": "reports/final-capacity-preparation/preflight-engine-tlc/20261031T162240786-dive-all.json",
+        "sha256": "3275ab5215ae50e8c3377aae35b140437245f8c4a9f2cab3cb5064b750e84f53",
+        "profile": "tlc",
+        "models": 3,
+        "modules": 0,
+        "all_agree": true
+      },
+      {
+        "archive_member": "reports/final-capacity-preparation/preflight-libraries/20261031T162240441-dive-all.json",
+        "sha256": "679c0a7cf41c587fbb13f56a04377d9d52b756eecaacc3c914835740426b16ca",
+        "profile": "dive",
+        "models": 0,
+        "modules": 12,
+        "all_agree": true
+      }
+    ],
+    "scope": "Archived preflight reports checked against selection, source ELF, oracle and report bindings; no control rerun by this reviewer."
+  },
+  "capacity_findings": [
+    {
+      "severity": "blocking",
+      "cell_index": 7,
+      "finding": "ABA TLC/W1 stopped in product at 900.108529443 controller seconds, exit5/DIVE-L0038. Complete capture and matching counts do not prove temporal properties."
+    },
+    {
+      "severity": "blocking",
+      "cell_index": 9,
+      "finding": "ABA TLC/W8 stopped in atoms at 900.105168563 controller seconds, exit5/DIVE-L0038. No temporal verdict was produced."
+    },
+    {
+      "severity": "qualification",
+      "cell_index": 10,
+      "finding": "ABA default/W8 completed once in 889.18008079 controller seconds with 10.81991921 seconds (1.202213246%) nominal margin; no robust headroom claim.",
+      "controller_wall_margin_to_900_seconds": 10.81991921000008
+    }
+  ],
+  "archive": {
+    "source": "83356b0102983f118ff1aa80d761680fee8adf7c",
+    "node": "i-0e6be2fb5ec1c55af",
+    "bucket": "dive-evidence-archive-010928226848-us-east-1",
+    "key": "trusted-core/2026-10-31/final-capacity-83356b01/capacity-public.tar.gz",
+    "sha256": "55a806872ab1c68f2f35dbef5acbe43108fc0e2a9f4dcd64fa93098f4dcadbb6",
+    "bytes": 25753317,
+    "members": 137,
+    "verified_local_download": true,
+    "every_manifest_member_sha256_verified": true,
+    "utc": "2026-10-31T18:25:33.100727+00:00",
+    "scope": "Original twelve-cell capacity outcomes on corrected833 source; all outcomes retained; no quiet throughput claim"
+  },
+  "independent_integrity_verification": {
+    "archive_sha256_recomputed": true,
+    "unique_regular_members": 137,
+    "manifest_file_entries": 136,
+    "manifest_sha256": "a5a497d13b454f1b039f0081e538c4a9ea569cf50523febc91785c9d25960a72",
+    "all_manifest_sha256_and_byte_lengths_recomputed": true,
+    "manifest_itself_bound_by_archive_sha256": true,
+    "exact_member_set_matches_manifest_plus_manifest_file": true,
+    "all_twelve_raw_outcomes_recomputed": true,
+    "all_23_source_files_and_3_configs_hash_matched": true,
+    "all_three_goldens_match_exact_source_git_blobs": true,
+    "all_stdout_stderr_and_physical_exit_receipts_verified": true,
+    "all_stderr_empty": true,
+    "verifier_script_sha256": "cdca3ead9bceacaff9ec7be3cbc162db2517915fd2446eca3a33936498050562"
+  },
+  "cleanup": {
+    "instance": "i-0e6be2fb5ec1c55af",
+    "state": "terminated",
+    "root_volume": "vol-082171c9b2d7f45f8",
+    "volume_deleted": true,
+    "early_termination_after_verified_archive": true,
+    "fixed_deadline_utc": "2026-10-31T20:20:13Z",
+    "utc": "2026-10-31T18:26:02.556866+00:00"
+  },
+  "instance_policy": {
+    "verified_utc": "2026-10-31T16:20:56.209438+00:00",
+    "instance": "i-0e6be2fb5ec1c55af",
+    "type": "c7i.4xlarge",
+    "launch": "2026-10-31 16:20:01+00:00",
+    "cpu_options": {
+      "CoreCount": 8,
+      "ThreadsPerCore": 2
+    },
+    "shutdown": "terminate",
+    "block_devices": [
+      {
+        "DeviceName": "/dev/sda1",
+        "Ebs": {
+          "AttachTime": "2026-10-31 16:20:02+00:00",
+          "DeleteOnTermination": true,
+          "Status": "attached",
+          "VolumeId": "vol-082171c9b2d7f45f8"
+        }
+      }
+    ],
+    "volume": {
+      "VolumeId": "vol-082171c9b2d7f45f8",
+      "Encrypted": true,
+      "VolumeType": "gp3",
+      "Size": 200,
+      "State": "in-use"
+    },
+    "fixed_termination_utc": "2026-10-31T20:20:13Z",
+    "archive_reserve_seconds": 600,
+    "source": "83356b0102983f118ff1aa80d761680fee8adf7c",
+    "scope": "Original capacity qualification only, VM not quiet performance"
+  },
+  "receipt_bindings": {
+    "cleanup_receipt_sha256": "5c9e0c57174b0bd293b782151e08299a651bd744e97feadb8b141b5936bc11e4",
+    "ownership_and_cleanup_sha256": "10c211ebb79f976e09732aef2ae6a5f629e75d9f60ce62365c652303f8999ed9",
+    "termination_response_sha256": "5a82ce8fda289ffca76ed2bd12e349e93e1c63b270f3383f96d4ecf78e34a54f",
+    "ownership_and_cleanup_object_key": "trusted-core/2026-10-31/final-capacity-83356b01/ownership-and-cleanup.json",
+    "verification_scope": "Local receipts and owned-instance termination response matched; preservation precedes recorded cleanup. No new cloud or live-host query was made by this reviewer."
+  },
+  "unvalidated": [
+    "No repeat, quiet-window or paired current TLC performance campaign.",
+    "No new executable, control, code test or integrated full gate.",
+    "No qualification of later source revisions.",
+    "No allocation-time hard cap or complete whole-run byte accounting.",
+    "No fresh cloud-state query; cleanup statements use verified local API/controller receipts."
+  ]
+}

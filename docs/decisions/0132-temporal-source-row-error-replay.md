@@ -1,6 +1,6 @@
 # 0132: Independently replayed post-Next temporal source errors
 
-- **Status:** proposed (implementation prepared; landing requires consumer notice)
+- **Status:** accepted (implementation merged in #679; advance consumer notice posted)
 - **Date:** 2026-10-31
 
 ## Context
@@ -92,4 +92,7 @@ Known consumers must receive advance notice before landing and implement this
 distinct terminal meaning before advancing an immutable producer pin. They
 must reject unknown versions and cannot relabel version5 as an earlier version.
 The legacy infallible reader refuses the new ending; fallible fresh-session
-entrypoints validate it. This ADR does not authorize or record consumer notice.
+entrypoints validate it. The owner authorized the
+[version 5 migration notice](https://github.com/Chelis-Lang/oyster/issues/61#issuecomment-6545302842),
+posted before #679 landed. The notice includes the wire shape and independent
+replay obligations.

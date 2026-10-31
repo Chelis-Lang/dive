@@ -1,0 +1,214 @@
+{
+  "utc": "2026-10-31T18:11:22.648808+00:00",
+  "binding": {
+    "utc": "2026-10-31T18:03:29.284024+00:00",
+    "source": "cdaf7e1335792ffe0e9f07f5427cfa2b685d791d",
+    "tree": "a50119edc76554baa347d9ad8fa47f5387e494b4",
+    "clean": true,
+    "binary_sha256": "ac3d1bc3e5693a628fd7c7e9bf275af50f7137d4888a158e0d3f08796db3f2ab",
+    "binary": "external-profile-evidence/dive-cdaf",
+    "scope": "Own-target rebuilt current source for local read-only diagnosis, not quiet acceptance"
+  },
+  "scope": "Read-only current-source local diagnosis, no new code/PR/live-node access or performance acceptance. Sample distribution is descriptive, not a precise time share.",
+  "valid_samples": 28,
+  "requested_samples": 34,
+  "invalid_after_exit_samples": 6,
+  "sample_groups": {
+    "projection_or_actual_normalization": [
+      "1:1",
+      "1:5",
+      "2:3",
+      "2:8",
+      "2:9",
+      "2:10",
+      "2:17"
+    ],
+    "membership_chain": [
+      "1:3",
+      "1:7",
+      "1:8",
+      "2:6",
+      "2:7",
+      "2:14",
+      "2:19"
+    ],
+    "frontier_interning": [
+      "2:2",
+      "2:12",
+      "2:16"
+    ],
+    "tuple_hashing_build": [
+      "1:2",
+      "2:15"
+    ],
+    "quantifier_scratch": [
+      "1:6",
+      "2:4"
+    ],
+    "other": [
+      "1:4",
+      "2:1",
+      "2:5",
+      "2:11",
+      "2:13",
+      "2:18",
+      "2:20"
+    ]
+  },
+  "prefix": {
+    "statistics": {
+      "depth": 13,
+      "distinct": 10000,
+      "exhaustive": false,
+      "generated": 21353,
+      "initial_generated": 1,
+      "left_on_queue": 5546,
+      "reported_by_tlc": false
+    },
+    "wall_s": 1.7619205140508711
+  },
+  "first_priority": "S5: a bounded membership-index experiment only after existing actual normalized-history/closed-value admission. Replace repeated deep tuple binary comparisons, not the normalization/authority checks. This is the recommended next measurement target, not implemented/proven performance.",
+  "constraints": [
+    "Fresh constructor origin and raw/normalized mutable phase remain independent.",
+    "Actual checked insertion/comparison demand and first equal representatives must still execute and remain owned.",
+    "Projection identity and class/kind flags grant no history or E7 authority.",
+    "Projection retained across rollback/reset must obey actual arena/store lifetimes.",
+    "Budget stops, PrintT ownership, fallible growth, separate canonical state keys and independent replay remain exact."
+  ],
+  "why_not_start_S6": "Info.history deliberately removes normalization-sensitive bodies from memo/fold eligibility; current6sites vs old13 is not permission to restore them or key only on canonical values. Finer keys alone do not discharge phase/effect/history proof.",
+  "artifacts": {
+    "binding.json": "7e1509ec774e4e8d78937ecb3d808c08b2bf164da4e5f989a5bb9e5915b0b86a",
+    "prefix-receipt.json": "0044b60f394c15c2c4cc80ead9a85d3445cfe1048e8d8868fa4196eaa241b0c1",
+    "samples.json": "1a364a010dd0dbe52f17c48c180645ad90c3353beedd9535b78e8f4489eeb1df",
+    "samples-more.json": "f2267b4698709ff8c79ed3f00a9b1b9632b8d4ad146740b6f7a9c6b11a424f28",
+    "sample-default-w1.log": "1ada1047e93f244f961e956a2c56b482bef3b09d5531f1dc5bd610713edebfcc",
+    "sample-default-w1-more.log": "e65496b088f9bf96f951937a9eac2c25c27b4f93c8604971b654448773774546",
+    "build.log": "ede8b3a6ae55f0a3414a0b3bad702020a72ebaf61eb13a1398403d4ed2cffa16"
+  },
+  "source_clean_after": true,
+  "updated_utc": "2026-10-31T18:11:57.339987+00:00",
+  "why_S5_before_S6": "Seven of28 current stacks traverse membership/filter work, including explicit construction_tla_result binary_search_by -> Heap::cmp_compound -> Store::view. By contrast, S6 finer keys cannot bypass the current intentional history-sensitive memo eligibility exclusions. S5 has the narrower precondition and error-preservation boundary.",
+  "other_remaining_cost": "Seven of28 stacks traverse construction projection/normalization and three frontier interning. local_literal builds a canonical projection with set_from; normalize_literal later constructs/canonicalizes another projection after the required checked insertion. Some checked normalization/history cost is essential; repeated quiet sorting/hash/copy work is potentially avoidable. This is a limit on predicting S5 benefit, not an additional proposed workstream.",
+  "S5_semantic_constraints": [
+    "Enter only after existing exact normalized-history/Store lifetime authority checks; the index supplies no normalization or origin authority.",
+    "Closed query/value eligibility must not intern, materialize, normalize or change demand of a query earlier than the current path.",
+    "Hash collisions require actual structural equality; default misses retain the exact scalar/model class checks and error priority.",
+    "Raw constructors, mixed/unproved query shapes and TLC checked searches retain their current path unless a separate demanded comparison proof establishes equivalence.",
+    "Bound index allocation/work with the existing caller budget; preserve fresh origins, first representatives, aliases, reset/rollback lifetimes, PrintT and independent replay."
+  ],
+  "inputs": {
+    "corpus_revision": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "files": {
+      "TLCSailfish1.tla": "065bcdb952c4d2b94d2a58d7f9d3009206f1c79f80437d83c6c7142b6f0333d0",
+      "TLCSailfish1.cfg": "52b3ce7ce5ca649d44a38ff98e6f5772ad39b33e22e0af6df6d1174e9aff9e16",
+      "Sailfish.tla": "74e165a98af083509b5dc6b86e526588721fadd572f7c6b47e5474ce509bc401"
+    }
+  },
+  "original_report_sha256": "d9286517e68686a623ef73bdee25f1fddcbbab7c86116c1fe72e828aee8274ed",
+  "aba_product_diagnosis": {
+    "production_optimization_implemented": false,
+    "original_parameters": {
+      "N": 4,
+      "T": 1,
+      "F": 1
+    },
+    "original_obligation": "Same Spec/TypeOK/Unforg_Ltl/Corr_Ltl/Agreement_Ltl, native900s16GiB; reduced probes earn no original capacity credit.",
+    "actual_phase_limit": "product covers construction and SCC/lasso; a stop alone identifies neither cost share nor dominant instruction. TLC/W8 separately stops in atoms.",
+    "reduced_probe": {
+      "parameters": {
+        "N": 3,
+        "T": 0,
+        "F": 0
+      },
+      "distinct": 33656,
+      "generated": 387830,
+      "depth": 28,
+      "seconds": 2.769,
+      "tableau_widths": [
+        5,
+        2,
+        3
+      ],
+      "products": [
+        {
+          "property": "Corr",
+          "pairs": 7814,
+          "edges": 91496,
+          "construction_ms": 64.369,
+          "search_ms": 46.842
+        },
+        {
+          "property": "Agreement",
+          "pairs": 79352,
+          "edges": 1268402,
+          "construction_ms": 103.647,
+          "search_ms": 33.982
+        }
+      ]
+    },
+    "candidate": "Benchmark checked exact-pair product ID lookup in existing Builder::visit; retain separate deterministic final Cartesian ordering and existing SCC/analyzer. Ordered lookup currently occurs for admitted destinations.",
+    "constraints": [
+      "Keep all original edges, duplicates, ordinals, roots and acceptance rules.",
+      "Preserve explicit caller limits, budget inspections, fallible growth and independent witness validation.",
+      "No one-node shortcut applies to observed tableau widths.",
+      "Construction leads in the reduced probe; original900s hot instruction/cost share is not established."
+    ],
+    "receipt": {
+      "base_source": "dfb251c05ad4d15abd736e4fca71062ea144f165",
+      "base_tree": "a50119edc76554baa347d9ad8fa47f5387e494b4",
+      "instrumented_cli_sha256": "6f9fb8934cea9e9705d789c5b2e9ac6755e802cd13c5a4f51a1bb93ad1cc4f20",
+      "instrumented_cli_preserved_path": "external-product-diagnosis/dive-instrumented-file-v3-6f9fb893",
+      "instrumentation_patch_sha256": "ef4b57c0c0ff85c6f7ebb36fc8b9684c0f95042762c1fa9b40f350164dc1708e",
+      "production_optimization_implemented": false,
+      "original_live_capacity_nodes_touched": false,
+      "baseline_product_blob": "46084f600144e1392e949ef75f97a6d4e2e2f94a",
+      "product_blob_at_833": "46084f600144e1392e949ef75f97a6d4e2e2f94a",
+      "probe_files": {
+        "aba-n3-t0-f0-DIAGNOSTIC.cfg": "391a59402c8133714f505c2137f3be86a842fd9a0e45652c3c3d8d53b0376e78",
+        "build.log": "0b2699aad3bcdd1a375c823f7a44b82d52f2627aefc1ef2e4022acecb159de7e",
+        "preserved-prior-elf.json": "ea759549368f5c94ba97ef7f97d46bd863d53fd8893f2464d0c18947aef8e6d5",
+        "n3-t0-f0.stdout.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "n3-t0-f0.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "attempt1-setup-failure.json": "d78db3ed12a2936cb056f0d2e4fcac7a7e57e22871b31493cf57f1cb803aa65a",
+        "n3-t0-f0-v2.stdout.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "n3-t0-f0-v2.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "n3-t0-f0-v2-run.json": "b19d9b6a32141d7fbe3ab873162ed024e3831d094b747a00fa41005a9f147dc4",
+        "aba-n2-t0-f0-DIAGNOSTIC.cfg": "0a83d710bfd0bd1033356ca9fe9e7f15cc22ff31322e9cc790422dc3a79d6081",
+        "n2-v1.stdout.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "n2-v1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "n2-v1-run.json": "928eea41a825ff3f2468ffd09262848baf880be87c0417a2dd9be777700b90ab",
+        "n2-gdb.log": "1038e34e2b6f2c0c954c6f34e1b16af9c753b63fa4b5817c6e04a159d3570f71",
+        "n2-attach.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "n2-attach-gdb.log": "e8bf12b72cce74f143b0a7b973c3ebe6722ec0f3279700cae46393c2eccb1958",
+        "build-file-markers.log": "61d8de9b8fe720a15681289508a5fb462621bc358da1e6e799560a20f881faf4",
+        "stages-file-v3.log": "522c93bf72fb9db4761b11fd9bb72b0c63c2625ae02b3250e0323b3037bc2afa",
+        "n2-file.stdout.json": "368407a42fcac964d0ae0a5f259f04d7a8fc5ba540c290d5176708af1d21c8b1",
+        "n2-file.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "file-probes.json": "623cd2a0a330063033851a736c0100a15f803a7e949788d100b283c48540b9ff",
+        "original-local-15s.stdout.json": "a248d7beeff7609afc8e6225168ee2f6f1e6f3b06a371ed4d5d0401d52d6bbef",
+        "original-local-15s.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "n3-file.stdout.json": "cf08792a60c41093dc8aa29fb496ce0727f8cd6157ed2e8484de42ba6ab6d3bf",
+        "n3-file.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "n3-file-run.json": "dc78bf228dd2ec029640edf963436b88cf5e34621bf451a0ec8d39b003e417b9",
+        "instrumentation-file-v3.patch": "ef4b57c0c0ff85c6f7ebb36fc8b9684c0f95042762c1fa9b40f350164dc1708e"
+      },
+      "failed_attempts": [
+        "Initial setup retained wrong remote cwd; no model ran.",
+        "Temporary stderr markers deadlocked against CLI parent StderrLock; N3 andN2 externally killed, no production/acceptance credit.",
+        "GDB run/timer timeout earned no product sample credit.",
+        "Separate attach identifies only the temporary stderr-marker lock, not original production hotpath."
+      ],
+      "valid_probe_scope": "Private file sink, actual explicit core. N2/T0/F0 and N3/T0/F0 are modified configs with unchanged original TLA+all3properties. Original N4/T1/F1 15s default prefix is diagnostic only.",
+      "timebox_note": "Initial10minute target exceeded recovering from invalid stderr instrumentation; no further variants or production change.",
+      "created_utc": "2026-10-31T18:12:57.435246+00:00",
+      "source_restored_clean": true,
+      "restored_source": "dfb251c05ad4d15abd736e4fca71062ea144f165",
+      "restored_source_tree": "a50119edc76554baa347d9ad8fa47f5387e494b4",
+      "restored_target_cli_sha256": "9f69a8c050cc0dfd6bd6d15c4c35b2030c117527c4ba3437ccf4a1b3ca3b7637",
+      "restored_target_cli_source": "cdaf7e1335792ffe0e9f07f5427cfa2b685d791d",
+      "restored_target_source_tree_equals_clean_head": true
+    },
+    "original_receipt_sha256": "9c0f96bedecd763cb58d9167af027493a7948697a945fb753f64b305eacb6456",
+    "diagnosis_markdown_sha256": "e0e2feb93f4919462e7f0f53f9e680e1339114997bf6c1e3c856c41b230ad434"
+  }
+}
