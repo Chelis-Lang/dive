@@ -125,6 +125,7 @@ impl MemberIndex {
             || !query.is_compound()
             || values.len() < MIN_MEMBERS
             || heap.store.semantics().tlc_comparisons
+            || heap.view(query).kind == Kind::BigInt
         {
             return Ok(None);
         }
@@ -544,6 +545,49 @@ mod tests {
             }
         }
         assert_eq!(m.memo.member_index.bytes(), 0);
+    }
+
+    #[test]
+    fn big_integer_scalars_skip_indexing_but_nested_big_integer_leaves_remain_eligible() {
+        for hashcons in [false, true] {
+            for enabled in [false, true] {
+                for nested in [false, true] {
+                    let mut m = machine(false, hashcons);
+                    m.memo.reserve_member_index(enabled);
+                    let mut values: Vec<_> = (0..32)
+                        .map(|i| {
+                            let value = m.heap.int_from_i64(i64::MAX - 100 + i);
+                            if nested {
+                                m.heap.tuple(&[value])
+                            } else {
+                                value
+                            }
+                        })
+                        .collect();
+                    let set = m.heap.set_from(&mut values);
+                    for (integer, expected) in [(i64::MAX - 95, true), (i64::MAX - 200, false)] {
+                        let scalar = m.heap.int_from_i64(integer);
+                        assert!(scalar.is_compound());
+                        assert!(m.heap.is_int(scalar));
+                        let query = if nested {
+                            m.heap.tuple(&[scalar])
+                        } else {
+                            scalar
+                        };
+                        for _ in 0..3 {
+                            assert_eq!(m.member(query, set), Ok(expected));
+                        }
+                        if nested && enabled {
+                            assert_eq!(indexed(&m), 1);
+                        } else {
+                            assert_eq!(m.memo.member_index.bytes(), 0);
+                            assert_eq!(m.memo.bytes(), 0);
+                        }
+                    }
+                    assert!(!m.heap.poisoned());
+                }
+            }
+        }
     }
 
     #[test]
