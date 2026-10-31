@@ -179,6 +179,12 @@ for the historical accounting correction and current CLI decision. Historical
 Rust `CheckReport::exit_code()` remains profile-based; select a convention with
 `exit_code_for`.
 
+An exact registered generated-count pair also remains mandatory at multiple
+workers, where native comparison omits generated-count differences. The harness
+checks both observed count values against the registry; absent or different
+values cannot match. At one worker the pair must additionally appear in the
+compared differences. These results remain `expected-divergence`.
+
 A safety, action-property, liveness or deadlock verdict needs a whole independently
 validated counterexample to earn conformance agreement, including in
 worker-specific comparisons that omit witness shape. Missing or metadata-only

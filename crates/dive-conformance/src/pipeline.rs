@@ -7,6 +7,7 @@ use crate::compare::{
 };
 use crate::config::{Config, Layout};
 use crate::corpus::{CorpusIndex, ModelEntry, ModelMode, ModuleEntry, Tier, enumerate};
+use crate::divergence::ObservedComparison;
 use crate::error::{Error, Result};
 use crate::fetch::{FetchStatus, Fetcher};
 use crate::golden::{
@@ -1197,23 +1198,23 @@ fn run_model(
                                 .map_or_else(|| o.name.clone(), |v| format!("{}={v}", o.name))
                         })
                         .collect();
+                    let comparison = ObservedComparison {
+                        expected: &validation_golden.result,
+                        actual: &result,
+                        context: CompareContext {
+                            counts_comparable: ctx.counts_comparable && worker_golden.is_none(),
+                            ..ctx
+                        },
+                        differences: &diffs,
+                    };
                     registry
-                        .excuse_observed(
-                            profile.as_ref(),
-                            &active,
-                            &m.id,
-                            &validation_golden.result,
-                            &result,
-                            &diffs,
-                        )
+                        .excuse_compared(profile.as_ref(), &active, &m.id, comparison)
                         .or_else(|| {
-                            registry.excuse_observed(
+                            registry.excuse_compared(
                                 profile.as_ref(),
                                 &active,
                                 &m.module,
-                                &validation_golden.result,
-                                &result,
-                                &diffs,
+                                comparison,
                             )
                         })
                 } else {
