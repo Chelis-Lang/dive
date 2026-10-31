@@ -176,6 +176,16 @@ pub(crate) fn source_enabled(
             .enabled_scoped(&action.scope, action.expr, nonstuttering, state.clone());
     let composed = guard.composed();
     drop(guard);
+    if let Err(error) = &result
+        && matches!(
+            error.class(),
+            dive_eval::ErrorClass::Interrupted
+                | dive_eval::ErrorClass::ResourceLimit
+                | dive_eval::ErrorClass::Bug
+        )
+    {
+        return Err(error.clone());
+    }
     if composed {
         return Err(dive_eval::EvalError::unsupported(
             crate::COMPOSITION_UNSUPPORTED,

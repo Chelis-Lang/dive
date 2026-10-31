@@ -209,6 +209,28 @@ fn owned_replay_interruptions_never_become_valid_error_words() -> TestResult {
         );
     }
     assert_eq!(session.try_read(&document)?.0.validation, Validation::Valid);
+    let counter = Arc::new(StopAfter {
+        polls: std::sync::atomic::AtomicUsize::new(0),
+        limit: usize::MAX,
+    });
+    assert_eq!(
+        session
+            .read_controlled(&document, counter.clone())?
+            .0
+            .validation,
+        Validation::Valid
+    );
+    let total = counter.polls.load(std::sync::atomic::Ordering::SeqCst);
+    for limit in [total / 2, total.saturating_sub(10), total.saturating_sub(1)] {
+        let control = Arc::new(StopAfter {
+            polls: std::sync::atomic::AtomicUsize::new(0),
+            limit,
+        });
+        assert!(matches!(
+            session.read_controlled(&document, control),
+            Err(dive_trace::ValidationRunError::Interrupted { .. })
+        ));
+    }
     Ok(())
 }
 
