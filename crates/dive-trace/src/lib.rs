@@ -95,7 +95,7 @@ pub use endpoint::{
     PartialStateEndpoint, TemporalStateEndpoint,
 };
 pub use format::{Ending, Label, Source, TraceDoc};
-pub use invariant_error::InitialInvariantClass;
+pub use invariant_error::{InitialErrorStage, InitialInvariantClass};
 pub use session::Session;
 pub use trace::{ShapeError, State, Trace, variables};
 pub use validate::{

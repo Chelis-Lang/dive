@@ -63,6 +63,11 @@ impl Driver<'_> {
     }
 
     pub(crate) fn primary(&self, before_first: bool) -> Result<Event, EvalError> {
+        self.primary_with_count(before_first)
+            .map(|(event, _)| event)
+    }
+
+    pub(crate) fn primary_with_count(&self, before_first: bool) -> Result<(Event, u64), EvalError> {
         let mut emitted = 0u64;
         let actions = if self.initial {
             &self.model.init_actions
@@ -103,16 +108,17 @@ impl Driver<'_> {
                 return Err(error);
             }
             if let Some(event) = decision {
-                return Ok(event);
+                return Ok((event, emitted));
             }
             if let Err(error) = outcome {
                 return execution_error(
                     if self.initial { Site::Init } else { Site::Next },
                     error.error,
-                );
+                )
+                .map(|event| (event, emitted));
             }
         }
-        Ok(Event::End)
+        Ok((Event::End, emitted))
     }
 
     /// TLC diagnostic doNext enumerates each action before checking that

@@ -199,6 +199,73 @@ impl Session {
         self.read_fallible(doc, None)
     }
 
+    /// Reconstructs the first actual Init operation before selecting an error
+    /// transport. Reported site/codes cannot disguise an emitted receiver error
+    /// as a generation error to evade its required diagnostic witness.
+    /// The no-word stages require matching actual diagnostic receiver catches.
+    ///
+    /// # Errors
+    /// Typed interruption, resource/internal failure or control conflict;
+    /// neither a stage nor an exception certificate exists in these cases.
+    pub fn initial_error_stage(
+        &self,
+        control: Option<Arc<dyn dive_eval::HostControl>>,
+    ) -> Result<(Report, Option<crate::InitialErrorStage>), crate::ValidationRunError> {
+        use crate::{ValidationProgress, ValidationRunError};
+        let progress = || ValidationProgress {
+            checks_passed: 0,
+            state: None,
+            check: Some(crate::Check::Init),
+        };
+        let poll = || {
+            control.as_ref().map_or(Ok(()), |control| {
+                control
+                    .check()
+                    .map_err(|error| ValidationRunError::Interrupted {
+                        error: dive_eval::EvalError::interrupted(error),
+                        progress: progress(),
+                    })
+            })
+        };
+        poll()?;
+        let (model, host) =
+            match self.fresh_binding(control.as_ref(), FreshMode::NextTerminal, 0)? {
+                Ok(runtime) => runtime,
+                Err(feature) => return Ok((refusal(feature, 0), None)),
+            };
+        let scope = control
+            .as_ref()
+            .map(|control| model.evaluator.host_control(Some(control.clone())))
+            .transpose()
+            .map_err(ValidationRunError::ControlConflict)?;
+        let (validation, stage) = crate::invariant_error::stage(&model, &host, control.as_deref())
+            .map_err(|error| match error.class() {
+                dive_eval::ErrorClass::Interrupted => ValidationRunError::Interrupted {
+                    error,
+                    progress: progress(),
+                },
+                dive_eval::ErrorClass::ResourceLimit => ValidationRunError::ResourceLimit {
+                    error,
+                    progress: progress(),
+                },
+                _ => ValidationRunError::EvaluationFailure {
+                    error,
+                    progress: progress(),
+                },
+            })?;
+        poll()?;
+        let report = Report {
+            validation,
+            notes: Vec::new(),
+            length: usize::from(
+                stage.is_some_and(|stage| stage != crate::InitialErrorStage::Generation),
+            ),
+        };
+        drop(scope);
+        drop(control);
+        Ok((report, stage))
+    }
+
     /// Validates a named invariant-error word, then independently reconstructs
     /// its bounded first-Init receiver exception and diagnostic wrapper.
     /// Ordinary word validity alone never grants the optional class evidence.

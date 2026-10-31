@@ -33,6 +33,170 @@ impl InitialInvariantClass {
     }
 }
 
+/// Actual independently reached initial-error lifecycle, before header matching.
+/// A receiver stage requires its separate named-word class proof. The two
+/// no-word stages include actual matching diagnostic receiver reconstruction.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum InitialErrorStage {
+    /// Init fails before emitting any complete candidate.
+    Generation,
+    /// Its first emitted state reaches a tuple/record receiver invariant error.
+    InvariantReceiver,
+    /// The existing function-materialization `EvalException` invariant route.
+    LegacyInvariant,
+}
+
+#[allow(
+    clippy::too_many_lines,
+    reason = "first-event routing retains both actual no-word diagnostic lifecycles"
+)]
+pub(crate) fn stage(
+    model: &Model,
+    host: &crate::validate::TraceHost,
+    control: Option<&dyn HostControl>,
+) -> Result<(Validation, Option<InitialErrorStage>), EvalError> {
+    let empty = Arc::from(vec![None; model.ir.vars().len()]);
+    let driver = Driver {
+        initial: true,
+        model,
+        source: &empty,
+        level: 0,
+        host,
+        control,
+    };
+    if let Some(refusal) = crate::next_error::preflight(model, true, control)? {
+        return Ok((refusal, None));
+    }
+    let (event, emitted) = driver.primary_with_count(false)?;
+    driver.poll()?;
+    let reached = match event {
+        Event::Error {
+            site: Site::Init,
+            error,
+            ..
+        } if emitted == 0 && error.value_method().is_some() => {
+            let mut yielded = false;
+            let diagnostic =
+                model
+                    .evaluator
+                    .init_states_diagnostic(&model.init_actions, &mut |_| {
+                        yielded = true;
+                        dive_eval::next::Flow::Stop
+                    });
+            driver.poll()?;
+            let secondary = match diagnostic {
+                Err(failure)
+                    if matches!(
+                        failure.error.class(),
+                        ErrorClass::Interrupted | ErrorClass::ResourceLimit | ErrorClass::Bug
+                    ) =>
+                {
+                    return Err(failure.error);
+                }
+                Err(failure) if !yielded && failure.emitted == 0 => failure.error,
+                _ => {
+                    return Ok((
+                        Validation::Unsupported(
+                            "diagnostic Init does not reproduce its pre-emission error".into(),
+                        ),
+                        None,
+                    ));
+                }
+            };
+            if !same_receiver(&error, &secondary) {
+                if matches!(
+                    secondary.class(),
+                    ErrorClass::Interrupted | ErrorClass::ResourceLimit | ErrorClass::Bug
+                ) {
+                    return Err(secondary);
+                }
+                return Ok((
+                    Validation::Unsupported("diagnostic Init receiver class is unproved".into()),
+                    None,
+                ));
+            }
+            InitialErrorStage::Generation
+        }
+        Event::Error {
+            site: Site::Invariant,
+            error,
+            candidate: Some(candidate),
+        } if emitted == 1 => match error
+            .value_method()
+            .map(dive_eval::ValueMethodFailure::method)
+        {
+            Some(ValueMethod::TupleEquals | ValueMethod::RecordEquals)
+                if error.ec() == Ec::General && !error.is_eval_exception() =>
+            {
+                InitialErrorStage::InvariantReceiver
+            }
+            Some(ValueMethod::FunctionMaterialize) if error.is_eval_exception() => {
+                let Some(first) = model.invariants.first() else {
+                    return Ok((
+                        Validation::Unsupported("legacy initial invariant is missing".into()),
+                        None,
+                    ));
+                };
+                if !model.constraints.is_empty()
+                    || model
+                        .ir
+                        .node(first.pred.expr)
+                        .effects
+                        .intersects(dive_ir::Effects::IMPURE)
+                    || model.evaluator.scope_has_effects(&first.pred.scope)
+                    || !closed_state(model, &candidate, &driver)?
+                {
+                    return Ok((
+                        Validation::Unsupported(
+                            "legacy initial invariant history is unproved".into(),
+                        ),
+                        None,
+                    ));
+                }
+                host.set_replay_level(1);
+                let Err(secondary) = model.eval(&first.pred, &St::state(candidate).diagnostic())
+                else {
+                    return Ok((
+                        Validation::Unsupported("legacy diagnostic invariant completes".into()),
+                        None,
+                    ));
+                };
+                if !same_receiver(&error, &secondary) {
+                    if matches!(
+                        secondary.class(),
+                        ErrorClass::Interrupted | ErrorClass::ResourceLimit | ErrorClass::Bug
+                    ) {
+                        return Err(secondary);
+                    }
+                    return Ok((
+                        Validation::Unsupported(
+                            "legacy initial invariant diagnostic class is unproved".into(),
+                        ),
+                        None,
+                    ));
+                }
+                InitialErrorStage::LegacyInvariant
+            }
+            _ => {
+                return Ok((
+                    Validation::Unsupported("unproved initial receiver lifecycle".into()),
+                    None,
+                ));
+            }
+        },
+        Event::Refused(reason) => return Ok((Validation::Unsupported(reason), None)),
+        _ => {
+            return Ok((
+                Validation::Unsupported(
+                    "source does not establish a bounded first initial error".into(),
+                ),
+                None,
+            ));
+        }
+    };
+    Ok((Validation::Valid, Some(reached)))
+}
+
 #[allow(
     clippy::too_many_lines,
     reason = "one actual primary/diagnostic receiver lifecycle retains private history"
@@ -108,7 +272,7 @@ pub(crate) fn replay(
             None,
         ));
     }
-    let Some(receiver) = primary.value_method().filter(|receiver| {
+    let Some(_receiver) = primary.value_method().filter(|receiver| {
         matches!(
             receiver.method(),
             ValueMethod::TupleEquals | ValueMethod::RecordEquals
@@ -186,18 +350,7 @@ pub(crate) fn replay(
             "diagnostic Init cannot reconstruct the first invariant failure",
         ));
     };
-    if diagnostic.class() != ErrorClass::Eval
-        || diagnostic.ec() != primary.ec()
-        || diagnostic.is_eval_exception() != primary.is_eval_exception()
-        || diagnostic.exception_kind() != primary.exception_kind()
-        || primary.origin().is_none()
-        || diagnostic.origin() != primary.origin()
-        || !diagnostic.value_method().is_some_and(|actual| {
-            actual.method() == receiver.method()
-                && actual.constructor() == receiver.constructor()
-                && actual.source().is_some()
-        })
-    {
+    if !same_receiver(&primary, &diagnostic) {
         return Ok(refused(
             "diagnostic receiver construction/source lifetime is not certified",
         ));
@@ -210,6 +363,23 @@ pub(crate) fn replay(
             deciding: 2147,
         }),
     ))
+}
+
+fn same_receiver(primary: &EvalError, diagnostic: &EvalError) -> bool {
+    primary.class() == ErrorClass::Eval
+        && diagnostic.class() == ErrorClass::Eval
+        && primary.ec() == diagnostic.ec()
+        && primary.is_eval_exception() == diagnostic.is_eval_exception()
+        && primary.exception_kind() == diagnostic.exception_kind()
+        && primary.origin().is_some()
+        && primary.origin() == diagnostic.origin()
+        && primary.value_method().is_some_and(|receiver| {
+            diagnostic.value_method().is_some_and(|actual| {
+                actual.method() == receiver.method()
+                    && actual.constructor() == receiver.constructor()
+                    && actual.source().is_some()
+            })
+        })
 }
 
 fn closed_state(
