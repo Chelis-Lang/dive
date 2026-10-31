@@ -125,6 +125,10 @@ Reference attribution and fresh independent trace validation remain mandatory;
 all native graph, converter and analysis owners are released before fresh word
 replay. No backend, mode, dependency edge or semantic divergence is introduced.
 
+ADR [0130](0130-closed-ordinary-action-atoms.md) extends only the ordinary
+Predicate/Nonstuttering construction and scalar-update subset. Enabled retains
+the identity/cutoff and immutable-binder update boundary described here.
+
 ## Consequences
 
 Report additive prepared/consumed/fallback atom counts. Preparation coverage is

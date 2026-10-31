@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "measurement_date": "2026-10-30",
+  "published_date": "2026-10-31",
+  "status": "two_original_EWD_W1_capacity_successes_joint_qualification_open",
+  "source": "3d242d83cb4e55b171af1126e2081552e618bc5d",
+  "tree": "690cc64646954ce62ab2845ed05b71be056b8f5d",
+  "binary_sha256": "e5b39ed7442bbff313b94d5ea20e0e90426dc1bc4cc9e68d87c05489ba896860",
+  "source_scope": "Actual source3d executed; later951 rebase changes only main scoreboard text. No later head is substituted for measured source.",
+  "inputs": {
+    "corpus": "examples",
+    "revision": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "specification": "specifications/ewd998/EWD998Chan.tla",
+    "configuration": "specifications/ewd998/EWD998Chan.cfg",
+    "population_N": 3,
+    "specification_sha256": "ebdb5e9c6469fb1afc3b12198e1e2159b3ff3fa76d7bd15e5e11dce92b72313c",
+    "configuration_sha256": "259100c5161cf1e04dce4c9898957c5ff7ba81f790c840396a2a7b5e618eb044",
+    "all_19_original_source_files_unchanged": true,
+    "original_property": "EWD998Spec",
+    "original_specification_invariant_constraint_unchanged": true
+  },
+  "machine": {
+    "instance_type": "c7i.4xlarge",
+    "vcpus": 16,
+    "memory_gib": 32,
+    "region": "us-east-1",
+    "quiet_window_certified": false
+  },
+  "policy": {
+    "engine": "core",
+    "workers_requested": 1,
+    "workers_used": 1,
+    "repetitions_per_profile": 1,
+    "time_limit_seconds": 900,
+    "whole_process_memory_limit_bytes": 17179869184,
+    "seed": 0,
+    "fingerprint_polynomial_index": 0,
+    "cadence": "ordinary profile defaults; no custom periodic schedule",
+    "overrides": "No safety/model/config/integer/comparison/cadence overrides; raw TLC profile label tlc+overrides retained because explicit budget/report controls are recorded."
+  },
+  "observations": [
+    {
+      "profile": "tlc",
+      "raw_profile_label": "tlc+overrides",
+      "semantic_profile": "tlc",
+      "lncheck": "final",
+      "wall_seconds": 535.536940756,
+      "wall_margin_to_900_seconds": 364.463059244,
+      "peak_rss_bytes": 1866358784,
+      "verdict": "success",
+      "physical_exit": 0,
+      "verified_tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "verified": true
+      },
+      "statistics": {
+        "depth": 58,
+        "distinct": 1524022,
+        "generated": 12882257,
+        "initial_generated": 192,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "execution": {
+        "capture_completed": true,
+        "exhausted": true,
+        "stage": "complete"
+      },
+      "native_atoms": {
+        "action_evaluations": 19806096,
+        "eligibility": "source-scoped closed ordinary constructions and scalar updates; identity-scoped fairness queries",
+        "eligible_action_atoms": 2,
+        "eligible_atoms": 2,
+        "eligible_state_atoms": 0,
+        "enabled_evaluations": 0,
+        "evaluated": 19806096,
+        "fallback": 719888,
+        "nonstuttering_evaluations": 9903048,
+        "state_evaluations": 0,
+        "total_atoms": 6
+      },
+      "raw_stdout_sha256": "da2acbb243bfb4a14d9c32ec8c832bb297afbe2b15fe2fb04078808e3f697c88"
+    },
+    {
+      "profile": "default",
+      "raw_profile_label": "dive",
+      "semantic_profile": "dive",
+      "lncheck": "deterministic",
+      "wall_seconds": 861.825792716,
+      "wall_margin_to_900_seconds": 38.174207284,
+      "peak_rss_bytes": 1938173952,
+      "verdict": "success",
+      "physical_exit": 0,
+      "verified_tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "verified": true
+      },
+      "statistics": {
+        "depth": 58,
+        "distinct": 1524022,
+        "generated": 12882257,
+        "initial_generated": 192,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "execution": {
+        "capture_completed": true,
+        "exhausted": true,
+        "stage": "complete"
+      },
+      "native_atoms": {
+        "action_evaluations": 35043490,
+        "eligibility": "source-scoped closed ordinary constructions and scalar updates; identity-scoped fairness queries",
+        "eligible_action_atoms": 2,
+        "eligible_atoms": 2,
+        "eligible_state_atoms": 0,
+        "enabled_evaluations": 0,
+        "evaluated": 35043490,
+        "fallback": 1379700,
+        "nonstuttering_evaluations": 17521745,
+        "state_evaluations": 0,
+        "total_atoms": 6
+      },
+      "raw_stdout_sha256": "7473da53cb4bd713597a8b88e95f7518806986c97a6fac7cf1d3b3c9076fa40f"
+    }
+  ],
+  "independent_review": {
+    "source": "3d242d83cb4e55b171af1126e2081552e618bc5d",
+    "decision": "approve",
+    "report_sha256": "a50767442af8bc83865cbee6e3418ef47bd6fe7f918e1c80355374ef19206a71",
+    "executed_focused_tests": 55,
+    "independent_wrapper_comparisons": 312,
+    "scope": "bounded semantic implementation and guards; capacity is supplied by these separate actual runs"
+  },
+  "archive": {
+    "bucket": "dive-evidence-archive-010928226848-us-east-1",
+    "key": "trusted-checking/2026-10-30/native-ewd-reviewed-3d242d83/capacity.tar.gz",
+    "sha256": "1be4e9fb1c1fdef534b6cfb1551e6ad5652edd3b4b2666629df78d900450df2c",
+    "bytes": 13358651,
+    "download_verified": true,
+    "all_raw_profile_member_hashes_verified": true,
+    "cli_elf_hash_verified": true
+  },
+  "capacity_receipt_sha256": "ab07e7c54a762e2ead06296af2d5672c4d6320bbd9560deb0695d663dfcc6739",
+  "limitations": [
+    "Two W1 cells only; W8 and the complete joint original three-model matrix remain open.",
+    "One repetition per profile and no quiet-window certification: no TLC-relative throughput/scaling/performance-target or release claim.",
+    "Earlier full-gate/census results retain their actual sources; no integrated gate is claimed for this PR.",
+    "Two initial frontend setup rejections are preserved in the archive and receive no capacity/model credit.",
+    "No corpus-population refresh, parity-surface completion, default-engine change or expected-divergence waiver."
+  ],
+  "cleanup": {
+    "instance_state": "terminated",
+    "volume_deleted": true
+  }
+}

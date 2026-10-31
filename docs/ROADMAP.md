@@ -163,7 +163,9 @@ pending qualification and source-bound development observations. The integrated
 fixture census completed with findings on runtime `68dd8266`; its full gate
 completed exit 1 only for integrated Clippy; other executed phases pass. The lint-only
 repair is merged as `a79a024d` and passes separate exact-source checks. All results
-remain attached to their actual sources. Original three-model temporal capacity
+remain attached to their actual sources. Reviewed `3d242d83` completes original
+EWD998Chan N=3 in both W1 profiles; its [two-cell capacity record](../conformance/reports/perf/2026-10-30-ewd-native-actions-capacity.json)
+does not close the full matrix. Original three-model temporal capacity
 at both profiles and 1/8 workers, integrated correctness qualification, and the
 quiet five-repeat ADR 0119 performance campaign remain incomplete. Reference
 remains the default; simulation/DFID/checkpoints/disk and broader parity remain

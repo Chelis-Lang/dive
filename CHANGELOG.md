@@ -1,5 +1,12 @@
 # Changelog
 
+- Core temporal analysis can evaluate proved interval function construction,
+  bounded interval CHOOSE and single-key scalar EXCEPT/@ inside ordinary
+  action predicates and scoped non-stuttering checks. Exact original values,
+  constructor demand, lexical scope and missing-key warnings remain guarded;
+  hidden ENABLED queries and unproved updates retain reference evaluation.
+  Eligibility counters alone do not establish speed or model completion.
+
 - Avoid temporary comparison-shape maps for bounded collections of closed
   integer-domain functions with matching scalar classes at each key. The
   existing comparison and normalization guards retain all other cases.
@@ -17,7 +24,7 @@
   fairness tests on exact native original rows using the existing compiler and
   a separate analysis Machine. Closed inputs, immutable interval domains and
   single-key scalar updates require actual domain/key checks. Unproved cases,
-  record/@ updates and semantic errors retain reference evaluation. Label demand,
+  unproved updates and semantic errors retain reference evaluation. Label demand,
   eager admission, attribution and independent replay remain unchanged.
   Additive atom counters report actual use; throughput still requires measurement.
 

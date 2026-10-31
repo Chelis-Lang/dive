@@ -12,10 +12,18 @@ use super::{Fact, Mode, ProducerStability};
 use crate::env::{Env, Ev, Frame, OpVal, StateRef, Sv};
 use crate::{ConstBinding, Evaluator, Scope, SlotView, St};
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum IntDomain {
+    Interval,
+    Finite,
+}
+
 #[derive(Clone, Copy)]
 struct Info {
     fact: Fact,
     non_string: bool,
+    integer: bool,
+    int_domain: Option<IntDomain>,
 }
 
 impl Info {
@@ -23,6 +31,8 @@ impl Info {
         Self {
             fact: Fact::Canonical,
             non_string,
+            integer: false,
+            int_domain: None,
         }
     }
 }
@@ -50,6 +60,12 @@ enum Task {
     Quantified(Scope, ExprId, Mode),
     Nested(Scope, ExprId, ExprId, Mode),
     CachedBody(Scope, ExprId, Mode, bool),
+    IntegerEnum(usize),
+    IntegerDifference(usize),
+    ClosedBinder(Scope, ExprId, ExprId, Mode, bool),
+    AtBody(Scope, ExprId, Mode),
+    EndAt,
+    EndExcept,
 }
 
 struct Walk<'a> {
@@ -65,6 +81,9 @@ struct Walk<'a> {
     forbidden: Option<(dive_ir::DefId, usize)>,
     closed_functions: bool,
     guarded_updates: bool,
+    integer_slots: Vec<(Arc<Frame>, usize)>,
+    lexical_at: Option<Scope>,
+    except_active: bool,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -106,6 +125,9 @@ pub(super) fn prove(
         forbidden: None,
         closed_functions: false,
         guarded_updates: false,
+        integer_slots: Vec::new(),
+        lexical_at: None,
+        except_active: false,
     };
     walk.poll()?;
     for (roots, mode) in [(producers, Mode::Producer), (predicates, Mode::Reordered)] {
@@ -166,6 +188,9 @@ fn closed_test(
         forbidden: None,
         closed_functions: true,
         guarded_updates,
+        integer_slots: Vec::new(),
+        lexical_at: None,
+        except_active: false,
     };
     if evaluator.admit_scoped_expr(scope, expr).is_err() {
         return Ok(false);
@@ -200,6 +225,9 @@ pub(super) fn closed_forall(
         forbidden: Some((original.env.frame.def, outer_slot)),
         closed_functions: false,
         guarded_updates: false,
+        integer_slots: Vec::new(),
+        lexical_at: None,
+        except_active: false,
     };
     walk.poll()?;
     reserve(&mut walk.abstracts, 1)?;
@@ -370,7 +398,12 @@ impl Walk<'_> {
                         Fact::YieldCanonical
                     };
                     let non_string = !values.is_empty() && values.iter().all(|v| v.non_string);
-                    self.result(Info { fact, non_string })?;
+                    self.result(Info {
+                        fact,
+                        non_string,
+                        integer: values.iter().all(|v| v.integer),
+                        int_domain: None,
+                    })?;
                 }
                 Task::UnitEnd(base) => self.results.truncate(base),
                 Task::Environment(env) => {
@@ -611,6 +644,20 @@ impl Walk<'_> {
                     };
                     reserve(&mut self.abstracts, 1)?;
                     self.abstracts.push(called.env.frame.clone());
+                    if self.guarded_updates
+                        && self
+                            .results
+                            .last()
+                            .is_some_and(|info| info.int_domain.is_some())
+                        && let Expr::Quant { bounds, .. } = ev.ir().expr(expr)
+                        && bounds.len() == 1
+                        && !bounds[0].tuple
+                        && bounds[0].vars.len() == 1
+                    {
+                        reserve(&mut self.integer_slots, 1)?;
+                        self.integer_slots
+                            .push((called.env.frame.clone(), bounds[0].vars[0].index()));
+                    }
                     self.schedule([
                         Task::Expression(called, *body, mode, true),
                         Task::Result(Info::canonical(true)),
@@ -643,6 +690,67 @@ impl Walk<'_> {
                         Task::Expression(called, body, mode, false),
                     ])?;
                 }
+                Task::IntegerEnum(base) => {
+                    if !self.results[base..].iter().all(|v| v.integer) {
+                        return Ok(false);
+                    }
+                    let mut info = Info::canonical(true);
+                    info.int_domain = Some(IntDomain::Finite);
+                    self.result(info)?;
+                }
+                Task::IntegerDifference(base) => {
+                    let values = &self.results[base..];
+                    if values.len() != 2
+                        || values[0].int_domain != Some(IntDomain::Interval)
+                        || values[1].int_domain != Some(IntDomain::Finite)
+                    {
+                        return Ok(false);
+                    }
+                    let mut info = Info::canonical(true);
+                    info.int_domain = Some(IntDomain::Finite);
+                    self.result(info)?;
+                }
+                Task::ClosedBinder(scope, expr, body, mode, constructor) => {
+                    if self
+                        .results
+                        .last()
+                        .is_none_or(|v| v.int_domain != Some(IntDomain::Interval))
+                    {
+                        return Ok(false);
+                    }
+                    let Ok(called) = ev.scope_binder_analysis(&scope, expr) else {
+                        return Ok(false);
+                    };
+                    let (Expr::FcnCons { bounds, .. } | Expr::Quant { bounds, .. }) =
+                        ev.ir().expr(expr)
+                    else {
+                        return Ok(false);
+                    };
+                    reserve(&mut self.abstracts, 1)?;
+                    self.abstracts.push(called.env.frame.clone());
+                    reserve(&mut self.integer_slots, 1)?;
+                    self.integer_slots
+                        .push((called.env.frame.clone(), bounds[0].vars[0].index()));
+                    let mut info = Info::canonical(true);
+                    info.integer = !constructor;
+                    self.schedule([
+                        Task::Expression(called, body, mode, true),
+                        Task::Result(info),
+                    ])?;
+                }
+                Task::AtBody(scope, body, mode) => {
+                    if self.lexical_at.is_some() || scope.env.dynamic.at.is_some() {
+                        return Ok(false);
+                    }
+                    self.lexical_at = Some(scope.clone());
+                    self.schedule([
+                        Task::Expression(scope, body, mode, true),
+                        Task::EndAt,
+                        Task::Result(Info::canonical(false)),
+                    ])?;
+                }
+                Task::EndAt => self.lexical_at = None,
+                Task::EndExcept => self.except_active = false,
                 Task::CachedBody(scope, body, mode, cacheable) => {
                     self.push(Task::Expression(scope, body, mode, cacheable))?;
                 }
@@ -821,10 +929,16 @@ impl Walk<'_> {
 
     fn slot_view(&mut self, value: SlotView, mode: Mode) -> crate::Result<bool> {
         match value {
-            SlotView::Value(value) => self.schedule([
-                Task::Value(value.clone()),
-                Task::Result(Info::canonical(!matches!(value, Value::Str(_)))),
-            ])?,
+            SlotView::Value(value) => {
+                let mut info = Info::canonical(!matches!(value, Value::Str(_)));
+                info.integer = matches!(value, Value::Int(_));
+                if self.guarded_updates
+                    && matches!(&value, Value::Set(set) if set.as_interval().is_some())
+                {
+                    info.int_domain = Some(IntDomain::Interval);
+                }
+                self.schedule([Task::Value(value), Task::Result(info)])?;
+            }
             SlotView::Lazy(body, captured) => {
                 self.push(Task::Expression(captured, body, mode, false))?;
             }
@@ -857,7 +971,12 @@ impl Walk<'_> {
         use Expr as E;
         let ev = self.evaluator;
         match ev.ir().expr(expr) {
-            E::Bool(_) | E::Num(_) => self.result(Info::canonical(true))?,
+            E::Bool(_) => self.result(Info::canonical(true))?,
+            E::Num(_) => {
+                let mut info = Info::canonical(true);
+                info.integer = true;
+                self.result(info)?;
+            }
             E::Str(_) | E::Var { .. } => self.result(Info::canonical(false))?,
             E::Local(local) => {
                 if self.forbidden.is_some_and(|(definition, slot)| {
@@ -877,7 +996,11 @@ impl Walk<'_> {
                     if !self.abstracts.iter().any(|f| Arc::ptr_eq(f, frame)) {
                         return Ok(false);
                     }
-                    self.result(Info::canonical(false))?;
+                    let mut info = Info::canonical(false);
+                    info.integer = self.integer_slots.iter().any(|(owner, slot)| {
+                        Arc::ptr_eq(owner, frame) && *slot == local.slot.index()
+                    });
+                    self.result(info)?;
                 } else if !self.slot_view(value, mode)? {
                     return Ok(false);
                 }
@@ -919,6 +1042,18 @@ impl Walk<'_> {
             }
             E::Builtin { op, args } => {
                 use BuiltinOp as B;
+                if self.guarded_updates && *op == B::SetMinus {
+                    let [left, right] = args.as_ref() else {
+                        return Ok(false);
+                    };
+                    let base = self.results.len();
+                    self.schedule([
+                        Task::Expression(scope.clone(), *left, mode, true),
+                        Task::Expression(scope.clone(), *right, mode, true),
+                        Task::IntegerDifference(base),
+                    ])?;
+                    return Ok(true);
+                }
                 if mode == Mode::Producer && *op == B::Subseteq {
                     return Ok(false);
                 }
@@ -957,6 +1092,8 @@ impl Walk<'_> {
                         Info {
                             fact,
                             non_string: *op != B::Prime,
+                            integer: false,
+                            int_domain: None,
                         },
                     )?;
                 }
@@ -975,6 +1112,18 @@ impl Walk<'_> {
                 true,
                 Info::canonical(true),
             )?,
+            E::SetEnum(items) if self.guarded_updates => {
+                let base = self.results.len();
+                let mut tasks = Vec::new();
+                for &item in items {
+                    self.poll()?;
+                    reserve(&mut tasks, 1)?;
+                    tasks.push(Task::Expression(scope.clone(), item, mode, true));
+                }
+                reserve(&mut tasks, 1)?;
+                tasks.push(Task::IntegerEnum(base));
+                self.sequence(tasks)?;
+            }
             E::SetEnum(items) | E::Cartesian(items) => {
                 self.children(
                     scope,
@@ -984,6 +1133,8 @@ impl Walk<'_> {
                     Info {
                         fact: Fact::YieldCanonical,
                         non_string: true,
+                        integer: false,
+                        int_domain: None,
                     },
                 )?;
             }
@@ -1030,6 +1181,39 @@ impl Walk<'_> {
             E::Let { body, .. } | E::Subst { body, .. } => {
                 self.push(Task::Nested(scope.clone(), expr, *body, mode))?;
             }
+            E::FcnCons { bounds, body }
+            | E::Quant {
+                kind: QuantKind::Choose,
+                bounds,
+                body,
+            } if self.guarded_updates => {
+                let [bound] = bounds.as_ref() else {
+                    return Ok(false);
+                };
+                if bound.tuple || bound.vars.len() != 1 {
+                    return Ok(false);
+                }
+                let Some(domain) = bound.domain else {
+                    return Ok(false);
+                };
+                self.schedule([
+                    Task::Expression(scope.clone(), domain, mode, true),
+                    Task::ClosedBinder(
+                        scope.clone(),
+                        expr,
+                        *body,
+                        mode,
+                        matches!(ev.ir().expr(expr), E::FcnCons { .. }),
+                    ),
+                ])?;
+            }
+            E::ExceptAt if self.guarded_updates => {
+                if !self.at_matches(scope)? {
+                    return Ok(false);
+                }
+                // A compiler/runtime scalar-old-leaf guard supplies the actual value.
+                self.result(Info::canonical(false))?;
+            }
             E::Quant {
                 kind: QuantKind::Forall | QuantKind::Exists,
                 bounds,
@@ -1055,15 +1239,19 @@ impl Walk<'_> {
                 let [key] = update.path.as_ref() else {
                     return Ok(false);
                 };
-                // Compiler and runtime additionally prove a root closed base,
-                // the actual interval binder and its exact in-domain key.
-                self.children(
-                    scope,
-                    [*base, *key, update.value],
-                    mode,
-                    true,
-                    Info::canonical(false),
-                )?;
+                if self.except_active {
+                    return Ok(false);
+                }
+                self.except_active = true;
+                // The source proof alone grants no permission to run an update.
+                // Dynamic guards must prove a closed base, existing key, scalar
+                // old leaf and scalar replacement before native success.
+                self.schedule([
+                    Task::Expression(scope.clone(), *base, mode, true),
+                    Task::Expression(scope.clone(), *key, mode, true),
+                    Task::AtBody(scope.clone(), update.value, mode),
+                    Task::EndExcept,
+                ])?;
             }
             E::FcnApply { fcn, arg } => {
                 self.children(scope, [*fcn, *arg], mode, true, Info::canonical(false))?;
@@ -1074,6 +1262,44 @@ impl Walk<'_> {
             _ => return Ok(false),
         }
         Ok(true)
+    }
+
+    // Only the current lexical replacement scope and its entered child frames
+    // can interpret @. A genuine dynamic binding, a sibling frame or a captured
+    // different substitution context cannot borrow this synthetic authority.
+    fn at_matches(&self, scope: &Scope) -> crate::Result<bool> {
+        let Some(owner) = &self.lexical_at else {
+            return Ok(false);
+        };
+        if scope.env.dynamic.at.is_some()
+            || scope.env.dynamic.cut.is_some()
+            || !match (&owner.env.dynamic.subst, &scope.env.dynamic.subst) {
+                (None, None) => true,
+                (Some(a), Some(b)) => Arc::ptr_eq(a, b),
+                _ => false,
+            }
+        {
+            return Ok(false);
+        }
+        let mut frame = Some(&scope.env.frame);
+        while let Some(current) = frame {
+            self.poll()?;
+            if Arc::ptr_eq(current, &owner.env.frame) {
+                return Ok(true);
+            }
+            frame = current.parent.as_ref();
+        }
+        Ok(false)
+    }
+
+    fn native_info(&self, op: StdOp, non_string: bool) -> Option<Info> {
+        if self.closed_functions && matches!(op, StdOp::NaturalsDotDot | StdOp::IntegersDotDot) {
+            let mut info = Info::canonical(true);
+            info.int_domain = Some(IntDomain::Interval);
+            Some(info)
+        } else {
+            native_info(op, non_string)
+        }
     }
 
     fn called_body(
@@ -1139,11 +1365,7 @@ impl Walk<'_> {
                         non_string,
                         seen,
                     }))?;
-                } else if self.closed_functions
-                    && matches!(op, StdOp::NaturalsDotDot | StdOp::IntegersDotDot)
-                {
-                    self.result(Info::canonical(true))?;
-                } else if let Some(info) = native_info(op, non_string) {
+                } else if let Some(info) = self.native_info(op, non_string) {
                     self.result(info)?;
                 } else {
                     return Ok(false);
@@ -1284,5 +1506,24 @@ fn native_info(op: StdOp, non_string: bool) -> Option<Info> {
             | S::FiniteSetsIsFiniteSet
             | S::SequencesLen
     ) || op == S::SequencesConcat && non_string;
-    Some(Info { fact, non_string })
+    Some(Info {
+        fact,
+        non_string,
+        integer: matches!(
+            op,
+            S::NaturalsPlus
+                | S::IntegersPlus
+                | S::NaturalsMinus
+                | S::IntegersMinus
+                | S::NaturalsTimes
+                | S::IntegersTimes
+                | S::NaturalsDiv
+                | S::IntegersDiv
+                | S::NaturalsMod
+                | S::IntegersMod
+                | S::IntegersNeg
+                | S::SequencesLen
+        ),
+        int_domain: None,
+    })
 }

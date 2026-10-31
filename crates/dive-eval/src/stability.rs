@@ -103,7 +103,15 @@ impl Evaluator {
     /// require a separate compiler/runtime proof of closed base, immutable
     /// interval binder, exact domain and scalar replacement. This fact alone
     /// never licenses evaluating an update or skipping reference warnings.
-    /// EXCEPT @, constructors, CHOOSE and query/effect history remain refused.
+    /// The optional lane additionally inspects single scalar-bound interval
+    /// constructors/CHOOSE and local integer enumeration/difference domains.
+    /// A single-clause, single-key update may use lexical scalar `@`; runtime
+    /// guards must establish its actual old leaf and replacement without
+    /// skipping missing-key warnings. No real dynamic-`@` capture is admitted.
+    /// Recursive/nested updates, hidden queries, deferred providers and effects
+    /// remain refused. The canonical producer and closed-predicate certificates
+    /// keep their original boundaries. This inspection executes no constructor
+    /// or CHOOSE and does not prove an arbitrary raw-set history.
     ///
     /// ```no_run
     /// # fn inspect(ev: &dive_eval::Evaluator, scope: &dive_eval::Scope, expr: dive_ir::ExprId) -> dive_eval::Result<()> {

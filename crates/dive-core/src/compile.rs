@@ -442,7 +442,7 @@ fn compile_inner(
         role_name: String::new(),
         literal_sets: std::collections::HashSet::new(),
         literal_tuples: std::collections::HashSet::new(),
-        guarded_updates: test.is_some(),
+        bound_test: test,
         interval_slots: HashMap::new(),
     };
     // The initial predicates are conjoined, as TLC's (and the reference
@@ -560,7 +560,9 @@ struct Compiler<'a> {
     role_name: String,
     literal_sets: std::collections::HashSet<ExprId>,
     literal_tuples: std::collections::HashSet<ExprId>,
-    guarded_updates: bool,
+    // Ordinary atoms preserve constructed values without an ENABLED cutoff;
+    // queries retain the established narrower update subset.
+    bound_test: Option<BoundTest>,
     // Actual flat binder slots, never source slot numbers or name guesses.
     interval_slots: HashMap<u32, P>,
 }
@@ -780,11 +782,16 @@ impl Compiler<'_> {
                 base,
                 key,
                 domain,
+                at,
                 value,
             } => {
-                for p in [base, key, domain, value] {
+                for p in [base, key, value] {
                     add(*p, &mut i);
                 }
+                if let Some(domain) = domain {
+                    add(*domain, &mut i);
+                }
+                i.free.retain(|slot| slot != at);
             }
             Node::Except { base, updates } => {
                 add(*base, &mut i);
@@ -1787,9 +1794,10 @@ impl Compiler<'_> {
         let p = match test {
             BoundTest::Enabled(sub) => self.enabled(Some(r.expr), sub, env, Mode::Plain)?,
             BoundTest::Nonstuttering(sub) => {
-                // This also proves the after-state read cannot be changed by
-                // a hidden/nonidentity INSTANCE prime cutoff (B3).
-                self.enabled_substs()?;
+                // Unlike ENABLED, the reference Nonstuttering wrapper evaluates
+                // two ordinary scoped state values and then the action. It
+                // creates no branch cutoff; retain actual substitutions in
+                // both modes rather than applying ENABLED's identity proof.
                 self.step = true;
                 let same = self.changed_test(sub, env)?;
                 let changed = self.push(Node::Not(same))?;
@@ -1998,6 +2006,9 @@ impl Compiler<'_> {
                 let b = self.p(*body, env, mode);
                 self.unbind(saved);
                 let b = b?;
+                if self.bound_test.is_some() && *kind == QuantKind::Choose {
+                    self.optional_interval_binder(&binds)?;
+                }
                 let kind = match kind {
                     QuantKind::Exists => Quant::Exists,
                     QuantKind::Forall => Quant::Forall,
@@ -2031,6 +2042,9 @@ impl Compiler<'_> {
             }
             Expr::FcnCons { bounds, body } => {
                 let (binds, saved) = self.binds(bounds, env, mode)?;
+                if self.bound_test.is_some() {
+                    self.optional_interval_binder(&binds)?;
+                }
                 let b = self.p(*body, env, mode);
                 self.unbind(saved);
                 let b = b?;
@@ -2112,30 +2126,36 @@ impl Compiler<'_> {
                         value: v?,
                     });
                 }
-                if self.guarded_updates {
+                if self.bound_test.is_some() {
                     let [u] = out.as_slice() else {
                         return Err(Error::unsupported("multiple optional EXCEPT clauses"));
                     };
                     let [key] = u.path.as_ref() else {
                         return Err(Error::unsupported("nested optional EXCEPT path"));
                     };
-                    let Node::Var(_) = self.code.nodes[b as usize] else {
-                        return Err(Error::unsupported(
-                            "optional EXCEPT base is not a root state read",
-                        ));
+                    // Preserve the established exact-domain proof for a root
+                    // update whose key came from an immutable interval binder.
+                    // New certified closed-base/constant-key/@ cases instead
+                    // prove actual key membership before evaluating the RHS.
+                    let domain = match (
+                        &self.code.nodes[b as usize],
+                        &self.code.nodes[*key as usize],
+                    ) {
+                        (Node::Var(_), Node::Slot(slot)) => self.interval_slots.get(slot).copied(),
+                        _ => None,
                     };
-                    let Node::Slot(slot) = self.code.nodes[*key as usize] else {
+                    if !self.ordinary_atoms()
+                        && (domain.is_none() || self.info[u.value as usize].free.contains(&u.at))
+                    {
                         return Err(Error::unsupported(
-                            "optional EXCEPT key is not an interval binder",
+                            "optional ENABLED retains its immutable-binder update subset",
                         ));
-                    };
-                    let domain = *self.interval_slots.get(&slot).ok_or_else(|| {
-                        Error::unsupported("optional EXCEPT key has no immutable binder domain")
-                    })?;
+                    }
                     self.push(Node::ClosedUpdate {
                         base: b,
                         key: *key,
                         domain,
+                        at: u.at,
                         value: u.value,
                     })
                 } else {
@@ -2302,7 +2322,7 @@ impl Compiler<'_> {
                 if let Some(s) = self.envs[env].slots.get_mut(v.index()) {
                     *s = Sb::Flat(flat);
                 }
-                if self.guarded_updates && !b.tuple {
+                if self.bound_test.is_some() && !b.tuple {
                     let info = &self.info[domain as usize];
                     if info.vars == 0
                         && info.primed == 0
@@ -2323,6 +2343,53 @@ impl Compiler<'_> {
             });
         }
         Ok((binds, saved))
+    }
+
+    fn ordinary_atoms(&self) -> bool {
+        matches!(
+            self.bound_test,
+            Some(BoundTest::Predicate | BoundTest::Nonstuttering(_))
+        )
+    }
+
+    /// The optional construction/choice lane uses one scalar interval binder.
+    /// Existing lazy wrappers remain intact; this inspection never evaluates
+    /// a domain, and the source certificate separately proves its history.
+    fn optional_interval_binder(&self, binds: &[Bind]) -> Result<(), Error> {
+        if !self.ordinary_atoms() {
+            return Err(Error::unsupported(
+                "optional ENABLED construction remains reference",
+            ));
+        }
+        let [bind] = binds else {
+            return Err(Error::unsupported(
+                "multiple optional constructor/CHOOSE bounds",
+            ));
+        };
+        if bind.tuple || bind.slots.len() != 1 {
+            return Err(Error::unsupported(
+                "a nonscalar optional constructor/CHOOSE binder",
+            ));
+        }
+        let mut domain = bind.domain;
+        loop {
+            match &self.code.nodes[domain as usize] {
+                Node::Range(_, _) => return Ok(()),
+                Node::Const(value)
+                    if value.is_compound() && self.m.heap.view(*value).kind == Kind::Interval =>
+                {
+                    return Ok(());
+                }
+                Node::Spec(body) | Node::Lazy { body, .. } | Node::Scope { body, .. } => {
+                    domain = *body;
+                }
+                _ => {
+                    return Err(Error::unsupported(
+                        "an optional constructor/CHOOSE domain without an interval proof",
+                    ));
+                }
+            }
+        }
     }
 
     fn unbind(&mut self, saved: Saved) {
