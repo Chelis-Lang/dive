@@ -745,7 +745,14 @@ worker (and the compiler, while folding) owns exactly one `Heap`; it is not
 | `intern_const` | intern a constant, keeping a top-level symbolic set symbolic and a lazy value lazy | no | yes | no |
 | `intern_view` | intern a state value and, for a top-level symbolic set, its view (§8) | no | no | engine, after the claim |
 | `reset` | end of an expansion: free every transient | no | after each fold | engine, per expansion |
-| `poisoned` | a stale or foreign handle was read, or a lazy value was hashed (a bug) | check | check | check after each successor |
+| `poisoned` | an invalid handle read was detected, or a lazy value was hashed (a bug) | check | check | check after each successor |
+
+Persistent handles are coordinates within their issuing Store, not globally
+branded identities. Keep every handle with that Store. An unissued coordinate
+can be detected, but a foreign word whose bits also name a locally issued
+coordinate cannot be distinguished by `poisoned` or an origin-table lookup.
+Machine/store replacement invalidates those handles (§10); an origin check
+does not make arbitrary cross-Store handle injection a supported operation.
 
 Store operations outside the heap are limited to `Store::new(hashcons)`,
 `Store::with_string_order(hashcons, order)`, `Store::stats` and

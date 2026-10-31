@@ -4,7 +4,9 @@ Dive currently provides parsing, semantic analysis, bounded native PlusCal
 translation, explicit safety checking, finite simulation, DFID, independent
 trace validation and bounded temporal checking with deterministic level checks
 or explicit final/short analysis. Full TLC parity is
-still in progress. A named refusal or resource stop does not establish safety.
+still in progress. The reference engine remains the default; native capacity
+and TLC-relative performance qualification remain open. A named refusal or
+resource stop does not establish safety.
 
 | Task | Guide | Current boundary |
 | --- | --- | --- |

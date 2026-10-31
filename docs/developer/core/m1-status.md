@@ -1,4 +1,4 @@
-# M1 acceptance status (2026-10-30)
+# M1 acceptance status (2026-10-31)
 
 M1 has broad implementation across the main workstreams, but **acceptance remains open**.
 The default engine remains `reference`. Use `10-plan.md` for the milestone
@@ -11,27 +11,184 @@ model at 1/8 workers, investigated above 1.5. Semantic, independent-word and
 resource obligations are unchanged. Historical qualifications below remain
 attached to their original sources; no acceptance is granted retrospectively.
 
-At implementation snapshot `a79a024d453096c85b29a8cfc839981f233c1dc7`, native temporal capture retains original
-persistent rows and CSR, with sealed completion/prefix facts and fresh word
-validation. Ordinary core files use actual time/memory budgets and checked,
-fallible growth in place of artificial capture/product/acceptance/word ceilings;
-explicit Rust/reference limits and temporal-language planning bounds remain.
-Read reuse covers bounded closed recursive functions with scalar domains; every
-original still receives eager Graph conversion. Store/native accounting remains
-partial. These implementations do not establish capacity or performance acceptance.
+The 2026-10-31 implementation checkpoint includes native closed-action evaluation
+(#674), actual periodic capture metadata (#675), function-receiver error provenance
+(#676), owned construction histories (#677), initial reference/Auto tuple/record diagnostic
+replay (#683), and independently replayed post-Next temporal source errors (#679).
+The version 5 consumer notice was posted before landing. These are bounded
+capabilities with explicit refusal boundaries, not complete value-method or
+liveness parity. Store/native byte accounting and broader history producers
+remain unfinished.
 
 ### Current checkpoint: implemented versus unqualified
 
 | Area | Current state |
 |---|---|
-| Native storage, budget transport and read reuse | Implemented through #638/#653/#652/#660; typed stops retain real stage/counts/completion truth. |
-| Error reporting and trust | #655 prints certified temporal error words; #656 refuses unproved post-Next temporal primary classes. Exact reached fairness/ENABLED classification (#502) remains open. |
-| Ordered terminal replay | Implemented #659: source-bound ordered Next/partial evidence and diagnostic execution; partial Init uses `error_witness`, not a formal `counterexample` word. Unclassified primary results remain unclassified despite valid evidence. |
-| Actual-word liveness names | Implemented #658: owner-approved complete false-property list in configured order, independently proved on the actual word. Other observables remain strict; no historical census credit is transferred. |
-| Parallel runtime-name admission | Implemented #661: generic native startup-domain proof and run-wide new-name guard; original EWD completion remains unproved. |
-| Integrated qualification | `68dd8266` census completed with findings/exit 1. Its 66m12s full gate completed exit 1 only for combined-function Clippy (101/100 lines); all other executed phases pass. Helper-extraction repair #662 is merged as `a79a024d`, with exact-source Clippy and required CI passing separately. Capacity and quiet performance acceptance remain incomplete. |
+| Native storage, budgets and capture reports | Persistent original rows/CSR, controlled eager admission, bounded closed-function reuse, checked growth and actual budgets. Periodic stops report their real capture stage and completion facts (#675). |
+| Construction history | Owned literal/MAP/union construction order, raw demand and sparse state handoff are implemented with independent replay controls (#677, ADR 0131). Broader #623 remains open. |
+| Error reporting and trust | Function receiver provenance (#676) and bounded first-Init reference/Auto tuple/record replay (#683, ADR 0133) are implemented; native comparison refusals remain. Initial diagnostic states keep a null formal counterexample and carry separate `diagnostic_witness.trace`; the earlier partial-Init `error_witness` route stays closed. |
+| Temporal source errors | Version 5 independently replays the bounded one-state source, actual Next order, temporal row and diagnostic lifecycle (#679, ADR 0132). Later rows, multiple initial emissions and unproved scopes still refuse; broader #502 remains open. |
+| Actual-word liveness names | Complete false-property list in configured order, independently proved on the actual word (#658, ADR 0126). Other observables remain strict. |
+| Performance regression | Integrated `9fc88333` qualification exposed quadratic history interning (#686). Merged #687 changes only the private structural index key, preserving semantic hashes and history authority. Source-bound development and independent review restore original SimpleRegular counts; quiet performance and capacity must be measured on the corrected source. |
+| Integrated qualification | The `9fc88333` census completed with findings; its full gate was stopped after the performance regression was confirmed. Its small Auto panel has one real model timeout in both profiles. These results are retained, not promoted to a passing release gate. The corrected base `83356b01` passes its full gate and both Auto baselines; census findings and remote/performance acceptance remain open. |
 
-### Integrated fixture census at `68dd8266`
+### Current local qualification at `83356b01`
+
+The [source-bound local record](../../../conformance/reports/core/2026-10-31-local-qualification.json)
+records a full-gate pass in **72m22s**: 2,997 nextest tests pass with six declared
+skips, documentation/layering pass, CM1 and validation smoke pass at 1/4/8
+workers, and the small corpus and existing shadow gates pass. Conditional
+cargo-deny is not applicable because dependency inputs did not change.
+The raw archive was uploaded, downloaded and verified member by member.
+Gate and census builds keep their separate recorded ELF hashes.
+
+The complete fixture census again selects 1,512 of 1,629 configurations,
+retaining all 99 parser exclusions and 18 ambiguous selections. Both profiles
+preserve every agreement and the exact non-agreement ID sets from `9fc88333`.
+Default records 1,191 agreements, 285 refusals, 21 refuted words, eight time
+stops and seven unconfirmed words. TLC records 1,161 agreements, 311 refusals,
+24 refuted words, seven time stops and nine unconfirmed words. The sole status
+change is known TLC `LvPeriodic`: its earlier difference now reaches the
+20-second temporal-analysis budget. That stop gains no parity credit.
+
+All **5,437** physical invocations have exit receipts. Seventeen physical runs
+are incomplete: 15 core time stops and two core resource limits; no reference
+run hits a resource limit. The census correctly exits 1 for its remaining
+findings. The full gate itself exits 0; the wrapper's overall exit 1 is not
+reported as a failed full gate.
+
+Both original 156-model Auto profiles pass their committed baselines:
+
+| Profile | Agree | Expected divergence | Unsupported | Actual core strict agree |
+|---|---:|---:|---:|---:|
+| TLC | 150 | 0 | 6 | 124 |
+| default | 144 | 7 | 5 | 120 |
+
+All 458 TLC-profile SANY comparisons agree. Default adds four core expected
+divergences; they are not strict agreements. Each profile has three dynamic
+reference fallbacks: MCPaxos and MCPaxosTiny on unproved nested raw equality,
+and P5TLCGetSet on its nonsuccess route. Static fallback and frontend-only
+agreements are likewise separate from native checking credit. SimpleRegular
+now completes on the actual core without fallback in both profiles.
+
+This is local correctness and breadth evidence on `83356b01`, not a release
+certificate or qualification of later optimizations. Its [performance attempt](../../../conformance/reports/perf/2026-10-31-history-performance-diagnostic.json)
+was stopped after 140 correct rows: the first three Sailfish compatibility/W8
+runtime ratios, 3.742/3.642/3.515, force any completed five-pair median above the
+2x ceiling. The remaining 160 cells are absent or interrupted; no five-pair
+median is invented. Independent review also found unexplained turbostat pidstat records alongside
+reserved-CPU fields, so no external quiet certificate is granted.
+
+Two measured follow-up changes retain their own source and checks. Merged
+#688 removes the redundant default normalized-membership class scan only after
+actual ownership/phase proof; the complete local Sailfish comparison improves
+48.10s to 35.06s with exact counts. #689 implements shared authority-table reads with
+exclusive origin/snapshot writes and the same exact permission predicate;
+initial full W8 comparisons improve about 2x in both profiles. Neither result
+is quiet-host or whole-panel acceptance. The combined source `cdaf7e13` passes independent focused integration checks
+and required CI, and is merged as `dfb251c0`. Its [two-model, two-repeat development check](../../../conformance/reports/perf/2026-10-31-focused-history-diagnostic.json)
+completes all 24 rows correctly, with all 16 native runs
+using the core and requested workers. Sailfish compatibility/W8 is 1.60–1.63x
+paired TLC; default still takes 1.25x TLC at W1 and 1.42–1.47x at W8.
+SimpleRegular default remains 1.13–1.35x TLC. These observations do not meet
+the default speed floor, provide five-repeat medians or qualify the ten-model
+panel. Reserved-CPU frequency telemetry is explicitly absent in this lean
+diagnostic, and no quiet certificate is claimed. Old-source evidence is not
+relabeled. Sailfish W1 peak RSS is about 150 MiB native versus 5.5 GiB TLC on these
+observations. This is a selected-model memory result, not original temporal
+capacity certification. The benchmark node is terminated and its root volume
+deleted.
+
+The [bounded current-source profile](../../../conformance/reports/perf/2026-10-31-remaining-history-cost.json)
+ranks the already planned S5 normalized
+membership index before S6 finer keys. Of 28 valid stack observations, seven
+are membership/filter work and seven are construction projection/normalization;
+other costs include hashing, scratch, interning and evaluation. This does not
+assign exact time shares or justify removing history. S6's lost eligibility is
+intentional until history-sensitive bodies are proved safe. The next change
+must preserve current admission and fallback, query demand, collision checks
+and error behavior rather than restore memo sites blindly.
+
+### Original temporal capacity at `83356b01`
+
+The [complete twelve-cell record](../../../conformance/reports/perf/2026-10-31-original-capacity.json)
+retains independently audited outcomes and verified archival/cleanup. All
+twelve original cells completed with unchanged model/configuration,
+PROPERTY declarations, 900-second native time limits, 16-GiB requested memory budgets and
+930-second external backstops. **Ten pass; the two ABA TLC-profile cells stop.**
+CoffeeCan3000Beans and EWD998Chan N=3 complete in both profiles at W1/W8.
+ABA N4/T1/F1 completes only in default mode. This matrix is capacity evidence
+on a VM, not quiet throughput or qualification of later source `cdaf7e13`.
+
+| Original model | Profile/workers | Outcome | Seconds | Final stage |
+|---|---|---|---:|---|
+| CoffeeCan3000Beans | tlc-w1 | success | 323.727 | complete |
+| CoffeeCan3000Beans | default-w1 | success | 309.446 | complete |
+| CoffeeCan3000Beans | tlc-w8 | success | 407.998 | complete |
+| CoffeeCan3000Beans | default-w8 | success | 392.514 | complete |
+| EWD998Chan | default-w1 | success | 702.035 | complete |
+| EWD998Chan | default-w8 | success | 663.757 | complete |
+| EWD998Chan | tlc-w8 | success | 424.082 | complete |
+| aba_asyn_byz | tlc-w1 | time stop | 900.109 | product |
+| aba_asyn_byz | default-w1 | success | 768.296 | complete |
+| aba_asyn_byz | tlc-w8 | time stop | 900.105 | atoms |
+| aba_asyn_byz | default-w8 | success | 889.180 | complete |
+| EWD998Chan | tlc-w1 | success | 459.846 | complete |
+
+Success requires verified TLC_SUCCESS, physical exit 0, exact counts/depth,
+complete capture and exhausted analysis. The stopped ABA arms retain full
+capture counts (5,843,977 distinct / 85,612,896 generated / depth45), but do
+not establish temporal success. Default ABA/W8's 889-second result has only
+about eleven seconds of margin and does not establish robust performance.
+The recorded `product` stage spans construction and SCC/lasso search; the W1
+stop does not identify a single hot instruction. W8 stops in atom analysis, so
+product optimization alone is not proved sufficient.
+
+### Integrated fixture census at `9fc88333`
+
+This core/reference shadow census retains all previous fixture selections:
+1,629 configurations, 1,512 selected, 99 parser exclusions and 18 ambiguous
+skips. Each profile gains 20 agreements among previously selected IDs versus
+`68dd8266`, and 60 versus `c21e5097`, with zero lost prior agreements against
+either source. Fifteen new
+selected configurations are accounted separately. These are shadow results,
+not pinned-TLC parity totals.
+
+| Profile | Shadow agree | Refused | Native stop | Trace refuted | Unconfirmed | Differ |
+|---|---:|---:|---:|---:|---:|---:|
+| default | 1,191 | 285 | 8 | 21 | 7 | 0 |
+| TLC | 1,161 | 311 | 6 | 24 | 9 | 1 |
+
+All 5,438 physical invocations have exit records. Seventeen physical runs are
+incomplete (14 core stops, two core resource limits and one reference resource
+limit). The existing TLC `LvPeriodic` capture-limit difference remains unwaived.
+The newly selected InitialTool case exposes a pre-existing anonymous-error word
+failure (#685); it was independently reproduced on the older `cb0e0e3f` binary.
+No golden or validator was weakened to count it as agreement.
+
+The [compact source-bound record](../../../conformance/reports/core/2026-10-31-superseded-local-qualification.json)
+retains all findings and the downloaded/hash-verified external archive.
+
+The original 156-model Auto panel at this source records 149 TLC agreements,
+six refusals and one timeout; default records 143 agreements, seven registered
+expected divergences, five refusals and one timeout. Both timeouts are original
+SimpleRegular and motivate #687. Actual backend accounting is separate from
+verdict totals: each profile uses the core on 123 models; three use dynamic
+fallback. The TLC invocation also mistakenly omitted SANY against a baseline
+containing 458 modules. Those 458 missing comparisons are a command defect,
+not a frontend result; the raw failed comparison is preserved.
+
+The superseded quiet-host performance run contains real native Mutex time
+stops and slower Sailfish observations. It is a failed partial diagnostic,
+not a throughput qualification. Its independent observer and raw archive are
+preserved. The separate superseded capacity source passes all four CoffeeCan
+cells and EWD default/W1; one subsequent EWD cell was interrupted and six were
+unstarted. That node is terminated and its root volume deletion verified.
+Neither campaign is relabeled as corrected-source evidence.
+
+### Historical integrated fixture census at `68dd8266`
+
+
 
 This completed core/reference shadow census is bound to exact runtime
 `68dd8266740740bb6dce4f4d916b724762732a15`, tree
@@ -547,7 +704,13 @@ into this tranche, and no new all-model compat speedup is claimed. Record:
   (`02-semantic-contract.md` §3a). Hidden-query cache support remains pending;
   D-027 is registered when that code lands.
 
-## 5. Remaining acceptance and implementation
+## 5. Historical acceptance inventory (superseded)
+
+This inventory records the earlier checkpoint. Its counts and implementation
+statements remain historical; they do not describe the current remaining work.
+Use the [current checkpoint](#current-checkpoint-implemented-versus-unqualified)
+and [active execution plan](10-plan.md#next-checkpoint-trusted-core-and-temporal-capacity-2026-10-29)
+for landed scopes, remaining refusals and measured next priorities.
 
 The census identifies distinct obligations; one fix cannot waive another family:
 
@@ -600,7 +763,13 @@ remaining execution modes, checkpoints and storage work. M4 default replacement
 requires its own decision. Historical 182/217 full-tier agreements predate the
 core reboot and do not establish current core breadth.
 
-## 6. Execution order
+## 6. Historical execution order (superseded)
+
+This is the earlier execution plan, retained as history. It includes work now
+landed in bounded scopes, including first-Init receiver replay and construction
+history. Follow the [current checkpoint](#current-checkpoint-implemented-versus-unqualified)
+and [active execution plan](10-plan.md#next-checkpoint-trusted-core-and-temporal-capacity-2026-10-29)
+instead of treating the instructions below as outstanding implementation.
 
 1. Qualify the merged typed terminal replay over the complete selection, keeping
    uncovered sites explicit. Ordered Next/diagnostic and partial evidence are

@@ -1,0 +1,461 @@
+{
+  "schema_version": 1,
+  "campaign": "2026-10-31-history-performance-diagnostic",
+  "decision": "REJECT-PERFORMANCE-ACCEPTANCE",
+  "disposition": "VALID-FAILED-PARTIAL-DIAGNOSTIC",
+  "campaign_status": "FAILED_PARTIAL_DIAGNOSTIC_HARD_CEILING_PROVEN",
+  "packaged_utc": "2026-10-31T17:44:51.342557+00:00",
+  "source": {
+    "commit": "83356b0102983f118ff1aa80d761680fee8adf7c",
+    "tree": "acf40c1a5c5f9d6d0d55b7bab55a7c113fd88038",
+    "pr": 687,
+    "merged_commit": "b56467248376000f4af8ea012f5cfe7bdef37314",
+    "merged_commit_whole_tree_equal": true,
+    "scope": "Only the exact source833 executable and actual archived window; no old source timed rows or qualifications transferred.",
+    "excluded": [
+      "PR 688 / source63130 default-scan candidate",
+      "PR 689 / source97759397 authority-lock candidate",
+      "new cdaf diagnostic and all later diagnostic windows"
+    ],
+    "specification_paths": [
+      "AGENTS.md",
+      "docs/CHARTER.md",
+      "docs/developer/core/09-performance-method.md",
+      "docs/decisions/0119-default-performance-and-bounded-tlc-overhead.md"
+    ]
+  },
+  "binary": {
+    "build_profile": "release",
+    "sha256": {
+      "dive": "7ae6195ed5122428518d5eb709ace52b4d3ed02a16a14339b1862e8cea092f44",
+      "dive-bench": "d4722d581a8542c14c6166db14bf3d807617758e7cd95be2716108d64c00180f",
+      "dive-conformance": "9eb378f56d95b76c1cff8a71af078a60f879c96b3adf7831b37f6f86485051ba"
+    },
+    "origin": "Byte-identical verified release ELF reuse from the same source833 build/preflight archive; no timed-row reuse.",
+    "reuse_archive_sha256": "bb9f1626c16af37de84e13e8692b2e5fa80017026c68af46df5349cdd249d123",
+    "rustc_from_build_pins": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "raw_runtime_rustc_capture": "",
+    "wrapper_sha256": "7abcb484462753da13e674f5247498e36df631bb599fc65a7f09157e947c7c6b",
+    "wrapper_effect": "Clears compatibility/chaos/core-option environment overrides, forces core, execs the bound dive ELF.",
+    "pin_file_sha256": {
+      "conformance/oracles.toml": "f618f1b6e55e7e7859ddb65b7195c06c6131485a837be1e444f206a05e9f35b7",
+      "conformance/corpora.toml": "62015c59ce395c8d3d89f1abd18d5547e8ba551047c46fbf0631033f9181f380",
+      "crates/dive-bench/benchmarks.toml": "5a1a11b0398324394a2cc0b3ca8679b744bd20ced27cb6c4cfe662c8da942c8e",
+      "Cargo.lock": "48a5e53ab9ea85ab4c862325957f0168d385471658fb43a6b08cd667b14b184d",
+      "rust-toolchain.toml": "5c93b0bc9781994987494808030f259cb11c2a9c9b733e6a63b8b6d49598d14e"
+    }
+  },
+  "host": {
+    "instance_id": "i-0829c5fd5f7c523b0",
+    "instance_type": "c7i.metal-24xl",
+    "boot_id": "d8006110-235b-4319-8070-dbbaf50d71a4",
+    "cpu": "Intel(R) Xeon(R) Platinum 8488C",
+    "os": "Linux x86_64",
+    "online_cpus": "0-47",
+    "reserved_cpus": "0-15",
+    "housekeeping_cpus": "16-47",
+    "reserved_distinct_physical_cores": 16,
+    "reserved_numa_node": 0,
+    "memory_kib": 197631728,
+    "smt": "off",
+    "turbo": "off",
+    "governor": "performance",
+    "scaling_min_khz": 2400000,
+    "scaling_max_khz": 2400000,
+    "controls_stable_in_all_recorded_snapshots": true,
+    "controls_are_not_a_quiet_certificate": true
+  },
+  "window": {
+    "observer_start_utc": "2026-10-31T16:38:37.752221+00:00",
+    "benchmark_started_utc": "2026-10-31T16:38:42.689000+00:00",
+    "stop_requested_utc": "2026-10-31T17:14:56.064660+00:00",
+    "benchmark_drained_utc": "2026-10-31T17:14:57.155662+00:00",
+    "observer_stop_utc": "2026-10-31T17:14:57.608153505Z",
+    "observer_after_drain_seconds": 0.452491,
+    "benchmark_pid": 4672,
+    "benchmark_service": "dive-performance-83356b01.service",
+    "benchmark_cgroup": "divebench.slice/dive-performance-83356b01.service",
+    "benchmark_invocation_id": "a52016ae0dd746b98caec90ebff43655",
+    "observer_shell_pid": 4648,
+    "observer_service": "dive-quiet-observer-83356b01.service",
+    "first_java_child_pid": 4737,
+    "first_java_child_affinity": "0-15",
+    "quiet_binding_sha256": "e9566c454496b27739f859eeae8296267fb0f76d646e05ba8af8797ce0bfb229",
+    "fixed_absolute_deadline_utc": "2026-10-31T18:33:42Z",
+    "deadline_extension_observed": false,
+    "live_state_after_archive_not_reviewed": true
+  },
+  "tlc": {
+    "oracle": {
+      "id": "tlc-2026.10.06.014338",
+      "sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+    },
+    "java": {
+      "platform": "linux-x86_64",
+      "sha256": "0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62",
+      "source": "pinned",
+      "version": "17.0.20.1+1",
+      "version_line": "openjdk version \"17.0.20.1\" 2026-08-18"
+    },
+    "classpath": [
+      {
+        "id": "community-modules-202610040242",
+        "pin": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+      },
+      {
+        "id": "community-modules-deps-202610040242",
+        "pin": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d"
+      }
+    ],
+    "module_libraries": [
+      {
+        "id": "apalache-modules-v0.62.3",
+        "pin": "3eb15b253482005222fabbf50bb7aae501eb9f8d"
+      },
+      {
+        "id": "tlapm-library-d8b9747",
+        "pin": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37"
+      }
+    ],
+    "corpus_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "seed": 0,
+    "fingerprint": 0
+  },
+  "population": {
+    "planned_rows": 300,
+    "planned_native_rows": 200,
+    "models": [
+      "GameOfLife",
+      "TLCSailfish1",
+      "EWD998PCal",
+      "MCBakery",
+      "MCLamportMutex",
+      "SimpleRegular",
+      "MCbtree",
+      "CoffeeCan1000BeansSafety",
+      "MCDisruptor_MPMC",
+      "BufferedRandomAccessFile"
+    ],
+    "profiles": [
+      "default",
+      "tlc"
+    ],
+    "workers": [
+      1,
+      8
+    ],
+    "planned_repetitions": 5,
+    "arms": [
+      "tlc-w1",
+      "dive-tlc-w1",
+      "dive-default-w1",
+      "tlc-w8",
+      "dive-tlc-w8",
+      "dive-default-w8"
+    ],
+    "schedule": "Fixed model order; arm block reversed on even one-based repetitions; one process at a time.",
+    "completed_rows": 140,
+    "completed_native_rows": 93,
+    "completed_tlc_rows": 47,
+    "missing_or_interrupted_cells": 160,
+    "unique_completed_keys": 140,
+    "completed_rows_are_exact_declared_schedule_prefix": true,
+    "completed_by_repetition": {
+      "1": 60,
+      "2": 60,
+      "3": 20
+    },
+    "completed_by_model": {
+      "GameOfLife": 18,
+      "TLCSailfish1": 18,
+      "EWD998PCal": 18,
+      "MCBakery": 14,
+      "MCLamportMutex": 12,
+      "SimpleRegular": 12,
+      "MCbtree": 12,
+      "CoffeeCan1000BeansSafety": 12,
+      "MCDisruptor_MPMC": 12,
+      "BufferedRandomAccessFile": 12
+    },
+    "missing_population_binding": {
+      "archive_member": "reports/performance-83356b01-control/missing-cells.json",
+      "sha256": "8461c7b0fd97f3a9ebc95842c8e6cb57ee7f30b1267902e732e45c094c7bdc81",
+      "exact_recomputed_missing_set_matched": true
+    },
+    "interrupted_cell": {
+      "model": "MCBakery",
+      "profile": "default",
+      "workers": 1,
+      "repetition": 3,
+      "pid": 24362,
+      "native_time_limit_ms": 119350,
+      "max_memory_bytes": 17179869184,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "counted_as_completed": false
+    },
+    "full_population_complete": false,
+    "observed_five_repeat_medians": null,
+    "whole_panel_geometric_means": null,
+    "acceptance_aggregate_computed": false
+  },
+  "audited_checks": {
+    "scope": "All 140 completed rows within the unchanged runner schema; full original per-child stdout JSON is not retained.",
+    "required_verdicts_distinct_counts_error_classes_exits_properties_correct": true,
+    "generated_counts_at_one_worker_correct": true,
+    "required_depths_correct": true,
+    "tlc_eight_worker_reported_depths_positive": true,
+    "finite_positive_wall_times": true,
+    "usage_and_rss_fields_present_finite_nonnegative": true,
+    "all_requested_workers_actually_reported_used": true,
+    "tlc_worker_basis": "TLC BFS startup messages, not inferred from argv",
+    "native_actual_core_rows": 93,
+    "native_fallback_rows": 0,
+    "native_stopped_completed_rows": 0,
+    "native_semantic_profiles_match_arms": true,
+    "native_requested_reported_budgets_match": true,
+    "native_budget_sources_explicit": true,
+    "all_argv_profiles_workers_limits_seed_fingerprint_match": true,
+    "native_memory_bytes": 17179869184,
+    "tlc_heap": "16g",
+    "external_per_process_seconds": 930,
+    "native_time_rule_ms": "min(max(60000, 10 * pinned_golden_elapsed_ms), 900000)",
+    "native_time_limit_ms_by_model": {
+      "GameOfLife": 187470,
+      "TLCSailfish1": 900000,
+      "EWD998PCal": 831520,
+      "MCBakery": 119350,
+      "MCLamportMutex": 342540,
+      "SimpleRegular": 147420,
+      "MCbtree": 900000,
+      "CoffeeCan1000BeansSafety": 564520,
+      "MCDisruptor_MPMC": 79970,
+      "BufferedRandomAccessFile": 900000
+    },
+    "all_rows_source_bound_provenance_consistent": true,
+    "archived_goldens_and_pin_files_equal_exact_source_git_blobs": true,
+    "effective_cfg_module_and_source_file_hashes_match_local_pinned_corpus": true,
+    "benchmark_set_sha256": "5a1a11b0398324394a2cc0b3ca8679b744bd20ced27cb6c4cfe662c8da942c8e",
+    "coffee_scope": "Declared CoffeeCan1000BeansSafety safety cfg only; no original temporal-property credit.",
+    "new_host_preflight_sany_modules_exact_all_agree": 12,
+    "new_host_preflight_actual_core_no_fallback_controls": 6,
+    "source_wrapper_three_elf_and_new_host_bindings_match": true,
+    "raw_rows_unmodified_before_stop_after_drain": true,
+    "alive_benchmark_cgroup_pids_after_drain": []
+  },
+  "deciding_evidence": {
+    "model": "TLCSailfish1",
+    "profile": "tlc",
+    "workers": 8,
+    "factor_definition": "compatibility core wall seconds / matched TLC wall seconds within the same repetition",
+    "matched_pairs": [
+      {
+        "rep": 1,
+        "TLC_wall_s": 8.421347376,
+        "compat_wall_s": 31.508834489,
+        "runtime_factor_decimal": "3.741543138191524472271098487",
+        "TLC_row_sha256": "58b9600adb62f35a76b8598f9717742ba3d2cbc6707e34a5639bfce76119e0c3",
+        "core_row_sha256": "fefafbfd4f4b790b4c270129c582ca59cad131a12b99b92619f1403c4364ae7f"
+      },
+      {
+        "rep": 2,
+        "TLC_wall_s": 8.739852831,
+        "compat_wall_s": 31.828914465,
+        "runtime_factor_decimal": "3.641813550006675163887550820",
+        "TLC_row_sha256": "120f6821dcbdd408f393249743f423911a189ca6fc929538f966e64021360df5",
+        "core_row_sha256": "9de3df6e3cd05605a74a7c1bbcec71b79f736c910b1c5a1729e5ce87b7e30391"
+      },
+      {
+        "rep": 3,
+        "TLC_wall_s": 8.636380771,
+        "compat_wall_s": 30.355195601,
+        "runtime_factor_decimal": "3.514805148810639442335444939",
+        "TLC_row_sha256": "60d8f1bddbdb484b9643358f5f759c3ca9526d4717b8a28add6c1f95ab2f29f3",
+        "core_row_sha256": "c140b48355da980c9a343c9c76efc49cabbd29871ad65dc8221800ed8d32b288"
+      }
+    ],
+    "lower_bound": {
+      "kind": "Hypothetical continuation of the declared five-repetition population",
+      "value_decimal": "3.514805148810639442335444939",
+      "runtime_ceiling": 2,
+      "strictly_above_ceiling": true,
+      "actual_five_repeat_median_computed": false,
+      "proof": "Three observed factors exceed 2. Any two remaining factors leave the third order statistic at least the minimum of those three."
+    },
+    "failure_proof_archive_member": "reports/performance-83356b01-control/irrecoverable-performance-failure.json",
+    "failure_proof_sha256": "c5b318e8447ebca8f9b93809b888cb5f02a12ac064dd097f580657048d024933",
+    "failure_proof_recorded_utc": "2026-10-31T17:13:46.522596+00:00",
+    "rows_completed_at_failure_proof": 133,
+    "qualification": "Mathematical failure-stop proof for the recorded instrumented partial data, not certified quiet-host performance."
+  },
+  "stop_provenance": {
+    "root_direction_received_before_deciding_third_pair_per_independent_review": true,
+    "independent_exact_predeclaration_timestamp_available_in_archive": false,
+    "stop_controller_binding_recorded_utc": "2026-10-31T17:20:02.132111+00:00",
+    "stop_controller_binding_written_after_stop": true,
+    "no_post_stop_binding_treated_as_preregistration_timestamp": true,
+    "stop_controller_sha256": "e445072f7ab44ddc42c565b49f7d5fb9b0548db9e57080f230315d06e00dc3ad",
+    "whole_campaign_stopped_no_favorable_block_salvage": true,
+    "benchmark_exit_status": 143,
+    "observer_exit_status": 0,
+    "row_sha256_before_and_after_stop": "09a2fb47924b1139dc04e14dab11d298965f7ff00779299d582da5a213c83f9d",
+    "hard_timer_unchanged_in_archived_state": true
+  },
+  "quiet": {
+    "status": "INVALID_FOR_QUIET_ACCEPTANCE",
+    "external_quiet_certificate": false,
+    "raw_quiet_window_certified": false,
+    "raw_quiet_fields_unchanged": true,
+    "blocker": "Unexplained nonzero pidstat turbostat PID/TID4654 records alongside reserved CPU fields despite intended observer parent mask 16-47.",
+    "affected_scope": "Whole actual observed window, including deciding pairs; no block salvage.",
+    "observer_parent_affinity": "16-47",
+    "system_user_init_parent_cpuset_in_all_snapshots": "16-47",
+    "benchmark_parent_cpuset_in_all_snapshots": "0-15",
+    "unexplained_records": [
+      {
+        "utc": "2026-10-31T16:49:40Z",
+        "record_kind": "TGID",
+        "tgid": 4654,
+        "tid": null,
+        "usr_percent": 0.0,
+        "system_percent": 1.0,
+        "guest_percent": 0.0,
+        "wait_percent": 0.0,
+        "cpu_percent": 1.0,
+        "reported_cpu": 5,
+        "command": "turbostat"
+      },
+      {
+        "utc": "2026-10-31T16:59:02Z",
+        "record_kind": "TID",
+        "tgid": null,
+        "tid": 4654,
+        "usr_percent": 1.0,
+        "system_percent": 0.0,
+        "guest_percent": 0.0,
+        "wait_percent": 0.0,
+        "cpu_percent": 1.0,
+        "reported_cpu": 2,
+        "command": "|__turbostat"
+      },
+      {
+        "utc": "2026-10-31T17:11:28Z",
+        "record_kind": "TID",
+        "tgid": null,
+        "tid": 4654,
+        "usr_percent": 0.0,
+        "system_percent": 1.0,
+        "guest_percent": 0.0,
+        "wait_percent": 0.0,
+        "cpu_percent": 1.0,
+        "reported_cpu": 15,
+        "command": "|__turbostat"
+      },
+      {
+        "utc": "2026-10-31T17:14:33Z",
+        "record_kind": "TID",
+        "tgid": null,
+        "tid": 4654,
+        "usr_percent": 1.0,
+        "system_percent": 0.0,
+        "guest_percent": 0.0,
+        "wait_percent": 1.0,
+        "cpu_percent": 1.0,
+        "reported_cpu": 12,
+        "command": "|__turbostat"
+      }
+    ],
+    "cpu_field_interpretation": "Sampled/last-processor evidence; not precise interval-time attribution.",
+    "exact_mechanism_established": false,
+    "per_descendant_current_affinity_cgroup_constraints_established": false,
+    "quiet_failure_cannot_be_repaired_by_parent_cpuset_snapshots": true,
+    "telemetry_scan": {
+      "control_samples": 2100,
+      "first_control_utc": "2026-10-31T16:38:37.785480+00:00",
+      "last_control_utc": "2026-10-31T17:14:56.589428+00:00",
+      "max_control_gap_seconds": 1.04062593,
+      "control_gaps_over_two_seconds": 0,
+      "unavailable_control_fields": 0,
+      "control_mismatches": 0,
+      "thermal_counter_increments": 0,
+      "mpstat_consecutive_seconds": 2179,
+      "mpstat_first_second": "16:38:38",
+      "mpstat_last_second": "17:14:56",
+      "nonzero_steal_records": 0,
+      "pidstat_usage_records_examined": 4284879,
+      "turbostat_complete_frames_per_cpu": 2156,
+      "turbostat_cpu_range": "0-47",
+      "reserved_core_throttle_max": 0.0,
+      "reserved_core_temperature_max_c": 44.0,
+      "reserved_nmi_sum": 523,
+      "reserved_smi_sum": 0,
+      "telemetry_stderr_bytes": {
+        "mpstat.stderr": 0,
+        "pidstat.stderr": 0,
+        "turbostat.stderr": 0
+      },
+      "telemetry_child_exit_statuses": {
+        "mpstat": 143,
+        "pidstat": 143,
+        "turbostat": 143
+      },
+      "telemetry_exit_scope": "Deliberate observer shutdown after benchmark drain.",
+      "irq_affinity_changed": 130,
+      "irq_affinity_exception_numbers": [
+        0,
+        2,
+        106,
+        107
+      ]
+    }
+  },
+  "archive": {
+    "s3_uri": "s3://dive-evidence-archive-010928226848-us-east-1/performance/2026-10-31/final-83356b01/i-0829c5fd5f7c523b0/performance-evidence.tar.gz",
+    "sha256": "c3a301beefe2d088ffaff46a9b650b46c5a42636d60497b5d2a50b0f702e2abd",
+    "bytes": 105459473,
+    "local_download_sha256_verified": true,
+    "independent_additional_cloud_fetch": false,
+    "manifest_listed_regular_members_verified": 83,
+    "regular_members_including_manifest": 84,
+    "directory_members": 8,
+    "total_members": 92,
+    "manifest_excludes_itself": true,
+    "member_manifest_sha256": "47adb0e0371f7af05fba559a8f028e681c7ffcf4124924a73d31b47eff4ae018",
+    "duplicate_absolute_traversing_or_special_members": false,
+    "raw_artifact_sha256": {
+      "reports/performance-83356b01/runs.jsonl": "09a2fb47924b1139dc04e14dab11d298965f7ff00779299d582da5a213c83f9d",
+      "reports/performance-83356b01-quiet/control-samples.jsonl": "e722857ac560140e7f2e002f35fa5e49f873db40429c8d958fd03c7f693c9966",
+      "reports/performance-83356b01-quiet/pidstat.txt": "ed742a4c81abb16da8511e05a40755895f6021a171566714e66aea2c2d9b26e4",
+      "reports/performance-83356b01-quiet/mpstat.txt": "a2422f9c38c465e8df2830da51c96e8c9e7ed5691007da6de1acea0b15d19b9f",
+      "reports/performance-83356b01-quiet/turbostat.txt": "9451f517708b7a5b9ee9841569e9ac2bc8b34964f539e226c7ad4266df951ee1",
+      "reports/performance-83356b01-control/missing-cells.json": "8461c7b0fd97f3a9ebc95842c8e6cb57ee7f30b1267902e732e45c094c7bdc81",
+      "reports/performance-83356b01-control/irrecoverable-performance-failure.json": "c5b318e8447ebca8f9b93809b888cb5f02a12ac064dd097f580657048d024933",
+      "reports/performance-83356b01-control/intentional-stop.json": "a18c3c5a9ff1e9a7dbca15932eca5eadc83f0f6f94a7dc8fbbd8a2af106cd770"
+    },
+    "private_userdata_or_auth_artifact_path_found": false,
+    "candidate_signed_url_pat_private_key_markers_found_in_scanned_public_text": false,
+    "all_manifest_listed_members_size_sha256_verified": true
+  },
+  "independent_review": {
+    "artifact_name": "83356b01-corrected-performance-campaign.md",
+    "sha256": "3d31cc66146fd65157db806d489175fa20c52666bdd7efcd12c5ccf23a85a915",
+    "bytes": 33954,
+    "decision": "REJECT-PERFORMANCE-ACCEPTANCE",
+    "method": "Independent raw-archive, exact-source and complete recorded-window audit.",
+    "reviewer_writes_scope": "External evidence and private scratch only; no repository or Cargo-target writes, build, cloud/live-host commands, posts, commits or merges."
+  },
+  "scope_limits": {
+    "performance_accepted": false,
+    "quiet_accepted": false,
+    "five_repeat_median_claim": false,
+    "whole_panel_or_global_geometric_mean_claim": false,
+    "startup_memory_scaling_obligations_waived": false,
+    "original_temporal_capacity_credit": false,
+    "m1_m2_completion_credit": false,
+    "release_credit": false,
+    "engine_cutover_credit": false,
+    "later_sources_or_diagnostics_included": false,
+    "full_completed_child_stdout_replay_claim": false,
+    "purpose": "Compact rejected-performance diagnostic evidence; no soundness or acceptance requirement weakened."
+  }
+}

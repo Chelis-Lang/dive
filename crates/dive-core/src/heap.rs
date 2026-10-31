@@ -170,7 +170,11 @@ impl Heap {
         self.arena.rollback(mark);
     }
 
-    /// Whether a stale or foreign handle was read: an internal error.
+    /// Whether an invalid handle read was detected: an internal error.
+    ///
+    /// Persistent handles are coordinates within one [`Store`]. Callers must
+    /// keep them with their issuing `Store`; equal coordinates from another `Store` cannot
+    /// be distinguished from a locally issued handle by this check.
     #[must_use]
     pub fn poisoned(&self) -> bool {
         self.poisoned.get() || self.arena.stale() || self.store.poisoned()
