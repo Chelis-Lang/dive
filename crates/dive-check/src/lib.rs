@@ -625,6 +625,21 @@ fn finish_bound_check(
         r.diagnostic_witness = r.counterexample.take().map(|context| DiagnosticWitness {
             states: context.states,
         });
+    } else if matches!(
+        &r.verdict,
+        Verdict::EvaluationError {
+            site: ErrorSite::Invariant,
+            code: 2103,
+            reported: 2102,
+            verified: false,
+            ..
+        }
+    ) {
+        // The recorded initial context is neither a formal behavior word nor
+        // ADR0133's separately proved receiver diagnostic. Do not serialize it
+        // as an anonymous underlying error against an unproved wrapper.
+        r.counterexample = None;
+        notes.push("The initial invariant's diagnostic context has no proved deciding class or formal behavior word; its original cause/context, physical exit and stopping counts are retained.".into());
     }
     r.collision = outcome.collision;
     r.workers = outcome.workers;

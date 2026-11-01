@@ -13,6 +13,110 @@ use serde_json::{Value, json};
 
 type TestResult = Result<(), Box<dyn std::error::Error>>;
 
+#[test]
+fn context_only_initial_errors_keep_unclassified_oracles_and_refuse_native_class_claims()
+-> TestResult {
+    use dive_conformance::tlc::{messages, result};
+    for (name, pinned, sha256) in [
+        (
+            "InitialTool",
+            include_str!("fixtures/initial-context-unclassified/InitialTool.stdout"),
+            "77eb050796d1cb1fc30b433a666553fc898cc9152eeb5e00fac5aeb0a35a6936",
+        ),
+        (
+            "InitialOverride",
+            include_str!("fixtures/initial-context-unclassified/InitialOverride.stdout"),
+            "a7ab40e040f98033631201bf9899be1e619b349cf8453f564e2c570e8018b695",
+        ),
+    ] {
+        assert_eq!(
+            dive_conformance::hash::sha256_bytes(pinned.as_bytes()),
+            sha256
+        );
+        let transcript = messages::parse(pinned);
+        assert_eq!(transcript.anomalies, [] as [String; 0]);
+        let oracle = result::classify(
+            &transcript,
+            &result::RunFacts {
+                exit_code: Some(75),
+                ..result::RunFacts::default()
+            },
+        );
+        assert_eq!(oracle.verdict, result::Verdict::Unclassified);
+        assert_eq!(oracle.error_codes, [2102, 2103]);
+        assert_eq!(oracle.exit_code, Some(75));
+        let file = root().join(format!(
+            "crates/dive-api/tests/fixtures/comparison-receiver-unclassified/{name}.tla"
+        ));
+        for compat in [false, true] {
+            let source = SpecModel::load(
+                &file,
+                &file.with_extension("cfg"),
+                &TraceOptions {
+                    compat_tlc: compat,
+                    run: Some((19, 0)),
+                    ..TraceOptions::default()
+                },
+            )?;
+            for (engine, workers) in [Engine::Reference, Engine::Core, Engine::Auto]
+                .into_iter()
+                .flat_map(|engine| [1, 4].map(|workers| (engine, workers)))
+            {
+                let report = check_file_engine(
+                    &CheckRequest {
+                        file: file.clone(),
+                        config: Some(file.with_extension("cfg")),
+                        compat_tlc: compat,
+                        workers: Some(workers),
+                        seed: Some(19),
+                        fp: Some(0),
+                        ..CheckRequest::default()
+                    },
+                    engine,
+                )?;
+                let value = report.to_json();
+                let mut actual_outcome = outcome(&value);
+                actual_outcome.exit_code = Some(i32::from(
+                    report.exit_code_for(dive_api::ExitConvention::Tlc),
+                ));
+                if name == "InitialOverride" && engine == Engine::Core {
+                    assert_eq!(value["verdict"], "unsupported");
+                    assert_eq!(report.exit_code_for(dive_api::ExitConvention::Tlc), 3);
+                    assert!(matches!(
+                        check_result(&actual_outcome, compat),
+                        CheckMapping::Refused(_)
+                    ));
+                    continue;
+                }
+
+                assert_eq!(report.exit_code_for(dive_api::ExitConvention::Tlc), 75);
+                assert_eq!(value["tlc"]["verified"], false);
+                assert_eq!(value["tlc"]["code"], 2103);
+                assert_eq!(value["tlc"]["reported"], 2102);
+                assert!(value["counterexample"].is_null());
+                assert!(value["error_witness"].is_null());
+                assert!(value["diagnostic_witness"].is_null());
+                assert!(matches!(
+                    check_result(&actual_outcome, compat),
+                    CheckMapping::Refused(_)
+                ));
+                assert!(matches!(
+                    check_result_with_model(&actual_outcome, compat, &source),
+                    CheckMapping::Refused(_)
+                ));
+                for field in ["distinct", "generated", "depth", "left_on_queue"] {
+                    assert_eq!(value["statistics"][field], 1);
+                }
+                let human = report.render_human();
+                assert!(human.contains("While working on the initial state:"));
+                assert!(human.contains("no proved deciding class"));
+                assert!(!human.contains("The behavior up to this point"));
+            }
+        }
+    }
+    Ok(())
+}
+
 fn root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..")
 }

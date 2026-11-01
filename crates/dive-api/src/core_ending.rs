@@ -335,6 +335,13 @@ pub(crate) fn ending(
                         site: ErrorSite::ImpliedInit,
                         ..
                     }
+                    | Verdict::EvaluationError {
+                        site: ErrorSite::Invariant,
+                        code: 2103,
+                        reported: 2102,
+                        verified: false,
+                        ..
+                    }
             );
     } else if matches!(f.site, Site::Invariant(_)) {
         if f.in_model {
