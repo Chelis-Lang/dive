@@ -14,12 +14,10 @@
 //! until a violation or an incomplete state ends it quietly, or a further
 //! error ends it with that error's site.
 
-use std::collections::HashSet;
-
 use dive_core::plan::Code;
 use dive_core::{Error, ErrorKind, Handle, Machine, Sink};
 
-use crate::{Explorer, state_key};
+use crate::{Explorer, Seen, state_identity};
 
 /// Where an evaluation error was raised.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -192,7 +190,7 @@ pub(crate) fn replay_after(
     let code = &plan.code;
     let s0 = m.s0.clone();
     let mut out = Replayed::default();
-    let mut added: HashSet<u64> = HashSet::new();
+    let mut added = Seen::with_exact(ex.seen.exact.is_some());
     let mut emission = 0u64;
     for (index, a) in plan.next.iter().enumerate() {
         ex.action = Some(index);
@@ -257,17 +255,21 @@ pub(crate) fn replay_after(
             };
             let mut new = true;
             if inside {
-                let key = match state_key(m, plan) {
-                    Ok(k) => k,
-                    Err(e) if e.kind() == ErrorKind::Eval && plan.view.is_some() => {
-                        out.error = Some(ex.failure_at(m, Site::View, e.message().to_owned())?);
-                        return Ok(out);
-                    }
-                    Err(e) => return Err(e),
-                };
-                new = !ex.seen.contains(key) && !added.contains(&key);
+                let mut identity = Vec::new();
+                let key =
+                    match state_identity(m, plan, ex.seen.exact.as_ref().map(|_| &mut identity)) {
+                        Ok(k) => k,
+                        Err(e) if e.kind() == ErrorKind::Eval && plan.view.is_some() => {
+                            out.error =
+                                Some(ex.failure_at(m, Site::View, e.message().to_owned())?);
+                            return Ok(out);
+                        }
+                        Err(e) => return Err(e),
+                    };
+                new = !ex.seen.contains_row(key, &identity, &m.heap)
+                    && !added.contains_row(key, &identity, &m.heap);
                 if new {
-                    added.insert(key);
+                    added.insert_row(key, &identity, &m.heap)?;
                     out.distinct += 1;
                 }
             }
