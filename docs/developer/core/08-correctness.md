@@ -37,9 +37,9 @@ This document says how the new core uses them.
   the reference engine. This is the role the design gave `--no-fallback`.
 - **Refusal before the search (static).** The core refuses, naming the
   feature, any construct or run option it does not implement. Examples are
-  disk seen sets, frontier spill, `--chaos`, unproved evaluation options and
-  plan constructs, and checkpoints. Exact safety stores and predecessor spill
-  are supported; their temporal combinations still refuse. With
+  disk seen sets, `--chaos`, unproved evaluation options and plan constructs,
+  and checkpoints. Exact safety stores, ordered frontier spill and predecessor
+  spill are supported; their temporal combinations still refuse. With
   `--engine=auto`, the reference engine runs an unsupported whole check.
 - **Refusal during the search (dynamic).** The core aborts when it meets an
   unsupported case during the run: a lazily represented value it cannot

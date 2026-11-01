@@ -87,9 +87,9 @@ default (`--engine reference`), and it is also the TLC-equivalent setting. The
 core currently covers:
 
 - the default profile and `--compat=tlc` (below). Safety checks support
-  `--store fp|exact` and predecessor-log spill under its explicit budget.
-  Disk seen sets, frontier spill and `--chaos` remain unsupported. Temporal
-  checks with exact stores or predecessor spill also refuse by name;
+  `--store fp|exact`, ordered frontier spill and predecessor-log spill under
+  their explicit budgets. Disk seen sets and `--chaos` remain unsupported.
+  Temporal checks with exact stores or frontier/predecessor spill refuse by name;
 - any number of workers. Every result (counts, verdict, trace, output) is
   the one-worker result;
 - safety: invariants, constraints, `ACTION_CONSTRAINT`, deadlock, and
