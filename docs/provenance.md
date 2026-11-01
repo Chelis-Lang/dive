@@ -1,5 +1,12 @@
 # Provenance
 
+Native safety exact membership uses independently implemented collision buckets
+over the existing canonical core value identities; it does not port TLC's
+probabilistic `FPSet` structure. Discovery order and predecessor replay retain
+the existing TLC-semantic BFS port. Native predecessor spill reuses dive's
+existing ADR 0031 fixed-width fallible log and its corruption/cleanup checks;
+no additional upstream algorithm or dependency is introduced.
+
 Every algorithm ported or adapted from another implementation is recorded here. Each entry gives:
 - the `dive` component;
 - the source project, file and class or method, and the version or commit;

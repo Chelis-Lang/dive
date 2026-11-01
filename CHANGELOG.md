@@ -1,5 +1,11 @@
 # Changelog
 
+- Support exact native safety membership with complete collision-resolving state
+  identities and opt-in predecessor spill, preserving ordered results and
+  independently replayed concrete words. Explicit storage validation and cleanup
+  failures report a resource stop without certification. Frontier/disk-seen and
+  temporal exact/spill combinations retain their current refusal boundaries.
+
 - Add time and sampled process-memory budgets to finite simulation and DFID,
   with the checking defaults, cooperative Init/execution and fresh independent
   replay control, retained prefix progress and structured stopped reports
