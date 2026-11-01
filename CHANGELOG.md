@@ -14,6 +14,19 @@
   One-worker numeric differences, exact exits and independent trace validation
   remain mandatory; expected divergences never count as strict agreements.
 
+- Independently validate candidate-side assertions, division by zero (including
+  ENABLED) and TLC integer arithmetic overflow at constraint, action-constraint
+  and implied-action sites. Their existing primary/deciding codes, exits, counts
+  and native version-4 meaning are preserved; unproved receiver, temporal, VIEW
+  and top-level non-Boolean contexts remain refused.
+- Require actual controlled fresh candidate-word/diagnostic replay before
+  publishing a verified candidate error. Different or unproved diagnostic
+  lifetimes refuse, retaining the observed primary and actual search counts.
+- Classify only the unambiguous implied-action assertion 2132/exit 14 family
+  through strict parser-owned framing. Primary division/overflow causes share
+  exit 255 and remain unclassified; mutable transcripts and context-only initial
+  errors gain no authority. The earlier 92-agreement claim was rejected.
+
 - Speed up default-profile membership misses in normalized owned construction
   sets. Actual history, checked comparison behavior, raw construction order
   and cooperative resource stops are preserved.

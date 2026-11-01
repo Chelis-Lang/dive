@@ -176,37 +176,37 @@ impl Core {
             StdOp::StringsSTRING => Ok(Value::string_set(self.ctx)),
             StdOp::NaturalsPlus | StdOp::IntegersPlus => {
                 let (a, b) = self.int_args(op, v(0)?, v(1)?)?;
-                Ok(Value::int(a.add(&b, mode)?))
+                integer_value(a.add(&b, mode))
             }
             StdOp::NaturalsMinus | StdOp::IntegersMinus => {
                 let (a, b) = self.int_args(op, v(0)?, v(1)?)?;
-                Ok(Value::int(a.sub(&b, mode)?))
+                integer_value(a.sub(&b, mode))
             }
             StdOp::NaturalsTimes | StdOp::IntegersTimes => {
                 let (a, b) = self.int_args(op, v(0)?, v(1)?)?;
-                Ok(Value::int(a.mul(&b, mode)?))
+                integer_value(a.mul(&b, mode))
             }
             StdOp::NaturalsDiv => {
                 // `Naturals.Divide` rounds a negative quotient that truncates to
                 // 0 up to 0, and wraps `-2147483648 \div -1` (fixture `RvNatDiv`).
                 let (a, b) = self.int_args(op, v(0)?, v(1)?)?;
-                Ok(Value::int(a.div_naturals(&b, mode)?))
+                integer_value(a.div_naturals(&b, mode))
             }
             StdOp::IntegersDiv => {
                 let (a, b) = self.int_args(op, v(0)?, v(1)?)?;
-                Ok(Value::int(a.div(&b, mode)?))
+                integer_value(a.div(&b, mode))
             }
             StdOp::NaturalsMod | StdOp::IntegersMod => {
                 let (a, b) = self.int_args(op, v(0)?, v(1)?)?;
-                Ok(Value::int(a.rem(&b, mode)?))
+                integer_value(a.rem(&b, mode))
             }
             StdOp::NaturalsExpt | StdOp::IntegersExpt => {
                 let (a, b) = self.int_args(op, v(0)?, v(1)?)?;
-                Ok(Value::int(a.pow(&b, mode)?))
+                integer_value(a.pow(&b, mode))
             }
             StdOp::IntegersNeg => {
                 let a = self.int_arg(op, v(0)?, 0)?;
-                Ok(Value::int(a.neg(mode)?))
+                integer_value(a.neg(mode))
             }
             StdOp::NaturalsDotDot | StdOp::IntegersDotDot => {
                 let (a, b) = self.int_args(op, v(0)?, v(1)?)?;
@@ -932,6 +932,69 @@ impl Core {
                 ));
             }
         })
+    }
+}
+
+// Only a result of these actual integer module operations establishes their
+// Overflow EvalException constructor. General value-layer overflow transport
+// also includes set sizing, which supplies no such constructor provenance.
+fn integer_value(result: Result<Int, dive_value::ValueError>) -> Result<Value> {
+    result.map(Value::int).map_err(|error| {
+        if error.kind() == dive_value::ErrorKind::Overflow {
+            EvalError::eval_exception(Ec::Overflow, error.message())
+        } else {
+            error.into()
+        }
+    })
+}
+
+#[cfg(test)]
+mod integer_exception_provenance {
+    use super::*;
+    use crate::ExceptionKind;
+    use dive_value::IntMode;
+
+    #[test]
+    #[allow(
+        clippy::expect_used,
+        reason = "actual integer operation error controls"
+    )]
+    fn integer_operations_retain_overflow_constructors_without_certifying_value_errors() {
+        let max = Int::Small(i64::from(i32::MAX));
+        let min = Int::Small(i64::from(i32::MIN));
+        let two = Int::Small(2);
+        for result in [
+            max.add(&Int::ONE, IntMode::Tlc),
+            min.sub(&Int::ONE, IntMode::Tlc),
+            max.mul(&two, IntMode::Tlc),
+            min.div(&Int::Small(-1), IntMode::Tlc),
+            two.pow(&Int::Small(31), IntMode::Tlc),
+            min.neg(IntMode::Tlc),
+        ] {
+            let original = result.as_ref().expect_err("TLC arithmetic overflow");
+            let error = integer_value(result.clone()).expect_err("module exception");
+            assert_eq!(error.ec(), Ec::Overflow);
+            assert_eq!(error.message(), original.message());
+            assert_eq!(error.exception_kind(), Some(ExceptionKind::EvalException));
+            // The same code and text outside an actual integer operation are
+            // insufficient to prove a module exception constructor.
+            assert_eq!(EvalError::from(original.clone()).exception_kind(), None);
+        }
+        let size_error = dive_value::ValueError::new(
+            dive_value::ErrorKind::Overflow,
+            "Overflow when computing the number of elements",
+        );
+        assert_eq!(EvalError::from(size_error).exception_kind(), None);
+        assert_eq!(
+            integer_value(min.div_naturals(&Int::Small(-1), IntMode::Tlc))
+                .expect("Naturals division wraps"),
+            Value::int(min)
+        );
+        assert_eq!(
+            integer_value(max.add(&Int::ONE, IntMode::Big))
+                .expect("default arithmetic remains unbounded"),
+            Value::int(Int::Small(i64::from(i32::MAX) + 1))
+        );
     }
 }
 

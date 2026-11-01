@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "oracle": "tlc-2026.10.06.014338",
+  "upstream": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "scope": "Normal clean streams remain canonically unclassified: physical255 does not identify the diagnostic cause. The separate unchanged-jar TLC.process bridge observes diagnostic EC only; it is not a canonical deciding golden.",
+  "cases": {
+    "LaterDivDiagnosticOverflow": {
+      "tla_sha256": "b3adb061bfbade3625828d070301f40c0d0c5488fc64c6393029653457f3bf57",
+      "cfg_sha256": "99f088222d2008ac89341820db852adc0d0e7d1f75704622c3491f4e24d85375",
+      "normal_stdout_sha256": "f0ccb938f24662c4b84dfe2473a7ebbb96487fb30866c0b8202a6bd98613383d",
+      "normal_physical_exit": 255,
+      "primary_none_code": 2179,
+      "diagnostic_bridge_code": 2178,
+      "canonical_outcome": "unclassified"
+    },
+    "LaterOverflowDiagnosticDiv": {
+      "tla_sha256": "417eae55d991402440af08c079aa8e1eac3c53f506af118addd1b2b080fe5e19",
+      "cfg_sha256": "99f088222d2008ac89341820db852adc0d0e7d1f75704622c3491f4e24d85375",
+      "normal_stdout_sha256": "42ae41b1c415352273b68c5a5c7510322f568783583af0e0466ea1c5d7e2e5c3",
+      "normal_physical_exit": 255,
+      "primary_none_code": 2178,
+      "diagnostic_bridge_code": 2179,
+      "canonical_outcome": "unclassified"
+    }
+  }
+}

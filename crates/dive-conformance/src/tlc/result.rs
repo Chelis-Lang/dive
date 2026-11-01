@@ -42,6 +42,9 @@ use super::messages::{Message, OwnedTranscript, Transcript, class};
 use crate::hash::sha256_bytes;
 use serde::{Deserialize, Serialize};
 
+#[path = "implied_replay.rs"]
+mod implied_replay;
+
 /// Traces whose canonical JSON exceeds this many bytes are stored as a
 /// digest and a length only.
 pub const TRACE_SIZE_CAP: usize = 1_000_000;
@@ -890,6 +893,17 @@ fn decide(
             Some("finite temporal prefix: LiveCheck prints 2116 but records safety error 2110 (exit 12)".to_owned()),
         );
     }
+    if let Some(cause) = owned.and_then(|parsed| implied_replay::cause(parsed, facts))
+        && let Some(verdict) = verdict_for_code(cause)
+    {
+        return Decision::new(
+            verdict,
+            Some(cause),
+            Some(format!(
+                "implied-action replay owns NONE cause {cause}; canonical 2113 parent, finite behavior and physical exit agree"
+            )),
+        );
+    }
     let candidates: Vec<&&Message> = errors
         .iter()
         .filter(|m| exit_statuses_for(m.code).contains(&exit))
@@ -1299,3 +1313,7 @@ mod tests {
 #[cfg(test)]
 #[path = "init_replay_tests.rs"]
 mod init_replay_tests;
+
+#[cfg(test)]
+#[path = "implied_replay_tests.rs"]
+mod implied_replay_tests;

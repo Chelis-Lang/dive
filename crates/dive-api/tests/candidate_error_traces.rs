@@ -74,10 +74,20 @@ fn actual_candidate_errors_require_exact_word_source_site_and_both_identities() 
 }
 
 fn assert_mutations(model: &SpecModel, wire: &serde_json::Value, site: &str) -> TestResult {
+    let wrong_cause = if wire["ending"]["ec"] == "TLC_MODULE_DIVISION_BY_ZERO" {
+        "GENERAL"
+    } else {
+        "TLC_MODULE_DIVISION_BY_ZERO"
+    };
+    let wrong_deciding = if wire["ending"]["endpoint"]["deciding"] == 2179 {
+        2103
+    } else {
+        2179
+    };
     for (pointer, value) in [
-        ("/ending/ec", json!("TLC_MODULE_DIVISION_BY_ZERO")),
+        ("/ending/ec", json!(wrong_cause)),
         ("/ending/endpoint/reported", json!(2111)),
-        ("/ending/endpoint/deciding", json!(2179)),
+        ("/ending/endpoint/deciding", json!(wrong_deciding)),
         ("/ending/endpoint/source/module", json!("Forged")),
     ] {
         let mut bad = wire.clone();
@@ -125,15 +135,21 @@ fn assert_mutations(model: &SpecModel, wire: &serde_json::Value, site: &str) -> 
 }
 
 #[test]
-fn direct_module_errors_and_assertions_keep_their_existing_unproved_endings() -> TestResult {
+fn direct_module_errors_and_assertions_replay_actual_candidate_and_diagnostic() -> TestResult {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
     for site in ["Constr", "ActConstr", "Prop"] {
-        for kind in ["Assert", "DivZero", "Enabled"] {
+        for kind in ["Assert", "DivZero", "Enabled", "Overflow", "Seen"] {
+            if kind == "Seen" && site != "Prop" {
+                continue;
+            }
             let name = format!("Er{site}{kind}");
             let file = root.join(format!(
                 "crates/dive-check/tests/fixtures/errors/specs/{name}/{name}.tla"
             ));
             for compat_tlc in [false, true] {
+                if kind == "Overflow" && !compat_tlc {
+                    continue;
+                }
                 let model = SpecModel::load(
                     &file,
                     &file.with_extension("cfg"),
@@ -143,7 +159,10 @@ fn direct_module_errors_and_assertions_keep_their_existing_unproved_endings() ->
                         ..TraceOptions::default()
                     },
                 )?;
-                for engine in [Engine::Reference, Engine::Core] {
+                for (engine, workers) in [Engine::Reference, Engine::Core]
+                    .into_iter()
+                    .flat_map(|engine| [1, 4].map(|workers| (engine, workers)))
+                {
                     let result = check_file_engine(
                         &CheckRequest {
                             file: file.clone(),
@@ -151,22 +170,30 @@ fn direct_module_errors_and_assertions_keep_their_existing_unproved_endings() ->
                             compat_tlc,
                             seed: Some(0),
                             fp: Some(0),
-                            workers: Some(1),
+                            workers: Some(workers),
                             ..CheckRequest::default()
                         },
                         engine,
                     )?
                     .to_json();
                     let wire = &result["counterexample"]["trace"];
-                    assert_ne!(
+                    assert_eq!(wire["version"], 4, "{name}: {result}");
+                    assert_eq!(
                         wire["ending"]["endpoint"]["stage"],
                         "candidate-ordered-terminal"
                     );
-                    assert_ne!(
+                    let expected = match kind {
+                        "Assert" => 2132,
+                        "Overflow" => 2178,
+                        _ => 2179,
+                    };
+                    assert_eq!(result["tlc"]["code"], expected, "{name}: {result}");
+                    assert_eq!(
                         model.try_validate(&TraceDoc::from_json(wire)?)?.validation,
                         Validation::Valid,
                         "{name}: {result}"
                     );
+                    assert_mutations(&model, wire, site)?;
                 }
             }
         }
