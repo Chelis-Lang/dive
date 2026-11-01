@@ -1,0 +1,1677 @@
+{
+  "schema_version": 1,
+  "kind": "Source-bound final phase4 checkpoint: trusted reports, conditional value-proof stop and accepted original temporal capacity",
+  "record_status": "COMPLETE_BOUNDED_PHASE_CAPACITY_ACCEPTED_CENSUS_FINDINGS_RETAINED",
+  "date": "2026-11-01",
+  "recorded_utc": "2026-11-01T20:52:49.053026+00:00",
+  "runtime": {
+    "frozen_qualification_source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+    "frozen_qualification_tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+    "default_engine": "reference",
+    "note": "Execution belongs to source95 and its separately identified actual ELFs. Runtime squash949 has the exact qualified tree; the main commit itself was not executed. Later documentation receives no new execution credit.",
+    "previous_landed_main": "d62d68d4f6bc178c34e5e00f9920a7c24b33013c",
+    "previous_landed_tree": "8cedadd05c555b4c14d8d4ae28def3f9ed59eb5c",
+    "qualified_runtime_main": "949e549cc1fece68cfa1bcfe59ea4b1c83bc368f",
+    "qualified_runtime_tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+    "runtime_merge_binding": {
+      "artifact_name": "pr719-merge-binding.json",
+      "sha256": "7e6b7af55a1f75d392b9500e56cd94459a6468bcb8e5013abec4eb451728f007",
+      "reviewed_head": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "qualified_source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "runtime_merge": "949e549cc1fece68cfa1bcfe59ea4b1c83bc368f",
+      "runtime_tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+      "tree_identical_to_qualified_source": true,
+      "merged_utc": "2026-11-01T20:47:24Z",
+      "verified_utc": "2026-11-01T20:47:28.636675+00:00",
+      "main_commit_itself_executed": false
+    }
+  },
+  "landed_changes": [
+    {
+      "pr": 716,
+      "reviewed_head": "a25bc558fa23e1d612c8a84b5225e4ae413dfcec",
+      "merge": "63f0d55d247c986dc65bdb012e0c3d4d8e3fbc5b",
+      "issue_closed": 714,
+      "scope": "Build dive-trace alone in dedicated target in both local gates and CI; preserve phase3 standalone supplement as distinct from old full gate.",
+      "independent_review": {
+        "artifact_name": "phase4-gate714/review.json",
+        "sha256": "84553a5787fea11c1977f252f6493c9d6a30e11e6861f2cdbc39e672f4dee500",
+        "decision": "approve"
+      },
+      "required_ci": "All three required checks passed before merge; root checkpoint and retainedCIreceipt",
+      "ci_receipt_sha256": "35fa553ed8cd9ba0d56657dff8b986b42afb569265fedb4c4b1c96ac02f35db2"
+    },
+    {
+      "pr": 717,
+      "original_reviewed_head": "36172bcf7977578ce40da1b43259281ce5ed47c7",
+      "rebased_head": "84126ab191e635a35982edd0b1e79e22f1cdb13c",
+      "reviewed_test_only_head": "cbac393b6c76123934804e460293d5c92a6e0e0a",
+      "merge": "d62d68d4f6bc178c34e5e00f9920a7c24b33013c",
+      "tree": "8cedadd05c555b4c14d8d4ae28def3f9ed59eb5c",
+      "merge_tree_matches_reviewed_candidate": true,
+      "issue_closed": 713,
+      "adr": "docs/decisions/0136-successor-error-certification.md",
+      "scope": "Shared fresh word/diagnostic certificate, coordinated 2111 forgery rejection, preserved real 2111/2179/2103, bounded v6 VIEW/multi-Init/record/Print/first-actual-source scope, and both semantic/physical conventions.",
+      "independent_review": {
+        "artifact_name": "phase4-error-certification/review.json",
+        "sha256": "584cf651914c3868a993cb261ee225cfd42a9a16c74ee4a0b867fe761b0fb454",
+        "decision": "approve"
+      },
+      "test_only_review": {
+        "artifact_name": "phase4-fault-test/review.json",
+        "sha256": "129ce371f2afcd879566fd891f7cc7b4673dcef31e23a6dae5862ab5ac3b3503",
+        "decision": "approve"
+      },
+      "required_ci": {
+        "head": "cbac393b6c76123934804e460293d5c92a6e0e0a",
+        "checks": [
+          {
+            "name": "No AI authorship markers",
+            "conclusion": "SUCCESS",
+            "completed_utc": "2026-11-01T18:34:25Z"
+          },
+          {
+            "name": "Workspace gate",
+            "conclusion": "SUCCESS",
+            "completed_utc": "2026-11-01T18:46:48Z"
+          },
+          {
+            "name": "Conformance gate",
+            "conclusion": "SUCCESS",
+            "completed_utc": "2026-11-01T18:38:01Z"
+          }
+        ]
+      },
+      "ci_receipt_sha256": "b3b1dfb06691f40dde26e972d53886d269abe362e71a4984eb4dceabad3b1439",
+      "merge_receipt_sha256": "e6ce2bbe3320733d5cdba6210fad3d313da4c4958975f0a2d19afcb2c3a41f29",
+      "outer_report_schema": 3,
+      "native_versions": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "classifier_or_golden_changed": false,
+      "new_census_or_parity_credit": false
+    },
+    {
+      "pr": 719,
+      "issue_closed": 718,
+      "reviewed_and_executed_candidate": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "runtime_merge": "949e549cc1fece68cfa1bcfe59ea4b1c83bc368f",
+      "runtime_tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+      "tree_identical_to_qualified_source": true,
+      "measured_initial_adoption_source": "8e7dc78cb853e493661ae203c1c748b56080ae2f",
+      "adr": "docs/decisions/0138-frozen-behavior-fairness-reuse.md",
+      "scope": "One first private frozen bound behavior WF action/ENABLED pair, completed fully native columns only, within one analysis; cap min(16 MiB, memory/256). Required reads, metadata, selection, current controls, descriptor, Store, poison and row proofs remain. Fallback, errors and partial columns never install; single-property prefix analyses allocate no columns.",
+      "implementation_review": {
+        "artifact_name": "phase4-fairness-reuse/review.json",
+        "sha256": "3cf2394ea1d66eee4a7d73bb10461054ecd6381d641d43e458b1d74bfee47495",
+        "decision": "approve"
+      },
+      "final_capacity_review": {
+        "artifact_name": "phase4-final-capacity/review.json",
+        "sha256": "ce6c671252896724d27b193bcb0972934698191957067d8af12197eb3bd4c089",
+        "markdown_sha256": "ebba3bd36d6a34de9314c1a94cdf0007d44f199a0cf2baa19e333d5a06b3f5bb",
+        "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+        "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+        "decision": "approve",
+        "scope": "Original twelve-cell #650 capacity acceptance and bounded frozen-behavior fairness adoption only",
+        "checks_passed": 694,
+        "checks_failed": 0,
+        "blocking_findings": [],
+        "reviewed_utc": "2026-11-01T20:46:11.761460+00:00"
+      },
+      "required_ci": "All three required checks passed at exact95 before merge.",
+      "merged_utc": "2026-11-01T20:47:24Z",
+      "milestone_or_release_acceptance": false
+    }
+  ],
+  "error_certification_retained_failures": {
+    "first_review_findings": [
+      "Earlier off-word deadlock omitted from certificate replay",
+      "Second Init temporal source exceeded first-actual-source proof boundary"
+    ],
+    "corrected_and_independently_rechecked": true,
+    "initial_workspace_ci_failure": "Stale known-bug fault-injection expectation; exact test-only cbac correction independently reviewed, runtime unchanged, exact-headCI passed.",
+    "ambiguous_streams_remain_Unclassified": true,
+    "shared255_identity_not_proved_by_word": true,
+    "broader_receiver_effect_initialgeneration_and_temporal_scopes": "Explicit unsupported/unverified boundaries retained; no blanket family closure."
+  },
+  "stopped_value_proof_lane": {
+    "decision": "STOP_BEFORE_IMPLEMENTATION",
+    "production_changes": false,
+    "decision_sha256": "fb955a13ebd4b11367c112aeb32203893aa015da5b15047fe7668092f9eaf66b",
+    "independent_review": {
+      "artifact_name": "phase4-diagnostics/review.json",
+      "sha256": "f1971780030ef8e0a6b91b45c889902aee53ed83ce0fac8d920920cc72e71d41",
+      "decision": "approve"
+    },
+    "cells": 8,
+    "valid_stacks": 59,
+    "invalid_attachments": 1,
+    "session_seconds": 155.7614777320996,
+    "actual_elf_source": "fb48dbbf42bd224f278b138e74c1c8e29e2af106",
+    "actual_elf_sha256": "d7ebc89617d221eaabcec624224323352bab6c60aaba947b9c64bd2ee19d380f",
+    "runtime_code_diff_to_b1_empty": true,
+    "reason": "The single bounded diagnostic does not establish material certifiable repeated guard work for BOTH targeted default/W1 models. Sailfish shows two raw-history guard observations; Bakery shows no such guard in its observed default stacks. Existing comparison, construction, projection, evaluator, generation and seen-set costs cannot be counted as removable positive-proof work. Few truncated samples establish neither precise shares nor a global absence of guards; insufficiency fails the predeclared authoring gate.",
+    "global_absence_or_precise_cpu_share_claim": false,
+    "stopped_prefix_native_correctness_claim": false,
+    "second_diagnostic_or_rescue": false
+  },
+  "native_fairness_candidate": {
+    "status": "MERGED_BOUNDED_FAIRNESS_ADOPTION_AND_FINAL95_CAPACITY_ACCEPTED",
+    "issue": 718,
+    "pr": 719,
+    "pr_status": "MERGED",
+    "adr_at_candidate": "docs/decisions/0138-frozen-behavior-fairness-reuse.md",
+    "measured_source": "8e7dc78cb853e493661ae203c1c748b56080ae2f",
+    "measured_tree": "405e5d5f21b9328275258b353dbe71d27d2cc5ba",
+    "measured_elf_sha256": "f89be6aa5e4e9db0886ea5eb314e13b43aecd518bd32d51c92156538e77d08ac",
+    "implementation_review": {
+      "artifact_name": "phase4-fairness-reuse/review.json",
+      "sha256": "3cf2394ea1d66eee4a7d73bb10461054ecd6381d641d43e458b1d74bfee47495",
+      "decision": "approve"
+    },
+    "adoption_review": {
+      "artifact_name": "phase4-adoption/review.json",
+      "sha256": "4804d022bbe2da1ae4bdbefea11f06c258edeac5c6f85227e005b5d5f884ebf9",
+      "decision": "approve"
+    },
+    "rebase_review_sha256": "d749bc39ecc3674f3c5c5dd0f00dda970ea2fe415da372b11face3e45f122f31",
+    "reviewed_nonchangelog_files_unchanged": 13,
+    "scope": "One first private frozen bound behavior WF action/ENABLED pair, completed fully native columns only, within one analysis; cap min(16 MiB, memory/256). Required reads, metadata, selection, current controls, descriptor, Store, poison and row proofs remain. Fallback, errors and partial columns never install; single-property prefix analyses allocate no columns.",
+    "adoption_controller_seconds": {
+      "TLC_W1": 435.5075292419997,
+      "TLC_W8": 543.8457653240002
+    },
+    "adoption_limit_seconds": 810,
+    "adoption_scope": "Measured 8e original ABA TLC/W1 and TLC/W8 only; supports final qualification, not merge, final twelve-cell, default or performance acceptance.",
+    "capacity_record": "conformance/reports/perf/2026-11-01-phase4-original-capacity.json",
+    "final95_capacity_accepted": true,
+    "final_required_ci": {
+      "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "artifact_name": "pr719-exact-head-ci.json",
+      "sha256": "798cb37092c226797011bdf9ed106eb754d0c71ebbdeba93550e8bd4d76f8e2a",
+      "checks": [
+        {
+          "name": "No AI authorship markers",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "completed_utc": "2026-11-01T18:56:49Z"
+        },
+        {
+          "name": "Workspace gate",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "completed_utc": "2026-11-01T19:17:48Z"
+        },
+        {
+          "name": "Conformance gate",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "completed_utc": "2026-11-01T19:01:26Z"
+        }
+      ],
+      "scope": "All three required CI checks passed at exact95 before runtime PR719 merged; this is not a new execution of squash949."
+    },
+    "merge": "949e549cc1fece68cfa1bcfe59ea4b1c83bc368f",
+    "manual_issue_close": {
+      "closedAt": "2026-11-01T20:47:33Z",
+      "number": 718,
+      "state": "CLOSED",
+      "title": "perf: reuse an exact native fairness pair across configured properties"
+    },
+    "runtime_merge_binding": {
+      "artifact_name": "pr719-merge-binding.json",
+      "sha256": "7e6b7af55a1f75d392b9500e56cd94459a6468bcb8e5013abec4eb451728f007",
+      "reviewed_head": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "qualified_source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "runtime_merge": "949e549cc1fece68cfa1bcfe59ea4b1c83bc368f",
+      "runtime_tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+      "tree_identical_to_qualified_source": true,
+      "merged_utc": "2026-11-01T20:47:24Z",
+      "verified_utc": "2026-11-01T20:47:28.636675+00:00",
+      "main_commit_itself_executed": false
+    }
+  },
+  "bounded_WF_diagnostic": {
+    "archive_sha256": "70d1b1802ea806ca96932374785993a58137b2cfe57e1af5c9afcbe4f19b3e09",
+    "archive_bytes": 64667685,
+    "members": 79,
+    "manifested_payloads": 78,
+    "base": "b1a5972d688606463061030c44da19612ef1f068",
+    "actual_instrumented_elf_sha256": "28a494320b5963c8d2d0cf785006ceed064a143db7a7ba574896df8c3e1d66b4",
+    "patch_sha256": "e81e5af96c31c8ef8b43c66500b4fefa3c5d2df8ae74ee157a150b6e3190e868",
+    "runtime_controller_sha256": "6b918e228c22fbdd594dd7315037f5881f632188aae72ec6003e48d4d4381509",
+    "conservative_action_only": {
+      "TLC": {
+        "opportunity": 347,
+        "samples": 2972,
+        "required_control_proof_selection": 453,
+        "demanded_reads": 60,
+        "other": 2112
+      },
+      "default": {
+        "opportunity": 508,
+        "samples": 2971,
+        "required_control_proof_selection": 770,
+        "demanded_reads": 98,
+        "other": 1595
+      }
+    },
+    "frozen_chain_limits": "2283/2832 header-only samples; no complete native interpreter ancestry proved; same-data IP/MMAP/exactELF/DWARF source subset used without invented callers or cumulative child sums",
+    "excluded_opportunity": "All Shape addresses, unknown source locations and caller-side control/fuel samples",
+    "invalid_stderr_lock_attempt": "Preserved separately, no sample or semantic credit",
+    "perf_physical_exits": [
+      0,
+      0
+    ],
+    "model_physical_exits": [
+      -2,
+      -2
+    ],
+    "semantic_verdict": null,
+    "quiet_claim": false,
+    "ENABLED_CPU_share": null,
+    "whole_run_time_saved": null
+  },
+  "integrated_local_qualification": {
+    "status": "BOUNDED_LOCAL_CONTENT_AND_PRESERVATION_INDEPENDENTLY_APPROVED_CENSUS_FINDINGS_RETAINED",
+    "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+    "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+    "started_utc": "2026-11-01T18:56:34.554086+00:00",
+    "launch_count": 1,
+    "command": "cargo xtask gate --full",
+    "exclusive_worktree_targets": true,
+    "retained_inputs_sha256": "df62066972701bc9772777731d899056f421005799bdbf1bed5cdfe84cc296bd",
+    "retained_census_population_per_profile": 1520,
+    "retained_parser_exclusions": 99,
+    "retained_ambiguous_skips": 18,
+    "additional_fixture_population": [],
+    "gate_dive_sha256": "34d79515aa3376fb4bcd7d6cbc453f1f4beb714d4f5505d609cf62a4d3867e0c",
+    "gate_conformance_sha256": "08e93517688ab34f8d4e650a8984945f06a6ea770db352489b48eab39a6a4605",
+    "census_dive_sha256": "c2ca2dcba682b2f25cb4e4cfb6d746ad5673bdf470e85f7e038c8b7a59c43fa0",
+    "census_conformance_sha256": "4c717cf12e3937b77898827e8f84c48c50f918521c4f0e4406bc5ac100c71156",
+    "standalone_trace_sha256": "2ad66af8c7c08d834b3ddd5bb3bfbd4f835b97a2553cbcf8b1e58d97aeb422f9",
+    "gate_physical_exit": 0,
+    "gate_duration": {
+      "report": "79m37s",
+      "report_seconds": 4777,
+      "outer_controller_seconds": 4780.746311389841,
+      "note": "Outer timeout/controller duration includes startup; do not replace either actual clock with the other."
+    },
+    "applicable_stages": {
+      "reported": 16,
+      "passed": 15,
+      "conditional_skipped": 1,
+      "skip_reason": "Cargo.lock and deny.toml unchanged"
+    },
+    "nextest_passed": 3066,
+    "source_declared_ignored": 6,
+    "doctests_passed": 187,
+    "gate_report_sha256": "e1db8f63eed13a486f85609e449ff41e34d206eed9a11dcaee86f54b6b6d47ac",
+    "census_physical_exit": 1,
+    "census_profile_summary": {
+      "default": {
+        "agree": 1218,
+        "refused": 290,
+        "timeout": 8,
+        "trace-unconfirmed": 4,
+        "skipped-ambiguous-module": 18,
+        "excluded-config-parser": 99
+      },
+      "tlc": {
+        "agree": 1191,
+        "refused": 318,
+        "timeout": 7,
+        "trace-unconfirmed": 4,
+        "skipped-ambiguous-module": 18,
+        "excluded-config-parser": 99
+      }
+    },
+    "no_old_agreement_lost": true,
+    "unconfirmed_refusals_stops_differences": {
+      "unconfirmed_each_profile": [
+        "crates/dive-api/tests/fixtures/core-liveness/GenError/General.cfg",
+        "crates/dive-api/tests/fixtures/core-liveness/GenError/Nested.cfg",
+        "crates/dive-api/tests/fixtures/core-liveness/GenError/Record.cfg",
+        "crates/dive-api/tests/fixtures/core-liveness/GenError/Tuple.cfg"
+      ],
+      "incomplete_child_runs": 17,
+      "incomplete_count_scope": "Every actual child result, not only per-profile harness timeout buckets; none earns success credit.",
+      "incomplete_by_kind": [
+        {
+          "engine": "core",
+          "verdict": "stopped",
+          "resource": "time",
+          "physical_exit": 5,
+          "runs": 14
+        },
+        {
+          "engine": "core",
+          "verdict": "stopped",
+          "resource": "memory",
+          "physical_exit": 5,
+          "runs": 1
+        },
+        {
+          "engine": "core",
+          "verdict": "resource-limit",
+          "resource": null,
+          "physical_exit": 3,
+          "runs": 2
+        }
+      ],
+      "incomplete_run_ids": [
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-liveness/CaptureStop.cfg",
+          "engine": "core",
+          "profile": "tlc",
+          "workers": 1,
+          "verdict": "stopped",
+          "physical_exit": 5,
+          "stopped": {
+            "limit": 20000,
+            "observed": 20036,
+            "phase": "graph-capture",
+            "resource": "time",
+            "unit": "ms"
+          },
+          "raw_ref": "raw/run-22nlq09n"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/dfid/DfidBound.cfg",
+          "engine": "core",
+          "profile": "default",
+          "workers": 1,
+          "verdict": "stopped",
+          "physical_exit": 5,
+          "stopped": {
+            "limit": 20000,
+            "observed": 20035,
+            "phase": "safety-search",
+            "resource": "time",
+            "unit": "ms"
+          },
+          "raw_ref": "raw/run-2xjokch0"
+        },
+        {
+          "fixture": "crates/dive-sim/tests/fixtures/runtime-print/SimChoicePrinted.cfg",
+          "engine": "core",
+          "profile": "tlc",
+          "workers": 1,
+          "verdict": "stopped",
+          "physical_exit": 5,
+          "stopped": {
+            "limit": 20000,
+            "observed": 20036,
+            "phase": "safety-search",
+            "resource": "time",
+            "unit": "ms"
+          },
+          "raw_ref": "raw/run-2xqu6ykw"
+        },
+        {
+          "fixture": "crates/dive-model/tests/fixtures/action-inventory/SimChoice.cfg",
+          "engine": "core",
+          "profile": "default",
+          "workers": 1,
+          "verdict": "stopped",
+          "physical_exit": 5,
+          "stopped": {
+            "limit": 20000,
+            "observed": 20035,
+            "phase": "safety-search",
+            "resource": "time",
+            "unit": "ms"
+          },
+          "raw_ref": "raw/run-3z0g6lel"
+        },
+        {
+          "fixture": "crates/dive-sim/tests/fixtures/SimChoice.cfg",
+          "engine": "core",
+          "profile": "tlc",
+          "workers": 1,
+          "verdict": "stopped",
+          "physical_exit": 5,
+          "stopped": {
+            "limit": 20000,
+            "observed": 20035,
+            "phase": "safety-search",
+            "resource": "time",
+            "unit": "ms"
+          },
+          "raw_ref": "raw/run-6z_lja1t"
+        },
+        {
+          "fixture": "crates/dive-sim/tests/fixtures/runtime-print/SimChoicePrinted.cfg",
+          "engine": "core",
+          "profile": "default",
+          "workers": 1,
+          "verdict": "stopped",
+          "physical_exit": 5,
+          "stopped": {
+            "limit": 20000,
+            "observed": 20034,
+            "phase": "safety-search",
+            "resource": "time",
+            "unit": "ms"
+          },
+          "raw_ref": "raw/run-dbfpvs53"
+        },
+        {
+          "fixture": "crates/dive-conformance/tests/fixtures/specs/Overflow/Overflow.cfg",
+          "engine": "core",
+          "profile": "default",
+          "workers": 1,
+          "verdict": "stopped",
+          "physical_exit": 5,
+          "stopped": {
+            "limit": 3221225472,
+            "observed": 3241615360,
+            "phase": "safety-search",
+            "resource": "memory",
+            "unit": "bytes"
+          },
+          "raw_ref": "raw/run-embys3hp"
+        },
+        {
+          "fixture": "crates/dive-ir/tests/fixtures/actions/specs/SplitSpec/SplitSpec.cfg",
+          "engine": "core",
+          "profile": "default",
+          "workers": 1,
+          "verdict": "stopped",
+          "physical_exit": 5,
+          "stopped": {
+            "limit": 20000,
+            "observed": 20035,
+            "phase": "safety-search",
+            "resource": "time",
+            "unit": "ms"
+          },
+          "raw_ref": "raw/run-jftmsqw6"
+        },
+        {
+          "fixture": "crates/dive-liveness/tests/fixtures/tlc-probes/specs/LvPeriodic/LvPeriodic.cfg",
+          "engine": "core",
+          "profile": "tlc",
+          "workers": 1,
+          "verdict": "stopped",
+          "physical_exit": 5,
+          "stopped": {
+            "limit": 20000,
+            "observed": 20035,
+            "phase": "temporal-analysis",
+            "resource": "time",
+            "unit": "ms"
+          },
+          "raw_ref": "raw/run-kd0h2g3p"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-compat/CompatOverflow.cfg",
+          "engine": "core",
+          "profile": "default",
+          "workers": 1,
+          "verdict": "stopped",
+          "physical_exit": 5,
+          "stopped": {
+            "limit": 20000,
+            "observed": 20037,
+            "phase": "safety-search",
+            "resource": "time",
+            "unit": "ms"
+          },
+          "raw_ref": "raw/run-kx0d3ibs"
+        },
+        {
+          "fixture": "crates/dive-sim/tests/fixtures/SimChoice.cfg",
+          "engine": "core",
+          "profile": "default",
+          "workers": 1,
+          "verdict": "stopped",
+          "physical_exit": 5,
+          "stopped": {
+            "limit": 20000,
+            "observed": 20036,
+            "phase": "safety-search",
+            "resource": "time",
+            "unit": "ms"
+          },
+          "raw_ref": "raw/run-lp7wgwyw"
+        },
+        {
+          "fixture": "crates/dive-eval/tests/fixtures/specs/ErDeepRecursion/ErDeepRecursion.cfg",
+          "engine": "core",
+          "profile": "default",
+          "workers": 1,
+          "verdict": "resource-limit",
+          "physical_exit": 3,
+          "stopped": {},
+          "raw_ref": "raw/run-rwcq8dzh"
+        },
+        {
+          "fixture": "crates/dive-check/tests/fixtures/dfid/DfidBound.cfg",
+          "engine": "core",
+          "profile": "tlc",
+          "workers": 1,
+          "verdict": "stopped",
+          "physical_exit": 5,
+          "stopped": {
+            "limit": 20000,
+            "observed": 20035,
+            "phase": "safety-search",
+            "resource": "time",
+            "unit": "ms"
+          },
+          "raw_ref": "raw/run-t0fuxjxm"
+        },
+        {
+          "fixture": "crates/dive-api/tests/fixtures/core-liveness/CaptureStop.cfg",
+          "engine": "core",
+          "profile": "default",
+          "workers": 1,
+          "verdict": "stopped",
+          "physical_exit": 5,
+          "stopped": {
+            "limit": 20000,
+            "observed": 20036,
+            "phase": "graph-capture",
+            "resource": "time",
+            "unit": "ms"
+          },
+          "raw_ref": "raw/run-ueg8hbpc"
+        },
+        {
+          "fixture": "crates/dive-ir/tests/fixtures/actions/specs/SplitSpec/SplitSpec.cfg",
+          "engine": "core",
+          "profile": "tlc",
+          "workers": 1,
+          "verdict": "stopped",
+          "physical_exit": 5,
+          "stopped": {
+            "limit": 20000,
+            "observed": 20034,
+            "phase": "safety-search",
+            "resource": "time",
+            "unit": "ms"
+          },
+          "raw_ref": "raw/run-ypl3hwpz"
+        },
+        {
+          "fixture": "crates/dive-model/tests/fixtures/action-inventory/SimChoice.cfg",
+          "engine": "core",
+          "profile": "tlc",
+          "workers": 1,
+          "verdict": "stopped",
+          "physical_exit": 5,
+          "stopped": {
+            "limit": 20000,
+            "observed": 20035,
+            "phase": "safety-search",
+            "resource": "time",
+            "unit": "ms"
+          },
+          "raw_ref": "raw/run-yqah3848"
+        },
+        {
+          "fixture": "crates/dive-eval/tests/fixtures/specs/ErDeepRecursion/ErDeepRecursion.cfg",
+          "engine": "core",
+          "profile": "tlc",
+          "workers": 1,
+          "verdict": "resource-limit",
+          "physical_exit": 3,
+          "stopped": {},
+          "raw_ref": "raw/run-z73pjx9i"
+        }
+      ]
+    },
+    "physical_process_receipts": {
+      "invocations": 5457,
+      "exit_receipts": 5457,
+      "missing_exit_receipts": 0
+    },
+    "Auto_required_models_per_profile": 156,
+    "TLC_SANY_required": 458,
+    "Auto_TLC_exit": 0,
+    "Auto_default_exit": 0,
+    "actual_core_fallback_expected_divergence_counts": {
+      "tlc": {
+        "actual_core": 124,
+        "dynamic_reference_fallback": 3,
+        "static_reference_fallback": 21,
+        "without_engine": 8
+      },
+      "default": {
+        "actual_core": 124,
+        "dynamic_reference_fallback": 3,
+        "static_reference_fallback": 22,
+        "without_engine": 7
+      }
+    },
+    "SANY_outcomes": {
+      "tlc": {
+        "agree": 458,
+        "disagree": 0,
+        "unsupported": 0,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "modules_selected": 458,
+      "default_phase": "not part of default Auto",
+      "no_separate_whole_qualification_acceptance": true
+    },
+    "joined_chain_physical_exit": 1,
+    "raw_archive": {
+      "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+      "sha256": "03c4721281a4aebf2a45bdfa097651ecf071a1ac0123fc6a61612d7d7dff71fd",
+      "bytes": 106177007,
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "phase4-20261101/local-qualification-support-95e73d2f.tar.gz",
+      "members": 34513,
+      "manifest_sha256": "8038d55ae57d0408b665da1047afb380184e3f6f8f1f6561f07a189b5c74f16c",
+      "all_member_hashes_verified": true,
+      "verified_utc": "2026-11-01T20:24:08.504500+00:00",
+      "receipt_sha256": "e95cff6fdc80ffe1ea06d94bd3c94fdeb2f1a2b06f643aa65c838eab225aa3d4",
+      "verifier_sha256": "8a1ac5b90ea3752f626e5b9eb5ca2aea33167ca7d80d868510feb5ed266051f2",
+      "claim_scope": "Preservation only; census findings and performance/release acceptance remain separate",
+      "verification_artifact_name": "local-qualification-support-95e73d2f-verification.json",
+      "verification_artifact_sha256": "ab8a1bf68099bed122ba351a9a3f04ae6b9e3dac4225a093252b1016f6ebfe11",
+      "scope": "Closed local qualification and support snapshot only; no final twelve-cell raw capacity, later documentation update or future cleanup credit.",
+      "independently_verified_payload_members": 34512,
+      "independently_verified_uncompressed_payload_bytes": 929211388,
+      "independent_review_sha256": "561ea5e45e80beae19542c43ac43c83ec3aa343f3c1a11f44f95d932cfcc9ad0"
+    },
+    "independent_final_review": {
+      "artifact_name": "phase4-local-qualification/final-review.json",
+      "sha256": "561ea5e45e80beae19542c43ac43c83ec3aa343f3c1a11f44f95d932cfcc9ad0",
+      "markdown_sha256": "86f0c6859152dbc2e06588b7f109d132fe8d00d6e717e58999c8b2c50c0de1c4",
+      "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+      "scope": "local qualification content and declared archive preservation integrity only",
+      "decision": "approve",
+      "content_decision": "approve content",
+      "preservation_decision": "approve",
+      "all_payload_hashes_independently_verified": true,
+      "payload_members": 34512,
+      "total_members": 34513,
+      "uncompressed_payload_bytes": 929211388,
+      "archived_qualification_tree": {
+        "sha256": "2ff50d19647930f317da4bb0a2e78a9d33094b3b1992fa0d8194b9796177ade1",
+        "files": 32300,
+        "bytes": 693905747
+      },
+      "not_accepted": [
+        "clean census",
+        "M1/M2 completion",
+        "RC/release qualification",
+        "performance or capacity acceptance",
+        "separate raw12 capacity campaign"
+      ],
+      "append_only_outside_frozen_archive": true
+    },
+    "finished_utc": "2026-11-01T20:16:16.240509+00:00",
+    "controllers_sha256": {
+      "bind-source.py": "42dc757fb6d28cc244425db8b1709a0f0d10556d221ff066ec791baa157b34af",
+      "census-control/join.py": "b1637ee1fc78d671eb326a8188481a114269881c7682600c33fcffba269e730c",
+      "census-control/qualification.py": "1e0b46e3e3d5c1f1c037c9ba5c83bdb1aaf94090d215969e84211c4926974918",
+      "census-control/run-parallel.sh": "8e68190145b5f33226b7cafe00eb7ef415c5bab417d6807eb92c4eb6125def97",
+      "gate-control/qualification-chain.py": "dc4b1c382a657e1c2b9470977cb29942d8743ab2d7fbe04465ebe6d5bdef84db",
+      "gate-control/run.sh": "ef6cee2522ccb6c4d70537e238554765745cd1aebf8976be125bef71a71242b1",
+      "launch.sh": "abc6415f52f0bd8fd691b0b1eacc2b59ef76a92877ec42b4bbd5172c0309e736"
+    },
+    "additional_model_inputs": {},
+    "census_report": {
+      "artifact_name": "fixture-census/census.json",
+      "sha256": "d1a42752bb57777c1177adc7bf002e65790f6a2b2e816d2529c3c5cd6626adfc",
+      "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "dirty": false,
+      "physical_exit": 1,
+      "controller_seconds": 494.144,
+      "selection_counts": {
+        "selected": 1520,
+        "skipped-ambiguous-module": 18,
+        "excluded-config-parser": 99
+      },
+      "settings": {
+        "seed": 0,
+        "fp": 0,
+        "workers": [
+          1
+        ],
+        "timeout_seconds": 20,
+        "max_memory": "3g",
+        "sample": 32
+      },
+      "independent_final_review": {
+        "artifact_name": "phase4-local-qualification/final-review.json",
+        "sha256": "561ea5e45e80beae19542c43ac43c83ec3aa343f3c1a11f44f95d932cfcc9ad0",
+        "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+        "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+        "decision": "approve",
+        "scope": "local qualification content and declared archive preservation integrity only"
+      }
+    },
+    "retained_cohort_comparison": {
+      "default": {
+        "previous_sha256": "b0b4cc52c71c4ba7642ed3245ff016bfcef53337321482e1f96f7a8f50d69954",
+        "retained_selected_rows": 1520,
+        "retained_outcomes": {
+          "agree": 1218,
+          "refused": 290,
+          "timeout": 8,
+          "trace-unconfirmed": 4
+        },
+        "additional_rows": [],
+        "old_agreement_regressions": []
+      },
+      "tlc": {
+        "previous_sha256": "d99fe64a0ff2e682afc3429d9a1447427993a060483c3e789c773085b0a31afe",
+        "retained_selected_rows": 1520,
+        "retained_outcomes": {
+          "agree": 1191,
+          "refused": 318,
+          "timeout": 7,
+          "trace-unconfirmed": 4
+        },
+        "additional_rows": [],
+        "old_agreement_regressions": []
+      }
+    },
+    "shadow_agreement_gains": {
+      "default": {
+        "previous": 1215,
+        "current": 1218,
+        "gained_families": [
+          "ErViewAssert",
+          "ErViewDivZero",
+          "ErViewEnabled"
+        ]
+      },
+      "tlc": {
+        "previous": 1187,
+        "current": 1191,
+        "gained_families": [
+          "ErViewAssert",
+          "ErViewDivZero",
+          "ErViewEnabled",
+          "ErViewOverflow"
+        ]
+      }
+    },
+    "new_pinned_TLC_classification_or_parity_surface_credit_from_shadow_counts": false,
+    "census_controller_ledger_snapshot": {
+      "artifact_name": "census-control/qualification.json",
+      "sha256": "89601f768098043cc525bded7b50e46c89eb49d632da362253b353b43b0e6b1d",
+      "snapshot_scope": "Earlier mutable ledger snapshot after census/TLC Auto; superseded by separate final census-role ledger pin, without changing that earlier snapshot."
+    },
+    "Auto_TLC": {
+      "status": "TERMINAL_BASELINE_PASS_INDEPENDENTLY_REVIEWED",
+      "artifact_name": "small-auto-tlc/20261101T191421624-dive-small.json",
+      "sha256": "46348278d3377994ca73c202149c65dfefc89f611c9cad832211ce657876420b",
+      "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "dive_sha256": "c2ca2dcba682b2f25cb4e4cfb6d746ad5673bdf470e85f7e038c8b7a59c43fa0",
+      "harness_sha256": "4c717cf12e3937b77898827e8f84c48c50f918521c4f0e4406bc5ac100c71156",
+      "recording_wrapper_sha256": "cd64d80b17ea069f654c13a833fe0beb7ca03bc8027c335aaa4c70348b03d3c7",
+      "physical_exit": 0,
+      "controller_seconds": 413.577,
+      "models_selected": 156,
+      "modules_selected": 458,
+      "model_outcomes": {
+        "agree": 150,
+        "disagree": 0,
+        "unsupported": 6,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "module_outcomes": {
+        "agree": 458,
+        "disagree": 0,
+        "unsupported": 0,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "engine_accounting": {
+        "actual_core": 124,
+        "dynamic_reference_fallback": 3,
+        "static_reference_fallback": 21,
+        "without_engine": 8
+      },
+      "actual_core_strict_agreements": 124,
+      "no_fallback_native_credit": true,
+      "settings": {
+        "tier": "small",
+        "filters": [],
+        "workers": [
+          1
+        ],
+        "jobs": 2,
+        "xmx": "8g",
+        "timeout_policy": "TLC-derived budgets: with a golden max(60 s, 10 x golden elapsed); otherwise historical timeout; hard cap 900 s (historical cap 3600 s, cap when unknown)",
+        "crosscheck_manifest": false,
+        "sany_phase": "full",
+        "impl_options": [],
+        "impl_profile": "tlc",
+        "strict_tier": true,
+        "impl_engine": "auto"
+      },
+      "physical_model_receipts_as_recorded_after_TLC_Auto": {
+        "invocations": 312,
+        "exit_receipts": 312,
+        "missing_exit_receipts": 0
+      },
+      "independent_final_review": {
+        "artifact_name": "phase4-local-qualification/final-review.json",
+        "sha256": "561ea5e45e80beae19542c43ac43c83ec3aa343f3c1a11f44f95d932cfcc9ad0",
+        "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+        "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+        "decision": "approve",
+        "scope": "local qualification content and declared archive preservation integrity only"
+      }
+    },
+    "unresolved_prior_differ_row": {
+      "profile": "tlc",
+      "workers": 1,
+      "model": "specifications/dive-liveness/tlc-probes/specs/LvPeriodic/LvPeriodic.cfg",
+      "phase3": {
+        "core_verdict": "liveness-violation",
+        "core_elapsed_ms": 19913,
+        "reference_verdict": "resource-limit refusal",
+        "reference_reason": "behavior graph capture states",
+        "shadow_outcome": "differ"
+      },
+      "frozen95": {
+        "core_verdict": "stopped",
+        "phase": "temporal-analysis",
+        "elapsed_ms": 20035,
+        "physical_exit": 5,
+        "shadow_outcome": "timeout"
+      },
+      "agreement_gain": false,
+      "semantic_fix_credit": false,
+      "scope": "The old core/reference disagreement is unresolved; a timed-out current core result does not decide its semantics. No rerun or unreported success is inferred.",
+      "tracking_issue": 664,
+      "tracking_status": "OPEN",
+      "new_issue_needed": false
+    },
+    "Auto_default": {
+      "status": "TERMINAL_BASELINE_PASS_INDEPENDENTLY_REVIEWED",
+      "artifact_name": "small-auto-dive/20261101T192120300-dive-small.json",
+      "sha256": "dba9635aa396598e7125d92a0b1013ca810adf92ba12eb191275ae6ca08e7334",
+      "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "dive_sha256": "c2ca2dcba682b2f25cb4e4cfb6d746ad5673bdf470e85f7e038c8b7a59c43fa0",
+      "harness_sha256": "4c717cf12e3937b77898827e8f84c48c50f918521c4f0e4406bc5ac100c71156",
+      "recording_wrapper_sha256": "cd64d80b17ea069f654c13a833fe0beb7ca03bc8027c335aaa4c70348b03d3c7",
+      "physical_exit": 0,
+      "controller_seconds": 418.44,
+      "models_selected": 156,
+      "modules_selected": 0,
+      "model_outcomes": {
+        "agree": 144,
+        "disagree": 0,
+        "unsupported": 5,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 7,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "module_outcomes": {
+        "agree": 0,
+        "disagree": 0,
+        "unsupported": 0,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "engine_accounting": {
+        "actual_core": 124,
+        "dynamic_reference_fallback": 3,
+        "static_reference_fallback": 22,
+        "without_engine": 7
+      },
+      "actual_core_strict_agreements": 120,
+      "actual_core_expected_divergences": 4,
+      "no_fallback_native_credit": true,
+      "settings": {
+        "tier": "small",
+        "filters": [],
+        "workers": [
+          1
+        ],
+        "jobs": 2,
+        "xmx": "8g",
+        "timeout_policy": "TLC-derived budgets: with a golden max(60 s, 10 x golden elapsed); otherwise historical timeout; hard cap 900 s (historical cap 3600 s, cap when unknown)",
+        "crosscheck_manifest": false,
+        "sany_phase": "full",
+        "impl_options": [],
+        "impl_profile": "dive",
+        "strict_tier": false,
+        "impl_engine": "auto"
+      },
+      "no_SANY_in_default_is_intentional": true,
+      "independent_final_review": {
+        "artifact_name": "phase4-local-qualification/final-review.json",
+        "sha256": "561ea5e45e80beae19542c43ac43c83ec3aa343f3c1a11f44f95d932cfcc9ad0",
+        "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+        "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+        "decision": "approve",
+        "scope": "local qualification content and declared archive preservation integrity only"
+      }
+    },
+    "census_role": {
+      "status": "TERMINAL_WITH_RETAINED_CENSUS_FINDINGS",
+      "physical_exit": 1,
+      "parallel_rc": 1,
+      "started_utc": "2026-11-01T18:56:34.563652+00:00",
+      "finished_utc": "2026-11-01T19:21:20.516477+00:00",
+      "before": {
+        "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+        "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+        "clean": true
+      },
+      "after": {
+        "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+        "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+        "clean": true
+      },
+      "physical_fixture_receipts": {
+        "invocations": 5457,
+        "exit_receipts": 5457,
+        "missing_exit_receipts": 0
+      },
+      "physical_Auto_receipts": {
+        "invocations": 312,
+        "exit_receipts": 312,
+        "missing_exit_receipts": 0
+      },
+      "controller_sha256": "1e0b46e3e3d5c1f1c037c9ba5c83bdb1aaf94090d215969e84211c4926974918",
+      "final_ledger_artifact_name": "census-control/qualification.json",
+      "final_ledger_sha256": "89601f768098043cc525bded7b50e46c89eb49d632da362253b353b43b0e6b1d",
+      "full_gate_or_joined_outcome_not_inferred": true
+    },
+    "gate_steps": [
+      {
+        "step": "rustfmt",
+        "result": "pass",
+        "duration": "2.0s"
+      },
+      {
+        "step": "clippy",
+        "result": "pass",
+        "duration": "43.1s"
+      },
+      {
+        "step": "nextest (whole suite)",
+        "result": "pass",
+        "duration": "43m51s"
+      },
+      {
+        "step": "doctests",
+        "result": "pass",
+        "duration": "5.7s"
+      },
+      {
+        "step": "rustdoc",
+        "result": "pass",
+        "duration": "11.8s"
+      },
+      {
+        "step": "crate layering",
+        "result": "pass",
+        "duration": "0.0s"
+      },
+      {
+        "step": "standalone trace build",
+        "result": "pass",
+        "duration": "11.5s"
+      },
+      {
+        "step": "cargo-deny",
+        "result": "skipped (Cargo.lock and deny.toml unchanged)",
+        "duration": "0.0s"
+      },
+      {
+        "step": "release build (harness, dive)",
+        "result": "pass",
+        "duration": "2m16s"
+      },
+      {
+        "step": "oracle and corpus fetch",
+        "result": "pass",
+        "duration": "0.0s"
+      },
+      {
+        "step": "cm1 gate (1, 4, 8 workers)",
+        "result": "pass",
+        "duration": "5.3s"
+      },
+      {
+        "step": "validation-smoke gate (1, 4, 8 workers)",
+        "result": "pass",
+        "duration": "1.0s"
+      },
+      {
+        "step": "small corpus tier (dive, tlc profile, vs baseline)",
+        "result": "pass",
+        "duration": "7m06s"
+      },
+      {
+        "step": "small corpus tier (dive, dive profile, vs baseline)",
+        "result": "pass",
+        "duration": "6m46s"
+      },
+      {
+        "step": "shadow comparison (core vs reference, cm1, 1, 4 and 8 workers)",
+        "result": "pass",
+        "duration": "6.2s"
+      },
+      {
+        "step": "shadow comparison (core vs reference, small tier, 1 and 4 workers)",
+        "result": "pass",
+        "duration": "18m09s"
+      }
+    ],
+    "nextest_slow": 7,
+    "nextest_runner_seconds": 2498.862,
+    "nextest_test_binaries": 377,
+    "gate_log_sha256": "0c1ed8af9679c11817eacb0a899f394d81f0e345693dd71f37d0cd83bfe8e126",
+    "gate_controller_ledger": {
+      "artifact_name": "gate-control/chain.json",
+      "sha256": "ee48dc41a2073fde843724fd6d04762aec060096365c1b69cc6e8ed3d9b95376",
+      "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+      "before": {
+        "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+        "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+        "clean": true
+      },
+      "after": {
+        "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+        "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+        "clean": true
+      },
+      "controller_sha256": "dc4b1c382a657e1c2b9470977cb29942d8743ab2d7fbe04465ebe6d5bdef84db"
+    },
+    "gate_rc_file": 0,
+    "joined_chain_rc_file": 1,
+    "followup_join_physical_exit": 1,
+    "joined_status_note": "Full gate0, bothAuto0, census1 and joinedchain1 are distinct actual outcomes. Retained census findings do not become clean acceptance.",
+    "four_role_elf_pins": {
+      "gate": {
+        "dive": {
+          "sha256": "34d79515aa3376fb4bcd7d6cbc453f1f4beb714d4f5505d609cf62a4d3867e0c",
+          "bytes": 47606416
+        },
+        "dive-conformance": {
+          "sha256": "08e93517688ab34f8d4e650a8984945f06a6ea770db352489b48eab39a6a4605",
+          "bytes": 34512280
+        }
+      },
+      "census": {
+        "dive": {
+          "sha256": "c2ca2dcba682b2f25cb4e4cfb6d746ad5673bdf470e85f7e038c8b7a59c43fa0",
+          "bytes": 47606432
+        },
+        "dive-conformance": {
+          "sha256": "4c717cf12e3937b77898827e8f84c48c50f918521c4f0e4406bc5ac100c71156",
+          "bytes": 34512280
+        }
+      }
+    },
+    "standalone_trace": {
+      "status": "PASS_IN_ACTUAL_FULL_GATE",
+      "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+      "duration_report_seconds": 11.5,
+      "artifact_kind": "rlib",
+      "artifact_sha256": "2ad66af8c7c08d834b3ddd5bb3bfbd4f835b97a2553cbcf8b1e58d97aeb422f9",
+      "artifact_bytes": 9587834,
+      "receipt_artifact_name": "gate-control/standalone-evidence.json",
+      "receipt_sha256": "9ae96228064f474db41ea71559ae7356f45a2f23611ab349e8d05b230689dafb",
+      "internal_fingerprint_count": 8,
+      "fingerprints": [
+        {
+          "sha256": "1707c8e6a81e9aa9cd447d867ab0b994cd47718298853d83ed7748c0d625ed24",
+          "crate_directory": "dive-config-276ff3e7bb33b548",
+          "features": []
+        },
+        {
+          "sha256": "962cd81581a311994a90ef027fa3b382adbade6d2eb5b8c761f11ed08ae0729b",
+          "crate_directory": "dive-eval-171ac28703d5fb20",
+          "features": []
+        },
+        {
+          "sha256": "b4967c10af875ecf8481572db7aed60ca7246180c0080062b9b7ae040a91c9b9",
+          "crate_directory": "dive-ir-5cc9f918bdfe48cc",
+          "features": []
+        },
+        {
+          "sha256": "cab1d64f9e54937308f8ee56d4ace3f4fba60ac1a97bdfbda9a8d6f2d60a092a",
+          "crate_directory": "dive-model-fca5b80231b49e12",
+          "features": []
+        },
+        {
+          "sha256": "648ebaa2f9da51791747758af481b3ac453864edbe115cada0cb706c34227eaf",
+          "crate_directory": "dive-sema-ce5be8cce1dca06d",
+          "features": []
+        },
+        {
+          "sha256": "141e475f65994232ff352eb71480a72bc1c1962c2a7f853ab99b8c56cf478360",
+          "crate_directory": "dive-syntax-d70cc88015854e41",
+          "features": []
+        },
+        {
+          "sha256": "ccac267e64caae806900d06e7259611f29ded4b2dc4f8d383f24f85fb1ac3251",
+          "crate_directory": "dive-trace-f75a281adc3bee2e",
+          "features": []
+        },
+        {
+          "sha256": "40d68a1e0477b435d94d2b168e1ab24b7e012bdd74d89b120b76a053d9304c75",
+          "crate_directory": "dive-value-074d4057bf6ca34a",
+          "features": []
+        }
+      ],
+      "forbidden_backend_crates_present": false,
+      "enumerate_enabled": false,
+      "scope": "Actual command result is recorded by the final full-gate report; this receipt inspects produced isolated artifacts only, with no new build"
+    },
+    "full_gate_conformance_panels": {
+      "CM1_reference": {
+        "workers": [
+          1,
+          4,
+          8
+        ],
+        "result": "pass"
+      },
+      "validation_smoke_reference": {
+        "workers": [
+          1,
+          4,
+          8
+        ],
+        "result": "pass"
+      },
+      "small_tlc_baseline": {
+        "models": {
+          "agree": 150,
+          "unsupported": 6,
+          "regressions": 0
+        },
+        "SANY": {
+          "agree": 458,
+          "regressions": 0
+        }
+      },
+      "small_default_baseline": {
+        "models": {
+          "agree": 144,
+          "unsupported": 5,
+          "declared_divergences": 7,
+          "regressions": 0
+        },
+        "SANY": "not requested"
+      },
+      "default_core_reference_shadows": {
+        "CM1": {
+          "workers": [
+            1,
+            4,
+            8
+          ],
+          "rows": 63,
+          "agree": 57,
+          "refused": 6
+        },
+        "small": {
+          "workers": [
+            1,
+            4
+          ],
+          "rows": 312,
+          "agree": 250,
+          "refused": 62
+        }
+      },
+      "refusal_native_success_credit": false,
+      "scope": "These are actual full-gate panels; keep distinct from the separate156-model Auto reports and fixture census."
+    },
+    "independent_preservation_review": {
+      "artifact_name": "phase4-local-qualification/final-review.json",
+      "sha256": "561ea5e45e80beae19542c43ac43c83ec3aa343f3c1a11f44f95d932cfcc9ad0",
+      "markdown_sha256": "86f0c6859152dbc2e06588b7f109d132fe8d00d6e717e58999c8b2c50c0de1c4",
+      "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+      "scope": "local qualification content and declared archive preservation integrity only",
+      "decision": "approve",
+      "content_decision": "approve content",
+      "preservation_decision": "approve",
+      "all_payload_hashes_independently_verified": true,
+      "payload_members": 34512,
+      "total_members": 34513,
+      "uncompressed_payload_bytes": 929211388,
+      "archived_qualification_tree": {
+        "sha256": "2ff50d19647930f317da4bb0a2e78a9d33094b3b1992fa0d8194b9796177ade1",
+        "files": 32300,
+        "bytes": 693905747
+      },
+      "not_accepted": [
+        "clean census",
+        "M1/M2 completion",
+        "RC/release qualification",
+        "performance or capacity acceptance",
+        "separate raw12 capacity campaign"
+      ],
+      "append_only_outside_frozen_archive": true
+    },
+    "snapshot_limits": [
+      "Archive binds closed95 local execution/support at its actual preservation time.",
+      "Archived prearchive review and earlier evidence-preparation fields remain legitimate past-state records; later documentation updates are distinct and not retroactively added.",
+      "No final capacity,719merge,mainbinding,node/rootvolume cleanup or milestone acceptance follows from the local archive."
+    ],
+    "gate_retention_boundary": "Pinned strict-panel script deletes temporary JSON; shadow invocations request no JSON. Content review recomputed complete retained gate.log rows and persistent corpus reports; independently retained/replayed gate child stdout/stderr is not claimed.",
+    "prearchive_content_review": {
+      "artifact_name": "phase4-local-qualification/prearchive-review.json",
+      "sha256": "c874cebf9a061c7e17ecc0c73ae13d69d43b49ac9883b866d9b970660c5a3b54",
+      "markdown_sha256": "2846b4e2185a4ebadbc80058059d3dfe5f1736099da2a4898960de0f5a2d9a27",
+      "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+      "decision": "approve content",
+      "scope": "prearchive content and integrity review of terminal whole local qualification",
+      "preservation_decision_in_archived_review": "Not assessed at that earlier content-only review; separately approved by final-review.json.",
+      "not_accepted": [
+        "clean census",
+        "M1/M2 completion",
+        "RC/release qualification",
+        "performance acceptance"
+      ],
+      "separate_preservation_supplement": {
+        "artifact_name": "phase4-local-qualification/final-review.json",
+        "sha256": "561ea5e45e80beae19542c43ac43c83ec3aa343f3c1a11f44f95d932cfcc9ad0",
+        "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+        "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+        "decision": "approve",
+        "scope": "local qualification content and declared archive preservation integrity only"
+      }
+    }
+  },
+  "original_capacity": {
+    "status": "ALL12_INDEPENDENTLY_APPROVED_CAPACITY_ACCEPTED",
+    "record": "conformance/reports/perf/2026-11-01-phase4-original-capacity.json",
+    "planned_cells": 12,
+    "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+    "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+    "binary_sha256": "db17c8d3b5ecbc1f232df40cb12aec22d7b2cfcc1ee73c9995d7f350fd98c397",
+    "started_utc": "2026-11-01T18:59:40.275985+00:00",
+    "capacity_accepted": true,
+    "final_ABA_TLC_W1_W8_both810": true,
+    "final_review": {
+      "artifact_name": "phase4-final-capacity/review.json",
+      "sha256": "ce6c671252896724d27b193bcb0972934698191957067d8af12197eb3bd4c089",
+      "markdown_sha256": "ebba3bd36d6a34de9314c1a94cdf0007d44f199a0cf2baa19e333d5a06b3f5bb",
+      "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+      "decision": "approve",
+      "scope": "Original twelve-cell #650 capacity acceptance and bounded frozen-behavior fairness adoption only",
+      "checks_passed": 694,
+      "checks_failed": 0,
+      "blocking_findings": [],
+      "reviewed_utc": "2026-11-01T20:46:11.761460+00:00"
+    },
+    "finished_utc": "2026-11-01T20:32:58.571014+00:00",
+    "controller_physical_exit": 0,
+    "qualified_successful_cells": 12,
+    "final_ABA_TLC_rows": [
+      {
+        "arm": "dive-tlc-w1",
+        "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+        "actual_workers": 1,
+        "wall_seconds": 436.71578493299967,
+        "json_elapsed_ms": 436667,
+        "physical_exit": 0,
+        "within_810_json": true,
+        "within_810_controller": true
+      },
+      {
+        "arm": "dive-tlc-w8",
+        "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+        "actual_workers": 8,
+        "wall_seconds": 543.9825030860011,
+        "json_elapsed_ms": 543911,
+        "physical_exit": 0,
+        "within_810_json": true,
+        "within_810_controller": true
+      }
+    ],
+    "raw_archive": {
+      "verified_utc": "2026-11-01T20:38:10.993931+00:00",
+      "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "sha256": "8d4cc56e14d0b342b715964eaf3e264ffe343b506cb94c6937a55a71fd257282",
+      "bytes": 25973501,
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "phase4-20261101/final-capacity-95e73d2f.tar.gz",
+      "members": 148,
+      "all_member_hashes_verified": true,
+      "quiet_or_performance_acceptance": false,
+      "source_scope": "Exact clean capacity source; actual tree, release ELFs, inputs, controllers and physical outcomes retained in archive receipts",
+      "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+      "manifest_sha256": "6a37d9d3153429846b6acdd181c27642e2876699e64659a8862638f60e6cf369",
+      "manifested_files": 147,
+      "verification_artifact_sha256": "5cced131beede478fd6fb0f0a82d2718a18253399148b4e69da7e9486ac85e9e",
+      "pins_artifact_sha256": "0b02ddf7f3b38d772e6ffb5e85f000f06025f3499b85d08e6fe3cf0eb042abe7"
+    },
+    "qualified_runtime_main": "949e549cc1fece68cfa1bcfe59ea4b1c83bc368f",
+    "runtime_tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b"
+  },
+  "historical_negative_evidence_retained": {
+    "phase3_source": "fb48dbbf42bd224f278b138e74c1c8e29e2af106",
+    "phase3_record": "conformance/reports/core/2026-11-01-phase3-checkpoint.json",
+    "phase3_gate_exit": 0,
+    "phase3_census_and_join_exit": 1,
+    "phase3_capacity_successes": 11,
+    "phase3_ABA_TLC_W8_stop_seconds": 900.076,
+    "phase3_ABA_TLC_W1_success_seconds": 895.382,
+    "phase3_ABA_TLC_W1_observed_margin_seconds": 4.618,
+    "phase3_focus_rows": 36,
+    "phase3_breadth_rows": 60,
+    "formal300_run": false,
+    "default_focus_cells_missing_floor": 4,
+    "breadth_individual_floor_misses": [
+      "GameOfLife",
+      "TLCSailfish1",
+      "MCBakery",
+      "SimpleRegular"
+    ],
+    "GameOfLife_W1_compat_ratio_observation": 2.001332924,
+    "Sailfish_above1_5_investigation_retained": true,
+    "rejected_unmerged_optimizations": [
+      705,
+      710
+    ],
+    "no_rescue": true
+  },
+  "phase4_preservation_cleanup": {
+    "status": "ALL_REQUIRED_ARCHIVES_ROOT_VERIFIED_AND_ACTUAL_PHASE4_CLEANUP_COMPLETE",
+    "closed_pair_archives_verified_members": {
+      "baseline": 38,
+      "candidate": 48
+    },
+    "all_final_archives_outer_and_every_member_verified": true,
+    "exact_owned_instance_and_root_volume_cleanup_verified": true,
+    "cleanup_receipt_sha256": "1f69449d7b90c378a52b79a6ec5a9b8e8cd07dbd5f702c15221a918018213cf9",
+    "fixed_deadline_utc": "2026-11-01T22:56:59Z",
+    "deadline_extension_authorized": false,
+    "actual_deadline_extension": false,
+    "compute_ceiling_usd": 40,
+    "max_simultaneous_nodes": 2,
+    "max_node_lifetime_hours": 6,
+    "conservative_compute_estimate_and_basis": {
+      "elapsed_upper_bound_hours": 3.6514170902777776,
+      "quoted_hourly_usd": 0.714,
+      "conservative_compute_usd": 2.6071118024583333,
+      "scope": "Compute estimate to observed termination, not an invoice; excludes storage and transfer.",
+      "pricing_receipt_sha256": "fc683d9fbc14e10d1b38d067e070d7365900b05d05aeefc784a6629d44b7ab56"
+    },
+    "old_cleanup_relabelled": false,
+    "local_qualification_support_archive": {
+      "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+      "sha256": "03c4721281a4aebf2a45bdfa097651ecf071a1ac0123fc6a61612d7d7dff71fd",
+      "bytes": 106177007,
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "phase4-20261101/local-qualification-support-95e73d2f.tar.gz",
+      "members": 34513,
+      "manifest_sha256": "8038d55ae57d0408b665da1047afb380184e3f6f8f1f6561f07a189b5c74f16c",
+      "all_member_hashes_verified": true,
+      "verified_utc": "2026-11-01T20:24:08.504500+00:00",
+      "receipt_sha256": "e95cff6fdc80ffe1ea06d94bd3c94fdeb2f1a2b06f643aa65c838eab225aa3d4",
+      "verifier_sha256": "8a1ac5b90ea3752f626e5b9eb5ca2aea33167ca7d80d868510feb5ed266051f2",
+      "claim_scope": "Preservation only; census findings and performance/release acceptance remain separate",
+      "verification_artifact_name": "local-qualification-support-95e73d2f-verification.json",
+      "verification_artifact_sha256": "ab8a1bf68099bed122ba351a9a3f04ae6b9e3dac4225a093252b1016f6ebfe11",
+      "scope": "Closed local qualification and support snapshot only; no final twelve-cell raw capacity, later documentation update or future cleanup credit."
+    },
+    "local_content_review_sha256": "c874cebf9a061c7e17ecc0c73ae13d69d43b49ac9883b866d9b970660c5a3b54",
+    "local_independent_preservation_followup": {
+      "artifact_name": "phase4-local-qualification/final-review.json",
+      "sha256": "561ea5e45e80beae19542c43ac43c83ec3aa343f3c1a11f44f95d932cfcc9ad0",
+      "markdown_sha256": "86f0c6859152dbc2e06588b7f109d132fe8d00d6e717e58999c8b2c50c0de1c4",
+      "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+      "scope": "local qualification content and declared archive preservation integrity only",
+      "decision": "approve",
+      "content_decision": "approve content",
+      "preservation_decision": "approve",
+      "all_payload_hashes_independently_verified": true,
+      "payload_members": 34512,
+      "total_members": 34513,
+      "uncompressed_payload_bytes": 929211388,
+      "archived_qualification_tree": {
+        "sha256": "2ff50d19647930f317da4bb0a2e78a9d33094b3b1992fa0d8194b9796177ade1",
+        "files": 32300,
+        "bytes": 693905747
+      },
+      "not_accepted": [
+        "clean census",
+        "M1/M2 completion",
+        "RC/release qualification",
+        "performance or capacity acceptance",
+        "separate raw12 capacity campaign"
+      ],
+      "append_only_outside_frozen_archive": true
+    },
+    "final_capacity_archive": {
+      "verified_utc": "2026-11-01T20:38:10.993931+00:00",
+      "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "sha256": "8d4cc56e14d0b342b715964eaf3e264ffe343b506cb94c6937a55a71fd257282",
+      "bytes": 25973501,
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "phase4-20261101/final-capacity-95e73d2f.tar.gz",
+      "members": 148,
+      "all_member_hashes_verified": true,
+      "quiet_or_performance_acceptance": false,
+      "source_scope": "Exact clean capacity source; actual tree, release ELFs, inputs, controllers and physical outcomes retained in archive receipts",
+      "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+      "manifest_sha256": "6a37d9d3153429846b6acdd181c27642e2876699e64659a8862638f60e6cf369",
+      "manifested_files": 147,
+      "verification_artifact_sha256": "5cced131beede478fd6fb0f0a82d2718a18253399148b4e69da7e9486ac85e9e",
+      "pins_artifact_sha256": "0b02ddf7f3b38d772e6ffb5e85f000f06025f3499b85d08e6fe3cf0eb042abe7"
+    },
+    "cleanup_receipt": {
+      "artifact_name": "cloud/cleanup.json",
+      "sha256": "1f69449d7b90c378a52b79a6ec5a9b8e8cd07dbd5f702c15221a918018213cf9",
+      "physical_rc": 0,
+      "physical_rc_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "phase": "phase4-20261101",
+      "instance_id": "i-09ff9813821bc0fc6",
+      "root_volume_id": "vol-006d883b1736ab3b9",
+      "launch_utc": "2026-11-01T17:02:22+00:00",
+      "termination_requested_utc": "2026-11-01T20:40:53.713721+00:00",
+      "verified_utc": "2026-11-01T20:41:27.101525+00:00",
+      "instance_terminated": true,
+      "root_volume_deleted": true,
+      "remaining_active_owned_phase_instances": [],
+      "all_required_archives_verified_before_termination": {
+        "atom-diagnostic-b1a5972d": {
+          "sha256": "70d1b1802ea806ca96932374785993a58137b2cfe57e1af5c9afcbe4f19b3e09",
+          "members": 79,
+          "verified_utc": "2026-11-01T17:40:27.743435+00:00",
+          "verification_sha256": "de5498c8981aae3d00d46a1ff3e8eb7603eb2fcb95438d817887de3b5d2748e7"
+        },
+        "aba-baseline-b1a5972d": {
+          "sha256": "43fda902c0d9ab5c3373c59b905ecce15d59238934de24ba831cf2d7c37e52e7",
+          "members": 38,
+          "verified_utc": "2026-11-01T18:29:36.471627+00:00",
+          "verification_sha256": "5e4770d32514fb0f1cd8bf0cfbbd81af5eb4a28e98d9c3285462c4ae9f496274"
+        },
+        "aba-candidate-8e7dc78c": {
+          "sha256": "84cbd7e101365085e1cd4c23df490f100f6569831dc3f0d3d31db5a8ecff6912",
+          "members": 48,
+          "verified_utc": "2026-11-01T18:57:04.823396+00:00",
+          "verification_sha256": "9e4a35a800443a0cd6c85abd8e47f1bcfd368a6811e5c519c5b7cf61956445c0"
+        },
+        "final-capacity-95e73d2f": {
+          "sha256": "8d4cc56e14d0b342b715964eaf3e264ffe343b506cb94c6937a55a71fd257282",
+          "members": 148,
+          "verified_utc": "2026-11-01T20:38:10.993931+00:00",
+          "verification_sha256": "5cced131beede478fd6fb0f0a82d2718a18253399148b4e69da7e9486ac85e9e"
+        },
+        "local-qualification-support-95e73d2f": {
+          "sha256": "03c4721281a4aebf2a45bdfa097651ecf071a1ac0123fc6a61612d7d7dff71fd",
+          "members": 34513,
+          "verified_utc": "2026-11-01T20:24:08.504500+00:00",
+          "verification_sha256": "ab8a1bf68099bed122ba351a9a3f04ae6b9e3dac4225a093252b1016f6ebfe11"
+        }
+      },
+      "fixed_deadline_utc": "2026-11-01T22:56:59Z",
+      "deadline_extended": false,
+      "cost_observation": {
+        "elapsed_upper_bound_hours": 3.6514170902777776,
+        "quoted_hourly_usd": 0.714,
+        "conservative_compute_usd": 2.6071118024583333,
+        "scope": "Compute estimate to observed termination, not an invoice; excludes storage and transfer.",
+        "pricing_receipt_sha256": "fc683d9fbc14e10d1b38d067e070d7365900b05d05aeefc784a6629d44b7ab56"
+      },
+      "pricing": {
+        "queried_utc": "2026-11-01T17:02:21.304791+00:00",
+        "service": "AWS public Pricing API",
+        "type": "c7i.4xlarge",
+        "region": "us-east-1",
+        "ondemand_linux_usd_per_hour": 0.714,
+        "six_hour_compute_usd": 4.284,
+        "phase_ceiling_usd": 40
+      },
+      "pricing_receipt_sha256": "fc683d9fbc14e10d1b38d067e070d7365900b05d05aeefc784a6629d44b7ab56",
+      "scope": "Actual phase4 lifecycle/cost observations, not historical cleanup relabelled, continuous cloud state or an invoice. No cloud call by this documentation author."
+    },
+    "final_capacity_review": {
+      "artifact_name": "phase4-final-capacity/review.json",
+      "sha256": "ce6c671252896724d27b193bcb0972934698191957067d8af12197eb3bd4c089",
+      "markdown_sha256": "ebba3bd36d6a34de9314c1a94cdf0007d44f199a0cf2baa19e333d5a06b3f5bb",
+      "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+      "decision": "approve",
+      "scope": "Original twelve-cell #650 capacity acceptance and bounded frozen-behavior fairness adoption only",
+      "checks_passed": 694,
+      "checks_failed": 0,
+      "blocking_findings": [],
+      "reviewed_utc": "2026-11-01T20:46:11.761460+00:00"
+    }
+  },
+  "acceptance": {
+    "M1": false,
+    "M2": false,
+    "issue650": true,
+    "RC_release": false,
+    "default_engine_change": false,
+    "formal300_campaign": false,
+    "broad_throughput_or_scaling": false,
+    "whole_process_byte_accounting_complete": false,
+    "phase4_bounded_deliverables_complete": true,
+    "clean_census": false,
+    "performance_acceptance": false
+  },
+  "artifact_provenance": {
+    "checkpoint_snapshot_sha256": "579db5460e1cf7381b8a0600d1bc1ce986bcb99b041f945fa1a8415cfc8ee860",
+    "checkpoint_updated_utc": "2026-11-01T19:02:22.356388+00:00",
+    "no_builds_tests_models_or_cloud_by_this_docs_author": true,
+    "raw_logs_archives_or_source_snapshots_committed": false,
+    "source_links_repo_relative": true,
+    "authoring_initial_base": "d62d68d4f6bc178c34e5e00f9920a7c24b33013c",
+    "documentation_parent_runtime_main": "949e549cc1fece68cfa1bcfe59ea4b1c83bc368f",
+    "later_documentation_is_new_execution": false
+  },
+  "issue_contracts": {
+    "650": {
+      "status": "CLOSED_CAPACITY_CONTRACT_ACCEPTED",
+      "scope": "Exact original twelve-cell 900-second/16-GiB temporal capacity, all actual workers/profiles and observable outcomes, recorded comparable TLC policies, no old success loss, independent preservation/review and cleanup.",
+      "capacity_record": "conformance/reports/perf/2026-11-01-phase4-original-capacity.json",
+      "not_blocked_solely_by": "Bcast stress, allocator-accounting framework, issue651 or M1/M2/RC acceptance.",
+      "closure": {
+        "closedAt": "2026-11-01T20:47:35Z",
+        "number": 650,
+        "state": "CLOSED",
+        "title": "Complete budgeted native temporal capacity and structured resource stops"
+      },
+      "independent_review": {
+        "artifact_name": "phase4-final-capacity/review.json",
+        "sha256": "ce6c671252896724d27b193bcb0972934698191957067d8af12197eb3bd4c089",
+        "markdown_sha256": "ebba3bd36d6a34de9314c1a94cdf0007d44f199a0cf2baa19e333d5a06b3f5bb",
+        "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+        "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+        "decision": "approve",
+        "scope": "Original twelve-cell #650 capacity acceptance and bounded frozen-behavior fairness adoption only",
+        "checks_passed": 694,
+        "checks_failed": 0,
+        "blocking_findings": [],
+        "reviewed_utc": "2026-11-01T20:46:11.761460+00:00"
+      }
+    },
+    "651": {
+      "status": "OPEN_NOT_QUALIFIED_BY_THIS_PHASE",
+      "scope": "Matched old-bridge original CoffeeCan in all four profile/worker cells: runtime <=110% of bridge and RSS <=65% of bridge.",
+      "matched_comparison_performed_by_this_campaign": false
+    },
+    "718": {
+      "status": "CLOSED_AFTER_FINAL12_APPROVAL_AND_VERIFIED719MERGE",
+      "closure": {
+        "closedAt": "2026-11-01T20:47:33Z",
+        "number": 718,
+        "state": "CLOSED",
+        "title": "perf: reuse an exact native fairness pair across configured properties"
+      }
+    }
+  },
+  "verified_issue_closures": {
+    "artifact_name": "verified-issue-closures.json",
+    "sha256": "b703e2f6c739d171504a9840e912358bafc76a2fb145efb0ab2af831ad13f5ac",
+    "issues": {
+      "650": {
+        "closedAt": "2026-11-01T20:47:35Z",
+        "number": 650,
+        "state": "CLOSED",
+        "title": "Complete budgeted native temporal capacity and structured resource stops"
+      },
+      "718": {
+        "closedAt": "2026-11-01T20:47:33Z",
+        "number": 718,
+        "state": "CLOSED",
+        "title": "perf: reuse an exact native fairness pair across configured properties"
+      }
+    }
+  },
+  "remaining_work": [
+    "Independently prove the four remaining GenError General/Nested/Record/Tuple word families; preserve unsupported scopes until proved.",
+    "Retain open #664, the unresolved TLC/W1 LvPeriodic core/reference disagreement; differ-to-timeout is not a fix or agreement gain.",
+    "Keep shared-255 deciding identity and classification #697 separate from valid-word proof.",
+    "Retain broader receiver/source scopes #680/#502 and history producers #623 as separate obligations.",
+    "Issue651 matched old-bridge CoffeeCan runtime/RSS criterion remains unqualified.",
+    "ADR0119 global default per-model floors, compatibility bounds and above1.5 investigation remain.",
+    "Broader mode and full-tier corpus coverage remain; this phase starts no additional implementation or prototype."
+  ]
+}

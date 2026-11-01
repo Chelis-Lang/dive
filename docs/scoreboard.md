@@ -1,12 +1,39 @@
 # Scoreboard
 
-The frozen phase 3 core checkpoint uses runtime `fb48dbbf`, tree `b2d90500`.
-M1/M2 and RC/release qualification remain open, and
+Phase 4 is complete within its bounded trusted-report and original-capacity
+scope. Qualified runtime main `949e549c`, tree `37a77be0`, includes the standalone
+trace gate (#716, closing #714), fresh invariant/VIEW report certification
+(#717, closing #713), and bounded native WF pair reuse (#719, closing #718).
+Each change passed independent review and all three required CI checks.
+Execution belongs to source `95e73d2f`; runtime squash `949e549c` has its exact
+tree and was not itself rerun. The [phase 4 checkpoint](../conformance/reports/core/2026-11-01-phase4-checkpoint.json)
+retains those source and evidence boundaries. M1/M2 and RC/release
+qualification remain open, and
 `reference` remains the default. The [current status](developer/core/m1-status.md)
 separates landed capabilities from remaining acceptance work and the
 historical source-bound populations below.
 
-The checkpoint includes bounded worker-local default compound-membership indexing
+The value-proof lane stopped before implementation: one bounded diagnostic did
+not establish material certifiable repeated guard work for both targeted default
+models. No code or rescue optimization follows. The native WF pair candidate
+at measured `8e7dc78c` completes original ABA TLC/W1 and TLC/W8 in 435.508s and
+543.846s, passing its two-cell 810-second adoption criterion. Its independently
+reviewed rebase `95e73d2f`, tree `37a77be0`, completed the separate final matrix
+and landed through PR #719. Initial adoption and final execution retain their
+separate source bindings. The [capacity record](../conformance/reports/perf/2026-11-01-phase4-original-capacity.json)
+retains the baseline W8 stop, exact builds and the measured adoption scope.
+
+All twelve original capacity cells at actual `95e73d2f` are terminal qualified
+successes, with runner exit 0. Original ABA TLC/W1 and TLC/W8 complete in
+436.716s and 543.983s and both again meet the 810-second bar. All 148 final
+capacity archive members are independently verified after upload/download.
+Fresh final review passes 694 checks with zero failures and accepts #650's
+original twelve-cell capacity contract. #650 and #718 were manually closed
+after verified runtime merge and cleanup. No formal
+300-row campaign or default-engine change follows from the two adoption cells.
+
+The historical phase 3 checkpoint uses runtime `fb48dbbf`, tree `b2d90500`.
+It includes bounded worker-local default compound-membership indexing
 (#698), exact private temporal-product lookup followed by deterministic ordering
 (#694), and selected original-target descriptors for native action predicates
 (#701). Original extensional/history authority, demand, fallbacks and resource
@@ -21,8 +48,9 @@ Reviewed and CI-passing #712 independently reconstructs bounded source-final
 VIEW, top-level non-Boolean constraints and named invariant diagnostics. The
 ten canonical streams remain Unclassified; independent core-word proof and
 strict engine-shadow gains are separate from pinned-TLC agreement. The
-inherited coordinated primary-2111 class/exit acceptance remains #713 and is
-outside the new diagnostic-proof scope. Small-payload #710 is closed unmerged
+inherited coordinated primary-2111 class/exit acceptance was outside that proof
+and was tracked in #713; the later #717 certificate closes that defect without
+reclassifying the ambiguous streams. Small-payload #710 is closed unmerged
 after its reviewed valid-negative A/B; #708 remains open.
 
 Focused candidate-error controls require actual controlled fresh word and
@@ -139,6 +167,55 @@ success. Source-qualified rows and limitations are in the
 
 ## Corpus scoreboard
 
+The phase 4 census at `95e73d2f` is terminal, retaining the same 1,520 selected
+fixtures per profile, 99 parser exclusions and 18 ambiguous skips, with no added
+inputs or fixtures. Default has 1,218 shadow agreements / 290 refusals / eight
+timeouts / four unconfirmed words; TLC has 1,191 / 318 / seven / four. No old
+agreement is lost. Three default VIEW families gain agreement; TLC gains those
+three plus `ErViewOverflow`. The four remaining unconfirmed words per profile
+are `GenError/{General,Nested,Record,Tuple}`. These are shadow results, not new
+pinned-TLC classification or parity-surface credit.
+
+The prior TLC/W1 `LvPeriodic` core-violation/reference-capture-resource
+difference now ends in a core temporal-analysis time stop. This is no agreement
+gain or semantic repair; the earlier disagreement remains open as
+[#664](https://github.com/Chelis-Lang/dive/issues/664).
+
+The census physically exits 1. Its 17 incomplete child runs remain fourteen
+core time stops, one core memory stop and two core resource-limit refusals;
+the ledger records all 5,457 physical invocation receipts. TLC Auto completes
+with physical exit 0 in 413.577s, 150 model agreements / six unsupported and all
+458 SANY comparisons agreeing. Its 124 actual-core runs, three dynamic
+fallbacks, 21 static fallbacks and eight runs without an engine stay separate.
+Default Auto exits 0 in 418.440s with 144 agreements, five unsupported and seven
+expected divergences. Its 124 actual-core runs comprise 120 strict agreements
+and four expected divergences; three dynamic / 22 static fallbacks and seven
+without an engine remain separate. Default intentionally omits SANY. All 312
+Auto model-process receipts are present; fallback earns no native-success
+credit. The census/Auto role exits 1 for retained census findings, with clean
+`95e73d2f` source/tree before and after.
+
+The single `95e73d2f` full gate physically exits 0: its report records 79m37s,
+while the controller records 4,780.746 seconds including outer startup. Fifteen
+stages pass and unchanged-input cargo-deny is skipped. All 3,066 nextest tests
+pass, with six declared skips and seven slow tests; all 187 doctests pass. The
+dedicated standalone trace build passes in 11.5s without forbidden backend
+crates or evaluator enumeration. CM1/validation pass at W1/W4/W8; default core
+shadows retain 57 agreements / six refusals among 63 CM1 rows and 250 / 62 among
+312 small-tier rows. Both small-corpus baselines have zero regressions. The
+joined chain exits 1 for retained census findings, independently of full-gate
+exit 0 and both Auto exits 0. Fresh independent review approves the local
+content and independently verifies preservation across all 34,513 members of
+the 106,177,007-byte local/support archive. All five required phase 4 archives
+were verified before the owned capacity node was terminated and its root volume
+deleted, confirmed at 20:41:27 UTC; no active owned phase instance remains in
+that observation. Conservative compute is $2.607, below $40, excluding storage
+and transfer and not an invoice. The fixed deadline was not extended. Final
+capacity approval is bound to executed `95e73d2f` and identical runtime main
+`949e549c`. Later documentation updates do not alter that preserved snapshot
+or gain execution credit. The phase 3 populations below
+keep their original source.
+
 The [phase 3 checkpoint](../conformance/reports/core/2026-11-01-phase3-checkpoint.json)
 at `fb48dbbf` records one full-gate physical exit 0 in 78m07s: 3,054 nextest
 passes, six source-declared ignored tests and 185 passing doctests. All 14
@@ -147,8 +224,9 @@ default shadows retain 57 agreements/six refusals in 63 CM1 rows and 250/62 in
 312 small-tier rows. Refusals earn no native-success credit. A separately
 reviewed fresh-target standalone trace build exits 0 in 11.64s without forbidden
 dependencies or evaluator enumeration. It is separate from the full gate;
-#714 tracks the frozen AGENTS/xtask explicit-command omission. The terminal
-local audit preserves all source/ELF and physical-exit distinctions.
+#714 tracked the frozen AGENTS/xtask explicit-command omission; #716 fixes the
+current gates without making this old supplemental build part of the old full
+gate. The terminal local audit preserves all source/ELF and physical-exit distinctions.
 
 The census retains exactly the `16095d43` selection: 1,520 of 1,637
 configurations per profile, 99 parser exclusions and 18 ambiguous skips. The
@@ -214,7 +292,7 @@ margin for the latter. The final 147-member archive is verified. Both phase
 nodes and root volumes have verified cleanup, with no active owned phase
 instance or fixed-deadline extension. Conservative compute is about $10.235,
 below $40, not an invoice and excluding small storage/transfer costs.
-#650 and M1/M2/RC acceptance remain open; bounded
+That source did not accept #650; M1/M2/RC acceptance remains open. Bounded
 deliverables #707/#711 are manually closed after verification. Historical
 cleanup below applies only to its original campaign.
 
@@ -261,14 +339,14 @@ leave raw `quiet_window_certified` flags false. All twelve original capacity
 cells are terminal: nine successes and three ABA atom-analysis time stops.
 CoffeeCan3000Beans/EWD998Chan succeed in all four cells each; ABA succeeds only
 in default/W1. Default/W8's older 889.180s completion is lost to a 900.106s
-stop. The capacity service exits 1; #650 acceptance remains open. Completed
+stop. The capacity service exits 1; that historical matrix did not accept #650. Completed
 capture and matching counts do not prove temporal success. Both phase nodes
 and root volumes have verified cleanup. The independently audited
 [capacity record](../conformance/reports/perf/2026-11-01-original-capacity.json)
 retains the negative outcomes. These results do not close M1/M2 or refresh the
 historical populations below. The [next bounded actions](developer/core/m1-status.md#next-bounded-actions)
-preserve remaining unconfirmed words, #697's ambiguous classes, inherited #713,
-receiver scopes, failed performance targets and the remaining original ABA
+preserve remaining unconfirmed words, #697's ambiguous classes, the historical
+#713 defect later fixed by #717, receiver scopes, failed performance targets and the remaining original ABA
 capacity/headroom obligations. Qualification outcomes and cleanup are complete.
 
 The historical corrected base `83356b01` passed its full gate (2,997 tests;
