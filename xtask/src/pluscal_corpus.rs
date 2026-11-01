@@ -573,13 +573,10 @@ fn compare_checks(
         .arg(config.check_timeout.as_secs().to_string())
         .arg("--out")
         .arg(absolute(dive_dir)?.join("model-check"));
-    // The helper owns separate bounded TLC/trace/native children and records
-    // their physical status. Do not kill its supervisor before owned cleanup.
-    let limit = config
-        .check_timeout
-        .saturating_mul(4)
-        .saturating_add(Duration::from_secs(60));
-    let child = run(&mut command, dive_dir, "independent-check", limit)?;
+    // The helper owns bounded TLC/trace/native children and their cleanup.
+    // Waiting for that supervisor avoids a second direct-child kill which
+    // could orphan its independently grouped children during setup/replay.
+    let child = wait_for_supervisor(&mut command, dive_dir, "independent-check")?;
     let report: Value = serde_json::from_str(&child.stdout).unwrap_or(Value::Null);
     if !matches!(child.code, Some(0 | 1))
         || child.timed_out
@@ -600,6 +597,26 @@ fn compare_checks(
         "findings"
     };
     Ok(json!({"outcome": outcome, "comparison": report}))
+}
+
+fn wait_for_supervisor(command: &mut Command, dir: &Path, name: &str) -> Result<Run> {
+    let stdout_path = dir.join(format!("{name}.stdout"));
+    let stderr_path = dir.join(format!("{name}.stderr"));
+    let stdout = File::create(&stdout_path).map_err(|e| format!("cannot create stdout: {e}"))?;
+    let stderr = File::create(&stderr_path).map_err(|e| format!("cannot create stderr: {e}"))?;
+    let status = command
+        .current_dir(dir)
+        .stdin(Stdio::null())
+        .stdout(stdout)
+        .stderr(stderr)
+        .status()
+        .map_err(|e| format!("cannot wait for comparison supervisor: {e}"))?;
+    Ok(Run {
+        code: status.code(),
+        timed_out: false,
+        stdout: read(&stdout_path)?,
+        stderr: read(&stderr_path)?,
+    })
 }
 
 fn diagnostic_message(report: &Value, run: &Run) -> String {
