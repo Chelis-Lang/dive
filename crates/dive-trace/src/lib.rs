@@ -79,6 +79,7 @@ mod invariant_error;
 pub mod mutate;
 mod next_error;
 mod ordered;
+mod ordered_prefix;
 mod partial;
 mod row_demand;
 mod session;
@@ -93,10 +94,11 @@ use dive_model::Model;
 
 pub use endpoint::{
     CandidateErrorSite, CandidateStateEndpoint, NextStateEndpoint, PartialNextEndpoint,
-    PartialStateEndpoint, TemporalSourceEndpoint, TemporalStateEndpoint,
+    PartialStateEndpoint, TemporalSourceEndpoint, TemporalStateEndpoint, ViewSourceEndpoint,
 };
 pub use format::{Ending, Label, Source, TraceDoc};
 pub use invariant_error::{InitialErrorStage, InitialInvariantClass};
+pub use ordered_prefix::InvariantErrorClass;
 pub use session::Session;
 pub use trace::{ShapeError, State, Trace, variables};
 pub use validate::{

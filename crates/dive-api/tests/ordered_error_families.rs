@@ -1,0 +1,149 @@
+//! Producer words retain independently reconstructed source/candidate meanings.
+use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
+use dive_api::{CheckRequest, Engine, check_file_engine};
+use serde_json::json;
+use std::path::PathBuf;
+type TestResult = Result<(), Box<dyn std::error::Error>>;
+
+#[test]
+fn ten_retained_cases_validate_in_both_engines_profiles_and_worker_counts() -> TestResult {
+    for name in [
+        "ErViewChoose",
+        "ErViewDomain",
+        "ErViewNonBool",
+        "ErViewNonBoolIf",
+        "ErViewNonEnum",
+        "ErViewTypeErr",
+        "ErInvConstrained",
+        "ErInvReplayError",
+        "ErConstrNonBool",
+        "ErActConstrNonBool",
+    ] {
+        let file = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(format!(
+            "../dive-check/tests/fixtures/errors/specs/{name}/{name}.tla"
+        ));
+        for compat_tlc in [false, true] {
+            let model = SpecModel::load(
+                &file,
+                &file.with_extension("cfg"),
+                &TraceOptions {
+                    compat_tlc,
+                    run: Some((0, 0)),
+                    ..TraceOptions::default()
+                },
+            )?;
+            for engine in [Engine::Reference, Engine::Core] {
+                for workers in [1, 4] {
+                    let report = check_file_engine(
+                        &CheckRequest {
+                            file: file.clone(),
+                            config: Some(file.with_extension("cfg")),
+                            compat_tlc,
+                            workers: Some(workers),
+                            seed: Some(0),
+                            fp: Some(0),
+                            ..CheckRequest::default()
+                        },
+                        engine,
+                    )?
+                    .to_json();
+                    let wire = &report["counterexample"]["trace"];
+                    let doc = TraceDoc::from_json(wire)
+                        .map_err(|e| format!("{name}/{engine:?}/{workers}: {e}: {report}"))?;
+                    assert_eq!(
+                        model.try_validate(&doc)?.validation,
+                        Validation::Valid,
+                        "{name}/{engine:?}/{workers}: {report}"
+                    );
+                    if name.starts_with("ErView") {
+                        assert_eq!(wire["version"], 6);
+                        assert_eq!(doc.states.len(), 2);
+                        assert_eq!(
+                            doc.states[1],
+                            json!({"x":1,"y":0}).as_object().ok_or("state")?.clone()
+                        );
+                    } else if name.starts_with("ErInv") {
+                        assert_eq!(wire["version"], 2);
+                        let (proof, class) = model.invariant_error_class(&doc, None)?;
+                        assert_eq!(proof.validation, Validation::Valid, "{name}");
+                        let class = class.ok_or("actual diagnostic certificate")?;
+                        assert_eq!(report["tlc"]["reported"], class.reported_code());
+                        assert_eq!(report["tlc"]["code"], class.deciding_code());
+                    } else {
+                        assert_eq!(wire["version"], 4);
+                        assert_eq!(wire["ending"]["ec"], "TLC_EXPECTED_VALUE");
+                    }
+                    assert_eq!(report["tlc"]["verified"], true);
+                    if workers == 1 {
+                        // All existing tiny sources stop at their original
+                        // generated counts; invariant diagnostic replay differs.
+                        let (generated, distinct, depth) = if name == "ErInvReplayError" {
+                            (4, 5, 3)
+                        } else if name == "ErActConstrNonBool" {
+                            (8, 5, 3)
+                        } else {
+                            (4, 3, 2)
+                        };
+                        assert_eq!(report["statistics"]["generated"], generated, "{name}");
+                        assert_eq!(report["statistics"]["distinct"], distinct, "{name}");
+                        assert_eq!(report["statistics"]["depth"], depth, "{name}");
+                    }
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn nearby_view_module_errors_do_not_inherit_the_bounded_runtime_error_proof() -> TestResult {
+    for kind in ["Assert", "DivZero", "Enabled", "Overflow"] {
+        let name = format!("ErView{kind}");
+        let file = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(format!(
+            "../dive-check/tests/fixtures/errors/specs/{name}/{name}.tla"
+        ));
+        for compat_tlc in [false, true] {
+            if kind == "Overflow" && !compat_tlc {
+                continue;
+            }
+            let model = SpecModel::load(
+                &file,
+                &file.with_extension("cfg"),
+                &TraceOptions {
+                    compat_tlc,
+                    run: Some((0, 0)),
+                    ..TraceOptions::default()
+                },
+            )?;
+            for engine in [Engine::Reference, Engine::Core] {
+                let report = check_file_engine(
+                    &CheckRequest {
+                        file: file.clone(),
+                        config: Some(file.with_extension("cfg")),
+                        compat_tlc,
+                        workers: Some(1),
+                        seed: Some(0),
+                        fp: Some(0),
+                        ..CheckRequest::default()
+                    },
+                    engine,
+                )?
+                .to_json();
+                if report["verdict"] == "unsupported" {
+                    assert!(report["counterexample"].is_null());
+                    continue;
+                }
+                let word = TraceDoc::from_json(&report["counterexample"]["trace"])?;
+                assert_eq!(word.to_json()["version"], 1, "{name}/{engine:?}");
+                assert!(
+                    matches!(
+                        model.try_validate(&word)?.validation,
+                        Validation::Unsupported(_)
+                    ),
+                    "{name}/{engine:?}"
+                );
+            }
+        }
+    }
+    Ok(())
+}

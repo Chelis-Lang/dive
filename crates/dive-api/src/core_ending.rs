@@ -205,7 +205,8 @@ fn reproduce(
                         "TLC expected a boolean value, but did not find one. {}",
                         ev.location(c.pred.location)
                     ),
-                )),
+                )
+                .at(c.pred.location)),
                 Ok(_) => Err(format!("the reference evaluator answers {} there", c.name)),
             }
         }

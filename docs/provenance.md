@@ -2560,3 +2560,17 @@ initial generator, following `ModelChecker.doInit`'s separate source-bearing
 exception catch. The packed owner namespace is native lifetime design, not
 semantic identity or an inference from expression shape/error text. Context-only
 negative outcomes remain unclassified; dynamic Next lifetime is not claimed.
+
+
+### Bounded ordered diagnostic prefix (ADR 0135)
+
+The independent trace driver's finite admission/invariant/diagnostic demand
+follows pinned TLC upstream commit `94d0c5070852b37b801bb8998c436383ab7ee37b`:
+`TLCStateMut.fingerPrint` normalizes concrete fields before VIEW and fingerprints
+the VIEW value; `ModelChecker`/`Worker` check ordered constraints before key
+insertion and new-state invariants; `ModelChecker.modelCheckImpl` reconstructs
+per-action diagnostic generation and preserves the actual thrown exception's
+code. The port reconstructs only one exhausted Init and two bounded source
+expansions, sharing the evaluator/value helpers but no checker/store state.
+It does not emulate queue implementation or derive deciding identities from
+context messages or shared physical exits.

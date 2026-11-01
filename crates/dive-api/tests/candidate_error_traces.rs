@@ -13,7 +13,11 @@ fn actual_candidate_errors_require_exact_word_source_site_and_both_identities() 
         .flat_map(|site| {
             ["Choose", "Domain", "NonBoolIf", "NonEnum", "TypeErr"].map(|kind| (site, kind))
         })
-        .chain([("Prop", "NonBool")]);
+        .chain([
+            ("Prop", "NonBool"),
+            ("Constr", "NonBool"),
+            ("ActConstr", "NonBool"),
+        ]);
     for (site, kind) in cases {
         let name = format!("Er{site}{kind}");
         let file = root.join(format!(
@@ -257,7 +261,7 @@ fn assert_inner_nonboolean_source_priority(
 }
 
 #[test]
-fn top_level_nonboolean_constraint_roles_remain_unproved() -> TestResult {
+fn top_level_nonboolean_role_proofs_do_not_admit_the_old_anonymous_word() -> TestResult {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
     for name in ["ErConstrNonBool", "ErActConstrNonBool"] {
         let file = root.join(format!(
@@ -291,13 +295,19 @@ fn top_level_nonboolean_constraint_roles_remain_unproved() -> TestResult {
                 )?
                 .to_json();
                 let wire = &result["counterexample"]["trace"];
-                assert_ne!(
-                    wire["ending"]["endpoint"]["stage"],
-                    "candidate-ordered-terminal"
-                );
-                assert_ne!(
+                assert_eq!(wire["version"], 4);
+                assert_eq!(wire["ending"]["ec"], "TLC_EXPECTED_VALUE");
+                assert_eq!(
                     model.try_validate(&TraceDoc::from_json(wire)?)?.validation,
-                    Validation::Valid,
+                    Validation::Valid
+                );
+                // The retained old anonymous ending still cannot certify a
+                // candidate-side role failure or its diagnostic wrapper.
+                let old = TraceDoc::from_json(wire)?.with_ending(dive_api::trace::Ending::Error {
+                    ec: Some("TLC_EXPECTED_VALUE".into()),
+                });
+                assert!(
+                    !model.try_validate(&old)?.validation.is_valid(),
                     "{name}: {result}"
                 );
             }

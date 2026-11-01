@@ -1,5 +1,15 @@
 # Changelog
 
+- Independently reconstruct bounded ordered error prefixes for VIEW and named
+  invariant diagnostics, retaining actual key insertion and diagnostic demand.
+  Source-final VIEW words use native trace version 6; readers must support its
+  `view-source-terminal` endpoint before advancing producer pins. Native versions
+  1–5 and report schema 3 retain their meanings. Advance consumer notice is a
+  landing requirement. Canonical ambiguous TLC streams remain Unclassified.
+- Validate actual top-level non-Boolean constraint/action-constraint errors
+  through the existing native version-4 endpoint and source-qualified
+  `Tool.isValid` boundary; old anonymous words remain invalid.
+
 - Reuse successful native temporal atom input checks for exact retained rows
   within each analysis, in both profiles. Optional proof storage is capped at
   one MiB; allocation failure retains the original checks. Conversion demand,

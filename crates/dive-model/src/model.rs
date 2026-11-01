@@ -341,6 +341,32 @@ impl Model {
         self.evaluator.eval_scoped(&pred.scope, pred.expr, st)
     }
 
+    /// Evaluates a configured Boolean role with TLC's `Tool.isValid` boundary.
+    /// A returned non-Boolean value raises the tool's source-qualified 2215;
+    /// an error inside the expression retains its original constructor/source.
+    ///
+    /// ```no_run
+    /// # fn check(model: &dive_model::Model, pred: &dive_model::Pred, state: &dive_eval::St) -> dive_eval::Result<()> {
+    /// let holds = model.eval_boolean(pred, state)?;
+    /// # let _ = holds; Ok(()) }
+    /// ```
+    ///
+    /// # Errors
+    /// The original evaluation failure, or the actual non-Boolean role failure.
+    pub fn eval_boolean(&self, pred: &Pred, st: &St) -> dive_eval::Result<bool> {
+        match self.eval(pred, st)? {
+            Value::Bool(value) => Ok(value),
+            _ => Err(dive_eval::EvalError::coded(
+                dive_eval::Ec::ExpectedValue,
+                format!(
+                    "TLC expected a boolean value, but did not find one. {}",
+                    self.evaluator.location(pred.location)
+                ),
+            )
+            .at(pred.location)),
+        }
+    }
+
     /// TLC's `Tool.checkAssumptions`: the assumptions in order, `AXIOM`s
     /// skipped, stopping at the first that is not `TRUE`.
     #[must_use]

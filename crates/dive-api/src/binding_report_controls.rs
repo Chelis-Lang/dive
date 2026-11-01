@@ -34,6 +34,7 @@ fn report(tlc: bool, capture: Option<bool>) -> CheckReport {
         core: None,
         next_error_endpoint: None,
         candidate_error_endpoint: None,
+        view_error_endpoint: None,
         partial_terminal_endpoint: None,
         engine: crate::Engine::Reference,
         fallback: None,

@@ -220,6 +220,35 @@ fn source_error_header(ec: &str, result: &OracleResult, reported: Option<&Ending
         && matches!(reported, Some(Ending::Error { ec: Some(code) }) if code == "GENERAL")
 }
 
+fn invariant_header(
+    spec: &SpecModel,
+    doc: &TraceDoc,
+    result: &OracleResult,
+    reported: Option<&Ending>,
+) -> bool {
+    if reported
+        == Some(&Ending::Error {
+            ec: Some("TLC_INVARIANT_EVALUATION_FAILED".into()),
+        })
+    {
+        return true;
+    }
+    let Ok((proof, Some(class))) = spec.invariant_error_class(doc, None) else {
+        return false;
+    };
+    let Ok(code) = i32::try_from(class.deciding_code()) else {
+        return false;
+    };
+    proof.validation.is_valid()
+        && result.verdict_code == Some(code)
+        && crate::tlc::codes::ec_name(code).is_some_and(|name| {
+            reported
+                == Some(&Ending::Error {
+                    ec: Some(name.into()),
+                })
+        })
+}
+
 /// Validates an implementation's counterexample (`result.trace.json`, in
 /// dive's format) against `spec`. `golden` is the oracle's result for the
 /// same model, consulted only to confirm a deadlock (see the module
@@ -247,10 +276,7 @@ pub fn validate_counterexample(
         // raised it; the report names TLC's site wrapper. Independent
         // validation below must establish the exact named claim.
         Some(Ending::InvariantError { .. }) => {
-            reported
-                == Some(Ending::Error {
-                    ec: Some("TLC_INVARIANT_EVALUATION_FAILED".to_owned()),
-                })
+            invariant_header(spec, &doc, result, reported.as_ref())
         }
         Some(Ending::NextStateError { ec, endpoint }) => {
             let expected = match endpoint.deciding_code() {
@@ -267,6 +293,10 @@ pub fn validate_counterexample(
                 }),
             };
             reported == expected
+        }
+        Some(Ending::ViewSourceError { ec, endpoint }) => {
+            let expected = candidate_error_header(ec, Some(endpoint.deciding_code()));
+            reported == expected && expected.is_some()
         }
         Some(Ending::CandidateStateError { ec, endpoint }) => {
             let expected = candidate_error_header(ec, endpoint.deciding_code());
