@@ -57,12 +57,12 @@ pub(super) fn call(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle
                 crate::print::pretty(&mut m.heap, a)?,
                 crate::print::pretty(&mut m.heap, b)?
             );
-            m.printed.push(text);
+            m.print(text)?;
             Ok(b)
         }
         StdOp::TlcPrintT => {
             let text = crate::print::pretty(&mut m.heap, arg(args, 0)?)?;
-            m.printed.push(text);
+            m.print(text)?;
             Ok(Handle::TRUE)
         }
         StdOp::TlcRandomElement => random_element(m, op, arg(args, 0)?),
@@ -80,6 +80,12 @@ pub(super) fn call(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle
 /// (`03-value-model.md` §6.2), on the arguments converted to reference
 /// values and the result converted back.
 fn register(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle, Error> {
+    if !m.checker_access {
+        return Err(Error::unsupported(
+            "native finite mode TLCGet/TLCSet host access",
+        ));
+    }
+
     let Some(p) = m.heap.store().printer().cloned() else {
         return Err(refuse(op, "registers without the model's names (M1 core)"));
     };

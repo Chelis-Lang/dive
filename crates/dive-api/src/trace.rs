@@ -96,6 +96,7 @@ pub struct SpecModel {
     model: dive_model::Model,
     model_values: Vec<String>,
     session: dive_trace::Session,
+    recipe: dive_model::Recipe,
 }
 
 impl SpecModel {
@@ -222,8 +223,9 @@ impl SpecModel {
             Ok(model) => Ok(Self {
                 model,
                 model_values,
+                recipe: recipe.clone(),
                 session: dive_trace::Session::new(
-                    recipe,
+                    recipe.clone(),
                     host.as_ref()
                         .and_then(|host| dive_eval::Host::config(&**host)),
                 ),
@@ -243,6 +245,28 @@ impl SpecModel {
     #[must_use]
     pub fn model(&self) -> &dive_model::Model {
         &self.model
+    }
+
+    /// Private feasibility runtime: fixed inputs, fresh names/caches and no ASSUMEs.
+    pub(crate) fn preparation_model(
+        &self,
+        seed: i64,
+        mode: dive_stdlib::random::RandomMode,
+        control: Arc<dyn dive_eval::HostControl>,
+    ) -> Result<dive_model::Model, String> {
+        let host = Arc::new(dive_stdlib::host::RunHost::new(
+            dive_stdlib::random::Streams::new(seed, mode),
+            None,
+        ));
+        let model = on_big_stack(|| self.recipe.bind_next_fallible(host.clone(), Some(control)))
+            .map_err(|error| error.to_string())?
+            .map_err(|error| error.to_string())?;
+        if let Some(config) = self.model.evaluator.host().and_then(|host| host.config()) {
+            model.evaluator.intern_checker_names();
+            model.evaluator.intern_bfs_config(&config);
+            host.set_config(Some(config));
+        }
+        Ok(model)
     }
 
     /// The configuration's model value names.

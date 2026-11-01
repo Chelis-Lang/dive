@@ -156,3 +156,25 @@ phase and reached progress. It never certifies safety or a violation. Retained
 prefix traces and earlier observations remain diagnostic. Rust requests expose
 `time_limit` and `max_memory` through `BudgetSetting`; one owner covers the run,
 rather than restarting the clock for each trace or iteration.
+
+## Execution engines
+
+The default remains `reference`. `--engine core` uses compiled native Init/Next
+and predicate execution for the supported finite safety slice in either profile:
+
+```sh
+dive simulate docs/user/examples/Counter.tla --traces 3 --depth 8 --seed 7 --engine core --output json
+```
+
+`--engine auto` may select the whole reference simulation before execution,
+reporting its static reason. A reached native refusal never retries or duplicates
+producer output. `DIVE_ENGINE` selects the same setting. JSON adds `engine`,
+`engine_requested` and nullable `engine_fallback`; requested/actual workers remain
+separate. Both implementations currently use one actual worker.
+
+Native compound states, fairness-only specifications, Print and basic action
+flows retain independent word validation. Unsupported native runtime effects,
+unproved lazy receivers and warning/output interleaving refuse by name. Auto
+can select reference for declared unavailable effects. Reproduce a sample with
+the same engine, seed and options; TLC's internal draw sequence is not a parity
+obligation, including under `--compat=tlc` (ADR 0116).

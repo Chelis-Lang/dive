@@ -70,6 +70,10 @@ pub struct Machine {
     /// What `Print` and `PrintT` printed, one line each, in evaluation
     /// order.
     pub printed: Vec<String>,
+    output_limits: Option<(usize, usize)>,
+    output_used: (usize, usize),
+    output_failure: Option<&'static str>,
+    pub(crate) checker_access: bool,
     /// The random stream draws come from: the startup stream or the
     /// expanded state's (`random.rs`); `None` outside a search.
     pub draw: Option<Box<dyn crate::random::DrawStream>>,
@@ -168,6 +172,10 @@ impl Machine {
             warn: true,
             warnings: Vec::new(),
             printed: Vec::new(),
+            output_limits: None,
+            output_used: (0, 0),
+            output_failure: None,
+            checker_access: true,
             draw: None,
             draws: 0,
             level: 0,
@@ -209,6 +217,57 @@ impl Machine {
     pub fn set_work_control(&mut self, control: Option<Arc<dyn WorkControl>>) {
         self.heap.set_history_control(control.clone());
         self.work_control = control;
+    }
+
+    /// Disables TLCGet/TLCSet in finite modes without a live checker context.
+    /// Access refuses when reached; an untaken branch remains unevaluated.
+    pub fn deny_checker_access(&mut self) {
+        self.checker_access = false;
+    }
+
+    fn check_finite_access(&self, op: dive_ir::StdOp) -> Result<(), Error> {
+        if !self.checker_access
+            && op.impure()
+            && !matches!(op, dive_ir::StdOp::TlcPrint | dive_ir::StdOp::TlcPrintT)
+        {
+            return Err(Error::unsupported(format!(
+                "{}: native finite mode runtime effect is unsupported",
+                op.qualified_name()
+            )));
+        }
+        Ok(())
+    }
+
+    /// Bounds retained Print events and UTF-8 bytes for a finite mode.
+    /// The ordinary checker leaves this unset. Rendering occurs before admission.
+    pub fn set_output_limits(&mut self, events: usize, bytes: usize) {
+        self.output_limits = Some((events, bytes));
+    }
+
+    /// The first output-admission limit reached by this machine.
+    #[must_use]
+    pub const fn output_failure(&self) -> Option<&'static str> {
+        self.output_failure
+    }
+
+    pub(crate) fn print(&mut self, text: String) -> Result<(), Error> {
+        if let Some((events, bytes)) = self.output_limits {
+            let total = self.output_used.1.checked_add(text.len());
+            let failure = if self.output_used.0 >= events {
+                Some("simulation output event bound")
+            } else if total.is_none_or(|total| total > bytes) {
+                Some("simulation output byte bound")
+            } else {
+                None
+            };
+            if let Some(failure) = failure {
+                self.output_failure.get_or_insert(failure);
+                return Err(Error::unsupported(failure));
+            }
+            self.output_used = (self.output_used.0 + 1, total.unwrap_or(bytes));
+        }
+        self.printed.push(text);
+        Ok(())
     }
 
     /// Spends `n` units of fuel: one per element a loop visits.
@@ -704,6 +763,7 @@ impl Machine {
                 args,
                 repeatable_args,
             } => {
+                self.check_finite_access(*op)?;
                 // A value printed keeps its form: TLC prints an interval as
                 // `1..3` (`crate::print`), and draws from a lazy `[S -> T]`
                 // one value per component (`crate::random`).
@@ -741,6 +801,7 @@ impl Machine {
                 crate::stdlib::call(self, *op, &a)
             }
             Node::LibHo(op, args) => {
+                self.check_finite_access(*op)?;
                 let mut a = Vec::with_capacity(args.len());
                 for x in args {
                     a.push(match x {

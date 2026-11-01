@@ -183,6 +183,18 @@ completion rules or report/native trace versions. Native plan-backed mode
 integration remains the next implementation step, not acceptance granted by
 this budget increment.
 
+### Native finite modes
+
+The first native simulation and DFID integrations use the existing compiled
+Plan/Machine and common independent reports/word validation. Both profiles have
+explicit core APIs and CLI engine selection; defaults remain reference. Finite
+Auto selection is static only, with isolated Recipe-backed feasibility binding
+and production compilation after actual assumptions. DFID retains the existing
+visitation/drain contract, exact guards and batch arena cleanup. See ADR 0139.
+This is implementation of #721's bounded slice, not full M3 acceptance: broader
+effects, worker scaling, native recovery/storage integration and release-wide
+mode qualification remain open.
+
 ## 2. M0 pass and kill criteria
 
 **Pass.** All must hold.

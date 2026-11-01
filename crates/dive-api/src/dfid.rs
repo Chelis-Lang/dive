@@ -96,6 +96,23 @@ impl DfidReport {
     reason = "keep report provenance and certification in one path"
 )]
 pub fn dfid_file(req: &DfidRequest) -> Result<DfidReport, crate::ApiError> {
+    dfid_file_engine(req, crate::Engine::Reference)
+}
+
+/// Runs DFID with an explicit execution engine and common independent witnesses.
+/// `Core` never falls back; `Auto` selects a whole reference run only before
+/// execution, and reports the static reason. A reached native refusal stops.
+///
+/// # Errors
+/// The same budget and ownership failures as [`dfid_file`].
+#[allow(
+    clippy::too_many_lines,
+    reason = "engine selection and independent certification share one DFID report path"
+)]
+pub fn dfid_file_engine(
+    req: &DfidRequest,
+    engine: crate::Engine,
+) -> Result<DfidReport, crate::ApiError> {
     let seed = req.seed.unwrap_or_else(dive_stdlib::random::fresh_seed);
     let config = req
         .config
@@ -113,6 +130,7 @@ pub fn dfid_file(req: &DfidRequest) -> Result<DfidReport, crate::ApiError> {
     };
     let mut document = json!({
         "schema_version": DFID_SCHEMA_VERSION, "command": "dfid", "profile": profile,
+        "engine_requested": engine.name(), "engine": "none", "engine_fallback": null,
         "file": req.file.display().to_string(), "config": config.display().to_string(),
         "exhaustive": false, "model_proved": false, "violation_validated": false,
         "result": "internal-error", "termination": "unavailable", "tlc_code": null,
@@ -205,10 +223,71 @@ pub fn dfid_file(req: &DfidRequest) -> Result<DfidReport, crate::ApiError> {
     }
     let mut options = Options::new(check, req.max_level);
     options.worker_seeds.clone_from(&req.worker_seeds);
+    let mut native = None;
+    let mut setup_failure = None;
+    let mut fallback = None;
+    let mut engine_used = if engine == crate::Engine::Reference {
+        crate::Engine::Reference
+    } else {
+        crate::Engine::Core
+    };
+    if engine != crate::Engine::Reference {
+        if let Some(outcome) = dive_check::dfid::preflight(model.model(), &options) {
+            setup_failure = Some(outcome);
+        } else {
+            match crate::core_modes::Native::probe(
+                &model,
+                seed,
+                if req.compat_tlc {
+                    dive_stdlib::random::RandomMode::Tlc
+                } else {
+                    dive_stdlib::random::RandomMode::Dive
+                },
+                &run_budget.budget,
+                control.clone(),
+            ) {
+                Ok(prepared) => {
+                    if engine == crate::Engine::Auto
+                        && let Some(reason) = prepared.selection_refusal()
+                    {
+                        fallback = Some(reason.to_owned());
+                        engine_used = crate::Engine::Reference;
+                    } else {
+                        native = Some(prepared);
+                    }
+                }
+                Err(crate::core_modes::SetupError::Unsupported(reason))
+                    if engine == crate::Engine::Auto =>
+                {
+                    fallback = Some(reason);
+                    engine_used = crate::Engine::Reference;
+                }
+                Err(error) => setup_failure = Some(error.dfid()),
+            }
+        }
+    }
+    document["engine"] = json!(engine_used.name());
+    document["engine_fallback"] = fallback.map_or(
+        Value::Null,
+        |reason| json!({"stage": "static", "reason": reason}),
+    );
+    document["options"]["execution_scope"] = json!(if engine_used == crate::Engine::Core {
+        "compiled-plan-dfid"
+    } else {
+        "native-dfid"
+    });
     let executed = std::thread::scope(|scope| {
         std::thread::Builder::new()
             .stack_size(dive_eval::RECOMMENDED_STACK)
-            .spawn_scoped(scope, || dive_check::dfid::check(model.model(), &options))
+            .spawn_scoped(scope, || {
+                if let Some(failure) = setup_failure {
+                    crate::core_modes::dfid::empty(failure)
+                } else if let Some(native) = &mut native {
+                    native.dfid(model.model(), &options)
+                } else {
+                    dive_check::dfid::check(model.model(), &options)
+                }
+            })
             .map_err(|e| (0u8, format!("cannot start DFID worker: {e}")))?
             .join()
             .map_err(|_| {

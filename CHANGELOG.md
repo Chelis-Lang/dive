@@ -1,5 +1,11 @@
 # Changelog
 
+- Add compiled native finite simulation and DFID in both profiles through explicit
+  APIs and `--engine core|auto`. Reference remains the default; Auto selects a
+  whole finite backend before execution and reached native refusals never retry.
+  Keep independent word validation, truthful sampling/completion, shared producer
+  output budgets and separate canonical keys/construction views.
+
 - Support exact native safety membership with complete collision-resolving state
   identities and opt-in predecessor spill, preserving ordered results and
   independently replayed concrete words. Explicit storage validation and cleanup
