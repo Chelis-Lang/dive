@@ -45,6 +45,27 @@ fn run_with_name(
 }
 
 #[test]
+fn configured_view_refuses_without_assumption_init_or_step_effects() {
+    for mode in [RandomMode::Tlc, RandomMode::Dive] {
+        let report = run_with_name(
+            "SimView.tla",
+            include_str!("fixtures/SimView.tla"),
+            include_str!("fixtures/SimView.cfg"),
+            &Options::new(7, mode, 1, 1),
+            |_| {},
+        );
+        assert!(matches!(report.outcome,
+            Outcome::Unsupported(ref feature) if feature == "simulation VIEW declarations"
+        ));
+        assert_eq!(report.stage, "preflight");
+        assert_eq!(report.generated, 0);
+        assert_eq!(report.traces_started, 0);
+        assert_eq!(report.runtime_output, []);
+        assert!(report.traces.is_empty());
+    }
+}
+
+#[test]
 fn exhausted_budgets_keep_partial_statistics_and_refuse() {
     let source = "---- MODULE M ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x' = x + 1\n====\n";
     let mut options = Options::new(0, RandomMode::Tlc, 10, 1);

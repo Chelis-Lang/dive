@@ -34,7 +34,11 @@ pub struct ActionFlow {
 }
 
 impl ActionFlow {
-    pub(crate) fn new(model: &Model) -> Result<Self, dive_eval::EvalError> {
+    /// Builds the source-location inventory for a validated bound model.
+    ///
+    /// # Errors
+    /// Foreign predicates or duplicate bound action identities.
+    pub fn new(model: &Model) -> Result<Self, dive_eval::EvalError> {
         model
             .evaluator
             .validate_model_context(&model.ir, &model.names)?;
@@ -95,11 +99,11 @@ impl ActionFlow {
         Ok(flow)
     }
 
-    pub(crate) fn record(
-        &mut self,
-        previous: usize,
-        chosen: usize,
-    ) -> Result<(), dive_eval::EvalError> {
+    /// Records one chosen transition using original bound action identities.
+    ///
+    /// # Errors
+    /// Unknown action identities or counter overflow.
+    pub fn record(&mut self, previous: usize, chosen: usize) -> Result<(), dive_eval::EvalError> {
         // Init callbacks return an action from model.init_actions; chosen actions
         // come directly from model.actions. new() maps both vectors and checks
         // uniqueness. The private map stays unchanged throughout sampling.

@@ -45,6 +45,14 @@ impl SimulationHost {
         })
     }
 
+    pub(crate) fn remaining_output(&self) -> (usize, usize) {
+        let output = self.output.lock().unwrap_or_else(PoisonError::into_inner);
+        (
+            self.max_events.saturating_sub(output.events),
+            self.max_bytes.saturating_sub(output.bytes),
+        )
+    }
+
     pub(crate) fn initial(&self) -> Initial<'_> {
         let mut phase = self
             .init_random
