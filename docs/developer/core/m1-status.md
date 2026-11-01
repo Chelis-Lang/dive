@@ -20,6 +20,17 @@ capabilities with explicit refusal boundaries, not complete value-method or
 liveness parity. Store/native byte accounting and broader history producers
 remain unfinished.
 
+Focused candidate-error replay additionally covers typed assertions, division
+and TLC arithmetic overflow only after actual controlled fresh word/diagnostic
+execution. A different or unproved diagnostic lifetime now refuses without a
+formal word or TLC class. Independent review rejected the initial 92-agreement
+claim: two pinned minimal controls have opposite primary/diagnostic module
+errors sharing physical 255. The corrected scope has 92 valid focused words,
+64 strict classified-oracle comparisons and 28 explicit ambiguous non-agreements.
+Only the owned2132/14 assertion classifier route is admitted; shared 255 streams
+remain Unclassified (#697). These controls do not refresh the source833 census
+below; unproved receiver lifetimes, VIEW and temporal candidate scopes stay open.
+
 ### Current checkpoint: implemented versus unqualified
 
 | Area | Current state |

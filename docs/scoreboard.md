@@ -1,5 +1,16 @@
 # Scoreboard
 
+Focused candidate-error controls require actual controlled fresh word and
+diagnostic replay before a verified candidate result is published. The 92
+fixture/profile/engine/worker words validate, including `ErPropSeen`; 64 have
+strict classified-oracle agreement and 28 retain Unclassified oracle streams.
+Primary NONE 2178/2179 and physical 255 do not prove diagnostic class. Only the
+strict owned assertion 2132/14 classifier route is admitted. Two minimal pinned
+primary/diagnostic mismatch controls now require explicit producer refusal.
+The rejected earlier 92-agreement claim is retracted, and historical census
+totals are unchanged. VIEW, temporal candidate lifetimes, top-level non-Boolean
+roles and context-only initial errors remain open; broader #697 is not closed.
+
 The `word-relative-liveness` microcorpus pins three TLC model results and three
 SANY modules for actual-word property attribution (ADR 0126, #489). JSON/human/Rust
 name lists agree; a different oracle list is accepted only after fresh independent

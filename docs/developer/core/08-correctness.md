@@ -455,3 +455,48 @@ non-Boolean role results, global visited/alias obligations, unsupported material
 fingerprint demand, effects and temporal models remain refused. This is focused
 word evidence, not a fresh census or closure of the remaining error families.
 Native version-4 reader migration and consumer notice are required before landing.
+
+The initial typed-family proposal at `aca6fa43` was rejected by independent
+review. Its 92 positive fixture runs did not prove the general diagnostic
+contract, and the claim of 92 qualified pinned agreements is retracted.
+`candidate-diagnostic-mismatch` retains two minimal sources, configurations,
+normal pinned stdout and hash-bound oracle facts before the correction:
+`LaterDivDiagnosticOverflow` reports primary NONE 2179 but the separate unchanged
+jar's `TLC.process()` diagnostic returns 2178; the symmetric
+`LaterOverflowDiagnosticDiv` reports primary NONE 2178 but returns 2179. Both
+normal processes exit 255. The bridge is diagnostic evidence only, not a
+canonical deciding-class golden. Those normal streams remain unclassified.
+Both former producers published verified version4 words that fresh independent
+replay refuted. Primary source framing and a shared physical exit do not prove
+the diagnostic class. Subsequent admission requires actual controlled fresh
+word and diagnostic execution; an unproved or different lifecycle must refuse.
+
+The corrected producer requires a fresh controlled source/configuration replay
+before retaining a verified candidate class or publishing its word. It uses the
+actual file check's IR, configuration, options and armed budget. Prefix and
+terminal runtimes are fresh; neither a caller's evaluator nor a serialized claim
+supplies authority. Invalid or unproved diagnostic execution yields unsupported
+with no formal word or TLC class, preserving actual search statistics/output and
+the observed primary cause in notes. Owned interruption/resource/internal errors
+keep their actual transports. Different diagnostic causes are not numerically
+retagged into a new claimed result.
+
+The typed assertion/division/ENABLED/TLC arithmetic controls and `ErPropSeen`
+retain 92 independently valid fixture/profile/engine/worker words. Of those,
+64 comparisons have a classified pinned oracle and must match every compared
+observable. The remaining 28 implied-action division/overflow observations
+remain explicit non-agreements because their canonical oracle streams are
+Unclassified. Independent word validity cannot invent the oracle's deciding
+class. The source833 whole-census totals are not refreshed.
+
+The owned classifier admits only the unambiguous 2132/physical14 assertion
+family under canonical 2113 framing and the demonstrated completed-Init,
+finite-word and replay-stack lifecycle. Admission is closed to the demonstrated
+warning-free code/severity pairs, with canonical framing on every launch,
+progress, phase and state message. Unrelated/trailing causes at any severity,
+additional errors, altered parents/classes/order and mutable flat transcripts
+supply no authority. Codes 2178 and 2179 share255 and receive no NONE promotion, even when
+the primary child and an independently valid native word agree. Context-only
+initial errors (#685), old Init ownership rules, VIEW, temporal candidate and
+unproved newness/receiver lifetimes retain their existing boundaries. Issue #697
+tracks the still-ambiguous cases; it is not closed by this bounded repair.
