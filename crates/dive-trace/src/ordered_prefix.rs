@@ -1,4 +1,4 @@
-//! Independent finite admission history for the first noninitial source only.
+//! Independent bounded source admission and actual diagnostic execution.
 
 use dive_eval::{EvalError, ExceptionKind, HostControl};
 use dive_model::Model;
@@ -21,7 +21,7 @@ impl InvariantErrorClass {
     pub fn reported_code(&self) -> u32 {
         self.reported
     }
-    /// The actual diagnostic exception's deciding identity.
+    /// The deciding identity after actual diagnostic completion or exception.
     #[must_use]
     pub fn deciding_code(&self) -> u32 {
         self.deciding
@@ -82,8 +82,10 @@ pub(crate) fn view(
     })
 }
 
-fn preflight(model: &Model) -> Option<String> {
-    if let Some(feature) = model.unsupported.first() {
+fn preflight(model: &Model, invariant: bool) -> Option<String> {
+    if let Some(feature) = model.unsupported.iter().find(|feature| {
+        !(invariant && feature.kind == dive_model::UnsupportedKind::TemporalProperty)
+    }) {
         return Some(format!(
             "ordered prefix unsupported model feature: {}",
             feature.feature
@@ -92,7 +94,7 @@ fn preflight(model: &Model) -> Option<String> {
     if model.symmetry.is_some()
         || model.alias.is_some()
         || !model.temporals.is_empty()
-        || !model.implied_temporals.is_empty()
+        || !model.implied_temporals.is_empty() && !invariant
     {
         return Some(
             "ordered prefix excludes unsupported roles, symmetry, ALIAS and temporal obligations"
@@ -100,11 +102,12 @@ fn preflight(model: &Model) -> Option<String> {
         );
     }
     let impure = |pred: &dive_model::Pred| {
-        model
-            .ir
-            .node(pred.expr)
-            .effects
-            .intersects(dive_ir::Effects::IMPURE)
+        (!invariant
+            && model
+                .ir
+                .node(pred.expr)
+                .effects
+                .intersects(dive_ir::Effects::IMPURE))
             || model.evaluator.scope_has_effects(&pred.scope)
     };
     if model
@@ -112,11 +115,12 @@ fn preflight(model: &Model) -> Option<String> {
         .iter()
         .chain(&model.actions)
         .any(|action| {
-            model
-                .ir
-                .node(action.expr())
-                .effects
-                .intersects(dive_ir::Effects::IMPURE)
+            (!invariant
+                && model
+                    .ir
+                    .node(action.expr())
+                    .effects
+                    .intersects(dive_ir::Effects::IMPURE))
                 || model.evaluator.action_shares_side_effects(action)
         })
         || model
@@ -134,6 +138,68 @@ fn preflight(model: &Model) -> Option<String> {
     None
 }
 
+fn simple_recurrences(model: &Model, initial: &State) -> bool {
+    model.implied_temporals.iter().all(|property| {
+        let pred = &property.pred;
+        if pred.scope.has_substitutions() {
+            return false;
+        }
+        let mut expression = pred.expr;
+        for _ in 0..16 {
+            let definition = match model.ir.expr(expression) {
+                dive_ir::Expr::Def(definition) => *definition,
+                dive_ir::Expr::Apply {
+                    callee: dive_ir::OpRef::Def(definition),
+                    args,
+                } if args.is_empty() => *definition,
+                _ => break,
+            };
+            if model.evaluator.redirected(definition) != definition
+                || model.evaluator.is_value_override(definition)
+            {
+                return false;
+            }
+            let definition = model.ir.def(definition);
+            if !definition.params.is_empty() || definition.recursive || definition.std.is_some() {
+                return false;
+            }
+            expression = definition.body;
+        }
+        let dive_ir::Expr::Always(eventually) = model.ir.expr(expression) else {
+            return false;
+        };
+        let dive_ir::Expr::Eventually(atom) = model.ir.expr(*eventually) else {
+            return false;
+        };
+        let dive_ir::Expr::Builtin {
+            op: dive_ir::BuiltinOp::Eq,
+            args,
+        } = model.ir.expr(*atom)
+        else {
+            return false;
+        };
+        if args.len() != 2 {
+            return false;
+        }
+        let pair = (model.ir.expr(args[0]), model.ir.expr(args[1]));
+        let (variable, literal) = match pair {
+            (dive_ir::Expr::Var { var, primed: false }, dive_ir::Expr::Num(literal))
+            | (dive_ir::Expr::Num(literal), dive_ir::Expr::Var { var, primed: false }) => {
+                (*var, literal)
+            }
+            _ => return false,
+        };
+        // Planning is a single nonconstant state recurrence. Its only source
+        // atom is total on the initial source, before this source's safety
+        // error prevents any row completion or temporal analysis.
+        literal.parse::<i32>().is_ok()
+            && matches!(
+                initial.get(variable.index()),
+                Some(Some(dive_value::Value::Int(_)))
+            )
+    })
+}
+
 #[allow(
     clippy::too_many_lines,
     reason = "one finite replay retains its actual admission and diagnostic history"
@@ -146,22 +212,29 @@ fn replay(
     matches: impl FnOnce(Site, &EvalError, Option<&str>, Option<&State>) -> bool,
 ) -> Result<(Validation, Option<u32>), EvalError> {
     let refuse = |reason| (Validation::Unsupported(reason), None);
-    if let Some(reason) = preflight(model) {
+    let invariant = matches!(trace.ending, Ending::InvariantError { .. });
+    if let Some(reason) = preflight(model, invariant) {
         return Ok(refuse(reason));
     }
-    let expected_len = if matches!(trace.ending, Ending::InvariantError { .. }) {
-        3
-    } else {
-        2
-    };
-    if trace.states.len() != expected_len {
+    let source_index = trace
+        .states
+        .len()
+        .checked_sub(if invariant { 2 } else { 1 });
+    let Some(source) = source_index.and_then(|index| trace.states.get(index)) else {
         return Ok(refuse(
-            "ordered prefix requires Init and its first admitted noninitial source".into(),
+            "ordered replay needs an initial and terminal source".into(),
         ));
+    };
+    let Some(initial) = trace.states.first() else {
+        return Ok(refuse("ordered replay needs an initial state".into()));
+    };
+    if !model.implied_temporals.is_empty()
+        && (source != initial || !simple_recurrences(model, initial))
+    {
+        return Ok(refuse("invariant temporal configuration requires a first-source safety error and pure state recurrences".into()));
     }
-    let initial = &trace.states[0];
-    let source = &trace.states[1];
     let mut history = History::default();
+    history.invariant = invariant;
     let init = Driver {
         initial: true,
         model,
@@ -174,36 +247,55 @@ fn replay(
     if !matches!(event, Event::End) {
         return Ok((event_validation(event), None));
     }
-    if emitted != 1 || history.admitted.first() != Some(initial) || history.admitted.len() != 1 {
+    if if invariant {
+        emitted == 0 || !history.admitted.contains(initial)
+    } else {
+        emitted != 1 || history.admitted.first() != Some(initial) || history.admitted.len() != 1
+    } {
         return Ok(refuse(
-            "ordered prefix needs exactly one exhausted, admitted Init emission".into(),
+            if invariant {
+                "ordered invariant prefix needs exhausted Init and an admitted initial word state"
+            } else {
+                "ordered prefix needs exactly one exhausted, admitted Init emission"
+            }
+            .into(),
         ));
     }
-    let first = Driver {
-        initial: false,
-        model,
-        source: initial,
-        level: 1,
-        host,
-        control,
+    // The complete admission ledger is independently reconstructed. Word rows
+    // do not assert global newness or omit off-word siblings from the replay.
+    let mut index = 0;
+    let (terminal_source, terminal_level) = loop {
+        let Some(current) = history.admitted.get(index).cloned() else {
+            return Ok((
+                invalid("terminal source was not independently admitted"),
+                None,
+            ));
+        };
+        let level = history.levels[index];
+        if &current == source {
+            break (current, level);
+        }
+        let driver = Driver {
+            initial: false,
+            model,
+            source: &current,
+            level,
+            host,
+            control,
+        };
+        let (event, _) = driver.primary_history(false, Some(&mut history))?;
+        if !matches!(event, Event::End) {
+            return Ok((event_validation(event), None));
+        }
+        index += 1;
     };
-    let (event, _) = first.primary_history(false, Some(&mut history))?;
-    if !matches!(event, Event::End) {
-        return Ok((event_validation(event), None));
-    }
-    if history.admitted.get(1) != Some(source) {
-        return Ok((
-            invalid(
-                "terminal source is not the independently observed first admitted noninitial source",
-            ),
-            None,
-        ));
-    }
+    // Equality selects the actual admitted object, never the word decoder's
+    // separately constructed receiver or its normalization lifetime.
     let terminal = Driver {
         initial: false,
         model,
-        source,
-        level: 2,
+        source: &terminal_source,
+        level: terminal_level,
         host,
         control,
     };
@@ -225,16 +317,31 @@ fn replay(
             None,
         ));
     }
-    if error.value_method().is_some() || error.exception_kind().is_none() {
+    // A primary invariant's value-method receiver does not decide its class:
+    // insertion can make the diagnostic skip it entirely. Only an actually
+    // repeated diagnostic receiver requires its separate lifetime proof.
+    if !invariant && (error.value_method().is_some() || error.exception_kind().is_none()) {
         return Ok(refuse(
             "ordered prefix primary receiver/constructor lifetime is unproved".into(),
         ));
     }
-    // The primary insertion (including its failing invariant candidate) is
-    // retained. Diagnostic generation uses the very same private runtime.
     let diagnostic = terminal.diagnostic_history(&mut history)?;
-    let Event::Error { error, .. } = diagnostic else {
-        return Ok((event_validation(diagnostic), None));
+    let error = match diagnostic {
+        Event::Error { error, .. } => error,
+        // TLC retains the original invariant wrapper when diagnostic execution
+        // completes or quietly stops at a false predicate/incomplete candidate.
+        Event::End
+        | Event::Failed {
+            check: Check::Invariant | Check::ImpliedAction,
+            ..
+        }
+        | Event::Partial { .. }
+            if invariant =>
+        {
+            terminal.poll()?;
+            return Ok((Validation::Valid, Some(2111)));
+        }
+        other => return Ok((event_validation(other), None)),
     };
     if error.value_method().is_some() {
         return Ok(refuse(

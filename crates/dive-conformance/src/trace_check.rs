@@ -225,14 +225,8 @@ fn invariant_header(
     doc: &TraceDoc,
     result: &OracleResult,
     reported: Option<&Ending>,
+    convention: dive_api::ExitConvention,
 ) -> bool {
-    if reported
-        == Some(&Ending::Error {
-            ec: Some("TLC_INVARIANT_EVALUATION_FAILED".into()),
-        })
-    {
-        return true;
-    }
     let Ok((proof, Some(class))) = spec.invariant_error_class(doc, None) else {
         return false;
     };
@@ -240,7 +234,11 @@ fn invariant_header(
         return false;
     };
     proof.validation.is_valid()
-        && result.verdict_code == Some(code)
+        && crate::dive::successor_invariant::canonical_result(
+            result,
+            class.deciding_code(),
+            convention,
+        )
         && crate::tlc::codes::ec_name(code).is_some_and(|name| {
             reported
                 == Some(&Ending::Error {
@@ -259,6 +257,36 @@ pub fn validate_counterexample(
     result: &OracleResult,
     golden: &OracleResult,
 ) -> TraceCheck {
+    validate_counterexample_with_exit_convention(
+        spec,
+        result,
+        golden,
+        dive_api::ExitConvention::Tlc,
+    )
+}
+
+/// Validates a word and its error report under an explicitly selected process
+/// status convention; serialized report metadata cannot select that convention.
+///
+/// ```no_run
+/// # fn native(spec: &dive_api::trace::SpecModel,
+/// # result: &dive_conformance::tlc::result::OracleResult) {
+/// let proof = dive_conformance::trace_check::validate_counterexample_with_exit_convention(
+///     spec, result, result, dive_api::ExitConvention::Native,
+/// );
+/// # let _ = proof; }
+/// ```
+#[must_use]
+#[allow(
+    clippy::too_many_lines,
+    reason = "one admission keeps report identity, word replay and deadlock qualification ordered"
+)]
+pub fn validate_counterexample_with_exit_convention(
+    spec: &SpecModel,
+    result: &OracleResult,
+    golden: &OracleResult,
+    convention: dive_api::ExitConvention,
+) -> TraceCheck {
     let Some(json) = result.trace.as_ref().and_then(|t| t.json.as_ref()) else {
         return TraceCheck::no("the result carries no counterexample document");
     };
@@ -276,7 +304,7 @@ pub fn validate_counterexample(
         // raised it; the report names TLC's site wrapper. Independent
         // validation below must establish the exact named claim.
         Some(Ending::InvariantError { .. }) => {
-            invariant_header(spec, &doc, result, reported.as_ref())
+            invariant_header(spec, &doc, result, reported.as_ref(), convention)
         }
         Some(Ending::NextStateError { ec, endpoint }) => {
             let expected = match endpoint.deciding_code() {
@@ -296,7 +324,13 @@ pub fn validate_counterexample(
         }
         Some(Ending::ViewSourceError { ec, endpoint }) => {
             let expected = candidate_error_header(ec, Some(endpoint.deciding_code()));
-            reported == expected && expected.is_some()
+            reported == expected
+                && expected.is_some()
+                && crate::dive::successor_invariant::canonical_result(
+                    result,
+                    endpoint.deciding_code(),
+                    convention,
+                )
         }
         Some(Ending::CandidateStateError { ec, endpoint }) => {
             let expected = candidate_error_header(ec, endpoint.deciding_code());

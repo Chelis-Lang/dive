@@ -208,13 +208,18 @@ fn golden_controls_route_the_actual_mode_and_worker_contract() {
 )]
 fn named_invariant_error_claims_require_independent_cause_and_order_proof() {
     use dive_api::{CheckRequest, Engine, check_file_engine};
-    use dive_conformance::dive::{CheckMapping, check_result};
+    use dive_conformance::dive::{CheckMapping, check_result_with_model};
     use dive_conformance::process::ProcessOutcome;
     use dive_conformance::tlc::{messages, result};
     use std::time::Duration;
 
     let fixtures = repo().join("crates/dive-api/tests/fixtures/core-lib");
-    for name in ["ErAssertInv", "ErBagCardNonBag", "ErBagCupNonBag"] {
+    for name in [
+        "ErAssertInv",
+        "ErBagCardNonBag",
+        "ErBagCupNonBag",
+        "ErBagSqNonFcn",
+    ] {
         let file = fixtures
             .join("specs")
             .join(name)
@@ -250,8 +255,8 @@ fn named_invariant_error_claims_require_independent_cause_and_order_proof() {
                 Engine::Core,
             )
             .expect("native check");
-            let mut report = native.to_json();
-            let exit_code = native.exit_code();
+            let mut report = native.to_json_with_exit_convention(dive_api::ExitConvention::Tlc);
+            let exit_code = native.exit_code_for(dive_api::ExitConvention::Tlc);
             report["exit_code"] = serde_json::json!(exit_code);
             let outcome = ProcessOutcome {
                 exit_code: Some(i32::from(exit_code)),
@@ -260,9 +265,6 @@ fn named_invariant_error_claims_require_independent_cause_and_order_proof() {
                 stdout: report.to_string(),
                 stderr: String::new(),
                 elapsed: Duration::ZERO,
-            };
-            let CheckMapping::Result(result) = check_result(&outcome, compat_tlc) else {
-                panic!("native report not classified: {report}")
             };
             let spec = SpecModel::load(
                 &file,
@@ -274,6 +276,10 @@ fn named_invariant_error_claims_require_independent_cause_and_order_proof() {
                 },
             )
             .expect("model");
+            let CheckMapping::Result(result) = check_result_with_model(&outcome, compat_tlc, &spec)
+            else {
+                panic!("native report not classified: {report}")
+            };
             let valid = validate_counterexample(&spec, &result, &golden);
             assert!(valid.validated, "{name}: {}", valid.detail);
             let doc = TraceDoc::from_json(&report["counterexample"]["trace"]).expect("trace");

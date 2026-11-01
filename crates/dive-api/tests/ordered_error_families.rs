@@ -96,7 +96,7 @@ fn ten_retained_cases_validate_in_both_engines_profiles_and_worker_counts() -> T
 }
 
 #[test]
-fn nearby_view_module_errors_do_not_inherit_the_bounded_runtime_error_proof() -> TestResult {
+fn view_module_errors_require_actual_primary_and_diagnostic_execution() -> TestResult {
     for kind in ["Assert", "DivZero", "Enabled", "Overflow"] {
         let name = format!("ErView{kind}");
         let file = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(format!(
@@ -129,19 +129,32 @@ fn nearby_view_module_errors_do_not_inherit_the_bounded_runtime_error_proof() ->
                     engine,
                 )?
                 .to_json();
-                if report["verdict"] == "unsupported" {
-                    assert!(report["counterexample"].is_null());
-                    continue;
-                }
                 let word = TraceDoc::from_json(&report["counterexample"]["trace"])?;
-                assert_eq!(word.to_json()["version"], 1, "{name}/{engine:?}");
-                assert!(
-                    matches!(
-                        model.try_validate(&word)?.validation,
-                        Validation::Unsupported(_)
-                    ),
+                assert_eq!(word.to_json()["version"], 6, "{name}/{engine:?}");
+                assert_eq!(
+                    model.try_validate(&word)?.validation,
+                    Validation::Valid,
                     "{name}/{engine:?}"
                 );
+                assert_eq!(report["tlc"]["verified"], true);
+                let mut legacy = word.to_json();
+                legacy["version"] = json!(1);
+                legacy["ending"] = json!({"kind":"error","ec":report["tlc"]["name"]});
+                let legacy = TraceDoc::from_json(&legacy)?;
+                assert!(matches!(
+                    model.try_validate(&legacy)?.validation,
+                    Validation::Unsupported(_)
+                ));
+                for pointer in ["/ending/endpoint/reported", "/ending/endpoint/deciding"] {
+                    let mut forged = word.to_json();
+                    *forged.pointer_mut(pointer).ok_or("endpoint")? = json!(2111);
+                    assert!(
+                        !model
+                            .try_validate(&TraceDoc::from_json(&forged)?)?
+                            .validation
+                            .is_valid()
+                    );
+                }
             }
         }
     }

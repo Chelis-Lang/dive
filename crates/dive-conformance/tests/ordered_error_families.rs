@@ -12,7 +12,11 @@ use std::time::Duration;
 type TestResult = Result<(), Box<dyn std::error::Error>>;
 
 #[test]
-fn ten_family_shadows_validate_without_promoting_unclassified_tlc_streams() -> TestResult {
+#[allow(
+    clippy::too_many_lines,
+    reason = "one fixture matrix checks both profiles, engines, exit conventions and independent words"
+)]
+fn error_family_shadows_preserve_the_pinned_oracle_classification() -> TestResult {
     let root =
         PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../dive-check/tests/fixtures/errors");
     for name in [
@@ -22,6 +26,10 @@ fn ten_family_shadows_validate_without_promoting_unclassified_tlc_streams() -> T
         "ErViewNonBoolIf",
         "ErViewNonEnum",
         "ErViewTypeErr",
+        "ErViewAssert",
+        "ErViewDivZero",
+        "ErViewEnabled",
+        "ErViewOverflow",
         "ErInvConstrained",
         "ErInvReplayError",
         "ErConstrNonBool",
@@ -41,8 +49,20 @@ fn ten_family_shadows_validate_without_promoting_unclassified_tlc_streams() -> T
                 ..RunFacts::default()
             },
         );
-        assert_eq!(oracle.verdict, Verdict::Unclassified, "{name}");
+        assert_eq!(
+            oracle.verdict,
+            match name {
+                "ErViewAssert" => Verdict::AssertionFailure,
+                "ErViewDivZero" | "ErViewEnabled" => Verdict::EvaluationError,
+                "ErViewOverflow" => Verdict::Overflow,
+                _ => Verdict::Unclassified,
+            },
+            "{name}"
+        );
         for compat_tlc in [false, true] {
+            if name == "ErViewOverflow" && !compat_tlc {
+                continue;
+            }
             let model = SpecModel::load(
                 &file,
                 &file.with_extension("cfg"),
@@ -67,9 +87,11 @@ fn ten_family_shadows_validate_without_promoting_unclassified_tlc_streams() -> T
                         },
                         engine,
                     )?;
-                    let wire = report.to_json();
+                    let wire = report.to_json_with_exit_convention(dive_api::ExitConvention::Tlc);
                     let outcome = ProcessOutcome {
-                        exit_code: Some(i32::from(report.exit_code())),
+                        exit_code: Some(i32::from(
+                            report.exit_code_for(dive_api::ExitConvention::Tlc),
+                        )),
                         signal: None,
                         timed_out: false,
                         stdout: wire.to_string(),
@@ -88,6 +110,71 @@ fn ten_family_shadows_validate_without_promoting_unclassified_tlc_streams() -> T
                         validate_counterexample(&model, &actual, &oracle).validated,
                         "{name}/{engine:?}"
                     );
+                    if name.starts_with("ErView") {
+                        assert!(matches!(
+                            dive_conformance::dive::check_result(&outcome, compat_tlc),
+                            CheckMapping::Refused(_)
+                        ));
+                        let mut forged_wire = wire.clone();
+                        forged_wire["tlc"]["exit_status"] = serde_json::json!(76);
+                        forged_wire["exit_code"] = serde_json::json!(76);
+                        let mut forged_outcome = outcome.clone();
+                        forged_outcome.exit_code = Some(76);
+                        forged_outcome.stdout = forged_wire.to_string();
+                        assert!(matches!(
+                            check_result_with_model(&forged_outcome, compat_tlc, &model),
+                            CheckMapping::Refused(_)
+                        ));
+                        let mut forged_result = actual.clone();
+                        forged_result.exit_code = Some(76);
+                        forged_result.exit_status = Some("FAILURE_SAFETY_EVAL".into());
+                        assert!(validate_counterexample(&model, &forged_result, &oracle).refuted);
+
+                        let native_wire =
+                            report.to_json_with_exit_convention(dive_api::ExitConvention::Native);
+                        let mut native_outcome = outcome.clone();
+                        native_outcome.exit_code = Some(13);
+                        native_outcome.stdout = native_wire.to_string();
+                        let CheckMapping::Result(native) =
+                            dive_conformance::dive::check_result_with_model_and_exit_convention(
+                                &native_outcome,
+                                compat_tlc,
+                                dive_api::ExitConvention::Native,
+                                &model,
+                            )
+                        else {
+                            return Err(format!("{name}: explicit native report refused").into());
+                        };
+                        assert!(dive_conformance::trace_check::validate_counterexample_with_exit_convention(
+                            &model, &native, &oracle, dive_api::ExitConvention::Native
+                        ).validated);
+                        assert!(matches!(
+                            check_result_with_model(&native_outcome, compat_tlc, &model),
+                            CheckMapping::Refused(_)
+                        ));
+                    }
+                    if oracle.verdict != Verdict::Unclassified {
+                        assert!(
+                            diff_results(
+                                &oracle,
+                                &actual,
+                                CompareContext {
+                                    workers: u32::try_from(workers)?,
+                                    counts_comparable: true,
+                                }
+                            )
+                            .is_empty(),
+                            "{name}/{engine:?}: {:?}",
+                            diff_results(
+                                &oracle,
+                                &actual,
+                                CompareContext {
+                                    workers: u32::try_from(workers)?,
+                                    counts_comparable: true
+                                }
+                            )
+                        );
+                    }
                     pair.push(actual);
                 }
                 assert!(
