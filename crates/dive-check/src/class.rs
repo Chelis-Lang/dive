@@ -350,8 +350,16 @@ pub(crate) fn init_error(
                 })
             })
     });
-    let (code, verified) =
-        sourced_receiver.map_or_else(|| (2103, replay_class_known(&cause)), |_| (2147, true));
+    // A recorded initial-invariant runtime context is not a deciding-class
+    // certificate. In particular InitialTool's pinned stream contains 2102 and
+    // context-only 2103, with no canonical deciding primary (#685). Preserve
+    // generation/module exceptions and actual sourced receiver proof separately.
+    let unproved_context =
+        state.is_some() && site == ErrorSite::Invariant && !cause.is_eval_exception();
+    let (code, verified) = sourced_receiver.map_or_else(
+        || (2103, !unproved_context && replay_class_known(&cause)),
+        |_| (2147, true),
+    );
     verdict(site, code, verified, reported, message, &cause, invariant)
 }
 

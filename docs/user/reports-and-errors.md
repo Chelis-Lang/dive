@@ -48,6 +48,25 @@ original error, output and stopping counts remain available. Both engines and
 both semantic profiles use this proof; report schema and trace versions retain
 their meanings (#680).
 
+An initial invariant can fail with a real underlying error while its printed
+initial-state context and nested-expression stack do not establish a deciding
+TLC class. These reports keep `tlc.verified: false`, the observed wrapper 2103,
+reported context 2102, physical exit 75 and actual stopping counts. They carry
+`counterexample: null` and no `diagnostic_witness` or partial-Init `error_witness`.
+The original cause and recorded initial state remain in the message; a note
+explains that no formal behavior word or deciding-class proof exists. Automation
+must treat the unverified classification as a refusal, even when its numbers
+match another report. For example:
+
+```sh
+dive check crates/dive-api/tests/fixtures/comparison-receiver-unclassified/InitialTool.tla --engine core --compat=tlc --workers 1 --seed 19 --fp 0 --output json
+```
+
+The condition `IF 1 THEN TRUE ELSE FALSE` raises the original GENERAL error.
+Its pinned oracle stream remains Unclassified; no deciding golden is inferred
+from the context-only 2103 stack. Classified initial module exceptions and the
+source-proved 2147 receiver route above keep their existing contracts (#685).
+
 Request `--output json` and retain the whole document, source/configuration,
 resolved options and replay seed. Every public operation now emits report
 `schema_version: 3`, with `command` identifying the operation. `check` also emits

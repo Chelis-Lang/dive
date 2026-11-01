@@ -987,6 +987,18 @@ pub(crate) fn safety_result(
     }
     let prints = !in_init || matches!(verdict, Verdict::EvaluationError { .. });
     let mut r = result(verdict, options, ir);
+    if matches!(
+        &r.verdict,
+        Verdict::EvaluationError {
+            site: dive_check::ErrorSite::Invariant,
+            code: 2103,
+            reported: 2102,
+            verified: false,
+            ..
+        }
+    ) {
+        r.notes.push("The initial invariant's diagnostic context has no proved deciding class or formal behavior word; its original cause/context, physical exit and stopping counts are retained.".into());
+    }
     r.notes.extend(draw_note);
     r.warnings.append(&mut sym.warnings);
     r.notes.extend(sym.note.take());
