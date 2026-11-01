@@ -25,6 +25,16 @@ parent directory for owned transient files. The TLC counterpart is TLC's disk
 state queue. The files are transient and carry no recovery or compatibility
 promise.
 
+The native core's safety implementation uses the same ordered checksummed
+transient queue with paired canonical/original handle rows. A narrow codec
+retains the live append-only Store and issues a private nonreused process token;
+it does not expose a raw handle constructor or serialize Store/history for
+restart. It decodes at most 1,024 state pairs per chunk, outside the encoded
+queue capacity. Full retained-record validation precedes certification and
+cooperates with the actual run owner. Already stopped runs close/clean promptly
+without validating unprocessed records. This implements the existing transient
+scope; core disk membership, temporal storage and recovery remain separate.
+
 **Predecessor log.** `--predecessor-memory-bytes N` and
 `--predecessor-directory DIR` move the parent/ordinal log to a fixed-record
 transient file. A directory without a budget is rejected before any work. This is

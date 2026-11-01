@@ -320,8 +320,6 @@ fn option_refusal(options: &CheckOptions, profile_tlc: bool) -> Option<String> {
         "--action-composition=tlc"
     } else if options.seen_disk.is_some() {
         "spilling the seen set to disk"
-    } else if options.frontier_memory_bytes.is_some() || options.frontier_directory.is_some() {
-        "spilling the frontier to disk"
     } else if options.chaos.is_some() {
         "--chaos"
     } else {
@@ -829,7 +827,8 @@ pub(crate) fn safety_result(
     } = *search;
     let Startup { mut sym, startup } = start;
     let budget = &options.budget;
-    let storage_failed = !out.metrics.storage.predecessor_failures.is_empty();
+    let storage_failed = !out.metrics.storage.predecessor_failures.is_empty()
+        || !out.metrics.storage.frontier.failures.is_empty();
     let owned_budget = out.verdict == dive_explore::Verdict::Budget || storage_failed;
     // A reached owned budget publishes observed prefix facts, not a model
     // verdict or an effect/replay parity claim. Preserve that stop and output.
@@ -994,6 +993,18 @@ pub(crate) fn safety_result(
         failures: out.metrics.storage.predecessor_failures.clone(),
         deciding_event_before_failure: out.metrics.storage.predecessor_deciding_event.clone(),
         cleanup_completed: out.metrics.storage.predecessor_cleanup_completed,
+    };
+    let frontier = &out.metrics.storage.frontier;
+    r.frontier = dive_check::FrontierUsage {
+        memory_bytes_per_queue: frontier.memory_bytes_per_queue,
+        max_record_bytes: frontier
+            .memory_bytes_per_queue
+            .map(|_| dive_store::spill::MAX_RECORD_BYTES),
+        peak_retained_bytes: frontier.peak_retained_bytes,
+        retained_bytes: frontier.retained_bytes,
+        spilled_bytes: frontier.spilled_bytes,
+        failures: frontier.failures.clone(),
+        deciding_event_before_failure: frontier.deciding_event_before_failure.clone(),
     };
     if matches!(
         &r.verdict,
@@ -1228,6 +1239,8 @@ pub(crate) fn check(
             exact: options.store == dive_store::StoreMode::Exact,
             predecessor_memory_bytes: options.predecessor_memory_bytes,
             predecessor_directory: options.predecessor_directory.clone(),
+            frontier_memory_bytes: options.frontier_memory_bytes,
+            frontier_directory: options.frontier_directory.clone(),
         },
     );
     if let Some(sample) = sample {

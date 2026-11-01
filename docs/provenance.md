@@ -7,6 +7,13 @@ the existing TLC-semantic BFS port. Native predecessor spill reuses dive's
 existing ADR 0031 fixed-width fallible log and its corruption/cleanup checks;
 no additional upstream algorithm or dependency is introduced.
 
+Native safety frontier spill reuses dive's ADR 0024 ordered checksummed queue
+and preserves the existing deterministic BFS commit order. Its paired handle
+codec is independently implemented for the live append-only core Store; it
+does not port Java serialization or TLC checkpoint structures and grants no
+restart or trace-validation authority. Canonical identity and actual original
+receiver/history rows retain their separate roles.
+
 Every algorithm ported or adapted from another implementation is recorded here. Each entry gives:
 - the `dive` component;
 - the source project, file and class or method, and the version or commit;

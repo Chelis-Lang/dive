@@ -2,8 +2,11 @@
 
 use std::collections::HashMap;
 use std::path::PathBuf;
+use std::sync::Arc;
 
+use dive_core::frontier_codec::FrontierCodec;
 use dive_core::{Error, Handle, Heap};
+use dive_store::spill::{MAX_RECORD_BYTES, OrderedFrontier, SpillError};
 
 /// Storage policies for one native safety search. These do not bound total memory.
 #[derive(Clone, Debug, Default)]
@@ -14,6 +17,10 @@ pub struct Storage {
     pub predecessor_memory_bytes: Option<usize>,
     /// Parent directory for private predecessor files.
     pub predecessor_directory: Option<PathBuf>,
+    /// Resident encoded capacity, independently for current and next frontiers.
+    pub frontier_memory_bytes: Option<usize>,
+    /// Existing parent directory for private frontier files.
+    pub frontier_directory: Option<PathBuf>,
 }
 
 /// Actual native safety storage facts. These describe components, not RSS.
@@ -29,6 +36,262 @@ pub struct Usage {
     pub predecessor_deciding_event: Option<String>,
     /// Explicit predecessor cleanup finished successfully.
     pub predecessor_cleanup_completed: bool,
+    /// Actual encoded frontier component facts; decoded chunks and Store excluded.
+    pub frontier: FrontierUsage,
+}
+
+/// Encoded frontier accounting. This is neither RSS nor a total memory budget.
+#[derive(Clone, Debug, Default)]
+pub struct FrontierUsage {
+    /// Requested resident encoded bytes per queue.
+    pub memory_bytes_per_queue: Option<usize>,
+    /// Peak combined current/next resident encoded capacities.
+    pub peak_retained_bytes: u64,
+    /// Resident encoded bytes after explicit cleanup.
+    pub retained_bytes: u64,
+    /// Confirmed complete writes; failed writes can leave additional partial bytes.
+    pub spilled_bytes: u64,
+    /// Actual codec, read, write, validation or cleanup failures.
+    pub failures: Vec<String>,
+    /// Search event reached before storage prevented certification.
+    pub deciding_event_before_failure: Option<String>,
+}
+
+#[derive(Debug, Default)]
+pub(crate) struct Chunk {
+    pub(crate) identity: Vec<Handle>,
+    pub(crate) original: Vec<Handle>,
+    pub(crate) ids: Vec<u64>,
+}
+
+/// Two ordered encoded queues sharing a fixed live Store/codec owner.
+pub(crate) struct Frontiers {
+    codec: FrontierCodec,
+    variables: usize,
+    memory_bytes: usize,
+    directory: PathBuf,
+    next: OrderedFrontier,
+    current: Option<OrderedFrontier>,
+    next_first: Option<u64>,
+    current_first: Option<u64>,
+    pub(crate) usage: FrontierUsage,
+}
+
+impl Frontiers {
+    pub(crate) fn new(
+        store: &Arc<dive_core::Store>,
+        variables: usize,
+        options: &Storage,
+    ) -> Result<Self, Error> {
+        let memory_bytes = options.frontier_memory_bytes.unwrap_or(0);
+        if variables
+            .checked_mul(16)
+            .and_then(|n| n.checked_add(24))
+            .is_none_or(|n| n > MAX_RECORD_BYTES)
+        {
+            return Err(Error::unsupported(
+                "native frontier row exceeds the encoded record limit",
+            ));
+        }
+        let directory = options
+            .frontier_directory
+            .clone()
+            .unwrap_or_else(std::env::temp_dir);
+        Ok(Self {
+            codec: FrontierCodec::new(Arc::clone(store), variables)?,
+            variables,
+            memory_bytes,
+            next: OrderedFrontier::new(memory_bytes, &directory),
+            directory,
+            current: None,
+            next_first: None,
+            current_first: None,
+            usage: FrontierUsage {
+                memory_bytes_per_queue: Some(memory_bytes),
+                ..FrontierUsage::default()
+            },
+        })
+    }
+
+    pub(crate) fn next_len(&self) -> usize {
+        self.next.len()
+    }
+
+    pub(crate) fn current_len(&self) -> usize {
+        self.current.as_ref().map_or(0, OrderedFrontier::len)
+    }
+
+    fn observe<T>(&mut self, result: Result<T, SpillError>) -> Result<T, Error> {
+        result.map_err(|error| {
+            self.usage.failures.push(error.to_string());
+            Error::internal(error.to_string())
+        })
+    }
+
+    fn refresh(&mut self) {
+        let bytes = self.next.stats().retained_bytes.saturating_add(
+            self.current
+                .as_ref()
+                .map_or(0, |q| q.stats().retained_bytes),
+        );
+        self.usage.retained_bytes = bytes;
+        self.usage.peak_retained_bytes = self.usage.peak_retained_bytes.max(bytes);
+    }
+
+    pub(crate) fn push(
+        &mut self,
+        id: u64,
+        identity: &[Handle],
+        original: &[Handle],
+    ) -> Result<(), Error> {
+        let before = self.next.stats().spilled_bytes;
+        let result = (|| {
+            if self
+                .next_first
+                .is_some_and(|first| first.checked_add(self.next.len() as u64) != Some(id))
+            {
+                return Err(frontier_error("discovery IDs are not consecutive"));
+            }
+            let bytes = self
+                .codec
+                .encode(identity, original)
+                .map_err(frontier_error)?;
+            self.next.push(id, &bytes)
+        })();
+        self.next_first.get_or_insert(id);
+        self.usage.spilled_bytes = self
+            .usage
+            .spilled_bytes
+            .saturating_add(self.next.stats().spilled_bytes.saturating_sub(before));
+        self.refresh();
+        self.observe(result)
+    }
+
+    fn validate(
+        &self,
+        queue: &OrderedFrontier,
+        first: Option<u64>,
+        poll: &(dyn Fn() -> bool + Sync),
+    ) -> Result<bool, SpillError> {
+        for index in 0..queue.len() {
+            if index % 128 == 0 && poll() {
+                return Ok(false);
+            }
+            let (id, bytes) = queue.read(index)?;
+            if first.and_then(|n| n.checked_add(index as u64)) != Some(id) {
+                return Err(frontier_error(
+                    "record discovery ID differs from its ordered position",
+                ));
+            }
+            self.codec.decode(&bytes).map_err(frontier_error)?;
+        }
+        Ok(true)
+    }
+
+    fn close_queue(
+        &mut self,
+        queue: &mut OrderedFrontier,
+        first: Option<u64>,
+        validate: bool,
+        poll: &(dyn Fn() -> bool + Sync),
+    ) -> Result<bool, Error> {
+        let checked = if validate {
+            self.validate(queue, first, poll)
+        } else {
+            Ok(true)
+        };
+        let closed = queue.close();
+        let check = self.observe(checked);
+        let close = self.observe(closed);
+        check.and_then(|complete| close.map(|()| complete))
+    }
+
+    pub(crate) fn advance(&mut self, poll: &(dyn Fn() -> bool + Sync)) -> Result<bool, Error> {
+        if let Some(mut old) = self.current.take()
+            && !self.close_queue(&mut old, self.current_first, true, poll)?
+        {
+            self.refresh();
+            return Ok(false);
+        }
+        let fresh = OrderedFrontier::new(self.memory_bytes, &self.directory);
+        self.current = Some(std::mem::replace(&mut self.next, fresh));
+        self.current_first = self.next_first.take();
+        self.refresh();
+        Ok(true)
+    }
+
+    pub(crate) fn chunk(
+        &mut self,
+        start: usize,
+        end: usize,
+        poll: &(dyn Fn() -> bool + Sync),
+    ) -> Result<Option<Chunk>, Error> {
+        let result = (|| {
+            let queue = self
+                .current
+                .as_ref()
+                .ok_or_else(|| frontier_error("missing current queue"))?;
+            let mut chunk = Chunk::default();
+            let handles = end
+                .checked_sub(start)
+                .and_then(|n| n.checked_mul(self.variables))
+                .ok_or_else(|| frontier_error("decoded chunk size overflow"))?;
+            chunk
+                .identity
+                .try_reserve_exact(handles)
+                .map_err(frontier_error)?;
+            chunk
+                .original
+                .try_reserve_exact(handles)
+                .map_err(frontier_error)?;
+            chunk
+                .ids
+                .try_reserve_exact(end - start)
+                .map_err(frontier_error)?;
+            for index in start..end {
+                if (index - start).is_multiple_of(128) && poll() {
+                    return Ok(None);
+                }
+                let (id, bytes) = queue.read(index)?;
+                if self.current_first.and_then(|n| n.checked_add(index as u64)) != Some(id) {
+                    return Err(frontier_error(
+                        "record discovery ID differs from its ordered position",
+                    ));
+                }
+                let rows = self.codec.decode(&bytes).map_err(frontier_error)?;
+                chunk.identity.extend(rows.identity);
+                chunk.original.extend(rows.original);
+                chunk.ids.push(id);
+            }
+            Ok(Some(chunk))
+        })();
+        self.observe(result)
+    }
+
+    pub(crate) fn finish(&mut self, validate: bool, poll: &(dyn Fn() -> bool + Sync)) -> bool {
+        let mut complete = true;
+        if let Some(mut current) = self.current.take() {
+            complete &= self
+                .close_queue(&mut current, self.current_first, validate, poll)
+                .unwrap_or(false);
+        }
+        let mut next = std::mem::replace(
+            &mut self.next,
+            OrderedFrontier::new(self.memory_bytes, &self.directory),
+        );
+        complete &= self
+            .close_queue(&mut next, self.next_first, validate && complete, poll)
+            .unwrap_or(false);
+        self.refresh();
+        complete
+    }
+}
+
+fn frontier_error(cause: impl std::fmt::Display) -> SpillError {
+    SpillError {
+        code: "DIVE-S0200",
+        message: format!("native frontier: {cause}"),
+    }
 }
 
 /// Retained canonical rows, bucketed by the existing state hash. Hashes select
@@ -75,11 +338,114 @@ impl Exact {
 #[cfg(test)]
 #[allow(clippy::unwrap_used, reason = "exact collision controls")]
 mod tests {
+    use std::fs;
+    use std::io::{Seek, SeekFrom, Write};
     use std::sync::Arc;
 
     use dive_core::Store;
 
     use super::*;
+
+    fn directory() -> PathBuf {
+        static NEXT_DIRECTORY: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+        let path = std::env::temp_dir().join(format!(
+            "dive-native-frontier-{}-{}",
+            std::process::id(),
+            NEXT_DIRECTORY.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+        ));
+        fs::create_dir(&path).unwrap();
+        path
+    }
+
+    fn queues(path: &std::path::Path) -> Frontiers {
+        let mut queues = Frontiers::new(
+            &Arc::new(Store::new(true)),
+            1,
+            &Storage {
+                frontier_memory_bytes: Some(0),
+                frontier_directory: Some(path.to_path_buf()),
+                ..Storage::default()
+            },
+        )
+        .unwrap();
+        for id in 0_u32..3 {
+            let value = Handle::int(i64::from(id)).unwrap();
+            queues.push(u64::from(id), &[value], &[value]).unwrap();
+        }
+        queues
+    }
+
+    #[test]
+    fn missing_current_file_and_unvisited_corruption_invalidate_storage() {
+        for missing in [false, true] {
+            let path = directory();
+            let mut queues = queues(&path);
+            queues.advance(&|| false).unwrap();
+            assert!(queues.chunk(0, 1, &|| false).unwrap().is_some());
+            let owned = queues
+                .current
+                .as_ref()
+                .unwrap()
+                .disk_directory()
+                .unwrap()
+                .to_path_buf();
+            if missing {
+                fs::remove_file(owned.join("states")).unwrap();
+                assert!(queues.chunk(1, 2, &|| false).is_err());
+            } else {
+                let mut file = fs::OpenOptions::new()
+                    .write(true)
+                    .open(owned.join("states"))
+                    .unwrap();
+                file.seek(SeekFrom::End(-1)).unwrap();
+                file.write_all(&[255]).unwrap();
+            }
+            queues.finish(true, &|| false);
+            assert_ne!(queues.usage.failures, [] as [String; 0]);
+            assert!(!owned.exists());
+            assert_eq!(queues.usage.retained_bytes, 0);
+            fs::remove_dir(path).unwrap();
+        }
+    }
+
+    #[test]
+    fn already_stopped_cleanup_does_not_read_or_poll_unprocessed_records() {
+        let path = directory();
+        let mut queues = queues(&path);
+        queues.advance(&|| false).unwrap();
+        let owned = queues
+            .current
+            .as_ref()
+            .unwrap()
+            .disk_directory()
+            .unwrap()
+            .to_path_buf();
+        fs::remove_file(owned.join("states")).unwrap();
+        queues.finish(false, &|| true);
+        assert_eq!(queues.usage.failures, [] as [String; 0]);
+        assert!(!owned.exists());
+        fs::remove_dir(path).unwrap();
+    }
+
+    #[test]
+    fn cleanup_failure_is_explicit_even_without_a_certifiable_ending() {
+        let path = directory();
+        let mut queues = queues(&path);
+        let owned = queues.next.disk_directory().unwrap().to_path_buf();
+        let moved = path.join("moved");
+        fs::rename(&owned, &moved).unwrap();
+        fs::write(&owned, b"file blocks directory cleanup").unwrap();
+        queues.finish(false, &|| false);
+        assert!(
+            queues
+                .usage
+                .failures
+                .iter()
+                .any(|error| error.contains("cleanup"))
+        );
+        fs::remove_file(owned).unwrap();
+        fs::remove_dir_all(path).unwrap();
+    }
 
     #[test]
     fn complete_hash_collision_preserves_distinct_rows_and_zero_key() {

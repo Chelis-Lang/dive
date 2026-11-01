@@ -460,6 +460,8 @@ struct Explorer<'p> {
     metrics: Metrics,
     seen: Seen,
     next: Vec<Handle>,
+    /// Opt-in encoded current/next queues tied to this live Store.
+    frontier: Option<storage::Frontiers>,
     /// Capture-only first-discovered representations, parallel to `next`.
     /// Canonical frontier identities remain separate for logs and Step.new.
     next_originals: Vec<Handle>,
@@ -521,6 +523,35 @@ enum Probe {
 }
 
 impl Explorer<'_> {
+    fn queued_states(&self) -> usize {
+        if self.plan.vars.is_empty() {
+            return 0;
+        }
+        self.frontier.as_ref().map_or_else(
+            || self.next.len() / self.plan.vars.len(),
+            storage::Frontiers::next_len,
+        )
+    }
+
+    fn advance_frontier(&mut self) -> Result<(), Error> {
+        let queued = self.queued_states();
+        if let Some(frontier) = &mut self.frontier {
+            match frontier.advance(self.poll) {
+                Ok(true) => {}
+                Ok(false) => {
+                    self.stats.left_on_queue = queued as u64;
+                    self.stop = Some(Verdict::Budget);
+                    return Err(Error::stop());
+                }
+                Err(error) => {
+                    self.stats.left_on_queue = queued as u64;
+                    return Err(error);
+                }
+            }
+        }
+        Ok(())
+    }
+
     /// Evaluates a check on the state in `m.s1`.
     fn check(&mut self, m: &mut Machine, code: &Code, c: &Check) -> Result<bool, Error> {
         let skip = self.opts.parent_skip && !self.initial;
@@ -855,6 +886,26 @@ impl Explorer<'_> {
     /// Interns the successor in `m.s1`, queues it and logs its parent and
     /// ordinal.
     fn enqueue(&mut self, m: &mut Machine, original: Option<&[Handle]>) -> Result<(), Error> {
+        if let Some(frontier) = &mut self.frontier {
+            let mut identity = Vec::new();
+            let mut retained = Vec::new();
+            capture_reserve(&mut identity, m.s1.len())?;
+            capture_reserve(&mut retained, m.s1.len())?;
+            for &value in &m.s1 {
+                identity.push(m.heap.intern(value)?);
+            }
+            for &value in original.unwrap_or(&m.s1) {
+                retained.push(m.heap.intern_exact(value)?);
+            }
+            let ordinal = u32::try_from(self.emitted.saturating_sub(1))
+                .map_err(|_| Error::unsupported("more than 2^32 successors of one state"))?;
+            let id = match self.cur_id {
+                None => self.log.push_initial(ordinal),
+                Some(parent) => self.log.push(parent, ordinal),
+            }
+            .map_err(|e| Error::internal(format!("predecessor log: {e}")))?;
+            return frontier.push(id, &identity, &retained);
+        }
         if self.graph.is_some() {
             capture_reserve(&mut self.next, m.s1.len())?;
             capture_reserve(&mut self.next_originals, m.s1.len())?;
@@ -1270,8 +1321,18 @@ pub fn explore_with_storage<'p>(
     let unsupported_storage = graph.is_some()
         && (storage.exact
             || storage.predecessor_memory_bytes.is_some()
-            || storage.predecessor_directory.is_some());
+            || storage.predecessor_directory.is_some()
+            || storage.frontier_memory_bytes.is_some()
+            || storage.frontier_directory.is_some());
     let nvars = plan.vars.len();
+    let (frontier, storage_setup_error) = match storage
+        .frontier_memory_bytes
+        .map(|_| storage::Frontiers::new(store, nvars, storage))
+        .transpose()
+    {
+        Ok(frontier) => (frontier, None),
+        Err(error) => (None, Some(error)),
+    };
     let keys: Vec<usize> = plan
         .code
         .sites
@@ -1293,6 +1354,7 @@ pub fn explore_with_storage<'p>(
         metrics: Metrics::default(),
         seen: Seen::with_exact(storage.exact),
         next: Vec::new(),
+        frontier,
         next_originals: Vec::new(),
         next_views: Vec::new(),
         emitted: 0,
@@ -1320,7 +1382,9 @@ pub fn explore_with_storage<'p>(
     };
     let mut replayed = None;
     let mut reservoir = config.sample.map(sample::Reservoir::new);
-    let result = if unsupported_storage {
+    let result = if let Some(error) = storage_setup_error {
+        Err(error)
+    } else if unsupported_storage {
         Err(Error::unsupported(
             "exact or spilled predecessor storage with native graph capture",
         ))
@@ -1328,6 +1392,10 @@ pub fn explore_with_storage<'p>(
     {
         Err(Error::unsupported(
             "a predecessor directory without a predecessor memory budget",
+        ))
+    } else if storage.frontier_directory.is_some() && storage.frontier_memory_bytes.is_none() {
+        Err(Error::unsupported(
+            "a frontier directory without a frontier memory budget",
         ))
     } else {
         run(
@@ -1382,6 +1450,28 @@ pub fn explore_with_storage<'p>(
             message: ex.metrics.storage.predecessor_failures.join("; "),
         };
         trace = None;
+    }
+    if let Some(frontier) = &mut ex.frontier {
+        let validate = !matches!(
+            verdict,
+            Verdict::Budget
+                | Verdict::Admission { .. }
+                | Verdict::Unsupported { .. }
+                | Verdict::Internal { .. }
+        );
+        let completed = frontier.finish(validate, poll);
+        ex.metrics.storage.frontier = frontier.usage.clone();
+        if !ex.metrics.storage.frontier.failures.is_empty() {
+            ex.metrics.storage.frontier.deciding_event_before_failure =
+                Some(format!("{verdict:?}"));
+            verdict = Verdict::Internal {
+                message: ex.metrics.storage.frontier.failures.join("; "),
+            };
+            trace = None;
+        } else if !completed {
+            verdict = Verdict::Budget;
+            trace = None;
+        }
     }
     let mut metrics = ex.metrics;
     metrics.store = store.stats();
@@ -1539,12 +1629,13 @@ pub(crate) fn start_stream(
 
 /// Reports the completed level to the graph sink, which may stop the
 /// search after it.
-fn level_done(ex: &mut Explorer<'_>, nvars: usize) -> Result<(), Error> {
+fn level_done(ex: &mut Explorer<'_>, _nvars: usize) -> Result<(), Error> {
+    let left_on_queue = ex.queued_states() as u64;
     let Some(sink) = ex.graph.as_deref_mut() else {
         return Ok(());
     };
     let counts = Stats {
-        left_on_queue: (ex.next.len() / nvars.max(1)) as u64,
+        left_on_queue,
         ..ex.stats
     };
     let level = ex.level - 1;
@@ -1565,6 +1656,8 @@ fn level_done(ex: &mut Explorer<'_>, nvars: usize) -> Result<(), Error> {
 
 /// The states of a parallel level each worker expands per chunk (#551).
 const CHUNK_PER_WORKER: usize = 4096;
+/// The optional encoded path decodes at most this many state pairs at once.
+const FRONTIER_CHUNK_STATES: usize = 1024;
 
 #[allow(
     clippy::too_many_lines,
@@ -1587,7 +1680,7 @@ fn run(
     // `TLCGet("level")` is 0 in `Init` (TLC's `INIT_LEVEL - 1`).
     m.level = 0;
     if let Err(e) = run_actions(m, ex, &plan.init, code) {
-        ex.stats.left_on_queue = (ex.next.len() / nvars.max(1)) as u64;
+        ex.stats.left_on_queue = ex.queued_states() as u64;
         return Err(generator_error(m, ex, &[], e));
     }
     // TLC reports depth one after Init emits a state, even when the
@@ -1599,8 +1692,8 @@ fn run(
     // ModelChecker checks this after Init, before starting any workers.
     // An empty initial frontier succeeds; defining a disabled action instead
     // reaches the ordinary deadlock check, if enabled.
-    if plan.next.is_empty() && !ex.next.is_empty() {
-        ex.stats.left_on_queue = (ex.next.len() / nvars.max(1)) as u64;
+    if plan.next.is_empty() && ex.queued_states() > 0 {
+        ex.stats.left_on_queue = ex.queued_states() as u64;
         ex.stop = Some(Verdict::NoNextAction);
         return Err(Error::stop());
     }
@@ -1611,8 +1704,17 @@ fn run(
     let mut cur_originals = std::mem::take(&mut ex.next_originals);
     let mut cur_views = std::mem::take(&mut ex.next_views);
     let mut cur_ids = std::mem::take(&mut ex.next_ids);
+    ex.advance_frontier()?;
     let mut generated_before = 0;
-    while !cur.is_empty() {
+    loop {
+        let states = cur.len().checked_div(nvars).map_or(0, |in_memory| {
+            ex.frontier
+                .as_ref()
+                .map_or(in_memory, storage::Frontiers::current_len)
+        });
+        if states == 0 {
+            break;
+        }
         if ex.graph.is_some() && cur_originals.len() != cur.len() {
             return Err(Error::internal(
                 "capture frontier original/identity row mismatch",
@@ -1624,7 +1726,6 @@ fn run(
         generated_before = ex.stats.generated;
         let level_started = Instant::now();
         let mut expand_time = std::time::Duration::ZERO;
-        let states = cur.len() / nvars.max(1);
         // The parallel level is expanded and committed a chunk of states at
         // a time, so that phase 1 buffers one chunk's successors, not the
         // level's (#551). A chunk's commit fills the seen set before the
@@ -1633,12 +1734,38 @@ fn run(
             || (machines.len() * CHUNK_PER_WORKER).max(1),
             |sink| sink.max_expansion_units().max(1),
         );
+        let chunk = if ex.frontier.is_some() {
+            chunk.min(FRONTIER_CHUNK_STATES)
+        } else {
+            chunk
+        };
         let mut expanded: Option<Vec<Option<parallel::Expanded>>> = None;
+        let mut decoded = storage::Chunk::default();
         let mut base = 0;
-        for (k, state) in cur.chunks_exact(nvars.max(1)).enumerate() {
-            if nvars == 0 {
-                break;
+        for k in 0..states {
+            if k % chunk == 0 {
+                let queued = ex.queued_states();
+                if let Some(frontier) = &mut ex.frontier {
+                    decoded = match frontier.chunk(k, (k + chunk).min(states), ex.poll) {
+                        Ok(Some(decoded)) => decoded,
+                        Ok(None) => {
+                            ex.stats.left_on_queue = (states - k + queued) as u64;
+                            ex.stop = Some(Verdict::Budget);
+                            return Err(Error::stop());
+                        }
+                        Err(error) => {
+                            ex.stats.left_on_queue = (states - k + queued) as u64;
+                            return Err(error);
+                        }
+                    };
+                }
             }
+            let local = k % chunk;
+            let state = if ex.frontier.is_some() {
+                &decoded.identity[local * nvars..(local + 1) * nvars]
+            } else {
+                &cur[k * nvars..(k + 1) * nvars]
+            };
             if parallel && k % chunk == 0 {
                 let started = Instant::now();
                 let end = (k + chunk).min(states);
@@ -1646,7 +1773,7 @@ fn run(
                 let mut overlay = Vec::new();
                 let view_start = cur_views.partition_point(|(row, _)| *row < k);
                 let view_end = cur_views.partition_point(|(row, _)| *row < end);
-                if ex.graph.is_none() && view_start < view_end {
+                if ex.frontier.is_none() && ex.graph.is_none() && view_start < view_end {
                     capture_reserve(&mut overlay, (end - k) * nvars)?;
                     overlay.extend_from_slice(&cur[k * nvars..end * nvars]);
                     for (row, values) in &cur_views[view_start..view_end] {
@@ -1656,7 +1783,9 @@ fn run(
                 let r = parallel::expand_level(
                     plan,
                     machines,
-                    if ex.graph.is_some() {
+                    if ex.frontier.is_some() {
+                        &decoded.original
+                    } else if ex.graph.is_some() {
                         &cur_originals[k * nvars..end * nvars]
                     } else if overlay.is_empty() {
                         &cur[k * nvars..end * nvars]
@@ -1694,11 +1823,13 @@ fn run(
                 (ex.poll)()
             };
             if exhausted {
-                ex.stats.left_on_queue = (cur.len() / nvars - k + ex.next.len() / nvars) as u64;
+                ex.stats.left_on_queue = (states - k + ex.queued_states()) as u64;
                 ex.stop = Some(Verdict::Budget);
                 return Err(Error::stop());
             }
-            let source = if ex.graph.is_some() {
+            let source = if ex.frontier.is_some() {
+                &decoded.original[local * nvars..(local + 1) * nvars]
+            } else if ex.graph.is_some() {
                 cur_originals
                     .get(k * nvars..(k + 1) * nvars)
                     .ok_or_else(|| Error::internal("capture source original row missing"))?
@@ -1717,7 +1848,11 @@ fn run(
             if let Some(r) = reservoir.as_deref_mut() {
                 r.offer(source, level);
             }
-            ex.cur_id = cur_ids.get(k).copied();
+            ex.cur_id = if ex.frontier.is_some() {
+                decoded.ids.get(local).copied()
+            } else {
+                cur_ids.get(k).copied()
+            };
             ex.emitted = 0;
             let r = match res {
                 Some(res) => ex.commit(m, res),
@@ -1730,7 +1865,7 @@ fn run(
                     .as_ref()
                     .is_some_and(|failure| matches!(failure.site, Site::Next(_)))
             {
-                let row_left = (cur.len() / nvars - k - 1 + ex.next.len() / nvars) as u64;
+                let row_left = (states - k - 1 + ex.queued_states()) as u64;
                 source_row(m, ex, state, row_left, true)?;
             }
             if r.is_err()
@@ -1762,7 +1897,7 @@ fn run(
                 }
             }
             m.heap.reset();
-            let left = (cur.len() / nvars - k - 1 + ex.next.len() / nvars) as u64;
+            let left = (states - k - 1 + ex.queued_states()) as u64;
             if let Err(e) = r {
                 ex.stats.left_on_queue = left;
                 return Err(e);
@@ -1800,6 +1935,7 @@ fn run(
         std::mem::swap(&mut cur_originals, &mut ex.next_originals);
         std::mem::swap(&mut cur_views, &mut ex.next_views);
         std::mem::swap(&mut cur_ids, &mut ex.next_ids);
+        ex.advance_frontier()?;
     }
     Ok(())
 }
@@ -1807,6 +1943,316 @@ fn run(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn frontier_plan(store: &Arc<Store>, false_invariant: bool) -> Result<Plan, Error> {
+        use dive_core::plan::{Action, CompileStats, Conjunct, Effects, GNode, Node};
+
+        let mut heap = dive_core::Heap::new(Arc::clone(store), true, false);
+        let domain = heap.interval(0, 127);
+        let domain = heap.intern_const(domain)?;
+        let action = |name: &str, g| Action {
+            name: name.into(),
+            g,
+            frame: 0,
+            preset: Vec::new(),
+        };
+        Ok(Plan {
+            code: Code {
+                nodes: vec![
+                    Node::Const(domain),
+                    Node::Var(0),
+                    Node::Const(Handle::FALSE),
+                ],
+                gnodes: vec![
+                    GNode::AssignIn { var: 0, set: 0 },
+                    GNode::Assign { var: 0, rhs: 1 },
+                ],
+                ..Code::default()
+            },
+            vars: vec!["x".into()],
+            init: vec![action("Init", 0)],
+            next: vec![action("Next", 1)],
+            invariants: if false_invariant {
+                vec![Check {
+                    name: "Inv".into(),
+                    frame: 0,
+                    conjuncts: vec![Conjunct {
+                        p: 2,
+                        reads: 1,
+                        skippable: false,
+                        site: None,
+                    }],
+                }]
+            } else {
+                Vec::new()
+            },
+            constraints: Vec::new(),
+            action_constraints: Vec::new(),
+            implied_inits: Vec::new(),
+            implied_actions: Vec::new(),
+            check_deadlock: true,
+            symmetry: None,
+            effects: Effects::default(),
+            view: None,
+            stats: CompileStats::default(),
+        })
+    }
+
+    #[derive(Clone, Copy, Debug)]
+    enum FrontierFault {
+        Corrupt,
+        Missing,
+        Cleanup,
+    }
+
+    #[allow(
+        clippy::unwrap_used,
+        clippy::too_many_lines,
+        reason = "fault mutation and real explorer outcome remain in one deterministic control"
+    )]
+    fn frontier_fault(
+        tlc: bool,
+        exact: bool,
+        workers: usize,
+        initial_violation: bool,
+        fault: FrontierFault,
+    ) {
+        use std::fs;
+        use std::io::{Seek, SeekFrom, Write};
+        use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+
+        static NEXT: AtomicUsize = AtomicUsize::new(0);
+        let directory = std::env::temp_dir().join(format!(
+            "dive-frontier-explorer-{}-{}",
+            std::process::id(),
+            NEXT.fetch_add(1, Ordering::Relaxed)
+        ));
+        fs::create_dir(&directory).unwrap();
+        let store = Arc::new(Store::with_semantics(
+            true,
+            if tlc {
+                dive_core::Semantics::tlc()
+            } else {
+                dive_core::Semantics::default()
+            },
+        ));
+        let plan = frontier_plan(&store, initial_violation).unwrap();
+        let calls = AtomicUsize::new(0);
+        let injected = AtomicBool::new(false);
+        let trigger = if initial_violation { 1 } else { 129 };
+        let poll = || {
+            if calls.fetch_add(1, Ordering::Relaxed) == trigger {
+                let owned = fs::read_dir(&directory)
+                    .unwrap()
+                    .next()
+                    .unwrap()
+                    .unwrap()
+                    .path();
+                match fault {
+                    FrontierFault::Corrupt => {
+                        let mut file = fs::OpenOptions::new()
+                            .write(true)
+                            .open(owned.join("states"))
+                            .unwrap();
+                        file.seek(SeekFrom::End(-1)).unwrap();
+                        file.write_all(&[255]).unwrap();
+                    }
+                    FrontierFault::Missing => fs::remove_file(owned.join("states")).unwrap(),
+                    FrontierFault::Cleanup => {
+                        fs::rename(&owned, directory.join("moved")).unwrap();
+                        fs::write(owned, b"blocks directory cleanup").unwrap();
+                    }
+                }
+                injected.store(true, Ordering::Relaxed);
+            }
+            false
+        };
+        let out = explore_with_storage(
+            &plan,
+            &store,
+            Config {
+                opts: Opts::default(),
+                max_states: None,
+                max_depth: None,
+                workers,
+                warn: true,
+                sample: None,
+            },
+            &poll,
+            None,
+            None,
+            &storage::Storage {
+                exact,
+                frontier_memory_bytes: Some(0),
+                frontier_directory: Some(directory.clone()),
+                ..storage::Storage::default()
+            },
+        );
+        assert!(injected.load(Ordering::Relaxed), "{fault:?}");
+        assert!(
+            matches!(out.verdict, Verdict::Internal { .. }),
+            "{fault:?}: {:?}",
+            out.verdict
+        );
+        assert!(
+            out.trace.is_none(),
+            "corrupt storage must clear a deciding word"
+        );
+        let failures = &out.metrics.storage.frontier.failures;
+        assert_ne!(failures.as_slice(), [] as [String; 0]);
+        let expected = match fault {
+            FrontierFault::Corrupt => "checksum",
+            FrontierFault::Missing => "open record",
+            FrontierFault::Cleanup => "cleanup",
+        };
+        assert!(
+            failures.iter().any(|message| message.contains(expected)),
+            "{failures:?}"
+        );
+        if initial_violation {
+            assert!(
+                out.metrics
+                    .storage
+                    .frontier
+                    .deciding_event_before_failure
+                    .as_ref()
+                    .unwrap()
+                    .contains("InvariantViolated")
+            );
+        }
+        fs::remove_dir_all(directory).unwrap();
+    }
+
+    #[test]
+    fn corrupt_read_and_cleanup_failures_prevent_success_and_counterexample_certification() {
+        for tlc in [false, true] {
+            for exact in [false, true] {
+                for workers in [1, 4, 8] {
+                    for initial in [false, true] {
+                        for fault in [
+                            FrontierFault::Corrupt,
+                            FrontierFault::Missing,
+                            FrontierFault::Cleanup,
+                        ] {
+                            frontier_fault(tlc, exact, workers, initial, fault);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    #[allow(
+        clippy::unwrap_used,
+        reason = "owned cancellation during final frontier validation"
+    )]
+    fn validation_cancellation_is_a_budget_stop_without_storage_failure_or_word() {
+        use std::sync::atomic::{AtomicUsize, Ordering};
+
+        for initial_violation in [false, true] {
+            for workers in [1, 4, 8] {
+                let store = Arc::new(Store::new(true));
+                let plan = frontier_plan(&store, initial_violation).unwrap();
+                // One Init plus final validation for a deciding initial word;
+                // otherwise 128 Init + one decoded chunk + 128 expansions.
+                let trigger = if initial_violation { 1 } else { 257 };
+                let calls = AtomicUsize::new(0);
+                let poll = || calls.fetch_add(1, Ordering::Relaxed) >= trigger;
+                let out = explore_with_storage(
+                    &plan,
+                    &store,
+                    Config {
+                        opts: Opts::default(),
+                        max_states: None,
+                        max_depth: None,
+                        workers,
+                        warn: true,
+                        sample: None,
+                    },
+                    &poll,
+                    None,
+                    None,
+                    &storage::Storage {
+                        frontier_memory_bytes: Some(0),
+                        ..storage::Storage::default()
+                    },
+                );
+                assert_eq!(out.verdict, Verdict::Budget);
+                assert!(out.trace.is_none());
+                assert_eq!(out.metrics.storage.frontier.failures, [] as [String; 0]);
+                assert_eq!(calls.load(Ordering::Relaxed), trigger + 1);
+                assert_eq!(out.metrics.storage.frontier.retained_bytes, 0);
+            }
+        }
+    }
+
+    #[test]
+    #[allow(
+        clippy::unwrap_used,
+        reason = "deterministic owned budget and spilled-frontier control"
+    )]
+    fn budget_stop_closes_an_unread_spilled_frontier_without_validation_polls() {
+        use std::sync::atomic::{AtomicUsize, Ordering};
+
+        for tlc in [false, true] {
+            for exact in [false, true] {
+                for workers in [1, 4, 8] {
+                    let store = Arc::new(Store::with_semantics(
+                        true,
+                        if tlc {
+                            dive_core::Semantics::tlc()
+                        } else {
+                            dive_core::Semantics::default()
+                        },
+                    ));
+                    let plan = frontier_plan(&store, false).unwrap();
+                    let calls = AtomicUsize::new(0);
+                    let poll = || calls.fetch_add(1, Ordering::Relaxed) >= 128;
+                    let out = explore_with_storage(
+                        &plan,
+                        &store,
+                        Config {
+                            opts: Opts::default(),
+                            max_states: None,
+                            max_depth: None,
+                            workers,
+                            warn: true,
+                            sample: None,
+                        },
+                        &poll,
+                        None,
+                        None,
+                        &storage::Storage {
+                            exact,
+                            frontier_memory_bytes: Some(0),
+                            ..storage::Storage::default()
+                        },
+                    );
+                    assert_eq!(out.verdict, Verdict::Budget);
+                    assert_eq!(
+                        out.stats,
+                        Stats {
+                            generated: 128,
+                            distinct: 128,
+                            depth: 1,
+                            left_on_queue: 128,
+                            initial_generated: 128
+                        }
+                    );
+                    assert!(out.trace.is_none());
+                    assert_eq!(
+                        calls.load(Ordering::Relaxed),
+                        129,
+                        "cleanup must not scan/poll the unread queue"
+                    );
+                    assert!(out.metrics.storage.frontier.spilled_bytes > 0);
+                    assert_eq!(out.metrics.storage.frontier.retained_bytes, 0);
+                    assert_eq!(out.metrics.storage.frontier.failures, [] as [String; 0]);
+                }
+            }
+        }
+    }
 
     #[test]
     fn impossible_capture_growth_is_fallible_without_modifying_retained_payload() {

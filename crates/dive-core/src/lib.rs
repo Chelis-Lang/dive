@@ -39,6 +39,7 @@ mod compare;
 pub mod compile;
 pub mod convert;
 pub mod eval;
+pub mod frontier_codec;
 pub mod generate;
 pub mod handle;
 pub mod heap;
