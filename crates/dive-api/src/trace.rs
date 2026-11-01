@@ -300,6 +300,7 @@ impl SpecModel {
                 Ending::TemporalStateError { .. }
                     | Ending::TemporalSourceError { .. }
                     | Ending::NextStateError { .. }
+                    | Ending::ViewSourceError { .. }
                     | Ending::CandidateStateError { .. }
                     | Ending::PartialNext { .. }
                     | Ending::PartialInit { .. }
@@ -338,6 +339,21 @@ impl SpecModel {
         control: Option<Arc<dyn dive_eval::HostControl>>,
     ) -> Result<(Report, Option<dive_trace::InitialInvariantClass>), ValidationRunError> {
         on_big_stack(|| self.session.initial_invariant_class(doc, control))
+            .map_err(|error| ValidationRunError::ThreadFailure(error.to_string()))?
+    }
+
+    /// Validates a named successor invariant error and separately executes its
+    /// bounded Init/source admission and diagnostic lifecycle on a fresh runtime.
+    /// Ordinary word validity alone grants no diagnostic identity.
+    ///
+    /// # Errors
+    /// Actual interruption, resource/internal failure, control or thread failure.
+    pub fn invariant_error_class(
+        &self,
+        doc: &TraceDoc,
+        control: Option<Arc<dyn dive_eval::HostControl>>,
+    ) -> Result<(Report, Option<dive_trace::InvariantErrorClass>), ValidationRunError> {
+        on_big_stack(|| self.session.invariant_error_class(doc, control))
             .map_err(|error| ValidationRunError::ThreadFailure(error.to_string()))?
     }
 

@@ -427,6 +427,7 @@ impl<'a> Run<'a> {
             Ending::TemporalStateError { .. }
                 | Ending::TemporalSourceError { .. }
                 | Ending::NextStateError { .. }
+                | Ending::ViewSourceError { .. }
                 | Ending::CandidateStateError { .. }
                 | Ending::PartialNext { .. }
                 | Ending::PartialInit { .. }
@@ -912,7 +913,8 @@ impl<'a> Run<'a> {
             Ending::Behavior => Goal::Behavior,
             Ending::TemporalStateError { .. } => Goal::TemporalStateError,
             Ending::NextStateError { .. } | Ending::TemporalSourceError { .. }
-                | Ending::CandidateStateError { .. } | Ending::PartialNext { .. } | Ending::PartialInit { .. } => Goal::NextStateError,
+                | Ending::ViewSourceError { .. }
+                    | Ending::CandidateStateError { .. } | Ending::PartialNext { .. } | Ending::PartialInit { .. } => Goal::NextStateError,
             Ending::Lasso { back_to } => {
                 if *back_to > last {
                     return Err(invalid(last, Check::Shape, format!("the lasso loops back to state {back_to}, past the end")));
@@ -1780,6 +1782,14 @@ pub(crate) fn replay_next_controlled(
         Ordering::Relaxed,
     );
     let replay = match &trace.ending {
+        Ending::ViewSourceError { ec, endpoint } => crate::ordered_prefix::view(
+            model,
+            trace,
+            ec,
+            endpoint,
+            &run.host,
+            run.control.as_deref(),
+        ),
         Ending::CandidateStateError { ec, endpoint } => {
             let Some(source) = last
                 .checked_sub(1)

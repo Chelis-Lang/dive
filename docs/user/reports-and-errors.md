@@ -67,6 +67,50 @@ Its pinned oracle stream remains Unclassified; no deciding golden is inferred
 from the context-only 2103 stack. Classified initial module exceptions and the
 source-proved 2147 receiver route above keep their existing contracts (#685).
 
+A pure VIEW error while expanding the first admitted noninitial source uses
+native trace version 6. Its `view-source-terminal` endpoint retains the original
+source span/instance, underlying `ec`, and untrusted reported/deciding codes.
+The final complete row is the source: the failing generated candidate is absent.
+For the existing `ErViewChoose` example the source word is `(0,0), (1,0)`;
+VIEW fails on independently generated `(2,0)`. The independent reader requires the actual run fingerprint polynomial (retain
+`--seed`/`--fp` metadata) and reconstructs one exhausted Init, its full first expansion, all actual key insertions and the
+terminal primary/diagnostic sequence. Report schema 3 remains unchanged.
+
+```sh
+dive check crates/dive-check/tests/fixtures/errors/specs/ErViewChoose/ErViewChoose.tla --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+```
+
+This reports the original underlying error, deciding2103/physical75 and two
+complete source rows; use the whole `counterexample.trace` for validation.
+
+Consumers must accept native version 6 and validate this endpoint with a fresh
+source-bound fallible session before advancing their producer pin. An old reader
+must reject it, without relabelling the document as version 1 or the final source
+as a version-4 candidate. Unknown stages/versions still fail closed. Advance
+notice to known consumers is required before this writer lands.
+
+The bounded proof supports scalar states and scalar/tuple VIEW keys only (64
+key nodes, tuple depth eight), at most 64 admitted keys and 256 emissions.
+Additional Init emissions, later sources, effects, symmetry, ALIAS, temporal
+roles and unproved receiver histories explicitly refuse. A compound concrete
+state is refused before a VIEW that ignores it can certify a failure; ignored
+state fields never waive required normalization demand.
+
+`Session::invariant_error_class` and `SpecModel::invariant_error_class` separately
+prove the diagnostic identity of an existing version-2 named invariant-error
+word using the same private prefix. Their returned certificate is execution
+state, never serialized proof. Ordinary word validation remains insufficient.
+Source-free conformance report mapping refuses the different diagnostic wrapper;
+source-bound mapping executes the proof and retains exact header checks.
+`ErInvConstrained` and `ErInvReplayError` retain their actual named causes and
+canonical Unclassified oracle streams. Independently valid words and proved
+native diagnostic identities supply no pinned-TLC agreement by themselves.
+
+Returned non-Boolean constraint/action-constraint values use the existing
+version-4 endpoint after the actual source-qualified Boolean-role boundary
+raises `TLC_EXPECTED_VALUE`. An inner non-Boolean expression is a different
+operation; the reader independently discovers which error actually occurs.
+
 Request `--output json` and retain the whole document, source/configuration,
 resolved options and replay seed. Every public operation now emits report
 `schema_version: 3`, with `command` identifying the operation. `check` also emits
@@ -242,7 +286,7 @@ stable. The same applies to existing native `dive-trace` version 1 fields, tagge
 values, property endings and zero-based `ending.back_to` loop targets. The outer
 check report's `counterexample.back_to` summary is one-based. The trace payload version
 is independent of the report version: `validate-trace` emits report version 3
-while reading and validating native trace versions 1, 2, 3 and 4. Version 2 adds the
+while reading and validating native trace versions 1 through 6. Version 2 adds the
 closed `invariant-error` ending with an exact configured name and underlying error
 cause (ADR 0118). Writers retain version 1 for all existing ending kinds; readers
 retain legacy version-1 support and reject a version-1 document using the new
