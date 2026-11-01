@@ -60,32 +60,59 @@ compatibility performance ceiling without weakening semantic obligations.
    bcastFolklore as a separately bounded deep stress run. Never substitute a
    safety variant or a topology estimate for temporal completion.
 
+The [local qualification at runtime base `16095d43`](../../../conformance/reports/core/2026-11-01-integrated-qualification.json)
+completes the full gate and audits the census/Auto results. Census findings
+and TLC Auto's omitted-module exit 1 remain explicit. The separately audited
+[performance diagnostics](../../../conformance/reports/perf/2026-11-01-integrated-performance.json)
+retain a three-pair focus and a one-repeat breadth cohort. The focus misses the
+default floor, so the formal five-repeat campaign was not started. Performance
+archival and node cleanup are verified; original temporal capacity and
+performance acceptance remain open. All twelve original capacity cells finish:
+nine successes and three ABA atom-analysis time stops after completed graph
+capture. Default/W8 loses its older completion; #650 is not accepted. Both
+phase nodes/root volumes have verified cleanup. The independently audited
+[capacity record](../../../conformance/reports/perf/2026-11-01-original-capacity.json)
+retains the failed acceptance and prior comparison. The
+[next bounded actions](m1-status.md#next-bounded-actions) address retained bad
+words, ambiguous deciding classes, receiver scopes, default performance,
+above-1.5 compatibility observations and an unadopted bounded ABA nested-shape
+proof with exact fallback in the existing comparison path.
+Historical evidence is not relabeled.
+
 The lead owns qualification/review. Three initial authors own trace trust,
 explorer retention, and liveness completion/source access in separate
 worktrees/targets. Move the explorer slot to bounded breadth after its
 capture interface lands; release a slot for fresh review of frozen changes.
-Use at most one gate node and one dedicated benchmark/capacity node, with
-bounded jobs, automatic shutdown and verified external evidence preservation.
+Run the local full gate and census in separate worktrees and exclusive targets.
+Use at most two AWS nodes: one 32-GiB capacity VM and one metal performance
+host under the quiet-host controls. Keep bounded jobs, fixed shutdown deadlines,
+the $40 phase ceiling and verified external evidence preservation.
 
-The next measured default-performance priority is S5 normalized membership
-indexing, with the current actual normalization/authority admission, query
-demand, collision verification and miss/error checks retained. Raw or unproved
-cases keep their existing path. The combined-source bounded profile has 28
+The bounded S5 normalized compound-membership index is implemented (#698).
+It is worker-local, shares the memo budget and retains actual normalization/
+authority admission, query demand, extensional collision verification and
+miss/error checks. Scalar queries, finite-fuel analysis, TLC comparisons, raw
+and unproved cases retain their original search. Integrated performance
+acceptance remains open. The historical combined-source bounded profile has 28
 valid stack observations: seven membership/filter paths, seven construction
 projection/normalization, three frontier interning, and eleven hashing/scratch/
 evaluation. These are observations, not precise time shares; remaining cost is
 distributed and repeated canonical projection is also visible.
 
-For ABA capacity, separately benchmark the existing reachable-product ID
-lookup before changing SCC/search machinery. A reduced N3/T0/F0 diagnostic
-finds construction larger than search for Corr/Agreement, with tableau widths
-5/2/3; it does not measure the original N4/T1/F1 cost share. `Builder::visit`
-currently uses ordered exact-pair lookup for admitted destinations, while
-Cartesian ordering is consumed at finalization. A checked exact-pair hash
-lookup with separately preserved deterministic final order is a bounded
-candidate, not an established 900-second fix. Keep edges/duplicates, guards,
-limits, fallible growth, budget inspections and independent witnesses exact.
+For ABA capacity, private exact-pair product lookup is implemented with separate
+deterministic Cartesian final ordering (#694). Selected original-target
+descriptors also remove repeated native predicate successor scans while
+preserving original/stutter selection and conversion/error order (#701).
+Neither change establishes original-workload capacity. The reduced N3/T0/F0
+diagnostic finds construction larger than search for Corr/Agreement, with
+tableau widths 5/2/3; it does not measure the original N4/T1/F1 cost share.
+The product index keeps edges/duplicates, guards, limits, fallible growth,
+budget inspections and independent witnesses exact.
 The TLC/W8 atom-analysis stop means product work alone may be insufficient.
+
+The projection-reuse experiment #705 is closed unmerged: a roughly 3–4%
+Sailfish gain accompanied a roughly 3–5% SimpleRegular regression. Issue #704
+remains open; no loop tuning is adopted by this checkpoint.
 
 Finer S6 keys follow only when eligibility is proved: Sailfish's reduction from
 13 to six memo sites reflects intentional history safeguards, which finer keys

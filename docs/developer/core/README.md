@@ -19,8 +19,25 @@ engine-default cutover is not a separate workstream.
 **Start here:** `m1-status.md` records the current acceptance findings, source-bound
 measurements and next steps. M1 remains open; the default engine is `reference`.
 
-The final fixture census on main `f1acc846` records 1,025 default / 1,002
-TLC-profile shadow agreements and zero sampled-successor findings, with remaining
+The [integrated local record](../../../conformance/reports/core/2026-11-01-integrated-qualification.json)
+at runtime base `16095d43` records a full-gate pass with 3,036 nextest tests,
+six declared skips and 184 passing doctests. The whole runtime tree was
+integrated as `9a1d51a1`; later documentation changes receive no execution
+credit. The census preserves every old agreement but retains findings, and
+TLC Auto physically exits 1 for omitted baseline SANY entries despite unchanged
+model observables. The separately audited [performance diagnostics](../../../conformance/reports/perf/2026-11-01-integrated-performance.json)
+retain a three-pair focus and a one-repeat breadth cohort. The focus misses the
+default speed floor; five-repeat acceptance and original temporal capacity
+remain open. All twelve original capacity cells are terminal: nine successes
+and three ABA atom-analysis time stops, including a lost default/W8 completion.
+#650 remains open. Both phase nodes/root volumes have verified cleanup. The
+independently audited [capacity record](../../../conformance/reports/perf/2026-11-01-original-capacity.json)
+retains the negative outcome and prior comparison. See the
+[next bounded actions](m1-status.md#next-bounded-actions) for the remaining word,
+classification, receiver, default-performance and remaining ABA gaps.
+
+The historical final fixture census on main `f1acc846` records 1,025 default /
+1,002 TLC-profile shadow agreements and zero sampled-successor findings, with remaining
 trace, refusal and stop findings. The completed source-`75f0ac4f` five-repeat
 campaign has 300 correct rows:
 default beats TLC on ten of ten models at both worker counts; TLC mode beats
@@ -38,14 +55,20 @@ passes its fast gate (2,198 tests), eight-model smoke at 1/4 workers and
 both-profile Sailfish 10k prefixes matched. See `m1-status.md` §3 for
 attribution and the separate post-C2
 three-row, one-repetition Sailfish diagnostic; it adds no population credit.
-#620 remains unverified/refused diagnostic parity, not a certified agreement.
+Bounded first-Init #620 diagnostic receiver replay is implemented (#683,
+ADR 0133); broader receiver lifetimes remain unverified/refused. That later
+repair does not refresh the historical measurements above.
 M1 and M2 acceptance stay open.
 
 The native temporal backend now retains persistent original rows and checked CSR,
-uses controlled admission/on-demand reads with zero retained Value cache, and
-releases native capture owners before fresh word validation. Fixed capture counts
-remain; whole-run byte accounting and TLC-relative capacity/performance are still
-open. This does not alter the historical measurements above or the engine default.
+uses controlled admission/on-demand reads with bounded exact-handle reuse for
+closed functions, tuples and records with supported scalar leaves, and
+releases native capture owners before fresh word validation. Every original
+still receives controlled eager conversion. Ordinary core file requests use
+actual run budgets and checked machine layouts; explicit Rust caller and
+reference count limits remain. Whole-run byte accounting and TLC-relative
+capacity/performance are still open. This does not alter the historical
+measurements above or the engine default.
 
 ## Status board
 
@@ -55,9 +78,9 @@ open. This does not alter the historical measurements above or the engine defaul
 | Host-hook lock (#495), old engine | Day 0 | done | #497 | `01-motivation.md` |
 | Rebaseline on x86 | Day 0 | done | #522 | `09-performance-method.md` |
 | M0 spike | M0 | done: 1.81× TLC, 5.21× reference (x86 geomean); merged as `--engine=core` | #505 | `m0-results.md` |
-| 1. Values and store | M1 | implemented M1 scope; remaining work below; done: inline node data, lazy values, big ints, model values, `isNorm`, intern-token strings, lock-free intern hits, Bags, most stdlib and CommunityModules operators, Print/PrintT/ToString, RandomElement, TLCSet/TLCGet, pure scalar sequence replacement (All overlaps refused); next: raw construction order, normalization demand/history and alias lifetime before exact checked comparison; conservative C2 refusal built, generic S5 index not built; retain §12 stdlib boundaries | `core/values-*` | `03-value-model.md` |
+| 1. Values and store | M1 | implemented M1 scope; remaining work below; done: inline node data, lazy values, big ints, model values, `isNorm`, intern-token strings, lock-free intern hits, Bags, most stdlib and CommunityModules operators, Print/PrintT/ToString, RandomElement, TLCSet/TLCGet, pure scalar sequence replacement (All overlaps refused), bounded owned literal/MAP/union histories and default S5 compound-membership indexing (#677/#698); next: broader construction, normalization demand/history and alias lifetime before widening checked comparison; conservative C2 refusal retained; retain §12 stdlib boundaries | `core/values-*` | `03-value-model.md` |
 | 2. Plan compiler and laziness | M1 | implemented M1 scope; remaining work below; done: fold bound (R9), TLC lazy values, INSTANCE, error classes, operator arguments, lazy LET, failing ASSUME, `ENABLED` (#581), memo on and bounded (#575, #584); done: `ENABLED` with constant/operator INSTANCE parameters and identity variable mappings; next: raw construction/demand/history, exact scalar/tuple normalization and membership, then class/E7 widening; hidden/nonidentity INSTANCE queries and B2/B4 lifetimes remain | `core/compiler-*` | `04-plan-compiler.md`, `06-memoization.md` |
-| 3. Successor generation and engine | M1 | implemented M1 scope; remaining work below; done: traces, error endings, budgets, parallel engine, `--engine=auto`, `--compat=tlc` at any worker count, implied properties, SYMMETRY (both profiles), ALIAS, VIEW, VIEW+SYMMETRY, liveness L1–L4 (#572, #573, #577, #582), #550, #551; L5 native retained roots/CSR, controlled admission/on-demand reads, zero Value cache and graph-neutral validated reports; next: complete memory accounting, original-workload TLC capacity qualification, `P4SymLive` | `core/engine-*` | `05-successor-generation.md`, `07-engine.md`, `11-liveness.md` |
+| 3. Successor generation and engine | M1 | implemented M1 scope; remaining work below; done: traces, error endings, budgets, parallel engine, `--engine=auto`, `--compat=tlc` at any worker count, implied properties, SYMMETRY (both profiles), ALIAS, VIEW, VIEW+SYMMETRY, liveness L1–L4 (#572, #573, #577, #582), #550, #551; L5 native retained roots/CSR, controlled eager admission/on-demand reads, bounded read reuse and graph-neutral validated reports; private exact product lookup/deterministic final ordering and selected original-target descriptors (#694/#701); next: complete memory accounting, original-workload TLC capacity qualification, `P4SymLive` | `core/engine-*` | `05-successor-generation.md`, `07-engine.md`, `11-liveness.md` |
 | 4. Harness, shadow comparison, bench | M1 | lead; done: harness engine selection, shadow gate in CI, successor sampling, x86 checkpoint and memo A/B (`10-plan.md` §5a, §5b), AWS bench and gate scripts, reproducible seeded fixture-census runner; classified results and confirmed traces required (#590, #596); next: retain completed PRE-C2 campaign and separate integration validation, original quiet=false and host controls; resolve remaining census/ablation findings (#603 fixed) and retain engine accounting | — | `08-correctness.md`, `09-performance-method.md` |
 
 The umbrella issue is #498. The M0 spike landed on `main` in #505; its results

@@ -156,25 +156,49 @@ modes retain their observable contracts, including equivalent resumed and
 uninterrupted outcomes. Any new result-changing default still needs an approved
 and documented divergence under ADR 0010.
 
-The trusted-core checkpoint has landed bounded construction-history, diagnostic
-receiver and temporal-source-row replay, together with native closed-action
-execution and accurate periodic capture reports (#674–#677, #679 and #683).
-The [implementation and acceptance status](developer/core/m1-status.md) records
-exact boundaries and source-bound results. The `9fc88333` fixture census loses
-no prior agreement and gains 20 old-ID agreements in each profile; it still
-contains refusals, refuted words and an existing comparison difference.
+The trusted-core checkpoint includes bounded construction-history, diagnostic
+receiver and temporal-source-row replay, native closed-action execution and
+accurate periodic capture reports (#674–#677, #679 and #683). The current
+integrated source adds bounded worker-local default compound-membership
+indexing (#698), private exact temporal-product lookup with deterministic final
+ordering (#694), and selected original-target descriptors (#701). Original
+comparison/history authority, fallback, demand, error order and resource checks
+remain guarded. The [implementation and acceptance status](developer/core/m1-status.md)
+records the exact boundaries and actual runtime base `16095d43`, whose whole
+tree was integrated as `9a1d51a1`.
 
-Integrated qualification exposed quadratic history interning (#686). The
-merged private structural-index correction in #687 restores SimpleRegular's
-original counts without removing history semantics. The corrected base `83356b01` passes its full gate and small Auto baselines.
-The original twelve-cell capacity matrix and quiet five-repeat ADR 0119
-performance acceptance remain open. Earlier partial/failed campaigns keep their original source
-and supply no corrected-source acceptance. Merged #688/#689 remove a redundant normalized-membership scan and allow
-concurrent authority reads without changing origin/phase checks. The combined
-24-row development diagnostic retains exact results and improves parallel
-timing, but default Sailfish/SimpleRegular remain slower than paired TLC.
-Broader history (#623), temporal
-source scopes (#502), Next receiver lifecycle (#680), default multi-worker
-comparison registration (#684) and anonymous initial-error replay (#685) remain
-explicit work. Reference remains the default; simulation, DFID, checkpoints,
-disk storage and full-tier breadth retain their existing later scope.
+Candidate errors require fresh independent word/diagnostic proof; the focused
+matrix has 92 valid words, 64 strict classified-oracle comparisons and 28
+ambiguous non-agreements (#699). Worker-aware exact divergence facts close
+#684 (#695). Context-only initial errors now refuse deciding-class proof and
+omit their invalid anonymous word, closing #685 (#702). First-source Next
+function receivers have a bounded actual-lifetime proof (#703); broader #680
+remains open. Broader candidate classification (#697), history (#623),
+temporal source scopes (#502), VIEW, non-Boolean roles and initial-generation
+errors remain unfinished.
+
+The [integrated local qualification](../conformance/reports/core/2026-11-01-integrated-qualification.json)
+passes its full gate at runtime base `16095d43`. The fixture census loses no
+old agreement and gains 10 default/14 TLC old-ID shadow agreements, while
+retaining refusals, stops and refuted/unconfirmed words. TLC Auto keeps all
+model observables but physically exits 1 for omitted baseline SANY entries;
+the default Auto command exits 0. The twelve original capacity cells finish
+with nine successes and three ABA atom-analysis time stops. ABA default/W8
+loses its older completion; completed capture earns no temporal success.
+#650 acceptance remains open. The separately audited [performance diagnostics](../conformance/reports/perf/2026-11-01-integrated-performance.json)
+retain a three-pair focus and a one-repeat ten-model breadth cohort. The focus
+misses the default speed floor, so the formal five-repeat campaign was not
+started. Breadth observations add no five-repeat or original temporal capacity
+credit. Performance and capacity raw evidence is archived, and both phase
+nodes/root volumes have verified cleanup. The independently audited
+[capacity record](../conformance/reports/perf/2026-11-01-original-capacity.json)
+retains the failed acceptance and prior comparison. Historical
+`83356b01`/`9fc88333` results keep their original source and limitations. The
+projection-reuse experiment #705 is closed unmerged after its SimpleRegular
+regression; #704 remains open. Reference remains the default; simulation, DFID,
+checkpoints, disk storage and full-tier breadth retain their existing later
+scope. The [next bounded actions](developer/core/m1-status.md#next-bounded-actions)
+target retained VIEW/constraint words, ambiguous candidate classes, receiver
+lifetimes, default Sailfish/SimpleRegular costs and compatibility investigation.
+Recovering ABA default/W8 headroom remains an obligation; a bounded nested-shape
+proof with exact fallback is only an unadopted candidate in the existing path.

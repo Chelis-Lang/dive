@@ -1,0 +1,2125 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-11-01T03:36:49.862129+00:00",
+  "record_state": "FINAL_BOUNDED_TRUTHFUL_NEGATIVE_CAPACITY_EVIDENCE",
+  "decision": {
+    "evidence": "APPROVE-BOUNDED-TRUTHFUL-EVIDENCE",
+    "capacity_acceptance": "REJECT-CAPACITY-ACCEPTANCE",
+    "capacity_accepted": false,
+    "issue_650_acceptance": false,
+    "issue_650_status": "OPEN",
+    "reason": "All twelve original cells completed and were preserved: nine end-to-end successes and three ABA native900s temporal-analysis atom stops. Complete capture and exact counts do not prove the stopped temporal properties. Independent final review approves this bounded evidence and rejects original capacity acceptance."
+  },
+  "scope": "One observed bounded original twelve-cell temporal-capacity matrix on the actual frozen source and VM, with every success and failure preserved. No quiet throughput, repeated headroom, fresh matched TLC performance, broad TLC replacement, release/default or milestone acceptance.",
+  "source": "16095d43f9391836a900d2369c9cefa77f25a5f3",
+  "tree": "3f36eb710d1a1d052764e443a329d24055f2d87a",
+  "binary_sha256": "eceaefc301ee15fe03edd185e4b83da903765a488b8cb93104024903fce6b607",
+  "binaries_sha256": {
+    "dive": "eceaefc301ee15fe03edd185e4b83da903765a488b8cb93104024903fce6b607",
+    "dive-bench": "a6e0873f36ee7e6e349545d0d3ac423f800206d2283b7e84a1f74413935a7cc9",
+    "dive-conformance": "7c0fae54adc8ebfd95e02972d505d8dd3c261ea40cc631d48125aa5fcd2a2788"
+  },
+  "source_pin_files_sha256": {
+    "conformance/oracles.toml": "f618f1b6e55e7e7859ddb65b7195c06c6131485a837be1e444f206a05e9f35b7",
+    "conformance/corpora.toml": "62015c59ce395c8d3d89f1abd18d5547e8ba551047c46fbf0631033f9181f380",
+    "crates/dive-bench/benchmarks.toml": "5a1a11b0398324394a2cc0b3ca8679b744bd20ced27cb6c4cfe662c8da942c8e",
+    "Cargo.lock": "48a5e53ab9ea85ab4c862325957f0168d385471658fb43a6b08cd667b14b184d",
+    "rust-toolchain.toml": "5c93b0bc9781994987494808030f259cb11c2a9c9b733e6a63b8b6d49598d14e"
+  },
+  "source_qualification": {
+    "actual_executed_source": "16095d43f9391836a900d2369c9cefa77f25a5f3",
+    "source_tree_and_elf_bound_by_ready_receipt": true,
+    "build_receipt_clean": true,
+    "squash_main": "9a1d51a113ead8dff77c52409d9d3350247637d4",
+    "squash_tree": "3f36eb710d1a1d052764e443a329d24055f2d87a",
+    "whole_tree_identical": true,
+    "main_commit_itself_executed": false,
+    "final_qualification_pending": false,
+    "reproducible_build_reperformed": false,
+    "assurance": "Downloaded archive and all member hashes recomputed locally, with raw source/ELF/binding checks and twelve unchanged actual argv/worker/budget/outcome records. Archived driver checks clean HEAD before every row; archiver checks clean HEAD/tree and exact inputs again after terminal/drained service. No old-source outcomes or reproducible-build claim is credited.",
+    "capacity_acceptance": false,
+    "independent_final_review_pending": false
+  },
+  "corpus": {
+    "id": "examples",
+    "commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f"
+  },
+  "oracle": {
+    "id": "tlc-2026.10.06.014338",
+    "sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "golden_workers": 1,
+    "fresh_tlc_timing_performed": false,
+    "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+    "reference_scope": "Historical pinned TLC goldens only; no fresh TLC timing or control run is inferred.",
+    "historical_generation_policy": {
+      "workers": 1,
+      "java_max_heap": "3g",
+      "external_timeout_seconds": 600,
+      "seed": 0,
+      "fingerprint_polynomial": 0,
+      "lncheck": "final",
+      "fresh_tlc_capacity_run": false,
+      "matched_current_native_capacity_time_and_memory_policy": false,
+      "scope": "Historical pinned goldens provide reference truth/counts. Their Java3g/600s policy differs from current native16GiB/900s; no new matched capacity memory/time or TLC-relative speed claim."
+    }
+  },
+  "library_pins": {
+    "classpath": [
+      {
+        "id": "community-modules-202610040242",
+        "sha256": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+      },
+      {
+        "id": "community-modules-deps-202610040242",
+        "sha256": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d"
+      }
+    ],
+    "module_libraries": [
+      {
+        "id": "apalache-modules-v0.62.3",
+        "commit": "3eb15b253482005222fabbf50bb7aae501eb9f8d",
+        "subdir": "src/tla"
+      },
+      {
+        "id": "tlapm-library-d8b9747",
+        "commit": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37",
+        "subdir": "library"
+      }
+    ],
+    "jre_linux_x86_64": {
+      "version": "17.0.20.1+1",
+      "sha256": "0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62"
+    },
+    "pin_origin": "Exact archived source-bound oracle manifest; original cfgs, model sources and goldens were independently hash-checked. Full remote shared module-library cache trees are not archived and were not independently rehashed after termination."
+  },
+  "execution_policy": {
+    "seed": 0,
+    "fingerprint_polynomial": 0,
+    "engine": "core",
+    "native_budget_ms": 900000,
+    "sampled_memory_budget_bytes": 17179869184,
+    "external_backstop_seconds": 930,
+    "max_states": null,
+    "max_depth": null,
+    "workers": [
+      1,
+      8
+    ],
+    "profiles": [
+      "tlc",
+      "default"
+    ],
+    "original_template_order_preserved": true,
+    "driver_sha256": "1a2bc2688d55fc17fd8d65642cc1ac4a36a1e235356d9c02276718cf06ea0769",
+    "templates_sha256": "9e30672372fe6997d94eb4ad66023d9dd5b3f67a3c26d7b3050217d00faeef7a",
+    "capacity_bindings_sha256": "1836e2eaf952cfb58aa9ccf7fc23cbc97c0f6ab7622f838cb0917816059c3a71",
+    "planned_retries": 0,
+    "planned_substitutions": 0,
+    "actual_retries": 0,
+    "actual_substitutions": 0,
+    "whole_run_fallbacks": 0,
+    "actual_engine_worker_budget_proof_status": "All twelve raw rows checked: actual core, no fallback, requested/used workers and explicit native budgets match. Nine complete verified successes; three stops make no temporal claim.",
+    "budget_scope": "the check after loading: evaluator-backed fresh model binding after structural configuration/evaluator construction, safety search, graph capture, temporal analysis and fresh native temporal-candidate validation including its rebinding, and producer ASSUME using existing amortized loop checkpoints; structural binding, independent validation ASSUME, post-binding symmetry preparation, serialization, quiet value/bulk/native units, deferred providers retained by other evaluators and diagnostic reconstruction after a deciding event are not interrupted; legacy TLC/session and standalone validation are not controlled; memory of the whole process",
+    "memory_scope": "Sampled process RSS plus swap and GNU time maximum RSS are separate observations. Cooperative sampling is not an allocation-time hard cap; collector accounting remains incomplete. Complete collector/whole-run byte accounting remains absent; no capacity peak or allocation-time cap is proven.",
+    "archive_driver_sha256": "638d8d57d5691a562315f91b655818042045fed796675958a2b16761bc25188f",
+    "runtime_max_seconds": 11280,
+    "archive_reserve_seconds": 600,
+    "original_fixed_deadline_utc": "2026-11-01T07:03:28Z",
+    "deadline_extended": false,
+    "all_raw_budget_objects_identical": true
+  },
+  "machine": {
+    "instance": "i-0a02ece5b4983d7d1",
+    "instance_type": "c7i.4xlarge",
+    "physical_cores": 8,
+    "threads_per_core": 2,
+    "logical_cpus": 16,
+    "smt": "on",
+    "numa_nodes": 1,
+    "affinity_cpus": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "memory_gib_advertised": 32,
+    "memtotal_kib": 32306632,
+    "boot_id": "00326530-fea8-438b-88a6-d5dba530db27",
+    "quiet_window_certified": false,
+    "host_preflight_utc": "2026-11-01T01:04:58.976701+00:00",
+    "host_preflight_receipt_status": "Actual archived host facts independently hash-checked locally; quiet_window_certified remains false.",
+    "cpu_model": null,
+    "host_preflight_sha256": "1292d52b7d315968b718f926689b4b307469c7d4ab2bb862b5ab8ee84870deb4"
+  },
+  "inputs": {
+    "CoffeeCan3000Beans": {
+      "cfg_scope": "original pinned configuration",
+      "effective_cfg_sha256": "7904ab6bc7fa788828f04c5db64f85c96859bca2e7019341d6294ab1d032cf83",
+      "golden_sha256": "f974757cf9d20f8d14938e84b050a8c05f1fe7e900663d748c50ca0eff967cef",
+      "model": "specifications/CoffeeCan/CoffeeCan3000Beans.cfg",
+      "module": "specifications/CoffeeCan/CoffeeCan.tla",
+      "module_sha256": "32c5d9c900104c0d8be0d3730a6013d141dc90901e08ccaea403fb0be731cd90",
+      "scaling_population_at_least_400000_distinct": true,
+      "source_files": {
+        "APCoffeeCan.tla": "1de47b998ded67418cdab386f9ddde0122dcdaf553b8cca126c670045d67dbc3",
+        "CoffeeCan.tla": "32c5d9c900104c0d8be0d3730a6013d141dc90901e08ccaea403fb0be731cd90",
+        "CoffeeCan_proof.tla": "afed664aed94d10e6cdde95895ee79b41d60a27116bdf40d08813dcc5f2b00ab"
+      },
+      "constants": {
+        "MaxBeanCount": 3000
+      },
+      "properties": [
+        "EventuallyTerminates",
+        "MonotonicDecrease",
+        "LoopInvariant",
+        "TerminationHypothesis"
+      ],
+      "golden_expected_counts": {
+        "distinct_states": 4504500,
+        "states_generated": 18000002,
+        "states_left_on_queue": 0,
+        "depth": 1
+      },
+      "golden_counts_status": "Archived golden verified against exact source Git blob; all four actual rows match distinct/generated/depth/queue counts, including stopped rows without temporal proof.",
+      "invariants": [
+        "TypeInvariant"
+      ],
+      "historical_tlc_golden": {
+        "generated_at": "2026-10-16T22:34:05Z",
+        "elapsed_ms": 175337,
+        "timeout_seconds": 600,
+        "workers": 1,
+        "java_heap": "3g",
+        "observation_kind": "historical reference, not fresh matched performance"
+      }
+    },
+    "EWD998Chan": {
+      "cfg_scope": "original pinned configuration",
+      "effective_cfg_sha256": "259100c5161cf1e04dce4c9898957c5ff7ba81f790c840396a2a7b5e618eb044",
+      "golden_sha256": "a2563fc08eecd0ec85b27ff26685a2560e6e4bdf74ef15b0c38fbb127f749ba5",
+      "model": "specifications/ewd998/EWD998Chan.cfg",
+      "module": "specifications/ewd998/EWD998Chan.tla",
+      "module_sha256": "ebdb5e9c6469fb1afc3b12198e1e2159b3ff3fa76d7bd15e5e11dce92b72313c",
+      "scaling_population_at_least_400000_distinct": true,
+      "source_files": {
+        "AsyncTerminationDetection.tla": "c1b15be68a73c6e5f69c5c09f2736870182a9b0765ad9860452240119911b030",
+        "AsyncTerminationDetection_proof.tla": "87cc4e25be553691b1819b1be20b0addec2f724cec9ffe081014b23f99722ec7",
+        "EWD998.tla": "b51ba3587e0d1b88a38cc15cd667b7a50ccb72e7f5f79f7260c97e473f9392e8",
+        "EWD998Chan.tla": "ebdb5e9c6469fb1afc3b12198e1e2159b3ff3fa76d7bd15e5e11dce92b72313c",
+        "EWD998ChanID.tla": "c498e5e35a83d84257016fdf4ba359ddb40dbb5f3b2234656e32b419a5499e93",
+        "EWD998ChanID_export.tla": "638f814c422250d6debe1209419971b66ead59c8aa8aca4a2efcc29feb379985",
+        "EWD998ChanID_shiviz.tla": "43739b7a7c0754fbb2cf5a7606df9bd9610fc4bc3f22b79aab559e2f4e630c98",
+        "EWD998ChanTrace.tla": "da182795698ff457ae8979b7d97cd47842d75e3d860323ca02031dc47c940171",
+        "EWD998Chan_opts.tla": "4f29c2b6208a54f1ba954fe455f47c70898789b9549d97b6deca6c9efbeaacab",
+        "EWD998PCal.tla": "d1622e16901edfa5b01d4e9c00779408b97483156d241c7b0f22515a1d81dc0d",
+        "EWD998PCal_proof.tla": "fdf1114b7c47216f4b4a3c81db0cc34dd92c0712bad6c31eef09751835d906fd",
+        "EWD998_anim.tla": "6265b417dc405685a3e860493bb21bc4481b2ac278daff99e281a25e7324e209",
+        "EWD998_opts.tla": "5eab17aa1ab6cff0df0cda646453e240c92ed7378e51b4c97b3597fb732a8f85",
+        "EWD998_optsSC.tla": "bf863afe83e52cc6c08e671100a1c15bb4d9ad6735b7887f8ac5cd254ef2334d",
+        "EWD998_proof.tla": "2469117c5148dd3971326c0cc80cdc7665fbe859688f3c635681d3a069029517",
+        "Folds.tla": "2f8c0a7de9a64a5276a78cb7b048e18038d37787439bb9e60df126dc7608a35a",
+        "SmokeEWD998.tla": "c59b406bc1d54108b3d842e41bc2444c915adde416ebd8a02cb5fe4f6b13f808",
+        "SmokeEWD998_SC.tla": "063fe7c67a95789aeb793a67b8ac0135be60749356824e5d85fbe1fed09599d3",
+        "Utils.tla": "386c5319fd101fdde36610466f82151e8a39e01d1c6c8c44e894f7589bcc2b7b"
+      },
+      "constants": {
+        "N": 3
+      },
+      "properties": [
+        "EWD998Spec"
+      ],
+      "golden_expected_counts": {
+        "distinct_states": 1524022,
+        "states_generated": 12882257,
+        "states_left_on_queue": 0,
+        "depth": 58
+      },
+      "golden_counts_status": "Archived golden verified against exact source Git blob; all four actual rows match distinct/generated/depth/queue counts, including stopped rows without temporal proof.",
+      "invariants": [
+        "TypeOK"
+      ],
+      "constraints": [
+        "StateConstraint"
+      ],
+      "check_deadlock": false,
+      "historical_tlc_golden": {
+        "generated_at": "2026-10-17T00:24:55Z",
+        "elapsed_ms": 443583,
+        "timeout_seconds": 600,
+        "workers": 1,
+        "java_heap": "3g",
+        "observation_kind": "historical reference, not fresh matched performance"
+      }
+    },
+    "aba_asyn_byz": {
+      "cfg_scope": "original pinned configuration",
+      "effective_cfg_sha256": "07d4cdd82bab8afc2055adcf3d7202ade9223e573b9fdc41e03e978601df97f2",
+      "golden_sha256": "7a362a8e283e2f8e16bb562f72e65848f3cb73a4b134486fa5c517ad65776fd1",
+      "model": "specifications/aba-asyn-byz/aba_asyn_byz.cfg",
+      "module": "specifications/aba-asyn-byz/aba_asyn_byz.tla",
+      "module_sha256": "8d58bba250c826ed5655364210152c873b52f9837c5592d1a688020abe4eab6c",
+      "scaling_population_at_least_400000_distinct": true,
+      "source_files": {
+        "aba_asyn_byz.tla": "8d58bba250c826ed5655364210152c873b52f9837c5592d1a688020abe4eab6c"
+      },
+      "constants": {
+        "N": 4,
+        "T": 1,
+        "F": 1
+      },
+      "properties": [
+        "Unforg_Ltl",
+        "Corr_Ltl",
+        "Agreement_Ltl"
+      ],
+      "golden_expected_counts": {
+        "distinct_states": 5843977,
+        "states_generated": 85612896,
+        "states_left_on_queue": 0,
+        "depth": 45
+      },
+      "golden_counts_status": "Archived golden verified against exact source Git blob; all four actual rows match distinct/generated/depth/queue counts, including stopped rows without temporal proof.",
+      "invariants": [
+        "TypeOK"
+      ],
+      "historical_tlc_golden": {
+        "generated_at": "2026-10-16T23:32:59Z",
+        "elapsed_ms": 599863,
+        "timeout_seconds": 600,
+        "workers": 1,
+        "java_heap": "3g",
+        "observation_kind": "historical reference, not fresh matched performance"
+      }
+    }
+  },
+  "campaign": {
+    "started_utc": "2026-11-01T01:16:31.887951+00:00",
+    "finished_utc": "2026-11-01T03:22:59.740029+00:00",
+    "planned_cells": 12,
+    "actual_cells": 12,
+    "complete": true,
+    "successes": 9,
+    "native_time_stops": 3,
+    "external_timeouts": 0,
+    "all_expected_success": false,
+    "driver_exit_status": 1,
+    "service_exit_status": 1,
+    "service_result": "exit-code",
+    "service_active_state": "failed",
+    "service_main_pid": 0,
+    "service_invocation_id": "5bf145db42864070b59d8a839dac9f5c",
+    "benchmark_cgroup_drained": true,
+    "raw_receipt_sha256": "eeebca7ad0429ef2d81f1a64696767f1d7da56515ecdd53fe2d61cda1770c807",
+    "exit_scope": "Capacity driver/service only; separate full-gate outcome does not replace failed capacity cells."
+  },
+  "rows": [
+    {
+      "index": 0,
+      "model": "CoffeeCan3000Beans",
+      "arm": "dive-tlc-w1",
+      "profile": "tlc",
+      "requested_workers": 1,
+      "used_workers": 1,
+      "verdict": "success",
+      "qualified_expected_success": true,
+      "physical_exit": 0,
+      "json_exit_code": 0,
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "verified": true
+      },
+      "diagnostic_codes": [],
+      "property": null,
+      "counterexample_present": false,
+      "statistics": {
+        "depth": 1,
+        "distinct": 4504500,
+        "generated": 18000002,
+        "initial_generated": 4504500,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "counts_match_pinned_golden": true,
+      "execution": {
+        "capture_completed": true,
+        "exhausted": true,
+        "stage": "complete"
+      },
+      "stopped": null,
+      "engine": "core",
+      "engine_fallback": null,
+      "seed": 0,
+      "fingerprint": {
+        "polynomial_index": 0,
+        "polynomial_source": "flag",
+        "scheme": "tlc"
+      },
+      "lncheck": "final",
+      "native_budget_ms": 900000,
+      "memory_budget_bytes": 17179869184,
+      "external_backstop_seconds": 930,
+      "external_timeout": false,
+      "started_utc": "2026-11-01T01:16:31.965958+00:00",
+      "finished_utc": "2026-11-01T01:22:34.467360+00:00",
+      "controller_wall_seconds": 362.50114842000005,
+      "json_elapsed_ms": 362443,
+      "sampled_memory": {
+        "final_sampled": true,
+        "initial_sampled": true,
+        "metric": "rss+swap",
+        "observed_max_bytes": 4816146432,
+        "samples": 3614,
+        "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+        "status": "sampled",
+        "unavailable_at": null
+      },
+      "gnu_time_maximum_rss_bytes": 4815904768,
+      "gnu_time_exit_status": 0,
+      "gnu_time_swaps": 0,
+      "gnu_time_user_seconds": 360.14,
+      "gnu_time_system_seconds": 2.78,
+      "gnu_time_cpu_percent": "100%",
+      "native_storage": "native-csr",
+      "collector_accounting_complete": false,
+      "collector_accounting_scope": "native collector buffers and action-label capacities; reserve overlap is an upper bound, not observed RSS; capture key index released before final analysis; opaque hash/allocator/Arc storage, Store, explorer frontiers/waves and transient conversion/analysis storage require separate accounting; no capacity or peak-memory claim",
+      "raw_archive_directory": "reports/phase2-capacity-original-12/00-CoffeeCan3000Beans-dive-tlc-w1",
+      "raw_files": {
+        "MODEL_STARTED.json": {
+          "sha256": "6275da1aca557d14573f76b1940bb934c5b91dba6eca390d78cd1e511b765365",
+          "bytes": 111
+        },
+        "argv-source-binding.json": {
+          "sha256": "abadf13bf8d96098efc79eff218ec674a4cf3c78747e507d20288858514edca8",
+          "bytes": 2307
+        },
+        "physical.rc": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        "receipt.json": {
+          "sha256": "445de1710e70bf91a4d262e1ba7f5ef16061cbc3688a03d9365866f6f2129103",
+          "bytes": 6661
+        },
+        "resource-v.txt": {
+          "sha256": "77c60cddaf6304a17e8c2377925061365823e53addf49cdcf4300a84e919f62a",
+          "bytes": 1483
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout.json": {
+          "sha256": "90fe353e083784cf527b552a4f8897b4ccabb29e941e81ed92e4673e94191f3d",
+          "bytes": 9031
+        }
+      }
+    },
+    {
+      "index": 1,
+      "model": "CoffeeCan3000Beans",
+      "arm": "dive-default-w1",
+      "profile": "default",
+      "requested_workers": 1,
+      "used_workers": 1,
+      "verdict": "success",
+      "qualified_expected_success": true,
+      "physical_exit": 0,
+      "json_exit_code": 0,
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "verified": true
+      },
+      "diagnostic_codes": [],
+      "property": null,
+      "counterexample_present": false,
+      "statistics": {
+        "depth": 1,
+        "distinct": 4504500,
+        "generated": 18000002,
+        "initial_generated": 4504500,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "counts_match_pinned_golden": true,
+      "execution": {
+        "capture_completed": true,
+        "exhausted": true,
+        "stage": "complete"
+      },
+      "stopped": null,
+      "engine": "core",
+      "engine_fallback": null,
+      "seed": 0,
+      "fingerprint": {
+        "polynomial_index": 0,
+        "polynomial_source": "flag",
+        "scheme": "dive"
+      },
+      "lncheck": "deterministic",
+      "native_budget_ms": 900000,
+      "memory_budget_bytes": 17179869184,
+      "external_backstop_seconds": 930,
+      "external_timeout": false,
+      "started_utc": "2026-11-01T01:22:34.548793+00:00",
+      "finished_utc": "2026-11-01T01:28:17.120646+00:00",
+      "controller_wall_seconds": 342.5714589229999,
+      "json_elapsed_ms": 342501,
+      "sampled_memory": {
+        "final_sampled": true,
+        "initial_sampled": true,
+        "metric": "rss+swap",
+        "observed_max_bytes": 4821708800,
+        "samples": 3415,
+        "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+        "status": "sampled",
+        "unavailable_at": null
+      },
+      "gnu_time_maximum_rss_bytes": 4821626880,
+      "gnu_time_exit_status": 0,
+      "gnu_time_swaps": 0,
+      "gnu_time_user_seconds": 340.28,
+      "gnu_time_system_seconds": 2.66,
+      "gnu_time_cpu_percent": "100%",
+      "native_storage": "native-csr",
+      "collector_accounting_complete": false,
+      "collector_accounting_scope": "native collector buffers and action-label capacities; reserve overlap is an upper bound, not observed RSS; capture key index released before final analysis; opaque hash/allocator/Arc storage, Store, explorer frontiers/waves and transient conversion/analysis storage require separate accounting; no capacity or peak-memory claim",
+      "raw_archive_directory": "reports/phase2-capacity-original-12/01-CoffeeCan3000Beans-dive-default-w1",
+      "raw_files": {
+        "MODEL_STARTED.json": {
+          "sha256": "51588e21f9657e1bbfb7d4eea0ce99731bcd4df5159c6a5efa414f0db073eab8",
+          "bytes": 111
+        },
+        "argv-source-binding.json": {
+          "sha256": "21c92b3c530663292e9653fedb66b1a81466c239831d873acebe7ef238adb069",
+          "bytes": 2295
+        },
+        "physical.rc": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        "receipt.json": {
+          "sha256": "2858a7fb9b7d42269a79af867f23fe4a59f5817baa6d235d87b37c4f8e895984",
+          "bytes": 6663
+        },
+        "resource-v.txt": {
+          "sha256": "c614211e95b2a4f853d5496885ec1602a2caafd33a5b9ba0dc2469212a154405",
+          "bytes": 1470
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout.json": {
+          "sha256": "1270414486f50230462fc300992ba2e4dc316fb6365596699ed62970d223ccee",
+          "bytes": 9268
+        }
+      }
+    },
+    {
+      "index": 2,
+      "model": "CoffeeCan3000Beans",
+      "arm": "dive-tlc-w8",
+      "profile": "tlc",
+      "requested_workers": 8,
+      "used_workers": 8,
+      "verdict": "success",
+      "qualified_expected_success": true,
+      "physical_exit": 0,
+      "json_exit_code": 0,
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "verified": true
+      },
+      "diagnostic_codes": [],
+      "property": null,
+      "counterexample_present": false,
+      "statistics": {
+        "depth": 1,
+        "distinct": 4504500,
+        "generated": 18000002,
+        "initial_generated": 4504500,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "counts_match_pinned_golden": true,
+      "execution": {
+        "capture_completed": true,
+        "exhausted": true,
+        "stage": "complete"
+      },
+      "stopped": null,
+      "engine": "core",
+      "engine_fallback": null,
+      "seed": 0,
+      "fingerprint": {
+        "polynomial_index": 0,
+        "polynomial_source": "flag",
+        "scheme": "tlc"
+      },
+      "lncheck": "final",
+      "native_budget_ms": 900000,
+      "memory_budget_bytes": 17179869184,
+      "external_backstop_seconds": 930,
+      "external_timeout": false,
+      "started_utc": "2026-11-01T01:28:17.202297+00:00",
+      "finished_utc": "2026-11-01T01:35:50.498712+00:00",
+      "controller_wall_seconds": 453.2959339270001,
+      "json_elapsed_ms": 453225,
+      "sampled_memory": {
+        "final_sampled": true,
+        "initial_sampled": true,
+        "metric": "rss+swap",
+        "observed_max_bytes": 4830101504,
+        "samples": 4520,
+        "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+        "status": "sampled",
+        "unavailable_at": null
+      },
+      "gnu_time_maximum_rss_bytes": 4829491200,
+      "gnu_time_exit_status": 0,
+      "gnu_time_swaps": 0,
+      "gnu_time_user_seconds": 434.72,
+      "gnu_time_system_seconds": 190.6,
+      "gnu_time_cpu_percent": "137%",
+      "native_storage": "native-csr",
+      "collector_accounting_complete": false,
+      "collector_accounting_scope": "native collector buffers and action-label capacities; reserve overlap is an upper bound, not observed RSS; capture key index released before final analysis; opaque hash/allocator/Arc storage, Store, explorer frontiers/waves and transient conversion/analysis storage require separate accounting; no capacity or peak-memory claim",
+      "raw_archive_directory": "reports/phase2-capacity-original-12/02-CoffeeCan3000Beans-dive-tlc-w8",
+      "raw_files": {
+        "MODEL_STARTED.json": {
+          "sha256": "c17e9dac612b7c248fa73a12e37b81dda76d37ed2d500c116b8a4fcf4b58d808",
+          "bytes": 111
+        },
+        "argv-source-binding.json": {
+          "sha256": "800418f54408918727ff33a1fe6cc4e3eb0f0115d3b78072cc5832cbe20a9b4c",
+          "bytes": 2307
+        },
+        "physical.rc": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        "receipt.json": {
+          "sha256": "cb1000e3bec11cbe21a5daf675987b92a34fa4c0ffc70a8997b23cb598d447d2",
+          "bytes": 6660
+        },
+        "resource-v.txt": {
+          "sha256": "8b221e4e6ff420a0bfb73127d7a302da5b18ac719274350be5670920bc980136",
+          "bytes": 1489
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout.json": {
+          "sha256": "cf827410bf58d1148b5df083baaa876bb86d393bc47d5fc09088929b54e277bb",
+          "bytes": 9012
+        }
+      }
+    },
+    {
+      "index": 3,
+      "model": "CoffeeCan3000Beans",
+      "arm": "dive-default-w8",
+      "profile": "default",
+      "requested_workers": 8,
+      "used_workers": 8,
+      "verdict": "success",
+      "qualified_expected_success": true,
+      "physical_exit": 0,
+      "json_exit_code": 0,
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "verified": true
+      },
+      "diagnostic_codes": [],
+      "property": null,
+      "counterexample_present": false,
+      "statistics": {
+        "depth": 1,
+        "distinct": 4504500,
+        "generated": 18000002,
+        "initial_generated": 4504500,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "counts_match_pinned_golden": true,
+      "execution": {
+        "capture_completed": true,
+        "exhausted": true,
+        "stage": "complete"
+      },
+      "stopped": null,
+      "engine": "core",
+      "engine_fallback": null,
+      "seed": 0,
+      "fingerprint": {
+        "polynomial_index": 0,
+        "polynomial_source": "flag",
+        "scheme": "dive"
+      },
+      "lncheck": "deterministic",
+      "native_budget_ms": 900000,
+      "memory_budget_bytes": 17179869184,
+      "external_backstop_seconds": 930,
+      "external_timeout": false,
+      "started_utc": "2026-11-01T01:35:50.577401+00:00",
+      "finished_utc": "2026-11-01T01:42:59.890998+00:00",
+      "controller_wall_seconds": 429.3130112240001,
+      "json_elapsed_ms": 429254,
+      "sampled_memory": {
+        "final_sampled": true,
+        "initial_sampled": true,
+        "metric": "rss+swap",
+        "observed_max_bytes": 4831723520,
+        "samples": 4282,
+        "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+        "status": "sampled",
+        "unavailable_at": null
+      },
+      "gnu_time_maximum_rss_bytes": 4831109120,
+      "gnu_time_exit_status": 0,
+      "gnu_time_swaps": 0,
+      "gnu_time_user_seconds": 408.72,
+      "gnu_time_system_seconds": 195.68,
+      "gnu_time_cpu_percent": "140%",
+      "native_storage": "native-csr",
+      "collector_accounting_complete": false,
+      "collector_accounting_scope": "native collector buffers and action-label capacities; reserve overlap is an upper bound, not observed RSS; capture key index released before final analysis; opaque hash/allocator/Arc storage, Store, explorer frontiers/waves and transient conversion/analysis storage require separate accounting; no capacity or peak-memory claim",
+      "raw_archive_directory": "reports/phase2-capacity-original-12/03-CoffeeCan3000Beans-dive-default-w8",
+      "raw_files": {
+        "MODEL_STARTED.json": {
+          "sha256": "d917a82772b3892db415abcba81c9851ba86466beb10b24c84a4998839e5f2c7",
+          "bytes": 113
+        },
+        "argv-source-binding.json": {
+          "sha256": "7445f05a4e705ba6bc765dd032ec3c6522861c35b813b49879c2105a9d2f8820",
+          "bytes": 2295
+        },
+        "physical.rc": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        "receipt.json": {
+          "sha256": "f432e91da898ef9c5e336477dff074e815d688b61520cde7d1922d41d1fdd6c7",
+          "bytes": 6665
+        },
+        "resource-v.txt": {
+          "sha256": "659b9632b976ba06a6f37d5b4b4efba1d440d2ca64a17e4641c729aa0d2325a3",
+          "bytes": 1476
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout.json": {
+          "sha256": "095e88f7cf63997f3016a9e907e3869b400e414bb29c2551670b5f067c8950cf",
+          "bytes": 9297
+        }
+      }
+    },
+    {
+      "index": 4,
+      "model": "EWD998Chan",
+      "arm": "dive-default-w1",
+      "profile": "default",
+      "requested_workers": 1,
+      "used_workers": 1,
+      "verdict": "success",
+      "qualified_expected_success": true,
+      "physical_exit": 0,
+      "json_exit_code": 0,
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "verified": true
+      },
+      "diagnostic_codes": [],
+      "property": null,
+      "counterexample_present": false,
+      "statistics": {
+        "depth": 58,
+        "distinct": 1524022,
+        "generated": 12882257,
+        "initial_generated": 192,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "counts_match_pinned_golden": true,
+      "execution": {
+        "capture_completed": true,
+        "exhausted": true,
+        "stage": "complete"
+      },
+      "stopped": null,
+      "engine": "core",
+      "engine_fallback": null,
+      "seed": 0,
+      "fingerprint": {
+        "polynomial_index": 0,
+        "polynomial_source": "flag",
+        "scheme": "dive"
+      },
+      "lncheck": "deterministic",
+      "native_budget_ms": 900000,
+      "memory_budget_bytes": 17179869184,
+      "external_backstop_seconds": 930,
+      "external_timeout": false,
+      "started_utc": "2026-11-01T01:42:59.971569+00:00",
+      "finished_utc": "2026-11-01T01:55:43.526810+00:00",
+      "controller_wall_seconds": 763.5545307520001,
+      "json_elapsed_ms": 763504,
+      "sampled_memory": {
+        "final_sampled": true,
+        "initial_sampled": true,
+        "metric": "rss+swap",
+        "observed_max_bytes": 1855451136,
+        "samples": 7611,
+        "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+        "status": "sampled",
+        "unavailable_at": null
+      },
+      "gnu_time_maximum_rss_bytes": 1865871360,
+      "gnu_time_exit_status": 0,
+      "gnu_time_swaps": 0,
+      "gnu_time_user_seconds": 763.21,
+      "gnu_time_system_seconds": 1.21,
+      "gnu_time_cpu_percent": "100%",
+      "native_storage": "native-csr",
+      "collector_accounting_complete": false,
+      "collector_accounting_scope": "native collector buffers and action-label capacities; reserve overlap is an upper bound, not observed RSS; capture key index released before final analysis; opaque hash/allocator/Arc storage, Store, explorer frontiers/waves and transient conversion/analysis storage require separate accounting; no capacity or peak-memory claim",
+      "raw_archive_directory": "reports/phase2-capacity-original-12/04-EWD998Chan-dive-default-w1",
+      "raw_files": {
+        "MODEL_STARTED.json": {
+          "sha256": "5c92310c7ac7b7cc80203883b624494cb15b511b24bb3e74a79ede4a724680d1",
+          "bytes": 113
+        },
+        "argv-source-binding.json": {
+          "sha256": "c9390bc8e233de1f705d416633896d80d0d044996be8c5cfe0426e9573df3ef2",
+          "bytes": 3798
+        },
+        "physical.rc": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        "receipt.json": {
+          "sha256": "97f637b529b16b58d7750fffcb43bbf91f6c485b5e6749dd2c925c3fe37130a8",
+          "bytes": 8165
+        },
+        "resource-v.txt": {
+          "sha256": "49fe65087619354e6e1992871579c1d8644fd222c492f3ce0f28b6ba1eca9a75",
+          "bytes": 1462
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout.json": {
+          "sha256": "61a8d889fec047b0935b29d84cc2a0861ff18b33f37e2c66480f3a111eb49a4c",
+          "bytes": 11980
+        }
+      }
+    },
+    {
+      "index": 5,
+      "model": "EWD998Chan",
+      "arm": "dive-default-w8",
+      "profile": "default",
+      "requested_workers": 8,
+      "used_workers": 8,
+      "verdict": "success",
+      "qualified_expected_success": true,
+      "physical_exit": 0,
+      "json_exit_code": 0,
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "verified": true
+      },
+      "diagnostic_codes": [],
+      "property": null,
+      "counterexample_present": false,
+      "statistics": {
+        "depth": 58,
+        "distinct": 1524022,
+        "generated": 12882257,
+        "initial_generated": 192,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "counts_match_pinned_golden": true,
+      "execution": {
+        "capture_completed": true,
+        "exhausted": true,
+        "stage": "complete"
+      },
+      "stopped": null,
+      "engine": "core",
+      "engine_fallback": null,
+      "seed": 0,
+      "fingerprint": {
+        "polynomial_index": 0,
+        "polynomial_source": "flag",
+        "scheme": "dive"
+      },
+      "lncheck": "deterministic",
+      "native_budget_ms": 900000,
+      "memory_budget_bytes": 17179869184,
+      "external_backstop_seconds": 930,
+      "external_timeout": false,
+      "started_utc": "2026-11-01T01:55:43.604960+00:00",
+      "finished_utc": "2026-11-01T02:07:49.103395+00:00",
+      "controller_wall_seconds": 725.4976536229997,
+      "json_elapsed_ms": 725454,
+      "sampled_memory": {
+        "final_sampled": true,
+        "initial_sampled": true,
+        "metric": "rss+swap",
+        "observed_max_bytes": 1897779200,
+        "samples": 7234,
+        "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+        "status": "sampled",
+        "unavailable_at": null
+      },
+      "gnu_time_maximum_rss_bytes": 1896996864,
+      "gnu_time_exit_status": 0,
+      "gnu_time_swaps": 0,
+      "gnu_time_user_seconds": 858.89,
+      "gnu_time_system_seconds": 51.11,
+      "gnu_time_cpu_percent": "125%",
+      "native_storage": "native-csr",
+      "collector_accounting_complete": false,
+      "collector_accounting_scope": "native collector buffers and action-label capacities; reserve overlap is an upper bound, not observed RSS; capture key index released before final analysis; opaque hash/allocator/Arc storage, Store, explorer frontiers/waves and transient conversion/analysis storage require separate accounting; no capacity or peak-memory claim",
+      "raw_archive_directory": "reports/phase2-capacity-original-12/05-EWD998Chan-dive-default-w8",
+      "raw_files": {
+        "MODEL_STARTED.json": {
+          "sha256": "e3f7e407df41ec80a01443184ec91ddc98e1c2790af8b3077dfe4e5a0984a9f8",
+          "bytes": 113
+        },
+        "argv-source-binding.json": {
+          "sha256": "03b427ea33cddb35400f3f55bb5113248275b183b2f89562bf2497cb43d21375",
+          "bytes": 3798
+        },
+        "physical.rc": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        "receipt.json": {
+          "sha256": "64d3188c85d2b2487a44837f07f5bda4ae5ff2f30ad71def770fbc31fdc66050",
+          "bytes": 8165
+        },
+        "resource-v.txt": {
+          "sha256": "ca32971472f9018a398f5bcc926b33aa2d78864572dff5d7a601b8a5bf3b26d2",
+          "bytes": 1466
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout.json": {
+          "sha256": "f844c1d79b2d4c4961ce95ba6bef4f1b2693ac97e5477b10a1c5199ebbcadc64",
+          "bytes": 11955
+        }
+      }
+    },
+    {
+      "index": 6,
+      "model": "EWD998Chan",
+      "arm": "dive-tlc-w8",
+      "profile": "tlc",
+      "requested_workers": 8,
+      "used_workers": 8,
+      "verdict": "success",
+      "qualified_expected_success": true,
+      "physical_exit": 0,
+      "json_exit_code": 0,
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "verified": true
+      },
+      "diagnostic_codes": [],
+      "property": null,
+      "counterexample_present": false,
+      "statistics": {
+        "depth": 58,
+        "distinct": 1524022,
+        "generated": 12882257,
+        "initial_generated": 192,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "counts_match_pinned_golden": true,
+      "execution": {
+        "capture_completed": true,
+        "exhausted": true,
+        "stage": "complete"
+      },
+      "stopped": null,
+      "engine": "core",
+      "engine_fallback": null,
+      "seed": 0,
+      "fingerprint": {
+        "polynomial_index": 0,
+        "polynomial_source": "flag",
+        "scheme": "tlc"
+      },
+      "lncheck": "final",
+      "native_budget_ms": 900000,
+      "memory_budget_bytes": 17179869184,
+      "external_backstop_seconds": 930,
+      "external_timeout": false,
+      "started_utc": "2026-11-01T02:07:49.182967+00:00",
+      "finished_utc": "2026-11-01T02:15:32.334742+00:00",
+      "controller_wall_seconds": 463.1509416729996,
+      "json_elapsed_ms": 463105,
+      "sampled_memory": {
+        "final_sampled": true,
+        "initial_sampled": true,
+        "metric": "rss+swap",
+        "observed_max_bytes": 1846018048,
+        "samples": 4620,
+        "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+        "status": "sampled",
+        "unavailable_at": null
+      },
+      "gnu_time_maximum_rss_bytes": 1847005184,
+      "gnu_time_exit_status": 0,
+      "gnu_time_swaps": 0,
+      "gnu_time_user_seconds": 599.78,
+      "gnu_time_system_seconds": 50.33,
+      "gnu_time_cpu_percent": "140%",
+      "native_storage": "native-csr",
+      "collector_accounting_complete": false,
+      "collector_accounting_scope": "native collector buffers and action-label capacities; reserve overlap is an upper bound, not observed RSS; capture key index released before final analysis; opaque hash/allocator/Arc storage, Store, explorer frontiers/waves and transient conversion/analysis storage require separate accounting; no capacity or peak-memory claim",
+      "raw_archive_directory": "reports/phase2-capacity-original-12/06-EWD998Chan-dive-tlc-w8",
+      "raw_files": {
+        "MODEL_STARTED.json": {
+          "sha256": "ab0bec04d05fba4f38928d9f25eefcf4044bc1f2a587dad220e6ccd5ff81cf13",
+          "bytes": 114
+        },
+        "argv-source-binding.json": {
+          "sha256": "9a5e946ba684ee15e9fd043ffa0654894a28f8f8e0fb8d5a92641493bc1aae1c",
+          "bytes": 3810
+        },
+        "physical.rc": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        "receipt.json": {
+          "sha256": "4811828dcce29ca0b2587ddcd182e56cb29a4dc9e1a6c1f59839be177ebdfa22",
+          "bytes": 8163
+        },
+        "resource-v.txt": {
+          "sha256": "d2671bcc3c97c3c7953322960df865a375d52127bf678223f46c784d1690c35d",
+          "bytes": 1477
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout.json": {
+          "sha256": "94d516f1cbdc2c9e2fcdf054ca2dd0bbad34e70c0685c0f230e0ca7289339ae3",
+          "bytes": 11699
+        }
+      }
+    },
+    {
+      "index": 7,
+      "model": "aba_asyn_byz",
+      "arm": "dive-tlc-w1",
+      "profile": "tlc",
+      "requested_workers": 1,
+      "used_workers": 1,
+      "verdict": "stopped",
+      "qualified_expected_success": false,
+      "physical_exit": 5,
+      "json_exit_code": 5,
+      "tlc": null,
+      "diagnostic_codes": [
+        "DIVE-L0038"
+      ],
+      "property": null,
+      "counterexample_present": false,
+      "statistics": {
+        "depth": 45,
+        "distinct": 5843977,
+        "exhaustive": false,
+        "generated": 85612896,
+        "initial_generated": 16,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "counts_match_pinned_golden": true,
+      "execution": {
+        "capture_completed": true,
+        "stage": "atoms"
+      },
+      "stopped": {
+        "elapsed_ms": 900036,
+        "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+        "limit": 900000,
+        "observed": 900036,
+        "phase": "temporal-analysis",
+        "resource": "time",
+        "unit": "ms"
+      },
+      "engine": "core",
+      "engine_fallback": null,
+      "seed": 0,
+      "fingerprint": {
+        "polynomial_index": 0,
+        "polynomial_source": "flag",
+        "scheme": "tlc"
+      },
+      "lncheck": "final",
+      "native_budget_ms": 900000,
+      "memory_budget_bytes": 17179869184,
+      "external_backstop_seconds": 930,
+      "external_timeout": false,
+      "started_utc": "2026-11-01T02:15:32.417801+00:00",
+      "finished_utc": "2026-11-01T02:30:32.488560+00:00",
+      "controller_wall_seconds": 900.0696853579993,
+      "json_elapsed_ms": 900042,
+      "sampled_memory": {
+        "final_sampled": true,
+        "initial_sampled": true,
+        "metric": "rss+swap",
+        "observed_max_bytes": 5482983424,
+        "samples": 8971,
+        "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+        "status": "sampled",
+        "unavailable_at": null
+      },
+      "gnu_time_maximum_rss_bytes": 5484969984,
+      "gnu_time_exit_status": 5,
+      "gnu_time_swaps": 0,
+      "gnu_time_user_seconds": 899.41,
+      "gnu_time_system_seconds": 1.79,
+      "gnu_time_cpu_percent": "100%",
+      "native_storage": "native-csr",
+      "collector_accounting_complete": false,
+      "collector_accounting_scope": "native collector buffers and action-label capacities; reserve overlap is an upper bound, not observed RSS; capture key index released before final analysis; opaque hash/allocator/Arc storage, Store, explorer frontiers/waves and transient conversion/analysis storage require separate accounting; no capacity or peak-memory claim",
+      "raw_archive_directory": "reports/phase2-capacity-original-12/07-aba_asyn_byz-dive-tlc-w1",
+      "raw_files": {
+        "MODEL_STARTED.json": {
+          "sha256": "b375c115fb5d79921491e612cd7478b2f04558df6affe6fad6e03ba55ea311ba",
+          "bytes": 114
+        },
+        "argv-source-binding.json": {
+          "sha256": "6ff04a967c9c7e2ea27b78cbe0dc0510c75cf9e14256935cebaf31c09f3de4bc",
+          "bytes": 2120
+        },
+        "physical.rc": {
+          "sha256": "f0b5c2c2211c8d67ed15e75e656c7862d086e9245420892a7de62cd9ec582a06",
+          "bytes": 2
+        },
+        "receipt.json": {
+          "sha256": "a61f0c783b21008a7089e039144ddb936b167b96f12472cbdff96d2778eeb052",
+          "bytes": 6381
+        },
+        "resource-v.txt": {
+          "sha256": "9e447dccd6458d099d74a9406db67a1c2396811ea07640825e25e77c715e3f44",
+          "bytes": 1523
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout.json": {
+          "sha256": "7b52b9a5053162a667a545231721cbd144be8cc39249816bfb1e7382675439b3",
+          "bytes": 10643
+        }
+      }
+    },
+    {
+      "index": 8,
+      "model": "aba_asyn_byz",
+      "arm": "dive-default-w1",
+      "profile": "default",
+      "requested_workers": 1,
+      "used_workers": 1,
+      "verdict": "success",
+      "qualified_expected_success": true,
+      "physical_exit": 0,
+      "json_exit_code": 0,
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "verified": true
+      },
+      "diagnostic_codes": [],
+      "property": null,
+      "counterexample_present": false,
+      "statistics": {
+        "depth": 45,
+        "distinct": 5843977,
+        "generated": 85612896,
+        "initial_generated": 16,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "counts_match_pinned_golden": true,
+      "execution": {
+        "capture_completed": true,
+        "exhausted": true,
+        "stage": "complete"
+      },
+      "stopped": null,
+      "engine": "core",
+      "engine_fallback": null,
+      "seed": 0,
+      "fingerprint": {
+        "polynomial_index": 0,
+        "polynomial_source": "flag",
+        "scheme": "dive"
+      },
+      "lncheck": "deterministic",
+      "native_budget_ms": 900000,
+      "memory_budget_bytes": 17179869184,
+      "external_backstop_seconds": 930,
+      "external_timeout": false,
+      "started_utc": "2026-11-01T02:30:32.568519+00:00",
+      "finished_utc": "2026-11-01T02:44:39.550748+00:00",
+      "controller_wall_seconds": 846.9812235249992,
+      "json_elapsed_ms": 846931,
+      "sampled_memory": {
+        "final_sampled": true,
+        "initial_sampled": true,
+        "metric": "rss+swap",
+        "observed_max_bytes": 12285124608,
+        "samples": 8443,
+        "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+        "status": "sampled",
+        "unavailable_at": null
+      },
+      "gnu_time_maximum_rss_bytes": 12284936192,
+      "gnu_time_exit_status": 0,
+      "gnu_time_swaps": 0,
+      "gnu_time_user_seconds": 844.7,
+      "gnu_time_system_seconds": 3.29,
+      "gnu_time_cpu_percent": "100%",
+      "native_storage": "native-csr",
+      "collector_accounting_complete": false,
+      "collector_accounting_scope": "native collector buffers and action-label capacities; reserve overlap is an upper bound, not observed RSS; capture key index released before final analysis; opaque hash/allocator/Arc storage, Store, explorer frontiers/waves and transient conversion/analysis storage require separate accounting; no capacity or peak-memory claim",
+      "raw_archive_directory": "reports/phase2-capacity-original-12/08-aba_asyn_byz-dive-default-w1",
+      "raw_files": {
+        "MODEL_STARTED.json": {
+          "sha256": "28208f4b805f7afe70c0f9cd2e8e9bc566572021b158946a8ecbb304b054f579",
+          "bytes": 114
+        },
+        "argv-source-binding.json": {
+          "sha256": "e1e0d423cd30d101c0ffe94952477fb16fef691b98251a2df37f1b2bbc2abc39",
+          "bytes": 2108
+        },
+        "physical.rc": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        "receipt.json": {
+          "sha256": "ac32ff9bffcb83f52762c585b2399454c9996a6552887c3967288635710bc3a7",
+          "bytes": 6476
+        },
+        "resource-v.txt": {
+          "sha256": "18c0beb0ac41ec8579b561918f56bbbbedaa0de0adac63c5a537cb9148578590",
+          "bytes": 1473
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout.json": {
+          "sha256": "2db0e3f2b216ef2194e2ddebc5c7a6d2a9af59483b762c430f799fb67411775e",
+          "bytes": 10258
+        }
+      }
+    },
+    {
+      "index": 9,
+      "model": "aba_asyn_byz",
+      "arm": "dive-tlc-w8",
+      "profile": "tlc",
+      "requested_workers": 8,
+      "used_workers": 8,
+      "verdict": "stopped",
+      "qualified_expected_success": false,
+      "physical_exit": 5,
+      "json_exit_code": 5,
+      "tlc": null,
+      "diagnostic_codes": [
+        "DIVE-L0038"
+      ],
+      "property": null,
+      "counterexample_present": false,
+      "statistics": {
+        "depth": 45,
+        "distinct": 5843977,
+        "exhaustive": false,
+        "generated": 85612896,
+        "initial_generated": 16,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "counts_match_pinned_golden": true,
+      "execution": {
+        "capture_completed": true,
+        "stage": "atoms"
+      },
+      "stopped": {
+        "elapsed_ms": 900003,
+        "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+        "limit": 900000,
+        "observed": 900003,
+        "phase": "temporal-analysis",
+        "resource": "time",
+        "unit": "ms"
+      },
+      "engine": "core",
+      "engine_fallback": null,
+      "seed": 0,
+      "fingerprint": {
+        "polynomial_index": 0,
+        "polynomial_source": "flag",
+        "scheme": "tlc"
+      },
+      "lncheck": "final",
+      "native_budget_ms": 900000,
+      "memory_budget_bytes": 17179869184,
+      "external_backstop_seconds": 930,
+      "external_timeout": false,
+      "started_utc": "2026-11-01T02:44:39.633063+00:00",
+      "finished_utc": "2026-11-01T02:59:39.698440+00:00",
+      "controller_wall_seconds": 900.0642642850007,
+      "json_elapsed_ms": 900009,
+      "sampled_memory": {
+        "final_sampled": true,
+        "initial_sampled": true,
+        "metric": "rss+swap",
+        "observed_max_bytes": 5438832640,
+        "samples": 8975,
+        "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+        "status": "sampled",
+        "unavailable_at": null
+      },
+      "gnu_time_maximum_rss_bytes": 5447000064,
+      "gnu_time_exit_status": 5,
+      "gnu_time_swaps": 0,
+      "gnu_time_user_seconds": 938.03,
+      "gnu_time_system_seconds": 306.11,
+      "gnu_time_cpu_percent": "138%",
+      "native_storage": "native-csr",
+      "collector_accounting_complete": false,
+      "collector_accounting_scope": "native collector buffers and action-label capacities; reserve overlap is an upper bound, not observed RSS; capture key index released before final analysis; opaque hash/allocator/Arc storage, Store, explorer frontiers/waves and transient conversion/analysis storage require separate accounting; no capacity or peak-memory claim",
+      "raw_archive_directory": "reports/phase2-capacity-original-12/09-aba_asyn_byz-dive-tlc-w8",
+      "raw_files": {
+        "MODEL_STARTED.json": {
+          "sha256": "a8f864ce5f4092822be65e61650be2e2dacc742750400a763fe84e1e7bc4e9ca",
+          "bytes": 114
+        },
+        "argv-source-binding.json": {
+          "sha256": "6b6f40a2e6d125c13c36365e5aacfca567c639716c2ec82a13ba0bc815280539",
+          "bytes": 2120
+        },
+        "physical.rc": {
+          "sha256": "f0b5c2c2211c8d67ed15e75e656c7862d086e9245420892a7de62cd9ec582a06",
+          "bytes": 2
+        },
+        "receipt.json": {
+          "sha256": "0ca9cb825ff840f89c90c6401e7c7b36ac9e69e47509a8e850ebb13870c7dd93",
+          "bytes": 6381
+        },
+        "resource-v.txt": {
+          "sha256": "fd0f5d4514e48f158e83eb7725ab80f78da36fc98eae7e6fec5c7ac6003e2656",
+          "bytes": 1529
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout.json": {
+          "sha256": "68490e3e5e15283e14eb709ea61be5ac1a405a0638436c8c1a110435d968b1a7",
+          "bytes": 10623
+        }
+      }
+    },
+    {
+      "index": 10,
+      "model": "aba_asyn_byz",
+      "arm": "dive-default-w8",
+      "profile": "default",
+      "requested_workers": 8,
+      "used_workers": 8,
+      "verdict": "stopped",
+      "qualified_expected_success": false,
+      "physical_exit": 5,
+      "json_exit_code": 5,
+      "tlc": null,
+      "diagnostic_codes": [
+        "DIVE-L0038"
+      ],
+      "property": null,
+      "counterexample_present": false,
+      "statistics": {
+        "depth": 45,
+        "distinct": 5843977,
+        "exhaustive": false,
+        "generated": 85612896,
+        "initial_generated": 16,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "counts_match_pinned_golden": true,
+      "execution": {
+        "capture_completed": true,
+        "stage": "atoms"
+      },
+      "stopped": {
+        "elapsed_ms": 900043,
+        "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+        "limit": 900000,
+        "observed": 900043,
+        "phase": "temporal-analysis",
+        "resource": "time",
+        "unit": "ms"
+      },
+      "engine": "core",
+      "engine_fallback": null,
+      "seed": 0,
+      "fingerprint": {
+        "polynomial_index": 0,
+        "polynomial_source": "flag",
+        "scheme": "dive"
+      },
+      "lncheck": "deterministic",
+      "native_budget_ms": 900000,
+      "memory_budget_bytes": 17179869184,
+      "external_backstop_seconds": 930,
+      "external_timeout": false,
+      "started_utc": "2026-11-01T02:59:39.779061+00:00",
+      "finished_utc": "2026-11-01T03:14:39.886401+00:00",
+      "controller_wall_seconds": 900.1061484749998,
+      "json_elapsed_ms": 900049,
+      "sampled_memory": {
+        "final_sampled": true,
+        "initial_sampled": true,
+        "metric": "rss+swap",
+        "observed_max_bytes": 5570142208,
+        "samples": 8975,
+        "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+        "status": "sampled",
+        "unavailable_at": null
+      },
+      "gnu_time_maximum_rss_bytes": 5571739648,
+      "gnu_time_exit_status": 5,
+      "gnu_time_swaps": 0,
+      "gnu_time_user_seconds": 949.91,
+      "gnu_time_system_seconds": 286.03,
+      "gnu_time_cpu_percent": "137%",
+      "native_storage": "native-csr",
+      "collector_accounting_complete": false,
+      "collector_accounting_scope": "native collector buffers and action-label capacities; reserve overlap is an upper bound, not observed RSS; capture key index released before final analysis; opaque hash/allocator/Arc storage, Store, explorer frontiers/waves and transient conversion/analysis storage require separate accounting; no capacity or peak-memory claim",
+      "raw_archive_directory": "reports/phase2-capacity-original-12/10-aba_asyn_byz-dive-default-w8",
+      "raw_files": {
+        "MODEL_STARTED.json": {
+          "sha256": "aa328be3b5b100fb508d1a6210725c94783ae8a3d793216674c4ef20a9446d84",
+          "bytes": 114
+        },
+        "argv-source-binding.json": {
+          "sha256": "8f59a2d22c55b4d500c19e9e4f6c69e0f652bd13e438ba4b846874448584d989",
+          "bytes": 2108
+        },
+        "physical.rc": {
+          "sha256": "f0b5c2c2211c8d67ed15e75e656c7862d086e9245420892a7de62cd9ec582a06",
+          "bytes": 2
+        },
+        "receipt.json": {
+          "sha256": "eb3208fa27810ca35f5ca571f8e5ba42925a3eb34e0df26b8259b985f3ad049c",
+          "bytes": 6384
+        },
+        "resource-v.txt": {
+          "sha256": "76bc853783585d11cb464f3648826819a04aebe065b8fa7f7ed571babf22cfd6",
+          "bytes": 1515
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout.json": {
+          "sha256": "5cea1ce464ed11dd8c899a3344b6a19db57366a832efa9a98835662ccf9c0eb8",
+          "bytes": 10917
+        }
+      }
+    },
+    {
+      "index": 11,
+      "model": "EWD998Chan",
+      "arm": "dive-tlc-w1",
+      "profile": "tlc",
+      "requested_workers": 1,
+      "used_workers": 1,
+      "verdict": "success",
+      "qualified_expected_success": true,
+      "physical_exit": 0,
+      "json_exit_code": 0,
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "verified": true
+      },
+      "diagnostic_codes": [],
+      "property": null,
+      "counterexample_present": false,
+      "statistics": {
+        "depth": 58,
+        "distinct": 1524022,
+        "generated": 12882257,
+        "initial_generated": 192,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "counts_match_pinned_golden": true,
+      "execution": {
+        "capture_completed": true,
+        "exhausted": true,
+        "stage": "complete"
+      },
+      "stopped": null,
+      "engine": "core",
+      "engine_fallback": null,
+      "seed": 0,
+      "fingerprint": {
+        "polynomial_index": 0,
+        "polynomial_source": "flag",
+        "scheme": "tlc"
+      },
+      "lncheck": "final",
+      "native_budget_ms": 900000,
+      "memory_budget_bytes": 17179869184,
+      "external_backstop_seconds": 930,
+      "external_timeout": false,
+      "started_utc": "2026-11-01T03:14:39.967937+00:00",
+      "finished_utc": "2026-11-01T03:22:59.738423+00:00",
+      "controller_wall_seconds": 499.7691205739993,
+      "json_elapsed_ms": 499695,
+      "sampled_memory": {
+        "final_sampled": true,
+        "initial_sampled": true,
+        "metric": "rss+swap",
+        "observed_max_bytes": 1859723264,
+        "samples": 4982,
+        "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+        "status": "sampled",
+        "unavailable_at": null
+      },
+      "gnu_time_maximum_rss_bytes": 1859592192,
+      "gnu_time_exit_status": 0,
+      "gnu_time_swaps": 0,
+      "gnu_time_user_seconds": 499.49,
+      "gnu_time_system_seconds": 0.82,
+      "gnu_time_cpu_percent": "100%",
+      "native_storage": "native-csr",
+      "collector_accounting_complete": false,
+      "collector_accounting_scope": "native collector buffers and action-label capacities; reserve overlap is an upper bound, not observed RSS; capture key index released before final analysis; opaque hash/allocator/Arc storage, Store, explorer frontiers/waves and transient conversion/analysis storage require separate accounting; no capacity or peak-memory claim",
+      "raw_archive_directory": "reports/phase2-capacity-original-12/11-EWD998Chan-dive-tlc-w1",
+      "raw_files": {
+        "MODEL_STARTED.json": {
+          "sha256": "df5e645a4a24edcd6f4b6f8ae6f267ae3db1167142738c444e668d1e4f9645cc",
+          "bytes": 114
+        },
+        "argv-source-binding.json": {
+          "sha256": "a3651933c6290464c846377d0f0afa9f0bd4ac6b87ab53766600952cc173d6d6",
+          "bytes": 3810
+        },
+        "physical.rc": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        "receipt.json": {
+          "sha256": "ca64aba83275251018d75b2cb1a43c683e5b12b62345e8219c7d139e6f271e9c",
+          "bytes": 8163
+        },
+        "resource-v.txt": {
+          "sha256": "9d8489f539b31c0c0ea5a43336b3a576e7358052aed7aa2b46dca5c130b62e0b",
+          "bytes": 1473
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout.json": {
+          "sha256": "65b826eb9fcca862f53417c745e448a9740aec71f2f6869b66ce453120e3fca7",
+          "bytes": 11710
+        }
+      }
+    }
+  ],
+  "controls": {
+    "prepare_exit_status": 0,
+    "build_fetch_only": true,
+    "model_preflight_acceptance": null,
+    "old_source_preflight_results_credited": false,
+    "module_preflight_count": null,
+    "actual_core_controls_total": null,
+    "reports": [],
+    "observed_attempts": [
+      {
+        "result": "EMPTY_SELECTION_USAGE_ERROR",
+        "physical_exit": 2,
+        "receipt_file": "cloud/final-16095d43/capacity-ready-validation-materialized.log",
+        "sha256": "f21190771a9088bfea2f25c3742fd0767aa1cebafe4748fcd76d0ba26c38bf30",
+        "scope": "Actual materialization attempt exited2 on empty selection after making verified jar-module directories available; zero models executed. This failed command is retained separately from the two later successful read-only ready validations.",
+        "models_executed": 0
+      }
+    ],
+    "scope": "Actual cached build/fetch readiness plus successful read-only ready validations at01:11:36 and01:16:31. The earlier empty-selection materialization command remains exit2 with zero model executions. Passed old-source SANY/model-control counts are not copied into this record.",
+    "ready_validation_passes": [
+      {
+        "ready_utc": "2026-11-01T01:11:36.714431+00:00",
+        "bindings_sha256": "1836e2eaf952cfb58aa9ccf7fc23cbc97c0f6ab7622f838cb0917816059c3a71",
+        "source": "16095d43f9391836a900d2369c9cefa77f25a5f3",
+        "tree": "3f36eb710d1a1d052764e443a329d24055f2d87a",
+        "binary_sha256": "eceaefc301ee15fe03edd185e4b83da903765a488b8cb93104024903fce6b607",
+        "models_started_by_validation": false,
+        "receipt_file": "cloud/final-16095d43/capacity-ready-validation-after-extraction.log",
+        "receipt_sha256": "e9006c5008c47dbb28e1037f56c64b600250614172b148c3a50c552ffb263914",
+        "scope": "Actual successful read-only ready/input-hash validation; this is not a SANY/model checker control run."
+      },
+      {
+        "ready_utc": "2026-11-01T01:16:31.716264+00:00",
+        "bindings_sha256": "1836e2eaf952cfb58aa9ccf7fc23cbc97c0f6ab7622f838cb0917816059c3a71",
+        "source": "16095d43f9391836a900d2369c9cefa77f25a5f3",
+        "tree": "3f36eb710d1a1d052764e443a329d24055f2d87a",
+        "binary_sha256": "eceaefc301ee15fe03edd185e4b83da903765a488b8cb93104024903fce6b607",
+        "models_started_by_validation": false,
+        "receipt_file": "cloud/final-16095d43/capacity-original12-launch.log",
+        "receipt_sha256": "adb3b450634b711cf670ffb427405aa5cb736036e90d394f981bcef150816201",
+        "scope": "Actual successful read-only ready/input-hash validation; this is not a SANY/model checker control run."
+      }
+    ],
+    "pre_run_input_hash_checks": {
+      "original_configs": 3,
+      "source_files": 23,
+      "goldens": 3,
+      "module_path_directories_present": true,
+      "status": "Actual pre-run ready validation recorded and final archived3cfg/23source/3golden hashes recomputed locally."
+    },
+    "source_bound_ready_receipt_sha256": "773ef2c2fd799bc14e237d1c1949ba4cee6b91d0130eadd41049dad30019ac34",
+    "preparation_receipt_sha256": "e55e8abeedd88a264a7bcb71a89ed30d01ab73df8f4353d4a6664cbbd5822da6",
+    "final_postrun_snapshot_sha256": "6b8d7ab3d4450943e11b3b2fe08ebc28fa0c126f1681cbb28ede8f918d02d1b2"
+  },
+  "capacity_findings": [
+    {
+      "severity": "blocking",
+      "cell_index": 7,
+      "finding": "ABA tlc/W1 stopped in atoms at 900.069685358 controller seconds, physical/JSON exit5 and DIVE-L0038. Capture completed and exact counts/queue0 did not establish temporal properties; statistics.exhaustive=false and TLC classification absent."
+    },
+    {
+      "severity": "blocking",
+      "cell_index": 9,
+      "finding": "ABA tlc/W8 stopped in atoms at 900.064264285 controller seconds, physical/JSON exit5 and DIVE-L0038. Capture completed and exact counts/queue0 did not establish temporal properties; statistics.exhaustive=false and TLC classification absent."
+    },
+    {
+      "severity": "blocking",
+      "cell_index": 10,
+      "finding": "ABA default/W8 stopped in atoms at 900.106148475 controller seconds, physical/JSON exit5 and DIVE-L0038. Capture completed and exact counts/queue0 did not establish temporal properties; statistics.exhaustive=false and TLC classification absent."
+    },
+    {
+      "severity": "blocking",
+      "cell_index": 10,
+      "finding": "Observed ABA default/W8 completion was lost versus83356b01: prior889.180080790s success with about1.20% nominal margin; current900.106148475s atom stop. Separate non-quiet VMs prevent a causal source/host attribution."
+    }
+  ],
+  "acceptance_requirements": {
+    "exact_original_cells": 12,
+    "model_config_substitutions_allowed": false,
+    "actual_workers_match_each_request": [
+      1,
+      8
+    ],
+    "profiles": [
+      "tlc",
+      "default"
+    ],
+    "every_row_requires": [
+      "physical exit0 and JSON exit0",
+      "actual engine core and no fallback",
+      "requested and used workers match",
+      "explicit900000ms/17179869184-byte budget sources, no max_states or max_depth",
+      "seed0/fingerprint polynomial0 and original all-property cfg/module/library/golden pins",
+      "capture_completed=true, exhausted=true, stage=complete",
+      "complete temporal analysis and verified TLC_SUCCESS/code2193/exit0",
+      "native/external stops, refusals, failed proofs and incomplete cells retained as failures",
+      "raw stdout/stderr/resource/physical-rc hashes verified against independent downloaded archive"
+    ],
+    "workers1_observable_counts": "Exact distinct/generated/depth equality with the pinned golden is mandatory and matched by all actual W1 rows. Matching stopped-row counts still do not prove temporal properties.",
+    "workers8_observable_counts": "Preserve and inspect actual counts; unchanged existing capacity runner also requires its recorded counts_ok.",
+    "final_evidence": [
+      "terminal/drained service and benchmark cgroup; no actual ELF processes",
+      "downloaded archive outer hash plus every manifest member byte length/SHA256 verified",
+      "all twelve actual raw outcomes independently recomputed, with every failure retained",
+      "independent capacity review of end-to-end analysis and budget proof",
+      "actual owned-instance termination/root-volume deletion receipts after verified preservation"
+    ],
+    "issue_650_scope": "Only exact original twelve-cell900s/16GiB capacity acceptance. No Bcast deep-target, allocator/accounting framework, milestone or broad TLC replacement closure."
+  },
+  "archive": {
+    "source": "16095d43f9391836a900d2369c9cefa77f25a5f3",
+    "node": "i-0a02ece5b4983d7d1",
+    "bucket": "dive-evidence-archive-010928226848-us-east-1",
+    "key": "phase2-20261101-16095d43/original-capacity.tar.gz",
+    "sha256": "5bd0c893243dc072365d03cf95d2c0e44613bd981c4010fd08eabc0fa40f6db4",
+    "bytes": 25821365,
+    "members": 146,
+    "verified_local_download": true,
+    "every_manifest_member_sha256_verified": true,
+    "utc": "2026-11-01T03:26:25.682954+00:00",
+    "scope": "All twelve original current-source capacity successes/stops and raw resource/physical outcomes retained; no quiet/performance acceptance."
+  },
+  "independent_integrity_verification": {
+    "status": "APPROVE-BOUNDED-TRUTHFUL-EVIDENCE",
+    "archive_sha256_recomputed": true,
+    "unique_regular_members": 146,
+    "manifest_file_entries": 145,
+    "manifest_sha256": "565a15d8f933de7276c666a0d9821ffdc8fe97db889ef7da7b9f7a06a27734ed",
+    "all_manifest_sha256_and_byte_lengths_recomputed": true,
+    "manifest_itself_bound_by_archive_sha256": true,
+    "exact_member_set_matches_manifest_plus_manifest_file": true,
+    "all_twelve_raw_outcomes_recomputed": true,
+    "all_23_source_files_and_3_configs_hash_matched": true,
+    "all_three_goldens_match_exact_source_git_blobs": true,
+    "all_stdout_stderr_and_physical_exit_receipts_verified": true,
+    "all_stderr_empty": true,
+    "all_three_actual_elf_hashes_verified": true,
+    "source_argv_worker_budget_bindings_verified": true,
+    "final_fresh_context_review": {
+      "reviewed_utc": "2026-11-01T03:32:23.775561+00:00",
+      "markers": {
+        "bounded_evidence": "APPROVE-BOUNDED-TRUTHFUL-EVIDENCE",
+        "capacity_acceptance": "REJECT-CAPACITY-ACCEPTANCE"
+      },
+      "scope": "Accuracy and integrity of this bounded completed evidence only",
+      "recomputed": {
+        "all_expected_success": false,
+        "campaign_complete": true,
+        "campaign_physical_exit": 1,
+        "capacity_acceptance": false,
+        "honest_stops": true,
+        "producer_qualified_flags_independently_checked": true,
+        "stops": 3,
+        "successes": 9,
+        "terminal": 12
+      },
+      "artifacts": {
+        "review-final.md": {
+          "sha256": "cf5c8d9acf0f49ddde43f42aa5fc92cb7655db15857f5ffd097901accc19688f",
+          "bytes": 8304
+        },
+        "review-final.json": {
+          "sha256": "4334609cc25ecc2d62a32a100f328af947ed1ac08563d09564c8dc873ce93afe",
+          "bytes": 92836
+        },
+        "controls-final.json": {
+          "sha256": "4e89dcdadf4e902be434d6f8f987ca5b3a1df20db671324e5c33ca09f778490b",
+          "bytes": 10952
+        },
+        "audit_final.py": {
+          "sha256": "a015ad856027ac247c9863d187293819f63932f0bec49c512b930a893a34890f",
+          "bytes": 32282
+        },
+        "review.py": {
+          "sha256": "952314d6b41b5969d08aca76a61e2714c6e39f15349497203fa4cd6fc43c5e42",
+          "bytes": 12782
+        },
+        "command-receipts-final.json": {
+          "sha256": "ae66559ee33dcaca98bc3ffeb8a6865a78594019c5518d1dc9db93978dc03cff",
+          "bytes": 941
+        },
+        "command-receipts-preparation.json": {
+          "sha256": "d09868b0f57d8fe84838d891cd0894936fb64b79218fdc9fa8374877c8d4454b",
+          "bytes": 1558
+        },
+        "commands-and-tests.md": {
+          "sha256": "1d36a9df5598d30726ca8bfa77d20b86b0440bd6cacb92aa8b39dbb1a1abe8f5",
+          "bytes": 3422
+        },
+        "review-artifact-hashes.json": {
+          "sha256": "a5a8bb574fab1d75b43c3bb94699cd850f1f6e47ea1ba0ec0ea1dcf62c0f3bd1",
+          "bytes": 1460
+        },
+        "preparation.json": {
+          "sha256": "488d4f2d9ce320aa53a3fa84f6ee946a6cb82d498baa5ff607f56275911d7ad1",
+          "bytes": 24957
+        },
+        "controls-preparation.json": {
+          "sha256": "bddd56aaf12e19b84e56b68724dbcf591d5b232ead4e5ddd04161715860db99c",
+          "bytes": 7964
+        },
+        "issue-650.json": {
+          "sha256": "9d3ef0c901596eddccd5bf68448caf7e8b2d3a2a0c2ef64498f2120b6dfb1fba",
+          "bytes": 1600
+        }
+      },
+      "controls": {
+        "total": 50,
+        "passed": 50,
+        "synthetic_scoring": 32,
+        "archive_integrity": 8,
+        "actual_primary_data": 10,
+        "workloads_executed": 0,
+        "producer_predicate_scope": "Original producer scoring assignments executed in isolation from AST; unchanged argv/process observation supplies producer seed/fp binding, independently checked in raw output by the reviewer."
+      },
+      "reproduce_within_review_package": [
+        [
+          "python3",
+          "review.py",
+          "--prepare"
+        ],
+        [
+          "python3",
+          "audit_final.py"
+        ]
+      ],
+      "policy_limits": [
+        "Native900000ms and17179869184-byte sampled RSS+swap differ from historical TLC goldens600s external timeout and3GiB JVM heap. Policies are recorded; this is no fresh matched TLC experiment or comparative capacity ratio.",
+        "One observation per cell; different VM hosts across revisions and no certified quiet runtime conditions. Current CPU model/frequency/steal-time placement is not preserved by this capacity packet; no physical-topology downgrade is shown.",
+        "Compiler ELF bytes and source manifest are hashed and bound, but reproducible-build reconstruction is outside this audit. Live process/cmdline identity is attested by unchanged runner checks plus actual MODEL_STARTED and receipts; no process can be re-observed after termination.",
+        "Service/TTL/cgroup and cleanup are recorded node/cloud observations tied to exact IDs and timestamps. Auditor made no live AWS calls and does not independently requery cloud state.",
+        "No counterexample was emitted: nine proven success reports and three no-verdict stops. No word replay is applicable. No model, oracle, build, gate, new profiling or Bcast deep campaign was run.",
+        "Budget scope expressly excludes structural binding, independent-validation ASSUME, post-binding symmetry preparation, serialization, quiet value/bulk/native units, deferred providers and diagnostic reconstruction; sampling/polls do not prove a hard wall at900000ms or16GiB.",
+        "The local download is mode0644; its fixed outer/member hashes establish audited content identity, not OS-level immutability.",
+        "The archive preserves original cfgs/model sources/goldens, library identifiers and source/config manifests. It does not preserve full remote shared module-library cache trees; ready checks establish directory presence. No new independent rehash of every remote library file or oracle rerun was possible in this bounded audit."
+      ]
+    },
+    "scope": "Local primary archive/raw recomputation and the completed independent fresh-context final review agree on nine successes and three honest stops. All50 controls passed. Approval covers accuracy and integrity of this bounded evidence; original capacity acceptance remains rejected."
+  },
+  "cleanup": {
+    "instance": "i-0a02ece5b4983d7d1",
+    "state": "terminated",
+    "root_volume": "vol-0d8633e6ceaac8cdb",
+    "volume_deleted": true,
+    "early_termination_after_verified_archive": true,
+    "fixed_deadline_utc": "2026-11-01T07:03:28Z",
+    "utc": "2026-11-01T03:27:17.038144+00:00",
+    "all_owned_phase_instances_terminated": true,
+    "both_owned_root_volumes_deleted": true,
+    "active_project_and_source_instances": [],
+    "final_inventory_utc": "2026-11-01T03:27:50.300625+00:00",
+    "verification_scope": "Verified local root API/controller receipts; archive/all-member verification precedes capacity termination. No new cloud query was made by this record author."
+  },
+  "instance_policy": {
+    "instance": "i-0a02ece5b4983d7d1",
+    "type": "c7i.4xlarge",
+    "launch": "2026-11-01T01:04:00+00:00",
+    "cpu_options": {
+      "CoreCount": 8,
+      "ThreadsPerCore": 2
+    },
+    "fixed_termination_utc": "2026-11-01T07:03:28Z",
+    "archive_reserve_seconds": 600,
+    "source": "16095d43f9391836a900d2369c9cefa77f25a5f3",
+    "live_shutdown_volume_policy_verification": "Local cached actual EC2/volume/shutdown receipts read and bound by hash; no fresh cloud query by record author.",
+    "scope": "Original capacity VM with fixed expiry unchanged; no quiet throughput claim.",
+    "shutdown": "terminate",
+    "block_devices": [
+      {
+        "DeviceName": "/dev/sda1",
+        "Ebs": {
+          "AttachTime": "2026-11-01T01:04:01+00:00",
+          "DeleteOnTermination": true,
+          "Status": "attached",
+          "VolumeId": "vol-0d8633e6ceaac8cdb"
+        }
+      }
+    ],
+    "volume": {
+      "VolumeId": "vol-0d8633e6ceaac8cdb",
+      "Encrypted": true,
+      "VolumeType": "gp3",
+      "Size": 100,
+      "State": "in-use"
+    },
+    "http_tokens": "required"
+  },
+  "receipt_bindings": {
+    "current_status_prefix": {
+      "file": "cloud/final-16095d43/capacity-campaign-status-0218.json",
+      "sha256": "5355ed911841de42bc75ac9f1a78c5c8b065e52b49431083d532c0910eb38ff3",
+      "bytes": 2464
+    },
+    "build_ready_summary": {
+      "file": "cloud/final-16095d43/capacity-ready.json",
+      "sha256": "aa0bb10dc0eeedb3ea85ea317cebf626267876657a7e887bb33f24a631476069",
+      "bytes": 3211
+    },
+    "ready_validation_after_extraction": {
+      "file": "cloud/final-16095d43/capacity-ready-validation-after-extraction.log",
+      "sha256": "e9006c5008c47dbb28e1037f56c64b600250614172b148c3a50c552ffb263914",
+      "bytes": 621
+    },
+    "matrix_launch": {
+      "file": "cloud/final-16095d43/capacity-original12-launch.log",
+      "sha256": "adb3b450634b711cf670ffb427405aa5cb736036e90d394f981bcef150816201",
+      "bytes": 792
+    },
+    "instance_launch_response": {
+      "file": "cloud/final-16095d43/capacity-launch-response.json",
+      "sha256": "6803e8ee223a16833ef20cd58c75e0d32580800c27143f3a3db84c28012bf723",
+      "bytes": 4406
+    },
+    "source_main_tree_binding": {
+      "file": "final-source-main-binding.json",
+      "sha256": "4a93100a2d060ab2d39bb95e90fbf5d532f3b140b0479d4ac85fec8b8aee902c",
+      "bytes": 340
+    },
+    "original_child_templates": {
+      "file": "capacity-execution-preparation/original-capacity-child-templates.json",
+      "sha256": "9e30672372fe6997d94eb4ad66023d9dd5b3f67a3c26d7b3050217d00faeef7a",
+      "bytes": 32571
+    },
+    "archive_preparation_receipt": {
+      "file": "capacity-execution-preparation/archive-capacity-preparation-receipt.json",
+      "sha256": "3ebda254cbe21891b5e95437e0486776d5438a933b4979410dd2ab4b343ae461",
+      "bytes": 641
+    },
+    "historical_record_structure": {
+      "file": "conformance/reports/perf/2026-10-31-original-capacity.json",
+      "sha256": "0a016f79808efd38e59050aa2a245f349fddbf02affbd30637d5c0d7f40febf7",
+      "bytes": 54284
+    },
+    "materialized_module_attempt": {
+      "file": "cloud/final-16095d43/capacity-ready-validation-materialized.log",
+      "sha256": "f21190771a9088bfea2f25c3742fd0767aa1cebafe4748fcd76d0ba26c38bf30",
+      "bytes": 432
+    },
+    "final_archive_root_verification": {
+      "file": "archives/original-capacity-verification.json",
+      "sha256": "b241e4ccfc65df6a9d27f08b61791d34c3aa553eaae7b410e679bc2409fff5a6",
+      "bytes": 643
+    },
+    "capacity_cleanup_receipt": {
+      "file": "cloud/final-16095d43/capacity-cleanup-verification.json",
+      "sha256": "fb7cdb229d78d4738dc6d1e2d9f91ab953aca3aca4a55f1af3bafe905017d4cf",
+      "bytes": 600
+    },
+    "final_owned_inventory": {
+      "file": "cloud/final-16095d43/owned-inventory-final-cleanup.json",
+      "sha256": "bace0154931e8482de0d0a44d983341c2813ea9fea4fd0dd82a43d262f555be0",
+      "bytes": 852
+    },
+    "instance_policy_live": {
+      "file": "cloud/final-16095d43/instance-policy-live.json",
+      "sha256": "392edbc4f95ac7c9771e6e492fe28c5fcbeb447345de9d533b0e0ae4f53d43ce",
+      "bytes": 12230
+    },
+    "volume_policy_live": {
+      "file": "cloud/final-16095d43/volume-policy-live.json",
+      "sha256": "d286d7c90592e089bf6bd5c84b8a8782ce32201787426a6afc2fa4d794354b7e",
+      "bytes": 2904
+    },
+    "capacity_shutdown_policy": {
+      "file": "cloud/final-16095d43/i-0a02ece5b4983d7d1-shutdown-policy.json",
+      "sha256": "3c3f024768f522d338b9dae222ff35cb2c1f9b6e5d2d643542822dfe59c90316",
+      "bytes": 113
+    },
+    "capacity_support_publication_receipt": {
+      "file": "archives/capacity-support-verification.json",
+      "sha256": "07cfc82935217637597705a9a16d859f693e858ee4f90d8b06fe9037904396a7",
+      "bytes": 5269
+    },
+    "capacity_final_review_publication_receipt": {
+      "file": "archives/capacity-final-review-verification.json",
+      "sha256": "f39726d19685ab9fd641519d09aeef996f21c4648a3d413070ba025d3daed3c3",
+      "bytes": 3906
+    }
+  },
+  "unvalidated": [
+    "Three original ABA cells lack temporal verdicts; original capacity/issue650 acceptance is rejected and issue650 remains open.",
+    "No fresh matched TLC timing/capacity memory campaign: historical golden policy is W1/Java3g/600s versus native16GiB/900s.",
+    "One observed bounded matrix on each source/VM does not establish repeatability, robust headroom, quiet performance or source/host causality.",
+    "Partial collector/whole-run byte accounting is not an allocation-time hard cap or complete peak-memory bound. Stopped versus complete RSS is not a memory advantage.",
+    "No Bcast deep-target, allocator framework, broad TLC replacement, milestone, release-candidate or default decision is established.",
+    "No new execution, build, checker, cloud mutation/query, repository write, commit or push was performed to author this external record.",
+    "Shared module-library identifiers/manifests and directory presence are recorded; full remote cache trees are not archived and every remote library file was not independently rehashed.",
+    "Source-to-ELF mapping relies on hashed build receipts; reproducible reconstruction was not performed. Process, cgroup and cloud facts are preserved observations, not post-termination live queries.",
+    "Current CPU model/frequency/steal conditions are not preserved. Content hashes identify the mode0644 local download; OS-level immutability is not claimed."
+  ],
+  "historical_capacity_comparison": {
+    "previous_record": "conformance/reports/perf/2026-10-31-original-capacity.json",
+    "previous_record_sha256": "0a016f79808efd38e59050aa2a245f349fddbf02affbd30637d5c0d7f40febf7",
+    "previous_source": "83356b0102983f118ff1aa80d761680fee8adf7c",
+    "current_source": "16095d43f9391836a900d2369c9cefa77f25a5f3",
+    "previous_successes": 10,
+    "previous_native_time_stops": 2,
+    "current_successes": 9,
+    "current_native_time_stops": 3,
+    "aba_default_w8": {
+      "previous_verdict": "success",
+      "previous_physical_exit": 0,
+      "previous_controller_wall_seconds": 889.1800807899999,
+      "previous_nominal_margin_to_900_seconds": 10.81991921000008,
+      "previous_nominal_margin_percent": 1.2022132455555645,
+      "current_verdict": "stopped",
+      "current_physical_exit": 5,
+      "current_stage": "atoms",
+      "current_controller_wall_seconds": 900.1061484749998,
+      "required_completion_lost": true,
+      "interpretation": "The older single success had only about1.20% nominal margin, already insufficient for robust headroom; that limitation does not erase the newly observed required completion failure."
+    },
+    "aba_default_w1": {
+      "previous_verdict": "success",
+      "previous_controller_wall_seconds": 768.2957024540001,
+      "current_verdict": "success",
+      "current_controller_wall_seconds": 846.9812235249992,
+      "interpretation": "Both completed; current single observation is longer. This is not a causal source-regression proof."
+    },
+    "comparability": {
+      "same_instance_type": "c7i.4xlarge",
+      "same_physical_cores": 8,
+      "same_logical_cpus": 16,
+      "same_smt": "on",
+      "same_numa_nodes": 1,
+      "same_memtotal_kib": 32306632,
+      "same_original_inputs_and_native_budgets": true,
+      "same_actual_source_pin_file_hashes": true,
+      "different_instances": [
+        "i-0e6be2fb5ec1c55af",
+        "i-0a02ece5b4983d7d1"
+      ],
+      "quiet_window_certified": false,
+      "matched_runtime_conditions": false,
+      "causal_source_or_host_attribution_established": false,
+      "interpretation": "Matched recorded topology/input/policy does not establish matched frequency/contention/steal/runtime conditions on separate VMs. No demonstrated core or SMT downgrade, and no assignment of causality to source or host."
+    },
+    "memory_advantage_claim": false,
+    "unequal_work_warning": "Stopped atom analysis and completed analysis cover different work. Lower stopped-run RSS/call/read totals do not establish lower complete-run memory, throughput, optimization or remaining time.",
+    "prior_read_only_comparison": {
+      "json": "remaining-atom-scope/capacity-comparison.json",
+      "json_sha256": "0ce9f2b903a8eed32d1b4b00bfa3609eb3a340277a389ca80f83d2996538ca79",
+      "markdown": "remaining-atom-scope/capacity-comparison.md",
+      "markdown_sha256": "d72fb52c97e0440fcd6ee77acb09222fa1f338b9602fb70c53a999bbcb695fc2",
+      "scope": "Earlier0315 prefix comparison retained unchanged; final counts and current resource files in this record come from the complete archive."
+    },
+    "previous_atom_scope_note_unchanged": true
+  },
+  "cost_observation": {
+    "capacity_estimated_compute_upper_bound_usd": 1.7051,
+    "phase_estimated_compute_upper_bound_usd": 6.8346,
+    "estimate_not_invoice": true,
+    "excludes": "Storage, evidence transfer and archive charges; this is a compute estimate, not account billing.",
+    "phase_ceiling_usd": 40
+  },
+  "controller_provenance": {
+    "actual_public_files": {
+      "README.md": {
+        "sha256": "3756934b8712add3b8d998f66d7a3063f0ff162fc79b297dbf78ba65e2a5b69a",
+        "bytes": 8619
+      },
+      "archive-capacity.py": {
+        "sha256": "638d8d57d5691a562315f91b655818042045fed796675958a2b16761bc25188f",
+        "bytes": 11814
+      },
+      "artifact-bindings.json": {
+        "sha256": "c34a07cb3faecea1c3369fed26f27737e73e02287514828a4da6f2ddc1cd167e",
+        "bytes": 1465
+      },
+      "capacity-set.toml": {
+        "sha256": "1a0270515e6924afbc474ee9bb4af86d064e9ef0458f09f8db808f99e8c77277",
+        "bytes": 470
+      },
+      "git-ownership-correction.json": {
+        "sha256": "86a9edb8645b46e1affa723ab224f545b519182241fb351bcfa4254d8d7dbe3a",
+        "bytes": 748
+      },
+      "launch-capacity.sh": {
+        "sha256": "28abe94080b73c75770794604a340f5911ef6ec3dd10f54b865de1a07b2694b1",
+        "bytes": 1266
+      },
+      "original-capacity-child-templates.json": {
+        "sha256": "9e30672372fe6997d94eb4ad66023d9dd5b3f67a3c26d7b3050217d00faeef7a",
+        "bytes": 32571
+      },
+      "preparation-checks.json": {
+        "sha256": "0295bd30515d36574eeca9a40c9d7ea340f228a987b65e180d04e2c28526fe84",
+        "bytes": 3038
+      },
+      "render-bindings.py": {
+        "sha256": "75f77b503c765c78fda0608fb54a0bd837e481d1854c51c9dc1a3b65a0e6339e",
+        "bytes": 2529
+      },
+      "run-original-capacity.py": {
+        "sha256": "1a2bc2688d55fc17fd8d65642cc1ac4a36a1e235356d9c02276718cf06ea0769",
+        "bytes": 9938
+      },
+      "run-service.sh": {
+        "sha256": "742ddeae75e7747218e2e31bea6a32b79664788d0c11a67a55936a5625bbbcf6",
+        "bytes": 343
+      },
+      "validate-ready.py": {
+        "sha256": "0a1f0892b3fb99210cd16358877a95b4c1af9c1e7fea5cd70cdcc023298221b3",
+        "bytes": 5150
+      },
+      "verify-host.py": {
+        "sha256": "128ad12382a92ec38f0bfb13c4d5f65397af91b8755e82e17ac49dbab620a572",
+        "bytes": 2326
+      }
+    },
+    "old_manifest_scope": "Original artifact-bindings.json is preserved as historical packet metadata. Actual patched validator bytes, git-ownership correction receipt and all other public controller files are bound by current archive manifest; the old manifest is not treated as updated."
+  },
+  "publication": {
+    "original_raw_archive": {
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "phase2-20261101-16095d43/original-capacity.tar.gz",
+      "sha256": "5bd0c893243dc072365d03cf95d2c0e44613bd981c4010fd08eabc0fa40f6db4",
+      "bytes": 25821365,
+      "download_verified": true,
+      "all_manifest_members_verified": true
+    },
+    "supporting_provenance": {
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "manifest_key": "phase2-20261101-16095d43/capacity-support-v1/manifest.json",
+      "sha256": "07cfc82935217637597705a9a16d859f693e858ee4f90d8b06fe9037904396a7",
+      "bytes": 5269,
+      "verified_utc": "2026-11-01T03:30:32.616681+00:00",
+      "objects": 15,
+      "all_object_hashes_verified_after_put_get": true,
+      "receipt_file": "archives/capacity-support-verification.json",
+      "scope": "Supporting provenance and cleanup only; original12raw archive remains unchanged, final independent capacity review is separate."
+    },
+    "independent_final_review": {
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "manifest_key": "phase2-20261101-16095d43/capacity-review-v1/manifest.json",
+      "sha256": "f39726d19685ab9fd641519d09aeef996f21c4648a3d413070ba025d3daed3c3",
+      "bytes": 3906,
+      "verified_utc": "2026-11-01T03:34:06.118068+00:00",
+      "objects": 12,
+      "all_object_hashes_verified_after_put_get": true,
+      "receipt_file": "archives/capacity-final-review-verification.json",
+      "decision": "APPROVE-BOUNDED-TRUTHFUL-EVIDENCE / REJECT-CAPACITY-ACCEPTANCE"
+    },
+    "scope": "Verified existing preservation receipts only. This record author made no AWS calls or new uploads; no signed URL or credential is stored."
+  }
+}
