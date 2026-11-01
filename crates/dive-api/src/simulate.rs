@@ -25,7 +25,7 @@ pub struct SimulateRequest {
     pub file: PathBuf,
     /// Configuration; defaults to the specification's `.cfg` sibling.
     pub config: Option<PathBuf>,
-    /// TLC's selection and value profile.
+    /// TLC's value semantics; exact random draws are not a parity obligation.
     pub compat_tlc: bool,
     /// Run seed; generated and reported when omitted.
     pub seed: Option<i64>,
@@ -116,6 +116,25 @@ impl SimulateReport {
     reason = "report construction keeps the simulation and independent validation evidence together"
 )]
 pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::ApiError> {
+    simulate_file_engine(req, crate::Engine::Reference)
+}
+
+/// Samples with an explicitly selected execution engine.
+///
+/// `Core` never falls back. `Auto` may select the whole reference simulation
+/// only before execution; a reached native refusal never reruns effects.
+/// The report names the actual engine and any static fallback reason.
+///
+/// # Errors
+/// The same load, budget and ownership failures as [`simulate_file`].
+#[allow(
+    clippy::too_many_lines,
+    reason = "engine selection and common independent certification retain one report path"
+)]
+pub fn simulate_file_engine(
+    req: &SimulateRequest,
+    engine: crate::Engine,
+) -> Result<SimulateReport, crate::ApiError> {
     let seed = req.seed.unwrap_or_else(dive_stdlib::random::fresh_seed);
     let options = Options::new(
         seed,
@@ -164,7 +183,48 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             .map_err(|error| crate::ApiError::Rejected {
                 message: error.to_string(),
             })?;
-    let result = if req.workers.is_some_and(|n| n != 1) {
+    let mut native = None;
+    let mut setup_failure = None;
+    let mut fallback = None;
+    let mut engine_used = if engine == crate::Engine::Reference {
+        crate::Engine::Reference
+    } else {
+        crate::Engine::Core
+    };
+    if engine != crate::Engine::Reference && req.workers.is_none_or(|workers| workers == 1) {
+        if let Some(outcome) = dive_sim::preflight(model.model(), &options) {
+            setup_failure = Some(outcome);
+        } else {
+            match crate::core_modes::Native::probe(
+                &model,
+                seed,
+                options.mode,
+                &run_budget.budget,
+                control.clone(),
+            ) {
+                Ok(prepared) => {
+                    if engine == crate::Engine::Auto
+                        && let Some(reason) = prepared.selection_refusal()
+                    {
+                        fallback = Some(reason.to_owned());
+                        engine_used = crate::Engine::Reference;
+                    } else {
+                        native = Some(prepared);
+                    }
+                }
+                Err(crate::core_modes::SetupError::Unsupported(reason))
+                    if engine == crate::Engine::Auto =>
+                {
+                    fallback = Some(reason);
+                    engine_used = crate::Engine::Reference;
+                }
+                Err(error) => setup_failure = Some(error.simulation()),
+            }
+        }
+    }
+    let result = if let Some(outcome) = setup_failure {
+        crate::core_modes::preflight_report(outcome)
+    } else if req.workers.is_some_and(|n| n != 1) {
         dive_sim::Report {
             stage: "preflight",
             outcome: Outcome::Unsupported("parallel simulation workers".to_owned()),
@@ -181,9 +241,12 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             std::thread::Builder::new()
                 .stack_size(dive_eval::RECOMMENDED_STACK)
                 .spawn_scoped(scope, || {
-                    dive_sim::simulate_with_poll(model.model(), &options, &|| {
-                        run_budget.budget.poll() != Ok(None)
-                    })
+                    let poll = || run_budget.budget.poll() != Ok(None);
+                    if let Some(native) = &mut native {
+                        native.simulate(model.model(), &options, &poll)
+                    } else {
+                        dive_sim::simulate_with_poll(model.model(), &options, &poll)
+                    }
                 })
                 .map_err(|e| (0_u8, format!("cannot start simulation worker: {e}")))?
                 .join()
@@ -430,6 +493,17 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
         "runtime_output": result.runtime_output.iter().map(|event| json!({
             "kind": if event.warning { "warning" } else { "print" }, "text": event.text,
         })).collect::<Vec<_>>(),
+    });
+    document["engine"] = json!(engine_used.name());
+    document["engine_requested"] = json!(engine.name());
+    document["engine_fallback"] = fallback.map_or(
+        Value::Null,
+        |reason| json!({"stage": "static", "reason": reason}),
+    );
+    document["options"]["execution_scope"] = json!(if engine_used == crate::Engine::Core {
+        "compiled-plan-simulation"
+    } else {
+        "simulation-backend"
     });
     drop(control_scope);
     run_budget.finish(

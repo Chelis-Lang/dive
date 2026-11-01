@@ -18,20 +18,21 @@ use dive_ir::{DefId, ExprId, Ir, LocalRef, Slot};
 use dive_value::Value;
 use serde_json::{Value as Json, json};
 
-/// Which execution engine runs `dive check`.
+/// Which execution engine runs a checking or finite-mode request.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum Engine {
     /// The reference checker (`dive-check`).
     #[default]
     Reference,
-    /// The new core (`dive-core` and `dive-explore`): default profile,
-    /// safety only.
+    /// The compiled core on supported requests in either profile. Unsupported
+    /// language or mode combinations are named refusals, without fallback.
     Core,
     /// The new core where it implements the run, the reference checker
     /// otherwise (`docs/developer/core/08-correctness.md` §3). A refusal
     /// before the search (static) or during it (dynamic) runs the whole
     /// check again on the reference engine, and the report names the
-    /// engine that ran and why.
+    /// engine that ran and why. Finite simulation/DFID select a whole backend
+    /// before execution only; a reached refusal never reruns their effects.
     Auto,
 }
 
@@ -430,7 +431,7 @@ const CANONICAL_STOP_NOTE: &str = "The default profile explores sets in canonica
 
 /// The core's value semantics for the run's evaluation options: each of
 /// `--compat=tlc`'s components maps to its own switch.
-fn semantics(eval: &dive_eval::Options) -> dive_core::Semantics {
+pub(crate) fn semantics(eval: &dive_eval::Options) -> dive_core::Semantics {
     dive_core::Semantics {
         string_order: if eval.ctx.order == dive_value::ValueOrder::Tlc {
             dive_core::strings::StringOrder::Token
@@ -450,7 +451,7 @@ fn semantics(eval: &dive_eval::Options) -> dive_core::Semantics {
 /// first fed the reference binder's start-up names, in TLC's encounter
 /// order, and then sealed: a name TLC meets later gets a token that depends
 /// on evaluation order, which the core refuses rather than guess.
-fn store_for(
+pub(crate) fn store_for(
     model: &dive_model::Model,
     hashcons: bool,
     semantics: dive_core::Semantics,
@@ -637,7 +638,7 @@ pub(crate) struct Prepared {
 /// memory ceiling, shared by the workers, between 1 MiB and
 /// [`dive_core::memo::DEFAULT_CAP`] (`06-memoization.md` §6). The cap only
 /// bounds a cache, so it never changes a result.
-fn memo_cap(ceiling: Option<u64>, workers: usize) -> usize {
+pub(crate) fn memo_cap(ceiling: Option<u64>, workers: usize) -> usize {
     let most = dive_core::memo::DEFAULT_CAP;
     ceiling.map_or(most, |bytes| {
         let share = bytes / 64 / u64::try_from(workers).unwrap_or(u64::MAX).max(1);

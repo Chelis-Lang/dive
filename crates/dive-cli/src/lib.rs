@@ -42,9 +42,9 @@ fn usage() -> String {
                [--predecessor-memory-bytes N] [--predecessor-directory DIR]\n               [--seen-disk-entries N] [--seen-directory DIR] [--seen-key-bytes N]\n               [--seen-probe-steps N] [--seen-summary-pairs N]
                [--checkpoint FILE --checkpoint-after-levels N | --recover FILE]
                [--checkpoint-counters tlc|retain]
-               [--lncheck final --lasso short] [--engine reference|core|auto] [--core-sample N] [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--depth N] [--seed N] [--aril N] [--stats none|basic] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    Eligible ordinary temporal checks use deterministic completed-level checks in the dive
+               [--lncheck final --lasso short] [--engine reference|core|auto] [--core-sample N] [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--depth N] [--seed N] [--aril N] [--stats none|basic] [--engine reference|core|auto] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--engine reference|core|auto] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    Eligible ordinary temporal checks use deterministic completed-level checks in the dive
     profile and final checking in the TLC profile; explicit final/short keeps final checking.
-    dive check uses TLC process statuses by default, independently of semantic profile.\n    --exit-codes native retains: 0 no error, 1 rejected input, 10 property violated, 11 deadlock,\n    12 assumption, 13 evaluation error. Both conventions keep 2 usage, 3 unsupported/resource\n    limit, 4 internal error and 5 stopped by a run budget (no verdict).\n    --time-limit defaults to 30m in the dive profile and none under --compat=tlc; --max-memory\n    defaults to half of physical memory (auto) in both. --compat=tlc (or DIVE_COMPAT=tlc) also selects TLC semantics.\n    --engine core (or DIVE_ENGINE=core) runs the experimental new core: default profile, safety\n    only; anything else it reports as unsupported. --engine auto runs the core where it can and\n    otherwise the whole check on the reference engine, naming the engine that ran and why. The\n    reference engine is the default. --core-sample N (with the core) also compares the successors\n    of N sampled states with the reference evaluator's, in the JSON report (core.sample); it is\n    diagnostic and changes no result.\n",
+    dive check uses TLC process statuses by default, independently of semantic profile.\n    --exit-codes native retains: 0 no error, 1 rejected input, 10 property violated, 11 deadlock,\n    12 assumption, 13 evaluation error. Both conventions keep 2 usage, 3 unsupported/resource\n    limit, 4 internal error and 5 stopped by a run budget (no verdict).\n    --time-limit defaults to 30m in the dive profile and none under --compat=tlc; --max-memory\n    defaults to half of physical memory (auto) in both. --compat=tlc (or DIVE_COMPAT=tlc) also selects TLC semantics.\n    --engine core (or DIVE_ENGINE=core) runs the experimental compiled core on supported requests;\n    other features are named refusals. --engine auto runs the core where it can and\n    otherwise the whole check on the reference engine, naming the engine that ran and why. The\n    reference engine is the default. --core-sample N (with the core) also compares the successors\n    of N sampled states with the reference evaluator's, in the JSON report (core.sample); it is\n    diagnostic and changes no result.\n",
         env!("CARGO_PKG_VERSION"),
         COMMANDS.join("\n    ")
     )
@@ -1026,6 +1026,15 @@ fn simulate_command(
         compat_tlc: std::env::var("DIVE_COMPAT").is_ok_and(|s| s == "tlc"),
         ..Default::default()
     };
+    let mut engine = match std::env::var("DIVE_ENGINE").ok().as_deref() {
+        None | Some("") => dive_api::Engine::Reference,
+        Some(name) => match dive_api::Engine::parse(name) {
+            Some(engine) => engine,
+            None => {
+                return simulation_usage_error(err, "DIVE_ENGINE expects reference, core or auto");
+            }
+        },
+    };
     let mut json = false;
     let mut file = None;
     let mut it = args.iter();
@@ -1074,6 +1083,18 @@ fn simulate_command(
                         err,
                         "--max-memory expects a positive byte count, auto or none",
                     );
+                }
+            },
+            "--engine" => match it.next().and_then(|name| dive_api::Engine::parse(name)) {
+                Some(selected) => engine = selected,
+                None => {
+                    return simulation_usage_error(err, "--engine expects reference, core or auto");
+                }
+            },
+            name if name.starts_with("--engine=") => match dive_api::Engine::parse(&name[9..]) {
+                Some(selected) => engine = selected,
+                None => {
+                    return simulation_usage_error(err, "--engine expects reference, core or auto");
                 }
             },
             "--config" => {
@@ -1186,7 +1207,7 @@ fn simulate_command(
         return simulation_usage_error(err, "simulate requires a positive finite --traces N");
     }
     request.file = file.into();
-    let report = match dive_api::simulate_file(&request) {
+    let report = match dive_api::simulate_file_engine(&request, engine) {
         Ok(report) => report,
         Err(dive_api::ApiError::Unsupported { feature }) => {
             let _ = writeln!(err, "unsupported: {feature}; no result produced");
@@ -1226,6 +1247,17 @@ fn dfid_command(
         compat_tlc: std::env::var("DIVE_COMPAT").is_ok_and(|v| v == "tlc"),
         ..dive_api::DfidRequest::default()
     };
+    let mut engine = match std::env::var("DIVE_ENGINE").ok().as_deref() {
+        None | Some("") => dive_api::Engine::Reference,
+        Some(name) => {
+            if let Some(engine) = dive_api::Engine::parse(name) {
+                engine
+            } else {
+                let _ = writeln!(err, "error: DIVE_ENGINE expects reference, core or auto");
+                return ExitCode::from(EXIT_USAGE);
+            }
+        }
+    };
     let mut json = false;
     let mut has_depth = false;
     let mut file = None;
@@ -1254,6 +1286,10 @@ fn dfid_command(
                 Some("tlc") => req.compat_tlc = true,
                 Some("dive" | "none") => req.compat_tlc = false,
                 _ => return usage_error(err, "--compat expects tlc or dive"),
+            },
+            "--engine" => match value().as_deref().and_then(dive_api::Engine::parse) {
+                Some(selected) => engine = selected,
+                None => return usage_error(err, "--engine expects reference, core or auto"),
             },
             "--config" | "-config" => match value() {
                 Some(v) => req.config = Some(v.into()),
@@ -1335,7 +1371,7 @@ fn dfid_command(
         return usage_error(err, "dfid requires explicit --max-level N");
     }
     req.file = file.into();
-    let report = match dive_api::dfid_file(&req) {
+    let report = match dive_api::dfid_file_engine(&req, engine) {
         Ok(r) => r,
         Err(
             error @ (dive_api::ApiError::BudgetStartup(_)
@@ -1611,6 +1647,50 @@ mod budget_tests {
                     );
                     assert!(String::from_utf8_lossy(&output).contains("\"result\":\"stopped\""));
                 }
+            }
+        }
+    }
+
+    #[test]
+    fn finite_mode_engine_flags_reach_the_actual_compiled_backend() {
+        let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../docs/user/examples/Counter.tla");
+        for simulation in [false, true] {
+            for inline in [false, true] {
+                let mut args = vec![
+                    file.display().to_string(),
+                    "--output=json".into(),
+                    "-deadlock".into(),
+                    "--time-limit=none".into(),
+                    "--max-memory=none".into(),
+                ];
+                if simulation {
+                    args[1] = "--output".into();
+                    args.insert(2, "json".into());
+                }
+                args.extend(if simulation {
+                    vec!["--traces".into(), "1".into(), "--depth".into(), "2".into()]
+                } else {
+                    vec!["--max-level".into(), "8".into()]
+                });
+                args.extend(if inline {
+                    vec!["--engine=core".into()]
+                } else {
+                    vec!["--engine".into(), "core".into()]
+                });
+                let (mut output, mut errors) = (Vec::new(), Vec::new());
+                let status = if simulation {
+                    simulate_command(&args, &mut output, &mut errors)
+                } else {
+                    dfid_command(&args, &mut output, &mut errors)
+                };
+                assert_eq!(
+                    status,
+                    ExitCode::SUCCESS,
+                    "{}",
+                    String::from_utf8_lossy(&errors)
+                );
+                assert!(String::from_utf8_lossy(&output).contains("\"engine\":\"core\""));
             }
         }
     }

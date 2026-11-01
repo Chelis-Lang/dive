@@ -213,3 +213,10 @@ reports distinguish `stopped` (exit 5) from sampled/incomplete/completed outcome
 a stopped report never has `model_proved: true`. One owner covers execution,
 retained-state serialization checkpoints and fresh finite-word validation.
 See the mode guides for the after-loading scope and uninterruptible value units.
+
+Use `simulate_file_engine(&request, Engine::Core)` or
+`dfid_file_engine(&request, Engine::Core)` for compiled finite execution.
+Existing `simulate_file` / `dfid_file` wrappers remain reference. `Engine::Auto`
+can select a whole reference finite run before execution; it does not retry a
+reached native refusal. Reports name the engine that actually ran. Seeded
+reproduction includes that engine and the same request settings.

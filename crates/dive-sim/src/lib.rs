@@ -169,10 +169,43 @@ pub fn simulate(model: &Model, opts: &Options) -> Report {
 /// owns the reason and resource measurement; cancellation retains prefix work.
 #[must_use]
 pub fn simulate_with_poll(model: &Model, opts: &Options, poll: &dyn Fn() -> bool) -> Report {
-    // Preflight keeps its no-evaluation contract. Effects are checked only
-    // when reached after it, including captured operator arguments.
-    if preflight(model, opts).is_some() {
-        return simulate_inner(model, opts, None, poll);
+    with_runtime(model, opts, |host| {
+        simulate_inner(model, opts, Some(host), poll)
+    })
+}
+
+/// Runs a finite simulation backend under the ordinary simulation host.
+///
+/// This shares exclusive run ownership, captured producer output and reached
+/// effect/output policies with the reference driver. The callback reports the
+/// remaining event/byte admission budget after evaluator-backed assumptions;
+/// an alternate generator must enforce it for its own Print events.
+#[must_use]
+pub fn simulate_with_backend(
+    model: &Model,
+    opts: &Options,
+    driver: impl FnOnce(&dyn Fn() -> (usize, usize)) -> Report,
+) -> Report {
+    with_runtime(model, opts, |host| driver(&|| host.remaining_output()))
+}
+
+fn with_runtime(
+    model: &Model,
+    opts: &Options,
+    driver: impl FnOnce(&host::SimulationHost) -> Report,
+) -> Report {
+    if let Some(outcome) = preflight(model, opts) {
+        return Report {
+            stage: "preflight",
+            outcome,
+            generated: 0,
+            initial_candidates: 0,
+            pending_violation: None,
+            traces_started: 0,
+            traces: Vec::new(),
+            action_flow: None,
+            runtime_output: Vec::new(),
+        };
     }
     // Declared before HostRestore so reverse drop order restores the original
     // host before releasing shared-core simulation ownership, on every return.
@@ -194,8 +227,10 @@ pub fn simulate_with_poll(model: &Model, opts: &Options, poll: &dyn Fn() -> bool
     let host = host::SimulationHost::new(opts);
     let _restore = host::HostRestore::install(&model.evaluator, &host);
     let capture = dive_eval::capture::PrintCapture::start();
-    let mut report = simulate_inner(model, opts, Some(&host), poll);
-    report.runtime_output = model.evaluator.filter_captured_warnings(capture.take());
+    let mut report = driver(&host);
+    let mut output = model.evaluator.filter_captured_warnings(capture.take());
+    output.append(&mut report.runtime_output);
+    report.runtime_output = output;
     if let Some(reason) = host.limit() {
         report.outcome = Outcome::Limit(reason.to_owned());
     } else if let Some(reason) = host.denied() {
@@ -502,7 +537,9 @@ fn index(rng: &mut Stream, len: usize) -> usize {
     usize::try_from(rng.next_index(u64::try_from(len).unwrap_or(u64::MAX))).unwrap_or(0)
 }
 
-fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
+/// Checks finite-mode options and statically unsupported combinations without evaluation.
+#[must_use]
+pub fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
     let refusal = |s: &str| Some(Outcome::Unsupported(s.to_owned()));
     if opts.traces == 0 {
         return refusal("simulation requires a positive finite trace count");
@@ -540,6 +577,9 @@ fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
     }
     if model.symmetry.is_some() {
         return refusal("simulation SYMMETRY declarations");
+    }
+    if model.view.is_some() {
+        return refusal("simulation VIEW declarations");
     }
     if model.alias.is_some() {
         return refusal("simulation ALIAS");

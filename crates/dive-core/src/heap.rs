@@ -22,6 +22,7 @@ static EMPTY_DATA: [Handle; 0] = [];
 pub struct Heap {
     pub(crate) store: Arc<Store>,
     pub(crate) arena: Arena,
+    pub(crate) defer_reclamation: bool,
     poisoned: std::cell::Cell<bool>,
     /// `-delta-hash`: recompute hashes in full instead of incrementally.
     pub(crate) full_hash: bool,
@@ -82,6 +83,7 @@ impl Heap {
         Self {
             store,
             arena: Arena::new(heap_arena),
+            defer_reclamation: false,
             poisoned: std::cell::Cell::new(false),
             full_hash,
             int_mode,
@@ -167,7 +169,9 @@ impl Heap {
     /// after the mark may be used afterwards, including one held in a frame
     /// slot or a thunk cache; such a use is detected as stale.
     pub fn rollback(&mut self, mark: Mark) {
-        self.arena.rollback(mark);
+        if !self.defer_reclamation {
+            self.arena.rollback(mark);
+        }
     }
 
     /// Whether an invalid handle read was detected: an internal error.

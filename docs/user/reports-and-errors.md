@@ -481,3 +481,9 @@ unknown or contradictory values fail closed. The summary retains the declared
 name and actual bound temporal applicability. It is neither an execution claim
 nor a proof. Existing verdicts, execution facts and independent counterexample
 validation remain required. This symmetry metadata does not change native trace encoding.
+
+Finite simulation and DFID reports also include `engine`, `engine_requested`
+and nullable `engine_fallback` (`stage: static` with a reason). Explicit core
+requests never fall back. Auto selects a whole finite backend before execution,
+so a reached refusal cannot duplicate effects. These fields are additive within
+report schema 3; native trace versions 1–6 retain their existing meanings.

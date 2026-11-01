@@ -715,7 +715,9 @@ fn sequential_for_composition(model: &Model) -> bool {
         .all(|reason| reason == dive_model::TLC_CDOT)
 }
 
-fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
+/// Checks DFID request admission without evaluating the model.
+#[must_use]
+pub fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
     if opts.check.max_states.is_some() || opts.check.max_depth.is_some() {
         return Some(Outcome::Unsupported(
             "BFS discovery budgets --max-states/--max-depth with DFID are not implemented; use DFID-specific limits".into(),
