@@ -1,5 +1,5 @@
 //! `cargo xtask gate`: the local mirror of CI's `Workspace gate` (`--fast`)
-//! and the pre-PR full gate (`--full`), which adds the whole test suite and
+//! and the milestone full gate (`--full`), which adds the whole test suite and
 //! the conformance runs CI no longer performs on every PR.
 
 use std::collections::BTreeMap;
@@ -284,6 +284,13 @@ fn workspace_steps(g: &mut Gate, mode: Mode) {
     doc.env("RUSTDOCFLAGS", "-D warnings");
     g.run("rustdoc", doc);
     g.run_fn("crate layering", crate::check_layering);
+    // Resolve and compile the validator alone. The dedicated target must not
+    // be populated by workspace builds, whose feature union can hide gaps.
+    let mut trace = g.cargo(&["build", "-p", "dive-trace", "--locked"]);
+    trace
+        .arg("--target-dir")
+        .arg(g.target.join("standalone-trace"));
+    g.run("standalone trace build", trace);
     if deny_inputs_changed(&g.root) == Some(false) {
         g.skip("cargo-deny", "Cargo.lock and deny.toml unchanged");
     } else {
