@@ -482,20 +482,26 @@ pub(super) fn valid_check_report(physical_exit: Option<i32>, report: &Value) -> 
     let Some((_, expected_name, expected_exit, verdicts)) = class(code) else {
         return false;
     };
+    let temporal_without_reported = temporal_omits_reported(report, verdict, code);
     if metadata["verified"] != true
         || !metadata.get("reported").map_or_else(
-            // `CheckReport::to_json` omits this field only for frontend SANY
-            // rejection; all checked-result classes carry it, even success.
-            || verdict == "rejected" && code == 3002,
+            // Ordinary temporal truth and specific temporal failures omit this
+            // field in the current producer. This is transport admission only;
+            // canonical temporal reading and independent word proof still run.
+            || (verdict == "rejected" && code == 3002) || temporal_without_reported,
             |reported| {
-                reported
-                    .as_u64()
-                    .is_some_and(|reported| reported_matches(verdict, code, reported))
+                reported.as_u64().is_some_and(|reported| {
+                    if temporal_without_reported {
+                        reported == code
+                    } else {
+                        reported_matches(verdict, code, reported)
+                    }
+                })
             },
         )
         || name != *expected_name
         || tlc_exit != *expected_exit
-        || !verdicts.contains(&verdict)
+        || !(verdicts.contains(&verdict) || temporal_tautology(report, verdict, code))
     {
         return false;
     }
@@ -505,4 +511,46 @@ pub(super) fn valid_check_report(physical_exit: Option<i32>, report: &Value) -> 
         exit == if code == 2105 { 12 } else { native_exit }
             || u64::try_from(exit).ok() == Some(tlc_exit)
     })
+}
+
+// `CheckReport::to_json`, Phase::Temporal and Phase::TemporalError, is the
+// source of these exact schema-3 shapes. Finite source/state endpoints,
+// binding failures and startup tautologies explicitly carry `reported`.
+fn temporal_omits_reported(report: &Value, verdict: &str, code: u64) -> bool {
+    if report["schema_version"] != 3 || report["check_kind"] != "temporal" {
+        return false;
+    }
+    match (verdict, code) {
+        ("success", 2193) => {
+            report["error_site"].is_null() && report["execution"]["stage"] == "complete"
+        }
+        ("liveness-violation", 2116) => {
+            report["error_site"].is_null()
+                && matches!(
+                    report["execution"]["stage"].as_str(),
+                    Some("complete" | "prefix")
+                )
+        }
+        ("evaluation-error", 2215) => {
+            report["error_site"].is_null()
+                && report["execution"]["stage"] == "planning"
+                && report["execution"]["capture_completed"] == false
+        }
+        ("evaluation-error", 1000) => {
+            report["error_site"] == "temporal-action" && report["execution"]["stage"] == "atoms"
+        }
+        _ => false,
+    }
+}
+
+fn temporal_tautology(report: &Value, verdict: &str, code: u64) -> bool {
+    code == 2253
+        && verdict == "evaluation-error"
+        && report["schema_version"] == 3
+        && report["check_kind"] == "temporal"
+        && report["execution"]["stage"] == "planning"
+        && report["execution"]["capture_completed"] == false
+        && report["statistics"].is_null()
+        && report["error_site"].is_null()
+        && report["tlc"]["reported"] == 2253
 }

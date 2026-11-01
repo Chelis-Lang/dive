@@ -342,6 +342,167 @@ mod tests {
     use super::*;
     use dive_api::trace::TraceDoc;
 
+    fn actual_outcome(report: &dive_api::CheckReport) -> ProcessOutcome {
+        ProcessOutcome {
+            exit_code: Some(i32::from(
+                report.exit_code_for(dive_api::ExitConvention::Tlc),
+            )),
+            signal: None,
+            timed_out: false,
+            stdout: report
+                .to_json_with_exit_convention(dive_api::ExitConvention::Tlc)
+                .to_string(),
+            stderr: String::new(),
+            elapsed: Duration::ZERO,
+        }
+    }
+
+    #[test]
+    fn actual_temporal_truth_and_planning_errors_keep_their_real_omitted_field()
+    -> std::result::Result<(), Box<dyn std::error::Error>> {
+        let directory = crate::util::TempDir::new("temporal-envelope-controls")?;
+        let file = directory.path().join("Temporal.tla");
+        std::fs::write(
+            file.with_extension("cfg"),
+            "INIT Init\nNEXT Next\nPROPERTY P\n",
+        )?;
+        for property in ["[]<>(x<=2)", "<>(x=3)", "<>1"] {
+            std::fs::write(
+                &file,
+                format!(
+                    "---- MODULE Temporal ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == x'=IF x<2 THEN x+1 ELSE x\nP == {property}\n====\n"
+                ),
+            )?;
+            for compat in [false, true] {
+                let report = dive_api::check_file(&dive_api::CheckRequest {
+                    file: file.clone(),
+                    compat_tlc: compat,
+                    workers: Some(1),
+                    seed: Some(0),
+                    fp: Some(0),
+                    ..dive_api::CheckRequest::default()
+                })?;
+                let value = report.to_json_with_exit_convention(dive_api::ExitConvention::Tlc);
+                let run = actual_outcome(&report);
+                assert_eq!(value["check_kind"], "temporal");
+                assert!(value["tlc"].get("reported").is_none());
+                assert!(
+                    valid_native_envelope(&value, &run),
+                    "{compat}/{property}: {value}"
+                );
+                let CheckMapping::Result(result) = check_result(&run, compat) else {
+                    return Err("real temporal report refused".into());
+                };
+                assert!(result.verdict.is_oracle_fact());
+                for supplied in [json!(1000), json!("banana"), Value::Null] {
+                    let mut forged = value.clone();
+                    forged["tlc"]["reported"] = supplied;
+                    assert!(!valid_native_envelope(&forged, &run), "{forged}");
+                }
+                let mut consistent = value.clone();
+                consistent["tlc"]["reported"] = value["tlc"]["code"].clone();
+                assert!(valid_native_envelope(&consistent, &run));
+                let mut wrong_kind = value.clone();
+                wrong_kind["check_kind"] = json!("safety");
+                assert!(!valid_native_envelope(&wrong_kind, &run));
+                if property == "<>(x=3)" {
+                    temporal_word_controls(&file, compat, &value, &run, &result)?;
+                }
+            }
+        }
+        Ok(())
+    }
+
+    fn temporal_word_controls(
+        file: &Path,
+        compat: bool,
+        value: &Value,
+        run: &ProcessOutcome,
+        golden: &OracleResult,
+    ) -> std::result::Result<(), Box<dyn std::error::Error>> {
+        let spec = SpecModel::load(
+            file,
+            &file.with_extension("cfg"),
+            &TraceOptions {
+                compat_tlc: compat,
+                run: Some((0, 0)),
+                ..TraceOptions::default()
+            },
+        )?;
+        let profile = if compat { Profile::Tlc } else { Profile::Dive };
+        let compare = |value: &Value| {
+            let mut changed = run.clone();
+            changed.stdout = value.to_string();
+            compare_native(
+                golden,
+                check_result(&changed, compat),
+                Some(&spec),
+                &changed,
+                &Registry::default(),
+                "Temporal.cfg",
+                &profile,
+            )
+        };
+        assert_eq!(compare(value)["outcome"], "agree");
+        let mut forged = value.clone();
+        let mut doc = TraceDoc::from_json(&forged["counterexample"]["trace"])?;
+        doc.states[0].insert("x".into(), json!(99));
+        forged["counterexample"]["trace"] = doc.to_json();
+        forged["counterexample"]["states"][0]["values"]["x"] = json!(99);
+        assert_ne!(compare(&forged)["outcome"], "agree");
+        let mut absent = value.clone();
+        absent["counterexample"] = Value::Null;
+        assert_ne!(compare(&absent)["outcome"], "agree");
+        let mut claims = value.clone();
+        claims["property"] = json!("Invented");
+        claims["properties"] = json!(["Invented"]);
+        claims["counterexample"]["trace"]["properties"] = json!(["Invented"]);
+        assert_ne!(compare(&claims)["outcome"], "agree");
+        Ok(())
+    }
+
+    #[test]
+    fn actual_temporal_startup_and_finite_endpoint_errors_still_require_reported()
+    -> std::result::Result<(), Box<dyn std::error::Error>> {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+        for (corpus, name) in [
+            ("temporal-demand-primary-probes", "UnusedDemandTautology"),
+            ("liveness-atom-error-timing", "DelayedSiblingStateError"),
+        ] {
+            let file = root.join(format!(
+                "conformance/corpus/{corpus}/specifications/{name}/{name}.tla"
+            ));
+            for compat in [false, true] {
+                let report = dive_api::check_file(&dive_api::CheckRequest {
+                    file: file.clone(),
+                    compat_tlc: compat,
+                    workers: Some(1),
+                    seed: Some(0),
+                    fp: Some(0),
+                    ..dive_api::CheckRequest::default()
+                })?;
+                let value = report.to_json_with_exit_convention(dive_api::ExitConvention::Tlc);
+                let run = actual_outcome(&report);
+                assert_eq!(value["check_kind"], "temporal");
+                assert!(value["tlc"].get("reported").is_some());
+                assert!(
+                    valid_native_envelope(&value, &run),
+                    "{name}/{compat}: {value}"
+                );
+                let mut absent = value.clone();
+                absent["tlc"]
+                    .as_object_mut()
+                    .ok_or("class is not an object")?
+                    .remove("reported");
+                assert!(
+                    !valid_native_envelope(&absent, &run),
+                    "{name}/{compat}: {absent}"
+                );
+            }
+        }
+        Ok(())
+    }
+
     fn envelope_mutations() -> Vec<(&'static str, Value)> {
         vec![
             ("/tlc/name", json!("INVENTED_CLASS")),

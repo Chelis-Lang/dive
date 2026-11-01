@@ -417,7 +417,17 @@ invariant class cannot stand in for a model, frontend or evaluation error.
 The reported class must match the deciding class for non-evaluation results.
 Evaluation replay may preserve a first evaluator error or a documented site
 wrapper; unrelated terminal/model classes cannot stand in for that report.
-Only the actual frontend rejection schema may omit the reported code.
+The current schema-3 ordinary temporal producer omits `tlc.reported` for holds
+and liveness violations, typed planning errors (`TLC_EXPECTED_VALUE`) and direct
+temporal-action GENERAL errors. Admission recognizes those exact temporal
+phase/code/verdict shapes; a present field must match their deciding code.
+Safety results retain their reported-code requirements, except frontend
+rejection. Temporal binding failures, startup tautologies and certified finite
+state/source-row errors retain their explicit reported code. These transport
+rules do not establish a temporal result: canonical schedule/capture reading
+and fresh independent validation of the actual reported word still govern
+agreement. Genuine holds, violations, planning errors, startup tautologies and
+finite row errors are exercised through actual producer reports in both profiles.
 The shared envelope admission in `crates/dive-conformance/src/native_envelope.rs`
 runs before the canonical source-aware harness reader supplies classification.
 It retains the original exact class/verdict/reported-code associations; the

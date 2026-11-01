@@ -7,6 +7,9 @@
 - Retain exact native report envelope admission before PlusCal model comparison:
   contradictory class names, verdicts, reported codes, counts and exits cannot
   gain agreement from an independently valid retained word.
+- Admit current ordinary temporal report shapes without inventing a required
+  reported-message field. Preserve strict safety envelopes, canonical temporal
+  completion checks and fresh independent liveness-word validation.
 
 - Add compiled native finite simulation and DFID in both profiles through explicit
   APIs and `--engine core|auto`. Reference remains the default; Auto selects a
