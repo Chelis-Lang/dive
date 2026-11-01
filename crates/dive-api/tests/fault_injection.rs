@@ -496,30 +496,6 @@ fn checkpoint_faults(spec: &Path, reference: &Value, rng: &mut Rng) -> Result<Ve
 }
 
 // ---------------------------------------------------------------------------
-// Known findings
-
-/// A state budget that cuts TLC's diagnostic replay short changes the
-/// reported error class and exit status: replay never meets the later error
-/// that decides TLC's class (`ErInvReplayError`: 2103 and exit 75 unbounded,
-/// as TLC reports; 2111 and exit 76 under `max_states` 4). The run is not
-/// marked stopped. Reported on #379, which covers time budgets in replay.
-const KNOWN_REPLAY_CLASS: &str = "#379: a state budget that cuts diagnostic replay changes the reported error class and exit status";
-
-/// A failure the sweep already found, so it does not fail the test.
-/// [`known_findings_still_reproduce`] fails once one is fixed.
-fn known_finding(fault: &str, reference: &Value, faulted: &Value) -> Option<&'static str> {
-    let (a, b) = (observed(faulted), observed(reference));
-    let otherwise_same = ["verdict", "property", "counterexample", "output"]
-        .iter()
-        .all(|k| a[k] == b[k]);
-    (fault.starts_with("max-states")
-        && verdict(reference) == "evaluation-error"
-        && otherwise_same
-        && a["tlc"] != b["tlc"])
-        .then_some(KNOWN_REPLAY_CLASS)
-}
-
-// ---------------------------------------------------------------------------
 // Seeds and the sweep
 
 fn workspace_root() -> PathBuf {
@@ -564,7 +540,6 @@ struct Tally {
     skipped: BTreeMap<String, usize>,
     outcomes: BTreeMap<String, usize>,
     inconclusive: BTreeMap<String, usize>,
-    known: BTreeMap<&'static str, Vec<String>>,
     failures: Vec<Value>,
 }
 
@@ -636,21 +611,9 @@ fn check_seed(workspace: &Path, rel: &str, tally: &mut Tally) -> Result<()> {
             Outcome::Stopped => *tally.outcomes.entry(key("stopped")).or_default() += 1,
             Outcome::Refused => *tally.outcomes.entry(key("refused")).or_default() += 1,
             Outcome::Inconclusive(why) => *tally.inconclusive.entry(key(&why)).or_default() += 1,
-            Outcome::Fails(detail) => match fault
-                .result
-                .as_ref()
-                .ok()
-                .and_then(|doc| known_finding(&fault.name, &reference, doc))
-            {
-                Some(known) => tally
-                    .known
-                    .entry(known)
-                    .or_default()
-                    .push(format!("{rel}: {}", fault.name)),
-                None => tally
-                    .failures
-                    .push(json!({"seed": rel, "fault": fault.name, "detail": detail})),
-            },
+            Outcome::Fails(detail) => tally
+                .failures
+                .push(json!({"seed": rel, "fault": fault.name, "detail": detail})),
         }
     }
     Ok(())
@@ -676,9 +639,6 @@ fn summary(tally: &Tally) -> String {
     for (why, n) in &tally.inconclusive {
         let _ = writeln!(out, "  inconclusive ({n}): {why}");
     }
-    for (known, at) in &tally.known {
-        let _ = writeln!(out, "  known ({}): {known}", at.len());
-    }
     for f in &tally.failures {
         let _ = writeln!(
             out,
@@ -699,22 +659,80 @@ fn fixed_seeds_survive_faults() -> Result<()> {
 }
 
 #[test]
-fn known_findings_still_reproduce() -> Result<()> {
+fn incomplete_diagnostic_replay_refuses_an_uncertified_error_class() -> Result<()> {
+    use dive_api::ExitConvention;
+    use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
+
     let spec = workspace_root().join(
         "crates/dive-check/tests/fixtures/errors/specs/ErInvReplayError/ErInvReplayError.tla",
     );
-    let reference = checked(&request(&spec))?;
-    let mut req = request(&spec);
-    req.max_states = Some(4);
-    let faulted = checked(&req)?;
-    assert!(matches!(
-        judge(Kind::Disruptive, &reference, &Ok(faulted.clone())),
-        Outcome::Fails(_)
-    ));
-    assert_eq!(
-        known_finding("max-states 4", &reference, &faulted),
-        Some(KNOWN_REPLAY_CLASS)
-    );
+    for compat_tlc in [false, true] {
+        let mut req = request(&spec);
+        req.compat_tlc = compat_tlc;
+        let reference_report = check_file(&req)?;
+        let reference = reference_report.to_json();
+        assert_eq!(reference_report.exit_code_for(ExitConvention::Native), 13);
+        assert_eq!(reference_report.exit_code_for(ExitConvention::Tlc), 75);
+        assert_eq!(
+            observed(&reference),
+            json!({
+                "verdict": "evaluation-error",
+                "property": null,
+                "tlc": [2103, 75],
+                "statistics": [4, 5, 3, 1],
+                "counterexample": {
+                    "length": 3, "back_to": null,
+                    "states": [{"x":0,"y":0}, {"x":1,"y":0}, {"x":2,"y":0}],
+                },
+                "output": [],
+            })
+        );
+        assert_eq!(reference["tlc"]["reported"], 2111);
+        assert_eq!(reference["tlc"]["verified"], true);
+        let wire = &reference["counterexample"]["trace"];
+        assert_eq!(wire["version"], 2);
+        assert_eq!(
+            wire["ending"],
+            json!({
+                "kind": "invariant-error", "name": "InvA", "ec": "TLC_MODULE_DIVISION_BY_ZERO",
+            })
+        );
+        let model = SpecModel::load(
+            &spec,
+            &spec.with_extension("cfg"),
+            &TraceOptions {
+                compat_tlc,
+                run: Some((0, 0)),
+                ..TraceOptions::default()
+            },
+        )?;
+        assert_eq!(
+            model.try_validate(&TraceDoc::from_json(wire)?)?.validation,
+            Validation::Valid
+        );
+
+        req.max_states = Some(4);
+        let faulted_report = check_file(&req)?;
+        let faulted = faulted_report.to_json();
+        for convention in [ExitConvention::Native, ExitConvention::Tlc] {
+            assert_eq!(faulted_report.exit_code_for(convention), 3);
+        }
+        assert_eq!(
+            observed(&faulted),
+            json!({
+                "verdict": "unsupported", "property": null, "tlc": [null, null],
+                "statistics": [4, 4, 3, 1], "counterexample": null, "output": [],
+            })
+        );
+        assert!(faulted["tlc"].is_null());
+        assert_eq!(faulted["statistics"]["reported_by_tlc"], false);
+        assert_eq!(
+            faulted["message"],
+            "candidate primary/diagnostic lifecycle is unproved: invariant diagnostic identity is unproved: Valid"
+        );
+        assert_eq!(judge(Kind::Disruptive, &reference, &Ok(faulted)),
+            Outcome::Inconclusive("unsupported: candidate primary/diagnostic lifecycle is unproved: invariant diagnostic identity is unproved: Valid".into()));
+    }
     Ok(())
 }
 
@@ -733,7 +751,6 @@ fn every_fixture_survives_faults_when_requested() -> Result<()> {
             "skipped": tally.skipped,
             "outcomes": tally.outcomes,
             "inconclusive": tally.inconclusive,
-            "known": tally.known,
             "failures": tally.failures,
         });
         std::fs::write(path, serde_json::to_string_pretty(&report)?)?;
