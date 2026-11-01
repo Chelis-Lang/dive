@@ -20,7 +20,7 @@ pub mod owned;
 mod row_demand;
 mod state_source;
 
-use state_source::{CapturedStates, StateSource};
+use state_source::{CapturedStates, OriginalTarget, StateSource};
 
 /// Combined bounds on planning, exploration and explicit product construction.
 #[derive(Clone, Copy, Debug)]
@@ -781,11 +781,17 @@ impl<'a> OriginalEdges<'a> {
     }
 }
 
+#[derive(Debug, PartialEq)]
+struct SelectedTarget {
+    values: StateVals,
+    original: OriginalTarget,
+}
+
 fn selected_targets<'a>(
     graph: impl Into<OriginalEdges<'a>>,
     source: usize,
     states: &mut (impl StateSource + ?Sized),
-) -> Result<std::collections::BTreeMap<usize, StateVals>, AnalysisError> {
+) -> Result<std::collections::BTreeMap<usize, SelectedTarget>, AnalysisError> {
     let graph = graph.into();
     let malformed = || AnalysisError::Inconsistent("original action target row shape");
     let originals = states.concrete_count(source).ok_or_else(malformed)?;
@@ -807,7 +813,10 @@ fn selected_targets<'a>(
                 return Err(malformed());
             }
             if let std::collections::btree_map::Entry::Vacant(entry) = selected.entry(edge.to) {
-                entry.insert(states.concrete(source, original)?);
+                entry.insert(SelectedTarget {
+                    values: states.concrete(source, original)?,
+                    original: OriginalTarget::Generated(original),
+                });
             }
             original += 1;
         } else {
@@ -815,7 +824,10 @@ fn selected_targets<'a>(
                 return Err(malformed());
             }
             if let std::collections::btree_map::Entry::Vacant(entry) = selected.entry(source) {
-                entry.insert(states.representative(source)?.into_owned());
+                entry.insert(SelectedTarget {
+                    values: states.representative(source)?.into_owned(),
+                    original: OriginalTarget::Stuttering,
+                });
             }
         }
     }
@@ -901,12 +913,12 @@ fn labels<'a>(
                     if let Some(value) = evaluated.get(&edge.to) {
                         *value
                     } else {
-                        let native = states.predicate(pred, v, Some(edge.to))?;
+                        let native = states.predicate(pred, v, Some(target.original))?;
                         let value = native.map_or_else(
                             || {
                                 pred.evaluate_detailed(
                                     model,
-                                    &St::action(vals.clone(), target.clone()),
+                                    &St::action(vals.clone(), target.values.clone()),
                                 )
                                 .map_err(|failure| {
                                     action_failure(
