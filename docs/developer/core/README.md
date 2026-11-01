@@ -19,22 +19,49 @@ engine-default cutover is not a separate workstream.
 **Start here:** `m1-status.md` records the current acceptance findings, source-bound
 measurements and next steps. M1 remains open; the default engine is `reference`.
 
-The [integrated local record](../../../conformance/reports/core/2026-11-01-integrated-qualification.json)
+The frozen phase 3 source is `fb48dbbf`, tree `b2d90500`. Native atom input-proof
+reuse (#709) and bounded ordered error-prefix replay (#712) have fresh reviews
+and passing required CI. Its [checkpoint record](../../../conformance/reports/core/2026-11-01-phase3-checkpoint.json)
+records 1,215 default / 1,187 TLC fixture-shadow agreements, ten gains per
+profile and no old agreement lost. All repaired core words validate, while the
+ten canonical oracle streams remain Unclassified. Refusals, stops, unconfirmed
+words and the TLC `LvPeriodic` difference remain findings. TLC Auto retains
+SANY; both 156-model Auto baselines exit 0. The one full gate exits 0 in
+78m07s, with 3,054 nextest passes, six source-declared ignored tests and 185
+passing doctests. The census/joined chain retains exit 1 for its findings.
+A separately reviewed standalone trace build exits 0 in 11.64s, with no
+forbidden dependencies or evaluator enumeration; it is separate from the
+full gate (#714). All 21,924 local archive members are uploaded, downloaded
+and hash-verified.
+The small-payload experiment #710 is a reviewed valid negative and is closed
+unmerged. Fresh review approves recovered same-host original ABA default/W8
+cell evidence after the focused controller's archival failure. Its candidate
+completion has a censored baseline and does not qualify the final twelve-cell
+capacity matrix, a speed factor or memory savings.
+Final-source performance has independently audited 36-row focus and 60-row
+breadth diagnostics, kept separate. All 96 rows are correct, including 64
+actual-core runs. The default floor remains unmet; breadth's compatibility
+GameOfLife/W1 ratio is 2.001332924, above 2, without a repeatability claim.
+No formal 300-row campaign was started. Its archives are verified and the
+performance node/root volume have verified cleanup. The final original
+twelve-cell capacity matrix has eleven successes and one ABA TLC/W8 native
+atom-analysis time stop at 900.076s, physical exit 5; its runner exits 1 and
+the matrix is not accepted. ABA default/W8 succeeds at 833.645s and TLC/W1 at
+895.382s, the latter with only about 4.618s of observed margin. All 147 final
+archive members are verified. Both phase nodes and root volumes are gone, with
+no active owned phase instance. Conservative compute is about $10.235, not an
+invoice, excluding small storage/transfer costs and below the $40 ceiling.
+#650, M1, M2 and release qualification remain open. See the
+[next bounded actions](m1-status.md#next-bounded-actions).
+
+The historical [local record](../../../conformance/reports/core/2026-11-01-integrated-qualification.json)
 at runtime base `16095d43` records a full-gate pass with 3,036 nextest tests,
-six declared skips and 184 passing doctests. The whole runtime tree was
-integrated as `9a1d51a1`; later documentation changes receive no execution
-credit. The census preserves every old agreement but retains findings, and
-TLC Auto physically exits 1 for omitted baseline SANY entries despite unchanged
-model observables. The separately audited [performance diagnostics](../../../conformance/reports/perf/2026-11-01-integrated-performance.json)
-retain a three-pair focus and a one-repeat breadth cohort. The focus misses the
-default speed floor; five-repeat acceptance and original temporal capacity
-remain open. All twelve original capacity cells are terminal: nine successes
-and three ABA atom-analysis time stops, including a lost default/W8 completion.
-#650 remains open. Both phase nodes/root volumes have verified cleanup. The
-independently audited [capacity record](../../../conformance/reports/perf/2026-11-01-original-capacity.json)
-retains the negative outcome and prior comparison. See the
-[next bounded actions](m1-status.md#next-bounded-actions) for the remaining word,
-classification, receiver, default-performance and remaining ABA gaps.
+six declared skips and 184 passing doctests; its whole tree was integrated as
+`9a1d51a1`. That source's [performance diagnostics](../../../conformance/reports/perf/2026-11-01-integrated-performance.json)
+miss the default floor, and its [capacity record](../../../conformance/reports/perf/2026-11-01-original-capacity.json)
+retains nine successes and three ABA time stops, including a lost default/W8
+completion. Its archive and node cleanup are verified. None of those historical
+results or cleanup receipts qualify `fb48dbbf` or its current nodes.
 
 The historical final fixture census on main `f1acc846` records 1,025 default /
 1,002 TLC-profile shadow agreements and zero sampled-successor findings, with remaining
@@ -79,9 +106,9 @@ measurements above or the engine default.
 | Rebaseline on x86 | Day 0 | done | #522 | `09-performance-method.md` |
 | M0 spike | M0 | done: 1.81× TLC, 5.21× reference (x86 geomean); merged as `--engine=core` | #505 | `m0-results.md` |
 | 1. Values and store | M1 | implemented M1 scope; remaining work below; done: inline node data, lazy values, big ints, model values, `isNorm`, intern-token strings, lock-free intern hits, Bags, most stdlib and CommunityModules operators, Print/PrintT/ToString, RandomElement, TLCSet/TLCGet, pure scalar sequence replacement (All overlaps refused), bounded owned literal/MAP/union histories and default S5 compound-membership indexing (#677/#698); next: broader construction, normalization demand/history and alias lifetime before widening checked comparison; conservative C2 refusal retained; retain §12 stdlib boundaries | `core/values-*` | `03-value-model.md` |
-| 2. Plan compiler and laziness | M1 | implemented M1 scope; remaining work below; done: fold bound (R9), TLC lazy values, INSTANCE, error classes, operator arguments, lazy LET, failing ASSUME, `ENABLED` (#581), memo on and bounded (#575, #584); done: `ENABLED` with constant/operator INSTANCE parameters and identity variable mappings; next: raw construction/demand/history, exact scalar/tuple normalization and membership, then class/E7 widening; hidden/nonidentity INSTANCE queries and B2/B4 lifetimes remain | `core/compiler-*` | `04-plan-compiler.md`, `06-memoization.md` |
-| 3. Successor generation and engine | M1 | implemented M1 scope; remaining work below; done: traces, error endings, budgets, parallel engine, `--engine=auto`, `--compat=tlc` at any worker count, implied properties, SYMMETRY (both profiles), ALIAS, VIEW, VIEW+SYMMETRY, liveness L1–L4 (#572, #573, #577, #582), #550, #551; L5 native retained roots/CSR, controlled eager admission/on-demand reads, bounded read reuse and graph-neutral validated reports; private exact product lookup/deterministic final ordering and selected original-target descriptors (#694/#701); next: complete memory accounting, original-workload TLC capacity qualification, `P4SymLive` | `core/engine-*` | `05-successor-generation.md`, `07-engine.md`, `11-liveness.md` |
-| 4. Harness, shadow comparison, bench | M1 | lead; done: harness engine selection, shadow gate in CI, successor sampling, x86 checkpoint and memo A/B (`10-plan.md` §5a, §5b), AWS bench and gate scripts, reproducible seeded fixture-census runner; classified results and confirmed traces required (#590, #596); next: retain completed PRE-C2 campaign and separate integration validation, original quiet=false and host controls; resolve remaining census/ablation findings (#603 fixed) and retain engine accounting | — | `08-correctness.md`, `09-performance-method.md` |
+| 2. Plan compiler and laziness | M1 | implemented M1 scope; remaining work below; done: fold bound (R9), TLC lazy values, INSTANCE, error classes, operator arguments, lazy LET, failing ASSUME, `ENABLED` (#581), memo on and bounded (#575, #584); done: `ENABLED` with constant/operator INSTANCE parameters and identity variable mappings; bounded ordered VIEW/constraint/invariant diagnostic proof (#712), with canonical classes still Unclassified and inherited primary-2111 limitation #713 open; next: raw construction/demand/history, exact scalar/tuple normalization and membership, then class/E7 widening; hidden/nonidentity INSTANCE queries and B2/B4 lifetimes remain | `core/compiler-*` | `04-plan-compiler.md`, `06-memoization.md` |
+| 3. Successor generation and engine | M1 | implemented M1 scope; remaining work below; done: traces, error endings, budgets, parallel engine, `--engine=auto`, `--compat=tlc` at any worker count, implied properties, SYMMETRY (both profiles), ALIAS, VIEW, VIEW+SYMMETRY, liveness L1–L4 (#572, #573, #577, #582), #550, #551; L5 native retained roots/CSR, controlled eager admission/on-demand reads, bounded read reuse and graph-neutral validated reports; private exact product lookup/deterministic final ordering and selected original-target descriptors (#694/#701), exact-row atom input-proof reuse within one analysis (#709); next: complete memory accounting, original-workload TLC capacity qualification, `P4SymLive` | `core/engine-*` | `05-successor-generation.md`, `07-engine.md`, `11-liveness.md` |
+| 4. Harness, shadow comparison, bench | M1 | lead; done: harness engine selection, shadow gate in CI, successor sampling, x86 checkpoint and memo A/B (`10-plan.md` §5a, §5b), AWS bench and gate scripts, reproducible seeded fixture-census runner; classified results and confirmed core words required (#590, #596); phase 3 full gate and both Auto baselines pass, separate standalone trace compilation passes, census findings retained; #710 valid-negative A/B rejected; separate 36/60-row performance diagnostics audited and targets unmet; original capacity terminal at 11/12, ABA TLC/W8 atom stop retained, runner exit 1; archives and both-node/root-volume cleanup verified; remaining: #713 trust limit, performance targets, full original capacity/headroom and existing semantic/accounting boundaries | — | `08-correctness.md`, `09-performance-method.md` |
 
 The umbrella issue is #498. The M0 spike landed on `main` in #505; its results
 are in `m0-results.md`. M1 streams 1–3 started 2026-10-26, each in its own
