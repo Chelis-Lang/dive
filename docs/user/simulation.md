@@ -144,9 +144,11 @@ profile, no time limit under `--compat=tlc`, and half physical memory in both.
 time limit labels the profile `tlc+overrides`.
 
 The clock starts after model loading. Assumptions, Init and execution loops
-receive cooperative control, including evaluator loop checkpoints; parsing,
-binding, serialization and independent replay are not interrupted. A final
-resource sample runs before publication. Memory is sampled process usage,
+receive cooperative control, including evaluator loop checkpoints. Retained
+traces are serialized with state checkpoints and independently replayed on fresh
+runtimes under the same budget. Exhaustion skips unprocessed retained traces.
+Initial model loading and individual value encoding/decoding remain
+uninterruptible. A final resource sample runs before publication. Memory is sampled process usage,
 not an allocation-time hard cap. `options.budget` states these boundaries.
 
 Exhaustion gives `result: stopped`, exit 5, actual resource/limit/observation,

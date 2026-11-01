@@ -218,7 +218,6 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             }
         }
     };
-    drop(control_scope);
     let (kind, code, message, default_exit) = match &result.outcome {
         Outcome::Sampled => ("sampled", None, None, 0),
         Outcome::Violation { code, .. } => (
@@ -237,10 +236,16 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
     let mut traces = Vec::new();
     let mut trace_refusal = None;
     'documents: for (number, trace) in result.traces.iter().enumerate() {
+        if run_budget.budget.poll() != Ok(None) {
+            break;
+        }
         let states: Result<Vec<_>, _> = trace
             .states
             .iter()
             .map(|state| {
+                if run_budget.budget.poll() != Ok(None) {
+                    return Err("run budget exhausted during trace serialization".to_owned());
+                }
                 let mut object = serde_json::Map::new();
                 for (var, value) in model.model().ir.vars().iter().zip(state.iter()) {
                     let value = value
@@ -280,9 +285,18 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             .map_err(|message| crate::ApiError::Rejected { message })?
             .with_ending(ending);
         // Validation replays the given states; it never reruns the simulation.
-        let validation = model.validate(&document);
+        let validation = match model.validate_mode(&document, control.clone()) {
+            Ok(validation) => validation,
+            Err(error) => {
+                trace_refusal = Some(format!("simulation trace validation interrupted: {error}"));
+                break;
+            }
+        };
         let mut compressed = Vec::<usize>::new();
         for (index, state) in trace.states.iter().enumerate() {
+            if run_budget.budget.poll() != Ok(None) {
+                break 'documents;
+            }
             let same = if let Some(&previous) = compressed.last() {
                 let mut equal = true;
                 for (left, right) in trace.states[previous].iter().zip(state.iter()) {
@@ -411,6 +425,7 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             "kind": if event.warning { "warning" } else { "print" }, "text": event.text,
         })).collect::<Vec<_>>(),
     });
+    drop(control_scope);
     run_budget.finish(&mut document, &mut exit)?;
     Ok(SimulateReport { document, exit })
 }

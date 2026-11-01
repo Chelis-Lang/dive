@@ -149,8 +149,10 @@ than TLC, and 30-minute runaway jobs in any regular loop.
   remain ineligible for strict temporal transport.
 - Finite `dive dfid` and `dive simulate` now accept the same time/memory
   policies, sharing one owner after model loading through final resource sampling.
-  Execution/evaluator checkpoints cooperate; parsing, binding, serialization and
-  independent replay remain outside interruption. Their reports state this scope.
+  Execution/evaluator and retained-state serialization checkpoints cooperate, and
+  fresh independent finite-word replay uses the same owner. Initial model loading
+  and individual value encoding/decoding remain uninterruptible. Reports state
+  this scope; exhaustion does not trigger replay of the unprocessed prefix.
 - Not covered yet: the `dive tlc` adapter's
   `-Dtlc2.TLC.stopAfter` property, environment-variable or configuration
   spellings of these options, and `dive-bench`, which still runs `dive check`

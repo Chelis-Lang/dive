@@ -43,7 +43,7 @@ impl ModeBudget {
             metadata: json!({
                 "time_limit_ms": time.map(|value| u64::try_from(value.as_millis()).unwrap_or(u64::MAX)),
                 "time_limit_source": time_source, "max_memory_bytes": memory, "max_memory_source": memory_source,
-                "scope": "execution after model loading, including assumptions, Init and mode steps; final resource sample before publication; parsing, binding, serialization and independent validation are not interrupted; process memory is sampled rather than an allocation-time hard cap"
+                "scope": "execution after model loading, including assumptions, Init, mode steps, retained-state serialization checkpoints and independent finite-word replay; individual value encoding/decoding and initial model loading remain uninterruptible; final resource sample before publication; process memory is sampled rather than an allocation-time hard cap"
             }),
         })
     }
@@ -68,9 +68,13 @@ impl ModeBudget {
             self.budget.poll()
         }
         .map_err(crate::ApiError::BudgetMeasurement)?;
+        let preflight_disposition = document["options"]["execution_stage"] == "preflight"
+            && matches!(
+                document["result"].as_str(),
+                Some("unsupported" | "evaluation-error" | "parameter-error" | "internal-error")
+            );
         if let Some(exhausted) = exhausted
-            && !(document["options"]["execution_stage"] == "preflight"
-                && document["result"] == "unsupported")
+            && !preflight_disposition
         {
             let stopped = exhausted.during(self.phase);
             document["result"] = json!("stopped");

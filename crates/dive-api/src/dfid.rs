@@ -232,7 +232,6 @@ pub fn dfid_file(req: &DfidRequest) -> Result<DfidReport, crate::ApiError> {
             return Ok(DfidReport { document, exit: 4 });
         }
     };
-    drop(control_scope);
     let (mut kind, code, mut message, mut exit) = match &report.outcome {
         Outcome::Complete => ("complete", None, None, 0),
         Outcome::Incomplete => (
@@ -275,7 +274,14 @@ pub fn dfid_file(req: &DfidRequest) -> Result<DfidReport, crate::ApiError> {
         ..
     } = &report.outcome
     {
-        match witness(&model, &report.trace, violation_kind, name.as_deref()) {
+        match witness(
+            &model,
+            &report.trace,
+            violation_kind,
+            name.as_deref(),
+            &run_budget.budget,
+            control.clone(),
+        ) {
             Ok((trace, validation)) => {
                 document["counterexample"] = json!({"trace": trace.to_json(), "validation": crate::trace::report_json(&validation)});
                 match validation.validation {
@@ -325,6 +331,7 @@ pub fn dfid_file(req: &DfidRequest) -> Result<DfidReport, crate::ApiError> {
     );
     document["options"]["worker_seeds"] = json!(report.worker_seeds);
     document["statistics"] = json!({"scope": if matches!(report.outcome, Outcome::Complete) {"complete-model"} else {"completed-prefix"}, "generated": report.generated, "distinct": report.distinct, "initial_candidates": report.initial_candidates, "level": report.level});
+    drop(control_scope);
     run_budget.finish(&mut document, &mut exit)?;
     Ok(DfidReport { document, exit })
 }
@@ -334,9 +341,14 @@ fn witness(
     states: &[dive_eval::next::StateVals],
     kind: &str,
     name: Option<&str>,
+    budget: &dive_check::budget::Budget,
+    control: std::sync::Arc<dyn dive_eval::HostControl>,
 ) -> Result<(TraceDoc, crate::trace::Report), String> {
     let mut objects = Vec::new();
     for state in states {
+        if budget.poll() != Ok(None) {
+            return Err("run budget exhausted during DFID witness serialization".to_owned());
+        }
         let mut object = serde_json::Map::new();
         for (var, value) in model.model().ir.vars().iter().zip(state.iter()) {
             let value = value
@@ -355,7 +367,9 @@ fn witness(
         _ => Ending::Deadlock,
     };
     let document = TraceDoc::behavior(objects)?.with_ending(ending);
-    let validation = model.validate(&document);
+    let validation = model
+        .validate_mode(&document, control)
+        .map_err(|error| error.to_string())?;
     Ok((document, validation))
 }
 

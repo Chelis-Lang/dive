@@ -164,3 +164,66 @@ fn unlimited_and_generous_budgets_preserve_seeded_samples() -> Result {
     }
     Ok(())
 }
+
+#[test]
+fn preflight_errors_and_refusals_keep_precedence_over_run_budgets() -> Result {
+    let (_scratch, file) = model("0")?;
+    for compat in [false, true] {
+        for workers in [0, 2] {
+            let request = DfidRequest {
+                workers: Some(workers),
+                time_limit: BudgetSetting::Unlimited,
+                ..dfid(&file, compat)
+            };
+            let expected = dfid_file(&request)?;
+            let limited = dfid_file(&DfidRequest {
+                max_memory: BudgetSetting::Explicit(1),
+                ..request
+            })?;
+            let expected_json = expected.to_json();
+            let limited_json = limited.to_json();
+            assert_eq!(limited.exit_status(), expected.exit_status());
+            for field in ["result", "tlc_code", "message", "statistics"] {
+                assert_eq!(limited_json[field], expected_json[field], "{field}");
+            }
+            assert_eq!(limited_json["options"]["workers_used"], 0);
+            assert!(limited_json["stopped"].is_null());
+        }
+        let request = SimulateRequest {
+            workers: Some(2),
+            time_limit: BudgetSetting::Unlimited,
+            ..simulation(&file, compat)
+        };
+        let expected = simulate_file(&request)?;
+        let limited = simulate_file(&SimulateRequest {
+            max_memory: BudgetSetting::Explicit(1),
+            ..request
+        })?;
+        assert_eq!(limited.exit_code(), expected.exit_code());
+        assert_eq!(limited.to_json()["result"], expected.to_json()["result"]);
+        assert_eq!(limited.to_json()["message"], expected.to_json()["message"]);
+        assert_eq!(limited.to_json()["options"]["workers_used"], 0);
+        assert!(limited.to_json()["stopped"].is_null());
+    }
+    Ok(())
+}
+
+#[test]
+fn simulation_does_not_replay_a_retained_prefix_after_exhaustion() -> Result {
+    let (_scratch, file) = model("0")?;
+    for compat in [false, true] {
+        for (traces, depth) in [(100_000, 10), (1, 10_000_000)] {
+            let start = std::time::Instant::now();
+            let report = simulate_file(&SimulateRequest {
+                traces,
+                depth: Some(depth),
+                time_limit: BudgetSetting::Explicit(Duration::from_millis(50)),
+                ..simulation(&file, compat)
+            })?;
+            stopped(&report.to_json(), "time", "simulation");
+            assert_eq!(report.to_json()["traces"], serde_json::json!([]));
+            assert!(start.elapsed() < Duration::from_secs(3));
+        }
+    }
+    Ok(())
+}

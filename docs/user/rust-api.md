@@ -210,5 +210,6 @@ errors and is then refused by name.
 `SimulateRequest` and `DfidRequest` also expose `BudgetSetting` fields
 `time_limit` and `max_memory`, with the same defaults as checking. Their finite
 reports distinguish `stopped` (exit 5) from sampled/incomplete/completed outcomes;
-a stopped report never has `model_proved: true`. See the mode guides for the
-after-loading execution scope and uninterruptible units.
+a stopped report never has `model_proved: true`. One owner covers execution,
+retained-state serialization checkpoints and fresh finite-word validation.
+See the mode guides for the after-loading scope and uninterruptible value units.
