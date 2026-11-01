@@ -46,14 +46,21 @@ fn whole_function_failure_matches_the_generated_oracle_without_changing_alias_de
                         )
                         .expect("check")
                         .to_json();
-                        if engine == Engine::Core && store == Store::Exact {
+                        // Native exact storage is a safety capability. This
+                        // fixture has a genuine temporal property and keeps
+                        // the graph-storage refusal until that is implemented.
+                        if engine == Engine::Core && store == Store::Exact && name == "NamedAction"
+                        {
                             assert_eq!(report["verdict"], "unsupported");
                             assert!(
                                 report["message"]
                                     .as_str()
-                                    .expect("refusal")
-                                    .contains("--store exact")
+                                    .expect("temporal storage refusal")
+                                    .contains("exact or spilled native temporal storage")
                             );
+                            assert_eq!(report["options"]["workers"]["used"], 0);
+                            assert!(report["tlc"].is_null());
+                            assert!(report["counterexample"].is_null());
                             continue;
                         }
                         assert_eq!(
