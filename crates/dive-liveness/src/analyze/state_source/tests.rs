@@ -664,3 +664,314 @@ fn reference_rows_borrow_and_action_atoms_evaluate_once_per_destination() {
         assert_eq!(lazy.reads, [Read::Concrete(0, 0), Read::Representative(0)]);
     }
 }
+
+/// Native truth and input admission remain separate from demanded reference rows.
+struct NativeLazy<'a> {
+    inner: Lazy<'a>,
+    model: &'a Model,
+    evaluations: usize,
+    validations: usize,
+    admit: bool,
+    fallback_state: bool,
+    corrupt_metadata: bool,
+    fail_predicate: Option<usize>,
+}
+
+impl StateSource for NativeLazy<'_> {
+    fn representative_count(&self) -> usize {
+        self.inner.representative_count()
+    }
+    fn representative(
+        &mut self,
+        vertex: usize,
+    ) -> Result<std::borrow::Cow<'_, StateVals>, AnalysisError> {
+        self.inner.representative(vertex)
+    }
+    fn concrete_count(&self, source: usize) -> Option<usize> {
+        self.inner.concrete_count(source)
+    }
+    fn concrete_metadata(&self, source: usize, original: usize) -> Option<ConcreteMetadata<'_>> {
+        let mut metadata = self.inner.concrete_metadata(source, original)?;
+        if self.corrupt_metadata {
+            metadata.label = "wrong-original-label";
+        }
+        Some(metadata)
+    }
+    fn concrete(&mut self, source: usize, original: usize) -> Result<StateVals, AnalysisError> {
+        self.inner.concrete(source, original)
+    }
+    fn predicate(
+        &mut self,
+        atom: &crate::plan::PredicateAtom,
+        source: usize,
+        target: Option<OriginalTarget>,
+    ) -> Result<Option<bool>, AnalysisError> {
+        self.evaluations += 1;
+        if self.fail_predicate == Some(source) {
+            return Err(AnalysisError::Unsupported("native fixture failure"));
+        }
+        if self.fallback_state && target.is_none() {
+            return Ok(None);
+        }
+        let before = self.inner.metadata.states[source].clone();
+        let st = target.map_or_else(
+            || St::state(before.clone()),
+            |target| {
+                let after = match target {
+                    OriginalTarget::Generated(original) => {
+                        self.inner.metadata.concrete[source][original].state.clone()
+                    }
+                    OriginalTarget::Stuttering => before.clone(),
+                };
+                St::action(before.clone(), after)
+            },
+        );
+        Ok(Some(
+            atom.evaluate(self.model, &st).expect("pure fixture atom"),
+        ))
+    }
+    fn validate_predicate_inputs(
+        &mut self,
+        _: &crate::plan::PredicateAtom,
+        _: usize,
+        _: Option<OriginalTarget>,
+    ) -> Result<bool, AnalysisError> {
+        self.validations += 1;
+        Ok(self.admit)
+    }
+}
+
+#[test]
+#[allow(
+    clippy::too_many_lines,
+    reason = "matched warm-cache controls share one exact source and ordered demand fixture"
+)]
+fn frozen_wf_reuse_retains_every_reference_demand_and_declines_cap_fallback_and_bad_reads() {
+    for options in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
+        let model = bound(
+            "Init == x=0\nNext == x'=1-x\nSpec == Init /\\ [][Next]_x /\\ WF_x(Next)\nP == []<>(x=1)\nQ == []<>(x=0)",
+            "SPECIFICATION Spec\nPROPERTIES P Q\n",
+            &options,
+        );
+        let graph = captured(&model, &options);
+        let limits = Limits::default();
+        let control = evaluator_control(&options).expect("control");
+        let (plans, pair) =
+            crate::plan::lower_original_claims(&model, limits.formula).expect("frozen originals");
+        assert!(pair.is_some());
+        let shape = BehaviorView::checked_captured(&graph).expect("topology");
+        let run_labels = |cap: usize, admit: bool, fallback_state: bool, fail_second: bool| {
+            let mut states = NativeLazy {
+                inner: Lazy::new(&graph),
+                model: &model,
+                evaluations: 0,
+                validations: 0,
+                admit,
+                fallback_state,
+                corrupt_metadata: false,
+                fail_predicate: None,
+            };
+            let mut cache = crate::analyze::fairness::Cache::new(true, cap);
+            let mut truths = Vec::new();
+            for (index, plan) in plans.iter().enumerate() {
+                if fail_second && index == 1 {
+                    states.inner.fail = Some(states.inner.reads.len() + 1);
+                }
+                let active = crate::tlc_plan::active_actions(&plan.formula, limits.formula)
+                    .expect("actions");
+                let result = labels_with_reuse(
+                    &model,
+                    plan,
+                    &graph,
+                    &mut states,
+                    shape,
+                    "fixture",
+                    GraphLabelPolicy::NoCellLimit,
+                    &active,
+                    &mut EvaluationErrors::default(),
+                    &control,
+                    pair,
+                    &mut cache,
+                );
+                if fail_second && index == 1 {
+                    assert!(matches!(
+                        result,
+                        Err(AnalysisError::Limit("lazy source control"))
+                    ));
+                    return (truths, states, cache);
+                }
+                truths.push(result.expect("labels").0);
+            }
+            (truths, states, cache)
+        };
+        let (expected, plain, no_cache) = run_labels(0, false, false, false);
+        assert_eq!(no_cache.stored_columns, 0);
+        assert_eq!(no_cache.cap_bypasses, 1);
+        let (actual, mut reused, mut cache) = run_labels(16 * 1024 * 1024, true, false, false);
+        assert_eq!(actual, expected);
+        assert_eq!(
+            reused.inner.reads, plain.inner.reads,
+            "conversion demands remain exact"
+        );
+        assert!(reused.evaluations < plain.evaluations);
+        assert!(reused.validations > 0);
+        assert_eq!(cache.stored_columns, 2);
+        assert!(cache.peak_bytes <= 16 * 1024 * 1024);
+        let (_, separate) =
+            crate::plan::lower_original_claims(&model, limits.formula).expect("separate batch");
+        assert!(
+            cache
+                .get(separate.and_then(|pair| pair.atom(0)), 0)
+                .is_none(),
+            "same expression/scope input from another preparation is not a token match"
+        );
+        cache
+            .complete(
+                separate.and_then(|pair| pair.atom(0)),
+                0,
+                &expected[0],
+                true,
+            )
+            .expect("foreign token bypass");
+        assert_eq!(cache.stored_columns, 2);
+        let mut excess = crate::analyze::fairness::Cache::new(true, 1024);
+        excess.configure(graph.states.len(), graph.edges.iter().map(Vec::len).sum());
+        excess
+            .complete_with(
+                pair.and_then(|pair| pair.atom(0)),
+                0,
+                &expected[0],
+                true,
+                |copy, _| copy.try_reserve_exact(1024).is_ok(),
+            )
+            .expect("excess retained capacity bypass");
+        assert_eq!(excess.stored_columns, 0);
+        assert_eq!(excess.cap_bypasses, 1);
+        let mut allocation = crate::analyze::fairness::Cache::new(true, 16 * 1024 * 1024);
+        allocation.configure(graph.states.len(), graph.edges.iter().map(Vec::len).sum());
+        allocation
+            .complete_with(
+                pair.and_then(|pair| pair.atom(0)),
+                0,
+                &expected[0],
+                true,
+                |_, _| false,
+            )
+            .expect("optional allocation refusal");
+        assert_eq!(allocation.allocation_bypasses, 1);
+        assert_eq!(allocation.stored_columns, 0);
+        let watchdog = crate::budget::expired_for_test();
+        {
+            let _budget = crate::budget::enter(watchdog.budget());
+            assert!(matches!(
+                allocation.complete(pair.and_then(|pair| pair.atom(0)), 0, &expected[0], true),
+                Err(AnalysisError::Limit(crate::budget::EXHAUSTED))
+            ));
+        }
+        assert_eq!(
+            allocation.stored_columns, 0,
+            "interrupted copy publishes no column"
+        );
+        assert!(
+            allocation.peak_bytes > 0,
+            "accepted construction storage remains measured after interruption"
+        );
+        let (actual, declined, _) = run_labels(16 * 1024 * 1024, false, false, false);
+        assert_eq!(actual, expected);
+        assert_eq!(
+            declined.evaluations, plain.evaluations,
+            "input refusal executes original callback"
+        );
+        let (actual, fallback, partial) = run_labels(16 * 1024 * 1024, true, true, false);
+        assert_eq!(actual, expected);
+        assert_eq!(
+            partial.stored_columns, 1,
+            "a fallback state column is never cached"
+        );
+        assert!(fallback.evaluations > reused.evaluations);
+        let (_, failed, _) = run_labels(16 * 1024 * 1024, true, false, true);
+        assert_eq!(
+            failed.validations, 0,
+            "required read failure precedes even a warm cache input hook"
+        );
+        let active =
+            crate::tlc_plan::active_actions(&plans[1].formula, limits.formula).expect("actions");
+        reused.corrupt_metadata = true;
+        assert!(
+            matches!(
+                labels_with_reuse(
+                    &model,
+                    &plans[1],
+                    &graph,
+                    &mut reused,
+                    shape,
+                    "Q",
+                    GraphLabelPolicy::NoCellLimit,
+                    &active,
+                    &mut EvaluationErrors::default(),
+                    &control,
+                    pair,
+                    &mut cache
+                ),
+                Err(AnalysisError::Inconsistent(
+                    "original action target row shape"
+                ))
+            ),
+            "warm action truth does not bypass first-original metadata validation"
+        );
+        let mut partial = NativeLazy {
+            inner: Lazy::new(&graph),
+            model: &model,
+            evaluations: 0,
+            validations: 0,
+            admit: true,
+            fallback_state: false,
+            corrupt_metadata: false,
+            fail_predicate: Some(1),
+        };
+        let mut empty = crate::analyze::fairness::Cache::new(true, 16 * 1024 * 1024);
+        assert!(matches!(
+            labels_with_reuse(
+                &model,
+                &plans[0],
+                &graph,
+                &mut partial,
+                shape,
+                "P",
+                GraphLabelPolicy::NoCellLimit,
+                &active,
+                &mut EvaluationErrors::default(),
+                &control,
+                pair,
+                &mut empty
+            ),
+            Err(AnalysisError::Unsupported("native fixture failure"))
+        ));
+        assert_eq!(
+            empty.stored_columns, 0,
+            "failed partial native column is never published"
+        );
+        let (again, fresh, _) = run_labels(16 * 1024 * 1024, true, false, false);
+        assert_eq!(again, expected);
+        assert_eq!(
+            fresh.evaluations, reused.evaluations,
+            "new analysis owns fresh columns"
+        );
+    }
+}
+
+#[test]
+fn property_owned_fairness_does_not_receive_a_frozen_behavior_recipe() {
+    let options = CheckOptions::dive(0);
+    let model = bound(
+        "Init == x=0\nNext == x'=1-x\nSpec == Init /\\ [][Next]_x\nP == WF_x(Next)\nQ == WF_x(Next)",
+        "SPECIFICATION Spec\nPROPERTIES P Q\n",
+        &options,
+    );
+    let (_, pair) =
+        crate::plan::lower_original_claims(&model, Limits::default().formula).expect("claims");
+    assert!(
+        pair.is_none(),
+        "repeated expression IDs grant no recipe identity"
+    );
+}

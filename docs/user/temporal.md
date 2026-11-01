@@ -905,6 +905,15 @@ fulfilled on the closing transition, including an actual stuttering edge.
 This reduces memory for models with many fairness conditions without changing
 verdicts, state counts or counterexample validation.
 
+The experimental core engine may also reuse one completely evaluated native WF
+pair shared by configured properties. Each property keeps its required input
+reads and current resource checks. This optional storage is bounded by the
+smaller of 16 MiB and one 256th of the requested memory limit; unavailable storage
+uses ordinary evaluation. It resets for each graph analysis and changes no
+fairness or property semantics in either profile. Additive `fairness_reuse`
+metrics distinguish reused truth from actual atom evaluations; they do not prove
+completion, time saved or a hard whole-process memory ceiling.
+
 The existing formula, graph, atom and product bounds still apply. An exhausted
 bound remains an explicit non-verdict result; this change introduces no new
 flag or profile divergence. Shared Boolean scratch consumes covered bytes;

@@ -14,6 +14,7 @@ use crate::formula::{self, AtomKind, CycleConditions, Tableau};
 use crate::plan::{self, Plan, PlanningError};
 use crate::product::{self, AcceptancePolicy, CompactProduct, PackedTruth};
 
+mod fairness;
 mod finish;
 #[doc(hidden)]
 pub mod owned;
@@ -837,10 +838,8 @@ fn selected_targets<'a>(
     Ok(selected)
 }
 
-#[allow(
-    clippy::too_many_arguments,
-    reason = "concrete values and validated original-edge shape have separate owners"
-)]
+#[cfg(test)]
+#[allow(clippy::too_many_arguments, reason = "original label test entrypoint")]
 fn labels<'a>(
     model: &Model,
     plan: &Plan,
@@ -852,6 +851,42 @@ fn labels<'a>(
     active: &(std::collections::BTreeSet<usize>, Option<usize>),
     evaluations: &mut EvaluationErrors,
     control: &dive_check::budget::EvaluationControl,
+) -> Result<(PackedTruth, usize), AnalysisError> {
+    let mut reuse = fairness::Cache::new(false, 0);
+    labels_with_reuse(
+        model,
+        plan,
+        graph,
+        states,
+        shape,
+        property,
+        policy,
+        active,
+        evaluations,
+        control,
+        None,
+        &mut reuse,
+    )
+}
+
+#[allow(
+    clippy::too_many_arguments,
+    clippy::too_many_lines,
+    reason = "concrete values and validated original-edge shape have separate owners"
+)]
+fn labels_with_reuse<'a>(
+    model: &Model,
+    plan: &Plan,
+    graph: impl Into<OriginalEdges<'a>>,
+    states: &mut (impl StateSource + ?Sized),
+    shape: product::BehaviorView<'_>,
+    property: &str,
+    policy: GraphLabelPolicy,
+    active: &(std::collections::BTreeSet<usize>, Option<usize>),
+    evaluations: &mut EvaluationErrors,
+    control: &dive_check::budget::EvaluationControl,
+    frozen_wf: Option<plan::FrozenWfPair>,
+    reuse: &mut fairness::Cache,
 ) -> Result<(PackedTruth, usize), AnalysisError> {
     let graph = graph.into();
     let edges = (0..graph.states())
@@ -869,6 +904,7 @@ fn labels<'a>(
             "state predicate dimensions".into(),
         )));
     }
+    reuse.configure(states.representative_count(), edges);
     let kinds = plan.atoms.iter().map(|atom| atom.kind).collect::<Vec<_>>();
     let mut labels = PackedTruth::new(shape, &kinds).map_err(AnalysisError::Product)?;
     let mut context = StateContext {
@@ -878,13 +914,25 @@ fn labels<'a>(
         attribution: false,
     };
     for (index, pred) in plan.atoms.iter().enumerate() {
+        let recipe = frozen_wf.and_then(|pair| pair.atom(index));
+        let mut fully_native = true;
+        let mut consumed = false;
         for v in 0..states.representative_count() {
             if crate::budget::exhausted() {
                 return Err(AnalysisError::Limit(crate::budget::EXHAUSTED));
             }
             if pred.kind == AtomKind::State {
                 let vals = states.representative(v)?.into_owned();
-                let value = match states.predicate(pred, v, None)? {
+                let native = if let Some(value) = reuse.get(recipe, v)
+                    && states.validate_predicate_inputs(pred, v, None)?
+                {
+                    Some(value)
+                } else {
+                    states.predicate(pred, v, None)?
+                };
+                consumed |= native.is_some();
+                fully_native &= native.is_some();
+                let value = match native {
                     Some(value) => value,
                     None => atom(model, plan, index, &St::state(vals), &mut context)?,
                 };
@@ -894,6 +942,7 @@ fn labels<'a>(
                 continue;
             }
             if !active.0.contains(&index) {
+                fully_native = false;
                 continue; // The actual action-domain column is already FALSE.
             }
             let targets = selected_targets(graph, v, states)?;
@@ -913,7 +962,18 @@ fn labels<'a>(
                     if let Some(value) = evaluated.get(&edge.to) {
                         *value
                     } else {
-                        let native = states.predicate(pred, v, Some(target.original))?;
+                        let flat = labels
+                            .action_position(v, position)
+                            .ok_or(AnalysisError::Inconsistent("frozen WF action position"))?;
+                        let native = if let Some(value) = reuse.get(recipe, flat)
+                            && states.validate_predicate_inputs(pred, v, Some(target.original))?
+                        {
+                            Some(value)
+                        } else {
+                            states.predicate(pred, v, Some(target.original))?
+                        };
+                        consumed |= native.is_some();
+                        fully_native &= native.is_some();
                         let value = native.map_or_else(
                             || {
                                 pred.evaluate_detailed(
@@ -943,6 +1003,7 @@ fn labels<'a>(
                     .map_err(AnalysisError::Product)?;
             }
         }
+        reuse.complete(recipe, index, &labels, fully_native && consumed)?;
     }
     Ok((labels, edges))
 }
@@ -1455,6 +1516,7 @@ fn analyze_unbudgeted(
 struct PreparedProperty {
     plan: Plan,
     groups: Vec<PreparedGroup>,
+    frozen_wf: Option<plan::FrozenWfPair>,
 }
 
 struct PreparedGroup {
@@ -1532,12 +1594,11 @@ fn prepare(
     // initial/safety roles needed for attribution. No scope-cycle identity or
     // expression equality permits replacing them with the temporal-role plans.
     // The row consumer retains its original complete MUST/producer authority.
-    let plans = model
-        .property_claims()
-        .iter()
-        .map(|p| {
-            let plan = plan::lower_violation(model, &p.pred, limits.formula)
-                .map_err(|error| planning_failure(control, error))?;
+    let (original_plans, frozen_wf) = plan::lower_original_claims(model, limits.formula)
+        .map_err(|error| planning_failure(control, error))?;
+    let plans = original_plans
+        .into_iter()
+        .map(|plan| {
             let groups = formula::decompose(&plan.formula, limits.formula)
                 .map_err(AnalysisError::Tableau)?
                 .into_iter()
@@ -1550,7 +1611,11 @@ fn prepare(
                     })
                 })
                 .collect::<Result<_, AnalysisError>>()?;
-            Ok(PreparedProperty { plan, groups })
+            Ok(PreparedProperty {
+                plan,
+                groups,
+                frozen_wf,
+            })
         })
         .collect::<Result<_, AnalysisError>>()?;
     Ok(plans)
@@ -1725,86 +1790,104 @@ fn analyze_graph(
     evaluations: &mut EvaluationErrors,
     control: &dive_check::budget::EvaluationControl,
 ) -> Result<Option<CandidateWord>, AnalysisError> {
-    for (property, (p, prepared)) in model
-        .property_claims()
-        .iter()
-        .zip(plans)
-        .take(searched)
-        .enumerate()
-    {
-        let plan = &prepared.plan;
-        *stage = Stage::Atoms;
-        let active = if plan.atoms.iter().any(|atom| atom.kind == AtomKind::Action) {
-            crate::tlc_plan::active_actions(&plan.formula, limits.formula)
-                .map_err(AnalysisError::Tableau)?
-        } else {
-            (std::collections::BTreeSet::new(), None)
-        };
-        let (labels, behavior_edges) =
-            if let (Some(cache), Some(projection), OriginalEdges::Legacy(captured)) =
-                (cache, projection, captured)
-            {
-                cached_labels(property, plan, captured, projection, cache, graph_labels)?
+    let mut reuse = fairness::Cache::new(
+        searched.min(plans.len()) > 1 && plans.first().is_some_and(|plan| plan.frozen_wf.is_some()),
+        crate::budget::fairness_reuse_limit(),
+    );
+    let result = (|| {
+        for (property, (p, prepared)) in model
+            .property_claims()
+            .iter()
+            .zip(plans)
+            .take(searched)
+            .enumerate()
+        {
+            let plan = &prepared.plan;
+            *stage = Stage::Atoms;
+            let active = if plan.atoms.iter().any(|atom| atom.kind == AtomKind::Action) {
+                crate::tlc_plan::active_actions(&plan.formula, limits.formula)
+                    .map_err(AnalysisError::Tableau)?
             } else {
-                labels(
-                    model,
-                    plan,
-                    captured,
-                    states,
-                    graph,
-                    &p.name,
-                    graph_labels,
-                    &active,
-                    evaluations,
-                    control,
-                )?
+                (std::collections::BTreeSet::new(), None)
             };
-        *stage = Stage::Product;
-        for group in &prepared.groups {
-            let product = CompactProduct::with_policy_and_edges(
-                graph,
-                &group.tableau,
-                &labels,
-                &[],
-                limits.product,
-                policy,
-                behavior_edges,
-            )
-            .map_err(AnalysisError::Product)?;
-            for conditions in &group.alternatives {
-                if let Some(lasso) = product
-                    .find_lasso_with_conditions(&labels, conditions)
-                    .map_err(AnalysisError::Product)?
+            let (labels, behavior_edges) =
+                if let (Some(cache), Some(projection), OriginalEdges::Legacy(captured)) =
+                    (cache, projection, captured)
                 {
-                    let (states, source_ids, edges) =
-                        original_word(captured, states, projection, &lasso)?;
-                    *stage = Stage::Attribution;
-                    let properties = attribute(
+                    cached_labels(property, plan, captured, projection, cache, graph_labels)?
+                } else {
+                    labels_with_reuse(
                         model,
-                        plans,
-                        &states,
-                        lasso.prefix.len(),
-                        limits.atom_cells,
-                        (control, evaluations),
-                        cache.map(|cache| (cache, source_ids.as_slice())),
-                    )?;
-                    if !properties.contains(&p.name) {
-                        return Err(AnalysisError::Inconsistent(
-                            "accepting candidate failed target-property attribution",
-                        ));
-                    }
-                    return Ok(Some(CandidateWord {
-                        target_property: p.name.clone(),
-                        properties,
+                        plan,
+                        captured,
                         states,
-                        back_to: lasso.prefix.len(),
-                        edges,
-                    }));
+                        graph,
+                        &p.name,
+                        graph_labels,
+                        &active,
+                        evaluations,
+                        control,
+                        prepared.frozen_wf,
+                        &mut reuse,
+                    )?
+                };
+            *stage = Stage::Product;
+            for group in &prepared.groups {
+                let product = CompactProduct::with_policy_and_edges(
+                    graph,
+                    &group.tableau,
+                    &labels,
+                    &[],
+                    limits.product,
+                    policy,
+                    behavior_edges,
+                )
+                .map_err(AnalysisError::Product)?;
+                for conditions in &group.alternatives {
+                    if let Some(lasso) = product
+                        .find_lasso_with_conditions(&labels, conditions)
+                        .map_err(AnalysisError::Product)?
+                    {
+                        let (states, source_ids, edges) =
+                            original_word(captured, states, projection, &lasso)?;
+                        *stage = Stage::Attribution;
+                        let properties = attribute(
+                            model,
+                            plans,
+                            &states,
+                            lasso.prefix.len(),
+                            limits.atom_cells,
+                            (control, evaluations),
+                            cache.map(|cache| (cache, source_ids.as_slice())),
+                        )?;
+                        if !properties.contains(&p.name) {
+                            return Err(AnalysisError::Inconsistent(
+                                "accepting candidate failed target-property attribution",
+                            ));
+                        }
+                        return Ok(Some(CandidateWord {
+                            target_property: p.name.clone(),
+                            properties,
+                            states,
+                            back_to: lasso.prefix.len(),
+                            edges,
+                        }));
+                    }
                 }
             }
         }
-    }
-    Ok(None)
+        Ok(None)
+    })();
+    states.predicate_reuse_storage(
+        reuse.peak_bytes,
+        reuse.cap_bypasses,
+        reuse.allocation_bypasses,
+        reuse.stored_columns,
+    );
+    // Columns are local to this exact immutable graph/batch, and are released
+    // before any caller can start fresh independent candidate replay.
+    drop(reuse);
+    result
 }
 
 #[allow(

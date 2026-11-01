@@ -52,6 +52,24 @@ pub(super) trait StateSource {
     ) -> Result<Option<bool>, AnalysisError> {
         Ok(None)
     }
+
+    fn validate_predicate_inputs(
+        &mut self,
+        _atom: &crate::plan::PredicateAtom,
+        _source: usize,
+        _target: Option<OriginalTarget>,
+    ) -> Result<bool, AnalysisError> {
+        Ok(false)
+    }
+
+    fn predicate_reuse_storage(
+        &mut self,
+        _bytes: usize,
+        _cap: u64,
+        _allocation: u64,
+        _columns: u64,
+    ) {
+    }
 }
 
 /// The existing reference representation, borrowed without copying graph rows.
@@ -106,6 +124,28 @@ pub(super) struct NativeStates<'a, 'b> {
 }
 
 impl NativeStates<'_, '_> {
+    fn predicate_rows(
+        &self,
+        source: usize,
+        target: Option<OriginalTarget>,
+    ) -> Result<(usize, Option<usize>), AnalysisError> {
+        let malformed = || AnalysisError::Inconsistent("native predicate original row");
+        let before = self
+            .graph
+            .representative_row(source)
+            .ok_or_else(malformed)?;
+        let after = match target {
+            Some(OriginalTarget::Generated(original)) => Some(
+                self.graph
+                    .original_row(source, original)
+                    .ok_or_else(malformed)?,
+            ),
+            Some(OriginalTarget::Stuttering) => Some(before),
+            None => None,
+        };
+        Ok((before, after))
+    }
+
     fn read_row(&mut self, row: usize) -> Result<StateVals, AnalysisError> {
         let values = self.read.read(row, self.control)?;
         if values.len() != self.variables || values.iter().any(Option::is_none) {
@@ -139,24 +179,30 @@ impl StateSource for NativeStates<'_, '_> {
         if !self.read.has_predicate(atom) {
             return Ok(None);
         }
-        let malformed = || AnalysisError::Inconsistent("native predicate original row");
-        let before = self
-            .graph
-            .representative_row(source)
-            .ok_or_else(malformed)?;
         // selected_targets already checked every ordinal/label and selected
         // the first original per destination. Retain that physical position;
         // searching the outgoing row again for every destination is quadratic.
-        let after = match target {
-            Some(OriginalTarget::Generated(original)) => Some(
-                self.graph
-                    .original_row(source, original)
-                    .ok_or_else(malformed)?,
-            ),
-            Some(OriginalTarget::Stuttering) => Some(before),
-            None => None,
-        };
+        let (before, after) = self.predicate_rows(source, target)?;
         self.read.predicate(atom, before, after, self.control)
+    }
+
+    fn validate_predicate_inputs(
+        &mut self,
+        atom: &crate::plan::PredicateAtom,
+        source: usize,
+        target: Option<OriginalTarget>,
+    ) -> Result<bool, AnalysisError> {
+        if !self.read.has_predicate(atom) {
+            return Ok(false);
+        }
+        let (before, after) = self.predicate_rows(source, target)?;
+        self.read
+            .validate_predicate_inputs(atom, before, after, self.control)
+    }
+
+    fn predicate_reuse_storage(&mut self, bytes: usize, cap: u64, allocation: u64, columns: u64) {
+        self.read
+            .predicate_reuse_storage(bytes, cap, allocation, columns);
     }
 
     fn concrete_count(&self, source: usize) -> Option<usize> {
