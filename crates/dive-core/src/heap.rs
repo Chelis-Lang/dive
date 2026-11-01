@@ -1086,7 +1086,22 @@ impl Heap {
         let (kind, lo, sum, n, was_lazy) = (v.kind, v.lo, v.sum, v.len(), v.is_lazy());
         // TLC's `RecordValue` and `TupleValue` EXCEPT keep their class.
         let record = v.flags & (flags::RECORD | flags::TUPLE);
-        let mut data = v.data.to_vec();
+        // Small updates need writable scratch, not a separately allocated
+        // payload: the arena copies the completed slice below. General
+        // functions have both keys and values, so eight entries need 16 slots.
+        let mut small = [Handle::EMPTY; 16];
+        let mut owned;
+        let data = if n <= 8
+            && i < n
+            && (kind == Kind::IntFcn || (kind == Kind::Fcn && v.data.len() == n * 2))
+        {
+            let data = &mut small[..v.data.len()];
+            data.copy_from_slice(v.data);
+            data
+        } else {
+            owned = v.data.to_vec();
+            owned.as_mut_slice()
+        };
         let (key_hash, slot) = match kind {
             Kind::IntFcn => {
                 #[allow(clippy::cast_possible_wrap, reason = "domains fit in i64")]
@@ -1128,7 +1143,7 @@ impl Heap {
                 .wrapping_add(mix2(key_hash, self.child(new).0))
         };
         self.arena
-            .alloc(kind, fl | record, lo, fcn_hash(n, sum), sum, &data)
+            .alloc(kind, fl | record, lo, fcn_hash(n, sum), sum, data)
     }
 
     /// A symbolic set node. Its hash is structural, not extensional: a
@@ -1563,6 +1578,19 @@ impl Heap {
             v.hash,
             v.sum,
         );
+        if v.data.len() <= 8 && self.intern_children_unchanged(v.data) {
+            // Reborrow only the arena so the ordinary store cache remains
+            // independently mutable. No arena mutation occurred since view.
+            let Some(v) = self.arena.lookup(h) else {
+                self.arena.mark_stale();
+                return Ok(Handle::EMPTY);
+            };
+            let p = self
+                .store
+                .intern(&mut self.cache, kind, 0, lo, hash, sum, v.data);
+            self.arena.interned[idx] = p;
+            return Ok(p);
+        }
         let mut data = v.data.to_vec();
         for d in &mut data {
             if d.is_compound() {
@@ -1574,6 +1602,18 @@ impl Heap {
             .intern(&mut self.cache, kind, 0, lo, hash, sum, &data);
         self.arena.interned[idx] = p;
         Ok(p)
+    }
+
+    /// Whether each child takes the identical-handle return in `intern`.
+    /// Stop at the first recursive case: reading a later child could move
+    /// poisoning ahead of that child's error, materialization or owned stop.
+    fn intern_children_unchanged(&self, data: &[Handle]) -> bool {
+        data.iter().all(|&h| {
+            !h.is_compound()
+                || (h.is_persistent()
+                    && !h.is_lazy_persistent()
+                    && !self.view(h).kind.is_symbolic())
+        })
     }
 
     /// Interns a constant, preserving available function literal classes
@@ -2050,6 +2090,213 @@ mod tests {
 
     fn heap(full: bool) -> Heap {
         Heap::new(Arc::new(Store::default()), false, full)
+    }
+
+    #[test]
+    fn small_payload_updates_keep_layout_hashes_and_literal_classes() -> Result<(), Error> {
+        for semantics in [crate::Semantics::default(), crate::Semantics::tlc()] {
+            for boxed in [false, true] {
+                for full in [false, true] {
+                    let mut h = Heap::new(
+                        Arc::new(Store::with_semantics(true, semantics)),
+                        boxed,
+                        full,
+                    );
+                    for n in [1, 4, 8, 9] {
+                        let values: Vec<_> = (0..n)
+                            .map(|i| int(i64::try_from(i).unwrap_or_default()))
+                            .collect();
+                        let keys: Vec<_> = (0..n)
+                            .map(|i| h.string(&format!("field{i}")))
+                            .collect::<Result<_, _>>()?;
+                        for i in [0, n / 2, n - 1] {
+                            let child = h.set_from(&mut vec![int(90), int(91)]);
+                            for kind in 0..4 {
+                                let source = match kind {
+                                    0 => h.int_fcn(3, &values),
+                                    1 => h.tuple_literal(&values),
+                                    2 => h.fcn_sorted(&keys, &values),
+                                    _ => h.record(&keys, &values),
+                                };
+                                let before = h.view(source);
+                                let (node_kind, lo, flags) = (before.kind, before.lo, before.flags);
+                                let mut expected = before.data.to_vec();
+                                let slot = if node_kind == Kind::Fcn { n + i } else { i };
+                                expected[slot] = child;
+                                let updated = h.fcn_with(source, i, child);
+                                let got = h.view(updated);
+                                assert_eq!((got.kind, got.lo, got.flags), (node_kind, lo, flags));
+                                assert_eq!(got.data, expected);
+                                assert_eq!(h.hash(updated), h.deep_hash(updated));
+                                assert_eq!(h.view(source).values(), values);
+                                let retained = h.intern(updated)?;
+                                assert_eq!(h.hash(retained), h.hash(updated));
+                            }
+                        }
+                    }
+                    h.reset();
+                    assert!(!h.poisoned());
+                }
+            }
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn small_payload_updates_recount_laziness_and_retain_nested_history() -> Result<(), Error> {
+        for boxed in [false, true] {
+            for full in [false, true] {
+                let mut h = Heap::new(Arc::new(Store::default()), boxed, full);
+                let key = h.string("field")?;
+                let domain = h.interval(1, 2);
+                let lazy = h.lambda(7, domain, &[int(4)]);
+                let record = h.record(&[key], &[lazy]);
+                let closed = h.fcn_with(record, 0, int(8));
+                assert!(!h.is_lazy(closed));
+                assert!(h.view(closed).is_record_literal());
+                let lazy_again = h.fcn_with(closed, 0, lazy);
+                assert!(h.is_lazy(lazy_again));
+                assert!(h.intern(lazy_again).is_err());
+                let raw = h.local_literal(&[int(2), int(1), int(2)])?;
+                let tuple = h.tuple_literal(&[int(0)]);
+                let nested = h.fcn_with(tuple, 0, raw);
+                assert!(h.view(nested).is_tuple_literal());
+                assert!(h.has_construction_history(nested));
+                let original = h.intern_exact(nested)?;
+                let identity = h.intern(nested)?;
+                let replaced = h.fcn_with(nested, 0, int(5));
+                assert_ne!(h.view(replaced).flags & flags::NESTED_VIEW, 0);
+                h.reset();
+                assert!(h.has_construction_history(original));
+                assert!(!h.has_construction_history(identity));
+                assert!(!h.poisoned());
+            }
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn small_payload_interning_closes_symbolic_and_view_children() -> Result<(), Error> {
+        for semantics in [crate::Semantics::default(), crate::Semantics::tlc()] {
+            for boxed in [false, true] {
+                for hashcons in [false, true] {
+                    let mut h = Heap::new(
+                        Arc::new(Store::with_semantics(hashcons, semantics)),
+                        boxed,
+                        false,
+                    );
+                    let range = h.interval(1, 2);
+                    let range = h.intern_const(range)?;
+                    assert!(!h.intern_children_unchanged(&[range]));
+                    let tuple = h.tuple_literal(&[int(3), int(4)]);
+                    let view = h.intern_exact(tuple)?;
+                    assert!(!h.intern_children_unchanged(&[view]));
+                    let parent = h.tuple(&[range, view]);
+                    let retained = h.intern(parent)?;
+                    let data = h.view(retained).data.to_vec();
+                    assert_eq!(h.view(data[0]).kind, Kind::Set);
+                    assert_eq!(h.view(data[0]).data, &[int(1), int(2)]);
+                    assert_eq!(h.view(data[1]).flags, 0);
+                    assert!(h.intern_children_unchanged(&data));
+                    for n in [0, 4, 8, 9] {
+                        let values: Vec<_> = (0..n).map(|i| data[i % 2]).collect();
+                        let root = h.int_fcn(0, &values);
+                        let p = h.intern(root)?;
+                        assert_eq!(h.intern(root)?, p);
+                        assert_eq!(h.view(p).data, values);
+                        assert_eq!(h.hash(p), h.hash(root));
+                    }
+                    let mark = h.mark();
+                    let scratch = h.tuple(&[data[0], int(9)]);
+                    let kept = h.intern(scratch)?;
+                    h.rollback(mark);
+                    assert_eq!(h.view(kept).data, &[data[0], int(9)]);
+                    h.reset();
+                    assert_eq!(h.view(retained).data, data);
+                    assert!(!h.poisoned());
+                }
+            }
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn small_payload_intern_eligibility_preserves_poison_and_rejection_order() -> Result<(), Error>
+    {
+        for boxed in [false, true] {
+            let mut h = Heap::new(Arc::new(Store::default()), boxed, false);
+            let invalid = Handle::persistent(0, 0, crate::handle::MAX_CLASS_INDEX);
+            let transient = h.tuple(&[int(1)]);
+            assert!(!h.intern_children_unchanged(&[transient, invalid]));
+            assert!(
+                !h.poisoned(),
+                "a rejected prefix must not read later children"
+            );
+            let range = h.interval(1, 2);
+            let range = h.intern_const(range)?;
+            assert!(!h.intern_children_unchanged(&[range, invalid]));
+            assert!(!h.poisoned());
+            let lazy = h.lambda(1, range, &[]);
+            let lazy = h.intern_const(lazy)?;
+            assert!(!h.intern_children_unchanged(&[lazy, invalid]));
+            assert!(!h.poisoned());
+            // Deliberately bypass builder flag propagation to exercise child
+            // error ordering independently of the parent's lazy rejection.
+            let parent = h.arena.alloc(Kind::IntFcn, 0, 1, 0, 0, &[lazy, invalid]);
+            assert!(h.intern(parent).is_err());
+            assert!(!h.poisoned(), "later invalid child stays unread on error");
+            let huge = h.interval(0, i64::try_from(MAX_MATERIALIZE).unwrap_or_default());
+            let huge = h.intern_const(huge)?;
+            let parent = h.arena.alloc(Kind::IntFcn, 0, 1, 0, 0, &[huge, invalid]);
+            assert!(h.intern(parent).is_err());
+            assert!(!h.poisoned(), "materialization error precedes later poison");
+            assert!(h.intern_children_unchanged(&[invalid]));
+            assert!(h.poisoned(), "the original persistent view read must occur");
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn small_payload_interning_keeps_store_and_arena_cache_accounting() -> Result<(), Error> {
+        for boxed in [false, true] {
+            for hashcons in [false, true] {
+                let mut h = Heap::new(
+                    Arc::new(Store::with_semantics(hashcons, crate::Semantics::default())),
+                    boxed,
+                    false,
+                );
+                let root = h.tuple(&[int(1), int(2)]);
+                let retained = h.intern(root)?;
+                h.store.flush_hits(&mut h.cache);
+                let before = h.store.stats();
+                assert_eq!(h.intern(root)?, retained);
+                h.store.flush_hits(&mut h.cache);
+                assert_eq!(
+                    h.store.stats(),
+                    before,
+                    "arena hit does not probe the store"
+                );
+                let equal = h.tuple(&[int(1), int(2)]);
+                let other = h.intern(equal)?;
+                h.store.flush_hits(&mut h.cache);
+                let after = h.store.stats();
+                if hashcons {
+                    assert_eq!(other, retained);
+                    assert_eq!(after.hits, before.hits + 1);
+                    assert_eq!(after.nodes, before.nodes);
+                } else {
+                    assert_ne!(other, retained);
+                    assert_eq!(after.misses, before.misses + 1);
+                    assert_eq!(after.nodes, before.nodes + 1);
+                }
+                let mark = h.mark();
+                let stale = h.tuple(&[int(9)]);
+                h.rollback(mark);
+                assert_eq!(h.intern(stale)?, Handle::EMPTY);
+                assert!(h.poisoned());
+            }
+        }
+        Ok(())
     }
 
     #[test]

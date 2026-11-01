@@ -1,5 +1,10 @@
 # Changelog
 
+- Avoid temporary payload vectors for function updates with at most eight
+  entries and small transient values whose children already retain their
+  canonical handles. Preserve update hashes, literal classes, construction
+  history, symbolic materialization and error order in both profiles.
+
 - Index repeated default-profile compound membership in admitted normalized
   sets. The worker-local index starts on the second eligible lookup for sets of at least
   16 members, verifies hash collisions structurally, and shares the existing

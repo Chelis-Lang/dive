@@ -148,6 +148,16 @@ Each worker owns an arena: a vector of nodes plus an epoch counter.
 Interning a transient value walks it bottom-up: each child is interned before
 its parent. The result contains only persistent handles.
 
+For payloads of at most eight handles, interning can borrow the arena array
+instead of allocating a temporary child vector. Each child must take the
+existing identical-handle return: a scalar, or a persistent non-view handle
+whose actual node kind is not symbolic. The view read still detects invalid
+persistent handles. Admission stops at the first recursive child, retaining
+the original child order, errors, materialization and history work. Root
+normalization, lazy rejection, the store probe and the arena's interned-result
+slot keep their existing behavior. This does not change exact representation
+interning or grant construction-history authority.
+
 Values that can escape into states are deep-closed when they are interned:
 - lazy functions;
 - recursive-function values;
@@ -191,6 +201,14 @@ carries `flags::TUPLE`.
 
 **Big integers** are nodes holding a `BigInt`, used only outside the 61-bit
 inline range in the default profile.
+
+Function updates with at most eight entries use fixed stack scratch before
+the normal arena copy: eight value slots for an `IntFcn`, or sixteen slots
+for a general function's keys and values. Larger updates retain vector
+scratch. Both paths execute the same entry replacement, incremental/full
+hashing, lazy-flag propagation and literal-class preservation. This removes
+temporary payload allocations; the arena and persistent store still retain
+their normal payload storage. It is not normalized-projection reuse.
 
 ### 4.1 Measured: persistent function trees deferred (negative result)
 

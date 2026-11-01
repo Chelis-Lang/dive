@@ -262,6 +262,13 @@ including when `+member-index` is requested. Scalar queries, finite-fuel
 optional analysis, raw constructors, lazy queries and unproved values retain
 their existing path. Optional analysis reserves no index storage.
 
+In both profiles, the core avoids temporary payload allocations for function
+updates with at most eight entries and selected small values entering retained
+states. Construction histories, normalization, error order and ordinary
+arena/store storage retain their existing behavior. This optimization adds no
+option or supported input class; its workload performance requires separate
+measurement.
+
 The core preserves construction order, duplicates and shared normalization
 history for covered literal and mapped sets of booleans, inline integers,
 owned strings/model values and nested literal tuples. A covered union preserves
