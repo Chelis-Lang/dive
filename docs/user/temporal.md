@@ -73,6 +73,10 @@ graph. This changes storage, not the supported temporal language, fairness,
 property attribution or completion requirements. The default engine remains
 `reference`.
 
+Native action-predicate evaluation avoids repeated successor scans while
+retaining the first original successor values, implicit stuttering and the
+same demanded value-conversion failures.
+
 ```sh
 dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterTemporal.cfg --engine core --workers 1 --seed 7 --output json
 ```

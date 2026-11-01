@@ -215,6 +215,16 @@ matching fingerprint never licenses representation substitution. Every vertex
 and differing original remains addressable until analysis and lasso extraction
 finish. The capture-only key index is released before final analysis.
 
+Action-label selection retains the first original's physical position for each
+destination, or an implicit-stutter descriptor. Native predicate evaluation
+resolves that selected original directly rather than scanning the outgoing row
+again per destination. Ordinals and labels for the complete row are still
+validated before evaluation; selected values and the source representative are
+converted in their existing order, including failures and stops. A generated
+self-edge keeps its original value instead of becoming implicit stutter.
+The descriptor lives only in the existing per-source selection map; this does
+not supply a whole-process memory metric or original-capacity qualification.
+
 `core_native_values.rs` uses
 `dive_core::print::to_value_controlled(.., Conversion::Graph)`. Every accepted
 original, new or seen, is converted before state/edge retention admission;

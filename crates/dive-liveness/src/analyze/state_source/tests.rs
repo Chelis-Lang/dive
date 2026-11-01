@@ -226,10 +226,25 @@ fn selected_targets_load_only_first_original_per_destination_and_needed_stutter(
     let selected = selected_targets(&graph, 0, &mut lazy).expect("selected originals");
     assert_eq!(
         selected,
-        std::collections::BTreeMap::from([(0, state(0)), (1, state(7))])
+        std::collections::BTreeMap::from([
+            (
+                0,
+                SelectedTarget {
+                    values: state(0),
+                    original: OriginalTarget::Stuttering
+                }
+            ),
+            (
+                1,
+                SelectedTarget {
+                    values: state(7),
+                    original: OriginalTarget::Generated(0)
+                }
+            ),
+        ])
     );
     assert_ne!(
-        selected[&1], graph.states[1],
+        selected[&1].values, graph.states[1],
         "representatives cannot replace originals"
     );
     assert_eq!(lazy.reads, [Read::Concrete(0, 0), Read::Representative(0)]);
@@ -243,6 +258,21 @@ fn selected_targets_load_only_first_original_per_destination_and_needed_stutter(
             .is_empty()
     );
     assert_eq!(lazy.reads.len(), 2, "empty frontier never loads a value");
+}
+
+#[test]
+fn generated_self_target_precedes_implicit_stutter_without_substituting_the_representative() {
+    let mut graph = divergent();
+    for edge in &mut graph.edges[0] {
+        edge.to = 0;
+    }
+    let mut lazy = Lazy::new(&graph);
+    let selected = selected_targets(&graph, 0, &mut lazy).expect("first generated self target");
+    assert_eq!(selected.len(), 1);
+    assert_eq!(selected[&0].original, OriginalTarget::Generated(0));
+    assert_eq!(selected[&0].values, state(7));
+    assert_ne!(selected[&0].values, graph.states[0]);
+    assert_eq!(lazy.reads, [Read::Concrete(0, 0)]);
 }
 
 #[test]

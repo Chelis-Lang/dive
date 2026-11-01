@@ -15,6 +15,15 @@ pub(super) struct ConcreteMetadata<'a> {
     pub(super) label: &'a str,
 }
 
+/// Physical original selected after validating the complete source edge row.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum OriginalTarget {
+    /// Position in the source's generated originals, never its TLC ordinal.
+    Generated(usize),
+    /// The implicit stutter uses the source representative itself.
+    Stuttering,
+}
+
 /// Representatives and original successors, without assuming owned value rows.
 ///
 /// Metadata access never converts values. The caller selects the first original
@@ -39,7 +48,7 @@ pub(super) trait StateSource {
         &mut self,
         _atom: &crate::plan::PredicateAtom,
         _source: usize,
-        _target: Option<usize>,
+        _target: Option<OriginalTarget>,
     ) -> Result<Option<bool>, AnalysisError> {
         Ok(None)
     }
@@ -125,7 +134,7 @@ impl StateSource for NativeStates<'_, '_> {
         &mut self,
         atom: &crate::plan::PredicateAtom,
         source: usize,
-        target: Option<usize>,
+        target: Option<OriginalTarget>,
     ) -> Result<Option<bool>, AnalysisError> {
         if !self.read.has_predicate(atom) {
             return Ok(None);
@@ -135,27 +144,18 @@ impl StateSource for NativeStates<'_, '_> {
             .graph
             .representative_row(source)
             .ok_or_else(malformed)?;
-        let mut after = None;
-        if let Some(target) = target {
-            let mut original = 0;
-            for edge in self.graph.outgoing_range(source).ok_or_else(malformed)? {
-                let ordinal = self.graph.ordinal(edge).ok_or_else(malformed)?;
-                if self.graph.target(edge) == Some(target) {
-                    after = Some(if ordinal.is_some() {
-                        self.graph
-                            .original_row(source, original)
-                            .ok_or_else(malformed)?
-                    } else {
-                        before
-                    });
-                    break;
-                }
-                original += usize::from(ordinal.is_some());
-            }
-            if after.is_none() {
-                return Err(malformed());
-            }
-        }
+        // selected_targets already checked every ordinal/label and selected
+        // the first original per destination. Retain that physical position;
+        // searching the outgoing row again for every destination is quadratic.
+        let after = match target {
+            Some(OriginalTarget::Generated(original)) => Some(
+                self.graph
+                    .original_row(source, original)
+                    .ok_or_else(malformed)?,
+            ),
+            Some(OriginalTarget::Stuttering) => Some(before),
+            None => None,
+        };
         self.read.predicate(atom, before, after, self.control)
     }
 
@@ -239,8 +239,10 @@ mod native_tests {
             &mut source,
         )
         .expect("selected targets");
-        assert_eq!(selected[&1][0], Some(dive_value::Value::Int(2)));
-        assert_eq!(selected[&0][0], Some(dive_value::Value::Int(0)));
+        assert_eq!(selected[&1].values[0], Some(dive_value::Value::Int(2)));
+        assert_eq!(selected[&1].original, OriginalTarget::Generated(0));
+        assert_eq!(selected[&0].values[0], Some(dive_value::Value::Int(0)));
+        assert_eq!(selected[&0].original, OriginalTarget::Stuttering);
         assert_eq!(requests, [2, 0]);
     }
 
@@ -318,13 +320,13 @@ mod native_tests {
         };
         assert_eq!(
             source
-                .predicate(&atom, 0, Some(1))
+                .predicate(&atom, 0, Some(OriginalTarget::Generated(0)))
                 .expect("original target"),
             Some(true)
         );
         assert_eq!(
             source
-                .predicate(&atom, 0, Some(0))
+                .predicate(&atom, 0, Some(OriginalTarget::Stuttering))
                 .expect("implicit stutter"),
             Some(true)
         );
@@ -332,6 +334,12 @@ mod native_tests {
             source.predicate(&atom, 0, None).expect("state predicate"),
             Some(true)
         );
+        for original in [2, usize::MAX] {
+            assert!(matches!(
+                source.predicate(&atom, 0, Some(OriginalTarget::Generated(original))),
+                Err(AnalysisError::Inconsistent("native predicate original row"))
+            ));
+        }
         assert_eq!(probe.0, [(0, Some(2)), (0, Some(0)), (0, None)]);
     }
 
