@@ -224,7 +224,9 @@ limits and separate `e0cce6f5` integration gates/review. The 300-row timings
 do not
 measure the C2 integration; its separate one-repetition Sailfish diagnostic
 is qualified in that status page. #597 remains open; the certificate memo is not
-the generic S5 membership index, which is not built.
+the generic S5 membership index. The separate default normalized index is
+described in `03-value-model.md` §8; it reserves storage inside the same cap
+and never replaces this TLC comparison proof.
 
 ### 2.3 Step predicates: thunks and memo sites on the pair
 

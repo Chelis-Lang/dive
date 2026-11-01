@@ -139,6 +139,7 @@ pub struct Memo {
     /// The most the tables may hold, in bytes.
     cap: usize,
     members: Members,
+    pub(crate) member_index: crate::member_index::MemberIndex,
 }
 
 impl Memo {
@@ -162,6 +163,7 @@ impl Memo {
             bytes: 0,
             cap: DEFAULT_CAP,
             members: Members::default(),
+            member_index: crate::member_index::MemberIndex::default(),
         }
     }
 
@@ -169,12 +171,16 @@ impl Memo {
     /// exceed it stops growing, and one that cannot be allocated at all is
     /// left empty (every lookup misses).
     pub fn set_cap(&mut self, bytes: usize) {
+        let indexed = self.member_index.cap != 0;
         self.cap = bytes;
+        self.member_index.clear();
+        self.member_index.cap = 0;
         if self.members_active() {
             // Only the new certificate storage is discarded/reconfigured.
             // Existing body-table allocations retain their prior contract.
             self.reserve_members(true);
         }
+        self.reserve_member_index(indexed);
     }
 
     /// Reserves part of the existing cap for exact membership certificates.
@@ -189,11 +195,23 @@ impl Memo {
         let bytes = if enabled {
             (self.cap / 16)
                 .min(MEMBER_CAP)
-                .min(self.cap.saturating_sub(self.bytes))
+                .min(self.cap.saturating_sub(self.bytes + self.member_index.cap))
         } else {
             0
         };
         self.members.cap = if bytes < 32 { 0 } else { 1 << bytes.ilog2() };
+    }
+
+    /// Reserves index storage inside, never in addition to, the existing cap.
+    pub(crate) fn reserve_member_index(&mut self, enabled: bool) {
+        self.member_index.clear();
+        self.member_index.cap = if enabled {
+            (self.cap / 16)
+                .min(4 << 20)
+                .min(self.cap.saturating_sub(self.bytes + self.members.cap))
+        } else {
+            0
+        };
     }
 
     pub(crate) fn member_witness(&mut self, store: &Arc<Store>, set: Handle) -> Option<Handle> {
@@ -219,7 +237,7 @@ impl Memo {
     /// Bytes held by the tables.
     #[must_use]
     pub fn bytes(&self) -> usize {
-        self.bytes + self.members.bytes()
+        self.bytes + self.members.bytes() + self.member_index.bytes()
     }
 
     /// Whether the site is usable.
@@ -301,7 +319,11 @@ impl Memo {
         let stride = 1 + t.klen;
         let bytes_for = |sets_log: u32| (1usize << (sets_log + WAYS_LOG)) * stride * 8;
         if t.words.is_empty() {
-            if self.bytes + bytes_for(t.sets_log) > self.cap.saturating_sub(self.members.cap) {
+            if self.bytes + bytes_for(t.sets_log)
+                > self
+                    .cap
+                    .saturating_sub(self.members.cap + self.member_index.cap)
+            {
                 return;
             }
             t.words = vec![Handle::EMPTY.bits(); bytes_for(t.sets_log) / 8];
@@ -319,7 +341,10 @@ impl Memo {
         let grown = bytes_for(t.sets_log + 1);
         if t.evictions > 1 << (t.sets_log + WAYS_LOG - 2)
             && t.sets_log < SETS_LOG
-            && self.bytes - t.bytes() + grown <= self.cap.saturating_sub(self.members.cap)
+            && self.bytes - t.bytes() + grown
+                <= self
+                    .cap
+                    .saturating_sub(self.members.cap + self.member_index.cap)
         {
             // Rehash every entry into a table twice the size.
             let mut words = vec![Handle::EMPTY.bits(); grown / 8];
@@ -351,6 +376,7 @@ impl Memo {
         }
         self.bytes = 0;
         self.members.clear();
+        self.member_index.clear();
     }
 }
 

@@ -1287,13 +1287,13 @@ impl Compiler<'_> {
         }
         let fuel = FOLD_FUEL.min(left);
         let started = std::time::Instant::now();
-        self.m.fuel = fuel;
+        self.m.set_fuel(fuel);
         let old = self.m.enter(self.next_slot + 1);
         let r = self.m.eval(&self.code, id);
         self.m.leave(old);
         let spent = fuel - self.m.fuel;
         let exhausted = self.m.fuel == 0;
-        self.m.fuel = u64::MAX;
+        self.m.set_fuel(u64::MAX);
         let r = r.and_then(|h| self.m.heap.intern_const(h));
         self.m.heap.reset();
         self.stats.fold_fuel += spent;

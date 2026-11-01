@@ -55,6 +55,7 @@ const OPTS: &[&str] = &[
     "",
     "-fold",
     "-memo",
+    "-member-index",
     "-hashcons",
     "-fold,-memo,-hashcons,-eager",
 ];

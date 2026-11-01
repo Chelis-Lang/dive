@@ -1,5 +1,11 @@
 # Changelog
 
+- Index repeated default-profile compound membership in admitted normalized
+  sets. The worker-local index starts on the second eligible lookup for sets of at least
+  16 members, verifies hash collisions structurally, and shares the existing
+  cache budget. `DIVE_CORE_OPT=-member-index` restores the original search;
+  TLC comparisons retain their checked search.
+
 - Avoid repeated successor-row scans during native temporal action-predicate
   evaluation. The first original successor, implicit stutter, value-conversion
   demand and error ordering are preserved.
