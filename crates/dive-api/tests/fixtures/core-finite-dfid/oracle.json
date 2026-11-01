@@ -1,0 +1,41 @@
+{
+  "oracle_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "command": "tlc2.TLC -tool -workers 1 -seed 7 -fp 0 -dfid 6 -config <case>.cfg <case>.tla",
+  "scope": "Pinned TLC verdict, counts, last iterative level, code/exit and concrete invariant word x=0,s={0} -> x=2,s={2}; no lasso or random worker selection equality claim.",
+  "cases": {
+    "NextEnumerated": {
+      "source_sha256": "9250370d3dd480c8430cadf86c68a996d8793bf814e9b36755a3881a6833c5e1",
+      "config_sha256": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+      "result": "complete",
+      "tlc_code": null,
+      "tlc_exit": 0,
+      "generated": 13,
+      "distinct": 3,
+      "level": 3,
+      "initial_candidates": 1
+    },
+    "InitEnumerated": {
+      "source_sha256": "bdf0b8b8b41cd2d024cff31f0be4ae5b998e49b97ee4c6962bce2d4355a8faa1",
+      "config_sha256": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+      "result": "complete",
+      "tlc_code": null,
+      "tlc_exit": 0,
+      "generated": 6,
+      "distinct": 3,
+      "level": 2,
+      "initial_candidates": 3
+    },
+    "NextViolation": {
+      "source_sha256": "f89a237eb11d4ce6c3ffbb2067dbecf0ec400812053dae2216c693649d805f34",
+      "config_sha256": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+      "result": "violation",
+      "tlc_code": 2110,
+      "tlc_exit": 12,
+      "generated": 4,
+      "distinct": 3,
+      "level": 2,
+      "initial_candidates": 1
+    }
+  }
+}

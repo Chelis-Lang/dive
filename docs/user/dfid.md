@@ -68,3 +68,9 @@ so this is not a total-memory bound. Unsupported raw/lazy lifetimes refuse.
 One actual worker, depth-bound incompleteness and independently validated
 concrete violations retain their existing contracts. Native recovery and disk
 membership integration remain separate work.
+
+Native DFID keeps only the current eager Init/action candidate batch transiently
+live, including generator continuations, until its normal deferred checks finish.
+It then retains required DFS rows and reclaims that batch before the next one.
+Persistent values, seen keys and the active DFS path consume separate memory;
+this is not a bound on total process memory.

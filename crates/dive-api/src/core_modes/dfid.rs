@@ -222,11 +222,8 @@ impl Search<'_> {
         let native = &mut *self.native;
         for action in &native.plan.init {
             let mut limit = false;
-            let result = generate(
-                &mut native.machine,
-                &native.plan.code,
-                action,
-                &mut |machine| {
+            let result = native.machine.with_deferred_reclamation(|machine| {
+                generate(machine, &native.plan.code, action, &mut |machine| {
                     if self.options.check.budget.poll() != Ok(None) {
                         return Err(Error::stop());
                     }
@@ -239,8 +236,8 @@ impl Search<'_> {
                     self.report.initial_candidates += 1;
                     initial.push(live_row(machine)?);
                     Ok(())
-                },
-            );
+                })
+            });
             if let Err(error) = result
                 && error.kind() != ErrorKind::Stop
             {
@@ -489,26 +486,28 @@ impl Search<'_> {
             let mut vector = Vec::new();
             let mut limit = false;
             let native = &mut *self.native;
-            let result = generate(
-                &mut native.machine,
-                &native.plan.code,
-                &native.plan.next[index],
-                &mut |machine| {
-                    if self.options.check.budget.poll() != Ok(None) {
-                        return Err(Error::stop());
-                    }
-                    if vector.len() >= self.options.max_states
-                        || vector.len() >= candidate_budget.saturating_sub(successors.len())
-                        || self.report.generated.saturating_add(vector.len() as u64)
-                            >= self.options.max_generated
-                    {
-                        limit = true;
-                        return Err(Error::stop());
-                    }
-                    vector.push(live_row(machine)?);
-                    Ok(())
-                },
-            );
+            let result = native.machine.with_deferred_reclamation(|machine| {
+                generate(
+                    machine,
+                    &native.plan.code,
+                    &native.plan.next[index],
+                    &mut |machine| {
+                        if self.options.check.budget.poll() != Ok(None) {
+                            return Err(Error::stop());
+                        }
+                        if vector.len() >= self.options.max_states
+                            || vector.len() >= candidate_budget.saturating_sub(successors.len())
+                            || self.report.generated.saturating_add(vector.len() as u64)
+                                >= self.options.max_generated
+                        {
+                            limit = true;
+                            return Err(Error::stop());
+                        }
+                        vector.push(live_row(machine)?);
+                        Ok(())
+                    },
+                )
+            });
             if let Err(error) = result
                 && error.kind() != ErrorKind::Stop
             {
@@ -747,11 +746,60 @@ mod tests {
         );
         Ok(())
     }
+
+    #[test]
+    fn enumerated_compound_rows_survive_continuations_without_hashcons() -> Result {
+        for (name, generated, level) in [("NextEnumerated", 13, 3), ("InitEnumerated", 6, 2)] {
+            let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/fixtures/core-finite-dfid");
+            for compat_tlc in [false, true] {
+                let model = SpecModel::load(
+                    &root.join(format!("{name}.tla")),
+                    &root.join(format!("{name}.cfg")),
+                    &TraceOptions {
+                        compat_tlc,
+                        ..TraceOptions::default()
+                    },
+                )?;
+                for store in [
+                    dive_store::StoreMode::Exact,
+                    dive_store::StoreMode::Fingerprint,
+                ] {
+                    let check = if compat_tlc {
+                        dive_check::CheckOptions::tlc(0, 7)
+                    } else {
+                        dive_check::CheckOptions::dive(7)
+                    };
+                    let mut options = Options::new(check, 6);
+                    options.check.store = store;
+                    options.worker_seeds = Some(vec![0; 6]);
+                    let mut native = Native::prepare_with_options(
+                        model.model(),
+                        &options.check.budget,
+                        Opts {
+                            hashcons: false,
+                            ..Opts::default()
+                        },
+                    )
+                    .map_err(|_| "native preparation")?;
+                    let actual = native.dfid(model.model(), &options);
+                    assert_eq!(actual.outcome, Outcome::Complete, "{name}: {actual:?}");
+                    assert_eq!(
+                        (actual.distinct, actual.generated, actual.level),
+                        (3, generated, level)
+                    );
+                    assert_eq!(native.machine.heap.arena().len(), 0);
+                    assert!(!native.machine.heap.poisoned());
+                }
+            }
+        }
+        Ok(())
+    }
     #[test]
     fn repeated_compound_iterations_release_every_completed_candidate_batch() -> Result {
         let model = SpecModel::from_source(
             "Repeated.tla",
-            "---- MODULE Repeated ----\nEXTENDS Naturals\nVARIABLES x,s\nInit == x = 0 /\\ s = {0}\nNext == x' = x + 1 /\\ s' = {x + 1}\n====\n",
+            "---- MODULE Repeated ----\nEXTENDS Naturals\nVARIABLES x,s\nInit == x = 0 /\\ s = {0}\nNext == x' \\in {x + 1, x + 2} /\\ s' = {x'}\n====\n",
             "INIT Init\nNEXT Next\n",
             &TraceOptions::default(),
         )?;

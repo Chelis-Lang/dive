@@ -219,6 +219,28 @@ impl Machine {
         self.work_control = control;
     }
 
+    /// Keeps generator continuation transients alive during one eager batch.
+    ///
+    /// Internal rollback calls are deferred only inside `work`; normal rollback
+    /// behavior resumes before this method returns. The caller must retain any
+    /// required values after their semantic demands, clear transient receivers,
+    /// then roll back its enclosing batch mark. This does not persist or
+    /// normalize values and must not wrap a whole search or repeated iterations.
+    ///
+    /// ```
+    /// # fn example(machine: &mut dive_core::Machine) {
+    /// let mark = machine.heap.mark();
+    /// machine.with_deferred_reclamation(|_machine| ());
+    /// machine.heap.rollback(mark);
+    /// # }
+    /// ```
+    pub fn with_deferred_reclamation<T>(&mut self, work: impl FnOnce(&mut Self) -> T) -> T {
+        let previous = std::mem::replace(&mut self.heap.defer_reclamation, true);
+        let result = work(self);
+        self.heap.defer_reclamation = previous;
+        result
+    }
+
     /// Disables TLCGet/TLCSet in finite modes without a live checker context.
     /// Access refuses when reached; an untaken branch remains unevaluated.
     pub fn deny_checker_access(&mut self) {

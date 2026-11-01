@@ -4,7 +4,9 @@
   APIs and `--engine core|auto`. Reference remains the default; Auto selects a
   whole finite backend before execution and reached native refusals never retry.
   Keep independent word validation, truthful sampling/completion, shared producer
-  output budgets and separate canonical keys/construction views.
+  output budgets and separate canonical keys/construction views. Keep enumerated
+  compound candidates alive through deferred DFID checking, then reclaim each
+  completed batch across iterative levels.
 
 - Support exact native safety membership with complete collision-resolving state
   identities and opt-in predecessor spill, preserving ordered results and

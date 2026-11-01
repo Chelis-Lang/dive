@@ -87,6 +87,68 @@ fn native_depth_exhaustion_remains_incomplete_and_auto_reports_core() -> Result 
 }
 
 #[test]
+fn enumerated_compound_batches_match_pinned_counts_and_actual_words() -> Result {
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/core-finite-dfid");
+    let oracle: serde_json::Value =
+        serde_json::from_str(include_str!("fixtures/core-finite-dfid/oracle.json"))?;
+    for (name, expected) in oracle["cases"].as_object().ok_or("oracle cases")? {
+        for compat_tlc in [false, true] {
+            for exact in [false, true] {
+                let request = DfidRequest {
+                    file: root.join(format!("{name}.tla")),
+                    compat_tlc,
+                    exact,
+                    seed: Some(7),
+                    max_level: 6,
+                    worker_seeds: Some(vec![0; 6]),
+                    ..Default::default()
+                };
+                let reference = dfid_file(&request)?.to_json();
+                for engine in [Engine::Core, Engine::Auto] {
+                    let actual = dfid_file_engine(&request, engine)?.to_json();
+                    assert_eq!(actual["engine"], "core", "{name}: {actual}");
+                    for field in [
+                        "result",
+                        "tlc_code",
+                        "statistics",
+                        "model_proved",
+                        "termination",
+                    ] {
+                        assert_eq!(actual[field], reference[field], "{name}/{field}: {actual}");
+                    }
+                    for field in ["distinct", "generated", "level", "initial_candidates"] {
+                        assert_eq!(
+                            actual["statistics"][field], expected[field],
+                            "{name}/{field}: {actual}"
+                        );
+                    }
+                    assert_eq!(actual["result"], expected["result"]);
+                    assert_eq!(actual["tlc_code"], expected["tlc_code"]);
+                    if compat_tlc {
+                        assert_eq!(actual["exit_code"], expected["tlc_exit"]);
+                    }
+                    if actual["result"] == "violation" {
+                        assert_eq!(actual["violation_validated"], true, "{actual}");
+                        assert_eq!(actual["counterexample"]["validation"]["result"], "valid");
+                        let trace = dive_api::trace::TraceDoc::from_json(
+                            &actual["counterexample"]["trace"],
+                        )?;
+                        assert_eq!(trace.states.len(), 2);
+                        assert_eq!(trace.states[0]["x"], 0);
+                        assert_eq!(trace.states[1]["x"], 2);
+                        assert_eq!(
+                            actual["counterexample"]["trace"],
+                            reference["counterexample"]["trace"]
+                        );
+                    }
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+#[test]
 fn closed_compound_candidates_preserve_reference_normalization_and_completion() -> Result {
     let directory =
         std::env::temp_dir().join(format!("dive-core-dfid-compound-{}", std::process::id()));

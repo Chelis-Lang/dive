@@ -45,6 +45,10 @@ history, so speculative preparation must not touch the fallback runtime.
 - Keep each Init/action candidate batch live until its real constraints, key
   normalization and property demands. Retain only required DFS rows with their
   actual views, then roll back the batch arena after frames have closed. Do
+  defer generator-internal continuation reclamation while collecting an eager
+  DFID vector: an emitted row may still refer to those continuation transients.
+  Restore normal reclamation before deferred checking and reclaim the complete
+  batch afterwards, including across repeated iterative levels. Do
   not snapshot a raw local receiver before its demand or widen the existing
   construction-history admission. Persistent stores, seen keys, active DFS
   frames and retained reports remain separate memory consumers.
