@@ -44,6 +44,7 @@ pub(crate) struct NativeAtoms {
     evaluated_action: u64,
     evaluated_enabled: u64,
     evaluated_nonstuttering: u64,
+    row_proofs: RowProofMetrics,
 }
 
 impl NativeAtoms {
@@ -79,6 +80,7 @@ impl NativeAtoms {
             evaluated_action: 0,
             evaluated_enabled: 0,
             evaluated_nonstuttering: 0,
+            row_proofs: RowProofMetrics::default(),
         };
         result
             .machine
@@ -137,15 +139,31 @@ impl NativeAtoms {
             "eligible_state_atoms": self.eligible_state, "eligible_action_atoms": self.eligible_action,
             "state_evaluations": self.evaluated_state, "action_evaluations": self.evaluated_action,
             "enabled_evaluations": self.evaluated_enabled, "nonstuttering_evaluations": self.evaluated_nonstuttering,
+            "row_proofs": {"scans": self.row_proofs.scans, "hits": self.row_proofs.hits,
+                "certified": self.row_proofs.certified, "peak_storage_bytes": self.row_proofs.peak_storage_bytes},
             "eligibility": "source-scoped closed ordinary constructions and scalar updates; identity-scoped fairness queries"})
     }
 
+    #[cfg(test)]
     fn evaluate(
         &mut self,
         atom: &PredicateAtom,
         before: &[Handle],
         after: Option<&[Handle]>,
         control: &EvaluationControl,
+    ) -> Result<Option<bool>, AnalysisError> {
+        self.evaluate_with(atom, before, after, control, |heap| {
+            Ok(closed(heap, before) && after.is_none_or(|row| closed(heap, row)))
+        })
+    }
+
+    fn evaluate_with(
+        &mut self,
+        atom: &PredicateAtom,
+        before: &[Handle],
+        after: Option<&[Handle]>,
+        control: &EvaluationControl,
+        inputs_closed: impl FnOnce(&dive_core::Heap) -> Result<bool, AnalysisError>,
     ) -> Result<Option<bool>, AnalysisError> {
         check(&self.control, control)?;
         let Some(compiled) = self
@@ -158,9 +176,7 @@ impl NativeAtoms {
         };
         // The exact object came from this still-live driver's fixed plan Vec;
         // no expression ID, scope guess or extensional row equality is a key.
-        if !closed(&self.machine.heap, before)
-            || after.is_some_and(|row| !closed(&self.machine.heap, row))
-        {
+        if !inputs_closed(&self.machine.heap)? {
             self.fallback += 1;
             return Ok(None);
         }
@@ -411,10 +427,110 @@ fn closed(heap: &dive_core::Heap, roots: &[Handle]) -> bool {
     !heap.poisoned()
 }
 
+// A positive fact is scoped by an immutable graph borrow, never by a handle's
+// bits across Stores or by extensional row equality. It is issued only by the
+// unchanged closed() check, independently for each actual row demand (ADR 0134).
+const MAX_ROW_PROOF_BYTES: usize = 1024 * 1024;
+
+#[derive(Default)]
+struct RowProofMetrics {
+    scans: u64,
+    hits: u64,
+    certified: u64,
+    peak_storage_bytes: usize,
+}
+
+fn row_proof_storage(rows: usize, reserve: impl FnOnce(&mut Vec<u8>, usize) -> bool) -> Vec<u8> {
+    let Some(bytes) = rows.checked_add(7).map(|count| count / 8) else {
+        return Vec::new();
+    };
+    let mut bits = Vec::new();
+    if bytes > MAX_ROW_PROOF_BYTES
+        || !reserve(&mut bits, bytes)
+        || bits.capacity() > MAX_ROW_PROOF_BYTES
+    {
+        return Vec::new();
+    }
+    bits.resize(bytes, 0);
+    bits
+}
+
+struct RowProofs<'a> {
+    graph: &'a NativeGraph,
+    bits: Vec<u8>,
+    initialized: bool,
+    metrics: RowProofMetrics,
+}
+
+impl<'a> RowProofs<'a> {
+    fn new(graph: &'a NativeGraph) -> Self {
+        Self {
+            graph,
+            bits: Vec::new(),
+            initialized: false,
+            metrics: RowProofMetrics::default(),
+        }
+    }
+
+    fn closed(&mut self, heap: &dive_core::Heap, row: usize) -> Result<bool, AnalysisError> {
+        let roots = self.graph.row(row)?;
+        // Persistent coordinates do not identify their issuing Store. Current
+        // poison is deliberately not cached, including after an earlier success.
+        if !self.graph.owns_store(heap.store()) || heap.poisoned() {
+            return Ok(false);
+        }
+        if !self.initialized {
+            self.bits = row_proof_storage(self.graph.input().retained_rows, |bits, bytes| {
+                bits.try_reserve_exact(bytes).is_ok()
+            });
+            self.initialized = true;
+            self.metrics.peak_storage_bytes = self.bits.capacity();
+        }
+        let bit = 1 << (row % 8);
+        if self.bits.get(row / 8).is_some_and(|byte| byte & bit != 0) {
+            self.metrics.hits += 1;
+            return Ok(true);
+        }
+        self.metrics.scans += 1;
+        let success = closed(heap, roots);
+        if success && let Some(byte) = self.bits.get_mut(row / 8) {
+            *byte |= bit;
+            self.metrics.certified += 1;
+        }
+        Ok(success)
+    }
+}
+
 pub(crate) struct Reader<'a, 'model> {
-    pub(crate) graph: &'a NativeGraph,
+    proofs: RowProofs<'a>,
     pub(crate) values: &'a mut NativeValues<'model>,
-    pub(crate) atoms: &'a mut NativeAtoms,
+    atoms: &'a mut NativeAtoms,
+}
+
+impl<'a, 'model> Reader<'a, 'model> {
+    pub(crate) fn new(
+        graph: &'a NativeGraph,
+        values: &'a mut NativeValues<'model>,
+        atoms: &'a mut NativeAtoms,
+    ) -> Self {
+        Self {
+            proofs: RowProofs::new(graph),
+            values,
+            atoms,
+        }
+    }
+}
+
+impl Drop for Reader<'_, '_> {
+    fn drop(&mut self) {
+        let total = &mut self.atoms.row_proofs;
+        total.scans += self.proofs.metrics.scans;
+        total.hits += self.proofs.metrics.hits;
+        total.certified += self.proofs.metrics.certified;
+        total.peak_storage_bytes = total
+            .peak_storage_bytes
+            .max(self.proofs.metrics.peak_storage_bytes);
+    }
 }
 
 impl NativeReader for Reader<'_, '_> {
@@ -430,7 +546,7 @@ impl NativeReader for Reader<'_, '_> {
         row: usize,
         control: &EvaluationControl,
     ) -> Result<dive_eval::next::StateVals, AnalysisError> {
-        self.values.read(row, self.graph.row(row)?, control)
+        self.values.read(row, self.proofs.graph.row(row)?, control)
     }
     fn predicate(
         &mut self,
@@ -439,11 +555,18 @@ impl NativeReader for Reader<'_, '_> {
         after: Option<usize>,
         control: &EvaluationControl,
     ) -> Result<Option<bool>, AnalysisError> {
-        self.atoms.evaluate(
+        let graph = self.proofs.graph;
+        self.atoms.evaluate_with(
             atom,
-            self.graph.row(before)?,
-            after.map(|row| self.graph.row(row)).transpose()?,
+            graph.row(before)?,
+            after.map(|row| graph.row(row)).transpose()?,
             control,
+            |heap| {
+                if !self.proofs.closed(heap, before)? {
+                    return Ok(false);
+                }
+                after.map_or(Ok(true), |row| self.proofs.closed(heap, row))
+            },
         )
     }
 }
@@ -526,6 +649,315 @@ mod tests {
         )
         .expect("atoms");
         test(&prepared, &driver, &mut atoms, &control);
+    }
+
+    fn capture<'a>(
+        prepared: &'a crate::core_engine::Prepared,
+        options: &dive_check::CheckOptions,
+    ) -> (NativeGraph, NativeValues<'a>) {
+        let mut sink = crate::core_native_graph::NativeSink::new(
+            &prepared.model,
+            prepared.store.clone(),
+            dive_check::capture::Limits::default(),
+            options,
+            None,
+        )
+        .expect("sink");
+        let result = dive_explore::explore_with(
+            &prepared.plan,
+            &prepared.store,
+            dive_explore::Config {
+                opts: Opts::default(),
+                workers: 1,
+                warn: true,
+                max_states: None,
+                max_depth: None,
+                sample: None,
+            },
+            &|| false,
+            Some(&mut sink),
+        );
+        assert_eq!(result.verdict, dive_explore::Verdict::Success);
+        assert!(sink.take_error().is_none());
+        sink.finish()
+    }
+
+    #[test]
+    fn row_proof_storage_bounds_overflow_and_allocation_failure() {
+        let allocate = |bits: &mut Vec<u8>, bytes| bits.try_reserve_exact(bytes).is_ok();
+        assert_eq!(row_proof_storage(9, allocate), vec![0; 2]);
+        assert_eq!(
+            row_proof_storage(MAX_ROW_PROOF_BYTES * 8, allocate).len(),
+            MAX_ROW_PROOF_BYTES
+        );
+        for rows in [MAX_ROW_PROOF_BYTES * 8 + 1, usize::MAX] {
+            let mut attempted = false;
+            assert_eq!(
+                row_proof_storage(rows, |_, _| {
+                    attempted = true;
+                    false
+                }),
+                [] as [u8; 0]
+            );
+            assert!(!attempted, "over-cap storage never asks the allocator");
+        }
+        let mut attempted = false;
+        assert_eq!(
+            row_proof_storage(8, |_, _| {
+                attempted = true;
+                false
+            }),
+            [] as [u8; 0]
+        );
+        assert!(attempted);
+    }
+
+    #[test]
+    fn row_proofs_are_positive_only_exact_and_bound_to_the_graph_store() {
+        let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = <<0>> \\/ x={0}\nNext == UNCHANGED x\nP == <> (x=x)\n====\n";
+        for tlc in [false, true] {
+            let (prepared, options) =
+                prepare_text(source, "INIT Init\nNEXT Next\nPROPERTY P\n", tlc);
+            let (graph, _) = capture(&prepared, &options);
+            let heap = dive_core::Heap::new(prepared.store.clone(), false, false);
+            let rows = graph.input().retained_rows;
+            assert_eq!(rows, 2);
+            let mut proofs = RowProofs::new(&graph);
+            assert!(!proofs.initialized);
+            for row in 0..rows {
+                let expected = closed(&heap, graph.row(row).expect("retained"));
+                let scans = proofs.metrics.scans;
+                let hits = proofs.metrics.hits;
+                assert_eq!(proofs.closed(&heap, row).expect("first"), expected);
+                assert_eq!(proofs.closed(&heap, row).expect("again"), expected);
+                assert_eq!(proofs.metrics.scans - scans, if expected { 1 } else { 2 });
+                assert_eq!(proofs.metrics.hits - hits, u64::from(expected));
+            }
+            assert!(matches!(
+                proofs.closed(&heap, rows),
+                Err(AnalysisError::Inconsistent(_))
+            ));
+            assert!(!heap.poisoned());
+            let foreign_heap = dive_core::Heap::new(Arc::new(Store::default()), false, false);
+            for row in 0..rows {
+                assert!(
+                    !proofs
+                        .closed(&foreign_heap, row)
+                        .expect("foreign Store declines")
+                );
+            }
+            assert!(
+                !foreign_heap.poisoned(),
+                "foreign coordinates never resolve"
+            );
+            let mut fresh = RowProofs::new(&graph);
+            assert_eq!(fresh.bits, [] as [u8; 0]);
+            for row in 0..rows {
+                let _ = fresh.closed(&heap, row).expect("fresh analysis");
+            }
+            assert_eq!(fresh.metrics.hits, 0);
+            assert_eq!(fresh.metrics.scans, 2);
+            let _ = heap.view(Handle::EMPTY);
+            assert!(heap.poisoned());
+            for row in 0..rows {
+                assert!(!proofs.closed(&heap, row).expect("current poison declines"));
+            }
+        }
+    }
+
+    #[test]
+    fn disabled_proof_storage_keeps_the_original_closed_scan_on_every_demand() {
+        for tlc in [false, true] {
+            let (prepared, options) = prepare_text(
+                "---- MODULE Atoms ----\nVARIABLE x\nInit == x = <<0>>\nNext == UNCHANGED x\nP == <> (x=x)\n====\n",
+                "INIT Init\nNEXT Next\nPROPERTY P\n",
+                tlc,
+            );
+            let (graph, _) = capture(&prepared, &options);
+            let heap = dive_core::Heap::new(prepared.store.clone(), false, false);
+            let mut proofs = RowProofs::new(&graph);
+            proofs.bits = row_proof_storage(1, |_, _| false);
+            proofs.initialized = true;
+            assert!(proofs.closed(&heap, 0).expect("allocation bypass"));
+            assert!(proofs.closed(&heap, 0).expect("uncached again"));
+            assert_eq!(proofs.metrics.scans, 2);
+            assert_eq!(proofs.metrics.hits, 0);
+            assert_eq!(proofs.metrics.certified, 0);
+        }
+    }
+
+    #[test]
+    fn actual_reader_reuses_independent_source_target_proofs_and_rejects_copied_atoms() {
+        let tuple = vec!["0"; 2200].join(",");
+        let source = format!(
+            "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLES x,y\nInit == x = <<{tuple}>> /\\ y=0\nA == UNCHANGED x /\\ y'=1-y\nSpec == Init /\\ [][A]_<<x,y>> /\\ WF_y(A)\nP == <> (y=1)\n====\n"
+        );
+        for tlc in [false, true] {
+            with_wrappers(&source, tlc, |prepared, driver, atoms, control| {
+                let options = if tlc {
+                    dive_check::CheckOptions::tlc(0, 0)
+                } else {
+                    dive_check::CheckOptions::dive(0)
+                };
+                let (graph, mut values) = capture(prepared, &options);
+                assert_eq!(graph.input().retained_rows, 2);
+                let atom = driver
+                    .native_predicates()
+                    .find(|atom| matches!(atom.test, AtomTest::Nonstuttering { .. }))
+                    .expect("nonstuttering");
+                let mut reader = Reader::new(&graph, &mut values, atoms);
+                assert_eq!(
+                    reader
+                        .predicate(&atom.clone(), 0, Some(1), control)
+                        .expect("copied"),
+                    None
+                );
+                assert!(
+                    !reader.proofs.initialized,
+                    "unretained atom cannot issue proofs"
+                );
+                assert_eq!(
+                    reader
+                        .predicate(atom, 0, Some(1), control)
+                        .expect("separate quotas"),
+                    Some(true)
+                );
+                assert_eq!(reader.proofs.metrics.scans, 2);
+                assert_eq!(reader.proofs.metrics.certified, 2);
+                assert_eq!(
+                    reader.predicate(atom, 0, Some(1), control).expect("reuse"),
+                    Some(true)
+                );
+                assert_eq!(reader.proofs.metrics.scans, 2);
+                assert_eq!(reader.proofs.metrics.hits, 2);
+                let stats = prepared.store.stats();
+                assert_eq!(
+                    reader
+                        .predicate(atom, 0, Some(0), control)
+                        .expect("stutter"),
+                    Some(false)
+                );
+                assert_eq!(reader.proofs.metrics.hits, 4);
+                let state_atom = driver
+                    .native_predicates()
+                    .find(|atom| matches!(atom.test, AtomTest::Predicate))
+                    .expect("state predicate");
+                assert_eq!(
+                    reader
+                        .predicate(state_atom, 0, None, control)
+                        .expect("another atom"),
+                    Some(false)
+                );
+                assert_eq!(
+                    reader.proofs.metrics.hits, 5,
+                    "closed facts are shared across retained atoms, not their truths"
+                );
+                assert_eq!(
+                    (prepared.store.stats().nodes, prepared.store.stats().handles),
+                    (stats.nodes, stats.handles)
+                );
+                drop(reader);
+                assert_eq!(atoms.row_proofs.scans, 2);
+                assert_eq!(atoms.row_proofs.hits, 5);
+                assert_eq!(atoms.fallback, 1, "only the copied atom falls back");
+            });
+        }
+    }
+
+    #[test]
+    fn reader_proof_hits_preserve_semantic_fallback_and_owned_stops() {
+        let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nSpec == Init /\\ [][Next]_x\nP == <> (x \\div 0=0)\n====\n";
+        for tlc in [false, true] {
+            with_wrappers(source, tlc, |prepared, driver, atoms, control| {
+                let options = if tlc {
+                    dive_check::CheckOptions::tlc(0, 0)
+                } else {
+                    dive_check::CheckOptions::dive(0)
+                };
+                let (graph, mut values) = capture(prepared, &options);
+                let atom = driver.native_predicates().next().expect("predicate");
+                let mut reader = Reader::new(&graph, &mut values, atoms);
+                for _ in 0..2 {
+                    assert_eq!(
+                        reader
+                            .predicate(atom, 0, None, control)
+                            .expect("semantic fallback"),
+                        None
+                    );
+                }
+                assert_eq!(reader.proofs.metrics.scans, 1);
+                assert_eq!(reader.proofs.metrics.hits, 1);
+                assert_eq!(reader.atoms.fallback, 2);
+                assert_eq!(reader.atoms.evaluated, 0);
+                let watchdog = Budget::new(Some(std::time::Duration::ZERO), None)
+                    .start()
+                    .expect("watchdog")
+                    .expect("finite");
+                reader.atoms.control =
+                    EvaluationControl::new(watchdog.budget(), Phase::Capture).expect("owner");
+                let phase =
+                    EvaluationControl::new(watchdog.budget(), Phase::Temporal).expect("phase");
+                assert!(
+                    matches!(reader.predicate(atom, 0, None, &phase), Err(AnalysisError::Stopped(ref stop)) if stop.phase==Phase::Temporal)
+                );
+                assert_eq!(
+                    reader.proofs.metrics.hits, 1,
+                    "owned precheck runs before proof reuse"
+                );
+            });
+        }
+    }
+
+    #[test]
+    fn reader_proof_hits_do_not_replace_optional_machine_fuel() {
+        let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == \\A i \\in 1..10000: x'=x\nSpec == Init /\\ [][Next]_x\nP == <> (ENABLED A)\n====\n";
+        for tlc in [false, true] {
+            with_wrappers(source, tlc, |prepared, driver, atoms, control| {
+                let options = if tlc {
+                    dive_check::CheckOptions::tlc(0, 0)
+                } else {
+                    dive_check::CheckOptions::dive(0)
+                };
+                let (graph, mut values) = capture(prepared, &options);
+                let atom = driver.native_predicates().next().expect("enabled");
+                let mut reader = Reader::new(&graph, &mut values, atoms);
+                for _ in 0..2 {
+                    assert_eq!(
+                        reader
+                            .predicate(atom, 0, None, control)
+                            .expect("optional quota"),
+                        None
+                    );
+                }
+                assert_eq!(reader.proofs.metrics.scans, 1);
+                assert_eq!(reader.proofs.metrics.hits, 1);
+                assert_eq!(reader.atoms.fallback, 2);
+                assert_eq!(reader.atoms.evaluated, 0);
+                assert_eq!(reader.atoms.machine.frame.len(), 0);
+                assert_eq!(reader.atoms.machine.assigned, 0);
+            });
+        }
+    }
+
+    #[test]
+    fn over_quota_closed_inputs_never_gain_a_positive_row_proof() {
+        let tuple = vec!["0"; 4096].join(",");
+        let source = format!(
+            "---- MODULE Atoms ----\nVARIABLE x\nInit == x = <<{tuple}>>\nNext == UNCHANGED x\nP == <> (x=x)\n====\n"
+        );
+        for tlc in [false, true] {
+            let (prepared, options) =
+                prepare_text(&source, "INIT Init\nNEXT Next\nPROPERTY P\n", tlc);
+            let (graph, _) = capture(&prepared, &options);
+            let heap = dive_core::Heap::new(prepared.store.clone(), false, false);
+            let mut proofs = RowProofs::new(&graph);
+            for _ in 0..2 {
+                assert!(!proofs.closed(&heap, 0).expect("over-quota"));
+            }
+            assert_eq!(proofs.metrics.scans, 2);
+            assert_eq!(proofs.metrics.certified, 0);
+            assert_eq!(proofs.metrics.hits, 0);
+        }
     }
 
     #[test]
