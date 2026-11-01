@@ -5,6 +5,11 @@
   projection. Index growth and ordering cooperate with the existing run budget;
   product limits, duplicate edges and original edge positions are preserved.
 
+- Match exact registered default generated-count pairs at multiple workers
+  using the complete observed count facts when comparison omits that field.
+  One-worker numeric differences, exact exits and independent trace validation
+  remain mandatory; expected divergences never count as strict agreements.
+
 - Speed up default-profile membership misses in normalized owned construction
   sets. Actual history, checked comparison behavior, raw construction order
   and cooperative resource stops are preserved.

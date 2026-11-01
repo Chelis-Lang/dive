@@ -23,7 +23,7 @@
 //! `disagree`. TLC oracles and external adapters have no profile, and the
 //! registry never applies to them.
 
-use crate::compare::FieldDiff;
+use crate::compare::{CompareContext, FieldDiff};
 use crate::error::{Error, Result};
 use crate::tlc::result::Verdict;
 use crate::upstream::COMPARED_FIELDS;
@@ -146,6 +146,58 @@ impl GeneratedCountPair {
         diff.field == "counts.states_generated"
             && diff.expected.as_u64() == Some(self.expected)
             && diff.actual.as_u64() == Some(self.actual)
+    }
+
+    fn observed(
+        self,
+        expected: &crate::tlc::result::Counts,
+        actual: &crate::tlc::result::Counts,
+    ) -> bool {
+        expected.states_generated == Some(self.expected)
+            && actual.states_generated == Some(self.actual)
+    }
+}
+
+/// Results, worker policy and differences from one native comparison.
+///
+/// The registry uses the actual count facts when native multi-worker policy
+/// intentionally omits a generated-count difference. This never supplies
+/// authority for another field or for missing count facts.
+#[derive(Debug, Clone, Copy)]
+pub struct ObservedComparison<'a> {
+    /// The selected pinned oracle result.
+    pub expected: &'a crate::tlc::result::OracleResult,
+    /// The observed native result, including its actual counts.
+    pub actual: &'a crate::tlc::result::OracleResult,
+    /// The context used to compare these results.
+    pub context: CompareContext,
+    /// All remaining differences, including independent word-validation failures.
+    pub differences: &'a [FieldDiff],
+}
+
+#[derive(Clone, Copy)]
+struct ResultFacts<'a> {
+    expected: &'a crate::tlc::result::Counts,
+    actual: &'a crate::tlc::result::Counts,
+    unreduced: bool,
+    context: Option<CompareContext>,
+}
+
+impl ResultFacts<'_> {
+    fn generated_matches(self, pair: GeneratedCountPair, diffs: &[FieldDiff]) -> bool {
+        if !pair.observed(self.expected, self.actual) {
+            return false;
+        }
+        if diffs.iter().any(|diff| pair.matches(diff)) {
+            return true;
+        }
+        self.context.is_some_and(|context| {
+            context.workers > 1
+                && context.counts_comparable
+                && !diffs
+                    .iter()
+                    .any(|diff| diff.field == "counts.states_generated")
+        })
     }
 }
 
@@ -424,11 +476,61 @@ impl Registry {
             path,
             actual.verdict,
             diffs,
-            Some((
-                &expected.counts,
-                &actual.counts,
-                actual.native_unreduced_symmetry,
-            )),
+            Some(ResultFacts {
+                expected: &expected.counts,
+                actual: &actual.counts,
+                unreduced: actual.native_unreduced_symmetry,
+                context: None,
+            }),
+        )
+    }
+
+    /// Matches a native comparison with its actual worker and count policy.
+    ///
+    /// At one worker, a declared generated-count pair must still occur in the
+    /// differences. At multiple workers with comparable counts, the exact
+    /// expected/actual count facts can instead satisfy that pair when policy
+    /// omits generated-count comparison. Missing or changed facts never match.
+    /// Legacy [`Self::excuse`] and [`Self::excuse_observed`] retain their
+    /// mandatory generated-count difference.
+    ///
+    /// ```no_run
+    /// # fn example(registry: &dive_conformance::divergence::Registry,
+    /// # expected: &dive_conformance::tlc::result::OracleResult,
+    /// # actual: &dive_conformance::tlc::result::OracleResult) {
+    /// use dive_conformance::compare::CompareContext;
+    /// use dive_conformance::divergence::ObservedComparison;
+    /// let comparison = ObservedComparison {
+    ///     expected, actual,
+    ///     context: CompareContext { workers: 4, counts_comparable: true },
+    ///     differences: &[],
+    /// };
+    /// assert!(registry.excuse_compared(None, &[], "M.cfg", comparison).is_none());
+    /// # }
+    /// ```
+    #[must_use]
+    pub fn excuse_compared(
+        &self,
+        profile: Option<&Profile>,
+        options: &[String],
+        path: &str,
+        comparison: ObservedComparison<'_>,
+    ) -> Option<&ExpectedDivergence> {
+        if comparison.context.workers == 0 {
+            return None;
+        }
+        self.excuse_with_facts(
+            profile,
+            options,
+            path,
+            comparison.actual.verdict,
+            comparison.differences,
+            Some(ResultFacts {
+                expected: &comparison.expected.counts,
+                actual: &comparison.actual.counts,
+                unreduced: comparison.actual.native_unreduced_symmetry,
+                context: Some(comparison.context),
+            }),
         )
     }
 
@@ -439,11 +541,7 @@ impl Registry {
         path: &str,
         observed: Verdict,
         diffs: &[FieldDiff],
-        facts: Option<(
-            &crate::tlc::result::Counts,
-            &crate::tlc::result::Counts,
-            bool,
-        )>,
+        facts: Option<ResultFacts<'_>>,
     ) -> Option<&ExpectedDivergence> {
         if profile != Some(&Profile::Dive) || diffs.is_empty() {
             return None;
@@ -452,9 +550,9 @@ impl Registry {
             glob_match(&d.pattern, path)
                 && d.expected_verdict == observed
                 && d.unreduced_symmetry_counts.is_none_or(|pair| {
-                    facts.is_some_and(|(expected, actual, unreduced)| {
-                        unreduced
-                            && pair.observed(expected, actual)
+                    facts.is_some_and(|facts| {
+                        facts.unreduced
+                            && pair.observed(facts.expected, facts.actual)
                             && [
                                 "counts.distinct_states",
                                 "counts.states_generated",
@@ -472,8 +570,12 @@ impl Registry {
                 })
                 && d.exit_code_pair
                     .is_none_or(|p| diffs.iter().any(|x| p.matches(x)))
-                && d.generated_count_pair
-                    .is_none_or(|p| diffs.iter().any(|x| p.matches(x)))
+                && d.generated_count_pair.is_none_or(|pair| {
+                    facts.map_or_else(
+                        || diffs.iter().any(|diff| pair.matches(diff)),
+                        |facts| facts.generated_matches(pair, diffs),
+                    )
+                })
                 && diffs.iter().all(|x| {
                     if x.field == "exit_code" {
                         d.exit_code_pair.is_some_and(|p| p.matches(x))
