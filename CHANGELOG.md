@@ -13,6 +13,11 @@
   through the existing version-6 endpoint. Report schema 3 and native versions
   1–6 retain their meanings; ambiguous oracle streams remain Unclassified.
 
+- Reuse one completed native behavior WF pair across configured properties within
+  a single graph analysis, with bounded optional storage and unchanged demanded
+  input/control checks. Metrics separate actual evaluations from reused truth;
+  original ABA capacity and complete allocation accounting remain acceptance work.
+
 - Independently reconstruct bounded ordered error prefixes for VIEW and named
   invariant diagnostics, retaining actual key insertion and diagnostic demand.
   Source-final VIEW words use native trace version 6; readers must support its

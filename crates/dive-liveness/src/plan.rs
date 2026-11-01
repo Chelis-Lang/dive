@@ -250,6 +250,54 @@ struct Lower<'a> {
     atoms: Vec<PredicateAtom>,
     steps: usize,
     root_expr: ExprId,
+    first_wf: Option<FrozenWfPair>,
+}
+
+/// The two atoms cloned from one actual, fully bound behavior WF conversion.
+/// This private token is meaningful only in that batch's analysis invocation.
+#[derive(Clone, Copy)]
+pub(crate) struct FrozenWfPair {
+    owner: u64,
+    enabled: usize,
+    action: usize,
+}
+
+/// A member of a planner-issued frozen pair, never an expression/scope key.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) struct FrozenWfAtom {
+    owner: u64,
+    action: bool,
+}
+
+// Tokens are never reused, even across separately prepared batches with the
+// same expressions/scopes. Exhaustion merely declines optional reuse.
+static NEXT_FROZEN_WF: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
+
+impl FrozenWfPair {
+    pub(crate) fn atom(self, index: usize) -> Option<FrozenWfAtom> {
+        if index == self.enabled {
+            Some(FrozenWfAtom {
+                owner: self.owner,
+                action: false,
+            })
+        } else if index == self.action {
+            Some(FrozenWfAtom {
+                owner: self.owner,
+                action: true,
+            })
+        } else {
+            None
+        }
+    }
+}
+
+impl FrozenWfAtom {
+    pub(crate) const fn action(self) -> bool {
+        self.action
+    }
+    pub(crate) const fn owner(self) -> u64 {
+        self.owner
+    }
 }
 
 impl Lower<'_> {
@@ -1876,12 +1924,14 @@ impl Lower<'_> {
                 }
                 self.pure_atom(*action, scope)?;
                 self.pure_scoped_mode(*sub, scope, depth, false, false)?;
+                let enabled_index = self.atoms.len();
                 let en = self.special_atom(
                     *action,
                     scope,
                     AtomKind::State,
                     AtomTest::Enabled { sub: Some(*sub) },
                 )?;
+                let action_index = self.atoms.len();
                 let action = self.special_atom(
                     *action,
                     scope,
@@ -1890,6 +1940,20 @@ impl Lower<'_> {
                 )?;
                 let disabled = self.push(Node::Not(en))?;
                 if matches!(node.expr, Expr::Wf { .. }) {
+                    if self.first_wf.is_none() {
+                        self.first_wf = NEXT_FROZEN_WF
+                            .try_update(
+                                std::sync::atomic::Ordering::Relaxed,
+                                std::sync::atomic::Ordering::Relaxed,
+                                |next| next.checked_add(1),
+                            )
+                            .ok()
+                            .map(|owner| FrozenWfPair {
+                                owner,
+                                enabled: enabled_index,
+                                action: action_index,
+                            });
+                    }
                     // Pinned astToLive WF shape: []<>(~ENABLED <A>_v \/ <A>_v).
                     let disjunction = self.push(Node::Or(vec![disabled, action]))?;
                     let eventual = self.push(Node::Eventually(disjunction))?;
@@ -1931,6 +1995,7 @@ pub fn lower(model: &Model, pred: &Pred, limits: Limits) -> Result<Plan, Plannin
         atoms: Vec::new(),
         steps: 0,
         root_expr: pred.expr,
+        first_wf: None,
     };
     model
         .evaluator
@@ -1969,6 +2034,7 @@ pub fn lower_violation(
         atoms: Vec::new(),
         steps: 0,
         root_expr: property.expr,
+        first_wf: None,
     };
     let mut conjuncts = Vec::new();
     for behavior in &model.temporals {
@@ -1994,6 +2060,28 @@ pub(crate) fn lower_claims(
     properties: &[Pred],
     limits: Limits,
 ) -> Result<Vec<Plan>, PlanningError> {
+    lower_frozen_claims(model, properties, limits).map(|(plans, _)| plans)
+}
+
+/// Original configured claims keep their own conversion, separate from startup
+/// temporal roles. Only the literal cloned behavior prefix receives tokens.
+pub(crate) fn lower_original_claims(
+    model: &Model,
+    limits: Limits,
+) -> Result<(Vec<Plan>, Option<FrozenWfPair>), PlanningError> {
+    let claims = model
+        .property_claims()
+        .iter()
+        .map(|p| p.pred.clone())
+        .collect::<Vec<_>>();
+    lower_frozen_claims(model, &claims, limits)
+}
+
+fn lower_frozen_claims(
+    model: &Model,
+    properties: &[Pred],
+    limits: Limits,
+) -> Result<(Vec<Plan>, Option<FrozenWfPair>), PlanningError> {
     let mut cx = Lower {
         model,
         limits,
@@ -2001,13 +2089,15 @@ pub(crate) fn lower_claims(
         atoms: Vec::new(),
         steps: 0,
         root_expr: properties.first().map_or(ExprId(0), |p| p.expr),
+        first_wf: None,
     };
     let mut fairness = Vec::new();
     for behavior in &model.temporals {
         cx.root_expr = behavior.pred.expr;
         fairness.push(cx.expr(behavior.pred.expr, &behavior.pred.scope, 0)?);
     }
-    properties
+    let frozen = cx.first_wf;
+    let plans = properties
         .iter()
         .map(|property| {
             let mut claim = Lower {
@@ -2017,6 +2107,7 @@ pub(crate) fn lower_claims(
                 atoms: cx.atoms.clone(),
                 steps: cx.steps,
                 root_expr: property.expr,
+                first_wf: cx.first_wf,
             };
             let property = claim.expr(property.expr, &property.scope, 0)?;
             let mut conjuncts = fairness.clone();
@@ -2029,7 +2120,8 @@ pub(crate) fn lower_claims(
                 atoms: claim.atoms,
             })
         })
-        .collect()
+        .collect::<Result<Vec<_>, PlanningError>>()?;
+    Ok((plans, frozen))
 }
 
 #[cfg(test)]
