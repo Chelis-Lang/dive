@@ -444,6 +444,35 @@ engine answers.
 
 ### 5.2 Typed classes (built)
 
+The minimal `next-receiver-lifetime/EmptyLazyQuery` control records the #680
+Next-side function demand before implementation: Init emits `es={}` and
+`step=0`; Next queries `[i \in 1..2 |-> 1 \div 0] \notin es` before any
+successor. The clean pinned TLC stream reports underlying division-by-zero 2179,
+a single original source row and a diagnostic fingerprint exception 2147 with
+nested 2179; physical exit is 75, distinct/generated/depth are 1 and queue is 0.
+It is not a candidate-side error or an empty-membership shortcut. The value's
+actual FunctionMaterialize catch and newly constructed diagnostic source must
+establish the wrapper. Cached/stored receivers and later/multiple source
+lifetimes gain no authority from the same error number or printed text. A constant-level function definition
+is not itself a cached value: the `DefinedFunction` control also fails during
+construction before it could cache a value, and its actual newly constructed
+diagnostic receiver reproduces pinned 2147/75. Source syntax alone establishes
+neither positive nor negative receiver lifetime.
+
+The hash-bound clean consumer inputs live under
+`crates/dive-conformance/tests/fixtures/next-receiver-lifetime/`, recorded with TLC `94d0c5070852b37b801bb8998c436383ab7ee37b`, jar SHA-256
+`7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d`,
+JRE 17.0.20.1+1, seed 0 and fingerprint 0. Source and configuration live under
+`crates/dive-api/tests/fixtures/next-receiver-lifetime/`; hash-bound actual
+consumer tests retain these original observations, without generated goldens.
+The bounded admission reconstructs exactly one exhausted Init emission, the
+first source and no preceding complete/partial Next candidate. Ordinary and
+diagnostic Next execute within the same fresh terminal runtime; a separate
+prefix runtime supplies no caches. Later/multiple/effectful and prior-candidate
+controls retain their original unverified result, cause, output and counts.
+The producer and actual source-bound consumer each require this proof. Existing
+Next endpoint and report versions retain their meanings.
+
 An evaluation error carries `Option<TlcClass>` (`crates/dive-core/src/lib.rs`):
 TLC's `EC` code and whether TLC raises it as an `EvalException`.
 - **`None`:** an unclassified error. The core has not established that TLC

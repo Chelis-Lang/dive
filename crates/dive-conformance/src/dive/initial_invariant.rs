@@ -16,6 +16,12 @@ pub(super) fn read(
     if !requested(value) {
         return Ok(());
     }
+    // The existing source-qualified Next endpoint carries a formal original
+    // source row. It requires its own actual Init/Next/diagnostic replay, never
+    // the no-word initial diagnostic exemption below.
+    if code == 2147 && value["error_site"] == "next-state" {
+        return read_next_receiver(value, exit, source);
+    }
     if code != 2147
         || value["tlc"]["name"] != "TLC_FINGERPRINT_EXCEPTION"
         || value["tlc"]["exit_status"] != 75
@@ -90,4 +96,43 @@ pub(super) fn read(
             "initial diagnostic wrapper is not independently proved: {validation:?}"
         )),
     }
+}
+
+fn read_next_receiver(
+    value: &Value,
+    exit: Option<i32>,
+    source: Option<&SpecModel>,
+) -> Result<(), String> {
+    if value["tlc"]["name"] != "TLC_FINGERPRINT_EXCEPTION"
+        || value["tlc"]["exit_status"] != 75
+        || exit != Some(75)
+        || value["verdict"] != "evaluation-error"
+        || value["schema_version"] != 3
+        || value["check_kind"] != "safety"
+        || !value["diagnostic_witness"].is_null()
+        || !value["error_witness"].is_null()
+    {
+        return Err("Next receiver report contradicts its source-word family".into());
+    }
+    let word = TraceDoc::from_json(&value["counterexample"]["trace"])
+        .map_err(|error| format!("Next receiver requires its formal source word: {error}"))?;
+    if value["counterexample"]["trace"]["ending"]["endpoint"]["reported"]
+        != value["tlc"]["reported"]
+        || !matches!(&word.ending, Some(Ending::NextStateError { endpoint,.. })
+            if endpoint.deciding_code() == Some(2147))
+    {
+        return Err("Next receiver requires its actual ordered diagnostic endpoint".into());
+    }
+    let source =
+        source.ok_or("Next receiver classification requires a fresh source-bound reader")?;
+    let report = source
+        .try_validate(&word)
+        .map_err(|error| format!("Next receiver diagnostic replay stopped: {error}"))?;
+    if report.validation != Validation::Valid {
+        return Err(format!(
+            "Next receiver diagnostic lifecycle is not independently proved: {:?}",
+            report.validation
+        ));
+    }
+    Ok(())
 }

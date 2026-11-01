@@ -8,7 +8,7 @@
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Engine, check_file_engine};
 use dive_conformance::compare::{CompareContext, diff_results};
-use dive_conformance::dive::{CheckMapping, check_result};
+use dive_conformance::dive::{CheckMapping, check_result, check_result_with_model};
 use dive_conformance::process::ProcessOutcome;
 use dive_conformance::tlc::result::{OracleResult, RunFacts, Verdict};
 use dive_conformance::tlc::{messages, result};
@@ -314,4 +314,142 @@ fn candidate_wrapper_replay_preserves_pinned_primary_headers_and_strict_report_c
             }
         }
     }
+}
+
+#[test]
+fn actual_next_receiver_wrapper_requires_the_original_source_word_and_diagnostic_proof() {
+    for (name, raw, hash) in [
+        (
+            "EmptyLazyQuery",
+            include_str!("fixtures/next-receiver-lifetime/EmptyLazyQuery.stdout"),
+            "b1e4f39f762c1d0e7774d1d522546b9ae3d0f7e6d4c906c5346125b532260111",
+        ),
+        (
+            "DefinedFunction",
+            include_str!("fixtures/next-receiver-lifetime/DefinedFunction.stdout"),
+            "448da25a53480fcc355b349a9622aebe9ef25735f6206a06fb5620d07b5fd9f3",
+        ),
+    ] {
+        let file = repo().join(format!(
+            "crates/dive-api/tests/fixtures/next-receiver-lifetime/{name}.tla"
+        ));
+        assert_eq!(dive_conformance::hash::sha256_bytes(raw.as_bytes()), hash);
+        let oracle = result::classify(
+            &messages::parse(raw),
+            &RunFacts {
+                exit_code: Some(75),
+                ..RunFacts::default()
+            },
+        );
+        assert_eq!(oracle.verdict_code, Some(2147));
+        assert_eq!(oracle.exit_code, Some(75));
+        for compat in [false, true] {
+            let source = model(&file, compat);
+            for engine in [Engine::Reference, Engine::Core, Engine::Auto] {
+                for workers in [1, 4] {
+                    let report = check_file_engine(
+                        &CheckRequest {
+                            file: file.clone(),
+                            config: Some(file.with_extension("cfg")),
+                            compat_tlc: compat,
+                            workers: Some(workers),
+                            seed: Some(0),
+                            fp: Some(0),
+                            ..CheckRequest::default()
+                        },
+                        engine,
+                    )
+                    .expect("actual producer");
+                    let value = report.to_json();
+                    let outcome = |value: &Value, exit| ProcessOutcome {
+                        exit_code: Some(exit),
+                        signal: None,
+                        timed_out: false,
+                        stdout: value.to_string(),
+                        stderr: String::new(),
+                        elapsed: Duration::ZERO,
+                    };
+                    let actual_outcome = outcome(
+                        &value,
+                        i32::from(report.exit_code_for(dive_api::ExitConvention::Tlc)),
+                    );
+                    assert!(matches!(
+                        check_result(&actual_outcome, compat),
+                        CheckMapping::Refused(_)
+                    ));
+                    let CheckMapping::Result(actual) =
+                        check_result_with_model(&actual_outcome, compat, &source)
+                    else {
+                        panic!("source-bound report must prove actual receiver: {value}")
+                    };
+                    assert_eq!(
+                        diff_results(
+                            &oracle,
+                            &actual,
+                            CompareContext {
+                                workers: u32::try_from(workers).expect("small worker count"),
+                                counts_comparable: true
+                            }
+                        ),
+                        Vec::new(),
+                        "{value}"
+                    );
+                    assert!(validate_counterexample(&source, &actual, &oracle).validated);
+                    reject_next_receiver_report_mutations(&value, compat, &source);
+                }
+            }
+        }
+    }
+}
+
+fn reject_next_receiver_report_mutations(value: &Value, compat: bool, source: &SpecModel) {
+    let outcome = |value: &Value, exit| ProcessOutcome {
+        exit_code: Some(exit),
+        signal: None,
+        timed_out: false,
+        stdout: value.to_string(),
+        stderr: String::new(),
+        elapsed: Duration::ZERO,
+    };
+    for (pointer, replacement) in [
+        ("/counterexample", Value::Null),
+        (
+            "/counterexample/trace/ending/endpoint/deciding",
+            json!(2179),
+        ),
+        (
+            "/counterexample/trace/ending/endpoint/reported",
+            json!(1000),
+        ),
+        (
+            "/counterexample/trace/ending/endpoint/source/module",
+            json!("Forged"),
+        ),
+        (
+            "/counterexample/trace/ending/ec",
+            json!("TLC_MODULE_OVERFLOW"),
+        ),
+        ("/tlc/reported", json!(1000)),
+        ("/error_site", json!("initial-states")),
+    ] {
+        let mut bad = value.clone();
+        *bad.pointer_mut(pointer).expect("mutation field") = replacement;
+        assert!(
+            matches!(
+                check_result_with_model(&outcome(&bad, 75), compat, source),
+                CheckMapping::Refused(_)
+            ),
+            "{bad}"
+        );
+    }
+    let mut auxiliary = value.clone();
+    auxiliary["diagnostic_witness"] = json!({"trace":value["counterexample"]["trace"]});
+    assert!(matches!(
+        check_result_with_model(&outcome(&auxiliary, 75), compat, source),
+        CheckMapping::Refused(_)
+    ));
+    assert!(matches!(
+        check_result_with_model(&outcome(value, 255), compat, source),
+        CheckMapping::Refused(_)
+    ));
 }

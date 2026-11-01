@@ -446,3 +446,60 @@ fn caller_cache_and_concurrent_session_warmth_supply_no_truth() -> TestResult {
     }
     Ok(())
 }
+
+#[test]
+fn actual_receiver_diagnostic_keeps_control_and_rejects_foreign_cause_authority() -> TestResult {
+    let input = Input::new(
+        "Init == x=0\nNext == [i \\in 1..2 |-> 1 \\div 0] \\notin {} /\\ x'=1",
+        "",
+    )?;
+    for options in [Options::dive(), Options::tlc()] {
+        let request = input.request(options)?;
+        let mut wire = request.to_json();
+        wire["ending"]["endpoint"]["stage"] = json!("next-ordered-terminal");
+        wire["ending"]["endpoint"]["reported"] = json!(2179);
+        wire["ending"]["endpoint"]["deciding"] = json!(2147);
+        let document = TraceDoc::from_json(&wire)?;
+        let complete = Arc::new(StopAfter {
+            polls: AtomicUsize::new(0),
+            limit: usize::MAX,
+        });
+        assert_eq!(
+            input
+                .session(options)
+                .read_controlled(&document, complete.clone())?
+                .0
+                .validation,
+            Validation::Valid
+        );
+        let polls = complete.polls.load(Ordering::SeqCst);
+        for limit in [0, 1, polls / 2, polls.saturating_sub(1)] {
+            let control = Arc::new(StopAfter {
+                polls: AtomicUsize::new(0),
+                limit,
+            });
+            assert!(
+                matches!(input.session(options).read_controlled(&document,control),Err(ValidationRunError::Interrupted {error,..}) if error.interruption()==Some(Interrupted::new(434)))
+            );
+        }
+        // A matching numeric primary error is not a receiver proof.
+        let direct = Input::new(DIV, "")?;
+        let mut plain = direct.request(options)?.to_json();
+        plain["ending"]["endpoint"]["stage"] = json!("next-ordered-terminal");
+        plain["ending"]["endpoint"]["reported"] = json!(2179);
+        plain["ending"]["endpoint"]["deciding"] = json!(2147);
+        assert!(matches!(
+            direct
+                .session(options)
+                .try_read(&TraceDoc::from_json(&plain)?)?
+                .0
+                .validation,
+            Validation::Unsupported(_)
+        ));
+        assert_eq!(
+            input.session(options).try_read(&document)?.0.validation,
+            Validation::Valid
+        );
+    }
+    Ok(())
+}

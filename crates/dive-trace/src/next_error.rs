@@ -23,6 +23,37 @@ pub(crate) fn replay(
     if let Some(refusal) = preflight(model, false, control)? {
         return Ok(refusal);
     }
+    // A diagnostic receiver catch requires its actual first-source history.
+    // Prefix validation has a separate runtime; reconstruct Init here before
+    // ordinary Next, retaining this runtime into diagnostic Next execution.
+    if endpoint.deciding_code() == Some(2147) {
+        if state_index != 0 {
+            return Ok(Validation::Unsupported(
+                "Next receiver replay covers only the first source row".into(),
+            ));
+        }
+        if let Some(refusal) = preflight(model, true, control)? {
+            return Ok(refusal);
+        }
+        let initial = crate::ordered::Driver {
+            initial: true,
+            model,
+            source: state,
+            level: 0,
+            host,
+            control,
+        };
+        match initial.initial_source()? {
+            crate::ordered::Event::End => {}
+            crate::ordered::Event::Refused(reason) => return Ok(Validation::Unsupported(reason)),
+            _ => {
+                return Ok(invalid(
+                    state_index,
+                    "Init fails before the claimed Next receiver",
+                ));
+            }
+        }
+    }
     let driver = crate::ordered::Driver {
         initial: false,
         model,
@@ -31,7 +62,9 @@ pub(crate) fn replay(
         host,
         control,
     };
-    let error = match driver.primary(endpoint.ordered_codes().is_none())? {
+    let error = match driver
+        .primary(endpoint.ordered_codes().is_none() || endpoint.deciding_code() == Some(2147))?
+    {
         crate::ordered::Event::Error {
             site: crate::ordered::Site::Next,
             error,
@@ -95,7 +128,11 @@ fn check_diagnostic(
                 "reported wrapper differs from the actual primary exception",
             ));
         }
-        let secondary = match driver.diagnostic()? {
+        let secondary = match if deciding == 2147 {
+            driver.diagnostic_sources()?
+        } else {
+            driver.diagnostic()?
+        } {
             crate::ordered::Event::Error {
                 site: crate::ordered::Site::Next,
                 error,
@@ -114,6 +151,15 @@ fn check_diagnostic(
                 ));
             }
         };
+        if deciding == 2147 {
+            return Ok(if same_function_receiver(error, &secondary) {
+                Validation::Valid
+            } else {
+                Validation::Unsupported(
+                    "Next diagnostic function receiver construction/source lifetime is not certified".into(),
+                )
+            });
+        }
         let actual_deciding = match secondary.exception_kind() {
             Some(dive_eval::ExceptionKind::EvalException) => secondary.ec().code(),
             Some(dive_eval::ExceptionKind::ToolRuntime) => 2103,
@@ -131,6 +177,26 @@ fn check_diagnostic(
         }
     }
     Ok(Validation::Valid)
+}
+
+fn same_function_receiver(primary: &EvalError, diagnostic: &EvalError) -> bool {
+    primary.class() == ErrorClass::Eval
+        && diagnostic.class() == ErrorClass::Eval
+        && primary.ec() == diagnostic.ec()
+        && primary.is_eval_exception() == diagnostic.is_eval_exception()
+        && primary.exception_kind().is_some()
+        && primary.exception_kind() == diagnostic.exception_kind()
+        && primary.origin().is_some()
+        && primary.origin() == diagnostic.origin()
+        && primary.value_method().is_some_and(|receiver| {
+            receiver.method() == dive_eval::ValueMethod::FunctionMaterialize
+                && receiver.source().is_none()
+                && diagnostic.value_method().is_some_and(|actual| {
+                    actual.method() == receiver.method()
+                        && actual.constructor() == receiver.constructor()
+                        && actual.source() == Some(actual.constructor())
+                })
+        })
 }
 
 fn match_error(

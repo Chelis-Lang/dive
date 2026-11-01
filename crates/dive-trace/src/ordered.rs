@@ -270,30 +270,43 @@ impl Driver<'_> {
     /// The runtime is the independently reconstructed primary runtime, whose
     /// own history is retained; no caller cache/seen facts enter this sequence.
     pub(crate) fn diagnostic(&self) -> Result<Event, EvalError> {
+        self.diagnostic_mode(false)
+    }
+
+    /// The real diagnostic tool source hook, without relabelling cached values.
+    pub(crate) fn diagnostic_sources(&self) -> Result<Event, EvalError> {
+        self.diagnostic_mode(true)
+    }
+
+    fn diagnostic_mode(&self, sources: bool) -> Result<Event, EvalError> {
         for action in &self.model.actions {
             self.poll()?;
             self.at_site(Site::Next);
             let mut candidates = Vec::new();
             let mut stop = None;
-            let outcome =
+            let mut sink = |candidate: &Successor<'_>| {
+                if let Err(error) = self.poll().and_then(|()| {
+                    candidates.try_reserve(1).map_err(|_| {
+                        EvalError::resource_limit("diagnostic candidate storage unavailable")
+                    })?;
+                    candidates.push(slots(candidate.state)?);
+                    Ok(())
+                }) {
+                    stop = Some(error);
+                    Flow::Stop
+                } else {
+                    Flow::Continue
+                }
+            };
+            let outcome = if sources {
                 self.model
                     .evaluator
-                    .next_states(action, self.source, 0, &mut |candidate| {
-                        if let Err(error) = self.poll().and_then(|()| {
-                            candidates.try_reserve(1).map_err(|_| {
-                                EvalError::resource_limit(
-                                    "diagnostic candidate storage unavailable",
-                                )
-                            })?;
-                            candidates.push(slots(candidate.state)?);
-                            Ok(())
-                        }) {
-                            stop = Some(error);
-                            Flow::Stop
-                        } else {
-                            Flow::Continue
-                        }
-                    });
+                    .next_states_diagnostic(action, self.source, 0, &mut sink)
+            } else {
+                self.model
+                    .evaluator
+                    .next_states(action, self.source, 0, &mut sink)
+            };
             self.poll()?;
             if let Some(error) = stop {
                 return Err(error);

@@ -62,7 +62,12 @@ homogeneous, record-domain and lazy controls remain supported. Twelve pinned
 consumed cases are in `crates/dive-api/tests/fixtures/core-normalization/`.
 This does not add a completed parity surface; the separate reference initial
 fingerprint classification finding #620 is repaired in its bounded first-Init
-receiver scope by #683; broader Next receiver lifecycle remains #680.
+receiver scope by #683. The bounded #680 Next-function receiver route now
+requires one exhausted Init emission, the first source, no prior candidate and
+matching actual ordinary/diagnostic construction. The original EmptyLazyQuery
+control has strict source-bound 2147/75 agreement in both profiles and engines at
+1/4 workers. Multiple initial emissions, later sources, effects and broader
+receiver methods remain unproved; no historical corpus totals are refreshed.
 
 Named terminal invariant-error and property words may end outside model
 constraints after ordered constraint evaluation (#499). Four new model controls

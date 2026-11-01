@@ -72,6 +72,13 @@
   execution engines. The underlying cause and counts are preserved; stored or
   unproved receiver lifetimes remain unverified.
 
+- Prove bounded Next-side function materialization fingerprint errors through
+  fresh Init, ordinary Next and actual diagnostic receiver construction. Both
+  engines retain the original cause/source row and report 2147/75 only after
+  independent controlled replay. Earlier candidates, effects and unproved
+  source lifetimes retain refusal; existing trace versions and schema stay
+  unchanged (#680).
+
 - Preserve recorded initial fingerprint-error state context separately as
   optional `diagnostic_witness`, with no formal counterexample. Its existing
   native v2 named cause needs fresh ordinary-word and independent diagnostic
