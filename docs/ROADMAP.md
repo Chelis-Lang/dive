@@ -158,14 +158,15 @@ and documented divergence under ADR 0010.
 
 The trusted-core checkpoint includes bounded construction-history, diagnostic
 receiver and temporal-source-row replay, native closed-action execution and
-accurate periodic capture reports (#674–#677, #679 and #683). The current
-integrated source adds bounded worker-local default compound-membership
-indexing (#698), private exact temporal-product lookup with deterministic final
-ordering (#694), and selected original-target descriptors (#701). Original
-comparison/history authority, fallback, demand, error order and resource checks
-remain guarded. The [implementation and acceptance status](developer/core/m1-status.md)
-records the exact boundaries and actual runtime base `16095d43`, whose whole
-tree was integrated as `9a1d51a1`.
+accurate periodic capture reports (#674–#677, #679 and #683). It also includes
+bounded worker-local default compound-membership indexing (#698), private exact
+temporal-product lookup with deterministic final ordering (#694), and selected
+original-target descriptors (#701). The frozen phase 3 runtime `fb48dbbf`, tree
+`b2d90500`, adds exact-row native atom input-proof reuse within each analysis
+(#709, ADR 0134) and bounded ordered error-prefix replay (#712, ADR 0135).
+Original comparison/history authority, fallback, demand, error order and
+resource checks remain guarded. The [implementation and acceptance status](developer/core/m1-status.md)
+records the current boundaries and preserves earlier source-bound results.
 
 Candidate errors require fresh independent word/diagnostic proof; the focused
 matrix has 92 valid words, 64 strict classified-oracle comparisons and 28
@@ -173,11 +174,62 @@ ambiguous non-agreements (#699). Worker-aware exact divergence facts close
 #684 (#695). Context-only initial errors now refuse deciding-class proof and
 omit their invalid anonymous word, closing #685 (#702). First-source Next
 function receivers have a bounded actual-lifetime proof (#703); broader #680
-remains open. Broader candidate classification (#697), history (#623),
-temporal source scopes (#502), VIEW, non-Boolean roles and initial-generation
-errors remain unfinished.
+remains open. The later ordered-prefix proof covers six source-final VIEW,
+two top-level non-Boolean constraint and two named invariant diagnostic
+families. Their canonical streams remain Unclassified, with no new
+pinned-TLC classification credit. Version-6 advance
+[consumer notice](https://github.com/Chelis-Lang/oyster/issues/61#issuecomment-6558501056)
+was posted before landing. The inherited coordinated primary-2111 class/exit
+acceptance remains open as #713, outside the new diagnostic-proof scope.
+Broader candidate classification (#697), history (#623), temporal source scopes
+(#502), receiver lifetimes and initial-generation errors remain unfinished.
 
-The [integrated local qualification](../conformance/reports/core/2026-11-01-integrated-qualification.json)
+The [phase 3 checkpoint](../conformance/reports/core/2026-11-01-phase3-checkpoint.json)
+records the audited unchanged 1,520-row census selection per profile: 1,215
+default / 1,187 TLC shadow agreements, ten former refuted words repaired per
+profile, zero refuted words and no old agreement lost. Refusals, stops,
+unconfirmed words and TLC `LvPeriodic`'s known core-violation/reference-resource
+difference remain findings. The twenty core words independently validate;
+ordinary shadow comparison does not separately replay the reference words.
+Both 156-model Auto baselines exit 0; TLC retains all 458 passing SANY
+comparisons. The single integrated full gate physically exits 0 in 78m07s,
+with 3,054 nextest passes, six source-declared ignored tests and 185 doctests.
+The census/joined chain retains exit 1. A separately reviewed standalone trace
+build exits 0 in 11.64s without forbidden dependencies or enumeration; #714
+tracks the frozen gate's omission of that explicit command. It is separate from
+the full gate. Local preservation is uploaded, downloaded and verified across
+all 21,924 archive members.
+
+The small-payload scratch experiment #710 is a reviewed valid negative and is
+closed unmerged; #708 remains open. Its 48 native rows miss both required W1
+improvement floors and exceed the CoffeeCan safety/W8 regression ceiling.
+No confirmation, compatibility-eight cohort, five-repeat or capacity credit
+follows. One same-host original ABA default/W8 candidate completes while its
+baseline stops at 900 seconds; that censored observation establishes no speed
+factor, memory savings or final twelve-cell capacity qualification. Its recovered
+cell evidence is approved, while its failed archival controller remains failed.
+
+Final-source performance has separate independently audited focus36 and
+breadth60 diagnostics, all 96 rows correct/64 actual core. Default misses all
+four focus floors; breadth is faster on six of ten models at each width with
+descriptive throughput geometric means 1.481826/1.483856, below 2. The exact
+single breadth compatibility GameOfLife/W1 ratio **2.001332924** exceeds 2;
+Sailfish observations above 1.5 retain investigation. No formal 300-row campaign
+or pooled repetition credit follows. All forty breadth native peak-RSS
+observations are lower than paired TLC, with their different budget scopes and
+single-observation limits retained. Archives and performance-node/root-volume
+cleanup are verified. Final original capacity is terminal at eleven successes
+and one ABA TLC/W8 atom-analysis time stop at 900.076s, physical exit 5; the
+matrix runner exits 1 and capacity is not accepted. ABA default/W8 succeeds
+at 833.645s and TLC/W1 at 895.382s, with only about 4.618s of observed margin
+for the latter. All 147 final archive members are verified. Both phase nodes
+and root volumes are gone, with no active owned phase instance and no deadline
+extension. Conservative compute is about $10.235, below the $40 phase ceiling;
+it is not an invoice and excludes small storage/transfer costs. #707/#711 are manually closed
+after verification; #708/#713/#714 and broader capacity/parity work remain open.
+#650, M1/M2 and RC/release qualification remain open.
+
+The historical [integrated local qualification](../conformance/reports/core/2026-11-01-integrated-qualification.json)
 passes its full gate at runtime base `16095d43`. The fixture census loses no
 old agreement and gains 10 default/14 TLC old-ID shadow agreements, while
 retaining refusals, stops and refuted/unconfirmed words. TLC Auto keeps all
@@ -190,7 +242,8 @@ retain a three-pair focus and a one-repeat ten-model breadth cohort. The focus
 misses the default speed floor, so the formal five-repeat campaign was not
 started. Breadth observations add no five-repeat or original temporal capacity
 credit. Performance and capacity raw evidence is archived, and both phase
-nodes/root volumes have verified cleanup. The independently audited
+nodes/root volumes have verified cleanup; those receipts apply only to that
+earlier campaign. The independently audited
 [capacity record](../conformance/reports/perf/2026-11-01-original-capacity.json)
 retains the failed acceptance and prior comparison. Historical
 `83356b01`/`9fc88333` results keep their original source and limitations. The
@@ -198,7 +251,7 @@ projection-reuse experiment #705 is closed unmerged after its SimpleRegular
 regression; #704 remains open. Reference remains the default; simulation, DFID,
 checkpoints, disk storage and full-tier breadth retain their existing later
 scope. The [next bounded actions](developer/core/m1-status.md#next-bounded-actions)
-target retained VIEW/constraint words, ambiguous candidate classes, receiver
-lifetimes, default Sailfish/SimpleRegular costs and compatibility investigation.
-Recovering ABA default/W8 headroom remains an obligation; a bounded nested-shape
-proof with exact fallback is only an unadopted candidate in the existing path.
+preserve the remaining word/classification/receiver boundaries and finish the
+unmet original-capacity/performance requirements. ABA TLC/W8 completion and
+useful TLC/W1 headroom remain
+an obligation; proof-hit counters do not establish its full-matrix acceptance.

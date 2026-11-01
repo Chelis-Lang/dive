@@ -60,7 +60,55 @@ compatibility performance ceiling without weakening semantic obligations.
    bcastFolklore as a separately bounded deep stress run. Never substitute a
    safety variant or a topology estimate for temporal completion.
 
-The [local qualification at runtime base `16095d43`](../../../conformance/reports/core/2026-11-01-integrated-qualification.json)
+The frozen phase 3 source `fb48dbbf`, tree `b2d90500`, includes reviewed and
+CI-passing atom input-proof reuse (#709, ADR 0134) and bounded ordered
+VIEW/constraint/invariant replay (#712, ADR 0135). Advance
+[version-6 consumer notice](https://github.com/Chelis-Lang/oyster/issues/61#issuecomment-6558501056)
+was posted before the writer landed. Its [current checkpoint](../../../conformance/reports/core/2026-11-01-phase3-checkpoint.json)
+records 1,215 default / 1,187 TLC fixture-shadow agreements, with exactly ten
+formerly refuted words repaired per profile and no old agreement lost. The
+twenty core words validate; reference words are not separately replayed by the
+ordinary shadow. All ten canonical streams remain Unclassified. TLC
+`LvPeriodic` retains its known core-violation/reference-capture-resource
+difference. The inherited coordinated primary-2111 class/exit admission is
+tracked in #713 and excluded from the new diagnostic-proof approval.
+
+Both Auto baselines exit 0; TLC retains all 458 passing SANY comparisons. The
+one integrated full gate physically exits 0, report duration 78m07s, with 3,054
+nextest passes, six source-declared ignored tests and 185 doctests. The audited
+census and joined chain retain exit 1. A separately reviewed fresh-target trace
+build exits 0 in 11.64s, with the forbidden packages and evaluator enumeration
+absent. This supplements the owner-provided standalone-build requirement;
+#714 tracks its omission as a literal command from frozen AGENTS/xtask. It is
+not retroactively part of the full gate. All 21,924 local archive members are
+uploaded, downloaded and verified; later documentation receives no execution
+credit.
+
+Small-payload #710 is closed unmerged after a fresh reviewed valid-negative
+48-row A/B; #708 remains open. The single same-host original ABA default/W8
+candidate success has a censored baseline. Fresh review approves its recovered
+cell evidence after the focused controller's archival failure; it earns no
+speed factor, memory savings or final-matrix acceptance.
+
+Final-source performance has separate audited focus36 and breadth60 diagnostics,
+all 96 correct rows/64 actual-core runs. All four default focus cells miss the
+floor; breadth is faster on six of ten models at both widths with descriptive
+throughput geometric means 1.481826/1.483856. Compatibility GameOfLife/W1 has
+one breadth ratio **2.001332924**, above 2; Sailfish's above-1.5 observations
+retain their investigation obligation. No formal 300-row campaign was started,
+and no cohorts are pooled. Archives and performance-node/root-volume cleanup
+are verified. Final original capacity is terminal at eleven successes and one
+ABA TLC/W8 native atom-analysis stop at 900.076s (physical exit 5); the matrix
+runner exits 1, so #650 is not accepted. Final ABA default/W8 succeeds at
+833.645s and TLC/W1 at 895.382s, with only about 4.618s observed margin for the
+latter. The 147-member final archive is verified. Both phase nodes/root volumes
+have verified cleanup, with no active owned phase instance and no fixed-deadline
+extension. Conservative compute is about $10.235, below $40, not an invoice and
+excluding small storage/transfer costs. Bounded deliverables #707/#711 are manually closed after
+verification. #708/#713/#714 and broader capacity/parity issues remain open.
+M1/M2, #650, RC/release qualification and the reference default remain unchanged.
+
+The historical [local qualification at runtime base `16095d43`](../../../conformance/reports/core/2026-11-01-integrated-qualification.json)
 completes the full gate and audits the census/Auto results. Census findings
 and TLC Auto's omitted-module exit 1 remain explicit. The separately audited
 [performance diagnostics](../../../conformance/reports/perf/2026-11-01-integrated-performance.json)
@@ -72,11 +120,11 @@ nine successes and three ABA atom-analysis time stops after completed graph
 capture. Default/W8 loses its older completion; #650 is not accepted. Both
 phase nodes/root volumes have verified cleanup. The independently audited
 [capacity record](../../../conformance/reports/perf/2026-11-01-original-capacity.json)
-retains the failed acceptance and prior comparison. The
-[next bounded actions](m1-status.md#next-bounded-actions) address retained bad
-words, ambiguous deciding classes, receiver scopes, default performance,
-above-1.5 compatibility observations and an unadopted bounded ABA nested-shape
-proof with exact fallback in the existing comparison path.
+retains the failed acceptance and prior comparison. Those historical cleanup
+receipts do not establish phase 3 cleanup. The
+[next bounded actions](m1-status.md#next-bounded-actions) retain the remaining
+word/classification/receiver boundaries, #713, failed performance targets and
+original ABA TLC/W8 completion/TLC/W1 headroom as remaining acceptance obligations.
 Historical evidence is not relabeled.
 
 The lead owns qualification/review. Three initial authors own trace trust,
@@ -103,12 +151,15 @@ For ABA capacity, private exact-pair product lookup is implemented with separate
 deterministic Cartesian final ordering (#694). Selected original-target
 descriptors also remove repeated native predicate successor scans while
 preserving original/stutter selection and conversion/error order (#701).
-Neither change establishes original-workload capacity. The reduced N3/T0/F0
+Neither change alone establishes original-workload capacity. The reduced N3/T0/F0
 diagnostic finds construction larger than search for Corr/Agreement, with
 tableau widths 5/2/3; it does not measure the original N4/T1/F1 cost share.
 The product index keeps edges/duplicates, guards, limits, fallible growth,
 budget inspections and independent witnesses exact.
-The TLC/W8 atom-analysis stop means product work alone may be insufficient.
+The historical TLC/W8 atom-analysis stop establishes no final-source outcome.
+The later #709 proof reuse retains exact input admission and original checks
+when its optional one-MiB storage is unavailable. Its consumed proof counters
+and one censored same-host pair do not replace final original-workload results.
 
 The projection-reuse experiment #705 is closed unmerged: a roughly 3–4%
 Sailfish gain accompanied a roughly 3–5% SimpleRegular regression. Issue #704
