@@ -418,9 +418,12 @@ The reported class must match the deciding class for non-evaluation results.
 Evaluation replay may preserve a first evaluator error or a documented site
 wrapper; unrelated terminal/model classes cannot stand in for that report.
 Only the actual frontend rejection schema may omit the reported code.
-The canonical source-aware harness reader supplies production classification.
-The historical bounded table in `xtask/src/pluscal_corpus/check_protocol.rs`
-remains a malformed-envelope regression control. Unknown or incomplete JSON,
+The shared envelope admission in `crates/dive-conformance/src/native_envelope.rs`
+runs before the canonical source-aware harness reader supplies classification.
+It retains the original exact class/verdict/reported-code associations; the
+current helper also requires explicit JSON and physical exits to match its
+requested TLC exit convention. Both production and the retained regression
+controls use the same bounded admission source. Unknown or incomplete JSON,
 unclaimed classes, refusals and resource failures never count as agreement.
 Valid failures before exploration may have null statistics. The retained
 malformed-envelope controls supplement the independent comparison reader.

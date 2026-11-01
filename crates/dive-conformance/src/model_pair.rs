@@ -162,6 +162,14 @@ fn compare_profile(
     let receipt = json!({"command": shown, "exit": run.exit_code, "signal": run.signal,
         "timed_out": run.timed_out, "elapsed_ms": run.elapsed.as_millis()});
     write_json(&raw.join("process.json"), &receipt)?;
+    let document: Value = serde_json::from_str(&run.stdout).unwrap_or(Value::Null);
+    if !valid_native_envelope(&document, &run) {
+        return Ok(
+            json!({"outcome":"error", "reason":"invalid native check report envelope",
+            "exit":run.exit_code, "signal":run.signal,
+            "diffs":[{"field":"native.envelope","expected":true,"actual":false}]}),
+        );
+    }
     let spec = SpecModel::load(
         pair.native_module,
         pair.configuration,
@@ -186,6 +194,26 @@ fn compare_profile(
         pair.model_id,
         &profile,
     ))
+}
+
+fn valid_native_envelope(report: &Value, run: &ProcessOutcome) -> bool {
+    // A timeout, stop, refusal or bug remains uncredited in canonical mapping.
+    // Ordinary facts must pass the same bounded envelope guard as the original
+    // corpus runner, plus current explicit caller-selected exit metadata.
+    if run.timed_out
+        || matches!(
+            report["verdict"].as_str(),
+            Some("unsupported" | "resource-limit" | "internal-error" | "stopped")
+        )
+    {
+        return true;
+    }
+    crate::native_envelope::valid_check_report(run.exit_code, report)
+        && run.signal.is_none()
+        && report["exit_code"].as_i64() == run.exit_code.map(i64::from)
+        && report["options"]["exit_codes"] == "tlc"
+        && report["tlc"]["exit_status"].as_i64() == run.exit_code.map(i64::from)
+        && report.get("property").is_some()
 }
 
 fn filename(path: &Path) -> Result<&str> {
@@ -313,6 +341,102 @@ fn compare_native(
 mod tests {
     use super::*;
     use dive_api::trace::TraceDoc;
+
+    fn envelope_mutations() -> Vec<(&'static str, Value)> {
+        vec![
+            ("/tlc/name", json!("INVENTED_CLASS")),
+            ("/tlc/name", json!("TLC_SUCCESS")),
+            ("/verdict", json!("success")),
+            ("/verdict", json!("banana")),
+            ("/verdict", json!(null)),
+            ("/tlc/reported", json!(1000)),
+            ("/tlc/reported", json!("banana")),
+            ("/tlc/reported", json!(null)),
+            ("/tlc/code", json!(9999)),
+            ("/tlc/code", json!("2110")),
+            ("/tlc/code", json!(null)),
+            ("/tlc/verified", json!(false)),
+            ("/tlc/verified", json!("true")),
+            ("/tlc/exit_status", json!(0)),
+            ("/tlc/exit_status", json!("12")),
+            ("/tlc/exit_status", json!(null)),
+            ("/exit_code", json!(0)),
+            ("/exit_code", json!("12")),
+            ("/exit_code", json!(null)),
+            ("/options/exit_codes", json!("native")),
+            ("/options/exit_codes", json!("banana")),
+            ("/statistics/distinct", json!(-1)),
+            ("/statistics/distinct", json!("3")),
+            ("/statistics/generated", json!(1)),
+            ("/statistics/generated", json!(null)),
+            ("/statistics/depth", json!(-1)),
+            ("/statistics/depth", json!(null)),
+            ("/property", json!("")),
+            ("/property", json!(null)),
+            ("/property", json!(7)),
+        ]
+    }
+
+    #[test]
+    fn actual_native_reports_require_the_complete_envelope_before_mapping()
+    -> std::result::Result<(), Box<dyn std::error::Error>> {
+        let directory = crate::util::TempDir::new("native-envelope-controls")?;
+        let file = directory.path().join("Envelope.tla");
+        std::fs::write(
+            &file,
+            "---- MODULE Envelope ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == x'=IF x<2 THEN x+1 ELSE x\nInv == x<2\n====\n",
+        )?;
+        std::fs::write(
+            file.with_extension("cfg"),
+            "INIT Init\nNEXT Next\nINVARIANT Inv\n",
+        )?;
+        for compat in [false, true] {
+            let report = dive_api::check_file(&dive_api::CheckRequest {
+                file: file.clone(),
+                compat_tlc: compat,
+                workers: Some(1),
+                seed: Some(0),
+                fp: Some(0),
+                ..dive_api::CheckRequest::default()
+            })?;
+            let value = report.to_json_with_exit_convention(dive_api::ExitConvention::Tlc);
+            let mut run = ProcessOutcome {
+                exit_code: Some(12),
+                signal: None,
+                timed_out: false,
+                stdout: value.to_string(),
+                stderr: String::new(),
+                elapsed: Duration::ZERO,
+            };
+            assert!(valid_native_envelope(&value, &run));
+            for (pointer, replacement) in envelope_mutations() {
+                let mut forged = value.clone();
+                *forged
+                    .pointer_mut(pointer)
+                    .ok_or("actual report omitted required field")? = replacement;
+                assert!(
+                    !valid_native_envelope(&forged, &run),
+                    "{compat}: {pointer}: {forged}"
+                );
+            }
+            for field in ["statistics", "property", "exit_code", "tlc"] {
+                let mut absent = value.clone();
+                absent
+                    .as_object_mut()
+                    .ok_or("actual report is not an object")?
+                    .remove(field);
+                assert!(!valid_native_envelope(&absent, &run), "{field}");
+            }
+            for exit in [None, Some(0), Some(10), Some(255)] {
+                run.exit_code = exit;
+                assert!(!valid_native_envelope(&value, &run), "physical {exit:?}");
+            }
+            run.exit_code = Some(12);
+            run.signal = Some(9);
+            assert!(!valid_native_envelope(&value, &run));
+        }
+        Ok(())
+    }
 
     #[test]
     fn actual_words_validate_and_forged_or_missing_words_never_agree()

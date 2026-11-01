@@ -4,6 +4,9 @@
   native translation plus dive in both profiles, using ordinary conformance
   classification and independent native witness replay. Preserve unsupported,
   stopped, missing-configuration and expected-divergence outcomes separately.
+- Retain exact native report envelope admission before PlusCal model comparison:
+  contradictory class names, verdicts, reported codes, counts and exits cannot
+  gain agreement from an independently valid retained word.
 
 - Add compiled native finite simulation and DFID in both profiles through explicit
   APIs and `--engine core|auto`. Reference remains the default; Auto selects a

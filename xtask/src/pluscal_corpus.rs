@@ -23,6 +23,7 @@ use serde_json::{Value, json};
 use crate::{Result, workspace_root};
 
 #[cfg(test)]
+#[path = "../../crates/dive-conformance/src/native_envelope.rs"]
 mod check_protocol;
 mod pins;
 
@@ -682,103 +683,10 @@ fn check_record(run: &Run, report: &Value) -> Value {
     })
 }
 
-// Validate the observed native protocol before comparing it. Equality of
-// missing fields is not a model outcome. The default/TLC exit pair comes from
-// dive-api's public check contract; no compiler crate enters the hook graph.
+// The same bounded admission runs before canonical mapping in model_pair.
 #[cfg(test)]
 fn valid_check_report(run: &Run, report: &Value) -> bool {
-    if report["command"] != "check" {
-        return false;
-    }
-    let Some(verdict) = report["verdict"].as_str() else {
-        return false;
-    };
-    if matches!(verdict, "unsupported" | "resource-limit" | "internal-error") {
-        return true; // Classified as uncredited below, never as agreement.
-    }
-    let (native_exit, needs_stats, needs_property) = match verdict {
-        "success" => (0, true, false),
-        "invariant-violation"
-        | "property-violation"
-        | "action-property-violation"
-        | "liveness-violation" => (10, true, true),
-        "deadlock" => (11, true, false),
-        "postcondition-failure" => (10, false, true),
-        "assumption-failure" => (12, false, false),
-        "model-error" | "rejected" => (1, false, false),
-        "incomplete-state" | "assertion-failure" | "overflow" | "evaluation-error" => {
-            (13, false, false)
-        }
-        _ => return false,
-    };
-    let Some(stats) = report.get("statistics") else {
-        return false;
-    };
-    if stats.is_null() {
-        if needs_stats {
-            return false;
-        }
-    } else {
-        let (Some(distinct), Some(generated), Some(_depth)) = (
-            stats["distinct"].as_u64(),
-            stats["generated"].as_u64(),
-            stats["depth"].as_u64(),
-        ) else {
-            return false;
-        };
-        // Every distinct state was generated. Empty Init can legally leave
-        // both counters zero; depth remains an observed unsigned value.
-        if generated < distinct {
-            return false;
-        }
-    }
-    let property = report.get("property");
-    if needs_property {
-        if property.is_none_or(|p| p.as_str().is_none_or(str::is_empty)) {
-            return false;
-        }
-    } else if property.is_some_and(|p| !p.is_null()) {
-        return false;
-    }
-    let class = &report["tlc"];
-    let Some(code) = class["code"]
-        .as_u64()
-        .filter(|&c| c >= 1000 && u32::try_from(c).is_ok())
-    else {
-        return false;
-    };
-    let Some(tlc_exit) = class["exit_status"].as_u64().filter(|&c| c <= 255) else {
-        return false;
-    };
-    let Some(name) = class["name"].as_str() else {
-        return false;
-    };
-    let Some((_, expected_name, expected_exit, verdicts)) = check_protocol::class(code) else {
-        return false;
-    };
-    if class["verified"] != true
-        || !class.get("reported").map_or_else(
-            // `CheckReport::to_json` omits this field only for frontend SANY
-            // rejection; all checked-result classes carry it, even success.
-            || verdict == "rejected" && code == 3002,
-            |reported| {
-                reported.as_u64().is_some_and(|reported| {
-                    check_protocol::reported_matches(verdict, code, reported)
-                })
-            },
-        )
-        || name != *expected_name
-        || tlc_exit != *expected_exit
-        || !verdicts.contains(&verdict)
-    {
-        return false;
-    }
-    // Assumption evaluation errors use the default assumption exit. A real
-    // TLC-profile run instead uses the declared deciding class's exit.
-    run.code.is_some_and(|exit| {
-        exit == if code == 2105 { 12 } else { native_exit }
-            || u64::try_from(exit).ok() == Some(tlc_exit)
-    })
+    check_protocol::valid_check_report(run.code, report)
 }
 
 /// Refusals and missing reports establish no model-check agreement.

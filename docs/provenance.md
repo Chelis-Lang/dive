@@ -1094,10 +1094,13 @@ TLC parser or new ported checking algorithm is introduced. Original source
 directories are selected input context, not newly asserted library pins. Both
 native profiles use identical primary-rewritten configuration bytes and actual
 one-worker, seed-zero runs. Missing/refused/stopped/unconfirmed observations earn
-no agreement. The older table below remains regression-only; historical
-dive-on-both-translations measurements keep their narrower scope.
+no agreement. The original bounded native envelope guard runs before canonical
+mapping; its class table and checks are shared with the runner's regression
+controls. Historical dive-on-both-translations measurements keep their narrower
+scope.
 
-`xtask/src/pluscal_corpus/check_protocol.rs` is a bounded data inventory, not a
+`crates/dive-conformance/src/native_envelope.rs` holds the shared bounded native
+envelope admission and class inventory, not a
 model-checking algorithm or a primary oracle. Its code/name pairs and failure
 exits were checked against MIT `tlc2/output/EC.java`, including
 `ExitStatus.errorConstantToExitStatus`, at pinned commit
