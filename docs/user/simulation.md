@@ -22,6 +22,9 @@ infinite behaviors, so it cannot change a finite safety result (ADR 0116).
 Configured temporal `PROPERTY` checking, VIEW, symmetry and unproved sampling
 interactions refuse. Returned violations require independent trace validation;
 unknown replay alignment returns `unsupported`.
+Configured VIEW is rejected by shared preflight in Reference, Core and Auto,
+before assumptions, Init or sampling; exhausted budgets do not rewrite that
+named refusal as a stopped run.
 
 Use `--stats basic --output json` to collect action flows, corresponding to TLC's
 `-simulate num=N,stats=basic`. The default is `--stats none`. Rust callers set

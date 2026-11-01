@@ -7,6 +7,8 @@
   output budgets and separate canonical keys/construction views. Keep enumerated
   compound candidates alive through deferred DFID checking, then reclaim each
   completed batch across iterative levels.
+- Reject configured simulation VIEW in shared preflight for every engine,
+  before model effects or run-budget stops.
 
 - Support exact native safety membership with complete collision-resolving state
   identities and opt-in predecessor spill, preserving ordered results and

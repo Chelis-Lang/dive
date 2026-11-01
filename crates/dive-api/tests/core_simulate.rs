@@ -172,6 +172,57 @@ fn compound_states_and_fairness_only_specs_produce_independent_violations() -> R
 }
 
 #[test]
+fn view_refuses_before_execution_and_budget_exhaustion_in_every_engine() -> Result {
+    use dive_api::BudgetSetting;
+    use std::time::Duration;
+
+    let file =
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../dive-sim/tests/fixtures/SimView.tla");
+    for compat_tlc in [false, true] {
+        for engine in [Engine::Reference, Engine::Core, Engine::Auto] {
+            for limited in [false, true] {
+                let report = simulate_file_engine(
+                    &SimulateRequest {
+                        file: file.clone(),
+                        compat_tlc,
+                        seed: Some(7),
+                        traces: 1,
+                        depth: Some(1),
+                        time_limit: if limited {
+                            BudgetSetting::Explicit(Duration::from_nanos(1))
+                        } else {
+                            BudgetSetting::Unlimited
+                        },
+                        max_memory: if limited {
+                            BudgetSetting::Explicit(1)
+                        } else {
+                            BudgetSetting::Unlimited
+                        },
+                        ..Default::default()
+                    },
+                    engine,
+                )?
+                .to_json();
+                assert_eq!(report["result"], "unsupported", "{report}");
+                assert_eq!(
+                    report["message"], "simulation VIEW declarations",
+                    "{report}"
+                );
+                assert_eq!(report["options"]["workers_used"], 0);
+                assert_eq!(report["statistics"]["generated"], 0);
+                assert_eq!(report["statistics"]["traces_started"], 0);
+                assert!(report["stopped"].is_null());
+                assert!(report["engine_fallback"].is_null());
+                for field in ["startup_output", "runtime_output", "traces"] {
+                    assert_eq!(report[field], serde_json::json!([]), "{field}: {report}");
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+#[test]
 fn auto_selects_reference_before_runtime_effects_and_core_never_retries() -> Result {
     for compat in [false, true] {
         let request = request("runtime-print/RuntimePrintRegister", compat);

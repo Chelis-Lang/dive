@@ -578,6 +578,9 @@ pub fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
     if model.symmetry.is_some() {
         return refusal("simulation SYMMETRY declarations");
     }
+    if model.view.is_some() {
+        return refusal("simulation VIEW declarations");
+    }
     if model.alias.is_some() {
         return refusal("simulation ALIAS");
     }
