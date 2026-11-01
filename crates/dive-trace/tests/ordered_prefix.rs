@@ -141,6 +141,150 @@ fn invariant_word_validity_and_executed_diagnostic_identity_are_separate() -> Te
     Ok(())
 }
 
+#[test]
+fn completed_or_quiet_diagnostics_retain_the_actual_primary_wrapper() -> TestResult {
+    for options in [Options::dive(), Options::tlc()] {
+        for (name, ec) in [
+            ("ErInvAssert", "TLC_VALUE_ASSERT_FAILED"),
+            ("ErInvReplayProp", "TLC_MODULE_DIVISION_BY_ZERO"),
+            ("ErWrapInvTuple", "GENERAL"),
+        ] {
+            let (session, _) = fixture(name, options, true)?;
+            let word = TraceDoc::behavior(vec![
+                json!({"x":0,"y":0}),
+                json!({"x":1,"y":0}),
+                json!({"x":2,"y":0}),
+            ])?
+            .with_ending(Ending::InvariantError {
+                name: "Inv".into(),
+                ec: ec.into(),
+            });
+            let (proof, class) = session.invariant_error_class(&word, None)?;
+            assert_eq!(proof.validation, Validation::Valid, "{name}");
+            assert_eq!(class.ok_or("class")?.deciding_code(), 2111);
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn later_source_replay_includes_off_word_admissions_and_earlier_failures() -> TestResult {
+    for options in [Options::dive(), Options::tlc()] {
+        for (next, invariant, deciding) in [
+            (
+                "IF x=0 THEN x' \\in {1,10} ELSE x'=x+1",
+                "x#3 \\/ 1 \\div 0=0",
+                Some(2111),
+            ),
+            // x=10 is admitted off the reported path and is expanded before
+            // x=2. Its error cannot be hidden by the otherwise valid word.
+            (
+                "IF x=0 THEN x' \\in {1,10} ELSE IF x=10 THEN x'=1 \\div 0 ELSE x'=x+1",
+                "x#3 \\/ 1 \\div 0=0",
+                None,
+            ),
+        ] {
+            let source = format!(
+                "---- MODULE Later ----\nEXTENDS Integers,TLC\nVARIABLE x\nInit == x=0\nNext == {next}\nInv == {invariant}\n====\n"
+            );
+            let analysis =
+                dive_sema::analyze_source("Later.tla", &source, &dive_sema::Options::default());
+            let ir = Arc::new(dive_ir::lower(&analysis)?);
+            let config = dive_config::parse("INIT Init\nNEXT Next\nINVARIANT Inv\n")
+                .into_config()
+                .ok_or("config")?;
+            let session = Session::new(Recipe::new(ir, config, options, false), Some(run_config()));
+            let word = TraceDoc::behavior((0..=3).map(|x| json!({"x":x})).collect())?.with_ending(
+                Ending::InvariantError {
+                    name: "Inv".into(),
+                    ec: "TLC_MODULE_DIVISION_BY_ZERO".into(),
+                },
+            );
+            assert_eq!(session.try_read(&word)?.0.validation, Validation::Valid);
+            let (proof, class) = session.invariant_error_class(&word, None)?;
+            assert_eq!(class.map(|class| class.deciding_code()), deciding);
+            assert_eq!(proof.validation.is_valid(), deciding.is_some());
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn diagnostic_partial_and_false_invariant_stops_do_not_invent_an_exception() -> TestResult {
+    for options in [Options::dive(), Options::tlc()] {
+        for (next, second, deciding) in [
+            ("x'=1 \\/ TRUE", "TRUE", 2111),
+            ("x' \\in 1..2", "x<2", 2111),
+            ("x' \\in 1..2", "x#2 \\/ 1 \\div 0=0", 2179),
+        ] {
+            let source = format!(
+                "---- MODULE Quiet ----\nEXTENDS Integers,TLC\nVARIABLE x\nInit == x=0\nNext == {next}\nInv == x#1 \\/ 1 \\div 0=0\nLater == {second}\n====\n"
+            );
+            let analysis =
+                dive_sema::analyze_source("Quiet.tla", &source, &dive_sema::Options::default());
+            let ir = Arc::new(dive_ir::lower(&analysis)?);
+            let config = dive_config::parse("INIT Init\nNEXT Next\nINVARIANT Inv Later\n")
+                .into_config()
+                .ok_or("config")?;
+            let session = Session::new(Recipe::new(ir, config, options, false), Some(run_config()));
+            let word = TraceDoc::behavior(vec![json!({"x":0}), json!({"x":1})])?.with_ending(
+                Ending::InvariantError {
+                    name: "Inv".into(),
+                    ec: "TLC_MODULE_DIVISION_BY_ZERO".into(),
+                },
+            );
+            let (proof, class) = session.invariant_error_class(&word, None)?;
+            assert_eq!(proof.validation, Validation::Valid, "{next}/{second}");
+            assert_eq!(class.ok_or("class")?.deciding_code(), deciding);
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn invariant_history_does_not_waive_other_initial_errors_effects_or_temporal_demand() -> TestResult
+{
+    for options in [Options::dive(), Options::tlc()] {
+        for (init, next, invariant, property) in [
+            ("x \\in {0,2}", "x'=1", "x#2 /\\ (x#1 \\/ 1 \\div 0=0)", ""),
+            ("x \\in 0..64", "x'=1", "x#1 \\/ 1 \\div 0=0", ""),
+            ("x=0", "TLCSet(1,1) /\\ x'=1", "x#1 \\/ 1 \\div 0=0", ""),
+            (
+                "x=0",
+                "RandomElement({TRUE,FALSE}) /\\ x'=1",
+                "x#1 \\/ 1 \\div 0=0",
+                "",
+            ),
+            ("x=0", "x'=1", "x#1 \\/ 1 \\div 0=0", "PROPERTY P\n"),
+        ] {
+            let source = format!(
+                "---- MODULE Refuse ----\nEXTENDS Integers,TLC\nVARIABLE x\nInit == {init}\nNext == {next}\nInv == {invariant}\nP == []<>(x#0 \\/ 1 \\div 0=0)\n====\n"
+            );
+            let analysis =
+                dive_sema::analyze_source("Refuse.tla", &source, &dive_sema::Options::default());
+            let ir = Arc::new(dive_ir::lower(&analysis)?);
+            let config =
+                dive_config::parse(&format!("INIT Init\nNEXT Next\nINVARIANT Inv\n{property}"))
+                    .into_config()
+                    .ok_or("config")?;
+            let session = Session::new(Recipe::new(ir, config, options, false), Some(run_config()));
+            let word = TraceDoc::behavior(vec![json!({"x":0}), json!({"x":1})])?.with_ending(
+                Ending::InvariantError {
+                    name: "Inv".into(),
+                    ec: "TLC_MODULE_DIVISION_BY_ZERO".into(),
+                },
+            );
+            let (proof, class) = session.invariant_error_class(&word, None)?;
+            assert!(
+                !proof.validation.is_valid(),
+                "{init}/{next}/{property}: {proof:?}"
+            );
+            assert!(class.is_none());
+        }
+    }
+    Ok(())
+}
+
 fn source_session(
     next: &str,
     init: &str,
@@ -391,6 +535,94 @@ fn diagnostic_generation_cap_counts_the_already_executed_prefix() -> TestResult 
             session.read_controlled(&word, Arc::new(Stop)),
             Err(dive_trace::ValidationRunError::Interrupted { .. })
         ));
+    }
+    Ok(())
+}
+
+#[test]
+fn earlier_deadlocks_and_completed_rows_cannot_borrow_later_word_authority() -> TestResult {
+    for options in [Options::dive(), Options::tlc()] {
+        for (init, next, configuration, rows, expected) in [
+            (
+                "x=0",
+                "IF x=0 THEN x' \\in {1,2} ELSE IF x=1 THEN FALSE ELSE x'=3",
+                "",
+                vec![0, 2, 3],
+                "deadlock",
+            ),
+            (
+                "x=0",
+                "IF x=0 THEN x' \\in {1,2} ELSE IF x=1 THEN FALSE ELSE x'=3",
+                "CHECK_DEADLOCK FALSE\n",
+                vec![0, 2, 3],
+                "valid",
+            ),
+            (
+                "x=0",
+                "IF x=0 THEN x' \\in {1,2} ELSE IF x=1 THEN x'=4 ELSE x'=3",
+                "CONSTRAINT C\n",
+                vec![0, 2, 3],
+                "valid",
+            ),
+            (
+                "x \\in {0,1}",
+                "IF x=0 THEN x'=0 ELSE x'=3",
+                "PROPERTY P\n",
+                vec![1, 3],
+                "first actually admitted",
+            ),
+            (
+                "x \\in {0,1}",
+                "IF x=0 THEN x'=0 ELSE x'=3",
+                "",
+                vec![1, 3],
+                "valid",
+            ),
+            // Multiple Init emissions are safe for this temporal exception
+            // only when the first actually admitted source fails immediately.
+            (
+                "x \\in {0,1}",
+                "IF x=0 THEN x'=3 ELSE x'=1",
+                "PROPERTY P\n",
+                vec![0, 3],
+                "valid",
+            ),
+        ] {
+            let source = format!(
+                "---- MODULE Order ----\nEXTENDS Integers,TLC\nVARIABLE x\nInit == {init}\nNext == {next}\nInv == x#3 \\/ 1 \\div 0=0\nP == []<>(x=0)\nC == x#4\n====\n"
+            );
+            let analysis =
+                dive_sema::analyze_source("Order.tla", &source, &dive_sema::Options::default());
+            let ir = Arc::new(dive_ir::lower(&analysis)?);
+            let config = dive_config::parse(&format!(
+                "INIT Init\nNEXT Next\nINVARIANT Inv\n{configuration}"
+            ))
+            .into_config()
+            .ok_or("config")?;
+            let session = Session::new(Recipe::new(ir, config, options, false), Some(run_config()));
+            let word = TraceDoc::behavior(rows.iter().map(|x| json!({"x":x})).collect())?
+                .with_ending(Ending::InvariantError {
+                    name: "Inv".into(),
+                    ec: "TLC_MODULE_DIVISION_BY_ZERO".into(),
+                });
+            assert_eq!(session.try_read(&word)?.0.validation, Validation::Valid);
+            let (report, class) = session.invariant_error_class(&word, None)?;
+            if expected == "valid" {
+                assert_eq!(report.validation, Validation::Valid, "{configuration}");
+                assert_eq!(class.ok_or("certificate")?.deciding_code(), 2111);
+            } else {
+                assert!(class.is_none());
+                match report.validation {
+                    Validation::Invalid(failure) if expected == "deadlock" => {
+                        assert!(failure.detail.contains(expected));
+                    }
+                    Validation::Unsupported(feature) if expected == "first actually admitted" => {
+                        assert!(feature.contains(expected));
+                    }
+                    other => return Err(format!("{expected}: {other:?}").into()),
+                }
+            }
+        }
     }
     Ok(())
 }

@@ -4,6 +4,15 @@
   local gate modes and CI, keeping workspace feature unification from masking
   a standalone dependency or compilation failure.
 
+- Require fresh source-bound diagnostic certification for successor invariant
+  reports, including deciding 2111, rejecting coordinated class/name/exit
+  forgeries (#713). Preserve genuine completed-2111 and actual 2179/2103
+  families with bounded private source replay and caller-selected native/TLC
+  process status. Existing named words retain native version 2.
+- Independently prove assertion, division, ENABLED and TLC-overflow VIEW errors
+  through the existing version-6 endpoint. Report schema 3 and native versions
+  1–6 retain their meanings; ambiguous oracle streams remain Unclassified.
+
 - Independently reconstruct bounded ordered error prefixes for VIEW and named
   invariant diagnostics, retaining actual key insertion and diagnostic demand.
   Source-final VIEW words use native trace version 6; readers must support its
@@ -14,9 +23,6 @@
 - Validate actual top-level non-Boolean constraint/action-constraint errors
   through the existing native version-4 endpoint and source-qualified
   `Tool.isValid` boundary; old anonymous words remain invalid.
-- Document inherited primary-2111 class/header/physical-exit forgery acceptance
-  (#713), reproduced before the ordered-prefix change. The new independent
-  diagnostic certificate excludes that legacy branch.
 
 - Reuse successful native temporal atom input checks for exact retained rows
   within each analysis, in both profiles. Optional proof storage is capped at

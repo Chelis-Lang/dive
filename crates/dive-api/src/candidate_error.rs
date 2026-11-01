@@ -109,9 +109,6 @@ pub(super) fn certify_invariant(
     else {
         return;
     };
-    if *code == 2111 {
-        return;
-    }
     let deciding = *code;
     let verification =
         (|| {
