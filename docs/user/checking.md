@@ -251,6 +251,17 @@ switch must leave the results unchanged, including independently replayable
 counterexamples when hash-consing is disabled. See `docs/developer/core/06-memoization.md` and
 `docs/developer/core/m0-results.md`.
 
+Default-profile repeated compound membership in an admitted normalized set
+can use a bounded hash index. It starts on the second eligible lookup for a set of at
+least 16 closed members, verifies candidate values structurally and retains
+normal miss/error checks. Each worker reserves at most 4 MiB or one-sixteenth
+of its existing memo allowance, whichever is smaller; this adds no separate
+memory allowance. `DIVE_CORE_OPT=-member-index` disables the index for
+measurement. TLC comparisons always retain their original checked search,
+including when `+member-index` is requested. Scalar queries, finite-fuel
+optional analysis, raw constructors, lazy queries and unproved values retain
+their existing path. Optional analysis reserves no index storage.
+
 The core preserves construction order, duplicates and shared normalization
 history for covered literal and mapped sets of booleans, inline integers,
 owned strings/model values and nested literal tuples. A covered union preserves

@@ -39,6 +39,7 @@ struct ANode {
 #[derive(Debug)]
 pub struct Arena {
     epoch: u32,
+    pub(crate) cache_owner: std::sync::Arc<()>,
     nodes: Vec<ANode>,
     pool: Vec<Handle>,
     boxed: Vec<Box<[Handle]>>,
@@ -92,6 +93,7 @@ impl Arena {
     pub fn new(heap_mode: bool) -> Self {
         Self {
             epoch: 1,
+            cache_owner: std::sync::Arc::new(()),
             nodes: Vec::new(),
             pool: Vec::new(),
             boxed: Vec::new(),
@@ -167,6 +169,10 @@ impl Arena {
         self.literal_sets.clear();
         self.resets += 1;
         self.next_epoch();
+    }
+
+    pub(crate) fn cache_revision(&self) -> (u64, u64) {
+        (self.resets, self.rollbacks)
     }
 
     /// The current epoch.

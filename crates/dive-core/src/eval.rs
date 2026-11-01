@@ -154,6 +154,7 @@ impl Machine {
     pub fn new(store: Arc<Store>, nvars: usize, opts: Opts, mut memo: Memo) -> Self {
         memo.set_cap(opts.memo_cap);
         memo.reserve_members(opts.memo && store.semantics().tlc_comparisons);
+        memo.reserve_member_index(opts.member_index && !store.semantics().tlc_comparisons);
         Self {
             heap: Heap::new(store, !opts.arena, !opts.delta_hash),
             frame: Vec::new(),
@@ -190,6 +191,11 @@ impl Machine {
     /// ```
     pub fn set_fuel(&mut self, units: u64) {
         self.fuel = units;
+        self.memo.reserve_member_index(
+            units == u64::MAX
+                && self.opts.member_index
+                && !self.heap.store.semantics().tlc_comparisons,
+        );
     }
 
     /// Installs the optional caller-owned cooperative work checkpoint.
@@ -1034,7 +1040,12 @@ impl Machine {
         if self.fuel != u64::MAX && set.is_compound() && self.heap.view(set).kind == Kind::SetEnum {
             self.domain_work(set, false, 0)?;
         }
-        if let Some(result) = self.heap.literal_member(x, set) {
+        let index = if self.fuel == u64::MAX {
+            Some(&mut self.memo.member_index)
+        } else {
+            None
+        };
+        if let Some(result) = self.heap.literal_member_indexed(x, set, index) {
             return result;
         }
         if !set.is_compound() {
@@ -1052,7 +1063,15 @@ impl Machine {
         let v = self.heap.view(set);
         match v.kind {
             Kind::Set => {
-                if v.data.binary_search_by(|&e| self.heap.cmp(e, x)).is_ok() {
+                let indexed = if self.fuel == u64::MAX && v.flags & crate::node::flags::HISTORY == 0
+                {
+                    self.memo.member_index.search(&self.heap, set, x, v.data)?
+                } else {
+                    None
+                };
+                if indexed
+                    .unwrap_or_else(|| v.data.binary_search_by(|&e| self.heap.cmp(e, x)).is_ok())
+                {
                     return Ok(true);
                 }
                 compare::miss_cached(&self.heap, &mut self.memo, x, set, v.data)?;

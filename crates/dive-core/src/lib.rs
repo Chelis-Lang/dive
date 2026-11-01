@@ -43,6 +43,7 @@ pub mod generate;
 pub mod handle;
 pub mod heap;
 pub mod int;
+mod member_index;
 pub mod memo;
 pub mod node;
 pub mod opts;

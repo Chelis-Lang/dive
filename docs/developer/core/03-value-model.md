@@ -468,8 +468,29 @@ New construction work polls the actual existing file-route Budget through the
 controlled explorer hook. Origin-vector capacity is part of Store memory
 reporting; arena history and sparse frontier buffers still require whole-process
 RSS measurement. The witness memo in `06-memoization.md` proves comparison
-constraints only; it is neither normalization authority nor the unbuilt generic
-S5 membership index.
+constraints only; it is neither normalization authority nor the generic
+S5 membership index described below.
+
+The default normalized compound-membership index is separate derived lookup data. It
+starts on the second eligible lookup for sets with at least 16 members, after
+the same actual local-history or Store-owned snapshot admission. Canonical
+explicit sets retain their original admission. The index uses existing closed
+value hashes and verifies every candidate with the original canonical
+comparator; distinct persistent history representations are not assumed
+unequal. Misses keep the existing class/error checks. Scalar queries, finite-fuel
+optional analysis, raw constructions, lazy or unproved values and TLC
+comparisons retain their original search. Finite
+optional analysis releases the index reservation. The
+`member-index` ablation disables it without changing results.
+
+Each worker's index is reserved inside its existing memo cap, at most 4 MiB
+or one-sixteenth of that cap. Allocation is lazy and fallible. Complete set
+handles identify records; weak Store and Arena allocation identities prevent
+reuse after replacement. Local records also bind to reset/rollback revisions,
+so freed transient data never supplies a lookup. Persistent records survive
+arena rollback. Replacement, exhaustion or allocation failure simply returns
+to the original search. Index construction and probing poll the same caller
+work owner. The index establishes neither normalization nor source provenance.
 
 Identity is extensional: equal sets have one handle. The representation class
 and normalization flag travel separately, as a **lazy view**:

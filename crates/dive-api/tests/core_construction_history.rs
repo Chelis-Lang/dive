@@ -51,7 +51,14 @@ fn literal_map_union_and_nested_except_cross_the_real_state_boundary() {
         let oracle = primary(name);
         for compat in [false, true] {
             for workers in [1, 2, 3, 8] {
-                for opts in ["", "-fold", "-memo", "-hashcons", "-early-probe"] {
+                for opts in [
+                    "",
+                    "-fold",
+                    "-memo",
+                    "-member-index",
+                    "-hashcons",
+                    "-early-probe",
+                ] {
                     let report = check_file_core_opts(&request(name, compat, workers), opts)
                         .expect("core invocation");
                     let doc = report.to_json();
