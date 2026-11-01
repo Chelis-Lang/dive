@@ -41,6 +41,10 @@ pub struct SimulateRequest {
     pub no_deadlock: bool,
     /// Collect source-location action flows, corresponding to TLC `stats=basic`.
     pub action_stats: bool,
+    /// Time limit; the profile default matches `dive check`. `Unlimited` is TLC-equivalent.
+    pub time_limit: crate::BudgetSetting<std::time::Duration>,
+    /// Sampled process-memory ceiling; the default is half physical memory.
+    pub max_memory: crate::BudgetSetting<u64>,
     /// Modules searched before standard modules.
     pub library_paths: Vec<PathBuf>,
     /// Modules searched after standard modules.
@@ -147,6 +151,19 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             ..TraceOptions::default()
         },
     )?;
+    let mut run_budget = crate::mode_budget::ModeBudget::start(
+        req.compat_tlc,
+        dive_check::budget::Phase::Simulation,
+        req.time_limit,
+        req.max_memory,
+    )?;
+    let control = run_budget.control()?;
+    let control_scope =
+        control
+            .enter(&model.model().evaluator)
+            .map_err(|error| crate::ApiError::Rejected {
+                message: error.to_string(),
+            })?;
     let result = if req.workers.is_some_and(|n| n != 1) {
         dive_sim::Report {
             stage: "preflight",
@@ -163,7 +180,11 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
         let executed = std::thread::scope(|scope| {
             std::thread::Builder::new()
                 .stack_size(dive_eval::RECOMMENDED_STACK)
-                .spawn_scoped(scope, || dive_sim::simulate(model.model(), &options))
+                .spawn_scoped(scope, || {
+                    dive_sim::simulate_with_poll(model.model(), &options, &|| {
+                        run_budget.budget.poll() != Ok(None)
+                    })
+                })
                 .map_err(|e| (0_u8, format!("cannot start simulation worker: {e}")))?
                 .join()
                 .map_err(|_| {
@@ -181,7 +202,7 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
                     document: json!({
                         "schema_version": SIMULATE_SCHEMA_VERSION, "command": "simulate",
                         "file": req.file.display().to_string(), "config": config.display().to_string(),
-                        "profile": if req.compat_tlc { "tlc" } else { "dive" },
+                        "profile": if req.compat_tlc { if matches!(req.time_limit, crate::BudgetSetting::Explicit(_)) { "tlc+overrides" } else { "tlc" } } else { "dive" },
                         "result": "internal-error", "exhaustive": false, "model_proved": false,
                         "message": message, "exit_code": 4, "violation_validated": false,
                         "options": { "seed": seed, "seed_given": req.seed.is_some(),
@@ -197,6 +218,7 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             }
         }
     };
+    drop(control_scope);
     let (kind, code, message, default_exit) = match &result.outcome {
         Outcome::Sampled => ("sampled", None, None, 0),
         Outcome::Violation { code, .. } => (
@@ -326,7 +348,7 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
     } else {
         (kind, code, message)
     };
-    let exit = if validation_failed {
+    let mut exit = if validation_failed {
         4
     } else if undecidable {
         3
@@ -369,10 +391,10 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
         json!({"mode": "basic", "scope": "chosen-transitions", "actions": actions,
             "transitions": transitions})
     });
-    let document = json!({
+    let mut document = json!({
         "schema_version": SIMULATE_SCHEMA_VERSION, "command": "simulate",
         "file": req.file.display().to_string(), "config": config.display().to_string(),
-        "profile": if req.compat_tlc { "tlc" } else { "dive" },
+        "profile": if req.compat_tlc { if matches!(req.time_limit, crate::BudgetSetting::Explicit(_)) { "tlc+overrides" } else { "tlc" } } else { "dive" },
         "result": reported_kind, "observed_result": kind, "observed_tlc_code": code, "exhaustive": false, "model_proved": false,
         "tlc_code": reported_code, "message": reported_message, "exit_code": exit,
         "violation_validated": violation_validated, "observed_violation": violation, "pending_violation": pending_violation, "startup_output": startup,
@@ -389,6 +411,7 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             "kind": if event.warning { "warning" } else { "print" }, "text": event.text,
         })).collect::<Vec<_>>(),
     });
+    run_budget.finish(&mut document, &mut exit)?;
     Ok(SimulateReport { document, exit })
 }
 

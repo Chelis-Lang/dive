@@ -206,3 +206,9 @@ The TLC-internal liveness diagnostics (`tlc_temporal`, `periodic_candidate`,
 were removed on 2026-10-12 (ADR 0082). TLC's exact lasso and periodic timing
 are not parity obligations. A configured `_PERIODIC` entry binds with TLC's
 errors and is then refused by name.
+
+`SimulateRequest` and `DfidRequest` also expose `BudgetSetting` fields
+`time_limit` and `max_memory`, with the same defaults as checking. Their finite
+reports distinguish `stopped` (exit 5) from sampled/incomplete/completed outcomes;
+a stopped report never has `model_proved: true`. See the mode guides for the
+after-loading execution scope and uninterruptible units.

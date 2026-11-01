@@ -156,10 +156,20 @@ pub struct Report {
     reason = "keep the pinned simulator selection and callback ordering together"
 )]
 pub fn simulate(model: &Model, opts: &Options) -> Report {
+    simulate_with_poll(model, opts, &|| false)
+}
+
+/// Simulates with a caller-owned cancellation checkpoint.
+///
+/// The callback returns true to stop without a simulation conclusion. It runs
+/// before Init, at emitted candidates, and at trace/step boundaries. The caller
+/// owns the reason and resource measurement; cancellation retains prefix work.
+#[must_use]
+pub fn simulate_with_poll(model: &Model, opts: &Options, poll: &dyn Fn() -> bool) -> Report {
     // Preflight keeps its no-evaluation contract. Effects are checked only
     // when reached after it, including captured operator arguments.
     if preflight(model, opts).is_some() {
-        return simulate_inner(model, opts, None);
+        return simulate_inner(model, opts, None, poll);
     }
     // Declared before HostRestore so reverse drop order restores the original
     // host before releasing shared-core simulation ownership, on every return.
@@ -181,7 +191,7 @@ pub fn simulate(model: &Model, opts: &Options) -> Report {
     let host = host::SimulationHost::new(opts);
     let _restore = host::HostRestore::install(&model.evaluator, &host);
     let capture = dive_eval::capture::PrintCapture::start();
-    let mut report = simulate_inner(model, opts, Some(&host));
+    let mut report = simulate_inner(model, opts, Some(&host), poll);
     report.runtime_output = model.evaluator.filter_captured_warnings(capture.take());
     if let Some(reason) = host.limit() {
         report.outcome = Outcome::Limit(reason.to_owned());
@@ -195,7 +205,12 @@ pub fn simulate(model: &Model, opts: &Options) -> Report {
     clippy::too_many_lines,
     reason = "keep the pinned simulator selection and callback ordering together"
 )]
-fn simulate_inner(model: &Model, opts: &Options, host: Option<&host::SimulationHost>) -> Report {
+fn simulate_inner(
+    model: &Model,
+    opts: &Options,
+    host: Option<&host::SimulationHost>,
+    poll: &dyn Fn() -> bool,
+) -> Report {
     let mut report = Report {
         stage: "preflight",
         outcome: Outcome::Sampled,
@@ -209,6 +224,10 @@ fn simulate_inner(model: &Model, opts: &Options, host: Option<&host::SimulationH
     };
     if let Some(outcome) = preflight(model, opts) {
         report.outcome = outcome;
+        return report;
+    }
+    if poll() {
+        report.outcome = Outcome::Limit("simulation cancelled by caller".to_owned());
         return report;
     }
     if opts.action_stats {
@@ -241,6 +260,10 @@ fn simulate_inner(model: &Model, opts: &Options, host: Option<&host::SimulationH
     let enumeration = {
         let _initial = host.map(host::SimulationHost::initial);
         model.evaluator.init_states(&model.init_actions, &mut |s| {
+            if poll() {
+                failure = Some(Outcome::Limit("simulation cancelled by caller".to_owned()));
+                return Flow::Stop;
+            }
             if inits.len() >= opts.max_candidates || report.initial_candidates >= opts.max_generated
             {
                 failure = Some(Outcome::Limit("simulation initial-state bound".to_owned()));
@@ -311,6 +334,10 @@ fn simulate_inner(model: &Model, opts: &Options, host: Option<&host::SimulationH
     let mut retained = 0usize;
     report.stage = "sampling";
     for id in 0..opts.traces {
+        if poll() {
+            report.outcome = Outcome::Limit("simulation cancelled by caller".to_owned());
+            return report;
+        }
         let mut rng = match opts.mode {
             RandomMode::Tlc => worker,
             RandomMode::Dive => streams.simulation_trace(id),
@@ -325,6 +352,11 @@ fn simulate_inner(model: &Model, opts: &Options, host: Option<&host::SimulationH
         }
         retained += 1;
         for _ in 0..opts.depth {
+            if poll() {
+                report.traces.push(Trace { id, states });
+                report.outcome = Outcome::Limit("simulation cancelled by caller".to_owned());
+                return report;
+            }
             let current = states[states.len() - 1].clone();
             let mut candidates = Vec::new();
             let mut action_index = index(&mut rng, model.actions.len());
@@ -333,6 +365,10 @@ fn simulate_inner(model: &Model, opts: &Options, host: Option<&host::SimulationH
             for _ in 0..model.actions.len() {
                 let action = &model.actions[action_index];
                 let enumeration = model.evaluator.next_states(action, &current, 0, &mut |s| {
+                    if poll() {
+                        failed = Some(Outcome::Limit("simulation cancelled by caller".to_owned()));
+                        return Flow::Stop;
+                    }
                     if candidates.len() >= opts.max_candidates
                         || report.generated >= opts.max_generated
                     {

@@ -44,6 +44,10 @@ pub struct DfidRequest {
     pub exact: bool,
     /// Disable deadlock checking, matching TLC `-deadlock`.
     pub no_deadlock: bool,
+    /// Time limit; the profile default matches `dive check`. `Unlimited` is TLC-equivalent.
+    pub time_limit: crate::BudgetSetting<std::time::Duration>,
+    /// Sampled process-memory ceiling; the default is half physical memory.
+    pub max_memory: crate::BudgetSetting<u64>,
     /// Modules searched before the standard modules.
     pub library_paths: Vec<PathBuf>,
     /// Additional module directories.
@@ -98,7 +102,8 @@ pub fn dfid_file(req: &DfidRequest) -> Result<DfidReport, crate::ApiError> {
         .clone()
         .unwrap_or_else(|| req.file.with_extension("cfg"));
     let profile = if req.compat_tlc {
-        if req.worker_seeds.is_some() {
+        if req.worker_seeds.is_some() || matches!(req.time_limit, crate::BudgetSetting::Explicit(_))
+        {
             "tlc+overrides"
         } else {
             "tlc"
@@ -173,11 +178,25 @@ pub fn dfid_file(req: &DfidRequest) -> Result<DfidReport, crate::ApiError> {
             })
             .collect::<Vec<_>>()
     );
+    let mut run_budget = crate::mode_budget::ModeBudget::start(
+        req.compat_tlc,
+        dive_check::budget::Phase::Dfid,
+        req.time_limit,
+        req.max_memory,
+    )?;
+    let control = run_budget.control()?;
+    let control_scope =
+        control
+            .enter(&model.model().evaluator)
+            .map_err(|error| crate::ApiError::Rejected {
+                message: error.to_string(),
+            })?;
     let mut check = if req.compat_tlc {
         dive_check::CheckOptions::tlc(req.fp, seed)
     } else {
         dive_check::CheckOptions::dive(seed)
     };
+    check.budget = run_budget.budget.clone();
     check.fp_index = req.fp;
     check.workers = req.workers.unwrap_or(1);
     check.no_deadlock = req.no_deadlock;
@@ -213,6 +232,7 @@ pub fn dfid_file(req: &DfidRequest) -> Result<DfidReport, crate::ApiError> {
             return Ok(DfidReport { document, exit: 4 });
         }
     };
+    drop(control_scope);
     let (mut kind, code, mut message, mut exit) = match &report.outcome {
         Outcome::Complete => ("complete", None, None, 0),
         Outcome::Incomplete => (
@@ -305,6 +325,7 @@ pub fn dfid_file(req: &DfidRequest) -> Result<DfidReport, crate::ApiError> {
     );
     document["options"]["worker_seeds"] = json!(report.worker_seeds);
     document["statistics"] = json!({"scope": if matches!(report.outcome, Outcome::Complete) {"complete-model"} else {"completed-prefix"}, "generated": report.generated, "distinct": report.distinct, "initial_candidates": report.initial_candidates, "level": report.level});
+    run_budget.finish(&mut document, &mut exit)?;
     Ok(DfidReport { document, exit })
 }
 

@@ -147,7 +147,11 @@ than TLC, and 30-minute runaway jobs in any regular loop.
   budget-only compatibility override preserves semantic comparison after the
   harness verifies the requested limit and TLC settings; other overrides
   remain ineligible for strict temporal transport.
-- Not covered yet: `dive dfid` and `dive simulate`, the `dive tlc` adapter's
+- Finite `dive dfid` and `dive simulate` now accept the same time/memory
+  policies, sharing one owner after model loading through final resource sampling.
+  Execution/evaluator checkpoints cooperate; parsing, binding, serialization and
+  independent replay remain outside interruption. Their reports state this scope.
+- Not covered yet: the `dive tlc` adapter's
   `-Dtlc2.TLC.stopAfter` property, environment-variable or configuration
   spellings of these options, and `dive-bench`, which still runs `dive check`
   with the defaults (it also drives binaries from before this change).
