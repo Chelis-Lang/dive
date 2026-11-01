@@ -156,8 +156,72 @@ modes retain their observable contracts, including equivalent resumed and
 uninterrupted outcomes. Any new result-changing default still needs an approved
 and documented divergence under ADR 0010.
 
-The trusted-core checkpoint includes bounded construction-history, diagnostic
-receiver and temporal-source-row replay, native closed-action execution and
+Phase 4 completes its bounded trusted-report and original-capacity scope at
+qualified runtime main `949e549c`, tree `37a77be0`. It includes standalone trace
+compilation (#716, closing #714), fresh invariant/VIEW diagnostic certification
+(#717, closing #713), and bounded native WF pair reuse (#719, closing #718),
+each with independent review and the three required CI checks. Report schema 3, native
+versions 1–6 and the canonical oracle classifications retain their meanings.
+Ambiguous streams stay Unclassified. The [phase 4 checkpoint](../conformance/reports/core/2026-11-01-phase4-checkpoint.json)
+binds actual execution to source `95e73d2f`; runtime squash `949e549c` has its
+exact tree and receives no new execution credit.
+
+The default value-proof candidate stopped before implementation after its
+single bounded diagnostic. The separately reviewed native WF action/ENABLED
+pair at measured `8e7dc78c` completes original ABA TLC/W1 and TLC/W8 in
+435.508s and 543.846s under unchanged 900-second/16-GiB native limits. Both
+pass the declared 810-second two-cell adoption bar. That permits integrated
+qualification; it establishes no quiet-host throughput, broad performance or
+full-matrix acceptance by itself. The separately executed `95e73d2f` matrix
+supplies final capacity evidence and landed through PR #719 as runtime `949e549c`.
+
+The terminal `95e73d2f` census retains its old 1,520-row selection per profile
+and loses no old agreement: default now has 1,218 shadow agreements and TLC
+1,191, with three/four VIEW-family gains. Four `GenError` words per profile
+remain unconfirmed, refusals and stops remain explicit, and census exit 1 is
+retained. All 5,457 invocations have physical receipts; 17 incomplete child
+runs earn no success credit. TLC Auto exits 0 with 150 model agreements / six
+unsupported and 458/458 SANY agreements. These completed stages do not establish
+clean-census or milestone acceptance or erase fallbacks. TLC `LvPeriodic` changes
+from the old core-violation/reference-resource difference to a core time stop;
+it earns no agreement or semantic-fix credit, and
+[#664](https://github.com/Chelis-Lang/dive/issues/664) remains open.
+Default Auto also exits 0, with 144 agreements, five unsupported and seven
+expected divergences; default's SANY omission is intentional. All 312 Auto
+model-process receipts are present. The census/Auto role physically exits 1
+for preserved census findings.
+
+The one integrated full gate at `95e73d2f` physically exits 0, with report
+duration 79m37s and outer controller duration 4,780.746 seconds. All 3,066
+nextest tests and 187 doctests pass; six tests are declared skipped. Dedicated
+standalone trace compilation, CM1/validation W1/W4/W8, both small-corpus
+baselines and default core shadows pass. The joined chain retains census
+finding exit 1; this does not become clean-census or milestone acceptance.
+Independent review approves the closed local content and preservation of all
+34,513 local/support archive members. That snapshot excludes later documentation
+updates and supplies no execution credit to them.
+
+All twelve unchanged original capacity cells at `95e73d2f` now record qualified
+temporal success, physical exit 0 and no earlier success loss; both ABA TLC
+rows meet 810s again. The final archive's 148 members are root-verified.
+Fresh capacity review independently verifies all twelve cells, the archive,
+unchanged policies and cleanup, passing 694 checks with zero failures. The
+[capacity record](../conformance/reports/perf/2026-11-01-phase4-original-capacity.json)
+preserves the stopped baseline and all actual final rows. All five required
+archives were verified before actual node/root-volume cleanup, confirmed at
+20:41:27 UTC with no active owned phase instance remaining. The fixed deadline
+was not extended; conservative compute is $2.607, excluding storage/transfer,
+not an invoice. Reference remains the
+default; #650's original-capacity contract is accepted and #650/#718 are manually
+closed after verified runtime merge. M1/M2 and RC/release acceptance remain open. No formal 300-row
+campaign, value-proof implementation or rescue of #705/#710 is introduced.
+Issue #650 has its own original twelve-cell capacity contract. Issue #651's
+matched old-bridge CoffeeCan runtime/RSS criterion and the wider milestone
+requirements remain separate and open. No broader TLC replacement or performance
+acceptance follows from this bounded phase.
+
+The historical trusted-core checkpoint includes bounded construction-history,
+diagnostic receiver and temporal-source-row replay, native closed-action execution and
 accurate periodic capture reports (#674–#677, #679 and #683). It also includes
 bounded worker-local default compound-membership indexing (#698), private exact
 temporal-product lookup with deterministic final ordering (#694), and selected
@@ -180,7 +244,8 @@ families. Their canonical streams remain Unclassified, with no new
 pinned-TLC classification credit. Version-6 advance
 [consumer notice](https://github.com/Chelis-Lang/oyster/issues/61#issuecomment-6558501056)
 was posted before landing. The inherited coordinated primary-2111 class/exit
-acceptance remains open as #713, outside the new diagnostic-proof scope.
+acceptance remained outside that proof as #713. Phase 4's later #717 repairs
+that defect; it does not reclassify the historical ambiguous streams.
 Broader candidate classification (#697), history (#623), temporal source scopes
 (#502), receiver lifetimes and initial-generation errors remain unfinished.
 
@@ -196,7 +261,8 @@ comparisons. The single integrated full gate physically exits 0 in 78m07s,
 with 3,054 nextest passes, six source-declared ignored tests and 185 doctests.
 The census/joined chain retains exit 1. A separately reviewed standalone trace
 build exits 0 in 11.64s without forbidden dependencies or enumeration; #714
-tracks the frozen gate's omission of that explicit command. It is separate from
+tracked the frozen gate's omission of that explicit command, since fixed in
+the current gates by #716. This old supplement is separate from
 the full gate. Local preservation is uploaded, downloaded and verified across
 all 21,924 archive members.
 
@@ -226,8 +292,9 @@ for the latter. All 147 final archive members are verified. Both phase nodes
 and root volumes are gone, with no active owned phase instance and no deadline
 extension. Conservative compute is about $10.235, below the $40 phase ceiling;
 it is not an invoice and excludes small storage/transfer costs. #707/#711 are manually closed
-after verification; #708/#713/#714 and broader capacity/parity work remain open.
-#650, M1/M2 and RC/release qualification remain open.
+after verification; #708/#713/#714 and broader capacity/parity work were open at
+that checkpoint. Phase 4 later closes #713/#714 without changing those old runs.
+That historical source did not accept #650; M1/M2 and RC/release qualification remain open.
 
 The historical [integrated local qualification](../conformance/reports/core/2026-11-01-integrated-qualification.json)
 passes its full gate at runtime base `16095d43`. The fixture census loses no
@@ -237,7 +304,7 @@ model observables but physically exits 1 for omitted baseline SANY entries;
 the default Auto command exits 0. The twelve original capacity cells finish
 with nine successes and three ABA atom-analysis time stops. ABA default/W8
 loses its older completion; completed capture earns no temporal success.
-#650 acceptance remains open. The separately audited [performance diagnostics](../conformance/reports/perf/2026-11-01-integrated-performance.json)
+That historical matrix did not accept #650. The separately audited [performance diagnostics](../conformance/reports/perf/2026-11-01-integrated-performance.json)
 retain a three-pair focus and a one-repeat ten-model breadth cohort. The focus
 misses the default speed floor, so the formal five-repeat campaign was not
 started. Breadth observations add no five-repeat or original temporal capacity

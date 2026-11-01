@@ -1,0 +1,1836 @@
+{
+  "schema_version": 1,
+  "kind": "source-bound phase4 original capacity and adoption",
+  "record_status": "FINAL_ORIGINAL12_CAPACITY_ACCEPTED_PRESERVATION_AND_CLEANUP_VERIFIED",
+  "recorded_utc": "2026-11-01T20:52:49.053026+00:00",
+  "decision": {
+    "measured_two_cell_adoption": "APPROVE_AT_8e7dc78c_ONLY",
+    "final_twelve_cell_capacity": "APPROVE_ORIGINAL_TWELVE_CELL_CAPACITY",
+    "issue650_acceptance": true,
+    "issue650_status": "CLOSED",
+    "reason": "Fresh independent review approves all twelve unchanged original95 cells, renewed ABA TLC headroom, source/policy/physical bindings, no prior success loss, preservation and actualcleanup. Runtime PR719 merged as949 with the exact qualified tree;650 and718 were manually closed. Clean census,651,M1/M2,performance andRC/release remain open.",
+    "capacity_accepted": true
+  },
+  "scope": "Original workloads under unchanged native 900-second/16-GiB and external 930-second policies; capacity VM observations only, no quiet throughput, causal speedup, scaling, default, milestone or release acceptance.",
+  "sources": {
+    "baseline": "b1a5972d688606463061030c44da19612ef1f068",
+    "measured_candidate": "8e7dc78cb853e493661ae203c1c748b56080ae2f",
+    "frozen_integrated": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+    "frozen_integrated_tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+    "frozen_capacity_elf_sha256": "db17c8d3b5ecbc1f232df40cb12aec22d7b2cfcc1ee73c9995d7f350fd98c397",
+    "no_relabel_of_measured8e_as_frozen95": true,
+    "qualified_runtime_main": "949e549cc1fece68cfa1bcfe59ea4b1c83bc368f",
+    "qualified_runtime_tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+    "runtime_main_tree_matches_executed_source": true,
+    "runtime_merge_binding": {
+      "artifact_name": "pr719-merge-binding.json",
+      "sha256": "7e6b7af55a1f75d392b9500e56cd94459a6468bcb8e5013abec4eb451728f007",
+      "reviewed_head": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "qualified_source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "runtime_merge": "949e549cc1fece68cfa1bcfe59ea4b1c83bc368f",
+      "runtime_tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+      "tree_identical_to_qualified_source": true,
+      "merged_utc": "2026-11-01T20:47:24Z",
+      "verified_utc": "2026-11-01T20:47:28.636675+00:00",
+      "main_commit_itself_executed": false
+    }
+  },
+  "original_policy": {
+    "models": [
+      "CoffeeCan3000Beans",
+      "EWD998Chan",
+      "aba_asyn_byz"
+    ],
+    "profiles": [
+      "default",
+      "tlc"
+    ],
+    "workers": [
+      1,
+      8
+    ],
+    "native_seconds": 900,
+    "memory_bytes": 17179869184,
+    "external_backstop_seconds": 930,
+    "seed": 0,
+    "fingerprint": 0,
+    "aba_constants": {
+      "N": 4,
+      "T": 1,
+      "F": 1
+    },
+    "aba_invariant": "TypeOK",
+    "aba_properties": [
+      "Unforg_Ltl",
+      "Corr_Ltl",
+      "Agreement_Ltl"
+    ],
+    "original_template_sha256": "9e30672372fe6997d94eb4ad66023d9dd5b3f67a3c26d7b3050217d00faeef7a",
+    "no_reduced_or_safety_substitution": true,
+    "quiet_window_certified": false,
+    "oracle": "Pinned TLC golden truth/counts only; no new matched TLC capacity timing is claimed."
+  },
+  "closed_original_aba_pair": {
+    "adoption_limit_seconds": 810,
+    "baseline_archive": {
+      "source": "b1a5972d688606463061030c44da19612ef1f068",
+      "tree": "673d5f18375b6ee0928b8bec7936b7b8661ef6ac",
+      "binary_sha256": "36248e1ff6ff2d3a258200fa4fa05b77f6e80c15e2651cd437381f599321158c",
+      "archive_sha256": "43fda902c0d9ab5c3373c59b905ecce15d59238934de24ba831cf2d7c37e52e7",
+      "archive_bytes": 13566882,
+      "manifest_sha256": "ea33dbbeadc7736eff26d9b9697a922381c482cf3ef6a7d33d8d7229d249204f",
+      "manifested_files": 37,
+      "members": 38,
+      "every_tar_and_extracted_member_verified": true,
+      "controller_sha256": "ef8775ddef71385fd7544016f7ccae18df358824bebf90911ae876d3359d47af",
+      "template_sha256": "9e30672372fe6997d94eb4ad66023d9dd5b3f67a3c26d7b3050217d00faeef7a",
+      "source_elf_receipt_verified": true,
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "phase4-20261101/aba-baseline-b1a5972d.tar.gz"
+    },
+    "candidate_archive": {
+      "source": "8e7dc78cb853e493661ae203c1c748b56080ae2f",
+      "tree": "405e5d5f21b9328275258b353dbe71d27d2cc5ba",
+      "binary_sha256": "f89be6aa5e4e9db0886ea5eb314e13b43aecd518bd32d51c92156538e77d08ac",
+      "archive_sha256": "84cbd7e101365085e1cd4c23df490f100f6569831dc3f0d3d31db5a8ecff6912",
+      "archive_bytes": 25859036,
+      "manifest_sha256": "c524039a996f08ffa1caf1353d8591c30f64635fd48fb2997c2d2c412c8a5b70",
+      "manifested_files": 47,
+      "members": 48,
+      "every_tar_and_extracted_member_verified": true,
+      "controller_sha256": "c0cd8c401c68249fd172654406c776ca0e6cb99917b89acf68cf35d205ad5820",
+      "template_sha256": "9e30672372fe6997d94eb4ad66023d9dd5b3f67a3c26d7b3050217d00faeef7a",
+      "source_elf_receipt_verified": true,
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "phase4-20261101/aba-candidate-8e7dc78c.tar.gz"
+    },
+    "rows": [
+      {
+        "role": "baseline",
+        "workers": 1,
+        "physical_exit": 0,
+        "verdict": "success",
+        "json_elapsed_ms": 888462,
+        "controller_seconds": 888.542907478,
+        "resource_seconds": 888.49,
+        "utc_delta_seconds": 888.543193,
+        "native_900s_margin_seconds": 11.457092522000039,
+        "headroom_810s_margin_seconds": -78.54290747799996,
+        "qualified_success_recomputed": true,
+        "qualified_headroom_recomputed": false,
+        "capture": {
+          "capture_completed": true,
+          "exhausted": true,
+          "stage": "complete"
+        },
+        "statistics": {
+          "depth": 45,
+          "distinct": 5843977,
+          "generated": 85612896,
+          "initial_generated": 16,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "rss_bytes_from_time": 12066623488,
+        "sampled_memory_bytes": 12066893824,
+        "atoms": {
+          "action_evaluations": 132641187,
+          "eligibility": "source-scoped closed ordinary constructions and scalar updates; identity-scoped fairness queries",
+          "eligible_action_atoms": 3,
+          "eligible_atoms": 12,
+          "eligible_state_atoms": 9,
+          "enabled_evaluations": 17531931,
+          "evaluated": 185236980,
+          "fallback": 0,
+          "nonstuttering_evaluations": 132641187,
+          "row_proofs": {
+            "certified": 5843977,
+            "hits": 312034190,
+            "peak_storage_bytes": 730498,
+            "scans": 5843977
+          },
+          "state_evaluations": 52595793,
+          "total_atoms": 12
+        }
+      },
+      {
+        "role": "baseline",
+        "workers": 8,
+        "physical_exit": 5,
+        "verdict": "stopped",
+        "json_elapsed_ms": 900025,
+        "controller_seconds": 900.060743129,
+        "resource_seconds": 900.04,
+        "utc_delta_seconds": 900.061121,
+        "native_900s_margin_seconds": -0.06074312900000223,
+        "headroom_810s_margin_seconds": -90.060743129,
+        "qualified_success_recomputed": false,
+        "qualified_headroom_recomputed": false,
+        "capture": {
+          "capture_completed": true,
+          "stage": "atoms"
+        },
+        "statistics": {
+          "depth": 45,
+          "distinct": 5843977,
+          "exhaustive": false,
+          "generated": 85612896,
+          "initial_generated": 16,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "rss_bytes_from_time": 5696356352,
+        "sampled_memory_bytes": 5694492672,
+        "atoms": {
+          "action_evaluations": 121211615,
+          "eligibility": "source-scoped closed ordinary constructions and scalar updates; identity-scoped fairness queries",
+          "eligible_action_atoms": 3,
+          "eligible_atoms": 12,
+          "eligible_state_atoms": 9,
+          "enabled_evaluations": 17531931,
+          "evaluated": 162119454,
+          "fallback": 0,
+          "nonstuttering_evaluations": 121211615,
+          "row_proofs": {
+            "certified": 5843977,
+            "hits": 277487094,
+            "peak_storage_bytes": 730498,
+            "scans": 5843977
+          },
+          "state_evaluations": 40907839,
+          "total_atoms": 12
+        }
+      },
+      {
+        "role": "candidate",
+        "workers": 1,
+        "physical_exit": 0,
+        "verdict": "success",
+        "json_elapsed_ms": 435461,
+        "controller_seconds": 435.5075292419997,
+        "resource_seconds": 435.48,
+        "utc_delta_seconds": 435.507788,
+        "native_900s_margin_seconds": 464.4924707580003,
+        "headroom_810s_margin_seconds": 374.4924707580003,
+        "qualified_success_recomputed": true,
+        "qualified_headroom_recomputed": true,
+        "capture": {
+          "capture_completed": true,
+          "exhausted": true,
+          "stage": "complete"
+        },
+        "statistics": {
+          "depth": 45,
+          "distinct": 5843977,
+          "generated": 85612896,
+          "initial_generated": 16,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "rss_bytes_from_time": 12102123520,
+        "sampled_memory_bytes": 12102377472,
+        "atoms": {
+          "action_evaluations": 44213729,
+          "eligibility": "source-scoped closed ordinary constructions and scalar updates; identity-scoped fairness queries",
+          "eligible_action_atoms": 3,
+          "eligible_atoms": 12,
+          "eligible_state_atoms": 9,
+          "enabled_evaluations": 5843977,
+          "evaluated": 85121568,
+          "fairness_reuse": {
+            "action_consumptions": 88427458,
+            "allocation_bypasses": 0,
+            "cap_bypasses": 0,
+            "peak_storage_bytes": 12162744,
+            "scope": "one completed native frozen behavior WF pair per analysis; actual evaluation counters exclude reuse",
+            "state_consumptions": 11687954,
+            "stored_columns": 2
+          },
+          "fallback": 0,
+          "nonstuttering_evaluations": 44213729,
+          "row_proofs": {
+            "certified": 5843977,
+            "hits": 312034190,
+            "peak_storage_bytes": 730498,
+            "scans": 5843977
+          },
+          "state_evaluations": 40907839,
+          "total_atoms": 12
+        }
+      },
+      {
+        "role": "candidate",
+        "workers": 8,
+        "physical_exit": 0,
+        "verdict": "success",
+        "json_elapsed_ms": 543767,
+        "controller_seconds": 543.8457653240002,
+        "resource_seconds": 543.79,
+        "utc_delta_seconds": 543.846124,
+        "native_900s_margin_seconds": 356.15423467599976,
+        "headroom_810s_margin_seconds": 266.15423467599976,
+        "qualified_success_recomputed": true,
+        "qualified_headroom_recomputed": true,
+        "capture": {
+          "capture_completed": true,
+          "exhausted": true,
+          "stage": "complete"
+        },
+        "statistics": {
+          "depth": 45,
+          "distinct": 5843977,
+          "generated": 85612896,
+          "initial_generated": 16,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "rss_bytes_from_time": 12141539328,
+        "sampled_memory_bytes": 12141862912,
+        "atoms": {
+          "action_evaluations": 44213729,
+          "eligibility": "source-scoped closed ordinary constructions and scalar updates; identity-scoped fairness queries",
+          "eligible_action_atoms": 3,
+          "eligible_atoms": 12,
+          "eligible_state_atoms": 9,
+          "enabled_evaluations": 5843977,
+          "evaluated": 85121568,
+          "fairness_reuse": {
+            "action_consumptions": 88427458,
+            "allocation_bypasses": 0,
+            "cap_bypasses": 0,
+            "peak_storage_bytes": 12162744,
+            "scope": "one completed native frozen behavior WF pair per analysis; actual evaluation counters exclude reuse",
+            "state_consumptions": 11687954,
+            "stored_columns": 2
+          },
+          "fallback": 0,
+          "nonstuttering_evaluations": 44213729,
+          "row_proofs": {
+            "certified": 5843977,
+            "hits": 312034190,
+            "peak_storage_bytes": 730498,
+            "scans": 5843977
+          },
+          "state_evaluations": 40907839,
+          "total_atoms": 12
+        }
+      }
+    ],
+    "physical_controller_exits": {
+      "baseline": 1,
+      "candidate": 0
+    },
+    "independent_review": {
+      "artifact_name": "phase4-adoption/review.json",
+      "sha256": "4804d022bbe2da1ae4bdbefea11f06c258edeac5c6f85227e005b5d5f884ebf9",
+      "decision": "approve"
+    },
+    "review_scope": "Closed two-cell original ABA candidate adoption/headroom criterion on measured 8e7dc78cb853e493661ae203c1c748b56080ae2f only, supporting final integrated qualification, not merge/full12/default/performance acceptance.",
+    "independent_controls_completed": 47,
+    "baseline_W8_completion_speedup_ratio": null,
+    "native_use_note": "Actual evaluations plus validated reuse match completed baseline counters; two retained columns use 12,162,744 bytes below the 16,777,216-byte cap. Counters establish use, not saved time.",
+    "memory_scope": "Sampled rss+swap and GNU time RSS are observations, not a hard allocation-time process cap or complete accounting.",
+    "invalid_preparation_attempt": {
+      "physical_exit": 126,
+      "cause": "AWS CLI permission failure before compilation",
+      "preserved_separately": true,
+      "model_evidence_credit": false
+    }
+  },
+  "reviewed_rebase": {
+    "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+    "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+    "parent": "d62d68d4f6bc178c34e5e00f9920a7c24b33013c",
+    "13_reviewed_nonchangelog_files_byte_identical": true,
+    "rebase_manifest_sha256": "809f53c4293a9709b8fe989e3f2a3796f0fd51c200750f101df2cf57c44cd20e",
+    "independent_review": {
+      "artifact_name": "phase4-fairness-reuse/rebase-review.json",
+      "sha256": "d749bc39ecc3674f3c5c5dd0f00dda970ea2fe415da372b11face3e45f122f31",
+      "decision": "approve",
+      "scope": "Narrow code identity and integration supplement only; no capacity/adoption/merge acceptance."
+    },
+    "measured8e_credit_transferred": false,
+    "pr": 719,
+    "pr_status": "MERGED",
+    "exact_head_required_ci": {
+      "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "artifact_name": "pr719-exact-head-ci.json",
+      "sha256": "798cb37092c226797011bdf9ed106eb754d0c71ebbdeba93550e8bd4d76f8e2a",
+      "checks": [
+        {
+          "name": "No AI authorship markers",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "completed_utc": "2026-11-01T18:56:49Z"
+        },
+        {
+          "name": "Workspace gate",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "completed_utc": "2026-11-01T19:17:48Z"
+        },
+        {
+          "name": "Conformance gate",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "completed_utc": "2026-11-01T19:01:26Z"
+        }
+      ],
+      "scope": "All three required CI checks passed at exact95 before runtime PR719 merged; this is not a new execution of squash949."
+    },
+    "runtime_merge_binding": {
+      "artifact_name": "pr719-merge-binding.json",
+      "sha256": "7e6b7af55a1f75d392b9500e56cd94459a6468bcb8e5013abec4eb451728f007",
+      "reviewed_head": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "qualified_source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "runtime_merge": "949e549cc1fece68cfa1bcfe59ea4b1c83bc368f",
+      "runtime_tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+      "tree_identical_to_qualified_source": true,
+      "merged_utc": "2026-11-01T20:47:24Z",
+      "verified_utc": "2026-11-01T20:47:28.636675+00:00",
+      "main_commit_itself_executed": false
+    }
+  },
+  "final_original_twelve_cell_run": {
+    "status": "ALL12_INDEPENDENTLY_APPROVED_CAPACITY_ACCEPTED",
+    "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+    "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+    "binary_sha256": "db17c8d3b5ecbc1f232df40cb12aec22d7b2cfcc1ee73c9995d7f350fd98c397",
+    "started_utc": "2026-11-01T18:59:40.275985+00:00",
+    "launch_count": 1,
+    "planned_cells": 12,
+    "controller_sha256": "c0cd8c401c68249fd172654406c776ca0e6cb99917b89acf68cf35d205ad5820",
+    "finished_utc": "2026-11-01T20:32:58.571014+00:00",
+    "controller_physical_exit": 0,
+    "all_expected_success": true,
+    "all_ABA_TLC_rows_pass810": true,
+    "all_prior_successes_preserved": true,
+    "rows": [
+      {
+        "model": "CoffeeCan3000Beans",
+        "arm": "dive-tlc-w1",
+        "profile": "tlc",
+        "workers": 1,
+        "actual_workers": 1,
+        "completed": true,
+        "physical_exit": 0,
+        "external_timeout": false,
+        "wall_seconds": 314.2976703840004,
+        "json_elapsed_ms": 314239,
+        "verdict": "success",
+        "qualified_expected_success": true,
+        "counts_ok": true,
+        "policy_ok": true,
+        "headroom_target_applies": false,
+        "within_810_json": null,
+        "within_810_controller": null,
+        "qualified_810_headroom": null,
+        "statistics": {
+          "depth": 1,
+          "distinct": 4504500,
+          "generated": 18000002,
+          "initial_generated": 4504500,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "execution": {
+          "capture_completed": true,
+          "exhausted": true,
+          "stage": "complete"
+        },
+        "tlc": {
+          "code": 2193,
+          "exit_status": 0,
+          "name": "TLC_SUCCESS",
+          "verified": true
+        },
+        "actual_engine": "core",
+        "engine_fallback": null,
+        "JSON_exit_code": 0,
+        "check_kind": "temporal",
+        "child_source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+        "child_binary_sha256": "db17c8d3b5ecbc1f232df40cb12aec22d7b2cfcc1ee73c9995d7f350fd98c397",
+        "receipt_sha256": "00a9f72e7856297a1f317b2618d21b75314e2e587f0b7dbaf3fd3e190af5ebe6",
+        "stdout_sha256": "ac45718560ec022d3f385cd9c447e7292130cd6806d9afede893582106420aa1",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "resource_receipt_sha256": "9d5c3f82c37bc01c8fffa54435602c6687ae5a694810188bd4a1b343266fe821",
+        "physical_rc_file": 0,
+        "input_pins": {
+          "effective_cfg_sha256": "7904ab6bc7fa788828f04c5db64f85c96859bca2e7019341d6294ab1d032cf83",
+          "module_sha256": "32c5d9c900104c0d8be0d3730a6013d141dc90901e08ccaea403fb0be731cd90",
+          "golden_sha256": "f974757cf9d20f8d14938e84b050a8c05f1fe7e900663d748c50ca0eff967cef"
+        },
+        "native_atoms": {
+          "action_evaluations": 27008998,
+          "eligible_action_atoms": 2,
+          "eligible_atoms": 6,
+          "eligible_state_atoms": 4,
+          "enabled_evaluations": 4504500,
+          "evaluated": 45026998,
+          "fallback": 0,
+          "nonstuttering_evaluations": 0,
+          "state_evaluations": 18018000,
+          "total_atoms": 14,
+          "fairness_reuse": {
+            "action_consumptions": 0,
+            "allocation_bypasses": 0,
+            "cap_bypasses": 0,
+            "peak_storage_bytes": 0,
+            "state_consumptions": 0,
+            "stored_columns": 0
+          },
+          "row_proofs": {
+            "certified": 4504500,
+            "hits": 67531496,
+            "peak_storage_bytes": 563063,
+            "scans": 4504500
+          }
+        },
+        "sampled_process_observed_max_bytes": 4819304448,
+        "raw_ref": "reports/phase4-final-capacity/00-CoffeeCan3000Beans-dive-tlc-w1"
+      },
+      {
+        "model": "CoffeeCan3000Beans",
+        "arm": "dive-default-w1",
+        "profile": "default",
+        "workers": 1,
+        "actual_workers": 1,
+        "completed": true,
+        "physical_exit": 0,
+        "external_timeout": false,
+        "wall_seconds": 301.681552645,
+        "json_elapsed_ms": 301631,
+        "verdict": "success",
+        "qualified_expected_success": true,
+        "counts_ok": true,
+        "policy_ok": true,
+        "headroom_target_applies": false,
+        "within_810_json": null,
+        "within_810_controller": null,
+        "qualified_810_headroom": null,
+        "statistics": {
+          "depth": 1,
+          "distinct": 4504500,
+          "generated": 18000002,
+          "initial_generated": 4504500,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "execution": {
+          "capture_completed": true,
+          "exhausted": true,
+          "stage": "complete"
+        },
+        "tlc": {
+          "code": 2193,
+          "exit_status": 0,
+          "name": "TLC_SUCCESS",
+          "verified": true
+        },
+        "actual_engine": "core",
+        "engine_fallback": null,
+        "JSON_exit_code": 0,
+        "check_kind": "temporal",
+        "child_source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+        "child_binary_sha256": "db17c8d3b5ecbc1f232df40cb12aec22d7b2cfcc1ee73c9995d7f350fd98c397",
+        "receipt_sha256": "26af6a840ff7f465168fdfda61edbd9ca383afd0df5d43a7b9517be7379e7730",
+        "stdout_sha256": "7223e32e643eef8e4fb54c1d45e259ce65acf5533c471f2e81550654269f4563",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "resource_receipt_sha256": "3073c940ced84cf95a556a73604f835b644a4dbc6ceca58bde4bf8a58bda6ecb",
+        "physical_rc_file": 0,
+        "input_pins": {
+          "effective_cfg_sha256": "7904ab6bc7fa788828f04c5db64f85c96859bca2e7019341d6294ab1d032cf83",
+          "module_sha256": "32c5d9c900104c0d8be0d3730a6013d141dc90901e08ccaea403fb0be731cd90",
+          "golden_sha256": "f974757cf9d20f8d14938e84b050a8c05f1fe7e900663d748c50ca0eff967cef"
+        },
+        "native_atoms": {
+          "action_evaluations": 27008998,
+          "eligible_action_atoms": 2,
+          "eligible_atoms": 6,
+          "eligible_state_atoms": 4,
+          "enabled_evaluations": 4504500,
+          "evaluated": 45026998,
+          "fallback": 0,
+          "nonstuttering_evaluations": 0,
+          "state_evaluations": 18018000,
+          "total_atoms": 14,
+          "fairness_reuse": {
+            "action_consumptions": 0,
+            "allocation_bypasses": 0,
+            "cap_bypasses": 0,
+            "peak_storage_bytes": 0,
+            "state_consumptions": 0,
+            "stored_columns": 0
+          },
+          "row_proofs": {
+            "certified": 4504500,
+            "hits": 67531496,
+            "peak_storage_bytes": 563063,
+            "scans": 4504500
+          }
+        },
+        "sampled_process_observed_max_bytes": 4824006656,
+        "raw_ref": "reports/phase4-final-capacity/01-CoffeeCan3000Beans-dive-default-w1"
+      },
+      {
+        "model": "CoffeeCan3000Beans",
+        "arm": "dive-tlc-w8",
+        "profile": "tlc",
+        "workers": 8,
+        "actual_workers": 8,
+        "completed": true,
+        "physical_exit": 0,
+        "external_timeout": false,
+        "wall_seconds": 397.5272243550007,
+        "json_elapsed_ms": 397507,
+        "verdict": "success",
+        "qualified_expected_success": true,
+        "counts_ok": true,
+        "policy_ok": true,
+        "headroom_target_applies": false,
+        "within_810_json": null,
+        "within_810_controller": null,
+        "qualified_810_headroom": null,
+        "statistics": {
+          "depth": 1,
+          "distinct": 4504500,
+          "generated": 18000002,
+          "initial_generated": 4504500,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "execution": {
+          "capture_completed": true,
+          "exhausted": true,
+          "stage": "complete"
+        },
+        "tlc": {
+          "code": 2193,
+          "exit_status": 0,
+          "name": "TLC_SUCCESS",
+          "verified": true
+        },
+        "actual_engine": "core",
+        "engine_fallback": null,
+        "JSON_exit_code": 0,
+        "check_kind": "temporal",
+        "child_source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+        "child_binary_sha256": "db17c8d3b5ecbc1f232df40cb12aec22d7b2cfcc1ee73c9995d7f350fd98c397",
+        "receipt_sha256": "b02e6e4f9d2607268487f24b7e40dc8f91c528a83f9b548e8dc7af84793510bc",
+        "stdout_sha256": "fcc904b285d010418621b76707cda3ed1ebae5d3b6652d2263df2ba7d867cddf",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "resource_receipt_sha256": "2b1f5b1968629c2bd5ec7a6575d5e7d079bb92337bd48ca4b48cbc1833ead5e7",
+        "physical_rc_file": 0,
+        "input_pins": {
+          "effective_cfg_sha256": "7904ab6bc7fa788828f04c5db64f85c96859bca2e7019341d6294ab1d032cf83",
+          "module_sha256": "32c5d9c900104c0d8be0d3730a6013d141dc90901e08ccaea403fb0be731cd90",
+          "golden_sha256": "f974757cf9d20f8d14938e84b050a8c05f1fe7e900663d748c50ca0eff967cef"
+        },
+        "native_atoms": {
+          "action_evaluations": 27008998,
+          "eligible_action_atoms": 2,
+          "eligible_atoms": 6,
+          "eligible_state_atoms": 4,
+          "enabled_evaluations": 4504500,
+          "evaluated": 45026998,
+          "fallback": 0,
+          "nonstuttering_evaluations": 0,
+          "state_evaluations": 18018000,
+          "total_atoms": 14,
+          "fairness_reuse": {
+            "action_consumptions": 0,
+            "allocation_bypasses": 0,
+            "cap_bypasses": 0,
+            "peak_storage_bytes": 0,
+            "state_consumptions": 0,
+            "stored_columns": 0
+          },
+          "row_proofs": {
+            "certified": 4504500,
+            "hits": 67531496,
+            "peak_storage_bytes": 563063,
+            "scans": 4504500
+          }
+        },
+        "sampled_process_observed_max_bytes": 4831588352,
+        "raw_ref": "reports/phase4-final-capacity/02-CoffeeCan3000Beans-dive-tlc-w8"
+      },
+      {
+        "model": "CoffeeCan3000Beans",
+        "arm": "dive-default-w8",
+        "profile": "default",
+        "workers": 8,
+        "actual_workers": 8,
+        "completed": true,
+        "physical_exit": 0,
+        "external_timeout": false,
+        "wall_seconds": 383.6443490310003,
+        "json_elapsed_ms": 383586,
+        "verdict": "success",
+        "qualified_expected_success": true,
+        "counts_ok": true,
+        "policy_ok": true,
+        "headroom_target_applies": false,
+        "within_810_json": null,
+        "within_810_controller": null,
+        "qualified_810_headroom": null,
+        "statistics": {
+          "depth": 1,
+          "distinct": 4504500,
+          "generated": 18000002,
+          "initial_generated": 4504500,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "execution": {
+          "capture_completed": true,
+          "exhausted": true,
+          "stage": "complete"
+        },
+        "tlc": {
+          "code": 2193,
+          "exit_status": 0,
+          "name": "TLC_SUCCESS",
+          "verified": true
+        },
+        "actual_engine": "core",
+        "engine_fallback": null,
+        "JSON_exit_code": 0,
+        "check_kind": "temporal",
+        "child_source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+        "child_binary_sha256": "db17c8d3b5ecbc1f232df40cb12aec22d7b2cfcc1ee73c9995d7f350fd98c397",
+        "receipt_sha256": "10d9dc3dc1ca681ee4991f34f3b466c9720421c16b0f169032dded43149c6f3e",
+        "stdout_sha256": "d1eb222d850f550013a7b43da312e26c668061df4d5130375f58e29aa68f5099",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "resource_receipt_sha256": "61ddc8348b583c5b3265e44c4be42dc9c56c12c23b7ab1d00dd6cd413068827b",
+        "physical_rc_file": 0,
+        "input_pins": {
+          "effective_cfg_sha256": "7904ab6bc7fa788828f04c5db64f85c96859bca2e7019341d6294ab1d032cf83",
+          "module_sha256": "32c5d9c900104c0d8be0d3730a6013d141dc90901e08ccaea403fb0be731cd90",
+          "golden_sha256": "f974757cf9d20f8d14938e84b050a8c05f1fe7e900663d748c50ca0eff967cef"
+        },
+        "native_atoms": {
+          "action_evaluations": 27008998,
+          "eligible_action_atoms": 2,
+          "eligible_atoms": 6,
+          "eligible_state_atoms": 4,
+          "enabled_evaluations": 4504500,
+          "evaluated": 45026998,
+          "fallback": 0,
+          "nonstuttering_evaluations": 0,
+          "state_evaluations": 18018000,
+          "total_atoms": 14,
+          "fairness_reuse": {
+            "action_consumptions": 0,
+            "allocation_bypasses": 0,
+            "cap_bypasses": 0,
+            "peak_storage_bytes": 0,
+            "state_consumptions": 0,
+            "stored_columns": 0
+          },
+          "row_proofs": {
+            "certified": 4504500,
+            "hits": 67531496,
+            "peak_storage_bytes": 563063,
+            "scans": 4504500
+          }
+        },
+        "sampled_process_observed_max_bytes": 4823707648,
+        "raw_ref": "reports/phase4-final-capacity/03-CoffeeCan3000Beans-dive-default-w8"
+      },
+      {
+        "model": "EWD998Chan",
+        "arm": "dive-default-w1",
+        "profile": "default",
+        "workers": 1,
+        "actual_workers": 1,
+        "completed": true,
+        "physical_exit": 0,
+        "external_timeout": false,
+        "wall_seconds": 675.7571432450004,
+        "json_elapsed_ms": 675713,
+        "verdict": "success",
+        "qualified_expected_success": true,
+        "counts_ok": true,
+        "policy_ok": true,
+        "headroom_target_applies": false,
+        "within_810_json": null,
+        "within_810_controller": null,
+        "qualified_810_headroom": null,
+        "statistics": {
+          "depth": 58,
+          "distinct": 1524022,
+          "generated": 12882257,
+          "initial_generated": 192,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "execution": {
+          "capture_completed": true,
+          "exhausted": true,
+          "stage": "complete"
+        },
+        "tlc": {
+          "code": 2193,
+          "exit_status": 0,
+          "name": "TLC_SUCCESS",
+          "verified": true
+        },
+        "actual_engine": "core",
+        "engine_fallback": null,
+        "JSON_exit_code": 0,
+        "check_kind": "temporal",
+        "child_source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+        "child_binary_sha256": "db17c8d3b5ecbc1f232df40cb12aec22d7b2cfcc1ee73c9995d7f350fd98c397",
+        "receipt_sha256": "1170f2090726970a5c38100a646eccf0dd2275d6942af9d967bcf2191b49662b",
+        "stdout_sha256": "cecbc7409f193c114b05b0be3c58f37646f5ccb8e2ab053ab15391f900cee621",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "resource_receipt_sha256": "0e838e42106fde9b257995a794ddc506569255776e4d9381e18782c9d768cebe",
+        "physical_rc_file": 0,
+        "input_pins": {
+          "effective_cfg_sha256": "259100c5161cf1e04dce4c9898957c5ff7ba81f790c840396a2a7b5e618eb044",
+          "module_sha256": "ebdb5e9c6469fb1afc3b12198e1e2159b3ff3fa76d7bd15e5e11dce92b72313c",
+          "golden_sha256": "a2563fc08eecd0ec85b27ff26685a2560e6e4bdf74ef15b0c38fbb127f749ba5"
+        },
+        "native_atoms": {
+          "action_evaluations": 36423190,
+          "eligible_action_atoms": 2,
+          "eligible_atoms": 2,
+          "eligible_state_atoms": 0,
+          "enabled_evaluations": 0,
+          "evaluated": 36423190,
+          "fallback": 0,
+          "nonstuttering_evaluations": 18211595,
+          "state_evaluations": 0,
+          "total_atoms": 6,
+          "fairness_reuse": {
+            "action_consumptions": 0,
+            "allocation_bypasses": 0,
+            "cap_bypasses": 0,
+            "peak_storage_bytes": 0,
+            "state_consumptions": 0,
+            "stored_columns": 0
+          },
+          "row_proofs": {
+            "certified": 3223000,
+            "hits": 69623380,
+            "peak_storage_bytes": 217287,
+            "scans": 3223000
+          }
+        },
+        "sampled_process_observed_max_bytes": 1858486272,
+        "raw_ref": "reports/phase4-final-capacity/04-EWD998Chan-dive-default-w1"
+      },
+      {
+        "model": "EWD998Chan",
+        "arm": "dive-default-w8",
+        "profile": "default",
+        "workers": 8,
+        "actual_workers": 8,
+        "completed": true,
+        "physical_exit": 0,
+        "external_timeout": false,
+        "wall_seconds": 641.9501019290001,
+        "json_elapsed_ms": 641895,
+        "verdict": "success",
+        "qualified_expected_success": true,
+        "counts_ok": true,
+        "policy_ok": true,
+        "headroom_target_applies": false,
+        "within_810_json": null,
+        "within_810_controller": null,
+        "qualified_810_headroom": null,
+        "statistics": {
+          "depth": 58,
+          "distinct": 1524022,
+          "generated": 12882257,
+          "initial_generated": 192,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "execution": {
+          "capture_completed": true,
+          "exhausted": true,
+          "stage": "complete"
+        },
+        "tlc": {
+          "code": 2193,
+          "exit_status": 0,
+          "name": "TLC_SUCCESS",
+          "verified": true
+        },
+        "actual_engine": "core",
+        "engine_fallback": null,
+        "JSON_exit_code": 0,
+        "check_kind": "temporal",
+        "child_source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+        "child_binary_sha256": "db17c8d3b5ecbc1f232df40cb12aec22d7b2cfcc1ee73c9995d7f350fd98c397",
+        "receipt_sha256": "7c53b8e74b6a29a70134639ee37074bbf6d4c079a48d7c347fbe49eb19d493d0",
+        "stdout_sha256": "e0080cdda3569e50981bd8a1db19f44a7293519fc1f881ce692ba1cf9e7e3ed9",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "resource_receipt_sha256": "3f66cd21ce89ed988f66cd589ad463ab04c85109fe41be29fc7eb6b27da05353",
+        "physical_rc_file": 0,
+        "input_pins": {
+          "effective_cfg_sha256": "259100c5161cf1e04dce4c9898957c5ff7ba81f790c840396a2a7b5e618eb044",
+          "module_sha256": "ebdb5e9c6469fb1afc3b12198e1e2159b3ff3fa76d7bd15e5e11dce92b72313c",
+          "golden_sha256": "a2563fc08eecd0ec85b27ff26685a2560e6e4bdf74ef15b0c38fbb127f749ba5"
+        },
+        "native_atoms": {
+          "action_evaluations": 36423190,
+          "eligible_action_atoms": 2,
+          "eligible_atoms": 2,
+          "eligible_state_atoms": 0,
+          "enabled_evaluations": 0,
+          "evaluated": 36423190,
+          "fallback": 0,
+          "nonstuttering_evaluations": 18211595,
+          "state_evaluations": 0,
+          "total_atoms": 6,
+          "fairness_reuse": {
+            "action_consumptions": 0,
+            "allocation_bypasses": 0,
+            "cap_bypasses": 0,
+            "peak_storage_bytes": 0,
+            "state_consumptions": 0,
+            "stored_columns": 0
+          },
+          "row_proofs": {
+            "certified": 3223000,
+            "hits": 69623380,
+            "peak_storage_bytes": 217287,
+            "scans": 3223000
+          }
+        },
+        "sampled_process_observed_max_bytes": 1835724800,
+        "raw_ref": "reports/phase4-final-capacity/05-EWD998Chan-dive-default-w8"
+      },
+      {
+        "model": "EWD998Chan",
+        "arm": "dive-tlc-w8",
+        "profile": "tlc",
+        "workers": 8,
+        "actual_workers": 8,
+        "completed": true,
+        "physical_exit": 0,
+        "external_timeout": false,
+        "wall_seconds": 405.0186780799995,
+        "json_elapsed_ms": 404986,
+        "verdict": "success",
+        "qualified_expected_success": true,
+        "counts_ok": true,
+        "policy_ok": true,
+        "headroom_target_applies": false,
+        "within_810_json": null,
+        "within_810_controller": null,
+        "qualified_810_headroom": null,
+        "statistics": {
+          "depth": 58,
+          "distinct": 1524022,
+          "generated": 12882257,
+          "initial_generated": 192,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "execution": {
+          "capture_completed": true,
+          "exhausted": true,
+          "stage": "complete"
+        },
+        "tlc": {
+          "code": 2193,
+          "exit_status": 0,
+          "name": "TLC_SUCCESS",
+          "verified": true
+        },
+        "actual_engine": "core",
+        "engine_fallback": null,
+        "JSON_exit_code": 0,
+        "check_kind": "temporal",
+        "child_source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+        "child_binary_sha256": "db17c8d3b5ecbc1f232df40cb12aec22d7b2cfcc1ee73c9995d7f350fd98c397",
+        "receipt_sha256": "7144077e787f774fb86d284cb0835af4dc373d5b4ccc1659e8898214280af2dd",
+        "stdout_sha256": "0233d252b94c18c6499ab85b36c60d49892b0962594c6fb519c25df93ac75e7a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "resource_receipt_sha256": "d6320ff264397ace55f2fddb5086a36fa4d7d746838bdfd99b21f4475046315f",
+        "physical_rc_file": 0,
+        "input_pins": {
+          "effective_cfg_sha256": "259100c5161cf1e04dce4c9898957c5ff7ba81f790c840396a2a7b5e618eb044",
+          "module_sha256": "ebdb5e9c6469fb1afc3b12198e1e2159b3ff3fa76d7bd15e5e11dce92b72313c",
+          "golden_sha256": "a2563fc08eecd0ec85b27ff26685a2560e6e4bdf74ef15b0c38fbb127f749ba5"
+        },
+        "native_atoms": {
+          "action_evaluations": 20525984,
+          "eligible_action_atoms": 2,
+          "eligible_atoms": 2,
+          "eligible_state_atoms": 0,
+          "enabled_evaluations": 0,
+          "evaluated": 20525984,
+          "fallback": 0,
+          "nonstuttering_evaluations": 10262992,
+          "state_evaluations": 0,
+          "total_atoms": 6,
+          "fairness_reuse": {
+            "action_consumptions": 0,
+            "allocation_bypasses": 0,
+            "cap_bypasses": 0,
+            "peak_storage_bytes": 0,
+            "state_consumptions": 0,
+            "stored_columns": 0
+          },
+          "row_proofs": {
+            "certified": 1720158,
+            "hits": 39331810,
+            "peak_storage_bytes": 217276,
+            "scans": 1720158
+          }
+        },
+        "sampled_process_observed_max_bytes": 1853767680,
+        "raw_ref": "reports/phase4-final-capacity/06-EWD998Chan-dive-tlc-w8"
+      },
+      {
+        "model": "aba_asyn_byz",
+        "arm": "dive-tlc-w1",
+        "profile": "tlc",
+        "workers": 1,
+        "actual_workers": 1,
+        "completed": true,
+        "physical_exit": 0,
+        "external_timeout": false,
+        "wall_seconds": 436.71578493299967,
+        "json_elapsed_ms": 436667,
+        "verdict": "success",
+        "qualified_expected_success": true,
+        "counts_ok": true,
+        "policy_ok": true,
+        "headroom_target_applies": true,
+        "within_810_json": true,
+        "within_810_controller": true,
+        "qualified_810_headroom": true,
+        "statistics": {
+          "depth": 45,
+          "distinct": 5843977,
+          "generated": 85612896,
+          "initial_generated": 16,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "execution": {
+          "capture_completed": true,
+          "exhausted": true,
+          "stage": "complete"
+        },
+        "tlc": {
+          "code": 2193,
+          "exit_status": 0,
+          "name": "TLC_SUCCESS",
+          "verified": true
+        },
+        "actual_engine": "core",
+        "engine_fallback": null,
+        "JSON_exit_code": 0,
+        "check_kind": "temporal",
+        "child_source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+        "child_binary_sha256": "db17c8d3b5ecbc1f232df40cb12aec22d7b2cfcc1ee73c9995d7f350fd98c397",
+        "receipt_sha256": "bd07e33f4ac935cc8475142f4b59261507ec9bd6cd4d27be6c22525edc6b1975",
+        "stdout_sha256": "2bb8ef3b923684f565d3397df3d2363e4d4fa2ef9d9860f7377d1e8ac32621fe",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "resource_receipt_sha256": "f649ee2c2344a39c6b0ebc3a850116d2d84c4623c0e705bbd39f19aab30e9f4f",
+        "physical_rc_file": 0,
+        "input_pins": {
+          "effective_cfg_sha256": "07d4cdd82bab8afc2055adcf3d7202ade9223e573b9fdc41e03e978601df97f2",
+          "module_sha256": "8d58bba250c826ed5655364210152c873b52f9837c5592d1a688020abe4eab6c",
+          "golden_sha256": "7a362a8e283e2f8e16bb562f72e65848f3cb73a4b134486fa5c517ad65776fd1"
+        },
+        "native_atoms": {
+          "action_evaluations": 44213729,
+          "eligible_action_atoms": 3,
+          "eligible_atoms": 12,
+          "eligible_state_atoms": 9,
+          "enabled_evaluations": 5843977,
+          "evaluated": 85121568,
+          "fallback": 0,
+          "nonstuttering_evaluations": 44213729,
+          "state_evaluations": 40907839,
+          "total_atoms": 12,
+          "fairness_reuse": {
+            "action_consumptions": 88427458,
+            "allocation_bypasses": 0,
+            "cap_bypasses": 0,
+            "peak_storage_bytes": 12162744,
+            "state_consumptions": 11687954,
+            "stored_columns": 2
+          },
+          "row_proofs": {
+            "certified": 5843977,
+            "hits": 312034190,
+            "peak_storage_bytes": 730498,
+            "scans": 5843977
+          }
+        },
+        "sampled_process_observed_max_bytes": 12102123520,
+        "raw_ref": "reports/phase4-final-capacity/07-aba_asyn_byz-dive-tlc-w1"
+      },
+      {
+        "model": "aba_asyn_byz",
+        "arm": "dive-default-w1",
+        "profile": "default",
+        "workers": 1,
+        "actual_workers": 1,
+        "completed": true,
+        "physical_exit": 0,
+        "external_timeout": false,
+        "wall_seconds": 465.4790764640002,
+        "json_elapsed_ms": 465437,
+        "verdict": "success",
+        "qualified_expected_success": true,
+        "counts_ok": true,
+        "policy_ok": true,
+        "headroom_target_applies": false,
+        "within_810_json": null,
+        "within_810_controller": null,
+        "qualified_810_headroom": null,
+        "statistics": {
+          "depth": 45,
+          "distinct": 5843977,
+          "generated": 85612896,
+          "initial_generated": 16,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "execution": {
+          "capture_completed": true,
+          "exhausted": true,
+          "stage": "complete"
+        },
+        "tlc": {
+          "code": 2193,
+          "exit_status": 0,
+          "name": "TLC_SUCCESS",
+          "verified": true
+        },
+        "actual_engine": "core",
+        "engine_fallback": null,
+        "JSON_exit_code": 0,
+        "check_kind": "temporal",
+        "child_source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+        "child_binary_sha256": "db17c8d3b5ecbc1f232df40cb12aec22d7b2cfcc1ee73c9995d7f350fd98c397",
+        "receipt_sha256": "bc194f9c5529b290955eda45fa93a0c8b256f2d3d29b134931343be940d387e5",
+        "stdout_sha256": "8c745ed57287995fc5e8e66a29eee10bb852fc8aa26351abac4d5ac4e428468b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "resource_receipt_sha256": "70063c0092059217283699707ba3e42d9d1ca579f4fa1eab586822bbb28283ec",
+        "physical_rc_file": 0,
+        "input_pins": {
+          "effective_cfg_sha256": "07d4cdd82bab8afc2055adcf3d7202ade9223e573b9fdc41e03e978601df97f2",
+          "module_sha256": "8d58bba250c826ed5655364210152c873b52f9837c5592d1a688020abe4eab6c",
+          "golden_sha256": "7a362a8e283e2f8e16bb562f72e65848f3cb73a4b134486fa5c517ad65776fd1"
+        },
+        "native_atoms": {
+          "action_evaluations": 80872623,
+          "eligible_action_atoms": 3,
+          "eligible_atoms": 12,
+          "eligible_state_atoms": 9,
+          "enabled_evaluations": 11615818,
+          "evaluated": 139095985,
+          "fallback": 0,
+          "nonstuttering_evaluations": 80872623,
+          "state_evaluations": 58223362,
+          "total_atoms": 12,
+          "fairness_reuse": {
+            "action_consumptions": 88427458,
+            "allocation_bypasses": 0,
+            "cap_bypasses": 0,
+            "peak_storage_bytes": 12162744,
+            "state_consumptions": 11687954,
+            "stored_columns": 2
+          },
+          "row_proofs": {
+            "certified": 11615818,
+            "hits": 396895660,
+            "peak_storage_bytes": 730498,
+            "scans": 11615818
+          }
+        },
+        "sampled_process_observed_max_bytes": 12293447680,
+        "raw_ref": "reports/phase4-final-capacity/08-aba_asyn_byz-dive-default-w1"
+      },
+      {
+        "model": "aba_asyn_byz",
+        "arm": "dive-tlc-w8",
+        "profile": "tlc",
+        "workers": 8,
+        "actual_workers": 8,
+        "completed": true,
+        "physical_exit": 0,
+        "external_timeout": false,
+        "wall_seconds": 543.9825030860011,
+        "json_elapsed_ms": 543911,
+        "verdict": "success",
+        "qualified_expected_success": true,
+        "counts_ok": true,
+        "policy_ok": true,
+        "headroom_target_applies": true,
+        "within_810_json": true,
+        "within_810_controller": true,
+        "qualified_810_headroom": true,
+        "statistics": {
+          "depth": 45,
+          "distinct": 5843977,
+          "generated": 85612896,
+          "initial_generated": 16,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "execution": {
+          "capture_completed": true,
+          "exhausted": true,
+          "stage": "complete"
+        },
+        "tlc": {
+          "code": 2193,
+          "exit_status": 0,
+          "name": "TLC_SUCCESS",
+          "verified": true
+        },
+        "actual_engine": "core",
+        "engine_fallback": null,
+        "JSON_exit_code": 0,
+        "check_kind": "temporal",
+        "child_source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+        "child_binary_sha256": "db17c8d3b5ecbc1f232df40cb12aec22d7b2cfcc1ee73c9995d7f350fd98c397",
+        "receipt_sha256": "5298b919c6b7328b0a0f272eb3682190c7b157fbbac71165700f8b7c7646c543",
+        "stdout_sha256": "0d9cc6c88ec1692b5c14d5917cad28c8851d99ef79b910763704a898a7fa3e21",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "resource_receipt_sha256": "67f578eb4248bf70f80f9c682276f1fb3e5600e368aeca9693990e128835d5b9",
+        "physical_rc_file": 0,
+        "input_pins": {
+          "effective_cfg_sha256": "07d4cdd82bab8afc2055adcf3d7202ade9223e573b9fdc41e03e978601df97f2",
+          "module_sha256": "8d58bba250c826ed5655364210152c873b52f9837c5592d1a688020abe4eab6c",
+          "golden_sha256": "7a362a8e283e2f8e16bb562f72e65848f3cb73a4b134486fa5c517ad65776fd1"
+        },
+        "native_atoms": {
+          "action_evaluations": 44213729,
+          "eligible_action_atoms": 3,
+          "eligible_atoms": 12,
+          "eligible_state_atoms": 9,
+          "enabled_evaluations": 5843977,
+          "evaluated": 85121568,
+          "fallback": 0,
+          "nonstuttering_evaluations": 44213729,
+          "state_evaluations": 40907839,
+          "total_atoms": 12,
+          "fairness_reuse": {
+            "action_consumptions": 88427458,
+            "allocation_bypasses": 0,
+            "cap_bypasses": 0,
+            "peak_storage_bytes": 12162744,
+            "state_consumptions": 11687954,
+            "stored_columns": 2
+          },
+          "row_proofs": {
+            "certified": 5843977,
+            "hits": 312034190,
+            "peak_storage_bytes": 730498,
+            "scans": 5843977
+          }
+        },
+        "sampled_process_observed_max_bytes": 12139839488,
+        "raw_ref": "reports/phase4-final-capacity/09-aba_asyn_byz-dive-tlc-w8"
+      },
+      {
+        "model": "aba_asyn_byz",
+        "arm": "dive-default-w8",
+        "profile": "default",
+        "workers": 8,
+        "actual_workers": 8,
+        "completed": true,
+        "physical_exit": 0,
+        "external_timeout": false,
+        "wall_seconds": 584.7354469700003,
+        "json_elapsed_ms": 584665,
+        "verdict": "success",
+        "qualified_expected_success": true,
+        "counts_ok": true,
+        "policy_ok": true,
+        "headroom_target_applies": false,
+        "within_810_json": null,
+        "within_810_controller": null,
+        "qualified_810_headroom": null,
+        "statistics": {
+          "depth": 45,
+          "distinct": 5843977,
+          "generated": 85612896,
+          "initial_generated": 16,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "execution": {
+          "capture_completed": true,
+          "exhausted": true,
+          "stage": "complete"
+        },
+        "tlc": {
+          "code": 2193,
+          "exit_status": 0,
+          "name": "TLC_SUCCESS",
+          "verified": true
+        },
+        "actual_engine": "core",
+        "engine_fallback": null,
+        "JSON_exit_code": 0,
+        "check_kind": "temporal",
+        "child_source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+        "child_binary_sha256": "db17c8d3b5ecbc1f232df40cb12aec22d7b2cfcc1ee73c9995d7f350fd98c397",
+        "receipt_sha256": "371fdea84ce10d32743eda4f1c02cd89089a7a3db4beb90278afd6e98d39668f",
+        "stdout_sha256": "7b52e274eafcc62838438adacdd5ece2653050a8e0c8489c28b9c537c9f31055",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "resource_receipt_sha256": "21ea05feb54a3600cdc82f5cc2e56346ef4873fb1f37698607a48230a5728529",
+        "physical_rc_file": 0,
+        "input_pins": {
+          "effective_cfg_sha256": "07d4cdd82bab8afc2055adcf3d7202ade9223e573b9fdc41e03e978601df97f2",
+          "module_sha256": "8d58bba250c826ed5655364210152c873b52f9837c5592d1a688020abe4eab6c",
+          "golden_sha256": "7a362a8e283e2f8e16bb562f72e65848f3cb73a4b134486fa5c517ad65776fd1"
+        },
+        "native_atoms": {
+          "action_evaluations": 80872623,
+          "eligible_action_atoms": 3,
+          "eligible_atoms": 12,
+          "eligible_state_atoms": 9,
+          "enabled_evaluations": 11615818,
+          "evaluated": 139095985,
+          "fallback": 0,
+          "nonstuttering_evaluations": 80872623,
+          "state_evaluations": 58223362,
+          "total_atoms": 12,
+          "fairness_reuse": {
+            "action_consumptions": 88427458,
+            "allocation_bypasses": 0,
+            "cap_bypasses": 0,
+            "peak_storage_bytes": 12162744,
+            "state_consumptions": 11687954,
+            "stored_columns": 2
+          },
+          "row_proofs": {
+            "certified": 11615818,
+            "hits": 396895660,
+            "peak_storage_bytes": 730498,
+            "scans": 11615818
+          }
+        },
+        "sampled_process_observed_max_bytes": 12201635840,
+        "raw_ref": "reports/phase4-final-capacity/10-aba_asyn_byz-dive-default-w8"
+      },
+      {
+        "model": "EWD998Chan",
+        "arm": "dive-tlc-w1",
+        "profile": "tlc",
+        "workers": 1,
+        "actual_workers": 1,
+        "completed": true,
+        "physical_exit": 0,
+        "external_timeout": false,
+        "wall_seconds": 446.62004006799907,
+        "json_elapsed_ms": 446592,
+        "verdict": "success",
+        "qualified_expected_success": true,
+        "counts_ok": true,
+        "policy_ok": true,
+        "headroom_target_applies": false,
+        "within_810_json": null,
+        "within_810_controller": null,
+        "qualified_810_headroom": null,
+        "statistics": {
+          "depth": 58,
+          "distinct": 1524022,
+          "generated": 12882257,
+          "initial_generated": 192,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "execution": {
+          "capture_completed": true,
+          "exhausted": true,
+          "stage": "complete"
+        },
+        "tlc": {
+          "code": 2193,
+          "exit_status": 0,
+          "name": "TLC_SUCCESS",
+          "verified": true
+        },
+        "actual_engine": "core",
+        "engine_fallback": null,
+        "JSON_exit_code": 0,
+        "check_kind": "temporal",
+        "child_source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+        "child_binary_sha256": "db17c8d3b5ecbc1f232df40cb12aec22d7b2cfcc1ee73c9995d7f350fd98c397",
+        "receipt_sha256": "307af9cf3971531414c061b701b27f1dce3788de7371db248f74b4ae510b8f3d",
+        "stdout_sha256": "77045d2c04d8afe58f55cd69c50120a7b0136bec880b242c5b488a9cb625e65f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "resource_receipt_sha256": "887c5cc86a103cdfb496f65af18818e36cefbb365da8ef05768b878a04356d41",
+        "physical_rc_file": 0,
+        "input_pins": {
+          "effective_cfg_sha256": "259100c5161cf1e04dce4c9898957c5ff7ba81f790c840396a2a7b5e618eb044",
+          "module_sha256": "ebdb5e9c6469fb1afc3b12198e1e2159b3ff3fa76d7bd15e5e11dce92b72313c",
+          "golden_sha256": "a2563fc08eecd0ec85b27ff26685a2560e6e4bdf74ef15b0c38fbb127f749ba5"
+        },
+        "native_atoms": {
+          "action_evaluations": 20525984,
+          "eligible_action_atoms": 2,
+          "eligible_atoms": 2,
+          "eligible_state_atoms": 0,
+          "enabled_evaluations": 0,
+          "evaluated": 20525984,
+          "fallback": 0,
+          "nonstuttering_evaluations": 10262992,
+          "state_evaluations": 0,
+          "total_atoms": 6,
+          "fairness_reuse": {
+            "action_consumptions": 0,
+            "allocation_bypasses": 0,
+            "cap_bypasses": 0,
+            "peak_storage_bytes": 0,
+            "state_consumptions": 0,
+            "stored_columns": 0
+          },
+          "row_proofs": {
+            "certified": 1720158,
+            "hits": 39331810,
+            "peak_storage_bytes": 217276,
+            "scans": 1720158
+          }
+        },
+        "sampled_process_observed_max_bytes": 1867988992,
+        "raw_ref": "reports/phase4-final-capacity/11-EWD998Chan-dive-tlc-w1"
+      }
+    ],
+    "live_controls": {
+      "status": "ONE_LIVE_PROCESS_OBSERVATION_RECORDED",
+      "artifact_name": "final-capacity-live-policies.json",
+      "sha256": "a41de8aeb45b77dfd8780d2a127e023209663dbb06d4f70920005412664e130e",
+      "scope": "One observed checker process/active unit only; not quiet certification, continuous affinity or complete memory proof.",
+      "recorded_policy_from_root": {
+        "checker_CPUs": "0-15",
+        "service_MemoryMax_bytes": 27917287424,
+        "runtime_max": "3h7min",
+        "NUMA": "bind0",
+        "KillMode": "control-group"
+      },
+      "quiet_claim": false,
+      "continuous_enforcement_validated": false
+    },
+    "terminal_source_elf_binding": {
+      "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+      "binary_sha256": "db17c8d3b5ecbc1f232df40cb12aec22d7b2cfcc1ee73c9995d7f350fd98c397",
+      "build_receipt_sha256": "b80918e39e900b8320c9c34cb02e17b1f908ee700216442caa6218188054a800"
+    },
+    "raw_archive": {
+      "verified_utc": "2026-11-01T20:38:10.993931+00:00",
+      "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "sha256": "8d4cc56e14d0b342b715964eaf3e264ffe343b506cb94c6937a55a71fd257282",
+      "bytes": 25973501,
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "phase4-20261101/final-capacity-95e73d2f.tar.gz",
+      "members": 148,
+      "all_member_hashes_verified": true,
+      "quiet_or_performance_acceptance": false,
+      "source_scope": "Exact clean capacity source; actual tree, release ELFs, inputs, controllers and physical outcomes retained in archive receipts",
+      "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+      "manifest_sha256": "6a37d9d3153429846b6acdd181c27642e2876699e64659a8862638f60e6cf369",
+      "manifested_files": 147,
+      "verification_artifact_sha256": "5cced131beede478fd6fb0f0a82d2718a18253399148b4e69da7e9486ac85e9e",
+      "pins_artifact_sha256": "0b02ddf7f3b38d772e6ffb5e85f000f06025f3499b85d08e6fe3cf0eb042abe7"
+    },
+    "all_outer_and_member_hashes_verified": true,
+    "independent_final_review": {
+      "artifact_name": "phase4-final-capacity/review.json",
+      "sha256": "ce6c671252896724d27b193bcb0972934698191957067d8af12197eb3bd4c089",
+      "markdown_sha256": "ebba3bd36d6a34de9314c1a94cdf0007d44f199a0cf2baa19e333d5a06b3f5bb",
+      "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+      "decision": "approve",
+      "scope": "Original twelve-cell #650 capacity acceptance and bounded frozen-behavior fairness adoption only",
+      "checks_passed": 694,
+      "checks_failed": 0,
+      "blocking_findings": [],
+      "reviewed_utc": "2026-11-01T20:46:11.761460+00:00"
+    },
+    "entrypoint_sha256": "43f0ccc23e3a04a52f33425ef6c032b2ea8f9828b53bf73ec407b4f758948d18",
+    "archived_controller_acceptance": true,
+    "acceptance_scope": "Independent review approves the original twelve-cell650 capacity contract and bounded fairness adoption at actual95. Squash949 has the exact qualified tree. No clean-census,651,M1/M2,performance orRC/release acceptance follows.",
+    "campaign_receipt_sha256": "5641a9ffbf14e04a84fd971f9214ae075160a1ab831b3bfacb36c81eeffda9fe",
+    "bindings_receipt_sha256": "5e3cff07e377d4016ad00539cdc6d11930a0a8505d0d07d90dafbec6ed162cc4",
+    "per_row_policy_scope": "Shared original_policy and template pin apply; each actual child retains its exact policy_ok, input/receipt/output hashes and raw archive reference. Whole argv/options remain in the verified raw archive.",
+    "memory_scope": "Observed rss+swap samples and GNU time resource receipts are observational, not true peaks, allocation-time hard caps or complete whole-run byte accounting.",
+    "capacity_accepted": true
+  },
+  "historical_failure_preservation": {
+    "phase3_source": "fb48dbbf42bd224f278b138e74c1c8e29e2af106",
+    "phase3_successes": 11,
+    "phase3_ABA_TLCW8": {
+      "physical_exit": 5,
+      "seconds": 900.076,
+      "stage": "atoms"
+    },
+    "phase3_ABA_TLCW1": {
+      "verdict": "success",
+      "seconds": 895.382,
+      "observed_native900_margin_seconds": 4.618
+    },
+    "phase3_data_relabelled_as_phase4": false,
+    "baseline_W8_failure_retained": true,
+    "baseline_controller_exit1_retained": true
+  },
+  "preservation_and_cleanup": {
+    "status": "ALL_REQUIRED_ARCHIVES_ROOT_VERIFIED_AND_ACTUAL_PHASE4_CLEANUP_COMPLETE",
+    "verified_closed_pair_members": {
+      "baseline": 38,
+      "candidate": 48
+    },
+    "all_final_raw_outer_and_member_hashes_verified": true,
+    "fixed_deadline_utc": "2026-11-01T22:56:59Z",
+    "deadline_extension_authorized": false,
+    "actual_deadline_extension": false,
+    "phase_compute_ceiling_usd": 40,
+    "max_simultaneous_nodes": 2,
+    "max_node_lifetime_hours": 6,
+    "termination_and_root_volume_deletion_verified": true,
+    "cleanup_receipt_sha256": "1f69449d7b90c378a52b79a6ec5a9b8e8cd07dbd5f702c15221a918018213cf9",
+    "cost_estimate_and_basis": {
+      "elapsed_upper_bound_hours": 3.6514170902777776,
+      "quoted_hourly_usd": 0.714,
+      "conservative_compute_usd": 2.6071118024583333,
+      "scope": "Compute estimate to observed termination, not an invoice; excludes storage and transfer.",
+      "pricing_receipt_sha256": "fc683d9fbc14e10d1b38d067e070d7365900b05d05aeefc784a6629d44b7ab56"
+    },
+    "old_phase_cleanup_is_current_cleanup": false,
+    "local_qualification_support_archive": {
+      "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+      "sha256": "03c4721281a4aebf2a45bdfa097651ecf071a1ac0123fc6a61612d7d7dff71fd",
+      "bytes": 106177007,
+      "members": 34513,
+      "manifest_sha256": "8038d55ae57d0408b665da1047afb380184e3f6f8f1f6561f07a189b5c74f16c",
+      "all_member_hashes_verified": true,
+      "verified_utc": "2026-11-01T20:24:08.504500+00:00",
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "phase4-20261101/local-qualification-support-95e73d2f.tar.gz",
+      "scope": "Closed local qualification and support snapshot only; no final twelve-cell raw capacity, later documentation update or future cleanup credit."
+    },
+    "final_capacity_raw_archive": {
+      "verified_utc": "2026-11-01T20:38:10.993931+00:00",
+      "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "sha256": "8d4cc56e14d0b342b715964eaf3e264ffe343b506cb94c6937a55a71fd257282",
+      "bytes": 25973501,
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "phase4-20261101/final-capacity-95e73d2f.tar.gz",
+      "members": 148,
+      "all_member_hashes_verified": true,
+      "quiet_or_performance_acceptance": false,
+      "source_scope": "Exact clean capacity source; actual tree, release ELFs, inputs, controllers and physical outcomes retained in archive receipts",
+      "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+      "manifest_sha256": "6a37d9d3153429846b6acdd181c27642e2876699e64659a8862638f60e6cf369",
+      "manifested_files": 147,
+      "verification_artifact_sha256": "5cced131beede478fd6fb0f0a82d2718a18253399148b4e69da7e9486ac85e9e",
+      "pins_artifact_sha256": "0b02ddf7f3b38d772e6ffb5e85f000f06025f3499b85d08e6fe3cf0eb042abe7"
+    },
+    "local_independent_preservation_review": {
+      "artifact_name": "phase4-local-qualification/final-review.json",
+      "sha256": "561ea5e45e80beae19542c43ac43c83ec3aa343f3c1a11f44f95d932cfcc9ad0",
+      "markdown_sha256": "86f0c6859152dbc2e06588b7f109d132fe8d00d6e717e58999c8b2c50c0de1c4",
+      "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+      "decision": "approve",
+      "scope": "local qualification content and declared archive preservation integrity only",
+      "payload_members": 34512,
+      "total_members": 34513,
+      "payload_bytes": 929211388,
+      "archived_qualification_tree": {
+        "sha256": "2ff50d19647930f317da4bb0a2e78a9d33094b3b1992fa0d8194b9796177ade1",
+        "files": 32300,
+        "bytes": 693905747
+      }
+    },
+    "cleanup_receipt": {
+      "artifact_name": "cloud/cleanup.json",
+      "sha256": "1f69449d7b90c378a52b79a6ec5a9b8e8cd07dbd5f702c15221a918018213cf9",
+      "physical_rc": 0,
+      "physical_rc_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "phase": "phase4-20261101",
+      "instance_id": "i-09ff9813821bc0fc6",
+      "root_volume_id": "vol-006d883b1736ab3b9",
+      "launch_utc": "2026-11-01T17:02:22+00:00",
+      "termination_requested_utc": "2026-11-01T20:40:53.713721+00:00",
+      "verified_utc": "2026-11-01T20:41:27.101525+00:00",
+      "instance_terminated": true,
+      "root_volume_deleted": true,
+      "remaining_active_owned_phase_instances": [],
+      "all_required_archives_verified_before_termination": {
+        "atom-diagnostic-b1a5972d": {
+          "sha256": "70d1b1802ea806ca96932374785993a58137b2cfe57e1af5c9afcbe4f19b3e09",
+          "members": 79,
+          "verified_utc": "2026-11-01T17:40:27.743435+00:00",
+          "verification_sha256": "de5498c8981aae3d00d46a1ff3e8eb7603eb2fcb95438d817887de3b5d2748e7"
+        },
+        "aba-baseline-b1a5972d": {
+          "sha256": "43fda902c0d9ab5c3373c59b905ecce15d59238934de24ba831cf2d7c37e52e7",
+          "members": 38,
+          "verified_utc": "2026-11-01T18:29:36.471627+00:00",
+          "verification_sha256": "5e4770d32514fb0f1cd8bf0cfbbd81af5eb4a28e98d9c3285462c4ae9f496274"
+        },
+        "aba-candidate-8e7dc78c": {
+          "sha256": "84cbd7e101365085e1cd4c23df490f100f6569831dc3f0d3d31db5a8ecff6912",
+          "members": 48,
+          "verified_utc": "2026-11-01T18:57:04.823396+00:00",
+          "verification_sha256": "9e4a35a800443a0cd6c85abd8e47f1bcfd368a6811e5c519c5b7cf61956445c0"
+        },
+        "final-capacity-95e73d2f": {
+          "sha256": "8d4cc56e14d0b342b715964eaf3e264ffe343b506cb94c6937a55a71fd257282",
+          "members": 148,
+          "verified_utc": "2026-11-01T20:38:10.993931+00:00",
+          "verification_sha256": "5cced131beede478fd6fb0f0a82d2718a18253399148b4e69da7e9486ac85e9e"
+        },
+        "local-qualification-support-95e73d2f": {
+          "sha256": "03c4721281a4aebf2a45bdfa097651ecf071a1ac0123fc6a61612d7d7dff71fd",
+          "members": 34513,
+          "verified_utc": "2026-11-01T20:24:08.504500+00:00",
+          "verification_sha256": "ab8a1bf68099bed122ba351a9a3f04ae6b9e3dac4225a093252b1016f6ebfe11"
+        }
+      },
+      "fixed_deadline_utc": "2026-11-01T22:56:59Z",
+      "deadline_extended": false,
+      "cost_observation": {
+        "elapsed_upper_bound_hours": 3.6514170902777776,
+        "quoted_hourly_usd": 0.714,
+        "conservative_compute_usd": 2.6071118024583333,
+        "scope": "Compute estimate to observed termination, not an invoice; excludes storage and transfer.",
+        "pricing_receipt_sha256": "fc683d9fbc14e10d1b38d067e070d7365900b05d05aeefc784a6629d44b7ab56"
+      },
+      "pricing": {
+        "queried_utc": "2026-11-01T17:02:21.304791+00:00",
+        "service": "AWS public Pricing API",
+        "type": "c7i.4xlarge",
+        "region": "us-east-1",
+        "ondemand_linux_usd_per_hour": 0.714,
+        "six_hour_compute_usd": 4.284,
+        "phase_ceiling_usd": 40
+      },
+      "pricing_receipt_sha256": "fc683d9fbc14e10d1b38d067e070d7365900b05d05aeefc784a6629d44b7ab56",
+      "scope": "Actual phase4 lifecycle/cost observations, not historical cleanup relabelled, continuous cloud state or an invoice. No cloud call by this documentation author."
+    },
+    "independent_final_capacity_review": {
+      "artifact_name": "phase4-final-capacity/review.json",
+      "sha256": "ce6c671252896724d27b193bcb0972934698191957067d8af12197eb3bd4c089",
+      "markdown_sha256": "ebba3bd36d6a34de9314c1a94cdf0007d44f199a0cf2baa19e333d5a06b3f5bb",
+      "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+      "decision": "approve",
+      "scope": "Original twelve-cell #650 capacity acceptance and bounded frozen-behavior fairness adoption only",
+      "checks_passed": 694,
+      "checks_failed": 0,
+      "blocking_findings": [],
+      "reviewed_utc": "2026-11-01T20:46:11.761460+00:00"
+    }
+  },
+  "claim_limits": [
+    "One closed observed bounded matrix. No quiet-host, repeated headroom, causal optimization speedup, broad throughput or scaling acceptance.",
+    "Baseline b1a5972d TLC/W8 stopped after its native 900-second budget during temporal-analysis/atoms, with physical and JSON exit 5 and no TLC_SUCCESS. Completion time is censored; no completion speed factor is defined.",
+    "The 16-GiB memory request is the native sampled RSS+swap budget, not an allocation-time hard cap. GNU maximum RSS is a separate observation. The service cgroup MemoryMax was 26 GiB. Native collector/Store accounting remains incomplete; the 12,162,744-byte fairness accepted-storage metric excludes allocator overhead and is not total process memory.",
+    "TLC policies come from the three pinned historical goldens, generated 2026-10-16/17 using pinned JRE 17.0.20.1+1, TLC SHA 7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d, W1, seed/fp0, final lncheck, ParallelGC, Xmx3g, Xss8m and 600-second harness timeouts. They are observables/policy provenance, not fresh matched speed benchmarks.",
+    "The preserved active CPU/NUMA/cgroup observation covers the first physical cell. The runner asserts its own 0-15 affinity, children inherit that policy, and no per-cell CPU-affinity snapshot was recorded. Collected terminal units return inactive default policy fields; the earlier active snapshot supplies the live limits.",
+    "Fresh capacity audit only: no new model, build, test-suite, TLC, network or cloud execution. Required CI, semantic controls and broader qualification are separate gates; this review does not relabel their evidence.",
+    "No Bcast deep-target, allocator framework, #651, M1/M2, full-v1, engine-default, RC/release or broad TLC-replacement closure is supplied.",
+    "Cloud cleanup was verified from saved root API observations and bindings; this reviewer made no cloud API call."
+  ],
+  "historical_TLC_policy_provenance": {
+    "scope": "Pinned historical oracle policy and observables. No new TLC run, matched current host, matched native limits, five-repeat throughput or speed ratio is inferred.",
+    "extraction_artifact_name": "tlc-capacity-policies.json",
+    "extraction_sha256": "6a45fb6f0efa9828561a9ea33a580b9770ddad915265c2e5b39d9fa8518bc9a1",
+    "tlc_oracle": "tlc-2026.10.06.014338",
+    "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "JRE": {
+      "source": "pinned",
+      "version": "17.0.20.1+1",
+      "sha256": "0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62",
+      "platform": "linux-x86_64",
+      "version_line": "openjdk version \"17.0.20.1\" 2026-08-18"
+    },
+    "golden_generation_common": {
+      "workers": 1,
+      "seed": 0,
+      "fingerprint_polynomial": 0,
+      "lncheck": "final",
+      "garbage_collector": "ParallelGC",
+      "java_heap_flag": "-Xmx3g",
+      "java_stack_flag": "-Xss8m",
+      "harness_timeout_seconds": 600,
+      "cleanup": true,
+      "tool_protocol": true,
+      "locale": {
+        "language": "en",
+        "country": "US",
+        "encoding": "UTF-8"
+      }
+    },
+    "goldens": [
+      {
+        "model": "specifications/CoffeeCan/CoffeeCan3000Beans.cfg",
+        "path": "conformance/golden/tlc-2026.10.06.014338/examples/specifications/CoffeeCan/CoffeeCan3000Beans.cfg.json",
+        "sha256": "f974757cf9d20f8d14938e84b050a8c05f1fe7e900663d748c50ca0eff967cef",
+        "generated_at": "2026-10-16T22:34:05Z",
+        "historical_elapsed_ms": 175337,
+        "generator": "dive-conformance 0.0.0",
+        "corpus_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f"
+      },
+      {
+        "model": "specifications/ewd998/EWD998Chan.cfg",
+        "path": "conformance/golden/tlc-2026.10.06.014338/examples/specifications/ewd998/EWD998Chan.cfg.json",
+        "sha256": "a2563fc08eecd0ec85b27ff26685a2560e6e4bdf74ef15b0c38fbb127f749ba5",
+        "generated_at": "2026-10-17T00:24:55Z",
+        "historical_elapsed_ms": 443583,
+        "generator": "dive-conformance 0.0.0",
+        "corpus_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f"
+      },
+      {
+        "model": "specifications/aba-asyn-byz/aba_asyn_byz.cfg",
+        "path": "conformance/golden/tlc-2026.10.06.014338/examples/specifications/aba-asyn-byz/aba_asyn_byz.cfg.json",
+        "sha256": "7a362a8e283e2f8e16bb562f72e65848f3cb73a4b134486fa5c517ad65776fd1",
+        "generated_at": "2026-10-16T23:32:59Z",
+        "historical_elapsed_ms": 599863,
+        "generator": "dive-conformance 0.0.0",
+        "corpus_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f"
+      }
+    ],
+    "library_pins": [
+      {
+        "id": "community-modules-202610040242",
+        "pin": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+      },
+      {
+        "id": "community-modules-deps-202610040242",
+        "pin": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d"
+      },
+      {
+        "id": "apalache-modules-v0.62.3",
+        "pin": "3eb15b253482005222fabbf50bb7aae501eb9f8d"
+      },
+      {
+        "id": "tlapm-library-d8b9747",
+        "pin": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37"
+      }
+    ],
+    "current_native_policy_distinct": {
+      "time_seconds": 900,
+      "memory_bytes": 17179869184,
+      "actual_workers": [
+        1,
+        8
+      ],
+      "external_backstop_seconds": 930
+    },
+    "matched_current_TLC_timing_or_RSS_comparison": false,
+    "fresh_TLC_run_performed": false,
+    "five_repeat_throughput_qualification": false
+  },
+  "issue650_contract": {
+    "status": "CLOSED_CAPACITY_CONTRACT_ACCEPTED",
+    "retained_contract_source": "conformance/reports/perf/2026-11-01-original-capacity.json",
+    "requirements": {
+      "exact_original_cells": 12,
+      "model_config_substitutions_allowed": false,
+      "actual_workers_match_each_request": [
+        1,
+        8
+      ],
+      "profiles": [
+        "tlc",
+        "default"
+      ],
+      "every_row_requires": [
+        "physical exit0 and JSON exit0",
+        "actual engine core and no fallback",
+        "requested and used workers match",
+        "explicit900000ms/17179869184-byte budget sources, no max_states or max_depth",
+        "seed0/fingerprint polynomial0 and original all-property cfg/module/library/golden pins",
+        "capture_completed=true, exhausted=true, stage=complete",
+        "complete temporal analysis and verified TLC_SUCCESS/code2193/exit0",
+        "native/external stops, refusals, failed proofs and incomplete cells retained as failures",
+        "raw stdout/stderr/resource/physical-rc hashes verified against independent downloaded archive"
+      ],
+      "workers1_observable_counts": "Exact distinct/generated/depth equality with the pinned golden is mandatory for each actual W1 row. Matching stopped-row counts never prove temporal properties.",
+      "workers8_observable_counts": "Preserve and inspect actual counts; unchanged existing capacity runner also requires its recorded counts_ok.",
+      "final_evidence": [
+        "terminal/drained service and benchmark cgroup; no actual ELF processes",
+        "downloaded archive outer hash plus every manifest member byte length/SHA256 verified",
+        "all twelve actual raw outcomes independently recomputed, with every failure retained",
+        "independent capacity review of end-to-end analysis and budget proof",
+        "actual owned-instance termination/root-volume deletion receipts after verified preservation"
+      ],
+      "issue_650_scope": "Only exact original twelve-cell900s/16GiB capacity acceptance. No Bcast deep-target, allocator/accounting framework, milestone or broad TLC replacement closure."
+    },
+    "recorded_comparable_TLC_policy": "historical_TLC_policy_provenance",
+    "not_prerequisites": [
+      "Bcast deep stress",
+      "Complete allocator/accounting framework",
+      "Issue651 matched old-bridge performance qualification",
+      "M1/M2 or RC/release acceptance"
+    ],
+    "closure_decision_owner": "Root verified the independent review, exact runtime merge binding and cleanup, then manually closed650.",
+    "closure": {
+      "closedAt": "2026-11-01T20:47:35Z",
+      "number": 650,
+      "state": "CLOSED",
+      "title": "Complete budgeted native temporal capacity and structured resource stops"
+    },
+    "independent_review": {
+      "artifact_name": "phase4-final-capacity/review.json",
+      "sha256": "ce6c671252896724d27b193bcb0972934698191957067d8af12197eb3bd4c089",
+      "markdown_sha256": "ebba3bd36d6a34de9314c1a94cdf0007d44f199a0cf2baa19e333d5a06b3f5bb",
+      "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+      "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+      "decision": "approve",
+      "scope": "Original twelve-cell #650 capacity acceptance and bounded frozen-behavior fairness adoption only",
+      "checks_passed": 694,
+      "checks_failed": 0,
+      "blocking_findings": [],
+      "reviewed_utc": "2026-11-01T20:46:11.761460+00:00"
+    }
+  },
+  "separate_issue651": {
+    "status": "OPEN_NOT_QUALIFIED_HERE",
+    "contract": "Matched old-bridge original CoffeeCan in all four profile/worker cells: runtime <=110% of bridge, RSS <=65% of bridge.",
+    "this_capacity_campaign_qualifies_that_comparison": false,
+    "issue650_closure_requires_issue651": false
+  },
+  "independent_final_capacity_review": {
+    "artifact_name": "phase4-final-capacity/review.json",
+    "sha256": "ce6c671252896724d27b193bcb0972934698191957067d8af12197eb3bd4c089",
+    "markdown_sha256": "ebba3bd36d6a34de9314c1a94cdf0007d44f199a0cf2baa19e333d5a06b3f5bb",
+    "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
+    "tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
+    "decision": "approve",
+    "scope": "Original twelve-cell #650 capacity acceptance and bounded frozen-behavior fairness adoption only",
+    "checks_passed": 694,
+    "checks_failed": 0,
+    "blocking_findings": [],
+    "reviewed_utc": "2026-11-01T20:46:11.761460+00:00"
+  },
+  "verified_issue_closures": {
+    "artifact_name": "verified-issue-closures.json",
+    "sha256": "b703e2f6c739d171504a9840e912358bafc76a2fb145efb0ab2af831ad13f5ac",
+    "issues": {
+      "650": {
+        "closedAt": "2026-11-01T20:47:35Z",
+        "number": 650,
+        "state": "CLOSED",
+        "title": "Complete budgeted native temporal capacity and structured resource stops"
+      },
+      "718": {
+        "closedAt": "2026-11-01T20:47:33Z",
+        "number": 718,
+        "state": "CLOSED",
+        "title": "perf: reuse an exact native fairness pair across configured properties"
+      }
+    }
+  }
+}

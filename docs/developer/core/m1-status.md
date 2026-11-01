@@ -11,7 +11,18 @@ model at 1/8 workers, investigated above 1.5. Semantic, independent-word and
 resource obligations are unchanged. Historical qualifications below remain
 attached to their original sources; no acceptance is granted retrospectively.
 
-The frozen phase 3 runtime is
+Phase 4's qualified runtime main is `949e549cc1fece68cfa1bcfe59ea4b1c83bc368f`,
+tree `37a77be0a70fe86dcaf4fce4617fa82690fe356b`. Its bounded trusted-report and
+original-capacity deliverables are complete: standalone trace gating (#716,
+closing #714), fresh invariant/VIEW certification (#717, closing #713), and
+bounded native WF pair reuse (#719, closing #718), each independently reviewed
+and passing all three required CI checks. Execution belongs to source
+`95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52`; the runtime squash has the exact
+qualified tree and was not itself executed. The [phase 4 checkpoint](../../../conformance/reports/core/2026-11-01-phase4-checkpoint.json)
+records accepted #650 capacity, retained census findings, preservation and
+actual cleanup. M1/M2, #651, performance and RC/release acceptance remain open.
+
+The historical frozen phase 3 runtime is
 `fb48dbbf42bd224f278b138e74c1c8e29e2af106`, tree
 `b2d90500b04efdd00f1c3bcac43dde43e4a0376a`. It includes native atom input-proof
 reuse (#709, ADR 0134) and bounded ordered error-prefix replay (#712, ADR 0135),
@@ -44,13 +55,165 @@ proved scope.
 | Default compound membership | The bounded worker-local index starts on the second eligible lookup in normalized sets of at least 16 members (#698). Original extensional comparison, ownership/phase admission, collision checks and miss/error behavior remain authoritative. It shares the memo budget; scalar queries, finite-fuel analysis, TLC comparisons and unproved values retain the original search. `DIVE_CORE_OPT=-member-index` restores that search. |
 | Native temporal analysis | Exact reachable-product lookup is private; deterministic Cartesian ordering is restored before search (#694). Selected original-target descriptors remove repeated successor scans without changing original/stutter selection, conversion demand or error order (#701). These changes alone establish neither capacity nor throughput acceptance. |
 | Native atom input proofs | Successful closed-input checks can be reused for exact retained rows within one analysis (#709, ADR 0134). Current Store ownership, poison, descriptor identity, conversion demand, fallback and run controls remain authoritative. Optional proof storage is capped at one MiB; declined storage retains the original checks. Counters establish actual reuse, not time saved. |
-| Error reporting and trust | Fresh candidate-word and diagnostic proof precedes verified candidate reports (#699). Initial context-only invariant failures remain unverified, omit the invalid anonymous formal word and retain actual cause/context and stopping counts (#702; closes #685). Proved first-Init receiver diagnostics retain their separate `diagnostic_witness.trace` and null formal counterexample (#683, ADR 0133); the partial-Init `error_witness` route stays closed. |
-| Ordered error prefixes | Fresh bounded source/configuration replay independently reconstructs six source-final VIEW families, two top-level non-Boolean constraint families and two named invariant diagnostic families (#712, ADR 0135). Native versions 6/4/2 retain their respective meanings. The canonical ten oracle streams remain Unclassified. The inherited coordinated primary-2111 class/exit forgery remains open as #713 and is excluded from the new diagnostic-proof approval. |
+| Native WF result reuse | One privately authorized first frozen behavior WF action/ENABLED pair may retain completed fully native columns within one analysis (#719, ADR 0138). Optional storage is capped at `min(16 MiB, requested memory / 256)`; metadata, required reads/conversion, current controls, exact descriptor/Store/poison and row proofs remain authoritative. Single-property prefix analyses allocate no columns. Original twelve-cell capacity is accepted as #650; no whole-process memory or throughput acceptance follows. |
+| Error reporting and trust | Fresh candidate-word and diagnostic proof precedes verified candidate reports (#699). Phase 4 adds a shared fresh source/diagnostic certificate for successor-invariant and v6 VIEW reports (#717, ADR 0136), closing coordinated primary-2111 class/header/physical-exit forgery #713 while retaining genuine 2111/2179/2103 and the caller's exit convention in both profiles. Initial context-only failures stay unverified (#702); proved first-Init receiver diagnostics retain `diagnostic_witness.trace` and a null formal counterexample (#683, ADR 0133). |
+| Ordered error prefixes | Fresh bounded replay covers six source-final VIEW, two top-level non-Boolean constraint and two named invariant diagnostic families (#712, ADR 0135). The later #717 certificate extends the supported VIEW diagnostic lifetime and keeps bounded first-actual-source, record, multi-Init and effect restrictions. Native versions 1–6, report schema 3 and canonical classifications are unchanged; the ten ambiguous streams remain Unclassified. Broader receiver/source scopes still refuse. |
 | Next receiver diagnostics | The bounded first-source route reconstructs one exhausted Init emission, no prior complete/partial candidate, and the actual ordinary/diagnostic function receiver before admitting 2147/75 (#703). Later sources, multiple emissions, effects and broader receiver lifetimes remain unproved; #680 stays open. |
 | Temporal source errors | Version 5 independently replays the bounded one-state source, actual Next order, temporal row and diagnostic lifecycle (#679, ADR 0132). Later rows, multiple initial emissions and unproved scopes still refuse; broader #502 remains open. |
 | Actual-word liveness names | Complete false-property list in configured order, independently proved on the actual word (#658, ADR 0126). Other observables remain strict. |
 | Expected divergences | Multi-worker registry matching requires the exact complete observed generated-count pair when comparison omits that field (#695; closes #684). One-worker differences, exact exits and independent trace proof remain mandatory. Expected divergences are separate from strict agreements. |
 | Unadopted optimizations | Projection reuse #705 remains closed unmerged after its SimpleRegular regression; #704 stays open. Small-payload scratch allocation #710 also remains closed unmerged after failing its predeclared paired adoption criteria; #708 stays open. Neither negative experiment is part of the runtime. |
+
+### Phase 4: bounded deliverables and original capacity accepted
+
+The optional native WF pair candidate at `8e7dc78c`, tree `405e5d5f`, has
+independent code approval and passes its original ABA TLC/W1+W8 adoption bar:
+
+| Source / actual workers | Outcome | Controller seconds | Physical exit |
+|---|---|---:|---:|
+| baseline `b1a5972d` / W1 | complete success, above 810s | 888.542907478 | 0 |
+| baseline `b1a5972d` / W8 | native time stop in atoms | 900.060743129 | 5 |
+| candidate `8e7dc78c` / W1 | complete success, passes 810s | 435.507529242 | 0 |
+| candidate `8e7dc78c` / W8 | complete success, passes 810s | 543.845765324 | 0 |
+
+These are the original N4/T1/F1 configuration, TypeOK and all three properties,
+seed/fingerprint zero, actual W1/W8, native 900-second/16-GiB limits and
+930-second external backstops. Completed candidate rows retain 5,843,977 distinct /
+85,612,896 generated / depth 45 / queue 0, capture and temporal exhaustion, and
+zero native atom fallback. Two completed columns have accepted storage of
+12,162,744 bytes below the applicable 16-MiB cap, excluding allocator overhead;
+consumed reuse counters establish actual reuse, not
+saved time. Fresh adoption review approves these measured `8e7dc78c` cells only.
+All 38 baseline and 48 candidate archive members are verified. Baseline runner
+exit 1, W8's censored stop and `quiet_window_certified: false` remain explicit; no W8 speedup ratio,
+quiet-host throughput, memory saving or full twelve-cell acceptance follows.
+The capacity record separately pins the historical TLC golden policy: one
+worker, seed/fingerprint zero, final liveness checking, pinned JRE/TLC,
+ParallelGC, Java 3-GiB heap / 8-MiB stack and a 600-second harness timeout.
+Those oracle observables are not a fresh matched-host TLC timing or throughput
+comparison; the actual native policy remains 900 seconds / 16 GiB at W1/W8.
+
+The reviewed rebase `95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52`, tree
+`37a77be0a70fe86dcaf4fce4617fa82690fe356b`, preserves all thirteen reviewed
+non-changelog files and includes landed #716/#717. PR #719 merged at 20:47:24 UTC
+as runtime `949e549c`, with the exact qualified tree. One integrated
+full-gate/census/Auto qualification launched at
+18:56:34 UTC; one unchanged original twelve-cell capacity run launched at
+18:59:40 UTC using its separate release ELF
+`db17c8d3b5ecbc1f232df40cb12aec22d7b2cfcc1ee73c9995d7f350fd98c397`.
+The actual `95e73d2f` matrix is terminal at 20:32:58 UTC: all twelve original
+cells record complete temporal success and physical exit 0; its runner exits 0.
+These controller seconds belong to that source and its actual capacity ELF:
+
+| Original model | TLC/W1 | default/W1 | TLC/W8 | default/W8 |
+|---|---:|---:|---:|---:|
+| CoffeeCan3000Beans | 314.298 | 301.682 | 397.527 | 383.644 |
+| EWD998Chan | 446.620 | 675.757 | 405.019 | 641.950 |
+| aba_asyn_byz | 436.716 | 465.479 | 543.983 | 584.735 |
+
+Original ABA TLC/W1 and TLC/W8 again meet 810 seconds, with JSON clocks
+436.667s and 543.911s as well as controller clocks 436.715784933s and
+543.982503086s. The renewed confirmation is separate from measured `8e7dc78c`.
+No existing successful cell is lost. Root preservation verifies all 148 final
+archive members (147 payloads plus manifest), SHA-256
+`8d4cc56e14d0b342b715964eaf3e264ffe343b506cb94c6937a55a71fd257282`,
+25,973,501 bytes. Fresh independent capacity review passes 694 checks with zero
+failures and accepts the original twelve-cell #650 contract and bounded fairness
+adoption. #718 and #650 were manually closed at 20:47:33 and 20:47:35 UTC after
+verified merge and cleanup. Measured `8e7dc78c` results are never relabeled as
+`95e73d2f` execution, and later runtime/documentation commits receive no new
+execution credit. The [capacity record](../../../conformance/reports/perf/2026-11-01-phase4-original-capacity.json)
+keeps every actual row, original input policy, physical outcome and source separate.
+
+The fixture census is terminal at this exact `95e73d2f` source. It retains the
+old 1,520 selected rows per profile, 99 parser exclusions and 18 ambiguous skips,
+with no additional fixtures or inputs. Every old agreement remains agreement:
+
+| Profile | Shadow agree | Refused | Timeout | Unconfirmed |
+|---|---:|---:|---:|---:|
+| default | 1,218 | 290 | 8 | 4 |
+| TLC | 1,191 | 318 | 7 | 4 |
+
+`ErViewAssert`, `ErViewDivZero` and `ErViewEnabled` gain shadow agreement in
+both profiles; TLC also gains `ErViewOverflow`. These seven gains are separate
+from the ten phase 3 gains per profile and do not reclassify canonical streams.
+The remaining unconfirmed words in each profile are exactly
+`core-liveness/GenError/{General,Nested,Record,Tuple}`. The census physically
+exits 1; seventeen incomplete child runs remain fourteen core time stops, one
+core memory stop and two core resource-limit refusals. Its ledger records all
+5,457 invocation exits. No incomplete observation is a successful native check.
+The prior TLC/W1 `LvPeriodic` difference is not repaired: phase 3's core
+liveness violation versus reference graph-capture resource refusal now becomes
+a core temporal-analysis time stop at 20,035ms, physical exit 5. This row earns
+no agreement or fix credit. Existing [#664](https://github.com/Chelis-Lang/dive/issues/664)
+tracks this unresolved asymmetry.
+Zero loss of old agreements does not mean every old finding has been
+semantically resolved.
+
+TLC Auto physically exits 0 in 413.577s. It retains all 156 models: 150
+agreements, six unsupported and no model differences; all 458 SANY comparisons
+agree. Engine accounting remains 124 actual-core runs, three dynamic reference
+fallbacks, 21 static reference fallbacks and eight without an engine. Default
+Auto exits 0 in 418.440s, with 144 agreements, five unsupported, seven expected
+divergences and no differences among its 156 models; default intentionally
+omits SANY. Its 124 actual-core runs are 120 strict agreements and four expected
+divergences, separately from three dynamic / 22 static fallbacks and seven
+without an engine. Fallback earns no native-success credit. All 312 Auto
+model-process receipts are present.
+
+The census/Auto role is terminal at 19:21:20 UTC with physical/parallel exit 1
+for census findings. Before/after source `95e73d2f`, tree `37a77be0`, remains
+clean. The single full gate also terminates with physical exit 0. Its internal
+report duration is 79m37s; the outer command controller records
+4,780.746311389841 seconds including startup. Fifteen of sixteen recorded
+stages pass, with cargo-deny skipped because its inputs are unchanged. All
+3,066 nextest tests pass, six source-declared tests are skipped and seven are
+reported slow. The nextest runner reports 2,498.862 seconds; its gate stage
+also includes compilation and overhead. All 187 doctests pass.
+Formatting, Clippy, rustdoc, layering and the dedicated standalone trace build
+pass. Standalone compilation takes 11.5s, with eight allowed internal crate
+fingerprints, no forbidden backends and evaluator enumeration disabled.
+
+Reference CM1 and validation smoke pass at W1/W4/W8. Default core/reference
+shadows retain 57 agreements / six refusals among 63 CM1 rows and 250 / 62 among
+312 small-tier rows; refusals earn no native-success credit. Both small-corpus
+baselines have zero regressions: TLC has 150 model agreements / six unsupported
+and 458 SANY agreements; default has 144 agreements / five unsupported / seven
+declared divergences. These are the full gate's own panels, separate from Auto.
+The joined chain closes at 20:16:16 UTC with physical exit 1 for census findings,
+distinct from full-gate exit 0 and both Auto exits 0. Fresh independent review
+approves the closed local content while retaining those findings. Its
+106,177,007-byte local-qualification/support archive is uploaded, downloaded and
+root-verified across all 34,513 members at 20:24:08 UTC, SHA-256
+`03c4721281a4aebf2a45bdfa097651ecf071a1ac0123fc6a61612d7d7dff71fd`.
+The compact record pins the manifest and all four gate/census release ELFs.
+The separate independent preservation supplement approves all 34,513 members:
+34,512 payloads total 929,211,388 bytes, including the complete 32,300-file /
+693,905,747-byte qualification tree. Archived old
+reviews and support files keep their actual snapshot state; later documentation updates
+receive no new execution credit and are not relabeled as part of that archive.
+
+All five required archives were verified before termination was requested at
+20:40:53 UTC. The owned capacity node is terminated and its root volume deleted,
+confirmed at 20:41:27 UTC; no active owned phase instance remained in that
+observation. The original 22:56:59 UTC deadline was not extended. Conservative
+compute through observed termination is $2.60711180246 at the recorded
+$0.714/hour rate, an upper-bound 3.65141709 hours below the six-hour limit.
+This is not an invoice and excludes storage/transfer. Current cleanup remains
+distinct from all historical phase receipts.
+
+The value-proof lane is **STOP_BEFORE_IMPLEMENTATION**. Eight bounded local
+cells yield 59 valid stack observations and do not establish material certifiable
+repeated guard work for both Sailfish/default and Bakery/default. This is no
+global absence or stopped-prefix correctness finding. The separate WF
+diagnostic supports trying one bounded candidate: conservative direct-interpreter
+observations are 347/2,972 TLC and 508/2,971 default after excluding Shape,
+unknown-source and control call-site attribution. Most exported chains lack full
+runtime ancestry. The initial stderr-lock instrumentation failed and receives no
+credit; successful perf samples ended with model SIGINT, not semantic verdicts.
+There is no precise removable share, ENABLED CPU share or whole-run savings
+claim. No value-proof implementation, formal 300-row campaign or #705/#710
+rescue follows, and M1/M2/RC acceptance remains open.
 
 ### Phase 3 local qualification at `fb48dbbf`
 
@@ -222,7 +385,7 @@ The stopped ABA TLC/W8 arm has physical exit **5**, completed capture,
 `exhaustive: false` and no TLC success class. Its temporal execution stage is
 **atoms**, distinct from the earlier focused baseline's product-stage stop.
 Matching counts and completed capture do not establish temporal success. The
-matrix runner physically exits **1**; **#650 capacity acceptance remains open**.
+matrix runner physically exits **1**; **that source did not accept #650 capacity**.
 
 The earlier `16095d43` matrix had nine successes. This final-source run recovers
 ABA default/W8 and TLC/W1 completion, yielding eleven of twelve; TLC/W1 has
@@ -351,7 +514,7 @@ Each stopped arm has physical exit 5, completed graph capture, 5,843,977
 distinct / 85,612,896 generated / depth 45 / queue 0, `exhaustive: false` and
 no TLC success class. Matching counts and policy checks do not prove temporal
 success. The capacity service physically exits **1**, separate from the full
-gate's exit 0. **#650 acceptance stays open.**
+gate's exit 0. **That historical matrix did not accept #650.**
 
 Original ABA default/W8 completed at `83356b01` in 889.180s and now stops at
 900.106s: a required completion was lost. The old result had only 10.82s
@@ -372,37 +535,40 @@ below keep their original source and limitations.
 
 ### Next bounded actions
 
-- Retain the completed source-bound qualification: full gate and both Auto
-  passes, separate standalone compilation, census findings, negative performance
-  diagnostics, eleven-of-twelve capacity and verified preservation/cleanup.
-  These results do not close M1/M2 or release qualification. No additional run
-  or prototype is part of this checkpoint.
-- Retain the ten newly proved error families and their negative controls while
-  keeping their canonical streams Unclassified. Remaining unconfirmed VIEW
-  (`ErViewAssert`, `ErViewDivZero`, `ErViewEnabled`, plus TLC `ErViewOverflow`)
-  and temporal `GenError` words remain outside this proof.
-- Repair the inherited coordinated primary-2111 class/header/physical-exit
-  acceptance tracked in #713; the issue remains open until verified. Its
-  reproduction is identical at `b2274f3d` and
-  reviewed `54f2e51e`; valid named words do not prove the retagged diagnostic or
-  exit, and the new diagnostic certificate does not cover that legacy branch.
+- Independently prove the four remaining `core-liveness/GenError` families:
+  General, Nested, Record and Tuple. Keep their current unconfirmed words and
+  explicit proof boundaries until actual source/cause replay establishes them.
+- Retain [#664](https://github.com/Chelis-Lang/dive/issues/664), TLC/W1
+  `LvPeriodic`'s native/reference capture-capacity asymmetry. Its transition
+  from an earlier difference to a current timeout earns no semantic-fix or
+  agreement credit.
 - Keep #697's shared-255 implied-action streams outside strict agreement until
-  canonical evidence proves the deciding identity. An independently valid word
-  or diagnostic bridge cannot replace that oracle fact. Extend a classifier only
-  with an unambiguous framed primary/diagnostic lifetime and negative controls.
-- Retain receiver/source scope limits: later sources, multiple Init emissions
-  and prior candidates remain #680 boundaries; temporal source scopes (#502)
-  and additional history producers (#623) have separate obligations. Unproved
-  VIEW, effects and initial-generation contexts still refuse.
-- Retain the final performance failure: four default models miss the breadth
-  floor at both widths, GameOfLife/W1 has a single compatibility ratio above 2,
-  and Sailfish observations above 1.5 require investigation. #704/#708 remain
-  open and #705/#710 remain rejected; no rescue variant or unproved memo
-  eligibility is adopted.
-- Keep original ABA TLC/W8's atom-analysis stop and TLC/W1's thin 4.618s margin
-  visible in #650. Eleven successful cells do not satisfy the whole matrix;
-  proof-hit counters, the censored earlier pair and comparisons across VMs do
-  not establish a speed factor or exclusive causal attribution.
+  canonical evidence proves the deciding identity. A valid word or diagnostic
+  bridge does not replace that oracle fact. The repaired #713 forgery boundary
+  and all positive/negative controls remain required.
+- Extend broader receiver/source scopes #680/#502 and additional history
+  producers #623 only within their existing plans. Unproved later sources,
+  multi-Init receiver lifetimes, effects and initial-generation contexts retain
+  their explicit refusal boundaries.
+- Qualify #651's separate matched old-bridge criterion: original CoffeeCan in
+  all four profile/worker cells must use at most 110% of bridge runtime and 65%
+  of bridge RSS. This phase's original-capacity acceptance does not perform or
+  accept that comparison.
+- Address the source-bound performance deficits under ADR 0119: global default
+  floors remain unmet, GameOfLife/W1 retains its above-2 compatibility
+  observation, and Sailfish observations above1.5 require investigation.
+  #704/#708 remain open; #705/#710 remain rejected and unmerged. No formal
+  300-row campaign or rescue variant was part of this phase.
+- Continue the existing broader mode and full-tier corpus work. Simulation,
+  DFID, checkpoint/storage integration and eventual engine cutover retain
+  their separate acceptance contracts; `reference` remains the default.
+
+The bounded phase is complete, including #650's own capacity contract and
+#718's reviewed adoption. Clean census, #651, M1/M2, full parity and RC/release
+qualification remain open. Historical failures, diagnostic scope limits and
+all source/ELF distinctions remain evidence rather than being rewritten as
+current successes. No additional prototype or campaign is launched by this
+closeout.
 
 ### Historical local qualification at `83356b01`
 
