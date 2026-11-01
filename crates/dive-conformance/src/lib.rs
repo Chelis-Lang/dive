@@ -35,6 +35,7 @@ pub mod fetch;
 pub mod golden;
 pub mod hash;
 pub mod implementation;
+pub mod model_pair;
 pub mod oracle;
 pub mod pipeline;
 pub mod process;

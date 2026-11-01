@@ -1086,6 +1086,17 @@ become transition edges. Ordinary liveness integration remains pending.
 
 ### PlusCal native check-report protocol
 
+The production `--check` route now delegates staged translated-model pairs to
+`dive-conformance compare-models`. It reuses the ordinary pinned clean/trace-pass
+oracle classifier, source-aware native result reader, observable comparison,
+registered default divergences and independent trace validator. No duplicate
+TLC parser or new ported checking algorithm is introduced. Original source
+directories are selected input context, not newly asserted library pins. Both
+native profiles use identical primary-rewritten configuration bytes and actual
+one-worker, seed-zero runs. Missing/refused/stopped/unconfirmed observations earn
+no agreement. The older table below remains regression-only; historical
+dive-on-both-translations measurements keep their narrower scope.
+
 `xtask/src/pluscal_corpus/check_protocol.rs` is a bounded data inventory, not a
 model-checking algorithm or a primary oracle. Its code/name pairs and failure
 exits were checked against MIT `tlc2/output/EC.java`, including
@@ -1105,7 +1116,7 @@ or binding-only classes are rejected. Direct site wrappers report themselves.
 Frontend rejection 3002 alone may omit the separate `reported` field. Assumption evaluation class 2105 uses default
 exit 12 or TLC exit 10. These are native protocol associations, not independently
 measured TLC model semantics. Unknown codes, names, exits or verdict associations
-earn no agreement; the tool still compares dive on two translations.
+earn no agreement in those historical diagnostic comparisons.
 
 The actual-main helper continuation preserves the complete bounded inventory and
 pin loader. Native observations in both profiles cover success, invariant,

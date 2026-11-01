@@ -1,5 +1,10 @@
 # Changelog
 
+- Make PlusCal corpus `--check` compare pinned translation plus TLC against
+  native translation plus dive in both profiles, using ordinary conformance
+  classification and independent native witness replay. Preserve unsupported,
+  stopped, missing-configuration and expected-divergence outcomes separately.
+
 - Add compiled native finite simulation and DFID in both profiles through explicit
   APIs and `--engine core|auto`. Reference remains the default; Auto selects a
   whole finite backend before execution and reached native refusals never retry.

@@ -1,5 +1,14 @@
 # dive-conformance
 
+`compare-models --oracle-model FILE --model FILE --config FILE --dive-bin BIN
+--out DIR [--module-path DIR] [--model-id CORPUS_PATH] [--timeout SECS]` checks
+staged PlusCal translations using pinned TLC and dive in both semantic profiles.
+The configuration bytes must match the oracle module's same-named configuration.
+`--out` must be fresh and retains raw child output and physical status receipts.
+Results use ordinary conformance classification and independently replay native
+counterexamples; exit 1 retains any non-agreeing observation. This command does
+not write goldens or certify a whole translator corpus.
+
 The differential conformance harness. It:
 - fetches and verifies the pinned TLC/SANY oracles, the Java runtime and the corpora;
 - generates golden results from TLC and SANY;

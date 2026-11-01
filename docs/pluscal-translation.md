@@ -245,15 +245,15 @@ absence is not an overwrite gate. Source options overlapping old generated text,
 ambiguous/reversed markers, actual source errors, invalid final modules and real
 generation/rewrite bounds still refuse with their existing diagnostics.
 
-Translation, rewrite and original-AST JSON now use schema2. Real accepted/status,
+Translation, rewrite and original-AST JSON use report schema 3. Real accepted/status,
 analysis, replacement/artifact bytes and requested/effective options remain.
 `source_options` identifies the deciding declaration. Proof-only model/exhaustive/
 pending/verified fields and duplicate `option_context` dumps are removed. Rewrite
 `replacement.algorithm_checksum` is a CRC string or null, with any unavailability
 in `replacement.warnings`; `translation_checksum` is always the real body CRC.
-An admitted translation is not a model-checking result. The earlier collector
-schema requiring proof fields must be updated and independently reviewed before
-any new actual149 campaign.
+An admitted translation is not a model-checking result. The corpus runner admits
+the actual accepted replacement and module-analysis fields; retired proof fields
+do not establish translation or model acceptance.
 
 The retained six procedure-family manifests contain740 historical primary rows.
 688 row instances have genuine source inputs; recursive/acyclic manifests use
@@ -388,12 +388,19 @@ it defaults to false and never silently alters the measured source. Profile and
 jobs options are not implemented by this helper; inherited `DIVE_COMPAT` affects
 native children.
 
-`--check` runs **dive on both translations** when a same-named configuration
-exists. Matching native checks support translation equivalence; they are not
-independent TLC model parity. Matching refusals/resource failures and absent
-reports earn no model agreement. The release milestone separately compares
-`pcal.trans` plus TLC with native translation/check and independently validates
-counterexamples. See [ADR 0089](decisions/0089-pluscal-measurement-inputs.md).
+`--check` runs pinned TLC on the reference translation and dive on its own
+translation in both semantic profiles when a same-named configuration exists.
+Build `dive-conformance` beside `dive`, or select it with `--harness BIN`.
+The ordinary harness classifies the clean TLC stream, attaches JSON only from a
+matching separate trace pass, compares required observables and freshly validates
+native counterexamples against their translated model. Both checks use identical
+configuration bytes, one worker, seed zero and fingerprint zero. Registered
+default-profile divergences remain separate from strict agreements. Missing
+configurations, refused translations, unsupported checks, stops and unconfirmed
+words earn no model agreement. All selected inputs remain in the results. Raw
+children and physical status receipts remain under `--out`.
+Historical runs that checked both translations using dive retain their narrower
+diagnostic meaning. See [ADR 0089](decisions/0089-pluscal-measurement-inputs.md).
 
 The measurement tool credits only recognized, well-formed check outcomes with
 complete numeric counts when exploration is required, a claimed TLC class, and
@@ -404,11 +411,12 @@ The reported class must match the deciding class for non-evaluation results.
 Evaluation replay may preserve a first evaluator error or a documented site
 wrapper; unrelated terminal/model classes cannot stand in for that report.
 Only the actual frontend rejection schema may omit the reported code.
-The bounded table is `xtask/src/pluscal_corpus/check_protocol.rs`, with its
-source inventory documented in `docs/provenance.md`. Unknown or incomplete JSON,
+The canonical source-aware harness reader supplies production classification.
+The historical bounded table in `xtask/src/pluscal_corpus/check_protocol.rs`
+remains a malformed-envelope regression control. Unknown or incomplete JSON,
 unclaimed classes, refusals and resource failures never count as agreement.
-Valid failures before exploration may have null statistics. These are still
-comparisons of native checks of two translations, not independent TLC parity.
+Valid failures before exploration may have null statistics. The retained
+malformed-envelope controls supplement the independent comparison reader.
 
 Credited reports must explicitly include `statistics`, even when its value is
 null for a startup failure. Missing statistics are malformed, rather than an
