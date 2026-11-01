@@ -642,6 +642,7 @@ impl Heap {
         );
         self.arena.literal_sets.push(crate::arena::LiteralSet {
             handle,
+            canonical: identity,
             phase: crate::arena::LiteralPhase::Raw,
             normalized: Handle::EMPTY,
             origin: 0,
@@ -680,6 +681,33 @@ impl Heap {
         let _ = (operation, a, b);
     }
 
+    // The constructor projection predates the raw owner, so an arena rollback
+    // retaining that owner also retains this optional derived data. This is not
+    // phase or source authority: callers first execute checked normalization,
+    // or already own a successfully normalized array. Exact handles and order
+    // protect the checked first representatives even when values compare equal.
+    fn literal_projection_header(
+        &self,
+        index: usize,
+        elems: &[Handle],
+    ) -> Result<Option<(u64, u64)>, Error> {
+        self.history_poll()?;
+        let canonical = self.arena.literal_sets[index].canonical;
+        let Some(projection) = self.arena.lookup(canonical) else {
+            return Ok(None);
+        };
+        if projection.kind != Kind::Set || projection.data.len() != elems.len() {
+            return Ok(None);
+        }
+        for (actual, cached) in elems.chunks(64).zip(projection.data.chunks(64)) {
+            self.history_poll()?;
+            if actual != cached {
+                return Ok(None);
+            }
+        }
+        Ok(Some((projection.hash, projection.sum)))
+    }
+
     fn normalize_literal(&mut self, index: usize) -> Result<Handle, Error> {
         use crate::arena::LiteralPhase;
         match &self.arena.literal_sets[index].phase {
@@ -691,17 +719,18 @@ impl Heap {
                 // The logical normalization predates rollback. Its owned array
                 // survives, while a projection allocated after the mark does not.
                 let mut projection = self.history_copy(elems)?;
-                let identity = self.set_from(&mut projection);
-                let view = self.view(identity);
+                let (hash, sum) =
+                    if let Some(header) = self.literal_projection_header(index, &projection)? {
+                        header
+                    } else {
+                        let identity = self.set_from(&mut projection);
+                        let view = self.view(identity);
+                        (view.hash, view.sum)
+                    };
                 let slot = self.view(self.arena.literal_sets[index].handle).lo;
-                let restored = self.arena.alloc(
-                    Kind::Set,
-                    flags::HISTORY,
-                    slot,
-                    view.hash,
-                    view.sum,
-                    &projection,
-                );
+                let restored =
+                    self.arena
+                        .alloc(Kind::Set, flags::HISTORY, slot, hash, sum, &projection);
                 self.arena.literal_sets[index].normalized = restored;
                 return Ok(restored);
             }
@@ -745,20 +774,22 @@ impl Heap {
                 sorted.insert(low, value);
             }
         }
-        // The checked TLC array owns history and representatives. Its order
-        // is never assumed to certify the separate canonical projection.
-        let mut projection = self.history_copy(&sorted)?;
-        let identity = self.set_from(&mut projection);
-        let view = self.view(identity);
+        // Required checked insertion above owns the first representatives.
+        // Reuse the constructor header only if its already canonical array
+        // matches those exact representatives in the same order.
+        let (projection, hash, sum) =
+            if let Some((hash, sum)) = self.literal_projection_header(index, &sorted)? {
+                (sorted, hash, sum)
+            } else {
+                let mut projection = self.history_copy(&sorted)?;
+                let identity = self.set_from(&mut projection);
+                let view = self.view(identity);
+                (projection, view.hash, view.sum)
+            };
         let slot = self.view(self.arena.literal_sets[index].handle).lo;
-        let normalized = self.arena.alloc(
-            Kind::Set,
-            flags::HISTORY,
-            slot,
-            view.hash,
-            view.sum,
-            &projection,
-        );
+        let normalized = self
+            .arena
+            .alloc(Kind::Set, flags::HISTORY, slot, hash, sum, &projection);
         self.arena.literal_sets[index].normalized = normalized;
         self.arena.literal_sets[index].phase = LiteralPhase::Normalized(projection.into());
         Ok(normalized)
@@ -2328,6 +2359,209 @@ mod tests {
         assert!(h.eq(a, b));
         assert!(h.store.memory_usage().history_view_bytes > 0);
         assert!(!h.poisoned());
+    }
+
+    #[test]
+    fn constructor_projection_reuse_still_executes_checked_insertion() {
+        for semantics in [crate::Semantics::default(), crate::Semantics::tlc()] {
+            for hashcons in [false, true] {
+                for full_hash in [false, true] {
+                    let mut h = Heap::new(
+                        Arc::new(Store::with_semantics(hashcons, semantics)),
+                        false,
+                        full_hash,
+                    );
+                    let (one, two, three) = (int(1), int(2), int(3));
+                    let set = h
+                        .local_literal(&[three, one, two, two])
+                        .unwrap_or(Handle::EMPTY);
+                    let before = h.arena.len();
+                    let normalized = h.norm(set).unwrap_or(Handle::EMPTY);
+                    assert_eq!(h.view(normalized).data, &[one, two, three]);
+                    assert_eq!(
+                        h.arena.len() - before,
+                        1,
+                        "only the owned normalized node is allocated"
+                    );
+                    assert_eq!(
+                        h.arena.literal_trace,
+                        vec![
+                            ("insert", one, three),
+                            ("insert", two, three),
+                            ("insert", two, one),
+                            ("insert", two, two)
+                        ]
+                    );
+                    assert_eq!(h.hash(normalized), h.deep_hash(normalized));
+                    assert_eq!(h.norm(set), Ok(normalized));
+                    assert_eq!(h.arena.len() - before, 1);
+                    assert!(!h.poisoned());
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn constructor_projection_different_representative_keeps_the_checked_first_one() {
+        let mut h = heap(false);
+        let first = h.tuple_literal(&[int(1)]);
+        let duplicate = h.tuple_literal(&[int(1)]);
+        assert_ne!(first, duplicate);
+        // Model an equal canonical projection whose unstable deduplication
+        // retained another representative, without depending on sort internals.
+        let alternate = h.set_sorted(&[duplicate]);
+        let set = h
+            .local_literal(&[first, duplicate])
+            .unwrap_or(Handle::EMPTY);
+        let index = h.local_literal_index(set).unwrap_or(usize::MAX);
+        h.arena.literal_sets[index].canonical = alternate;
+        let before = h.arena.len();
+        let normalized = h.norm(set).unwrap_or(Handle::EMPTY);
+        assert_eq!(h.view(normalized).data, &[first]);
+        assert_eq!(
+            h.arena.len() - before,
+            2,
+            "a different exact representative runs the old projection path"
+        );
+        assert_eq!(h.arena.literal_trace, vec![("insert", duplicate, first)]);
+        assert!(!h.poisoned());
+    }
+
+    #[test]
+    fn constructor_projection_named_order_mismatch_uses_the_original_projection() {
+        for semantics in [crate::Semantics::default(), crate::Semantics::tlc()] {
+            let mut h = Heap::new(
+                Arc::new(Store::with_semantics(true, semantics)),
+                false,
+                false,
+            );
+            let z = h.string("z").unwrap_or(Handle::EMPTY);
+            let a = h.string("a").unwrap_or(Handle::EMPTY);
+            let set = h.local_literal(&[z, a]).unwrap_or(Handle::EMPTY);
+            let before = h.arena.len();
+            let normalized = h.norm(set).unwrap_or(Handle::EMPTY);
+            let expected = if semantics.tlc_comparisons {
+                [z, a]
+            } else {
+                [a, z]
+            };
+            assert_eq!(h.view(normalized).data, expected);
+            assert_eq!(
+                h.arena.len() - before,
+                if semantics.tlc_comparisons { 1 } else { 2 }
+            );
+            assert_eq!(h.arena.literal_trace, vec![("insert", a, z)]);
+            assert_eq!(h.hash(normalized), h.deep_hash(normalized));
+            assert!(!h.poisoned());
+        }
+    }
+
+    #[test]
+    fn constructor_projection_survives_an_owner_preserving_rollback_and_reset_drops_it() {
+        let mut h = heap(false);
+        let set = h.local_literal(&[int(2), int(1)]).unwrap_or(Handle::EMPTY);
+        let index = h.local_literal_index(set).unwrap_or(usize::MAX);
+        let canonical = h.arena.literal_sets[index].canonical;
+        assert!(h.arena.index(canonical) < h.arena.index(set));
+        let mark = h.mark();
+        let normalized = h.norm(set).unwrap_or(Handle::EMPTY);
+        assert!(h.arena.lookup(normalized).is_some());
+        h.rollback(mark);
+        assert!(h.arena.lookup(canonical).is_some());
+        assert!(h.arena.lookup(normalized).is_none());
+        h.arena.literal_trace.clear();
+        let before = h.arena.len();
+        let restored = h.norm(set).unwrap_or(Handle::EMPTY);
+        assert_eq!(h.arena.len() - before, 1);
+        assert_eq!(h.view(restored).data, &[int(1), int(2)]);
+        assert!(
+            h.arena.literal_trace.is_empty(),
+            "normalization phase survives rollback"
+        );
+        let retained = h.intern_exact(restored).unwrap_or(Handle::EMPTY);
+        h.reset();
+        assert!(h.arena.literal_sets.is_empty());
+        assert!(h.arena.lookup(canonical).is_none());
+        assert_eq!(h.literal_member(int(1), retained), Some(Ok(true)));
+        assert!(!h.poisoned());
+    }
+
+    #[test]
+    fn constructor_projection_stale_optional_data_falls_back_without_poison() {
+        let mut h = heap(false);
+        let set = h.local_literal(&[int(2), int(1)]).unwrap_or(Handle::EMPTY);
+        let index = h.local_literal_index(set).unwrap_or(usize::MAX);
+        let mark = h.mark();
+        // Actual constructors allocate the projection before their owner.
+        // Losing optional derived data must still use the old checked path.
+        let stale = h.set_sorted(&[int(1), int(2)]);
+        h.arena.literal_sets[index].canonical = stale;
+        h.rollback(mark);
+        let before = h.arena.len();
+        let normalized = h.norm(set).unwrap_or(Handle::EMPTY);
+        assert_eq!(h.arena.len() - before, 2);
+        assert_eq!(h.view(normalized).data, &[int(1), int(2)]);
+        assert!(!h.poisoned());
+    }
+
+    #[test]
+    fn constructor_projection_cannot_decide_a_checked_error() {
+        for semantics in [crate::Semantics::default(), crate::Semantics::tlc()] {
+            let mut h = Heap::new(
+                Arc::new(Store::with_semantics(true, semantics)),
+                false,
+                false,
+            );
+            let set = h
+                .local_literal(&[Handle::TRUE, int(1)])
+                .unwrap_or(Handle::EMPTY);
+            let index = h.local_literal_index(set).unwrap_or(usize::MAX);
+            assert!(
+                h.arena
+                    .lookup(h.arena.literal_sets[index].canonical)
+                    .is_some()
+            );
+            let before = h.arena.len();
+            assert!(h.norm(set).is_err());
+            assert_eq!(h.arena.len(), before);
+            assert!(matches!(
+                h.arena.literal_sets[index].phase,
+                crate::arena::LiteralPhase::Refused
+            ));
+            assert_eq!(
+                h.arena.literal_trace,
+                vec![("insert", int(1), Handle::TRUE)]
+            );
+            assert!(!h.poisoned());
+        }
+    }
+
+    #[test]
+    fn constructor_projection_exact_comparison_polls_the_actual_owner() {
+        use std::sync::atomic::{AtomicUsize, Ordering as AtomicOrdering};
+        #[derive(Debug)]
+        struct Stop(AtomicUsize);
+        impl crate::eval::WorkControl for Stop {
+            fn proceed(&self) -> bool {
+                self.0.fetch_add(1, AtomicOrdering::Relaxed) < 2
+            }
+        }
+        let mut h = heap(false);
+        let values: Vec<_> = (0..16384).map(int).collect();
+        let set = h.local_literal(&values).unwrap_or(Handle::EMPTY);
+        let index = h.local_literal_index(set).unwrap_or(usize::MAX);
+        let owner = Arc::new(Stop(AtomicUsize::new(0)));
+        h.history_steps.set(0);
+        h.set_history_control(Some(owner.clone()));
+        assert!(
+            matches!(h.literal_projection_header(index, &values), Err(error) if error.kind() == crate::ErrorKind::Stop)
+        );
+        assert_eq!(owner.0.load(AtomicOrdering::Relaxed), 3);
+        assert!(h.work_interrupted());
+        assert!(matches!(
+            h.arena.literal_sets[index].phase,
+            crate::arena::LiteralPhase::Raw
+        ));
     }
 
     #[test]

@@ -440,8 +440,18 @@ keep exclusive access. The lock changes neither origin indexing nor Store-local
 exact-handle authority. `Kind::Set`, view flags,
 persistence and an extensional key alone do not prove history. Canonical keys
 and replay expectations remain separate; rollback rebuilds a freed projection
-from the owned normalization array. A seen emission does not replace a bound
-generator root with that temporary projection. The Store indexes retained
+from the owned normalization array. Each owner also retains the quiet canonical
+projection allocated before that owner. All required checked insertion still
+runs first. Only exact handle-and-order equality between the successfully
+checked representative array and that original projection permits reusing its
+hash/sum and avoiding a second copy/sort/temporary canonical node. Missing or
+different optional projection data keeps the original path; value equality,
+flags and persistence do not prove this match or normalization. The comparison
+polls the actual caller work owner in chunks of 64 handles. Rollback preserving
+the raw owner preserves its earlier constructor projection; restoring a freed
+normalized node still uses the owned normalization array and the same exact
+match rule. Reset drops this derived data with the owner. A seen emission does
+not replace a bound generator root with that temporary projection. The Store indexes retained
 `HISTORY`/`NESTED_VIEW` nodes with a private structural hash of their exact
 header and child handles. Equal independent constructions keep their origins
 without forming one linear-probing cluster under their shared extensional

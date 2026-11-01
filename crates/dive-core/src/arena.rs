@@ -63,6 +63,9 @@ pub struct Arena {
 #[derive(Debug)]
 pub(crate) struct LiteralSet {
     pub(crate) handle: Handle,
+    /// Quiet canonical projection allocated before the owner. It proves no
+    /// checked normalization; only exact post-check array equality permits reuse.
+    pub(crate) canonical: Handle,
     pub(crate) phase: LiteralPhase,
     pub(crate) normalized: Handle,
     pub(crate) origin: i64,

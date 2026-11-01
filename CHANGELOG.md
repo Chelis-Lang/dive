@@ -1,5 +1,10 @@
 # Changelog
 
+- Reuse an owned construction set’s canonical projection after checked
+  normalization only when its exact representatives and order match. Repeated
+  sorting and temporary nodes are avoided without changing comparison demand,
+  first representatives, errors or rollback behavior in either profile.
+
 - Index repeated default-profile compound membership in admitted normalized
   sets. The worker-local index starts on the second eligible lookup for sets of at least
   16 members, verifies hash collisions structurally, and shares the existing
