@@ -4,6 +4,17 @@ This guide covers the opt-in disk storage for safety search and native
 checkpoint/recovery. The design decision is
 [ADR 0083](../decisions/0083-storage-and-checkpoint.md).
 
+`--engine core` safety BFS supports `--store exact` and the predecessor budget
+and directory options. Exact membership resolves hash collisions by comparing
+complete canonical mathematical state identities; representation and receiver
+history stay attached to the concrete states used for evaluation and replay.
+Parallel exact search retains candidate collisions until ordered commit.
+Predecessor read, write, corruption and explicit-cleanup failures produce a
+resource stop with storage evidence and no certified counterexample.
+The core still refuses frontier spill, disk membership, checkpoint/recovery
+and temporal exact/spill combinations. `--engine auto` can use the reference
+engine for these remaining combinations and reports that fallback.
+
 ## Transient frontier and predecessor storage
 
 Safety BFS has independent opt-in frontier and predecessor budgets:

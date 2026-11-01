@@ -86,9 +86,10 @@ core (ADR 0117), which is under construction. The reference engine stays the
 default (`--engine reference`), and it is also the TLC-equivalent setting. The
 core currently covers:
 
-- the default profile, and `--compat=tlc` (below). `--store exact`, disk
-  spilling of the seen set, frontier or predecessor log, and `--chaos` are
-  reported as unsupported;
+- the default profile and `--compat=tlc` (below). Safety checks support
+  `--store fp|exact` and predecessor-log spill under its explicit budget.
+  Disk seen sets, frontier spill and `--chaos` remain unsupported. Temporal
+  checks with exact stores or predecessor spill also refuse by name;
 - any number of workers. Every result (counts, verdict, trace, output) is
   the one-worker result;
 - safety: invariants, constraints, `ACTION_CONSTRAINT`, deadlock, and

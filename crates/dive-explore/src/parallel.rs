@@ -32,7 +32,7 @@ use dive_core::plan::Code;
 use dive_core::{Error, ErrorKind, Handle, Machine, Opts, Plan, Sink};
 
 use crate::ending::Site;
-use crate::{Metrics, Seen, changed_vars, eval_check, in_model, state_key};
+use crate::{Metrics, Seen, changed_vars, eval_check, in_model, state_identity};
 
 /// Lock-free minimum-position claims on the state keys of one level
 /// (`07-engine.md` §2): a successor inside the model, not seen in an
@@ -143,6 +143,7 @@ pub(crate) enum Occ {
     /// is recorded here too, for its values.
     Cand {
         key: u64,
+        identity: Vec<Handle>,
         in_model: bool,
         inv: Inv,
         imp: Inv,
@@ -273,10 +274,11 @@ impl WorkerSink<'_> {
             crate::normalize_state_history(m)?;
         }
         let unkeyed = !inside && (plan.symmetry.is_some() || plan.view.is_some());
+        let mut identity = Vec::new();
         let key = if unkeyed {
             0
         } else {
-            match state_key(m, plan) {
+            match state_identity(m, plan, self.seen.exact.as_ref().map(|_| &mut identity)) {
                 Ok(k) => k,
                 Err(error) if error.kind() == ErrorKind::Eval && plan.view.is_some() => {
                     return Err(self.check_err(m, Site::View, error)?);
@@ -301,7 +303,11 @@ impl WorkerSink<'_> {
             }
         }
         let pos = (self.emitted - 1 < 1 << POS_BITS).then_some(self.base | (self.emitted - 1));
-        let duplicate = if inside {
+        let duplicate = if self.seen.exact.is_some() {
+            // A fingerprint claim supplies no equality evidence. Exact mode
+            // retains all possibly distinct collisions for ordered commit.
+            false
+        } else if inside {
             self.seen.contains(key) || pos.is_some_and(|p| !self.claims.claim(key, p))
         } else if unkeyed {
             false
@@ -345,6 +351,7 @@ impl WorkerSink<'_> {
             self.action,
             Occ::Cand {
                 key,
+                identity,
                 in_model: inside,
                 inv,
                 imp,
@@ -656,6 +663,7 @@ impl crate::Explorer<'_> {
                 }
                 Occ::Cand {
                     key,
+                    identity,
                     in_model,
                     inv,
                     imp,
@@ -665,15 +673,18 @@ impl crate::Explorer<'_> {
                     self.in_model = *in_model;
                     self.changed = changed_vars(m);
                     self.metrics.probed += 1;
-                    if *in_model && (self.max_states.is_some() || self.max_depth.is_some()) {
-                        self.admit(*key)?;
+                    if *in_model
+                        && (self.max_states.is_some() || self.max_depth.is_some())
+                        && !self.seen.contains_row(*key, identity, &m.heap)
+                    {
+                        self.admit_new()?;
                     }
                     let new = if *in_model {
-                        self.seen.insert(*key)
+                        self.seen.insert_row(*key, identity, &m.heap)?
                     } else {
                         self.plan.symmetry.is_some()
                             || self.plan.view.is_some()
-                            || !self.seen.contains(*key)
+                            || !self.seen.contains_row(*key, identity, &m.heap)
                     };
                     if !new {
                         self.apply_implied(m, imp)?;

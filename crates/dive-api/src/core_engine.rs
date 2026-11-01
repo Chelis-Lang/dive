@@ -309,9 +309,7 @@ fn action_roles(
 /// result if the core ignored it.
 fn option_refusal(options: &CheckOptions, profile_tlc: bool) -> Option<String> {
     let e = &options.eval;
-    let refused = if options.store == dive_store::StoreMode::Exact {
-        "--store exact (the core keeps 64-bit state keys)"
-    } else if options.tlc_fingerprints && !profile_tlc {
+    let refused = if options.tlc_fingerprints && !profile_tlc {
         "TLC fingerprints outside --compat=tlc"
     } else if e.max_depth != dive_eval::Options::dive().max_depth {
         "an evaluation depth other than the default"
@@ -319,13 +317,10 @@ fn option_refusal(options: &CheckOptions, profile_tlc: bool) -> Option<String> {
         && e.action_composition != dive_eval::Options::tlc().action_composition
     {
         "--action-composition=tlc"
-    } else if options.seen_disk.is_some()
-        || options.frontier_memory_bytes.is_some()
-        || options.frontier_directory.is_some()
-        || options.predecessor_memory_bytes.is_some()
-        || options.predecessor_directory.is_some()
-    {
-        "spilling the seen set, frontier or predecessor log to disk"
+    } else if options.seen_disk.is_some() {
+        "spilling the seen set to disk"
+    } else if options.frontier_memory_bytes.is_some() || options.frontier_directory.is_some() {
+        "spilling the frontier to disk"
     } else if options.chaos.is_some() {
         "--chaos"
     } else {
@@ -833,7 +828,8 @@ pub(crate) fn safety_result(
     } = *search;
     let Startup { mut sym, startup } = start;
     let budget = &options.budget;
-    let owned_budget = out.verdict == dive_explore::Verdict::Budget;
+    let storage_failed = !out.metrics.storage.predecessor_failures.is_empty();
+    let owned_budget = out.verdict == dive_explore::Verdict::Budget || storage_failed;
     // A reached owned budget publishes observed prefix facts, not a model
     // verdict or an effect/replay parity claim. Preserve that stop and output.
     if plan.effects.registers && !owned_budget && out.verdict != dive_explore::Verdict::Success {
@@ -907,6 +903,9 @@ pub(crate) fn safety_result(
             elapsed_ms: u64::try_from(explore_started.elapsed().as_millis()).unwrap_or(u64::MAX),
             phase: dive_check::budget::Phase::Search,
         })),
+        dive_explore::Verdict::Internal { message } if storage_failed => {
+            Verdict::ResourceLimit { message }
+        }
         dive_explore::Verdict::Internal { message } => Verdict::InternalError { message },
         // The safety route has no graph sink.
         dive_explore::Verdict::GraphStop | dive_explore::Verdict::PrefixStop { .. } => {
@@ -924,6 +923,7 @@ pub(crate) fn safety_result(
             | Verdict::Deadlock
             | Verdict::ModelError { code: 2115, .. }
             | Verdict::Stopped(_)
+            | Verdict::ResourceLimit { .. }
     );
     let mut verdict = verdict;
     let mut in_init = matches!(
@@ -931,7 +931,8 @@ pub(crate) fn safety_result(
         Verdict::InvariantViolated { initial: true, .. }
             | Verdict::PropertyViolatedInitially { .. }
             | Verdict::ModelError { code: 2115, .. }
-    ) || (matches!(verdict, Verdict::Stopped(_)) && out.in_init);
+    ) || (matches!(verdict, Verdict::Stopped(_) | Verdict::ResourceLimit { .. })
+        && out.in_init);
     let mut trace = out.trace.clone();
     let mut stats = out.stats;
     // Whether the trace ends in the successor a check failed on (the
@@ -987,6 +988,12 @@ pub(crate) fn safety_result(
     }
     let prints = !in_init || matches!(verdict, Verdict::EvaluationError { .. });
     let mut r = result(verdict, options, ir);
+    r.predecessor = dive_check::PredecessorUsage {
+        storage: out.metrics.storage.predecessor,
+        failures: out.metrics.storage.predecessor_failures.clone(),
+        deciding_event_before_failure: out.metrics.storage.predecessor_deciding_event.clone(),
+        cleanup_completed: out.metrics.storage.predecessor_cleanup_completed,
+    };
     if matches!(
         &r.verdict,
         Verdict::EvaluationError {
@@ -1126,6 +1133,22 @@ pub(crate) fn check(
         Ok(p) => p,
         Err(r) => return (finish(*r), run),
     };
+    if !prepared.model.implied_temporals.is_empty()
+        && (options.store == dive_store::StoreMode::Exact
+            || options.frontier_memory_bytes.is_some()
+            || options.frontier_directory.is_some()
+            || options.predecessor_memory_bytes.is_some()
+            || options.predecessor_directory.is_some())
+    {
+        return (
+            finish(result(
+                unsupported("exact or spilled native temporal storage under the core engine"),
+                options,
+                ir,
+            )),
+            run,
+        );
+    }
     if prepared.plan.effects.registers && sample.is_some() {
         return (
             finish(result(
@@ -1186,7 +1209,7 @@ pub(crate) fn check(
         seed: options.seed.cast_unsigned(),
         states,
     });
-    let out = dive_explore::explore_with_control(
+    let out = dive_explore::explore_with_storage(
         &plan,
         &store,
         dive_explore::Config {
@@ -1200,6 +1223,11 @@ pub(crate) fn check(
         &poll,
         None,
         Some(&search_work_control(budget)),
+        &dive_explore::storage::Storage {
+            exact: options.store == dive_store::StoreMode::Exact,
+            predecessor_memory_bytes: options.predecessor_memory_bytes,
+            predecessor_directory: options.predecessor_directory.clone(),
+        },
     );
     if let Some(sample) = sample {
         run.sample = crate::core_sample::compare(
@@ -1386,6 +1414,7 @@ pub(crate) fn metrics_json(
         },
         "probed": m.probed,
         "discarded_before_intern": m.discarded_before_intern,
+        "exact_states": m.storage.exact_states,
         "conjuncts": {"total": m.conjuncts_total, "parent_skipped": m.conjuncts_skipped},
         "store": {
             "hits": m.store.hits, "misses": m.store.misses, "nodes": m.store.nodes, "handles": m.store.handles,

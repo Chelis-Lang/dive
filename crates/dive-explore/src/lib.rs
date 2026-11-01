@@ -30,6 +30,7 @@ pub mod ending;
 pub mod graph;
 mod parallel;
 pub mod sample;
+pub mod storage;
 pub mod trace;
 
 use std::sync::Arc;
@@ -137,6 +138,8 @@ pub struct Stats {
 /// Strategy metrics (`09-performance-method.md` §4).
 #[derive(Clone, Debug, Default)]
 pub struct Metrics {
+    /// Actual opt-in native safety storage facts, not whole-process memory.
+    pub storage: storage::Usage,
     /// Successors discarded as seen before any interning (S3).
     pub discarded_before_intern: u64,
     /// Successors probed against the seen set.
@@ -219,6 +222,7 @@ pub struct Config {
 pub struct Seen {
     table: Vec<u64>,
     len: usize,
+    exact: Option<storage::Exact>,
 }
 
 impl Default for Seen {
@@ -226,11 +230,39 @@ impl Default for Seen {
         Self {
             table: vec![0; 1 << 16],
             len: 0,
+            exact: None,
         }
     }
 }
 
 impl Seen {
+    fn with_exact(exact: bool) -> Self {
+        Self {
+            exact: exact.then(storage::Exact::default),
+            ..Self::default()
+        }
+    }
+
+    fn contains_row(&self, key: u64, row: &[Handle], heap: &dive_core::Heap) -> bool {
+        self.exact.as_ref().map_or_else(
+            || self.contains(key),
+            |exact| exact.contains(key, row, heap),
+        )
+    }
+
+    fn insert_row(
+        &mut self,
+        key: u64,
+        row: &[Handle],
+        heap: &dive_core::Heap,
+    ) -> Result<bool, Error> {
+        if let Some(exact) = &mut self.exact {
+            exact.insert(key, row, heap)
+        } else {
+            Ok(self.insert(key))
+        }
+    }
+
     fn fix(k: u64) -> u64 {
         if k == 0 { 1 } else { k }
     }
@@ -309,9 +341,13 @@ impl Seen {
 /// # Errors
 /// The VIEW's evaluation error (kind `Eval`), or a VIEW value the core
 /// cannot key (unsupported).
-fn state_key(m: &mut Machine, plan: &Plan) -> Result<u64, Error> {
+fn state_identity(
+    m: &mut Machine,
+    plan: &Plan,
+    identity: Option<&mut Vec<Handle>>,
+) -> Result<u64, Error> {
     if let Some(view) = &plan.view {
-        return view_key(m, plan, view);
+        return view_key(m, plan, view, identity);
     }
     let image;
     let state: &[Handle] = match &plan.symmetry {
@@ -328,6 +364,12 @@ fn state_key(m: &mut Machine, plan: &Plan) -> Result<u64, Error> {
     for (i, &h) in state.iter().enumerate() {
         sum = sum.wrapping_add(state_term(i, m.heap.hash(h)));
     }
+    if let Some(identity) = identity {
+        capture_reserve(identity, state.len())?;
+        for &handle in state {
+            identity.push(m.heap.intern(handle)?);
+        }
+    }
     Ok(fin(K_STATE, state.len() as u64, sum))
 }
 
@@ -337,7 +379,12 @@ fn state_key(m: &mut Machine, plan: &Plan) -> Result<u64, Error> {
 /// normalization it does not reproduce. The value is interned too and must
 /// hold no infinite set, which TLC fails to fingerprint (refused here
 /// rather than reported).
-fn view_key(m: &mut Machine, plan: &Plan, view: &Check) -> Result<u64, Error> {
+fn view_key(
+    m: &mut Machine,
+    plan: &Plan,
+    view: &Check,
+    identity: Option<&mut Vec<Handle>>,
+) -> Result<u64, Error> {
     let Some(conj) = view.conjuncts.first() else {
         return Err(Error::internal("a VIEW without its expression"));
     };
@@ -377,6 +424,10 @@ fn view_key(m: &mut Machine, plan: &Plan, view: &Check) -> Result<u64, Error> {
         return Err(Error::unsupported(
             "a VIEW value holding an infinite or lazily represented set (core)",
         ));
+    }
+    if let Some(identity) = identity {
+        capture_reserve(identity, 1)?;
+        identity.push(v);
     }
     Ok(fin(K_STATE, 1, state_term(0, m.heap.hash(v))))
 }
@@ -525,7 +576,12 @@ impl Explorer<'_> {
             // not.
             return Ok((Probe::New, false, 0));
         }
-        let key = match state_key(m, self.plan) {
+        let mut identity = Vec::new();
+        let key = match state_identity(
+            m,
+            self.plan,
+            self.seen.exact.as_ref().map(|_| &mut identity),
+        ) {
             Ok(k) => k,
             Err(e) if e.kind() == ErrorKind::Eval && self.plan.view.is_some() => {
                 self.failure = Some(self.failure_at(m, Site::View, e.message().to_owned())?);
@@ -535,13 +591,16 @@ impl Explorer<'_> {
             Err(e) => return Err(e),
         };
         self.metrics.probed += 1;
-        if in_model && (self.max_states.is_some() || self.max_depth.is_some()) {
-            self.admit(key)?;
+        if in_model
+            && (self.max_states.is_some() || self.max_depth.is_some())
+            && !self.seen.contains_row(key, &identity, &m.heap)
+        {
+            self.admit_new()?;
         }
         let new = if in_model {
-            self.seen.insert(key)
+            self.seen.insert_row(key, &identity, &m.heap)?
         } else {
-            !self.seen.contains(key)
+            !self.seen.contains_row(key, &identity, &m.heap)
         };
         if !new {
             self.metrics.discarded_before_intern +=
@@ -769,10 +828,7 @@ impl Explorer<'_> {
     /// Stops before a new state inside the model that would exceed
     /// `--max-states` or `--max-depth` (the reference engine's
     /// `admission_stop`); a state already seen is never refused.
-    fn admit(&mut self, key: u64) -> Result<(), Error> {
-        if self.seen.contains(key) {
-            return Ok(());
-        }
+    fn admit_new(&mut self) -> Result<(), Error> {
         let states = self.stats.distinct + 1;
         let stop = if let Some(max) = self.max_states
             && states > max
@@ -1182,7 +1238,39 @@ pub fn explore_with_control<'p>(
     graph: Option<&'p mut dyn graph::GraphSink>,
     control: Option<&Arc<dyn dive_core::eval::WorkControl>>,
 ) -> Outcome {
+    explore_with_storage(
+        plan,
+        store,
+        config,
+        poll,
+        graph,
+        control,
+        &storage::Storage::default(),
+    )
+}
+
+/// Explores with explicit native safety storage policies. Persistent values stay
+/// owned by `store`; transient files are not restartable checkpoints.
+#[must_use]
+#[allow(
+    clippy::too_many_arguments,
+    clippy::too_many_lines,
+    reason = "search setup and storage policy"
+)]
+pub fn explore_with_storage<'p>(
+    plan: &'p Plan,
+    store: &Arc<Store>,
+    config: Config,
+    poll: &'p (dyn Fn() -> bool + Sync),
+    graph: Option<&'p mut dyn graph::GraphSink>,
+    control: Option<&Arc<dyn dive_core::eval::WorkControl>>,
+    storage: &storage::Storage,
+) -> Outcome {
     let start = Instant::now();
+    let unsupported_storage = graph.is_some()
+        && (storage.exact
+            || storage.predecessor_memory_bytes.is_some()
+            || storage.predecessor_directory.is_some());
     let nvars = plan.vars.len();
     let keys: Vec<usize> = plan
         .code
@@ -1203,7 +1291,7 @@ pub fn explore_with_control<'p>(
         graph,
         stats: Stats::default(),
         metrics: Metrics::default(),
-        seen: Seen::default(),
+        seen: Seen::with_exact(storage.exact),
         next: Vec::new(),
         next_originals: Vec::new(),
         next_views: Vec::new(),
@@ -1215,7 +1303,10 @@ pub fn explore_with_control<'p>(
         stop: None,
         action: None,
         init_action: None,
-        log: PredecessorLog::new(None, None),
+        log: PredecessorLog::new(
+            storage.predecessor_memory_bytes,
+            storage.predecessor_directory.as_deref(),
+        ),
         next_ids: Vec::new(),
         cur_id: None,
         end: None,
@@ -1229,20 +1320,31 @@ pub fn explore_with_control<'p>(
     };
     let mut replayed = None;
     let mut reservoir = config.sample.map(sample::Reservoir::new);
-    let result = run(
-        &mut machines,
-        &mut ex,
-        plan,
-        &mut replayed,
-        reservoir.as_mut(),
-    );
+    let result = if unsupported_storage {
+        Err(Error::unsupported(
+            "exact or spilled predecessor storage with native graph capture",
+        ))
+    } else if storage.predecessor_directory.is_some() && storage.predecessor_memory_bytes.is_none()
+    {
+        Err(Error::unsupported(
+            "a predecessor directory without a predecessor memory budget",
+        ))
+    } else {
+        run(
+            &mut machines,
+            &mut ex,
+            plan,
+            &mut replayed,
+            reservoir.as_mut(),
+        )
+    };
     let parallel = machines.len() > 1;
     let mut m = machines.swap_remove(0);
-    let trace = ex
+    let mut trace = ex
         .end
         .take()
         .map(|end| reconstruct(plan, store, &config, &ex.log, end));
-    let verdict = match result {
+    let mut verdict = match result {
         Ok(()) => Verdict::Success,
         Err(e) => match e.into_parts() {
             (ErrorKind::Stop, _) if ex.failure.is_some() => Verdict::Failed,
@@ -1258,6 +1360,29 @@ pub fn explore_with_control<'p>(
             (ErrorKind::Internal, message) => Verdict::Internal { message },
         },
     };
+    ex.metrics.storage.exact_states = ex.seen.exact.as_ref().map_or(0, storage::Exact::len);
+    ex.metrics.storage.predecessor = ex.log.usage();
+    if let Some(error) = ex.log.failure() {
+        ex.metrics
+            .storage
+            .predecessor_failures
+            .push(error.to_string());
+    }
+    match ex.log.close() {
+        Ok(()) => ex.metrics.storage.predecessor_cleanup_completed = true,
+        Err(error) => ex
+            .metrics
+            .storage
+            .predecessor_failures
+            .push(error.to_string()),
+    }
+    if !ex.metrics.storage.predecessor_failures.is_empty() {
+        ex.metrics.storage.predecessor_deciding_event = Some(format!("{verdict:?}"));
+        verdict = Verdict::Internal {
+            message: ex.metrics.storage.predecessor_failures.join("; "),
+        };
+        trace = None;
+    }
     let mut metrics = ex.metrics;
     metrics.store = store.stats();
     metrics.store_memory = store.memory_usage();

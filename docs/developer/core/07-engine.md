@@ -383,13 +383,24 @@ The commit phase takes about 0.2 s of MCLamportMutex's run (`commit_ms` in
 the core metrics), so it is not the limit. The ≥ 6× target at 8 workers
 needs a quiet x86 machine to assess (`09-performance-method.md`).
 
-**Not built yet:** an exact store (`--store exact`) and spilling for the
-core.
+**Native safety storage.** `--store exact` retains complete canonical rows in
+hash buckets and resolves collisions using normalized mathematical equality.
+VIEW and symmetry use the identity produced by their existing single key
+evaluation. Receiver/history rows remain separate. Parallel fingerprint claims
+are disabled in exact mode: a claim cannot prove full-state equality. Ordered
+commit still decides duplicate admission, limits and the first error.
+
+The existing fallible `PredecessorLog` now takes the caller's resident byte
+limit and directory. It validates and explicitly closes before the explorer
+publishes a result. Typed storage failures retain prefix counts and component
+evidence, clear certified words and produce a resource-limit result. This is
+neither a whole-process memory bound nor a checkpoint format. Frontier spill,
+disk membership, native checkpoints and temporal exact/spill remain refused.
 
 **Done (M1, `core/engine-auto`).** `--engine=auto`, the static and dynamic
 fallback of `08-correctness.md` §3. With it, run options the core does not
-implement (`--store exact`, TLC fingerprints, non-default evaluation
-options, disk spilling, `--chaos`) are static refusals. `--engine=core`
+implement (TLC fingerprints outside compatibility, non-default evaluation
+options, frontier/disk-seen spilling, `--chaos`) are static refusals. `--engine=core`
 used to ignore them.
 
 **Done (M1, `core/engine-fperror`).** Fingerprint-site errors. TLC

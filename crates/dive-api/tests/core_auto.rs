@@ -117,19 +117,18 @@ fn auto_reports_the_core_or_the_whole_reference_run() {
     assert!(fell_dynamic >= 1, "no dynamic fallback");
 }
 
-/// Run options the core does not implement are static refusals, so auto
-/// honours them on the reference engine.
+/// Exact storage now executes on the core and preserves reference observables.
 #[test]
-fn options_the_core_lacks_run_on_the_reference() {
+fn exact_storage_runs_on_the_core() {
     let spec = repo().join("crates/dive-api/tests/fixtures/core-m0/Mix.tla");
     let mut req = request(&spec);
     req.store = dive_api::Store::Exact;
     let core = run(&req, Engine::Core);
-    assert_eq!(core["verdict"], "unsupported");
     let auto = run(&req, Engine::Auto);
     let reference = run(&req, Engine::Reference);
+    assert_eq!(observed(&core), observed(&reference));
     assert_eq!(observed(&auto), observed(&reference));
-    assert_eq!(auto["engine"], "reference");
-    assert_eq!(auto["engine_fallback"]["stage"], "static");
+    assert_eq!(auto["engine"], "core");
+    assert!(auto["engine_fallback"].is_null());
     assert_eq!(auto["options"]["store"], "exact");
 }
