@@ -1,0 +1,2570 @@
+{
+  "schema_version": 1,
+  "kind": "source-bound phase 3 checkpoint; compact aggregation of completed receipts",
+  "record_status": "COMPLETE_BOUNDED_QUALIFICATION_WITH_NEGATIVE_CAPACITY_AND_PERFORMANCE",
+  "date": "2026-11-01",
+  "runtime": {
+    "source": "fb48dbbf42bd224f278b138e74c1c8e29e2af106",
+    "tree": "b2d90500b04efdd00f1c3bcac43dde43e4a0376a",
+    "frozen_utc": "2026-11-01T13:28:42.993689+00:00",
+    "adopted_prs": [
+      709,
+      712
+    ],
+    "excluded_prs": [
+      710
+    ],
+    "default_engine": "reference",
+    "source_receipt": {
+      "artifact_name": "integrated-source.json",
+      "sha256": "8a2b361a9b90fe9958447acd649f3cb86a97559580f09d26a664d419166abc2b",
+      "bytes": 713
+    },
+    "note": "Execution belongs to these runtime sources and separately identified ELFs; later documentation receives no new execution credit."
+  },
+  "landed_changes": [
+    {
+      "pr": 709,
+      "merge": "b4967e0a0d464606a889df2ba106c61bf36fcd29",
+      "reviewed_candidate": "a1e731d3312199dc718d0436026d4c685ce9e5ee",
+      "adr": "docs/decisions/0134-native-atom-row-proofs.md",
+      "scope": "Positive closed-input proof reuse for exact immutable retained rows within one native graph analysis, both profiles; one-MiB optional storage cap; original checks on bypass.",
+      "review_and_required_ci": "fresh independent review and all three required PR checks passed",
+      "milestone_or_release_acceptance": false
+    },
+    {
+      "pr": 712,
+      "merge": "fb48dbbf42bd224f278b138e74c1c8e29e2af106",
+      "reviewed_candidate_same_runtime_tree": "f4bf17fdf8a6d5ed8b566c63dbf61f897a4508fb",
+      "adr": "docs/decisions/0135-bounded-ordered-error-prefixes.md",
+      "scope": "Bounded independent ordered-prefix execution for six source-final VIEW, two top-level non-Boolean constraint and two named invariant diagnostic families.",
+      "review_and_required_ci": "fresh independent review and all three required PR checks passed",
+      "view_native_trace_version": 6,
+      "other_family_native_versions": {
+        "non_boolean_constraints": 4,
+        "named_invariant_errors": 2
+      },
+      "outer_report_schema": 3,
+      "existing_native_versions_1_to_5_meanings_preserved": true,
+      "consumer_notice_before_landing": "https://github.com/Chelis-Lang/oyster/issues/61#issuecomment-6558501056",
+      "new_pinned_oracle_class_agreements": 0,
+      "milestone_or_release_acceptance": false
+    }
+  ],
+  "frozen_source_required_ci": {
+    "source": "fb48dbbf42bd224f278b138e74c1c8e29e2af106",
+    "verified_utc": "2026-11-01T13:43:40.116221+00:00",
+    "checks": {
+      "Workspace gate": {
+        "conclusion": "success",
+        "url": "https://github.com/Chelis-Lang/dive/actions/runs/41311205361/job/124861789330"
+      },
+      "Conformance gate": {
+        "conclusion": "success",
+        "url": "https://github.com/Chelis-Lang/dive/actions/runs/41311205361/job/124861789302"
+      },
+      "No AI authorship markers": {
+        "conclusion": "success",
+        "url": "https://github.com/Chelis-Lang/dive/actions/runs/41311205361/job/124861789036"
+      }
+    },
+    "receipt": {
+      "artifact_name": "final-source-required-ci.json",
+      "sha256": "0c3b0b06cc1c32ac98952e36a54e15aae0f69c30600d8806619974fb8db3f135",
+      "bytes": 12986
+    },
+    "scope": "Required CI only; separate from the single integrated local full gate."
+  },
+  "fixture_census": {
+    "status": "COMPLETE_WITH_FINDINGS",
+    "source": "fb48dbbf42bd224f278b138e74c1c8e29e2af106",
+    "tree": "b2d90500b04efdd00f1c3bcac43dde43e4a0376a",
+    "selected_per_profile": 1520,
+    "configuration_population_per_profile": 1637,
+    "parser_exclusions": 99,
+    "ambiguous_module_skips": 18,
+    "selection_recomputed_exactly": true,
+    "selected_input_files": 3019,
+    "selected_input_manifest_sha256": "9c85cc7d96684112f7602c035d19a0e881358cccdd277da854e6dc686db57109",
+    "staged_input_mismatches": 0,
+    "profiles": {
+      "default": {
+        "harness_exit": 1,
+        "outcomes": {
+          "agree": 1215,
+          "refused": 290,
+          "timeout": 8,
+          "trace-unconfirmed": 7
+        },
+        "trace_refuted": 0
+      },
+      "tlc": {
+        "harness_exit": 1,
+        "outcomes": {
+          "agree": 1187,
+          "differ": 1,
+          "refused": 318,
+          "timeout": 6,
+          "trace-unconfirmed": 8
+        },
+        "trace_refuted": 0
+      }
+    },
+    "physical_invocations": 5458,
+    "physical_exit_receipts": 5458,
+    "missing_or_orphan_exit_receipts": 0,
+    "signaled_processes": 0,
+    "malformed_stdout_json": 0,
+    "physical_report_exit_contradictions": 0,
+    "incomplete_observations": {
+      "total": 17,
+      "core_time_stops": 13,
+      "core_memory_stops": 1,
+      "core_recursion_resource_refusals": 2,
+      "reference_capture_resource_refusals": 1
+    },
+    "raw_file_binding": {
+      "algorithm": "sha256 of sorted relative_path NUL file_sha256 LF",
+      "bytes": 728393561,
+      "files": 21832,
+      "sha256": "834ad400dd889362ffaeb4b11146cd0701123e9d19b7999b76426781eb02b069"
+    },
+    "controls": {
+      "workers": 1,
+      "seed": 0,
+      "fingerprint": 0,
+      "native_time_limit_seconds": 20,
+      "native_memory_bytes": 3221225472,
+      "successor_sample": 32
+    },
+    "historical_comparisons": [
+      {
+        "source": "16095d43",
+        "old_configuration_count": 1637,
+        "added_ids": 0,
+        "removed_ids": 0,
+        "old_id_agreement_gains": {
+          "default": 10,
+          "tlc": 10
+        },
+        "old_agreements_lost": {
+          "default": 0,
+          "tlc": 0
+        }
+      },
+      {
+        "source": "83356b01",
+        "old_configuration_count": 1629,
+        "added_ids": 8,
+        "removed_ids": 0,
+        "old_id_agreement_gains": {
+          "default": 20,
+          "tlc": 24
+        },
+        "old_agreements_lost": {
+          "default": 0,
+          "tlc": 0
+        }
+      },
+      {
+        "source": "9fc88333",
+        "old_configuration_count": 1629,
+        "added_ids": 8,
+        "removed_ids": 0,
+        "old_id_agreement_gains": {
+          "default": 20,
+          "tlc": 24
+        },
+        "old_agreements_lost": {
+          "default": 0,
+          "tlc": 0
+        }
+      },
+      {
+        "source": "c21e5097",
+        "old_configuration_count": 1601,
+        "added_ids": 36,
+        "removed_ids": 0,
+        "old_id_agreement_gains": {
+          "default": 80,
+          "tlc": 84
+        },
+        "old_agreements_lost": {
+          "default": 0,
+          "tlc": 0
+        }
+      },
+      {
+        "source": "68dd8266",
+        "old_configuration_count": 1614,
+        "added_ids": 23,
+        "removed_ids": 0,
+        "old_id_agreement_gains": {
+          "default": 40,
+          "tlc": 44
+        },
+        "old_agreements_lost": {
+          "default": 0,
+          "tlc": 0
+        }
+      }
+    ],
+    "old_selected_configuration_and_module_bytes_preserved": true,
+    "repaired_families": {
+      "view": [
+        "ErViewChoose",
+        "ErViewDomain",
+        "ErViewNonBool",
+        "ErViewNonBoolIf",
+        "ErViewNonEnum",
+        "ErViewTypeErr"
+      ],
+      "non_boolean_constraints": [
+        "ErConstrNonBool",
+        "ErActConstrNonBool"
+      ],
+      "named_invariant_diagnostics": [
+        "ErInvConstrained",
+        "ErInvReplayError"
+      ],
+      "profile_fixture_core_words_independently_validated": 20,
+      "actual_engine_profile_observations_matching_compared_observables": 40,
+      "canonical_counts_and_depth_match_all_40_observations": true,
+      "reference_words_separately_replayed_by_ordinary_shadow": false,
+      "canonical_oracle_classification": "Unclassified for all ten families",
+      "new_pinned_oracle_class_agreements": 0
+    },
+    "lv_periodic_tlc": {
+      "prior_source16_outcome": "timeout before reference invocation",
+      "current_outcome": "differ",
+      "core": "liveness-violation",
+      "reference": "resource-limit: behavior graph capture states; physical exit 3",
+      "same_difference_preserved_in_source9fc_history": true,
+      "agreement_credit": false
+    },
+    "remaining_word_findings": {
+      "both_profiles": [
+        "ErViewAssert",
+        "ErViewDivZero",
+        "ErViewEnabled",
+        "core-liveness/GenError/General",
+        "core-liveness/GenError/Nested",
+        "core-liveness/GenError/Record",
+        "core-liveness/GenError/Tuple"
+      ],
+      "tlc_additional": [
+        "ErViewOverflow"
+      ],
+      "unverified_class_refusals_per_profile": 31
+    },
+    "census_dive_elf_sha256": "30693a934bb9a892b48f9db8881859a86686a9bd611f941565db509eb50ba736",
+    "census_harness_elf_sha256": "a4b87e520d312c346db6238ec0920d9d831f9fd8e46d894a402876dae50009e4",
+    "independent_review": {
+      "decision": "approve bounded census accounting and source binding; reject complete qualification",
+      "review": {
+        "artifact_name": "review.md",
+        "sha256": "4afbfb10aaa9c146ab96ebaa4bc77f48bd0935a2b326386cea3f2a565730dd95",
+        "bytes": 10640
+      },
+      "reduction": {
+        "artifact_name": "reduction.json",
+        "sha256": "155e040d50e157e08750c49c561cd5ed6a4568fb422e9a4e828b7a92a3ca3d5c",
+        "bytes": 57276
+      },
+      "manifest": {
+        "artifact_name": "manifest.json",
+        "sha256": "874276b143497ec9a51bcef70c1f979c8811685a80ca5dd938c6b4deeb961aa6",
+        "bytes": 1191
+      },
+      "limits": "Read-only reduction of retained receipts; no new oracle, model, validator, gate or test execution. Terminal Auto/full-gate, archival, remote performance/capacity and cleanup are outside this initial review."
+    },
+    "current_local_archive_preservation": "complete; uploaded, downloaded and all 21924 archive members verified",
+    "scope": "Core/reference fixture shadows. Frontend acceptance, refusals, stops and expected divergences are separate from native success and pinned-TLC parity.",
+    "terminal_independent_review": {
+      "decision": "approve bounded gate validity and accounting; reject clean census, milestone/release/default promotion",
+      "json": {
+        "artifact_name": "final-review.json",
+        "sha256": "2e3cb0768bd01b1d985f45ad5cc2cc2b949993e7b90c810b06aa4272035c64a5",
+        "bytes": 85672
+      },
+      "markdown": {
+        "artifact_name": "final-review.md",
+        "sha256": "bf581ba9e74a4816c9781e83871bc3ee5516cce320f50a1613de4c2b04f7f9ba",
+        "bytes": 11254
+      },
+      "manifest": {
+        "artifact_name": "final-manifest.json",
+        "sha256": "1b9f9a1951427c16e2f0bb1f9658603cf7e6816a2e74440b68ea6a667230bada",
+        "bytes": 836
+      },
+      "initial_census_review_and_raw_digest_unchanged": true,
+      "scope": "Terminal local gate/census/Auto accounting and source binding. Separate from performance, original capacity and later preservation actions."
+    }
+  },
+  "local_qualification": {
+    "single_integrated_full_gate": {
+      "status": "COMPLETE_PASS",
+      "source": "fb48dbbf42bd224f278b138e74c1c8e29e2af106",
+      "tree": "b2d90500b04efdd00f1c3bcac43dde43e4a0376a",
+      "one_invocation": true,
+      "physical_exit": 0,
+      "gate_body_report_duration": "78m07s",
+      "outer_command_seconds": 4690.532638864126,
+      "nextest_passes": 3054,
+      "nextest_unique_passes": 3054,
+      "source_declared_ignored_tests": 6,
+      "doctests_passed": 185,
+      "dive_trace_tests_passed": 132,
+      "stages": [
+        {
+          "duration": "1.9s",
+          "name": "rustfmt",
+          "outcome": "pass"
+        },
+        {
+          "duration": "40.8s",
+          "name": "clippy",
+          "outcome": "pass"
+        },
+        {
+          "duration": "42m38s",
+          "name": "nextest (whole suite)",
+          "outcome": "pass"
+        },
+        {
+          "duration": "7.1s",
+          "name": "doctests",
+          "outcome": "pass"
+        },
+        {
+          "duration": "14.9s",
+          "name": "rustdoc",
+          "outcome": "pass"
+        },
+        {
+          "duration": "0.0s",
+          "name": "crate layering",
+          "outcome": "pass"
+        },
+        {
+          "duration": "0.0s",
+          "name": "cargo-deny",
+          "outcome": "skipped (Cargo.lock and deny.toml unchanged)"
+        },
+        {
+          "duration": "2m34s",
+          "name": "release build (harness, dive)",
+          "outcome": "pass"
+        },
+        {
+          "duration": "0.0s",
+          "name": "oracle and corpus fetch",
+          "outcome": "pass"
+        },
+        {
+          "duration": "5.0s",
+          "name": "cm1 gate (1, 4, 8 workers)",
+          "outcome": "pass"
+        },
+        {
+          "duration": "1.1s",
+          "name": "validation-smoke gate (1, 4, 8 workers)",
+          "outcome": "pass"
+        },
+        {
+          "duration": "7m42s",
+          "name": "small corpus tier (dive, tlc profile, vs baseline)",
+          "outcome": "pass"
+        },
+        {
+          "duration": "6m49s",
+          "name": "small corpus tier (dive, dive profile, vs baseline)",
+          "outcome": "pass"
+        },
+        {
+          "duration": "4.3s",
+          "name": "shadow comparison (core vs reference, cm1, 1, 4 and 8 workers)",
+          "outcome": "pass"
+        },
+        {
+          "duration": "17m05s",
+          "name": "shadow comparison (core vs reference, small tier, 1 and 4 workers)",
+          "outcome": "pass"
+        }
+      ],
+      "reference_cm1": {
+        "models": 21,
+        "workers": [
+          1,
+          4,
+          8
+        ],
+        "outcome": "all agree"
+      },
+      "reference_validation_smoke": {
+        "models": 16,
+        "workers": [
+          1,
+          4,
+          8
+        ],
+        "outcome": "all agree"
+      },
+      "core_reference_default_shadows": {
+        "shadow comparison (core vs reference, cm1, 1, 4 and 8 workers)": {
+          "evidence": "all row outcomes and summary retained in gate.log; no separate shadow JSON written",
+          "row_keys_sha256": "65d947fec28cee32176faa75b3a23bf7c8c8a6ec8de555218bd6b2dfaba3b2c2",
+          "rows": 63,
+          "strict": false,
+          "tally": {
+            "agree": 57,
+            "refused": 6
+          },
+          "workers": [
+            1,
+            4,
+            8
+          ]
+        },
+        "shadow comparison (core vs reference, small tier, 1 and 4 workers)": {
+          "evidence": "all row outcomes and summary retained in gate.log; no separate shadow JSON written",
+          "row_keys_sha256": "74a0974f0c6387dbe7926ae71ca0d5b9a88ee5b6cc9e54257b30b5511d1b2267",
+          "rows": 312,
+          "strict": false,
+          "tally": {
+            "agree": 250,
+            "refused": 62
+          },
+          "workers": [
+            1,
+            4
+          ]
+        }
+      },
+      "source_declared_compiler_warning": "Existing output filename collision for dive-syntax/dive-sema acceptance and acceptance.dwp examples; retained, not resolved by this gate.",
+      "report_sha256": "d5068cad09934f1c2e7571097f5b95a0add42f1f848c07b9f09fb3524216a260",
+      "limits": "Reference panel temporary per-worker JSON is deleted by the scripts; complete model progress and summaries remain in the preserved log. Shadow panels retain row outcomes and summaries in that log and write no separate shadow JSON. Explicit refusals remain separate from native success."
+    },
+    "small_auto_tlc": {
+      "status": "COMPLETE_BASELINE_PASS",
+      "physical_exit": 0,
+      "sany_retained": true,
+      "models_selected": 156,
+      "model_agree": 150,
+      "model_unsupported": 6,
+      "sany_modules_selected": 458,
+      "sany_agree": 458,
+      "actual_core_strict_agree": 124,
+      "dynamic_reference_fallbacks": 3,
+      "static_reference_fallbacks": 21,
+      "frontend_or_no_engine_rows": 8,
+      "report": {
+        "artifact_name": "20261101T134550334-dive-small.json",
+        "sha256": "d14f79a15c6649d735a59c3a3390f413709d7d29b6d14e55cc9d47d6f7455859",
+        "bytes": 287716
+      },
+      "scope": "Terminal independent review verifies the original 156 IDs, baseline outcomes and exact compared observables. Physical command exit is separately recorded in the top-level ledger/rc; internal Auto model exits have no individual physical receipts.",
+      "strict_agreement_routes": {
+        "core": 124,
+        "static_reference_fallback": 21,
+        "dynamic_reference_fallback": 3,
+        "frontend_only_no_engine": 2
+      }
+    },
+    "small_auto_default": {
+      "status": "COMPLETE_BASELINE_PASS",
+      "physical_exit": 0,
+      "models_selected": 156,
+      "model_agree": 144,
+      "expected_divergences": 7,
+      "model_unsupported": 5,
+      "actual_core_strict_agree": 120,
+      "actual_core_expected_divergences": 4,
+      "dynamic_reference_fallbacks": 3,
+      "static_reference_fallbacks": 22,
+      "frontend_or_no_engine_rows": 7,
+      "report": {
+        "artifact_name": "20261101T135218066-dive-small.json",
+        "sha256": "a71bd1f7af59f0545a01c8e841e4c413f10f182c130d590ae72045414e38b8f9",
+        "bytes": 183375
+      },
+      "scope": "Terminal independent review verifies the original 156 IDs, baseline outcomes and exact compared observables. Physical command exit is separately recorded in the top-level ledger/rc; internal Auto model exits have no individual physical receipts.",
+      "strict_agreement_routes": {
+        "core": 120,
+        "static_reference_fallback": 19,
+        "dynamic_reference_fallback": 3,
+        "frontend_only_no_engine": 2
+      },
+      "expected_divergence_routes": {
+        "core": 4,
+        "static_reference_fallback": 3
+      }
+    },
+    "gate_and_census_target_ownership": "separate clean worktrees with exclusive writable targets",
+    "gate_elf_binding": {
+      "dive_sha256": "e5400fa12708ba2e46a6783366e8ab01d78443003fbfab3912028649070478f1",
+      "dive_conformance_sha256": "366a1a3b29efdc3383931900c1ae66d29b33cc1dc5c15ad0f4fa99a74a3ff0e4",
+      "separate_from_census_auto_elfs": true
+    },
+    "final_local_archival_and_review": "complete; terminal review and separate standalone review sealed; subsequent S3 download and every-member verification complete",
+    "census_auto_controller": {
+      "physical_exit": 1,
+      "reason": "Census findings; both Auto commands pass their retained baselines.",
+      "ledger": {
+        "artifact_name": "qualification.json",
+        "sha256": "3606d5fc0e6f2c4dd54234d3a2d2031666032a8af224961e4991272e10898133",
+        "bytes": 12230
+      }
+    },
+    "status": "COMPLETE_WITH_CENSUS_FINDINGS",
+    "physical_top_level_exits": {
+      "census-control/fixture-census.rc": 1,
+      "census-control/parallel.rc": 1,
+      "census-control/qualification.rc": 1,
+      "census-control/release-build.rc": 0,
+      "census-control/small-auto-dive.rc": 0,
+      "census-control/small-auto-tlc.rc": 0,
+      "gate-control/chain.rc": 1,
+      "gate-control/followup.rc": 1,
+      "gate-control/gate.rc": 0,
+      "gate-control/service.rc": 1
+    },
+    "standalone_trace_supplement": {
+      "status": "COMPLETE_PASS",
+      "command": [
+        "cargo",
+        "build",
+        "-p",
+        "dive-trace",
+        "--locked"
+      ],
+      "source": "fb48dbbf42bd224f278b138e74c1c8e29e2af106",
+      "tree": "b2d90500b04efdd00f1c3bcac43dde43e4a0376a",
+      "physical_exit": 0,
+      "compiler_reported_seconds": 11.64,
+      "third_fresh_exclusive_target_distinct_from_gate_and_census": true,
+      "forbidden_normal_dependencies_absent": [
+        "dive-check",
+        "dive-liveness",
+        "dive-sim",
+        "dive-store"
+      ],
+      "dive_eval_enumerate_feature_absent": true,
+      "built_library": {
+        "artifact_name": "libdive_trace.rlib",
+        "bytes": 9533544,
+        "sha256": "53c9408e901c48dff41a5fd545cb84ab73c413bb105a07bad67ef4ea02a11f38"
+      },
+      "review_json": {
+        "artifact_name": "trace-standalone-review.json",
+        "sha256": "bbf1e28b06d87754b4d6191269094522c16c516d608f808c166241b2be752be7",
+        "bytes": 9075
+      },
+      "review_markdown": {
+        "artifact_name": "trace-standalone-review.md",
+        "sha256": "d33d91d372c0da80779a301c195fcd99e72669d590fb7b695366dab0d185670d",
+        "bytes": 3032
+      },
+      "manifest": {
+        "artifact_name": "trace-standalone-manifest.json",
+        "sha256": "2e64cdcf785c84b8dedd12ace3d0abbdeb13641df175833b8a1dd51b771adb4a",
+        "bytes": 552
+      },
+      "part_of_78_minute_full_gate": false,
+      "workflow_issue": 714,
+      "provenance": "The owner-provided operating guide explicitly requests standalone compilation. Frozen repository AGENTS/xtask require validator dependency independence but do not literally include this command as a gate stage. This separately receipted supplement supplies compilation/dependency/feature evidence only."
+    },
+    "terminal_independent_review": {
+      "decision": "approve bounded gate validity and accounting; reject clean census, milestone/release/default promotion",
+      "json": {
+        "artifact_name": "final-review.json",
+        "sha256": "2e3cb0768bd01b1d985f45ad5cc2cc2b949993e7b90c810b06aa4272035c64a5",
+        "bytes": 85672
+      },
+      "markdown": {
+        "artifact_name": "final-review.md",
+        "sha256": "bf581ba9e74a4816c9781e83871bc3ee5516cce320f50a1613de4c2b04f7f9ba",
+        "bytes": 11254
+      },
+      "manifest": {
+        "artifact_name": "final-manifest.json",
+        "sha256": "1b9f9a1951427c16e2f0bb1f9658603cf7e6816a2e74440b68ea6a667230bada",
+        "bytes": 836
+      },
+      "initial_census_review_and_raw_digest_unchanged": true,
+      "scope": "Terminal local gate/census/Auto accounting and source binding. Separate from performance, original capacity and later preservation actions."
+    },
+    "preservation": {
+      "source": "fb48dbbf42bd224f278b138e74c1c8e29e2af106",
+      "tree": "b2d90500b04efdd00f1c3bcac43dde43e4a0376a",
+      "archive": {
+        "s3_uri": "s3://dive-evidence-archive-010928226848-us-east-1/phase3-20261101/local-qualification/local-qualification-evidence.tar.gz",
+        "bytes": 94959086,
+        "sha256": "0ca65949ce48d52bfbb4ca5b7ce693a63757e039281238ad28782f79d5d18550",
+        "downloaded_sha256": "0ca65949ce48d52bfbb4ca5b7ce693a63757e039281238ad28782f79d5d18550",
+        "download_verified": true,
+        "all_member_hashes_verified": true,
+        "archive_member_count": 21924
+      },
+      "verified_utc": "2026-11-01T15:09:07.191999+00:00",
+      "receipt": {
+        "artifact_name": "archive-receipt.json",
+        "sha256": "7096c8d13c6945d232bcb4ee209959cdf41c6cf41fdcb01ec733ea9d84fe127a",
+        "bytes": 2672
+      },
+      "local_archive_receipt": {
+        "artifact_name": "local-archive-receipt.json",
+        "sha256": "53fd9ec8abee92fe3d1a2c3b671499ed116412b26e0c78af7376670e38334569",
+        "bytes": 6285
+      },
+      "scope": "Local qualification preservation only; no outcome score, release, milestone, remote capacity or performance credit.",
+      "includes": "Distinct actual gate/census ELFs, gate baseline reports, qualification receipts, raw fixture receipts, source/input/pin bindings, standalone supplement and immutable reviews.",
+      "service_metadata_does_not_override_physical_rcs": true
+    }
+  },
+  "rejected_payload_experiment": {
+    "pr": 710,
+    "state": "CLOSED_UNMERGED_VALID_NEGATIVE",
+    "issue_remaining_open": 708,
+    "candidate": {
+      "commit": "ee9e789cb83fcb5bcfe82924b35490dbb5fdb0d1",
+      "tree": "dccf40a69432c7c1e3f314cbb9864b7683bd6a37",
+      "ELF_sha256": "84d72596916db8a14e0ccf343437c4dc9d50fb1c47d6ec1b27f78668692bfa7c"
+    },
+    "baseline": {
+      "commit": "b2274f3dbb28654e9caeb166d88dd6bffeaedb5a",
+      "tree": "97a3990e297cc300c0acdace948ae49755162284",
+      "ELF_sha256": "f0547ac1720a2a439df6ec4e5fe9d0dc208026c90773e99e4ac8a3d17221692c"
+    },
+    "pre_timing_contract": {
+      "artifact_name": "adoption-contract.json",
+      "sha256": "8f8bfc58b2d0e9806df2c9e9bf09fa4bcf1a8da00d59ca10d1313d8571e14ce0",
+      "bytes": 1333
+    },
+    "contract_declared_utc": "2026-11-01T13:08:51.665149+00:00",
+    "models": [
+      "TLCSailfish1",
+      "SimpleRegular",
+      "MCLamportMutex",
+      "CoffeeCan1000BeansSafety"
+    ],
+    "profile": "default",
+    "workers": [
+      1,
+      8
+    ],
+    "repetitions": 3,
+    "native_rows": 48,
+    "matched_pairs": 24,
+    "metric": "median of candidate wall / baseline wall for the same model, workers and repetition",
+    "adoption_required_w1_slow_model_ratio_maximum": 0.95,
+    "adoption_required_other_cell_ratio_maximum": 1.02,
+    "cell_metrics": [
+      {
+        "model": "TLCSailfish1",
+        "workers": 1,
+        "median_candidate_over_baseline": 1.003321809259909,
+        "ceiling": 0.95,
+        "pass": false
+      },
+      {
+        "model": "TLCSailfish1",
+        "workers": 8,
+        "median_candidate_over_baseline": 0.9788073137216156,
+        "ceiling": 1.02,
+        "pass": true
+      },
+      {
+        "model": "MCLamportMutex",
+        "workers": 1,
+        "median_candidate_over_baseline": 1.0000056165413531,
+        "ceiling": 1.02,
+        "pass": true
+      },
+      {
+        "model": "MCLamportMutex",
+        "workers": 8,
+        "median_candidate_over_baseline": 1.0077965855911013,
+        "ceiling": 1.02,
+        "pass": true
+      },
+      {
+        "model": "SimpleRegular",
+        "workers": 1,
+        "median_candidate_over_baseline": 0.9967711653032154,
+        "ceiling": 0.95,
+        "pass": false
+      },
+      {
+        "model": "SimpleRegular",
+        "workers": 8,
+        "median_candidate_over_baseline": 1.0133707753560135,
+        "ceiling": 1.02,
+        "pass": true
+      },
+      {
+        "model": "CoffeeCan1000BeansSafety",
+        "workers": 1,
+        "median_candidate_over_baseline": 0.9797804913446757,
+        "ceiling": 1.02,
+        "pass": true
+      },
+      {
+        "model": "CoffeeCan1000BeansSafety",
+        "workers": 8,
+        "median_candidate_over_baseline": 1.0393378286538386,
+        "ceiling": 1.02,
+        "pass": false
+      }
+    ],
+    "every_row_correct_actual_core_requested_workers_no_fallback_or_stop": true,
+    "independent_review_decision": "approve experimental validity and observed physical window; reject adoption",
+    "independent_review": {
+      "markdown": {
+        "artifact_name": "review.md",
+        "sha256": "71ca936c1f01d53b378d6d56bfeb0ddf8b890e5ef00726fc9cd6b07676289393",
+        "bytes": 8980
+      },
+      "json": {
+        "artifact_name": "review.json",
+        "sha256": "b46455485870cfb2b116ddbeb15fa265a06dbb7659fa6aad8acf65ba0db4f77e",
+        "bytes": 52404
+      }
+    },
+    "decision": {
+      "artifact_name": "adoption-decision.json",
+      "sha256": "fb5c2b056a5d66c9b57e29b61651d739e64d24a0a658d39aeecd75cfbf0eecee",
+      "bytes": 2728
+    },
+    "archive": {
+      "s3_uri": "s3://dive-evidence-archive-010928226848-us-east-1/phase3-20261101/payload-ab-ee9e789c.tar.gz",
+      "sha256": "aed1ec200e55dda136e2141fb52e71591fcf51e0d2daa1a7f65fda0180a01721",
+      "bytes": 61860371,
+      "members": 60,
+      "manifested_other_members": 59,
+      "root_download_and_all_member_hashes_verified": true
+    },
+    "raw_quiet_claim_and_quiet_window_certified_retained_false": true,
+    "confirmation_block_run": false,
+    "compatibility_eight_row_cohort_run": false,
+    "cohorts_pooled": false,
+    "rescue_variant_proposed": false,
+    "five_repeat_tlc_throughput_capacity_or_milestone_credit": false
+  },
+  "focused_original_aba_pair": {
+    "status": "COMPLETE_RECOVERED_BOUNDED_CELL_EVIDENCE_APPROVED",
+    "same_host_and_boot": true,
+    "model": "specifications/aba-asyn-byz/aba_asyn_byz.cfg",
+    "original_temporal_configuration": "N4/T1/F1",
+    "profile": "default",
+    "workers": 8,
+    "seed": 0,
+    "fingerprint": 0,
+    "native_time_limit_seconds": 900,
+    "native_memory_bytes": 17179869184,
+    "external_backstop_seconds": 930,
+    "effective_configuration_sha256": "07d4cdd82bab8afc2055adcf3d7202ade9223e573b9fdc41e03e978601df97f2",
+    "module_sha256": "8d58bba250c826ed5655364210152c873b52f9837c5592d1a688020abe4eab6c",
+    "golden_sha256": "7a362a8e283e2f8e16bb562f72e65848f3cb73a4b134486fa5c517ad65776fd1",
+    "rows": [
+      {
+        "label": "baseline",
+        "source": "b2274f3dbb28654e9caeb166d88dd6bffeaedb5a",
+        "tree": "97a3990e297cc300c0acdace948ae49755162284",
+        "binary_sha256": "d92407597d3a9c1ffde6149728386f15732709e7f28d79cc98b89b9e2429c11c",
+        "wall_seconds": 900.097005162,
+        "physical_exit": 5,
+        "qualified_expected_success": false,
+        "counts_ok": true,
+        "policy_ok": true,
+        "actual_workers": 8,
+        "verdict": "stopped",
+        "statistics": {
+          "depth": 45,
+          "distinct": 5843977,
+          "exhaustive": false,
+          "generated": 85612896,
+          "initial_generated": 16,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "row_proofs": null,
+        "capture_completed": true,
+        "stop_stage": "product",
+        "gnu_time_peak_rss_bytes": 9546985472,
+        "sampled_rss_swap_max_bytes": 9521958912,
+        "external_timeout": false,
+        "stop_phase": "temporal-analysis",
+        "raw_tlc_class": null
+      },
+      {
+        "label": "candidate",
+        "source": "a1e731d3312199dc718d0436026d4c685ce9e5ee",
+        "tree": "4855a438588936a2f21034a47b878e6c3adeb7d0",
+        "binary_sha256": "f966f2c138b7b2e972b3029a7e5909ae41729f96ae06e5a2c074e1b51392b5a2",
+        "wall_seconds": 836.981142607,
+        "physical_exit": 0,
+        "qualified_expected_success": true,
+        "counts_ok": true,
+        "policy_ok": true,
+        "actual_workers": 8,
+        "verdict": "success",
+        "statistics": {
+          "depth": 45,
+          "distinct": 5843977,
+          "generated": 85612896,
+          "initial_generated": 16,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "row_proofs": {
+          "certified": 11615818,
+          "hits": 396895660,
+          "peak_storage_bytes": 730498,
+          "scans": 11615818
+        },
+        "capture_completed": true,
+        "gnu_time_peak_rss_bytes": 12227108864,
+        "sampled_rss_swap_max_bytes": 12227420160,
+        "external_timeout": false,
+        "deciding_tlc_code": 2193,
+        "deciding_tlc_name": "TLC_SUCCESS",
+        "final_execution_exhausted": true
+      }
+    ],
+    "baseline_completion_time_censored": true,
+    "completion_speed_factor": null,
+    "raw_quiet_window_certified": false,
+    "record": {
+      "artifact_name": "campaign-receipt.json",
+      "sha256": "8580a6a1eb507f5efc9301be9a4d82099c1c8b839122611fb193ea1f75f943bf",
+      "bytes": 22166
+    },
+    "archive": {
+      "s3_uri": "s3://dive-evidence-archive-010928226848-us-east-1/phase3-20261101/aba-focused-a1e731d3.tar.gz",
+      "sha256": "2f7439248911902c43ef3af4788e342c854c5686246e67001c1f6c82dc69da60",
+      "bytes": 44641423,
+      "members": 132,
+      "root_download_and_all_member_hashes_verified": true,
+      "verified_utc": "2026-11-01T13:48:25.861353+00:00"
+    },
+    "final_source_original_twelve_cell_capacity_qualification": false,
+    "quiet_or_general_performance_acceptance": false,
+    "limit": "One candidate completion versus a censored native temporal-analysis/product stop at earlier implementation sources, recovered after focused-controller archival failure and independently reviewed. No completion speed ratio, quiet-host claim, exclusive atom-cost causality, memory-savings claim or execution credit for the final fb48 source/matrix.",
+    "independent_review": {
+      "decision": "approve",
+      "scope": "Validity of the recovered original ABA default/W8 baseline/candidate evidence and one observed candidate temporal completion under unchanged limits.",
+      "reviewed_utc": "2026-11-01T14:02:23.360388+00:00",
+      "checks_passed": 88,
+      "checks_failed": 0,
+      "markdown": {
+        "artifact_name": "review.md",
+        "sha256": "ec54c7007a8c3aaf5df16277e1c302cd9b9363cdb7624ce3762b6de5e872a0b5",
+        "bytes": 13473
+      },
+      "json": {
+        "artifact_name": "review.json",
+        "sha256": "617cc39509782bfc79d0b36f32523f11a5103c31f31bd088873e85e3fe7eec8d",
+        "bytes": 34493
+      },
+      "checks": {
+        "artifact_name": "checks.json",
+        "sha256": "c1375134cf98509d29aab8175a02b9ea6d8bf148aabb65a047cb2c4fecd7f2db",
+        "bytes": 75942
+      },
+      "audit_script": {
+        "artifact_name": "audit_pair.py",
+        "sha256": "ca5082a703add68a609adec392b9cce406547bda2697371c8e5e73ae5b4690b0",
+        "bytes": 31765
+      },
+      "failed_controller_approved_as_successful": false,
+      "source_fb48_execution_credit": false,
+      "full_matrix_or_milestone_credit": false
+    },
+    "controller_operations": {
+      "original_service_result": "exit-code",
+      "original_service_exec_main_status": 1,
+      "original_service_state": "failed",
+      "both_physical_model_cells_finished_before_failure": true,
+      "failed_stage": "archival",
+      "error": "PermissionError reading root-owned ready-validation.json",
+      "historical_nested_tar": "partial; not the final receipt",
+      "later_root_preservation": "Recovered the completed raw cell files, actual ELFs, source/input bindings, drained-service facts and unchanged fixed timer into the final archive.",
+      "final_preserved_utc": "2026-11-01T13:46:43.899346+00:00",
+      "final_archive_members": 132,
+      "all_final_archive_members_downloaded_and_hash_verified": true,
+      "original_focused_controller_success": false,
+      "cell_outcome_validity_retained": true,
+      "scope": "This failure belongs to the focused controller. It is not an observed failure of the separate final-source twelve-cell launcher, which prepares ownership of its whole control tree."
+    },
+    "baseline_summary_projection_caveat": "Authoritative raw baseline tlc:null is normalized to tlc:{} in the runner summaries. Neither representation supplies a TLC success class; the raw native stop is authoritative.",
+    "proof_consumption": {
+      "row_demands": 408511478,
+      "scans_plus_hits": 408511478,
+      "peak_bit_vector_bytes": 730498,
+      "per_reader_cap_bytes": 1048576,
+      "counters_do_not_measure_time": true,
+      "certifications_aggregate_fresh_readers_not_unique_graph_rows": true
+    },
+    "memory_observation": {
+      "metric": "GNU-time process maximum RSS, separately from sampled RSS+swap",
+      "candidate_peak_rss_bytes": 12227108864,
+      "baseline_peak_rss_bytes": 9546985472,
+      "both_observed_metrics_below_16_gib": true,
+      "memory_savings_claim": false,
+      "exclusive_proof_bit_allocation_cause_claim": false,
+      "limit": "The candidate completed analysis the baseline did not. These observed metrics neither establish a memory saving nor prove a true allocation-time peak or the cause of the higher candidate RSS."
+    }
+  },
+  "legacy_primary2111_limitation": {
+    "issue": 713,
+    "status": "OPEN_INHERITED_OUTSIDE_FROZEN_IMPLEMENTATION_DELTA",
+    "baseline_source": {
+      "head": "b2274f3dbb28654e9caeb166d88dd6bffeaedb5a",
+      "tree": "97a3990e297cc300c0acdace948ae49755162284"
+    },
+    "reviewed_source": {
+      "head": "54f2e51e58b37fbbe8ae3501f525d0f4129cdc9a",
+      "tree": "8705b11a2dc56b8db67dce8b45a513463ef348c3"
+    },
+    "identical_observation": true,
+    "fixtures": [
+      "ErInvConstrained",
+      "ErInvReplayError"
+    ],
+    "forged_deciding_code": 2111,
+    "jointly_forged_report_and_physical_exits_accepted": [
+      76,
+      12
+    ],
+    "actual_independently_replayed_deciding_codes": [
+      2179,
+      2103
+    ],
+    "new_diagnostic_certificate_scope_excludes_legacy_primary_branch": true,
+    "canonical_streams_remain_unclassified": true,
+    "pinned_oracle_agreement_created": false,
+    "receipt": {
+      "artifact_name": "result.json",
+      "sha256": "73d527addde8b6eb60bf13d6aa99ca755717c827543489d9b1960973dcb9fb26",
+      "bytes": 6477
+    }
+  },
+  "historical_records_preserved": [
+    "conformance/reports/core/2026-11-01-integrated-qualification.json",
+    "conformance/reports/perf/2026-11-01-integrated-performance.json",
+    "conformance/reports/perf/2026-11-01-original-capacity.json",
+    "conformance/reports/core/2026-10-31-local-qualification.json"
+  ],
+  "acceptance": {
+    "clean_census": false,
+    "M1": false,
+    "M2": false,
+    "RC_or_release": false,
+    "engine_default_changed": false,
+    "historical_source_results_relabelled": false,
+    "new_build_test_model_gate_or_AWS_execution_by_record_writer": false,
+    "capacity_and_performance_acceptance": false
+  },
+  "integrated_performance": {
+    "source": "fb48dbbf42bd224f278b138e74c1c8e29e2af106",
+    "tree": "b2d90500b04efdd00f1c3bcac43dde43e4a0376a",
+    "status": "COMPLETE_CONTROLLED_DIAGNOSTICS_PERFORMANCE_ACCEPTANCE_REJECTED",
+    "native_dive_elf_sha256": "d7ebc89617d221eaabcec624224323352bab6c60aaba947b9c64bd2ee19d380f",
+    "harness_elf_sha256": "a8503ca6444877c00fbaf62337d61ffefccfcaf14a718d0517218d2b81f16ed0",
+    "runner_elf_sha256": "c699bccd08a556f4fa704bb532a168671dcc54a405c2a8a2eb857350f00b95d3",
+    "wrapper_sha256_not_elf": "5950a6b92c2d2f33c980cc92e71a27bf0bb6723ec7ce71fc76d55ea9d358421f",
+    "total_correct_observations_across_separate_cohorts": 96,
+    "total_actual_core_observations": 64,
+    "cohorts_pooled": false,
+    "focus": {
+      "run_id": "focus-fb48dbbf-3rep",
+      "models": 2,
+      "repetitions": 3,
+      "rows": 36,
+      "actual_core_rows": 24,
+      "runner_physical_exit": 0,
+      "all_rows_correct_requested_workers_no_fallback_or_stops": true,
+      "ratios": [
+        {
+          "median_native_over_tlc": 1.1099475143810047,
+          "median_tlc_over_native": 0.9009435014210377,
+          "model": "TLCSailfish1",
+          "pairs": [
+            {
+              "native_over_tlc": 1.1099475143810047,
+              "native_wall_s": 59.50937301,
+              "rep": 1,
+              "tlc_over_native": 0.9009435014210377,
+              "tlc_wall_s": 53.614582887
+            },
+            {
+              "native_over_tlc": 1.1172932979521761,
+              "native_wall_s": 59.541659841,
+              "rep": 2,
+              "tlc_over_native": 0.8950201364608948,
+              "tlc_wall_s": 53.290984516
+            },
+            {
+              "native_over_tlc": 1.1043477953571255,
+              "native_wall_s": 59.435640681,
+              "rep": 3,
+              "tlc_over_native": 0.9055118362205982,
+              "tlc_wall_s": 53.81967613
+            }
+          ],
+          "profile": "default",
+          "workers": 1
+        },
+        {
+          "median_native_over_tlc": 1.5095383298901688,
+          "median_tlc_over_native": 0.6624541955637245,
+          "model": "TLCSailfish1",
+          "pairs": [
+            {
+              "native_over_tlc": 1.5095383298901688,
+              "native_wall_s": 80.933267909,
+              "rep": 1,
+              "tlc_over_native": 0.6624541955637245,
+              "tlc_wall_s": 53.614582887
+            },
+            {
+              "native_over_tlc": 1.5171471976789177,
+              "native_wall_s": 80.85026782,
+              "rep": 2,
+              "tlc_over_native": 0.6591318242092127,
+              "tlc_wall_s": 53.290984516
+            },
+            {
+              "native_over_tlc": 1.5027973981046696,
+              "native_wall_s": 80.880069255,
+              "rep": 3,
+              "tlc_over_native": 0.6654256929518254,
+              "tlc_wall_s": 53.81967613
+            }
+          ],
+          "profile": "tlc",
+          "workers": 1
+        },
+        {
+          "median_native_over_tlc": 1.2978387442396937,
+          "median_tlc_over_native": 0.7705117484266698,
+          "model": "TLCSailfish1",
+          "pairs": [
+            {
+              "native_over_tlc": 1.2978387442396937,
+              "native_wall_s": 11.112533803,
+              "rep": 1,
+              "tlc_over_native": 0.7705117484266698,
+              "tlc_wall_s": 8.56233785
+            },
+            {
+              "native_over_tlc": 1.2553644217448714,
+              "native_wall_s": 10.748181775,
+              "rep": 2,
+              "tlc_over_native": 0.7965814409572542,
+              "tlc_wall_s": 8.561802126
+            },
+            {
+              "native_over_tlc": 1.3016623934820148,
+              "native_wall_s": 11.242529421,
+              "rep": 3,
+              "tlc_over_native": 0.7682483607173652,
+              "tlc_wall_s": 8.637054798
+            }
+          ],
+          "profile": "default",
+          "workers": 8
+        },
+        {
+          "median_native_over_tlc": 1.577358365157245,
+          "median_tlc_over_native": 0.6339713422702845,
+          "model": "TLCSailfish1",
+          "pairs": [
+            {
+              "native_over_tlc": 1.577358365157245,
+              "native_wall_s": 13.505875233,
+              "rep": 1,
+              "tlc_over_native": 0.6339713422702845,
+              "tlc_wall_s": 8.56233785
+            },
+            {
+              "native_over_tlc": 1.5921043384786115,
+              "native_wall_s": 13.63128231,
+              "rep": 2,
+              "tlc_over_native": 0.6280995383478343,
+              "tlc_wall_s": 8.561802126
+            },
+            {
+              "native_over_tlc": 1.5753455987277853,
+              "native_wall_s": 13.606346262,
+              "rep": 3,
+              "tlc_over_native": 0.6347813462694015,
+              "tlc_wall_s": 8.637054798
+            }
+          ],
+          "profile": "tlc",
+          "workers": 8
+        },
+        {
+          "median_native_over_tlc": 1.366112867400955,
+          "median_tlc_over_native": 0.7320039389589464,
+          "model": "SimpleRegular",
+          "pairs": [
+            {
+              "native_over_tlc": 1.3660563573895568,
+              "native_wall_s": 7.653872803,
+              "rep": 1,
+              "tlc_over_native": 0.7320342199577576,
+              "tlc_wall_s": 5.6028968070000005
+            },
+            {
+              "native_over_tlc": 1.3837209627498672,
+              "native_wall_s": 7.684346231,
+              "rep": 2,
+              "tlc_over_native": 0.7226890586471286,
+              "tlc_wall_s": 5.5533929440000005
+            },
+            {
+              "native_over_tlc": 1.366112867400955,
+              "native_wall_s": 7.654092467,
+              "rep": 3,
+              "tlc_over_native": 0.7320039389589464,
+              "tlc_wall_s": 5.602825835
+            }
+          ],
+          "profile": "default",
+          "workers": 1
+        },
+        {
+          "median_native_over_tlc": 1.430661076046102,
+          "median_tlc_over_native": 0.6989775683026801,
+          "model": "SimpleRegular",
+          "pairs": [
+            {
+              "native_over_tlc": 1.4296557034554713,
+              "native_wall_s": 8.010213376,
+              "rep": 1,
+              "tlc_over_native": 0.6994691082496328,
+              "tlc_wall_s": 5.6028968070000005
+            },
+            {
+              "native_over_tlc": 1.4414425238265651,
+              "native_wall_s": 8.004896741,
+              "rep": 2,
+              "tlc_over_native": 0.6937494790602697,
+              "tlc_wall_s": 5.5533929440000005
+            },
+            {
+              "native_over_tlc": 1.430661076046102,
+              "native_wall_s": 8.015744838,
+              "rep": 3,
+              "tlc_over_native": 0.6989775683026801,
+              "tlc_wall_s": 5.602825835
+            }
+          ],
+          "profile": "tlc",
+          "workers": 1
+        },
+        {
+          "median_native_over_tlc": 1.2427771193373505,
+          "median_tlc_over_native": 0.8046495099082615,
+          "model": "SimpleRegular",
+          "pairs": [
+            {
+              "native_over_tlc": 1.2450466228668273,
+              "native_wall_s": 2.298954993,
+              "rep": 1,
+              "tlc_over_native": 0.803182773748194,
+              "tlc_wall_s": 1.846481048
+            },
+            {
+              "native_over_tlc": 1.2427771193373505,
+              "native_wall_s": 2.297944775,
+              "rep": 2,
+              "tlc_over_native": 0.8046495099082615,
+              "tlc_wall_s": 1.849040137
+            },
+            {
+              "native_over_tlc": 1.1736588255001472,
+              "native_wall_s": 2.223101197,
+              "rep": 3,
+              "tlc_over_native": 0.8520363654862446,
+              "tlc_wall_s": 1.894163064
+            }
+          ],
+          "profile": "default",
+          "workers": 8
+        },
+        {
+          "median_native_over_tlc": 1.1888767382662826,
+          "median_tlc_over_native": 0.8411300918026893,
+          "model": "SimpleRegular",
+          "pairs": [
+            {
+              "native_over_tlc": 1.1496710915605346,
+              "native_wall_s": 2.122845882,
+              "rep": 1,
+              "tlc_over_native": 0.8698139905758829,
+              "tlc_wall_s": 1.846481048
+            },
+            {
+              "native_over_tlc": 1.1888767382662826,
+              "native_wall_s": 2.198280807,
+              "rep": 2,
+              "tlc_over_native": 0.8411300918026893,
+              "tlc_wall_s": 1.849040137
+            },
+            {
+              "native_over_tlc": 1.2003200063455572,
+              "native_wall_s": 2.273601821,
+              "rep": 3,
+              "tlc_over_native": 0.8331111659502844,
+              "tlc_wall_s": 1.894163064
+            }
+          ],
+          "profile": "tlc",
+          "workers": 8
+        }
+      ],
+      "default_floor_misses": 4,
+      "compatibility_sailfish_both_workers_every_repetition_above_1_5": true,
+      "compatibility_all_focus_medians_at_most_2": true,
+      "independent_review": {
+        "decision": "Controlled complete-window focus diagnostic validity; valid negative default-performance result",
+        "qualification": "reject",
+        "checks_passed": 84,
+        "json": {
+          "artifact_name": "review.focus.json",
+          "sha256": "5b388291f4fc1023b9a042dac864841612fa9061b36dafe5b8a48c3cb57ec7a4",
+          "bytes": 68873
+        },
+        "markdown": {
+          "artifact_name": "review.focus.md",
+          "sha256": "44b0f3dc58022a67dd262a4e0296ae7eef73b910f60f39eeea593defbc53663b",
+          "bytes": 11136
+        }
+      },
+      "archive": {
+        "s3_uri": "s3://dive-evidence-archive-010928226848-us-east-1/phase3-20261101/final-focus-fb48dbbf.tar.gz",
+        "sha256": "d2e7f82914a018d4c837cd3bdae050a4498b050a88241598f4d7f8c5963a8937",
+        "bytes": 55887680,
+        "members": 58,
+        "root_download_and_all_member_hashes_verified": true,
+        "verified_utc": "2026-11-01T14:04:25.379397+00:00",
+        "verification_receipt": {
+          "artifact_name": "final-focus-fb48dbbf-verification.json",
+          "sha256": "9db677b58c8d5cf55f2f0252467790379097837f1e1e6c792af4dc78a1476ceb",
+          "bytes": 642
+        }
+      },
+      "raw_quiet_flags_retained_false": true,
+      "limits": "Three matched repetitions and two models only. Controlled observed window with periodic-sampling limits; no five-repeat, whole-panel or milestone acceptance."
+    },
+    "breadth": {
+      "run_id": "breadth-fb48dbbf-1rep",
+      "models": 10,
+      "repetitions": 1,
+      "rows": 60,
+      "actual_core_rows": 40,
+      "runner_physical_exit": 0,
+      "all_rows_correct_requested_workers_no_fallback_or_stops": true,
+      "single_pair_ratios": [
+        {
+          "model": "GameOfLife",
+          "native_over_tlc": 1.2462593364154224,
+          "native_wall_s": 16.762803277,
+          "profile": "default",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 0.8024012103903425,
+          "tlc_wall_s": 13.450493639,
+          "workers": 1
+        },
+        {
+          "model": "GameOfLife",
+          "native_over_tlc": 2.0013329241648066,
+          "native_wall_s": 26.918915766,
+          "profile": "tlc",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 0.4996669908967387,
+          "tlc_wall_s": 13.450493639,
+          "workers": 1
+        },
+        {
+          "model": "GameOfLife",
+          "native_over_tlc": 1.0323487523067854,
+          "native_wall_s": 3.120702542,
+          "profile": "default",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 0.9686648991104003,
+          "tlc_wall_s": 3.022915013,
+          "workers": 8
+        },
+        {
+          "model": "GameOfLife",
+          "native_over_tlc": 1.397342237156702,
+          "native_wall_s": 4.2240468270000004,
+          "profile": "tlc",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 0.7156442948685142,
+          "tlc_wall_s": 3.022915013,
+          "workers": 8
+        },
+        {
+          "model": "TLCSailfish1",
+          "native_over_tlc": 1.0816413032927312,
+          "native_wall_s": 59.484415356,
+          "profile": "default",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 0.9245209081382166,
+          "tlc_wall_s": 54.994585705,
+          "workers": 1
+        },
+        {
+          "model": "TLCSailfish1",
+          "native_over_tlc": 1.471592938568897,
+          "native_wall_s": 80.929643983,
+          "profile": "tlc",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 0.6795357423857209,
+          "tlc_wall_s": 54.994585705,
+          "workers": 1
+        },
+        {
+          "model": "TLCSailfish1",
+          "native_over_tlc": 1.1850554654597572,
+          "native_wall_s": 10.472443838,
+          "profile": "default",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 0.8438423594055467,
+          "tlc_wall_s": 8.837091717,
+          "workers": 8
+        },
+        {
+          "model": "TLCSailfish1",
+          "native_over_tlc": 1.5510859745442653,
+          "native_wall_s": 13.707089018,
+          "profile": "tlc",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 0.6447095882572316,
+          "tlc_wall_s": 8.837091717,
+          "workers": 8
+        },
+        {
+          "model": "EWD998PCal",
+          "native_over_tlc": 0.3643761603813821,
+          "native_wall_s": 16.085615462,
+          "profile": "default",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 2.7444166461201207,
+          "tlc_wall_s": 44.145630837,
+          "workers": 1
+        },
+        {
+          "model": "EWD998PCal",
+          "native_over_tlc": 0.3928875676970316,
+          "native_wall_s": 17.344269524,
+          "profile": "tlc",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 2.5452574278734437,
+          "tlc_wall_s": 44.145630837,
+          "workers": 1
+        },
+        {
+          "model": "EWD998PCal",
+          "native_over_tlc": 0.40650177813067734,
+          "native_wall_s": 3.175745209,
+          "profile": "default",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 2.4600138395422517,
+          "tlc_wall_s": 7.812377165,
+          "workers": 8
+        },
+        {
+          "model": "EWD998PCal",
+          "native_over_tlc": 0.41615166899075334,
+          "native_wall_s": 3.251133796,
+          "profile": "tlc",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 2.402970057587873,
+          "tlc_wall_s": 7.812377165,
+          "workers": 8
+        },
+        {
+          "model": "MCBakery",
+          "native_over_tlc": 1.0366632012455392,
+          "native_wall_s": 12.543741708,
+          "profile": "default",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 0.9646334497052766,
+          "tlc_wall_s": 12.100112836,
+          "workers": 1
+        },
+        {
+          "model": "MCBakery",
+          "native_over_tlc": 0.9852667587140508,
+          "native_wall_s": 11.921838954,
+          "profile": "tlc",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 1.0149535556291158,
+          "tlc_wall_s": 12.100112836,
+          "workers": 1
+        },
+        {
+          "model": "MCBakery",
+          "native_over_tlc": 1.3262822412273716,
+          "native_wall_s": 10.523283558,
+          "profile": "default",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 0.7539873255594355,
+          "tlc_wall_s": 7.934422426,
+          "workers": 8
+        },
+        {
+          "model": "MCBakery",
+          "native_over_tlc": 1.2377355068491032,
+          "native_wall_s": 9.820716363,
+          "profile": "tlc",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 0.80792705264285,
+          "tlc_wall_s": 7.934422426,
+          "workers": 8
+        },
+        {
+          "model": "MCLamportMutex",
+          "native_over_tlc": 0.7982558972987661,
+          "native_wall_s": 14.583754652,
+          "profile": "default",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 1.2527311146512286,
+          "tlc_wall_s": 18.269523221,
+          "workers": 1
+        },
+        {
+          "model": "MCLamportMutex",
+          "native_over_tlc": 0.8435422074553984,
+          "native_wall_s": 15.411113947,
+          "profile": "tlc",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 1.1854771357755376,
+          "tlc_wall_s": 18.269523221,
+          "workers": 1
+        },
+        {
+          "model": "MCLamportMutex",
+          "native_over_tlc": 0.9071871371571731,
+          "native_wall_s": 3.903706266,
+          "profile": "default",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 1.102308398169833,
+          "tlc_wall_s": 4.303088201,
+          "workers": 8
+        },
+        {
+          "model": "MCLamportMutex",
+          "native_over_tlc": 0.9769254058104305,
+          "native_wall_s": 4.203796187,
+          "profile": "tlc",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 1.0236196070368622,
+          "tlc_wall_s": 4.303088201,
+          "workers": 8
+        },
+        {
+          "model": "SimpleRegular",
+          "native_over_tlc": 1.3752900211952093,
+          "native_wall_s": 7.678975254,
+          "profile": "default",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 0.7271193599812061,
+          "tlc_wall_s": 5.583531572,
+          "workers": 1
+        },
+        {
+          "model": "SimpleRegular",
+          "native_over_tlc": 1.4345799613936525,
+          "native_wall_s": 8.010022507,
+          "profile": "tlc",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 0.6970681501981453,
+          "tlc_wall_s": 5.583531572,
+          "workers": 1
+        },
+        {
+          "model": "SimpleRegular",
+          "native_over_tlc": 1.1333490310884864,
+          "native_wall_s": 2.173154976,
+          "profile": "default",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 0.8823407199100741,
+          "tlc_wall_s": 1.917463126,
+          "workers": 8
+        },
+        {
+          "model": "SimpleRegular",
+          "native_over_tlc": 1.1855990601198139,
+          "native_wall_s": 2.27334248,
+          "profile": "tlc",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 0.8434554594695295,
+          "tlc_wall_s": 1.917463126,
+          "workers": 8
+        },
+        {
+          "model": "MCbtree",
+          "native_over_tlc": 0.4721350855322689,
+          "native_wall_s": 19.870976565,
+          "profile": "default",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 2.118037889246537,
+          "tlc_wall_s": 42.087481261,
+          "workers": 1
+        },
+        {
+          "model": "MCbtree",
+          "native_over_tlc": 0.4835796292913258,
+          "native_wall_s": 20.352648586,
+          "profile": "tlc",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 2.0679117552273154,
+          "tlc_wall_s": 42.087481261,
+          "workers": 1
+        },
+        {
+          "model": "MCbtree",
+          "native_over_tlc": 0.5073239300240385,
+          "native_wall_s": 4.229003745,
+          "profile": "default",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 1.971127204570494,
+          "tlc_wall_s": 8.33590433,
+          "workers": 8
+        },
+        {
+          "model": "MCbtree",
+          "native_over_tlc": 0.5073358413891489,
+          "native_wall_s": 4.229103037,
+          "profile": "tlc",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 1.9710809259244824,
+          "tlc_wall_s": 8.33590433,
+          "workers": 8
+        },
+        {
+          "model": "CoffeeCan1000BeansSafety",
+          "native_over_tlc": 0.5065422591234795,
+          "native_wall_s": 1.2404405330000001,
+          "profile": "default",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 1.97416895034661,
+          "tlc_wall_s": 2.4488391849999998,
+          "workers": 1
+        },
+        {
+          "model": "CoffeeCan1000BeansSafety",
+          "native_over_tlc": 0.5085449292171467,
+          "native_wall_s": 1.2453447500000001,
+          "profile": "tlc",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 1.9663945947497667,
+          "tlc_wall_s": 2.4488391849999998,
+          "workers": 1
+        },
+        {
+          "model": "CoffeeCan1000BeansSafety",
+          "native_over_tlc": 0.4909865120809906,
+          "native_wall_s": 0.794260851,
+          "profile": "default",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 2.0367158270022805,
+          "tlc_wall_s": 1.6176836460000001,
+          "workers": 8
+        },
+        {
+          "model": "CoffeeCan1000BeansSafety",
+          "native_over_tlc": 0.4909193500000308,
+          "native_wall_s": 0.794152204,
+          "profile": "tlc",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 2.036994467624748,
+          "tlc_wall_s": 1.6176836460000001,
+          "workers": 8
+        },
+        {
+          "model": "MCDisruptor_MPMC",
+          "native_over_tlc": 0.4915106003082358,
+          "native_wall_s": 2.238573861,
+          "profile": "default",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 2.034544116389109,
+          "tlc_wall_s": 4.554477278,
+          "workers": 1
+        },
+        {
+          "model": "MCDisruptor_MPMC",
+          "native_over_tlc": 0.4936993634508588,
+          "native_wall_s": 2.248542533,
+          "profile": "tlc",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 2.025524183402227,
+          "tlc_wall_s": 4.554477278,
+          "workers": 1
+        },
+        {
+          "model": "MCDisruptor_MPMC",
+          "native_over_tlc": 0.36687265610368736,
+          "native_wall_s": 0.593042955,
+          "profile": "default",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 2.725741434699279,
+          "tlc_wall_s": 1.6164817550000001,
+          "workers": 8
+        },
+        {
+          "model": "MCDisruptor_MPMC",
+          "native_over_tlc": 0.3669569459508066,
+          "native_wall_s": 0.593179208,
+          "profile": "tlc",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 2.7251153331052023,
+          "tlc_wall_s": 1.6164817550000001,
+          "workers": 8
+        },
+        {
+          "model": "BufferedRandomAccessFile",
+          "native_over_tlc": 0.2981242501394338,
+          "native_wall_s": 15.702361386,
+          "profile": "default",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 3.354306130857508,
+          "tlc_wall_s": 52.670527066,
+          "workers": 1
+        },
+        {
+          "model": "BufferedRandomAccessFile",
+          "native_over_tlc": 0.3547744390441525,
+          "native_wall_s": 18.686156694,
+          "profile": "tlc",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 2.8186923575842724,
+          "tlc_wall_s": 52.670527066,
+          "workers": 1
+        },
+        {
+          "model": "BufferedRandomAccessFile",
+          "native_over_tlc": 0.3118092708351628,
+          "native_wall_s": 2.669391209,
+          "profile": "default",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 3.2070887351154083,
+          "tlc_wall_s": 8.560974476,
+          "workers": 8
+        },
+        {
+          "model": "BufferedRandomAccessFile",
+          "native_over_tlc": 0.3616256376746614,
+          "native_wall_s": 3.095867854,
+          "profile": "tlc",
+          "rep": 1,
+          "single_pair_only": true,
+          "tlc_over_native": 2.7652906647610416,
+          "tlc_wall_s": 8.560974476,
+          "workers": 8
+        }
+      ],
+      "descriptive_equal_model_aggregates": [
+        {
+          "compat_over_1_5": [],
+          "compat_over_2": [],
+          "default_floor_misses": [
+            "GameOfLife",
+            "TLCSailfish1",
+            "MCBakery",
+            "SimpleRegular"
+          ],
+          "faster_than_tlc_models": 6,
+          "models": 10,
+          "native_over_tlc_equal_model_geomean": 0.6748430667441994,
+          "profile": "default",
+          "qualification": "single repetition, descriptive only; no median-of-five or performance acceptance",
+          "tlc_over_native_equal_model_geomean": 1.4818259967084348,
+          "workers": 1
+        },
+        {
+          "compat_over_1_5": [
+            "GameOfLife"
+          ],
+          "compat_over_2": [
+            "GameOfLife"
+          ],
+          "default_floor_misses": [],
+          "faster_than_tlc_models": 7,
+          "models": 10,
+          "native_over_tlc_equal_model_geomean": 0.7540450522021905,
+          "profile": "tlc",
+          "qualification": "single repetition, descriptive only; no median-of-five or performance acceptance",
+          "tlc_over_native_equal_model_geomean": 1.3261807064173385,
+          "workers": 1
+        },
+        {
+          "compat_over_1_5": [],
+          "compat_over_2": [],
+          "default_floor_misses": [
+            "GameOfLife",
+            "TLCSailfish1",
+            "MCBakery",
+            "SimpleRegular"
+          ],
+          "faster_than_tlc_models": 6,
+          "models": 10,
+          "native_over_tlc_equal_model_geomean": 0.6739199854468215,
+          "profile": "default",
+          "qualification": "single repetition, descriptive only; no median-of-five or performance acceptance",
+          "tlc_over_native_equal_model_geomean": 1.4838556825659077,
+          "workers": 8
+        },
+        {
+          "compat_over_1_5": [
+            "TLCSailfish1"
+          ],
+          "compat_over_2": [],
+          "default_floor_misses": [],
+          "faster_than_tlc_models": 6,
+          "models": 10,
+          "native_over_tlc_equal_model_geomean": 0.72959145998959,
+          "profile": "tlc",
+          "qualification": "single repetition, descriptive only; no median-of-five or performance acceptance",
+          "tlc_over_native_equal_model_geomean": 1.3706300783924588,
+          "workers": 8
+        }
+      ],
+      "default_models_faster_than_tlc": {
+        "W1": 6,
+        "W8": 6
+      },
+      "default_floor_miss_models_at_both_widths": [
+        "GameOfLife",
+        "TLCSailfish1",
+        "MCBakery",
+        "SimpleRegular"
+      ],
+      "compatibility_game_of_life_w1_above_2": {
+        "model": "GameOfLife",
+        "native_over_tlc": 2.0013329241648066,
+        "native_wall_s": 26.918915766,
+        "profile": "tlc",
+        "rep": 1,
+        "single_pair_only": true,
+        "tlc_over_native": 0.4996669908967387,
+        "tlc_wall_s": 13.450493639,
+        "workers": 1
+      },
+      "compatibility_sailfish_w8_above_1_5": {
+        "model": "TLCSailfish1",
+        "native_over_tlc": 1.5510859745442653,
+        "native_wall_s": 13.707089018,
+        "profile": "tlc",
+        "rep": 1,
+        "single_pair_only": true,
+        "tlc_over_native": 0.6447095882572316,
+        "tlc_wall_s": 8.837091717,
+        "workers": 8
+      },
+      "independent_review": {
+        "decision": "Controlled complete-window breadth diagnostic validity, with explicit individual-sampler limitations; adverse performance observations retained",
+        "qualification": "reject",
+        "checks_passed": 208,
+        "unmet_exhaustive_individual_sampler_expectations": 3,
+        "sampler_limit": "One-second streams individually miss subsecond rows; their union covers all 60 model PIDs consistently with the serial schedule. No artifact, observable-comparison or physical-control blocking failure.",
+        "json": {
+          "artifact_name": "review.breadth.json",
+          "sha256": "737d86650e6d73c8243bac6cb2c7c7e39b27a9f1c4732fe3b15b7bfc6c908fb0",
+          "bytes": 62438
+        },
+        "markdown": {
+          "artifact_name": "review.breadth.md",
+          "sha256": "7325b826cd6ec2e19638f51ada30e6a6a181bb0a11263845399821e04db00215",
+          "bytes": 11644
+        }
+      },
+      "archive": {
+        "s3_uri": "s3://dive-evidence-archive-010928226848-us-east-1/phase3-20261101/final-breadth-fb48dbbf.tar.gz",
+        "sha256": "a01abb1236d12c01271e53840ab81bcac0c8acda738cc1b5612bf994bbcef2bf",
+        "bytes": 59920960,
+        "members": 60,
+        "root_download_and_all_member_hashes_verified": true,
+        "verified_utc": "2026-11-01T14:31:48.664353+00:00",
+        "verification_receipt": {
+          "artifact_name": "final-breadth-fb48dbbf-verification.json",
+          "sha256": "ea9d5e05198d8a7a091592598030c54dc8a549f4a5f0cc44bb5623a0f23bb6af",
+          "bytes": 648
+        }
+      },
+      "raw_quiet_flags_retained_false": true,
+      "coffee_safety_variant_original_temporal_credit": false,
+      "limits": "One matched observation per model/profile/worker cell, not five-pair medians or repeatability proof; no pooling with focus or payload A/B."
+    },
+    "breadth_memory_observations": {
+      "metric": "GNU /usr/bin/time -v maximum resident set size; parsed receipt bytes, GNU KiB multiplied by1024",
+      "native_comparisons": 40,
+      "lower": 40,
+      "higher": 0,
+      "equal": 0,
+      "unavailable": 0,
+      "worst_native_over_tlc": {
+        "comparison": "lower",
+        "model": "CoffeeCan1000BeansSafety",
+        "native_available": true,
+        "native_gnu_time_kbytes": 247488,
+        "native_impl": "dive-tlc-w8",
+        "native_max_rss_bytes": 253427712,
+        "native_over_tlc": 0.2957185053482837,
+        "paired_available": true,
+        "profile": "tlc",
+        "rep": 1,
+        "tlc_available": true,
+        "tlc_gnu_time_kbytes": 836904,
+        "tlc_impl": "tlc-w8",
+        "tlc_max_rss_bytes": 856989696,
+        "workers": 8
+      },
+      "review": {
+        "artifact_name": "rss-comparison.json",
+        "sha256": "74d1fd9245591f5ca09bf76d5c39caca7fc866c39d5ba2152e89e5f25a18cdbf",
+        "bytes": 26354
+      },
+      "scope_notes": [
+        "Each native row is matched to current TLC by model, requested worker count and repetition. The same TLC row is shared by the two semantic profiles.",
+        "All byte values are exact integers from the previously audited raw rows; GNU-time kbytes are losslessly recovered from those parsed byte receipts. Original per-child GNU-time text is not separately archived, so this is not a fresh text reparse.",
+        "Observed resident peaks are not allocation-time memory guarantees or proof of a hard cap. TLC heap16g and native whole-process16GiB ceilings have different scopes.",
+        "No capacity-cohort RSS comparison and no five-repeat, milestone, release or general memory-performance acceptance claim.",
+        "Read-only offline arithmetic only; no tests/models/AWS/binaries/builds or changes to existing reviews."
+      ]
+    },
+    "runtime_cache_boundary": {
+      "collected_utc": "2026-11-01T14:09:23.900259+00:00",
+      "boundary": "After focus, before breadth timing; not continuous tamper proof or a retroactive pre-focus attestation.",
+      "source": "fb48dbbf42bd224f278b138e74c1c8e29e2af106",
+      "actual_remote_jar_and_jre_hashes_match_pinned_local_artifacts": true,
+      "remote_receipt": {
+        "artifact_name": "runtime-cache-actual.json",
+        "sha256": "e61ed8074ad4ae2d1bb952b075af9f6718360fd78a188b0d7540bff831cf302f",
+        "bytes": 3922
+      },
+      "included_breadth_control_receipt_sha256": "db0dc1185cc0f1af1fe21b85d7581618ac27494691e428bfdc7fa3d3d09f6d29",
+      "remote_cache_files_in_focus_archive": false,
+      "jre_archive_sha256": "0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62",
+      "java_sha256": "f5aed21d3a0b0f4b05d3a3f9fe71263916d5bc0d47b53aa52a3340b90f0b4805",
+      "libjvm_sha256": "11e5d09f442e42bddc4619b6eed829eaf3952158a5f77c797a58d558fae21738",
+      "jar_pins": [
+        {
+          "id": "tlc-2026.10.06.014338",
+          "sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+          "bytes": 4501960
+        },
+        {
+          "id": "community-modules-202610040242",
+          "sha256": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
+          "bytes": 132582
+        },
+        {
+          "id": "community-modules-deps-202610040242",
+          "sha256": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
+          "bytes": 4917936
+        }
+      ],
+      "historical_golden_elapsed_not_timing_denominator": true
+    },
+    "formal_300_row_five_repeat_campaign": {
+      "started": false,
+      "reason": "All four default focus cells miss the speed floor; the separate breadth diagnostic cannot rescue the trigger."
+    },
+    "cleanup": {
+      "verified_utc": "2026-11-01T14:42:08.509179+00:00",
+      "instance_id": "i-0016fedfda67e43bc",
+      "state": "terminated",
+      "root_volume_id": "vol-03fb9dabdd3513451",
+      "root_volume_state": "deleted",
+      "root_volume_deleted": true,
+      "original_launch_utc": "2026-11-01T12:48:46+00:00",
+      "all_raw_before_termination_verified": true,
+      "attempt": 4,
+      "receipt": {
+        "artifact_name": "performance-cleanup-verification.json",
+        "sha256": "d6fd326ed5763b7709f520af08efe16e117e268b9efd263aa97766bd42fc902b",
+        "bytes": 394
+      },
+      "scope": "Performance-node termination/root-volume deletion at 14:42:08Z, after all three raw performance cohorts were preserved. Capacity cleanup was verified later in cloud_cleanup; no phase node remains active.",
+      "remaining_active_phase_role_at_that_verification": "capacity"
+    },
+    "acceptance": {
+      "five_repeat": false,
+      "default_throughput": false,
+      "compatibility": false,
+      "original_temporal_capacity": false,
+      "M1_M2_or_release": false
+    }
+  },
+  "tracking": {
+    "bounded_deliverables_manually_closed_after_verification": [
+      707,
+      711
+    ],
+    "closed_unmerged_candidate_pr": 710,
+    "broader_issues_still_open": [
+      708,
+      713,
+      650,
+      651,
+      697,
+      597,
+      490,
+      499,
+      714
+    ],
+    "default_engine": "reference",
+    "M1_M2_RC_release_acceptance": "open; no promotion"
+  },
+  "original_temporal_capacity": {
+    "source": "fb48dbbf42bd224f278b138e74c1c8e29e2af106",
+    "tree": "b2d90500b04efdd00f1c3bcac43dde43e4a0376a",
+    "dive_elf_sha256": "43d9b6a22cb31f73bcfac2b13ed45ec127b4d3e21fc3137b6c9231b84f903984",
+    "status": "COMPLETE_VALID_NEGATIVE_MATRIX_11_OF_12",
+    "planned_cells": 12,
+    "terminal_cells": 12,
+    "qualified_successes": 11,
+    "native_time_stops": 1,
+    "all_expected_success": false,
+    "runner_physical_exit": 1,
+    "runner_service_result": "exit-code",
+    "runner_service_state": "failed",
+    "runner_exit_reason": "ABA TLC/W8 remains a native time stop; all twelve physical cells and archival completed.",
+    "started_utc": "2026-11-01T13:55:05.478904+00:00",
+    "finished_utc": "2026-11-01T15:51:57.857707+00:00",
+    "native_time_limit_seconds": 900,
+    "native_memory_bytes": 17179869184,
+    "external_backstop_seconds": 930,
+    "unmodified_original_temporal_configurations": true,
+    "no_property_filter_or_safety_substitution": true,
+    "input_pins": {
+      "CoffeeCan3000Beans": {
+        "cfg_scope": "original pinned configuration",
+        "effective_cfg_sha256": "7904ab6bc7fa788828f04c5db64f85c96859bca2e7019341d6294ab1d032cf83",
+        "golden_sha256": "f974757cf9d20f8d14938e84b050a8c05f1fe7e900663d748c50ca0eff967cef",
+        "model": "specifications/CoffeeCan/CoffeeCan3000Beans.cfg",
+        "module": "specifications/CoffeeCan/CoffeeCan.tla",
+        "module_sha256": "32c5d9c900104c0d8be0d3730a6013d141dc90901e08ccaea403fb0be731cd90"
+      },
+      "EWD998Chan": {
+        "cfg_scope": "original pinned configuration",
+        "effective_cfg_sha256": "259100c5161cf1e04dce4c9898957c5ff7ba81f790c840396a2a7b5e618eb044",
+        "golden_sha256": "a2563fc08eecd0ec85b27ff26685a2560e6e4bdf74ef15b0c38fbb127f749ba5",
+        "model": "specifications/ewd998/EWD998Chan.cfg",
+        "module": "specifications/ewd998/EWD998Chan.tla",
+        "module_sha256": "ebdb5e9c6469fb1afc3b12198e1e2159b3ff3fa76d7bd15e5e11dce92b72313c"
+      },
+      "aba_asyn_byz": {
+        "cfg_scope": "original pinned configuration",
+        "effective_cfg_sha256": "07d4cdd82bab8afc2055adcf3d7202ade9223e573b9fdc41e03e978601df97f2",
+        "golden_sha256": "7a362a8e283e2f8e16bb562f72e65848f3cb73a4b134486fa5c517ad65776fd1",
+        "model": "specifications/aba-asyn-byz/aba_asyn_byz.cfg",
+        "module": "specifications/aba-asyn-byz/aba_asyn_byz.tla",
+        "module_sha256": "8d58bba250c826ed5655364210152c873b52f9837c5592d1a688020abe4eab6c"
+      }
+    },
+    "actual_counts_by_model": {
+      "CoffeeCan3000Beans": {
+        "distinct": 4504500,
+        "generated": 18000002,
+        "depth": 1,
+        "initial_generated": 4504500,
+        "left_on_queue": 0
+      },
+      "EWD998Chan": {
+        "distinct": 1524022,
+        "generated": 12882257,
+        "depth": 58,
+        "initial_generated": 192,
+        "left_on_queue": 0
+      },
+      "aba_asyn_byz": {
+        "distinct": 5843977,
+        "generated": 85612896,
+        "depth": 45,
+        "initial_generated": 16,
+        "left_on_queue": 0
+      }
+    },
+    "rows": [
+      {
+        "model": "CoffeeCan3000Beans",
+        "arm": "dive-tlc-w1",
+        "profile": "tlc",
+        "requested_workers": 1,
+        "actual_workers": 1,
+        "wall_seconds": 330.94188225200014,
+        "physical_exit": 0,
+        "report_exit": 0,
+        "verdict": "success",
+        "qualified_expected_success": true,
+        "counts_ok": true,
+        "policy_ok": true,
+        "capture_completed": true,
+        "execution_stage": "complete",
+        "raw_tlc_class": {
+          "code": 2193,
+          "name": "TLC_SUCCESS",
+          "exit_status": 0,
+          "verified": true
+        },
+        "external_timeout": false,
+        "cell_receipt": {
+          "artifact_name": "receipt.json",
+          "sha256": "5940b32dd51a1950dabbeda95b7352d50e64ec3903a29f85d3c12f5f30b00236",
+          "bytes": 6664
+        },
+        "raw_stdout_sha256": "2bccc7133bb7c35dbf73f34b0facb4d9af65552a7d7b7b7c441944ed8d8ad6b8"
+      },
+      {
+        "model": "CoffeeCan3000Beans",
+        "arm": "dive-default-w1",
+        "profile": "default",
+        "requested_workers": 1,
+        "actual_workers": 1,
+        "wall_seconds": 317.15294943200024,
+        "physical_exit": 0,
+        "report_exit": 0,
+        "verdict": "success",
+        "qualified_expected_success": true,
+        "counts_ok": true,
+        "policy_ok": true,
+        "capture_completed": true,
+        "execution_stage": "complete",
+        "raw_tlc_class": {
+          "code": 2193,
+          "name": "TLC_SUCCESS",
+          "exit_status": 0,
+          "verified": true
+        },
+        "external_timeout": false,
+        "cell_receipt": {
+          "artifact_name": "receipt.json",
+          "sha256": "3e933053ea46101ca0b1ca3a05e5e8dedbbf57c513a12fb053c3383c1d1426b5",
+          "bytes": 6667
+        },
+        "raw_stdout_sha256": "095f3f8c44708a5e9c58ef15e59dc9f23ff3eee56efe2bdf954a1f500959f3a8"
+      },
+      {
+        "model": "CoffeeCan3000Beans",
+        "arm": "dive-tlc-w8",
+        "profile": "tlc",
+        "requested_workers": 8,
+        "actual_workers": 8,
+        "wall_seconds": 425.2080663910001,
+        "physical_exit": 0,
+        "report_exit": 0,
+        "verdict": "success",
+        "qualified_expected_success": true,
+        "counts_ok": true,
+        "policy_ok": true,
+        "capture_completed": true,
+        "execution_stage": "complete",
+        "raw_tlc_class": {
+          "code": 2193,
+          "name": "TLC_SUCCESS",
+          "exit_status": 0,
+          "verified": true
+        },
+        "external_timeout": false,
+        "cell_receipt": {
+          "artifact_name": "receipt.json",
+          "sha256": "ae5f605f2989db2f3c52d2170124395b9c0dd69092c7e22f4fd8b386c39973d6",
+          "bytes": 6663
+        },
+        "raw_stdout_sha256": "384b180c1a220e9729d2dcc17d2810a5099c9478162b2219b3aea08dcf8aa5d0"
+      },
+      {
+        "model": "CoffeeCan3000Beans",
+        "arm": "dive-default-w8",
+        "profile": "default",
+        "requested_workers": 8,
+        "actual_workers": 8,
+        "wall_seconds": 403.0635740380003,
+        "physical_exit": 0,
+        "report_exit": 0,
+        "verdict": "success",
+        "qualified_expected_success": true,
+        "counts_ok": true,
+        "policy_ok": true,
+        "capture_completed": true,
+        "execution_stage": "complete",
+        "raw_tlc_class": {
+          "code": 2193,
+          "name": "TLC_SUCCESS",
+          "exit_status": 0,
+          "verified": true
+        },
+        "external_timeout": false,
+        "cell_receipt": {
+          "artifact_name": "receipt.json",
+          "sha256": "c71dd3549f44338143641c8870693bea3bc774b6d701343d4fdffd8355bb6390",
+          "bytes": 6666
+        },
+        "raw_stdout_sha256": "5502b77393b4899f95b72cf68bd0e2afef5afe2f61adbcc7355a0c3e8e966bc3"
+      },
+      {
+        "model": "EWD998Chan",
+        "arm": "dive-default-w1",
+        "profile": "default",
+        "requested_workers": 1,
+        "actual_workers": 1,
+        "wall_seconds": 679.0506752449992,
+        "physical_exit": 0,
+        "report_exit": 0,
+        "verdict": "success",
+        "qualified_expected_success": true,
+        "counts_ok": true,
+        "policy_ok": true,
+        "capture_completed": true,
+        "execution_stage": "complete",
+        "raw_tlc_class": {
+          "code": 2193,
+          "name": "TLC_SUCCESS",
+          "exit_status": 0,
+          "verified": true
+        },
+        "external_timeout": false,
+        "cell_receipt": {
+          "artifact_name": "receipt.json",
+          "sha256": "302b901c11d8e149b4a7ed94fc4a253b862fcd3e12e944ba9e9e78fb9c34a6e7",
+          "bytes": 8166
+        },
+        "raw_stdout_sha256": "c4181f762fcb324841e8afa4c2d13d93665c5a9f49db2d504194841655a5f94d"
+      },
+      {
+        "model": "EWD998Chan",
+        "arm": "dive-default-w8",
+        "profile": "default",
+        "requested_workers": 8,
+        "actual_workers": 8,
+        "wall_seconds": 640.740924787,
+        "physical_exit": 0,
+        "report_exit": 0,
+        "verdict": "success",
+        "qualified_expected_success": true,
+        "counts_ok": true,
+        "policy_ok": true,
+        "capture_completed": true,
+        "execution_stage": "complete",
+        "raw_tlc_class": {
+          "code": 2193,
+          "name": "TLC_SUCCESS",
+          "exit_status": 0,
+          "verified": true
+        },
+        "external_timeout": false,
+        "cell_receipt": {
+          "artifact_name": "receipt.json",
+          "sha256": "615dfedab934cfdecf442e4ad189e140f2e624f44fba8103748034f82679d5bf",
+          "bytes": 8162
+        },
+        "raw_stdout_sha256": "e8f74f6aab9a65e63f0ad90913d99e34c236b86a897851597d569a73cb950542"
+      },
+      {
+        "model": "EWD998Chan",
+        "arm": "dive-tlc-w8",
+        "profile": "tlc",
+        "requested_workers": 8,
+        "actual_workers": 8,
+        "wall_seconds": 408.26589666200016,
+        "physical_exit": 0,
+        "report_exit": 0,
+        "verdict": "success",
+        "qualified_expected_success": true,
+        "counts_ok": true,
+        "policy_ok": true,
+        "capture_completed": true,
+        "execution_stage": "complete",
+        "raw_tlc_class": {
+          "code": 2193,
+          "name": "TLC_SUCCESS",
+          "exit_status": 0,
+          "verified": true
+        },
+        "external_timeout": false,
+        "cell_receipt": {
+          "artifact_name": "receipt.json",
+          "sha256": "9c0b8121e8380a78dc0152be47be1897a3dcb4b1542d6f01484de1dfd80b782e",
+          "bytes": 8164
+        },
+        "raw_stdout_sha256": "35b2a56292c77042ff2dab64de5232373f130631c0691ebe90061b38047f53af"
+      },
+      {
+        "model": "aba_asyn_byz",
+        "arm": "dive-tlc-w1",
+        "profile": "tlc",
+        "requested_workers": 1,
+        "actual_workers": 1,
+        "wall_seconds": 895.3820152280005,
+        "physical_exit": 0,
+        "report_exit": 0,
+        "verdict": "success",
+        "qualified_expected_success": true,
+        "counts_ok": true,
+        "policy_ok": true,
+        "capture_completed": true,
+        "execution_stage": "complete",
+        "raw_tlc_class": {
+          "code": 2193,
+          "name": "TLC_SUCCESS",
+          "exit_status": 0,
+          "verified": true
+        },
+        "external_timeout": false,
+        "cell_receipt": {
+          "artifact_name": "receipt.json",
+          "sha256": "a7dd46bd931565e078d55fcfce6fea4d3be35f367a7fdcc7dbdd31a5d3135491",
+          "bytes": 6473
+        },
+        "raw_stdout_sha256": "cebb0a6add313aecfe529206b6a5a27cdc16172f11efe2970616853ddd5cc1f8"
+      },
+      {
+        "model": "aba_asyn_byz",
+        "arm": "dive-default-w1",
+        "profile": "default",
+        "requested_workers": 1,
+        "actual_workers": 1,
+        "wall_seconds": 716.1397965470005,
+        "physical_exit": 0,
+        "report_exit": 0,
+        "verdict": "success",
+        "qualified_expected_success": true,
+        "counts_ok": true,
+        "policy_ok": true,
+        "capture_completed": true,
+        "execution_stage": "complete",
+        "raw_tlc_class": {
+          "code": 2193,
+          "name": "TLC_SUCCESS",
+          "exit_status": 0,
+          "verified": true
+        },
+        "external_timeout": false,
+        "cell_receipt": {
+          "artifact_name": "receipt.json",
+          "sha256": "11e9e88eabbc92b4e8f153caba783dce7dbea0a3c8d7c04f8beaf7d1ea9bb654",
+          "bytes": 6476
+        },
+        "raw_stdout_sha256": "d70738fcb979d30ac95306b142f0609cb9b6e00ed3c82fb345209f8b1b356eaf"
+      },
+      {
+        "model": "aba_asyn_byz",
+        "arm": "dive-tlc-w8",
+        "profile": "tlc",
+        "requested_workers": 8,
+        "actual_workers": 8,
+        "wall_seconds": 900.0760918280012,
+        "physical_exit": 5,
+        "report_exit": 5,
+        "verdict": "stopped",
+        "qualified_expected_success": false,
+        "counts_ok": true,
+        "policy_ok": true,
+        "capture_completed": true,
+        "execution_stage": "atoms",
+        "raw_tlc_class": null,
+        "external_timeout": false,
+        "cell_receipt": {
+          "artifact_name": "receipt.json",
+          "sha256": "aef23137df16e2552cbbf0ce2be6f851d7c862617ea26ffaec7f83f069e4f6dd",
+          "bytes": 6381
+        },
+        "raw_stdout_sha256": "d3f4dd7003bcc7733e16be86e32d4eb843171b0a1a12588312374c080f2e5bbb"
+      },
+      {
+        "model": "aba_asyn_byz",
+        "arm": "dive-default-w8",
+        "profile": "default",
+        "requested_workers": 8,
+        "actual_workers": 8,
+        "wall_seconds": 833.6452120829999,
+        "physical_exit": 0,
+        "report_exit": 0,
+        "verdict": "success",
+        "qualified_expected_success": true,
+        "counts_ok": true,
+        "policy_ok": true,
+        "capture_completed": true,
+        "execution_stage": "complete",
+        "raw_tlc_class": {
+          "code": 2193,
+          "name": "TLC_SUCCESS",
+          "exit_status": 0,
+          "verified": true
+        },
+        "external_timeout": false,
+        "cell_receipt": {
+          "artifact_name": "receipt.json",
+          "sha256": "18ca9af71343615a7f2f59b4360fae6c17824ceaf733669561067e99255c74dc",
+          "bytes": 6475
+        },
+        "raw_stdout_sha256": "ba15d12528f92ae88bd91aa8aab370b2297d5a8d3233b16dde56d0eb4e108fe7"
+      },
+      {
+        "model": "EWD998Chan",
+        "arm": "dive-tlc-w1",
+        "profile": "tlc",
+        "requested_workers": 1,
+        "actual_workers": 1,
+        "wall_seconds": 461.81935459800115,
+        "physical_exit": 0,
+        "report_exit": 0,
+        "verdict": "success",
+        "qualified_expected_success": true,
+        "counts_ok": true,
+        "policy_ok": true,
+        "capture_completed": true,
+        "execution_stage": "complete",
+        "raw_tlc_class": {
+          "code": 2193,
+          "name": "TLC_SUCCESS",
+          "exit_status": 0,
+          "verified": true
+        },
+        "external_timeout": false,
+        "cell_receipt": {
+          "artifact_name": "receipt.json",
+          "sha256": "8395d9ec2068968311ed8ec479688eec559c9928f8f452f169cb74fde6801fa0",
+          "bytes": 8164
+        },
+        "raw_stdout_sha256": "38371a8ebac363ef892fbf62132df2d495a245a09a2d6f75e490a7f714da8a37"
+      }
+    ],
+    "stopped_cell": {
+      "model": "aba_asyn_byz",
+      "profile": "tlc",
+      "workers": 8,
+      "wall_seconds": 900.0760918280012,
+      "physical_exit": 5,
+      "stop_phase": "temporal-analysis",
+      "execution_stage": "atoms",
+      "capture_completed": true,
+      "queue_remaining": 0,
+      "exhaustive": false,
+      "tlc_success_class": null,
+      "matching_counts_prove_temporal_holds": false
+    },
+    "aba_default_w8_final_source_success_seconds": 833.6452120829999,
+    "historical_source16_comparison": {
+      "source": "16095d43",
+      "qualified_successes": 9,
+      "current_qualified_successes": 11,
+      "recovered_completion_cells": [
+        "aba_asyn_byz/default/W8",
+        "aba_asyn_byz/tlc/W1"
+      ],
+      "remaining_stop": "aba_asyn_byz/tlc/W8",
+      "scope": "Distinct source-bound campaigns on capacity VMs; recovery of observed completion is not a quiet speed ratio or exclusive causal attribution."
+    },
+    "earlier_focused_a1_pair_substituted_for_this_matrix": false,
+    "campaign_receipt": {
+      "artifact_name": "campaign-receipt.json",
+      "sha256": "960d6edfc4620262ee378683c9d33a52bc3d787ff6a7fbc05a9d211ce3a3e68e",
+      "bytes": 94785
+    },
+    "bindings": {
+      "artifact_name": "capacity-bindings.json",
+      "sha256": "85d2b0826fdf02e5e6b37c84ddfde1ae233b7bb108cf184f5bb16537dba315dc",
+      "bytes": 1041
+    },
+    "archive_final_state": {
+      "artifact_name": "archive-final-state.json",
+      "sha256": "40ff752b2526c1f693b1901c8289a44b370634a6b0ee7a2810555676440f18a8",
+      "bytes": 4834
+    },
+    "archive": {
+      "s3_uri": "s3://dive-evidence-archive-010928226848-us-east-1/phase3-20261101/final-capacity-fb48dbbf.tar.gz",
+      "sha256": "f653ac17247aeee60c97eb457087a995468479186d1f720ce6ea9146bbf5a700",
+      "bytes": 25958943,
+      "members": 147,
+      "manifested_files": 146,
+      "manifest_sha256": "e21977418c237002df12437d7b47863be9dbe6563e6437ce04c475fca833a9fd",
+      "root_download_and_all_member_hashes_verified": true,
+      "verified_utc": "2026-11-01T15:54:48.620843+00:00",
+      "verification_receipt": {
+        "artifact_name": "final-capacity-fb48dbbf-verification.json",
+        "sha256": "99c4a759c211a2063fbd95377317b19e6763c0fdb14df02de1476f5e70f5f329",
+        "bytes": 652
+      }
+    },
+    "independent_review": {
+      "decision": "approve",
+      "scope": "Validity of the independently recomputed, bounded final integrated original-capacity evidence.",
+      "reviewed_utc": "2026-11-01T16:05:27.086783+00:00",
+      "checks_passed": 188,
+      "checks_failed": 0,
+      "milestone_or_release_acceptance": false,
+      "markdown": {
+        "artifact_name": "final-matrix-review.md",
+        "sha256": "613081aa34fbd5f2e31ebfa0c2771b8b4977293ab9648c006ddca671979bcdc6",
+        "bytes": 14780
+      },
+      "json": {
+        "artifact_name": "final-matrix-review.json",
+        "sha256": "42b113b065e24fc81df2c6bee2a3b92ffe955e33f1039867b132233d59bc06ef",
+        "bytes": 9753
+      },
+      "row_reduction": {
+        "artifact_name": "final-matrix-row-reduction.json",
+        "sha256": "43a54e8ae88ec8a1afaa76ee15616325b324c73d03af659ad2c68ce6ce171d52",
+        "bytes": 59328
+      },
+      "limits": [
+        "Read-only audit of actual final-source artifacts, all twelve physical outcomes, original input/worker/policy bindings, prior-ID comparison and supplied cleanup chronology; no model, build, test, live cloud query or independent rebuild.",
+        "ABA TLC/W8 remains a native atoms stop. Raw tlc:null is authoritative despite summary projection {}. Final runner/service exit 1 is the expected negative matrix status; its archival has no traceback.",
+        "TLC/W1 reports elapsed 895307 ms, leaving 4693 ms in its 900000 ms budget. Its 895.382015228 s controller wall observation leaves about 4.618 s against a nominal 900 s wall reference; these clocks have different scopes and prove no repeated headroom.",
+        "Stopped-row proof input attempts exceed completed-demand arithmetic by two; attempts are not completed atom evaluations or measured time savings. All successful rows reconcile. Sampled RSS observations remain incomplete accounting, not allocation-time peak proof.",
+        "No earlier a1 pair substitution, completion-time ratio, quiet-host performance, exclusive causal attribution, twelve-cell acceptance, M1/M2 or release promotion."
+      ],
+      "twelve_of_twelve_capacity_acceptance_decision": "reject"
+    },
+    "quiet_window_certified": false,
+    "capacity_accepted": false,
+    "issue_650": "open",
+    "limits": "All outcomes and counts remain explicit. Eleven successes do not satisfy twelve-cell acceptance. TLC/W1 has only about 4.618s wall-time margin; no quiet-host speed factor, complete allocation accounting or memory-savings claim. The earlier focused a1 pair supplies no fb48 execution credit.",
+    "aba_tlc_w1_nominal_900s_wall_reference_margin_seconds": 4.617984771999545,
+    "aba_tlc_w1_reported_elapsed_ms": 895307,
+    "aba_tlc_w1_reported_native_budget_margin_ms": 4693,
+    "final_archival_traceback": false,
+    "memory_observation_limit": {
+      "largest_sampled_rss_swap_bytes": 12285992960,
+      "model": "aba_asyn_byz",
+      "profile": "default",
+      "workers": 1,
+      "accounting_complete": false,
+      "true_allocation_time_peak_claim": false
+    }
+  },
+  "cloud_cleanup": {
+    "status": "BOTH_PHASE_INSTANCES_TERMINATED_AND_ROOT_VOLUMES_DELETED",
+    "performance": {
+      "instance_id": "i-0016fedfda67e43bc",
+      "state": "terminated",
+      "root_volume_id": "vol-03fb9dabdd3513451",
+      "root_volume_deleted": true,
+      "verified_utc": "2026-11-01T14:42:08.509179+00:00",
+      "receipt": {
+        "artifact_name": "performance-cleanup-verification.json",
+        "sha256": "d6fd326ed5763b7709f520af08efe16e117e268b9efd263aa97766bd42fc902b",
+        "bytes": 394
+      }
+    },
+    "capacity": {
+      "verified_utc": "2026-11-01T15:55:47.808408+00:00",
+      "instance_id": "i-0cac45996af611dc6",
+      "state": "terminated",
+      "root_volume_id": "vol-030fac13de8e74193",
+      "root_volume_state": "deleted",
+      "root_volume_deleted": true,
+      "original_launch_utc": "2026-11-01T12:55:58+00:00",
+      "all_raw_before_termination_verified": true,
+      "active_owned_phase_instances": [],
+      "attempt": 2,
+      "receipt": {
+        "artifact_name": "capacity-cleanup-verification.json",
+        "sha256": "75522cc6bfc3fa5b45e3c266fec52472da4a9f066f6c062f6a756526ace311a5",
+        "bytes": 387
+      }
+    },
+    "capacity_termination_request": {
+      "artifact_name": "capacity-termination-request.json",
+      "sha256": "aa935b7d6ba0a49b825b13f9d3ab00e3d82f60cdc3ce9c6c4978ee988aeb18c3",
+      "bytes": 1328
+    },
+    "both_focused_and_final_capacity_archives_verified_before_termination": true,
+    "all_raw_performance_cohorts_verified_before_performance_termination": true,
+    "active_owned_phase_instances": [],
+    "original_fixed_deadlines_utc": {
+      "performance": "2026-11-01T18:43:41Z",
+      "capacity": "2026-11-01T18:50:55Z"
+    },
+    "deadlines_extended": false,
+    "maximum_simultaneous_nodes": 2,
+    "maximum_node_lifetime_hours": 6,
+    "compute_estimate": {
+      "recorded_utc": "2026-11-01T15:55:47.808408+00:00",
+      "scope": "Conservative compute estimate through observed termination confirmation, not an invoice; excludes small storage/transfer costs",
+      "rows": [
+        {
+          "role": "performance",
+          "instance_id": "i-0016fedfda67e43bc",
+          "observed_launch_to_termination_confirmation_seconds": 6802.509179,
+          "on_demand_usd_per_hour": 4.284,
+          "conservative_compute_estimate_usd": 8.094985923009999
+        },
+        {
+          "role": "capacity",
+          "instance_id": "i-0cac45996af611dc6",
+          "observed_launch_to_termination_confirmation_seconds": 10789.808408,
+          "on_demand_usd_per_hour": 0.714,
+          "conservative_compute_estimate_usd": 2.1399786675866665
+        }
+      ],
+      "compute_estimate_usd": 10.234964590596665,
+      "phase_ceiling_usd": 40,
+      "rates_source": "AWS public Pricing API prices verified at phase launch",
+      "receipt": {
+        "artifact_name": "phase-compute-estimate.json",
+        "sha256": "f64cb028966ccee7ed8cadb817695de19acda795e882fd5cb62401f4d059aa3a",
+        "bytes": 882
+      }
+    }
+  },
+  "qualification_work": {
+    "all_recorded_commands_and_cells_terminal": true,
+    "all_raw_archives_downloaded_and_every_member_verified": true,
+    "both_node_and_root_volume_cleanups_verified": true,
+    "additional_model_or_prototype_run_proposed": false,
+    "final_capacity_independent_review_complete": true,
+    "all_recorded_audits_complete": true
+  }
+}

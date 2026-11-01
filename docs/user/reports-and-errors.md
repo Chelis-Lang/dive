@@ -87,7 +87,8 @@ Consumers must accept native version 6 and validate this endpoint with a fresh
 source-bound fallible session before advancing their producer pin. An old reader
 must reject it, without relabelling the document as version 1 or the final source
 as a version-4 candidate. Unknown stages/versions still fail closed. Advance
-notice to known consumers is required before this writer lands.
+[notice to known consumers](https://github.com/Chelis-Lang/oyster/issues/61#issuecomment-6558501056)
+was posted before the version-6 writer landed in #712.
 
 The bounded proof supports scalar states and scalar/tuple VIEW keys only (64
 key nodes, tuple depth eight), at most 64 admitted keys and 256 emissions.
@@ -105,6 +106,15 @@ source-bound mapping executes the proof and retains exact header checks.
 `ErInvConstrained` and `ErInvReplayError` retain their actual named causes and
 canonical Unclassified oracle streams. Independently valid words and proved
 native diagnostic identities supply no pinned-TLC agreement by themselves.
+
+Known limitation #713: the inherited primary-2111 mapping can accept a jointly
+forged deciding class/name, report exit and physical exit for an otherwise valid
+named invariant-error word. The same admission was reproduced before this
+change at `b2274f3d` and at reviewed `54f2e51e`; the actual independently
+replayed diagnostic identities remain 2179 or 2103. This legacy branch is
+outside the new diagnostic certificate's proof scope. Automation must not treat
+its accepted 2111 header as independent proof of the deciding class or exit.
+The canonical streams remain Unclassified, so it grants no pinned-TLC agreement.
 
 Returned non-Boolean constraint/action-constraint values use the existing
 version-4 endpoint after the actual source-qualified Boolean-role boundary
