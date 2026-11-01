@@ -419,6 +419,11 @@ pub(super) fn valid_check_report(physical_exit: Option<i32>, report: &Value) -> 
     let Some(verdict) = report["verdict"].as_str() else {
         return false;
     };
+    // These temporal producer branches always use evaluation-error, even
+    // where the same code can describe a model-binding error in another phase.
+    if temporal_evaluation_kind(report) && verdict != "evaluation-error" {
+        return false;
+    }
     if matches!(verdict, "unsupported" | "resource-limit" | "internal-error") {
         return true; // Classified as uncredited below, never as agreement.
     }
@@ -511,6 +516,18 @@ pub(super) fn valid_check_report(physical_exit: Option<i32>, report: &Value) -> 
         exit == if code == 2105 { 12 } else { native_exit }
             || u64::try_from(exit).ok() == Some(tlc_exit)
     })
+}
+
+fn temporal_evaluation_kind(report: &Value) -> bool {
+    report["schema_version"] == 3
+        && report["check_kind"] == "temporal"
+        && ((matches!(report["tlc"]["code"].as_u64(), Some(2215 | 2253))
+            && report["execution"]["stage"] == "planning")
+            || (report["tlc"]["code"] == 1000 && report["error_site"] == "temporal-action")
+            || matches!(
+                report["error_site"].as_str(),
+                Some("temporal-state-row" | "temporal-source-row")
+            ))
 }
 
 // `CheckReport::to_json`, Phase::Temporal and Phase::TemporalError, is the

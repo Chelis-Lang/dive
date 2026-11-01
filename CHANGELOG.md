@@ -1,16 +1,5 @@
 # Changelog
 
-- Make PlusCal corpus `--check` compare pinned translation plus TLC against
-  native translation plus dive in both profiles, using ordinary conformance
-  classification and independent native witness replay. Preserve unsupported,
-  stopped, missing-configuration and expected-divergence outcomes separately.
-- Retain exact native report envelope admission before PlusCal model comparison:
-  contradictory class names, verdicts, reported codes, counts and exits cannot
-  gain agreement from an independently valid retained word.
-- Admit current ordinary temporal report shapes without inventing a required
-  reported-message field. Preserve strict safety envelopes, canonical temporal
-  completion checks and fresh independent liveness-word validation.
-
 - Add compiled native finite simulation and DFID in both profiles through explicit
   APIs and `--engine core|auto`. Reference remains the default; Auto selects a
   whole finite backend before execution and reached native refusals never retry.
@@ -36,6 +25,17 @@
 - Build the independent trace validator alone in a dedicated target in both
   local gate modes and CI, keeping workspace feature unification from masking
   a standalone dependency or compilation failure.
+
+- Make PlusCal corpus `--check` compare pinned translation plus TLC against
+  native translation plus dive in both profiles, using ordinary conformance
+  classification and independent native witness replay. Preserve unsupported,
+  stopped, missing-configuration and expected-divergence outcomes separately.
+- Retain exact native report envelope admission before PlusCal model comparison:
+  contradictory class names, verdicts, reported codes, counts and exits cannot
+  gain agreement from an independently valid retained word.
+- Admit current ordinary temporal report shapes without inventing a required
+  reported-message field. Preserve strict safety envelopes, canonical temporal
+  completion checks and fresh independent liveness-word validation.
 
 - Require fresh source-bound diagnostic certification for successor invariant
   reports, including deciding 2111, rejecting coordinated class/name/exit

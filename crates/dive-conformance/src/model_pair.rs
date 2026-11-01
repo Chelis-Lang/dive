@@ -402,6 +402,10 @@ mod tests {
                 let mut consistent = value.clone();
                 consistent["tlc"]["reported"] = value["tlc"]["code"].clone();
                 assert!(valid_native_envelope(&consistent, &run));
+                if property == "<>1" {
+                    consistent["verdict"] = json!("model-error");
+                    assert!(!valid_native_envelope(&consistent, &run));
+                }
                 let mut wrong_kind = value.clone();
                 wrong_kind["check_kind"] = json!("safety");
                 assert!(!valid_native_envelope(&wrong_kind, &run));
@@ -489,6 +493,9 @@ mod tests {
                     valid_native_envelope(&value, &run),
                     "{name}/{compat}: {value}"
                 );
+                let mut wrong_kind = value.clone();
+                wrong_kind["verdict"] = json!("model-error");
+                assert!(!valid_native_envelope(&wrong_kind, &run), "{name}/{compat}");
                 let mut absent = value.clone();
                 absent["tlc"]
                     .as_object_mut()
