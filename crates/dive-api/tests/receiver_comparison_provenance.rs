@@ -197,9 +197,28 @@ fn unrelated_tool_errors_and_later_errors_keep_their_existing_primary_contract()
                     assert_eq!(doc["tlc"]["code"], code, "{name}/{engine:?}: {doc}");
                     assert_eq!(
                         doc["tlc"]["verified"],
-                        name != "NextLiteral",
+                        // These pinned 2102/context 2103 streams have no
+                        // deciding primary. Their former verified=true was the
+                        // #685 bug, not an accepted initial-error contract.
+                        !matches!(name, "NextLiteral" | "InitialTool" | "InitialOverride"),
                         "{name}: {doc}"
                     );
+                    if matches!(name, "InitialTool" | "InitialOverride") {
+                        assert!(doc["counterexample"].is_null());
+                        assert!(doc["diagnostic_witness"].is_null());
+                        assert!(doc["error_witness"].is_null());
+                        assert_eq!(doc["tlc"]["reported"], 2102);
+                        let expected = if name == "InitialTool" {
+                            dive_eval::Ec::General
+                        } else {
+                            dive_eval::Ec::JavaMethodOverride
+                        };
+                        assert!(matches!(
+                            &report.result().expect("actual stopped result").verdict,
+                            dive_check::Verdict::EvaluationError { cause, .. }
+                                if cause.ec() == expected
+                        ));
+                    }
                     assert_eq!(
                         report.exit_code_for(ExitConvention::Tlc),
                         match code {

@@ -69,6 +69,14 @@ control has strict source-bound 2147/75 agreement in both profiles and engines a
 1/4 workers. Multiple initial emissions, later sources, effects and broader
 receiver methods remain unproved; no historical corpus totals are refreshed.
 
+The bounded #685 repair marks unsourced initial-invariant runtime contexts
+unverified, removes their anonymous formal word and preserves the original
+cause/context, physical 75 and actual stop counts in both profiles/engines.
+The pinned `InitialTool` and `InitialOverride` streams stay Unclassified and
+earn no agreement.
+Actual classified initial arithmetic and ADR 0133 receiver diagnostics retain
+their existing contracts; historical census totals are not refreshed.
+
 Named terminal invariant-error and property words may end outside model
 constraints after ordered constraint evaluation (#499). Four new model controls
 have generated goldens; four invariant-error streams remain unclassified.

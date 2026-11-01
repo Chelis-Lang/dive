@@ -473,6 +473,28 @@ controls retain their original unverified result, cause, output and counts.
 The producer and actual source-bound consumer each require this proof. Existing
 Next endpoint and report versions retain their meanings.
 
+Initial-invariant runtime contexts without an actual sourced diagnostic receiver
+do not inherit ordinary successor replay verification (#685). The shared
+`init_error` path retains the original cause and recorded-state 2102 context,
+observed 2103 wrapper and physical 75, but marks that class unverified. Reference
+and core suppress the anonymous formal word and keep actual stopping counts;
+they do not manufacture a named or auxiliary proof. The pinned `InitialTool`
+and `InitialOverride` negatives have only 2102/context 2103 ERROR messages and
+remain Unclassified. Their former `verified=true` expectations were documented
+bugs. Actual initial arithmetic and the separately proved 2147/2102 receiver
+route retain their contracts. This honesty repair adds no oracle agreement or
+new trace/report version.
+
+The focused consumer test reads hash-bound clean stdout fixtures under
+`crates/dive-conformance/tests/fixtures/initial-context-unclassified/`. Both were
+recorded with pinned TLC `94d0c5070852b37b801bb8998c436383ab7ee37b` (jar SHA-256
+`7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d`),
+JRE 17.0.20.1+1, one worker, seed 19, fingerprint 0 and no diagnostic trace dump.
+Both actual physical exits are 75. `InitialTool` retains GENERAL/1000 as its
+underlying cause; `InitialOverride` retains JavaMethodOverride/2154. Canonical
+classification stays Unclassified in both public and parser-owned paths; native
+reports refuse classification with and without a source model.
+
 An evaluation error carries `Option<TlcClass>` (`crates/dive-core/src/lib.rs`):
 TLC's `EC` code and whether TLC raises it as an `EvalException`.
 - **`None`:** an unclassified error. The core has not established that TLC

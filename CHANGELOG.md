@@ -84,6 +84,11 @@
   native v2 named cause needs fresh ordinary-word and independent diagnostic
   replay before strict conformance can admit the deciding wrapper (ADR 0133).
 
+- Mark unproved initial-invariant runtime contexts unverified and omit their
+  invalid anonymous formal word. Preserve original cause/state context, physical
+  exit 75 and actual stopping counts. Initial module errors, actual sourced 2147
+  receiver diagnostics and partial-Init witness meanings are unchanged (#685).
+
 - Reproduce selected initial tuple/record equality fingerprint wrappers after
   actual diagnostic receiver construction, including an Init-built receiver.
   Preserve D-009, native refusal boundaries, cached receiver lifetimes and owned

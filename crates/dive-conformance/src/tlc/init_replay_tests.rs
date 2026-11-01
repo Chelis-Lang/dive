@@ -5,6 +5,20 @@ use crate::tlc::messages::{parse, parse_owned};
 
 type TestResult = Result<(), Box<dyn std::error::Error>>;
 
+#[test]
+fn a_recorded_initial_context_without_a_deciding_primary_stays_unclassified() {
+    for raw in [
+        include_str!("../../tests/fixtures/initial-context-unclassified/InitialTool.stdout"),
+        include_str!("../../tests/fixtures/initial-context-unclassified/InitialOverride.stdout"),
+    ] {
+        let result = owned(raw, 75);
+        assert_eq!(result.verdict, Verdict::Unclassified);
+        assert_eq!(result.error_codes, [2102, 2103]);
+        assert_eq!(result.exit_code, Some(75));
+        assert!(!special(&result));
+    }
+}
+
 const OUTER: &str =
     include_str!("../../tests/fixtures/init-replay/ExplicitOuterPowersetCardinality.stdout");
 const BOOL: &str =
