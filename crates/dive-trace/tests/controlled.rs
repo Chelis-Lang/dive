@@ -48,6 +48,53 @@ fn model(body: &str, cfg: &str) -> dive_model::Model {
         .expect("configuration");
     dive_model::bind(ir, &config, &dive_model::BindOptions::tlc()).expect("model")
 }
+
+#[test]
+fn finite_session_words_keep_fresh_replay_and_typed_control() {
+    let source = "---- MODULE FiniteControl ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == x'=x+1 /\\ (\\A k \\in 1..65536: k+x>=0)\n====\n";
+    let analysis =
+        dive_sema::analyze_source("FiniteControl.tla", source, &dive_sema::Options::default());
+    assert!(analysis.accepted());
+    let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+    let config = dive_config::parse("INIT Init\nNEXT Next\n")
+        .into_config()
+        .expect("config");
+    let session = dive_trace::Session::new(
+        dive_model::Recipe::new(ir, config, dive_eval::Options::tlc(), false),
+        None,
+    );
+    let valid = dive_trace::TraceDoc::behavior(vec![
+        serde_json::json!({"x": 0}),
+        serde_json::json!({"x": 1}),
+    ])
+    .expect("word");
+    assert_eq!(
+        session
+            .read_controlled(&valid, Control::new(usize::MAX))
+            .expect("completed replay")
+            .0
+            .validation,
+        Validation::Valid
+    );
+    let forged = dive_trace::TraceDoc::behavior(vec![
+        serde_json::json!({"x": 0}),
+        serde_json::json!({"x": 2}),
+    ])
+    .expect("word");
+    assert!(matches!(
+        session
+            .read_controlled(&forged, Control::new(usize::MAX))
+            .expect("completed invalid replay")
+            .0
+            .validation,
+        Validation::Invalid(_)
+    ));
+    let interrupted = session.read_controlled(&valid, Control::new(16));
+    assert!(
+        matches!(interrupted, Err(ValidationRunError::Interrupted { .. })),
+        "{interrupted:?}"
+    );
+}
 fn trace(states: &[i64]) -> Trace {
     Trace {
         states: states

@@ -113,7 +113,7 @@ pub enum BudgetSetting<T> {
 }
 
 impl<T: Copy> BudgetSetting<T> {
-    fn resolve(self, default: Option<T>) -> (Option<T>, &'static str) {
+    pub(crate) fn resolve(self, default: Option<T>) -> (Option<T>, &'static str) {
         match self {
             Self::Default => (default, if default.is_some() { "default" } else { "none" }),
             Self::Unlimited => (None, "none"),
@@ -829,7 +829,7 @@ impl From<crate::core_engine::CoreOutcome> for Phase {
     }
 }
 
-fn resolve_memory(
+pub(crate) fn resolve_memory(
     setting: BudgetSetting<u64>,
     default: impl FnOnce() -> Option<u64>,
 ) -> Result<(Option<u64>, &'static str), dive_check::budget::MeasurementError> {
@@ -2135,7 +2135,7 @@ fn trace_doc(
 }
 
 /// The `stopped` block of a run its budget stopped (ADR 0107).
-fn stopped_json(stopped: &dive_check::budget::Stopped) -> Value {
+pub(crate) fn stopped_json(stopped: &dive_check::budget::Stopped) -> Value {
     json!({
         "resource": stopped.resource.name(),
         "limit": stopped.limit,

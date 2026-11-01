@@ -1,5 +1,11 @@
 # Changelog
 
+- Add time and sampled process-memory budgets to finite simulation and DFID,
+  with the checking defaults, cooperative Init/execution and fresh independent
+  replay control, retained prefix progress and structured stopped reports
+  (exit 5) in both profiles. Preflight errors keep their original disposition;
+  exhausted runs skip unprocessed retained traces.
+
 - Build the independent trace validator alone in a dedicated target in both
   local gate modes and CI, keeping workspace feature unification from masking
   a standalone dependency or compilation failure.

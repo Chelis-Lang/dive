@@ -287,6 +287,11 @@ enum Goal {
 
 /// One validation run. `passed` counts the checks passed, in order: the
 /// TLC reader uses it to compare interpretations of a lossy document.
+enum AssumptionControl {
+    Unit,
+    Cooperative,
+}
+
 pub(crate) struct Run<'a> {
     model: &'a Model,
     host: Arc<TraceHost>,
@@ -299,6 +304,8 @@ pub(crate) struct Run<'a> {
     endpoint_prepared: bool,
     endpoint_exception: Option<(EvalError, Option<usize>, Check)>,
     control: Option<Arc<dyn dive_eval::HostControl>>,
+    /// Finite-mode replay keeps its existing control during ASSUME checks.
+    assumption_control: AssumptionControl,
 }
 
 impl<'a> Run<'a> {
@@ -331,6 +338,7 @@ impl<'a> Run<'a> {
             endpoint_prepared: false,
             endpoint_exception: None,
             control: None,
+            assumption_control: AssumptionControl::Unit,
         }
     }
 
@@ -347,6 +355,7 @@ impl<'a> Run<'a> {
             endpoint_prepared: false,
             endpoint_exception: None,
             control: None,
+            assumption_control: AssumptionControl::Unit,
         }
     }
 
@@ -930,7 +939,10 @@ impl<'a> Run<'a> {
         // Binding and ASSUME remain explicit uninterruptible units. This
         // thread-owned frame restores control on every return/unwind without
         // disabling another evaluator or any worker's installed capability.
-        let _assumptions = if self.control.is_some() && !self.endpoint_prepared {
+        let _assumptions = if self.control.is_some()
+            && !self.endpoint_prepared
+            && matches!(self.assumption_control, AssumptionControl::Unit)
+        {
             Some(
                 self.model
                     .evaluator
@@ -1698,6 +1710,26 @@ pub(crate) fn validate_private_controlled(
     let mut run = Run::private(model, host, false);
     run.control = control;
     controlled_report(&mut run, trace)
+}
+
+pub(crate) fn validate_finite_private_controlled(
+    model: &Model,
+    host: &Arc<TraceHost>,
+    trace: &Trace,
+    initial: bool,
+    control: Option<Arc<dyn dive_eval::HostControl>>,
+) -> Result<(Report, bool), ValidationRunError> {
+    let _scope = control
+        .as_ref()
+        .map(|control| model.evaluator.host_control(Some(control.clone())))
+        .transpose()
+        .map_err(ValidationRunError::ControlConflict)?;
+    let mut run = Run::private(model, host.clone(), initial);
+    run.control = control;
+    run.assumption_control = AssumptionControl::Cooperative;
+    let report = controlled_report(&mut run, trace)?;
+    let retry = initial && run.init_incomplete && !host.register_used.load(Ordering::Relaxed);
+    Ok((report, retry))
 }
 
 /// Internal prefix result: Session must separately replay the terminal event
