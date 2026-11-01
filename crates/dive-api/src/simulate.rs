@@ -231,6 +231,12 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
         }
         Outcome::Unsupported(s) => ("unsupported", None, Some(s.clone()), 3),
         Outcome::Limit(s) => ("resource-limit", None, Some(s.clone()), 3),
+        Outcome::Cancelled => (
+            "resource-limit",
+            None,
+            Some("simulation cancelled by caller".to_owned()),
+            3,
+        ),
         Outcome::Internal(s) => ("internal-error", None, Some(s.clone()), 4),
     };
     let mut traces = Vec::new();
@@ -426,7 +432,11 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
         })).collect::<Vec<_>>(),
     });
     drop(control_scope);
-    run_budget.finish(&mut document, &mut exit)?;
+    run_budget.finish(
+        &mut document,
+        &mut exit,
+        matches!(result.outcome, Outcome::Cancelled),
+    )?;
     Ok(SimulateReport { document, exit })
 }
 

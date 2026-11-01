@@ -204,7 +204,38 @@ fn preflight_errors_and_refusals_keep_precedence_over_run_budgets() -> Result {
         assert_eq!(limited.to_json()["message"], expected.to_json()["message"]);
         assert_eq!(limited.to_json()["options"]["workers_used"], 0);
         assert!(limited.to_json()["stopped"].is_null());
+
+        let request = DfidRequest {
+            max_level: 10_001,
+            time_limit: BudgetSetting::Unlimited,
+            ..dfid(&file, compat)
+        };
+        let expected = dfid_file(&request)?;
+        let limited = dfid_file(&DfidRequest {
+            max_memory: BudgetSetting::Explicit(1),
+            ..request
+        })?;
+        assert_eq!(expected.to_json()["result"], "resource-limit");
+        assert_eq!(limited.exit_status(), expected.exit_status());
+        assert_eq!(limited.to_json()["result"], expected.to_json()["result"]);
+        assert_eq!(limited.to_json()["message"], expected.to_json()["message"]);
+        assert!(limited.to_json()["stopped"].is_null());
     }
+    let request = SimulateRequest {
+        aril: 1_000_001,
+        time_limit: BudgetSetting::Unlimited,
+        ..simulation(&file, true)
+    };
+    let expected = simulate_file(&request)?;
+    let limited = simulate_file(&SimulateRequest {
+        max_memory: BudgetSetting::Explicit(1),
+        ..request
+    })?;
+    assert_eq!(expected.to_json()["result"], "resource-limit");
+    assert_eq!(limited.exit_code(), expected.exit_code());
+    assert_eq!(limited.to_json()["result"], expected.to_json()["result"]);
+    assert_eq!(limited.to_json()["message"], expected.to_json()["message"]);
+    assert!(limited.to_json()["stopped"].is_null());
     Ok(())
 }
 

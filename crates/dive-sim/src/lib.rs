@@ -102,6 +102,9 @@ pub enum Outcome {
     Unsupported(String),
     /// A configured resource bound was reached; no conclusion.
     Limit(String),
+    /// The caller's cancellation checkpoint stopped execution; no conclusion.
+    /// The caller must separately establish its actual resource/stop reason.
+    Cancelled,
     /// An internal error; no conclusion.
     Internal(String),
 }
@@ -227,7 +230,7 @@ fn simulate_inner(
         return report;
     }
     if poll() {
-        report.outcome = Outcome::Limit("simulation cancelled by caller".to_owned());
+        report.outcome = Outcome::Cancelled;
         return report;
     }
     if opts.action_stats {
@@ -261,7 +264,7 @@ fn simulate_inner(
         let _initial = host.map(host::SimulationHost::initial);
         model.evaluator.init_states(&model.init_actions, &mut |s| {
             if poll() {
-                failure = Some(Outcome::Limit("simulation cancelled by caller".to_owned()));
+                failure = Some(Outcome::Cancelled);
                 return Flow::Stop;
             }
             if inits.len() >= opts.max_candidates || report.initial_candidates >= opts.max_generated
@@ -335,7 +338,7 @@ fn simulate_inner(
     report.stage = "sampling";
     for id in 0..opts.traces {
         if poll() {
-            report.outcome = Outcome::Limit("simulation cancelled by caller".to_owned());
+            report.outcome = Outcome::Cancelled;
             return report;
         }
         let mut rng = match opts.mode {
@@ -354,7 +357,7 @@ fn simulate_inner(
         for _ in 0..opts.depth {
             if poll() {
                 report.traces.push(Trace { id, states });
-                report.outcome = Outcome::Limit("simulation cancelled by caller".to_owned());
+                report.outcome = Outcome::Cancelled;
                 return report;
             }
             let current = states[states.len() - 1].clone();
@@ -366,7 +369,7 @@ fn simulate_inner(
                 let action = &model.actions[action_index];
                 let enumeration = model.evaluator.next_states(action, &current, 0, &mut |s| {
                     if poll() {
-                        failed = Some(Outcome::Limit("simulation cancelled by caller".to_owned()));
+                        failed = Some(Outcome::Cancelled);
                         return Flow::Stop;
                     }
                     if candidates.len() >= opts.max_candidates

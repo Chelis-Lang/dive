@@ -60,6 +60,7 @@ impl ModeBudget {
         &mut self,
         document: &mut Value,
         exit: &mut u8,
+        cancelled: bool,
     ) -> Result<(), crate::ApiError> {
         document["options"]["budget"] = self.metadata.clone();
         let exhausted = if let Some(owner) = &mut self.watchdog {
@@ -68,11 +69,8 @@ impl ModeBudget {
             self.budget.poll()
         }
         .map_err(crate::ApiError::BudgetMeasurement)?;
-        let preflight_disposition = document["options"]["execution_stage"] == "preflight"
-            && matches!(
-                document["result"].as_str(),
-                Some("unsupported" | "evaluation-error" | "parameter-error" | "internal-error")
-            );
+        let preflight_disposition =
+            document["options"]["execution_stage"] == "preflight" && !cancelled;
         if let Some(exhausted) = exhausted
             && !preflight_disposition
         {

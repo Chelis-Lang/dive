@@ -264,6 +264,12 @@ pub fn dfid_file(req: &DfidRequest) -> Result<DfidReport, crate::ApiError> {
         ),
         Outcome::Unsupported(s) => ("unsupported", None, Some(s.clone()), 3),
         Outcome::Limit(s) => ("resource-limit", None, Some(s.clone()), 3),
+        Outcome::Cancelled => (
+            "resource-limit",
+            None,
+            Some("DFID run budget exhausted".to_owned()),
+            3,
+        ),
         Outcome::Internal(s) => ("internal-error", None, Some(s.clone()), 4),
     };
     let observed_kind = kind;
@@ -332,7 +338,11 @@ pub fn dfid_file(req: &DfidRequest) -> Result<DfidReport, crate::ApiError> {
     document["options"]["worker_seeds"] = json!(report.worker_seeds);
     document["statistics"] = json!({"scope": if matches!(report.outcome, Outcome::Complete) {"complete-model"} else {"completed-prefix"}, "generated": report.generated, "distinct": report.distinct, "initial_candidates": report.initial_candidates, "level": report.level});
     drop(control_scope);
-    run_budget.finish(&mut document, &mut exit)?;
+    run_budget.finish(
+        &mut document,
+        &mut exit,
+        matches!(report.outcome, Outcome::Cancelled),
+    )?;
     Ok(DfidReport { document, exit })
 }
 

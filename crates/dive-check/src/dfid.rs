@@ -81,6 +81,8 @@ pub enum Outcome {
     Unsupported(String),
     /// Resource or collision bound reached, without a conclusion.
     Limit(String),
+    /// The armed run budget stopped execution, without a conclusion.
+    Cancelled,
     /// Internal invariant failure, without a conclusion.
     Internal(String),
 }
@@ -192,7 +194,7 @@ impl Search<'_> {
     fn checkpoint(&self) -> Result<(), Outcome> {
         match self.opts.check.budget.poll() {
             Ok(None) => Ok(()),
-            Ok(Some(_)) => Err(Outcome::Limit("DFID run budget exhausted".to_owned())),
+            Ok(Some(_)) => Err(Outcome::Cancelled),
             Err(error) => Err(Outcome::Internal(error.to_string())),
         }
     }
