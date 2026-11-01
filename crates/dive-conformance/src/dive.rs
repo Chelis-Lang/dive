@@ -43,6 +43,7 @@
 
 use crate::cache::Cache;
 mod initial_invariant;
+mod successor_invariant;
 use crate::config::Config;
 use crate::corpus::ModelMode;
 use crate::divergence::Profile;
@@ -838,7 +839,7 @@ pub fn check_result(outcome: &ProcessOutcome, tlc_profile: bool) -> CheckMapping
     check_result_with_budget(outcome, tlc_profile, None)
 }
 
-/// Reads a report with fresh source validation of an initial diagnostic witness.
+/// Reads a report with fresh source validation of initial or successor diagnostics.
 /// The source-free [`check_result`] cannot admit that independently qualified
 /// route. Formal counterexamples and ordinary comparisons retain their meanings.
 ///
@@ -1171,6 +1172,9 @@ fn map_check_document(
     if let Err(reason) = initial_invariant::read(v, code, outcome.exit_code, source) {
         return CheckMapping::Refused(reason);
     }
+    if let Err(reason) = successor_invariant::read(v, code, source) {
+        return CheckMapping::Refused(reason);
+    }
     let tlc_exit = tlc.get("exit_status").and_then(as_i32);
     if tlc_profile && outcome.exit_code != tlc_exit {
         return unclassified(
@@ -1366,8 +1370,9 @@ impl Implementation for DiveImplementation {
         // Only this additive auxiliary route needs source validation before
         // classification. It must not create a formal counterexample solely
         // to trigger the ordinary word hook or waive an absent oracle trace.
-        let needs_source = serde_json::from_str::<Value>(&outcome.stdout)
-            .is_ok_and(|value| initial_invariant::requested(&value));
+        let needs_source = serde_json::from_str::<Value>(&outcome.stdout).is_ok_and(|value| {
+            initial_invariant::requested(&value) || successor_invariant::requested(&value)
+        });
         let source = if needs_source && matches!(&self.profile, Profile::Dive | Profile::Tlc) {
             let paths = self
                 .module_path

@@ -542,22 +542,11 @@ pub(crate) fn holds(
     site: ErrorSite,
     control: &crate::budget::EvaluationControl,
 ) -> Result<bool, Verdict> {
-    match role_boolean(m, c, st) {
-        Ok(Some(v)) => Ok(v),
-        Ok(None) => {
-            let e = EvalError::coded(
-                Ec::ExpectedValue,
-                format!(
-                    "TLC expected a boolean value, but did not find one. {}",
-                    m.evaluator.location(c.pred.location)
-                ),
-            );
-            Err(class::search_error(&e, site, Some(&c.name)))
-        }
-        Err(e) => Err(control
-            .verdict(&e)
-            .unwrap_or_else(|| class::search_error(&e, site, Some(&c.name)))),
-    }
+    m.eval_boolean(&c.pred, st).map_err(|error| {
+        control
+            .verdict(&error)
+            .unwrap_or_else(|| class::search_error(&error, site, Some(&c.name)))
+    })
 }
 
 /// Re-evaluates an actual receiver failure with the diagnostic source hook.

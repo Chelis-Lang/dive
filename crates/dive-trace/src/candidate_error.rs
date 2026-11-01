@@ -36,6 +36,7 @@ pub(crate) fn replay(
             site,
             error,
             candidate: Some(candidate),
+            ..
         } => (site, error, candidate),
         Event::Refused(reason) => return Ok(Validation::Unsupported(reason)),
         Event::Failed { check, detail } => {

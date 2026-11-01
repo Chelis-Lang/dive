@@ -263,6 +263,7 @@ pub struct CheckReport {
     next_error_endpoint: Option<dive_trace::NextStateEndpoint>,
     /// Untrusted candidate-site observation; fresh replay proves its identities.
     candidate_error_endpoint: Option<dive_trace::CandidateStateEndpoint>,
+    view_error_endpoint: Option<dive_trace::ViewSourceEndpoint>,
     /// Observed partial candidate captured while its original IR is owned.
     partial_terminal_endpoint: Option<dive_trace::PartialNextEndpoint>,
     /// The engine requested.
@@ -533,6 +534,7 @@ fn check_file_in(
         core: None,
         next_error_endpoint: None,
         candidate_error_endpoint: None,
+        view_error_endpoint: None,
         partial_terminal_endpoint: None,
         engine,
         fallback: None,
@@ -707,7 +709,23 @@ fn check_file_in(
                 dive_trace::CandidateStateEndpoint::from_error(&ir, cause, site, *reported, *code);
         }
     }
+    if let Phase::Checked(result) = &report.phase
+        && let Verdict::EvaluationError {
+            site: dive_check::ErrorSite::View,
+            cause,
+            reported,
+            code: 2103,
+            verified: true,
+            ..
+        } = &result.verdict
+        && cause.exception_kind() == Some(dive_eval::ExceptionKind::ToolRuntime)
+    {
+        report.view_error_endpoint =
+            dive_trace::ViewSourceEndpoint::from_error(&ir, cause, *reported, 2103);
+    }
     candidate_error::certify(&mut report, &ir, &model, &armed);
+    candidate_error::certify_view(&mut report, &ir, &model, &armed);
+    candidate_error::certify_invariant(&mut report, &ir, &model, &armed);
     if let Phase::Checked(result) = &report.phase
         && let Verdict::NotCompletelySpecified {
             initial,
@@ -859,6 +877,7 @@ fn certify_next_receiver(
         &path.states,
         options.eval.ctx,
         Some(&endpoint),
+        None,
         None,
         None,
     )
@@ -1763,6 +1782,7 @@ impl CheckReport {
                         self.next_error_endpoint.as_ref(),
                         self.partial_terminal_endpoint.as_ref(),
                         self.candidate_error_endpoint.as_ref(),
+                        self.view_error_endpoint.as_ref(),
                     );
                     doc["counterexample"] = json!({
                         "length": states.len(),
@@ -1772,7 +1792,7 @@ impl CheckReport {
                     });
                 }
                 if let Some(witness) = &r.diagnostic_witness {
-                    let transported = trace_doc(r, witness.states(), ctx, None, None, None);
+                    let transported = trace_doc(r, witness.states(), ctx, None, None, None, None);
                     doc["diagnostic_witness"] =
                         json!({"trace": transported.unwrap_or(Value::Null)});
                 }
@@ -2001,6 +2021,7 @@ fn trace_doc(
     next_endpoint: Option<&dive_trace::NextStateEndpoint>,
     partial_endpoint: Option<&dive_trace::PartialNextEndpoint>,
     candidate_endpoint: Option<&dive_trace::CandidateStateEndpoint>,
+    view_endpoint: Option<&dive_trace::ViewSourceEndpoint>,
 ) -> Result<Value, String> {
     use dive_check::Verdict as V;
     use dive_trace::Ending;
@@ -2044,6 +2065,10 @@ fn trace_doc(
         } if next_endpoint.is_some() => Ending::NextStateError {
             ec: cause.ec().name().to_owned(),
             endpoint: next_endpoint.cloned().ok_or("missing Next error source")?,
+        },
+        V::EvaluationError { cause, .. } if view_endpoint.is_some() => Ending::ViewSourceError {
+            ec: cause.ec().name().to_owned(),
+            endpoint: view_endpoint.cloned().ok_or("missing VIEW source")?,
         },
         V::EvaluationError { cause, .. } if candidate_endpoint.is_some() => {
             Ending::CandidateStateError {
@@ -2554,6 +2579,7 @@ mod evidence_controls {
             core: None,
             next_error_endpoint: None,
             candidate_error_endpoint: None,
+            view_error_endpoint: None,
             partial_terminal_endpoint: None,
             engine: crate::Engine::Reference,
             fallback: None,

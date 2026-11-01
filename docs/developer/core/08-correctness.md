@@ -331,9 +331,9 @@ claim is still the named InvA error, representable by the existing version-2
 ending. The producer uses its typed invariant-site/first-report context to
 distinguish this case from an anonymous Next error. Independent
 validation must check the exact name/cause and all earlier checks; it does not
-certify the separate diagnostic replay's class or counts. The strict harness
-still refutes this 2103 wrapper/word pair; matching native metadata cannot
-authorize agreement. The canonical classifier leaves the clean pinned stream
+certify the separate diagnostic replay's class or counts. The original strict harness refuted this 2103 wrapper/word pair; the
+bounded source-bound diagnostic proof below is now required to admit it.
+Matching native metadata alone cannot authorize agreement. The canonical classifier leaves the clean pinned stream
 unclassified, which must remain unknown rather than receive TLC agreement
 credit. This bounded producer repair does not certify generic final expansion
 (#434), missing partial-state words (#607), or the other #606 sites.
@@ -446,12 +446,14 @@ existing fixtures validate in both profiles/engines at one and four workers:
 Choose/Domain/NonBoolIf/NonEnum/TypeErr at each site, plus `ErPropNonBool`.
 Their pinned primary headers remain unchanged. The last case raises an actual
 source-qualified `StepBox` error inside `[Err(x)]_<<x, y>>`; it is distinct from
-a named role returning a non-Boolean value. The latter remains unproved, with
-`ErConstrNonBool`/`ErActConstrNonBool` explicit non-agreement controls. The inner
+a named role returning a non-Boolean value. The initial slice left the latter unproved, with
+`ErConstrNonBool`/`ErActConstrNonBool` explicit non-agreement controls; the
+source-qualified role extension in §16 now proves that boundary. The inner
 case checks its exact source and rejects an earlier actual constraint error. A separate
 control makes diagnostic generation reach a genuinely different error; a
-matching primary cannot certify the deciding code. VIEW, unproved top-level
-non-Boolean role results, global visited/alias obligations, unsupported materialized
+matching primary cannot certify the deciding code. The bounded VIEW and
+non-Boolean extensions are described in §16; broader global visited/alias
+obligations, unsupported materialized
 fingerprint demand, effects and temporal models remain refused. This is focused
 word evidence, not a fresh census or closure of the remaining error families.
 Native version-4 reader migration and consumer notice are required before landing.
@@ -500,3 +502,39 @@ the primary child and an independently valid native word agree. Context-only
 initial errors (#685), old Init ownership rules, VIEW, temporal candidate and
 unproved newness/receiver lifetimes retain their existing boundaries. Issue #697
 tracks the still-ambiguous cases; it is not closed by this bounded repair.
+
+
+## 16. Bounded ordered prefix and VIEW error families
+
+ADR 0135 extends the existing independent ordered driver with a private bounded
+admission history. Fresh execution exhausts exactly one admitted Init emission,
+finishes that source's entire first expansion, then establishes the first
+admitted noninitial source from its actual key. Actual primary insertions carry
+into per-action diagnostic enumeration and checks. Scalar states and bounded
+scalar/tuple VIEW keys admit at most 64 keys and 256 emissions; collisions,
+shape/work excess, later source lifetimes, additional initial emissions,
+effects, symmetry, ALIAS and temporal obligations explicitly refuse. Existing
+owned controls retain interruption/resource/internal transport.
+
+The six `ErViewChoose/Domain/NonBool/NonBoolIf/NonEnum/TypeErr` controls use native
+version 6 and a source-final `view-source-terminal` endpoint. Required concrete
+normalization precedes VIEW; the absent failing candidate is independently
+reconstructed. Reader migration and advance consumer notice precede landing the
+writer. Outer report schema 3 and native versions 1–5 retain their meanings.
+
+Top-level `ErConstrNonBool` and `ErActConstrNonBool` now execute the shared
+source-qualified `Tool.isValid` boundary and use existing candidate version 4.
+The old anonymous words remain negative controls. `ErInvConstrained` and
+`ErInvReplayError` retain named version-2 words and gain a separate nonserialized
+fresh diagnostic certificate. Source-free mapping cannot grant that wrapper;
+source-bound mapping and independent conformance word validation execute the
+proof. Removing the secondary InvB error must invalidate the original diagnostic
+claim even though the original named InvA word remains valid.
+
+Focused tests cover these ten cases in both engines/profiles at one and four
+workers, exact original one-worker counts, wrong names/causes/source/candidate,
+wrapper and version mutations, earlier constraint order, source selection,
+bounds, unproved demand and interruption. These tests establish their stated
+word/report scope only. Canonical mixed invariant streams and #697's shared255
+streams remain Unclassified without an owned unambiguous oracle fact; no golden
+or classifier widening, whole-census pass or phase acceptance follows.

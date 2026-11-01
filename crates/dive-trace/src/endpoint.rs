@@ -480,3 +480,53 @@ impl CandidateStateEndpoint {
         })
     }
 }
+
+/// Untrusted source of a VIEW failure while expanding the last complete row.
+/// Native version 6 preserves that source-final word; actual fresh prefix and
+/// diagnostic execution supply the candidate, admission history and identities.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ViewSourceEndpoint {
+    next: NextStateEndpoint,
+}
+impl ViewSourceEndpoint {
+    /// Records typed source and identity observations without certifying them.
+    #[must_use]
+    pub fn from_error(
+        ir: &dive_ir::Ir,
+        error: &EvalError,
+        reported: u32,
+        deciding: u32,
+    ) -> Option<Self> {
+        Some(Self {
+            next: NextStateEndpoint::from_ordered_error(ir, error, reported, deciding)?,
+        })
+    }
+    /// Claimed primary wrapper, independently checked during execution.
+    #[must_use]
+    pub fn reported_code(&self) -> u32 {
+        self.next.ordered.map_or(0, |pair| pair.0)
+    }
+    /// Claimed diagnostic identity, independently checked during execution.
+    #[must_use]
+    pub fn deciding_code(&self) -> u32 {
+        self.next.ordered.map_or(0, |pair| pair.1)
+    }
+    pub(crate) fn matches_error(&self, ir: &dive_ir::Ir, error: &EvalError) -> bool {
+        self.next.matches_error_source(ir, error)
+    }
+    pub(crate) fn to_json(&self) -> Value {
+        let mut value = self.next.to_json();
+        value["stage"] = Value::from("view-source-terminal");
+        value
+    }
+    pub(crate) fn from_json(value: &Value) -> Result<Self, String> {
+        if value["stage"] != "view-source-terminal" {
+            return Err("unknown VIEW endpoint stage".into());
+        }
+        let mut value = value.clone();
+        value["stage"] = Value::from("next-ordered-terminal");
+        Ok(Self {
+            next: NextStateEndpoint::from_json(&value)?,
+        })
+    }
+}

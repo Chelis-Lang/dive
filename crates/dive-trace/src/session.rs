@@ -79,6 +79,7 @@ impl Session {
                 crate::Ending::TemporalStateError { .. }
                     | crate::Ending::TemporalSourceError { .. }
                     | crate::Ending::NextStateError { .. }
+                    | crate::Ending::ViewSourceError { .. }
                     | crate::Ending::CandidateStateError { .. }
                     | crate::Ending::PartialNext { .. }
                     | crate::Ending::PartialInit { .. }
@@ -191,6 +192,7 @@ impl Session {
                 crate::Ending::TemporalStateError { .. }
                     | crate::Ending::TemporalSourceError { .. }
                     | crate::Ending::NextStateError { .. }
+                    | crate::Ending::ViewSourceError { .. }
                     | crate::Ending::CandidateStateError { .. }
                     | crate::Ending::PartialNext { .. }
                     | crate::Ending::PartialInit { .. }
@@ -396,6 +398,116 @@ impl Session {
         result
     }
 
+    /// Validates a named successor-invariant word and independently executes
+    /// one exhausted Init, its full first expansion, the first admitted
+    /// noninitial source and actual diagnostic replay with private key history.
+    /// No serialized metadata or ordinary word validity supplies this evidence.
+    ///
+    /// # Errors
+    /// Actual interruption, resource/internal failure or control conflict;
+    /// no completed class certificate is returned for these failures.
+    #[allow(
+        clippy::too_many_lines,
+        reason = "fresh word and receiver runtimes retain distinct ownership"
+    )]
+    pub fn invariant_error_class(
+        &self,
+        doc: &TraceDoc,
+        control: Option<Arc<dyn dive_eval::HostControl>>,
+    ) -> Result<(Report, Option<crate::InvariantErrorClass>), crate::ValidationRunError> {
+        use crate::{Check, Ending, ValidationProgress, ValidationRunError};
+        let progress = || ValidationProgress {
+            checks_passed: 0,
+            state: Some(0),
+            check: Some(Check::Ending),
+        };
+        let poll = || {
+            control.as_ref().map_or(Ok(()), |control| {
+                control
+                    .check()
+                    .map_err(|error| ValidationRunError::Interrupted {
+                        error: dive_eval::EvalError::interrupted(error),
+                        progress: progress(),
+                    })
+            })
+        };
+        let finish = |report, class| {
+            poll()?;
+            Ok((report, class))
+        };
+        poll()?;
+        let Some(Ending::InvariantError { .. }) = &doc.ending else {
+            return finish(
+                refusal(
+                    "successor invariant class requires a named original cause".into(),
+                    doc.logical_length(),
+                ),
+                None,
+            );
+        };
+        if doc.source != Source::Dive || doc.states.len() != 3 || !doc.properties.is_empty() {
+            return finish(refusal("successor invariant class requires a three-state native word without temporal claims".into(), doc.logical_length()), None);
+        }
+        let (model, host) = match self.fresh_binding(control.as_ref(), FreshMode::NextPrefix, 0)? {
+            Ok(runtime) => runtime,
+            Err(feature) => return finish(refusal(feature, doc.logical_length()), None),
+        };
+        let trace = match Trace::decode(&model, doc) {
+            Ok(trace) => trace,
+            Err(error) => return finish(shape_refusal(error, doc.logical_length()), None),
+        };
+        let mut report =
+            crate::validate::validate_private_controlled(&model, host, &trace, control.clone())?;
+        if !report.validation.is_valid() {
+            return finish(report, None);
+        }
+        // Predicate validation must not supply cached receivers or normalization
+        // history to the separate ordinary/diagnostic Init reconstruction.
+        drop(trace);
+        drop(model);
+        let (model, host) =
+            match self.fresh_binding(control.as_ref(), FreshMode::NextTerminal, 0)? {
+                Ok(runtime) => runtime,
+                Err(feature) => return finish(refusal(feature, doc.logical_length()), None),
+            };
+        let trace = match Trace::decode(&model, doc) {
+            Ok(trace) => trace,
+            Err(error) => return finish(shape_refusal(error, doc.logical_length()), None),
+        };
+        let control_scope = control
+            .as_ref()
+            .map(|control| model.evaluator.host_control(Some(control.clone())))
+            .transpose()
+            .map_err(ValidationRunError::ControlConflict)?;
+        let replay = crate::ordered_prefix::invariant(&model, &trace, &host, control.as_deref());
+        let class = match replay {
+            Ok((validation, class)) => {
+                report.validation = validation;
+                class
+            }
+            Err(error) => {
+                return Err(match error.class() {
+                    dive_eval::ErrorClass::Interrupted => ValidationRunError::Interrupted {
+                        error,
+                        progress: progress(),
+                    },
+                    dive_eval::ErrorClass::ResourceLimit => ValidationRunError::ResourceLimit {
+                        error,
+                        progress: progress(),
+                    },
+                    _ => ValidationRunError::EvaluationFailure {
+                        error,
+                        progress: progress(),
+                    },
+                });
+            }
+        };
+        let result = finish(report, class);
+        drop(control_scope);
+        drop(control);
+        result
+    }
+
     fn read_fallible(
         &self,
         doc: &TraceDoc,
@@ -438,6 +550,7 @@ impl Session {
                 crate::Ending::TemporalStateError { .. }
                     | crate::Ending::TemporalSourceError { .. }
                     | crate::Ending::NextStateError { .. }
+                    | crate::Ending::ViewSourceError { .. }
                     | crate::Ending::CandidateStateError { .. }
                     | crate::Ending::PartialNext { .. }
                     | crate::Ending::PartialInit { .. }
@@ -450,6 +563,7 @@ impl Session {
             Some(
                 crate::Ending::NextStateError { .. }
                     | crate::Ending::TemporalSourceError { .. }
+                    | crate::Ending::ViewSourceError { .. }
                     | crate::Ending::CandidateStateError { .. }
                     | crate::Ending::PartialNext { .. }
                     | crate::Ending::PartialInit { .. }

@@ -17,6 +17,7 @@ pub(crate) enum Site {
     Invariant,
     ImpliedAction,
     ImpliedInit,
+    View,
 }
 
 pub(crate) enum Event {
@@ -24,6 +25,7 @@ pub(crate) enum Event {
         site: Site,
         error: EvalError,
         candidate: Option<State>,
+        name: Option<String>,
     },
     Partial {
         state: State,
@@ -51,7 +53,9 @@ impl Driver<'_> {
     // predicates and generation observe the predecessor (zero for Init).
     fn at_site(&self, site: Site) {
         let level = match site {
-            Site::Constraint | Site::Invariant | Site::ImpliedInit => self.level.saturating_add(1),
+            Site::Constraint | Site::Invariant | Site::ImpliedInit | Site::View => {
+                self.level.saturating_add(1)
+            }
             Site::Init | Site::Next | Site::ActionConstraint | Site::ImpliedAction => self.level,
         };
         self.host.set_replay_level(level);
@@ -68,6 +72,14 @@ impl Driver<'_> {
     }
 
     pub(crate) fn primary_with_count(&self, before_first: bool) -> Result<(Event, u64), EvalError> {
+        self.primary_history(before_first, None)
+    }
+
+    pub(crate) fn primary_history(
+        &self,
+        before_first: bool,
+        mut history: Option<&mut History>,
+    ) -> Result<(Event, u64), EvalError> {
         let mut emitted = 0u64;
         let actions = if self.initial {
             &self.model.init_actions
@@ -83,7 +95,19 @@ impl Driver<'_> {
             let mut sink = |candidate: &Successor<'_>| {
                 let known_new = self.initial && emitted == 0;
                 emitted = emitted.saturating_add(1);
-                let result = self.candidate(candidate, before_first, known_new);
+                let result = if self.initial && history.is_some() && emitted > 1 {
+                    Ok(Some(Event::Refused(
+                        "ordered prefix requires exactly one Init emission".into(),
+                    )))
+                } else {
+                    self.candidate_history(
+                        candidate,
+                        before_first,
+                        known_new,
+                        None,
+                        history.as_deref_mut(),
+                    )
+                };
                 // The generator continues after a successful callback at its
                 // original source level, even when Init properties used level1.
                 self.at_site(generation);
@@ -270,15 +294,23 @@ impl Driver<'_> {
     /// The runtime is the independently reconstructed primary runtime, whose
     /// own history is retained; no caller cache/seen facts enter this sequence.
     pub(crate) fn diagnostic(&self) -> Result<Event, EvalError> {
-        self.diagnostic_mode(false)
+        self.diagnostic_mode(false, None)
     }
 
     /// The real diagnostic tool source hook, without relabelling cached values.
     pub(crate) fn diagnostic_sources(&self) -> Result<Event, EvalError> {
-        self.diagnostic_mode(true)
+        self.diagnostic_mode(true, None)
     }
 
-    fn diagnostic_mode(&self, sources: bool) -> Result<Event, EvalError> {
+    pub(crate) fn diagnostic_history(&self, history: &mut History) -> Result<Event, EvalError> {
+        self.diagnostic_mode(false, Some(history))
+    }
+
+    fn diagnostic_mode(
+        &self,
+        sources: bool,
+        mut history: Option<&mut History>,
+    ) -> Result<Event, EvalError> {
         for action in &self.model.actions {
             self.poll()?;
             self.at_site(Site::Next);
@@ -286,6 +318,11 @@ impl Driver<'_> {
             let mut stop = None;
             let mut sink = |candidate: &Successor<'_>| {
                 if let Err(error) = self.poll().and_then(|()| {
+                    if history.is_some() && candidates.len() >= 256 {
+                        return Err(EvalError::unsupported(
+                            "ordered diagnostic exceeds 256 emissions",
+                        ));
+                    }
                     candidates.try_reserve(1).map_err(|_| {
                         EvalError::resource_limit("diagnostic candidate storage unavailable")
                     })?;
@@ -321,21 +358,14 @@ impl Driver<'_> {
                     ordinal: u64::try_from(ordinal)
                         .map_err(|_| EvalError::resource_limit("diagnostic ordinal unavailable"))?,
                 };
-                if let Some(event) = self.candidate(&candidate, false, false)? {
+                if let Some(event) =
+                    self.candidate_history(&candidate, false, false, None, history.as_deref_mut())?
+                {
                     return Ok(event);
                 }
             }
         }
         Ok(Event::End)
-    }
-
-    fn candidate(
-        &self,
-        candidate: &Successor<'_>,
-        before_first: bool,
-        known_new: bool,
-    ) -> Result<Option<Event>, EvalError> {
-        self.candidate_observed(candidate, before_first, known_new, None)
     }
 
     fn candidate_observed(
@@ -345,7 +375,42 @@ impl Driver<'_> {
         known_new: bool,
         admission: Option<&mut bool>,
     ) -> Result<Option<Event>, EvalError> {
+        self.candidate_history(candidate, before_first, known_new, admission, None)
+    }
+
+    #[allow(
+        clippy::too_many_lines,
+        reason = "one ordered candidate operation retains its admission and check priority"
+    )]
+    fn candidate_history(
+        &self,
+        candidate: &Successor<'_>,
+        before_first: bool,
+        known_new: bool,
+        admission: Option<&mut bool>,
+        mut history: Option<&mut History>,
+    ) -> Result<Option<Event>, EvalError> {
         self.poll()?;
+        if let Some(history) = history.as_deref_mut() {
+            history.emissions += 1;
+            if history.emissions > 256 {
+                return Ok(Some(Event::Refused(
+                    "ordered prefix exceeds 256 emissions".into(),
+                )));
+            }
+            if candidate.state.len() > 64
+                || candidate.state.iter().any(|v| {
+                    !matches!(
+                        v,
+                        Some(Value::Bool(_) | Value::Int(_) | Value::Str(_) | Value::Model(_))
+                    )
+                })
+            {
+                return Ok(Some(Event::Refused(
+                    "ordered prefix requires complete scalar states before key demand".into(),
+                )));
+            }
+        }
         if before_first {
             return Ok(Some(Event::Refused(
                 "Next error replay emitted a candidate before the claimed error".into(),
@@ -385,19 +450,33 @@ impl Driver<'_> {
                 }
             }
         }
+        let check_invariants = if inside {
+            if let Some(history) = history {
+                let key = match self.key(candidate.state)? {
+                    Ok(key) => key,
+                    Err(event) => return Ok(Some(with_candidate(event, candidate.state)?)),
+                };
+                match history.admit(key, candidate.state)? {
+                    Ok(new) => new,
+                    Err(event) => return Ok(Some(event)),
+                }
+            } else {
+                if let Some(event) = self.fingerprint(candidate.state)? {
+                    return Ok(Some(event));
+                }
+                if !known_new
+                    && (!self.model.invariants.is_empty()
+                        || self.initial && !self.model.implied_inits.is_empty())
+                {
+                    return Ok(Some(Event::Refused("ordered replay cannot infer global newness or invariant alias history for an in-model candidate".into())));
+                }
+                known_new
+            }
+        } else {
+            true
+        };
         self.at_site(Site::Invariant);
-        if inside {
-            if let Some(event) = self.fingerprint(candidate.state)? {
-                return Ok(Some(event));
-            }
-            if !known_new
-                && (!self.model.invariants.is_empty()
-                    || self.initial && !self.model.implied_inits.is_empty())
-            {
-                return Ok(Some(Event::Refused("ordered replay cannot infer global newness or invariant alias history for an in-model candidate".into())));
-            }
-        }
-        if !inside || known_new {
+        if check_invariants {
             // Excluded candidates are always checked, with no dedup decision.
             for invariant in &self.model.invariants {
                 match self.holds(invariant, &here, Site::Invariant)? {
@@ -455,13 +534,86 @@ impl Driver<'_> {
         site: Site,
     ) -> Result<Result<bool, Event>, EvalError> {
         self.poll()?;
-        match self.model.eval(&named.pred, state) {
-            Ok(Value::Bool(value)) => Ok(Ok(value)),
-            Ok(_) => Ok(Err(Event::Refused(
-                "ordered replay of a non-Boolean candidate check is not certified".into(),
-            ))),
-            Err(error) => execution_error(site, error).map(Err),
+        match self.model.eval_boolean(&named.pred, state) {
+            Ok(value) => Ok(Ok(value)),
+            Err(error) => execution_error(site, error).map(|mut event| {
+                if let Event::Error { name, .. } = &mut event {
+                    *name = Some(named.name.clone());
+                }
+                Err(event)
+            }),
         }
+    }
+
+    fn key(&self, state: &[Option<Value>]) -> Result<Result<Key, Event>, EvalError> {
+        use dive_value::fp64::Fingerprinter;
+        self.poll()?;
+        let concrete = state
+            .iter()
+            .map(|v| {
+                v.clone()
+                    .ok_or_else(|| EvalError::bug("complete scalar key lacks a value"))
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        let ctx = self.model.evaluator.options().ctx;
+        let values = if let Some(view) = &self.model.view {
+            if let Err(error) = dive_model::symmetry::Reduction::normalize_concrete(&concrete, ctx)
+            {
+                return Ok(Err(Event::Refused(format!(
+                    "ordered concrete normalization: {error}"
+                ))));
+            }
+            self.at_site(Site::View);
+            let value = match self.model.eval(&view.pred, &St::state(Arc::from(state))) {
+                Ok(value) => value,
+                Err(error) => return execution_error(Site::View, error).map(Err),
+            };
+            let mut work = 0;
+            if !scalar_tuple(&value, 0, &mut work) {
+                return Ok(Err(Event::Refused(
+                    "ordered VIEW key exceeds scalar/tuple shape bounds".into(),
+                )));
+            }
+            vec![value]
+        } else if ctx.order == ValueOrder::Tlc {
+            self.model
+                .ir
+                .tlc_var_order()
+                .iter()
+                .map(|var| concrete[var.index()].clone())
+                .collect()
+        } else {
+            concrete
+        };
+        // All values were independently shown scalar or bounded materialized tuples.
+        // The ordinary value helper therefore has no lazy or unbounded traversal.
+        let index = if let Some(config) = self
+            .host
+            .run_config
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .as_ref()
+        {
+            let polynomial = u64::from_ne_bytes(config.fingerprint.to_ne_bytes());
+            let Some(index) = dive_value::fp64::POLYS
+                .iter()
+                .position(|candidate| *candidate == polynomial)
+            else {
+                return Ok(Err(Event::Refused(
+                    "ordered prefix fingerprint polynomial is unproved".into(),
+                )));
+            };
+            index
+        } else {
+            return Ok(Err(Event::Refused(
+                "ordered prefix requires the actual run fingerprint polynomial".into(),
+            )));
+        };
+        let fp = dive_value::fp64::TlcFingerprint::new(index)
+            .ok_or_else(|| EvalError::bug("fingerprint polynomial missing"))?
+            .fingerprint_state(&values, ctx)?;
+        self.poll()?;
+        Ok(Ok(Key { values, fp }))
     }
 
     fn fingerprint(&self, state: &[Option<Value>]) -> Result<Option<Event>, EvalError> {
@@ -529,6 +681,7 @@ fn execution_error(site: Site, error: EvalError) -> Result<Event, EvalError> {
             site,
             error,
             candidate: None,
+            name: None,
         }),
         ErrorClass::Unsupported => Ok(Event::Refused(error.to_string())),
         _ => Err(error),
@@ -537,11 +690,98 @@ fn execution_error(site: Site, error: EvalError) -> Result<Event, EvalError> {
 
 fn with_candidate(event: Event, values: &[Option<Value>]) -> Result<Event, EvalError> {
     Ok(match event {
-        Event::Error { site, error, .. } => Event::Error {
+        Event::Error {
+            site, error, name, ..
+        } => Event::Error {
             site,
             error,
+            name,
             candidate: Some(slots(values)?),
         },
         other => other,
     })
+}
+
+// This is a bounded history of the two independently executed source rows,
+// never a checker queue or caller-supplied global seen set.
+#[derive(Default)]
+pub(crate) struct History {
+    keys: Vec<Key>,
+    pub(crate) admitted: Vec<State>,
+    emissions: usize,
+}
+struct Key {
+    values: Vec<Value>,
+    fp: u64,
+}
+impl History {
+    fn admit(
+        &mut self,
+        key: Key,
+        state: &[Option<Value>],
+    ) -> Result<Result<bool, Event>, EvalError> {
+        for old in &self.keys {
+            if old.values == key.values {
+                return Ok(Ok(false));
+            }
+            if old.fp == key.fp {
+                return Ok(Err(Event::Refused(
+                    "ordered prefix key fingerprint collision".into(),
+                )));
+            }
+        }
+        if self.keys.len() >= 64 {
+            return Ok(Err(Event::Refused(
+                "ordered prefix exceeds 64 admitted keys".into(),
+            )));
+        }
+        self.keys
+            .try_reserve(1)
+            .map_err(|_| EvalError::resource_limit("ordered key storage unavailable"))?;
+        self.admitted
+            .try_reserve(1)
+            .map_err(|_| EvalError::resource_limit("ordered source storage unavailable"))?;
+        self.admitted.push(slots(state)?);
+        self.keys.push(key);
+        Ok(Ok(true))
+    }
+}
+fn scalar_tuple(value: &Value, depth: usize, work: &mut usize) -> bool {
+    *work += 1;
+    if depth > 8 || *work > 64 {
+        return false;
+    }
+    match value {
+        Value::Bool(_) | Value::Int(_) | Value::Str(_) | Value::Model(_) => true,
+        Value::Fcn(function) => function.as_tuple().is_some_and(|values| {
+            values
+                .iter()
+                .all(|value| scalar_tuple(value, depth + 1, work))
+        }),
+        _ => false,
+    }
+}
+
+#[cfg(test)]
+mod history_controls {
+    use super::*;
+    #[test]
+    fn equal_fingerprints_cannot_merge_distinct_keys() -> Result<(), EvalError> {
+        let mut history = History::default();
+        assert!(matches!(
+            history.admit(
+                Key {
+                    values: vec![Value::Int(0)],
+                    fp: 17
+                },
+                &[Some(Value::Int(0))]
+            )?,
+            Ok(true)
+        ));
+        assert!(
+            matches!(history.admit(Key { values: vec![Value::Int(1)], fp: 17 }, &[Some(Value::Int(1))])?, Err(Event::Refused(reason)) if reason.contains("collision"))
+        );
+        assert_eq!(history.admitted.len(), 1);
+        Ok(())
+    }
 }

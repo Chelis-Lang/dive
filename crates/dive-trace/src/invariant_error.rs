@@ -121,6 +121,7 @@ pub(crate) fn stage(
             site: Site::Invariant,
             error,
             candidate: Some(candidate),
+            ..
         } if emitted == 1 => match error
             .value_method()
             .map(dive_eval::ValueMethodFailure::method)
@@ -243,6 +244,7 @@ pub(crate) fn replay(
             site: Site::Invariant,
             error,
             candidate: Some(candidate),
+            ..
         } => (error, candidate),
         Event::Refused(reason) => return Ok((Validation::Unsupported(reason), None)),
         Event::Failed { check, detail } => {

@@ -8,7 +8,7 @@
 use dive_api::trace::{Ending, SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Engine, check_file_engine};
 use dive_conformance::compare::{CompareContext, diff_results, diff_verdict_and_class};
-use dive_conformance::dive::{CheckMapping, check_result};
+use dive_conformance::dive::{CheckMapping, check_result, check_result_with_model};
 use dive_conformance::process::ProcessOutcome;
 use dive_conformance::tlc::result::{OracleResult, RunFacts, Verdict};
 use dive_conformance::tlc::{messages, result};
@@ -60,6 +60,27 @@ fn mapped(report: &Value, exit: i32, compat: bool) -> OracleResult {
     *result
 }
 
+fn source_mapping(report: &Value, exit: i32, compat: bool, spec: &SpecModel) -> CheckMapping {
+    check_result_with_model(
+        &ProcessOutcome {
+            exit_code: Some(exit),
+            signal: None,
+            timed_out: false,
+            stdout: report.to_string(),
+            stderr: String::new(),
+            elapsed: Duration::ZERO,
+        },
+        compat,
+        spec,
+    )
+}
+fn mapped_source(report: &Value, exit: i32, compat: bool, spec: &SpecModel) -> OracleResult {
+    let CheckMapping::Result(result) = source_mapping(report, exit, compat, spec) else {
+        panic!("diagnostic proof failed: {report}");
+    };
+    *result
+}
+
 #[test]
 fn independent_named_cause_does_not_certify_the_deciding_wrapper() {
     let root = fixtures();
@@ -88,10 +109,14 @@ fn independent_named_cause_does_not_certify_the_deciding_wrapper() {
         .expect("model");
         for engine in [Engine::Reference, Engine::Core] {
             let (report, exit) = native(&file, engine, compat);
-            let actual = mapped(&report, exit, compat);
+            let actual = mapped_source(&report, exit, compat, &spec);
+            assert!(matches!(
+                mapping(&report, exit, compat),
+                CheckMapping::Refused(_)
+            ));
             let doc = TraceDoc::from_json(&report["counterexample"]["trace"]).expect("word");
             assert_eq!(spec.validate(&doc).validation, Validation::Valid);
-            assert!(validate_counterexample(&spec, &actual, &oracle).refuted);
+            assert!(validate_counterexample(&spec, &actual, &oracle).validated);
             // A valid word cannot turn the canonical unknown stream into
             // a pinned-TLC agreement or certify the diagnostic replay.
             assert_ne!(diff_verdict_and_class(&oracle, &actual), Vec::new());
@@ -104,8 +129,10 @@ fn independent_named_cause_does_not_certify_the_deciding_wrapper() {
             ] {
                 let mut forged = report.clone();
                 *forged.pointer_mut(path).expect("field") = value;
-                let wrong = mapped(&forged, exit, compat);
-                assert!(validate_counterexample(&spec, &wrong, &oracle).refuted);
+                assert!(matches!(
+                    source_mapping(&forged, exit, compat, &spec),
+                    CheckMapping::Refused(_)
+                ));
             }
             let mut unverified = report.clone();
             unverified["tlc"]["verified"] = json!(false);
@@ -171,7 +198,17 @@ fn secondary_replay_context_is_not_proven_by_the_invariant_word() {
     std::fs::write(changed_file.with_extension("cfg"), config).expect("config");
     for compat in [false, true] {
         let (original_report, exit) = native(&file, Engine::Core, compat);
-        let original = mapped(&original_report, exit, compat);
+        let original_spec = SpecModel::load(
+            &file,
+            &file.with_extension("cfg"),
+            &TraceOptions {
+                compat_tlc: compat,
+                run: Some((0, 0)),
+                ..TraceOptions::default()
+            },
+        )
+        .expect("original model");
+        let original = mapped_source(&original_report, exit, compat, &original_spec);
         let (mut changed_report, exit) = native(&changed_file, Engine::Reference, compat);
         let changed_result = mapped(&changed_report, exit, compat);
         assert_eq!(changed_result.verdict_code, Some(2111));
@@ -205,9 +242,15 @@ fn secondary_replay_context_is_not_proven_by_the_invariant_word() {
         changed_report["tlc"]["name"] = json!("TLC_NESTED_EXPRESSION");
         changed_report["tlc"]["exit_status"] = json!(75);
         changed_report["tlc"]["verified"] = json!(true);
-        let forged = mapped(&changed_report, if compat { 75 } else { exit }, compat);
-        assert_eq!(diff_verdict_and_class(&forged, &forged), Vec::new());
-        assert!(validate_counterexample(&spec, &forged, &forged).refuted);
+        assert!(matches!(
+            source_mapping(
+                &changed_report,
+                if compat { 75 } else { exit },
+                compat,
+                &spec
+            ),
+            CheckMapping::Refused(_)
+        ));
     }
 }
 
