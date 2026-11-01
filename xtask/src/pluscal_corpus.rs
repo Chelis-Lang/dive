@@ -123,7 +123,11 @@ pub fn pluscal_corpus(args: &[String]) -> Result<()> {
     write(&config.out.join("summary.md"), &summary.1)?;
     print!("{}", summary.1);
     println!("wrote {}", config.out.join("results.json").display());
-    Ok(())
+    if summary.0["accepted"] == true {
+        Ok(())
+    } else {
+        Err("PlusCal corpus has findings; see results.json and summary.md".into())
+    }
 }
 
 fn parse_args(args: &[String]) -> Result<Config> {
@@ -577,6 +581,9 @@ fn compare_checks(
     // Waiting for that supervisor avoids a second direct-child kill which
     // could orphan its independently grouped children during setup/replay.
     let child = wait_for_supervisor(&mut command, dive_dir, "independent-check")?;
+    if dive_dir.join("model-check/deadline.json").is_file() {
+        return Ok(json!({"outcome":"timeout","exit":child.code,"timed_out":true}));
+    }
     let report: Value = serde_json::from_str(&child.stdout).unwrap_or(Value::Null);
     if !matches!(child.code, Some(0 | 1))
         || child.timed_out
@@ -878,6 +885,8 @@ fn summarize(records: &[Value]) -> (Value, String) {
         let _ = writeln!(text, "Mismatches:\n\n{mismatches}");
     }
     let summary = json!({
+        "accepted": records.iter().all(|r| r["category"] == "ok" && r["same_text"] == true
+            && r.get("check").is_none_or(|c| c["outcome"] == "agree")),
         "modules": records.len(),
         "categories": categories,
         "same_text": same,
@@ -944,6 +953,41 @@ mod tests {
         let retired = json!({"schema_version":3,"command":"translate-rewrite","accepted":true,
             "model_proved":true,"verified":true,"generated_module_accepted":true});
         assert!(!valid_translation(&retired));
+    }
+
+    #[test]
+    fn summary_acceptance_rejects_every_uncredited_or_different_observation() {
+        let good = json!({"category":"ok","same_text":true,"check":{"outcome":"agree"}});
+        assert_eq!(summarize(std::slice::from_ref(&good)).0["accepted"], true);
+        for outcome in [
+            "missing-configuration",
+            "translation-unavailable",
+            "timeout",
+            "error",
+            "findings",
+        ] {
+            let mut bad = good.clone();
+            bad["check"]["outcome"] = json!(outcome);
+            assert_eq!(
+                summarize(&[good.clone(), bad]).0["accepted"],
+                false,
+                "{outcome}"
+            );
+        }
+        for category in [
+            "refused",
+            "pcal-timeout",
+            "both-reject",
+            "dive-error",
+            "error-mismatch",
+        ] {
+            let mut bad = good.clone();
+            bad["category"] = json!(category);
+            assert_eq!(summarize(&[bad]).0["accepted"], false, "{category}");
+        }
+        let mut different = good;
+        different["same_text"] = json!(false);
+        assert_eq!(summarize(&[different]).0["accepted"], false);
     }
 
     struct Scratch(PathBuf);

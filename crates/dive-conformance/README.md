@@ -5,6 +5,9 @@
 staged PlusCal translations using pinned TLC and dive in both semantic profiles.
 The configuration bytes must match the oracle module's same-named configuration.
 `--out` must be fresh and retains raw child output and physical status receipts.
+`--overall-timeout SECS` bounds the complete comparison (default four child
+timeouts plus 60 seconds), including source binding and independent replay.
+The deadline cancels and drains registered children before process termination.
 Results use ordinary conformance classification and independently replay native
 counterexamples; exit 1 retains any non-agreeing observation. This command does
 not write goldens or certify a whole translator corpus.

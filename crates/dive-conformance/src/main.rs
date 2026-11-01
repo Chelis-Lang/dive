@@ -207,6 +207,7 @@ struct Opts {
     model_config: Option<PathBuf>,
     model_id: Option<String>,
     module_paths: Vec<PathBuf>,
+    overall_timeout: Option<u64>,
     positional: Vec<String>,
 }
 
@@ -273,6 +274,7 @@ fn parse_opts(args: &mut Args) -> Result<Opts> {
             "--config" => o.model_config = Some(args.value(&a)?.into()),
             "--model-id" => o.model_id = Some(args.value(&a)?),
             "--module-path" => o.module_paths.push(args.value(&a)?.into()),
+            "--overall-timeout" => o.overall_timeout = Some(parse_num(&a, &args.value(&a)?)?),
             "--baseline" => o.baseline = Some(args.value(&a)?.into()),
             // `next()`, not `value()`: a seed may be negative (`--seed -3`).
             "--seed" => {
@@ -434,6 +436,14 @@ fn cmd_compare_models(config: &Config, cache: &Cache, o: &Opts) -> Result<bool> 
             module_paths: &o.module_paths,
             dive: &dive,
             timeout: Duration::from_secs(o.timeout.unwrap_or(120)),
+            overall_timeout: o.overall_timeout.map_or_else(
+                || {
+                    Duration::from_secs(o.timeout.unwrap_or(120))
+                        .saturating_mul(4)
+                        .saturating_add(Duration::from_secs(60))
+                },
+                Duration::from_secs,
+            ),
             raw_directory: &raw,
         },
     )?;

@@ -399,6 +399,13 @@ default-profile divergences remain separate from strict agreements. Missing
 configurations, refused translations, unsupported checks, stops and unconfirmed
 words earn no model agreement. All selected inputs remain in the results. Raw
 children and physical status receipts remain under `--out`.
+`results.json` includes `summary.accepted`; any refusal, stop, missing model
+configuration, differing translation or non-agreeing check makes it false and
+the command exits nonzero after writing its complete report. A comparison has
+an overall deadline of four check timeouts plus 60 seconds. Its own supervisor
+cancels and drains registered child groups on that deadline, including when
+source binding or independent replay is still running; the outer runner waits
+for supervised cleanup rather than killing that supervisor.
 Historical runs that checked both translations using dive retain their narrower
 diagnostic meaning. See [ADR 0089](decisions/0089-pluscal-measurement-inputs.md).
 

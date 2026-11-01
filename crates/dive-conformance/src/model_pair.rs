@@ -38,6 +38,8 @@ pub struct ModelPair<'a> {
     pub dive: &'a Path,
     /// Per-child deadline, including the separate oracle trace pass.
     pub timeout: Duration,
+    /// Whole comparison deadline, including source binding and witness replay.
+    pub overall_timeout: Duration,
     /// Fresh owned directory retaining raw child output and receipts.
     pub raw_directory: &'a Path,
 }
@@ -50,6 +52,7 @@ pub struct ModelPair<'a> {
 /// Invalid inputs, pin/setup failures or inability to supervise a child.
 pub fn compare(config: &Config, cache: &Cache, pair: &ModelPair<'_>) -> Result<Value> {
     std::fs::create_dir(pair.raw_directory).map_err(|e| Error::io(pair.raw_directory, &e))?;
+    let _deadline = comparison_deadline(pair.overall_timeout, pair.raw_directory)?;
     let oracle = config.oracles.default_oracle()?;
     let registry = Registry::load(&config.repo_root)?;
     let java = Java::resolve(config, cache, None)?;
@@ -116,6 +119,28 @@ pub fn compare(config: &Config, cache: &Cache, pair: &ModelPair<'_>) -> Result<V
         "native_module_sha256": crate::hash::sha256_file(pair.native_module)?,
         "profiles": profiles}),
     )
+}
+
+struct Deadline(std::sync::mpsc::Sender<()>);
+
+impl Drop for Deadline {
+    fn drop(&mut self) {
+        let _ = self.0.send(());
+    }
+}
+
+fn comparison_deadline(limit: Duration, raw: &Path) -> Result<Deadline> {
+    let (send, receive) = std::sync::mpsc::channel();
+    let receipt = raw.join("deadline.json");
+    std::thread::Builder::new().name("translated-model-deadline".into()).spawn(move || {
+        if receive.recv_timeout(limit) == Err(std::sync::mpsc::RecvTimeoutError::Timeout) {
+            let _ = write_json(&receipt, &json!({"timed_out":true,"limit_ms":limit.as_millis()}));
+            eprintln!("translated-model comparison reached its overall deadline; draining owned children");
+            crate::process::kill_all_children();
+            std::process::exit(5);
+        }
+    }).map_err(|e| Error::Command(format!("cannot start comparison deadline: {e}")))?;
+    Ok(Deadline(send))
 }
 
 fn compare_profile(
