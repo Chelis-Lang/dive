@@ -353,3 +353,44 @@ fn missing_run_polynomial_cannot_grant_an_admission_certificate() -> TestResult 
     assert!(class.is_none());
     Ok(())
 }
+
+#[test]
+fn diagnostic_generation_cap_counts_the_already_executed_prefix() -> TestResult {
+    for options in [Options::dive(), Options::tlc()] {
+        // Init plus ten first-source emissions plus the terminal primary
+        // leave fewer than 250 slots. Each diagnostic action alone is below
+        // 256, so a per-action cap would incorrectly certify this request.
+        let (session, word) = source_session(
+            "IF x=0 THEN x' \\in 1..10 ELSE (\\E i \\in 1..250: x'=1000)",
+            "x=0",
+            VIEW,
+            "",
+            "",
+            options,
+        )?;
+        let (boundary, boundary_word) = source_session(
+            "IF x=0 THEN x' \\in 1..10 ELSE (\\E i \\in 1..244: x'=1000)",
+            "x=0",
+            VIEW,
+            "",
+            "",
+            options,
+        )?;
+        assert_eq!(
+            boundary.try_read(&boundary_word)?.0.validation,
+            Validation::Valid
+        );
+        let actual = session.try_read(&word)?.0.validation;
+        assert!(
+            matches!(&actual, Validation::Unsupported(reason) if reason.contains("256 cumulative emissions")),
+            "{actual:?}"
+        );
+        // The cap is a completed explicit refusal; a real host interruption
+        // still travels outside the validation report.
+        assert!(matches!(
+            session.read_controlled(&word, Arc::new(Stop)),
+            Err(dive_trace::ValidationRunError::Interrupted { .. })
+        ));
+    }
+    Ok(())
+}

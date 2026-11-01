@@ -316,13 +316,15 @@ impl Driver<'_> {
             self.at_site(Site::Next);
             let mut candidates = Vec::new();
             let mut stop = None;
+            let mut capped = false;
             let mut sink = |candidate: &Successor<'_>| {
+                if history.as_ref().is_some_and(|history| {
+                    history.emissions.saturating_add(candidates.len()) >= 256
+                }) {
+                    capped = true;
+                    return Flow::Stop;
+                }
                 if let Err(error) = self.poll().and_then(|()| {
-                    if history.is_some() && candidates.len() >= 256 {
-                        return Err(EvalError::unsupported(
-                            "ordered diagnostic exceeds 256 emissions",
-                        ));
-                    }
                     candidates.try_reserve(1).map_err(|_| {
                         EvalError::resource_limit("diagnostic candidate storage unavailable")
                     })?;
@@ -347,6 +349,11 @@ impl Driver<'_> {
             self.poll()?;
             if let Some(error) = stop {
                 return Err(error);
+            }
+            if capped {
+                return Ok(Event::Refused(
+                    "ordered diagnostic exceeds 256 cumulative emissions".into(),
+                ));
             }
             if let Err(error) = outcome {
                 return execution_error(Site::Next, error.error);
