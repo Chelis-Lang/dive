@@ -100,11 +100,15 @@ concrete state is refused before a VIEW that ignores it can certify a failure;
 ignored state fields never waive required normalization demand.
 
 Named invariant certification additionally reconstructs multiple Init emissions
-and bounded materialized record state fields. Actual Print/PrintT argument,
+and bounded materialized record state fields. An earlier source with no
+successors and enabled deadlock checking stops admission of a later error word.
+Actual Print/PrintT argument,
 rendering and value semantics can execute with the output sink suppressed; this
 proves no output transcript. Randomness, register/I/O operations and shared lazy
 effects remain refused. A pure integer-equality property `[]<>(v = k)` can
-preserve a first-source invariant safety error before any temporal row completes.
+preserve an invariant safety error at the first actually admitted initial source
+before any temporal row completes. The fresh Init admission ledger determines
+that source, independently of the submitted word's first state.
 Other temporal lifecycles, including the unconfirmed temporal generator errors,
 retain their existing refusals.
 

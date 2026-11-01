@@ -228,11 +228,6 @@ fn replay(
     let Some(initial) = trace.states.first() else {
         return Ok(refuse("ordered replay needs an initial state".into()));
     };
-    if !model.implied_temporals.is_empty()
-        && (source != initial || !simple_recurrences(model, initial))
-    {
-        return Ok(refuse("invariant temporal configuration requires a first-source safety error and pure state recurrences".into()));
-    }
     let mut history = History::default();
     history.invariant = invariant;
     let init = Driver {
@@ -261,6 +256,13 @@ fn replay(
             .into(),
         ));
     }
+    if !model.implied_temporals.is_empty()
+        && (history.admitted.first() != Some(source)
+            || source != initial
+            || !simple_recurrences(model, &history.admitted[0]))
+    {
+        return Ok(refuse("invariant temporal configuration requires the first actually admitted initial source before any completed row and pure state recurrences".into()));
+    }
     // The complete admission ledger is independently reconstructed. Word rows
     // do not assert global newness or omit off-word siblings from the replay.
     let mut index = 0;
@@ -283,9 +285,17 @@ fn replay(
             host,
             control,
         };
-        let (event, _) = driver.primary_history(false, Some(&mut history))?;
+        let (event, emitted) = driver.primary_history(false, Some(&mut history))?;
         if !matches!(event, Event::End) {
             return Ok((event_validation(event), None));
+        }
+        if emitted == 0 && model.settings.check_deadlock {
+            return Ok((
+                invalid(
+                    "an earlier independently expanded source deadlocks before the claimed error",
+                ),
+                None,
+            ));
         }
         index += 1;
     };

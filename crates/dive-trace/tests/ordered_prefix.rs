@@ -538,3 +538,91 @@ fn diagnostic_generation_cap_counts_the_already_executed_prefix() -> TestResult 
     }
     Ok(())
 }
+
+#[test]
+fn earlier_deadlocks_and_completed_rows_cannot_borrow_later_word_authority() -> TestResult {
+    for options in [Options::dive(), Options::tlc()] {
+        for (init, next, configuration, rows, expected) in [
+            (
+                "x=0",
+                "IF x=0 THEN x' \\in {1,2} ELSE IF x=1 THEN FALSE ELSE x'=3",
+                "",
+                vec![0, 2, 3],
+                "deadlock",
+            ),
+            (
+                "x=0",
+                "IF x=0 THEN x' \\in {1,2} ELSE IF x=1 THEN FALSE ELSE x'=3",
+                "CHECK_DEADLOCK FALSE\n",
+                vec![0, 2, 3],
+                "valid",
+            ),
+            (
+                "x=0",
+                "IF x=0 THEN x' \\in {1,2} ELSE IF x=1 THEN x'=4 ELSE x'=3",
+                "CONSTRAINT C\n",
+                vec![0, 2, 3],
+                "valid",
+            ),
+            (
+                "x \\in {0,1}",
+                "IF x=0 THEN x'=0 ELSE x'=3",
+                "PROPERTY P\n",
+                vec![1, 3],
+                "first actually admitted",
+            ),
+            (
+                "x \\in {0,1}",
+                "IF x=0 THEN x'=0 ELSE x'=3",
+                "",
+                vec![1, 3],
+                "valid",
+            ),
+            // Multiple Init emissions are safe for this temporal exception
+            // only when the first actually admitted source fails immediately.
+            (
+                "x \\in {0,1}",
+                "IF x=0 THEN x'=3 ELSE x'=1",
+                "PROPERTY P\n",
+                vec![0, 3],
+                "valid",
+            ),
+        ] {
+            let source = format!(
+                "---- MODULE Order ----\nEXTENDS Integers,TLC\nVARIABLE x\nInit == {init}\nNext == {next}\nInv == x#3 \\/ 1 \\div 0=0\nP == []<>(x=0)\nC == x#4\n====\n"
+            );
+            let analysis =
+                dive_sema::analyze_source("Order.tla", &source, &dive_sema::Options::default());
+            let ir = Arc::new(dive_ir::lower(&analysis)?);
+            let config = dive_config::parse(&format!(
+                "INIT Init\nNEXT Next\nINVARIANT Inv\n{configuration}"
+            ))
+            .into_config()
+            .ok_or("config")?;
+            let session = Session::new(Recipe::new(ir, config, options, false), Some(run_config()));
+            let word = TraceDoc::behavior(rows.iter().map(|x| json!({"x":x})).collect())?
+                .with_ending(Ending::InvariantError {
+                    name: "Inv".into(),
+                    ec: "TLC_MODULE_DIVISION_BY_ZERO".into(),
+                });
+            assert_eq!(session.try_read(&word)?.0.validation, Validation::Valid);
+            let (report, class) = session.invariant_error_class(&word, None)?;
+            if expected == "valid" {
+                assert_eq!(report.validation, Validation::Valid, "{configuration}");
+                assert_eq!(class.ok_or("certificate")?.deciding_code(), 2111);
+            } else {
+                assert!(class.is_none());
+                match report.validation {
+                    Validation::Invalid(failure) if expected == "deadlock" => {
+                        assert!(failure.detail.contains(expected));
+                    }
+                    Validation::Unsupported(feature) if expected == "first actually admitted" => {
+                        assert!(feature.contains(expected));
+                    }
+                    other => return Err(format!("{expected}: {other:?}").into()),
+                }
+            }
+        }
+    }
+    Ok(())
+}

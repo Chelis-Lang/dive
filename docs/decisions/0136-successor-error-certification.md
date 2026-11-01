@@ -31,6 +31,8 @@ Ordinary word validation remains a distinct API and does not certify a report.
 Extend the independent finite admission ledger to exhaust the actual initial
 emissions and replay admitted sources in insertion order until the actual
 terminal source. Reconstruct off-word siblings and source levels privately;
+stop at any earlier source that emits no successor when deadlock checking is
+enabled. An excluded successor is still an emission and does not prove deadlock.
 the submitted path supplies neither global newness nor a traversal transcript.
 Keep the existing 64 admitted keys and 256 emissions, bounded scalar/tuple
 VIEW keys, fallible growth and host control. Named invariant proofs additionally
@@ -50,7 +52,9 @@ runtime with the sink suppressed; the class certificate does not certify the
 producer's output stream.
 
 A configured pure integer-equality recurrence `[]<>(v = k)` can retain a named
-invariant safety error on the first initial source, before any row completes.
+invariant safety error on the first actually admitted initial source, before any
+row completes. The fresh Init ledger determines that source; a submitted word
+starting at another initial state supplies no such authority.
 The actual initial value of `v` and the literal are integers; behavior temporal
 assumptions, later sources and other property forms refuse. This preserves the
 existing `GenError/InvariantError` safety case without admitting the four
