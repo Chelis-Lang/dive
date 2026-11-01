@@ -655,6 +655,9 @@ fn check_file_in(
     if report.core.is_some() && req.temporal == TemporalMode::Ordinary {
         report.temporal_configuration = crate::temporal::core_file_configuration();
     }
+    if let Phase::Checked(result) = &mut report.phase {
+        certify_next_receiver(&ir, &model, &armed, result);
+    }
     if let Phase::Checked(result) = &report.phase
         && let Verdict::EvaluationError {
             site: dive_check::ErrorSite::Next,
@@ -812,6 +815,92 @@ fn resolve_memory(
             .ok_or_else(dive_check::budget::MeasurementError::default_ceiling_unavailable),
         BudgetSetting::Explicit(bytes) => Ok((Some(bytes), "explicit")),
         BudgetSetting::Unlimited => Ok((None, "none")),
+    }
+}
+
+/// Admit a diagnostic wrapper only after fresh source-bound word validation.
+/// The producer's typed receiver observation is a request, never a certificate.
+fn certify_next_receiver(
+    ir: &Arc<dive_ir::Ir>,
+    config: &dive_config::ModelConfig,
+    options: &CheckOptions,
+    result: &mut CheckResult,
+) {
+    let Verdict::EvaluationError {
+        site: dive_check::ErrorSite::Next,
+        cause,
+        reported,
+        verified: false,
+        ..
+    } = &result.verdict
+    else {
+        return;
+    };
+    if !cause.value_method().is_some_and(|receiver| {
+        receiver.method() == dive_eval::ValueMethod::FunctionMaterialize
+            && receiver.source().is_none()
+    }) {
+        return;
+    }
+    let Some(path) = result
+        .counterexample
+        .as_ref()
+        .filter(|path| path.states.len() == 1)
+    else {
+        return;
+    };
+    let Some(endpoint) =
+        dive_trace::NextStateEndpoint::from_ordered_error(ir, cause, *reported, 2147)
+    else {
+        return;
+    };
+    let request = trace_doc(
+        result,
+        &path.states,
+        options.eval.ctx,
+        Some(&endpoint),
+        None,
+        None,
+    )
+    .and_then(|value| dive_trace::TraceDoc::from_json(&value));
+    let Ok(document) = request else {
+        return;
+    };
+    let control = match dive_check::budget::EvaluationControl::new(
+        &options.budget,
+        dive_check::budget::Phase::Validation,
+    ) {
+        Ok(control) => control,
+        Err(error) => {
+            result
+                .notes
+                .push(format!("Next receiver proof refused: {error}"));
+            return;
+        }
+    };
+    let recipe = dive_model::Recipe::new(
+        ir.clone(),
+        config.clone(),
+        options.eval,
+        options.no_deadlock,
+    )
+    .with_symmetry_liveness(options.symmetry_liveness);
+    let session = dive_trace::Session::new(recipe, None);
+    match session.read_controlled(&document, control) {
+        Ok((report, _)) if report.validation == dive_trace::Validation::Valid => {
+            if let Verdict::EvaluationError { code, name, verified, .. } = &mut result.verdict {
+                *code = 2147;
+                *name = "TLC_FINGERPRINT_EXCEPTION";
+                *verified = true;
+            }
+        }
+        Ok((report, _)) => result.notes.push(format!(
+            "Next function receiver diagnostic lifetime remains unproved: {:?}",
+            report.validation
+        )),
+        Err(error) => result.notes.push(format!(
+            "Next function receiver diagnostic proof stopped; the original cause, class and counts are retained: {error}"
+        )),
     }
 }
 

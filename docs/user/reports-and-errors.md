@@ -25,6 +25,29 @@ effects, earlier invariants and unproved state history remain outside this
 bounded route (ADR 0133). Report schema 3 and existing native payload versions
 retain their meanings.
 
+A pure Next-side whole-function error before any successor can also establish
+2147 after actual fresh Init, ordinary Next and diagnostic Next execution. This
+bounded route requires one exhausted initial emission and the first source row;
+the primary and diagnostic errors must have the same original cause, constructor
+and source location, with a newly constructed diagnostic function receiver. Its
+formal `counterexample.trace` retains the single original source row and uses
+the existing version-1 `next-ordered-terminal` endpoint. The underlying `ec` and
+reported code remain unchanged; the deciding wrapper is 2147 and physical exit
+75. No initial diagnostic or partial-state witness is added. For example:
+
+```sh
+dive check crates/dive-api/tests/fixtures/next-receiver-lifetime/EmptyLazyQuery.tla --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+```
+
+A source-bound consumer must independently validate this endpoint before
+admitting the wrapper; a producer flag or an underlying-error word alone does
+not suffice. Effects, VIEW, symmetry, temporal obligations, earlier candidates,
+multiple initial emissions and later source lifetimes remain unverified/refused
+until their complete diagnostic histories are proved. In those cases the actual
+original error, output and stopping counts remain available. Both engines and
+both semantic profiles use this proof; report schema and trace versions retain
+their meanings (#680).
+
 Request `--output json` and retain the whole document, source/configuration,
 resolved options and replay seed. Every public operation now emits report
 `schema_version: 3`, with `command` identifying the operation. `check` also emits
