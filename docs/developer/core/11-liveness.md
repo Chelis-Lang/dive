@@ -369,6 +369,33 @@ not performance acceptance; original workload completion and paired timing are
 still required. The existing conversion-cache allowance and eager admission
 policy are unchanged.
 
+### Frozen behavior WF columns
+
+ADR [0138](../../decisions/0138-frozen-behavior-fairness-reuse.md) permits two
+packed columns for the first literal cloned bound behavior WF pair across
+configured properties. The private planner token comes from one frozen prefix;
+expression IDs or scope-cycle helpers supply no equivalence. Property-owned
+fairness and separately lowered contexts do not receive tokens. A cache belongs
+to one immutable graph analysis, never the run or a later prefix/final graph.
+
+Only a complete entirely native column is retained. Every reuse still demands
+original metadata, the first physical target (including implicit stutter),
+reference row conversion and current native control/descriptor/Store/poison/input
+checks. Reader-only adapters decline input reuse by default. Actual evaluations
+retain their fuel and fallback behavior; independent replay gets fresh state.
+
+The optional cap is the smaller of 16 MiB and one 256th of requested memory,
+including metadata and actual vector capacities. Fallible allocation or cap
+refusal preserves the original path; interrupted copying publishes no column.
+Single-property searches, including current periodic checks, allocate no columns.
+`core.metrics.liveness.atoms.fairness_reuse` reports validated state/action
+consumptions, stored columns, cap/allocation bypasses and peak accepted storage
+bytes, including interrupted construction copies.
+`evaluated` and state/action evaluation counters exclude reused truth; row-proof
+scans/hits include the input demands made by both paths. Storage/hit counters
+establish neither time saved nor capacity. Complete allocation accounting and
+original ABA completion/headroom remain separate acceptance work.
+
 ## 5. Analysis entry points (additive APIs)
 
 Existing reference callers keep their entrypoints and result types. Development

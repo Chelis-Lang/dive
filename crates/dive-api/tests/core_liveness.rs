@@ -646,6 +646,15 @@ fn native_fairness_words_validate_independently_and_reject_changed_initial_funct
                     .is_some_and(|bytes| bytes > 0 && bytes <= 1024 * 1024),
                 "{proofs}"
             );
+            let reuse = &report["core"]["metrics"]["liveness"]["atoms"]["fairness_reuse"];
+            assert_eq!(reuse["stored_columns"], 2, "{reuse}");
+            assert!(reuse["state_consumptions"].as_u64() > Some(0), "{reuse}");
+            assert!(reuse["action_consumptions"].as_u64() > Some(0), "{reuse}");
+            assert!(
+                reuse["peak_storage_bytes"]
+                    .as_u64()
+                    .is_some_and(|n| n > 0 && n <= 16 * 1024 * 1024)
+            );
             let doc = &report["counterexample"]["trace"];
             let word = TraceDoc::from_json(doc).expect("trace");
             assert!(matches!(

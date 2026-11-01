@@ -138,6 +138,24 @@ fn reserve<T>(count: usize) -> Result<Vec<T>, ProductError> {
 }
 
 impl PackedTruth {
+    pub(crate) fn column_words(&self, atom: usize, action: bool) -> Option<&[u64]> {
+        let kind = if action {
+            AtomKind::Action
+        } else {
+            AtomKind::State
+        };
+        self.columns
+            .get(atom)
+            .filter(|column| column.kind == kind)
+            .map(|column| column.words.as_slice())
+    }
+
+    pub(crate) fn action_position(&self, source: usize, edge: usize) -> Option<usize> {
+        let start = *self.offsets.get(source)?;
+        let end = *self.offsets.get(source.checked_add(1)?)?;
+        (edge < end.checked_sub(start)?).then(|| start + edge)
+    }
+
     pub(crate) fn new<'a>(
         graph: impl Into<BehaviorView<'a>>,
         kinds: &[AtomKind],

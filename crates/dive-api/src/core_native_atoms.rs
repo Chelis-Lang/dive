@@ -45,6 +45,17 @@ pub(crate) struct NativeAtoms {
     evaluated_enabled: u64,
     evaluated_nonstuttering: u64,
     row_proofs: RowProofMetrics,
+    reuse: ReuseMetrics,
+}
+
+#[derive(Default)]
+struct ReuseMetrics {
+    state: u64,
+    action: u64,
+    peak_bytes: usize,
+    cap_bypasses: u64,
+    allocation_bypasses: u64,
+    stored_columns: u64,
 }
 
 impl NativeAtoms {
@@ -81,6 +92,7 @@ impl NativeAtoms {
             evaluated_enabled: 0,
             evaluated_nonstuttering: 0,
             row_proofs: RowProofMetrics::default(),
+            reuse: ReuseMetrics::default(),
         };
         result
             .machine
@@ -141,6 +153,10 @@ impl NativeAtoms {
             "enabled_evaluations": self.evaluated_enabled, "nonstuttering_evaluations": self.evaluated_nonstuttering,
             "row_proofs": {"scans": self.row_proofs.scans, "hits": self.row_proofs.hits,
                 "certified": self.row_proofs.certified, "peak_storage_bytes": self.row_proofs.peak_storage_bytes},
+            "fairness_reuse": {"state_consumptions": self.reuse.state, "action_consumptions": self.reuse.action,
+                "peak_storage_bytes": self.reuse.peak_bytes, "cap_bypasses": self.reuse.cap_bypasses,
+                "allocation_bypasses": self.reuse.allocation_bypasses, "stored_columns": self.reuse.stored_columns,
+                "scope": "one completed native frozen behavior WF pair per analysis; actual evaluation counters exclude reuse"},
             "eligibility": "source-scoped closed ordinary constructions and scalar updates; identity-scoped fairness queries"})
     }
 
@@ -219,6 +235,31 @@ impl NativeAtoms {
             self.fallback += 1;
             Ok(None)
         }
+    }
+
+    fn validate_reuse(
+        &mut self,
+        atom: &PredicateAtom,
+        control: &EvaluationControl,
+        inputs_closed: impl FnOnce(&dive_core::Heap) -> Result<bool, AnalysisError>,
+    ) -> Result<bool, AnalysisError> {
+        check(&self.control, control)?;
+        if !self
+            .compiled
+            .iter()
+            .any(|item| std::ptr::eq(item.identity, atom))
+        {
+            return Ok(false);
+        }
+        let admitted = inputs_closed(&self.machine.heap)?;
+        check(&self.control, control)?;
+        if admitted {
+            match atom.kind {
+                dive_liveness::formula::AtomKind::State => self.reuse.state += 1,
+                dive_liveness::formula::AtomKind::Action => self.reuse.action += 1,
+            }
+        }
+        Ok(admitted)
     }
 }
 
@@ -569,6 +610,32 @@ impl NativeReader for Reader<'_, '_> {
             },
         )
     }
+
+    fn validate_predicate_inputs(
+        &mut self,
+        atom: &PredicateAtom,
+        before: usize,
+        after: Option<usize>,
+        control: &EvaluationControl,
+    ) -> Result<bool, AnalysisError> {
+        self.proofs.graph.row(before)?;
+        if let Some(after) = after {
+            self.proofs.graph.row(after)?;
+        }
+        self.atoms.validate_reuse(atom, control, |heap| {
+            if !self.proofs.closed(heap, before)? {
+                return Ok(false);
+            }
+            after.map_or(Ok(true), |row| self.proofs.closed(heap, row))
+        })
+    }
+
+    fn predicate_reuse_storage(&mut self, bytes: usize, cap: u64, allocation: u64, columns: u64) {
+        self.atoms.reuse.peak_bytes = self.atoms.reuse.peak_bytes.max(bytes);
+        self.atoms.reuse.cap_bypasses += cap;
+        self.atoms.reuse.allocation_bypasses += allocation;
+        self.atoms.reuse.stored_columns += columns;
+    }
 }
 
 #[cfg(test)]
@@ -860,6 +927,78 @@ mod tests {
                 assert_eq!(atoms.row_proofs.scans, 2);
                 assert_eq!(atoms.row_proofs.hits, 5);
                 assert_eq!(atoms.fallback, 1, "only the copied atom falls back");
+            });
+        }
+    }
+
+    #[test]
+    fn cached_truth_input_hook_keeps_identity_store_poison_and_owned_stop_checks() {
+        let source = "---- MODULE Atoms ----\nVARIABLE x\nInit == x = <<0>>\nNext == x' = <<1>>\nSpec == Init /\\ [][Next]_x /\\ WF_x(Next)\nP == <>(x = <<1>>)\n====\n";
+        for tlc in [false, true] {
+            with_wrappers(source, tlc, |prepared, driver, atoms, control| {
+                let options = if tlc {
+                    dive_check::CheckOptions::tlc(0, 0)
+                } else {
+                    dive_check::CheckOptions::dive(0)
+                };
+                let (graph, mut values) = capture(prepared, &options);
+                let atom = driver
+                    .native_predicates()
+                    .find(|a| matches!(a.test, AtomTest::Nonstuttering { .. }))
+                    .expect("WF action");
+                let mut reader = Reader::new(&graph, &mut values, atoms);
+                assert!(
+                    !reader
+                        .validate_predicate_inputs(&atom.clone(), 0, Some(1), control)
+                        .expect("copy declines")
+                );
+                assert!(!reader.proofs.initialized);
+                assert!(
+                    reader
+                        .validate_predicate_inputs(atom, 0, Some(1), control)
+                        .expect("current admission")
+                );
+                assert!(
+                    reader
+                        .validate_predicate_inputs(atom, 0, Some(1), control)
+                        .expect("positive inputs")
+                );
+                assert_eq!(
+                    reader.atoms.evaluated, 0,
+                    "hook supplies no evaluation or truth"
+                );
+                assert_eq!(reader.atoms.reuse.action, 2);
+                assert_eq!(reader.proofs.metrics.hits, 2);
+                let saved = std::mem::replace(
+                    &mut reader.atoms.machine.heap,
+                    dive_core::Heap::new(Arc::new(Store::default()), false, false),
+                );
+                assert!(
+                    !reader
+                        .validate_predicate_inputs(atom, 0, Some(1), control)
+                        .expect("foreign Store")
+                );
+                reader.atoms.machine.heap = saved;
+                let _ = reader.atoms.machine.heap.view(Handle::EMPTY);
+                assert!(
+                    !reader
+                        .validate_predicate_inputs(atom, 0, Some(1), control)
+                        .expect("current poison")
+                );
+                assert_eq!(reader.atoms.reuse.action, 2);
+                let watchdog = Budget::new(Some(std::time::Duration::ZERO), None)
+                    .start()
+                    .expect("watchdog")
+                    .expect("finite");
+                reader.atoms.control =
+                    EvaluationControl::new(watchdog.budget(), Phase::Capture).expect("owner");
+                let temporal =
+                    EvaluationControl::new(watchdog.budget(), Phase::Temporal).expect("phase");
+                assert!(
+                    matches!(reader.validate_predicate_inputs(atom,0,Some(1),&temporal),
+                    Err(AnalysisError::Stopped(ref stop)) if stop.phase==Phase::Temporal)
+                );
+                assert_eq!(reader.atoms.reuse.action, 2);
             });
         }
     }

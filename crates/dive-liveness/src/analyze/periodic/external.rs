@@ -86,6 +86,33 @@ pub trait NativeReader {
     ) -> Result<Option<bool>, AnalysisError> {
         Ok(None)
     }
+
+    /// Validates current native admission and inputs for private planner-proved
+    /// reuse. This supplies no truth: the caller owns the separate frozen
+    /// recipe/graph proof. Existing readers decline by default.
+    ///
+    /// # Errors
+    /// Only the original owned interruption or resource failure.
+    fn validate_predicate_inputs(
+        &mut self,
+        _atom: &crate::plan::PredicateAtom,
+        _before: usize,
+        _after: Option<usize>,
+        _control: &dive_check::budget::EvaluationControl,
+    ) -> Result<bool, AnalysisError> {
+        Ok(false)
+    }
+
+    /// Records optional per-analysis reuse storage and bypass observations.
+    /// Bytes are retained capacity, not a whole-process or allocation-time cap.
+    fn predicate_reuse_storage(
+        &mut self,
+        _peak_bytes: usize,
+        _cap_bypasses: u64,
+        _allocation_bypasses: u64,
+        _stored_columns: u64,
+    ) {
+    }
 }
 
 impl<F> NativeReader for F

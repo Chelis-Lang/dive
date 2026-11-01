@@ -45,6 +45,16 @@ pub(crate) fn exhausted() -> bool {
     BUDGET.with(|b| !matches!(b.borrow().poll(), Ok(None)))
 }
 
+/// Optional WF columns retain at most one 256th of the requested memory budget.
+pub(crate) fn fairness_reuse_limit() -> usize {
+    const MAX: usize = 16 * 1024 * 1024;
+    BUDGET.with(|budget| {
+        budget.borrow().memory.map_or(MAX, |bytes| {
+            usize::try_from(bytes / 256).unwrap_or(MAX).min(MAX)
+        })
+    })
+}
+
 #[cfg(test)]
 #[allow(clippy::expect_used, reason = "an armed, expired test budget")]
 pub(crate) fn expired_for_test() -> dive_check::budget::Watchdog {
@@ -64,4 +74,23 @@ pub(crate) fn expired_for_test() -> dive_check::budget::Watchdog {
         "watchdog must expire"
     );
     watchdog
+}
+
+#[cfg(test)]
+mod reuse_limit_tests {
+    #[test]
+    fn optional_columns_use_requested_memory_fraction_and_restore_scope() {
+        let original = super::fairness_reuse_limit();
+        for (memory, expected) in [
+            (None, 16 * 1024 * 1024),
+            (Some(0), 0),
+            (Some(256 * 1024), 1024),
+            (Some(16 * 1024 * 1024 * 1024), 16 * 1024 * 1024),
+        ] {
+            let budget = dive_check::budget::Budget::new(None, memory);
+            let _scope = super::enter(&budget);
+            assert_eq!(super::fairness_reuse_limit(), expected);
+        }
+        assert_eq!(super::fairness_reuse_limit(), original);
+    }
 }
