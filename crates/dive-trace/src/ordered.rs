@@ -95,7 +95,10 @@ impl Driver<'_> {
             let mut sink = |candidate: &Successor<'_>| {
                 let known_new = self.initial && emitted == 0;
                 emitted = emitted.saturating_add(1);
-                let result = if self.initial && history.is_some() && emitted > 1 {
+                let result = if self.initial
+                    && history.as_ref().is_some_and(|history| !history.invariant)
+                    && emitted > 1
+                {
                     Ok(Some(Event::Refused(
                         "ordered prefix requires exactly one Init emission".into(),
                     )))
@@ -405,16 +408,27 @@ impl Driver<'_> {
                     "ordered prefix exceeds 256 emissions".into(),
                 )));
             }
+            let mut work = 0;
             if candidate.state.len() > 64
-                || candidate.state.iter().any(|v| {
-                    !matches!(
-                        v,
-                        Some(Value::Bool(_) | Value::Int(_) | Value::Str(_) | Value::Model(_))
-                    )
-                })
+                || candidate.complete()
+                    && candidate.state.iter().any(|value| {
+                        !value.as_ref().is_some_and(|value| {
+                            if history.invariant {
+                                closed_record(value, 0, &mut work)
+                            } else {
+                                matches!(
+                                    value,
+                                    Value::Bool(_)
+                                        | Value::Int(_)
+                                        | Value::Str(_)
+                                        | Value::Model(_)
+                                )
+                            }
+                        })
+                    })
             {
                 return Ok(Some(Event::Refused(
-                    "ordered prefix requires complete scalar states before key demand".into(),
+                    "ordered prefix requires bounded complete scalar states or invariant record fields before key demand".into(),
                 )));
             }
         }
@@ -463,7 +477,7 @@ impl Driver<'_> {
                     Ok(key) => key,
                     Err(event) => return Ok(Some(with_candidate(event, candidate.state)?)),
                 };
-                match history.admit(key, candidate.state)? {
+                match history.admit(key, candidate.state, self.level.saturating_add(1))? {
                     Ok(new) => new,
                     Err(event) => return Ok(Some(event)),
                 }
@@ -709,12 +723,14 @@ fn with_candidate(event: Event, values: &[Option<Value>]) -> Result<Event, EvalE
     })
 }
 
-// This is a bounded history of the two independently executed source rows,
+// This is a bounded history of independently executed source rows,
 // never a checker queue or caller-supplied global seen set.
 #[derive(Default)]
 pub(crate) struct History {
+    pub(crate) invariant: bool,
     keys: Vec<Key>,
     pub(crate) admitted: Vec<State>,
+    pub(crate) levels: Vec<usize>,
     emissions: usize,
 }
 struct Key {
@@ -726,6 +742,7 @@ impl History {
         &mut self,
         key: Key,
         state: &[Option<Value>],
+        level: usize,
     ) -> Result<Result<bool, Event>, EvalError> {
         for old in &self.keys {
             if old.values == key.values {
@@ -748,7 +765,11 @@ impl History {
         self.admitted
             .try_reserve(1)
             .map_err(|_| EvalError::resource_limit("ordered source storage unavailable"))?;
+        self.levels
+            .try_reserve(1)
+            .map_err(|_| EvalError::resource_limit("ordered level storage unavailable"))?;
         self.admitted.push(slots(state)?);
+        self.levels.push(level);
         self.keys.push(key);
         Ok(Ok(true))
     }
@@ -769,6 +790,22 @@ fn scalar_tuple(value: &Value, depth: usize, work: &mut usize) -> bool {
     }
 }
 
+fn closed_record(value: &Value, depth: usize, work: &mut usize) -> bool {
+    *work += 1;
+    if depth > 8 || *work > 64 {
+        return false;
+    }
+    match value {
+        Value::Bool(_) | Value::Int(_) | Value::Str(_) | Value::Model(_) => true,
+        Value::Fcn(function) => function.as_record().is_some_and(|fields| {
+            fields
+                .iter()
+                .all(|(_, value)| closed_record(value, depth + 1, work))
+        }),
+        _ => false,
+    }
+}
+
 #[cfg(test)]
 mod history_controls {
     use super::*;
@@ -781,12 +818,13 @@ mod history_controls {
                     values: vec![Value::Int(0)],
                     fp: 17
                 },
-                &[Some(Value::Int(0))]
+                &[Some(Value::Int(0))],
+                1
             )?,
             Ok(true)
         ));
         assert!(
-            matches!(history.admit(Key { values: vec![Value::Int(1)], fp: 17 }, &[Some(Value::Int(1))])?, Err(Event::Refused(reason)) if reason.contains("collision"))
+            matches!(history.admit(Key { values: vec![Value::Int(1)], fp: 17 }, &[Some(Value::Int(1))], 1)?, Err(Event::Refused(reason)) if reason.contains("collision"))
         );
         assert_eq!(history.admitted.len(), 1);
         Ok(())

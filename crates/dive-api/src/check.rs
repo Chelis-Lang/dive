@@ -714,14 +714,21 @@ fn check_file_in(
             site: dive_check::ErrorSite::View,
             cause,
             reported,
-            code: 2103,
+            code,
             verified: true,
             ..
         } = &result.verdict
-        && cause.exception_kind() == Some(dive_eval::ExceptionKind::ToolRuntime)
+        && matches!(
+            (cause.exception_kind(), *code),
+            (Some(dive_eval::ExceptionKind::ToolRuntime), 2103)
+                | (
+                    Some(dive_eval::ExceptionKind::EvalException),
+                    2132 | 2179 | 2178
+                )
+        )
     {
         report.view_error_endpoint =
-            dive_trace::ViewSourceEndpoint::from_error(&ir, cause, *reported, 2103);
+            dive_trace::ViewSourceEndpoint::from_error(&ir, cause, *reported, *code);
     }
     candidate_error::certify(&mut report, &ir, &model, &armed);
     candidate_error::certify_view(&mut report, &ir, &model, &armed);

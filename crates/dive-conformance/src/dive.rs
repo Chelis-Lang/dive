@@ -43,7 +43,7 @@
 
 use crate::cache::Cache;
 mod initial_invariant;
-mod successor_invariant;
+pub(crate) mod successor_invariant;
 use crate::config::Config;
 use crate::corpus::ModelMode;
 use crate::divergence::Profile;
@@ -856,7 +856,33 @@ pub fn check_result_with_model(
     tlc_profile: bool,
     model: &dive_api::trace::SpecModel,
 ) -> CheckMapping {
-    check_result_with_source(outcome, tlc_profile, None, None, Some(model))
+    check_result_with_model_and_exit_convention(
+        outcome,
+        tlc_profile,
+        dive_api::ExitConvention::Tlc,
+        model,
+    )
+}
+
+/// Reads a source-bound diagnostic report using the caller-selected physical
+/// status convention. Report fields cannot change that selection.
+///
+/// ```no_run
+/// # fn native(outcome: &dive_conformance::process::ProcessOutcome,
+/// # spec: &dive_api::trace::SpecModel) {
+/// let mapping = dive_conformance::dive::check_result_with_model_and_exit_convention(
+///     outcome, false, dive_api::ExitConvention::Native, spec,
+/// );
+/// # let _ = mapping; }
+/// ```
+#[must_use]
+pub fn check_result_with_model_and_exit_convention(
+    outcome: &ProcessOutcome,
+    tlc_profile: bool,
+    convention: dive_api::ExitConvention,
+    model: &dive_api::trace::SpecModel,
+) -> CheckMapping {
+    check_result_with_source(outcome, tlc_profile, None, None, Some(model), convention)
 }
 
 /// A harness-selected time budget is the sole admitted compat override.
@@ -880,7 +906,14 @@ fn check_result_with_policy(
     time_limit: Option<Duration>,
     requested_policy: Option<&str>,
 ) -> CheckMapping {
-    check_result_with_source(outcome, tlc_profile, time_limit, requested_policy, None)
+    check_result_with_source(
+        outcome,
+        tlc_profile,
+        time_limit,
+        requested_policy,
+        None,
+        dive_api::ExitConvention::Tlc,
+    )
 }
 
 #[allow(
@@ -893,6 +926,7 @@ fn check_result_with_source(
     time_limit: Option<Duration>,
     requested_policy: Option<&str>,
     source: Option<&dive_api::trace::SpecModel>,
+    convention: dive_api::ExitConvention,
 ) -> CheckMapping {
     if outcome.timed_out {
         return CheckMapping::Result(Box::new(bare(
@@ -1014,7 +1048,14 @@ fn check_result_with_source(
             );
         }
     };
-    map_check_document(outcome, tlc_profile, &v, temporal.as_ref(), source)
+    map_check_document(
+        outcome,
+        tlc_profile,
+        &v,
+        temporal.as_ref(),
+        source,
+        convention,
+    )
 }
 
 /// Validates only the new owner-policy envelope; it establishes no verdict.
@@ -1033,7 +1074,14 @@ pub(crate) fn safety_result(
     tlc_profile: bool,
     value: &Value,
 ) -> CheckMapping {
-    map_check_document(outcome, tlc_profile, value, None, None)
+    map_check_document(
+        outcome,
+        tlc_profile,
+        value,
+        None,
+        None,
+        dive_api::ExitConvention::Tlc,
+    )
 }
 
 #[allow(clippy::too_many_lines, reason = "one mapping, field by field")]
@@ -1043,6 +1091,7 @@ fn map_check_document(
     v: &Value,
     temporal: Option<&ordinary_final::Fields>,
     source: Option<&dive_api::trace::SpecModel>,
+    convention: dive_api::ExitConvention,
 ) -> CheckMapping {
     if let Err(error) = symmetry_metadata(v) {
         return unclassified(outcome.exit_code, error);
@@ -1172,11 +1221,11 @@ fn map_check_document(
     if let Err(reason) = initial_invariant::read(v, code, outcome.exit_code, source) {
         return CheckMapping::Refused(reason);
     }
-    if let Err(reason) = successor_invariant::read(v, code, source) {
+    if let Err(reason) = successor_invariant::read(v, code, outcome.exit_code, convention, source) {
         return CheckMapping::Refused(reason);
     }
     let tlc_exit = tlc.get("exit_status").and_then(as_i32);
-    if tlc_profile && outcome.exit_code != tlc_exit {
+    if tlc_profile && convention == dive_api::ExitConvention::Tlc && outcome.exit_code != tlc_exit {
         return unclassified(
             outcome.exit_code,
             format!(
@@ -1367,9 +1416,10 @@ impl Implementation for DiveImplementation {
             )));
         }
         let (command, outcome) = self.run_model(req, false)?;
-        // Only this additive auxiliary route needs source validation before
-        // classification. It must not create a formal counterexample solely
-        // to trigger the ordinary word hook or waive an absent oracle trace.
+        // Owned initial, invariant and VIEW diagnostic identities require
+        // fresh source authority before classification. Auxiliary initial
+        // evidence still cannot create a formal counterexample or waive an
+        // absent oracle trace.
         let needs_source = serde_json::from_str::<Value>(&outcome.stdout).is_ok_and(|value| {
             initial_invariant::requested(&value) || successor_invariant::requested(&value)
         });
@@ -1388,7 +1438,7 @@ impl Implementation for DiveImplementation {
                 Ok(model) => Some(model),
                 Err(error) => {
                     return Ok(ImplResult::Unsupported(format!(
-                        "initial diagnostic source binding: {error}"
+                        "error diagnostic source binding: {error}"
                     )));
                 }
             }
@@ -1402,6 +1452,7 @@ impl Implementation for DiveImplementation {
                 req.budgets.then_some(req.timeout),
                 self.symmetry_policy(),
                 source.as_ref(),
+                dive_api::ExitConvention::Tlc,
             ) {
                 CheckMapping::Refused(why) => ImplResult::Unsupported(why),
                 CheckMapping::Result(result) => ImplResult::Completed {

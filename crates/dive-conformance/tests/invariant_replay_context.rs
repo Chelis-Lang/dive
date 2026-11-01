@@ -6,7 +6,7 @@
 )]
 
 use dive_api::trace::{Ending, SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, Engine, ExitConvention, check_file_engine};
 use dive_conformance::compare::{CompareContext, diff_results, diff_verdict_and_class};
 use dive_conformance::dive::{CheckMapping, check_result, check_result_with_model};
 use dive_conformance::process::ProcessOutcome;
@@ -36,7 +36,10 @@ fn native(file: &Path, engine: Engine, compat: bool) -> (Value, i32) {
         engine,
     )
     .expect("native check");
-    (report.to_json(), i32::from(report.exit_code()))
+    (
+        report.to_json_with_exit_convention(ExitConvention::Tlc),
+        i32::from(report.exit_code_for(ExitConvention::Tlc)),
+    )
 }
 
 fn mapping(report: &Value, exit: i32, compat: bool) -> CheckMapping {
@@ -73,6 +76,98 @@ fn source_mapping(report: &Value, exit: i32, compat: bool, spec: &SpecModel) -> 
         compat,
         spec,
     )
+}
+
+#[test]
+fn coordinated_primary_wrapper_and_exit_forgeries_cannot_borrow_a_valid_word() {
+    for name in ["ErInvConstrained", "ErInvReplayError"] {
+        let file = fixtures().join(format!("specs/{name}/{name}.tla"));
+        for compat in [false, true] {
+            let spec = SpecModel::load(
+                &file,
+                &file.with_extension("cfg"),
+                &TraceOptions {
+                    compat_tlc: compat,
+                    run: Some((0, 0)),
+                    ..TraceOptions::default()
+                },
+            )
+            .expect("model");
+            for engine in [Engine::Reference, Engine::Core] {
+                let (report, exit) = native(&file, engine, compat);
+                let actual = mapped_source(&report, exit, compat, &spec);
+                for forged_exit in [76, 12] {
+                    let mut forged = report.clone();
+                    forged["tlc"]["code"] = json!(2111);
+                    forged["tlc"]["name"] = json!("TLC_INVARIANT_EVALUATION_FAILED");
+                    forged["tlc"]["reported"] = json!(2111);
+                    forged["tlc"]["exit_status"] = json!(forged_exit);
+                    forged["exit_code"] = json!(forged_exit);
+                    assert!(matches!(
+                        mapping(&forged, forged_exit, compat),
+                        CheckMapping::Refused(_)
+                    ));
+                    assert!(matches!(
+                        source_mapping(&forged, forged_exit, compat, &spec),
+                        CheckMapping::Refused(_)
+                    ));
+                    let word =
+                        TraceDoc::from_json(&forged["counterexample"]["trace"]).expect("word");
+                    assert_eq!(spec.validate(&word).validation, Validation::Valid);
+                    let mut forged_result = actual.clone();
+                    forged_result.verdict_code = Some(2111);
+                    forged_result.error_class = Some("TLC_INVARIANT_EVALUATION_FAILED".into());
+                    forged_result.exit_code = Some(forged_exit);
+                    forged_result.exit_status =
+                        dive_conformance::tlc::codes::exit_status_name(forged_exit)
+                            .map(str::to_owned);
+                    assert!(validate_counterexample(&spec, &forged_result, &actual).refuted);
+                }
+                for wrong_exit in [12, 13, 76] {
+                    assert!(matches!(
+                        source_mapping(&report, wrong_exit, compat, &spec),
+                        CheckMapping::Refused(_)
+                    ));
+                    let mut forged = actual.clone();
+                    forged.exit_code = Some(wrong_exit);
+                    assert!(validate_counterexample(&spec, &forged, &actual).refuted);
+                }
+                // The native status is authorized by this caller, independently
+                // of the semantic profile and attacker-controlled options.
+                let mut native_report = report.clone();
+                native_report["options"]["exit_codes"] = json!("native");
+                native_report["exit_code"] = json!(13);
+                let outcome = ProcessOutcome {
+                    exit_code: Some(13),
+                    signal: None,
+                    timed_out: false,
+                    stdout: native_report.to_string(),
+                    stderr: String::new(),
+                    elapsed: Duration::ZERO,
+                };
+                let CheckMapping::Result(native_result) =
+                    dive_conformance::dive::check_result_with_model_and_exit_convention(
+                        &outcome,
+                        compat,
+                        ExitConvention::Native,
+                        &spec,
+                    )
+                else {
+                    panic!("explicit native convention");
+                };
+                assert!(
+                    dive_conformance::trace_check::validate_counterexample_with_exit_convention(
+                        &spec,
+                        &native_result,
+                        &actual,
+                        ExitConvention::Native
+                    )
+                    .validated
+                );
+                assert!(validate_counterexample(&spec, &native_result, &actual).refuted);
+            }
+        }
+    }
 }
 fn mapped_source(report: &Value, exit: i32, compat: bool, spec: &SpecModel) -> OracleResult {
     let CheckMapping::Result(result) = source_mapping(report, exit, compat, spec) else {
@@ -210,7 +305,17 @@ fn secondary_replay_context_is_not_proven_by_the_invariant_word() {
         .expect("original model");
         let original = mapped_source(&original_report, exit, compat, &original_spec);
         let (mut changed_report, exit) = native(&changed_file, Engine::Reference, compat);
-        let changed_result = mapped(&changed_report, exit, compat);
+        let changed_spec = SpecModel::load(
+            &changed_file,
+            &changed_file.with_extension("cfg"),
+            &TraceOptions {
+                compat_tlc: compat,
+                run: Some((0, 0)),
+                ..TraceOptions::default()
+            },
+        )
+        .expect("changed model");
+        let changed_result = mapped_source(&changed_report, exit, compat, &changed_spec);
         assert_eq!(changed_result.verdict_code, Some(2111));
         assert_eq!(
             original_report["counterexample"]["trace"],

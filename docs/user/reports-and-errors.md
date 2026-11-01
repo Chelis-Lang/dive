@@ -67,14 +67,15 @@ Its pinned oracle stream remains Unclassified; no deciding golden is inferred
 from the context-only 2103 stack. Classified initial module exceptions and the
 source-proved 2147 receiver route above keep their existing contracts (#685).
 
-A pure VIEW error while expanding the first admitted noninitial source uses
+A supported pure VIEW error while expanding an independently admitted source uses
 native trace version 6. Its `view-source-terminal` endpoint retains the original
 source span/instance, underlying `ec`, and untrusted reported/deciding codes.
 The final complete row is the source: the failing generated candidate is absent.
 For the existing `ErViewChoose` example the source word is `(0,0), (1,0)`;
 VIEW fails on independently generated `(2,0)`. The independent reader requires the actual run fingerprint polynomial (retain
-`--seed`/`--fp` metadata) and reconstructs one exhausted Init, its full first expansion, all actual key insertions and the
-terminal primary/diagnostic sequence. Report schema 3 remains unchanged.
+`--seed`/`--fp` metadata) and reconstructs one exhausted Init, earlier admitted
+source expansions, actual key insertions and the terminal primary/diagnostic
+sequence. Report schema 3 remains unchanged.
 
 ```sh
 dive check crates/dive-check/tests/fixtures/errors/specs/ErViewChoose/ErViewChoose.tla --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
@@ -90,31 +91,58 @@ as a version-4 candidate. Unknown stages/versions still fail closed. Advance
 [notice to known consumers](https://github.com/Chelis-Lang/oyster/issues/61#issuecomment-6558501056)
 was posted before the version-6 writer landed in #712.
 
-The bounded proof supports scalar states and scalar/tuple VIEW keys only (64
-key nodes, tuple depth eight), at most 64 admitted keys and 256 emissions.
-Additional Init emissions, later sources, effects, symmetry, ALIAS, temporal
-roles and unproved receiver histories explicitly refuse. A compound concrete
-state is refused before a VIEW that ignores it can certify a failure; ignored
-state fields never waive required normalization demand.
+VIEW proof supports scalar states and scalar/tuple VIEW keys only (64 key
+nodes, tuple depth eight), at most 64 admitted keys and 256 emissions.
+Additional VIEW Init emissions, mutable effects, symmetry, ALIAS, temporal roles
+and unproved diagnostic receiver histories explicitly refuse. Earlier admitted
+sources are reconstructed only within those same finite bounds. A compound
+concrete state is refused before a VIEW that ignores it can certify a failure;
+ignored state fields never waive required normalization demand.
+
+Named invariant certification additionally reconstructs multiple Init emissions
+and bounded materialized record state fields. An earlier source with no
+successors and enabled deadlock checking stops admission of a later error word.
+Actual Print/PrintT argument,
+rendering and value semantics can execute with the output sink suppressed; this
+proves no output transcript. Randomness, register/I/O operations and shared lazy
+effects remain refused. A pure integer-equality property `[]<>(v = k)` can
+preserve an invariant safety error at the first actually admitted initial source
+before any temporal row completes. The fresh Init admission ledger determines
+that source, independently of the submitted word's first state.
+Other temporal lifecycles, including the unconfirmed temporal generator errors,
+retain their existing refusals.
 
 `Session::invariant_error_class` and `SpecModel::invariant_error_class` separately
 prove the diagnostic identity of an existing version-2 named invariant-error
 word using the same private prefix. Their returned certificate is execution
 state, never serialized proof. Ordinary word validation remains insufficient.
-Source-free conformance report mapping refuses the different diagnostic wrapper;
-source-bound mapping executes the proof and retains exact header checks.
+Every supported successor-invariant class, including 2111, requires that fresh
+certificate before producer reporting, source-bound conformance mapping or
+independent report-word admission. Source-free mapping refuses it. Diagnostic
+completion or a quiet predicate/partial-state stop can retain 2111; an actual
+later exception decides its own class. Correct two-, three- and four-state
+words, including primary value-method failures with completed diagnostics,
+retain their existing version-2 meaning.
 `ErInvConstrained` and `ErInvReplayError` retain their actual named causes and
 canonical Unclassified oracle streams. Independently valid words and proved
 native diagnostic identities supply no pinned-TLC agreement by themselves.
 
-Known limitation #713: the inherited primary-2111 mapping can accept a jointly
-forged deciding class/name, report exit and physical exit for an otherwise valid
-named invariant-error word. The same admission was reproduced before this
-change at `b2274f3d` and at reviewed `54f2e51e`; the actual independently
-replayed diagnostic identities remain 2179 or 2103. This legacy branch is
-outside the new diagnostic certificate's proof scope. Automation must not treat
-its accepted 2111 header as independent proof of the deciding class or exit.
-The canonical streams remain Unclassified, so it grants no pinned-TLC agreement.
+Coordinating a forged deciding class/name, report exit and physical exit no
+longer authorizes a 2111 report (#713). The correct original named word remains
+logically valid, but a separate fresh certificate must prove its actual deciding
+identity. Canonical TLC class/status and observed physical status are checked
+against that proof and the caller's selected exit convention. The conformance
+reader and validator use TLC statuses independently of semantic profile;
+`check_result_with_model_and_exit_convention` and
+`validate_counterexample_with_exit_convention` explicitly support native status
+13 for these errors. Report options cannot select the convention on the
+caller's behalf.
+
+The existing VIEW endpoint additionally handles proved assertion, division,
+ENABLED and TLC-overflow failures. For example `ErViewDivZero` retains deciding
+2179/TLC status 255 and independently reconstructs its source-final word.
+Matching primary codes or a shared status alone cannot certify the diagnostic
+execution. Unknown canonical oracle streams remain unknown.
 
 Returned non-Boolean constraint/action-constraint values use the existing
 version-4 endpoint after the actual source-qualified Boolean-role boundary

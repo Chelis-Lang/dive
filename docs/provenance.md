@@ -2574,3 +2574,17 @@ code. The port reconstructs only one exhausted Init and two bounded source
 expansions, sharing the evaluator/value helpers but no checker/store state.
 It does not emulate queue implementation or derive deciding identities from
 context messages or shared physical exits.
+
+### Successor invariant diagnostic completion (ADR 0136)
+
+The bounded independent admission ledger extends the preceding ADR 0135 port
+to earlier admitted source expansions, including off-word siblings and actual
+source levels. Pinned TLC `94d0c5070852b37b801bb8998c436383ab7ee37b`
+`ModelChecker.doNext` / `modelCheckImpl` retain the primary invariant wrapper
+when inserted-state diagnostic checks complete or quietly stop on a false
+predicate/incomplete candidate; an actual thrown diagnostic exception decides
+its own class. The port derives that outcome from fresh evaluator execution,
+not serialized codes, receiver shape or error text. Existing pinned two-,
+three- and four-state invariant families, `ErWrapInvTuple`, `ErInvReplayProp`,
+`ErInvConstrained` and `ErInvReplayError` retain the positive/negative semantic
+controls. Required bounds and actual resource/interruption transports remain.

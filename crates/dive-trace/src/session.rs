@@ -36,6 +36,8 @@ enum FreshMode {
     Temporal,
     NextPrefix,
     NextTerminal,
+    InvariantPrefix,
+    InvariantTerminal,
 }
 
 impl Session {
@@ -399,8 +401,8 @@ impl Session {
     }
 
     /// Validates a named successor-invariant word and independently executes
-    /// one exhausted Init, its full first expansion, the first admitted
-    /// noninitial source and actual diagnostic replay with private key history.
+    /// one exhausted Init, each earlier admitted source and actual diagnostic
+    /// replay with bounded private key history.
     /// No serialized metadata or ordinary word validity supplies this evidence.
     ///
     /// # Errors
@@ -445,13 +447,14 @@ impl Session {
                 None,
             );
         };
-        if doc.source != Source::Dive || doc.states.len() != 3 || !doc.properties.is_empty() {
-            return finish(refusal("successor invariant class requires a three-state native word without temporal claims".into(), doc.logical_length()), None);
+        if doc.source != Source::Dive || doc.states.len() < 2 || !doc.properties.is_empty() {
+            return finish(refusal("successor invariant class requires a finite native successor word without temporal claims".into(), doc.logical_length()), None);
         }
-        let (model, host) = match self.fresh_binding(control.as_ref(), FreshMode::NextPrefix, 0)? {
-            Ok(runtime) => runtime,
-            Err(feature) => return finish(refusal(feature, doc.logical_length()), None),
-        };
+        let (model, host) =
+            match self.fresh_binding(control.as_ref(), FreshMode::InvariantPrefix, 0)? {
+                Ok(runtime) => runtime,
+                Err(feature) => return finish(refusal(feature, doc.logical_length()), None),
+            };
         let trace = match Trace::decode(&model, doc) {
             Ok(trace) => trace,
             Err(error) => return finish(shape_refusal(error, doc.logical_length()), None),
@@ -466,7 +469,7 @@ impl Session {
         drop(trace);
         drop(model);
         let (model, host) =
-            match self.fresh_binding(control.as_ref(), FreshMode::NextTerminal, 0)? {
+            match self.fresh_binding(control.as_ref(), FreshMode::InvariantTerminal, 0)? {
                 Ok(runtime) => runtime,
                 Err(feature) => return finish(refusal(feature, doc.logical_length()), None),
             };
@@ -482,8 +485,13 @@ impl Session {
         let replay = crate::ordered_prefix::invariant(&model, &trace, &host, control.as_deref());
         let class = match replay {
             Ok((validation, class)) => {
-                report.validation = validation;
-                class
+                if let Some(reason) = Run::private(&model, host.clone(), false).refusal() {
+                    report.validation = Validation::Unsupported(reason);
+                    None
+                } else {
+                    report.validation = validation;
+                    class
+                }
             }
             Err(error) => {
                 return Err(match error.class() {
@@ -835,9 +843,15 @@ impl Session {
         let host = TraceHost::startup();
         host.startup
             .store(matches!(mode, FreshMode::Temporal), Ordering::Relaxed);
-        host.next_error
-            .store(!matches!(mode, FreshMode::Temporal), Ordering::Relaxed);
-        let binding = if matches!(mode, FreshMode::NextTerminal) {
+        // Invariant certification executes deterministic Print value semantics
+        // with the existing suppressed sink throughout its actual lifecycle.
+        // Other error endpoints keep their earlier effect refusal; random,
+        // registers and I/O retain their independent host guards.
+        host.next_error.store(
+            matches!(mode, FreshMode::NextPrefix | FreshMode::NextTerminal),
+            Ordering::Relaxed,
+        );
+        let binding = if matches!(mode, FreshMode::NextTerminal | FreshMode::InvariantTerminal) {
             self.recipe
                 .bind_next_fallible(host.clone(), control.cloned())
         } else {
