@@ -41,6 +41,10 @@ pub struct SimulateRequest {
     pub no_deadlock: bool,
     /// Collect source-location action flows, corresponding to TLC `stats=basic`.
     pub action_stats: bool,
+    /// Time limit; the profile default matches `dive check`. `Unlimited` is TLC-equivalent.
+    pub time_limit: crate::BudgetSetting<std::time::Duration>,
+    /// Sampled process-memory ceiling; the default is half physical memory.
+    pub max_memory: crate::BudgetSetting<u64>,
     /// Modules searched before standard modules.
     pub library_paths: Vec<PathBuf>,
     /// Modules searched after standard modules.
@@ -147,6 +151,19 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             ..TraceOptions::default()
         },
     )?;
+    let mut run_budget = crate::mode_budget::ModeBudget::start(
+        req.compat_tlc,
+        dive_check::budget::Phase::Simulation,
+        req.time_limit,
+        req.max_memory,
+    )?;
+    let control = run_budget.control()?;
+    let control_scope =
+        control
+            .enter(&model.model().evaluator)
+            .map_err(|error| crate::ApiError::Rejected {
+                message: error.to_string(),
+            })?;
     let result = if req.workers.is_some_and(|n| n != 1) {
         dive_sim::Report {
             stage: "preflight",
@@ -163,7 +180,11 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
         let executed = std::thread::scope(|scope| {
             std::thread::Builder::new()
                 .stack_size(dive_eval::RECOMMENDED_STACK)
-                .spawn_scoped(scope, || dive_sim::simulate(model.model(), &options))
+                .spawn_scoped(scope, || {
+                    dive_sim::simulate_with_poll(model.model(), &options, &|| {
+                        run_budget.budget.poll() != Ok(None)
+                    })
+                })
                 .map_err(|e| (0_u8, format!("cannot start simulation worker: {e}")))?
                 .join()
                 .map_err(|_| {
@@ -181,7 +202,7 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
                     document: json!({
                         "schema_version": SIMULATE_SCHEMA_VERSION, "command": "simulate",
                         "file": req.file.display().to_string(), "config": config.display().to_string(),
-                        "profile": if req.compat_tlc { "tlc" } else { "dive" },
+                        "profile": if req.compat_tlc { if matches!(req.time_limit, crate::BudgetSetting::Explicit(_)) { "tlc+overrides" } else { "tlc" } } else { "dive" },
                         "result": "internal-error", "exhaustive": false, "model_proved": false,
                         "message": message, "exit_code": 4, "violation_validated": false,
                         "options": { "seed": seed, "seed_given": req.seed.is_some(),
@@ -210,15 +231,27 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
         }
         Outcome::Unsupported(s) => ("unsupported", None, Some(s.clone()), 3),
         Outcome::Limit(s) => ("resource-limit", None, Some(s.clone()), 3),
+        Outcome::Cancelled => (
+            "resource-limit",
+            None,
+            Some("simulation cancelled by caller".to_owned()),
+            3,
+        ),
         Outcome::Internal(s) => ("internal-error", None, Some(s.clone()), 4),
     };
     let mut traces = Vec::new();
     let mut trace_refusal = None;
     'documents: for (number, trace) in result.traces.iter().enumerate() {
+        if run_budget.budget.poll() != Ok(None) {
+            break;
+        }
         let states: Result<Vec<_>, _> = trace
             .states
             .iter()
             .map(|state| {
+                if run_budget.budget.poll() != Ok(None) {
+                    return Err("run budget exhausted during trace serialization".to_owned());
+                }
                 let mut object = serde_json::Map::new();
                 for (var, value) in model.model().ir.vars().iter().zip(state.iter()) {
                     let value = value
@@ -258,9 +291,18 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             .map_err(|message| crate::ApiError::Rejected { message })?
             .with_ending(ending);
         // Validation replays the given states; it never reruns the simulation.
-        let validation = model.validate(&document);
+        let validation = match model.validate_mode(&document, control.clone()) {
+            Ok(validation) => validation,
+            Err(error) => {
+                trace_refusal = Some(format!("simulation trace validation interrupted: {error}"));
+                break;
+            }
+        };
         let mut compressed = Vec::<usize>::new();
         for (index, state) in trace.states.iter().enumerate() {
+            if run_budget.budget.poll() != Ok(None) {
+                break 'documents;
+            }
             let same = if let Some(&previous) = compressed.last() {
                 let mut equal = true;
                 for (left, right) in trace.states[previous].iter().zip(state.iter()) {
@@ -326,7 +368,7 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
     } else {
         (kind, code, message)
     };
-    let exit = if validation_failed {
+    let mut exit = if validation_failed {
         4
     } else if undecidable {
         3
@@ -369,10 +411,10 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
         json!({"mode": "basic", "scope": "chosen-transitions", "actions": actions,
             "transitions": transitions})
     });
-    let document = json!({
+    let mut document = json!({
         "schema_version": SIMULATE_SCHEMA_VERSION, "command": "simulate",
         "file": req.file.display().to_string(), "config": config.display().to_string(),
-        "profile": if req.compat_tlc { "tlc" } else { "dive" },
+        "profile": if req.compat_tlc { if matches!(req.time_limit, crate::BudgetSetting::Explicit(_)) { "tlc+overrides" } else { "tlc" } } else { "dive" },
         "result": reported_kind, "observed_result": kind, "observed_tlc_code": code, "exhaustive": false, "model_proved": false,
         "tlc_code": reported_code, "message": reported_message, "exit_code": exit,
         "violation_validated": violation_validated, "observed_violation": violation, "pending_violation": pending_violation, "startup_output": startup,
@@ -389,6 +431,12 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             "kind": if event.warning { "warning" } else { "print" }, "text": event.text,
         })).collect::<Vec<_>>(),
     });
+    drop(control_scope);
+    run_budget.finish(
+        &mut document,
+        &mut exit,
+        matches!(result.outcome, Outcome::Cancelled),
+    )?;
     Ok(SimulateReport { document, exit })
 }
 

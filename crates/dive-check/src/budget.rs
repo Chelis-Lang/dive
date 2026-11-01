@@ -252,6 +252,10 @@ pub enum Phase {
     Finalization,
     /// Safety search.
     Search,
+    /// Finite sampled safety execution.
+    Simulation,
+    /// Depth-first iterative-deepening execution.
+    Dfid,
     /// Behavior-graph capture for temporal checking.
     Capture,
     /// Temporal analysis after capture: planning, labelling, product, search.
@@ -269,6 +273,8 @@ impl Phase {
             Self::Binding => "model-binding",
             Self::Finalization => "finalization",
             Self::Search => "safety-search",
+            Self::Simulation => "simulation",
+            Self::Dfid => "dfid",
             Self::Capture => "graph-capture",
             Self::Temporal => "temporal-analysis",
             Self::Validation => "trace-validation",

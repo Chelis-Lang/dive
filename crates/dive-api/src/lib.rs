@@ -59,6 +59,7 @@ mod core_native_values;
 mod core_random;
 mod core_sample;
 mod core_temporal;
+mod mode_budget;
 pub use core_engine::Engine;
 /// Native safety checkpoint request and format API (ADR0033).
 pub use dive_check::checkpoint;

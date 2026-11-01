@@ -258,6 +258,21 @@ impl SpecModel {
         self.read(doc).0
     }
 
+    /// Replays a finite mode's native word on a fresh source-bound runtime
+    /// under the caller's existing run control.
+    pub(crate) fn validate_mode(
+        &self,
+        doc: &TraceDoc,
+        control: Arc<dyn dive_eval::HostControl>,
+    ) -> Result<Report, ValidationRunError> {
+        on_big_stack(|| {
+            self.session
+                .read_controlled(doc, control)
+                .map(|(report, _)| report)
+        })
+        .map_err(|error| ValidationRunError::ThreadFailure(error.to_string()))?
+    }
+
     /// Validates a trace document and also returns the trace as read (see
     /// [`dive_trace::validate_doc`]).
     #[must_use]

@@ -172,6 +172,17 @@ Persistent trees remain deferred after the negative experiment. No new
 code-generation tier, analyzer rewrite or default semantic divergence is
 introduced by this checkpoint.
 
+### Finite mode budget integration
+
+Finite reference simulation and DFID now use one API-owned ADR 0107 watchdog
+after loading, cooperative evaluator/execution checkpoints and final resource
+sampling. Requests expose the existing time/memory settings; a stop has exit 5
+and prefix progress, never a model verdict. This implements #350's bounded mode
+budget feature without changing engine selection, simulation streams, DFID
+completion rules or report/native trace versions. Native plan-backed mode
+integration remains the next implementation step, not acceptance granted by
+this budget increment.
+
 ## 2. M0 pass and kill criteria
 
 **Pass.** All must hold.

@@ -24,3 +24,25 @@ and `exit_status()` the process disposition.
 
 See [DFID reference controls](../../crates/dive-check/tests/fixtures/dfid/README.md),
 [ADR 0021](../decisions/0083-storage-and-checkpoint.md) and [report interpretation](reports-and-errors.md).
+
+## Run budgets
+
+`dive dfid Spec.tla --max-level 100 --time-limit 10s --max-memory 2g`
+uses the same budget settings as checking: 30 minutes by default in the dive
+profile, no time limit under `--compat=tlc`, and half physical memory in both.
+`none` removes a limit; memory also accepts `auto`. An explicit TLC-profile
+time limit labels the profile `tlc+overrides`.
+
+The clock starts after model loading. Assumptions, Init and execution loops
+receive cooperative control, including evaluator loop checkpoints. Retained
+traces are serialized with state checkpoints and independently replayed on fresh
+runtimes under the same budget. Exhaustion skips unprocessed retained traces.
+Initial model loading and individual value encoding/decoding remain
+uninterruptible. A final resource sample runs before publication. Memory is sampled process usage,
+not an allocation-time hard cap. `options.budget` states these boundaries.
+
+Exhaustion gives `result: stopped`, exit 5, actual resource/limit/observation,
+phase and reached progress. It never certifies safety or a violation. Retained
+prefix traces and earlier observations remain diagnostic. Rust requests expose
+`time_limit` and `max_memory` through `BudgetSetting`; one owner covers the run,
+rather than restarting the clock for each trace or iteration.

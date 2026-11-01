@@ -42,7 +42,7 @@ fn usage() -> String {
                [--predecessor-memory-bytes N] [--predecessor-directory DIR]\n               [--seen-disk-entries N] [--seen-directory DIR] [--seen-key-bytes N]\n               [--seen-probe-steps N] [--seen-summary-pairs N]
                [--checkpoint FILE --checkpoint-after-levels N | --recover FILE]
                [--checkpoint-counters tlc|retain]
-               [--lncheck final --lasso short] [--engine reference|core|auto] [--core-sample N] [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--depth N] [--seed N] [--aril N] [--stats none|basic] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    Eligible ordinary temporal checks use deterministic completed-level checks in the dive
+               [--lncheck final --lasso short] [--engine reference|core|auto] [--core-sample N] [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--depth N] [--seed N] [--aril N] [--stats none|basic] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    Eligible ordinary temporal checks use deterministic completed-level checks in the dive
     profile and final checking in the TLC profile; explicit final/short keeps final checking.
     dive check uses TLC process statuses by default, independently of semantic profile.\n    --exit-codes native retains: 0 no error, 1 rejected input, 10 property violated, 11 deadlock,\n    12 assumption, 13 evaluation error. Both conventions keep 2 usage, 3 unsupported/resource\n    limit, 4 internal error and 5 stopped by a run budget (no verdict).\n    --time-limit defaults to 30m in the dive profile and none under --compat=tlc; --max-memory\n    defaults to half of physical memory (auto) in both. --compat=tlc (or DIVE_COMPAT=tlc) also selects TLC semantics.\n    --engine core (or DIVE_ENGINE=core) runs the experimental new core: default profile, safety\n    only; anything else it reports as unsupported. --engine auto runs the core where it can and\n    otherwise the whole check on the reference engine, naming the engine that ran and why. The\n    reference engine is the default. --core-sample N (with the core) also compares the successors\n    of N sampled states with the reference evaluator's, in the JSON report (core.sample); it is\n    diagnostic and changes no result.\n",
         env!("CARGO_PKG_VERSION"),
@@ -1040,6 +1040,42 @@ fn simulate_command(
                 return ExitCode::from(EXIT_UNSUPPORTED);
             }
             "--compat=tlc" => request.compat_tlc = true,
+            value if value.starts_with("--time-limit=") => match time_limit(&value[13..]) {
+                Some(setting) => request.time_limit = setting,
+                None => {
+                    return simulation_usage_error(
+                        err,
+                        "--time-limit expects a positive duration or none",
+                    );
+                }
+            },
+            value if value.starts_with("--max-memory=") => match max_memory(&value[13..]) {
+                Some(setting) => request.max_memory = setting,
+                None => {
+                    return simulation_usage_error(
+                        err,
+                        "--max-memory expects a positive byte count, auto or none",
+                    );
+                }
+            },
+            "--time-limit" => match it.next().map(String::as_str).and_then(time_limit) {
+                Some(setting) => request.time_limit = setting,
+                None => {
+                    return simulation_usage_error(
+                        err,
+                        "--time-limit expects a positive duration or none",
+                    );
+                }
+            },
+            "--max-memory" => match it.next().map(String::as_str).and_then(max_memory) {
+                Some(setting) => request.max_memory = setting,
+                None => {
+                    return simulation_usage_error(
+                        err,
+                        "--max-memory expects a positive byte count, auto or none",
+                    );
+                }
+            },
             "--config" => {
                 let Some(value) = it.next() else {
                     return simulation_usage_error(err, "--config expects a path");
@@ -1156,6 +1192,13 @@ fn simulate_command(
             let _ = writeln!(err, "unsupported: {feature}; no result produced");
             return ExitCode::from(EXIT_UNSUPPORTED);
         }
+        Err(
+            error @ (dive_api::ApiError::BudgetStartup(_)
+            | dive_api::ApiError::BudgetMeasurement(_)),
+        ) => {
+            let _ = writeln!(err, "{error}; no result produced");
+            return ExitCode::from(4);
+        }
         Err(error) => {
             let _ = writeln!(err, "error: {error}");
             return ExitCode::from(EXIT_REJECTED);
@@ -1245,6 +1288,21 @@ fn dfid_command(
                 Some(n) if n < 131 => req.fp = n,
                 _ => return usage_error(err, "--fp expects 0..130"),
             },
+            "--time-limit" => match value().as_deref().and_then(time_limit) {
+                Some(setting) => req.time_limit = setting,
+                None => {
+                    return usage_error(err, "--time-limit expects a positive duration or none");
+                }
+            },
+            "--max-memory" => match value().as_deref().and_then(max_memory) {
+                Some(setting) => req.max_memory = setting,
+                None => {
+                    return usage_error(
+                        err,
+                        "--max-memory expects a positive byte count, auto or none",
+                    );
+                }
+            },
             "--store" => match value().as_deref() {
                 Some("exact") => req.exact = true,
                 Some("fp" | "fingerprint") => req.exact = false,
@@ -1279,6 +1337,13 @@ fn dfid_command(
     req.file = file.into();
     let report = match dive_api::dfid_file(&req) {
         Ok(r) => r,
+        Err(
+            error @ (dive_api::ApiError::BudgetStartup(_)
+            | dive_api::ApiError::BudgetMeasurement(_)),
+        ) => {
+            let _ = writeln!(err, "{error}; no result produced");
+            return ExitCode::from(4);
+        }
         Err(e) => {
             let _ = writeln!(err, "{e}");
             return ExitCode::from(EXIT_USAGE);
@@ -1490,6 +1555,63 @@ mod budget_tests {
                 check_command(&args, &mut output, &mut errors),
                 ExitCode::from(EXIT_USAGE)
             );
+        }
+    }
+
+    #[test]
+    fn finite_mode_budgets_validate_before_loading_and_report_memory_stops() {
+        for simulation in [false, true] {
+            for bad in [
+                vec!["--time-limit", "0"],
+                vec!["--max-memory", "lots"],
+                vec!["--time-limit=0"],
+                vec!["--max-memory=lots"],
+            ] {
+                let mut args = vec!["missing.tla".to_owned()];
+                args.extend(bad.into_iter().map(str::to_owned));
+                let (mut output, mut errors) = (Vec::new(), Vec::new());
+                let status = if simulation {
+                    simulate_command(&args, &mut output, &mut errors)
+                } else {
+                    dfid_command(&args, &mut output, &mut errors)
+                };
+                assert_eq!(status, ExitCode::from(EXIT_USAGE));
+                assert_eq!(output, [] as [u8; 0]);
+            }
+            let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("../../docs/user/examples/Counter.tla");
+            for compat in [false, true] {
+                for inline in [false, true] {
+                    let mut args =
+                        vec![file.display().to_string(), "--output".into(), "json".into()];
+                    args.extend(if simulation {
+                        vec!["--traces".into(), "1".into()]
+                    } else {
+                        vec!["--max-level".into(), "8".into()]
+                    });
+                    args.extend(if inline {
+                        vec!["--max-memory=1".into()]
+                    } else {
+                        vec!["--max-memory".into(), "1".into()]
+                    });
+                    if compat {
+                        args.push("--compat=tlc".into());
+                    }
+                    let (mut output, mut errors) = (Vec::new(), Vec::new());
+                    let status = if simulation {
+                        simulate_command(&args, &mut output, &mut errors)
+                    } else {
+                        dfid_command(&args, &mut output, &mut errors)
+                    };
+                    assert_eq!(
+                        status,
+                        ExitCode::from(5),
+                        "{}",
+                        String::from_utf8_lossy(&errors)
+                    );
+                    assert!(String::from_utf8_lossy(&output).contains("\"result\":\"stopped\""));
+                }
+            }
         }
     }
 

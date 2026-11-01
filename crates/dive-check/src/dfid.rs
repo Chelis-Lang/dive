@@ -81,6 +81,8 @@ pub enum Outcome {
     Unsupported(String),
     /// Resource or collision bound reached, without a conclusion.
     Limit(String),
+    /// The armed run budget stopped execution, without a conclusion.
+    Cancelled,
     /// Internal invariant failure, without a conclusion.
     Internal(String),
 }
@@ -189,7 +191,16 @@ pub fn check(model: &Model, opts: &Options) -> Report {
 }
 
 impl Search<'_> {
+    fn checkpoint(&self) -> Result<(), Outcome> {
+        match self.opts.check.budget.poll() {
+            Ok(None) => Ok(()),
+            Ok(Some(_)) => Err(Outcome::Cancelled),
+            Err(error) => Err(Outcome::Internal(error.to_string())),
+        }
+    }
+
     fn run(&mut self) -> Result<Outcome, Outcome> {
+        self.checkpoint()?;
         self.report.stage = "assumptions";
         match self.model.check_assumptions() {
             AssumptionOutcome::AllTrue => {}
@@ -212,6 +223,7 @@ impl Search<'_> {
         self.report.stage = "exploration";
         let mut seeds = JavaRandom::new(self.opts.check.seed);
         for level in 2..=self.opts.max_level {
+            self.checkpoint()?;
             self.level = level;
             self.phase = 2 - self.phase;
             self.report.level = level;
@@ -248,6 +260,9 @@ impl Search<'_> {
             .model
             .evaluator
             .init_states(&self.model.init_actions, &mut |s| {
+                if self.opts.check.budget.poll() != Ok(None) {
+                    return Flow::Stop;
+                }
                 if inits.len() >= self.opts.max_states
                     || self.report.initial_candidates >= self.opts.max_generated
                 {
@@ -262,11 +277,13 @@ impl Search<'_> {
             // modelCheckImpl resets official counts and diagnostic-replays init.
             return Err(classify(&e.error, Some((2103, e.error.tool_text()))));
         }
+        self.checkpoint()?;
         if limit {
             return Err(Outcome::Limit("DFID initial-state bound".to_owned()));
         }
         self.report.generated = self.report.initial_candidates;
         for state in inits {
+            self.checkpoint()?;
             complete(&state, true)?;
             let st = St::state(state.clone());
             let in_model = allowed(self.model, &self.model.constraints, &st)?;
@@ -433,12 +450,16 @@ impl Search<'_> {
         let mut all_nonleaf = true;
         let mut deadlock = true;
         for action in &self.model.actions {
+            self.checkpoint()?;
             let mut vector = Vec::new();
             let mut limit = false;
             let enumeration = self
                 .model
                 .evaluator
                 .next_states(action, state, 0, &mut |s| {
+                    if self.opts.check.budget.poll() != Ok(None) {
+                        return Flow::Stop;
+                    }
                     if vector.len() >= self.opts.max_states
                         || vector.len() >= candidate_budget.saturating_sub(successors.len())
                         || self.report.generated.saturating_add(vector.len() as u64)
@@ -453,6 +474,7 @@ impl Search<'_> {
             if let Err(e) = enumeration {
                 return Err(classify(&e.error, None));
             }
+            self.checkpoint()?;
             if limit {
                 return Err(Outcome::Limit("DFID successor vector bound".to_owned()));
             }
@@ -560,6 +582,7 @@ impl Search<'_> {
                 successors: candidates,
             }];
             loop {
+                self.checkpoint()?;
                 let depth = stack.len();
                 let depth_level = u32::try_from(depth).map_err(|_| {
                     Outcome::Internal("DFID depth exceeds status level representation".to_owned())

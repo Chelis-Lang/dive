@@ -34,6 +34,7 @@ pub struct Session {
 #[derive(Clone, Copy)]
 enum FreshMode {
     Temporal,
+    Finite(bool),
     NextPrefix,
     NextTerminal,
     InvariantPrefix,
@@ -144,8 +145,9 @@ impl Session {
     /// Reads a native trace on a fresh privately bound runtime with typed control.
     /// Endpoint descriptors are independently compiled and replayed; no producer
     /// validation flag is authority. This new controlled fresh-session path
-    /// supports native temporal error endpoints only. Other native documents
-    /// and TLC JSON interpretation retain their existing entrypoints.
+    /// supports native source error endpoints and finite behavior, invariant,
+    /// action-property and deadlock words. TLC JSON interpretation retains its
+    /// existing entrypoints.
     ///
     /// ```no_run
     /// # fn check(session: &dive_trace::Session, document: &dive_trace::TraceDoc,
@@ -516,6 +518,10 @@ impl Session {
         result
     }
 
+    #[allow(
+        clippy::too_many_lines,
+        reason = "one source-admission boundary retains typed controls and endpoint dispatch order"
+    )]
     fn read_fallible(
         &self,
         doc: &TraceDoc,
@@ -551,6 +557,9 @@ impl Session {
                 ),
                 None,
             );
+        }
+        if finite_word(doc) {
+            return self.read_finite_controlled(doc, control);
         }
         if !matches!(
             doc.ending,
@@ -621,6 +630,53 @@ impl Session {
         let report =
             crate::validate::validate_private_controlled(&model, host, &trace, control.cloned())?;
         finish(report, trace.to_doc(&model).ok())
+    }
+
+    fn read_finite_controlled(
+        &self,
+        doc: &TraceDoc,
+        control: Option<&Arc<dyn dive_eval::HostControl>>,
+    ) -> Result<(Report, Option<TraceDoc>), crate::ValidationRunError> {
+        for initial in [true, false] {
+            let (model, host) = match self.fresh_binding(control, FreshMode::Finite(initial), 0)? {
+                Ok(runtime) => runtime,
+                Err(feature) => return Ok((refusal(feature, doc.logical_length()), None)),
+            };
+            let trace = match Trace::decode(&model, doc) {
+                Ok(trace) => trace,
+                Err(error) => {
+                    return Ok((
+                        Report {
+                            validation: Validation::Invalid(crate::Failure {
+                                state: error.state.unwrap_or(0),
+                                check: crate::Check::Shape,
+                                detail: error.detail,
+                            }),
+                            notes: Vec::new(),
+                            length: doc.logical_length(),
+                        },
+                        None,
+                    ));
+                }
+            };
+            let (report, retry) = crate::validate::validate_finite_private_controlled(
+                &model,
+                &host,
+                &trace,
+                initial,
+                control.cloned(),
+            )?;
+            if !retry {
+                return Ok((report, trace.to_doc(&model).ok()));
+            }
+        }
+        Ok((
+            refusal(
+                "finite initial replay is unproved".into(),
+                doc.logical_length(),
+            ),
+            None,
+        ))
     }
 
     fn read_next_endpoint(
@@ -841,8 +897,10 @@ impl Session {
         };
         poll()?;
         let host = TraceHost::startup();
-        host.startup
-            .store(matches!(mode, FreshMode::Temporal), Ordering::Relaxed);
+        host.startup.store(
+            matches!(mode, FreshMode::Temporal | FreshMode::Finite(true)),
+            Ordering::Relaxed,
+        );
         // Invariant certification executes deterministic Print value semantics
         // with the existing suppressed sink throughout its actual lifecycle.
         // Other error endpoints keep their earlier effect refusal; random,
@@ -908,6 +966,19 @@ impl Session {
     pub(crate) fn interpretation(&self, doc: &TraceDoc) -> (Report, Option<TraceDoc>) {
         self.plain(doc, true)
     }
+}
+
+fn finite_word(doc: &TraceDoc) -> bool {
+    doc.properties.is_empty()
+        && matches!(
+            doc.ending,
+            None | Some(
+                crate::Ending::Behavior
+                    | crate::Ending::Invariant(_)
+                    | crate::Ending::Property(_)
+                    | crate::Ending::Deadlock
+            )
+        )
 }
 
 fn refusal(feature: String, length: usize) -> Report {
