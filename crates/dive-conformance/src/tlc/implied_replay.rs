@@ -1,6 +1,20 @@
 //! Parser-owned module causes in the demonstrated implied-action replay route.
 
-use super::{OwnedTranscript, RunFacts, class, ec_name, exit_statuses_for, extract_counts};
+use super::{OwnedTranscript, RunFacts, class, exit_statuses_for, extract_counts};
+
+// This admission covers the demonstrated warning-free protocol only. A known
+// code under another severity is not an unrelated harmless message: accepting
+// it could let an injected cause or launch frame borrow assertion ownership.
+fn expected_class(code: i32) -> Option<i32> {
+    match code {
+        2113 | 2121 | 2103 => Some(class::ERROR),
+        2217 => Some(class::STATE),
+        2132 | 2262 | 2187 | 2220 | 2219 | 2185 | 2189 | 2190 | 2200 | 2199 | 2194 | 2186 => {
+            Some(class::NONE)
+        }
+        _ => None,
+    }
+}
 
 /// E4's deciding module cause, only after the whole observed lifecycle matches.
 #[allow(
@@ -13,14 +27,8 @@ pub(super) fn cause(parsed: &OwnedTranscript, facts: &RunFacts<'_>) -> Option<i3
         || facts.simulate
         || facts.trace_json.is_some()
         || !t.anomalies.is_empty()
-        || t.messages().any(|message| {
-            ec_name(message.code).is_none()
-                || !matches!(
-                    message.class,
-                    class::NONE | class::ERROR | class::WARNING | class::STATE
-                )
-                || matches!(message.code, 2122 | 2193 | 2210 | 2218)
-        })
+        || t.messages()
+            .any(|message| expected_class(message.code) != Some(message.class))
         || t.messages()
             .filter(|message| message.class == class::ERROR)
             .map(|message| message.code)
@@ -98,6 +106,9 @@ pub(super) fn cause(parsed: &OwnedTranscript, facts: &RunFacts<'_>) -> Option<i3
     let mut count = 0_u64;
     for (index, frame) in parsed.frames().iter().enumerate() {
         let state = parsed.message(index)?;
+        if !frame.line_start || !frame.canonical || frame.end.is_none() {
+            return None;
+        }
         // Only the observed launch/phase/progress frames may be top-level
         // NONE messages. An unrelated cause, including one after Finished,
         // cannot borrow the real assertion parent's ownership authority.

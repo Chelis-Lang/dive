@@ -236,6 +236,8 @@ and retains actual search statistics/output plus the observed primary in notes.
 A canonical oracle stream with physical 255 can remain unclassified even when
 the native word validates: division and overflow share that exit, so a printed
 primary cause alone does not identify the diagnostic cause.
+The bounded assertion classifier also requires the expected message types and
+severities throughout; unexpected frames leave its deciding class unproved.
 For example, the existing action-constraint division control runs as:
 
 ```sh

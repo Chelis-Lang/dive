@@ -491,9 +491,11 @@ class. The source833 whole-census totals are not refreshed.
 
 The owned classifier admits only the unambiguous 2132/physical14 assertion
 family under canonical 2113 framing and the demonstrated completed-Init,
-finite-word and replay-stack lifecycle. It rejects unrelated/trailing NONE
-causes, additional errors, altered parents/classes/order and mutable flat
-transcripts. Codes 2178 and 2179 share255 and receive no NONE promotion, even when
+finite-word and replay-stack lifecycle. Admission is closed to the demonstrated
+warning-free code/severity pairs, with canonical framing on every launch,
+progress, phase and state message. Unrelated/trailing causes at any severity,
+additional errors, altered parents/classes/order and mutable flat transcripts
+supply no authority. Codes 2178 and 2179 share255 and receive no NONE promotion, even when
 the primary child and an independently valid native word agree. Context-only
 initial errors (#685), old Init ownership rules, VIEW, temporal candidate and
 unproved newness/receiver lifetimes retain their existing boundaries. Issue #697

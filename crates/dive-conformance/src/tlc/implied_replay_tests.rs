@@ -168,6 +168,54 @@ fn altered_parent_child_order_classes_and_injected_markers_supply_no_authority()
         Verdict::Unclassified
     );
 }
+
+#[test]
+fn every_admitted_frame_keeps_its_severity_and_unknown_frames_never_borrow_authority() {
+    let text = raw("Assert");
+    assert!(special(&text, 14));
+    for frame in messages::parse(&text).messages() {
+        let noncanonical = text.replacen(
+            &format!("@!@!@STARTMSG {}:{} @!@!@", frame.code, frame.class),
+            &format!("@!@!@STARTMSG {}: {} @!@!@", frame.code, frame.class),
+            1,
+        );
+        assert!(
+            !special(&noncanonical, 14),
+            "noncanonical frame {}",
+            frame.code
+        );
+        for wrong in 0..=4 {
+            if wrong == frame.class {
+                continue;
+            }
+            let mutant = text.replacen(
+                &format!("@!@!@STARTMSG {}:{} @!@!@", frame.code, frame.class),
+                &format!("@!@!@STARTMSG {}:{wrong} @!@!@", frame.code),
+                1,
+            );
+            assert!(
+                !special(&mutant, 14),
+                "changed frame {} to class {wrong}",
+                frame.code
+            );
+        }
+    }
+    let parent = block(&text, 2113);
+    for code in [1000, 2178, 2179] {
+        for severity in 0..=4 {
+            let unrelated = message(code, severity, "unrelated cause");
+            for mutant in [
+                format!("{text}{unrelated}"),
+                text.replace(&parent, &format!("{parent}{unrelated}")),
+            ] {
+                assert!(
+                    !special(&mutant, 14),
+                    "unrelated code {code} class {severity}"
+                );
+            }
+        }
+    }
+}
 fn native_at_workers(file: &Path, engine: Engine, compat: bool, workers: usize) -> OracleResult {
     let report = check_file_engine(
         &CheckRequest {
