@@ -346,6 +346,21 @@ hard CPU-instruction, allocator-latency or wall-clock guarantee for each primiti
 existing whole-run cooperative time and sampled-memory limits retain their scope.
 Explicit loops such as UTF-16 length traversal are still precharged.
 
+Each private native Reader also owns positive input-proof bits scoped to its
+borrowed immutable graph (ADR [0134](../../decisions/0134-native-atom-row-proofs.md)).
+After the existing descriptor and control checks, the unchanged closed validator
+issues a bit only for a successful actual retained-row demand. Source and target
+retain separate 4,096-component/string-byte input allowances; Machine fuel is
+unchanged. Hits still check the current Machine Heap poison and exact Store
+owner. No negative result, reference conversion or atom truth issues a proof.
+One fallible, checked allocation requests and retains at most one MiB; oversized
+graphs and allocation failure scan through the original validator instead.
+A new Reader at every periodic/final analysis starts empty, and its bits drop
+before independent replay. Eager admission and every demanded conversion/read
+remain unchanged. `atoms.row_proofs` reports scans, hits, certifications and peak
+retained storage bytes across readers; these counters establish consumption,
+not a measured original ABA speed or capacity improvement.
+
 The analysis Machine has separate arena/frame/memo owners, with memoization and
 folding disabled. It does not intern predicate results into the producer Store.
 Additive `core.metrics.liveness.atoms` counters distinguish prepared eligibility,

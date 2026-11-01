@@ -1,5 +1,11 @@
 # Changelog
 
+- Reuse successful native temporal atom input checks for exact retained rows
+  within each analysis, in both profiles. Optional proof storage is capped at
+  one MiB; allocation failure retains the original checks. Conversion demand,
+  current poison and run controls, semantic fallback and independent replay
+  remain guarded. Reuse counters do not establish original ABA capacity.
+
 - Index repeated default-profile compound membership in admitted normalized
   sets. The worker-local index starts on the second eligible lookup for sets of at least
   16 members, verifies hash collisions structurally, and shares the existing
