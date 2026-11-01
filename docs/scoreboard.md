@@ -1,5 +1,20 @@
 # Scoreboard
 
+The integrated core checkpoint uses actual runtime base `16095d43`, whose
+whole tree was integrated as `9a1d51a1`. M1 acceptance remains open and
+`reference` remains the default. The [current status](developer/core/m1-status.md)
+separates landed capabilities from remaining acceptance work and the
+historical source-bound populations below.
+
+The checkpoint adds bounded worker-local default compound-membership indexing
+(#698), exact private temporal-product lookup followed by deterministic ordering
+(#694), and selected original-target descriptors for native action predicates
+(#701). Original extensional/history authority, demand, fallbacks and resource
+checks remain guarded. Worker-aware exact observed generated-count facts close
+#684 (#695); expected divergences remain separate from strict agreements. The
+projection-reuse experiment #705 is closed unmerged after a SimpleRegular
+regression; #704 remains open and no loop tuning is adopted.
+
 Focused candidate-error controls require actual controlled fresh word and
 diagnostic replay before a verified candidate result is published. The 92
 fixture/profile/engine/worker words validate, including `ErPropSeen`; 64 have
@@ -9,7 +24,8 @@ strict owned assertion 2132/14 classifier route is admitted. Two minimal pinned
 primary/diagnostic mismatch controls now require explicit producer refusal.
 The rejected earlier 92-agreement claim is retracted, and historical census
 totals are unchanged. VIEW, temporal candidate lifetimes, top-level non-Boolean
-roles and context-only initial errors remain open; broader #697 is not closed.
+roles and initial-generation errors remain unproved; context-only initial
+errors remain unclassified and refused. Broader #697 is not closed.
 
 The `word-relative-liveness` microcorpus pins three TLC model results and three
 SANY modules for actual-word property attribution (ADR 0126, #489). JSON/human/Rust
@@ -46,15 +62,15 @@ TLC-relative capacity/performance qualification remains open. No corpus
 population, parity-surface, throughput or default-engine credit follows from
 this storage integration (ADRs 0117 and 0122).
 
-The current 2026-10-31 implementation includes native closed-action evaluation,
+The earlier 2026-10-31 implementation includes native closed-action evaluation,
 actual periodic capture metadata, owned construction-history handoff, bounded
 initial tuple/record diagnostic replay and version-5 temporal source-row replay
 (#674–#677, #679 and #683). The [current checkpoint](developer/core/m1-status.md)
 separates these capabilities from remaining refusals and qualification. The
 `9fc88333` integrated campaign exposed a real history-interner performance
 regression (#686); reviewed correction #687 preserves history and semantic hashes.
-The failed/partial source results are retained. Corrected-source capacity and
-quiet throughput remain unqualified; reference remains default.
+The failed/partial source results are retained. Original capacity and
+five-repeat throughput acceptance remain open; reference remains default.
 
 #619 soundness boundary: compound set normalization uses the existing shape
 proof in both core profiles. Unproved nested comparisons return unsupported;
@@ -71,9 +87,11 @@ receiver methods remain unproved; no historical corpus totals are refreshed.
 
 The bounded #685 repair marks unsourced initial-invariant runtime contexts
 unverified, removes their anonymous formal word and preserves the original
-cause/context, physical 75 and actual stop counts in both profiles/engines.
+cause/context and actual stop counts in both profiles/engines.
 The pinned `InitialTool` and `InitialOverride` streams stay Unclassified and
-earn no agreement.
+earn no agreement. Applicable unverified reports retain TLC exit metadata 75
+and actual CLI exit 75 under the TLC exit convention; the already unsupported
+core `InitialOverride` arm retains actual CLI refusal exit 3.
 Actual classified initial arithmetic and ADR 0133 receiver diagnostics retain
 their existing contracts; historical census totals are not refreshed.
 
@@ -110,8 +128,61 @@ success. Source-qualified rows and limitations are in the
 
 ## Corpus scoreboard
 
-The corrected base `83356b01` passes its full gate (2,997 tests; six declared
-skips) and both 156-model Auto baselines: 150 TLC agreements/six unsupported,
+The [integrated local record](../conformance/reports/core/2026-11-01-integrated-qualification.json)
+at runtime base `16095d43` passes its full gate in 53m22s: 3,036 nextest tests,
+six declared skips and 184 passing doctests. Reference CM1/validation smoke
+agree at 1/4/8 workers; reference small-tier baselines retain 150 TLC agreements/
+six unsupported and 144 default agreements/seven expected divergences/five
+unsupported. All 458 TLC-profile SANY comparisons agree. Core/reference default
+shadows have 57 agreements/six refusals among 63 CM1 rows and 250/62 among 312
+small-tier rows. Refusals earn no successful-checking credit.
+
+The census selects 1,520 of 1,637 configurations, preserving the old selection
+rows, all 99 parser exclusions and 18 ambiguous skips. Eight new configuration
+IDs are separate from 10 default/14 TLC old-ID shadow gains versus `83356b01`;
+no old agreement is lost. These are shadow counts, not pinned-TLC parity totals.
+
+| Profile | Shadow agree | Refused | Native stop | Trace refuted | Unconfirmed |
+|---|---:|---:|---:|---:|---:|
+| default | 1,205 | 290 | 8 | 10 | 7 |
+| TLC | 1,177 | 318 | 7 | 10 | 8 |
+
+All 5,457 fixture-process invocations have exit receipts; 17 native observations
+remain incomplete: 14 time stops, one memory stop and two resource refusals.
+Census exit 1 and joined-chain exit 1 remain distinct from
+full-gate exit 0. The raw archive is downloaded and verified across all 21,919
+members. Auto preserves both 156-model populations and observables, with 124
+TLC/120 default strict actual-core agreements and three dynamic reference
+fallbacks per profile. Default Auto exits 0. TLC Auto actually exits 1 because
+`--no-sany` omits 458 baseline module entries; it is not an overall baseline
+pass, and the full gate's separate SANY evidence does not change that result.
+
+The separately audited [performance diagnostics](../conformance/reports/perf/2026-11-01-integrated-performance.json)
+retain distinct cohorts. The three-pair two-model focus completes 36 correct rows and 24
+actual-core runs without fallback or worker mismatch. All four default runtime
+factors exceed 1 (Sailfish W1/W8 1.10/1.24; SimpleRegular 1.36/1.12), so the
+formal five-repeat campaign was not started. A separate one-repeat ten-model
+diagnostic has 60 correct rows and 40 actual-core runs with lower peak RSS than
+paired TLC. Default is faster on six of ten W1 models and seven of ten W8
+models, with descriptive one-repeat throughput factors about 1.48; the 2x and
+per-model floor targets remain unmet. The benchmark's CoffeeCan safety variant
+adds no original temporal capacity credit. Independent observed-window approvals
+leave raw `quiet_window_certified` flags false. All twelve original capacity
+cells are terminal: nine successes and three ABA atom-analysis time stops.
+CoffeeCan3000Beans/EWD998Chan succeed in all four cells each; ABA succeeds only
+in default/W1. Default/W8's older 889.180s completion is lost to a 900.106s
+stop. The capacity service exits 1; #650 acceptance remains open. Completed
+capture and matching counts do not prove temporal success. Both phase nodes
+and root volumes have verified cleanup. The independently audited
+[capacity record](../conformance/reports/perf/2026-11-01-original-capacity.json)
+retains the negative outcomes. These results do not close M1/M2 or refresh the
+historical populations below. The [next bounded actions](developer/core/m1-status.md#next-bounded-actions)
+address retained VIEW/constraint words, #697's ambiguous classes, remaining
+receiver scopes, default Sailfish/SimpleRegular cost, above-1.5 compatibility
+observations and the unadopted bounded ABA nested-shape candidate.
+
+The historical corrected base `83356b01` passed its full gate (2,997 tests;
+six declared skips) and both 156-model Auto baselines: 150 TLC agreements/six unsupported,
 and 144 default agreements/seven expected divergences/five unsupported. All
 458 SANY comparisons agree. Actual core strict agreements are 124 TLC and
 120 default; fallback, frontend and expected-divergence credit stays separate.
@@ -176,9 +247,10 @@ words and fresh source/lifetime diagnostic replay (#683, ADR 0133). The formal
 counterexample remains null; `diagnostic_witness.trace` is separate evidence.
 At TLC workers 1/4, reference records 11 agreements and one known Next-literal
 refusal; core records one agreement and 11 explicit comparison refusals.
-Default retains D-009 success; W4 registration failures remain open as #684 rather than weakening
-numeric registry matching. Context-only negative fixtures have no invented
-primary golden; dynamic Next receiver replay remains #680. This adds no
+Default retains D-009 success. The historical W4 registration failures were
+repaired by exact worker-aware observed facts in #695, closing #684 without
+weakening numeric registry matching. Context-only negative fixtures have no
+invented primary golden; broader Next receiver replay remains #680. This adds no
 historical population or general value-method parity credit.
 
 The separate `literal-set-history-primary` microcorpus pins 18 controls for
