@@ -254,6 +254,9 @@ pub fn validate_counterexample(
         }
         Some(Ending::NextStateError { ec, endpoint }) => {
             let expected = match endpoint.deciding_code() {
+                Some(2147) => Some(Ending::Error {
+                    ec: Some("TLC_FINGERPRINT_EXCEPTION".into()),
+                }),
                 Some(2103) => Some(Ending::Error {
                     ec: Some("TLC_NESTED_EXPRESSION".into()),
                 }),

@@ -516,6 +516,44 @@ impl Evaluator {
         ordinal: u64,
         sink: &mut dyn FnMut(&Successor<'_>) -> Flow,
     ) -> std::result::Result<Outcome, NextError> {
+        self.next_states_mode(action, s0, ordinal, sink, false)
+    }
+
+    /// Generates Next with the diagnostic tool's source hook. Only receivers
+    /// actually constructed during this execution acquire diagnostic sources;
+    /// cached or stored values retain their original lifetime and provenance.
+    /// The current host owner remains installed.
+    ///
+    /// ```no_run
+    /// # fn replay(ev: &dive_eval::Evaluator, action: &dive_eval::next::Action, source: &dive_eval::next::StateVals) {
+    /// let result = ev.next_states_diagnostic(action, source, 0, &mut |_| {
+    ///     dive_eval::next::Flow::Continue
+    /// });
+    /// // Inspect the actual error's typed receiver source, never its text.
+    /// # let _ = result;
+    /// # }
+    /// ```
+    ///
+    /// # Errors
+    /// The actual generation error, refusal or owned interruption.
+    pub fn next_states_diagnostic(
+        &self,
+        action: &Action,
+        s0: &StateVals,
+        ordinal: u64,
+        sink: &mut dyn FnMut(&Successor<'_>) -> Flow,
+    ) -> std::result::Result<Outcome, NextError> {
+        self.next_states_mode(action, s0, ordinal, sink, true)
+    }
+
+    fn next_states_mode(
+        &self,
+        action: &Action,
+        s0: &StateVals,
+        ordinal: u64,
+        sink: &mut dyn FnMut(&Successor<'_>) -> Flow,
+        diagnostic: bool,
+    ) -> std::result::Result<Outcome, NextError> {
         self.validate_scope(&action.scope())
             .map_err(|error| NextError {
                 error,
@@ -526,7 +564,7 @@ impl Evaluator {
         let mut g = Gen {
             core: &self.core,
             init: false,
-            diagnostic: false,
+            diagnostic,
             s0: StateRef::Vals(s0.clone()),
             s1: vec![None; s0.len()].into(),
             action,
@@ -691,7 +729,11 @@ impl Gen<'_, '_> {
             St {
                 s0: self.s0.clone(),
                 s1: StateRef::Vals(self.s1.clone()),
-                control: control::CLEAR,
+                control: if self.diagnostic {
+                    control::DIAGNOSTIC
+                } else {
+                    control::CLEAR
+                },
             }
         }
     }
