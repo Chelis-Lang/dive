@@ -7,8 +7,8 @@ protect-main`:
 - **No AI authorship markers**: `scripts/check-ai-markers.sh` over the pushed
   or PR commits.
 - **Workspace gate**: one job and one compile. It runs rustfmt, clippy, the
-  nextest `ci` profile, doctests, rustdoc with `-D warnings` and the layering
-  check. `cargo deny` runs only when the
+  nextest `ci` profile, doctests, rustdoc with `-D warnings`, the layering
+  check and an isolated `dive-trace` build. `cargo deny` runs only when the
   PR changes `Cargo.lock` or `deny.toml` (a step condition, so the required
   check always reports), and on every push to `main`.
 - **Conformance gate**: release builds of the harness and `dive`, then
@@ -113,6 +113,13 @@ use focused checks with seconds-to-minutes feedback, and incremental PRs integra
 through required fast CI. Do not launch broad qualification for every candidate. It needs `cargo-nextest`, and
 `cargo-deny` when the dependency policy inputs change. On a shared machine,
 set `CARGO_BUILD_JOBS` and `NEXTEST_TEST_THREADS`.
+
+Both local gate modes and CI compile `dive-trace` alone with
+`cargo build -p dive-trace --locked --target-dir target/standalone-trace`.
+Locally the dedicated directory is under the selected `CARGO_TARGET_DIR`;
+CI uses its workspace-local `target`. Keep that directory exclusive to this
+standalone build. Workspace compilation is not its substitute: the validator's
+dependency and feature resolution must succeed without workspace unification.
 
 Repository tasks resolve the Cargo workspace from the invocation directory at
 runtime. Invoking a task outside a Cargo workspace fails instead of falling back

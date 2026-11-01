@@ -1,5 +1,9 @@
 # Changelog
 
+- Build the independent trace validator alone in a dedicated target in both
+  local gate modes and CI, keeping workspace feature unification from masking
+  a standalone dependency or compilation failure.
+
 - Independently reconstruct bounded ordered error prefixes for VIEW and named
   invariant diagnostics, retaining actual key insertion and diagnostic demand.
   Source-final VIEW words use native trace version 6; readers must support its

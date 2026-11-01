@@ -129,6 +129,8 @@ jobs:
         run: cargo doc --workspace --no-deps --locked
       - name: crate layering
         run: cargo xtask check-layering
+      - name: standalone trace build
+        run: cargo build -p dive-trace --locked --target-dir target/standalone-trace
       - name: cargo-deny
         if: ${{ steps.deny.outputs.run == 'true' }}
         run: cargo deny --locked check
