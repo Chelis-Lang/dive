@@ -1114,10 +1114,11 @@ entry. D-025 is reserved for PR #334's proposal, which this policy supersedes.
 
 Finite `dive simulate` and `dive dfid` accept the same time/memory settings.
 Their reports use `result: "stopped"`, actual mode phase and prefix progress,
-with exit 5. These clocks begin after model loading; evaluator-backed execution
-loops cooperate, while parsing/binding, serialization and independent replay are
-not interrupted. One watchdog owns the entire request and samples resources
-again before publication. See the mode user guides and
+with exit 5. These clocks begin after model loading. Execution, retained-state
+serialization checkpoints and fresh independent finite-word replay share the
+same owner; exhausted runs skip unprocessed retained traces. Initial loading
+and individual value encoding/decoding remain uninterruptible. One watchdog
+samples resources again before publication. See the mode user guides and
 `crates/dive-api/tests/mode_budgets.rs`.
 
 The opt-in discovery budgets `--max-states N|none` and `--max-depth N|none`

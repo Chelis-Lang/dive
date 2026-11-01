@@ -2935,10 +2935,11 @@ get TLC's unbounded behaviour, pass `--time-limit none --max-memory none`.
 `dive simulate` and `dive dfid` also accept these time/memory flags, with the
 same defaults and TLC-equivalent settings. They report `result: stopped`, mode
 phase and completed-prefix progress, exit 5, and no certified verdict. Their
-clock begins after model loading. Execution and evaluator loop checkpoints
-cooperate; parsing, binding, serialization and independent replay are not
-interrupted. One budget covers all traces or iterations, including a final
-resource sample. See [simulation](user/simulation.md#run-budgets) and
+clock begins after model loading. Execution, retained-state serialization
+checkpoints and fresh independent finite-word replay share one budget across
+all traces or iterations. Exhaustion skips unprocessed retained traces. Initial
+loading and individual value encoding/decoding remain uninterruptible; a final
+resource sample precedes publication. See [simulation](user/simulation.md#run-budgets) and
 [DFID](user/dfid.md#run-budgets).
 
 Two further opt-in search budgets, `--max-states N|none` and
