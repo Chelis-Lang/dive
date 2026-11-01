@@ -133,6 +133,15 @@ core currently covers:
   in a specification that uses `..` or `DOMAIN`) are reported as
   unsupported.
 
+Core temporal analysis reuses successful closed-input checks for exact retained
+rows within each analysis, in both profiles. Optional proof storage is limited
+to one MiB; allocation failure or a larger graph retains the original checks.
+Current run controls, input/evaluation limits, conversion demands and independent
+counterexample validation still apply. Additive
+`core.metrics.liveness.atoms.row_proofs` counters report actual reuse and storage;
+they do not establish faster original-model completion. There is no new option.
+See [ADR 0134](../decisions/0134-native-atom-row-proofs.md).
+
 `ENABLED A` inside an action constraint or implied action property searches
 for a successor of `A` from the current state. Its primed expressions read
 that query's candidate, including definitions also used by the surrounding

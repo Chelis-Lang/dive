@@ -110,6 +110,10 @@ pub(crate) struct NativeGraph {
 }
 
 impl NativeGraph {
+    pub(crate) fn owns_store(&self, store: &Arc<Store>) -> bool {
+        Arc::ptr_eq(&self.store, store)
+    }
+
     pub(crate) fn input(&self) -> CsrCaptureInput<'_> {
         CsrCaptureInput {
             offsets: &self.offsets,

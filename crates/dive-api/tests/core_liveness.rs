@@ -636,6 +636,16 @@ fn native_fairness_words_validate_independently_and_reject_changed_initial_funct
                     .as_u64()
                     .is_some_and(|n| n > 0)
             );
+            let proofs = &report["core"]["metrics"]["liveness"]["atoms"]["row_proofs"];
+            assert!(proofs["scans"].as_u64() > Some(0), "{proofs}");
+            assert!(proofs["hits"].as_u64() > Some(0), "{proofs}");
+            assert!(proofs["certified"].as_u64() > Some(0), "{proofs}");
+            assert!(
+                proofs["peak_storage_bytes"]
+                    .as_u64()
+                    .is_some_and(|bytes| bytes > 0 && bytes <= 1024 * 1024),
+                "{proofs}"
+            );
             let doc = &report["counterexample"]["trace"];
             let word = TraceDoc::from_json(doc).expect("trace");
             assert!(matches!(
