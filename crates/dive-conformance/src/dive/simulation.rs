@@ -357,11 +357,13 @@ fn simulation_result(
             _ => return malformed("violation kind/code relationship is invalid"),
         };
         if index >= words.len()
+            || index.checked_add(1) != Some(words.len())
             || outcome.exit_code != Some(status)
             || value["observed_tlc_code"] != code
             || (initial_violation != matches!(code, 2107 | 2108))
             || (verdict != Verdict::Deadlock && name.as_ref().is_none_or(String::is_empty))
             || !value["pending_violation"].is_null()
+            || statistics["scope"] != "completed-prefix"
         {
             return malformed("violation identity/physical exit is inconsistent");
         }
@@ -412,8 +414,10 @@ fn simulation_result(
         };
         if document.ending != expected
             || document.states.is_empty()
-            || (kind == "sampled" && document.states.len() != 101)
+            || document.states.len() > 101
+            || (expected == Some(Ending::Behavior) && document.states.len() != 101)
             || (initial_violation && document.states.len() != 1)
+            || (Some(index) == selected && matches!(code, 2110 | 2112) && document.states.len() < 2)
         {
             return malformed("word ending or completed depth disagrees with the report");
         }
@@ -550,9 +554,9 @@ mod tests {
         let root = fixture.path();
         std::fs::write(
             root.join("M.tla"),
-            "---- MODULE M ----\nEXTENDS Naturals\nVARIABLE x\nInit == x \\in 0..2\nNext == x>=0 /\\ x'=x+1\nInv == x>=0\nInitialBad == x=1\nNextBad == x<4\n====\n",
+            "---- MODULE M ----\nEXTENDS Naturals\nVARIABLE x\nInit == x \\in 0..2\nNext == x>=0 /\\ x'=x+1\nInv == x>=0\nInitialBad == x=1\nNextBad == x<4\nFarBad == x<200\n====\n",
         )?;
-        for case in ["Inv", "InitialBad", "NextBad"] {
+        for case in ["Inv", "InitialBad", "NextBad", "FarBad"] {
             std::fs::write(
                 root.join(format!("{case}.cfg")),
                 format!("INIT Init\nNEXT Next\nINVARIANT {case}\n"),
@@ -575,7 +579,7 @@ mod tests {
                     cache_root: PathBuf::new(),
                 };
                 for traces in [1, 2] {
-                    for case in ["Inv", "InitialBad", "NextBad"] {
+                    for case in ["Inv", "InitialBad", "NextBad", "FarBad"] {
                         let model = ModelEntry {
                             id: format!("{case}.cfg"),
                             module: "M.tla".into(),
@@ -647,6 +651,16 @@ mod tests {
                             assert_eq!(value["statistics"]["traces_started"], 0);
                             assert_eq!(minimum, initial);
                             assert_eq!(words.len(), 1);
+                            let mut successor_claim = value.clone();
+                            successor_claim["options"]["execution_stage"] =
+                                serde_json::json!("sampling");
+                            successor_claim["statistics"]["traces_started"] = serde_json::json!(1);
+                            successor_claim["tlc_code"] = serde_json::json!(2110);
+                            successor_claim["observed_tlc_code"] = serde_json::json!(2110);
+                            assert!(
+                                !admitted(&successor_claim),
+                                "a true initial failure cannot claim a one-row successor endpoint"
+                            );
                         } else {
                             assert!(minimum > initial);
                             let mut overflow = value.clone();
@@ -654,6 +668,84 @@ mod tests {
                                 serde_json::json!(u64::MAX);
                             overflow["statistics"]["generated"] = serde_json::json!(u64::MAX);
                             assert!(!admitted(&overflow));
+                        }
+                        if case == "NextBad" && traces == 2 {
+                            let terminal = words.first().ok_or("terminal word")?;
+                            let mut prefix = terminal.clone();
+                            prefix["document"]["states"]
+                                .as_array_mut()
+                                .ok_or("states")?
+                                .truncate(1);
+                            prefix["document"]["ending"] = serde_json::json!({"kind":"behavior"});
+                            let mut unfinished = value.clone();
+                            unfinished["traces"] = serde_json::json!([prefix, terminal]);
+                            unfinished["traces"][1]["id"] = serde_json::json!(1);
+                            unfinished["statistics"]["traces_started"] = serde_json::json!(2);
+                            unfinished["observed_violation"]["trace"] = serde_json::json!(1);
+                            let minimum = minimum_generated(
+                                initial,
+                                unfinished["traces"].as_array().ok_or("words")?,
+                            )
+                            .ok_or("work")?;
+                            unfinished["statistics"]["generated"] = serde_json::json!(minimum);
+                            assert!(
+                                !admitted(&unfinished),
+                                "an unfinished safe prefix cannot precede the deciding trace"
+                            );
+                            let mut continued = unfinished.clone();
+                            continued["traces"]
+                                .as_array_mut()
+                                .ok_or("words")?
+                                .swap(0, 1);
+                            continued["traces"][0]["id"] = serde_json::json!(0);
+                            continued["traces"][1]["id"] = serde_json::json!(1);
+                            continued["observed_violation"]["trace"] = serde_json::json!(0);
+                            assert!(
+                                !admitted(&continued),
+                                "no trace can follow the deciding violation"
+                            );
+                        }
+                        if case == "FarBad" && traces == 1 {
+                            // This actual producer word is independently valid,
+                            // but its late violation cannot satisfy depth 100.
+                            let long = simulate_file_engine(
+                                &SimulateRequest {
+                                    file: root.join("M.tla"),
+                                    config: Some(root.join(&model.id)),
+                                    compat_tlc: tlc,
+                                    generation: true,
+                                    seed: Some(0),
+                                    traces: 1,
+                                    depth: Some(300),
+                                    workers: Some(1),
+                                    time_limit: BudgetSetting::Unlimited,
+                                    max_memory: BudgetSetting::Unlimited,
+                                    ..Default::default()
+                                },
+                                engine,
+                            )?;
+                            let mut late = long.to_json_with_exit_convention(ExitConvention::Tlc);
+                            assert_eq!(late["result"], "violation");
+                            assert!(
+                                late["traces"][0]["document"]["states"]
+                                    .as_array()
+                                    .ok_or("states")?
+                                    .len()
+                                    > 101
+                            );
+                            late["options"]["depth"] = serde_json::json!(100);
+                            let outcome = ProcessOutcome {
+                                exit_code: Some(12),
+                                signal: None,
+                                timed_out: false,
+                                stdout: late.to_string(),
+                                stderr: String::new(),
+                                elapsed: Duration::ZERO,
+                            };
+                            assert!(
+                                !matches!(simulation_result(&implementation, &req, &outcome, traces, true),
+                                CheckMapping::Result(ref result) if result.verdict == Verdict::SafetyViolation)
+                            );
                         }
                         let mut too_little = value.clone();
                         too_little["statistics"]["generated"] = serde_json::json!(minimum - 1);

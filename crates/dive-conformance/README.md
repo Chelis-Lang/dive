@@ -152,7 +152,10 @@ Simulate. Native sampling admission checks actual request/profile/algorithm,
 engine, physical TLC exit and complete finite work, then independently validates
 retained words. It binds the requested/default aril fields and finite-safety mode,
 and requires generated work to cover every actual Init candidate plus all
-retained transitions, using checked arithmetic; rejected candidates may add work. Behavior samples additionally require the explicit fresh
+retained transitions, using checked arithmetic; rejected candidates may add work.
+The deciding violation must be last and within the requested depth, with its
+initial/successor endpoint shape. Every earlier Behavior sample must complete
+the full requested depth; unproved early completion receives no exception. Behavior samples additionally require the explicit fresh
 `validate-trace --sample` result and its `validation_goal: sample` marker.
 Producer validation booleans carry no authority. Complete samples remain
 non-exhaustive; arbitrary draw/count equality is excluded by ADR 0116. Ordinary
