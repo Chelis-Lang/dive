@@ -1,5 +1,12 @@
 # Changelog
 
+- Support opt-in ordered frontier spill on native safety BFS in both profiles,
+  both stores and requested worker widths. Retain the live Store and original
+  construction history, decode bounded chunks, and validate/close retained files
+  before certification. Budget stops clean promptly without scanning remaining
+  rows; codec and filesystem failures report explicit resource stops. Component
+  budgets exclude Store/history, decoded chunks, seen sets and candidates.
+
 - Add compiled native finite simulation and DFID in both profiles through explicit
   APIs and `--engine core|auto`. Reference remains the default; Auto selects a
   whole finite backend before execution and reached native refusals never retry.
@@ -13,7 +20,7 @@
 - Support exact native safety membership with complete collision-resolving state
   identities and opt-in predecessor spill, preserving ordered results and
   independently replayed concrete words. Explicit storage validation and cleanup
-  failures report a resource stop without certification. Frontier/disk-seen and
+  failures report a resource stop without certification. Disk-seen and
   temporal exact/spill combinations retain their current refusal boundaries.
 
 - Add time and sampled process-memory budgets to finite simulation and DFID,

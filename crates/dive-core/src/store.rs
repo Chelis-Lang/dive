@@ -772,6 +772,21 @@ impl Store {
         }
     }
 
+    /// Validates an opaque coordinate for the live-Store frontier codec without
+    /// turning corrupt file bytes into a poison read or a fabricated value.
+    pub(crate) fn retained_view(&self, handle: Handle) -> Option<View<'_>> {
+        if !handle.is_persistent() {
+            return None;
+        }
+        let (shard, class, index) = handle.persistent_parts();
+        if index > MAX_CLASS_INDEX {
+            return None;
+        }
+        self.cols
+            .get(usize::from(shard))
+            .and_then(|c| c.view(class, index))
+    }
+
     /// Interns a node whose children are all persistent or scalar. Returns
     /// the existing handle when an equal node is present. `cache` is the
     /// interning heap's: a hit is found without the shard's lock.
