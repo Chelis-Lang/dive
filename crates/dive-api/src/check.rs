@@ -305,6 +305,20 @@ fn admit_storage_request(req: &CheckRequest) -> Result<(), crate::ApiError> {
     Ok(())
 }
 
+fn admit_checkpoint_storage(
+    req: &CheckRequest,
+    engine: crate::Engine,
+) -> Result<(), crate::ApiError> {
+    if req.seen_disk.is_some() && engine == crate::Engine::Reference {
+        return Err(crate::ApiError::Unsupported {
+            feature:
+                "disk seen-state retention with Reference checkpoint/recovery is not implemented"
+                    .into(),
+        });
+    }
+    Ok(())
+}
+
 /// Loads, binds and checks the request.
 ///
 /// # Errors
@@ -403,16 +417,38 @@ pub fn check_file_checkpoint(
 ) -> Result<CheckReport, crate::ApiError> {
     if req.seen_disk.is_some() {
         return Err(crate::ApiError::Unsupported {
-            feature: "disk seen-state retention with native checkpoint/recovery is not implemented"
-                .into(),
+            feature:
+                "disk seen-state retention with Reference checkpoint/recovery is not implemented"
+                    .into(),
         });
     }
+    check_file_checkpoint_engine(req, checkpoint, crate::Engine::Reference)
+}
+
+/// Runs a checkpoint transaction on an explicitly selected whole backend.
+/// `Auto` pauses on Reference and recovers on the backend encoded in the archive.
+///
+/// ```no_run
+/// use dive_api::{CheckRequest, Engine, checkpoint, check_file_checkpoint_engine};
+/// let model=CheckRequest{file:"Counter.tla".into(),..CheckRequest::default()};
+/// let checkpoint=checkpoint::Request{path:"counter.cp".into(),action:checkpoint::Action::PauseAfterLevels(2),counters:checkpoint::Counters::Retain,config_source_sha256:None};
+/// let report=check_file_checkpoint_engine(&model,&checkpoint,Engine::Core)?;
+/// # Ok::<(),dive_api::ApiError>(())
+/// ```
+///
+/// # Errors
+/// File loading, backend mismatch, unsupported request or archive framing failure.
+pub fn check_file_checkpoint_engine(
+    req: &CheckRequest,
+    checkpoint: &dive_check::checkpoint::Request,
+    engine: crate::Engine,
+) -> Result<CheckReport, crate::ApiError> {
     if req.temporal != TemporalMode::Ordinary {
         return Err(crate::ApiError::Unsupported {
             feature: "native checkpoint with temporal checking is not implemented".into(),
         });
     }
-    check_file_in(req, Some(checkpoint), false, crate::Engine::Reference, None)
+    check_file_in(req, Some(checkpoint), false, engine, None)
 }
 
 #[allow(
@@ -432,16 +468,43 @@ fn check_file_in(
     } else {
         Profile::Dive
     };
+    let mut selected_engine = engine;
+    if let Some(request) = checkpoint {
+        if engine == crate::Engine::Auto
+            && matches!(
+                request.action,
+                dive_check::checkpoint::Action::PauseAfterLevels(_)
+            )
+        {
+            selected_engine = crate::Engine::Reference;
+        }
+        // A statically known unsupported storage/backend combination must not
+        // open a recovery archive or load the model to discover that refusal.
+        admit_checkpoint_storage(req, selected_engine)?;
+    }
     let recovered_defaults = if let Some(request) = checkpoint
         && request.action == dive_check::checkpoint::Action::Recover
     {
-        Some(
-            dive_check::checkpoint::recovery_seed_fp(&request.path).map_err(|message| {
+        let (encoded, seed, fp) =
+            crate::core_checkpoint::metadata(&request.path).map_err(|message| {
                 crate::ApiError::Rejected {
                     message: format!("DIVE-S0400: {message}"),
                 }
-            })?,
-        )
+            })?;
+        if engine != crate::Engine::Auto && engine != encoded {
+            return Err(crate::ApiError::Rejected {
+                message: format!(
+                    "DIVE-S0400: archive backend {} does not match requested {}",
+                    encoded.name(),
+                    engine.name()
+                ),
+            });
+        }
+        selected_engine = encoded;
+        // Auto recovery needs the encoded backend first, then rejects an
+        // unsupported disk policy before model loading or evaluation.
+        admit_checkpoint_storage(req, selected_engine)?;
+        Some((seed, fp))
     } else {
         None
     };
@@ -610,14 +673,23 @@ fn check_file_in(
         request.config_source_sha256 = Some(dive_check::checkpoint::config_source_hash(
             cfg.source_bytes(),
         ));
-        let native = dive_check::checkpoint::check(&ir, &model, &armed, &request);
+        let native = if selected_engine == crate::Engine::Core {
+            let (native, run) = crate::core_checkpoint::check(
+                &ir,
+                &model,
+                &armed,
+                &request,
+                profile == Profile::Tlc,
+            );
+            report.core = Some(Box::new(run));
+            native
+        } else {
+            if engine == crate::Engine::Auto {
+                report.fallback=Some(crate::core_engine::Fallback{stage:"static",reason:"Core checkpoint Auto pause admission is not yet proved; recovery selects the archive backend".into()});
+            }
+            dive_check::checkpoint::check(&ir, &model, &armed, &request)
+        };
         report.checkpoint_receipt = native.receipt;
-        if engine == crate::Engine::Auto {
-            report.fallback = Some(crate::core_engine::Fallback {
-                stage: "static",
-                reason: "checkpoints under the core engine".into(),
-            });
-        }
         Phase::Checked(Box::new(native.check))
     } else if engine == crate::Engine::Core {
         let (result, run) = crate::core_engine::check(
@@ -1358,7 +1430,9 @@ impl CheckReport {
                 "counters": request.counters,
                 "max_payload_bytes": dive_check::checkpoint::MAX_PAYLOAD_BYTES,
                 "max_states": dive_check::checkpoint::MAX_STATES,
-                "max_state_bytes": dive_check::checkpoint::MAX_STATE_BYTES,
+                "max_state_bytes": self.core.is_none().then_some(dive_check::checkpoint::MAX_STATE_BYTES),
+                "backend": if self.core.is_some() {"core"} else {"reference"},
+                "archive_bounds_scope": "archive admission only; ordinary search, Store, codec workspaces and process memory are separate",
                 "max_level": dive_check::checkpoint::MAX_LEVEL,
                 "max_counter": dive_check::checkpoint::MAX_COUNTER,
                 "trusted_local_archive": true,
@@ -1674,6 +1748,7 @@ impl CheckReport {
                         "deciding_event_before_failure": storage.deciding_event_before_failure.as_ref().map(|v| format!("{v:?}")),
                         "replay": storage.replay.as_ref().map(|r| json!({"original_error": format!("{:?}", r.original_error), "predecessor": r.predecessor, "stopped_successor_ordinal": r.stopped_successor_ordinal, "generated": r.generated, "admitted_keys": r.admitted_keys, "queued": r.queued, "unproved_print_output": r.unproved_print_output, "halted_by": r.halted_by.as_ref().map(|v| format!("{v:?}"))})),
                         "crash_durable": false, "checkpoint_import_supported": false,
+                        "checkpoint_key_reconstitution": self.core.is_some() && self.checkpoint_request.is_some(),
                     });
                 }
                 doc["frontier_storage"] = json!({

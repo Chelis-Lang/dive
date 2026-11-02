@@ -22,8 +22,10 @@ Auto admission is not yet proved, so `--engine auto` statically selects the
 whole Reference disk backend and reports that reason; it does not retry a
 reached Core operation. Rust callers select Core with
 `check_file_engine(&request, Engine::Core)`; `check_file` keeps its existing
-Reference default. Core temporal, checkpoint/recovery and opaque/deferred key
-combinations remain named refusals. Read, write, key-limit, audit and cleanup
+Reference default. Core temporal and opaque/deferred key combinations remain
+named refusals. Explicit Core completed-level checkpoints can reconstruct disk
+membership from saved concrete rows; use `check_file_checkpoint_engine` or
+`--engine core` as described in [storage and recovery](storage-recovery.md). Read, write, key-limit, audit and cleanup
 failures stop without a certified word. A cancelled retained-record audit cleans
 up and cannot certify the unprocessed suffix.
 
@@ -126,9 +128,9 @@ disk placement does not change that distinction.
 
 Missing or invalid explicit INIT/NEXT roles preserve ordinary binder ordering
 and can emit startup output; they do not carry a blanket no-effects guarantee.
-Graph/source capture, temporal checking,
-checkpoint/recovery and DFID with this store remain explicit unsupported
-combinations. Simulation has no disk-seen route. Pure safety VIEW and symmetry
+Graph/source capture, temporal checking and DFID with this store remain explicit
+unsupported combinations. Reference checkpoint/recovery remains unsupported;
+Core recovery reconstitutes membership through the actual fallible adapter. Simulation has no disk-seen route. Pure safety VIEW and symmetry
 retain the existing concrete state and independent-witness contracts; their
 unproved random/liveness combinations remain refused. This increment changes no
 Random/VIEW or trace representation admission and grants no family certification.

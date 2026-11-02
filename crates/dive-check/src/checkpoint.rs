@@ -112,7 +112,8 @@ pub struct Receipt {
 }
 
 impl Receipt {
-    pub(crate) fn finish_storage(
+    /// Records cleanup of the actual transient frontier and predecessor owners.
+    pub fn finish_storage(
         &mut self,
         frontier: &crate::FrontierUsage,
         predecessor: &crate::result::PredecessorUsage,
@@ -317,6 +318,13 @@ fn executable_hash() -> Fallible<String> {
 /// Native overrides use the lowered `Def.std` authority; their documentation
 /// bodies never execute. User shadows without that marker keep their real body.
 fn admit_source(ir: &Ir, cfg: &ModelConfig) -> std::result::Result<(), Verdict> {
+    admit_source_inner(ir, cfg, false)
+}
+fn admit_source_inner(
+    ir: &Ir,
+    cfg: &ModelConfig,
+    allow_temporal: bool,
+) -> std::result::Result<(), Verdict> {
     let mut targets: std::collections::BTreeSet<&str> = cfg
         .constants
         .iter()
@@ -374,11 +382,18 @@ fn admit_source(ir: &Ir, cfg: &ModelConfig) -> std::result::Result<(), Verdict> 
         if !reached[index] {
             continue;
         }
-        if def.effects.intersects(
-            Effects::IMPURE
-                .union(Effects::LIVE_TLCGET)
-                .union(Effects::TEMPORAL),
-        ) {
+        if def
+            .effects
+            .intersects(
+                Effects::IMPURE
+                    .union(Effects::LIVE_TLCGET)
+                    .union(if allow_temporal {
+                        Effects::NONE
+                    } else {
+                        Effects::TEMPORAL
+                    }),
+            )
+        {
             return Err(unsupported(format!(
                 "runtime effects or temporal effects in {}",
                 def.name
@@ -902,6 +917,19 @@ fn validate_structure(s: &Snapshot) -> Fallible<()> {
 }
 
 fn read(path: &Path) -> Fallible<(Snapshot, String, u64)> {
+    let (payload, sha, len) = read_payload(path, MAGIC)?;
+    let snapshot: Snapshot = serde_json::from_slice(&payload).map_err(|e| e.to_string())?;
+    if snapshot.identity.schema != SCHEMA || snapshot.identity.semantics != SEMANTICS {
+        return Err("native identity schema/semantics mismatch".into());
+    }
+    Ok((snapshot, sha, len))
+}
+
+/// Reads a bounded checksummed archive for its explicitly named backend format.
+///
+/// # Errors
+/// Framing, checksum, allocation or filesystem failure; no evaluation occurs.
+pub fn read_payload(path: &Path, magic: &[u8; 8]) -> Fallible<(Vec<u8>, String, u64)> {
     let mut file = File::open(path).map_err(|e| e.to_string())?;
     let len = file.metadata().map_err(|e| e.to_string())?.len();
     if len < HEADER as u64 || len > (HEADER + MAX_PAYLOAD_BYTES) as u64 {
@@ -909,7 +937,7 @@ fn read(path: &Path) -> Fallible<(Snapshot, String, u64)> {
     }
     let mut header = [0u8; HEADER];
     file.read_exact(&mut header).map_err(|e| e.to_string())?;
-    if &header[..8] != MAGIC {
+    if &header[..8] != magic {
         return Err("native magic/schema mismatch".into());
     }
     let mut n = [0u8; 8];
@@ -930,14 +958,22 @@ fn read(path: &Path) -> Fallible<(Snapshot, String, u64)> {
     if sha.as_slice() != &header[16..48] {
         return Err("payload checksum mismatch".into());
     }
-    let snapshot: Snapshot = serde_json::from_slice(&payload).map_err(|e| e.to_string())?;
-    if snapshot.identity.schema != SCHEMA || snapshot.identity.semantics != SEMANTICS {
-        return Err("native identity schema/semantics mismatch".into());
-    }
-    Ok((snapshot, hex(&sha), len))
+    Ok((payload, hex(&sha), len))
 }
 
 fn write(path: &Path, payload: &[u8]) -> Fallible<()> {
+    write_payload(path, MAGIC, payload)
+}
+
+/// Commits a bounded opaque backend payload atomically without replacing a file.
+///
+/// # Errors
+/// Bounds, creation, write, durability or staging cleanup failure.
+pub fn write_payload(path: &Path, magic: &[u8; 8], payload: &[u8]) -> Fallible<()> {
+    if payload.len() > MAX_PAYLOAD_BYTES {
+        return Err("archive payload byte bound".into());
+    }
+
     let parent = path
         .parent()
         .filter(|p| !p.as_os_str().is_empty())
@@ -960,7 +996,7 @@ fn write(path: &Path, payload: &[u8]) -> Fallible<()> {
             options.mode(0o600);
         }
         let mut file = options.open(&staging).map_err(|e| e.to_string())?;
-        file.write_all(MAGIC)
+        file.write_all(magic)
             .and_then(|()| file.write_all(&(payload.len() as u64).to_le_bytes()))
             .and_then(|()| file.write_all(&Sha256::digest(payload)))
             .and_then(|()| file.write_all(payload))
@@ -1177,6 +1213,72 @@ pub fn recovery_seed_fp(path: &Path) -> std::result::Result<(i64, usize), String
     let (snapshot, _, _) = read(path)?;
     validate_structure(&snapshot)?;
     Ok((snapshot.identity.seed, snapshot.identity.fp))
+}
+
+/// Captures source, executable and semantic policy identity for the owned Core backend.
+/// Actual temporal model roles must additionally be refused by Core binding before search.
+///
+/// # Errors
+/// Impure source, unsupported hooks, identity hashing or serialization failure.
+pub fn owned_identity(
+    ir: &Ir,
+    cfg: &ModelConfig,
+    opts: &CheckOptions,
+    request: &Request,
+    core_options: &str,
+) -> std::result::Result<Vec<u8>, Verdict> {
+    if ir.vars().len() > 1024 {
+        return Err(unsupported("state variable arity above 1024"));
+    }
+    if cfg.periodic.is_some() || cfg.rl_reward.is_some() || !cfg.possible.is_empty() {
+        return Err(unsupported(
+            "periodic/reward/possible hooks in owned Core recovery",
+        ));
+    }
+    admit_source_inner(ir, cfg, true)?;
+    let mut ir_bytes = serde_json::to_vec(ir).map_err(|e| failure(e.to_string()))?;
+    let local_classes = dive_model::local_java_class_digests(ir).map_err(unsupported)?;
+    ir_bytes.extend(serde_json::to_vec(&local_classes).map_err(|e| failure(e.to_string()))?);
+    let identity = Identity {
+        schema: 1,
+        semantics: "owned-core-safety-0141-v1".into(),
+        executable_sha256: executable_hash().map_err(failure)?,
+        ir_sha256: hash(&ir_bytes),
+        config_sha256: hash(format!("{cfg:?}").as_bytes()),
+        config_source_sha256: request.config_source_sha256.clone(),
+        seed: opts.seed,
+        fp: opts.fp_index,
+        options: format!(
+            "{:?}/{:?}/{:?}/{}/{}/{}/{}/{}/{}/{:?}/{:?}/{core_options}",
+            opts.profile,
+            opts.eval.ctx,
+            opts.eval.exploration,
+            opts.eval.max_depth,
+            opts.eval.warnings,
+            opts.fp_index,
+            opts.tlc_fingerprints,
+            opts.seed,
+            opts.no_deadlock,
+            opts.store,
+            opts.eval.comparisons
+        ),
+    };
+    serde_json::to_vec(&identity).map_err(|e| failure(e.to_string()))
+}
+
+/// Reads seed/fingerprint metadata from a serialized owned backend identity.
+///
+/// # Errors
+/// Unknown identity schema or semantics, invalid JSON or fingerprint index.
+pub fn owned_identity_seed_fp(bytes: &[u8]) -> Fallible<(i64, usize)> {
+    let identity: Identity = serde_json::from_slice(bytes).map_err(|e| e.to_string())?;
+    if identity.schema != 1
+        || identity.semantics != "owned-core-safety-0141-v1"
+        || identity.fp >= dive_value::fp64::POLYS.len()
+    {
+        return Err("owned identity schema/semantics/fingerprint mismatch".into());
+    }
+    Ok((identity.seed, identity.fp))
 }
 
 #[cfg(test)]

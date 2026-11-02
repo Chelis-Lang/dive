@@ -31,6 +31,7 @@ use crate::node::{Kind, View, flags};
 use crate::strings::{StringOrder, Strings};
 
 mod memory;
+pub mod snapshot;
 pub use memory::StoreMemory;
 
 const SHARDS: usize = 256;

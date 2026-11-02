@@ -195,6 +195,7 @@ struct WorkerSink<'a> {
     base: u64,
     opts: Opts,
     /// Capture's existing per-source bound; `None` retains the safety fast path.
+    preserve_originals: bool,
     capture_limit: Option<u64>,
     poll: &'a (dyn Fn() -> bool + Sync),
     metrics: Metrics,
@@ -224,13 +225,16 @@ impl WorkerSink<'_> {
         original: Option<&[Handle]>,
     ) -> Result<usize, Error> {
         let at = self.out.values.len();
-        if self.capture_limit.is_some() {
+        if self.capture_limit.is_some() || self.preserve_originals {
             crate::capture_reserve(&mut self.out.values, original.unwrap_or(&m.s1).len())?;
         }
         for &h in original.unwrap_or(&m.s1) {
             let h = if h.is_empty() {
                 h
-            } else if self.capture_limit.is_some() || m.heap.has_construction_history(h) {
+            } else if self.capture_limit.is_some()
+                || self.preserve_originals
+                || m.heap.has_construction_history(h)
+            {
                 m.heap.intern_exact(h)?
             } else {
                 m.heap.intern(h)?
@@ -254,9 +258,8 @@ impl WorkerSink<'_> {
         let plan = self.plan;
         // Fingerprinting/VIEW can normalize m.s1 in place. Only capture needs
         // the original emitted representation as well as its identity.
-        let original = self
-            .capture_limit
-            .map(|_| crate::capture_copy(&m.s1))
+        let original = (self.capture_limit.is_some() || self.preserve_originals)
+            .then(|| crate::capture_copy(&m.s1))
             .transpose()?;
         if m.assigned != m.s1.len() {
             let at = self.keep(m)?;
@@ -369,7 +372,7 @@ impl Sink for WorkerSink<'_> {
             .emitted
             .checked_add(1)
             .ok_or_else(|| Error::unsupported("capture successor ordinal overflow"))?;
-        if self.capture_limit.is_some() {
+        if self.capture_limit.is_some() || self.preserve_originals {
             crate::capture_reserve(&mut self.out.occs, 1)?;
         }
         if self.capture_limit.is_some_and(|limit| self.emitted > limit) {
@@ -397,6 +400,7 @@ fn expand_one(
     claims: &Claims,
     k: usize,
     opts: Opts,
+    preserve_originals: bool,
     capture_limit: Option<u64>,
     poll: &(dyn Fn() -> bool + Sync),
     s0: &[Handle],
@@ -409,6 +413,7 @@ fn expand_one(
         claims,
         base: (k as u64) << POS_BITS,
         opts,
+        preserve_originals,
         capture_limit,
         poll,
         metrics: Metrics::default(),
@@ -476,6 +481,7 @@ pub(crate) fn expand_level(
     nvars: usize,
     seen: &Seen,
     opts: Opts,
+    preserve_originals: bool,
     capture_limit: Option<u64>,
     poll: &(dyn Fn() -> bool + Sync),
     estimate: usize,
@@ -515,6 +521,7 @@ pub(crate) fn expand_level(
                                     claims,
                                     k,
                                     opts,
+                                    preserve_originals,
                                     capture_limit,
                                     poll,
                                     s0,

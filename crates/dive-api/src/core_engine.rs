@@ -308,7 +308,7 @@ fn action_roles(
 /// Refuses what M0 does not model, before any work.
 /// A run option the core does not implement, which would change the
 /// result if the core ignored it.
-fn option_refusal(options: &CheckOptions, profile_tlc: bool) -> Option<String> {
+pub(crate) fn option_refusal(options: &CheckOptions, profile_tlc: bool) -> Option<String> {
     let e = &options.eval;
     let refused = if options.tlc_fingerprints && !profile_tlc {
         "TLC fingerprints outside --compat=tlc"
@@ -875,6 +875,12 @@ pub(crate) fn safety_result(
         dive_explore::Verdict::InvariantViolated { property, initial } => {
             Verdict::InvariantViolated { property, initial }
         }
+        dive_explore::Verdict::CheckpointPaused { next_level } => Verdict::ResourceLimit {
+            message: format!(
+                "native checkpoint paused before source level {next_level}; search is incomplete"
+            ),
+        },
+        dive_explore::Verdict::CheckpointError { message } => Verdict::ResourceLimit { message },
         dive_explore::Verdict::Deadlock => Verdict::Deadlock,
         dive_explore::Verdict::NoNextAction => Verdict::ModelError {
             code: 2115,
@@ -1324,7 +1330,7 @@ pub(crate) fn check(
     (finish(r), run)
 }
 
-fn native_seen_usage(usage: &dive_explore::storage::DiskUsage) -> dive_check::SeenUsage {
+pub(crate) fn native_seen_usage(usage: &dive_explore::storage::DiskUsage) -> dive_check::SeenUsage {
     use dive_check::SeenPhase;
     dive_check::SeenUsage {
         limits: usage.limits,
@@ -1337,7 +1343,7 @@ fn native_seen_usage(usage: &dive_explore::storage::DiskUsage) -> dive_check::Se
             .map(|failure| dive_check::SeenFailure {
                 phase: match failure.phase {
                     "Creation" => SeenPhase::Creation,
-                    "Insertion" => SeenPhase::Insertion,
+                    "Insertion" | "RecoveryInsertion" => SeenPhase::Insertion,
                     "AdmissionMembership" => SeenPhase::AdmissionMembership,
                     "ReplayMembership" => SeenPhase::ReplayMembership,
                     "ReplayInsertion" => SeenPhase::ReplayInsertion,

@@ -682,10 +682,19 @@ fn check_command(
         if let Err(error) = seen_policy.limits.validate() {
             return usage_error(err, &error.to_string());
         }
-        if final_check || checkpoint_path.is_some() || recover_path.is_some() {
+        if final_check {
             return usage_error(
                 err,
-                "disk seen-state retention with temporal/capture or checkpoint/recovery is not implemented",
+                "disk seen-state retention with temporal/capture is not implemented",
+            );
+        }
+        let reference_checkpoint = engine == dive_api::Engine::Reference
+            && (checkpoint_path.is_some() || recover_path.is_some())
+            || engine == dive_api::Engine::Auto && checkpoint_path.is_some();
+        if reference_checkpoint {
+            return usage_error(
+                err,
+                "disk seen-state retention with Reference checkpoint/recovery is not implemented",
             );
         }
         req.seen_disk = Some(seen_policy);
@@ -732,11 +741,8 @@ fn check_command(
         }
     };
     req.file = file.into();
-    if engine == dive_api::Engine::Core && checkpoint.is_some() {
-        return usage_error(err, "--engine core does not support checkpoints");
-    }
     let checked = if let Some(request) = &checkpoint {
-        dive_api::check_file_checkpoint(&req, request)
+        dive_api::check_file_checkpoint_engine(&req, request, engine)
     } else {
         dive_api::check_file_engine(&req, engine)
     };
