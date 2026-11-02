@@ -5,7 +5,7 @@
 The standard is an **unimpeachably sound port**. Every result is verified continuously against the canonical Java tools. Where `dive` cannot match TLC exactly, it refuses with an explicit `unsupported` result instead of approximating.
 
 > **Status: early development.** `dive parse`, `dive analyze`, configuration
-> parsing, safety `dive check`, finite pure safety `dive simulate`, and
+> parsing, safety `dive check`, bounded safety `dive simulate`/`dive dfid`, and
 > `dive validate-trace` are implemented.
 > The protected conformance gate compares safety results with pinned TLC
 > goldens. Rust callers can use bounded final temporal checking with
@@ -18,7 +18,26 @@ The standard is an **unimpeachably sound port**. Every result is verified contin
 > for measured coverage and `docs/ROADMAP.md` for the remaining roadmap.
 > The reference engine remains the default. Bounded native construction histories
 > and independent initial-diagnostic/temporal-source replay are implemented;
-> integrated capacity and TLC-relative performance acceptance remain open.
+> original temporal capacity is accepted on its recorded Phase 4 source.
+> The current runtime passes its integrated full gate; fixed census and
+> independent PlusCal findings remain. Phase 5's bounded delivery and evidence
+> closeout are complete; broader parity and TLC-relative performance acceptance
+> remain open.
+
+Compiled safety simulation and DFID are available explicitly with `--engine core`
+in both profiles with one actual worker; `--engine auto` selects a whole finite
+backend before execution
+and never retries after a reached native refusal. Both backends share time/memory
+controls and independent trace validation. Simulation remains sampling; DFID
+requires a completion certificate to prove safety. Configured simulation VIEW
+refuses before execution in every engine. See the
+[simulation](docs/user/simulation.md) and [DFID](docs/user/dfid.md) guides.
+
+Native safety BFS also supports exact membership and ordered frontier/predecessor
+spill. The component budgets exclude retained values/history and other search
+memory; frontier files depend on the current live Store and cannot recover after
+restart. Core checkpoint/recovery, disk seen and temporal spill remain unfinished.
+See [storage and recovery](docs/user/storage-recovery.md).
 
 The checking-only `dive tlc` and installed `tlc` adapter accepts common TLC
 checking flags and module/configuration basenames. `-lncheck final` selects the
@@ -32,7 +51,12 @@ Native PlusCal translation supports bounded debug-header serialization and a sep
 `--ast` in-memory original AST operation for measured procedure/macro and compound
 ownership, plus measured termination, done-disjunct, wrapping,
 sequential version and label-reporting options. File preferences return an
-in-memory plan; broader AST shapes, backends and filesystem writes remain unfinished. See
+in-memory plan; broader AST shapes, translation breadth and filesystem writes
+remain unfinished. Independent pinned-translator/TLC versus
+native-translation/dive model comparison is implemented; it uses the Reference
+checker and does not imply native-core corpus coverage or complete PlusCal parity. Both fixed input/label populations retain
+missing configurations, refusals, timeouts and unregistered count finding #731;
+valid words alone do not make those comparisons agree. See
 [the translator guide](docs/pluscal-translation.md).
 
 ## Documentation

@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "kind": "Phase5 bounded bridge acceptance and one stopped S6 prototype",
+  "recorded_utc": "2026-11-01T23:26:08.028844+00:00",
+  "decision": {
+    "issue651": "accepted and manually closed",
+    "issue726": "bounded assessment completed, prototype stopped unadopted",
+    "broad_default_perf_acceptance": false,
+    "formal_300_row_panel_started": false,
+    "m1_m2_or_release_acceptance": false
+  },
+  "bridge": {
+    "scope": "#651 matched original CoffeeCan1000 temporal old-bridge runtime/RSS acceptance only",
+    "sources": {
+      "current": {
+        "source": "ccff77293a3aa859c601b36f9b6da5d692f965f6",
+        "tree": "44adc89187cd484a3b5a8b79c3260970beeb43f7",
+        "elf_sha256": "7ff28abf849ec3bbbdedfa62285720796cc1ff884cefc496d987e24e89b07286"
+      },
+      "bridge": {
+        "source": "b5f6af4c340e7321c0a1225d2b576cd50de46ec7",
+        "tree": "2131aece79471e7c41c834775dde8b5baf1bae06",
+        "elf_sha256": "51d92b536d6208aa94105db46a040754c7939a4bc777196ae4163c7a230045af"
+      }
+    },
+    "model": "CoffeeCan1000Beans, original module/configuration and all four properties",
+    "oracle_counts": {
+      "distinct": 501500,
+      "generated": 2000002,
+      "level": 1,
+      "queue": 0
+    },
+    "policy": {
+      "native_seconds": 900,
+      "native_memory_bytes": 17179869184,
+      "external_seconds": 930,
+      "seed": 0,
+      "fingerprint": 0,
+      "profiles": [
+        "default",
+        "tlc"
+      ],
+      "actual_workers": [
+        1,
+        8
+      ],
+      "repetitions": 3
+    },
+    "host": {
+      "instance_type": "c7i.4xlarge",
+      "physical_cores": 8,
+      "logical_cpus": 16,
+      "memory_gib": 32,
+      "smt": "on",
+      "quiet_window_certified": false
+    },
+    "performance": {
+      "method": "median of three within-repetition current/bridge ratios; GNU-time elapsed independently parsed; controller elapsed independently recomputed as secondary",
+      "runtime_limit": 1.1,
+      "rss_limit": 0.65,
+      "rows": 24,
+      "all_individual_pairs_pass": true,
+      "cells": [
+        {
+          "profile": "default",
+          "workers": 1,
+          "pairs": [
+            {
+              "repetition": 0,
+              "gnu_runtime_ratio": 0.9992260061919505,
+              "controller_runtime_ratio": 0.9999297622974327,
+              "rss_ratio": 0.5896915493063424
+            },
+            {
+              "repetition": 1,
+              "gnu_runtime_ratio": 0.9984603541185527,
+              "controller_runtime_ratio": 0.9978451922655294,
+              "rss_ratio": 0.6022433330395361
+            },
+            {
+              "repetition": 2,
+              "gnu_runtime_ratio": 0.9996141975308641,
+              "controller_runtime_ratio": 0.9981565858716082,
+              "rss_ratio": 0.5891834347917354
+            }
+          ],
+          "median_gnu_runtime_ratio": 0.9992260061919505,
+          "median_controller_runtime_ratio": 0.9981565858716082,
+          "median_rss_ratio": 0.5896915493063424,
+          "median_bridge_gnu_seconds": 25.92,
+          "median_current_gnu_seconds": 25.91,
+          "accepted": true
+        },
+        {
+          "profile": "default",
+          "workers": 8,
+          "pairs": [
+            {
+              "repetition": 0,
+              "gnu_runtime_ratio": 1.0061902082160945,
+              "controller_runtime_ratio": 1.0055929485548205,
+              "rss_ratio": 0.5946199774449419
+            },
+            {
+              "repetition": 1,
+              "gnu_runtime_ratio": 1.0197851893725267,
+              "controller_runtime_ratio": 1.019953296122644,
+              "rss_ratio": 0.6003215786036996
+            },
+            {
+              "repetition": 2,
+              "gnu_runtime_ratio": 0.9880122665179816,
+              "controller_runtime_ratio": 0.9873927579165968,
+              "rss_ratio": 0.5945515662077889
+            }
+          ],
+          "median_gnu_runtime_ratio": 1.0061902082160945,
+          "median_controller_runtime_ratio": 1.0055929485548205,
+          "median_rss_ratio": 0.5946199774449419,
+          "median_bridge_gnu_seconds": 35.54,
+          "median_current_gnu_seconds": 35.76,
+          "accepted": true
+        },
+        {
+          "profile": "tlc",
+          "workers": 1,
+          "pairs": [
+            {
+              "repetition": 0,
+              "gnu_runtime_ratio": 0.9950354609929077,
+              "controller_runtime_ratio": 0.9946300888207409,
+              "rss_ratio": 0.5988246809414692
+            },
+            {
+              "repetition": 1,
+              "gnu_runtime_ratio": 0.991861288039632,
+              "controller_runtime_ratio": 0.9929479631956853,
+              "rss_ratio": 0.5985941672736101
+            },
+            {
+              "repetition": 2,
+              "gnu_runtime_ratio": 0.99435227673844,
+              "controller_runtime_ratio": 0.9928914333373934,
+              "rss_ratio": 0.6081266580294898
+            }
+          ],
+          "median_gnu_runtime_ratio": 0.99435227673844,
+          "median_controller_runtime_ratio": 0.9929479631956853,
+          "median_rss_ratio": 0.5988246809414692,
+          "median_bridge_gnu_seconds": 28.26,
+          "median_current_gnu_seconds": 28.06,
+          "accepted": true
+        },
+        {
+          "profile": "tlc",
+          "workers": 8,
+          "pairs": [
+            {
+              "repetition": 0,
+              "gnu_runtime_ratio": 1.0060494476591266,
+              "controller_runtime_ratio": 1.0070210099728791,
+              "rss_ratio": 0.6175079199916449
+            },
+            {
+              "repetition": 1,
+              "gnu_runtime_ratio": 1.011609498680739,
+              "controller_runtime_ratio": 1.0105440194326807,
+              "rss_ratio": 0.6127245753167162
+            },
+            {
+              "repetition": 2,
+              "gnu_runtime_ratio": 1.0036764705882353,
+              "controller_runtime_ratio": 1.0038995729042444,
+              "rss_ratio": 0.6163724102730669
+            }
+          ],
+          "median_gnu_runtime_ratio": 1.0060494476591266,
+          "median_controller_runtime_ratio": 1.0070210099728791,
+          "median_rss_ratio": 0.6163724102730669,
+          "median_bridge_gnu_seconds": 38.02,
+          "median_current_gnu_seconds": 38.25,
+          "accepted": true
+        }
+      ]
+    },
+    "archive": {
+      "sha256": "d95069f4f6a117aeb64c647fe0e05ac9a37e66b34458c0f8296c82ab6cd2ccf3",
+      "bytes": 26341181,
+      "members": 162,
+      "regular_files": 135,
+      "every_extracted_member_verified": true,
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "phase5-20261101/bridge-comparison-ccff7729.tar.gz"
+    },
+    "independent_review": {
+      "decision": "approve",
+      "assertions_passed": 540,
+      "negative_controls": 10,
+      "markdown_sha256": "f429e3110cc9cfe1d439847879aef693a6def27534e3caf7f77502bff2475a50",
+      "json_sha256": "d9278f2976dd4e7ebc0d908b9172d8339268ce28df051ac69b9e2c8f0cb7a077"
+    },
+    "cleanup": {
+      "terminated_instance": "i-033155093e60c22df",
+      "deleted_root_volume": "vol-0a1bac1889e3e0427",
+      "verified": true
+    },
+    "issue": "https://github.com/Chelis-Lang/dive/issues/651",
+    "limits": [
+      "Matched current/old-bridge VM observations; no stock-TLC timing or quiet five-repeat acceptance.",
+      "No inference of a whole-process hard memory bound.",
+      "Execution belongs only to ccff7729 and its actual ELF, not later Phase5 runtime."
+    ]
+  },
+  "s6": {
+    "status": "stopped-unadopted",
+    "source": "f60450d3abe5e40f3d6df520f3548fb677455bc2",
+    "tree": "95c5763b376c918a3307bb3f289e68a19a7ab1d2",
+    "base": "ccff77293a3aa859c601b36f9b6da5d692f965f6",
+    "candidate_patch_sha256": "c396af682352c6a68c8deeb192267b20881589b2ebbfac7d0ad89e05e4001afc",
+    "candidate_elf_sha256": "3771b7dba41b5dd39a3908a965ce3cda25783e2a551e57165f4b20b9dbb0e3d4",
+    "baseline_elf_sha256": "3dd2e3b28dc974fed738ca2d923766fd955bc49cd90e52163b1cc3956dff3925",
+    "baseline_scope": "base plus disabled 14-line plan dump diagnostic; not relabeled as unmodified main",
+    "screen_scope": "two original models, default profile, actual1worker,3matched repetitions,sharedhost; no quiet-host or formal performance acceptance",
+    "simple_regular_candidate_over_baseline_median": 0.9639639770685883,
+    "bakery_candidate_over_baseline_median": 1.0535600173702422,
+    "all12_children_correct": true,
+    "focused_core_unit_tests": 114,
+    "doctests": 7,
+    "strict_clippy": true,
+    "shipping_code_change": false,
+    "no_rescue_variant": true,
+    "broader_s6_strategy_rejected": false,
+    "decision_utc": "2026-11-01T22:54:35.261529+00:00",
+    "issue": "https://github.com/Chelis-Lang/dive/issues/726",
+    "archive": {
+      "sha256": "6af085d24f72166034b0f0ec61d0b6208871d9e6a7e3612a872bd2407102e318",
+      "bytes": 27383063,
+      "members": 213,
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "phase5-20261101/s6-indexed-guard-unadopted.tar.gz",
+      "uploaded_downloaded_hash_verified": true
+    },
+    "reason": "Projection of scalar guards raises hit rates but adds key work where whole-guard memoization already hits; Bakery regression outweighs modest SimpleRegular gain.",
+    "claim_limit": "Shared-host default/W1 diagnostic on two models only; broader S6 expensive-body/read strategy remains open."
+  },
+  "retained_prior_work": {
+    "original_capacity_issue650": "accepted on Phase4 source95e73d2f; no rerun/relabel here",
+    "references": [
+      "conformance/reports/perf/2026-11-01-phase4-original-capacity.json",
+      "docs/developer/core/m1-status.md"
+    ]
+  }
+}
