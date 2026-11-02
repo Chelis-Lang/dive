@@ -2628,3 +2628,18 @@ not serialized codes, receiver shape or error text. Existing pinned two-,
 three- and four-state invariant families, `ErWrapInvTuple`, `ErInvReplayProp`,
 `ErInvConstrained` and `ErInvReplayError` retain the positive/negative semantic
 controls. Required bounds and actual resource/interruption transports remain.
+
+### Constructive successor generation (ADR 0142)
+
+Pinned TLC upstream `94d0c5070852b37b801bb8998c436383ab7ee37b` supplies the
+semantic boundaries: `TLC.java`465–470 selects simulation and probabilistic
+`Tool` mode for `-generate`; `Tool.java`1197–1234 randomizes actual Next
+disjunctions and bounded existential contexts and stops after the first generated
+state. `Tool.java`1324–1327 explicitly refuses CASE generation. Binder domain
+admission and context ordering follow ordinary `Tool.contexts` rather than
+reevaluating inner domains per assignment. Direct interval indexing and cyclic
+coprime strides are native implementation choices; TLC's random draw history
+is not a parity obligation (ADR 0116). Init/predicate quantifiers/CHOOSE/ENABLED
+keep their ordinary evaluator path. The minimal guarded source controls are in
+`conformance/corpus/constructive-generation`; top-level action decomposition is
+excluded from those probes by a state-dependent guard.

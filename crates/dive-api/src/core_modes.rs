@@ -160,13 +160,27 @@ fn generate(
     action: &Action,
     emit: &mut impl FnMut(&mut Machine) -> Result<(), Error>,
 ) -> Result<(), Error> {
+    generate_selected(machine, code, action, emit, None)
+}
+
+fn generate_selected(
+    machine: &mut Machine,
+    code: &Code,
+    action: &Action,
+    emit: &mut impl FnMut(&mut Machine) -> Result<(), Error>,
+    choose: Option<&mut dyn FnMut(u64) -> u64>,
+) -> Result<(), Error> {
     let old = machine.enter(action.frame);
     for &(slot, value) in &action.preset {
         if let Some(target) = machine.frame.get_mut(machine.base + slot as usize) {
             *target = value;
         }
     }
-    let result = machine.run_action(code, action.g, &mut Emission(emit));
+    let result = if let Some(choose) = choose {
+        machine.run_action_generation(code, action.g, &mut Emission(emit), choose)
+    } else {
+        machine.run_action(code, action.g, &mut Emission(emit))
+    };
     machine.leave(old);
     result
 }
@@ -572,11 +586,13 @@ impl Native {
                 let mut candidates = Vec::new();
                 let mut index =
                     usize::try_from(rng.next_index(plan.next.len() as u64)).unwrap_or(0);
-                let prime = usize::try_from(rng.next_prime()).unwrap_or(0);
+                let sampled_prime = usize::try_from(rng.next_prime()).unwrap_or(0);
+                let prime = if options.generation { 1 } else { sampled_prime };
                 let mut failed = None;
                 for _ in 0..plan.next.len() {
                     let mark = machine.heap.mark();
-                    let result = generate(machine, &plan.code, &plan.next[index], &mut |machine| {
+                    let mut selected = false;
+                    let mut emit = |machine: &mut Machine| {
                         if poll() {
                             return Err(Error::stop());
                         }
@@ -633,14 +649,32 @@ impl Native {
                             && allowed(machine, plan, &plan.action_constraints, true)?
                         {
                             candidates.push(retain(machine)?);
+                            if options.generation {
+                                selected = true;
+                                return Err(Error::stop());
+                            }
                         }
                         Ok(())
-                    });
+                    };
+                    let mut choose = |bound| rng.next_index(bound);
+                    let choices = if options.generation {
+                        Some(&mut choose as &mut dyn FnMut(u64) -> u64)
+                    } else {
+                        None
+                    };
+                    let result = generate_selected(
+                        machine,
+                        &plan.code,
+                        &plan.next[index],
+                        &mut emit,
+                        choices,
+                    );
                     if let Err(error) = finish_batch(machine, mark) {
                         failed = Some(classify(&error, None));
                     }
                     if let Err(error) = result
                         && failed.is_none()
+                        && !(selected && error.kind() == ErrorKind::Stop)
                     {
                         failed = Some(classify(&error, None));
                     }
@@ -675,7 +709,11 @@ impl Native {
                     return report;
                 }
                 retained += 1;
-                let choice = usize::try_from(rng.next_index(candidates.len() as u64)).unwrap_or(0);
+                let choice = if options.generation {
+                    0
+                } else {
+                    usize::try_from(rng.next_index(candidates.len() as u64)).unwrap_or(0)
+                };
                 current = candidates.swap_remove(choice);
                 match values(machine, model, &current) {
                     Ok(next) => states.push(next),
@@ -716,6 +754,34 @@ mod tests {
     fn prepare(model: &Model) -> Result<Native> {
         Native::prepare(model, &dive_check::budget::Budget::unlimited())
             .map_err(|_| "native preparation".into())
+    }
+
+    #[test]
+    fn constructive_million_way_producer_keeps_one_candidate_and_honors_limits() -> Result {
+        let source = model(
+            "---- MODULE M ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == x>=0 /\\ (\\E n \\in 1..1000000 : x'=n)\n====\n",
+            "INIT Init\nNEXT Next\n",
+        )?;
+        assert_eq!(source.model().actions.len(), 1);
+        for mode in [
+            dive_stdlib::random::RandomMode::Dive,
+            dive_stdlib::random::RandomMode::Tlc,
+        ] {
+            let mut options = dive_sim::Options::new(7, mode, 4, 3);
+            options.generation = true;
+            options.max_candidates = 1;
+            let mut native = prepare(source.model())?;
+            let report = native.simulate(source.model(), &options, &|| false);
+            assert!(matches!(report.outcome, Outcome::Sampled), "{report:?}");
+            assert_eq!(report.generated, 13);
+            assert_eq!(report.traces.len(), 3);
+            options.max_generated = 3;
+            let mut native = prepare(source.model())?;
+            let stopped = native.simulate(source.model(), &options, &|| false);
+            assert!(matches!(stopped.outcome, Outcome::Limit(_)), "{stopped:?}");
+            assert_eq!(stopped.generated, 3);
+        }
+        Ok(())
     }
 
     #[test]

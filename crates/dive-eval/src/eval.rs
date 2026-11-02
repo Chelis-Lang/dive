@@ -1507,7 +1507,7 @@ impl Core {
         }
     }
 
-    fn non_enumerable_bound(&self, v: &Value, dom: ExprId) -> EvalError {
+    pub(crate) fn non_enumerable_bound(&self, v: &Value, dom: ExprId) -> EvalError {
         // `Value.getNonEnumerableErrorMsg`, overridden by `Naturals`,
         // `Integers` and `Sequences`.
         let p = self.ppr(v);

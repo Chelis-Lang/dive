@@ -65,6 +65,7 @@ use std::process::Command;
 use std::time::Duration;
 
 mod ordinary_final;
+mod simulation;
 mod temporal_bounds;
 
 /// The `dive analyze` / `dive parse` JSON schema version the harness reads.
@@ -1409,6 +1410,19 @@ impl Implementation for DiveImplementation {
     }
 
     fn check_model(&self, req: &ModelRequest<'_>) -> Result<ImplResult<OracleResult>> {
+        if let ModelMode::Simulate { traces } = req.model.mode {
+            return self.check_simulation(req, traces);
+        }
+        if req
+            .model
+            .features
+            .iter()
+            .any(|feature| feature == "constructive generation")
+        {
+            return Ok(ImplResult::Unsupported(
+                "constructive generation requires a finite simulation model".to_owned(),
+            ));
+        }
         if req.model.mode != ModelMode::Exhaustive {
             return Ok(ImplResult::Unsupported(format!(
                 "{:?} mode: `dive check` does exhaustive search only",

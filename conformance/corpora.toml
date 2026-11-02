@@ -310,3 +310,10 @@ id = "fairness-primary"
 path = "conformance/corpus/fairness-primary"
 license = "MIT"
 layout = "examples-manifest"
+
+# Finite constructive generation is a simulation algorithm, not trace export.
+[[corpus]]
+id = "constructive-generation"
+path = "conformance/corpus/constructive-generation"
+license = "MIT"
+layout = "examples-manifest"

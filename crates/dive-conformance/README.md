@@ -146,6 +146,22 @@ The seeded entries explain the v1.7.4-vs-pin report: CommunityModules, `TLCExt`/
   - A job copies only the files of the module's own directory into its scratch directory, since SANY never looks into subdirectories. An Examples job copies the whole spec directory.
 - `tbd`: not yet enumerated.
 
+Finite Simulate entries with feature `constructive generation` invoke pinned TLC
+`-generate num=N` and native `simulate --generate`; the feature refuses outside
+Simulate. Native sampling admission checks actual request/profile/algorithm,
+engine, physical TLC exit and complete finite work, then independently validates
+retained words. It binds the requested/default aril fields and finite-safety mode,
+and requires generated work to cover every actual Init candidate plus all
+retained transitions, using checked arithmetic; rejected candidates may add work.
+The deciding violation must be last and within the requested depth, with its
+initial/successor endpoint shape. Every earlier Behavior sample must complete
+the full requested depth; unproved early completion receives no exception. Behavior samples additionally require the explicit fresh
+`validate-trace --sample` result and its `validation_goal: sample` marker.
+Producer validation booleans carry no authority. Complete samples remain
+non-exhaustive; arbitrary draw/count equality is excluded by ADR 0116. Ordinary
+exhaustive comparison rules are unchanged. The legacy manifest `generate` mode
+is not reinterpreted by this feature.
+
 **In-repository corpora** (ADR 0005, amendment 1) give `path = "conformance/..."` instead of `repo` and `commit`. Their identity is the SHA-256 of their files (`sha256:<hex>`, recorded in goldens as the corpus commit), so changing any file makes `run` refuse the goldens until they are regenerated. `corpus fetch` skips them. These include:
 - `constraint-error-endings`: eight terminal safety/constraint demand controls
   pinned before the validator repair (#499). Official generation wrote eight

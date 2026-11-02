@@ -20,6 +20,10 @@ pub const SIMULATE_SCHEMA_VERSION: u32 = crate::REPORT_SCHEMA_VERSION;
 /// assert_eq!(request.traces, 10);
 /// ```
 #[derive(Clone, Debug, Default)]
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "independent public simulation options retain their existing boolean API"
+)]
 pub struct SimulateRequest {
     /// Root specification.
     pub file: PathBuf,
@@ -41,6 +45,10 @@ pub struct SimulateRequest {
     pub no_deadlock: bool,
     /// Collect source-location action flows, corresponding to TLC `stats=basic`.
     pub action_stats: bool,
+    /// Construct one successor per selected action instead of retaining all
+    /// candidates. This is finite sampling, never exhaustive checking.
+    /// `true` corresponds to TLC `-generate num=N`; `false` to `-simulate num=N`.
+    pub generation: bool,
     /// Time limit; the profile default matches `dive check`. `Unlimited` is TLC-equivalent.
     pub time_limit: crate::BudgetSetting<std::time::Duration>,
     /// Sampled process-memory ceiling; the default is half physical memory.
@@ -69,6 +77,45 @@ impl SimulateReport {
     #[must_use]
     pub const fn exit_code(&self) -> u8 {
         self.exit
+    }
+
+    /// Process status under an explicit convention, independently of value
+    /// semantics. Refusals, resource stops and internal errors keep their status.
+    #[must_use]
+    pub fn exit_code_for(&self, convention: crate::ExitConvention) -> u8 {
+        let code = self.document["tlc_code"]
+            .as_u64()
+            .and_then(|code| u32::try_from(code).ok());
+        match (self.document["result"].as_str(), code) {
+            (Some("violation"), Some(code)) => match convention {
+                crate::ExitConvention::Tlc => tlc_exit(code),
+                crate::ExitConvention::Native => {
+                    if code == 2114 {
+                        11
+                    } else {
+                        10
+                    }
+                }
+            },
+            (Some("evaluation-error"), Some(code)) => match convention {
+                crate::ExitConvention::Tlc => tlc_exit(code),
+                crate::ExitConvention::Native => 13,
+            },
+            _ => self.exit,
+        }
+    }
+
+    /// Versioned report with an explicitly selected process-status convention.
+    /// The simulation remains non-exhaustive under either convention.
+    #[must_use]
+    pub fn to_json_with_exit_convention(&self, convention: crate::ExitConvention) -> Value {
+        let mut document = self.to_json();
+        document["exit_code"] = json!(self.exit_code_for(convention));
+        document["options"]["exit_codes"] = json!(match convention {
+            crate::ExitConvention::Native => "native",
+            crate::ExitConvention::Tlc => "tlc",
+        });
+        document
     }
 
     /// Human-readable sampling summary that never claims a proof.
@@ -148,6 +195,7 @@ pub fn simulate_file_engine(
     );
     let options = Options {
         action_stats: req.action_stats,
+        generation: req.generation,
         aril: if req.compat_tlc && req.seed.is_none() {
             0
         } else {
@@ -354,7 +402,14 @@ pub fn simulate_file_engine(
             .map_err(|message| crate::ApiError::Rejected { message })?
             .with_ending(ending);
         // Validation replays the given states; it never reruns the simulation.
-        let validation = match model.validate_mode(&document, control.clone()) {
+        let validated = if matches!(result.outcome, Outcome::Sampled | Outcome::Violation { .. }) {
+            model.validate_sample_mode(&document, control.clone())
+        } else {
+            // Diagnostic error prefixes can include the actual failing row.
+            // They carry no claim that every safety obligation passed there.
+            model.validate_mode(&document, control.clone())
+        };
+        let validation = match validated {
             Ok(validation) => validation,
             Err(error) => {
                 trace_refusal = Some(format!("simulation trace validation interrupted: {error}"));
@@ -485,7 +540,9 @@ pub fn simulate_file_engine(
             "depth": options.depth, "traces": options.traces, "workers_requested": req.workers.unwrap_or(1),
             "workers_used": u8::from(result.stage != "preflight"),
             "execution_stage": result.stage, "execution_scope": "simulation-backend",
-            "mode": "finite-safety", "probabilistic": false, "action_stats": req.action_stats,
+            "mode": "finite-safety", "probabilistic": req.generation,
+            "algorithm": if req.generation { "constructive" } else { "enumerating" },
+            "action_stats": req.action_stats,
             "max_output_events": options.max_output_events, "max_output_bytes": options.max_output_bytes },
         "statistics": { "generated": result.generated, "initial_candidates": result.initial_candidates, "traces_started": result.traces_started,
             "scope": if matches!(result.outcome, Outcome::Sampled) { "complete-request" } else { "completed-prefix" } },

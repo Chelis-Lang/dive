@@ -297,6 +297,48 @@ impl SpecModel {
         .map_err(|error| ValidationRunError::ThreadFailure(error.to_string()))?
     }
 
+    /// Validates finite simulation samples; deciding diagnostic endpoints keep
+    /// their ordinary operation through `validate_mode` instead.
+    pub(crate) fn validate_sample_mode(
+        &self,
+        doc: &TraceDoc,
+        control: Arc<dyn dive_eval::HostControl>,
+    ) -> Result<Report, ValidationRunError> {
+        on_big_stack(|| {
+            if doc.ending == Some(Ending::Behavior) {
+                self.session.read_sampled(doc, Some(control))
+            } else {
+                self.session.read_controlled(doc, control)
+            }
+            .map(|(report, _)| report)
+        })
+        .map_err(|error| ValidationRunError::ThreadFailure(error.to_string()))?
+    }
+
+    /// Independently checks every finite sampled row, including configured
+    /// constraints, invariants and implied finite properties, on fresh source.
+    /// Unlike ordinary behavior validity, this operation rejects a prefix that
+    /// passed a deciding safety violation. It proves no exhaustive result.
+    ///
+    /// ```no_run
+    /// # fn sample(source: &dive_api::trace::SpecModel,
+    /// # word: &dive_api::trace::TraceDoc)
+    /// # -> Result<(), dive_api::trace::ValidationRunError> {
+    /// let report = source.try_validate_sample(word)?;
+    /// # let _ = report; Ok(()) }
+    /// ```
+    ///
+    /// # Errors
+    /// Typed interruption, resource exhaustion or isolated validation failure.
+    pub fn try_validate_sample(&self, doc: &TraceDoc) -> Result<Report, ValidationRunError> {
+        on_big_stack(|| {
+            self.session
+                .read_sampled(doc, None)
+                .map(|(report, _)| report)
+        })
+        .map_err(|error| ValidationRunError::ThreadFailure(error.to_string()))?
+    }
+
     /// Validates a trace document and also returns the trace as read (see
     /// [`dive_trace::validate_doc`]).
     #[must_use]

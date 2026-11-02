@@ -141,6 +141,7 @@ impl Core {
             emitted: 0,
             intermediate: 0,
             sink: &mut collect,
+            choices: None,
         };
         g.step(a, &None, env)?;
         Ok(iss)
@@ -183,7 +184,7 @@ impl Core {
     }
 }
 
-impl Gen<'_, '_> {
+impl Gen<'_, '_, '_> {
     /// `getNextStates` of `A \cdot B` (`:1488-1531`).
     pub(super) fn cdot(
         &mut self,
@@ -193,6 +194,11 @@ impl Gen<'_, '_> {
         env: &Env,
         e: ExprId,
     ) -> Result<Flow> {
+        if self.choices.is_some() {
+            return Err(EvalError::unsupported(
+                "constructive generation of action composition",
+            ));
+        }
         let core = self.core;
         let mode = core.opts.action_composition;
         match mode {
@@ -223,6 +229,7 @@ impl Gen<'_, '_> {
                 emitted: 0,
                 intermediate: 0,
                 sink: &mut collect,
+                choices: None,
             };
             g.step(a, acts, env)?;
         }
@@ -244,6 +251,7 @@ impl Gen<'_, '_> {
                 emitted: 0,
                 intermediate: 0,
                 sink: &mut *self.sink,
+                choices: None,
             };
             let r = g.step(b, acts, env);
             let n = g.emitted;

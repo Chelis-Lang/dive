@@ -171,6 +171,49 @@ impl Session {
         result
     }
 
+    /// Independently checks a native finite sample on a freshly reconstructed
+    /// runtime. The document must retain its ordinary `behavior` ending; this
+    /// separate operation also checks every sampled constraint, invariant and
+    /// implied finite property. It proves neither exhaustive safety nor liveness.
+    /// Fairness-only specifications are allowed; configured temporal properties
+    /// remain unsupported. No producer metadata selects this operation.
+    ///
+    /// # Errors
+    /// The same typed resource, interruption and control failures as
+    /// [`Self::read_controlled`].
+    pub fn read_sampled(
+        &self,
+        doc: &TraceDoc,
+        control: Option<Arc<dyn dive_eval::HostControl>>,
+    ) -> Result<(Report, Option<TraceDoc>), crate::ValidationRunError> {
+        if let Some(control) = &control {
+            control
+                .check()
+                .map_err(|error| crate::ValidationRunError::Interrupted {
+                    error: dive_eval::EvalError::interrupted(error),
+                    progress: crate::ValidationProgress {
+                        checks_passed: 0,
+                        state: None,
+                        check: None,
+                    },
+                })?;
+        }
+        if doc.source != Source::Dive
+            || doc.ending != Some(crate::Ending::Behavior)
+            || !doc.properties.is_empty()
+        {
+            return Ok((Report {
+                validation: Validation::Invalid(crate::Failure { state: 0,
+                    check: crate::Check::Shape,
+                    detail: "sample validation requires a native finite behavior with no property or error endpoint claim".into() }),
+                notes: Vec::new(), length: doc.logical_length(),
+            }, None));
+        }
+        let result = self.read_finite_controlled(doc, control.as_ref(), true);
+        drop(control);
+        result
+    }
+
     /// Validates a document with resource exceptions outside the report.
     /// No budget or artificial control is installed by this uncontrolled path.
     /// Legacy documents retain the existing reader; temporal error endpoints
@@ -559,7 +602,7 @@ impl Session {
             );
         }
         if finite_word(doc) {
-            return self.read_finite_controlled(doc, control);
+            return self.read_finite_controlled(doc, control, false);
         }
         if !matches!(
             doc.ending,
@@ -636,12 +679,22 @@ impl Session {
         &self,
         doc: &TraceDoc,
         control: Option<&Arc<dyn dive_eval::HostControl>>,
+        sampled: bool,
     ) -> Result<(Report, Option<TraceDoc>), crate::ValidationRunError> {
         for initial in [true, false] {
             let (model, host) = match self.fresh_binding(control, FreshMode::Finite(initial), 0)? {
                 Ok(runtime) => runtime,
                 Err(feature) => return Ok((refusal(feature, doc.logical_length()), None)),
             };
+            if sampled
+                && (!model.implied_temporals.is_empty()
+                    || model.view.is_some()
+                    || model.symmetry.is_some()
+                    || model.alias.is_some()
+                    || !matches!(&model.postconditions, Ok(postconditions) if postconditions.is_empty()))
+            {
+                return Ok((refusal("finite sample validation does not discharge temporal PROPERTY, VIEW, symmetry, ALIAS or POSTCONDITION obligations".into(), doc.logical_length()), None));
+            }
             let trace = match Trace::decode(&model, doc) {
                 Ok(trace) => trace,
                 Err(error) => {
@@ -665,6 +718,7 @@ impl Session {
                 &trace,
                 initial,
                 control.cloned(),
+                sampled,
             )?;
             if !retry {
                 return Ok((report, trace.to_doc(&model).ok()));

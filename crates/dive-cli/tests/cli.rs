@@ -849,19 +849,96 @@ fn simulate_is_a_seeded_finite_sample_and_refuses_unbuilt_modes() {
         dive(&["simulate", text, "--traces", "0"]).status.code(),
         Some(2)
     );
-    for option in [
-        "--continue",
-        "--generate",
-        "--probabilistic",
-        "--rl",
-        "--distributed",
-    ] {
+    for option in ["--continue", "--probabilistic", "--rl", "--distributed"] {
         assert_eq!(
             dive(&["simulate", text, "--traces", "2", option])
                 .status
                 .code(),
             Some(3)
         );
+    }
+    assert_constructive_simulation_sample();
+}
+
+#[allow(
+    clippy::unwrap_used,
+    reason = "fixture and JSON failures must fail this constructive command-contract test"
+)]
+fn assert_constructive_simulation_sample() {
+    let spec = temp_file(
+        "ConstructiveSimCli.tla",
+        "---- MODULE ConstructiveSimCli ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == x>=0 /\\ (\\E n \\in 1..16 : x'=n)\nInv == x>=0\n====\n",
+    );
+    std::fs::write(
+        spec.with_extension("cfg"),
+        "INIT Init\nNEXT Next\nINVARIANT Inv\n",
+    )
+    .unwrap();
+    let text = spec.to_str().unwrap();
+    let args = [
+        "simulate",
+        text,
+        "--generate",
+        "--seed",
+        "7",
+        "--traces",
+        "2",
+        "--depth",
+        "3",
+        "--output",
+        "json",
+    ];
+    let out = dive(&args);
+    assert!(out.status.success(), "{out:?}");
+    let report: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert_eq!(report["command"], "simulate");
+    assert_eq!(report["result"], "sampled");
+    assert_eq!(report["exhaustive"], false);
+    assert_eq!(report["model_proved"], false);
+    assert_eq!(report["options"]["algorithm"], "constructive");
+    assert_eq!(report["options"]["probabilistic"], true);
+    assert_eq!(report["options"]["seed"], 7);
+    assert_eq!(report["options"]["seed_given"], true);
+    assert_eq!(report["options"]["workers_used"], 1);
+    assert_eq!(report["options"]["depth"], 3);
+    assert_eq!(report["options"]["traces"], 2);
+    assert_eq!(report["statistics"]["generated"], 7);
+    let repeated = dive(&args);
+    assert!(repeated.status.success(), "{repeated:?}");
+    let repeated: serde_json::Value = serde_json::from_slice(&repeated.stdout).unwrap();
+    assert_eq!(report["traces"], repeated["traces"]);
+    let traces = report["traces"].as_array().unwrap();
+    assert_eq!(traces.len(), 2);
+    for trace in traces {
+        let word = &trace["document"];
+        assert_eq!(word["format"], "dive-trace");
+        assert_eq!(word["ending"]["kind"], "behavior");
+        let states = word["states"].as_array().unwrap();
+        assert_eq!(states.len(), 4);
+        assert_eq!(states[0]["values"]["x"], 0);
+        for state in &states[1..] {
+            assert!(
+                state["values"]["x"]
+                    .as_u64()
+                    .is_some_and(|x| (1..=16).contains(&x))
+            );
+        }
+        let path = temp_file("ConstructiveSimCliSample.json", &word.to_string());
+        let checked = dive(&[
+            "validate-trace",
+            text,
+            "--sample",
+            "--trace",
+            path.to_str().unwrap(),
+            "--output",
+            "json",
+        ]);
+        assert!(checked.status.success(), "{checked:?}");
+        let checked: serde_json::Value = serde_json::from_slice(&checked.stdout).unwrap();
+        assert_eq!(checked["command"], "validate-trace");
+        assert_eq!(checked["validation_goal"], "sample");
+        assert_eq!(checked["result"], "valid");
+        assert_eq!(checked["length"], 4);
     }
 }
 

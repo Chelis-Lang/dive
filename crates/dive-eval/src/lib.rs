@@ -47,6 +47,7 @@ mod env;
 mod error;
 mod eval;
 mod finite;
+mod generation;
 mod host;
 mod json;
 mod lazy;
