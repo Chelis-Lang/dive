@@ -208,6 +208,9 @@ fn simulation_result(
         || value["model_proved"] != false
         || value["profile"] != profile
         || options["seed"] != 0
+        || options["aril"] != 0
+        || options["aril_requested"] != 0
+        || options["mode"] != "finite-safety"
         || options["traces"] != traces
         || options["depth"] != 100
         || options["workers_requested"] != req.workers
@@ -304,6 +307,14 @@ fn simulation_result(
         }
     {
         return malformed("inconsistent trace/work partition");
+    }
+    let Some(minimum) = minimum_generated(initial, words) else {
+        return malformed("sampled rows cannot form a bounded generated-work partition");
+    };
+    if generated < minimum {
+        return malformed(
+            "generated work is less than Init candidates plus all sampled transitions",
+        );
     }
     let (code, verdict, property, selected) = if kind == "sampled" {
         if outcome.exit_code != Some(0)
@@ -466,6 +477,17 @@ fn simulation_result(
     }))
 }
 
+/// Each retained trace reuses an already generated initial candidate. Every
+/// following row requires at least one further complete emitted candidate,
+/// including a violating terminal row. Filtering and rejected candidates can
+/// add work, so this is a lower bound rather than an equality with sample size.
+fn minimum_generated(initial: u64, words: &[Value]) -> Option<u64> {
+    words.iter().try_fold(initial, |total, word| {
+        let rows = u64::try_from(word["document"]["states"].as_array()?.len()).ok()?;
+        total.checked_add(rows.checked_sub(1)?)
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -495,6 +517,188 @@ mod tests {
         checked.exit_code = Some(0);
         checked.signal = Some(9);
         assert!(!sample_completed(&checked));
+    }
+
+    #[test]
+    fn generated_partition_reuses_init_and_checks_every_retained_step_without_overflow() {
+        let word = |rows| serde_json::json!({"document":{"states":vec![Value::Null; rows]}});
+        // Two traces reuse the same three Init candidates; their one and three
+        // transitions require four further emissions, not two more Init runs.
+        assert_eq!(minimum_generated(3, &[word(2), word(4)]), Some(7));
+        assert_eq!(minimum_generated(3, &[word(1)]), Some(3));
+        assert_eq!(minimum_generated(u64::MAX, &[word(2)]), None);
+        assert_eq!(
+            minimum_generated(u64::MAX - 1, &[word(1), word(2)]),
+            Some(u64::MAX)
+        );
+        assert_eq!(minimum_generated(u64::MAX - 1, &[word(2), word(2)]), None);
+        assert_eq!(minimum_generated(3, &[word(0)]), None);
+        assert_eq!(
+            minimum_generated(3, &[serde_json::json!({"document":{"states":false}})]),
+            None
+        );
+    }
+
+    #[test]
+    #[allow(
+        clippy::too_many_lines,
+        reason = "genuine sampled/initial/successor reports share a bounded two-profile/two-engine mutation matrix"
+    )]
+    fn real_reports_bind_work_and_finite_options_in_both_profiles_and_engines()
+    -> std::result::Result<(), Box<dyn std::error::Error>> {
+        let fixture = crate::util::TempDir::new("simulation-work-contract")?;
+        let root = fixture.path();
+        std::fs::write(
+            root.join("M.tla"),
+            "---- MODULE M ----\nEXTENDS Naturals\nVARIABLE x\nInit == x \\in 0..2\nNext == x>=0 /\\ x'=x+1\nInv == x>=0\nInitialBad == x=1\nNextBad == x<4\n====\n",
+        )?;
+        for case in ["Inv", "InitialBad", "NextBad"] {
+            std::fs::write(
+                root.join(format!("{case}.cfg")),
+                format!("INIT Init\nNEXT Next\nINVARIANT {case}\n"),
+            )?;
+        }
+        for (engine, selected) in [
+            (Engine::Core, DiveEngine::Core),
+            (Engine::Reference, DiveEngine::Reference),
+        ] {
+            for tlc in [false, true] {
+                let implementation = DiveImplementation {
+                    options: Vec::new(),
+                    engine: selected,
+                    profile: if tlc { Profile::Tlc } else { Profile::Dive },
+                    core_sample: None,
+                    bin: PathBuf::new(),
+                    module_path: Vec::new(),
+                    provenance: None,
+                    tmp_root: PathBuf::new(),
+                    cache_root: PathBuf::new(),
+                };
+                for traces in [1, 2] {
+                    for case in ["Inv", "InitialBad", "NextBad"] {
+                        let model = ModelEntry {
+                            id: format!("{case}.cfg"),
+                            module: "M.tla".into(),
+                            mode: ModelMode::Simulate { traces },
+                            features: vec!["constructive generation".into()],
+                            tier: Tier::Small,
+                            out_of_scope: None,
+                            counts_comparable: false,
+                            expected: ManifestExpectation {
+                                result: "success".into(),
+                                runtime_seconds: Some(1),
+                                distinct_states: None,
+                                total_states: None,
+                                state_depth: None,
+                                workers: None,
+                            },
+                            worker_introspecting: false,
+                        };
+                        let req = ModelRequest {
+                            corpus_root: root,
+                            model: &model,
+                            workers: 1,
+                            timeout: Duration::from_secs(10),
+                            xmx: "none",
+                            budgets: false,
+                        };
+                        let report = simulate_file_engine(
+                            &SimulateRequest {
+                                file: root.join("M.tla"),
+                                config: Some(root.join(&model.id)),
+                                compat_tlc: tlc,
+                                generation: true,
+                                seed: Some(0),
+                                traces,
+                                depth: Some(100),
+                                workers: Some(1),
+                                time_limit: BudgetSetting::Unlimited,
+                                max_memory: BudgetSetting::Unlimited,
+                                ..Default::default()
+                            },
+                            engine,
+                        )?;
+                        let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
+                        let admitted = |value: &Value| {
+                            let outcome = ProcessOutcome {
+                                exit_code: Some(i32::from(
+                                    report.exit_code_for(ExitConvention::Tlc),
+                                )),
+                                signal: None,
+                                timed_out: false,
+                                stdout: value.to_string(),
+                                stderr: String::new(),
+                                elapsed: Duration::ZERO,
+                            };
+                            matches!(simulation_result(&implementation, &req, &outcome, traces, true),
+                                CheckMapping::Result(ref result) if matches!(result.verdict, Verdict::Success | Verdict::SafetyViolation))
+                        };
+                        assert!(
+                            admitted(&value),
+                            "{engine:?}/{tlc}/{case}/{traces}: {value}"
+                        );
+                        let words = value["traces"].as_array().ok_or("trace words")?;
+                        let initial = value["statistics"]["initial_candidates"]
+                            .as_u64()
+                            .ok_or("Init count")?;
+                        assert_eq!(initial, 3);
+                        let minimum = minimum_generated(initial, words).ok_or("minimum work")?;
+                        if case == "InitialBad" {
+                            assert_eq!(value["statistics"]["traces_started"], 0);
+                            assert_eq!(minimum, initial);
+                            assert_eq!(words.len(), 1);
+                        } else {
+                            assert!(minimum > initial);
+                            let mut overflow = value.clone();
+                            overflow["statistics"]["initial_candidates"] =
+                                serde_json::json!(u64::MAX);
+                            overflow["statistics"]["generated"] = serde_json::json!(u64::MAX);
+                            assert!(!admitted(&overflow));
+                        }
+                        let mut too_little = value.clone();
+                        too_little["statistics"]["generated"] = serde_json::json!(minimum - 1);
+                        assert!(!admitted(&too_little));
+                        let mut overhead = value.clone();
+                        overhead["statistics"]["generated"] = serde_json::json!(minimum + 17);
+                        assert!(
+                            admitted(&overhead),
+                            "legitimate discarded-candidate overhead is allowed"
+                        );
+                        if words.len() > 1 {
+                            let mut only_first = value.clone();
+                            only_first["statistics"]["generated"] = serde_json::json!(
+                                minimum_generated(initial, &words[..1])
+                                    .ok_or("first trace work")?
+                            );
+                            assert!(
+                                !admitted(&only_first),
+                                "work must include every retained trace"
+                            );
+                        }
+                        for field in ["aril", "aril_requested", "mode"] {
+                            for replacement in [
+                                Value::Null,
+                                serde_json::json!(812),
+                                serde_json::json!("812"),
+                                serde_json::json!(false),
+                                serde_json::json!("exhaustive-proof"),
+                            ] {
+                                let mut forged = value.clone();
+                                forged["options"][field] = replacement;
+                                assert!(!admitted(&forged), "accepted {field}: {forged}");
+                            }
+                            let mut missing = value.clone();
+                            missing["options"]
+                                .as_object_mut()
+                                .ok_or("options object")?
+                                .remove(field);
+                            assert!(!admitted(&missing), "accepted absent {field}");
+                        }
+                    }
+                }
+            }
+        }
+        Ok(())
     }
 
     #[test]

@@ -150,7 +150,9 @@ Finite Simulate entries with feature `constructive generation` invoke pinned TLC
 `-generate num=N` and native `simulate --generate`; the feature refuses outside
 Simulate. Native sampling admission checks actual request/profile/algorithm,
 engine, physical TLC exit and complete finite work, then independently validates
-retained words. Behavior samples additionally require the explicit fresh
+retained words. It binds the requested/default aril fields and finite-safety mode,
+and requires generated work to cover every actual Init candidate plus all
+retained transitions, using checked arithmetic; rejected candidates may add work. Behavior samples additionally require the explicit fresh
 `validate-trace --sample` result and its `validation_goal: sample` marker.
 Producer validation booleans carry no authority. Complete samples remain
 non-exhaustive; arbitrary draw/count equality is excluded by ADR 0116. Ordinary
