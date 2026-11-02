@@ -19,7 +19,70 @@ Current source-bound findings and next steps: `m1-status.md`. Decision: ADR
 The realistic total is 6–8 months to replace the default engine. M0 shows,
 after two weeks, whether the design reaches TLC-relative speed.
 
-### Current checkpoint: usable native modes and bounded safety storage (2026-11-02)
+### Phase 6: restartable Core, generation and reuse
+
+All five runtime PRs (#738–#742) are merged at `ee79de82`, tree `14f02996`.
+**The one full gate passed (3,164 nextest tests and 195 doctests). The retained census
+and both Auto panels are closed with no new regressions; actual Core execution,
+Reference fallback, refusals, timeouts and expected differences remain separate.** The
+[Phase 6 checkpoint](../../../conformance/reports/core/2026-11-02-phase6-checkpoint.json)
+and [performance record](../../../conformance/reports/perf/2026-11-02-phase6-scalar-specialization.json)
+retain separate integrated-runtime and unadopted-candidate evidence.
+**The node and authored-source archives are uploaded and verified member by member. Both
+allocated nodes and their root disks are confirmed gone; the independent qualification
+data audit approves the bounded evidence.** Reference stays default; no M1/M2,
+total-memory,
+full-family or RC claim follows.
+
+1. **Restartable owned Core and disk:** fallible disk membership (#733/#738)
+   and completed-level safety checkpoint/recovery (#734/#741, merged `cd5b5e62`)
+   preserve original/canonical rows, owned Store DAG, registered construction
+   authority, keys, predecessors and ordered frontier. Fresh compilation checks
+   executable/source/config/policy and startup-prefix identity before restoration.
+   Both profiles, fp/exact, VIEW/safety symmetry, changed widths and existing
+   spill/disk routes are supported. Disk uses one actual worker. Auto pause is
+   static Reference; recovery chooses the encoded backend before execution.
+   Temporal recovery, distribution and total-memory guarantees remain open.
+2. **Constructive generation and sample proof:** #735/#742, merged `ee79de82`,
+   reuses compiled/reference generators for bounded seeded successor traversal,
+   finite `-generate num=N` transport and explicit sample validation. Independent
+   proof checks actual Init/Next, constraints, invariants and implied properties.
+   Sampling cannot prove exhaustive safety, liveness or TLC RNG identity.
+   General RandomElement relations and broader effects/workers remain open.
+3. **GenError/SBB correctness:** #737/#740, merged `e647c4ee`, certifies the
+   bounded primitive Next-error word before a second temporal row completes.
+   Broader #680/#502 and shared-255 Unclassified streams remain open. #731/#739
+   narrowly registers SBB's exact default D-010 count pair after exploration-only
+   and independent-word controls. Neither repair rewrites Phase 5 findings.
+4. **Stopped scalar-fold candidate:** `c4003fc6` stays unadopted/unmerged. The
+   initial GameOfLife N=4 screen had three matched pairs/six correct rows, median
+   candidate/base runtime 0.5002306 versus `b809a288`. The panel completed 138/216
+   rows and exited 10 at SimpleRegular TLC actual/requested W8: median
+   **1.1794395975**, with two of three pairs above **1.02**. The remaining 78
+   rows were correctly unrun. Independent review verifies receipts and the full
+   archive. Unresolved observer activity on reserved CPUs prevents whole-panel
+   quiet certification and leaves causality unproved. No cache code, flag,
+   default change or rescue ships. Broader S5/S6 remains open.
+   [ADR 0140](../../decisions/0140-certified-scalar-fold-reuse.md) records this
+   candidate decision, not a current runtime facility.
+
+Qualification consists of one integrated full gate, unchanged retained census and
+both Auto baselines, with separate new-feature checks. Join actual IDs/statuses,
+raw/canonical routes, independent words and physical receipts. Shadow agreement
+is not new pinned-TLC parity; Reference fallback earns no Core execution credit.
+Phase 5 PlusCal/full-tier panels and original capacity were not repeated.
+
+The next implementation work is broader random/effects/host/runtime/operators/
+temporal coverage; candidate/trace/temporal graph/SCC spill, recovery, complete
+accounting and retry-safe distribution; coverage/debugger, full PlusCal/public
+APIs/cargo-test support; and actual-Core breadth, deep/platform/package/user flows
+and ADR 0119/RC acceptance. LSP/native compilation/Verus deferrals do not defer
+these obligations. See [next actions](m1-status.md#next-bounded-actions). Use rapid
+focused checks and required CI during development, then broad qualification at
+integrated milestones/releases. The family inventory remains **8 implemented /
+27 partial / 3 missing**.
+
+### Historical Phase 5 checkpoint: usable native modes and bounded safety storage (2026-11-02)
 
 Phase 5 builds on Phase 4's accepted original twelve-cell capacity contract;
 #650 is closed. It delivers compiled safety simulation/DFID (#730), shared
@@ -117,7 +180,7 @@ implementation gains do not close entire families, M1/M2 or RC acceptance.
 
 The following plan and measurements preserve the earlier checkpoint's scope and
 then-open findings. Phase 4 later accepted #650 and repaired #713/#714; the
-current Phase 5 scope above supersedes this as the active work queue. Historical
+current Phase 6 scope above supersedes this as the active work queue. Historical
 source evidence and rejected experiments remain unchanged.
 
 The owner prioritized trusted capability and capacity, not an engine-cutover
@@ -476,6 +539,22 @@ The semantic contract lists seven more, in `02-semantic-contract.md` §6.
 
 Add a new entry at the top for every working session that ends with work in
 progress. Give the date, branch, state and the exact next step.
+
+- **2026-11-02 (Phase 6 delivery, `phase6/status-docs`).**
+  Disk, SBB, GenError, owned Core checkpoint/recovery and constructive generation
+  are merged through five protected PRs at runtime `ee79de82`, tree `14f02996`.
+  The scalar-fold candidate `c4003fc6` stays unadopted after its declared control
+  stop; whole-panel quiet certification is false and causality remains unproved.
+  **The one full gate passed (3,164 nextest tests and 195 doctests). The retained census
+and both Auto panels are closed with no new regressions; actual Core execution,
+Reference fallback, refusals, timeouts and expected differences remain separate.** **The
+node and authored-source archives are uploaded and verified member by member. Both
+allocated nodes and their root disks are confirmed gone; the independent qualification
+data audit approves the bounded evidence.**
+  Historical Phase 5 `5688504e` measurements stay unchanged. Continue the
+  mandatory breadth/storage/distribution/product/performance work in
+  [next actions](m1-status.md#next-bounded-actions); use focused development
+  checks and required CI, with broad campaigns at milestone/release boundaries.
 
 - **2026-11-02 (Phase 5 execution results, `docs/phase5-results`).**
   Actual main `5688504e`, tree `a8ab9e3b`, passes its single integrated full gate:

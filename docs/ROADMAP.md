@@ -10,7 +10,44 @@ The charter's soundness contract applies throughout.
 The [scoreboard](scoreboard.md) records the latest corpus results and the
 roadmap feature checklist. Parity means observable results (ADR 0086).
 
-## Current checkpoint: native modes, bounded safety storage and PlusCal (Phase 5)
+## Phase 6: restartable Core, generation and evaluation reuse
+
+All five runtime PRs (#738–#742) are merged at `ee79de82`, tree `14f02996`.
+**The one full gate passed (3,164 nextest tests and 195 doctests). The fixed census and
+both Auto panels are closed with no new regressions; refusals, timeouts and registered
+differences remain separate.** The
+[Phase 6 record](../conformance/reports/core/2026-11-02-phase6-checkpoint.json)
+binds integrated results to that source; the separate
+[performance record](../conformance/reports/perf/2026-11-02-phase6-scalar-specialization.json)
+retains the unadopted candidate. Reference remains default and the 38-family
+inventory remains **8 implemented / 27 partial / 3 missing**. This bounded phase
+closes neither M1/M2 nor global performance or RC acceptance.
+
+| Deliverable | Delivered scope and remaining acceptance |
+|---|---|
+| Restartable owned Core and disk | Fallible Core disk membership (#733/#738) runs with one actual worker. Completed-level Core checkpoint/recovery (#734/#741, merged `cd5b5e62`) preserves the owned Store DAG, registered construction authority, original/canonical discoveries, keys, predecessors and ordered frontier. Fresh-process recovery checks source/configuration/executable/startup identity. Both profiles, fp/exact, VIEW/safety symmetry, changed widths and existing spill/disk combinations are supported. Auto pause stays Reference; Auto recovery selects the encoded backend before work. Archive/component bounds are not total memory limits. |
+| Constructive generation and sample proof | #735/#742, merged `ee79de82`, adds bounded successor traversal through `simulate --generate`, finite TLC `-generate num=N` transport and explicit sample validation. Domain evaluation and error order remain authoritative. Retained samples independently check Init/Next, constraints, invariants and implied initial/action properties. This proves the sample, not safety/liveness or TLC RNG identity. General RandomElement relations and broader effects remain open. |
+| GenError and SBB | #737/#740, merged `e647c4ee`, independently certifies the bounded primitive Next-error word before a second temporal row completes. Broader #680/#502 lifetimes and Unclassified streams remain open. #731/#739 narrowly registers the source-proved D-010 SBB canonical-order count pair; strict TLC counts and independent words remain required. Historical Phase 5 census/PlusCal outcomes are unchanged. |
+| Stopped scalar-fold experiment | `c4003fc6` remains unadopted/unmerged. Initial GameOfLife N=4 had three matched pairs/six correct rows and median candidate/base runtime 0.5002306 versus `b809a288`. The original-model panel completed 138 of 216 rows, then exited 10 at SimpleRegular TLC actual/requested W8: median 1.1794395975 exceeded the 1.02 control bar in two of three pairs. The remaining 78 rows were correctly unrun. Independent review verifies the receipts and archive; unresolved reserved-CPU observer activity prevents whole-panel quiet certification and leaves causality unproved. No cache, flag, default change or rescue ships. Broader S5/S6 remains open. See [ADR 0140](decisions/0140-certified-scalar-fold-reuse.md). |
+
+Qualification consists of one full gate, the unchanged retained census and both
+Auto baselines, joined by actual IDs/statuses, independently validated words and
+physical receipts. New-feature checks remain separately identified. Retained
+shadow agreement is not new pinned-TLC parity; Reference fallback earns no Core
+execution credit. Phase 5 PlusCal/full-tier panels and original capacity were not
+repeated. **The node and authored-source archives are uploaded and verified member by
+member. Both allocated nodes and their root disks are confirmed gone; the independent
+qualification data audit approves the bounded evidence.**
+
+Continue through the substantial mandatory scope in
+[current core actions](developer/core/m1-status.md#next-bounded-actions) and
+[full TLC parity](#through-full-tlc-parity). Use focused tests and required CI for
+development, with broad qualification at integrated milestones and releases.
+See [storage/recovery](user/storage-recovery.md),
+[simulation/generation](user/simulation.md#constructive-successors) and
+[trace reports](user/reports-and-errors.md) for supported workflows.
+
+## Historical Phase 5 checkpoint: native modes, bounded safety storage and PlusCal
 
 Native simulation/DFID (#730) and shared finite-mode budgets (#725) are merged,
 as are exact safety membership/predecessor spill (#724) and ordered live-Store
@@ -152,9 +189,9 @@ corpus claim, not full parity.
 
 | Area | Work still required |
 |---|---|
-| Correctness and breadth | Resolve #731's unregistered default SBB counts; prove remaining GenError words and broader constructor/receiver/source lifetimes; complete standard/Community operators, startup/configuration, symmetry/temporal language and actual-core corpus coverage. Preserve explicit refusals and Unclassified streams until proved. |
-| Modes | Complete generation, captured effects, simulation/DFID matrices and justified parallel options. Broad #111/#118/#128/#239 remain open; landed budgets do not measure #350's ≤1% instruction-overhead criterion. |
-| Recoverable bounded search | Native core checkpoint/recovery preserving owned history/representation; disk membership; candidate/trace/temporal graph/SCC spill and complete memory accounting. Retry-safe native distribution follows identity-checked recovery. |
+| Correctness and breadth | Complete broader constructor/receiver/source lifetimes, standard/Community operators, startup/configuration, symmetry/temporal language and actual-Core corpus coverage. Keep the narrow registered SBB difference distinct from strict agreements; preserve refusals and Unclassified streams until proved. |
+| Modes | Extend constructive generation/sample proof to general RandomElement relations, captured effects, full simulation/DFID matrices and justified worker/scheduler options. Broad #111/#118/#128/#239 remain open; landed budgets do not measure #350's ≤1% instruction-overhead criterion. |
+| Recoverable bounded search | Extend owned Core safety checkpoint/disk support to candidate/trace/temporal graph/SCC spill, temporal recovery and complete accounting. Retry-safe native distribution depends on the identity-checked recovery contract. No total-memory bound follows from archive or component limits. |
 | Product and integration | Explicit host category grants, runtime/introspection/output, trace exploration, coverage/debugger, complete PlusCal and checking/simulation/translation/checkpoint/distributed Rust APIs with cargo-test integration. |
 | Performance and release | ADR 0119 default floors, compatibility outliers, full-tier actual-core/fallback acceptance, unchanged deep populations, supported platform/package/user flows and RC qualification. |
 
