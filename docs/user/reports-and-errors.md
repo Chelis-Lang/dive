@@ -25,6 +25,20 @@ effects, earlier invariants and unproved state history remain outside this
 bounded route (ADR 0133). Report schema 3 and existing native payload versions
 retain their meanings.
 
+A division-by-zero Next error can retain a configured pure state recurrence
+when independent replay proves the error occurs before temporal analysis. The
+supported two-source case reconstructs one initial state and one new successor,
+checks that each recurrence is total and true on the completed first row, then
+repeats the actual primitive error and diagnostic at the next source. It uses
+the existing version-1 `next-ordered-terminal` endpoint with reported/deciding
+2179 and exit 255; it proves a finite error, not a temporal property. VIEW,
+symmetry, extra safety roles, effects, other row shapes and unproved exception
+lifetimes retain named refusals. For example:
+
+```sh
+dive check conformance/corpus/next-error-temporal/specifications/GenError/GenError.tla --config conformance/corpus/next-error-temporal/specifications/GenError/Record.cfg --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+```
+
 A pure Next-side whole-function error before any successor can also establish
 2147 after actual fresh Init, ordinary Next and diagnostic Next execution. This
 bounded route requires one exhausted initial emission and the first source row;
