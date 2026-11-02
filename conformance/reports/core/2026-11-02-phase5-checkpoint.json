@@ -494,7 +494,25 @@
       ],
       "approved_content_normalized_sha256": "2f821c7914156afcaa51c984ad928b09f06f8468cb93e60dd93bc69f39c4d08e",
       "support_archive_contains_this_followup": false,
-      "no_new_execution_credit": true
+      "no_new_execution_credit": true,
+      "documentation_correction_review": {
+        "decision": "approve exact two stale handoff passages corrected against 9b536b25; other docs/results/source/policy and broad acceptance unchanged",
+        "artifacts": [
+          {
+            "uri": "s3://dive-evidence-archive-010928226848-us-east-1/phase5-20261101/final-doc-correction-review.md",
+            "sha256": "874830f6f6643d80fb9db22a81b201d46c3841bf9ea3fa47504c3baa47e45fa0",
+            "bytes": 1131,
+            "uploaded_downloaded_verified": true
+          },
+          {
+            "uri": "s3://dive-evidence-archive-010928226848-us-east-1/phase5-20261101/final-doc-correction-review.json",
+            "sha256": "7d536b74d2b03223054e77d096f5e06c72aa61f2b279a52ec850ba97d40dfef6",
+            "bytes": 2423,
+            "uploaded_downloaded_verified": true
+          }
+        ],
+        "reviewed_m1_status_sha256": "4daab78a2f635f5e65c8d9335bfe7dec3599fac55f4ac67166283df732234098"
+      }
     }
   },
   "acceptance": {

@@ -738,12 +738,13 @@ below keep their original source and limitations.
 
 ### Next bounded actions
 
-1. Finish final preservation/cleanup/audit of Phase 5 source `5688504e`.
-   All runtime campaigns are closed. Preserve the fixed census,
+1. Build on the completed, independently approved Phase 5 checkpoint at
+   source `5688504e`, with its findings retained. Preserve the fixed census,
    Auto/SANY selections and PlusCal inputs/configurations/labels/profiles,
-   all physical outcomes and independent words. Record final preservation/cleanup without projecting historical successes
-   forward. Do not repeat the passing full gate or performance campaign.
-   Development continues with focused checks.
+   all physical outcomes, independent words and verified preservation/cleanup
+   without projecting historical successes forward. Do not repeat the passing
+   full gate or performance campaign for documentation updates. Development
+   continues with focused checks.
 2. Resolve #731's unregistered default SBB count difference under the existing
    parity/divergence policy. Independently prove
    `core-liveness/GenError/{General,Nested,Record,Tuple}`
@@ -779,8 +780,10 @@ below keep their original source and limitations.
    27 partial / 3 missing family inventory until full-family evidence changes it.
 
 Phase 4's bounded #650/#718 contracts and Phase 5's measured #651 comparison
-are accepted on their own recorded sources. Phase 5 final preservation/cleanup/audit, clean census, M1/M2, global
-performance, full parity and RC/release qualification remain open. Historical failures, unclassified streams and source/ELF distinctions
+are accepted on their own recorded sources. Phase 5's bounded delivery,
+preservation, cleanup and independent audit are complete with findings retained.
+Clean census, M1/M2, global performance, full parity and RC/release qualification
+remain open. Historical failures, unclassified streams and source/ELF distinctions
 remain evidence. The [roadmap](../../ROADMAP.md#through-full-tlc-parity) retains
 the whole mandatory scope; this checkpoint is one substantial step within it.
 
