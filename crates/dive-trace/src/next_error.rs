@@ -1,4 +1,4 @@
-//! Fresh source-bound Next replay, stopped before any successor-side check.
+//! Fresh source-bound Next replay with independently proved demand order.
 
 use dive_eval::{ErrorClass, EvalError};
 use dive_model::Model;
@@ -20,6 +20,17 @@ pub(crate) fn replay(
         })
     };
     poll()?;
+    if crate::next_temporal::needed(model) {
+        return crate::next_temporal::replay(
+            model,
+            state,
+            state_index,
+            ec,
+            endpoint,
+            host,
+            control,
+        );
+    }
     if let Some(refusal) = preflight(model, false, control)? {
         return Ok(refusal);
     }

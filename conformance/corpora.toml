@@ -281,6 +281,14 @@ path = "conformance/corpus/constant-retry-lazy"
 license = "MIT"
 layout = "examples-manifest"
 
+
+# Finite generator errors before completed-row temporal analysis (#737).
+[[corpus]]
+id = "next-error-temporal"
+path = "conformance/corpus/next-error-temporal"
+license = "MIT"
+layout = "examples-manifest"
+
 # Source-qualified literal/map/union set histories and state handoff (#623).
 [[corpus]]
 id = "construction-set-history"

@@ -24,6 +24,21 @@ native lane refuses them without E7 provenance. Default D-009 controls are
 kept separate from TLC facts. These controls do not enlarge the historical
 156-model baseline or establish a full comparison/performance milestone.
 
+## Next errors before temporal row completion
+
+`next-error-temporal` pins four GenError models (record, tuple, general function
+and nested function state representations), plus one SANY input. Before native
+proof changes, the harness ran `tlc-2026.10.06.014338` at one worker and generated
+all five goldens with a recorded reason. Every model reports division by zero
+(2179), exit 255, two distinct/generated states, depth two and a two-state word.
+The configured `P == []<>(n = 0)` remains present: it is not removed to replay
+the finite error. Fresh replay must reconstruct the sole initial state and sole
+first successor, establish total recurrences true on the completed row, and
+execute the primitive primary and diagnostic error before the second row can
+complete. This establishes no liveness verdict. Negative API controls keep
+multiple emissions, false/erroring atoms, ToolRuntime and forged endpoints
+outside the proof. The corpus is separate from historical baseline populations.
+
 ## Constant predicate binding capacity
 
 `constant-predicate-binders` contains two finite Boolean models with a pure
