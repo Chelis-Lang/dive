@@ -71,8 +71,10 @@ be reused afterward. Retain the failure and cleanup flag before discarding it.
 Checksums detect accidental corruption and provide no archive authenticity or
 independent search proof.
 
-The first library permits coordinated exclusive calls. Parallel read views,
-recovery and graph routing remain pending. Ordinary inline safety admission
+The first library permits coordinated exclusive calls. Parallel read views, direct disk-file
+recovery and graph routing remain pending. Core safety checkpoints separately
+rebuild membership from saved concrete discoveries through the existing fallible
+insertions; they do not import old disk files. Ordinary inline safety admission
 and separately budgeted seen/frontier/predecessor combinations use the explicit
 [engine contract](disk-seen-safety.md). See
 [ADR 0063](../decisions/0083-storage-and-checkpoint.md).

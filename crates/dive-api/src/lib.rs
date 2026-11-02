@@ -49,6 +49,7 @@ pub use config::{ConfigReport, parse_config_file, parse_config_source};
 
 mod analyze;
 mod check;
+mod core_checkpoint;
 mod core_ending;
 mod core_engine;
 #[cfg(test)]
@@ -74,7 +75,8 @@ pub use simulate::{
 pub use check::{
     BudgetSetting, CHECK_SCHEMA_VERSION, CheckReport, CheckRequest, ExitConvention,
     PeriodicSchedule, Store, TEMPORAL_CHECK_SCHEMA_VERSION, TemporalMode, check_file,
-    check_file_checkpoint, check_file_core_opts, check_file_engine, check_file_tlc_inputs, exit,
+    check_file_checkpoint, check_file_checkpoint_engine, check_file_core_opts, check_file_engine,
+    check_file_tlc_inputs, exit,
 };
 /// Parses a seed as TLC's `-seed` does (`dive check --seed`).
 pub use dive_stdlib::random::parse_seed;
