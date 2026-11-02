@@ -49,6 +49,10 @@
   forgeries (#713). Preserve genuine completed-2111 and actual 2179/2103
   families with bounded private source replay and caller-selected native/TLC
   process status. Existing named words retain native version 2.
+- Independently validate primitive Next division errors before a second temporal
+  row completes, preserving configured total state recurrences, original source
+  representations and actual primary/diagnostic identity. Keep forged words,
+  effects and unproved temporal-error lifetimes refused; reuse trace version 1.
 - Independently prove assertion, division, ENABLED and TLC-overflow VIEW errors
   through the existing version-6 endpoint. Report schema 3 and native versions
   1–6 retain their meanings; ambiguous oracle streams remain Unclassified.

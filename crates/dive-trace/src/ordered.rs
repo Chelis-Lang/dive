@@ -148,6 +148,84 @@ impl Driver<'_> {
         Ok((Event::End, emitted))
     }
 
+    /// Reconstructs one admitted source, retaining its original value objects.
+    pub(crate) fn sole_source(&self) -> Result<Result<State, Event>, EvalError> {
+        let mut source = None;
+        let actions = if self.initial {
+            &self.model.init_actions
+        } else {
+            &self.model.actions
+        };
+        for action in actions {
+            self.poll()?;
+            let site = if self.initial { Site::Init } else { Site::Next };
+            self.at_site(site);
+            let mut decision = None;
+            let mut failure = None;
+            let mut sink = |candidate: &Successor<'_>| {
+                let result = (|| {
+                    if source.is_some() {
+                        return Ok(Some(Event::Refused(
+                            "temporal Next prefix requires one complete emission per row".into(),
+                        )));
+                    }
+                    if !candidate.complete() {
+                        return Ok(Some(Event::Partial {
+                            state: slots(candidate.state)?,
+                            expression: candidate.action.expr(),
+                        }));
+                    }
+                    let original = slots(candidate.state)?;
+                    let mut admitted = false;
+                    let event =
+                        self.candidate_observed(candidate, false, true, Some(&mut admitted))?;
+                    if event.is_none() {
+                        if !admitted {
+                            return Ok(Some(Event::Refused(
+                                "temporal Next prefix source is excluded".into(),
+                            )));
+                        }
+                        source = Some(original);
+                    }
+                    Ok(event)
+                })();
+                self.at_site(site);
+                match result {
+                    Ok(None) => Flow::Continue,
+                    Ok(Some(event)) => {
+                        decision = Some(event);
+                        Flow::Stop
+                    }
+                    Err(error) => {
+                        failure = Some(error);
+                        Flow::Stop
+                    }
+                }
+            };
+            let outcome = if self.initial {
+                self.model
+                    .evaluator
+                    .init_states(std::slice::from_ref(action), &mut sink)
+            } else {
+                self.model
+                    .evaluator
+                    .next_states(action, self.source, 0, &mut sink)
+            };
+            self.poll()?;
+            if let Some(error) = failure {
+                return Err(error);
+            }
+            if let Some(event) = decision {
+                return Ok(Err(event));
+            }
+            if let Err(error) = outcome {
+                return execution_error(site, error.error).map(Err);
+            }
+        }
+        Ok(source
+            .ok_or_else(|| Event::Refused("temporal Next prefix has no admitted source".into())))
+    }
+
     /// Reconstructs the first slice's sole complete initial emission.
     pub(crate) fn initial_source(&self) -> Result<Event, EvalError> {
         let mut emitted = false;
