@@ -42,7 +42,7 @@ fn usage() -> String {
                [--predecessor-memory-bytes N] [--predecessor-directory DIR]\n               [--seen-disk-entries N] [--seen-directory DIR] [--seen-key-bytes N]\n               [--seen-probe-steps N] [--seen-summary-pairs N]
                [--checkpoint FILE --checkpoint-after-levels N | --recover FILE]
                [--checkpoint-counters tlc|retain]
-               [--lncheck final --lasso short] [--engine reference|core|auto] [--core-sample N] [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--depth N] [--seed N] [--aril N] [--stats none|basic] [--engine reference|core|auto] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--engine reference|core|auto] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    Eligible ordinary temporal checks use deterministic completed-level checks in the dive
+               [--lncheck final --lasso short] [--engine reference|core|auto] [--core-sample N] [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--generate] [--exit-codes native|tlc] [--depth N] [--seed N] [--aril N] [--stats none|basic] [--engine reference|core|auto] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--engine reference|core|auto] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING] [--sample]\n               [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    Eligible ordinary temporal checks use deterministic completed-level checks in the dive
     profile and final checking in the TLC profile; explicit final/short keeps final checking.
     dive check uses TLC process statuses by default, independently of semantic profile.\n    --exit-codes native retains: 0 no error, 1 rejected input, 10 property violated, 11 deadlock,\n    12 assumption, 13 evaluation error. Both conventions keep 2 usage, 3 unsupported/resource\n    limit, 4 internal error and 5 stopped by a run budget (no verdict).\n    --time-limit defaults to 30m in the dive profile and none under --compat=tlc; --max-memory\n    defaults to half of physical memory (auto) in both. --compat=tlc (or DIVE_COMPAT=tlc) also selects TLC semantics.\n    --engine core (or DIVE_ENGINE=core) runs the experimental compiled core on supported requests;\n    other features are named refusals. --engine auto runs the core where it can and\n    otherwise the whole check on the reference engine, naming the engine that ran and why. The\n    reference engine is the default. --core-sample N (with the core) also compares the successors\n    of N sampled states with the reference evaluator's, in the JSON report (core.sample); it is\n    diagnostic and changes no result.\n",
         env!("CARGO_PKG_VERSION"),
@@ -798,6 +798,7 @@ fn validate_trace_command(
     let mut trace: Option<&str> = None;
     let mut claim: Option<&str> = None;
     let mut json = false;
+    let mut sample = false;
     let mut seed: Option<i64> = None;
     let mut fp: Option<usize> = None;
     let mut opts = dive_api::trace::TraceOptions {
@@ -811,6 +812,7 @@ fn validate_trace_command(
     };
     while let Some(a) = it.next() {
         match a.as_str() {
+            "--sample" => sample = true,
             "--output" => match it.next().map(String::as_str) {
                 Some("json") => json = true,
                 Some("human") => json = false,
@@ -955,12 +957,20 @@ fn validate_trace_command(
         }
         Err(e) => return usage_error(err, &e.to_string()),
     };
-    let report = match model.try_validate(&doc) {
+    let report = match if sample {
+        model.try_validate_sample(&doc)
+    } else {
+        model.try_validate(&doc)
+    } {
         Ok(report) => report,
         Err(error) => return validation_exception(out, err, &error, json),
     };
     if json {
-        let _ = writeln!(out, "{}", dive_api::trace::report_json(&report));
+        let mut document = dive_api::trace::report_json(&report);
+        if sample {
+            document["validation_goal"] = serde_json::json!("sample");
+        }
+        let _ = writeln!(out, "{document}");
     } else {
         let _ = write!(out, "{}", dive_api::trace::render_report(&report));
     }
@@ -1036,6 +1046,7 @@ fn simulate_command(
         },
     };
     let mut json = false;
+    let mut exit_convention = None;
     let mut file = None;
     let mut it = args.iter();
     while let Some(arg) = it.next() {
@@ -1155,6 +1166,13 @@ fn simulate_command(
                     }
                 }
             }
+            "--exit-codes" => {
+                exit_convention = Some(match it.next().map(String::as_str) {
+                    Some("native") => dive_api::ExitConvention::Native,
+                    Some("tlc") => dive_api::ExitConvention::Tlc,
+                    _ => return simulation_usage_error(err, "--exit-codes expects native or tlc"),
+                });
+            }
             "--stats" => match it.next().map(String::as_str) {
                 Some("basic") => request.action_stats = true,
                 Some("none") => request.action_stats = false,
@@ -1180,8 +1198,8 @@ fn simulate_command(
                     request.module_paths.push(path.into());
                 }
             }
+            "--generate" => request.generation = true,
             "--continue"
-            | "--generate"
             | "--probabilistic"
             | "--rl"
             | "--distributed"
@@ -1226,11 +1244,18 @@ fn simulate_command(
         }
     };
     if json {
-        let _ = writeln!(out, "{}", report.to_json());
+        let document = exit_convention.map_or_else(
+            || report.to_json(),
+            |convention| report.to_json_with_exit_convention(convention),
+        );
+        let _ = writeln!(out, "{document}");
     } else {
         let _ = write!(out, "{}", report.render_human());
     }
-    ExitCode::from(report.exit_code())
+    ExitCode::from(exit_convention.map_or_else(
+        || report.exit_code(),
+        |convention| report.exit_code_for(convention),
+    ))
 }
 
 /// Runs the native bounded iterative mode; unknown mode flags refuse by name.

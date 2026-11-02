@@ -23,6 +23,10 @@
   failures report a resource stop without certification. Disk-seen and
   temporal exact/spill combinations retain their current refusal boundaries.
 
+- Add constructive `simulate --generate` successor traversal in both engines,
+  finite TLC `-generate num=N` transport, explicit simulation exit conventions
+  and independently checked finite sample words. Ordinary simulation stays the
+  default; generation reports its algorithm and remains non-exhaustive.
 - Add time and sampled process-memory budgets to finite simulation and DFID,
   with the checking defaults, cooperative Init/execution and fresh independent
   replay control, retained prefix progress and structured stopped reports

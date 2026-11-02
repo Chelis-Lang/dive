@@ -292,6 +292,11 @@ enum AssumptionControl {
     Cooperative,
 }
 
+enum FiniteScope {
+    Behavior,
+    Sample,
+}
+
 pub(crate) struct Run<'a> {
     model: &'a Model,
     host: Arc<TraceHost>,
@@ -306,6 +311,8 @@ pub(crate) struct Run<'a> {
     control: Option<Arc<dyn dive_eval::HostControl>>,
     /// Finite-mode replay keeps its existing control during ASSUME checks.
     assumption_control: AssumptionControl,
+    /// Trusted operation selection, never read from a serialized document.
+    finite_scope: FiniteScope,
 }
 
 impl<'a> Run<'a> {
@@ -339,6 +346,7 @@ impl<'a> Run<'a> {
             endpoint_exception: None,
             control: None,
             assumption_control: AssumptionControl::Unit,
+            finite_scope: FiniteScope::Behavior,
         }
     }
 
@@ -356,6 +364,7 @@ impl<'a> Run<'a> {
             endpoint_exception: None,
             control: None,
             assumption_control: AssumptionControl::Unit,
+            finite_scope: FiniteScope::Behavior,
         }
     }
 
@@ -516,7 +525,8 @@ impl<'a> Run<'a> {
                 | Goal::ImpliedInit(_)
                 | Goal::ImpliedAction(_)
         );
-        let behavior = matches!(goal, Goal::Behavior);
+        let behavior =
+            matches!(goal, Goal::Behavior) && matches!(self.finite_scope, FiniteScope::Behavior);
         for k in 0..=last {
             if k.is_multiple_of(1024) {
                 self.poll(Some(k), None)?;
@@ -1718,6 +1728,7 @@ pub(crate) fn validate_finite_private_controlled(
     trace: &Trace,
     initial: bool,
     control: Option<Arc<dyn dive_eval::HostControl>>,
+    sampled: bool,
 ) -> Result<(Report, bool), ValidationRunError> {
     let _scope = control
         .as_ref()
@@ -1727,6 +1738,11 @@ pub(crate) fn validate_finite_private_controlled(
     let mut run = Run::private(model, host.clone(), initial);
     run.control = control;
     run.assumption_control = AssumptionControl::Cooperative;
+    run.finite_scope = if sampled {
+        FiniteScope::Sample
+    } else {
+        FiniteScope::Behavior
+    };
     let report = controlled_report(&mut run, trace)?;
     let retry = initial && run.init_incomplete && !host.register_used.load(Ordering::Relaxed);
     Ok((report, retry))

@@ -528,6 +528,12 @@ impl OracleEnv {
     /// recording failure. Every TLC outcome, including timeouts, is returned
     /// when the harness and any requested recording complete successfully.
     pub fn run_tlc(&self, job: &TlcJob<'_>) -> Result<Invocation> {
+        let constructive = job.features.iter().any(|f| f == "constructive generation");
+        if constructive && !matches!(job.mode, CheckMode::Simulate { .. }) {
+            return Err(Error::Config(
+                "constructive generation requires a finite simulation model".to_owned(),
+            ));
+        }
         let raw_root = self
             .raw_invocations
             .as_deref()
@@ -546,7 +552,12 @@ impl OracleEnv {
         // `(index + 1) < args.length`), and otherwise rejects the command
         // line (WRONG_COMMANDLINE_PARAMS_TLC, exit 1).
         if let CheckMode::Simulate { traces } = job.mode {
-            cmd.args(["-simulate", &format!("num={traces}")]);
+            let flag = if constructive {
+                "-generate"
+            } else {
+                "-simulate"
+            };
+            cmd.args([flag, &format!("num={traces}")]);
         }
         cmd.args(["-workers", &job.workers.to_string()])
             .args(["-lncheck", job.lncheck, "-cleanup", "-tool"])

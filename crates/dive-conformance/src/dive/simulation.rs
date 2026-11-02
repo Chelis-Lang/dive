@@ -1,0 +1,617 @@
+//! Finite simulation admission. A complete sample is never an exhaustive proof.
+
+use dive_api::trace::{Ending, SpecModel, TraceDoc, TraceOptions, Validation};
+
+use super::{
+    CheckMapping, Counts, DiveImplementation, ImplResult, ModelRequest, OracleResult,
+    ProcessOutcome, Profile, Result, Trace, TraceEnding, Verdict, ec_name, engine_run,
+    exit_status_name, unclassified,
+};
+use serde_json::Value;
+
+impl DiveImplementation {
+    pub(super) fn check_simulation(
+        &self,
+        req: &ModelRequest<'_>,
+        traces: u64,
+    ) -> Result<ImplResult<OracleResult>> {
+        if self.core_sample.is_some()
+            || self.symmetry_policy().is_some()
+            || req
+                .model
+                .features
+                .iter()
+                .any(|feature| feature == "action composition")
+        {
+            return Ok(ImplResult::Unsupported(
+                "finite simulation does not accept the requested BFS-specific options".to_owned(),
+            ));
+        }
+        let config = req.corpus_root.join(&req.model.id);
+        let count = traces.to_string();
+        let workers = req.workers.to_string();
+        let time = if req.budgets {
+            format!("{}ms", req.timeout.as_millis().max(1))
+        } else {
+            "none".to_owned()
+        };
+        let memory = if req.budgets { req.xmx } else { "none" };
+        let constructive = req
+            .model
+            .features
+            .iter()
+            .any(|feature| feature == "constructive generation");
+        let mut extra: Vec<&std::ffi::OsStr> = vec![
+            "--config".as_ref(),
+            config.as_os_str(),
+            "--traces".as_ref(),
+            count.as_ref(),
+            "--depth".as_ref(),
+            "100".as_ref(),
+            "--workers".as_ref(),
+            workers.as_ref(),
+            "--seed".as_ref(),
+            "0".as_ref(),
+            "--time-limit".as_ref(),
+            time.as_ref(),
+            "--max-memory".as_ref(),
+            memory.as_ref(),
+            "--exit-codes".as_ref(),
+            "tlc".as_ref(),
+            "--engine".as_ref(),
+            self.engine.name().as_ref(),
+        ];
+        if constructive {
+            extra.push("--generate".as_ref());
+        }
+        for path in &self.module_path {
+            extra.extend(["--module-path".as_ref(), path.path.as_os_str()]);
+        }
+        let (command, outcome) = self.run(
+            "simulate",
+            &extra,
+            req.corpus_root,
+            &req.model.module,
+            if req.budgets {
+                req.timeout.saturating_add(crate::pipeline::KILL_GRACE)
+            } else {
+                req.timeout
+            },
+        )?;
+        let mut mapped = simulation_result(self, req, &outcome, traces, constructive);
+        if matches!(&mapped, CheckMapping::Result(result) if matches!(result.verdict, Verdict::Success | Verdict::SafetyViolation | Verdict::ActionPropertyViolation | Verdict::Deadlock))
+            && let Some(reason) = self.external_samples(req, &outcome)?
+        {
+            mapped = unclassified(outcome.exit_code, reason);
+        }
+        Ok(match mapped {
+            CheckMapping::Refused(reason) => ImplResult::Unsupported(reason),
+            CheckMapping::Result(result) => ImplResult::Completed {
+                result: *result,
+                command,
+                elapsed: outcome.elapsed,
+            },
+        })
+    }
+
+    fn external_samples(
+        &self,
+        req: &ModelRequest<'_>,
+        outcome: &ProcessOutcome,
+    ) -> Result<Option<String>> {
+        let value: Value = serde_json::from_str(&outcome.stdout)
+            .map_err(|error| crate::error::Error::Config(error.to_string()))?;
+        let scratch = crate::util::TempDir::new_in(&self.tmp_root, "sample-validation")?;
+        for word in value["traces"].as_array().into_iter().flatten() {
+            let document = &word["document"];
+            if document["ending"]["kind"] != "behavior" {
+                continue;
+            }
+            let path = scratch.path().join("sample.json");
+            std::fs::write(&path, document.to_string())
+                .map_err(|error| crate::error::Error::io(&path, &error))?;
+            let config = req.corpus_root.join(&req.model.id);
+            let mut extra: Vec<&std::ffi::OsStr> = vec![
+                "--sample".as_ref(),
+                "--trace".as_ref(),
+                path.as_os_str(),
+                "--config".as_ref(),
+                config.as_os_str(),
+                "--seed".as_ref(),
+                "0".as_ref(),
+            ];
+            for path in &self.module_path {
+                extra.extend(["--module-path".as_ref(), path.path.as_os_str()]);
+            }
+            let (_, checked) = self.run(
+                "validate-trace",
+                &extra,
+                req.corpus_root,
+                &req.model.module,
+                req.timeout,
+            )?;
+            if !sample_completed(&checked) {
+                return Ok(Some(
+                    "fresh validate-trace --sample did not establish finite sample validity"
+                        .to_owned(),
+                ));
+            }
+        }
+        Ok(None)
+    }
+}
+
+fn sample_completed(checked: &ProcessOutcome) -> bool {
+    let report: Value = serde_json::from_str(&checked.stdout).unwrap_or(Value::Null);
+    checked.exit_code == Some(0)
+        && checked.signal.is_none()
+        && !checked.timed_out
+        && checked.stderr.trim().is_empty()
+        && report["schema_version"] == 3
+        && report["command"] == "validate-trace"
+        && report["validation_goal"] == "sample"
+        && report["result"] == "valid"
+}
+
+#[allow(
+    clippy::too_many_lines,
+    reason = "one strict finite-mode envelope and independent-word admission path"
+)]
+fn simulation_result(
+    implementation: &DiveImplementation,
+    req: &ModelRequest<'_>,
+    outcome: &ProcessOutcome,
+    traces: u64,
+    constructive: bool,
+) -> CheckMapping {
+    if outcome.timed_out {
+        let mut result = unclassified(
+            outcome.exit_code,
+            "finite simulation child timed out".to_owned(),
+        );
+        if let CheckMapping::Result(result) = &mut result {
+            result.verdict = Verdict::Timeout;
+        }
+        return result;
+    }
+    let value: Value = match serde_json::from_str(&outcome.stdout) {
+        Ok(value) => value,
+        Err(error) if outcome.exit_code == Some(3) => {
+            return CheckMapping::Refused(format!(
+                "simulation CLI refusal: {}; {error}",
+                outcome.stderr.trim()
+            ));
+        }
+        Err(error) => {
+            return unclassified(
+                outcome.exit_code,
+                format!("unreadable simulation report: {error}"),
+            );
+        }
+    };
+    let malformed =
+        |message: &str| unclassified(outcome.exit_code, format!("simulation report: {message}"));
+    if outcome.signal.is_some() || !outcome.stderr.trim().is_empty() {
+        return malformed("unexpected signal or stderr contradicts a complete report");
+    }
+    let profile = if implementation.profile == Profile::Dive {
+        "dive"
+    } else if req.budgets {
+        "tlc+overrides"
+    } else {
+        "tlc"
+    };
+    let options = &value["options"];
+    if value["schema_version"] != 3
+        || value["command"] != "simulate"
+        || value["exhaustive"] != false
+        || value["model_proved"] != false
+        || value["profile"] != profile
+        || options["seed"] != 0
+        || options["traces"] != traces
+        || options["depth"] != 100
+        || options["workers_requested"] != req.workers
+        || options["exit_codes"] != "tlc"
+        || options["algorithm"]
+            != if constructive {
+                "constructive"
+            } else {
+                "enumerating"
+            }
+        || options["probabilistic"] != constructive
+        || value["exit_code"].as_i64() != outcome.exit_code.map(i64::from)
+        || value["engine_requested"] != implementation.engine.name()
+    {
+        return malformed("schema, request, profile, algorithm or physical exit mismatch");
+    }
+    let Some(engine) = value["engine"]
+        .as_str()
+        .filter(|engine| matches!(*engine, "core" | "reference"))
+    else {
+        return malformed("actual engine is absent");
+    };
+    if implementation.engine.name() != "auto" {
+        if engine != implementation.engine.name() || !value["engine_fallback"].is_null() {
+            return malformed("engine does not match explicit request");
+        }
+    } else if engine == "reference" {
+        if value["engine_fallback"]["stage"] != "static"
+            || value["engine_fallback"]["reason"]
+                .as_str()
+                .is_none_or(str::is_empty)
+        {
+            return malformed("Auto fallback is not a named static selection");
+        }
+    } else if !value["engine_fallback"].is_null() {
+        return malformed("unexpected fallback on Core");
+    }
+    let kind = value["result"].as_str().unwrap_or_default();
+    if matches!(kind, "unsupported" | "resource-limit") && outcome.exit_code == Some(3) {
+        return CheckMapping::Refused(format!("{kind}: {}", value["message"]));
+    }
+    if kind == "stopped" && outcome.exit_code == Some(5) {
+        let mut result = unclassified(
+            outcome.exit_code,
+            format!("finite simulation budget stop: {}", value["message"]),
+        );
+        if let CheckMapping::Result(result) = &mut result {
+            result.verdict = Verdict::ResourceLimit;
+        }
+        return result;
+    }
+    // The ordinary simulation producer does not yet serialize independently
+    // owned runtime-error endpoints. A behavior prefix cannot certify a cause.
+    if kind == "evaluation-error" {
+        return CheckMapping::Refused(
+            "simulation evaluation error lacks an independently proved deciding endpoint"
+                .to_owned(),
+        );
+    }
+    let initial_violation = kind == "violation" && options["execution_stage"] == "initialization";
+    if !matches!(kind, "sampled" | "violation")
+        || options["workers_used"] != 1
+        || (!initial_violation && options["execution_stage"] != "sampling")
+        || options["execution_scope"]
+            != if engine == "core" {
+                "compiled-plan-simulation"
+            } else {
+                "simulation-backend"
+            }
+        || value["observed_result"] != kind
+        || options["action_stats"] != false
+        || !value["action_flow"].is_null()
+    {
+        return malformed("no complete native sampling stage");
+    }
+    let statistics = &value["statistics"];
+    let (Some(generated), Some(initial), Some(started)) = (
+        statistics["generated"].as_u64(),
+        statistics["initial_candidates"].as_u64(),
+        statistics["traces_started"].as_u64(),
+    ) else {
+        return malformed("actual sampling statistics are absent");
+    };
+    let Some(words) = value["traces"].as_array() else {
+        return malformed("trace array is absent");
+    };
+    if generated < initial
+        || initial == 0
+        || started > traces
+        || if initial_violation {
+            started != 0 || words.len() != 1
+        } else {
+            started == 0 || words.len() as u64 != started
+        }
+    {
+        return malformed("inconsistent trace/work partition");
+    }
+    let (code, verdict, property, selected) = if kind == "sampled" {
+        if outcome.exit_code != Some(0)
+            || !value["tlc_code"].is_null()
+            || !value["observed_tlc_code"].is_null()
+            || started != traces
+            || statistics["scope"] != "complete-request"
+            || !value["pending_violation"].is_null()
+            || !value["observed_violation"].is_null()
+        {
+            return malformed("sample completion is missing or contradictory");
+        }
+        (2210, Verdict::Success, None, None)
+    } else {
+        let claim = &value["observed_violation"];
+        let Some(index) = claim["trace"]
+            .as_u64()
+            .and_then(|index| usize::try_from(index).ok())
+        else {
+            return malformed("violation trace index is absent");
+        };
+        let Some(code) = value["tlc_code"]
+            .as_i64()
+            .and_then(|code| i32::try_from(code).ok())
+        else {
+            return malformed("violation code is absent");
+        };
+        let (verdict, status, name) = match (claim["kind"].as_str(), code) {
+            (Some("invariant"), 2107 | 2110) => (
+                Verdict::SafetyViolation,
+                12,
+                claim["name"].as_str().map(str::to_owned),
+            ),
+            (Some("property"), 2108 | 2112) => (
+                Verdict::ActionPropertyViolation,
+                13,
+                claim["name"].as_str().map(str::to_owned),
+            ),
+            (Some("deadlock"), 2114) if claim["name"].is_null() => (Verdict::Deadlock, 11, None),
+            _ => return malformed("violation kind/code relationship is invalid"),
+        };
+        if index >= words.len()
+            || outcome.exit_code != Some(status)
+            || value["observed_tlc_code"] != code
+            || (initial_violation != matches!(code, 2107 | 2108))
+            || (verdict != Verdict::Deadlock && name.as_ref().is_none_or(String::is_empty))
+            || !value["pending_violation"].is_null()
+        {
+            return malformed("violation identity/physical exit is inconsistent");
+        }
+        (code, verdict, name, Some(index))
+    };
+    let paths = implementation
+        .module_path
+        .iter()
+        .map(|path| path.path.clone())
+        .collect();
+    let source = match SpecModel::load(
+        &req.corpus_root.join(&req.model.module),
+        &req.corpus_root.join(&req.model.id),
+        &TraceOptions {
+            compat_tlc: implementation.profile != Profile::Dive,
+            run: Some((0, 0)),
+            module_paths: paths,
+            ..Default::default()
+        },
+    ) {
+        Ok(source) => source,
+        Err(error) => {
+            return CheckMapping::Refused(format!("independent simulation binding: {error}"));
+        }
+    };
+    let mut trace = None;
+    for (index, word) in words.iter().enumerate() {
+        if word["id"].as_u64() != Some(index as u64) {
+            return malformed("trace identities are not the requested prefix");
+        }
+        let document = match TraceDoc::from_json(&word["document"]) {
+            Ok(document) => document,
+            Err(error) => return malformed(&format!("unreadable state word: {error}")),
+        };
+        let expected = if Some(index) == selected {
+            match verdict {
+                Verdict::SafetyViolation => {
+                    Some(Ending::Invariant(property.clone().unwrap_or_default()))
+                }
+                Verdict::ActionPropertyViolation => {
+                    Some(Ending::Property(property.clone().unwrap_or_default()))
+                }
+                Verdict::Deadlock => Some(Ending::Deadlock),
+                _ => None,
+            }
+        } else {
+            Some(Ending::Behavior)
+        };
+        if document.ending != expected
+            || document.states.is_empty()
+            || (kind == "sampled" && document.states.len() != 101)
+            || (initial_violation && document.states.len() != 1)
+        {
+            return malformed("word ending or completed depth disagrees with the report");
+        }
+        let checked = if expected == Some(Ending::Behavior) {
+            match source.try_validate_sample(&document) {
+                Ok(report) => report,
+                Err(error) => {
+                    return CheckMapping::Refused(format!(
+                        "independent sample validation interrupted: {error}"
+                    ));
+                }
+            }
+        } else {
+            source.validate(&document)
+        };
+        match checked.validation {
+            Validation::Valid => {}
+            Validation::Invalid(reason) => {
+                return malformed(&format!("independently rejected state word: {reason:?}"));
+            }
+            Validation::Unsupported(reason) => {
+                return CheckMapping::Refused(format!("independent simulation word: {reason}"));
+            }
+        }
+        if Some(index) == selected {
+            trace = Some(Trace {
+                length: document.states.len() as u64,
+                ending: TraceEnding::Finite,
+                json: Some(word["document"].clone()),
+                steps: None,
+                omitted: None,
+                json_unavailable: None,
+            });
+        }
+    }
+    CheckMapping::Result(Box::new(OracleResult {
+        native_unreduced_symmetry: false,
+        engine: engine_run(&value),
+        verdict,
+        verdict_code: Some(code),
+        error_class: ec_name(code).map(str::to_owned),
+        exit_code: outcome.exit_code,
+        exit_status: outcome
+            .exit_code
+            .and_then(exit_status_name)
+            .map(str::to_owned),
+        violated_property: property,
+        counts: Counts {
+            states_generated: Some(generated),
+            ..Counts::default()
+        },
+        fingerprint_collision: None,
+        trace,
+        error_codes: if code == 2210 { Vec::new() } else { vec![code] },
+        warning_codes: Vec::new(),
+        unresolved_modules: Vec::new(),
+        note: Some(
+            "finite independently replayed sample; exhaustive=false/model_proved=false (ADR 0116)"
+                .to_owned(),
+        ),
+    }))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::corpus::{ManifestExpectation, ModelEntry, ModelMode, Tier};
+    use crate::dive::DiveEngine;
+    use dive_api::{BudgetSetting, Engine, ExitConvention, SimulateRequest, simulate_file_engine};
+    use std::path::PathBuf;
+    use std::time::Duration;
+
+    #[test]
+    fn external_validation_must_complete_the_requested_sample_operation() {
+        let mut checked = ProcessOutcome { exit_code: Some(0), signal: None, timed_out: false,
+            stdout: serde_json::json!({"schema_version":3,"command":"validate-trace","result":"valid","validation_goal":"sample"}).to_string(),
+            stderr: String::new(), elapsed: Duration::ZERO };
+        assert!(sample_completed(&checked));
+        for report in [
+            serde_json::json!({"schema_version":3,"command":"validate-trace","result":"valid"}),
+            serde_json::json!({"schema_version":3,"command":"validate-trace","result":"unsupported","validation_goal":"sample"}),
+            serde_json::json!({"schema_version":3,"command":"validate-trace","validation_completed":false,"validation_goal":"sample"}),
+        ] {
+            let mut bad = checked.clone();
+            bad.stdout = report.to_string();
+            assert!(!sample_completed(&bad));
+        }
+        checked.exit_code = Some(3);
+        assert!(!sample_completed(&checked));
+        checked.exit_code = Some(0);
+        checked.signal = Some(9);
+        assert!(!sample_completed(&checked));
+    }
+
+    #[test]
+    #[allow(
+        clippy::too_many_lines,
+        reason = "real two-engine/profile reports and fail-closed mutations share one scoped setup"
+    )]
+    fn complete_real_samples_and_violations_require_exact_envelope_and_fresh_words()
+    -> std::result::Result<(), Box<dyn std::error::Error>> {
+        let root =
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../dive-api/tests/fixtures/generation");
+        for (engine, selected) in [
+            (Engine::Core, DiveEngine::Core),
+            (Engine::Reference, DiveEngine::Reference),
+        ] {
+            for tlc in [false, true] {
+                let implementation = DiveImplementation {
+                    options: Vec::new(),
+                    engine: selected,
+                    profile: if tlc { Profile::Tlc } else { Profile::Dive },
+                    core_sample: None,
+                    bin: PathBuf::new(),
+                    module_path: Vec::new(),
+                    provenance: None,
+                    tmp_root: PathBuf::new(),
+                    cache_root: PathBuf::new(),
+                };
+                for case in ["Wide", "Violation"] {
+                    let model = ModelEntry {
+                        id: format!("{case}.cfg"),
+                        module: "Generation.tla".to_owned(),
+                        mode: ModelMode::Simulate { traces: 1 },
+                        features: vec!["constructive generation".to_owned()],
+                        tier: Tier::Small,
+                        out_of_scope: None,
+                        counts_comparable: false,
+                        expected: ManifestExpectation {
+                            result: "success".to_owned(),
+                            runtime_seconds: Some(1),
+                            distinct_states: None,
+                            total_states: None,
+                            state_depth: None,
+                            workers: None,
+                        },
+                        worker_introspecting: false,
+                    };
+                    let req = ModelRequest {
+                        corpus_root: &root,
+                        model: &model,
+                        workers: 1,
+                        timeout: Duration::from_secs(10),
+                        xmx: "none",
+                        budgets: false,
+                    };
+                    let report = simulate_file_engine(
+                        &SimulateRequest {
+                            file: root.join("Generation.tla"),
+                            config: Some(root.join(&model.id)),
+                            compat_tlc: tlc,
+                            generation: true,
+                            seed: Some(0),
+                            traces: 1,
+                            depth: Some(100),
+                            workers: Some(1),
+                            time_limit: BudgetSetting::Unlimited,
+                            max_memory: BudgetSetting::Unlimited,
+                            ..Default::default()
+                        },
+                        engine,
+                    )?;
+                    let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
+                    let outcome = |value: &Value| ProcessOutcome {
+                        exit_code: Some(i32::from(report.exit_code_for(ExitConvention::Tlc))),
+                        signal: None,
+                        timed_out: false,
+                        stdout: value.to_string(),
+                        stderr: String::new(),
+                        elapsed: Duration::ZERO,
+                    };
+                    let mapped =
+                        simulation_result(&implementation, &req, &outcome(&value), 1, true);
+                    assert!(
+                        matches!(mapped, CheckMapping::Result(ref r) if matches!(r.verdict, Verdict::Success | Verdict::SafetyViolation)),
+                        "{mapped:?}"
+                    );
+                    let mut unauthoritative = value.clone();
+                    unauthoritative["traces"][0]["validation"] =
+                        serde_json::json!({"result":"forged"});
+                    unauthoritative["violation_validated"] = serde_json::json!(false);
+                    assert!(
+                        matches!(simulation_result(&implementation, &req, &outcome(&unauthoritative), 1, true),
+                        CheckMapping::Result(ref result) if matches!(result.verdict, Verdict::Success | Verdict::SafetyViolation))
+                    );
+                    for (pointer, replacement) in [
+                        ("/schema_version", serde_json::json!(99)),
+                        ("/options/algorithm", serde_json::json!("enumerating")),
+                        ("/model_proved", serde_json::json!(true)),
+                        ("/statistics/traces_started", serde_json::json!(0)),
+                        ("/exit_code", serde_json::json!(77)),
+                        (
+                            "/traces/0/document/states/1/values/x",
+                            serde_json::json!(-1),
+                        ),
+                    ] {
+                        let mut forged = value.clone();
+                        *forged
+                            .pointer_mut(pointer)
+                            .ok_or("missing mutation pointer")? = replacement;
+                        assert!(
+                            !matches!(simulation_result(&implementation, &req, &outcome(&forged), 1, true),
+                            CheckMapping::Result(ref r) if matches!(r.verdict, Verdict::Success | Verdict::SafetyViolation)),
+                            "accepted {pointer}"
+                        );
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+}

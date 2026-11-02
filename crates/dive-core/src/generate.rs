@@ -15,6 +15,8 @@ use crate::handle::Handle;
 use crate::node::Kind;
 use crate::plan::{Bind, Code, G, GNode, Node, P, Raw, Unch};
 
+mod constructive;
+
 const NONE: u32 = u32::MAX;
 
 /// A pending item of the continuation list.
@@ -47,6 +49,22 @@ pub trait Sink {
     /// # Errors
     /// Stop, or any error of the sink's own checks.
     fn emit(&mut self, m: &mut Machine, code: &Code) -> Result<(), Error>;
+
+    /// Whether actual Next traversal uses constructive index ordering. This
+    /// does not affect separately evaluated predicates or ENABLED queries.
+    fn constructive(&self) -> bool {
+        false
+    }
+
+    /// Chooses an index below the positive bound for constructive traversal.
+    ///
+    /// # Errors
+    /// An ordinary sink has no random-index owner.
+    fn generation_index(&mut self, _: u64) -> Result<u64, Error> {
+        Err(Error::unsupported(
+            "constructive generation has no index chooser",
+        ))
+    }
 }
 
 impl Machine {
@@ -108,6 +126,40 @@ impl Machine {
         let r = self.gen_node(code, g, NONE, sink);
         self.conts.truncate(mark);
         r
+    }
+
+    /// Runs actual Next traversal with bounded randomized disjunction and
+    /// existential ordering. The sink stops after its first admitted complete
+    /// row; continuing searches remaining alternatives. `choose(n)` must return
+    /// a value below the positive `n`. Ordinary predicate/ENABLED evaluation
+    /// never inherits these operational choices.
+    ///
+    /// # Errors
+    /// The ordinary generation errors, unsupported indexed domains or an
+    /// out-of-range caller index.
+    pub fn run_action_generation(
+        &mut self,
+        code: &Code,
+        g: G,
+        sink: &mut dyn Sink,
+        choose: &mut dyn FnMut(u64) -> u64,
+    ) -> Result<(), Error> {
+        struct Constructive<'a> {
+            sink: &'a mut dyn Sink,
+            choose: &'a mut dyn FnMut(u64) -> u64,
+        }
+        impl Sink for Constructive<'_> {
+            fn emit(&mut self, machine: &mut Machine, code: &Code) -> Result<(), Error> {
+                self.sink.emit(machine, code)
+            }
+            fn constructive(&self) -> bool {
+                true
+            }
+            fn generation_index(&mut self, bound: u64) -> Result<u64, Error> {
+                Ok((self.choose)(bound))
+            }
+        }
+        self.run_action(code, g, &mut Constructive { sink, choose })
     }
 
     /// `ENABLED A` in the current state `s0` (TLC's `Tool.enabled`): runs
@@ -321,6 +373,9 @@ impl Machine {
                 r
             }
             GNode::Disj(items) => {
+                if sink.constructive() {
+                    return self.generation_disjunction(code, items, acts, sink);
+                }
                 for &gi in items {
                     self.gen_node(code, gi, acts, sink)?;
                 }
@@ -330,12 +385,17 @@ impl Machine {
                 self.charge(binds.iter().map(|b| b.slots.len()).sum())?;
                 let slots: Vec<u32> = binds.iter().flat_map(|b| b.slots.iter().copied()).collect();
                 let mark = self.save(slots.iter().copied());
-                let r = self.for_each_binding(code, binds, &mut |machine| {
-                    machine.gen_node(code, *body, acts, sink)?;
-                    Ok(true)
-                });
+                let r = if sink.constructive() {
+                    self.generation_exists(code, binds, *body, acts, sink)
+                } else {
+                    self.for_each_binding(code, binds, &mut |machine| {
+                        machine.gen_node(code, *body, acts, sink)?;
+                        Ok(true)
+                    })
+                    .map(|_| ())
+                };
                 self.restore(mark, slots.iter().copied());
-                r.map(|_| ())
+                r
             }
             GNode::Forall { binds, body, .. } => {
                 self.charge(binds.iter().map(|b| b.slots.len()).sum())?;
@@ -385,6 +445,11 @@ impl Machine {
                 }
             }
             GNode::Case { arms, other } => {
+                if sink.constructive() {
+                    return Err(Error::unsupported(
+                        "constructive generation of CASE actions",
+                    ));
+                }
                 for &(p, gi) in arms {
                     if self.eval_bool(code, p)? {
                         return self.gen_node(code, gi, acts, sink);

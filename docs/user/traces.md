@@ -9,6 +9,16 @@ python3 -c 'import json; r=json.load(open("counter-result.json")); json.dump(r["
 dive validate-trace docs/user/examples/Counter.tla --config docs/user/examples/CounterViolation.cfg --trace counter-trace.json --compat=tlc --seed 7 --fp 0 --output json
 ```
 
+For a saved finite simulation Behavior word, add `--sample`. This explicit operation
+checks Init/Next and all configured finite safety obligations on the actual rows,
+including constraints, invariants and implied initial/action properties. Its
+JSON report includes `validation_goal: "sample"`. A valid sample proves neither
+exhaustive safety nor liveness. Rust callers use `SpecModel::try_validate_sample`;
+lower-level owned sessions expose `Session::read_sampled`. Ordinary Behavior
+validation keeps its existing relation-only prefix semantics. Sample validation
+rejects non-Behavior endings and refuses configured temporal properties and
+unproved projections; fairness alone does not constrain a finite sample.
+
 The JSON validation report uses `schema_version: 3`, `command: "validate-trace"`
 and `result: "valid" | "invalid" | "unsupported"`. Its report version is
 independent of the native trace document's `format: "dive-trace"` and payload
