@@ -4,16 +4,32 @@ This guide covers the opt-in disk storage for safety search and native
 checkpoint/recovery. The design decision is
 [ADR 0083](../decisions/0083-storage-and-checkpoint.md).
 
-`--engine core` safety BFS supports `--store exact` and the predecessor budget
-and directory options. Exact membership resolves hash collisions by comparing
+`--engine core` safety BFS supports `--store exact` and the frontier and
+predecessor budget/directory options. Exact membership resolves hash collisions by comparing
 complete canonical mathematical state identities; representation and receiver
 history stay attached to the concrete states used for evaluation and replay.
 Parallel exact search retains candidate collisions until ordered commit.
 Predecessor read, write, corruption and explicit-cleanup failures produce a
 resource stop with storage evidence and no certified counterexample.
-The core still refuses frontier spill, disk membership, checkpoint/recovery
+The core still refuses disk membership, checkpoint/recovery
 and temporal exact/spill combinations. `--engine auto` can use the reference
 engine for these remaining combinations and reports that fallback.
+
+The core frontier stores paired canonical and original opaque handle rows under
+one retained live Store. Original receiver classes and construction history are
+preserved; values are not reconstructed through the reference value codec. Its
+private files cannot be recovered after restart or decoded by another run.
+Each decoded chunk contains at most 1,024 state pairs and is outside the encoded
+queue budgets. Retained Store/history allocations, seen sets, candidates, arenas
+and decoded chunks remain outside those component budgets. The report therefore
+leaves the reference value codec's node limit null for actual core runs.
+
+Before certifying a result, the core validates all retained frontier records,
+including unvisited rows, with the actual run control checked every 128 rows.
+Budget stops close and clean the remaining files without scanning unprocessed
+records or asserting completeness. Cancellation during decoding or validation
+keeps its budget-stop meaning; read, write, corruption and cleanup failures
+invalidate certification and retain explicit storage diagnostics.
 
 ## Transient frontier and predecessor storage
 

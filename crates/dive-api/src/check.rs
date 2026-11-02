@@ -1309,7 +1309,7 @@ impl CheckReport {
             "workers": self.workers_json(),
             "frontier_memory_bytes_per_queue": o.frontier_memory_bytes,
             "frontier_record_bytes_limit": o.frontier_memory_bytes.map(|_| dive_store::spill::MAX_RECORD_BYTES),
-            "frontier_codec_nodes_per_value_limit": o.frontier_memory_bytes.map(|_| dive_value::codec::FRONTIER_MAX_NODES),
+            "frontier_codec_nodes_per_value_limit": o.frontier_memory_bytes.filter(|_| self.core.is_none()).map(|_| dive_value::codec::FRONTIER_MAX_NODES),
             "predecessor_memory_bytes": o.predecessor_memory_bytes,
             "predecessor_path_steps_limit": o.predecessor_memory_bytes.map(|_| dive_store::predecessor::MAX_PATH_STEPS),
             "budget": {
@@ -1671,10 +1671,12 @@ impl CheckReport {
                 }
                 doc["frontier_storage"] = json!({
                     "mode": if r.frontier.memory_bytes_per_queue.is_some() { "encoded-spill" } else { "memory-reference" },
-                    "scope": "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces, graphs and native archive work are not measured or bounded",
+                    "scope": if self.core.is_some() && r.frontier.memory_bytes_per_queue.is_some() {
+                        "encoded current and next frontier capacities observed at queue operations only; retained live Store and construction history, decoded chunks, seen sets, candidates, arenas, traces, allocator workspace and native archives are not measured or bounded"
+                    } else { "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces, graphs and native archive work are not measured or bounded" },
                     "memory_bytes_per_queue": r.frontier.memory_bytes_per_queue,
                     "max_record_bytes": r.frontier.max_record_bytes,
-                    "max_codec_nodes_per_value": r.frontier.memory_bytes_per_queue.map(|_| dive_value::codec::FRONTIER_MAX_NODES),
+                    "max_codec_nodes_per_value": r.frontier.memory_bytes_per_queue.filter(|_| self.core.is_none()).map(|_| dive_value::codec::FRONTIER_MAX_NODES),
                     "peak_retained_bytes": r.frontier.peak_retained_bytes,
                     "retained_bytes": r.frontier.retained_bytes,
                     "committed_spill_bytes": r.frontier.spilled_bytes,

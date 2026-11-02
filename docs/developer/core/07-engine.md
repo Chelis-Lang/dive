@@ -31,8 +31,11 @@ pointers to chase.
 - a flat vector of handle arrays;
 - a parallel vector of state ids for the predecessor log.
 
-The frontier can spill through the existing frontier code in `dive-store`
-(`crates/dive-store/src/spill.rs:66`), adapted to handle arrays.
+The opt-in safety frontier spills through `dive-store::spill::OrderedFrontier`.
+It appends paired canonical/original handle rows directly and decodes at most
+1,024 pairs per expansion chunk. A narrow `dive-core` codec owns the live Store
+and a private nonreused process token; original/history views remain exact.
+This is same-process transient storage, not a value snapshot or recovery format.
 
 **Seen set.** An open-addressing table of 64-bit state hashes.
 - Each slot stores the hash and a claim: the minimum position that produced
@@ -394,13 +397,23 @@ The existing fallible `PredecessorLog` now takes the caller's resident byte
 limit and directory. It validates and explicitly closes before the explorer
 publishes a result. Typed storage failures retain prefix counts and component
 evidence, clear certified words and produce a resource-limit result. This is
-neither a whole-process memory bound nor a checkpoint format. Frontier spill,
-disk membership, native checkpoints and temporal exact/spill remain refused.
+neither a whole-process memory bound nor a checkpoint format.
+
+The frontier policy uses the existing per-queue encoded capacity and private
+checksummed files. Queue order, concrete discovery IDs and canonical/original
+roles survive spill. Explicit close validates even unvisited retained records
+before certification, polling the actual owner every 128 rows; an already
+stopped search cleans up without scanning those rows. Decoding also polls that
+owner and cancellation remains a budget stop. Codec/read/write/corruption/cleanup
+failures clear certification and remain explicit component evidence. Reported
+retention covers encoded capacities observed at queue operations, excluding
+Store/history, decoded chunks, candidates, seen sets, arenas and allocator work.
+Disk membership, native checkpoints and temporal exact/spill remain refused.
 
 **Done (M1, `core/engine-auto`).** `--engine=auto`, the static and dynamic
 fallback of `08-correctness.md` §3. With it, run options the core does not
 implement (TLC fingerprints outside compatibility, non-default evaluation
-options, frontier/disk-seen spilling, `--chaos`) are static refusals. `--engine=core`
+options, disk-seen spilling, `--chaos`) are static refusals. `--engine=core`
 used to ignore them.
 
 **Done (M1, `core/engine-fperror`).** Fingerprint-site errors. TLC
