@@ -462,3 +462,54 @@ fn core_effect_and_temporal_refusals_do_not_execute_or_commit() {
     }
     std::fs::remove_dir_all(directory).expect("cleanup");
 }
+
+#[test]
+fn backend_disk_policy_admits_before_archive_or_model_loading() {
+    use dive_api::ApiError;
+    let missing = path();
+    let mut request = CheckRequest {
+        file: missing.with_extension("tla"),
+        seen_disk: Some(dive_api::SeenOptions::default()),
+        ..CheckRequest::default()
+    };
+    let mut cp = checkpoint::Request {
+        path: missing.clone(),
+        action: checkpoint::Action::Recover,
+        counters: checkpoint::Counters::Retain,
+        config_source_sha256: None,
+    };
+    assert!(matches!(
+        check_file_checkpoint_engine(&request, &cp, Engine::Reference),
+        Err(ApiError::Unsupported { feature }) if feature.contains("Reference checkpoint/recovery")
+    ));
+    cp.action = checkpoint::Action::PauseAfterLevels(0);
+    assert!(matches!(
+        check_file_checkpoint_engine(&request, &cp, Engine::Auto),
+        Err(ApiError::Unsupported { feature }) if feature.contains("Reference checkpoint/recovery")
+    ));
+    cp.action = checkpoint::Action::Recover;
+    assert!(matches!(
+        check_file_checkpoint_engine(&request, &cp, Engine::Core),
+        Err(ApiError::Rejected { message }) if message.contains("DIVE-S0400")
+    ));
+    request.seen_disk.as_mut().expect("policy").limits.entries = 0;
+    assert!(matches!(
+        check_file_checkpoint_engine(&request, &cp, Engine::Core),
+        Err(ApiError::Rejected { message }) if message.contains("DIVE-S0700")
+    ));
+
+    // Auto must inspect an actual Reference archive to select the backend, but
+    // its unsupported disk combination must still win over a missing model.
+    cp.action = checkpoint::Action::PauseAfterLevels(0);
+    let paused = dive_api::check_file_checkpoint(&req(), &cp)
+        .expect("Reference archive")
+        .to_json();
+    assert_eq!(paused["checkpoint"]["status"], "paused-incomplete");
+    request.seen_disk = Some(dive_api::SeenOptions::default());
+    cp.action = checkpoint::Action::Recover;
+    assert!(matches!(
+        check_file_checkpoint_engine(&request, &cp, Engine::Auto),
+        Err(ApiError::Unsupported { feature }) if feature.contains("Reference checkpoint/recovery")
+    ));
+    std::fs::remove_file(missing).expect("archive cleanup");
+}

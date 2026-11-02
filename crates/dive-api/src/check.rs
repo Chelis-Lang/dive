@@ -305,6 +305,20 @@ fn admit_storage_request(req: &CheckRequest) -> Result<(), crate::ApiError> {
     Ok(())
 }
 
+fn admit_checkpoint_storage(
+    req: &CheckRequest,
+    engine: crate::Engine,
+) -> Result<(), crate::ApiError> {
+    if req.seen_disk.is_some() && engine == crate::Engine::Reference {
+        return Err(crate::ApiError::Unsupported {
+            feature:
+                "disk seen-state retention with Reference checkpoint/recovery is not implemented"
+                    .into(),
+        });
+    }
+    Ok(())
+}
+
 /// Loads, binds and checks the request.
 ///
 /// # Errors
@@ -455,6 +469,19 @@ fn check_file_in(
         Profile::Dive
     };
     let mut selected_engine = engine;
+    if let Some(request) = checkpoint {
+        if engine == crate::Engine::Auto
+            && matches!(
+                request.action,
+                dive_check::checkpoint::Action::PauseAfterLevels(_)
+            )
+        {
+            selected_engine = crate::Engine::Reference;
+        }
+        // A statically known unsupported storage/backend combination must not
+        // open a recovery archive or load the model to discover that refusal.
+        admit_checkpoint_storage(req, selected_engine)?;
+    }
     let recovered_defaults = if let Some(request) = checkpoint
         && request.action == dive_check::checkpoint::Action::Recover
     {
@@ -474,6 +501,9 @@ fn check_file_in(
             });
         }
         selected_engine = encoded;
+        // Auto recovery needs the encoded backend first, then rejects an
+        // unsupported disk policy before model loading or evaluation.
+        admit_checkpoint_storage(req, selected_engine)?;
         Some((seed, fp))
     } else {
         None

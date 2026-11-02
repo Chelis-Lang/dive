@@ -688,6 +688,15 @@ fn check_command(
                 "disk seen-state retention with temporal/capture is not implemented",
             );
         }
+        let reference_checkpoint = engine == dive_api::Engine::Reference
+            && (checkpoint_path.is_some() || recover_path.is_some())
+            || engine == dive_api::Engine::Auto && checkpoint_path.is_some();
+        if reference_checkpoint {
+            return usage_error(
+                err,
+                "disk seen-state retention with Reference checkpoint/recovery is not implemented",
+            );
+        }
         req.seen_disk = Some(seen_policy);
     }
     if final_check != short_lasso {
