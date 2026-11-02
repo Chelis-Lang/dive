@@ -34,6 +34,11 @@ COMMANDS:
     oracle verify          verify the cached gating oracles (or --oracle <id>) and print
                            their probed capabilities
 
+    compare-models         compare --oracle-model FILE with --model FILE using pinned TLC
+                           and dive in both profiles; identical --config FILE bytes,
+                           --module-path DIR (repeatable), --dive-bin BIN, --out DIR
+                           retaining raw observations, --timeout SECS (default 120)
+
     Reference oracles (role = \"reference\" in oracles.toml) are used only when named
     with --oracle, --golden-oracle or --impl tlc:<id>, and never gate: a run involving
     one exits 0 on findings and its report is marked reference.
@@ -197,6 +202,12 @@ struct Opts {
     lncheck: Option<String>,
     fp: Option<u32>,
     features: Vec<String>,
+    oracle_model: Option<PathBuf>,
+    model: Option<PathBuf>,
+    model_config: Option<PathBuf>,
+    model_id: Option<String>,
+    module_paths: Vec<PathBuf>,
+    overall_timeout: Option<u64>,
     positional: Vec<String>,
 }
 
@@ -258,6 +269,12 @@ fn parse_opts(args: &mut Args) -> Result<Opts> {
             "--dive-bin" => o.dive_bin = Some(args.value(&a)?.into()),
             "--specs" => o.specs = Some(args.value(&a)?.into()),
             "--out" => o.out = Some(args.value(&a)?.into()),
+            "--oracle-model" => o.oracle_model = Some(args.value(&a)?.into()),
+            "--model" => o.model = Some(args.value(&a)?.into()),
+            "--config" => o.model_config = Some(args.value(&a)?.into()),
+            "--model-id" => o.model_id = Some(args.value(&a)?),
+            "--module-path" => o.module_paths.push(args.value(&a)?.into()),
+            "--overall-timeout" => o.overall_timeout = Some(parse_num(&a, &args.value(&a)?)?),
             "--baseline" => o.baseline = Some(args.value(&a)?.into()),
             // `next()`, not `value()`: a seed may be negative (`--seed -3`).
             "--seed" => {
@@ -382,6 +399,7 @@ fn dispatch(cmd: &[String], o: &Opts) -> Result<bool> {
         ["report", "summarise"] => report_summarise(&root, o),
         ["report", "baseline"] => report_baseline(o),
         ["trace-controls"] => cmd_trace_controls(&config, &cache, &root, o),
+        ["compare-models"] => cmd_compare_models(&config, &cache, o),
         ["dev", "capture"] => {
             dev_capture(&config, &cache, o)?;
             Ok(false)
@@ -391,6 +409,51 @@ fn dispatch(cmd: &[String], o: &Opts) -> Result<bool> {
             cmd.join(" ")
         ))),
     }
+}
+
+fn cmd_compare_models(config: &Config, cache: &Cache, o: &Opts) -> Result<bool> {
+    let required = |value: &Option<PathBuf>, flag: &str| {
+        value
+            .clone()
+            .ok_or_else(|| Error::Usage(format!("compare-models requires {flag}")))
+    };
+    let oracle = required(&o.oracle_model, "--oracle-model")?;
+    let native = required(&o.model, "--model")?;
+    let cfg = required(&o.model_config, "--config")?;
+    let dive = required(&o.dive_bin, "--dive-bin")?;
+    let raw = required(&o.out, "--out")?;
+    let report = dive_conformance::model_pair::compare(
+        config,
+        cache,
+        &dive_conformance::model_pair::ModelPair {
+            oracle_module: &oracle,
+            native_module: &native,
+            configuration: &cfg,
+            model_id: o
+                .model_id
+                .as_deref()
+                .unwrap_or("unregistered-translated-model"),
+            module_paths: &o.module_paths,
+            dive: &dive,
+            timeout: Duration::from_secs(o.timeout.unwrap_or(120)),
+            overall_timeout: o.overall_timeout.map_or_else(
+                || {
+                    Duration::from_secs(o.timeout.unwrap_or(120))
+                        .saturating_mul(4)
+                        .saturating_add(Duration::from_secs(60))
+                },
+                Duration::from_secs,
+            ),
+            raw_directory: &raw,
+        },
+    )?;
+    out(&format!(
+        "{}\n",
+        serde_json::to_string_pretty(&report).map_err(|e| Error::Config(e.to_string()))?
+    ));
+    Ok(report["profiles"]
+        .as_object()
+        .is_none_or(|profiles| profiles.values().any(|row| row["outcome"] != "agree")))
 }
 
 /// Generates goldens through the default or explicitly retained setup path.
@@ -974,7 +1037,7 @@ fn main() -> ExitCode {
         .and_then(|mut o| {
             let n = if matches!(
                 o.positional.first().map(String::as_str),
-                Some("run" | "shadow")
+                Some("run" | "shadow" | "compare-models")
             ) {
                 1
             } else {

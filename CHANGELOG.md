@@ -33,6 +33,17 @@
   local gate modes and CI, keeping workspace feature unification from masking
   a standalone dependency or compilation failure.
 
+- Make PlusCal corpus `--check` compare pinned translation plus TLC against
+  native translation plus dive in both profiles, using ordinary conformance
+  classification and independent native witness replay. Preserve unsupported,
+  stopped, missing-configuration and expected-divergence outcomes separately.
+- Retain exact native report envelope admission before PlusCal model comparison:
+  contradictory class names, verdicts, reported codes, counts and exits cannot
+  gain agreement from an independently valid retained word.
+- Admit current ordinary temporal report shapes without inventing a required
+  reported-message field. Preserve strict safety envelopes, canonical temporal
+  completion checks and fresh independent liveness-word validation.
+
 - Require fresh source-bound diagnostic certification for successor invariant
   reports, including deciding 2111, rejecting coordinated class/name/exit
   forgeries (#713). Preserve genuine completed-2111 and actual 2179/2103

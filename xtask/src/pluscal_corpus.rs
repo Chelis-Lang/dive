@@ -4,8 +4,10 @@
 //! Each selected module is translated twice in its own scratch directory: once
 //! by `pcal.trans` from the pinned `tla2tools.jar` (on the pinned JRE) and once
 //! by `dive translate`. Optionally, when both translations succeed and the
-//! source directory has a same-named `.cfg`, both translated modules are model
-//! checked with `dive check` and the verdicts and counts are compared.
+//! source directory has a same-named `.cfg`, the pinned TLC checks the reference
+//! translation and dive checks its own translation in both profiles. The existing
+//! conformance harness classifies and compares actual results and independently
+//! replays native counterexamples.
 //! Everything is written under `--out`; nothing is written to the repository.
 
 use std::collections::BTreeMap;
@@ -20,22 +22,25 @@ use serde_json::{Value, json};
 
 use crate::{Result, workspace_root};
 
+#[cfg(test)]
+#[path = "../../crates/dive-conformance/src/native_envelope.rs"]
 mod check_protocol;
 mod pins;
 
 const USAGE: &str =
-    "usage: cargo xtask pluscal-corpus [--help] [--out DIR] [--dive BIN] [--cache DIR]
+    "usage: cargo xtask pluscal-corpus [--help] [--out DIR] [--dive BIN] [--harness BIN] [--cache DIR]
                        [--filter TEXT] [--timeout SECS] [--label] [--check] [--check-timeout SECS]
 
     --help               show this usage without loading pins or running children
     --out DIR            output directory (default <target-dir>/pluscal-corpus);
                          writes results.json, summary.md and work/<n>/
     --dive BIN           dive binary (default <target-dir>/release/dive)
+    --harness BIN        conformance binary (default <target-dir>/release/dive-conformance)
     --cache DIR          conformance cache (default $DIVE_CACHE_DIR or ~/.cache/dive)
     --filter TEXT        only modules whose corpus path contains TEXT
     --timeout SECS       per-translation time limit (default 60)
     --label              pass the real -label option to both translators
-    --check              model-check both translations of modules with a .cfg
+    --check              compare pinned TLC with native checks in both profiles
     --check-timeout SECS per-check time limit (default 120)";
 
 struct Config {
@@ -45,6 +50,7 @@ struct Config {
     libraries: Vec<PathBuf>,
     out: PathBuf,
     dive: PathBuf,
+    harness: PathBuf,
     cache: PathBuf,
     filter: Option<String>,
     timeout: Duration,
@@ -78,6 +84,12 @@ pub fn pluscal_corpus(args: &[String]) -> Result<()> {
             config.dive.display()
         ));
     }
+    if config.check && !config.harness.is_file() {
+        return Err(format!(
+            "conformance binary {} not found; build dive-conformance or use --harness",
+            config.harness.display()
+        ));
+    }
     let specs = discover(&root, &config)?;
     if specs.is_empty() {
         return Err("no PlusCal modules found in the pinned corpora".to_owned());
@@ -101,6 +113,7 @@ pub fn pluscal_corpus(args: &[String]) -> Result<()> {
             "java": java.display().to_string(),
             "libraries": config.libraries,
             "dive": config.dive.display().to_string(),
+            "harness": config.check.then(|| config.harness.display().to_string()),
             "summary": summary.0,
             "specs": records,
         }))
@@ -111,7 +124,11 @@ pub fn pluscal_corpus(args: &[String]) -> Result<()> {
     write(&config.out.join("summary.md"), &summary.1)?;
     print!("{}", summary.1);
     println!("wrote {}", config.out.join("results.json").display());
-    Ok(())
+    if summary.0["accepted"] == true {
+        Ok(())
+    } else {
+        Err("PlusCal corpus has findings; see results.json and summary.md".into())
+    }
 }
 
 fn parse_args(args: &[String]) -> Result<Config> {
@@ -153,6 +170,7 @@ fn parse_args_at(args: &[String], cwd: &Path, target: &Path, cache: PathBuf) -> 
         libraries: Vec::new(),
         out: target.join("pluscal-corpus"),
         dive: target.join("release/dive"),
+        harness: target.join("release/dive-conformance"),
         cache,
         filter: None,
         timeout: Duration::from_secs(60),
@@ -166,6 +184,7 @@ fn parse_args_at(args: &[String], cwd: &Path, target: &Path, cache: PathBuf) -> 
             "--help" => config.help = true,
             "--out" => config.out = PathBuf::from(value()?),
             "--dive" => config.dive = PathBuf::from(value()?),
+            "--harness" => config.harness = PathBuf::from(value()?),
             "--cache" => config.cache = PathBuf::from(value()?),
             "--filter" => config.filter = Some(value()?),
             "--timeout" => config.timeout = seconds(&value()?)?,
@@ -179,6 +198,9 @@ fn parse_args_at(args: &[String], cwd: &Path, target: &Path, cache: PathBuf) -> 
     // while the invocation directory still owns relative CLI/default paths.
     if config.dive.is_relative() {
         config.dive = cwd.join(config.dive);
+    }
+    if config.harness.is_relative() {
+        config.harness = cwd.join(config.harness);
     }
     Ok(config)
 }
@@ -448,7 +470,7 @@ fn measure(
         .unwrap_or(Value::Null);
     let dive_status = match (dive.timed_out, dive.code) {
         (true, _) => "timeout",
-        (false, Some(0)) => "artifact",
+        (false, Some(0)) if valid_translation(&report) => "artifact",
         (false, Some(1)) => "rejected",
         (false, Some(3)) => "unsupported",
         (false, Some(4)) => "internal",
@@ -489,15 +511,33 @@ fn measure(
             _ => None,
         };
         record["same_text"] = json!(same);
-        if config.check && cfg.is_file() {
-            record["check"] =
-                compare_checks(config, &pcal_dir, &dive_dir, name, &stem, source_dir)?;
+        if config.check {
+            record["check"] = if cfg.is_file() {
+                compare_checks(config, &pcal_dir, &dive_dir, name, &stem, source_dir, label)?
+            } else {
+                json!({"outcome": "missing-configuration"})
+            };
         }
+    } else if config.check {
+        record["check"] = json!({"outcome": "translation-unavailable"});
     }
     Ok(record)
 }
 
-/// Model-checks both translations with the `.cfg` that pcal.trans rewrote.
+fn valid_translation(report: &Value) -> bool {
+    matches!(report["schema_version"].as_u64(), Some(2 | 3))
+        && report["command"] == "translate-rewrite"
+        && report["result"] == "replacement"
+        && report["accepted"] == true
+        && report["exit_code"] == 0
+        && report["stage"] == "replacement-analysis"
+        && report["analysis"]["accepted"] == true
+        && report["replacement"]["module_source"]
+            .as_str()
+            .is_some_and(|s| !s.is_empty())
+}
+
+/// Compares the independently checked translations using the ordinary harness.
 fn compare_checks(
     config: &Config,
     pcal_dir: &Path,
@@ -505,15 +545,86 @@ fn compare_checks(
     name: &std::ffi::OsStr,
     stem: &std::ffi::OsStr,
     source_dir: &Path,
+    label: &str,
 ) -> Result<Value> {
     let module = Path::new(name);
     let cfg_name = Path::new(stem).with_extension("cfg");
     copy(&pcal_dir.join(&cfg_name), &dive_dir.join(&cfg_name))?;
     copy(&dive_dir.join("translated.tla"), &dive_dir.join(module))?;
-    let a = check(config, pcal_dir, module, &cfg_name, source_dir)?;
-    let b = check(config, dive_dir, module, &cfg_name, source_dir)?;
-    let outcome = check_outcome(&a, &b);
-    Ok(json!({"pcal": a, "dive": b, "outcome": outcome}))
+    let absolute = |path: &Path| {
+        path.canonicalize()
+            .map_err(|e| format!("cannot resolve {}: {e}", path.display()))
+    };
+    let mut command = Command::new(&config.harness);
+    command
+        .arg("--repo-root")
+        .arg(workspace_root()?)
+        .arg("--cache-dir")
+        .arg(absolute(&config.cache)?)
+        .arg("compare-models")
+        .arg("--oracle-model")
+        .arg(absolute(&pcal_dir.join(module))?)
+        .arg("--model")
+        .arg(absolute(&dive_dir.join(module))?)
+        .arg("--config")
+        .arg(absolute(&dive_dir.join(&cfg_name))?)
+        .arg("--module-path")
+        .arg(absolute(source_dir)?)
+        .arg("--model-id")
+        .arg(Path::new(label.split_once(':').map_or(label, |(_, p)| p)).with_extension("cfg"))
+        .arg("--dive-bin")
+        .arg(&config.dive)
+        .arg("--timeout")
+        .arg(config.check_timeout.as_secs().to_string())
+        .arg("--out")
+        .arg(absolute(dive_dir)?.join("model-check"));
+    // The helper owns bounded TLC/trace/native children and their cleanup.
+    // Waiting for that supervisor avoids a second direct-child kill which
+    // could orphan its independently grouped children during setup/replay.
+    let child = wait_for_supervisor(&mut command, dive_dir, "independent-check")?;
+    if dive_dir.join("model-check/deadline.json").is_file() {
+        return Ok(json!({"outcome":"timeout","exit":child.code,"timed_out":true}));
+    }
+    let report: Value = serde_json::from_str(&child.stdout).unwrap_or(Value::Null);
+    if !matches!(child.code, Some(0 | 1))
+        || child.timed_out
+        || report["kind"] != "independent-translated-models"
+        || report["schema_version"] != 1
+        || !["dive", "tlc"]
+            .iter()
+            .all(|p| report["profiles"][p]["outcome"].is_string())
+    {
+        return Ok(json!({"outcome": "error", "exit": child.code, "timed_out": child.timed_out}));
+    }
+    let outcome = if ["dive", "tlc"]
+        .iter()
+        .all(|p| report["profiles"][p]["outcome"] == "agree")
+    {
+        "agree"
+    } else {
+        "findings"
+    };
+    Ok(json!({"outcome": outcome, "comparison": report}))
+}
+
+fn wait_for_supervisor(command: &mut Command, dir: &Path, name: &str) -> Result<Run> {
+    let stdout_path = dir.join(format!("{name}.stdout"));
+    let stderr_path = dir.join(format!("{name}.stderr"));
+    let stdout = File::create(&stdout_path).map_err(|e| format!("cannot create stdout: {e}"))?;
+    let stderr = File::create(&stderr_path).map_err(|e| format!("cannot create stderr: {e}"))?;
+    let status = command
+        .current_dir(dir)
+        .stdin(Stdio::null())
+        .stdout(stdout)
+        .stderr(stderr)
+        .status()
+        .map_err(|e| format!("cannot wait for comparison supervisor: {e}"))?;
+    Ok(Run {
+        code: status.code(),
+        timed_out: false,
+        stdout: read(&stdout_path)?,
+        stderr: read(&stderr_path)?,
+    })
 }
 
 fn diagnostic_message(report: &Value, run: &Run) -> String {
@@ -555,32 +666,9 @@ fn find_messages(value: &Value, out: &mut Vec<String>) {
     }
 }
 
-fn check(
-    config: &Config,
-    dir: &Path,
-    module: &Path,
-    cfg: &Path,
-    module_path: &Path,
-) -> Result<Value> {
-    let run = run(
-        with_libraries(Command::new(&config.dive).arg("check"), config)
-            .arg(module)
-            .arg("--config")
-            .arg(cfg)
-            .arg("--workers")
-            .arg("1")
-            .arg("--output")
-            .arg("json")
-            .arg("--module-path")
-            .arg(module_path),
-        dir,
-        "check",
-        config.check_timeout,
-    )?;
-    let report: Value = serde_json::from_str(&run.stdout).unwrap_or(Value::Null);
-    Ok(check_record(&run, &report))
-}
-
+// Retain the historical malformed-envelope regression controls. Production
+// checking now uses the canonical source-aware conformance reader above.
+#[cfg(test)]
 fn check_record(run: &Run, report: &Value) -> Value {
     json!({
         "exit": run.code,
@@ -595,105 +683,14 @@ fn check_record(run: &Run, report: &Value) -> Value {
     })
 }
 
-// Validate the observed native protocol before comparing it. Equality of
-// missing fields is not a model outcome. The default/TLC exit pair comes from
-// dive-api's public check contract; no compiler crate enters the hook graph.
+// The same bounded admission runs before canonical mapping in model_pair.
+#[cfg(test)]
 fn valid_check_report(run: &Run, report: &Value) -> bool {
-    if report["command"] != "check" {
-        return false;
-    }
-    let Some(verdict) = report["verdict"].as_str() else {
-        return false;
-    };
-    if matches!(verdict, "unsupported" | "resource-limit" | "internal-error") {
-        return true; // Classified as uncredited below, never as agreement.
-    }
-    let (native_exit, needs_stats, needs_property) = match verdict {
-        "success" => (0, true, false),
-        "invariant-violation"
-        | "property-violation"
-        | "action-property-violation"
-        | "liveness-violation" => (10, true, true),
-        "deadlock" => (11, true, false),
-        "postcondition-failure" => (10, false, true),
-        "assumption-failure" => (12, false, false),
-        "model-error" | "rejected" => (1, false, false),
-        "incomplete-state" | "assertion-failure" | "overflow" | "evaluation-error" => {
-            (13, false, false)
-        }
-        _ => return false,
-    };
-    let Some(stats) = report.get("statistics") else {
-        return false;
-    };
-    if stats.is_null() {
-        if needs_stats {
-            return false;
-        }
-    } else {
-        let (Some(distinct), Some(generated), Some(_depth)) = (
-            stats["distinct"].as_u64(),
-            stats["generated"].as_u64(),
-            stats["depth"].as_u64(),
-        ) else {
-            return false;
-        };
-        // Every distinct state was generated. Empty Init can legally leave
-        // both counters zero; depth remains an observed unsigned value.
-        if generated < distinct {
-            return false;
-        }
-    }
-    let property = report.get("property");
-    if needs_property {
-        if property.is_none_or(|p| p.as_str().is_none_or(str::is_empty)) {
-            return false;
-        }
-    } else if property.is_some_and(|p| !p.is_null()) {
-        return false;
-    }
-    let class = &report["tlc"];
-    let Some(code) = class["code"]
-        .as_u64()
-        .filter(|&c| c >= 1000 && u32::try_from(c).is_ok())
-    else {
-        return false;
-    };
-    let Some(tlc_exit) = class["exit_status"].as_u64().filter(|&c| c <= 255) else {
-        return false;
-    };
-    let Some(name) = class["name"].as_str() else {
-        return false;
-    };
-    let Some((_, expected_name, expected_exit, verdicts)) = check_protocol::class(code) else {
-        return false;
-    };
-    if class["verified"] != true
-        || !class.get("reported").map_or_else(
-            // `CheckReport::to_json` omits this field only for frontend SANY
-            // rejection; all checked-result classes carry it, even success.
-            || verdict == "rejected" && code == 3002,
-            |reported| {
-                reported.as_u64().is_some_and(|reported| {
-                    check_protocol::reported_matches(verdict, code, reported)
-                })
-            },
-        )
-        || name != *expected_name
-        || tlc_exit != *expected_exit
-        || !verdicts.contains(&verdict)
-    {
-        return false;
-    }
-    // Assumption evaluation errors use the default assumption exit. A real
-    // TLC-profile run instead uses the declared deciding class's exit.
-    run.code.is_some_and(|exit| {
-        exit == if code == 2105 { 12 } else { native_exit }
-            || u64::try_from(exit).ok() == Some(tlc_exit)
-    })
+    check_protocol::valid_check_report(run.code, report)
 }
 
 /// Refusals and missing reports establish no model-check agreement.
+#[cfg(test)]
 fn check_outcome(a: &Value, b: &Value) -> &'static str {
     if a["timed_out"] == true || b["timed_out"] == true {
         return "timeout";
@@ -796,6 +793,8 @@ fn summarize(records: &[Value]) -> (Value, String) {
         let _ = writeln!(text, "Mismatches:\n\n{mismatches}");
     }
     let summary = json!({
+        "accepted": records.iter().all(|r| r["category"] == "ok" && r["same_text"] == true
+            && r.get("check").is_none_or(|c| c["outcome"] == "agree")),
         "modules": records.len(),
         "categories": categories,
         "same_text": same,
@@ -836,6 +835,68 @@ fn reason_key(message: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn translation_requires_a_current_admitted_replacement_not_retired_proof_fields() {
+        let valid = json!({"schema_version":3,"command":"translate-rewrite","result":"replacement",
+            "accepted":true,"exit_code":0,"stage":"replacement-analysis","analysis":{"accepted":true},
+            "replacement":{"module_source":"---- MODULE M ----\n====\n"}});
+        assert!(valid_translation(&valid));
+        for (pointer, value) in [
+            ("/schema_version", json!(1)),
+            ("/command", json!("original-ast")),
+            ("/result", json!("unsupported")),
+            ("/accepted", json!(false)),
+            ("/exit_code", json!(3)),
+            ("/stage", json!("native-generation")),
+            ("/analysis/accepted", json!(false)),
+            ("/replacement/module_source", json!("")),
+        ] {
+            let mut forged = valid.clone();
+            if let Some(slot) = forged.pointer_mut(pointer) {
+                *slot = value;
+            }
+            assert!(!valid_translation(&forged), "{pointer}");
+        }
+        let retired = json!({"schema_version":3,"command":"translate-rewrite","accepted":true,
+            "model_proved":true,"verified":true,"generated_module_accepted":true});
+        assert!(!valid_translation(&retired));
+    }
+
+    #[test]
+    fn summary_acceptance_rejects_every_uncredited_or_different_observation() {
+        let good = json!({"category":"ok","same_text":true,"check":{"outcome":"agree"}});
+        assert_eq!(summarize(std::slice::from_ref(&good)).0["accepted"], true);
+        for outcome in [
+            "missing-configuration",
+            "translation-unavailable",
+            "timeout",
+            "error",
+            "findings",
+        ] {
+            let mut bad = good.clone();
+            bad["check"]["outcome"] = json!(outcome);
+            assert_eq!(
+                summarize(&[good.clone(), bad]).0["accepted"],
+                false,
+                "{outcome}"
+            );
+        }
+        for category in [
+            "refused",
+            "pcal-timeout",
+            "both-reject",
+            "dive-error",
+            "error-mismatch",
+        ] {
+            let mut bad = good.clone();
+            bad["category"] = json!(category);
+            assert_eq!(summarize(&[bad]).0["accepted"], false, "{category}");
+        }
+        let mut different = good;
+        different["same_text"] = json!(false);
+        assert_eq!(summarize(&[different]).0["accepted"], false);
+    }
 
     struct Scratch(PathBuf);
 
@@ -932,6 +993,7 @@ mod tests {
         let defaults = parse(&[])?;
         assert_eq!(defaults.out, Path::new("build/pluscal-corpus"));
         assert_eq!(defaults.dive, cwd.join("build/release/dive"));
+        assert_eq!(defaults.harness, cwd.join("build/release/dive-conformance"));
         assert_eq!(defaults.cache, Path::new("cache"));
         assert_eq!(defaults.filter, None);
         assert_eq!(defaults.timeout, Duration::from_secs(60));
@@ -942,6 +1004,8 @@ mod tests {
             "results",
             "--dive",
             "bin/dive",
+            "--harness",
+            "bin/harness",
             "--cache",
             "pins",
             "--filter",
@@ -956,6 +1020,7 @@ mod tests {
         ])?;
         assert_eq!(explicit.out, Path::new("results"));
         assert_eq!(explicit.dive, cwd.join("bin/dive"));
+        assert_eq!(explicit.harness, cwd.join("bin/harness"));
         assert_eq!(explicit.cache, Path::new("pins"));
         assert_eq!(explicit.filter.as_deref(), Some("Lock.tla"));
         assert_eq!(explicit.timeout, Duration::ZERO);
@@ -964,6 +1029,7 @@ mod tests {
         for flag in [
             "--out",
             "--dive",
+            "--harness",
             "--cache",
             "--filter",
             "--timeout",
