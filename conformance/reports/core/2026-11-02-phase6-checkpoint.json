@@ -1,0 +1,704 @@
+{
+  "schema_version": 1,
+  "phase": "Phase 6: restartable Core, generation and evaluation reuse",
+  "state": "bounded Phase 6 runtime delivery, qualification and evidence preservation complete; performance candidate unadopted",
+  "release_candidate": false,
+  "reference_default": true,
+  "family_inventory_unchanged": {
+    "implemented": 8,
+    "partial": 27,
+    "missing": 3
+  },
+  "base": "b809a2885377c18fe13685601edcdf17ab1be2c6",
+  "implementation": {
+    "disk_membership": {
+      "issue": 733,
+      "pr": 738,
+      "author": "ca6a05706b7591eab4c234d441a43bc2fe6bf27f",
+      "tree": "992031ca9c6527ad61877383258587954b168d88",
+      "merged": "91504d7e9697132bb719c1786b4761ad94dae4c8",
+      "review": "approve",
+      "scope": "explicitCore safety fp/exact canonical disk keys; actual1worker; Auto staticReference; fallible audit/replay/cleanup"
+    },
+    "checkpoint_recovery": {
+      "issue": 734,
+      "pr": 741,
+      "replay": "b754ccf906045145ad696a3887b68eef640d2439",
+      "tree": "50eed732be7831191879482947b797062aa8e9a5",
+      "state": "merged after corrected static Reference+disk preflight, independent review and required CI",
+      "scope": "ownedStore/history,DIVECC01 in unchanged atomic envelope, completedlevels, freshprocess,VIEW/symmetry,spill+disk; no totalRAM/temporal/effects/distribution",
+      "original_author": "794fe0496b73b519682de6a3dfc56de26a9deca3",
+      "author": "14a27c67365ee53e9828448d972ab8b7e9dc6284",
+      "merged": "cd5b5e622f199d5067b34f95802f8182c45fd031",
+      "review": {
+        "decision": "approve corrected source",
+        "original_review_json_sha256": "15cda30f054852713ed22239d516934cf619e652c06a1f6cba2b22cbc3dbcbca",
+        "followup_json_sha256": "27c3508a9496052b48ddac432a24a42760e01e7f1f68253eed808b71d4a501e0"
+      },
+      "ci_regression": {
+        "old_test": "malformed_or_orphan_disk_policy_refuses_before_reading_model",
+        "test_unchanged": true,
+        "production_fix": "validate static Reference+disk checkpoint refusal before input I/O; Auto recovery still selects encoded backend",
+        "original_failure_preserved": true
+      }
+    },
+    "constructive_generation": {
+      "issue": 735,
+      "pr": 742,
+      "head": "c232645ba2e113420ed46b99d0abb489bf196918",
+      "tree": "fec4512dad82f3503b11680a975d7eaa549020e8",
+      "review": {
+        "decision": "approve corrected runtime and test-only followup",
+        "runtime_json_sha256": "dbdc96ab072628c47bb10d126b4c47e7147e63413dbc9a3bb8bb9b76ad10ecdb",
+        "test_only_json_sha256": "4a3460d35b77f7f504e5afcf93fdb6200e98302e1bd003546389609d300979b2"
+      },
+      "state": "merged after required CI",
+      "scope": "both NextDisj/Exists producers,simulate/legacy/API,independentfiniteSample proof",
+      "new_pinned_models": {
+        "agree_unique": 3,
+        "unsupported_unique": 2,
+        "missing_golden": 1,
+        "goldens": 5
+      },
+      "external_adversarial_controls": {
+        "wrapper_cases": 20,
+        "mutations_rejected": 18,
+        "unchanged_agree": 2,
+        "public_controls": 98,
+        "public_mismatches": 0
+      },
+      "standalone_trace": "fresh build/isolation passes",
+      "merged": "ee79de8295d1d9c73324b2322491ecf77485729d",
+      "runtime_reviewed_source": "8423a482fbb807015eadd350548041907b4b62e0",
+      "reader_corrections": [
+        "checked generated-count lower bound across Init and selected steps",
+        "bind aril=aril_requested=0 and mode=finite-safety to actual request",
+        "require all earlier behaviors full requested length and final violation terminal"
+      ],
+      "ci_test_correction": {
+        "obsolete_assertion": "--generate unsupported",
+        "replacement": "positive guarded generation, seed replay, generated7 versus ordinary97, separate --sample validation",
+        "runtime_blobs_equal_to_reviewed_runtime": true,
+        "goldens_unchanged": true,
+        "other_four_refusal_guards_unchanged": true,
+        "original_failure_preserved": true
+      }
+    },
+    "next_temporal_error_proof": {
+      "issue": 737,
+      "pr": 740,
+      "author": "21a9d3532298a3965be8be91622c739edb12fb45",
+      "merged": "e647c4ee41d49d8fa1829daf8e22fed557312d2e",
+      "review": "approve",
+      "scope": "two-source primitive2179 primary+diagnostic before second temporal row completion; total true recurrences retained; old6traceversions unchanged",
+      "focused_models": 4,
+      "engine_profile_cells": 6,
+      "workers": [
+        1,
+        4
+      ],
+      "strict_native_worker_rows": 48,
+      "pending_trace_credit": 0
+    },
+    "sbb_order": {
+      "issue": 731,
+      "pr": 739,
+      "author": "9ccce11aa36fde605375a20258bca5f65a396ec4",
+      "merged": "b29d236bbe80067b4aa701b2a9bcfcb8ff59937e",
+      "review": "approve",
+      "default_counts": [
+        1581,
+        3042
+      ],
+      "order_only_and_compat_counts": [
+        1617,
+        3126
+      ],
+      "depth": 15,
+      "words_independently_valid": 6,
+      "registered": "D-010 exactmodel/default/distinctfield/exactgeneratedpair only",
+      "strict_PlusCal_wrapper": "findings/exit1/acceptedfalse retained"
+    }
+  },
+  "performance": {
+    "issue": 736,
+    "candidate": {
+      "source": "c4003fc63e2d886e1e8d2b6a905301ee5664a812",
+      "tree": "8b78ac55bbef8b2ec66fc976550d48622cacb5f4",
+      "adopted": false,
+      "merged": false,
+      "code_shipped": false
+    },
+    "baseline": {
+      "source": "b809a2885377c18fe13685601edcdf17ab1be2c6",
+      "tree": "967dc6331970d326a9a224acad3a6305528d04b9"
+    },
+    "initial_N4_median_runtime_ratio": 0.5002305954886468,
+    "planned_rows": 216,
+    "observed_rows": 138,
+    "unrun_rows": 78,
+    "physical_exit": 10,
+    "failing_control": {
+      "model": "SimpleRegular",
+      "profile": "tlc",
+      "workers_requested": 8,
+      "workers_used": 8,
+      "median_candidate_over_baseline_runtime": 1.1794395975442669,
+      "pairs": [
+        {
+          "rep": 1,
+          "candidate_over_baseline_runtime": 0.8211595695441051,
+          "candidate_over_baseline_rss": 1.0116884169571208,
+          "candidate_over_baseline_cpu": 0.791105909888824,
+          "candidate": {
+            "wall_s": 2.072695805,
+            "user_s": 13.22,
+            "sys_s": 0.3,
+            "max_rss_bytes": 255614976,
+            "workers_used": 8,
+            "sequential_reason": null
+          },
+          "baseline": {
+            "wall_s": 2.524108446,
+            "user_s": 16.63,
+            "sys_s": 0.46,
+            "max_rss_bytes": 252661760,
+            "workers_used": 8,
+            "sequential_reason": null
+          },
+          "candidate_over_tlc_runtime": 1.0944819001963988,
+          "baseline_over_tlc_runtime": 1.332849230270845,
+          "candidate_over_tlc_rss": 0.21183371294539358,
+          "tlc": {
+            "wall_s": 1.893768919,
+            "user_s": 13.9,
+            "sys_s": 0.87,
+            "max_rss_bytes": 1206677504,
+            "workers_used": 8
+          }
+        },
+        {
+          "rep": 2,
+          "candidate_over_baseline_runtime": 1.2080699460116637,
+          "candidate_over_baseline_rss": 0.991128010139417,
+          "candidate_over_baseline_cpu": 1.237174721189591,
+          "candidate": {
+            "wall_s": 2.473851737,
+            "user_s": 16.15,
+            "sys_s": 0.49,
+            "max_rss_bytes": 249839616,
+            "workers_used": 8,
+            "sequential_reason": null
+          },
+          "baseline": {
+            "wall_s": 2.04777194,
+            "user_s": 13.2,
+            "sys_s": 0.25,
+            "max_rss_bytes": 252076032,
+            "workers_used": 8,
+            "sequential_reason": null
+          },
+          "candidate_over_tlc_runtime": 1.3363042058259202,
+          "baseline_over_tlc_runtime": 1.106148042369244,
+          "candidate_over_tlc_rss": 0.21129424479870304,
+          "tlc": {
+            "wall_s": 1.851263901,
+            "user_s": 14.14,
+            "sys_s": 0.77,
+            "max_rss_bytes": 1182425088,
+            "workers_used": 8
+          }
+        },
+        {
+          "rep": 3,
+          "candidate_over_baseline_runtime": 1.1794395975442669,
+          "candidate_over_baseline_rss": 1.0238198488415313,
+          "candidate_over_baseline_cpu": 1.202173913043478,
+          "candidate": {
+            "wall_s": 2.473981406,
+            "user_s": 16.14,
+            "sys_s": 0.45,
+            "max_rss_bytes": 270770176,
+            "workers_used": 8,
+            "sequential_reason": null
+          },
+          "baseline": {
+            "wall_s": 2.097590594,
+            "user_s": 13.48,
+            "sys_s": 0.32,
+            "max_rss_bytes": 264470528,
+            "workers_used": 8,
+            "sequential_reason": null
+          },
+          "candidate_over_tlc_runtime": 1.3239227720931455,
+          "baseline_over_tlc_runtime": 1.1225015463697416,
+          "candidate_over_tlc_rss": 0.22462189813760836,
+          "tlc": {
+            "wall_s": 1.868675015,
+            "user_s": 14.63,
+            "sys_s": 0.79,
+            "max_rss_bytes": 1205448704,
+            "workers_used": 8
+          }
+        }
+      ]
+    },
+    "whole_panel_quiet_certified": false,
+    "causality_proven": false,
+    "adopted": false,
+    "broader_S5_S6_rejected": false,
+    "global_ADR0119_accepted": false,
+    "record": "conformance/reports/perf/2026-11-02-phase6-scalar-specialization.json"
+  },
+  "qualification": {
+    "source": "ee79de8295d1d9c73324b2322491ecf77485729d",
+    "tree": "14f02996e2fd26f1168a8a4177706c803eb8d50f",
+    "fullgate": {
+      "source": "ee79de8295d1d9c73324b2322491ecf77485729d",
+      "tree": "14f02996e2fd26f1168a8a4177706c803eb8d50f",
+      "physical_exit": 0,
+      "postflight_exit": 0,
+      "launches": 1,
+      "total_report_clock": "62m14s",
+      "finished_utc": "2026-11-02T19:21:45.586830Z",
+      "stages": {
+        "pass": 15,
+        "skipped": {
+          "cargo-deny": "Cargo.lock and deny.toml unchanged"
+        },
+        "failed": 0
+      },
+      "nextest_passed": 3164,
+      "source_declared_skips": 6,
+      "doctests_passed": 195,
+      "doctests_ignored": 0,
+      "reference_cm1_models": 21,
+      "reference_validation_smoke_models": 16,
+      "gate_workers": [
+        1,
+        4,
+        8
+      ],
+      "reference_corpus_tlc": {
+        "agree": 150,
+        "unsupported": 6,
+        "SANY_agree": 458
+      },
+      "reference_corpus_default": {
+        "agree": 144,
+        "expected-divergence": 7,
+        "unsupported": 5,
+        "SANY_selected": 0
+      },
+      "Core_Reference_cm1_shadow": {
+        "agree": 57,
+        "refused": 6,
+        "selected": 63
+      },
+      "Core_Reference_small_shadow": {
+        "agree": 250,
+        "refused": 62,
+        "selected": 312
+      },
+      "shadow_retention": "per-row progress status lines and summary in unchanged standard service.log; no raw child words retained by this gate; no independent post-run replay claim",
+      "standalone_trace": {
+        "rlib_sha256": "8623b51664eabeb768c9350cb0623f9830825c70a2af159ecde760274e22a3ab",
+        "eval_features": [],
+        "forbidden_backend_dependencies": false,
+        "separate_target": true
+      },
+      "gate_release_elfs_match_frozen_elfs": true,
+      "independent_gate_audit_sha256": "02460a7fa88894f705826da7d76789f70f7d32e70960f881b801f7eea36fdf10",
+      "outer_controller_elapsed_s": 3737.323884,
+      "gate_report_sha256": "a6011f75073e95c571ff0fa20ceb2dcec076971b44d433b53446c4b66ef3efdf",
+      "service_log_sha256": "9e3b4accfd6e2b39214b7e2320a1f10504b58701913f7c7dcbbc2dbb765cfff7"
+    },
+    "census": {
+      "kind": "Core/Reference shadow, not fresh pinned-TLC parity",
+      "complete_population": true,
+      "default": {
+        "agree": 1222,
+        "refused": 290,
+        "timeout": 8,
+        "unconfirmed": 0
+      },
+      "tlc": {
+        "agree": 1195,
+        "refused": 318,
+        "timeout": 7,
+        "unconfirmed": 0
+      },
+      "raw_attempts": 5457,
+      "physical_exit_receipts": 5457,
+      "per_id_delta_audit": {
+        "unchanged_old_ID_set": true,
+        "status_changes_per_profile": 4,
+        "changed_cases": [
+          "GenError/General",
+          "GenError/Nested",
+          "GenError/Record",
+          "GenError/Tuple"
+        ],
+        "change": "trace-unconfirmed to agree; Core words independently replayed by the shadow harness",
+        "paired_Reference_census_words_separately_replayed": false,
+        "validated_Core_word_rows": {
+          "default": 418,
+          "tlc": 419
+        },
+        "other_status_changes": 0,
+        "budget_stops_physical_exit5": 15,
+        "recursion_resource_limit_exit3_refusals": 2
+      },
+      "independent_full3040_join_sha256": "e42bc21746f38f2acab9fcf825585261a6d3b2e1a0f45342f550642e395fdfea"
+    },
+    "auto_tlc": {
+      "physical_exit": 0,
+      "complete_population": true,
+      "elapsed_s": 461.15450835227966,
+      "models_selected": 156,
+      "modules_selected": 458,
+      "models": {
+        "agree": 150,
+        "unsupported": 6
+      },
+      "modules": {
+        "agree": 458
+      },
+      "canonical_engine_runs": {
+        "core": 124,
+        "static-fallback": 21,
+        "none": 8,
+        "dynamic-fallback": 3
+      },
+      "actual_core_strict_agreements": 124,
+      "actual_core_expected_divergences": 0,
+      "native_invocations": 156,
+      "physical_exit_receipts": 156,
+      "incomplete_or_stopped": [],
+      "baseline_comparison": {
+        "regressions": 0,
+        "improvements": 0,
+        "other_changes": 0
+      },
+      "independent_all_ID_and_raw_route_audit": {
+        "decision": "pass",
+        "audit_sha256": "d59d35c3193ed7e4811255cbe5064774c6eb501d52a55712b5aae1762417d17f",
+        "phase5_observable_deltas": 0,
+        "corpus_identity_deltas": 0,
+        "no_missing_or_duplicate_IDs_or_native_receipts": true,
+        "raw_engine_runs": {
+          "core": 124,
+          "static-fallback": 27,
+          "dynamic-fallback": 3,
+          "none": 2
+        },
+        "word_bearing_canonical_agreements_raw_bound_and_harness_validated": 20,
+        "canonical_unsupported_mapping_drops_route_fields": true,
+        "none_or_fallback_native_Core_credit": false
+      }
+    },
+    "auto_dive": {
+      "physical_exit": 0,
+      "complete_population": true,
+      "elapsed_s": 478.22680497169495,
+      "models_selected": 156,
+      "modules_selected": 0,
+      "models": {
+        "agree": 144,
+        "unsupported": 5,
+        "expected-divergence": 7
+      },
+      "modules": {},
+      "canonical_engine_runs": {
+        "core": 124,
+        "static-fallback": 22,
+        "none": 7,
+        "dynamic-fallback": 3
+      },
+      "actual_core_strict_agreements": 120,
+      "actual_core_expected_divergences": 4,
+      "native_invocations": 156,
+      "physical_exit_receipts": 156,
+      "incomplete_or_stopped": [],
+      "baseline_comparison": {
+        "regressions": 0,
+        "improvements": 0,
+        "other_changes": 0
+      },
+      "independent_all_ID_and_raw_route_audit": {
+        "decision": "pass",
+        "audit_sha256": "d59d35c3193ed7e4811255cbe5064774c6eb501d52a55712b5aae1762417d17f",
+        "phase5_observable_deltas": 0,
+        "corpus_identity_deltas": 0,
+        "no_missing_or_duplicate_IDs_or_native_receipts": true,
+        "raw_engine_runs": {
+          "core": 124,
+          "static-fallback": 27,
+          "dynamic-fallback": 3,
+          "none": 2
+        },
+        "word_bearing_canonical_agreements_raw_bound_and_harness_validated": 19,
+        "canonical_unsupported_mapping_drops_route_fields": true,
+        "none_or_fallback_native_Core_credit": false
+      }
+    },
+    "fixed_census_selection_per_profile": 1520,
+    "parser_exclusions": 99,
+    "ambiguous_rows": 18,
+    "auto_models_per_profile": 156,
+    "auto_tlc_sany": 458,
+    "not_repeated": [
+      "Phase5 PlusCal149",
+      "fulltier265",
+      "original12capacity",
+      "formal300performance"
+    ],
+    "frozen_binary_sha256": {
+      "dive": "dd389bab013113db22ddb47cb8af15820aeb072946b1ebbf920555816cf72a63",
+      "dive-conformance": "b6589254b1d04f3d72ab780bc0926a6d44e95dcf83b3294c61419fc35b41583b"
+    },
+    "fullgate_launches": 1,
+    "controller_revision": 4,
+    "controller_package_sha256": "9d188787ea59c40f59b69fdce9b51e278b33808520791cec4eccf587ec0ff819",
+    "additional_fixture_rows_selected": 18,
+    "additional_fixture_rows_executed_in_retained_census": false,
+    "new_feature_release_smoke": {
+      "corrected_selection_physical_exit": 0,
+      "results_cells_or_workflow_processes": 14,
+      "all_expected": true,
+      "generation_cells": 4,
+      "generation_unique_models": 5,
+      "generation_per_cell": {
+        "agree": 3,
+        "unsupported": 2
+      },
+      "generation_missing_oracle_case_unselected": "GenPartial",
+      "next_error_cells": 6,
+      "next_error_models_per_cell": 4,
+      "workers": [
+        1,
+        4
+      ],
+      "next_error_raw_native_children": 48,
+      "next_error_physical_exits": {
+        "255": 48
+      },
+      "next_error_error_code": 2179,
+      "next_error_counts_distinct_generated_depth": [
+        2,
+        2,
+        2
+      ],
+      "checkpoint_separate_processes": 4,
+      "resident_pause_recover_actual_workers": [
+        4,
+        8
+      ],
+      "disk_pause_recover_actual_workers": [
+        1,
+        1
+      ],
+      "checkpoint_seed": 7,
+      "checkpoint_counts_pause": [
+        3,
+        3
+      ],
+      "checkpoint_counts_recovered": [
+        5,
+        6
+      ],
+      "transient_cleanup_completed": true,
+      "original_attempt": {
+        "physical_exit": 1,
+        "cells_executed": 1,
+        "model_results": {
+          "agree": 3,
+          "unsupported": 2
+        },
+        "unexpected_SANY_oracle_errors": 5,
+        "cause": "root selected SANY for model-only generation corpus with no SANY goldens",
+        "original_outputs_preserved": true
+      },
+      "correction": "fresh output; --no-sany only for constructive-generation; unchanged v4 check recorder retains first-execution48 Next-error words; no fullgate/census rerun",
+      "closed_panel_words_and_join_proof_sha256": "04006f5b31b5dd765177e45c879b0001dbc8000c467d94574ccb2079b23b6d5d",
+      "generation_simulate_child_streams_retained": false,
+      "generation_credit_scope": "canonical results and in-harness independent validation; no reviewer replay of absent simulation child streams"
+    },
+    "operational_scheduling": {
+      "original_waiting_dispatcher_stopped_before_any_Auto_model_execution": true,
+      "actual": "two unchanged independent Auto commands overlap final fullgate shadow stage",
+      "reason": "minimize wall clock with separate worktree/targets and bounded process usage on64vCPU128GiB host",
+      "fixed_work_end_utc": "2026-11-02T19:34:58Z",
+      "fixed_node_termination_deadline_utc": "2026-11-02T19:42:58Z",
+      "source_input_controller_model_command_budget_threshold_changes": false,
+      "planned_selection_or_launch_count_changes": false,
+      "reruns": false,
+      "performance_measurements": false,
+      "launched_utc": "2026-11-02T19:05:45.123332+00:00",
+      "native_command_runtime_max_s": 1752
+    },
+    "node_tag_prewarm_source": "b29d236bbe80067b4aa701b2a9bcfcb8ff59937e",
+    "actual_source_authority": "clean worktree Git source/tree and actual ELF hashes rechecked before/after all selected commands; the unchanged prewarm instance tag is not the final-source authority",
+    "independent_downloaded_data_audit_sha256": "2b7db9a117ff61e138bb3599a2774b731db2a97f51a8ac86f5e8a83bb9070ba9",
+    "independent_final_data_review": {
+      "decision": "approve bounded qualification evidence with stated limits",
+      "json_sha256": "91f6cbb9ecaf233f4f43d52bed655d76705f86f790901c1c17fa7516c0ce9e83",
+      "markdown_sha256": "54a6982a2d462f1b72e2a87c575afcb9629f9d565500697f39d0514c5ef9575c",
+      "reviewed_source": "ee79de8295d1d9c73324b2322491ecf77485729d",
+      "reviewed_tree": "14f02996e2fd26f1168a8a4177706c803eb8d50f",
+      "source_or_model_test_gate_reruns_by_reviewer": false,
+      "mutable_final_core_record_or_docs_hashed_by_data_review": false
+    }
+  },
+  "preservation": {
+    "performance_archive": {
+      "s3_bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "s3_key": "phase6-20261102/scalar-panel-c4003fc6-node-evidence.tar.gz",
+      "sha256": "230445d427d8959ac38dacaab4fb53340d9182a0e18b8b31112fb8e66b4c6361",
+      "bytes": 166541981,
+      "members_including_manifest": 98,
+      "regular_payload_members": 97,
+      "manifest_sha256": "a5fba893652c5b40f813380ba777557fed237e281e12e454ca31756af78d3468",
+      "download_and_all_member_verification": true
+    },
+    "performance_cleanup": {
+      "instance_id": "i-08d76e5f3ce6f5765",
+      "state": "terminated",
+      "root_volume": "vol-05b87b5421b9968ba",
+      "root_volume_api_result": "InvalidVolume.NotFound",
+      "verified_utc": "2026-11-02T18:40:27.624868+00:00"
+    },
+    "qualification_archive": {
+      "sha256": "85c52de97f870116df7328c99dd2eecf0b306ea672ee9118b5af2ef5ebc596d7",
+      "bytes": 119451413,
+      "members": 34136,
+      "regular_files": 34135,
+      "symlinks": 0,
+      "manifest_sha256": "8af376c5f5d0a26b848e306f867c8e52c1edfe65827a38d96464a15b3870b6e8",
+      "downloaded": true,
+      "all_members_hash_verified": true,
+      "verified_utc": "2026-11-02T19:26:46.355312+00:00",
+      "s3_bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "s3_key": "phase6-20261102/runtime-ee79de82-node-evidence.tar.gz"
+    },
+    "local_support_interim_archive": {
+      "s3_bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "s3_key": "phase6-20261102/local-support-interim-20261102T184221Z.tar.gz",
+      "sha256": "b84d6d3439cc90735574c2ebb21d2229be8a91f817b50248e41bf15a3eefa833",
+      "bytes": 45784773,
+      "members": 2694,
+      "manifest_sha256": "6ffb91f3c9f61acc18b9315947df010e1cecdb84ae369c5419e040adcb1d4c27",
+      "bundle_sha256": "239acc24106b8cad954539d184668aaff9b1e23c9276e6c9753c1f396d105aa2",
+      "all_members_verified": true,
+      "extracted_bundle_verified": true,
+      "s3_download_hash_verified": true
+    },
+    "local_support_final_closure": {
+      "s3_bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "s3_key": "phase6-20261102/qualification-support-closure-20261102T193605Z.tar.gz",
+      "sha256": "c0c54e5ae5c6217db8501d1093982377662f0aebcc26f542b28019d636b6459d",
+      "bytes": 348694,
+      "members": 202,
+      "regular_payload_files": 201,
+      "manifest_sha256": "3bef25b993a737122a37e385fa50127005851f8d8d635a41e2ed9f2df6c90803",
+      "all_members_hash_verified": true,
+      "safe_extraction_verified": true,
+      "s3_download_hash_verified": true,
+      "qualification_review_sha256": "91f6cbb9ecaf233f4f43d52bed655d76705f86f790901c1c17fa7516c0ce9e83",
+      "node_archive_sha256": "85c52de97f870116df7328c99dd2eecf0b306ea672ee9118b5af2ef5ebc596d7",
+      "interim_support_archive_sha256": "b84d6d3439cc90735574c2ebb21d2229be8a91f817b50248e41bf15a3eefa833",
+      "explicit_gaps": [
+        "Final committed core/performance records and their review deliberately postdate this archive to avoid a hash cycle.",
+        "Status documentation and final protected PR/main closure are preserved separately after merge."
+      ]
+    },
+    "nodes_terminated": true,
+    "qualification_cleanup": {
+      "instance_id": "i-05f6ec4e9317ab4cc",
+      "state": "terminated",
+      "root_volume": "vol-0fd1a4b683a5dba11",
+      "root_volume_api_result": "InvalidVolume.NotFound",
+      "termination_requested_utc": "2026-11-02T19:28:03.796746Z",
+      "verified_utc": "2026-11-02T19:30:37.335247+00:00",
+      "final_cleanup_receipt_sha256": "7668f56146a05c3e520cd70d5afbae5f25b68746622ab8071e3bc0ca1006ea96"
+    },
+    "cloud_budget": {
+      "phase_compute_ceiling_usd": 40,
+      "nodes_allocated": 2,
+      "planned_combined_max_compute_usd": 17.136,
+      "fixed_deadlines_extended": false,
+      "qualification_deadline_utc": "2026-11-02T19:42:58Z",
+      "performance_deadline_utc": "2026-11-02T17:53:19Z",
+      "actual_bill_asserted": false
+    }
+  },
+  "remaining_mandatory_scope": [
+    "generalRandomElement/effects and mode matrices",
+    "operator/configuration/temporal/host-runtimebreadth",
+    "remainingtrace/candidate/temporal/SCCspill and full accounting",
+    "retry-safe native distribution",
+    "coverage/debugger/PlusCal/API-product obligations",
+    "actualCore/fallbackcriteria,deep/platform/package/userflow qualification",
+    "ADR0119 performance/memory/startup/scaling and RC gates"
+  ],
+  "updated_utc": "2026-11-02T19:38:23.624219+00:00",
+  "qualified_runtime_source": "ee79de8295d1d9c73324b2322491ecf77485729d",
+  "qualified_runtime_tree": "14f02996e2fd26f1168a8a4177706c803eb8d50f",
+  "acceptance_limits": [
+    "Reference remains default; Core and Auto are explicitly selected",
+    "8 implemented /27 partial /3 missing families unchanged",
+    "no M1/M2, RC, full RAM-bound or global performance acceptance",
+    "new generation proves a finite sample; not model safety/liveness or TLC random-stream identity",
+    "legacy strict PlusCal wrapper findings retained despite exact D-010 count registration",
+    "no source trace wire version or schema change"
+  ],
+  "tracking": {
+    "bounded_issues": {
+      "i731": {
+        "number": 731,
+        "state": "CLOSED",
+        "stateReason": "COMPLETED",
+        "closedAt": "2026-11-02T19:32:36Z"
+      },
+      "i733": {
+        "number": 733,
+        "state": "CLOSED",
+        "stateReason": "COMPLETED",
+        "closedAt": "2026-11-02T19:32:38Z"
+      },
+      "i734": {
+        "number": 734,
+        "state": "CLOSED",
+        "stateReason": "COMPLETED",
+        "closedAt": "2026-11-02T19:32:39Z"
+      },
+      "i735": {
+        "number": 735,
+        "state": "CLOSED",
+        "stateReason": "COMPLETED",
+        "closedAt": "2026-11-02T19:32:41Z"
+      },
+      "i736": {
+        "number": 736,
+        "state": "CLOSED",
+        "stateReason": "NOT_PLANNED",
+        "closedAt": "2026-11-02T19:32:44Z"
+      },
+      "i737": {
+        "number": 737,
+        "state": "CLOSED",
+        "stateReason": "COMPLETED",
+        "closedAt": "2026-11-02T19:32:42Z"
+      }
+    },
+    "broader_parent_scope_not_closed_by_this_phase": [
+      111,
+      118,
+      128,
+      239,
+      350,
+      704,
+      708
+    ]
+  }
+}

@@ -1,5 +1,96 @@
 # Scoreboard
 
+## Phase 6: bounded delivery at `ee79de82`
+
+All five runtime PRs (#738–#742) are merged at `ee79de82`, tree `14f02996`.
+Reference remains default. The family inventory remains **8 implemented / 27
+partial / 3 missing**; these bounded improvements do not complete families,
+M1/M2, global performance or RC acceptance. **The one full gate passed (3,164 nextest
+tests and 195 doctests); the retained census and both fixed Auto panels are closed with
+no new regressions.** The
+[Phase 6 record](../conformance/reports/core/2026-11-02-phase6-checkpoint.json)
+records exact source, counts, routes and physical outcomes.
+
+Fallible Core disk membership (#733/#738) uses one actual worker. Owned
+completed-level safety checkpoint/recovery (#734/#741, merged `cd5b5e62`)
+restores the Store DAG, registered construction authority, original/canonical
+rows, keys, history and actual frontier after fresh-process identity checks.
+Both profiles, fp/exact, VIEW/safety symmetry, width changes and existing
+spill/disk combinations are supported. Auto pause stays Reference; recovery
+selects the encoded backend before work. Archive/component limits are not a
+whole-process memory bound. Temporal recovery and distribution remain open.
+See [storage/recovery](user/storage-recovery.md).
+
+Constructive generation and independent sample proof (#735/#742, merged
+`ee79de82`) are available through the native CLI/API and finite TLC transport.
+Actual Init/Next, constraints, invariants and implied properties must hold for
+retained samples; samples cannot prove exhaustive safety or liveness. General
+RandomElement relations and broader effects remain open. GenError #737/#740
+adds the bounded primitive Next-error lifetime before a second temporal row
+completes; broader lifetimes and ambiguous deciding streams stay open. SBB #731/
+#739 now has a narrowly proved D-010 canonical-order count pair. Historical
+Phase 5 selections, findings and physical outcomes below remain unchanged.
+
+The scalar-fold candidate **`c4003fc6` is stopped unadopted/unmerged**. Its initial
+GameOfLife N=4 screen retained three matched pairs/six correct rows, with 65,536
+distinct / 131,072 generated and median candidate/base runtime 0.5002306 versus
+`b809a288`. The original-model panel completed **138/216 rows**: GameOfLife 54,
+Sailfish 54 and SimpleRegular 30. Physical exit **10** followed SimpleRegular TLC
+actual/requested W8 pair ratios **0.8211595695 / 1.2080699460 / 1.1794395975**;
+median **1.1794395975**, with two of three above the **1.02** bar. The remaining
+**78 rows were correctly unrun**. Independent review verifies the declared stop,
+source/count/pair receipts and full archive. **Whole-panel quiet certification is
+false** because of unresolved observer activity on reserved CPUs. The data do
+not establish the slowdown's cause or global performance acceptance.
+
+Observed GameOfLife runtime reductions were about **50%/39%/67%/58%**, ordered
+default W1/W8 then TLC W1/W8. W8 RSS rose from **137.8 to 169.5 MiB** in default
+and **128.7 to 171.5 MiB** in TLC; W1 stayed around **55 MiB**. These observations
+do not override the stopped control panel. No cache code, runtime flag or default
+change ships, and no rescue follows. Broader S5/S6 and ADR 0119 remain open. See
+[ADR 0140](decisions/0140-certified-scalar-fold-reuse.md) and the
+[performance record](../conformance/reports/perf/2026-11-02-phase6-scalar-specialization.json).
+
+Qualification retains the fixed census and two Auto selections. Shadow agreement
+is distinct from new pinned-TLC parity; absent routes, refusals, timeouts,
+expected divergences and Reference fallbacks earn no native-Core success credit.
+New-feature checks are separate additions. Phase 5 PlusCal/full-tier panels and
+original capacity were not repeated. **The node and authored-source archives are
+uploaded and verified member by member. Both allocated nodes and their root disks are
+confirmed gone; the independent qualification data audit approves the bounded
+evidence.**
+
+The fixed census still selects **1,520 rows per profile**, with 99 parser
+exclusions and 18 ambiguous skips. Exactly four GenError cases per profile move
+from unconfirmed to validated Core-word agreement; no other old status changes.
+These are Core/Reference shadow results, not fresh pinned-TLC parity. The 18 new
+fixture selections remain separate from this retained census.
+
+| Profile | Shadow agree | Refused | Timeout / budget stop | Unconfirmed |
+|---|---:|---:|---:|---:|
+| default | 1,222 | 290 | 8 | 0 |
+| TLC | 1,195 | 318 | 7 | 0 |
+
+Both fixed **156-model Auto panels** retain their previous outcomes: TLC has
+150 agreements / six unsupported and 458 SANY agreements; default has 144 strict
+agreements / seven registered differences / five unsupported. Actual Core credit
+is **124 strict TLC** and **120 strict + four expected default**. Canonical and
+raw routing are retained separately; Reference fallback earns no Core credit.
+
+New-feature release checks add four generation cells (three agreements / two
+explicit refusals each), 48 raw independently validated GenError words, and four
+separate-process checkpoint pause/recovery commands. Missing GenPartial goldens
+and the first smoke's mistaken SANY selection earn no oracle/module credit.
+
+Mandatory scope remains in language/operators/configuration, random/effects/
+host/runtime services and temporal/receiver breadth; candidate/trace/temporal
+spill, recovery, complete accounting and distribution; coverage/debugger, full
+PlusCal/public APIs/cargo-test support; and actual-Core breadth,
+platform/package/user flows, deep/performance/RC acceptance. See
+[current actions](developer/core/m1-status.md#next-bounded-actions).
+
+## Historical Phase 5 delivery and evidence
+
 Phase 5 adds native safety simulation/DFID and shared budgets (#730/#725),
 exact safety membership/predecessor spill (#724) and ordered live-Store frontier
 spill (#729). Independent pinned-translator/TLC versus native-translation/dive
