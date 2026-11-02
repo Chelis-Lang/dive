@@ -266,10 +266,14 @@ pub(crate) fn replay_after(
                         }
                         Err(e) => return Err(e),
                     };
-                new = !ex.seen.contains_row(key, &identity, &m.heap)
-                    && !added.contains_row(key, &identity, &m.heap);
+                new = !ex.seen_contains(key, &identity, &m.heap, ("ReplayMembership", Some(o)))?
+                    && (ex.disk.is_some() || !added.contains_row(key, &identity, &m.heap));
                 if new {
-                    added.insert_row(key, &identity, &m.heap)?;
+                    if ex.disk.is_some() {
+                        ex.seen_insert(key, &identity, &m.heap, ("ReplayInsertion", Some(o)))?;
+                    } else {
+                        added.insert_row(key, &identity, &m.heap)?;
+                    }
                     out.distinct += 1;
                 }
             }

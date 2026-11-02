@@ -33,7 +33,7 @@ restart. It decodes at most 1,024 state pairs per chunk, outside the encoded
 queue capacity. Full retained-record validation precedes certification and
 cooperates with the actual run owner. Already stopped runs close/clean promptly
 without validating unprocessed records. This implements the existing transient
-scope; core disk membership, temporal storage and recovery remain separate.
+scope; core temporal storage and recovery remain separate.
 
 **Predecessor log.** `--predecessor-memory-bytes N` and
 `--predecessor-directory DIR` move the parent/ordinal log to a fixed-record
@@ -47,6 +47,13 @@ is never treated as absent, duplicate or success. The disk route runs inline and
 reports the requested width separately. It admits INIT/NEXT and pure safety roles.
 Temporal roles, checkpointing and DFID refuse by name. Invariant-error replay on
 this route uses the same fallible membership.
+
+Explicit Core safety checking now uses this disk policy too, with direct closed
+mathematical key encoding and one actual worker. Original receiver/history values
+remain owned by the live Store. Auto keeps a static whole-Reference disk selection
+until Core whole-backend admission is proved. Record audits cooperate with the
+actual owner; already stopped runs discard remaining files without upgrading an
+unprocessed suffix into certified contents.
 
 **Formats.** Transient and persisted files have a version magic and per-record
 checksums. Checksums detect accidental corruption, not tampering. Structural

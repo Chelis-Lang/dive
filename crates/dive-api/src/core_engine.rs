@@ -318,8 +318,6 @@ fn option_refusal(options: &CheckOptions, profile_tlc: bool) -> Option<String> {
         && e.action_composition != dive_eval::Options::tlc().action_composition
     {
         "--action-composition=tlc"
-    } else if options.seen_disk.is_some() {
-        "spilling the seen set to disk"
     } else if options.chaos.is_some() {
         "--chaos"
     } else {
@@ -693,6 +691,13 @@ pub(crate) fn prepare(
         Ok(m) => m,
         Err(f) => return Err(Box::new(binding_failure(ir, config, options, &f))),
     };
+    if options.seen_disk.is_some() && !model.implied_temporals.is_empty() {
+        return Err(Box::new(result(
+            unsupported("disk seen-state retention with temporal checking"),
+            options,
+            ir,
+        )));
+    }
     let mut sym = Symmetry::default();
     if model.symmetry.is_some() && model.implied_temporals.is_empty() {
         match symmetry(&mut model, config, profile_tlc) {
@@ -828,7 +833,13 @@ pub(crate) fn safety_result(
     let Startup { mut sym, startup } = start;
     let budget = &options.budget;
     let storage_failed = !out.metrics.storage.predecessor_failures.is_empty()
-        || !out.metrics.storage.frontier.failures.is_empty();
+        || !out.metrics.storage.frontier.failures.is_empty()
+        || out
+            .metrics
+            .storage
+            .seen
+            .as_ref()
+            .is_some_and(|usage| usage.first_failure.is_some());
     let owned_budget = out.verdict == dive_explore::Verdict::Budget || storage_failed;
     // A reached owned budget publishes observed prefix facts, not a model
     // verdict or an effect/replay parity claim. Preserve that stop and output.
@@ -1213,7 +1224,11 @@ pub(crate) fn check(
     // Every observable result is the one-worker result
     // (`docs/developer/core/07-engine.md` §3), in both profiles: under
     // TLC's string order the table is sealed, so no worker creates a token.
-    let workers = options.workers.max(1);
+    let workers = if options.seen_disk.is_some() {
+        1
+    } else {
+        options.workers.max(1)
+    };
     let poll = || !matches!(budget.poll(), Ok(None));
     let explore_started = Instant::now();
     run.searched = true;
@@ -1241,6 +1256,12 @@ pub(crate) fn check(
             predecessor_directory: options.predecessor_directory.clone(),
             frontier_memory_bytes: options.frontier_memory_bytes,
             frontier_directory: options.frontier_directory.clone(),
+            seen_disk: options.seen_disk.as_ref().map(|options| {
+                dive_explore::storage::DiskOptions {
+                    limits: options.limits,
+                    directory: options.directory.clone(),
+                }
+            }),
         },
     );
     if let Some(sample) = sample {
@@ -1263,8 +1284,85 @@ pub(crate) fn check(
         workers,
         explore_started,
     };
-    let r = safety_result(&search, &model, &store, &plan, start, out);
+    let disk_usage = out.metrics.storage.seen.clone();
+    let observed_stats = out.stats;
+    let mut observed_output = start.startup.clone();
+    observed_output.extend(out.printed.iter().cloned());
+    let disk_print_replay =
+        disk_usage.is_some() && out.replayed.is_some() && !observed_output.is_empty();
+    let mut r = safety_result(&search, &model, &store, &plan, start, out);
+    if let Some(usage) = disk_usage {
+        r.seen = Some(native_seen_usage(&usage));
+        let creation_failed = usage
+            .first_failure
+            .as_ref()
+            .is_some_and(|failure| failure.phase == "Creation");
+        r.workers.used = usize::from(!creation_failed);
+        r.workers.reason = Some("fallible Core disk membership executes inline; the requested worker width is retained separately".into());
+        if r.stats.is_none() && !creation_failed {
+            r.stats = Some(dive_check::Stats {
+                generated: observed_stats.generated,
+                distinct: observed_stats.distinct,
+                left_on_queue: observed_stats.left_on_queue,
+                depth: observed_stats.depth,
+                initial_generated: observed_stats.initial_generated,
+            });
+        }
+        if r.output.is_empty() {
+            r.output = observed_output;
+        }
+        if disk_print_replay && usage.first_failure.is_none() {
+            r.verdict =
+                unsupported("Core disk invariant-error replay after actual Print/PrintT execution");
+            r.counterexample = None;
+            r.diagnostic_witness = None;
+        }
+        if let Some(event) = usage.deciding_event_before_failure {
+            r.notes.push(format!("Core disk storage failed after the observed search event {event:?}; it supplies no certified model verdict."));
+        }
+    }
     (finish(r), run)
+}
+
+fn native_seen_usage(usage: &dive_explore::storage::DiskUsage) -> dive_check::SeenUsage {
+    use dive_check::SeenPhase;
+    dive_check::SeenUsage {
+        limits: usage.limits,
+        admitted_keys: usage.admitted_keys,
+        before_cleanup: usage.before_cleanup,
+        after_cleanup: usage.after_cleanup,
+        first_failure: usage
+            .first_failure
+            .as_ref()
+            .map(|failure| dive_check::SeenFailure {
+                phase: match failure.phase {
+                    "Creation" => SeenPhase::Creation,
+                    "Insertion" => SeenPhase::Insertion,
+                    "AdmissionMembership" => SeenPhase::AdmissionMembership,
+                    "ReplayMembership" => SeenPhase::ReplayMembership,
+                    "ReplayInsertion" => SeenPhase::ReplayInsertion,
+                    _ => SeenPhase::Cleanup,
+                },
+                error: failure.error.clone(),
+                generated: (!matches!(failure.phase, "Creation" | "Cleanup"))
+                    .then_some(failure.generated),
+                predecessor: failure.predecessor,
+                successor_ordinal: (!matches!(failure.phase, "Creation" | "Cleanup"))
+                    .then_some(failure.successor_ordinal),
+            }),
+        deciding_event_before_failure: match &usage.deciding_event_before_failure {
+            Some(dive_explore::Verdict::Success) => Some(Verdict::Success),
+            Some(dive_explore::Verdict::InvariantViolated { property, initial }) => {
+                Some(Verdict::InvariantViolated {
+                    property: property.clone(),
+                    initial: *initial,
+                })
+            }
+            Some(dive_explore::Verdict::Deadlock) => Some(Verdict::Deadlock),
+            _ => None,
+        },
+        replay: None,
+    }
 }
 
 /// Runs the temporal route on a thread with the evaluator's stack, as the

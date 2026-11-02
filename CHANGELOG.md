@@ -1,5 +1,13 @@
 # Changelog
 
+- Support opt-in native Core disk membership for safety BFS in both profiles,
+  fingerprint/exact modes and the existing VIEW, safety-symmetry and transient
+  spill routes. Preserve original receiver/history values, use fallible native
+  mathematical keys and report one actual worker. Retained-record auditing is
+  cooperative; cancellation and storage failures cannot certify a model result.
+  Auto keeps a truthful static whole-Reference disk selection. Native recovery
+  and temporal disk storage remain separate work.
+
 - Support opt-in ordered frontier spill on native safety BFS in both profiles,
   both stores and requested worker widths. Retain the live Store and original
   construction history, decode bounded chunks, and validate/close retained files

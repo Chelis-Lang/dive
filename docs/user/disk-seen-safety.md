@@ -5,6 +5,28 @@ explicitly; the default keeps the existing resident reference. The disk route
 currently runs inline and reports that fallback even when you request workers.
 This bounds disk-membership workspaces, not total search or process memory.
 
+Use `--engine core` to run the compiled native safety engine with the same disk
+policy, in either semantic profile and either store mode. It supports the
+existing pure VIEW, safety symmetry, constraints and transient frontier/predecessor
+spill combinations. Requested widths are retained, but disk search uses one
+actual worker. Core exact keys encode closed mathematical values directly;
+original receiver classes and construction history stay with the live Store and
+concrete trace, rather than being reconstructed through reference values.
+
+```sh
+dive check docs/user/examples/CheckpointCounter.tla --engine core --compat=tlc --seed 7 --fp 0 --workers 8 --store exact --seen-disk-entries 1000 --output json
+```
+
+The example completes with five distinct and six generated states. Core disk
+Auto admission is not yet proved, so `--engine auto` statically selects the
+whole Reference disk backend and reports that reason; it does not retry a
+reached Core operation. Rust callers select Core with
+`check_file_engine(&request, Engine::Core)`; `check_file` keeps its existing
+Reference default. Core temporal, checkpoint/recovery and opaque/deferred key
+combinations remain named refusals. Read, write, key-limit, audit and cleanup
+failures stop without a certified word. A cancelled retained-record audit cleans
+up and cannot certify the unprocessed suffix.
+
 Run the shipped pure finite example:
 
 ```sh
