@@ -19,7 +19,106 @@ Current source-bound findings and next steps: `m1-status.md`. Decision: ADR
 The realistic total is 6–8 months to replace the default engine. M0 shows,
 after two weeks, whether the design reaches TLC-relative speed.
 
-### Next checkpoint: trusted core and temporal capacity (2026-10-29)
+### Current checkpoint: usable native modes and bounded safety storage (2026-11-02)
+
+Phase 5 builds on Phase 4's accepted original twelve-cell capacity contract;
+#650 is closed. It delivers compiled safety simulation/DFID (#730), shared
+finite-mode budgets (#725), exact safety membership and predecessor spill
+(#724), and ordered live-Store frontier spill (#729). Independent PlusCal
+translation/model comparison (#728) is merged. Final runtime main is
+`5688504ee3405f78b7951d6cab2b4b841ee549c8`, tree
+`a8ab9e3bc576bc564cfd3fd1adb24db3e4d3621e`. One integrated full gate passes:
+physical/postflight 0, 63m30s report duration, 3,118 nextest passes, six declared
+skips and 189 doctests. The fixed census retains 1,218 default / 1,191 TLC shadow
+agreements, no gained/lost IDs and its refusal/stop/four-unconfirmed findings per
+profile; census exit 1 remains. Both Auto baselines pass. Both fixed PlusCal
+149-input / 59-configuration label variants are closed, physical exit 1 and
+`overall_accepted: false`, with valid words and distinct missing-configuration,
+startup, refusal, timeout and unregistered SBB count findings (#731).
+Approved v4 accounting admits legitimate clean/trace receipts without repeating
+model runs. Both 60-second actual-Core full-tier diagnostics are terminal,
+physical exit 1. Native credit is 141 strict TLC and 137 strict + four expected
+default, with refusals/stops/missing references retained and no deep/M2 acceptance. The [Phase 5 record](../../../conformance/reports/core/2026-11-02-phase5-checkpoint.json)
+retains each outcome. **The bounded Phase 5 delivery, archival, cleanup and
+independent audit are complete**, with findings retained. Reference remains the
+default. Report schema 3 and native trace versions 1–6 retain their meanings.
+
+- Native simulation and DFID execute the existing compiled Plan/Machine in both
+  profiles with one actual worker. Explicit Core never falls back. Finite Auto
+  selects a whole backend before execution using isolated preparation; a reached
+  refusal never retries effects. Shared simulation preflight refuses VIEW before
+  assumptions or work. Independent words, completion certificates and sampled
+  versus proved outcomes remain mandatory (ADR 0139).
+- One finite-mode budget owner covers assumptions, Init, execution and fresh
+  independent replay on both backends. DFID retains one eager candidate batch,
+  including generator continuations, through its deferred demands and reclaims
+  that batch after retaining required rows. It does not retain a run-long arena.
+  Loading and individual value encoding/decoding remain uninterruptible; sampled
+  memory is not an allocation-time cap. #350's ≤1% instruction-overhead criterion
+  is **unmeasured**, not accepted by landing resource controls.
+- Native safety exact membership resolves complete canonical-state collisions;
+  concrete representation/history remains separate. Ordered frontier spill
+  carries paired canonical/original opaque rows under a retained live Store,
+  with bounded decoded chunks and controlled final validation. The codec is
+  process-local and cannot resume after restart. Frontier/predecessor component
+  budgets exclude the Store, histories, seen set, candidates, arenas, decoded
+  chunks and temporal graph. Native checkpoint/recovery, disk seen and temporal
+  exact/spill remain separate work; no total-memory bound is claimed.
+- The PlusCal lane compares pinned `pcal.trans` → TLC against native translation
+  → dive in both profiles and both label settings, using the ordinary Reference
+  checker backend and independent words. Preserve the fixed 149 inputs and 59
+  configurations: absent configurations, translation refusals, startup matches,
+  actual exploration, stops and disagreements remain separate. Neither missing
+  configuration nor preflight agreement earns explored-model credit.
+
+The matched old-bridge CoffeeCan #651 comparison is accepted at actual source
+`ccff7729` against `b5f6af4c`: 24 children cover all four profile/W1/W8 cells,
+with three matched repetitions each. Every pair passes runtime ≤1.10 and RSS
+≤0.65. This is not stock-TLC timing, quiet-panel acceptance or execution of the
+later Phase 5 source. The single S6 indexed-guard candidate at `f60450d3` is
+stopped unadopted: SimpleRegular's median candidate/base runtime is 0.96396 and
+Bakery's is 1.05356. It ships no code, permits no rescue variant and rejects no
+broader S6 strategy. The [separate performance record](../../../conformance/reports/perf/2026-11-02-phase5-bridge-and-s6.json)
+retains those actual sources and limitations.
+
+All runtime campaigns and the bounded evidence closeout are complete. Do not
+repeat the passing full gate or performance campaign for documentation updates.
+Take the remaining scope in dependency order:
+
+1. Resolve #731's unregistered default SBB counts and independently prove
+   remaining GenError words, broader
+   constructor/receiver lifetimes and actual-core capability breadth. Preserve
+   named refusals and Unclassified oracle streams until proved.
+2. Complete recorded simulation/generation/DFID contracts and remaining captured
+   effects/worker options; #111/#118/#128/#239 stay open. Build on the existing
+   kernel rather than restarting it or turning a qualification loop into the
+   development loop.
+3. Native checkpoint/recovery preserving owned representations and histories,
+   disk membership and remaining candidate/trace/temporal graph/SCC spill with
+   complete accounting. Retry-safe native distribution follows identity-checked
+   recovery; Java checkpoint/worker interoperability is excluded.
+4. Remaining operators/configuration, explicitly granted host/runtime services,
+   coverage/debugger, PlusCal and public API/cargo-test obligations. These remain
+   v1 scope; ADR 0095 keeps LSP/native compilation and the roadmap's Verus export
+   after v1.
+5. Address measured ADR 0119 deficits through material expensive-body/read work
+   under the existing S5/S6 design. Preserve history/demand safeguards and stopped
+   experiments; do not resurrect #705/#710 or the indexed-guard prototype.
+6. Meet full-tier actual-core/fallback criteria, unchanged deep populations,
+   supported package/platform/user-flow checks and RC performance/release gates.
+   Use focused development checks and one integrated milestone campaign; no
+   per-edit full gate or formal performance panel.
+
+See [current acceptance and next actions](m1-status.md#next-bounded-actions).
+The 38-family inventory remains 8 implemented / 27 partial / 3 missing; bounded
+implementation gains do not close entire families, M1/M2 or RC acceptance.
+
+### Historical trusted-core plan and Phase 3 checkpoint (2026-10-29)
+
+The following plan and measurements preserve the earlier checkpoint's scope and
+then-open findings. Phase 4 later accepted #650 and repaired #713/#714; the
+current Phase 5 scope above supersedes this as the active work queue. Historical
+source evidence and rejected experiments remain unchanged.
 
 The owner prioritized trusted capability and capacity, not an engine-cutover
 project. The milestone estimates above are the original planning context;
@@ -105,7 +204,8 @@ latter. The 147-member final archive is verified. Both phase nodes/root volumes
 have verified cleanup, with no active owned phase instance and no fixed-deadline
 extension. Conservative compute is about $10.235, below $40, not an invoice and
 excluding small storage/transfer costs. Bounded deliverables #707/#711 are manually closed after
-verification. #708/#713/#714 and broader capacity/parity issues remain open.
+verification. #708/#713/#714 and broader capacity/parity issues were open at
+that checkpoint; Phase 4 later closed #713/#714.
 M1/M2, #650, RC/release qualification and the reference default remain unchanged.
 
 The historical [local qualification at runtime base `16095d43`](../../../conformance/reports/core/2026-11-01-integrated-qualification.json)
@@ -165,9 +265,10 @@ The projection-reuse experiment #705 is closed unmerged: a roughly 3–4%
 Sailfish gain accompanied a roughly 3–5% SimpleRegular regression. Issue #704
 remains open; no loop tuning is adopted by this checkpoint.
 
-Finer S6 keys follow only when eligibility is proved: Sailfish's reduction from
+The historical strategy remains: finer S6 keys follow only when eligibility is proved: Sailfish's reduction from
 13 to six memo sites reflects intentional history safeguards, which finer keys
-alone cannot remove. Broad scaling and native modes/storage remain later work.
+alone cannot remove. Broad scaling remains open; the bounded native modes/storage integrations are
+now recorded in the current checkpoint above.
 Persistent trees remain deferred after the negative experiment. No new
 code-generation tier, analyzer rewrite or default semantic divergence is
 introduced by this checkpoint.
@@ -179,9 +280,8 @@ after loading, cooperative evaluator/execution checkpoints and final resource
 sampling. Requests expose the existing time/memory settings; a stop has exit 5
 and prefix progress, never a model verdict. This implements #350's bounded mode
 budget feature without changing engine selection, simulation streams, DFID
-completion rules or report/native trace versions. Native plan-backed mode
-integration remains the next implementation step, not acceptance granted by
-this budget increment.
+completion rules or report/native trace versions. Native plan-backed modes subsequently landed in #730. Budget implementation
+alone grants neither mode-wide parity nor #350 instruction-overhead acceptance.
 
 ### Native finite modes
 
@@ -376,6 +476,21 @@ The semantic contract lists seven more, in `02-semantic-contract.md` §6.
 
 Add a new entry at the top for every working session that ends with work in
 progress. Give the date, branch, state and the exact next step.
+
+- **2026-11-02 (Phase 5 execution results, `docs/phase5-results`).**
+  Actual main `5688504e`, tree `a8ab9e3b`, passes its single integrated full gate:
+  3,118 nextest passes / six declared skips / 189 doctests, physical and postflight
+  0. Fixed census ID/status rows are unchanged at 1,218 default / 1,191 TLC
+  shadow agreements, with census findings/exit 1 retained. Both Auto baselines
+  pass. Both fixed PlusCal variants retain complete selections and exit 1:
+  independently valid words coexist with missing configurations, strict output
+  qualification findings, refusals, timeouts and default SBB count difference
+  #731. Approved v4 postrun accounting changes no model execution. Full-tier
+  actual-Core diagnostics are terminal with physical exit 1 and separate from
+  deep/M2 acceptance. Archival, cleanup and independent audit are complete with
+  findings; do not rerun the gate or performance campaign for documentation.
+  Reference stays default; M1/M2/global performance/RC
+  remain open. #651 and the stopped S6 experiment keep their actual older sources.
 
 - **2026-10-28 (checked membership and acceptance handoff).** Main
   `2efcb3bf` includes merged #611/#614/#616/#618 and #621, which closes
