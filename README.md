@@ -4,60 +4,58 @@
 
 The standard is an **unimpeachably sound port**. Every result is verified continuously against the canonical Java tools. Where `dive` cannot match TLC exactly, it refuses with an explicit `unsupported` result instead of approximating.
 
-> **Status: early development.** `dive parse`, `dive analyze`, configuration
-> parsing, safety `dive check`, bounded safety `dive simulate`/`dive dfid`, and
-> `dive validate-trace` are implemented.
-> The protected conformance gate compares safety results with pinned TLC
-> goldens. Rust callers can use bounded final temporal checking with
-> independently validated counterexamples. Pure safety symmetry now retains
-> concrete validated traces. Eligible ordinary dive-profile requests check
-> temporal properties at deterministic completed-level boundaries; ordinary
-> TLC-profile requests use bounded final analysis. Unsupported combinations and
-> symmetry interactions retain named refusals. Configured native random replacements refuse
-> before startup until their stream authority is proved. See `docs/scoreboard.md`
-> for measured coverage and `docs/ROADMAP.md` for the remaining roadmap.
-> The reference engine remains the default. Bounded native construction histories
-> and independent initial-diagnostic/temporal-source replay are implemented;
-> original temporal capacity is accepted on its recorded Phase 4 source.
-> The current runtime passes its integrated full gate; fixed census and
-> independent PlusCal findings remain. Phase 5's bounded delivery and evidence
-> closeout are complete; broader parity and TLC-relative performance acceptance
-> remain open.
+> **Status: early development.** Safety checking, bounded temporal checking,
+> finite simulation/generation/DFID, independent trace validation and bounded
+> PlusCal translation are implemented. Reference remains the default engine.
+> The optional Core engine adds compiled execution, exact and disk membership,
+> spill and owned safety checkpoint/recovery. Features outside the proved scope
+> return named refusals. The family inventory remains **8 implemented / 27
+> partial / 3 missing**; M1/M2, broad performance and RC acceptance remain open.
+> See [current status](docs/developer/core/m1-status.md), the
+> [roadmap](docs/ROADMAP.md) and the
+> [Phase 6 record](conformance/reports/core/2026-11-02-phase6-checkpoint.json).
 
-Compiled safety simulation and DFID are available explicitly with `--engine core`
-in both profiles with one actual worker; `--engine auto` selects a whole finite
-backend before execution
-and never retries after a reached native refusal. Both backends share time/memory
-controls and independent trace validation. Simulation remains sampling; DFID
-requires a completion certificate to prove safety. Configured simulation VIEW
-refuses before execution in every engine. See the
-[simulation](docs/user/simulation.md) and [DFID](docs/user/dfid.md) guides.
+Compiled safety simulation and DFID are available with `--engine core` in both
+profiles, using one actual worker. `--engine auto` chooses a whole backend before
+execution and never retries a reached native refusal. Both backends share
+resource controls and independent trace validation. Simulation samples behaviors;
+DFID proves safety only with a completion certificate. Configured simulation VIEW
+refuses before execution. See [simulation](docs/user/simulation.md) and
+[DFID](docs/user/dfid.md).
 
-Native safety BFS also supports exact membership and ordered frontier/predecessor
-spill. The component budgets exclude retained values/history and other search
-memory; frontier files depend on the current live Store and cannot recover after
-restart. Core checkpoint/recovery, disk seen and temporal spill remain unfinished.
-See [storage and recovery](docs/user/storage-recovery.md).
+Core safety BFS supports exact membership, frontier/predecessor spill and opt-in
+disk membership. Completed-level checkpoints preserve owned representations,
+construction history and the ordered frontier for identity-checked recovery in a
+fresh process. Auto pauses on Reference and recovers with the encoded backend;
+disk membership uses one actual worker. Component budgets and archive bounds do
+not bound total process memory. Temporal recovery, further spill and distribution
+remain open. See [storage and recovery](docs/user/storage-recovery.md).
 
-The checking-only `dive tlc` and installed `tlc` adapter accepts common TLC
-checking flags and module/configuration basenames. `-lncheck final` selects the
-existing bounded, independently validated short-lasso route. Tool messages and
-other TLC mode protocols still refuse. See
-[the checking guide](docs/user/checking.md#tlc-checking-entrypoints) for supported
-flags, path resolution and statuses.
+Constructive generation is available through `simulate --generate` and the finite
+TLC `-generate num=N` transport. Retained samples require independent Init/Next,
+constraint and safety-property proof. Sampling proves neither exhaustive safety
+nor liveness. General RandomElement relations and broader effects remain open.
+The `dive tlc` and installed `tlc` adapters accept common checking flags, finite
+simulation/generation options and module/configuration basenames. See the
+[checking guide](docs/user/checking.md#tlc-checking-entrypoints) and
+[simulation guide](docs/user/simulation.md).
 
+Native PlusCal translation supports the measured debug-header, original-AST,
+procedure/macro, termination, wrapping and label-reporting subsets. Independent
+pinned-translator/TLC versus native-translation/dive model comparison uses the
+Reference checker. Missing configurations, refusals and timeouts remain explicit;
+complete translation, public API and filesystem support are unfinished. See the
+[translator guide](docs/pluscal-translation.md).
 
-Native PlusCal translation supports bounded debug-header serialization and a separate
-`--ast` in-memory original AST operation for measured procedure/macro and compound
-ownership, plus measured termination, done-disjunct, wrapping,
-sequential version and label-reporting options. File preferences return an
-in-memory plan; broader AST shapes, translation breadth and filesystem writes
-remain unfinished. Independent pinned-translator/TLC versus
-native-translation/dive model comparison is implemented; it uses the Reference
-checker and does not imply native-core corpus coverage or complete PlusCal parity. Both fixed input/label populations retain
-missing configurations, refusals, timeouts and unregistered count finding #731;
-valid words alone do not make those comparisons agree. See
-[the translator guide](docs/pluscal-translation.md).
+Phase 6's runtime changes are merged at `ee79de82`. **The source-bound full gate passed, and the retained census and Auto panels are closed with refusals and registered differences reported separately.**
+The scalar-fold experiment stays unmerged after its control panel triggered the
+stop criterion. Its initial GameOfLife improvement gives current main no
+performance credit; whole-panel quiet certification also failed. See
+[ADR 0140](docs/decisions/0140-certified-scalar-fold-reuse.md) and the
+[performance record](conformance/reports/perf/2026-11-02-phase6-scalar-specialization.json).
+Remaining mandatory v1 work includes broader language/effects/host services,
+coverage/debugger, storage/distribution, full PlusCal/public APIs and
+platform/deep/performance/RC acceptance.
 
 ## Documentation
 
