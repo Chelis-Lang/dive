@@ -20,8 +20,9 @@ The standard is an **unimpeachably sound port**. Every result is verified contin
 > and independent initial-diagnostic/temporal-source replay are implemented;
 > original temporal capacity is accepted on its recorded Phase 4 source.
 > The current runtime passes its integrated full gate; fixed census and
-> independent PlusCal findings remain. Final archival/cleanup/audit, broader
-> parity and TLC-relative performance acceptance remain open.
+> independent PlusCal findings remain. Phase 5's bounded delivery and evidence
+> closeout are complete; broader parity and TLC-relative performance acceptance
+> remain open.
 
 Compiled safety simulation and DFID are available explicitly with `--engine core`
 in both profiles with one actual worker; `--engine auto` selects a whole finite

@@ -39,8 +39,8 @@ Approved v4 accounting admits legitimate clean/trace receipts without repeating
 model runs. Both 60-second actual-Core full-tier diagnostics are terminal,
 physical exit 1. Native credit is 141 strict TLC and 137 strict + four expected
 default, with refusals/stops/missing references retained and no deep/M2 acceptance. The [Phase 5 record](../../../conformance/reports/core/2026-11-02-phase5-checkpoint.json)
-retains each outcome. **Final archival, cleanup and qualification audit remain
-pending**; no phase-completion or release claim is made. Reference remains the
+retains each outcome. **The bounded Phase 5 delivery, archival, cleanup and
+independent audit are complete**, with findings retained. Reference remains the
 default. Report schema 3 and native trace versions 1–6 retain their meanings.
 
 - Native simulation and DFID execute the existing compiled Plan/Machine in both
@@ -81,10 +81,9 @@ Bakery's is 1.05356. It ships no code, permits no rescue variant and rejects no
 broader S6 strategy. The [separate performance record](../../../conformance/reports/perf/2026-11-02-phase5-bridge-and-s6.json)
 retains those actual sources and limitations.
 
-All runtime campaigns are closed. Next, finish final archival/cleanup/audit
-of this integrated checkpoint without repeating the
-passing full gate or performance campaign. Then take the remaining scope in
-dependency order:
+All runtime campaigns and the bounded evidence closeout are complete. Do not
+repeat the passing full gate or performance campaign for documentation updates.
+Take the remaining scope in dependency order:
 
 1. Resolve #731's unregistered default SBB counts and independently prove
    remaining GenError words, broader
@@ -488,8 +487,9 @@ progress. Give the date, branch, state and the exact next step.
   qualification findings, refusals, timeouts and default SBB count difference
   #731. Approved v4 postrun accounting changes no model execution. Full-tier
   actual-Core diagnostics are terminal with physical exit 1 and separate from
-  deep/M2 acceptance. Next: final archival/cleanup and audit; do not rerun the gate or
-  performance campaign. Reference stays default; M1/M2/global performance/RC
+  deep/M2 acceptance. Archival, cleanup and independent audit are complete with
+  findings; do not rerun the gate or performance campaign for documentation.
+  Reference stays default; M1/M2/global performance/RC
   remain open. #651 and the stopped S6 experiment keep their actual older sources.
 
 - **2026-10-28 (checked membership and acceptance handoff).** Main

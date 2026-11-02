@@ -7,9 +7,10 @@ comparison (#728) is merged. Final runtime main is `5688504e`, tree `a8ab9e3b`;
 all five implementation PRs passed their required CI checks. Reference remains
 default. The one full gate passes on that actual source; census, Auto and
 independent PlusCal populations are closed with findings retained. Both full-tier
-diagnostics are closed under their separate 60-second policy. **Final evidence archival, cleanup and qualification
-audit are pending**, so bounded-phase/M1/M2/global-performance/RC acceptance is
-not claimed. The [Phase 5 checkpoint](../conformance/reports/core/2026-11-02-phase5-checkpoint.json)
+diagnostics are closed under their separate 60-second policy. **The bounded
+Phase 5 delivery, evidence archival, cleanup and independent audit are complete**,
+with findings retained. M1/M2/global-performance/RC acceptance remains open.
+The [Phase 5 checkpoint](../conformance/reports/core/2026-11-02-phase5-checkpoint.json)
 records the distinct source-bound outcomes.
 
 Finite Core is explicit in both profiles, with one actual worker. Finite Auto
@@ -111,8 +112,8 @@ all 205 actual raw children per profile have physical receipts. Default's
 856.9595716s default**. No unregistered full-tier mismatch is observed; separate
 PlusCal #731 remains open. This is not the 900-second deep policy, historical
 Reference acceptance or M2 qualification, and absent routing does not prove no
-work. All runtime campaigns are closed. Final archive/cleanup and the overall
-qualification audit remain pending; no clean-census or release claim follows.
+work. All runtime campaigns, archival, cleanup and the bounded independent
+audit are complete with findings; no clean-census or release claim follows.
 
 ## Historical Phase 4 and earlier checkpoints
 

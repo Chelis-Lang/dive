@@ -15,10 +15,11 @@ The one integrated full gate passes at this actual runtime. The fixed census,
 both Auto baselines and both independent PlusCal populations are closed with
 findings retained. Both actual-Core full-tier diagnostics are also closed and
 recorded separately below.
-**Phase 5 preservation, cleanup and final qualification audit remain pending.**
+**The bounded Phase 5 delivery, evidence archival, cleanup and independent audit
+are complete, with findings retained.**
 The [Phase 5 checkpoint](../../../conformance/reports/core/2026-11-02-phase5-checkpoint.json)
-binds closed results to source `5688504e`; neither a passing gate nor partial
-content approval closes M1/M2, clean parity, global performance or RC acceptance.
+binds closed results to source `5688504e`; this bounded approval does not close
+M1/M2, clean parity, global performance or RC acceptance.
 
 ADR 0119 preserves default ≥2× TLC aggregate throughput and no slower panel
 model at W1/W8; compatibility requires runtime/TLC ≤2 per model, investigated
@@ -179,7 +180,10 @@ expected default**. Two additional overall agreement rows per profile earn no
 actual-Core credit; the TLC pair are frontend/engine-absent rows. Canonical
 routing among 208 run rows records 141 Core / 67 without engine metadata in
 each profile. All **205 actual raw children per profile** have physical exit
-receipts; canonical run rows are not physical-child counts. Default records
+receipts; three manifest-level simulation refusals account for the other
+canonical rows without launching children. Raw reports contain 203 Core headers
+and two frontend failures per profile, with no Reference fallback; headers on
+refusals and stops earn no success credit. Both profiles record
 21 incomplete children, with no success credit. No unregistered full-tier
 mismatch is observed; PlusCal's separate #731 finding remains unchanged.
 
@@ -187,11 +191,22 @@ These diagnostics are not the 900-second deep qualification, historical
 Reference 182-model acceptance or M2 full-tier acceptance. Missing, refused,
 stopped and unconfirmed rows earn no successful native-check credit; absent
 route metadata does not establish that no work ran. All runtime campaigns are
-closed; raw archival, cleanup and final independent review remain pending.
+closed. Independent review reconciles all 410 children, the exact original
+selection and all 208 available pinned goldens at the executed source.
 
-The closed content is approved only within these partial result boundaries.
-Raw evidence archival, cleanup and final independent audit are pending; this
-page does not declare the bounded phase or release qualification complete.
+The runtime evidence archive is uploaded, downloaded and independently verified
+across all **41,411 members** (41,410 payload files plus its manifest), SHA-256
+`e6d7ce958775293268500e03e6d333832ba7dd87792cf64cc0ba34d67c52ec19`.
+The separate verified support archive retains finished author/review records,
+rejected attempts, source provenance and cleanup receipts; it excludes later
+documentation updates. Both phase-owned instances are terminated and their root
+volumes deleted. Qualification-node cleanup is verified at **01:56:32 UTC**,
+with no active Phase 5 instance remaining and no fixed-deadline extension.
+Conservative phase compute is about **$3.95**, excluding storage and transfer,
+below the $40 ceiling and not an invoice. The compact checkpoint records the
+archive hashes and final independent preservation decision. This closes the
+bounded delivery and evidence work while retaining the parity, performance and
+release obligations above.
 
 ### Historical Phase 4 qualification
 

@@ -46,8 +46,9 @@ accepts legitimate clean/trace receipts without rerunning the populations.
 Both actual-Core full-tier diagnostics are terminal, physical exit 1, under a
 separate 60-second policy. Core credit is 141 strict TLC and 137 strict + four
 registered expected default; refusals/stops/missing references remain. These
-are not deep/M2/RC acceptance. **Final archival, cleanup and qualification audit are
-pending** in the [checkpoint record](../conformance/reports/core/2026-11-02-phase5-checkpoint.json).
+are not deep/M2/RC acceptance. **The bounded Phase 5 delivery, evidence archival,
+cleanup and independent audit are complete**, with findings retained in the
+[checkpoint record](../conformance/reports/core/2026-11-02-phase5-checkpoint.json).
 Reference stays default; M1/M2 and RC/release acceptance remain open. See the
 [current implementation and next actions](developer/core/m1-status.md#next-bounded-actions).
 
