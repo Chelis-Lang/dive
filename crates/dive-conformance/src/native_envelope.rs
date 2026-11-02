@@ -1,9 +1,11 @@
-//! Bounded native check-report classes admitted by the PlusCal measurement tool.
+//! Native check-report envelope admission shared with the PlusCal runner controls.
 //!
 //! Numeric names and TLC exits follow pinned `tlc2/output/EC.java` at
 //! `94d0c5070852b37b801bb8998c436383ab7ee37b`. Verdict associations follow
 //! dive's public API/result contract, not a primary model-check observation.
 //! This data table keeps compiler/backend crates out of the repository hooks.
+
+use serde_json::Value;
 
 pub(super) type CheckClass = (u64, &'static str, u64, &'static [&'static str]);
 
@@ -405,4 +407,167 @@ fn evaluator_code(code: u64) -> bool {
                 )
             })
         })
+}
+
+// Validate the observed native protocol before comparing it. Equality of
+// missing fields is not a model outcome. The default/TLC exit pair comes from
+// dive-api's public check contract; no compiler crate enters the hook graph.
+pub(super) fn valid_check_report(physical_exit: Option<i32>, report: &Value) -> bool {
+    if report["command"] != "check" {
+        return false;
+    }
+    let Some(verdict) = report["verdict"].as_str() else {
+        return false;
+    };
+    // These temporal producer branches always use evaluation-error, even
+    // where the same code can describe a model-binding error in another phase.
+    if temporal_evaluation_kind(report) && verdict != "evaluation-error" {
+        return false;
+    }
+    if matches!(verdict, "unsupported" | "resource-limit" | "internal-error") {
+        return true; // Classified as uncredited below, never as agreement.
+    }
+    let (native_exit, needs_stats, needs_property) = match verdict {
+        "success" => (0, true, false),
+        "invariant-violation"
+        | "property-violation"
+        | "action-property-violation"
+        | "liveness-violation" => (10, true, true),
+        "deadlock" => (11, true, false),
+        "postcondition-failure" => (10, false, true),
+        "assumption-failure" => (12, false, false),
+        "model-error" | "rejected" => (1, false, false),
+        "incomplete-state" | "assertion-failure" | "overflow" | "evaluation-error" => {
+            (13, false, false)
+        }
+        _ => return false,
+    };
+    let Some(stats) = report.get("statistics") else {
+        return false;
+    };
+    if stats.is_null() {
+        if needs_stats {
+            return false;
+        }
+    } else {
+        let (Some(distinct), Some(generated), Some(_depth)) = (
+            stats["distinct"].as_u64(),
+            stats["generated"].as_u64(),
+            stats["depth"].as_u64(),
+        ) else {
+            return false;
+        };
+        // Every distinct state was generated. Empty Init can legally leave
+        // both counters zero; depth remains an observed unsigned value.
+        if generated < distinct {
+            return false;
+        }
+    }
+    let property = report.get("property");
+    if needs_property {
+        if property.is_none_or(|p| p.as_str().is_none_or(str::is_empty)) {
+            return false;
+        }
+    } else if property.is_some_and(|p| !p.is_null()) {
+        return false;
+    }
+    let metadata = &report["tlc"];
+    let Some(code) = metadata["code"]
+        .as_u64()
+        .filter(|&c| c >= 1000 && u32::try_from(c).is_ok())
+    else {
+        return false;
+    };
+    let Some(tlc_exit) = metadata["exit_status"].as_u64().filter(|&c| c <= 255) else {
+        return false;
+    };
+    let Some(name) = metadata["name"].as_str() else {
+        return false;
+    };
+    let Some((_, expected_name, expected_exit, verdicts)) = class(code) else {
+        return false;
+    };
+    let temporal_without_reported = temporal_omits_reported(report, verdict, code);
+    if metadata["verified"] != true
+        || !metadata.get("reported").map_or_else(
+            // Ordinary temporal truth and specific temporal failures omit this
+            // field in the current producer. This is transport admission only;
+            // canonical temporal reading and independent word proof still run.
+            || (verdict == "rejected" && code == 3002) || temporal_without_reported,
+            |reported| {
+                reported.as_u64().is_some_and(|reported| {
+                    if temporal_without_reported {
+                        reported == code
+                    } else {
+                        reported_matches(verdict, code, reported)
+                    }
+                })
+            },
+        )
+        || name != *expected_name
+        || tlc_exit != *expected_exit
+        || !(verdicts.contains(&verdict) || temporal_tautology(report, verdict, code))
+    {
+        return false;
+    }
+    // Assumption evaluation errors use the default assumption exit. A real
+    // TLC-profile run instead uses the declared deciding class's exit.
+    physical_exit.is_some_and(|exit| {
+        exit == if code == 2105 { 12 } else { native_exit }
+            || u64::try_from(exit).ok() == Some(tlc_exit)
+    })
+}
+
+fn temporal_evaluation_kind(report: &Value) -> bool {
+    report["schema_version"] == 3
+        && report["check_kind"] == "temporal"
+        && ((matches!(report["tlc"]["code"].as_u64(), Some(2215 | 2253))
+            && report["execution"]["stage"] == "planning")
+            || (report["tlc"]["code"] == 1000 && report["error_site"] == "temporal-action")
+            || matches!(
+                report["error_site"].as_str(),
+                Some("temporal-state-row" | "temporal-source-row")
+            ))
+}
+
+// `CheckReport::to_json`, Phase::Temporal and Phase::TemporalError, is the
+// source of these exact schema-3 shapes. Finite source/state endpoints,
+// binding failures and startup tautologies explicitly carry `reported`.
+fn temporal_omits_reported(report: &Value, verdict: &str, code: u64) -> bool {
+    if report["schema_version"] != 3 || report["check_kind"] != "temporal" {
+        return false;
+    }
+    match (verdict, code) {
+        ("success", 2193) => {
+            report["error_site"].is_null() && report["execution"]["stage"] == "complete"
+        }
+        ("liveness-violation", 2116) => {
+            report["error_site"].is_null()
+                && matches!(
+                    report["execution"]["stage"].as_str(),
+                    Some("complete" | "prefix")
+                )
+        }
+        ("evaluation-error", 2215) => {
+            report["error_site"].is_null()
+                && report["execution"]["stage"] == "planning"
+                && report["execution"]["capture_completed"] == false
+        }
+        ("evaluation-error", 1000) => {
+            report["error_site"] == "temporal-action" && report["execution"]["stage"] == "atoms"
+        }
+        _ => false,
+    }
+}
+
+fn temporal_tautology(report: &Value, verdict: &str, code: u64) -> bool {
+    code == 2253
+        && verdict == "evaluation-error"
+        && report["schema_version"] == 3
+        && report["check_kind"] == "temporal"
+        && report["execution"]["stage"] == "planning"
+        && report["execution"]["capture_completed"] == false
+        && report["statistics"].is_null()
+        && report["error_site"].is_null()
+        && report["tlc"]["reported"] == 2253
 }

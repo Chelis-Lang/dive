@@ -1093,7 +1093,31 @@ become transition edges. Ordinary liveness integration remains pending.
 
 ### PlusCal native check-report protocol
 
-`xtask/src/pluscal_corpus/check_protocol.rs` is a bounded data inventory, not a
+The production `--check` route now delegates staged translated-model pairs to
+`dive-conformance compare-models`. It reuses the ordinary pinned clean/trace-pass
+oracle classifier, source-aware native result reader, observable comparison,
+registered default divergences and independent trace validator. No duplicate
+TLC parser or new ported checking algorithm is introduced. Original source
+directories are selected input context, not newly asserted library pins. Both
+native profiles use identical primary-rewritten configuration bytes and actual
+one-worker, seed-zero runs. Missing/refused/stopped/unconfirmed observations earn
+no agreement. The original bounded native envelope guard runs before canonical
+mapping; its class table and checks are shared with the runner's regression
+controls. Historical dive-on-both-translations measurements keep their narrower
+scope.
+
+The current schema-3 omission inventory follows `dive-api/src/check.rs`,
+`CheckReport::to_json`'s `Phase::Temporal` and `Phase::TemporalError` branches:
+ordinary temporal truth, typed planning `ExpectedValue` and direct action
+GENERAL omit `reported`; binding, startup tautology and certified row endpoints
+include it. The shared guard recognizes only those temporal shapes. Any supplied
+field remains checked, and the canonical ordinary temporal reader and fresh
+word validator remain necessary. Startup tautology's native `evaluation-error`
+association is restricted to its actual planning shape and explicit code 2253.
+This is native transport admission, not an additional primary oracle class.
+
+`crates/dive-conformance/src/native_envelope.rs` holds the shared bounded native
+envelope admission and class inventory, not a
 model-checking algorithm or a primary oracle. Its code/name pairs and failure
 exits were checked against MIT `tlc2/output/EC.java`, including
 `ExitStatus.errorConstantToExitStatus`, at pinned commit
@@ -1112,7 +1136,7 @@ or binding-only classes are rejected. Direct site wrappers report themselves.
 Frontend rejection 3002 alone may omit the separate `reported` field. Assumption evaluation class 2105 uses default
 exit 12 or TLC exit 10. These are native protocol associations, not independently
 measured TLC model semantics. Unknown codes, names, exits or verdict associations
-earn no agreement; the tool still compares dive on two translations.
+earn no agreement in those historical diagnostic comparisons.
 
 The actual-main helper continuation preserves the complete bounded inventory and
 pin loader. Native observations in both profiles cover success, invariant,

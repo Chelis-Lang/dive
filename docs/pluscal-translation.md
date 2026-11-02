@@ -245,15 +245,15 @@ absence is not an overwrite gate. Source options overlapping old generated text,
 ambiguous/reversed markers, actual source errors, invalid final modules and real
 generation/rewrite bounds still refuse with their existing diagnostics.
 
-Translation, rewrite and original-AST JSON now use schema2. Real accepted/status,
+Translation, rewrite and original-AST JSON use report schema 3. Real accepted/status,
 analysis, replacement/artifact bytes and requested/effective options remain.
 `source_options` identifies the deciding declaration. Proof-only model/exhaustive/
 pending/verified fields and duplicate `option_context` dumps are removed. Rewrite
 `replacement.algorithm_checksum` is a CRC string or null, with any unavailability
 in `replacement.warnings`; `translation_checksum` is always the real body CRC.
-An admitted translation is not a model-checking result. The earlier collector
-schema requiring proof fields must be updated and independently reviewed before
-any new actual149 campaign.
+An admitted translation is not a model-checking result. The corpus runner admits
+the actual accepted replacement and module-analysis fields; retired proof fields
+do not establish translation or model acceptance.
 
 The retained six procedure-family manifests contain740 historical primary rows.
 688 row instances have genuine source inputs; recursive/acyclic manifests use
@@ -388,12 +388,26 @@ it defaults to false and never silently alters the measured source. Profile and
 jobs options are not implemented by this helper; inherited `DIVE_COMPAT` affects
 native children.
 
-`--check` runs **dive on both translations** when a same-named configuration
-exists. Matching native checks support translation equivalence; they are not
-independent TLC model parity. Matching refusals/resource failures and absent
-reports earn no model agreement. The release milestone separately compares
-`pcal.trans` plus TLC with native translation/check and independently validates
-counterexamples. See [ADR 0089](decisions/0089-pluscal-measurement-inputs.md).
+`--check` runs pinned TLC on the reference translation and dive on its own
+translation in both semantic profiles when a same-named configuration exists.
+Build `dive-conformance` beside `dive`, or select it with `--harness BIN`.
+The ordinary harness classifies the clean TLC stream, attaches JSON only from a
+matching separate trace pass, compares required observables and freshly validates
+native counterexamples against their translated model. Both checks use identical
+configuration bytes, one worker, seed zero and fingerprint zero. Registered
+default-profile divergences remain separate from strict agreements. Missing
+configurations, refused translations, unsupported checks, stops and unconfirmed
+words earn no model agreement. All selected inputs remain in the results. Raw
+children and physical status receipts remain under `--out`.
+`results.json` includes `summary.accepted`; any refusal, stop, missing model
+configuration, differing translation or non-agreeing check makes it false and
+the command exits nonzero after writing its complete report. A comparison has
+an overall deadline of four check timeouts plus 60 seconds. Its own supervisor
+cancels and drains registered child groups on that deadline, including when
+source binding or independent replay is still running; the outer runner waits
+for supervised cleanup rather than killing that supervisor.
+Historical runs that checked both translations using dive retain their narrower
+diagnostic meaning. See [ADR 0089](decisions/0089-pluscal-measurement-inputs.md).
 
 The measurement tool credits only recognized, well-formed check outcomes with
 complete numeric counts when exploration is required, a claimed TLC class, and
@@ -403,12 +417,26 @@ invariant class cannot stand in for a model, frontend or evaluation error.
 The reported class must match the deciding class for non-evaluation results.
 Evaluation replay may preserve a first evaluator error or a documented site
 wrapper; unrelated terminal/model classes cannot stand in for that report.
-Only the actual frontend rejection schema may omit the reported code.
-The bounded table is `xtask/src/pluscal_corpus/check_protocol.rs`, with its
-source inventory documented in `docs/provenance.md`. Unknown or incomplete JSON,
+The current schema-3 ordinary temporal producer omits `tlc.reported` for holds
+and liveness violations, typed planning errors (`TLC_EXPECTED_VALUE`) and direct
+temporal-action GENERAL errors. Admission recognizes those exact temporal
+phase/code/verdict shapes; a present field must match their deciding code.
+Safety results retain their reported-code requirements, except frontend
+rejection. Temporal binding failures, startup tautologies and certified finite
+state/source-row errors retain their explicit reported code. These transport
+rules do not establish a temporal result: canonical schedule/capture reading
+and fresh independent validation of the actual reported word still govern
+agreement. Genuine holds, violations, planning errors, startup tautologies and
+finite row errors are exercised through actual producer reports in both profiles.
+The shared envelope admission in `crates/dive-conformance/src/native_envelope.rs`
+runs before the canonical source-aware harness reader supplies classification.
+It retains the original exact class/verdict/reported-code associations; the
+current helper also requires explicit JSON and physical exits to match its
+requested TLC exit convention. Both production and the retained regression
+controls use the same bounded admission source. Unknown or incomplete JSON,
 unclaimed classes, refusals and resource failures never count as agreement.
-Valid failures before exploration may have null statistics. These are still
-comparisons of native checks of two translations, not independent TLC parity.
+Valid failures before exploration may have null statistics. The retained
+malformed-envelope controls supplement the independent comparison reader.
 
 Credited reports must explicitly include `statistics`, even when its value is
 null for a startup failure. Missing statistics are malformed, rather than an
