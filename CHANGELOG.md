@@ -44,6 +44,11 @@
   reported-message field. Preserve strict safety envelopes, canonical temporal
   completion checks and fresh independent liveness-word validation.
 
+
+- Qualify the pinned PlusCal SBB default count difference under canonical
+  exploration (D-010). Keep compatibility, error/property/depth and independent
+  words strict; constrain the registry to the exact model and generated pair.
+
 - Require fresh source-bound diagnostic certification for successor invariant
   reports, including deciding 2111, rejecting coordinated class/name/exit
   forgeries (#713). Preserve genuine completed-2111 and actual 2179/2103

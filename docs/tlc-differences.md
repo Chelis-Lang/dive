@@ -701,6 +701,19 @@ With `INVARIANT InvAlpha InvZeta`, the pinned TLC reports `InvZeta` after 2 stat
 
 Both are registered as expected divergences in `conformance/expected-divergences.toml`, narrowed to the fields that differ. Under `--compat=tlc` both agree with TLC exactly (the CM1 conformance gate).
 
+
+The pinned PlusCal `SBB` model also differs only in distinct/generated counts:
+canonical exploration reaches `Immutability` at depth 15 after **1,581 / 3,042**
+states, versus **1,617 / 3,126** under TLC. Changing only the evaluator's
+`Options::exploration` to `ExplorationOrder::Tlc` reproduces TLC's counts while
+all other default semantics remain unchanged. Both PlusCal label variants were
+checked; all six actual 15-state words validate independently. The SBB registry
+entry applies only to this model and the default profile, with an exact generated
+count pair. Property, depth, class, exit and word validity remain strict. Raw
+queue counts remain evidence, without a queue-field exemption. The
+[source-bound control record](../conformance/reports/core/2026-11-02-sbb-order.json)
+retains input hashes and the diagnostic-only option change (#731).
+
 ---
 
 ## D-011: `TLCGet("config").worker` reports the logical worker count
