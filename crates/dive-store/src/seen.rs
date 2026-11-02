@@ -191,6 +191,7 @@ pub struct DiskSeen {
     data_end: u64,
     first: Option<SeenError>,
     closed: bool,
+    audited: bool,
     #[cfg(test)]
     fault: Option<(Operation, u64)>,
     #[cfg(test)]
@@ -220,6 +221,7 @@ impl DiskSeen {
             data_end: files::HEADER,
             first: None,
             closed: false,
+            audited: false,
             #[cfg(test)]
             fault: None,
             #[cfg(test)]
@@ -294,11 +296,48 @@ impl DiskSeen {
     /// # Errors
     /// The first retained failure, or explicit cleanup failure.
     pub fn close(&mut self) -> Result<Stats, SeenError> {
+        let (stats, audited) = self.close_controlled(true, &|| true)?;
+        if audited {
+            Ok(stats)
+        } else {
+            Err(error(
+                Operation::Admission,
+                "store was discarded without a complete audit",
+            ))
+        }
+    }
+
+    /// Audits retained records under an actual owner, then removes owned files.
+    ///
+    /// `validate = false` discards an already stopped run without scanning its
+    /// remaining records. The Boolean result is true only after a complete
+    /// audit; cancellation still cleans up but can never certify the contents.
+    /// Later calls cannot upgrade discarded files into audited contents.
+    ///
+    /// ```
+    /// use dive_store::{StoreMode, seen::{DiskSeen, Key, Limits, SeenError}};
+    /// let mut seen = DiskSeen::create(StoreMode::Fingerprint, &std::env::temp_dir(), Limits::default())?;
+    /// seen.insert(Key::Fingerprint(7))?;
+    /// let (stats, audited) = seen.close_controlled(true, &|| false)?;
+    /// assert!(stats.cleanup_completed);
+    /// assert!(!audited);
+    /// assert!(seen.close().is_err());
+    /// # Ok::<(), SeenError>(())
+    /// ```
+    ///
+    /// # Errors
+    /// The original storage cause, with cleanup errors retained separately.
+    pub fn close_controlled(
+        &mut self,
+        validate: bool,
+        proceed: &dyn Fn() -> bool,
+    ) -> Result<(Stats, bool), SeenError> {
         if !self.closed {
-            if self.first.is_none()
-                && let Err(failure) = self.audit_inner()
-            {
-                self.first = Some(failure);
+            if validate && self.first.is_none() {
+                match self.audit_inner(proceed) {
+                    Ok(audited) => self.audited = audited,
+                    Err(failure) => self.first = Some(failure),
+                }
             }
             if let Err(cleanup) = self.remove_owned() {
                 if let Some(first) = &mut self.first {
@@ -310,7 +349,9 @@ impl DiskSeen {
                 self.closed = true;
             }
         }
-        self.first.clone().map_or_else(|| Ok(self.stats()), Err)
+        self.first
+            .clone()
+            .map_or_else(|| Ok((self.stats(), self.audited)), Err)
     }
 
     fn remove_owned(&mut self) -> Result<(), SeenError> {

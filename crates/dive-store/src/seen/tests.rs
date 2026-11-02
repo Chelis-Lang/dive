@@ -11,6 +11,28 @@ use std::io::{Seek, SeekFrom, Write};
 
 use super::*;
 
+#[test]
+fn cancelled_audit_discards_files_without_claiming_validation() {
+    let mut disk = make(StoreMode::Fingerprint);
+    disk.insert(Key::Fingerprint(7)).unwrap();
+    let directory = disk.directory.clone();
+    let (stats, validated) = disk.close_controlled(true, &|| false).unwrap();
+    assert!(!validated);
+    assert!(stats.cleanup_completed);
+    assert!(!directory.exists());
+    assert!(disk.close().is_err());
+}
+
+#[test]
+fn already_stopped_discard_does_not_read_remaining_records() {
+    let mut disk = make(StoreMode::Fingerprint);
+    disk.insert(Key::Fingerprint(7)).unwrap();
+    fs::remove_file(disk.directory.join("data")).unwrap();
+    let (stats, validated) = disk.close_controlled(false, &|| true).unwrap();
+    assert!(!validated);
+    assert!(stats.cleanup_completed);
+}
+
 fn make(mode: StoreMode) -> DiskSeen {
     DiskSeen::create(mode, &std::env::temp_dir(), Limits::default()).expect("private store")
 }

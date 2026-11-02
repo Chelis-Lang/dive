@@ -342,7 +342,7 @@ impl DiskSeen {
 
     fn rehash(&mut self) -> Result<(), SeenError> {
         self.check_fault(Operation::Rehash)?;
-        self.audit_inner()?;
+        self.audit_inner(&|| true)?;
         let capacity = self
             .capacity
             .checked_mul(2)
@@ -408,7 +408,7 @@ impl DiskSeen {
                 "collision summary work limit exceeded",
             ));
         }
-        self.audit_inner()?;
+        self.audit_inner(&|| true)?;
         let mut data = self.open("data", DATA, 0, self.data_end)?;
         let mut gap = crate::collision::NO_GAP;
         let mut left = HEADER;
@@ -430,11 +430,17 @@ impl DiskSeen {
         Ok(gap)
     }
 
-    pub(super) fn audit_inner(&mut self) -> Result<(), SeenError> {
+    pub(super) fn audit_inner(&mut self, proceed: &dyn Fn() -> bool) -> Result<bool, SeenError> {
+        if !proceed() {
+            return Ok(false);
+        }
         let mut data = self.open("data", DATA, 0, self.data_end)?;
         let mut index = self.open("index", INDEX, self.capacity, HEADER + self.capacity * SLOT)?;
         let mut occupied = 0;
         for position in 0..self.capacity {
+            if position.is_multiple_of(128) && !proceed() {
+                return Ok(false);
+            }
             let offset = self.index_offset(&mut index, position)?;
             if offset != 0 {
                 let _ = self.record(&mut data, offset)?;
@@ -449,6 +455,9 @@ impl DiskSeen {
         }
         let mut offset = HEADER;
         for ordinal in 0..self.count {
+            if ordinal.is_multiple_of(128) && !proceed() {
+                return Ok(false);
+            }
             let record = self.record(&mut data, offset)?;
             self.seek(&mut data, offset + 16)?;
             let mut id = [0; 8];
@@ -480,6 +489,6 @@ impl DiskSeen {
                 "data count or trailing records mismatch",
             ));
         }
-        Ok(())
+        Ok(true)
     }
 }

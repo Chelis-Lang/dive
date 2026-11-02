@@ -44,6 +44,7 @@ pub mod generate;
 pub mod handle;
 pub mod heap;
 pub mod int;
+pub mod key;
 mod member_index;
 pub mod memo;
 pub mod node;

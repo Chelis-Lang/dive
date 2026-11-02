@@ -11,9 +11,12 @@ history stay attached to the concrete states used for evaluation and replay.
 Parallel exact search retains candidate collisions until ordered commit.
 Predecessor read, write, corruption and explicit-cleanup failures produce a
 resource stop with storage evidence and no certified counterexample.
-The core still refuses disk membership, checkpoint/recovery
-and temporal exact/spill combinations. `--engine auto` can use the reference
-engine for these remaining combinations and reports that fallback.
+Core safety BFS also supports opt-in disk membership with `--seen-disk-entries`,
+using one actual worker and complete canonical keys for exact membership.
+`--engine auto` keeps its statically selected Reference disk backend because
+whole-backend admission for Core disk requests is not yet proved. Explicit Core
+never falls back. The core still refuses checkpoint/recovery and temporal
+exact/spill/disk combinations; Auto may use Reference and reports the fallback.
 
 The core frontier stores paired canonical and original opaque handle rows under
 one retained live Store. Original receiver classes and construction history are

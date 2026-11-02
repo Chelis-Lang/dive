@@ -21,11 +21,196 @@ pub struct Storage {
     pub frontier_memory_bytes: Option<usize>,
     /// Existing parent directory for private frontier files.
     pub frontier_directory: Option<PathBuf>,
+    /// Opt-in fallible disk membership; runs inline and does not bound values.
+    pub seen_disk: Option<DiskOptions>,
+}
+
+/// Bounds and owned directory for native disk membership.
+#[derive(Clone, Debug, Default)]
+pub struct DiskOptions {
+    /// Existing disk-key workspace, entry and probe bounds.
+    pub limits: dive_store::seen::Limits,
+    /// Existing parent for private transient files; defaults to system temporary storage.
+    pub directory: Option<PathBuf>,
+}
+
+/// Ordered position at which disk membership first failed.
+#[derive(Clone, Debug)]
+pub struct DiskFailure {
+    /// Membership, insertion, replay or cleanup phase.
+    pub phase: &'static str,
+    /// First library failure, including a later cleanup failure.
+    pub error: dive_store::seen::SeenError,
+    /// Generated count at the original operation.
+    pub generated: u64,
+    /// Concrete source discovery ID, absent for Init.
+    pub predecessor: Option<u64>,
+    /// Emission ordinal within the source's ordered successors.
+    pub successor_ordinal: u64,
+}
+
+/// Actual disk-key storage facts. None of these measure retained state values.
+#[derive(Clone, Debug)]
+pub struct DiskUsage {
+    /// Resolved key and index bounds.
+    pub limits: dive_store::seen::Limits,
+    /// Successfully committed physical keys, including error-replay admissions.
+    pub admitted_keys: u64,
+    /// Facts before explicit cleanup.
+    pub before_cleanup: Option<dive_store::seen::Stats>,
+    /// Facts after cleanup, even when an original cause remains authoritative.
+    pub after_cleanup: Option<dive_store::seen::Stats>,
+    /// First failed operation and its original ordered position.
+    pub first_failure: Option<DiskFailure>,
+    /// Search event reached before a later audit or cleanup failure.
+    pub deciding_event_before_failure: Option<crate::Verdict>,
+    /// A complete retained-record audit finished under the actual run owner.
+    pub audit_completed: bool,
+}
+
+pub(crate) struct Disk {
+    set: dive_store::seen::DiskSeen,
+    pub(crate) usage: DiskUsage,
+}
+
+impl Disk {
+    pub(crate) fn new(
+        exact: bool,
+        options: &DiskOptions,
+    ) -> Result<Self, dive_store::seen::SeenError> {
+        let mode = if exact {
+            dive_store::StoreMode::Exact
+        } else {
+            dive_store::StoreMode::Fingerprint
+        };
+        let parent = options.directory.clone().unwrap_or_else(std::env::temp_dir);
+        Ok(Self {
+            set: dive_store::seen::DiskSeen::create(mode, &parent, options.limits)?,
+            usage: DiskUsage {
+                limits: options.limits,
+                admitted_keys: 0,
+                before_cleanup: None,
+                after_cleanup: None,
+                first_failure: None,
+                deciding_event_before_failure: None,
+                audit_completed: false,
+            },
+        })
+    }
+
+    #[allow(
+        clippy::too_many_arguments,
+        reason = "one positioned fallible membership operation over an actual canonical row"
+    )]
+    pub(crate) fn operation(
+        &mut self,
+        exact: bool,
+        key: u64,
+        row: &[Handle],
+        heap: &Heap,
+        insert: bool,
+        position: (&'static str, u64, Option<u64>, u64),
+        poll: &(dyn Fn() -> bool + Sync),
+    ) -> Result<bool, Error> {
+        use dive_core::key::KeyError;
+        use dive_store::seen::{InsertOutcome, Key, Operation, SeenError};
+        let bytes = if exact {
+            match dive_core::key::canonical(heap, row, self.usage.limits.key_bytes, &|| !poll()) {
+                Ok(bytes) => bytes,
+                Err(KeyError::Interrupted) => return Err(Error::stop()),
+                Err(KeyError::Unsupported(feature)) => return Err(Error::unsupported(feature)),
+                Err(KeyError::Internal(message)) => return Err(Error::internal(message)),
+                Err(KeyError::Limit(message)) => {
+                    let error = SeenError {
+                        operation: Operation::Admission,
+                        message,
+                        cleanup_failure: None,
+                    };
+                    self.record(position, error.clone());
+                    return Err(Error::internal(error.to_string()));
+                }
+            }
+        } else {
+            Vec::new()
+        };
+        let key = if exact {
+            Key::Exact(&bytes)
+        } else {
+            Key::Fingerprint(super::Seen::fix(key))
+        };
+        let result = if insert {
+            self.set
+                .insert(key)
+                .map(|outcome| outcome == InsertOutcome::Inserted)
+        } else {
+            self.set.contains(key)
+        };
+        self.usage.admitted_keys = self.set.stats().physical_entries;
+        result.map_err(|error| {
+            self.record(position, error.clone());
+            Error::internal(error.to_string())
+        })
+    }
+
+    fn record(
+        &mut self,
+        position: (&'static str, u64, Option<u64>, u64),
+        error: dive_store::seen::SeenError,
+    ) {
+        self.usage.first_failure.get_or_insert(DiskFailure {
+            phase: position.0,
+            error,
+            generated: position.1,
+            predecessor: position.2,
+            successor_ordinal: position.3,
+        });
+    }
+
+    pub(crate) fn finish(
+        &mut self,
+        validate: bool,
+        poll: &(dyn Fn() -> bool + Sync),
+        deciding: crate::Verdict,
+    ) -> bool {
+        self.usage.before_cleanup = Some(self.set.stats());
+        let result = self.set.close_controlled(validate, &|| !poll());
+        self.usage.after_cleanup = Some(self.set.stats());
+        match result {
+            Ok((_, complete)) => {
+                self.usage.audit_completed = complete;
+                !validate || complete
+            }
+            Err(error) => {
+                self.usage.deciding_event_before_failure = Some(deciding);
+                if let Some(first) = &mut self.usage.first_failure {
+                    if first.error.operation == error.operation
+                        && first.error.message == error.message
+                    {
+                        first.error.cleanup_failure = first
+                            .error
+                            .cleanup_failure
+                            .clone()
+                            .or(error.cleanup_failure);
+                    } else {
+                        first
+                            .error
+                            .cleanup_failure
+                            .get_or_insert_with(|| error.to_string());
+                    }
+                } else {
+                    self.record(("Cleanup", 0, None, 0), error);
+                }
+                false
+            }
+        }
+    }
 }
 
 /// Actual native safety storage facts. These describe components, not RSS.
 #[derive(Clone, Debug, Default)]
 pub struct Usage {
+    /// Opt-in disk membership and its first positioned failure.
+    pub seen: Option<DiskUsage>,
     /// Exact mathematical identities retained by the collision index.
     pub exact_states: usize,
     /// Predecessor storage before explicit cleanup.
