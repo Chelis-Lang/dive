@@ -212,3 +212,14 @@ Next-random boundary. The latter remains an explicit native refusal. The API
 test consumes every row; genuine words and corrupt Init/Next/ending controls use
 fresh independent validation. No old corpus measurement is changed or retagged.
 See [the user guide](../../docs/user/simulation.md) for invocation and limits.
+
+## Constructive traversal
+
+`Options::generation` (default false) and `simulate --generate` select seeded
+Next disjunction/existential traversal and stop at the first admitted complete
+successor. Intervals are indexed directly; stored finite sets retain ordinary
+normalization. Constraints, checks, partial assignments and errors keep their
+actual evaluation order. Init, predicate quantifiers, CHOOSE and ENABLED do not
+inherit this stream. CASE/action composition and unproved domains refuse.
+See [the simulation guide](../../docs/user/simulation.md#constructive-successors)
+for supported boundaries, independent sample validation and exit conventions.

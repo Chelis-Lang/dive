@@ -48,7 +48,7 @@ limit retains only earlier chosen transitions. Empty flow counts can therefore
 accompany generated candidates or a valid violation. These are sample action
 statistics, not state-space or expression coverage. Collecting them does not
 change the seed, RNG draws, trace selection, property checks or validation.
-Full context statistics, probabilistic generation, alternative schedulers,
+Full context statistics, alternative schedulers,
 additional workers, DFID completion and general coverage remain unsupported.
 
 ```sh
@@ -74,7 +74,7 @@ UTF-8 text by default. `dive_sim::Options` exposes `max_output_events` and
 `max_output_bytes`. Crossing either limit returns `resource-limit` with retained
 output and actual completed-prefix work, never `sampled`. The limits cover
 retained Print text/events, not temporary rendering allocations, existing warning
-records or total process memory. General random execution, generation, alternative
+records or total process memory. General random execution, alternative
 schedulers and further M/#239 work remain unfinished.
 
 Print preserves both `--stats none` and `--stats basic`; source controls compare
@@ -137,6 +137,49 @@ does not reset model history or establish startup-stream continuity.
 Eleven tiny pinned primary observations cover seeds, aril, domains, output and
 errors; the reached Next-random observation remains a native refusal. These
 controls add no corpus agreement. Broader simulation support (M/#239) remains open.
+
+## Constructive successors
+
+`dive simulate Spec.tla --generate --traces 3 --depth 100 --seed 7` selects a
+constructive successor traversal in Reference, Core and Auto. The ordinary
+simulation default still enumerates successors. Rust callers set
+`SimulateRequest::generation`; low-level callers set `dive_sim::Options::generation`.
+JSON reports `options.algorithm: constructive` and `probabilistic: true`.
+The TLC equivalent is `dive tlc -generate num=3 -depth 100 Spec`; the shim requires
+an explicit finite positive `num=N`. `-simulate num=N` retains ordinary traversal.
+
+The generator visits actual Next disjunctions and bounded existential contexts
+in a seeded cyclic order and stops after the first complete candidate that
+passes the ordinary checks and constraints. Intervals use direct indices;
+already stored finite sets use their existing normalized members. It does not
+build every possible successor just to choose one. Disabled and constrained-out
+candidates continue traversal. Partial assignments and reached errors remain
+errors. All source domains of an existential binder are evaluated before its
+contexts, even when an earlier domain is empty.
+
+Init selection, predicate quantifiers, CHOOSE, function construction and ENABLED
+keep their ordinary evaluator semantics and do not consume generation choices.
+CASE generation, action composition and unproved opaque/lazy domains refuse by
+name when reached. General RandomElement relations remain unsupported. Both
+engines still use one actual worker. Seed replay requires the same engine,
+options and source; matching TLC's random choices is not required (ADR 0116).
+
+Every retained finite Behavior sample is independently checked with the explicit
+sample-validation operation: Init/Next, constraints, invariants and implied
+initial/action properties must hold on its actual rows. This establishes the
+sample's validity, not exhaustive safety, liveness or a prescribed RNG history.
+Independent replay can still examine many relation choices, so a constant-space
+producer does not imply constant-time end-to-end replay. `validate-trace --sample`
+requests the same operation for an exported native Behavior word and labels its
+JSON result `validation_goal: sample`; ordinary Behavior validation stays a
+relation-only prefix check.
+
+`--exit-codes native|tlc` selects physical process dispositions explicitly.
+For example an invariant violation exits 10 under native and 12 under TLC.
+The flag changes neither words nor their validation. Without the flag existing
+profile-dependent simulation exits stay unchanged. The TLC shim always selects
+TLC dispositions. Rust callers use `SimulateReport::exit_code_for` and
+`to_json_with_exit_convention`.
 
 ## Run budgets
 

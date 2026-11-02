@@ -307,7 +307,7 @@ rules and runtime-name refusals still apply.
 
 ## TLC checking entrypoints
 
-The checking-only adapter accepts either `dive tlc [OPTIONS] SPEC[.tla]` or the
+The checking adapter accepts either `dive tlc [OPTIONS] SPEC[.tla]` or the
 installed `tlc [OPTIONS] SPEC[.tla]`. An executable whose basename is `tlc` or
 `tlc.exe`, including a renamed binary or symlink to `dive`, selects the same
 adapter. `cargo run -p dive-cli` still selects `dive`; both binaries share one
@@ -354,9 +354,11 @@ Startup output and observed statistics may remain in the JSON failure report,
 and are not proof of a completed check. Existing validator limits remain active.
 
 Human output and versioned JSON use the existing check report. `-tool` message
-framing is not implemented here. TLC simulation/generation, DFID, checkpoint,
-storage, debugger, coverage and dump flags refuse by name rather than selecting
-native modes with different contracts. Unknown or malformed arguments exit 1;
+framing is not implemented here. Finite `-simulate num=N` and `-generate num=N`
+select the corresponding native sampling algorithm, with actual TLC exits and
+independent sample validation; see [simulation](simulation.md#constructive-successors).
+Unbounded/file sampling, DFID, checkpoint, storage, debugger, coverage and dump
+flags retain named refusals. Unknown or malformed arguments exit 1;
 recognized unsupported options exit 3 before input access. Input I/O errors go
 to stderr and use 150 for the module and 151 for the configuration. The adapter
 reads and parses the configuration first, as TLC does: a missing or malformed
@@ -364,7 +366,8 @@ configuration exits 151 even when the module is also missing.
 `dive_api::check_file_tlc_inputs` provides the same input order for Rust callers;
 filenames must already include their extensions.
 Native commands retain their existing statuses and input ordering. These
-entrypoints implement a checking subset; full TLC toolchain parity remains open.
+entrypoints implement checking and finite sampling subsets; full TLC toolchain
+parity remains open.
 
 ## Time and memory budgets
 

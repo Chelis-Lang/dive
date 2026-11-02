@@ -39,6 +39,10 @@ pub struct Options {
     pub max_generated: u64,
     /// Collect chosen action flows, combining source locations as TLC `stats=basic`.
     pub action_stats: bool,
+    /// Construct one admitted successor with randomized Next choices instead
+    /// of retaining every successor of a selected action. Sampling is never proof.
+    /// `true` is TLC `-generate num=N`; the default `false` is `-simulate num=N`.
+    pub generation: bool,
     /// Maximum retained runtime Print/PrintT events (startup output is separate).
     pub max_output_events: usize,
     /// Maximum UTF-8 bytes retained in runtime Print/PrintT text. This does not
@@ -60,6 +64,7 @@ impl Options {
             max_retained: 1_000_000,
             max_generated: 10_000_000,
             action_stats: false,
+            generation: false,
             max_output_events: 100_000,
             max_output_bytes: 16 * 1024 * 1024,
         }
@@ -398,11 +403,12 @@ fn simulate_inner(
             let current = states[states.len() - 1].clone();
             let mut candidates = Vec::new();
             let mut action_index = index(&mut rng, model.actions.len());
-            let prime = usize::try_from(rng.next_prime()).unwrap_or(0);
+            let sampled_prime = usize::try_from(rng.next_prime()).unwrap_or(0);
+            let prime = if opts.generation { 1 } else { sampled_prime };
             let mut failed = None;
             for _ in 0..model.actions.len() {
                 let action = &model.actions[action_index];
-                let enumeration = model.evaluator.next_states(action, &current, 0, &mut |s| {
+                let mut emit = |s: &dive_eval::next::Successor<'_>| {
                     if poll() {
                         failed = Some(Outcome::Cancelled);
                         return Flow::Stop;
@@ -458,7 +464,12 @@ fn simulate_inner(
                             Ok(false)
                         }
                     }) {
-                        Ok(true) => candidates.push(next),
+                        Ok(true) => {
+                            candidates.push(next);
+                            if opts.generation {
+                                return Flow::Stop;
+                            }
+                        }
                         Ok(false) => {}
                         Err(e) => {
                             failed = Some(classify(&e, None));
@@ -466,7 +477,18 @@ fn simulate_inner(
                         }
                     }
                     Flow::Continue
-                });
+                };
+                let enumeration = if opts.generation {
+                    model.evaluator.next_states_generation(
+                        action,
+                        &current,
+                        0,
+                        &mut |bound| rng.next_index(bound),
+                        &mut emit,
+                    )
+                } else {
+                    model.evaluator.next_states(action, &current, 0, &mut emit)
+                };
                 if let Err(e) = enumeration {
                     failed = Some(classify(&e.error, None));
                 }
@@ -501,7 +523,12 @@ fn simulate_inner(
                 return report;
             }
             retained += 1;
-            states.push(candidates[index(&mut rng, candidates.len())].clone());
+            let choice = if opts.generation {
+                0
+            } else {
+                index(&mut rng, candidates.len())
+            };
+            states.push(candidates[choice].clone());
             let chosen_action = model.actions[action_index].id();
             if let Some(flow) = &mut report.action_flow
                 && let Err(error) = flow.record(previous_action, chosen_action)

@@ -1,0 +1,1 @@
+{"sources":["docs/user/simulation.md"],"authors":["dive"],"tags":["probe","generation"],"modules":[{"path":"specifications/GenComplete/GenComplete.tla","features":["constructive generation"],"models":[{"path":"specifications/GenComplete/GenComplete.cfg","runtime":"00:00:01","mode":{"simulate":{"traceCount":1}},"result":"success"}]}]}

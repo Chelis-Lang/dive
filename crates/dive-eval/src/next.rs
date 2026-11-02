@@ -496,6 +496,7 @@ impl Evaluator {
             emitted: 0,
             intermediate: 0,
             sink,
+            choices: None,
         };
         let r = g.step(first.expr, &acts, &first.env);
         g.finish(r, None)
@@ -516,7 +517,27 @@ impl Evaluator {
         ordinal: u64,
         sink: &mut dyn FnMut(&Successor<'_>) -> Flow,
     ) -> std::result::Result<Outcome, NextError> {
-        self.next_states_mode(action, s0, ordinal, sink, false)
+        self.next_states_mode(action, s0, ordinal, sink, false, None)
+    }
+
+    /// Traverses Next's disjunctions and bounded existentials in a seeded
+    /// constructive order. The sink stops after its first admitted complete
+    /// state; returning [`Flow::Continue`] searches the remaining alternatives.
+    /// Init and predicate evaluation, including `ENABLED`, retain their ordinary
+    /// semantics. `choose(n)` must return an index below the positive `n`.
+    ///
+    /// # Errors
+    /// The ordinary generation errors, an unsupported indexed domain, or an
+    /// out-of-range index returned by the caller.
+    pub fn next_states_generation(
+        &self,
+        action: &Action,
+        s0: &StateVals,
+        ordinal: u64,
+        choose: &mut dyn FnMut(u64) -> u64,
+        sink: &mut dyn FnMut(&Successor<'_>) -> Flow,
+    ) -> std::result::Result<Outcome, NextError> {
+        self.next_states_mode(action, s0, ordinal, sink, false, Some(choose))
     }
 
     /// Generates Next with the diagnostic tool's source hook. Only receivers
@@ -543,7 +564,7 @@ impl Evaluator {
         ordinal: u64,
         sink: &mut dyn FnMut(&Successor<'_>) -> Flow,
     ) -> std::result::Result<Outcome, NextError> {
-        self.next_states_mode(action, s0, ordinal, sink, true)
+        self.next_states_mode(action, s0, ordinal, sink, true, None)
     }
 
     fn next_states_mode(
@@ -553,6 +574,7 @@ impl Evaluator {
         ordinal: u64,
         sink: &mut dyn FnMut(&Successor<'_>) -> Flow,
         diagnostic: bool,
+        choices: Option<&mut dyn FnMut(u64) -> u64>,
     ) -> std::result::Result<Outcome, NextError> {
         self.validate_scope(&action.scope())
             .map_err(|error| NextError {
@@ -572,6 +594,7 @@ impl Evaluator {
             emitted: 0,
             intermediate: 0,
             sink,
+            choices,
         };
         let r = g.step(action.expr, &None, &action.env);
         g.finish(r, Some(action.id))
@@ -674,7 +697,7 @@ fn cons(acts: &Acts, kind: Kind, expr: ExprId, env: &Env) -> Acts {
 // -----------------------------------------------------------------------------
 
 /// `getInitStates` (with `init`) or `getNextStates` over one action.
-struct Gen<'a, 's> {
+struct Gen<'a, 's, 'c> {
     core: &'a Arc<Core>,
     init: bool,
     diagnostic: bool,
@@ -688,9 +711,12 @@ struct Gen<'a, 's> {
     /// Intermediate states of `\cdot` counted as generated (`cdot.rs`).
     intermediate: u64,
     sink: &'s mut dyn FnMut(&Successor<'_>) -> Flow,
+    /// Only this actual Next generator may draw; ordinary evaluator calls
+    /// and separately constructed ENABLED generators never inherit it.
+    choices: Option<&'c mut dyn FnMut(u64) -> u64>,
 }
 
-impl Gen<'_, '_> {
+impl Gen<'_, '_, '_> {
     fn finish(
         &self,
         r: Result<Flow>,
@@ -950,6 +976,24 @@ impl Gen<'_, '_> {
                 }
                 JunctionKind::Or => {
                     // OPCODE_dl / OPCODE_lor
+                    if let Some(choose) = self.choices.as_deref_mut() {
+                        let len = u64::try_from(items.len()).map_err(|_| {
+                            EvalError::resource_limit("generation disjunction size")
+                        })?;
+                        let mut order = crate::generation::IndexOrder::new(len, choose)?;
+                        while let Some(index) = order.current() {
+                            let index = usize::try_from(index).map_err(|_| {
+                                EvalError::resource_limit("generation branch index")
+                            })?;
+                            if self.step(items[index], acts, env)? == Flow::Stop {
+                                return Ok(Flow::Stop);
+                            }
+                            if !order.advance() {
+                                break;
+                            }
+                        }
+                        return Ok(Flow::Continue);
+                    }
                     for &i in items {
                         if self.step(i, acts, env)? == Flow::Stop {
                             return Ok(Flow::Stop);
@@ -965,6 +1009,18 @@ impl Gen<'_, '_> {
             } if bounds.iter().all(|b| b.domain.is_some()) => {
                 // OPCODE_be
                 let st = self.st();
+                if let Some(choose) = self.choices.as_deref_mut() {
+                    let mut inner = env.clone();
+                    let mut contexts =
+                        core.generation_contexts(&mut inner, &st, bounds, e, choose)?;
+                    while contexts.bind(core, &mut inner)? {
+                        if self.step(*body, acts, &inner)? == Flow::Stop {
+                            return Ok(Flow::Stop);
+                        }
+                        contexts.advance();
+                    }
+                    return Ok(Flow::Continue);
+                }
                 let mut flow = Flow::Continue;
                 let mut err: Option<EvalError> = None;
                 let body = *body;
@@ -1030,6 +1086,11 @@ impl Gen<'_, '_> {
                 self.step(if b { *then } else { *other }, acts, env)
             }
             Expr::Case { arms, other } => {
+                if self.choices.is_some() {
+                    return Err(EvalError::unsupported(
+                        "constructive generation of CASE actions",
+                    ));
+                }
                 // OPCODE_case
                 for arm in arms {
                     match self.eval(env, arm.guard)? {

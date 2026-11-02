@@ -1,4 +1,4 @@
-//! Checking-only transport for the pinned TLC argument spellings.
+//! Checking and finite-simulation transport for pinned TLC argument spellings.
 
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -6,7 +6,7 @@ use std::process::ExitCode;
 
 use serde_json::{Value, json};
 
-const HELP: &str = "dive TLC checking adapter (supported subset)\n\nUSAGE: dive tlc [OPTIONS] SPEC[.tla]\n       tlc [OPTIONS] SPEC[.tla]\n\n    -config FILE[.cfg]   configuration (default SPEC.cfg)\n    -workers N|auto     worker count (default 1)\n    -seed N             signed 64-bit replay seed (always reported)\n    -fp N               fingerprint polynomial, 0..130\n    -deadlock           disable deadlock checking\n    -modelcheck         explicit checking mode\n    -lncheck final      bounded final checking with deterministic short lassos\n    -lncheck default    ordinary; eligible pure requests with -fp 0 use final\n    -XmxSIZE            memory ceiling, as for the JVM heap (default: half of memory)\n    -h, -help           this supported-subset help\n\nThe adapter selects TLC evaluation and TLC verdict statuses. Final checking\nretains its reported limits, refusals and independent counterexample validation;\nits deterministic short lasso need not be TLC's chosen lasso. Dive extensions:\n--output human|json; --symmetry-liveness unreduced|refuse|tlc (TLC quotient currently refuses); --max-memory SIZE|auto|none; --max-states N|none; --max-depth N|none; --config/--workers/--seed/--fp/--lncheck aliases. Native\ndive check defaults and its explicit final/short flags are unchanged.\n\n-tool output, simulation, DFID, checkpoint/storage and debugger TLC protocols\nare not implemented here and refuse by name. This is not full TLC CLI parity.\n";
+const HELP: &str = "dive TLC checking adapter (supported subset)\n\nUSAGE: dive tlc [OPTIONS] SPEC[.tla]\n       tlc [OPTIONS] SPEC[.tla]\n\n    -config FILE[.cfg]   configuration (default SPEC.cfg)\n    -workers N|auto     worker count (default 1)\n    -seed N             signed 64-bit replay seed (always reported)\n    -fp N               fingerprint polynomial, 0..130\n    -deadlock           disable deadlock checking\n    -modelcheck         explicit checking mode\n    -simulate num=N     finite enumerating simulation\n    -generate num=N     finite constructive simulation\n    -depth N            finite simulation depth\n    -lncheck final      bounded final checking with deterministic short lassos\n    -lncheck default    ordinary; eligible pure requests with -fp 0 use final\n    -XmxSIZE            memory ceiling, as for the JVM heap (default: half of memory)\n    -h, -help           this supported-subset help\n\nThe adapter selects TLC evaluation and TLC verdict statuses. Final checking\nretains its reported limits, refusals and independent counterexample validation;\nits deterministic short lasso need not be TLC's chosen lasso. Dive extensions:\n--output human|json; --symmetry-liveness unreduced|refuse|tlc (TLC quotient currently refuses); --max-memory SIZE|auto|none; --max-states N|none; --max-depth N|none; --config/--workers/--seed/--fp/--lncheck aliases. Native\ndive check defaults and its explicit final/short flags are unchanged.\n\n-tool output, unbounded/file simulation, DFID, checkpoint/storage and debugger TLC protocols\nare not implemented here and refuse by name. This is not full TLC CLI parity.\n";
 
 #[derive(Default)]
 struct Arguments {
@@ -327,6 +327,15 @@ fn validate_trace(request: &dive_api::CheckRequest, doc: &mut Value) -> Result<(
 }
 
 pub(super) fn command(args: &[String], out: &mut impl Write, err: &mut impl Write) -> ExitCode {
+    if args
+        .iter()
+        .any(|arg| matches!(arg.as_str(), "-simulate" | "-generate"))
+    {
+        return match simulation_args(args) {
+            Ok(args) => super::simulate_command(&args, out, err),
+            Err(failure) => failure.emit(err),
+        };
+    }
     let parsed = match parse(args) {
         Ok(parsed) => parsed,
         Err(error) => return error.emit(err),
@@ -402,12 +411,195 @@ pub(super) fn command(args: &[String], out: &mut impl Write, err: &mut impl Writ
     ExitCode::from(report.exit_code_for(dive_api::ExitConvention::Tlc))
 }
 
+/// Transports the finite TLC simulation spelling; unbounded generation and
+/// unrelated TLC output/file protocols keep their named refusal.
+#[allow(
+    clippy::too_many_lines,
+    reason = "explicit finite-mode flag transport and named refusals"
+)]
+fn simulation_args(args: &[String]) -> Result<Vec<String>, Failure> {
+    let mut output = vec![
+        "--compat=tlc".to_owned(),
+        "--exit-codes".to_owned(),
+        "tlc".to_owned(),
+    ];
+    let mut it = args.iter().peekable();
+    let mut mode = false;
+    let mut traces = false;
+    let mut file = None;
+    let mut config_index = None;
+    while let Some(argument) = it.next() {
+        match argument.as_str() {
+            "-generate" | "-simulate" => {
+                if mode {
+                    return Err(Failure::Unsupported(
+                        "multiple simulation mode selectors".to_owned(),
+                    ));
+                }
+                mode = true;
+                if argument == "-generate" {
+                    output.push("--generate".to_owned());
+                }
+                let Some(parameters) = it.peek().filter(|value| value.starts_with("num=")) else {
+                    return Err(Failure::Unsupported(format!(
+                        "TLC {argument} requires an explicit finite num=N"
+                    )));
+                };
+                for parameter in parameters.split(',') {
+                    if let Some(count) = parameter.strip_prefix("num=") {
+                        if traces || count.parse::<u64>().ok().is_none_or(|count| count == 0) {
+                            return Err(Failure::Usage(
+                                "simulation num must be a positive finite integer".to_owned(),
+                            ));
+                        }
+                        output.extend(["--traces".to_owned(), count.to_owned()]);
+                        traces = true;
+                    } else if let Some(stats) = parameter.strip_prefix("stats=") {
+                        if !matches!(stats, "none" | "basic") {
+                            return Err(Failure::Unsupported(format!("simulation {parameter}")));
+                        }
+                        output.extend(["--stats".to_owned(), stats.to_owned()]);
+                    } else {
+                        return Err(Failure::Unsupported(format!("simulation {parameter}")));
+                    }
+                }
+                it.next();
+            }
+            "-config" | "--config" => {
+                let value = it
+                    .next()
+                    .ok_or_else(|| Failure::Usage("-config expects a file".to_owned()))?;
+                if Path::new(value)
+                    .extension()
+                    .is_some_and(|ext| ext.eq_ignore_ascii_case("tla"))
+                {
+                    return Err(Failure::Unsupported(
+                        "embedded TLC configuration in a .tla file".to_owned(),
+                    ));
+                }
+                config_index = Some(output.len() + 1);
+                output.extend([
+                    "--config".to_owned(),
+                    extension(value, ".cfg").display().to_string(),
+                ]);
+            }
+            "-seed" | "-aril" | "-depth" | "-workers" | "--engine" | "--output"
+            | "--library-path" | "--module-path" | "--time-limit" | "--max-memory" => {
+                let value = it
+                    .next()
+                    .ok_or_else(|| Failure::Usage(format!("{argument} expects a value")))?;
+                let flag = match argument.as_str() {
+                    "-seed" => "--seed",
+                    "-aril" => "--aril",
+                    "-depth" => "--depth",
+                    "-workers" => "--workers",
+                    other => other,
+                };
+                output.extend([flag.to_owned(), value.clone()]);
+            }
+            "-deadlock" => output.push(argument.clone()),
+            value if value.starts_with("-Xmx") && value.len() > 4 => {
+                output.extend(["--max-memory".to_owned(), value[4..].to_owned()]);
+            }
+            "-fp" => {
+                if it.next().map(String::as_str) != Some("0") {
+                    return Err(Failure::Unsupported(
+                        "simulation fingerprint index other than zero".to_owned(),
+                    ));
+                }
+            }
+            "-lncheck" => {
+                if !matches!(it.next().map(String::as_str), Some("default" | "final")) {
+                    return Err(Failure::Usage(
+                        "-lncheck expects default or final".to_owned(),
+                    ));
+                }
+            }
+            value if value.starts_with('-') => {
+                return Err(Failure::Unsupported(format!("TLC simulation flag {value}")));
+            }
+            value => {
+                if value.is_empty() || file.replace(extension(value, ".tla")).is_some() {
+                    return Err(Failure::Usage(
+                        "expected one nonempty TLA+ module name".into(),
+                    ));
+                }
+            }
+        }
+    }
+    if !traces {
+        return Err(Failure::Unsupported(
+            "TLC simulation requires an explicit finite num=N".to_owned(),
+        ));
+    }
+    let file = file.ok_or_else(|| Failure::Usage("missing input TLA+ module".into()))?;
+    if file.is_absolute()
+        && let Some(index) = config_index
+        && Path::new(&output[index]).is_relative()
+    {
+        output[index] = file
+            .parent()
+            .unwrap_or(Path::new("."))
+            .join(&output[index])
+            .display()
+            .to_string();
+    }
+    output.push(file.display().to_string());
+    Ok(output)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     fn words(args: &[&str]) -> Vec<String> {
         args.iter().map(|s| (*s).into()).collect()
+    }
+
+    #[test]
+    fn finite_generation_transports_algorithm_statistics_and_absolute_root_config()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/generation/M.tla");
+        let args = simulation_args(&words(&[
+            "-generate",
+            "num=3,stats=basic",
+            "-config",
+            "Alt",
+            "-workers",
+            "4",
+            "-aril",
+            "2",
+            "-depth",
+            "8",
+            &root.display().to_string(),
+        ]))
+        .map_err(|error| error.message().to_owned())?;
+        assert!(args.iter().any(|arg| arg == "--generate"));
+        for pair in [
+            ["--traces", "3"],
+            ["--stats", "basic"],
+            ["--workers", "4"],
+            ["--aril", "2"],
+            ["--depth", "8"],
+            ["--exit-codes", "tlc"],
+        ] {
+            assert!(
+                args.windows(2)
+                    .any(|args| args[0] == pair[0] && args[1] == pair[1])
+            );
+        }
+        assert!(args.iter().any(|arg| {
+            Path::new(arg)
+                == root
+                    .parent()
+                    .map(|path| path.join("Alt.cfg"))
+                    .as_deref()
+                    .unwrap_or(Path::new(""))
+        }));
+        assert!(
+            simulation_args(&words(&["-generate", "num=1", "-simulate", "num=1", "M"])).is_err()
+        );
+        Ok(())
     }
 
     #[test]

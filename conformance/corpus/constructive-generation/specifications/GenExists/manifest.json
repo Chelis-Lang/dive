@@ -1,0 +1,1 @@
+{"sources":["docs/user/simulation.md"],"authors":["dive"],"tags":["probe","generation"],"modules":[{"path":"specifications/GenExists/GenExists.tla","features":["constructive generation"],"models":[{"path":"specifications/GenExists/GenExists.cfg","runtime":"00:00:01","mode":{"simulate":{"traceCount":1}},"result":"safety failure"}]}]}

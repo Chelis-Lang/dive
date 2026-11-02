@@ -481,12 +481,13 @@ PlusCal increment notes below describe earlier boundaries.
 
 **What TLC does.** Results come as human-oriented text, or as the `-tool` message stream meant for the Toolbox. Counterexamples are available as JSON only through `-dumpTrace json`. SANY's error messages give a location, but no stable error codes and no suggested fix. SANY's command line exits 0 on semantic errors unless you pass `-error-codes`.
 
-The checking-only `dive tlc`/`tlc` adapter selects TLC evaluation and one worker
+The `dive tlc`/`tlc` checking adapter selects TLC evaluation and one worker
 by default, normalizes module/configuration suffixes and emits existing human or
 JSON check reports. `-lncheck final` directly selects the bounded deterministic
 short-lasso backend (D-013), with its existing limits and independent word
-validation. Tool framing and other TLC mode protocols refuse by name. The
-adapter reads and parses the configuration before the module, matching TLC's
+validation. Finite `-simulate num=N` and `-generate num=N` select independently
+validated non-exhaustive sampling; their unbounded/file protocols still refuse.
+Tool framing and other TLC mode protocols refuse by name. The adapter reads and parses the configuration before the module, matching TLC's
 input-error priority when both files are invalid.
 See the [entrypoint guide](user/checking.md#tlc-checking-entrypoints) for exact supported
 flags, path resolution and statuses.
