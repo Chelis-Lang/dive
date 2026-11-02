@@ -45,7 +45,8 @@
 # Exploring sets in canonical rather than TLC's interning order reaches the
 # same violation at the same depth, with the same property and counterexample
 # length, but stops after a different number of states. Only the counts at the
-# stop differ; under --compat=tlc both models agree (CM1 gate).
+# stop differ. The original Examples models agree under --compat=tlc (CM1);
+# SBB agrees in the independently checked PlusCal controls.
 # ADR 0097 actual CLI controls return 12 in the ordinary default for both rows;
 # only their count differences remain. Historical 12/10 measurements are retained.
 
@@ -69,6 +70,17 @@ fields = [
   "counts.states_left_on_queue",
 ]
 justification = "Canonical exploration order (D-010) reaches the same AC1 violation at the same depth after 12645 distinct / 64357 generated / 970 queued states (TLC: 11852 / 59286 / 1248)"
+link = "docs/divergences.md#registry"
+
+# SBB: isolated low-level exploration-order control in both PlusCal label variants.
+[[divergence]]
+id = "d010-sbb"
+pattern = "tlatools/org.lamport.tlatools/test-model/pcal/SBB.cfg"
+profile = "dive"
+expected_verdict = "safety-violation"
+fields = ["counts.distinct_states"]
+generated_count_pair = { expected = 3126, actual = 3042 }
+justification = "Canonical exploration order (D-010) reaches Immutability at depth 15 after 1581 distinct / 3042 generated states versus TLC's 1617 / 3126; changing only ExplorationOrder to Tlc reproduces TLC in both translation label variants and every actual word validates independently"
 link = "docs/divergences.md#registry"
 
 # Probes (conformance/corpus/probes; docs/survey/competitive.md) whose default
