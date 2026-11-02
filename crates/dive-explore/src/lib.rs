@@ -459,6 +459,7 @@ struct Explorer<'p> {
     stats: Stats,
     metrics: Metrics,
     seen: Seen,
+    disk: Option<storage::Disk>,
     next: Vec<Handle>,
     /// Opt-in encoded current/next queues tied to this live Store.
     frontier: Option<storage::Frontiers>,
@@ -523,6 +524,47 @@ enum Probe {
 }
 
 impl Explorer<'_> {
+    fn seen_contains(
+        &mut self,
+        key: u64,
+        row: &[Handle],
+        heap: &dive_core::Heap,
+        phase: (&'static str, Option<u64>),
+    ) -> Result<bool, Error> {
+        let exact = self.seen.exact.is_some();
+        let position = (
+            phase.0,
+            self.stats.generated,
+            self.cur_id,
+            phase.1.unwrap_or_else(|| self.emitted.saturating_sub(1)),
+        );
+        self.disk.as_mut().map_or_else(
+            || Ok(self.seen.contains_row(key, row, heap)),
+            |disk| disk.operation(exact, key, row, heap, false, position, self.poll),
+        )
+    }
+
+    fn seen_insert(
+        &mut self,
+        key: u64,
+        row: &[Handle],
+        heap: &dive_core::Heap,
+        phase: (&'static str, Option<u64>),
+    ) -> Result<bool, Error> {
+        let exact = self.seen.exact.is_some();
+        let position = (
+            phase.0,
+            self.stats.generated,
+            self.cur_id,
+            phase.1.unwrap_or_else(|| self.emitted.saturating_sub(1)),
+        );
+        if let Some(disk) = &mut self.disk {
+            disk.operation(exact, key, row, heap, true, position, self.poll)
+        } else {
+            self.seen.insert_row(key, row, heap)
+        }
+    }
+
     fn queued_states(&self) -> usize {
         if self.plan.vars.is_empty() {
             return 0;
@@ -624,14 +666,14 @@ impl Explorer<'_> {
         self.metrics.probed += 1;
         if in_model
             && (self.max_states.is_some() || self.max_depth.is_some())
-            && !self.seen.contains_row(key, &identity, &m.heap)
+            && !self.seen_contains(key, &identity, &m.heap, ("AdmissionMembership", None))?
         {
             self.admit_new()?;
         }
         let new = if in_model {
-            self.seen.insert_row(key, &identity, &m.heap)?
+            self.seen_insert(key, &identity, &m.heap, ("Insertion", None))?
         } else {
-            !self.seen.contains_row(key, &identity, &m.heap)
+            !self.seen_contains(key, &identity, &m.heap, ("AdmissionMembership", None))?
         };
         if !new {
             self.metrics.discarded_before_intern +=
@@ -1318,8 +1360,17 @@ pub fn explore_with_storage<'p>(
     storage: &storage::Storage,
 ) -> Outcome {
     let start = Instant::now();
+    let config = if storage.seen_disk.is_some() {
+        Config {
+            workers: 1,
+            ..config
+        }
+    } else {
+        config
+    };
     let unsupported_storage = graph.is_some()
-        && (storage.exact
+        && (storage.seen_disk.is_some()
+            || storage.exact
             || storage.predecessor_memory_bytes.is_some()
             || storage.predecessor_directory.is_some()
             || storage.frontier_memory_bytes.is_some()
@@ -1333,6 +1384,40 @@ pub fn explore_with_storage<'p>(
         Ok(frontier) => (frontier, None),
         Err(error) => (None, Some(error)),
     };
+    let mut initial_metrics = Metrics::default();
+    let (disk, disk_setup_error) = match storage
+        .seen_disk
+        .as_ref()
+        .map(|options| storage::Disk::new(storage.exact, options))
+        .transpose()
+    {
+        Ok(disk) => (disk, None),
+        Err(error) => {
+            initial_metrics.storage.seen = Some(storage::DiskUsage {
+                limits: storage
+                    .seen_disk
+                    .as_ref()
+                    .map_or_else(dive_store::seen::Limits::default, |options| options.limits),
+                admitted_keys: 0,
+                before_cleanup: None,
+                after_cleanup: None,
+                first_failure: Some(storage::DiskFailure {
+                    phase: "Creation",
+                    error: error.clone(),
+                    generated: 0,
+                    predecessor: None,
+                    successor_ordinal: 0,
+                }),
+                deciding_event_before_failure: None,
+                audit_completed: false,
+            });
+            (None, Some(Error::internal(error.to_string())))
+        }
+    };
+    let mut seen = Seen::with_exact(storage.exact);
+    if storage.seen_disk.is_some() {
+        seen.table = Vec::new();
+    }
     let keys: Vec<usize> = plan
         .code
         .sites
@@ -1351,8 +1436,9 @@ pub fn explore_with_storage<'p>(
         plan,
         graph,
         stats: Stats::default(),
-        metrics: Metrics::default(),
-        seen: Seen::with_exact(storage.exact),
+        metrics: initial_metrics,
+        seen,
+        disk,
         next: Vec::new(),
         frontier,
         next_originals: Vec::new(),
@@ -1382,7 +1468,7 @@ pub fn explore_with_storage<'p>(
     };
     let mut replayed = None;
     let mut reservoir = config.sample.map(sample::Reservoir::new);
-    let result = if let Some(error) = storage_setup_error {
+    let result = if let Some(error) = disk_setup_error.or(storage_setup_error) {
         Err(error)
     } else if unsupported_storage {
         Err(Error::unsupported(
@@ -1429,6 +1515,30 @@ pub fn explore_with_storage<'p>(
         },
     };
     ex.metrics.storage.exact_states = ex.seen.exact.as_ref().map_or(0, storage::Exact::len);
+    if let Some(disk) = &mut ex.disk {
+        let validate = !matches!(
+            verdict,
+            Verdict::Budget
+                | Verdict::Admission { .. }
+                | Verdict::Unsupported { .. }
+                | Verdict::Internal { .. }
+        );
+        let complete = disk.finish(validate, poll, verdict.clone());
+        if storage.exact {
+            ex.metrics.storage.exact_states =
+                usize::try_from(disk.usage.admitted_keys).unwrap_or(usize::MAX);
+        }
+        ex.metrics.storage.seen = Some(disk.usage.clone());
+        if let Some(failure) = &disk.usage.first_failure {
+            verdict = Verdict::Internal {
+                message: failure.error.to_string(),
+            };
+            trace = None;
+        } else if !complete {
+            verdict = Verdict::Budget;
+            trace = None;
+        }
+    }
     ex.metrics.storage.predecessor = ex.log.usage();
     if let Some(error) = ex.log.failure() {
         ex.metrics

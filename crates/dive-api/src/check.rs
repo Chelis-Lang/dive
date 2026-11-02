@@ -631,6 +631,13 @@ fn check_file_in(
         );
         report.core = Some(Box::new(run));
         result.into()
+    } else if engine == crate::Engine::Auto && req.seen_disk.is_some() {
+        report.fallback = Some(crate::core_engine::Fallback {
+            stage: "static",
+            reason: "whole-backend Auto admission for Core disk membership is not yet proved"
+                .into(),
+        });
+        check_backend(&ir, &model, &armed, req.temporal, req.periodic)
     } else if engine == crate::Engine::Auto {
         let (result, run) = crate::core_engine::check(
             &ir,

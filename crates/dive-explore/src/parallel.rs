@@ -675,16 +675,26 @@ impl crate::Explorer<'_> {
                     self.metrics.probed += 1;
                     if *in_model
                         && (self.max_states.is_some() || self.max_depth.is_some())
-                        && !self.seen.contains_row(*key, identity, &m.heap)
+                        && !self.seen_contains(
+                            *key,
+                            identity,
+                            &m.heap,
+                            ("AdmissionMembership", None),
+                        )?
                     {
                         self.admit_new()?;
                     }
                     let new = if *in_model {
-                        self.seen.insert_row(*key, identity, &m.heap)?
+                        self.seen_insert(*key, identity, &m.heap, ("Insertion", None))?
                     } else {
                         self.plan.symmetry.is_some()
                             || self.plan.view.is_some()
-                            || !self.seen.contains_row(*key, identity, &m.heap)
+                            || !self.seen_contains(
+                                *key,
+                                identity,
+                                &m.heap,
+                                ("AdmissionMembership", None),
+                            )?
                     };
                     if !new {
                         self.apply_implied(m, imp)?;
