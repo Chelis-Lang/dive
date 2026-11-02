@@ -1,15 +1,73 @@
-# M1 acceptance status (2026-11-01)
+# M1 acceptance status (2026-11-02)
 
 M1 has broad implementation across the main workstreams, but **acceptance remains open**.
 The default engine remains `reference`. Use `10-plan.md` for the milestone
 contract and this page for current evidence and the next bounded steps.
 
-The owner-approved next checkpoint is trusted core and temporal capacity
-(`10-plan.md` §1). ADR 0119 keeps default throughput targets but replaces
-compatibility's requirement to beat TLC everywhere with runtime/TLC ≤2 per
-model at 1/8 workers, investigated above 1.5. Semantic, independent-word and
-resource obligations are unchanged. Historical qualifications below remain
-attached to their original sources; no acceptance is granted retrospectively.
+The current checkpoint delivers usable native finite modes and bounded safety
+storage building blocks (`10-plan.md` §1). Compiled simulation/DFID (#730),
+shared finite budgets (#725), exact safety/predecessor storage (#724), ordered
+live-Store frontier spill (#729) and independent PlusCal translation/model
+comparison (#728) are merged.
+Final runtime main is `5688504ee3405f78b7951d6cab2b4b841ee549c8`, tree
+`a8ab9e3bc576bc564cfd3fd1adb24db3e4d3621e`.
+**Integrated Phase 5 qualification is pending.** Full-gate/census/Auto results,
+fixed PlusCal population results and qualification preservation/cleanup receipts
+remain pending in the
+[Phase 5 checkpoint](../../../conformance/reports/core/2026-11-02-phase5-checkpoint.json).
+No current-source test/corpus totals or RC acceptance are claimed here.
+
+ADR 0119 preserves default ≥2× TLC aggregate throughput and no slower panel
+model at W1/W8; compatibility requires runtime/TLC ≤2 per model, investigated
+above 1.5. Semantic, independent-word and resource obligations are unchanged.
+The separate matched old-bridge #651 contract is now accepted at `ccff7729`;
+the one indexed-guard S6 prototype is stopped unadopted. Neither result refreshes
+later-source qualification or accepts the global performance panel. Historical
+qualifications below remain attached to their actual sources.
+
+### Phase 5: landed capability and pending integrated qualification
+
+Native finite modes use Plan/Machine in both profiles with one actual worker.
+Explicit Core never falls back; finite Auto uses isolated static preparation to
+select a whole backend before execution. Reached native refusals never restart
+effects. Shared simulation preflight refuses configured VIEW before assumptions,
+output or execution. One budget owner covers assumptions, Init, steps and fresh
+independent replay on both backends. Preflight dispositions retain priority;
+actual budget exhaustion cannot certify a model verdict. Initial loading and
+individual value encoding/decoding remain uninterruptible, and memory is sampled.
+DFID preserves eager candidate/check/drain order and keeps only its current
+batch's generator transients live until actual deferred demand, then reclaims
+that batch after retaining required DFS rows. Simulation does not prove safety;
+DFID depth exhaustion is not completion. Broader #111/#118/#128/#239 and #350's
+unmeasured ≤1% instruction-overhead requirement remain open.
+
+Exact native safety membership compares complete canonical identities while
+keeping concrete representation and receiver history for execution/replay.
+Ordered frontier spill stores paired canonical/original opaque rows under the
+same live Store, validates retained records under control and decodes chunks of
+at most 1,024 pairs. Its files are process-local, not checkpoints. Component
+frontier/predecessor budgets exclude retained Store/history, seen membership,
+candidates, arenas, decoded chunks and temporal graphs; predecessor close still
+uses its existing record scan. Native checkpoint/recovery, disk seen, temporal
+spill and complete accounting remain open. See the [storage guide](../../user/storage-recovery.md).
+
+The PlusCal integration compares pinned `pcal.trans` → TLC with native
+translation → dive in both profiles and label settings. It uses the ordinary
+Reference checker backend, canonical report admission and independent native
+words. Keep all 149 selected inputs and 59 configurations: missing configurations,
+unsupported translations, startup/preflight matches, actual exploration, stops
+and differences remain distinct. Startup agreement is not exploration; this
+runner alone does not complete translation, native-core or broad API parity.
+
+The [Phase 5 performance record](../../../conformance/reports/perf/2026-11-02-phase5-bridge-and-s6.json)
+records two separate outcomes:
+
+| Bounded assessment | Actual source and result | Claim boundary |
+|---|---|---|
+| #651 original CoffeeCan1000 old-bridge comparison | `ccff7729` versus bridge `b5f6af4c`, 24 children / four profile-worker cells / three repetitions; every pair passes runtime ≤1.10 and RSS ≤0.65. Median runtime ratios: default W1/W8 0.999226/1.006190, TLC W1/W8 0.994352/1.006049; median RSS ratios 0.589692/0.594620/0.598825/0.616372. #651 accepted and manually closed. | Matched VM old-bridge comparison, not stock-TLC timing, a quiet five-repeat panel or later-source execution. #650's already accepted original capacity remains a separate Phase 4 result. |
+| #726 indexed-guard S6 prototype | `f60450d3`, one two-model default/W1 screen against a baseline with the disabled plan-dump diagnostic: median candidate/base 0.963964 SimpleRegular and 1.053560 Bakery. Stopped unadopted; no shipping code or rescue variant. | Does not reject broader S6 expensive-body/read strategies or qualify current performance. Existing history/demand safeguards remain mandatory. |
+
+### Historical Phase 4 qualification
 
 Phase 4's qualified runtime main is `949e549cc1fece68cfa1bcfe59ea4b1c83bc368f`,
 tree `37a77be0a70fe86dcaf4fce4617fa82690fe356b`. Its bounded trusted-report and
@@ -20,7 +78,8 @@ and passing all three required CI checks. Execution belongs to source
 `95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52`; the runtime squash has the exact
 qualified tree and was not itself executed. The [phase 4 checkpoint](../../../conformance/reports/core/2026-11-01-phase4-checkpoint.json)
 records accepted #650 capacity, retained census findings, preservation and
-actual cleanup. M1/M2, #651, performance and RC/release acceptance remain open.
+actual cleanup. That phase did not perform the later #651 bridge comparison;
+M1/M2, global performance and RC/release acceptance remain open.
 
 The historical frozen phase 3 runtime is
 `fb48dbbf42bd224f278b138e74c1c8e29e2af106`, tree
@@ -50,7 +109,10 @@ proved scope.
 
 | Area | Current state |
 |---|---|
-| Native storage, budgets and capture reports | Persistent original rows/CSR, controlled eager admission, bounded closed-function reuse, checked growth and actual budgets. Periodic stops report their real capture stage and completion facts (#675). |
+| Native modes and budgets | Compiled safety simulation/DFID and explicit CLI/API engine selection are implemented in both profiles; finite Auto is static only. Shared budgets cover production and independent replay. VIEW simulation refuses in every engine. Full mode matrices, generation/effects/workers and #350 instruction-overhead acceptance remain open. |
+| Native safety storage | Exact membership, ordered live-Store frontier and predecessor spill are implemented. Files are process-local; component budgets are not total-memory limits. Native recovery, disk seen, temporal spill and complete accounting remain open. |
+| Native temporal capture reports | Persistent original rows/CSR, controlled eager admission, bounded closed-function reuse, checked growth and actual budgets. Periodic stops report their real capture stage and completion facts (#675). |
+| Independent PlusCal model comparison | #728 merged: pinned pcal/TLC against native translation/dive through Reference, fixed 149 inputs / 59 configurations, both profiles/label settings, independent native words. Missing configuration, preflight matches and actual exploration receive separate accounting. |
 | Construction history | Owned literal/MAP/union construction order, raw demand and sparse state handoff are implemented with independent replay controls (#677, ADR 0131). Broader #623 remains open. |
 | Default compound membership | The bounded worker-local index starts on the second eligible lookup in normalized sets of at least 16 members (#698). Original extensional comparison, ownership/phase admission, collision checks and miss/error behavior remain authoritative. It shares the memo budget; scalar queries, finite-fuel analysis, TLC comparisons and unproved values retain the original search. `DIVE_CORE_OPT=-member-index` restores that search. |
 | Native temporal analysis | Exact reachable-product lookup is private; deterministic Cartesian ordering is restored before search (#694). Selected original-target descriptors remove repeated successor scans without changing original/stutter selection, conversion demand or error order (#701). These changes alone establish neither capacity nor throughput acceptance. |
@@ -62,7 +124,7 @@ proved scope.
 | Temporal source errors | Version 5 independently replays the bounded one-state source, actual Next order, temporal row and diagnostic lifecycle (#679, ADR 0132). Later rows, multiple initial emissions and unproved scopes still refuse; broader #502 remains open. |
 | Actual-word liveness names | Complete false-property list in configured order, independently proved on the actual word (#658, ADR 0126). Other observables remain strict. |
 | Expected divergences | Multi-worker registry matching requires the exact complete observed generated-count pair when comparison omits that field (#695; closes #684). One-worker differences, exact exits and independent trace proof remain mandatory. Expected divergences are separate from strict agreements. |
-| Unadopted optimizations | Projection reuse #705 remains closed unmerged after its SimpleRegular regression; #704 stays open. Small-payload scratch allocation #710 also remains closed unmerged after failing its predeclared paired adoption criteria; #708 stays open. Neither negative experiment is part of the runtime. |
+| Unadopted optimizations | Indexed-guard S6 #726 is stopped unadopted after a Bakery regression, without rejecting broader S6. Projection reuse #705 remains closed unmerged after its SimpleRegular regression; #704 stays open. Small-payload scratch allocation #710 also remains closed unmerged after failing its predeclared paired adoption criteria; #708 stays open. None of these stopped experiments is part of the runtime. |
 
 ### Phase 4: bounded deliverables and original capacity accepted
 
@@ -535,40 +597,49 @@ below keep their original source and limitations.
 
 ### Next bounded actions
 
-- Independently prove the four remaining `core-liveness/GenError` families:
-  General, Nested, Record and Tuple. Keep their current unconfirmed words and
-  explicit proof boundaries until actual source/cause replay establishes them.
-- Retain [#664](https://github.com/Chelis-Lang/dive/issues/664), TLC/W1
-  `LvPeriodic`'s native/reference capture-capacity asymmetry. Its transition
-  from an earlier difference to a current timeout earns no semantic-fix or
-  agreement credit.
-- Keep #697's shared-255 implied-action streams outside strict agreement until
-  canonical evidence proves the deciding identity. A valid word or diagnostic
-  bridge does not replace that oracle fact. The repaired #713 forgery boundary
-  and all positive/negative controls remain required.
-- Extend broader receiver/source scopes #680/#502 and additional history
-  producers #623 only within their existing plans. Unproved later sources,
-  multi-Init receiver lifetimes, effects and initial-generation contexts retain
-  their explicit refusal boundaries.
-- Qualify #651's separate matched old-bridge criterion: original CoffeeCan in
-  all four profile/worker cells must use at most 110% of bridge runtime and 65%
-  of bridge RSS. This phase's original-capacity acceptance does not perform or
-  accept that comparison.
-- Address the source-bound performance deficits under ADR 0119: global default
-  floors remain unmet, GameOfLife/W1 retains its above-2 compatibility
-  observation, and Sailfish observations above1.5 require investigation.
-  #704/#708 remain open; #705/#710 remain rejected and unmerged. No formal
-  300-row campaign or rescue variant was part of this phase.
-- Continue the existing broader mode and full-tier corpus work. Simulation,
-  DFID, checkpoint/storage integration and eventual engine cutover retain
-  their separate acceptance contracts; `reference` remains the default.
+1. Run one milestone qualification on actual final Phase 5 runtime `5688504e`. Preserve the unchanged census,
+   Auto/SANY selections and PlusCal inputs/configurations/labels/profiles,
+   all physical outcomes and independent words. Record final source, results,
+   preservation and cleanup without projecting historical successes forward.
+   Development continues with focused checks; no full gate per increment.
+2. Independently prove `core-liveness/GenError/{General,Nested,Record,Tuple}`
+   source/cause words. Keep #664's `LvPeriodic` asymmetry and #697's ambiguous
+   shared-255 streams open: a stop or valid diagnostic is not an agreement or
+   canonical deciding-class proof. Preserve #717's repaired forgery boundary.
+   Extend #680/#502 receiver/source scopes and #623 constructor/history producers
+   only through their recorded plans and demanded-lifetime proof.
+3. Finish seeded generation, supported captured effects and complete
+   simulation/DFID matrices, then justified worker/scheduler breadth. The native
+   one-worker slice is useful implementation, not closure of #111/#118/#128/#239.
+   Measure #350's ≤1% instruction-overhead criterion separately from functional
+   cooperative budgets.
+4. Build native checkpoint/recovery that preserves owned history/representation,
+   followed by disk seen, remaining candidate/trace/temporal graph/SCC spill and
+   complete memory accounting. Native retry-safe distribution depends on the
+   identity-checked recovery contract. Java worker/checkpoint interoperability
+   remains excluded; same-process frontier files do not satisfy recovery.
+5. Complete remaining operators/configuration and actual-core full-tier breadth,
+   explicitly granted environment/runtime services, coverage/debugger, public
+   APIs/cargo-test integration and PlusCal obligations. These remain mandatory
+   parity scope. LSP/native compilation and Verus export remain after v1 under
+   ADR 0095 and the roadmap; do not expand that deferral to other product work.
+6. Address the measured ADR 0119 default floors and compatibility outliers.
+   GameOfLife/W1's historical above-2 observation and Sailfish's above-1.5 cases
+   remain investigation inputs, not later-source measurements. Pursue material
+   expensive-body/read reuse under S6 only with eligibility and demand proofs.
+   Keep #704/#708 open; do not resurrect rejected #705/#710 or the single stopped
+   indexed-guard prototype. #651 is closed, with no broad-panel credit.
+7. At the release boundary, satisfy full-tier actual-core/fallback acceptance,
+   unchanged deep frontend/corpus populations, supported package/platform/user
+   flows, and the RC performance/qualification gates. Preserve the 8 implemented /
+   27 partial / 3 missing family inventory until full-family evidence changes it.
 
-The bounded phase is complete, including #650's own capacity contract and
-#718's reviewed adoption. Clean census, #651, M1/M2, full parity and RC/release
-qualification remain open. Historical failures, diagnostic scope limits and
-all source/ELF distinctions remain evidence rather than being rewritten as
-current successes. No additional prototype or campaign is launched by this
-closeout.
+Phase 4's bounded #650/#718 contracts and Phase 5's measured #651 comparison
+are accepted on their own recorded sources. Phase 5 integrated qualification,
+clean census, M1/M2, global performance, full parity and RC/release qualification
+remain open. Historical failures, unclassified streams and source/ELF distinctions
+remain evidence. The [roadmap](../../ROADMAP.md#through-full-tlc-parity) retains
+the whole mandatory scope; this checkpoint is one substantial step within it.
 
 ### Historical local qualification at `83356b01`
 
@@ -1249,7 +1320,7 @@ into this tranche, and no new all-model compat speedup is claimed. Record:
 This inventory records the earlier checkpoint. Its counts and implementation
 statements remain historical; they do not describe the current remaining work.
 Use the [current checkpoint](#current-checkpoint-implementation-and-remaining-acceptance)
-and [active execution plan](10-plan.md#next-checkpoint-trusted-core-and-temporal-capacity-2026-10-29)
+and [active execution plan](10-plan.md#current-checkpoint-usable-native-modes-and-bounded-safety-storage-2026-11-02)
 for landed scopes, remaining refusals and measured next priorities.
 
 The census identifies distinct obligations; one fix cannot waive another family:
@@ -1308,7 +1379,7 @@ core reboot and do not establish current core breadth.
 This is the earlier execution plan, retained as history. It includes work now
 landed in bounded scopes, including first-Init receiver replay and construction
 history. Follow the [current checkpoint](#current-checkpoint-implementation-and-remaining-acceptance)
-and [active execution plan](10-plan.md#next-checkpoint-trusted-core-and-temporal-capacity-2026-10-29)
+and [active execution plan](10-plan.md#current-checkpoint-usable-native-modes-and-bounded-safety-storage-2026-11-02)
 instead of treating the instructions below as outstanding implementation.
 
 1. Qualify the merged typed terminal replay over the complete selection, keeping

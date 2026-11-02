@@ -10,6 +10,44 @@ The charter's soundness contract applies throughout.
 The [scoreboard](scoreboard.md) records the latest corpus results and the
 roadmap feature checklist. Parity means observable results (ADR 0086).
 
+## Current checkpoint: native modes, bounded safety storage and PlusCal (Phase 5)
+
+Native simulation/DFID (#730) and shared finite-mode budgets (#725) are merged,
+as are exact safety membership/predecessor spill (#724) and ordered live-Store
+frontier spill (#729). Both profiles support the native finite slice with one
+actual worker. Explicit Core never falls back; finite Auto selects a whole
+backend before execution and never retries a reached refusal. Simulation VIEW
+refuses in shared preflight. Reports still require independently validated words;
+sampling and depth-bound DFID cannot certify safety.
+
+Frontier files retain canonical/original rows under the issuing live Store.
+They preserve concrete history but are process-local, not recoverable snapshots.
+Component queue/predecessor budgets do not bound the retained Store, histories,
+seen set, candidates or temporal graph. Core checkpoint/recovery, disk seen,
+temporal spill and complete accounting remain separate implementation work.
+The [storage guide](user/storage-recovery.md) states the current limits.
+
+Independent PlusCal comparison (#728) is merged. It compares
+pinned translation/TLC against native translation/dive through the Reference
+checker in both profiles and label settings. All 149 inputs / 59 configurations
+remain selected; missing configurations and startup/preflight matches earn no
+explored-model credit. Full translation/API/corpus parity remains open.
+
+Final runtime main is `5688504e`, tree `a8ab9e3b`, after all five implementation
+PRs passed their required CI checks and merged. The integrated Phase 5
+qualification is **pending**: gate/census/Auto/PlusCal results and preservation/cleanup receipts remain pending
+in the [checkpoint record](../conformance/reports/core/2026-11-02-phase5-checkpoint.json).
+Reference stays default; M1/M2 and RC/release acceptance remain open. See the
+[current implementation and next actions](developer/core/m1-status.md#next-bounded-actions).
+
+The separate [bridge/S6 record](../conformance/reports/perf/2026-11-02-phase5-bridge-and-s6.json)
+accepts #651 only for actual `ccff7729` versus old bridge `b5f6af4c`: 24 children
+cover four profile/worker cells with three repetitions and pass runtime ≤1.10 /
+RSS ≤0.65. The one `f60450d3` indexed-guard S6 prototype is stopped unadopted
+(SimpleRegular median 0.963964, Bakery 1.053560 candidate/base runtime), with no
+rescue variant or rejection of broader S6. Neither assessment is execution of
+the final Phase 5 source or broad TLC performance acceptance.
+
 ## M0: Foundation
 
 Delivers:
@@ -94,19 +132,34 @@ The design is in ADRs 0017–0019 (proposed).
 
 ## Through full TLC parity
 
-The approved rescue roadmap in issue #241 retains complete symmetry, temporal
-language, ordinary integrated liveness, simulation/generation and DFID, remaining
-operators/configuration/output/debugger services, bounded-memory spill, native
-checkpoint/recovery, native distributed checking, PlusCal and release
-certification. Consolidating the search kernel and simplifying independent trace
-replay support the remaining periodic liveness and mode integration. Corpus coverage, PlusCal, CLI/API
-and performance work can proceed independently; modes and storage then build on
-the consolidated kernel. Current capabilities and remaining work are recorded in
-[the scoreboard](scoreboard.md).
+The approved rescue roadmap in issue #241 retains the following mandatory
+scope. Bounded native modes/storage and independent PlusCal comparison advance
+these contracts without closing their full families. The inventory remains
+8 implemented / 27 partial / 3 missing families; `implemented` is a supported
+corpus claim, not full parity.
+
+| Area | Work still required |
+|---|---|
+| Correctness and breadth | Prove remaining GenError words and broader constructor/receiver/source lifetimes; complete standard/Community operators, startup/configuration, symmetry/temporal language and actual-core corpus coverage. Preserve explicit refusals and Unclassified streams until proved. |
+| Modes | Complete generation, captured effects, simulation/DFID matrices and justified parallel options. Broad #111/#118/#128/#239 remain open; landed budgets do not measure #350's ≤1% instruction-overhead criterion. |
+| Recoverable bounded search | Native core checkpoint/recovery preserving owned history/representation; disk membership; candidate/trace/temporal graph/SCC spill and complete memory accounting. Retry-safe native distribution follows identity-checked recovery. |
+| Product and integration | Explicit host category grants, runtime/introspection/output, trace exploration, coverage/debugger, complete PlusCal and checking/simulation/translation/checkpoint/distributed Rust APIs with cargo-test integration. |
+| Performance and release | ADR 0119 default floors, compatibility outliers, full-tier actual-core/fallback acceptance, unchanged deep populations, supported platform/package/user flows and RC qualification. |
+
+Build these increments on the existing compiled kernel and independent validator.
+Use focused development checks, then one integrated milestone qualification;
+large corpus/worker and formal performance campaigns belong at milestone/RC
+boundaries. For performance, retain the sound history/demand safeguards, S5
+membership work and S6 expensive-body/read strategy. The stopped indexed-guard,
+projection-reuse and small-payload variants are not prerequisites to revive.
 
 Native protocols/checkpoints satisfy the approved scope; interoperability with
 Java workers/checkpoints and arbitrary JVM plugin loading are excluded. Host
 access still requires explicit category grants even under `--compat=tlc`.
+See [the scoreboard](scoreboard.md) and
+[current core plan](developer/core/10-plan.md#1-milestones) for implementation and
+acceptance boundaries. These requirements are separate from promoting the core
+to the default.
 
 ## After parity
 
@@ -155,6 +208,8 @@ choice (ADR 0082, ADR 0086 and charter appendix 12). Checkpoint/recovery and oth
 modes retain their observable contracts, including equivalent resumed and
 uninterrupted outcomes. Any new result-changing default still needs an approved
 and documented divergence under ADR 0010.
+
+### Historical Phase 4 qualification
 
 Phase 4 completes its bounded trusted-report and original-capacity scope at
 qualified runtime main `949e549c`, tree `37a77be0`. It includes standalone trace
@@ -216,9 +271,12 @@ default; #650's original-capacity contract is accepted and #650/#718 are manuall
 closed after verified runtime merge. M1/M2 and RC/release acceptance remain open. No formal 300-row
 campaign, value-proof implementation or rescue of #705/#710 is introduced.
 Issue #650 has its own original twelve-cell capacity contract. Issue #651's
-matched old-bridge CoffeeCan runtime/RSS criterion and the wider milestone
-requirements remain separate and open. No broader TLC replacement or performance
+matched old-bridge CoffeeCan runtime/RSS criterion was not measured by Phase 4;
+it is now separately accepted on actual `ccff7729` in the Phase 5 bridge record.
+The wider milestone requirements remain open. No broader TLC replacement or performance
 acceptance follows from this bounded phase.
+
+### Historical trusted-core checkpoints
 
 The historical trusted-core checkpoint includes bounded construction-history,
 diagnostic receiver and temporal-source-row replay, native closed-action execution and
@@ -315,10 +373,10 @@ earlier campaign. The independently audited
 retains the failed acceptance and prior comparison. Historical
 `83356b01`/`9fc88333` results keep their original source and limitations. The
 projection-reuse experiment #705 is closed unmerged after its SimpleRegular
-regression; #704 remains open. Reference remains the default; simulation, DFID,
-checkpoints, disk storage and full-tier breadth retain their existing later
-scope. The [next bounded actions](developer/core/m1-status.md#next-bounded-actions)
-preserve the remaining word/classification/receiver boundaries and finish the
-unmet original-capacity/performance requirements. ABA TLC/W8 completion and
-useful TLC/W1 headroom remain
-an obligation; proof-hit counters do not establish its full-matrix acceptance.
+regression; #704 remains open. Reference remains the default. The Phase 5
+section above records the later
+bounded native simulation/DFID and safety storage gains; recovery, disk storage
+and full-tier breadth remain open. The [next bounded actions](developer/core/m1-status.md#next-bounded-actions)
+preserve the remaining word/classification/receiver boundaries and unmet
+performance requirements. Phase 4 later accepted original capacity on its own
+source; proof-hit counters alone never establish full-matrix acceptance.

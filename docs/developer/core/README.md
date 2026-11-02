@@ -10,14 +10,35 @@ The documents exist so that any engineer or agent can take over at any point.
 Read this page, then `10-plan.md` (status and handoff log), then the documents
 for the workstream you are joining.
 
-The active next checkpoint is trusted core and temporal capacity
-(`10-plan.md` §1). ADR 0119 retains default throughput targets, with TLC
-compatibility runtime bounded at 2× TLC per model and investigated above
-1.5×. Correctness and independently validated words remain mandatory; an
-engine-default cutover is not a separate workstream.
+The current phase adds usable native finite modes and storage
+building blocks: compiled safety simulation/DFID, exact safety membership and
+ordered frontier/predecessor spill. Independent PlusCal translation/model
+comparison (#728) is also merged. The default engine remains
+`reference`; M1/M2 and RC/release acceptance remain open. Final Phase 5 runtime
+main is `5688504e`, tree `a8ab9e3b`; all five implementation PRs passed the
+three required CI checks before merge.
 
-**Start here:** `m1-status.md` records the current acceptance findings, source-bound
-measurements and next steps. M1 remains open; the default engine is `reference`.
+**Start here:** [m1-status.md](m1-status.md) separates landed capabilities,
+source-bound evidence and the next implementation work. The Phase 5 integrated
+qualification is **pending**. Its gate/census/Auto results and
+preservation/cleanup receipts remain pending in the
+[checkpoint record](../../../conformance/reports/core/2026-11-02-phase5-checkpoint.json).
+Area guides describe current [finite modes](../../user/simulation.md),
+[DFID](../../user/dfid.md) and [storage](../../user/storage-recovery.md).
+
+ADR 0119 retains default throughput targets and bounds compatibility runtime
+at 2× TLC per model, investigated above 1.5×. The separate matched old-bridge
+CoffeeCan comparison accepts #651 at actual source `ccff7729`; the one S6
+indexed-guard prototype is stopped unadopted after a Bakery regression. Neither
+result qualifies the later runtime or the broad TLC performance panel. See the
+[source-bound performance record](../../../conformance/reports/perf/2026-11-02-phase5-bridge-and-s6.json).
+
+## Historical checkpoints before Phase 5
+
+The following observations retain their actual sources and then-open findings.
+Phase 4 subsequently accepted #650 and closed #713/#714; the current implementation
+and acceptance boundaries are in `m1-status.md`. None of these historical full
+gates, performance rows or cleanup receipts qualify the Phase 5 runtime.
 
 The frozen phase 3 source is `fb48dbbf`, tree `b2d90500`. Native atom input-proof
 reuse (#709) and bounded ordered error-prefix replay (#712) have fresh reviews
@@ -51,7 +72,8 @@ the matrix is not accepted. ABA default/W8 succeeds at 833.645s and TLC/W1 at
 archive members are verified. Both phase nodes and root volumes are gone, with
 no active owned phase instance. Conservative compute is about $10.235, not an
 invoice, excluding small storage/transfer costs and below the $40 ceiling.
-#650, M1, M2 and release qualification remain open. See the
+#650 was not accepted by that Phase 3 source; Phase 4 later closed it.
+M1/M2 and release qualification remain open. See the
 [next bounded actions](m1-status.md#next-bounded-actions).
 
 The historical [local record](../../../conformance/reports/core/2026-11-01-integrated-qualification.json)
@@ -106,9 +128,9 @@ measurements above or the engine default.
 | Rebaseline on x86 | Day 0 | done | #522 | `09-performance-method.md` |
 | M0 spike | M0 | done: 1.81× TLC, 5.21× reference (x86 geomean); merged as `--engine=core` | #505 | `m0-results.md` |
 | 1. Values and store | M1 | implemented M1 scope; remaining work below; done: inline node data, lazy values, big ints, model values, `isNorm`, intern-token strings, lock-free intern hits, Bags, most stdlib and CommunityModules operators, Print/PrintT/ToString, RandomElement, TLCSet/TLCGet, pure scalar sequence replacement (All overlaps refused), bounded owned literal/MAP/union histories and default S5 compound-membership indexing (#677/#698); next: broader construction, normalization demand/history and alias lifetime before widening checked comparison; conservative C2 refusal retained; retain §12 stdlib boundaries | `core/values-*` | `03-value-model.md` |
-| 2. Plan compiler and laziness | M1 | implemented M1 scope; remaining work below; done: fold bound (R9), TLC lazy values, INSTANCE, error classes, operator arguments, lazy LET, failing ASSUME, `ENABLED` (#581), memo on and bounded (#575, #584); done: `ENABLED` with constant/operator INSTANCE parameters and identity variable mappings; bounded ordered VIEW/constraint/invariant diagnostic proof (#712), with canonical classes still Unclassified and inherited primary-2111 limitation #713 open; next: raw construction/demand/history, exact scalar/tuple normalization and membership, then class/E7 widening; hidden/nonidentity INSTANCE queries and B2/B4 lifetimes remain | `core/compiler-*` | `04-plan-compiler.md`, `06-memoization.md` |
-| 3. Successor generation and engine | M1 | implemented M1 scope; remaining work below; done: traces, error endings, budgets, parallel engine, `--engine=auto`, `--compat=tlc` at any worker count, implied properties, SYMMETRY (both profiles), ALIAS, VIEW, VIEW+SYMMETRY, liveness L1–L4 (#572, #573, #577, #582), #550, #551; L5 native retained roots/CSR, controlled eager admission/on-demand reads, bounded read reuse and graph-neutral validated reports; private exact product lookup/deterministic final ordering and selected original-target descriptors (#694/#701), exact-row atom input-proof reuse within one analysis (#709); next: complete memory accounting, original-workload TLC capacity qualification, `P4SymLive` | `core/engine-*` | `05-successor-generation.md`, `07-engine.md`, `11-liveness.md` |
-| 4. Harness, shadow comparison, bench | M1 | lead; done: harness engine selection, shadow gate in CI, successor sampling, x86 checkpoint and memo A/B (`10-plan.md` §5a, §5b), AWS bench and gate scripts, reproducible seeded fixture-census runner; classified results and confirmed core words required (#590, #596); phase 3 full gate and both Auto baselines pass, separate standalone trace compilation passes, census findings retained; #710 valid-negative A/B rejected; separate 36/60-row performance diagnostics audited and targets unmet; original capacity terminal at 11/12, ABA TLC/W8 atom stop retained, runner exit 1; archives and both-node/root-volume cleanup verified; remaining: #713 trust limit, performance targets, full original capacity/headroom and existing semantic/accounting boundaries | — | `08-correctness.md`, `09-performance-method.md` |
+| 2. Plan compiler and laziness | M1 | implemented M1 scope; remaining work below; done: fold bound (R9), TLC lazy values, INSTANCE, error classes, operator arguments, lazy LET, failing ASSUME, `ENABLED` (#581), memo on and bounded (#575, #584); done: `ENABLED` with constant/operator INSTANCE parameters and identity variable mappings; bounded ordered VIEW/constraint/invariant diagnostic proof (#712), with canonical classes still Unclassified and the later #717 certificate closing primary-2111 forgery #713; next: raw construction/demand/history, exact scalar/tuple normalization and membership, then class/E7 widening; hidden/nonidentity INSTANCE queries and B2/B4 lifetimes remain | `core/compiler-*` | `04-plan-compiler.md`, `06-memoization.md` |
+| 3. Successor generation and engine | M1 | implemented M1 scope; remaining work below; done: traces, error endings, budgets, parallel engine, `--engine=auto`, `--compat=tlc` at any worker count, implied properties, SYMMETRY (both profiles), ALIAS, VIEW, VIEW+SYMMETRY, liveness L1–L4 (#572, #573, #577, #582), #550, #551; L5 native retained roots/CSR, controlled eager admission/on-demand reads, bounded read reuse and graph-neutral validated reports; private exact product lookup/deterministic final ordering and selected original-target descriptors (#694/#701), exact-row atom input-proof reuse within one analysis (#709); native simulation/DFID (#730), exact safety membership/predecessor spill (#724) and ordered live-Store frontier spill (#729); next: native checkpoint/recovery, disk seen, temporal spill/accounting and remaining `P4SymLive` semantics; original twelve-cell capacity accepted on Phase 4 source, not rerun here | `core/engine-*` | `05-successor-generation.md`, `07-engine.md`, `11-liveness.md` |
+| 4. Harness, shadow comparison, bench | M1 | Phase 5 integrated qualification pending; independent PlusCal comparison (#728) merged. #651 matched old-bridge runtime/RSS accepted only at `ccff7729`; indexed-guard S6 #726 stopped unadopted. Historical gates/census/capacity remain source-bound. Next: one integrated checkpoint, actual-core full-tier breadth, ADR 0119 deficits and release qualification; broader proof/accounting boundaries remain. | — | `08-correctness.md`, `09-performance-method.md`, `m1-status.md` |
 
 The umbrella issue is #498. The M0 spike landed on `main` in #505; its results
 are in `m0-results.md`. M1 streams 1–3 started 2026-10-26, each in its own

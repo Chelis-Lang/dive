@@ -1,5 +1,45 @@
 # Scoreboard
 
+Phase 5 adds native safety simulation/DFID and shared budgets (#730/#725),
+exact safety membership/predecessor spill (#724) and ordered live-Store frontier
+spill (#729). Independent pinned-translator/TLC versus native-translation/dive
+comparison (#728) is merged. Final runtime main is `5688504e`, tree `a8ab9e3b`;
+all five implementation PRs passed their required CI checks. Reference remains
+default. **Integrated
+Phase 5 qualification is pending**; current test/corpus counts,
+fixed PlusCal population results and preservation/cleanup receipts remain pending
+in the [Phase 5 checkpoint](../conformance/reports/core/2026-11-02-phase5-checkpoint.json).
+M1/M2, global performance and RC/release acceptance remain open.
+
+Finite Core is explicit in both profiles, with one actual worker. Finite Auto
+selects a whole backend before execution; it never retries reached refusals.
+Simulation VIEW refuses in shared preflight before assumptions/work. Independent
+words and truthful sampling/completion remain required. Native safety spill
+preserves canonical/original rows under a retained live Store, with process-local
+files and component budgets rather than a total-memory bound. Native core
+checkpoint/recovery, disk seen, temporal spill and full accounting remain open.
+The [current status](developer/core/m1-status.md) and area guides record details.
+
+The PlusCal lane uses Reference checking of the native translation against
+pinned pcal/TLC, both profiles and label settings. Keep the fixed 149-input /
+59-configuration populations, missing configurations, translation refusals,
+startup/preflight matches, actual exploration, stops and independently validated
+words distinct. It does not earn native-core or full-family completion credit.
+The 38-family checklist remains **8 implemented / 27 partial / 3 missing**.
+
+The separate [bridge/S6 record](../conformance/reports/perf/2026-11-02-phase5-bridge-and-s6.json)
+accepts and closes #651 on actual `ccff7729` versus bridge `b5f6af4c`: all four
+profile/worker cells (24 children, three repetitions) pass runtime ≤1.10 and
+RSS ≤0.65. Median runtime ratios are 0.999226/1.006190/0.994352/1.006049 and RSS
+ratios 0.589692/0.594620/0.598825/0.616372, ordered default W1/W8 then TLC W1/W8.
+This is matched VM old-bridge evidence, not stock-TLC timing, a quiet formal
+panel or later-source execution. The one `f60450d3` indexed-guard S6 candidate
+is stopped unadopted: median runtime 0.963964 SimpleRegular / 1.053560 Bakery.
+No shipping code, rescue variant or broader S6 rejection follows. #350's ≤1%
+instruction-overhead acceptance and broad #111/#118/#128/#239 remain open.
+
+## Historical Phase 4 and earlier checkpoints
+
 Phase 4 is complete within its bounded trusted-report and original-capacity
 scope. Qualified runtime main `949e549c`, tree `37a77be0`, includes the standalone
 trace gate (#716, closing #714), fresh invariant/VIEW report certification
@@ -97,7 +137,8 @@ survive into fresh independent typed and serialized validation. Ordinary core
 file count ceilings use checked layouts/fallible growth and actual budgets;
 explicit caller/reference limits remain. Store/native byte accounting is partial;
 original
-TLC-relative capacity/performance qualification remains open. No corpus
+capacity was later accepted on Phase 4 source `95e73d2f`; broad TLC-relative
+performance qualification remains open. No corpus
 population, parity-surface, throughput or default-engine credit follows from
 this storage integration (ADRs 0117 and 0122).
 
@@ -108,8 +149,9 @@ initial tuple/record diagnostic replay and version-5 temporal source-row replay
 separates these capabilities from remaining refusals and qualification. The
 `9fc88333` integrated campaign exposed a real history-interner performance
 regression (#686); reviewed correction #687 preserves history and semantic hashes.
-The failed/partial source results are retained. Original capacity and
-five-repeat throughput acceptance remain open; reference remains default.
+The failed/partial source results are retained. Original capacity was later
+accepted on Phase 4 source; broad five-repeat throughput acceptance remains
+open and Reference remains default.
 
 #619 soundness boundary: compound set normalization uses the existing shape
 proof in both core profiles. Unproved nested comparisons return unsupported;
@@ -166,6 +208,9 @@ success. Source-qualified rows and limitations are in the
 [current checkpoint](developer/core/m1-status.md).
 
 ## Corpus scoreboard
+
+The latest completed integrated census below belongs to Phase 4. Phase 5
+qualification is pending; no newer corpus population is asserted.
 
 The phase 4 census at `95e73d2f` is terminal, retaining the same 1,520 selected
 fixtures per profile, 99 parser exclusions and 18 ambiguous skips, with no added
@@ -672,6 +717,9 @@ throughput, scaling or peak-memory result. The backlog remains
 [#338](https://github.com/Chelis-Lang/dive/issues/338).
 
 ## Roadmap feature checklist
+
+The full-family inventory is unchanged by the bounded Phase 5 implementations:
+8 implemented, 27 partial and 3 missing. See the [remaining mandatory scope](ROADMAP.md#through-full-tlc-parity).
 
 Status is one word: `implemented`, `partial` or `missing`. `implemented` means
 the feature works for the supported corpus. It does not certify full parity.
