@@ -1,5 +1,12 @@
 # Changelog
 
+- Add explicit Core completed-level safety checkpoint/resume, preserving owned
+  Store/history authority, concrete discovery order, VIEW/symmetry identity and
+  counter policy across fresh processes. Support changed worker widths, exact
+  membership, transient spill and disk membership; Auto recovery selects the
+  encoded backend before evaluation. Keep Reference archives and wrappers.
+  Archive admission bounds remain separate from process memory budgets.
+
 - Support opt-in native Core disk membership for safety BFS in both profiles,
   fingerprint/exact modes and the existing VIEW, safety-symmetry and transient
   spill routes. Preserve original receiver/history values, use fallible native

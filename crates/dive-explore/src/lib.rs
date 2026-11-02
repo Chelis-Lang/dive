@@ -26,6 +26,7 @@
 //! `tests/golden.rs` for complete runs from TLA+ sources.
 #![forbid(unsafe_code)]
 
+pub mod checkpoint;
 pub mod ending;
 pub mod graph;
 mod parallel;
@@ -103,6 +104,16 @@ pub enum Verdict {
     PrefixStop {
         /// The completed level (the initial states are level 1).
         level: u64,
+    },
+    /// A requested completed-level pause; never a model verdict.
+    CheckpointPaused {
+        /// Next unexpanded source level.
+        next_level: u64,
+    },
+    /// A checkpoint transaction failed without proving a model result.
+    CheckpointError {
+        /// The explicit structural, ownership or admission failure.
+        message: String,
     },
     /// A bug in the core.
     Internal {
@@ -460,6 +471,7 @@ struct Explorer<'p> {
     metrics: Metrics,
     seen: Seen,
     disk: Option<storage::Disk>,
+    checkpoint: Option<&'p mut checkpoint::Session>,
     next: Vec<Handle>,
     /// Opt-in encoded current/next queues tied to this live Store.
     frontier: Option<storage::Frontiers>,
@@ -688,9 +700,7 @@ impl Explorer<'_> {
         let code = &plan.code;
         // The -early-probe control can replace m.s1 with canonical identity
         // handles. Keep the emitted representation available to capture too.
-        let original = self
-            .graph
-            .is_some()
+        let original = (self.graph.is_some() || self.checkpoint.is_some())
             .then(|| capture_copy(&m.s1))
             .transpose()?;
         if m.assigned != m.s1.len() {
@@ -796,6 +806,20 @@ impl Explorer<'_> {
         new: bool,
         original: Option<&[Handle]>,
     ) -> Result<(), Error> {
+        if new && let Some(session) = &mut self.checkpoint {
+            let values = m.s1.clone();
+            let original = original.unwrap_or(&values);
+            let ordinal = u32::try_from(self.emitted.saturating_sub(1))
+                .map_err(|_| Error::unsupported("checkpoint successor ordinal bound"))?;
+            if let Err(error) =
+                session.record(&mut m.heap, &values, original, key, self.cur_id, ordinal)
+            {
+                self.stop = Some(Verdict::CheckpointError {
+                    message: error.message().to_owned(),
+                });
+                return Err(Error::stop());
+            }
+        }
         let Some(sink) = self.graph.as_deref_mut() else {
             return Ok(());
         };
@@ -853,6 +877,12 @@ impl Explorer<'_> {
     /// Reports the `emitted`-th state of its source to the graph sink,
     /// before its checks.
     fn report_emitted(&mut self) -> Result<(), Error> {
+        if self.checkpoint.is_some() && self.stats.generated > i64::MAX as u64 {
+            self.stop = Some(Verdict::CheckpointError {
+                message: "native recovery counter bound exceeded".into(),
+            });
+            return Err(Error::stop());
+        }
         let ordinal = (!self.initial).then(|| self.emitted.saturating_sub(1));
         let generated = self.stats.generated;
         if let Some(sink) = self.graph.as_deref_mut()
@@ -948,7 +978,7 @@ impl Explorer<'_> {
             .map_err(|e| Error::internal(format!("predecessor log: {e}")))?;
             return frontier.push(id, &identity, &retained);
         }
-        if self.graph.is_some() {
+        if self.graph.is_some() || self.checkpoint.is_some() {
             capture_reserve(&mut self.next, m.s1.len())?;
             capture_reserve(&mut self.next_originals, m.s1.len())?;
             capture_reserve(&mut self.next_ids, 1)?;
@@ -969,7 +999,7 @@ impl Explorer<'_> {
             capture_reserve(&mut self.next_views, 1)?;
             self.next_views.push((row, views));
         }
-        if self.graph.is_some() {
+        if self.graph.is_some() || self.checkpoint.is_some() {
             for &h in original.unwrap_or(&m.s1) {
                 self.next_originals.push(m.heap.intern_exact(h)?);
             }
@@ -992,7 +1022,10 @@ impl Explorer<'_> {
             values.push(if h.is_empty() { h } else { m.heap.intern(h)? });
         }
         let expect = if self.cur_id.is_some() {
-            if self.graph.is_some() || m.s0.iter().any(|&h| m.heap.has_construction_history(h)) {
+            if self.graph.is_some()
+                || self.checkpoint.is_some()
+                || m.s0.iter().any(|&h| m.heap.has_construction_history(h))
+            {
                 m.s0.iter()
                     .map(|&h| m.heap.intern(h))
                     .collect::<Result<Vec<_>, _>>()?
@@ -1359,6 +1392,48 @@ pub fn explore_with_storage<'p>(
     control: Option<&Arc<dyn dive_core::eval::WorkControl>>,
     storage: &storage::Storage,
 ) -> Outcome {
+    explore_inner(plan, store, config, poll, graph, control, storage, None)
+}
+
+/// Runs a quiescent completed-level safety transaction over the existing kernel.
+/// Ordinary exploration does not retain checkpoint discovery rows.
+#[must_use]
+pub fn explore_checkpoint<'p>(
+    plan: &'p Plan,
+    store: &Arc<Store>,
+    config: Config,
+    poll: &'p (dyn Fn() -> bool + Sync),
+    control: Option<&Arc<dyn dive_core::eval::WorkControl>>,
+    storage: &storage::Storage,
+    session: &'p mut checkpoint::Session,
+) -> Outcome {
+    explore_inner(
+        plan,
+        store,
+        config,
+        poll,
+        None,
+        control,
+        storage,
+        Some(session),
+    )
+}
+
+#[allow(
+    clippy::too_many_arguments,
+    clippy::too_many_lines,
+    reason = "one existing search owner with an optional completed-level transaction"
+)]
+fn explore_inner<'p>(
+    plan: &'p Plan,
+    store: &Arc<Store>,
+    config: Config,
+    poll: &'p (dyn Fn() -> bool + Sync),
+    graph: Option<&'p mut dyn graph::GraphSink>,
+    control: Option<&Arc<dyn dive_core::eval::WorkControl>>,
+    storage: &storage::Storage,
+    checkpoint: Option<&'p mut checkpoint::Session>,
+) -> Outcome {
     let start = Instant::now();
     let config = if storage.seen_disk.is_some() {
         Config {
@@ -1439,6 +1514,7 @@ pub fn explore_with_storage<'p>(
         metrics: initial_metrics,
         seen,
         disk,
+        checkpoint,
         next: Vec::new(),
         frontier,
         next_originals: Vec::new(),
@@ -1786,30 +1862,34 @@ fn run(
     let Some(m) = machines.first_mut() else {
         return Err(Error::internal("no core machine"));
     };
-    start_stream(m, plan, None)?;
-    // `TLCGet("level")` is 0 in `Init` (TLC's `INIT_LEVEL - 1`).
-    m.level = 0;
-    if let Err(e) = run_actions(m, ex, &plan.init, code) {
-        ex.stats.left_on_queue = ex.queued_states() as u64;
-        return Err(generator_error(m, ex, &[], e));
+    let recovered = checkpoint::restore(ex, m)?;
+    if !recovered {
+        start_stream(m, plan, None)?;
+        // `TLCGet("level")` is 0 in `Init` (TLC's `INIT_LEVEL - 1`).
+        m.level = 0;
+        if let Err(e) = run_actions(m, ex, &plan.init, code) {
+            ex.stats.left_on_queue = ex.queued_states() as u64;
+            return Err(generator_error(m, ex, &[], e));
+        }
+        // TLC reports depth one after Init emits a state, even when the
+        // constraints exclude every candidate from the retained graph.
+        ex.stats.depth = ex
+            .stats
+            .depth
+            .max(u64::from(ex.stats.initial_generated > 0));
+        // ModelChecker checks this after Init, before starting any workers.
+        // An empty initial frontier succeeds; defining a disabled action instead
+        // reaches the ordinary deadlock check, if enabled.
+        if plan.next.is_empty() && ex.queued_states() > 0 {
+            ex.stats.left_on_queue = ex.queued_states() as u64;
+            ex.stop = Some(Verdict::NoNextAction);
+            return Err(Error::stop());
+        }
+        m.heap.reset();
+        ex.initial = false;
+        ex.warnings.clone_from(&m.warnings);
     }
-    // TLC reports depth one after Init emits a state, even when the
-    // constraints exclude every candidate from the retained graph.
-    ex.stats.depth = ex
-        .stats
-        .depth
-        .max(u64::from(ex.stats.initial_generated > 0));
-    // ModelChecker checks this after Init, before starting any workers.
-    // An empty initial frontier succeeds; defining a disabled action instead
-    // reaches the ordinary deadlock check, if enabled.
-    if plan.next.is_empty() && ex.queued_states() > 0 {
-        ex.stats.left_on_queue = ex.queued_states() as u64;
-        ex.stop = Some(Verdict::NoNextAction);
-        return Err(Error::stop());
-    }
-    m.heap.reset();
-    ex.initial = false;
-    ex.warnings.clone_from(&m.warnings);
+    checkpoint::boundary(ex)?;
     let mut cur = std::mem::take(&mut ex.next);
     let mut cur_originals = std::mem::take(&mut ex.next_originals);
     let mut cur_views = std::mem::take(&mut ex.next_views);
@@ -1825,7 +1905,10 @@ fn run(
         if states == 0 {
             break;
         }
-        if ex.graph.is_some() && cur_originals.len() != cur.len() {
+        if (ex.graph.is_some() || ex.checkpoint.is_some())
+            && ex.frontier.is_none()
+            && cur_originals.len() != cur.len()
+        {
             return Err(Error::internal(
                 "capture frontier original/identity row mismatch",
             ));
@@ -1895,7 +1978,7 @@ fn run(
                     machines,
                     if ex.frontier.is_some() {
                         &decoded.original
-                    } else if ex.graph.is_some() {
+                    } else if ex.graph.is_some() || ex.checkpoint.is_some() {
                         &cur_originals[k * nvars..end * nvars]
                     } else if overlay.is_empty() {
                         &cur[k * nvars..end * nvars]
@@ -1905,6 +1988,7 @@ fn run(
                     nvars,
                     &ex.seen,
                     ex.opts,
+                    ex.checkpoint.is_some(),
                     ex.graph
                         .as_deref()
                         .map(graph::GraphSink::max_successors_per_unit),
@@ -1939,7 +2023,7 @@ fn run(
             }
             let source = if ex.frontier.is_some() {
                 &decoded.original[local * nvars..(local + 1) * nvars]
-            } else if ex.graph.is_some() {
+            } else if ex.graph.is_some() || ex.checkpoint.is_some() {
                 cur_originals
                     .get(k * nvars..(k + 1) * nvars)
                     .ok_or_else(|| Error::internal("capture source original row missing"))?
@@ -2033,6 +2117,10 @@ fn run(
             source_row(m, ex, state, left, false)?;
         }
         level_done(ex, nvars)?;
+        if !parallel {
+            ex.warnings.clone_from(&machines[0].warnings);
+        }
+        checkpoint::boundary(ex)?;
         if parallel {
             ex.metrics.expand_time += expand_time;
             ex.metrics.commit_time += level_started.elapsed().saturating_sub(expand_time);

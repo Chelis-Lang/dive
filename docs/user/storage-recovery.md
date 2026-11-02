@@ -15,8 +15,9 @@ Core safety BFS also supports opt-in disk membership with `--seen-disk-entries`,
 using one actual worker and complete canonical keys for exact membership.
 `--engine auto` keeps its statically selected Reference disk backend because
 whole-backend admission for Core disk requests is not yet proved. Explicit Core
-never falls back. The core still refuses checkpoint/recovery and temporal
-exact/spill/disk combinations; Auto may use Reference and reports the fallback.
+never falls back. Explicit Core also supports completed-level safety checkpoint
+and recovery with these storage choices. Temporal exact/spill/disk combinations
+remain unsupported.
 
 The core frontier stores paired canonical and original opaque handle rows under
 one retained live Store. Original receiver classes and construction history are
@@ -86,7 +87,41 @@ correctness.
 
 ## Native checkpoints
 
-Checkpoints are a separate, bounded, safety-only feature. Archive source identity
+Checkpoints are a separate, bounded, safety-only feature. The default Reference
+wrapper remains available. Select `--engine core` for owned Core checkpoints;
+`--engine auto` pauses on Reference and selects the encoded backend when recovering.
+An explicit backend that disagrees with the archive rejects before evaluation.
+Core recovery supports both profiles, fingerprint/exact, VIEW, safety symmetry,
+changed requested worker widths, transient spill and disk membership (one actual
+worker). It resumes the saved frontier without re-enumerating Init as search work.
+
+```sh
+dive check docs/user/examples/CheckpointCounter.tla --engine core --compat=tlc --seed 7 --fp 0 --workers 4 --checkpoint counter.core.cp --checkpoint-after-levels 2 --checkpoint-counters retain --output json
+dive check docs/user/examples/CheckpointCounter.tla --engine auto --compat=tlc --workers 8 --recover counter.core.cp --checkpoint-counters retain --output json
+```
+
+The additive Rust API is `check_file_checkpoint_engine(request, checkpoint,
+Engine::Core)`; `check_file_checkpoint` keeps its Reference behavior. Core's
+`DIVECC01` archive retains the compiled startup prefix, owned Store DAG and
+registered raw/normalized construction authority, complete original/canonical
+discovery rows, keys, parents/ordinals and ordered frontier. New transient files
+receive fresh run ownership; old live frontier bytes cannot be reused. It does
+not convert state values through the reference codec. Source, executable, config
+bytes, semantic policy, seed/fingerprint and Core strategy switches must match.
+Workers and resource/storage budgets may change. Unknown post-startup deferred
+providers, runtime effects and temporal graphs refuse explicitly.
+
+Only checkpoint-enabled Core runs retain the extra discovery rows. The aggregate
+64 MiB archive and 65,536-state/level admission bounds do not bound live Store,
+codec workspaces or process memory. Core has no separate reference-codec
+1 MiB state-image limit (`max_state_bytes` is null). Recovery-only runs release
+expanded discovery rows after rebuilding keys and may continue under ordinary
+search budgets; they do not automatically save a new archive. Disk files remain
+transient: native checkpoints reconstruct membership from concrete discovery
+rows. [ADR 0141](../decisions/0141-owned-core-safety-recovery.md) records this
+persistent owned-history contract.
+
+Archive source identity
 includes the module name and exact bytes of adjacent local Java override classes.
 The supported Hanoi `Bits.class` can pause and recover with unchanged class
 bytes under the native worker/reference contract. Worker choices do not alter
@@ -118,21 +153,21 @@ and can be independently validated.
   profiles do so by default. `--checkpoint-counters retain` keeps the
   uninterrupted totals. It is a named result-changing option, so TLC-profile runs
   report `tlc+overrides`. Verdict, trace, distinct count and depth are unchanged.
-- **Workers.** Worker width, chaos scheduling and `--sequential` may change on
+- **Reference workers.** Worker width, chaos scheduling and `--sequential` may change on
   recovery without changing the ordered result. Seed and fingerprint defaults come
   from the archive. Runtime string constructors are supported; TLC mode uses an
   inline one-worker fallback for their encounter order.
 - **Identity.** The executable, model, exact configuration bytes, profile, store
   and evaluation settings must match. Even a changed configuration comment needs
   a new snapshot.
-- **Bounds.** The payload is limited to 64 MiB, with at most 65,536 discoveries or
+- **Reference bounds.** The payload is limited to 64 MiB, with at most 65,536 discoveries or
   names, 1 MiB per state, key or name, 1,024 variables and depth 65,536. These are
   archive admission bounds, not a RAM budget. Transient frontier and predecessor
   budgets can be combined with checkpoints and may change on recovery.
 - **Commits.** Archives are written to a private staging file, synced and
   atomically committed without replacing an existing file. Failures are reported;
   partial staging files are not checkpoints.
-- **Format.** Archives use structural format 2 (`DIVECP02`). Older value-bearing
+- **Reference format.** Reference archives use structural format 2 (`DIVECP02`). Older value-bearing
   archives refuse rather than guess; recreate them with the current executable.
 - **Refusals.** Liveness, random or effectful execution, checker reads,
   effectful configuration aliases and evaluator-driven deferred values refuse by
@@ -151,5 +186,6 @@ not imply a seen-set budget.
 [The opt-in safety route](disk-seen-safety.md) uses it for transient disk
 seen-state membership, with inline fallback and independent concrete witnesses.
 It can be combined with the frontier and predecessor budgets. It is not a total
-memory budget or a checkpoint feature. Recovery, graphs and temporal combinations
-refuse before work.
+memory budget. Reference recovery, graphs and temporal combinations refuse
+before work. Explicit Core recovery reconstructs disk membership from its saved
+concrete discoveries; the transient disk files themselves are not imported.
