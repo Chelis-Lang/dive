@@ -34,9 +34,20 @@ remain selected; missing configurations and startup/preflight matches earn no
 explored-model credit. Full translation/API/corpus parity remains open.
 
 Final runtime main is `5688504e`, tree `a8ab9e3b`, after all five implementation
-PRs passed their required CI checks and merged. The integrated Phase 5
-qualification is **pending**: gate/census/Auto/PlusCal results and preservation/cleanup receipts remain pending
-in the [checkpoint record](../conformance/reports/core/2026-11-02-phase5-checkpoint.json).
+PRs passed their required CI checks and merged. That actual source passes its
+one full gate (3,118 nextest tests, six declared skips and 189 doctests; physical
+and postflight 0). The census retains exactly 1,218 default / 1,191 TLC shadow
+agreements, with unchanged refusals/stops/four unconfirmed words per profile and
+physical exit 1. Both Auto baselines pass. The independent PlusCal populations
+remain partially qualified: both 149-input / 59-configuration label variants
+retain physical exit 1, valid words, missing configurations, refusals, timeouts
+and the unregistered SBB count difference #731. A corrected postrun accounting
+accepts legitimate clean/trace receipts without rerunning the populations.
+Both actual-Core full-tier diagnostics are terminal, physical exit 1, under a
+separate 60-second policy. Core credit is 141 strict TLC and 137 strict + four
+registered expected default; refusals/stops/missing references remain. These
+are not deep/M2/RC acceptance. **Final archival, cleanup and qualification audit are
+pending** in the [checkpoint record](../conformance/reports/core/2026-11-02-phase5-checkpoint.json).
 Reference stays default; M1/M2 and RC/release acceptance remain open. See the
 [current implementation and next actions](developer/core/m1-status.md#next-bounded-actions).
 
@@ -140,7 +151,7 @@ corpus claim, not full parity.
 
 | Area | Work still required |
 |---|---|
-| Correctness and breadth | Prove remaining GenError words and broader constructor/receiver/source lifetimes; complete standard/Community operators, startup/configuration, symmetry/temporal language and actual-core corpus coverage. Preserve explicit refusals and Unclassified streams until proved. |
+| Correctness and breadth | Resolve #731's unregistered default SBB counts; prove remaining GenError words and broader constructor/receiver/source lifetimes; complete standard/Community operators, startup/configuration, symmetry/temporal language and actual-core corpus coverage. Preserve explicit refusals and Unclassified streams until proved. |
 | Modes | Complete generation, captured effects, simulation/DFID matrices and justified parallel options. Broad #111/#118/#128/#239 remain open; landed budgets do not measure #350's ≤1% instruction-overhead criterion. |
 | Recoverable bounded search | Native core checkpoint/recovery preserving owned history/representation; disk membership; candidate/trace/temporal graph/SCC spill and complete memory accounting. Retry-safe native distribution follows identity-checked recovery. |
 | Product and integration | Explicit host category grants, runtime/introspection/output, trace exploration, coverage/debugger, complete PlusCal and checking/simulation/translation/checkpoint/distributed Rust APIs with cargo-test integration. |

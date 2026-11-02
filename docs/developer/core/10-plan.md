@@ -27,12 +27,21 @@ finite-mode budgets (#725), exact safety membership and predecessor spill
 (#724), and ordered live-Store frontier spill (#729). Independent PlusCal
 translation/model comparison (#728) is merged. Final runtime main is
 `5688504ee3405f78b7951d6cab2b4b841ee549c8`, tree
-`a8ab9e3bc576bc564cfd3fd1adb24db3e4d3621e`; it has no integrated qualification
-result yet. The [Phase 5 record](../../../conformance/reports/core/2026-11-02-phase5-checkpoint.json)
-will bind actual qualification to that source. **Qualification is pending**;
-gate/census/Auto/PlusCal results and preservation/cleanup receipts are not yet
-reported. Reference remains the default. Report schema 3 and native trace versions 1–6 retain their
-meanings.
+`a8ab9e3bc576bc564cfd3fd1adb24db3e4d3621e`. One integrated full gate passes:
+physical/postflight 0, 63m30s report duration, 3,118 nextest passes, six declared
+skips and 189 doctests. The fixed census retains 1,218 default / 1,191 TLC shadow
+agreements, no gained/lost IDs and its refusal/stop/four-unconfirmed findings per
+profile; census exit 1 remains. Both Auto baselines pass. Both fixed PlusCal
+149-input / 59-configuration label variants are closed, physical exit 1 and
+`overall_accepted: false`, with valid words and distinct missing-configuration,
+startup, refusal, timeout and unregistered SBB count findings (#731).
+Approved v4 accounting admits legitimate clean/trace receipts without repeating
+model runs. Both 60-second actual-Core full-tier diagnostics are terminal,
+physical exit 1. Native credit is 141 strict TLC and 137 strict + four expected
+default, with refusals/stops/missing references retained and no deep/M2 acceptance. The [Phase 5 record](../../../conformance/reports/core/2026-11-02-phase5-checkpoint.json)
+retains each outcome. **Final archival, cleanup and qualification audit remain
+pending**; no phase-completion or release claim is made. Reference remains the
+default. Report schema 3 and native trace versions 1–6 retain their meanings.
 
 - Native simulation and DFID execute the existing compiled Plan/Machine in both
   profiles with one actual worker. Explicit Core never falls back. Finite Auto
@@ -72,10 +81,13 @@ Bakery's is 1.05356. It ships no code, permits no rescue variant and rejects no
 broader S6 strategy. The [separate performance record](../../../conformance/reports/perf/2026-11-02-phase5-bridge-and-s6.json)
 retains those actual sources and limitations.
 
-Next, finish one integrated qualification after all implementation lanes land,
-then take the substantial remaining scope in dependency order:
+All runtime campaigns are closed. Next, finish final archival/cleanup/audit
+of this integrated checkpoint without repeating the
+passing full gate or performance campaign. Then take the remaining scope in
+dependency order:
 
-1. Independent cause/source proof for remaining GenError words, broader
+1. Resolve #731's unregistered default SBB counts and independently prove
+   remaining GenError words, broader
    constructor/receiver lifetimes and actual-core capability breadth. Preserve
    named refusals and Unclassified oracle streams until proved.
 2. Complete recorded simulation/generation/DFID contracts and remaining captured
@@ -466,16 +478,19 @@ The semantic contract lists seven more, in `02-semantic-contract.md` §6.
 Add a new entry at the top for every working session that ends with work in
 progress. Give the date, branch, state and the exact next step.
 
-- **2026-11-02 (Phase 5 implementation handoff, `docs/phase5-closeout`).**
-  Native finite modes/budgets, exact safety membership and ordered live-Store
-  frontier/predecessor spill and independent PlusCal #728 are merged as final main `5688504e`, tree
-  `a8ab9e3b`. Reference stays default; integrated qualification is pending.
-  Next: run one milestone qualification on that final source,
-  retaining all fixed populations and findings; then use the dependency order
-  in §1. #651 is accepted only for measured `ccff7729`/old-bridge cells; the
-  `f60450d3` indexed-guard S6 candidate is stopped unadopted. Historical results
-  below keep their sources. M1/M2, broad family contracts, performance and RC
-  remain open; final qualification numbers/preservation/cleanup are pending.
+- **2026-11-02 (Phase 5 execution results, `docs/phase5-results`).**
+  Actual main `5688504e`, tree `a8ab9e3b`, passes its single integrated full gate:
+  3,118 nextest passes / six declared skips / 189 doctests, physical and postflight
+  0. Fixed census ID/status rows are unchanged at 1,218 default / 1,191 TLC
+  shadow agreements, with census findings/exit 1 retained. Both Auto baselines
+  pass. Both fixed PlusCal variants retain complete selections and exit 1:
+  independently valid words coexist with missing configurations, strict output
+  qualification findings, refusals, timeouts and default SBB count difference
+  #731. Approved v4 postrun accounting changes no model execution. Full-tier
+  actual-Core diagnostics are terminal with physical exit 1 and separate from
+  deep/M2 acceptance. Next: final archival/cleanup and audit; do not rerun the gate or
+  performance campaign. Reference stays default; M1/M2/global performance/RC
+  remain open. #651 and the stopped S6 experiment keep their actual older sources.
 
 - **2026-10-28 (checked membership and acceptance handoff).** Main
   `2efcb3bf` includes merged #611/#614/#616/#618 and #621, which closes

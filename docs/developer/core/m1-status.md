@@ -11,11 +11,14 @@ live-Store frontier spill (#729) and independent PlusCal translation/model
 comparison (#728) are merged.
 Final runtime main is `5688504ee3405f78b7951d6cab2b4b841ee549c8`, tree
 `a8ab9e3bc576bc564cfd3fd1adb24db3e4d3621e`.
-**Integrated Phase 5 qualification is pending.** Full-gate/census/Auto results,
-fixed PlusCal population results and qualification preservation/cleanup receipts
-remain pending in the
-[Phase 5 checkpoint](../../../conformance/reports/core/2026-11-02-phase5-checkpoint.json).
-No current-source test/corpus totals or RC acceptance are claimed here.
+The one integrated full gate passes at this actual runtime. The fixed census,
+both Auto baselines and both independent PlusCal populations are closed with
+findings retained. Both actual-Core full-tier diagnostics are also closed and
+recorded separately below.
+**Phase 5 preservation, cleanup and final qualification audit remain pending.**
+The [Phase 5 checkpoint](../../../conformance/reports/core/2026-11-02-phase5-checkpoint.json)
+binds closed results to source `5688504e`; neither a passing gate nor partial
+content approval closes M1/M2, clean parity, global performance or RC acceptance.
 
 ADR 0119 preserves default ≥2× TLC aggregate throughput and no slower panel
 model at W1/W8; compatibility requires runtime/TLC ≤2 per model, investigated
@@ -25,7 +28,7 @@ the one indexed-guard S6 prototype is stopped unadopted. Neither result refreshe
 later-source qualification or accepts the global performance panel. Historical
 qualifications below remain attached to their actual sources.
 
-### Phase 5: landed capability and pending integrated qualification
+### Phase 5: landed capability and closed execution stages
 
 Native finite modes use Plan/Machine in both profiles with one actual worker.
 Explicit Core never falls back; finite Auto uses isolated static preparation to
@@ -66,6 +69,129 @@ records two separate outcomes:
 |---|---|---|
 | #651 original CoffeeCan1000 old-bridge comparison | `ccff7729` versus bridge `b5f6af4c`, 24 children / four profile-worker cells / three repetitions; every pair passes runtime ≤1.10 and RSS ≤0.65. Median runtime ratios: default W1/W8 0.999226/1.006190, TLC W1/W8 0.994352/1.006049; median RSS ratios 0.589692/0.594620/0.598825/0.616372. #651 accepted and manually closed. | Matched VM old-bridge comparison, not stock-TLC timing, a quiet five-repeat panel or later-source execution. #650's already accepted original capacity remains a separate Phase 4 result. |
 | #726 indexed-guard S6 prototype | `f60450d3`, one two-model default/W1 screen against a baseline with the disabled plan-dump diagnostic: median candidate/base 0.963964 SimpleRegular and 1.053560 Bakery. Stopped unadopted; no shipping code or rescue variant. | Does not reject broader S6 expensive-body/read strategies or qualify current performance. Existing history/demand safeguards remain mandatory. |
+
+### Phase 5 source-bound qualification at `5688504e`
+
+One `cargo xtask gate --full` invocation physically exits **0**, and its
+postflight source check exits **0**. The report records **63m30s**; the outer
+controller takes **3,812.810098 seconds**, including its own overhead. All
+15 applicable steps pass, with one conditional unchanged-input cargo-deny skip
+among 16 recorded steps. All **3,118 nextest tests** in **382 binaries** pass;
+six tests are source-declared skipped and seven are reported slow. The nextest runner takes **1,358.946 seconds**; the gate's
+nextest step takes **23m40s**, including its separate overhead. Those clocks are
+not interchangeable. All **189 doctests** pass. Dedicated standalone trace
+compilation takes **8.3 seconds**; its rlib SHA-256 is
+`ab848970760ceef6177cf9994321fd18dc48390d811f2d2ed405eb07e177a34b`
+(9,572,354 bytes). Its eight internal crates have empty feature lists, without
+evaluator enumeration or forbidden backend edges. Reference CM1 (21 models) and
+validation (16 models) pass at W1/W4/W8. Core/Reference shadows retain 57
+agreements / six refusals in 63 CM1 rows and 250 / 62 in 312 small-tier rows.
+Fresh full-gate content audit passes. These are actual final-runtime results,
+not a rerun of an earlier qualification or final phase-preservation approval.
+
+The fixed census retains 1,520 selected rows per profile, 99 parser exclusions
+and 18 ambiguous skips. The census retains physical exit **1**. Independent
+complete ID/status joins find **no gain or loss** against Phase 4:
+
+| Profile | Shadow agree | Refused | Timeout | Unconfirmed words |
+|---|---:|---:|---:|---:|
+| default | 1,218 | 290 | 8 | 4 |
+| TLC | 1,191 | 318 | 7 | 4 |
+
+All 5,457 raw invocations have physical exit receipts; 17 incomplete child runs
+earn no success credit. The four unconfirmed words in each profile remain
+`core-liveness/GenError/{General,Nested,Record,Tuple}`. Unchanged fixture-shadow
+agreements are neither new pinned-TLC classifications nor repaired findings.
+
+Both Auto baselines physically exit **0**, without baseline regressions. TLC
+keeps all 156 models: 150 agreements / six unsupported, plus **458/458 SANY**
+agreements. Default retains 156: 144 agreements / seven registered expected
+divergences / five unsupported, and intentionally omits SANY.
+
+| Profile | Canonical actual Core | Static fallback | Dynamic fallback | Canonical route absent |
+|---|---:|---:|---:|---:|
+| TLC | 124 strict | 21 | 3 | 8 |
+| default | 120 strict + 4 expected divergences | 22 | 3 | 7 |
+
+Raw JSON headers instead report **124 Core / 27 static / 3 dynamic / 2 absent**
+in each profile because the Unsupported mapper drops routing metadata in the
+canonical harness view. Both views remain recorded. Missing metadata does not
+establish that no search ran or no workers were used. Fallback/unsupported results gain no actual-Core success
+credit. The canonical and raw routes are not pooled or silently reconciled.
+
+The independent PlusCal runs are closed for **both label variants**, each
+retaining **149 inputs, 59 same-name configuration slots and 90 inputs without
+an original configuration**. Both physical population exits are **1**, and
+`overall_accepted` remains **false**. Native translations run through the
+ordinary Reference checking backend; these are independent pinned pcal/TLC
+comparisons, not actual-Core population credit. Each profile in each label
+variant has:
+
+| Outcome | default profile | TLC profile |
+|---|---:|---:|
+| Completed success agreement | 20 | 20 |
+| Matching independently validated violation word | 8 | 9 |
+| Startup/configuration match, without exploration | 3 | 3 |
+| Checker refusal | 10 | 10 |
+
+Each variant also retains six **whole-pair 30-second helper timeouts**,
+39 translation-unavailable inputs and 62 translated inputs without an original
+configuration. Missing configurations, startup matches, unavailable translations,
+refusals and timeouts earn no explored-model agreement. The unavailable set
+contains 30 native-unsupported inputs in either variant, plus five both-rejected
+inputs in default / four in label and four error mismatches in default / five in
+label.
+Those mismatches arise at the documented strict enclosing/output module-analysis
+boundary. They do not demonstrate an emitter regression, earn no parity credit
+and remain findings rather than automatic exemptions.
+
+Default additionally produces a genuinely validated SBB `Immutability` word,
+but its distinct/generated counts are **1,581/3,042** versus pinned TLC and
+compatibility's **1,617/3,126**, at depth 15. Equal translated blocks and unchanged
+configuration do not make that an agreement. The unregistered difference is
+[#731](https://github.com/Chelis-Lang/dive/issues/731); it earns neither strict
+agreement nor expected-divergence credit.
+
+Approved **v4 postrun accounting** admits legitimate clean-check plus separate
+trace-replay primary receipts without rerunning any model population. The v3
+accounting rejection remains preserved, as do all **3,141 original raw/control
+files** and **25 old accounting snapshots**. Corrected accounting is not a new
+source execution or repaired population result.
+
+Both fixed actual-Core full-tier diagnostics are terminal, accounting complete,
+with physical exit **1**. Each retains **265 IDs: 217 in scope / 48 excluded**,
+including nine missing references. Both use W1, jobs 2, native **60 seconds /
+16 GiB** per check. Controller durations are **857.042642s TLC** and
+**856.9595716s default**:
+
+| Diagnostic outcome | TLC | default |
+|---|---:|---:|
+| Agreement | 143 | 139 |
+| Registered expected divergence | 0 | 4 |
+| Unsupported | 44 | 44 |
+| Timeout | 21 | 21 |
+| Oracle error / missing reference | 9 | 9 |
+| Out of scope | 48 | 48 |
+| Disagreement | 0 | 0 |
+
+Actual-Core credit is **141 strict TLC** and **137 strict + four registered
+expected default**. Two additional overall agreement rows per profile earn no
+actual-Core credit; the TLC pair are frontend/engine-absent rows. Canonical
+routing among 208 run rows records 141 Core / 67 without engine metadata in
+each profile. All **205 actual raw children per profile** have physical exit
+receipts; canonical run rows are not physical-child counts. Default records
+21 incomplete children, with no success credit. No unregistered full-tier
+mismatch is observed; PlusCal's separate #731 finding remains unchanged.
+
+These diagnostics are not the 900-second deep qualification, historical
+Reference 182-model acceptance or M2 full-tier acceptance. Missing, refused,
+stopped and unconfirmed rows earn no successful native-check credit; absent
+route metadata does not establish that no work ran. All runtime campaigns are
+closed; raw archival, cleanup and final independent review remain pending.
+
+The closed content is approved only within these partial result boundaries.
+Raw evidence archival, cleanup and final independent audit are pending; this
+page does not declare the bounded phase or release qualification complete.
 
 ### Historical Phase 4 qualification
 
@@ -597,12 +723,15 @@ below keep their original source and limitations.
 
 ### Next bounded actions
 
-1. Run one milestone qualification on actual final Phase 5 runtime `5688504e`. Preserve the unchanged census,
+1. Finish final preservation/cleanup/audit of Phase 5 source `5688504e`.
+   All runtime campaigns are closed. Preserve the fixed census,
    Auto/SANY selections and PlusCal inputs/configurations/labels/profiles,
-   all physical outcomes and independent words. Record final source, results,
-   preservation and cleanup without projecting historical successes forward.
-   Development continues with focused checks; no full gate per increment.
-2. Independently prove `core-liveness/GenError/{General,Nested,Record,Tuple}`
+   all physical outcomes and independent words. Record final preservation/cleanup without projecting historical successes
+   forward. Do not repeat the passing full gate or performance campaign.
+   Development continues with focused checks.
+2. Resolve #731's unregistered default SBB count difference under the existing
+   parity/divergence policy. Independently prove
+   `core-liveness/GenError/{General,Nested,Record,Tuple}`
    source/cause words. Keep #664's `LvPeriodic` asymmetry and #697's ambiguous
    shared-255 streams open: a stop or valid diagnostic is not an agreement or
    canonical deciding-class proof. Preserve #717's repaired forgery boundary.
@@ -635,9 +764,8 @@ below keep their original source and limitations.
    27 partial / 3 missing family inventory until full-family evidence changes it.
 
 Phase 4's bounded #650/#718 contracts and Phase 5's measured #651 comparison
-are accepted on their own recorded sources. Phase 5 integrated qualification,
-clean census, M1/M2, global performance, full parity and RC/release qualification
-remain open. Historical failures, unclassified streams and source/ELF distinctions
+are accepted on their own recorded sources. Phase 5 final preservation/cleanup/audit, clean census, M1/M2, global
+performance, full parity and RC/release qualification remain open. Historical failures, unclassified streams and source/ELF distinctions
 remain evidence. The [roadmap](../../ROADMAP.md#through-full-tlc-parity) retains
 the whole mandatory scope; this checkpoint is one substantial step within it.
 

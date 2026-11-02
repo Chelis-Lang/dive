@@ -19,8 +19,9 @@ The standard is an **unimpeachably sound port**. Every result is verified contin
 > The reference engine remains the default. Bounded native construction histories
 > and independent initial-diagnostic/temporal-source replay are implemented;
 > original temporal capacity is accepted on its recorded Phase 4 source.
-> Current integrated qualification, broader parity and TLC-relative performance
-> acceptance remain open.
+> The current runtime passes its integrated full gate; fixed census and
+> independent PlusCal findings remain. Final archival/cleanup/audit, broader
+> parity and TLC-relative performance acceptance remain open.
 
 Compiled safety simulation and DFID are available explicitly with `--engine core`
 in both profiles with one actual worker; `--engine auto` selects a whole finite
@@ -51,8 +52,10 @@ ownership, plus measured termination, done-disjunct, wrapping,
 sequential version and label-reporting options. File preferences return an
 in-memory plan; broader AST shapes, translation breadth and filesystem writes
 remain unfinished. Independent pinned-translator/TLC versus
-native-translation/dive model comparison is implemented; it uses the Reference checker and does not imply native-core corpus
-coverage or complete PlusCal parity. See
+native-translation/dive model comparison is implemented; it uses the Reference
+checker and does not imply native-core corpus coverage or complete PlusCal parity. Both fixed input/label populations retain
+missing configurations, refusals, timeouts and unregistered count finding #731;
+valid words alone do not make those comparisons agree. See
 [the translator guide](docs/pluscal-translation.md).
 
 ## Documentation
