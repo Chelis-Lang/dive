@@ -18,7 +18,7 @@ resource stop does not establish safety.
 | Match TLC behavior | [Compatibility](compatibility.md) | Proven supported counterparts; explicit mixed modes |
 | Sample executions | [Simulation](simulation.md) | Finite seeded sampling; never exhaustive proof |
 | Use iterative deepening | [DFID](dfid.md) | Bounded pure safety; inspect completion certificate |
-| Translate or edit algorithms | [PlusCal](pluscal.md) | Admitted C/P translation, bounded source-option context and in-memory Full/body-only editing; process/procedure translation has a wider scope than editing |
+| Translate or edit algorithms | [PlusCal](pluscal.md) | Admitted C/P translation, checksummed in-memory editing or explicit module/cfg/backup publication; separate original-AST file operation |
 | Validate implementation traces | [Trace validation](traces.md) | Complete states, independent predicate replay |
 | Check temporal properties | [Temporal checking](temporal.md) | Bounded pure subset; ordinary dive profile uses deterministic level checks, TLC profile uses final checking; explicit final/short in both |
 | Manage search storage or resume | [Storage and recovery](storage-recovery.md) | Separate budgets and bounded native recovery |

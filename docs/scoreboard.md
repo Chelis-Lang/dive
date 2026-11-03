@@ -1,5 +1,20 @@
 # Scoreboard
 
+## PlusCal file workflows
+
+Explicit `translate --write` and Rust preparation/publication now publish an
+admitted checksummed module, original `.old` backup and delimiter-merged `.cfg`.
+Effective source options control actual backup/configuration files. Preparation
+and publication recheck concurrent edits; individual file replacements are atomic,
+with rollback on ordinary commit failure, not cross-file crash atomicity.
+`-writeAST` independently writes the original AST and retains pinned successful
+exit 255 without translating or touching the module/cfg/backup. Existing in-memory
+operations keep their meanings. Focused controls cover both profiles, actual
+translate→write→check, cfg/user preservation, newline/overwrite policies,
+concurrent edits and failure cleanup. These additions do not rerun the historical
+PlusCal corpus or close the partial translation family; mapping-file and broader
+translator backends remain unfinished. See [the user guide](user/pluscal.md).
+
 ## Phase 6: bounded delivery at `ee79de82`
 
 All five runtime PRs (#738–#742) are merged at `ee79de82`, tree `14f02996`.

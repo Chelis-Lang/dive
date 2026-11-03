@@ -2643,3 +2643,14 @@ is not a parity obligation (ADR 0116). Init/predicate quantifiers/CHOOSE/ENABLED
 keep their ordinary evaluator path. The minimal guarded source controls are in
 `conformance/corpus/constructive-generation`; top-level action decomposition is
 excluded from those probes by a state-dependent guard.
+
+
+## PlusCal filesystem publication
+
+`dive-api::publication` follows the cfg-prefix, SPECIFICATION, default-initializer,
+termination, backup and original-AST file effects of MIT `pcal.trans.run` and
+`WriteAST` at pinned tlaplus commit `94d0c5070852b37b801bb8998c436383ab7ee37b`.
+Seven primary filesystem controls cover new/merged/existing-SPECIFICATION cfgs,
+replaced generated prefixes, `-noold -nocfg`, AST-only exit 255 and rejected AST input without file writes. Native staging,
+concurrent-byte checks and rollback are original safeguards (ADR 0144), not a
+port of Java rename/write mechanics or a cross-file crash-atomic guarantee.
