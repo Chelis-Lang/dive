@@ -249,11 +249,63 @@ temporal-input production and checkpoint/recovery are not implemented. Simulatio
 and DFID do not expose input grants in this slice. A random seed alone cannot
 recover external inputs.
 
-For a model using a captured file, record the run and replay its counterexample:
+Run this Bash example from a dive checkout. It builds the CLI, uses the checked-in
+CommunityModules sources, and exercises both profiles in temporary directories.
+Each check intentionally exits 12 with an `Inv` violation after three generated
+and distinct states, at depth three. Each replay reports `"result":"valid"`
+after the file is deleted and the environment values are changed.
 
 ```sh
-dive check Settings.tla --allow-io=files --seed 7 --fp 0 --output json > run.json
-dive validate-trace Settings.tla --inputs run.json --seed 7 --fp 0 --output json
+CARGO_TARGET_DIR=target CARGO_BUILD_JOBS=4 cargo build -p dive-cli --bin dive --locked
+dive_example_bin="$PWD/target/debug/dive"
+dive_example_modules="$PWD/crates/dive-eval/tests/fixtures/community-modules"
+dive_example_dir="$(mktemp -d)"
+
+for dive_example_profile in default tlc; do
+  (
+    mkdir "$dive_example_dir/$dive_example_profile"
+    cd "$dive_example_dir/$dive_example_profile" || exit 1
+    cat > Settings.tla <<'TLA'
+---- MODULE Settings ----
+EXTENDS Naturals, IOUtils
+Environment == IOEnv
+Payload == Deserialize("input.txt", [format |-> "TXT", charset |-> "UTF-8"])
+VARIABLE x
+Init == /\ x = atoi(Environment["DIVE_COUNT"])
+        /\ Environment["DIVE_LABEL"] = "outside"
+        /\ Payload.exitValue = 0
+        /\ Payload.stdout = "hello\n"
+        /\ Payload.stderr = ""
+Next == x' = x + 1
+Inv == x < 4
+====
+TLA
+    cat > Settings.cfg <<'CFG'
+INIT Init
+NEXT Next
+INVARIANT Inv
+CFG
+    printf 'hello\n' > input.txt
+    set --
+    if test "$dive_example_profile" = tlc; then
+      set -- --compat=tlc
+    fi
+    dive_example_status=0
+    env -i DIVE_COUNT=2 DIVE_LABEL=outside "$dive_example_bin" check Settings.tla \
+      --config Settings.cfg --library-path "$dive_example_modules" \
+      --engine reference --allow-io=env,files --workers 1 --seed 7 --fp 0 \
+      --time-limit none --max-memory none --output json "$@" > run.json \
+      || dive_example_status=$?
+    test "$dive_example_status" -eq 12 || exit 1
+    cat run.json
+
+    rm input.txt
+    env -i DIVE_COUNT=99 DIVE_LABEL=changed "$dive_example_bin" validate-trace Settings.tla \
+      --config Settings.cfg --library-path "$dive_example_modules" \
+      --inputs run.json --seed 7 --fp 0 --output json "$@"
+  ) || exit 1
+done
+rm -r -- "$dive_example_dir"
 ```
 
 Repeat the original compatibility, configuration and module-path options. With
