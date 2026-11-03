@@ -1,5 +1,11 @@
 # Changelog
 
+- Add explicit PlusCal `translate --write` and Rust preparation/publication APIs,
+  publishing admitted modules, exact `.old` backups and delimiter-merged `.cfg`
+  files with effective source options and concurrent-edit checks. Add actual
+  `-writeAST` publication with its pinned successful exit 255, keeping in-memory
+  translation/AST operations and model-proof boundaries unchanged.
+
 - Add explicit Core completed-level safety checkpoint/resume, preserving owned
   Store/history authority, concrete discovery order, VIEW/symmetry identity and
   counter policy across fresh processes. Support changed worker widths, exact
