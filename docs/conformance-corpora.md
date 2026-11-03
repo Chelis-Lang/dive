@@ -862,6 +862,11 @@ live in `conformance/corpus/graph-demand/specifications`; negative configuration
 have `models: []` and are consumed directly by API tests. No historical census
 or established corpus identity is refreshed by these cases.
 
+The [compact correctness record](../conformance/reports/2026-11-03-graph-demand.json)
+binds the frozen source/artifacts, both-engine/profile harness panels and the
+verified external raw archive. It retains the earlier corpus-identity, stale
+validator and converted-node receiver failures separately from passing results.
+
 Regenerate the classified controls with the pinned harness, retaining raw runs
 outside the repository when requested:
 

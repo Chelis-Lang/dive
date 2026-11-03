@@ -1,0 +1,295 @@
+{
+  "kind": "graph normalization demand correctness",
+  "issue": 756,
+  "source_code_commit": "5afd33c3a7fa21852a1251d4694ff5f231f5ced7",
+  "base_source": "21e04fef",
+  "original_defect_source": "49188584",
+  "primary_observations_committed_before_semantic_fix": "ba4aa573",
+  "runtime_source_sha256": {
+    "crates/dive-eval/src/community.rs": "91024016f1e6d43a03222d322611fdbdfa385bc5988b91512b1507303315bc30",
+    "crates/dive-core/src/stdlib/graphs.rs": "298e1ec0b47b108a89b32e5bdd45eb5e9128bd7bd8739a86aeb050b76346e20d",
+    "crates/dive-api/tests/graph_demand.rs": "489b11f8aac6c916e4e63bee975c1f0fa190622c1313ae0ec3b2128bb452684d"
+  },
+  "artifacts_sha256": {
+    "target/debug/dive": "4d6cf229878a8ccd4c075fff32af167c687bddc02a983f52c9f31f88ec697f32",
+    "target/debug/dive-conformance": "20909d12384fe37a2e74346d0b5d8a8452473d404d83de171e78570a0deadd4c",
+    "target/standalone-trace/debug/libdive_trace.rlib": "7dfe6c846af590cd8a8e77ec7b0e19cf237a4f8a918c083fe803fc20fa1c806f"
+  },
+  "baseline_dive_sha256": "8f56149906696374c6d393bb5c1be9f0c330a66dc2f6c0aa9d02cf1b1dd56c11",
+  "oracle": "tlc-2026.10.06.014338",
+  "community_source": "78b98ae9939d2fe7a6615e9a4b21dd6c23ef8ff3",
+  "classified_models": [
+    {
+      "name": "AbsentDemand",
+      "verdict": "success",
+      "physical_exit": 0,
+      "property": null,
+      "counts": {
+        "distinct_states": 3,
+        "states_generated": 3,
+        "states_left_on_queue": 0,
+        "depth": 3
+      },
+      "golden_sha256": "bb328ae41779b41806c225fbf9ea7d317790eaa1c6e863e2bb4c56fa3c36a95e"
+    },
+    {
+      "name": "EmptyDemand",
+      "verdict": "success",
+      "physical_exit": 0,
+      "property": null,
+      "counts": {
+        "distinct_states": 3,
+        "states_generated": 3,
+        "states_left_on_queue": 0,
+        "depth": 3
+      },
+      "golden_sha256": "aabf21da9e20d300de951dec0f061b6f2d13eb13a946e14506150ca0759223fd"
+    },
+    {
+      "name": "EmptyViolation",
+      "verdict": "safety-violation",
+      "physical_exit": 12,
+      "property": "Inv",
+      "counts": {
+        "distinct_states": 3,
+        "states_generated": 3,
+        "states_left_on_queue": 0,
+        "depth": 3
+      },
+      "golden_sha256": "077186c43ac652bbc8f0785fda5294040afa509f3e2a7d5dea3901ccf51845c3"
+    },
+    {
+      "name": "SelfDemand",
+      "verdict": "success",
+      "physical_exit": 0,
+      "property": null,
+      "counts": {
+        "distinct_states": 3,
+        "states_generated": 3,
+        "states_left_on_queue": 0,
+        "depth": 3
+      },
+      "golden_sha256": "396d5265164d04722983d775cb79c4a06734b469f246047bc5e6c1281929ac3c"
+    },
+    {
+      "name": "SelfViolation",
+      "verdict": "safety-violation",
+      "physical_exit": 12,
+      "property": "Inv",
+      "counts": {
+        "distinct_states": 3,
+        "states_generated": 3,
+        "states_left_on_queue": 0,
+        "depth": 3
+      },
+      "golden_sha256": "86d605a12fa0169f9d49a6df64d55d9bd82185c2cb227fd56dffe619f0df1737"
+    },
+    {
+      "name": "SkippedMalformed",
+      "verdict": "success",
+      "physical_exit": 0,
+      "property": null,
+      "counts": {
+        "distinct_states": 3,
+        "states_generated": 3,
+        "states_left_on_queue": 0,
+        "depth": 3
+      },
+      "golden_sha256": "bc6aa48003463660ba98e35fdd723bf6040a07e9017d2fd0dfd6f73c07d2db10"
+    },
+    {
+      "name": "UndirectedSelf",
+      "verdict": "success",
+      "physical_exit": 0,
+      "property": null,
+      "counts": {
+        "distinct_states": 3,
+        "states_generated": 3,
+        "states_left_on_queue": 0,
+        "depth": 3
+      },
+      "golden_sha256": "743f5c478d8b67da7519c124e34974b99e467bba1c0aa11be69146f83ad36623"
+    }
+  ],
+  "negative_controls": {
+    "names": [
+      "DemandedEdges",
+      "DemandedEndpoint",
+      "FieldPriority",
+      "SelfEdgeType",
+      "SimpleEmpty"
+    ],
+    "physical_exit": 75,
+    "model_goldens": false,
+    "classification": "context-only streams refused by the official generator; nested cause data do not establish a classified oracle verdict"
+  },
+  "panels": [
+    {
+      "panel": "frozen-core-dive",
+      "report": "frozen-core-dive/20261103T141403154-dive-all.json",
+      "sha256": "aab184306981166fd1f3abff2e5bdb39f71684be7782aab86a9026bbbd6d82f9",
+      "workers": [
+        1,
+        4
+      ],
+      "models": {
+        "agree": 7,
+        "disagree": 0,
+        "unsupported": 0,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "modules": {
+        "agree": 12,
+        "disagree": 0,
+        "unsupported": 0,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      }
+    },
+    {
+      "panel": "frozen-core-tlc",
+      "report": "frozen-core-tlc/20261103T141403158-dive-all.json",
+      "sha256": "cc638c1802bd25954f36e4c72a354141969320c77a5de83716c49edc86744ab7",
+      "workers": [
+        1,
+        4
+      ],
+      "models": {
+        "agree": 7,
+        "disagree": 0,
+        "unsupported": 0,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "modules": {
+        "agree": 12,
+        "disagree": 0,
+        "unsupported": 0,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      }
+    },
+    {
+      "panel": "frozen-reference-dive",
+      "report": "frozen-reference-dive/20261103T141403266-dive-all.json",
+      "sha256": "95b5df8aa66d60fd0a01b41e8b5312dbb0385719acd9fc5a917f64ffd03af598",
+      "workers": [
+        1,
+        4
+      ],
+      "models": {
+        "agree": 7,
+        "disagree": 0,
+        "unsupported": 0,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "modules": {
+        "agree": 12,
+        "disagree": 0,
+        "unsupported": 0,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      }
+    },
+    {
+      "panel": "frozen-reference-tlc",
+      "report": "frozen-reference-tlc/20261103T141403268-dive-all.json",
+      "sha256": "f193cc70a2a64499f676af7d40dd9e35837eacc4c12fc68add9f8d6258f3da60",
+      "workers": [
+        1,
+        4
+      ],
+      "models": {
+        "agree": 7,
+        "disagree": 0,
+        "unsupported": 0,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "modules": {
+        "agree": 12,
+        "disagree": 0,
+        "unsupported": 0,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      }
+    }
+  ],
+  "development_checks": {
+    "api_graph_positive_runs": 112,
+    "api_graph_negative_runs": 20,
+    "new_valid_words": 32,
+    "new_rejected_mutants": 32,
+    "existing_graph_api_matrix": "passed",
+    "existing_pinned_graph_transcripts": {
+      "selected": 6,
+      "agree": 6
+    },
+    "core_graph_units": 2,
+    "literal_prefix_and_construction_guards": "passed",
+    "owned_construction_word_handoffs": "passed",
+    "merged_source_coverage_tests": 8,
+    "focused_clippy": "passed",
+    "standalone_trace": "passed",
+    "format_and_diff": "passed"
+  },
+  "retained_setup_failures": [
+    "First pre-fix harness attempt rejected a corpus identity after README creation; the area note was moved outside pinned inputs before the bound run.",
+    "First post-fix harness used its old statically linked validator and rejected both words; a relinked validator passed. No classification rules changed.",
+    "Existing ErCmGraphMember transcript rejected retaining Interval as the membership receiver; the explicit SetEnum projection was restored and all six transcripts passed."
+  ],
+  "performance_credit": false,
+  "full_qualification_gate_run": false,
+  "archive": {
+    "bucket": "dive-evidence-archive-010928226848-us-east-1",
+    "key": "phase7-20261103/graph-demand-c9cef7d481f9e1da.tar.gz",
+    "archive_sha256": "c9cef7d481f9e1dac86f2f2d04549f2dbba6d61f62282495b47094e9b57d87b9",
+    "bytes": 30388509,
+    "members": 482,
+    "verified": true,
+    "download_hash_verified": true,
+    "all_members_hash_verified": true
+  }
+}
