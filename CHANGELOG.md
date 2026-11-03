@@ -6,6 +6,11 @@
   `-writeAST` publication with its pinned successful exit 255, keeping in-memory
   translation/AST operations and model-proof boundaries unchanged.
 
+- Run the six CommunityModules Graphs/UndirectedGraphs overrides on Core,
+  including state-dependent reachability, connected components and simple paths.
+  Preserve checked membership, finite-domain refusals, path demand and ordinary
+  independent counterexample validation in both compatibility profiles.
+
 - Add explicit Core completed-level safety checkpoint/resume, preserving owned
   Store/history authority, concrete discovery order, VIEW/symmetry identity and
   counter policy across fresh processes. Support changed worker widths, exact

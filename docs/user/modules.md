@@ -48,6 +48,19 @@ a standard module have the same name. Pinned module libraries in the conformance
 harness support oracle studies; they do not turn every library override into
 native functionality.
 
+The Core engine supports the CommunityModules graph overrides `AreConnectedIn`
+and `SimplePath` in `Graphs` and `UndirectedGraphs`, plus `Graphs!IsStronglyConnected`
+and `UndirectedGraphs!ConnectedComponents`. They work on finite, eagerly
+enumerable graph records in both profiles. Singleton undirected edges are
+self-loops; malformed edges and edges outside the node set add no connection.
+Traversal uses checked membership and value equality, including compound nodes.
+Unproved lazy conversions and comparison histories remain named refusals.
+This state-dependent example exercises every override on Core:
+
+```sh
+dive check crates/dive-api/tests/fixtures/core-graphs/GraphsStep.tla --library-path crates/dive-eval/tests/fixtures/community-modules --engine core --compat=tlc --workers 4 --seed 0 --fp 0 --output json
+```
+
 The exact pinned Examples Hanoi `Bits.class` has a native override for
 exhaustive checking under the native worker/reference contract. Binding
 checks the exact SHA-256 recorded in [provenance](../provenance.md#verified-local-class-overrides)
