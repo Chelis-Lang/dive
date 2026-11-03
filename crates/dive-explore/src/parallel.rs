@@ -462,6 +462,7 @@ fn expand_one(
                 } else {
                     0
                 },
+                plan.symmetry.is_some() || plan.view.is_some(),
             )
         })
         .transpose();

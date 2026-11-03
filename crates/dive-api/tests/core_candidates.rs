@@ -148,22 +148,22 @@ fn candidate_write_failure_never_certifies_success_and_directory_needs_budget() 
 
 #[test]
 fn candidate_spill_small_smoke_runs_both_profiles_and_actual_widths() {
-    for tlc in [false, true] {
-        for workers in [1, 4] {
-            let mut req = request(
-                "tests/fixtures/core-m0/CompoundTrace.tla",
-                tlc,
-                workers,
-                Store::Exact,
-            );
-            let baseline = check_file_engine(&req, Engine::Core).expect("resident");
-            req.candidate_memory_bytes = Some(0);
-            let actual = check_file_engine(&req, Engine::Core).expect("spilled");
-            assert_eq!(observed(&actual.to_json()), observed(&baseline.to_json()));
-            assert_eq!(
-                actual.to_json()["core"]["metrics"]["candidate_storage"]["retained_bytes"],
-                0
-            );
+    for relative in [
+        "tests/fixtures/core-m0/CompoundTrace.tla",
+        "tests/fixtures/core-m1/ViewMerge.tla",
+    ] {
+        for tlc in [false, true] {
+            for workers in [1, 4] {
+                let mut req = request(relative, tlc, workers, Store::Exact);
+                let baseline = check_file_engine(&req, Engine::Core).expect("resident");
+                req.candidate_memory_bytes = Some(0);
+                let actual = check_file_engine(&req, Engine::Core).expect("spilled");
+                assert_eq!(observed(&actual.to_json()), observed(&baseline.to_json()));
+                assert_eq!(
+                    actual.to_json()["core"]["metrics"]["candidate_storage"]["retained_bytes"],
+                    0
+                );
+            }
         }
     }
 }

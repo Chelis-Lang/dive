@@ -22,6 +22,7 @@ pub(crate) struct Spool {
     retained: u64,
     written: u64,
     identity_width: usize,
+    unkeyed_outside: bool,
 }
 
 impl Spool {
@@ -31,6 +32,7 @@ impl Spool {
         directory: &Path,
         account: Account,
         identity_width: usize,
+        unkeyed_outside: bool,
     ) -> Result<Self, Error> {
         Ok(Self {
             codec: CandidateCodec::new(&m.heap)?,
@@ -40,6 +42,7 @@ impl Spool {
             retained: 0,
             written: 0,
             identity_width,
+            unkeyed_outside,
         })
     }
     pub(crate) fn keep(&mut self, m: &mut Machine, roots: &[Handle]) -> Result<usize, Error> {
@@ -148,8 +151,22 @@ impl Spool {
                 .get(..count)
                 .ok_or_else(|| self.failure("candidate state width".into()))?;
             m.s1.copy_from_slice(state);
-            if let Occ::Cand { identity, .. } = &mut occ {
-                if roots.len() != count + self.identity_width {
+            if let Occ::Cand {
+                identity,
+                in_model,
+                key,
+                ..
+            } = &mut occ
+            {
+                let width = if !*in_model && self.unkeyed_outside {
+                    if *key != 0 {
+                        return Err(self.failure("unkeyed candidate fingerprint".into()));
+                    }
+                    0
+                } else {
+                    self.identity_width
+                };
+                if roots.len() != count + width {
                     return Err(self.failure("candidate identity width".into()));
                 }
                 identity.extend_from_slice(&roots[count..]);
@@ -386,7 +403,7 @@ mod tests {
                 dive_core::memo::Memo::new(&[]),
             );
             let account = Arc::new(Mutex::new(CandidateUsage::default()));
-            let mut spool = Spool::new(&m, 0, &parent, Arc::clone(&account), 0).unwrap();
+            let mut spool = Spool::new(&m, 0, &parent, Arc::clone(&account), 0, false).unwrap();
             spool.keep(&mut m, &[Handle::TRUE]).unwrap();
             spool.push(0, &Occ::Incomplete { at: 0 }).unwrap();
             let owned = spool.queue.disk_directory().unwrap().to_path_buf();
