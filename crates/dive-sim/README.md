@@ -180,38 +180,38 @@ returns. It introduces no TLS, callback admission or cache authority. The earlie
 external overlap diagnostic and each scoped qualification retain their original
 source bindings.
 
-## Direct scalar Init RandomElement
+## Owned runtime and finite RandomElement relations
 
-The producer temporarily enables one actual native RandomElement invocation only
-around `init_states`. It reuses `RunHost` with `Streams::startup`, separately from
-the unchanged worker selection stream. Arguments evaluate before the native
-invocation consumes its allowance, so nested domain errors and reached Print
-output retain evaluation order. A second actual call refuses. The phase closes
-on every return before initial invariants, constraints or sampling.
+`Runtime::new(options)` owns the simulation host before binding. Install its
+`host()` in `BindOptions`, bind the source, then invoke `runtime.simulate(model)`
+(or its controlled/backend variant). The same run stream continues through
+startup, assumptions, repeated/nested Init draws and Next. A runtime admits one
+execution and the existing shared-evaluator lease still excludes overlap.
+Foreign installed hosts remain a reached-call refusal in legacy `simulate`;
+print-only caller-host operation and restoration are unchanged.
 
-Low-level `simulate` returns raw candidates: `Outcome::Sampled` can include a
-one-call captured Init expression with a deferred domain. The file/API boundary
-independently validates each word and refuses opaque Init relations. Its supported
-direct single-variable `x = RandomElement(S)` relation checks membership in a
-finite interval or stored scalar set. Captured, configured, wrapped and correlated
-relations remain refused at that boundary. Reached Next/property random calls
-refuse in the runtime host. Independent membership does not certify a particular
-seed draw. No evaluator or validator production changes, new options, dependency
-edges or proof/admission records are introduced.
+File/API simulation uses this owned context automatically and supplies the actual
+post-binding `TLCGet("config")`. Every returned sample/violation is independently
+validated. Finite native source replay rebinds the whole runtime per alternative,
+never sharing failed-attempt names, lazy caches or normalization history. Scalar
+witness values only reorder actual domain alternatives. Ordered Init starts from
+empty slots. Supported Next forms construct empty successor slots through freshly
+bound source actions; subsequent predicates use the ordinary source evaluator.
+No RNG position, source shape or producer certificate supplies membership.
 
-Low-level models with an installed caller host refuse reached Init randomness:
-its prior startup stream cannot be recovered through the generic host interface.
-An absent host requires the caller to have performed no prior startup random
-draws; removing a host cannot erase that history. The file API retains its
-startup-random refusal. Print-only models keep caller-host support and cleanup.
+The existing direct scalar Init membership fast path remains. Other finite
+choices use bounded search; native function/record/product selection keeps its
+component demand order. Deferred providers, random-register interactions,
+randomness inside ENABLED and unproved Init assignment forms remain explicit
+refusals. Exact limits and invocation examples are in the
+[user guide](../../docs/user/simulation.md#finite-native-random-choices).
 
-`tests/fixtures/random-init/oracle.json` contains eleven actual primary captures
-made before implementation with the pinned TLC/JRE: two seeds, aril controls,
-stored-set normalization/Print, initial violation, non-set/empty errors and a
-Next-random boundary. The latter remains an explicit native refusal. The API
-test consumes every row; genuine words and corrupt Init/Next/ending controls use
-fresh independent validation. No old corpus measurement is changed or retagged.
-See [the user guide](../../docs/user/simulation.md) for invocation and limits.
+The primary controls in `tests/fixtures/random-init/oracle.json` retain their
+historical native-scope annotations and unchanged pinned TLC results. The former
+Next boundary now has independently valid native samples. New positive and
+forged-word controls cover startup, multiple variables, captures, correlation,
+compound domains, seeded continuation and long indexed-interval words. This
+changes neither report/trace versions nor old corpus qualification claims.
 
 ## Constructive traversal
 

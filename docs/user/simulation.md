@@ -13,9 +13,11 @@ Use `--compat=tlc` for the implemented Java/TLC selection stream and `--aril N`
 for its supported seed adjustment. Record the seed and the complete options.
 The current mode supports one actual worker and finite safety models, including
 runtime `Print` and `PrintT` through captured operators. Their normal arguments,
-rendering and return values are evaluated. One direct scalar Init
-`RandomElement` draw is supported as described below. Other reached random draws,
-registers and unsupported host effects refuse; untaken branches do not run them.
+rendering and return values are evaluated. Reference execution supports repeated
+`RandomElement` calls at startup, in ordered Init and in Next, including finite
+compound choices and captured operators. Independent replay remains bounded as
+described below. Registers, Randomization operators and unsupported host effects
+refuse; untaken branches do not run them.
 Initial states may hold compound values (sets, functions, records, sequences).
 A `SPECIFICATION` with fairness conjuncts is simulated: fairness constrains only
 infinite behaviors, so it cannot change a finite safety result (ADR 0116).
@@ -37,7 +39,7 @@ bound to a value retains its invocation name and source location, so two
 unused references to `Disabled == FALSE` form two groups. A definition override
 `Op <- Replacement` retains its target predicate instead. Configured operators
 are checked when actually evaluated, including Print/PrintT loggers. Reached
-random outside the supported Init call, register/I/O and other unsupported effects refuse; an unexecuted
+register/I/O and other unsupported effects refuse; an unexecuted
 branch is not refused solely for its effect annotation.
 
 Counts record consecutive **chosen** actions: the first edge starts at the Init
@@ -74,8 +76,8 @@ UTF-8 text by default. `dive_sim::Options` exposes `max_output_events` and
 `max_output_bytes`. Crossing either limit returns `resource-limit` with retained
 output and actual completed-prefix work, never `sampled`. The limits cover
 retained Print text/events, not temporary rendering allocations, existing warning
-records or total process memory. General random execution, alternative
-schedulers and further M/#239 work remain unfinished.
+records or total process memory. Alternative schedulers, Randomization operators
+and further host-effect work remain unfinished.
 
 Print preserves both `--stats none` and `--stats basic`; source controls compare
 output, seed/choices, outcomes and independently validated words with statistics
@@ -99,44 +101,60 @@ returns. It introduces no TLS, callback admission or cache authority. The earlie
 external overlap diagnostic and each scoped qualification retain their original
 source bindings.
 
-## Direct scalar initial random choice
+## Finite native random choices
 
-A single-variable Init predicate `x = RandomElement(S)` can select from a nonempty
-finite interval or stored scalar set. The domain evaluates normally, including
-Print/PrintT and their errors. In TLC mode the draw uses the startup Java stream
-from `--seed`; worker selection still uses its separate seed/aril stream. Aril
-therefore changes later choices without changing the initial draw. The default
-profile uses its existing startup and per-trace streams. No new option is needed.
+Reference simulation owns a single host before source binding and continues its
+stream through startup, assumptions, ordered Init and ordinary Next execution.
+Repeated, nested, parameterized and configured RandomElement calls are supported;
+finite compound states keep their actual values. Selection and constructive
+traversal streams retain their existing contracts. The same source, options,
+engine and seed reproduce the result. Matching TLC's individual draws is not a
+parity obligation in either profile (ADR 0116).
 
 ```sh
-dive simulate crates/dive-sim/tests/fixtures/random-init/InitRandomInterval.tla --compat=tlc --traces 2 --depth 3 --seed 0 --output json
+dive simulate crates/dive-sim/tests/fixtures/random-init/InitRandomNextBoundary.tla --compat=tlc --traces 2 --depth 3 --seed 7 --output json
 ```
 
-The initial choice is made once before the requested traces. An invalid or empty
-domain retains the original evaluation error. An initial invariant violation
-still requires independent validation. That validator checks membership in the
-Init relation; it does not certify that a word was drawn from the reported seed.
+Every returned sample is still independently checked. Replay searches actual
+source-defined finite choices, rebinding the entire private runtime for every
+alternative. It preserves startup and lexical correlations within an attempt;
+failed attempts share no values, atoms or normalization history. Actual bound
+action captures persist within an attempt: a constant random action argument is
+frozen by source binding, while action LET and expression LET keep their distinct
+cache rules. Ordinary pure validation still omits action construction. Supplied scalar
+state values only prioritize actual domain elements, without forcing compound
+values or establishing membership. Ordinary predicates and the final claimed
+ending must all pass. No producer RNG position or replay flag is proof.
 
-The runtime host permits only one actual native invocation during Init and
-refuses reached Next/property draws. The file/API boundary independently validates
-the sampled words and refuses wrapped, captured, configured or correlated Init
-relations it cannot decide. Low-level `dive_sim::simulate` returns raw candidates;
-`Outcome::Sampled` can include a one-call captured Init expression with a deferred
-domain. An untaken random branch does not consume the allowance. Output reached
-before a refusal or error remains in `runtime_output`; validation output stays
-discarded.
+Replay bounds are 65,536 attempts, 256 source selections per attempt and 65,536
+materialized domain entries. i64 intervals are indexed without materialization;
+the earlier direct scalar Init membership fast path also remains. Function,
+record and product domains follow native component selection, so an empty
+function domain does not demand its range. Opaque deferred providers remain
+unsupported. These bounds can make a valid complicated sample unproved; it is
+reported explicitly, never certified. The existing run budget governs fresh
+binding and replay. General long random words can require substantial search.
 
-The file API refuses random startup definitions as before. Low-level
-`dive_sim::simulate` callers must supply a model with no prior startup random
-draws and no installed host for this Init subset. A retained caller host causes
-a reached Init-random refusal because its consumed startup stream cannot be
-continued. Ordinary Print remains supported with caller hosts, and every return
-restores the host before releasing simulation ownership. Removing a caller host
-does not reset model history or establish startup-stream continuity.
+Random choices mixed with registers, reached random operations inside ENABLED,
+and unproved Init forms remain unsupported. Ordered Init handles conjunctions,
+assignments and lexical/call/substitution scopes; forms needing a different
+independent assignment operation do not gain authority from the supplied state.
+TLC JSON interpretation and temporal/error-endpoint replay retain their separate
+support boundaries. Native trace versions and report schemas are unchanged.
 
-Eleven tiny pinned primary observations cover seeds, aril, domains, output and
-errors; the reached Next-random observation remains a native refusal. These
-controls add no corpus agreement. Broader simulation support (M/#239) remains open.
+The file API creates the host automatically. Low-level callers that bind source
+should create `dive_sim::Runtime::new(options)`, install `runtime.host()` in
+`BindOptions`, then call `runtime.simulate(&model)` or its controlled/backend
+variant. A runtime admits one execution and preserves startup RNG consumption.
+The legacy `dive_sim::simulate(&model, options)` still refuses reached randomness
+when a foreign host is installed; it cannot recover that host's startup history.
+Removing the host cannot erase consumed draws.
+
+`TLCGet("config")` is available after binding with the actual seed and settings.
+Print/output bounds and evaluator ownership remain in force. Explicit Core may
+still refuse unsupported random effects; Auto may select Reference before
+execution and reports that selection. Broader simulation, parallel workers and
+remaining effects are not complete.
 
 ## Constructive successors
 
@@ -160,8 +178,9 @@ contexts, even when an earlier domain is empty.
 Init selection, predicate quantifiers, CHOOSE, function construction and ENABLED
 keep their ordinary evaluator semantics and do not consume generation choices.
 CASE generation, action composition and unproved opaque/lazy domains refuse by
-name when reached. General RandomElement relations remain unsupported. Both
-engines still use one actual worker. Seed replay requires the same engine,
+name when reached. Reference RandomElement calls use the independent finite
+choice relation described above; compiled effects retain their own support
+boundaries. Both engines still use one actual worker. Seed replay requires the same engine,
 options and source; matching TLC's random choices is not required (ADR 0116).
 
 Every retained finite Behavior sample is independently checked with the explicit

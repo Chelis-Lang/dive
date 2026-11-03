@@ -399,18 +399,20 @@ fn basic_action_flows_keep_standard_operator_action_names() {
 }
 
 #[test]
-fn reached_randomness_is_refused_during_actual_sampling() {
+fn reached_randomness_is_seeded_during_actual_sampling() {
     let source = "---- MODULE M ----\nEXTENDS Naturals, TLC\nVARIABLE x\nInit == x = 0\nNext == x' = RandomElement({1, 2})\n====\n";
     let report = run(
         source,
         "INIT Init\nNEXT Next\n",
         &Options::new(0, RandomMode::Tlc, 3, 1),
     );
-    assert!(
-        matches!(report.outcome, Outcome::Unsupported(ref why) if why.contains("RandomElement"))
-    );
+    assert!(matches!(report.outcome, Outcome::Sampled), "{report:?}");
     assert_eq!(report.stage, "sampling");
     assert_eq!(report.traces_started, 1);
-    assert_eq!(report.generated, 1);
+    assert_eq!(report.generated, 4);
     assert_eq!(report.runtime_output.len(), 0);
+    assert_eq!(report.traces[0].states.len(), 4);
+    for row in &report.traces[0].states[1..] {
+        assert!(matches!(row[0], Some(dive_value::Value::Int(1 | 2))));
+    }
 }

@@ -128,6 +128,21 @@ impl Recipe {
         }
     }
 
+    /// Whether the source/config inventory may invoke a native random operator.
+    /// This conservative query evaluates nothing and grants no runtime or proof
+    /// authority. Fresh finite replay uses it to preserve actual source-bound
+    /// action captures without constructing actions for ordinary pure words.
+    ///
+    /// ```
+    /// # fn inspect(recipe: &dive_model::Recipe) {
+    /// let _may_draw = recipe.has_randomness();
+    /// # }
+    /// ```
+    #[must_use]
+    pub fn has_randomness(&self) -> bool {
+        randomness::source_randomness(&self.ir, &self.config)
+    }
+
     /// Retains an explicit independent binding policy for temporal symmetry.
     /// The legacy constructor refuses periodic symmetry unless this is selected.
     ///

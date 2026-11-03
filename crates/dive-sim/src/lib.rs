@@ -16,6 +16,8 @@ mod host;
 use dive_model::{Model, Named};
 use dive_stdlib::random::{RandomMode, RandomSource, Stream, Streams};
 use dive_value::Value;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 /// A finite simulation request. No unbounded trace count is accepted.
 #[derive(Clone, Debug)]
@@ -150,13 +152,108 @@ pub struct Report {
     pub runtime_output: Vec<dive_eval::capture::Captured>,
 }
 
+/// Owns one simulation's host from source binding through execution.
+///
+/// Install [`Self::host`] in `dive_model::BindOptions` before binding, then
+/// execute with this same runtime. Startup and reached random operations share
+/// one stream; the simulator never restarts a caller's partially consumed RNG.
+/// A runtime admits one execution, including failed/cancelled executions.
+/// Run execution on a thread with [`dive_eval::RECOMMENDED_STACK`].
+///
+/// ```
+/// use dive_sim::{Options, Runtime};
+/// use dive_stdlib::random::RandomMode;
+/// let runtime = Runtime::new(Options::new(7, RandomMode::Dive, 100, 10));
+/// let binding = dive_model::BindOptions { host: Some(runtime.host()), ..Default::default() };
+/// assert!(binding.host.is_some());
+/// // Bind the source with `binding`, then call `runtime.simulate(&model)`.
+/// ```
+#[derive(Debug)]
+pub struct Runtime {
+    options: Options,
+    host: Arc<host::SimulationHost>,
+    used: AtomicBool,
+}
+
+impl Runtime {
+    /// Creates the run context before source binding or startup evaluation.
+    #[must_use]
+    pub fn new(options: Options) -> Self {
+        let host = host::SimulationHost::new(&options);
+        host.binding(true);
+        Self {
+            host,
+            options,
+            used: AtomicBool::new(false),
+        }
+    }
+
+    /// The owned host to install in the source binder.
+    #[must_use]
+    pub fn host(&self) -> Arc<dyn dive_eval::Host> {
+        self.host.clone()
+    }
+
+    /// Supplies the actual bound configuration after startup binding finishes.
+    /// Configuration remains unavailable during binding, as in ordinary TLC.
+    pub fn set_config(&self, config: Option<dive_eval::RunConfig>) {
+        self.host.set_config(config);
+    }
+
+    /// Executes the reference simulation with the run's original options.
+    #[must_use]
+    pub fn simulate(&self, model: &Model) -> Report {
+        self.simulate_with_poll(model, &|| false)
+    }
+
+    /// Executes with caller-owned cancellation, retaining the reached prefix.
+    #[must_use]
+    pub fn simulate_with_poll(&self, model: &Model, poll: &dyn Fn() -> bool) -> Report {
+        self.run(model, |_| simulate_inner(model, &self.options, poll))
+    }
+
+    /// Runs an alternate finite backend under this same binding/runtime host.
+    /// The callback receives the remaining retained-output allowance.
+    #[must_use]
+    pub fn simulate_with_backend(
+        &self,
+        model: &Model,
+        driver: impl FnOnce(&dyn Fn() -> (usize, usize)) -> Report,
+    ) -> Report {
+        self.run(model, |host| driver(&|| host.remaining_output()))
+    }
+
+    fn run(&self, model: &Model, driver: impl FnOnce(&host::SimulationHost) -> Report) -> Report {
+        if self.used.swap(true, Ordering::AcqRel) {
+            return refused_runtime("simulation runtime was already used");
+        }
+        self.host.binding(false);
+        with_host(model, &self.options, &self.host, driver)
+    }
+}
+
+fn refused_runtime(reason: &str) -> Report {
+    Report {
+        stage: "preflight",
+        outcome: Outcome::Unsupported(reason.to_owned()),
+        generated: 0,
+        initial_candidates: 0,
+        pending_violation: None,
+        traces_started: 0,
+        traces: Vec::new(),
+        action_flow: None,
+        runtime_output: Vec::new(),
+    }
+}
+
 /// Simulates a bound model with TLC's default (non-probabilistic) enumerator.
 /// Run on a thread with [`dive_eval::RECOMMENDED_STACK`]. A shared evaluator core,
 /// including clones, admits one simulation at a time. Overlap or reentry refuses
 /// before evaluation; separate bound cores may run concurrently. Callers must
 /// not mix foreign evaluator or host operations with an active simulation.
-/// Init `RandomElement` requires an absent caller host and no previous startup
-/// random draws. A retained caller host yields a reached-call refusal because
+/// `RandomElement` requires an absent caller host and no previous startup
+/// random draws. Use [`Runtime`] to own binding and execution together. A foreign
+/// caller host yields a reached-call refusal because
 /// its consumed startup stream cannot be continued by this simulation host.
 #[must_use]
 #[allow(
@@ -174,9 +271,7 @@ pub fn simulate(model: &Model, opts: &Options) -> Report {
 /// owns the reason and resource measurement; cancellation retains prefix work.
 #[must_use]
 pub fn simulate_with_poll(model: &Model, opts: &Options, poll: &dyn Fn() -> bool) -> Report {
-    with_runtime(model, opts, |host| {
-        simulate_inner(model, opts, Some(host), poll)
-    })
+    with_runtime(model, opts, |_| simulate_inner(model, opts, poll))
 }
 
 /// Runs a finite simulation backend under the ordinary simulation host.
@@ -197,6 +292,16 @@ pub fn simulate_with_backend(
 fn with_runtime(
     model: &Model,
     opts: &Options,
+    driver: impl FnOnce(&host::SimulationHost) -> Report,
+) -> Report {
+    let host = host::SimulationHost::new(opts);
+    with_host(model, opts, &host, driver)
+}
+
+fn with_host(
+    model: &Model,
+    opts: &Options,
+    host: &Arc<host::SimulationHost>,
     driver: impl FnOnce(&host::SimulationHost) -> Report,
 ) -> Report {
     if let Some(outcome) = preflight(model, opts) {
@@ -229,10 +334,9 @@ fn with_runtime(
             runtime_output: Vec::new(),
         };
     };
-    let host = host::SimulationHost::new(opts);
-    let _restore = host::HostRestore::install(&model.evaluator, &host);
+    let _restore = host::HostRestore::install(&model.evaluator, host);
     let capture = dive_eval::capture::PrintCapture::start();
-    let mut report = driver(&host);
+    let mut report = driver(host);
     let mut output = model.evaluator.filter_captured_warnings(capture.take());
     output.append(&mut report.runtime_output);
     report.runtime_output = output;
@@ -248,12 +352,7 @@ fn with_runtime(
     clippy::too_many_lines,
     reason = "keep the pinned simulator selection and callback ordering together"
 )]
-fn simulate_inner(
-    model: &Model,
-    opts: &Options,
-    host: Option<&host::SimulationHost>,
-    poll: &dyn Fn() -> bool,
-) -> Report {
+fn simulate_inner(model: &Model, opts: &Options, poll: &dyn Fn() -> bool) -> Report {
     let mut report = Report {
         stage: "preflight",
         outcome: Outcome::Sampled,
@@ -301,7 +400,6 @@ fn simulate_inner(
     let mut inits = Vec::new();
     let mut failure = None;
     let enumeration = {
-        let _initial = host.map(host::SimulationHost::initial);
         model.evaluator.init_states(&model.init_actions, &mut |s| {
             if poll() {
                 failure = Some(Outcome::Cancelled);

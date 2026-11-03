@@ -52,6 +52,19 @@ impl Core {
             };
             return self.apply_op(&def, env, st, args, e);
         }
+        if st.control & crate::env::control::ENABLED != 0
+            && matches!(
+                op,
+                StdOp::TlcRandomElement
+                    | StdOp::RandomizationRandomSubset
+                    | StdOp::RandomizationRandomSetOfSubsets
+                    | StdOp::RandomizationRandomSubsetSet
+            )
+            && let Some(host) = self.host.get()
+        {
+            host.check_random_in_enabled()
+                .map_err(crate::host::host_error)?;
+        }
         self.host.check_native_access(op)?;
         match op.kind() {
             StdKind::Value => {

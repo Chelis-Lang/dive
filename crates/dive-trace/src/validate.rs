@@ -8,10 +8,10 @@
 //! successor (a deadlock ending, `ENABLED`, fairness) is the core evaluator's
 //! `ENABLED` search ([`crate::enabled`], ADR 0103).
 //!
-//! **Random draws** (`RandomElement`, the `Randomization` operators) depend
-//! on the checking run's stream position, which only the successor
-//! generator determines. A check that draws is refused by name
-//! ([`RANDOM_UNSUPPORTED`]), whatever its outcome.
+//! **Random draws.** Borrowed/warmed-model replay refuses them by name
+//! ([`RANDOM_UNSUPPORTED`]). Fresh native finite sessions can independently
+//! prove bounded `RandomElement` support by rebinding the entire source runtime
+//! per alternative. No producer RNG position or cached answer supplies proof.
 //! Register reads and writes are also refused ([`REGISTERS_UNSUPPORTED`]):
 //! the evaluator may retain values written by off-trace checker evaluations.
 //!
@@ -332,6 +332,9 @@ impl<'a> Run<'a> {
             private: false,
             run_config: Mutex::new(None),
             cache_domain: next_cache_domain(),
+            choices: None,
+            predicate_init: AtomicBool::new(false),
+            predicate_next: AtomicBool::new(false),
         });
         model.evaluator.set_host(host.clone());
         Self {
@@ -404,6 +407,14 @@ impl<'a> Run<'a> {
     /// Why the run's verdict cannot stand, whatever it is: a check drew a
     /// random value, accessed registers, or a name was created after binding.
     pub(crate) fn refusal(&self) -> Option<String> {
+        if let Some(reason) = self
+            .host
+            .choices
+            .as_ref()
+            .and_then(|choices| choices.refusal())
+        {
+            return Some(reason);
+        }
         if let Some(effect) = self
             .host
             .effect
@@ -531,6 +542,9 @@ impl<'a> Run<'a> {
             if k.is_multiple_of(1024) {
                 self.poll(Some(k), None)?;
             }
+            if let Some(choices) = &self.host.choices {
+                choices.prefer(&trace.states[k]);
+            }
             let here = St::state(trace.states[k].clone());
             let step =
                 (k > 0).then(|| St::action(trace.states[k - 1].clone(), trace.states[k].clone()));
@@ -539,29 +553,30 @@ impl<'a> Run<'a> {
                     // Init uses startup level 0; generated-state predicates
                     // keep the separate Clear context in `here` (level 1).
                     if self.private_init {
-                        // The direct random relation evaluates its real domain
-                        // conservatively, with registers refused. Startup register
-                        // effects and random relations cannot share this route.
+                        // Ordered source construction and finite native choices
+                        // cannot share startup register authority. The existing
+                        // direct scalar domain-membership proof remains a fast path.
                         self.host.startup.store(false, Ordering::Relaxed);
-                        let random = if self.host.register_used.load(Ordering::Relaxed) {
-                            Ok(None)
+                        let operation = if self.host.register_used.load(Ordering::Relaxed) {
+                            self.host.startup.store(true, Ordering::Relaxed);
+                            crate::initial::check(m, &trace.states[0])
                         } else {
-                            crate::initial::random_check(m, &trace.states[0])
-                        };
-                        let relation = !matches!(&random, Ok(None));
-                        let operation = match random {
-                            Ok(Some(member)) => Ok(member),
-                            Ok(None) => {
-                                self.host.startup.store(true, Ordering::Relaxed);
-                                crate::initial::check(m, &trace.states[0])
+                            match crate::initial::random_check(m, &trace.states[0]) {
+                                Ok(Some(member)) => Ok(member),
+                                Ok(None) => crate::initial::check(m, &trace.states[0]),
+                                Err(error) => Err(EvalError::unsupported(error)),
                             }
-                            Err(error) => Err(error),
                         };
                         let member = match operation {
                             Ok(member) => member,
-                            Err(feature) => {
-                                self.init_incomplete = !relation;
-                                return Err(Stop::Unsupported(feature));
+                            Err(error) => {
+                                self.init_incomplete = error.class() == ErrorClass::Unsupported
+                                    && !self
+                                        .host
+                                        .choices
+                                        .as_ref()
+                                        .is_some_and(|choices| choices.drew());
+                                return Err(self.evaluation_refusal(&error, Some(0), Check::Init));
                             }
                         };
                         if !member {
@@ -573,6 +588,7 @@ impl<'a> Run<'a> {
                         }
                         self.passed += 1;
                     } else {
+                        self.host.predicate_init.store(true, Ordering::Relaxed);
                         let initial = St::initial(trace.states[0].clone());
                         for init in &m.init {
                             self.require(&init.pred, &initial, 0, Check::Init, || {
@@ -584,6 +600,7 @@ impl<'a> Run<'a> {
                         }
                     }
                     self.host.startup.store(false, Ordering::Relaxed);
+                    self.host.predicate_init.store(false, Ordering::Relaxed);
                 }
                 Some(step) => {
                     if !(named_lasso && trace.states[k - 1] == trace.states[k]) {
@@ -984,12 +1001,48 @@ impl<'a> Run<'a> {
                 "the model has no next-state relation, so a trace has one state",
             ));
         };
-        self.require(next, step, k, Check::Next, || {
+        if let Some(choices) = &self.host.choices
+            && m.ir
+                .node(next.expr)
+                .effects
+                .intersects(dive_ir::Effects::IMPURE.union(dive_ir::Effects::OPEN))
+        {
+            let (StateRef::Vals(source), StateRef::Vals(target)) = (&step.s0, &step.s1) else {
+                return Err(Stop::Unsupported(
+                    "independent random Next needs complete source/target rows".into(),
+                ));
+            };
+            self.host
+                .level
+                .store(i64::try_from(k).unwrap_or(i64::MAX), Ordering::Relaxed);
+            match crate::initial::next(m, source, target, choices) {
+                Ok(Some(true)) => {
+                    self.passed += 1;
+                    return Ok(());
+                }
+                Ok(Some(false)) => {
+                    return Err(invalid(
+                        k,
+                        Check::Next,
+                        "the step is outside the independent ordered Next relation",
+                    ));
+                }
+                Ok(None) => {}
+                Err(error) => return Err(self.evaluation_refusal(&error, Some(k), Check::Next)),
+            }
+        }
+        // Structural decline happens before evaluation. This older predicate
+        // path may retain different action LET/argument caches, so it may not
+        // grant random support after the independent operation declined.
+        self.host.predicate_next.store(true, Ordering::Relaxed);
+        let result = self.require(next, step, k, Check::Next, || {
             format!(
                 "{what} does not satisfy the next-state relation {}",
                 m.location(next)
             )
-        })
+        });
+        self.host.predicate_next.store(false, Ordering::Relaxed);
+        result
     }
 
     /// The label's definition must hold on the step, if it can be checked.
@@ -1269,8 +1322,9 @@ impl Drop for Run<'_> {
 /// being checked (`TLCGet("level")`) and `TLCGet("config")` from the host the
 /// model was bound with, if any. Registers and live counters depend on
 /// evaluations outside the trace, so they are refused by name. Register
-/// access and random draws are remembered so the whole verdict is refused,
-/// including when an optional label check swallowed the evaluation error.
+/// access and unproved random draws are remembered so the whole verdict is
+/// refused, including when an optional label check swallowed an error. Fresh
+/// finite sessions may instead install a bounded source-choice search.
 #[derive(Debug)]
 pub(crate) struct TraceHost {
     level: AtomicI64,
@@ -1294,6 +1348,9 @@ pub(crate) struct TraceHost {
     /// computed itself, as TLC's `LazyValue` does, but never values another
     /// consumer cached (ADR 0103).
     cache_domain: u64,
+    pub(crate) choices: Option<Arc<crate::choices::Search>>,
+    predicate_init: AtomicBool,
+    predicate_next: AtomicBool,
 }
 
 /// A cache domain no other replay host has used (0 is ordinary evaluation's).
@@ -1308,6 +1365,10 @@ impl TraceHost {
             .store(i64::try_from(level).unwrap_or(i64::MAX), Ordering::Relaxed);
     }
     pub(crate) fn startup() -> Arc<Self> {
+        Self::startup_choices(None)
+    }
+
+    pub(crate) fn startup_choices(choices: Option<Arc<crate::choices::Search>>) -> Arc<Self> {
         Arc::new(Self {
             level: AtomicI64::new(0),
             inner: None,
@@ -1322,6 +1383,9 @@ impl TraceHost {
             private: true,
             run_config: Mutex::new(None),
             cache_domain: next_cache_domain(),
+            choices,
+            predicate_init: AtomicBool::new(false),
+            predicate_next: AtomicBool::new(false),
         })
     }
 
@@ -1342,7 +1406,27 @@ impl TraceHost {
 }
 
 impl Host for TraceHost {
+    fn check_random_in_enabled(&self) -> Result<(), HostError> {
+        self.refuse_effect(
+            "RandomElement/Randomization inside ENABLED is unsupported in independent replay"
+                .into(),
+        )
+    }
+
     fn check_native_access(&self, op: StdOp) -> Result<(), HostError> {
+        if op == StdOp::TlcRandomElement
+            && let Some(choices) = &self.choices
+        {
+            if self.register_used.load(Ordering::Relaxed)
+                || self.predicate_init.load(Ordering::Relaxed)
+                || self.predicate_next.load(Ordering::Relaxed)
+            {
+                return Err(choices.refuse(
+                    "random choice requires supported ordered Init/Next and a register-free replay prefix",
+                ));
+            }
+            return Ok(());
+        }
         if self.private_host()
             && matches!(
                 op,
@@ -1398,6 +1482,12 @@ impl Host for TraceHost {
         Ok(())
     }
     fn check_register_access(&self) -> Result<(), HostError> {
+        if let Some(choices) = &self.choices
+            && choices.drew()
+        {
+            self.registers.store(true, Ordering::Relaxed);
+            return Err(choices.refuse(REGISTERS_UNSUPPORTED));
+        }
         self.register_used.store(true, Ordering::Relaxed);
         if self.startup.load(Ordering::Relaxed) {
             return Ok(());
@@ -1421,7 +1511,10 @@ impl Host for TraceHost {
         self.cache_domain
     }
 
-    fn random(&self, op: StdOp, _args: &[Value], _ctx: Ctx) -> Option<Result<Value, HostError>> {
+    fn random(&self, op: StdOp, args: &[Value], ctx: Ctx) -> Option<Result<Value, HostError>> {
+        if let Some(choices) = &self.choices {
+            return Some(choices.random(op, args, ctx));
+        }
         if !self.any.swap(true, Ordering::Relaxed) {
             *self.drew.lock().unwrap_or_else(PoisonError::into_inner) = Some(op);
         }

@@ -77,11 +77,11 @@ pub struct TraceOptions {
     /// goldens use `-seed 0 -fp 0`): `TLCGet("config")` reports them, and
     /// constant definitions draw from the run's start-up stream (TLC's
     /// seeding under `compat_tlc`, dive's otherwise; D-002). Without them,
-    /// both are refused by name. Private validation uses exact support membership
-    /// for a single direct `Init == x = RandomElement(S)` equality, independently
-    /// of a sampled result. Explicit config reads can still determine the domain.
-    /// Other executed random operations, including reconstructed
-    /// constant binding, remain refused (`dive_trace::RANDOM_UNSUPPORTED`).
+    /// startup random operations need a producer host to bind. Native finite
+    /// validation independently proves finite source-defined choice support,
+    /// rebinding every alternative; it does not reproduce the run's RNG draws.
+    /// Deferred domains, register-dependent random prefixes, random ENABLED and
+    /// temporal/error-endpoint interactions retain named refusal boundaries.
     pub run: Option<(i64, usize)>,
     /// Modules searched before the standard modules.
     pub library_paths: Vec<PathBuf>,
@@ -99,6 +99,28 @@ pub struct SpecModel {
     recipe: dive_model::Recipe,
 }
 
+pub(crate) fn make_run_config(
+    model: &dive_model::Model,
+    seed: i64,
+    fp_index: usize,
+) -> dive_eval::RunConfig {
+    dive_eval::RunConfig {
+        deadlock: model.settings.check_deadlock,
+        workers: 1,
+        seed,
+        fingerprint: i64::from_ne_bytes(
+            dive_value::fp64::POLYS
+                .get(fp_index)
+                .copied()
+                .unwrap_or(0)
+                .to_ne_bytes(),
+        ),
+        install: std::env::current_exe()
+            .map(|path| path.display().to_string())
+            .unwrap_or_default(),
+    }
+}
+
 impl SpecModel {
     /// Loads the specification rooted at `spec` and binds it to the
     /// configuration file `cfg`.
@@ -108,6 +130,15 @@ impl SpecModel {
     /// the specification or configuration has errors, and
     /// [`ApiError::Unsupported`] if dive cannot bind it exactly.
     pub fn load(spec: &Path, cfg: &Path, opts: &TraceOptions) -> Result<Self, ApiError> {
+        Self::load_hosted(spec, cfg, opts, None)
+    }
+
+    pub(crate) fn load_hosted(
+        spec: &Path,
+        cfg: &Path,
+        opts: &TraceOptions,
+        host: Option<Arc<dyn dive_eval::Host>>,
+    ) -> Result<Self, ApiError> {
         let sema = sema_options(opts);
         let shown = spec.display().to_string();
         let analysis = dive_sema::analyze_file(spec, &sema).map_err(|error| ApiError::Io {
@@ -119,7 +150,7 @@ impl SpecModel {
             error,
         })?;
         let (_, parsed) = dive_config::parse_bytes(&text);
-        Self::bind(&shown, &analysis, parsed, opts)
+        Self::bind_hosted(&shown, &analysis, parsed, opts, host)
     }
 
     /// Binds specification source text (the root module; others come from
@@ -142,6 +173,16 @@ impl SpecModel {
         analysis: &dive_sema::Analysis,
         cfg: dive_config::ConfigParse,
         opts: &TraceOptions,
+    ) -> Result<Self, ApiError> {
+        Self::bind_hosted(file, analysis, cfg, opts, None)
+    }
+
+    fn bind_hosted(
+        file: &str,
+        analysis: &dive_sema::Analysis,
+        cfg: dive_config::ConfigParse,
+        opts: &TraceOptions,
+        owned_host: Option<Arc<dyn dive_eval::Host>>,
     ) -> Result<Self, ApiError> {
         if !analysis.accepted() {
             return Err(ApiError::Rejected {
@@ -188,7 +229,7 @@ impl SpecModel {
         let host = streams.map(|s| Arc::new(dive_stdlib::host::RunHost::new(s, None)));
         let mut bind_opts = dive_model::BindOptions {
             no_deadlock: opts.no_deadlock,
-            host: host.clone().map(|h| -> Arc<dyn dive_eval::Host> { h }),
+            host: owned_host.or_else(|| host.clone().map(|h| -> Arc<dyn dive_eval::Host> { h })),
             ..if opts.compat_tlc {
                 dive_model::BindOptions::tlc()
             } else {
@@ -203,21 +244,15 @@ impl SpecModel {
             dive_model::Recipe::new(ir.clone(), cfg.clone(), bind_opts.eval, opts.no_deadlock)
                 .with_symmetry_liveness(bind_opts.symmetry_liveness);
         let bound = on_big_stack(move || dive_model::bind(ir, &cfg, &bind_opts))?;
-        if let (Ok(model), Some(h), Some((seed, fp_index))) = (&bound, &host, opts.run) {
+        let mut run_config = None;
+        if let (Ok(model), Some((seed, fp_index))) = (&bound, opts.run) {
             model.evaluator.intern_checker_names();
-            #[allow(clippy::cast_possible_wrap, reason = "Java's long: same bits")]
-            let fingerprint = dive_value::fp64::POLYS.get(fp_index).copied().unwrap_or(0) as i64;
-            let config = dive_eval::RunConfig {
-                deadlock: model.settings.check_deadlock,
-                workers: 1,
-                seed,
-                fingerprint,
-                install: std::env::current_exe()
-                    .map(|p| p.display().to_string())
-                    .unwrap_or_default(),
-            };
+            let config = make_run_config(model, seed, fp_index);
             model.evaluator.intern_bfs_config(&config);
-            h.set_config(Some(config));
+            if let Some(host) = &host {
+                host.set_config(Some(config.clone()));
+            }
+            run_config = Some(config);
         }
         match bound {
             Ok(model) => Ok(Self {
@@ -226,8 +261,10 @@ impl SpecModel {
                 recipe: recipe.clone(),
                 session: dive_trace::Session::new(
                     recipe.clone(),
-                    host.as_ref()
-                        .and_then(|host| dive_eval::Host::config(&**host)),
+                    run_config.or_else(|| {
+                        host.as_ref()
+                            .and_then(|host| dive_eval::Host::config(&**host))
+                    }),
                 ),
             }),
             Err(f) => match &f.error.kind {

@@ -6,7 +6,7 @@ use serde_json::json;
 type TestResult = Result<(), Box<dyn std::error::Error>>;
 
 #[test]
-fn random_init_with_nested_queries_keeps_words_and_closes_the_random_phase() -> TestResult {
+fn random_init_with_nested_queries_keeps_words_and_refuses_random_enabled() -> TestResult {
     let directory = std::env::temp_dir().join(format!(
         "dive-sim-random-nested-{}-{}",
         std::process::id(),

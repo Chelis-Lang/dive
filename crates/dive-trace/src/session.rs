@@ -96,6 +96,11 @@ impl Session {
                 None,
             );
         }
+        if doc.source == Source::Dive && finite_word(doc) {
+            return self
+                .read_finite_controlled(doc, None, false)
+                .unwrap_or_else(|error| (refusal(error.to_string(), doc.logical_length()), None));
+        }
         let (model, host) = match self.bind() {
             Ok(bound) => bound,
             Err(feature) => return (refusal(feature, doc.logical_length()), None),
@@ -681,8 +686,63 @@ impl Session {
         control: Option<&Arc<dyn dive_eval::HostControl>>,
         sampled: bool,
     ) -> Result<(Report, Option<TraceDoc>), crate::ValidationRunError> {
+        if !self.recipe.has_randomness() {
+            return self.read_finite_attempt(doc, control, sampled, None);
+        }
+        let choices = Arc::new(crate::choices::Search::default());
+        for _ in 0..crate::choices::MAX_ATTEMPTS {
+            if let Some(control) = control {
+                control
+                    .check()
+                    .map_err(|error| crate::ValidationRunError::Interrupted {
+                        error: dive_eval::EvalError::interrupted(error),
+                        progress: crate::ValidationProgress {
+                            checks_passed: 0,
+                            state: None,
+                            check: None,
+                        },
+                    })?;
+            }
+            // The previous attempt, including every value and name it created,
+            // is dropped before another source binding begins. A new host cache
+            // domain alone would not isolate mutable normalization histories.
+            let result = self.read_finite_attempt(doc, control, sampled, Some(&choices))?;
+            if !matches!(result.0.validation, Validation::Invalid(_))
+                || choices.refusal().is_some()
+                || !choices.advance()
+            {
+                return Ok(result);
+            }
+        }
+        Err(crate::ValidationRunError::ResourceLimit {
+            error: dive_eval::EvalError::resource_limit(
+                "independent finite random choice attempts",
+            ),
+            progress: crate::ValidationProgress {
+                checks_passed: 0,
+                state: None,
+                check: None,
+            },
+        })
+    }
+
+    fn read_finite_attempt(
+        &self,
+        doc: &TraceDoc,
+        control: Option<&Arc<dyn dive_eval::HostControl>>,
+        sampled: bool,
+        choices: Option<&Arc<crate::choices::Search>>,
+    ) -> Result<(Report, Option<TraceDoc>), crate::ValidationRunError> {
         for initial in [true, false] {
-            let (model, host) = match self.fresh_binding(control, FreshMode::Finite(initial), 0)? {
+            if let Some(choices) = choices {
+                choices.rewind();
+            }
+            let (model, host) = match self.fresh_binding_choices(
+                control,
+                FreshMode::Finite(initial),
+                0,
+                choices.cloned(),
+            )? {
                 Ok(runtime) => runtime,
                 Err(feature) => return Ok((refusal(feature, doc.logical_length()), None)),
             };
@@ -932,6 +992,16 @@ impl Session {
         mode: FreshMode,
         checks_passed: u64,
     ) -> Result<Result<(Model, Arc<TraceHost>), String>, crate::ValidationRunError> {
+        self.fresh_binding_choices(control, mode, checks_passed, None)
+    }
+
+    fn fresh_binding_choices(
+        &self,
+        control: Option<&Arc<dyn dive_eval::HostControl>>,
+        mode: FreshMode,
+        checks_passed: u64,
+        choices: Option<Arc<crate::choices::Search>>,
+    ) -> Result<Result<(Model, Arc<TraceHost>), String>, crate::ValidationRunError> {
         use crate::{ValidationProgress, ValidationRunError};
         let progress = || ValidationProgress {
             checks_passed,
@@ -950,7 +1020,8 @@ impl Session {
             Ok(())
         };
         poll()?;
-        let host = TraceHost::startup();
+        let source_actions = choices.is_some() && matches!(mode, FreshMode::Finite(_));
+        let host = TraceHost::startup_choices(choices);
         host.startup.store(
             matches!(mode, FreshMode::Temporal | FreshMode::Finite(true)),
             Ordering::Relaxed,
@@ -963,7 +1034,9 @@ impl Session {
             matches!(mode, FreshMode::NextPrefix | FreshMode::NextTerminal),
             Ordering::Relaxed,
         );
-        let binding = if matches!(mode, FreshMode::NextTerminal | FreshMode::InvariantTerminal) {
+        let binding = if source_actions
+            || matches!(mode, FreshMode::NextTerminal | FreshMode::InvariantTerminal)
+        {
             self.recipe
                 .bind_next_fallible(host.clone(), control.cloned())
         } else {

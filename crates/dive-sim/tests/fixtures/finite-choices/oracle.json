@@ -1,0 +1,73 @@
+{
+  "oracle": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "seed": 7,
+  "workers": 1,
+  "traces": 2,
+  "depth": 4,
+  "command": [
+    "tlc2.TLC",
+    "-tool",
+    "-workers",
+    "1",
+    "-seed",
+    "7",
+    "-depth",
+    "4",
+    "-simulate",
+    "num=2,file=EXTERNAL_PREFIX",
+    "-metadir",
+    "EXTERNAL_STATES",
+    "-config",
+    "Choices.cfg",
+    "Choices"
+  ],
+  "purpose": "Source getActions freezes constant action arguments while action LET values remain uncached; draw equality is not a native simulation gate.",
+  "cases": [
+    {
+      "case": "let-action",
+      "source_sha256": "a179bffe37b12d5afd1c69863a7ac5d71affa9a3f437388e4ba6e08248ddf496",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f",
+      "physical_exit": 0,
+      "generated": 9,
+      "all_successors_equal_within_row": false,
+      "all_successors_constant_across_rows": false,
+      "some_successors_differ_within_row": true,
+      "trace_receipts": [
+        {
+          "sha256": "7273ac8cbb0368049fd8e714038fd720293e5a0a75884b94c520c50c6dff4757",
+          "states": 5
+        },
+        {
+          "sha256": "1702905ea901a96bb1aa87b5e3ae509fe950c7105ab52172fa777131a2189199",
+          "states": 5
+        }
+      ],
+      "stdout_sha256": "46550c0d8cd6d849bb707654ebaafe1a9a1e88c74fa6df3fb1574f815bbfc3eb",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "bound-action",
+      "source_sha256": "ceabd30e94370c03d07561525ac20c5f70cb0de10f51068aac362b002b9ad483",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f",
+      "physical_exit": 0,
+      "generated": 9,
+      "all_successors_equal_within_row": true,
+      "all_successors_constant_across_rows": true,
+      "some_successors_differ_within_row": false,
+      "trace_receipts": [
+        {
+          "sha256": "7d2e6e226adcf37afb440ee0f83832f34577ffbb2c436646880cd9753d7205d9",
+          "states": 2
+        },
+        {
+          "sha256": "db469eec303aa27c746258efc2115ea2712f63ef7ac804c04f75a212a8bb2383",
+          "states": 2
+        }
+      ],
+      "stdout_sha256": "359bc7cba42003c521ad025e0c41020747fead475151c9b23317aa3ab0cdb288",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "jre_archive_sha256": "0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62"
+}
