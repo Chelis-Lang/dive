@@ -44,7 +44,8 @@ Native PlusCal translation supports the measured debug-header, original-AST,
 procedure/macro, termination, wrapping and label-reporting subsets. Independent
 pinned-translator/TLC versus native-translation/dive model comparison uses the
 Reference checker. Missing configurations, refusals and timeouts remain explicit;
-complete translation, public API and filesystem support are unfinished. See the
+explicit module/cfg/backup publication and AST-only file writes are available.
+Complete translation and mapping/specification-backed workflows remain unfinished. See the
 [translator guide](docs/pluscal-translation.md).
 
 Phase 6's runtime changes are merged at `ee79de82`. **The source-bound full gate passed, and the retained census and Auto panels are closed with refusals and registered differences reported separately.**

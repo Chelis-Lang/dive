@@ -27,6 +27,11 @@
 mod config;
 /// Shared whole-run policy for symmetry combined with temporal properties.
 pub use dive_model::SymmetryLiveness;
+mod publication;
+pub use publication::{
+    OriginalAstWriteReport, TranslationPublication, prepare_translation_file,
+    write_original_ast_file, write_translation_file,
+};
 mod rewrite;
 pub use rewrite::{
     ChecksumPolicy, RewriteOptions, RewriteReport, RewriteRequest, rewrite_file, rewrite_source,

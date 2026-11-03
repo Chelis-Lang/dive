@@ -16,7 +16,7 @@ pub struct RewriteRequest {
 /// Stage-separated replacement report; it never certifies a checked model.
 #[derive(Clone, Debug)]
 pub struct RewriteReport {
-    document: Value,
+    pub(crate) document: Value,
     status: u8,
 }
 impl RewriteReport {

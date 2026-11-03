@@ -1025,12 +1025,17 @@ fn translate_returns_an_admitted_module_without_rewriting_input()
             .is_some_and(|text| text.contains("Next =="))
     );
     assert_eq!(std::fs::read_to_string(&file)?, source);
-    let out = dive(&["translate", &path, "--write"]);
-    assert_eq!(out.status.code(), Some(3));
-    assert!(
-        String::from_utf8_lossy(&out.stderr).contains("unsupported PlusCal translation option")
+    let out = dive(&["translate", &path, "--write", "--output", "json"]);
+    assert_eq!(out.status.code(), Some(0), "{out:?}");
+    let written: serde_json::Value = serde_json::from_slice(&out.stdout)?;
+    assert_eq!(written["filesystem_plan"]["writes_performed"], true);
+    assert_eq!(
+        std::fs::read_to_string(&file)?,
+        written["replacement"]["module_source"]
+            .as_str()
+            .ok_or("module source")?
     );
-    assert_eq!(std::fs::read_to_string(&file)?, source);
+    assert_eq!(std::fs::read_to_string(file.with_extension("old"))?, source);
     Ok(())
 }
 
@@ -1498,18 +1503,6 @@ fn translate_remaining_flags_report_artifacts_without_writing()
     let debug_doc: serde_json::Value = serde_json::from_slice(&debug.stdout)?;
     assert_eq!(debug_doc["translation_options"]["debug"], true);
     assert_eq!(std::fs::read_to_string(&file)?, source);
-    {
-        let flag = "-writeAST";
-        let out = dive(&["translate", &path, flag, "--output", "json"]);
-        assert_eq!(out.status.code(), Some(3));
-        let doc: serde_json::Value = serde_json::from_slice(&out.stdout)?;
-        assert!(
-            doc["diagnostic"]["message"]
-                .as_str()
-                .is_some_and(|message| message.contains(flag.trim_start_matches('-')))
-        );
-        assert!(doc.get("module_source").is_none());
-    }
     for flag in ["-spec", "-myspec", "-spec2", "-myspec2"] {
         let out = dive(&["translate", &path, flag, "LocalSpec", "--output", "json"]);
         assert_eq!(out.status.code(), Some(3));
@@ -1720,11 +1713,35 @@ fn translate_original_ownership_controls_keep_files_untouched()
                     assert_eq!(doc["replacement"]["translation_checksum"], row["body_crc"]);
                 }
             }
-            let mut args = vec!["translate", path.as_ref(), "-writeAST", "--output", "json"];
+            let mut args = vec![
+                "translate",
+                path.as_ref(),
+                "-writeAST",
+                "-debug",
+                "--output",
+                "json",
+            ];
             args.extend_from_slice(profile);
-            assert_eq!(dive(&args).status.code(), Some(3));
+            if row["insert_labels"] == true {
+                args.push("-label");
+            }
+            let ast_output = Command::new(env!("CARGO_BIN_EXE_dive"))
+                .current_dir(file.parent().ok_or("parent")?)
+                .args(&args)
+                .output()?;
+            assert_eq!(ast_output.status.code(), Some(255), "{ast_output:?}");
+            let ast_doc: serde_json::Value = serde_json::from_slice(&ast_output.stdout)?;
+            assert_eq!(ast_doc["writes_performed"], true);
+            assert_eq!(ast_doc["requested_translation_options"]["write_ast"], true);
+            assert_eq!(ast_doc["ast_artifact"], doc["ast_artifact"]);
+            assert_eq!(
+                std::fs::read_to_string(file.with_file_name("AST.tla"))?,
+                ast_doc["ast_artifact"]["module_source"]
+                    .as_str()
+                    .ok_or("AST module")?
+            );
             assert_eq!(std::fs::read_to_string(&file)?, source);
-            for name in ["AST.tla", "Case.old", "Case.cfg"] {
+            for name in ["Case.old", "Case.cfg"] {
                 assert_eq!(
                     std::fs::read_to_string(file.with_file_name(name))?,
                     format!("\\* sentinel {name}\n")
@@ -1823,5 +1840,52 @@ fn translate_compat_overwrites_like_primary_noop_and_default_requires_the_grant(
         assert_eq!(std::fs::read(&file)?, before);
         assert_eq!(std::fs::read(&run_file)?, before);
     }
+    Ok(())
+}
+
+#[test]
+fn translate_write_ast_keeps_source_and_filesystem_errors_separate_from_admission()
+-> Result<(), Box<dyn std::error::Error>> {
+    let invalid =
+        "---- MODULE AstRejected ----\n(* --algorithm A begin L: if end algorithm *)\n====\n";
+    let file = temp_file("AstRejected.tla", invalid);
+    let directory = file.parent().ok_or("parent")?;
+    let ast = directory.join("AST.tla");
+    std::fs::write(&ast, "AST sentinel")?;
+    let output = Command::new(env!("CARGO_BIN_EXE_dive"))
+        .current_dir(directory)
+        .args([
+            "translate",
+            file.to_str().ok_or("path")?,
+            "-writeAST",
+            "--output",
+            "json",
+        ])
+        .output()?;
+    assert_eq!(output.status.code(), Some(255));
+    let document: serde_json::Value = serde_json::from_slice(&output.stdout)?;
+    assert_eq!(document["writes_performed"], false);
+    assert_eq!(document["accepted"], false);
+    assert_eq!(document["exit_code"], 255);
+    assert_eq!(std::fs::read_to_string(&ast)?, "AST sentinel");
+    assert_eq!(std::fs::read_to_string(&file)?, invalid);
+    std::fs::remove_file(&ast)?;
+    std::fs::create_dir(&ast)?;
+    let valid = invalid.replace("if end", "skip; end");
+    std::fs::write(&file, &valid)?;
+    let failed_write = Command::new(env!("CARGO_BIN_EXE_dive"))
+        .current_dir(directory)
+        .args([
+            "translate",
+            file.to_str().ok_or("path")?,
+            "-writeAST",
+            "--output",
+            "json",
+        ])
+        .output()?;
+    assert_eq!(failed_write.status.code(), Some(255));
+    assert!(ast.is_dir());
+    assert_eq!(std::fs::read_to_string(&file)?, valid);
+    std::fs::remove_dir(ast)?;
     Ok(())
 }

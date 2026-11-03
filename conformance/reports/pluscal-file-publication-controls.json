@@ -1,0 +1,154 @@
+{
+  "date": "2026-11-03",
+  "scope": "Seven pinned PlusCal filesystem controls; not a corpus/parity campaign",
+  "oracle": {
+    "id": "tlc-2026.10.06.014338",
+    "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "tlaplus_source": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+    "jre_sha256": "0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62"
+  },
+  "controls": [
+    {
+      "name": "new",
+      "args": [],
+      "exit": 0,
+      "source_sha256": "e25b40d882738ae95f6811802883dbb39d73937a7fcd456a6cb8632a9adafff1",
+      "files": {
+        "Files.old": {
+          "sha256": "e25b40d882738ae95f6811802883dbb39d73937a7fcd456a6cb8632a9adafff1",
+          "bytes": 119
+        },
+        "Files.tla": {
+          "sha256": "1496911b463f48a93017f1404d42328b8ed666633b3e9c202c0cd3717591d5f5",
+          "bytes": 701
+        },
+        "Files.cfg": {
+          "sha256": "3c54725d7edc134aa68adf22657332943914ebe098fbe7f9e10c537e8f9c986b",
+          "bytes": 99
+        }
+      },
+      "configuration": "SPECIFICATION Spec\nCONSTANT defaultInitValue = defaultInitValue\n\\* Add statements after this line.\n"
+    },
+    {
+      "name": "merge",
+      "args": [],
+      "exit": 0,
+      "source_sha256": "e25b40d882738ae95f6811802883dbb39d73937a7fcd456a6cb8632a9adafff1",
+      "files": {
+        "Files.cfg": {
+          "sha256": "e399d02c917e387090f2b1aba37e6aa6ed5fc322d8070de6c5ccbc3fb150da35",
+          "bytes": 113
+        },
+        "Files.old": {
+          "sha256": "e25b40d882738ae95f6811802883dbb39d73937a7fcd456a6cb8632a9adafff1",
+          "bytes": 119
+        },
+        "Files.tla": {
+          "sha256": "1496911b463f48a93017f1404d42328b8ed666633b3e9c202c0cd3717591d5f5",
+          "bytes": 701
+        }
+      },
+      "configuration": "SPECIFICATION Spec\nCONSTANT defaultInitValue = defaultInitValue\n\\* Add statements after this line.\nINVARIANT Inv\n"
+    },
+    {
+      "name": "existing_spec",
+      "args": [],
+      "exit": 0,
+      "source_sha256": "e25b40d882738ae95f6811802883dbb39d73937a7fcd456a6cb8632a9adafff1",
+      "files": {
+        "Files.cfg": {
+          "sha256": "ebe4cca9ff32b59348dbcf981dd2c7aeb81054e8a8894cd14865b69a92180d13",
+          "bytes": 100
+        },
+        "Files.old": {
+          "sha256": "e25b40d882738ae95f6811802883dbb39d73937a7fcd456a6cb8632a9adafff1",
+          "bytes": 119
+        },
+        "Files.tla": {
+          "sha256": "1496911b463f48a93017f1404d42328b8ed666633b3e9c202c0cd3717591d5f5",
+          "bytes": 701
+        }
+      },
+      "configuration": "CONSTANT defaultInitValue = defaultInitValue\n\\* Add statements after this line.\nSPECIFICATION Other\n"
+    },
+    {
+      "name": "delimiter",
+      "args": [
+        "-termination"
+      ],
+      "exit": 0,
+      "source_sha256": "e25b40d882738ae95f6811802883dbb39d73937a7fcd456a6cb8632a9adafff1",
+      "files": {
+        "Files.cfg": {
+          "sha256": "4a3c9fcd928fce572ce16d9eadc58b0dedaf8b9c739e92457c1c18d04a3664aa",
+          "bytes": 134
+        },
+        "Files.old": {
+          "sha256": "e25b40d882738ae95f6811802883dbb39d73937a7fcd456a6cb8632a9adafff1",
+          "bytes": 119
+        },
+        "Files.tla": {
+          "sha256": "bc4ae7b26169b4e934a95d3164fb9c296c6eb0dca8afafe75dc0fda4f2efbc72",
+          "bytes": 729
+        }
+      },
+      "configuration": "SPECIFICATION Spec\nPROPERTY Termination\nCONSTANT defaultInitValue = defaultInitValue\n\\* Add statements after this line.\nINVARIANT Inv\n"
+    },
+    {
+      "name": "noold_nocfg",
+      "args": [
+        "-noold",
+        "-nocfg"
+      ],
+      "exit": 0,
+      "source_sha256": "e25b40d882738ae95f6811802883dbb39d73937a7fcd456a6cb8632a9adafff1",
+      "files": {
+        "Files.tla": {
+          "sha256": "1496911b463f48a93017f1404d42328b8ed666633b3e9c202c0cd3717591d5f5",
+          "bytes": 701
+        }
+      }
+    },
+    {
+      "name": "ast",
+      "args": [
+        "-writeAST"
+      ],
+      "exit": 255,
+      "source_sha256": "e25b40d882738ae95f6811802883dbb39d73937a7fcd456a6cb8632a9adafff1",
+      "files": {
+        "Files.tla": {
+          "sha256": "e25b40d882738ae95f6811802883dbb39d73937a7fcd456a6cb8632a9adafff1",
+          "bytes": 119
+        },
+        "AST.tla": {
+          "sha256": "533a9ee1e01a97fa7896bf658e3f45bf9d90cc2d94524936418e858ff56fe0b4",
+          "bytes": 557
+        }
+      }
+    },
+    {
+      "name": "ast_rejected",
+      "args": [
+        "-writeAST"
+      ],
+      "exit": 255,
+      "source_sha256": "13d7a63771055aef50ecd29974fdd057c1ae162b38c47b2decbce18ce729b4ba",
+      "files": {
+        "Files.tla": {
+          "sha256": "13d7a63771055aef50ecd29974fdd057c1ae162b38c47b2decbce18ce729b4ba",
+          "bytes": 74
+        },
+        "AST.tla": {
+          "sha256": "fb1cd7722204780812430112d5f0bd14c625d10aa517a127fa374fe19ce5d7f5",
+          "bytes": 12
+        }
+      }
+    }
+  ],
+  "qualification": {
+    "generated_module_checks_are_separate": true,
+    "ast_write_exit_255_is_not_generated_module_admission": true,
+    "native_staging_is_not_cross_file_crash_atomic": true
+  }
+}

@@ -18,6 +18,7 @@ pub(super) fn command(args: &[String], out: &mut impl Write, err: &mut impl Writ
     }
     let mut editing = dive_api::RewriteOptions::default();
     let mut rewrite = false;
+    let mut write = false;
     let mut original_ast = false;
     let mut editing_flag = false;
     let mut file = None;
@@ -28,6 +29,10 @@ pub(super) fn command(args: &[String], out: &mut impl Write, err: &mut impl Writ
         match argument.as_str() {
             "--compat=tlc" => request.compat_tlc = true,
             "--rewrite" => rewrite = true,
+            "--write" => {
+                write = true;
+                rewrite = true;
+            }
             "--ast" => original_ast = true,
             "--replace-modified" => {
                 editing.replace_modified = true;
@@ -89,12 +94,12 @@ pub(super) fn command(args: &[String], out: &mut impl Write, err: &mut impl Writ
                 let _ = writeln!(
                     out,
                     "dive translate [OPTIONS] MODULE.tla\n\
-Native in-memory translation; --rewrite returns a replacement with checksums.\n\
+Native translation; --rewrite returns a replacement; --write publishes it.\n\
 Supported: -label -labelRoot ROOT -reportLabels -nof -wf -sf -wfNext\n\
            -termination -noDoneDisjunct -lineWidth N -version V -debug\n\
-Artifact plan: -noold -nocfg -unixEOL (no files are written)\n\
-Original AST: --ast returns bytes in memory (no translated-module acceptance)\n\
-Explicitly unsupported: -writeAST -spec -myspec -spec2 -myspec2 --write\n\
+Write policy: -noold -nocfg -unixEOL (--write opts in to publication)\n\
+Original AST: --ast returns bytes; -writeAST writes AST.tla and exits 255\n\
+Explicitly unsupported: -spec -myspec -spec2 -myspec2\n\
 See docs/pluscal-translation.md for version/AST limits and JSON reports."
                 );
                 return ExitCode::SUCCESS;
@@ -139,7 +144,7 @@ See docs/pluscal-translation.md for version/AST limits and JSON reports."
                 };
                 paths.push(value.into());
             }
-            "--fair" | "-width" | "--write" => {
+            "--fair" | "-width" => {
                 let _ = writeln!(
                     err,
                     "unsupported PlusCal translation option {argument}; no artifact produced"
@@ -169,7 +174,7 @@ See docs/pluscal-translation.md for version/AST limits and JSON reports."
         let _ = writeln!(err, "error: checksum/replacement flags require --rewrite");
         return ExitCode::from(2);
     }
-    if original_ast && rewrite {
+    if (original_ast && rewrite) || (request.limits.write_ast && (original_ast || rewrite)) {
         let _ = writeln!(
             err,
             "error: --ast and --rewrite select different artifact stages"
@@ -180,7 +185,11 @@ See docs/pluscal-translation.md for version/AST limits and JSON reports."
     if let Some(parent) = path.parent() {
         request.analyze.after_standard.push(parent.into());
     }
-    let result = if original_ast {
+    let ast_write = request.limits.write_ast;
+    let result = if ast_write {
+        dive_api::write_original_ast_file(path, std::path::Path::new("AST.tla"), &request)
+            .map(|report| (report.exit_code(), report.written(), report.to_json()))
+    } else if original_ast {
         dive_api::original_ast_file(path, &request).map(|report| {
             (
                 report.exit_code(),
@@ -188,6 +197,15 @@ See docs/pluscal-translation.md for version/AST limits and JSON reports."
                 report.to_json(),
             )
         })
+    } else if write {
+        dive_api::write_translation_file(
+            path,
+            &dive_api::RewriteRequest {
+                translation: request,
+                editing,
+            },
+        )
+        .map(|report| (report.exit_code(), report.accepted(), report.to_json()))
     } else if rewrite {
         dive_api::rewrite_file(
             path,
@@ -247,7 +265,10 @@ See docs/pluscal-translation.md for version/AST limits and JSON reports."
                         }
                     }
                 }
-                let source = if original_ast {
+                let source = if write || ast_write {
+                    let _ = writeln!(out, "Written {}", if ast_write { "AST.tla" } else { file });
+                    &serde_json::Value::Null
+                } else if original_ast {
                     &document["ast_artifact"]["module_source"]
                 } else if rewrite {
                     &document["replacement"]["module_source"]
@@ -264,7 +285,7 @@ See docs/pluscal-translation.md for version/AST limits and JSON reports."
         }
         Err(error) => {
             let _ = writeln!(err, "error: {error}");
-            ExitCode::from(2)
+            ExitCode::from(if ast_write { 255 } else { 2 })
         }
     }
 }

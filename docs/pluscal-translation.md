@@ -10,21 +10,25 @@ walkthrough is in [user/pluscal.md](user/pluscal.md). The design decision is
 ```sh
 dive translate FILE.tla --output json            # in-memory translation
 dive translate FILE.tla --rewrite --output json  # replacement module with checksums
+dive translate FILE.tla --write --output json    # publish module, backup and cfg
 ```
 
 `dive translate` reads one C- or P-syntax algorithm from a module comment and
 returns an in-memory artifact. An existing translation block is replaced at its
 original position, preserving user definitions before and after it. Plain
 translation does not retain stale checksum headers; use `--rewrite` to request
-checksum interoperability. It never writes the source file (`--write` is
-unsupported). The generated enclosing module must pass native syntax, name and
-level analysis before it is returned. Schema2 reports this artifact admission
+checksum interoperability. Without `--write` it does not write the source file. Explicit publication uses
+the admitted rewrite, creates/replaces `.old`, merges `.cfg` and replaces the module
+last. See the [user workflow](user/pluscal.md) for concurrency, atomicity and file limits. The generated enclosing module must pass native syntax, name and
+level analysis before it is returned. Schema3 reports this artifact admission
 without model-proof or exploration fields: translation is not model checking.
-Save `module_source` yourself and check it as a separate model.
+Check a published or saved module as a separate model.
 
 Rust callers use `dive_pluscal::translate` / `translate_at` for a generated body,
 and `dive_api::translate_source`, `translate_file` and `rewrite_source` for a whole
-module. `TranslationRequest` and `RewriteRequest` carry the source, generation and
+module. `prepare_translation_file` returns an inspectable publication with explicit
+`publish()`; `write_translation_file` combines preparation and publication.
+`TranslationRequest` and `RewriteRequest` carry the source, generation and
 module-resolution limits. `TranslationReport` provides `accepted()`, `exit_code()`
 and `to_json()`. Source maps are UTF-8 byte associations, not TLC's map file.
 
@@ -105,12 +109,21 @@ without that transcript. `-reportLabels` remains illegal in source declarations.
 `-help` displays the supported and unfinished options; unknown CLI flags retain
 normal dive errors rather than triggering the pinned trailing-flag help quirk.
 
-`-noold` and `-nocfg` express backup/configuration preferences in the returned
-`filesystem_plan`. The same dashed spellings are accepted in source options.
-`writes_performed` remains false: these preferences do not add file-writing
-support. `configuration_requirements` retains initialization and termination
-requirements even when `configuration_requested` is false. The plan does not
-claim to merge an existing cfg or reproduce replacement of an existing `.old`.
+`-noold` and `-nocfg` control backup/configuration publication with `--write`.
+Their effective source-option spellings apply too. Without `--write`, these are
+preferences in `filesystem_plan` and `writes_performed` stays false.
+`configuration_requirements` retains initialization and termination requirements
+even when configuration writing is suppressed. Publication replaces `.old` with
+exact input bytes and merges an existing cfg using the pinned delimiter policy:
+remove the old generated prefix, retain all user suffix lines, add required
+constant/termination directives and add `SPECIFICATION Spec` only when the retained
+suffix lacks an uncommented SPECIFICATION. Preparation checks all outputs before
+writing; publication checks exact input bytes again, stages every output in its
+destination directory and atomically replaces each file, publishing the module
+last. Ordinary commit failures restore prior destinations; failed restoration
+retains original staged bytes with a reported recovery path. Crashes are not an
+atomic transaction across files. The explicit write operation bounds each input
+file to 4 MiB and refuses nonregular targets. No map file is emitted.
 
 `-unixEOL` is CLI-only and records `unix_eol_requested`. On the pinned JRE,
 measured forced-CRLF output retains CRLF both with and without this flag; setting
@@ -181,13 +194,14 @@ before refining the actual first algorithm prefix; it does not recover a malform
 first algorithm by selecting a later one. The explicit-region operation keeps
 strict end-of-input checks.
 
-`-writeAST` still requests a filesystem operation and remains named unsupported.
-The retained pinned plain/debug controls write `AST.tla` and exit 255 without
-translating the input. Pinned `trans.performTranslation` calls `WriteAST`, then
-returns null; `trans.run` maps that null to its error status before normal module,
-backup or cfg writes. A failed write has separate handling. Those observations do
-not turn the native in-memory artifact operation into filesystem or exit parity,
-and do not generalize one retained successful write to every input shape.
+`-writeAST` is the separate filesystem operation: it writes `AST.tla` in the
+current directory and exits 255 without translating the input or writing its
+backup/configuration. Pinned `trans.performTranslation` calls `WriteAST`, then
+returns null; `trans.run` maps that null to its error status. The native report
+records successful writing separately from translated-module admission and keeps
+that successful exit. `write_original_ast_file` exposes an explicit Rust
+destination. `--ast` remains in memory with native exit 0; no flag is an alias for
+module publication. Source-stage refusals remain named and never write an AST.
 
 `-spec`, `-myspec`, `-spec2` and `-myspec2` select specification-backed translator
 backends, rather than fairness modes or aliases for native translation. Corrected
