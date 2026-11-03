@@ -218,7 +218,7 @@ word earns no agreement. Conversion support does not remove this limitation.
 
 `dive check --allow-io=env,files,exec` grants named categories. Both profiles
 start with no grants, including `--compat=tlc` (D-017). Denial happens before
-native host callbacks and argument evaluation. A grant supplies permission;
+native host callbacks. A grant supplies permission;
 unsupported operators still refuse.
 
 Ordinary Reference safety checking supports source-binding `IOUtils!IOEnv` and
@@ -227,8 +227,8 @@ Use a constant-level definition to capture the input before assumptions and
 state generation. For example:
 
 ```tla
-Payload == Deserialize("input.txt", [format |-> "TXT", charset |-> "UTF-8"])
 Environment == IOEnv
+Payload == Deserialize("input.txt", [format |-> "TXT", charset |-> "UTF-8"])
 ```
 
 The file result has `exitValue = 0`, the exact text in `stdout`, and empty
@@ -238,6 +238,11 @@ non-UTF-8 input, file-error records, other serializers, writes and process
 execution remain named refusals. An empty environment also refuses until its
 empty native record representation is implemented. `exec` is accepted as a
 category spelling but does not enable an executable kernel.
+Only one reached TXT Deserialize request per fresh binding is admitted; reuse
+its captured result. TLC shares mutable result-field names between calls, so
+normalizing the first result can change later fields. Subsequent requests
+refuse before arguments and callbacks in both profiles until that history is
+proved (#761).
 
 Auto selects the whole Reference backend before these effects. Explicit Core,
 temporal-input production and checkpoint/recovery are not implemented. Simulation
@@ -269,11 +274,12 @@ interrupted; these are input bounds, not a hard wall-clock or process-heap cap.
 
 TLC's IOEnv override interns keys and values in Java map order. Compatibility
 mode therefore refuses a snapshot introducing more than one previously unknown
-string (keys and values both count). With zero or one new string there is no
-relative order between new names to guess. The canonical default retains its
-existing deterministic order. The minimal `EnvironmentOrder` control demonstrates
-why silently sorting a general TLC snapshot can change a verdict; broader
-demand-scoped ordering support remains open in #758.
+string (keys and values both count). It also refuses the first IOEnv reached
+after a TXT request, because TLC constructs its static environment before file
+results. Capture the environment first when using both inputs. The canonical
+default retains its existing deterministic order. The minimal `EnvironmentOrder`
+and `TextBeforeEnvOrder` controls demonstrate verdict changes from unproved
+construction order; broader demand-scoped ordering support remains open in #758.
 
 Rust callers set `CheckRequest::host_access` using
 `HostAccess::parse("env,files")`. For offline replay, call

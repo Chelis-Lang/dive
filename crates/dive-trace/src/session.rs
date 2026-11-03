@@ -86,7 +86,7 @@ impl Session {
             .recipe
             .bind(host.clone())
             .map_err(|e| e.error.to_string())?;
-        host.finish_input_binding()?;
+        host.finish_input_binding(&model)?;
         // Match the API/checker lifecycle: config is unavailable while binding.
         if let Some(mut config) = self.config.clone() {
             config.deadlock = model.settings.check_deadlock;
@@ -1107,7 +1107,7 @@ impl Session {
                 return Ok(Err(failure.error.to_string()));
             }
         };
-        if let Err(error) = host.finish_input_binding() {
+        if let Err(error) = host.finish_input_binding(&model) {
             return Ok(Err(error));
         }
         poll()?;

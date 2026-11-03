@@ -2682,9 +2682,18 @@ The admitted IOEnv and TXT/UTF-8 Deserialize kernels follow MIT
 evaluates the options record before its path, and successful reads return the
 exitValue/stdout/stderr record. Unsupported argument/file-error records and
 non-RecordValue options are not approximated.
+The same source's static `EXEC_NAMES`, plus tlaplus commit `94d0c50`
+`tlc2/value/impl/RecordValue.java` (constructor and `normalize`), establish the
+shared mutable names behind `TwoFilesSafeNames`. Later TXT requests refuse
+before callbacks in both profiles; independently clean second records would
+change observable results (#761).
 
 Bounded raw-input recording, source-ordered offline replay and category admission
 are native D-017 mechanisms, not Java I/O ports. Pinned Captured/Demand controls
 cover supported words/counts and actual PrintT demand order. EnvironmentOrder
 demonstrates a verdict-changing Java-map/new-string boundary; TLC mode refuses
 unproved construction order instead of porting Java map iteration (#758).
+The pinned `TextBeforeEnvOrder`/`EnvBeforeTextOrder` pair confirms that IOUtils
+static ENV is constructed before file results. TLC mode therefore also refuses
+a first environment request reached after a TXT request; env-first capture
+remains admitted within the unknown-string bound.

@@ -70,5 +70,66 @@
         "x": "DIVE_LABEL"
       }
     }
+  ],
+  "native_history_controls": [
+    {
+      "model": "TwoFilesSafeNames",
+      "physical_exit": 75,
+      "error_codes": [
+        2102,
+        2103
+      ],
+      "generated": 1,
+      "distinct": 1,
+      "depth": 1,
+      "input_text": "α-line\nβ-line\r\n",
+      "second_text": "second",
+      "first_state": {
+        "x": [
+          "α-line\nβ-line\r\n",
+          0
+        ]
+      },
+      "sha256": {
+        "TwoFilesSafeNames.tla": "16cbeb879a26e42833577a717396d9bb9f8d91d61004ea5d06fdb524930796d9",
+        "TwoFilesSafeNames.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf"
+      },
+      "seed": 0,
+      "environment": {
+        "DIVE_LABEL": "alpha"
+      }
+    },
+    {
+      "model": "TextBeforeEnvOrder",
+      "physical_exit": 12,
+      "environment": {
+        "DIVE_LABEL": "zUnknown"
+      },
+      "input_text": "aUnknown",
+      "first_state": {
+        "x": "zUnknown"
+      },
+      "sha256": {
+        "TextBeforeEnvOrder.tla": "8a460136bfb87cde154858ec94436201209d08388762f4955568069f9e9ca3d4",
+        "TextBeforeEnvOrder.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf"
+      },
+      "seed": 0
+    },
+    {
+      "model": "EnvBeforeTextOrder",
+      "physical_exit": 12,
+      "environment": {
+        "DIVE_LABEL": "zUnknown"
+      },
+      "input_text": "aUnknown",
+      "first_state": {
+        "x": "zUnknown"
+      },
+      "sha256": {
+        "EnvBeforeTextOrder.tla": "c9652f0abd14c9e40730a43dcbd5ce9a250885ce2da263ea89452442fbfec741",
+        "EnvBeforeTextOrder.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf"
+      },
+      "seed": 0
+    }
   ]
 }

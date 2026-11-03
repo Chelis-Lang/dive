@@ -58,6 +58,36 @@ impl Core {
                 op.qualified_name()
             ));
             self.remember_input_refusal(&error);
+            // Unconfigured trace-reader templates contain a direct unassigned
+            // input-file constant. Its one pure argument is an actual native
+            // undefined-constant error, not an executable I/O request. Preserve
+            // TLC's soft precomputation error without running any host callback
+            // or effectful argument prefix; proof admission still sees denial.
+            if op.kind() == StdKind::Value
+                && let [Arg::Expr { expr, .. }] = args
+                && let Expr::Const(constant) = self.ir.expr(*expr)
+                && self
+                    .consts
+                    .get(constant.index())
+                    .is_some_and(Option::is_none)
+            {
+                self.eval_v(env, st, *expr)?;
+            }
+            return Err(error);
+        }
+        // Native TXT results share a mutable field-name array. Normalizing the
+        // first record can change all later results, so a second invocation has
+        // no proved representation. Refuse before either host callback or the
+        // second request's argument effects, in both semantic profiles.
+        if op == StdOp::IoUtilsDeserialize
+            && self
+                .text_input_used
+                .swap(true, std::sync::atomic::Ordering::Relaxed)
+        {
+            let error = EvalError::unsupported(
+                "subsequent TXT Deserialize requests are not implemented (shared native result-name history)",
+            );
+            self.remember_input_refusal(&error);
             return Err(error);
         }
         if st.control & crate::env::control::ENABLED != 0

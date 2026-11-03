@@ -413,6 +413,9 @@ impl<'a> Run<'a> {
     /// Why the run's verdict cannot stand, whatever it is: a check drew a
     /// random value, accessed registers, or a name was created after binding.
     pub(crate) fn refusal(&self) -> Option<String> {
+        if let Some(feature) = self.model.evaluator.external_input_refusal() {
+            return Some(feature);
+        }
         if self.host.inputs.is_none() && !self.model.evaluator.options().host_access.is_empty() {
             return Some(
                 "external inputs require a fresh Session with explicit recorded assumptions".into(),
@@ -1422,7 +1425,10 @@ impl TraceHost {
         })
     }
 
-    pub(crate) fn finish_input_binding(&self) -> Result<(), String> {
+    pub(crate) fn finish_input_binding(&self, model: &Model) -> Result<(), String> {
+        if let Some(feature) = model.evaluator.external_input_refusal() {
+            return Err(feature);
+        }
         self.inputs.as_ref().map_or(Ok(()), |inputs| {
             inputs.finish_binding().map_err(|error| error.message)
         })

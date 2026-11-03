@@ -86,45 +86,16 @@ impl LiveInputs {
                 )
             }
             InputRequest::TextFile(path) if self.grants.files => {
-                if path.len() > MAX_INPUT_BYTES {
-                    return Err(input_error("input path byte limit"));
-                }
-                if !std::fs::metadata(path)
-                    .map_err(|_| {
-                        input_error(
-                            "IOUtils!Deserialize file-open error records are not implemented",
-                        )
-                    })?
-                    .is_file()
+                if state
+                    .records
+                    .iter()
+                    .any(|record| matches!(record.request, InputRequest::TextFile(_)))
                 {
-                    return Err(input_error("only regular text files are supported"));
+                    return Err(input_error(
+                        "subsequent TXT Deserialize requests are not implemented (shared native result-name history)",
+                    ));
                 }
-                let file = std::fs::File::open(path).map_err(|_| {
-                    input_error("IOUtils!Deserialize file-open error records are not implemented")
-                })?;
-                if !file
-                    .metadata()
-                    .map_err(|_| input_error("input file metadata"))?
-                    .is_file()
-                {
-                    return Err(input_error("only regular text files are supported"));
-                }
-                let mut bytes = Vec::new();
-                file.take(u64::try_from(MAX_INPUT_BYTES + 1).unwrap_or(u64::MAX))
-                    .read_to_end(&mut bytes)
-                    .map_err(|_| {
-                        input_error(
-                            "IOUtils!Deserialize file-read error records are not implemented",
-                        )
-                    })?;
-                if bytes.len() > MAX_INPUT_BYTES {
-                    return Err(input_error("text input byte limit"));
-                }
-                InputResponse::Text(
-                    String::from_utf8(bytes).map_err(|_| {
-                        input_error("non-UTF-8 file error records are not implemented")
-                    })?,
-                )
+                InputResponse::Text(read_text_file(path)?)
             }
             _ => return Err(input_error("source input category was not granted")),
         };
@@ -170,4 +141,39 @@ impl InputSource for LiveInputs {
                 .clone(),
         }
     }
+}
+
+fn read_text_file(path: &str) -> Result<String, HostError> {
+    if path.len() > MAX_INPUT_BYTES {
+        return Err(input_error("input path byte limit"));
+    }
+    if !std::fs::metadata(path)
+        .map_err(|_| {
+            input_error("IOUtils!Deserialize file-open error records are not implemented")
+        })?
+        .is_file()
+    {
+        return Err(input_error("only regular text files are supported"));
+    }
+    let file = std::fs::File::open(path).map_err(|_| {
+        input_error("IOUtils!Deserialize file-open error records are not implemented")
+    })?;
+    if !file
+        .metadata()
+        .map_err(|_| input_error("input file metadata"))?
+        .is_file()
+    {
+        return Err(input_error("only regular text files are supported"));
+    }
+    let mut bytes = Vec::new();
+    file.take(u64::try_from(MAX_INPUT_BYTES + 1).unwrap_or(u64::MAX))
+        .read_to_end(&mut bytes)
+        .map_err(|_| {
+            input_error("IOUtils!Deserialize file-read error records are not implemented")
+        })?;
+    if bytes.len() > MAX_INPUT_BYTES {
+        return Err(input_error("text input byte limit"));
+    }
+    String::from_utf8(bytes)
+        .map_err(|_| input_error("non-UTF-8 file error records are not implemented"))
 }

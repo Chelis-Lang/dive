@@ -181,6 +181,10 @@ impl SpecModel {
         Self::bind_hosted(file, analysis, cfg, opts, None)
     }
 
+    #[allow(
+        clippy::too_many_lines,
+        reason = "one ordered startup transaction retains source, host, replay cursor and config ownership"
+    )]
     fn bind_hosted(
         file: &str,
         analysis: &dive_sema::Analysis,

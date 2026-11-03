@@ -1,4 +1,4 @@
-//! Category admission precedes all host callbacks and argument evaluation.
+//! Category admission and native-history refusals precede host callbacks.
 #![allow(
     clippy::expect_used,
     reason = "finite source fixtures and strict assertions"
@@ -41,7 +41,7 @@ impl Host for Spy {
 }
 
 fn evaluator(options: Options, host: Arc<dyn Host>) -> Evaluator {
-    let source = "---- MODULE Host ----\nEXTENDS IOUtils, TLC\nKnownKey==\"DIVE_LABEL\"\nKnownValue==\"outside\"\nEnv==IOEnv\nRead==Deserialize(\"input.txt\",[format|->\"TXT\",charset|->\"UTF-8\"])\nUnsupportedOptions==Deserialize(\"input.txt\",[format|->\"JSON\",charset|->\"UTF-8\"])\nFunctionOptions==Deserialize(\"input.txt\",[name \\in {\"format\",\"charset\"} |-> IF name=\"format\" THEN \"TXT\" ELSE \"UTF-8\"])\nDenied==Deserialize(Assert(FALSE,\"must not evaluate path\"),[format|->\"TXT\",charset|->\"UTF-8\"])\n====\n";
+    let source = "---- MODULE Host ----\nEXTENDS IOUtils, TLC\nKnownKey==\"DIVE_LABEL\"\nKnownValue==\"outside\"\nEnv==IOEnv\nRead==Deserialize(\"input.txt\",[format|->\"TXT\",charset|->\"UTF-8\"])\nReadTwo==Deserialize(Assert(FALSE,\"must not evaluate second path\"),[format|->\"TXT\",charset|->\"UTF-8\"])\nUnsupportedOptions==Deserialize(\"input.txt\",[format|->\"JSON\",charset|->\"UTF-8\"])\nFunctionOptions==Deserialize(\"input.txt\",[name \\in {\"format\",\"charset\"} |-> IF name=\"format\" THEN \"TXT\" ELSE \"UTF-8\"])\nDenied==Deserialize(Assert(FALSE,\"must not evaluate path\"),[format|->\"TXT\",charset|->\"UTF-8\"])\n====\n";
     let analysis = dive_sema::analyze_source(
         "Host.tla",
         source,
@@ -116,6 +116,62 @@ fn admitted_operations_use_real_arguments_and_typed_input_kernels() {
 }
 
 #[test]
+fn second_text_request_refuses_before_arguments_and_both_host_callbacks() {
+    for options in [Options::tlc(), Options::dive()] {
+        let host = Arc::new(Spy::default());
+        let ev = evaluator(
+            Options {
+                host_access: HostAccess::parse("files").expect("grant"),
+                ..options
+            },
+            host.clone(),
+        );
+        ev.eval_def(
+            ev.ir().root_def("Read").expect("definition"),
+            &St::constant(),
+        )
+        .expect("first TXT input");
+        let error = ev
+            .eval_def(
+                ev.ir().root_def("ReadTwo").expect("definition"),
+                &St::constant(),
+            )
+            .expect_err("unproved native shared field-name history");
+        assert_eq!(error.class(), ErrorClass::Unsupported);
+        assert!(error.message().contains("subsequent TXT"));
+        assert!(ev.external_input_refusal().is_some());
+        assert_eq!(host.hooks.load(Ordering::Relaxed), 1);
+        assert_eq!(host.inputs.load(Ordering::Relaxed), 1);
+    }
+}
+
+#[test]
+fn tlc_environment_after_text_refuses_before_the_environment_input_callback() {
+    let host = Arc::new(Spy::default());
+    let ev = evaluator(
+        Options {
+            host_access: HostAccess::parse("env,files").expect("grants"),
+            ..Options::tlc()
+        },
+        host.clone(),
+    );
+    ev.eval_def(
+        ev.ir().root_def("Read").expect("definition"),
+        &St::constant(),
+    )
+    .expect("first TXT input");
+    let error = ev
+        .eval_def(
+            ev.ir().root_def("Env").expect("definition"),
+            &St::constant(),
+        )
+        .expect_err("static ENV construction order is unproved");
+    assert_eq!(error.class(), ErrorClass::Unsupported);
+    assert!(error.message().contains("after a TXT request"));
+    assert_eq!(host.inputs.load(Ordering::Relaxed), 1);
+}
+
+#[test]
 fn unsupported_serializer_options_never_reach_the_input_provider() {
     for options in [Options::tlc(), Options::dive()] {
         for name in ["UnsupportedOptions", "FunctionOptions"] {
@@ -143,7 +199,9 @@ struct EmptyEnvironment;
 impl Host for EmptyEnvironment {
     fn input(&self, request: &InputRequest) -> Option<Result<InputResponse, HostError>> {
         assert_eq!(request, &InputRequest::Environment);
-        Some(Ok(InputResponse::Environment(Default::default())))
+        Some(Ok(InputResponse::Environment(
+            std::collections::BTreeMap::default(),
+        )))
     }
 }
 

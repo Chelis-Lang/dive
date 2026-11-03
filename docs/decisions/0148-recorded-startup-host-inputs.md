@@ -14,8 +14,15 @@ environment or filesystem to supply missing evidence.
 
 Keep category authorization in immutable evaluator options, default-empty in
 both profiles. Check native category access after configured redirects and
-before host callbacks or arguments. Actual input refusals are remembered by the
-evaluator; constant precomputation cannot swallow them and certify a binding.
+before host callbacks. Actual input refusals are remembered by the
+evaluator; fresh proof admission cannot swallow them and certify a word. The
+low-level binder retains TLC's soft constant-precomputation failure behavior;
+ordinary checking retains its impure-refusal inventory.
+Unimplemented value-I/O calls with one direct unassigned constant retain their
+existing pure undefined-constant error during precomputation, without a callback
+or effectful argument prefix. The denial remains latched for proof admission.
+This preserves unconfigured `_JsonTrace` reader templates and their pinned
+startup controls; it does not execute or authorize I/O.
 The recording host owns one binding operation and closes before assumptions.
 
 The first producer supports ordinary Reference safety checking with IOEnv and
@@ -28,7 +35,11 @@ than approximated. Empty IOEnv RecordValue representation is also refused.
 Record raw environment/text responses against exact operation/path requests in
 source execution order. Bounds are 256 operations, 1 MiB of total UTF-8 data,
 paths and names, and 4,096 environment entries. Repeated IOEnv responses retain
-one environment; repeated file reads may have different recorded contents.
+one environment. Only one reached TXT Deserialize request per fresh evaluator
+is admitted; reuse its captured result for later expressions. Pinned TXT results
+share a mutable name array: normalizing one can corrupt later result fields.
+Until its representation is proved, subsequent requests refuse before their
+arguments and callbacks in both profiles (#761).
 These are external assumptions, not certificates of past operating-system truth.
 
 Independent sessions create a fresh replay cursor, evaluator, interner, host and
@@ -49,8 +60,12 @@ Pinned EnvironmentOrder shows a real failure if TLC IOEnv map iteration is
 replaced by sorted string construction: TLC violates at DIVE_LABEL while a
 prototype incorrectly succeeded at DIVE_COUNT. Do not emulate arbitrary Java map
 internals. TLC mode refuses snapshots introducing more than one previously
-unknown string, including keys and values. Zero/one introduces no relative
-new-name ordering ambiguity; the canonical default keeps its approved order.
+unknown string, including keys and values. It also refuses a first IOEnv reached
+after a TXT request: the pinned override constructs static ENV before any file
+result, regardless of source definition order. TextBeforeEnvOrder demonstrates
+the resulting CHOOSE difference even with only one new environment string.
+Capture the environment first to use the admitted combined path. The canonical
+default keeps its approved order.
 Broader demand-scoped ordering proof is tracked in #758.
 
 ## Consequences

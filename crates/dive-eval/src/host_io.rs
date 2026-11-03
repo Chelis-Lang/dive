@@ -36,6 +36,18 @@ impl Core {
     }
 
     pub(crate) fn io_environment(&self) -> Result<Value> {
+        if self.ctx.order == ValueOrder::Tlc
+            && self
+                .text_input_used
+                .load(std::sync::atomic::Ordering::Relaxed)
+            && !self
+                .environment_initialized
+                .load(std::sync::atomic::Ordering::Relaxed)
+        {
+            return Err(EvalError::unsupported(
+                "IOEnv TLC construction order after a TXT request is not implemented; capture the environment first",
+            ));
+        }
         let InputResponse::Environment(entries) = self.input(&InputRequest::Environment)? else {
             return Err(EvalError::unsupported("IOEnv external response kind"));
         };
@@ -70,7 +82,10 @@ impl Core {
             .into_iter()
             .map(|(name, text)| (self.names.intern(&name), Value::string(&self.names, &text)))
             .collect();
-        Value::record(fields, self.ctx).map_err(Into::into)
+        let value = Value::record(fields, self.ctx).map_err(EvalError::from)?;
+        self.environment_initialized
+            .store(true, std::sync::atomic::Ordering::Relaxed);
+        Ok(value)
     }
 
     pub(crate) fn io_text_deserialize(

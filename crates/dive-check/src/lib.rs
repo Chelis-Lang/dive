@@ -541,6 +541,17 @@ fn finish_input_binding<E: From<Box<dive_model::Failure>>>(
     bound: Result<dive_model::Model, E>,
     opts: &CheckOptions,
 ) -> Result<dive_model::Model, E> {
+    let bound = bound.and_then(|model| {
+        if let Some(feature) = model.evaluator.external_input_refusal() {
+            Err(Box::new(dive_model::Failure {
+                error: dive_model::BindError::unsupported(feature),
+                output: model.output,
+            })
+            .into())
+        } else {
+            Ok(model)
+        }
+    });
     let closed = opts.inputs.as_ref().map(|inputs| inputs.finish_binding());
     match (bound, closed) {
         (Ok(model), Some(Err(error))) => Err(Box::new(dive_model::Failure {

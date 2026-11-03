@@ -20,7 +20,14 @@ impl Fixture {
         std::fs::create_dir(&path).expect("fixture");
         let source = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("../dive-api/tests/fixtures/host-inputs");
-        for model in ["Captured", "Demand", "EnvironmentOrder"] {
+        for model in [
+            "Captured",
+            "Demand",
+            "EnvironmentOrder",
+            "TwoFilesSafeNames",
+            "TextBeforeEnvOrder",
+            "EnvBeforeTextOrder",
+        ] {
             for suffix in ["tla", "cfg"] {
                 let name = format!("{model}.{suffix}");
                 std::fs::copy(source.join(&name), path.join(name)).expect("spec fixture");
@@ -33,19 +40,37 @@ impl Fixture {
         self.run_model("Captured", command, tlc, extra)
     }
     fn run_model(&self, model: &str, command: &str, tlc: bool, extra: &[&str]) -> Output {
+        self.run_model_environment(
+            model,
+            command,
+            tlc,
+            extra,
+            &[
+                ("DIVE_COUNT", if command == "check" { "2" } else { "99" }),
+                (
+                    "DIVE_LABEL",
+                    if command == "check" {
+                        "outside"
+                    } else {
+                        "changed"
+                    },
+                ),
+            ],
+        )
+    }
+    fn run_model_environment(
+        &self,
+        model: &str,
+        command: &str,
+        tlc: bool,
+        extra: &[&str],
+        environment: &[(&str, &str)],
+    ) -> Output {
         let modules = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("../dive-eval/tests/fixtures/community-modules");
         let mut run = Command::new(env!("CARGO_BIN_EXE_dive"));
         run.env_clear()
-            .env("DIVE_COUNT", if command == "check" { "2" } else { "99" })
-            .env(
-                "DIVE_LABEL",
-                if command == "check" {
-                    "outside"
-                } else {
-                    "changed"
-                },
-            )
+            .envs(environment.iter().copied())
             .current_dir(&self.0)
             .arg(command)
             .arg(format!("{model}.tla"))
@@ -135,6 +160,84 @@ fn primary_success_paths_keep_counts_demand_order_and_the_actual_tlc_name_refusa
         }
     }
 }
+
+#[test]
+fn primary_native_history_controls_refuse_second_text_and_tlc_text_before_env() {
+    let oracle: serde_json::Value = serde_json::from_str(include_str!(
+        "../../dive-api/tests/fixtures/host-inputs/oracle.json"
+    ))
+    .expect("primary controls");
+    for tlc in [false, true] {
+        let fixture = Fixture::new();
+        let row = &oracle["native_history_controls"][0];
+        std::fs::write(
+            fixture.0.join("input.txt"),
+            row["input_text"].as_str().expect("primary first text"),
+        )
+        .expect("first input");
+        std::fs::write(
+            fixture.0.join("second.txt"),
+            row["second_text"].as_str().expect("primary second text"),
+        )
+        .expect("second input");
+        let second = fixture.run_model("TwoFilesSafeNames", "check", tlc, &["--allow-io=files"]);
+        status(&second, 3);
+        let report = json(&second);
+        assert_eq!(report["verdict"], "unsupported");
+        assert!(
+            report["message"]
+                .as_str()
+                .expect("refusal")
+                .contains("subsequent TXT")
+        );
+        assert_eq!(
+            report["external_inputs"]["records"]
+                .as_array()
+                .expect("only first input recorded")
+                .len(),
+            1
+        );
+        assert_eq!(row["first_state"]["x"][1], 0);
+
+        std::fs::write(fixture.0.join("input.txt"), "aUnknown").expect("ordering input");
+        for model in ["TextBeforeEnvOrder", "EnvBeforeTextOrder"] {
+            let output = fixture.run_model_environment(
+                model,
+                "check",
+                tlc,
+                &["--allow-io=env,files"],
+                &[("DIVE_LABEL", "zUnknown")],
+            );
+            if tlc && model == "TextBeforeEnvOrder" {
+                status(&output, 3);
+                assert!(
+                    json(&output)["message"]
+                        .as_str()
+                        .expect("refusal")
+                        .contains("after a TXT request")
+                );
+            } else if tlc {
+                status(&output, 12);
+                let report = json(&output);
+                assert_eq!(report["verdict"], "invariant-violation");
+                fixture.save("ordered-inputs.json", &report);
+                std::fs::remove_file(fixture.0.join("input.txt")).expect("remove input");
+                status(
+                    &fixture.run_model(
+                        model,
+                        "validate-trace",
+                        tlc,
+                        &["--inputs", "ordered-inputs.json"],
+                    ),
+                    0,
+                );
+            } else {
+                status(&output, 0);
+                assert_eq!(json(&output)["verdict"], "success");
+            }
+        }
+    }
+}
 impl Drop for Fixture {
     fn drop(&mut self) {
         let _ = std::fs::remove_dir_all(&self.0);
@@ -216,6 +319,50 @@ fn real_env_and_text_capture_has_usable_offline_cli_replay_and_strict_negatives(
                 if mode == 0 { 1 } else { 3 },
             );
         }
+    }
+}
+
+#[test]
+fn source_coverage_and_grants_share_the_actual_reference_binding() {
+    for tlc in [false, true] {
+        let fixture = Fixture::new();
+        let plain = fixture.run("check", tlc, &["--allow-io=env,files"]);
+        let covered = fixture.run(
+            "check",
+            tlc,
+            &[
+                "--allow-io=env,files",
+                "--source-coverage",
+                "--engine",
+                "auto",
+            ],
+        );
+        status(&plain, 12);
+        status(&covered, 12);
+        let plain = json(&plain);
+        let covered = json(&covered);
+        for key in ["verdict", "statistics", "external_inputs"] {
+            assert_eq!(covered[key], plain[key], "{key}");
+        }
+        assert_eq!(
+            covered["counterexample"]["trace"],
+            plain["counterexample"]["trace"]
+        );
+        assert_eq!(covered["source_coverage"]["backend"], "reference");
+        assert_eq!(covered["source_coverage"]["active"], false);
+        assert_eq!(covered["source_coverage"]["tlc_cost_equivalent"], false);
+        assert!(
+            covered["source_coverage"]["rows"]
+                .as_array()
+                .expect("coverage rows")
+                .iter()
+                .any(|row| row["counts"]["evaluations"].as_u64() > Some(0))
+        );
+        fixture.save("covered.json", &covered);
+        status(
+            &fixture.run("validate-trace", tlc, &["--inputs", "covered.json"]),
+            0,
+        );
     }
 }
 

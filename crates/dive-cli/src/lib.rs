@@ -1001,7 +1001,7 @@ fn validate_trace_command(
     };
     let mut doc = match dive_api::trace::TraceDoc::from_json(&document) {
         Ok(d) => d,
-        Err(e) => return usage_error(err, &e.to_string()),
+        Err(e) => return usage_error(err, &e),
     };
     if let Some(c) = claim {
         let ending = match dive_api::trace::Ending::parse(c) {

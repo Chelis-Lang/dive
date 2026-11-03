@@ -201,11 +201,11 @@ fn reached_runtime_reads_and_unsupported_backends_do_not_gain_input_authority() 
                 .expect("refusal")
                 .contains("runtime host reads")
         );
-        assert!(
+        assert_eq!(
             inputs_from_report(&report)
                 .expect("empty captured context")
-                .records
-                .is_empty()
+                .records,
+            [] as [InputRecord; 0]
         );
         assert!(matches!(
             check_file_engine(&request, Engine::Core),
@@ -223,7 +223,7 @@ fn file_limits_missing_inputs_and_exec_grants_keep_named_refusals() {
             match case {
                 "large" => {
                     std::fs::write(&input, vec![b'x'; dive_eval::inputs::MAX_INPUT_BYTES + 1])
-                        .expect("bounded oversize control")
+                        .expect("bounded oversize control");
                 }
                 "utf8" => std::fs::write(&input, [0xff]).expect("invalid UTF-8"),
                 _ => {}
@@ -272,11 +272,11 @@ fn file_limits_missing_inputs_and_exec_grants_keep_named_refusals() {
                 "{case}: {}",
                 report["message"]
             );
-            assert!(
+            assert_eq!(
                 inputs_from_report(&report)
                     .expect("captured prefix")
-                    .records
-                    .is_empty()
+                    .records,
+                [] as [InputRecord; 0]
             );
             assert!(!fixture.file("must-not-exist").exists());
         }
@@ -312,8 +312,49 @@ fn an_unused_actual_startup_denial_cannot_be_swallowed_by_binding() {
             library_paths: vec![modules()],
             ..Default::default()
         };
+        let model = SpecModel::from_source(
+            "Host.tla",
+            source,
+            "INIT Init\nNEXT Next\nINVARIANT Inv\n",
+            &options,
+        )
+        .expect("low-level soft precomputation remains available");
+        let word = TraceDoc::behavior(vec![json!({"x":0})]).expect("word");
+        let (report, transport) = model.read(&word);
         assert!(
-            matches!(SpecModel::from_source("Host.tla",source,"INIT Init\nNEXT Next\nINVARIANT Inv\n",&options),Err(dive_api::ApiError::Unsupported {feature}) if feature.contains("--allow-io=env"))
+            matches!(report.validation,Validation::Unsupported(feature) if feature.contains("--allow-io=env"))
+        );
+        assert!(transport.is_none());
+    }
+}
+
+#[test]
+fn recorded_inputs_do_not_authorize_unproved_next_register_prefixes() {
+    for tlc in [false, true] {
+        let fixture = Fixture::new();
+        let input = fixture.file("input.txt");
+        std::fs::write(&input, "hello\n").expect("input");
+        let file=fixture.source(&format!("Payload==Deserialize({},[format|->\"TXT\",charset|->\"UTF-8\"])\nInit==x=0 /\\ Payload.stdout=\"hello\\n\"\nNext==x'=x+1 /\\ TLCSet(1,x')\nInv==x<1",json!(input.display().to_string())));
+        let request = CheckRequest {
+            file: file.clone(),
+            compat_tlc: tlc,
+            host_access: HostAccess::parse("files").expect("grant"),
+            seed: Some(7),
+            fp: Some(0),
+            workers: Some(1),
+            library_paths: vec![modules()],
+            ..Default::default()
+        };
+        let report = check_file_engine(&request, Engine::Reference)
+            .expect("producer")
+            .to_json();
+        assert_eq!(report["verdict"], "invariant-violation");
+        let inputs = inputs_from_report(&report).expect("inputs");
+        let model = SpecModel::load(&file, &fixture.file("Host.cfg"), &options(tlc, inputs))
+            .expect("source replay");
+        let word = TraceDoc::from_json(&report).expect("word");
+        assert!(
+            matches!(model.validate(&word).validation,Validation::Unsupported(feature) if feature.contains("register"))
         );
     }
 }

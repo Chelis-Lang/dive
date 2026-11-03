@@ -81,7 +81,8 @@
   both profiles. Reference captures bounded startup environment and TXT/UTF-8
   reads; `validate-trace --inputs RUN.json` independently replays their exact
   source demand without specification I/O. Recorded values remain assumptions.
-  Unproved TLC name ordering, runtime reads, writes, exec and recovery refuse.
+  Unproved TLC name ordering, subsequent TXT requests, runtime reads, writes,
+  exec and recovery refuse.
 - Add time and sampled process-memory budgets to finite simulation and DFID,
   with the checking defaults, cooperative Init/execution and fresh independent
   replay control, retained prefix progress and structured stopped reports
