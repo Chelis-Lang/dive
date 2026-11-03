@@ -952,7 +952,7 @@ census or milestone acceptance (`docs/developer/core/03-value-model.md` §12).
 | Periodic/final/off liveness schedules | partial |
 | Simulation, generation and random replay | partial |
 | DFID checking | partial |
-| Granted environment, file and process effects | missing |
+| Granted environment, file and process effects | partial |
 | Runtime introspection and configuration services | partial |
 | CLI/output conventions and message controls | partial |
 | Trace/state dumps, ALIAS and trace exploration | partial |

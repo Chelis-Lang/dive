@@ -37,6 +37,9 @@
 //! through it too, for the checker and the trace validator alike (ADR 0103).
 #![forbid(unsafe_code)]
 
+mod host_io;
+pub mod inputs;
+
 mod bounded_domain;
 pub mod capture;
 mod community;
@@ -591,6 +594,18 @@ impl Evaluator {
     #[must_use]
     pub fn options(&self) -> &Options {
         &self.core.opts
+    }
+
+    /// First actual external-input refusal, including one caught during startup
+    /// precomputation. Drivers must not certify that binding after a refusal.
+    /// Host callbacks are not invoked to record category denials.
+    #[must_use]
+    pub fn external_input_refusal(&self) -> Option<String> {
+        self.core
+            .input_refusal
+            .lock()
+            .unwrap_or_else(::std::sync::PoisonError::into_inner)
+            .clone()
     }
 
     /// The IR.

@@ -153,6 +153,18 @@ type Fallible<T> = std::result::Result<T, String>;
 /// the search from Init. Ordinary concrete witness replay remains unchanged.
 #[must_use]
 pub fn check(ir: &Arc<Ir>, cfg: &ModelConfig, options: &CheckOptions, request: &Request) -> Result {
+    if options.inputs.is_some() || !options.eval.host_access.is_empty() {
+        return Result {
+            check: crate::bare(
+                Verdict::Unsupported {
+                    feature: "external inputs with checkpoint/recovery are not implemented".into(),
+                },
+                options,
+                ir,
+            ),
+            receipt: None,
+        };
+    }
     if let Err(error) = dive_eval::validate_ir(ir) {
         return Result {
             check: crate::bare(crate::context_verdict(&error), options, ir),

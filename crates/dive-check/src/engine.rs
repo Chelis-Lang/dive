@@ -198,7 +198,12 @@ pub(crate) fn run_host(opts: &CheckOptions) -> RunHost {
         dive_eval::Profile::Tlc => RandomMode::Tlc,
         dive_eval::Profile::Dive => RandomMode::Dive,
     };
-    RunHost::new(Streams::new(opts.seed, mode), None)
+    let host = RunHost::new(Streams::new(opts.seed, mode), None);
+    if let Some(inputs) = &opts.inputs {
+        host.with_inputs(inputs.clone())
+    } else {
+        host
+    }
 }
 
 /// `TLCGet("config")` (`AbstractChecker.createConfig`). The worker count is

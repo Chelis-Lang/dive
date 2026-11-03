@@ -37,12 +37,12 @@ const EXIT_UNSUPPORTED: u8 = 3;
 
 fn usage() -> String {
     format!(
-        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive translate <FILE.tla> [--compat=tlc] [--rewrite|--write] [--checksums tla|full] [--replace-modified] [--ast|-writeAST] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive explain <CODE> [--output human|json]\n    dive tlc [OPTIONS] SPEC[.tla] (TLC checking arguments; see dive tlc -help)\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--exit-codes native|tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [--source-coverage] [-deadlock] [--action-composition off|tlc|tla]\n               [--symmetry-liveness unreduced|refuse|tlc]\n               [--frontier-memory-bytes N] [--frontier-directory DIR] [--candidate-memory-bytes N] [--candidate-directory DIR] [--output human|json]\n               [--time-limit DURATION|none] [--max-memory BYTES|auto|none]
+        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive translate <FILE.tla> [--compat=tlc] [--rewrite|--write] [--checksums tla|full] [--replace-modified] [--ast|-writeAST] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive explain <CODE> [--output human|json]\n    dive tlc [OPTIONS] SPEC[.tla] (TLC checking arguments; see dive tlc -help)\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--exit-codes native|tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [--source-coverage] [-deadlock] [--action-composition off|tlc|tla]\n               [--symmetry-liveness unreduced|refuse|tlc] [--allow-io=env,files,exec]\n               [--frontier-memory-bytes N] [--frontier-directory DIR] [--candidate-memory-bytes N] [--candidate-directory DIR] [--output human|json]\n               [--time-limit DURATION|none] [--max-memory BYTES|auto|none]
                [--max-states N|none] [--max-depth N|none]
                [--predecessor-memory-bytes N] [--predecessor-directory DIR]\n               [--seen-disk-entries N] [--seen-directory DIR] [--seen-key-bytes N]\n               [--seen-probe-steps N] [--seen-summary-pairs N]
                [--checkpoint FILE --checkpoint-after-levels N | --recover FILE]
                [--checkpoint-counters tlc|retain]
-               [--lncheck final --lasso short] [--engine reference|core|auto] [--core-sample N] [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--generate] [--exit-codes native|tlc] [--depth N] [--seed N] [--aril N] [--stats none|basic] [--engine reference|core|auto] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--engine reference|core|auto] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING] [--sample]\n               [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    Eligible ordinary temporal checks use deterministic completed-level checks in the dive
+               [--lncheck final --lasso short] [--engine reference|core|auto] [--core-sample N] [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--generate] [--exit-codes native|tlc] [--depth N] [--seed N] [--aril N] [--stats none|basic] [--engine reference|core|auto] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--engine reference|core|auto] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--output human|json]\n    dive validate-trace <FILE.tla> [--trace TRACE.json] [--inputs RUN.json] [--config FILE.cfg] [--claim ENDING] [--sample]\n               [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    Eligible ordinary temporal checks use deterministic completed-level checks in the dive
     profile and final checking in the TLC profile; explicit final/short keeps final checking.
     dive check uses TLC process statuses by default, independently of semantic profile.\n    --exit-codes native retains: 0 no error, 1 rejected input, 10 property violated, 11 deadlock,\n    12 assumption, 13 evaluation error. Both conventions keep 2 usage, 3 unsupported/resource\n    limit, 4 internal error and 5 stopped by a run budget (no verdict).\n    --time-limit defaults to 30m in the dive profile and none under --compat=tlc; --max-memory\n    defaults to half of physical memory (auto) in both. --compat=tlc (or DIVE_COMPAT=tlc) also selects TLC semantics.\n    --engine core (or DIVE_ENGINE=core) runs the experimental compiled core on supported requests;\n    other features are named refusals. --engine auto runs the core where it can and\n    otherwise the whole check on the reference engine, naming the engine that ran and why. The\n    reference engine is the default. --core-sample N (with the core) also compares the successors\n    of N sampled states with the reference evaluator's, in the JSON report (core.sample); it is\n    diagnostic and changes no result.\n",
         env!("CARGO_PKG_VERSION"),
@@ -368,6 +368,7 @@ fn check_command(
         ..dive_api::CheckRequest::default()
     };
     let mut seen_policy = dive_api::SeenOptions::default();
+    let mut host_access_given = false;
     let mut seen_entries = false;
     let mut seen_extra = false;
     let mut checkpoint_path: Option<std::path::PathBuf> = None;
@@ -448,6 +449,19 @@ fn check_command(
                 Some("fp" | "fingerprint") => req.store = dive_api::Store::Fingerprint,
                 _ => return usage_error(err, "--store expects `fp` or `exact`"),
             },
+            "--allow-io" => {
+                if host_access_given {
+                    return usage_error(err, "--allow-io given twice");
+                }
+                let Some(text) = value() else {
+                    return usage_error(err, "--allow-io expects categories");
+                };
+                match dive_api::HostAccess::parse(&text) {
+                    Ok(access) => req.host_access = access,
+                    Err(message) => return usage_error(err, message),
+                }
+                host_access_given = true;
+            }
             "--seed" | "-seed" => {
                 let v = value();
                 match v.as_deref().and_then(dive_api::parse_seed) {
@@ -822,6 +836,7 @@ fn validate_trace_command(
     let mut file: Option<&str> = None;
     let mut cfg: Option<&str> = None;
     let mut trace: Option<&str> = None;
+    let mut input_report: Option<&str> = None;
     let mut claim: Option<&str> = None;
     let mut json = false;
     let mut sample = false;
@@ -852,13 +867,14 @@ fn validate_trace_command(
                     );
                 }
             },
-            "--config" | "--trace" | "--claim" => {
+            "--config" | "--trace" | "--claim" | "--inputs" => {
                 let Some(v) = it.next() else {
                     return usage_error(err, &format!("{a} expects a value"));
                 };
                 let slot = match a.as_str() {
                     "--config" => &mut cfg,
                     "--trace" => &mut trace,
+                    "--inputs" => &mut input_report,
                     _ => &mut claim,
                 };
                 if slot.replace(v).is_some() {
@@ -925,14 +941,27 @@ fn validate_trace_command(
             }
         }
     }
-    let (Some(file), Some(trace)) = (file, trace) else {
+    let Some(file) = file else {
         return usage_error(
             err,
             &format!(
-                "`dive validate-trace` needs a specification and --trace\n\n{}",
+                "`dive validate-trace` needs a specification and --trace or --inputs\n\n{}",
                 usage()
             ),
         );
+    };
+    let input_document = if let Some(path) = input_report {
+        let report = match read_external_input_report(path) {
+            Ok(report) => report,
+            Err(message) => return usage_error(err, &message),
+        };
+        opts.inputs = match dive_api::host_inputs::inputs_from_report(&report) {
+            Ok(inputs) => Some(inputs),
+            Err(error) => return usage_error(err, &error.to_string()),
+        };
+        Some(report)
+    } else {
+        None
     };
     // The checking run's seed and polynomial, as `dive check` chose them:
     // without `--fp`, TLC's (under --compat=tlc) is derived from the seed.
@@ -953,13 +982,26 @@ fn validate_trace_command(
     let spec = std::path::Path::new(file);
     // TLC's default: the configuration next to the specification.
     let cfg = cfg.map_or_else(|| spec.with_extension("cfg"), std::path::PathBuf::from);
-    let text = match std::fs::read_to_string(trace) {
-        Ok(t) => t,
-        Err(e) => return usage_error(err, &format!("cannot read {trace}: {e}")),
+    let document = if let Some(trace) = trace {
+        let text = match std::fs::read_to_string(trace) {
+            Ok(text) => text,
+            Err(error) => return usage_error(err, &format!("cannot read {trace}: {error}")),
+        };
+        match serde_json::from_str(&text) {
+            Ok(document) => document,
+            Err(error) => return usage_error(err, &format!("{trace}: {error}")),
+        }
+    } else if let Some(report) = &input_document {
+        report["counterexample"]["trace"].clone()
+    } else {
+        return usage_error(
+            err,
+            "validate-trace requires --trace or a check report supplied by --inputs",
+        );
     };
-    let mut doc = match dive_api::trace::TraceDoc::parse(&text) {
+    let mut doc = match dive_api::trace::TraceDoc::from_json(&document) {
         Ok(d) => d,
-        Err(e) => return usage_error(err, &format!("{trace}: {e}")),
+        Err(e) => return usage_error(err, &e),
     };
     if let Some(c) = claim {
         let ending = match dive_api::trace::Ending::parse(c) {
@@ -1005,6 +1047,19 @@ fn validate_trace_command(
         dive_api::trace::Validation::Invalid(_) => ExitCode::from(EXIT_REJECTED),
         dive_api::trace::Validation::Unsupported(_) => ExitCode::from(EXIT_UNSUPPORTED),
     }
+}
+
+fn read_external_input_report(path: &str) -> Result<serde_json::Value, String> {
+    const LIMIT: usize = 8 << 20;
+    let file = std::fs::File::open(path).map_err(|error| format!("cannot read {path}: {error}"))?;
+    let mut reader = std::io::Read::take(file, u64::try_from(LIMIT + 1).unwrap_or(u64::MAX));
+    let mut bytes = Vec::new();
+    std::io::Read::read_to_end(&mut reader, &mut bytes)
+        .map_err(|error| format!("cannot read {path}: {error}"))?;
+    if bytes.len() > LIMIT {
+        return Err("external input report exceeds 8 MiB".into());
+    }
+    serde_json::from_slice(&bytes).map_err(|error| format!("{path}: {error}"))
 }
 
 fn validation_exception(

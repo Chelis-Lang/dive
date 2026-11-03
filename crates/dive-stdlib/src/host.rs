@@ -31,6 +31,7 @@ const UNSET: i64 = i64::MIN;
 /// A model-checking run's [`Host`].
 #[derive(Debug)]
 pub struct RunHost {
+    inputs: Option<std::sync::Arc<dyn dive_eval::inputs::InputSource>>,
     streams: Streams,
     stream: Mutex<Stream>,
     level: AtomicI64,
@@ -56,6 +57,7 @@ impl RunHost {
     #[must_use]
     pub fn new(streams: Streams, config: Option<RunConfig>) -> Self {
         Self {
+            inputs: None,
             streams,
             stream: Mutex::new(streams.startup()),
             level: AtomicI64::new(UNSET),
@@ -63,6 +65,16 @@ impl RunHost {
             config: Mutex::new(config),
             exit: AtomicBool::new(false),
         }
+    }
+
+    /// Installs explicit external input ownership before binding starts.
+    #[must_use]
+    pub fn with_inputs(
+        mut self,
+        inputs: std::sync::Arc<dyn dive_eval::inputs::InputSource>,
+    ) -> Self {
+        self.inputs = Some(inputs);
+        self
     }
 
     /// The run's streams.
@@ -156,6 +168,12 @@ fn host_error(e: &RandomError) -> HostError {
 }
 
 impl Host for RunHost {
+    fn input(
+        &self,
+        request: &dive_eval::inputs::InputRequest,
+    ) -> Option<Result<dive_eval::inputs::InputResponse, HostError>> {
+        self.inputs.as_ref().map(|inputs| inputs.request(request))
+    }
     fn random(&self, op: StdOp, args: &[Value], ctx: Ctx) -> Option<Result<Value, HostError>> {
         let mut stream = self.stream.lock().unwrap_or_else(PoisonError::into_inner);
         let mut bits = |n| stream.next_bits(n);

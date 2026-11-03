@@ -25,8 +25,10 @@
 #![forbid(unsafe_code)]
 
 mod config;
+pub mod host_inputs;
 /// Shared whole-run policy for symmetry combined with temporal properties.
 pub use dive_model::SymmetryLiveness;
+pub use host_inputs::HostAccess;
 mod publication;
 pub use publication::{
     OriginalAstWriteReport, TranslationPublication, prepare_translation_file,

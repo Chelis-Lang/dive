@@ -503,7 +503,7 @@ fn bind_for_run_controlled(
     } else {
         dive_model::bind_controlled(ir.clone(), cfg, &bind_opts, control)
     };
-    bound.map(|model| (model, host))
+    finish_input_binding(bound, opts).map(|model| (model, host))
 }
 
 fn bind_for_run(
@@ -534,7 +534,33 @@ fn bind_for_run(
     } else {
         dive_model::bind(ir.clone(), cfg, &bind_opts)
     };
-    bound.map(|model| (model, host))
+    finish_input_binding(bound, opts).map(|model| (model, host))
+}
+
+fn finish_input_binding<E: From<Box<dive_model::Failure>>>(
+    bound: Result<dive_model::Model, E>,
+    opts: &CheckOptions,
+) -> Result<dive_model::Model, E> {
+    let bound = bound.and_then(|model| {
+        if let Some(feature) = model.evaluator.external_input_refusal() {
+            Err(Box::new(dive_model::Failure {
+                error: dive_model::BindError::unsupported(feature),
+                output: model.output,
+            })
+            .into())
+        } else {
+            Ok(model)
+        }
+    });
+    let closed = opts.inputs.as_ref().map(|inputs| inputs.finish_binding());
+    match (bound, closed) {
+        (Ok(model), Some(Err(error))) => Err(Box::new(dive_model::Failure {
+            error: dive_model::BindError::unsupported(error.message),
+            output: model.output,
+        })
+        .into()),
+        (bound, _) => bound,
+    }
 }
 
 #[allow(

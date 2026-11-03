@@ -950,9 +950,24 @@ rejects this map before search; compat mode reproduces the reduced result.
 
 ## D-017: Host access requires explicit grants
 
-**Status:** planned; host-access operators currently refuse by name. `IOEnv`, `IOExec`, `CSVWrite` and serialization operators can read the host or execute effects while a spec runs. For example, Examples `TLC/TestGraphs` reads `IOEnv` at startup and `ewd998/EWD998ChanTrace` reads it in its next-state relation. These dependencies cannot be replayed from the random seed alone.
+**Status:** partial. Ordinary Reference safety checking supports bounded
+source-binding `IOEnv` and successful TXT/UTF-8 `Deserialize` reads, with explicit
+recorded assumptions and independent offline source replay. Auto selects
+Reference before effects. Runtime reads, writes, execution, checkpoint/recovery,
+empty environment records and unproved TLC environment-name ordering refuse.
+For example, Examples `TLC/TestGraphs` reads `IOEnv` at startup and
+`ewd998/EWD998ChanTrace` reads it in its next-state relation; this slice does not
+claim either full corpus model is qualified.
 
-The approved interface is `--allow-io=env,files,exec`, with no categories granted by default. Environment and file access come first; process execution stays deferred. Even `--compat=tlc` requires explicit grants and reports restricted compatibility when relevant operators are refused. Granted access and external inputs are recorded in the run. Evidence: the current named refusals and the 22 host-access assumptions in CommunityModules `AllTests`; no granted-access measurements exist yet.
+The interface is `--allow-io=env,files,exec`, with no categories granted by default
+in either profile. Grants and actual input records appear in the optional
+`external_inputs` report context. `validate-trace --inputs RUN.json` consumes the
+same context without specification I/O. External values remain explicit
+assumptions, not independently authenticated host truth. Native trace versions
+are unchanged. Input bounds and exact supported forms are documented in
+[host inputs](user/modules.md#host-inputs-and-explicit-grants) and ADR 0148.
+Three pinned controls cover admitted counts/words, TXT demand order, and the
+otherwise verdict-changing IOEnv construction-order boundary (#758).
 
 ---
 

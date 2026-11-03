@@ -57,6 +57,13 @@ impl PrintSink for CollectSink {
 /// The shared evaluator state.
 pub(crate) struct Core {
     pub(crate) source_coverage: Option<Arc<crate::SourceCoverage>>,
+    pub(crate) input_refusal: Mutex<Option<String>>,
+    /// Only the first TXT request has a proved native result representation.
+    pub(crate) text_input_used: std::sync::atomic::AtomicBool,
+    /// TLC initializes its static environment before any text-file result.
+    pub(crate) environment_initialized: std::sync::atomic::AtomicBool,
+    /// Names prepared from source before any startup evaluation can create more.
+    pub(crate) input_name_baseline: usize,
     pub(crate) receiver_domain: Option<dive_value::ReceiverDomain>,
     pub(crate) ir: Arc<Ir>,
     pub(crate) opts: Options,
@@ -188,6 +195,10 @@ impl Core {
             .collect();
         Self {
             source_coverage: None,
+            input_refusal: Mutex::new(None),
+            text_input_used: std::sync::atomic::AtomicBool::new(false),
+            environment_initialized: std::sync::atomic::AtomicBool::new(false),
+            input_name_baseline: names.len(),
             receiver_domain: dive_value::ReceiverDomain::new(),
             ir,
             ctx: opts.ctx,

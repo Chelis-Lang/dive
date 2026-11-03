@@ -9,6 +9,9 @@ pub struct CheckOptions {
     /// Opt-in native source-work observation, attached before producer startup.
     /// TLC-equivalent: None; these are not TLC logical cost counters.
     pub source_coverage: Option<std::sync::Arc<dive_eval::SourceCoverage>>,
+    /// Optional owned external inputs for source binding. Runtime reads and
+    /// checkpoint/recovery are not implemented; evaluator grants stay explicit.
+    pub inputs: Option<std::sync::Arc<dyn dive_eval::inputs::InputSource>>,
     /// Opt-in transient fallible disk seen-state retention (ADR 0068).
     /// None preserves the resident reference. Disk runs use an explicitly
     /// reported inline fallback; this is not a total-memory or recovery budget.
@@ -103,6 +106,7 @@ impl CheckOptions {
     pub const fn tlc(fp_index: usize, seed: i64) -> Self {
         Self {
             source_coverage: None,
+            inputs: None,
             seen_disk: None,
             frontier_memory_bytes: None,
             frontier_directory: None,
@@ -134,6 +138,7 @@ impl CheckOptions {
     pub const fn dive(seed: i64) -> Self {
         Self {
             source_coverage: None,
+            inputs: None,
             seen_disk: None,
             frontier_memory_bytes: None,
             frontier_directory: None,
