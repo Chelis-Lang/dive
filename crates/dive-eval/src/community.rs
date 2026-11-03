@@ -1471,8 +1471,10 @@ impl Core {
     fn are_connected_in(&self, op: StdOp, m: &Value, n: &Value, g: &Value) -> Result<Value> {
         let directed = op.module() == "Graphs";
         let (nodes, edges) = self.to_graph(op, "third", g)?;
-        nodes.elements(self.ctx)?;
-        let nodes_set = Value::Set(nodes);
+        let nodes = nodes.elements(self.ctx)?;
+        // nodes(g) returns a SetEnumValue even for an interval input. Preserve
+        // that receiver's membership errors rather than using Interval.member.
+        let nodes_set = Value::set(nodes.to_vec(), self.ctx)?;
         if !self.member(m, &nodes_set)? || !self.member(n, &nodes_set)? {
             return Ok(Value::FALSE);
         }
@@ -1487,8 +1489,8 @@ impl Core {
     fn simple_path(&self, op: StdOp, g: &Value) -> Result<Value> {
         let directed = op.module() == "Graphs";
         let (nodes, edges) = self.to_graph(op, "first", g)?;
-        let nodes_set = Value::Set(nodes.clone());
         let nodes = nodes.elements(self.ctx)?;
+        let nodes_set = Value::set(nodes.to_vec(), self.ctx)?;
         let edges = edges.elements(self.ctx)?;
         let adj = self.adjacency(directed, false, &nodes_set, &edges)?;
         let mut paths = Vec::new();
@@ -1502,11 +1504,11 @@ impl Core {
 
     fn is_strongly_connected(&self, op: StdOp, g: &Value) -> Result<Value> {
         let (nodes, edges) = self.to_graph(op, "first", g)?;
-        let nodes_set = Value::Set(nodes.clone());
         let nodes = nodes.elements(self.ctx)?;
         if nodes.is_empty() {
             return Ok(Value::TRUE);
         }
+        let nodes_set = Value::set(nodes.to_vec(), self.ctx)?;
         let root = &nodes[0];
         let edges = edges.elements(self.ctx)?;
         let adj = self.adjacency(true, false, &nodes_set, &edges)?;
@@ -1519,8 +1521,8 @@ impl Core {
 
     fn connected_components(&self, op: StdOp, g: &Value) -> Result<Value> {
         let (nodes, edges) = self.to_graph(op, "first", g)?;
-        let nodes_set = Value::Set(nodes.clone());
         let nodes = nodes.elements(self.ctx)?;
+        let nodes_set = Value::set(nodes.to_vec(), self.ctx)?;
         let index: HashMap<&Value, usize> = nodes.iter().enumerate().map(|(i, v)| (v, i)).collect();
         let mut parent: Vec<usize> = (0..nodes.len()).collect();
         let edges = edges.elements(self.ctx)?;
