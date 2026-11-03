@@ -21,13 +21,17 @@ use crate::{Error, Handle, TlcClass};
 
 mod bags;
 mod community;
+mod graphs;
 mod higher;
 mod tlc;
 
 /// Whether the core implements `op` here.
 #[must_use]
 pub fn implements(op: StdOp) -> bool {
-    bags::implements(op) || tlc::implements(op) || community::implements(op)
+    bags::implements(op)
+        || tlc::implements(op)
+        || community::implements(op)
+        || graphs::implements(op)
 }
 
 /// Whether a call of `op` has an effect TLC performs once per evaluation
@@ -128,6 +132,9 @@ pub fn call(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle, Error
     }
     if community::implements(op) {
         return community::call(m, op, args);
+    }
+    if graphs::implements(op) {
+        return graphs::call(m, op, args);
     }
     Err(Error::internal(format!(
         "{} is not a core library operator",

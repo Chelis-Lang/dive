@@ -1,0 +1,70 @@
+{
+  "oracle": "tlc-2026.10.06.014338",
+  "seed": 0,
+  "fp": 0,
+  "workers": 1,
+  "jars": {
+    "tla2tools.jar": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "CommunityModules-202610040242.jar": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
+    "CommunityModules-deps-202610040242.jar": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d"
+  },
+  "models": {
+    "GraphsStep": {
+      "physical_exit": 0,
+      "codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2190,
+        2193,
+        2200,
+        2199,
+        2194,
+        2268,
+        2186
+      ],
+      "counts": [
+        3,
+        3
+      ],
+      "depth": 3,
+      "source_sha256": "934e17fe0eb08dd04295aa652c628981bbef236b72c83bf37ffdce8595451f9d",
+      "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d",
+      "stdout_sha256": "6abaf34ae005099ce6a21d708f9c97c83f3bf09c51d2af458c89c5be8a5bdb88"
+    },
+    "GraphViolation": {
+      "physical_exit": 12,
+      "codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2190,
+        2110,
+        2121,
+        2217,
+        2217,
+        2217,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "counts": [
+        3,
+        3
+      ],
+      "depth": 3,
+      "source_sha256": "5d8e87ca571262e6b6373d9d1620897ee0b42f66bea1a03c1d3629c5a095b772",
+      "config_sha256": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+      "stdout_sha256": "60da9b9d92faf716ca57a320dbaf3da89e021860449d7b7bd8158b47d417795d"
+    }
+  }
+}
