@@ -138,6 +138,7 @@ cargo test --workspace --doc --locked
 RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps --locked
 cargo xtask check-layering
 cargo build -p dive-trace --locked --target-dir target/standalone-trace
+scripts/test-rust-consumer.sh                 # independent public API tests, empty PATH
 cargo deny --locked check                       # only when Cargo.lock or deny.toml changed
 ```
 

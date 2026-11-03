@@ -34,6 +34,26 @@ inspect that report's verdict, refusal, completion and validation before asserti
 success. API errors also distinguish rejected inputs, I/O, named unsupported
 requests and internal failures.
 
+The repository includes an independent consumer Cargo project and executable
+`#[test]` examples for ordinary public API workflows:
+
+```sh
+scripts/test-rust-consumer.sh
+```
+
+The script compiles that project with its own locked dependency graph, outside
+the workspace's feature union. It then runs the compiled tests with an empty
+`PATH`, so Java and the `dive` executable cannot satisfy the workflow. It uses
+the checkout's own `target/` and needs Cargo and Python only while preparing the
+test executable. Checking success and independently validated violations, seeded
+constructive samples, DFID completion versus bounds, implementation trace
+acceptance/rejection, translation followed by checking and real safety recovery
+are exercised through public library calls. Both Reference and Core run where
+supported; the tests inspect actual results rather than treating `Ok(report)` as
+a proof. The independent project is in
+`crates/dive-api/tests/fixtures/rust-consumer/`; its tests are examples to adapt
+for a Rust application's own specifications and recorded behaviors.
+
 Low-level callers may supply predicate and action scopes. Scope ownership and
 expression references are checked before backend startup. Parallel graph capture
 and DFID also inspect actual captured callables for printing, randomness, I/O or

@@ -291,6 +291,11 @@ fn workspace_steps(g: &mut Gate, mode: Mode) {
         .arg("--target-dir")
         .arg(g.target.join("standalone-trace"));
     g.run("standalone trace build", trace);
+    let mut consumer = Command::new("bash");
+    consumer
+        .current_dir(&g.root)
+        .arg(g.root.join("scripts/test-rust-consumer.sh"));
+    g.run("external Rust consumer (empty PATH)", consumer);
     if deny_inputs_changed(&g.root) == Some(false) {
         g.skip("cargo-deny", "Cargo.lock and deny.toml unchanged");
     } else {

@@ -131,6 +131,8 @@ jobs:
         run: cargo xtask check-layering
       - name: standalone trace build
         run: cargo build -p dive-trace --locked --target-dir target/standalone-trace
+      - name: external Rust consumer (no Java or CLI on PATH)
+        run: scripts/test-rust-consumer.sh
       - name: cargo-deny
         if: ${{ steps.deny.outputs.run == 'true' }}
         run: cargo deny --locked check
