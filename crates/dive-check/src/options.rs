@@ -6,6 +6,9 @@ use dive_store::StoreMode;
 /// How to run a check.
 #[derive(Clone, Debug)]
 pub struct CheckOptions {
+    /// Opt-in native source-work observation, attached before producer startup.
+    /// TLC-equivalent: None; these are not TLC logical cost counters.
+    pub source_coverage: Option<std::sync::Arc<dive_eval::SourceCoverage>>,
     /// Opt-in transient fallible disk seen-state retention (ADR 0068).
     /// None preserves the resident reference. Disk runs use an explicitly
     /// reported inline fallback; this is not a total-memory or recovery budget.
@@ -99,6 +102,7 @@ impl CheckOptions {
     #[must_use]
     pub const fn tlc(fp_index: usize, seed: i64) -> Self {
         Self {
+            source_coverage: None,
             seen_disk: None,
             frontier_memory_bytes: None,
             frontier_directory: None,
@@ -129,6 +133,7 @@ impl CheckOptions {
     #[must_use]
     pub const fn dive(seed: i64) -> Self {
         Self {
+            source_coverage: None,
             seen_disk: None,
             frontier_memory_bytes: None,
             frontier_directory: None,

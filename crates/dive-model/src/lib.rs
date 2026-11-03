@@ -364,6 +364,43 @@ pub fn bind_with_names_controlled(
     bind_in(ir, cfg, opts, Some(restored), false, Some(control), false)
 }
 
+/// Binds a producer with native source counters attached before startup.
+/// Independent recipe/replay entry points remain unobserved by default.
+///
+/// # Errors
+/// Ordinary binding/context failures, including a foreign collector IR.
+pub fn bind_source_covered(
+    ir: Arc<Ir>,
+    cfg: &ModelConfig,
+    opts: &BindOptions,
+    coverage: Arc<dive_eval::SourceCoverage>,
+) -> Result<Model, Box<Failure>> {
+    bind_in_source_covered(ir, cfg, opts, None, false, None, false, Some(coverage))
+        .map_err(ControlledBindError::legacy)
+}
+/// Binds a source-observed producer with the existing typed run control.
+///
+/// # Errors
+/// The ordinary controlled binding failures and foreign collector association.
+pub fn bind_controlled_source_covered(
+    ir: Arc<Ir>,
+    cfg: &ModelConfig,
+    opts: &BindOptions,
+    control: Arc<dyn dive_eval::HostControl>,
+    coverage: Arc<dive_eval::SourceCoverage>,
+) -> Result<Model, ControlledBindError> {
+    bind_in_source_covered(
+        ir,
+        cfg,
+        opts,
+        None,
+        false,
+        Some(control),
+        false,
+        Some(coverage),
+    )
+}
+
 fn bind_in(
     ir: Arc<Ir>,
     cfg: &ModelConfig,
@@ -372,6 +409,32 @@ fn bind_in(
     predicates_only: bool,
     control: Option<Arc<dyn dive_eval::HostControl>>,
     fallible_errors: bool,
+) -> Result<Model, ControlledBindError> {
+    bind_in_source_covered(
+        ir,
+        cfg,
+        opts,
+        restored,
+        predicates_only,
+        control,
+        fallible_errors,
+        None,
+    )
+}
+
+#[allow(
+    clippy::too_many_arguments,
+    reason = "existing binder ownership inputs plus opt-in source observation; replay wrappers retain None"
+)]
+fn bind_in_source_covered(
+    ir: Arc<Ir>,
+    cfg: &ModelConfig,
+    opts: &BindOptions,
+    restored: Option<&[String]>,
+    predicates_only: bool,
+    control: Option<Arc<dyn dive_eval::HostControl>>,
+    fallible_errors: bool,
+    coverage: Option<Arc<dive_eval::SourceCoverage>>,
 ) -> Result<Model, ControlledBindError> {
     dive_eval::validate_ir(&ir).map_err(|error| {
         Box::new(Failure {
@@ -450,6 +513,7 @@ fn bind_in(
     };
     let mut b = bind::Binder::new(ir, cfg, opts, names, control, fallible_errors)
         .map_err(|error| error.with_output(Vec::new()))?;
+    b.source_coverage = coverage;
     let result = run(&mut b, predicates_only);
     b.drain_prints();
     match result {

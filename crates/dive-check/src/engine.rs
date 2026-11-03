@@ -459,6 +459,7 @@ pub(crate) fn resumes(v: &Verdict) -> bool {
 
 /// The name an action is reported under.
 pub(crate) fn action_name(ev: &Evaluator, a: &Action) -> Option<String> {
+    let _source_coverage = ev.pause_source_coverage();
     match a.name() {
         ActionName::Def(d) => Some(ev.ir().def(d).name.clone()),
         ActionName::Std(op) => Some(op.name().to_owned()),
@@ -559,6 +560,7 @@ pub(crate) fn initial_value_method_replay(
     state: &[Option<Value>],
     initial_context: Option<(u64, &crate::budget::EvaluationControl)>,
 ) -> Option<EvalError> {
+    let _source_coverage = m.evaluator.pause_source_coverage();
     let Verdict::EvaluationError {
         site: ErrorSite::Invariant,
         cause,
@@ -646,6 +648,7 @@ fn initial_generation_value_method_replay(
     cause: &EvalError,
     emitted: u64,
 ) -> Option<EvalError> {
+    let _source_coverage = m.evaluator.pause_source_coverage();
     cause.value_method()?;
     if emitted != 0 {
         return None;
@@ -668,6 +671,7 @@ fn initial_generation_value_method_replay(
 /// in TLC's variable order (`x = v` for a single variable), `null` for an
 /// unassigned one.
 pub(crate) fn state_text(m: &Model, s: &[Option<Value>], ctx: Ctx) -> String {
+    let _source_coverage = m.evaluator.pause_source_coverage();
     let order = m.ir.tlc_var_order();
     let single = order.len() == 1;
     let mut out = String::new();
@@ -1872,6 +1876,7 @@ impl<S: Keyed> Search<'_, '_, S> {
         level: u64,
         unseen: &BTreeSet<S::Key>,
     ) -> Replayed {
+        let _source_coverage = self.m.evaluator.pause_source_coverage();
         // Diagnostic reconstruction follows an already deciding genuine event.
         // It must retain that event's class/count semantics if the budget trips.
         // This pause affects only this thread; worker control remains active.
@@ -2020,6 +2025,7 @@ impl<S: Keyed> Search<'_, '_, S> {
         level: u64,
         original: &Verdict,
     ) -> Replayed {
+        let _source_coverage = self.m.evaluator.pause_source_coverage();
         // As above, this is diagnostic replay of an existing deciding error,
         // never ordinary search or independent candidate certification.
         let _diagnostic = match self.m.evaluator.host_control(None) {
@@ -2217,6 +2223,7 @@ impl<S: Keyed> Search<'_, '_, S> {
 
     /// Rebuilds the path to state `id` by replay (ADR 0015 §4).
     fn replay(&self, id: StateId) -> Result<Vec<TraceState>, String> {
+        let _source_coverage = self.m.evaluator.pause_source_coverage();
         // This only reconstructs a path after search selected its deciding
         // event and joined every worker phase. Preserve that event if the
         // budget trips while regenerating its predecessors. This thread-owned
@@ -2286,6 +2293,7 @@ impl<S: Keyed> Search<'_, '_, S> {
 
     /// The counterexample of a stop.
     fn counterexample(&self, stop: &Stop) -> Result<Option<Counterexample>, String> {
+        let _source_coverage = self.m.evaluator.pause_source_coverage();
         let mut states = Vec::new();
         if let Some((id, held)) = &stop.path {
             states = self.replay(*id)?;
@@ -2406,6 +2414,14 @@ pub(crate) fn plan_workers(m: &Model, opts: &CheckOptions) -> Workers {
             used: 1,
             sequential: true,
             reason: Some(reason),
+        };
+    }
+    if opts.source_coverage.is_some() {
+        return Workers {
+            requested,
+            used: 1,
+            sequential: true,
+            reason: Some("native source coverage uses one Reference worker".to_owned()),
         };
     }
     if opts.sequential {

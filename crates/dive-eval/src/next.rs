@@ -803,6 +803,11 @@ impl Gen<'_, '_, '_> {
     }
 
     fn emit(&mut self) -> Flow {
+        if let Some(coverage) = &self.core.source_coverage
+            && !self.diagnostic
+        {
+            coverage.record(self.action.expr, if self.init { 3 } else { 4 });
+        }
         let succ = Successor {
             state: &self.s1,
             action: self.action,
@@ -958,6 +963,11 @@ impl Gen<'_, '_, '_> {
     }
 
     fn step_inner(&mut self, e: ExprId, acts: &Acts, env: &Env) -> Result<Flow> {
+        if let Some(coverage) = &self.core.source_coverage
+            && !self.diagnostic
+        {
+            coverage.record(e, if self.init { 1 } else { 2 });
+        }
         let core = self.core;
         let _g = core.enter(e)?;
         let node = core.ir.node(e);

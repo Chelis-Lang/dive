@@ -5,6 +5,59 @@ dive check docs/user/examples/Counter.tla --seed 7 --workers auto --output json
 dive check docs/user/examples/Counter.tla --compat=tlc --seed 7 --fp 0 --workers 8 --store exact --output json
 ```
 
+## Native source work
+
+```sh
+dive check docs/user/examples/Counter.tla --source-coverage --seed 7 --output json
+dive check docs/user/examples/Counter.tla --source-coverage --compat=tlc --engine auto --workers 4 --seed 7 --fp 0
+```
+
+This option reports actual producer expression evaluations, Init/Next walker
+visits and generator emissions at original source locations. The example succeeds
+with five distinct states; Auto selects a whole Reference run before execution,
+with one actual worker even when more were requested. The default is off, which
+is the TLC-equivalent setting. Both semantic profiles can request these native
+metrics explicitly; they are **not TLC's logical coverage costs**. Pinned TLC
+`-coverage` remains a named refusal until its action-context cost tree is proved.
+
+JSON adds `source_coverage` with `metric: "native-source-work"`, exact file/module,
+UTF-8 byte ranges and JavaCC line/column positions, static instance-definition
+names and five named counters per source row. End byte offsets are exclusive;
+end columns are inclusive and follow UTF-16/tab expansion. Rows with zero work remain available; embedded
+standard-module rows are excluded and synthetic origins are separate. Human
+output shows the visited source rows. Native counts can change with evaluation
+and caching strategies, independently of model semantics.
+
+The context is explicitly `static-ir-origin`: nested callers that reach the same
+original instantiated definition share its row. For example, outer `A` and `B`
+instances can both contribute to one inner `I!Double` source row. These rows do
+not reconstruct a dynamic calling tree or TLC's action-context costs.
+
+Observation begins before producer constant/ASSUME evaluation and includes the
+actual safety producer's Init, Next and property checks. It stops at checker
+return: independent witness/diagnostic replay and report presentation cannot
+inflate the rows. A failure or budget stop reports the actual producer prefix,
+with its original verdict/completion information. Generator emissions include
+candidates later rejected by constraints or already seen; they are not a count of
+distinct states or committed discoveries. Counters never supply a model proof.
+Saturation sets `overflowed: true` instead of wrapping into smaller counts.
+
+Rust callers set `CheckRequest.source_coverage = true` and use the existing
+checking functions; `CheckReport::source_coverage()` returns a typed snapshot.
+Low-level callers can create a `dive_eval::SourceCoverage`
+for their exact `Arc<Ir>` and use the observed evaluator/binding entry points;
+ordinary constructors and fresh replay recipes stay unobserved. Snapshotting
+counts does not execute a specification. The file API returns stopped collection;
+a manually shared live collector's snapshot is not coherent across concurrent
+entries.
+
+The first file route supports ordinary Reference safety BFS. Explicit Core,
+explicit temporal mode, checkpoint/recovery and core-sample combinations refuse.
+Genuine temporal properties still refuse rather than passing as safety. Models
+containing `ENABLED` currently refuse this option because its compiled query body
+has no source map; unobserved checking retains its existing support. Core source
+maps, TLC logical costs and source debugging remain work in progress.
+
 Invariant expressions that use `ENABLED` through an `INSTANCE` retain the
 query context inside native callbacks such as `SelectSeq`. A callback that reads
 a primed variable observes the query's candidate assignment, including when an
