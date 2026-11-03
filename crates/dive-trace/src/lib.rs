@@ -71,6 +71,7 @@
 #![forbid(unsafe_code)]
 
 mod candidate_error;
+mod choices;
 pub mod enabled;
 mod endpoint;
 pub mod format;

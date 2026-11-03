@@ -1,5 +1,6 @@
 //! Runtime effect and retained-output limits for ordinary simulation.
 
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, PoisonError};
 
 use dive_eval::{Host, HostError};
@@ -16,13 +17,12 @@ pub(crate) struct SimulationHost {
     output: Mutex<Output>,
     denied: Mutex<Option<String>>,
     random: RunHost,
-    init_random: Mutex<InitRandom>,
+    ownership: Mutex<Ownership>,
+    binding: AtomicBool,
 }
 
 #[derive(Debug, Default)]
-struct InitRandom {
-    active: bool,
-    calls: usize,
+struct Ownership {
     caller_host: bool,
 }
 
@@ -41,8 +41,13 @@ impl SimulationHost {
             output: Mutex::new(Output::default()),
             denied: Mutex::new(None),
             random: RunHost::new(Streams::new(options.seed, options.mode), None),
-            init_random: Mutex::new(InitRandom::default()),
+            ownership: Mutex::new(Ownership::default()),
+            binding: AtomicBool::new(false),
         })
+    }
+
+    pub(crate) fn binding(&self, active: bool) {
+        self.binding.store(active, Ordering::Relaxed);
     }
 
     pub(crate) fn remaining_output(&self) -> (usize, usize) {
@@ -53,14 +58,8 @@ impl SimulationHost {
         )
     }
 
-    pub(crate) fn initial(&self) -> Initial<'_> {
-        let mut phase = self
-            .init_random
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner);
-        phase.active = true;
-        phase.calls = 0;
-        Initial { host: self }
+    pub(crate) fn set_config(&self, config: Option<dive_eval::RunConfig>) {
+        self.random.set_config(config);
     }
 
     pub(crate) fn denied(&self) -> Option<String> {
@@ -87,25 +86,27 @@ impl SimulationHost {
 }
 
 impl Host for SimulationHost {
+    fn check_random_in_enabled(&self) -> Result<(), HostError> {
+        Err(self.refuse(
+            "RandomElement/Randomization inside ENABLED is unsupported in simulation".into(),
+        ))
+    }
+
     fn check_native_access(&self, op: StdOp) -> Result<(), HostError> {
         if op == StdOp::TlcRandomElement {
             let phase = self
-                .init_random
+                .ownership
                 .lock()
                 .unwrap_or_else(PoisonError::into_inner);
-            if phase.active {
-                if phase.caller_host {
-                    return Err(self.refuse(
-                        "simulation Init RandomElement cannot preserve a caller-provided startup stream"
-                            .to_owned(),
-                    ));
-                }
-                // Arguments still run normally. Only the actual native invocation
-                // below consumes the allowance, including nested domain calls.
-                return Ok(());
+            if phase.caller_host {
+                return Err(self.refuse(
+                    "simulation RandomElement cannot preserve a caller-provided startup stream"
+                        .to_owned(),
+                ));
             }
+            return Ok(());
         }
-        if op.impure() && !matches!(op, StdOp::TlcPrint | StdOp::TlcPrintT) {
+        if op.impure() && !matches!(op, StdOp::TlcPrint | StdOp::TlcPrintT | StdOp::TlcTLCGet) {
             return Err(self.refuse(format!(
                 "{}: simulation runtime effect is unsupported",
                 op.qualified_name()
@@ -118,22 +119,16 @@ impl Host for SimulationHost {
         if op != StdOp::TlcRandomElement {
             return None;
         }
-        let mut phase = self
-            .init_random
+        let phase = self
+            .ownership
             .lock()
             .unwrap_or_else(PoisonError::into_inner);
         if phase.caller_host {
             return Some(Err(self.refuse(
-                "simulation Init RandomElement cannot preserve a caller-provided startup stream"
+                "simulation RandomElement cannot preserve a caller-provided startup stream"
                     .to_owned(),
             )));
         }
-        if !phase.active || phase.calls != 0 {
-            return Some(Err(self.refuse(
-                "simulation supports only one actual RandomElement call during Init".to_owned(),
-            )));
-        }
-        phase.calls += 1;
         drop(phase);
         self.random.random(op, args, ctx)
     }
@@ -143,13 +138,25 @@ impl Host for SimulationHost {
     }
 
     fn check_tlc_access(&self, key: &str, write: bool) -> Result<(), HostError> {
+        if !write && key == "config" {
+            return Ok(());
+        }
         Err(self.refuse(format!(
             "TLC{}({key:?}): simulation host access is unsupported",
             if write { "Set" } else { "Get" }
         )))
     }
 
+    fn config(&self) -> Option<dive_eval::RunConfig> {
+        self.random.config()
+    }
+
     fn print_output(&self, text: &str) -> Result<bool, HostError> {
+        // Existing runtime-output allowances exclude source-binding output.
+        // Owning startup must not silently narrow those public limits.
+        if self.binding.load(Ordering::Relaxed) {
+            return Ok(true);
+        }
         let mut output = self.output.lock().unwrap_or_else(PoisonError::into_inner);
         let bytes = output.bytes.checked_add(text.len());
         let reason = if output.events >= self.max_events {
@@ -172,20 +179,6 @@ impl Host for SimulationHost {
     }
 }
 
-pub(crate) struct Initial<'a> {
-    host: &'a SimulationHost,
-}
-
-impl Drop for Initial<'_> {
-    fn drop(&mut self) {
-        self.host
-            .init_random
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner)
-            .active = false;
-    }
-}
-
 pub(crate) struct HostRestore<'a> {
     evaluator: &'a dive_eval::Evaluator,
     previous: Option<Arc<dyn Host>>,
@@ -194,10 +187,13 @@ pub(crate) struct HostRestore<'a> {
 impl<'a> HostRestore<'a> {
     pub(crate) fn install(evaluator: &'a dive_eval::Evaluator, host: &Arc<SimulationHost>) -> Self {
         let previous = evaluator.replace_host(Some(host.clone()));
-        host.init_random
+        host.ownership
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
-            .caller_host = previous.is_some();
+            .caller_host = previous.as_ref().is_some_and(|previous| {
+            let owned: Arc<dyn Host> = host.clone();
+            !Arc::ptr_eq(previous, &owned)
+        });
         Self {
             evaluator,
             previous,

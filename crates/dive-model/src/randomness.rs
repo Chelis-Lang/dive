@@ -26,6 +26,14 @@ pub fn transformed_randomness(ir: &Ir, cfg: &ModelConfig) -> Option<&'static str
     if cfg.view.is_none() && cfg.symmetry.is_none() {
         return None;
     }
+    source_randomness(ir, cfg).then_some(if cfg.view.is_some() {
+        "randomness under VIEW is not supported"
+    } else {
+        "randomness under SYMMETRY is not supported"
+    })
+}
+
+pub(crate) fn source_randomness(ir: &Ir, cfg: &ModelConfig) -> bool {
     let source = ir.nodes().iter().any(|node| {
         node.expr.op_refs().into_iter().any(|op| match op {
             OpRef::Std(op) => random(*op),
@@ -51,9 +59,5 @@ pub fn transformed_randomness(ir: &Ir, cfg: &ModelConfig) -> Option<&'static str
             def.source.is_none() && def.name == target.text && def.std.is_some_and(random)
         })
     });
-    (source || configured).then_some(if cfg.view.is_some() {
-        "randomness under VIEW is not supported"
-    } else {
-        "randomness under SYMMETRY is not supported"
-    })
+    source || configured
 }

@@ -380,12 +380,13 @@ impl Native {
         &mut self,
         model: &Model,
         options: &dive_sim::Options,
+        runtime: &dive_sim::Runtime,
         poll: &dyn Fn() -> bool,
     ) -> Report {
         if let Some(outcome) = dive_sim::preflight(model, options) {
             return preflight_report(outcome);
         }
-        dive_sim::simulate_with_backend(model, options, |remaining| {
+        runtime.simulate_with_backend(model, |remaining| {
             let mut report = self.sample(model, options, poll, remaining);
             report.runtime_output.extend(
                 std::mem::take(&mut self.machine.printed)
@@ -771,13 +772,23 @@ mod tests {
             options.generation = true;
             options.max_candidates = 1;
             let mut native = prepare(source.model())?;
-            let report = native.simulate(source.model(), &options, &|| false);
+            let report = native.simulate(
+                source.model(),
+                &options,
+                &dive_sim::Runtime::new(options.clone()),
+                &|| false,
+            );
             assert!(matches!(report.outcome, Outcome::Sampled), "{report:?}");
             assert_eq!(report.generated, 13);
             assert_eq!(report.traces.len(), 3);
             options.max_generated = 3;
             let mut native = prepare(source.model())?;
-            let stopped = native.simulate(source.model(), &options, &|| false);
+            let stopped = native.simulate(
+                source.model(),
+                &options,
+                &dive_sim::Runtime::new(options.clone()),
+                &|| false,
+            );
             assert!(matches!(stopped.outcome, Outcome::Limit(_)), "{stopped:?}");
             assert_eq!(stopped.generated, 3);
         }
@@ -834,8 +845,12 @@ mod tests {
             let mut options =
                 dive_sim::Options::new(7, dive_stdlib::random::RandomMode::Dive, 2, 1);
             options.max_output_events = events;
-            let native =
-                prepare(native_model.model())?.simulate(native_model.model(), &options, &|| false);
+            let native = prepare(native_model.model())?.simulate(
+                native_model.model(),
+                &options,
+                &dive_sim::Runtime::new(options.clone()),
+                &|| false,
+            );
             let reference = dive_sim::simulate(reference_model.model(), &options);
             assert!(matches!(native.outcome, Outcome::Limit(_)));
             assert!(matches!(reference.outcome, Outcome::Limit(_)));
@@ -854,7 +869,12 @@ mod tests {
         )?;
         let mut options = dive_sim::Options::new(7, dive_stdlib::random::RandomMode::Dive, 1, 1);
         options.max_output_events = 0;
-        let result = prepare(source.model())?.simulate(source.model(), &options, &|| false);
+        let result = prepare(source.model())?.simulate(
+            source.model(),
+            &options,
+            &dive_sim::Runtime::new(options.clone()),
+            &|| false,
+        );
         assert!(matches!(result.outcome, Outcome::Error { code: 1000, .. }));
         assert_eq!(
             result.runtime_output,
@@ -871,7 +891,12 @@ mod tests {
         )?;
         let mut options = dive_sim::Options::new(7, dive_stdlib::random::RandomMode::Dive, 1, 1);
         options.max_retained = 0;
-        let result = prepare(source.model())?.simulate(source.model(), &options, &|| false);
+        let result = prepare(source.model())?.simulate(
+            source.model(),
+            &options,
+            &dive_sim::Runtime::new(options.clone()),
+            &|| false,
+        );
         assert!(matches!(result.outcome, Outcome::Limit(_)));
         assert_eq!(result.traces.len(), 0);
         assert_eq!(

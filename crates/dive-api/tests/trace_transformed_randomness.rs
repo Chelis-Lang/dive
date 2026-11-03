@@ -97,6 +97,17 @@ fn all_source_and_config_routes_refuse_before_startup_callbacks() {
                 );
                 assert_eq!(failure.output, [] as [dive_model::Message; 0]);
                 assert_eq!(calls.0.load(Ordering::Relaxed), 0);
+                let failure = recipe
+                    .bind_next_fallible(calls.clone(), None)
+                    .expect_err("ordered action reconstruction keeps admission policy");
+                assert!(matches!(
+                    failure,
+                    dive_model::ControlledBindError::Binding(ref failure)
+                        if matches!(&failure.error.kind,
+                            dive_model::ErrorKind::Unsupported { feature: f } if f == feature)
+                            && failure.output.is_empty()
+                ));
+                assert_eq!(calls.0.load(Ordering::Relaxed), 0);
 
                 let doc = TraceDoc::behavior(vec![json!({"x":0})]).expect("document");
                 let (report, transport) = dive_trace::Session::new(recipe, None).read(&doc);
