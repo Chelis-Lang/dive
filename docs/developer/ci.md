@@ -8,7 +8,10 @@ protect-main`:
   or PR commits.
 - **Workspace gate**: one job and one compile. It runs rustfmt, clippy, the
   nextest `ci` profile, doctests, rustdoc with `-D warnings`, the layering
-  check and an isolated `dive-trace` build. `cargo deny` runs only when the
+  check, an isolated `dive-trace` build and the independent public-API Rust
+  consumer with no Java/CLI on `PATH`. The consumer is outside the workspace
+  feature union and compiles from its own lockfile; CI runs the same
+  `scripts/test-rust-consumer.sh` as the local gate. `cargo deny` runs only when the
   PR changes `Cargo.lock` or `deny.toml` (a step condition, so the required
   check always reports), and on every push to `main`.
 - **Conformance gate**: release builds of the harness and `dive`, then

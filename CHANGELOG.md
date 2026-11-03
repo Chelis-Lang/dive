@@ -68,6 +68,11 @@
   (exit 5) in both profiles. Preflight errors keep their original disposition;
   exhausted runs skip unprocessed retained traces.
 
+- Exercise ordinary public Rust API workflows from an independent locked Cargo
+  consumer, including validated violations/samples, DFID completion, translation,
+  implementation traces and actual checkpoint recovery. CI and local gates run
+  the consumer tests with an empty PATH, without Java or the dive executable.
+
 - Build the independent trace validator alone in a dedicated target in both
   local gate modes and CI, keeping workspace feature unification from masking
   a standalone dependency or compilation failure.
