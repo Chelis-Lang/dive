@@ -10,6 +10,9 @@
   including state-dependent reachability, connected components and simple paths.
   Preserve checked membership, finite-domain refusals, path demand and ordinary
   independent counterexample validation in both compatibility profiles.
+  Normalize graph edges only when adjacency is actually demanded, allowing
+  self-connectivity and empty strong-connectivity checks to avoid irrelevant
+  comparisons. Keep demanded errors and argument-diagnostic normalization.
 
 - Add explicit Core safety candidate payload spill with per-worker encoded
   occurrence/DAG budgets and ordered consumption. Preserve constructor history,

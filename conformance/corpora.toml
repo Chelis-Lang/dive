@@ -317,3 +317,10 @@ id = "constructive-generation"
 path = "conformance/corpus/constructive-generation"
 license = "MIT"
 layout = "examples-manifest"
+
+# Graph field validation versus actual normalization demand (issue #756).
+[[corpus]]
+id = "graph-demand"
+path = "conformance/corpus/graph-demand"
+license = "MIT"
+layout = "examples-manifest"

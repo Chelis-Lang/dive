@@ -23,7 +23,16 @@ pub(super) fn implements(op: StdOp) -> bool {
 struct Graph {
     set: Handle,
     nodes: Vec<Handle>,
-    edges: Vec<Handle>,
+    edges: Handle,
+}
+
+/// `toSetEnum` leaves explicit collections raw; only the later elements demand
+/// may normalize them. Non-explicit conversions retain their existing guards.
+fn set_conversion(m: &mut Machine, op: StdOp, value: Handle) -> Result<bool, Error> {
+    if value.is_compound() && matches!(m.heap.view(value).kind, Kind::Set | Kind::SetEnum) {
+        return Ok(true);
+    }
+    Ok(enumerable(m, op, value)?.is_some())
 }
 
 pub(super) fn call(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle, Error> {
@@ -78,15 +87,21 @@ fn graph(m: &mut Machine, op: StdOp, position: &str, value: Handle) -> Result<Gr
     let Some(nodes) = nodes else {
         return Err(bad("record whose node field is a set"));
     };
-    let Some(mut nodes) = enumerable(m, op, nodes)? else {
+    if !set_conversion(m, op, nodes)? {
         return Err(bad("record whose node field is a set"));
-    };
+    }
     let Some(edges) = edges else {
+        // The argument diagnostic prints the graph. Preserve the existing
+        // checked node normalization/refusal on that actual error path.
+        enumerable(m, op, nodes)?;
         return Err(bad("record whose edge field is a set"));
     };
-    let Some(edges) = enumerable(m, op, edges)? else {
+    if !set_conversion(m, op, edges)? {
+        enumerable(m, op, nodes)?;
         return Err(bad("record whose edge field is a set"));
-    };
+    }
+    let mut nodes = enumerable(m, op, nodes)?
+        .ok_or_else(|| Error::internal("a validated graph node set changed kind"))?;
     let set = m.heap.set_from(&mut nodes);
     Ok(Graph { set, nodes, edges })
 }
@@ -130,7 +145,9 @@ fn adjacency(
 ) -> Result<Vec<Vec<usize>>, Error> {
     m.charge(graph.nodes.len())?;
     let mut arcs = vec![Vec::new(); graph.nodes.len()];
-    for &edge in &graph.edges {
+    let edges = enumerable(m, op, graph.edges)?
+        .ok_or_else(|| Error::internal("a validated graph edge set changed kind"))?;
+    for edge in edges {
         m.charge(1)?;
         let Some((from, to)) = endpoints(m, op, edge)? else {
             continue;
