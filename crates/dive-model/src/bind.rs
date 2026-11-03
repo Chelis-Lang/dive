@@ -78,6 +78,7 @@ enum CfgConst<'a> {
 
 /// The binder's state.
 pub(crate) struct Binder<'a> {
+    pub(crate) source_coverage: Option<Arc<dive_eval::SourceCoverage>>,
     pub(crate) control: Option<Arc<dyn dive_eval::HostControl>>,
     pub(crate) t: Tables,
     pub(crate) cfg: &'a ModelConfig,
@@ -119,6 +120,7 @@ impl<'a> Binder<'a> {
         let mut tables = Tables::new(ir)?;
         tables.fallible_errors = fallible_errors;
         Ok(Self {
+            source_coverage: None,
             control,
             t: tables,
             cfg,
@@ -597,8 +599,12 @@ impl<'a> Binder<'a> {
             }
         }
         // Construction returns ContextError, not an intrinsic EvalError.
-        let ev = Evaluator::new(model, self.opts.eval)
-            .map_err(|e| BindError::unsupported(e.to_string()))?;
+        let ev = if let Some(coverage) = &self.source_coverage {
+            Evaluator::new_source_covered(model, self.opts.eval, coverage.clone())
+        } else {
+            Evaluator::new(model, self.opts.eval)
+        }
+        .map_err(|e| BindError::unsupported(e.to_string()))?;
         if let Some(h) = &self.opts.host {
             ev.set_host(h.clone());
         }

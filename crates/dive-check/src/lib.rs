@@ -481,7 +481,24 @@ fn bind_for_run_controlled(
         no_deadlock: opts.no_deadlock,
         host: Some(Arc::new(host::EngineHost::new(host.clone()))),
     };
-    let bound = if let Some(names) = restored_names {
+    let bound = if let Some(coverage) = &opts.source_coverage {
+        if restored_names.is_some() {
+            return Err(Box::new(dive_model::Failure {
+                error: dive_model::BindError::unsupported(
+                    "source coverage with recovery is not implemented",
+                ),
+                output: Vec::new(),
+            })
+            .into());
+        }
+        dive_model::bind_controlled_source_covered(
+            ir.clone(),
+            cfg,
+            &bind_opts,
+            control,
+            coverage.clone(),
+        )
+    } else if let Some(names) = restored_names {
         dive_model::bind_with_names_controlled(ir.clone(), cfg, &bind_opts, names, control)
     } else {
         dive_model::bind_controlled(ir.clone(), cfg, &bind_opts, control)
@@ -502,7 +519,17 @@ fn bind_for_run(
         no_deadlock: opts.no_deadlock,
         host: Some(Arc::new(host::EngineHost::new(host.clone()))),
     };
-    let bound = if let Some(names) = restored_names {
+    let bound = if let Some(coverage) = &opts.source_coverage {
+        if restored_names.is_some() {
+            return Err(Box::new(dive_model::Failure {
+                error: dive_model::BindError::unsupported(
+                    "source coverage with recovery is not implemented",
+                ),
+                output: Vec::new(),
+            }));
+        }
+        dive_model::bind_source_covered(ir.clone(), cfg, &bind_opts, coverage.clone())
+    } else if let Some(names) = restored_names {
         dive_model::bind_with_names(ir.clone(), cfg, &bind_opts, names)
     } else {
         dive_model::bind(ir.clone(), cfg, &bind_opts)

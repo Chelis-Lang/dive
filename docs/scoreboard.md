@@ -975,3 +975,13 @@ implementation traces, translation followed by checking, and native safety
 checkpoint recovery. This closes the standalone test-integration exercise, not
 all public mode/API combinations. The required workspace gate and both local
 gate modes run `scripts/test-rust-consumer.sh`.
+
+Native `--source-coverage` now reports actual producer expression/generator work
+at exact IR source locations through ordinary Reference safety checking. Auto
+selects that whole route before work; one actual worker is reported. Startup,
+Init/Next and safety-property work stay separate from independent replay and
+presentation. Both semantic profiles can explicitly request labelled native
+metrics; these are not TLC logical costs or actual-Core coverage credit.
+Explicit Core, temporal/checkpoint combinations and models containing compiled
+ENABLED queries retain named refusals. This working observation slice does not
+close TLC coverage, Core source maps, DAP or the coverage/debugger family.

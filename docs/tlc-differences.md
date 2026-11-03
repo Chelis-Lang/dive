@@ -449,11 +449,24 @@ See `docs/native-checkpoint.md` and the source/raw control study at
 
 ## D-008: Results are data, and diagnostics are built for people and agents
 
+Explicit `dive check --source-coverage` reports native expression entries and
+Init/Next generator work at original source positions. It defaults to off, its
+TLC-equivalent setting. Either profile can request these labelled native metrics
+for ordinary Reference safety checking; Auto selects Reference before execution.
+They count actual producer work, including a failing demand or stopped prefix,
+and exclude diagnostic reconstruction and independent trace replay. They are
+separate from completion or witness proof and do not implement TLC's logical
+action-context costs: pinned `-coverage` remains refused. Core, ENABLED,
+temporal, checkpoint/recovery and core-sample combinations are not implemented
+in this first route. See [native source work](user/checking.md#native-source-work).
+
 D-008 PlusCal original AST data: `dive translate --ast` returns an earlier-stage
 `AST.tla` representation in memory. Exit0 and `artifact_available: true` mean bytes
 are available; `accepted` and `generated_module_accepted` stay false. Both profiles
-use this explicit native operation. It does not replace pinned `-writeAST`, whose
-filesystem side effects remain unsupported. Bounded simple debug/header shapes
+use this explicit native operation. Explicit `translate --write` publishes an
+admitted generated module, and pinned `-writeAST` writes the original AST and
+exits 255; see the current PlusCal guide for their filesystem contracts.
+Bounded simple debug/header shapes
 match retained primary CRCs, including measured compounds and macro substitutions.
 Modern original procedure/macro ownership is measured before generation; generated
 debug labelled-compound and measured flat procedural headers now match exact CRC
