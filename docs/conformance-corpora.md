@@ -839,3 +839,39 @@ Seven additional context-only streams were deliberately not written as goldens
 by the official generator and live as negative API fixtures. All primary results
 were generated with recorded reasons; no context message was promoted into an
 oracle fact. These selected controls do not refresh historical totals.
+
+## Graph override demand
+
+The separate `graph-demand` corpus records seven classified models and twelve
+accepted SANY modules for #756. Pinned `AreConnectedIn` validates graph fields
+and normalizes nodes before its membership/self short circuits, but does not
+normalize unused edges. `IsStronglyConnected` similarly skips edges for an empty
+node set. These early results can succeed with incomparable edge elements;
+`SimplePath` still demands adjacency on an empty node set. Invalid-argument
+formatting can itself demand a graph's raw values and fail before its intended
+argument diagnostic.
+
+The five successes and two independently replayable invariant violations have
+generated/distinct/depth 3/3/3, with exits 0 and 12. Five context-only initial-error
+streams were refused by the official golden generator and remain negative
+configurations with no model golden or agreement credit. `DemandedEdges`,
+`DemandedEndpoint`, `FieldPriority` and `SimpleEmpty` retain outer 2102/2103;
+`SelfEdgeType` retains 1000/2103. All five physically exit 75. The complete
+attempted selection is retained externally. The source/configuration controls
+live in `conformance/corpus/graph-demand/specifications`; negative configurations
+have `models: []` and are consumed directly by API tests. No historical census
+or established corpus identity is refreshed by these cases.
+
+The [compact correctness record](../conformance/reports/2026-11-03-graph-demand.json)
+binds the frozen source/artifacts, both-engine/profile harness panels and the
+verified external raw archive. It retains the earlier corpus-identity, stale
+validator and converted-node receiver failures separately from passing results.
+
+Regenerate the classified controls with the pinned harness, retaining raw runs
+outside the repository when requested:
+
+```sh
+target/debug/dive-conformance golden generate --corpus graph-demand --tier all \
+  --workers 1 --jobs 2 --timeout 30 --xmx 512m \
+  --reason 'Refresh graph demand controls against the pinned oracle'
+```

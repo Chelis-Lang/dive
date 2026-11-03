@@ -966,6 +966,15 @@ census or milestone acceptance (`docs/developer/core/03-value-model.md` §12).
 | Complete corpus, harness and release certification | partial |
 | Global TLC profile and approved better defaults | partial |
 
+The separate `graph-demand` controls repair #756's eager graph-edge normalization
+in Reference and Core. Seven generated pinned models (five successes and two
+independently validated `Inv` violations) agree on actual state-dependent results
+in both profiles; twelve modules have generated SANY acceptance references.
+Five context-only demanded-error configurations remain negative controls without
+model goldens or agreement credit. The graph comparison/construction guards and
+diagnostic normalization demand remain in force. Established populations,
+historical performance evidence and the mandatory family inventory are unchanged.
+
 
 Public Rust workflows are also exercised by a separate locked Cargo consumer in
 `crates/dive-api/tests/fixtures/rust-consumer/`, compiled outside the workspace
