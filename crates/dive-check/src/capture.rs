@@ -1145,6 +1145,16 @@ fn context_stop(model: &Model, opts: &CheckOptions) -> Option<Exploration> {
             verdict, opts, &model.ir,
         ))));
     }
+    if opts.candidate_memory_bytes.is_some() || opts.candidate_directory.is_some() {
+        return Some(stopped(
+            Verdict::Unsupported {
+                feature: "candidate spill with behavior graph/source capture is not implemented"
+                    .into(),
+            },
+            model,
+            opts,
+        ));
+    }
     if opts.seen_disk.is_some() {
         return Some(stopped(Verdict::Unsupported { feature: "disk seen-state retention with behavior graph/source capture is not implemented".into() }, model, opts));
     }
@@ -1168,6 +1178,9 @@ pub fn runtime_names_only(model: &Model) -> bool {
 /// so that it refuses exactly what capture refuses.
 #[must_use]
 pub fn refusal(model: &Model, opts: &CheckOptions, parallel: bool) -> Option<String> {
+    if opts.candidate_memory_bytes.is_some() || opts.candidate_directory.is_some() {
+        return Some("candidate spill with behavior graph capture is not implemented".into());
+    }
     if opts.frontier_memory_bytes.is_some() {
         return Some("frontier spill with behavior graph capture is not yet certified".into());
     }

@@ -147,6 +147,12 @@ pub struct CheckRequest {
     /// Parent directory for private transient frontier spill files. Requires
     /// [`Self::frontier_memory_bytes`]; a directory alone is rejected.
     pub frontier_directory: Option<PathBuf>,
+    /// Encoded candidate bytes per worker for explicit Core pure safety BFS.
+    /// Zero forces disk. This excludes active evaluator roots, codec scratch,
+    /// accepted Store values and whole-process memory.
+    pub candidate_memory_bytes: Option<usize>,
+    /// Parent directory for private candidate files; requires a candidate budget.
+    pub candidate_directory: Option<PathBuf>,
     /// Separate retained predecessor-record capacity budget for safety BFS.
     /// Zero spills immediately; omitted preserves the in-memory counterpart.
     /// Reconstruction buffers and all other search storage are outside it.
@@ -286,6 +292,16 @@ fn admit_storage_request(req: &CheckRequest) -> Result<(), crate::ApiError> {
                         .into(),
             });
         }
+    }
+    if req.candidate_directory.is_some() && req.candidate_memory_bytes.is_none() {
+        return Err(crate::ApiError::Rejected {
+            message: "DIVE-A0102: candidate_directory requires candidate_memory_bytes".into(),
+        });
+    }
+    if req.candidate_memory_bytes.is_some() && req.temporal != TemporalMode::Ordinary {
+        return Err(crate::ApiError::Unsupported {
+            feature: "candidate spill with native temporal checking".into(),
+        });
     }
     if req.frontier_directory.is_some() && req.frontier_memory_bytes.is_none() {
         return Err(crate::ApiError::Rejected {
@@ -463,6 +479,11 @@ fn check_file_in(
     core_switches: Option<&str>,
 ) -> Result<CheckReport, crate::ApiError> {
     admit_storage_request(req)?;
+    if req.candidate_memory_bytes.is_some() && engine != crate::Engine::Core {
+        return Err(crate::ApiError::Unsupported {
+            feature: "candidate spill requires the explicit Core engine".into(),
+        });
+    }
     let profile = if req.compat_tlc {
         Profile::Tlc
     } else {
@@ -552,6 +573,9 @@ fn check_file_in(
     opts.seen_disk.clone_from(&req.seen_disk);
     opts.frontier_memory_bytes = req.frontier_memory_bytes;
     opts.frontier_directory.clone_from(&req.frontier_directory);
+    opts.candidate_memory_bytes = req.candidate_memory_bytes;
+    opts.candidate_directory
+        .clone_from(&req.candidate_directory);
     opts.workers = workers_requested;
     opts.sequential = req.sequential;
     opts.chaos = req.chaos;
@@ -1340,6 +1364,10 @@ impl CheckReport {
         .unwrap_or(self.temporal_configuration)
     }
 
+    #[allow(
+        clippy::too_many_lines,
+        reason = "one complete public options document"
+    )]
     fn options_json(&self) -> Value {
         let o = &self.opts;
         let e = &o.eval;
@@ -1386,6 +1414,8 @@ impl CheckReport {
             "seed_source": if self.seed_given { "flag" } else if self.checkpoint_request.as_ref().is_some_and(|r| r.action == dive_check::checkpoint::Action::Recover) { "checkpoint" } else { "fresh" },
             "deadlock_flag": o.no_deadlock,
             "workers": self.workers_json(),
+            "candidate_memory_bytes_per_worker": o.candidate_memory_bytes,
+            "candidate_record_bytes_limit": o.candidate_memory_bytes.map(|_| dive_store::spill::MAX_RECORD_BYTES),
             "frontier_memory_bytes_per_queue": o.frontier_memory_bytes,
             "frontier_record_bytes_limit": o.frontier_memory_bytes.map(|_| dive_store::spill::MAX_RECORD_BYTES),
             "frontier_codec_nodes_per_value_limit": o.frontier_memory_bytes.filter(|_| self.core.is_none()).map(|_| dive_value::codec::FRONTIER_MAX_NODES),

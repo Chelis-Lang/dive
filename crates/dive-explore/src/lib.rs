@@ -26,6 +26,7 @@
 //! `tests/golden.rs` for complete runs from TLA+ sources.
 #![forbid(unsafe_code)]
 
+mod candidate;
 pub mod checkpoint;
 pub mod ending;
 pub mod graph;
@@ -377,8 +378,12 @@ fn state_identity(
     }
     if let Some(identity) = identity {
         capture_reserve(identity, state.len())?;
-        for &handle in state {
-            identity.push(m.heap.intern(handle)?);
+        if m.heap.is_speculative() {
+            identity.extend(m.heap.close_identity_row_local(state)?);
+        } else {
+            for &handle in state {
+                identity.push(m.heap.intern(handle)?);
+            }
         }
     }
     Ok(fin(K_STATE, state.len() as u64, sum))
@@ -430,7 +435,7 @@ fn view_key(
     } else {
         std::mem::swap(&mut m.s0, &mut m.s1);
     }
-    let v = m.heap.intern(r?)?;
+    let v = m.heap.state_identity(r?)?;
     if !closed_fingerprintable(&m.heap, v) {
         return Err(Error::unsupported(
             "a VIEW value holding an infinite or lazily represented set (core)",
@@ -475,6 +480,8 @@ struct Explorer<'p> {
     next: Vec<Handle>,
     /// Opt-in encoded current/next queues tied to this live Store.
     frontier: Option<storage::Frontiers>,
+    candidates: Option<candidate::Account>,
+    candidate_storage: storage::Storage,
     /// Capture-only first-discovered representations, parallel to `next`.
     /// Canonical frontier identities remain separate for logs and Step.new.
     next_originals: Vec<Handle>,
@@ -1167,15 +1174,35 @@ fn normalize_state_history(m: &mut Machine) -> Result<(), Error> {
 }
 
 pub(crate) fn fingerprintable(m: &mut Machine, initial: bool) -> Result<bool, Error> {
+    fingerprintable_with_identity(m, initial, None)
+}
+
+/// Reuses only this emission's successful exact identity closure, when it is
+/// the same unsymmetrized row. No cache survives an emission or Arena rollback.
+pub(crate) fn fingerprintable_with_identity(
+    m: &mut Machine,
+    initial: bool,
+    identity: Option<&[Handle]>,
+) -> Result<bool, Error> {
     for i in 0..m.s1.len() {
         let h = m.s1[i];
         if h.is_empty() || !h.is_compound() || (!initial && m.s0.get(i) == Some(&h)) {
             continue;
         }
-        let p = m.heap.intern(h)?;
+        let p = if let Some(identity) = identity {
+            *identity
+                .get(i)
+                .ok_or_else(|| Error::internal("candidate identity row width"))?
+        } else {
+            m.heap.state_identity(h)?
+        };
         m.s1[i] = if m.heap.has_construction_history(h) {
             let view = m.heap.normalize_construction(h)?;
-            m.heap.intern_exact(view)?
+            if m.heap.is_speculative() {
+                view
+            } else {
+                m.heap.intern_exact(view)?
+            }
         } else {
             p
         };
@@ -1449,7 +1476,9 @@ fn explore_inner<'p>(
             || storage.predecessor_memory_bytes.is_some()
             || storage.predecessor_directory.is_some()
             || storage.frontier_memory_bytes.is_some()
-            || storage.frontier_directory.is_some());
+            || storage.frontier_directory.is_some()
+            || storage.candidate_memory_bytes.is_some()
+            || storage.candidate_directory.is_some());
     let nvars = plan.vars.len();
     let (frontier, storage_setup_error) = match storage
         .frontier_memory_bytes
@@ -1517,6 +1546,13 @@ fn explore_inner<'p>(
         checkpoint,
         next: Vec::new(),
         frontier,
+        candidates: storage.candidate_memory_bytes.map(|bytes| {
+            Arc::new(std::sync::Mutex::new(storage::CandidateUsage {
+                memory_bytes_per_worker: Some(bytes),
+                ..storage::CandidateUsage::default()
+            }))
+        }),
+        candidate_storage: storage.clone(),
         next_originals: Vec::new(),
         next_views: Vec::new(),
         emitted: 0,
@@ -1550,6 +1586,12 @@ fn explore_inner<'p>(
         Err(Error::unsupported(
             "exact or spilled predecessor storage with native graph capture",
         ))
+    } else if storage.candidate_directory.is_some() && storage.candidate_memory_bytes.is_none() {
+        Err(Error::unsupported(
+            "a candidate directory without a candidate memory budget",
+        ))
+    } else if storage.candidate_memory_bytes.is_some() && plan.effects.any {
+        Err(Error::unsupported("candidate spill with runtime effects"))
     } else if storage.predecessor_directory.is_some() && storage.predecessor_memory_bytes.is_none()
     {
         Err(Error::unsupported(
@@ -1568,7 +1610,7 @@ fn explore_inner<'p>(
             reservoir.as_mut(),
         )
     };
-    let parallel = machines.len() > 1;
+    let parallel = machines.len() > 1 || ex.candidates.is_some();
     let mut m = machines.swap_remove(0);
     let mut trace = ex
         .end
@@ -1590,6 +1632,20 @@ fn explore_inner<'p>(
             (ErrorKind::Internal, message) => Verdict::Internal { message },
         },
     };
+    if let Some(account) = &ex.candidates {
+        ex.metrics.storage.candidates = account
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .clone();
+        if !ex.metrics.storage.candidates.failures.is_empty() {
+            ex.metrics.storage.candidates.deciding_event_before_failure =
+                Some(format!("{verdict:?}"));
+            verdict = Verdict::Internal {
+                message: ex.metrics.storage.candidates.failures.join("; "),
+            };
+            trace = None;
+        }
+    }
     ex.metrics.storage.exact_states = ex.seen.exact.as_ref().map_or(0, storage::Exact::len);
     if let Some(disk) = &mut ex.disk {
         let validate = !matches!(
@@ -1670,6 +1726,11 @@ fn explore_inner<'p>(
         .zip(m.memo.stats())
         .collect();
     metrics.arena_peak = m.heap.arena().peak();
+    for worker in &machines {
+        let (nodes, handles) = worker.heap.arena().peak();
+        metrics.arena_peak.0 = metrics.arena_peak.0.max(nodes);
+        metrics.arena_peak.1 = metrics.arena_peak.1.max(handles);
+    }
     metrics.thunks = (m.stats.forced, m.stats.cached);
     metrics.explore_time = start.elapsed();
     let warnings = if !config.warn {
@@ -1858,7 +1919,7 @@ fn run(
 ) -> Result<(), Error> {
     let code = &plan.code;
     let nvars = plan.vars.len();
-    let parallel = machines.len() > 1;
+    let parallel = machines.len() > 1 || ex.candidates.is_some();
     let Some(m) = machines.first_mut() else {
         return Err(Error::internal("no core machine"));
     };
@@ -1927,6 +1988,11 @@ fn run(
             || (machines.len() * CHUNK_PER_WORKER).max(1),
             |sink| sink.max_expansion_units().max(1),
         );
+        let chunk = if ex.candidates.is_some() {
+            machines.len().max(1)
+        } else {
+            chunk
+        };
         let chunk = if ex.frontier.is_some() {
             chunk.min(FRONTIER_CHUNK_STATES)
         } else {
@@ -1992,6 +2058,9 @@ fn run(
                     ex.graph
                         .as_deref()
                         .map(graph::GraphSink::max_successors_per_unit),
+                    ex.candidates
+                        .as_ref()
+                        .map(|account| (&ex.candidate_storage, account)),
                     ex.poll,
                     estimate.saturating_mul(end - k) / states.max(1),
                     &mut metrics,
@@ -2006,12 +2075,13 @@ fn run(
             let Some(m) = machines.first_mut() else {
                 return Err(Error::internal("no core machine"));
             };
+            let have_expansion = expanded.is_some();
             let res = expanded
-                .as_ref()
-                .and_then(|all| all.get(k - base).and_then(Option::as_ref));
+                .as_mut()
+                .and_then(|all| all.get_mut(k - base).and_then(Option::as_mut));
             // Phase 1 polled the budget before each state it expanded, and
             // stopped before this one if it ran out.
-            let exhausted = if expanded.is_some() {
+            let exhausted = if have_expansion {
                 res.is_none()
             } else {
                 (ex.poll)()
@@ -2090,6 +2160,9 @@ fn run(
                     }
                 }
             }
+            if let Some(all) = &mut expanded {
+                all[k - base] = None;
+            }
             m.heap.reset();
             let left = (states - k - 1 + ex.queued_states()) as u64;
             if let Err(e) = r {
@@ -2142,7 +2215,7 @@ fn run(
 mod tests {
     use super::*;
 
-    fn frontier_plan(store: &Arc<Store>, false_invariant: bool) -> Result<Plan, Error> {
+    pub(super) fn frontier_plan(store: &Arc<Store>, false_invariant: bool) -> Result<Plan, Error> {
         use dive_core::plan::{Action, CompileStats, Conjunct, Effects, GNode, Node};
 
         let mut heap = dive_core::Heap::new(Arc::clone(store), true, false);

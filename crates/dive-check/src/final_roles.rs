@@ -60,7 +60,9 @@ pub fn route_exclusion(
     // sequential request are honored by both continuations: the safety engine
     // reads them, and temporal capture retains concrete states with its own
     // deadlock check and worker plan.
-    if opts.seen_disk.is_some() {
+    if opts.candidate_memory_bytes.is_some() || opts.candidate_directory.is_some() {
+        Some("candidate spill")
+    } else if opts.seen_disk.is_some() {
         Some("disk seen-state storage")
     } else if opts.frontier_memory_bytes.is_some() || opts.frontier_directory.is_some() {
         Some("frontier spill")

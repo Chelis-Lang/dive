@@ -247,6 +247,8 @@ pub(crate) fn check(
                 predecessor_directory: options.predecessor_directory.clone(),
                 frontier_memory_bytes: options.frontier_memory_bytes,
                 frontier_directory: options.frontier_directory.clone(),
+                candidate_memory_bytes: options.candidate_memory_bytes,
+                candidate_directory: options.candidate_directory.clone(),
                 seen_disk: options
                     .seen_disk
                     .as_ref()

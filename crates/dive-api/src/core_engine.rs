@@ -832,7 +832,8 @@ pub(crate) fn safety_result(
     } = *search;
     let Startup { mut sym, startup } = start;
     let budget = &options.budget;
-    let storage_failed = !out.metrics.storage.predecessor_failures.is_empty()
+    let storage_failed = !out.metrics.storage.candidates.failures.is_empty()
+        || !out.metrics.storage.predecessor_failures.is_empty()
         || !out.metrics.storage.frontier.failures.is_empty()
         || out
             .metrics
@@ -1166,6 +1167,8 @@ pub(crate) fn check(
         && (options.store == dive_store::StoreMode::Exact
             || options.frontier_memory_bytes.is_some()
             || options.frontier_directory.is_some()
+            || options.candidate_memory_bytes.is_some()
+            || options.candidate_directory.is_some()
             || options.predecessor_memory_bytes.is_some()
             || options.predecessor_directory.is_some())
     {
@@ -1262,6 +1265,8 @@ pub(crate) fn check(
             predecessor_directory: options.predecessor_directory.clone(),
             frontier_memory_bytes: options.frontier_memory_bytes,
             frontier_directory: options.frontier_directory.clone(),
+            candidate_memory_bytes: options.candidate_memory_bytes,
+            candidate_directory: options.candidate_directory.clone(),
             seen_disk: options.seen_disk.as_ref().map(|options| {
                 dive_explore::storage::DiskOptions {
                     limits: options.limits,
@@ -1532,6 +1537,22 @@ pub(crate) fn metrics_json(
         },
         "probed": m.probed,
         "discarded_before_intern": m.discarded_before_intern,
+        "candidate_storage": {
+            "memory_bytes_per_worker": m.storage.candidates.memory_bytes_per_worker,
+            "scope": "encoded occurrence/DAG queues and separately reported bounded codec origin index; active Arena roots, per-record codec scratch, names, other caches, accepted Store and total RSS excluded",
+            "max_record_bytes": dive_store::spill::MAX_RECORD_BYTES,
+            "origin_index_bytes_limit_per_worker": dive_core::candidate_codec::MAX_ORIGIN_INDEX_BYTES,
+            "peak_origin_index_bytes": m.storage.candidates.peak_origin_index_bytes,
+            "origin_index_bytes": m.storage.candidates.origin_index_bytes,
+            "identity_close_entries_limit": dive_core::heap::MAX_LOCAL_CLOSE_ENTRIES,
+            "identity_close_scratch_bytes_limit": dive_core::heap::MAX_LOCAL_CLOSE_SCRATCH_BYTES,
+            "peak_retained_bytes": m.storage.candidates.peak_retained_bytes,
+            "retained_bytes": m.storage.candidates.retained_bytes,
+            "committed_spill_bytes": m.storage.candidates.spilled_bytes,
+            "write_accounting_complete": m.storage.candidates.failures.is_empty(),
+            "failures": m.storage.candidates.failures,
+            "search_event_before_storage_failure": m.storage.candidates.deciding_event_before_failure,
+        },
         "exact_states": m.storage.exact_states,
         "conjuncts": {"total": m.conjuncts_total, "parent_skipped": m.conjuncts_skipped},
         "store": {

@@ -11,6 +11,15 @@
   Preserve checked membership, finite-domain refusals, path demand and ordinary
   independent counterexample validation in both compatibility profiles.
 
+- Add explicit Core safety candidate payload spill with per-worker encoded
+  occurrence/DAG budgets and ordered consumption. Preserve constructor history,
+  exact identities and original values without promoting speculative compounds
+  into the shared Store. Support existing safety spill, disk and recovery routes;
+  expose accounting and fail certification on storage errors. Active evaluator
+  roots and accepted Store remain outside the queue budget. Preserve shared DAGs
+  during identity closure, share unchanged Arena payloads, and bound/report the
+  decoder constructor-origin index separately with explicit resource stops.
+
 - Add explicit Core completed-level safety checkpoint/resume, preserving owned
   Store/history authority, concrete discovery order, VIEW/symmetry identity and
   counter policy across fresh processes. Support changed worker widths, exact
