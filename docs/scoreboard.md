@@ -956,3 +956,13 @@ census or milestone acceptance (`docs/developer/core/03-value-model.md` §12).
 | Public Rust APIs and cargo-test integration | partial |
 | Complete corpus, harness and release certification | partial |
 | Global TLC profile and approved better defaults | partial |
+
+
+Public Rust workflows are also exercised by a separate locked Cargo consumer in
+`crates/dive-api/tests/fixtures/rust-consumer/`, compiled outside the workspace
+feature union and run with an empty PATH. Its six tests cover actual checking and
+independent violations, generation and sample replay, DFID completion/bounds,
+implementation traces, translation followed by checking, and native safety
+checkpoint recovery. This closes the standalone test-integration exercise, not
+all public mode/API combinations. The required workspace gate and both local
+gate modes run `scripts/test-rust-consumer.sh`.
