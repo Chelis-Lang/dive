@@ -62,6 +62,8 @@ pub(crate) struct Core {
     pub(crate) text_input_used: std::sync::atomic::AtomicBool,
     /// TLC initializes its static environment before any text-file result.
     pub(crate) environment_initialized: std::sync::atomic::AtomicBool,
+    /// Names prepared from source before any startup evaluation can create more.
+    pub(crate) input_name_baseline: usize,
     pub(crate) receiver_domain: Option<dive_value::ReceiverDomain>,
     pub(crate) ir: Arc<Ir>,
     pub(crate) opts: Options,
@@ -196,6 +198,7 @@ impl Core {
             input_refusal: Mutex::new(None),
             text_input_used: std::sync::atomic::AtomicBool::new(false),
             environment_initialized: std::sync::atomic::AtomicBool::new(false),
+            input_name_baseline: names.len(),
             receiver_domain: dive_value::ReceiverDomain::new(),
             ir,
             ctx: opts.ctx,

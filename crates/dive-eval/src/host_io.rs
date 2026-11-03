@@ -48,6 +48,16 @@ impl Core {
                 "IOEnv TLC construction order after a TXT request is not implemented; capture the environment first",
             ));
         }
+        if self.ctx.order == ValueOrder::Tlc
+            && !self
+                .environment_initialized
+                .load(std::sync::atomic::Ordering::Relaxed)
+            && self.names.len() != self.input_name_baseline
+        {
+            return Err(EvalError::unsupported(
+                "IOEnv TLC construction order after new startup strings is not implemented; capture the environment first",
+            ));
+        }
         let InputResponse::Environment(entries) = self.input(&InputRequest::Environment)? else {
             return Err(EvalError::unsupported("IOEnv external response kind"));
         };

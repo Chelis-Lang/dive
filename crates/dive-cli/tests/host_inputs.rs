@@ -27,6 +27,7 @@ impl Fixture {
             "TwoFilesSafeNames",
             "TextBeforeEnvOrder",
             "EnvBeforeTextOrder",
+            "AtoiConcatBeforeEnvOrder",
         ] {
             for suffix in ["tla", "cfg"] {
                 let name = format!("{model}.{suffix}");
@@ -198,6 +199,25 @@ fn primary_native_history_controls_refuse_second_text_and_tlc_text_before_env() 
             1
         );
         assert_eq!(row["first_state"]["x"][1], 0);
+
+        let constructed = fixture.run_model_environment(
+            "AtoiConcatBeforeEnvOrder",
+            "check",
+            tlc,
+            &["--allow-io=env"],
+            &[("DIVE_LABEL", "zUnknown")],
+        );
+        status(&constructed, if tlc { 3 } else { 0 });
+        if tlc {
+            let report = json(&constructed);
+            assert!(
+                report["message"]
+                    .as_str()
+                    .expect("refusal")
+                    .contains("after new startup strings")
+            );
+            assert_eq!(report["external_inputs"]["records"], serde_json::json!([]));
+        }
 
         std::fs::write(fixture.0.join("input.txt"), "aUnknown").expect("ordering input");
         for model in ["TextBeforeEnvOrder", "EnvBeforeTextOrder"] {

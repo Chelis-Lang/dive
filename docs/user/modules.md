@@ -276,7 +276,10 @@ TLC's IOEnv override interns keys and values in Java map order. Compatibility
 mode therefore refuses a snapshot introducing more than one previously unknown
 string (keys and values both count). It also refuses the first IOEnv reached
 after a TXT request, because TLC constructs its static environment before file
-results. Capture the environment first when using both inputs. The canonical
+results. A first IOEnv also conservatively refuses if startup evaluation has
+created new strings since source planning; an earlier native call can change
+ENV's initialization order. Capture the environment before constructing new
+startup strings or requesting files. The canonical
 default retains its existing deterministic order. The minimal `EnvironmentOrder`
 and `TextBeforeEnvOrder` controls demonstrate verdict changes from unproved
 construction order; broader demand-scoped ordering support remains open in #758.

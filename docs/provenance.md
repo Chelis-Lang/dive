@@ -2697,3 +2697,7 @@ The pinned `TextBeforeEnvOrder`/`EnvBeforeTextOrder` pair confirms that IOUtils
 static ENV is constructed before file results. TLC mode therefore also refuses
 a first environment request reached after a TXT request; env-first capture
 remains admitted within the unknown-string bound.
+`AtoiConcatBeforeEnvOrder` confirms that an earlier atoi can initialize ENV before
+a later pure concatenation. A first TLC IOEnv therefore conservatively refuses
+after any post-plan name construction, without claiming a mismatch for every
+such expression. Pure concat without atoi and numeral ToString controls succeed.

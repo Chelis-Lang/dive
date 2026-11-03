@@ -38,6 +38,13 @@ TLC constructs static ENV before any file result, regardless of source order.
 The former is a strict TLC refusal; the latter is an admitted/replayed violation.
 The canonical default selects aUnknown under its existing CHOOSE order.
 
+AtoiConcatBeforeEnvOrder uses exactly DIVE_LABEL=zUnknown, an earlier startup
+atoi("0"), and pure `"a" \o "Unknown"`. The primary selects zUnknown and violates
+the invariant. The strict TLC test refuses the first IOEnv after new startup
+name construction before recording any environment input. This is a conservative
+boundary: pure concat without earlier atoi, and ToString of a source numeral,
+are successful separate primary controls retained in external evidence.
+
 Other tests retain callback-free default denial, input bounds, proper record
 options, runtime/exec/recovery refusals and forged or incomplete replay contexts.
 See `docs/user/modules.md` and ADR 0148 for the public supported scope.

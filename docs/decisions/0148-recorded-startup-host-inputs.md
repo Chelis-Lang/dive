@@ -67,6 +67,12 @@ the resulting CHOOSE difference even with only one new environment string.
 Capture the environment first to use the admitted combined path. The canonical
 default keeps its approved order.
 Broader demand-scoped ordering proof is tracked in #758.
+As a conservative admission boundary, a first TLC IOEnv also refuses if startup
+evaluation has interned any names after source planning. AtoiConcatBeforeEnvOrder
+demonstrates why TXT history alone is insufficient: an earlier atoi initializes
+native ENV before a later pure concatenation. Pure concatenation without that
+call, and ToString of a source numeral, are successful primary controls; the
+general guard does not claim every refused ordering changes a result.
 
 ## Consequences
 
