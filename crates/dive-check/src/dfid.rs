@@ -723,6 +723,11 @@ pub fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
             "BFS discovery budgets --max-states/--max-depth with DFID are not implemented; use DFID-specific limits".into(),
         ));
     }
+    if opts.check.candidate_memory_bytes.is_some() || opts.check.candidate_directory.is_some() {
+        return Some(Outcome::Unsupported(
+            "candidate spill with DFID is not implemented".into(),
+        ));
+    }
     if opts.check.seen_disk.is_some() {
         return Some(Outcome::Unsupported(
             "disk seen-state retention with DFID is not implemented".into(),

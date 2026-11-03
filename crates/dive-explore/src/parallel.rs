@@ -162,6 +162,8 @@ pub(crate) enum Ending {
     Done,
     /// Actual caller-owned work stopped before another emitted successor.
     Budget,
+    /// A candidate could not be retained; it is not a source evaluation error.
+    RetentionError(Error),
     /// The generator itself raised `error` in `action`, after that action
     /// had emitted `emitted` successors.
     GenError {
@@ -172,16 +174,34 @@ pub(crate) enum Ending {
 }
 
 /// The expansion of one state.
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub(crate) struct Expanded {
     /// The successors in emission order, each with its action.
     pub occs: Vec<(usize, Occ)>,
     /// Their values (persistent handles), `nvars` per recorded state.
     pub values: Vec<Handle>,
+    pub payloads: Option<crate::candidate::Spool>,
     pub end: Ending,
     /// Warnings 2143 this worker raised first while expanding the state,
     /// each with the number of successors emitted before it.
     pub warnings: Vec<(u64, (u16, u32))>,
+}
+
+impl Expanded {
+    fn push(&mut self, action: usize, occ: Occ) -> Result<(), Error> {
+        if let Some(payloads) = &mut self.payloads {
+            payloads.push(action, &occ)
+        } else {
+            self.occs.push((action, occ));
+            Ok(())
+        }
+    }
+
+    fn len(&self) -> usize {
+        self.payloads
+            .as_ref()
+            .map_or(self.occs.len(), crate::candidate::Spool::len)
+    }
 }
 
 /// A worker's expansions, by position, and its metrics.
@@ -216,14 +236,31 @@ impl WorkerSink<'_> {
     }
 
     fn keep(&mut self, m: &mut Machine) -> Result<usize, Error> {
-        self.keep_values(m, None)
+        self.keep_values(m, None, None)
     }
 
     fn keep_values(
         &mut self,
         m: &mut Machine,
         original: Option<&[Handle]>,
+        identity: Option<&mut Vec<Handle>>,
     ) -> Result<usize, Error> {
+        if let Some(payloads) = &mut self.out.payloads {
+            let row = original.unwrap_or(&m.s1);
+            let mut roots = crate::capture_copy(row)?;
+            if self.capture_limit.is_none() && !self.preserve_originals {
+                for h in &mut roots {
+                    if !h.is_empty() && !m.heap.has_construction_history(*h) {
+                        *h = m.heap.close_identity_local(*h)?;
+                    }
+                }
+            }
+            if let Some(identity) = identity {
+                crate::capture_reserve(&mut roots, identity.len())?;
+                roots.append(identity);
+            }
+            return payloads.keep(m, &roots);
+        }
         let at = self.out.values.len();
         if self.capture_limit.is_some() || self.preserve_originals {
             crate::capture_reserve(&mut self.out.values, original.unwrap_or(&m.s1).len())?;
@@ -249,8 +286,7 @@ impl WorkerSink<'_> {
     fn check_err(&mut self, m: &mut Machine, site: Site, error: Error) -> Result<Error, Error> {
         let at = self.keep(m)?;
         self.out
-            .occs
-            .push((self.action, Occ::CheckErr { site, error, at }));
+            .push(self.action, Occ::CheckErr { site, error, at })?;
         Ok(Error::stop())
     }
 
@@ -263,7 +299,7 @@ impl WorkerSink<'_> {
             .transpose()?;
         if m.assigned != m.s1.len() {
             let at = self.keep(m)?;
-            self.out.occs.push((self.action, Occ::Incomplete { at }));
+            self.out.push(self.action, Occ::Incomplete { at })?;
             return Err(Error::stop());
         }
         let skip = self.opts.parent_skip.then(|| changed_vars(m));
@@ -306,7 +342,7 @@ impl WorkerSink<'_> {
             }
         }
         let pos = (self.emitted - 1 < 1 << POS_BITS).then_some(self.base | (self.emitted - 1));
-        let duplicate = if self.seen.exact.is_some() {
+        let duplicate = if self.out.payloads.is_some() || self.seen.exact.is_some() {
             // A fingerprint claim supplies no equality evidence. Exact mode
             // retains all possibly distinct collisions for ordered commit.
             false
@@ -321,14 +357,12 @@ impl WorkerSink<'_> {
         };
         if duplicate && matches!(imp, Inv::Holds) {
             let at = if inside && self.capture_limit.is_some() {
-                Some(self.keep_values(m, original.as_deref())?)
+                Some(self.keep_values(m, original.as_deref(), None)?)
             } else {
                 self.metrics.discarded_before_intern += 1;
                 None
             };
-            self.out
-                .occs
-                .push((self.action, Occ::Old { key, inside, at }));
+            self.out.push(self.action, Occ::Old { key, inside, at })?;
             return Ok(());
         }
         if inside && plan.view.is_none() && !crate::fingerprintable(m, false)? {
@@ -349,8 +383,8 @@ impl WorkerSink<'_> {
                 }
             }
         }
-        let at = self.keep_values(m, original.as_deref())?;
-        self.out.occs.push((
+        let at = self.keep_values(m, original.as_deref(), Some(&mut identity))?;
+        self.out.push(
             self.action,
             Occ::Cand {
                 key,
@@ -360,7 +394,7 @@ impl WorkerSink<'_> {
                 imp,
                 at,
             },
-        ));
+        )?;
         Ok(())
     }
 }
@@ -376,11 +410,11 @@ impl Sink for WorkerSink<'_> {
             crate::capture_reserve(&mut self.out.occs, 1)?;
         }
         if self.capture_limit.is_some_and(|limit| self.emitted > limit) {
-            self.out.occs.push((self.action, Occ::CaptureLimit));
+            self.out.push(self.action, Occ::CaptureLimit)?;
             return Err(Error::stop());
         }
         if self.capture_limit.is_some() && (self.poll)() {
-            self.out.occs.push((self.action, Occ::CaptureBudget));
+            self.out.push(self.action, Occ::CaptureBudget)?;
             return Err(Error::stop());
         }
         let r = self.record(m);
@@ -402,11 +436,40 @@ fn expand_one(
     opts: Opts,
     preserve_originals: bool,
     capture_limit: Option<u64>,
+    candidates: Option<(&crate::storage::Storage, &crate::candidate::Account)>,
     poll: &(dyn Fn() -> bool + Sync),
     s0: &[Handle],
     metrics: &mut Metrics,
 ) -> Expanded {
     m.s0.copy_from_slice(s0);
+    let payloads = candidates
+        .map(|(storage, account)| {
+            let directory = storage
+                .candidate_directory
+                .clone()
+                .unwrap_or_else(std::env::temp_dir);
+            crate::candidate::Spool::new(
+                m,
+                storage.candidate_memory_bytes.unwrap_or(0),
+                &directory,
+                std::sync::Arc::clone(account),
+                if seen.exact.is_some() {
+                    if plan.view.is_some() {
+                        1
+                    } else {
+                        plan.vars.len()
+                    }
+                } else {
+                    0
+                },
+            )
+        })
+        .transpose();
+    let old_speculative = m.heap.set_speculative(candidates.is_some());
+    let (payloads, setup_error) = match payloads {
+        Ok(p) => (p, None),
+        Err(e) => (None, Some(e)),
+    };
     let mut sink = WorkerSink {
         plan,
         seen,
@@ -420,6 +483,7 @@ fn expand_one(
         out: Expanded {
             occs: Vec::new(),
             values: Vec::new(),
+            payloads,
             end: Ending::Done,
             warnings: Vec::new(),
         },
@@ -429,6 +493,10 @@ fn expand_one(
     };
     let code = &plan.code;
     for (i, a) in plan.next.iter().enumerate() {
+        if let Some(error) = &setup_error {
+            sink.out.end = Ending::RetentionError(error.clone());
+            break;
+        }
         sink.action = i;
         let start = sink.emitted;
         let old = m.enter(a.frame);
@@ -448,6 +516,10 @@ fn expand_one(
                 }
                 break;
             }
+            Err(error) if sink.out.payloads.is_some() && sink.out.len() as u64 != sink.emitted => {
+                sink.out.end = Ending::RetentionError(error);
+                break;
+            }
             Err(error) => {
                 sink.out.end = Ending::GenError {
                     action: i,
@@ -459,6 +531,7 @@ fn expand_one(
         }
     }
     sink.take_warnings(m);
+    m.heap.set_speculative(old_speculative);
     m.heap.reset();
     metrics.conjuncts_total += sink.metrics.conjuncts_total;
     metrics.conjuncts_skipped += sink.metrics.conjuncts_skipped;
@@ -483,12 +556,18 @@ pub(crate) fn expand_level(
     opts: Opts,
     preserve_originals: bool,
     capture_limit: Option<u64>,
+    candidates: Option<(&crate::storage::Storage, &crate::candidate::Account)>,
     poll: &(dyn Fn() -> bool + Sync),
     estimate: usize,
     metrics: &mut Metrics,
 ) -> Result<Vec<Option<Expanded>>, Error> {
     let n = cur.len() / nvars.max(1);
     let workers = machines.len().max(1);
+    if candidates.is_some() && n > workers {
+        return Err(Error::internal(
+            "candidate expansion exceeds one source per worker",
+        ));
+    }
     let batch = (n / (workers * 16)).clamp(1, 64);
     let next = AtomicUsize::new(0);
     let halt = AtomicBool::new(false);
@@ -523,11 +602,15 @@ pub(crate) fn expand_level(
                                     opts,
                                     preserve_originals,
                                     capture_limit,
+                                    candidates,
                                     poll,
                                     s0,
                                     &mut local,
                                 ),
                             ));
+                        }
+                        if candidates.is_some() {
+                            break;
                         }
                     }
                     (done, local)
@@ -600,13 +683,38 @@ impl crate::Explorer<'_> {
         clippy::too_many_lines,
         reason = "mirrors accept's ordered decisions, one arm per recorded kind"
     )]
-    pub(crate) fn commit(&mut self, m: &mut Machine, res: &Expanded) -> Result<(), Error> {
+    pub(crate) fn commit(&mut self, m: &mut Machine, res: &mut Expanded) -> Result<(), Error> {
         let plan = self.plan;
-        let nvars = m.s1.len();
         let mut w = 0;
         let mut action_start = 0;
         let mut last_action = None;
-        for (k, (action, occ)) in res.occs.iter().enumerate() {
+        for k in 0..res.len() {
+            let decoded = res
+                .payloads
+                .as_mut()
+                .map(|payloads| payloads.read(k, m))
+                .transpose()?;
+            let (action, occ) = decoded
+                .as_ref()
+                .or_else(|| res.occs.get(k))
+                .ok_or_else(|| Error::internal("missing candidate occurrence"))?;
+            if res.payloads.is_none() {
+                let at = match occ {
+                    Occ::Old { at, .. } => *at,
+                    Occ::Cand { at, .. } | Occ::Incomplete { at } | Occ::CheckErr { at, .. } => {
+                        Some(*at)
+                    }
+                    _ => None,
+                };
+                if let Some(at) = at {
+                    let n = m.s1.len();
+                    let values = res
+                        .values
+                        .get(at..at + n)
+                        .ok_or_else(|| Error::internal("resident occurrence state width"))?;
+                    m.s1.copy_from_slice(values);
+                }
+            }
             while let Some(&(before, warning)) = res.warnings.get(w)
                 && before <= k as u64
             {
@@ -622,13 +730,8 @@ impl crate::Explorer<'_> {
             self.stats.generated += 1;
             self.emitted += 1;
             self.report_emitted()?;
-            let load = |m: &mut Machine, at: usize| {
-                if let Some(v) = res.values.get(at..at + nvars) {
-                    m.s1.copy_from_slice(v);
-                }
-            };
             match occ {
-                Occ::Old { key, inside, at } => {
+                Occ::Old { key, inside, .. } => {
                     self.metrics.probed += 1;
                     // Already inserted: never refused by a limit.
                     if !self.seen.contains(*key) {
@@ -637,9 +740,6 @@ impl crate::Explorer<'_> {
                         ));
                     }
                     if *inside {
-                        if let Some(at) = at {
-                            load(m, *at);
-                        }
                         self.record(m, *key, false, None)?;
                     }
                 }
@@ -652,15 +752,13 @@ impl crate::Explorer<'_> {
                     self.stop = Some(crate::Verdict::Budget);
                     return Err(Error::stop());
                 }
-                Occ::Incomplete { at } => {
-                    load(m, *at);
+                Occ::Incomplete { .. } => {
                     let message = crate::incomplete_message(plan, m);
                     self.failure = Some(self.failure_at(m, Site::Incomplete, message)?);
                     self.end_here(m)?;
                     return Err(Error::stop());
                 }
-                Occ::CheckErr { site, error, at } => {
-                    load(m, *at);
+                Occ::CheckErr { site, error, .. } => {
                     self.in_model = true;
                     let e = self.fail_check(m, *site, error.clone());
                     if self.failure.is_some() {
@@ -674,9 +772,8 @@ impl crate::Explorer<'_> {
                     in_model,
                     inv,
                     imp,
-                    at,
+                    ..
                 } => {
-                    load(m, *at);
                     self.in_model = *in_model;
                     self.changed = changed_vars(m);
                     self.metrics.probed += 1;
@@ -750,6 +847,7 @@ impl crate::Explorer<'_> {
         }
         match &res.end {
             Ending::Done => Ok(()),
+            Ending::RetentionError(error) => Err(error.clone()),
             Ending::Budget => {
                 self.stop = Some(crate::Verdict::Budget);
                 Err(Error::stop())
@@ -804,5 +902,103 @@ mod tests {
         // The table (4096 slots) cannot place most of the 40,000 distinct
         // keys, so some repeated keys fall back to "possibly new".
         assert!(first.len() > 4096 && placed_out > 0, "{placed_out}");
+    }
+    #[test]
+    #[allow(
+        clippy::unwrap_used,
+        reason = "actual high-fanout expansion and ordered consumption control"
+    )]
+    fn candidate_high_fanout_spills_owned_payloads_before_any_store_promotion() {
+        use crate::storage::{CandidateUsage, Storage};
+        use dive_core::memo::Memo;
+        use dive_core::plan::{Bind, GNode, Node};
+        use dive_core::{Handle, Machine, Opts, Store};
+        use std::sync::{Arc, Mutex};
+        for count in [256, 2048] {
+            let store = Arc::new(Store::new(true));
+            let mut plan = crate::tests::frontier_plan(&store, false).unwrap();
+            let mut heap = dive_core::Heap::new(Arc::clone(&store), false, false);
+            let domain = heap.interval(0, count - 1);
+            let domain = heap.intern_const(domain).unwrap();
+            plan.code.nodes = vec![
+                Node::Const(domain),
+                Node::Slot(0),
+                Node::Tuple(vec![1; 128].into()),
+                Node::Const(Handle::TRUE),
+            ];
+            plan.code.gnodes = vec![
+                GNode::Assign { var: 0, rhs: 2 },
+                GNode::Exists {
+                    binds: vec![Bind {
+                        slots: vec![0].into(),
+                        tuple: false,
+                        domain: 0,
+                    }]
+                    .into(),
+                    body: 0,
+                    body_p: 3,
+                },
+            ];
+            plan.next[0].g = 1;
+            plan.next[0].frame = 1;
+            let opts = Opts::default();
+            let mut machine = Machine::new(Arc::clone(&store), 1, opts, Memo::new(&[]));
+            let storage = Storage {
+                candidate_memory_bytes: Some(8192),
+                ..Storage::default()
+            };
+            let account = Arc::new(Mutex::new(CandidateUsage {
+                memory_bytes_per_worker: Some(8192),
+                ..CandidateUsage::default()
+            }));
+            let seen = crate::Seen::default();
+            let claims = super::Claims::new(0);
+            let before = store.stats();
+            let mut metrics = crate::Metrics::default();
+            let mut out = super::expand_one(
+                &mut machine,
+                &plan,
+                &seen,
+                &claims,
+                0,
+                opts,
+                false,
+                None,
+                Some((&storage, &account)),
+                &|| false,
+                &[Handle::FALSE],
+                &mut metrics,
+            );
+            assert!(matches!(out.end, super::Ending::Done), "{out:?}");
+            assert_eq!(out.len(), usize::try_from(count).unwrap());
+            assert!(
+                out.occs.is_empty() && out.values.is_empty(),
+                "metadata and payload both belong to encoded queue"
+            );
+            assert_eq!(
+                store.stats().nodes,
+                before.nodes,
+                "emission cannot promote candidate compounds"
+            );
+            assert_eq!(store.stats().handles, before.handles);
+            let usage = account.lock().unwrap().clone();
+            assert!(usage.peak_retained_bytes <= 8192);
+            assert!(usage.spilled_bytes > 100_000);
+            let payloads = out.payloads.as_mut().unwrap();
+            for index in 0..4 {
+                let (_, occ) = payloads.read(index, &mut machine).unwrap();
+                assert!(matches!(occ, super::Occ::Cand { .. }));
+                let expected = Handle::int(i64::try_from(index).unwrap()).unwrap();
+                assert_eq!(machine.heap.view(machine.s1[0]).data, [expected; 128]);
+                assert_eq!(
+                    store.stats().nodes - before.nodes,
+                    index as u64 + 1,
+                    "Store follows ordered consumption only"
+                );
+            }
+            drop(out);
+            assert_eq!(account.lock().unwrap().retained_bytes, 0);
+            assert_eq!(account.lock().unwrap().failures, [] as [String; 0]);
+        }
     }
 }

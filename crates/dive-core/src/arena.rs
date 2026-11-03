@@ -66,6 +66,8 @@ pub(crate) struct LiteralSet {
     pub(crate) phase: LiteralPhase,
     pub(crate) normalized: Handle,
     pub(crate) origin: i64,
+    /// Heap-local nonreused token, allocated only for candidate transport.
+    pub(crate) transport_origin: u64,
     pub(crate) snapshots: [Handle; 2],
 }
 

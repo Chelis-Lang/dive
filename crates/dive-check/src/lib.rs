@@ -105,6 +105,15 @@ pub fn check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResul
     if let Err(error) = dive_eval::validate_ir(ir) {
         return bare(context_verdict(&error), opts, ir);
     }
+    if opts.candidate_memory_bytes.is_some() || opts.candidate_directory.is_some() {
+        return bare(
+            Verdict::Unsupported {
+                feature: "candidate spill requires the explicit Core engine".into(),
+            },
+            opts,
+            ir,
+        );
+    }
     if opts.predecessor_directory.is_some() && opts.predecessor_memory_bytes.is_none() {
         return bare(
             Verdict::Unsupported {

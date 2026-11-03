@@ -23,6 +23,9 @@ pub struct Heap {
     pub(crate) store: Arc<Store>,
     pub(crate) arena: Arena,
     pub(crate) defer_reclamation: bool,
+    /// Candidate expansion must not promote speculative results through caches.
+    pub(crate) speculative: bool,
+    next_candidate_origin: u64,
     poisoned: std::cell::Cell<bool>,
     /// `-delta-hash`: recompute hashes in full instead of incrementally.
     pub(crate) full_hash: bool,
@@ -41,7 +44,7 @@ pub struct Heap {
     texts: std::cell::RefCell<Vec<Arc<str>>>,
     /// This heap's view of the store's deduplication tables, for interning
     /// a value already present without the shard lock (#550).
-    cache: crate::store::InternCache,
+    pub(crate) cache: crate::store::InternCache,
 }
 
 impl Drop for Heap {
@@ -84,6 +87,8 @@ impl Heap {
             store,
             arena: Arena::new(heap_arena),
             defer_reclamation: false,
+            speculative: false,
+            next_candidate_origin: 1,
             poisoned: std::cell::Cell::new(false),
             full_hash,
             int_mode,
@@ -649,6 +654,7 @@ impl Heap {
             phase: crate::arena::LiteralPhase::Raw,
             normalized: Handle::EMPTY,
             origin: 0,
+            transport_origin: 0,
             snapshots: [Handle::EMPTY; 2],
         });
         Ok(handle)
@@ -1305,7 +1311,7 @@ impl Heap {
     /// # Errors
     /// As [`Heap::materialize`].
     pub fn materialize_cached(&mut self, h: Handle) -> Result<Handle, Error> {
-        if h.is_persistent() {
+        if h.is_persistent() && !self.speculative {
             if let Some(&m) = self.materialized.get(&h) {
                 return Ok(m);
             }
@@ -1488,6 +1494,105 @@ impl Heap {
     // ------------------------------------------------------------------
     // Interning
     // ------------------------------------------------------------------
+
+    /// Selects speculative candidate evaluation, returning the previous mode.
+    ///
+    /// In this mode evaluator memo sites and materialization caches do not
+    /// promote results. Explicit `intern` calls retain their persistent contract.
+    pub fn set_speculative(&mut self, enabled: bool) -> bool {
+        std::mem::replace(&mut self.speculative, enabled)
+    }
+
+    /// Whether candidate evaluation is keeping identities local to this Arena.
+    #[must_use]
+    pub const fn is_speculative(&self) -> bool {
+        self.speculative
+    }
+
+    /// Interns for an ordinary run, or closes locally during candidate expansion.
+    ///
+    /// # Errors
+    /// As [`Self::intern`] or [`Self::close_identity_local`].
+    pub fn state_identity(&mut self, h: Handle) -> Result<Handle, Error> {
+        if self.speculative {
+            self.close_identity_local(h)
+        } else {
+            self.intern(h)
+        }
+    }
+
+    pub(crate) fn candidate_history(&mut self, h: Handle) -> Result<(Handle, u64), Error> {
+        let Some(index) = self.local_literal_index(h) else {
+            return Ok((h, 0));
+        };
+        if self.arena.literal_sets[index].transport_origin == 0 {
+            let origin = self.next_candidate_origin;
+            self.next_candidate_origin = origin.checked_add(1).ok_or_else(|| {
+                Error::unsupported("candidate construction token space exhausted")
+            })?;
+            self.arena.literal_sets[index].transport_origin = origin;
+        }
+        let origin = self.arena.literal_sets[index].transport_origin;
+        let value = if matches!(
+            self.arena.literal_sets[index].phase,
+            crate::arena::LiteralPhase::Normalized(_)
+        ) {
+            self.normalize_literal(index)?
+        } else {
+            self.arena.literal_sets[index].handle
+        };
+        Ok((value, origin))
+    }
+
+    /// Closes a mathematical identity in the local Arena without Store promotion.
+    ///
+    /// This performs the same demanded normalization as [`Self::intern`], but
+    /// returns values valid only until the owning Arena is rolled back or reset.
+    /// No persistent-handle certificate or interning cache is populated.
+    ///
+    /// # Errors
+    /// An unclosed lazy value, failed normalization, or a too-deep candidate.
+    pub fn close_identity_local(&mut self, h: Handle) -> Result<Handle, Error> {
+        self.close_local(h, 0)
+    }
+
+    fn close_local(&mut self, h: Handle, depth: usize) -> Result<Handle, Error> {
+        if !h.is_compound() {
+            return Ok(h);
+        }
+        if depth >= 128 {
+            return Err(Error::unsupported("candidate identity nesting exceeds 128"));
+        }
+        self.history_poll()?;
+        let h = if self.local_literal_index(h).is_some() {
+            self.norm(h)?
+        } else {
+            h
+        };
+        let view = self.view(h);
+        if view.is_lazy() {
+            return Err(Error::internal("closing an unclosed lazy candidate value"));
+        }
+        if view.kind.is_symbolic() && self.is_finite(h) {
+            let materialized = self.materialize(h)?;
+            return self.close_local(materialized, depth + 1);
+        }
+        // A canonical persistent node has only canonical persistent children.
+        if h.is_persistent() && view.flags & flags::VIEW == 0 {
+            return Ok(h);
+        }
+        let (kind, lo, hash, sum) = (
+            view.kind,
+            if view.kind == Kind::Set { 0 } else { view.lo },
+            view.hash,
+            view.sum,
+        );
+        let mut children = self.history_copy(view.data)?;
+        for child in &mut children {
+            *child = self.close_local(*child, depth + 1)?;
+        }
+        Ok(self.arena.alloc(kind, 0, lo, hash, sum, &children))
+    }
 
     /// Interns a value into the persistent store, deep-closing it: children
     /// first, finite symbolic sets materialized.
