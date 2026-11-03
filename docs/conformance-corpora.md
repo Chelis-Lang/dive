@@ -839,3 +839,21 @@ Seven additional context-only streams were deliberately not written as goldens
 by the official generator and live as negative API fixtures. All primary results
 were generated with recorded reasons; no context message was promoted into an
 oracle fact. These selected controls do not refresh historical totals.
+
+## Graph override demand
+
+The separate `graph-demand` corpus records seven classified models and twelve
+accepted SANY modules for #756. Pinned `AreConnectedIn` validates graph fields
+and normalizes nodes before its membership/self short circuits, but does not
+normalize unused edges. `IsStronglyConnected` similarly skips edges for an empty
+node set. These early results can succeed with incomparable edge elements;
+`SimplePath` still demands adjacency on an empty node set. Invalid-argument
+formatting can itself demand a graph's raw values and fail before its intended
+argument diagnostic.
+
+The five successes and two independently replayable invariant violations have
+generated/distinct/depth 3/3/3, with exits 0 and 12. Five context-only initial-error
+streams were refused by the official golden generator and remain negative
+configurations with no model golden or agreement credit. The complete attempted
+selection is retained externally. See the [source controls](../conformance/corpus/graph-demand/README.md).
+No historical census or established corpus identity is refreshed by these cases.
