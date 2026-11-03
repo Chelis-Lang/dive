@@ -104,6 +104,15 @@ PlusCal/public APIs/cargo-test support; and actual-Core breadth,
 platform/package/user flows, deep/performance/RC acceptance. See
 [current actions](developer/core/m1-status.md#next-bounded-actions).
 
+Finite Reference simulation now owns its host from source binding through the
+run and supports repeated finite RandomElement calls, including ordinary Next.
+Independent native-word replay rebinds per choice alternative and preserves
+ordered Init and shared source correlations. Its explicit domain/draw/attempt
+bounds, deferred-domain, register and ENABLED refusals remain; compiled effects,
+parallel simulation and full modes/effects parity are still partial. See
+[simulation](user/simulation.md#finite-native-random-choices). These focused
+feature controls do not refresh corpus or release qualification totals.
+
 ## Historical Phase 5 delivery and evidence
 
 Phase 5 adds native safety simulation/DFID and shared budgets (#730/#725),

@@ -55,7 +55,7 @@ fn init_success_error_refusal_and_limit_restore_host_and_release_run() {
             (
                 "x=RandomElement({7})",
                 "x'=RandomElement({8})",
-                "unsupported",
+                "sampled",
                 false,
             ),
             (

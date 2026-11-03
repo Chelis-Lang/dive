@@ -2655,3 +2655,21 @@ Seven primary filesystem controls cover new/merged/existing-SPECIFICATION cfgs,
 replaced generated prefixes, `-noold -nocfg`, AST-only exit 255 and rejected AST input without file writes. Native staging,
 concurrent-byte checks and rollback are original safeguards (ADR 0144), not a
 port of Java rename/write mechanics or a cross-file crash-atomic guarantee.
+
+## Finite random source relations (ADR 0145)
+
+Independent choice support follows the component-demand semantics of pinned TLC
+`94d0c5070852b37b801bb8998c436383ab7ee37b`, `tlc2.module.TLC.RandomElement`,
+already ported in `dive-stdlib/src/random/ops.rs`: function domains are enumerated
+once, record/product components are selected in native order, and empty function
+domains do not demand their ranges. Bounded whole-word source backtracking, fresh
+binding per alternative and scalar-only search prioritization are native proof
+strategies, not ports of TLC's RNG implementation or producer replay authority.
+
+The same source version's `Tool.getActionsAppl` evaluates constant action
+arguments during binding, while Next generation uses uncached action LET values
+and normal expression evaluation caches RHS LET values. Finite replay retains
+fresh source-bound action scopes for random-bearing recipes. Pure recipes keep
+predicate-only binding. The paired `finite-choices` primary controls retain the
+actual pinned captures for uncached action LET and frozen constant arguments;
+no trace state or checker-produced scope is imported into private replay.

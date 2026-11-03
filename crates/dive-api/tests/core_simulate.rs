@@ -102,6 +102,36 @@ fn direct_captured_and_configured_prints_keep_actual_output() -> Result {
             let reference = simulate_file(&request)?.to_json();
             let native = simulate_file_engine(&request, Engine::Core)?.to_json();
             checked(&native);
+            if name == "RuntimePrintConditional" {
+                assert_eq!(reference["result"], "violation");
+                assert_eq!(reference["violation_validated"], true);
+                assert_eq!(reference["observed_violation"]["name"], "Safe");
+                assert_eq!(reference["statistics"]["generated"], 3);
+                assert_eq!(native["result"], "unsupported");
+                assert!(
+                    native["message"]
+                        .as_str()
+                        .is_some_and(|message| message.contains("RandomElement"))
+                );
+                assert_eq!(native["statistics"]["generated"], 2);
+                assert_eq!(native["statistics"]["scope"], "completed-prefix");
+                assert_eq!(native["violation_validated"], false);
+                assert_eq!(native["runtime_output"], reference["runtime_output"]);
+                let automatic = simulate_file_engine(&request, Engine::Auto)?.to_json();
+                assert_eq!(automatic["engine"], "reference");
+                assert_eq!(automatic["engine_fallback"]["stage"], "static");
+                for field in [
+                    "result",
+                    "tlc_code",
+                    "runtime_output",
+                    "startup_output",
+                    "violation_validated",
+                    "traces",
+                ] {
+                    assert_eq!(automatic[field], reference[field], "{field}: {automatic}");
+                }
+                continue;
+            }
             for field in [
                 "result",
                 "tlc_code",

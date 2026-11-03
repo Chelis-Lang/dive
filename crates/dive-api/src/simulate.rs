@@ -207,17 +207,21 @@ pub fn simulate_file_engine(
         .config
         .clone()
         .unwrap_or_else(|| req.file.with_extension("cfg"));
-    let model = SpecModel::load(
+    let runtime = dive_sim::Runtime::new(options.clone());
+    let model = SpecModel::load_hosted(
         &req.file,
         &config,
         &TraceOptions {
             compat_tlc: req.compat_tlc,
             no_deadlock: req.no_deadlock,
+            run: Some((seed, 0)),
             library_paths: req.library_paths.clone(),
             module_paths: req.module_paths.clone(),
             ..TraceOptions::default()
         },
+        Some(runtime.host()),
     )?;
+    runtime.set_config(Some(crate::trace::make_run_config(model.model(), seed, 0)));
     let mut run_budget = crate::mode_budget::ModeBudget::start(
         req.compat_tlc,
         dive_check::budget::Phase::Simulation,
@@ -291,9 +295,9 @@ pub fn simulate_file_engine(
                 .spawn_scoped(scope, || {
                     let poll = || run_budget.budget.poll() != Ok(None);
                     if let Some(native) = &mut native {
-                        native.simulate(model.model(), &options, &poll)
+                        native.simulate(model.model(), &options, &runtime, &poll)
                     } else {
-                        dive_sim::simulate_with_poll(model.model(), &options, &poll)
+                        runtime.simulate_with_poll(model.model(), &poll)
                     }
                 })
                 .map_err(|e| (0_u8, format!("cannot start simulation worker: {e}")))?

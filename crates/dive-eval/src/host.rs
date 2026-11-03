@@ -198,6 +198,17 @@ pub trait Host: Send + Sync + std::fmt::Debug {
         None
     }
 
+    /// Checks a random operation reached inside an `ENABLED` query, before
+    /// evaluating its arguments. Ordinary hosts retain TLC's behavior. Isolated
+    /// sampling/replay hosts may refuse until they can prove the query's full
+    /// random support, including a negative existential result.
+    ///
+    /// # Errors
+    /// A named refusal or a host evaluation error.
+    fn check_random_in_enabled(&self) -> Result<(), HostError> {
+        Ok(())
+    }
+
     /// Checks whether this run permits access to the evaluator's register
     /// file. Called before integer/named `TLCGet` reads, aggregate register
     /// reads (`"all"`, `"all:named"`), and integer/named `TLCSet` writes.

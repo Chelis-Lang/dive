@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 use dive_api::trace::{Check, Ending, SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{ApiError, SimulateRequest, simulate_file};
+use dive_api::{SimulateRequest, simulate_file};
 use serde_json::{Value, json};
 
 fn fixtures() -> PathBuf {
@@ -74,14 +74,19 @@ fn actual_primary_init_words_errors_and_output_keep_their_boundaries() {
                 "unexpected startup Print: {doc}"
             );
             if row["native_scope"] == "unsupported" {
-                assert_eq!(doc["result"], "unsupported", "{doc}");
-                assert_eq!(report.exit_code(), 3);
-                assert_eq!(texts(&doc), ["\"next-before-random\""]);
+                // Preserve the old primary capture's historical native scope.
+                // Its reached Next draw now has an independent source relation.
+                assert_eq!(row["model"], "InitRandomNextBoundary");
+                assert_eq!(doc["result"], "sampled", "{doc}");
+                assert_eq!(report.exit_code(), 0);
+                assert_eq!(json!(texts(&doc)), row["printed"]);
+                assert_eq!(doc["statistics"]["generated"], row["generated"]);
                 assert!(
-                    doc["message"]
-                        .as_str()
-                        .expect("refusal")
-                        .contains("RandomElement")
+                    doc["traces"]
+                        .as_array()
+                        .expect("traces")
+                        .iter()
+                        .all(|trace| trace["validation"]["result"] == "valid")
                 );
                 continue;
             }
@@ -218,7 +223,7 @@ impl Drop for Files {
     }
 }
 #[test]
-fn actual_call_count_and_phase_refuse_nested_correlated_and_opaque_randomness() {
+fn nested_correlated_and_captured_randomness_has_independent_sample_proof() {
     for (init, next, safe, extra, config) in [
         (
             "x=RandomElement({RandomElement({7})})",
@@ -258,18 +263,17 @@ fn actual_call_count_and_phase_refuse_nested_correlated_and_opaque_randomness() 
         ),
     ] {
         let files = Files::new(init, next, safe, extra, config);
-        match simulate_file(&files.request()) {
-            Ok(report) => assert_eq!(
-                report.to_json()["result"],
-                "unsupported",
-                "{init}: {:?}",
-                report.to_json()
-            ),
-            Err(error) => assert!(
-                matches!(error, ApiError::Unsupported { .. }),
-                "{init}: {error:?}"
-            ),
-        }
+        let report = simulate_file(&files.request())
+            .expect("finite random simulation")
+            .to_json();
+        assert_eq!(report["result"], "sampled", "{init}: {report}");
+        assert!(
+            report["traces"]
+                .as_array()
+                .expect("traces")
+                .iter()
+                .all(|trace| trace["validation"]["result"] == "valid")
+        );
     }
     let quiet = Files::new(
         "x=RandomElement(IF FALSE THEN RandomElement({{7}}) ELSE {7})",
@@ -292,9 +296,10 @@ fn actual_call_count_and_phase_refuse_nested_correlated_and_opaque_randomness() 
         "",
     );
     let report = simulate_file(&reached.request())
-        .expect("actual nested invocation refusal")
+        .expect("actual nested invocation")
         .to_json();
-    assert_eq!(report["result"], "unsupported");
+    assert_eq!(report["result"], "sampled", "{report}");
+    assert_eq!(report["traces"][0]["validation"]["result"], "valid");
     assert_eq!(texts(&report), ["\"before-inner\""]);
 }
 

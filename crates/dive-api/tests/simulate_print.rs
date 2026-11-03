@@ -48,7 +48,7 @@ fn direct_captured_and_configured_prints_match_genuine_primary_words() {
             let report = simulate_file(&req).expect("simulation");
             let result = report.to_json();
             check_print_statistics(&req, row, &result);
-            if row["native_scope"] == "unsupported" {
+            if row["native_scope"] == "unsupported" && name != "RuntimePrintConditional" {
                 assert_eq!(result["result"], "unsupported");
                 assert_eq!(result["violation_validated"], false);
                 assert_eq!(result["options"]["workers_used"], 1);
@@ -140,7 +140,7 @@ fn check_print_statistics(req: &SimulateRequest, row: &Value, plain: &Value) {
             .render_human()
             .contains("action flow (chosen transitions)")
     );
-    if row["native_scope"] != "unsupported" {
+    if row["model"] != "RuntimePrintRegister" {
         check_independent_word(&counted_req, &counted);
     }
 }

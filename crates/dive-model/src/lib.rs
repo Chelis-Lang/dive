@@ -128,6 +128,21 @@ impl Recipe {
         }
     }
 
+    /// Whether the source/config inventory may invoke a native random operator.
+    /// This conservative query evaluates nothing and grants no runtime or proof
+    /// authority. Fresh finite replay uses it to preserve actual source-bound
+    /// action captures without constructing actions for ordinary pure words.
+    ///
+    /// ```
+    /// # fn inspect(recipe: &dive_model::Recipe) {
+    /// let _may_draw = recipe.has_randomness();
+    /// # }
+    /// ```
+    #[must_use]
+    pub fn has_randomness(&self) -> bool {
+        randomness::source_randomness(&self.ir, &self.config)
+    }
+
     /// Retains an explicit independent binding policy for temporal symmetry.
     /// The legacy constructor refuses periodic symmetry unless this is selected.
     ///
@@ -232,7 +247,8 @@ impl Recipe {
     /// ```
     ///
     /// # Errors
-    /// As [`Self::bind_fallible`], including action construction failures.
+    /// As [`Self::bind_fallible`], including action construction failures and
+    /// the same pre-startup refusal of randomness under VIEW or SYMMETRY.
     pub fn bind_next_fallible(
         &self,
         host: Arc<dyn dive_eval::Host>,
@@ -363,7 +379,12 @@ fn bind_in(
             output: Vec::new(),
         })
     })?;
-    if predicates_only && let Some(feature) = transformed_randomness(&ir, cfg) {
+    // Fallible binding is Recipe replay, including its ordered-action form.
+    // Reconstructing actions does not waive independent replay's pre-startup
+    // admission policy, even when a random reference is unused.
+    if (predicates_only || fallible_errors)
+        && let Some(feature) = transformed_randomness(&ir, cfg)
+    {
         return Err(Box::new(Failure {
             error: BindError::unsupported(feature),
             output: Vec::new(),
