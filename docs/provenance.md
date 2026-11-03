@@ -2673,3 +2673,18 @@ fresh source-bound action scopes for random-bearing recipes. Pure recipes keep
 predicate-only binding. The paired `finite-choices` primary controls retain the
 actual pinned captures for uncached action LET and frozen constant arguments;
 no trace state or checker-produced scope is imported into private replay.
+
+## Explicit startup host inputs (ADR 0148)
+
+The admitted IOEnv and TXT/UTF-8 Deserialize kernels follow MIT
+`CommunityModules` commit `78b98ae9939d2fe7a6615e9a4b21dd6c23ef8ff3`,
+`modules/tlc2/overrides/IOUtils.java` (`ioEnv`, `textDeserialize`). Deserialize
+evaluates the options record before its path, and successful reads return the
+exitValue/stdout/stderr record. Unsupported argument/file-error records and
+non-RecordValue options are not approximated.
+
+Bounded raw-input recording, source-ordered offline replay and category admission
+are native D-017 mechanisms, not Java I/O ports. Pinned Captured/Demand controls
+cover supported words/counts and actual PrintT demand order. EnvironmentOrder
+demonstrates a verdict-changing Java-map/new-string boundary; TLC mode refuses
+unproved construction order instead of porting Java map iteration (#758).

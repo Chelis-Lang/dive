@@ -86,6 +86,8 @@ pub enum ActionComposition {
 /// The evaluator's options.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct Options {
+    /// Explicit host categories (D-017); empty in both profile defaults.
+    pub host_access: crate::inputs::HostAccess,
     /// The value semantics: integer mode and value (`CHOOSE`) order.
     pub ctx: Ctx,
     /// The exploration order (open question 9).
@@ -120,6 +122,7 @@ impl Options {
     #[must_use]
     pub const fn tlc() -> Self {
         Self {
+            host_access: crate::inputs::HostAccess::NONE,
             ctx: Ctx::tlc(),
             exploration: ExplorationOrder::Tlc,
             comparisons: Comparisons::Tlc,
@@ -138,6 +141,7 @@ impl Options {
     #[must_use]
     pub const fn dive() -> Self {
         Self {
+            host_access: crate::inputs::HostAccess::NONE,
             ctx: Ctx::dive(),
             exploration: ExplorationOrder::Value,
             comparisons: Comparisons::Tla,

@@ -57,6 +57,7 @@ impl PrintSink for CollectSink {
 /// The shared evaluator state.
 pub(crate) struct Core {
     pub(crate) source_coverage: Option<Arc<crate::SourceCoverage>>,
+    pub(crate) input_refusal: Mutex<Option<String>>,
     pub(crate) receiver_domain: Option<dive_value::ReceiverDomain>,
     pub(crate) ir: Arc<Ir>,
     pub(crate) opts: Options,
@@ -188,6 +189,7 @@ impl Core {
             .collect();
         Self {
             source_coverage: None,
+            input_refusal: Mutex::new(None),
             receiver_domain: dive_value::ReceiverDomain::new(),
             ir,
             ctx: opts.ctx,

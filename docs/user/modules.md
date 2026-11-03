@@ -214,12 +214,72 @@ If a deciding word needs newly created JSON string names in the TLC profile,
 independent validation reports the existing runtime-name refusal (#124); that
 word earns no agreement. Conversion support does not remove this limitation.
 
-Host environment reads, file operations and process execution remain named
-refusals in this checkout; it does not expose the planned category-grant CLI.
-Future host access must require explicit category grants even in the TLC profile
-(see [compatibility](compatibility.md) and D-017 in the differences log). A grant
-will not invent an unimplemented operator. Unsupported operations or missing
-host context must not be interpreted as passing the model invariants.
+### Host inputs and explicit grants
+
+`dive check --allow-io=env,files,exec` grants named categories. Both profiles
+start with no grants, including `--compat=tlc` (D-017). Denial happens before
+native host callbacks and argument evaluation. A grant supplies permission;
+unsupported operators still refuse.
+
+Ordinary Reference safety checking supports source-binding `IOUtils!IOEnv` and
+successful `IOUtils!Deserialize(path, [format |-> "TXT", charset |-> "UTF-8"])`.
+Use a constant-level definition to capture the input before assumptions and
+state generation. For example:
+
+```tla
+Payload == Deserialize("input.txt", [format |-> "TXT", charset |-> "UTF-8"])
+Environment == IOEnv
+```
+
+The file result has `exitValue = 0`, the exact text in `stdout`, and empty
+`stderr`. Relative paths use the process working directory. Captured values can
+be used throughout Init, Next and properties. Reads reached after binding,
+non-UTF-8 input, file-error records, other serializers, writes and process
+execution remain named refusals. An empty environment also refuses until its
+empty native record representation is implemented. `exec` is accepted as a
+category spelling but does not enable an executable kernel.
+
+Auto selects the whole Reference backend before these effects. Explicit Core,
+temporal-input production and checkpoint/recovery are not implemented. Simulation
+and DFID do not expose input grants in this slice. A random seed alone cannot
+recover external inputs.
+
+For a model using a captured file, record the run and replay its counterexample:
+
+```sh
+dive check Settings.tla --allow-io=files --seed 7 --fp 0 --output json > run.json
+dive validate-trace Settings.tla --inputs run.json --seed 7 --fp 0 --output json
+```
+
+Repeat the original compatibility, configuration and module-path options. With
+`--inputs`, the validator reads the report's native counterexample by default;
+`--trace TRACE.json` selects a separate word. Replay uses fresh source bindings
+and exact operation/path/order checks. Missing, mismatched and extra records
+refuse. It performs no specification I/O, even if the original file was removed
+or the environment changed. Reports identify external values as explicit
+assumptions; validation proves their source use and word validity, not past host
+authenticity. Native trace versions and report schema 3 retain their meanings.
+
+The optional `external_inputs` report field records grants and raw inputs.
+An `env` grant records the entire UTF-8 environment, including any secret values
+it contains. One context permits at most 256 source operations, 1 MiB of total
+UTF-8 input/path/name bytes, and 4,096 environment entries. The CLI admits input
+reports up to 8 MiB. Individual operating-system reads are not cooperatively
+interrupted; these are input bounds, not a hard wall-clock or process-heap cap.
+
+TLC's IOEnv override interns keys and values in Java map order. Compatibility
+mode therefore refuses a snapshot introducing more than one previously unknown
+string (keys and values both count). With zero or one new string there is no
+relative order between new names to guess. The canonical default retains its
+existing deterministic order. The minimal `EnvironmentOrder` control demonstrates
+why silently sorting a general TLC snapshot can change a verdict; broader
+demand-scoped ordering support remains open in #758.
+
+Rust callers set `CheckRequest::host_access` using
+`HostAccess::parse("env,files")`. For offline replay, call
+`host_inputs::inputs_from_report(&report.to_json())` and supply the result through
+`trace::TraceOptions::inputs`. Each `Session` attempt creates its own replay
+cursor and evaluator; producer values and warmed caches are never proof.
 
 For coverage details, see the [scoreboard](../scoreboard.md) and the
 reference inventory in `conformance/parity-surfaces.json`. The

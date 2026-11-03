@@ -38,6 +38,12 @@ thread_local! {
 }
 
 impl Host for EngineHost {
+    fn input(
+        &self,
+        request: &dive_eval::inputs::InputRequest,
+    ) -> Option<Result<dive_eval::inputs::InputResponse, HostError>> {
+        self.run.input(request)
+    }
     fn random(&self, op: StdOp, args: &[Value], ctx: Ctx) -> Option<Result<Value, HostError>> {
         self.run.random(op, args, ctx)
     }

@@ -29,6 +29,7 @@ use crate::{Report, Source, Trace, TraceDoc, Validation};
 pub struct Session {
     recipe: Recipe,
     config: Option<dive_eval::RunConfig>,
+    inputs: Option<dive_eval::inputs::RecordedInputs>,
 }
 
 #[derive(Clone, Copy)]
@@ -45,7 +46,33 @@ impl Session {
     /// Retains source/config inputs and typed run metadata, with no callbacks.
     #[must_use]
     pub fn new(recipe: Recipe, config: Option<dive_eval::RunConfig>) -> Self {
-        Self { recipe, config }
+        Self {
+            recipe,
+            config,
+            inputs: None,
+        }
+    }
+
+    /// Supplies explicit external assumptions for fresh, ordered source replay.
+    /// No operating-system input is read. The recipe retains its own category
+    /// grants; supplied records must match actual binding operations exactly.
+    #[must_use]
+    pub fn with_inputs(mut self, inputs: dive_eval::inputs::RecordedInputs) -> Self {
+        self.inputs = Some(inputs);
+        self
+    }
+
+    fn startup_host(
+        &self,
+        choices: Option<Arc<crate::choices::Search>>,
+    ) -> Result<Arc<TraceHost>, String> {
+        let inputs = self
+            .inputs
+            .as_ref()
+            .map(|inputs| dive_eval::inputs::InputReplay::new(inputs.clone()).map(Arc::new))
+            .transpose()
+            .map_err(|error| error.message)?;
+        Ok(TraceHost::startup_context(inputs, choices))
     }
 
     pub(crate) fn bind(&self) -> Result<(Model, Arc<TraceHost>), String> {
@@ -53,12 +80,13 @@ impl Session {
     }
 
     fn bind_in(&self, registers: bool) -> Result<(Model, Arc<TraceHost>), String> {
-        let host = TraceHost::startup();
+        let host = self.startup_host(None)?;
         host.startup.store(registers, Ordering::Relaxed);
         let model = self
             .recipe
             .bind(host.clone())
             .map_err(|e| e.error.to_string())?;
+        host.finish_input_binding()?;
         // Match the API/checker lifecycle: config is unavailable while binding.
         if let Some(mut config) = self.config.clone() {
             config.deadlock = model.settings.check_deadlock;
@@ -1021,7 +1049,10 @@ impl Session {
         };
         poll()?;
         let source_actions = choices.is_some() && matches!(mode, FreshMode::Finite(_));
-        let host = TraceHost::startup_choices(choices);
+        let host = match self.startup_host(choices) {
+            Ok(host) => host,
+            Err(error) => return Ok(Err(error)),
+        };
         host.startup.store(
             matches!(mode, FreshMode::Temporal | FreshMode::Finite(true)),
             Ordering::Relaxed,
@@ -1076,6 +1107,9 @@ impl Session {
                 return Ok(Err(failure.error.to_string()));
             }
         };
+        if let Err(error) = host.finish_input_binding() {
+            return Ok(Err(error));
+        }
         poll()?;
         if let Some(mut config) = self.config.clone() {
             config.deadlock = model.settings.check_deadlock;

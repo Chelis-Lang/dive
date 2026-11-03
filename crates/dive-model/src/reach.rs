@@ -51,6 +51,12 @@ pub(crate) fn unsupported(b: &Binder<'_>, model: &Model) -> Vec<Unsupported> {
     let mut refused: BTreeSet<String> = BTreeSet::new();
     for r in ir.refusals() {
         if reach.get(r.def.index()).copied().unwrap_or(false) {
+            let dive_ir::Feature::StdOp(op) = &r.feature;
+            if matches!(op, StdOp::IoUtilsIOEnv | StdOp::IoUtilsDeserialize)
+                && b.ev().options().host_access.allows(*op)
+            {
+                continue;
+            }
             refused.insert(r.feature.name());
         }
     }
@@ -59,6 +65,11 @@ pub(crate) fn unsupported(b: &Binder<'_>, model: &Model) -> Vec<Unsupported> {
         if let Some(op) = ir.def(*d).std
             && op.support() != dive_ir::StdSupport::Core
         {
+            if matches!(op, StdOp::IoUtilsIOEnv | StdOp::IoUtilsDeserialize)
+                && b.ev().options().host_access.allows(op)
+            {
+                continue;
+            }
             refused.insert(dive_ir::Feature::StdOp(op).name());
         }
     }

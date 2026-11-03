@@ -145,6 +145,9 @@ pub struct CheckRequest {
     /// Collect native producer source-expression/generator work with one actual
     /// Reference worker. These are not TLC logical costs; TLC-equivalent: false.
     pub source_coverage: bool,
+    /// Explicit spec host categories (D-017), default-empty in both profiles.
+    /// The first slice supports source-binding environment and TXT/UTF-8 reads.
+    pub host_access: crate::HostAccess,
     /// Explicit bounded transient disk seen-state route. None keeps the memory
     /// reference; disk uses reported inline fallback and is not a total-RAM budget.
     pub seen_disk: Option<dive_check::SeenOptions>,
@@ -499,6 +502,13 @@ fn check_file_in(
     {
         return Err(crate::ApiError::Unsupported { feature: "native source coverage supports ordinary Reference safety checking; explicit Core, temporal, checkpoint and core-sample combinations are not implemented".into() });
     }
+    if !req.host_access.is_empty()
+        && (checkpoint.is_some()
+            || engine == crate::Engine::Core
+            || req.temporal != TemporalMode::Ordinary)
+    {
+        return Err(crate::ApiError::Unsupported { feature: "external inputs currently require ordinary Reference safety checking; Core, temporal and checkpoint/recovery inputs are not implemented".into() });
+    }
     let profile = if req.compat_tlc {
         Profile::Tlc
     } else {
@@ -574,6 +584,12 @@ fn check_file_in(
         o.fp_index = fp;
         o
     };
+    opts.eval.host_access = req.host_access;
+    if !req.host_access.is_empty() {
+        opts.inputs = Some(Arc::new(dive_stdlib::inputs::LiveInputs::new(
+            req.host_access,
+        )));
+    }
     opts.store = match req.store {
         Store::Fingerprint => StoreMode::Fingerprint,
         Store::Exact => StoreMode::Exact,
@@ -760,6 +776,12 @@ fn check_file_in(
         result.into()
     } else if engine == crate::Engine::Auto && req.source_coverage {
         report.fallback = Some(crate::core_engine::Fallback { stage: "static", reason: "native source coverage selects the instrumented whole Reference safety run before execution".into() });
+        check_backend(&ir, &model, &armed, req.temporal, req.periodic)
+    } else if engine == crate::Engine::Auto && !req.host_access.is_empty() {
+        report.fallback = Some(crate::core_engine::Fallback {
+            stage: "static",
+            reason: "external input ownership is implemented by the whole Reference backend".into(),
+        });
         check_backend(&ir, &model, &armed, req.temporal, req.periodic)
     } else if engine == crate::Engine::Auto && req.seen_disk.is_some() {
         report.fallback = Some(crate::core_engine::Fallback {
@@ -1474,6 +1496,7 @@ impl CheckReport {
             "explore_order": explore,
             "comparisons": comparisons,
             "warnings": e.warnings,
+            "allow_io": e.host_access.names(),
             "action_composition": match e.action_composition {
                 dive_eval::ActionComposition::Off => "off",
                 dive_eval::ActionComposition::Tlc => "tlc",
@@ -1677,6 +1700,9 @@ impl CheckReport {
             "symmetry_liveness": self.symmetry_liveness().map(symmetry_liveness_json),
             "elapsed_ms": 0,
         });
+        if let Some(inputs) = &self.opts.inputs {
+            doc["external_inputs"] = crate::host_inputs::inputs_json(&inputs.recorded());
+        }
         let samples = self.memory_samples.unwrap_or_default();
         doc["resources"] = json!({"memory": {
             "metric": if cfg!(target_os = "linux") { "rss+swap" } else if cfg!(target_os = "macos") { "rss" } else { "unavailable" },
@@ -2095,6 +2121,13 @@ impl CheckReport {
             self.workers_requested,
             self.workers_used()
         );
+        if !o.eval.host_access.is_empty() {
+            let _ = writeln!(
+                out,
+                "External inputs: explicit {} grants; recorded source-binding values are assumptions.",
+                o.eval.host_access.names().join(",")
+            );
+        }
         if let Some(symmetry) = self.symmetry_liveness()
             && symmetry.unreduced()
         {

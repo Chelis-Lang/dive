@@ -77,6 +77,11 @@
   Auto selects the whole Reference route before work; independent replay and
   presentation do not inflate counts. TLC logical costs, Core source maps,
   compiled ENABLED queries and debugger support remain unfinished.
+- Add explicit `check --allow-io=env,files,exec` categories, empty by default in
+  both profiles. Reference captures bounded startup environment and TXT/UTF-8
+  reads; `validate-trace --inputs RUN.json` independently replays their exact
+  source demand without specification I/O. Recorded values remain assumptions.
+  Unproved TLC name ordering, runtime reads, writes, exec and recovery refuse.
 - Add time and sampled process-memory budgets to finite simulation and DFID,
   with the checking defaults, cooperative Init/execution and fresh independent
   replay control, retained prefix progress and structured stopped reports

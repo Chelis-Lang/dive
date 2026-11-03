@@ -558,6 +558,9 @@ fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> bind::R<Model> {
         })?;
     }
     b.process_constant_defns()?;
+    if let Some(feature) = b.ev().external_input_refusal() {
+        return Err(BindError::unsupported(feature).into());
+    }
     b.process_config()?;
     if let Some(name) = &b.cfg.periodic {
         // Bound with TLC's errors, then refused: dive does not run the hook.

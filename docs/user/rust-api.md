@@ -182,6 +182,8 @@ and report meanings are in the [temporal guide](temporal.md#native-graph-capture
 | `check_file` | Ordinary safety, eligible ordinary dive-profile deterministic level checks, TLC-profile final analysis, or explicit `TemporalMode::FinalShort`; inspect actual route/completion |
 | `simulate_file` | Seeded finite traces, never exhaustive proof |
 | `dfid_file` | Iterations and explicit completion evidence |
+| `CheckRequest::host_access` | Explicit env/files/exec permissions; bounded Reference startup env/TXT capture |
+| `host_inputs::inputs_from_report` / `TraceOptions::inputs` | Explicit external assumptions for fresh offline source replay |
 | `translate_source` / `translate_file` | Admitted in-memory PlusCal artifact |
 | `prepare_translation_file` / `write_translation_file` | Explicit admitted module, backup and merged cfg publication; prepared publication checks concurrent edits |
 | `original_ast_source` / `write_original_ast_file` | Separate original AST bytes/publication; a successful AST file write retains pinned exit 255 |

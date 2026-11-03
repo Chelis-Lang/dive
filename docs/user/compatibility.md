@@ -23,9 +23,11 @@ Named opt-ins can produce `tlc+overrides`. For example, final/short temporal
 checking and retained checkpoint counters must not claim pure TLC semantics.
 Check the resolved profile and options rather than inferring compatibility from
 one command-line flag. Host-access grants remain the approved exception: compat
-never silently authorizes host I/O; unsupported operators refuse. The planned
-category-grant CLI is not exposed in this checkout; host environment reads,
-file operations and process execution remain named refusals.
+never silently authorizes host I/O. `check --allow-io=env,files,exec` currently
+supports bounded source-binding environment and TXT/UTF-8 reads through
+Reference, with explicit recorded assumptions and independent offline replay.
+Runtime reads, writes, processes and unproved TLC environment-name ordering
+remain refusals. See [host inputs](modules.md#host-inputs-and-explicit-grants).
 
 Action composition (`A \cdot B`) uses `--action-composition=tla` by default,
 counting only composed successors. `--compat=tlc` turns it off; an explicit
