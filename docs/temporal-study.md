@@ -59,15 +59,20 @@ To reproduce that source rather than a later backend, create a clean worktree
 at the recorded commit and copy the maintained selection into it:
 
 ```sh
-git worktree add ../dive-final-study 57a3649382e6d0b6a4ed48e1b67f79f077e14a2e
-cp conformance/studies/small-temporal-53.txt ../dive-final-study/conformance/studies/
-cd ../dive-final-study
+git worktree add .claude/worktrees/final-study 57a3649382e6d0b6a4ed48e1b67f79f077e14a2e
+cp conformance/studies/small-temporal-53.txt .claude/worktrees/final-study/conformance/studies/
+cd .claude/worktrees/final-study
+export CARGO_TARGET_DIR=target
 cargo build --release --locked -p dive-cli -p dive-conformance
 HARNESS=target/release/dive-conformance scripts/final-temporal-study.sh \
   conformance/studies/small-temporal-53.txt --impl-profile tlc --workers 1 \
   --timeout 600 --dive-bin target/release/dive \
   --out conformance/reports/studies/small-temporal-53-final-short-tlc.json
 ```
+
+Afterwards, run `cargo clean` in the study worktree, then
+`git worktree remove .claude/worktrees/final-study` and `git worktree prune`
+from the primary checkout.
 
 Use a verified pinned cache as described in the harness README. The fixed
 600-second timeout is part of the observation. Other builds and checks

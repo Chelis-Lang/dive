@@ -66,11 +66,19 @@ unimplemented = "deny"
 unwrap_used = "deny"
 dbg_macro = "deny"
 
+# Small debug info keeps per-worktree targets small (many agent worktrees).
+# For a debugger session: CARGO_PROFILE_DEV_DEBUG=2.
 [profile.dev]
 debug = "line-tables-only"
 
+[profile.dev.package."*"]
+debug = false
+
 [profile.test]
 debug = "line-tables-only"
+
+[profile.test.package."*"]
+debug = false
 
 [profile.release]
 debug = "line-tables-only"

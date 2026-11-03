@@ -80,6 +80,11 @@ on red, and fix a red `main` first (label the issue `failing-on-main`).
   worktree-exclusive absolute directory. Never share a writable Cargo target between
   worktrees. If a target has already been shared, rebuild in a fresh directory
   before using its results as correctness or performance evidence.
+- Worktrees live only in `.claude/worktrees/<name>` (git-ignored), not in
+  sibling directories. After the branch merges or is abandoned, run
+  `cargo clean`, then `git worktree remove <path>` and `git worktree prune`.
+  Review and phase archive directories keep sources and reports, never a
+  `target/`: run `cargo clean` before archiving.
 - Feature notes go in one guide per area (for example `docs/user/*.md` or
   `docs/pluscal-translation.md`), not one doc per increment. User-visible changes
   update the user guide and `CHANGELOG.md` in the same PR.
