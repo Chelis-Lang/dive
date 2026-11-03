@@ -10,5 +10,7 @@
 //! dependencies are listed in `xtask/src/layering.rs`.
 #![forbid(unsafe_code)]
 
+pub mod inputs;
+
 pub mod host;
 pub mod random;

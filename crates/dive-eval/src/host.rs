@@ -158,6 +158,15 @@ struct Controls {
 /// thread that evaluates. A host whose answers differ per worker (the level
 /// of the state being expanded, the random stream) keeps them per thread.
 pub trait Host: Send + Sync + std::fmt::Debug {
+    /// Supplies raw external inputs after explicit evaluator category admission.
+    /// No implementation is supplied by default; independent replay hosts must
+    /// consume an explicit recorded context and never read the operating system.
+    fn input(
+        &self,
+        _request: &crate::inputs::InputRequest,
+    ) -> Option<Result<crate::inputs::InputResponse, HostError>> {
+        None
+    }
     /// Checks a native operation at runtime, before its arguments or body run.
     /// Ordinary evaluators permit it; an isolated driver may remember a refusal
     /// even if startup binding later catches the evaluation error.

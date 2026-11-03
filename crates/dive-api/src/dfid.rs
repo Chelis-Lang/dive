@@ -160,6 +160,7 @@ pub fn dfid_file_engine(
         &req.file,
         &config,
         &TraceOptions {
+            inputs: None,
             compat_tlc: req.compat_tlc,
             symmetry_liveness: None,
             no_deadlock: req.no_deadlock,

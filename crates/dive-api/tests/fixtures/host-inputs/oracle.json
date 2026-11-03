@@ -1,0 +1,152 @@
+{
+  "oracle": "tlc-2026.10.06.014338",
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "community_sha256": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
+  "deps_sha256": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
+  "jre_archive_sha256": "0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62",
+  "environment": {
+    "DIVE_COUNT": "2",
+    "DIVE_LABEL": "outside"
+  },
+  "workers": 1,
+  "seed": 7,
+  "fp": 0,
+  "input_text": "hello\n",
+  "rows": [
+    {
+      "model": "Captured",
+      "physical_exit": 12,
+      "generated": 3,
+      "distinct": 3,
+      "depth": 3,
+      "printed": [],
+      "sha256": {
+        "Captured.tla": "e5c55081c296d8fdf786c51e557f3c452dd6bd4f769c7b6aa249b10209c403d3",
+        "Captured.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+        "input.txt": "5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03",
+        "stdout": "de5efe0e61591008c122df9b4f6e96857180d745147b212071067ade54a8100b",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "first_state": {
+        "x": 2
+      }
+    },
+    {
+      "model": "Demand",
+      "physical_exit": 12,
+      "generated": 2,
+      "distinct": 2,
+      "depth": 2,
+      "printed": [
+        "\"options\"",
+        "\"path\""
+      ],
+      "sha256": {
+        "Demand.tla": "2a09e749e56741563e237c0b6b2341de5289fd9da6a5c197825019fb352578ec",
+        "Demand.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+        "input.txt": "5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03",
+        "stdout": "b9daa9d78d9ec69b02a8fc1709b3829ed21c8d74b7181804c77c8de63b85bd25",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "first_state": {
+        "x": 0
+      }
+    },
+    {
+      "model": "EnvironmentOrder",
+      "physical_exit": 12,
+      "generated": null,
+      "distinct": null,
+      "depth": null,
+      "printed": [],
+      "sha256": {
+        "EnvironmentOrder.tla": "6584710b53a1047d292714e89752cde12ef26d362e3a15cfd34d47d6d3fb1fe7",
+        "EnvironmentOrder.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+        "input.txt": "5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03",
+        "stdout": "a8f7362a11e61fb8a17697a723202f4eddcf9c45d45497c091de92d3a3f992e5",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "first_state": {
+        "x": "DIVE_LABEL"
+      }
+    }
+  ],
+  "native_history_controls": [
+    {
+      "model": "TwoFilesSafeNames",
+      "physical_exit": 75,
+      "error_codes": [
+        2102,
+        2103
+      ],
+      "generated": 1,
+      "distinct": 1,
+      "depth": 1,
+      "input_text": "α-line\nβ-line\r\n",
+      "second_text": "second",
+      "first_state": {
+        "x": [
+          "α-line\nβ-line\r\n",
+          0
+        ]
+      },
+      "sha256": {
+        "TwoFilesSafeNames.tla": "16cbeb879a26e42833577a717396d9bb9f8d91d61004ea5d06fdb524930796d9",
+        "TwoFilesSafeNames.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf"
+      },
+      "seed": 0,
+      "environment": {
+        "DIVE_LABEL": "alpha"
+      }
+    },
+    {
+      "model": "TextBeforeEnvOrder",
+      "physical_exit": 12,
+      "environment": {
+        "DIVE_LABEL": "zUnknown"
+      },
+      "input_text": "aUnknown",
+      "first_state": {
+        "x": "zUnknown"
+      },
+      "sha256": {
+        "TextBeforeEnvOrder.tla": "8a460136bfb87cde154858ec94436201209d08388762f4955568069f9e9ca3d4",
+        "TextBeforeEnvOrder.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf"
+      },
+      "seed": 0
+    },
+    {
+      "model": "EnvBeforeTextOrder",
+      "physical_exit": 12,
+      "environment": {
+        "DIVE_LABEL": "zUnknown"
+      },
+      "input_text": "aUnknown",
+      "first_state": {
+        "x": "zUnknown"
+      },
+      "sha256": {
+        "EnvBeforeTextOrder.tla": "c9652f0abd14c9e40730a43dcbd5ce9a250885ce2da263ea89452442fbfec741",
+        "EnvBeforeTextOrder.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf"
+      },
+      "seed": 0
+    },
+    {
+      "model": "AtoiConcatBeforeEnvOrder",
+      "physical_exit": 12,
+      "seed": 0,
+      "environment": {
+        "DIVE_LABEL": "zUnknown"
+      },
+      "first_state": {
+        "x": "zUnknown"
+      },
+      "sha256": {
+        "AtoiConcatBeforeEnvOrder.tla": "427b1c94bfce32aeed199d9b175787be85dab79e8f2696ef6ea7a11556077f20",
+        "AtoiConcatBeforeEnvOrder.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+        "stdout": "a2bc364329c21f07072a3dffc507eff296310b2cae97f568736820a12f8e6356",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ]
+}

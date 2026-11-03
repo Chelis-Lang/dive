@@ -2673,3 +2673,31 @@ fresh source-bound action scopes for random-bearing recipes. Pure recipes keep
 predicate-only binding. The paired `finite-choices` primary controls retain the
 actual pinned captures for uncached action LET and frozen constant arguments;
 no trace state or checker-produced scope is imported into private replay.
+
+## Explicit startup host inputs (ADR 0148)
+
+The admitted IOEnv and TXT/UTF-8 Deserialize kernels follow MIT
+`CommunityModules` commit `78b98ae9939d2fe7a6615e9a4b21dd6c23ef8ff3`,
+`modules/tlc2/overrides/IOUtils.java` (`ioEnv`, `textDeserialize`). Deserialize
+evaluates the options record before its path, and successful reads return the
+exitValue/stdout/stderr record. Unsupported argument/file-error records and
+non-RecordValue options are not approximated.
+The same source's static `EXEC_NAMES`, plus tlaplus commit `94d0c50`
+`tlc2/value/impl/RecordValue.java` (constructor and `normalize`), establish the
+shared mutable names behind `TwoFilesSafeNames`. Later TXT requests refuse
+before callbacks in both profiles; independently clean second records would
+change observable results (#761).
+
+Bounded raw-input recording, source-ordered offline replay and category admission
+are native D-017 mechanisms, not Java I/O ports. Pinned Captured/Demand controls
+cover supported words/counts and actual PrintT demand order. EnvironmentOrder
+demonstrates a verdict-changing Java-map/new-string boundary; TLC mode refuses
+unproved construction order instead of porting Java map iteration (#758).
+The pinned `TextBeforeEnvOrder`/`EnvBeforeTextOrder` pair confirms that IOUtils
+static ENV is constructed before file results. TLC mode therefore also refuses
+a first environment request reached after a TXT request; env-first capture
+remains admitted within the unknown-string bound.
+`AtoiConcatBeforeEnvOrder` confirms that an earlier atoi can initialize ENV before
+a later pure concatenation. A first TLC IOEnv therefore conservatively refuses
+after any post-plan name construction, without claiming a mismatch for every
+such expression. Pure concat without atoi and numeral ToString controls succeed.

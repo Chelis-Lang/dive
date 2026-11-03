@@ -64,6 +64,10 @@ pub const TRACE_SCHEMA_VERSION: u32 = crate::REPORT_SCHEMA_VERSION;
 /// How the specification is bound.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct TraceOptions {
+    /// Explicit recorded external assumptions. Source binding replays exact
+    /// operation/argument order without operating-system access. Categories
+    /// come from this context; absent inputs never grant host access.
+    pub inputs: Option<dive_eval::inputs::RecordedInputs>,
     /// `--compat=tlc`: evaluate with every option at its TLC setting (32-bit
     /// integers, TLC's value order and comparisons). Otherwise dive's
     /// default profile.
@@ -177,6 +181,10 @@ impl SpecModel {
         Self::bind_hosted(file, analysis, cfg, opts, None)
     }
 
+    #[allow(
+        clippy::too_many_lines,
+        reason = "one ordered startup transaction retains source, host, replay cursor and config ownership"
+    )]
     fn bind_hosted(
         file: &str,
         analysis: &dive_sema::Analysis,
@@ -184,6 +192,11 @@ impl SpecModel {
         opts: &TraceOptions,
         owned_host: Option<Arc<dyn dive_eval::Host>>,
     ) -> Result<Self, ApiError> {
+        if owned_host.is_some() && opts.inputs.is_some() {
+            return Err(ApiError::Unsupported {
+                feature: "owned simulation external input replay is not implemented".into(),
+            });
+        }
         if !analysis.accepted() {
             return Err(ApiError::Rejected {
                 message: format!("{file} has errors; `dive analyze` lists them"),
@@ -226,16 +239,40 @@ impl SpecModel {
             }
             None => None,
         };
-        let host = streams.map(|s| Arc::new(dive_stdlib::host::RunHost::new(s, None)));
+        let replay = opts
+            .inputs
+            .as_ref()
+            .map(|inputs| dive_eval::inputs::InputReplay::new(inputs.clone()).map(Arc::new))
+            .transpose()
+            .map_err(|error| ApiError::Unsupported {
+                feature: error.message,
+            })?;
+        let host = streams.map(|s| {
+            let host = dive_stdlib::host::RunHost::new(s, None);
+            Arc::new(if let Some(replay) = &replay {
+                host.with_inputs(replay.clone())
+            } else {
+                host
+            })
+        });
         let mut bind_opts = dive_model::BindOptions {
             no_deadlock: opts.no_deadlock,
-            host: owned_host.or_else(|| host.clone().map(|h| -> Arc<dyn dive_eval::Host> { h })),
+            host: owned_host
+                .or_else(|| host.clone().map(|h| -> Arc<dyn dive_eval::Host> { h }))
+                .or_else(|| {
+                    replay
+                        .clone()
+                        .map(|replay| -> Arc<dyn dive_eval::Host> { replay })
+                }),
             ..if opts.compat_tlc {
                 dive_model::BindOptions::tlc()
             } else {
                 dive_model::BindOptions::dive()
             }
         };
+        if let Some(inputs) = &opts.inputs {
+            bind_opts.eval.host_access = inputs.grants;
+        }
         if let Some(policy) = opts.symmetry_liveness {
             bind_opts.symmetry_liveness = policy;
         }
@@ -244,6 +281,13 @@ impl SpecModel {
             dive_model::Recipe::new(ir.clone(), cfg.clone(), bind_opts.eval, opts.no_deadlock)
                 .with_symmetry_liveness(bind_opts.symmetry_liveness);
         let bound = on_big_stack(move || dive_model::bind(ir, &cfg, &bind_opts))?;
+        if let Some(replay) = &replay {
+            replay
+                .finish_binding()
+                .map_err(|error| ApiError::Unsupported {
+                    feature: error.message,
+                })?;
+        }
         let mut run_config = None;
         if let (Ok(model), Some((seed, fp_index))) = (&bound, opts.run) {
             model.evaluator.intern_checker_names();
@@ -259,13 +303,20 @@ impl SpecModel {
                 model,
                 model_values,
                 recipe: recipe.clone(),
-                session: dive_trace::Session::new(
-                    recipe.clone(),
-                    run_config.or_else(|| {
-                        host.as_ref()
-                            .and_then(|host| dive_eval::Host::config(&**host))
-                    }),
-                ),
+                session: {
+                    let session = dive_trace::Session::new(
+                        recipe.clone(),
+                        run_config.or_else(|| {
+                            host.as_ref()
+                                .and_then(|host| dive_eval::Host::config(&**host))
+                        }),
+                    );
+                    if let Some(inputs) = &opts.inputs {
+                        session.with_inputs(inputs.clone())
+                    } else {
+                        session
+                    }
+                },
             }),
             Err(f) => match &f.error.kind {
                 dive_model::ErrorKind::Unsupported { feature } => Err(ApiError::Unsupported {

@@ -335,6 +335,7 @@ impl<'a> Run<'a> {
             choices: None,
             predicate_init: AtomicBool::new(false),
             predicate_next: AtomicBool::new(false),
+            inputs: None,
         });
         model.evaluator.set_host(host.clone());
         Self {
@@ -355,12 +356,17 @@ impl<'a> Run<'a> {
 
     pub(crate) fn private(model: &'a Model, host: Arc<TraceHost>, initial: bool) -> Self {
         let inner = model.evaluator.replace_host(Some(host.clone()));
+        let notes = if host.inputs.is_some() {
+            BTreeSet::from(["External inputs are explicit assumptions. Fresh source replay verifies their ordered use; it does not authenticate past host contents.".into()])
+        } else {
+            BTreeSet::new()
+        };
         Self {
             model,
             host,
             inner,
             passed: 0,
-            notes: BTreeSet::new(),
+            notes,
             private_init: initial,
             init_incomplete: false,
             endpoint_prepared: false,
@@ -407,6 +413,22 @@ impl<'a> Run<'a> {
     /// Why the run's verdict cannot stand, whatever it is: a check drew a
     /// random value, accessed registers, or a name was created after binding.
     pub(crate) fn refusal(&self) -> Option<String> {
+        if let Some(feature) = self.model.evaluator.external_input_refusal() {
+            return Some(feature);
+        }
+        if self.host.inputs.is_none() && !self.model.evaluator.options().host_access.is_empty() {
+            return Some(
+                "external inputs require a fresh Session with explicit recorded assumptions".into(),
+            );
+        }
+        if let Some(error) = self
+            .host
+            .inputs
+            .as_ref()
+            .and_then(|inputs| inputs.failure())
+        {
+            return Some(error.message);
+        }
         if let Some(reason) = self
             .host
             .choices
@@ -1335,6 +1357,7 @@ impl Drop for Run<'_> {
 /// finite sessions may instead install a bounded source-choice search.
 #[derive(Debug)]
 pub(crate) struct TraceHost {
+    inputs: Option<Arc<dive_eval::inputs::InputReplay>>,
     level: AtomicI64,
     inner: Option<Arc<dyn Host>>,
     /// The first operator that drew.
@@ -1368,16 +1391,21 @@ pub(crate) fn next_cache_domain() -> u64 {
 }
 
 impl TraceHost {
+    #[cfg(test)]
+    pub(crate) fn startup() -> Arc<Self> {
+        Self::startup_context(None, None)
+    }
+
     pub(crate) fn set_replay_level(&self, level: usize) {
         self.level
             .store(i64::try_from(level).unwrap_or(i64::MAX), Ordering::Relaxed);
     }
-    pub(crate) fn startup() -> Arc<Self> {
-        Self::startup_choices(None)
-    }
-
-    pub(crate) fn startup_choices(choices: Option<Arc<crate::choices::Search>>) -> Arc<Self> {
+    pub(crate) fn startup_context(
+        inputs: Option<Arc<dive_eval::inputs::InputReplay>>,
+        choices: Option<Arc<crate::choices::Search>>,
+    ) -> Arc<Self> {
         Arc::new(Self {
+            inputs,
             level: AtomicI64::new(0),
             inner: None,
             drew: Mutex::new(None),
@@ -1394,6 +1422,15 @@ impl TraceHost {
             choices,
             predicate_init: AtomicBool::new(false),
             predicate_next: AtomicBool::new(false),
+        })
+    }
+
+    pub(crate) fn finish_input_binding(&self, model: &Model) -> Result<(), String> {
+        if let Some(feature) = model.evaluator.external_input_refusal() {
+            return Err(feature);
+        }
+        self.inputs.as_ref().map_or(Ok(()), |inputs| {
+            inputs.finish_binding().map_err(|error| error.message)
         })
     }
 
@@ -1414,6 +1451,13 @@ impl TraceHost {
 }
 
 impl Host for TraceHost {
+    fn input(
+        &self,
+        request: &dive_eval::inputs::InputRequest,
+    ) -> Option<Result<dive_eval::inputs::InputResponse, HostError>> {
+        self.inputs.as_ref().map(|inputs| inputs.request(request))
+    }
+
     fn check_random_in_enabled(&self) -> Result<(), HostError> {
         self.refuse_effect(
             "RandomElement/Randomization inside ENABLED is unsupported in independent replay"
@@ -1422,6 +1466,9 @@ impl Host for TraceHost {
     }
 
     fn check_native_access(&self, op: StdOp) -> Result<(), HostError> {
+        if self.inputs.is_some() && matches!(op, StdOp::IoUtilsIOEnv | StdOp::IoUtilsDeserialize) {
+            return Ok(());
+        }
         if op == StdOp::TlcRandomElement
             && let Some(choices) = &self.choices
         {
@@ -1433,6 +1480,7 @@ impl Host for TraceHost {
                     "random choice requires supported ordered Init/Next and a register-free replay prefix",
                 ));
             }
+
             return Ok(());
         }
         if self.private_host()
