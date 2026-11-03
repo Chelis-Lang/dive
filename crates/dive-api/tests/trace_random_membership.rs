@@ -150,6 +150,10 @@ fn native_domain_errors_are_not_out_of_domain_verdicts() {
                     panic!("domain {domain} should retain error/refusal");
                 };
                 assert!(feature.contains(code), "{domain}: {feature}");
+                assert!(
+                    !feature.contains("internal evaluator error"),
+                    "{domain}: {feature}"
+                );
             }
             for domain in ["SUBSET {1,2}", "{<<1,2>>}"] {
                 let m = model(
@@ -172,11 +176,12 @@ fn native_domain_errors_are_not_out_of_domain_verdicts() {
     }
 }
 #[test]
-fn correlated_wrapped_and_later_random_uses_remain_refused() {
+fn native_wrapped_repeated_and_later_choices_keep_source_demands() {
     for tlc in [false, true] {
         for lossy in [false, true] {
             for init in [
                 "x=RandomElement({7}) /\\ x=RandomElement({7})",
+                "x=RandomElement({7,8}) /\\ x=RandomElement({7})",
                 "x=RandomElement({7})+0",
                 "x=IF TRUE THEN RandomElement({7}) ELSE 8",
                 "(RandomElement({7})=7) /\\ x=7",
@@ -197,13 +202,16 @@ fn correlated_wrapped_and_later_random_uses_remain_refused() {
                     tlc,
                     Some((0, 0)),
                 );
-                assert!(
-                    matches!(
-                        m.validate(&doc(&[json!(7)], lossy)).validation,
-                        Validation::Unsupported(_)
-                    ),
-                    "{init}"
-                );
+                let validation = m.validate(&doc(&[json!(7)], lossy)).validation;
+                if lossy {
+                    assert!(
+                        matches!(validation, Validation::Unsupported(_)),
+                        "{init}: {validation:?}"
+                    );
+                } else {
+                    assert_eq!(validation, Validation::Valid, "{init}");
+                    invalid(m.validate(&doc(&[json!(8)], false)).validation, Check::Init);
+                }
             }
             for (next, inv, extra, values) in [
                 ("x'=RandomElement({8})", "x<8", "", vec![json!(7), json!(8)]),
@@ -220,16 +228,43 @@ fn correlated_wrapped_and_later_random_uses_remain_refused() {
                     "Unused==(RandomElement({7})=7) /\\ (1=FALSE)",
                     vec![json!(7)],
                 ),
-                ("UNCHANGED x", "x<0", "ASSUME TLCSet(1,42)", vec![json!(7)]),
-                ("UNCHANGED x", "TLCGet(1)=0", "", vec![json!(7)]),
             ] {
                 let m = model("x=RandomElement({7})", next, inv, extra, tlc, Some((0, 0)));
+                let validation = m.validate(&doc(&values, lossy)).validation;
+                if lossy {
+                    assert!(
+                        matches!(validation, Validation::Unsupported(_)),
+                        "{next} {inv} {extra}: {validation:?}"
+                    );
+                } else {
+                    assert_eq!(validation, Validation::Valid, "{next} {inv} {extra}");
+                    let mut forged = values.clone();
+                    forged[0] = json!(8);
+                    invalid(m.validate(&doc(&forged, false)).validation, Check::Init);
+                    if values.len() > 1 {
+                        let mut forged = values;
+                        forged[1] = json!(9);
+                        invalid(m.validate(&doc(&forged, false)).validation, Check::Next);
+                    }
+                }
+            }
+            // Registers require actual demanded/discarded-prefix replay; the
+            // chosen state alone cannot supply that authority.
+            for (inv, extra) in [("x<0", "ASSUME TLCSet(1,42)"), ("TLCGet(1)=0", "")] {
+                let m = model(
+                    "x=RandomElement({7})",
+                    "UNCHANGED x",
+                    inv,
+                    extra,
+                    tlc,
+                    Some((0, 0)),
+                );
                 assert!(
                     matches!(
-                        m.validate(&doc(&values, lossy)).validation,
+                        m.validate(&doc(&[json!(7)], lossy)).validation,
                         Validation::Unsupported(_)
                     ),
-                    "{next} {inv} {extra}"
+                    "{inv} {extra}"
                 );
             }
         }
@@ -286,11 +321,7 @@ fn direct_operation_cannot_consume_the_callers_stream_or_cache() {
 fn actual_domain_evaluation_cannot_use_the_witness_or_host() {
     for tlc in [false, true] {
         for lossy in [false, true] {
-            for domain in [
-                "{x}",
-                "IF TLCSet(1,42) THEN {7} ELSE {8}",
-                "{RandomElement({7})}",
-            ] {
+            for domain in ["{x}", "IF TLCSet(1,42) THEN {7} ELSE {8}"] {
                 let m = model(
                     &format!("x=RandomElement({domain})"),
                     "UNCHANGED x",
@@ -305,6 +336,27 @@ fn actual_domain_evaluation_cannot_use_the_witness_or_host() {
                         Validation::Unsupported(_)
                     ),
                     "{domain}"
+                );
+            }
+            let nested = model(
+                "x=RandomElement({RandomElement({7})})",
+                "UNCHANGED x",
+                "x<0",
+                "",
+                tlc,
+                Some((0, 0)),
+            );
+            let validation = nested.validate(&doc(&[json!(7)], lossy)).validation;
+            if lossy {
+                assert!(
+                    matches!(validation, Validation::Unsupported(_)),
+                    "{validation:?}"
+                );
+            } else {
+                assert_eq!(validation, Validation::Valid);
+                invalid(
+                    nested.validate(&doc(&[json!(8)], false)).validation,
+                    Check::Init,
                 );
             }
             let m = model(
@@ -512,7 +564,7 @@ fn shared_relation_keeps_error_classes_and_entry_budget() {
     }
 }
 #[test]
-fn multiple_variables_and_configured_native_aliases_are_not_direct_relations() {
+fn native_multivariable_and_configured_choices_need_complete_relations() {
     for tlc in [false, true] {
         for (source, cfg, values) in [
             (
@@ -537,13 +589,18 @@ fn multiple_variables_and_configured_native_aliases_are_not_direct_relations() {
                 },
             )
             .expect("model");
-            let d = TraceDoc::behavior(vec![values])
+            let d = TraceDoc::behavior(vec![values.clone()])
                 .expect("document")
                 .with_ending(Ending::Invariant("Inv".into()));
-            assert!(matches!(
-                m.validate(&d).validation,
-                Validation::Unsupported(_)
-            ));
+            assert_eq!(m.validate(&d).validation, Validation::Valid);
+            for name in values.as_object().expect("state").keys() {
+                let mut forged = values.clone();
+                forged[name] = json!(8);
+                let d = TraceDoc::behavior(vec![forged])
+                    .expect("forged document")
+                    .with_ending(Ending::Invariant("Inv".into()));
+                invalid(m.validate(&d).validation, Check::Init);
+            }
         }
     }
 }

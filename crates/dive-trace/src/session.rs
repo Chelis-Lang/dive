@@ -1073,7 +1073,7 @@ impl Session {
                         progress: progress(),
                     });
                 }
-                return Ok(Err(format!("fresh validation binding: {}", failure.error)));
+                return Ok(Err(failure.error.to_string()));
             }
         };
         poll()?;

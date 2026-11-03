@@ -31,6 +31,12 @@ ordinary RHS expressions retain their actual caches. Unsupported action shapes
 decline structurally before evaluation. Ordinary predicate fallback cannot grant
 random Init/Next support.
 
+Action reconstruction retains the shared pre-startup transformed-randomness
+admission policy, including unused references. Source evaluation errors are
+terminal, distinct from a structural decline or comparison with supplied witness
+data. A pure wrong-kind witness keeps its Invalid classification through a fresh
+predicate attempt; direct RandomElement domain errors retain their native codes.
+
 Scalar witness values may prioritize actual source-domain members without
 normalization, callbacks or compound-value inspection. This is search order,
 never membership authority. Function/record/product random selection follows

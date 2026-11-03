@@ -2,18 +2,39 @@
 
 use std::sync::Arc;
 
-use dive_eval::{EvalError, Scope, SlotView, St};
+use dive_eval::{ErrorClass, EvalError, Scope, SlotView, St};
 use dive_ir::{BuiltinOp, Expr, ExprId, JunctionKind, OpRef, VarId};
 use dive_model::Model;
 use dive_value::Value;
 
 use crate::State;
 
-const UNSUPPORTED: &str = "private register Init: the independent single-candidate operation cannot determine every assignment from empty slots";
+pub(crate) const UNSUPPORTED: &str = "private register Init: the independent single-candidate operation cannot determine every assignment from empty slots";
+
+/// Structural decline is separate from an error raised by source evaluation.
+enum ConstructionError {
+    Declined,
+    Evaluation(EvalError),
+}
+
+impl From<EvalError> for ConstructionError {
+    fn from(error: EvalError) -> Self {
+        Self::Evaluation(error)
+    }
+}
+
+impl ConstructionError {
+    fn into_evaluation(self) -> EvalError {
+        match self {
+            Self::Declined => EvalError::unsupported(UNSUPPORTED),
+            Self::Evaluation(error) => error,
+        }
+    }
+}
 
 /// One complete single-variable equality, with no candidate-dependent filters.
 /// `None` delegates to the deterministic operation; it grants no random access.
-pub(crate) fn random_check(model: &Model, witness: &State) -> Result<Option<bool>, String> {
+pub(crate) fn random_check(model: &Model, witness: &State) -> Result<Option<bool>, EvalError> {
     if model.ir.vars().len() != 1 || model.init.len() != 1 {
         return Ok(None);
     }
@@ -34,7 +55,10 @@ pub(crate) fn random_check(model: &Model, witness: &State) -> Result<Option<bool
     operation.random_predicate(&init.scope, init.expr, witness, 0)
 }
 
-pub(crate) fn check(model: &Model, witness: &State) -> Result<bool, EvalError> {
+/// `None` grants no membership proof. Pure callers may use a fresh predicate
+/// runtime after a structural decline or a witness-comparison evaluation error.
+/// Errors raised while actually evaluating source are retained separately.
+pub(crate) fn check(model: &Model, witness: &State) -> Result<Option<bool>, EvalError> {
     let mut operation = Initial {
         model,
         slots: vec![None; model.ir.vars().len()],
@@ -42,11 +66,24 @@ pub(crate) fn check(model: &Model, witness: &State) -> Result<bool, EvalError> {
         choices: None,
     };
     for init in &model.init {
-        if !operation.predicate(&init.pred.scope, init.pred.expr, 0)? {
-            return Ok(false);
+        match operation.predicate(&init.pred.scope, init.pred.expr, 0) {
+            Ok(true) => {}
+            Ok(false) => return Ok(Some(false)),
+            Err(ConstructionError::Declined) => return Ok(None),
+            Err(ConstructionError::Evaluation(error)) => return Err(error),
         }
     }
-    operation.matches(witness)
+    if operation.slots.iter().any(Option::is_none) {
+        return Ok(None);
+    }
+    match operation.matches(witness) {
+        Ok(member) => Ok(Some(member)),
+        // A supplied value of the wrong kind must keep the pure predicate
+        // reader's Invalid classification. This is a comparison with witness
+        // data, not an exception raised by the source construction above.
+        Err(error) if error.class() == ErrorClass::Eval => Ok(None),
+        Err(error) => Err(error),
+    }
 }
 
 /// `None` is a structural decline before any source evaluation. Its caller may
@@ -87,7 +124,10 @@ pub(crate) fn next(
         source: Some(source),
         choices: Some(choices),
     };
-    if !operation.predicate(&action.scope(), action.expr(), 0)? {
+    if !operation
+        .predicate(&action.scope(), action.expr(), 0)
+        .map_err(ConstructionError::into_evaluation)?
+    {
         return Ok(Some(false));
     }
     operation.matches(witness).map(Some)
@@ -149,7 +189,7 @@ impl Initial<'_> {
         expr: ExprId,
         witness: &State,
         depth: u32,
-    ) -> Result<Option<bool>, String> {
+    ) -> Result<Option<bool>, EvalError> {
         if depth > 128 {
             return Ok(None);
         }
@@ -164,7 +204,7 @@ impl Initial<'_> {
                 callee: OpRef::Def(_),
                 ..
             } => {
-                let (inner, def) = ev.scope_call(scope, expr).map_err(|e| e.to_string())?;
+                let (inner, def) = ev.scope_call(scope, expr)?;
                 if ev.is_value_override(def)
                     || ev.precomputed(def).is_some()
                     || self.model.ir.def(def).std.is_some()
@@ -181,18 +221,16 @@ impl Initial<'_> {
                 op: BuiltinOp::Eq,
                 args,
             } if args.len() == 2 => {
-                let Some(var) = self
-                    .variable(scope, args[0], 0)
-                    .map_err(|e| e.to_string())?
-                else {
-                    return Ok(None);
+                let var = match self.variable(scope, args[0], 0) {
+                    Ok(Some(var)) => var,
+                    Ok(None) | Err(ConstructionError::Declined) => return Ok(None),
+                    Err(ConstructionError::Evaluation(error)) => return Err(error),
                 };
                 let Some(Some(candidate)) = witness.get(var.index()) else {
                     return Ok(None);
                 };
                 let st = St::initial(Arc::from(self.slots.clone()));
                 ev.random_element_member(scope, args[1], &st, candidate, 65_536)
-                    .map_err(|e| format!("direct RandomElement Init relation: {e}"))
             }
             _ => Ok(None),
         }
@@ -224,7 +262,7 @@ impl Initial<'_> {
         scope: &Scope,
         expr: ExprId,
         depth: u32,
-    ) -> Result<Option<VarId>, EvalError> {
+    ) -> Result<Option<VarId>, ConstructionError> {
         self.variable_side(scope, expr, self.source.is_some(), depth)
     }
 
@@ -234,9 +272,9 @@ impl Initial<'_> {
         expr: ExprId,
         primed: bool,
         depth: u32,
-    ) -> Result<Option<VarId>, EvalError> {
+    ) -> Result<Option<VarId>, ConstructionError> {
         if depth > 128 {
-            return Err(EvalError::unsupported(UNSUPPORTED));
+            return Err(ConstructionError::Declined);
         }
         Ok(match self.model.ir.expr(expr) {
             Expr::Var {
@@ -260,9 +298,14 @@ impl Initial<'_> {
         })
     }
 
-    fn unchanged(&mut self, scope: &Scope, expr: ExprId, depth: u32) -> Result<bool, EvalError> {
+    fn unchanged(
+        &mut self,
+        scope: &Scope,
+        expr: ExprId,
+        depth: u32,
+    ) -> Result<bool, ConstructionError> {
         if depth > 128 {
-            return Err(EvalError::unsupported(UNSUPPORTED));
+            return Err(ConstructionError::Declined);
         }
         let ev = &self.model.evaluator;
         if let Some(var) = self.variable_side(scope, expr, false, depth + 1)? {
@@ -270,10 +313,10 @@ impl Initial<'_> {
                 .source
                 .and_then(|source| source.get(var.index()))
                 .and_then(Option::as_ref)
-                .ok_or_else(|| EvalError::unsupported(UNSUPPORTED))?
+                .ok_or(ConstructionError::Declined)?
                 .clone();
             if let Some(previous) = &self.slots[var.index()] {
-                return ev.equal_values(previous, &value);
+                return ev.equal_values(previous, &value).map_err(Into::into);
             }
             self.slots[var.index()] = Some(value);
             return Ok(true);
@@ -298,15 +341,18 @@ impl Initial<'_> {
             Expr::Label { body, .. } | Expr::Selected(body) => {
                 self.unchanged(scope, *body, depth + 1)
             }
-            _ => Err(EvalError::unsupported(
-                "independent random Next UNCHANGED assignment",
-            )),
+            _ => Err(ConstructionError::Declined),
         }
     }
 
-    fn predicate(&mut self, scope: &Scope, expr: ExprId, depth: u32) -> Result<bool, EvalError> {
+    fn predicate(
+        &mut self,
+        scope: &Scope,
+        expr: ExprId,
+        depth: u32,
+    ) -> Result<bool, ConstructionError> {
         if depth > 128 {
-            return Err(EvalError::unsupported(UNSUPPORTED));
+            return Err(ConstructionError::Declined);
         }
         let ev = &self.model.evaluator;
         match self.model.ir.expr(expr) {
@@ -362,12 +408,10 @@ impl Initial<'_> {
                 }
                 let choice = self
                     .choices
-                    .ok_or_else(|| EvalError::unsupported(UNSUPPORTED))?
+                    .ok_or(ConstructionError::Declined)?
                     .branch(items.len())
                     .map_err(|error| EvalError::unsupported(error.message))?;
-                let item = *items
-                    .get(choice)
-                    .ok_or_else(|| EvalError::unsupported(UNSUPPORTED))?;
+                let item = *items.get(choice).ok_or(ConstructionError::Declined)?;
                 self.predicate(scope, item, depth + 1)
             }
             Expr::If { cond, then, other } if self.source.is_some() => {
@@ -375,7 +419,8 @@ impl Initial<'_> {
                 let Some(condition) = condition.as_bool() else {
                     return Err(EvalError::unsupported(
                         "independent random Next condition is not Boolean",
-                    ));
+                    )
+                    .into());
                 };
                 self.predicate(scope, if condition { *then } else { *other }, depth + 1)
             }
@@ -393,7 +438,7 @@ impl Initial<'_> {
             | Expr::Case { .. }
             | Expr::Builtin {
                 op: BuiltinOp::In, ..
-            } => Err(EvalError::unsupported(UNSUPPORTED)),
+            } => Err(ConstructionError::Declined),
             _ => self.filter(scope, expr),
         }
     }
@@ -404,29 +449,30 @@ impl Initial<'_> {
         expr: ExprId,
         left: ExprId,
         right: ExprId,
-    ) -> Result<bool, EvalError> {
+    ) -> Result<bool, ConstructionError> {
         let Some(var) = self.variable(scope, left, 0)? else {
             return self.filter(scope, expr);
         };
         let ev = &self.model.evaluator;
         let value = ev.eval_scoped(scope, right, &self.st())?;
         if let Some(previous) = &self.slots[var.index()] {
-            ev.equal_values(previous, &value)
+            ev.equal_values(previous, &value).map_err(Into::into)
         } else {
             self.slots[var.index()] = Some(value);
             Ok(true)
         }
     }
 
-    fn filter(&self, scope: &Scope, expr: ExprId) -> Result<bool, EvalError> {
+    fn filter(&self, scope: &Scope, expr: ExprId) -> Result<bool, ConstructionError> {
         let st = self.st();
         match self.model.evaluator.eval_scoped(scope, expr, &st) {
             Ok(Value::Bool(value)) => Ok(value),
             Ok(value) => Err(EvalError::unsupported(format!(
                 "{UNSUPPORTED}: a filter returned {}",
                 value.kind_name()
-            ))),
-            Err(error) => Err(error),
+            ))
+            .into()),
+            Err(error) => Err(error.into()),
         }
     }
 }

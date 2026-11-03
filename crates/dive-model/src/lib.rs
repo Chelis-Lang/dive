@@ -247,7 +247,8 @@ impl Recipe {
     /// ```
     ///
     /// # Errors
-    /// As [`Self::bind_fallible`], including action construction failures.
+    /// As [`Self::bind_fallible`], including action construction failures and
+    /// the same pre-startup refusal of randomness under VIEW or SYMMETRY.
     pub fn bind_next_fallible(
         &self,
         host: Arc<dyn dive_eval::Host>,
@@ -378,7 +379,12 @@ fn bind_in(
             output: Vec::new(),
         })
     })?;
-    if predicates_only && let Some(feature) = transformed_randomness(&ir, cfg) {
+    // Fallible binding is Recipe replay, including its ordered-action form.
+    // Reconstructing actions does not waive independent replay's pre-startup
+    // admission policy, even when a random reference is unused.
+    if (predicates_only || fallible_errors)
+        && let Some(feature) = transformed_randomness(&ir, cfg)
+    {
         return Err(Box::new(Failure {
             error: BindError::unsupported(feature),
             output: Vec::new(),

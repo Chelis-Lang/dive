@@ -125,6 +125,9 @@ cache rules. Ordinary pure validation still omits action construction. Supplied 
 state values only prioritize actual domain elements, without forcing compound
 values or establishing membership. Ordinary predicates and the final claimed
 ending must all pass. No producer RNG position or replay flag is proof.
+Fresh action reconstruction keeps the pre-startup VIEW/symmetry randomness
+refusal, including unused references. Native domain errors keep their diagnostics;
+wrong-kind values in an otherwise pure initial state remain invalid words.
 
 Replay bounds are 65,536 attempts, 256 source selections per attempt and 65,536
 materialized domain entries. i64 intervals are indexed without materialization;

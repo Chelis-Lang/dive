@@ -57,6 +57,26 @@ fn large_stack(test: impl FnOnce() + Send) {
 }
 
 #[test]
+fn pure_compound_init_rejects_a_wrong_kind_without_a_runtime_refusal() {
+    large_stack(|| {
+        for tlc in [false, true] {
+            let source = "---- MODULE Choices ----\nEXTENDS Naturals\nVARIABLE x\nInit==x=[i \\in {1} |-> 0]\nNext==UNCHANGED x\n====\n";
+            let s = session(source, "INIT Init\nNEXT Next\n", tlc);
+            let doc = TraceDoc::behavior(vec![json!({"x":42})]).expect("wrong-kind word");
+            for validation in [
+                s.read(&doc).0.validation,
+                checked(&s, vec![json!({"x":42})]),
+            ] {
+                assert!(
+                    matches!(validation, Validation::Invalid(_)),
+                    "{validation:?}"
+                );
+            }
+        }
+    });
+}
+
+#[test]
 fn multivariable_parameterized_and_compound_choices_are_source_relations() {
     large_stack(|| {
         for tlc in [false, true] {

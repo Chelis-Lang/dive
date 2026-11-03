@@ -609,7 +609,10 @@ fn exact_exit_pair_cannot_excuse_a_named_word_refusal() -> TestResult {
     let tmp = dive_conformance::util::TempDir::new("exit-word-refusal")?;
     let (repo, cache) = setup_spec(
         tmp.path(),
-        "---- MODULE X ----\nEXTENDS Naturals, TLC\nVARIABLE x\nInit == x=0\nNext == x'=RandomElement({1})\nInv == x<1\n====\n",
+        // The selected word is valid, but registers mixed with random choices
+        // need independent demanded/discarded-prefix proof. Ordinary finite
+        // RandomElement is now supported, so it cannot exercise refusal here.
+        "---- MODULE X ----\nEXTENDS Naturals, TLC\nVARIABLE x\nInit == x=0\nNext == x'=RandomElement({1}) /\\ TLCSet(1,42)\nInv == x<1\n====\n",
         "INIT Init\nNEXT Next\nINVARIANT Inv\n",
     )?;
     let config = Config::load(&repo)?;

@@ -562,20 +562,28 @@ impl<'a> Run<'a> {
                             crate::initial::check(m, &trace.states[0])
                         } else {
                             match crate::initial::random_check(m, &trace.states[0]) {
-                                Ok(Some(member)) => Ok(member),
+                                Ok(Some(member)) => Ok(Some(member)),
                                 Ok(None) => crate::initial::check(m, &trace.states[0]),
-                                Err(error) => Err(EvalError::unsupported(error)),
+                                Err(error) => Err(error),
                             }
                         };
                         let member = match operation {
-                            Ok(member) => member,
+                            Ok(Some(member)) => member,
+                            Ok(None) => {
+                                self.init_incomplete = !self
+                                    .host
+                                    .choices
+                                    .as_ref()
+                                    .is_some_and(|choices| choices.drew());
+                                let error = EvalError::unsupported(crate::initial::UNSUPPORTED);
+                                return Err(self.evaluation_refusal(&error, Some(0), Check::Init));
+                            }
                             Err(error) => {
-                                self.init_incomplete = error.class() == ErrorClass::Unsupported
-                                    && !self
-                                        .host
-                                        .choices
-                                        .as_ref()
-                                        .is_some_and(|choices| choices.drew());
+                                if error.class() == ErrorClass::Eval {
+                                    return Err(Stop::Unsupported(format!(
+                                        "independent Init source evaluation fails: {error}"
+                                    )));
+                                }
                                 return Err(self.evaluation_refusal(&error, Some(0), Check::Init));
                             }
                         };

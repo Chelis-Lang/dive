@@ -11,12 +11,6 @@
   Preserve checked membership, finite-domain refusals, path demand and ordinary
   independent counterexample validation in both compatibility profiles.
 
-- Continue owned simulation RNG state from pre-binding startup through repeated
-  Init/Next RandomElement calls, with actual post-binding TLC configuration.
-  Independently validate finite choices by fresh source replay per alternative,
-  preserving correlations and rejecting forged samples. Retain bounded proof
-  limits, register/ENABLED refusals and truthful Core/Auto selection.
-
 - Add explicit Core completed-level safety checkpoint/resume, preserving owned
   Store/history authority, concrete discovery order, VIEW/symmetry identity and
   counter policy across fresh processes. Support changed worker widths, exact
@@ -59,6 +53,12 @@
   finite TLC `-generate num=N` transport, explicit simulation exit conventions
   and independently checked finite sample words. Ordinary simulation stays the
   default; generation reports its algorithm and remains non-exhaustive.
+- Continue owned simulation RNG state from pre-binding startup through repeated
+  Init/Next RandomElement calls, with actual post-binding TLC configuration.
+  Independently validate finite choices by fresh source replay per alternative,
+  preserving correlations, native domain diagnostics, transformed-randomness
+  admission and pure-state negatives. Retain bounded proof limits,
+  register/ENABLED refusals and truthful Core/Auto selection.
 - Add time and sampled process-memory budgets to finite simulation and DFID,
   with the checking defaults, cooperative Init/execution and fresh independent
   replay control, retained prefix progress and structured stopped reports
