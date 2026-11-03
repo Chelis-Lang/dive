@@ -21,6 +21,11 @@ pub struct Storage {
     pub frontier_memory_bytes: Option<usize>,
     /// Existing parent directory for private frontier files.
     pub frontier_directory: Option<PathBuf>,
+    /// Resident encoded candidate bytes per worker; zero immediately spills.
+    /// Accepted Store values and active evaluator roots are outside this budget.
+    pub candidate_memory_bytes: Option<usize>,
+    /// Parent directory for private transient candidate files.
+    pub candidate_directory: Option<PathBuf>,
     /// Opt-in fallible disk membership; runs inline and does not bound values.
     pub seen_disk: Option<DiskOptions>,
 }
@@ -209,6 +214,8 @@ impl Disk {
 /// Actual native safety storage facts. These describe components, not RSS.
 #[derive(Clone, Debug, Default)]
 pub struct Usage {
+    /// Encoded candidate payload and occurrence storage, not total memory.
+    pub candidates: CandidateUsage,
     /// Opt-in disk membership and its first positioned failure.
     pub seen: Option<DiskUsage>,
     /// Exact mathematical identities retained by the collision index.
@@ -223,6 +230,27 @@ pub struct Usage {
     pub predecessor_cleanup_completed: bool,
     /// Actual encoded frontier component facts; decoded chunks and Store excluded.
     pub frontier: FrontierUsage,
+}
+
+/// Actual candidate queue accounting, including occurrence metadata.
+#[derive(Clone, Debug, Default)]
+pub struct CandidateUsage {
+    /// Requested encoded resident bytes per worker's pending source queue.
+    pub memory_bytes_per_worker: Option<usize>,
+    /// Peak aggregate resident encoded queue capacity across workers.
+    pub peak_retained_bytes: u64,
+    /// Current resident encoded queue capacity after cleanup.
+    pub retained_bytes: u64,
+    /// Peak aggregate retained codec constructor-origin index capacity.
+    pub peak_origin_index_bytes: u64,
+    /// Current retained codec origin-index capacity after cleanup.
+    pub origin_index_bytes: u64,
+    /// Confirmed complete transient data and index bytes written.
+    pub spilled_bytes: u64,
+    /// Actual encoding, filesystem, decoding and cleanup failures.
+    pub failures: Vec<String>,
+    /// Search result reached before a storage failure prevented certification.
+    pub deciding_event_before_failure: Option<String>,
 }
 
 /// Encoded frontier accounting. This is neither RSS nor a total memory budget.

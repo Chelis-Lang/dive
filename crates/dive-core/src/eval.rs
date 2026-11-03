@@ -970,6 +970,11 @@ impl Machine {
 
     /// Evaluates a memo site's body through its table.
     fn memo_eval(&mut self, code: &Code, site: u32, body: P) -> Result<Handle, Error> {
+        // Step sites intern primed keys even when opts.memo is false. Candidate
+        // spill owns transient values instead, so bypass before any promotion.
+        if self.heap.speculative {
+            return self.eval(code, body);
+        }
         let Some(s) = code.sites.get(site as usize) else {
             return self.eval(code, body);
         };

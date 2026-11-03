@@ -35,6 +35,47 @@ records or asserting completeness. Cancellation during decoding or validation
 keeps its budget-stop meaning; read, write, corruption and cleanup failures
 invalidate certification and retain explicit storage diagnostics.
 
+## Candidate payload spill
+
+Explicit `--engine core` pure safety BFS also accepts
+`--candidate-memory-bytes N` and `--candidate-directory DIR`:
+
+```sh
+dive check docs/user/examples/Counter.tla --engine core --workers 8 --candidate-memory-bytes 0 --output json
+```
+
+Zero forces disk; omission retains resident execution in either profile. The
+matching `CheckRequest` and `CheckOptions` fields have the same names. A candidate
+directory without a budget is rejected before opening the model. Reference,
+Auto, runtime effects and temporal capture currently refuse this policy by name.
+
+The budget counts each worker's pending encoded occurrences and compound DAG
+payloads, including the queue index. A chunk retains at most one source per
+worker. Values are encoded while still owned by the worker's Arena and imported
+into the shared Store only during ordered consumption. Raw/normalized constructor
+origins and original tuple/function classes are retained. Spilling a queue does
+not first intern all its speculative payloads into the Store.
+
+This works with both profiles, fingerprint/exact membership, VIEW, safety
+symmetry, disk seen, frontier/predecessor spill and Core safety checkpoint/recovery.
+One-record codec workspaces have a separate 64 MiB record bound and a 128-level
+nesting bound. Identity closure preserves DAG sharing, reuses closed roots and
+shares unchanged immutable payloads when only a representation header changes;
+its per-operation visited map and child-copy workspace are bounded. The separate
+constructor-origin index retains at most 1 MiB per pending source, preserving
+aliases across that source's records. Exhaustion stops with named `DIVE-S0202`
+resource-limit; this index is never charged as accepted Store payload. Active generator roots/Arena, dynamic names, accepted Store/history,
+other caches and total process memory are outside the queue budget. Generator
+roots are never reset merely to make a queue budget fit.
+
+JSON `core.metrics.candidate_storage` reports the per-worker budget, aggregate
+peak encoded capacity, committed spill bytes, remaining bytes and failures.
+Separate `peak_origin_index_bytes` / `origin_index_bytes` fields report actual
+retained codec index capacity; the per-worker index limit is explicit.
+Read, write, checksum and cleanup failures produce a resource stop without a
+certified word. Completed queues are removed; they cannot be recovered after
+restart or used as trace evidence. See [ADR 0143](../decisions/0143-owned-candidate-payload-spill.md).
+
 ## Transient frontier and predecessor storage
 
 Safety BFS has independent opt-in frontier and predecessor budgets:

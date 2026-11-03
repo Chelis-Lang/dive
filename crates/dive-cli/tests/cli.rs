@@ -1889,3 +1889,45 @@ fn translate_write_ast_keeps_source_and_filesystem_errors_separate_from_admissio
     std::fs::remove_dir(ast)?;
     Ok(())
 }
+
+#[test]
+fn core_candidate_flags_run_real_spill_and_reject_missing_budget() {
+    let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../crates/dive-api/tests/fixtures/core-m0/CompoundTrace.tla");
+    for profile in ["dive", "tlc"] {
+        let output = dive(&[
+            "check",
+            &file.to_string_lossy(),
+            "--engine=core",
+            &format!("--compat={profile}"),
+            "--workers=4",
+            "--seed=0",
+            "--fp=0",
+            "--candidate-memory-bytes=0",
+            "--output=json",
+        ]);
+        assert_eq!(output.status.code(), Some(12), "{output:?}");
+        let report: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap_or_default();
+        assert_eq!(report["verdict"], "invariant-violation");
+        assert_eq!(
+            report["core"]["metrics"]["candidate_storage"]["memory_bytes_per_worker"],
+            0
+        );
+        assert_eq!(
+            report["core"]["metrics"]["candidate_storage"]["retained_bytes"],
+            0
+        );
+        assert_eq!(
+            report["core"]["metrics"]["candidate_storage"]["failures"],
+            serde_json::json!([])
+        );
+    }
+    let output = dive(&[
+        "check",
+        "missing.tla",
+        "--engine=core",
+        "--candidate-directory=unused",
+    ]);
+    assert_eq!(output.status.code(), Some(2));
+    assert!(String::from_utf8_lossy(&output.stderr).contains("requires --candidate-memory-bytes"));
+}

@@ -17,6 +17,12 @@ pub struct CheckOptions {
     /// Parent directory for private transient frontier files; system temp by
     /// default. Files are explicitly cleaned and failures reported.
     pub frontier_directory: Option<std::path::PathBuf>,
+    /// Encoded candidate bytes per worker under explicit Core safety BFS.
+    /// None is the resident TLC-equivalent reference; zero immediately spills.
+    /// Active evaluator roots, codec scratch and accepted Store are outside it.
+    pub candidate_memory_bytes: Option<usize>,
+    /// Parent for private transient candidate files; requires a candidate budget.
+    pub candidate_directory: Option<std::path::PathBuf>,
     /// Separate retained predecessor capacity budget. `None` preserves the
     /// in-memory TLC counterpart; zero immediately spills native records.
     /// Seen sets, frontiers, candidates, graphs and reconstructed paths are
@@ -96,6 +102,8 @@ impl CheckOptions {
             seen_disk: None,
             frontier_memory_bytes: None,
             frontier_directory: None,
+            candidate_memory_bytes: None,
+            candidate_directory: None,
             predecessor_memory_bytes: None,
             predecessor_directory: None,
             profile: Profile::Tlc,
@@ -124,6 +132,8 @@ impl CheckOptions {
             seen_disk: None,
             frontier_memory_bytes: None,
             frontier_directory: None,
+            candidate_memory_bytes: None,
+            candidate_directory: None,
             predecessor_memory_bytes: None,
             predecessor_directory: None,
             profile: Profile::Dive,
