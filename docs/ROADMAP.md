@@ -10,7 +10,38 @@ The charter's soundness contract applies throughout.
 The [scoreboard](scoreboard.md) records the latest corpus results and the
 roadmap feature checklist. Parity means observable results (ADR 0086).
 
-## Phase 6: restartable Core, generation and evaluation reuse
+## Phase 7: native workflows and bounded candidate transport
+
+PlusCal publication (#747), native Graphs/UndirectedGraphs (#748/#759), owned
+candidate payload spill (#750), the independent Rust consumer (#752), finite
+random-source replay (#753) and native source-work observation (#755) are merged.
+The explicit startup environment/first-TXT and offline-replay increment (#762)
+is also merged. Integrated source `20ee7f75`, tree `b6625ae5`, is running its one
+qualification. Reference remains the default engine.
+
+| Area | Delivered boundary |
+|---|---|
+| Core breadth | Six finite graph overrides run natively. Original YoYoAllGraphs completes in both profiles at `49188584`, matching the pinned 26,731 distinct / 48,535 generated / depth 39 success. Explicit-set demand and error precedence are repaired. The inherited lazy empty-product mismatch remains #760. |
+| Candidate retention | Ordered Core safety queues can spill owned payloads and occurrences before speculative Store promotion. Both profiles, stores and widths 1/4/8 retain independent concrete words. Record/scratch/origin-index limits fail explicitly. Active Arena roots, accepted Store and temporal structures remain outside this component budget. |
+| Native workflows | Filesystem PlusCal publication and actual cargo-test consumers work. Simulation carries owned RNG state from binding through repeated finite choices; independent replay rebuilds source alternatives. Native source counters use exact static origins and exclude private reconstruction/replay. These are not full modes, translation, TLC logical-cost or debugger parity. |
+| External inputs | The #762 increment requires explicit category grants and records bounded raw startup assumptions. Offline CLI/API replay consumes fresh source requests without ambient I/O. Runtime reads, writes, exec, Core/temporal/recovery and unproved native name/history cases remain refused. |
+| Performance | Candidate `88a5845a` is stopped unadopted. Thirty correct Sailfish rows miss the required 10% TLC/W1 gain (observed 1.82%) and fail the frozen default/W8 guard. The remaining 186 planned rows, including ablations and other controls, are unrun. No code, switch, default change or rescue ships. See [ADR 0147](decisions/0147-demanded-comparison-summaries.md). |
+
+The next integrated checkpoint runs one full gate, the unchanged retained fixture
+census and both fixed Auto panels against one actual source. New feature controls
+and original YoYo evidence keep their own source identities. No full-tier, deep,
+formal performance, default-engine cutover or release acceptance follows from
+these increments. Bulky evidence and completed work are archived in S3; local
+worktrees keep only active work and regenerable build products.
+
+Continue the mandatory scope in [full TLC parity](#through-full-tlc-parity):
+accepted Store/Arena and temporal paging/recovery, native distributed safety,
+broader language/modes/effects, real coverage/Core source maps and full DAP,
+remaining product/API flows, and Linux qualification before the macOS final mile.
+Distributed pure safety can already build on ADR 0141's completed-level recovery;
+it does not depend on completing temporal paging.
+
+## Historical Phase 6: restartable Core, generation and evaluation reuse
 
 All five runtime PRs (#738–#742) are merged at `ee79de82`, tree `14f02996`.
 **The one full gate passed (3,164 nextest tests and 195 doctests). The fixed census and

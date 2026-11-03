@@ -1,0 +1,262 @@
+{
+  "schema": 1,
+  "campaign": "phase7-demanded-comparison-summaries",
+  "decision": "rejected-unadopted",
+  "candidate": {
+    "source": "88a5845a05c676adcca2a1e5fc0274388ca3f906",
+    "tree": "287d4d2e4ce4cd3743d28cf1aecef2c129395ec8",
+    "clean": true,
+    "elf_sha256": "4b1634b010e6f3f6db48b0da9aa72952951cd31b23d14f635572ecbbdc278967"
+  },
+  "baseline": {
+    "source": "2be62e211d548760140bbc024fdd2fd015d67368",
+    "tree": "647bce26a7a220675c04db61e557f373093dfe8a",
+    "clean": true,
+    "elf_sha256": "2a8a8185b0f7a270c7557281bb6d6804b16b03b5cad2ea01460942edac6f3469"
+  },
+  "model": "TLCSailfish1",
+  "profiles": [
+    "default",
+    "tlc"
+  ],
+  "workers": [
+    1,
+    8
+  ],
+  "matched_repetitions": 3,
+  "oracle_counts_w1": {
+    "distinct": 109604,
+    "generated": 314144,
+    "depth": 16
+  },
+  "execution": {
+    "start": "2026-11-03T13:55:04Z",
+    "stop": "2026-11-03T14:14:21Z",
+    "panel_exit": 10,
+    "rows_completed": 30,
+    "rows_planned": 216,
+    "rows_unrun": 186,
+    "completed_stage": "TLCSailfish1/main",
+    "unrun_stages": [
+      "TLCSailfish1/ablation",
+      "SimpleRegular/main",
+      "SimpleRegular/ablation",
+      "GameOfLife/main",
+      "GameOfLife/ablation",
+      "MCBakery/main",
+      "MCBakery/ablation"
+    ]
+  },
+  "row_checks": {
+    "all_completed_correct": true,
+    "actual_workers_verified": true,
+    "explicit_core_no_fallback": true,
+    "source_and_executable_hashes_verified": true
+  },
+  "thresholds": {
+    "tlc_w1_runtime_ratio_max": 0.9,
+    "repeatable_runtime_ratio_max": 1.02,
+    "repeatable_rss_ratio_max": 1.05,
+    "repeatable": "median above limit and two of three pairs above it"
+  },
+  "observed_cells": [
+    {
+      "profile": "default",
+      "workers": 1,
+      "pairs": [
+        {
+          "rep": 1,
+          "runtime_ratio": 1.012414132357339,
+          "rss_ratio": 0.995296380031704,
+          "candidate_wall_s": 59.311009373,
+          "baseline_wall_s": 58.583743033,
+          "candidate_rss_bytes": 156876800,
+          "baseline_rss_bytes": 157618176
+        },
+        {
+          "rep": 2,
+          "runtime_ratio": 1.010364394001155,
+          "rss_ratio": 0.9986987638256344,
+          "candidate_wall_s": 59.219968285,
+          "baseline_wall_s": 58.612485393,
+          "candidate_rss_bytes": 157184000,
+          "baseline_rss_bytes": 157388800
+        },
+        {
+          "rep": 3,
+          "runtime_ratio": 1.012930574226619,
+          "rss_ratio": 0.9991675338189386,
+          "candidate_wall_s": 59.317545576,
+          "baseline_wall_s": 58.560326922,
+          "candidate_rss_bytes": 157319168,
+          "baseline_rss_bytes": 157450240
+        }
+      ],
+      "median_runtime_ratio": 1.012414132357339,
+      "median_rss_ratio": 0.9986987638256344,
+      "runtime_regression": false,
+      "rss_regression": false
+    },
+    {
+      "profile": "default",
+      "workers": 8,
+      "pairs": [
+        {
+          "rep": 1,
+          "runtime_ratio": 1.0746502298552982,
+          "rss_ratio": 1.0329836938024073,
+          "candidate_wall_s": 10.547844414,
+          "baseline_wall_s": 9.815141821,
+          "candidate_rss_bytes": 273489920,
+          "baseline_rss_bytes": 264757248
+        },
+        {
+          "rep": 2,
+          "runtime_ratio": 1.014706424772092,
+          "rss_ratio": 1.1063498553277142,
+          "candidate_wall_s": 10.366678937,
+          "baseline_wall_s": 10.216431752,
+          "candidate_rss_bytes": 288174080,
+          "baseline_rss_bytes": 260472832
+        },
+        {
+          "rep": 3,
+          "runtime_ratio": 1.023372324773382,
+          "rss_ratio": 0.9936474560208494,
+          "candidate_wall_s": 9.895801411,
+          "baseline_wall_s": 9.669795803,
+          "candidate_rss_bytes": 274853888,
+          "baseline_rss_bytes": 276611072
+        }
+      ],
+      "median_runtime_ratio": 1.023372324773382,
+      "median_rss_ratio": 1.0329836938024073,
+      "runtime_regression": true,
+      "rss_regression": false
+    },
+    {
+      "profile": "tlc",
+      "workers": 1,
+      "pairs": [
+        {
+          "rep": 1,
+          "runtime_ratio": 0.9809497072600638,
+          "rss_ratio": 0.9985756488710699,
+          "candidate_wall_s": 79.051027126,
+          "baseline_wall_s": 80.586218173,
+          "candidate_rss_bytes": 155066368,
+          "baseline_rss_bytes": 155287552
+        },
+        {
+          "rep": 2,
+          "runtime_ratio": 0.9819680740765756,
+          "rss_ratio": 0.9997357852462482,
+          "candidate_wall_s": 79.225651922,
+          "baseline_wall_s": 80.680476294,
+          "candidate_rss_bytes": 154984448,
+          "baseline_rss_bytes": 155025408
+        },
+        {
+          "rep": 3,
+          "runtime_ratio": 0.9818455695531876,
+          "rss_ratio": 0.9984947315604616,
+          "candidate_wall_s": 79.197537083,
+          "baseline_wall_s": 80.661908083,
+          "candidate_rss_bytes": 154869760,
+          "baseline_rss_bytes": 155103232
+        }
+      ],
+      "median_runtime_ratio": 0.9818455695531876,
+      "median_rss_ratio": 0.9985756488710699,
+      "runtime_regression": false,
+      "rss_regression": false
+    },
+    {
+      "profile": "tlc",
+      "workers": 8,
+      "pairs": [
+        {
+          "rep": 1,
+          "runtime_ratio": 1.0348597044535186,
+          "rss_ratio": 1.039323070065114,
+          "candidate_wall_s": 13.250256858,
+          "baseline_wall_s": 12.803916126,
+          "candidate_rss_bytes": 267399168,
+          "baseline_rss_bytes": 257282048
+        },
+        {
+          "rep": 2,
+          "runtime_ratio": 1.0138631040232282,
+          "rss_ratio": 0.9640401978710437,
+          "candidate_wall_s": 12.872712027,
+          "baseline_wall_s": 12.696696404,
+          "candidate_rss_bytes": 278585344,
+          "baseline_rss_bytes": 288976896
+        },
+        {
+          "rep": 3,
+          "runtime_ratio": 0.9956887665524615,
+          "rss_ratio": 0.989688034064247,
+          "candidate_wall_s": 12.798774464,
+          "baseline_wall_s": 12.854191886,
+          "candidate_rss_bytes": 279896064,
+          "baseline_rss_bytes": 282812416
+        }
+      ],
+      "median_runtime_ratio": 1.0138631040232282,
+      "median_rss_ratio": 0.989688034064247,
+      "runtime_regression": false,
+      "rss_regression": false
+    }
+  ],
+  "threshold_findings": [
+    {
+      "priority": "blocking",
+      "requirement": "Sailfish TLC/W1 median candidate/base<=0.90",
+      "actual_paired_ratios": [
+        0.9809497072600638,
+        0.9819680740765756,
+        0.9818455695531876
+      ],
+      "median_ratio": 0.9818455695531876,
+      "median_runtime_reduction_percent": 1.815443044681242,
+      "conclusion": "Only1.81544304468124% runtime reduction; the required10% gain was not reached."
+    },
+    {
+      "priority": "blocking",
+      "requirement": "Frozen assessor default/W8 repeatable runtime ratio<=1.02",
+      "actual_paired_ratios": [
+        1.0746502298552982,
+        1.014706424772092,
+        1.023372324773382
+      ],
+      "median_ratio": 1.023372324773382,
+      "pairs_above_limit": 2,
+      "conclusion": "Median1.023372324773382 and two of three pairs exceed1.02. This is the extra Sailfish-default guard locked in the screen script; the three separate control models were not run."
+    }
+  ],
+  "archive": {
+    "s3_key": "phase7-20261103/summary-screen-88a5845a-node-evidence.tar.gz",
+    "sha256": "9412a985a5030a4b2cd2d7258e37d3b458ad1fc9438fb1f66d80881550947e95",
+    "bytes": 88195743,
+    "archive_download_verified": true,
+    "all_member_hashes_verified": true,
+    "members": 56,
+    "no_cargo_targets": true
+  },
+  "review": {
+    "decision": "reject",
+    "sha256": "906379ba8bb13c3d815247640ca00aa87b0d6ebc28804bb171cf902153031aa4",
+    "outer_and_all_member_hashes_verified": true,
+    "source_tree_entries_verified": 48702
+  },
+  "limits": [
+    "No ablation or other model completed;186 planned rows unrun.",
+    "SSM aggregate last-CPU metadata and sampling/idle-counter uncertainty prevent blanket quiet certification.",
+    "No isolated cache attribution or current-main/ADR0119 release performance claim.",
+    "This rejects one candidate, not broader S5/S6. No rescue run."
+  ],
+  "quiet_certified": false,
+  "adopted": false,
+  "global_performance_accepted": false
+}

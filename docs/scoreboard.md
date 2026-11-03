@@ -1,5 +1,40 @@
 # Scoreboard
 
+## Phase 7: implementation and qualification boundary
+
+Eight implementation PRs are merged: #747/#748/#750/#752/#753/#755/#759/#762.
+Integrated source `20ee7f75`, tree `b6625ae5`, includes the tested startup-input
+capture/offline-replay workflow. Its one full gate, retained fixture census and
+Auto qualification are running. Focused results do not refresh corpus totals or certify
+M1/M2, global performance or a release candidate.
+
+Original YoYoAllGraphs now completes on actual Core in both profiles at source
+`49188584`: success, 26,731 distinct, 48,535 generated, depth 39. This matches
+the existing pinned golden. The six graph operators retain explicit-set demand
+and error precedence; inherited lazy empty-product behavior remains #760.
+
+Core safety candidate queues now consume owned spilled payloads before ordered
+Store promotion. Bounds apply to the encoded queues and separately reported
+codec scratch/origin workspace, with explicit resource stops. They do not bound
+active Arena roots, accepted Store, all histories or temporal structures.
+Filesystem translation publication, standalone Rust consumers, owned finite
+random-source replay and native producer source counters are working additions.
+Their broader families and the real TLC logical-cost/debugger surface stay open.
+
+Comparison-summary prototype `88a5845a` is rejected unadopted: 30 correct
+Sailfish rows miss the required 10% TLC/W1 gain (observed 1.82%) and fail the
+frozen default/W8 guard (median candidate/base 1.0233723248). The remaining
+186 planned rows, including ablations and other controls, are unrun. Quiet
+certification and causal attribution remain false. No code, switch, default
+change or rescue ships. See [ADR 0147](decisions/0147-demanded-comparison-summaries.md)
+and the [performance record](../conformance/reports/perf/2026-11-03-phase7-demanded-summaries.json).
+
+Completed evidence is verified in S3 and completed worktree targets are removed.
+The two cleanup tranches removed 43,616,239,351 and 7,913,326,685 logical bytes;
+their observed free-space changes remain separate because of shared extents
+and concurrent activity. This storage housekeeping is not checker capacity or
+performance qualification.
+
 ## PlusCal file workflows
 
 Explicit `translate --write` and Rust preparation/publication now publish an
@@ -15,7 +50,7 @@ concurrent edits and failure cleanup. These additions do not rerun the historica
 PlusCal corpus or close the partial translation family; mapping-file and broader
 translator backends remain unfinished. See [the user guide](user/pluscal.md).
 
-## Phase 6: bounded delivery at `ee79de82`
+## Historical Phase 6: bounded delivery at `ee79de82`
 
 All five runtime PRs (#738–#742) are merged at `ee79de82`, tree `14f02996`.
 Reference remains default. The family inventory remains **8 implemented / 27
