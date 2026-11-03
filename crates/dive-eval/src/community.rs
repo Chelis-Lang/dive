@@ -37,8 +37,9 @@ use crate::env::{Env, Ev, OpVal, St};
 use crate::error::{Ec, EvalError, Result};
 use crate::std::StdArg;
 
-/// A graph's node and edge sets, normalized.
-type Graph = (Arc<[Value]>, Arc<[Value]>);
+/// A graph's converted node and edge sets. Explicit sets stay unnormalized
+/// until the calling operator actually demands their elements.
+type Graph = (dive_value::Set, dive_value::Set);
 
 /// A Java exception thrown inside an override's method, as `MethodValue`
 /// reports it (`TLC_MODULE_VALUE_JAVA_METHOD_OVERRIDE`, with the JVM's
@@ -1351,7 +1352,23 @@ impl Core {
     // Graphs and UndirectedGraphs (`AbstractGraphs`)
     // -------------------------------------------------------------------------
 
-    /// `AbstractGraphs.toGraph`: the node and edge sets, normalized.
+    /// `Value.toSetEnum` admission without normalizing an explicit set. Other
+    /// conversions retain their existing enumeration and callback guards.
+    fn graph_set(&self, value: &Value) -> Result<Option<dive_value::Set>> {
+        let Value::Set(set) = value else {
+            return Ok(None);
+        };
+        if !is_enumerable(value) {
+            return Ok(None);
+        }
+        if set.stored_elements().is_none() {
+            self.to_set_enum(value)?;
+        }
+        Ok(Some(set.clone()))
+    }
+
+    /// `AbstractGraphs.toGraph`: validate both converted sets, without an
+    /// extra normalization demand on an explicit node or edge collection.
     fn to_graph(&self, op: StdOp, arg_pos: &str, g: &Value) -> Result<Graph> {
         let kind = if op.module() == "Graphs" {
             "graph"
@@ -1359,14 +1376,17 @@ impl Core {
             "undirected graph"
         };
         let err = |detail: &str| {
-            EvalError::eval_exception(
+            // Java constructs this diagnostic with g.toString(). A failing
+            // graph print can replace the intended argument exception.
+            let rendered = dive_value::print::print_value(g, self.ctx)?;
+            Err(EvalError::eval_exception(
                 Ec::ArgumentError,
                 format!(
                     "The {arg_pos} argument of {} should be a {kind} {detail}, but instead it is:\n{}",
                     op.name(),
-                    self.ppr(g)
+                    rendered
                 ),
-            )
+            ))
         };
         let fields: Vec<(String, Value)> = match g {
             Value::Fcn(f) => {
@@ -1377,10 +1397,10 @@ impl Core {
                 } else if f.is_empty() {
                     Vec::new()
                 } else {
-                    return Err(err("record with a node and an edge field"));
+                    return err("record with a node and an edge field");
                 }
             }
-            _ => return Err(err("record with a node and an edge field")),
+            _ => return err("record with a node and an edge field"),
         };
         let get = |name: &str| {
             fields
@@ -1389,18 +1409,18 @@ impl Core {
                 .map(|(_, v)| v.clone())
         };
         let nodes = match get("node") {
-            Some(n) => self.to_set_enum(&n)?,
+            Some(n) => self.graph_set(&n)?,
             None => None,
         };
         let Some(nodes) = nodes else {
-            return Err(err("record whose node field is a set"));
+            return err("record whose node field is a set");
         };
         let edges = match get("edge") {
-            Some(n) => self.to_set_enum(&n)?,
+            Some(n) => self.graph_set(&n)?,
             None => None,
         };
         let Some(edges) = edges else {
-            return Err(err("record whose edge field is a set"));
+            return err("record whose edge field is a set");
         };
         Ok((nodes, edges))
     }
@@ -1451,13 +1471,15 @@ impl Core {
     fn are_connected_in(&self, op: StdOp, m: &Value, n: &Value, g: &Value) -> Result<Value> {
         let directed = op.module() == "Graphs";
         let (nodes, edges) = self.to_graph(op, "third", g)?;
-        let nodes_set = Value::set(nodes.to_vec(), self.ctx)?;
+        nodes.elements(self.ctx)?;
+        let nodes_set = Value::Set(nodes);
         if !self.member(m, &nodes_set)? || !self.member(n, &nodes_set)? {
             return Ok(Value::FALSE);
         }
         if self.equals(m, n)? {
             return Ok(Value::TRUE);
         }
+        let edges = edges.elements(self.ctx)?;
         let adj = self.adjacency(directed, false, &nodes_set, &edges)?;
         Ok(Value::Bool(reachable(m, &adj).contains(n)))
     }
@@ -1465,7 +1487,9 @@ impl Core {
     fn simple_path(&self, op: StdOp, g: &Value) -> Result<Value> {
         let directed = op.module() == "Graphs";
         let (nodes, edges) = self.to_graph(op, "first", g)?;
-        let nodes_set = Value::set(nodes.to_vec(), self.ctx)?;
+        let nodes_set = Value::Set(nodes.clone());
+        let nodes = nodes.elements(self.ctx)?;
+        let edges = edges.elements(self.ctx)?;
         let adj = self.adjacency(directed, false, &nodes_set, &edges)?;
         let mut paths = Vec::new();
         for start in nodes.iter() {
@@ -1478,11 +1502,13 @@ impl Core {
 
     fn is_strongly_connected(&self, op: StdOp, g: &Value) -> Result<Value> {
         let (nodes, edges) = self.to_graph(op, "first", g)?;
+        let nodes_set = Value::Set(nodes.clone());
+        let nodes = nodes.elements(self.ctx)?;
         if nodes.is_empty() {
             return Ok(Value::TRUE);
         }
-        let nodes_set = Value::set(nodes.to_vec(), self.ctx)?;
         let root = &nodes[0];
+        let edges = edges.elements(self.ctx)?;
         let adj = self.adjacency(true, false, &nodes_set, &edges)?;
         if reachable(root, &adj).len() != nodes.len() {
             return Ok(Value::FALSE);
@@ -1493,9 +1519,11 @@ impl Core {
 
     fn connected_components(&self, op: StdOp, g: &Value) -> Result<Value> {
         let (nodes, edges) = self.to_graph(op, "first", g)?;
-        let nodes_set = Value::set(nodes.to_vec(), self.ctx)?;
+        let nodes_set = Value::Set(nodes.clone());
+        let nodes = nodes.elements(self.ctx)?;
         let index: HashMap<&Value, usize> = nodes.iter().enumerate().map(|(i, v)| (v, i)).collect();
         let mut parent: Vec<usize> = (0..nodes.len()).collect();
+        let edges = edges.elements(self.ctx)?;
         for edge in edges.iter() {
             let Some((a, b)) = self.endpoints(false, edge)? else {
                 continue;

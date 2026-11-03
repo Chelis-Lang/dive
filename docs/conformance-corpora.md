@@ -854,6 +854,19 @@ argument diagnostic.
 The five successes and two independently replayable invariant violations have
 generated/distinct/depth 3/3/3, with exits 0 and 12. Five context-only initial-error
 streams were refused by the official golden generator and remain negative
-configurations with no model golden or agreement credit. The complete attempted
-selection is retained externally. See the [source controls](../conformance/corpus/graph-demand/README.md).
-No historical census or established corpus identity is refreshed by these cases.
+configurations with no model golden or agreement credit. `DemandedEdges`,
+`DemandedEndpoint`, `FieldPriority` and `SimpleEmpty` retain outer 2102/2103;
+`SelfEdgeType` retains 1000/2103. All five physically exit 75. The complete
+attempted selection is retained externally. The source/configuration controls
+live in `conformance/corpus/graph-demand/specifications`; negative configurations
+have `models: []` and are consumed directly by API tests. No historical census
+or established corpus identity is refreshed by these cases.
+
+Regenerate the classified controls with the pinned harness, retaining raw runs
+outside the repository when requested:
+
+```sh
+target/debug/dive-conformance golden generate --corpus graph-demand --tier all \
+  --workers 1 --jobs 2 --timeout 30 --xmx 512m \
+  --reason 'Refresh graph demand controls against the pinned oracle'
+```

@@ -55,6 +55,23 @@ enumerable graph records in both profiles. Singleton undirected edges are
 self-loops; malformed edges and edges outside the node set add no connection.
 Traversal uses checked membership and value equality, including compound nodes.
 Unproved lazy conversions and comparison histories remain named refusals.
+
+Both engines validate the graph's node and edge fields before returning an early
+result. Explicit set elements are normalized only where the override demands
+them. A node is connected to itself without inspecting edges, and an empty
+directed graph is strongly connected without inspecting edges. A non-node source
+can return false before comparing the target. This matters even for unused
+incomparable edge values. `SimplePath` and `ConnectedComponents` still demand
+their edge sets on empty graphs; demanded comparisons and invalid field types
+retain their errors or named refusals. Formatting an invalid graph argument can
+itself demand normalization, so an intended argument error does not suppress a
+comparison needed by that diagnostic. The minimal state-dependent example now
+succeeds in either profile:
+
+```sh
+dive check conformance/corpus/graph-demand/specifications/SelfDemand/SelfDemand.tla --library-path crates/dive-eval/tests/fixtures/community-modules --engine core --compat=tlc --workers 4 --seed 0 --fp 0 --output json
+```
+
 This state-dependent example exercises every override on Core:
 
 ```sh
