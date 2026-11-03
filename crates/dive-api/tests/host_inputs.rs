@@ -178,6 +178,47 @@ fn recorded_environment_names_are_created_by_fresh_source_binding() {
 }
 
 #[test]
+fn each_finite_choice_attempt_replays_its_own_inputs_and_preserves_correlation() {
+    let source = "---- MODULE Host ----\nEXTENDS Naturals, TLC, IOUtils\nVARIABLE x\nPayload==Deserialize(\"no-ambient-file.txt\",[format|->\"TXT\",charset|->\"UTF-8\"]).stdout\nInit == x = LET r == RandomElement({0,1}) IN <<Payload,r,r>>\nNext==UNCHANGED x\nInv==x[2]<0\n====\n";
+    for tlc in [false, true] {
+        let inputs = RecordedInputs {
+            grants: HostAccess::parse("files").expect("grant"),
+            records: vec![InputRecord {
+                request: InputRequest::TextFile("no-ambient-file.txt".into()),
+                response: InputResponse::Text("external-name-not-in-source".into()),
+            }],
+        };
+        let model = SpecModel::from_source(
+            "Host.tla",
+            source,
+            "INIT Init\nNEXT Next\nINVARIANT Inv\n",
+            &options(tlc, inputs),
+        )
+        .expect("explicit inputs and seeded startup context");
+        for _ in 0..2 {
+            for choice in [0, 1] {
+                let word = TraceDoc::behavior(vec![
+                    json!({"x":{"seq":["external-name-not-in-source",choice,choice]}}),
+                ])
+                .expect("word")
+                .with_ending(Ending::Invariant("Inv".into()));
+                assert_eq!(model.validate(&word).validation, Validation::Valid);
+            }
+            for forged in [
+                json!(["external-name-not-in-source", 0, 1]),
+                json!(["external-name-not-in-source", 2, 2]),
+            ] {
+                let word = TraceDoc::behavior(vec![json!({"x":{"seq":forged}})])
+                    .expect("word")
+                    .with_ending(Ending::Invariant("Inv".into()));
+                let result = model.validate(&word).validation;
+                assert!(matches!(result, Validation::Invalid(_)), "{result:?}");
+            }
+        }
+    }
+}
+
+#[test]
 fn reached_runtime_reads_and_unsupported_backends_do_not_gain_input_authority() {
     for tlc in [false, true] {
         let fixture = Fixture::new();
