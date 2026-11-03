@@ -341,6 +341,11 @@ impl Core {
     )]
     #[inline(never)]
     fn eval_inner(self: &Arc<Self>, env: &mut Env, st: &St, e: ExprId) -> Result<Ev> {
+        if let Some(coverage) = &self.source_coverage
+            && !st.is(control::DIAGNOSTIC)
+        {
+            coverage.record(e, 0);
+        }
         let ir = &*self.ir;
         let node = ir.node(e);
         match &node.expr {

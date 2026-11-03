@@ -978,3 +978,18 @@ Structural, quiet/native/bulk and independent-validation exclusions remain.
 The [compact record](../survey/data/assumption-control-overhead-2026-10-23.json)
 distinguishes the compiled source from its later delivery, retains both earlier
 setup HOLDs, and records preservation plus independent resource cleanup.
+
+## Native source observation: disabled-path diagnostic
+
+The source-work feature adds no counter storage, callback or atomic update to
+ordinary unobserved evaluators. Its optional branch sits in the existing
+non-inlined dispatch. A focused optimized scalar-evaluator diagnostic compared
+observation-disabled source against `2be62e21`, with five matched pairs in each
+semantic profile. Median candidate/base runtime was 0.98547 default and 1.02107
+TLC. Three of five TLC pairs exceeded 1.02; the other two were about 0.96.
+The shared host was not quiet-certified, so causality and the <=1% inactive
+observation target remain unproved. This is not stock-TLC throughput, a benchmark
+panel acceptance or qualification of a later rebased source. The compact
+[record](../../conformance/reports/perf/2026-11-03-native-source-observation.json)
+binds actual ELF/patch/input identities and verified external archive. No
+rescue/repetition or broad performance claim follows from these rows.

@@ -1,0 +1,134 @@
+{
+  "kind": "inactive-source-observation optimized evaluator microdiagnostic",
+  "base_source": "2be62e21",
+  "candidate_patch_sha256": "54bfb16b3c86005010a67f1e4a3857ddd727ec0e2f67c491d51bcd8d44ce7402",
+  "extra_input_sha256": {
+    "crates/dive-eval/src/coverage.rs": "33a370a3f9d3e35545e16e15307fc49c841fd8b4184716fc4ae141f6a1e87134",
+    "crates/dive-eval/examples/source_observer_cost.rs": "aa9f58c3e5890c8868d6e4d359564f59ddd3207dcdc5eb61771d6963cdeb4e43"
+  },
+  "binaries": {
+    "base": "3151358f2878bd96ebfc142a3d1a23795d4c9dfbab97c3e323ea2a3715e7cf6b",
+    "candidate": "bdcf30745a9147d993727048255f250ed1e183c48a37f37ecd4d6cacee453153"
+  },
+  "profile": {
+    "opt_level": 3,
+    "lto": false,
+    "codegen_units": 16,
+    "debug": 0
+  },
+  "quiet_certified": false,
+  "formal_performance_acceptance": false,
+  "pairs": [
+    {
+      "profile": "dive",
+      "repetition": 0,
+      "candidate_base": 1.031803462908737
+    },
+    {
+      "profile": "dive",
+      "repetition": 1,
+      "candidate_base": 0.9854692052757722
+    },
+    {
+      "profile": "dive",
+      "repetition": 2,
+      "candidate_base": 1.034411430972826
+    },
+    {
+      "profile": "dive",
+      "repetition": 3,
+      "candidate_base": 0.9771158857945282
+    },
+    {
+      "profile": "dive",
+      "repetition": 4,
+      "candidate_base": 0.9716223409684607
+    },
+    {
+      "profile": "tlc",
+      "repetition": 0,
+      "candidate_base": 1.0247068189569435
+    },
+    {
+      "profile": "tlc",
+      "repetition": 1,
+      "candidate_base": 1.0239222405325412
+    },
+    {
+      "profile": "tlc",
+      "repetition": 2,
+      "candidate_base": 0.9575242896667606
+    },
+    {
+      "profile": "tlc",
+      "repetition": 3,
+      "candidate_base": 0.9617280374744972
+    },
+    {
+      "profile": "tlc",
+      "repetition": 4,
+      "candidate_base": 1.021068187414503
+    }
+  ],
+  "median_candidate_base": {
+    "dive": 0.9854692052757722,
+    "tlc": 1.021068187414503
+  },
+  "date": "2026-11-03",
+  "scope": "Twenty optimized scalar-evaluator rows with observation disabled; native metrics feature diagnostic, not TLC/model throughput or RC qualification.",
+  "one_percent_disabled_overhead": "unproved",
+  "timing_causality": "unproved",
+  "archive": {
+    "archive_sha256": "03d797cd1c45c9d482832041b11a3c9188a04b3f58466c5093ceddf89d95a718",
+    "bytes": 2835695,
+    "bucket": "dive-evidence-archive-010928226848-us-east-1",
+    "key": "phase7-20261103/source-coverage-disabled-overhead-03d797cd1c45.tar.gz",
+    "verified": true,
+    "download_hash_verified": true,
+    "all_members_hash_verified": true,
+    "members": 9
+  },
+  "host": {
+    "cpu": "AMD RYZEN AI MAX+ 395 w/ Radeon 8060S",
+    "loadavg": [
+      14.33642578125,
+      15.02685546875,
+      15.5751953125
+    ],
+    "affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ]
+  },
+  "measured_source_scope": "Prototype patch and extra input hashes only; no final or rebased commit qualification."
+}

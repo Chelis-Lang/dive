@@ -137,7 +137,14 @@ pub enum TemporalMode {
 
 /// What to check and how.
 #[derive(Clone, Debug, Default)]
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "independent public checking options retain their boolean API"
+)]
 pub struct CheckRequest {
+    /// Collect native producer source-expression/generator work with one actual
+    /// Reference worker. These are not TLC logical costs; TLC-equivalent: false.
+    pub source_coverage: bool,
     /// Explicit bounded transient disk seen-state route. None keeps the memory
     /// reference; disk uses reported inline fallback and is not a total-RAM budget.
     pub seen_disk: Option<dive_check::SeenOptions>,
@@ -484,6 +491,14 @@ fn check_file_in(
             feature: "candidate spill requires the explicit Core engine".into(),
         });
     }
+    if req.source_coverage
+        && (engine == crate::Engine::Core
+            || checkpoint.is_some()
+            || req.temporal != TemporalMode::Ordinary
+            || req.core_sample.is_some())
+    {
+        return Err(crate::ApiError::Unsupported { feature: "native source coverage supports ordinary Reference safety checking; explicit Core, temporal, checkpoint and core-sample combinations are not implemented".into() });
+    }
     let profile = if req.compat_tlc {
         Profile::Tlc
     } else {
@@ -672,6 +687,22 @@ fn check_file_in(
             return Ok(report);
         }
     };
+    if req.source_coverage {
+        if ir.nodes().iter().any(|node| {
+            matches!(
+                &node.expr,
+                dive_ir::Expr::Enabled(_)
+                    | dive_ir::Expr::Builtin {
+                        op: dive_ir::BuiltinOp::Enabled,
+                        ..
+                    }
+            )
+        }) {
+            report.phase = Phase::Unlowered("native source coverage for compiled ENABLED queries requires source maps not yet implemented".into());
+            return Ok(report);
+        }
+        report.opts.source_coverage = Some(Arc::new(dive_eval::SourceCoverage::new(ir.clone())));
+    }
     // One clock and one ceiling for every stage of the check itself; loading,
     // parsing and lowering above are not budgeted.
     memory_resolution.map_err(crate::ApiError::BudgetMeasurement)?;
@@ -727,6 +758,9 @@ fn check_file_in(
         );
         report.core = Some(Box::new(run));
         result.into()
+    } else if engine == crate::Engine::Auto && req.source_coverage {
+        report.fallback = Some(crate::core_engine::Fallback { stage: "static", reason: "native source coverage selects the instrumented whole Reference safety run before execution".into() });
+        check_backend(&ir, &model, &armed, req.temporal, req.periodic)
     } else if engine == crate::Engine::Auto && req.seen_disk.is_some() {
         report.fallback = Some(crate::core_engine::Fallback {
             stage: "static",
@@ -757,6 +791,9 @@ fn check_file_in(
     } else {
         check_backend(&ir, &model, &armed, req.temporal, req.periodic)
     };
+    if let Some(coverage) = &report.opts.source_coverage {
+        coverage.stop();
+    }
     if report.core.is_some() && req.temporal == TemporalMode::Ordinary {
         report.temporal_configuration = crate::temporal::core_file_configuration();
     }
@@ -1040,6 +1077,12 @@ fn check_backend(
     temporal: TemporalMode,
     periodic: PeriodicSchedule,
 ) -> Phase {
+    if options.source_coverage.is_some() {
+        // Observe one actual safety producer, never isolated temporal admission
+        // or independent proof/replay evaluators. Genuine temporal obligations
+        // retain the safety checker's explicit unsupported result.
+        return Phase::Checked(Box::new(dive_check::check(ir, config, options)));
+    }
     if temporal == TemporalMode::Ordinary
         && let Some(result) = crate::temporal::check_ordinary_final(ir, config, options, periodic)
     {
@@ -1120,6 +1163,34 @@ impl CheckReport {
             Phase::Checked(r) => Some(r),
             _ => None,
         }
+    }
+
+    /// Native producer source-work rows, when explicitly requested. Counts are
+    /// separate from model completion and TLC logical costs, and observation
+    /// has stopped before a file check returns. Snapshotting evaluates no TLA.
+    ///
+    /// ```no_run
+    /// use dive_api::{CheckRequest, check_file};
+    /// # fn main() -> Result<(), dive_api::ApiError> {
+    /// let request = CheckRequest {
+    ///     file: "Counter.tla".into(),
+    ///     source_coverage: true,
+    ///     ..CheckRequest::default()
+    /// };
+    /// let report = check_file(&request)?;
+    /// if let Some(snapshot) = report.source_coverage() {
+    ///     assert!(!snapshot.active);
+    ///     // The report's verdict/completion remains the separate model claim.
+    /// }
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[must_use]
+    pub fn source_coverage(&self) -> Option<dive_eval::SourceCoverageSnapshot> {
+        self.opts
+            .source_coverage
+            .as_ref()
+            .map(|coverage| coverage.snapshot())
     }
 
     /// Separate original initial-state diagnostic context. This is not a formal
@@ -1366,7 +1437,7 @@ impl CheckReport {
 
     #[allow(
         clippy::too_many_lines,
-        reason = "one complete public options document"
+        reason = "one resolved options document retains option sources and storage policies"
     )]
     fn options_json(&self) -> Value {
         let o = &self.opts;
@@ -1469,6 +1540,9 @@ impl CheckReport {
                 "independent_certificate": false,
                 "parallel_recovery": true,
             });
+        }
+        if self.opts.source_coverage.is_some() {
+            options["source_coverage"] = json!({"metric":"native-source-work","tlc_cost_equivalent":false,"selected_backend":"reference"});
         }
         options
     }
@@ -1988,6 +2062,9 @@ impl CheckReport {
                 |f| json!({"stage": f.stage, "reason": f.reason}),
             );
         }
+        if let Some(coverage) = &self.opts.source_coverage {
+            doc["source_coverage"] = source_coverage_json(&coverage.snapshot());
+        }
         doc
     }
 
@@ -2126,8 +2203,54 @@ impl CheckReport {
                 out.push_str(&dive_check::render_human(r, o.eval.ctx));
             }
         }
+        if let Some(coverage) = &self.opts.source_coverage {
+            let snapshot = coverage.snapshot();
+            let _ = writeln!(
+                out,
+                "Native source work (Reference producer prefix; not TLC logical costs):"
+            );
+            for row in snapshot.rows {
+                let c = row.counts;
+                if c != dive_eval::SourceCounts::default() {
+                    let context = row
+                        .location
+                        .instance
+                        .as_ref()
+                        .map(|name| format!(" [static {name}]"))
+                        .unwrap_or_default();
+                    let _ = writeln!(
+                        out,
+                        "{}:{}:{} to {}:{}{context}: eval {}, init {}/{}, next {}/{}",
+                        row.location.module,
+                        row.location.begin.0,
+                        row.location.begin.1,
+                        row.location.end.0,
+                        row.location.end.1,
+                        c.evaluations,
+                        c.init_steps,
+                        c.init_emissions,
+                        c.next_steps,
+                        c.next_emissions
+                    );
+                }
+            }
+            if snapshot.overflowed {
+                let _ = writeln!(out, "Source counters saturated; exact counts unavailable.");
+            }
+        }
         out
     }
+}
+
+fn source_counts_json(counts: dive_eval::SourceCounts) -> Value {
+    json!({"evaluations":counts.evaluations,"init_steps":counts.init_steps,"next_steps":counts.next_steps,"init_emissions":counts.init_emissions,"next_emissions":counts.next_emissions})
+}
+fn source_coverage_json(snapshot: &dive_eval::SourceCoverageSnapshot) -> Value {
+    let rows: Vec<Value> = snapshot.rows.iter().map(|row| {
+        let location = &row.location;
+        json!({"module":location.module,"file":location.file,"bytes":{"start":location.bytes.0,"end":location.bytes.1},"begin":{"line":location.begin.0,"column":location.begin.1},"end":{"line":location.end.0,"column":location.end.1},"instance":location.instance,"counts":source_counts_json(row.counts)})
+    }).collect();
+    json!({"metric":"native-source-work","tlc_cost_equivalent":false,"backend":"reference","scope":"producer-prefix","context":"static-ir-origin","active":snapshot.active,"overflowed":snapshot.overflowed,"originless":source_counts_json(snapshot.originless),"rows":rows})
 }
 
 /// The counterexample in `dive-trace`'s format, the

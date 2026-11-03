@@ -48,6 +48,11 @@ explicit module/cfg/backup publication and AST-only file writes are available.
 Complete translation and mapping/specification-backed workflows remain unfinished. See the
 [translator guide](docs/pluscal-translation.md).
 
+Opt-in `check --source-coverage` reports native producer expression and generator
+work at original source locations through one Reference worker. These counters
+are separate from TLC logical costs and model proof; TLC `-coverage`, Core source
+maps and debugging remain unfinished. See [native source work](docs/user/checking.md#native-source-work).
+
 Phase 6's runtime changes are merged at `ee79de82`. **The source-bound full gate passed, and the retained census and Auto panels are closed with refusals and registered differences reported separately.**
 The scalar-fold experiment stays unmerged after its control panel triggered the
 stop criterion. Its initial GameOfLife improvement gives current main no

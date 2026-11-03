@@ -54,6 +54,14 @@ a proof. The independent project is in
 `crates/dive-api/tests/fixtures/rust-consumer/`; its tests are examples to adapt
 for a Rust application's own specifications and recorded behaviors.
 
+Set `CheckRequest.source_coverage = true` for opt-in native producer source-work
+rows through the ordinary Reference safety route. Auto selects Reference before
+execution; explicit Core/temporal/checkpoint combinations refuse. The exact
+source positions and actual expression/generator counters are available in the
+optional `source_coverage` JSON field and typed `CheckReport::source_coverage()`
+snapshot. They are not TLC logical costs or proof
+receipts. See [native source work](checking.md#native-source-work).
+
 Low-level callers may supply predicate and action scopes. Scope ownership and
 expression references are checked before backend startup. Parallel graph capture
 and DFID also inspect actual captured callables for printing, randomness, I/O or

@@ -68,6 +68,12 @@
   preserving correlations, native domain diagnostics, transformed-randomness
   admission and pure-state negatives. Retain bounded proof limits,
   register/ENABLED refusals and truthful Core/Auto selection.
+- Add opt-in native producer source-work coverage through ordinary Reference
+  safety checking and public APIs, with exact source/instance locations,
+  expression/generator counters and truthful stopped-prefix observations.
+  Auto selects the whole Reference route before work; independent replay and
+  presentation do not inflate counts. TLC logical costs, Core source maps,
+  compiled ENABLED queries and debugger support remain unfinished.
 - Add time and sampled process-memory budgets to finite simulation and DFID,
   with the checking defaults, cooperative Init/execution and fresh independent
   replay control, retained prefix progress and structured stopped reports
