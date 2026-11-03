@@ -378,8 +378,12 @@ fn state_identity(
     }
     if let Some(identity) = identity {
         capture_reserve(identity, state.len())?;
-        for &handle in state {
-            identity.push(m.heap.state_identity(handle)?);
+        if m.heap.is_speculative() {
+            identity.extend(m.heap.close_identity_row_local(state)?);
+        } else {
+            for &handle in state {
+                identity.push(m.heap.intern(handle)?);
+            }
         }
     }
     Ok(fin(K_STATE, state.len() as u64, sum))
@@ -1170,12 +1174,28 @@ fn normalize_state_history(m: &mut Machine) -> Result<(), Error> {
 }
 
 pub(crate) fn fingerprintable(m: &mut Machine, initial: bool) -> Result<bool, Error> {
+    fingerprintable_with_identity(m, initial, None)
+}
+
+/// Reuses only this emission's successful exact identity closure, when it is
+/// the same unsymmetrized row. No cache survives an emission or Arena rollback.
+pub(crate) fn fingerprintable_with_identity(
+    m: &mut Machine,
+    initial: bool,
+    identity: Option<&[Handle]>,
+) -> Result<bool, Error> {
     for i in 0..m.s1.len() {
         let h = m.s1[i];
         if h.is_empty() || !h.is_compound() || (!initial && m.s0.get(i) == Some(&h)) {
             continue;
         }
-        let p = m.heap.state_identity(h)?;
+        let p = if let Some(identity) = identity {
+            *identity
+                .get(i)
+                .ok_or_else(|| Error::internal("candidate identity row width"))?
+        } else {
+            m.heap.state_identity(h)?
+        };
         m.s1[i] = if m.heap.has_construction_history(h) {
             let view = m.heap.normalize_construction(h)?;
             if m.heap.is_speculative() {
@@ -1706,6 +1726,11 @@ fn explore_inner<'p>(
         .zip(m.memo.stats())
         .collect();
     metrics.arena_peak = m.heap.arena().peak();
+    for worker in &machines {
+        let (nodes, handles) = worker.heap.arena().peak();
+        metrics.arena_peak.0 = metrics.arena_peak.0.max(nodes);
+        metrics.arena_peak.1 = metrics.arena_peak.1.max(handles);
+    }
     metrics.thunks = (m.stats.forced, m.stats.cached);
     metrics.explore_time = start.elapsed();
     let warnings = if !config.warn {

@@ -16,7 +16,9 @@
   exact identities and original values without promoting speculative compounds
   into the shared Store. Support existing safety spill, disk and recovery routes;
   expose accounting and fail certification on storage errors. Active evaluator
-  roots, accepted Store and codec workspaces remain outside this component budget.
+  roots and accepted Store remain outside the queue budget. Preserve shared DAGs
+  during identity closure, share unchanged Arena payloads, and bound/report the
+  decoder constructor-origin index separately with explicit resource stops.
 
 - Add explicit Core completed-level safety checkpoint/resume, preserving owned
   Store/history authority, concrete discovery order, VIEW/symmetry identity and

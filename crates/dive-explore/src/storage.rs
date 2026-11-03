@@ -241,6 +241,10 @@ pub struct CandidateUsage {
     pub peak_retained_bytes: u64,
     /// Current resident encoded queue capacity after cleanup.
     pub retained_bytes: u64,
+    /// Peak aggregate retained codec constructor-origin index capacity.
+    pub peak_origin_index_bytes: u64,
+    /// Current retained codec origin-index capacity after cleanup.
+    pub origin_index_bytes: u64,
     /// Confirmed complete transient data and index bytes written.
     pub spilled_bytes: u64,
     /// Actual encoding, filesystem, decoding and cleanup failures.

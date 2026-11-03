@@ -290,6 +290,15 @@ impl WorkerSink<'_> {
         Ok(Error::stop())
     }
 
+    fn fingerprintable(&self, m: &mut Machine, identity: &[Handle]) -> Result<bool, Error> {
+        let closed = (self.out.payloads.is_some()
+            && self.seen.exact.is_some()
+            && self.plan.symmetry.is_none()
+            && self.plan.view.is_none())
+        .then_some(identity);
+        crate::fingerprintable_with_identity(m, false, closed)
+    }
+
     fn record(&mut self, m: &mut Machine) -> Result<(), Error> {
         let plan = self.plan;
         // Fingerprinting/VIEW can normalize m.s1 in place. Only capture needs
@@ -365,7 +374,7 @@ impl WorkerSink<'_> {
             self.out.push(self.action, Occ::Old { key, inside, at })?;
             return Ok(());
         }
-        if inside && plan.view.is_none() && !crate::fingerprintable(m, false)? {
+        if inside && plan.view.is_none() && !self.fingerprintable(m, &identity)? {
             let error = Error::eval(crate::FP_MESSAGE);
             return Err(self.check_err(m, Site::Fingerprint, error)?);
         }

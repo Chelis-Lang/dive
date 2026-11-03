@@ -16,6 +16,8 @@ const HEADER: usize = 32;
 const NODE_HEADER: usize = 42;
 const REFERENCE: usize = 9;
 const MAX_DEPTH: usize = 128;
+/// Maximum retained constructor-origin index capacity per candidate source.
+pub const MAX_ORIGIN_INDEX_BYTES: usize = 1024 * 1024;
 static NEXT: AtomicU64 = AtomicU64::new(1);
 
 fn invalid(message: impl std::fmt::Display) -> Error {
@@ -29,7 +31,8 @@ pub struct CandidateCodec {
     token: u64,
     source_arena: Arc<()>,
     /// Allocated only when an actual ordered read imports a history object.
-    origins: HashMap<u64, i64>,
+    origins: Vec<(u64, i64)>,
+    origin_limit: usize,
 }
 
 impl CandidateCodec {
@@ -45,7 +48,8 @@ impl CandidateCodec {
             store: Arc::clone(heap.store()),
             token,
             source_arena: Arc::clone(&heap.arena.cache_owner),
-            origins: HashMap::new(),
+            origins: Vec::new(),
+            origin_limit: MAX_ORIGIN_INDEX_BYTES,
         })
     }
 
@@ -114,6 +118,10 @@ impl CandidateCodec {
         limit: usize,
     ) -> Result<Vec<Handle>, Error> {
         self.owner(heap)?;
+        self.origin_limit = self.origin_limit.min(limit);
+        if self.origin_index_bytes() > self.origin_limit {
+            return Err(self.origin_limit_error());
+        }
         if bytes.len() > limit {
             return Err(invalid("record exceeds byte bound"));
         }
@@ -142,14 +150,7 @@ impl CandidateCodec {
             }
             shape(kind, fl, lo, origin, &children)?;
             if origin != 0 {
-                lo = if let Some(&origin) = self.origins.get(&origin) {
-                    origin
-                } else {
-                    self.origins.try_reserve(1).map_err(invalid)?;
-                    let retained = self.store.history_origin()?;
-                    self.origins.insert(origin, retained);
-                    retained
-                };
+                lo = self.retain_origin(origin)?;
             }
             let handle = self
                 .store
@@ -170,6 +171,51 @@ impl CandidateCodec {
         }
         self.owner(heap)?;
         Ok(values)
+    }
+
+    /// Actual retained origin-index entry capacity in bytes, excluding its header.
+    #[must_use]
+    pub fn origin_index_bytes(&self) -> usize {
+        self.origins.capacity() * size_of::<(u64, i64)>()
+    }
+
+    fn retain_origin(&mut self, token: u64) -> Result<i64, Error> {
+        match self
+            .origins
+            .binary_search_by_key(&token, |&(token, _)| token)
+        {
+            Ok(index) => Ok(self.origins[index].1),
+            Err(index) => {
+                let entries = self.origin_limit / size_of::<(u64, i64)>();
+                if self.origins.len() >= entries {
+                    return Err(self.origin_limit_error());
+                }
+                if self.origins.len() == self.origins.capacity() {
+                    let capacity = self
+                        .origins
+                        .capacity()
+                        .max(16)
+                        .saturating_mul(2)
+                        .min(entries);
+                    self.origins
+                        .try_reserve_exact(capacity - self.origins.len())
+                        .map_err(|_| self.origin_limit_error())?;
+                    if self.origin_index_bytes() > self.origin_limit {
+                        return Err(self.origin_limit_error());
+                    }
+                }
+                let retained = self.store.history_origin()?;
+                self.origins.insert(index, (token, retained));
+                Ok(retained)
+            }
+        }
+    }
+
+    fn origin_limit_error(&self) -> Error {
+        Error::internal(format!(
+            "DIVE-S0202: candidate constructor-origin index exceeds its {}-byte workspace bound",
+            self.origin_limit
+        ))
     }
 
     fn owner(&self, heap: &Heap) -> Result<(), Error> {
@@ -572,5 +618,100 @@ mod tests {
             "resident step memo still retains exact results"
         );
         assert!(store.stats().nodes > before);
+    }
+    #[test]
+    fn local_identity_preserves_shared_dags_and_reuses_closed_roots() {
+        for heap_mode in [false, true] {
+            let store = Arc::new(Store::new(true));
+            let mut heap = Heap::new(Arc::clone(&store), heap_mode, false);
+            let mut root = Handle::FALSE;
+            for _ in 0..20 {
+                root = heap.tuple_literal(&[root, root]);
+            }
+            let before = heap.arena().len();
+            let roots = heap.close_identity_row_local(&[root, root]).unwrap();
+            assert_eq!(roots[0], roots[1]);
+            let closed = roots[0];
+            assert_eq!(
+                heap.arena().len() - before,
+                20,
+                "one canonical header per original shared node"
+            );
+            let after = heap.arena().len();
+            assert_eq!(heap.close_identity_local(closed).unwrap(), closed);
+            assert_eq!(
+                heap.arena().len(),
+                after,
+                "already-closed DAG adds no nodes or payload"
+            );
+            let mut walk = closed;
+            for _ in 0..20 {
+                let view = heap.view(walk);
+                assert_eq!(view.flags, 0);
+                assert_eq!(view.data[0], view.data[1]);
+                walk = view.data[0];
+            }
+            let codec = CandidateCodec::new(&heap).unwrap();
+            let bytes = codec.encode(&mut heap, &[closed], 4096).unwrap();
+            assert!(
+                bytes.len() < 1500,
+                "twenty-node DAG must not become its expanded tree"
+            );
+            assert_eq!(store.stats().nodes, 0);
+        }
+    }
+
+    #[test]
+    fn local_closure_has_a_per_operation_visited_bound() {
+        let store = Arc::new(Store::new(true));
+        let mut heap = Heap::new(Arc::clone(&store), false, false);
+        let children: Vec<_> = (0..=crate::heap::MAX_LOCAL_CLOSE_ENTRIES)
+            .map(|_| heap.tuple_literal(&[Handle::TRUE]))
+            .collect();
+        let root = heap.tuple_literal(&children);
+        let error = heap.close_identity_local(root).unwrap_err();
+        assert!(error.message().contains("visited-node bound"));
+        assert_eq!(store.stats().nodes, 0);
+    }
+
+    #[test]
+    fn small_records_cannot_grow_the_cross_record_origin_index_without_bound() {
+        let store = Arc::new(Store::new(true));
+        let mut heap = Heap::new(Arc::clone(&store), false, false);
+        let mut codec = CandidateCodec::new(&heap).unwrap();
+        let mut first = Vec::new();
+        let mut stopped = false;
+        for n in 0..256 {
+            let raw = heap.local_literal(&[Handle::int(n).unwrap()]).unwrap();
+            let bytes = codec.encode(&mut heap, &[raw], 1024).unwrap();
+            assert_eq!(bytes.len(), 92);
+            if first.is_empty() {
+                first = bytes.clone();
+            }
+            heap.reset();
+            let before = store.stats().nodes;
+            match codec.decode(&mut heap, &bytes, 1024) {
+                Ok(_) => assert!(codec.origin_index_bytes() <= 1024),
+                Err(error) => {
+                    assert_eq!(error.kind(), crate::ErrorKind::Internal);
+                    assert!(error.message().contains("DIVE-S0202"));
+                    assert!(error.message().contains("constructor-origin index"));
+                    assert_eq!(
+                        store.stats().nodes,
+                        before,
+                        "no origin or node after exhaustion"
+                    );
+                    stopped = true;
+                    break;
+                }
+            }
+        }
+        assert!(stopped);
+        assert_eq!(codec.origin_index_bytes(), 1024);
+        assert_eq!(codec.origins.len(), 64);
+        assert!(
+            codec.decode(&mut heap, &first, 1024).is_ok(),
+            "known aliases remain usable at the cap"
+        );
     }
 }

@@ -15,11 +15,12 @@ pub(crate) type Account = Arc<Mutex<CandidateUsage>>;
 
 #[derive(Debug)]
 pub(crate) struct Spool {
-    codec: CandidateCodec,
+    codec: Option<CandidateCodec>,
     queue: OrderedFrontier,
     pending: Vec<u8>,
     account: Account,
     retained: u64,
+    origin_retained: u64,
     written: u64,
     identity_width: usize,
     unkeyed_outside: bool,
@@ -35,11 +36,12 @@ impl Spool {
         unkeyed_outside: bool,
     ) -> Result<Self, Error> {
         Ok(Self {
-            codec: CandidateCodec::new(&m.heap)?,
+            codec: Some(CandidateCodec::new(&m.heap)?),
             queue: OrderedFrontier::new(bytes, directory),
             pending: Vec::new(),
             account,
             retained: 0,
+            origin_retained: 0,
             written: 0,
             identity_width,
             unkeyed_outside,
@@ -49,7 +51,11 @@ impl Spool {
         if !self.pending.is_empty() {
             return Err(Error::internal("uncommitted candidate payload"));
         }
-        self.pending = self.codec.encode(&mut m.heap, roots, MAX_RECORD_BYTES)?;
+        self.pending = self
+            .codec
+            .as_ref()
+            .ok_or_else(|| Error::internal("closed candidate codec"))?
+            .encode(&mut m.heap, roots, MAX_RECORD_BYTES)?;
         Ok(0)
     }
     pub(crate) fn len(&self) -> usize {
@@ -136,16 +142,19 @@ impl Spool {
             _ => false,
         };
         if needs_values {
-            let roots = self
+            let decoded = self
                 .codec
-                .decode(&mut m.heap, &bytes[input.at..], MAX_RECORD_BYTES)
-                .map_err(|error| {
-                    if error.kind() == ErrorKind::Internal {
-                        self.failure(error.to_string())
-                    } else {
-                        error
-                    }
-                })?;
+                .as_mut()
+                .ok_or_else(|| Error::internal("closed candidate codec"))?
+                .decode(&mut m.heap, &bytes[input.at..], MAX_RECORD_BYTES);
+            self.refresh();
+            let roots = decoded.map_err(|error| {
+                if error.kind() == ErrorKind::Internal {
+                    self.failure(error.to_string())
+                } else {
+                    error
+                }
+            })?;
             let count = m.s1.len();
             let state = roots
                 .get(..count)
@@ -180,6 +189,10 @@ impl Spool {
     }
     fn refresh(&mut self) {
         let stats = self.queue.stats();
+        let origin_bytes = self
+            .codec
+            .as_ref()
+            .map_or(0, CandidateCodec::origin_index_bytes) as u64;
         let mut usage = self.account.lock().unwrap_or_else(PoisonError::into_inner);
         usage.retained_bytes = usage
             .retained_bytes
@@ -189,6 +202,12 @@ impl Spool {
         usage.spilled_bytes = usage
             .spilled_bytes
             .saturating_add(stats.spilled_bytes.saturating_sub(self.written));
+        usage.origin_index_bytes = usage
+            .origin_index_bytes
+            .saturating_sub(self.origin_retained)
+            .saturating_add(origin_bytes);
+        usage.peak_origin_index_bytes = usage.peak_origin_index_bytes.max(usage.origin_index_bytes);
+        self.origin_retained = origin_bytes;
         self.retained = stats.retained_bytes;
         self.written = stats.spilled_bytes;
     }
@@ -207,6 +226,7 @@ impl Drop for Spool {
         // Every exit, including an earlier source's deciding event, closes these
         // owned files. Failures enter the run owner and invalidate certification.
         let result = self.queue.close();
+        self.codec = None;
         self.refresh();
         if let Err(error) = result {
             let _ = self.failure(error.to_string());

@@ -252,3 +252,75 @@ fn candidate_spill_keeps_incomplete_constraint_and_action_endings() {
         }
     }
 }
+
+#[test]
+fn candidate_closure_keeps_an_actual_shared_dag_compact() {
+    for tlc in [false, true] {
+        for store in [Store::Fingerprint, Store::Exact] {
+            for workers in [1, 4] {
+                let mut req = request(
+                    "tests/fixtures/core-candidates/SharedDag20.tla",
+                    tlc,
+                    workers,
+                    store,
+                );
+                req.no_deadlock = true;
+                let baseline = check_file_engine(&req, Engine::Core)
+                    .expect("resident shared DAG")
+                    .to_json();
+                assert_eq!(baseline["verdict"], "success");
+                req.candidate_memory_bytes = Some(0);
+                let actual = check_file_engine(&req, Engine::Core)
+                    .expect("spilled shared DAG")
+                    .to_json();
+                assert_eq!(observed(&actual), observed(&baseline));
+                let resident = &baseline["core"]["metrics"]["arena_peak"];
+                let spilled = &actual["core"]["metrics"]["arena_peak"];
+                for field in ["nodes", "handles"] {
+                    assert!(
+                        spilled[field].as_u64().expect("spilled arena")
+                            <= resident[field].as_u64().expect("resident arena") * 2 + 8,
+                        "shared DAG expanded: {resident} -> {spilled}"
+                    );
+                }
+                let usage = &actual["core"]["metrics"]["candidate_storage"];
+                assert!(
+                    usage["committed_spill_bytes"]
+                        .as_u64()
+                        .expect("spill bytes")
+                        < 4096
+                );
+                assert_eq!(usage["origin_index_bytes"], 0);
+            }
+        }
+    }
+}
+
+#[test]
+fn candidate_constructor_index_is_separate_accounted_and_released() {
+    for tlc in [false, true] {
+        let mut req = request(
+            "tests/fixtures/core-candidates/OriginRows.tla",
+            tlc,
+            4,
+            Store::Exact,
+        );
+        req.no_deadlock = true;
+        let resident = check_file_engine(&req, Engine::Core)
+            .expect("resident origins")
+            .to_json();
+        assert_eq!(resident["verdict"], "success");
+        req.candidate_memory_bytes = Some(0);
+        let actual = check_file_engine(&req, Engine::Core)
+            .expect("spilled origins")
+            .to_json();
+        assert_eq!(observed(&actual), observed(&resident));
+        let usage = &actual["core"]["metrics"]["candidate_storage"];
+        assert_eq!(usage["peak_retained_bytes"], 0);
+        assert_eq!(usage["origin_index_bytes"], 0);
+        let peak = usage["peak_origin_index_bytes"]
+            .as_u64()
+            .expect("actual origin workspace");
+        assert!(peak > 0 && peak <= dive_core::candidate_codec::MAX_ORIGIN_INDEX_BYTES as u64);
+    }
+}

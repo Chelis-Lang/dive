@@ -255,6 +255,23 @@ impl Arena {
         Handle::transient(self.epoch, index)
     }
 
+    /// Appends a representation header sharing an earlier immutable payload.
+    /// The source precedes this node, so rollback cannot retain a projection
+    /// while freeing its payload. Only flags and the non-value payload change.
+    pub(crate) fn project(&mut self, source: Handle, flags: u8, lo: i64) -> Option<Handle> {
+        let index = self.index(source)?;
+        let mut node = self.nodes[index];
+        let index = u32::try_from(self.nodes.len()).ok()?;
+        self.nodes.try_reserve(1).ok()?;
+        self.interned.try_reserve(1).ok()?;
+        node.flags = flags;
+        node.lo = lo;
+        node.epoch = self.epoch;
+        self.nodes.push(node);
+        self.interned.push(Handle::EMPTY);
+        Some(Handle::transient(self.epoch, index))
+    }
+
     /// The node behind a transient handle, if it belongs to this epoch,
     /// without recording a miss.
     #[inline]
@@ -347,6 +364,44 @@ mod tests {
             a.reset();
             a.rollback(m);
             assert!(a.stale());
+        }
+    }
+    #[test]
+    fn projected_payloads_share_storage_and_obey_both_rollback_modes() {
+        for heap_mode in [false, true] {
+            let mut arena = Arena::new(heap_mode);
+            let before = arena.mark();
+            let original = arena.alloc(
+                Kind::IntFcn,
+                crate::node::flags::TUPLE,
+                1,
+                7,
+                7,
+                &[Handle::TRUE; 256],
+            );
+            let after_original = arena.mark();
+            let projection = arena.project(original, 0, 1).unwrap_or(Handle::EMPTY);
+            assert!(!projection.is_empty());
+            assert_eq!(
+                arena.lookup(original).map(|v| v.data.as_ptr()),
+                arena.lookup(projection).map(|v| v.data.as_ptr())
+            );
+            assert_eq!(
+                arena.lookup(original).map(|v| v.flags),
+                Some(crate::node::flags::TUPLE)
+            );
+            assert_eq!(arena.lookup(projection).map(|v| v.flags), Some(0));
+            arena.rollback(after_original);
+            assert!(arena.lookup(projection).is_none());
+            assert_eq!(arena.lookup(original).map(|v| v.data.len()), Some(256));
+            let again = arena.project(original, 0, 1).unwrap_or(Handle::EMPTY);
+            assert_ne!(projection, again);
+            arena.rollback(before);
+            assert!(arena.lookup(original).is_none() && arena.lookup(again).is_none());
+            let reused = arena.alloc(Kind::IntFcn, 0, 1, 9, 9, &[Handle::FALSE; 256]);
+            assert_ne!(original, reused);
+            assert!(arena.lookup(again).is_none());
+            assert!(!arena.stale());
         }
     }
 }

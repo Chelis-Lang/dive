@@ -14,6 +14,34 @@ use crate::store::Store;
 /// The largest set the core materializes.
 pub const MAX_MATERIALIZE: usize = 1 << 24;
 
+/// Maximum successful source nodes remembered by one local identity closure.
+pub const MAX_LOCAL_CLOSE_ENTRIES: usize = 65_536;
+/// Maximum aggregate live child-copy workspace in one local identity closure.
+pub const MAX_LOCAL_CLOSE_SCRATCH_BYTES: usize = 64 * 1024 * 1024;
+
+#[derive(Default)]
+struct LocalClose {
+    visited: std::collections::HashMap<Handle, Handle>,
+    scratch: usize,
+}
+
+impl LocalClose {
+    fn remember(&mut self, source: Handle, closed: Handle) -> Result<(), Error> {
+        if !self.visited.contains_key(&source) {
+            if self.visited.len() >= MAX_LOCAL_CLOSE_ENTRIES {
+                return Err(Error::unsupported(
+                    "candidate identity closure visited-node bound",
+                ));
+            }
+            self.visited
+                .try_reserve(1)
+                .map_err(|_| Error::unsupported("candidate identity closure map allocation"))?;
+        }
+        self.visited.insert(source, closed);
+        Ok(())
+    }
+}
+
 static EMPTY_DATA: [Handle; 0] = [];
 
 /// A worker's view of the value regions: the shared persistent store and its
@@ -1553,12 +1581,44 @@ impl Heap {
     /// # Errors
     /// An unclosed lazy value, failed normalization, or a too-deep candidate.
     pub fn close_identity_local(&mut self, h: Handle) -> Result<Handle, Error> {
-        self.close_local(h, 0)
+        self.close_local(h, 0, &mut LocalClose::default())
     }
 
-    fn close_local(&mut self, h: Handle, depth: usize) -> Result<Handle, Error> {
+    /// Closes related roots with one bounded, operation-local sharing map.
+    ///
+    /// No result or source mapping survives this call. Original values retain
+    /// their receiver/history representations; returned roots are Arena-local.
+    ///
+    /// # Errors
+    /// As [`Self::close_identity_local`], or root-row workspace exhaustion.
+    pub fn close_identity_row_local(&mut self, roots: &[Handle]) -> Result<Vec<Handle>, Error> {
+        if std::mem::size_of_val(roots) > MAX_LOCAL_CLOSE_SCRATCH_BYTES {
+            return Err(Error::unsupported(
+                "candidate identity root-row workspace bound",
+            ));
+        }
+        let mut out = Vec::new();
+        out.try_reserve_exact(roots.len())
+            .map_err(|_| Error::unsupported("candidate identity root-row allocation"))?;
+        let mut close = LocalClose::default();
+        for &root in roots {
+            out.push(self.close_local(root, 0, &mut close)?);
+        }
+        Ok(out)
+    }
+
+    fn close_local(
+        &mut self,
+        source: Handle,
+        depth: usize,
+        close: &mut LocalClose,
+    ) -> Result<Handle, Error> {
+        let h = source;
         if !h.is_compound() {
             return Ok(h);
+        }
+        if let Some(&closed) = close.visited.get(&h) {
+            return Ok(closed);
         }
         if depth >= 128 {
             return Err(Error::unsupported("candidate identity nesting exceeds 128"));
@@ -1569,13 +1629,20 @@ impl Heap {
         } else {
             h
         };
+        if let Some(&closed) = close.visited.get(&h) {
+            close.remember(source, closed)?;
+            return Ok(closed);
+        }
         let view = self.view(h);
         if view.is_lazy() {
             return Err(Error::internal("closing an unclosed lazy candidate value"));
         }
         if view.kind.is_symbolic() && self.is_finite(h) {
             let materialized = self.materialize(h)?;
-            return self.close_local(materialized, depth + 1);
+            let closed = self.close_local(materialized, depth + 1, close)?;
+            close.remember(source, closed)?;
+            close.remember(h, closed)?;
+            return Ok(closed);
         }
         // A canonical persistent node has only canonical persistent children.
         if h.is_persistent() && view.flags & flags::VIEW == 0 {
@@ -1587,11 +1654,44 @@ impl Heap {
             view.hash,
             view.sum,
         );
-        let mut children = self.history_copy(view.data)?;
-        for child in &mut children {
-            *child = self.close_local(*child, depth + 1)?;
+        let bytes = std::mem::size_of_val(view.data);
+        if bytes > MAX_LOCAL_CLOSE_SCRATCH_BYTES.saturating_sub(close.scratch) {
+            return Err(Error::unsupported(
+                "candidate identity closure child workspace bound",
+            ));
         }
-        Ok(self.arena.alloc(kind, 0, lo, hash, sum, &children))
+        let mut children = Vec::new();
+        children
+            .try_reserve_exact(view.data.len())
+            .map_err(|_| Error::unsupported("candidate identity closure child allocation"))?;
+        let bytes = children.capacity() * size_of::<Handle>();
+        if bytes > MAX_LOCAL_CLOSE_SCRATCH_BYTES.saturating_sub(close.scratch) {
+            return Err(Error::unsupported(
+                "candidate identity closure child workspace bound",
+            ));
+        }
+        close.scratch += bytes;
+        for chunk in view.data.chunks(64) {
+            self.history_poll()?;
+            children.extend_from_slice(chunk);
+        }
+        for child in &mut children {
+            *child = self.close_local(*child, depth + 1, close)?;
+        }
+        let unchanged = self.view(h).data == children;
+        let closed = if unchanged && self.view(h).flags == 0 && self.view(h).lo == lo {
+            h
+        } else if unchanged && h.is_transient() {
+            self.arena
+                .project(h, 0, lo)
+                .ok_or_else(|| Error::internal("candidate identity projection owner"))?
+        } else {
+            self.arena.alloc(kind, 0, lo, hash, sum, &children)
+        };
+        close.scratch -= bytes;
+        close.remember(source, closed)?;
+        close.remember(h, closed)?;
+        Ok(closed)
     }
 
     /// Interns a value into the persistent store, deep-closing it: children

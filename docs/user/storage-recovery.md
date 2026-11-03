@@ -59,12 +59,19 @@ not first intern all its speculative payloads into the Store.
 This works with both profiles, fingerprint/exact membership, VIEW, safety
 symmetry, disk seen, frontier/predecessor spill and Core safety checkpoint/recovery.
 One-record codec workspaces have a separate 64 MiB record bound and a 128-level
-nesting bound. Active generator roots/Arena, dynamic names, accepted Store/history,
+nesting bound. Identity closure preserves DAG sharing, reuses closed roots and
+shares unchanged immutable payloads when only a representation header changes;
+its per-operation visited map and child-copy workspace are bounded. The separate
+constructor-origin index retains at most 1 MiB per pending source, preserving
+aliases across that source's records. Exhaustion stops with named `DIVE-S0202`
+resource-limit; this index is never charged as accepted Store payload. Active generator roots/Arena, dynamic names, accepted Store/history,
 other caches and total process memory are outside the queue budget. Generator
 roots are never reset merely to make a queue budget fit.
 
 JSON `core.metrics.candidate_storage` reports the per-worker budget, aggregate
 peak encoded capacity, committed spill bytes, remaining bytes and failures.
+Separate `peak_origin_index_bytes` / `origin_index_bytes` fields report actual
+retained codec index capacity; the per-worker index limit is explicit.
 Read, write, checksum and cleanup failures produce a resource stop without a
 certified word. Completed queues are removed; they cannot be recovered after
 restart or used as trace evidence. See [ADR 0143](../decisions/0143-owned-candidate-payload-spill.md).

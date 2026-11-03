@@ -46,8 +46,21 @@ Ordered reads alone import nodes and register their constructor origins. Tokens
 cannot be decoded by another codec, process or Store. This is trusted transient
 working storage, not a portable checkpoint or independent trace certificate.
 
-A record is limited to 64 MiB, its traversal depth to 128, and traversal/child
-workspaces and deduplication tables have explicit bounds derived from the record
+A record is limited to 64 MiB and its traversal depth to 128. One identity
+closure retains at most 65,536 successful source-handle mappings and 64 MiB of
+live child-copy capacity. This per-operation map preserves DAG sharing and is
+released before the next closure; already-closed roots are reused. A flags-only
+canonical projection shares the original immutable Arena payload through a new
+header, respecting both pooled and boxed rollback boundaries.
+
+The decoder's cross-record constructor-origin index is separate codec storage,
+not Store payload. Its sorted-vector capacity is bounded by the smaller of the
+record limit and 1 MiB per pending source. Exhaustion reports named
+`DIVE-S0202` resource-limit, closes owned storage and certifies no word. The index
+is retained only until that source's ordered consumption ends, so repeated
+aliases still resolve to their actual shared origin. Peak/current index capacity
+is reported separately from encoded queue capacity. The per-record traversal
+and deduplication workspaces also have explicit bounds derived from the record
 limit. One-record codec/writer/reader workspaces are separate from queued encoded
 capacity. Active evaluator Arena roots, dynamic names, accepted Store/history,
 other caches, seen sets and allocator/OS overhead are outside this component
