@@ -86,6 +86,9 @@ dive check conformance/corpus/set-conversion-demand/specifications/NormalizedPro
 Nonempty conversions still demand axis normalization. Later sizing of an
 incomparable raw axis still errors, Product membership retains its original
 receiver checks, and axis operand expressions are evaluated before conversion.
+Normalization-first consumers such as `Functions!AntiFunction` still normalize
+the original Product's axes before rejecting a non-function argument. That
+receiver demand is distinct from normalizing an already converted collection.
 Unknown earlier operands and providers keep their errors or named refusals. The
 receiver error's native TLC source classification remains unverified; it earns no
 error-parity credit.

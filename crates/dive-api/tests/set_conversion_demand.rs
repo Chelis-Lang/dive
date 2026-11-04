@@ -122,3 +122,54 @@ fn conversion_does_not_erase_receiver_or_later_error_demand() {
         }
     }
 }
+
+#[test]
+fn caller_order_distinguishes_receiver_normalization_from_conversion() {
+    for compat in [false, true] {
+        let report = check_file_engine(&request("AntiFunctionRawEmpty", compat), Engine::Reference)
+            .expect("normalization-first error");
+        let d = report.to_json();
+        assert_eq!(d["verdict"], "evaluation-error");
+        assert_eq!(report.exit_code_for(ExitConvention::Tlc), 75);
+        assert_eq!(d["tlc"]["verified"], false);
+        let message = d["message"].as_str().expect("normalization message");
+        assert!(message.contains("Functions.antiFunction"));
+        assert!(message.contains("Attempted to compare boolean TRUE with non-boolean"));
+        assert!(!message.contains("The argument of AntiFunction"));
+
+        let report = check_file_engine(&request("PrefixRawEmpty", compat), Engine::Reference)
+            .expect("conversion-first error");
+        let d = report.to_json();
+        assert_eq!(d["verdict"], "evaluation-error");
+        assert_eq!(report.exit_code_for(ExitConvention::Tlc), 75);
+        assert_eq!(d["tlc"]["verified"], false);
+        let message = d["message"].as_str().expect("argument message");
+        assert!(message.contains("The argument of LongestCommonPrefix"));
+        assert!(!message.contains("Attempted to compare boolean"));
+
+        let name = "OtherConvertedConsumers";
+        let report = check_file_engine(&request(name, compat), Engine::Reference)
+            .expect("conversion-first consumers");
+        let path = root().join(format!("conformance/golden/tlc-2026.10.06.014338/set-conversion-demand/specifications/{name}/{name}.cfg.json"));
+        let golden: Value = serde_json::from_slice(&std::fs::read(path).expect("primary golden"))
+            .expect("golden JSON");
+        let r = &golden["result"];
+        assert_eq!(r["verdict"], "success");
+        assert_eq!(
+            facts(&report),
+            json!({"verdict":r["verdict"],"code":r["verdict_code"],"class":r["error_class"],
+            "distinct":r["counts"]["distinct_states"],"generated":r["counts"]["states_generated"],
+            "depth":r["counts"]["depth"],"exit":r["exit_code"]})
+        );
+        for name in [
+            "OtherConvertedConsumers",
+            "AntiFunctionRawEmpty",
+            "PrefixRawEmpty",
+        ] {
+            let core = check_file_engine(&request(name, compat), Engine::Core)
+                .expect("retained Core guard");
+            assert_eq!(core.to_json()["verdict"], "unsupported");
+            assert_eq!(core.exit_code_for(ExitConvention::Tlc), 3);
+        }
+    }
+}

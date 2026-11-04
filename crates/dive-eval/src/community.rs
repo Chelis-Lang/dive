@@ -568,11 +568,17 @@ impl Core {
                     // The original Product and its unused axes retain authority.
                     return Ok(Some(Arc::from([])));
                 }
-                self.enum_guard(s)?;
-                Ok(Some(s.elements(self.ctx)?))
+                Ok(Some(self.normalized_set_elements(s)?))
             }
             _ => Ok(None),
         }
+    }
+
+    /// The established receiver-normalizing enumeration route. Keep this
+    /// separate from converting a Product before normalizing its projection.
+    fn normalized_set_elements(&self, set: &dive_value::Set) -> Result<Arc<[Value]>> {
+        self.enum_guard(set)?;
+        Ok(set.elements(self.ctx)?)
     }
 
     /// `Value.toFcnRcd()`'s pairs, in the function's normalized order; `None`
@@ -1238,9 +1244,11 @@ impl Core {
 
     fn anti_function(&self, op: StdOp, f: &Value) -> Result<Value> {
         let Value::Fcn(fun) = f else {
-            if let Value::Set(_) = f {
+            if let Value::Set(set) = f
+                && is_enumerable(f)
+            {
                 // `f.normalize()` runs first.
-                let _ = self.to_set_enum(f)?;
+                let _ = self.normalized_set_elements(set)?;
             }
             return Err(self.one_arg_error("AntiFunction", "functions", f));
         };

@@ -21,7 +21,9 @@
   normalized Java set conversions (`SetToSeq`, `SetToSeqs` and the shared
   conversion helper). Reuse the bounded read-only emptiness proof before axis
   normalization, keeping original Product receivers, raw aliases, later errors
-  and unknown/provider guards intact in both profiles (#770).
+  and unknown/provider guards intact in both profiles (#770). Keep normalization-
+  first consumers such as `AntiFunction` on their original receiver-normalizing
+  route, preserving demanded axis comparisons before type rejection.
 
 - Add explicit PlusCal `translate --write` and Rust preparation/publication APIs,
   publishing admitted modules, exact `.old` backups and delimiter-merged `.cfg`
