@@ -1,0 +1,22 @@
+{
+  "sources": [
+    "docs/conformance-corpora.md",
+    "docs/user/modules.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "set-conversion",
+    "source-demand",
+    "diagnostic-rendering"
+  ],
+  "modules": [
+    {
+      "path": "specifications/PrefixInfiniteFirst/PrefixInfiniteFirst.tla",
+      "features": [],
+      "models": []
+    }
+  ]
+}

@@ -40,7 +40,20 @@ established operations, finite factor-tree demand and known infinite Boolean
 answers, one classified receiver error after sizing, and two context-only
 raw-axis size / infinite-then-scalar errors. Reference's separate
 scalar-axis Cardinality failures remain unproved, without relabeling primary TLC
-facts or historical qualification totals.
+facts or historical qualification totals. The later Reference normalized-set
+conversion repair (#770) reuses the same bounded concrete Product emptiness
+proof. Its separate `set-conversion-demand` corpus has eight primary model facts:
+five successes on both engines, one additional Reference conversion-consumer
+success retaining a Core refusal, one pinned-success provider case retaining
+native refusals, and one receiver error with unverified native source
+classification. Six context-only controls include the normalization-first
+AntiFunction comparison demand and conversion-first prefix argument error.
+The separate `set-diagnostic-demand` corpus adds one ordinary success on both
+engines and seven context-only controls. It distinguishes a reversed mixed axis's
+comparison error from nested and empty-first Products that print `{}`. Existing
+golden bytes and the earlier candidate rejection remain unchanged; these new
+controls change no historical qualification totals.
+Refusals and unverified classifications receive no parity credit.
 
 The separate `reference-finiteness-demand` corpus adds six pinned holding models,
 one classified post-finiteness receiver error, one provider success that remains

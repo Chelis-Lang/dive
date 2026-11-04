@@ -197,6 +197,56 @@ fn nonenumerable_function_set_diagnostics_do_not_reenter_the_same_expansion() {
 }
 
 #[test]
+fn checked_product_diagnostics_swallow_selection_but_propagate_fallback_errors() {
+    for ctx in [Ctx::tlc(), Ctx::dive()] {
+        let mixed = Value::set_raw(vec![Value::from(0), Value::TRUE], ctx);
+        let empty = Value::empty_set(ctx);
+        let first = Value::product(vec![empty.clone(), mixed.clone()], ctx);
+        assert_eq!(
+            print::print_error_value(&first, ctx).expect("empty first"),
+            "{}"
+        );
+        assert!(!mixed.as_set().expect("mixed set").is_tlc_normalized());
+
+        let reverse = Value::product(vec![mixed.clone(), empty.clone()], ctx);
+        let error = print::print_error_value(&reverse, ctx).expect_err("fallback normalization");
+        assert_eq!(error.kind(), ErrorKind::Incomparable);
+        assert_eq!(
+            error.message(),
+            "Attempted to compare boolean TRUE with non-boolean:\n0"
+        );
+        assert!(!mixed.as_set().expect("mixed set").is_tlc_normalized());
+
+        let nested = Value::product(
+            vec![reverse, Value::set_raw(vec![Value::from(0)], ctx)],
+            ctx,
+        );
+        assert_eq!(
+            print::print_error_value(&nested, ctx).expect("nested size"),
+            "{}"
+        );
+        let unknown = Value::product(vec![empty.clone(), Value::from(0)], ctx);
+        let nested = Value::product(vec![unknown, mixed.clone()], ctx);
+        assert_eq!(
+            print::print_error_value(&nested, ctx).expect("nested empty first"),
+            "{}"
+        );
+        assert!(!mixed.as_set().expect("mixed set").is_tlc_normalized());
+
+        let infinite = Value::product(vec![Value::nat(ctx), empty.clone()], ctx);
+        assert_eq!(
+            print::print_error_value(&infinite, ctx).expect("swallowed infinite sizing"),
+            "(Nat \\X {})"
+        );
+        let infinite = Value::product(vec![empty, Value::nat(ctx)], ctx);
+        assert_eq!(
+            print::print_error_value(&infinite, ctx).expect("unused Nat"),
+            "{}"
+        );
+    }
+}
+
+#[test]
 fn symbolic_function_emptiness_preserves_size_hash_equality_and_fingerprints() {
     for ctx in [Ctx::tlc(), Ctx::dive()] {
         let empty = Value::empty_set(ctx);
