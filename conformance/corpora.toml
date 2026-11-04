@@ -345,3 +345,10 @@ id = "product-operations"
 path = "conformance/corpus/product-operations"
 license = "MIT"
 layout = "examples-manifest"
+
+# Primary-first Reference IsFiniteSet nested receiver demand (#771).
+[[corpus]]
+id = "reference-finiteness-demand"
+path = "conformance/corpus/reference-finiteness-demand"
+license = "MIT"
+layout = "examples-manifest"
