@@ -338,3 +338,10 @@ id = "product-receivers"
 path = "conformance/corpus/product-receivers"
 license = "MIT"
 layout = "examples-manifest"
+
+# Receiver-preserving concrete Product finite-set operations.
+[[corpus]]
+id = "product-operations"
+path = "conformance/corpus/product-operations"
+license = "MIT"
+layout = "examples-manifest"

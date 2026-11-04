@@ -1,0 +1,28 @@
+{
+  "sources": [
+    "docs/user/modules.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "cartesian-product",
+    "finite-set-operations",
+    "source-demand"
+  ],
+  "modules": [
+    {
+      "path": "specifications/OrdinaryProductTupleMember/OrdinaryProductTupleMember.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/OrdinaryProductTupleMember/OrdinaryProductTupleMember.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "sources": [
+    "docs/user/modules.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "cartesian-product",
+    "finite-set-operations",
+    "source-demand"
+  ],
+  "modules": [
+    {
+      "path": "specifications/DemandedRawProductSize/DemandedRawProductSize.tla",
+      "features": [],
+      "models": []
+    }
+  ]
+}

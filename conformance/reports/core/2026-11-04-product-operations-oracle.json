@@ -1,0 +1,189 @@
+{
+  "kind": "Product scalar operation primary controls before restoring admitted operations",
+  "rejected_head": "8b9dfbde21a83a270150184726861d1dd467f281",
+  "oracle": "tlc-2026.10.06.014338",
+  "primary_source": "tlaplus94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "methods": [
+    "SetOfTuplesValue.isFinite/size",
+    "SetEnumValue.isFinite/isEmpty/size",
+    "IntervalValue.isFinite/size",
+    "SubsetValue.isFinite/size",
+    "SetOfFcnsValue.isFinite/size",
+    "SetOfRcdsValue.isFinite/size"
+  ],
+  "observation": "Concrete Product finiteness does not normalize explicit axes. Product size checks source-order emptiness before demanding sizes; nested function sets skip range size for an empty domain. The original Product remains the public membership receiver after scalar operations.",
+  "goldens": [
+    {
+      "model": "specifications/ConcreteFactorTree/ConcreteFactorTree.cfg",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/ConcreteFactorTree/ConcreteFactorTree.cfg.json",
+      "sha256": "7dea40889f5bce05ab1a812b8e59473e43033b272f690df2728d9fd2892422cd",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        }
+      }
+    },
+    {
+      "model": "specifications/EmptyFunctionRangeHistory/EmptyFunctionRangeHistory.cfg",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/EmptyFunctionRangeHistory/EmptyFunctionRangeHistory.cfg.json",
+      "sha256": "262120779fd5f603caa756c35478a71eb1adc073f1aefe744bd76b0a4a1dcfac",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        }
+      }
+    },
+    {
+      "model": "specifications/FiniteRawAxisHistory/FiniteRawAxisHistory.cfg",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/FiniteRawAxisHistory/FiniteRawAxisHistory.cfg.json",
+      "sha256": "f69b14a4228f7138fc00713dc2fd22b6d0ae227cd204db03e9eb236028e7d7d6",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        }
+      }
+    },
+    {
+      "model": "specifications/OrdinaryProductCardinality/OrdinaryProductCardinality.cfg",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/OrdinaryProductCardinality/OrdinaryProductCardinality.cfg.json",
+      "sha256": "e914ca86587662ffec91ffcd2a96e34690a5f24ce2c29367595ec81511c30076",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        }
+      }
+    },
+    {
+      "model": "specifications/OrdinaryProductEquality/OrdinaryProductEquality.cfg",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/OrdinaryProductEquality/OrdinaryProductEquality.cfg.json",
+      "sha256": "5f98cc9a826d210538b9537f7a2df41ea583fc5f38d34591cfbead6db652da06",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        }
+      }
+    },
+    {
+      "model": "specifications/OrdinaryProductFinite/OrdinaryProductFinite.cfg",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/OrdinaryProductFinite/OrdinaryProductFinite.cfg.json",
+      "sha256": "c7758e201fb094d836fad2a2ba4eb82793a67de9b60947a4101fe8e24f8f7c3c",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        }
+      }
+    },
+    {
+      "model": "specifications/OrdinaryProductFunctionMember/OrdinaryProductFunctionMember.cfg",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/OrdinaryProductFunctionMember/OrdinaryProductFunctionMember.cfg.json",
+      "sha256": "da7c17c28151d5f26106ec86f1abd2e6fecd044de57d8b99a5c24273396019d0",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        }
+      }
+    },
+    {
+      "model": "specifications/OrdinaryProductTupleMember/OrdinaryProductTupleMember.cfg",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/OrdinaryProductTupleMember/OrdinaryProductTupleMember.cfg.json",
+      "sha256": "c02a535222b4899aace9ade0723bd632368f43cdad2d8730ecd7331cb62a264b",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        }
+      }
+    },
+    {
+      "model": "specifications/OrdinaryTupleProductCardinality/OrdinaryTupleProductCardinality.cfg",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/OrdinaryTupleProductCardinality/OrdinaryTupleProductCardinality.cfg.json",
+      "sha256": "fe4c8b79e7d0f4e6e0597e34ca874559faf9b8b6f225cf802a27123c098230bf",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        }
+      }
+    },
+    {
+      "model": "specifications/SizedProductReceiver/SizedProductReceiver.cfg",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/SizedProductReceiver/SizedProductReceiver.cfg.json",
+      "sha256": "630df77527dabb93bfea9a3f71b994a9f6e52fb0c4f26cb993cf9deb930b9541",
+      "result": {
+        "verdict": "evaluation-error",
+        "verdict_code": 2147,
+        "error_class": "TLC_FINGERPRINT_EXCEPTION",
+        "exit_code": 75,
+        "counts": {
+          "distinct_states": 1,
+          "states_generated": 1,
+          "states_left_on_queue": 1,
+          "depth": 1
+        }
+      }
+    }
+  ],
+  "context_only_negative": "DemandedRawProductSize exits75 explained only by context2103; no model golden or deciding class is invented. The raw primary remains retained externally.",
+  "scope": "Six independent reviewer controls plus generic finite factor tree, raw-axis phase, empty-function-domain and after-sizing receiver controls. No infinite/deferred/unproved factor admission or error-class parity claim."
+}
