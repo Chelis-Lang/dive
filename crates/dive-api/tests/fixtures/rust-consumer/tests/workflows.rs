@@ -190,6 +190,31 @@ fn dfid_completion_requires_evidence_even_when_the_compatibility_exit_is_zero() 
 }
 
 #[test]
+fn tlc_logical_coverage_is_available_to_an_independent_rust_consumer() -> Result {
+    let source = "---- MODULE Costs ----\nEXTENDS Naturals\nVARIABLE x,y\nH(n)==n+1\nInit==/\\ x=0 /\\ y=0\nA==/\\ x<2 /\\ x'=H(x) /\\ y'=H(y)\nB==/\\ x=2 /\\ x'=x /\\ y'=y\nNext==A \\/ B\n====\n";
+    let project = Project::new("Costs", source, "INIT Init\nNEXT Next\n")?;
+    for compat in [false, true] {
+        let mut request = project.request(compat);
+        request.tlc_coverage = true;
+        let report = check_file_engine(&request, Engine::Reference)?;
+        assert_eq!(report.verdict(), "success");
+        let costs = report.tlc_coverage().ok_or("logical coverage missing")?;
+        assert!(!costs.active);
+        assert!(costs.unsupported.is_none());
+        assert_eq!(costs.actions.len(), 3);
+        assert_eq!(costs.actions[1].generated, 2);
+        assert!(
+            costs.actions[1]
+                .rows
+                .iter()
+                .any(|row| row.location.module == "Costs" && row.invocations > 0)
+        );
+        assert!(report.source_coverage().is_none());
+    }
+    Ok(())
+}
+
+#[test]
 fn implementation_traces_accept_real_steps_and_reject_skipped_states() -> Result {
     let model = SpecModel::from_source("Finite.tla", FINITE, CONFIG, &TraceOptions::default())?;
     let actual = TraceDoc::behavior(vec![

@@ -33,7 +33,7 @@ keeps both attempts and the locally preserved survivor archives distinct.
 |---|---|
 | Core breadth | Six finite graph overrides run natively. Original YoYoAllGraphs completes in both profiles at `49188584`, matching the pinned 26,731 distinct / 48,535 generated / depth 39 success. Explicit-set demand and error precedence are repaired. The inherited lazy empty-product mismatch remains #760. |
 | Candidate retention | Ordered Core safety queues can spill owned payloads and occurrences before speculative Store promotion. Both profiles, stores and widths 1/4/8 retain independent concrete words. Record/scratch/origin-index limits fail explicitly. Active Arena roots, accepted Store and temporal structures remain outside this component budget. |
-| Native workflows | Filesystem PlusCal publication and actual cargo-test consumers work. Simulation carries owned RNG state from binding through repeated finite choices; independent replay rebuilds source alternatives. Native source counters use exact static origins and exclude private reconstruction/replay. These are not full modes, translation, TLC logical-cost or debugger parity. |
+| Native workflows | Filesystem PlusCal publication and actual cargo-test consumers work. Simulation carries owned RNG state from binding through repeated finite choices; independent replay rebuilds source alternatives. Native source counters use exact static origins and exclude private reconstruction/replay. Final Reference Init/Next scalar/quantifier logical costs additionally support multiple variables and reused helpers. These are not full modes, translation, TLC coverage or debugger parity. |
 | External inputs | The #762 increment requires explicit category grants and records bounded raw startup assumptions. Offline CLI/API replay consumes fresh source requests without ambient I/O. Runtime reads, writes, exec, Core/temporal/recovery and unproved native name/history cases remain refused. |
 | Performance | Candidate `88a5845a` is stopped unadopted. Thirty correct Sailfish rows miss the required 10% TLC/W1 gain (observed 1.82%) and fail the frozen default/W8 guard. The remaining 186 planned rows, including ablations and other controls, are unrun. No code, switch, default change or rescue ships. See [ADR 0147](decisions/0147-demanded-comparison-summaries.md). |
 
@@ -238,7 +238,8 @@ The design is in ADRs 0017–0019 (proposed).
 The approved rescue roadmap in issue #241 retains the following mandatory
 scope. Bounded native modes/storage and independent PlusCal comparison advance
 these contracts without closing their full families. Granted startup inputs move
-I/O to partial: the current inventory is 8 implemented / 28 partial / 2 missing
+I/O to partial; final Reference logical coverage moves coverage/debugger to
+partial. The current inventory is 8 implemented / 29 partial / 1 missing
 families; `implemented` is a supported
 corpus claim, not full parity.
 
@@ -247,7 +248,7 @@ corpus claim, not full parity.
 | Correctness and breadth | Complete broader constructor/receiver/source lifetimes, standard/Community operators, startup/configuration, symmetry/temporal language and actual-Core corpus coverage. Keep the narrow registered SBB difference distinct from strict agreements; preserve refusals and Unclassified streams until proved. |
 | Modes | Extend constructive generation/sample proof to general RandomElement relations, captured effects, full simulation/DFID matrices and justified worker/scheduler options. Broad #111/#118/#128/#239 remain open; landed budgets do not measure #350's ≤1% instruction-overhead criterion. |
 | Recoverable bounded search | Extend owned candidate/frontier/disk and Core safety recovery to accepted Store/Arena, trace and temporal graph/SCC paging, temporal recovery and complete accounting. Retry-safe native distribution depends on the identity-checked recovery contract. No total-memory bound follows from archive or component limits. |
-| Product and integration | Explicit host category grants, runtime/introspection/output, trace exploration, coverage/debugger, complete PlusCal and checking/simulation/translation/checkpoint/distributed Rust APIs with cargo-test integration. |
+| Product and integration | Explicit host category grants, runtime/introspection/output, trace exploration, complete TLC logical costs, Core/INSTANCE/PlusCal source maps and DAP, complete PlusCal and checking/simulation/translation/checkpoint/distributed Rust APIs with cargo-test integration. |
 | Performance and release | ADR 0119 default floors, compatibility outliers, full-tier actual-core/fallback acceptance, unchanged deep populations, supported platform/package/user flows and RC qualification. |
 
 Build these increments on the existing compiled kernel and independent validator.

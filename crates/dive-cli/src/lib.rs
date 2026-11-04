@@ -44,7 +44,8 @@ fn usage() -> String {
                [--checkpoint-counters tlc|retain]
                [--lncheck final --lasso short] [--engine reference|core|auto] [--core-sample N] [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--generate] [--exit-codes native|tlc] [--depth N] [--seed N] [--aril N] [--stats none|basic] [--engine reference|core|auto] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--engine reference|core|auto] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--output human|json]\n    dive validate-trace <FILE.tla> [--trace TRACE.json] [--inputs RUN.json] [--config FILE.cfg] [--claim ENDING] [--sample]\n               [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    Eligible ordinary temporal checks use deterministic completed-level checks in the dive
     profile and final checking in the TLC profile; explicit final/short keeps final checking.
-    dive check uses TLC process statuses by default, independently of semantic profile.\n    --exit-codes native retains: 0 no error, 1 rejected input, 10 property violated, 11 deadlock,\n    12 assumption, 13 evaluation error. Both conventions keep 2 usage, 3 unsupported/resource\n    limit, 4 internal error and 5 stopped by a run budget (no verdict).\n    --time-limit defaults to 30m in the dive profile and none under --compat=tlc; --max-memory\n    defaults to half of physical memory (auto) in both. --compat=tlc (or DIVE_COMPAT=tlc) also selects TLC semantics.\n    --engine core (or DIVE_ENGINE=core) runs the experimental compiled core on supported requests;\n    other features are named refusals. --engine auto runs the core where it can and\n    otherwise the whole check on the reference engine, naming the engine that ran and why. The\n    reference engine is the default. --core-sample N (with the core) also compares the successors\n    of N sampled states with the reference evaluator's, in the JSON report (core.sample); it is\n    diagnostic and changes no result.\n",
+    dive check uses TLC process statuses by default, independently of semantic profile.\n    --exit-codes native retains: 0 no error, 1 rejected input, 10 property violated, 11 deadlock,\n    12 assumption, 13 evaluation error. Both conventions keep 2 usage, 3 unsupported/resource\n    limit, 4 internal error and 5 stopped by a run budget (no verdict).\n    --time-limit defaults to 30m in the dive profile and none under --compat=tlc; --max-memory\n    defaults to half of physical memory (auto) in both. --compat=tlc (or DIVE_COMPAT=tlc) also selects TLC semantics.\n    --engine core (or DIVE_ENGINE=core) runs the experimental compiled core on supported requests;\n    other features are named refusals. --engine auto runs the core where it can and\n    otherwise the whole check on the reference engine, naming the engine that ran and why. The\n    reference engine is the default. --core-sample N (with the core) also compares the successors\n    of N sampled states with the reference evaluator's, in the JSON report (core.sample); it is\n    diagnostic and changes no result.
+    --coverage 0 requests final TLC logical costs; --source-coverage reports native source work.\n",
         env!("CARGO_PKG_VERSION"),
         COMMANDS.join("\n    ")
     )
@@ -520,6 +521,15 @@ fn check_command(
             },
             "--sequential" => req.sequential = true,
             "--source-coverage" => req.source_coverage = true,
+            "--coverage" => match value().as_deref() {
+                Some("0") => req.tlc_coverage = true,
+                _ => {
+                    return usage_error(
+                        err,
+                        "--coverage currently supports final reporting only: use 0",
+                    );
+                }
+            },
             "--engine" => match value().as_deref().and_then(dive_api::Engine::parse) {
                 Some(e) => engine = e,
                 None => return usage_error(err, "--engine expects `reference`, `core` or `auto`"),

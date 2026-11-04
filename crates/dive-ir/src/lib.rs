@@ -472,6 +472,45 @@ impl Ir {
             .find_map(|(expr, origin)| (*expr == id).then_some(*origin))
     }
 
+    /// The original declaration header of a definition, including formal
+    /// parameters. Reuses the source lexer so comments, tabs and UTF-16
+    /// columns retain their original positions. Synthetic origins return None.
+    ///
+    /// ```
+    /// let analysis = dive_sema::analyze_source("M.tla",
+    ///     "---- MODULE M ----\nEXTENDS Naturals\nN(x) == x+1\n====\n",
+    ///     &dive_sema::Options::default());
+    /// let ir = dive_ir::lower(&analysis).expect("valid source");
+    /// let definition = ir.root_def("N").expect("N");
+    /// let header = ir.definition_declaration_origin(definition).expect("source header");
+    /// assert_eq!((header.begin, header.end), ((3, 1), (3, 4)));
+    /// ```
+    #[must_use]
+    pub fn definition_declaration_origin(&self, id: DefId) -> Option<Origin> {
+        let origin = self.defs.get(id.index())?.origin;
+        let file = self.files.get(origin.file?.index())?;
+        let text = file
+            .source
+            .get(origin.range.0 as usize..origin.range.1 as usize)?;
+        let tokens = dive_syntax::tokens::tokenize_spec(text);
+        let mut header = tokens
+            .iter()
+            .filter(|token| !token.kind.is_trivia())
+            .skip_while(|token| token.kind == dive_syntax::SyntaxKind::LOCAL_KW)
+            .take_while(|token| token.kind != dive_syntax::SyntaxKind::DEF_EQ);
+        let first = header.next()?;
+        let last = header.last().unwrap_or(first);
+        let start = origin.range.0.checked_add(u32::from(first.range.start()))?;
+        let end = origin.range.0.checked_add(u32::from(last.range.end()))?;
+        let positions = origin::Positions::new(&file.source);
+        Some(Origin {
+            range: (start, end),
+            begin: positions.position(&file.source, start as usize, false),
+            end: positions.position(&file.source, end.checked_sub(1)? as usize, true),
+            ..origin
+        })
+    }
+
     /// One expression.
     ///
     /// # Panics

@@ -1,0 +1,105 @@
+{
+  "pin": {
+    "oracle": "tlc-2026.10.06.014338",
+    "commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+    "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "arguments": [
+      "-workers",
+      "1",
+      "-seed",
+      "7",
+      "-fp",
+      "0",
+      "-coverage",
+      "0"
+    ],
+    "source_sha256": "450960af135579cdcfefcb04e6523a7fc58de85e2bcfe1449dc193abf0f09024",
+    "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+  },
+  "oracle_exit": 0,
+  "generated": 2,
+  "distinct": 1,
+  "depth": 1,
+  "actions": [
+    {
+      "label": "<Init line 7, col 1 to line 7, col 4 of module PrimeAlias>",
+      "initial": true,
+      "distinct": 1,
+      "generated": 1,
+      "rows": [
+        {
+          "depth": 0,
+          "begin": [
+            7,
+            9
+          ],
+          "end": [
+            7,
+            11
+          ],
+          "module": "PrimeAlias",
+          "invocations": 1,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "label": "<A line 8, col 1 to line 8, col 1 of module PrimeAlias>",
+      "initial": false,
+      "distinct": 0,
+      "generated": 0,
+      "rows": [
+        {
+          "depth": 0,
+          "begin": [
+            8,
+            9
+          ],
+          "end": [
+            8,
+            11
+          ],
+          "module": "PrimeAlias",
+          "invocations": 1,
+          "cost": 0
+        },
+        {
+          "depth": 0,
+          "begin": [
+            5,
+            16
+          ],
+          "end": [
+            5,
+            18
+          ],
+          "module": "PrimeAlias",
+          "invocations": 0,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "label": "<Forward line 6, col 1 to line 6, col 12 of module PrimeAlias (9 6 9 18)>",
+      "initial": false,
+      "distinct": 0,
+      "generated": 1,
+      "rows": [
+        {
+          "depth": 0,
+          "begin": [
+            9,
+            6
+          ],
+          "end": [
+            9,
+            18
+          ],
+          "module": "PrimeAlias",
+          "invocations": 1,
+          "cost": 0
+        }
+      ]
+    }
+  ]
+}

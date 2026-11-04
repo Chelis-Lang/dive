@@ -145,6 +145,10 @@ pub struct CheckRequest {
     /// Collect native producer source-expression/generator work with one actual
     /// Reference worker. These are not TLC logical costs; TLC-equivalent: false.
     pub source_coverage: bool,
+    /// Collect pinned TLC logical action-context costs for the admitted single
+    /// Reference worker scalar/quantifier slice. TLC-equivalent disabled: false.
+    /// Mutually exclusive with native [`Self::source_coverage`].
+    pub tlc_coverage: bool,
     /// Explicit spec host categories (D-017), default-empty in both profiles.
     /// The first slice supports source-binding environment and TXT/UTF-8 reads.
     pub host_access: crate::HostAccess,
@@ -519,13 +523,18 @@ fn check_file_in(
             feature: "candidate spill requires the explicit Core engine".into(),
         });
     }
-    if req.source_coverage
+    if req.source_coverage && req.tlc_coverage {
+        return Err(crate::ApiError::Unsupported {
+            feature: "request native source work or TLC logical coverage separately".into(),
+        });
+    }
+    if (req.source_coverage || req.tlc_coverage)
         && (engine == crate::Engine::Core
             || checkpoint.is_some()
             || req.temporal != TemporalMode::Ordinary
             || req.core_sample.is_some())
     {
-        return Err(crate::ApiError::Unsupported { feature: "native source coverage supports ordinary Reference safety checking; explicit Core, temporal, checkpoint and core-sample combinations are not implemented".into() });
+        return Err(crate::ApiError::Unsupported { feature: "source coverage supports ordinary Reference safety checking; explicit Core, temporal, checkpoint and core-sample combinations are not implemented".into() });
     }
     if !req.host_access.is_empty()
         && (checkpoint.is_some()
@@ -729,7 +738,7 @@ fn check_file_in(
             return Ok(report);
         }
     };
-    if req.source_coverage {
+    if req.source_coverage || req.tlc_coverage {
         if ir.nodes().iter().any(|node| {
             matches!(
                 &node.expr,
@@ -743,7 +752,11 @@ fn check_file_in(
             report.phase = Phase::Unlowered("native source coverage for compiled ENABLED queries requires source maps not yet implemented".into());
             return Ok(report);
         }
-        report.opts.source_coverage = Some(Arc::new(dive_eval::SourceCoverage::new(ir.clone())));
+        report.opts.source_coverage = Some(Arc::new(if req.tlc_coverage {
+            dive_eval::SourceCoverage::tlc(ir.clone())
+        } else {
+            dive_eval::SourceCoverage::new(ir.clone())
+        }));
     }
     // One clock and one ceiling for every stage of the check itself; loading,
     // parsing and lowering above are not budgeted.
@@ -800,8 +813,8 @@ fn check_file_in(
         );
         report.core = Some(Box::new(run));
         result.into()
-    } else if engine == crate::Engine::Auto && req.source_coverage {
-        report.fallback = Some(crate::core_engine::Fallback { stage: "static", reason: "native source coverage selects the instrumented whole Reference safety run before execution".into() });
+    } else if engine == crate::Engine::Auto && (req.source_coverage || req.tlc_coverage) {
+        report.fallback = Some(crate::core_engine::Fallback { stage: "static", reason: "source coverage selects the instrumented whole Reference safety run before execution".into() });
         check_backend(&ir, &model, &armed, req.temporal, req.periodic)
     } else if engine == crate::Engine::Auto && !req.host_access.is_empty() {
         report.fallback = Some(crate::core_engine::Fallback {
@@ -841,6 +854,11 @@ fn check_file_in(
     };
     if let Some(coverage) = &report.opts.source_coverage {
         coverage.stop();
+        if coverage.is_tlc()
+            && !matches!(&report.phase, Phase::Checked(result) if matches!(result.verdict, Verdict::Success))
+        {
+            coverage.refuse_tlc("TLC logical coverage for failed, stopped or unsupported runs requires diagnostic-reconstruction costs; the original model result is retained");
+        }
     }
     if report.core.is_some() && req.temporal == TemporalMode::Ordinary {
         report.temporal_configuration = crate::temporal::core_file_configuration();
@@ -1238,7 +1256,32 @@ impl CheckReport {
         self.opts
             .source_coverage
             .as_ref()
+            .filter(|coverage| !coverage.is_tlc())
             .map(|coverage| coverage.snapshot())
+    }
+
+    /// Pinned TLC logical action-context costs, when explicitly requested.
+    /// Collection stops before independent certification or presentation.
+    ///
+    /// ```no_run
+    /// use dive_api::{CheckRequest, check_file};
+    /// # fn main() -> Result<(), dive_api::ApiError> {
+    /// let report = check_file(&CheckRequest {
+    ///     file: "Coverage.tla".into(), tlc_coverage: true,
+    ///     ..CheckRequest::default()
+    /// })?;
+    /// if let Some(costs) = report.tlc_coverage() {
+    ///     assert!(!costs.active);
+    ///     // `unsupported` names an unavailable coverage feature; model results stay separate.
+    /// }
+    /// # Ok(()) }
+    /// ```
+    #[must_use]
+    pub fn tlc_coverage(&self) -> Option<dive_eval::TlcCoverageSnapshot> {
+        self.opts
+            .source_coverage
+            .as_ref()
+            .and_then(|coverage| coverage.tlc_snapshot())
     }
 
     /// Separate original initial-state diagnostic context. This is not a formal
@@ -1591,8 +1634,12 @@ impl CheckReport {
                 "parallel_recovery": true,
             });
         }
-        if self.opts.source_coverage.is_some() {
-            options["source_coverage"] = json!({"metric":"native-source-work","tlc_cost_equivalent":false,"selected_backend":"reference"});
+        if let Some(coverage) = &self.opts.source_coverage {
+            if coverage.is_tlc() {
+                options["tlc_coverage"] = json!({"metric":"tlc-logical-invocations","selected_backend":"reference","interval_minutes":0,"scope":"init-next-scalar-quantifier"});
+            } else {
+                options["source_coverage"] = json!({"metric":"native-source-work","tlc_cost_equivalent":false,"selected_backend":"reference"});
+            }
         }
         options
     }
@@ -2116,7 +2163,11 @@ impl CheckReport {
             );
         }
         if let Some(coverage) = &self.opts.source_coverage {
-            doc["source_coverage"] = source_coverage_json(&coverage.snapshot());
+            if let Some(snapshot) = coverage.tlc_snapshot() {
+                doc["tlc_coverage"] = tlc_coverage_json(&snapshot);
+            } else {
+                doc["source_coverage"] = source_coverage_json(&coverage.snapshot());
+            }
         }
         doc
     }
@@ -2264,38 +2315,77 @@ impl CheckReport {
             }
         }
         if let Some(coverage) = &self.opts.source_coverage {
-            let snapshot = coverage.snapshot();
-            let _ = writeln!(
-                out,
-                "Native source work (Reference producer prefix; not TLC logical costs):"
-            );
-            for row in snapshot.rows {
-                let c = row.counts;
-                if c != dive_eval::SourceCounts::default() {
-                    let context = row
-                        .location
-                        .instance
-                        .as_ref()
-                        .map(|name| format!(" [static {name}]"))
-                        .unwrap_or_default();
+            if let Some(snapshot) = coverage.tlc_snapshot() {
+                if let Some(feature) = snapshot.unsupported {
+                    let _ = writeln!(out, "TLC logical coverage unsupported: {feature}");
+                } else if snapshot.overflowed {
+                    let _ = writeln!(out, "TLC logical coverage unsupported: counter saturation");
+                } else {
                     let _ = writeln!(
                         out,
-                        "{}:{}:{} to {}:{}{context}: eval {}, init {}/{}, next {}/{}",
-                        row.location.module,
-                        row.location.begin.0,
-                        row.location.begin.1,
-                        row.location.end.0,
-                        row.location.end.1,
-                        c.evaluations,
-                        c.init_steps,
-                        c.init_emissions,
-                        c.next_steps,
-                        c.next_emissions
+                        "TLC logical coverage (Init/Next scalar/quantifier slice):"
                     );
+                    for action in snapshot.actions {
+                        let _ = writeln!(
+                            out,
+                            "{}: {}:{}",
+                            action.label, action.distinct, action.generated
+                        );
+                        for row in action.rows {
+                            let location = &row.location;
+                            let _ = writeln!(
+                                out,
+                                "  {}line {}, col {} to line {}, col {} of module {}: {}{}",
+                                "|".repeat(row.depth),
+                                location.begin.0,
+                                location.begin.1,
+                                location.end.0,
+                                location.end.1,
+                                location.module,
+                                row.invocations,
+                                if row.cost > 0 {
+                                    format!(":{}", row.cost)
+                                } else {
+                                    String::new()
+                                }
+                            );
+                        }
+                    }
                 }
-            }
-            if snapshot.overflowed {
-                let _ = writeln!(out, "Source counters saturated; exact counts unavailable.");
+            } else {
+                let snapshot = coverage.snapshot();
+                let _ = writeln!(
+                    out,
+                    "Native source work (Reference producer prefix; not TLC logical costs):"
+                );
+                for row in snapshot.rows {
+                    let c = row.counts;
+                    if c != dive_eval::SourceCounts::default() {
+                        let context = row
+                            .location
+                            .instance
+                            .as_ref()
+                            .map(|name| format!(" [static {name}]"))
+                            .unwrap_or_default();
+                        let _ = writeln!(
+                            out,
+                            "{}:{}:{} to {}:{}{context}: eval {}, init {}/{}, next {}/{}",
+                            row.location.module,
+                            row.location.begin.0,
+                            row.location.begin.1,
+                            row.location.end.0,
+                            row.location.end.1,
+                            c.evaluations,
+                            c.init_steps,
+                            c.init_emissions,
+                            c.next_steps,
+                            c.next_emissions
+                        );
+                    }
+                }
+                if snapshot.overflowed {
+                    let _ = writeln!(out, "Source counters saturated; exact counts unavailable.");
+                }
             }
         }
         out
@@ -2305,6 +2395,19 @@ impl CheckReport {
 fn source_counts_json(counts: dive_eval::SourceCounts) -> Value {
     json!({"evaluations":counts.evaluations,"init_steps":counts.init_steps,"next_steps":counts.next_steps,"init_emissions":counts.init_emissions,"next_emissions":counts.next_emissions})
 }
+fn tlc_coverage_json(snapshot: &dive_eval::TlcCoverageSnapshot) -> Value {
+    if let Some(feature) = &snapshot.unsupported {
+        return json!({"status":"unsupported","feature":feature});
+    }
+    if snapshot.overflowed {
+        return json!({"status":"unsupported","feature":"TLC logical coverage counter saturation"});
+    }
+    json!({"status":"available", "metric":"tlc-logical-invocations", "scope":"init-next-scalar-quantifier", "active":snapshot.active, "overflowed":snapshot.overflowed,
+        "actions":snapshot.actions.iter().map(|action| json!({"label":action.label,"initial":action.initial,"distinct":action.distinct,"generated":action.generated,
+            "rows":action.rows.iter().map(|row| json!({"module":row.location.module,"file":row.location.file,"bytes":{"start":row.location.bytes.0,"end":row.location.bytes.1},"begin":{"line":row.location.begin.0,"column":row.location.begin.1},"end":{"line":row.location.end.0,"column":row.location.end.1},"depth":row.depth,"invocations":row.invocations,"cost":row.cost})).collect::<Vec<_>>()
+        })).collect::<Vec<_>>()})
+}
+
 fn source_coverage_json(snapshot: &dive_eval::SourceCoverageSnapshot) -> Value {
     let rows: Vec<Value> = snapshot.rows.iter().map(|row| {
         let location = &row.location;

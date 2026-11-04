@@ -1,0 +1,175 @@
+{
+  "pin": {
+    "oracle": "tlc-2026.10.06.014338",
+    "commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+    "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "arguments": [
+      "-workers",
+      "1",
+      "-seed",
+      "7",
+      "-fp",
+      "0",
+      "-coverage",
+      "0"
+    ],
+    "source_sha256": "d909de1ce727eef58012c9c6d8f95d7bf263055d2ccf0d6c77d8503a255719ef",
+    "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+  },
+  "oracle_exit": 0,
+  "generated": 4,
+  "distinct": 3,
+  "depth": 3,
+  "actions": [
+    {
+      "label": "<Init line 6, col 9 to line 6, col 12 of module Headers>",
+      "initial": true,
+      "distinct": 1,
+      "generated": 1,
+      "rows": [
+        {
+          "depth": 0,
+          "begin": [
+            6,
+            37
+          ],
+          "end": [
+            6,
+            49
+          ],
+          "module": "Headers",
+          "invocations": 1,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "label": "<A line 7, col 1 to line 7, col 1 of module Headers>",
+      "initial": false,
+      "distinct": 2,
+      "generated": 2,
+      "rows": [
+        {
+          "depth": 0,
+          "begin": [
+            7,
+            9
+          ],
+          "end": [
+            7,
+            11
+          ],
+          "module": "Headers",
+          "invocations": 2,
+          "cost": 0
+        },
+        {
+          "depth": 1,
+          "begin": [
+            7,
+            9
+          ],
+          "end": [
+            7,
+            9
+          ],
+          "module": "Headers",
+          "invocations": 3,
+          "cost": 0
+        },
+        {
+          "depth": 0,
+          "begin": [
+            7,
+            16
+          ],
+          "end": [
+            7,
+            22
+          ],
+          "module": "Headers",
+          "invocations": 2,
+          "cost": 0
+        },
+        {
+          "depth": 0,
+          "begin": [
+            7,
+            27
+          ],
+          "end": [
+            7,
+            33
+          ],
+          "module": "Headers",
+          "invocations": 2,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "label": "<B line 8, col 1 to line 8, col 1 of module Headers>",
+      "initial": false,
+      "distinct": 0,
+      "generated": 1,
+      "rows": [
+        {
+          "depth": 0,
+          "begin": [
+            8,
+            9
+          ],
+          "end": [
+            8,
+            11
+          ],
+          "module": "Headers",
+          "invocations": 4,
+          "cost": 0
+        },
+        {
+          "depth": 1,
+          "begin": [
+            8,
+            9
+          ],
+          "end": [
+            8,
+            9
+          ],
+          "module": "Headers",
+          "invocations": 3,
+          "cost": 0
+        },
+        {
+          "depth": 0,
+          "begin": [
+            8,
+            16
+          ],
+          "end": [
+            8,
+            19
+          ],
+          "module": "Headers",
+          "invocations": 1,
+          "cost": 0
+        },
+        {
+          "depth": 0,
+          "begin": [
+            8,
+            24
+          ],
+          "end": [
+            8,
+            27
+          ],
+          "module": "Headers",
+          "invocations": 1,
+          "cost": 0
+        }
+      ]
+    }
+  ]
+}

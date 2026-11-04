@@ -522,6 +522,36 @@ fn bind_in_source_covered(
     }
 }
 
+fn prepare_source_coverage(
+    b: &bind::Binder<'_>,
+    init_actions: &[dive_eval::next::Action],
+    actions: &[dive_eval::next::Action],
+) -> bind::R<()> {
+    if let Some(coverage) = &b.source_coverage {
+        if coverage.is_tlc()
+            && (b.cfg.specification.is_some()
+                || b.cfg.view.is_some()
+                || b.cfg.symmetry.is_some()
+                || !b.cfg.invariants.is_empty()
+                || !b.cfg.properties.is_empty()
+                || !b.cfg.constraints.is_empty()
+                || !b.cfg.action_constraints.is_empty()
+                || !b.cfg.postconditions.is_empty()
+                || !b.cfg.constants.is_empty())
+        {
+            return Err(BindError::unsupported("TLC coverage currently supports explicit INIT/NEXT without property, constraint, view, symmetry or configured-constant roles").into());
+        }
+        coverage
+            .prepare_actions(init_actions, actions)
+            .map_err(BindError::unsupported)?;
+    }
+    Ok(())
+}
+
+#[allow(
+    clippy::too_many_lines,
+    reason = "ordered binding phases; source preparation must follow actual action expansion"
+)]
 fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> bind::R<Model> {
     b.process_spec()?;
     // SpecProcessor snapshots defns immediately after processSpec, before
@@ -570,6 +600,7 @@ fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> bind::R<Model> {
     } else {
         (b.init_actions()?, b.expand_actions()?)
     };
+    prepare_source_coverage(b, &init_actions, &actions)?;
     b.drain_prints();
     let ir = b.t.ir.clone();
     let assumptions = non_axiom_assumptions(&ir);

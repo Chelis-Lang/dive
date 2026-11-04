@@ -1,5 +1,5 @@
-//! Opt-in native source-work counters. These are actual evaluator/generator
-//! visits, not TLC's action-context cost model or a model-correctness proof.
+//! Opt-in producer observations. Native source work and pinned logical costs
+//! use separate constructors and snapshots; neither is a model proof.
 use dive_ir::{ExprId, Ir};
 
 thread_local! { static PAUSED: std::cell::RefCell<Vec<usize>> = const { std::cell::RefCell::new(Vec::new()) }; }
@@ -117,15 +117,16 @@ impl Counters {
         }
     }
 }
-/// Counters bound to one immutable IR and explicitly attached producer evaluators.
+/// An observation collector bound to one immutable IR and attached producers.
 ///
 /// No counter callback evaluates, formats or normalizes a value. Fresh replay
 /// evaluators are unobserved unless a caller explicitly attaches this collector.
-/// Ordinary evaluators allocate no counter storage. This measures native work,
-/// which can differ from TLC's logical costs and can depend on enabled caches.
+/// Ordinary evaluators allocate no counter storage. [`Self::new`] measures
+/// native work; [`Self::tlc`] selects the separately admitted logical-cost mode.
 #[derive(Debug)]
 pub struct SourceCoverage {
-    ir: Arc<Ir>,
+    pub(crate) ir: Arc<Ir>,
+    pub(crate) logical: Option<crate::logical_coverage::Collector>,
     counts: Vec<Counters>,
     active: AtomicBool,
     overflowed: AtomicBool,
@@ -137,22 +138,47 @@ impl SourceCoverage {
         let counts = (0..ir.nodes().len()).map(|_| Counters::new()).collect();
         Self {
             ir,
+            logical: None,
             counts,
             active: AtomicBool::new(true),
             overflowed: AtomicBool::new(false),
         }
     }
-    pub(crate) fn is_for(&self, ir: &Arc<Ir>) -> bool {
-        Arc::ptr_eq(&self.ir, ir)
+    /// Creates a pinned TLC logical-cost observer. The binder prepares its
+    /// supported action forest before execution; ordinary source counters use
+    /// [`Self::new`] and retain their native semantics.
+    #[must_use]
+    pub fn tlc(ir: Arc<Ir>) -> Self {
+        Self {
+            ir,
+            logical: Some(std::sync::Mutex::new(
+                crate::logical_coverage::Logical::default(),
+            )),
+            counts: Vec::new(),
+            active: AtomicBool::new(true),
+            overflowed: AtomicBool::new(false),
+        }
     }
-    pub(crate) fn record(&self, expression: ExprId, kind: usize) {
-        if !self.active.load(Ordering::Relaxed)
-            || PAUSED.with(|paused| {
+    pub(crate) fn observing(&self) -> bool {
+        self.active.load(Ordering::Relaxed)
+            && !PAUSED.with(|paused| {
                 paused
                     .borrow()
                     .contains(&(std::ptr::from_ref(self) as usize))
             })
-        {
+    }
+    pub(crate) fn is_for(&self, ir: &Arc<Ir>) -> bool {
+        Arc::ptr_eq(&self.ir, ir)
+    }
+    pub(crate) fn record(&self, expression: ExprId, kind: usize) {
+        if !self.observing() {
+            return;
+        }
+        if let Some(logical) = &self.logical {
+            logical
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner)
+                .record(expression, kind);
             return;
         }
         let Some(counter) = self

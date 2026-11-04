@@ -1,5 +1,17 @@
 # Conformance corpora
 
+The separate `tlc-coverage-primary` corpus contains twenty-one small coverage-demand
+models under `conformance/corpus/tlc-coverage-primary/`. Ordinary TLC/SANY
+facts use the standard harness; complete final action-cost rows are regenerated
+with `scripts/generate-tlc-coverage-fixtures.py --java <pinned-java> --jar <pinned-jar>`.
+The script verifies the gating jar digest. Tests read all retained source, config
+and compact cost references. Shared predicates, reused helper paths, multiple
+variables, assignment markers through formals/aliases, zero assignment rows,
+source headers, domain prefetch and lazy effects
+are separate from the failed `FailDemand` reconstruction control. Raw streams
+remain external. This adds a focused corpus, not a new established-census or
+complete coverage/debugger acceptance claim. See ADR 0150 and the checking guide.
+
 The `construction-set-history` microcorpus pins twelve TLC models and twelve SANY
 inputs for #623's scalar/model-value/nested-tuple literal, MAP and covered union
 path. Initial primary observations were captured before runtime changes;
