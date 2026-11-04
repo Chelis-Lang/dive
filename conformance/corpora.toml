@@ -345,3 +345,10 @@ id = "product-operations"
 path = "conformance/corpus/product-operations"
 license = "MIT"
 layout = "examples-manifest"
+
+# Normalized Java set conversion preserves skipped Product-axis demand (#770).
+[[corpus]]
+id = "set-conversion-demand"
+path = "conformance/corpus/set-conversion-demand"
+license = "MIT"
+layout = "examples-manifest"
