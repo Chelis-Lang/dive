@@ -1,0 +1,105 @@
+{
+  "kind": "known infinite Product finiteness primary facts before Boolean proof correction",
+  "before_source": "a4fa4b6f66fad0a969f90dd69e115482626a66c9",
+  "pinned_source": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "primary_goldens": [
+    {
+      "golden": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/InfiniteLeftFiniteAnswer/InfiniteLeftFiniteAnswer.cfg.json",
+      "sha256": "77d66bcc589c07f1a72ff10872ed251f329014bf83323594e39ebc1b32c12962",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "exit_status": "SUCCESS",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        },
+        "fingerprint_collision": {
+          "optimistic": "val = 0.0",
+          "observed": null
+        },
+        "trace": null,
+        "error_codes": [],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      }
+    },
+    {
+      "golden": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/InfiniteRightFiniteAnswer/InfiniteRightFiniteAnswer.cfg.json",
+      "sha256": "72efcc752370bd439fa497dfaa4158826412a64668f525bda1b38827e2f4c057",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "exit_status": "SUCCESS",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        },
+        "fingerprint_collision": {
+          "optimistic": "val = 0.0",
+          "observed": null
+        },
+        "trace": null,
+        "error_codes": [],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      }
+    },
+    {
+      "golden": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/InfiniteNestedFiniteAnswer/InfiniteNestedFiniteAnswer.cfg.json",
+      "sha256": "190b4d1d5ca9586a43340b8aec58b168215bc466e57b1517ff8cb534941c21da",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "exit_status": "SUCCESS",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        },
+        "fingerprint_collision": {
+          "optimistic": "val = 0.0",
+          "observed": null
+        },
+        "trace": null,
+        "error_codes": [],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      }
+    }
+  ],
+  "context_only_negative": {
+    "fixture": "conformance/corpus/product-operations/specifications/InfiniteThenScalar/InfiniteThenScalar.tla",
+    "oracle_exit": 75,
+    "classification": "unclassified TLC_INITIAL_STATE context; no model golden",
+    "raw_capture_directory": "finite-false-context-oracle",
+    "files_sha256": {
+      "tlc-2026.10.06.014338/InfiniteThenScalar.command": "164d20ea765679aa869f0e78b982b1526cc7fdda263a4aa5c5c2d3814fa80639",
+      "tlc-2026.10.06.014338/InfiniteThenScalar.exit": "84b9bb077be0d8a29d0d01ef350d718b77c2ec5f40c3ab90502b1b4b5016c550",
+      "tlc-2026.10.06.014338/InfiniteThenScalar.sany.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "tlc-2026.10.06.014338/InfiniteThenScalar.sany.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tlc-2026.10.06.014338/InfiniteThenScalar.sany.stdout": "2f1e6f7f112460c782b9dd629cc9a699a8ce90255d9ef71c733c7d565228710b",
+      "tlc-2026.10.06.014338/InfiniteThenScalar.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tlc-2026.10.06.014338/InfiniteThenScalar.stdout": "c4faa16e9b327a5f71076cfa10147b421520e5fd82fa250176084d18b1659b2f"
+    }
+  },
+  "source_demand": "SetOfTuplesValue.isFinite inspects axes in order, checking emptiness only after a true finiteness answer; an infinite axis does not hide a later malformed operand, and a proved empty axis makes the Product finite. Nat and Int have false isFinite and false isEmpty methods.",
+  "golden_policy": "All fifteen product-operations model facts generated officially with recorded reason; twelve prior result payloads unchanged. Context-only negative not classified or assigned an invented golden."
+}

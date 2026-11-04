@@ -72,6 +72,52 @@ succeeds in either profile:
 dive check conformance/corpus/graph-demand/specifications/SelfDemand/SelfDemand.tla --library-path crates/dive-eval/tests/fixtures/community-modules --engine core --compat=tlc --workers 4 --seed 0 --fp 0 --output json
 ```
 
+Graph conversion also recognizes an empty Cartesian product before enumerating
+its axes. Both engines support concrete explicit, bounded-interval and nested
+product axes in source order, including products embedded in tuple and record
+components. An empty axis leaves incomparable values in other
+axes unnormalized; a later use of the same axis still makes its own comparisons.
+Product operand expressions are evaluated normally, so an unused axis expression
+that divides by zero still fails. Unknown earlier axes keep the existing guarded
+conversion, and demanded incomparable nonempty products retain their errors or
+named refusals. This model runs on Core in both profiles with three distinct and
+generated states, depth three and success exit 0:
+
+```sh
+dive check conformance/corpus/graph-empty-product/specifications/LazyEmptyProduct/LazyEmptyProduct.tla --library-path crates/dive-eval/tests/fixtures/community-modules --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+```
+
+Empty enumeration does not turn the original Product into an ordinary empty-set
+receiver. For example, TLC still rejects `0 \in ((1..0) \X (0..0))` as non-tuple
+membership. Core preserves that receiver through records, tuples, function values,
+EXCEPT, `Append` and `:>` values. Non-tuple membership retains the demanded
+evaluation error, including after graph conversion. It agrees with Reference's
+exit convention (75); its TLC source classification remains unverified and earns
+no native error parity credit. Nested product comparisons, general set elements,
+function keys, state handoff and other unproved operator consumers retain explicit
+refusals. This checked receiver control errors on Core in both profiles:
+
+```sh
+dive check conformance/corpus/product-receivers/specifications/BaseValidIntervals/BaseValidIntervals.tla --library-path crates/dive-eval/tests/fixtures/community-modules --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+```
+
+`Cardinality` and `IsFiniteSet` accept complete concrete finite Product factor
+trees: owned explicit sets, bounded intervals, powersets, function sets, record
+sets and nested products. `IsFiniteSet` also preserves proved false answers for
+known infinite Nat/Int factors, in either axis order and nested factor trees. For
+example, `IsFiniteSet(Nat \X {x})` is false, while `IsFiniteSet(Nat \X {})` is true.
+It follows source finiteness and emptiness demand in order; a known infinite axis
+does not hide a later invalid operand. A function-set factor sizes its range only
+when the source finiteness answer requires it. Cardinality follows the source
+empty-axis, empty-function-domain and singleton-range short circuits, and
+normalizes only demanded explicit-set sizes. The original Product remains
+available for later receiver checks. Unknown demanded factors and sizes beyond
+the proved signed 32-bit range retain named refusals. For example:
+
+```sh
+dive check conformance/corpus/product-operations/specifications/OrdinaryProductCardinality/OrdinaryProductCardinality.tla --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+```
+
 This state-dependent example exercises every override on Core:
 
 ```sh

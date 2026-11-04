@@ -1,5 +1,22 @@
 # Changelog
 
+- Preserve empty Cartesian-product graph conversion in both engines and
+  compatibility profiles. Concrete axes are checked for emptiness before any
+  axis normalization; operand errors, source order and later alias demands remain
+  intact. Apply the same demand at Core product materialization, including record
+  and tuple components. Keep demanded mixed comparisons and unproved conversions
+  guarded.
+  Preserve the original Product receiver through record, tuple, function, EXCEPT,
+  `Append` and `:>` value components. Preserve demanded non-tuple membership
+  errors instead of reporting false success from an extensional empty-set
+  replacement (#768); their native TLC source classification remains unverified.
+  Restore `Cardinality` and `IsFiniteSet` for complete concrete finite Product
+  factor trees, plus established singleton-UNION and normalized library-set
+  consumers, while retaining the original receiver and axis normalization order.
+  Preserve proved false `IsFiniteSet` answers for known Nat/Int factors, including
+  reversed and nested products. Check later factors for empty sets and demanded
+  errors instead of treating an unproved factor as infinite.
+
 - Add explicit PlusCal `translate --write` and Rust preparation/publication APIs,
   publishing admitted modules, exact `.old` backups and delimiter-merged `.cfg`
   files with effective source options and concurrent-edit checks. Add actual

@@ -1,0 +1,287 @@
+{
+  "kind": "focused Product operation regression repair retaining inherited P1 receiver protection",
+  "issue": 768,
+  "runtime_source_commit": "63f2274e9f32ca1b10a16e021c020cd7e446572e",
+  "rejected_head": "8b9dfbde21a83a270150184726861d1dd467f281",
+  "primary_observations_commits": [
+    "b2f26b2d",
+    "11ebf3dc"
+  ],
+  "current_operation_goldens_commit": "11ebf3dc",
+  "repair": "Retain original Product receivers while restoring operation-specific finite-tree Cardinality/IsFiniteSet, established singleton UNION constructors, normalized library-set argument positions and existing non-tuple membership error behavior. Read-only finite admission covers complete concrete factor trees; source isEmpty/size order preserves empty-domain/axis and singleton-range shortcuts. Actual demanded explicit-set sizes normalize owned literals. Unknown factors, ownership/depth/work/size bounds and unproved consumers remain guarded.",
+  "runtime_sources_sha256": {
+    "crates/dive-core/src/compile.rs": "1f9c84446054a700910ea08a28deecac22b021bf6b6722bbdb38d05a06a7dac3",
+    "crates/dive-core/src/eval.rs": "2235ec3849600bd04010f49f4856d1f3cab92817b973b910b59211ee3374e599",
+    "crates/dive-core/src/eval_product.rs": "cabe9f87148447a1b2b5567eda249a30df43ea4e5766fa40c9f1e8919337d60c",
+    "crates/dive-core/src/heap.rs": "571d55e8c55f0b3c7924fe260f33abd7b3d0816f68959568f6d2a8be3a21996c",
+    "crates/dive-core/src/stdlib/mod.rs": "65b6fc37bd09837edbabcde68111cc0fe30f6d31c54bdf632942a505797665f9"
+  },
+  "focused_test_sources_sha256": {
+    "crates/dive-api/tests/product_operations.rs": "13bb232459ca331a9ba68aea316b4b2fc1e4900077f80149cda1233c73cfb6d0",
+    "crates/dive-api/tests/product_receivers.rs": "28ba79f17b663835183a68a237fd311ba1656d3e39f8fba98ff48d475918c20e",
+    "crates/dive-api/tests/core_engine.rs": "6640725ea3c123326d5789c9092661542b9b7e5d79b552f8cf9233d39a118d24",
+    "crates/dive-api/tests/core_kinds.rs": "6495a2452bb755bf575d0492be023a665456965f0a139d09a3e172f5542b3fd9",
+    "crates/dive-api/tests/core_rules.rs": "30d276fa29766b55de1b145778c6e5cabc4bcf4d5a73141bd7dcc1338c6eb703"
+  },
+  "artifacts_sha256": {
+    "target/debug/dive": "f1733ffccf1a98cf8bd8e9005576b7ad1b3fd36a89f85b4b461cda859f81e3f4",
+    "target/debug/dive-conformance": "13e184a7732323bf6740b72bcaaa50f5227c8452577c9967ffe6cb936a929bd6"
+  },
+  "primary_operation_goldens": [
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/ConcreteFactorTree/ConcreteFactorTree.cfg.json",
+      "sha256": "32905ff614896aec335327650b99d307596dbda67483a38fe445eedf07c53a73",
+      "verdict": "success",
+      "exit_code": 0
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/EmptyFunctionRangeHistory/EmptyFunctionRangeHistory.cfg.json",
+      "sha256": "f4cbf3570fb7c0664ca6a4e8ffac340d726ce6b005af935e55a43fb8f04133b7",
+      "verdict": "success",
+      "exit_code": 0
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/FiniteFunctionDomainHistory/FiniteFunctionDomainHistory.cfg.json",
+      "sha256": "78dd678293905a42869887c9626f0f22c0188ae7a21f84d04994a5fe3ae88a6e",
+      "verdict": "success",
+      "exit_code": 0
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/FiniteRawAxisHistory/FiniteRawAxisHistory.cfg.json",
+      "sha256": "02cf37db1e6ec0d8af616a9ddb5a77b0200d3dbbed32ddbb12d120b0234e3c50",
+      "verdict": "success",
+      "exit_code": 0
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/OrdinaryProductCardinality/OrdinaryProductCardinality.cfg.json",
+      "sha256": "34386d27ed9f2c6db842b0704a59e3b5876e73f1a930d5827d48f11ba57c5a5b",
+      "verdict": "success",
+      "exit_code": 0
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/OrdinaryProductEquality/OrdinaryProductEquality.cfg.json",
+      "sha256": "b1f87a1aa6ad1bbaae348c81a389b7e742f7b4bcb6c96416f092fe536009e18a",
+      "verdict": "success",
+      "exit_code": 0
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/OrdinaryProductFinite/OrdinaryProductFinite.cfg.json",
+      "sha256": "7cae1f36a7d8a8a01a745a3e4257b7fd83a1919859b783343321e5b0368154c6",
+      "verdict": "success",
+      "exit_code": 0
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/OrdinaryProductFunctionMember/OrdinaryProductFunctionMember.cfg.json",
+      "sha256": "845512ac1086830609188ad1f16e0faf0db3a7928627d2d4583b51d42845fb72",
+      "verdict": "success",
+      "exit_code": 0
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/OrdinaryProductTupleMember/OrdinaryProductTupleMember.cfg.json",
+      "sha256": "5a9dee5b2c8e0ef7b6f06096f222e0bee2ab6578c5447f03e572ce2fd1e28c2d",
+      "verdict": "success",
+      "exit_code": 0
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/OrdinaryTupleProductCardinality/OrdinaryTupleProductCardinality.cfg.json",
+      "sha256": "ed5367666131931fd4c35de1518fd3bbbefa8e3d7e1dcafbed7274141bce8d37",
+      "verdict": "success",
+      "exit_code": 0
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/SingletonFunctionDomainHistory/SingletonFunctionDomainHistory.cfg.json",
+      "sha256": "4055681b91b7cb9f32e615a7f0648b54cdd3679d4af472f8b4b5863843430e50",
+      "verdict": "success",
+      "exit_code": 0
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/SizedProductReceiver/SizedProductReceiver.cfg.json",
+      "sha256": "c2b2ed1579b7d3f636b44f4676f19c40e04fe7d0c9dd679b5b523c9052f10b40",
+      "verdict": "evaluation-error",
+      "exit_code": 75
+    }
+  ],
+  "panels": [
+    {
+      "panel": "operations-fixed-core-dive",
+      "report": "operations-fixed-core-dive/20261104T190637629-dive-all.json",
+      "sha256": "abc68c558e9160562189a51eb7e50acca60138b990a7922b66cfda877696b811",
+      "physical_exit": 0,
+      "workers": [
+        1,
+        4
+      ],
+      "models": {
+        "agree": 19,
+        "disagree": 0,
+        "unsupported": 10,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "by_corpus": {
+        "graph-empty-product": {
+          "agree": 8
+        },
+        "product-operations": {
+          "agree": 11,
+          "unsupported": 1
+        },
+        "product-receivers": {
+          "unsupported": 9
+        }
+      }
+    },
+    {
+      "panel": "operations-fixed-core-tlc",
+      "report": "operations-fixed-core-tlc/20261104T190637539-dive-all.json",
+      "sha256": "3285228845206b9ca7842eb223c0f8bfb82b46e611ed5ae190d6ff0da5e404b7",
+      "physical_exit": 0,
+      "workers": [
+        1,
+        4
+      ],
+      "models": {
+        "agree": 19,
+        "disagree": 0,
+        "unsupported": 10,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "by_corpus": {
+        "graph-empty-product": {
+          "agree": 8
+        },
+        "product-operations": {
+          "agree": 11,
+          "unsupported": 1
+        },
+        "product-receivers": {
+          "unsupported": 9
+        }
+      }
+    },
+    {
+      "panel": "operations-fixed-reference-dive",
+      "report": "operations-fixed-reference-dive/20261104T190637826-dive-all.json",
+      "sha256": "308f924c1b8cb48bf9fec78211833d4b94ce167e6d9bc2082dc433aa8836882b",
+      "physical_exit": 0,
+      "workers": [
+        1,
+        4
+      ],
+      "models": {
+        "agree": 19,
+        "disagree": 0,
+        "unsupported": 10,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "by_corpus": {
+        "graph-empty-product": {
+          "agree": 8
+        },
+        "product-operations": {
+          "agree": 11,
+          "unsupported": 1
+        },
+        "product-receivers": {
+          "unsupported": 9
+        }
+      }
+    },
+    {
+      "panel": "operations-fixed-reference-tlc",
+      "report": "operations-fixed-reference-tlc/20261104T190637775-dive-all.json",
+      "sha256": "a07a4a906875f1e7332b44983657e22ea93030cbd416a9b76496c6f66eb4a066",
+      "physical_exit": 0,
+      "workers": [
+        1,
+        4
+      ],
+      "models": {
+        "agree": 19,
+        "disagree": 0,
+        "unsupported": 10,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "by_corpus": {
+        "graph-empty-product": {
+          "agree": 8
+        },
+        "product-operations": {
+          "agree": 11,
+          "unsupported": 1
+        },
+        "product-receivers": {
+          "unsupported": 9
+        }
+      }
+    }
+  ],
+  "tests": [
+    {
+      "command": "cargo test -p dive-api --test product_operations --test product_receivers --test graph_product_demand --test graph_demand --locked",
+      "result": "7 passed on frozen runtime; original graph positives and demanded-error/history controls retained; receiver errors match Reference across both profiles and default/-fold/-memo/-hashcons/-symbolic-member"
+    },
+    {
+      "command": "cargo test -p dive-api --test product_operations --locked",
+      "result": "2 passed with scalar/sizing/raw-axis controls individually covering default/-fold/-memo/-hashcons/-symbolic-member in both profiles; eleven pinned successes match Reference and primary results; post-size non-tuple membership retains unverified evaluation-error/75; demanded incomparable raw-axis sizes remain errors or named refusals"
+    },
+    {
+      "command": "cargo test -p dive-api --test core_engine a_union_of_one_set_constructor_stays_lazy --locked",
+      "result": "1 passed; existing test unchanged"
+    },
+    {
+      "command": "cargo test -p dive-api --test core_kinds comparisons_across_kinds_are_never_answered_wrongly --locked",
+      "result": "1 passed; existing test and MIXED refusal allowlist unchanged"
+    },
+    {
+      "command": "cargo test -p dive-api --test core_rules library_fixtures_match_the_reference_and_tlc --locked",
+      "result": "1 passed including FoldOps; existing test unchanged"
+    },
+    {
+      "command": "cargo test -p dive-core --lib --locked",
+      "result": "134 passed on frozen runtime"
+    },
+    {
+      "command": "cargo clippy -p dive-eval -p dive-core -p dive-api --all-targets --locked -- -D warnings",
+      "result": "passed"
+    },
+    {
+      "command": "cargo fmt --all --check",
+      "result": "passed"
+    },
+    {
+      "command": "git diff --check fd2190e2 HEAD",
+      "result": "passed"
+    }
+  ],
+  "accounting": "Four panels each retain 19 strict model agreements (8 graph plus 11 operation successes) and 10 unsupported source-classification cases (9 receiver plus 1 post-sizing receiver) at workers 1/4: 152 agreement observations and 80 unsupported observations. No unsupported result earns parity credit. Both engines produce demanded evaluation errors for receiver cases, with unverified source metadata, rather than false success.",
+  "limits": [
+    "No existing test, refusal allowlist, classifier, divergence rule, golden result payload or conformance check weakening. Oracle observations precede the corresponding semantic restoration; official regeneration refreshes corpus provenance.",
+    "DemandedRawProductSize remains a context-only negative with no invented model golden. Earlier context-only graph negatives remain retained.",
+    "The eight separate inherited Reference Cardinality errors from review of a9f311f9 remain outside this bounded complete-finite-factor repair and earn no parity credit.",
+    "No full gate, broad constructor qualification, performance campaign or release claim. Independent fresh review and required CI remain pending."
+  ]
+}

@@ -1,0 +1,227 @@
+{
+  "kind": "bounded known infinite Product Boolean finiteness regression correction",
+  "runtime_source_commit": "36b381a0c7c81cc7e9bf598a48892095f0ea8a91",
+  "rejected_head": "a4fa4b6f66fad0a969f90dd69e115482626a66c9",
+  "primary_observations_commit": "9f920ce9",
+  "repair": "Separate source Boolean finiteness from unchanged complete finite Cardinality admission. Known Nat/Int answers are false; Product/record factors continue in source order and return true for a demanded proved empty factor. Nested known shapes follow their actual finiteness methods, including function-set domain/range and singleton-range demand. Unknown demanded operands and malformed/provider shapes refuse, with bounded depth and charged work. No original Product receiver is replaced.",
+  "sources_sha256": {
+    "crates/dive-core/src/eval.rs": "31ef4b9bc26637b7ddd48512d2d97a5915e3b03bc659ee2d9895745f77cb6954",
+    "crates/dive-core/src/eval_product.rs": "0d65917cbb6a3952ef6405c1bada0ac7d5fb8073b462e8d1af2776694d4c4e52",
+    "crates/dive-api/tests/product_operations.rs": "350c20f8dc85e4ca1320a2fc3de924e371fdf5e469e4b9f86ce3894919ff3517"
+  },
+  "artifacts_sha256": {
+    "target/debug/dive": "ed74138bac8e3d943fc9fcd4889bf1fece3aa9098c634b7a0d9783f914f4796a",
+    "target/debug/dive-conformance": "c2383318d33c0c1389630ea407128df4c10eb2add1c34b2e8a32777a7ecf368a"
+  },
+  "current_operation_goldens_commit": "9f920ce9",
+  "current_operation_goldens": [
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/ConcreteFactorTree/ConcreteFactorTree.cfg.json",
+      "sha256": "cc4fc4ad6b63355426d8d5ceb4bfdec77d7c617a509be05914184bda1612a24b"
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/EmptyFunctionRangeHistory/EmptyFunctionRangeHistory.cfg.json",
+      "sha256": "0e437b6993014c7c07fa92d197b40eedc97f19c9002de0a26d54e08484bf8adb"
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/FiniteFunctionDomainHistory/FiniteFunctionDomainHistory.cfg.json",
+      "sha256": "0cc358fdb1a44e3a2fda30db18eb05bea0cfc1c994d61a66417d14e7e8923533"
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/FiniteRawAxisHistory/FiniteRawAxisHistory.cfg.json",
+      "sha256": "fc27e893f6cc8262e3be0a54f8d63be13572dd5163bb7379e8d14635be7c77a7"
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/InfiniteLeftFiniteAnswer/InfiniteLeftFiniteAnswer.cfg.json",
+      "sha256": "77d66bcc589c07f1a72ff10872ed251f329014bf83323594e39ebc1b32c12962"
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/InfiniteNestedFiniteAnswer/InfiniteNestedFiniteAnswer.cfg.json",
+      "sha256": "190b4d1d5ca9586a43340b8aec58b168215bc466e57b1517ff8cb534941c21da"
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/InfiniteRightFiniteAnswer/InfiniteRightFiniteAnswer.cfg.json",
+      "sha256": "72efcc752370bd439fa497dfaa4158826412a64668f525bda1b38827e2f4c057"
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/OrdinaryProductCardinality/OrdinaryProductCardinality.cfg.json",
+      "sha256": "ec45ad4369b1ddb3b193e900a8b7e76fdaf3116e9651cfdd28072ab329802100"
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/OrdinaryProductEquality/OrdinaryProductEquality.cfg.json",
+      "sha256": "e682d07beb0e6a72cadce7ba94578a18d42947e3ec44bd2ddd8c0eb0ab561fe3"
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/OrdinaryProductFinite/OrdinaryProductFinite.cfg.json",
+      "sha256": "a8ac0cbceda3651c5744bb98c3e6ba0aa5e1d133f4e9b8182d875d9a9243986a"
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/OrdinaryProductFunctionMember/OrdinaryProductFunctionMember.cfg.json",
+      "sha256": "e1520b327778a6496f6d480f51d4ebcedcd93d5f5f29acc9bd73bcf354064370"
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/OrdinaryProductTupleMember/OrdinaryProductTupleMember.cfg.json",
+      "sha256": "c5292503c57719bc5d8426d471a8631d6045188084e5c106d005c1cab9166610"
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/OrdinaryTupleProductCardinality/OrdinaryTupleProductCardinality.cfg.json",
+      "sha256": "ba507f3dd5e32e3dbae27c61f49db91a2523ce4f94af1018074acbf1dd63ebfd"
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/SingletonFunctionDomainHistory/SingletonFunctionDomainHistory.cfg.json",
+      "sha256": "4eb88412b9fbf9458e443d516fb8f295a69528ceda11c41733ac63b32c5dc1db"
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/SizedProductReceiver/SizedProductReceiver.cfg.json",
+      "sha256": "6bfbac107cc65919dd33eb466ab15729149e5398b95e17449011c0da5b3fc69b"
+    }
+  ],
+  "panels": [
+    {
+      "panel": "finiteness-fixed-core-dive",
+      "report": "finiteness-fixed-core-dive/20261104T193049902-dive-all.json",
+      "sha256": "72fa15ba420acbc5b518a2050b945e217267edc8793e6bdf29f0eac3d9c9bc0c",
+      "physical_exit": 0,
+      "workers": [
+        1,
+        4
+      ],
+      "models": {
+        "agree": 14,
+        "disagree": 0,
+        "unsupported": 1,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      }
+    },
+    {
+      "panel": "finiteness-fixed-core-tlc",
+      "report": "finiteness-fixed-core-tlc/20261104T193049773-dive-all.json",
+      "sha256": "c1fd5bff025df1c4dac295255608fb7ae4b2fe192e203a10e49129c3c9b5aac1",
+      "physical_exit": 0,
+      "workers": [
+        1,
+        4
+      ],
+      "models": {
+        "agree": 14,
+        "disagree": 0,
+        "unsupported": 1,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      }
+    },
+    {
+      "panel": "finiteness-fixed-reference-dive",
+      "report": "finiteness-fixed-reference-dive/20261104T193049537-dive-all.json",
+      "sha256": "7c64b338f436711637b34418e855ca89da574457cf800b5f505ce90c66ac5603",
+      "physical_exit": 0,
+      "workers": [
+        1,
+        4
+      ],
+      "models": {
+        "agree": 14,
+        "disagree": 0,
+        "unsupported": 1,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      }
+    },
+    {
+      "panel": "finiteness-fixed-reference-tlc",
+      "report": "finiteness-fixed-reference-tlc/20261104T193049859-dive-all.json",
+      "sha256": "b71a507b124c0a11be2ad4c2df7968576c383b8b589bb25db838d99185c1459f",
+      "physical_exit": 0,
+      "workers": [
+        1,
+        4
+      ],
+      "models": {
+        "agree": 14,
+        "disagree": 0,
+        "unsupported": 1,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      }
+    }
+  ],
+  "tests": [
+    {
+      "command": "cargo test -p dive-api --test product_operations --locked",
+      "result": "3 passed: fourteen primary successes, retained post-sizing receiver and demanded raw-size negatives, and infinite-then-scalar refusal; both profiles and individual default/-fold/-memo/-hashcons/-symbolic-member"
+    },
+    {
+      "command": "cargo test -p dive-core eval::product::tests --locked",
+      "result": "3 passed: known Nat/Int false answers, reversed/nested/empty factors, unchanged raw normalization and receiver identity, scalar/malformed refusals and existing bounded work/size controls"
+    },
+    {
+      "command": "cargo test -p dive-api --test product_receivers --locked",
+      "result": "1 passed: nine original receiver cases retain Reference-equivalent demanded evaluation errors across both profiles and all five switch settings; no native2147 credit"
+    },
+    {
+      "command": "cargo test -p dive-api --test core_engine a_union_of_one_set_constructor_stays_lazy --locked",
+      "result": "1 passed; existing test unchanged"
+    },
+    {
+      "command": "cargo test -p dive-api --test core_kinds comparisons_across_kinds_are_never_answered_wrongly --locked",
+      "result": "1 passed; existing test and MIXED allowlist unchanged"
+    },
+    {
+      "command": "cargo test -p dive-api --test core_rules library_fixtures_match_the_reference_and_tlc --locked",
+      "result": "1 passed including FoldOps; existing test unchanged"
+    },
+    {
+      "command": "cargo clippy -p dive-core -p dive-api --all-targets --locked -- -D warnings",
+      "result": "passed"
+    },
+    {
+      "command": "cargo fmt --all --check",
+      "result": "passed"
+    },
+    {
+      "command": "git diff --check fd2190e2 HEAD",
+      "result": "passed"
+    }
+  ],
+  "accounting": "Four frozen Product-operation panels each retain fourteen strict agreements and one unsupported source-classification case at workers1/4: 112 strict agreement observations and eight unsupported observations. The three new success models account for24 of those strict observations; no refused/unverified error earns parity credit.",
+  "prior_source_bound_evidence": [
+    {
+      "source": "63f2274e9f32ca1b10a16e021c020cd7e446572e",
+      "receipt": "conformance/reports/core/2026-11-04-product-operations.json",
+      "scope": "Four original graph/receiver/operation panels and134 Core unit tests remain evidence of that runtime; original graph conversion implementation and source fixtures are unchanged. They are not relabeled as current-source runs."
+    },
+    {
+      "source": "a4fa4b6f66fad0a969f90dd69e115482626a66c9",
+      "independent_review": "phase8-20261104/review-product-final/review.json",
+      "review_sha256": "156b96ee2630418c3beab2815d8b0c1334c6af56fd2becb0c851bddc8e8f88a6",
+      "scope": "285 focused test functions and18 restored finite positive cells passed during the independent review of this rejected source. That source-bound result is preserved, not rerun or credited to the current head."
+    }
+  ],
+  "limits": [
+    "Only the existing IsFiniteSet operation was corrected; Cardinality admission, normalized library argument contracts, compiler/observer/plan layouts and existing CI test/allowlist files are unchanged in this correction.",
+    "Three minimal success facts were generated before runtime correction. Official regeneration reports all twelve prior Product-operation result payloads unchanged. InfiniteThenScalar is a context-only primary75/2154-inside2102 observation, with no invented model golden or deciding error class.",
+    "Native2147 source classification and the separate inherited Reference Cardinality errors remain unproved. The independent partial SetToSeq raw-axis observation remains outside this bounded correction.",
+    "No broad infinite-domain/constructor campaign, full gate, performance run or release claim. Required current-head CI and fresh independent re-review remain pending. Prior worktrees, diagnostics and raw evidence remain preserved."
+  ]
+}

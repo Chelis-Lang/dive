@@ -847,7 +847,7 @@ impl Compiler<'_> {
         }
         i.history |= matches!(
             n,
-            Node::SetEnum(..) | Node::Map { .. } | Node::SetBin(SetOp::Cup, ..)
+            Node::SetEnum(..) | Node::Map { .. } | Node::SetBin(SetOp::Cup, ..) | Node::Product(_)
         );
         i.red = self.red_of(n);
         i
@@ -3620,6 +3620,7 @@ impl Compiler<'_> {
             &self.ir.node(*item).expr,
             Expr::FcnSet { .. }
                 | Expr::RecordSet(_)
+                | Expr::Cartesian(_)
                 | Expr::Builtin {
                     op: BuiltinOp::PowerSet | BuiltinOp::Times,
                     ..

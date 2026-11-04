@@ -26,13 +26,20 @@ struct Graph {
     edges: Handle,
 }
 
-/// `toSetEnum` leaves explicit collections raw; only the later elements demand
-/// may normalize them. Non-explicit conversions retain their existing guards.
-fn set_conversion(m: &mut Machine, op: StdOp, value: Handle) -> Result<bool, Error> {
+/// `toSetEnum` leaves explicit collections raw. Empty products convert without
+/// enumerating their axes; other non-explicit conversions keep their guards.
+fn set_conversion(m: &mut Machine, op: StdOp, value: Handle) -> Result<Option<Handle>, Error> {
     if value.is_compound() && matches!(m.heap.view(value).kind, Kind::Set | Kind::SetEnum) {
-        return Ok(true);
+        return Ok(Some(value));
     }
-    Ok(enumerable(m, op, value)?.is_some())
+    if value.is_compound() && m.heap.view(value).kind == Kind::Product {
+        let (empty, work) = m.heap.product_empty(value)?;
+        m.charge(work)?;
+        if empty == Some(true) {
+            return Ok(Some(m.heap.empty_set()));
+        }
+    }
+    Ok(enumerable(m, op, value)?.map(|_| value))
 }
 
 pub(super) fn call(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle, Error> {
@@ -87,19 +94,19 @@ fn graph(m: &mut Machine, op: StdOp, position: &str, value: Handle) -> Result<Gr
     let Some(nodes) = nodes else {
         return Err(bad("record whose node field is a set"));
     };
-    if !set_conversion(m, op, nodes)? {
+    let Some(nodes) = set_conversion(m, op, nodes)? else {
         return Err(bad("record whose node field is a set"));
-    }
+    };
     let Some(edges) = edges else {
         // The argument diagnostic prints the graph. Preserve the existing
         // checked node normalization/refusal on that actual error path.
         enumerable(m, op, nodes)?;
         return Err(bad("record whose edge field is a set"));
     };
-    if !set_conversion(m, op, edges)? {
+    let Some(edges) = set_conversion(m, op, edges)? else {
         enumerable(m, op, nodes)?;
         return Err(bad("record whose edge field is a set"));
-    }
+    };
     let mut nodes = enumerable(m, op, nodes)?
         .ok_or_else(|| Error::internal("a validated graph node set changed kind"))?;
     let set = m.heap.set_from(&mut nodes);

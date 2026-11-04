@@ -324,3 +324,24 @@ id = "graph-demand"
 path = "conformance/corpus/graph-demand"
 license = "MIT"
 layout = "examples-manifest"
+
+# Cartesian conversion must test emptiness before normalizing axes (#760).
+[[corpus]]
+id = "graph-empty-product"
+path = "conformance/corpus/graph-empty-product"
+license = "MIT"
+layout = "examples-manifest"
+
+# Product receiver methods remain observable after empty enumeration (#768).
+[[corpus]]
+id = "product-receivers"
+path = "conformance/corpus/product-receivers"
+license = "MIT"
+layout = "examples-manifest"
+
+# Receiver-preserving concrete Product finite-set operations.
+[[corpus]]
+id = "product-operations"
+path = "conformance/corpus/product-operations"
+license = "MIT"
+layout = "examples-manifest"
