@@ -49,7 +49,10 @@ nested Product/record emptiness correction (#771) preserves original receivers,
 raw aliases and source demand; it changes no historical qualification total.
 The historical composite's earlier first-clause localization is explicitly
 corrected: the nested record clause fails on the baseline, while `{} \X x`
-already succeeds.
+already succeeds. A separate `reference-finiteness-token-order` pair preserves
+the rejected default false success and the opposite holding control. Its one
+success golden and one context-only error input require token-ordered record
+method demand in both profiles; all eight earlier golden bytes stay unchanged.
 
 Core safety candidate queues now consume owned spilled payloads before ordered
 Store promotion. Bounds apply to the encoded queues and separately reported

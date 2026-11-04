@@ -144,3 +144,43 @@ fn an_unproved_provider_finiteness_method_still_refuses_before_a_later_empty_axi
         );
     }
 }
+
+#[test]
+fn nonlexical_record_tokens_keep_source_success_and_error_order_in_both_profiles() {
+    let corpus = "reference-finiteness-token-order";
+    let positive = "EncounterTokenEmptyFirst";
+    let negative = "EncounterTokenScalarFirst";
+    let path = root().join(format!("conformance/golden/tlc-2026.10.06.014338/{corpus}/specifications/{positive}/{positive}.cfg.json"));
+    let g: Value = serde_json::from_slice(&std::fs::read(path).expect("generated paired success"))
+        .expect("golden JSON");
+    let r = &g["result"];
+    assert_eq!(r["verdict"], "success");
+    let expected = json!({"verdict": "success", "code": r["verdict_code"], "verified": true,
+        "distinct": r["counts"]["distinct_states"], "generated": r["counts"]["states_generated"],
+        "depth": r["counts"]["depth"], "property": r["violated_property"], "exit": r["exit_code"]});
+    assert!(!root().join(format!("conformance/golden/tlc-2026.10.06.014338/{corpus}/specifications/{negative}/{negative}.cfg.json")).exists());
+    for compat in [false, true] {
+        for name in [positive, negative] {
+            let mut req = request(name, compat);
+            req.file = root().join(format!(
+                "conformance/corpus/{corpus}/specifications/{name}/{name}.tla"
+            ));
+            req.config = Some(req.file.with_extension("cfg"));
+            let report =
+                check_file_engine(&req, Engine::Reference).expect("paired token-order check");
+            if name == positive {
+                assert_eq!(facts(&report), expected, "{name}/{compat}");
+            } else {
+                let d = report.to_json();
+                assert_eq!(d["verdict"], "evaluation-error");
+                assert_eq!(report.exit_code_for(ExitConvention::Tlc), 75);
+                assert_eq!(d["tlc"]["verified"], false);
+                assert!(
+                    d["message"]
+                        .as_str()
+                        .is_some_and(|s| s.contains("integer 0 is a finite set"))
+                );
+            }
+        }
+    }
+}

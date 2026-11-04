@@ -4,7 +4,9 @@
   function-set receivers. Stop compound emptiness checks at the first empty
   factor, retaining constructor operand errors, interned record-field order,
   known infinite answers, provider refusals and raw alias/receiver behavior
-  in both compatibility profiles (#771).
+  in both compatibility profiles (#771). Use recorded encounter tokens for
+  both record finiteness and emptiness methods, independently of canonical
+  field storage; refuse field order with unproved run-name tokens.
 
 - Preserve empty Cartesian-product graph conversion in both engines and
   compatibility profiles. Concrete axes are checked for emptiness before any

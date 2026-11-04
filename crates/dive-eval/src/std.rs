@@ -22,7 +22,7 @@
 use std::sync::Arc;
 
 use dive_ir::{Arg, Expr, ExprId, StdKind, StdOp, StdSupport};
-use dive_value::{Int, SetKind, Value, print, tlc};
+use dive_value::{Atom, Int, Set, SetKind, Value, print, tlc};
 
 use crate::core::{Core, is_enumerable, java_class};
 use crate::env::{Env, Ev, OpVal, St};
@@ -928,7 +928,7 @@ impl Core {
                 _ => Ok(true),
             };
         };
-        let comps = s.components();
+        let comps = self.finiteness_components(s)?;
         let finite_empty = |x: &Value| -> Result<(bool, bool)> {
             let f = self.is_finite_set(x)?;
             let e = if f { self.finiteness_empty(x)? } else { false };
@@ -986,9 +986,10 @@ impl Core {
     }
 
     /// Compound `Value.isEmpty` demand made by `IsFiniteSet`, after a true
-    /// finiteness answer. Traverse original receivers in their stored order:
-    /// Product/record stop at the first empty child, and an empty function
-    /// domain skips its range. Leaf methods retain their existing behavior,
+    /// finiteness answer. Product axes retain source order, while record fields
+    /// follow encounter tokens even under canonical storage. Stop at the first
+    /// empty child; an empty function domain skips its range. Leaf methods retain
+    /// their existing behavior,
     /// including raw-set length and user-value overrides; no set is converted.
     fn finiteness_empty(&self, value: &Value) -> Result<bool> {
         self.loop_work()?;
@@ -1001,9 +1002,9 @@ impl Core {
                 }
                 return Ok(false);
             }
-            if let Some(fields) = set.as_rcd_set() {
-                for (_, field) in fields {
-                    if self.finiteness_empty(field)? {
+            if set.kind() == SetKind::RcdSet {
+                for (_, field) in self.finiteness_components(set)? {
+                    if self.finiteness_empty(&field)? {
                         return Ok(true);
                     }
                 }
@@ -1014,6 +1015,130 @@ impl Core {
             }
         }
         Ok(tlc::is_empty(value, self.ctx)?)
+    }
+
+    /// `SetOfRcdsValue` method order is `UniqueString.compareTo`, independent of
+    /// the run's value-order setting. The model's encounter tokens remain on
+    /// each `Atom` after canonical storage sorting. Validate the run mapping and
+    /// sort only this private view; never reorder the receiver or intern names.
+    fn finiteness_components(&self, set: &Set) -> Result<Vec<(Option<Atom>, Value)>> {
+        let mut components = set.components();
+        if set.kind() == SetKind::RcdSet {
+            let refuse = || {
+                EvalError::unsupported(
+                    "IsFiniteSet record receiver method order has unproved name tokens",
+                )
+            };
+            for (name, _) in &components {
+                self.loop_work()?;
+                let name = name.as_ref().ok_or_else(refuse)?;
+                if self
+                    .names
+                    .resolve(name.tok())
+                    .is_none_or(|owned| owned.as_str() != name.as_str())
+                {
+                    return Err(refuse());
+                }
+            }
+            components.sort_unstable_by_key(|(name, _)| name.as_ref().map(Atom::tok));
+        }
+        Ok(components)
+    }
+}
+
+#[cfg(test)]
+#[allow(
+    clippy::expect_used,
+    reason = "closed receiver and token-order controls"
+)]
+mod finiteness_order_tests {
+    use super::*;
+
+    fn evaluator(options: crate::Options) -> crate::Evaluator {
+        let analysis = dive_sema::analyze_source(
+            "FiniteOrder.tla",
+            "---- MODULE FiniteOrder ----\nP == TRUE\n====",
+            &dive_sema::Options::default(),
+        );
+        let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+        let model = crate::Model::new(ir);
+        model.names.intern("zephyrAxis");
+        model.names.intern("amberAxis");
+        crate::Evaluator::new(model, options).expect("evaluator")
+    }
+
+    #[test]
+    fn both_receiver_methods_use_tokens_without_changing_storage_or_raw_aliases() {
+        for options in [crate::Options::default(), crate::Options::tlc()] {
+            let ev = evaluator(options);
+            let core = &ev.core;
+            let zephyr = core.names.get("zephyrAxis").expect("first token");
+            let amber = core.names.get("amberAxis").expect("second token");
+            assert!(zephyr.tok() < amber.tok());
+            let empty = Value::empty_set(core.ctx);
+            let scalar_first = Value::record_set(
+                vec![
+                    (amber.clone(), empty.clone()),
+                    (zephyr.clone(), Value::Int(0)),
+                ],
+                core.ctx,
+            )
+            .expect("record set");
+            assert!(
+                core.is_finite_set(&scalar_first)
+                    .expect_err("source finiteness demand")
+                    .message()
+                    .contains("integer 0 is a finite set")
+            );
+            assert!(
+                core.finiteness_empty(&scalar_first)
+                    .expect_err("source emptiness demand")
+                    .message()
+                    .contains("isEmpty() on value 0")
+            );
+
+            let raw = Value::set_raw(vec![Value::Int(0), Value::Bool(true)], core.ctx);
+            let empty_first =
+                Value::record_set(vec![(amber, raw.clone()), (zephyr, empty)], core.ctx)
+                    .expect("record set");
+            let receiver = empty_first.as_set().expect("set receiver");
+            let first = receiver.as_rcd_set().expect("fields")[0].0.clone();
+            let product = Value::product(vec![empty_first.clone(), Value::Int(0)], core.ctx);
+            assert!(core.is_finite_set(&product).expect("empty factor"));
+            assert!(core.finiteness_empty(&empty_first).expect("empty receiver"));
+            assert_eq!(receiver.as_rcd_set().expect("original fields")[0].0, first);
+            assert!(receiver.ptr_eq(empty_first.as_set().expect("same receiver")));
+            assert!(raw.as_set().expect("raw alias").raw_elements().is_some());
+        }
+    }
+
+    #[test]
+    fn missing_or_mismatched_run_tokens_refuse_in_both_methods() {
+        for options in [crate::Options::default(), crate::Options::tlc()] {
+            let ev = evaluator(options);
+            let foreign = dive_value::Interner::new();
+            let amber = foreign.intern("amberAxis");
+            let zephyr = foreign.intern("zephyrAxis");
+            let receiver = Value::record_set(
+                vec![
+                    (amber, Value::empty_set(ev.core.ctx)),
+                    (zephyr, Value::Int(0)),
+                ],
+                ev.core.ctx,
+            )
+            .expect("foreign record set");
+            for error in [
+                ev.core
+                    .is_finite_set(&receiver)
+                    .expect_err("unproved tokens"),
+                ev.core
+                    .finiteness_empty(&receiver)
+                    .expect_err("unproved tokens"),
+            ] {
+                assert_eq!(error.class(), crate::ErrorClass::Unsupported);
+                assert!(error.message().contains("unproved name tokens"));
+            }
+        }
     }
 }
 
