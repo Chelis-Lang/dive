@@ -50,6 +50,14 @@ Filesystem translation publication, standalone Rust consumers, owned finite
 random-source replay and native producer source counters are working additions.
 Their broader families and the real TLC logical-cost/debugger surface stay open.
 
+Opt-in `--store-compact-bytes` now releases expanded Core safety values at
+completed levels and after checked recovery. It preserves compiled roots, live
+original/canonical frontier rows and construction origins, and detaches exact
+keys from Store handles. Its measured-byte setting is a trigger, not a hard cap;
+mandatory live roots, discovery/temporal paging, complete accounting and total
+RSS remain separate obligations. See [storage](user/storage-recovery.md) and
+[ADR 0149](decisions/0149-completed-level-store-reclamation.md).
+
 Comparison-summary prototype `88a5845a` is rejected unadopted: 30 correct
 Sailfish rows miss the required 10% TLC/W1 gain (observed 1.82%) and fail the
 frozen default/W8 guard (median candidate/base 1.0233723248). The remaining

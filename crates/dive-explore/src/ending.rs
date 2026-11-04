@@ -17,7 +17,7 @@
 use dive_core::plan::Code;
 use dive_core::{Error, ErrorKind, Handle, Machine, Sink};
 
-use crate::{Explorer, Seen, state_identity};
+use crate::{Explorer, state_identity};
 
 /// Where an evaluation error was raised.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -190,7 +190,7 @@ pub(crate) fn replay_after(
     let code = &plan.code;
     let s0 = m.s0.clone();
     let mut out = Replayed::default();
-    let mut added = Seen::with_exact(ex.seen.exact.is_some());
+    let mut added = ex.seen.empty_like();
     let mut emission = 0u64;
     for (index, a) in plan.next.iter().enumerate() {
         ex.action = Some(index);
@@ -267,12 +267,13 @@ pub(crate) fn replay_after(
                         Err(e) => return Err(e),
                     };
                 new = !ex.seen_contains(key, &identity, &m.heap, ("ReplayMembership", Some(o)))?
-                    && (ex.disk.is_some() || !added.contains_row(key, &identity, &m.heap));
+                    && (ex.disk.is_some()
+                        || !added.contains_row(key, &identity, &m.heap, ex.poll)?);
                 if new {
                     if ex.disk.is_some() {
                         ex.seen_insert(key, &identity, &m.heap, ("ReplayInsertion", Some(o)))?;
                     } else {
-                        added.insert_row(key, &identity, &m.heap)?;
+                        added.insert_row(key, &identity, &m.heap, ex.poll)?;
                     }
                     out.distinct += 1;
                 }

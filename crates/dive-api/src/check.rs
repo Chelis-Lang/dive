@@ -163,6 +163,10 @@ pub struct CheckRequest {
     pub candidate_memory_bytes: Option<usize>,
     /// Parent directory for private candidate files; requires a candidate budget.
     pub candidate_directory: Option<PathBuf>,
+    /// Opt-in completed-level measured Store-byte trigger under pure Core safety.
+    /// Zero forces every boundary. This is not a live-root or process-memory cap.
+    /// The TLC-equivalent setting is None. Recovery-only is supported.
+    pub store_compact_bytes: Option<usize>,
     /// Separate retained predecessor-record capacity budget for safety BFS.
     /// Zero spills immediately; omitted preserves the in-memory counterpart.
     /// Reconstruction buffers and all other search storage are outside it.
@@ -289,6 +293,13 @@ pub struct CheckReport {
 }
 
 fn admit_storage_request(req: &CheckRequest) -> Result<(), crate::ApiError> {
+    if req.store_compact_bytes.is_some()
+        && (req.temporal != TemporalMode::Ordinary || req.core_sample.is_some())
+    {
+        return Err(crate::ApiError::Unsupported {
+            feature: "Store reclamation with temporal capture or sampling".into(),
+        });
+    }
     if let Some(disk) = &req.seen_disk {
         disk.limits
             .validate()
@@ -489,6 +500,20 @@ fn check_file_in(
     core_switches: Option<&str>,
 ) -> Result<CheckReport, crate::ApiError> {
     admit_storage_request(req)?;
+    if req.store_compact_bytes.is_some() && engine != crate::Engine::Core {
+        return Err(crate::ApiError::Unsupported {
+            feature: "Store reclamation requires the explicit Core engine".into(),
+        });
+    }
+    if req.store_compact_bytes.is_some()
+        && checkpoint
+            .is_some_and(|request| request.action != dive_check::checkpoint::Action::Recover)
+    {
+        return Err(crate::ApiError::Unsupported {
+            feature: "Store reclamation with checkpoint pause (discovery residency is unsupported)"
+                .into(),
+        });
+    }
     if req.candidate_memory_bytes.is_some() && engine != crate::Engine::Core {
         return Err(crate::ApiError::Unsupported {
             feature: "candidate spill requires the explicit Core engine".into(),
@@ -605,6 +630,7 @@ fn check_file_in(
     opts.frontier_memory_bytes = req.frontier_memory_bytes;
     opts.frontier_directory.clone_from(&req.frontier_directory);
     opts.candidate_memory_bytes = req.candidate_memory_bytes;
+    opts.store_compact_bytes = req.store_compact_bytes;
     opts.candidate_directory
         .clone_from(&req.candidate_directory);
     opts.workers = workers_requested;
@@ -1509,6 +1535,7 @@ impl CheckReport {
             "deadlock_flag": o.no_deadlock,
             "workers": self.workers_json(),
             "candidate_memory_bytes_per_worker": o.candidate_memory_bytes,
+            "store_compact_trigger_bytes": o.store_compact_bytes,
             "candidate_record_bytes_limit": o.candidate_memory_bytes.map(|_| dive_store::spill::MAX_RECORD_BYTES),
             "frontier_memory_bytes_per_queue": o.frontier_memory_bytes,
             "frontier_record_bytes_limit": o.frontier_memory_bytes.map(|_| dive_store::spill::MAX_RECORD_BYTES),

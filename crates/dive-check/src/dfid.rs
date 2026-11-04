@@ -717,15 +717,22 @@ fn sequential_for_composition(model: &Model) -> bool {
 
 /// Checks DFID request admission without evaluating the model.
 #[must_use]
+#[allow(
+    clippy::too_many_lines,
+    reason = "one static preflight enumerates unsupported mode combinations"
+)]
 pub fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
     if opts.check.max_states.is_some() || opts.check.max_depth.is_some() {
         return Some(Outcome::Unsupported(
             "BFS discovery budgets --max-states/--max-depth with DFID are not implemented; use DFID-specific limits".into(),
         ));
     }
-    if opts.check.candidate_memory_bytes.is_some() || opts.check.candidate_directory.is_some() {
+    if opts.check.candidate_memory_bytes.is_some()
+        || opts.check.candidate_directory.is_some()
+        || opts.check.store_compact_bytes.is_some()
+    {
         return Some(Outcome::Unsupported(
-            "candidate spill with DFID is not implemented".into(),
+            "candidate spill or Store reclamation with DFID is not implemented".into(),
         ));
     }
     if opts.check.seen_disk.is_some() {

@@ -34,6 +34,13 @@ inspect that report's verdict, refusal, completion and validation before asserti
 success. API errors also distinguish rejected inputs, I/O, named unsupported
 requests and internal failures.
 
+For pure Core safety, `CheckRequest.store_compact_bytes = Some(0)` with
+`check_file_engine(&request, Engine::Core)` reclaims expanded persistent values
+after each completed level. Positive values trigger on measured Store bytes;
+this is not a hard live-memory cap. The same field may be enabled for
+`check_file_checkpoint_engine` recovery-only requests. See the supported
+combinations, retained owners and metrics in [storage and recovery](storage-recovery.md).
+
 The repository includes an independent consumer Cargo project and executable
 `#[test]` examples for ordinary public API workflows:
 

@@ -37,7 +37,7 @@ const EXIT_UNSUPPORTED: u8 = 3;
 
 fn usage() -> String {
     format!(
-        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive translate <FILE.tla> [--compat=tlc] [--rewrite|--write] [--checksums tla|full] [--replace-modified] [--ast|-writeAST] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive explain <CODE> [--output human|json]\n    dive tlc [OPTIONS] SPEC[.tla] (TLC checking arguments; see dive tlc -help)\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--exit-codes native|tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [--source-coverage] [-deadlock] [--action-composition off|tlc|tla]\n               [--symmetry-liveness unreduced|refuse|tlc] [--allow-io=env,files,exec]\n               [--frontier-memory-bytes N] [--frontier-directory DIR] [--candidate-memory-bytes N] [--candidate-directory DIR] [--output human|json]\n               [--time-limit DURATION|none] [--max-memory BYTES|auto|none]
+        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive translate <FILE.tla> [--compat=tlc] [--rewrite|--write] [--checksums tla|full] [--replace-modified] [--ast|-writeAST] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive explain <CODE> [--output human|json]\n    dive tlc [OPTIONS] SPEC[.tla] (TLC checking arguments; see dive tlc -help)\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--exit-codes native|tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [--source-coverage] [-deadlock] [--action-composition off|tlc|tla]\n               [--symmetry-liveness unreduced|refuse|tlc] [--allow-io=env,files,exec]\n               [--frontier-memory-bytes N] [--frontier-directory DIR] [--candidate-memory-bytes N] [--candidate-directory DIR] [--store-compact-bytes N] [--output human|json]\n               [--time-limit DURATION|none] [--max-memory BYTES|auto|none]
                [--max-states N|none] [--max-depth N|none]
                [--predecessor-memory-bytes N] [--predecessor-directory DIR]\n               [--seen-disk-entries N] [--seen-directory DIR] [--seen-key-bytes N]\n               [--seen-probe-steps N] [--seen-summary-pairs N]
                [--checkpoint FILE --checkpoint-after-levels N | --recover FILE]
@@ -587,6 +587,15 @@ fn check_command(
             "--candidate-directory" => match value() {
                 Some(dir) => req.candidate_directory = Some(dir.into()),
                 None => return usage_error(err, "--candidate-directory expects a directory"),
+            },
+            "--store-compact-bytes" => match value().as_deref().map(str::parse::<usize>) {
+                Some(Ok(n)) => req.store_compact_bytes = Some(n),
+                _ => {
+                    return usage_error(
+                        err,
+                        "--store-compact-bytes expects a byte trigger (zero forces each completed level)",
+                    );
+                }
             },
             "--frontier-memory-bytes" => match value().as_deref().map(str::parse::<usize>) {
                 Some(Ok(n)) => req.frontier_memory_bytes = Some(n),
@@ -1285,6 +1294,7 @@ fn simulate_command(
             | "--rl"
             | "--distributed"
             | "--frontier-memory-bytes"
+            | "--store-compact-bytes"
             | "--frontier-directory" => {
                 let _ = writeln!(err, "unsupported: simulation {arg}; no result produced");
                 return ExitCode::from(EXIT_UNSUPPORTED);

@@ -153,6 +153,18 @@ type Fallible<T> = std::result::Result<T, String>;
 /// the search from Init. Ordinary concrete witness replay remains unchanged.
 #[must_use]
 pub fn check(ir: &Arc<Ir>, cfg: &ModelConfig, options: &CheckOptions, request: &Request) -> Result {
+    if options.store_compact_bytes.is_some() {
+        return Result {
+            check: crate::bare(
+                Verdict::Unsupported {
+                    feature: "Store reclamation requires the explicit Core engine".into(),
+                },
+                options,
+                ir,
+            ),
+            receipt: None,
+        };
+    }
     if options.inputs.is_some() || !options.eval.host_access.is_empty() {
         return Result {
             check: crate::bare(

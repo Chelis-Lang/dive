@@ -26,6 +26,9 @@ pub struct Storage {
     pub candidate_memory_bytes: Option<usize>,
     /// Parent directory for private transient candidate files.
     pub candidate_directory: Option<PathBuf>,
+    /// Completed-level trigger for rebuilding the Store from live roots.
+    /// Zero forces every boundary. This is not a hard memory limit.
+    pub store_compact_bytes: Option<usize>,
     /// Opt-in fallible disk membership; runs inline and does not bound values.
     pub seen_disk: Option<DiskOptions>,
 }
@@ -214,6 +217,8 @@ impl Disk {
 /// Actual native safety storage facts. These describe components, not RSS.
 #[derive(Clone, Debug, Default)]
 pub struct Usage {
+    /// Completed-level persistent-value reclamation, independently of RSS.
+    pub reclamation: ReclamationUsage,
     /// Encoded candidate payload and occurrence storage, not total memory.
     pub candidates: CandidateUsage,
     /// Opt-in disk membership and its first positioned failure.
@@ -230,6 +235,25 @@ pub struct Usage {
     pub predecessor_cleanup_completed: bool,
     /// Actual encoded frontier component facts; decoded chunks and Store excluded.
     pub frontier: FrontierUsage,
+}
+
+/// Persistent-value reclamation facts; live roots and fixed startup remain mandatory.
+#[derive(Clone, Debug, Default)]
+pub struct ReclamationUsage {
+    /// Actual reclamation/key workspace allocation failures.
+    pub failures: Vec<String>,
+    /// Requested measured-Store-byte trigger; zero forces every boundary.
+    pub trigger_bytes: Option<usize>,
+    /// Completed replacement transactions.
+    pub collections: u64,
+    /// Cumulative values released from replaced Stores.
+    pub reclaimed_nodes: u64,
+    /// Largest measured Store snapshot before a completed transaction.
+    pub peak_before_bytes: u64,
+    /// Largest measured Store snapshot after a completed transaction.
+    pub peak_after_bytes: u64,
+    /// Largest number of nodes retained after a completed transaction.
+    pub peak_after_nodes: u64,
 }
 
 /// Actual candidate queue accounting, including occurrence metadata.
@@ -332,6 +356,67 @@ impl Frontiers {
 
     pub(crate) fn current_len(&self) -> usize {
         self.current.as_ref().map_or(0, OrderedFrontier::len)
+    }
+
+    /// Streams the live next queue into a fresh Store-bound codec. Old sources
+    /// are audited and closed before their owner is released; readers remain
+    /// bounded to one paired row independently of the full frontier width.
+    pub(crate) fn remap(
+        &mut self,
+        remap: &mut dive_core::store::compact::Remap,
+        poll: &(dyn Fn() -> bool + Sync),
+    ) -> Result<Self, Error> {
+        let mut fresh = Self::new(
+            remap.store(),
+            self.variables,
+            &Storage {
+                frontier_memory_bytes: Some(self.memory_bytes),
+                frontier_directory: Some(self.directory.clone()),
+                ..Storage::default()
+            },
+        )?;
+        let result = (|| {
+            for i in 0..self.next.len() {
+                if i.is_multiple_of(128) && poll() {
+                    return Err(Error::stop());
+                }
+                let read = self.next.read(i);
+                let (id, bytes) = self.observe(read)?;
+                if self.next_first.and_then(|n| n.checked_add(i as u64)) != Some(id) {
+                    return self.observe(Err(frontier_error("remap discovery position")));
+                }
+                let read = self.codec.decode(&bytes).map_err(frontier_error);
+                let mut rows = self.observe(read)?;
+                for h in rows.identity.iter_mut().chain(&mut rows.original) {
+                    *h = remap.copy(*h, &|| !poll())?;
+                }
+                fresh.push(id, &rows.identity, &rows.original)?;
+            }
+            if !self.finish(true, poll) {
+                if self.usage.failures.is_empty() {
+                    return Err(Error::stop());
+                }
+                return Err(Error::internal(self.usage.failures.join("; ")));
+            }
+            Ok(())
+        })();
+        if let Err(error) = result {
+            fresh.finish(false, poll);
+            self.usage.spilled_bytes += fresh.usage.spilled_bytes;
+            self.usage.peak_retained_bytes = self
+                .usage
+                .peak_retained_bytes
+                .max(fresh.usage.peak_retained_bytes);
+            self.usage.failures.extend(fresh.usage.failures);
+            return Err(error);
+        }
+        fresh.usage.spilled_bytes += self.usage.spilled_bytes;
+        fresh.usage.peak_retained_bytes = fresh
+            .usage
+            .peak_retained_bytes
+            .max(self.usage.peak_retained_bytes);
+        fresh.usage.failures.append(&mut self.usage.failures);
+        Ok(fresh)
     }
 
     fn observe<T>(&mut self, result: Result<T, SpillError>) -> Result<T, Error> {
@@ -512,10 +597,67 @@ fn frontier_error(cause: impl std::fmt::Display) -> SpillError {
 #[derive(Debug, Default)]
 pub(crate) struct Exact {
     rows: HashMap<u64, Vec<Vec<Handle>>>,
+    encoded: Option<HashMap<u64, Vec<Vec<u8>>>>,
     len: usize,
 }
 
 impl Exact {
+    pub(crate) fn detached() -> Self {
+        Self {
+            encoded: Some(HashMap::new()),
+            ..Self::default()
+        }
+    }
+
+    pub(crate) const fn is_detached(&self) -> bool {
+        self.encoded.is_some()
+    }
+
+    pub(crate) fn contains_controlled(
+        &self,
+        key: u64,
+        row: &[Handle],
+        heap: &Heap,
+        poll: &(dyn Fn() -> bool + Sync),
+    ) -> Result<bool, Error> {
+        let Some(encoded) = &self.encoded else {
+            return Ok(self.contains(key, row, heap));
+        };
+        let bytes = detached_key(heap, row, poll)?;
+        Ok(encoded
+            .get(&key)
+            .is_some_and(|bucket| bucket.contains(&bytes)))
+    }
+
+    pub(crate) fn insert_controlled(
+        &mut self,
+        key: u64,
+        row: &[Handle],
+        heap: &Heap,
+        poll: &(dyn Fn() -> bool + Sync),
+    ) -> Result<bool, Error> {
+        let Some(encoded) = &mut self.encoded else {
+            return self.insert(key, row, heap);
+        };
+        let bytes = detached_key(heap, row, poll)?;
+        if encoded
+            .get(&key)
+            .is_some_and(|bucket| bucket.contains(&bytes))
+        {
+            return Ok(false);
+        }
+        encoded
+            .try_reserve(1)
+            .map_err(|_| Error::internal("DIVE-S0203: detached exact state index allocation"))?;
+        let bucket = encoded.entry(key).or_default();
+        bucket.try_reserve(1).map_err(|_| {
+            Error::internal("DIVE-S0203: detached exact collision bucket allocation")
+        })?;
+        bucket.push(bytes);
+        self.len += 1;
+        Ok(true)
+    }
+
     pub(crate) const fn len(&self) -> usize {
         self.len
     }
@@ -546,6 +688,20 @@ impl Exact {
         self.len += 1;
         Ok(true)
     }
+}
+
+fn detached_key(
+    heap: &Heap,
+    row: &[Handle],
+    poll: &(dyn Fn() -> bool + Sync),
+) -> Result<Vec<u8>, Error> {
+    use dive_core::key::KeyError;
+    dive_core::key::canonical(heap, row, usize::MAX, &|| !poll()).map_err(|error| match error {
+        KeyError::Interrupted => Error::stop(),
+        KeyError::Internal(message) => Error::internal(message),
+        KeyError::Unsupported(message) => Error::unsupported(message),
+        KeyError::Limit(message) => Error::internal(format!("DIVE-S0203: {message}")),
+    })
 }
 
 #[cfg(test)]
@@ -586,6 +742,110 @@ mod tests {
             queues.push(u64::from(id), &[value], &[value]).unwrap();
         }
         queues
+    }
+
+    #[test]
+    fn remapping_cancels_and_reports_corruption_write_and_cleanup_failures() {
+        use std::sync::atomic::{AtomicUsize, Ordering};
+        for fault in ["cancel", "corrupt", "write", "cleanup"] {
+            let path = directory();
+            let store = Arc::new(Store::new(true));
+            let permanent =
+                dive_core::store::compact::Permanent::capture(&store, &|| true).unwrap();
+            let mut remap = permanent.begin(&store, &|| true).unwrap();
+            let mut queues = Frontiers::new(
+                &store,
+                1,
+                &Storage {
+                    frontier_memory_bytes: Some(0),
+                    frontier_directory: Some(path.clone()),
+                    ..Storage::default()
+                },
+            )
+            .unwrap();
+            for id in 0_u32..4 {
+                let h = Handle::int(i64::from(id)).unwrap();
+                queues.push(u64::from(id), &[h], &[h]).unwrap();
+            }
+            let owned = queues.next.disk_directory().unwrap().to_path_buf();
+            if fault == "write" {
+                let blocked = path.join("file");
+                fs::write(&blocked, b"not a directory").unwrap();
+                queues.directory = blocked;
+            }
+            let calls = AtomicUsize::new(0);
+            let poll = || {
+                // The first row has already been copied and written when the
+                // next root polls. Mutations therefore exercise partial output.
+                if calls.fetch_add(1, Ordering::Relaxed) == 3 {
+                    match fault {
+                        "cancel" => return true,
+                        "corrupt" => {
+                            let mut file = fs::OpenOptions::new()
+                                .write(true)
+                                .open(owned.join("states"))
+                                .unwrap();
+                            file.seek(SeekFrom::End(-1)).unwrap();
+                            file.write_all(&[255]).unwrap();
+                        }
+                        "cleanup" => {
+                            fs::rename(&owned, path.join("moved")).unwrap();
+                            fs::write(&owned, b"blocks cleanup").unwrap();
+                        }
+                        _ => {}
+                    }
+                }
+                false
+            };
+            let result = queues.remap(&mut remap, &poll);
+            assert!(result.is_err(), "{fault}");
+            if fault == "cancel" {
+                assert_eq!(result.err().unwrap().kind(), dive_core::ErrorKind::Stop);
+                assert_eq!(queues.usage.failures, [] as [String; 0]);
+            } else {
+                assert!(!queues.usage.failures.is_empty(), "{fault}");
+            }
+            queues.finish(false, &|| false);
+            if fault == "cleanup" {
+                assert!(queues.usage.failures.iter().any(|s| s.contains("cleanup")));
+            }
+            assert_eq!(queues.usage.retained_bytes, 0);
+            fs::remove_dir_all(path).unwrap();
+        }
+    }
+
+    #[test]
+    fn detached_exact_keys_survive_replacement_and_resolve_complete_collisions() {
+        let store = Arc::new(Store::new(true));
+        let permanent = dive_core::store::compact::Permanent::capture(&store, &|| true).unwrap();
+        let mut heap = Heap::new(Arc::clone(&store), true, false);
+        let one = Handle::int(1).unwrap();
+        let two = Handle::int(2).unwrap();
+        let a = heap.tuple_literal(&[one, two]);
+        let a = heap.intern(a).unwrap();
+        let b = heap.tuple_literal(&[two, one]);
+        let b = heap.intern(b).unwrap();
+        let mut exact = Exact::detached();
+        assert!(exact.insert_controlled(0, &[a], &heap, &|| false).unwrap());
+        assert!(exact.insert_controlled(0, &[b], &heap, &|| false).unwrap());
+        let mut remap = permanent.begin(&store, &|| true).unwrap();
+        let mapped = remap.copy(b, &|| true).unwrap();
+        let replacement = Heap::new(Arc::clone(remap.store()), true, false);
+        assert!(
+            exact
+                .contains_controlled(0, &[mapped], &replacement, &|| false)
+                .unwrap()
+        );
+        assert!(
+            !exact
+                .insert_controlled(0, &[mapped], &replacement, &|| false)
+                .unwrap()
+        );
+        assert!(
+            exact.rows.is_empty(),
+            "detached keys must retain no old Store handles"
+        );
+        assert_eq!(exact.len(), 2);
     }
 
     #[test]

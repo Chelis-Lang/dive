@@ -97,25 +97,25 @@ impl<'a> Read<'a> {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-struct Node {
-    handle: u64,
-    kind: Kind,
-    flags: u8,
-    lo: i64,
-    hash: u64,
-    sum: u64,
-    data: Vec<Handle>,
+pub(super) struct Node {
+    pub(super) handle: u64,
+    pub(super) kind: Kind,
+    pub(super) flags: u8,
+    pub(super) lo: i64,
+    pub(super) hash: u64,
+    pub(super) sum: u64,
+    pub(super) data: Vec<Handle>,
 }
-struct Image {
-    semantics: [u8; 6],
-    sealed: bool,
-    names: Vec<String>,
-    lens: Vec<[u64; CLASSES]>,
-    nodes: Vec<Node>,
-    history: Vec<[Handle; 2]>,
+pub(super) struct Image {
+    pub(super) semantics: [u8; 6],
+    pub(super) sealed: bool,
+    pub(super) names: Vec<String>,
+    pub(super) lens: Vec<[u64; CLASSES]>,
+    pub(super) nodes: Vec<Node>,
+    pub(super) history: Vec<[Handle; 2]>,
 }
 
-fn semantics(store: &Store) -> [u8; 6] {
+pub(super) fn semantics(store: &Store) -> [u8; 6] {
     [
         u8::from(store.hashcons),
         u8::from(store.semantics.string_order == crate::strings::StringOrder::Token),
@@ -314,7 +314,7 @@ fn scalar(h: Handle, names: usize, seen: &HashSet<u64>) -> bool {
     clippy::many_single_char_names,
     reason = "one bounded binary parser; short names denote checked node coordinates"
 )]
-fn parse(bytes: &[u8], proceed: &(dyn Fn() -> bool + Sync)) -> Result<Image, Error> {
+pub(super) fn parse(bytes: &[u8], proceed: &(dyn Fn() -> bool + Sync)) -> Result<Image, Error> {
     let mut input = Read { bytes, at: 0 };
     if input.take(8)? != MAGIC {
         return Err(invalid("format/version"));
@@ -574,6 +574,14 @@ pub fn restore(
         return Err(invalid("compiled startup prefix mismatch"));
     }
     let after = extension(expected_startup, image, proceed)?;
+    install(startup, after, proceed)
+}
+
+pub(super) fn install(
+    startup: &Store,
+    after: Image,
+    proceed: &(dyn Fn() -> bool + Sync),
+) -> Result<Arc<Store>, Error> {
     let store = Arc::new(Store::with_semantics(startup.hashcons, startup.semantics));
     store
         .strings
