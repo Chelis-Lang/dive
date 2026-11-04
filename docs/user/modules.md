@@ -74,7 +74,8 @@ dive check conformance/corpus/graph-demand/specifications/SelfDemand/SelfDemand.
 
 Graph conversion also recognizes an empty Cartesian product before enumerating
 its axes. Both engines support concrete explicit, bounded-interval and nested
-product axes in source order. An empty axis leaves incomparable values in other
+product axes in source order, including products embedded in tuple and record
+components. An empty axis leaves incomparable values in other
 axes unnormalized; a later use of the same axis still makes its own comparisons.
 Product operand expressions are evaluated normally, so an unused axis expression
 that divides by zero still fails. Unknown earlier axes keep the existing guarded

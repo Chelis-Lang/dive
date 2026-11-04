@@ -26,52 +26,18 @@ struct Graph {
     edges: Handle,
 }
 
-/// Read-only `Value.isEmpty` on concrete explicit/interval/product storage.
-/// Unknown axes decline in source order; a later empty axis cannot waive them.
-fn product_empty(m: &mut Machine, value: Handle, depth: u8) -> Result<Option<bool>, Error> {
-    m.charge(1)?;
-    if depth >= 64 || !value.is_compound() {
-        return Ok(None);
-    }
-    let view = m.heap.view(value);
-    match view.kind {
-        Kind::Set | Kind::SetEnum => Ok(Some(view.data.is_empty())),
-        Kind::Interval => Ok(view.data.first().and_then(|h| h.as_int()).and_then(|hi| {
-            if hi < view.lo {
-                Some(true)
-            } else {
-                hi.checked_sub(view.lo)
-                    .and_then(|n| n.checked_add(1))
-                    .filter(|&n| n <= i64::from(i32::MAX))
-                    .map(|_| false)
-            }
-        })),
-        Kind::Product => {
-            m.charge(view.data.len())?;
-            let axes = m.heap.view(value).data.to_vec();
-            for axis in axes {
-                match product_empty(m, axis, depth + 1)? {
-                    Some(false) => {}
-                    empty => return Ok(empty),
-                }
-            }
-            Ok(Some(false))
-        }
-        _ => Ok(None),
-    }
-}
-
 /// `toSetEnum` leaves explicit collections raw. Empty products convert without
 /// enumerating their axes; other non-explicit conversions keep their guards.
 fn set_conversion(m: &mut Machine, op: StdOp, value: Handle) -> Result<Option<Handle>, Error> {
     if value.is_compound() && matches!(m.heap.view(value).kind, Kind::Set | Kind::SetEnum) {
         return Ok(Some(value));
     }
-    if value.is_compound()
-        && m.heap.view(value).kind == Kind::Product
-        && product_empty(m, value, 0)? == Some(true)
-    {
-        return Ok(Some(m.heap.empty_set()));
+    if value.is_compound() && m.heap.view(value).kind == Kind::Product {
+        let (empty, work) = m.heap.product_empty(value)?;
+        m.charge(work)?;
+        if empty == Some(true) {
+            return Ok(Some(m.heap.empty_set()));
+        }
     }
     Ok(enumerable(m, op, value)?.map(|_| value))
 }

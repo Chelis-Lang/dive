@@ -28,7 +28,7 @@ the existing pinned golden. The six graph operators retain explicit-set demand
 and error precedence; inherited lazy empty-product behavior remained #760 at
 that checkpoint. The later bounded #760 repair executes concrete empty products
 on both engines in both profiles. Its separate `graph-empty-product` corpus has
-six generated model facts and four context-only negative controls; it changes
+eight generated model facts and four context-only negative controls; it changes
 none of the historical qualification totals above.
 
 Core safety candidate queues now consume owned spilled payloads before ordered

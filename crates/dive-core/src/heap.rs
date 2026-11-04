@@ -1389,6 +1389,52 @@ impl Heap {
         Ok(out)
     }
 
+    /// Read-only `Value.isEmpty` on concrete explicit/interval/product axes.
+    /// Unknown axes decline in source order; later emptiness cannot waive them.
+    /// Returns visited work for callers that also own a finite fuel budget.
+    pub(crate) fn product_empty(&self, h: Handle) -> Result<(Option<bool>, usize), Error> {
+        let mut work = 0;
+        let result = self.concrete_product_empty(h, 0, &mut work)?;
+        Ok((result, work))
+    }
+
+    fn concrete_product_empty(
+        &self,
+        h: Handle,
+        depth: u8,
+        work: &mut usize,
+    ) -> Result<Option<bool>, Error> {
+        self.history_poll()?;
+        *work = work.saturating_add(1);
+        if depth >= 64 || !h.is_compound() {
+            return Ok(None);
+        }
+        let view = self.view(h);
+        match view.kind {
+            Kind::Set | Kind::SetEnum => Ok(Some(view.data.is_empty())),
+            Kind::Interval => Ok(view.data.first().and_then(|h| h.as_int()).and_then(|hi| {
+                if hi < view.lo {
+                    Some(true)
+                } else {
+                    hi.checked_sub(view.lo)
+                        .and_then(|n| n.checked_add(1))
+                        .filter(|&n| n <= i64::from(i32::MAX))
+                        .map(|_| false)
+                }
+            })),
+            Kind::Product => {
+                for &axis in view.data {
+                    match self.concrete_product_empty(axis, depth + 1, work)? {
+                        Some(false) => {}
+                        empty => return Ok(empty),
+                    }
+                }
+                Ok(Some(false))
+            }
+            _ => Ok(None),
+        }
+    }
+
     /// A cursor over a set's elements in canonical order.
     ///
     /// # Errors
@@ -1413,6 +1459,15 @@ impl Heap {
                 hi: data[0].as_int().unwrap_or(lo - 1),
             },
             Kind::Product => {
+                // SetOfTuplesValue.elements first checks source-order emptiness.
+                // Do this at materialization, including compound components,
+                // before normalizing any axis or requiring later axes be sets.
+                if self.product_empty(h)?.0 == Some(true) {
+                    return Ok(Cursor::Array {
+                        set: self.empty_set(),
+                        i: 0,
+                    });
+                }
                 let comps = data
                     .iter()
                     .map(|&s| {
@@ -2259,6 +2314,35 @@ mod tests {
 
     fn heap(full: bool) -> Heap {
         Heap::new(Arc::new(Store::default()), false, full)
+    }
+
+    #[test]
+    fn product_materialization_checks_empty_axes_before_normalization() -> Result<(), Error> {
+        for semantics in [crate::Semantics::default(), crate::Semantics::tlc()] {
+            let mut h = Heap::new(
+                Arc::new(Store::with_semantics(true, semantics)),
+                false,
+                false,
+            );
+            let empty_interval = h.interval(3, 2);
+            let mixed = h.local_literal(&[int(0), Handle::TRUE])?;
+            let product = h.symbolic(Kind::Product, 0, &[empty_interval, mixed, int(0)]);
+            let nested = h.symbolic(Kind::Product, 0, &[product, mixed]);
+            for value in [product, nested] {
+                let materialized = h.materialize(value)?;
+                assert_eq!(h.view(materialized).kind, Kind::Set);
+                assert_eq!(h.view(materialized).data, []);
+            }
+            // Empty conversion must not settle the independently owned axis.
+            assert!(h.normalize_construction(mixed).is_err());
+            let earlier_scalar = h.symbolic(Kind::Product, 0, &[int(0), empty_interval]);
+            assert!(h.materialize(earlier_scalar).is_err());
+            let one = h.set_from(&mut vec![int(0)]);
+            let demanded = h.symbolic(Kind::Product, 0, &[one, mixed]);
+            assert!(h.materialize(demanded).is_err());
+            assert!(!h.poisoned());
+        }
+        Ok(())
     }
 
     #[test]

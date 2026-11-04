@@ -17,6 +17,8 @@ const CLASSIFIED: &[&str] = &[
     "LazyEmptyProductScalar",
     "LazyReverseEmptyProduct",
     "LazyNestedEmptyProduct",
+    "LazyIntervalEmptyProduct",
+    "LazyTupleIntervalEmptyProduct",
     "LazyEmptyProductViolation",
     "LazyNonemptyProduct",
 ];
