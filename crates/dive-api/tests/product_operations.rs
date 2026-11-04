@@ -58,7 +58,7 @@ fn concrete_product_operations_match_pinned_successes_and_preserve_alias_history
             let req = request(name, compat);
             let reference = check_file_engine(&req, Engine::Reference).expect("Reference check");
             assert_eq!(facts(&reference), expected, "{name}/{compat}/Reference");
-            for switches in ["", "-fold,-memo", "-symbolic-member"] {
+            for switches in ["", "-fold", "-memo", "-hashcons", "-symbolic-member"] {
                 let core = check_file_core_opts(&req, switches).expect("Core check");
                 assert_eq!(core.to_json()["engine"], "core");
                 assert_eq!(facts(&core), expected, "{name}/{compat}/{switches}");
@@ -80,7 +80,7 @@ fn sizing_keeps_product_membership_receiver_and_demands_nonempty_axis_sizes() {
                 .is_some_and(|s| s.contains("non-tuple"))
         );
         assert_eq!(expected["tlc"]["verified"], false);
-        for switches in ["", "-fold,-memo", "-symbolic-member"] {
+        for switches in ["", "-fold", "-memo", "-hashcons", "-symbolic-member"] {
             let core = check_file_core_opts(&req, switches).expect("Core check");
             let d = core.to_json();
             assert_eq!(core.exit_code_for(ExitConvention::Tlc), 75);
@@ -100,7 +100,7 @@ fn sizing_keeps_product_membership_receiver_and_demands_nonempty_axis_sizes() {
                 .as_str()
                 .is_some_and(|s| s.contains("STARTMSG 2154:"))
         );
-        for switches in ["", "-fold,-memo", "-symbolic-member"] {
+        for switches in ["", "-fold", "-memo", "-hashcons", "-symbolic-member"] {
             let core = check_file_core_opts(&req, switches).expect("Core check");
             let d = core.to_json();
             assert_eq!(d["verdict"], "unsupported");
