@@ -1,0 +1,21 @@
+{
+  "sources": [
+    "docs/user/modules.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "graphs",
+    "source-demand",
+    "cartesian-product"
+  ],
+  "modules": [
+    {
+      "path": "specifications/LazyProductOperandError/LazyProductOperandError.tla",
+      "features": [],
+      "models": []
+    }
+  ]
+}

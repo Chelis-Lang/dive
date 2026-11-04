@@ -1,0 +1,241 @@
+{
+  "kind": "pinned oracle observations before issue 760 implementation",
+  "runtime_source_commit": "fd2190e2",
+  "oracle": "tlc-2026.10.06.014338",
+  "tlaplus_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "community_commit": "78b98ae9939d2fe7a6615e9a4b21dd6c23ef8ff3",
+  "source_methods": [
+    "Value.isEmpty (SETOFTUPLESVALUE and SETENUMVALUE)",
+    "SetOfTuplesValue.elements / toSetEnum",
+    "AbstractGraphs.toGraph / nodes / edges"
+  ],
+  "observation": "Graph conversion asks toSetEnum before graph early returns. Product elements first tests axes for emptiness in source order. An explicit empty axis prevents later isEmpty calls and prevents every axis enumeration; incomparable explicit nonempty axes are counted without normalization. Operand expressions are still evaluated before product construction. Later uses of an aliased axis retain their own normalization/error demand.",
+  "reproduce": "cargo run -p dive-conformance --locked -- golden generate --corpus graph-empty-product --jobs 1 --tier all --no-sany --reason \"reproduce issue 760 oracle controls\" --raw-invocations <external-directory>",
+  "rows": [
+    {
+      "model": "LazyDemandedProduct",
+      "source_sha256": "ae9f397bb2474b8fb9b9d44bc40eac72f5d07fa6f56de816f54f0c9eb961781c",
+      "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d",
+      "golden": null,
+      "classification": "unclassified context-only stream; nested messages do not establish a deciding error class",
+      "physical_exit": 75,
+      "stdout_sha256": "14167e34a9611144b6ede93ca227c0d8d3f598f95893ed5d730c170aba2fb6dc",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "top_level_codes": [
+        2102,
+        2103,
+        2154,
+        2185,
+        2186,
+        2187,
+        2189,
+        2194,
+        2199,
+        2200,
+        2219,
+        2220,
+        2262
+      ]
+    },
+    {
+      "model": "LazyEmptyProduct",
+      "source_sha256": "ed1eed503ef6d1b4e303dd04a7e6bbbe799caec5988178952d86a9b014e76240",
+      "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/graph-empty-product/specifications/LazyEmptyProduct/LazyEmptyProduct.cfg.json",
+      "golden_sha256": "860231a77d8900fee09349815aa4e05302f28ee4aae66ee483b3463a5f9bcce9",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        }
+      }
+    },
+    {
+      "model": "LazyEmptyProductScalar",
+      "source_sha256": "22dfa0cb4efca26d890920362ad1c2c21e354cee7b3630f3d9cb458b6510ee6e",
+      "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/graph-empty-product/specifications/LazyEmptyProductScalar/LazyEmptyProductScalar.cfg.json",
+      "golden_sha256": "f99638c7e98bbee6acbce9b67f16c3ca752f9f3af06debb862e323d399a2b581",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        }
+      }
+    },
+    {
+      "model": "LazyEmptyProductViolation",
+      "source_sha256": "e822352312b40f1dcb11b6bac193e8c9d1b98e00311c172e4bb5da6c9adb45a7",
+      "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/graph-empty-product/specifications/LazyEmptyProductViolation/LazyEmptyProductViolation.cfg.json",
+      "golden_sha256": "c701f450d0c070ca3cd497882a422ac2fd7500c6da00aca2855148526789cebb",
+      "result": {
+        "verdict": "safety-violation",
+        "verdict_code": 2110,
+        "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+        "exit_code": 12,
+        "violated_property": "Inv",
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        }
+      }
+    },
+    {
+      "model": "LazyNestedEmptyProduct",
+      "source_sha256": "70f9ccb7aac66222891c8f878ec52a96cf6027cdd77482876dd28879877ab946",
+      "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/graph-empty-product/specifications/LazyNestedEmptyProduct/LazyNestedEmptyProduct.cfg.json",
+      "golden_sha256": "fe3d4829764ce7b755568dedae7ab5b77bf4525576ff38f535ceceb51c3ab57b",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        }
+      }
+    },
+    {
+      "model": "LazyNonemptyProduct",
+      "source_sha256": "2b0aa8f933f75278e3eb42340cf465af5e605482d3b8c3dc42d25a93359e8c1f",
+      "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/graph-empty-product/specifications/LazyNonemptyProduct/LazyNonemptyProduct.cfg.json",
+      "golden_sha256": "af47111e8a06386de5b400e6173e996e13c70e03ad70f8b2a15e25b5d91c75e1",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        }
+      }
+    },
+    {
+      "model": "LazyProductAxisOrder",
+      "source_sha256": "214b92b7ba74461190d2ed74d1c6fd837ae3fef8c750b7769c34e83de2b8f262",
+      "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d",
+      "golden": null,
+      "classification": "unclassified context-only stream; nested messages do not establish a deciding error class",
+      "physical_exit": 75,
+      "stdout_sha256": "b937fc0dffd3d9d821b74dd85c7dfd0a6a5b30d11b145d814d2b4f0ff4db6d90",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "top_level_codes": [
+        2102,
+        2103,
+        2154,
+        2185,
+        2186,
+        2187,
+        2189,
+        2194,
+        2199,
+        2200,
+        2219,
+        2220,
+        2262
+      ]
+    },
+    {
+      "model": "LazyProductHistory",
+      "source_sha256": "39dc48d09324eeeb06ee2c9d7949d6dfb79676db814b775df8351aee00552290",
+      "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d",
+      "golden": null,
+      "classification": "unclassified context-only stream; nested messages do not establish a deciding error class",
+      "physical_exit": 75,
+      "stdout_sha256": "39d31e8ef8d8672e3f1133976cd686f68f25d1a422405709a8d8c1d3df15a4bf",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "top_level_codes": [
+        2102,
+        2103,
+        2154,
+        2185,
+        2186,
+        2187,
+        2189,
+        2194,
+        2199,
+        2200,
+        2219,
+        2220,
+        2262
+      ]
+    },
+    {
+      "model": "LazyProductOperandError",
+      "source_sha256": "77cae7bfca9d66f8e02af633236ac818498ac737a9a1aafc86eb2020d49ceb4a",
+      "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d",
+      "golden": null,
+      "classification": "unclassified context-only stream; nested messages do not establish a deciding error class",
+      "physical_exit": 75,
+      "stdout_sha256": "63ccc4c380527e5e08b15af6f5da8c1df7b1ccecccde7d4668b6e85cbf578f65",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "top_level_codes": [
+        1000,
+        2103,
+        2179,
+        2185,
+        2186,
+        2187,
+        2189,
+        2194,
+        2199,
+        2200,
+        2219,
+        2220,
+        2262
+      ]
+    },
+    {
+      "model": "LazyReverseEmptyProduct",
+      "source_sha256": "915b28523e87a642c605b0801e48ff5a0091fb73be9eae372a4c0c32dc9e78b6",
+      "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/graph-empty-product/specifications/LazyReverseEmptyProduct/LazyReverseEmptyProduct.cfg.json",
+      "golden_sha256": "9a2c87e511c1e9d8e8c717d00961cddc0c62e438a588833f13e6aea6e6f9dab3",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        }
+      }
+    }
+  ],
+  "limits": [
+    "Six classified model goldens; four retained negative inputs have no model golden.",
+    "The current base Reference fails the empty products with nested override comparison 2154; Core refuses local scalar/tuple comparison provenance.",
+    "No general lazy conversion, source error classification, performance or release acceptance claim."
+  ]
+}

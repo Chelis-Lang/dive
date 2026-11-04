@@ -324,3 +324,10 @@ id = "graph-demand"
 path = "conformance/corpus/graph-demand"
 license = "MIT"
 layout = "examples-manifest"
+
+# Cartesian conversion must test emptiness before normalizing axes (#760).
+[[corpus]]
+id = "graph-empty-product"
+path = "conformance/corpus/graph-empty-product"
+license = "MIT"
+layout = "examples-manifest"
