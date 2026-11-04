@@ -1661,6 +1661,7 @@ fn explore_inner<'p>(
             let mut m = Machine::new(Arc::clone(store), nvars, config.opts, Memo::new(&keys));
             m.warn = config.warn;
             m.set_work_control(control.cloned());
+            m.set_debugger(plan.code.debugger.clone());
             m
         })
         .collect();

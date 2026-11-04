@@ -6,6 +6,7 @@
 //! return named refusals.
 #![forbid(unsafe_code)]
 
+mod debug;
 mod explain;
 mod tlc;
 mod translate;
@@ -25,6 +26,7 @@ const COMMANDS: &[&str] = &[
     "translate",
     "validate-trace",
     "explain",
+    "debug",
     "lsp",
 ];
 
@@ -38,7 +40,7 @@ const EXIT_UNSUPPORTED: u8 = 3;
 
 fn usage() -> String {
     format!(
-        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive translate <FILE.tla> [--compat=tlc] [--rewrite|--write] [--checksums tla|full] [--replace-modified] [--ast|-writeAST] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive explain <CODE> [--output human|json]\n    dive tlc [OPTIONS] SPEC[.tla] (TLC checking arguments; see dive tlc -help)\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--exit-codes native|tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [--source-coverage] [-deadlock] [--action-composition off|tlc|tla]\n               [--symmetry-liveness unreduced|refuse|tlc] [--allow-io=env,files,exec]\n               [--frontier-memory-bytes N] [--frontier-directory DIR] [--candidate-memory-bytes N] [--candidate-directory DIR] [--store-compact-bytes N] [--output human|json]\n               [--time-limit DURATION|none] [--max-memory BYTES|auto|none]
+        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive translate <FILE.tla> [--compat=tlc] [--rewrite|--write] [--checksums tla|full] [--replace-modified] [--ast|-writeAST] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive debug <FILE.tla> [--stdio|--listen 127.0.0.1:PORT] [--compat=tlc]\n    dive explain <CODE> [--output human|json]\n    dive tlc [OPTIONS] SPEC[.tla] (TLC checking arguments; see dive tlc -help)\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--exit-codes native|tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [--source-coverage] [-deadlock] [--action-composition off|tlc|tla]\n               [--symmetry-liveness unreduced|refuse|tlc] [--allow-io=env,files,exec]\n               [--frontier-memory-bytes N] [--frontier-directory DIR] [--candidate-memory-bytes N] [--candidate-directory DIR] [--store-compact-bytes N] [--output human|json]\n               [--time-limit DURATION|none] [--max-memory BYTES|auto|none]
                [--max-states N|none] [--max-depth N|none]
                [--predecessor-memory-bytes N] [--predecessor-directory DIR]\n               [--seen-disk-entries N] [--seen-directory DIR] [--seen-key-bytes N]\n               [--seen-probe-steps N] [--seen-summary-pairs N]
                [--checkpoint FILE --checkpoint-after-levels N | --recover FILE]
@@ -1706,6 +1708,7 @@ pub fn main() -> ExitCode {
             ExitCode::SUCCESS
         }
         Some("parse") => parse_command(&args[1..], &mut stdout, &mut stderr),
+        Some("debug") => debug::command(&args[1..], &mut stdout, &mut stderr),
         Some("explain") => explain::command(&args[1..], &mut stdout, &mut stderr),
         Some("analyze") => analyze_command(&args[1..], &mut stdout, &mut stderr),
         Some("dfid") => dfid_command(&args[1..], &mut stdout, &mut stderr),

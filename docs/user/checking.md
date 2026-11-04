@@ -1146,3 +1146,7 @@ callbacks; diagnostic replay temporarily restores them too. Complete scopes
 restore the host owner, policy and installed expression-cache domain with a new
 nonreused installation generation. Exhausted generations grant no optional
 admission authority. There is no new CLI switch or predicate-result cache.
+
+Native compiled safety debugging is available through `dive debug` and public
+Rust sessions. See [the debugging guide](debugging.md) for actual source
+breakpoints, stop-scoped inspection and supported execution boundaries.

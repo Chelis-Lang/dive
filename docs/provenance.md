@@ -2753,3 +2753,15 @@ an assertion failure. The new feature refuses those costs while retaining the
 actual model report and freshly validated source-error word. No private replay,
 effect repetition, variable HyperLogLog emulation, compiled source coverage or
 DAP is claimed. The native ADR 0146 metric remains distinct.
+
+## Compiled source maps and native DAP (ADR 0152)
+
+`dive-core::debug` maps the existing Rust compiler's actual value/generator
+instructions and active source/INSTANCE contexts; it does not emulate Java
+method projections. Source association, producer-only activation observation,
+bounded scalar snapshots and isolated expression evaluation are native designs.
+The framing, request/event fields, UTF-16 source positions and suspended-handle
+lifetimes follow the MIT-licensed [Microsoft DAP schema](https://github.com/microsoft/debug-adapter-protocol/blob/main/debugAdapterProtocol.json).
+Actual stdio/loopback clients and public Rust consumers exercise the existing
+checker. Existing TLC verdict/word provenance and native trace formats remain
+authoritative; complete debugger/TLC protocol parity is not claimed.

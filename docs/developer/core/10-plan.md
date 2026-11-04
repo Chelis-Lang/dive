@@ -47,10 +47,10 @@ startup/Init/Next and independently reconstructs bounded finite random choices.
 PlusCal file/AST publication, standalone Cargo consumers and native source-work
 counters are usable. Explicit category grants admit bounded Reference startup
 environment/text assumptions with source-bound offline replay. These do not
-complete modes/effects, translation, complete TLC costs/Core source maps/DAP or
+complete modes/effects, translation, complete TLC costs/maps/DAP parity or
 accepted Store/Arena and temporal paging/recovery. The later Reference logical
-coverage slice makes coverage/debugger partial; the current family inventory
-is **8 implemented / 29 partial / 1 missing**. This does not refresh the
+coverage and native mapping/DAP slices make coverage/debugger partial; the current
+family inventory is **8 implemented / 30 partial / 0 missing**. This does not refresh the
 source-bound Phase 7 qualification above. Reference remains default.
 
 The demanded-summary candidate `88a5845a` remains rejected unadopted: 30 correct

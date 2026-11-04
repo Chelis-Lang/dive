@@ -28,6 +28,7 @@ macro_rules! explanations {
 }
 
 explanations! {
+    "DIVE-D0001" => ("A native debugger request, frame, handle or supported-session boundary is invalid or unavailable.", "Read the named protocol argument or boundary. Initialize and attach/launch the authorized local check, use handles from the current stop, and continue or terminate explicitly. A failed debugger request is not a model verdict.");
     "DIVE-A0030" => ("The temporal model could not be bound.", "Fix the accompanying model/configuration diagnostic, then rerun the same check.");
     "DIVE-A0031" => ("Independent validation rejected a generated temporal counterexample; this is an internal failure.", "Retain the source, configuration, seed, report and candidate trace and file a dive issue; do not treat the candidate as a violation.");
     "DIVE-A0032" => ("Independent validation could not certify a generated temporal counterexample.", "Read the accompanying validation refusal; use the pinned TLC for the model until that feature is supported. An unvalidated candidate is not a violation.");

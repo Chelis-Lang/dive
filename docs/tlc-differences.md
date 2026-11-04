@@ -3008,3 +3008,9 @@ progress, `statistics.exhaustive: false`, and exit 5. A finite graph exactly
 at the ceiling can still exhaust and finish normally. See the
 [checking guide](user/checking.md) for worker and recovery semantics.
 
+
+Native `dive debug` and Rust sessions observe actual compiled Core safety
+execution in either semantic profile. They use a bounded DAP protocol and
+stop-scoped readable scalar storage; broader maps/inspection and TLC `-debugger`
+transport remain unfinished. Ordinary checking leaves observation off. See
+[the native debugging guide](user/debugging.md).

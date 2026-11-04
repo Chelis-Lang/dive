@@ -77,9 +77,9 @@ historical producer remains unchanged.
 Candidate transport does not bound accepted Store or active Arena; finite
 random-source replay and startup host inputs do not complete effects/modes;
 native source counters do not provide TLC logical costs, Core source maps or
-DAP. Later Reference logical coverage and authenticated native safety workers
-make coverage/debugger and distribution partial; the current inventory is
-**8 implemented / 30 partial / 0 missing**. This does
+DAP. Later Reference logical coverage, native mapping/DAP and authenticated
+native safety workers make coverage/debugger and distribution partial; the
+current inventory is **8 implemented / 30 partial / 0 missing**. This does
 not refresh the source-bound Phase 7 qualification above.
 Reference stays default; M1/M2, broad performance and RC acceptance remain open.
 
