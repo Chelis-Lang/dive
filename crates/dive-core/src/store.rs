@@ -30,6 +30,7 @@ use crate::handle::{CLASSES, Handle, LAZY_CLASS, MAX_CLASS_INDEX, mix2};
 use crate::node::{Kind, View, flags};
 use crate::strings::{StringOrder, Strings};
 
+pub mod compact;
 mod memory;
 pub mod snapshot;
 pub use memory::StoreMemory;

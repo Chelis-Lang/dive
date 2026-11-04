@@ -31,6 +31,7 @@ pub mod checkpoint;
 pub mod ending;
 pub mod graph;
 mod parallel;
+mod reclaim;
 pub mod sample;
 pub mod storage;
 pub mod trace;
@@ -248,17 +249,36 @@ impl Default for Seen {
 }
 
 impl Seen {
-    fn with_exact(exact: bool) -> Self {
+    fn with_detached_exact(exact: bool, detached: bool) -> Self {
         Self {
-            exact: exact.then(storage::Exact::default),
+            exact: exact.then(|| {
+                if detached {
+                    storage::Exact::detached()
+                } else {
+                    storage::Exact::default()
+                }
+            }),
             ..Self::default()
         }
     }
 
-    fn contains_row(&self, key: u64, row: &[Handle], heap: &dive_core::Heap) -> bool {
+    fn empty_like(&self) -> Self {
+        Self::with_detached_exact(
+            self.exact.is_some(),
+            self.exact.as_ref().is_some_and(storage::Exact::is_detached),
+        )
+    }
+
+    fn contains_row(
+        &self,
+        key: u64,
+        row: &[Handle],
+        heap: &dive_core::Heap,
+        poll: &(dyn Fn() -> bool + Sync),
+    ) -> Result<bool, Error> {
         self.exact.as_ref().map_or_else(
-            || self.contains(key),
-            |exact| exact.contains(key, row, heap),
+            || Ok(self.contains(key)),
+            |exact| exact.contains_controlled(key, row, heap, poll),
         )
     }
 
@@ -267,9 +287,10 @@ impl Seen {
         key: u64,
         row: &[Handle],
         heap: &dive_core::Heap,
+        poll: &(dyn Fn() -> bool + Sync),
     ) -> Result<bool, Error> {
         if let Some(exact) = &mut self.exact {
-            exact.insert(key, row, heap)
+            exact.insert_controlled(key, row, heap, poll)
         } else {
             Ok(self.insert(key))
         }
@@ -558,7 +579,7 @@ impl Explorer<'_> {
             phase.1.unwrap_or_else(|| self.emitted.saturating_sub(1)),
         );
         self.disk.as_mut().map_or_else(
-            || Ok(self.seen.contains_row(key, row, heap)),
+            || self.seen.contains_row(key, row, heap, self.poll),
             |disk| disk.operation(exact, key, row, heap, false, position, self.poll),
         )
     }
@@ -580,7 +601,7 @@ impl Explorer<'_> {
         if let Some(disk) = &mut self.disk {
             disk.operation(exact, key, row, heap, true, position, self.poll)
         } else {
-            self.seen.insert_row(key, row, heap)
+            self.seen.insert_row(key, row, heap, self.poll)
         }
     }
 
@@ -1419,7 +1440,10 @@ pub fn explore_with_storage<'p>(
     control: Option<&Arc<dyn dive_core::eval::WorkControl>>,
     storage: &storage::Storage,
 ) -> Outcome {
-    explore_inner(plan, store, config, poll, graph, control, storage, None)
+    let mut owner = Arc::clone(store);
+    explore_inner(
+        plan, &mut owner, config, poll, graph, control, storage, None, None, false,
+    )
 }
 
 /// Runs a quiescent completed-level safety transaction over the existing kernel.
@@ -1434,15 +1458,47 @@ pub fn explore_checkpoint<'p>(
     storage: &storage::Storage,
     session: &'p mut checkpoint::Session,
 ) -> Outcome {
+    let mut owner = Arc::clone(store);
     explore_inner(
         plan,
-        store,
+        &mut owner,
         config,
         poll,
         None,
         control,
         storage,
         Some(session),
+        None,
+        false,
+    )
+}
+
+/// Explores pure safety while allowing completed-level replacement of its Store.
+///
+/// `store` always names the owner of the returned trace/sample handles. A supplied
+/// `permanent` must be captured from the same compiled startup before recovery;
+/// omission captures the current startup. Caller-held clones of replaced Stores
+/// naturally retain their contents, so callers should transfer their sole owner.
+/// Checkpoint recovery may continue here; checkpoint pause, graph capture, effects
+/// and sampling explicitly refuse reclamation. The byte policy is a trigger,
+/// not a live-root or process-memory limit.
+#[must_use]
+#[allow(
+    clippy::too_many_arguments,
+    reason = "existing owned search, control and recovery owners"
+)]
+pub fn explore_owned<'p>(
+    plan: &'p Plan,
+    store: &mut Arc<Store>,
+    config: Config,
+    poll: &'p (dyn Fn() -> bool + Sync),
+    control: Option<&Arc<dyn dive_core::eval::WorkControl>>,
+    storage: &storage::Storage,
+    session: Option<&'p mut checkpoint::Session>,
+    permanent: Option<&dive_core::store::compact::Permanent>,
+) -> Outcome {
+    explore_inner(
+        plan, store, config, poll, None, control, storage, session, permanent, true,
     )
 }
 
@@ -1453,15 +1509,40 @@ pub fn explore_checkpoint<'p>(
 )]
 fn explore_inner<'p>(
     plan: &'p Plan,
-    store: &Arc<Store>,
+    store: &mut Arc<Store>,
     config: Config,
     poll: &'p (dyn Fn() -> bool + Sync),
     graph: Option<&'p mut dyn graph::GraphSink>,
     control: Option<&Arc<dyn dive_core::eval::WorkControl>>,
     storage: &storage::Storage,
     checkpoint: Option<&'p mut checkpoint::Session>,
+    permanent: Option<&dive_core::store::compact::Permanent>,
+    owned: bool,
 ) -> Outcome {
     let start = Instant::now();
+    let compact = storage.store_compact_bytes.is_some();
+    let reclaim_refusal = if compact && !owned {
+        Some("Store reclamation requires the owned exploration entrypoint")
+    } else if compact && (graph.is_some() || plan.effects.any || config.sample.is_some()) {
+        Some("Store reclamation with temporal capture, runtime effects or sampling")
+    } else if compact && checkpoint.as_ref().is_some_and(|s| s.pause_after.is_some()) {
+        Some("Store reclamation with checkpoint pause (discovery residency is unsupported)")
+    } else {
+        None
+    };
+    let captured_permanent = if compact && permanent.is_none() && reclaim_refusal.is_none() {
+        Some(dive_core::store::compact::Permanent::capture(
+            store,
+            &|| !poll(),
+        ))
+    } else {
+        None
+    };
+    let (captured_permanent, permanent_error) = match captured_permanent.transpose() {
+        Ok(permanent) => (permanent, None),
+        Err(error) => (None, Some(error)),
+    };
+    let permanent = permanent.or(captured_permanent.as_ref());
     let config = if storage.seen_disk.is_some() {
         Config {
             workers: 1,
@@ -1489,6 +1570,7 @@ fn explore_inner<'p>(
         Err(error) => (None, Some(error)),
     };
     let mut initial_metrics = Metrics::default();
+    initial_metrics.storage.reclamation.trigger_bytes = storage.store_compact_bytes;
     let (disk, disk_setup_error) = match storage
         .seen_disk
         .as_ref()
@@ -1518,7 +1600,7 @@ fn explore_inner<'p>(
             (None, Some(Error::internal(error.to_string())))
         }
     };
-    let mut seen = Seen::with_exact(storage.exact);
+    let mut seen = Seen::with_detached_exact(storage.exact, compact);
     if storage.seen_disk.is_some() {
         seen.table = Vec::new();
     }
@@ -1580,7 +1662,9 @@ fn explore_inner<'p>(
     };
     let mut replayed = None;
     let mut reservoir = config.sample.map(sample::Reservoir::new);
-    let result = if let Some(error) = disk_setup_error.or(storage_setup_error) {
+    let result = if let Some(feature) = reclaim_refusal {
+        Err(Error::unsupported(feature))
+    } else if let Some(error) = permanent_error.or(disk_setup_error).or(storage_setup_error) {
         Err(error)
     } else if unsupported_storage {
         Err(Error::unsupported(
@@ -1608,10 +1692,22 @@ fn explore_inner<'p>(
             plan,
             &mut replayed,
             reservoir.as_mut(),
+            store,
+            permanent,
+            control,
         )
     };
     let parallel = machines.len() > 1 || ex.candidates.is_some();
     let mut m = machines.swap_remove(0);
+    if let Err(error) = &result
+        && error.message().starts_with("DIVE-S0203:")
+    {
+        ex.metrics
+            .storage
+            .reclamation
+            .failures
+            .push(error.message().to_owned());
+    }
     let mut trace = ex
         .end
         .take()
@@ -1725,7 +1821,9 @@ fn explore_inner<'p>(
         .map(|s| s.name.clone())
         .zip(m.memo.stats())
         .collect();
-    metrics.arena_peak = m.heap.arena().peak();
+    let (nodes, handles) = m.heap.arena().peak();
+    metrics.arena_peak.0 = metrics.arena_peak.0.max(nodes);
+    metrics.arena_peak.1 = metrics.arena_peak.1.max(handles);
     for worker in &machines {
         let (nodes, handles) = worker.heap.arena().peak();
         metrics.arena_peak.0 = metrics.arena_peak.0.max(nodes);
@@ -1908,6 +2006,7 @@ const FRONTIER_CHUNK_STATES: usize = 1024;
 
 #[allow(
     clippy::too_many_lines,
+    clippy::too_many_arguments,
     reason = "TLC's ordered level loop: expansion, stops, replay and deadlock"
 )]
 fn run(
@@ -1916,6 +2015,9 @@ fn run(
     plan: &Plan,
     replayed: &mut Option<Replayed>,
     mut reservoir: Option<&mut sample::Reservoir>,
+    store: &mut Arc<Store>,
+    permanent: Option<&dive_core::store::compact::Permanent>,
+    control: Option<&Arc<dyn dive_core::eval::WorkControl>>,
 ) -> Result<(), Error> {
     let code = &plan.code;
     let nvars = plan.vars.len();
@@ -1951,6 +2053,7 @@ fn run(
         ex.warnings.clone_from(&m.warnings);
     }
     checkpoint::boundary(ex)?;
+    reclaim::boundary(machines, ex, store, permanent, control)?;
     let mut cur = std::mem::take(&mut ex.next);
     let mut cur_originals = std::mem::take(&mut ex.next_originals);
     let mut cur_views = std::mem::take(&mut ex.next_views);
@@ -2202,6 +2305,11 @@ fn run(
         cur_originals.clear();
         cur_views.clear();
         cur_ids.clear();
+        // Every source-level owner is now dead. Only the next frontier and
+        // permanent compiled roots may cross the Store replacement boundary.
+        drop(expanded);
+        drop(decoded);
+        reclaim::boundary(machines, ex, store, permanent, control)?;
         std::mem::swap(&mut cur, &mut ex.next);
         std::mem::swap(&mut cur_originals, &mut ex.next_originals);
         std::mem::swap(&mut cur_views, &mut ex.next_views);

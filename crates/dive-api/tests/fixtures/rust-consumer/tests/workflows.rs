@@ -271,3 +271,49 @@ fn translated_algorithms_are_admitted_then_checked_as_a_separate_model() -> Resu
     assert_eq!(checked.to_json()["statistics"]["distinct"], 3);
     Ok(())
 }
+
+#[test]
+fn core_reclamation_and_recovery_run_without_external_tools() -> Result {
+    let project = Project::new(
+        "Retained",
+        "---- MODULE Retained ----\nEXTENDS Naturals\nVARIABLES n,p\nInit == n = 0 /\\ p = <<0>>\nNext == /\\ n' = (IF n < 48 THEN n+1 ELSE 0) /\\ p' = <<n'>>\n====\n",
+        "INIT Init\nNEXT Next\n",
+    )?;
+    for compat in [false, true] {
+        let mut request = project.request(compat);
+        request.store = dive_api::Store::Exact;
+        let full = check_file_engine(&request, Engine::Core)?.to_json();
+        assert_eq!(full["verdict"], "success", "{full}");
+        let pause = checkpoint::Request {
+            path: project.directory.join(format!("{compat}.cp")),
+            action: checkpoint::Action::PauseAfterLevels(2),
+            counters: checkpoint::Counters::Retain,
+            config_source_sha256: None,
+        };
+        let paused = check_file_checkpoint_engine(&request, &pause, Engine::Core)?.to_json();
+        assert_eq!(
+            paused["checkpoint"]["status"], "paused-incomplete",
+            "{paused}"
+        );
+        request.store_compact_bytes = Some(0);
+        request.frontier_memory_bytes = Some(0);
+        request.predecessor_memory_bytes = Some(0);
+        let recovered = check_file_checkpoint_engine(
+            &request,
+            &checkpoint::Request {
+                action: checkpoint::Action::Recover,
+                ..pause
+            },
+            Engine::Core,
+        )?
+        .to_json();
+        assert_eq!(recovered["verdict"], "success", "{recovered}");
+        assert_eq!(recovered["statistics"], full["statistics"]);
+        assert!(
+            recovered["core"]["metrics"]["store_reclamation"]["collections"]
+                .as_u64()
+                .is_some_and(|n| n >= 45)
+        );
+    }
+    Ok(())
+}

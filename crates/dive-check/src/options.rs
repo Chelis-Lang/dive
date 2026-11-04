@@ -29,6 +29,9 @@ pub struct CheckOptions {
     pub candidate_memory_bytes: Option<usize>,
     /// Parent for private transient candidate files; requires a candidate budget.
     pub candidate_directory: Option<std::path::PathBuf>,
+    /// Completed-level measured Store-byte trigger for explicit pure Core safety.
+    /// Zero forces each boundary; None is TLC-equivalent. This is not a hard cap.
+    pub store_compact_bytes: Option<usize>,
     /// Separate retained predecessor capacity budget. `None` preserves the
     /// in-memory TLC counterpart; zero immediately spills native records.
     /// Seen sets, frontiers, candidates, graphs and reconstructed paths are
@@ -112,6 +115,7 @@ impl CheckOptions {
             frontier_directory: None,
             candidate_memory_bytes: None,
             candidate_directory: None,
+            store_compact_bytes: None,
             predecessor_memory_bytes: None,
             predecessor_directory: None,
             profile: Profile::Tlc,
@@ -144,6 +148,7 @@ impl CheckOptions {
             frontier_directory: None,
             candidate_memory_bytes: None,
             candidate_directory: None,
+            store_compact_bytes: None,
             predecessor_memory_bytes: None,
             predecessor_directory: None,
             profile: Profile::Dive,

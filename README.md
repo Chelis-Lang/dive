@@ -24,8 +24,10 @@ refuses before execution. See [simulation](docs/user/simulation.md) and
 [DFID](docs/user/dfid.md).
 
 Core safety BFS supports exact membership, owned candidate payload spill,
-frontier/predecessor spill and opt-in disk membership. Completed-level
-checkpoints preserve owned representations,
+frontier/predecessor spill and opt-in disk membership. Opt-in completed-level
+`--store-compact-bytes` reclamation releases expanded Core value payloads while
+preserving live roots; its byte setting is a trigger, not a hard memory cap.
+Completed-level checkpoints preserve owned representations,
 construction history and the ordered frontier for identity-checked recovery in a
 fresh process. Auto pauses on Reference and recovers with the encoded backend;
 disk membership uses one actual worker. Component budgets and archive bounds do

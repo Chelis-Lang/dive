@@ -460,7 +460,8 @@ pub(super) fn restore(
     }
     session.started = true;
     let owner = Arc::clone(m.heap.store());
-    session.owner = Some(Arc::clone(&owner));
+    // Recovery-only sessions retain no expanded payload owner after installation.
+    session.owner = session.pause_after.map(|_| Arc::clone(&owner));
     let Some(snapshot) = session.imported.take() else {
         return Ok(false);
     };

@@ -102,6 +102,15 @@ pub use result::{
 /// Runs on its own thread with the evaluator's recommended stack.
 #[must_use]
 pub fn check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResult {
+    if opts.store_compact_bytes.is_some() {
+        return bare(
+            Verdict::Unsupported {
+                feature: "Store reclamation requires the explicit Core engine".into(),
+            },
+            opts,
+            ir,
+        );
+    }
     if let Err(error) = dive_eval::validate_ir(ir) {
         return bare(context_verdict(&error), opts, ir);
     }

@@ -638,12 +638,22 @@ Most specifications have far fewer distinct component values than distinct
 states, so this is acceptable as the first implementation. It is measured as
 intern hit rate and store size in M0.
 
-Compaction is planned for M2, as an option that the memory budget triggers. At
-a level boundary it:
+Opt-in completed-level reclamation is available for owned pure Core safety BFS
+and recovery-only runs (`--store-compact-bytes`, ADR 0149). Its measured-Store-byte
+setting triggers work, rather than imposing a hard cap. At a joined level boundary it:
 1. copies the values reachable from the frontier and the permanent region into
    fresh shards;
 2. remaps the frontier handles;
 3. clears the memoization caches.
+
+The compiled startup keeps its issued coordinates; live original/canonical
+frontier rows and registered raw/normalized origin companions are remapped into
+a fresh owner. Machines and spilled frontier codecs are replaced, releasing old
+Arena/cache/Store owners. This route detaches resident exact keys into full
+mathematical bytes. Names, mandatory live roots, fixed startup, seen keys,
+mapping/replay workspaces and old/new overlap remain separate retention.
+Checkpoint pause, temporal capture, effects and sampling refuse this option.
+Accepted discovery residency and temporal paging remain unimplemented.
 
 The worker's bounded explicit-set comparison certificates also contain
 persistent handles and are cleared with those caches. They retain an exact
@@ -835,7 +845,8 @@ arena nodes directly.
    it evaluates the materialization, then rebuilds the parents with
    `rebuild`. `intern` given a lazy value is an internal error.
 5. **Persistent values are immutable and never reference transients.** They
-   live until the store is dropped (compaction is M2, §10).
+   live until their Store is dropped. The owned safety compactor (§10) remaps
+   all live roots before replacing that owner.
 6. **Views and identity** (§8). A value's identity handle is its normalized,
    closed form. A lazy view (a symbolic class, or TLC's `isNorm` state) is
    kept beside it, never in it: `hash`, `eq`, `cmp` and `intern` ignore
@@ -869,7 +880,9 @@ M0 built the following. Measurements are in `m0-results.md`.
 Deviations, to resolve in M1:
 - The literal flag for tuples and records is not part of identity (since M1
   step 7 it is a view bit, §8).
-- The store has no compaction. Memo tables are cleared when the store remaps.
+- General lifetime compaction remains open. Owned pure safety and recovery-only
+  runs have explicit completed-level reclamation (§10); memo values and
+  comparison certificates are cleared when that Store remaps.
 
 M1, stream 1. The steps below are the ones §11 refers to.
 
