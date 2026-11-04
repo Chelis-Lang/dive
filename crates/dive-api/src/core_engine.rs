@@ -834,6 +834,11 @@ pub(crate) fn safety_result(
     let budget = &options.budget;
     let storage_failed = !out.metrics.storage.candidates.failures.is_empty()
         || !out.metrics.storage.reclamation.failures.is_empty()
+        || out
+            .metrics
+            .distributed
+            .as_ref()
+            .is_some_and(|facts| !facts.failures.is_empty())
         || !out.metrics.storage.predecessor_failures.is_empty()
         || !out.metrics.storage.frontier.failures.is_empty()
         || out
@@ -1113,7 +1118,11 @@ pub(crate) fn safety_result(
 }
 
 /// Runs the core engine.
-#[allow(clippy::too_many_lines, reason = "the stages of a core run, in order")]
+#[allow(
+    clippy::too_many_lines,
+    clippy::too_many_arguments,
+    reason = "the shared backend stages include explicit identity-bound distributed policy"
+)]
 pub(crate) fn check(
     ir: &Arc<Ir>,
     config: &dive_config::ModelConfig,
@@ -1122,6 +1131,7 @@ pub(crate) fn check(
     switches: Option<&str>,
     sample: Option<usize>,
     route: Option<crate::core_temporal::Route>,
+    distributed: Option<(&crate::DistributedOptions, &str)>,
 ) -> (CoreOutcome, CoreRun) {
     let started = Instant::now();
     let text = switches
@@ -1170,6 +1180,21 @@ pub(crate) fn check(
         return (
             finish(result(
                 unsupported("Store reclamation with runtime effects or native temporal capture"),
+                options,
+                ir,
+            )),
+            run,
+        );
+    }
+    if distributed.is_some()
+        && (prepared.plan.effects.any
+            || prepared.plan.view.is_some()
+            || prepared.plan.symmetry.is_some()
+            || !prepared.model.implied_temporals.is_empty())
+    {
+        return (
+            finish(result(
+                unsupported("distributed runtime effects, VIEW, symmetry or temporal properties"),
                 options,
                 ir,
             )),
@@ -1247,50 +1272,91 @@ pub(crate) fn check(
     // Every observable result is the one-worker result
     // (`docs/developer/core/07-engine.md` §3), in both profiles: under
     // TLC's string order the table is sealed, so no worker creates a token.
-    let workers = if options.seen_disk.is_some() {
+    let workers = if let Some((remote, _)) = &distributed {
+        remote.workers.len()
+    } else if options.seen_disk.is_some() {
         1
     } else {
         options.workers.max(1)
     };
     let poll = || !matches!(budget.poll(), Ok(None));
     let explore_started = Instant::now();
-    run.searched = true;
     let sample = sample.map(|states| dive_explore::sample::Sample {
         seed: options.seed.cast_unsigned(),
         states,
     });
-    let out = dive_explore::explore_owned(
-        &plan,
-        &mut store,
-        dive_explore::Config {
-            opts: core_opts,
-            max_states: options.max_states,
-            max_depth: options.max_depth,
-            workers,
-            warn: options.eval.warnings,
-            sample,
-        },
-        &poll,
-        Some(&search_work_control(budget)),
-        &dive_explore::storage::Storage {
-            exact: options.store == dive_store::StoreMode::Exact,
-            predecessor_memory_bytes: options.predecessor_memory_bytes,
-            predecessor_directory: options.predecessor_directory.clone(),
-            frontier_memory_bytes: options.frontier_memory_bytes,
-            frontier_directory: options.frontier_directory.clone(),
-            candidate_memory_bytes: options.candidate_memory_bytes,
-            candidate_directory: options.candidate_directory.clone(),
-            store_compact_bytes: options.store_compact_bytes,
-            seen_disk: options.seen_disk.as_ref().map(|options| {
-                dive_explore::storage::DiskOptions {
-                    limits: options.limits,
-                    directory: options.directory.clone(),
-                }
+    let coordinator = if let Some((remote, config_hash)) = &distributed {
+        let identity =
+            match crate::core_worker::identity(ir, config, options, config_hash, core_opts) {
+                Ok(identity) => identity,
+                Err(verdict) => return (finish(result(verdict, options, ir)), run),
+            };
+        match dive_explore::distributed::Coordinator::new((*remote).clone(), &identity, &store) {
+            Ok(coordinator) => Some(coordinator),
+            Err(error) => {
+                return (
+                    finish(result(
+                        Verdict::ResourceLimit {
+                            message: error.message().into(),
+                        },
+                        options,
+                        ir,
+                    )),
+                    run,
+                );
+            }
+        }
+    } else {
+        None
+    };
+    let explore_config = dive_explore::Config {
+        opts: core_opts,
+        max_states: options.max_states,
+        max_depth: options.max_depth,
+        workers,
+        warn: options.eval.warnings,
+        sample,
+    };
+    let storage = dive_explore::storage::Storage {
+        exact: options.store == dive_store::StoreMode::Exact,
+        predecessor_memory_bytes: options.predecessor_memory_bytes,
+        predecessor_directory: options.predecessor_directory.clone(),
+        frontier_memory_bytes: options.frontier_memory_bytes,
+        frontier_directory: options.frontier_directory.clone(),
+        candidate_memory_bytes: options.candidate_memory_bytes,
+        candidate_directory: options.candidate_directory.clone(),
+        store_compact_bytes: options.store_compact_bytes,
+        seen_disk: options
+            .seen_disk
+            .as_ref()
+            .map(|options| dive_explore::storage::DiskOptions {
+                limits: options.limits,
+                directory: options.directory.clone(),
             }),
-        },
-        None,
-        None,
-    );
+    };
+    run.searched = true;
+    let out = if let Some(coordinator) = &coordinator {
+        dive_explore::explore_distributed(
+            &plan,
+            &store,
+            explore_config,
+            &poll,
+            Some(&search_work_control(budget)),
+            &storage,
+            coordinator,
+        )
+    } else {
+        dive_explore::explore_owned(
+            &plan,
+            &mut store,
+            explore_config,
+            &poll,
+            Some(&search_work_control(budget)),
+            &storage,
+            None,
+            None,
+        )
+    };
     if let Some(sample) = sample {
         run.sample = crate::core_sample::compare(
             (&model, &host),
@@ -1318,6 +1384,11 @@ pub(crate) fn check(
     let disk_print_replay =
         disk_usage.is_some() && out.replayed.is_some() && !observed_output.is_empty();
     let mut r = safety_result(&search, &model, &store, &plan, start, out);
+    if let Some(coordinator) = coordinator {
+        let facts = coordinator.usage();
+        r.workers.used = facts.workers.len();
+        r.workers.reason=Some("authenticated remote Core source evaluation with coordinator-owned ordered commit; Init and selected-word/diagnostic replay remain local".into());
+    }
     if let Some(usage) = disk_usage {
         r.seen = Some(native_seen_usage(&usage));
         let creation_failed = usage
@@ -1540,6 +1611,7 @@ pub(crate) fn metrics_json(
         .collect();
     json!({
         "compile_ms": compile_time.as_secs_f64() * 1e3,
+        "distributed":m.distributed,
         "explore_ms": m.explore_time.as_secs_f64() * 1e3,
         "expand_ms": m.expand_time.as_secs_f64() * 1e3,
         "commit_ms": m.commit_time.saturating_sub(m.expand_time).as_secs_f64() * 1e3,

@@ -1,5 +1,15 @@
 # Provenance
 
+Native distributed safety reuses dive's existing ordered BFS/WorkerSink and
+owned Core recovery foundation (ADRs 0141/0151), rather than porting TLC's
+distributed protocol or adding another evaluator. Private framing/owned DAG
+indexes are independently implemented. Authentication uses RustCrypto `hmac`
+0.13 with existing `sha2` and OS nonces from `getrandom` 0.4; the established
+HMAC primitive is RFC 2104 and tag verification uses the library's public
+constant-time verification API. The same independent trace engine validates
+actual reported words. Authentication does not provide confidentiality or
+attestation of a worker's correctness.
+
 Native safety exact membership uses independently implemented collision buckets
 over the existing canonical core value identities; it does not port TLC's
 probabilistic `FPSet` structure. Discovery order and predecessor replay retain

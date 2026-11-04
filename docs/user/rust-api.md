@@ -41,6 +41,13 @@ this is not a hard live-memory cap. The same field may be enabled for
 `check_file_checkpoint_engine` recovery-only requests. See the supported
 combinations, retained owners and metrics in [storage and recovery](storage-recovery.md).
 
+Explicit native worker roles use `prepare_core_worker`/`CoreWorker::serve`, and
+coordinators use `CheckRequest.distributed` plus `DistributedOptions` under the
+explicit Core engine. Participants independently prepare the same model with
+the same executable. The [distributed safety guide](distributed-safety.md)
+documents authentication, retries, current combination bounds and both roles.
+The default is `None`; worker facts alone never certify a model result.
+
 The repository includes an independent consumer Cargo project and executable
 `#[test]` examples for ordinary public API workflows:
 

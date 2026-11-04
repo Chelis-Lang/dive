@@ -98,10 +98,12 @@ activity. Completed feature/review evidence is verified in S3 before local raw
 files and targets are removed; this housekeeping is not checker capacity or
 performance qualification.
 
-The current 38-family checklist is **8 implemented / 29 partial / 1 missing**.
+The current 38-family checklist is **8 implemented / 30 partial / 0 missing**.
 Final Reference logical action-context costs make coverage/debugger partial;
-complete costs, Core source maps and DAP remain open. Distributed checking remains
-missing. Native source counters stay separate from TLC logical-cost credit.
+complete costs, Core source maps and DAP remain open. Authenticated native pure-safety
+distribution provides actual CLI/Rust worker processes and ordered complete-unit
+retry; durable coordinator and temporal recovery remain open. Native source
+counters stay separate from TLC logical-cost or DAP credit.
 
 ## PlusCal file workflows
 
@@ -1013,11 +1015,12 @@ throughput, scaling or peak-memory result. The backlog remains
 
 ## Roadmap feature checklist
 
-The current inventory is 8 implemented, 29 partial and 1 missing. Granted startup
-environment/TXT inputs supply partial I/O support; runtime reads, writes, exec and
-other backend combinations remain open. Final Reference logical coverage supplies
-partial coverage/debugger support; complete costs, Core source maps and DAP are
-still required. See the [remaining mandatory scope](ROADMAP.md#through-full-tlc-parity).
+The current inventory is 8 implemented, 30 partial and 0 missing. Granted startup
+environment/TXT inputs supply partial I/O support, final Reference logical coverage
+supplies partial coverage/debugger support, and authenticated native pure-safety
+workers supply partial distribution. Runtime reads/writes/exec, complete costs,
+Core source maps, DAP, durable distributed recovery and broader combinations
+remain open. See the [remaining mandatory scope](ROADMAP.md#through-full-tlc-parity).
 
 Status is one word: `implemented`, `partial` or `missing`. `implemented` means
 the feature works for the supported corpus. It does not certify full parity.
@@ -1065,7 +1068,7 @@ census or milestone acceptance (`docs/developer/core/03-value-model.md` §12).
 | Coverage and debugger services | partial |
 | Bounded-memory stores, frontiers, graphs and spill | partial |
 | Checkpoint and recovery | partial |
-| Distributed checking and recovery | missing |
+| Distributed checking and recovery | partial |
 | PlusCal translation and translation validation | partial |
 | Versioned JSON reports and trace compatibility policy | implemented |
 | Public Rust APIs and cargo-test integration | partial |

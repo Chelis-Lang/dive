@@ -16,6 +16,7 @@ use std::process::ExitCode;
 /// Core commands named by the charter.
 const COMMANDS: &[&str] = &[
     "check",
+    "worker",
     "tlc",
     "dfid",
     "simulate",
@@ -42,7 +43,8 @@ fn usage() -> String {
                [--predecessor-memory-bytes N] [--predecessor-directory DIR]\n               [--seen-disk-entries N] [--seen-directory DIR] [--seen-key-bytes N]\n               [--seen-probe-steps N] [--seen-summary-pairs N]
                [--checkpoint FILE --checkpoint-after-levels N | --recover FILE]
                [--checkpoint-counters tlc|retain]
-               [--lncheck final --lasso short] [--engine reference|core|auto] [--core-sample N] [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--generate] [--exit-codes native|tlc] [--depth N] [--seed N] [--aril N] [--stats none|basic] [--engine reference|core|auto] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--engine reference|core|auto] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--output human|json]\n    dive validate-trace <FILE.tla> [--trace TRACE.json] [--inputs RUN.json] [--config FILE.cfg] [--claim ENDING] [--sample]\n               [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    Eligible ordinary temporal checks use deterministic completed-level checks in the dive
+               [--distributed-worker IP:port]... [--worker-key FILE] [--worker-timeout-ms N] [--distributed-retries N]
+               [--lncheck final --lasso short] [--engine reference|core|auto] [--core-sample N] [--library-path DIR]... [--module-path DIR]...\n    dive worker <FILE.tla> --seed N --fp N --worker-key FILE [--listen IP:port] [--worker-timeout-ms N] [--worker-max-units N]\n                [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--output human|json]\n    dive simulate <FILE.tla> --traces N [--generate] [--exit-codes native|tlc] [--depth N] [--seed N] [--aril N] [--stats none|basic] [--engine reference|core|auto] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--engine reference|core|auto] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--output human|json]\n    dive validate-trace <FILE.tla> [--trace TRACE.json] [--inputs RUN.json] [--config FILE.cfg] [--claim ENDING] [--sample]\n               [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    Eligible ordinary temporal checks use deterministic completed-level checks in the dive
     profile and final checking in the TLC profile; explicit final/short keeps final checking.
     dive check uses TLC process statuses by default, independently of semantic profile.\n    --exit-codes native retains: 0 no error, 1 rejected input, 10 property violated, 11 deadlock,\n    12 assumption, 13 evaluation error. Both conventions keep 2 usage, 3 unsupported/resource\n    limit, 4 internal error and 5 stopped by a run budget (no verdict).\n    --time-limit defaults to 30m in the dive profile and none under --compat=tlc; --max-memory\n    defaults to half of physical memory (auto) in both. --compat=tlc (or DIVE_COMPAT=tlc) also selects TLC semantics.\n    --engine core (or DIVE_ENGINE=core) runs the experimental compiled core on supported requests;\n    other features are named refusals. --engine auto runs the core where it can and\n    otherwise the whole check on the reference engine, naming the engine that ran and why. The\n    reference engine is the default. --core-sample N (with the core) also compares the successors\n    of N sampled states with the reference evaluator's, in the JSON report (core.sample); it is\n    diagnostic and changes no result.
     --coverage 0 requests final TLC logical costs; --source-coverage reports native source work.\n",
@@ -360,6 +362,19 @@ fn check_command(
     out: &mut impl std::io::Write,
     err: &mut impl std::io::Write,
 ) -> ExitCode {
+    check_command_mode(args, out, err, false)
+}
+
+#[allow(
+    clippy::too_many_lines,
+    reason = "one shared checker/worker option parser preserves source and policy flags"
+)]
+fn check_command_mode(
+    args: &[String],
+    out: &mut impl std::io::Write,
+    err: &mut impl std::io::Write,
+    worker_mode: bool,
+) -> ExitCode {
     let mut req = dive_api::CheckRequest {
         compat_tlc: std::env::var("DIVE_COMPAT").is_ok_and(|v| v == "tlc"),
         // Test-only (hidden): chaos scheduling for determinism testing.
@@ -381,18 +396,30 @@ fn check_command(
     let mut short_lasso = false;
     let mut file: Option<&str> = None;
     let mut json = false;
+    let mut remote_workers = Vec::new();
+    let mut worker_key: Option<std::path::PathBuf> = None;
+    let mut worker_listen = "127.0.0.1:0".parse::<std::net::SocketAddr>().ok();
+    let mut worker_timeout = std::time::Duration::from_secs(5);
+    let mut worker_timeout_given = false;
+    let mut worker_retries = 2;
+    let mut worker_retries_given = false;
+    let mut worker_max_units = None;
     let mut exit_convention = dive_api::ExitConvention::Tlc;
-    let mut engine = match std::env::var("DIVE_ENGINE").ok().as_deref() {
-        None | Some("") => dive_api::Engine::Reference,
-        Some(name) => {
-            let Some(e) = dive_api::Engine::parse(name) else {
-                let _ = writeln!(
-                    err,
-                    "error: DIVE_ENGINE expects `reference`, `core` or `auto`"
-                );
-                return ExitCode::from(EXIT_USAGE);
-            };
-            e
+    let mut engine = if worker_mode {
+        dive_api::Engine::Core
+    } else {
+        match std::env::var("DIVE_ENGINE").ok().as_deref() {
+            None | Some("") => dive_api::Engine::Reference,
+            Some(name) => {
+                let Some(e) = dive_api::Engine::parse(name) else {
+                    let _ = writeln!(
+                        err,
+                        "error: DIVE_ENGINE expects `reference`, `core` or `auto`"
+                    );
+                    return ExitCode::from(EXIT_USAGE);
+                };
+                e
+            }
         }
     };
     let usage_error = |err: &mut dyn std::io::Write, m: &str| {
@@ -407,6 +434,48 @@ fn check_command(
         };
         let mut value = || inline.clone().or_else(|| it.next().cloned());
         match flag {
+            "--distributed-worker" if !worker_mode => match value()
+                .as_deref()
+                .and_then(|s| s.parse::<std::net::SocketAddr>().ok())
+            {
+                Some(address) => remote_workers.push(address),
+                None => {
+                    return usage_error(err, "--distributed-worker expects an IP:port endpoint");
+                }
+            },
+            "--worker-key" => match value() {
+                Some(path) => worker_key = Some(path.into()),
+                None => return usage_error(err, "--worker-key expects a local key-file path"),
+            },
+            "--listen" if worker_mode => match value()
+                .as_deref()
+                .and_then(|s| s.parse::<std::net::SocketAddr>().ok())
+            {
+                Some(address) => worker_listen = Some(address),
+                None => return usage_error(err, "--listen expects an IP:port endpoint"),
+            },
+            "--worker-timeout-ms" => match value().as_deref().and_then(|s| s.parse::<u64>().ok()) {
+                Some(ms) => {
+                    worker_timeout_given = true;
+                    worker_timeout = std::time::Duration::from_millis(ms);
+                }
+                None => return usage_error(err, "--worker-timeout-ms expects milliseconds"),
+            },
+            "--distributed-retries" if !worker_mode => {
+                match value().as_deref().and_then(|s| s.parse::<u8>().ok()) {
+                    Some(n) => {
+                        worker_retries_given = true;
+                        worker_retries = n;
+                    }
+                    None => return usage_error(err, "--distributed-retries expects 0..8"),
+                }
+            }
+            "--worker-max-units" if worker_mode => {
+                match value().as_deref().and_then(|s| s.parse::<u64>().ok()) {
+                    Some(n) => worker_max_units = Some(n),
+                    None => return usage_error(err, "--worker-max-units expects a work count"),
+                }
+            }
             "--output" => match value().as_deref() {
                 Some("json") => json = true,
                 Some("human") => json = false,
@@ -794,6 +863,81 @@ fn check_command(
         }
     };
     req.file = file.into();
+    if worker_mode {
+        if checkpoint.is_some() || engine != dive_api::Engine::Core {
+            return usage_error(
+                err,
+                "worker command requires pure Core roles without checkpoint/recovery",
+            );
+        }
+        let Some(key) = worker_key else {
+            return usage_error(err, "worker requires --worker-key FILE");
+        };
+        let worker = match dive_api::prepare_core_worker(&req, &key, worker_timeout) {
+            Ok(worker) => worker,
+            Err(error) => {
+                let _ = writeln!(err, "{error}");
+                return ExitCode::from(EXIT_UNSUPPORTED);
+            }
+        };
+        let Some(address) = worker_listen else {
+            return usage_error(err, "missing worker listener");
+        };
+        let listener = match std::net::TcpListener::bind(address) {
+            Ok(listener) => listener,
+            Err(error) => {
+                let _ = writeln!(err, "worker listener: {error}");
+                return ExitCode::from(EXIT_USAGE);
+            }
+        };
+        let address = match listener.local_addr() {
+            Ok(address) => address,
+            Err(error) => {
+                let _ = writeln!(err, "worker address: {error}");
+                return ExitCode::from(EXIT_USAGE);
+            }
+        };
+        if json {
+            let _ = writeln!(
+                out,
+                "{}",
+                serde_json::json!({"command":"worker","status":"ready","address":address.to_string(),"process_id":std::process::id(),"model_proved":false})
+            );
+        } else {
+            let _ = writeln!(out, "native worker ready on {address}");
+        }
+        let _ = out.flush();
+        return match worker.serve(&listener, worker_max_units, &|| false) {
+            Ok(facts) => {
+                if json {
+                    let _ = writeln!(
+                        out,
+                        "{}",
+                        serde_json::json!({"command":"worker","status":"stopped","work":facts,"model_proved":false})
+                    );
+                }
+                ExitCode::SUCCESS
+            }
+            Err(error) => {
+                let _ = writeln!(err, "{error}");
+                ExitCode::from(EXIT_UNSUPPORTED)
+            }
+        };
+    }
+    if !remote_workers.is_empty() {
+        let Some(key) = worker_key else {
+            return usage_error(err, "distributed safety requires --worker-key FILE");
+        };
+        let mut options = dive_api::DistributedOptions::new(remote_workers, key);
+        options.timeout = worker_timeout;
+        options.retries = worker_retries;
+        req.distributed = Some(options);
+    } else if worker_key.is_some() || worker_timeout_given || worker_retries_given {
+        return usage_error(
+            err,
+            "worker key/timeout/retry options require worker mode or --distributed-worker endpoints",
+        );
+    }
     let checked = if let Some(request) = &checkpoint {
         dive_api::check_file_checkpoint_engine(&req, request, engine)
     } else {
@@ -1567,6 +1711,7 @@ pub fn main() -> ExitCode {
         Some("dfid") => dfid_command(&args[1..], &mut stdout, &mut stderr),
         Some("translate") => translate::command(&args[1..], &mut stdout, &mut stderr),
         Some("check") => check_command(&args[1..], &mut stdout, &mut stderr),
+        Some("worker") => check_command_mode(&args[1..], &mut stdout, &mut stderr, true),
         Some("tlc") => tlc::command(&args[1..], &mut stdout, &mut stderr),
         Some("simulate") => simulate_command(&args[1..], &mut stdout, &mut stderr),
         Some("validate-trace") => validate_trace_command(&args[1..], &mut stdout, &mut stderr),

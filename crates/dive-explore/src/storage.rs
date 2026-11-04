@@ -658,6 +658,32 @@ impl Exact {
         Ok(true)
     }
 
+    pub(crate) fn contains_encoded(
+        &self,
+        key: u64,
+        bytes: &[u8],
+        heap: &Heap,
+        limit: usize,
+        poll: &(dyn Fn() -> bool + Sync),
+    ) -> Result<bool, Error> {
+        let Some(rows) = self.rows.get(&key) else {
+            return Ok(false);
+        };
+        for row in rows {
+            let encoded =
+                dive_core::key::canonical(heap, row, limit, &|| !poll()).map_err(|error| {
+                    if error == dive_core::key::KeyError::Interrupted {
+                        Error::stop()
+                    } else {
+                        Error::internal(format!("DIVE-S0500: distributed exact key: {error:?}"))
+                    }
+                })?;
+            if encoded == bytes {
+                return Ok(true);
+            }
+        }
+        Ok(false)
+    }
     pub(crate) const fn len(&self) -> usize {
         self.len
     }

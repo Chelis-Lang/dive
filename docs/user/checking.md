@@ -69,6 +69,15 @@ and the existing observed binding entrypoints, which prepare the action forest
 before generation. Full TLC coverage, variable-value summaries, compiled source
 maps and debugging remain mandatory unfinished work (ADR 0150).
 
+## Native distributed workers
+
+For explicit authenticated pure Core workers on independently initialized
+processes, see [distributed safety](distributed-safety.md). Repeat
+`--distributed-worker IP:port` with `--engine core`, explicit seed/fingerprint
+and a local `--worker-key FILE`. Omission preserves local checking in both
+profiles. Remote source evaluation and ordered coordinator commit do not provide
+source coverage or an aggregate memory/performance guarantee.
+
 ## Native source work
 
 ```sh

@@ -1,5 +1,12 @@
 # Search storage and native recovery
 
+Explicit [distributed safety](distributed-safety.md) admits coordinator-owned
+frontier/predecessor spill, but currently refuses disk Seen, candidate payload
+spill, Store reclamation/remapping and all distributed checkpoint/pause/recovery
+combinations.
+A worker process can restart and retry uncommitted work in a live coordinator;
+coordinator loss does not leave a durable distributed continuation.
+
 This guide covers the opt-in disk storage for safety search and native
 checkpoint/recovery. The design decision is
 [ADR 0083](../decisions/0083-storage-and-checkpoint.md).

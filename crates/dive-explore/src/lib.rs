@@ -28,6 +28,7 @@
 
 mod candidate;
 pub mod checkpoint;
+pub mod distributed;
 pub mod ending;
 pub mod graph;
 mod parallel;
@@ -151,6 +152,8 @@ pub struct Stats {
 /// Strategy metrics (`09-performance-method.md` §4).
 #[derive(Clone, Debug, Default)]
 pub struct Metrics {
+    /// Authenticated remote work facts when distributed safety was requested.
+    pub distributed: Option<distributed::Usage>,
     /// Actual opt-in native safety storage facts, not whole-process memory.
     pub storage: storage::Usage,
     /// Successors discarded as seen before any interning (S3).
@@ -498,6 +501,7 @@ struct Explorer<'p> {
     seen: Seen,
     disk: Option<storage::Disk>,
     checkpoint: Option<&'p mut checkpoint::Session>,
+    distributed: Option<&'p distributed::Coordinator>,
     next: Vec<Handle>,
     /// Opt-in encoded current/next queues tied to this live Store.
     frontier: Option<storage::Frontiers>,
@@ -1052,6 +1056,7 @@ impl Explorer<'_> {
         let expect = if self.cur_id.is_some() {
             if self.graph.is_some()
                 || self.checkpoint.is_some()
+                || self.distributed.is_some()
                 || m.s0.iter().any(|&h| m.heap.has_construction_history(h))
             {
                 m.s0.iter()
@@ -1442,7 +1447,7 @@ pub fn explore_with_storage<'p>(
 ) -> Outcome {
     let mut owner = Arc::clone(store);
     explore_inner(
-        plan, &mut owner, config, poll, graph, control, storage, None, None, false,
+        plan, &mut owner, config, poll, graph, control, storage, None, None, false, None,
     )
 }
 
@@ -1470,6 +1475,7 @@ pub fn explore_checkpoint<'p>(
         Some(session),
         None,
         false,
+        None,
     )
 }
 
@@ -1498,7 +1504,39 @@ pub fn explore_owned<'p>(
     permanent: Option<&dive_core::store::compact::Permanent>,
 ) -> Outcome {
     explore_inner(
-        plan, store, config, poll, None, control, storage, session, permanent, true,
+        plan, store, config, poll, None, control, storage, session, permanent, true, None,
+    )
+}
+
+/// Explores pure safety with authenticated remote phase-one evaluation.
+/// The coordinator retains ordered commit, seen keys and concrete trace replay.
+#[must_use]
+#[allow(
+    clippy::too_many_arguments,
+    reason = "existing search owners and explicit authenticated coordinator"
+)]
+pub fn explore_distributed<'p>(
+    plan: &'p Plan,
+    store: &Arc<Store>,
+    config: Config,
+    poll: &'p (dyn Fn() -> bool + Sync),
+    control: Option<&Arc<dyn dive_core::eval::WorkControl>>,
+    storage: &storage::Storage,
+    coordinator: &'p distributed::Coordinator,
+) -> Outcome {
+    let mut owner = Arc::clone(store);
+    explore_inner(
+        plan,
+        &mut owner,
+        config,
+        poll,
+        None,
+        control,
+        storage,
+        None,
+        None,
+        false,
+        Some(coordinator),
     )
 }
 
@@ -1518,10 +1556,13 @@ fn explore_inner<'p>(
     checkpoint: Option<&'p mut checkpoint::Session>,
     permanent: Option<&dive_core::store::compact::Permanent>,
     owned: bool,
+    distributed: Option<&'p distributed::Coordinator>,
 ) -> Outcome {
     let start = Instant::now();
     let compact = storage.store_compact_bytes.is_some();
-    let reclaim_refusal = if compact && !owned {
+    let reclaim_refusal = if compact && distributed.is_some() {
+        Some("Store reclamation with distributed workers is not implemented")
+    } else if compact && !owned {
         Some("Store reclamation requires the owned exploration entrypoint")
     } else if compact && (graph.is_some() || plan.effects.any || config.sample.is_some()) {
         Some("Store reclamation with temporal capture, runtime effects or sampling")
@@ -1610,7 +1651,12 @@ fn explore_inner<'p>(
         .iter()
         .map(dive_core::plan::MemoSite::key_len)
         .collect();
-    let mut machines: Vec<Machine> = (0..workers(plan, &config))
+    let local_workers = if distributed.is_some() {
+        1
+    } else {
+        workers(plan, &config)
+    };
+    let mut machines: Vec<Machine> = (0..local_workers)
         .map(|_| {
             let mut m = Machine::new(Arc::clone(store), nvars, config.opts, Memo::new(&keys));
             m.warn = config.warn;
@@ -1626,6 +1672,7 @@ fn explore_inner<'p>(
         seen,
         disk,
         checkpoint,
+        distributed,
         next: Vec::new(),
         frontier,
         candidates: storage.candidate_memory_bytes.map(|bytes| {
@@ -1666,6 +1713,18 @@ fn explore_inner<'p>(
         Err(Error::unsupported(feature))
     } else if let Some(error) = permanent_error.or(disk_setup_error).or(storage_setup_error) {
         Err(error)
+    } else if distributed.is_some()
+        && (ex.graph.is_some()
+            || config.sample.is_some()
+            || plan.effects.any
+            || plan.view.is_some()
+            || plan.symmetry.is_some()
+            || storage.seen_disk.is_some()
+            || storage.candidate_memory_bytes.is_some())
+    {
+        Err(Error::unsupported(
+            "distributed effects, VIEW, symmetry, sampling, disk seen or candidate spill",
+        ))
     } else if unsupported_storage {
         Err(Error::unsupported(
             "exact or spilled predecessor storage with native graph capture",
@@ -1697,7 +1756,10 @@ fn explore_inner<'p>(
             control,
         )
     };
-    let parallel = machines.len() > 1 || ex.candidates.is_some();
+    let parallel = machines.len() > 1 || ex.candidates.is_some() || ex.distributed.is_some();
+    if let (Some(coordinator), Err(error)) = (distributed, &result) {
+        coordinator.record_failure(error);
+    }
     let mut m = machines.swap_remove(0);
     if let Err(error) = &result
         && error.message().starts_with("DIVE-S0203:")
@@ -1812,6 +1874,7 @@ fn explore_inner<'p>(
         }
     }
     let mut metrics = ex.metrics;
+    metrics.distributed = distributed.map(distributed::Coordinator::usage);
     metrics.store = store.stats();
     metrics.store_memory = store.memory_usage();
     metrics.memo = plan
@@ -2021,7 +2084,7 @@ fn run(
 ) -> Result<(), Error> {
     let code = &plan.code;
     let nvars = plan.vars.len();
-    let parallel = machines.len() > 1 || ex.candidates.is_some();
+    let parallel = machines.len() > 1 || ex.candidates.is_some() || ex.distributed.is_some();
     let Some(m) = machines.first_mut() else {
         return Err(Error::internal("no core machine"));
     };
@@ -2096,12 +2159,16 @@ fn run(
         } else {
             chunk
         };
+        let chunk = ex
+            .distributed
+            .map_or(chunk, |coordinator| chunk.min(coordinator.width()));
         let chunk = if ex.frontier.is_some() {
             chunk.min(FRONTIER_CHUNK_STATES)
         } else {
             chunk
         };
         let mut expanded: Option<Vec<Option<parallel::Expanded>>> = None;
+        let mut received: Option<Vec<Option<distributed::Received>>> = None;
         let mut decoded = storage::Chunk::default();
         let mut base = 0;
         for k in 0..states {
@@ -2142,46 +2209,103 @@ fn run(
                         overlay[(row - k) * nvars..(row - k + 1) * nvars].copy_from_slice(values);
                     }
                 }
-                let r = parallel::expand_level(
-                    plan,
-                    machines,
-                    if ex.frontier.is_some() {
-                        &decoded.original
-                    } else if ex.graph.is_some() || ex.checkpoint.is_some() {
-                        &cur_originals[k * nvars..end * nvars]
-                    } else if overlay.is_empty() {
-                        &cur[k * nvars..end * nvars]
-                    } else {
-                        &overlay
-                    },
-                    nvars,
-                    &ex.seen,
-                    ex.opts,
-                    ex.checkpoint.is_some(),
-                    ex.graph
-                        .as_deref()
-                        .map(graph::GraphSink::max_successors_per_unit),
-                    ex.candidates
-                        .as_ref()
-                        .map(|account| (&ex.candidate_storage, account)),
-                    ex.poll,
-                    estimate.saturating_mul(end - k) / states.max(1),
-                    &mut metrics,
-                )?;
+                let r = if let Some(coordinator) = ex.distributed {
+                    coordinator
+                        .expand(
+                            plan,
+                            machines[0].heap.store(),
+                            if ex.frontier.is_some() {
+                                &decoded.original
+                            } else if overlay.is_empty() {
+                                &cur[k * nvars..end * nvars]
+                            } else {
+                                &overlay
+                            },
+                            &ex.seen,
+                            ex.level - 1,
+                            ex.poll,
+                        )
+                        .map(|work| {
+                            received = Some(work);
+                            Vec::new()
+                        })
+                } else {
+                    parallel::expand_level(
+                        plan,
+                        machines,
+                        if ex.frontier.is_some() {
+                            &decoded.original
+                        } else if ex.graph.is_some() || ex.checkpoint.is_some() {
+                            &cur_originals[k * nvars..end * nvars]
+                        } else if overlay.is_empty() {
+                            &cur[k * nvars..end * nvars]
+                        } else {
+                            &overlay
+                        },
+                        nvars,
+                        &ex.seen,
+                        ex.opts,
+                        ex.checkpoint.is_some(),
+                        ex.graph
+                            .as_deref()
+                            .map(graph::GraphSink::max_successors_per_unit),
+                        ex.candidates
+                            .as_ref()
+                            .map(|account| (&ex.candidate_storage, account)),
+                        ex.poll,
+                        estimate.saturating_mul(end - k) / states.max(1),
+                        &mut metrics,
+                    )
+                };
+                let r = match r {
+                    Ok(r) => r,
+                    Err(error) => {
+                        ex.stats.left_on_queue = (states - k + ex.queued_states()) as u64;
+                        return Err(error);
+                    }
+                };
                 ex.metrics.conjuncts_total += metrics.conjuncts_total;
                 ex.metrics.conjuncts_skipped += metrics.conjuncts_skipped;
                 ex.metrics.discarded_before_intern += metrics.discarded_before_intern;
                 expand_time += started.elapsed();
-                expanded = Some(r);
+                expanded = if received.is_some() { None } else { Some(r) };
                 base = k;
             }
             let Some(m) = machines.first_mut() else {
                 return Err(Error::internal("no core machine"));
             };
-            let have_expansion = expanded.is_some();
-            let res = expanded
+            let have_expansion = expanded.is_some() || received.is_some();
+            let mut remote_expansion = if let Some(work) = received
                 .as_mut()
-                .and_then(|all| all.get_mut(k - base).and_then(Option::as_mut));
+                .and_then(|work| work.get_mut(k - base))
+                .and_then(Option::take)
+            {
+                let Some(coordinator) = ex.distributed else {
+                    return Err(Error::internal("remote result without its coordinator"));
+                };
+                let started = Instant::now();
+                let mut metrics = Metrics::default();
+                let imported = coordinator.import(work, plan, &mut m.heap, ex.poll, &mut metrics);
+                let imported = match imported {
+                    Ok(imported) => imported,
+                    Err(error) => {
+                        ex.stats.left_on_queue = (states - k + ex.queued_states()) as u64;
+                        return Err(error);
+                    }
+                };
+                ex.metrics.conjuncts_total += metrics.conjuncts_total;
+                ex.metrics.conjuncts_skipped += metrics.conjuncts_skipped;
+                ex.metrics.discarded_before_intern += metrics.discarded_before_intern;
+                expand_time += started.elapsed();
+                Some(imported)
+            } else {
+                None
+            };
+            let res = remote_expansion.as_mut().or_else(|| {
+                expanded
+                    .as_mut()
+                    .and_then(|all| all.get_mut(k - base).and_then(Option::as_mut))
+            });
             // Phase 1 polled the budget before each state it expanded, and
             // stopped before this one if it ran out.
             let exhausted = if have_expansion {
