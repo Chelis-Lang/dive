@@ -77,7 +77,7 @@
         "version_line": "openjdk version \"17.0.20.1\" 2026-08-18"
       }
     },
-    "corpus_commit": "sha256:17c265a9e1a2bf6cd6f05e5f72d5e26cf4c2219bbeb708af5fd5ef66246609b2",
+    "corpus_commit": "sha256:1052b291d42a7467d088566035d090a0f866c86f64cef7c914227bf4f6b2e27a",
     "command": [
       "$DIVE_CACHE_DIR/jre/0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62/jdk-17.0.20.1+1-jre/bin/java",
       "-XX:+UseParallelGC",
@@ -108,9 +108,9 @@
       "$TMP/states"
     ],
     "timeout_seconds": 60,
-    "reason": "pin function-domain finiteness and singleton-range demand controls before Product scalar operation repair",
+    "reason": "Pin known infinite Product finiteness regression and nested empty-factor source controls before Boolean proof correction",
     "generator": "dive-conformance 0.0.0",
-    "generated_at": "2026-11-04T18:42:44Z",
-    "elapsed_ms": 483
+    "generated_at": "2026-11-04T19:26:18Z",
+    "elapsed_ms": 293
   }
 }
