@@ -93,6 +93,18 @@ Unknown earlier operands and providers keep their errors or named refusals. The
 receiver error's native TLC source classification remains unverified; it earns no
 error-parity credit.
 
+`LongestCommonPrefix` rejects an empty converted set after rendering its original
+argument. For `{x, TRUE} \X {}`, that rendering still demands the mixed axis's
+comparison and reports its error. An empty first axis, or a nested Product that
+is already empty, prints `{}` without demanding unused axes. These diagnostics
+run on Reference in both profiles; Core retains its Product conversion refusal.
+The errors' native source classification remains unverified. This checked
+example exits 75 with the demanded boolean comparison:
+
+```sh
+dive check conformance/corpus/set-diagnostic-demand/specifications/PrefixReverse/PrefixReverse.tla --library-path crates/dive-eval/tests/fixtures/community-modules --engine reference --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+```
+
 Graph conversion also recognizes an empty Cartesian product before enumerating
 its axes. Both engines support concrete explicit, bounded-interval and nested
 product axes in source order, including products embedded in tuple and record

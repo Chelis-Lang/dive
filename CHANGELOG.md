@@ -24,6 +24,10 @@
   and unknown/provider guards intact in both profiles (#770). Keep normalization-
   first consumers such as `AntiFunction` on their original receiver-normalizing
   route, preserving demanded axis comparisons before type rejection.
+  Preserve `LongestCommonPrefix`'s original-argument diagnostic demand: a mixed
+  first Product axis can raise its comparison error while rendering, whereas an
+  empty first axis or a nested empty Product prints `{}` without normalizing
+  unused axes. Keep the existing guards for unproved conversions.
 
 - Add explicit PlusCal `translate --write` and Rust preparation/publication APIs,
   publishing admitted modules, exact `.old` backups and delimiter-merged `.cfg`

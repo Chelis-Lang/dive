@@ -52,6 +52,7 @@ pub fn to_tlc_string(v: &Value, ctx: Ctx) -> Result<String> {
         Mode {
             swallow: false,
             mark: true,
+            converted_products: false,
         },
         &mut out,
     )?;
@@ -71,6 +72,7 @@ pub fn to_tlc_string_lenient(v: &Value, ctx: Ctx) -> String {
         Mode {
             swallow: true,
             mark: true,
+            converted_products: false,
         },
         &mut out,
     ) {
@@ -85,6 +87,42 @@ pub fn to_tlc_string_lenient(v: &Value, ctx: Ctx) -> String {
 /// As [`to_tlc_string`].
 pub fn print_value(v: &Value, ctx: Ctx) -> Result<String> {
     Ok(ppr(&to_tlc_string(v, ctx)?))
+}
+
+/// Fallible `Values.ppr(v.toString())` for an argument diagnostic.
+///
+/// Like TLC's checked rendering, this swallows failures while choosing a lazy
+/// expansion, then propagates failures while printing its selected or symbolic
+/// form. Concrete empty Products convert before their unused axes normalize.
+/// Existing infallible diagnostic callers retain [`to_tlc_string_lenient`].
+/// Callers retain their conversion guards for unproved Product shapes; the
+/// empty-conversion proof covers explicit storage, 32-bit intervals and nested
+/// Products, in source order. Other lazy forms keep their established renderer.
+///
+/// ```
+/// use dive_value::{Ctx, Value, print::print_error_value};
+/// let ctx = Ctx::tlc();
+/// let value = Value::product(vec![Value::nat(ctx), Value::empty_set(ctx)], ctx);
+/// assert_eq!(print_error_value(&value, ctx)?, "(Nat \\X {})");
+/// # Ok::<(), dive_value::ValueError>(())
+/// ```
+///
+/// # Errors
+/// Normalization and nested rendering errors outside TLC's expansion-selection
+/// catch. An unprintable fallback is never replaced with a placeholder.
+pub fn print_error_value(v: &Value, ctx: Ctx) -> Result<String> {
+    let mut out = String::new();
+    write_value(
+        v,
+        ctx,
+        Mode {
+            swallow: true,
+            mark: true,
+            converted_products: true,
+        },
+        &mut out,
+    )?;
+    Ok(ppr(&out))
 }
 
 /// A state as TLC prints it in a counterexample (`TLCStateMut.toString`): one
@@ -172,6 +210,8 @@ struct Mode {
     /// Print as TLC does, normalizing unnormalized sets as a side effect. Off only
     /// for `Debug`, which must not change anything observable.
     mark: bool,
+    /// Use Product.toSetEnum demand for the fallible diagnostic boundary only.
+    converted_products: bool,
 }
 
 /// The `Debug` form: TLC's printing, without normalizing anything and without
@@ -181,6 +221,7 @@ pub(crate) fn to_debug_string(v: &Value) -> Option<String> {
     let mode = Mode {
         swallow: true,
         mark: false,
+        converted_products: false,
     };
     write_value(v, Ctx::default(), mode, &mut out).ok()?;
     Some(out)
@@ -234,6 +275,14 @@ fn product_bound<'a>(comps: impl Iterator<Item = &'a Value>, ctx: Ctx, mode: Mod
 
 fn component_size(v: &Value, ctx: Ctx, mode: Mode) -> Result<u64> {
     match v {
+        Value::Set(s)
+            if mode.converted_products
+                && matches!(s.repr(), SetRepr::Product(_))
+                && concrete_empty(v, 0) == Some(true) =>
+        {
+            // Product.size checks isEmpty before sizing any of its axes.
+            Ok(0)
+        }
         Value::Set(s) if mode.mark => s.size(ctx),
         Value::Set(s) => enumerate::quiet_size(s)
             .and_then(|n| u64::try_from(n).ok())
@@ -241,6 +290,37 @@ fn component_size(v: &Value, ctx: Ctx, mode: Mode) -> Result<u64> {
         Value::Fcn(f) => Ok(f.len() as u64),
         _ => Err(crate::stream::not_enumerable(v, ctx)),
     }
+}
+
+/// Read-only, bounded `Value.isEmpty` on explicit, interval and Product storage.
+/// Unknown earlier operands decline before inspecting a later empty operand.
+fn concrete_empty(value: &Value, depth: u8) -> Option<bool> {
+    if depth >= 64 {
+        return None;
+    }
+    let Value::Set(set) = value else {
+        return None;
+    };
+    if let Some(values) = set.stored_elements() {
+        return Some(values.is_empty());
+    }
+    if let Some((lo, hi)) = set.as_interval() {
+        return match (lo.to_i64(), hi.to_i64()) {
+            (Some(lo), Some(hi)) if hi < lo => Some(true),
+            (Some(lo), Some(hi)) => hi
+                .checked_sub(lo)
+                .and_then(|n| n.checked_add(1))
+                .filter(|&n| n <= i64::from(i32::MAX))
+                .map(|_| false),
+            _ => None,
+        };
+    }
+    for axis in set.as_product()? {
+        if concrete_empty(axis, depth + 1)? {
+            return Some(true);
+        }
+    }
+    Some(false)
 }
 
 /// TLC's `TLCGlobals.enumBound`.
@@ -443,6 +523,9 @@ fn write_set(s: &crate::Set, ctx: Ctx, mode: Mode, out: &mut String) -> Result<(
             }
         }
         SetRepr::Product(fs) => {
+            if mode.converted_products {
+                return write_error_product(s, fs, ctx, mode, out);
+            }
             if expand(product_bound(fs.iter(), ctx, mode).map(|n| n < ENUM_BOUND))? {
                 enumerated(out)?;
             } else if !fs.is_empty() {
@@ -463,6 +546,62 @@ fn write_set(s: &crate::Set, ctx: Ctx, mode: Mode, out: &mut String) -> Result<(
             out.push_str("Seq(");
             write_value(r, ctx, mode, out)?;
             out.push(')');
+        }
+    }
+    Ok(())
+}
+
+/// `SetOfTuplesValue.toString` catches expansion selection, including conversion,
+/// but renders the resulting collection or original axes outside that catch.
+fn write_error_product(
+    set: &crate::Set,
+    axes: &[Value],
+    ctx: Ctx,
+    mode: Mode,
+    out: &mut String,
+) -> Result<()> {
+    let expanded: Result<_> = (|| {
+        let bound = product_bound(axes.iter(), ctx, mode)?;
+        if bound >= ENUM_BOUND {
+            return Ok(None);
+        }
+        if bound == 0 && concrete_empty(&Value::Set(set.clone()), 0) == Some(true) {
+            return Ok(Some((std::sync::Arc::from([]), None)));
+        }
+        let guard = Expansion::enter(set)?;
+        let elems = elems_in(set, ctx, true)?;
+        Ok(Some((elems, Some(guard))))
+    })();
+    match expanded {
+        Err(error)
+            if matches!(
+                error.kind(),
+                crate::ErrorKind::Interrupted { .. }
+                    | crate::ErrorKind::DeferredError { .. }
+                    | crate::ErrorKind::DiveLimit
+                    | crate::ErrorKind::Codec
+            ) =>
+        {
+            // Host control and deferred evaluator provenance are not a TLC
+            // expansion exception that this boundary can safely discard.
+            return Err(error);
+        }
+        Ok(Some((elems, _guard))) => {
+            out.push('{');
+            write_list(elems.iter(), ctx, mode, out)?;
+            out.push('}');
+        }
+        Ok(None) | Err(_) => {
+            if !axes.is_empty() {
+                out.push('(');
+                for (i, axis) in axes.iter().enumerate() {
+                    if i > 0 {
+                        out.push_str(" \\X ");
+                    }
+                    write_value(axis, ctx, mode, out)?;
+                }
+                out.push(')');
+            }
         }
     }
     Ok(())

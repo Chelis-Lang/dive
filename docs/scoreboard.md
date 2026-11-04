@@ -48,6 +48,11 @@ success retaining a Core refusal, one pinned-success provider case retaining
 native refusals, and one receiver error with unverified native source
 classification. Six context-only controls include the normalization-first
 AntiFunction comparison demand and conversion-first prefix argument error.
+The separate `set-diagnostic-demand` corpus adds one ordinary success on both
+engines and seven context-only controls. It distinguishes a reversed mixed axis's
+comparison error from nested and empty-first Products that print `{}`. Existing
+golden bytes and the earlier candidate rejection remain unchanged; these new
+controls change no historical qualification totals.
 Refusals and unverified classifications receive no parity credit.
 
 Core safety candidate queues now consume owned spilled payloads before ordered

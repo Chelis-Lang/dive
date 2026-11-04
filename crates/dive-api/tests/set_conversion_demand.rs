@@ -10,8 +10,16 @@ fn root() -> PathBuf {
 }
 
 fn request(name: &str, compat_tlc: bool) -> CheckRequest {
+    request_in("set-conversion-demand", name, compat_tlc)
+}
+
+fn diagnostic_request(name: &str, compat_tlc: bool) -> CheckRequest {
+    request_in("set-diagnostic-demand", name, compat_tlc)
+}
+
+fn request_in(corpus: &str, name: &str, compat_tlc: bool) -> CheckRequest {
     let file = root().join(format!(
-        "conformance/corpus/set-conversion-demand/specifications/{name}/{name}.tla"
+        "conformance/corpus/{corpus}/specifications/{name}/{name}.tla"
     ));
     CheckRequest {
         config: Some(file.with_extension("cfg")),
@@ -170,6 +178,115 @@ fn caller_order_distinguishes_receiver_normalization_from_conversion() {
                 .expect("retained Core guard");
             assert_eq!(core.to_json()["verdict"], "unsupported");
             assert_eq!(core.exit_code_for(ExitConvention::Tlc), 3);
+        }
+    }
+}
+
+#[test]
+fn prefix_diagnostic_preserves_selective_original_product_demand() {
+    for compat in [false, true] {
+        for name in [
+            "PrefixRawEmpty",
+            "PrefixNestedReverse",
+            "PrefixNestedUnknown",
+            "PrefixUnknownAfterEmpty",
+            "PrefixInfiniteAfterEmpty",
+        ] {
+            let request = if name == "PrefixRawEmpty" {
+                request(name, compat)
+            } else {
+                diagnostic_request(name, compat)
+            };
+            let report = check_file_engine(&request, Engine::Reference)
+                .expect("empty projection argument error");
+            let d = report.to_json();
+            assert_eq!(d["verdict"], "evaluation-error", "{name}/{compat}");
+            assert_eq!(report.exit_code_for(ExitConvention::Tlc), 75);
+            assert_eq!(d["tlc"]["verified"], false);
+            assert_eq!(
+                d["message"],
+                "@!@!@STARTMSG 2283:0 @!@!@\nThe argument of LongestCommonPrefix should be a non-empty set, but instead it is:\n{}\n@!@!@ENDMSG 2283 @!@!@",
+                "{name}/{compat}"
+            );
+        }
+
+        let report = check_file_engine(
+            &diagnostic_request("PrefixReverse", compat),
+            Engine::Reference,
+        )
+        .expect("original fallback comparison");
+        let d = report.to_json();
+        assert_eq!(d["verdict"], "evaluation-error");
+        assert_eq!(report.exit_code_for(ExitConvention::Tlc), 75);
+        assert_eq!(d["tlc"]["verified"], false);
+        let message = d["message"].as_str().expect("comparison error");
+        assert!(message.contains("SequencesExt.longestCommonPrefix"));
+        assert!(message.contains("Attempted to compare boolean TRUE with non-boolean:\n0"));
+        assert!(!message.contains("The argument of LongestCommonPrefix"));
+        assert!(!message.contains("<unprintable"));
+
+        let report = check_file_engine(
+            &diagnostic_request("PrefixUnknownFirst", compat),
+            Engine::Reference,
+        )
+        .expect("earlier unknown operand error");
+        let d = report.to_json();
+        assert_eq!(d["verdict"], "evaluation-error");
+        assert_eq!(report.exit_code_for(ExitConvention::Tlc), 75);
+        assert_eq!(d["tlc"]["verified"], false);
+        assert!(
+            d["message"]
+                .as_str()
+                .is_some_and(|s| s.contains("Shouldn't call isEmpty() on value 0"))
+        );
+
+        let report = check_file_engine(
+            &diagnostic_request("PrefixInfiniteFirst", compat),
+            Engine::Reference,
+        )
+        .expect("retained infinite conversion refusal");
+        let d = report.to_json();
+        assert_eq!(d["verdict"], "unsupported");
+        assert_eq!(report.exit_code_for(ExitConvention::Tlc), 3);
+        assert!(
+            d["message"]
+                .as_str()
+                .is_some_and(|s| s.contains("infinite component Nat"))
+        );
+
+        let path = root().join("conformance/golden/tlc-2026.10.06.014338/set-diagnostic-demand/specifications/PrefixOrdinary/PrefixOrdinary.cfg.json");
+        let golden: Value = serde_json::from_slice(&std::fs::read(path).expect("ordinary golden"))
+            .expect("golden JSON");
+        let r = &golden["result"];
+        for engine in [Engine::Reference, Engine::Core] {
+            let report = check_file_engine(&diagnostic_request("PrefixOrdinary", compat), engine)
+                .expect("ordinary prefix");
+            assert_eq!(
+                facts(&report),
+                json!({"verdict":r["verdict"],"code":r["verdict_code"],"class":r["error_class"],
+                    "distinct":r["counts"]["distinct_states"],"generated":r["counts"]["states_generated"],
+                    "depth":r["counts"]["depth"],"exit":r["exit_code"]}),
+                "{compat}/{engine:?}"
+            );
+        }
+
+        for name in [
+            "PrefixReverse",
+            "PrefixNestedReverse",
+            "PrefixNestedUnknown",
+            "PrefixUnknownAfterEmpty",
+            "PrefixUnknownFirst",
+            "PrefixInfiniteAfterEmpty",
+            "PrefixInfiniteFirst",
+        ] {
+            let report = check_file_engine(&diagnostic_request(name, compat), Engine::Core)
+                .expect("retained Core prefix refusal");
+            assert_eq!(
+                report.to_json()["verdict"],
+                "unsupported",
+                "{name}/{compat}"
+            );
+            assert_eq!(report.exit_code_for(ExitConvention::Tlc), 3);
         }
     }
 }

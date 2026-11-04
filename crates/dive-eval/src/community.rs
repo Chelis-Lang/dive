@@ -1018,12 +1018,28 @@ impl Core {
     }
 
     fn longest_common_prefix(&self, op: StdOp, s: &Value) -> Result<Value> {
-        let bad = || self.one_arg_error("LongestCommonPrefix", "non-empty set", s);
+        let bad = || -> Result<EvalError> {
+            if !matches!(s, Value::Set(set) if set.kind() == SetKind::Product)
+                || self.product_conversion_empty(s, 0)? != Some(true)
+            {
+                return Ok(self.one_arg_error("LongestCommonPrefix", "non-empty set", s));
+            }
+            // The empty converted collection is normalized first; Java then
+            // prints the original Product with toString's selective swallowing.
+            // A failure while rendering fallback axes replaces the argument error.
+            let rendered = dive_value::print::print_error_value(s, self.ctx)?;
+            Ok(EvalError::eval_exception(
+                Ec::OneArgumentError,
+                format!(
+                    "The argument of LongestCommonPrefix should be a non-empty set, but instead it is:\n{rendered}"
+                ),
+            ))
+        };
         let Some(elems) = self.to_set_enum(s)? else {
-            return Err(bad());
+            return Err(bad()?);
         };
         if elems.is_empty() {
-            return Err(bad());
+            return Err(bad()?);
         }
         let not_seq = || self.one_arg_error("LongestCommonPrefix", "sequence", s);
         if let Value::Str(first) = &elems[0] {
