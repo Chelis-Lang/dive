@@ -875,3 +875,33 @@ target/debug/dive-conformance golden generate --corpus graph-demand --tier all \
   --workers 1 --jobs 2 --timeout 30 --xmx 512m \
   --reason 'Refresh graph demand controls against the pinned oracle'
 ```
+
+
+## Java set conversion and original-argument diagnostics
+
+The separate `set-conversion-demand` corpus records concrete Product conversion,
+raw-axis aliases, receiver demand and ordinary nonempty consumers for #770.
+Conversion to a fresh empty collection does not normalize the original Product.
+`AntiFunction` instead normalizes its original receiver before type rejection;
+its comparison demand remains separate from conversion-first consumers.
+
+`LongestCommonPrefix` converts and normalizes first, then prints the original
+argument before constructing its empty-set error. Pinned `Value.toString` uses
+selective swallowing: Product expansion selection catches sizing and conversion
+failures, but rendering its fallback axes can still fail. For
+`{x, TRUE} \X {}`, sizing fails, then fallback rendering demands the boolean
+comparison. For `{} \X {x, TRUE}`, the size loop stops at zero and the converted
+empty collection prints `{}`. Nesting the reversed Product also prints `{}`:
+the nested Product's `size` checks emptiness before sizing its own axes.
+Empty-first scalar and `Nat` tails are skipped. `Nat \X {}` uses the symbolic
+fallback `(Nat \X {})` after its size failure is swallowed; Reference at the
+pre-correction source retains its named conversion refusal in both profiles.
+
+These reverse, nested, unknown, infinite and ordinary controls were pinned
+before the diagnostic correction. The eight initial-error cases remain
+context-only with `models: []`; no nested code or message text supplies a
+deciding model class. `PrefixOrdinary` is a generated primary success with three
+generated states, three distinct states and depth three. See the
+[compact oracle record](../conformance/reports/core/2026-11-04-set-diagnostic-oracle.json).
+This bounded addition changes no historical qualification totals or earlier
+rejection records.
