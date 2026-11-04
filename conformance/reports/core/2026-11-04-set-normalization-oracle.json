@@ -1,0 +1,129 @@
+{
+  "kind": "normalization-first versus conversion-first caller primary controls before correction",
+  "shipping_base": "66483059ad696127224af4962db1e55b96bb4710",
+  "before_correction_source": "947276ce16940e541c34252781beb7c7306c1b8a",
+  "source_pins": {
+    "TLC": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+    "CommunityModules": "78b98ae9939d2fe7a6615e9a4b21dd6c23ef8ff3"
+  },
+  "context_controls": [
+    {
+      "case": "AntiFunctionRawEmpty",
+      "stdout_sha256": "54bef2c3ce99344c0b3c807d0f0c2f7f087d71cfd852d324949b46f3450f4eb2",
+      "stream_frame_codes": [
+        2102,
+        2103,
+        2154,
+        2185,
+        2186,
+        2187,
+        2189,
+        2194,
+        2199,
+        2200,
+        2219,
+        2220,
+        2262
+      ],
+      "physical_exit": 75,
+      "classification": "unclassified context-only; no invented model golden"
+    },
+    {
+      "case": "PrefixRawEmpty",
+      "stdout_sha256": "9cfc2b3a7af195839b11fee3ecce738e007154164ca66b6642e30102dce6615a",
+      "stream_frame_codes": [
+        1000,
+        2103,
+        2185,
+        2186,
+        2187,
+        2189,
+        2194,
+        2199,
+        2200,
+        2219,
+        2220,
+        2262,
+        2283
+      ],
+      "physical_exit": 75,
+      "classification": "unclassified context-only; no invented model golden"
+    }
+  ],
+  "additional_conversion_control": {
+    "golden": "conformance/golden/tlc-2026.10.06.014338/set-conversion-demand/specifications/OtherConvertedConsumers/OtherConvertedConsumers.cfg.json",
+    "sha256": "8fc1198be96014e7c1deca0044feacd975de50620c04e0e4e0653d40d718d882",
+    "result": {
+      "verdict": "success",
+      "verdict_code": 2193,
+      "error_class": "TLC_SUCCESS",
+      "exit_code": 0,
+      "exit_status": "SUCCESS",
+      "violated_property": null,
+      "counts": {
+        "distinct_states": 3,
+        "states_generated": 3,
+        "states_left_on_queue": 0,
+        "depth": 3
+      },
+      "fingerprint_collision": {
+        "optimistic": "val = 0.0",
+        "observed": null
+      },
+      "trace": null,
+      "error_codes": [],
+      "warning_codes": [],
+      "unresolved_modules": [],
+      "note": null
+    },
+    "scope": "SetToBag, BagUnion and Quantify convert first and leave the raw Product axis alias untouched; Core existing refusal is preserved."
+  },
+  "direct_to_set_enum_caller_audit": [
+    {
+      "caller": "Bags.SetToBag",
+      "source_demand": "toSetEnum, then normalize converted SetEnumValue"
+    },
+    {
+      "caller": "SequencesExt.SetToSeq",
+      "source_demand": "toSetEnum().normalize() on converted collection"
+    },
+    {
+      "caller": "FiniteSetsExt.Quantify",
+      "source_demand": "set.toSetEnum().elements()"
+    },
+    {
+      "caller": "Bags.BagUnion",
+      "source_demand": "toSetEnum, then converted collection normalize"
+    },
+    {
+      "caller": "SequencesExt.SetToSeqs",
+      "source_demand": "toSetEnum, then converted collection normalize"
+    },
+    {
+      "caller": "SequencesExt.LongestCommonPrefix",
+      "source_demand": "toSetEnum, then converted collection normalize before empty argument error"
+    },
+    {
+      "caller": "Functions.AntiFunction",
+      "source_demand": "f.normalize().toFcnRcd(); original receiver normalization precedes type rejection; normalization-only use must not call conversion shortcut"
+    },
+    {
+      "caller": "AbstractGraphs node/edge conversion",
+      "source_demand": "original node/edge.toSetEnum; demanded private node/edge enumerations normalize converted collection"
+    },
+    {
+      "caller": "UndirectedGraphs endpoints",
+      "source_demand": "edge.toSetEnum then converted size/elements"
+    }
+  ],
+  "source_files_sha256": {
+    "community-modules/78b98ae9939d2fe7a6615e9a4b21dd6c23ef8ff3/modules/tlc2/overrides/Functions.java": "2d435825b09fc27f3d2f3d122e0cfb7256302236ae1bcff698066e0d49263d23",
+    "community-modules/78b98ae9939d2fe7a6615e9a4b21dd6c23ef8ff3/modules/tlc2/overrides/SequencesExt.java": "683a3616c9b89018da22dff77e76cb021efcf7a4976c7cee54e424010561a17e",
+    "community-modules/78b98ae9939d2fe7a6615e9a4b21dd6c23ef8ff3/modules/tlc2/overrides/FiniteSetsExt.java": "82789fc3fafd9e726be5c9aa9525cff3bfdeade61c841a669beaf644dfe84df9",
+    "community-modules/78b98ae9939d2fe7a6615e9a4b21dd6c23ef8ff3/modules/tlc2/overrides/AbstractGraphs.java": "f0b17565d34306cff6fcbccf19c3706b3405abea8ede76f46fbe1ef92e3cc395",
+    "community-modules/78b98ae9939d2fe7a6615e9a4b21dd6c23ef8ff3/modules/tlc2/overrides/UndirectedGraphs.java": "73d13947dd742603ed3d80965832a570d47c8c4dd8cda4eda9f02a91d071440e",
+    "tlaplus-tests/94d0c5070852b37b801bb8998c436383ab7ee37b/tlatools/org.lamport.tlatools/src/tlc2/module/Bags.java": "6d1dd06ff72b70fb0a40dc50bd84a6762d053d944bf49d9e7098b512ab72676a"
+  },
+  "golden_policy": "Official generation after correcting tuple-spacing in two uncommitted exploratory fixtures; their rejected streams and initial generated observation remain externally preserved without coverage credit. The seven original committed result payloads are unchanged; only corpus provenance is refreshed. AntiFunction and prefix observations remain context-only, without deciding-class invention.",
+  "limits": "Caller audit is the existing direct helper surface, not a constructor campaign, global normalizer or issue771 implementation."
+}

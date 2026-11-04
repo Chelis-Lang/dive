@@ -367,3 +367,17 @@ id = "product-operations"
 path = "conformance/corpus/product-operations"
 license = "MIT"
 layout = "examples-manifest"
+
+# Normalized Java set conversion preserves skipped Product-axis demand (#770).
+[[corpus]]
+id = "set-conversion-demand"
+path = "conformance/corpus/set-conversion-demand"
+license = "MIT"
+layout = "examples-manifest"
+
+# Original-Product argument diagnostics; separate identity preserves #770 goldens.
+[[corpus]]
+id = "set-diagnostic-demand"
+path = "conformance/corpus/set-diagnostic-demand"
+license = "MIT"
+layout = "examples-manifest"

@@ -1,0 +1,296 @@
+{
+  "kind": "set conversion demand primary facts before inherited Reference770 repair",
+  "before_source": "b6ae5033cd122bd346804729243e3c82aa80acfb",
+  "oracle": "tlc-2026.10.06.014338",
+  "TLC_source_pin": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "community_source_pin": "78b98ae9939d2fe7a6615e9a4b21dd6c23ef8ff3",
+  "source_semantics": "SequencesExt.SetToSeq calls val.toSetEnum().normalize(); SetToSeqs likewise converts before normalizing. SetOfTuplesValue.toSetEnum uses elements(), whose source-order isEmpty check precedes axis enumeration; the original Product receiver and axes are not replaced or normalized by an empty converted collection.",
+  "goldens": [
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/set-conversion-demand/specifications/EmptyProjectionOrderings/EmptyProjectionOrderings.cfg.json",
+      "sha256": "e58bedea7381fa72f0b4224d402f377fbfb52d2966ba56e302e717c0e427ab15",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "exit_status": "SUCCESS",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        },
+        "fingerprint_collision": {
+          "optimistic": "val = 0.0",
+          "observed": null
+        },
+        "trace": null,
+        "error_codes": [],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      }
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/set-conversion-demand/specifications/NestedIntervalProjection/NestedIntervalProjection.cfg.json",
+      "sha256": "f82e03e3edfda51772e36d840187fe18912e696e9189f0fbf1f5795e1881b231",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "exit_status": "SUCCESS",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        },
+        "fingerprint_collision": {
+          "optimistic": "val = 0.0",
+          "observed": null
+        },
+        "trace": null,
+        "error_codes": [],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      }
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/set-conversion-demand/specifications/NonemptyProjection/NonemptyProjection.cfg.json",
+      "sha256": "01b423edc0647c1eaeb8eaa066778c6747eede2774860dc1c5ce09f72a98dd12",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "exit_status": "SUCCESS",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        },
+        "fingerprint_collision": {
+          "optimistic": "val = 0.0",
+          "observed": null
+        },
+        "trace": null,
+        "error_codes": [],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      }
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/set-conversion-demand/specifications/NormalizedProjectionSkipRaw/NormalizedProjectionSkipRaw.cfg.json",
+      "sha256": "8bca15c397ce91274303783fe4ff8fba33cfa7b53e8532c8143050c3d88c7b17",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "exit_status": "SUCCESS",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        },
+        "fingerprint_collision": {
+          "optimistic": "val = 0.0",
+          "observed": null
+        },
+        "trace": null,
+        "error_codes": [],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      }
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/set-conversion-demand/specifications/ProviderProjectionRefusal/ProviderProjectionRefusal.cfg.json",
+      "sha256": "a80a07c417ecdde2e949a276f350dcc21689a26bd793beda443ae75e9034c434",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "exit_status": "SUCCESS",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        },
+        "fingerprint_collision": {
+          "optimistic": "val = 0.0",
+          "observed": null
+        },
+        "trace": null,
+        "error_codes": [],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      }
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/set-conversion-demand/specifications/ReceiverAfterProjection/ReceiverAfterProjection.cfg.json",
+      "sha256": "63a25342f6db728d317787436948bf4806d2996e1c10273f1277608dc227ea95",
+      "result": {
+        "verdict": "evaluation-error",
+        "verdict_code": 2147,
+        "error_class": "TLC_FINGERPRINT_EXCEPTION",
+        "exit_code": 75,
+        "exit_status": "FAILURE_SPEC_EVAL",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 1,
+          "states_generated": 1,
+          "states_left_on_queue": 1,
+          "depth": 1
+        },
+        "fingerprint_collision": null,
+        "trace": null,
+        "error_codes": [
+          2102,
+          2147
+        ],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      }
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/set-conversion-demand/specifications/ReversedRawProjection/ReversedRawProjection.cfg.json",
+      "sha256": "ea1ae2a2ec77712fdf58b6e4d1fa3d2fc4d1d0069827a62c2d7d80b38edef728",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "exit_status": "SUCCESS",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        },
+        "fingerprint_collision": {
+          "optimistic": "val = 0.0",
+          "observed": null
+        },
+        "trace": null,
+        "error_codes": [],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      }
+    }
+  ],
+  "context_only": [
+    {
+      "case": "AliasSizeAfterProjection",
+      "physical_exit": 75,
+      "stream_frame_codes": [
+        2102,
+        2103,
+        2154,
+        2185,
+        2186,
+        2187,
+        2189,
+        2194,
+        2199,
+        2200,
+        2219,
+        2220,
+        2262
+      ],
+      "stdout_sha256": "6a9f46890b12a70c774dd54c089e18fd43f1953f3f905c9cf24811d4cbd50b11",
+      "classification": "unclassified context-only observation; no invented model golden"
+    },
+    {
+      "case": "NonemptyMixedProjection",
+      "physical_exit": 75,
+      "stream_frame_codes": [
+        2102,
+        2103,
+        2154,
+        2185,
+        2186,
+        2187,
+        2189,
+        2194,
+        2199,
+        2200,
+        2219,
+        2220,
+        2262
+      ],
+      "stdout_sha256": "93fdfa1e2d58f62718d4f98e8511cd6814424c3ec89c4e8d1e0cbd0964bef723",
+      "classification": "unclassified context-only observation; no invented model golden"
+    },
+    {
+      "case": "ProjectionOperandError",
+      "physical_exit": 75,
+      "stream_frame_codes": [
+        1000,
+        2103,
+        2179,
+        2185,
+        2186,
+        2187,
+        2189,
+        2194,
+        2199,
+        2200,
+        2219,
+        2220,
+        2262
+      ],
+      "stdout_sha256": "e0057c5241cb1c39f2c6b3efc975ab8eb9eeb924aedf95460df5da4f7d7b5e69",
+      "classification": "unclassified context-only observation; no invented model golden"
+    },
+    {
+      "case": "UnknownFirstProjection",
+      "physical_exit": 75,
+      "stream_frame_codes": [
+        2102,
+        2103,
+        2154,
+        2185,
+        2186,
+        2187,
+        2189,
+        2194,
+        2199,
+        2200,
+        2219,
+        2220,
+        2262
+      ],
+      "stdout_sha256": "0a52ff7ad24961e4871162068e9df45b52656b89d2270dd0e8dc5d79608dc40b",
+      "classification": "unclassified context-only observation; no invented model golden"
+    }
+  ],
+  "current_Reference_reproduction": {
+    "receipt": "baseline/receipt.json",
+    "receipt_sha256": "2c81c79240a1d7f56ac480e99df2164ffc056ced796776c47456c3f853b5de51",
+    "profiles": [
+      "dive",
+      "tlc"
+    ],
+    "outcome": "evaluation-error75 at SetToSeq before intended later demand"
+  },
+  "inherited_base_receipt_sha256": "f765c093e6dc7bdc5533c8dc75d95a5d552ae264e3be52037afb55392e630b16",
+  "controls": "Five admitted concrete conversion successes, one pinned-success unknown/provider refusal control, one classified post-conversion Product receiver error, four unclassified context-only demanded-error/order controls. No classifier, existing golden or expected-divergence changes."
+}

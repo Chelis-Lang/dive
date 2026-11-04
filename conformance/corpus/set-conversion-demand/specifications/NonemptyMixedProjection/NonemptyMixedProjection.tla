@@ -1,0 +1,7 @@
+---- MODULE NonemptyMixedProjection ----
+EXTENDS Integers, FiniteSets, Sequences, SequencesExt, TLC
+VARIABLE x
+Init == x=0
+Next == /\ x<2 /\ x' = x+1
+Inv == LET s == {x,TRUE} p == {x} \X s IN Len(SetToSeq(p))=2
+====

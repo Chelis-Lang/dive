@@ -1,0 +1,337 @@
+{
+  "kind": "pinned original-Product diagnostic rendering controls before correction",
+  "before_source": "7a1384c6c43683876c96c76b2c2cf2fc9ccd21fc",
+  "source_pins": {
+    "TLC": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+    "CommunityModules": "78b98ae9939d2fe7a6615e9a4b21dd6c23ef8ff3"
+  },
+  "oracle": "tlc-2026.10.06.014338",
+  "jar_sha256": {
+    "tla2tools.jar": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "CommunityModules-202610040242.jar": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
+    "CommunityModules-deps-202610040242.jar": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d"
+  },
+  "source_semantics": "SequencesExt.longestCommonPrefix normalizes the converted SetEnumValue, then renders the original val.toString() before constructing an empty-set argument error. Value.toString selects swallow=true. SetOfTuplesValue.toString catches size/toSetEnum expansion failures but renders fallback axes outside that catch. SetEnumValue.toString normalizes and can fail even with swallow=true. Product.size checks source-order isEmpty before sizing axes.",
+  "controls": [
+    {
+      "case": "PrefixReverse",
+      "expression": "LET s == {x, TRUE} p == s \\X {} IN LongestCommonPrefix(p)= <<>>",
+      "spec_sha256": "d0e35d42b12ad13d8506c9d79fd662352df5e37eceee40be3425f29762e2f0bf",
+      "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d",
+      "stdout_sha256": "bb80a81fe9cf614f9977fab3d479ed69e8cb8b24a324c58ac9957e461c6cf0c8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "physical_exit": 75,
+      "stream_frame_codes": [
+        2102,
+        2103,
+        2154,
+        2185,
+        2186,
+        2187,
+        2189,
+        2194,
+        2199,
+        2200,
+        2219,
+        2220,
+        2262
+      ],
+      "counts": {
+        "generated": 1,
+        "distinct": 1,
+        "queued": 1,
+        "depth": 1
+      },
+      "observation": "fallback normalization demands boolean comparison",
+      "control_kind": "comparison",
+      "classification": "unclassified context-only; no model golden"
+    },
+    {
+      "case": "PrefixNestedReverse",
+      "expression": "LET s == {x, TRUE} p == (s \\X {}) \\X {x} IN LongestCommonPrefix(p)= <<>>",
+      "spec_sha256": "13a5e0dbcdb02bff925108808de19873885bd37ac009255c3835a117b2faad0e",
+      "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d",
+      "stdout_sha256": "26deffdf4c3792a3f144c529064da9774e324045c31a5e5c0c4c77cfe413c52d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "physical_exit": 75,
+      "stream_frame_codes": [
+        1000,
+        2103,
+        2185,
+        2186,
+        2187,
+        2189,
+        2194,
+        2199,
+        2200,
+        2219,
+        2220,
+        2262,
+        2283
+      ],
+      "counts": {
+        "generated": 1,
+        "distinct": 1,
+        "queued": 1,
+        "depth": 1
+      },
+      "observation": "nested Product size checks emptiness before sizing axes; argument value {}",
+      "control_kind": "argument-empty",
+      "classification": "unclassified context-only; no model golden"
+    },
+    {
+      "case": "PrefixNestedUnknown",
+      "expression": "LET s == {x, TRUE} p == ({} \\X x) \\X s IN LongestCommonPrefix(p)= <<>>",
+      "spec_sha256": "9c8d3cb759ccdd8e0037a3e54e583e155673cedb1a00aa295fb7c376ea163efe",
+      "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d",
+      "stdout_sha256": "104e15c56f558d347d109eff1105ec1983114a5125a76616412582ec74d8cfaa",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "physical_exit": 75,
+      "stream_frame_codes": [
+        1000,
+        2103,
+        2185,
+        2186,
+        2187,
+        2189,
+        2194,
+        2199,
+        2200,
+        2219,
+        2220,
+        2262,
+        2283
+      ],
+      "counts": {
+        "generated": 1,
+        "distinct": 1,
+        "queued": 1,
+        "depth": 1
+      },
+      "observation": "nested empty-first Product skips scalar and outer mixed axis; argument value {}",
+      "control_kind": "argument-empty",
+      "classification": "unclassified context-only; no model golden"
+    },
+    {
+      "case": "PrefixUnknownAfterEmpty",
+      "expression": "LongestCommonPrefix({} \\X x)= <<>>",
+      "spec_sha256": "c0ffcdf6e8daafe06b117c892060402093da07892d9712ba910a4822fa33a342",
+      "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d",
+      "stdout_sha256": "09b4793ad61e76ea0b4bec3662376be17318599619a4c6e803c3385f82f0e757",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "physical_exit": 75,
+      "stream_frame_codes": [
+        1000,
+        2103,
+        2185,
+        2186,
+        2187,
+        2189,
+        2194,
+        2199,
+        2200,
+        2219,
+        2220,
+        2262,
+        2283
+      ],
+      "counts": {
+        "generated": 1,
+        "distinct": 1,
+        "queued": 1,
+        "depth": 1
+      },
+      "observation": "empty first axis skips later scalar; argument value {}",
+      "control_kind": "argument-empty",
+      "classification": "unclassified context-only; no model golden"
+    },
+    {
+      "case": "PrefixUnknownFirst",
+      "expression": "LongestCommonPrefix(x \\X {})= <<>>",
+      "spec_sha256": "ad660bc627bf10c72649f32b214755abfc3addd886385709b0a3bc691759cea8",
+      "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d",
+      "stdout_sha256": "a96aff8ecb2a20ee99752dcaab9d6a52cc006f1bfc7b26b75525a0e8ceea99a6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "physical_exit": 75,
+      "stream_frame_codes": [
+        2102,
+        2103,
+        2154,
+        2185,
+        2186,
+        2187,
+        2189,
+        2194,
+        2199,
+        2200,
+        2219,
+        2220,
+        2262
+      ],
+      "counts": {
+        "generated": 1,
+        "distinct": 1,
+        "queued": 1,
+        "depth": 1
+      },
+      "observation": "earlier scalar fails isEmpty before the later empty axis",
+      "control_kind": "conversion-error",
+      "classification": "unclassified context-only; no model golden"
+    },
+    {
+      "case": "PrefixInfiniteAfterEmpty",
+      "expression": "LongestCommonPrefix({} \\X Nat)= <<>>",
+      "spec_sha256": "2842eb6fbe412844b2645d3d02eae56ff97fe8c2509c4a9b22293f942d785020",
+      "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d",
+      "stdout_sha256": "9b921724cfe155f7572a95efda39a0c02ba086e12abdea8c02488a8bad369b4d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "physical_exit": 75,
+      "stream_frame_codes": [
+        1000,
+        2103,
+        2185,
+        2186,
+        2187,
+        2189,
+        2194,
+        2199,
+        2200,
+        2219,
+        2220,
+        2262,
+        2283
+      ],
+      "counts": {
+        "generated": 1,
+        "distinct": 1,
+        "queued": 1,
+        "depth": 1
+      },
+      "observation": "empty first axis skips later Nat; argument value {}",
+      "control_kind": "argument-empty",
+      "classification": "unclassified context-only; no model golden"
+    },
+    {
+      "case": "PrefixInfiniteFirst",
+      "expression": "LongestCommonPrefix(Nat \\X {})= <<>>",
+      "spec_sha256": "f6ed5771d9ff9fa583b0d8b8f013769d29ddb8bbbdb994e3a9b2f13f5f642717",
+      "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d",
+      "stdout_sha256": "0985a51953efc099f5734dccb0e81fa945507a2f3ff18b3456b587cbb9584cff",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "physical_exit": 75,
+      "stream_frame_codes": [
+        1000,
+        2103,
+        2185,
+        2186,
+        2187,
+        2189,
+        2194,
+        2199,
+        2200,
+        2219,
+        2220,
+        2262,
+        2283
+      ],
+      "counts": {
+        "generated": 1,
+        "distinct": 1,
+        "queued": 1,
+        "depth": 1
+      },
+      "observation": "Nat size fails inside expansion selection and is swallowed; argument value (Nat \\X {})",
+      "control_kind": "argument-symbolic",
+      "classification": "unclassified context-only; no model golden"
+    },
+    {
+      "case": "PrefixOrdinary",
+      "expression": "LongestCommonPrefix({<<x, 1>>, <<x, 2>>})= <<x>>",
+      "spec_sha256": "493dd7a9864917e5c80c51f42e5c8a5a1ea070c2b2d59ef9297ca075bdf5396d",
+      "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d",
+      "stdout_sha256": "c5c0f03e6da337e57e11b47208d25eec01637ee50fad8eda64067e9b4bb4e39f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "physical_exit": 0,
+      "stream_frame_codes": [
+        2185,
+        2186,
+        2187,
+        2189,
+        2190,
+        2193,
+        2194,
+        2199,
+        2200,
+        2219,
+        2220,
+        2262,
+        2268
+      ],
+      "counts": {
+        "generated": 3,
+        "distinct": 3,
+        "queued": 0,
+        "depth": 3
+      },
+      "observation": "nonempty ordinary prefix succeeds with generated/distinct/depth 3/3/3",
+      "control_kind": "success",
+      "classification": "primary success generated through harness"
+    },
+    {
+      "case": "PrefixRawEmpty",
+      "expression": "LET s == {x,TRUE} p == {} \\X s IN LongestCommonPrefix(p)= <<>>",
+      "spec_sha256": "61fe6fa6c5cde9fbcb7769da39f3c58699400d310210d57764cead1a60af33fc",
+      "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d",
+      "stdout_sha256": "dc4b707a517c8290ec38a75b78ac10897167837a1a6956489207d77ecfb8b302",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "physical_exit": 75,
+      "stream_frame_codes": [
+        1000,
+        2103,
+        2185,
+        2186,
+        2187,
+        2189,
+        2194,
+        2199,
+        2200,
+        2219,
+        2220,
+        2262,
+        2283
+      ],
+      "counts": {
+        "generated": 1,
+        "distinct": 1,
+        "queued": 1,
+        "depth": 1
+      },
+      "observation": "empty first axis skips later raw mixed set; argument value {}",
+      "control_kind": "argument-empty",
+      "classification": "unclassified context-only; no model golden"
+    }
+  ],
+  "classification_policy": "Every initial-error observation remains context-only with models: []; no deciding class is inferred from nested codes or message text. Native deciding source remains unverified, without error-parity credit. PrefixOrdinary alone has an officially generated model golden.",
+  "before_native": "Reference at 7a1384c6 in both profiles reproduces PrefixReverse as a later argument error containing <unprintable set>. Nested/empty-first controls likewise contain the placeholder. PrefixUnknownFirst preserves the original isEmpty failure; PrefixInfiniteFirst retains a named infinite-component refusal.",
+  "limits": "Bounded diagnostic boundary only; no global RefValue/Value rewrite, new conversion forms, changed classifier or relaxed fixtures. Existing rejection evidence and prior source-bound observations remain unchanged.",
+  "source_files_sha256": {
+    "tlaplus/Value.java": "c25c35dc79502e3f7305532a6a3226ee4ebc77c24d25fa93d96d49bd8cc539c3",
+    "tlaplus/SetOfTuplesValue.java": "79e090f13164fcdd2e5a06479d669eae5dd5cb178ccb2f15b85f89efdc82f285",
+    "tlaplus/SetEnumValue.java": "dcc6b897591265f3e9a669a37a753a3ab5e4bb11a529fd70f27749ee77c466d8",
+    "CommunityModules/SequencesExt.java": "683a3616c9b89018da22dff77e76cb021efcf7a4976c7cee54e424010561a17e"
+  },
+  "before_native_artifact_sha256": "3b71830524ae059a79dcd61058f60927af503b629fbdde8d6b1ca7d7d5c7e073",
+  "ordinary_golden": {
+    "path": "conformance/golden/tlc-2026.10.06.014338/set-diagnostic-demand/specifications/PrefixOrdinary/PrefixOrdinary.cfg.json",
+    "sha256": "cfe99029566e65993d7974f95a5b2aeeb81019fb014fd8891c1c5d09555e3fd2",
+    "generator_reason": "Bind ordinary prefix diagnostic control to its separate corpus identity; preserve existing conversion goldens",
+    "generator_exit": 0
+  },
+  "corpus_relocation": "New input bytes are unchanged from the pre-code oracle controls; they reside in set-diagnostic-demand so every prior set-conversion-demand golden and corpus identity remains intact. PrefixRawEmpty stays in the original corpus.",
+  "old_golden_equality": {
+    "compared_to": "7a1384c6c43683876c96c76b2c2cf2fc9ccd21fc",
+    "items": 1970,
+    "all_byte_identical": true,
+    "path_and_hash_inventory_sha256": "f964dd9236529fc4e3d7fa6d84657f14d3ae1fdbbb34786b637effb4b649d939"
+  }
+}

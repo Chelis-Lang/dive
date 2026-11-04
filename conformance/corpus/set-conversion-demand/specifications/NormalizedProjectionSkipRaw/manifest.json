@@ -1,0 +1,28 @@
+{
+  "sources": [
+    "docs/user/modules.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "set-conversion",
+    "source-demand",
+    "alias-history"
+  ],
+  "modules": [
+    {
+      "path": "specifications/NormalizedProjectionSkipRaw/NormalizedProjectionSkipRaw.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/NormalizedProjectionSkipRaw/NormalizedProjectionSkipRaw.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}

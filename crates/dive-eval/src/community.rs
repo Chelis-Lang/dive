@@ -517,16 +517,68 @@ impl Core {
         )
     }
 
+    /// A bounded, read-only `Value.isEmpty` proof for concrete product axes.
+    /// Unknown axes decline in source order, before inspecting later axes.
+    /// Counting explicit storage does not normalize it or its aliases.
+    fn product_conversion_empty(&self, value: &Value, depth: u8) -> Result<Option<bool>> {
+        self.loop_work()?;
+        if depth >= 64 {
+            return Ok(None);
+        }
+        let Value::Set(set) = value else {
+            return Ok(None);
+        };
+        if let Some(values) = set.stored_elements() {
+            return Ok(Some(values.is_empty()));
+        }
+        if let Some((lo, hi)) = set.as_interval() {
+            // IntervalValue.isEmpty calls size(), including its 32-bit bound.
+            // Leave larger/unproved intervals on the existing guarded route.
+            return Ok(match (lo.to_i64(), hi.to_i64()) {
+                (Some(lo), Some(hi)) if hi < lo => Some(true),
+                (Some(lo), Some(hi)) => hi
+                    .checked_sub(lo)
+                    .and_then(|n| n.checked_add(1))
+                    .filter(|&n| n <= i64::from(i32::MAX))
+                    .map(|_| false),
+                _ => None,
+            });
+        }
+        let Some(axes) = set.as_product() else {
+            return Ok(None);
+        };
+        for axis in axes {
+            match self.product_conversion_empty(axis, depth + 1)? {
+                Some(false) => {}
+                empty => return Ok(empty),
+            }
+        }
+        Ok(Some(false))
+    }
+
     /// `Value.toSetEnum()` normalized: the elements of a finite set in the
     /// run's order, `None` for a non-set or `Nat`, `Int`, `STRING`, `Seq(S)`.
     pub(crate) fn to_set_enum(&self, v: &Value) -> Result<Option<Arc<[Value]>>> {
         match v {
             Value::Set(s) if is_enumerable(v) => {
-                self.enum_guard(s)?;
-                Ok(Some(s.elements(self.ctx)?))
+                if s.kind() == SetKind::Product
+                    && self.product_conversion_empty(v, 0)? == Some(true)
+                {
+                    // Convert before normalization, as Value.toSetEnum does.
+                    // The original Product and its unused axes retain authority.
+                    return Ok(Some(Arc::from([])));
+                }
+                Ok(Some(self.normalized_set_elements(s)?))
             }
             _ => Ok(None),
         }
+    }
+
+    /// The established receiver-normalizing enumeration route. Keep this
+    /// separate from converting a Product before normalizing its projection.
+    fn normalized_set_elements(&self, set: &dive_value::Set) -> Result<Arc<[Value]>> {
+        self.enum_guard(set)?;
+        Ok(set.elements(self.ctx)?)
     }
 
     /// `Value.toFcnRcd()`'s pairs, in the function's normalized order; `None`
@@ -966,12 +1018,28 @@ impl Core {
     }
 
     fn longest_common_prefix(&self, op: StdOp, s: &Value) -> Result<Value> {
-        let bad = || self.one_arg_error("LongestCommonPrefix", "non-empty set", s);
+        let bad = || -> Result<EvalError> {
+            if !matches!(s, Value::Set(set) if set.kind() == SetKind::Product)
+                || self.product_conversion_empty(s, 0)? != Some(true)
+            {
+                return Ok(self.one_arg_error("LongestCommonPrefix", "non-empty set", s));
+            }
+            // The empty converted collection is normalized first; Java then
+            // prints the original Product with toString's selective swallowing.
+            // A failure while rendering fallback axes replaces the argument error.
+            let rendered = dive_value::print::print_error_value(s, self.ctx)?;
+            Ok(EvalError::eval_exception(
+                Ec::OneArgumentError,
+                format!(
+                    "The argument of LongestCommonPrefix should be a non-empty set, but instead it is:\n{rendered}"
+                ),
+            ))
+        };
         let Some(elems) = self.to_set_enum(s)? else {
-            return Err(bad());
+            return Err(bad()?);
         };
         if elems.is_empty() {
-            return Err(bad());
+            return Err(bad()?);
         }
         let not_seq = || self.one_arg_error("LongestCommonPrefix", "sequence", s);
         if let Value::Str(first) = &elems[0] {
@@ -1192,9 +1260,11 @@ impl Core {
 
     fn anti_function(&self, op: StdOp, f: &Value) -> Result<Value> {
         let Value::Fcn(fun) = f else {
-            if let Value::Set(_) = f {
+            if let Value::Set(set) = f
+                && is_enumerable(f)
+            {
                 // `f.normalize()` runs first.
-                let _ = self.to_set_enum(f)?;
+                let _ = self.normalized_set_elements(set)?;
             }
             return Err(self.one_arg_error("AntiFunction", "functions", f));
         };
@@ -1352,45 +1422,6 @@ impl Core {
     // Graphs and UndirectedGraphs (`AbstractGraphs`)
     // -------------------------------------------------------------------------
 
-    /// A bounded, read-only `Value.isEmpty` proof for concrete product axes.
-    /// Unknown axes decline in source order, before inspecting later axes.
-    /// Counting explicit storage does not normalize it or its aliases.
-    fn graph_product_empty(&self, value: &Value, depth: u8) -> Result<Option<bool>> {
-        self.loop_work()?;
-        if depth >= 64 {
-            return Ok(None);
-        }
-        let Value::Set(set) = value else {
-            return Ok(None);
-        };
-        if let Some(values) = set.stored_elements() {
-            return Ok(Some(values.is_empty()));
-        }
-        if let Some((lo, hi)) = set.as_interval() {
-            // IntervalValue.isEmpty calls size(), including its 32-bit bound.
-            // Leave larger/unproved intervals on the existing guarded route.
-            return Ok(match (lo.to_i64(), hi.to_i64()) {
-                (Some(lo), Some(hi)) if hi < lo => Some(true),
-                (Some(lo), Some(hi)) => hi
-                    .checked_sub(lo)
-                    .and_then(|n| n.checked_add(1))
-                    .filter(|&n| n <= i64::from(i32::MAX))
-                    .map(|_| false),
-                _ => None,
-            });
-        }
-        let Some(axes) = set.as_product() else {
-            return Ok(None);
-        };
-        for axis in axes {
-            match self.graph_product_empty(axis, depth + 1)? {
-                Some(false) => {}
-                empty => return Ok(empty),
-            }
-        }
-        Ok(Some(false))
-    }
-
     /// `Value.toSetEnum` admission without normalizing an explicit set or an
     /// axis of a proved empty product. Other conversions keep their guards.
     fn graph_set(&self, value: &Value) -> Result<Option<dive_value::Set>> {
@@ -1400,7 +1431,8 @@ impl Core {
         if !is_enumerable(value) {
             return Ok(None);
         }
-        if set.kind() == SetKind::Product && self.graph_product_empty(value, 0)? == Some(true) {
+        if set.kind() == SetKind::Product && self.product_conversion_empty(value, 0)? == Some(true)
+        {
             // SetOfTuplesValue.toSetEnum returns an empty explicit collection;
             // it neither normalizes the axes nor caches their product.
             let Value::Set(empty) = Value::empty_set(self.ctx) else {

@@ -1,0 +1,793 @@
+{
+  "kind": "bounded original-Product diagnostic correction after rejected Reference conversion candidate",
+  "issue": 770,
+  "main_base": "66483059ad696127224af4962db1e55b96bb4710",
+  "previous_rejected_head": "7a1384c6c43683876c96c76b2c2cf2fc9ccd21fc",
+  "runtime_source": "ea2865f95c23608b4826cc8908e32516c9f153d0",
+  "runtime_tree": "7dec96e8225b169f08ae16f7280b13ebd466f35d",
+  "primary_before_runtime_commits": [
+    "5089fe50",
+    "5bd326c1"
+  ],
+  "primary_record": {
+    "path": "conformance/reports/core/2026-11-04-set-diagnostic-oracle.json",
+    "sha256": "1f33ff8f4a326830fef0602b76ea1e6ebebc9c353785010a48979f2514cf38b5"
+  },
+  "scope": "Only bounded concrete empty-Product LongestCommonPrefix diagnostics select a new fallible checked rendering entrypoint. Product expansion selection swallows source sizing/conversion failures, while fallback normalization errors escape. Empty conversion skips unused axes, including nested Product size demand. Existing infallible ppr, strict/lenient/Debug printing, global Value/RefValue normalization and Core are unchanged. Existing test/golden/classifier expectations remain intact. AntiFunction retains its receiver-normalizing route.",
+  "sources_sha256": {
+    "crates/dive-eval/src/community.rs": "2f7876bb743591aa7f568495611d69390f39b5ffd9a8b7bf30092d6dc9fbbe85",
+    "crates/dive-value/src/print.rs": "209f09f841b61baa60292eb58fa185598106a3c6bfbbdf66eecf663ad69b19a2",
+    "crates/dive-api/tests/set_conversion_demand.rs": "b8452c9d35baa8bcc9744f4ef6d4591a4a2b0b46c1d0701566ecb62a758effb5",
+    "crates/dive-value/tests/limits.rs": "aff147ab4078cc10b505609aa5b0f467cded65b052c48485fa34eebc0d9b29e6"
+  },
+  "artifacts_sha256": {
+    "target/debug/dive": "052d6c92ab03138b1151b1bd95f29ccc506a62202e3a527dde083e03f585953b",
+    "target/debug/dive-conformance": "50ae4fab750f43b51bf0cf6143bfd3be756d863a7cd95b080ed8c852c9ab33e0"
+  },
+  "build": {
+    "command": [
+      "cargo",
+      "build",
+      "-p",
+      "dive-cli",
+      "-p",
+      "dive-conformance",
+      "--locked"
+    ],
+    "exit": 0,
+    "seconds": 7.78
+  },
+  "environment": {
+    "CARGO_TARGET_DIR": "target (exclusive to shipping worktree)",
+    "CARGO_BUILD_JOBS": 2,
+    "NEXTEST_TEST_THREADS": 2
+  },
+  "checks": [
+    {
+      "name": "fmt-second",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all"
+      ],
+      "exit": 0,
+      "seconds": 2.25,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "clippy-second",
+      "command": [
+        "cargo",
+        "clippy",
+        "-p",
+        "dive-value",
+        "-p",
+        "dive-eval",
+        "-p",
+        "dive-api",
+        "--all-targets",
+        "--locked",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 17.736,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "a6e895f2f773f09655be8fb0a6cde1729910c3b0b542dff6602ddef84154749d"
+    },
+    {
+      "name": "value-doctests",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "dive-value",
+        "--doc",
+        "--locked"
+      ],
+      "exit": 0,
+      "seconds": 0.712,
+      "stdout_sha256": "7812935e86a71c53374810fd7396b5ded87da941f30f4b0f3ea36b505d8e8cc3",
+      "stderr_sha256": "750180bf632215eeb7368e876bfd9de9301b49f73f529ebcc9b7b0a178e66ec6"
+    },
+    {
+      "name": "docs",
+      "command": [
+        "cargo",
+        "doc",
+        "-p",
+        "dive-value",
+        "-p",
+        "dive-eval",
+        "--no-deps",
+        "--locked"
+      ],
+      "exit": 0,
+      "seconds": 2.526,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "7a544a778d324dcf6a76ce9e0384d22d11ecd929c19c3225a96bf31e84d5773a"
+    },
+    {
+      "name": "final-set-conversion-tests",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "dive-api",
+        "--test",
+        "set_conversion_demand",
+        "--locked"
+      ],
+      "exit": 0,
+      "seconds": 4.429,
+      "stdout_sha256": "3ea5260573d5205b7a02215999df4fae1c72dd4e1cdae97fe39ee459fa31297e",
+      "stderr_sha256": "352e75b7fc7bcec4c9ec7118ab929e3a5629215afd06c358e220a5c6c96a36c5"
+    },
+    {
+      "name": "final-product-print-test",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "dive-value",
+        "--test",
+        "limits",
+        "checked_product_diagnostics",
+        "--locked"
+      ],
+      "exit": 0,
+      "seconds": 0.161,
+      "stdout_sha256": "8d620d9bde1c27d33c0f0b982d13600872cbcd52f8dd864d88674ff2540d755b",
+      "stderr_sha256": "47ad960501e307a6cdaaf532a8d8a198c3f95b99f371c758e2752b6d0aff688b"
+    },
+    {
+      "name": "final-fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 2.352,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "final-whitespace",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 0.013,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "dive-api",
+        "--test",
+        "set_conversion_demand",
+        "--test",
+        "graph_product_demand",
+        "--test",
+        "graph_demand",
+        "--locked"
+      ],
+      "exit": 0,
+      "seconds": 28.188,
+      "stdout_sha256": "ea9a1b5af57f8ab9ab2a6cc756b0e68ef56126f67b2f95e7a6b34ca3122af3d6",
+      "stderr_sha256": "ebaf9e46e00dbaa8339e907d82e05c0eee2919771e71c1b27706d84cafc2b4ef",
+      "name": "frozen-api-graph-tests"
+    }
+  ],
+  "additional_precommit_checks": {
+    "record": "local-checks.json (external)",
+    "passing": [
+      "eight API/graph test functions",
+      "limits and compound-stream value suites",
+      "library fixture test"
+    ],
+    "scope": "Preceding uncommitted variant before corpus relocation and a clippy-only boolean match-to-if edit; not relabeled as frozen source."
+  },
+  "panels": [
+    {
+      "engine": "core",
+      "profile": "dive",
+      "workers": [
+        1,
+        4
+      ],
+      "report": "panel-core-dive/20261104T213005076-dive-all.json",
+      "sha256": "4a19cb6bc319d08a22418cb233fb44bf12d3f8472a66f1f2d3ace0593dc805cc",
+      "physical_exit": 0,
+      "models": {
+        "agree": 6,
+        "disagree": 0,
+        "unsupported": 3,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "by_corpus": {
+        "set-conversion-demand": {
+          "agree": 5,
+          "disagree": 0,
+          "unsupported": 3,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "set-diagnostic-demand": {
+          "agree": 1,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        }
+      },
+      "seconds": 2.526
+    },
+    {
+      "engine": "core",
+      "profile": "tlc",
+      "workers": [
+        1,
+        4
+      ],
+      "report": "panel-core-tlc/20261104T213005074-dive-all.json",
+      "sha256": "721a59a669f6ce7c5d84b1850e332517e3ba291585b7714c65669b0cd2f3b277",
+      "physical_exit": 0,
+      "models": {
+        "agree": 6,
+        "disagree": 0,
+        "unsupported": 3,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "by_corpus": {
+        "set-conversion-demand": {
+          "agree": 5,
+          "disagree": 0,
+          "unsupported": 3,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "set-diagnostic-demand": {
+          "agree": 1,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        }
+      },
+      "seconds": 2.526
+    },
+    {
+      "engine": "reference",
+      "profile": "dive",
+      "workers": [
+        1,
+        4
+      ],
+      "report": "panel-reference-dive/20261104T213005108-dive-all.json",
+      "sha256": "40a3eb960d7884b0bc455322785cb038c7a57c29982dee69b3d70d14cc8c36bd",
+      "physical_exit": 0,
+      "models": {
+        "agree": 7,
+        "disagree": 0,
+        "unsupported": 2,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "by_corpus": {
+        "set-conversion-demand": {
+          "agree": 6,
+          "disagree": 0,
+          "unsupported": 2,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "set-diagnostic-demand": {
+          "agree": 1,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        }
+      },
+      "seconds": 2.556
+    },
+    {
+      "engine": "reference",
+      "profile": "tlc",
+      "workers": [
+        1,
+        4
+      ],
+      "report": "panel-reference-tlc/20261104T213005107-dive-all.json",
+      "sha256": "1620d21f619377b29bc247fc62c2d0ea7a86e5e211e9c613952d99c02f1a00eb",
+      "physical_exit": 0,
+      "models": {
+        "agree": 7,
+        "disagree": 0,
+        "unsupported": 2,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "by_corpus": {
+        "set-conversion-demand": {
+          "agree": 6,
+          "disagree": 0,
+          "unsupported": 2,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "set-diagnostic-demand": {
+          "agree": 1,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        }
+      },
+      "seconds": 2.556
+    }
+  ],
+  "physical_model_observations": {
+    "agree": 52,
+    "unsupported": 20,
+    "other": 0
+  },
+  "context_controls": {
+    "workers": 1,
+    "native_invocations": 40,
+    "summary": [
+      {
+        "case": "PrefixInfiniteAfterEmpty",
+        "engine": "reference",
+        "profile": "dive",
+        "verdict": "evaluation-error",
+        "physical_exit": 75,
+        "native_source_verified": false,
+        "stdout_sha256": "746ba291b70335339b995cff69cf1f8eb4f0e6c9b7f5c37e9e9453389998a3c0"
+      },
+      {
+        "case": "PrefixInfiniteAfterEmpty",
+        "engine": "reference",
+        "profile": "tlc",
+        "verdict": "evaluation-error",
+        "physical_exit": 75,
+        "native_source_verified": false,
+        "stdout_sha256": "d49fad74e44b2a923b9475d8e38787e9051b3516ce221d1830ee658bff8612e2"
+      },
+      {
+        "case": "PrefixInfiniteAfterEmpty",
+        "engine": "core",
+        "profile": "dive",
+        "verdict": "unsupported",
+        "physical_exit": 3,
+        "native_source_verified": null,
+        "stdout_sha256": "11cc192568e9505acbe39ef540b23e4116e9468ff094271839584818453e8990"
+      },
+      {
+        "case": "PrefixInfiniteAfterEmpty",
+        "engine": "core",
+        "profile": "tlc",
+        "verdict": "unsupported",
+        "physical_exit": 3,
+        "native_source_verified": null,
+        "stdout_sha256": "2c273aab436bdef4d1dece05a81741513c8a5203ee5b525a091a8b32666b82e5"
+      },
+      {
+        "case": "PrefixInfiniteFirst",
+        "engine": "reference",
+        "profile": "dive",
+        "verdict": "unsupported",
+        "physical_exit": 3,
+        "native_source_verified": null,
+        "stdout_sha256": "72bd6af9482df5069322747582db82915ee4b309f517149afbe2206fb93f5bb7"
+      },
+      {
+        "case": "PrefixInfiniteFirst",
+        "engine": "reference",
+        "profile": "tlc",
+        "verdict": "unsupported",
+        "physical_exit": 3,
+        "native_source_verified": null,
+        "stdout_sha256": "7e2816483a875cc7d212f59fac4e10e408b626fbfb078754aa08a33760fd2ef9"
+      },
+      {
+        "case": "PrefixInfiniteFirst",
+        "engine": "core",
+        "profile": "dive",
+        "verdict": "unsupported",
+        "physical_exit": 3,
+        "native_source_verified": null,
+        "stdout_sha256": "66e84ceee46ba87e3aba8cee2f5da0c26a917bc44826a6d11a06cf1bf0e087e4"
+      },
+      {
+        "case": "PrefixInfiniteFirst",
+        "engine": "core",
+        "profile": "tlc",
+        "verdict": "unsupported",
+        "physical_exit": 3,
+        "native_source_verified": null,
+        "stdout_sha256": "a61e96383e529e2299c576dea35241f1d3feca6b4fcecaea2647b4fe58cb8e84"
+      },
+      {
+        "case": "PrefixNestedReverse",
+        "engine": "reference",
+        "profile": "dive",
+        "verdict": "evaluation-error",
+        "physical_exit": 75,
+        "native_source_verified": false,
+        "stdout_sha256": "b3ae2637830fde169bc6dfdc5e05db6e94c7c1b2d9e27f2b3450c2ef2d0f1257"
+      },
+      {
+        "case": "PrefixNestedReverse",
+        "engine": "reference",
+        "profile": "tlc",
+        "verdict": "evaluation-error",
+        "physical_exit": 75,
+        "native_source_verified": false,
+        "stdout_sha256": "12597593ae11b361e7c1dd9bdc8f4c9e720efe5ae074719fd4e4f8cda4618d70"
+      },
+      {
+        "case": "PrefixNestedReverse",
+        "engine": "core",
+        "profile": "dive",
+        "verdict": "unsupported",
+        "physical_exit": 3,
+        "native_source_verified": null,
+        "stdout_sha256": "5fcb5a60d8bdfabcb0ea05385db9dc1fcae2a30eecbf6b0002a3ccf1b4e54567"
+      },
+      {
+        "case": "PrefixNestedReverse",
+        "engine": "core",
+        "profile": "tlc",
+        "verdict": "unsupported",
+        "physical_exit": 3,
+        "native_source_verified": null,
+        "stdout_sha256": "e70658d33e9ff118d85e70e7566763bd688939ca106ee7a990789e7908edffcb"
+      },
+      {
+        "case": "PrefixNestedUnknown",
+        "engine": "reference",
+        "profile": "dive",
+        "verdict": "evaluation-error",
+        "physical_exit": 75,
+        "native_source_verified": false,
+        "stdout_sha256": "ba5b0d17fec5a135dd0e257a841671d5bb9ec3271fe3315167fed5e246d6bd06"
+      },
+      {
+        "case": "PrefixNestedUnknown",
+        "engine": "reference",
+        "profile": "tlc",
+        "verdict": "evaluation-error",
+        "physical_exit": 75,
+        "native_source_verified": false,
+        "stdout_sha256": "ff9f5046c6a202c6306b0a3c60ceb7abefc57d168b3eaa858d835945ea86698e"
+      },
+      {
+        "case": "PrefixNestedUnknown",
+        "engine": "core",
+        "profile": "dive",
+        "verdict": "unsupported",
+        "physical_exit": 3,
+        "native_source_verified": null,
+        "stdout_sha256": "3ceb19cd6ee13b2969eeb46c82344aa41a0d880a80652b2098ac3f4226b89932"
+      },
+      {
+        "case": "PrefixNestedUnknown",
+        "engine": "core",
+        "profile": "tlc",
+        "verdict": "unsupported",
+        "physical_exit": 3,
+        "native_source_verified": null,
+        "stdout_sha256": "2d981651e23804162905a06feaa4a80bf65f204b4234e51227f3d04a8c889be3"
+      },
+      {
+        "case": "PrefixOrdinary",
+        "engine": "reference",
+        "profile": "dive",
+        "verdict": "success",
+        "physical_exit": 0,
+        "native_source_verified": true,
+        "stdout_sha256": "883c3616a2e56d95efe74f1c0e4b256314e87d721a4efd7384551cff1033d4c4"
+      },
+      {
+        "case": "PrefixOrdinary",
+        "engine": "reference",
+        "profile": "tlc",
+        "verdict": "success",
+        "physical_exit": 0,
+        "native_source_verified": true,
+        "stdout_sha256": "fcc9543da6f1a83a8761a3f37e305f033e9ae52ccb31964d86c43be016c36e8d"
+      },
+      {
+        "case": "PrefixOrdinary",
+        "engine": "core",
+        "profile": "dive",
+        "verdict": "success",
+        "physical_exit": 0,
+        "native_source_verified": true,
+        "stdout_sha256": "252efcc275c5e5e43a6e7aa206d741027f15f134f3e3a0383b8dfca4c7fd018e"
+      },
+      {
+        "case": "PrefixOrdinary",
+        "engine": "core",
+        "profile": "tlc",
+        "verdict": "success",
+        "physical_exit": 0,
+        "native_source_verified": true,
+        "stdout_sha256": "3847ca440eaa69eb425817e514ad8e67a5a5cba489fa03439baa3c92aaf41c51"
+      },
+      {
+        "case": "PrefixReverse",
+        "engine": "reference",
+        "profile": "dive",
+        "verdict": "evaluation-error",
+        "physical_exit": 75,
+        "native_source_verified": false,
+        "stdout_sha256": "e1592adf7ccf2bb74157ee64478700d83f3d58ae6e5a0c84a6c18ae93994b6c0"
+      },
+      {
+        "case": "PrefixReverse",
+        "engine": "reference",
+        "profile": "tlc",
+        "verdict": "evaluation-error",
+        "physical_exit": 75,
+        "native_source_verified": false,
+        "stdout_sha256": "30e9729cabe556edec4f139cabffb34820de37f988937dca3e477a37c2be8195"
+      },
+      {
+        "case": "PrefixReverse",
+        "engine": "core",
+        "profile": "dive",
+        "verdict": "unsupported",
+        "physical_exit": 3,
+        "native_source_verified": null,
+        "stdout_sha256": "1c95edd71e5eeeeb8a31670c5ffdd2f1dfdf7c52a85625e4fa7585c0ba046792"
+      },
+      {
+        "case": "PrefixReverse",
+        "engine": "core",
+        "profile": "tlc",
+        "verdict": "unsupported",
+        "physical_exit": 3,
+        "native_source_verified": null,
+        "stdout_sha256": "c2ec25792803d0f8f002e4aab9acd35398de795993ae2c7ac505f45ef3d5274e"
+      },
+      {
+        "case": "PrefixUnknownAfterEmpty",
+        "engine": "reference",
+        "profile": "dive",
+        "verdict": "evaluation-error",
+        "physical_exit": 75,
+        "native_source_verified": false,
+        "stdout_sha256": "2a24d670909cb7143969403c588f63b00db908514ef32d658201c57b229f4b01"
+      },
+      {
+        "case": "PrefixUnknownAfterEmpty",
+        "engine": "reference",
+        "profile": "tlc",
+        "verdict": "evaluation-error",
+        "physical_exit": 75,
+        "native_source_verified": false,
+        "stdout_sha256": "9b1be9563144b9c67629126f55ef3398eea0699cf2dcf20d710d2ed49a0e4a8a"
+      },
+      {
+        "case": "PrefixUnknownAfterEmpty",
+        "engine": "core",
+        "profile": "dive",
+        "verdict": "unsupported",
+        "physical_exit": 3,
+        "native_source_verified": null,
+        "stdout_sha256": "b0cd2bb8fe10bb82f24a6bb6ec53819da61eed94a33447d933bf3dfaa63b40a1"
+      },
+      {
+        "case": "PrefixUnknownAfterEmpty",
+        "engine": "core",
+        "profile": "tlc",
+        "verdict": "unsupported",
+        "physical_exit": 3,
+        "native_source_verified": null,
+        "stdout_sha256": "321617369880cc37b6b5488beeeb5f6ddaa954c27215edd07d85a36f3eacd472"
+      },
+      {
+        "case": "PrefixUnknownFirst",
+        "engine": "reference",
+        "profile": "dive",
+        "verdict": "evaluation-error",
+        "physical_exit": 75,
+        "native_source_verified": false,
+        "stdout_sha256": "9c3d4ef08bf4215842fd9e8d05b3fbdec33c3efb1e4fb77b09bb46de50342f0d"
+      },
+      {
+        "case": "PrefixUnknownFirst",
+        "engine": "reference",
+        "profile": "tlc",
+        "verdict": "evaluation-error",
+        "physical_exit": 75,
+        "native_source_verified": false,
+        "stdout_sha256": "cd95aec3aa3daea2df356acf0974817b9ae61cb657f44a3d532b83df2f6b668e"
+      },
+      {
+        "case": "PrefixUnknownFirst",
+        "engine": "core",
+        "profile": "dive",
+        "verdict": "unsupported",
+        "physical_exit": 3,
+        "native_source_verified": null,
+        "stdout_sha256": "4724e9b77138ae04e364375d4d34f657598ee40583548c5a5ad08d826f2b51d0"
+      },
+      {
+        "case": "PrefixUnknownFirst",
+        "engine": "core",
+        "profile": "tlc",
+        "verdict": "unsupported",
+        "physical_exit": 3,
+        "native_source_verified": null,
+        "stdout_sha256": "5592d24e80da88bcaea6c99a047396af842dc91fd436b3b20e2b2b20ed798576"
+      },
+      {
+        "case": "PrefixRawEmpty",
+        "engine": "reference",
+        "profile": "dive",
+        "verdict": "evaluation-error",
+        "physical_exit": 75,
+        "native_source_verified": false,
+        "stdout_sha256": "b8134e9d60a30fe1d7c18d406e9c52c9bc8c9b89f1f79aaec78fa6866c71eafa"
+      },
+      {
+        "case": "PrefixRawEmpty",
+        "engine": "reference",
+        "profile": "tlc",
+        "verdict": "evaluation-error",
+        "physical_exit": 75,
+        "native_source_verified": false,
+        "stdout_sha256": "2a2c5fd09f6371076bd90fe4c9b08c8e645d2ac8b1725bfd70e46f3732ef5891"
+      },
+      {
+        "case": "PrefixRawEmpty",
+        "engine": "core",
+        "profile": "dive",
+        "verdict": "unsupported",
+        "physical_exit": 3,
+        "native_source_verified": null,
+        "stdout_sha256": "9af06adbe37ebe7d9cf64e40d48a2359c628dedd4362e28075d802d39c27b583"
+      },
+      {
+        "case": "PrefixRawEmpty",
+        "engine": "core",
+        "profile": "tlc",
+        "verdict": "unsupported",
+        "physical_exit": 3,
+        "native_source_verified": null,
+        "stdout_sha256": "97dc96e183e3ce258065a1f4026a214e21d1df00632d1db84d0168b4e5cf7c1a"
+      },
+      {
+        "case": "AntiFunctionRawEmpty",
+        "engine": "reference",
+        "profile": "dive",
+        "verdict": "evaluation-error",
+        "physical_exit": 75,
+        "native_source_verified": false,
+        "stdout_sha256": "5d7dc35a4c9a88ef9e9f6bbf50db14522df151ae6d07903de57ed1f520110bf2"
+      },
+      {
+        "case": "AntiFunctionRawEmpty",
+        "engine": "reference",
+        "profile": "tlc",
+        "verdict": "evaluation-error",
+        "physical_exit": 75,
+        "native_source_verified": false,
+        "stdout_sha256": "7a9c412e101c6af12af1ccf4894017528b4599f47cd3c77929b5d1bc31908d87"
+      },
+      {
+        "case": "AntiFunctionRawEmpty",
+        "engine": "core",
+        "profile": "dive",
+        "verdict": "unsupported",
+        "physical_exit": 3,
+        "native_source_verified": null,
+        "stdout_sha256": "a91f6bc10591f845854809340d60226cb5d886122bf775e4d1c7c62cc9d0c2c0"
+      },
+      {
+        "case": "AntiFunctionRawEmpty",
+        "engine": "core",
+        "profile": "tlc",
+        "verdict": "unsupported",
+        "physical_exit": 3,
+        "native_source_verified": null,
+        "stdout_sha256": "0f25d0e4b330231aecc9acdf76d730bc303c93547749fa5a4f9deafe919f9afd"
+      }
+    ],
+    "raw_receipts_sha256": "02f90e0ad0db021fe3112fc684b962b72bd674f93a09e37c891df8b935191818",
+    "classification": "Initial-error source classes remain unverified; these observations receive no strict error-parity credit. Refusals receive none. Ordinary primary success alone adds harness agreement."
+  },
+  "old_golden_equality": {
+    "compared_to": "7a1384c6c43683876c96c76b2c2cf2fc9ccd21fc",
+    "items": 1970,
+    "all_byte_identical": true,
+    "path_and_hash_inventory_sha256": "f964dd9236529fc4e3d7fa6d84657f14d3ae1fdbbb34786b637effb4b649d939"
+  },
+  "corpus_identity": {
+    "original": "sha256:e38d721e87e75966ac921110224a43e4cfa1af50840275c953eab8a645abb7ca",
+    "relocation": "New byte-identical inputs live in set-diagnostic-demand; all original corpus/golden bytes and provenance checks remain intact."
+  },
+  "preserved_rejection_receipts_sha256": {
+    "bindings.json": "defd63ce92b37879cfb4385678a644dc2274a73584c48a89879de550466728df",
+    "probe-receipts.json": "0fa2ac08c3925298f0109021495d31b22cd6f9dc7fc5e8061476e5f173982e3f",
+    "author-repro.json": "44eff453e384f6d47e0f4e1e9a7074e1e1037370bd24ee142bd464337598d71c",
+    "probe-audit.json": "b843c67c3929667f7366abd5716fb33f5a4de3cd23095e1fb74b11d6928eef9a"
+  },
+  "failed_attempts": "Retained outside the repository: one new test initially assumed ordinary finite Core prefix refusal; actual success was then checked against the generated golden on both engines. A match-on-bool clippy error was corrected. Existing test/golden/classifier expectations were not relaxed.",
+  "limits": "Focused local evidence only. No full gate, corpus census, performance, AWS, independent acceptance or release claim. Required current-head CI and fresh independent review remain pending; lead owns final integration and issue closure."
+}
