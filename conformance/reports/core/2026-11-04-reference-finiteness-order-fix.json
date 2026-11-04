@@ -1,0 +1,401 @@
+{
+  "issue": 771,
+  "kind": "corrected Reference record finiteness/emptiness encounter-token demand",
+  "rejected_source": "c6edd9d86757575eb46c42faff08fb98d9577479",
+  "runtime_source_commit": "fcfa15df3e01cd2b1fe60a4ebdefb467e91c88f3",
+  "runtime_tree": "64ff8af08685fd19d9cb03d2ef18e0886388554d",
+  "base": "66483059ad696127224af4962db1e55b96bb4710",
+  "paired_oracle_first_commit": "91f39932",
+  "patch_sha256": "8ef018bb1a17001953d18c2701a636267bb58600211ed0e3fa4efe87d3f2ce5e",
+  "correction_sha256": "514a3e309f0589d05aafb970bee5961fdb477702ab4948604988144defa373ac",
+  "problem": "The rejected source used canonical stored field order for default record methods. With zephyrAxis encountered before amberAxis, this returned verified success before a source-required scalar finiteness error. The opposite field assignment also retained a pre-existing default error instead of pinned success. Both are observable operation results, without a divergence waiver.",
+  "repair": "Both IsFiniteSet record finiteness and its compound emptiness traversal use a private component view ordered by the original recorded Atom tokens. Every field token must resolve to its exact name in the current run table; a missing/mismatched mapping refuses by name. Ordinary model binding seeds the table from configuration/IR lexical encounter order in both profiles. The receiver storage, aliases, raw normalization and run-name table are unchanged. No value is converted and no new name is interned.",
+  "source_sha256": {
+    "crates/dive-eval/src/std.rs": "091e2d00897a2e065dd43d433dbc41d41fd84233fdd189974091dc52dc7e4a4a",
+    "crates/dive-api/tests/reference_finiteness_demand.rs": "6bc90daf0992b65a99324a26c8e740f78fa421a903b61e6f8304b4dcc88283ee"
+  },
+  "artifact_sha256": {
+    "target/debug/dive": "fcffb66b59c51a7db1d28a9e4bcbba9d83e12f0fc6e1e3f0d0678b4fbf3b1d21",
+    "target/debug/dive-conformance": "215cf6eb62cc26ada6a9900cc8b9a786004c5a23b347fc55d90b54e389055875"
+  },
+  "primary": {
+    "report": "conformance/reports/core/2026-11-04-reference-finiteness-order-oracle.json",
+    "sha256": "9e7afc7c285fe943c6bf169f5dc295749d976e4a975728321a3cca4d2fc97118",
+    "paired_success_golden_sha256": "9664398789365ccd89e5fd5663b449cba35bd6f50c1b0faad75fb5e822d3d145",
+    "negative": "EncounterTokenScalarFirst remains a valid pinned context-only75 observation; no deciding class or model golden is invented."
+  },
+  "checks": [
+    {
+      "argv": [
+        "cargo",
+        "test",
+        "-p",
+        "dive-api",
+        "--test",
+        "reference_finiteness_demand",
+        "--test",
+        "product_operations",
+        "--test",
+        "product_receivers",
+        "--locked"
+      ],
+      "exit": 0,
+      "receipt": "checks/focused-finiteness-and-products.json",
+      "receipt_sha256": "68ba5f51afc22d4e2a65b93decf823480f8d21c772c9ca8f70b79b349315d1b6",
+      "std_sha256": "091e2d00897a2e065dd43d433dbc41d41fd84233fdd189974091dc52dc7e4a4a",
+      "test_sha256": "6bc90daf0992b65a99324a26c8e740f78fa421a903b61e6f8304b4dcc88283ee"
+    },
+    {
+      "argv": [
+        "cargo",
+        "test",
+        "-p",
+        "dive-eval",
+        "--lib",
+        "finiteness_order_tests",
+        "--locked"
+      ],
+      "exit": 0,
+      "receipt": "checks/unit-order-controls.json",
+      "receipt_sha256": "a7a32c2fd02ef2631c87e87fbee6b19e00b275fa5b1a3247d007dbda5091856f",
+      "std_sha256": "091e2d00897a2e065dd43d433dbc41d41fd84233fdd189974091dc52dc7e4a4a",
+      "test_sha256": "6bc90daf0992b65a99324a26c8e740f78fa421a903b61e6f8304b4dcc88283ee"
+    },
+    {
+      "argv": [
+        "cargo",
+        "test",
+        "-p",
+        "dive-api",
+        "--test",
+        "core_rules",
+        "library_fixtures_match_the_reference_and_tlc",
+        "--locked"
+      ],
+      "exit": 0,
+      "receipt": "checks/library-controls.json",
+      "receipt_sha256": "9307dc06633101a8dfede6f421e8dec7dd273f4515f56b969a60efa03c76bf6f",
+      "std_sha256": "091e2d00897a2e065dd43d433dbc41d41fd84233fdd189974091dc52dc7e4a4a",
+      "test_sha256": "6bc90daf0992b65a99324a26c8e740f78fa421a903b61e6f8304b4dcc88283ee"
+    },
+    {
+      "argv": [
+        "cargo",
+        "clippy",
+        "-p",
+        "dive-eval",
+        "-p",
+        "dive-api",
+        "--all-targets",
+        "--locked",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "receipt": "checks/scoped-clippy.json",
+      "receipt_sha256": "e0b9659ba6cdc82e945adcc10e54c00991407b3d37f0b29a012f5ee30eb200fb",
+      "std_sha256": "091e2d00897a2e065dd43d433dbc41d41fd84233fdd189974091dc52dc7e4a4a",
+      "test_sha256": "6bc90daf0992b65a99324a26c8e740f78fa421a903b61e6f8304b4dcc88283ee"
+    },
+    {
+      "argv": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "exit": 0,
+      "receipt": "checks/formatting.json",
+      "receipt_sha256": "457f4abd7e0e892d3cf48d6ae1465f8db5758c910024713901510967d939260e",
+      "std_sha256": "091e2d00897a2e065dd43d433dbc41d41fd84233fdd189974091dc52dc7e4a4a",
+      "test_sha256": "6bc90daf0992b65a99324a26c8e740f78fa421a903b61e6f8304b4dcc88283ee"
+    },
+    {
+      "argv": [
+        "cargo",
+        "build",
+        "-p",
+        "dive-cli",
+        "-p",
+        "dive-conformance",
+        "--locked"
+      ],
+      "exit": 0,
+      "receipt": "checks/frozen-build.json",
+      "receipt_sha256": "c08612b0104938b8b1a5d775524aaecac0538265aa6a9b5c5be9f4473105461a",
+      "std_sha256": "091e2d00897a2e065dd43d433dbc41d41fd84233fdd189974091dc52dc7e4a4a",
+      "test_sha256": "6bc90daf0992b65a99324a26c8e740f78fa421a903b61e6f8304b4dcc88283ee"
+    }
+  ],
+  "focused_results": "11 passing functions:4 Reference API tests (the original3 plus paired nonlexical source control),3 established Product operations,1 existing receiver test,2 local method/namespace controls and1 unchanged library-fixture test. Both profiles and existing Core optimization ablations are retained in their affected tests.",
+  "unit_scope": "Both method loops demand scalar-first errors and stop at empty-first factors under default and TLC storage. Original field storage and raw aliases remain unchanged. Mismatched foreign token mappings explicitly refuse in both methods.",
+  "panels": [
+    {
+      "profile": "dive",
+      "workers": [
+        1,
+        4
+      ],
+      "report": "frozen-reference-dive/20261104T214256759-dive-all.json",
+      "sha256": "4f988aaada88110d7f4eb834fed009eb35023e8745c2b6e72bc249c01a2d7f4a",
+      "summary": {
+        "models_selected": 9,
+        "modules_selected": 0,
+        "models": {
+          "agree": 7,
+          "disagree": 0,
+          "unsupported": 2,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "modules": {
+          "agree": 0,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "models_with_oracle_drift": 0,
+        "oracle_drift_findings": 0,
+        "informational_drift_findings": 0,
+        "worker_verdict_variant": 0,
+        "worker_counts_variant": 0,
+        "worker_depth_variant": 0,
+        "worker_introspecting": 0,
+        "worker_property_variant": 0,
+        "by_corpus": {
+          "reference-finiteness-demand": {
+            "models": {
+              "agree": 6,
+              "disagree": 0,
+              "unsupported": 2,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            },
+            "modules": {
+              "agree": 0,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            }
+          },
+          "reference-finiteness-token-order": {
+            "models": {
+              "agree": 1,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            },
+            "modules": {
+              "agree": 0,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "profile": "tlc",
+      "workers": [
+        1,
+        4
+      ],
+      "report": "frozen-reference-tlc/20261104T214256761-dive-all.json",
+      "sha256": "36709556e8aeb4acf53a4b33b1bf5c3b5e42928ecd813e9e884c8c77b795bb8e",
+      "summary": {
+        "models_selected": 9,
+        "modules_selected": 0,
+        "models": {
+          "agree": 7,
+          "disagree": 0,
+          "unsupported": 2,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "modules": {
+          "agree": 0,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "models_with_oracle_drift": 0,
+        "oracle_drift_findings": 0,
+        "informational_drift_findings": 0,
+        "worker_verdict_variant": 0,
+        "worker_counts_variant": 0,
+        "worker_depth_variant": 0,
+        "worker_introspecting": 0,
+        "worker_property_variant": 0,
+        "by_corpus": {
+          "reference-finiteness-demand": {
+            "models": {
+              "agree": 6,
+              "disagree": 0,
+              "unsupported": 2,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            },
+            "modules": {
+              "agree": 0,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            }
+          },
+          "reference-finiteness-token-order": {
+            "models": {
+              "agree": 1,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            },
+            "modules": {
+              "agree": 0,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            }
+          }
+        }
+      }
+    }
+  ],
+  "strict_accounting": "Each profile reports7 agreements and2 unsupported model facts at workers1/4, including all original8 entries unchanged and the new paired holding fact:28 strict agreement observations and8 retained unsupported observations. No provider refusal or unverified receiver error gains parity credit.",
+  "frozen_native": {
+    "receipt": "frozen-native/receipt.json",
+    "sha256": "668aacadd66dc12aa3b12f9a11684371655b1644cc87156c8e325c80ea43157f",
+    "observations": 34,
+    "successes": 16,
+    "evaluation_errors": 16,
+    "unsupported": 2,
+    "pair": "Both profiles now succeed2193/0 at3/3/depth3 on EncounterTokenEmptyFirst and error75 with the demanded integer finiteness cause on EncounterTokenScalarFirst.",
+    "historical_composite": "Both current Reference profiles still succeed2193/0 at3/3/depth3 on the original retained EmptySkipsUnknown source, whose original first-clause localization remains explicitly corrected.",
+    "boundaries": "All six original context negatives, raw/receiver demands and provider refusal are retained. Native classification remains at its actual verified/unverified source route; nested message codes are never promoted."
+  },
+  "preservation": {
+    "old_goldens": [
+      {
+        "path": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/EmptyBeforeScalar/EmptyBeforeScalar.cfg.json",
+        "sha256": "295afbb877128136e298bf1dc40e3c28434e83b1c9d4c18ef37eb3aec94b532a"
+      },
+      {
+        "path": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/EmptyFunctionAndSequence/EmptyFunctionAndSequence.cfg.json",
+        "sha256": "9c067f65093a81b299e6f4ab82843ac505f3c01dd0a638c577ff702af74d51bc"
+      },
+      {
+        "path": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/EmptyRecordBeforeScalar/EmptyRecordBeforeScalar.cfg.json",
+        "sha256": "c153920fbda0cdbe8277746f74f391ce43b8f9b4674e8122d528f84d691651dd"
+      },
+      {
+        "path": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/NestedProductEmpty/NestedProductEmpty.cfg.json",
+        "sha256": "6a51e2bd84497d7720315f9744b5db8cf8c00a062a0627695a8b4b991bdd1e6e"
+      },
+      {
+        "path": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/OrderedRecordEmpty/OrderedRecordEmpty.cfg.json",
+        "sha256": "91dab7425bcd59403c367f8b46ce9170c5eed2c1e36b12a53467dcbcf6ba45e2"
+      },
+      {
+        "path": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/ProviderBeforeEmpty/ProviderBeforeEmpty.cfg.json",
+        "sha256": "9f09d398071276f614ec18342a6969c46f1625e9ef88eebe52207767fb63a55a"
+      },
+      {
+        "path": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/RawAxesStayRaw/RawAxesStayRaw.cfg.json",
+        "sha256": "116f2fdef0858737b007c5284f986dec9ed938946b454afb1a3b3a4eb87c76fe"
+      },
+      {
+        "path": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/ReceiverAfterFiniteness/ReceiverAfterFiniteness.cfg.json",
+        "sha256": "cdefa95cd871bc302f527de7fa5b51fe386b806a9c1f60bac826c4971f65f034"
+      }
+    ],
+    "old_corpus_tree": "0d08cdf7591053b57a1dd3454f534e031dac8e32",
+    "old_corpus_inputs_unchanged": true,
+    "rejected_patch_sha256": "da25486dd77fb480f699a446d15c876cc4d5d19a7c333d3791fad76d630ec269",
+    "rejected_std_sha256": "94293aa55bae8d2a2ef80fd7e395755c23ac87c72aa9aa340d408a8f58845f55",
+    "rejected_native_receipt_sha256": "43000719edb3a3d9688b51e72cc2e0a58188698b1322194e7683894b86114c87",
+    "raw_namespace": "phase8-reference-finiteness-order-20261104"
+  },
+  "prior_source_bound_evidence": [
+    {
+      "source": "c6edd9d86757575eb46c42faff08fb98d9577479",
+      "report": "conformance/reports/core/2026-11-04-reference-finiteness-demand.json",
+      "scope": "The prior12 focused functions and original6/2 panels remain actual old-source observations. Its nonlexical false-success rejection is retained and corrected here; none of those old runs is relabeled as current."
+    }
+  ],
+  "limits": [
+    "Runtime edits remain confined to Reference std.rs. No global Value rewrite, Core/compiler/observer change, new option, registry/classifier waiver, existing test/allowlist weakening or old golden/corpus edit.",
+    "Method-order proof uses the recorded run namespace. Missing/mismatched field mappings refuse; this does not claim new foreign/deferred/runtime-provider admission or full leaf/error-diagnostic coverage.",
+    "The named provider remains unsupported and post-finiteness receiver error75 remains unverified; no native2147 or context-only error parity claim.",
+    "No whole campaign, full gate, AWS or performance work. Product/PR775/performance artifacts remain untouched.",
+    "Required CI and fresh independent re-review remain pending. A parent-authorized rebase onto main5c7716e3 follows this frozen receipt; tests keep these actual source identities, with byte-equivalence bindings recorded separately."
+  ]
+}
