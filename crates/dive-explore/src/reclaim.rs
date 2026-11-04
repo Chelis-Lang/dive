@@ -146,4 +146,100 @@ mod tests {
             );
         }
     }
+
+    #[test]
+    fn preloaded_names_do_not_inherit_checkpoint_admission() {
+        use dive_core::plan::{Code, GNode, Node};
+        for names in [65_536, 65_537] {
+            for tlc in [false, true] {
+                for exact in [false, true] {
+                    let mut store = Arc::new(Store::with_semantics(
+                        true,
+                        if tlc {
+                            dive_core::Semantics::tlc()
+                        } else {
+                            dive_core::Semantics::default()
+                        },
+                    ));
+                    for i in 0..names {
+                        store
+                            .strings()
+                            .intern(&format!("s{i}"))
+                            .expect("preloaded name");
+                    }
+                    let mut plan = crate::tests::frontier_plan(&store, false).expect("plan");
+                    plan.code = Code {
+                        nodes: vec![Node::Const(Handle::TRUE)],
+                        gnodes: vec![GNode::Assign { var: 0, rhs: 0 }],
+                        ..Code::default()
+                    };
+                    for action in &mut plan.next {
+                        action.g = 0;
+                    }
+                    let wire = dive_core::store::snapshot::capture(&store, 16 << 20, &|| true);
+                    if names == 65_536 {
+                        assert!(
+                            wire.is_ok(),
+                            "checkpoint boundary still admits 65,536 names"
+                        );
+                    } else {
+                        assert!(
+                            wire.expect_err("checkpoint name bound")
+                                .message()
+                                .contains("name admission bound")
+                        );
+                    }
+                    let mut reference = None;
+                    for trigger in [None, Some(usize::MAX), Some(0)] {
+                        let out = explore_owned(
+                            &plan,
+                            &mut store,
+                            Config {
+                                opts: dive_core::Opts::default(),
+                                max_states: None,
+                                max_depth: None,
+                                workers: 1,
+                                warn: true,
+                                sample: None,
+                            },
+                            &|| false,
+                            None,
+                            &storage::Storage {
+                                exact,
+                                store_compact_bytes: trigger,
+                                ..storage::Storage::default()
+                            },
+                            None,
+                            None,
+                        );
+                        assert_eq!(
+                            out.verdict,
+                            Verdict::Success,
+                            "{names}/{tlc}/{exact}/{trigger:?}"
+                        );
+                        assert_eq!(out.stats.generated, 2);
+                        assert_eq!(out.stats.distinct, 1);
+                        assert_eq!(out.stats.depth, 1);
+                        assert_eq!(store.strings().len(), names);
+                        assert_eq!(store.strings().text(0).as_deref(), Some("s0"));
+                        assert_eq!(
+                            store
+                                .strings()
+                                .text(u32::try_from(names - 1).expect("last token"))
+                                .as_deref(),
+                            Some(format!("s{}", names - 1).as_str())
+                        );
+                        if let Some(stats) = reference {
+                            assert_eq!(out.stats, stats);
+                        }
+                        reference = Some(out.stats);
+                        assert_eq!(
+                            out.metrics.storage.reclamation.collections,
+                            if trigger == Some(0) { 2 } else { 0 }
+                        );
+                    }
+                }
+            }
+        }
+    }
 }

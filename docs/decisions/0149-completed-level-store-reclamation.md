@@ -22,8 +22,11 @@ Store's measured retained-byte lower bound, not a hard live-memory or RSS cap.
 Zero forces every completed boundary, including the post-Init boundary. Omission
 keeps the resident reference in either profile and is the TLC-equivalent setting.
 
-The owned explorer captures the compiled startup as fixed owned bytes before
-search. At a joined level boundary it constructs a fresh Store with precisely
+The owned explorer captures the compiled startup as a fixed typed root image
+before search, independently of checkpoint byte/name/framing admission. It
+shares node-shape, coordinate and constructor-authority validation with recovery.
+Checkpoint wire formats and their admission bounds remain unchanged. At a joined
+level boundary it constructs a fresh Store with precisely
 that issued prefix, preserving compiled coordinates, semantic policy, printer
 context and the complete encountered name-token order. It copies only live next
 frontier roots and actual registered raw/normalized history companions. It

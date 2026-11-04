@@ -23,6 +23,8 @@
   accepted payloads and worker caches. Support exact keys and checked safety
   recovery with existing disk routes; report collection/component observations.
   The byte setting is a trigger, not a hard cap or total-RSS guarantee.
+  Ordinary root capture uses typed in-memory storage independently of checkpoint
+  wire/name admission, whose bounds and structural/authority checks remain intact.
 
 - Add explicit PlusCal `translate --write` and Rust preparation/publication APIs,
   publishing admitted modules, exact `.old` backups and delimiter-merged `.cfg`

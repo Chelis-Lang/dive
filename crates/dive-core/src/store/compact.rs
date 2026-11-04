@@ -23,10 +23,10 @@ fn invalid(message: impl Into<String>) -> Error {
 
 /// Immutable compiled startup prefix whose handles may occur in the plan.
 ///
-/// This owns bytes, never the growing search Store. It uses the owned recovery
-/// representation without normalizing any receiver or inferring origin authority.
+/// This owns a typed root image, never the growing search Store. It shares value
+/// structure/authority checks with recovery without checkpoint wire admission.
 pub struct Permanent {
-    bytes: Vec<u8>,
+    image: snapshot::Image,
 }
 
 impl Permanent {
@@ -36,7 +36,7 @@ impl Permanent {
     /// Invalid ownership, unsupported runtime hosts, allocation or cancellation.
     pub fn capture(store: &Store, proceed: &(dyn Fn() -> bool + Sync)) -> Result<Self, Error> {
         Ok(Self {
-            bytes: snapshot::capture(store, usize::MAX, proceed).map_err(|error| {
+            image: snapshot::memory_image(store, proceed).map_err(|error| {
                 if error.message().contains("allocation") {
                     invalid(error.message())
                 } else {
@@ -61,7 +61,7 @@ impl Permanent {
         if source.poisoned() || source.draws().is_some() || source.registers().is_some() {
             return Err(invalid("poisoned or effectful owner"));
         }
-        let mut image = snapshot::parse(&self.bytes, proceed)?;
+        let mut image = self.image.duplicate(proceed)?;
         let names = source.strings.texts_from(0);
         if image.semantics != snapshot::semantics(source)
             || image.sealed != source.strings.is_sealed()
@@ -299,6 +299,32 @@ mod tests {
     #![allow(clippy::expect_used, reason = "owned live-root reclamation controls")]
     use super::*;
     use crate::Heap;
+
+    #[test]
+    fn typed_permanent_preserves_wire_image_and_rejects_unregistered_history() {
+        let source = Arc::new(Store::with_semantics(true, crate::Semantics::tlc()));
+        let mut heap = Heap::new(Arc::clone(&source), true, false);
+        let one = Handle::int(1).expect("one");
+        let two = Handle::int(2).expect("two");
+        let local = heap.local_literal(&[two, one, two]).expect("literal");
+        let raw = heap.intern_exact(local).expect("raw");
+        let normalized = heap.normalize_construction(local).expect("normalization");
+        let normalized = heap.intern_exact(normalized).expect("normalized");
+        let wire = snapshot::capture(&source, 1 << 20, &|| true).expect("wire image");
+        let permanent = Permanent::capture(&source, &|| true).expect("typed image");
+        let remap = permanent.begin(&source, &|| true).expect("replacement");
+        assert_eq!(
+            snapshot::capture(remap.store(), 1 << 20, &|| true).expect("same wire image"),
+            wire
+        );
+        assert!(remap.store().owns_history(raw));
+        assert!(remap.store().owns_history(normalized));
+        source.history_views.write().expect("origin table")[0][0] = Handle::EMPTY;
+        let invalid = Permanent::capture(&source, &|| true)
+            .err()
+            .expect("unregistered raw root");
+        assert!(invalid.message().contains("unregistered history authority"));
+    }
 
     #[test]
     fn copies_live_aliases_and_history_and_releases_expanded_values() {
