@@ -65,6 +65,13 @@ path = "conformance/corpus/probes"
 license = "MIT"
 layout = "examples-manifest"
 
+# Pinned logical coverage demand and diagnostic reconstruction controls (ADR 0150).
+[[corpus]]
+id = "tlc-coverage-primary"
+path = "conformance/corpus/tlc-coverage-primary"
+license = "MIT"
+layout = "examples-manifest"
+
 # Direct configured user operators in retained temporal state/action atoms.
 # Kept separate so the established probes corpus retains its input identity.
 [[corpus]]
@@ -343,12 +350,5 @@ layout = "examples-manifest"
 [[corpus]]
 id = "product-operations"
 path = "conformance/corpus/product-operations"
-license = "MIT"
-layout = "examples-manifest"
-
-# Pinned logical coverage demand and diagnostic reconstruction controls (ADR 0150).
-[[corpus]]
-id = "tlc-coverage-primary"
-path = "conformance/corpus/tlc-coverage-primary"
 license = "MIT"
 layout = "examples-manifest"
