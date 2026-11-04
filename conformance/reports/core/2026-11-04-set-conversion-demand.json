@@ -1,0 +1,194 @@
+{
+  "kind": "main-based Reference normalized-set conversion demand repair retaining normalization-first callers",
+  "issue": 770,
+  "main_base": "66483059ad696127224af4962db1e55b96bb4710",
+  "runtime_source_commit": "2e9762b1079517dc11c83328c4437438484d82d5",
+  "primary_before_code_commits": [
+    "07e18cbe",
+    "7d629ef07033ac29095cd82ce6bf6d8e5aa6124f"
+  ],
+  "scratch_rejected_source": "831baa860e8eae67f4a1b845085d28fa16310efd",
+  "repair": "Reference to_set_enum reuses the bounded read-only concrete Product emptiness proof before enum guards/elements, producing a separate empty collection without mutating original receiver/axes. A separate established normalized_set_elements primitive retains the old receiver-normalizing route; AntiFunction calls that primitive before type rejection, matching its normalization-first source. All direct helper consumers were checked against pinned source order. No global Value normalizer, Core, compiler/plan/maps, dependency, classifier or existing test/allowlist changes.",
+  "sources_sha256": {
+    "crates/dive-eval/src/community.rs": "badeec5caec938751106a3ebdfdc01867dfe89160aab46aca3f9a1272e12d1cc",
+    "crates/dive-api/tests/set_conversion_demand.rs": "027dee1fb1a3ba8a325d4fe2db773e02fcfdfc74db5f3f4fe9bc6016913ff135"
+  },
+  "artifacts_sha256": {
+    "target/debug/dive": "3b71830524ae059a79dcd61058f60927af503b629fbdde8d6b1ca7d7d5c7e073",
+    "target/debug/dive-conformance": "8d05c94b560e694f2430a1362b34032ee1ee2b0532ae91cf11bd2c78970776ba"
+  },
+  "primary_reports": [
+    "conformance/reports/core/2026-11-04-set-conversion-oracle.json",
+    "conformance/reports/core/2026-11-04-set-normalization-oracle.json"
+  ],
+  "current_goldens_commit": "7d629ef07033ac29095cd82ce6bf6d8e5aa6124f",
+  "current_goldens": [
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/set-conversion-demand/specifications/EmptyProjectionOrderings/EmptyProjectionOrderings.cfg.json",
+      "sha256": "640b94797382102f74d77b1dcf83a0e344feeb2b3db400f6e5cf38f56150c6a5"
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/set-conversion-demand/specifications/NestedIntervalProjection/NestedIntervalProjection.cfg.json",
+      "sha256": "0299e144d27cd56f0c502f953bfd7295d8b43a0a394a6ca518861ed9945a6a5f"
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/set-conversion-demand/specifications/NonemptyProjection/NonemptyProjection.cfg.json",
+      "sha256": "7956b9ad551ef97af5df84b939ef67525b80c3ee992c3556a7ce38f37df820b6"
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/set-conversion-demand/specifications/NormalizedProjectionSkipRaw/NormalizedProjectionSkipRaw.cfg.json",
+      "sha256": "c5f3e49fb9f64fb4b1f463c931d2c354066f6b9ffe0257ef7cbe6dcd14bfdd7c"
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/set-conversion-demand/specifications/OtherConvertedConsumers/OtherConvertedConsumers.cfg.json",
+      "sha256": "8fc1198be96014e7c1deca0044feacd975de50620c04e0e4e0653d40d718d882"
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/set-conversion-demand/specifications/ProviderProjectionRefusal/ProviderProjectionRefusal.cfg.json",
+      "sha256": "6b0dc9a295cbc7afd4ce4c2b47940d229f703308f49c1374d45fe92023740ef4"
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/set-conversion-demand/specifications/ReceiverAfterProjection/ReceiverAfterProjection.cfg.json",
+      "sha256": "df38be329b6ea870716d224dbdc918940fe19e18fe1fdd640011e1b86976899d"
+    },
+    {
+      "path": "conformance/golden/tlc-2026.10.06.014338/set-conversion-demand/specifications/ReversedRawProjection/ReversedRawProjection.cfg.json",
+      "sha256": "899235b8cc8e6a648166e5d81a7858a43a5d9f2777b76adca8d913eb86950aa2"
+    }
+  ],
+  "panels": [
+    {
+      "panel": "shipping-frozen-reference-dive",
+      "report": "shipping-frozen-reference-dive/20261104T205030605-dive-all.json",
+      "sha256": "8d9026441be6402e130b219a328d621cbe714dac81346fbc5ef445ecfdf15993",
+      "physical_exit": 0,
+      "workers": [
+        1,
+        4
+      ],
+      "models": {
+        "agree": 6,
+        "disagree": 0,
+        "unsupported": 2,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      }
+    },
+    {
+      "panel": "shipping-frozen-reference-tlc",
+      "report": "shipping-frozen-reference-tlc/20261104T205030617-dive-all.json",
+      "sha256": "ed6e670683802ad0d16efbf1dc4db0e17a8c3f30558882cd2e2c16aa80abb7de",
+      "physical_exit": 0,
+      "workers": [
+        1,
+        4
+      ],
+      "models": {
+        "agree": 6,
+        "disagree": 0,
+        "unsupported": 2,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      }
+    },
+    {
+      "panel": "shipping-frozen-core-dive",
+      "report": "shipping-frozen-core-dive/20261104T205030300-dive-all.json",
+      "sha256": "d719d63990a37bce4b3a3b9118f1ccb3df9ece92cde09c4cea6a7a6649938c71",
+      "physical_exit": 0,
+      "workers": [
+        1,
+        4
+      ],
+      "models": {
+        "agree": 5,
+        "disagree": 0,
+        "unsupported": 3,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      }
+    },
+    {
+      "panel": "shipping-frozen-core-tlc",
+      "report": "shipping-frozen-core-tlc/20261104T205030237-dive-all.json",
+      "sha256": "d6622e5386fd0e790b5a4b8e1e82abfc84c289c653311c4870913d7f18ff7f1e",
+      "physical_exit": 0,
+      "workers": [
+        1,
+        4
+      ],
+      "models": {
+        "agree": 5,
+        "disagree": 0,
+        "unsupported": 3,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      }
+    }
+  ],
+  "tests": [
+    {
+      "command": "cargo test -p dive-api --test set_conversion_demand --test graph_product_demand --test graph_demand --locked",
+      "result": "7 passed on main-based corrected source:3 conversion/caller-order functions plus4 unchanged Graph demand functions, retaining actual-word validation/mutant rejection and source/axis/receiver/alias controls in both profiles"
+    },
+    {
+      "command": "cargo test -p dive-api --test core_rules library_fixtures_match_the_reference_and_tlc --locked",
+      "result": "1 passed; unchanged existing library/Sequences/FoldOps expectations and refusal allowlists"
+    },
+    {
+      "command": "cargo clippy -p dive-eval -p dive-api --all-targets --locked -- -D warnings",
+      "result": "passed"
+    },
+    {
+      "command": "cargo fmt --all --check",
+      "result": "passed"
+    },
+    {
+      "command": "git diff --check origin/main...HEAD",
+      "result": "passed"
+    }
+  ],
+  "normalization_native_receipt": {
+    "path": "shipping-normalization-native/receipt.json",
+    "sha256": "c52e1659ded0ef3214dc6cc562b390697b2833b88f8fabd7a9ac6c4e889d5328",
+    "physical_exits": [
+      75,
+      75,
+      75,
+      75
+    ],
+    "scope": "Fresh frozen-source Reference commands in both profiles: AntiFunction demands TRUE/non-boolean comparison before argument rejection, whereas LongestCommonPrefix converts first and retains its argument error. Both native source classifications remain unverified; nested2154/2283 are not deciding-class claims."
+  },
+  "prior_evidence": {
+    "scratch_working_receipt": "working-result.json",
+    "scratch_working_receipt_sha256": "9efad37311c1ccbb6e97d5281dd39d91cc1d3f03a4b12274718fa28e2839843d",
+    "scope": "Original scratch results stay bound to831baa86 and are not relabeled; the main-based correction has its own binaries, tests and panels. Rejected exploratory tuple-spacing streams are preserved separately without coverage credit. Existing seven original golden result payloads remain unchanged; new facts/golden provenance are generated officially before the corresponding correction."
+  },
+  "accounting": "At workers1/4 in default/TLC profiles, Reference panels each retain6 strict agreements/2 unsupported; Core panels each retain5 strict/3 unsupported. Total44 strict agreement observations and20 unsupported observations. Core retains its extra converted-consumer refusal. Provider refusals and unverified receiver classifications earn no parity credit. Six context-only demanded-error/order controls remain outside model goldens.",
+  "limits": [
+    "The separate inherited Reference IsFiniteSet defect771 remains tracked and unchanged; this is not a global Value normalization or unrelated constructor campaign.",
+    "No test, golden result payload, classifier, expected-divergence or refusal allowlist weakening. No native deciding-error classification is invented for context-only streams.",
+    "No full/broad gate, AWS, performance or release qualification. Fresh independent re-review and required current-head CI remain pending; root owns merge and manual issue closure.",
+    "Product/performance and rejected scratch artifacts remain preserved and immutable. No Cargo target is archived."
+  ]
+}
