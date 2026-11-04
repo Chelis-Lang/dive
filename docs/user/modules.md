@@ -72,6 +72,24 @@ succeeds in either profile:
 dive check conformance/corpus/graph-demand/specifications/SelfDemand/SelfDemand.tla --library-path crates/dive-eval/tests/fixtures/community-modules --engine core --compat=tlc --workers 4 --seed 0 --fp 0 --output json
 ```
 
+Normalized Java set conversions, including `SequencesExt!SetToSeq` and
+`SetToSeqs`, check concrete Product emptiness before normalizing axes. This
+follows the override's conversion-then-normalization order: an empty converted
+collection leaves unused axes and their aliases untouched. Both engines run this
+state-dependent control in either profile with three distinct/generated states,
+depth three and success exit 0:
+
+```sh
+dive check conformance/corpus/set-conversion-demand/specifications/NormalizedProjectionSkipRaw/NormalizedProjectionSkipRaw.tla --library-path crates/dive-eval/tests/fixtures/community-modules --engine reference --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+```
+
+Nonempty conversions still demand axis normalization. Later sizing of an
+incomparable raw axis still errors, Product membership retains its original
+receiver checks, and axis operand expressions are evaluated before conversion.
+Unknown earlier operands and providers keep their errors or named refusals. The
+receiver error's native TLC source classification remains unverified; it earns no
+error-parity credit.
+
 Graph conversion also recognizes an empty Cartesian product before enumerating
 its axes. Both engines support concrete explicit, bounded-interval and nested
 product axes in source order, including products embedded in tuple and record

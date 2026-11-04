@@ -17,6 +17,12 @@
   reversed and nested products. Check later factors for empty sets and demanded
   errors instead of treating an unproved factor as infinite.
 
+- Preserve conversion demand for empty Cartesian products in Reference's
+  normalized Java set conversions (`SetToSeq`, `SetToSeqs` and the shared
+  conversion helper). Reuse the bounded read-only emptiness proof before axis
+  normalization, keeping original Product receivers, raw aliases, later errors
+  and unknown/provider guards intact in both profiles (#770).
+
 - Add explicit PlusCal `translate --write` and Rust preparation/publication APIs,
   publishing admitted modules, exact `.old` backups and delimiter-merged `.cfg`
   files with effective source options and concurrent-edit checks. Add actual

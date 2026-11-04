@@ -40,7 +40,13 @@ established operations, finite factor-tree demand and known infinite Boolean
 answers, one classified receiver error after sizing, and two context-only
 raw-axis size / infinite-then-scalar errors. Reference's separate
 scalar-axis Cardinality failures remain unproved, without relabeling primary TLC
-facts or historical qualification totals.
+facts or historical qualification totals. The later Reference normalized-set
+conversion repair (#770) reuses the same bounded concrete Product emptiness
+proof. Its separate `set-conversion-demand` corpus has seven primary model facts:
+five admitted successes, one pinned-success provider case retaining a native
+refusal, and one receiver error with unverified native source classification.
+Four context-only demand/error controls remain separate. Refusals and unverified
+classifications receive no parity credit.
 
 Core safety candidate queues now consume owned spilled payloads before ordered
 Store promotion. Bounds apply to the encoded queues and separately reported
