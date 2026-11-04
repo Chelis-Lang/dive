@@ -31,6 +31,11 @@ module. `prepare_translation_file` returns an inspectable publication with expli
 `TranslationRequest` and `RewriteRequest` carry the source, generation and
 module-resolution limits. `TranslationReport` provides `accepted()`, `exit_code()`
 and `to_json()`. Source maps are UTF-8 byte associations, not TLC's map file.
+Generated ranges are captured by the emitter around complete action definitions,
+including multi-line bodies and layout edits. Their offsets refer to the canonical
+LF `artifact.tla` body; original ranges retain the input's statement owner.
+Optimized `Next`/process names and scoped label renaming preserve these associations.
+Whole-module placement and runtime instruction locations use separate coordinates.
 
 Exit codes are 0 (artifact), 1 (rejected), 3 (unsupported or over a bound) and
 4 (internal error). They are translator outcomes, not model-checking verdicts.
