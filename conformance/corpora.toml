@@ -352,3 +352,11 @@ id = "reference-finiteness-demand"
 path = "conformance/corpus/reference-finiteness-demand"
 license = "MIT"
 layout = "examples-manifest"
+
+# Paired nonlexical receiver token-order controls for Reference IsFiniteSet.
+# Separate corpus preserves reference-finiteness-demand's original identity.
+[[corpus]]
+id = "reference-finiteness-token-order"
+path = "conformance/corpus/reference-finiteness-token-order"
+license = "MIT"
+layout = "examples-manifest"

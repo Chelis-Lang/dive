@@ -1,0 +1,20 @@
+{
+  "sources": [
+    "docs/user/modules.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "finite-set-operations",
+    "receiver-method-order"
+  ],
+  "modules": [
+    {
+      "path": "specifications/EncounterTokenScalarFirst/EncounterTokenScalarFirst.tla",
+      "features": [],
+      "models": []
+    }
+  ]
+}
