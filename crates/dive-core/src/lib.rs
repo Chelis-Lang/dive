@@ -39,6 +39,7 @@ pub mod candidate_codec;
 mod compare;
 pub mod compile;
 pub mod convert;
+pub mod debug;
 pub mod eval;
 pub mod frontier_codec;
 pub mod generate;

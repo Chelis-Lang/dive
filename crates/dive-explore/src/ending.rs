@@ -186,6 +186,16 @@ pub(crate) fn replay_after(
     ex: &mut Explorer<'_>,
     ordinal: u64,
 ) -> Result<Replayed, Error> {
+    // This path reuses the primary machine, unlike fresh trace replay. Its
+    // entire action/check traversal is diagnostic, including every early exit.
+    m.without_debugger(|m| replay_after_unobserved(m, ex, ordinal))
+}
+
+fn replay_after_unobserved(
+    m: &mut Machine,
+    ex: &mut Explorer<'_>,
+    ordinal: u64,
+) -> Result<Replayed, Error> {
     let plan = ex.plan;
     let code = &plan.code;
     let s0 = m.s0.clone();

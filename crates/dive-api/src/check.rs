@@ -160,6 +160,9 @@ pub struct CheckRequest {
     /// # Ok::<(), Box<dyn std::error::Error>>(())
     /// ```
     pub distributed: Option<crate::DistributedOptions>,
+    /// Explicit producer-only Core debugger capability. None is the ordinary
+    /// TLC-equivalent setting; use `debug::Session` for a managed session.
+    pub debugger: Option<Arc<dyn dive_core::debug::Observer>>,
     /// Collect native producer source-expression/generator work with one actual
     /// Reference worker. These are not TLC logical costs; TLC-equivalent: false.
     pub source_coverage: bool,
@@ -521,7 +524,33 @@ fn check_file_in(
     engine: crate::Engine,
     core_switches: Option<&str>,
 ) -> Result<CheckReport, crate::ApiError> {
+    if req.debugger.is_some() {
+        let feature = if req.store_compact_bytes.is_some() {
+            Some("compiled debugger with Store reclamation is not implemented")
+        } else if req.tlc_coverage {
+            Some("compiled debugger with TLC logical coverage is not implemented")
+        } else if req.source_coverage {
+            Some("compiled debugger with native source coverage is not implemented")
+        } else if req.distributed.is_some() {
+            Some("compiled debugger with distributed safety checking is not implemented")
+        } else {
+            None
+        };
+        if let Some(feature) = feature {
+            return Err(crate::ApiError::Unsupported {
+                feature: feature.into(),
+            });
+        }
+    }
     admit_storage_request(req)?;
+    if req.debugger.is_some()
+        && (engine != crate::Engine::Core
+            || checkpoint.is_some()
+            || req.temporal != TemporalMode::Ordinary
+            || req.core_sample.is_some())
+    {
+        return Err(crate::ApiError::Unsupported { feature: "compiled debugger requires explicit Core ordinary safety checking without coverage, sampling or checkpoint".into() });
+    }
     if req.distributed.is_some() && req.store_compact_bytes.is_some() {
         return Err(crate::ApiError::Unsupported {
             feature: "distributed safety with Store reclamation is not implemented".into(),
@@ -858,6 +887,7 @@ fn check_file_in(
             req.distributed
                 .as_ref()
                 .map(|options| (options, config_hash.as_str())),
+            req.debugger.as_ref(),
         );
         report.core = Some(Box::new(run));
         result.into()
@@ -887,6 +917,7 @@ fn check_file_in(
             req.core_sample,
             core_route(req, &armed),
             None,
+            req.debugger.as_ref(),
         );
         if let Some(fallback) = crate::core_engine::Fallback::of(&result, &run) {
             // The whole check again, on the reference engine; the core's

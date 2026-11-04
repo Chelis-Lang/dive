@@ -562,6 +562,10 @@ impl MemoSite {
 /// The node arrays.
 #[derive(Clone, Debug, Default)]
 pub struct Code {
+    /// Explicit compiled source maps; None allocates no tables.
+    pub source_map: Option<crate::debug::SourceMap>,
+    /// Producer observation capability, installed only in search machines.
+    pub debugger: Option<std::sync::Arc<dyn crate::debug::Observer>>,
     /// Value nodes.
     pub nodes: Vec<Node>,
     /// Generator nodes.

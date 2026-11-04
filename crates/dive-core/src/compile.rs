@@ -389,7 +389,7 @@ pub fn compile_bound_test(
         fold: false,
         ..opts
     };
-    compile_inner(h, store, opts, Some(test))
+    compile_inner(h, store, opts, Some(test), false)
 }
 
 /// Compiles the handoff into a plan.
@@ -398,14 +398,37 @@ pub fn compile_bound_test(
 /// [`crate::ErrorKind::Unsupported`] naming the first construct the M0 core
 /// does not implement.
 pub fn compile(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<Plan, Error> {
-    compile_inner(h, store, opts, None)
+    compile_inner(h, store, opts, None, false)
 }
 
+/// Compiles actual value/generator instruction maps for an explicitly observed run.
+/// Ordinary compilation retains its allocation-free disabled mapping route.
+///
+/// # Errors
+/// The existing compiler refusal or a bounded source-map capacity refusal.
+pub fn compile_debug(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<Plan, Error> {
+    if h.ir
+        .files()
+        .iter()
+        .map(|file| file.source.len())
+        .sum::<usize>()
+        > 16 << 20
+    {
+        return Err(Error::unsupported("compiled debugger source capacity"));
+    }
+    compile_inner(h, store, opts, None, true)
+}
+
+#[allow(
+    clippy::too_many_lines,
+    reason = "ordered role compilation and optional source map finalization"
+)]
 fn compile_inner(
     h: &Handoff<'_>,
     store: Arc<Store>,
     opts: Opts,
     test: Option<BoundTest>,
+    mapped: bool,
 ) -> Result<Plan, Error> {
     let nvars = h.ir.vars().len();
     if nvars > 64 {
@@ -415,7 +438,21 @@ fn compile_inner(
         h,
         effects: crate::plan::Effects::default(),
         ir: h.ir,
-        code: Code::default(),
+        code: Code {
+            source_map: mapped.then(|| crate::debug::SourceMap {
+                files: h.ir.files().to_vec(),
+                variables: h
+                    .ir
+                    .vars()
+                    .iter()
+                    .map(|id| h.ir.decl(*id).name.clone())
+                    .collect(),
+                ..crate::debug::SourceMap::default()
+            }),
+            ..Code::default()
+        },
+        debug_current: None,
+        debug_bytes: 0,
         info: Vec::new(),
         envs: Vec::new(),
         m: Machine::new(store, nvars, opts, Memo::default()),
@@ -492,7 +529,21 @@ fn compile_inner(
         return Err(Error::internal("a stale handle was read while compiling"));
     }
     let symmetry = symmetry(h, &c.m)?;
-    Ok(Plan {
+    if let Some(map) = &mut c.code.source_map {
+        for check in invariants
+            .iter()
+            .chain(&implied_inits)
+            .chain(&implied_actions)
+        {
+            map.obligations.extend(
+                check
+                    .conjuncts
+                    .iter()
+                    .map(|part| (part.p, check.name.clone())),
+            );
+        }
+    }
+    let mut plan = Plan {
         code: c.code,
         vars,
         init,
@@ -507,7 +558,14 @@ fn compile_inner(
         effects: c.effects,
         view,
         stats: c.stats,
-    })
+    };
+    if mapped {
+        let executable = crate::debug::reachable(&plan);
+        if let Some(map) = &mut plan.code.source_map {
+            map.executable = executable;
+        }
+    }
+    Ok(plan)
 }
 
 struct Compiler<'a> {
@@ -516,6 +574,8 @@ struct Compiler<'a> {
     effects: crate::plan::Effects,
     ir: &'a Ir,
     code: Code,
+    debug_current: Option<usize>,
+    debug_bytes: usize,
     info: Vec<Info>,
     envs: Vec<EnvFrame>,
     m: Machine,
@@ -568,6 +628,92 @@ struct Compiler<'a> {
 }
 
 impl Compiler<'_> {
+    fn debug_context(&mut self, expression: ExprId, env: usize) -> Result<Option<usize>, Error> {
+        let Some(map) = &self.code.source_map else {
+            return Ok(None);
+        };
+        if map.locations.len() >= 65_536 {
+            return Err(Error::unsupported(
+                "compiled debugger instruction context capacity",
+            ));
+        }
+        let frame = self
+            .envs
+            .get(env)
+            .ok_or_else(|| Error::internal("debugger compile environment"))?;
+        let definition = self.ir.def(frame.def);
+        let context_bytes = self
+            .substs
+            .iter()
+            .try_fold(definition.name.len() + 128, |bytes, entry| {
+                bytes.checked_add(self.ir.decl(entry.decl).name.len() + 96)
+            })
+            .ok_or_else(|| Error::unsupported("compiled debugger substitution capacity"))?;
+        let bytes = definition
+            .frame
+            .iter()
+            .try_fold(context_bytes, |bytes, slot| {
+                bytes.checked_add(slot.name.len() + 64)
+            })
+            .and_then(|bytes| self.debug_bytes.checked_add(bytes))
+            .filter(|bytes| *bytes <= 8 << 20)
+            .ok_or_else(|| Error::unsupported("compiled debugger source/local byte capacity"))?;
+        self.debug_bytes = bytes;
+        let locals = definition
+            .frame
+            .iter()
+            .zip(&frame.slots)
+            .map(|(name, slot)| {
+                let binding = match slot {
+                    Sb::Flat(slot)
+                    | Sb::Arg {
+                        how: ArgHow::Thunk(slot, _),
+                        ..
+                    }
+                    | Sb::LetVal {
+                        thunk: Some((slot, _)),
+                        ..
+                    } => crate::debug::Binding::Slot(*slot),
+                    Sb::Arg {
+                        how: ArgHow::Alias(node),
+                        ..
+                    } => crate::debug::Binding::Alias(*node),
+                    _ => crate::debug::Binding::Unavailable,
+                };
+                crate::debug::Local {
+                    name: name.name.clone(),
+                    binding,
+                }
+            })
+            .collect();
+        let location = crate::debug::Location {
+            origin: self.ir.node(expression).origin,
+            definition: definition.name.clone(),
+            definition_id: frame.def.index(),
+            environment_id: env,
+            locals,
+            caller: self.debug_current,
+            substitutions: self
+                .substs
+                .iter()
+                .map(|entry| crate::debug::Substitution {
+                    declaration: self.ir.decl(entry.decl).name.clone(),
+                    actual: match &entry.value {
+                        Ok(Arg::Expr { expr, .. }) => Some(self.ir.node(*expr).origin),
+                        _ => None,
+                    },
+                    identity: entry.id,
+                })
+                .collect(),
+        };
+        let Some(map) = &mut self.code.source_map else {
+            return Ok(None);
+        };
+        let index = map.locations.len();
+        map.locations.push(location);
+        Ok(Some(index))
+    }
+
     fn alloc(&mut self) -> u32 {
         let s = self.next_slot;
         self.next_slot += 1;
@@ -1261,6 +1407,15 @@ impl Compiler<'_> {
         );
         #[allow(clippy::cast_possible_truncation, reason = "bounded by MAX_NODES")]
         let id = self.code.nodes.len() as P;
+        if let Some(map) = &mut self.code.source_map {
+            let source = self.debug_current.or_else(|| match &n {
+                Node::Memo { body, .. } | Node::Scope { body, .. } => {
+                    map.values.get(*body as usize).copied().flatten()
+                }
+                _ => None,
+            });
+            map.values.push(source);
+        }
         self.code.nodes.push(n);
         let closed = info.vars == 0
             && info.primed == 0
@@ -1531,6 +1686,9 @@ impl Compiler<'_> {
     fn gpush(&mut self, g: GNode) -> G {
         #[allow(clippy::cast_possible_truncation, reason = "bounded by MAX_NODES")]
         let id = self.code.gnodes.len() as G;
+        if let Some(map) = &mut self.code.source_map {
+            map.generators.push(self.debug_current);
+        }
         self.code.gnodes.push(g);
         id
     }
@@ -1902,8 +2060,19 @@ impl Compiler<'_> {
     // Value compilation
     // ------------------------------------------------------------------
 
-    #[allow(clippy::too_many_lines, reason = "one arm per expression kind")]
     fn p(&mut self, e: ExprId, env: usize, mode: Mode) -> Result<P, Error> {
+        if self.code.source_map.is_none() {
+            return self.p_inner(e, env, mode);
+        }
+        let previous = self.debug_current;
+        self.debug_current = self.debug_context(e, env)?;
+        let result = self.p_inner(e, env, mode);
+        self.debug_current = previous;
+        result
+    }
+
+    #[allow(clippy::too_many_lines, reason = "one arm per expression kind")]
+    fn p_inner(&mut self, e: ExprId, env: usize, mode: Mode) -> Result<P, Error> {
         let expr = &self.ir.node(e).expr;
         match expr {
             Expr::Bool(b) => self.konst(Handle::bool(*b)),
@@ -3749,12 +3918,23 @@ impl Compiler<'_> {
         self.guard(p)
     }
 
+    fn g(&mut self, e: ExprId, env: usize) -> Result<G, Error> {
+        if self.code.source_map.is_none() {
+            return self.g_inner(e, env);
+        }
+        let previous = self.debug_current;
+        self.debug_current = self.debug_context(e, env)?;
+        let result = self.g_inner(e, env);
+        self.debug_current = previous;
+        result
+    }
+
     #[allow(
         clippy::too_many_lines,
         clippy::many_single_char_names,
         reason = "one arm per generator rule"
     )]
-    fn g(&mut self, e: ExprId, env: usize) -> Result<G, Error> {
+    fn g_inner(&mut self, e: ExprId, env: usize) -> Result<G, Error> {
         // Each generator expression is evaluated by its own TLC call
         // (`Compiler::effect_thunk_use`).
         self.leaf += 1;

@@ -356,8 +356,29 @@ impl Machine {
         r
     }
 
-    #[allow(clippy::too_many_lines, reason = "one arm per generator rule")]
     fn gen_node(&mut self, code: &Code, g: G, acts: u32, sink: &mut dyn Sink) -> Result<(), Error> {
+        let Some(observer) = &self.debugger else {
+            return self.gen_node_inner(code, g, acts, sink);
+        };
+        let instruction = crate::debug::Instruction::Generator(g);
+        let guard = crate::debug::Guard::enter(observer, instruction, code, self)?;
+        let result = self.gen_node_inner(code, g, acts, sink);
+        let returned = match &result {
+            Ok(()) => crate::debug::Returned::Generated,
+            Err(error) => crate::debug::Returned::Failed(error),
+        };
+        guard.returned(instruction, code, self, returned)?;
+        result
+    }
+
+    #[allow(clippy::too_many_lines, reason = "one arm per generator rule")]
+    fn gen_node_inner(
+        &mut self,
+        code: &Code,
+        g: G,
+        acts: u32,
+        sink: &mut dyn Sink,
+    ) -> Result<(), Error> {
         if self.fuel != u64::MAX {
             self.charge(1)?;
         }

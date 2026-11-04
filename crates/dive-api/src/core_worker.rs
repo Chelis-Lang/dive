@@ -112,6 +112,11 @@ pub fn prepare_core_worker(
 }
 
 fn admit_request(request: &CheckRequest) -> Result<(), ApiError> {
+    if request.debugger.is_some() {
+        return Err(ApiError::Unsupported {
+            feature: "worker preparation with compiled debugger is not implemented".into(),
+        });
+    }
     if request.store_compact_bytes.is_some() {
         return Err(ApiError::Unsupported {
             feature: "worker preparation with Store reclamation is not implemented".into(),

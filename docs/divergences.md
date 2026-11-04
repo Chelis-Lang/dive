@@ -1157,3 +1157,15 @@ override or oracle/adapter profiles. D-022 generated-count pairs are unchanged.
 The no-SYMMETRY [primary references](conformance-corpora.md#liveness-quotient-primary-controls)
 are separate from established populations. VIEW remains refused; its order-sensitive
 primary result and fairness reconstruction gap are tracked in #428.
+
+## Native debugger execution boundaries
+
+`dive debug` and `debug::Session` opt into real one-worker Core safety observation
+in both profiles. `CheckRequest.debugger = None` is the default and TLC's
+debugging-off setting. This native DAP route changes no model semantics and adds
+no result-changing default or new D-ID. TLC `-debugger` remains unsupported.
+Unsupported temporal, checkpoint, remote and inspection combinations refuse;
+termination of incomplete checking cannot report success. The ordinary report
+and independent word validator keep their authority. See the
+[debugging guide](user/debugging.md) and
+[ADR 0152](decisions/0152-compiled-source-maps-and-native-debugging.md).
