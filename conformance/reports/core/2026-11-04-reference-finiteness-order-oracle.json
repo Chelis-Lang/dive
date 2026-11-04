@@ -1,0 +1,237 @@
+{
+  "kind": "oracle-first paired nonlexical Reference record receiver method order",
+  "issue": 771,
+  "rejected_source": "c6edd9d86757575eb46c42faff08fb98d9577479",
+  "runtime_edited": false,
+  "finding": "Default canonical record storage made the new short-circuit emptiness traversal return verified success before TLC-required scalar finiteness demand. The opposite field assignment retains an inherited default refusal/error instead of TLC success. Both isFinite and its subsequent isEmpty receiver traversal must use actual encounter-token field order, independent of value/exploration order options. D-006/D-010 do not excuse these errors.",
+  "paired_primary": {
+    "success": {
+      "name": "EncounterTokenEmptyFirst",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-token-order/specifications/EncounterTokenEmptyFirst/EncounterTokenEmptyFirst.cfg.json",
+      "sha256": "9664398789365ccd89e5fd5663b449cba35bd6f50c1b0faad75fb5e822d3d145",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "exit_status": "SUCCESS",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        },
+        "fingerprint_collision": {
+          "optimistic": "val = 0.0",
+          "observed": null
+        },
+        "trace": null,
+        "error_codes": [],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      }
+    },
+    "demanded_error": {
+      "name": "EncounterTokenScalarFirst",
+      "exit": 75,
+      "root_frame_codes": [
+        2262,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2102,
+        2103,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "stream_frame_codes": [
+        2262,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2102,
+        2154,
+        2103,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "stdout_sha256": "4a0a070c2dff51b1c06aff2a0aef1cce696056e55a8a3d0adb424ed262f9b391",
+      "classification": "context-only; no deciding-class model golden"
+    }
+  },
+  "rejected_native": [
+    {
+      "name": "EncounterTokenEmptyFirst",
+      "profile": "dive",
+      "source": "c6edd9d86757575eb46c42faff08fb98d9577479",
+      "binary_sha256": "73513e53df1cfd113369860af349a3bd2f5960260ba17d6d1961142c3406ade0",
+      "source_sha256": "84e8a98fb6d26912436526fb33f8d053099c8d133d25172b4dd8a7acc67d3ff9",
+      "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d",
+      "exit": 75,
+      "verdict": "evaluation-error",
+      "tlc": {
+        "code": 2103,
+        "exit_status": 75,
+        "name": "TLC_NESTED_EXPRESSION",
+        "reported": 2102,
+        "verified": false
+      },
+      "statistics": {
+        "depth": 1,
+        "distinct": 1,
+        "generated": 1,
+        "initial_generated": 1,
+        "left_on_queue": 1,
+        "reported_by_tlc": true
+      }
+    },
+    {
+      "name": "EncounterTokenEmptyFirst",
+      "profile": "tlc",
+      "source": "c6edd9d86757575eb46c42faff08fb98d9577479",
+      "binary_sha256": "73513e53df1cfd113369860af349a3bd2f5960260ba17d6d1961142c3406ade0",
+      "source_sha256": "84e8a98fb6d26912436526fb33f8d053099c8d133d25172b4dd8a7acc67d3ff9",
+      "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d",
+      "exit": 0,
+      "verdict": "success",
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "reported": 2193,
+        "verified": true
+      },
+      "statistics": {
+        "depth": 3,
+        "distinct": 3,
+        "generated": 3,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      }
+    },
+    {
+      "name": "EncounterTokenScalarFirst",
+      "profile": "dive",
+      "source": "c6edd9d86757575eb46c42faff08fb98d9577479",
+      "binary_sha256": "73513e53df1cfd113369860af349a3bd2f5960260ba17d6d1961142c3406ade0",
+      "source_sha256": "3478713a5cdfcfe06558aad89fa3cc651d585939a78ae2885e7de27eedfca92e",
+      "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d",
+      "exit": 0,
+      "verdict": "success",
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "reported": 2193,
+        "verified": true
+      },
+      "statistics": {
+        "depth": 3,
+        "distinct": 3,
+        "generated": 3,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      }
+    },
+    {
+      "name": "EncounterTokenScalarFirst",
+      "profile": "tlc",
+      "source": "c6edd9d86757575eb46c42faff08fb98d9577479",
+      "binary_sha256": "73513e53df1cfd113369860af349a3bd2f5960260ba17d6d1961142c3406ade0",
+      "source_sha256": "3478713a5cdfcfe06558aad89fa3cc651d585939a78ae2885e7de27eedfca92e",
+      "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d",
+      "exit": 75,
+      "verdict": "evaluation-error",
+      "tlc": {
+        "code": 2103,
+        "exit_status": 75,
+        "name": "TLC_NESTED_EXPRESSION",
+        "reported": 2102,
+        "verified": false
+      },
+      "statistics": {
+        "depth": 1,
+        "distinct": 1,
+        "generated": 1,
+        "initial_generated": 1,
+        "left_on_queue": 1,
+        "reported_by_tlc": true
+      }
+    }
+  ],
+  "source_authority": {
+    "TLC": "94d0c5070852b37b801bb8998c436383ab7ee37b: Tool OPCODE_sor evaluates operands, then SetOfRcdsValue sorts names by UniqueString.compareTo; isFinite and Value.isEmpty traverse that receiver order.",
+    "native": "dive-model::intern::feed unconditionally seeds the run Interner from configuration and IR lexical encounter names in both profiles. Atom::tok survives Value::record_set canonical sorting. The correction must validate each field token resolves to its exact name in the current run before ordering a private view; missing/mismatched mappings must refuse. Original Set storage, aliases and global normalization remain untouched.",
+    "files_sha256": {
+      "crates/dive-model/src/intern.rs": "70b56acff6780c88a063674be0341185d220791e791062b854e701c215c46308",
+      "crates/dive-model/src/lib.rs": "17b0db352db2aff100c1e43c2a30a729e3122ce32153b475e9cf30d73001031b",
+      "crates/dive-value/src/atom.rs": "8573d5943df68b78532fd3e2d07c7f7bef5c0b1276c666ef709b5ec1d57a03e5",
+      "crates/dive-value/src/value.rs": "d1e7f90393a69dec99d8c2c633a177201402807381d90fce5f8d85122baa130c",
+      "crates/dive-eval/src/std.rs": "94293aa55bae8d2a2ef80fd7e395755c23ac87c72aa9aa340d408a8f58845f55"
+    }
+  },
+  "base_evidence_reuse": {
+    "source": "66483059ad696127224af4962db1e55b96bb4710",
+    "artifact": "phase8-20261104/review-finiteness/record-token-negative-localization.json",
+    "sha256": "85a51524f40b36245b1cec8a7d7a06b480d0b1063a46d1564710e0ff3d6f494f",
+    "scope": "Reviewer primary and fresh clean-base negative localization are retained at their actual source; not relabeled as author executions."
+  },
+  "preservation": {
+    "rejected_patch_sha256": "da25486dd77fb480f699a446d15c876cc4d5d19a7c333d3791fad76d630ec269",
+    "rejected_std_sha256": "94293aa55bae8d2a2ef80fd7e395755c23ac87c72aa9aa340d408a8f58845f55",
+    "rejected_native_receipt_sha256": "43000719edb3a3d9688b51e72cc2e0a58188698b1322194e7683894b86114c87",
+    "old_goldens": [
+      {
+        "path": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/EmptyBeforeScalar/EmptyBeforeScalar.cfg.json",
+        "sha256": "295afbb877128136e298bf1dc40e3c28434e83b1c9d4c18ef37eb3aec94b532a"
+      },
+      {
+        "path": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/EmptyFunctionAndSequence/EmptyFunctionAndSequence.cfg.json",
+        "sha256": "9c067f65093a81b299e6f4ab82843ac505f3c01dd0a638c577ff702af74d51bc"
+      },
+      {
+        "path": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/EmptyRecordBeforeScalar/EmptyRecordBeforeScalar.cfg.json",
+        "sha256": "c153920fbda0cdbe8277746f74f391ce43b8f9b4674e8122d528f84d691651dd"
+      },
+      {
+        "path": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/NestedProductEmpty/NestedProductEmpty.cfg.json",
+        "sha256": "6a51e2bd84497d7720315f9744b5db8cf8c00a062a0627695a8b4b991bdd1e6e"
+      },
+      {
+        "path": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/OrderedRecordEmpty/OrderedRecordEmpty.cfg.json",
+        "sha256": "91dab7425bcd59403c367f8b46ce9170c5eed2c1e36b12a53467dcbcf6ba45e2"
+      },
+      {
+        "path": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/ProviderBeforeEmpty/ProviderBeforeEmpty.cfg.json",
+        "sha256": "9f09d398071276f614ec18342a6969c46f1625e9ef88eebe52207767fb63a55a"
+      },
+      {
+        "path": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/RawAxesStayRaw/RawAxesStayRaw.cfg.json",
+        "sha256": "116f2fdef0858737b007c5284f986dec9ed938946b454afb1a3b3a4eb87c76fe"
+      },
+      {
+        "path": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/ReceiverAfterFiniteness/ReceiverAfterFiniteness.cfg.json",
+        "sha256": "cdefa95cd871bc302f527de7fa5b51fe386b806a9c1f60bac826c4971f65f034"
+      }
+    ],
+    "old_corpus_identity": "sha256:cace472a0e84d5d9f9affa012745ffe18bf58c71d9fa1c6bfd3b2b7bf2a58995",
+    "rule": "New paired controls use a separate corpus. All original8 golden bytes and original corpus inputs/identity remain unchanged."
+  },
+  "limits": [
+    "The error control is a valid pinned SANY/TLC context observation, not a classified golden. No deciding class is inferred from nested2154 or context2103.",
+    "No runtime code, original golden/corpus, classifier, option registry or existing test expectation has changed in this oracle-first commit.",
+    "Rejection/raw evidence is retained under separate phase8-reference-finiteness-order-20261104; old raw evidence is immutable."
+  ]
+}
