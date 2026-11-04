@@ -3,10 +3,24 @@
 ## Phase 7: implementation and qualification boundary
 
 Eight implementation PRs are merged: #747/#748/#750/#752/#753/#755/#759/#762.
-Integrated source `20ee7f75`, tree `b6625ae5`, includes the tested startup-input
-capture/offline-replay workflow. Its one full gate, retained fixture census and
-Auto qualification are running. Focused results do not refresh corpus totals or certify
-M1/M2, global performance or a release candidate.
+Integrated source `20ee7f75`, tree `b6625ae5`, passes the November 4 replacement
+full gate: **3,246 nextest tests, six skips and 201 doctests**. The retained
+census and both fixed Auto panels preserve their semantic outcomes. TLC Auto
+retains 150 agreements / six unsupported and 458 SANY agreements, with **125
+actual Core strict agreements**. Default Auto retains 144 strict agreements /
+seven expected differences / five unsupported; actual Core is **121 strict plus
+four expected differences**. The census retains 1,222 default / 1,195 TLC shadow
+agreements, with 290/318 refusals and eight/seven budget stops (the harness
+`timeout` bucket). All 3,040 original IDs retain required result fields.
+
+The archive's 41,533 members were verified before the replacement worker and
+root disk were removed. The first attempt remains rejected for preservation
+([#763](https://github.com/Chelis-Lang/dive/issues/763)): its wrapper reported
+exit 0, but complete final gate/postflight and raw node evidence were lost. The
+separately dated replacement and survivor archives do not erase that failure.
+See the [checkpoint](../conformance/reports/core/2026-11-03-phase7-checkpoint.json)
+for exact source, binaries, physical ledgers, replay/retention limits and cost.
+M1/M2, global performance and RC acceptance remain open.
 
 Original YoYoAllGraphs now completes on actual Core in both profiles at source
 `49188584`: success, 26,731 distinct, 48,535 generated, depth 39. This matches
@@ -29,11 +43,16 @@ certification and causal attribution remain false. No code, switch, default
 change or rescue ships. See [ADR 0147](decisions/0147-demanded-comparison-summaries.md)
 and the [performance record](../conformance/reports/perf/2026-11-03-phase7-demanded-summaries.json).
 
-Completed evidence is verified in S3 and completed worktree targets are removed.
-The two cleanup tranches removed 43,616,239,351 and 7,913,326,685 logical bytes;
-their observed free-space changes remain separate because of shared extents
-and concurrent activity. This storage housekeeping is not checker capacity or
+The completed cleanup tranches removed 43,616,239,351, 7,913,326,685 and
+34,505,599,051 logical bytes: **86,035,165,087 bytes in total**. Their observed
+free-space changes stay separate because of shared extents and concurrent
+activity. Completed feature/review evidence is verified in S3 before local raw
+files and targets are removed; this housekeeping is not checker capacity or
 performance qualification.
+
+The current 38-family checklist is **8 implemented / 28 partial / 2 missing**.
+Coverage/debugger and distributed checking remain missing parity families. Native
+source counters do not provide TLC logical-cost or DAP credit.
 
 ## PlusCal file workflows
 
@@ -945,8 +964,9 @@ throughput, scaling or peak-memory result. The backlog remains
 
 ## Roadmap feature checklist
 
-The full-family inventory is unchanged by the bounded Phase 5 implementations:
-8 implemented, 27 partial and 3 missing. See the [remaining mandatory scope](ROADMAP.md#through-full-tlc-parity).
+The current inventory is 8 implemented, 28 partial and 2 missing. Granted startup
+environment/TXT inputs supply partial I/O support; runtime reads, writes, exec and
+other backend combinations remain open. See the [remaining mandatory scope](ROADMAP.md#through-full-tlc-parity).
 
 Status is one word: `implemented`, `partial` or `missing`. `implemented` means
 the feature works for the supported corpus. It does not certify full parity.

@@ -220,7 +220,7 @@
       ],
       "median_ratio": 0.9818455695531876,
       "median_runtime_reduction_percent": 1.815443044681242,
-      "conclusion": "Only1.81544304468124% runtime reduction; the required10% gain was not reached."
+      "conclusion": "Only 1.81544304468124% runtime reduction; the required 10% gain was not reached."
     },
     {
       "priority": "blocking",
@@ -232,7 +232,7 @@
       ],
       "median_ratio": 1.023372324773382,
       "pairs_above_limit": 2,
-      "conclusion": "Median1.023372324773382 and two of three pairs exceed1.02. This is the extra Sailfish-default guard locked in the screen script; the three separate control models were not run."
+      "conclusion": "Median 1.023372324773382 and two of three pairs exceed 1.02. This is the extra Sailfish default guard frozen before the screen; the three separate control models were not run."
     }
   ],
   "archive": {
@@ -241,22 +241,28 @@
     "bytes": 88195743,
     "archive_download_verified": true,
     "all_member_hashes_verified": true,
-    "members": 56,
-    "no_cargo_targets": true
+    "no_cargo_targets": true,
+    "manifest_listed_content_files": 56,
+    "regular_files_including_manifest": 57,
+    "directory_entries": 7,
+    "inventory_note": "56 manifest-listed content files plus the manifest; all 57 regular files and seven directory entries independently checked."
   },
   "review": {
     "decision": "reject",
     "sha256": "906379ba8bb13c3d815247640ca00aa87b0d6ebc28804bb171cf902153031aa4",
     "outer_and_all_member_hashes_verified": true,
-    "source_tree_entries_verified": 48702
+    "source_tree_entries_verified": 48702,
+    "correctness_review_sha256": "cb945996ed71239188c49649b45cd29fa8bb0b3fd993a46fcb1ad5dce8f1b027",
+    "correctness_scope": "Independent prototype correctness/lifetime/budget review; this authorized a bounded screen, not adoption."
   },
   "limits": [
-    "No ablation or other model completed;186 planned rows unrun.",
+    "No ablation or other model completed; 186 planned rows were unrun.",
     "SSM aggregate last-CPU metadata and sampling/idle-counter uncertainty prevent blanket quiet certification.",
-    "No isolated cache attribution or current-main/ADR0119 release performance claim.",
+    "No isolated cache attribution or current-main/ADR 0119 release performance claim.",
     "This rejects one candidate, not broader S5/S6. No rescue run."
   ],
   "quiet_certified": false,
   "adopted": false,
-  "global_performance_accepted": false
+  "global_performance_accepted": false,
+  "source_qualification": "This rejected candidate and its baseline are separate from the integrated Phase 7 runtime source 20ee7f75."
 }
