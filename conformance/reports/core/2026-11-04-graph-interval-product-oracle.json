@@ -65,5 +65,6 @@
       }
     }
   ],
-  "classification": "Both new models are classified success: physical exit 0, 3 distinct, 3 generated, depth 3. Existing six golden payloads are unchanged; the official harness refreshed only provenance for the expanded corpus. Four existing context-only negatives gain no model golden."
+  "classification": "Both new models are classified success: physical exit 0, 3 distinct, 3 generated, depth 3. Existing six golden payloads are unchanged; the official harness refreshed only provenance for the expanded corpus. Four existing context-only negatives gain no model golden.",
+  "golden_observations_commit": "70dfa2c4"
 }

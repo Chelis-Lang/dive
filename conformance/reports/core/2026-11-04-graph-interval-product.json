@@ -1,0 +1,130 @@
+{
+  "kind": "focused follow-up after fresh empty-product review",
+  "runtime_source_commit": "264ed6f0af65d5ef3e03e4bc3263c370043d389f",
+  "new_primary_observations_commit": "70dfa2c4",
+  "rejected_head": "a37ca405b290fa532cacc198723f7670b41eac7d",
+  "repair": "Shared bounded read-only product emptiness is checked by the general Core Product cursor before axis normalization, including tuple/record component materialization. Graph conversion uses the same proof. Product operand evaluation and unknown/nonempty guards are preserved.",
+  "runtime_sources_sha256": {
+    "crates/dive-core/src/heap.rs": "ff9ddb08c804785e582914928df253594a3df798f2fbb1fdb0d6fd6c87eed627",
+    "crates/dive-core/src/stdlib/graphs.rs": "25211c19705fbb4413664941be60d060eeefbb3c20196d94b8ccdeaa74629b87",
+    "crates/dive-api/tests/graph_product_demand.rs": "d6c925ae33af452d3ce83db1ec1e34d9bbc58e6c63b9f77a7aa62907a3249cad"
+  },
+  "artifacts_sha256": {
+    "target/debug/dive": "540bc36f2623f5740e88ee0e0f9b9f4a83ae40b9b3dab8784f09858c0b7fc80b",
+    "target/debug/dive-conformance": "8514fd407dad52e71bfdbc34ac4a00fc25fa845a3f8363544a73b562ab716005"
+  },
+  "panels": [
+    {
+      "panel": "review-fixed-core-dive",
+      "report": "review-fixed-core-dive/20261104T165639553-dive-all.json",
+      "sha256": "e94d8d287f3fd7b8b7462d7b82b17f7733cdac52574727b050beb87c199e008b",
+      "physical_exit": 0,
+      "models": {
+        "agree": 8,
+        "disagree": 0,
+        "unsupported": 0,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "workers": [
+        1,
+        4
+      ]
+    },
+    {
+      "panel": "review-fixed-core-tlc",
+      "report": "review-fixed-core-tlc/20261104T165639555-dive-all.json",
+      "sha256": "76f3cdee573133438357178f8d4fb418e3b8b256aa5acdefaa0c9bb3084aeee0",
+      "physical_exit": 0,
+      "models": {
+        "agree": 8,
+        "disagree": 0,
+        "unsupported": 0,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "workers": [
+        1,
+        4
+      ]
+    },
+    {
+      "panel": "review-fixed-reference-dive",
+      "report": "review-fixed-reference-dive/20261104T165639657-dive-all.json",
+      "sha256": "04ab752930c68ceb97ca2cce5c54114ecfc475f5e52640e01cbfacef5dd6202e",
+      "physical_exit": 0,
+      "models": {
+        "agree": 8,
+        "disagree": 0,
+        "unsupported": 0,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "workers": [
+        1,
+        4
+      ]
+    },
+    {
+      "panel": "review-fixed-reference-tlc",
+      "report": "review-fixed-reference-tlc/20261104T165639633-dive-all.json",
+      "sha256": "6cdcdcad556ab1f6ac7c534c34189d87e3b0e4f443727bde5c7d7669eb1c1016",
+      "physical_exit": 0,
+      "models": {
+        "agree": 8,
+        "disagree": 0,
+        "unsupported": 0,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "workers": [
+        1,
+        4
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "command": "cargo test -p dive-api --test graph_product_demand --test graph_demand --locked",
+      "result": "4 passed; both profiles, workers 1/4 and fold/memo/hashcons ablations; all eight classified models plus demanded-error/history controls and fresh independent word mutations"
+    },
+    {
+      "command": "cargo test -p dive-core product_materialization_checks_empty_axes_before_normalization --locked",
+      "result": "1 passed; generic nested/interval product materialization, later mixed-axis normalization, earlier-scalar and nonempty negatives in both semantics"
+    },
+    {
+      "command": "cargo test -p dive-core stdlib::graphs::tests --locked",
+      "result": "2 passed"
+    },
+    {
+      "command": "cargo clippy -p dive-eval -p dive-core -p dive-api --all-targets --locked -- -D warnings",
+      "result": "passed after correcting the new test assertion diagnostic"
+    },
+    {
+      "command": "cargo fmt --all --check",
+      "result": "passed"
+    }
+  ],
+  "evidence_correction": "The original oracle record now labels all encountered message frames stream_frame_codes, including nested 2154/2179; it makes no root-frame or deciding-class claim. Historical golden digests are bound to their actual primary commit rather than relabeled as the expanded corpus.",
+  "scope": "64 engine/profile/worker observations across eight classified model facts. Four existing context-only negatives remain without model goldens. No full gate, complete lazy conversion, performance or release acceptance claim."
+}

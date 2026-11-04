@@ -238,5 +238,6 @@
     "The current base Reference fails the empty products with nested override comparison 2154; Core refuses local scalar/tuple comparison provenance.",
     "No general lazy conversion, source error classification, performance or release acceptance claim."
   ],
-  "frame_codes_note": "stream_frame_codes lists every STARTMSG frame in the raw stream, including nested frames; these are not root frames or deciding classifications."
+  "frame_codes_note": "stream_frame_codes lists every STARTMSG frame in the raw stream, including nested frames; these are not root frames or deciding classifications.",
+  "golden_observations_commit": "07adee3d"
 }
