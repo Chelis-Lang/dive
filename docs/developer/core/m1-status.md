@@ -1,10 +1,83 @@
-# M1 acceptance status (2026-11-02)
+# M1 acceptance status (2026-11-04)
 
 M1 has broad implementation across the main workstreams, but **acceptance remains open**.
 The default engine remains `reference`. Use `10-plan.md` for the milestone
 contract and this page for current evidence and the next bounded steps.
 
-### Phase 6 delivery: restartable Core, generation and reuse
+### Phase 7 delivery and qualification
+
+Eight implementation PRs (#747/#748/#750/#752/#753/#755/#759/#762) are merged at
+`20ee7f75ac815cb2d983b96af6814dc2c4c4f30b`, tree
+`b6625ae57bb38416cc34b565599f116c5616e8d5`. The November 4 replacement passes
+`cargo xtask gate --full` with physical exit 0 and unchanged clean source/binary
+bindings before, after and at postflight. Its report records **52m18s**, **3,246
+nextest passes / six skips** and **201 doctest passes**. All 16 applicable steps
+pass; unchanged Cargo.lock/deny.toml conditionally skips cargo-deny. Reference CM1
+(21 models) and validation-smoke (16 models) agree at W1/W4/W8. Core/Reference
+shadows retain 57 agreements / six refusals in 63 CM1 rows and 252 / 60 in
+312 small-tier rows. The standard gate retains progress and summaries; separate
+census/Auto raw streams and required words are retained, with no fresh post-run
+validator replay claimed.
+
+The first attempt remains rejected for preservation
+([#763](https://github.com/Chelis-Lang/dive/issues/763)). Its wrapper reported
+exit 0, but the complete final report/receipt/postflight proof and raw node
+bundle were lost before worker termination. Narrow surviving test summaries do
+not accept that attempt. The repaired runner passed 23 local fault/deadline
+controls and independent review; the separately dated replacement passed 14
+additional affected-window controls. The checkpoint retains the first failure,
+the replacement and both survivor archives separately.
+
+The retained census exits 0 and joins all **3,040 original rows** without
+ID/status/verdict or required trace-field changes. It retains 1,222 shadow
+agreements / 290 refusals / eight budget stops in default and 1,195 / 318 /
+seven in TLC (the harness `timeout` bucket). All **5,457 native attempts** have
+raw streams and physical receipts: 13 time stops and two memory stops exit 5;
+two resource-limit refusals exit 3. Actual reported Core agreements are
+1,201/1,174; each profile also has 21 agreeing rows without engine metadata.
+These Core/Reference shadows earn no fresh pinned-TLC parity credit. The 31
+current additional fixture configurations remain outside this selection; they
+are not all new Phase 7 additions.
+
+Both Auto panels exit 0: TLC retains 150 agreements / six unsupported and 458
+SANY agreements; default retains 144 strict agreements / seven expected
+differences / five unsupported. TLC actual Core strict agreements rise from 124
+to 125; default rises from 120 to 121 strict, plus four expected differences.
+YoYoAllGraphs alone moves from static Reference fallback agreement to Core
+agreement, preserving success and 26,731 distinct / 48,535 generated / depth 39.
+Each profile has 125 raw Core / 29 Reference / two absent engine reports;
+canonical none/unattributed counts (eight TLC / seven default) include mapped
+unsupported rows and differ from absent raw headers. Full-tier 141 strict TLC
+Core agreements remain a historical Phase 5 diagnostic, not a measurement
+refreshed here.
+
+The source-bound archive is **88,626,924 bytes / 41,533 verified members**.
+Verification preceded worker termination and root-disk deletion; independent
+observation finds no active milestone nodes. Recorded compute intervals total
+about **$10.08**. A conservative compute bound through observed resource absence
+plus a $4 storage/transfer reserve is about **$24.15**, below the unchanged
+**$40 total milestone cap**; neither figure is an invoice. The
+[Phase 7 checkpoint](../../../conformance/reports/core/2026-11-03-phase7-checkpoint.json)
+binds exact source, binaries, ledgers, archived words and cost. It also corrects
+this phase's preparation-note attribution about Phase 6: archived original census
+receipts exit 0 and the original producer JSON was already correct. The
+historical producer remains unchanged.
+
+Candidate transport does not bound accepted Store or active Arena; finite
+random-source replay and startup host inputs do not complete effects/modes;
+native source counters do not provide TLC logical costs, Core source maps or
+DAP. The current inventory is **8 implemented / 28 partial / 2 missing**.
+Reference stays default; M1/M2, broad performance and RC acceptance remain open.
+
+The demanded-summary candidate `88a5845a` is rejected unadopted after 30 correct
+Sailfish observations: TLC/W1 median candidate/base 0.9818455696 misses the 10%
+gain, and default/W8 median 1.0233723248 fails the frozen guard. The other 186
+planned rows, including ablations/controls, are unrun. No code, flag, default
+change or rescue ships; quiet certification and causal attribution remain false.
+See [ADR 0147](../../decisions/0147-demanded-comparison-summaries.md) and the
+[performance record](../../../conformance/reports/perf/2026-11-03-phase7-demanded-summaries.json).
+
+### Historical Phase 6 delivery: restartable Core, generation and reuse
 
 All five runtime PRs (#738–#742) are merged at
 `ee79de8295d1d9c73324b2322491ecf77485729d`, tree
@@ -325,10 +398,12 @@ proved scope.
 
 | Area | Current state |
 |---|---|
-| Native modes and budgets | Compiled safety simulation/DFID, constructive generation/sample proof (#742) and finite Auto selection are implemented. Shared production/replay budgets and simulation VIEW refusal remain. General RandomElement relations, effects/workers, full matrices and #350 instruction-overhead acceptance remain open. |
-| Native safety storage | Exact membership, ordered live-Store frontier/predecessor spill and fallible Core disk membership are implemented. Owned completed-level safety recovery is merged (#741) with fresh-owner identity, history and actual-frontier restoration. Files themselves remain transient; no total-memory, temporal recovery, candidate/trace/SCC spill or complete-accounting claim follows. |
+| Native modes and budgets | Compiled safety simulation/DFID, constructive generation/sample proof and finite Auto selection are implemented. Reference owns the simulation runtime across startup/Init/Next and independently reconstructs bounded finite random source relations (#753). General randomization, captured effects/workers, full matrices and #350 instruction-overhead acceptance remain open. |
+| Native safety storage | Exact membership, frontier/predecessor spill, fallible disk membership and owned completed-level recovery preserve fresh-owner identity, history and ordered frontier. Candidate DAG/occurrence spill (#750) avoids speculative Store promotion and has separate codec/origin bounds. Active Arena roots, accepted Store/history, trace/temporal graph/SCC paging, temporal recovery and complete accounting remain open; no total-memory bound follows. |
 | Native temporal capture reports | Persistent original rows/CSR, controlled eager admission, bounded closed-function reuse, checked growth and actual budgets. Periodic stops report their real capture stage and completion facts (#675). |
 | Independent PlusCal model comparison | #728 merged: pinned pcal/TLC against native translation/dive through Reference, fixed 149 inputs / 59 configurations, both profiles/label settings, independent native words. Missing configuration, preflight matches and actual exploration receive separate accounting. |
+| User workflows | PlusCal publication/AST writes, independent Cargo consumers and native Reference source-work observation are merged (#747/#752/#755). Full translation/API combinations, TLC logical costs/Core source maps and DAP remain open. |
+| Granted startup inputs | Explicit category grants admit bounded Reference environment/text assumptions with fresh source-bound offline replay (#762). Runtime reads, writes, exec, other backends/recovery and unproved TLC name/history cases remain refused. |
 | Construction history | Owned literal/MAP/union construction order, raw demand and sparse state handoff are implemented with independent replay controls (#677, ADR 0131). Broader #623 remains open. |
 | Default compound membership | The bounded worker-local index starts on the second eligible lookup in normalized sets of at least 16 members (#698). Original extensional comparison, ownership/phase admission, collision checks and miss/error behavior remain authoritative. It shares the memo budget; scalar queries, finite-fuel analysis, TLC comparisons and unproved values retain the original search. `DIVE_CORE_OPT=-member-index` restores that search. |
 | Native temporal analysis | Exact reachable-product lookup is private; deterministic Cartesian ordering is restored before search (#694). Selected original-target descriptors remove repeated successor scans without changing original/stutter selection, conversion demand or error order (#701). These changes alone establish neither capacity nor throughput acceptance. |
@@ -340,7 +415,7 @@ proved scope.
 | Temporal source errors | Version 5 independently replays the bounded one-state source, actual Next order, temporal row and diagnostic lifecycle (#679, ADR 0132). Later rows, multiple initial emissions and unproved scopes still refuse; broader #502 remains open. |
 | Actual-word liveness names | Complete false-property list in configured order, independently proved on the actual word (#658, ADR 0126). Other observables remain strict. |
 | Expected divergences | Multi-worker matching retains exact complete observed generated-count pairs (#695). SBB now has a narrow default D-010 entry (#739), proved through exploration-only controls and independent words. Exact class/exit/property/depth and word validity stay strict. Expected divergences remain separate from strict agreements. |
-| Unadopted optimizations | Scalar-fold `c4003fc6` is stopped unadopted/unmerged after SimpleRegular TLC/W8 median 1.1794395975 failed its 1.02 bar; no rescue or shipping flag. Indexed-guard S6 #726 is stopped unadopted after a Bakery regression, without rejecting broader S6. Projection reuse #705 remains closed unmerged after its SimpleRegular regression; #704 stays open. Small-payload scratch allocation #710 also remains closed unmerged after failing its predeclared paired adoption criteria; #708 stays open. None of these stopped experiments is part of the runtime. |
+| Unadopted optimizations | Demanded-summary `88a5845a` is rejected after the 30-row screen missed its TLC/W1 gain and default/W8 guard; no code or rescue ships (ADR 0147). Scalar-fold `c4003fc6` is stopped unadopted/unmerged after SimpleRegular TLC/W8 median 1.1794395975 failed its 1.02 bar; no rescue or shipping flag. Indexed-guard S6 #726 is stopped unadopted after a Bakery regression, without rejecting broader S6. Projection reuse #705 remains closed unmerged after its SimpleRegular regression; #704 stays open. Small-payload scratch allocation #710 also remains closed unmerged after failing its predeclared paired adoption criteria; #708 stays open. None of these stopped experiments is part of the runtime. |
 
 ### Phase 4: bounded deliverables and original capacity accepted
 
@@ -813,35 +888,39 @@ below keep their original source and limitations.
 
 ### Next bounded actions
 
-1. Complete general RandomElement relations and remaining captured effects,
-   host category grants, runtime/introspection/output, operators/configuration
+1. Extend bounded Reference random-source replay and granted startup inputs to
+   general randomization, remaining captured effects, runtime host services,
+   introspection/output and operators/configuration
    and temporal-language/receiver/source breadth. Keep #664's LvPeriodic
    asymmetry, #697's Unclassified shared-255 streams and broader #623/#680/#502
    obligations explicit. The bounded GenError proof closes no broader lifetime.
-2. Extend owned safety recovery/disk to candidate, trace, temporal graph/SCC spill,
-   temporal recovery and complete accounting. Build retry-safe native distribution
+2. Extend owned candidate/frontier/disk and safety recovery to accepted Store/
+   Arena, trace and temporal graph/SCC paging, temporal recovery and complete
+   accounting. Build retry-safe native distribution
    on the identity-checked recovery contract; Java worker/checkpoint
    interoperability remains excluded.
 3. Finish simulation/DFID matrices and justified worker/scheduler options,
-   coverage/debugger, complete PlusCal and public checking/simulation/translation/
+   real TLC coverage/Core source maps/full DAP, complete PlusCal and public
+   checking/simulation/translation/
    checkpoint/distributed APIs with cargo-test integration. #111/#118/#128/#239
    and #350's separately measured ≤1% instruction-overhead criterion remain open.
    LSP/native compilation/Verus deferrals do not defer this mandatory v1 scope.
 4. Meet ADR 0119 default floors and compatibility limits through original-workload
    TLC comparisons and material expensive-body/read improvements. Keep the
-   scalar-fold screen and stopped control panel separate from global acceptance;
+   demanded-summary/scalar-fold screens separate from global acceptance;
    preserve history/demand safeguards and the stopped #705/#710/indexed-guard
    experiments. Historical GameOfLife/Sailfish outliers are investigation inputs,
    not current-source measurements. #651's accepted old-bridge comparison remains
    separate from stock-TLC performance.
 5. Satisfy full-tier actual-Core/fallback acceptance, unchanged deep frontend/
    corpus populations, supported platform/package/user flows and RC qualification
-   at their milestone/release boundary. The family inventory stays **8 implemented
-   / 27 partial / 3 missing** until full-family evidence changes it.
+   at their milestone/release boundary. The current family inventory is
+   **8 implemented / 28 partial / 2 missing**; bounded delivery does not complete
+   a whole family.
 
-Use focused development checks and required CI while implementing. Phase 6's
-source-bound full gate, retained census, Auto and new-feature checks are its
-bounded qualification; do not rerun the Phase 5 PlusCal/full-tier populations or
+Use focused development checks and required CI while implementing. Phase 7's
+source-bound gate/census/Auto qualification is recorded above; do not rerun the
+Phase 5 PlusCal/full-tier populations or
 original capacity for documentation closeout. Preserve historical source identities,
 refusals, stops, expected divergences and independently unconfirmed words.
 

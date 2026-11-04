@@ -19,7 +19,47 @@ Current source-bound findings and next steps: `m1-status.md`. Decision: ADR
 The realistic total is 6–8 months to replace the default engine. M0 shows,
 after two weeks, whether the design reaches TLC-relative speed.
 
-### Phase 6: restartable Core, generation and reuse
+### Phase 7: native workflows and bounded candidate transport
+
+Eight implementation PRs (#747/#748/#750/#752/#753/#755/#759/#762) are merged at
+`20ee7f75ac815cb2d983b96af6814dc2c4c4f30b`, tree
+`b6625ae57bb38416cc34b565599f116c5616e8d5`. The separately dated November 4
+replacement passes the full gate (3,246 tests, six skips and 201 doctests), the
+retained census and both fixed Auto panels. The source-bound archive is verified
+member by member before worker termination; independent observation confirms
+no active milestone nodes or remaining known replacement disk.
+
+The first attempt remains rejected for preservation
+([#763](https://github.com/Chelis-Lang/dive/issues/763)): wrapper exit 0 survives,
+but the complete report, final receipt/postflight proof and raw node bundle do
+not. The repaired runner passed 23 local fault/deadline controls and the fresh
+window passed 14 affected controls. The
+[checkpoint](../../../conformance/reports/core/2026-11-03-phase7-checkpoint.json)
+keeps the two attempts, survivor archives and preparation-note correction
+separate. Census outcomes and required result fields are unchanged across
+3,040 joined IDs. TLC Auto actual Core strict credit is 125; default is 121
+strict plus four expected differences. Only YoYoAllGraphs changes route from
+fallback agreement to Core agreement. Historical full-tier credit is not refreshed.
+
+Core adds six finite graph overrides and genuine candidate DAG/occurrence spill
+before speculative Store promotion. Reference simulation owns the runtime across
+startup/Init/Next and independently reconstructs bounded finite random choices.
+PlusCal file/AST publication, standalone Cargo consumers and native source-work
+counters are usable. Explicit category grants admit bounded Reference startup
+environment/text assumptions with source-bound offline replay. These do not
+complete modes/effects, translation, real TLC costs/Core source maps/DAP or
+accepted Store/Arena and temporal paging/recovery. The current family inventory
+is **8 implemented / 28 partial / 2 missing**; Reference remains default.
+
+The demanded-summary candidate `88a5845a` remains rejected unadopted: 30 correct
+Sailfish rows miss its 10% TLC/W1 target and fail the default/W8 guard; 186 planned
+rows, including ablations and other control models, are unrun. No runtime code,
+option, default change or rescue ships. Broader S5/S6 expensive-body/read and
+immutable-scope strategies remain open. See
+[ADR 0147](../../decisions/0147-demanded-comparison-summaries.md) and the
+[performance record](../../../conformance/reports/perf/2026-11-03-phase7-demanded-summaries.json).
+
+### Historical Phase 6: restartable Core, generation and reuse
 
 All five runtime PRs (#738–#742) are merged at `ee79de82`, tree `14f02996`.
 **The one full gate passed (3,164 nextest tests and 195 doctests). The retained census
