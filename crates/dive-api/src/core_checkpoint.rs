@@ -133,6 +133,13 @@ pub(crate) fn check(
         if let Some(feature) = core_engine::option_refusal(options, profile_tlc) {
             return Err(Verdict::Unsupported { feature });
         }
+        if options.store_compact_bytes.is_some() && request.action != Action::Recover {
+            return Err(Verdict::Unsupported {
+                feature:
+                    "Store reclamation with checkpoint pause (discovery residency is unsupported)"
+                        .into(),
+            });
+        }
         // Static source and semantic identity admission precedes all binding/ASSUME work.
         let local_classes = dive_model::local_java_class_digests(ir)
             .map_err(|feature| Verdict::Unsupported { feature })?;
@@ -181,6 +188,11 @@ pub(crate) fn check(
         let startup =
             dive_core::store::snapshot::capture(&store, checkpoint::MAX_PAYLOAD_BYTES, &proceed)
                 .map_err(|e| core_error(&e))?;
+        let permanent = options
+            .store_compact_bytes
+            .map(|_| dive_core::store::compact::Permanent::capture(&store, &proceed))
+            .transpose()
+            .map_err(|e| core_error(&e))?;
         let mut recovered_receipt = None;
         let mut session = if let Some((bytes, sha, len)) = imported {
             let parts = split(&bytes).map_err(failure)?;
@@ -228,9 +240,9 @@ pub(crate) fn check(
         };
         let explore_started = Instant::now();
         run.searched = true;
-        let out = dive_explore::explore_checkpoint(
+        let out = dive_explore::explore_owned(
             &plan,
-            &store,
+            &mut store,
             dive_explore::Config {
                 opts,
                 max_states: options.max_states,
@@ -249,6 +261,7 @@ pub(crate) fn check(
                 frontier_directory: options.frontier_directory.clone(),
                 candidate_memory_bytes: options.candidate_memory_bytes,
                 candidate_directory: options.candidate_directory.clone(),
+                store_compact_bytes: options.store_compact_bytes,
                 seen_disk: options
                     .seen_disk
                     .as_ref()
@@ -257,7 +270,8 @@ pub(crate) fn check(
                         directory: o.directory.clone(),
                     }),
             },
-            &mut session,
+            Some(&mut session),
+            permanent.as_ref(),
         );
         run.metrics = core_engine::metrics_json(&plan, &out.metrics, compile_time);
         let initial_pause = matches!(

@@ -35,6 +35,64 @@ records or asserting completeness. Cancellation during decoding or validation
 keeps its budget-stop meaning; read, write, corruption and cleanup failures
 invalidate certification and retain explicit storage diagnostics.
 
+## Reclaiming expanded Core values
+
+Explicit pure Core safety BFS accepts `--store-compact-bytes N`:
+
+```sh
+dive check docs/user/examples/Counter.tla --engine core --store-compact-bytes 0 --frontier-memory-bytes 0 --predecessor-memory-bytes 0 --output json
+```
+
+The matching `CheckRequest` and `CheckOptions` field is
+`store_compact_bytes: Option<usize>`. Omit it for the resident reference in either
+profile; omission is the TLC-equivalent setting. Zero forces reclamation after
+Init and each completed source level. A positive number triggers it when the
+Store's measured retained-byte lower bound exceeds that number. The option is a
+trigger, **not a hard memory cap**: all live values remain mandatory, and values
+can grow during a source level before its workers join.
+
+At those boundaries dive replaces the accepted-value Store with its compiled
+startup and live next frontier. Expanded payloads without a live root are
+released. Canonical state identities and original receiver/history rows stay
+separate. Raw/normalized origins, aliases, tuple/function classes, dynamic name
+tokens and warning order survive; evaluator caches and worker Arenas are cleared.
+Disk frontiers receive fresh owner-bound files, streamed one paired row at a
+time. Concrete witnesses use the existing predecessor/ordinal replay and still
+undergo independent validation.
+
+Both profiles, fingerprint/exact membership, VIEW, safety symmetry, requested
+worker widths and existing candidate/frontier/predecessor/disk storage policies
+are supported. Exact membership on this route stores full closed mathematical
+key bytes independently of the Store; symbolic/deferred keys outside that
+encoding refuse by name. Disk seen still uses one actual worker. Core recovery
+may enable or change this trigger after restoring a checked archive:
+
+```sh
+dive check docs/user/examples/CheckpointCounter.tla --engine core --seed 7 --fp 0 --checkpoint counter.core.cp --checkpoint-after-levels 2 --checkpoint-counters retain --output json
+dive check docs/user/examples/CheckpointCounter.tla --engine core --recover counter.core.cp --store-compact-bytes 0 --checkpoint-counters retain --output json
+```
+
+Checkpoint pause with reclamation, temporal capture, runtime effects, sampling,
+Reference and Auto refuse this policy. Checkpoint discovery residency and
+temporal graph/product/SCC paging/recovery remain separate work.
+
+JSON `core.metrics.store_reclamation` reports `trigger_bytes`, `collections`,
+`reclaimed_nodes`, `peak_before_bytes_lower_bound`,
+`peak_after_bytes_lower_bound` and `peak_after_nodes`. These are observations
+among completed collection transactions; they are not a total-RSS peak. The
+ordinary final `core.metrics.store.memory` snapshot can include values rebuilt
+for the selected word after checking stops.
+Allocation/address-space failures in reclamation or detached-key work report
+`DIVE-S0203` resource-limit with explicit `failures`; they certify no word.
+
+The live frontier, permanent startup and its fixed image, encountered names,
+seen keys, predecessor records, selected trace/replay values, mapping/codec
+workspaces, temporary old/new Store overlap and allocator/OS overhead remain
+outside the trigger. Combine the independent storage budgets and whole-run
+time/RSS controls as needed. Filesystem/corruption/cleanup failures prevent
+certification; cancellation remains an incomplete resource stop. See
+[ADR 0149](../decisions/0149-completed-level-store-reclamation.md).
+
 ## Candidate payload spill
 
 Explicit `--engine core` pure safety BFS also accepts

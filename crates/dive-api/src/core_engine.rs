@@ -833,6 +833,7 @@ pub(crate) fn safety_result(
     let Startup { mut sym, startup } = start;
     let budget = &options.budget;
     let storage_failed = !out.metrics.storage.candidates.failures.is_empty()
+        || !out.metrics.storage.reclamation.failures.is_empty()
         || !out.metrics.storage.predecessor_failures.is_empty()
         || !out.metrics.storage.frontier.failures.is_empty()
         || out
@@ -1163,12 +1164,25 @@ pub(crate) fn check(
         Ok(p) => p,
         Err(r) => return (finish(*r), run),
     };
+    if options.store_compact_bytes.is_some()
+        && (prepared.plan.effects.any || !prepared.model.implied_temporals.is_empty())
+    {
+        return (
+            finish(result(
+                unsupported("Store reclamation with runtime effects or native temporal capture"),
+                options,
+                ir,
+            )),
+            run,
+        );
+    }
     if !prepared.model.implied_temporals.is_empty()
         && (options.store == dive_store::StoreMode::Exact
             || options.frontier_memory_bytes.is_some()
             || options.frontier_directory.is_some()
             || options.candidate_memory_bytes.is_some()
             || options.candidate_directory.is_some()
+            || options.store_compact_bytes.is_some()
             || options.predecessor_memory_bytes.is_some()
             || options.predecessor_directory.is_some())
     {
@@ -1222,7 +1236,7 @@ pub(crate) fn check(
         model,
         host,
         start,
-        store,
+        mut store,
         plan,
         compile_time,
     } = prepared;
@@ -1245,9 +1259,9 @@ pub(crate) fn check(
         seed: options.seed.cast_unsigned(),
         states,
     });
-    let out = dive_explore::explore_with_storage(
+    let out = dive_explore::explore_owned(
         &plan,
-        &store,
+        &mut store,
         dive_explore::Config {
             opts: core_opts,
             max_states: options.max_states,
@@ -1257,7 +1271,6 @@ pub(crate) fn check(
             sample,
         },
         &poll,
-        None,
         Some(&search_work_control(budget)),
         &dive_explore::storage::Storage {
             exact: options.store == dive_store::StoreMode::Exact,
@@ -1267,6 +1280,7 @@ pub(crate) fn check(
             frontier_directory: options.frontier_directory.clone(),
             candidate_memory_bytes: options.candidate_memory_bytes,
             candidate_directory: options.candidate_directory.clone(),
+            store_compact_bytes: options.store_compact_bytes,
             seen_disk: options.seen_disk.as_ref().map(|options| {
                 dive_explore::storage::DiskOptions {
                     limits: options.limits,
@@ -1274,6 +1288,8 @@ pub(crate) fn check(
                 }
             }),
         },
+        None,
+        None,
     );
     if let Some(sample) = sample {
         run.sample = crate::core_sample::compare(
@@ -1552,6 +1568,16 @@ pub(crate) fn metrics_json(
             "write_accounting_complete": m.storage.candidates.failures.is_empty(),
             "failures": m.storage.candidates.failures,
             "search_event_before_storage_failure": m.storage.candidates.deciding_event_before_failure,
+        },
+        "store_reclamation": {
+            "failures": m.storage.reclamation.failures,
+            "trigger_bytes": m.storage.reclamation.trigger_bytes,
+            "scope": "completed-level measured Store trigger; live frontier, permanent startup and names are retained; not a hard cap or total RSS bound",
+            "collections": m.storage.reclamation.collections,
+            "reclaimed_nodes": m.storage.reclamation.reclaimed_nodes,
+            "peak_before_bytes_lower_bound": m.storage.reclamation.peak_before_bytes,
+            "peak_after_bytes_lower_bound": m.storage.reclamation.peak_after_bytes,
+            "peak_after_nodes": m.storage.reclamation.peak_after_nodes,
         },
         "exact_states": m.storage.exact_states,
         "conjuncts": {"total": m.conjuncts_total, "parent_skipped": m.conjuncts_skipped},

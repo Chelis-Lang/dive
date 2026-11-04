@@ -97,25 +97,206 @@ impl<'a> Read<'a> {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-struct Node {
-    handle: u64,
-    kind: Kind,
-    flags: u8,
-    lo: i64,
-    hash: u64,
-    sum: u64,
-    data: Vec<Handle>,
+pub(super) struct Node {
+    pub(super) handle: u64,
+    pub(super) kind: Kind,
+    pub(super) flags: u8,
+    pub(super) lo: i64,
+    pub(super) hash: u64,
+    pub(super) sum: u64,
+    pub(super) data: Vec<Handle>,
 }
-struct Image {
-    semantics: [u8; 6],
-    sealed: bool,
-    names: Vec<String>,
-    lens: Vec<[u64; CLASSES]>,
-    nodes: Vec<Node>,
-    history: Vec<[Handle; 2]>,
+pub(super) struct Image {
+    pub(super) semantics: [u8; 6],
+    pub(super) sealed: bool,
+    pub(super) names: Vec<String>,
+    pub(super) lens: Vec<[u64; CLASSES]>,
+    pub(super) nodes: Vec<Node>,
+    pub(super) history: Vec<[Handle; 2]>,
 }
 
-fn semantics(store: &Store) -> [u8; 6] {
+fn copied<T: Copy>(values: &[T]) -> Result<Vec<T>, Error> {
+    let mut copy = Vec::new();
+    copy.try_reserve_exact(values.len())
+        .map_err(|_| invalid("owned image allocation"))?;
+    copy.extend_from_slice(values);
+    Ok(copy)
+}
+
+fn copy_names<'a>(
+    names: impl ExactSizeIterator<Item = &'a str>,
+    proceed: &(dyn Fn() -> bool + Sync),
+) -> Result<Vec<String>, Error> {
+    let mut copy = Vec::new();
+    copy.try_reserve_exact(names.len())
+        .map_err(|_| invalid("owned name table allocation"))?;
+    for (i, name) in names.enumerate() {
+        if i.is_multiple_of(128) && !proceed() {
+            return Err(Error::stop());
+        }
+        let mut text = String::new();
+        text.try_reserve_exact(name.len())
+            .map_err(|_| invalid("owned name allocation"))?;
+        text.push_str(name);
+        copy.push(text);
+    }
+    Ok(copy)
+}
+
+impl Image {
+    /// Duplicates a typed live image without a checkpoint encoder or decoder.
+    pub(super) fn duplicate(&self, proceed: &(dyn Fn() -> bool + Sync)) -> Result<Self, Error> {
+        let mut nodes = Vec::new();
+        nodes
+            .try_reserve_exact(self.nodes.len())
+            .map_err(|_| invalid("owned node allocation"))?;
+        for (i, node) in self.nodes.iter().enumerate() {
+            if i.is_multiple_of(128) && !proceed() {
+                return Err(Error::stop());
+            }
+            nodes.push(Node {
+                handle: node.handle,
+                kind: node.kind,
+                flags: node.flags,
+                lo: node.lo,
+                hash: node.hash,
+                sum: node.sum,
+                data: copied(&node.data)?,
+            });
+        }
+        Ok(Self {
+            semantics: self.semantics,
+            sealed: self.sealed,
+            names: copy_names(self.names.iter().map(String::as_str), proceed)?,
+            lens: copied(&self.lens)?,
+            nodes,
+            history: copied(&self.history)?,
+        })
+    }
+}
+
+/// Copies trusted quiescent live roots into typed owned storage. Archive byte,
+/// name-count and framing admission apply only to the wire entrypoints below.
+#[allow(
+    clippy::too_many_lines,
+    reason = "one quiescent typed-image transaction without archive admission"
+)]
+pub(super) fn memory_image(
+    store: &Store,
+    proceed: &(dyn Fn() -> bool + Sync),
+) -> Result<Image, Error> {
+    if !proceed() {
+        return Err(Error::stop());
+    }
+    if store.poisoned() || store.draws().is_some() || store.registers().is_some() {
+        return Err(invalid("poisoned or effectful owner"));
+    }
+    let lens = lengths(store);
+    let count = lens
+        .iter()
+        .flatten()
+        .try_fold(0usize, |n, &v| {
+            usize::try_from(v).ok().and_then(|v| n.checked_add(v))
+        })
+        .ok_or_else(|| invalid("node count overflow"))?;
+    let texts = store.strings.texts_from(0);
+    let names = copy_names(texts.iter().map(AsRef::as_ref), proceed)?;
+    let history = copied(
+        &store
+            .history_views
+            .read()
+            .unwrap_or_else(PoisonError::into_inner),
+    )?;
+    let mut nodes = Vec::new();
+    nodes
+        .try_reserve_exact(count)
+        .map_err(|_| invalid("owned node allocation"))?;
+    let mut done = HashSet::new();
+    done.try_reserve(count)
+        .map_err(|_| invalid("node index allocation"))?;
+    let mut active = HashSet::new();
+    let mut stack = Vec::new();
+    for (shard, cols) in lens.iter().enumerate() {
+        for (class, &len) in cols.iter().enumerate() {
+            for index in 0..len {
+                let root = Handle::persistent(
+                    u8::try_from(shard).map_err(|_| invalid("shard"))?,
+                    u8::try_from(class).map_err(|_| invalid("class"))?,
+                    index,
+                );
+                stack
+                    .try_reserve(1)
+                    .map_err(|_| invalid("traversal allocation"))?;
+                stack.push((root, false));
+                while let Some((h, leaving)) = stack.pop() {
+                    if nodes.len().is_multiple_of(128) && !proceed() {
+                        return Err(Error::stop());
+                    }
+                    if done.contains(&h.bits()) {
+                        continue;
+                    }
+                    let v = store
+                        .retained_view(h)
+                        .ok_or_else(|| invalid("unissued node"))?;
+                    if leaving {
+                        active.remove(&h.bits());
+                        let node = Node {
+                            handle: h.bits(),
+                            kind: v.kind,
+                            flags: v.flags,
+                            lo: v.lo,
+                            hash: v.hash,
+                            sum: v.sum,
+                            data: copied(v.data)?,
+                        };
+                        validate_node(&node, &lens, names.len(), &mut done)?;
+                        nodes.push(node);
+                    } else {
+                        active
+                            .try_reserve(1)
+                            .map_err(|_| invalid("traversal allocation"))?;
+                        if !active.insert(h.bits()) {
+                            return Err(invalid("cyclic value nodes"));
+                        }
+                        stack
+                            .try_reserve(v.data.len() + 1)
+                            .map_err(|_| invalid("traversal allocation"))?;
+                        stack.push((h, true));
+                        stack.extend(
+                            v.data
+                                .iter()
+                                .rev()
+                                .filter(|h| h.is_persistent())
+                                .map(|&h| (h, false)),
+                        );
+                    }
+                }
+            }
+        }
+    }
+    validate_history(&nodes, &history, proceed)?;
+    if nodes.len() != count
+        || lengths(store) != lens
+        || store.strings.texts_from(0) != texts
+        || *store
+            .history_views
+            .read()
+            .unwrap_or_else(PoisonError::into_inner)
+            != history
+    {
+        return Err(invalid("owner changed during owned capture"));
+    }
+    Ok(Image {
+        semantics: semantics(store),
+        sealed: store.strings.is_sealed(),
+        names,
+        lens,
+        nodes,
+        history,
+    })
+}
+
+pub(super) fn semantics(store: &Store) -> [u8; 6] {
     [
         u8::from(store.hashcons),
         u8::from(store.semantics.string_order == crate::strings::StringOrder::Token),
@@ -309,12 +490,128 @@ fn scalar(h: Handle, names: usize, seen: &HashSet<u64>) -> bool {
     }
 }
 
+fn validate_node(
+    node: &Node,
+    lens: &[[u64; CLASSES]],
+    names: usize,
+    seen: &mut HashSet<u64>,
+) -> Result<(), Error> {
+    let (handle, kind, bits, low, hash, children) = (
+        node.handle,
+        node.kind,
+        node.flags,
+        node.lo,
+        node.hash,
+        node.data.as_slice(),
+    );
+    let len = children.len();
+    if children
+        .iter()
+        .any(|&handle_value| !scalar(handle_value, names, seen))
+    {
+        return Err(invalid("foreign, forward or transient child"));
+    }
+    let handle_value = Handle(handle);
+    if !handle_value.is_persistent() || !seen.insert(handle) {
+        return Err(invalid("duplicate/nonpersistent coordinate"));
+    }
+    let (shard, class, index) = handle_value.persistent_parts();
+    let index_hash = interning_hash(kind, bits, low, hash, children);
+    if lens.len() != SHARDS
+        || bits & !(flags::VIEW | flags::LAZY) != 0
+        || class != class_of(children.len(), bits)
+        || index >= lens[usize::from(shard)][usize::from(class)]
+        || index_hash >> 56 != u64::from(shard)
+    {
+        return Err(invalid("node coordinate/header mismatch"));
+    }
+    if matches!(kind, Kind::Fcn | Kind::RecSet) && !len.is_multiple_of(2)
+        || matches!(kind, Kind::Interval | Kind::Subset | Kind::SeqSet) && len != 1
+        || matches!(kind, Kind::FcnSet | Kind::Union) && len != 2
+        || matches!(kind, Kind::Nat | Kind::Int) && len != 0
+        || kind.is_lazy() && len == 0
+    {
+        return Err(invalid("node shape"));
+    }
+    if kind == Kind::SetEnum && bits & flags::UNNORM == 0 {
+        return Err(invalid("raw set phase"));
+    }
+    if kind == Kind::BigInt
+        && (len == 0
+            || !matches!(low, -1 | 1)
+            || children.iter().any(|handle_value| {
+                handle_value
+                    .as_int()
+                    .is_none_or(|n| u32::try_from(n).is_err())
+            })
+            || children
+                .last()
+                .and_then(|handle_value| handle_value.as_int())
+                == Some(0))
+    {
+        return Err(invalid("integer magnitude"));
+    }
+    if bits & flags::TUPLE != 0 && (kind != Kind::IntFcn || low != 1)
+        || bits & flags::RECORD != 0 && kind != Kind::Fcn
+        || bits & flags::UNNORM != 0 && kind != Kind::SetEnum
+        || bits & flags::HISTORY != 0 && !matches!(kind, Kind::Set | Kind::SetEnum)
+    {
+        return Err(invalid("receiver/history flags"));
+    }
+    Ok(())
+}
+
+fn validate_history(
+    nodes: &[Node],
+    history: &[[Handle; 2]],
+    proceed: &(dyn Fn() -> bool + Sync),
+) -> Result<(), Error> {
+    let mut by_handle = HashMap::new();
+    by_handle
+        .try_reserve(nodes.len())
+        .map_err(|_| invalid("origin index allocation"))?;
+    by_handle.extend(nodes.iter().map(|n| (n.handle, n)));
+    for (origin, pair) in history.iter().enumerate() {
+        if origin.is_multiple_of(128) && !proceed() {
+            return Err(Error::stop());
+        }
+        for (phase, h) in pair.iter().enumerate() {
+            if !h.is_empty() {
+                let node = by_handle
+                    .get(&h.bits())
+                    .ok_or_else(|| invalid("unknown owned-history node"))?;
+                if node.flags & flags::HISTORY == 0
+                    || node.lo != i64::try_from(origin + 1).map_err(|_| invalid("origin bound"))?
+                    || (node.kind == Kind::SetEnum) != (phase == 0)
+                {
+                    return Err(invalid("origin/phase authority mismatch"));
+                }
+            }
+        }
+    }
+    for (i, node) in nodes.iter().enumerate() {
+        if i.is_multiple_of(128) && !proceed() {
+            return Err(Error::stop());
+        }
+        if node.flags & flags::HISTORY != 0 {
+            let origin = usize::try_from(node.lo)
+                .ok()
+                .and_then(|n| n.checked_sub(1))
+                .and_then(|i| history.get(i));
+            if !origin.is_some_and(|pair| pair.iter().any(|h| h.bits() == node.handle)) {
+                return Err(invalid("unregistered history authority"));
+            }
+        }
+    }
+    Ok(())
+}
+
 #[allow(
     clippy::too_many_lines,
     clippy::many_single_char_names,
     reason = "one bounded binary parser; short names denote checked node coordinates"
 )]
-fn parse(bytes: &[u8], proceed: &(dyn Fn() -> bool + Sync)) -> Result<Image, Error> {
+pub(super) fn parse(bytes: &[u8], proceed: &(dyn Fn() -> bool + Sync)) -> Result<Image, Error> {
     let mut input = Read { bytes, at: 0 };
     if input.take(8)? != MAGIC {
         return Err(invalid("format/version"));
@@ -390,48 +687,7 @@ fn parse(bytes: &[u8], proceed: &(dyn Fn() -> bool + Sync)) -> Result<Image, Err
             }
             data.push(h);
         }
-        let h = Handle(handle);
-        if !h.is_persistent() || !seen.insert(handle) {
-            return Err(invalid("duplicate/nonpersistent coordinate"));
-        }
-        let (s, c, i) = h.persistent_parts();
-        let index_hash = interning_hash(k, fl, lo, hash, &data);
-        if fl & !(flags::VIEW | flags::LAZY) != 0
-            || c != class_of(data.len(), fl)
-            || i >= lens[usize::from(s)][usize::from(c)]
-            || index_hash >> 56 != u64::from(s)
-        {
-            return Err(invalid("node coordinate/header mismatch"));
-        }
-        if matches!(k, Kind::Fcn | Kind::RecSet) && !len.is_multiple_of(2)
-            || matches!(k, Kind::Interval | Kind::Subset | Kind::SeqSet) && len != 1
-            || matches!(k, Kind::FcnSet | Kind::Union) && len != 2
-            || matches!(k, Kind::Nat | Kind::Int) && len != 0
-            || k.is_lazy() && len == 0
-        {
-            return Err(invalid("node shape"));
-        }
-        if k == Kind::SetEnum && fl & flags::UNNORM == 0 {
-            return Err(invalid("raw set phase"));
-        }
-        if k == Kind::BigInt
-            && (len == 0
-                || !matches!(lo, -1 | 1)
-                || data
-                    .iter()
-                    .any(|h| h.as_int().is_none_or(|n| u32::try_from(n).is_err()))
-                || data.last().and_then(|h| h.as_int()) == Some(0))
-        {
-            return Err(invalid("integer magnitude"));
-        }
-        if fl & flags::TUPLE != 0 && (k != Kind::IntFcn || lo != 1)
-            || fl & flags::RECORD != 0 && k != Kind::Fcn
-            || fl & flags::UNNORM != 0 && k != Kind::SetEnum
-            || fl & flags::HISTORY != 0 && !matches!(k, Kind::Set | Kind::SetEnum)
-        {
-            return Err(invalid("receiver/history flags"));
-        }
-        nodes.push(Node {
+        let node = Node {
             handle,
             kind: k,
             flags: fl,
@@ -439,43 +695,19 @@ fn parse(bytes: &[u8], proceed: &(dyn Fn() -> bool + Sync)) -> Result<Image, Err
             hash,
             sum,
             data,
-        });
+        };
+        validate_node(&node, &lens, names.len(), &mut seen)?;
+        nodes.push(node);
     }
     let count = input.count(16)?;
     let mut history = Vec::new();
     history
         .try_reserve_exact(count)
         .map_err(|_| invalid("origin allocation"))?;
-    let by_handle: HashMap<_, _> = nodes.iter().map(|n| (n.handle, n)).collect();
-    for origin in 0..count {
-        let mut pair = [Handle::EMPTY; 2];
-        for (phase, h) in pair.iter_mut().enumerate() {
-            *h = Handle(input.word()?);
-            if !h.is_empty() {
-                let node = by_handle
-                    .get(&h.bits())
-                    .ok_or_else(|| invalid("unknown owned-history node"))?;
-                if node.flags & flags::HISTORY == 0
-                    || node.lo != i64::try_from(origin + 1).map_err(|_| invalid("origin bound"))?
-                    || (node.kind == Kind::SetEnum) != (phase == 0)
-                {
-                    return Err(invalid("origin/phase authority mismatch"));
-                }
-            }
-        }
-        history.push(pair);
+    for _ in 0..count {
+        history.push([Handle(input.word()?), Handle(input.word()?)]);
     }
-    for node in &nodes {
-        if node.flags & flags::HISTORY != 0 {
-            let origin = usize::try_from(node.lo)
-                .ok()
-                .and_then(|n| n.checked_sub(1))
-                .and_then(|i| history.get(i));
-            if !origin.is_some_and(|pair| pair.iter().any(|h| h.bits() == node.handle)) {
-                return Err(invalid("unregistered history authority"));
-            }
-        }
-    }
+    validate_history(&nodes, &history, proceed)?;
     if input.at != bytes.len() {
         return Err(invalid("trailing image bytes"));
     }
@@ -574,6 +806,14 @@ pub fn restore(
         return Err(invalid("compiled startup prefix mismatch"));
     }
     let after = extension(expected_startup, image, proceed)?;
+    install(startup, after, proceed)
+}
+
+pub(super) fn install(
+    startup: &Store,
+    after: Image,
+    proceed: &(dyn Fn() -> bool + Sync),
+) -> Result<Arc<Store>, Error> {
     let store = Arc::new(Store::with_semantics(startup.hashcons, startup.semantics));
     store
         .strings
@@ -727,6 +967,19 @@ mod tests {
     use crate::Heap;
     fn owner() -> Arc<Store> {
         Arc::new(Store::with_semantics(true, crate::Semantics::tlc()))
+    }
+
+    #[test]
+    fn wire_decoder_keeps_the_checkpoint_name_admission_bound() {
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(MAGIC);
+        bytes.extend_from_slice(&[0; 7]);
+        bytes.extend_from_slice(&65_537u64.to_le_bytes());
+        bytes.resize(bytes.len() + 65_537 * 8, 0);
+        let error = parse(&bytes, &|| true)
+            .err()
+            .expect("oversized wire name count");
+        assert!(error.message().contains("name admission bound"));
     }
     #[test]
     fn restores_coordinates_aliases_raw_normalized_authority_and_fresh_frontier_owner() {
