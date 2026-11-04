@@ -1,0 +1,191 @@
+{
+  "kind": "focused inherited P1 product receiver repair",
+  "issue": 768,
+  "runtime_source_commit": "ddebb54f5fee0868b355fe4301227dcd668142ea",
+  "primary_observations_commits": [
+    "369eb1e2",
+    "f33047a2"
+  ],
+  "rejected_head": "a9f311f9449ea0acb0e483ff8ba76c6a9f9c5859",
+  "base_false_success_source": "fd2190e2fa99c03aa3c18371a487b5da4c638b74",
+  "repair": "Component evaluation preserves Product receivers. Parent flags select actual child-kind inspection and grant no history authority. Known record/tuple/function/EXCEPT/Append/:> value paths preserve the original handle. Construction is history-sensitive for folding/memo/parent skips. Non-tuple membership and unproved comparisons, collection keys, state binding and operator consumers refuse explicitly rather than replacing their receiver by EMPTY. Product membership keeps its class checks under the symbolic-member ablation.",
+  "runtime_sources_sha256": {
+    "crates/dive-core/src/compile.rs": "180f5677398b682ac1fcd76434f9becd3f2ade2374145283d47334a330f80e3b",
+    "crates/dive-core/src/eval.rs": "9ab435a972379e24b8cfaccaf9f660d18c8faad8da74f7641197f1e3b6f3dde3",
+    "crates/dive-core/src/generate.rs": "70a06b7aaa3a173d79a70050df6ebe792665b7455808098d6a55e65e6671c648",
+    "crates/dive-core/src/heap.rs": "743a0b76fa5dd8f81b7e1b7efe66b3bdc5245bdc57c8d85e3bbdfd2b44e0007e",
+    "crates/dive-core/src/compare.rs": "c7b90d189c30b09d36f7b576d6746d9a0fe4124c5e8a554201b01deab98db977",
+    "crates/dive-core/src/stdlib/tlc.rs": "f625fad15400d42dbfddbf1a21735708a425e6aeae7344f9432c330e6f33f21d",
+    "crates/dive-api/tests/product_receivers.rs": "473c5e61e2334c9ab0966a9b46ae7323549a00106c8014b100ea5994bcba14b6"
+  },
+  "artifacts_sha256": {
+    "target/debug/dive": "3c34d8d96288a97eb6e410494a0627ca34c751cf25c6eadbcf0b13cf33816ad8",
+    "target/debug/dive-conformance": "56d98cad6785b00a8cd5b173ff06334d693233124fdae223753bd1c4f5cfa1e8"
+  },
+  "panels": [
+    {
+      "panel": "receiver-fixed-core-dive",
+      "report": "receiver-fixed-core-dive/20261104T181543441-dive-all.json",
+      "sha256": "7cec8f73e554b84082b6b18e58b9a93075589deb149c7cef1cfc5707a5c45504",
+      "physical_exit": 0,
+      "workers": [
+        1,
+        4
+      ],
+      "graph_models": {
+        "agree": 8,
+        "disagree": 0,
+        "unsupported": 0,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "receiver_models": {
+        "agree": 0,
+        "disagree": 0,
+        "unsupported": 9,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      }
+    },
+    {
+      "panel": "receiver-fixed-core-tlc",
+      "report": "receiver-fixed-core-tlc/20261104T181543442-dive-all.json",
+      "sha256": "adff34b3eea51df3f8479b9eb465d9dec4bd0020f8ff9c1a0f4d829d37c44993",
+      "physical_exit": 0,
+      "workers": [
+        1,
+        4
+      ],
+      "graph_models": {
+        "agree": 8,
+        "disagree": 0,
+        "unsupported": 0,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "receiver_models": {
+        "agree": 0,
+        "disagree": 0,
+        "unsupported": 9,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      }
+    },
+    {
+      "panel": "receiver-fixed-reference-dive",
+      "report": "receiver-fixed-reference-dive/20261104T181543441-dive-all.json",
+      "sha256": "783aba955b0ea92db579edd9ecdce82814fb5b837e1e6041c19c335a6452a75a",
+      "physical_exit": 0,
+      "workers": [
+        1,
+        4
+      ],
+      "graph_models": {
+        "agree": 8,
+        "disagree": 0,
+        "unsupported": 0,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "receiver_models": {
+        "agree": 0,
+        "disagree": 0,
+        "unsupported": 9,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      }
+    },
+    {
+      "panel": "receiver-fixed-reference-tlc",
+      "report": "receiver-fixed-reference-tlc/20261104T181543441-dive-all.json",
+      "sha256": "19c022eabeffb8fc5521493a7fb7539f41ddbf4f64c61851235e8e51907dae2c",
+      "physical_exit": 0,
+      "workers": [
+        1,
+        4
+      ],
+      "graph_models": {
+        "agree": 8,
+        "disagree": 0,
+        "unsupported": 0,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      },
+      "receiver_models": {
+        "agree": 0,
+        "disagree": 0,
+        "unsupported": 9,
+        "oracle-error": 0,
+        "timeout": 0,
+        "out-of-scope": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "agree-pending-trace-validation": 0,
+        "known-upstream-change": 0
+      }
+    }
+  ],
+  "tests": [
+    {
+      "command": "cargo test -p dive-api --test product_receivers --test graph_product_demand --test graph_demand --locked",
+      "result": "5 passed; old eight positives and four demanded-error/history negatives retained; nine receiver facts across both profiles and default/-fold/-memo/-hashcons/-symbolic-member yield 90 named Core refusals and 18 demanded Reference errors, with no native 2147 parity claim"
+    },
+    {
+      "command": "cargo test -p dive-core --lib --locked",
+      "result": "132 passed, including Product component retention, generic empty materialization, identity/refusal and existing graph/work controls"
+    },
+    {
+      "command": "cargo clippy -p dive-eval -p dive-core -p dive-api --all-targets --locked -- -D warnings",
+      "result": "passed"
+    },
+    {
+      "command": "cargo fmt --all --check",
+      "result": "passed"
+    },
+    {
+      "command": "git diff --check fd2190e2 HEAD",
+      "result": "passed"
+    }
+  ],
+  "accounting": "Four frozen panels each retain eight strict graph-model agreements and nine unsupported receiver models at workers 1/4: 64 agreement observations and 72 unsupported observations. Unsupported outcomes earn zero parity credit. Pinned TLC root2147 facts remain separate from Reference unverified context reports and Core explicit refusal.",
+  "limits": [
+    "No classifier, expected-divergence, golden payload or conformance check weakening. Existing golden regeneration only refreshes corpus provenance through the official harness.",
+    "The separate eight Reference Cardinality errors from review source a9f311f9 are inherited, were not rerun or repaired here, and receive no parity credit.",
+    "No full gate, full product/constructor/state-handoff parity, performance or release qualification. Independent fresh review and required CI are pending."
+  ]
+}
