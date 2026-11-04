@@ -50,8 +50,8 @@ environment/text assumptions with source-bound offline replay. These do not
 complete modes/effects, translation, complete TLC costs/maps/DAP parity or
 accepted Store/Arena and temporal paging/recovery. The later Reference logical
 coverage and native mapping/DAP slices make coverage/debugger partial; the current
-family inventory is **8 implemented / 30 partial / 0 missing**. This does not refresh the
-source-bound Phase 7 qualification above. Reference remains default.
+family inventory is **8 implemented / 30 partial / 0 missing**. This does not
+refresh the source-bound Phase 7 qualification above. Reference remains default.
 
 The demanded-summary candidate `88a5845a` remains rejected unadopted: 30 correct
 Sailfish rows miss its 10% TLC/W1 target and fail the default/W8 guard; 186 planned

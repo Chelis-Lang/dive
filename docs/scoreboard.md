@@ -1017,10 +1017,11 @@ throughput, scaling or peak-memory result. The backlog remains
 
 The current inventory is 8 implemented, 30 partial and 0 missing. Granted startup
 environment/TXT inputs supply partial I/O support, final Reference logical coverage
-and native Core mapping/DAP supply partial coverage/debugger support, and authenticated native pure-safety
-workers supply partial distribution. Runtime reads/writes/exec, complete costs,
-complete maps/debugger parity, durable distributed recovery and broader combinations
-remain open. See the [remaining mandatory scope](ROADMAP.md#through-full-tlc-parity).
+and native Core mapping/DAP supply partial coverage/debugger support, and
+authenticated native pure-safety workers supply partial distribution. Runtime
+reads/writes/exec, complete costs/maps/debugger parity, durable distributed
+recovery and broader combinations remain open. See the
+[remaining mandatory scope](ROADMAP.md#through-full-tlc-parity).
 
 Status is one word: `implemented`, `partial` or `missing`. `implemented` means
 the feature works for the supported corpus. It does not certify full parity.

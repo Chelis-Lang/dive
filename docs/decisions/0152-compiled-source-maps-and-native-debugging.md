@@ -50,9 +50,11 @@ termination/refusal cannot certify an incomplete search. Existing native trace
 versions and report contracts are unchanged.
 
 The initial managed route selects one actual local worker and refuses explicit
-checkpoint, temporal, sampling, source-counter and host-grant combinations.
-Remote/distributed observation remains unsupported and must be rejected when
-those request fields are integrated. Conditional/log/column breakpoints, reverse
+checkpoint, temporal, sampling, native/logical coverage and host-grant combinations.
+Store reclamation recreates machines without retaining observation and is refused.
+Remote/distributed observation and worker preparation with a debugger capability
+are refused before source or key-file access and observer preparation.
+Conditional/log/column breakpoints, reverse
 execution, mutation, arbitrary attach targets, compound inspection and broader
 source/evaluation contexts remain open. Client paths refer only to loaded sources
 or the program already authorized by the CLI. Source-map, activation, event,

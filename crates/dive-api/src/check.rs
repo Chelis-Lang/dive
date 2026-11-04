@@ -524,11 +524,28 @@ fn check_file_in(
     engine: crate::Engine,
     core_switches: Option<&str>,
 ) -> Result<CheckReport, crate::ApiError> {
+    if req.debugger.is_some() {
+        let feature = if req.store_compact_bytes.is_some() {
+            Some("compiled debugger with Store reclamation is not implemented")
+        } else if req.tlc_coverage {
+            Some("compiled debugger with TLC logical coverage is not implemented")
+        } else if req.source_coverage {
+            Some("compiled debugger with native source coverage is not implemented")
+        } else if req.distributed.is_some() {
+            Some("compiled debugger with distributed safety checking is not implemented")
+        } else {
+            None
+        };
+        if let Some(feature) = feature {
+            return Err(crate::ApiError::Unsupported {
+                feature: feature.into(),
+            });
+        }
+    }
     admit_storage_request(req)?;
     if req.debugger.is_some()
         && (engine != crate::Engine::Core
             || checkpoint.is_some()
-            || req.source_coverage
             || req.temporal != TemporalMode::Ordinary
             || req.core_sample.is_some())
     {

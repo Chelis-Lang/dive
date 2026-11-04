@@ -532,9 +532,28 @@ impl Session {
     /// # Errors
     /// An unsupported managed-session combination or failed thread creation.
     pub fn launch(mut request: CheckRequest, stop_on_entry: bool) -> Result<Self, DebugError> {
+        if request.store_compact_bytes.is_some() {
+            return Err(rejected(
+                "compiled debugger with Store reclamation is not implemented",
+            ));
+        }
+        if request.tlc_coverage {
+            return Err(rejected(
+                "compiled debugger with TLC logical coverage is not implemented",
+            ));
+        }
+        if request.source_coverage {
+            return Err(rejected(
+                "compiled debugger with native source coverage is not implemented",
+            ));
+        }
+        if request.distributed.is_some() {
+            return Err(rejected(
+                "compiled debugger with distributed safety checking is not implemented",
+            ));
+        }
         if request.debugger.is_some()
             || request.temporal != crate::TemporalMode::Ordinary
-            || request.source_coverage
             || request.core_sample.is_some()
             || !request.host_access.is_empty()
         {

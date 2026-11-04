@@ -73,11 +73,14 @@ let report = session.finish()?;
 ```
 
 This slice runs one actual local Core worker. Reference/Auto debugging, temporal,
-checkpoint/recovery, distributed observation, source-counter/sampling combinations,
-host grants, conditional/log/column breakpoints, reverse steps, mutation and
-compound expansion remain unsupported. Input frames are bounded to 1 MiB and
+checkpoint/recovery, Store reclamation, distributed observation, native source or
+TLC logical coverage, sampling, host grants, conditional/log/column breakpoints,
+reverse steps, mutation and compound expansion remain unsupported. Input frames are bounded to 1 MiB and
 headers to 8 KiB; output frames, maps, activations and expression work have explicit
 bounds. Listener addresses must be loopback. Source locations identify executed
 TLA+; the separate PlusCal emission maps do not yet supply runtime PlusCal
 breakpoints. TLC `-debugger` and complete debugger
 parity remain open; see [ADR 0152](../decisions/0152-compiled-source-maps-and-native-debugging.md).
+Public checking requests and managed sessions refuse reclamation, coverage and
+distribution before source/key access or observer preparation. Preparing a native
+worker with `CheckRequest.debugger` also refuses explicitly.

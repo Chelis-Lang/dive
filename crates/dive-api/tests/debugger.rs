@@ -7,11 +7,14 @@ use std::time::Duration;
 
 #[derive(Debug, Default)]
 struct ReplayObserver {
+    preparations: std::sync::atomic::AtomicUsize,
     entries: std::sync::atomic::AtomicUsize,
     second_successor_entries: std::sync::atomic::AtomicUsize,
 }
 impl dive_core::debug::Observer for ReplayObserver {
     fn prepared(&self, _: &dive_core::debug::SourceMap) -> Result<(), dive_core::Error> {
+        self.preparations
+            .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         Ok(())
     }
     fn enter(
@@ -45,6 +48,71 @@ impl dive_core::debug::Observer for ReplayObserver {
 }
 
 #[test]
+fn incompatible_requests_refuse_before_source_keys_or_observer_preparation()
+-> Result<(), Box<dyn std::error::Error>> {
+    use std::sync::{Arc, atomic::Ordering::Relaxed};
+    let missing =
+        std::env::temp_dir().join(format!("dive-debugger-unread-input-{}", std::process::id()));
+    assert!(!missing.exists());
+    let key = missing.join("worker.key");
+    for compat_tlc in [false, true] {
+        let observer = Arc::new(ReplayObserver::default());
+        let base = CheckRequest {
+            debugger: Some(observer.clone()),
+            file: missing.join("NoSource.tla"),
+            config: Some(missing.join("NoSource.cfg")),
+            compat_tlc,
+            seed: Some(7),
+            fp: Some(0),
+            ..Default::default()
+        };
+        for feature in [
+            "Store reclamation",
+            "TLC logical coverage",
+            "native source coverage",
+            "distributed safety checking",
+        ] {
+            let mut request = base.clone();
+            match feature {
+                "Store reclamation" => request.store_compact_bytes = Some(0),
+                "TLC logical coverage" => request.tlc_coverage = true,
+                "native source coverage" => request.source_coverage = true,
+                _ => {
+                    request.distributed = Some(dive_api::DistributedOptions::new(
+                        vec!["127.0.0.1:1".parse()?],
+                        key.clone(),
+                    ));
+                }
+            }
+            let error = check_file_engine(&request, Engine::Core)
+                .err()
+                .ok_or("incompatible observer request was accepted")?;
+            assert!(matches!(error, dive_api::ApiError::Unsupported { .. }));
+            assert!(error.to_string().contains(feature), "{feature}: {error}");
+            request.debugger = None;
+            let error = Session::launch(request, false)
+                .err()
+                .ok_or("incompatible managed session was accepted")?;
+            assert!(error.to_string().contains(feature), "{feature}: {error}");
+        }
+        let error = dive_api::prepare_core_worker(&base, &key, Duration::from_secs(1))
+            .err()
+            .ok_or("worker preparation silently ignored the debugger")?;
+        assert!(matches!(error, dive_api::ApiError::Unsupported { .. }));
+        assert!(
+            error
+                .to_string()
+                .contains("worker preparation with compiled debugger"),
+            "{error}"
+        );
+        assert_eq!(observer.preparations.load(Relaxed), 0);
+        assert_eq!(observer.entries.load(Relaxed), 0);
+        assert!(!missing.exists());
+    }
+    Ok(())
+}
+
+#[test]
 fn diagnostic_replay_has_no_raw_callbacks_and_error_scope_restores_live_observation()
 -> Result<(), Box<dyn std::error::Error>> {
     use std::sync::{Arc, atomic::Ordering::Relaxed};
@@ -65,7 +133,7 @@ fn diagnostic_replay_has_no_raw_callbacks_and_error_scope_restores_live_observat
             compat_tlc,
             seed: Some(7),
             fp: Some(0),
-            workers: Some(1),
+            workers: Some(4),
             ..Default::default()
         };
         let plain = check_file_engine(&request, Engine::Core)?.to_json();
@@ -78,6 +146,8 @@ fn diagnostic_replay_has_no_raw_callbacks_and_error_scope_restores_live_observat
             Engine::Core,
         )?
         .to_json();
+        assert_eq!(debugged["workers"]["requested"], 4);
+        assert_eq!(debugged["workers"]["used"], 1);
         assert!(observer.entries.load(Relaxed) > 0);
         assert_eq!(
             observer.second_successor_entries.load(Relaxed),
