@@ -1,5 +1,11 @@
 # Changelog
 
+- Preserve Reference `IsFiniteSet` demand through nested Product, record and
+  function-set receivers. Stop compound emptiness checks at the first empty
+  factor, retaining constructor operand errors, interned record-field order,
+  known infinite answers, provider refusals and raw alias/receiver behavior
+  in both compatibility profiles (#771).
+
 - Preserve empty Cartesian-product graph conversion in both engines and
   compatibility profiles. Concrete axes are checked for emptiness before any
   axis normalization; operand errors, source order and later alias demands remain

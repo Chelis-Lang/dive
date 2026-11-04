@@ -118,13 +118,16 @@ the proved signed 32-bit range retain named refusals. For example:
 dive check conformance/corpus/product-operations/specifications/OrdinaryProductCardinality/OrdinaryProductCardinality.tla --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
 ```
 
-The separate `reference-finiteness-demand` corpus records Reference's nested
-Product/record `IsFiniteSet` demand defect (#771). The smallest failing clause is
-`IsFiniteSet([a : {}, b : x] \X {x})`: pinned TLC stops at the inner empty field,
-while Reference currently asks emptiness of the later scalar. The simpler
-`IsFiniteSet({} \X x)` already works. The original composite observation and the
-isolated correction are retained separately; context-only native errors receive
-no deciding-class parity credit.
+Reference's `IsFiniteSet` also stops compound emptiness checks at the first
+empty Product axis or record field, including when that receiver is nested in
+another Product, function set or sequence set. For example,
+`IsFiniteSet([a : {}, b : x] \X {x})` succeeds without asking emptiness of `x`.
+Record fields follow their constructed interned-name order. All constructor
+operands are still evaluated before the method call; an earlier invalid factor
+still errors, and an unproved provider finiteness method still refuses. These
+checks preserve raw axes and the original Product receiver for later demands.
+The separate `reference-finiteness-demand` corpus records these controls (#771).
+The simpler `IsFiniteSet({} \X x)` already worked before this correction.
 
 This state-dependent example exercises every override on Core:
 

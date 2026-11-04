@@ -931,18 +931,14 @@ impl Core {
         let comps = s.components();
         let finite_empty = |x: &Value| -> Result<(bool, bool)> {
             let f = self.is_finite_set(x)?;
-            let e = if f {
-                tlc::is_empty(x, self.ctx)?
-            } else {
-                false
-            };
+            let e = if f { self.finiteness_empty(x)? } else { false };
             Ok((f, e))
         };
         Ok(match s.kind() {
             SetKind::Enum | SetKind::Raw | SetKind::Interval => true,
             SetKind::Nat | SetKind::Int | SetKind::Strings => false,
             SetKind::Seq => match comps.first() {
-                Some((_, r)) => self.is_finite_set(r)? && tlc::is_empty(r, self.ctx)?,
+                Some((_, r)) => self.is_finite_set(r)? && self.finiteness_empty(r)?,
                 None => false,
             },
             SetKind::Subset => match comps.first() {
@@ -987,6 +983,37 @@ impl Core {
                 ));
             }
         })
+    }
+
+    /// Compound `Value.isEmpty` demand made by `IsFiniteSet`, after a true
+    /// finiteness answer. Traverse original receivers in their stored order:
+    /// Product/record stop at the first empty child, and an empty function
+    /// domain skips its range. Leaf methods retain their existing behavior,
+    /// including raw-set length and user-value overrides; no set is converted.
+    fn finiteness_empty(&self, value: &Value) -> Result<bool> {
+        self.loop_work()?;
+        if let Value::Set(set) = value {
+            if let Some(factors) = set.as_product() {
+                for factor in factors {
+                    if self.finiteness_empty(factor)? {
+                        return Ok(true);
+                    }
+                }
+                return Ok(false);
+            }
+            if let Some(fields) = set.as_rcd_set() {
+                for (_, field) in fields {
+                    if self.finiteness_empty(field)? {
+                        return Ok(true);
+                    }
+                }
+                return Ok(false);
+            }
+            if let Some((domain, range)) = set.as_fcn_set() {
+                return Ok(!self.finiteness_empty(domain)? && self.finiteness_empty(range)?);
+            }
+        }
+        Ok(tlc::is_empty(value, self.ctx)?)
     }
 }
 
