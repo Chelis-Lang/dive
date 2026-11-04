@@ -25,6 +25,23 @@ mod graphs;
 mod higher;
 mod tlc;
 
+/// Argument positions whose established override contract consumes normalized
+/// set elements, rather than using or returning the original set receiver.
+pub(crate) fn normalized_set_argument(op: StdOp, index: usize) -> bool {
+    matches!(
+        (op, index),
+        (
+            StdOp::SequencesExtSetToSeq
+                | StdOp::SequencesExtSetToSeqs
+                | StdOp::TlcPermutations
+                | StdOp::BagsSetToBag
+                | StdOp::FiniteSetsExtQuantify,
+            0
+        ) | (StdOp::FiniteSetsExtFoldSet, 2)
+            | (StdOp::FunctionsFoldFunctionOnSet, 3)
+    )
+}
+
 /// Whether the core implements `op` here.
 #[must_use]
 pub fn implements(op: StdOp) -> bool {

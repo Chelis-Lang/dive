@@ -14,6 +14,8 @@ use crate::opts::Opts;
 use crate::plan::{Arith, Bind, Cmp, Code, LibArg, Node, P, Quant, SetOp, StdFn, Update};
 use crate::store::Store;
 
+#[path = "eval_product.rs"]
+mod product;
 #[path = "eval_work.rs"]
 mod work;
 
@@ -692,7 +694,7 @@ impl Machine {
                 Ok(self.heap.symbolic(Kind::Product, 0, &v))
             }
             Node::FcnSet(d, r) => {
-                let x = self.eval_norm(code, *d)?;
+                let x = self.eval_component(code, *d)?;
                 let y = self.eval(code, *r)?;
                 Ok(self.heap.symbolic(Kind::FcnSet, 0, &[x, y]))
             }
@@ -816,7 +818,7 @@ impl Machine {
                         | dive_ir::StdOp::TlcRandomElement
                 );
                 let mut a = Vec::with_capacity(args.len());
-                for &x in args {
+                for (index, &x) in args.iter().enumerate() {
                     a.push(if prints {
                         self.eval(code, x)?
                     } else if *op == dive_ir::StdOp::TlcMakeFcn {
@@ -826,10 +828,16 @@ impl Machine {
                         if self.heap.has_product_receiver(value)?
                             && !matches!(op.module(), "Graphs" | "UndirectedGraphs")
                         {
-                            return Err(Error::unsupported(format!(
-                                "{} consuming an unproved product receiver",
-                                op.qualified_name()
-                            )));
+                            if self.heap.kind(value) == Some(Kind::Product)
+                                && crate::stdlib::normalized_set_argument(*op, index)
+                            {
+                                self.finite_product(value)?;
+                            } else {
+                                return Err(Error::unsupported(format!(
+                                    "{} consuming an unproved product receiver",
+                                    op.qualified_name()
+                                )));
+                            }
                         }
                         self.work_norm(value)?
                     });
@@ -855,14 +863,20 @@ impl Machine {
             Node::LibHo(op, args) => {
                 self.check_finite_access(*op)?;
                 let mut a = Vec::with_capacity(args.len());
-                for x in args {
+                for (index, x) in args.iter().enumerate() {
                     a.push(match x {
                         LibArg::Value(p) => {
                             let value = self.eval_component(code, *p)?;
                             if self.heap.has_product_receiver(value)? {
-                                return Err(Error::unsupported(
-                                    "a higher-order library argument retaining an unproved product receiver",
-                                ));
+                                if self.heap.kind(value) == Some(Kind::Product)
+                                    && crate::stdlib::normalized_set_argument(*op, index)
+                                {
+                                    self.finite_product(value)?;
+                                } else {
+                                    return Err(Error::unsupported(
+                                        "a higher-order library argument retaining an unproved product receiver",
+                                    ));
+                                }
                             }
                             crate::stdlib::Ho::Value(self.work_norm(value)?)
                         }
@@ -1183,14 +1197,6 @@ impl Machine {
             return Err(eval_err("membership in a value that is not a set"));
         }
         let kind = self.heap.view(set).kind;
-        if kind == Kind::Product
-            && x.as_model_id().is_none()
-            && (!x.is_compound() || !self.heap.view(x).kind.is_fcn())
-        {
-            return Err(Error::unsupported(
-                "non-tuple membership in a product whose value-source error provenance is not proved",
-            ));
-        }
         if kind != Kind::Set
             && kind != Kind::Product
             && !self.opts.symbolic_member
@@ -2070,20 +2076,26 @@ impl Machine {
         mk_int(i64::try_from(v.data.len()).unwrap_or(i64::MAX))
     }
 
+    fn std_arg(&mut self, code: &Code, f: StdFn, index: usize, x: P) -> Result<Handle, Error> {
+        let value = self.eval_component(code, x)?;
+        let product = self.heap.kind(value) == Some(Kind::Product);
+        if (f == StdFn::Append && index == 1)
+            || (product && matches!(f, StdFn::Cardinality | StdFn::IsFiniteSet))
+        {
+            Ok(value)
+        } else if product {
+            Err(Error::unsupported(
+                "a standard operator consuming an unproved product receiver",
+            ))
+        } else {
+            self.work_norm(value)
+        }
+    }
+
     fn std(&mut self, code: &Code, f: StdFn, args: &[P]) -> Result<Handle, Error> {
         let mut a = Vec::with_capacity(args.len());
         for (index, &x) in args.iter().enumerate() {
-            let value = self.eval_component(code, x)?;
-            a.push(if f == StdFn::Append && index == 1 {
-                value
-            } else {
-                if self.heap.kind(value) == Some(Kind::Product) {
-                    return Err(Error::unsupported(
-                        "a standard operator consuming an unproved product receiver",
-                    ));
-                }
-                self.work_norm(value)?
-            });
+            a.push(self.std_arg(code, f, index, x)?);
         }
         let arg = |i: usize| {
             a.get(i)
@@ -2138,6 +2150,9 @@ impl Machine {
             }
             StdFn::Cardinality => {
                 let s = arg(0)?;
+                if self.heap.kind(s) == Some(Kind::Product) {
+                    return self.product_cardinality(s);
+                }
                 let kind = self.heap.kind(s);
                 match kind {
                     // Not enumerable in TLC.
@@ -2159,6 +2174,10 @@ impl Machine {
             }
             StdFn::IsFiniteSet => {
                 let s = arg(0)?;
+                if self.heap.kind(s) == Some(Kind::Product) {
+                    self.finite_product(s)?;
+                    return Ok(Handle::TRUE);
+                }
                 Ok(Handle::bool(self.heap.is_finite(s)))
             }
             StdFn::EmptyBag
@@ -2256,8 +2275,8 @@ mod tests {
                 let ordinary = m.heap.empty_set();
                 assert_eq!(m.member(zero, ordinary), Ok(false));
                 let error = m.member(zero, product).unwrap_err();
-                assert_eq!(error.kind(), crate::ErrorKind::Unsupported);
-                assert!(error.message().contains("non-tuple membership"));
+                assert_eq!(error.kind(), crate::ErrorKind::Eval);
+                assert!(error.message().contains("not a function"));
                 assert!(m.demand_equals(record, record).is_err());
                 assert_eq!(m.heap.view(record).values(), &[product]);
                 assert!(!m.heap.poisoned());

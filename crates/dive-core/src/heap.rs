@@ -689,6 +689,11 @@ impl Heap {
         Ok(handle)
     }
 
+    /// Whether this exact handle has an existing Arena-owned literal phase.
+    pub(crate) fn owns_local_literal(&self, h: Handle) -> bool {
+        self.local_literal_index(h).is_some()
+    }
+
     fn local_literal_index(&self, h: Handle) -> Option<usize> {
         if self.arena.literal_sets.is_empty() || !h.is_transient() {
             return None;

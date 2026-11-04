@@ -423,8 +423,21 @@ to the actual Product kind; it grants no literal or history ownership. Record,
 tuple, function, EXCEPT, `Append` and `:>` value components preserve that receiver.
 Unproved compound comparison, collection keys, state handoff and other operator
 consumers refuse. Product construction is history-sensitive for folding, memo
-sites and parent skips. Non-tuple error-source provenance remains unsupported;
-the pinned `product-receivers` facts do not establish native error parity (#768).
+sites and parent skips. Non-tuple membership follows the existing evaluation-error
+path; source provenance remains unverified, so the pinned `product-receivers`
+facts do not establish native error parity (#768).
+
+Scalar Product consumers have operation-specific admission. `IsFiniteSet` reads a
+complete finite factor tree without normalization. `Cardinality` follows the
+source `isEmpty` and `size` demand order, including function-domain and singleton-
+range short circuits, and normalizes an owned explicit axis only when its size is
+demanded. Admission covers explicit sets, bounded intervals, powersets, function
+sets, record sets and nested products; it checks every factor, local literal
+ownership, depth, work budget and signed 32-bit size bounds. It never replaces the
+original Product. Established library argument positions that consume normalized
+set enumeration use a separate projection after this admission. The existing
+singleton-UNION constructor lowering also recognizes Cartesian products; generic
+set elements containing Product receivers remain guarded.
 
 TLC distinguishes how a set is represented, and the distinction is observable:
 

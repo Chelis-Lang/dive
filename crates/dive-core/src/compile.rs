@@ -3620,6 +3620,7 @@ impl Compiler<'_> {
             &self.ir.node(*item).expr,
             Expr::FcnSet { .. }
                 | Expr::RecordSet(_)
+                | Expr::Cartesian(_)
                 | Expr::Builtin {
                     op: BuiltinOp::PowerSet | BuiltinOp::Times,
                     ..

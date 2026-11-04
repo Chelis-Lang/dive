@@ -90,15 +90,27 @@ dive check conformance/corpus/graph-empty-product/specifications/LazyEmptyProduc
 Empty enumeration does not turn the original Product into an ordinary empty-set
 receiver. For example, TLC still rejects `0 \in ((1..0) \X (0..0))` as non-tuple
 membership. Core preserves that receiver through records, tuples, function values,
-EXCEPT, `Append` and `:>` values. It returns named `unsupported`/exit 3 for this
-unproved source-error case, including after graph conversion. Nested product
-comparisons, set elements, function keys, state handoff and other unproved
-operator consumers also retain explicit refusals; an empty projection grants no
-receiver or history authority. This checked receiver control refuses on Core in
-both profiles:
+EXCEPT, `Append` and `:>` values. Non-tuple membership retains the demanded
+evaluation error, including after graph conversion. It agrees with Reference's
+exit convention (75); its TLC source classification remains unverified and earns
+no native error parity credit. Nested product comparisons, general set elements,
+function keys, state handoff and other unproved operator consumers retain explicit
+refusals. This checked receiver control errors on Core in both profiles:
 
 ```sh
 dive check conformance/corpus/product-receivers/specifications/BaseValidIntervals/BaseValidIntervals.tla --library-path crates/dive-eval/tests/fixtures/community-modules --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+```
+
+`Cardinality` and `IsFiniteSet` accept complete concrete finite Product factor
+trees: owned explicit sets, bounded intervals, powersets, function sets, record
+sets and nested products. Finiteness checks do not normalize axes. Cardinality
+follows the source empty-axis, empty-function-domain and singleton-range short
+circuits, and normalizes only demanded explicit-set sizes. The original Product
+remains available for later receiver checks. Unknown factors and sizes beyond the
+proved signed 32-bit range retain named refusals. For example:
+
+```sh
+dive check conformance/corpus/product-operations/specifications/OrdinaryProductCardinality/OrdinaryProductCardinality.tla --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
 ```
 
 This state-dependent example exercises every override on Core:

@@ -62,17 +62,14 @@ fn empty_products_keep_their_non_tuple_membership_demand() {
             for switches in ["", "-fold", "-memo", "-hashcons", "-symbolic-member"] {
                 let core = check_file_core_opts(&req, switches).expect("Core run");
                 let doc = core.to_json();
+                let expected = reference.to_json();
                 assert_eq!(
-                    doc["verdict"], "unsupported",
+                    doc["verdict"], expected["verdict"],
                     "{name}/{compat_tlc}/{switches}: {doc}"
                 );
-                assert_eq!(core.exit_code_for(ExitConvention::Tlc), 3);
-                assert!(
-                    doc["message"]
-                        .as_str()
-                        .is_some_and(|s| s.contains("non-tuple membership in a product")),
-                    "{doc}"
-                );
+                assert_eq!(core.exit_code_for(ExitConvention::Tlc), 75);
+                assert_eq!(doc["tlc"], expected["tlc"]);
+                assert_eq!(doc["message"], expected["message"]);
             }
         }
     }

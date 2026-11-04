@@ -7,9 +7,12 @@
   and tuple components. Keep demanded mixed comparisons and unproved conversions
   guarded.
   Preserve the original Product receiver through record, tuple, function, EXCEPT,
-  `Append` and `:>` value components. Refuse unproved non-tuple membership and
-  consumers instead of reporting false success from an extensional empty-set
-  replacement (#768).
+  `Append` and `:>` value components. Preserve demanded non-tuple membership
+  errors instead of reporting false success from an extensional empty-set
+  replacement (#768); their native TLC source classification remains unverified.
+  Restore `Cardinality` and `IsFiniteSet` for complete concrete finite Product
+  factor trees, plus established singleton-UNION and normalized library-set
+  consumers, while retaining the original receiver and axis normalization order.
 
 - Add explicit PlusCal `translate --write` and Rust preparation/publication APIs,
   publishing admitted modules, exact `.old` backups and delimiter-merged `.cfg`
