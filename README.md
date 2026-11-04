@@ -9,11 +9,11 @@ The standard is an **unimpeachably sound port**. Every result is verified contin
 > PlusCal translation are implemented. Reference remains the default engine.
 > The optional Core engine adds compiled execution, exact and disk membership,
 > spill and owned safety checkpoint/recovery. Features outside the proved scope
-> return named refusals. The family inventory remains **8 implemented / 27
-> partial / 3 missing**; M1/M2, broad performance and RC acceptance remain open.
+> return named refusals. The family inventory is **8 implemented / 28
+> partial / 2 missing**; M1/M2, broad performance and RC acceptance remain open.
 > See [current status](docs/developer/core/m1-status.md), the
 > [roadmap](docs/ROADMAP.md) and the
-> [Phase 6 record](conformance/reports/core/2026-11-02-phase6-checkpoint.json).
+> [Phase 7 record](conformance/reports/core/2026-11-03-phase7-checkpoint.json).
 
 Compiled safety simulation and DFID are available with `--engine core` in both
 profiles, using one actual worker. `--engine auto` chooses a whole backend before
@@ -23,8 +23,9 @@ DFID proves safety only with a completion certificate. Configured simulation VIE
 refuses before execution. See [simulation](docs/user/simulation.md) and
 [DFID](docs/user/dfid.md).
 
-Core safety BFS supports exact membership, frontier/predecessor spill and opt-in
-disk membership. Completed-level checkpoints preserve owned representations,
+Core safety BFS supports exact membership, owned candidate payload spill,
+frontier/predecessor spill and opt-in disk membership. Completed-level
+checkpoints preserve owned representations,
 construction history and the ordered frontier for identity-checked recovery in a
 fresh process. Auto pauses on Reference and recovers with the encoded backend;
 disk membership uses one actual worker. Component budgets and archive bounds do
@@ -34,7 +35,9 @@ remain open. See [storage and recovery](docs/user/storage-recovery.md).
 Constructive generation is available through `simulate --generate` and the finite
 TLC `-generate num=N` transport. Retained samples require independent Init/Next,
 constraint and safety-property proof. Sampling proves neither exhaustive safety
-nor liveness. General RandomElement relations and broader effects remain open.
+nor liveness. Reference simulation also reconstructs bounded finite random-source
+relations across startup, Init and Next. General randomization and broader
+effects remain open.
 The `dive tlc` and installed `tlc` adapters accept common checking flags, finite
 simulation/generation options and module/configuration basenames. See the
 [checking guide](docs/user/checking.md#tlc-checking-entrypoints) and
@@ -53,15 +56,24 @@ work at original source locations through one Reference worker. These counters
 are separate from TLC logical costs and model proof; TLC `-coverage`, Core source
 maps and debugging remain unfinished. See [native source work](docs/user/checking.md#native-source-work).
 
-Phase 6's runtime changes are merged at `ee79de82`. **The source-bound full gate passed, and the retained census and Auto panels are closed with refusals and registered differences reported separately.**
-The scalar-fold experiment stays unmerged after its control panel triggered the
-stop criterion. Its initial GameOfLife improvement gives current main no
-performance credit; whole-panel quiet certification also failed. See
-[ADR 0140](docs/decisions/0140-certified-scalar-fold-reuse.md) and the
-[performance record](conformance/reports/perf/2026-11-02-phase6-scalar-specialization.json).
-Remaining mandatory v1 work includes broader language/effects/host services,
-coverage/debugger, storage/distribution, full PlusCal/public APIs and
-platform/deep/performance/RC acceptance.
+Phase 7's eight implementation PRs are merged at `20ee7f75`, tree `b6625ae5`.
+The November 4 replacement passes the full gate (3,246 tests and 201 doctests);
+its source-bound archive is downloaded and verified member by member before
+worker termination. The retained census has unchanged outcomes, and one
+previous fallback agreement now executes on Core. The first attempt remains
+rejected for evidence preservation after an archive failure and early worker
+termination ([#763](https://github.com/Chelis-Lang/dive/issues/763)); the
+replacement is a separately dated run and does not reconstruct that lost bundle.
+Explicit category grants enable bounded startup environment/text inputs and
+offline replay through Reference; runtime reads, writes, exec and broader
+backend combinations remain refused. See [host inputs](docs/user/modules.md).
+The comparison-summary prototype remains unadopted after missing its performance
+screen; no code, flag, default change or rescue ships. See
+[ADR 0147](docs/decisions/0147-demanded-comparison-summaries.md).
+Remaining mandatory v1 work includes broader language/modes/effects, real
+coverage/Core source maps and full DAP, accepted Store/Arena and temporal
+paging/recovery, distributed safety, full PlusCal/public APIs and
+Linux/deep/performance/RC acceptance before the macOS final mile.
 
 ## Documentation
 

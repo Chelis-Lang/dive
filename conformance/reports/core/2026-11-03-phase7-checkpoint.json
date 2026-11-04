@@ -1,0 +1,655 @@
+{
+  "schema_version": 1,
+  "phase": 7,
+  "state": "bounded-delivery-qualified",
+  "release_candidate": false,
+  "reference_default": true,
+  "implementation_prs": [
+    747,
+    748,
+    750,
+    752,
+    753,
+    755,
+    759,
+    762
+  ],
+  "family_inventory": {
+    "implemented": 8,
+    "partial": 28,
+    "missing": 2
+  },
+  "historical_recheck": {
+    "source": "ee79de8295d1d9c73324b2322491ecf77485729d",
+    "tree": "14f02996e2fd26f1168a8a4177706c803eb8d50f",
+    "archive_sha256": "85c52de97f870116df7328c99dd2eecf0b306ea672ee9118b5af2ef5ebc596d7",
+    "all_archive_members_reverified": 34136,
+    "original_producer_record": "conformance/reports/core/2026-11-02-phase6-checkpoint.json",
+    "original_producer_sha256_unchanged": "1b70cb579bc512596c3c0207508349e8846293b5eafcda8c00150e16a9848dcc",
+    "original_producer_already_correct": true,
+    "raw_physical_census_exit": 0,
+    "old_and_current_stop_mix": {
+      "time_exit5": 13,
+      "memory_exit5": 2,
+      "resource_limit_exit3": 2
+    },
+    "preparation_note_correction": {
+      "kind": "correction to author preparation prose, no source/controller/model-result change",
+      "recorded_utc": "2026-11-03T16:43:38.112768+00:00",
+      "source_of_error": "qualification/README.md final paragraph; subsequent current comparison annotation repeated that attribution",
+      "erroneous_readme_sha256": "3b647be3c919967d4b528e288afdbd6db8068473fefc7bde338280c322370654",
+      "corrected_current_readme_sha256": "154088beb7b1f30b0c04247dee8ab35ece8ca226b53208dae7283b63e7fbed6f",
+      "erroneous_claim": "Phase6 census physical exit1",
+      "actual_original_census_exit": 0,
+      "actual_current_census_exit": 0,
+      "original_phase6_producer_json_was_correct": true,
+      "historical_source": "ee79de8295d1d9c73324b2322491ecf77485729d",
+      "historical_tree": "14f02996e2fd26f1168a8a4177706c803eb8d50f",
+      "original_archive_sha256": "85c52de97f870116df7328c99dd2eecf0b306ea672ee9118b5af2ef5ebc596d7",
+      "authoritative_original_members": {
+        "reports/phase6-populations/census/census.json": {
+          "sha256": "ac676d71d753a66a3c20477937e81f47f71ad2cfe12eb19cc010980b00821142",
+          "observed_exits": {
+            "harness_exits": [
+              0,
+              0
+            ]
+          }
+        },
+        "reports/phase6-populations/census.accounting.json": {
+          "sha256": "432a7511deac979402e7d526fd5a1cfa41e2bd8d297329025f55bef31752bb9a",
+          "observed_exits": {
+            "physical_stage_exit": 0
+          }
+        },
+        "reports/phase6-populations/census.receipt.json": {
+          "sha256": "98213488490214109448fe3f25892e2165a9b5be897e34840d5f2887ff9ee353",
+          "observed_exits": {
+            "exit": 0
+          }
+        }
+      },
+      "original_launched_payload_unchanged": true,
+      "launched_payload_sha256": "6e0c12666e7d7f1de9e80794c70dd1c5024bec9eef7c24395564dc6bc0ede785",
+      "native_stops_and_refusals_unchanged_by_correction": true
+    }
+  },
+  "not_repeated": [
+    "Phase5 actual-Core full-tier (141 strict TLC Core agreements, 60-second diagnostic)",
+    "Phase5 PlusCal 149-input/59-configuration panels",
+    "original 12-cell temporal capacity",
+    "formal five-repeat stock-TLC performance campaign"
+  ],
+  "performance_record": "conformance/reports/perf/2026-11-03-phase7-demanded-summaries.json",
+  "global_performance_accepted": false,
+  "total_process_memory_bound": false,
+  "local_cleanup": {
+    "tranches": [
+      {
+        "receipt": "cleanup/summary.json",
+        "sha256": "0b20c51477bec8be7745695ed3a02ba2bad5468c264ce6176170448eb8f920b3",
+        "logical_bytes_removed": 43616239351
+      },
+      {
+        "receipt": "cleanup/tranche-755-759-20261103T154646Z.json",
+        "sha256": "96f6afd28c0e5ed121acad07215e83e4d3d2e97ba81f09da16fe51da26900c28",
+        "logical_bytes_removed": 7913326685
+      },
+      {
+        "receipt": "cleanup/feature-raw-tranche-20261103T163306Z.json",
+        "sha256": "40352eaa2d1dfba7efe2b0b11fd78275a4ec0a87714da6eae1adf5022136ca39",
+        "logical_bytes_removed": 34505599051
+      }
+    ],
+    "logical_bytes_removed_total": 86035165087,
+    "exclusive_physical_reclaim_claimed": false,
+    "reason": "Shared extents and concurrent activity prevent exclusive physical reclaim attribution."
+  },
+  "performance_resource_absence_observation": {
+    "observed_utc": "2026-11-03T16:49:56.523692+00:00",
+    "source": "88a5845a05c676adcca2a1e5fc0274388ca3f906",
+    "instance": "i-0707e1c55caf3b934",
+    "exact_instance_query_exit": 0,
+    "matching_instances": [],
+    "source_task_tagged_volume_query_exit": 0,
+    "matching_volumes": [],
+    "sha256": "91287d223da30799e6b860a74976cc303cf4c2190aae620045dd6d5d70834e0f",
+    "original_shutting_down_receipt_preserved": true,
+    "unrelated_resources_changed": false
+  },
+  "integrated_main_ci": {
+    "run_id": 41671794413,
+    "source": "20ee7f75ac815cb2d983b96af6814dc2c4c4f30b",
+    "conclusion": "success",
+    "url": "https://github.com/Chelis-Lang/dive/actions/runs/41671794413",
+    "required_jobs": {
+      "Workspace gate": "success",
+      "Conformance gate": "success",
+      "No AI authorship markers": "success"
+    },
+    "scope": "Integrated-main required CI, separate from the dated full-gate attempts."
+  },
+  "implementation_merge_commits": {
+    "747": "2be62e211d548760140bbc024fdd2fd015d67368",
+    "748": "851b2fb5a2045498fff60d372bfa6888d19fb176",
+    "750": "b34d6836cb77c1d18016f8d5b2f7288be5ac7fee",
+    "752": "6f31743c7dc374e717260f0ad5a1174972934f69",
+    "753": "49188584cf8a43af3bdb9fc8659af3fd3f286c8c",
+    "755": "21e04fefc14bd88858ed1525f14c41685a7b67db",
+    "759": "ba9d15c2bca5967a91eebc9dd3b2b714444bbf40",
+    "762": "20ee7f75ac815cb2d983b96af6814dc2c4c4f30b"
+  },
+  "updated_utc": "2026-11-04T14:50:49.416850+00:00",
+  "integrated_runtime_source": "20ee7f75ac815cb2d983b96af6814dc2c4c4f30b",
+  "integrated_runtime_tree": "b6625ae57bb38416cc34b565599f116c5616e8d5",
+  "pre_loss_source_binding_observations": {
+    "binary_sha256": {
+      "dive": "f185880527f8085970164f5bc5198f648d6c2903690c079ff1109cc4000b58d6",
+      "dive-conformance": "564c3c7e5a158c707de73d3e5899bbf5a4fee132f4731662238a3a07bbff0c36",
+      "xtask": "b4f50ea6c9f85cb62a7e60eaa4cbbadcea28210f433bbef1c26bce7bf931cd49"
+    },
+    "fullgate_launch_count": 1,
+    "original_input_paths_unchanged": 9561,
+    "original_input_blobs_verified": 7714,
+    "retained_selection_sha256": "9d74060539f15ed25d9e68b5059caad8ee575818d8e4f3dcf08f453455c2cce1",
+    "additional_fixture_configurations": 31,
+    "additional_fixtures_in_retained_census": false
+  },
+  "pre_loss_census_observations": {
+    "scope": "Core/Reference shadow, not fresh pinned-TLC parity",
+    "physical_exit": 0,
+    "rows_per_profile": 1520,
+    "parser_exclusions": 99,
+    "ambiguous_skips": 18,
+    "default": {
+      "agree": 1222,
+      "refused": 290,
+      "budget_stops_harness_timeout": 8,
+      "unconfirmed": 0
+    },
+    "tlc": {
+      "agree": 1195,
+      "refused": 318,
+      "budget_stops_harness_timeout": 7,
+      "unconfirmed": 0
+    },
+    "raw_attempts": 5457,
+    "physical_exit_receipts": 5457,
+    "physical_budget_stops_exit5": {
+      "time": 13,
+      "memory": 2
+    },
+    "resource_limit_refusals_exit3": 2,
+    "historical_ids_joined": 3040,
+    "id_status_or_required_trace_field_changes": 0,
+    "per_id_join_sha256": "93a6527ad7d48268af89cfdfca798b0533ac755dbd1308b5a465a5b14a79d2af",
+    "policy": {
+      "workers": 1,
+      "jobs": 2,
+      "time_seconds": 20,
+      "native_memory_bytes": 3221225472,
+      "successor_sample": 32
+    }
+  },
+  "pre_loss_auto_observations": {
+    "auto-tlc": {
+      "physical_exit": 0,
+      "same_model_id_set": true,
+      "models": {
+        "agree": 150,
+        "unsupported": 6
+      },
+      "modules": {
+        "agree": 458
+      },
+      "canonical_engine_runs": {
+        "core": 125,
+        "static-fallback": 20,
+        "none": 8,
+        "dynamic-fallback": 3
+      },
+      "actual_core_strict": 125,
+      "actual_core_expected_divergences": 0,
+      "native_invocations": 156,
+      "raw_top_level_engine_reports": {
+        "core": 125,
+        "reference": 29,
+        "absent": 2
+      },
+      "canonical_none_means": "unattributed after canonical mapping, not raw processes without engine metadata"
+    },
+    "auto-dive": {
+      "physical_exit": 0,
+      "same_model_id_set": true,
+      "models": {
+        "agree": 144,
+        "expected-divergence": 7,
+        "unsupported": 5
+      },
+      "modules": {},
+      "canonical_engine_runs": {
+        "core": 125,
+        "static-fallback": 21,
+        "none": 7,
+        "dynamic-fallback": 3
+      },
+      "actual_core_strict": 121,
+      "actual_core_expected_divergences": 4,
+      "native_invocations": 156,
+      "raw_top_level_engine_reports": {
+        "core": 125,
+        "reference": 29,
+        "absent": 2
+      },
+      "canonical_none_means": "unattributed after canonical mapping, not raw processes without engine metadata"
+    },
+    "comparison": {
+      "model_ids_per_profile": 156,
+      "TLC_sany_modules": 458,
+      "semantic_observable_changes": 0,
+      "only_canonical_route_change": "examples:specifications/YoYo/YoYoAllGraphs.cfg",
+      "before": "agree via static Reference fallback",
+      "after": "agree via Core in both profiles",
+      "distinct": 26731,
+      "generated": 48535,
+      "depth": 39,
+      "audit_sha256": "e520eb253640db9024282fd7cd022505b135249769519b10b265c75bb828bb77"
+    }
+  },
+  "complete_runtime_archive_verified": true,
+  "qualification_closeout_accepted": true,
+  "failed_attempts": [
+    {
+      "date": "2026-11-03",
+      "source": "20ee7f75ac815cb2d983b96af6814dc2c4c4f30b",
+      "tree": "b6625ae57bb38416cc34b565599f116c5616e8d5",
+      "decision": "reject",
+      "scope": "first-attempt qualification closeout and preservation; not a model/test failure",
+      "issue": "https://github.com/Chelis-Lang/dive/issues/763",
+      "audit_sha256": "03833a137d8a6c33859fd155623059500a165d7433f8c077dc099095db93a489",
+      "findings": [
+        {
+          "severity": "critical",
+          "id": "Q1",
+          "finding": "finish() uses a controlled PATH omitting /usr/sbin and invokes bare runuser. The observed rescue fails there before archiving; normal finish uses the same cleanup path.",
+          "evidence": "SSM fb936123-84c9-4178-a4f7-05ce9bab9b5f stderr, remote.py line 188."
+        },
+        {
+          "severity": "critical",
+          "id": "Q2",
+          "finding": "Monitor finally terminates the instance regardless of archive verification, destroying the remaining node evidence after rescue failed.",
+          "evidence": "qualification.py lines 178 and 200-215; instance terminated and exact EBS volume absent."
+        },
+        {
+          "severity": "high",
+          "id": "Q3",
+          "finding": "No complete node archive/member manifest, complete final gate report, final gate receipt, or postflight source/ELF/cleanup proof survives in the observed stores. Qualification closeout is unaccepted."
+        }
+      ],
+      "surviving_gate_observations": {
+        "wrapper_physical_exit_observed": 0,
+        "wrapper_ended_utc": "2026-11-03T17:11:29.618634+00:00",
+        "complete_gate_report_recovered": false,
+        "final_gate_receipt_recovered": false,
+        "final_postflight_source_clean_proof_recovered": false,
+        "nextest_summary_line": "Summary [ 683.854s] 3246 tests run: 3246 passed (6 slow), 6 skipped",
+        "nextest_summary_SSM": "d1b9db49-4e67-442a-9612-2d98f77c5749",
+        "doctest_reader_aggregate": {
+          "passed": 201,
+          "failed": 0,
+          "ignored": 0,
+          "SSM": "87115a98-5a7a-42d0-9dcb-96a1270e6698",
+          "full_raw_doctest_lines_recovered": false
+        }
+      },
+      "surviving_SSM_commands": 291,
+      "decoded_SSM_outputs": 287,
+      "complete_final_gate_report_available": false,
+      "raw_node_archive_available": false,
+      "limits": [
+        "Census/Auto raw JSON streams were read, validator fields and word presence were counted, and final ELFs were hashed before termination. Complete raw streams, concrete words and ELF byte copies were not preserved locally; surviving reports are observational/derived evidence, not a verified terminal archive.",
+        "The preparation README physical-exit-1 statement is a misattribution. Original Phase 6 archived census receipts record 0; original committed producer JSON correctly records 15 exit-5 stops plus 2 resource refusals and is not rewritten.",
+        "No full gate acceptance is inferred from wrapper 0; no performance, M1/M2 or RC acceptance follows.",
+        "No model/gate rerun, new node, source edit, public post or cleanup mutation was performed by this reviewer."
+      ]
+    }
+  ],
+  "reviewed_runner_repair": {
+    "decision": "approve",
+    "scope": "minimal recovery runner, local fake-only controls; no launch authorization and no qualification result acceptance",
+    "review_sha256": "d69eb9adf6ac33da755ab8dfb0528b47e392a77009717d59c355c692f6ce9187",
+    "driver_sha256": "267bb3bf0d3d82d6577359414e09572f2f549277227c1760f74c574d55eeb53a",
+    "remote_sha256": "347c99e95f09164fdb655698fedabb87c1a4f18d782acfc6df03d86d86f9bbd1",
+    "payload_sha256": "5f7af7007024805c416105591eb24049c988b9dc811b93ca3f9790e7c679058f",
+    "original_payload_members_verified": 7732,
+    "local_fake_controls": {
+      "producer": 11,
+      "independent_faults": 8,
+      "independent_deadline_faults": 4,
+      "total": 23
+    },
+    "real_AWS_mutations_in_review": 0,
+    "original_review_deadline_has_expired": true,
+    "launch_or_qualification_acceptance_inferred": false
+  },
+  "replacement": {
+    "attempt_id": "phase7-capture-20261104",
+    "date": "2026-11-04",
+    "source": "20ee7f75ac815cb2d983b96af6814dc2c4c4f30b",
+    "tree": "b6625ae57bb38416cc34b565599f116c5616e8d5",
+    "separate_from_failed_attempt": true,
+    "fullgate_launch_count": 1,
+    "same_total_milestone_budget_usd": 40,
+    "launch_utc": "2026-11-04T12:40:11+00:00",
+    "deadline_utc": "2026-11-04T15:38:52+00:00",
+    "producer_completion_sha256": "8ee0afe08b42f8f10fb4e2905548b2e87566759f25cd37a67a4fea42d34ca784",
+    "physical_ledger_sha256": "345a6e6234a34106a8151cb45e204f38744df347234df84db1746aa67fd85b6b",
+    "date_window_review_sha256": "e1c957b9744fbdba5910cf17876ff3ba6d9f4758250113cba1fedd9c46873115",
+    "unchanged_repair_controls_reused": 23,
+    "affected_date_deadline_controls_passed": 14,
+    "binary_sha256": {
+      "dive": "e5598c20afcbee9eb2a470f8519a2cacaee92e6cc37f82a413f655dad7141520",
+      "dive-conformance": "564c3c7e5a158c707de73d3e5899bbf5a4fee132f4731662238a3a07bbff0c36",
+      "xtask": "b4f50ea6c9f85cb62a7e60eaa4cbbadcea28210f433bbef1c26bce7bf931cd49"
+    },
+    "same_frozen_binaries_in_census_auto_and_gate": true,
+    "actual_gate_release_matches_frozen": true,
+    "source_tree_clean_before_after_and_postflight": true,
+    "original_source_blobs_verified": 7714,
+    "retained_selection_sha256": "9d74060539f15ed25d9e68b5059caad8ee575818d8e4f3dcf08f453455c2cce1",
+    "additional_fixture_configurations_outside_retained_selection": 31,
+    "additional_fixture_rows_executed_in_retained_census": false,
+    "launch_visibility": {
+      "initial_launcher_read": "InvalidInstanceID.NotFound",
+      "same_instance_read_only_retry_resolved": true,
+      "accepted_instance_creations": 1,
+      "model_or_gate_retries_due_to_visibility": 0,
+      "authoritative_observation": "launch-safeguards.json"
+    },
+    "archive": {
+      "source": "20ee7f75ac815cb2d983b96af6814dc2c4c4f30b",
+      "tree": "b6625ae57bb38416cc34b565599f116c5616e8d5",
+      "sha256": "11936afc9720ab42c534c9f6d93f431b05bd30ba3d2fe14577341de44edcb4aa",
+      "bytes": 88626924,
+      "members": 41533,
+      "manifest_sha256": "9f03d8990ed8ccc2379b1ba8ef4fc4991c1850300a0c18fad536e3179324af40",
+      "downloaded": true,
+      "every_member_hash_verified": true,
+      "no_credentials_or_cargo_targets": true,
+      "verified_utc": "2026-11-04T13:36:11.690497+00:00",
+      "s3_bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "s3_key": "phase7-20261103/qualification-20ee7f75-capture-20261104-node-evidence.tar.gz",
+      "instance_id": "i-04b3fcb811ae34432"
+    },
+    "independent_archive_verification_sha256": "1e87729963d1ee880f31b09dc01f189b2cd71b2bd86b767f72d547ddf1237dcd",
+    "archive_regular_payload_files": 41532,
+    "termination": {
+      "instance_id": "i-04b3fcb811ae34432",
+      "state": "terminated",
+      "ebs_volumes": {
+        "vol-08080cbdbeff1b71d": "absent"
+      },
+      "all_ebs_absent": true,
+      "checked_utc": "2026-11-04T13:36:40.738862+00:00"
+    },
+    "verified_archive_precedes_termination": true,
+    "terminal_audit_sha256": "b8ecb8f8129a597d443f16f89a26529f6b2a08220d8c6c9d2ebd9f6f263a7802",
+    "terminal_checks_passed": 12521,
+    "terminal_checks_failed": 0,
+    "independent_terminal_and_word_checks_passed": true
+  },
+  "forensic_local_survivor_archives": [
+    {
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "phase7-20261103/recovery/local-survivors-20261103T172724Z-cc7d9224ef0b5c78.tar.gz",
+      "archive_sha256": "cc7d9224ef0b5c7814eecda736f9e3b230abe7c9c39a8547900ecc281530cf0a",
+      "archive_bytes": 4301588,
+      "manifest_sha256": "b39199ca132c6ae1383683050b20a61c54a6fe0106d14c5276b38cf6a5eef1cc",
+      "regular_members": 80,
+      "receipt_key": "phase7-20261103/recovery/local-survivors-20261103T172724Z-cc7d9224ef0b5c78.receipt.json",
+      "receipt_sha256": "2591e095d4f205ab0c31b3939805de6e10fad266631582933b44d7e5042cf5c4",
+      "fresh_download_all_members_verified": true,
+      "source_mtime_before_after_recorded": true,
+      "credential_exclusions": 0,
+      "scope": "Only captured local survivors; not a replacement for missing node evidence.",
+      "full_qualification_recovered": false
+    },
+    {
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "phase7-20261103/recovery/local-survivors-addendum-20261104T122321Z-15b3332a2a3bd8d6.tar.gz",
+      "archive_sha256": "15b3332a2a3bd8d69808b3ef51c3278338bb077d215537c343c1a0a1eab696d8",
+      "archive_bytes": 2839621,
+      "manifest_sha256": "e24c1e0f500c8cbb7fd7946ca26fcba7c93a9cee04279922d12a7712b1ba938a",
+      "regular_members": 24,
+      "receipt_key": "phase7-20261103/recovery/local-survivors-addendum-20261104T122321Z-15b3332a2a3bd8d6.receipt.json",
+      "receipt_sha256": "31b3af0c62a94a554d9f81f6b6f5a2cfb5eaa9bb56ba4456ef72fd9862cf6969",
+      "fresh_download_all_members_verified": true,
+      "source_mtime_before_after_recorded": true,
+      "credential_exclusions": 0,
+      "scope": "Later new/changed local survivor versions only; original forensic archive unchanged; missing node evidence is not restored.",
+      "full_qualification_recovered": false
+    }
+  ],
+  "milestone_fullgate_attempts": 2,
+  "full_gate": {
+    "command": "cargo xtask gate --full",
+    "physical_exit": 0,
+    "source": "20ee7f75ac815cb2d983b96af6814dc2c4c4f30b",
+    "tree": "b6625ae57bb38416cc34b565599f116c5616e8d5",
+    "report_sha256": "c273d76fdb7518d1c23164c182d298212d21455b14daee82f103cfcea3b95912",
+    "report_bytes": 1669,
+    "report_clock": "52m18s",
+    "steps_passed": 16,
+    "steps_skipped": {
+      "cargo-deny": "Cargo.lock and deny.toml unchanged"
+    },
+    "nextest": {
+      "passed": 3246,
+      "skipped": 6,
+      "slow_executed": 7,
+      "runner_seconds": 700.35
+    },
+    "doctests": {
+      "passed": 201,
+      "failed": 0,
+      "ignored": 0
+    },
+    "standalone_trace_build": "pass",
+    "external_rust_consumer_empty_PATH": "pass",
+    "reference_cm1_models": 21,
+    "reference_validation_models": 16,
+    "reference_gate_worker_widths": [
+      1,
+      4,
+      8
+    ],
+    "shadow_cm1": {
+      "agree": 57,
+      "refused": 6,
+      "rows": 63,
+      "worker_widths": [
+        1,
+        4,
+        8
+      ]
+    },
+    "shadow_small": {
+      "agree": 252,
+      "refused": 60,
+      "rows": 312,
+      "worker_widths": [
+        1,
+        4
+      ]
+    },
+    "standard_gate_child_words_retained": false,
+    "fresh_postrun_word_replay_claimed": false,
+    "scope": "Standard full gate; its progress and summaries are retained. Raw census/Auto streams and words are preserved separately."
+  },
+  "census": {
+    "scope": "Core/Reference shadow, not fresh pinned-TLC parity",
+    "physical_exit": 0,
+    "rows_per_profile": 1520,
+    "parser_exclusions": 99,
+    "ambiguous_skips": 18,
+    "default": {
+      "agree": 1222,
+      "refused": 290,
+      "budget_stops_harness_timeout": 8,
+      "unconfirmed": 0
+    },
+    "tlc": {
+      "agree": 1195,
+      "refused": 318,
+      "budget_stops_harness_timeout": 7,
+      "unconfirmed": 0
+    },
+    "raw_attempts": 5457,
+    "physical_exit_receipts": 5457,
+    "raw_stdout_json": 5457,
+    "raw_stderr_present": 5457,
+    "physical_budget_stops_exit5": {
+      "time": 13,
+      "memory": 2
+    },
+    "resource_limit_refusals_exit3": 2,
+    "historical_ids_joined": 3040,
+    "missing_or_extra_ids": false,
+    "id_status_verdict_or_required_trace_field_changes": 0,
+    "actual_reported_Core_agreements": {
+      "default": 1201,
+      "tlc": 1174
+    },
+    "agree_rows_without_reported_engine": {
+      "default": 21,
+      "tlc": 21
+    },
+    "harness_validated_Core_words": {
+      "default": 418,
+      "tlc": 419
+    },
+    "policy": {
+      "workers": 1,
+      "jobs": 2,
+      "time_seconds": 20,
+      "native_memory_bytes": 3221225472,
+      "successor_sample": 32
+    },
+    "per_profile_report_sha256": {
+      "default": "de44a400539fcdd4d672bf59b3ba106c5180cca6f9397e8c54d4619a248f0922",
+      "tlc": "4b9d42d74c0d441f8057e8cce3fc0b0112c74ace22cbbf2aacea480c7c19393d"
+    },
+    "per_profile_id_join_sha256": {
+      "default": "90dc66fbd16f08562d3daa177cedaa7821dae99ad07344cdfd9aa7284fb5925b",
+      "tlc": "0316fac08d6c1aa27008fbfb98111a8999b03418772d645721d9345246194f12"
+    },
+    "baseline_comparison": "Original Phase6 archived producer outcomes; unchanged required result fields, not literal witness-byte equality."
+  },
+  "auto": {
+    "auto-tlc": {
+      "physical_exit": 0,
+      "models": {
+        "agree": 150,
+        "unsupported": 6
+      },
+      "modules": {
+        "agree": 458
+      },
+      "model_ids": 156,
+      "native_invocations": 156,
+      "canonical_engine_routes": {
+        "core": 125,
+        "static-fallback": 20,
+        "none": 8,
+        "dynamic-fallback": 3
+      },
+      "raw_top_level_engine_reports": {
+        "core": 125,
+        "reference": 29,
+        "absent": 2
+      },
+      "canonical_none_means": "unattributed after canonical mapping, not raw processes without engine metadata",
+      "actual_core_strict": 125,
+      "actual_core_expected_divergences": 0,
+      "report_sha256": "435ce7241df9880d211dd916925f8123a435a2c9ee577d2a96620af0767505af",
+      "retained_words": 20,
+      "missing_or_extra_historical_ids": false,
+      "semantic_observable_changes": 0,
+      "only_canonical_route_change": "examples:specifications/YoYo/YoYoAllGraphs.cfg",
+      "before": "agree via static Reference fallback",
+      "after": "agree via Core",
+      "distinct": 26731,
+      "generated": 48535,
+      "depth": 39
+    },
+    "auto-dive": {
+      "physical_exit": 0,
+      "models": {
+        "agree": 144,
+        "expected-divergence": 7,
+        "unsupported": 5
+      },
+      "modules": {},
+      "model_ids": 156,
+      "native_invocations": 156,
+      "canonical_engine_routes": {
+        "core": 125,
+        "static-fallback": 21,
+        "none": 7,
+        "dynamic-fallback": 3
+      },
+      "raw_top_level_engine_reports": {
+        "core": 125,
+        "reference": 29,
+        "absent": 2
+      },
+      "canonical_none_means": "unattributed after canonical mapping, not raw processes without engine metadata",
+      "actual_core_strict": 121,
+      "actual_core_expected_divergences": 4,
+      "report_sha256": "a91ea6f9d7992bcaa589bbc21370d76d91a46c7e9a7c801302b53e5e9bd4de0d",
+      "retained_words": 19,
+      "missing_or_extra_historical_ids": false,
+      "semantic_observable_changes": 0,
+      "only_canonical_route_change": "examples:specifications/YoYo/YoYoAllGraphs.cfg",
+      "before": "agree via static Reference fallback",
+      "after": "agree via Core",
+      "distinct": 26731,
+      "generated": 48535,
+      "depth": 39
+    }
+  },
+  "retained_required_words": {
+    "counts": {
+      "census-default": 418,
+      "census-tlc": 419,
+      "auto-tlc": 20,
+      "auto-dive": 19
+    },
+    "total": 876,
+    "actual_word_sha256_inventory": "c8a5ef4b75ea76c28dc82ccb06fcc51e73e0e4e497aeff8ab8d01bdd40b6a5be",
+    "audit_sha256": "a83e0181220bcd3e10564e3f2b7109cac79511fd834292a569507e532e46d35f",
+    "structural_findings": 0,
+    "harness_validation_fields_preserved": true,
+    "partial_state_endpoint_words": 20,
+    "partial_state_length_rule": "The rendered word includes one partial endpoint beyond complete trace.states; dive-trace validate.rs returns states.len()+1 for PartialNext.",
+    "fresh_model_or_validator_replays": 0,
+    "standard_gate_deleted_words_receive_no_replay_credit": true
+  },
+  "cost": {
+    "currency": "USD",
+    "actual_invoice": false,
+    "shared_milestone_cap_usd": 40,
+    "recorded_interval_compute_estimate_usd": "10.07807937552",
+    "producer_prior_rounded_for_budget_usd": "7.388886545",
+    "producer_estimate_plus_reserve_usd": "14.07807937552",
+    "conservative_compute_upper_to_observed_absence_usd": "20.14797612188666666666666667",
+    "storage_transfer_reserve_usd": "4",
+    "conservative_compute_upper_plus_reserve_usd": "24.14797612188666666666666667",
+    "producer_receipt_sha256": "b8c5ab210eb2d621031c6fc0db90d4b58cffe989dc25b68682da8296cc0aa694",
+    "independent_receipt_sha256": "0e6372ace9dccc9f09607363525f76907de3a72cfdebb91c274825427545e55b",
+    "active_milestone_instances_at_independent_observation": [],
+    "known_replacement_volume_absent": true,
+    "limits": "Recorded intervals exclude the old performance-node shutdown tail. The independent conservative bound extends that node to its observed absence. Storage and transfer remain a reserve; no invoice is claimed."
+  },
+  "qualification_acceptance_scope": "Bounded completed runtime qualification; M1/M2, global performance, total-memory and RC acceptance remain open. Documentation PR review/CI are separate."
+}

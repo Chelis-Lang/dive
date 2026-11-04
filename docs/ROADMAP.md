@@ -10,7 +10,61 @@ The charter's soundness contract applies throughout.
 The [scoreboard](scoreboard.md) records the latest corpus results and the
 roadmap feature checklist. Parity means observable results (ADR 0086).
 
-## Phase 6: restartable Core, generation and evaluation reuse
+## Phase 7: native workflows and bounded candidate transport
+
+PlusCal publication (#747), native Graphs/UndirectedGraphs (#748/#759), owned
+candidate payload spill (#750), the independent Rust consumer (#752), finite
+random-source replay (#753) and native source-work observation (#755) are merged.
+The explicit startup environment/first-TXT and offline-replay increment (#762)
+is also merged. Integrated source `20ee7f75`, tree `b6625ae5`, passes its separately
+dated November 4 replacement qualification: the full gate, retained census and
+both fixed Auto panels. The archive was downloaded and verified before worker
+termination. Reference remains default.
+
+The first attempt remains rejected for preservation
+([#763](https://github.com/Chelis-Lang/dive/issues/763)): wrapper exit 0 survives,
+but its complete gate report, receipt/postflight proof and raw node archive do
+not. A minimal runner repair passed 23 local fault/deadline controls and
+independent review; the dated replacement also passed 14 affected window controls.
+The [Phase 7 checkpoint](../conformance/reports/core/2026-11-03-phase7-checkpoint.json)
+keeps both attempts and the locally preserved survivor archives distinct.
+
+| Area | Delivered boundary |
+|---|---|
+| Core breadth | Six finite graph overrides run natively. Original YoYoAllGraphs completes in both profiles at `49188584`, matching the pinned 26,731 distinct / 48,535 generated / depth 39 success. Explicit-set demand and error precedence are repaired. The inherited lazy empty-product mismatch remains #760. |
+| Candidate retention | Ordered Core safety queues can spill owned payloads and occurrences before speculative Store promotion. Both profiles, stores and widths 1/4/8 retain independent concrete words. Record/scratch/origin-index limits fail explicitly. Active Arena roots, accepted Store and temporal structures remain outside this component budget. |
+| Native workflows | Filesystem PlusCal publication and actual cargo-test consumers work. Simulation carries owned RNG state from binding through repeated finite choices; independent replay rebuilds source alternatives. Native source counters use exact static origins and exclude private reconstruction/replay. These are not full modes, translation, TLC logical-cost or debugger parity. |
+| External inputs | The #762 increment requires explicit category grants and records bounded raw startup assumptions. Offline CLI/API replay consumes fresh source requests without ambient I/O. Runtime reads, writes, exec, Core/temporal/recovery and unproved native name/history cases remain refused. |
+| Performance | Candidate `88a5845a` is stopped unadopted. Thirty correct Sailfish rows miss the required 10% TLC/W1 gain (observed 1.82%) and fail the frozen default/W8 guard. The remaining 186 planned rows, including ablations and other controls, are unrun. No code, switch, default change or rescue ships. See [ADR 0147](decisions/0147-demanded-comparison-summaries.md). |
+
+The accepted replacement's full gate records 3,246 test passes, six skips and
+201 doctest passes. All 3,040 retained census IDs preserve their statuses and
+required result fields; refusals and budget stops remain explicit. Both Auto
+panels preserve semantic outcomes. YoYoAllGraphs alone moves from fallback
+agreement to Core agreement: TLC actual Core strict credit is 125; default is
+121 strict plus four expected differences. The 31 current additional fixture
+configurations stay outside the retained census. The standard gate preserves
+progress/summaries; the separate census and Auto stages retain raw streams and
+876 required words, without claiming a fresh post-run replay.
+
+The replacement archive contains 41,533 verified members and the worker/root
+disk are confirmed gone. All milestone nodes are absent at the independent
+observation. Recorded compute intervals total about $10.08; the conservative
+compute bound through observed absence plus a $4 storage/transfer reserve is
+about $24.15 against the unchanged $40 cap. These are estimates, not an invoice.
+The rejected performance candidate and original feature controls keep their own
+source identities. No full-tier, deep, formal performance, default-engine cutover
+or release acceptance follows. Bulky evidence is archived in S3; local worktrees
+keep active work and regenerable build products.
+
+Continue the mandatory scope in [full TLC parity](#through-full-tlc-parity):
+accepted Store/Arena and temporal paging/recovery, native distributed safety,
+broader language/modes/effects, real coverage/Core source maps and full DAP,
+remaining product/API flows, and Linux qualification before the macOS final mile.
+Distributed pure safety can already build on ADR 0141's completed-level recovery;
+it does not depend on completing temporal paging.
+
+## Historical Phase 6: restartable Core, generation and evaluation reuse
 
 All five runtime PRs (#738–#742) are merged at `ee79de82`, tree `14f02996`.
 **The one full gate passed (3,164 nextest tests and 195 doctests). The fixed census and
@@ -183,15 +237,16 @@ The design is in ADRs 0017–0019 (proposed).
 
 The approved rescue roadmap in issue #241 retains the following mandatory
 scope. Bounded native modes/storage and independent PlusCal comparison advance
-these contracts without closing their full families. The inventory remains
-8 implemented / 27 partial / 3 missing families; `implemented` is a supported
+these contracts without closing their full families. Granted startup inputs move
+I/O to partial: the current inventory is 8 implemented / 28 partial / 2 missing
+families; `implemented` is a supported
 corpus claim, not full parity.
 
 | Area | Work still required |
 |---|---|
 | Correctness and breadth | Complete broader constructor/receiver/source lifetimes, standard/Community operators, startup/configuration, symmetry/temporal language and actual-Core corpus coverage. Keep the narrow registered SBB difference distinct from strict agreements; preserve refusals and Unclassified streams until proved. |
 | Modes | Extend constructive generation/sample proof to general RandomElement relations, captured effects, full simulation/DFID matrices and justified worker/scheduler options. Broad #111/#118/#128/#239 remain open; landed budgets do not measure #350's ≤1% instruction-overhead criterion. |
-| Recoverable bounded search | Extend owned Core safety checkpoint/disk support to candidate/trace/temporal graph/SCC spill, temporal recovery and complete accounting. Retry-safe native distribution depends on the identity-checked recovery contract. No total-memory bound follows from archive or component limits. |
+| Recoverable bounded search | Extend owned candidate/frontier/disk and Core safety recovery to accepted Store/Arena, trace and temporal graph/SCC paging, temporal recovery and complete accounting. Retry-safe native distribution depends on the identity-checked recovery contract. No total-memory bound follows from archive or component limits. |
 | Product and integration | Explicit host category grants, runtime/introspection/output, trace exploration, coverage/debugger, complete PlusCal and checking/simulation/translation/checkpoint/distributed Rust APIs with cargo-test integration. |
 | Performance and release | ADR 0119 default floors, compatibility outliers, full-tier actual-core/fallback acceptance, unchanged deep populations, supported platform/package/user flows and RC qualification. |
 
