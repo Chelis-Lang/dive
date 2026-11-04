@@ -1352,14 +1352,61 @@ impl Core {
     // Graphs and UndirectedGraphs (`AbstractGraphs`)
     // -------------------------------------------------------------------------
 
-    /// `Value.toSetEnum` admission without normalizing an explicit set. Other
-    /// conversions retain their existing enumeration and callback guards.
+    /// A bounded, read-only `Value.isEmpty` proof for concrete product axes.
+    /// Unknown axes decline in source order, before inspecting later axes.
+    /// Counting explicit storage does not normalize it or its aliases.
+    fn graph_product_empty(&self, value: &Value, depth: u8) -> Result<Option<bool>> {
+        self.loop_work()?;
+        if depth >= 64 {
+            return Ok(None);
+        }
+        let Value::Set(set) = value else {
+            return Ok(None);
+        };
+        if let Some(values) = set.stored_elements() {
+            return Ok(Some(values.is_empty()));
+        }
+        if let Some((lo, hi)) = set.as_interval() {
+            // IntervalValue.isEmpty calls size(), including its 32-bit bound.
+            // Leave larger/unproved intervals on the existing guarded route.
+            return Ok(match (lo.to_i64(), hi.to_i64()) {
+                (Some(lo), Some(hi)) if hi < lo => Some(true),
+                (Some(lo), Some(hi)) => hi
+                    .checked_sub(lo)
+                    .and_then(|n| n.checked_add(1))
+                    .filter(|&n| n <= i64::from(i32::MAX))
+                    .map(|_| false),
+                _ => None,
+            });
+        }
+        let Some(axes) = set.as_product() else {
+            return Ok(None);
+        };
+        for axis in axes {
+            match self.graph_product_empty(axis, depth + 1)? {
+                Some(false) => {}
+                empty => return Ok(empty),
+            }
+        }
+        Ok(Some(false))
+    }
+
+    /// `Value.toSetEnum` admission without normalizing an explicit set or an
+    /// axis of a proved empty product. Other conversions keep their guards.
     fn graph_set(&self, value: &Value) -> Result<Option<dive_value::Set>> {
         let Value::Set(set) = value else {
             return Ok(None);
         };
         if !is_enumerable(value) {
             return Ok(None);
+        }
+        if set.kind() == SetKind::Product && self.graph_product_empty(value, 0)? == Some(true) {
+            // SetOfTuplesValue.toSetEnum returns an empty explicit collection;
+            // it neither normalizes the axes nor caches their product.
+            let Value::Set(empty) = Value::empty_set(self.ctx) else {
+                return Err(EvalError::bug("an empty set has a non-set representation"));
+            };
+            return Ok(Some(empty));
         }
         if set.stored_elements().is_none() {
             self.to_set_enum(value)?;

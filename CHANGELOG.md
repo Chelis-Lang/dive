@@ -1,5 +1,10 @@
 # Changelog
 
+- Preserve empty Cartesian-product graph conversion in both engines and
+  compatibility profiles. Concrete axes are checked for emptiness before any
+  axis normalization; operand errors, source order and later alias demands remain
+  intact. Keep demanded mixed comparisons and unproved conversions guarded.
+
 - Add explicit PlusCal `translate --write` and Rust preparation/publication APIs,
   publishing admitted modules, exact `.old` backups and delimiter-merged `.cfg`
   files with effective source options and concurrent-edit checks. Add actual

@@ -72,6 +72,20 @@ succeeds in either profile:
 dive check conformance/corpus/graph-demand/specifications/SelfDemand/SelfDemand.tla --library-path crates/dive-eval/tests/fixtures/community-modules --engine core --compat=tlc --workers 4 --seed 0 --fp 0 --output json
 ```
 
+Graph conversion also recognizes an empty Cartesian product before enumerating
+its axes. Both engines support concrete explicit, bounded-interval and nested
+product axes in source order. An empty axis leaves incomparable values in other
+axes unnormalized; a later use of the same axis still makes its own comparisons.
+Product operand expressions are evaluated normally, so an unused axis expression
+that divides by zero still fails. Unknown earlier axes keep the existing guarded
+conversion, and demanded incomparable nonempty products retain their errors or
+named refusals. This model runs on Core in both profiles with three distinct and
+generated states, depth three and success exit 0:
+
+```sh
+dive check conformance/corpus/graph-empty-product/specifications/LazyEmptyProduct/LazyEmptyProduct.tla --library-path crates/dive-eval/tests/fixtures/community-modules --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+```
+
 This state-dependent example exercises every override on Core:
 
 ```sh
