@@ -6,6 +6,11 @@
   `-writeAST` publication with its pinned successful exit 255, keeping in-memory
   translation/AST operations and model-proof boundaries unchanged.
 
+- Record PlusCal action source ranges during emission, preserving complete
+  multi-line definitions and original statement owners when program-counter
+  omission emits `Next` or process names and when scoped labels are renamed.
+  Keep generated translation text and the existing mapping format unchanged.
+
 - Run the six CommunityModules Graphs/UndirectedGraphs overrides on Core,
   including state-dependent reachability, connected components and simple paths.
   Preserve checked membership, finite-domain refusals, path demand and ordinary

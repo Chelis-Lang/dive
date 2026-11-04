@@ -161,9 +161,11 @@ impl std::error::Error for TranslationError {}
 /// An artifact region and its original PlusCal source region.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TranslationMap {
-    /// UTF-8 bytes in the generated TLA body.
+    /// UTF-8 byte interval of an emitted action definition in the generated
+    /// TLA body, including its header and complete body. The end is exclusive.
     pub generated: Span,
-    /// UTF-8 bytes in original source.
+    /// UTF-8 byte interval of the original labelled statement owner. The end
+    /// is exclusive; scoped renaming and program-counter omission retain it.
     pub original: Span,
 }
 
@@ -460,24 +462,12 @@ fn generate(
         }]
     };
     let mappings = output
-        .actions
+        .mappings
         .iter()
-        .zip(&output.action_origins)
-        .filter_map(|(name, at)| {
-            // Initializers and strings can contain a label-looking substring;
-            // an action definition always begins a generated line.
-            let find_definition = |head: &str| {
-                tla.match_indices(head)
-                    .find(|(at, _)| *at == 0 || tla.as_bytes()[at - 1] == b'\n')
-                    .map(|(at, _)| at)
-            };
-            let start = find_definition(&format!("{name} =="))
-                .or_else(|| find_definition(&format!("{name}(self) ==")))?;
-            let end = tla[start..]
-                .find("\n\n")
-                .map_or(tla.len(), |offset| start + offset);
-            Some(TranslationMap {
-                generated: Span { start, end },
+        .map(|mapping| {
+            let at = mapping.original;
+            TranslationMap {
+                generated: mapping.generated,
                 original: statement_span(
                     parsed,
                     position_offset(
@@ -486,7 +476,7 @@ fn generate(
                         at.macro_call.map_or(at.col, |(_, column)| column),
                     ),
                 ),
-            })
+            }
         })
         .collect();
     Ok(Translation {

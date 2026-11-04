@@ -57,6 +57,69 @@ fn artifact_validation_and_source_map() {
     assert_eq!(compat["artifact"], json["artifact"]);
     assert_eq!(compat["profile"], "tlc");
 }
+
+#[test]
+fn optimized_emitted_mapping_is_usable_before_checking_the_translated_module()
+-> Result<(), Box<dyn std::error::Error>> {
+    let source =
+        module("variable x=0; begin Loop: while TRUE do x:=1-x; end while; end algorithm;");
+    let directory = std::env::temp_dir().join(format!("dive-emitted-map-{}", std::process::id()));
+    std::fs::create_dir_all(&directory)?;
+    let file = directory.join("TranslationTest.tla");
+    std::fs::write(file.with_extension("cfg"), "INIT Init\nNEXT Next\n")?;
+    let mut previous = None;
+    for compat_tlc in [false, true] {
+        let report = translate_source(
+            "TranslationTest.tla",
+            &source,
+            &TranslationRequest {
+                compat_tlc,
+                ..TranslationRequest::default()
+            },
+        );
+        assert!(report.accepted(), "{}", report.to_json());
+        let document = report.to_json();
+        let artifact = &document["artifact"];
+        let tla = artifact["tla"].as_str().ok_or("TLA body")?;
+        let mappings = artifact["mappings"].as_array().ok_or("mappings")?;
+        assert_eq!(mappings.len(), 1);
+        let generated: dive_pluscal::ast::Span =
+            serde_json::from_value(mappings[0]["generated"].clone())?;
+        let original: dive_pluscal::ast::Span =
+            serde_json::from_value(mappings[0]["original"].clone())?;
+        let definition = tla
+            .get(generated.start..generated.end)
+            .ok_or("generated definition")?;
+        assert!(definition.starts_with("Next =="), "{definition}");
+        assert_eq!(
+            source.get(original.start..original.end),
+            Some("Loop: while TRUE do x:=1-x; end while;")
+        );
+        if let Some(previous) = previous.replace(artifact.clone()) {
+            assert_eq!(*artifact, previous);
+        }
+        let emitted = document["module_source"].as_str().ok_or("emitted module")?;
+        std::fs::write(&file, emitted)?;
+        let checked = dive_api::check_file_engine(
+            &dive_api::CheckRequest {
+                file: file.clone(),
+                compat_tlc,
+                workers: Some(1),
+                seed: Some(7),
+                fp: Some(0),
+                ..dive_api::CheckRequest::default()
+            },
+            dive_api::Engine::Reference,
+        )?
+        .to_json();
+        assert_eq!(checked["verdict"], "success", "{checked}");
+        assert_eq!(checked["statistics"]["distinct"], 2);
+        assert_eq!(checked["statistics"]["generated"], 3);
+        assert_eq!(checked["statistics"]["depth"], 2);
+    }
+    std::fs::remove_dir_all(directory)?;
+    Ok(())
+}
 #[test]
 fn invalid_generated_name_is_not_an_artifact() {
     let source = module("variable x=0; begin L: x:=Unknown; E: skip; end algorithm;");
