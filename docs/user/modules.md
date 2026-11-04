@@ -103,11 +103,16 @@ dive check conformance/corpus/product-receivers/specifications/BaseValidInterval
 
 `Cardinality` and `IsFiniteSet` accept complete concrete finite Product factor
 trees: owned explicit sets, bounded intervals, powersets, function sets, record
-sets and nested products. Finiteness checks do not normalize axes. Cardinality
-follows the source empty-axis, empty-function-domain and singleton-range short
-circuits, and normalizes only demanded explicit-set sizes. The original Product
-remains available for later receiver checks. Unknown factors and sizes beyond the
-proved signed 32-bit range retain named refusals. For example:
+sets and nested products. `IsFiniteSet` also preserves proved false answers for
+known infinite Nat/Int factors, in either axis order and nested factor trees. For
+example, `IsFiniteSet(Nat \X {x})` is false, while `IsFiniteSet(Nat \X {})` is true.
+It follows source finiteness and emptiness demand in order; a known infinite axis
+does not hide a later invalid operand. A function-set factor sizes its range only
+when the source finiteness answer requires it. Cardinality follows the source
+empty-axis, empty-function-domain and singleton-range short circuits, and
+normalizes only demanded explicit-set sizes. The original Product remains
+available for later receiver checks. Unknown demanded factors and sizes beyond
+the proved signed 32-bit range retain named refusals. For example:
 
 ```sh
 dive check conformance/corpus/product-operations/specifications/OrdinaryProductCardinality/OrdinaryProductCardinality.tla --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json

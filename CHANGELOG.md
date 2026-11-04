@@ -13,6 +13,9 @@
   Restore `Cardinality` and `IsFiniteSet` for complete concrete finite Product
   factor trees, plus established singleton-UNION and normalized library-set
   consumers, while retaining the original receiver and axis normalization order.
+  Preserve proved false `IsFiniteSet` answers for known Nat/Int factors, including
+  reversed and nested products. Check later factors for empty sets and demanded
+  errors instead of treating an unproved factor as infinite.
 
 - Add explicit PlusCal `translate --write` and Rust preparation/publication APIs,
   publishing admitted modules, exact `.old` backups and delimiter-merged `.cfg`

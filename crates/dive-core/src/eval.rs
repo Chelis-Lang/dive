@@ -2175,8 +2175,7 @@ impl Machine {
             StdFn::IsFiniteSet => {
                 let s = arg(0)?;
                 if self.heap.kind(s) == Some(Kind::Product) {
-                    self.finite_product(s)?;
-                    return Ok(Handle::TRUE);
+                    return self.product_finiteness(s).map(Handle::bool);
                 }
                 Ok(Handle::bool(self.heap.is_finite(s)))
             }

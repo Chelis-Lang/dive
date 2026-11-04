@@ -427,14 +427,17 @@ sites and parent skips. Non-tuple membership follows the existing evaluation-err
 path; source provenance remains unverified, so the pinned `product-receivers`
 facts do not establish native error parity (#768).
 
-Scalar Product consumers have operation-specific admission. `IsFiniteSet` reads a
-complete finite factor tree without normalization. `Cardinality` follows the
-source `isEmpty` and `size` demand order, including function-domain and singleton-
-range short circuits, and normalizes an owned explicit axis only when its size is
-demanded. Admission covers explicit sets, bounded intervals, powersets, function
-sets, record sets and nested products; it checks every factor, local literal
-ownership, depth, work budget and signed 32-bit size bounds. It never replaces the
-original Product. Established library argument positions that consume normalized
+Scalar Product consumers have operation-specific admission. `IsFiniteSet`
+follows source Boolean finiteness and emptiness demand for known factor shapes,
+including Nat/Int infinite answers, nested products and empty factors. It keeps
+checking after an infinite factor; an unknown demanded operand refuses. Function
+sets demand range size only on the source singleton-range branch. `Cardinality`
+retains complete finite-factor admission and follows source `isEmpty` and `size`
+order, including function-domain and singleton-range short circuits. Explicit
+axes normalize only when their sizes are demanded. Admission covers explicit
+sets, bounded intervals, powersets, function sets, record sets and nested products;
+it checks local literal ownership, depth, work budget and signed 32-bit size
+bounds. Neither operation replaces the original Product. Established library argument positions that consume normalized
 set enumeration use a separate projection after this admission. The existing
 singleton-UNION constructor lowering also recognizes Cartesian products; generic
 set elements containing Product receivers remain guarded.

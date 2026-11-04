@@ -1,5 +1,5 @@
-//! Receiver-preserving scalar operations on complete concrete finite Product
-//! factor trees. Source: tlaplus value isFinite/isEmpty/size methods, 94d0c50.
+//! Receiver-preserving Product scalar operations. Source: tlaplus value
+//! isFinite/isEmpty/size methods and Nat/Int overrides, 94d0c50.
 
 use super::Machine;
 use crate::node::Kind;
@@ -18,6 +18,63 @@ fn bounded(n: u64) -> Result<u64, Error> {
 }
 
 impl Machine {
+    pub(super) fn product_finiteness(&mut self, h: Handle) -> Result<bool, Error> {
+        self.factor_finiteness(h, 0)
+    }
+
+    /// Source Boolean demand, distinct from complete finite size admission.
+    /// Known infinite factors never turn an unknown operand into a false answer.
+    fn factor_finiteness(&mut self, h: Handle, depth: u8) -> Result<bool, Error> {
+        self.charge(1)?;
+        if depth >= 64 || !h.is_compound() || self.heap.is_lazy(h) {
+            return Err(refused());
+        }
+        let view = self.heap.view(h);
+        let (kind, len) = (view.kind, view.data.len());
+        match kind {
+            Kind::Nat | Kind::Int if len == 0 => Ok(false),
+            Kind::Subset if len == 1 => {
+                let base = view.data[0];
+                self.factor_finiteness(base, depth + 1)
+            }
+            Kind::Product | Kind::RecSet
+                if (kind == Kind::Product && len >= 2)
+                    || (kind == Kind::RecSet && len.is_multiple_of(2)) =>
+            {
+                let mut all_finite = true;
+                let start = if kind == Kind::RecSet { len / 2 } else { 0 };
+                for index in start..len {
+                    let child = self.heap.view(h).data[index];
+                    if self.factor_finiteness(child, depth + 1)? {
+                        if self.finite_empty(child, depth + 1)? {
+                            return Ok(true);
+                        }
+                    } else {
+                        all_finite = false;
+                    }
+                }
+                Ok(all_finite)
+            }
+            Kind::FcnSet if len == 2 => {
+                let (domain, range) = (view.data[0], view.data[1]);
+                let finite_domain = self.factor_finiteness(domain, depth + 1)?;
+                if finite_domain && self.finite_empty(domain, depth + 1)? {
+                    return Ok(true);
+                }
+                let finite_range = self.factor_finiteness(range, depth + 1)?;
+                if finite_range && self.finite_empty(range, depth + 1)? {
+                    return Ok(true);
+                }
+                if finite_domain && finite_range {
+                    return Ok(true);
+                }
+                Ok(finite_range && self.finite_size(range, depth + 1)? == 1)
+            }
+            _ if self.finite_factor(h, depth)? => Ok(true),
+            _ => Err(refused()),
+        }
+    }
+
     pub(super) fn finite_product(&mut self, h: Handle) -> Result<(), Error> {
         if self.finite_factor(h, 0)? {
             Ok(())
@@ -75,8 +132,8 @@ impl Machine {
         }
     }
 
-    /// Value.isEmpty after complete admission. Explicit storage is counted
-    /// without normalization; function-domain and axis short circuits match TLC.
+    /// Source emptiness for known shapes, refusing any demanded unknown shape.
+    /// Explicit storage is counted without normalization; short circuits match TLC.
     fn finite_empty(&mut self, h: Handle, depth: u8) -> Result<bool, Error> {
         self.charge(1)?;
         if depth >= 64 {
@@ -85,6 +142,7 @@ impl Machine {
         let view = self.heap.view(h);
         let (kind, lo, len) = (view.kind, view.lo, view.data.len());
         match kind {
+            Kind::Nat | Kind::Int if len == 0 => Ok(false),
             Kind::Set | Kind::SetEnum => Ok(len == 0),
             Kind::Interval => Ok(view
                 .data
@@ -229,5 +287,41 @@ mod tests {
         assert!(m.finite_product(valid).is_err());
         assert!(m.product_cardinality(valid).is_err());
         assert!(!m.heap.poisoned());
+    }
+
+    #[test]
+    fn boolean_finiteness_keeps_unknown_demand_and_raw_receiver_authority() {
+        for semantics in [Semantics::default(), Semantics::tlc()] {
+            let mut m = Machine::new(
+                Arc::new(Store::with_semantics(true, semantics)),
+                0,
+                Opts::default(),
+                Memo::new(&[]),
+            );
+            let zero = Handle::int(0).unwrap();
+            let raw = m.heap.local_literal(&[zero, Handle::TRUE]).unwrap();
+            let empty = m.heap.empty_set();
+            for kind in [Kind::Nat, Kind::Int] {
+                let infinite = m.heap.symbolic(kind, 0, &[]);
+                for axes in [[infinite, raw], [raw, infinite]] {
+                    let product = m.heap.symbolic(Kind::Product, 0, &axes);
+                    assert!(!m.product_finiteness(product).unwrap());
+                    assert_eq!(m.heap.kind(product), Some(Kind::Product));
+                    assert!(m.heap.has_raw_construction(raw));
+                    assert!(m.product_cardinality(product).is_err());
+                }
+                let nested = m.heap.symbolic(Kind::Product, 0, &[infinite, empty]);
+                let outer = m.heap.symbolic(Kind::Product, 0, &[nested, raw]);
+                assert!(m.product_finiteness(outer).unwrap());
+                for axes in [[infinite, zero], [zero, infinite]] {
+                    let invalid = m.heap.symbolic(Kind::Product, 0, &axes);
+                    assert!(m.product_finiteness(invalid).is_err());
+                }
+                let invalid = m.heap.symbolic(kind, 0, &[zero]);
+                let product = m.heap.symbolic(Kind::Product, 0, &[raw, invalid]);
+                assert!(m.product_finiteness(product).is_err());
+            }
+            assert!(!m.heap.poisoned());
+        }
     }
 }

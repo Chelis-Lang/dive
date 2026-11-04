@@ -35,9 +35,10 @@ errors after the inherited main false-success finding #768. Core preserves the
 original Product through bounded component constructors and retains the demanded
 evaluation errors; their source classification remains unverified and receives no
 native error parity credit. Unproved receiver consumers remain guarded. The
-separate `product-operations` corpus adds eleven pinned successes for established
-operations and finite factor-tree demand, one classified receiver error after
-sizing, and a context-only demanded raw-axis size error. Reference's separate
+separate `product-operations` corpus adds fourteen pinned successes for
+established operations, finite factor-tree demand and known infinite Boolean
+answers, one classified receiver error after sizing, and two context-only
+raw-axis size / infinite-then-scalar errors. Reference's separate
 scalar-axis Cardinality failures remain unproved, without relabeling primary TLC
 facts or historical qualification totals.
 

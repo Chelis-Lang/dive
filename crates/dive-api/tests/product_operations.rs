@@ -46,6 +46,9 @@ fn concrete_product_operations_match_pinned_successes_and_preserve_alias_history
         "EmptyFunctionRangeHistory",
         "FiniteFunctionDomainHistory",
         "SingletonFunctionDomainHistory",
+        "InfiniteLeftFiniteAnswer",
+        "InfiniteRightFiniteAnswer",
+        "InfiniteNestedFiniteAnswer",
     ] {
         let path=root().join(format!("conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/{name}/{name}.cfg.json"));
         let d: Value = serde_json::from_slice(&std::fs::read(path).expect("generated primary"))
@@ -63,6 +66,30 @@ fn concrete_product_operations_match_pinned_successes_and_preserve_alias_history
                 assert_eq!(core.to_json()["engine"], "core");
                 assert_eq!(facts(&core), expected, "{name}/{compat}/{switches}");
             }
+        }
+    }
+}
+
+#[test]
+fn an_infinite_axis_does_not_hide_a_later_scalar_finiteness_error() {
+    for compat in [false, true] {
+        let req = request("InfiniteThenScalar", compat);
+        assert!(!root().join("conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/InfiniteThenScalar/InfiniteThenScalar.cfg.json").exists());
+        let reference = check_file_engine(&req, Engine::Reference).expect("Reference check");
+        let d = reference.to_json();
+        assert_eq!(d["verdict"], "evaluation-error");
+        assert_eq!(reference.exit_code_for(ExitConvention::Tlc), 75);
+        assert_eq!(d["tlc"]["verified"], false);
+        for switches in ["", "-fold", "-memo", "-hashcons", "-symbolic-member"] {
+            let core = check_file_core_opts(&req, switches).expect("Core check");
+            let d = core.to_json();
+            assert_eq!(d["verdict"], "unsupported");
+            assert_eq!(core.exit_code_for(ExitConvention::Tlc), 3);
+            assert!(
+                d["message"]
+                    .as_str()
+                    .is_some_and(|s| s.contains("unproved factor shape or size"))
+            );
         }
     }
 }
