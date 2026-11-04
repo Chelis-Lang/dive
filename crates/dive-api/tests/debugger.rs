@@ -146,8 +146,8 @@ fn diagnostic_replay_has_no_raw_callbacks_and_error_scope_restores_live_observat
             Engine::Core,
         )?
         .to_json();
-        assert_eq!(debugged["workers"]["requested"], 4);
-        assert_eq!(debugged["workers"]["used"], 1);
+        assert_eq!(debugged["options"]["workers"]["requested"], 4);
+        assert_eq!(debugged["options"]["workers"]["used"], 1);
         assert!(observer.entries.load(Relaxed) > 0);
         assert_eq!(
             observer.second_successor_entries.load(Relaxed),
