@@ -905,5 +905,7 @@ deciding model class. The separate identity preserves all existing
 generated primary success with three generated states, three distinct states and
 depth three. See the
 [compact oracle record](../conformance/reports/core/2026-11-04-set-diagnostic-oracle.json).
+The [frozen correction record](../conformance/reports/core/2026-11-04-set-diagnostic-demand.json)
+binds the runtime source, artifacts, focused checks and both-engine/profile panels.
 This bounded addition changes no historical qualification totals or earlier
 rejection records.
