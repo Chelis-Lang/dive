@@ -528,6 +528,8 @@ pub struct Session {
 }
 impl Session {
     /// Starts loading/compiling with existing checking APIs. Search waits for configuration.
+    /// The report retains the requested worker width; observed search uses one
+    /// actual worker.
     ///
     /// # Errors
     /// An unsupported managed-session combination or failed thread creation.
@@ -561,7 +563,6 @@ impl Session {
                 "debugger supports local Core ordinary safety without host grants, coverage or sampling",
             ));
         }
-        request.workers = Some(1);
         let control = Arc::new(Control::default());
         {
             let mut state = control.lock();

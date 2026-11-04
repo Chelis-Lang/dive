@@ -44,6 +44,8 @@
   Keep replay unobserved, expire stop handles and refuse incomplete combinations.
   Suspend observation throughout same-machine diagnostic replay, including early
   returns, while retaining the original live-producer capability.
+  Retain the caller's requested worker width while reporting one actual observed
+  worker through both managed sessions and raw observer requests.
 
 - Run the six CommunityModules Graphs/UndirectedGraphs overrides on Core,
   including state-dependent reachability, connected components and simple paths.

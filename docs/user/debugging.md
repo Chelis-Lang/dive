@@ -72,7 +72,9 @@ let report = session.finish()?;
 # Ok::<(), Box<dyn std::error::Error>>(())
 ```
 
-This slice runs one actual local Core worker. Reference/Auto debugging, temporal,
+This slice runs one actual local Core worker. The report preserves the caller's
+worker selection in `options.workers.requested` and reports one worker in
+`options.workers.used`. Reference/Auto debugging, temporal,
 checkpoint/recovery, Store reclamation, distributed observation, native source or
 TLC logical coverage, sampling, host grants, conditional/log/column breakpoints,
 reverse steps, mutation and compound expansion remain unsupported. Input frames are bounded to 1 MiB and

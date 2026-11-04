@@ -48,6 +48,65 @@ impl dive_core::debug::Observer for ReplayObserver {
 }
 
 #[test]
+fn managed_session_preserves_requested_workers_and_one_actual_worker_result()
+-> Result<(), Box<dyn std::error::Error>> {
+    let directory = std::env::temp_dir().join(format!(
+        "dive-debugger-managed-workers-{}",
+        std::process::id()
+    ));
+    std::fs::create_dir_all(&directory)?;
+    let file = directory.join("ManagedWorkers.tla");
+    std::fs::write(
+        &file,
+        "---- MODULE ManagedWorkers ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == /\\ x<2 /\\ x'=x+1\nInv == x<=2\n====\n",
+    )?;
+    std::fs::write(
+        file.with_extension("cfg"),
+        "INIT Init\nNEXT Next\nINVARIANT Inv\nCHECK_DEADLOCK FALSE\n",
+    )?;
+    for compat_tlc in [false, true] {
+        let request = CheckRequest {
+            file: file.clone(),
+            compat_tlc,
+            workers: Some(4),
+            seed: Some(7),
+            fp: Some(0),
+            ..Default::default()
+        };
+        let ordinary = check_file_engine(&request, Engine::Core)?.to_json();
+        assert_eq!(ordinary["verdict"], "success", "{ordinary}");
+        let mut session = Session::launch(request, false)?;
+        assert!(matches!(
+            session.wait_event(Duration::from_secs(10))?,
+            Some(Event::Prepared)
+        ));
+        session.configuration_done()?;
+        assert!(matches!(
+            session.wait_event(Duration::from_secs(10))?,
+            Some(Event::Completed(_))
+        ));
+        let observed = session.finish()?.to_json();
+        assert_eq!(observed["options"]["workers"]["requested"], 4);
+        assert_eq!(observed["options"]["workers"]["used"], 1);
+        for field in [
+            "verdict",
+            "statistics",
+            "property",
+            "tlc",
+            "error_site",
+            "message",
+            "output",
+            "counterexample",
+            "warnings",
+        ] {
+            assert_eq!(observed[field], ordinary[field], "{field}");
+        }
+    }
+    std::fs::remove_dir_all(directory)?;
+    Ok(())
+}
+
+#[test]
 fn incompatible_requests_refuse_before_source_keys_or_observer_preparation()
 -> Result<(), Box<dyn std::error::Error>> {
     use std::sync::{Arc, atomic::Ordering::Relaxed};
