@@ -185,5 +185,6 @@
     }
   ],
   "context_only_negative": "DemandedRawProductSize exits75 explained only by context2103; no model golden or deciding class is invented. The raw primary remains retained externally.",
-  "scope": "Six independent reviewer controls plus generic finite factor tree, raw-axis phase, empty-function-domain and after-sizing receiver controls. No infinite/deferred/unproved factor admission or error-class parity claim."
+  "scope": "Six independent reviewer controls plus generic finite factor tree, raw-axis phase, empty-function-domain and after-sizing receiver controls. No infinite/deferred/unproved factor admission or error-class parity claim.",
+  "golden_observations_commit": "b2f26b2d"
 }
