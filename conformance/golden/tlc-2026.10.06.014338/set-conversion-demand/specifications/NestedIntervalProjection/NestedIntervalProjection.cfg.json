@@ -77,7 +77,7 @@
         "version_line": "openjdk version \"17.0.20.1\" 2026-08-18"
       }
     },
-    "corpus_commit": "sha256:d4e22d083e919e92e08dbf369d3c9ba09d94cb275976b403e9196bf025a954eb",
+    "corpus_commit": "sha256:e38d721e87e75966ac921110224a43e4cfa1af50840275c953eab8a645abb7ca",
     "command": [
       "$DIVE_CACHE_DIR/jre/0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62/jdk-17.0.20.1+1-jre/bin/java",
       "-XX:+UseParallelGC",
@@ -108,9 +108,9 @@
       "$TMP/states"
     ],
     "timeout_seconds": 60,
-    "reason": "Pin normalized Java Product conversion demand and receiver controls for inherited issue770 before repair",
+    "reason": "Correct exploratory fixture tuple-spacing before code; pin conversion-first and normalization-first demand controls and refresh unchanged original facts",
     "generator": "dive-conformance 0.0.0",
-    "generated_at": "2026-11-04T20:17:42Z",
-    "elapsed_ms": 406
+    "generated_at": "2026-11-04T20:45:22Z",
+    "elapsed_ms": 462
   }
 }
