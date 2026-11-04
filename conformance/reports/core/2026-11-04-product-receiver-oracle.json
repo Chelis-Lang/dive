@@ -1,0 +1,195 @@
+{
+  "kind": "product receiver primary observations before issue 768 semantic repair",
+  "issue": 768,
+  "rejected_head": "a9f311f9449ea0acb0e483ff8ba76c6a9f9c5859",
+  "base_source": "fd2190e2fa99c03aa3c18371a487b5da4c638b74",
+  "base_binary_sha256": "75c33b3255fb0a1f700951a3c436bc39811a5959c67df32f2795a2332971a8c9",
+  "base_observations": [
+    {
+      "engine": "reference",
+      "profile": "dive",
+      "physical_exit": 75,
+      "verdict": "evaluation-error",
+      "tlc": {
+        "code": 2103,
+        "exit_status": 75,
+        "name": "TLC_NESTED_EXPRESSION",
+        "reported": 2102,
+        "verified": false
+      },
+      "statistics": {
+        "depth": 1,
+        "distinct": 1,
+        "generated": 1,
+        "initial_generated": 1,
+        "left_on_queue": 1,
+        "reported_by_tlc": true
+      },
+      "stdout_sha256": "1e5156a0922bf461560f7d44e0fdabdd555f839efb281714363cad8b799c5e9d"
+    },
+    {
+      "engine": "reference",
+      "profile": "tlc",
+      "physical_exit": 75,
+      "verdict": "evaluation-error",
+      "tlc": {
+        "code": 2103,
+        "exit_status": 75,
+        "name": "TLC_NESTED_EXPRESSION",
+        "reported": 2102,
+        "verified": false
+      },
+      "statistics": {
+        "depth": 1,
+        "distinct": 1,
+        "generated": 1,
+        "initial_generated": 1,
+        "left_on_queue": 1,
+        "reported_by_tlc": true
+      },
+      "stdout_sha256": "eabaaa78f286763544b31705af6ec1b44a024a1cc62f9412670e799fde821528"
+    },
+    {
+      "engine": "core",
+      "profile": "dive",
+      "physical_exit": 0,
+      "verdict": "success",
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "reported": 2193,
+        "verified": true
+      },
+      "statistics": {
+        "depth": 3,
+        "distinct": 3,
+        "generated": 3,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "stdout_sha256": "cf0ed5d61b7d423a07a2e7e6bf931a8ce90cc6fb460d627e35015ebc0dc8dd10"
+    },
+    {
+      "engine": "core",
+      "profile": "tlc",
+      "physical_exit": 0,
+      "verdict": "success",
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "reported": 2193,
+        "verified": true
+      },
+      "statistics": {
+        "depth": 3,
+        "distinct": 3,
+        "generated": 3,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "stdout_sha256": "17875d81a148bda592ac8f426f529e1477c3b5df684f6d8dfe5af147f51ef9f5"
+    }
+  ],
+  "oracle": "tlc-2026.10.06.014338",
+  "source_methods": [
+    "Tool.evalAppl record/tuple construction preserves evaluated component receivers",
+    "SetOfTuplesValue.member validates tuple/function class before testing axes",
+    "SetOfTuplesValue.elements/toSetEnum emptiness does not replace the original public receiver"
+  ],
+  "observation": "The valid interval product is empty when enumerated but retains product-specific membership behavior. Extensional empty-set identity does not authorize replacing the source receiver through compound construction. Four scalar-axis controls cover record/tuple aliases and membership before/after graph conversion.",
+  "goldens": [
+    {
+      "model": "specifications/BaseValidIntervals/BaseValidIntervals.cfg",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/product-receivers/specifications/BaseValidIntervals/BaseValidIntervals.cfg.json",
+      "golden_sha256": "a43581581cfbb1982e44afb25e68e1033c7a27b07f8ad75e26b4d490725c1f2d",
+      "result": {
+        "verdict": "evaluation-error",
+        "verdict_code": 2147,
+        "error_class": "TLC_FINGERPRINT_EXCEPTION",
+        "exit_code": 75,
+        "counts": {
+          "distinct_states": 1,
+          "states_generated": 1,
+          "states_left_on_queue": 1,
+          "depth": 1
+        }
+      }
+    },
+    {
+      "model": "specifications/RecordMemberAfter/RecordMemberAfter.cfg",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/product-receivers/specifications/RecordMemberAfter/RecordMemberAfter.cfg.json",
+      "golden_sha256": "31c941ceec096199e591e652c37cb4515e76b4acb9112b59348f4480468c791e",
+      "result": {
+        "verdict": "evaluation-error",
+        "verdict_code": 2147,
+        "error_class": "TLC_FINGERPRINT_EXCEPTION",
+        "exit_code": 75,
+        "counts": {
+          "distinct_states": 1,
+          "states_generated": 1,
+          "states_left_on_queue": 1,
+          "depth": 1
+        }
+      }
+    },
+    {
+      "model": "specifications/RecordMemberBefore/RecordMemberBefore.cfg",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/product-receivers/specifications/RecordMemberBefore/RecordMemberBefore.cfg.json",
+      "golden_sha256": "9ffb9777157a7844527e92f872b411733eed6965e3767936c08e73b41b9d74fc",
+      "result": {
+        "verdict": "evaluation-error",
+        "verdict_code": 2147,
+        "error_class": "TLC_FINGERPRINT_EXCEPTION",
+        "exit_code": 75,
+        "counts": {
+          "distinct_states": 1,
+          "states_generated": 1,
+          "states_left_on_queue": 1,
+          "depth": 1
+        }
+      }
+    },
+    {
+      "model": "specifications/TupleMemberAfter/TupleMemberAfter.cfg",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/product-receivers/specifications/TupleMemberAfter/TupleMemberAfter.cfg.json",
+      "golden_sha256": "3517a7ae8b3550935caaa1ea48017aaf66d93c027319e3c4e838b8b0dab939ac",
+      "result": {
+        "verdict": "evaluation-error",
+        "verdict_code": 2147,
+        "error_class": "TLC_FINGERPRINT_EXCEPTION",
+        "exit_code": 75,
+        "counts": {
+          "distinct_states": 1,
+          "states_generated": 1,
+          "states_left_on_queue": 1,
+          "depth": 1
+        }
+      }
+    },
+    {
+      "model": "specifications/TupleMemberBefore/TupleMemberBefore.cfg",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/product-receivers/specifications/TupleMemberBefore/TupleMemberBefore.cfg.json",
+      "golden_sha256": "900dcc64bbcb969e5d8fb33da39854af3c3a2906f361f2a1dce3da8b7fe2a561",
+      "result": {
+        "verdict": "evaluation-error",
+        "verdict_code": 2147,
+        "error_class": "TLC_FINGERPRINT_EXCEPTION",
+        "exit_code": 75,
+        "counts": {
+          "distinct_states": 1,
+          "states_generated": 1,
+          "states_left_on_queue": 1,
+          "depth": 1
+        }
+      }
+    }
+  ],
+  "limits": [
+    "Five classified evaluation-error facts from pinned TLC; unsupported Core observations gain no parity credit.",
+    "Reference Cardinality failures in separate scalar-axis public-method probes are inherited and not certified by these membership controls."
+  ]
+}

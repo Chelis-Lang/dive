@@ -331,3 +331,10 @@ id = "graph-empty-product"
 path = "conformance/corpus/graph-empty-product"
 license = "MIT"
 layout = "examples-manifest"
+
+# Product receiver methods remain observable after empty enumeration (#768).
+[[corpus]]
+id = "product-receivers"
+path = "conformance/corpus/product-receivers"
+license = "MIT"
+layout = "examples-manifest"

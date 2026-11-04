@@ -1,0 +1,28 @@
+{
+  "sources": [
+    "docs/user/modules.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "cartesian-product",
+    "receiver-class",
+    "source-demand"
+  ],
+  "modules": [
+    {
+      "path": "specifications/RecordMemberBefore/RecordMemberBefore.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/RecordMemberBefore/RecordMemberBefore.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}
