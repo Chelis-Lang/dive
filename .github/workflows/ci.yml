@@ -1,9 +1,10 @@
 name: ci
 
 # Fast tier: three jobs whose names are the required checks set by
-# `cargo xtask protect-main`. Kept deliberately lean (about ten minutes of
-# wall clock). The whole test suite and the wider conformance gates run
-# locally with `cargo xtask gate --full` before a PR, and in conformance.yml
+# `cargo xtask protect-main`. Focused development checks run locally; the
+# required CI inventory also builds the standalone validator and Rust consumer.
+# The whole test suite and wider conformance gates run locally with
+# `cargo xtask gate --full` at integrated milestones, and in conformance.yml
 # on manual dispatch.
 #
 # `runs-on` reads the repository variable DIVE_CI_RUNNER (default
@@ -69,7 +70,11 @@ jobs:
     # Mirrored locally by `cargo xtask gate --fast`.
     name: Workspace gate
     runs-on: ${{ vars.DIVE_CI_RUNNER || 'ubuntu-latest' }}
-    timeout-minutes: 25
+    # Hosted-runner measurements reached 22m30s in nextest (including its
+    # build), with all tests passing. Leave bounded time for the remaining
+    # docs, standalone builds, external consumer and dependency checks.
+    # Test selection, individual test deadlines and required checks stay fixed.
+    timeout-minutes: 35
     env:
       # Line tables are not needed to run tests in CI, and the whole test
       # inventory must fit on the runner disk.
