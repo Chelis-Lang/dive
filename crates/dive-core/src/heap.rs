@@ -268,7 +268,8 @@ impl Heap {
         (
             hash,
             (v.flags & flags::LAZY)
-                | if v.flags & (flags::HISTORY | flags::NESTED_VIEW) != 0 {
+                | if v.kind == Kind::Product || v.flags & (flags::HISTORY | flags::NESTED_VIEW) != 0
+                {
                     flags::NESTED_VIEW
                 } else {
                     0
@@ -1978,6 +1979,37 @@ impl Heap {
         view.flags & flags::HISTORY != 0
             || (view.flags & flags::NESTED_VIEW != 0
                 && view.data.iter().any(|&h| self.has_construction_history(h)))
+    }
+
+    /// Whether an original Product receiver remains in this compound.
+    /// The parent flag only selects traversal; the actual child kind decides.
+    pub(crate) fn has_product_receiver(&self, h: Handle) -> Result<bool, Error> {
+        self.product_receiver_at(h, 0)
+    }
+
+    fn product_receiver_at(&self, h: Handle, depth: u8) -> Result<bool, Error> {
+        if !h.is_compound() {
+            return Ok(false);
+        }
+        let view = self.view(h);
+        if view.kind == Kind::Product {
+            return Ok(true);
+        }
+        if view.flags & flags::NESTED_VIEW == 0 {
+            return Ok(false);
+        }
+        self.history_poll()?;
+        if depth >= 64 {
+            return Err(Error::unsupported(
+                "nested product receiver inspection exceeds 64",
+            ));
+        }
+        for &child in view.data {
+            if self.product_receiver_at(child, depth + 1)? {
+                return Ok(true);
+            }
+        }
+        Ok(false)
     }
 
     pub(crate) fn has_raw_construction(&self, h: Handle) -> bool {

@@ -379,6 +379,11 @@ impl Machine {
     }
 
     fn normalized_equals(&mut self, a: Handle, b: Handle) -> Result<bool, Error> {
+        if self.heap.has_product_receiver(a)? || self.heap.has_product_receiver(b)? {
+            return Err(Error::unsupported(
+                "compound equality retaining a product receiver whose demand is not proved",
+            ));
+        }
         if !self.heap.has_raw_construction(a) && !self.heap.has_raw_construction(b) {
             return compare::equals(&self.heap, a, b);
         }
@@ -418,7 +423,10 @@ impl Machine {
 
     pub(crate) fn eval_component(&mut self, code: &Code, p: P) -> Result<Handle, Error> {
         let value = self.eval(code, p)?;
-        if self.heap.has_construction_history(value) {
+        if self.heap.has_construction_history(value) || self.heap.kind(value) == Some(Kind::Product)
+        {
+            // Tool embeds the original product: empty enumeration does not
+            // authorize replacing its later public member() receiver class.
             Ok(value)
         } else {
             self.work_norm(value)
@@ -628,6 +636,12 @@ impl Machine {
                     return r;
                 }
                 for value in &mut v {
+                    if self.heap.has_product_receiver(*value)? {
+                        self.give_scratch(v);
+                        return Err(Error::unsupported(
+                            "a set element retaining a product receiver whose normalization is not proved",
+                        ));
+                    }
                     *value = self.heap.normalize_construction(*value)?;
                 }
                 let r = self.heap.set_from(&mut v);
@@ -693,7 +707,12 @@ impl Machine {
             Node::Map { binds, body } => {
                 let mut out = Vec::new();
                 self.for_each_binding(code, binds, &mut |m: &mut Self| {
-                    let v = m.eval_norm(code, *body)?;
+                    let v = m.eval_component(code, *body)?;
+                    if m.heap.has_product_receiver(v)? {
+                        return Err(Error::unsupported(
+                            "a mapped set element retaining an unproved product receiver",
+                        ));
+                    }
                     m.charge(1)?;
                     out.try_reserve(1)
                         .map_err(|_| Error::unsupported("MAP construction allocation"))?;
@@ -800,8 +819,19 @@ impl Machine {
                 for &x in args {
                     a.push(if prints {
                         self.eval(code, x)?
+                    } else if *op == dive_ir::StdOp::TlcMakeFcn {
+                        self.eval_component(code, x)?
                     } else {
-                        self.eval_norm(code, x)?
+                        let value = self.eval_component(code, x)?;
+                        if self.heap.has_product_receiver(value)?
+                            && !matches!(op.module(), "Graphs" | "UndirectedGraphs")
+                        {
+                            return Err(Error::unsupported(format!(
+                                "{} consuming an unproved product receiver",
+                                op.qualified_name()
+                            )));
+                        }
+                        self.work_norm(value)?
                     });
                 }
                 // The evaluating override returns null for nonstrings and
@@ -827,7 +857,15 @@ impl Machine {
                 let mut a = Vec::with_capacity(args.len());
                 for x in args {
                     a.push(match x {
-                        LibArg::Value(p) => crate::stdlib::Ho::Value(self.eval_norm(code, *p)?),
+                        LibArg::Value(p) => {
+                            let value = self.eval_component(code, *p)?;
+                            if self.heap.has_product_receiver(value)? {
+                                return Err(Error::unsupported(
+                                    "a higher-order library argument retaining an unproved product receiver",
+                                ));
+                            }
+                            crate::stdlib::Ho::Value(self.work_norm(value)?)
+                        }
                         LibArg::Op { params, body } => {
                             crate::stdlib::Ho::Op(crate::stdlib::OpFn::new(code, params, *body))
                         }
@@ -1125,6 +1163,11 @@ impl Machine {
     /// `set` is not a set, or membership is undefined.
     #[allow(clippy::too_many_lines, reason = "one arm per set kind")]
     pub fn member(&mut self, x: Handle, set: Handle) -> Result<bool, Error> {
+        if self.heap.has_product_receiver(x)? {
+            return Err(Error::unsupported(
+                "a compound membership query retaining an unproved product receiver",
+            ));
+        }
         if self.fuel != u64::MAX && set.is_compound() && self.heap.view(set).kind == Kind::SetEnum {
             self.domain_work(set, false, 0)?;
         }
@@ -1140,7 +1183,16 @@ impl Machine {
             return Err(eval_err("membership in a value that is not a set"));
         }
         let kind = self.heap.view(set).kind;
+        if kind == Kind::Product
+            && x.as_model_id().is_none()
+            && (!x.is_compound() || !self.heap.view(x).kind.is_fcn())
+        {
+            return Err(Error::unsupported(
+                "non-tuple membership in a product whose value-source error provenance is not proved",
+            ));
+        }
         if kind != Kind::Set
+            && kind != Kind::Product
             && !self.opts.symbolic_member
             && self.heap.is_finite(set)
             && !self.heap.is_lazy(set)
@@ -1617,7 +1669,7 @@ impl Machine {
             let mut vals = Vec::with_capacity(keys.len());
             for &k in &keys {
                 self.bind_unit(binds, u, k)?;
-                vals.push(self.eval_norm(code, body)?);
+                vals.push(self.eval_component(code, body)?);
             }
             return Ok(self.heap.fcn_sorted(&keys, &vals));
         }
@@ -1641,7 +1693,7 @@ impl Machine {
                 self.bind_unit(binds, *u, comps[k])?;
             }
             keys.push(self.heap.tuple(&comps));
-            vals.push(self.eval_norm(code, body)?);
+            vals.push(self.eval_component(code, body)?);
             let mut k = units.len();
             loop {
                 if k == 0 {
@@ -2020,8 +2072,18 @@ impl Machine {
 
     fn std(&mut self, code: &Code, f: StdFn, args: &[P]) -> Result<Handle, Error> {
         let mut a = Vec::with_capacity(args.len());
-        for &x in args {
-            a.push(self.eval_norm(code, x)?);
+        for (index, &x) in args.iter().enumerate() {
+            let value = self.eval_component(code, x)?;
+            a.push(if f == StdFn::Append && index == 1 {
+                value
+            } else {
+                if self.heap.kind(value) == Some(Kind::Product) {
+                    return Err(Error::unsupported(
+                        "a standard operator consuming an unproved product receiver",
+                    ));
+                }
+                self.work_norm(value)?
+            });
         }
         let arg = |i: usize| {
             a.get(i)
@@ -2155,6 +2217,53 @@ mod tests {
     #![allow(clippy::unwrap_used, reason = "tests")]
     use super::*;
     use crate::TlcClass;
+
+    #[test]
+    fn compound_components_keep_product_receiver_authority() {
+        for tlc in [false, true] {
+            for symbolic_member in [false, true] {
+                let semantics = if tlc {
+                    crate::Semantics::tlc()
+                } else {
+                    crate::Semantics::default()
+                };
+                let mut m = Machine::new(
+                    Arc::new(Store::with_semantics(true, semantics)),
+                    1,
+                    Opts {
+                        symbolic_member,
+                        ..Opts::default()
+                    },
+                    Memo::new(&[]),
+                );
+                let zero = Handle::int(0).unwrap();
+                let empty = m.heap.interval(0, -1);
+                let product = m.heap.symbolic(Kind::Product, 0, &[empty, zero]);
+                let field = m.heap.string("edge").unwrap();
+                let code = Code {
+                    nodes: vec![
+                        Node::Const(product),
+                        Node::Record(vec![(field, 0)].into()),
+                        Node::Tuple(vec![1].into()),
+                    ],
+                    ..Code::default()
+                };
+                assert_eq!(m.eval_component(&code, 0), Ok(product));
+                let record = m.eval(&code, 1).unwrap();
+                let tuple = m.eval(&code, 2).unwrap();
+                assert_eq!(m.heap.view(record).values(), &[product]);
+                assert_eq!(m.heap.has_product_receiver(tuple), Ok(true));
+                let ordinary = m.heap.empty_set();
+                assert_eq!(m.member(zero, ordinary), Ok(false));
+                let error = m.member(zero, product).unwrap_err();
+                assert_eq!(error.kind(), crate::ErrorKind::Unsupported);
+                assert!(error.message().contains("non-tuple membership"));
+                assert!(m.demand_equals(record, record).is_err());
+                assert_eq!(m.heap.view(record).values(), &[product]);
+                assert!(!m.heap.poisoned());
+            }
+        }
+    }
 
     #[test]
     fn nested_set_equality_demands_only_reached_fields_and_preserves_quiet_aliases() {

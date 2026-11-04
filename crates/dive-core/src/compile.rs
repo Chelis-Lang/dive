@@ -847,7 +847,7 @@ impl Compiler<'_> {
         }
         i.history |= matches!(
             n,
-            Node::SetEnum(..) | Node::Map { .. } | Node::SetBin(SetOp::Cup, ..)
+            Node::SetEnum(..) | Node::Map { .. } | Node::SetBin(SetOp::Cup, ..) | Node::Product(_)
         );
         i.red = self.red_of(n);
         i

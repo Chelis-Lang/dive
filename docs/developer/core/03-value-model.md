@@ -415,6 +415,17 @@ when sets are built or merged, never for equality.
 
 ## 8. Lazy views and normalization state
 
+Product enumeration and receiver identity remain separate. Core compound
+construction retains the original Product rather than installing its enumerated
+empty projection: `SetOfTuplesValue.member` validates tuple/function arguments
+even for an empty product. The parent `NESTED_VIEW` bit selects bounded traversal
+to the actual Product kind; it grants no literal or history ownership. Record,
+tuple, function, EXCEPT, `Append` and `:>` value components preserve that receiver.
+Unproved compound comparison, collection keys, state handoff and other operator
+consumers refuse. Product construction is history-sensitive for folding, memo
+sites and parent skips. Non-tuple error-source provenance remains unsupported;
+the pinned `product-receivers` facts do not establish native error parity (#768).
+
 TLC distinguishes how a set is represented, and the distinction is observable:
 
 - membership of a value in a `SubsetValue`, `IntervalValue`, `SetOfFcnsValue`

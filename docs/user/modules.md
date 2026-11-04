@@ -87,6 +87,20 @@ generated states, depth three and success exit 0:
 dive check conformance/corpus/graph-empty-product/specifications/LazyEmptyProduct/LazyEmptyProduct.tla --library-path crates/dive-eval/tests/fixtures/community-modules --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
 ```
 
+Empty enumeration does not turn the original Product into an ordinary empty-set
+receiver. For example, TLC still rejects `0 \in ((1..0) \X (0..0))` as non-tuple
+membership. Core preserves that receiver through records, tuples, function values,
+EXCEPT, `Append` and `:>` values. It returns named `unsupported`/exit 3 for this
+unproved source-error case, including after graph conversion. Nested product
+comparisons, set elements, function keys, state handoff and other unproved
+operator consumers also retain explicit refusals; an empty projection grants no
+receiver or history authority. This checked receiver control refuses on Core in
+both profiles:
+
+```sh
+dive check conformance/corpus/product-receivers/specifications/BaseValidIntervals/BaseValidIntervals.tla --library-path crates/dive-eval/tests/fixtures/community-modules --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+```
+
 This state-dependent example exercises every override on Core:
 
 ```sh

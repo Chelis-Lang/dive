@@ -310,6 +310,11 @@ fn mv_error(heap: &Heap, a: Handle, b: Handle) -> Error {
 /// # Errors
 /// TLC's error for values of different classes.
 pub(crate) fn equals(heap: &Heap, a: Handle, b: Handle) -> Result<bool, Error> {
+    if heap.has_product_receiver(a)? || heap.has_product_receiver(b)? {
+        return Err(Error::unsupported(
+            "comparison retaining a product receiver whose nested normalization is not proved",
+        ));
+    }
     if heap.has_raw_construction(a) || heap.has_raw_construction(b) {
         return Err(Error::unsupported(
             "equality requiring nested raw construction demand not yet proved",

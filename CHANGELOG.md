@@ -6,6 +6,10 @@
   intact. Apply the same demand at Core product materialization, including record
   and tuple components. Keep demanded mixed comparisons and unproved conversions
   guarded.
+  Preserve the original Product receiver through record, tuple, function, EXCEPT,
+  `Append` and `:>` value components. Refuse unproved non-tuple membership and
+  consumers instead of reporting false success from an extensional empty-set
+  replacement (#768).
 
 - Add explicit PlusCal `translate --write` and Rust preparation/publication APIs,
   publishing admitted modules, exact `.old` backups and delimiter-merged `.cfg`

@@ -30,6 +30,12 @@ that checkpoint. The later bounded #760 repair executes concrete empty products
 on both engines in both profiles. Its separate `graph-empty-product` corpus has
 eight generated model facts and four context-only negative controls; it changes
 none of the historical qualification totals above.
+The separate `product-receivers` corpus pins nine classified non-tuple membership
+errors after the inherited main false-success finding #768. Core preserves the
+original Product through bounded component constructors and refuses unproved
+receiver consumers; these refusals receive no parity credit. Reference's error
+source classification and separate scalar-axis Cardinality failures remain
+unproved, without relabeling the primary TLC facts.
 
 Core safety candidate queues now consume owned spilled payloads before ordered
 Store promotion. Bounds apply to the encoded queues and separately reported
