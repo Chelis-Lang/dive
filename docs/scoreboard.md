@@ -48,7 +48,7 @@ codec scratch/origin workspace, with explicit resource stops. They do not bound
 active Arena roots, accepted Store, all histories or temporal structures.
 Filesystem translation publication, standalone Rust consumers, owned finite
 random-source replay and native producer source counters are working additions.
-Their broader families and the real TLC logical-cost/debugger surface stay open.
+Their broader families and complete TLC logical costs/debugger surface stay open.
 
 Comparison-summary prototype `88a5845a` is rejected unadopted: 30 correct
 Sailfish rows miss the required 10% TLC/W1 gain (observed 1.82%) and fail the
@@ -65,9 +65,10 @@ activity. Completed feature/review evidence is verified in S3 before local raw
 files and targets are removed; this housekeeping is not checker capacity or
 performance qualification.
 
-The current 38-family checklist is **8 implemented / 28 partial / 2 missing**.
-Coverage/debugger and distributed checking remain missing parity families. Native
-source counters do not provide TLC logical-cost or DAP credit.
+The current 38-family checklist is **8 implemented / 29 partial / 1 missing**.
+Final Reference logical action-context costs make coverage/debugger partial;
+complete costs, Core source maps and DAP remain open. Distributed checking remains
+missing. Native source counters stay separate from TLC logical-cost credit.
 
 ## PlusCal file workflows
 
@@ -979,9 +980,11 @@ throughput, scaling or peak-memory result. The backlog remains
 
 ## Roadmap feature checklist
 
-The current inventory is 8 implemented, 28 partial and 2 missing. Granted startup
+The current inventory is 8 implemented, 29 partial and 1 missing. Granted startup
 environment/TXT inputs supply partial I/O support; runtime reads, writes, exec and
-other backend combinations remain open. See the [remaining mandatory scope](ROADMAP.md#through-full-tlc-parity).
+other backend combinations remain open. Final Reference logical coverage supplies
+partial coverage/debugger support; complete costs, Core source maps and DAP are
+still required. See the [remaining mandatory scope](ROADMAP.md#through-full-tlc-parity).
 
 Status is one word: `implemented`, `partial` or `missing`. `implemented` means
 the feature works for the supported corpus. It does not certify full parity.
@@ -1026,7 +1029,7 @@ census or milestone acceptance (`docs/developer/core/03-value-model.md` §12).
 | Runtime introspection and configuration services | partial |
 | CLI/output conventions and message controls | partial |
 | Trace/state dumps, ALIAS and trace exploration | partial |
-| Coverage and debugger services | missing |
+| Coverage and debugger services | partial |
 | Bounded-memory stores, frontiers, graphs and spill | partial |
 | Checkpoint and recovery | partial |
 | Distributed checking and recovery | missing |
@@ -1066,11 +1069,12 @@ ENABLED queries retain named refusals. This working observation slice does not
 close TLC coverage, Core source maps, DAP or the coverage/debugger family.
 
 Final `--coverage 0` / TLC `-coverage 0` now expose the separate Reference logical
-Init/Next scalar/quantifier slice in CLI and public Rust consumers. Fourteen
+Init/Next scalar/quantifier slice in CLI and public Rust consumers. Twenty-one
 pinned primary models cover multiple state variables, reused helpers, action
 predicate sharing, literal-domain secondary costs, prefetch/short circuits,
-CHOOSE, lazy effects, exact declaration headers and unvisited assignment zeros.
-Failed/stopped runs retain their original model report and explicitly refuse
+CHOOSE, lazy effects, exact declaration headers and unvisited assignment zeros
+through formal actuals and aliases. Twenty successful controls retain all cost
+rows. Failed/stopped runs retain their original model report and explicitly refuse
 unproved diagnostic-reconstruction costs. Native metrics are unchanged. The
 `tlc-coverage-primary` corpus and compact cost fixtures are separate from existing
 populations; no complete family, Core mapping, DAP or performance acceptance is claimed.

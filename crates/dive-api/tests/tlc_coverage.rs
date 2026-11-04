@@ -90,6 +90,13 @@ fn multi_variable_generators_reused_helpers_and_domain_costs_match_the_complete_
         "QuantShort",
         "Headers",
         "Unreached",
+        "PrimeArg",
+        "PrimeAlias",
+        "AliasPrimeTarget",
+        "HiddenPrimeRhs",
+        "SharedMarker",
+        "MarkerLazyActual",
+        "EmptyActionMarker",
     ] {
         let file = fixture(name);
         let expected: Value =
@@ -128,6 +135,9 @@ fn multi_variable_generators_reused_helpers_and_domain_costs_match_the_complete_
                 "warnings",
             ] {
                 assert_eq!(observed[key], plain[key], "{name}: {key}");
+            }
+            if name == "MarkerLazyActual" {
+                assert_eq!(observed["output"], json!([]));
             }
             if name == "LazyEffects" {
                 assert_eq!(observed["output"], json!(["\"once\""]));
@@ -265,6 +275,40 @@ fn unimplemented_compound_value_cost_map_refuses_only_coverage()
     );
     for key in ["verdict", "statistics", "tlc", "output", "counterexample"] {
         assert_eq!(observed[key], plain[key], "{key}");
+    }
+    std::fs::remove_dir_all(directory)?;
+    Ok(())
+}
+
+#[test]
+fn unproved_captured_let_context_refuses_without_demanding_unused_actuals()
+-> Result<(), Box<dyn std::error::Error>> {
+    let directory = std::env::temp_dir().join(format!("dive-logical-let-{}", std::process::id()));
+    std::fs::create_dir_all(&directory)?;
+    let file = directory.join("Captured.tla");
+    std::fs::write(
+        &file,
+        "---- MODULE Captured ----\nEXTENDS TLC\nVARIABLE x\nInit == x=0\nNext == LET Unused == PrintT(\"unused\") IN x'=x\n====\n",
+    )?;
+    std::fs::write(file.with_extension("cfg"), "INIT Init\nNEXT Next\n")?;
+    for compat in [false, true] {
+        let mut request = CheckRequest {
+            file: file.clone(),
+            workers: Some(1),
+            compat_tlc: compat,
+            seed: Some(7),
+            fp: Some(0),
+            ..CheckRequest::default()
+        };
+        let plain = check_file_engine(&request, Engine::Reference)?.to_json();
+        assert_eq!(plain["verdict"], "success");
+        assert_eq!(plain["output"], json!([]));
+        request.tlc_coverage = true;
+        let observed = check_file_engine(&request, Engine::Reference)?.to_json();
+        assert_eq!(observed["verdict"], "unsupported");
+        assert_eq!(observed["output"], json!([]));
+        assert!(observed.to_string().contains("captured LET contexts"));
+        assert!(observed["tlc_coverage"].get("actions").is_none());
     }
     std::fs::remove_dir_all(directory)?;
     Ok(())

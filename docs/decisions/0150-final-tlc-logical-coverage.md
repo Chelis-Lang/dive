@@ -36,6 +36,10 @@ lexer and JavaCC positions, without changing the IR or trace wire schemas.
 Expression demands, successful generator continuations, actual emissions and
 checker-admitted identities update their respective logical counters. The
 report uses the pinned source's logical tree collapse and assignment zero rows.
+Assignment markers use the whole Next predicate's source locations, resolved
+through formal actuals and aliases without evaluating them. The scan stops at
+an equality/membership predicate and does not descend into its right-hand side;
+the resulting source markers also apply to shared predicates in Init.
 
 Literal set constructors retain only shared set identity plus their logical
 source owner. Enumeration hooks count actual next-element demand, including
@@ -60,9 +64,11 @@ incompatible trace migration.
 ## Consequences
 
 Successful admitted logical rows are tested against complete pinned final cost
-reports. Fourteen separate primary models, including their ordinary TLC/SANY
+reports. Twenty-one separate primary models, including their ordinary TLC/SANY
 facts, are regenerated from the same pinned oracle; no established golden or
-population changes. Failed, stopped or unimplemented cost paths cannot claim
+population changes. Twenty successful controls retain the complete cost rows;
+the failure control establishes the explicit reconstruction boundary.
+Failed, stopped or unimplemented cost paths cannot claim
 TLC cost parity. Variable-value summaries, remaining cost families, other workers,
 Core/INSTANCE/PlusCal maps and DAP remain mandatory follow-up work.
 

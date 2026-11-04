@@ -66,7 +66,9 @@ historical producer remains unchanged.
 Candidate transport does not bound accepted Store or active Arena; finite
 random-source replay and startup host inputs do not complete effects/modes;
 native source counters do not provide TLC logical costs, Core source maps or
-DAP. The current inventory is **8 implemented / 28 partial / 2 missing**.
+DAP. The later Reference logical coverage slice makes coverage/debugger partial;
+the current inventory is **8 implemented / 29 partial / 1 missing**. This does
+not refresh the source-bound Phase 7 qualification above.
 Reference stays default; M1/M2, broad performance and RC acceptance remain open.
 
 The demanded-summary candidate `88a5845a` is rejected unadopted after 30 correct
@@ -402,7 +404,7 @@ proved scope.
 | Native safety storage | Exact membership, frontier/predecessor spill, fallible disk membership and owned completed-level recovery preserve fresh-owner identity, history and ordered frontier. Candidate DAG/occurrence spill (#750) avoids speculative Store promotion and has separate codec/origin bounds. Active Arena roots, accepted Store/history, trace/temporal graph/SCC paging, temporal recovery and complete accounting remain open; no total-memory bound follows. |
 | Native temporal capture reports | Persistent original rows/CSR, controlled eager admission, bounded closed-function reuse, checked growth and actual budgets. Periodic stops report their real capture stage and completion facts (#675). |
 | Independent PlusCal model comparison | #728 merged: pinned pcal/TLC against native translation/dive through Reference, fixed 149 inputs / 59 configurations, both profiles/label settings, independent native words. Missing configuration, preflight matches and actual exploration receive separate accounting. |
-| User workflows | PlusCal publication/AST writes, independent Cargo consumers and native Reference source-work observation are merged (#747/#752/#755). Full translation/API combinations, TLC logical costs/Core source maps and DAP remain open. |
+| User workflows | PlusCal publication/AST writes, independent Cargo consumers and native Reference source-work observation are merged (#747/#752/#755). Final Reference logical coverage adds the admitted scalar/quantifier Init/Next cost slice. Full translation/API combinations, complete costs, Core source maps and DAP remain open. |
 | Granted startup inputs | Explicit category grants admit bounded Reference environment/text assumptions with fresh source-bound offline replay (#762). Runtime reads, writes, exec, other backends/recovery and unproved TLC name/history cases remain refused. |
 | Construction history | Owned literal/MAP/union construction order, raw demand and sparse state handoff are implemented with independent replay controls (#677, ADR 0131). Broader #623 remains open. |
 | Default compound membership | The bounded worker-local index starts on the second eligible lookup in normalized sets of at least 16 members (#698). Original extensional comparison, ownership/phase admission, collision checks and miss/error behavior remain authoritative. It shares the memo budget; scalar queries, finite-fuel analysis, TLC comparisons and unproved values retain the original search. `DIVE_CORE_OPT=-member-index` restores that search. |
@@ -900,7 +902,7 @@ below keep their original source and limitations.
    on the identity-checked recovery contract; Java worker/checkpoint
    interoperability remains excluded.
 3. Finish simulation/DFID matrices and justified worker/scheduler options,
-   real TLC coverage/Core source maps/full DAP, complete PlusCal and public
+   complete TLC coverage/Core source maps/full DAP, complete PlusCal and public
    checking/simulation/translation/
    checkpoint/distributed APIs with cargo-test integration. #111/#118/#128/#239
    and #350's separately measured ≤1% instruction-overhead criterion remain open.
@@ -915,7 +917,7 @@ below keep their original source and limitations.
 5. Satisfy full-tier actual-Core/fallback acceptance, unchanged deep frontend/
    corpus populations, supported platform/package/user flows and RC qualification
    at their milestone/release boundary. The current family inventory is
-   **8 implemented / 28 partial / 2 missing**; bounded delivery does not complete
+   **8 implemented / 29 partial / 1 missing**; bounded delivery does not complete
    a whole family.
 
 Use focused development checks and required CI while implementing. Phase 7's

@@ -30,6 +30,12 @@ retain TLC's zero rows. These are logical costs, not native expression-entry
 counts. Collection observes actual producer demands and concrete set identities;
 rendering or snapshotting never evaluates a TLA+ expression.
 
+Assignment source markers follow formal arguments and aliases, including a
+helper that primes an unprimed variable actual. Markers are shared by source
+predicate across the calling forest. Their non-evaluating scan stops at an
+equality or membership predicate, preserving TLC's rows for unused branches
+without demanding either side's values.
+
 The admitted slice supports multiple scalar state variables, explicit INIT/NEXT,
 acyclic first-order helpers, scalar arithmetic/boolean expressions, IF actions,
 finite literal/interval domains, interval-based powersets and differences,
@@ -40,8 +46,9 @@ unused and repeated lazy uses retain the ordinary thunk cache.
 
 Configured constants, SPECIFICATION/property/constraint roles, VIEW, symmetry,
 INSTANCE, recursion, higher-order operators, functions/compound state values,
-unproved set materialization, Core/ENABLED, temporal, checkpoint/recovery and
-sampling combinations are outside this slice. Unsupported source shapes refuse
+captured LET/substitution contexts, unproved set materialization, Core/ENABLED,
+temporal, checkpoint/recovery and sampling combinations are outside this slice.
+Unsupported source shapes refuse
 through the ordinary unsupported model path. A reached cost operation without
 an implemented map yields `tlc_coverage.status: "unsupported"`, with a named
 `feature` and no action costs; the original model result is retained.
@@ -75,7 +82,7 @@ with five distinct states; Auto selects a whole Reference run before execution,
 with one actual worker even when more were requested. The default is off, which
 is the TLC-equivalent setting. Both semantic profiles can request these native
 metrics explicitly; they are **not TLC's logical coverage costs**. Pinned TLC
-`-coverage 0` has the separate supported logical-cost route described below.
+`-coverage 0` has the separate supported logical-cost route described above.
 
 JSON adds `source_coverage` with `metric: "native-source-work"`, exact file/module,
 UTF-8 byte ranges and JavaCC line/column positions, static instance-definition

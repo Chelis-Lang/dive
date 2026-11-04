@@ -2711,6 +2711,8 @@ such expression. Pure concat without atoi and numeral ToString controls succeed.
 tlaplus commit `94d0c5070852b37b801bb8998c436383ab7ee37b`:
 `tlc2/tool/coverage/CostModelCreator.java` (action predicate sharing and call
 forest), `OpApplNodeWrapper.java` (source rows, assignment markers and collapse),
+`tlc2/tool/impl/Spec.java` (`getPrimedLocs`/`collectPrimedLocs`: whole-Next source
+markers, lazy actual/alias contexts and the equality/membership scan boundary),
 `ActionWrapper.java` (Init candidates and Next discovered/generated counts),
 `tlc2/tool/impl/Tool.java` (evaluation, continuation and generator demand),
 `ContextEnumerator.java` (concrete prefetch/carry), and
@@ -2719,12 +2721,22 @@ collector observes the existing evaluator/generator; it does not copy the Java
 object layout or execute any source on inspection.
 
 The primary `ACoverageTest` motivates lazy SUBSET/CHOOSE action separation.
-Fourteen test-read microcases in
+Twenty-one test-read microcases in
 `conformance/corpus/tlc-coverage-primary/` retain compact exact action
 rows, pins and input digests. `scripts/generate-tlc-coverage-fixtures.py` verifies
 the jar SHA-256 before regeneration. The separately registered
 `tlc-coverage-primary` corpus supplies normal TLC/SANY facts through the standard
 harness. Raw streams stay outside the repository.
+
+`PrimeArg`, `PrimeAlias` and `AliasPrimeTarget` retain zero assignment rows
+through formal actuals, forwarding helpers and primed/unprimed aliases.
+`SharedMarker` establishes the shared source annotation in an unused Init call;
+`HiddenPrimeRhs` establishes that marker discovery stops before the right-hand
+side. `MarkerLazyActual` leaves its unused PrintT actual untouched. Metadata
+frames reuse the evaluator's lvalue resolver with fresh uncached recipes; they
+do not evaluate actuals, read producer thunk caches or change producer slots.
+`EmptyActionMarker` confirms the splitter retains an empty quantified action,
+so the marker remains visible even without a generated candidate.
 
 `FailDemand` confirms that TLC reconstruction repeats Init and CHOOSE costs on
 an assertion failure. The new feature refuses those costs while retaining the

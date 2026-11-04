@@ -1,4 +1,6 @@
 //! Pinned TLC action-context logical invocation costs for the admitted Reference slice.
+use crate::core::Core;
+use crate::env::{Env, Sv, Thunk};
 use crate::next::Action;
 use crate::{SourceCoverage, SourceLocation};
 use dive_ir::{Arg, Expr, ExprId, Ir, OpRef, Origin};
@@ -171,6 +173,7 @@ fn add(ir: &Ir, expr: ExprId, tree: &mut Tree, depth: usize) -> Result<Option<us
             }
         }
         Expr::Builtin { .. }
+        | Expr::Prime(_)
         | Expr::Junction { .. }
         | Expr::Not(_)
         | Expr::Implies(..)
@@ -194,7 +197,7 @@ fn add(ir: &Ir, expr: ExprId, tree: &mut Tree, depth: usize) -> Result<Option<us
         children: Vec::new(),
         count: 0,
         cost: 0,
-        primed: matches!(&node.expr, Expr::Builtin { op: dive_ir::BuiltinOp::Eq | dive_ir::BuiltinOp::In, args } if args.first().is_some_and(|left| matches!(ir.expr(*left),Expr::Var {primed:true,..}))),
+        primed: false,
     });
     for child in children {
         if let Some(child) = add(ir, child, tree, depth + 1)? {
@@ -204,6 +207,135 @@ fn add(ir: &Ir, expr: ExprId, tree: &mut Tree, depth: usize) -> Result<Option<us
     }
     Ok(Some(index))
 }
+// Source assignment markers follow the same non-evaluating lvalue resolver
+// as generation. Fresh uncached metadata thunks retain actuals/aliases without
+// reading a producer thunk cache, evaluating strict arguments or changing slots.
+fn marker_frame(
+    core: &Arc<Core>,
+    caller: &Env,
+    definition: dive_ir::DefId,
+    args: &[Arg],
+) -> Result<Env, String> {
+    let def = core.ir.def(definition);
+    if args.len() != def.params.len() {
+        return Err("TLC coverage marker argument context".into());
+    }
+    let parent = match def.scope {
+        dive_ir::DefScope::Local { .. } | dive_ir::DefScope::Inline { .. } => Some(
+            caller
+                .frame_at_depth(def.depth.saturating_sub(1))
+                .cloned()
+                .ok_or("TLC coverage marker lexical context")?,
+        ),
+        _ => None,
+    };
+    let mut env = Env::new(
+        definition,
+        def.depth,
+        def.frame.len(),
+        parent,
+        caller.dynamic.clone(),
+    );
+    for (slot, arg) in args.iter().enumerate() {
+        let Arg::Expr { expr, .. } = arg else {
+            return Err("TLC coverage marker operator actuals".into());
+        };
+        env.bind(slot, Sv::Thunk(Thunk::new(*expr, caller.clone(), false)));
+    }
+    Ok(env)
+}
+fn collect_markers(
+    core: &Arc<Core>,
+    env: &Env,
+    expression: ExprId,
+    markers: &mut BTreeSet<ExprId>,
+    work: &mut usize,
+    depth: usize,
+) -> Result<(), String> {
+    if depth > 256 || *work == 0 {
+        return Err("TLC coverage assignment marker capacity".into());
+    }
+    *work -= 1;
+    let visit =
+        |env: &Env, expression: ExprId, markers: &mut BTreeSet<ExprId>, work: &mut usize| {
+            collect_markers(core, env, expression, markers, work, depth + 1)
+        };
+    match core.ir.expr(expression) {
+        Expr::Builtin {
+            op: dive_ir::BuiltinOp::Eq | dive_ir::BuiltinOp::In,
+            args,
+        } => {
+            if let Some(left) = args.first()
+                && core
+                    .primed_var(env, *left, false)
+                    .map_err(|error| error.to_string())?
+                    .is_some()
+            {
+                markers.insert(expression);
+            }
+        }
+        Expr::Junction { items, .. } => {
+            for item in items {
+                visit(env, *item, markers, work)?;
+            }
+        }
+        Expr::Implies(left, right) => {
+            visit(env, *left, markers, work)?;
+            visit(env, *right, markers, work)?;
+        }
+        Expr::If { then, other, .. } => {
+            visit(env, *then, markers, work)?;
+            visit(env, *other, markers, work)?;
+        }
+        Expr::Quant {
+            kind: dive_ir::QuantKind::Exists | dive_ir::QuantKind::Forall,
+            body,
+            ..
+        } => visit(env, *body, markers, work)?,
+        Expr::Def(definition)
+        | Expr::Apply {
+            callee: OpRef::Def(definition),
+            ..
+        } => {
+            let definition = core.redirect(*definition);
+            let def = core.ir.def(definition);
+            if def.std.is_none()
+                && !core.def_values.contains_key(&definition)
+                && core.startup[definition.index()].get().is_none()
+                && core.def_cache[definition.index()].get().is_none()
+            {
+                let args = if let Expr::Apply { args, .. } = core.ir.expr(expression) {
+                    args.as_ref()
+                } else {
+                    &[]
+                };
+                let inner = marker_frame(core, env, definition, args)?;
+                visit(&inner, def.body, markers, work)?;
+            }
+        }
+        Expr::Local(local) => {
+            if let Sv::Thunk(thunk) = core.slot(env, *local).map_err(|error| error.to_string())? {
+                visit(&thunk.env, thunk.expr, markers, work)?;
+            }
+        }
+        _ => {}
+    }
+    Ok(())
+}
+fn assignment_markers(actions: &[Action]) -> Result<BTreeSet<ExprId>, String> {
+    let mut markers = BTreeSet::new();
+    let mut work = 100_000;
+    for action in actions {
+        let scope = action.scope();
+        let core = scope
+            .context
+            .upgrade()
+            .ok_or("TLC coverage action context expired")?;
+        collect_markers(&core, &scope.env, action.expr(), &mut markers, &mut work, 0)?;
+    }
+    Ok(markers)
+}
+
 impl Logical {
     pub(crate) fn prepare(
         &mut self,
@@ -258,6 +390,12 @@ impl Logical {
             };
             add(ir, action.expr(), &mut tree, 0)?;
             self.trees.insert(action.id(), tree);
+        }
+        let markers = assignment_markers(actions)?;
+        for tree in self.trees.values_mut() {
+            for node in &mut tree.nodes {
+                node.primed = markers.contains(&node.expr);
+            }
         }
         Ok(())
     }
@@ -457,6 +595,29 @@ impl SourceCoverage {
                 .any(|action| !action.is_for_ir(&self.ir))
             {
                 return Err("TLC coverage action belongs to a different IR".into());
+            }
+            for action in inits.iter().chain(actions) {
+                let scope = action.scope();
+                if scope.env.dynamic.subst.is_some() {
+                    self.refuse_tlc(
+                        "TLC coverage captured substitution contexts require source maps",
+                    );
+                    return Err(
+                        "TLC coverage captured substitution contexts require source maps".into(),
+                    );
+                }
+                let mut frame = Some(&scope.env.frame);
+                while let Some(current) = frame {
+                    if current
+                        .slots
+                        .iter()
+                        .any(|slot| matches!(slot, Sv::Thunk(_)))
+                    {
+                        self.refuse_tlc("TLC coverage captured LET contexts require source maps");
+                        return Err("TLC coverage captured LET contexts require source maps".into());
+                    }
+                    frame = current.parent.as_ref();
+                }
             }
             logical
                 .lock()
