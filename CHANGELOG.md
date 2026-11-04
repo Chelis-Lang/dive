@@ -17,18 +17,6 @@
   reversed and nested products. Check later factors for empty sets and demanded
   errors instead of treating an unproved factor as infinite.
 
-- Preserve conversion demand for empty Cartesian products in Reference's
-  normalized Java set conversions (`SetToSeq`, `SetToSeqs` and the shared
-  conversion helper). Reuse the bounded read-only emptiness proof before axis
-  normalization, keeping original Product receivers, raw aliases, later errors
-  and unknown/provider guards intact in both profiles (#770). Keep normalization-
-  first consumers such as `AntiFunction` on their original receiver-normalizing
-  route, preserving demanded axis comparisons before type rejection.
-  Preserve `LongestCommonPrefix`'s original-argument diagnostic demand: a mixed
-  first Product axis can raise its comparison error while rendering, whereas an
-  empty first axis or a nested empty Product prints `{}` without normalizing
-  unused axes. Keep the existing guards for unproved conversions.
-
 - Add explicit PlusCal `translate --write` and Rust preparation/publication APIs,
   publishing admitted modules, exact `.old` backups and delimiter-merged `.cfg`
   files with effective source options and concurrent-edit checks. Add actual
@@ -153,6 +141,18 @@
   forgeries (#713). Preserve genuine completed-2111 and actual 2179/2103
   families with bounded private source replay and caller-selected native/TLC
   process status. Existing named words retain native version 2.
+- Preserve conversion demand for empty Cartesian products in Reference's
+  normalized Java set conversions (`SetToSeq`, `SetToSeqs` and the shared
+  conversion helper). Reuse the bounded read-only emptiness proof before axis
+  normalization, keeping original Product receivers, raw aliases, later errors
+  and unknown/provider guards intact in both profiles (#770). Keep normalization-
+  first consumers such as `AntiFunction` on their original receiver-normalizing
+  route, preserving demanded axis comparisons before type rejection.
+  Preserve `LongestCommonPrefix`'s original-argument diagnostic demand: a mixed
+  first Product axis can raise its comparison error while rendering, whereas an
+  empty first axis or a nested empty Product prints `{}` without normalizing
+  unused axes. Keep the existing guards for unproved conversions.
+
 - Independently validate primitive Next division errors before a second temporal
   row completes, preserving configured total state recurrences, original source
   representations and actual primary/diagnostic identity. Keep forged words,
