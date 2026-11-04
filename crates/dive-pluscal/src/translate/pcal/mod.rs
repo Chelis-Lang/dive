@@ -141,13 +141,20 @@ pub(crate) struct ProcessInfo {
     pub local_variables: Vec<String>,
 }
 
+/// A generated action's exact byte range paired with its retained source owner.
+#[derive(Clone, Debug)]
+pub(crate) struct EmissionMap {
+    pub generated: crate::ast::Span,
+    pub original: ast::Loc,
+}
+
 /// The translation body and the facts callers report.
 #[derive(Clone, Debug)]
 pub(crate) struct Output {
     pub lines: Vec<String>,
     /// Labelled actions, in generation order.
     pub actions: Vec<String>,
-    pub action_origins: Vec<ast::Loc>,
+    pub mappings: Vec<EmissionMap>,
     pub program_counter: bool,
     pub default_init: bool,
     pub added_labels: Vec<AddedLabel>,
@@ -236,21 +243,17 @@ pub(crate) fn translate(parsed: &Parsed, settings: &Settings) -> Result<Output, 
         st.check_default_init_value()?;
     }
     let mut actions = Vec::new();
-    let mut action_origins = Vec::new();
     for procedure in &alg.prcds {
         actions.extend(procedure.body.iter().map(|l| l.label.clone()));
-        action_origins.extend(procedure.body.iter().map(|l| l.loc));
     }
     let mut processes = Vec::new();
     match &alg.body {
         ast::Body::Uni { body, .. } => {
             actions.extend(body.iter().map(|l| l.label.clone()));
-            action_origins.extend(body.iter().map(|l| l.loc));
         }
         ast::Body::Multi(list) => {
             for process in list {
                 actions.extend(process.body.iter().map(|l| l.label.clone()));
-                action_origins.extend(process.body.iter().map(|l| l.loc));
                 processes.push(ProcessInfo {
                     name: process.name.clone(),
                     local_variables: process.decls.iter().map(|d| d.var.clone()).collect(),
@@ -265,11 +268,11 @@ pub(crate) fn translate(parsed: &Parsed, settings: &Settings) -> Result<Output, 
         )
         .code(Code::Resource));
     }
-    let lines = generate::Gen::new(&options, &st).generate(&alg)?;
+    let generated = generate::Gen::new(&options, &st).generate(&alg)?;
     Ok(Output {
-        lines,
+        lines: generated.lines,
         actions,
-        action_origins,
+        mappings: generated.mappings,
         program_counter: !facts.omit_pc,
         default_init: facts.has_default_initialization,
         added_labels: facts

@@ -8,12 +8,12 @@
 //! not assign. Layout follows the reference closely because TLA+ conjunction
 //! and disjunction lists are layout sensitive.
 
-use super::Fail;
 use super::ast::{
     Algorithm, Body, Fairness, Kind, LabeledStmt, Procedure, Process, SingleAssign, Stmt,
 };
 use super::expr::{Expr, Kind as TokKind};
 use super::symtab::{SymTab, Type};
+use super::{EmissionMap, Fail};
 use std::fmt::Write as _;
 
 /// Generation settings (the relevant `PcalParams`).
@@ -150,6 +150,12 @@ fn needs_parentheses(lines: &[String]) -> bool {
     need
 }
 
+/// Generated text and source regions recorded by the same emitter.
+pub(crate) struct Generated {
+    pub lines: Vec<String>,
+    pub mappings: Vec<EmissionMap>,
+}
+
 pub(crate) struct Gen<'a> {
     opts: &'a GenOptions,
     st: &'a SymTab,
@@ -166,6 +172,7 @@ pub(crate) struct Gen<'a> {
     next_step: Vec<String>,
     current_proc_name: String,
     output_bytes: usize,
+    mappings: Vec<EmissionMap>,
 }
 
 impl<'a> Gen<'a> {
@@ -184,6 +191,7 @@ impl<'a> Gen<'a> {
             next_step: Vec::new(),
             current_proc_name: "Next".into(),
             output_bytes: 0,
+            mappings: Vec::new(),
         }
     }
 
@@ -411,7 +419,7 @@ impl<'a> Gen<'a> {
     // ----- top level ----------------------------------------------------------
 
     /// `PcalTLAGen.generate`.
-    pub(crate) fn generate(mut self, alg: &Algorithm) -> Result<Vec<String>, Fail> {
+    pub(crate) fn generate(mut self, alg: &Algorithm) -> Result<Generated, Fail> {
         for line in &self.st.report {
             self.line(line)?;
         }
@@ -446,7 +454,10 @@ impl<'a> Gen<'a> {
         self.spec(alg)?;
         self.termination()?;
         self.end();
-        Ok(self.lines)
+        Ok(Generated {
+            lines: self.lines,
+            mappings: self.mappings,
+        })
     }
 
     fn vars_and_defs(
@@ -808,6 +819,9 @@ impl<'a> Gen<'a> {
         let col = width(&sb);
         sb.push_str("/\\ ");
         self.end();
+        // `token` reserves one separator before a new line. All layout edits
+        // below belong to this action; earlier emitted regions are immutable.
+        let start = self.output_bytes + usize::from(!self.lines.is_empty());
         let def_start = self.lines.len();
         let col_after_and = width(&sb);
         let mut c = Changed::new(self.vars.len());
@@ -857,6 +871,13 @@ impl<'a> Gen<'a> {
                     self.replace_line(i, line.chars().skip(3).collect())?;
                 }
             }
+        }
+        let end = self.output_bytes;
+        if start < end {
+            self.mappings.push(EmissionMap {
+                generated: crate::ast::Span { start, end },
+                original: ast.loc,
+            });
         }
         self.line("")?;
         Ok(())
