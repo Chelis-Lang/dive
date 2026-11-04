@@ -21,7 +21,7 @@
       "physical_exit": 75,
       "stdout_sha256": "14167e34a9611144b6ede93ca227c0d8d3f598f95893ed5d730c170aba2fb6dc",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "top_level_codes": [
+      "stream_frame_codes": [
         2102,
         2103,
         2154,
@@ -146,7 +146,7 @@
       "physical_exit": 75,
       "stdout_sha256": "b937fc0dffd3d9d821b74dd85c7dfd0a6a5b30d11b145d814d2b4f0ff4db6d90",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "top_level_codes": [
+      "stream_frame_codes": [
         2102,
         2103,
         2154,
@@ -171,7 +171,7 @@
       "physical_exit": 75,
       "stdout_sha256": "39d31e8ef8d8672e3f1133976cd686f68f25d1a422405709a8d8c1d3df15a4bf",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "top_level_codes": [
+      "stream_frame_codes": [
         2102,
         2103,
         2154,
@@ -196,7 +196,7 @@
       "physical_exit": 75,
       "stdout_sha256": "63ccc4c380527e5e08b15af6f5da8c1df7b1ccecccde7d4668b6e85cbf578f65",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "top_level_codes": [
+      "stream_frame_codes": [
         1000,
         2103,
         2179,
@@ -237,5 +237,6 @@
     "Six classified model goldens; four retained negative inputs have no model golden.",
     "The current base Reference fails the empty products with nested override comparison 2154; Core refuses local scalar/tuple comparison provenance.",
     "No general lazy conversion, source error classification, performance or release acceptance claim."
-  ]
+  ],
+  "frame_codes_note": "stream_frame_codes lists every STARTMSG frame in the raw stream, including nested frames; these are not root frames or deciding classifications."
 }
