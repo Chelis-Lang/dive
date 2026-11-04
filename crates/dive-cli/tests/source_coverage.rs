@@ -1,7 +1,7 @@
 //! A real source-coverage CLI run reports source locations, native counts and limits.
 use std::process::Command;
 #[test]
-fn coverage_reports_actual_source_work_and_keeps_tlc_cost_mode_refused()
+fn coverage_reports_native_work_and_keeps_unimplemented_tlc_property_roles_refused()
 -> Result<(), Box<dyn std::error::Error>> {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../docs/user/examples");
     let file = root.join("Counter.tla");

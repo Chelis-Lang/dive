@@ -108,6 +108,12 @@
   Auto selects the whole Reference route before work; independent replay and
   presentation do not inflate counts. TLC logical costs, Core source maps,
   compiled ENABLED queries and debugger support remain unfinished.
+- Add final TLC logical action-context coverage for the admitted Reference
+  scalar/quantifier slice through `check --coverage 0`, `tlc -coverage 0` and
+  Rust checking requests. Preserve caller separation, lazy effects and concrete
+  enumeration costs; retain original model results when error/reconstruction or
+  unimplemented cost maps refuse coverage. Native source-work counters stay separate.
+
 - Add explicit `check --allow-io=env,files,exec` categories, empty by default in
   both profiles. Reference captures bounded startup environment and TXT/UTF-8
   reads; `validate-trace --inputs RUN.json` independently replays their exact

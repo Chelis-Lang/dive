@@ -138,6 +138,9 @@ pub struct Action {
 }
 
 impl Action {
+    pub(crate) fn is_for_ir(&self, ir: &Arc<dive_ir::Ir>) -> bool {
+        Arc::ptr_eq(&self.owner, ir)
+    }
     /// The predicate.
     #[must_use]
     pub fn expr(&self) -> ExprId {
@@ -480,6 +483,12 @@ impl Evaluator {
                 stopped: false,
             });
         };
+        let _logical_action = self
+            .core
+            .source_coverage
+            .as_ref()
+            .filter(|_| !diagnostic)
+            .and_then(|coverage| coverage.action(first.id));
         let nvars = self.core.ir.vars().len();
         let mut acts: Acts = None;
         for a in inits[1..].iter().rev() {
@@ -583,6 +592,12 @@ impl Evaluator {
                 intermediate: 0,
                 action: Some(action.id),
             })?;
+        let _logical_action = self
+            .core
+            .source_coverage
+            .as_ref()
+            .filter(|_| !diagnostic)
+            .and_then(|coverage| coverage.action(action.id));
         let mut g = Gen {
             core: &self.core,
             init: false,
@@ -787,6 +802,9 @@ impl Gen<'_, '_, '_> {
     }
 
     fn bind(&mut self, var: usize, v: Value) {
+        if let Some(coverage) = &self.core.source_coverage {
+            coverage.scalar_values(&[&v]);
+        }
         if let Some(slot) = Arc::make_mut(&mut self.s1).get_mut(var) {
             *slot = Some(v);
         }
@@ -830,6 +848,19 @@ impl Gen<'_, '_, '_> {
     /// `getNextStates(action, acts, s0, s1, ...)` / `getInitStates(acts, ps,
     /// ...)`: the continuation.
     fn cont(&mut self, acts: &Acts) -> Result<Flow> {
+        let before = self.emitted;
+        let outcome = self.cont_inner(acts);
+        if !self.init
+            && self.emitted > before
+            && outcome.is_ok()
+            && let Some(coverage) = &self.core.source_coverage
+        {
+            coverage.continued();
+        }
+        outcome
+    }
+
+    fn cont_inner(&mut self, acts: &Acts) -> Result<Flow> {
         let Some(item) = acts else {
             return Ok(self.emit());
         };
@@ -880,7 +911,12 @@ impl Gen<'_, '_, '_> {
             let v = self.eval(&item.env, item.expr)?;
             match v {
                 Ev::V(Value::Bool(true)) => {}
-                Ev::V(Value::Bool(false)) => return Ok(Flow::Continue),
+                Ev::V(Value::Bool(false)) => {
+                    if let Some(coverage) = &self.core.source_coverage {
+                        coverage.rejected_init();
+                    }
+                    return Ok(Flow::Continue);
+                }
                 other => return Err(self.expected_bool(&other, item.expr)),
             }
             cur.clone_from(&item.next);
@@ -968,6 +1004,12 @@ impl Gen<'_, '_, '_> {
         {
             coverage.record(e, if self.init { 1 } else { 2 });
         }
+        let _logical_generator = self
+            .core
+            .source_coverage
+            .as_ref()
+            .filter(|_| !self.diagnostic)
+            .and_then(|coverage| coverage.generator(e));
         let core = self.core;
         let _g = core.enter(e)?;
         let node = core.ir.node(e);
@@ -1250,16 +1292,32 @@ impl Gen<'_, '_, '_> {
                             return self.bind_interval(var, lo, hi, acts);
                         }
                         if let Some(elements) = core.in_element_stream(s)? {
+                            let logical_domain = self
+                                .core
+                                .source_coverage
+                                .as_ref()
+                                .filter(|coverage| coverage.is_tlc())
+                                .map(|_| s.clone());
                             for value in elements.with_owner(rval) {
+                                if let Some(coverage) = &self.core.source_coverage
+                                    && let Some(domain) = &logical_domain
+                                {
+                                    coverage.enumeration(domain);
+                                }
                                 let value = value?;
                                 if self.bind_value(var, value, acts)? == Flow::Stop {
                                     return Ok(Flow::Stop);
                                 }
                             }
+                            if let Some(coverage) = &self.core.source_coverage
+                                && let Some(domain) = &logical_domain
+                            {
+                                coverage.enumeration(domain);
+                            }
                             return Ok(Flow::Continue);
                         }
                         let elems = core.in_elements(s)?;
-                        self.bind_each(var, &elems, acts)
+                        self.bind_each(var, &elems, acts, Some(s))
                     }
                     Some(l) => {
                         if core.member(&l, &rval)? {
@@ -1285,7 +1343,7 @@ impl Gen<'_, '_, '_> {
                             return Err(EvalError::bug("SUBSET is not a set"));
                         };
                         let elems = core.explore(s)?;
-                        self.bind_each(var, &elems, acts)
+                        self.bind_each(var, &elems, acts, None)
                     }
                     Some(l) => {
                         if core.member(&l, &rval)? {
@@ -1307,11 +1365,27 @@ impl Gen<'_, '_, '_> {
         ))
     }
 
-    fn bind_each(&mut self, var: usize, elems: &[Value], acts: &Acts) -> Result<Flow> {
+    fn bind_each(
+        &mut self,
+        var: usize,
+        elems: &[Value],
+        acts: &Acts,
+        logical_domain: Option<&dive_value::Set>,
+    ) -> Result<Flow> {
         for x in elems {
+            if let Some(coverage) = &self.core.source_coverage
+                && let Some(domain) = logical_domain
+            {
+                coverage.enumeration(domain);
+            }
             if self.bind_value(var, x.clone(), acts)? == Flow::Stop {
                 return Ok(Flow::Stop);
             }
+        }
+        if let Some(coverage) = &self.core.source_coverage
+            && let Some(domain) = logical_domain
+        {
+            coverage.enumeration(domain);
         }
         Ok(Flow::Continue)
     }

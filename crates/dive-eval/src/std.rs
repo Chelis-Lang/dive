@@ -747,6 +747,9 @@ impl Core {
 
     /// `Print`'s rendering: a deep-normalized copy, pretty-printed.
     fn print_normalized(&self, v: &Value) -> Result<String> {
+        if let Some(coverage) = &self.source_coverage {
+            coverage.scalar_values(&[v]);
+        }
         Ok(print::print_value(v, self.ctx)?)
     }
 

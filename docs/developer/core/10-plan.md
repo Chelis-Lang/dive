@@ -47,9 +47,11 @@ startup/Init/Next and independently reconstructs bounded finite random choices.
 PlusCal file/AST publication, standalone Cargo consumers and native source-work
 counters are usable. Explicit category grants admit bounded Reference startup
 environment/text assumptions with source-bound offline replay. These do not
-complete modes/effects, translation, real TLC costs/Core source maps/DAP or
-accepted Store/Arena and temporal paging/recovery. The current family inventory
-is **8 implemented / 28 partial / 2 missing**; Reference remains default.
+complete modes/effects, translation, complete TLC costs/Core source maps/DAP or
+accepted Store/Arena and temporal paging/recovery. The later Reference logical
+coverage slice makes coverage/debugger partial; the current family inventory
+is **8 implemented / 29 partial / 1 missing**. This does not refresh the
+source-bound Phase 7 qualification above. Reference remains default.
 
 The demanded-summary candidate `88a5845a` remains rejected unadopted: 30 correct
 Sailfish rows miss its 10% TLC/W1 target and fail the default/W8 guard; 186 planned

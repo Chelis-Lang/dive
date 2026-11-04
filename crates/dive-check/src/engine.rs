@@ -1366,6 +1366,7 @@ impl<S: Keyed> Search<'_, '_, S> {
                 Err(verdict) => return Some((verdict, false, false)),
             };
             if inserted {
+                m.evaluator.coverage_discovered(succ.action.id());
                 let Ok(ordinal) = u32::try_from(succ.ordinal) else {
                     return Some((
                         Verdict::InternalError {
@@ -2426,7 +2427,7 @@ pub(crate) fn plan_workers(m: &Model, opts: &CheckOptions) -> Workers {
             requested,
             used: 1,
             sequential: true,
-            reason: Some("native source coverage uses one Reference worker".to_owned()),
+            reason: Some("source coverage uses one Reference worker".to_owned()),
         };
     }
     if opts.sequential {
