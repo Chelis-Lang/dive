@@ -9,8 +9,8 @@ The standard is an **unimpeachably sound port**. Every result is verified contin
 > PlusCal translation are implemented. Reference remains the default engine.
 > The optional Core engine adds compiled execution, exact and disk membership,
 > spill and owned safety checkpoint/recovery. Features outside the proved scope
-> return named refusals. The family inventory is **8 implemented / 28
-> partial / 2 missing**; M1/M2, broad performance and RC acceptance remain open.
+> return named refusals. The family inventory is **8 implemented / 30
+> partial / 0 missing**; M1/M2, broad performance and RC acceptance remain open.
 > See [current status](docs/developer/core/m1-status.md), the
 > [roadmap](docs/ROADMAP.md) and the
 > [Phase 7 record](conformance/reports/core/2026-11-03-phase7-checkpoint.json).
@@ -31,8 +31,15 @@ Completed-level checkpoints preserve owned representations,
 construction history and the ordered frontier for identity-checked recovery in a
 fresh process. Auto pauses on Reference and recovers with the encoded backend;
 disk membership uses one actual worker. Component budgets and archive bounds do
-not bound total process memory. Temporal recovery, further spill and distribution
-remain open. See [storage and recovery](docs/user/storage-recovery.md).
+not bound total process memory. Temporal recovery and further spill remain open.
+See [storage and recovery](docs/user/storage-recovery.md).
+
+Explicit authenticated Core pure-safety distribution runs real independently
+initialized trusted worker processes, with coordinator-owned ordered commit and
+complete-unit retry after I/O loss. Both CLI and Rust workflows are available;
+broader combinations and durable distributed recovery remain unfinished. The
+transport authenticates traffic without encrypting it. See
+[distributed safety](docs/user/distributed-safety.md).
 
 Constructive generation is available through `simulate --generate` and the finite
 TLC `-generate num=N` transport. Retained samples require independent Init/Next,
@@ -77,7 +84,7 @@ screen; no code, flag, default change or rescue ships. See
 [ADR 0147](docs/decisions/0147-demanded-comparison-summaries.md).
 Remaining mandatory v1 work includes broader language/modes/effects, real
 coverage/Core source maps and full DAP, accepted Store/Arena and temporal
-paging/recovery, distributed safety, full PlusCal/public APIs and
+paging/recovery, broader distributed safety/recovery, full PlusCal/public APIs and
 Linux/deep/performance/RC acceptance before the macOS final mile.
 
 ## Documentation

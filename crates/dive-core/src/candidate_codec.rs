@@ -414,7 +414,13 @@ fn checked(store: &Store, bits: u64) -> Result<Handle, Error> {
     }
 }
 
-fn shape(kind: Kind, fl: u8, lo: i64, origin: u64, data: &[Handle]) -> Result<(), Error> {
+pub(crate) fn shape(
+    kind: Kind,
+    fl: u8,
+    lo: i64,
+    origin: u64,
+    data: &[Handle],
+) -> Result<(), Error> {
     let len = data.len();
     if data.iter().any(|h| h.is_empty())
         || fl & !flags::VIEW != 0
@@ -442,7 +448,7 @@ fn shape(kind: Kind, fl: u8, lo: i64, origin: u64, data: &[Handle]) -> Result<()
     Ok(())
 }
 
-fn kind(byte: u8) -> Result<Kind, Error> {
+pub(crate) fn kind(byte: u8) -> Result<Kind, Error> {
     Ok(match byte {
         0 => Kind::Set,
         1 => Kind::IntFcn,

@@ -33,6 +33,13 @@
 | Action composition (`--action-composition=tla`; TLC modes `=off`, `=tlc`) — **default** (D-022) | `A \cdot B` is an error unless the JVM runs with `-Dtlc2.tool.impl.Tool.cdot=true`. With it, the intermediate states count as generated, so a state whose `A` steps all lead to states where `B` is disabled is not a deadlock, and conjuncts after the composition are also applied to the intermediate state | **TLA+ meaning**: composed successors only, deadlocks reported; compositions TLC's algorithm distorts (conjuncts after it, variables assigned before it) refused by name | `--action-composition=off` (part of `--compat=tlc`) gives TLC's error; `--action-composition=tlc` (or `-Dtlc2.tool.impl.Tool.cdot=true`) reproduces TLC with the switch, in sequential mode | changing | default in `dive-eval` (`ActionComposition::Tla`); harness passes `tlc` for the Examples `action composition` feature | `crates/dive-eval/tests/cdot.rs` and `tests/fixtures/cdot/` (`CdDeadlock`: TLC success with 2 generated, dive deadlock; `CdConj`: TLC deadlock); D-022 |
 | Run budgets (`--time-limit`, `--max-memory`, `--max-states`, `--max-depth`; ADR 0107) | No wall-clock limit (only the developer property `-Dtlc2.TLC.stopAfter`); memory bounded by the JVM heap, exhaustion is `SYSTEM_OUT_OF_MEMORY` (exit 1/255) with no structured result | **`--time-limit` 30m** (provisional release constant) in the dive profile; `--max-memory auto` (half of physical memory) in both | `--time-limit none` and `--compat=tlc` run without a time limit; any exhausted budget reports `verdict: stopped` with resource, limit, observed value, phase and progress, exit 5 | changing (a run that would finish later stops without a verdict) | implemented for `dive check` (safety, capture, temporal analysis; inline and parallel engines); explicit state/depth ceilings are opt-in; finite DFID and simulation share the same time/memory policies, with explicit after-loading execution scope | `crates/dive-api/tests/budget.rs`, `crates/dive-liveness/tests/budget.rs`, `crates/dive-check/src/budget.rs` tests; harness budgets `crates/dive-conformance/src/pipeline.rs`; D-026 |
 
+The opt-in [native distributed safety route](user/distributed-safety.md) extends
+D-001's preserving ordered-commit contract to explicitly trusted authenticated
+processes (ADR 0151). Its TLC-equivalent setting is distribution off. Current
+pure safety/refusal/private-admission bounds and complete-unit retry are explicit;
+focused both-profile process/word controls do not claim broad distributed-family
+or performance qualification. It introduces no result-changing default.
+
 ## Oracle facts behind the registry
 
 - **Reflexive model-value membership (D-009).** The exact

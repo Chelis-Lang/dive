@@ -142,6 +142,24 @@ pub enum TemporalMode {
     reason = "independent public checking options retain their boolean API"
 )]
 pub struct CheckRequest {
+    /// Opt-in authenticated native pure-safety workers. None is TLC-equivalent.
+    /// Requires explicit Core, seed and fingerprint; secret bytes never enter reports.
+    ///
+    /// ```no_run
+    /// use dive_api::{CheckRequest, DistributedOptions, Engine, check_file_engine};
+    /// let request = CheckRequest {
+    ///     file: "Counter.tla".into(), seed: Some(0), fp: Some(0),
+    ///     distributed: Some(DistributedOptions::new(
+    ///         vec!["127.0.0.1:7801".parse()?, "127.0.0.1:7802".parse()?],
+    ///         "worker.key".into(),
+    ///     )),
+    ///     ..CheckRequest::default()
+    /// };
+    /// let report = check_file_engine(&request, Engine::Core)?;
+    /// println!("{}", report.to_json());
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
+    /// ```
+    pub distributed: Option<crate::DistributedOptions>,
     /// Collect native producer source-expression/generator work with one actual
     /// Reference worker. These are not TLC logical costs; TLC-equivalent: false.
     pub source_coverage: bool,
@@ -504,6 +522,32 @@ fn check_file_in(
     core_switches: Option<&str>,
 ) -> Result<CheckReport, crate::ApiError> {
     admit_storage_request(req)?;
+    if req.distributed.is_some() && req.store_compact_bytes.is_some() {
+        return Err(crate::ApiError::Unsupported {
+            feature: "distributed safety with Store reclamation is not implemented".into(),
+        });
+    }
+    if req.distributed.is_some() && req.tlc_coverage {
+        return Err(crate::ApiError::Unsupported {
+            feature: "distributed safety with TLC logical coverage is not implemented".into(),
+        });
+    }
+    if req.distributed.is_some()
+        && (engine != crate::Engine::Core
+            || checkpoint.is_some()
+            || req.temporal != TemporalMode::Ordinary
+            || req.core_sample.is_some()
+            || !req.host_access.is_empty()
+            || req.seed.is_none()
+            || req.fp.is_none()
+            || req.sequential
+            || req.chaos.is_some()
+            || req.source_coverage
+            || req.seen_disk.is_some()
+            || req.candidate_memory_bytes.is_some())
+    {
+        return Err(crate::ApiError::Unsupported{feature:"distributed safety requires explicit Core/seed/fp and pure ordinary BFS; checkpoint, sampling, host effects, sequential, disk seen and candidate spill combinations are not implemented".into()});
+    }
     if req.store_compact_bytes.is_some() && engine != crate::Engine::Core {
         return Err(crate::ApiError::Unsupported {
             feature: "Store reclamation requires the explicit Core engine".into(),
@@ -802,6 +846,7 @@ fn check_file_in(
         report.checkpoint_receipt = native.receipt;
         Phase::Checked(Box::new(native.check))
     } else if engine == crate::Engine::Core {
+        let config_hash = dive_check::checkpoint::config_source_hash(cfg.source_bytes());
         let (result, run) = crate::core_engine::check(
             &ir,
             &model,
@@ -810,6 +855,9 @@ fn check_file_in(
             core_switches,
             req.core_sample,
             core_route(req, &armed),
+            req.distributed
+                .as_ref()
+                .map(|options| (options, config_hash.as_str())),
         );
         report.core = Some(Box::new(run));
         result.into()
@@ -838,6 +886,7 @@ fn check_file_in(
             core_switches,
             req.core_sample,
             core_route(req, &armed),
+            None,
         );
         if let Some(fallback) = crate::core_engine::Fallback::of(&result, &run) {
             // The whole check again, on the reference engine; the core's

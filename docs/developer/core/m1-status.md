@@ -4,6 +4,17 @@ M1 has broad implementation across the main workstreams, but **acceptance remain
 The default engine remains `reference`. Use `10-plan.md` for the milestone
 contract and this page for current evidence and the next bounded steps.
 
+Explicit native pure-safety distribution now uses independently initialized
+authenticated CLI/Rust worker processes, the existing ordered expansion/commit
+engine and owned DAG/startup/input authority (ADR 0151). Complete uncommitted
+units retry after loss; duplicate/stale/corrupt controls cannot certify an
+incomplete search. Focused process tests cover both profiles/stores, existing
+frontier/predecessor routes, receiver/history and independently valid/mutated
+words, including a process restart within an ongoing epoch. These controls are
+not a refreshed corpus/full-gate/performance qualification. Broader combinations
+and durable coordinator/temporal recovery remain open; see the
+[user guide](../../user/distributed-safety.md).
+
 ### Phase 7 delivery and qualification
 
 Eight implementation PRs (#747/#748/#750/#752/#753/#755/#759/#762) are merged at
@@ -66,8 +77,9 @@ historical producer remains unchanged.
 Candidate transport does not bound accepted Store or active Arena; finite
 random-source replay and startup host inputs do not complete effects/modes;
 native source counters do not provide TLC logical costs, Core source maps or
-DAP. The later Reference logical coverage slice makes coverage/debugger partial;
-the current inventory is **8 implemented / 29 partial / 1 missing**. This does
+DAP. Later Reference logical coverage and authenticated native safety workers
+make coverage/debugger and distribution partial; the current inventory is
+**8 implemented / 30 partial / 0 missing**. This does
 not refresh the source-bound Phase 7 qualification above.
 Reference stays default; M1/M2, broad performance and RC acceptance remain open.
 
@@ -917,7 +929,7 @@ below keep their original source and limitations.
 5. Satisfy full-tier actual-Core/fallback acceptance, unchanged deep frontend/
    corpus populations, supported platform/package/user flows and RC qualification
    at their milestone/release boundary. The current family inventory is
-   **8 implemented / 29 partial / 1 missing**; bounded delivery does not complete
+   **8 implemented / 30 partial / 0 missing**; bounded delivery does not complete
    a whole family.
 
 Use focused development checks and required CI while implementing. Phase 7's

@@ -1,5 +1,7 @@
 //! Ordinary Rust consumers use public APIs and do not invoke Java or the CLI.
 #![forbid(unsafe_code)]
+#[path = "support/distributed.rs"]
+mod distributed;
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{
     CheckRequest, DfidRequest, Engine, RewriteRequest, SimulateRequest, TranslationRequest,

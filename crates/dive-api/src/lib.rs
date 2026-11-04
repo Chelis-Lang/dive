@@ -57,6 +57,12 @@ pub use config::{ConfigReport, parse_config_file, parse_config_source};
 mod analyze;
 mod check;
 mod core_checkpoint;
+mod core_worker;
+pub use core_worker::{CoreWorker, prepare_core_worker};
+/// Authenticated native distributed pure-safety options and actual work facts.
+pub use dive_explore::distributed::{
+    Options as DistributedOptions, Usage as DistributedUsage, WorkerInfo,
+};
 mod core_ending;
 mod core_engine;
 #[cfg(test)]

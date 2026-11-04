@@ -50,6 +50,7 @@ mod member_index;
 pub mod memo;
 pub mod node;
 pub mod opts;
+pub mod owned_exchange;
 pub mod plan;
 pub mod print;
 pub mod random;
