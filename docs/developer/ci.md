@@ -26,6 +26,13 @@ protect-main`:
 The push run on `main` checks the merged result (branch protection is not
 strict) and saves the rust-cache entries that PR runs restore.
 
+The Workspace job has a bounded 35-minute ceiling. Hosted runs have completed
+all selected tests yet reached the previous 25-minute ceiling before the
+standalone validator, external consumer or dependency checks could finish.
+The job ceiling does not change test selection, individual test deadlines or
+required checks. Routine development uses focused checks; the whole suite and
+wider conformance populations qualify integrated milestones and releases.
+
 ## Self-hosted runners
 
 Every job's `runs-on` reads the repository variable `DIVE_CI_RUNNER`. Unset,
@@ -61,9 +68,10 @@ checksum and disk-role evidence binaries, the periodic-snapshot worker matrix,
 individual multi-worker or whole-model sweeps, and the evidence source guards
 that run `scripts/check-*.py` (those pin hashes of repository files, including
 this workflow). The selection was taken from per-test durations of main and PR
-CI runs. It keeps about 1230 of 1768 tests and about 400 of 8385
+CI runs. At introduction it kept about 1230 of 1768 tests and about 400 of 8385
 test-seconds, about three minutes on the 2-vCPU hosted runner, with tests of
-every crate.
+every crate. Those historical counts are not the current growing inventory;
+each CI run reports its actual selection and timings.
 
 The job sets `CARGO_PROFILE_DEV_DEBUG=0` and `CARGO_PROFILE_TEST_DEBUG=0` and
 deletes unused preinstalled SDKs in the background: the whole test inventory
