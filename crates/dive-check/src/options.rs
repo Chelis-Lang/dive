@@ -6,8 +6,8 @@ use dive_store::StoreMode;
 /// How to run a check.
 #[derive(Clone, Debug)]
 pub struct CheckOptions {
-    /// Opt-in native source-work observation, attached before producer startup.
-    /// TLC-equivalent: None; these are not TLC logical cost counters.
+    /// Opt-in native source work or admitted TLC logical action costs, attached
+    /// before producer startup. None is TLC's ordinary coverage-disabled setting.
     pub source_coverage: Option<std::sync::Arc<dive_eval::SourceCoverage>>,
     /// Optional owned external inputs for source binding. Runtime reads and
     /// checkpoint/recovery are not implemented; evaluator grants stay explicit.

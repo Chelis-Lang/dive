@@ -345,3 +345,10 @@ id = "product-operations"
 path = "conformance/corpus/product-operations"
 license = "MIT"
 layout = "examples-manifest"
+
+# Pinned logical coverage demand and diagnostic reconstruction controls (ADR 0150).
+[[corpus]]
+id = "tlc-coverage-primary"
+path = "conformance/corpus/tlc-coverage-primary"
+license = "MIT"
+layout = "examples-manifest"

@@ -5,6 +5,63 @@ dive check docs/user/examples/Counter.tla --seed 7 --workers auto --output json
 dive check docs/user/examples/Counter.tla --compat=tlc --seed 7 --fp 0 --workers 8 --store exact --output json
 ```
 
+## TLC logical coverage
+
+```sh
+dive check docs/user/examples/Coverage.tla --coverage 0 --compat=tlc --seed 7 --fp 0 --output json
+dive tlc -coverage 0 -workers 4 -seed 7 -fp 0 docs/user/examples/Coverage.tla
+```
+
+Both commands complete the two-variable example with three distinct states,
+four generated states and depth three. Auto selects Reference before execution
+and reports one actual worker. `--coverage 0` corresponds to TLC `-coverage 0`:
+produce the final logical action-context report. Coverage defaults to off in
+both profiles, matching TLC without `-coverage`. Nonzero reporting intervals
+are explicitly unsupported. The default semantic profile remains available;
+its existing value-order and integer defaults still apply. Use `--compat=tlc`
+when comparing against TLC's value semantics.
+
+The JSON `tlc_coverage` object contains separate Init and split Next action
+trees, original source ranges, logical invocations and enumeration costs.
+Repeated parameterizations of the same action predicate share a tree. Different
+calls to a helper within one action retain their own paths. Source labels use
+the original declaration header, including parameters; unvisited assignments
+retain TLC's zero rows. These are logical costs, not native expression-entry
+counts. Collection observes actual producer demands and concrete set identities;
+rendering or snapshotting never evaluates a TLA+ expression.
+
+The admitted slice supports multiple scalar state variables, explicit INIT/NEXT,
+acyclic first-order helpers, scalar arithmetic/boolean expressions, IF actions,
+finite literal/interval domains, interval-based powersets and differences,
+bounded quantifiers and CHOOSE. Concrete literal-domain enumeration includes
+TLC's prefetch demand and early termination. Existing laziness shortcuts are
+disabled only while measuring logical argument demand; unused effects remain
+unused and repeated lazy uses retain the ordinary thunk cache.
+
+Configured constants, SPECIFICATION/property/constraint roles, VIEW, symmetry,
+INSTANCE, recursion, higher-order operators, functions/compound state values,
+unproved set materialization, Core/ENABLED, temporal, checkpoint/recovery and
+sampling combinations are outside this slice. Unsupported source shapes refuse
+through the ordinary unsupported model path. A reached cost operation without
+an implemented map yields `tlc_coverage.status: "unsupported"`, with a named
+`feature` and no action costs; the original model result is retained.
+
+Failed, stopped or unsupported runs also refuse the coverage feature. The pinned
+TLC adds diagnostic-reconstruction work after an error; dive does not execute
+those effects again to manufacture matching costs. The original verdict,
+statistics, output and independently validated error word remain separate.
+Complete successful reports have `status: "available"`. Neither status supplies
+a proof beyond the ordinary model report. Counter saturation and the bounded
+calling-tree/set-source collector capacities refuse exact costs.
+
+Rust callers set `CheckRequest.tlc_coverage = true`; the ordinary checking API
+returns the typed `CheckReport::tlc_coverage()` snapshot. Its `unsupported` field
+names a coverage refusal. Native `source_coverage` and logical `tlc_coverage`
+requests are mutually exclusive. Low-level callers use `SourceCoverage::tlc`
+and the existing observed binding entrypoints, which prepare the action forest
+before generation. Full TLC coverage, variable-value summaries, compiled source
+maps and debugging remain mandatory unfinished work (ADR 0150).
+
 ## Native source work
 
 ```sh
@@ -18,7 +75,7 @@ with five distinct states; Auto selects a whole Reference run before execution,
 with one actual worker even when more were requested. The default is off, which
 is the TLC-equivalent setting. Both semantic profiles can request these native
 metrics explicitly; they are **not TLC's logical coverage costs**. Pinned TLC
-`-coverage` remains a named refusal until its action-context cost tree is proved.
+`-coverage 0` has the separate supported logical-cost route described below.
 
 JSON adds `source_coverage` with `metric: "native-source-work"`, exact file/module,
 UTF-8 byte ranges and JavaCC line/column positions, static instance-definition

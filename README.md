@@ -53,8 +53,11 @@ Complete translation and mapping/specification-backed workflows remain unfinishe
 
 Opt-in `check --source-coverage` reports native producer expression and generator
 work at original source locations through one Reference worker. These counters
-are separate from TLC logical costs and model proof; TLC `-coverage`, Core source
-maps and debugging remain unfinished. See [native source work](docs/user/checking.md#native-source-work).
+are separate from TLC logical costs and model proof. Final `--coverage 0` and
+TLC `-coverage 0` additionally report admitted Reference logical action costs,
+including multiple scalar variables, helper reuse and lazy quantifier demand.
+Complete coverage, Core source maps and debugging remain unfinished. See
+[checking and coverage](docs/user/checking.md#tlc-logical-coverage).
 
 Phase 7's eight implementation PRs are merged at `20ee7f75`, tree `b6625ae5`.
 The November 4 replacement passes the full gate (3,246 tests and 201 doctests);

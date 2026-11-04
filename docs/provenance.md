@@ -2704,3 +2704,30 @@ remains admitted within the unknown-string bound.
 a later pure concatenation. A first TLC IOEnv therefore conservatively refuses
 after any post-plan name construction, without claiming a mismatch for every
 such expression. Pure concat without atoi and numeral ToString controls succeed.
+
+## Final Reference logical coverage (ADR 0150)
+
+`crates/dive-eval/src/logical_coverage.rs` follows the MIT semantics of pinned
+tlaplus commit `94d0c5070852b37b801bb8998c436383ab7ee37b`:
+`tlc2/tool/coverage/CostModelCreator.java` (action predicate sharing and call
+forest), `OpApplNodeWrapper.java` (source rows, assignment markers and collapse),
+`ActionWrapper.java` (Init candidates and Next discovered/generated counts),
+`tlc2/tool/impl/Tool.java` (evaluation, continuation and generator demand),
+`ContextEnumerator.java` (concrete prefetch/carry), and
+`tlc2/value/impl/SetEnumValue.java` (enumerator costs). The independent Rust
+collector observes the existing evaluator/generator; it does not copy the Java
+object layout or execute any source on inspection.
+
+The primary `ACoverageTest` motivates lazy SUBSET/CHOOSE action separation.
+Fourteen test-read microcases in
+`conformance/corpus/tlc-coverage-primary/` retain compact exact action
+rows, pins and input digests. `scripts/generate-tlc-coverage-fixtures.py` verifies
+the jar SHA-256 before regeneration. The separately registered
+`tlc-coverage-primary` corpus supplies normal TLC/SANY facts through the standard
+harness. Raw streams stay outside the repository.
+
+`FailDemand` confirms that TLC reconstruction repeats Init and CHOOSE costs on
+an assertion failure. The new feature refuses those costs while retaining the
+actual model report and freshly validated source-error word. No private replay,
+effect repetition, variable HyperLogLog emulation, compiled source coverage or
+DAP is claimed. The native ADR 0146 metric remains distinct.

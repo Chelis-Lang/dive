@@ -78,6 +78,7 @@ use dive_value::{Interner, Value};
 
 pub use crate::core::{CollectSink, PrintSink};
 mod coverage;
+mod logical_coverage;
 pub use crate::env::{St, StateRef};
 pub use crate::error::{
     Ec, ErrorClass, EvalError, ExceptionKind, Result, ValueMethod, ValueMethodFailure,
@@ -100,6 +101,7 @@ pub use coverage::{
     SourceCounts, SourceCoverage, SourceCoveragePause, SourceCoverageRow, SourceCoverageSnapshot,
     SourceLocation,
 };
+pub use logical_coverage::{TlcActionCoverage, TlcCoverageRow, TlcCoverageSnapshot};
 
 use crate::core::Core;
 use crate::env::{Dyn, Env, Ev};
@@ -220,8 +222,8 @@ impl Evaluator {
         Ok(ev)
     }
 
-    /// Constructs a producer evaluator with opt-in native source counters.
-    /// Counters must belong to this exact IR and are attached before startup.
+    /// Constructs a producer evaluator with native source work or admitted TLC
+    /// logical costs. The observer must belong to this exact immutable IR.
     /// Ordinary construction remains unobserved; counts never certify a model.
     ///
     /// # Errors
@@ -256,6 +258,14 @@ impl Evaluator {
             .source_coverage
             .as_ref()
             .map(SourceCoverage::pause)
+    }
+
+    /// Attributes a newly admitted state identity to its producing logical action.
+    /// Ordinary and native source-work evaluators perform no logical callback.
+    pub fn coverage_discovered(&self, action: usize) {
+        if let Some(coverage) = &self.core.source_coverage {
+            coverage.discovered(action);
+        }
     }
 
     /// Takes the `Print` output collected so far (empty with a custom sink).

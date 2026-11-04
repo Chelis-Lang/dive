@@ -1048,7 +1048,7 @@ historical performance evidence and the mandatory family inventory are unchanged
 
 Public Rust workflows are also exercised by a separate locked Cargo consumer in
 `crates/dive-api/tests/fixtures/rust-consumer/`, compiled outside the workspace
-feature union and run with an empty PATH. Its six tests cover actual checking and
+feature union and run with an empty PATH. Its tests cover actual checking and
 independent violations, generation and sample replay, DFID completion/bounds,
 implementation traces, translation followed by checking, and native safety
 checkpoint recovery. This closes the standalone test-integration exercise, not
@@ -1064,3 +1064,13 @@ metrics; these are not TLC logical costs or actual-Core coverage credit.
 Explicit Core, temporal/checkpoint combinations and models containing compiled
 ENABLED queries retain named refusals. This working observation slice does not
 close TLC coverage, Core source maps, DAP or the coverage/debugger family.
+
+Final `--coverage 0` / TLC `-coverage 0` now expose the separate Reference logical
+Init/Next scalar/quantifier slice in CLI and public Rust consumers. Fourteen
+pinned primary models cover multiple state variables, reused helpers, action
+predicate sharing, literal-domain secondary costs, prefetch/short circuits,
+CHOOSE, lazy effects, exact declaration headers and unvisited assignment zeros.
+Failed/stopped runs retain their original model report and explicitly refuse
+unproved diagnostic-reconstruction costs. Native metrics are unchanged. The
+`tlc-coverage-primary` corpus and compact cost fixtures are separate from existing
+populations; no complete family, Core mapping, DAP or performance acceptance is claimed.

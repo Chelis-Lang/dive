@@ -312,7 +312,6 @@ fn unsupported_modes_and_tool_flags_refuse_before_input_access() -> TestResult {
         "-metadir",
         "-cleanup",
         "-debugger",
-        "-coverage",
         "-dumpTrace",
     ] {
         let output = adapter(&words(&["missing-model", flag]), &fixtures())?;
@@ -326,6 +325,7 @@ fn unsupported_modes_and_tool_flags_refuse_before_input_access() -> TestResult {
         words(&["-fp", "131"]),
         words(&["-seed", "9223372036854775808"]),
         words(&["-unknown"]),
+        words(&["missing-model", "-coverage"]),
         words(&[]),
     ] {
         let output = adapter(&args, &fixtures())?;

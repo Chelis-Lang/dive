@@ -18,7 +18,7 @@ use dive_ir::{
     Arg, Bound, BuiltinOp, CaseArm, DefScope, Expr, ExprId, JunctionKind, LocalRef, OpRef, Pass,
     QuantKind,
 };
-use dive_value::{DeferredKind, Int, Value, ops, tlc};
+use dive_value::{DeferredKind, Int, Set, Value, ops, tlc};
 
 use crate::ConstBinding;
 use crate::core::{Core, Lit, is_enumerable, is_reducible, kind_string};
@@ -105,6 +105,14 @@ impl ContextColumn {
     }
 
     /// Advances one column or resets it on carry, first variable fastest.
+    fn has_next(&self) -> bool {
+        match self {
+            Self::Stored { values, index } => *index + 1 < values.len(),
+            Self::Small { current, high, .. } => current < high,
+            Self::Big { current, high, .. } => current < high,
+        }
+    }
+
     fn advance(&mut self) -> Result<bool> {
         match self {
             Self::Stored { values, index } => {
@@ -341,11 +349,13 @@ impl Core {
     )]
     #[inline(never)]
     fn eval_inner(self: &Arc<Self>, env: &mut Env, st: &St, e: ExprId) -> Result<Ev> {
-        if let Some(coverage) = &self.source_coverage
+        let _logical_evaluation = if let Some(coverage) = &self.source_coverage
             && !st.is(control::DIAGNOSTIC)
         {
-            coverage.record(e, 0);
-        }
+            coverage.evaluation(e)
+        } else {
+            None
+        };
         let ir = &*self.ir;
         let node = ir.node(e);
         match &node.expr {
@@ -470,7 +480,13 @@ impl Core {
                 for &i in items {
                     vals.push(self.eval_embed(env, st, i)?);
                 }
-                Ok(Ev::V(Value::set_raw(vals, self.ctx)))
+                let value = Value::set_raw(vals, self.ctx);
+                if let Some(coverage) = &self.source_coverage
+                    && !st.is(control::DIAGNOSTIC)
+                {
+                    coverage.constructed_set(&value);
+                }
+                Ok(Ev::V(value))
             }
             Expr::Tuple(items) => {
                 // OPCODE_tup
@@ -1129,6 +1145,15 @@ impl Core {
     /// What an argument binds a parameter to.
     pub(crate) fn arg_value(self: &Arc<Self>, caller: &mut Env, st: &St, a: &Arg) -> Result<Sv> {
         Ok(match a {
+            Arg::Expr { expr, pass }
+                if *pass != Pass::Direct
+                    && self
+                        .source_coverage
+                        .as_ref()
+                        .is_some_and(|coverage| coverage.logical_action_active()) =>
+            {
+                Sv::Thunk(Thunk::new(*expr, caller.clone(), true))
+            }
             Arg::Expr { expr, pass } => match pass {
                 Pass::Lazy => match self.settled(caller, *expr) {
                     Some(v) => Sv::Val(v),
@@ -1434,6 +1459,11 @@ impl Core {
     ) -> Result<()> {
         let mut binders: Vec<Binder> = Vec::new();
         let mut columns: Vec<ContextColumn> = Vec::new();
+        let mut logical_domains = self
+            .source_coverage
+            .as_ref()
+            .filter(|coverage| coverage.is_tlc())
+            .map(|_| Vec::<Set>::new());
         for b in bounds {
             let Some(dom) = b.domain else {
                 return Err(EvalError::bug("unbounded binder in a bounded construct"));
@@ -1462,6 +1492,9 @@ impl Core {
                     tuple: true,
                 });
                 columns.push(column);
+                if let Some(domains) = &mut logical_domains {
+                    domains.push(s.clone());
+                }
             } else {
                 for v in &b.vars {
                     binders.push(Binder {
@@ -1469,9 +1502,13 @@ impl Core {
                         tuple: false,
                     });
                     columns.push(column.clone());
+                    if let Some(domains) = &mut logical_domains {
+                        domains.push(s.clone());
+                    }
                 }
             }
         }
+        self.observe_context_columns(logical_domains.as_deref(), &columns, false);
         if columns.iter().any(ContextColumn::is_empty) {
             return Ok(());
         }
@@ -1495,6 +1532,10 @@ impl Core {
                     env.bind(b.slots[0], Sv::Val(x.into_owned()));
                 }
             }
+            // TLC's ContextEnumerator prefetches the next context before returning
+            // this one. Observe only its concrete enumerator demands; never force
+            // or advance the producer's values for an observation.
+            self.observe_context_columns(logical_domains.as_deref(), &columns, true);
             if !body(self, env)? {
                 return Ok(());
             }
@@ -1508,6 +1549,30 @@ impl Core {
                     break;
                 }
                 k += 1;
+            }
+        }
+    }
+
+    fn observe_context_columns(
+        &self,
+        domains: Option<&[Set]>,
+        columns: &[ContextColumn],
+        prefetch: bool,
+    ) {
+        let (Some(domains), Some(coverage)) = (domains, &self.source_coverage) else {
+            return;
+        };
+        for (index, (set, column)) in domains.iter().zip(columns).enumerate() {
+            coverage.enumeration(set);
+            if prefetch {
+                if column.has_next() {
+                    break;
+                }
+                if index + 1 < columns.len() {
+                    coverage.enumeration(set);
+                }
+            } else if column.is_empty() {
+                break;
             }
         }
     }
@@ -1608,6 +1673,9 @@ impl Core {
         let elems = s.elements(self.ctx)?;
         let slots: Vec<usize> = b.vars.iter().map(|s| s.index()).collect();
         for x in elems.iter() {
+            if let Some(coverage) = &self.source_coverage {
+                coverage.enumeration(s);
+            }
             self.loop_work()?;
             if b.tuple {
                 let ok = matches!(x, Value::Fcn(f) if f.as_tuple().is_some_and(|t| t.len() == slots.len()));
@@ -1631,6 +1699,9 @@ impl Core {
             if p {
                 return Ok(Ev::V(x.clone()));
             }
+        }
+        if let Some(coverage) = &self.source_coverage {
+            coverage.enumeration(s);
         }
         Err(EvalError::general(format!(
             "Attempted to compute the value of an expression of form\nCHOOSE x \\in S: P, but no element of S satisfied P.\n{}",
@@ -2466,6 +2537,9 @@ impl Core {
 
     /// TLC's `Value.equals`, or TLA+'s answer under `--comparisons=tla`.
     pub(crate) fn equals(&self, a: &Value, b: &Value) -> Result<bool> {
+        if let Some(coverage) = &self.source_coverage {
+            coverage.scalar_values(&[a, b]);
+        }
         match self.opts.comparisons {
             Comparisons::Tlc => Ok(tlc::equals(a, b, self.ctx)?),
             Comparisons::Tla => crate::tla_cmp::equals(self, a, b),
@@ -2527,11 +2601,17 @@ impl Core {
             BuiltinOp::Cup | BuiltinOp::Cap | BuiltinOp::SetMinus => {
                 let a = self.eval_v(env, st, arg(0)?)?;
                 let b = self.eval_v(env, st, arg(1)?)?;
+                if let Some(coverage) = &self.source_coverage {
+                    coverage.interval_base(&a);
+                }
                 self.set_op(op, a, b)?
             }
             BuiltinOp::PowerSet => {
                 // OPCODE_subset
                 let a = self.eval_v(env, st, arg(0)?)?;
+                if let Some(coverage) = &self.source_coverage {
+                    coverage.interval_base(&a);
+                }
                 Value::subset(a, self.ctx)
             }
             BuiltinOp::BigUnion => {

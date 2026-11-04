@@ -58,3 +58,9 @@ change. This does not implement TLC `-coverage`, compiled source coverage,
 distributed metrics or debugging. The logical action-context cost tree, Core
 source maps and DAP remain mandatory follow-up work; the coverage/debugger family
 is not complete.
+
+## Follow-up
+
+ADR 0150 adds a separate final TLC logical-cost slice. The native option and
+its source-work contract above remain unchanged; compiled maps and DAP remain
+unfinished.

@@ -1,0 +1,83 @@
+{
+  "pin": {
+    "oracle": "tlc-2026.10.06.014338",
+    "commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+    "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "arguments": [
+      "-workers",
+      "1",
+      "-seed",
+      "7",
+      "-fp",
+      "0",
+      "-coverage",
+      "0"
+    ],
+    "source_sha256": "3ed9cc9f39947f817fda7f21b06fc84a1e2484f92ecbaafe47cc8703c07d2717",
+    "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+  },
+  "oracle_exit": 14,
+  "generated": 1,
+  "distinct": 1,
+  "depth": 1,
+  "actions": [
+    {
+      "label": "<Init line 4, col 1 to line 4, col 4 of module FailDemand>",
+      "initial": true,
+      "distinct": 2,
+      "generated": 2,
+      "rows": [
+        {
+          "depth": 0,
+          "begin": [
+            4,
+            9
+          ],
+          "end": [
+            4,
+            11
+          ],
+          "module": "FailDemand",
+          "invocations": 2,
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "label": "<Next line 5, col 1 to line 5, col 4 of module FailDemand>",
+      "initial": false,
+      "distinct": 0,
+      "generated": 0,
+      "rows": [
+        {
+          "depth": 0,
+          "begin": [
+            5,
+            9
+          ],
+          "end": [
+            5,
+            54
+          ],
+          "module": "FailDemand",
+          "invocations": 0,
+          "cost": 0
+        },
+        {
+          "depth": 1,
+          "begin": [
+            5,
+            13
+          ],
+          "end": [
+            5,
+            54
+          ],
+          "module": "FailDemand",
+          "invocations": 2,
+          "cost": 0
+        }
+      ]
+    }
+  ]
+}

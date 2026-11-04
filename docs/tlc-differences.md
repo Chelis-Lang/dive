@@ -456,7 +456,13 @@ for ordinary Reference safety checking; Auto selects Reference before execution.
 They count actual producer work, including a failing demand or stopped prefix,
 and exclude diagnostic reconstruction and independent trace replay. They are
 separate from completion or witness proof and do not implement TLC's logical
-action-context costs: pinned `-coverage` remains refused. Core, ENABLED,
+action-context costs. The separate final `--coverage 0` / TLC `-coverage 0`
+route implements the admitted Reference Init/Next scalar/quantifier logical
+slice (ADR 0150), including multiple variables, reused helper paths and concrete
+domain enumeration. Its successful costs use original source trees; failed or
+stopped runs retain their model result but explicitly refuse unproved TLC
+reconstruction costs, without repeating effects. Nonzero intervals, remaining
+cost families and variable summaries remain unfinished. Core, ENABLED,
 temporal, checkpoint/recovery and core-sample combinations are not implemented
 in this first route. See [native source work](user/checking.md#native-source-work).
 
