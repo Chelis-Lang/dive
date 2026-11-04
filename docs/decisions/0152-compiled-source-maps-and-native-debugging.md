@@ -29,7 +29,10 @@ bases, rather than replaying a source tree. Native IR origins retain JavaCC
 coordinates; DAP presents one-based UTF-16 columns and exclusive end positions.
 
 Only the primary explorer machines install the observer. Fresh replay, validation,
-folding and optional analysis machines remain unobserved. Inspection copies
+folding and optional analysis machines remain unobserved. Diagnostic call-stack
+replay reuses a primary machine, so its entire traversal suspends the capability
+with restoration on every return or unwind. It does not filter controller events
+or mutate primary snapshots. Inspection copies
 existing scalar/storage reads; unforced/by-name locals and compound values remain
 unavailable or opaque. Evaluation accepts bounded integer/boolean expressions over
 captured scalars, using a fresh existing compiler and machine with finite fuel.
@@ -61,6 +64,9 @@ Real framed-client controls cover multivariable helpers, actual locals, all thre
 forward steps, stdio launch, loopback attach, pause, termination and a freshly
 independently validated invariant violation. INSTANCE/unused-effect controls and
 both semantic profiles preserve the ordinary result and producer demand.
+The failing-invariant replay control checks exactly one primary exception stop,
+no callbacks on the replay-only successor, unchanged error/count/word authority
+and an independently valid actual error word in both profiles.
 
 Ordinary compilation allocates no source tables. Disabled observation allocates
 no controller, performs no observer callback/Arc clone and preserves the original

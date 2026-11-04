@@ -42,6 +42,8 @@
   stack/scalar inspection, forward steps, pause, bounded evaluation, loopback
   attach and ordinary completed/independently validated violation reports.
   Keep replay unobserved, expire stop handles and refuse incomplete combinations.
+  Suspend observation throughout same-machine diagnostic replay, including early
+  returns, while retaining the original live-producer capability.
 
 - Run the six CommunityModules Graphs/UndirectedGraphs overrides on Core,
   including state-dependent reachability, connected components and simple paths.

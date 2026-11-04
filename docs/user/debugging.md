@@ -27,6 +27,8 @@ Source coordinates use one-based UTF-16 columns. State, successor and local
 scopes expose existing integers, booleans and bounded strings. An unassigned or
 unforced slot is labelled unavailable; compounds remain opaque. Looking at a
 scope does not evaluate source or normalize producer values.
+Diagnostic replay suspends observation even when it reuses the primary machine;
+reconstruction cannot publish another producer stop or replace its snapshot.
 
 The adapter supports continue, pause, next, stepIn, stepOut, stackTrace, scopes,
 variables, loaded-source retrieval, bounded evaluate, exceptionInfo and terminate.

@@ -2765,3 +2765,8 @@ lifetimes follow the MIT-licensed [Microsoft DAP schema](https://github.com/micr
 Actual stdio/loopback clients and public Rust consumers exercise the existing
 checker. Existing TLC verdict/word provenance and native trace formats remain
 authoritative; complete debugger/TLC protocol parity is not claimed.
+The producer boundary also covers diagnostic call-stack replay on a reused
+primary machine: a scoped capability suspension covers all replay exits. Fresh
+trace/sample machines and Reference error/word reconstruction retain their
+independent unobserved paths. Both-profile source controls retain the actual
+error word and verify it independently.

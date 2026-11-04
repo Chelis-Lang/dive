@@ -348,6 +348,114 @@ fn framed_exception_stop_preserves_the_ordinary_independently_validated_violatio
 }
 
 #[test]
+#[allow(
+    clippy::too_many_lines,
+    reason = "real replay-boundary conversation preserves the primary snapshot and the ordinary independently validated error word in both profiles"
+)]
+fn diagnostic_replay_cannot_emit_another_exception_stop_or_replace_the_primary_snapshot()
+-> Result<()> {
+    let dir = std::env::temp_dir().join(format!("dive-dap-replay-{}", std::process::id()));
+    std::fs::create_dir_all(&dir)?;
+    let file = dir.join("ReplayBoundary.tla");
+    std::fs::write(
+        &file,
+        "---- MODULE ReplayBoundary ----\nEXTENDS Integers\nVARIABLE x\nInit == x=0\nNext == x' \\in {1,2}\nInv == IF x=0 THEN TRUE ELSE 1 \\div 0 = 0\n====\n",
+    )?;
+    std::fs::write(
+        file.with_extension("cfg"),
+        "INIT Init\nNEXT Next\nINVARIANT Inv\nCHECK_DEADLOCK FALSE\n",
+    )?;
+    for compat in [false, true] {
+        let plain = dive_api::check_file_engine(
+            &dive_api::CheckRequest {
+                file: file.clone(),
+                compat_tlc: compat,
+                workers: Some(1),
+                seed: Some(7),
+                fp: Some(0),
+                ..Default::default()
+            },
+            dive_api::Engine::Core,
+        )?
+        .to_json_with_exit_convention(dive_api::ExitConvention::Native);
+        let mut client = Client::launch(&file, compat)?;
+        client.initialize("launch")?;
+        client.ok("setExceptionBreakpoints", json!({"filters":["all"]}))?;
+        client.ok("configurationDone", json!({}))?;
+        assert_eq!(client.event("stopped")?["reason"], "exception");
+        let stack = client.ok("stackTrace", json!({"threadId":1}))?;
+        assert!(
+            stack["stackFrames"]
+                .as_array()
+                .ok_or("frames")?
+                .iter()
+                .any(|frame| frame["name"] == "Next"),
+            "{stack}"
+        );
+        let frame = stack["stackFrames"][0]["id"].as_u64().ok_or("frame")?;
+        let scopes = client.ok("scopes", json!({"frameId":frame}))?;
+        let checked_state = scopes["scopes"][0]["variablesReference"].clone();
+        let values = client.ok("variables", json!({"variablesReference":checked_state}))?;
+        assert_eq!(values["variables"][0]["name"], "x");
+        assert_eq!(values["variables"][0]["value"], "1");
+        assert_eq!(
+            client.ok("stackTrace", json!({"threadId":1}))?,
+            stack,
+            "inspection preserves the actual stopped producer activation"
+        );
+        client.ok("continue", json!({"threadId":1}))?;
+        let report = loop {
+            let message = if client.pending.is_empty() {
+                client.message()?
+            } else {
+                client.pending.remove(0)
+            };
+            assert_ne!(
+                message["event"], "stopped",
+                "reconstruction is not producer work: {message}"
+            );
+            if message["event"] == "dive/checkResult" {
+                break message["body"].clone();
+            }
+        };
+        assert_eq!(report["verdict"], "evaluation-error");
+        assert_eq!(report["exit_code"], 13);
+        for field in [
+            "verdict",
+            "statistics",
+            "property",
+            "tlc",
+            "error_site",
+            "message",
+            "output",
+            "counterexample",
+            "warnings",
+            "exit_code",
+        ] {
+            assert_eq!(report[field], plain[field], "{field}");
+        }
+        let spec = dive_api::trace::SpecModel::load(
+            &file,
+            &file.with_extension("cfg"),
+            &dive_api::trace::TraceOptions {
+                compat_tlc: compat,
+                run: Some((7, 0)),
+                ..Default::default()
+            },
+        )?;
+        let word = dive_api::trace::TraceDoc::from_json(&report)?;
+        assert_eq!(
+            spec.try_validate(&word)?.validation,
+            dive_api::trace::Validation::Valid
+        );
+        client.event("terminated")?;
+        assert_eq!(client.child.wait()?.code(), Some(13));
+    }
+    std::fs::remove_dir_all(dir)?;
+    Ok(())
+}
+
+#[test]
 fn real_loopback_attach_stops_the_pending_check_and_termination_cannot_report_success() -> Result<()>
 {
     let (dir, file) = model("DapAttach", "y=2*x")?;

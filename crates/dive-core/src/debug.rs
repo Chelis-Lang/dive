@@ -159,6 +159,30 @@ impl Drop for Guard {
     }
 }
 
+struct Suspended<'a> {
+    machine: &'a mut Machine,
+    observer: Option<Arc<dyn Observer>>,
+}
+impl Drop for Suspended<'_> {
+    fn drop(&mut self) {
+        self.machine.debugger = self.observer.take();
+    }
+}
+
+impl Machine {
+    /// Runs nonproducer reconstruction without this machine's debugger capability.
+    /// The original capability is restored when the operation returns or unwinds,
+    /// including on errors. The controller and its stopped snapshots are untouched.
+    pub fn without_debugger<T>(&mut self, operation: impl FnOnce(&mut Self) -> T) -> T {
+        let observer = self.debugger.take();
+        let suspended = Suspended {
+            machine: self,
+            observer,
+        };
+        operation(&mut *suspended.machine)
+    }
+}
+
 /// Reads only an already-existing scalar/storage alias. Compound expressions,
 /// unforced thunks and by-name recipes remain unavailable; no evaluator is called.
 #[must_use]

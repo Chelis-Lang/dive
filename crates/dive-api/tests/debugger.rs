@@ -5,6 +5,136 @@ use dive_api::{
 };
 use std::time::Duration;
 
+#[derive(Debug, Default)]
+struct ReplayObserver {
+    entries: std::sync::atomic::AtomicUsize,
+    second_successor_entries: std::sync::atomic::AtomicUsize,
+}
+impl dive_core::debug::Observer for ReplayObserver {
+    fn prepared(&self, _: &dive_core::debug::SourceMap) -> Result<(), dive_core::Error> {
+        Ok(())
+    }
+    fn enter(
+        &self,
+        _: dive_core::debug::Instruction,
+        _: &dive_core::plan::Code,
+        machine: &dive_core::Machine,
+    ) -> Result<(), dive_core::Error> {
+        use std::sync::atomic::Ordering::Relaxed;
+        self.entries.fetch_add(1, Relaxed);
+        if machine
+            .s0
+            .iter()
+            .chain(&machine.s1)
+            .any(|value| value.as_int() == Some(2))
+        {
+            self.second_successor_entries.fetch_add(1, Relaxed);
+        }
+        Ok(())
+    }
+    fn returned(
+        &self,
+        _: dive_core::debug::Instruction,
+        _: &dive_core::plan::Code,
+        _: &dive_core::Machine,
+        _: dive_core::debug::Returned<'_>,
+    ) -> Result<(), dive_core::Error> {
+        Ok(())
+    }
+    fn leave(&self) {}
+}
+
+#[test]
+fn diagnostic_replay_has_no_raw_callbacks_and_error_scope_restores_live_observation()
+-> Result<(), Box<dyn std::error::Error>> {
+    use std::sync::{Arc, atomic::Ordering::Relaxed};
+    let dir = std::env::temp_dir().join(format!("dive-debug-raw-replay-{}", std::process::id()));
+    std::fs::create_dir_all(&dir)?;
+    let file = dir.join("ReplayBoundary.tla");
+    std::fs::write(
+        &file,
+        "---- MODULE ReplayBoundary ----\nEXTENDS Integers\nVARIABLE x\nInit == x=0\nNext == x' \\in {1,2}\nInv == IF x=0 THEN TRUE ELSE 1 \\div 0 = 0\n====\n",
+    )?;
+    std::fs::write(
+        file.with_extension("cfg"),
+        "INIT Init\nNEXT Next\nINVARIANT Inv\nCHECK_DEADLOCK FALSE\n",
+    )?;
+    for compat_tlc in [false, true] {
+        let request = CheckRequest {
+            file: file.clone(),
+            compat_tlc,
+            seed: Some(7),
+            fp: Some(0),
+            workers: Some(1),
+            ..Default::default()
+        };
+        let plain = check_file_engine(&request, Engine::Core)?.to_json();
+        let observer = Arc::new(ReplayObserver::default());
+        let debugged = check_file_engine(
+            &CheckRequest {
+                debugger: Some(observer.clone()),
+                ..request
+            },
+            Engine::Core,
+        )?
+        .to_json();
+        assert!(observer.entries.load(Relaxed) > 0);
+        assert_eq!(
+            observer.second_successor_entries.load(Relaxed),
+            0,
+            "the replay-only second successor must execute no debugger callback"
+        );
+        for field in [
+            "verdict",
+            "statistics",
+            "tlc",
+            "error_site",
+            "message",
+            "output",
+            "counterexample",
+            "warnings",
+        ] {
+            assert_eq!(debugged[field], plain[field], "{field}");
+        }
+
+        let mut machine = dive_core::Machine::new(
+            Arc::new(dive_core::Store::with_semantics(
+                true,
+                if compat_tlc {
+                    dive_core::Semantics::tlc()
+                } else {
+                    dive_core::Semantics::default()
+                },
+            )),
+            0,
+            dive_core::Opts::default(),
+            dive_core::memo::Memo::default(),
+        );
+        machine.set_debugger(Some(observer.clone()));
+        let code = dive_core::plan::Code {
+            nodes: vec![dive_core::plan::Node::Const(dive_core::Handle::bool(true))],
+            ..Default::default()
+        };
+        let before = observer.entries.load(Relaxed);
+        let refused: Result<(), dive_core::Error> = machine.without_debugger(|machine| {
+            machine.eval(&code, 0)?;
+            Err(dive_core::Error::unsupported(
+                "test reconstruction early return",
+            ))
+        });
+        assert!(refused.is_err());
+        assert_eq!(observer.entries.load(Relaxed), before);
+        assert_eq!(machine.eval(&code, 0)?.as_bool(), Some(true));
+        assert_eq!(
+            observer.entries.load(Relaxed),
+            before + 1,
+            "resuming live work retains its original observer capability"
+        );
+    }
+    std::fs::remove_dir_all(dir)?;
+    Ok(())
+}
+
 #[test]
 #[allow(
     clippy::too_many_lines,
