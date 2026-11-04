@@ -1,0 +1,331 @@
+{
+  "kind": "focused graph empty-product correctness",
+  "runtime_source_commit": "582bc8013e3e2ef68c8446a897ccd2642a31da1c",
+  "primary_observations_commit": "07adee3d",
+  "runtime_sources_sha256": {
+    "crates/dive-eval/src/community.rs": "8f3034b11caea9682f71c92adcf1d22000fbd38167fcb6cf29d35f30c81e4321",
+    "crates/dive-core/src/stdlib/graphs.rs": "01415520fa5e8f874b07052b3067ad3c845154662fcf2eaae5c32a7c0ae00713",
+    "crates/dive-api/tests/graph_product_demand.rs": "531ae2b1e9b64682f917c84701a242297f949ca9f41ae7c46fae5958f0d21e91"
+  },
+  "artifacts_sha256": {
+    "target/debug/dive": "5c94ff6298b70d734cedaecf12a601e9f320867c3e81de985d5f3fd619e1db64",
+    "target/debug/dive-conformance": "8e3b15928833e0aeae187c08764c85ce0a2d23925be9e7fef240106b654f65b7"
+  },
+  "harness_panels": [
+    {
+      "panel": "frozen-core-dive",
+      "report": "frozen-core-dive/20261104T162610917-dive-all.json",
+      "sha256": "e4698f6c2449d25abb57bbf6796bbf8b42995c39dd898e908ab7080c40a2a404",
+      "physical_exit": 0,
+      "summary": {
+        "models_selected": 6,
+        "modules_selected": 0,
+        "models": {
+          "agree": 6,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "modules": {
+          "agree": 0,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "models_with_oracle_drift": 0,
+        "oracle_drift_findings": 0,
+        "informational_drift_findings": 0,
+        "worker_verdict_variant": 0,
+        "worker_counts_variant": 0,
+        "worker_depth_variant": 0,
+        "worker_introspecting": 0,
+        "worker_property_variant": 0,
+        "by_corpus": {
+          "graph-empty-product": {
+            "models": {
+              "agree": 6,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            },
+            "modules": {
+              "agree": 0,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            }
+          }
+        },
+        "by_engine": {
+          "core": 6
+        }
+      }
+    },
+    {
+      "panel": "frozen-core-tlc",
+      "report": "frozen-core-tlc/20261104T162610932-dive-all.json",
+      "sha256": "52d58791a61577582507e3889c3a82651f8cb9f3cae5003ab82f0d3aa5f8fad1",
+      "physical_exit": 0,
+      "summary": {
+        "models_selected": 6,
+        "modules_selected": 0,
+        "models": {
+          "agree": 6,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "modules": {
+          "agree": 0,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "models_with_oracle_drift": 0,
+        "oracle_drift_findings": 0,
+        "informational_drift_findings": 0,
+        "worker_verdict_variant": 0,
+        "worker_counts_variant": 0,
+        "worker_depth_variant": 0,
+        "worker_introspecting": 0,
+        "worker_property_variant": 0,
+        "by_corpus": {
+          "graph-empty-product": {
+            "models": {
+              "agree": 6,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            },
+            "modules": {
+              "agree": 0,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            }
+          }
+        },
+        "by_engine": {
+          "core": 6
+        }
+      }
+    },
+    {
+      "panel": "frozen-reference-dive",
+      "report": "frozen-reference-dive/20261104T162610951-dive-all.json",
+      "sha256": "1287a16af015c668310a9fa71e9b154edb8dcdab8c5e5cdeb697c3ff3ccae2c7",
+      "physical_exit": 0,
+      "summary": {
+        "models_selected": 6,
+        "modules_selected": 0,
+        "models": {
+          "agree": 6,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "modules": {
+          "agree": 0,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "models_with_oracle_drift": 0,
+        "oracle_drift_findings": 0,
+        "informational_drift_findings": 0,
+        "worker_verdict_variant": 0,
+        "worker_counts_variant": 0,
+        "worker_depth_variant": 0,
+        "worker_introspecting": 0,
+        "worker_property_variant": 0,
+        "by_corpus": {
+          "graph-empty-product": {
+            "models": {
+              "agree": 6,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            },
+            "modules": {
+              "agree": 0,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "panel": "frozen-reference-tlc",
+      "report": "frozen-reference-tlc/20261104T162610954-dive-all.json",
+      "sha256": "5a21108e1f24dea70573830425a0db864c446b5bb6a5c2414e129b775d2c1839",
+      "physical_exit": 0,
+      "summary": {
+        "models_selected": 6,
+        "modules_selected": 0,
+        "models": {
+          "agree": 6,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "modules": {
+          "agree": 0,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "models_with_oracle_drift": 0,
+        "oracle_drift_findings": 0,
+        "informational_drift_findings": 0,
+        "worker_verdict_variant": 0,
+        "worker_counts_variant": 0,
+        "worker_depth_variant": 0,
+        "worker_introspecting": 0,
+        "worker_property_variant": 0,
+        "by_corpus": {
+          "graph-empty-product": {
+            "models": {
+              "agree": 6,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            },
+            "modules": {
+              "agree": 0,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            }
+          }
+        }
+      }
+    }
+  ],
+  "workers": [
+    1,
+    4
+  ],
+  "tests": [
+    {
+      "command": "cargo test -p dive-api --test graph_product_demand --test graph_demand --locked",
+      "result": "4 tests passed; both profiles, workers 1/4, memo/fold and hashcons ablations; fresh independent positive and mutated counterexamples"
+    },
+    {
+      "command": "cargo clippy -p dive-eval -p dive-core -p dive-api --all-targets --locked -- -D warnings",
+      "result": "passed"
+    },
+    {
+      "command": "cargo fmt --all",
+      "result": "formatted before final compilation and frozen checks"
+    }
+  ],
+  "negative_controls": {
+    "names": [
+      "LazyDemandedProduct",
+      "LazyProductAxisOrder",
+      "LazyProductHistory",
+      "LazyProductOperandError"
+    ],
+    "model_goldens": false,
+    "results": "Reference preserves demanded nested comparison/axis/operand errors; Core retains local C2 refusal for demanded comparisons/history and the original evaluation error for axis/operand errors. No classification waiver."
+  },
+  "scope": "Six model facts per panel at both widths: 48 engine/profile/worker observations. Existing graph-demand API suite also passes. No full gate, complete graph/lazy-set family parity, performance or release acceptance claim."
+}

@@ -1,0 +1,45 @@
+{
+  "kind": "bounded sibling constructor primary observations",
+  "oracle": "tlc-2026.10.06.014338",
+  "source_methods": [
+    "Tool.evalAppl record/tuple/function/EXCEPT component construction",
+    "Sequences.Append stores its second argument without conversion",
+    "TLC.MakeFcn stores its range value without conversion",
+    "SetOfTuplesValue.member validates tuple class before checking empty axes"
+  ],
+  "rows": [
+    {
+      "model": "AppendMember",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/product-receivers/specifications/AppendMember/AppendMember.cfg.json",
+      "golden_sha256": "e4e821efe54490fcac3c59b4ee532fe3627889a0e9796a501ea0fe9694720f06",
+      "verdict": "evaluation-error",
+      "code": 2147,
+      "exit": 75
+    },
+    {
+      "model": "ExceptMember",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/product-receivers/specifications/ExceptMember/ExceptMember.cfg.json",
+      "golden_sha256": "5835bf5106367532caf3ddb5715890e8e3ff149ea4b7c5dbe4d0d6a9e9e9f153",
+      "verdict": "evaluation-error",
+      "code": 2147,
+      "exit": 75
+    },
+    {
+      "model": "FunctionMember",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/product-receivers/specifications/FunctionMember/FunctionMember.cfg.json",
+      "golden_sha256": "fd19915d4a27c03ce2e63372b2f04b76b33718c3e606c5f1b94cff2910a2b6e1",
+      "verdict": "evaluation-error",
+      "code": 2147,
+      "exit": 75
+    },
+    {
+      "model": "MakeFcnMember",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/product-receivers/specifications/MakeFcnMember/MakeFcnMember.cfg.json",
+      "golden_sha256": "244788906236ffd87b405c246191b854ff4d5f2ddfde99ecd12f490fd59f3b42",
+      "verdict": "evaluation-error",
+      "code": 2147,
+      "exit": 75
+    }
+  ],
+  "limits": "Classified error facts; no newly certified native error class or full constructor/stdlib parity claim."
+}

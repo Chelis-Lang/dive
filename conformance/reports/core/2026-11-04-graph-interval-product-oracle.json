@@ -1,0 +1,70 @@
+{
+  "kind": "review interval-product oracle observations before materialization repair",
+  "runtime_base": "a37ca405b290fa532cacc198723f7670b41eac7d",
+  "oracle": "tlc-2026.10.06.014338",
+  "source_methods": [
+    "SetOfTuplesValue.elements first calls Value.isEmpty on product axes in source order",
+    "Value.isEmpty on an empty interval returns true without asking later axes to be sets"
+  ],
+  "observation": "An empty interval before a scalar axis is a valid empty product. Record and tuple component materialization must preserve that emptiness short circuit before axis enumeration. Operand expressions are evaluated before constructing the product, including demanded division errors.",
+  "rows": [
+    {
+      "model": "LazyIntervalEmptyProduct",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/graph-empty-product/specifications/LazyIntervalEmptyProduct/LazyIntervalEmptyProduct.cfg.json",
+      "golden_sha256": "2c0fab43675880a4ff0f9f41be5ba33da4cb302634dfea2636352767811cf4f5",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "exit_status": "SUCCESS",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        },
+        "fingerprint_collision": {
+          "optimistic": "val = 0.0",
+          "observed": null
+        },
+        "trace": null,
+        "error_codes": [],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      }
+    },
+    {
+      "model": "LazyTupleIntervalEmptyProduct",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/graph-empty-product/specifications/LazyTupleIntervalEmptyProduct/LazyTupleIntervalEmptyProduct.cfg.json",
+      "golden_sha256": "825ca98543ae0a7811977e52b86dbc234f9153dbb2af338fb501fd097c3233ef",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "exit_status": "SUCCESS",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        },
+        "fingerprint_collision": {
+          "optimistic": "val = 0.0",
+          "observed": null
+        },
+        "trace": null,
+        "error_codes": [],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      }
+    }
+  ],
+  "classification": "Both new models are classified success: physical exit 0, 3 distinct, 3 generated, depth 3. Existing six golden payloads are unchanged; the official harness refreshed only provenance for the expanded corpus. Four existing context-only negatives gain no model golden.",
+  "golden_observations_commit": "70dfa2c4"
+}
