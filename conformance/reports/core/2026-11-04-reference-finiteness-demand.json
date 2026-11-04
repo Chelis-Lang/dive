@@ -1,0 +1,341 @@
+{
+  "issue": 771,
+  "runtime_source_commit": "eac7015a4caf6bcf10f255c6eaa1b09feb51b0d9",
+  "runtime_tree": "943339b0a72b1bc5c503e8e652f41678ec255be6",
+  "base": "66483059ad696127224af4962db1e55b96bb4710",
+  "oracle_first_commit": "d0a3a573",
+  "patch_sha256": "4a7b6347ef7442aff5835d2bd3d54b4713e174b3993152782fa8907bbba5f8e8",
+  "repair": "IsFiniteSet delegates compound emptiness to an operation-local traversal of original Product/record/function-set receivers. Product and record traversal returns at the first empty child in stored receiver order; function-set domain emptiness precedes range emptiness. Existing leaf methods and initial finiteness order remain in use. No conversion, receiver replacement or shared Value normalization change.",
+  "source_sha256": {
+    "crates/dive-eval/src/std.rs": "94293aa55bae8d2a2ef80fd7e395755c23ac87c72aa9aa340d408a8f58845f55",
+    "crates/dive-api/tests/reference_finiteness_demand.rs": "4bf9344883980f01718b176a80064a02f015441e1b1103435481503402e298bf"
+  },
+  "artifacts_sha256": {
+    "target/debug/dive": "73513e53df1cfd113369860af349a3bd2f5960260ba17d6d1961142c3406ade0",
+    "target/debug/dive-conformance": "44795e1d93f1a11b0edd90398daf4d0e19e355e0c1bfb28d12082940db0f563f"
+  },
+  "primary_binding": {
+    "report": "conformance/reports/core/2026-11-04-reference-finiteness-oracle.json",
+    "sha256": "b5280b64461f36e8fc307beb91eb09008ff31f3a3b0913685fdd4a124a0154ad",
+    "goldens": [
+      {
+        "path": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/EmptyBeforeScalar/EmptyBeforeScalar.cfg.json",
+        "sha256": "295afbb877128136e298bf1dc40e3c28434e83b1c9d4c18ef37eb3aec94b532a"
+      },
+      {
+        "path": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/EmptyFunctionAndSequence/EmptyFunctionAndSequence.cfg.json",
+        "sha256": "9c067f65093a81b299e6f4ab82843ac505f3c01dd0a638c577ff702af74d51bc"
+      },
+      {
+        "path": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/EmptyRecordBeforeScalar/EmptyRecordBeforeScalar.cfg.json",
+        "sha256": "c153920fbda0cdbe8277746f74f391ce43b8f9b4674e8122d528f84d691651dd"
+      },
+      {
+        "path": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/NestedProductEmpty/NestedProductEmpty.cfg.json",
+        "sha256": "6a51e2bd84497d7720315f9744b5db8cf8c00a062a0627695a8b4b991bdd1e6e"
+      },
+      {
+        "path": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/OrderedRecordEmpty/OrderedRecordEmpty.cfg.json",
+        "sha256": "91dab7425bcd59403c367f8b46ce9170c5eed2c1e36b12a53467dcbcf6ba45e2"
+      },
+      {
+        "path": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/ProviderBeforeEmpty/ProviderBeforeEmpty.cfg.json",
+        "sha256": "9f09d398071276f614ec18342a6969c46f1625e9ef88eebe52207767fb63a55a"
+      },
+      {
+        "path": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/RawAxesStayRaw/RawAxesStayRaw.cfg.json",
+        "sha256": "116f2fdef0858737b007c5284f986dec9ed938946b454afb1a3b3a4eb87c76fe"
+      },
+      {
+        "path": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/ReceiverAfterFiniteness/ReceiverAfterFiniteness.cfg.json",
+        "sha256": "cdefa95cd871bc302f527de7fa5b51fe386b806a9c1f60bac826c4971f65f034"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "argv": [
+        "cargo",
+        "test",
+        "-p",
+        "dive-api",
+        "--test",
+        "reference_finiteness_demand",
+        "--test",
+        "product_operations",
+        "--test",
+        "product_receivers",
+        "--locked"
+      ],
+      "exit": 0,
+      "std_sha256": "94293aa55bae8d2a2ef80fd7e395755c23ac87c72aa9aa340d408a8f58845f55",
+      "test_sha256": "4bf9344883980f01718b176a80064a02f015441e1b1103435481503402e298bf",
+      "receipt": "checks/focused-product-and-finiteness.json",
+      "receipt_sha256": "2127660fd0bf4c794bc434ef2485ab7000dd624c5899fd863653d56af55271e8"
+    },
+    {
+      "argv": [
+        "cargo",
+        "clippy",
+        "-p",
+        "dive-eval",
+        "-p",
+        "dive-api",
+        "--all-targets",
+        "--locked",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "std_sha256": "94293aa55bae8d2a2ef80fd7e395755c23ac87c72aa9aa340d408a8f58845f55",
+      "test_sha256": "4bf9344883980f01718b176a80064a02f015441e1b1103435481503402e298bf",
+      "receipt": "checks/scoped-clippy-fixed.json",
+      "receipt_sha256": "8247d49d969ef2fc4ab2656d5566752eec077d766b1373044b24703d19859368"
+    },
+    {
+      "argv": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "exit": 0,
+      "std_sha256": "94293aa55bae8d2a2ef80fd7e395755c23ac87c72aa9aa340d408a8f58845f55",
+      "test_sha256": "4bf9344883980f01718b176a80064a02f015441e1b1103435481503402e298bf",
+      "receipt": "checks/formatting.json",
+      "receipt_sha256": "bd4774cfba9fd7c6e165f4958f4b68295aff0e37a95a7367fc28c2518d5b27dc"
+    },
+    {
+      "argv": [
+        "cargo",
+        "build",
+        "-p",
+        "dive-cli",
+        "-p",
+        "dive-conformance",
+        "--locked"
+      ],
+      "exit": 0,
+      "std_sha256": "94293aa55bae8d2a2ef80fd7e395755c23ac87c72aa9aa340d408a8f58845f55",
+      "test_sha256": "4bf9344883980f01718b176a80064a02f015441e1b1103435481503402e298bf",
+      "receipt": "checks/frozen-build.json",
+      "receipt_sha256": "45bff3e0007897f3f2061980705537e9a4810e4122aa94d9deacc0b459d55e28"
+    },
+    {
+      "argv": [
+        "cargo",
+        "test",
+        "-p",
+        "dive-api",
+        "--test",
+        "graph_demand",
+        "--test",
+        "graph_product_demand",
+        "--locked"
+      ],
+      "exit": 0,
+      "std_sha256": "94293aa55bae8d2a2ef80fd7e395755c23ac87c72aa9aa340d408a8f58845f55",
+      "test_sha256": "4bf9344883980f01718b176a80064a02f015441e1b1103435481503402e298bf",
+      "receipt": "checks/focused-graphs.json",
+      "receipt_sha256": "a91b9eb46d59227a78cdb049505e757433a09d51a627a58f2d2191ce8b049d3a"
+    }
+  ],
+  "other_focused_checks": [
+    {
+      "argv": [
+        "cargo",
+        "test",
+        "-p",
+        "dive-api",
+        "--test",
+        "core_rules",
+        "library_fixtures_match_the_reference_and_tlc",
+        "--locked"
+      ],
+      "exit": 0,
+      "result": "1 unchanged library-fixture test passed, including Sequences/FiniteSets/FoldOps controls."
+    }
+  ],
+  "focused_accounting": "12 passing functions in affected scope:3 new Reference source-demand tests,3 established Product operation tests,1 receiver test,4 Graph tests and1 library fixture test. Product checks cover both profiles and individual default/-fold/-memo/-hashcons/-symbolic-member Core settings. These are focused tests, not a full gate.",
+  "panels": [
+    {
+      "profile": "dive",
+      "report": "frozen-reference-dive/20261104T211704915-dive-all.json",
+      "sha256": "c52a86ec24112fa67ab9a0735e69c5fec04d10ca009ea6f09517d81af1e1f602",
+      "workers": [
+        1,
+        4
+      ],
+      "summary": {
+        "models_selected": 8,
+        "modules_selected": 0,
+        "models": {
+          "agree": 6,
+          "disagree": 0,
+          "unsupported": 2,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "modules": {
+          "agree": 0,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "models_with_oracle_drift": 0,
+        "oracle_drift_findings": 0,
+        "informational_drift_findings": 0,
+        "worker_verdict_variant": 0,
+        "worker_counts_variant": 0,
+        "worker_depth_variant": 0,
+        "worker_introspecting": 0,
+        "worker_property_variant": 0,
+        "by_corpus": {
+          "reference-finiteness-demand": {
+            "models": {
+              "agree": 6,
+              "disagree": 0,
+              "unsupported": 2,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            },
+            "modules": {
+              "agree": 0,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "profile": "tlc",
+      "report": "frozen-reference-tlc/20261104T211704844-dive-all.json",
+      "sha256": "e698645c70585f4940089c71ecbfd62d26bddca8c2e7c29ff6f5858443b8030c",
+      "workers": [
+        1,
+        4
+      ],
+      "summary": {
+        "models_selected": 8,
+        "modules_selected": 0,
+        "models": {
+          "agree": 6,
+          "disagree": 0,
+          "unsupported": 2,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "modules": {
+          "agree": 0,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "models_with_oracle_drift": 0,
+        "oracle_drift_findings": 0,
+        "informational_drift_findings": 0,
+        "worker_verdict_variant": 0,
+        "worker_counts_variant": 0,
+        "worker_depth_variant": 0,
+        "worker_introspecting": 0,
+        "worker_property_variant": 0,
+        "by_corpus": {
+          "reference-finiteness-demand": {
+            "models": {
+              "agree": 6,
+              "disagree": 0,
+              "unsupported": 2,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            },
+            "modules": {
+              "agree": 0,
+              "disagree": 0,
+              "unsupported": 0,
+              "oracle-error": 0,
+              "timeout": 0,
+              "out-of-scope": 0,
+              "divergence-mode": 0,
+              "expected-divergence": 0,
+              "agree-pending-trace-validation": 0,
+              "known-upstream-change": 0
+            }
+          }
+        }
+      }
+    }
+  ],
+  "strict_accounting": "Each profile retains6 agreed model facts and2 unsupported model facts at workers1/4:24 strict agreement observations and8 unsupported observations across both profiles. No provider or unverified receiver error gains parity credit.",
+  "frozen_native": {
+    "receipt": "frozen-reference/receipt.json",
+    "sha256": "1a6430c60143f203c7bd9251ac4b4dc56e34b212d44ceed2a362293c933f4d6b",
+    "observations": 28,
+    "successes": 12,
+    "evaluation_errors": 14,
+    "unsupported": 2,
+    "result": "Six holding models in both profiles match2193/0 and3distinct/3generated/depth3; six context-only demanded errors retain their source cause/order; post-finiteness membership reaches non-tuple receiver error75; provider method retains named unsupported3. The pre-existing native division Init-context metadata is retained verbatim, not converted into a new deciding oracle class."
+  },
+  "historical_composite": {
+    "receipt": "historical-composite/receipt.json",
+    "sha256": "66fb7bf74fddebaae8faaf13d0ecaac34797327c2fb2acee6b3ba8d81cda6656",
+    "source_sha256": "a6ade1a8609b82166c515644268c273011034608d319ddfe0c5fcacdc3a8d6b6",
+    "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d",
+    "observations": 4,
+    "result": "Retained original composite succeeds2193/0 at3/3/depth3 on both engines and both profiles. The earlier claim that its first clause isolated the defect is explicitly corrected in issue771 and primary documentation; isolated direct empty-axis and empty-function-domain clauses already pass fd2190e2/main."
+  },
+  "attempts_preserved": [
+    "The first source-order forecast did not seed encounter-token record-field order. Original inputs and refused/context-only streams are retained, with no failed golden written. Source-correct controls were pinned before runtime repair.",
+    "An initial new test incorrectly assumed all native error metadata was unverified, then incorrectly equated the nested division cause with the reported metadata. It now checks the source-bound baseline Init-context route exactly (code2103/reported1000/verifiedtrue), preserving the existing classifier and context-only oracle status. All other demanded/receiver errors remain unverified.",
+    "First scoped lint found a missing documentation backtick in the new test. The original failure and passing correction remain in checks/scoped-clippy*. No runtime or existing expectation was changed to satisfy it."
+  ],
+  "limits": [
+    "Runtime diff is confined to Reference std.rs. Global dive-value emptiness/normalization, Core/compiler/maps, all existing tests/allowlists, goldens outside the new corpus and conformance classifiers are unchanged.",
+    "This operation-local traversal retains existing leaf behavior and admission. It is not a full-family claim about all IsFiniteSet leaf methods, deferred providers, oversized intervals, other set-size/conversion consumers or native error provenance.",
+    "Only new generated oracle facts are committed. Six context-only error streams remain unclassified, with no invented golden or deciding class.",
+    "Product, PR775 shipping and performance diagnostic worktrees/raw are untouched. No AWS, broad qualification, full gate or performance work.",
+    "Required CI and fresh independent review remain pending; parent owns integration and manual issue closure.",
+    "Final Graph-only cargo command passes all4 functions; its exact receipt replaces no earlier failed new-test attempt, which remains documented above."
+  ],
+  "retained_raw_namespace": "phase8-reference-finiteness-20261104"
+}

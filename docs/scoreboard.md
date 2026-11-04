@@ -42,6 +42,18 @@ raw-axis size / infinite-then-scalar errors. Reference's separate
 scalar-axis Cardinality failures remain unproved, without relabeling primary TLC
 facts or historical qualification totals.
 
+The separate `reference-finiteness-demand` corpus adds six pinned holding models,
+one classified post-finiteness receiver error, one provider success that remains
+natively refused, and six context-only demanded-error controls. Reference's
+nested Product/record emptiness correction (#771) preserves original receivers,
+raw aliases and source demand; it changes no historical qualification total.
+The historical composite's earlier first-clause localization is explicitly
+corrected: the nested record clause fails on the baseline, while `{} \X x`
+already succeeds. A separate `reference-finiteness-token-order` pair preserves
+the rejected default false success and the opposite holding control. Its one
+success golden and one context-only error input require token-ordered record
+method demand in both profiles; all eight earlier golden bytes stay unchanged.
+
 Core safety candidate queues now consume owned spilled payloads before ordered
 Store promotion. Bounds apply to the encoded queues and separately reported
 codec scratch/origin workspace, with explicit resource stops. They do not bound

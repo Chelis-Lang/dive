@@ -1,0 +1,778 @@
+{
+  "issue": 771,
+  "kind": "oracle-first Reference compound finiteness demand controls",
+  "runtime_edited": false,
+  "source_before_correction": "66483059ad696127224af4962db1e55b96bb4710",
+  "localization_correction": "The historical composite was not an isolated first-clause repro: {} \\X x and [{} -> x] \\X {x} already succeed on fd2190e2 and66483059 in both profiles. The minimal failing clause is IsFiniteSet([a:{},b:x] \\X {x}), whose inner isFinite returns true before outer isEmpty scans that receiver. Original composite/receipt remains preserved; issue771 now explicitly corrects the localization.",
+  "isolated_native": {
+    "fd2190e2": [
+      {
+        "name": "EmptyBeforeScalar",
+        "profile": "dive",
+        "source": "fd2190e2",
+        "exit": 0,
+        "verdict": "success",
+        "message": null,
+        "tlc": {
+          "code": 2193,
+          "exit_status": 0,
+          "name": "TLC_SUCCESS",
+          "reported": 2193,
+          "verified": true
+        },
+        "statistics": {
+          "depth": 3,
+          "distinct": 3,
+          "generated": 3,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "tla_sha256": "bf2de5a972e81c412c87bda12538add9fa973d7112fdb5e2cb8f8696b77b3a59"
+      },
+      {
+        "name": "EmptyBeforeScalar",
+        "profile": "tlc",
+        "source": "fd2190e2",
+        "exit": 0,
+        "verdict": "success",
+        "message": null,
+        "tlc": {
+          "code": 2193,
+          "exit_status": 0,
+          "name": "TLC_SUCCESS",
+          "reported": 2193,
+          "verified": true
+        },
+        "statistics": {
+          "depth": 3,
+          "distinct": 3,
+          "generated": 3,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "tla_sha256": "bf2de5a972e81c412c87bda12538add9fa973d7112fdb5e2cb8f8696b77b3a59"
+      },
+      {
+        "name": "EmptyRecordBeforeScalar",
+        "profile": "dive",
+        "source": "fd2190e2",
+        "exit": 75,
+        "verdict": "evaluation-error",
+        "message": "@!@!@STARTMSG 2154:0 @!@!@\nAttempted to apply the operator overridden by the Java method\npublic static tlc2.value.IBoolValue tlc2.module.FiniteSets.IsFiniteSet(tlc2.value.impl.Value),\nbut it produced the following error:\nShouldn't call isEmpty() on value 0\n@!@!@ENDMSG 2154 @!@!@\nWhile working on the initial state:\nx = 0\n",
+        "tlc": {
+          "code": 2103,
+          "exit_status": 75,
+          "name": "TLC_NESTED_EXPRESSION",
+          "reported": 2102,
+          "verified": false
+        },
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "initial_generated": 1,
+          "left_on_queue": 1,
+          "reported_by_tlc": true
+        },
+        "tla_sha256": "e2f6d9d98cf75354fff868a8de8ef85f4ce847ff07f57f2d292d842ab80cd387"
+      },
+      {
+        "name": "EmptyRecordBeforeScalar",
+        "profile": "tlc",
+        "source": "fd2190e2",
+        "exit": 75,
+        "verdict": "evaluation-error",
+        "message": "@!@!@STARTMSG 2154:0 @!@!@\nAttempted to apply the operator overridden by the Java method\npublic static tlc2.value.IBoolValue tlc2.module.FiniteSets.IsFiniteSet(tlc2.value.impl.Value),\nbut it produced the following error:\nShouldn't call isEmpty() on value 0\n@!@!@ENDMSG 2154 @!@!@\nWhile working on the initial state:\nx = 0\n",
+        "tlc": {
+          "code": 2103,
+          "exit_status": 75,
+          "name": "TLC_NESTED_EXPRESSION",
+          "reported": 2102,
+          "verified": false
+        },
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "initial_generated": 1,
+          "left_on_queue": 1,
+          "reported_by_tlc": true
+        },
+        "tla_sha256": "e2f6d9d98cf75354fff868a8de8ef85f4ce847ff07f57f2d292d842ab80cd387"
+      },
+      {
+        "name": "EmptyFunctionBeforeScalar",
+        "profile": "dive",
+        "source": "fd2190e2",
+        "exit": 0,
+        "verdict": "success",
+        "message": null,
+        "tlc": {
+          "code": 2193,
+          "exit_status": 0,
+          "name": "TLC_SUCCESS",
+          "reported": 2193,
+          "verified": true
+        },
+        "statistics": {
+          "depth": 3,
+          "distinct": 3,
+          "generated": 3,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "tla_sha256": "c69a2591f50cde4335f0bafe57676ed01790a709a7dd21eb6418669bb2a4fabc"
+      },
+      {
+        "name": "EmptyFunctionBeforeScalar",
+        "profile": "tlc",
+        "source": "fd2190e2",
+        "exit": 0,
+        "verdict": "success",
+        "message": null,
+        "tlc": {
+          "code": 2193,
+          "exit_status": 0,
+          "name": "TLC_SUCCESS",
+          "reported": 2193,
+          "verified": true
+        },
+        "statistics": {
+          "depth": 3,
+          "distinct": 3,
+          "generated": 3,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "tla_sha256": "c69a2591f50cde4335f0bafe57676ed01790a709a7dd21eb6418669bb2a4fabc"
+      }
+    ],
+    "66483059": [
+      {
+        "name": "EmptyBeforeScalar",
+        "source": "66483059ad696127224af4962db1e55b96bb4710",
+        "binary_sha256": "0316b36626dfe7ec912242bdd7be9eda29313865e506a63a719dc4e6bc760aa9",
+        "profile": "dive",
+        "exit": 0,
+        "verdict": "success",
+        "message": null,
+        "tlc": {
+          "code": 2193,
+          "exit_status": 0,
+          "name": "TLC_SUCCESS",
+          "reported": 2193,
+          "verified": true
+        },
+        "statistics": {
+          "depth": 3,
+          "distinct": 3,
+          "generated": 3,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        }
+      },
+      {
+        "name": "EmptyBeforeScalar",
+        "source": "66483059ad696127224af4962db1e55b96bb4710",
+        "binary_sha256": "0316b36626dfe7ec912242bdd7be9eda29313865e506a63a719dc4e6bc760aa9",
+        "profile": "tlc",
+        "exit": 0,
+        "verdict": "success",
+        "message": null,
+        "tlc": {
+          "code": 2193,
+          "exit_status": 0,
+          "name": "TLC_SUCCESS",
+          "reported": 2193,
+          "verified": true
+        },
+        "statistics": {
+          "depth": 3,
+          "distinct": 3,
+          "generated": 3,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        }
+      },
+      {
+        "name": "EmptyFunctionBeforeScalar",
+        "source": "66483059ad696127224af4962db1e55b96bb4710",
+        "binary_sha256": "0316b36626dfe7ec912242bdd7be9eda29313865e506a63a719dc4e6bc760aa9",
+        "profile": "dive",
+        "exit": 0,
+        "verdict": "success",
+        "message": null,
+        "tlc": {
+          "code": 2193,
+          "exit_status": 0,
+          "name": "TLC_SUCCESS",
+          "reported": 2193,
+          "verified": true
+        },
+        "statistics": {
+          "depth": 3,
+          "distinct": 3,
+          "generated": 3,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        }
+      },
+      {
+        "name": "EmptyFunctionBeforeScalar",
+        "source": "66483059ad696127224af4962db1e55b96bb4710",
+        "binary_sha256": "0316b36626dfe7ec912242bdd7be9eda29313865e506a63a719dc4e6bc760aa9",
+        "profile": "tlc",
+        "exit": 0,
+        "verdict": "success",
+        "message": null,
+        "tlc": {
+          "code": 2193,
+          "exit_status": 0,
+          "name": "TLC_SUCCESS",
+          "reported": 2193,
+          "verified": true
+        },
+        "statistics": {
+          "depth": 3,
+          "distinct": 3,
+          "generated": 3,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        }
+      },
+      {
+        "name": "EmptyRecordBeforeScalar",
+        "source": "66483059ad696127224af4962db1e55b96bb4710",
+        "binary_sha256": "0316b36626dfe7ec912242bdd7be9eda29313865e506a63a719dc4e6bc760aa9",
+        "profile": "dive",
+        "exit": 75,
+        "verdict": "evaluation-error",
+        "message": "@!@!@STARTMSG 2154:0 @!@!@\nAttempted to apply the operator overridden by the Java method\npublic static tlc2.value.IBoolValue tlc2.module.FiniteSets.IsFiniteSet(tlc2.value.impl.Value),\nbut it produced the following error:\nShouldn't call isEmpty() on value 0\n@!@!@ENDMSG 2154 @!@!@\nWhile working on the initial state:\nx = 0\n",
+        "tlc": {
+          "code": 2103,
+          "exit_status": 75,
+          "name": "TLC_NESTED_EXPRESSION",
+          "reported": 2102,
+          "verified": false
+        },
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "initial_generated": 1,
+          "left_on_queue": 1,
+          "reported_by_tlc": true
+        }
+      },
+      {
+        "name": "EmptyRecordBeforeScalar",
+        "source": "66483059ad696127224af4962db1e55b96bb4710",
+        "binary_sha256": "0316b36626dfe7ec912242bdd7be9eda29313865e506a63a719dc4e6bc760aa9",
+        "profile": "tlc",
+        "exit": 75,
+        "verdict": "evaluation-error",
+        "message": "@!@!@STARTMSG 2154:0 @!@!@\nAttempted to apply the operator overridden by the Java method\npublic static tlc2.value.IBoolValue tlc2.module.FiniteSets.IsFiniteSet(tlc2.value.impl.Value),\nbut it produced the following error:\nShouldn't call isEmpty() on value 0\n@!@!@ENDMSG 2154 @!@!@\nWhile working on the initial state:\nx = 0\n",
+        "tlc": {
+          "code": 2103,
+          "exit_status": 75,
+          "name": "TLC_NESTED_EXPRESSION",
+          "reported": 2102,
+          "verified": false
+        },
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "initial_generated": 1,
+          "left_on_queue": 1,
+          "reported_by_tlc": true
+        }
+      }
+    ]
+  },
+  "primary_models": [
+    {
+      "name": "EmptyBeforeScalar",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/EmptyBeforeScalar/EmptyBeforeScalar.cfg.json",
+      "sha256": "295afbb877128136e298bf1dc40e3c28434e83b1c9d4c18ef37eb3aec94b532a",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "exit_status": "SUCCESS",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        },
+        "fingerprint_collision": {
+          "optimistic": "val = 0.0",
+          "observed": null
+        },
+        "trace": null,
+        "error_codes": [],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      }
+    },
+    {
+      "name": "EmptyFunctionAndSequence",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/EmptyFunctionAndSequence/EmptyFunctionAndSequence.cfg.json",
+      "sha256": "9c067f65093a81b299e6f4ab82843ac505f3c01dd0a638c577ff702af74d51bc",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "exit_status": "SUCCESS",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        },
+        "fingerprint_collision": {
+          "optimistic": "val = 0.0",
+          "observed": null
+        },
+        "trace": null,
+        "error_codes": [],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      }
+    },
+    {
+      "name": "EmptyRecordBeforeScalar",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/EmptyRecordBeforeScalar/EmptyRecordBeforeScalar.cfg.json",
+      "sha256": "c153920fbda0cdbe8277746f74f391ce43b8f9b4674e8122d528f84d691651dd",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "exit_status": "SUCCESS",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        },
+        "fingerprint_collision": {
+          "optimistic": "val = 0.0",
+          "observed": null
+        },
+        "trace": null,
+        "error_codes": [],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      }
+    },
+    {
+      "name": "NestedProductEmpty",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/NestedProductEmpty/NestedProductEmpty.cfg.json",
+      "sha256": "6a51e2bd84497d7720315f9744b5db8cf8c00a062a0627695a8b4b991bdd1e6e",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "exit_status": "SUCCESS",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        },
+        "fingerprint_collision": {
+          "optimistic": "val = 0.0",
+          "observed": null
+        },
+        "trace": null,
+        "error_codes": [],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      }
+    },
+    {
+      "name": "OrderedRecordEmpty",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/OrderedRecordEmpty/OrderedRecordEmpty.cfg.json",
+      "sha256": "91dab7425bcd59403c367f8b46ce9170c5eed2c1e36b12a53467dcbcf6ba45e2",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "exit_status": "SUCCESS",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        },
+        "fingerprint_collision": {
+          "optimistic": "val = 0.0",
+          "observed": null
+        },
+        "trace": null,
+        "error_codes": [],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      }
+    },
+    {
+      "name": "ProviderBeforeEmpty",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/ProviderBeforeEmpty/ProviderBeforeEmpty.cfg.json",
+      "sha256": "9f09d398071276f614ec18342a6969c46f1625e9ef88eebe52207767fb63a55a",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "exit_status": "SUCCESS",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        },
+        "fingerprint_collision": {
+          "optimistic": "val = 0.0",
+          "observed": null
+        },
+        "trace": null,
+        "error_codes": [],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      }
+    },
+    {
+      "name": "RawAxesStayRaw",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/RawAxesStayRaw/RawAxesStayRaw.cfg.json",
+      "sha256": "116f2fdef0858737b007c5284f986dec9ed938946b454afb1a3b3a4eb87c76fe",
+      "result": {
+        "verdict": "success",
+        "verdict_code": 2193,
+        "error_class": "TLC_SUCCESS",
+        "exit_code": 0,
+        "exit_status": "SUCCESS",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0,
+          "depth": 3
+        },
+        "fingerprint_collision": {
+          "optimistic": "val = 0.0",
+          "observed": null
+        },
+        "trace": null,
+        "error_codes": [],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      }
+    },
+    {
+      "name": "ReceiverAfterFiniteness",
+      "golden": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/ReceiverAfterFiniteness/ReceiverAfterFiniteness.cfg.json",
+      "sha256": "cdefa95cd871bc302f527de7fa5b51fe386b806a9c1f60bac826c4971f65f034",
+      "result": {
+        "verdict": "evaluation-error",
+        "verdict_code": 2147,
+        "error_class": "TLC_FINGERPRINT_EXCEPTION",
+        "exit_code": 75,
+        "exit_status": "FAILURE_SPEC_EVAL",
+        "violated_property": null,
+        "counts": {
+          "distinct_states": 1,
+          "states_generated": 1,
+          "states_left_on_queue": 1,
+          "depth": 1
+        },
+        "fingerprint_collision": null,
+        "trace": null,
+        "error_codes": [
+          2102,
+          2147
+        ],
+        "warning_codes": [],
+        "unresolved_modules": [],
+        "note": null
+      }
+    }
+  ],
+  "primary_contexts": [
+    {
+      "name": "ScalarBeforeEmpty",
+      "physical_exit": 75,
+      "root_frame_codes": [
+        2262,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2102,
+        2103,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "stream_frame_codes": [
+        2262,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2102,
+        2154,
+        2103,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "classification": "context-only; no deciding-class golden",
+      "tla_sha256": "4c0a92e3c62285ff57fa33429a9f3d6b5fe8f9882f4ca31cc8537b77c624b2a7",
+      "stdout_sha256": "f6d9275a216381e41b73df9a114009c5f5581f71800eb94a643d331aee06a711",
+      "command_sha256": "ffa2882d39ee3c279765a798364db779bcd482e8470ac3110c482a21cd54fe31"
+    },
+    {
+      "name": "NestedScalarBeforeEmpty",
+      "physical_exit": 75,
+      "root_frame_codes": [
+        2262,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2102,
+        2103,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "stream_frame_codes": [
+        2262,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2102,
+        2154,
+        2103,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "classification": "context-only; no deciding-class golden",
+      "tla_sha256": "442faf61ab96830520eb293c0af69ae322507856c050e7297223b027ae4fde88",
+      "stdout_sha256": "27d0195b84133520ced4b0bbbb04c6a047466d831a325abd67de1dad08de11a3",
+      "command_sha256": "2b828cfb62ca06510144990b1293eb42d99651b4579768ee642f200d7767e053"
+    },
+    {
+      "name": "RecordScalarBeforeEmpty",
+      "physical_exit": 75,
+      "root_frame_codes": [
+        2262,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2102,
+        2103,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "stream_frame_codes": [
+        2262,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2102,
+        2154,
+        2103,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "classification": "context-only; no deciding-class golden",
+      "tla_sha256": "c913271db34a1fcc9643fd0a1c092099a4001ed03969bea41e7a2749a3ddd424",
+      "stdout_sha256": "502b7937825851b91d397eedf827992cfe1b085787bccd45b9ef648d0e720486",
+      "command_sha256": "99b0b0681d8ab15895e38fe290e77794ab759683136def8320479e2c5fba64bb"
+    },
+    {
+      "name": "InfiniteBeforeScalar",
+      "physical_exit": 75,
+      "root_frame_codes": [
+        2262,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2102,
+        2103,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "stream_frame_codes": [
+        2262,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2102,
+        2154,
+        2103,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "classification": "context-only; no deciding-class golden",
+      "tla_sha256": "786a58de66ae19a73f71514ff605dda8206f95dc73642d3d97b6dcf1501c7784",
+      "stdout_sha256": "02f26d34ab5ed2fb4e96ad2f185b6f96546b4b156c79789f36d55389552a35ed",
+      "command_sha256": "9dafb63a466a7c85d4080c8f89b27337b526f1901b96ee7a95cf5a3fe72b4566"
+    },
+    {
+      "name": "OperandBeforeFiniteness",
+      "physical_exit": 75,
+      "root_frame_codes": [
+        2262,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        1000,
+        2103,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "stream_frame_codes": [
+        2262,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        1000,
+        2179,
+        2103,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "classification": "context-only; no deciding-class golden",
+      "tla_sha256": "ec8f594a3742ac7814d0b676662ece1ba99e399ec4359f65723b241b57e9eb71",
+      "stdout_sha256": "57fb692d89e09d29242d898264a5afaee6ed661425b55bad516c0bfeba9e528b",
+      "command_sha256": "1b123ed76ecb027468ae5d8a0df0cfbd0f16b2cb5d0c08763a25d29f45a34f59"
+    },
+    {
+      "name": "AliasSizeAfterFiniteness",
+      "physical_exit": 75,
+      "root_frame_codes": [
+        2262,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2102,
+        2103,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "stream_frame_codes": [
+        2262,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2102,
+        2154,
+        2103,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "classification": "context-only; no deciding-class golden",
+      "tla_sha256": "5bbcc1bc3ce09ed6b7b77f226deb74e2c3dad634fab5e686e9ebbfaeb91b7e8c",
+      "stdout_sha256": "d069594b801e8bd640bb8450891b202b3b777bc191ee52d228f755c3b1953e65",
+      "command_sha256": "799c6ffe6ec1eb6973a11c52d44473c0f5a8b125deb14588d868d823f695eb13"
+    }
+  ],
+  "source_methods": {
+    "commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+    "methods": [
+      "SetOfTuplesValue.isFinite",
+      "SetOfRcdsValue.isFinite/sortByNames",
+      "SetOfFcnsValue.isFinite",
+      "Value.isEmpty",
+      "Sequences.SeqSet.isFinite/isEmpty",
+      "Naturals/Integers isFinite/isEmpty",
+      "UniqueString.compareTo",
+      "Tool.evalAppl OPCODE_sor"
+    ],
+    "semantics": "IsFinite asks each original factor finiteness first, only asks emptiness after true, continues after known infinite factors, and returns true at the first demanded empty factor. Value.isEmpty stops Product/record traversal at the first empty factor; function-set emptiness checks its domain first. Record construction evaluates all source operands before sorting by interned-name encounter token (not spelling). Original receivers and raw literal normalization remain separate."
+  },
+  "attempts_retained": "Initial reversed-field forecasts did not establish token order: one model generation was refused as context-only and one context input succeeded. Their original sources/raw remain in first-record-inputs/oracle-models/oracle-context. No failed model golden was written; source controls were corrected before runtime edits and all existing result payloads regenerated unchanged with recorded reason.",
+  "limits": [
+    "Six context-only error inputs have valid pinned SANY/TLC observations but no invented deciding class or model golden.",
+    "The classified2147 receiver golden remains an oracle fact; native evaluation-error75 remains unverified, not strict error parity.",
+    "ProviderBeforeEmpty is a pinned success but native provider finiteness remains explicitly unsupported.",
+    "No global dive-value rewrite, existing golden/classifier weakening, broad family/performance campaign or release claim."
+  ],
+  "bindings": {
+    "baseline_receipt_sha256": "967ad753df20b1387c61ab2932920ce0e403dabf7c9cd694c4f4b4639b71bf04",
+    "main_receipt_sha256": "0b4b74b42ee4017fdffa8f80dc80bd3ba96ba3c0ff753043a72dfc56a2b4b684",
+    "baseline_panel_sha256": "f94a0ad931d1c22e297685eef1e86e872c3f6c4e5aec83e2bec2551a994549bc",
+    "source_std_sha256": "d073e668f513e4f3916f193fad77beff296a02a4d236719b2636d310dae7e46e"
+  }
+}

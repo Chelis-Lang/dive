@@ -183,6 +183,21 @@ path = "conformance/corpus/compound-domain-emptiness"
 license = "MIT"
 layout = "examples-manifest"
 
+# Primary-first Reference IsFiniteSet nested receiver demand (#771).
+[[corpus]]
+id = "reference-finiteness-demand"
+path = "conformance/corpus/reference-finiteness-demand"
+license = "MIT"
+layout = "examples-manifest"
+
+# Paired nonlexical receiver token-order controls for Reference IsFiniteSet.
+# Separate corpus preserves reference-finiteness-demand's original identity.
+[[corpus]]
+id = "reference-finiteness-token-order"
+path = "conformance/corpus/reference-finiteness-token-order"
+license = "MIT"
+layout = "examples-manifest"
+
 # Primary SelectSeq/Concat capture type and error-order controls (#424).
 # Separate validation microcorpus; established small/full populations unchanged.
 [[corpus]]

@@ -1,0 +1,10 @@
+---- MODULE NestedProductEmpty ----
+EXTENDS Integers, FiniteSets, Sequences
+VARIABLE x
+Init == x = 0
+Next == /\ x < 2 /\ x' = x+1
+Inv == /\ IsFiniteSet(({} \X x) \X {x})
+       /\ IsFiniteSet({x} \X ({} \X x))
+       /\ IsFiniteSet((Nat \X {}) \X {x})
+       /\ IsFiniteSet({x} \X ({} \X Int))
+====

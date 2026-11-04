@@ -1,0 +1,28 @@
+{
+  "sources": [
+    "docs/user/modules.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "finite-set-operations",
+    "source-demand",
+    "receiver-history"
+  ],
+  "modules": [
+    {
+      "path": "specifications/EmptyRecordBeforeScalar/EmptyRecordBeforeScalar.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/EmptyRecordBeforeScalar/EmptyRecordBeforeScalar.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}
