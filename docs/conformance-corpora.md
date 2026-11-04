@@ -876,7 +876,6 @@ target/debug/dive-conformance golden generate --corpus graph-demand --tier all \
   --reason 'Refresh graph demand controls against the pinned oracle'
 ```
 
-
 ## Java set conversion and original-argument diagnostics
 
 The separate `set-conversion-demand` corpus records concrete Product conversion,
@@ -897,11 +896,14 @@ Empty-first scalar and `Nat` tails are skipped. `Nat \X {}` uses the symbolic
 fallback `(Nat \X {})` after its size failure is swallowed; Reference at the
 pre-correction source retains its named conversion refusal in both profiles.
 
-These reverse, nested, unknown, infinite and ordinary controls were pinned
-before the diagnostic correction. The eight initial-error cases remain
-context-only with `models: []`; no nested code or message text supplies a
-deciding model class. `PrefixOrdinary` is a generated primary success with three
-generated states, three distinct states and depth three. See the
+The separate `set-diagnostic-demand` corpus adds reverse, nested, unknown,
+infinite and ordinary controls pinned before the diagnostic correction. Its
+seven initial-error cases and the original `PrefixRawEmpty` forward control
+remain context-only with `models: []`; no nested code or message text supplies a
+deciding model class. The separate identity preserves all existing
+`set-conversion-demand` golden bytes and provenance checks. `PrefixOrdinary` is a
+generated primary success with three generated states, three distinct states and
+depth three. See the
 [compact oracle record](../conformance/reports/core/2026-11-04-set-diagnostic-oracle.json).
 This bounded addition changes no historical qualification totals or earlier
 rejection records.

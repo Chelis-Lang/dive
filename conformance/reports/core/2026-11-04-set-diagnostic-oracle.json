@@ -322,9 +322,16 @@
   },
   "before_native_artifact_sha256": "3b71830524ae059a79dcd61058f60927af503b629fbdde8d6b1ca7d7d5c7e073",
   "ordinary_golden": {
-    "path": "conformance/golden/tlc-2026.10.06.014338/set-conversion-demand/specifications/PrefixOrdinary/PrefixOrdinary.cfg.json",
-    "sha256": "e80922b7d11e209bf7d9d5589a34957f127a91a1823adff89888beb60af0ba30",
-    "generator_reason": "Pin ordinary prefix control before original-Product diagnostic repair",
+    "path": "conformance/golden/tlc-2026.10.06.014338/set-diagnostic-demand/specifications/PrefixOrdinary/PrefixOrdinary.cfg.json",
+    "sha256": "cfe99029566e65993d7974f95a5b2aeeb81019fb014fd8891c1c5d09555e3fd2",
+    "generator_reason": "Bind ordinary prefix diagnostic control to its separate corpus identity; preserve existing conversion goldens",
     "generator_exit": 0
+  },
+  "corpus_relocation": "New input bytes are unchanged from the pre-code oracle controls; they reside in set-diagnostic-demand so every prior set-conversion-demand golden and corpus identity remains intact. PrefixRawEmpty stays in the original corpus.",
+  "old_golden_equality": {
+    "compared_to": "7a1384c6c43683876c96c76b2c2cf2fc9ccd21fc",
+    "items": 1970,
+    "all_byte_identical": true,
+    "path_and_hash_inventory_sha256": "f964dd9236529fc4e3d7fa6d84657f14d3ae1fdbbb34786b637effb4b649d939"
   }
 }
