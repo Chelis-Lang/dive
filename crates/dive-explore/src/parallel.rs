@@ -207,7 +207,16 @@ impl Expanded {
 /// A worker's expansions, by position, and its metrics.
 type WorkerResult = (Vec<(usize, Expanded)>, Metrics);
 
-struct WorkerSink<'a> {
+pub(crate) trait Membership {
+    fn contains(
+        &mut self,
+        key: u64,
+        identity: &[Handle],
+        heap: &dive_core::Heap,
+    ) -> Result<bool, Error>;
+}
+
+struct WorkerSink<'a, 'r> {
     plan: &'a Plan,
     seen: &'a Seen,
     claims: &'a Claims,
@@ -223,9 +232,10 @@ struct WorkerSink<'a> {
     action: usize,
     emitted: u64,
     warned: usize,
+    remote: Option<&'r mut dyn Membership>,
 }
 
-impl WorkerSink<'_> {
+impl WorkerSink<'_, '_> {
     fn take_warnings(&mut self, m: &Machine) {
         while self.warned < m.warnings.len() {
             self.out
@@ -299,6 +309,10 @@ impl WorkerSink<'_> {
         crate::fingerprintable_with_identity(m, false, closed)
     }
 
+    #[allow(
+        clippy::too_many_lines,
+        reason = "the ordered sink must preserve membership/check/retention demand order"
+    )]
     fn record(&mut self, m: &mut Machine) -> Result<(), Error> {
         let plan = self.plan;
         // Fingerprinting/VIEW can normalize m.s1 in place. Only capture needs
@@ -351,6 +365,23 @@ impl WorkerSink<'_> {
             }
         }
         let pos = (self.emitted - 1 < 1 << POS_BITS).then_some(self.base | (self.emitted - 1));
+        if let Some(remote) = self.remote.as_deref_mut()
+            && remote.contains(key, &identity, &m.heap)?
+        {
+            let at = self.keep_values(m, original.as_deref(), Some(&mut identity))?;
+            self.out.push(
+                self.action,
+                Occ::Cand {
+                    key,
+                    identity,
+                    in_model: inside,
+                    inv: Inv::Holds,
+                    imp,
+                    at,
+                },
+            )?;
+            return Ok(());
+        }
         let duplicate = if self.out.payloads.is_some() || self.seen.exact.is_some() {
             // A fingerprint claim supplies no equality evidence. Exact mode
             // retains all possibly distinct collisions for ordered commit.
@@ -408,7 +439,7 @@ impl WorkerSink<'_> {
     }
 }
 
-impl Sink for WorkerSink<'_> {
+impl Sink for WorkerSink<'_, '_> {
     fn emit(&mut self, m: &mut Machine, _code: &Code) -> Result<(), Error> {
         self.take_warnings(m);
         self.emitted = self
@@ -449,6 +480,7 @@ fn expand_one(
     poll: &(dyn Fn() -> bool + Sync),
     s0: &[Handle],
     metrics: &mut Metrics,
+    remote: Option<&mut dyn Membership>,
 ) -> Expanded {
     m.s0.copy_from_slice(s0);
     let payloads = candidates
@@ -500,6 +532,7 @@ fn expand_one(
         action: 0,
         emitted: 0,
         warned: m.warnings.len(),
+        remote,
     };
     let code = &plan.code;
     for (i, a) in plan.next.iter().enumerate() {
@@ -616,6 +649,7 @@ pub(crate) fn expand_level(
                                     poll,
                                     s0,
                                     &mut local,
+                                    None,
                                 ),
                             ));
                         }
@@ -648,6 +682,35 @@ pub(crate) fn expand_level(
         return Err(Error::internal("a core worker skipped a state"));
     }
     Ok(out)
+}
+
+/// The same phase-one sink with membership supplied by the authenticated owner.
+pub(crate) fn expand_remote(
+    machine: &mut Machine,
+    plan: &Plan,
+    source: &[Handle],
+    limit: u64,
+    poll: &(dyn Fn() -> bool + Sync),
+    metrics: &mut Metrics,
+    remote: &mut dyn Membership,
+) -> Expanded {
+    let seen = Seen::with_detached_exact(true, false);
+    let claims = Claims::new(0);
+    expand_one(
+        machine,
+        plan,
+        &seen,
+        &claims,
+        0,
+        machine.opts,
+        true,
+        Some(limit),
+        None,
+        poll,
+        source,
+        metrics,
+        Some(remote),
+    )
 }
 
 impl crate::Explorer<'_> {
@@ -978,6 +1041,7 @@ mod tests {
                 &|| false,
                 &[Handle::FALSE],
                 &mut metrics,
+                None,
             );
             assert!(matches!(out.end, super::Ending::Done), "{out:?}");
             assert_eq!(out.len(), usize::try_from(count).unwrap());

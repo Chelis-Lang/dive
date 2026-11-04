@@ -680,6 +680,37 @@ impl Store {
             .is_some_and(|slot| slot.contains(&handle))
     }
 
+    /// Read-only snapshots of an actual registered constructor owner.
+    pub(crate) fn history_snapshots(&self, origin: i64) -> Result<[Handle; 2], crate::Error> {
+        let index = usize::try_from(origin)
+            .ok()
+            .and_then(|n| n.checked_sub(1))
+            .ok_or_else(|| crate::Error::internal("invalid construction origin"))?;
+        let pair = self
+            .history_views
+            .read()
+            .unwrap_or_else(PoisonError::into_inner)
+            .get(index)
+            .copied()
+            .ok_or_else(|| crate::Error::internal("missing construction origin"))?;
+        for (phase, &handle) in pair.iter().enumerate() {
+            if !handle.is_empty() {
+                let node = self
+                    .retained_view(handle)
+                    .ok_or_else(|| crate::Error::internal("unissued history snapshot"))?;
+                if node.flags & flags::HISTORY == 0
+                    || node.lo != origin
+                    || (node.kind == Kind::SetEnum) != (phase == 0)
+                {
+                    return Err(crate::Error::internal(
+                        "history snapshot authority mismatch",
+                    ));
+                }
+            }
+        }
+        Ok(pair)
+    }
+
     /// Sets the model's name table and value semantics, which printing
     /// (`ToString`, `Print`) converts values with (`print.rs`). The first
     /// call wins.

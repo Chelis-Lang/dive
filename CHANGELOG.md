@@ -62,6 +62,15 @@
   during identity closure, share unchanged Arena payloads, and bound/report the
   decoder constructor-origin index separately with explicit resource stops.
 
+- Add opt-in authenticated native Core pure-safety workers through CLI and Rust
+  APIs. Independent processes evaluate bounded source units using the existing
+  generator; the coordinator preserves ordered commit, exact/fingerprint counts,
+  owned original/history values and actual witnesses. Retry complete uncommitted
+  units after I/O loss, suppress duplicates and refuse stale/corrupt/incomplete
+  results. Keep distribution off by default; broader storage/effect/temporal and
+  durable distributed recovery remain unsupported. Protocol bounds are separate
+  from aggregate process memory and performance claims.
+
 - Add explicit Core completed-level safety checkpoint/resume, preserving owned
   Store/history authority, concrete discovery order, VIEW/symmetry identity and
   counter policy across fresh processes. Support changed worker widths, exact

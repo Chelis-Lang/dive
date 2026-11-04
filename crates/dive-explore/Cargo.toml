@@ -11,6 +11,11 @@ repository.workspace = true
 [dependencies]
 dive-core.workspace = true
 dive-store.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+hmac.workspace = true
+getrandom.workspace = true
 
 [lints]
 workspace = true

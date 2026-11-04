@@ -58,11 +58,13 @@ or release acceptance follows. Bulky evidence is archived in S3; local worktrees
 keep active work and regenerable build products.
 
 Continue the mandatory scope in [full TLC parity](#through-full-tlc-parity):
-accepted Store/Arena and temporal paging/recovery, native distributed safety,
+accepted Store/Arena and temporal paging/recovery, broader native distributed safety/recovery,
 broader language/modes/effects, real coverage/Core source maps and full DAP,
 remaining product/API flows, and Linux qualification before the macOS final mile.
-Distributed pure safety can already build on ADR 0141's completed-level recovery;
-it does not depend on completing temporal paging.
+Explicit authenticated pure Core safety workers now execute actual CLI/Rust
+source units with ordered coordinator commit and retry (ADR 0151). Durable
+distributed recovery and broader combinations remain open independently of
+temporal paging; this is partial family progress, without a speedup or total-RSS claim.
 
 ## Historical Phase 6: restartable Core, generation and evaluation reuse
 
@@ -238,8 +240,9 @@ The design is in ADRs 0017–0019 (proposed).
 The approved rescue roadmap in issue #241 retains the following mandatory
 scope. Bounded native modes/storage and independent PlusCal comparison advance
 these contracts without closing their full families. Granted startup inputs move
-I/O to partial; final Reference logical coverage moves coverage/debugger to
-partial. The current inventory is 8 implemented / 29 partial / 1 missing
+I/O to partial; final Reference logical coverage and authenticated native pure-safety
+workers also move coverage/debugger and distribution to partial. The current
+inventory is 8 implemented / 30 partial / 0 missing
 families; `implemented` is a supported
 corpus claim, not full parity.
 

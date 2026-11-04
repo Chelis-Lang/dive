@@ -30,6 +30,13 @@ In every case below:
 | **TLC behaviour** | `--workers 1` reproduces TLC's exact breadth-first results |
 | **Status** | implemented (`dive check --workers N`, M5 WP-D3): the deterministic parallel engine of ADR 0015. Every result is identical at every worker count and under randomized scheduling, and equals TLC's `-workers 1` golden under `--compat=tlc`. Specs that depend on TLC's sequential side effects run in *sequential mode* and say so (see below). |
 
+Explicit [native distributed safety](user/distributed-safety.md) extends this
+ordered-commit contract to authenticated trusted worker processes (ADR 0151).
+Distribution stays off by default and under the TLC-equivalent local setting.
+The initial pure Core slice preserves logical results through complete-source
+retry; broader distributed recovery, temporal/storage/effect combinations and
+performance qualification remain unfinished.
+
 **What TLC does.** With more than one worker, TLC's breadth-first search is only approximately breadth-first (`tlc2/tool/TLCTrace.java`; tlaplus#883). Three things change from run to run and with the worker count:
 
 - the number of states found before a violation;

@@ -321,6 +321,48 @@ fn lengths(store: &Store) -> Vec<[u64; CLASSES]> {
         .collect()
 }
 
+// A local read-only index for a fixed, identity-checked worker startup. Its
+// ordinal indexes are the only startup references carried by the owned DAG;
+// received coordinates never acquire Store authority.
+pub(crate) fn issued(
+    store: &Store,
+    max_nodes: usize,
+    proceed: &(dyn Fn() -> bool + Sync),
+) -> Result<Vec<Handle>, Error> {
+    let lens = lengths(store);
+    let count = lens
+        .iter()
+        .flatten()
+        .try_fold(0usize, |sum, &n| {
+            usize::try_from(n).ok().and_then(|n| sum.checked_add(n))
+        })
+        .filter(|&n| n <= max_nodes)
+        .ok_or_else(|| invalid("startup index admission"))?;
+    let mut nodes = Vec::new();
+    nodes
+        .try_reserve_exact(count)
+        .map_err(|_| invalid("startup index allocation"))?;
+    for (shard, classes) in lens.iter().enumerate() {
+        for (class, &len) in classes.iter().enumerate() {
+            for index in 0..len {
+                if !proceed() {
+                    return Err(Error::stop());
+                }
+                let handle = Handle::persistent(
+                    u8::try_from(shard).map_err(|_| invalid("startup shard"))?,
+                    u8::try_from(class).map_err(|_| invalid("startup class"))?,
+                    index,
+                );
+                if store.retained_view(handle).is_none() {
+                    return Err(invalid("unissued startup node"));
+                }
+                nodes.push(handle);
+            }
+        }
+    }
+    Ok(nodes)
+}
+
 /// Captures an owned Store at a quiescent boundary without normalizing values.
 ///
 /// The caller must have joined all evaluating workers. Issued coordinates and
