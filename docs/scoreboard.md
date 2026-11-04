@@ -99,8 +99,8 @@ files and targets are removed; this housekeeping is not checker capacity or
 performance qualification.
 
 The current 38-family checklist is **8 implemented / 30 partial / 0 missing**.
-Final Reference logical action-context costs make coverage/debugger partial;
-complete costs, Core source maps and DAP remain open. Authenticated native pure-safety
+Final Reference logical action-context costs and native Core mapping/DAP make
+coverage/debugger partial; complete costs, maps and debugger parity remain open. Authenticated native pure-safety
 distribution provides actual CLI/Rust worker processes and ordered complete-unit
 retry; durable coordinator and temporal recovery remain open. Native source
 counters stay separate from TLC logical-cost or DAP credit.
@@ -1017,10 +1017,11 @@ throughput, scaling or peak-memory result. The backlog remains
 
 The current inventory is 8 implemented, 30 partial and 0 missing. Granted startup
 environment/TXT inputs supply partial I/O support, final Reference logical coverage
-supplies partial coverage/debugger support, and authenticated native pure-safety
-workers supply partial distribution. Runtime reads/writes/exec, complete costs,
-Core source maps, DAP, durable distributed recovery and broader combinations
-remain open. See the [remaining mandatory scope](ROADMAP.md#through-full-tlc-parity).
+and native Core mapping/DAP supply partial coverage/debugger support, and
+authenticated native pure-safety workers supply partial distribution. Runtime
+reads/writes/exec, complete costs/maps/debugger parity, durable distributed
+recovery and broader combinations remain open. See the
+[remaining mandatory scope](ROADMAP.md#through-full-tlc-parity).
 
 Status is one word: `implemented`, `partial` or `missing`. `implemented` means
 the feature works for the supported corpus. It does not certify full parity.
@@ -1114,3 +1115,11 @@ rows. Failed/stopped runs retain their original model report and explicitly refu
 unproved diagnostic-reconstruction costs. Native metrics are unchanged. The
 `tlc-coverage-primary` corpus and compact cost fixtures are separate from existing
 populations; no complete family, Core mapping, DAP or performance acceptance is claimed.
+
+Native Core source maps and DAP sessions now control actual producer instruction
+activations through CLI and public Rust workflows. Multivariable helpers, INSTANCE
+substitutions, scalar/unforced storage inspection, forward steps, launch/attach,
+pause, bounded evaluation and a freshly independently validated invariant word
+have focused controls in both profiles. Replay remains unobserved. The family is
+partial: complete maps/inspection, TLC debugger transport and broader backend/mode
+combinations remain open (ADR 0152). No new census or performance acceptance is claimed.

@@ -96,6 +96,7 @@ pub struct Machine {
     /// isolated optional analysis machine bounds its own speculative work.
     pub(crate) fuel: u64,
     work_control: Option<Arc<dyn WorkControl>>,
+    pub(crate) debugger: Option<Arc<dyn crate::debug::Observer>>,
 }
 
 fn eval_err(what: &str) -> Error {
@@ -188,6 +189,7 @@ impl Machine {
             depth: 0,
             fuel: u64::MAX,
             work_control: None,
+            debugger: None,
         }
     }
 
@@ -219,6 +221,12 @@ impl Machine {
     pub fn set_work_control(&mut self, control: Option<Arc<dyn WorkControl>>) {
         self.heap.set_history_control(control.clone());
         self.work_control = control;
+    }
+
+    /// Installs explicit producer observation. Fresh replay/analysis machines
+    /// remain unobserved unless a caller separately installs this capability.
+    pub fn set_debugger(&mut self, observer: Option<Arc<dyn crate::debug::Observer>>) {
+        self.debugger = observer;
     }
 
     /// Keeps generator continuation transients alive during one eager batch.
@@ -439,12 +447,27 @@ impl Machine {
     ///
     /// # Errors
     /// Evaluation errors, refusals and resource limits.
+    pub fn eval(&mut self, code: &Code, p: P) -> Result<Handle, Error> {
+        let Some(observer) = &self.debugger else {
+            return self.eval_inner(code, p);
+        };
+        let instruction = crate::debug::Instruction::Value(p);
+        let guard = crate::debug::Guard::enter(observer, instruction, code, self)?;
+        let result = self.eval_inner(code, p);
+        let returned = match &result {
+            Ok(value) => crate::debug::Returned::Value(*value),
+            Err(error) => crate::debug::Returned::Failed(error),
+        };
+        guard.returned(instruction, code, self, returned)?;
+        result
+    }
+
     #[allow(
         clippy::too_many_lines,
         clippy::many_single_char_names,
         reason = "one arm per node kind, with operand names as in the semantics"
     )]
-    pub fn eval(&mut self, code: &Code, p: P) -> Result<Handle, Error> {
+    fn eval_inner(&mut self, code: &Code, p: P) -> Result<Handle, Error> {
         if self.fuel != u64::MAX {
             self.charge(1)?;
         }

@@ -240,8 +240,8 @@ The design is in ADRs 0017–0019 (proposed).
 The approved rescue roadmap in issue #241 retains the following mandatory
 scope. Bounded native modes/storage and independent PlusCal comparison advance
 these contracts without closing their full families. Granted startup inputs move
-I/O to partial; final Reference logical coverage and authenticated native pure-safety
-workers also move coverage/debugger and distribution to partial. The current
+I/O to partial; final Reference logical coverage, native Core mapping/DAP and
+authenticated native pure-safety workers also move coverage/debugger and distribution to partial. The current
 inventory is 8 implemented / 30 partial / 0 missing
 families; `implemented` is a supported
 corpus claim, not full parity.

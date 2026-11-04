@@ -344,3 +344,41 @@ fn core_reclamation_and_recovery_run_without_external_tools() -> Result {
     }
     Ok(())
 }
+
+#[test]
+fn compiled_debug_session_breaks_inspects_and_finishes_without_external_tools() -> Result {
+    use dive_api::debug::{Event, Session};
+    use std::time::Duration;
+    let project = Project::new(
+        "DebugConsumer",
+        "---- MODULE DebugConsumer ----\nEXTENDS Naturals\nVARIABLE x,y\nBump(a) == a+1\nInit == /\\ x=0 /\\ y=0\nNext == /\\ x<2 /\\ x'=Bump(x) /\\ y'=y\n====\n",
+        "INIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n",
+    )?;
+    for compat in [false, true] {
+        let mut session = Session::launch(project.request(compat), false)?;
+        assert!(matches!(
+            session.wait_event(Duration::from_secs(10))?,
+            Some(Event::Prepared)
+        ));
+        assert!(session.set_breakpoints(&project.file.to_string_lossy(), &[4])?[0].verified);
+        session.configuration_done()?;
+        assert!(matches!(
+            session.wait_event(Duration::from_secs(10))?,
+            Some(Event::Stopped { .. })
+        ));
+        let stack = session.stack()?;
+        assert_eq!(stack[0]["name"], "Bump");
+        let frame = stack[0]["id"].as_u64().ok_or("frame")?;
+        assert_eq!(session.evaluate(frame, "a+1")?["result"], "1");
+        session.set_breakpoints(&project.file.to_string_lossy(), &[])?;
+        session.continue_check()?;
+        assert!(matches!(
+            session.wait_event(Duration::from_secs(10))?,
+            Some(Event::Completed(_))
+        ));
+        let report = session.finish()?;
+        assert_eq!(report.verdict(), "success");
+        assert_eq!(report.to_json()["statistics"]["distinct"], 3);
+    }
+    Ok(())
+}

@@ -37,6 +37,16 @@
   omission emits `Next` or process names and when scoped labels are renamed.
   Keep generated translation text and the existing mapping format unchanged.
 
+- Add opt-in compiled Core source maps and real native DAP checking through
+  `dive debug` and public Rust sessions. Support actual helper/INSTANCE stops,
+  stack/scalar inspection, forward steps, pause, bounded evaluation, loopback
+  attach and ordinary completed/independently validated violation reports.
+  Keep replay unobserved, expire stop handles and refuse incomplete combinations.
+  Suspend observation throughout same-machine diagnostic replay, including early
+  returns, while retaining the original live-producer capability.
+  Retain the caller's requested worker width while reporting one actual observed
+  worker through both managed sessions and raw observer requests.
+
 - Run the six CommunityModules Graphs/UndirectedGraphs overrides on Core,
   including state-dependent reachability, connected components and simple paths.
   Preserve checked membership, finite-domain refusals, path demand and ordinary

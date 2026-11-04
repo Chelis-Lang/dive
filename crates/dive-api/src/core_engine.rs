@@ -657,6 +657,22 @@ pub(crate) fn prepare(
     core_opts: dive_core::Opts,
     temporal: bool,
 ) -> Result<Prepared, Box<CheckResult>> {
+    prepare_observed(ir, config, options, profile_tlc, core_opts, temporal, None)
+}
+
+#[allow(
+    clippy::too_many_lines,
+    reason = "existing ordered startup and compilation with explicit producer-only observation"
+)]
+fn prepare_observed(
+    ir: &Arc<Ir>,
+    config: &dive_config::ModelConfig,
+    options: &CheckOptions,
+    profile_tlc: bool,
+    core_opts: dive_core::Opts,
+    temporal: bool,
+    debugger: Option<Arc<dyn dive_core::debug::Observer>>,
+) -> Result<Prepared, Box<CheckResult>> {
     // The reference engine's refusal of random streams under VIEW or
     // SYMMETRY, before binding runs start-up draws.
     if let Some(feature) = dive_model::transformed_randomness(ir, config) {
@@ -691,6 +707,13 @@ pub(crate) fn prepare(
         Ok(m) => m,
         Err(f) => return Err(Box::new(binding_failure(ir, config, options, &f))),
     };
+    if debugger.is_some() && !model.implied_temporals.is_empty() {
+        return Err(Box::new(result(
+            unsupported("compiled debugger with temporal checking"),
+            options,
+            ir,
+        )));
+    }
     if options.seen_disk.is_some() && !model.implied_temporals.is_empty() {
         return Err(Box::new(result(
             unsupported("disk seen-state retention with temporal checking"),
@@ -761,7 +784,12 @@ pub(crate) fn prepare(
         }
     };
     let compile_started = Instant::now();
-    let plan = match dive_core::compile(&h, Arc::clone(&store), core_opts) {
+    let compiled = if debugger.is_some() {
+        dive_core::compile::compile_debug(&h, Arc::clone(&store), core_opts)
+    } else {
+        dive_core::compile(&h, Arc::clone(&store), core_opts)
+    };
+    let mut plan = match compiled {
         Ok(p) => p,
         Err(e) => {
             let v = match e.into_parts() {
@@ -772,6 +800,18 @@ pub(crate) fn prepare(
         }
     };
     let compile_time = compile_started.elapsed();
+    if let Some(observer) = debugger {
+        if let Some(map) = &plan.code.source_map
+            && let Err(error) = observer.prepared(map)
+        {
+            return Err(Box::new(result(
+                unsupported(error.message().to_owned()),
+                options,
+                ir,
+            )));
+        }
+        plan.code.debugger = Some(observer);
+    }
     if plan.effects.draws
         && let Err(feature) = arm_draws(&store, &host, ir, options)
     {
@@ -1132,6 +1172,7 @@ pub(crate) fn check(
     sample: Option<usize>,
     route: Option<crate::core_temporal::Route>,
     distributed: Option<(&crate::DistributedOptions, &str)>,
+    debugger: Option<&Arc<dyn dive_core::debug::Observer>>,
 ) -> (CoreOutcome, CoreRun) {
     let started = Instant::now();
     let text = switches
@@ -1170,7 +1211,15 @@ pub(crate) fn check(
     if let Some(feature) = option_refusal(options, profile_tlc) {
         return (finish(result(unsupported(feature), options, ir)), run);
     }
-    let prepared = match prepare(ir, config, options, profile_tlc, core_opts, route.is_some()) {
+    let prepared = match prepare_observed(
+        ir,
+        config,
+        options,
+        profile_tlc,
+        core_opts,
+        route.is_some(),
+        debugger.cloned(),
+    ) {
         Ok(p) => p,
         Err(r) => return (finish(*r), run),
     };
@@ -1274,7 +1323,7 @@ pub(crate) fn check(
     // TLC's string order the table is sealed, so no worker creates a token.
     let workers = if let Some((remote, _)) = &distributed {
         remote.workers.len()
-    } else if options.seen_disk.is_some() {
+    } else if options.seen_disk.is_some() || debugger.is_some() {
         1
     } else {
         options.workers.max(1)
