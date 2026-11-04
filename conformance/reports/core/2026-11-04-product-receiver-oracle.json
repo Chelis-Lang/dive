@@ -191,5 +191,6 @@
   "limits": [
     "Five classified evaluation-error facts from pinned TLC; unsupported Core observations gain no parity credit.",
     "Reference Cardinality failures in separate scalar-axis public-method probes are inherited and not certified by these membership controls."
-  ]
+  ],
+  "golden_observations_commit": "369eb1e2"
 }
