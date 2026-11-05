@@ -1,10 +1,15 @@
 # Compatibility and deliberate differences
 
-`--compat=tlc` selects the TLC profile for implemented counterparts. The CLI also
-reads `DIVE_COMPAT=tlc`; Rust requests expose their own explicit compatibility
-fields, and low-level checking uses `CheckOptions::tlc(seed, fp)`.
-Unsupported features still refuse. The flag is not a declaration of complete
-TLC coverage.
+`--compat=tlc` selects the existing TLC-profile settings for integer bounds,
+comparison and exploration order, fingerprints, seed handling and run defaults.
+The CLI also reads `DIVE_COMPAT=tlc`; Rust requests expose explicit compatibility
+fields, and low-level checking uses `CheckOptions::tlc(fp_index, seed)`.
+
+Core compatibility is nominal under [ADR 0153](../decisions/0153-core-is-the-product.md):
+known gaps are documented, and unsupported features refuse by name. Exact TLC
+fidelity is not promised. Reference remains the current default; use
+`dive check Spec.tla --engine core --compat=tlc` to select Core explicitly.
+See the [compatibility gaps and their reproducers](../tlc-differences.md#compat-gaps).
 
 | Behavior | Dive default | TLC counterpart |
 | --- | --- | --- |
@@ -15,7 +20,7 @@ TLC coverage.
 | Fingerprints | Native combination | TLC polynomial scheme, selectable with `--fp` |
 | Symmetry with genuine temporal properties | Whole-run unreduced checking (D-005) | `--symmetry-liveness=tlc` requests quotient semantics, currently refused; explicit `unreduced` under compat is `tlc+overrides` |
 | Explicit bounded final temporal mode | Deterministic short selection | Same short selection, labeled `tlc+overrides`; TLC's exact lasso is not reproduced (`--lasso tlc` is a usage error) |
-| Ordinary periodic temporal scheduling | Pending | Pending; final mode does not implement periodic scheduling |
+| Ordinary temporal checking | Deterministic completed-level boundaries on admitted routes | Bounded final analysis on admitted routes; TLC's wall-clock schedule is not reproduced |
 | Wall-clock budget (`--time-limit`) | 30 minutes (provisional), then `stopped`, exit 5 | None, as TLC has none (D-026) |
 | Memory budget (`--max-memory`) | Half of physical memory, then `stopped`, exit 5 | Same ceiling; TLC itself dies with `SYSTEM_OUT_OF_MEMORY` |
 
