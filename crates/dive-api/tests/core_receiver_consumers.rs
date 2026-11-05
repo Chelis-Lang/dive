@@ -1,4 +1,4 @@
-//! Product ranges and nested literal enumeration retain receiver authority.
+//! Canonical set construction, symbolic domains and independently replayable words.
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Engine, ExitConvention, check_file_core_opts, check_file_engine};
 use serde_json::{Value, json};
@@ -42,6 +42,10 @@ fn product_sequence_ranges_and_mapped_subsets_match_reference()
             for switches in ["", "-fold", "-memo", "-hashcons", "-symbolic-member"] {
                 let core = check_file_core_opts(&request, switches)?;
                 assert_eq!(core.to_json()["engine"], "core");
+                if compat_tlc && matches!(name, "SeqProductSkipRaw" | "MappedEmptySubsets") {
+                    assert_eq!(core.verdict(), "unsupported");
+                    continue;
+                }
                 assert_eq!(
                     facts(&core),
                     facts(&reference),
@@ -68,15 +72,36 @@ fn product_non_tuple_errors_and_demanded_mixed_query_refusals_remain()
         }
         let request = self::request("MappedMixedSubsets", compat_tlc);
         let reference = check_file_engine(&request, Engine::Reference)?;
-        assert_eq!(reference.verdict(), "evaluation-error");
+        assert_eq!(
+            reference.verdict(),
+            if compat_tlc {
+                "evaluation-error"
+            } else {
+                "invariant-violation"
+            }
+        );
         for switches in ["", "-fold", "-memo", "-hashcons"] {
             let core = check_file_core_opts(&request, switches)?;
             let doc = core.to_json();
+            if !compat_tlc {
+                assert_eq!(facts(&core), facts(&reference));
+                let model = SpecModel::load(
+                    &request.file,
+                    &request.file.with_extension("cfg"),
+                    &TraceOptions::default(),
+                )?;
+                let word = TraceDoc::from_json(&doc["counterexample"]["trace"])?;
+                assert!(matches!(
+                    model.validate(&word).validation,
+                    Validation::Valid
+                ));
+                continue;
+            }
             assert_eq!(doc["verdict"], "unsupported", "{doc}");
             assert!(
                 doc["message"]
                     .as_str()
-                    .is_some_and(|message| message.contains("local scalar/tuple comparison"))
+                    .is_some_and(|message| message.contains("set of values of different shapes"))
             );
         }
     }
@@ -127,7 +152,7 @@ fn mapped_subset_violation_words_validate_and_mutations_fail()
 }
 
 #[test]
-fn an_outer_collection_of_multiple_raw_sets_keeps_its_authority_refusal()
+fn outer_collection_of_multiple_sets_is_canonical_by_default()
 -> Result<(), Box<dyn std::error::Error>> {
     for compat_tlc in [false, true] {
         let request = request("MappedMultipleSubsets", compat_tlc);
@@ -138,12 +163,70 @@ fn an_outer_collection_of_multiple_raw_sets_keeps_its_authority_refusal()
         for switches in ["", "-fold", "-memo", "-hashcons", "-symbolic-member"] {
             let core = check_file_core_opts(&request, switches)?;
             let doc = core.to_json();
-            assert_eq!(doc["verdict"], "unsupported", "{doc}");
-            assert!(
-                doc["message"]
-                    .as_str()
-                    .is_some_and(|message| message.contains("set of values of different shapes"))
-            );
+            assert_eq!(doc["verdict"], "success");
+            assert_eq!(doc["statistics"]["distinct"], 1);
+            assert_eq!(doc["statistics"]["generated"], 2);
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn canonical_construction_preserves_symbolic_large_domains()
+-> Result<(), Box<dyn std::error::Error>> {
+    for compat_tlc in [false, true] {
+        for switches in ["", "-fold,-memo,-hashcons"] {
+            let core =
+                check_file_core_opts(&request("CanonicalLazyDomains", compat_tlc), switches)?;
+            assert_eq!(core.verdict(), "success", "{}", core.to_json());
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn canonical_mixed_view_words_replay_and_corruptions_fail() -> Result<(), Box<dyn std::error::Error>>
+{
+    for name in ["MixedView", "MixedViewForward"] {
+        let request = request(name, false);
+        let model = SpecModel::load(
+            &request.file,
+            &request.file.with_extension("cfg"),
+            &TraceOptions {
+                run: Some((0, 0)),
+                ..Default::default()
+            },
+        )?;
+        for switches in ["", "-fold,-memo,-hashcons"] {
+            let report = check_file_core_opts(&request, switches)?;
+            let doc = report.to_json();
+            assert_eq!(doc["engine"], "core");
+            assert_eq!(doc["verdict"], "invariant-violation", "{doc}");
+            assert_eq!(doc["property"], "Inv");
+            assert_eq!(doc["statistics"]["distinct"], 4);
+            let original = doc["counterexample"]["trace"].clone();
+            assert!(matches!(
+                model.validate(&TraceDoc::from_json(&original)?).validation,
+                Validation::Valid
+            ));
+            let mut changed = original.clone();
+            changed["ending"]["name"] = json!("UnknownInvariant");
+            assert!(!matches!(
+                model.validate(&TraceDoc::from_json(&changed)?).validation,
+                Validation::Valid
+            ));
+            let mut changed = original.clone();
+            changed["states"][3]["values"]["n"] = json!(2);
+            assert!(matches!(
+                model.validate(&TraceDoc::from_json(&changed)?).validation,
+                Validation::Invalid(_)
+            ));
+            let mut changed = original;
+            changed["states"][1]["values"]["s"] = json!({"set": []});
+            assert!(matches!(
+                model.validate(&TraceDoc::from_json(&changed)?).validation,
+                Validation::Invalid(_)
+            ));
         }
     }
     Ok(())
@@ -173,6 +256,10 @@ fn sequence_finiteness_uses_original_range_methods_and_preserves_alias_demand()
             }
             for switches in ["", "-fold", "-memo", "-hashcons", "-symbolic-member"] {
                 let core = check_file_core_opts(&request, switches)?;
+                if compat_tlc && name == "SeqProductFiniteSkipRaw" {
+                    assert_eq!(core.verdict(), "unsupported");
+                    continue;
+                }
                 assert_eq!(
                     facts(&core),
                     facts(&reference),
@@ -183,15 +270,27 @@ fn sequence_finiteness_uses_original_range_methods_and_preserves_alias_demand()
         for name in ["SeqProductFiniteMalformed", "SeqProductFiniteDemandRaw"] {
             let request = request(name, compat_tlc);
             let reference = check_file_engine(&request, Engine::Reference)?;
-            assert_eq!(reference.verdict(), "evaluation-error");
+            let canonical = !compat_tlc && name == "SeqProductFiniteDemandRaw";
+            assert_eq!(
+                reference.verdict(),
+                if canonical {
+                    "success"
+                } else {
+                    "evaluation-error"
+                }
+            );
             for switches in ["", "-fold,-memo,-hashcons,-symbolic-member"] {
                 let core = check_file_core_opts(&request, switches)?;
                 let doc = core.to_json();
+                if canonical {
+                    assert_eq!(facts(&core), facts(&reference));
+                    continue;
+                }
                 assert_eq!(doc["verdict"], "unsupported", "{name}: {doc}");
                 let expected = if name == "SeqProductFiniteMalformed" {
                     "unproved factor shape or size"
                 } else {
-                    "local scalar/tuple comparison"
+                    "set of values of different shapes"
                 };
                 assert!(
                     doc["message"]

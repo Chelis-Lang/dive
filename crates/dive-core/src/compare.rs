@@ -10,10 +10,9 @@
 //! - Membership that fails to find the element raises TLC's error when the
 //!   set holds a scalar of another class than the element: TLC compares them
 //!   on its way and fails.
-//! - Outside the selected local literal lane below, the core builds sets
-//!   normalized. TLC normalizes lazily, and whether and which error a set
-//!   mixing incomparable values raises depends on that demand (C1, C2).
-//!   Unproved construction/comparison paths remain unsupported.
+//! - Core finite-set construction is canonical (ADR 0153, D-028). Nominal
+//!   compat retains existing checked-comparison refusals instead of reproducing
+//!   TLC's mutable construction history.
 //!
 //! Model values follow TLC's `ModelValue` (`crates/dive-value/src/tlc.rs`):
 //! - an untyped model value is unequal to every other value, without error,

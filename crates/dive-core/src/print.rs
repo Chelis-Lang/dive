@@ -138,7 +138,7 @@ pub fn to_value(
             for e in vals {
                 elems.push(to_value(heap, names, e, ctx, conv)?);
             }
-            Value::set(elems, ctx).map_err(|e| e.to_string())
+            Ok(Value::set_canonical(elems, ctx))
         }
         Kind::IntFcn => {
             let mut elems = Vec::with_capacity(vals.len());

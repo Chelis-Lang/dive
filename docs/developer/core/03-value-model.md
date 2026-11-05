@@ -436,41 +436,30 @@ retains complete finite-factor admission and follows source `isEmpty` and `size`
 order, including function-domain and singleton-range short circuits. Explicit
 axes normalize only when their sizes are demanded. Admission covers explicit
 sets, bounded intervals, powersets, function sets, record sets and nested products;
-it checks local literal ownership, depth, work budget and signed 32-bit size
+it checks operand shapes, depth, work budget and signed 32-bit size
 bounds. Neither operation replaces the original Product. Established library argument positions that consume normalized
 set enumeration use a separate projection after this admission. The existing
 singleton-UNION constructor lowering also recognizes Cartesian products; generic
 set elements containing Product receivers remain guarded.
 
-`Seq` is a receiver-preserving Product consumer: `Sequences.Seq` stores the
-original range, and sequence membership calls that range's `member` only for
-actual elements. It never substitutes a finite projection or normalizes unused
-axes. `SubsetValue.member` likewise retains its receiver, including under
-`-symbolic-member`: enumerating an owned raw literal query performs the actual
-checked normalization before the first element test, while an empty query
-leaves the base untouched. Explicit sets and interval queries use their existing
-cursors; an unowned raw enumeration refuses.
+`Seq` keeps its range symbolic and asks membership only for actual sequence
+elements. Empty sequence membership therefore does not enumerate a huge or
+infinite range. Product cardinality and finiteness use their bounded factor
+algorithms rather than materializing the Cartesian product. `SUBSET` membership
+uses the concrete query and leaves an unused base unenumerated.
 
-Finiteness is a separate downstream consumer. The argument to `IsFiniteSet`
-retains any original Product before eager normalization. A bounded dispatcher
-follows Product methods and unary `SubsetValue.isFinite` / `Sequences.isFinite`:
-the latter demands range finiteness, then range emptiness only on true. Seq's own
-emptiness is false because it contains the empty sequence. Unknown constructor
-demands refuse; the general Heap classifier and factor admission remain unchanged.
-The independently reviewed revision `00adce45` is rejected: its generic classifier
-reported a false violation for an empty Product range and false Holds for the
-negated invariant ([#780](https://github.com/Chelis-Lang/dive/issues/780)). The
-pinned primary and holding/opposite, malformed, unused-axis and alias controls
-remain distinct from the preserved earlier workload successes.
+`IsFiniteSet` inspects Product structure before eager normalization. The bounded
+dispatcher follows Product, SUBSET and Seq finiteness/emptiness where supported;
+unknown demanded shapes refuse. The holding and negated empty-range controls
+remain separate, preventing either a false violation or false success.
 
-The outer collection boundary is separate. A map of multiple raw sets still
-reaches the existing shape refusal: canonical kind/slot order cannot establish
-TLC's child comparison or constructor history. Normalizing all mapped aliases
-would also change unused-child demand. The `core_receiver_consumers` controls
-preserve this refusal separately from the restored singleton-map `SUBSET` query,
-and validate an actual successor violation word plus a corrupted-state control.
-The original `MCQuicksort` model remains refused at this collection boundary;
-these focused repairs do not refresh any historical qualification totals.
+Finite literal and mapped sets now use canonical construction (ADR 0153,
+D-028). Multiple nested mapped sets no longer require constructor authority.
+`MappedMultipleSubsets` succeeds, and original `MCQuicksort` agrees at one worker
+with 4,548 distinct / 11,223 generated / depth 9. Mixed tuple/record states in
+either literal order produce independently validated words, with corrupted-state
+and wrong-property controls rejected. Nominal compat retains cheap checked
+comparison refusals rather than restoring TLC's normalization history.
 
 TLC distinguishes how a set is represented, and the distinction is observable:
 

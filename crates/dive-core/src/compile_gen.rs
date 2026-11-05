@@ -57,6 +57,9 @@ impl Compiler<'_> {
     /// Unsupported when the multiplicity depends on a representation the
     /// core cannot see.
     pub(super) fn raw_plan(&mut self, e: ExprId, env: usize) -> Result<Option<Raw>, Error> {
+        if !self.m.heap.store().semantics().tlc_comparisons {
+            return Ok(None);
+        }
         match self.class(e, env, 0)? {
             Class::Raw(r) => Ok(Some(r)),
             Class::Reducible { .. } | Class::Plain => Ok(None),

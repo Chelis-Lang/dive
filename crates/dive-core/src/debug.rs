@@ -280,7 +280,7 @@ pub(crate) fn reachable(plan: &crate::plan::Plan) -> Vec<Instruction> {
                         | Node::Product(items)
                         | Node::Tuple(items)
                         | Node::Std(_, items)
-                        | Node::SetEnum(items, _)
+                        | Node::SetEnum(items)
                         | Node::Lib { args: items, .. } => values.extend(items.iter().copied()),
                         Node::Record(items) | Node::RecSet(items) => {
                             values.extend(items.iter().map(|(_, p)| *p));

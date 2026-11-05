@@ -468,7 +468,11 @@ impl Core {
                     vals.push(core.eval_embed(env, st, *expr)?);
                     Ok(true)
                 })?;
-                Ok(Ev::V(Value::set_raw(vals, self.ctx)))
+                Ok(Ev::V(if self.opts.comparisons == Comparisons::Tla {
+                    Value::set_canonical(vals, self.ctx)
+                } else {
+                    Value::set_raw(vals, self.ctx)
+                }))
             }
             Expr::FcnCons { bounds, body } => self.eval_fcn_cons(env, st, bounds, *body, None, e),
             Expr::RecFcn { name, bounds, body } => {
@@ -480,7 +484,11 @@ impl Core {
                 for &i in items {
                     vals.push(self.eval_embed(env, st, i)?);
                 }
-                let value = Value::set_raw(vals, self.ctx);
+                let value = if self.opts.comparisons == Comparisons::Tla {
+                    Value::set_canonical(vals, self.ctx)
+                } else {
+                    Value::set_raw(vals, self.ctx)
+                };
                 if let Some(coverage) = &self.source_coverage
                     && !st.is(control::DIAGNOSTIC)
                 {

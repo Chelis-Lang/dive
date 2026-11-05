@@ -641,7 +641,7 @@ impl Machine {
                 let y = int_of(self.eval(code, *b)?)?;
                 Ok(self.heap.interval(x, y))
             }
-            Node::SetEnum(items, local) => {
+            Node::SetEnum(items) => {
                 let mut v = self.take_scratch();
                 for &i in items {
                     match self.eval_component(code, i) {
@@ -652,22 +652,8 @@ impl Machine {
                         }
                     }
                 }
-                if *local
-                    || v.iter()
-                        .all(|&h| crate::compare::literal_value(&self.heap, h))
-                {
-                    let r = self.heap.local_literal(&v);
-                    self.give_scratch(v);
-                    return r;
-                }
                 for value in &mut v {
-                    if self.heap.has_product_receiver(*value)? {
-                        self.give_scratch(v);
-                        return Err(Error::unsupported(
-                            "a set element retaining a product receiver whose normalization is not proved",
-                        ));
-                    }
-                    *value = self.heap.normalize_construction(*value)?;
+                    *value = self.work_norm(*value)?;
                 }
                 let r = self.heap.set_from(&mut v);
                 self.give_scratch(v);
@@ -733,23 +719,13 @@ impl Machine {
                 let mut out = Vec::new();
                 self.for_each_binding(code, binds, &mut |m: &mut Self| {
                     let v = m.eval_component(code, *body)?;
-                    if m.heap.has_product_receiver(v)? {
-                        return Err(Error::unsupported(
-                            "a mapped set element retaining an unproved product receiver",
-                        ));
-                    }
+                    let v = m.work_norm(v)?;
                     m.charge(1)?;
                     out.try_reserve(1)
                         .map_err(|_| Error::unsupported("MAP construction allocation"))?;
                     out.push(v);
                     Ok(true)
                 })?;
-                if out
-                    .iter()
-                    .all(|&h| crate::compare::literal_value(&self.heap, h))
-                {
-                    return self.heap.local_literal(&out);
-                }
                 let r = self.heap.set_from(&mut out);
                 self.checked_set(r)
             }
@@ -1163,7 +1139,7 @@ impl Machine {
     /// Refuses a just-built set whose elements TLC cannot all compare
     /// (`compare::check_set`).
     fn checked_set(&self, s: Handle) -> Result<Handle, Error> {
-        if s.is_compound() {
+        if self.heap.store().semantics().tlc_comparisons && s.is_compound() {
             compare::check_set(&self.heap, self.heap.view(s).data)?;
         }
         Ok(s)
@@ -1200,7 +1176,7 @@ impl Machine {
     /// `set` is not a set, or membership is undefined.
     #[allow(clippy::too_many_lines, reason = "one arm per set kind")]
     pub fn member(&mut self, x: Handle, set: Handle) -> Result<bool, Error> {
-        if self.heap.has_product_receiver(x)? {
+        if self.heap.store().semantics().tlc_comparisons && self.heap.has_product_receiver(x)? {
             return Err(Error::unsupported(
                 "a compound membership query retaining an unproved product receiver",
             ));
@@ -2110,13 +2086,14 @@ impl Machine {
     fn std_arg(&mut self, code: &Code, f: StdFn, index: usize, x: P) -> Result<Handle, Error> {
         // Finiteness dispatch must inspect the original receiver before an
         // eager projection can erase its range methods or their demand.
-        let value = if f == StdFn::IsFiniteSet {
+        let value = if matches!(f, StdFn::IsFiniteSet | StdFn::Cardinality | StdFn::Seq) {
             self.eval(code, x)?
         } else {
             self.eval_component(code, x)?
         };
         let product = self.heap.kind(value) == Some(Kind::Product);
-        if (f == StdFn::IsFiniteSet && self.heap.has_product_receiver(value)?)
+        if f == StdFn::Seq
+            || (f == StdFn::IsFiniteSet && self.heap.has_product_receiver(value)?)
             || (f == StdFn::Append && index == 1)
             || (product && matches!(f, StdFn::Cardinality | StdFn::IsFiniteSet | StdFn::Seq))
         {

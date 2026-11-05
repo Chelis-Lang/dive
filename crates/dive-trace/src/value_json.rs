@@ -22,9 +22,8 @@
 //! A function whose domain is `1..n` is a `seq`; one whose domain is a
 //! non-empty set of strings is a `record`. Reading normalizes, so a `fcn`
 //! with domain `{1, 2}` reads as the sequence it equals. Sets are written
-//! in the run's normalized order. Reading runs the existing constructor, so
-//! mixed structured sets may refuse after serialization (#190); input order
-//! is not universally interchangeable. Literal/function and Raw/normalized
+//! in the run's normalized order. Reading reconstructs mathematical sets, so
+//! mixed structured values round-trip independently of input order. Literal/function and Raw/normalized
 //! representation flags are not preserved. Infinite sets (`Nat`) have no form.
 
 use dive_value::{Ctx, Int, Interner, Value};
@@ -107,7 +106,7 @@ pub fn from_json(j: &J, names: &Interner, ctx: Ctx) -> Result<Value, String> {
                         .iter()
                         .map(|e| from_json(e, names, ctx))
                         .collect::<Result<Vec<_>, _>>()?;
-                    Value::set(elems, ctx).map_err(|e| e.message().to_owned())
+                    Ok(Value::set_canonical(elems, ctx))
                 }
                 ("seq", J::Array(a)) => Ok(Value::tuple(
                     a.iter()

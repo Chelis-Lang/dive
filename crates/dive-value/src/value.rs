@@ -1346,6 +1346,26 @@ impl Value {
         crate::order::normalize_set(elems, ctx).map(|s| Self::Set(Set::from_sorted(ctx.order, s)))
     }
 
+    /// Constructs a mathematical finite set in canonical value order.
+    ///
+    /// Unlike [`Self::set`], construction accepts mixed value shapes without
+    /// reproducing TLC's partial sorting comparisons (ADR 0153). This does not
+    /// change the semantics of direct scalar comparisons.
+    ///
+    /// ```
+    /// use dive_value::{Ctx, Value};
+    /// let ctx = Ctx::dive();
+    /// let a = Value::set_canonical(vec![Value::Int(1), Value::TRUE], ctx);
+    /// let b = Value::set_canonical(vec![Value::TRUE, Value::Int(1), Value::TRUE], ctx);
+    /// assert_eq!(a, b);
+    /// ```
+    #[must_use]
+    pub fn set_canonical(mut elems: Vec<Self>, ctx: Ctx) -> Self {
+        elems.sort_by(|a, b| a.cmp_with(b, ctx.order));
+        elems.dedup_by(|later, earlier| later.cmp_with(earlier, ctx.order).is_eq());
+        Self::Set(Set::from_sorted(ctx.order, elems))
+    }
+
     /// Constructs an explicit set with cooperative normalization checkpoints.
     ///
     /// `proceed` returns false to interrupt. Closed materialized values use

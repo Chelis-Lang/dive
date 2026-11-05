@@ -17,6 +17,11 @@
   EWD998ChanID imports now resolve; checking retains a named refusal for its
   unsupported VIEW/liveness or recursive LET evaluation.
 
+- Build finite sets canonically on Core, removing constructor-history admission
+  proofs and supporting native Quicksort and nested mapped subsets. Mixed tuple/record
+  sets work in either literal order and their emitted words validate independently.
+  Keep large symbolic domains lazy; document nominal TLC construction gaps (D-028).
+
 - Restore Core `Seq` membership over original Cartesian-product ranges and
   demanded enumeration of owned raw literal queries in nested `SUBSET` checks.
   Disabling symbolic membership preserves the same `SUBSET` receiver dispatch.

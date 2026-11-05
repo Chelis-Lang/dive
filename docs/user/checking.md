@@ -372,14 +372,16 @@ no engine. After a dynamic refusal, the reference run gets what is left of
 `--time-limit`. Auto works the same way under `--compat=tlc`: the core runs
 TLC's profile, and the reference engine runs whatever the core refuses.
 
-`--engine core --compat=tlc` runs TLC's profile on the core, at any worker
-count, with the one-worker result.
-It covers TLC's string order, 32-bit integers, `\div` from `Naturals` and
-TLC's `x' \in S` order. Where TLC's comparisons could fail, or could answer
-differently from TLA+, the core refuses instead of answering. This happens,
-for example, when a tuple is compared with a record, or `{1}` with `{"a"}`.
-It also refuses a string that TLC first meets during the search, such as one
-built by `ToString`. Each of these refusals names `--compat=tlc`.
+Core constructs finite literals and mapped sets canonically by default.
+Mixed structured sets, such as a set containing both a tuple and a record,
+have order-independent identity and can appear in independently validated
+counterexamples. Direct undefined scalar comparisons still report errors.
+Large symbolic powersets, function sets and sequence domains stay lazy.
+
+`--engine core --compat=tlc` selects the existing TLC integer, name and
+exploration switches. Compatibility is nominal: unsupported comparison shapes
+are named refusals, and Core does not reproduce TLC's per-object construction
+history. See [the compat gaps](../tlc-differences.md#compat-gaps).
 
 The `DIVE_CORE_OPT` variable (for example `-fold,-delta-hash`) turns
 individual strategies off (`-name`) or on (`+name`) for measurement. Every
@@ -397,32 +399,6 @@ measurement. TLC comparisons always retain their original checked search,
 including when `+member-index` is requested. Scalar queries, finite-fuel
 optional analysis, raw constructors, lazy queries and unproved values retain
 their existing path. Optional analysis reserves no index storage.
-
-The core preserves construction order, duplicates and shared normalization
-history for covered literal and mapped sets of booleans, inline integers,
-owned strings/model values and nested literal tuples. A covered union preserves
-its actual operand demand and aliasing. Queries can read a newly assigned set
-before commitment; normalized construction views survive frontier handoff,
-including a set inside an updated function. Repeated equal set updates retain
-their separate construction histories without quadratic interning work, in
-both semantic profiles. For example:
-
-```sh
-dive check conformance/corpus/construction-set-history/specifications/ModelMapUnion/ModelMapUnion.tla --engine core --compat=tlc --seed 0 --fp 0
-```
-
-Raw membership scans the receiver's construction order. Normalization uses
-checked insertion and retains the first equal representative; normalized
-membership uses the actual checked search. The default keeps D-009's documented
-comparison policy and avoids repeated full scans of normalized tuple collections
-after an unsuccessful membership search. Reached errors whose value-source
-diagnostic provenance is unproved remain `unsupported`; raw persistent snapshots without a live owner,
-unknown imported histories, set-valued elements and unproved function receiver
-classes do not gain support from this path. Existing time/memory budgets stop
-new bulk work without a model verdict, including after printed output or register
-effects; effect-related model errors retain their existing refusal. Empty owned
-receivers do not inspect query class. This is partial #623 coverage; unchanged
-whole-model Sailfish and performance qualification remain separate.
 
 In the TLC profile, `-memo` also disables reuse of checked set-membership
 proofs. These proofs share the existing memo memory allowance and preserve

@@ -190,10 +190,8 @@ pub enum Node {
     Neg(P),
     /// `a..b`
     Range(P, P),
-    /// `{a, b, ...}`. The flag requires the statically selected local lane.
-    /// Other literal producers can retain actual closed scalar/tuple history;
-    /// unproved values keep the existing guarded canonical builder.
-    SetEnum(Box<[P]>, bool),
+    /// `{a, b, ...}`; finite sets use canonical order by default.
+    SetEnum(Box<[P]>),
     /// `A \cup B` and friends.
     SetBin(SetOp, P, P),
     /// `SUBSET S`
