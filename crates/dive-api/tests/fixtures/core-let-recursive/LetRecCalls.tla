@@ -1,7 +1,8 @@
 ---- MODULE LetRecCalls ----
 EXTENDS Naturals, Sequences
 VARIABLE x
-Init == x=0
+Global[n \in 0..2] == IF n=0 THEN x ELSE Global[n-1]+1
+Init == x=0 /\ Global[2]=2
 Next == x'=IF x<2 THEN x+1 ELSE x
 RECURSIVE Outer(_)
 Outer(a) == LET f[n \in 0..2] == IF n=0 THEN a ELSE f[n-1]+a
@@ -24,6 +25,7 @@ Inv == /\ Outer(x)=(3*x*(x+1)) \div 2
        /\ State=x+2
        /\ A!Read(1)=3*(x+1)
        /\ B!Read(1)=3*(x+3)
+       /\ Global[2]=x+2
 Wrong == Inv /\ Outer(x)=0
 Escape == LET f[n \in 0..2] == IF n=0 THEN x ELSE f[n-1]+1
           IN DOMAIN f={0,1,2}

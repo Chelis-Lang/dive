@@ -1,6 +1,6 @@
 //! Applied LET-recursive functions retain their actual lexical activations.
 
-use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
+use dive_api::trace::{Check, SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Engine, ExitConvention, check_file_core_opts, check_file_engine};
 use serde_json::{Value, json};
 use std::path::PathBuf;
@@ -77,7 +77,7 @@ fn lexical_captures_repeated_calls_and_substitutions_match_reference()
                         bad["states"][1]["values"]["x"] = json!(2);
                         assert!(matches!(
                             model.validate(&TraceDoc::from_json(&bad)?).validation,
-                            Validation::Invalid(_)
+                            Validation::Invalid(ref failure) if failure.check == Check::Next
                         ));
                         let mut bad = payload;
                         // Inv holds throughout this actual word; naming it
@@ -97,7 +97,8 @@ fn lexical_captures_repeated_calls_and_substitutions_match_reference()
                             holding_model
                                 .validate(&TraceDoc::from_json(&bad)?)
                                 .validation,
-                            Validation::Invalid(_)
+                            Validation::Invalid(ref failure) if failure.check == Check::Ending
+                                && failure.detail.contains("holds at the end")
                         ));
                     }
                 }
