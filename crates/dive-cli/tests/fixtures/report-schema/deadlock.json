@@ -1,0 +1,291 @@
+{
+  "check_kind": "safety",
+  "collision": null,
+  "command": "check",
+  "config": "<fixtures>/Deadlock.cfg",
+  "core": {
+    "disabled": "default",
+    "metrics": {
+      "arena_peak": {
+        "handles": 0,
+        "nodes": 0
+      },
+      "candidate_storage": {
+        "committed_spill_bytes": 0,
+        "failures": [],
+        "identity_close_entries_limit": 65536,
+        "identity_close_scratch_bytes_limit": 67108864,
+        "max_record_bytes": 67108864,
+        "memory_bytes_per_worker": null,
+        "origin_index_bytes": 0,
+        "origin_index_bytes_limit_per_worker": 1048576,
+        "peak_origin_index_bytes": 0,
+        "peak_retained_bytes": 0,
+        "retained_bytes": 0,
+        "scope": "encoded occurrence/DAG queues and separately reported bounded codec origin index; active Arena roots, per-record codec scratch, names, other caches, accepted Store and total RSS excluded",
+        "search_event_before_storage_failure": null,
+        "write_accounting_complete": true
+      },
+      "commit_ms": 0.0,
+      "compile_ms": 0.0,
+      "conjuncts": {
+        "parent_skipped": 0,
+        "total": 0
+      },
+      "discarded_before_intern": 0,
+      "distributed": null,
+      "exact_states": 0,
+      "expand_ms": 0.0,
+      "explore_ms": 0.0,
+      "memo": [
+        {
+          "bypass": 0,
+          "hits": 0,
+          "lookups": 3,
+          "off": false,
+          "site": "<Next line 5, col 9 to line 5, col 27 of module Reports> guard"
+        }
+      ],
+      "plan": {
+        "aliased_args": 0,
+        "beta": 0,
+        "by_name": 0,
+        "cached_defs": 0,
+        "fold_abandoned": 0,
+        "fold_fuel": 0,
+        "fold_ms": 0.0,
+        "fold_skipped": 0,
+        "folded": 0,
+        "generator_nodes": 4,
+        "inlined": 0,
+        "memo_sites": 1,
+        "nodes": 16,
+        "speculative": 0,
+        "substituted": 0,
+        "thunk_args": 0
+      },
+      "probed": 3,
+      "store": {
+        "handles": 0,
+        "hits": 0,
+        "memory": {
+          "accounting_complete": false,
+          "boxed_payload_bytes": 0,
+          "construction_history_view_bytes": 0,
+          "current_table_bytes": 0,
+          "external_shared_owners": {
+            "printer_names": true,
+            "random_streams": false,
+            "registers": false
+          },
+          "fixed_bytes": 862496,
+          "known_retained_bytes_lower_bound": 862496,
+          "largest_individual_rehash_scratch_bytes": 0,
+          "rehash_scratch_bytes_cumulative": 0,
+          "retired_table_bytes": 0,
+          "retired_tables": 0,
+          "retirement_tracking_bytes": 0,
+          "scope": "requested persistent-store component storage before explorer worker teardown; lower bound, not RSS or peak; excludes allocator and Arc metadata, opaque string-index bucket overhead/spare capacity, external shared objects, worker arenas/caches, graph buffers and in-progress growth; rehash scratch fields are allocation traffic and largest individual temporary, not retained or concurrent peak bytes",
+          "slab_bytes": 0,
+          "strings": {
+            "count": 0,
+            "index_capacity": 0,
+            "index_entries_bytes_lower_bound": 0,
+            "text_slots_bytes": 0,
+            "unique_payload_bytes": 0
+          }
+        },
+        "misses": 0,
+        "nodes": 0
+      },
+      "store_reclamation": {
+        "collections": 0,
+        "failures": [],
+        "peak_after_bytes_lower_bound": 0,
+        "peak_after_nodes": 0,
+        "peak_before_bytes_lower_bound": 0,
+        "reclaimed_nodes": 0,
+        "scope": "completed-level measured Store trigger; live frontier, permanent startup and names are retained; not a hard cap or total RSS bound",
+        "trigger_bytes": null
+      },
+      "thunks": {
+        "cached": 0,
+        "forced": 0
+      }
+    }
+  },
+  "counterexample": {
+    "ending": "finite",
+    "length": 3,
+    "states": [
+      {
+        "action": null,
+        "index": 1,
+        "label": "<Initial predicate>",
+        "text": "x = 0\n",
+        "values": {
+          "x": 0
+        }
+      },
+      {
+        "action": "Next",
+        "index": 2,
+        "label": "<Next line 5, col 9 to line 5, col 27 of module Reports>",
+        "text": "x = 1\n",
+        "values": {
+          "x": 1
+        }
+      },
+      {
+        "action": "Next",
+        "index": 3,
+        "label": "<Next line 5, col 9 to line 5, col 27 of module Reports>",
+        "text": "x = 2\n",
+        "values": {
+          "x": 2
+        }
+      }
+    ],
+    "trace": {
+      "ending": {
+        "kind": "deadlock"
+      },
+      "format": "dive-trace",
+      "length": 3,
+      "states": [
+        {
+          "action": null,
+          "values": {
+            "x": 0
+          }
+        },
+        {
+          "action": {
+            "location": "<Next line 5, col 9 to line 5, col 27 of module Reports>",
+            "name": "Next"
+          },
+          "values": {
+            "x": 1
+          }
+        },
+        {
+          "action": {
+            "location": "<Next line 5, col 9 to line 5, col 27 of module Reports>",
+            "name": "Next"
+          },
+          "values": {
+            "x": 2
+          }
+        }
+      ],
+      "variables": [
+        "x"
+      ],
+      "version": 1
+    }
+  },
+  "diagnostics": [],
+  "elapsed_ms": 0,
+  "engine": "core",
+  "error_site": null,
+  "exit_code": 11,
+  "file": "<fixtures>/Reports.tla",
+  "frontier_storage": {
+    "committed_spill_bytes": 0,
+    "failures": [],
+    "max_codec_nodes_per_value": null,
+    "max_record_bytes": null,
+    "memory_bytes_per_queue": null,
+    "mode": "memory-reference",
+    "peak_retained_bytes": 0,
+    "retained_bytes": 0,
+    "scope": "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces, graphs and native archive work are not measured or bounded",
+    "search_event_before_storage_failure": null,
+    "write_accounting_complete": true
+  },
+  "message": null,
+  "notes": [
+    "The default profile explores sets in canonical order (D-010). When several violations are reachable at the same depth, which one is reported, and the counts at the stop, may differ under --compat=tlc; dive does not yet detect whether the order mattered in this run."
+  ],
+  "options": {
+    "action_composition": "tla",
+    "allow_io": [],
+    "budget": {
+      "max_depth": null,
+      "max_memory_bytes": null,
+      "max_memory_requested_source": "none",
+      "max_memory_source": "none",
+      "max_states": null,
+      "scope": "the check after loading: evaluator-backed fresh model binding after structural configuration/evaluator construction, safety search, graph capture, temporal analysis and fresh native temporal-candidate validation including its rebinding, and producer ASSUME using existing amortized loop checkpoints; structural binding, independent validation ASSUME, post-binding symmetry preparation, serialization, quiet value/bulk/native units, deferred providers retained by other evaluators and diagnostic reconstruction after a deciding event are not interrupted; legacy TLC/session and standalone validation are not controlled; memory of the whole process",
+      "time_limit_ms": null,
+      "time_limit_source": "none"
+    },
+    "candidate_memory_bytes_per_worker": null,
+    "candidate_record_bytes_limit": null,
+    "choose_order": "canonical",
+    "comparisons": "tla",
+    "deadlock_flag": false,
+    "exit_codes": "tlc",
+    "explore_order": "value",
+    "fingerprint": {
+      "polynomial_index": 0,
+      "polynomial_source": "flag",
+      "scheme": "dive"
+    },
+    "frontier_codec_nodes_per_value_limit": null,
+    "frontier_memory_bytes_per_queue": null,
+    "frontier_record_bytes_limit": null,
+    "int": "big",
+    "predecessor_memory_bytes": null,
+    "predecessor_path_steps_limit": null,
+    "profile": "dive",
+    "seed": 0,
+    "seed_source": "flag",
+    "semantic_profile": "dive",
+    "store": "fingerprint",
+    "store_compact_trigger_bytes": null,
+    "symmetry_liveness": "unreduced",
+    "symmetry_liveness_source": "profile-default",
+    "warnings": true,
+    "workers": {
+      "chaos": null,
+      "reason": null,
+      "requested": 1,
+      "sequential": false,
+      "used": 1
+    }
+  },
+  "output": [],
+  "property": null,
+  "resources": {
+    "memory": {
+      "final_sampled": false,
+      "initial_sampled": false,
+      "metric": "<platform-memory-metric>",
+      "observed_max_bytes": null,
+      "samples": 0,
+      "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+      "status": "disabled",
+      "unavailable_at": null
+    }
+  },
+  "schema_version": 3,
+  "statistics": {
+    "depth": 3,
+    "distinct": 3,
+    "generated": 3,
+    "initial_generated": 1,
+    "left_on_queue": 0,
+    "reported_by_tlc": true
+  },
+  "symmetry_liveness": null,
+  "tlc": {
+    "code": 2114,
+    "exit_status": 11,
+    "name": "TLC_DEADLOCK_REACHED",
+    "reported": 2114,
+    "verified": true
+  },
+  "verdict": "deadlock",
+  "warnings": []
+}
