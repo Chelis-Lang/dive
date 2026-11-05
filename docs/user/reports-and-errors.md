@@ -1,5 +1,25 @@
 # Reports, errors and automation
 
+## JSON report contract
+
+Request `--output json` to receive one report object. Command reports use
+`schema_version: 3`, also exposed as `dive_api::REPORT_SCHEMA_VERSION`.
+The native trace nested inside a counterexample has its own version; do not
+interpret it as a report version.
+
+For `check`, inspect `verdict` and `exit_code` first. `statistics`, `tlc` and
+`counterexample` are nullable: missing checking work or a refusal does not
+establish a result. A `stopped` report records an incomplete search and its
+budget; it is never a successful verification. Liveness reports include the
+complete independently validated `properties` list for the reported word.
+
+The workspace gate pins complete Core JSON examples for success, invariant
+violation, deadlock, liveness violation, evaluation error, named refusal and
+budget stop. Tests normalize only fixture paths, elapsed timings and the host's
+memory metric; semantic counts, names, error codes and trace content remain
+checked. See the [fixture guide](../../crates/dive-cli/tests/fixtures/report-schema/README.md)
+and the [compatibility policy](#report-compatibility).
+
 A whole-function failure inside a pure initial invariant can report
 `TLC_FINGERPRINT_EXCEPTION` (2147) after diagnostic replay constructs the actual
 source-bearing function receiver. The underlying error remains unchanged.
@@ -331,6 +351,8 @@ witness also remains required when verdicts match and its payload is unavailable
 provides no certification and cannot waive an observed word. Legitimate success, assumption, frontend and
 evaluation outcomes whose contract carries no witness need none. Numeric exit
 pairs cannot excuse absent, invalid, unconfirmed or refused required words.
+
+## Report compatibility
 
 Report compatibility is a versioned contract. Within a major version, existing field
 names, types, required presence, null meanings, units and result meanings stay

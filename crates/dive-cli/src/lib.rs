@@ -1252,7 +1252,7 @@ fn validation_exception(
         let _ = writeln!(
             out,
             "{}",
-            serde_json::json!({"schema_version":3,"command":"validate-trace","validation_completed":false,"error":{"kind":kind,"phase":"validation","message":error.to_string(),"progress":progress}})
+            serde_json::json!({"schema_version":dive_api::REPORT_SCHEMA_VERSION,"command":"validate-trace","validation_completed":false,"error":{"kind":kind,"phase":"validation","message":error.to_string(),"progress":progress}})
         );
     } else {
         let _ = writeln!(

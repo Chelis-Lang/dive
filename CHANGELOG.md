@@ -1,5 +1,8 @@
 # Changelog
 
+- Pin schema-3 Core JSON reports for seven checking outcomes in the workspace
+  gate, and use the shared API schema constant for validation errors.
+
 - Make every advertised command's `--help` succeed without input files, hide
   the unimplemented `lsp` command from help, include the Git revision in
   `--version`, and name the requested engine in human checking headers.
