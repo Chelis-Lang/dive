@@ -17,7 +17,7 @@ oracle separately; it is not the checker runtime.
 Use `dive --help` to list available commands and `dive check --help` (or another
 command's `--help`) for its options. Help needs no input files. Unimplemented
 commands are omitted from the list and still give a named refusal if invoked.
-`dive --version` includes the build's `git describe --always --tags` revision;
+`dive --version` includes the build's `git describe --always --tags --long` revision;
 source archives built without Git report `unknown` instead. Human checking
 reports name the requested engine and requested/used worker counts; Auto's
 actual engine and fallback reason are reported separately.

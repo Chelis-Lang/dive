@@ -19,8 +19,8 @@ fn git(directory: &Path, arguments: &[&str]) -> Option<String> {
 
 fn main() {
     let directory = PathBuf::from(std::env::var_os("CARGO_MANIFEST_DIR").unwrap_or_default());
-    let revision =
-        git(&directory, &["describe", "--always", "--tags"]).unwrap_or_else(|| "unknown".into());
+    let revision = git(&directory, &["describe", "--always", "--tags", "--long"])
+        .unwrap_or_else(|| "unknown".into());
     println!("cargo::rustc-env=DIVE_GIT_DESCRIBE={revision}");
     println!("cargo::rerun-if-changed=build.rs");
     let mut paths = vec![
