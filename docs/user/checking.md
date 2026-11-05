@@ -321,6 +321,13 @@ statistics. This error also occurs with deadlock checking disabled. A defined
 action that generates no successors instead follows the deadlock setting;
 an empty Init completes without either error.
 
+Core evaluates LET-bound recursive functions used through `f[arg]`, retaining
+the actual enclosing values across recursive and repeated calls, including
+`INSTANCE` substitutions. An unused failing LET binding or argument stays
+unevaluated. Escaping recursive function values, primed applications, enclosing
+operator parameters and mutually nested recursion remain named refusals in both
+profiles.
+
 The core can evaluate `SelectSeq(sequence, Test)'` when `Test` is pure and
 depends only on its element parameter and constants. The sequence reads the
 successor state. This also works through `INSTANCE` refinement substitutions,

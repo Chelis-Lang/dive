@@ -200,7 +200,14 @@ enum Sb {
         owner: usize,
     },
     /// The function name inside a recursive function definition.
-    RecSelf(u32),
+    RecSelf(DefId, u32),
+    /// A slot of the owning frame viewed by a LET-bound recursive function.
+    /// The value is captured lazily; caller flat slot numbers never enter the
+    /// function's runtime frame.
+    Enclosing {
+        env: usize,
+        slot: usize,
+    },
     /// An operator parameter bound to an operator argument: the operator,
     /// resolved in the caller's environment `env`.
     OpArg {
@@ -581,7 +588,7 @@ struct Compiler<'a> {
     funs: HashMap<(DefId, bool), u32>,
     /// Recursive function definitions `f[x \in S] == e` compiled as
     /// functions of their argument.
-    recfuns: HashMap<(DefId, bool), u32>,
+    recfuns: HashMap<(DefId, bool, Option<usize>, Option<u32>), u32>,
     /// The thunk slots of `def_cache`.
     def_slots: std::collections::HashSet<u32>,
     /// The nested functions being compiled, innermost last.
@@ -1156,26 +1163,27 @@ impl Compiler<'_> {
     /// name of `f[x \in S] == e` (outside or inside its body), compiled as
     /// a function of its argument.
     fn rec_target(&mut self, fcn: ExprId, env: usize) -> Result<Option<(DefId, u32)>, Error> {
-        let d = match &self.ir.node(fcn).expr {
+        let (d, call_env) = match &self.ir.node(fcn).expr {
             Expr::Local(r) => {
                 let fe = self.frame_env(env, r.up)?;
-                let Some(Sb::RecSelf(f)) = self.envs[fe].slots.get(r.slot.index()) else {
-                    return Ok(None);
-                };
-                let f = *f;
-                if self.lifts.last().is_some_and(|l| fe < l.floor) {
-                    return Err(Error::unsupported(
-                        "a recursive function used inside a nested recursive definition (M1 core)",
-                    ));
+                match self.envs[fe].slots.get(r.slot.index()).cloned() {
+                    Some(Sb::RecSelf(d, f)) => {
+                        if self.lifts.last().is_some_and(|l| fe < l.floor) {
+                            return Err(Error::unsupported(
+                                "a recursive function used inside a nested recursive definition (M1 core)",
+                            ));
+                        }
+                        return Ok(Some((d, f)));
+                    }
+                    Some(Sb::LetVal { def, env, .. }) => (def, env),
+                    _ => return Ok(None),
                 }
-                let d = self.envs[fe].def;
-                return Ok(Some((d, f)));
             }
-            Expr::Def(d) => *d,
+            Expr::Def(d) => (*d, env),
             Expr::Apply {
                 callee: OpRef::Def(d),
                 args,
-            } if args.is_empty() => *d,
+            } if args.is_empty() => (*d, env),
             _ => return Ok(None),
         };
         let d = self.redirect(d);
@@ -1189,13 +1197,23 @@ impl Compiler<'_> {
         let Expr::RecFcn { .. } = &self.ir.node(def.body).expr else {
             return Ok(None);
         };
-        self.recfun(d, env).map(|f| Some((d, f)))
+        self.recfun(d, call_env).map(|f| Some((d, f)))
     }
 
     /// Compiles `f[x \in S] == e` as a function of its argument, in slot 0:
     /// `DomCheck { 0, S, e }`, with `f[...]` inside `e` a recursive call.
     fn recfun(&mut self, d: DefId, call_env: usize) -> Result<u32, Error> {
-        let key = (d, self.init_mode);
+        let owner = match self.ir.def(d).scope {
+            DefScope::LetValue { parent, .. } => {
+                Some(self.find_env(call_env, parent).ok_or_else(|| {
+                    Error::unsupported(
+                        "a recursive LET function outside its lexical activation (M1 core)",
+                    )
+                })?)
+            }
+            _ => self.lexical_parent(d, call_env)?,
+        };
+        let key = (d, self.init_mode, owner, self.substs.last().map(|s| s.id));
         if let Some(&f) = self.recfuns.get(&key) {
             return Ok(f);
         }
@@ -1230,7 +1248,7 @@ impl Compiler<'_> {
         let saved_cache = std::mem::take(&mut self.def_cache);
         let saved_at = std::mem::take(&mut self.at_stack);
         self.next_slot = 1;
-        let (env, lifted) = match self.begin_fun(d, id, call_env) {
+        let (env, lifted) = match self.begin_recfun(d, id, call_env, owner) {
             Ok(x) => x,
             Err(e) => {
                 self.next_slot = saved_slot;
@@ -1241,7 +1259,7 @@ impl Compiler<'_> {
             }
         };
         if let Some(s) = self.envs[env].slots.get_mut(name.index()) {
-            *s = Sb::RecSelf(id);
+            *s = Sb::RecSelf(d, id);
         }
         if let Some(s) = self.envs[env].slots.get_mut(x.index()) {
             *s = Sb::Flat(0);
@@ -2658,9 +2676,10 @@ impl Compiler<'_> {
                 self.effect_thunk_use(slot, body)?;
                 self.push(Node::Lazy { slot, body })
             }
-            Sb::RecSelf(_) => Err(Error::unsupported(
+            Sb::RecSelf(..) => Err(Error::unsupported(
                 "a recursive function used other than applied (M1 core)",
             )),
+            Sb::Enclosing { env, slot } => self.capture(env, slot, mode),
             Sb::OpArg { .. } => Err(Error::internal("an operator parameter used as a value")),
             Sb::Unset => Err(Error::internal(format!(
                 "unbound local {} in {}",
@@ -2682,7 +2701,7 @@ impl Compiler<'_> {
                 "a recursive LET definition reading an enclosing local under a prime (M1 core)",
             ));
         }
-        if matches!(self.envs[fe].slots.get(slot), Some(Sb::RecSelf(_))) {
+        if matches!(self.envs[fe].slots.get(slot), Some(Sb::RecSelf(..))) {
             return Err(Error::unsupported(
                 "a recursive function used inside a nested recursive definition (M1 core)",
             ));
@@ -2733,7 +2752,11 @@ impl Compiler<'_> {
         }
         let caps = self.fun_caps.get(&fun).cloned().unwrap_or_default();
         if !caps.is_empty() {
-            let Some(parent) = self.lexical_parent(d, env)? else {
+            let parent = match self.ir.def(d).scope {
+                DefScope::LetValue { parent, .. } => self.find_env(env, parent),
+                _ => self.lexical_parent(d, env)?,
+            };
+            let Some(parent) = parent else {
                 return Err(Error::internal("captures of a top-level definition"));
             };
             for (k, slot) in caps {
@@ -2775,6 +2798,32 @@ impl Compiler<'_> {
             });
         }
         Ok((inner, lifted))
+    }
+
+    /// LET values use their owner's frame layout, rather than owning a frame.
+    fn begin_recfun(
+        &mut self,
+        d: DefId,
+        fun: u32,
+        env: usize,
+        owner: Option<usize>,
+    ) -> Result<(usize, bool), Error> {
+        if !matches!(self.ir.def(d).scope, DefScope::LetValue { .. }) {
+            return self.begin_fun(d, fun, env);
+        }
+        let owner = owner.ok_or_else(|| Error::internal("recursive LET function owner"))?;
+        let inner = self.new_env(self.envs[owner].def, self.envs[owner].parent);
+        for (slot, binding) in self.envs[inner].slots.iter_mut().enumerate() {
+            *binding = Sb::Enclosing { env: owner, slot };
+        }
+        self.lifts.push(Lift {
+            floor: inner,
+            parent: Some(owner),
+            fun,
+            caps: Vec::new(),
+            self_calls: Vec::new(),
+        });
+        Ok((inner, true))
     }
 
     /// Ends `begin_fun`: records the captures and completes the recursive
