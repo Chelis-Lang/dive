@@ -1,5 +1,12 @@
 # Provenance
 
+The embedded CommunityModules and TLAPS TLA+ sources in
+`crates/dive-sema/bundled/` are copied verbatim from the existing conformance
+pins: CommunityModules release `202610040242` / commit `78b98ae` (MIT), and
+tlapm `library/` at `d8b9747` (BSD-2-Clause). Their README records full pins,
+the jar digest, update instructions and redistribution licenses. These are
+module-search fallbacks; bundled resolution does not add operator support.
+
 Native distributed safety reuses dive's existing ordered BFS/WorkerSink and
 owned Core recovery foundation (ADRs 0141/0151), rather than porting TLC's
 distributed protocol or adding another evaluator. Private framing/owned DAG

@@ -31,6 +31,7 @@
 #![forbid(unsafe_code)]
 
 pub mod builtins;
+mod bundled;
 pub mod diagnostics;
 mod generate;
 pub mod hashtable;
