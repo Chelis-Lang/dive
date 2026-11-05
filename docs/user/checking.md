@@ -327,6 +327,8 @@ the actual enclosing values across recursive and repeated calls, including
 unevaluated. Escaping recursive function values, primed applications, enclosing
 operator parameters and mutually nested recursion remain named refusals in both
 profiles.
+Substitutions that require effectful or recursive evaluation, or a caller local
+outside the function's lexical activation, also return `unsupported`.
 
 The core can evaluate `SelectSeq(sequence, Test)'` when `Test` is pure and
 depends only on its element parameter and constants. The sequence reads the

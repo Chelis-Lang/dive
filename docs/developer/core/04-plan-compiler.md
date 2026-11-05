@@ -197,6 +197,9 @@ section 4 decide.
      Init context and active substitutions. Calls pass captures through the
      existing lambda-lifting mechanism; no caller frame offset is reused in the
      callee frame.
+     External substitution expressions are compiled inside that callee frame;
+     proved constants can be reused. Non-lexical captures and effectful or
+     recursive substitutions refuse rather than borrowing caller thunk slots.
    - State-variable reads become `VarRead(i)` and `PrimedRead(i)`.
 5. **Specialization.** The pass picks specialized node kinds for common
    shapes:

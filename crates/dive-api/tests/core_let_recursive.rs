@@ -131,3 +131,94 @@ fn escape_prime_operator_and_nested_recursion_keep_named_refusals()
     }
     Ok(())
 }
+
+#[test]
+fn parameterized_instance_substitutions_never_reuse_caller_frame_slots()
+-> Result<(), Box<dyn std::error::Error>> {
+    for compat_tlc in [false, true] {
+        for config in ["DynamicCorrect", "DynamicOpposite"] {
+            let mut oracle_req = request(config, compat_tlc, 1);
+            oracle_req.file.set_file_name("DynamicInstance.tla");
+            let reference = check_file_engine(&oracle_req, Engine::Reference)?;
+            let expected = observed(&reference);
+            // Pinned TLC: Correct holds on all three states; Opposite fails
+            // initially. Neither answer may be borrowed from a caller slot.
+            let correct = config == "DynamicCorrect";
+            assert_eq!(
+                expected["verdict"],
+                if correct {
+                    "success"
+                } else {
+                    "invariant-violation"
+                }
+            );
+            assert_eq!(expected["code"], if correct { 2193 } else { 2107 });
+            assert_eq!(expected["exit"], if correct { 0 } else { 12 });
+            for workers in [1, 4] {
+                let mut req = request(config, compat_tlc, workers);
+                req.file.set_file_name("DynamicInstance.tla");
+                for switches in ["", "-fold,-memo,-hashcons,-eager"] {
+                    let core = check_file_core_opts(&req, switches)?;
+                    let doc = core.to_json();
+                    assert_eq!(
+                        observed(&core),
+                        expected,
+                        "{config}/{compat_tlc}/{workers}/{switches}: {doc}"
+                    );
+                    if correct {
+                        assert!(doc["counterexample"].is_null());
+                    } else {
+                        let options = TraceOptions {
+                            compat_tlc,
+                            run: Some((0, 0)),
+                            ..Default::default()
+                        };
+                        let model = SpecModel::load(
+                            &req.file,
+                            req.config.as_ref().ok_or("config")?,
+                            &options,
+                        )?;
+                        let payload = doc["counterexample"]["trace"].clone();
+                        assert_eq!(
+                            model.validate(&TraceDoc::from_json(&payload)?).validation,
+                            Validation::Valid
+                        );
+                        let mut holding = request("DynamicCorrect", compat_tlc, 1);
+                        holding.file.set_file_name("DynamicInstance.tla");
+                        let model = SpecModel::load(
+                            &holding.file,
+                            holding.config.as_ref().ok_or("config")?,
+                            &options,
+                        )?;
+                        let mut bad = payload;
+                        bad["ending"]["name"] = json!("Correct");
+                        assert!(
+                            matches!(model.validate(&TraceDoc::from_json(&bad)?).validation,
+                            Validation::Invalid(ref failure) if failure.check == Check::Ending
+                                && failure.detail.contains("holds at the end"))
+                        );
+                    }
+                }
+            }
+        }
+        let mut req = request("DynamicConstant", compat_tlc, 1);
+        req.file.set_file_name("DynamicInstance.tla");
+        let reference = check_file_engine(&req, Engine::Reference)?;
+        assert_eq!(reference.verdict(), "success");
+        for switches in ["", "-fold,-memo,-hashcons,-eager"] {
+            let core = check_file_core_opts(&req, switches)?;
+            assert_eq!(observed(&core), observed(&reference));
+        }
+        let mut req = request("DynamicEffect", compat_tlc, 1);
+        req.file.set_file_name("DynamicInstance.tla");
+        let core = check_file_core_opts(&req, "")?;
+        assert_eq!(core.verdict(), "unsupported");
+        assert_eq!(
+            core.to_json()["message"],
+            "an effectful or recursive INSTANCE substitution inside a recursive function (M1 core)"
+        );
+        assert!(core.to_json()["counterexample"].is_null());
+        assert!(core.to_json()["tlc"].is_null());
+    }
+    Ok(())
+}

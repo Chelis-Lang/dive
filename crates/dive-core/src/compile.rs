@@ -2718,7 +2718,11 @@ impl Compiler<'_> {
                     e = self.envs[x].parent;
                     k += 1;
                 }
-                None => return Err(Error::internal("a capture outside the definition's scope")),
+                None => {
+                    return Err(Error::unsupported(
+                        "a recursive function with a dynamic INSTANCE capture outside its lexical activation (M1 core)",
+                    ));
+                }
             }
         }
         if let Some(&(_, _, c)) = l.caps.iter().find(|c| c.0 == k && c.1 == slot) {
@@ -3001,6 +3005,23 @@ impl Compiler<'_> {
                 ));
             }
         };
+        if self.lifts.last().is_some_and(|lift| env < lift.floor) {
+            // Caller aliases and thunk slots belong to another runtime frame.
+            // Constants are frame-independent; otherwise compile fresh nodes
+            // here. Existing capture resolution refuses non-lexical locals.
+            if let ArgHow::Alias(p) | ArgHow::Thunk(_, p) = how
+                && matches!(self.code.nodes.get(p as usize), Some(Node::Const(_)))
+            {
+                return Ok(p);
+            }
+            let body = self.outside(depth, |c| c.p(expr, env, mode))?;
+            if self.info[body as usize].effect || self.info[body as usize].calls {
+                return Err(Error::unsupported(
+                    "an effectful or recursive INSTANCE substitution inside a recursive function (M1 core)",
+                ));
+            }
+            return Ok(body);
+        }
         match (how, mode) {
             (ArgHow::Alias(p), Mode::Plain) => Ok(p),
             (ArgHow::Alias(p), Mode::Primed) => match self.code.nodes.get(p as usize) {
