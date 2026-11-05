@@ -40,6 +40,42 @@ example runs without core fallback:
 dive check crates/dive-api/tests/fixtures/core-len-empty/EmptyInterval.tla --engine core --compat=tlc --workers 4 --seed 0 --fp 0 --output json
 ```
 
+`Seq(S)` keeps an original Cartesian-product range on Core. An empty sequence
+does not inspect unused range factors; a nonempty sequence checks each actual
+element through the original Product's membership method. This preserves
+non-tuple errors, including when that Product is empty. Both profiles run this
+state-dependent example without fallback:
+
+```sh
+dive check crates/dive-api/tests/fixtures/core-receiver-consumers/SeqProduct.tla --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+```
+
+`IsFiniteSet(Seq(P))` checks the original Product's finiteness, then its
+emptiness only if finite. An empty Product range makes the sequence set finite:
+it contains just the empty sequence. Unused axes remain untouched. The same
+source method demand is supported through unary `Seq` and `SUBSET` wrappers;
+other unproved compound finiteness demands and malformed factors refuse. This
+checked example succeeds with one distinct state, two generated and depth one:
+
+```sh
+dive check crates/dive-api/tests/fixtures/core-receiver-consumers/SeqProductFiniteEmpty.tla --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+```
+
+Nested `SUBSET` membership can enumerate an owned raw literal query, preserving
+its checked normalization before the first element test. An empty query leaves
+the base and independent aliases untouched. Unproved raw receivers and demanded
+mixed-kind comparisons remain explicit refusals. This also holds with the
+internal symbolic-membership optimization disabled. The checked example is:
+
+```sh
+dive check crates/dive-api/tests/fixtures/core-receiver-consumers/MappedSubsets.tla --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+```
+
+An outer mapped collection containing multiple raw sets still refuses when its
+constructor and comparison history are unproved. `MappedMultipleSubsets.tla`
+beside these examples records that boundary; the original Examples
+`LoopInvariance/MCQuicksort` model still reaches it.
+
 Repeat `--library-path DIR` to search before bundled standard modules or
 `--module-path DIR` to search after them. These directories contain TLA+ module
 sources; accepting a source module does not load arbitrary Java plugins. Read

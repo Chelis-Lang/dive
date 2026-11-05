@@ -442,6 +442,36 @@ set enumeration use a separate projection after this admission. The existing
 singleton-UNION constructor lowering also recognizes Cartesian products; generic
 set elements containing Product receivers remain guarded.
 
+`Seq` is a receiver-preserving Product consumer: `Sequences.Seq` stores the
+original range, and sequence membership calls that range's `member` only for
+actual elements. It never substitutes a finite projection or normalizes unused
+axes. `SubsetValue.member` likewise retains its receiver, including under
+`-symbolic-member`: enumerating an owned raw literal query performs the actual
+checked normalization before the first element test, while an empty query
+leaves the base untouched. Explicit sets and interval queries use their existing
+cursors; an unowned raw enumeration refuses.
+
+Finiteness is a separate downstream consumer. The argument to `IsFiniteSet`
+retains any original Product before eager normalization. A bounded dispatcher
+follows Product methods and unary `SubsetValue.isFinite` / `Sequences.isFinite`:
+the latter demands range finiteness, then range emptiness only on true. Seq's own
+emptiness is false because it contains the empty sequence. Unknown constructor
+demands refuse; the general Heap classifier and factor admission remain unchanged.
+The independently reviewed revision `00adce45` is rejected: its generic classifier
+reported a false violation for an empty Product range and false Holds for the
+negated invariant ([#780](https://github.com/Chelis-Lang/dive/issues/780)). The
+pinned primary and holding/opposite, malformed, unused-axis and alias controls
+remain distinct from the preserved earlier workload successes.
+
+The outer collection boundary is separate. A map of multiple raw sets still
+reaches the existing shape refusal: canonical kind/slot order cannot establish
+TLC's child comparison or constructor history. Normalizing all mapped aliases
+would also change unused-child demand. The `core_receiver_consumers` controls
+preserve this refusal separately from the restored singleton-map `SUBSET` query,
+and validate an actual successor violation word plus a corrupted-state control.
+The original `MCQuicksort` model remains refused at this collection boundary;
+these focused repairs do not refresh any historical qualification totals.
+
 TLC distinguishes how a set is represented, and the distinction is observable:
 
 - membership of a value in a `SubsetValue`, `IntervalValue`, `SetOfFcnsValue`
