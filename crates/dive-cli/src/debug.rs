@@ -641,7 +641,7 @@ pub(crate) fn command(
                     }
                 }
                 "-h" | "--help" => {
-                    writeln!(errors,"USAGE: dive debug FILE.tla [--config FILE.cfg] [--compat=tlc] [--stdio | --listen 127.0.0.1:PORT] [--seed N] [--fp N]").map_err(|e|e.to_string())?;
+                    writeln!(output,"USAGE: dive debug FILE.tla [--config FILE.cfg] [--compat=tlc] [--stdio | --listen 127.0.0.1:PORT] [--seed N] [--fp N]").map_err(|e|e.to_string())?;
                     return Ok(0);
                 }
                 _ if argument.starts_with('-') => {

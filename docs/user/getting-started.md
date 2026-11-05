@@ -14,6 +14,14 @@ Use `target/release/dive` or put that binary on your PATH. Model checking itself
 needs no JVM. The developer conformance harness downloads a pinned JRE and Java
 oracle separately; it is not the checker runtime.
 
+Use `dive --help` to list available commands and `dive check --help` (or another
+command's `--help`) for its options. Help needs no input files. Unimplemented
+commands are omitted from the list and still give a named refusal if invoked.
+`dive --version` includes the build's `git describe --always --tags --long` revision;
+source archives built without Git report `unknown` instead. Human checking
+reports name the requested engine and requested/used worker counts; Auto's
+actual engine and fallback reason are reported separately.
+
 Run the included model from the repository root:
 
 ```sh
