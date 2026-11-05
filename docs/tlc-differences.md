@@ -2,11 +2,42 @@
 
 dive is a Rust implementation of the TLA+ tools that is checked continuously against the canonical Java tools (SANY and TLC). This page lists every place where we think TLC does something wrong, or less well than it could, and dive does something different.
 
-In every case below:
+`--compat=tlc` (or `DIVE_COMPAT=tlc`) selects the existing TLC-profile settings.
+On Core this is nominal compatibility, as decided in
+[ADR 0153](decisions/0153-core-is-the-product.md): exact TLC fidelity is not a
+release requirement. The harness measures observable results against the pinned
+oracle; a profile name alone gives no conformance credit. Unsupported features
+refuse by name, and approved default differences have stable D-entries below.
 
-- **You can always get TLC's exact behaviour.** `--compat=tlc` (or `DIVE_COMPAT=tlc`) switches *everything* to TLC-equivalent behaviour at once. Each entry also names its own per-feature switch.
-- **TLC-compatible behaviour is proven, not assumed.** dive's conformance harness checks it against the pinned TLC across the full test corpus.
-- **dive never differs silently.** When a result in dive's default mode would come out differently under `--compat=tlc`, the output says so.
+## Compat gaps
+
+Reference remains the current default. Select Core explicitly with
+`dive check Spec.tla --engine core --compat=tlc`. The following consolidated gaps
+retain their original reproducers; their closed issues were folded into
+[the Core compatibility deliverable](https://github.com/Chelis-Lang/dive/issues/790).
+
+- TLC's construction and normalization history is outside Core's compatibility
+  contract: [construction errors](https://github.com/Chelis-Lang/dive/issues/61),
+  [RvMemNorm replay](https://github.com/Chelis-Lang/dive/issues/501) and
+  [Next-side lazy-function fingerprint wrappers](https://github.com/Chelis-Lang/dive/issues/680).
+- Function-set diagnostics can name incomparable operands in a different order
+  after canonical function construction: [enumerated-domain repro](https://github.com/Chelis-Lang/dive/issues/346).
+- Random operators require an admitted draw placement and replayable stream;
+  general TLC draw-order matching is not claimed: [random and VIEW cases](https://github.com/Chelis-Lang/dive/issues/178).
+- Temporal checking uses the admitted native policy and independently validated
+  words; full `-lncheck off/final` fidelity remains incomplete:
+  [observable-mode cases](https://github.com/Chelis-Lang/dive/issues/233).
+- PlusCal rejects a call followed by a goto to an unknown label, which pinned
+  pcal accepts: [CallGoto repro](https://github.com/Chelis-Lang/dive/issues/246).
+- Deterministic native multi-worker results use the pinned one-worker baseline;
+  matching TLC's multi-worker queue order is outside parity:
+  [Hanoi/Bits counts and depth](https://github.com/Chelis-Lang/dive/issues/272).
+
+Each gap keeps its actual refusal or measured difference. Internal errors remain
+defects. None permits a false verdict or weakens counterexample validation.
+The per-feature entries below
+describe their implemented scope; older exact-compatibility claims are subject
+to this list and ADR 0153.
 
 > **Status of this page.** dive is in early development. Entries marked *planned* describe agreed behaviour that is not built yet. This page is maintained alongside the code (see "Maintaining this page" at the end) and will become part of the user documentation.
 
