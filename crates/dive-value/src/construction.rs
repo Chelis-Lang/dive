@@ -419,6 +419,17 @@ pub(crate) fn materialized_identity(
                     }
                     set.elements(ctx)?.to_vec()
                 }
+                SetRepr::Subset(_)
+                | SetRepr::FcnSet(..)
+                | SetRepr::Product(_)
+                | SetRepr::RcdSet(_) => {
+                    if !crate::stream::bounded_concrete(set, ctx, 1 << 24) {
+                        return Err(not_materialized());
+                    }
+                    set.concrete_element_stream(ctx)?
+                        .ok_or_else(not_materialized)?
+                        .collect()
+                }
                 SetRepr::Deferred(source) => source.elements(ctx).map_err(|error| {
                     if error.kind() == ErrorKind::NotEnumerable {
                         not_materialized()

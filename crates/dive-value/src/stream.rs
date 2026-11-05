@@ -103,6 +103,32 @@ fn concrete_set(set: &Set, order: ValueOrder) -> bool {
     true
 }
 
+/// Preflight concrete output and component sizes before identity materialization.
+/// Checking every component also bounds singleton function sets whose domain
+/// would otherwise require an enormous function despite having only one member.
+pub(crate) fn bounded_concrete(set: &Set, ctx: Ctx, limit: u64) -> bool {
+    if !concrete_set(set, ctx.order) {
+        return false;
+    }
+    let mut pending = Vec::new();
+    if !inspect_push(&mut pending, Inspect::Set(set)) {
+        return false;
+    }
+    while let Some(item) = pending.pop() {
+        let valid = match item {
+            Inspect::Set(set) => {
+                set.size(ctx).is_ok_and(|size| size <= limit)
+                    && inspect_set(set, ctx.order, &mut pending)
+            }
+            Inspect::Value(value) => inspect_value(value, ctx.order, &mut pending),
+        };
+        if !valid {
+            return false;
+        }
+    }
+    true
+}
+
 fn inspect_value<'a>(value: &'a Value, order: ValueOrder, pending: &mut Vec<Inspect<'a>>) -> bool {
     match value {
         Value::Set(set) => inspect_push(pending, Inspect::Set(set)),
