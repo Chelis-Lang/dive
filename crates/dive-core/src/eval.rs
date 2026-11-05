@@ -1222,6 +1222,7 @@ impl Machine {
         let kind = self.heap.view(set).kind;
         if kind != Kind::Set
             && kind != Kind::Product
+            && kind != Kind::Subset
             && !self.opts.symbolic_member
             && self.heap.is_finite(set)
             && !self.heap.is_lazy(set)
@@ -1284,15 +1285,22 @@ impl Machine {
             )),
             Kind::Subset => {
                 let base = v.data[0];
-                if !x.is_compound() || self.heap.view(x).kind != Kind::Set {
-                    // A finite set is normalized before membership, so this is
-                    // a non-set or a non-enumerable (infinite) set.
+                let query_kind = self.heap.kind(x);
+                if !matches!(query_kind, Some(Kind::Set | Kind::SetEnum | Kind::Interval)) {
                     return Err(eval_err(
                         "Attempted to check if a non-enumerable value is an element of SUBSET",
                     ));
                 }
-                let elems = self.heap.view(x).data.to_vec();
-                for e in elems {
+                if query_kind == Some(Kind::SetEnum) && !self.heap.owns_local_literal(x) {
+                    return Err(Error::unsupported(
+                        "SUBSET membership of an unproved set enumeration receiver",
+                    ));
+                }
+                // SubsetValue.member demands the query's Enumerable.elements.
+                // SetEnumValue's enumerator normalizes that actual receiver
+                // before the first member call; it does not normalize the base.
+                let mut elements = self.work_cursor(x)?;
+                while let Some(e) = self.work_next(&mut elements)? {
                     if !self.member(e, base)? {
                         return Ok(false);
                     }
@@ -2103,7 +2111,7 @@ impl Machine {
         let value = self.eval_component(code, x)?;
         let product = self.heap.kind(value) == Some(Kind::Product);
         if (f == StdFn::Append && index == 1)
-            || (product && matches!(f, StdFn::Cardinality | StdFn::IsFiniteSet))
+            || (product && matches!(f, StdFn::Cardinality | StdFn::IsFiniteSet | StdFn::Seq))
         {
             Ok(value)
         } else if product {
@@ -2258,6 +2266,131 @@ mod tests {
     #![allow(clippy::unwrap_used, reason = "tests")]
     use super::*;
     use crate::TlcClass;
+
+    #[test]
+    fn sequences_keep_the_original_product_range_and_its_member_demand() {
+        for tlc in [false, true] {
+            let semantics = if tlc {
+                crate::Semantics::tlc()
+            } else {
+                crate::Semantics::default()
+            };
+            let mut m = Machine::new(
+                Arc::new(Store::with_semantics(true, semantics)),
+                1,
+                Opts::default(),
+                Memo::new(&[]),
+            );
+            let zero = Handle::int(0).unwrap();
+            let empty = m.heap.interval(0, -1);
+            let product = m.heap.symbolic(Kind::Product, 0, &[empty, zero]);
+            let code = Code {
+                nodes: vec![Node::Const(product), Node::Std(StdFn::Seq, vec![0].into())],
+                ..Code::default()
+            };
+            let sequences = m.eval(&code, 1).unwrap();
+            assert_eq!(m.heap.view(sequences).kind, Kind::SeqSet);
+            assert_eq!(m.heap.view(sequences).data, &[product]);
+            assert_eq!(m.heap.view(product).data, &[empty, zero]);
+            let empty_sequence = m.heap.tuple(&[]);
+            assert_eq!(m.member(empty_sequence, sequences), Ok(true));
+            let scalar_sequence = m.heap.tuple(&[zero]);
+            let error = m.member(scalar_sequence, sequences).unwrap_err();
+            assert_eq!(error.kind(), crate::ErrorKind::Eval);
+            assert!(error.message().contains("not a function"));
+            assert_eq!(m.heap.view(sequences).data, &[product]);
+
+            let mut values = vec![zero];
+            let nonempty = m.heap.set_from(&mut values);
+            let malformed = m.heap.symbolic(Kind::Product, 0, &[nonempty, zero]);
+            let code = Code {
+                nodes: vec![
+                    Node::Const(malformed),
+                    Node::Std(StdFn::Seq, vec![0].into()),
+                ],
+                ..Code::default()
+            };
+            let sequences = m.eval(&code, 1).unwrap();
+            assert_eq!(m.member(empty_sequence, sequences), Ok(true));
+            let element = m.heap.tuple(&[zero, zero]);
+            let nonempty_sequence = m.heap.tuple(&[element]);
+            let error = m.member(nonempty_sequence, sequences).unwrap_err();
+            assert_eq!(error.kind(), crate::ErrorKind::Eval);
+            assert!(error.message().contains("not a set"));
+            assert_eq!(m.heap.view(sequences).data, &[malformed]);
+        }
+    }
+
+    #[test]
+    fn nested_subset_membership_enumerates_only_the_demanded_literal() {
+        for tlc in [false, true] {
+            let semantics = if tlc {
+                crate::Semantics::tlc()
+            } else {
+                crate::Semantics::default()
+            };
+            let mut m = Machine::new(
+                Arc::new(Store::with_semantics(true, semantics)),
+                1,
+                Opts::default(),
+                Memo::new(&[]),
+            );
+            let one = Handle::int(1).unwrap();
+            let two = Handle::int(2).unwrap();
+            let raw = m.heap.local_literal(&[two, one, two]).unwrap();
+            let independent = m.heap.local_literal(&[two, one, two]).unwrap();
+            let mut values = vec![raw];
+            let outer = m.heap.set_from(&mut values);
+            let base = m.heap.interval(1, 2);
+            let inner = m.heap.symbolic(Kind::Subset, 0, &[base]);
+            let powerset = m.heap.symbolic(Kind::Subset, 0, &[inner]);
+            assert!(m.heap.has_raw_construction(raw));
+            assert!(m.heap.has_raw_construction(independent));
+            assert_eq!(m.member(outer, powerset), Ok(true));
+            assert!(!m.heap.has_raw_construction(raw));
+            assert!(m.heap.has_raw_construction(independent));
+            assert_eq!(m.heap.view(outer).data, &[raw]);
+            assert_eq!(m.heap.view(powerset).data, &[inner]);
+            assert_eq!(m.member(base, inner), Ok(true));
+            let outside = m.heap.interval(1, 3);
+            assert_eq!(m.member(outside, inner), Ok(false));
+        }
+    }
+
+    #[test]
+    fn subset_query_normalization_precedes_membership_and_skips_unused_base() {
+        let mut m = Machine::new(
+            Arc::new(Store::with_semantics(true, crate::Semantics::tlc())),
+            1,
+            Opts::default(),
+            Memo::new(&[]),
+        );
+        let zero = Handle::int(0).unwrap();
+        let raw = m.heap.local_literal(&[zero, Handle::TRUE]).unwrap();
+        let empty = m.heap.empty_set();
+        let empty_subset = m.heap.symbolic(Kind::Subset, 0, &[empty]);
+        // Enumerable.elements normalizes the whole query before even the first
+        // element could fail membership in the empty base.
+        let error = m.member(raw, empty_subset).unwrap_err();
+        assert_eq!(error.kind(), crate::ErrorKind::Unsupported);
+        assert!(error.message().contains("local scalar/tuple comparison"));
+
+        let unused = m.heap.local_literal(&[zero, Handle::TRUE]).unwrap();
+        let empty_query = m.heap.local_literal(&[]).unwrap();
+        let unused_subset = m.heap.symbolic(Kind::Subset, 0, &[unused]);
+        assert_eq!(m.member(empty_query, unused_subset), Ok(true));
+        assert!(m.heap.has_raw_construction(unused));
+        assert!(m.work_norm(unused).is_err());
+
+        let forged = m.heap.symbolic(Kind::SetEnum, 0, &[zero]);
+        let error = m.member(forged, unused_subset).unwrap_err();
+        assert_eq!(error.kind(), crate::ErrorKind::Unsupported);
+        assert!(
+            error
+                .message()
+                .contains("unproved set enumeration receiver")
+        );
+    }
 
     #[test]
     fn compound_components_keep_product_receiver_authority() {

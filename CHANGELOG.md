@@ -1,5 +1,11 @@
 # Changelog
 
+- Restore Core `Seq` membership over original Cartesian-product ranges and
+  demanded enumeration of owned raw literal queries in nested `SUBSET` checks.
+  Disabling symbolic membership preserves the same `SUBSET` receiver dispatch.
+  Product errors, unused aliases, independent trace validation and the refusal
+  for outer collections of multiple raw sets remain guarded.
+
 - Preserve empty Cartesian-product graph conversion in both engines and
   compatibility profiles. Concrete axes are checked for emptiness before any
   axis normalization; operand errors, source order and later alias demands remain
