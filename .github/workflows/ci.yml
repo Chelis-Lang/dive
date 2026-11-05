@@ -182,3 +182,11 @@ jobs:
         run: scripts/conformance-gate.sh conformance/gates/smoke.txt --workers 1,4
       - name: Shadow gate (core vs reference engine, 1 and 4 workers)
         run: scripts/shadow-gate.sh conformance/gates/shadow-smoke.txt
+      - name: Core-native small-tier coverage ratchet
+        run: |
+          target/release/dive-conformance run \
+            --impl dive:core --impl-profile dive --workers 1 --tier small --no-sany \
+            --corpus examples --corpus probes --corpus configured-temporal-operators --corpus validation-smoke \
+            --jobs 2 --tlc-budgets --budget-cap 900 \
+            --baseline conformance/baselines/small-core-dive-w1.json \
+            --report-dir "$RUNNER_TEMP/core-baseline" --no-summary
