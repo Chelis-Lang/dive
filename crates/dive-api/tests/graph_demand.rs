@@ -12,6 +12,8 @@ use dive_api::{
 };
 use serde_json::{Value, json};
 
+const MIXED_COMPAT: &str = "a set of values of different shapes under --compat=tlc, where TLC's checked comparison may fail or answer by its asymmetric rules (C1–C5; the exact port is not built)";
+
 const CLASSIFIED: &[&str] = &[
     "SelfDemand",
     "EmptyDemand",
@@ -84,7 +86,8 @@ fn validate_violation(req: &CheckRequest, report: &CheckReport) {
     let trace = TraceDoc::from_json(&word).expect("native word");
     assert_eq!(model.validate(&trace).validation, Validation::Valid);
     let mut skipped = word;
-    skipped["states"][1]["values"]["x"] = json!(7);
+    let at = usize::from(skipped["states"].as_array().expect("states").len() > 1);
+    skipped["states"][at]["values"]["x"] = json!(7);
     let skipped = TraceDoc::from_json(&skipped).expect("mutated word");
     assert!(matches!(
         model.validate(&skipped).validation,
@@ -106,6 +109,22 @@ fn state_dependent_early_and_actual_edge_demands_match_pinned_results() {
                 for switches in ["", "-fold,-memo", "-hashcons"] {
                     let core = check_file_core_opts(&req, switches).expect("Core check");
                     assert_eq!(core.to_json()["engine"], "core");
+                    if compat
+                        && matches!(
+                            *name,
+                            "SelfDemand"
+                                | "EmptyDemand"
+                                | "AbsentDemand"
+                                | "UndirectedSelf"
+                                | "SelfViolation"
+                                | "EmptyViolation"
+                        )
+                    {
+                        assert_eq!(core.verdict(), "unsupported");
+                        assert_eq!(core.exit_code_for(ExitConvention::Tlc), 3);
+                        assert_eq!(core.to_json()["message"], MIXED_COMPAT);
+                        continue;
+                    }
                     assert_eq!(
                         observed(&core),
                         pinned,
@@ -141,10 +160,29 @@ fn demanded_comparisons_and_argument_diagnostics_retain_errors_or_guarded_refusa
             let req = request(name, compat, 1);
             let reference = check_file_engine(&req, Engine::Reference).expect("Reference check");
             let doc = reference.to_json();
+            if !compat && matches!(name, "DemandedEdges" | "SimpleEmpty") {
+                let expected = if name == "DemandedEdges" {
+                    json!({"verdict":"invariant-violation", "property":"Inv", "distinct":1, "generated":1,
+                        "depth":1, "code":2107, "class":"TLC_INVARIANT_VIOLATED_INITIAL", "exit":12})
+                } else {
+                    json!({"verdict":"success", "property":null, "distinct":3, "generated":3,
+                        "depth":3, "code":2193, "class":"TLC_SUCCESS", "exit":0})
+                };
+                assert_eq!(observed(&reference), expected, "{name}");
+                validate_violation(&req, &reference);
+                let core = check_file_engine(&req, Engine::Core).expect("canonical Core check");
+                assert_eq!(observed(&core), expected, "{name}");
+                validate_violation(&req, &core);
+                continue;
+            }
             assert_eq!(doc["verdict"], "evaluation-error", "{name}: {doc}");
             assert_eq!(reference.exit_code_for(ExitConvention::Tlc), 75);
             assert_eq!(doc["tlc"]["verified"], false);
-            let nested = if name == "SelfEdgeType" { 2169 } else { 2154 };
+            let nested = if name == "SelfEdgeType" || (!compat && name == "FieldPriority") {
+                2169
+            } else {
+                2154
+            };
             assert!(
                 doc["message"]
                     .as_str()
@@ -153,14 +191,10 @@ fn demanded_comparisons_and_argument_diagnostics_retain_errors_or_guarded_refusa
             );
             let core = check_file_engine(&req, Engine::Core).expect("Core check");
             let core_doc = core.to_json();
-            if matches!(name, "DemandedEdges" | "SimpleEmpty" | "FieldPriority") {
+            if compat && matches!(name, "DemandedEdges" | "SimpleEmpty" | "FieldPriority") {
                 assert_eq!(core_doc["verdict"], "unsupported", "{name}: {core_doc}");
                 assert_eq!(core.exit_code_for(ExitConvention::Tlc), 3);
-                assert!(
-                    core_doc["message"]
-                        .as_str()
-                        .is_some_and(|message| message.contains("local scalar/tuple comparison"))
-                );
+                assert_eq!(core_doc["message"], MIXED_COMPAT);
             } else {
                 assert_eq!(core_doc["verdict"], doc["verdict"]);
                 assert_eq!(core_doc["tlc"], doc["tlc"]);

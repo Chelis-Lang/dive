@@ -3055,7 +3055,26 @@ return `unsupported`; symbolic structure is never treated as mathematical
 inequality. The independent trace validator also refuses unproved identity,
 including in words claiming a specification evaluation error.
 
+### Default outcomes and real errors
+
+Canonical construction also applies in the shared evaluator and independent
+replay. Raw mixed-set normalization no longer masks a mathematical result:
+`graph-demand/DemandedEdges` is an independently validated initial `Inv`
+violation, while the finite graph/Product/projection controls listed in the
+[D-028 registry](divergences.md#d-028-canonical-finite-set-construction) complete
+with exact tested counts. Malformed graph fields, non-function arguments to
+`AntiFunction`, and empty arguments to `LongestCommonPrefix` still report their
+real errors.
+
 ### Compat gaps
+
+Constructor admission can refuse before an operation TLC would leave unused.
+The explicit regression lists include `graph-demand/SelfDemand`,
+`graph-empty-product/LazyEmptyProduct`,
+`product-operations/FiniteRawAxisHistory` and
+`set-conversion-demand/NormalizedProjectionSkipRaw`; these nominal Core/TLC
+refusals name the mixed-shape comparison gap. Default checks and pinned
+Reference/TLC checks retain their separately tested outcomes.
 
 `--compat=tlc` retains inexpensive existing switches, including integer and name
 order. Core also uses canonical set producers in this mode. It refuses mixed

@@ -71,6 +71,26 @@ canonical enumeration removes the repeated `[a |-> 1]` from the lazy union.
 Tests: `core_receiver_consumers` covers both MixedView literal orders,
 MappedMultipleSubsets, independent valid/invalid words and large symbolic domains.
 
+The shared evaluator uses the same mathematical default for Reference checks
+and independent replay. Reference under `--compat=tlc` retains its original
+normalization-dependent results. Exact additional default controls are:
+
+| Corpus / model identifiers | Default result |
+|---|---|
+| `graph-demand/DemandedEdges` | `Inv` violation, 1 distinct / 1 generated / depth 1, exit 12; the word validates independently and its changed-state mutant fails |
+| `graph-demand/SimpleEmpty` | Success, 3 distinct / 3 generated / depth 3, exit 0 |
+| `graph-empty-product/LazyDemandedProduct`, `LazyProductHistory` | Success, 3/3/depth 3, exit 0 |
+| `product-operations/DemandedRawProductSize` | Success, 3/3/depth 3, exit 0 |
+| `reference-finiteness-demand/AliasSizeAfterFiniteness` | Success, 3/3/depth 3, exit 0 |
+| `set-conversion-demand/AliasSizeAfterProjection`, `NonemptyMixedProjection` | Success, 3/3/depth 3, exit 0 |
+| `crates/dive-api/tests/fixtures/comparison-receiver-unclassified/InitialOverride.tla` | Success, 3/3/depth 3, exit 0 |
+
+Real argument errors remain errors: `graph-demand/FieldPriority` reaches the
+edge-field type error, `set-conversion-demand/AntiFunctionRawEmpty` rejects a
+set where a function is required, and `set-diagnostic-demand/PrefixReverse`
+reports the nonempty-set requirement. Context-only TLC observations remain
+unclassified; no deciding oracle class is inferred for registry entries.
+
 ## Oracle facts behind the registry
 
 - **Reflexive model-value membership (D-009).** The exact
