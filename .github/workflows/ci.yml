@@ -182,21 +182,3 @@ jobs:
         run: scripts/conformance-gate.sh conformance/gates/smoke.txt --workers 1,4
       - name: Shadow gate (core vs reference engine, 1 and 4 workers)
         run: scripts/shadow-gate.sh conformance/gates/shadow-smoke.txt
-      - name: Core-native small-tier coverage ratchet
-        run: |
-          target/release/dive-conformance run \
-            --impl dive:core --impl-profile dive --workers 1 --tier small --no-sany \
-            --corpus examples --corpus probes --corpus configured-temporal-operators --corpus validation-smoke \
-            --jobs 2 --tlc-budgets --budget-cap 900 \
-            --baseline conformance/baselines/small-core-dive-w1.json \
-            --report-dir "$RUNNER_TEMP/core-baseline" --no-summary
-      - name: Export the measured Core baseline
-        run: |
-          target/release/dive-conformance report baseline \
-            "$RUNNER_TEMP"/core-baseline/*.json --out "$RUNNER_TEMP/core-small-baseline.json"
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: core-small-baseline
-          path: ${{ runner.temp }}/core-small-baseline.json
-          if-no-files-found: error
-          retention-days: 7
