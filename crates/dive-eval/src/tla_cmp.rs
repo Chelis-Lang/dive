@@ -95,18 +95,17 @@ pub(crate) fn member(core: &Core, elem: &Value, set: &Value) -> Result<bool> {
         SetKind::Enum | SetKind::Raw => {
             let elem = equality_operand(core, elem)?;
             set.require_materialized(core.ctx)?;
-            // An enumeration TLC has not normalized is scanned as written, so
-            // that the answer does not depend on normalizing it.
-            let normalized;
-            let elems = if let Some(raw) = s.raw_elements() {
-                raw
-            } else {
-                normalized = s.elements(core.ctx)?;
-                &normalized
+            // Inspection admits explicit raw children, but those children still
+            // need canonical identity before Value equality can compare them.
+            // Providers were rejected by the read-only inspection above.
+            let materialized = set.materialized_for_equality(core.ctx)?;
+            let Value::Set(materialized_set) = &materialized else {
+                return Err(crate::EvalError::bug("materialized set changed value kind"));
             };
+            let elems = materialized_set.elements(core.ctx)?;
             let ce = class(&elem);
             let mut unspecified = false;
-            for x in elems {
+            for x in elems.iter() {
                 let cx = class(x);
                 if ce == cx && ce != Class::Scalar(3) {
                     if &elem == x {
@@ -130,7 +129,7 @@ pub(crate) fn member(core: &Core, elem: &Value, set: &Value) -> Result<bool> {
                 }
             }
             if unspecified {
-                return Ok(tlc::member(&elem, set, core.ctx)?);
+                return Ok(tlc::member(&elem, &materialized, core.ctx)?);
             }
             Ok(false)
         }

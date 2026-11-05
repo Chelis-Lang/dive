@@ -95,6 +95,10 @@ For every selected model and worker count (default 1 and 4):
   canonical state keys (`dive_store::state::state_key`, with a marker for
   an unassigned variable), so multiplicities must agree too. When both
   raise an error, that agrees: classifying it is the ending's job. The
+  frozen Reference engine can refuse a route Core now supports. A typed
+  Reference refusal is reported as an unavailable, skipped comparison, with its
+  reason; it contributes no comparison or agreement credit. Supported Reference
+  results still require the same successor multiset. The
   report's `core.sample` gives the counts and the first eight differences.
   A difference makes the row `successors-differ`. Sampling changes no
   result.

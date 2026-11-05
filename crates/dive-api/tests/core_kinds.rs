@@ -9,8 +9,9 @@
 //! that a run TLC stops with an error reported success or a deadlock. Each
 //! case runs on both engines; the core must give the reference's verdict,
 //! counts and exit (its error endings are classified as the reference
-//! engine classifies them, `crates/dive-api/src/core_ending.rs`), except
-//! that it refuses a set whose elements mix classes.
+//! engine classifies them, `crates/dive-api/src/core_ending.rs`). Mixed sets
+//! use canonical construction under D-028; their consumers still preserve
+//! undefined scalar comparisons.
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
 
 use std::path::Path;
@@ -59,15 +60,6 @@ const CASES: &[&str] = &[
     "{x} \\notin Seq({1})",
     "{x} \\subseteq {1, 2} \\/ TRUE",
     r#"{x} \cap {"a"} = {}"#,
-];
-
-/// The cases the core refuses: an enumerated set whose elements mix
-/// classes (`crates/dive-core/src/compare.rs`).
-const MIXED: &[&str] = &[
-    r#"x \in {1, "b"} \/ TRUE"#,
-    r#"x \in {0, "b"}"#,
-    "x \\notin {<<1>>, 7}",
-    "<<x>> \\notin {<<1>>, {2}}",
 ];
 
 fn run(spec: &Path, engine: Engine) -> Value {
@@ -137,7 +129,7 @@ fn comparisons_across_kinds_are_never_answered_wrongly() {
         );
     }
     let _ = std::fs::remove_dir_all(&dir);
-    assert_eq!(refused, MIXED, "refused cases");
+    assert!(refused.is_empty(), "unexpected refused cases: {refused:?}");
     assert!(
         errors >= 25,
         "only {errors} cases end in an evaluation error"

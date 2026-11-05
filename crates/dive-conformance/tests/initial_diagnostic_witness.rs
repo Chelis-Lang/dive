@@ -79,6 +79,21 @@ fn context_only_initial_errors_keep_unclassified_oracles_and_refuse_native_class
                 actual_outcome.exit_code = Some(i32::from(
                     report.exit_code_for(dive_api::ExitConvention::Tlc),
                 ));
+                if name == "InitialOverride" && !compat {
+                    // Canonical construction (D-028) avoids the legacy sorting
+                    // error. The pinned primary observation above remains
+                    // unclassified; it supplies no oracle agreement credit.
+                    assert_eq!(value["verdict"], "success", "{value:#}");
+                    assert_eq!(actual_outcome.exit_code, Some(0));
+                    for field in ["distinct", "generated", "depth"] {
+                        assert_eq!(value["statistics"][field], 3, "{field}/{value:#}");
+                    }
+                    assert_eq!(value["statistics"]["left_on_queue"], 0);
+                    for field in ["counterexample", "error_witness", "diagnostic_witness"] {
+                        assert!(value[field].is_null(), "{field}/{value:#}");
+                    }
+                    continue;
+                }
                 if name == "InitialOverride" && engine == Engine::Core {
                     assert_eq!(value["verdict"], "unsupported");
                     assert_eq!(report.exit_code_for(dive_api::ExitConvention::Tlc), 3);

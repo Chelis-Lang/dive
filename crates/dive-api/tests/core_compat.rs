@@ -132,6 +132,9 @@ fn named_refusal(message: &str) -> bool {
         || message.contains("(M1 core")
         || message.contains("(core)")
         || message.contains("lazily represented set")
+        || message == "mathematical identity of a symbolic state value"
+        || message
+            == "mathematical identity of a symbolic or unclosed value (including nested set/function children)"
         || message.starts_with("an evaluation error in an expression TLC evaluates lazily")
 }
 

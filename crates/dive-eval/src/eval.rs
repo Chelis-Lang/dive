@@ -2628,7 +2628,22 @@ impl Core {
             }
             BuiltinOp::BigUnion => {
                 // OPCODE_union
-                let a = self.eval_v(env, st, arg(0)?)?;
+                let operand = arg(0)?;
+                if self.opts.comparisons == Comparisons::Tla
+                    && let Expr::SetEnum(items) = self.ir.expr(operand)
+                    && let [single] = items.as_ref()
+                {
+                    // UNION {S} needs S as an operator domain, not the
+                    // materialized identity of a collection containing S.
+                    let value = self.eval_embed(env, st, *single)?;
+                    if matches!(value, Value::Set(_)) {
+                        return Ok(Ev::V(value));
+                    }
+                    return Ok(Ev::V(
+                        self.big_union(Value::set_raw(vec![value], self.ctx))?,
+                    ));
+                }
+                let a = self.eval_v(env, st, operand)?;
                 self.big_union(a)?
             }
             BuiltinOp::Domain => {
