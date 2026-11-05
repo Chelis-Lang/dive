@@ -2636,8 +2636,17 @@ impl Core {
                     // UNION {S} needs S as an operator domain, not the
                     // materialized identity of a collection containing S.
                     let value = self.eval_embed(env, st, *single)?;
-                    if matches!(value, Value::Set(_)) {
-                        return Ok(Ev::V(value));
+                    if let Value::Set(set) = &value {
+                        return Ok(Ev::V(
+                            if matches!(
+                                set.kind(),
+                                dive_value::SetKind::Enum | dive_value::SetKind::Raw
+                            ) {
+                                value.materialized_identity(self.ctx)?
+                            } else {
+                                value
+                            },
+                        ));
                     }
                     return Ok(Ev::V(
                         self.big_union(Value::set_raw(vec![value], self.ctx))?,

@@ -25,10 +25,29 @@ fn canonical_initial_success(value: &Value, exit: Option<i32>) {
     }
 }
 
+fn context_only_oracle(pinned: &str, sha256: &str) {
+    use dive_conformance::tlc::{messages, result};
+    assert_eq!(
+        dive_conformance::hash::sha256_bytes(pinned.as_bytes()),
+        sha256
+    );
+    let transcript = messages::parse(pinned);
+    assert_eq!(transcript.anomalies, [] as [String; 0]);
+    let oracle = result::classify(
+        &transcript,
+        &result::RunFacts {
+            exit_code: Some(75),
+            ..result::RunFacts::default()
+        },
+    );
+    assert_eq!(oracle.verdict, result::Verdict::Unclassified);
+    assert_eq!(oracle.error_codes, [2102, 2103]);
+    assert_eq!(oracle.exit_code, Some(75));
+}
+
 #[test]
 fn context_only_initial_errors_keep_unclassified_oracles_and_refuse_native_class_claims()
 -> TestResult {
-    use dive_conformance::tlc::{messages, result};
     for (name, pinned, sha256) in [
         (
             "InitialTool",
@@ -41,22 +60,7 @@ fn context_only_initial_errors_keep_unclassified_oracles_and_refuse_native_class
             "a7ab40e040f98033631201bf9899be1e619b349cf8453f564e2c570e8018b695",
         ),
     ] {
-        assert_eq!(
-            dive_conformance::hash::sha256_bytes(pinned.as_bytes()),
-            sha256
-        );
-        let transcript = messages::parse(pinned);
-        assert_eq!(transcript.anomalies, [] as [String; 0]);
-        let oracle = result::classify(
-            &transcript,
-            &result::RunFacts {
-                exit_code: Some(75),
-                ..result::RunFacts::default()
-            },
-        );
-        assert_eq!(oracle.verdict, result::Verdict::Unclassified);
-        assert_eq!(oracle.error_codes, [2102, 2103]);
-        assert_eq!(oracle.exit_code, Some(75));
+        context_only_oracle(pinned, sha256);
         let file = root().join(format!(
             "crates/dive-api/tests/fixtures/comparison-receiver-unclassified/{name}.tla"
         ));
