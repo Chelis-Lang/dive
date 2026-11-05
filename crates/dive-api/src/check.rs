@@ -2271,8 +2271,9 @@ impl CheckReport {
         };
         let _ = writeln!(
             out,
-            "dive check {}: profile {}, store {}{fp}, seed {}, {} worker(s) requested, {} used",
+            "dive check {}: requested engine {}, profile {}, store {}{fp}, seed {}, {} worker(s) requested, {} used",
             self.file,
+            self.engine.name(),
             profile,
             o.store.name(),
             o.seed,

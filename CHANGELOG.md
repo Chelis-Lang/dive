@@ -1,5 +1,9 @@
 # Changelog
 
+- Make every advertised command's `--help` succeed without input files, hide
+  the unimplemented `lsp` command from help, include the Git revision in
+  `--version`, and name the requested engine in human checking headers.
+
 - Restore Core `Seq` membership over original Cartesian-product ranges and
   demanded enumeration of owned raw literal queries in nested `SUBSET` checks.
   Disabling symbolic membership preserves the same `SUBSET` receiver dispatch.
