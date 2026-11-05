@@ -1,5 +1,8 @@
 # Changelog
 
+- Document Core's nominal TLC compatibility, consolidated gaps and explicit
+  engine selection; correct the low-level fingerprint/seed argument order.
+
 - Pin schema-3 Core JSON reports for seven checking outcomes in the workspace
   gate, and use the shared API schema constant for validation errors.
 
