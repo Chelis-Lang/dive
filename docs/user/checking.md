@@ -329,6 +329,8 @@ operator parameters and mutually nested recursion remain named refusals in both
 profiles.
 Substitutions that require effectful or recursive evaluation, or a caller local
 outside the function's lexical activation, also return `unsupported`.
+Recursive functions used directly as actions are also refused: their logical
+witnesses can generate repeated successors in TLC, which Core does not reproduce.
 
 The core can evaluate `SelectSeq(sequence, Test)'` when `Test` is pure and
 depends only on its element parameter and constants. The sequence reads the

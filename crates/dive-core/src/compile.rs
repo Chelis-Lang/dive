@@ -4143,6 +4143,11 @@ impl Compiler<'_> {
             Expr::FcnApply { fcn, arg } => {
                 let (fcn, arg) = (*fcn, *arg);
                 let Some((lambda, lenv)) = self.fcn_lambda(fcn, env, 0)? else {
+                    if self.rec_target(fcn, env)?.is_some() {
+                        return Err(Error::unsupported(
+                            "a recursive function used as an action with unproved successor multiplicity (M1 core)",
+                        ));
+                    }
                     return self.guard_expr(e, env);
                 };
                 let Expr::FcnCons { bounds, body } = self.ir.node(lambda).expr.clone() else {

@@ -2,7 +2,7 @@
 
 - Evaluate applied LET-recursive functions on Core with lexical captures and
   substitution context preserved. Prisoners and SchedulingAllocator now agree
-  with TLC using their original configurations; unsupported prime, escape,
+  with TLC using their original configurations; unsupported prime, escape, action-position,
   operator-capture and nested-recursion cases retain named refusals.
 
 - Document Core's nominal TLC compatibility, consolidated gaps and explicit

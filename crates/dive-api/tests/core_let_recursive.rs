@@ -222,3 +222,35 @@ fn parameterized_instance_substitutions_never_reuse_caller_frame_slots()
     }
     Ok(())
 }
+
+#[test]
+fn recursive_function_action_witness_multiplicity_is_explicitly_refused()
+-> Result<(), Box<dyn std::error::Error>> {
+    for compat_tlc in [false, true] {
+        let mut req = request("ActionCount", compat_tlc, 1);
+        req.file.set_file_name("ActionCount.tla");
+        let reference = check_file_engine(&req, Engine::Reference)?;
+        let doc = reference.to_json();
+        // Pinned TLC counts both existential witnesses, although their
+        // resulting successor is the same. A value guard would emit only one.
+        assert_eq!(reference.verdict(), "success");
+        assert_eq!(doc["statistics"]["generated"], 3);
+        assert_eq!(doc["statistics"]["distinct"], 1);
+        assert_eq!(doc["statistics"]["depth"], 1);
+        for workers in [1, 4] {
+            req.workers = Some(workers);
+            for switches in ["", "-fold,-memo,-hashcons,-eager"] {
+                let core = check_file_core_opts(&req, switches)?;
+                let doc = core.to_json();
+                assert_eq!(core.verdict(), "unsupported");
+                assert_eq!(
+                    doc["message"],
+                    "a recursive function used as an action with unproved successor multiplicity (M1 core)"
+                );
+                assert!(doc["counterexample"].is_null());
+                assert!(doc["tlc"].is_null());
+            }
+        }
+    }
+    Ok(())
+}
