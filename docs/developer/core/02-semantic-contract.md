@@ -356,6 +356,11 @@ is a set and `{<<1>>, [qfa |-> 1, qfb |-> 1]}` is an error.
   `RvCanonAsym`.
 - Core: the slow path runs TLC's algorithm in TLC token order in both
   profiles. The result is then re-sorted in the run's order.
+- **Superseded for the default profile by
+  [ADR 0153](../../decisions/0153-core-is-the-product.md) §2.** Sets are
+  canonical in the default profile, and TLC's insertion-order normalization
+  errors are a registered divergence there. The rule above describes TLC and
+  applies only to the nominal `--compat=tlc`.
 
 **C3. Membership dispatches on the set's TLC class.** For example,
 `IntervalValue.member` returns `FALSE` for an untyped model value but raises an
@@ -713,7 +718,7 @@ each one's TLC counterpart applies.
 6. **Symmetry with VIEW (X3).** Must the canonical representative be TLC's
    lexicographic minimum, or may it be any orbit-canonical function when the
    view is symmetric?
-7. **History-dependent `elements()` (A6).** Keep the `NxInLazyCup` refusal,
+7. **Answered 2026-11-05 ([ADR 0153](../../decisions/0153-core-is-the-product.md)):** the default profile uses canonical sets with no normalization history; `--compat=tlc` is nominal and documents its gaps. The original question was: **History-dependent `elements()` (A6).** Keep the `NxInLazyCup` refusal,
    or track TLC's per-object normalization history to reproduce it?
 
 8. **`ENABLED` cutoff (B3).** Is TLC's branch cutoff the correct TLA+

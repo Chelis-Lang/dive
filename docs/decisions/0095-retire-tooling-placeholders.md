@@ -22,7 +22,7 @@ for `dive-api` to depend on `dive-compile` and for `dive-cli` to depend on
 packages stay unchanged.
 
 The charter's language-server and native-compilation responsibilities remain
-on the [post-v1 roadmap](../ROADMAP.md#after-parity). Future implementations
+on the [post-v1 roadmap](../ROADMAP.md#after-v01). Future implementations
 return as fresh crates with an explicit dependency-graph decision and the
 required conformance checks.
 
