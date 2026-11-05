@@ -24,10 +24,10 @@ GitHub milestones:
 - **The Reference engine is still the default.** It agrees with TLC on 150 of
   the 156 small-tier models and on 182 of the 217 full-tier models in the TLC
   profile, with no disagreements. It runs at about a third of TLC's speed.
-- **Core, the new execution engine (ADR 0117), is fast where it runs:** about
-  2.6x TLC on its benchmark panel. It runs 246 of the 312 small-tier
-  shadow models natively and refuses the rest by name. Core alone has never been
-  measured on the full tier.
+- **Core alone on the small tier** records 122 agreements, four registered
+  divergences and 30 named refusals, with no disagreements or budget stops
+  (2026-11-05). Its historical ten-model speed panel is about 2.6x TLC;
+  full-tier coverage and timing remain unmeasured.
 - **There is no release.**
 
 ## Path to v0.1

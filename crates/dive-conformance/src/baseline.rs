@@ -155,8 +155,8 @@ pub struct Baseline {
     pub profile: Option<String>,
     /// The `dive check` engine requested, when not the reference engine
     /// (`core` or `auto`). Engines must agree, so it is recorded but never
-    /// makes two baselines incomparable: an `auto` run is checked against
-    /// the reference engine's baseline (`08-correctness.md` §8).
+    /// allows an `auto` run against the reference baseline. A Core-only
+    /// baseline requires Core so fallback cannot hide a coverage regression.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub engine: Option<String>,
     /// The oracle whose goldens were compared against.
@@ -391,6 +391,10 @@ pub fn compare(base: &Baseline, now: &Baseline) -> Result<BaselineDiff> {
         ("tier", base.tier == now.tier),
         ("workers", base.workers == now.workers),
         ("corpora", base.corpora == now.corpora),
+        (
+            "Core-only engine",
+            base.engine.as_deref() != Some("core") || now.engine.as_deref() == Some("core"),
+        ),
     ]
     .into_iter()
     .filter(|(_, same)| !same)
@@ -448,7 +452,11 @@ pub fn compare(base: &Baseline, now: &Baseline) -> Result<BaselineDiff> {
         // `agree` is an improvement even when they differ from the baseline.
         if moved && n.outcome == Outcome::Agree {
             d.improvements.push(change(what));
-        } else if (b.outcome == Outcome::Agree && n.outcome != Outcome::Agree) || !fields.is_empty()
+        } else if (b.outcome == Outcome::Agree && n.outcome != Outcome::Agree)
+            || (base.engine.as_deref() == Some("core")
+                && b.outcome == Outcome::ExpectedDivergence
+                && n.outcome != Outcome::ExpectedDivergence)
+            || !fields.is_empty()
         {
             d.regressions.push(change(what));
         } else if moved {
@@ -466,6 +474,74 @@ pub fn compare(base: &Baseline, now: &Baseline) -> Result<BaselineDiff> {
     }
     compare_modules(base, now, partial, &mut d);
     Ok(d)
+}
+
+/// Compares a report with a baseline, retaining Core-only engine checks.
+///
+/// A Core baseline also rejects fallback, a different checking runtime and
+/// unconfirmed counterexamples. Frontend rejections can precede engine startup.
+///
+/// # Errors
+/// Returns the selection/profile mismatch errors documented by [`compare`].
+pub fn compare_report(base: &Baseline, report: &Report) -> Result<BaselineDiff> {
+    let mut diff = compare(base, &Baseline::from_report(report))?;
+    if base.engine.as_deref() == Some("core") {
+        diff.regressions.extend(core_run_findings(&report.models));
+    }
+    Ok(diff)
+}
+
+fn core_run_findings(models: &[crate::report::ModelReport]) -> Vec<Change> {
+    let mut findings = Vec::new();
+    for model in models {
+        if matches!(
+            model.outcome,
+            Outcome::Disagree | Outcome::OracleError | Outcome::AgreePendingTraceValidation
+        ) {
+            findings.push(Change {
+                kind: "model",
+                id: format!("{}:{}", model.corpus, model.model),
+                what: format!("Core-only model has outcome {}", model.outcome.as_str()),
+            });
+        }
+        for run in &model.runs {
+            let reason = if run.engine_fallback.is_some() {
+                Some("Core-only run used a fallback")
+            } else if run.engine.as_deref().is_some_and(|engine| engine != "core") {
+                Some("Core-only run used a different engine")
+            } else if matches!(
+                run.outcome,
+                Outcome::Disagree | Outcome::OracleError | Outcome::AgreePendingTraceValidation
+            ) {
+                Some("Core-only run has an unaccepted finding")
+            } else if matches!(run.outcome, Outcome::Agree | Outcome::ExpectedDivergence)
+                && run.verdict.is_none()
+            {
+                Some("Core-only agreement has no result")
+            } else if run.verdict.is_some_and(|verdict| {
+                !matches!(
+                    verdict,
+                    Verdict::ParseError
+                        | Verdict::SemanticError
+                        | Verdict::ConfigError
+                        | Verdict::Timeout
+                )
+            }) && run.engine.as_deref() != Some("core")
+            {
+                Some("Core-only checking result does not identify its engine")
+            } else {
+                None
+            };
+            if let Some(reason) = reason {
+                findings.push(Change {
+                    kind: "model",
+                    id: format!("{}:{}", model.corpus, model.model),
+                    what: format!("w{}: {reason}", run.workers),
+                });
+            }
+        }
+    }
+    findings
 }
 
 /// The module half of [`compare`].
@@ -684,6 +760,103 @@ mod tests {
         let back = Baseline::load(&path);
         let _ = std::fs::remove_dir_all(&dir);
         assert_eq!(back?, now);
+        Ok(())
+    }
+
+    #[test]
+    fn core_baselines_require_core_and_preserve_divergent_fixture_coverage() -> Result<()> {
+        let mut core = base();
+        core.engine = Some("core".to_owned());
+        assert!(compare(&core, &base()).is_err());
+        let mut now = core.clone();
+        now.models
+            .get_mut("e:C")
+            .ok_or_else(|| Error::Config("missing test model".into()))?
+            .outcome = Outcome::Unsupported;
+        assert_eq!(ids(&compare(&core, &now)?.regressions), ["e:C"]);
+        // A new agreement cannot compensate for losing an existing one.
+        now.models
+            .insert("e:A".into(), entry(Outcome::Unsupported, None));
+        now.models
+            .insert("e:B".into(), entry(Outcome::Agree, Some(10)));
+        assert!(ids(&compare(&core, &now)?.regressions).contains(&"e:A"));
+        Ok(())
+    }
+
+    fn core_model(
+        outcome: Outcome,
+        verdict: Option<Verdict>,
+        engine: Option<&str>,
+        fallback: bool,
+    ) -> Result<crate::report::ModelReport> {
+        serde_json::from_value(serde_json::json!({
+            "corpus": "examples", "model": "M.cfg", "module": "M.tla", "tier": "small",
+            "outcome": outcome, "detail": null, "golden_verdict": verdict,
+            "worker_invariance": null, "manifest_drift": [],
+            "runs": [{
+                "workers": 1, "outcome": outcome, "verdict": verdict,
+                "verdict_code": null, "exit_code": null, "distinct_states": null,
+                "states_generated": null, "depth": null, "trace_length": null,
+                "diffs": [], "elapsed_ms": 1, "detail": null, "engine": engine,
+                "engine_fallback": fallback.then(|| serde_json::json!({
+                    "stage": "dynamic", "reason": "test fallback"
+                }))
+            }]
+        }))
+        .map_err(|error| Error::Config(error.to_string()))
+    }
+
+    #[test]
+    fn core_ratchet_rejects_fallback_missing_runtime_and_unvalidated_results() -> Result<()> {
+        for (outcome, verdict, engine, fallback) in [
+            (
+                Outcome::Agree,
+                Some(Verdict::Success),
+                Some("reference"),
+                false,
+            ),
+            (Outcome::Agree, Some(Verdict::Success), Some("core"), true),
+            (Outcome::Agree, Some(Verdict::Success), None, false),
+            (Outcome::Agree, None, None, false),
+            (
+                Outcome::AgreePendingTraceValidation,
+                Some(Verdict::LivenessViolation),
+                Some("core"),
+                false,
+            ),
+            (Outcome::OracleError, None, None, false),
+            (
+                Outcome::Disagree,
+                Some(Verdict::Success),
+                Some("core"),
+                false,
+            ),
+        ] {
+            let model = core_model(outcome, verdict, engine, fallback)?;
+            assert_ne!(core_run_findings(&[model]), []);
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn core_ratchet_accepts_native_results_frontend_errors_and_named_refusals() -> Result<()> {
+        for (outcome, verdict, engine) in [
+            (Outcome::Agree, Some(Verdict::Success), Some("core")),
+            (
+                Outcome::ExpectedDivergence,
+                Some(Verdict::Success),
+                Some("core"),
+            ),
+            (Outcome::Agree, Some(Verdict::ParseError), None),
+            (Outcome::Agree, Some(Verdict::SemanticError), None),
+            (Outcome::Agree, Some(Verdict::ConfigError), None),
+            (Outcome::Unsupported, None, None),
+        ] {
+            assert_eq!(
+                core_run_findings(&[core_model(outcome, verdict, engine, false)?]),
+                []
+            );
+        }
         Ok(())
     }
 
