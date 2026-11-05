@@ -19,7 +19,22 @@ Current source-bound findings and next steps: `m1-status.md`. Decision: ADR
 The realistic total is 6–8 months to replace the default engine. M0 shows,
 after two weeks, whether the design reaches TLC-relative speed.
 
-### Phase 7: native workflows and bounded candidate transport
+### Phase 8: current delivery and completed campaign findings
+
+The [Phase 8 checkpoint](../../../conformance/reports/core/2026-11-04-phase8-checkpoint.json)
+binds execution candidate `9aa2b8e2`, tree `134b2895`, and identical-tree main
+`877520fa` separately. The original campaign completes with preserved native-route
+losses and the unwaived #664 census difference; audit approves data integrity,
+not clean qualification. Original-result archival and qualification-worktree
+cleanup are complete. Separate correction `cfdcd05e` → main `3a6d9907` has focused
+checks only; original aggregate credit is unchanged and #781 remains open.
+See the [roadmap](../../ROADMAP.md#phase-8-owned-search-native-workflows-and-demand-correctness)
+for delivered scope and [next actions](m1-status.md#next-bounded-actions) for
+remaining work. Reference stays default; M1/M2, ADR 0119, full-tier/deep,
+platform/package and RC acceptance remain open. Development uses focused checks
+and required CI; broad qualification belongs to milestone/release boundaries.
+
+### Historical Phase 7: native workflows and bounded candidate transport
 
 Eight implementation PRs (#747/#748/#750/#752/#753/#755/#759/#762) are merged at
 `20ee7f75ac815cb2d983b96af6814dc2c4c4f30b`, tree

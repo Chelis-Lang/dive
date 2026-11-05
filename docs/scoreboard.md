@@ -1,6 +1,63 @@
 # Scoreboard
 
-## Phase 7: implementation and qualification boundary
+## Phase 8: implementation and qualification boundary
+
+Eight feature PRs (#765/#766/#767/#769/#773/#774/#775/#778) and the CI job-budget
+correction (#777) are merged. They add Product/Reference receiver-demand fixes,
+completed-level Core value reclamation, final Reference logical coverage,
+PlusCal emission ranges, actual authenticated native safety workers and
+compiled Core mapping/DAP sessions.
+These remain supported slices of partial families.
+
+The original campaign on `9aa2b8e2`, tree `134b2895`, completes **with findings**.
+Main `877520fa` has the same tree; it is not a separate execution. The full gate
+exits 0 in **55m32s**, with **3,330 passes / six configured skips / 207 doctests**
+and all 16 applicable steps passing. Both pinned small-corpus baselines have
+zero changes. CM1 shadow remains 57 agreements / six refusals; small shadow falls
+from 252/60 to **246 agreements / 66 refusals**. Exactly MCQuicksort,
+ReadersWriters and MCAlternatingBit change agree to refused at W1/W4.
+
+The retained census exits 1 after all **3,040 original IDs** complete. Its one
+status change is TLC LvPeriodic: time stop becomes a valid Core `Prop` lasso
+versus Reference's 1,000,001-state capture ceiling, retaining the unwaived #664
+finding. No agreeing row changes a required semantic field.
+
+| Profile | Census agree | Refused | Budget stop | Differ | Auto Core strict | Auto Core expected |
+|---|---:|---:|---:|---:|---:|---:|
+| default | 1,222 | 290 | 8 | 0 | 118 | 4 |
+| TLC | 1,195 | 318 | 6 | 1 | 122 | 0 |
+
+Both Auto panels exit 0: TLC has 150 agreements / six unsupported plus 458 SANY
+agreements; default has 144 agreements / seven expected differences / five
+unsupported. Their semantic results are unchanged, but the same three models
+now use Reference fallback in both profiles and earn no Core credit.
+All **5,770 native receipts** and **876 required words** are retained; no fresh
+postrun replay is claimed. The 35 additional fixtures remain outside the original
+selection. Independent audit approves data integrity only, not clean qualification
+or unchanged native support. The [Phase 8 record](../conformance/reports/core/2026-11-04-phase8-checkpoint.json)
+binds both verified original-result archives and completed qualification-worktree
+cleanup. Later correction #779, tested at `cfdcd05e` and merged as identical-tree
+`3a6d9907`, restores ReadersWriters and MCAlternatingBit in focused Core W1/W4
+checks only. Issue #780 is closed; MCQuicksort #781 remains refused. These focused
+checks do not update the original aggregate counts or waive #664. No historical
+counts below are measurements of the correction source. The current inventory remains
+**8 implemented / 30 partial / 0 missing**; Reference remains default.
+
+The bounded Sailfish body probe stops without a production candidate: 5,000
+distinct / 10,153 generated / depth 12, physical exit 5. Its 2.98% prospective
+repeated node work is before lookup and transient-result retention costs, not a
+speedup. No performance acceptance, cache or default change follows.
+
+Finished evidence snapshots are verified in S3 before cleanup. The finished
+worktree tranche removes 47,487,162,009 logical bytes; nominal allocated bytes
+are 47,874,768,896. Shared extents and concurrent qualification writes prevent
+claiming these totals as exclusive physical reclamation. After the original
+population/audit archive's 23,178 payload files are downloaded and verified,
+the closed qualification/population worktrees are cleaned normally, removing
+another 42,876,232,721 logical bytes. Source refs, raw evidence and frozen build
+copies remain preserved; this is storage housekeeping, not checker capacity.
+
+## Historical Phase 7: implementation and qualification boundary
 
 Eight implementation PRs are merged: #747/#748/#750/#752/#753/#755/#759/#762.
 Integrated source `20ee7f75`, tree `b6625ae5`, passes the November 4 replacement

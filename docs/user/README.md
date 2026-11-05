@@ -19,6 +19,8 @@ resource stop does not establish safety.
 | Sample executions | [Simulation](simulation.md) | Finite seeded sampling; never exhaustive proof |
 | Use iterative deepening | [DFID](dfid.md) | Bounded pure safety; inspect completion certificate |
 | Inspect native source work | [Checking](checking.md#native-source-work) | Opt-in Reference producer expression/generator counters at exact source locations; separate from TLC logical costs |
+| Inspect TLC logical costs | [Checking](checking.md#tlc-logical-coverage) | Final admitted Reference action-context costs; unproved cost paths refuse |
+| Debug compiled safety checking | [Debugging](debugging.md) | One actual local Core worker; source/exception stops, forward steps and bounded captured-scalar inspection |
 | Translate or edit algorithms | [PlusCal](pluscal.md) | Admitted C/P translation, checksummed in-memory editing or explicit module/cfg/backup publication; separate original-AST file operation |
 | Validate implementation traces | [Trace validation](traces.md) | Complete states, independent predicate replay |
 | Check temporal properties | [Temporal checking](temporal.md) | Bounded pure subset; ordinary dive profile uses deterministic level checks, TLC profile uses final checking; explicit final/short in both |

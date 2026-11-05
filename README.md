@@ -13,7 +13,7 @@ The standard is an **unimpeachably sound port**. Every result is verified contin
 > partial / 0 missing**; M1/M2, broad performance and RC acceptance remain open.
 > See [current status](docs/developer/core/m1-status.md), the
 > [roadmap](docs/ROADMAP.md) and the
-> [Phase 7 record](conformance/reports/core/2026-11-03-phase7-checkpoint.json).
+> [Phase 8 record](conformance/reports/core/2026-11-04-phase8-checkpoint.json).
 
 Compiled safety simulation and DFID are available with `--engine core` in both
 profiles, using one actual worker. `--engine auto` chooses a whole backend before
@@ -65,8 +65,15 @@ work at original source locations through one Reference worker. These counters
 are separate from TLC logical costs and model proof. Final `--coverage 0` and
 TLC `-coverage 0` additionally report admitted Reference logical action costs,
 including multiple scalar variables, helper reuse and lazy quantifier demand.
-Complete coverage, Core source maps and debugging remain unfinished. See
+Complete coverage remains unfinished. See
 [checking and coverage](docs/user/checking.md#tlc-logical-coverage).
+
+Native Core debugging supports source/exception breakpoints, forward steps and
+bounded scalar inspection through `dive debug` DAP clients and Rust sessions,
+using one actual local worker. Complete maps, PlusCal runtime composition,
+TLC debugger transport and broader mode combinations remain open. See
+[debugging](docs/user/debugging.md)
+and [current status](docs/developer/core/m1-status.md).
 
 Phase 7's eight implementation PRs are merged at `20ee7f75`, tree `b6625ae5`.
 The November 4 replacement passes the full gate (3,246 tests and 201 doctests);
@@ -83,7 +90,7 @@ The comparison-summary prototype remains unadopted after missing its performance
 screen; no code, flag, default change or rescue ships. See
 [ADR 0147](docs/decisions/0147-demanded-comparison-summaries.md).
 Remaining mandatory v1 work includes broader language/modes/effects, real
-coverage/Core source maps and full DAP, accepted Store/Arena and temporal
+coverage/maps/debugger parity, accepted discovery/trace and temporal
 paging/recovery, broader distributed safety/recovery, full PlusCal/public APIs and
 Linux/deep/performance/RC acceptance before the macOS final mile.
 
