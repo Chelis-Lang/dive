@@ -26,6 +26,16 @@ MODELS = (
 )
 
 
+def expected_ewd_refusal(model: str, status: int, report: dict) -> bool:
+    reasons = {
+        "graph capture with VIEW requires quotient edge and closing-state evidence",
+        "a recursive function used other than applied (M1 core)",
+    }
+    return (model == "ewd998/EWD998ChanID" and status == 3
+            and report.get("verdict") == "unsupported" and report.get("message") in reasons
+            and ("engine" not in report or report["engine"] in {"core", "reference"}))
+
+
 def main() -> int:
     root = Path(__file__).resolve().parent.parent
     parser = argparse.ArgumentParser(description=__doc__)
@@ -77,20 +87,15 @@ def main() -> int:
             str(binary), "check", source.name, "--output", "json", "--workers", "1",
             "--seed", "0", "--fp", "0", "--time-limit", "2m", "--max-memory", "2g",
         ])
-        # Existing Reference reports omit `engine`; Core and Auto fallback name it.
-        engine = report.get("engine", "reference")
-        if status == 0 and report.get("verdict") == "success" and engine in {"core", "reference"}:
+        # A successful report without `engine` is the legacy Reference path.
+        success_engine = report.get("engine", "reference")
+        if status == 0 and report.get("verdict") == "success" and success_engine in {"core", "reference"}:
             checked += 1
-            print(f"bare-use: {model}: success on {engine}", flush=True)
+            print(f"bare-use: {model}: success on {success_engine}", flush=True)
             continue
-        ewd_refusals = {
-            "reference": "graph capture with VIEW requires quotient edge and closing-state evidence",
-            "core": "a recursive function used other than applied (M1 core)",
-        }
-        if (model == "ewd998/EWD998ChanID" and status == 3
-                and engine in ewd_refusals and report.get("verdict") == "unsupported"
-                and report.get("message") == ewd_refusals.get(engine)):
+        if expected_ewd_refusal(model, status, report):
             refused += 1
+            engine = report.get("engine", "not-started")
             print(f"bare-use: {model}: named refusal on {engine}: {report['message']}", flush=True)
             continue
         sys.exit(f"bare-use: {model}: exit {status}, {report.get('verdict')}: "
