@@ -107,3 +107,89 @@ fn nested_raw_storage_cannot_normalize_an_oversized_grandchild()
     }
     Ok(())
 }
+
+#[test]
+fn finite_raw_cross_order_children_rebuild_keys_and_record_fields_exactly()
+-> Result<(), Box<dyn std::error::Error>> {
+    for (source, target) in [(Ctx::tlc(), Ctx::dive()), (Ctx::dive(), Ctx::tlc())] {
+        let names = Interner::new();
+        let z = names.intern("z");
+        let a = names.intern("a");
+        let raw = Value::set_raw(
+            vec![
+                Value::Str(z.clone()),
+                Value::Str(a.clone()),
+                Value::Str(z.clone()),
+            ],
+            source,
+        );
+        let record = Value::record(
+            vec![(z.clone(), raw.clone()), (a.clone(), Value::Int(9))],
+            source,
+        )?;
+        let function = Value::fcn(vec![(raw.clone(), record.clone())], source)?;
+        let original = Value::tuple(vec![raw.clone(), record, function]);
+        original.require_materialized(target)?;
+        assert!(!raw.as_set().ok_or("raw set")?.is_tlc_normalized());
+
+        let canonical =
+            Value::set_canonical(vec![Value::Str(a.clone()), Value::Str(z.clone())], target)?;
+        let expected_record =
+            Value::record(vec![(a, Value::Int(9)), (z, canonical.clone())], target)?;
+        let expected_function =
+            Value::fcn(vec![(canonical.clone(), expected_record.clone())], target)?;
+        let expected = Value::tuple(vec![canonical, expected_record, expected_function]);
+        let rebuilt = original.materialized_identity(target)?;
+        assert_eq!(rebuilt, expected);
+        assert_eq!(rebuilt.hash64(), expected.hash64());
+        let outer = Value::set_canonical(vec![original, expected], target)?;
+        assert_eq!(outer.as_set().ok_or("outer set")?.size(target)?, 1);
+        assert!(!raw.as_set().ok_or("raw set")?.is_tlc_normalized());
+    }
+    Ok(())
+}
+
+#[derive(Debug)]
+struct UnprovedProvider(std::sync::Arc<std::sync::atomic::AtomicUsize>);
+impl dive_value::DeferredSet for UnprovedProvider {
+    fn kind(&self) -> dive_value::DeferredKind {
+        self.0.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        dive_value::DeferredKind::Filter
+    }
+    fn elements(&self, _ctx: Ctx) -> dive_value::Result<Vec<Value>> {
+        self.0.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        Ok(vec![Value::Int(1)])
+    }
+    fn member(&self, _value: &Value, _ctx: Ctx) -> Option<dive_value::Result<bool>> {
+        self.0.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        Some(Ok(true))
+    }
+    fn key(&self) -> Vec<Value> {
+        self.0.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        Vec::new()
+    }
+    fn as_any(&self) -> Option<&dyn std::any::Any> {
+        self.0.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        Some(self)
+    }
+}
+
+#[test]
+fn finite_storage_inspection_refuses_hidden_symbolic_children_without_callbacks() {
+    for ctx in [Ctx::dive(), Ctx::tlc()] {
+        let calls = std::sync::Arc::new(std::sync::atomic::AtomicUsize::new(0));
+        let provider = Value::deferred(std::sync::Arc::new(UnprovedProvider(calls.clone())), ctx);
+        for symbolic in [
+            provider,
+            Value::seq_set(Value::nat(ctx), ctx),
+            Value::nat(ctx),
+        ] {
+            let value = Value::tuple(vec![Value::set_raw(vec![symbolic], ctx)]);
+            let before = calls.load(std::sync::atomic::Ordering::Relaxed);
+            assert!(
+                matches!(value.require_materialized(ctx), Err(error) if error.kind()==ErrorKind::Unsupported)
+            );
+            assert_eq!(calls.load(std::sync::atomic::Ordering::Relaxed), before);
+        }
+    }
+}

@@ -1371,7 +1371,10 @@ impl Value {
         })
     }
 
-    /// Requires a complete materialized value tree in the run's name order.
+    /// Requires a complete explicit finite value tree, including raw set storage.
+    ///
+    /// Stored name order need not match `ctx`; this inspection does not sort or
+    /// normalize values and never invokes a symbolic provider.
     ///
     /// Symbolic definitions are not mathematical inequality certificates.
     /// This checks singleton/nested sets and all function keys and values without
@@ -1384,7 +1387,7 @@ impl Value {
     /// ```
     ///
     /// # Errors
-    /// An unsupported symbolic/cross-order child, or temporary allocation failure.
+    /// An unsupported symbolic child, or temporary allocation failure.
     pub fn require_materialized(&self, ctx: Ctx) -> Result<()> {
         crate::construction::require_closed(self, ctx, &mut || true).map_err(|error| match error {
             crate::ConstructionError::Value(error) => error,

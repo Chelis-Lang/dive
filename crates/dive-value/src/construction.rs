@@ -140,6 +140,12 @@ fn explicit(s: &Set) -> Option<&[Value]> {
 /// Whether every node is explicit and uses this construction's name order.
 /// The walk itself is cooperative and never materializes a symbolic value.
 pub(crate) fn closed(value: &Value, ctx: Ctx, poll: &mut Poll<'_>) -> Result<bool> {
+    explicit_tree(value, ctx, poll, true)
+}
+
+/// Raw explicit storage has exact finite children even before normalization.
+/// The strict mode is retained for fingerprinting and controlled constructors.
+fn explicit_tree(value: &Value, ctx: Ctx, poll: &mut Poll<'_>, normalized: bool) -> Result<bool> {
     if !matches!(value, Value::Set(_) | Value::Fcn(_)) {
         checkpoint(poll)?;
         return Ok(true);
@@ -151,17 +157,22 @@ pub(crate) fn closed(value: &Value, ctx: Ctx, poll: &mut Poll<'_>) -> Result<boo
         checkpoint(poll)?;
         match value {
             Value::Set(set) => {
-                let Some(elements) = explicit(set) else {
+                let elements = match set.repr() {
+                    SetRepr::Enum => set.stored_elements(),
+                    SetRepr::Raw(elements) if !normalized => Some(elements.as_ref()),
+                    _ => None,
+                };
+                let Some(elements) = elements else {
                     return Ok(false);
                 };
-                if set.order() != ctx.order {
+                if normalized && set.order() != ctx.order {
                     return Ok(false);
                 }
                 reserve(&mut work, elements.len(), poll)?;
                 work.extend(elements.iter());
             }
             Value::Fcn(f) => {
-                if !matches!(f.0.repr, FcnRepr::Tuple(_)) && f.order() != ctx.order {
+                if normalized && !matches!(f.0.repr, FcnRepr::Tuple(_)) && f.order() != ctx.order {
                     return Ok(false);
                 }
                 reserve(&mut work, f.len().saturating_mul(2), poll)?;
@@ -450,8 +461,10 @@ pub(crate) fn materialized_identity(
             let mut out = Vec::new();
             reserve(&mut out, function.len(), poll)?;
             for (key, value) in function.iter() {
-                require_closed(&key, ctx, poll)?;
-                out.push((key, materialized_identity(value, ctx, poll, depth + 1)?));
+                out.push((
+                    materialized_identity(&key, ctx, poll, depth + 1)?,
+                    materialized_identity(value, ctx, poll, depth + 1)?,
+                ));
             }
             Ok(match &function.0.repr {
                 FcnRepr::Tuple(_) if function.is_tuple_literal() => {
@@ -461,11 +474,14 @@ pub(crate) fn materialized_identity(
                     Value::tuple_fcn(out.into_iter().map(|(_, value)| value).collect())
                 }
                 FcnRepr::Record(fields) => Value::Fcn(Fcn::record(
-                    fields
-                        .iter()
-                        .zip(out)
-                        .map(|((name, _), (_, value))| (name.clone(), value))
-                        .collect(),
+                    crate::value::sort_fields(
+                        fields
+                            .iter()
+                            .zip(out)
+                            .map(|((name, _), (_, value))| (name.clone(), value))
+                            .collect(),
+                        ctx.order,
+                    )?,
                     ctx.order,
                     function.is_record_literal(),
                 )),
@@ -484,7 +500,7 @@ fn not_materialized() -> ConstructionError {
 }
 
 pub(crate) fn require_closed(value: &Value, ctx: Ctx, poll: &mut Poll<'_>) -> Result<()> {
-    if closed(value, ctx, poll)? {
+    if explicit_tree(value, ctx, poll, false)? {
         Ok(())
     } else {
         Err(not_materialized())
