@@ -22,14 +22,20 @@ row rather than adding prose. History is in git and in the reports under
 |---|---|---|---:|---:|---:|---:|---:|---|
 | Small (156 models) | TLC | Reference | 150 | 0 | 6 | 0 | 0 | 2026-10-23 (`conformance/baselines/small-tlc-w1.json`) |
 | Small (156 models) | default | Reference | 144 | 7 | 5 | 0 | 0 | 2026-10-23 (`conformance/baselines/small-dive-w1.json`) |
+| Small (156 models) | default | Core alone | 122 | 4 | 30 | 0 | 0 | 2026-11-05 (`conformance/baselines/small-core-dive-w1.json`); no fallback or pending trace validation |
 | Small (156 models) | TLC | Auto | 150 | 0 | 6 | 0 | 0 | 2026-11-04; 122 ran on Core, the rest fell back to Reference |
 | Small (156 models) | default | Auto | 144 | 7 | 5 | 0 | 0 | 2026-11-04; 118 strict + 4 expected on Core, the rest fell back |
-| Small shadow (312 rows) | default | Core vs Reference | 246 | — | 66 | — | 0 | 2026-11-04 |
-| CM1 shadow (63 rows) | default | Core vs Reference | 57 | — | 6 | — | 0 | 2026-11-04 |
-| Full Examples (217 models) | TLC | Reference | 182 | 0 | 16 | 10 | 0 | 2026-10-26 (`conformance/baselines/full-tlc-w1.json`, #486); 9 have no golden |
+| Full, four corpora (217 in-scope models) | TLC | Reference | 182 | 0 | 16 | 10 | 0 | 2026-10-26 (`conformance/baselines/full-tlc-w1.json`, #486); 9 have no golden |
 | Full Examples | default | any | — | — | — | — | — | never measured |
 | Full Examples | any | Core alone | — | — | — | — | — | never measured |
 | SANY front end | — | — | 458/458 | — | — | — | 0 | 2026-11-04 |
+
+The small population comprises 140 Examples models, 14 probes and two configured
+temporal models. The historical full population adds 16 validation-smoke models
+and includes 233 Examples rows: 151 agreements, 15 refusals, 10 stops, nine
+missing goldens and 48 exclusions. The quoted 182 agreements therefore span
+four corpora; they are not an Examples-only count. R1 compares identical
+selections on the same source.
 
 Core speed: about 2.6x TLC (geomean, default profile, 10-model panel, 2026-10-28).
 A one-repeat breadth measurement gave 1.48x. The Reference engine runs at about

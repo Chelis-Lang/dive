@@ -763,7 +763,7 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
     let Some(base) = baseline else {
         return Ok(findings);
     };
-    let diff = dive_conformance::baseline::compare(&base, &Baseline::from_report(&report))?;
+    let diff = dive_conformance::baseline::compare_report(&base, &report)?;
     let rendered = diff.render(&base.source_run_id);
     if diff.regressions.is_empty() {
         out(&rendered);
