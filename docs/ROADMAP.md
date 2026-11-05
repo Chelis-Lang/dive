@@ -10,7 +10,57 @@ The charter's soundness contract applies throughout.
 The [scoreboard](scoreboard.md) records the latest corpus results and the
 roadmap feature checklist. Parity means observable results (ADR 0086).
 
-## Phase 7: native workflows and bounded candidate transport
+## Phase 8: owned search, native workflows and demand correctness
+
+Product/Reference demand repairs (#765/#775/#778), completed-level Store
+reclamation (#766), final Reference logical coverage (#767), PlusCal emission
+maps (#769), authenticated native safety workers (#773) and native Core
+mapping/DAP (#774) are merged. The Workspace job-budget correction (#777)
+retains every required check.
+
+The original integrated campaign completes **with findings** on `9aa2b8e2`, tree
+`134b2895`. Main `877520fa` has the identical tree; execution remains attributed
+to `9aa2b8e2`. The full gate exits 0 in 55m32s with 3,330 tests, six configured
+skips and 207 doctests. Both pinned small-corpus panels and Auto semantic results
+remain unchanged, but three models lose native support: MCQuicksort,
+ReadersWriters and MCAlternatingBit fall back to Reference in both Auto profiles
+and refuse in the small shadow at W1/W4. Actual Core strict Auto credit falls to
+122 TLC / 118 default, with four separately counted default expected differences.
+
+The complete retained census exits 1. Its only status change is TLC LvPeriodic,
+from time stop to a valid Core `Prop` lasso versus Reference's capture-state
+ceiling; the existing #664 difference is unwaived. Independent audit approves
+data integrity, **not clean qualification or unchanged native support**. The
+[Phase 8 record](../conformance/reports/core/2026-11-04-phase8-checkpoint.json)
+preserves these negative observations and exact populations. Both original-result
+archives are downloaded and member-verified before the completed qualification
+and population worktrees are cleaned normally.
+
+The separate receiver correction #779 merges as `3a6d9907`, with the exact tree
+of reviewed/tested `cfdcd05e`. Focused original checks restore ReadersWriters and
+MCAlternatingBit on Core at actual W1/W4; they do not change the original campaign
+or earn new aggregate credit. Issue #780 is closed. The first correction
+`00adce45` remains rejected for false Seq finiteness results. Original MCQuicksort
+still refuses: [#781](https://github.com/Chelis-Lang/dive/issues/781) requires proved
+mapped raw-set construction/normalization authority. Keep the independent #664
+census difference separate. Historical full-tier, PlusCal and original-capacity
+campaigns were not repeated. Reference remains default; M1/M2, global performance
+and RC acceptance remain open.
+
+The bounded Sailfish body-reuse probe produced no production cache candidate.
+Although `Children` accounted for 31.6% of instrumented node work, its bounded
+Memo-policy shadow exposed only 2.98% whole-work prospective repeats before
+lookup/result-retention cost. The dominant site had no hits in its first 4,096
+lookups. This stopped prefix is neither a timing result nor a whole-model verdict.
+No cache, flag, default change or rescue ships; broader S5/S6 work remains open.
+
+Continue the [mandatory scope](#through-full-tlc-parity) through broader native
+semantics and modes/effects; recoverable discovery/trace/temporal storage and
+durable distributed recovery; complete coverage/maps/debugging, PlusCal and Rust
+workflows; and measured ADR 0119, deep/platform/package/RC acceptance. These
+increments make useful features available without closing their full families.
+
+## Historical Phase 7: native workflows and bounded candidate transport
 
 PlusCal publication (#747), native Graphs/UndirectedGraphs (#748/#759), owned
 candidate payload spill (#750), the independent Rust consumer (#752), finite

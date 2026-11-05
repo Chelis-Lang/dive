@@ -1,8 +1,48 @@
-# M1 acceptance status (2026-11-04)
+# M1 acceptance status (2026-11-05)
 
 M1 has broad implementation across the main workstreams, but **acceptance remains open**.
 The default engine remains `reference`. Use `10-plan.md` for the milestone
 contract and this page for current evidence and the next bounded steps.
+
+### Phase 8: current delivery and completed campaign findings
+
+Merged #765/#775/#778 preserve bounded Product receivers, conversion/error demand
+and Reference finiteness token order. #766 reclaims expanded Core safety values
+at completed levels without claiming a hard memory cap. #767 adds actual final
+Reference logical costs; #769 records PlusCal ranges at emission; #773 runs
+authenticated native pure-safety workers with ordered commit and complete-unit
+retry. Merged #774 adds independently reviewed executable Core maps and
+producer-only DAP/Rust sessions.
+
+The original integrated gate, retained census and both Auto panels complete on
+`9aa2b8e234f5d558ae4e1ded20b8bc57dfb2e292`, tree
+`134b2895fbc32d66e653182baaf5c7508df497a5`. Main `877520fa` has the identical
+tree; this is a separately recorded bridge, not a new execution. The full gate
+passes, but small shadow loses three models at W1/W4 and both Auto profiles move
+their routes to Reference fallback. Census exits 1 for the existing unwaived
+LvPeriodic #664 capacity difference. No agreeing semantic row regresses; no
+unchanged native support or clean qualification is accepted. Independent audit
+approves data integrity only. The [Phase 8 checkpoint](../../../conformance/reports/core/2026-11-04-phase8-checkpoint.json)
+records the counts, receipts and required words. Both original-result archives
+are verified; completed qualification/population worktrees and targets are cleaned.
+
+Separate correction #779 is tested at `cfdcd05e` and merged as identical-tree
+`3a6d9907`, closing #780. Focused original Core W1/W4 checks restore ReadersWriters
+and MCAlternatingBit; Quicksort #781 remains refused. No original aggregate or
+qualification credit is refreshed, and #664 remains unwaived. The rejected
+`00adce45` finiteness candidate and its review remain part of the evidence.
+The historical Phase 7 measurements below are unchanged. No full-tier, deep,
+original-capacity, formal-performance or RC qualification is refreshed here.
+
+The single bounded Sailfish body probe yielded no production cache candidate:
+prospective repeats were 2.98% of instrumented whole-work node evaluations before
+lookup/retention costs, and all observed `Children` results were transient. The
+dominant site had zero hits in its first 4,096 lookups. This negative stopped-prefix
+diagnostic does not reject broader S5/S6 work or justify reviving stopped variants.
+
+Current scope remains **8 implemented / 30 partial / 0 missing** families.
+Continue the [next bounded actions](#next-bounded-actions); completed slices do
+not close their broader contracts or promote Core to the default.
 
 Explicit native pure-safety distribution now uses independently initialized
 authenticated CLI/Rust worker processes, the existing ordered expansion/commit
@@ -905,16 +945,21 @@ below keep their original source and limitations.
 1. Extend bounded Reference random-source replay and granted startup inputs to
    general randomization, remaining captured effects, runtime host services,
    introspection/output and operators/configuration
-   and temporal-language/receiver/source breadth. Keep #664's LvPeriodic
+   and temporal-language/receiver/source breadth. Restore original MCQuicksort
+   under [#781](https://github.com/Chelis-Lang/dive/issues/781) after proving mapped
+   raw-set constructor and normalization history; its pinned success is 4,548
+   distinct / 11,223 generated / depth 9. Keep #664's separate LvPeriodic
    asymmetry, #697's Unclassified shared-255 streams and broader #623/#680/#502
    obligations explicit. The bounded GenError proof closes no broader lifetime.
-2. Extend owned candidate/frontier/disk and safety recovery to accepted Store/
-   Arena, trace and temporal graph/SCC paging, temporal recovery and complete
-   accounting. Build retry-safe native distribution
+2. Extend owned candidate/frontier/disk, completed-level Store reclamation and
+   safety recovery to accepted discovery/Arena, trace and temporal graph/SCC
+   paging, temporal recovery and complete accounting. Extend authenticated native
+   safety workers to durable coordinator/epoch recovery and supported combinations
    on the identity-checked recovery contract; Java worker/checkpoint
    interoperability remains excluded.
 3. Finish simulation/DFID matrices and justified worker/scheduler options,
-   complete TLC coverage/Core source maps/full DAP, complete PlusCal and public
+   complete the remaining TLC costs, Core/PlusCal runtime maps and DAP beyond
+   the delivered Reference costs/native Core debugging slices; complete PlusCal and public
    checking/simulation/translation/
    checkpoint/distributed APIs with cargo-test integration. #111/#118/#128/#239
    and #350's separately measured ≤1% instruction-overhead criterion remain open.
@@ -932,8 +977,9 @@ below keep their original source and limitations.
    **8 implemented / 30 partial / 0 missing**; bounded delivery does not complete
    a whole family.
 
-Use focused development checks and required CI while implementing. Phase 7's
-source-bound gate/census/Auto qualification is recorded above; do not rerun the
+Use focused development checks and required CI while implementing. The current
+Phase 8 campaign is complete with findings; its later correction has only focused
+source-bound checks. Retain both and Phase 7's historical results. Do not rerun the
 Phase 5 PlusCal/full-tier populations or
 original capacity for documentation closeout. Preserve historical source identities,
 refusals, stops, expected divergences and independently unconfirmed words.

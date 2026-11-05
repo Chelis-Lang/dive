@@ -1,0 +1,796 @@
+{
+  "schema_version": 1,
+  "phase": 8,
+  "state": "completed-with-findings-and-separate-source-qualified-correction",
+  "release_candidate": false,
+  "reference_default": true,
+  "global_performance_accepted": false,
+  "total_process_memory_bound": false,
+  "implementation_and_ci_prs": [
+    {
+      "pr": 765,
+      "scope": "Product receiver, demanded conversion and finiteness repairs",
+      "state": "merged",
+      "merge_source": "3db919a95749fccf8aefeee314c0cfec01abdf44"
+    },
+    {
+      "pr": 766,
+      "scope": "completed-level owned Core safety Store reclamation",
+      "state": "merged",
+      "merge_source": "e26f306095c2cca737b7d6329d9f43e69d10b547"
+    },
+    {
+      "pr": 767,
+      "scope": "final admitted Reference TLC logical cost forests",
+      "state": "merged",
+      "merge_source": "4f13558913d56b218363cd1d9b6e307139dfcc69"
+    },
+    {
+      "pr": 769,
+      "scope": "PlusCal source ranges recorded during emission",
+      "state": "merged",
+      "merge_source": "66483059ad696127224af4962db1e55b96bb4710"
+    },
+    {
+      "pr": 773,
+      "scope": "actual authenticated native pure-safety workers",
+      "state": "merged",
+      "merge_source": "56bd5894c502b1b2ceb21544df6edbac1677ec47"
+    },
+    {
+      "pr": 774,
+      "scope": "compiled Core source maps and producer-only DAP/Rust sessions",
+      "state": "merged",
+      "merge_source": "877520fadec4dc7115370d61e50344463c634e66"
+    },
+    {
+      "pr": 775,
+      "scope": "Reference set conversion and diagnostic demand",
+      "state": "merged",
+      "merge_source": "9a0c5264da62a3d46f0e8c28d2c426717d3746b2"
+    },
+    {
+      "pr": 777,
+      "scope": "measured Workspace job cap, unchanged checks and test deadlines",
+      "state": "merged",
+      "merge_source": "5c7716e3996d1f6f0812bbe12aec449c3347af3e"
+    },
+    {
+      "pr": 778,
+      "scope": "Reference nested finiteness and actual name-token demand order",
+      "state": "merged",
+      "merge_source": "3e8c34394b8ae0cb3f99713ddb0c8a75549e5625"
+    }
+  ],
+  "family_inventory": {
+    "implemented": 8,
+    "partial": 30,
+    "missing": 0,
+    "meaning": "supported-corpus status, not full-family parity or a completion percentage"
+  },
+  "qualification_candidate": {
+    "source": "9aa2b8e234f5d558ae4e1ded20b8bc57dfb2e292",
+    "tree": "134b2895fbc32d66e653182baaf5c7508df497a5",
+    "main_before_debugger": "56bd5894c502b1b2ceb21544df6edbac1677ec47",
+    "source_review_sha256": "bc3f8e84b00c1a0b780cc5031779edaca668ea092a2c52f0c879b05c7787421d",
+    "runner_review_sha256": "f08e2f3badc318193e341f39a942d6a20151067a0eeba789c79333b9712cae38",
+    "binding_sha256": "8a277dd47326fa7a17fa2b9dfa1bfa0f7d9fe8d7f36392d01c71f4ceb2af2c1b",
+    "population_plan_sha256": "45ef8a1b39eedb3b4b176994a3124897cd441b797fd5ab22c92f8cac8d543d1b",
+    "main_tree_bridge": {
+      "state": "verified-exact-tree",
+      "merged_source": "877520fadec4dc7115370d61e50344463c634e66",
+      "tree": "134b2895fbc32d66e653182baaf5c7508df497a5",
+      "candidate_and_main_tree_equal": true,
+      "clean_merge_preflight_equal": true,
+      "all_three_required_checks_passed": true,
+      "ci_run": 41931671906,
+      "merged_at": "2026-11-04T23:38:12Z",
+      "bridge_receipt_sha256": "1a86dedf72126a967aa853b9c36e2ab9e3ce139af5074530382f081f250f80f1",
+      "candidate_execution_relabelled": false
+    },
+    "main_push_ci": {
+      "source": "877520fadec4dc7115370d61e50344463c634e66",
+      "run": 41935283715,
+      "conclusion": "success",
+      "all_three_required_checks_passed": true,
+      "receipt_sha256": "b415b6c406bc1bb1cf79223fcc85666e1b499cf9773f447b81b210e84f976b10"
+    }
+  },
+  "builds": {
+    "gate": {
+      "source_before": "9aa2b8e234f5d558ae4e1ded20b8bc57dfb2e292",
+      "source_after": "9aa2b8e234f5d558ae4e1ded20b8bc57dfb2e292",
+      "tree_before": "134b2895fbc32d66e653182baaf5c7508df497a5",
+      "tree_after": "134b2895fbc32d66e653182baaf5c7508df497a5",
+      "commands": [
+        {
+          "argv": [
+            "cargo",
+            "build",
+            "--release",
+            "--locked",
+            "-p",
+            "dive-cli",
+            "-p",
+            "dive-conformance",
+            "-p",
+            "xtask"
+          ],
+          "physical_exit": 0
+        }
+      ],
+      "build_receipt_sha256": "8b3b8cc7a6ee0715d4949cca6b00133c0d66f31a1d773b7dc4957fe9542a113a",
+      "binaries": {
+        "dive": {
+          "relative_path": "target/release/dive",
+          "sha256": "4cd6c80068d94764b8949221b6f1e7c9af0f1d6a463524635bd605e9e2f78108"
+        },
+        "dive-conformance": {
+          "relative_path": "target/release/dive-conformance",
+          "sha256": "f8a5fb011d1b15980b1a158232f49b0249338ab1b1d4b0f5025010ddfcb01519"
+        },
+        "xtask": {
+          "relative_path": "target/release/xtask",
+          "sha256": "5dd96cbae4efbdf0c98e809c6f12806bb4b79209165c5dc73563aa83ede18691"
+        }
+      }
+    },
+    "population": {
+      "source_before": "9aa2b8e234f5d558ae4e1ded20b8bc57dfb2e292",
+      "source_after": "9aa2b8e234f5d558ae4e1ded20b8bc57dfb2e292",
+      "tree_before": "134b2895fbc32d66e653182baaf5c7508df497a5",
+      "tree_after": "134b2895fbc32d66e653182baaf5c7508df497a5",
+      "commands": [
+        {
+          "argv": [
+            "cargo",
+            "build",
+            "--release",
+            "--locked",
+            "-p",
+            "dive-cli",
+            "-p",
+            "dive-conformance",
+            "-p",
+            "xtask"
+          ],
+          "physical_exit": 0
+        }
+      ],
+      "build_receipt_sha256": "38e603a4439a46e4ed9ddda8c78e99c05c45ee6f22708bd910cdefb2d90beb15",
+      "binaries": {
+        "dive": {
+          "relative_path": "target/release/dive",
+          "sha256": "5334cf6d32f3ed9b52a72cf623d7753797e03ec2c0d4bd67730ac09d266466eb"
+        },
+        "dive-conformance": {
+          "relative_path": "target/release/dive-conformance",
+          "sha256": "0230e3c37b086cd5536de5000423a57de51ce5e5f5cf82e620c7ef900d83551a"
+        },
+        "xtask": {
+          "relative_path": "target/release/xtask",
+          "sha256": "33cab92c6c6c94b385a70ef5b0cbce4aa453e1880ce40ee81b6346c973794d16"
+        }
+      }
+    }
+  },
+  "qualification": {
+    "policy": "one integrated gate, unchanged retained census and fixed Auto profiles; stages serial; failures preserved; no automatic retries",
+    "full_gate": {
+      "state": "complete-pass-with-support-findings-retained",
+      "physical_exit": 0,
+      "report_duration": "55m32s",
+      "outer_elapsed_seconds": 3334.2699825763702,
+      "report_sha256": "d4583f82897fdd701ff1887fe9239b9f77893ce12ba6e29bbab62f41ff4f32ff",
+      "report_bytes": 1669,
+      "nextest_passed": 3330,
+      "nextest_skipped": 6,
+      "doctests_passed": 207,
+      "applicable_steps": 16,
+      "cargo_deny": "skipped because Cargo.lock and deny.toml are unchanged relative to the candidate parent",
+      "actual_debug_xtask_sha256": "dec06f65ab1e6ddb630e2ef13285d662412d27d3028e21f7f1da378351c23195",
+      "pinned_small_baseline_changes": {
+        "tlc": 0,
+        "default": 0
+      },
+      "cm1_shadow": {
+        "agree": 57,
+        "refused": 6,
+        "prior_agree": 57,
+        "prior_refused": 6
+      },
+      "small_shadow": {
+        "agree": 246,
+        "refused": 66,
+        "prior_agree": 252,
+        "prior_refused": 60,
+        "progress_rows_joined": 312,
+        "progress_status_deltas": [
+          {
+            "model": "specifications/LoopInvariance/MCQuicksort.cfg",
+            "workers": 1,
+            "prior": {
+              "status": "agree",
+              "progress_index": 54
+            },
+            "actual": {
+              "status": "refused",
+              "progress_index": 54
+            },
+            "recorded_refusal_detail": null
+          },
+          {
+            "model": "specifications/LoopInvariance/MCQuicksort.cfg",
+            "workers": 4,
+            "prior": {
+              "status": "agree",
+              "progress_index": 60
+            },
+            "actual": {
+              "status": "refused",
+              "progress_index": 55
+            },
+            "recorded_refusal_detail": null
+          },
+          {
+            "model": "specifications/ReadersWriters/MC.cfg",
+            "workers": 1,
+            "prior": {
+              "status": "agree",
+              "progress_index": 106
+            },
+            "actual": {
+              "status": "refused",
+              "progress_index": 106
+            },
+            "recorded_refusal_detail": null
+          },
+          {
+            "model": "specifications/ReadersWriters/MC.cfg",
+            "workers": 4,
+            "prior": {
+              "status": "agree",
+              "progress_index": 107
+            },
+            "actual": {
+              "status": "refused",
+              "progress_index": 107
+            },
+            "recorded_refusal_detail": null
+          },
+          {
+            "model": "specifications/SpecifyingSystems/TLC/MCAlternatingBit.cfg",
+            "workers": 1,
+            "prior": {
+              "status": "agree",
+              "progress_index": 161
+            },
+            "actual": {
+              "status": "refused",
+              "progress_index": 161
+            },
+            "recorded_refusal_detail": null
+          },
+          {
+            "model": "specifications/SpecifyingSystems/TLC/MCAlternatingBit.cfg",
+            "workers": 4,
+            "prior": {
+              "status": "agree",
+              "progress_index": 162
+            },
+            "actual": {
+              "status": "refused",
+              "progress_index": 162
+            },
+            "recorded_refusal_detail": null
+          }
+        ],
+        "per_id_raw_and_word_rows_retained": false
+      },
+      "preservation_scope": "ordinary gate progress/summaries and available report/corpus; internal model scratch deleted by existing gate scripts"
+    },
+    "retained_census": {
+      "state": "complete-with-unwaived-finding",
+      "selected_per_profile": 1520,
+      "parser_exclusions": 99,
+      "ambiguous_skips": 18,
+      "retained_input_files": 9561,
+      "physical_exit": 1,
+      "joined_ids": 3040,
+      "profile_outcomes": {
+        "default": {
+          "statuses": {
+            "agree": 1222,
+            "refused": 290,
+            "timeout": 8
+          },
+          "harness_exit": 0,
+          "actual_reported_core_agreements": 1201,
+          "agree_without_engine": 21
+        },
+        "tlc": {
+          "statuses": {
+            "agree": 1195,
+            "refused": 318,
+            "timeout": 6,
+            "differ": 1
+          },
+          "harness_exit": 1,
+          "actual_reported_core_agreements": 1174,
+          "agree_without_engine": 21
+        }
+      },
+      "required_result_field_changes": {
+        "agreeing_raw_semantic_deltas": [],
+        "canonical_per_id_deltas": [
+          {
+            "profile": "tlc",
+            "id": [
+              "fixture-shadow",
+              "specifications/dive-liveness/tlc-probes/specs/LvPeriodic/LvPeriodic.cfg",
+              1
+            ],
+            "fields": {
+              "status": {
+                "prior": "timeout",
+                "actual": "differ"
+              },
+              "verdict": {
+                "prior": "timeout",
+                "actual": "liveness-violation"
+              }
+            }
+          }
+        ]
+      },
+      "actual_native_attempts": 5458,
+      "raw_and_required_word_retention": {
+        "raw_streams_and_physical_receipts_complete": true,
+        "required_words": 837,
+        "fresh_postrun_replay": false
+      },
+      "fresh_pinned_tlc_parity_claimed": false,
+      "complete_native_exit_receipts": 5458,
+      "finding": {
+        "issue": 664,
+        "waived": false,
+        "profile": "tlc",
+        "model": "specifications/dive-liveness/tlc-probes/specs/LvPeriodic/LvPeriodic.cfg",
+        "prior_status": "timeout",
+        "current_status": "differ",
+        "core_result": "actual valid three-state Prop lasso",
+        "core_distinct": 2253003,
+        "core_generated": 4503005,
+        "core_depth": 3001,
+        "reference_result": "1,000,001-state graph capture ceiling",
+        "agreement_credit": false,
+        "new_unsoundness_inferred": false
+      }
+    },
+    "auto_tlc": {
+      "state": "complete-semantic-baseline-pass-with-native-route-loss",
+      "model_selection": 156,
+      "sany_selection": 458,
+      "physical_exit": 0,
+      "outcomes": {
+        "agree": 150,
+        "unsupported": 6
+      },
+      "actual_core_credit": {
+        "strict-agreement": 122
+      },
+      "raw_and_canonical_engine_routes": {
+        "raw_header_engines": {
+          "core": 122,
+          "reference": 32,
+          "none": 2
+        },
+        "canonical_routes": {
+          "core": 122,
+          "static-fallback": 20,
+          "none": 8,
+          "dynamic-fallback": 6
+        }
+      },
+      "module_outcomes": {
+        "agree": 458
+      },
+      "model_semantic_deltas": [],
+      "raw_required_semantic_deltas": [],
+      "native_support_losses": [
+        "specifications/LoopInvariance/MCQuicksort.cfg",
+        "specifications/ReadersWriters/MC.cfg",
+        "specifications/SpecifyingSystems/TLC/MCAlternatingBit.cfg"
+      ],
+      "other_route_observation": "MCPaxos remains Reference; its fallback reason changes only",
+      "raw_attempts": 156,
+      "complete_native_exit_receipts": 156,
+      "required_words": 20
+    },
+    "auto_default": {
+      "state": "complete-semantic-baseline-pass-with-native-route-loss",
+      "model_selection": 156,
+      "sany_selection": 0,
+      "physical_exit": 0,
+      "outcomes": {
+        "agree": 144,
+        "expected-divergence": 7,
+        "unsupported": 5
+      },
+      "actual_core_credit": {
+        "strict-agreement": 118,
+        "expected-divergence": 4
+      },
+      "raw_and_canonical_engine_routes": {
+        "raw_header_engines": {
+          "reference": 32,
+          "core": 122,
+          "none": 2
+        },
+        "canonical_routes": {
+          "core": 122,
+          "static-fallback": 21,
+          "none": 7,
+          "dynamic-fallback": 6
+        }
+      },
+      "module_outcomes": {},
+      "model_semantic_deltas": [],
+      "raw_required_semantic_deltas": [],
+      "native_support_losses": [
+        "specifications/LoopInvariance/MCQuicksort.cfg",
+        "specifications/ReadersWriters/MC.cfg",
+        "specifications/SpecifyingSystems/TLC/MCAlternatingBit.cfg"
+      ],
+      "other_route_observation": "MCPaxos remains Reference; its fallback reason changes only",
+      "raw_attempts": 156,
+      "complete_native_exit_receipts": 156,
+      "required_words": 19
+    },
+    "new_fixtures_outside_retained_selection": {
+      "state": "derived-from-final-fixed-preparation",
+      "count": 35,
+      "executed_in_retained_selection": false
+    },
+    "independent_data_audit": {
+      "state": "approve-data-integrity-only",
+      "sha256": "1eef836967e4cc2808c7d56c43f9470ae0720507223033c5658fbcfefbf4b5fc",
+      "scope": "Approve the integrity, preservation and independent accounting of complete source-bound qualification data, including valid negative observations. Clean qualification and unchanged native support are not approved.",
+      "clean_qualification_approved": false,
+      "blocking_data_integrity_findings": 0,
+      "root_bound_files_verified": 23,
+      "root_data_disposition_sha256": "d5cda226ba12baebfae2c150824c5393dd5e81e4cbdf27224fe32d3ef8f01918",
+      "findings": [
+        {
+          "id": "P8-DATA-001",
+          "severity": "medium",
+          "finding": "Three original Core-supported small-tier models now complete through dynamic Reference fallback in both Auto profiles: MCQuicksort, ReadersWriters and MCAlternatingBit. Their verdicts, deciding fields and counts remain unchanged. Actual Core strict credit falls from 125 to 122 TLC and 121 to 118 default; default retains four separately counted expected differences. The gate progress independently shows those same three IDs lose agreement at both W1/W4: small shadow 252/60 becomes 246/66 agree/refused. MCPaxos remains Reference and only its fallback reason changes.",
+          "evidence": [
+            "population-closeout.json",
+            "auto-tlc-audit.json",
+            "auto-dive-audit.json",
+            "gate-stream-accounting.json"
+          ],
+          "blocks": [
+            "An unchanged native support claim",
+            "Core credit for these six original Auto checks"
+          ],
+          "waived": false,
+          "later_correction_credit": false
+        },
+        {
+          "id": "P8-DATA-002",
+          "severity": "medium",
+          "finding": "The complete retained census physically exits 1. Exactly one original TLC row, LvPeriodic, changes timeout to differ: current Core reports the actual three-state Prop lasso with the same 2,253,003 distinct / 4,503,005 generated / depth 3,001 prefix that previously timed out; Reference reaches its 1,000,001-state graph-capture ceiling. The open issue 664 contract identifies this known capacity asymmetry as an unwaived difference. No original agreeing row loses its status or required result fields.",
+          "evidence": [
+            "census-audit.json",
+            "census-finding-detail.json",
+            "issue-664.json"
+          ],
+          "blocks": [
+            "Clean census acceptance",
+            "Agreement or pinned-TLC parity credit for LvPeriodic"
+          ],
+          "waived": false,
+          "new_unsoundness_inferred": false
+        }
+      ]
+    },
+    "final_results_archive": {
+      "state": "uploaded-downloaded-payload-verified",
+      "scope": "closed original9aa2 population/audit results; full-gate archive recorded separately",
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "phase8-20261104/final-populations-9aa2b8e2-valid-negative-20261105T005604Z-22e46362.tar.gz",
+      "sha256": "7973d13137b1ba4c0b3e3743518a4147317e5e5112ceecf8f9cf888a8d343d88",
+      "bytes": 63220370,
+      "verified_payload_files": 23178,
+      "download_member_verification": true,
+      "raw_receipt_quartets": {
+        "invocation.json": 5770,
+        "stdout": 5770,
+        "stderr": 5770,
+        "exit.json": 5770
+      },
+      "required_word_payloads": 876,
+      "archive_manifest_sha256": "aa27e20d3fc65f406056758551d80deb837d6ab75fd4cb615e98c632a1a06fd4",
+      "selection_manifest_sha256": "5d8380bd208fd03fb4e7f6ceca136887add76e964558f3be5b3bb785cd6974fa",
+      "archive_receipt_sha256": "45038178cbc0f381af250025a3f16c2ec132c59c91c9ae00ed8149638f41ce1f",
+      "archive_proof_sha256": "d4e2eb0845b5b4c9ab3ca7c3766ab2f7981212a6099d1d0610a107f60be8e322",
+      "clean_qualification_approved": false
+    },
+    "campaign_disposition": "complete-valid-negative-data; not clean qualification",
+    "clean_qualification_approved": false,
+    "operations_ledger_sha256": "7063c08964f63f89cd7fc844dc0d1e8037dd2638492b9af41aaf3f52e8b81c43",
+    "physical_stage_exits": {
+      "full-gate": 0,
+      "census": 1,
+      "auto-tlc": 0,
+      "auto-dive": 0
+    },
+    "preservation_summary": {
+      "complete_native_receipts": 5770,
+      "logical_native_argvs_joined": 5769,
+      "logical_argv_deltas": 0,
+      "new_physical_attempt_explained": "additional Reference LvPeriodic comparison after Core now completes its lasso",
+      "required_words": {
+        "census": 837,
+        "auto_tlc": 20,
+        "auto_default": 19,
+        "total": 876,
+        "extra_LvPeriodic_word": "Preserved, native-validation-tagged valid, excluded from agreement totals"
+      },
+      "fresh_postrun_replay": false
+    },
+    "closed_full_gate_archive": {
+      "state": "uploaded-downloaded-member-verified",
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "phase8-20261104/closed-full-gate-9aa2b8e2-20261105T001944Z-7e807a1a.tar.gz",
+      "sha256": "d558a82f9459f5b525f5eea1b59c2a051fee3caac2ef1ec4b2665778eb28c223",
+      "bytes": 160605,
+      "files": 20
+    }
+  },
+  "not_repeated": [
+    "Phase5 actual-Core full-tier diagnostic",
+    "Phase5 PlusCal 149-input/59-configuration panels",
+    "original twelve-cell temporal capacity",
+    "deep frontend/corpus campaign",
+    "formal five-repeat stock-TLC performance campaign"
+  ],
+  "performance_probe": {
+    "decision": "no production cache candidate",
+    "runtime_source": "b6ae5033cd122bd346804729243e3c82aa80acfb",
+    "detached_diagnostic_only": true,
+    "result_sha256": "f1decd84cc14007d9960efc5dfb624a73143380b2e543e412992ebbd39abf0cb",
+    "instrumentation_patch_sha256": "5b3636f9efeeeaeaf9d92e5c7fac4b5a43935e76aee648fdf1a17aee65a59575",
+    "model": "original pinned TLCSailfish1",
+    "profile": "default",
+    "workers": 1,
+    "distinct": 5000,
+    "generated": 10153,
+    "depth": 12,
+    "physical_exit": 5,
+    "truth_verdict": false,
+    "children_instrumented_node_work_fraction": 0.31595161521974024,
+    "prospective_repeat_node_work_fraction_before_cost": 0.029753987007961735,
+    "shadow_bytes_cap": 1048576,
+    "all_children_results_transient": true,
+    "dominant_site_hits_first_4096_lookups": 0,
+    "result_served_from_diagnostic_cache": false,
+    "production_code_or_flag_shipped": false,
+    "scope": "stopped-prefix node-work/locality diagnostic, not CPU shares, timing acceptance, whole-model truth or rejection of broader S5/S6",
+    "archive_manifest_sha256": "b724fc39fae5ffc496c19d2dd58287188188848ff251cfe65834243df602132a"
+  },
+  "completed_frozen_archives": {
+    "bucket": "dive-evidence-archive-010928226848-us-east-1",
+    "index_sha256": "952f78a5415c5db811d9cb97a9bb0c44c9f58215ee51be14147f281c82c242f5",
+    "scope": "four named final source/review/preparation snapshots only; excludes live qualification results, targets and executable copies",
+    "archives": [
+      {
+        "id": "pr773-d80b9907-final",
+        "key": "phase8-20261104/pr773-d80b9907-final-20261104T232657Z-5dea7f5c.tar.gz",
+        "sha256": "e725a40335555bc0310e0e473efffb36e75fb597b2d8df80539be0a4d2cf576a",
+        "bytes": 339344,
+        "members": 105,
+        "verified": true
+      },
+      {
+        "id": "pr774-bac45605-rejected",
+        "key": "phase8-20261104/pr774-bac45605-rejected-20261104T232657Z-4a424179.tar.gz",
+        "sha256": "768acd9202858d97ce332617b84a848208c47873fbdaeaeb73043651c0513d48",
+        "bytes": 282491,
+        "members": 121,
+        "verified": true
+      },
+      {
+        "id": "pr774-9aa2b8e2-corrected",
+        "key": "phase8-20261104/pr774-9aa2b8e2-corrected-20261104T232657Z-1888b51b.tar.gz",
+        "sha256": "55f90fa201241ef6f1a20c8d90757a28252d55b452a6a9ecf934fc56e03f64da",
+        "bytes": 219759,
+        "members": 87,
+        "verified": true
+      },
+      {
+        "id": "qualification-9aa2b8e2-preparation",
+        "key": "phase8-20261104/qualification-9aa2b8e2-preparation-20261104T232657Z-6a673654.tar.gz",
+        "sha256": "3acd8161b648d7922070efaa2791a148973162bd1cc0db9e3c49be97e08df589",
+        "bytes": 1264552,
+        "members": 582,
+        "verified": true
+      }
+    ],
+    "closure_key": "phase8-20261104/final-frozen-20261104T232657Z-closure.json",
+    "closure_sha256": "958d70892b7a38656b0063b93615fa13c7d97e6e675784ce598dec3cd2c2bd31"
+  },
+  "finished_worktree_cleanup": {
+    "logical_bytes_removed": 47487162009,
+    "nominal_allocated_bytes_in_removed_files": 47874768896,
+    "exclusive_physical_reclamation_claimed": false,
+    "reason": "shared extents and concurrent qualification writes",
+    "qualification_targets_untouched": true,
+    "receipt_key": "phase8-20261104/finished-final-worktrees-cleanup-20261104T232838Z.json",
+    "receipt_sha256": "19360a41955f18a0aa250420671c9256577f5f68b309e68dc386d40486ad3e5b",
+    "download_verified": true,
+    "final_qualification_cleanup": "complete; see closed_qualification_cleanup (the historical finished-worktree tranche remains separate)"
+  },
+  "new_aws_nodes": 0,
+  "remaining_mandatory_scope": [
+    "general constructors/receivers/history/source and actual-Core language/operator/configuration/temporal breadth",
+    "recoverable accepted discovery/trace/temporal graph/SCC storage and complete accounting",
+    "durable distributed coordinator/epoch recovery and broader combinations",
+    "general randomization/captured effects/runtime host services and complete mode matrices",
+    "complete TLC costs/maps/debugger, PlusCal, trace exploration and public Rust/cargo-test flows",
+    "ADR0119 performance, #350 instruction overhead, full-tier/deep/platform/package/RC acceptance"
+  ],
+  "scope_authorities": [
+    "docs/ROADMAP.md#through-full-tlc-parity",
+    "docs/developer/core/m1-status.md#next-bounded-actions",
+    "docs/developer/core/10-plan.md#1-milestones",
+    "docs/decisions/0119-default-performance-and-bounded-tlc-overhead.md"
+  ],
+  "excluded_from_v1": [
+    "LSP/native compilation/Verus export (ADR0095 and roadmap)",
+    "Java worker/checkpoint interoperability",
+    "arbitrary JVM plugin loading"
+  ],
+  "clean_qualification_approved": false,
+  "followup_correction": {
+    "state": "merged-with-focused-source-qualified-checks",
+    "pr": 779,
+    "issue": 780,
+    "remaining_mapped_raw_set_authority_issue": 781,
+    "first_candidate": {
+      "source": "00adce457770c79ba59b8f63ab1abb9c813a0f58",
+      "tree": "d6b85f2aba69b289e7ae56ef9c4e4ad22e400a89",
+      "decision": "reject",
+      "severity": "P1",
+      "reason": "IsFiniteSet(Seq(emptyProduct)) falsely violates versus pinned TLC success",
+      "review_sha256": "908a63fa06b0181472f882c31f149f6ae0f3e9057769b9356d87d0925fd068c9"
+    },
+    "merged_source": "3a6d990713b5288e212e160339de9cc0a1dd20cc",
+    "source_or_aggregate_credit_in_original_campaign": false,
+    "original_source_and_results_unchanged": true,
+    "issue_state": "closed",
+    "remaining_mapped_raw_set_authority_issue_state": "open",
+    "tested_source": "cfdcd05e0a8324118df0bd9623696673b05646cf",
+    "tested_tree": "3dd09f3d716ce6f537f52475d1809ff44d0c0282",
+    "merged_tree": "3dd09f3d716ce6f537f52475d1809ff44d0c0282",
+    "candidate_and_main_tree_equal": true,
+    "bridge_receipt_sha256": "50a66efd62724a217afc22ab8ed32fe3a58ba7afeef7aa712eb70e1b6fb61c82",
+    "independent_review": {
+      "decision": "approve",
+      "sha256": "4c7047ef187719035bcbbd9c0cad54e56e5532f3d5969edb496a10f25e0f8fc7"
+    },
+    "all_three_required_checks_passed": true,
+    "ci_run": 41946121658,
+    "merged_at": "2026-11-05T01:32:39Z",
+    "author_receipt_sha256": "19d0e5b97fff9d9596823ca75c8316304de2fafd56c70a414cc0baea9fd35826",
+    "binary_sha256": "dd52ecb03f59276c7c27dd6b7bed2fdb4c759abcd2ce609a928ad9b382cbd739",
+    "focused_checks": {
+      "exact_source_core_units": 146,
+      "exact_source_consumer_api_tests": 6,
+      "pre_freeze_focused_api_tests": 21,
+      "pre_freeze_scope": "same production implementation before freeze; not relabelled as final-source gate",
+      "original_core_and_reference_requests": 16,
+      "actual_core_workers": [
+        1,
+        4
+      ],
+      "tlc_reference_requested4_uses1": "existing Tail guard; no Reference scaling claim",
+      "restored_original_models": {
+        "ReadersWriters/MC.cfg": {
+          "distinct": 21527,
+          "generated": 59674,
+          "depth": 13,
+          "initial_generated": 1
+        },
+        "SpecifyingSystems/TLC/MCAlternatingBit.cfg": {
+          "distinct": 240,
+          "generated": 1392,
+          "depth": 10,
+          "initial_generated": 8
+        }
+      },
+      "independently_valid_actual_words": 6,
+      "independently_rejected_mutants": 6
+    },
+    "remaining_quicksort": {
+      "issue": 781,
+      "state": "open",
+      "current_core_result": "named unsupported",
+      "required_proof": "mapped raw-set constructor and normalization history",
+      "pinned_success": {
+        "distinct": 4548,
+        "generated": 11223,
+        "depth": 9
+      }
+    },
+    "separate_unwaived_census_issue": 664,
+    "fresh_gate_census_auto_or_performance": false,
+    "fresh_aggregate_qualification_claimed": false,
+    "archive": {
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "phase8-20261104/pr779-separated-source-correction-20261105T013840Z-8020398e.tar.gz",
+      "archive_sha256": "d3a47f0331b696de5669b686b070e7d9d2d457829ff83d7c52c5ca785baa3cd5",
+      "archive_bytes": 530849,
+      "verified_file_members": 1319,
+      "roundtrip_and_every_member_and_source_verified": true,
+      "manifest_sha256": "cbd06652419439d8ec7f2e12a01ed0d13e6a25315c6bd004aa7677b11486024b",
+      "receipt_sha256": "acf9016ea79463a54515fa8851a1b2f2682b394a044464eaee81d882a0b17668",
+      "attribution": "original9aa diagnoses, rejected00ad/false-Holds addendum and approvedcfd correction remain separately source-qualified; no original campaign relabelling"
+    },
+    "worktree_cleanup": {
+      "state": "complete",
+      "scope": "only phase8-shadow-delta and the two correction-review worktrees; separate from original qualification cleanup",
+      "receipt_sha256": "6541dba2c355661b01cc3bf0c80d1d547db68b683a40e4839d7ea58da9d08984",
+      "preserved_source": "cfd correction branch and rejected00ad ancestry",
+      "normal_cargo_clean_and_worktree_remove": true,
+      "nominal_allocated_bytes_removed": 5863518208,
+      "logical_bytes_removed": 5614048753,
+      "observed_free_space_delta_bytes": 1794859008,
+      "exclusive_physical_reclaim_claimed": false,
+      "raw_and_copied_executables_retained": true,
+      "archive": {
+        "bucket": "dive-evidence-archive-010928226848-us-east-1",
+        "key": "phase8-20261104/pr779-correction-cleanup-metadata-20261105T014017Z-785efbfd.tar.gz",
+        "archive_sha256": "eb0e3d990d9f7fcacce216ae6c4b2b2ca075bf272a3ba24be7c1bff3d1f217ab",
+        "archive_bytes": 3063,
+        "verified_file_members": 7,
+        "roundtrip_and_every_member_and_source_verified": true,
+        "manifest_sha256": "7438f82f32c3d2b8945c066b99c42f89184ac5aa91f911e35c3bf4b70e7ce76e",
+        "receipt_sha256": "3f17eb75b7e8645a142b04834aa0d5d17804acc43a09e8b09d08bdbb1047e961"
+      }
+    }
+  },
+  "current_runtime_main": {
+    "source": "3a6d990713b5288e212e160339de9cc0a1dd20cc",
+    "tree": "3dd09f3d716ce6f537f52475d1809ff44d0c0282",
+    "original_campaign_execution_relabelled": false,
+    "fresh_aggregate_qualification_claimed": false
+  },
+  "closed_qualification_cleanup": {
+    "state": "complete",
+    "source": "9aa2b8e234f5d558ae4e1ded20b8bc57dfb2e292",
+    "tree": "134b2895fbc32d66e653182baaf5c7508df497a5",
+    "worktrees": [
+      ".claude/worktrees/phase8-qualification",
+      ".claude/worktrees/phase8-populations"
+    ],
+    "normal_cargo_clean_and_worktree_remove": true,
+    "source_ref_preserved": true,
+    "raw_and_frozen_build_copies_retained": true,
+    "logical_bytes_removed": 42876232721,
+    "nominal_allocated_bytes_removed": 43031670784,
+    "observed_free_space_delta_bytes": 14917648384,
+    "exclusive_physical_reclaim_claimed": false,
+    "measurement_limit": "du nominal allocation and logical file sizes do not prove exclusive physical reclamation; observed free-space delta includes concurrent filesystem activity.",
+    "receipt_sha256": "5dc0d01f97c05f325e0ba5341eed4a3cd9b44a55d99de5f888bc9b7b43751fb5",
+    "archive": {
+      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "key": "phase8-20261104/closed-qualification-cleanup-9aa2b8e2-20261105T010233Z-35bde19c.tar.gz",
+      "sha256": "6475f84741309f02c3caf8b7145abb0e53de630c67d0dbc5e36ab3449d1904e2",
+      "bytes": 4860,
+      "roundtrip_and_every_member_and_source_verified": true
+    }
+  }
+}
