@@ -50,6 +50,39 @@ Each question is open until it is answered here or recorded in an ADR.
 17. ~~**Symmetry audit.**~~ **Answered 2026-10-09:** implement `--check-symmetry` as an opt-in audit of the model's declared symmetry. D-016.
 18. ~~**Periodic liveness scheduling.**~~ **Answered 2026-10-09:** use deterministic level-boundary checks by default; preserve TLC's wall-clock schedule under `--compat=tlc`. Goldens continue to use final checking. A level-boundary run is not labelled precisely TLC-equivalent merely because TLC could stop at that boundary. D-014.
 
+## Owner direction of 2026-11-05 (ADR 0153)
+
+These are answered:
+- **Default engine and cutover.** Core is the product. The Reference checking
+  runtime is removed once Core alone meets release gate R1. This supersedes ADR
+  0119 item 5.
+- **History-dependent `elements()` and set construction** (A6;
+  `developer/core/02-semantic-contract.md` §6 Q7 and C2). Sets are canonical in
+  the default profile, with no TLC normalization history. `--compat=tlc` is
+  nominal, and its gaps are documented.
+- **Release scope.** The first release is the first-value bar in
+  [RELEASE.md](RELEASE.md). There are no dates and no effort estimates.
+
+**Rule for the open questions below and any new ones.** Each gets one line, a
+recommended answer and a default. If the owner has not answered within two days,
+the recommendation is applied. Under ADR 0153 §2, questions of the form "should
+the default reproduce TLC artifact X?" default to **no**, and get a registered
+divergence.
+
+- **Bundled libraries (R3).** Ship TLAPS and the CommunityModules (both MIT)
+  inside dive at the lowest module-search priority. *Recommended and default:
+  yes.*
+- **Default `--time-limit`.** *Recommended and default:* none in either profile,
+  matching TLC. A user-set limit prints a prominent stop notice.
+- **v0.1 platforms.** *Recommended and default:* Linux x86_64 and aarch64
+  required; macOS arm64 best effort. Distribution is GitHub releases plus
+  `cargo install --git`. crates.io comes later.
+- **`ENABLED` cutoff (02-semantic-contract §6 Q8).** *Recommended and default:*
+  drop the TLC artifact in the default profile if it is one, as with B2 and B4.
+- **Remaining 02-semantic-contract §6 questions (Q1–Q6).** *Default:* the
+  canonical or better behaviour in the default profile, and whatever is cheap in
+  compat.
+
 ## Native recovery counter default (issue152)
 
 Pinned TLC recovery resets generated and initial counts to recovered distinct

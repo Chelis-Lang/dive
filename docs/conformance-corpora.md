@@ -489,7 +489,7 @@ nine missing references and one kernel-OOM disagreement. Its original report
 and classification remain intact. The new stop for `MCNanoLarge` is a different
 observation, with no agreement or bug-fix credit. The three prior agreements
 that now exceed the time budget, and EWD998Chan's refusal-to-stop change, are
-listed with their issues in [the scoreboard](scoreboard.md#full-tier-measurement).
+listed with their issues in [the scoreboard](scoreboard.md#corpus-scoreboard).
 No model was dropped to improve the denominator and no golden changed.
 
 The previous generated digest came from `report baseline` on report

@@ -51,6 +51,69 @@ owner. The charter's appendix records later corrections.
 - **Coverage** is tracked in `docs/scoreboard.md` (corpus numbers and roadmap
   checklist); `conformance/parity-surfaces.json` is the reference inventory.
 
+## Standing direction (owner, 2026-11-05)
+
+Read [ADR 0153](docs/decisions/0153-core-is-the-product.md) and
+[docs/RELEASE.md](docs/RELEASE.md) before choosing work. The
+[progress review](docs/reviews/2026-11-05-progress-review.md) explains why these
+rules exist.
+
+**Choose work by the release gates.**
+- Every PR links an issue in the `v0.1: first value` milestone. The exceptions
+  are a fix for a wrong user-visible result, or work the owner has signed off.
+- Rank Core work by the refusal-reason histogram, largest bucket first. Do not
+  rank it model by model.
+- Frozen until v0.1:
+  - distributed workers;
+  - DAP;
+  - checkpoint, spill and recovery breadth;
+  - IOUtils/IOEnv;
+  - TLC coverage and logical costs;
+  - speculative performance caches;
+  - LSP;
+  - any Reference-engine feature.
+
+**Do the better thing.** In the default profile, use canonical TLA+ semantics
+where TLC's behaviour is an implementation artifact. Register the divergence.
+Do not reproduce TLC internals: normalization history, demand order, receiver
+identity or error-site certificates.
+
+**Compat is nominal.** `--compat=tlc` runs on Core using the cheap switches that
+already exist. Anything it cannot reproduce cheaply is a documented gap, not a
+project.
+
+**Measure the product.**
+- Every week, run Core alone on the full tier and post the R1–R3 numbers to the
+  pinned status issue.
+- A PR body is at most 15 lines. It states which corpus IDs change and which
+  focused checks ran.
+
+**Keep the loop fast.**
+- `cargo xtask gate --full`, the census and corpus/worker campaigns run only for
+  a release candidate or an engine-cutover candidate. Otherwise there are no
+  "phase" qualifications, checkpoint JSON, cloud archive ledgers or cleanup
+  byte counts.
+- At most three live worktrees. Prune each one when its PR merges.
+- Cite only commits that are on `main`.
+
+**Write less, decide more.**
+- An ADR records a public contract, a default or an architecture edge, about one
+  a week at most. A rejected experiment gets a short issue comment, not an ADR
+  or a report.
+- Status documents state the current numbers in plain sentences. Do not bind
+  narrative text to commit or tree hashes, and keep history out of them; git has
+  it.
+- Do not open an issue only as a receipt for a PR.
+
+**Escalate, don't emulate.**
+- When a semantic choice would add machinery, put a one-line question in
+  `docs/open-questions.md` with a recommended answer the same day. Proceed with
+  the recommendation if the owner has not answered within two days.
+- When data meets a condition the owner attached to a ruling, say so in the same
+  way.
+
+**No time or effort estimates** in plans, issues, milestones or status.
+
 ## Commit messages and authorship
 
 Use plain conventional commits (`feat:`, `fix:`, `docs:`, `chore:`, `test:`,
