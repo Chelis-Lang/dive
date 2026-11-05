@@ -69,9 +69,10 @@ the recommendation is applied. Under ADR 0153 §2, questions of the form "should
 the default reproduce TLC artifact X?" default to **no**, and get a registered
 divergence.
 
-- **Bundled libraries (R3).** Ship TLAPS and the CommunityModules (both MIT)
+- **Bundled libraries (R3).** Ship TLAPS (BSD-2-Clause) and the CommunityModules (MIT)
   inside dive at the lowest module-search priority. *Recommended and default:
   yes.*
+- **R3 checking requirement (#789).** Bundling makes all ten selected Examples resolve; nine check, but EWD998ChanID refuses VIEW/liveness (#428). Should R3 accept this named refusal or promote #428? *Recommended/default:* require resolution and report checking/refusal separately, leaving Core coverage to R1; owner answer pending.
 - **Default `--time-limit`.** *Recommended and default:* none in either profile,
   matching TLC. A user-set limit prints a prominent stop notice.
 - **v0.1 platforms.** *Recommended and default:* Linux x86_64 and aarch64

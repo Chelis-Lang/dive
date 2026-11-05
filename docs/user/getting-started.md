@@ -11,7 +11,12 @@ Release builds use whole-program link-time optimisation, so they take longer
 than debug builds (ADR 0102).
 
 Use `target/release/dive` or put that binary on your PATH. Model checking itself
-needs no JVM. The developer conformance harness downloads a pinned JRE and Java
+needs no JVM. TLAPS and the CommunityModules TLA+ sources are built in, so
+ordinary specifications need no library-path flags or separate library download.
+Local modules and explicit search paths take precedence over these bundled
+libraries. Operator support is described in [modules](modules.md).
+
+The developer conformance harness downloads a pinned JRE and Java
 oracle separately; it is not the checker runtime.
 
 Use `dive --help` to list available commands and `dive check --help` (or another

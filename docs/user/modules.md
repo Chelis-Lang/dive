@@ -11,6 +11,14 @@ operator execution are separate contracts: a module can parse and resolve while
 a particular operator, argument shape or checking mode remains unsupported.
 Successful analysis alone does not establish an executable model.
 
+TLAPS and the CommunityModules TLA+ sources are bundled with dive. Resolution
+searches the specification directory, explicit `--library-path` directories,
+standard modules, explicit `--module-path` directories, modules inside the root
+file, then the bundled libraries. Existing user sources therefore take
+precedence. Bundled sources appear as `"origin": "bundled"` in analysis JSON;
+standard modules retain their existing origin and priority. The source pins
+and licenses are in [the bundled-library README](../../crates/dive-sema/bundled/README.md).
+
 The native evaluator implements supported arithmetic, sets, sequences, records,
 functions and selected standard/CommunityModules operators. Standard-module
 source and TLC's native overrides are distinct: model binding decides which

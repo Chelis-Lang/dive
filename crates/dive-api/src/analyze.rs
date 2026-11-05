@@ -238,6 +238,7 @@ impl AnalyzeReport {
                 let origin = match &f.origin {
                     dive_sema::Origin::File(_) => "file",
                     dive_sema::Origin::Standard => "standard",
+                    dive_sema::Origin::Bundled => "bundled",
                     dive_sema::Origin::Monolith(_) => "monolith",
                     dive_sema::Origin::Text => "text",
                 };
