@@ -30,7 +30,7 @@ def main() -> int:
     root = Path(__file__).resolve().parent.parent
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("binary", nargs="?", default=root / "target/release/dive")
-    parser.add_argument("--analyze-only", action="store_true", help="test library resolution only; does not satisfy R3 checking")
+    parser.add_argument("--analyze-only", action="store_true", help="test library resolution only, without checking")
     arguments = parser.parse_args()
     binary = Path(arguments.binary).resolve()
     config = tomllib.loads((root / "conformance/corpora.toml").read_text())
@@ -48,36 +48,58 @@ def main() -> int:
     environment = os.environ.copy()
     for key in ("DIVE_COMPAT", "DIVE_ENGINE"):
         environment.pop(key, None)
+    checked = 0
+    refused = 0
     for model in MODELS:
         source = checkout / "specifications" / f"{model}.tla"
-        command = [str(binary), "analyze" if arguments.analyze_only else "check", source.name, "--output", "json"]
-        if not arguments.analyze_only:
-            command += ["--workers", "1", "--seed", "0", "--fp", "0", "--time-limit", "2m", "--max-memory", "2g"]
-        try:
-            run = subprocess.run(
-                command,
-                cwd=source.parent, env=environment, capture_output=True, text=True, timeout=150,
-                check=False,
-            )
-        except subprocess.TimeoutExpired:
-            sys.exit(f"bare-use: {model}: process exceeded its deadline")
-        try:
-            report = json.loads(run.stdout)
-        except json.JSONDecodeError:
-            sys.exit(f"bare-use: {model}: invalid JSON, exit {run.returncode}: {run.stderr}")
+
+        def run_json(command: list[str]) -> tuple[int, dict]:
+            try:
+                run = subprocess.run(command, cwd=source.parent, env=environment,
+                                     capture_output=True, text=True, timeout=150, check=False)
+            except subprocess.TimeoutExpired:
+                sys.exit(f"bare-use: {model}: process exceeded its deadline")
+            try:
+                report = json.loads(run.stdout)
+            except json.JSONDecodeError:
+                sys.exit(f"bare-use: {model}: invalid JSON, exit {run.returncode}: {run.stderr}")
+            if run.stderr:
+                sys.exit(f"bare-use: {model}: unexpected stderr: {run.stderr}")
+            return run.returncode, report
+
+        status, analysis = run_json([str(binary), "analyze", source.name, "--output", "json"])
+        if status != 0 or analysis.get("accepted") is not True:
+            sys.exit(f"bare-use: {model}: analysis failed: {analysis.get('diagnostics')}")
         if arguments.analyze_only:
-            if run.returncode != 0 or report.get("accepted") is not True:
-                sys.exit(f"bare-use: {model}: analysis failed: {report.get('diagnostics')} {run.stderr}")
             print(f"bare-use: {model}: analysis accepted (checking not tested)", flush=True)
             continue
-        # The existing Reference report omits `engine`; Core and Auto fallback name it.
+        status, report = run_json([
+            str(binary), "check", source.name, "--output", "json", "--workers", "1",
+            "--seed", "0", "--fp", "0", "--time-limit", "2m", "--max-memory", "2g",
+        ])
+        # Existing Reference reports omit `engine`; Core and Auto fallback name it.
         engine = report.get("engine", "reference")
-        if run.returncode != 0 or report.get("verdict") != "success" or engine not in {"core", "reference"}:
-            sys.exit(f"bare-use: {model}: exit {run.returncode}, {report.get('verdict')}: "
-                     f"{report.get('message') or report.get('diagnostics')} {run.stderr}")
-        print(f"bare-use: {model}: success on {engine}", flush=True)
-    operation = "resolve; R3 checking remains pending" if arguments.analyze_only else "check successfully"
-    print(f"bare-use: {len(MODELS)} original Examples {operation}, without module/library flags")
+        if status == 0 and report.get("verdict") == "success" and engine in {"core", "reference"}:
+            checked += 1
+            print(f"bare-use: {model}: success on {engine}", flush=True)
+            continue
+        ewd_refusals = {
+            "reference": "graph capture with VIEW requires quotient edge and closing-state evidence",
+            "core": "a recursive function used other than applied (M1 core)",
+        }
+        if (model == "ewd998/EWD998ChanID" and status == 3
+                and engine in ewd_refusals and report.get("verdict") == "unsupported"
+                and report.get("message") == ewd_refusals.get(engine)):
+            refused += 1
+            print(f"bare-use: {model}: named refusal on {engine}: {report['message']}", flush=True)
+            continue
+        sys.exit(f"bare-use: {model}: exit {status}, {report.get('verdict')}: "
+                 f"{report.get('message') or report.get('diagnostics')}")
+    if arguments.analyze_only:
+        print(f"bare-use: resolved={len(MODELS)}; checking not tested")
+    else:
+        print(f"bare-use: resolved={len(MODELS)}, checked={checked}, refused={refused}; "
+              "no module/library flags; no Core parity credit")
     return 0
 
 
