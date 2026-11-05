@@ -111,13 +111,14 @@ pub(crate) fn bounded_concrete(set: &Set, ctx: Ctx, limit: u64) -> bool {
         return false;
     }
     let mut pending = Vec::new();
+    let mut sizes = Vec::new();
     if !inspect_push(&mut pending, Inspect::Set(set)) {
         return false;
     }
     while let Some(item) = pending.pop() {
         let valid = match item {
             Inspect::Set(set) => {
-                set.size(ctx).is_ok_and(|size| size <= limit)
+                inspect_push(&mut sizes, Inspect::Set(set))
                     && inspect_set(set, ctx.order, &mut pending)
             }
             Inspect::Value(value) => inspect_value(value, ctx.order, &mut pending),
@@ -126,7 +127,12 @@ pub(crate) fn bounded_concrete(set: &Set, ctx: Ctx, limit: u64) -> bool {
             return false;
         }
     }
-    true
+    // A parent's size can normalize raw descendants. Reverse the structural
+    // walk so every descendant bound is established before that demand.
+    sizes.into_iter().rev().all(|item| match item {
+        Inspect::Set(set) => set.size(ctx).is_ok_and(|size| size <= limit),
+        Inspect::Value(_) => false,
+    })
 }
 
 fn inspect_value<'a>(value: &'a Value, order: ValueOrder, pending: &mut Vec<Inspect<'a>>) -> bool {

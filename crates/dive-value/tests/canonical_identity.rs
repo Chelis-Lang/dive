@@ -91,3 +91,19 @@ fn bounded_concrete_domains_materialize_before_canonical_identity()
     }
     Ok(())
 }
+
+#[test]
+fn nested_raw_storage_cannot_normalize_an_oversized_grandchild()
+-> Result<(), Box<dyn std::error::Error>> {
+    for ctx in [Ctx::dive(), Ctx::tlc()] {
+        let one = Value::set_canonical(vec![Value::Int(1)], ctx)?;
+        let huge = Value::fcn_set(Value::interval(1.into(), 20_000_000.into(), ctx), one, ctx);
+        // Sizing this raw duplicate set used to normalize the function before
+        // preflight reached its oversized domain. The outer powerset is tiny.
+        let nested = Value::subset(Value::set_raw(vec![huge.clone(), huge], ctx), ctx);
+        assert!(
+            matches!(Value::set_canonical(vec![nested], ctx), Err(error) if error.kind() == ErrorKind::Unsupported)
+        );
+    }
+    Ok(())
+}
