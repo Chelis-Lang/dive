@@ -1355,15 +1355,70 @@ impl Value {
     /// ```
     /// use dive_value::{Ctx, Value};
     /// let ctx = Ctx::dive();
-    /// let a = Value::set_canonical(vec![Value::Int(1), Value::TRUE], ctx);
-    /// let b = Value::set_canonical(vec![Value::TRUE, Value::Int(1), Value::TRUE], ctx);
+    /// let a = Value::set_canonical(vec![Value::Int(1), Value::TRUE], ctx)?;
+    /// let b = Value::set_canonical(vec![Value::TRUE, Value::Int(1), Value::TRUE], ctx)?;
     /// assert_eq!(a, b);
+    /// # Ok::<(), dive_value::ValueError>(())
     /// ```
-    #[must_use]
-    pub fn set_canonical(mut elems: Vec<Self>, ctx: Ctx) -> Self {
-        elems.sort_by(|a, b| a.cmp_with(b, ctx.order));
-        elems.dedup_by(|later, earlier| later.cmp_with(earlier, ctx.order).is_eq());
-        Self::Set(Set::from_sorted(ctx.order, elems))
+    ///
+    /// # Errors
+    /// A symbolic child whose mathematical identity is not established, including
+    /// inside a singleton, nested set, function key or function value, or allocation failure.
+    pub fn set_canonical(elems: Vec<Self>, ctx: Ctx) -> Result<Self> {
+        crate::construction::canonical_set(elems, ctx, &mut || true).map_err(|error| match error {
+            crate::ConstructionError::Value(error) => error,
+            other => ValueError::new(ErrorKind::DiveLimit, other.to_string()),
+        })
+    }
+
+    /// Requires a complete materialized value tree in the run's name order.
+    ///
+    /// Symbolic definitions are not mathematical inequality certificates.
+    /// This checks singleton/nested sets and all function keys and values without
+    /// enumerating a symbolic domain.
+    ///
+    /// ```
+    /// use dive_value::{Ctx, Value};
+    /// Value::Int(1).require_materialized(Ctx::dive())?;
+    /// # Ok::<(), dive_value::ValueError>(())
+    /// ```
+    ///
+    /// # Errors
+    /// An unsupported symbolic/cross-order child, or temporary allocation failure.
+    pub fn require_materialized(&self, ctx: Ctx) -> Result<()> {
+        crate::construction::require_closed(self, ctx, &mut || true).map_err(|error| match error {
+            crate::ConstructionError::Value(error) => error,
+            other => ValueError::new(ErrorKind::DiveLimit, other.to_string()),
+        })
+    }
+
+    /// Produces a materialized operand for quiet extensional equality.
+    ///
+    /// Explicit and deferred results are checked recursively. Symbolic operator
+    /// definitions are refused rather than compared structurally. As with value
+    /// equality and hashing, provider evaluation here does not invoke host control.
+    ///
+    /// # Errors
+    /// Provider evaluation errors, unsupported identity, or allocation failure.
+    pub fn materialized_for_equality(&self, ctx: Ctx) -> Result<Self> {
+        let _quiet = quiet::Quiet::enter();
+        self.materialized_identity(ctx)
+    }
+
+    /// Materializes explicit/deferred children for an identity-demanding operation.
+    ///
+    /// Provider evaluation retains its normal controls. Symbolic operator
+    /// definitions whose identity is unproved remain unsupported.
+    ///
+    /// # Errors
+    /// Provider evaluation errors, unsupported identity, or allocation failure.
+    pub fn materialized_identity(&self, ctx: Ctx) -> Result<Self> {
+        crate::construction::materialized_identity(self, ctx, &mut || true, 0).map_err(|error| {
+            match error {
+                crate::ConstructionError::Value(error) => error,
+                other => ValueError::new(ErrorKind::DiveLimit, other.to_string()),
+            }
+        })
     }
 
     /// Constructs an explicit set with cooperative normalization checkpoints.

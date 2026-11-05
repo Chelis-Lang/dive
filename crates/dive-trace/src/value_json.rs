@@ -106,7 +106,7 @@ pub fn from_json(j: &J, names: &Interner, ctx: Ctx) -> Result<Value, String> {
                         .iter()
                         .map(|e| from_json(e, names, ctx))
                         .collect::<Result<Vec<_>, _>>()?;
-                    Ok(Value::set_canonical(elems, ctx))
+                    Value::set_canonical(elems, ctx).map_err(|error| error.message().to_owned())
                 }
                 ("seq", J::Array(a)) => Ok(Value::tuple(
                     a.iter()

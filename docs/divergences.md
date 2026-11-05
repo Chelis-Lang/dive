@@ -51,6 +51,14 @@ error. Direct scalar comparison errors remain unchanged. Symbolic domains stay
 lazy; canonical construction does not enumerate every member of a powerset or
 function set merely to test membership.
 
+Identity-demanding operations require complete materialized children, including
+singleton set elements, function keys and values, and compound states. An
+unproved symbolic identity is `unsupported`, never structural inequality or a
+specification evaluation error. Lazy operator membership and cardinality remain
+available without this identity claim. Independent replay applies the same
+boundary and cannot certify a violation or error word using an implementation
+refusal.
+
 The TLC-equivalent setting would retain TLC's constructor-object history. Core
 intentionally does not implement that setting: nominal `--compat=tlc` uses
 canonical producers with its existing checked-comparison refusals. The gap is

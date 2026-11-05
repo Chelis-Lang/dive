@@ -25,6 +25,9 @@ const ORACLE: &str = "tlc-2026.10.06.014338";
 
 /// Fixtures the core refuses, with a word its refusal must contain.
 const REFUSED: &[(&str, &str)] = &[
+    // A symbolic infinite child cannot acquire a structural state identity.
+    // Refuse before the legacy fingerprint error, without an error certificate.
+    ("ErFpInfinite", "mathematical identity"),
     // TLC cannot apply an operator with a constant body passed as an
     // `OpValue`; the reference engine applies it (`04-plan-compiler.md` §8).
     ("ErHoConstBagOfAll", "body is constant"),
@@ -351,17 +354,49 @@ fn m1_generator_fixtures_match_the_reference() {
             .to_owned();
         let core = run(&spec, Engine::Core);
         let reference = run(&spec, Engine::Reference);
+        if matches!(
+            name.as_str(),
+            "FpInfiniteSets" | "FpRecordSet" | "FpSeqSet" | "FpSubsetNat"
+        ) {
+            assert_eq!(core["verdict"], "unsupported");
+            assert!(
+                core["message"]
+                    .as_str()
+                    .is_some_and(|m| m.contains("mathematical identity"))
+            );
+            assert!(core["tlc"].is_null());
+            assert_eq!(reference["verdict"], "evaluation-error");
+            continue;
+        }
+        if name == "FpInit" {
+            // Both reject unproved infinite identity; Core now rejects at
+            // construction rather than assigning meaningless partial counts.
+            assert_eq!(core["verdict"], "unsupported", "{name}");
+            assert_eq!(reference["verdict"], "unsupported", "{name}");
+            assert!(core["tlc"].is_null());
+            assert!(
+                core["message"]
+                    .as_str()
+                    .is_some_and(|m| m.contains("mathematical identity"))
+            );
+            continue;
+        }
         if let Some((generated, distinct)) = match name.as_str() {
             "LazyCupDup" => Some((7, 3)),
             "LazyUnionDup" => Some((5, 2)),
             _ => None,
         } {
-            // D-028 removes raw duplicate enumeration; Reference remains frozen.
+            // D-028 removes raw duplicate enumeration. Shared finite UNION
+            // construction also supports the duplicate-union case for replay.
             assert_eq!(core["verdict"], "success");
             assert_eq!(core["statistics"]["generated"], generated);
             assert_eq!(core["statistics"]["distinct"], distinct);
             assert_eq!(core["statistics"]["depth"], 2);
-            assert_eq!(reference["verdict"], "unsupported");
+            if name == "LazyCupDup" {
+                assert_eq!(reference["verdict"], "unsupported");
+            } else {
+                assert_eq!(observed(&core), observed(&reference));
+            }
             continue;
         }
         assert_eq!(observed(&core), observed(&reference), "{name}");

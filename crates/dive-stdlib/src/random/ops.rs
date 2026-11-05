@@ -121,7 +121,9 @@ fn ppr(v: &Value, ctx: Ctx) -> String {
 /// `TLC_MODULE_VALUE_JAVA_METHOD_OVERRIDE`; errors with their own class pass through.
 fn in_override(method: &'static str) -> impl Fn(ValueError) -> RandomError {
     move |e| match e.kind() {
-        ErrorKind::DiveLimit | ErrorKind::Codec | ErrorKind::Json => RandomError::Value(e),
+        ErrorKind::DiveLimit | ErrorKind::Codec | ErrorKind::Json | ErrorKind::Unsupported => {
+            RandomError::Value(e)
+        }
         k if k.tlc_code() == 1000 => RandomError::JavaOverride {
             method,
             message: e.message().to_owned(),

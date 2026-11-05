@@ -377,6 +377,10 @@ Mixed structured sets, such as a set containing both a tuple and a record,
 have order-independent identity and can appear in independently validated
 counterexamples. Direct undefined scalar comparisons still report errors.
 Large symbolic powersets, function sets and sequence domains stay lazy.
+When an equality, set element, function key or stored state needs an unproved
+symbolic identity, checking returns `unsupported`. It does not infer inequality
+from the symbolic expression or report an implementation limit as a specification
+error; independent counterexample replay follows the same rule.
 
 `--engine core --compat=tlc` selects the existing TLC integer, name and
 exploration switches. Compatibility is nominal: unsupported comparison shapes

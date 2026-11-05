@@ -140,6 +140,10 @@ fn explicit(s: &Set) -> Option<&[Value]> {
 /// Whether every node is explicit and uses this construction's name order.
 /// The walk itself is cooperative and never materializes a symbolic value.
 pub(crate) fn closed(value: &Value, ctx: Ctx, poll: &mut Poll<'_>) -> Result<bool> {
+    if !matches!(value, Value::Set(_) | Value::Fcn(_)) {
+        checkpoint(poll)?;
+        return Ok(true);
+    }
     let mut work = Vec::new();
     reserve(&mut work, 1, poll)?;
     work.push(value);
@@ -361,6 +365,119 @@ fn duplicate(value: &Value, ctx: Ctx) -> ConstructionError {
         ),
     )
     .into()
+}
+
+/// Canonical order is mathematical only for the complete materialized tree.
+pub(crate) fn canonical_set(
+    mut elements: Vec<Value>,
+    ctx: Ctx,
+    poll: &mut Poll<'_>,
+) -> Result<Value> {
+    for value in &mut elements {
+        *value = materialized_identity(value, ctx, poll, 0)?;
+        require_closed(value, ctx, poll)?;
+    }
+    sort(&mut elements, poll, &mut |a, b, poll| {
+        total(a, b, ctx, poll)
+    })?;
+    let mut out = Vec::new();
+    reserve(&mut out, elements.len(), poll)?;
+    for value in elements {
+        if let Some(last) = out.last()
+            && total(&value, last, ctx, poll)? == Ordering::Equal
+        {
+            continue;
+        }
+        out.push(value);
+    }
+    Ok(Value::Set(Set::from_sorted(ctx.order, out)))
+}
+
+/// Materialize explicit/deferred results, never infer symbolic identity.
+pub(crate) fn materialized_identity(
+    value: &Value,
+    ctx: Ctx,
+    poll: &mut Poll<'_>,
+    depth: usize,
+) -> Result<Value> {
+    if closed(value, ctx, poll)? {
+        return Ok(value.clone());
+    }
+    if depth >= 64 {
+        return Err(not_materialized());
+    }
+    match value {
+        Value::Set(set) => {
+            let elements = match set.repr() {
+                SetRepr::Enum => set.stored_elements().unwrap_or_default().to_vec(),
+                SetRepr::Raw(elements) => elements.to_vec(),
+                SetRepr::Interval(..) => {
+                    // Match Core's existing finite materialization ceiling;
+                    // large interval domains remain symbolic operators.
+                    if !set.size(ctx).is_ok_and(|size| size <= 1 << 24) {
+                        return Err(not_materialized());
+                    }
+                    set.elements(ctx)?.to_vec()
+                }
+                SetRepr::Deferred(source) => source.elements(ctx).map_err(|error| {
+                    if error.kind() == ErrorKind::NotEnumerable {
+                        not_materialized()
+                    } else {
+                        error.into()
+                    }
+                })?,
+                _ => return Err(not_materialized()),
+            };
+            let mut out = Vec::new();
+            reserve(&mut out, elements.len(), poll)?;
+            for child in elements {
+                out.push(materialized_identity(&child, ctx, poll, depth + 1)?);
+            }
+            canonical_set(out, ctx, poll)
+        }
+        Value::Fcn(function) => {
+            let mut out = Vec::new();
+            reserve(&mut out, function.len(), poll)?;
+            for (key, value) in function.iter() {
+                require_closed(&key, ctx, poll)?;
+                out.push((key, materialized_identity(value, ctx, poll, depth + 1)?));
+            }
+            Ok(match &function.0.repr {
+                FcnRepr::Tuple(_) if function.is_tuple_literal() => {
+                    Value::tuple(out.into_iter().map(|(_, value)| value).collect())
+                }
+                FcnRepr::Tuple(_) => {
+                    Value::tuple_fcn(out.into_iter().map(|(_, value)| value).collect())
+                }
+                FcnRepr::Record(fields) => Value::Fcn(Fcn::record(
+                    fields
+                        .iter()
+                        .zip(out)
+                        .map(|((name, _), (_, value))| (name.clone(), value))
+                        .collect(),
+                    ctx.order,
+                    function.is_record_literal(),
+                )),
+                FcnRepr::General(_) => Value::fcn(out, ctx)?,
+            })
+        }
+        _ => Err(not_materialized()),
+    }
+}
+
+fn not_materialized() -> ConstructionError {
+    ValueError::new(
+        ErrorKind::Unsupported,
+        "mathematical identity requires materialized values; symbolic or cross-order children are unsupported",
+    ).into()
+}
+
+pub(crate) fn require_closed(value: &Value, ctx: Ctx, poll: &mut Poll<'_>) -> Result<()> {
+    if closed(value, ctx, poll)? {
+        Ok(())
+    } else {
+        Err(not_materialized())
+    }
 }
 
 pub(crate) fn set(elements: Vec<Value>, ctx: Ctx, poll: &mut Poll<'_>) -> Result<Value> {

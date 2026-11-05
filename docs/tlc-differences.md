@@ -3049,6 +3049,11 @@ changes (D-010).
 
 Symbolic powersets, function sets and sequence sets retain lazy membership and
 streaming; this policy does not require enumerating huge or infinite domains.
+Using a symbolic definition as an element, function key or stored state can
+require an identity that Core has not established. Such requests explicitly
+return `unsupported`; symbolic structure is never treated as mathematical
+inequality. The independent trace validator also refuses unproved identity,
+including in words claiming a specification evaluation error.
 
 ### Compat gaps
 

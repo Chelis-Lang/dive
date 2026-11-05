@@ -469,7 +469,7 @@ impl Core {
                     Ok(true)
                 })?;
                 Ok(Ev::V(if self.opts.comparisons == Comparisons::Tla {
-                    Value::set_canonical(vals, self.ctx)
+                    Value::set_canonical(vals, self.ctx)?
                 } else {
                     Value::set_raw(vals, self.ctx)
                 }))
@@ -485,7 +485,7 @@ impl Core {
                     vals.push(self.eval_embed(env, st, i)?);
                 }
                 let value = if self.opts.comparisons == Comparisons::Tla {
-                    Value::set_canonical(vals, self.ctx)
+                    Value::set_canonical(vals, self.ctx)?
                 } else {
                     Value::set_raw(vals, self.ctx)
                 };
@@ -1766,7 +1766,11 @@ impl Core {
             }
             // `new SetEnumValue(vals, inVal.isNormalized())`: enumerating a set
             // enumeration normalizes it, so the result is normalized.
-            return Ok(Ev::V(Value::set(out, self.ctx)?));
+            return Ok(Ev::V(if self.opts.comparisons == Comparisons::Tla {
+                Value::set_canonical(out, self.ctx)?
+            } else {
+                Value::set(out, self.ctx)?
+            }));
         }
         let f = Filter {
             core: self.clone(),
@@ -2797,6 +2801,20 @@ impl Core {
         b: Value,
         lazy: &dyn Fn(DeferredKind, Value, Value) -> Value,
     ) -> Result<Value> {
+        if self.opts.comparisons == Comparisons::Tla && is_reducible(&a) && is_reducible(&b) {
+            let mut values = Vec::new();
+            for value in [&a, &b] {
+                let Value::Set(set) = value else {
+                    return Err(EvalError::bug("reducible non-set union operand"));
+                };
+                if let Some(raw) = set.raw_elements() {
+                    values.extend_from_slice(raw);
+                } else {
+                    values.extend(set.elements(self.ctx)?.iter().cloned());
+                }
+            }
+            return Ok(Value::set_canonical(values, self.ctx)?);
+        }
         let empty = match &a {
             Value::Set(s) => match s.raw_elements() {
                 Some(raw) => raw.is_empty(),
@@ -2824,6 +2842,18 @@ impl Core {
                 None => s.elements(self.ctx)?.to_vec(),
             };
             if elems.iter().all(combinable) {
+                if self.opts.comparisons == Comparisons::Tla {
+                    let mut out = Vec::new();
+                    for inner in &elems {
+                        let Value::Set(set) = inner else { continue };
+                        if let Some(raw) = set.raw_elements() {
+                            out.extend_from_slice(raw);
+                        } else {
+                            out.extend(set.elements(self.ctx)?.iter().cloned());
+                        }
+                    }
+                    return Ok(Value::set_canonical(out, self.ctx)?);
+                }
                 let mut out: Vec<Value> = Vec::new();
                 for inner in &elems {
                     let Value::Set(is) = inner else { continue };
@@ -2978,7 +3008,12 @@ impl Core {
             let n = i64::try_from(t.len()).unwrap_or(i64::MAX);
             return Ok(Value::interval(Int::ONE, Int::Small(n), self.ctx));
         }
-        Ok(Value::set(f.iter().map(|(d, _)| d).collect(), self.ctx)?)
+        let keys = f.iter().map(|(d, _)| d).collect();
+        Ok(if self.opts.comparisons == Comparisons::Tla {
+            Value::set_canonical(keys, self.ctx)?
+        } else {
+            Value::set(keys, self.ctx)?
+        })
     }
 
     /// `FcnLambdaValue.getDomain`.

@@ -206,10 +206,11 @@ fn actual_history_handoff_words_replay_and_reject_mutated_middle_states() {
                 }
                 let word =
                     TraceDoc::from_json(&doc["counterexample"]["trace"]).expect("actual word");
-                assert!(matches!(
-                    model.validate(&word).validation,
-                    Validation::Valid
-                ));
+                let validation = model.validate(&word).validation;
+                assert!(
+                    matches!(validation, Validation::Valid),
+                    "{compat}/{workers}/{opts}: {validation:?}"
+                );
                 let mut mutant = doc["counterexample"]["trace"].clone();
                 mutant["states"][1]["values"]["step"] = Value::from(99);
                 let mutant = TraceDoc::from_json(&mutant).expect("mutant decodes");

@@ -172,6 +172,61 @@ fn outer_collection_of_multiple_sets_is_canonical_by_default()
 }
 
 #[test]
+fn unproved_symbolic_identity_cannot_create_a_verdict_or_error_certificate()
+-> Result<(), Box<dyn std::error::Error>> {
+    for name in [
+        "CanonicalSeqEqual",
+        "CanonicalSeqUnequal",
+        "CanonicalSeqOuterOne",
+        "CanonicalSeqOuterTwo",
+        "CanonicalEmptyOuterOne",
+        "CanonicalEmptyOuterTwo",
+        "CanonicalEmptyKeyOne",
+        "CanonicalEmptyKeyTwo",
+    ] {
+        let request = request(name, false);
+        // Pinned TLC review for #808/#809: Equal/OuterOne hold, while
+        // Unequal/OuterTwo fail initially. Unknown identity cannot prove either.
+        let reference = check_file_engine(&request, Engine::Reference)?;
+        assert_eq!(reference.verdict(), "unsupported", "{name}");
+        for switches in ["", "-fold,-memo,-hashcons"] {
+            let core = check_file_core_opts(&request, switches)?;
+            assert_eq!(
+                core.verdict(),
+                "unsupported",
+                "{name}: {}",
+                core.to_json()["message"]
+            );
+            assert!(core.to_json()["counterexample"].is_null());
+            assert!(core.to_json()["tlc"].is_null());
+        }
+        let model = SpecModel::load(
+            &request.file,
+            &request.file.with_extension("cfg"),
+            &TraceOptions::default(),
+        )?;
+        for (version, ending) in [
+            (1, json!({"kind": "invariant", "name": "Inv"})),
+            (
+                2,
+                json!({"kind": "invariant-error", "name": "Inv", "ec": "GENERAL"}),
+            ),
+        ] {
+            let word = TraceDoc::from_json(&json!({
+                "format": "dive-trace", "version": version, "variables": ["x"],
+                "states": [{"action": null, "values": {"x": 0}}],
+                "length": 1, "ending": ending,
+            }))?;
+            assert!(
+                matches!(model.validate(&word).validation, Validation::Unsupported(_)),
+                "{name}"
+            );
+        }
+    }
+    Ok(())
+}
+
+#[test]
 fn canonical_construction_preserves_symbolic_large_domains()
 -> Result<(), Box<dyn std::error::Error>> {
     for compat_tlc in [false, true] {

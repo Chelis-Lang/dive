@@ -326,6 +326,11 @@ recomputed in the caller's context.
 ### (c) Normalization (`isNorm`) and membership errors
 
 **C1–C2. Core finite-set construction is canonical** (ADR 0153, D-028).
+Canonical sorting, equality and state identity require complete materialized
+children, including singleton elements and every function key and value.
+Unproved symbolic identity is an explicit unsupported result, not structural
+inequality or a specification-error certificate. Symbolic operator domains may
+remain lazy where membership or cardinality does not demand this identity.
 Literal and mapped sets are sorted and deduplicated without retaining TLC
 constructor-object history. Default construction accepts mixed shapes under
 D-009; direct scalar comparison errors remain unchanged. Nominal compat uses

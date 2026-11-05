@@ -655,6 +655,10 @@ impl Machine {
                 for value in &mut v {
                     *value = self.work_norm(*value)?;
                 }
+                if let Err(error) = compare::require_materialized(&self.heap, &v) {
+                    self.give_scratch(v);
+                    return Err(error);
+                }
                 let r = self.heap.set_from(&mut v);
                 self.give_scratch(v);
                 self.checked_set(r)
@@ -726,6 +730,7 @@ impl Machine {
                     out.push(v);
                     Ok(true)
                 })?;
+                compare::require_materialized(&self.heap, &out)?;
                 let r = self.heap.set_from(&mut out);
                 self.checked_set(r)
             }
@@ -1139,6 +1144,7 @@ impl Machine {
     /// Refuses a just-built set whose elements TLC cannot all compare
     /// (`compare::check_set`).
     fn checked_set(&self, s: Handle) -> Result<Handle, Error> {
+        compare::require_materialized(&self.heap, &[s])?;
         if self.heap.store().semantics().tlc_comparisons && s.is_compound() {
             compare::check_set(&self.heap, self.heap.view(s).data)?;
         }
@@ -1209,6 +1215,7 @@ impl Machine {
         let v = self.heap.view(set);
         match v.kind {
             Kind::Set => {
+                compare::require_materialized(&self.heap, &[x, set])?;
                 let indexed = if self.fuel == u64::MAX && v.flags & crate::node::flags::HISTORY == 0
                 {
                     self.memo.member_index.search(&self.heap, set, x, v.data)?
@@ -2165,6 +2172,9 @@ impl Machine {
             }
             StdFn::Cardinality => {
                 let s = arg(0)?;
+                if self.heap.kind(s) == Some(Kind::Set) {
+                    compare::require_materialized(&self.heap, &[s])?;
+                }
                 if self.heap.kind(s) == Some(Kind::Product) {
                     return self.product_cardinality(s);
                 }
