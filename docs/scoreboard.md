@@ -52,6 +52,11 @@ Focused Core consumer controls additionally preserve original Product ranges in
 `Seq` and actual owned raw-query enumeration in nested `SUBSET`, including when
 symbolic membership is disabled. Alias/empty-query demand, mixed comparisons,
 non-tuple errors and independently validated violation/mutant words are covered.
+The first consumer candidate `00adce45` is rejected by independent pinned TLC
+review of Seq finiteness (#780). The corrected bounded consumer checks original
+range finiteness before emptiness, retains unknown-wrapper refusals, and adds
+opposite/negated, malformed and unused-axis controls without changing Heap's
+general classifier or claiming a new population result.
 Outer mapped collections containing multiple raw sets retain their separate
 authority refusal; the original Examples `MCQuicksort` remains refused. These
 checks do not update the frozen Phase 7 or Phase 8 qualification populations.

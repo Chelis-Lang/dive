@@ -451,6 +451,18 @@ checked normalization before the first element test, while an empty query
 leaves the base untouched. Explicit sets and interval queries use their existing
 cursors; an unowned raw enumeration refuses.
 
+Finiteness is a separate downstream consumer. The argument to `IsFiniteSet`
+retains any original Product before eager normalization. A bounded dispatcher
+follows Product methods and unary `SubsetValue.isFinite` / `Sequences.isFinite`:
+the latter demands range finiteness, then range emptiness only on true. Seq's own
+emptiness is false because it contains the empty sequence. Unknown constructor
+demands refuse; the general Heap classifier and factor admission remain unchanged.
+The independently reviewed revision `00adce45` is rejected: its generic classifier
+reported a false violation for an empty Product range and false Holds for the
+negated invariant ([#780](https://github.com/Chelis-Lang/dive/issues/780)). The
+pinned primary and holding/opposite, malformed, unused-axis and alias controls
+remain distinct from the preserved earlier workload successes.
+
 The outer collection boundary is separate. A map of multiple raw sets still
 reaches the existing shape refusal: canonical kind/slot order cannot establish
 TLC's child comparison or constructor history. Normalizing all mapped aliases

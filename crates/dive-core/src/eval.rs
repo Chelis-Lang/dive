@@ -2108,9 +2108,16 @@ impl Machine {
     }
 
     fn std_arg(&mut self, code: &Code, f: StdFn, index: usize, x: P) -> Result<Handle, Error> {
-        let value = self.eval_component(code, x)?;
+        // Finiteness dispatch must inspect the original receiver before an
+        // eager projection can erase its range methods or their demand.
+        let value = if f == StdFn::IsFiniteSet {
+            self.eval(code, x)?
+        } else {
+            self.eval_component(code, x)?
+        };
         let product = self.heap.kind(value) == Some(Kind::Product);
-        if (f == StdFn::Append && index == 1)
+        if (f == StdFn::IsFiniteSet && self.heap.has_product_receiver(value)?)
+            || (f == StdFn::Append && index == 1)
             || (product && matches!(f, StdFn::Cardinality | StdFn::IsFiniteSet | StdFn::Seq))
         {
             Ok(value)
@@ -2207,6 +2214,9 @@ impl Machine {
                 let s = arg(0)?;
                 if self.heap.kind(s) == Some(Kind::Product) {
                     return self.product_finiteness(s).map(Handle::bool);
+                }
+                if self.heap.has_product_receiver(s)? {
+                    return self.receiver_finiteness(s, 0).map(Handle::bool);
                 }
                 Ok(Handle::bool(self.heap.is_finite(s)))
             }
