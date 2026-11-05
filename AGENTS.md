@@ -27,11 +27,13 @@ owner. The charter's appendix records later corrections.
   corpus with the oracle's result, and document it before implementing.
 - **Ports follow TLC's semantics, not its structure.** Record provenance for
   ported algorithms in `docs/provenance.md`.
-- **Better by default, TLC-compatible always** (ADR 0010).
-  - `--compat=tlc` (also `DIVE_COMPAT=tlc` and the config key) is the single
-    switch that makes every observable behaviour TLC-equivalent. The exception is
-    host access: spec I/O needs explicit grants even in compat mode (D-017).
-    Every new option declares its TLC-equivalent setting.
+- **Better by default, nominal TLC compatibility** (ADR 0153, superseding
+  ADR 0010's exact-compatibility requirement).
+  - `--compat=tlc` (also `DIVE_COMPAT=tlc` and the config key) selects the
+    existing inexpensive TLC-compatible switches on Core. Exact fidelity is not
+    a release goal; unsupported cases refuse by name or retain canonical
+    behaviour with a documented gap in `docs/tlc-differences.md`. Spec I/O still
+    needs explicit grants in either profile (D-017).
   - Where TLC is wrong or limiting, build a named dive option that does better.
     Result-preserving improvements are on by default once the harness shows they
     match the goldens. Result-changing ones are opt-in unless the owner approved
