@@ -7,6 +7,13 @@
   the unimplemented `lsp` command from help, include the Git revision in
   `--version`, and name the requested engine in human checking headers.
 
+- Bundle pinned TLAPS and CommunityModules TLA+ sources as the final module-search
+  fallback. Existing local modules and explicit paths take precedence; ordinary
+  imports need no extra library flags or downloads. Analysis JSON identifies
+  these sources as `bundled`.
+  EWD998ChanID imports now resolve; checking retains a named refusal for its
+  unsupported VIEW/liveness or recursive LET evaluation.
+
 - Restore Core `Seq` membership over original Cartesian-product ranges and
   demanded enumeration of owned raw literal queries in nested `SUBSET` checks.
   Disabling symbolic membership preserves the same `SUBSET` receiver dispatch.

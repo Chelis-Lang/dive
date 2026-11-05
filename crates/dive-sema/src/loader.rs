@@ -15,7 +15,8 @@
 //! 4. the "after standard" module paths (SANY: modules found at the root
 //!    of the Java classpath, such as the `CommunityModules` jar);
 //! 5. a module of that name inside the root file itself, extracted line by
-//!    line (`util/MonolithSpecExtractor.module`).
+//!    line (`util/MonolithSpecExtractor.module`);
+//! 6. the bundled CommunityModules and TLAPS sources.
 
 use crate::diagnostics::{Code, Diagnostic, FileId, Span};
 use dive_syntax::ast::AstNode as _;
@@ -41,6 +42,8 @@ pub enum Origin {
     File(PathBuf),
     /// An embedded standard module.
     Standard,
+    /// A bundled CommunityModules or TLAPS source.
+    Bundled,
     /// A module extracted from the text after the root module.
     Monolith(PathBuf),
     /// Source text given directly to the analyzer.
@@ -332,12 +335,21 @@ impl Loader<'_> {
                 return Some(f);
             }
         }
-        let (root_path, root_text) = self.root_text.as_ref()?;
-        let text = monolith_module(root_text, name)?;
+        if let Some((root_path, root_text)) = &self.root_text
+            && let Some(text) = monolith_module(root_text, name)
+        {
+            return Some(SourceFile {
+                display: format!("{}#{name}", root_path.display()),
+                origin: Origin::Monolith(root_path.clone()),
+                text,
+                parse: dive_syntax::parse_module(""),
+            });
+        }
+        let (library, text) = crate::bundled::module(name)?;
         Some(SourceFile {
-            display: format!("{}#{name}", root_path.display()),
-            origin: Origin::Monolith(root_path.clone()),
-            text,
+            display: format!("<bundled:{library}>/{file_name}"),
+            origin: Origin::Bundled,
+            text: text.to_owned(),
             parse: dive_syntax::parse_module(""),
         })
     }
