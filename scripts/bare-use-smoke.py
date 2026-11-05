@@ -42,6 +42,9 @@ def main() -> int:
     actual = subprocess.check_output(["git", "-C", str(checkout), "rev-parse", "HEAD"], text=True).strip()
     if actual != examples["commit"]:
         sys.exit("bare-use: Examples checkout does not match its pin")
+    clean = subprocess.run(["git", "-C", str(checkout), "diff", "--quiet", "HEAD", "--"], check=False)
+    if clean.returncode != 0:
+        sys.exit("bare-use: Examples checkout has tracked changes")
     environment = os.environ.copy()
     for key in ("DIVE_COMPAT", "DIVE_ENGINE"):
         environment.pop(key, None)
