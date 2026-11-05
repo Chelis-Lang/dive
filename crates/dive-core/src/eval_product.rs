@@ -1,5 +1,6 @@
 //! Receiver-preserving Product scalar operations. Source: tlaplus value
-//! isFinite/isEmpty/size methods and Nat/Int overrides, 94d0c50.
+//! isFinite/isEmpty/size methods, Sequences.isFinite and Nat/Int overrides,
+//! 94d0c50.
 
 use super::Machine;
 use crate::node::Kind;
@@ -18,6 +19,39 @@ fn bounded(n: u64) -> Result<u64, Error> {
 }
 
 impl Machine {
+    /// Source finiteness for a retained Product and its unary wrappers. Other
+    /// constructors cannot borrow the Heap's conservative finiteness classifier
+    /// as a semantic Boolean. No query changes the original receiver or aliases.
+    pub(super) fn receiver_finiteness(&mut self, h: Handle, depth: u8) -> Result<bool, Error> {
+        self.charge(1)?;
+        if depth >= 64 || !h.is_compound() || self.heap.is_lazy(h) {
+            return Err(refused());
+        }
+        let view = self.heap.view(h);
+        match view.kind {
+            Kind::Product => self.factor_finiteness(h, depth),
+            Kind::Subset if view.data.len() == 1 => {
+                let base = view.data[0];
+                self.receiver_finiteness(base, depth + 1)
+            }
+            Kind::SeqSet if view.data.len() == 1 => {
+                let range = view.data[0];
+                // Sequences.isFinite: range.isFinite() && range.isEmpty().
+                if !self.receiver_finiteness(range, depth + 1)? {
+                    return Ok(false);
+                }
+                if self.heap.kind(range) == Some(Kind::SeqSet) {
+                    // Every unbounded Seq includes the empty sequence.
+                    return Ok(false);
+                }
+                self.finite_empty(range, depth + 1)
+            }
+            _ => Err(Error::unsupported(
+                "IsFiniteSet of a retained Product receiver under an unproved constructor",
+            )),
+        }
+    }
+
     pub(super) fn product_finiteness(&mut self, h: Handle) -> Result<bool, Error> {
         self.factor_finiteness(h, 0)
     }
@@ -237,6 +271,44 @@ mod tests {
     use super::*;
     use crate::{Opts, Semantics, Store, memo::Memo};
     use std::sync::Arc;
+
+    #[test]
+    fn sequence_finiteness_keeps_product_method_demand_and_raw_aliases() {
+        for semantics in [Semantics::default(), Semantics::tlc()] {
+            let mut m = Machine::new(
+                Arc::new(Store::with_semantics(true, semantics)),
+                0,
+                Opts::default(),
+                Memo::new(&[]),
+            );
+            let zero = Handle::int(0).unwrap();
+            let raw = m.heap.local_literal(&[zero, Handle::TRUE]).unwrap();
+            let empty = m.heap.interval(1, 0);
+            let product = m.heap.symbolic(Kind::Product, 0, &[empty, raw]);
+            let sequences = m.heap.symbolic(Kind::SeqSet, 0, &[product]);
+            assert_eq!(m.receiver_finiteness(sequences, 0), Ok(true));
+            assert!(m.heap.has_raw_construction(raw));
+            assert_eq!(m.heap.view(sequences).data, &[product]);
+            assert_eq!(m.heap.view(product).data, &[empty, raw]);
+            let subset = m.heap.symbolic(Kind::Subset, 0, &[sequences]);
+            assert_eq!(m.receiver_finiteness(subset, 0), Ok(true));
+            let outer_sequences = m.heap.symbolic(Kind::SeqSet, 0, &[sequences]);
+            assert_eq!(m.receiver_finiteness(outer_sequences, 0), Ok(false));
+            let unknown = m.heap.symbolic(Kind::Union, 0, &[sequences, empty]);
+            let error = m.receiver_finiteness(unknown, 0).unwrap_err();
+            assert_eq!(error.kind(), crate::ErrorKind::Unsupported);
+            assert!(error.message().contains("unproved constructor"));
+            let nonempty = m.heap.interval(0, 0);
+            let malformed = m.heap.symbolic(Kind::Product, 0, &[nonempty, zero]);
+            let malformed_sequences = m.heap.symbolic(Kind::SeqSet, 0, &[malformed]);
+            assert!(m.receiver_finiteness(malformed_sequences, 0).is_err());
+            assert!(m.heap.has_raw_construction(raw));
+            assert!(m.work_cardinality(raw).is_err());
+            m.set_fuel(0);
+            assert!(m.receiver_finiteness(sequences, 0).is_err());
+            assert!(!m.heap.poisoned());
+        }
+    }
 
     #[test]
     fn scalar_methods_keep_receivers_and_only_normalize_demanded_axes() {
