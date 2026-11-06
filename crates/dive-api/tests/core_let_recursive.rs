@@ -109,12 +109,11 @@ fn lexical_captures_repeated_calls_and_substitutions_match_reference()
 }
 
 #[test]
-fn escape_prime_operator_and_nested_recursion_keep_named_refusals()
+fn escape_operator_and_nested_recursion_keep_named_refusals()
 -> Result<(), Box<dyn std::error::Error>> {
     for compat_tlc in [false, true] {
         for (config, message) in [
             ("Escape", "used other than applied"),
-            ("Prime", "under a prime"),
             ("Operator", "operator parameter"),
             ("Nested", "nested recursive"),
         ] {
@@ -249,6 +248,154 @@ fn recursive_function_action_witness_multiplicity_is_explicitly_refused()
                 );
                 assert!(doc["counterexample"].is_null());
                 assert!(doc["tlc"].is_null());
+            }
+        }
+    }
+    Ok(())
+}
+
+fn primed_request(config: &str, compat_tlc: bool, workers: usize) -> CheckRequest {
+    let mut req = request(config, compat_tlc, workers);
+    if config.starts_with("Queue") {
+        req.file.set_file_name("PrimedQueue.tla");
+    } else if config != "Prime" {
+        req.file.set_file_name("PrimedCalls.tla");
+    }
+    req
+}
+
+#[test]
+fn primed_domains_bodies_and_arguments_observe_each_candidate()
+-> Result<(), Box<dyn std::error::Error>> {
+    for compat_tlc in [false, true] {
+        // Pinned TLC 94d0c50: the two candidates have different domains,
+        // recursive bodies and arguments. OnlyOne retains just x'=1.
+        for (config, generated, distinct, depth) in [
+            ("Prime", 4, 3, 3),
+            ("PrimedHolding", 7, 3, 2),
+            ("PrimedReverse", 7, 3, 2),
+            ("PrimedValue", 7, 3, 2),
+            ("PrimedFiltered", 5, 2, 2),
+            ("PrimedUnused", 7, 3, 2),
+            ("QueueHolding", 3, 2, 2),
+            ("PrimedWrong", 2, 2, 2),
+            ("QueueWrong", 2, 2, 2),
+        ] {
+            let wrong = config.ends_with("Wrong");
+            let reference =
+                check_file_engine(&primed_request(config, compat_tlc, 1), Engine::Reference)?;
+            let expected = observed(&reference);
+            assert_eq!(
+                expected["verdict"],
+                if wrong {
+                    "action-property-violation"
+                } else {
+                    "success"
+                }
+            );
+            assert_eq!(expected["code"], if wrong { 2112 } else { 2193 });
+            assert_eq!(expected["exit"], if wrong { 13 } else { 0 });
+            assert_eq!(expected["statistics"]["generated"], generated);
+            assert_eq!(expected["statistics"]["distinct"], distinct);
+            assert_eq!(expected["statistics"]["depth"], depth);
+            for workers in [1, 4] {
+                let req = primed_request(config, compat_tlc, workers);
+                for switches in ["", "-fold,-memo,-step-memo,-hashcons,-eager"] {
+                    let core = check_file_core_opts(&req, switches)?;
+                    assert_eq!(core.to_json()["engine"], "core");
+                    assert_eq!(
+                        observed(&core),
+                        expected,
+                        "{config}/{compat_tlc}/{workers}/{switches}"
+                    );
+                    if wrong {
+                        validate_primed_word(&req, &core, compat_tlc, config)?;
+                    } else {
+                        assert!(core.to_json()["counterexample"].is_null());
+                    }
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+fn validate_primed_word(
+    req: &CheckRequest,
+    core: &dive_api::CheckReport,
+    compat_tlc: bool,
+    config: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let options = TraceOptions {
+        compat_tlc,
+        run: Some((0, 0)),
+        ..Default::default()
+    };
+    let model = SpecModel::load(&req.file, req.config.as_ref().ok_or("config")?, &options)?;
+    let payload = core.to_json()["counterexample"]["trace"].clone();
+    assert_eq!(
+        model.validate(&TraceDoc::from_json(&payload)?).validation,
+        Validation::Valid
+    );
+    let mut bad = payload.clone();
+    bad["states"][1]["values"]["x"] = json!(3);
+    assert!(matches!(
+        model.validate(&TraceDoc::from_json(&bad)?).validation,
+        Validation::Invalid(ref failure) if failure.check == Check::Next
+    ));
+    let holding = primed_request(
+        if config == "QueueWrong" {
+            "QueueHolding"
+        } else {
+            "PrimedHolding"
+        },
+        compat_tlc,
+        1,
+    );
+    let holding_model = SpecModel::load(
+        &holding.file,
+        holding.config.as_ref().ok_or("holding config")?,
+        &options,
+    )?;
+    let mut bad = payload;
+    bad["ending"]["name"] = json!("Correct");
+    assert!(matches!(
+        holding_model.validate(&TraceDoc::from_json(&bad)?).validation,
+        Validation::Invalid(ref failure) if failure.check == Check::Ending
+            && failure.detail.contains("holds")
+    ));
+    Ok(())
+}
+
+#[test]
+fn primed_captures_mixed_self_calls_effects_and_escapes_stay_refused()
+-> Result<(), Box<dyn std::error::Error>> {
+    for compat_tlc in [false, true] {
+        for (config, message) in [
+            (
+                "PrimedCaptured",
+                "a recursive LET definition reading an enclosing local under a prime (M1 core)",
+            ),
+            (
+                "PrimedMixed",
+                "a recursive function with mixed plain and primed self applications (M1 core)",
+            ),
+            (
+                "PrimedEffect",
+                "an effectful recursive function under a prime (M1 core)",
+            ),
+            (
+                "PrimedEscape",
+                "a recursive function used other than applied (M1 core)",
+            ),
+        ] {
+            for switches in ["", "-fold,-memo,-step-memo,-hashcons,-eager"] {
+                let core = check_file_core_opts(&primed_request(config, compat_tlc, 1), switches)?;
+                let doc = core.to_json();
+                assert_eq!(core.verdict(), "unsupported", "{config}: {doc}");
+                assert_eq!(doc["message"], message);
+                assert!(doc["tlc"].is_null());
+                assert!(doc["counterexample"].is_null());
             }
         }
     }

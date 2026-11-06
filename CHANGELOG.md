@@ -38,6 +38,10 @@
   to Core, allowing original MCTwoPhase to check without path flags. Independently
   replay assignments through those operators; retained closures still refuse.
 
+- Evaluate pure recursive-function applications under prime on Core, using
+  successor-state domains, bodies and arguments. Keep primed enclosing-local
+  captures, mixed-mode self calls and effectful primed functions refused.
+
 - Restore Core `Seq` membership over original Cartesian-product ranges and
   demanded enumeration of owned raw literal queries in nested `SUBSET` checks.
   Disabling symbolic membership preserves the same `SUBSET` receiver dispatch.
