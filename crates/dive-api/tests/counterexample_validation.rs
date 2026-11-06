@@ -30,7 +30,7 @@ use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 use dive_api::trace::{Ending, Failure, SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{BudgetSetting, CheckRequest, check_file};
+use dive_api::{BudgetSetting, CheckRequest, Engine, check_file, check_file_engine};
 use serde_json::{Value, json};
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -64,12 +64,6 @@ const FAST_SEEDS: &[&str] = &[
     "crates/dive-check/tests/fixtures/errors/specs/ErActConstrDivZero/ErActConstrDivZero.tla",
     "crates/dive-check/tests/fixtures/errors/specs/ErPropDivZero/ErPropDivZero.tla",
 ];
-
-/// One seed per known refutation, with the refutation it shows.
-const KNOWN_SEEDS: &[(&str, &str)] = &[(
-    "conformance/corpus/compound-domain-emptiness/specifications/EmptyProductSkipsMixedInit/EmptyProductSkipsMixedInit.tla",
-    KNOWN_SKIPPED_INIT_DISJUNCT,
-)];
 
 /// States explored per run; a stopped run has no counterexample to check.
 const MAX_STATES: u64 = 20_000;
@@ -138,10 +132,8 @@ const KNOWN_ERROR_RERAISED: &str =
     "#490: a claimed evaluation error is re-raised by a last-state check and refuted";
 const KNOWN_CONSTRAINED_LAST_STATE: &str =
     "#499: anonymous error endings cannot yet prove terminal checks outside constraints";
-const KNOWN_SKIPPED_INIT_DISJUNCT: &str = "#443: Init membership raises on a disjunct TLC's generator skips (empty product or record set)";
 
 /// A refutation the sweep already found, so it does not fail the test.
-/// [`known_refutations_still_reproduce`] fails once one is fixed.
 fn known_refutation(ending: &Ending, failure: &Failure, last: usize) -> Option<&'static str> {
     let check = failure.check.name();
     let raises = matches!(ending, Ending::Error { .. } | Ending::Assertion);
@@ -167,8 +159,7 @@ fn known_refutation(ending: &Ending, failure: &Failure, last: usize) -> Option<&
     {
         return Some(KNOWN_CONSTRAINED_LAST_STATE);
     }
-    (check == "init" && failure.detail.contains("Attempted to check if non-"))
-        .then_some(KNOWN_SKIPPED_INIT_DISJUNCT)
+    None
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -383,20 +374,57 @@ fn fixed_seeds_validate() -> Result<()> {
     Ok(())
 }
 
-/// Fails once the validator accepts a known refutation's counterexample:
-/// then remove its entry from [`known_refutation`].
 #[test]
-fn known_refutations_still_reproduce() -> Result<()> {
-    let workspace = workspace_root();
-    for (seed, known) in KNOWN_SEEDS {
-        for profile in [Profile::Dive, Profile::Tlc] {
-            let outcome = check_run(&workspace.join(seed), profile)?;
-            assert_eq!(
-                outcome,
-                Outcome::Known(known),
-                "{seed} [{}]",
-                profile.name()
-            );
+fn core_empty_compound_initial_words_validate_or_refuse_mixed_compatibility() -> Result<()> {
+    for name in ["EmptyProductSkipsMixedInit", "EmptyRecordSkipsMixedInit"] {
+        let file = workspace_root().join(format!(
+            "conformance/corpus/compound-domain-emptiness/specifications/{name}/{name}.tla"
+        ));
+        for compat_tlc in [false, true] {
+            for workers in [1, 4] {
+                let report = check_file_engine(
+                    &CheckRequest {
+                        file: file.clone(),
+                        config: Some(file.with_extension("cfg")),
+                        workers: Some(workers),
+                        seed: Some(0),
+                        fp: Some(0),
+                        compat_tlc,
+                        ..CheckRequest::default()
+                    },
+                    Engine::Core,
+                )?
+                .to_json();
+                if compat_tlc {
+                    assert_eq!(report["verdict"], "unsupported");
+                    assert!(report["message"].as_str().is_some_and(|message| {
+                        message.contains("different shapes under --compat=tlc")
+                    }));
+                    assert!(report["counterexample"].is_null());
+                    continue;
+                }
+                assert_eq!(report["verdict"], "invariant-violation");
+                assert_eq!(report["property"], "Bad");
+                assert_eq!(report["statistics"]["distinct"], 1);
+                assert_eq!(report["statistics"]["generated"], 1);
+                assert_eq!(report["statistics"]["depth"], 1);
+                let model =
+                    SpecModel::load(&file, &file.with_extension("cfg"), &TraceOptions::default())?;
+                let doc = TraceDoc::from_json(&report["counterexample"]["trace"])?;
+                assert_eq!(
+                    model.try_validate(&doc)?.validation,
+                    Validation::Valid,
+                    "{name}"
+                );
+                let mut wrong = doc.to_json();
+                wrong["states"][0]["values"]["x"] = json!(1);
+                assert!(matches!(
+                    model
+                        .try_validate(&TraceDoc::from_json(&wrong)?)?
+                        .validation,
+                    Validation::Invalid(_)
+                ));
+            }
         }
     }
     Ok(())

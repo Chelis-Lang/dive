@@ -1,9 +1,10 @@
-//! Ordered single-candidate Init/Next construction, without checker enumeration.
+//! Independent Init membership and single-candidate Next construction.
 
 use std::sync::Arc;
 
-use dive_eval::{ErrorClass, EvalError, Scope, SlotView, St};
-use dive_ir::{BuiltinOp, Expr, ExprId, JunctionKind, OpRef, VarId};
+use dive_eval::next::Flow;
+use dive_eval::{ErrorClass, EvalError, HostControl, Scope, SlotView, St};
+use dive_ir::{BuiltinOp, Effects, Expr, ExprId, JunctionKind, OpRef, VarId};
 use dive_model::Model;
 use dive_value::Value;
 
@@ -58,7 +59,11 @@ pub(crate) fn random_check(model: &Model, witness: &State) -> Result<Option<bool
 /// `None` grants no membership proof. Pure callers may use a fresh predicate
 /// runtime after a structural decline or a witness-comparison evaluation error.
 /// Errors raised while actually evaluating source are retained separately.
-pub(crate) fn check(model: &Model, witness: &State) -> Result<Option<bool>, EvalError> {
+pub(crate) fn check(
+    model: &Model,
+    witness: &State,
+    control: Option<&dyn HostControl>,
+) -> Result<Option<bool>, EvalError> {
     let mut operation = Initial {
         model,
         slots: vec![None; model.ir.vars().len()],
@@ -69,7 +74,7 @@ pub(crate) fn check(model: &Model, witness: &State) -> Result<Option<bool>, Eval
         match operation.predicate(&init.pred.scope, init.pred.expr, 0) {
             Ok(true) => {}
             Ok(false) => return Ok(Some(false)),
-            Err(ConstructionError::Declined) => return Ok(None),
+            Err(ConstructionError::Declined) => return ordered_check(model, witness, control),
             Err(ConstructionError::Evaluation(error)) => return Err(error),
         }
     }
@@ -84,6 +89,83 @@ pub(crate) fn check(model: &Model, witness: &State) -> Result<Option<bool>, Eval
         Err(error) if error.class() == ErrorClass::Eval => Ok(None),
         Err(error) => Err(error),
     }
+}
+
+/// Pure relational Init membership uses actual source emissions, including empty
+/// branches. A source error or partial emission is never proof of nonmembership.
+/// Declining effectful/open contexts retains the existing private replay paths.
+fn ordered_check(
+    model: &Model,
+    witness: &State,
+    control: Option<&dyn HostControl>,
+) -> Result<Option<bool>, EvalError> {
+    let forbidden = Effects::IMPURE | Effects::LIVE_TLCGET | Effects::OPEN | Effects::TEMPORAL;
+    if model.init.iter().any(|init| {
+        model.ir.node(init.pred.expr).effects.intersects(forbidden)
+            || model.evaluator.scope_has_effects(&init.pred.scope)
+    }) || model.ir.defs().iter().enumerate().any(|(index, _)| {
+        u32::try_from(index).map_or(true, |index| {
+            let id = dive_ir::DefId(index);
+            model.evaluator.redirected(id) != id
+        })
+    }) {
+        return Ok(None);
+    }
+    // Finite private binding deliberately does not expand Next actions. Build
+    // only these source-bound Init predicates, without evaluating them yet.
+    let actions = model
+        .init
+        .iter()
+        .enumerate()
+        .map(|(index, init)| {
+            model.evaluator.predicate_in(
+                &init.pred.scope,
+                init.pred.expr,
+                dive_ir::actions::ActionName::Unnamed,
+                index,
+            )
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    let poll = || control.map_or(Ok(()), |c| c.check().map_err(EvalError::interrupted));
+    poll()?;
+    let mut matched = false;
+    let mut failure = None;
+    let outcome = model.evaluator.init_states(&actions, &mut |candidate| {
+        let compare = || {
+            poll()?;
+            if !candidate.complete() {
+                return Err(EvalError::unsupported(
+                    "independent Init membership encountered a partial initial state",
+                ));
+            }
+            for (actual, expected) in candidate.state.iter().zip(witness.iter()) {
+                let (Some(actual), Some(expected)) = (actual, expected) else {
+                    return Ok(false);
+                };
+                if !model.evaluator.equal_values(actual, expected)? {
+                    return Ok(false);
+                }
+            }
+            Ok(true)
+        };
+        match compare() {
+            Ok(false) => Flow::Continue,
+            Ok(true) => {
+                matched = true;
+                Flow::Stop
+            }
+            Err(error) => {
+                failure = Some(error);
+                Flow::Stop
+            }
+        }
+    });
+    poll()?;
+    if let Some(error) = failure {
+        return Err(error);
+    }
+    outcome.map_err(|error| error.error)?;
+    Ok(Some(matched))
 }
 
 /// `None` is a structural decline before any source evaluation. Its caller may

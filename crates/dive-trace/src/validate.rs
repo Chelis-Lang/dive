@@ -581,11 +581,15 @@ impl<'a> Run<'a> {
                         self.host.startup.store(false, Ordering::Relaxed);
                         let operation = if self.host.register_used.load(Ordering::Relaxed) {
                             self.host.startup.store(true, Ordering::Relaxed);
-                            crate::initial::check(m, &trace.states[0])
+                            crate::initial::check(m, &trace.states[0], self.control.as_deref())
                         } else {
                             match crate::initial::random_check(m, &trace.states[0]) {
                                 Ok(Some(member)) => Ok(Some(member)),
-                                Ok(None) => crate::initial::check(m, &trace.states[0]),
+                                Ok(None) => crate::initial::check(
+                                    m,
+                                    &trace.states[0],
+                                    self.control.as_deref(),
+                                ),
                                 Err(error) => Err(error),
                             }
                         };

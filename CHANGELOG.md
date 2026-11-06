@@ -260,6 +260,11 @@
   empty first axis or a nested empty Product prints `{}` without normalizing
   unused axes. Keep the existing guards for unproved conversions.
 
+- Validate initial words after empty product and record branches by independently
+  replaying pure Init construction. Reject forged first states and preserve
+  named refusals or typed interruption for unproved initial membership. Existing
+  partial-Init witnesses and native trace versions retain their meanings.
+
 - Independently validate primitive Next division errors before a second temporal
   row completes, preserving configured total state recurrences, original source
   representations and actual primary/diagnostic identity. Keep forged words,
