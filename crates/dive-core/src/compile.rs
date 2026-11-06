@@ -86,6 +86,13 @@ pub struct Role {
 /// An `INSTANCE` substitution active at a split role.
 #[derive(Clone, Debug)]
 pub enum RoleSubst {
+    /// An operator bound to an uncaptured top-level definition.
+    Operator {
+        /// The substituted declaration.
+        decl: dive_ir::DeclId,
+        /// The actual definition, with no retained lexical/dynamic closure.
+        def: DefId,
+    },
     /// `decl <- expr`, with `expr` evaluated in the frame of `def` with
     /// `slots` bound, outside any substitution.
     Expr {
@@ -1778,6 +1785,17 @@ impl Compiler<'_> {
         self.substs.clear();
         for rs in &r.substs {
             let entry = match rs {
+                RoleSubst::Operator { decl, def } => SubstEntry {
+                    id: self.subst_id(),
+                    decl: *decl,
+                    value: Ok(Arg::Op {
+                        op: OpRef::Def(*def),
+                        level: self.ir.def(*def).level,
+                    }),
+                    env,
+                    how: ArgHow::ByName,
+                    depth: 0,
+                },
                 RoleSubst::Value { decl, value } => {
                     let h = self.convert(value)?;
                     let p = self.konst(h)?;

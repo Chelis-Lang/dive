@@ -24,6 +24,10 @@
   Refuse unproved symbolic identities, including nested set/function children and
   compound states, instead of deriving false verdicts or error certificates.
 
+- Preserve uncaptured operator substitutions when handing split Init/Next roles
+  to Core, allowing original MCTwoPhase to check without path flags. Independently
+  replay assignments through those operators; retained closures still refuse.
+
 - Restore Core `Seq` membership over original Cartesian-product ranges and
   demanded enumeration of owned raw literal queries in nested `SUBSET` checks.
   Disabling symbolic membership preserves the same `SUBSET` receiver dispatch.
