@@ -353,6 +353,10 @@ call, is `Maybe`. Folding keeps the expression's value.
   (`Lift`, `Fun::caps`). A captured thunk is forced at the call, so it is
   speculative. Mutually recursive nested definitions, and captures under a
   prime, are refused.
+  Top-level functions also retain frame boundaries for substitution safety,
+  but their boundaries have no lexical parent or captures. Mutual back-edges
+  to those functions are recorded on their actual target boundary; they do
+  not require nested capture passing.
 - **Startup values.** TLC's startup value of a constant definition may be
   lazy, for example a filter over `Nat`. When it cannot be converted, the core
   compiles the definition's body instead. Configuration overrides
@@ -869,8 +873,9 @@ fixtures in `crates/dive-api/tests/fixtures/core-m0`. Measurements are in
   variables is passed by name. Zero-arity `LET` definitions are thunks.
 - **Caching.** A zero-arity top-level definition of state level is evaluated
   at most once per frame activation (for example `sc` in GameOfLife).
-- **Recursive operators.** They are compiled once into their own frame, with
-  eager arguments. Function constructors are materialized. (M1: see §4.1.)
+- **Recursive operators.** They are compiled once per definition, Init mode,
+  lexical owner and active INSTANCE substitution prefix into their own frame,
+  with eager arguments. Function constructors are materialized. (M1: see §4.1.)
 - **Folding.** Closed subexpressions are folded by evaluating them at compile
   time, within the R9 bound (§3, pass 1). A folding failure leaves the node
   alone. Filters and `CHOOSE` enumerate a symbolic domain through its cursor

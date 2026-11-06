@@ -173,7 +173,7 @@ enum Mode {
     Primed,
 }
 
-/// Recursive-function identity: definition, read mode, Init, owner and substitutions.
+/// Recursive compilation identity: definition, mode, Init, owner and substitutions.
 type RecKey = (DefId, Mode, bool, Option<usize>, Option<u32>);
 
 /// What a thunk of `Compiler::def_cache` stands for: a zero-arity
@@ -610,7 +610,8 @@ struct Compiler<'a> {
     reset_stack: Vec<Vec<u32>>,
     at_stack: Vec<u32>,
     init_mode: bool,
-    funs: HashMap<(DefId, bool), u32>,
+    /// Recursive operators use the same context identity as function definitions.
+    funs: HashMap<RecKey, u32>,
     /// Recursive function definitions `f[x \in S] == e` compiled as
     /// functions of their argument.
     recfuns: HashMap<RecKey, u32>,
@@ -2795,7 +2796,9 @@ impl Compiler<'_> {
     /// capture slots (filled in when its body is complete).
     fn fun_call(&mut self, d: DefId, fun: u32, mut ps: Vec<P>, env: usize) -> Result<P, Error> {
         if let Some(i) = self.lifts.iter().position(|l| l.fun == fun) {
-            if i + 1 != self.lifts.len() {
+            // Top-level functions still need the substitution frame boundary,
+            // but have no lexical captures to pass along a mutual back-edge.
+            if i + 1 != self.lifts.len() && self.lifts[i].parent.is_some() {
                 return Err(Error::unsupported(
                     "mutually recursive nested definitions (M1 core)",
                 ));
@@ -2804,7 +2807,7 @@ impl Compiler<'_> {
                 fun,
                 args: ps.into(),
             })?;
-            if let Some(l) = self.lifts.last_mut() {
+            if let Some(l) = self.lifts.get_mut(i) {
                 l.self_calls.push(call);
             }
             return Ok(call);
@@ -3066,10 +3069,15 @@ impl Compiler<'_> {
             // Caller aliases and thunk slots belong to another runtime frame.
             // Constants are frame-independent; otherwise compile fresh nodes
             // here. Existing capture resolution refuses non-lexical locals.
-            if let ArgHow::Alias(p) | ArgHow::Thunk(_, p) = how
-                && matches!(self.code.nodes.get(p as usize), Some(Node::Const(_)))
-            {
-                return Ok(p);
+            if let ArgHow::Alias(mut p) | ArgHow::Thunk(_, mut p) = how {
+                // Disabling eager aliases can wrap the same constant in
+                // caller thunks. Reuse only the constant, never their slots.
+                while let Some(Node::Lazy { body, .. }) = self.code.nodes.get(p as usize) {
+                    p = *body;
+                }
+                if matches!(self.code.nodes.get(p as usize), Some(Node::Const(_))) {
+                    return Ok(p);
+                }
             }
             let body = self.outside(depth, |c| c.p(expr, env, mode))?;
             if self.info[body as usize].effect || self.info[body as usize].calls {
@@ -3659,7 +3667,13 @@ impl Compiler<'_> {
     }
 
     fn fun(&mut self, d: DefId, call_env: usize) -> Result<u32, Error> {
-        let key = (d, self.init_mode);
+        let key = (
+            d,
+            Mode::Plain,
+            self.init_mode,
+            self.lexical_parent(d, call_env)?,
+            self.substs.last().map(|s| s.id),
+        );
         if let Some(&f) = self.funs.get(&key) {
             return Ok(f);
         }

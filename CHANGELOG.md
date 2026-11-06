@@ -57,6 +57,12 @@
   callback's lexical context and refuse unreachable captures, effects and
   unproved recursive calls.
 
+- Restore top-level mutually recursive operator calls on Core, including Nano's
+  balance calculations, while preserving isolated substitution frames and the
+  refusal for mutually recursive captured local definitions.
+  Keep recursive operator compilations distinct by lexical activation and
+  INSTANCE bindings, preserving both holding and violated invariant results.
+
 - Restore Core `Seq` membership over original Cartesian-product ranges and
   demanded enumeration of owned raw literal queries in nested `SUBSET` checks.
   Disabling symbolic membership preserves the same `SUBSET` receiver dispatch.
