@@ -562,10 +562,10 @@ Implemented storage now includes all-vertex/original persistent roots, CSR
 metadata, eager controlled Graph admission, on-demand state access, graph-neutral
 completion/results and native validated reporting (§7.1–§7.4). It reuses the
 analyzer and independent validator. Conversion reuse is limited to the bounded closed-materialized-value cache (§4).
-Sets, nonscalar general domains and opaque values still need their own proved
-weighting and measured justification. Closed recursive functions with scalar
-domains are eligible under §4; no cache may recreate an unaccounted complete
-Value graph.
+Raw/symbolic sets, nonscalar general domains and opaque values remain outside
+that cache. Closed recursive functions with scalar domains and already stored
+enumerated sets are eligible under §4; no cache may recreate an unaccounted
+complete Value graph.
 
 Remaining qualification and accounting work:
 
