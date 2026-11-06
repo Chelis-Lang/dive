@@ -90,6 +90,14 @@ fn original_finite_and_empty_method_order_keeps_demanded_errors_and_receivers() 
             let report = check_file_engine(&request(name, compat), Engine::Reference)
                 .expect("Reference demanded error");
             let d = report.to_json();
+            if !compat && name == "AliasSizeAfterFiniteness" {
+                assert_eq!(
+                    facts(&report),
+                    json!({"verdict":"success", "code":2193, "verified":true,
+                    "distinct":3, "generated":3, "depth":3, "property":null, "exit":0})
+                );
+                continue;
+            }
             assert_eq!(d["verdict"], "evaluation-error", "{name}/{compat}");
             assert_eq!(report.exit_code_for(ExitConvention::Tlc), 75);
             if name == "OperandBeforeFiniteness" {

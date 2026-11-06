@@ -542,6 +542,9 @@ mod tests {
         let enumeration = heap.materialize_cached(interval).unwrap();
         let tuple = heap.tuple_literal(&[interval, enumeration]);
         let closed = heap.close_identity_local(tuple).unwrap();
+        let expected = heap.tuple(&[enumeration, enumeration]);
+        assert_eq!(heap.hash(closed), heap.hash(expected));
+        assert!(heap.eq(closed, expected));
         assert!(enumeration.is_transient() && closed.is_transient());
         assert_eq!(heap.view(closed).flags, 0);
         assert_eq!(store.stats().nodes, before);

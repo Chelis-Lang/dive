@@ -94,6 +94,46 @@ fn admission_limits_stop_as_the_reference_engine_does() {
                 break;
             }
             let reference = run(spec, Engine::Reference, limits);
+            if reference["verdict"] == "unsupported" {
+                assert_eq!(name, "LazyCupDup", "unavailable reference for {name}");
+                // This graph has r=0,1,2 and exactly two canonical successors
+                // per state (D-028). Pin its admission prefix independently of
+                // the frozen reference's construction-history refusal.
+                let stopped_prefix = match (states, depth) {
+                    (Some(1), None) => Some(("states", 1, 2, 1, 2, 0, 1)),
+                    (Some(2), None) => Some(("states", 2, 3, 2, 3, 1, 2)),
+                    (None, Some(1)) => Some(("depth", 1, 2, 1, 2, 0, 1)),
+                    _ => None,
+                };
+                if let Some((resource, limit, observation, distinct, generated, queued, depth)) =
+                    stopped_prefix
+                {
+                    assert_eq!(core["verdict"], "stopped");
+                    assert_eq!(core["exit"], 5);
+                    assert_eq!(core["stopped"]["resource"], resource);
+                    assert_eq!(core["stopped"]["limit"], limit);
+                    assert_eq!(core["stopped"]["observed"], observation);
+                    for (field, expected) in [
+                        ("distinct", distinct),
+                        ("generated", generated),
+                        ("left_on_queue", queued),
+                        ("depth", depth),
+                        ("initial_generated", 1),
+                    ] {
+                        assert_eq!(core["statistics"][field], expected, "{field}/{core:#}");
+                    }
+                    assert_eq!(core["statistics"]["exhaustive"], false);
+                    stopped += 1;
+                } else {
+                    assert_eq!(core["verdict"], "success", "{core:#}");
+                    assert_eq!(core["exit"], 0);
+                    assert_eq!(core["statistics"]["distinct"], 3);
+                    assert_eq!(core["statistics"]["generated"], 7);
+                    assert_eq!(core["statistics"]["depth"], 2);
+                }
+                assert!(core["counterexample"].is_null());
+                continue;
+            }
             assert_eq!(
                 observed(&core),
                 observed(&reference),

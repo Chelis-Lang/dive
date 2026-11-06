@@ -61,6 +61,33 @@ fn observed(v: &Value) -> Value {
 }
 
 #[test]
+fn a_reference_refusal_is_visible_without_comparison_credit() {
+    let spec =
+        repo().join("crates/dive-eval/tests/fixtures/next/specs/NxInLazyCup/NxInLazyCup.tla");
+    let checked = run(&spec, 1, Some(16));
+    assert_eq!(checked["verdict"], "success", "{checked:#}");
+    for (field, expected) in [("generated", 7), ("distinct", 3), ("depth", 2)] {
+        assert_eq!(checked["statistics"][field], expected, "{field}");
+    }
+    let sample = &checked["core"]["sample"];
+    assert_eq!(sample["states"], 3);
+    assert_eq!(sample["skipped"], 3);
+    assert_eq!(sample["compared"], 0);
+    assert_eq!(sample["successors"], 0);
+    assert_eq!(sample["mismatches"], 0);
+    let shown = sample["shown"].as_array().expect("unavailable comparisons");
+    assert_eq!(shown.len(), 3);
+    for item in shown {
+        assert!(
+            item["difference"]
+                .as_str()
+                .expect("reason")
+                .starts_with("reference comparison unavailable: unsupported: enumerating")
+        );
+    }
+}
+
+#[test]
 fn sampled_successors_equal_the_reference_evaluators() {
     let mut all = Vec::new();
     for dir in [

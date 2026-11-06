@@ -577,6 +577,7 @@ fn write_error_product(
             if matches!(
                 error.kind(),
                 crate::ErrorKind::Interrupted { .. }
+                    | crate::ErrorKind::Unsupported
                     | crate::ErrorKind::DeferredError { .. }
                     | crate::ErrorKind::DiveLimit
                     | crate::ErrorKind::Codec

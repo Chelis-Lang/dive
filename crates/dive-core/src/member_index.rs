@@ -73,34 +73,7 @@ impl MemberIndex {
     // Only closed eager values whose existing hash agrees with canonical
     // comparison are admitted. This neither normalizes nor interns a query.
     fn eligible(heap: &Heap, value: Handle, depth: u8) -> Result<bool, Error> {
-        heap.history_poll()?;
-        if depth == 64 || value.is_empty() {
-            return Ok(false);
-        }
-        if !value.is_compound() {
-            return Ok(value
-                .as_str_id()
-                .or_else(|| value.as_model_id())
-                .is_none_or(|id| heap.known_name(id)));
-        }
-        let view = heap.view(value);
-        if view.is_lazy()
-            || !matches!(
-                view.kind,
-                Kind::Set | Kind::IntFcn | Kind::Fcn | Kind::BigInt
-            )
-        {
-            return Ok(false);
-        }
-        if view.kind == Kind::BigInt {
-            return Ok(true);
-        }
-        for &child in view.data {
-            if !Self::eligible(heap, child, depth + 1)? {
-                return Ok(false);
-            }
-        }
-        Ok(true)
+        crate::compare::materialized(heap, value, depth)
     }
 
     fn bucket(hash: u64, slots: usize) -> usize {

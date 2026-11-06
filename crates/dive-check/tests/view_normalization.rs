@@ -179,7 +179,11 @@ fn lazy_view_normalization_visits_operands_without_forcing_predicates() {
                         options.workers = width;
                         options.chaos = chaos;
                         let result = dive_check::check(&ir, &cfg, &options);
-                        if value.starts_with("Nat") || value.starts_with("UNION") {
+                        let canonical_singleton_union =
+                            profile == dive_eval::Profile::Dive && value == "UNION {Nat}";
+                        if (value.starts_with("Nat") || value.starts_with("UNION"))
+                            && !canonical_singleton_union
+                        {
                             // These clean primary positives expose an additional
                             // cache-normalization contract not proved here.
                             assert!(

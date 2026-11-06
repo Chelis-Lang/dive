@@ -323,7 +323,11 @@ impl Core {
                             .collect();
                         out.push(Value::tuple(sub));
                     }
-                    Ok(Value::set_raw(out, self.ctx))
+                    if self.opts.comparisons == crate::options::Comparisons::Tla {
+                        Ok(Value::set_canonical(out, self.ctx)?)
+                    } else {
+                        Ok(Value::set_raw(out, self.ctx))
+                    }
                 }
 
                 // ------------------------------------------------------- Functions
@@ -1014,7 +1018,11 @@ impl Core {
                 }
             }
         }
-        Ok(Value::set_raw(out, self.ctx))
+        if self.opts.comparisons == crate::options::Comparisons::Tla {
+            Ok(Value::set_canonical(out, self.ctx)?)
+        } else {
+            Ok(Value::set_raw(out, self.ctx))
+        }
     }
 
     fn longest_common_prefix(&self, op: StdOp, s: &Value) -> Result<Value> {
@@ -1312,7 +1320,9 @@ impl Core {
         if self.ctx.order == crate::core::TLC_ORDER {
             Ok(tlc::compare(a, b, self.ctx)?)
         } else {
-            Ok(a.cmp_with(b, self.ctx.order))
+            let a = a.materialized_identity(self.ctx)?;
+            let b = b.materialized_identity(self.ctx)?;
+            Ok(a.cmp_with(&b, self.ctx.order))
         }
     }
 
@@ -1578,7 +1588,11 @@ impl Core {
             let mut visited: HashSet<Value> = HashSet::from([start.clone()]);
             extend_path(start, &adj, &mut path, &mut visited, &mut paths);
         }
-        Ok(Value::set_raw(paths, self.ctx))
+        if self.opts.comparisons == crate::options::Comparisons::Tla {
+            Ok(Value::set_canonical(paths, self.ctx)?)
+        } else {
+            Ok(Value::set_raw(paths, self.ctx))
+        }
     }
 
     fn is_strongly_connected(&self, op: StdOp, g: &Value) -> Result<Value> {

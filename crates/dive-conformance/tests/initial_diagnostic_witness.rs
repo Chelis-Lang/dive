@@ -13,10 +13,41 @@ use serde_json::{Value, json};
 
 type TestResult = Result<(), Box<dyn std::error::Error>>;
 
+fn canonical_initial_success(value: &Value, exit: Option<i32>) {
+    assert_eq!(value["verdict"], "success", "{value:#}");
+    assert_eq!(exit, Some(0));
+    for field in ["distinct", "generated", "depth"] {
+        assert_eq!(value["statistics"][field], 3, "{field}/{value:#}");
+    }
+    assert_eq!(value["statistics"]["left_on_queue"], 0);
+    for field in ["counterexample", "error_witness", "diagnostic_witness"] {
+        assert!(value[field].is_null(), "{field}/{value:#}");
+    }
+}
+
+fn context_only_oracle(pinned: &str, sha256: &str) {
+    use dive_conformance::tlc::{messages, result};
+    assert_eq!(
+        dive_conformance::hash::sha256_bytes(pinned.as_bytes()),
+        sha256
+    );
+    let transcript = messages::parse(pinned);
+    assert_eq!(transcript.anomalies, [] as [String; 0]);
+    let oracle = result::classify(
+        &transcript,
+        &result::RunFacts {
+            exit_code: Some(75),
+            ..result::RunFacts::default()
+        },
+    );
+    assert_eq!(oracle.verdict, result::Verdict::Unclassified);
+    assert_eq!(oracle.error_codes, [2102, 2103]);
+    assert_eq!(oracle.exit_code, Some(75));
+}
+
 #[test]
 fn context_only_initial_errors_keep_unclassified_oracles_and_refuse_native_class_claims()
 -> TestResult {
-    use dive_conformance::tlc::{messages, result};
     for (name, pinned, sha256) in [
         (
             "InitialTool",
@@ -29,22 +60,7 @@ fn context_only_initial_errors_keep_unclassified_oracles_and_refuse_native_class
             "a7ab40e040f98033631201bf9899be1e619b349cf8453f564e2c570e8018b695",
         ),
     ] {
-        assert_eq!(
-            dive_conformance::hash::sha256_bytes(pinned.as_bytes()),
-            sha256
-        );
-        let transcript = messages::parse(pinned);
-        assert_eq!(transcript.anomalies, [] as [String; 0]);
-        let oracle = result::classify(
-            &transcript,
-            &result::RunFacts {
-                exit_code: Some(75),
-                ..result::RunFacts::default()
-            },
-        );
-        assert_eq!(oracle.verdict, result::Verdict::Unclassified);
-        assert_eq!(oracle.error_codes, [2102, 2103]);
-        assert_eq!(oracle.exit_code, Some(75));
+        context_only_oracle(pinned, sha256);
         let file = root().join(format!(
             "crates/dive-api/tests/fixtures/comparison-receiver-unclassified/{name}.tla"
         ));
@@ -79,6 +95,13 @@ fn context_only_initial_errors_keep_unclassified_oracles_and_refuse_native_class
                 actual_outcome.exit_code = Some(i32::from(
                     report.exit_code_for(dive_api::ExitConvention::Tlc),
                 ));
+                if name == "InitialOverride" && !compat {
+                    // Canonical construction (D-028) avoids the legacy sorting
+                    // error. The pinned primary observation above remains
+                    // unclassified; it supplies no oracle agreement credit.
+                    canonical_initial_success(&value, actual_outcome.exit_code);
+                    continue;
+                }
                 if name == "InitialOverride" && engine == Engine::Core {
                     assert_eq!(value["verdict"], "unsupported");
                     assert_eq!(report.exit_code_for(dive_api::ExitConvention::Tlc), 3);

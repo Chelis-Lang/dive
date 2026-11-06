@@ -618,7 +618,7 @@ not silently corrected.
 | | |
 |---|---|
 | **Kind** | Different answer |
-| **Default** | **TLA+ answers** for `=` and `\in` between functions, records, tuples and sets (`--comparisons=tla`; owner decision 2026-10-08). The error is kept only where TLA+ leaves the answer unspecified, such as `1 = "a"`. Set construction still follows TLC's rules. The core refuses unproved compound normalization in both profiles (#619). |
+| **Default** | **TLA+ answers** for `=` and `\in` between functions, records, tuples and sets (`--comparisons=tla`; owner decision 2026-10-08). The error is kept only where TLA+ leaves the answer unspecified, such as `1 = "a"`. Core finite-set construction is canonical (ADR 0153; D-028); direct scalar type errors stay unchanged. |
 | **TLC behaviour** | `--comparisons=tlc`, part of `--compat=tlc` |
 | **Status** | default in `dive-eval` (`Comparisons::Tla`). TLC's behaviour is implemented and matched in `dive-value` and `dive-eval` under `--compat=tlc`. |
 
@@ -693,27 +693,13 @@ and add no strict parity credit.
 
 ---
 
-**VIEW normalization boundary (#188, 2026-10-11).** TLC normalizes every
-concrete variable before evaluating VIEW, including values the projection
-ignores. With `Init == n = 0 /\\ s = {<<1>>, [a |-> 1,b |-> 1]}`,
-`VIEW n`, and a pure incrementing `Next`, the clean pinned primary exits 255
-with EC1000 during initial fingerprinting. Earlier dive instead explored four
-states and reported an invariant violation with unprintable `s`; that output
-has no independent trace certificate. The repaired path performs the same
-normalization. Its current strict response to this unproved error-message/class
-boundary is named `unsupported`, with no counterexample, rather than a guessed
-TLC error or a completed model verdict. The current default profile also
-refuses this reversed mixed set: approved D-009 comparisons do not yet cover
-this concrete normalization boundary. A forward mixed set can finish checking,
-but its emitted canonical JSON set order is rejected by the trace decoder in
-both profiles. Such an output is not an independently validated word.
-[Follow-up #190](https://github.com/Chelis-Lang/dive/issues/190) tracks these
-normalization and structured-decoding gaps. The full current selection retains
-132 original candidates and 396 mutants: 96 originals validate and 288 mutants
-are semantically rejected; the remaining 36 originals and 108 mutants fail
-decoder shape admission and receive no certificate or semantic-rejection
-credit. These include 24 emitted forward-mixed words and 12 supplied
-default-reverse candidates; the supplied candidates are not checker witnesses.
+**VIEW and mixed structured sets.** Default-profile Core now checks both
+`{<<1>>, [a |-> 1, b |-> 1]}` and the reverse literal order, including a VIEW
+that projects the set away. Its emitted mixed-set word round-trips and validates
+independently; altered states and a wrong invariant claim fail validation.
+Earlier normalization and decoder refusals are superseded by D-028. The original
+TLC behavior remains recorded in the pinned fixtures and git history.
+
 The separate homogeneous recovery matrix retains 504 executions, 216 valid
 original/recovered witnesses and 216 semantically rejected altered witnesses.
 Source-qualified before and current evidence
@@ -3045,3 +3031,58 @@ execution in either semantic profile. They use a bounded DAP protocol and
 stop-scoped readable scalar storage; broader maps/inspection and TLC `-debugger`
 transport remain unfinished. Ordinary checking leaves observation off. See
 [the native debugging guide](user/debugging.md).
+
+## D-028: Canonical finite sets
+
+Core constructs finite set literals and mapped sets as mathematical sets:
+construction order, repeated elements and TLC's prior normalization of the same
+object do not change their identity. For example, both orders of
+`{<<1>>, [a |-> 1, b |-> 1]}` are accepted by the default profile. This extends
+D-009 under the owner's ADR 0153 decision. Undefined direct scalar comparisons,
+such as `1 = "a"`, still report an error.
+
+Canonical enumeration can also reduce generated counts. The pinned
+`NxInLazyCup` example (`r' \in [a : {1}] \cup [a : {1, 2}]`) generates
+10 states in TLC and 7 on default Core; both find the same 3 distinct states
+at depth 2. This exact D-028 difference is separate from exploration-order
+changes (D-010).
+
+Symbolic powersets, function sets and sequence sets retain lazy membership and
+streaming; this policy does not require enumerating huge or infinite domains.
+Using a symbolic definition as an element, function key or stored state can
+require an identity that Core has not established. Such requests explicitly
+return `unsupported`; symbolic structure is never treated as mathematical
+inequality. The independent trace validator also refuses unproved identity,
+including in words claiming a specification evaluation error.
+
+### Default outcomes and real errors
+
+Canonical construction also applies in the shared evaluator and independent
+replay. Raw mixed-set normalization no longer masks a mathematical result:
+`graph-demand/DemandedEdges` is an independently validated initial `Inv`
+violation, while the finite graph/Product/projection controls listed in the
+[D-028 registry](divergences.md#d-028-canonical-finite-set-construction) complete
+with exact tested counts. Malformed graph fields, non-function arguments to
+`AntiFunction`, and empty arguments to `LongestCommonPrefix` still report their
+real errors.
+
+### Compat gaps
+
+Constructor admission can refuse before an operation TLC would leave unused.
+The explicit regression lists include `graph-demand/SelfDemand`,
+`graph-empty-product/LazyEmptyProduct`,
+`product-operations/FiniteRawAxisHistory` and
+`set-conversion-demand/NormalizedProjectionSkipRaw`; these nominal Core/TLC
+refusals name the mixed-shape comparison gap. Default checks and pinned
+Reference/TLC checks retain their separately tested outcomes.
+
+`--compat=tlc` retains inexpensive existing switches, including integer and name
+order. Core also uses canonical set producers in this mode. It refuses mixed
+comparison shapes by name rather than emulating TLC's constructor history.
+Examples that TLC can leave unnormalized but Core refuses include
+`SeqProductSkipRaw`, `MappedEmptySubsets`, `SeqProductFiniteSkipRaw`,
+`SeqProductFiniteDemandRaw` and `MappedMixedSubsets` in
+`crates/dive-api/tests/fixtures/core-receiver-consumers/`. Mixed-shape literal-history and core-normalization fixtures likewise retain
+named compat refusals, including `OrderShortCircuit`, `SizeShortCircuit` and
+`ExcludedRawState`. These gaps do not
+change the trace format or permit an unvalidated counterexample.

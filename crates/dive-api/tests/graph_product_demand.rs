@@ -12,6 +12,8 @@ use dive_api::{
 };
 use serde_json::{Value, json};
 
+const MIXED_COMPAT: &str = "a set of values of different shapes under --compat=tlc, where TLC's checked comparison may fail or answer by its asymmetric rules (C1–C5; the exact port is not built)";
+
 const CLASSIFIED: &[&str] = &[
     "LazyEmptyProduct",
     "LazyEmptyProductScalar",
@@ -107,6 +109,20 @@ fn empty_product_conversions_and_nonempty_control_match_pinned_results() {
                 for switches in ["", "-fold,-memo", "-hashcons"] {
                     let core = check_file_core_opts(&req, switches).expect("Core check");
                     assert_eq!(core.to_json()["engine"], "core");
+                    if compat
+                        && matches!(
+                            *name,
+                            "LazyEmptyProduct"
+                                | "LazyReverseEmptyProduct"
+                                | "LazyNestedEmptyProduct"
+                                | "LazyEmptyProductViolation"
+                        )
+                    {
+                        assert_eq!(core.verdict(), "unsupported");
+                        assert_eq!(core.exit_code_for(ExitConvention::Tlc), 3);
+                        assert_eq!(core.to_json()["message"], MIXED_COMPAT);
+                        continue;
+                    }
                     assert_eq!(
                         observed(&core),
                         pinned,
@@ -140,6 +156,16 @@ fn demanded_comparisons_operand_errors_and_axis_history_remain_demanded() {
             let req = request(name, compat, 1);
             let reference = check_file_engine(&req, Engine::Reference).expect("Reference check");
             let doc = reference.to_json();
+            if !compat && matches!(name, "LazyDemandedProduct" | "LazyProductHistory") {
+                let expected = json!({"verdict":"success", "property":null, "distinct":3, "generated":3,
+                    "depth":3, "code":2193, "class":"TLC_SUCCESS", "exit":0});
+                assert_eq!(observed(&reference), expected, "{name}");
+                for switches in ["", "-fold,-memo", "-hashcons"] {
+                    let core = check_file_core_opts(&req, switches).expect("canonical Core check");
+                    assert_eq!(observed(&core), expected, "{name}/{switches}");
+                }
+                continue;
+            }
             assert_eq!(doc["verdict"], "evaluation-error", "{name}: {doc}");
             assert_eq!(reference.exit_code_for(ExitConvention::Tlc), 75);
             let (nested, demanded) = match name {
@@ -161,9 +187,7 @@ fn demanded_comparisons_operand_errors_and_axis_history_remain_demanded() {
                 if matches!(name, "LazyDemandedProduct" | "LazyProductHistory") {
                     assert_eq!(core_doc["verdict"], "unsupported", "{name}: {core_doc}");
                     assert_eq!(core.exit_code_for(ExitConvention::Tlc), 3);
-                    assert!(core_doc["message"].as_str().is_some_and(|message| {
-                        message.contains("local scalar/tuple comparison")
-                    }));
+                    assert_eq!(core_doc["message"], MIXED_COMPAT);
                 } else {
                     assert_eq!(core_doc["verdict"], doc["verdict"]);
                     assert_eq!(core_doc["tlc"], doc["tlc"]);

@@ -633,6 +633,9 @@ impl From<ValueError> for EvalError {
 
 impl EvalError {
     fn from_value_error(error: &ValueError) -> Self {
+        if error.kind() == ErrorKind::Unsupported {
+            return Self::unsupported(error.message().to_owned());
+        }
         if let ErrorKind::Interrupted { receipt } | ErrorKind::DeferredError { receipt } =
             error.kind()
         {

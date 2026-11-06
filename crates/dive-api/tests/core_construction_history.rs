@@ -1,4 +1,4 @@
-//! Actual producer-to-consumer set history and state handoff, against pinned TLC.
+//! Canonical finite sets cross state handoff without changing valid oracle outcomes.
 #![allow(clippy::expect_used, reason = "official pinned test fixtures")]
 use dive_api::{CheckRequest, ExitConvention, check_file_core_opts};
 use serde_json::Value;
@@ -62,6 +62,16 @@ fn literal_map_union_and_nested_except_cross_the_real_state_boundary() {
                     let report = check_file_core_opts(&request(name, compat, workers), opts)
                         .expect("core invocation");
                     let doc = report.to_json();
+                    if compat && name == "ExcludedRawState" {
+                        assert_eq!(doc["verdict"], "unsupported");
+                        assert!(
+                            doc["message"]
+                                .as_str()
+                                .expect("named compat gap")
+                                .contains("typed model value")
+                        );
+                        continue;
+                    }
                     assert_eq!(
                         doc["verdict"], "success",
                         "{name}/{compat}/{workers}/{opts}: {doc}"
@@ -196,10 +206,11 @@ fn actual_history_handoff_words_replay_and_reject_mutated_middle_states() {
                 }
                 let word =
                     TraceDoc::from_json(&doc["counterexample"]["trace"]).expect("actual word");
-                assert!(matches!(
-                    model.validate(&word).validation,
-                    Validation::Valid
-                ));
+                let validation = model.validate(&word).validation;
+                assert!(
+                    matches!(validation, Validation::Valid),
+                    "{compat}/{workers}/{opts}: {validation:?}"
+                );
                 let mut mutant = doc["counterexample"]["trace"].clone();
                 mutant["states"][1]["values"]["step"] = Value::from(99);
                 let mutant = TraceDoc::from_json(&mutant).expect("mutant decodes");

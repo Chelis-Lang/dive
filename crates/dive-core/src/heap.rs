@@ -1642,7 +1642,9 @@ impl Heap {
     /// # Errors
     /// An unclosed lazy value, failed normalization, or a too-deep candidate.
     pub fn close_identity_local(&mut self, h: Handle) -> Result<Handle, Error> {
-        self.close_local(h, 0, &mut LocalClose::default())
+        let h = self.close_local(h, 0, &mut LocalClose::default())?;
+        crate::compare::require_materialized(self, &[h])?;
+        Ok(h)
     }
 
     /// Closes related roots with one bounded, operation-local sharing map.
@@ -1663,7 +1665,9 @@ impl Heap {
             .map_err(|_| Error::unsupported("candidate identity root-row allocation"))?;
         let mut close = LocalClose::default();
         for &root in roots {
-            out.push(self.close_local(root, 0, &mut close)?);
+            let root = self.close_local(root, 0, &mut close)?;
+            crate::compare::require_materialized(self, &[root])?;
+            out.push(root);
         }
         Ok(out)
     }
@@ -1705,16 +1709,24 @@ impl Heap {
             close.remember(h, closed)?;
             return Ok(closed);
         }
-        // A canonical persistent node has only canonical persistent children.
-        if h.is_persistent() && view.flags & flags::VIEW == 0 {
+        if view.kind.is_symbolic() {
+            return Err(Error::unsupported(
+                "mathematical identity of a symbolic state value",
+            ));
+        }
+        if view.kind == Kind::Fcn {
+            // Closing a symbolic key could change its order or collapse two
+            // keys. A sorted function cannot silently inherit either change.
+            crate::compare::require_materialized(self, &view.data[..view.data.len() / 2])?;
+        }
+        // Constants can retain symbolic descendants even without view flags.
+        if h.is_persistent()
+            && view.flags & flags::VIEW == 0
+            && crate::compare::materialized(self, h, 0)?
+        {
             return Ok(h);
         }
-        let (kind, lo, hash, sum) = (
-            view.kind,
-            if view.kind == Kind::Set { 0 } else { view.lo },
-            view.hash,
-            view.sum,
-        );
+        let lo = if view.kind == Kind::Set { 0 } else { view.lo };
         let bytes = std::mem::size_of_val(view.data);
         if bytes > MAX_LOCAL_CLOSE_SCRATCH_BYTES.saturating_sub(close.scratch) {
             return Err(Error::unsupported(
@@ -1747,7 +1759,9 @@ impl Heap {
                 .project(h, 0, lo)
                 .ok_or_else(|| Error::internal("candidate identity projection owner"))?
         } else {
-            self.arena.alloc(kind, 0, lo, hash, sum, &children)
+            // Materializing a child changes its value hash and can coalesce
+            // equal set members. Recompute the parent's structure and hash.
+            self.rebuild(h, &children)
         };
         close.scratch -= bytes;
         close.remember(source, closed)?;
@@ -1761,6 +1775,15 @@ impl Heap {
     /// # Errors
     /// A set too large to materialize.
     pub fn intern(&mut self, h: Handle) -> Result<Handle, Error> {
+        if crate::compare::materialized(self, h, 0)? {
+            self.intern_materialized(h)
+        } else {
+            let h = self.close_identity_local(h)?;
+            self.intern_materialized(h)
+        }
+    }
+
+    fn intern_materialized(&mut self, h: Handle) -> Result<Handle, Error> {
         let h = if self.local_literal_index(h).is_some() {
             self.norm(h)?
         } else {
@@ -1785,7 +1808,7 @@ impl Heap {
                         );
                         let mut data = v.data.to_vec();
                         for d in &mut data {
-                            *d = self.intern(*d)?;
+                            *d = self.intern_materialized(*d)?;
                         }
                         return Ok(self.store.intern(
                             &mut self.cache,
@@ -1801,7 +1824,7 @@ impl Heap {
                 let k = self.view(h).kind;
                 if k.is_symbolic() && self.is_finite(h) {
                     let m = self.materialize(h)?;
-                    return self.intern(m);
+                    return self.intern_materialized(m);
                 }
                 return Ok(h);
             }
@@ -1823,7 +1846,7 @@ impl Heap {
         }
         if v.kind.is_symbolic() && self.is_finite(h) {
             let m = self.materialize(h)?;
-            let p = self.intern(m)?;
+            let p = self.intern_materialized(m)?;
             self.arena.interned[idx] = p;
             return Ok(p);
         }
@@ -1836,7 +1859,7 @@ impl Heap {
         let mut data = v.data.to_vec();
         for d in &mut data {
             if d.is_compound() {
-                *d = self.intern(*d)?;
+                *d = self.intern_materialized(*d)?;
             }
         }
         let p = self
@@ -2351,6 +2374,35 @@ mod tests {
 
     fn heap(full: bool) -> Heap {
         Heap::new(Arc::new(Store::default()), false, full)
+    }
+
+    #[test]
+    fn mathematical_state_identity_refuses_nested_symbolic_values() {
+        let mut h = heap(false);
+        let empty = h.empty_set();
+        let naturals = h.symbolic(Kind::Nat, 0, &[]);
+        let product = h.symbolic(Kind::Product, 0, &[empty, naturals]);
+        let range = h.interval(1, 1);
+        let sequence = h.symbolic(Kind::SeqSet, 0, &[range]);
+        for symbolic in [sequence, product] {
+            let tuple = h.tuple(&[symbolic]);
+            let function_key = h.fcn_sorted(&[symbolic], &[int(1)]);
+            let function_value = h.fcn_sorted(&[int(0)], &[symbolic]);
+            let singleton = h.set_sorted(&[tuple]);
+            for value in [symbolic, tuple, function_key, function_value, singleton] {
+                let before = h.store().stats().nodes;
+                assert!(
+                    matches!(h.intern(value), Err(error) if error.kind() == crate::ErrorKind::Unsupported)
+                );
+                assert!(
+                    matches!(h.close_identity_local(value), Err(error) if error.kind() == crate::ErrorKind::Unsupported)
+                );
+                assert!(
+                    matches!(h.close_identity_row_local(&[value]), Err(error) if error.kind() == crate::ErrorKind::Unsupported)
+                );
+                assert_eq!(h.store().stats().nodes, before);
+            }
+        }
     }
 
     #[test]

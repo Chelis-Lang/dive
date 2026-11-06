@@ -472,7 +472,12 @@ impl Core {
                     ),
                 ))
             }
-            StdOp::TlcMakeFcn => Ok(Value::fcn(vec![(v(0)?.clone(), v(1)?.clone())], self.ctx)?),
+            StdOp::TlcMakeFcn => {
+                if self.opts.comparisons == crate::options::Comparisons::Tla {
+                    v(0)?.require_materialized(self.ctx)?;
+                }
+                Ok(Value::fcn(vec![(v(0)?.clone(), v(1)?.clone())], self.ctx)?)
+            }
             StdOp::TlcCombineFcn => self.combine_fcn(v(0)?, v(1)?),
             StdOp::TlcSortSeq => {
                 let s = v(0)?;
@@ -911,7 +916,11 @@ impl Core {
                 }
             }
         }
-        Ok(Value::set_raw(fcns, self.ctx))
+        if self.opts.comparisons == crate::options::Comparisons::Tla {
+            Ok(Value::set_canonical(fcns, self.ctx)?)
+        } else {
+            Ok(Value::set_raw(fcns, self.ctx))
+        }
     }
 
     /// `FiniteSets.IsFiniteSet`: `Value.isFinite()`, class by class.

@@ -10,6 +10,20 @@ use dive_model::Model;
 use dive_value::Value;
 use serde_json::{Value as Json, json};
 
+#[derive(Debug)]
+enum ReferenceError {
+    Unsupported(String),
+    Failed(String),
+}
+
+impl std::fmt::Display for ReferenceError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Unsupported(message) | Self::Failed(message) => f.write_str(message),
+        }
+    }
+}
+
 /// At most this many mismatches are described in the report.
 const SHOWN: usize = 8;
 
@@ -38,12 +52,12 @@ fn reference(
     i: usize,
     s0: &dive_eval::next::StateVals,
     level: i64,
-) -> Result<Vec<Vec<u8>>, String> {
+) -> Result<Vec<Vec<u8>>, ReferenceError> {
     host.set_level(level);
     let a = model
         .actions
         .get(i)
-        .ok_or_else(|| format!("action {i} out of range"))?;
+        .ok_or_else(|| ReferenceError::Failed(format!("action {i} out of range")))?;
     let mut keys = Vec::new();
     let mut failed = None;
     let r = model.evaluator.next_states(a, s0, 0, &mut |succ| {
@@ -57,9 +71,15 @@ fn reference(
         Flow::Continue
     });
     if let Some(e) = failed {
-        return Err(format!("key: {e}"));
+        return Err(ReferenceError::Failed(format!("key: {e}")));
     }
-    r.map_err(|e| e.error.to_string())?;
+    r.map_err(|e| {
+        if e.error.class() == dive_eval::ErrorClass::Unsupported {
+            ReferenceError::Unsupported(e.error.to_string())
+        } else {
+            ReferenceError::Failed(e.error.to_string())
+        }
+    })?;
     keys.sort_unstable();
     Ok(keys)
 }
@@ -88,6 +108,10 @@ fn core_keys(
 }
 
 /// Compares the sampled states' successors; the report's `core_sample`.
+#[allow(
+    clippy::too_many_lines,
+    reason = "one table keeps supported, unavailable and failed comparison outcomes together"
+)]
 pub(crate) fn compare(
     (model, host): (&Model, &dive_stdlib::host::RunHost),
     plan: &dive_core::Plan,
@@ -131,8 +155,19 @@ pub(crate) fn compare(
         };
         let mut heap = dive_core::Heap::new(Arc::clone(store), false, false);
         for (i, got) in core.iter().enumerate() {
-            compared += 1;
             let want = reference((model, host), i, &t0, state.level);
+            if let Err(ReferenceError::Unsupported(reason)) = &want {
+                // A frozen reference that refuses supplies no expected result.
+                // Keep this unavailable comparison visible and uncredited.
+                skipped += 1;
+                note(
+                    &text,
+                    i,
+                    format!("reference comparison unavailable: {reason}"),
+                );
+                continue;
+            }
+            compared += 1;
             let got = core_keys(model, &mut heap, got);
             match (got, want) {
                 (Ok(g), Ok(w)) => {

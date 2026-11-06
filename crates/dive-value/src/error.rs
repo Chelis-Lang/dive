@@ -10,6 +10,9 @@ use std::fmt;
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum ErrorKind {
+    /// A mathematical operation whose exact semantics are not implemented.
+    /// The legacy numeric accessor is not a TLC error certificate for this kind.
+    Unsupported,
     /// Typed cooperative host interruption transported through a deferred
     /// evaluator provider. This is not a TLC error or a resource refusal.
     Interrupted {
@@ -74,6 +77,7 @@ impl ErrorKind {
             Self::NullPowerNull => 2180,
             Self::Argument => 2169,
             Self::Interrupted { .. }
+            | Self::Unsupported
             | Self::DeferredError { .. }
             | Self::Incomparable
             | Self::Membership
@@ -108,6 +112,7 @@ impl ErrorKind {
         match self {
             Self::Interrupted { .. } => "DIVE-V0031",
             Self::DeferredError { .. } => "DIVE-V0032",
+            Self::Unsupported => "DIVE-V0033",
             Self::Incomparable => "DIVE-V0001",
             Self::Membership => "DIVE-V0002",
             Self::ModuleMembership => "DIVE-V0003",
