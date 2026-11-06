@@ -6,10 +6,10 @@
 //!   ways. Each approved divergence is listed in
 //!   `conformance/expected-divergences.toml`, with a justification in
 //!   `docs/divergences.md`.
-//! - [`Profile::Tlc`] is pure TLC behaviour, including TLC's defaults for
-//!   the worker count, seeding and exit codes. It must match TLC on the
-//!   whole corpus. It is the only profile whose agreement counts for the
-//!   strict tier.
+//! - [`Profile::Tlc`] selects nominal TLC switches, including defaults for
+//!   worker count, seeding and exit codes. Known compatibility gaps remain
+//!   findings; this registry never excuses them. It is the only profile whose
+//!   agreement counts for the strict tier.
 //! - [`Profile::TlcWithOverrides`] is TLC behaviour with explicitly listed
 //!   per-feature overrides. It is never strict-tier agreement.
 //!
@@ -39,7 +39,7 @@ pub enum Profile {
     #[serde(rename = "dive")]
     #[default]
     Dive,
-    /// `--compat=tlc`: pure TLC behaviour.
+    /// `--compat=tlc`: nominal TLC switches, with every difference still a finding.
     #[serde(rename = "tlc")]
     Tlc,
     /// TLC behaviour with explicit per-feature overrides.

@@ -63,11 +63,11 @@ These are answered:
 - **Release scope.** The first release is the first-value bar in
   [RELEASE.md](RELEASE.md). There are no dates and no effort estimates.
 
-**Rule for the open questions below and any new ones.** Each gets one line, a
-recommended answer and a default. If the owner has not answered within two days,
-the recommendation is applied. Under ADR 0153 §2, questions of the form "should
-the default reproduce TLC artifact X?" default to **no**, and get a registered
-divergence.
+**Rule for open questions.** TLC bookkeeping variants already follow the
+owner's correct/faster default ruling (ADR 0153): register their precise
+observable differences without repeat escalation. Questions about actual
+mathematical semantics or soundness remain open until resolved; unproved cases
+retain a named refusal.
 
 - **Bundled libraries (R3).** Ship TLAPS (BSD-2-Clause) and the CommunityModules (MIT)
   inside dive at the lowest module-search priority. *Recommended and default:
@@ -84,7 +84,7 @@ divergence.
   canonical or better behaviour in the default profile, and whatever is cheap in
   compat.
 
-- **Recursive Boolean action predicates and generated counts (#813), pending owner answer.** May default Core count emitted successors rather than TLC's duplicate predicate witnesses? The minimal recursive-predicate fixture succeeds with TLC 3 generated versus Core 2, both 1 distinct at depth 1; the unmerged recursive-function work also gives VoteProof 318,877 versus 27,727 generated, both 6,962 distinct at depth 14. **Recommendation:** approve a precise registered default difference for predicate-witness multiplicity, document the nominal compat gap, and preserve verdict, distinct count, depth, property/error/exit and independently validated counterexample obligations. This is not a blanket generated-count waiver or an approved new default; the owner question is pending and #811 retains its narrow named refusal.
+- **Recursive Boolean action predicates and generated counts (#813), resolved by the owner, 2026-11-06.** Keep the faster default and register the precise predicate-witness count divergence (D-029), with its nominal compat gap. The minimal control generates TLC 3 versus Core 2 states, both 1 distinct at depth 1; original VoteProof generates 318,877 versus 27,727, both 6,962 distinct at depth 14. Verdict, distinct count, depth, property, error class/exit and independently validated counterexample obligations remain unchanged. This removes only the action-position witness-multiplicity refusal; lexical-capture, prime, escape, operator and other soundness guards remain. The standing correct/faster ruling covers bookkeeping variants without repeated owner questions, with precise registrations rather than a blanket count waiver.
 
 ## Native recovery counter default (issue152)
 

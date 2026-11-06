@@ -51,6 +51,12 @@ evidence.
      02-semantic-contract §6 Q7 (A6).
    - The implementing PR registers the divergence (D-entry) and deletes the
      history and authority paths it makes unnecessary.
+   - Owner clarification, 2026-11-06: prefer correct, faster results over
+     suboptimal TLC bookkeeping without asking again for each artifact variant.
+     Register precise measured differences; keep all other observable and
+     soundness obligations. Genuine mathematical uncertainty still escalates.
+     D-029 counts successors from recursive Boolean action predicates without
+     expanding duplicate logical witnesses; nominal compat documents the gap.
 3. **`--compat=tlc` is a nominal feature.** It must exist on Core, select the
    cheap TLC-observable switches that already exist, and document its known gaps
    in `docs/tlc-differences.md`.

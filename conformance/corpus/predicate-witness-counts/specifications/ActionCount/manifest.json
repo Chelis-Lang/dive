@@ -1,0 +1,47 @@
+{
+  "sources": [
+    "docs/tlc-differences.md#d-029-predicate-witness-counts"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe"
+  ],
+  "modules": [
+    {
+      "path": "specifications/ActionCount/ActionCount.tla",
+      "features": [
+        "recursive function"
+      ],
+      "models": [
+        {
+          "path": "specifications/ActionCount/ActionCount.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "success"
+        },
+        {
+          "path": "specifications/ActionCount/ActionCountOpposite.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "safety failure"
+        }
+      ]
+    },
+    {
+      "path": "specifications/ActionCount/ActionCountFalse.tla",
+      "features": [
+        "recursive function"
+      ],
+      "models": [
+        {
+          "path": "specifications/ActionCount/ActionCountFalse.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "deadlock failure"
+        }
+      ]
+    }
+  ]
+}

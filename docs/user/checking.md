@@ -339,8 +339,14 @@ Top-level recursive functions also compile substituted expressions in their own
 runtime frame; caller thunk slots cannot supply a recursive argument's value.
 Substitutions that require effectful or recursive evaluation, or a caller local
 outside the function's lexical activation, also return `unsupported`.
-Recursive functions used directly as actions are also refused: their logical
-witnesses can generate repeated successors in TLC, which Core does not reproduce.
+An applied recursive Boolean function can act as a predicate in `Next`. Core
+counts its emitted successors, without expanding multiple logical witnesses into
+repeated identical successors. The minimal control generates 2 states instead
+of TLC's 3; original VoteProof generates 27,727 instead of 318,877, with the same
+6,962 distinct states, depth 14 and successful verdict. Other observable and
+independent trace-validation requirements remain unchanged. Nominal
+`--compat=tlc` keeps this evaluation; exact TLC generated counts are a documented
+gap. See [D-029](../tlc-differences.md#d-029-predicate-witness-counts).
 
 The core can evaluate `SelectSeq(sequence, Test)'` when `Test` is pure and
 depends only on its element parameter and constants. The sequence reads the

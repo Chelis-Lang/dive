@@ -335,6 +335,11 @@
   and generated-count pairs are bound; TLC-mode results, goldens, trace checks
   and strict agreement are unchanged.
 
+- Evaluate recursive Boolean action predicates without expanding duplicate logical
+  witnesses. Report actual generated counts; register exact default differences
+  for the minimal control and VoteProof, and document the nominal TLC count gap
+  (D-029). Preserve other result, capture and independent trace obligations.
+
 - Native trace version5 adds independently replayed `temporal-source-row`
   errors. At one worker, bounded scalar self rows retain TLC's GENERAL1000/255
   after actual Next/ordered-row/diagnostic execution and fresh word validation,

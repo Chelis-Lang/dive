@@ -3089,3 +3089,32 @@ Examples that TLC can leave unnormalized but Core refuses include
 named compat refusals, including `OrderShortCircuit`, `SizeShortCircuit` and
 `ExcludedRawState`. These gaps do not
 change the trace format or permit an unvalidated counterexample.
+
+## D-029: Predicate-witness counts
+
+Core evaluates an applied recursive Boolean function in `Next` as a predicate.
+If several existential witnesses prove it true, they do not each create another
+copy of the same successor. For example:
+
+```tla
+Next == LET f[n \in 0..1] == IF n=0 THEN TRUE ELSE \E k \in {1,2}: f[n-1]
+        IN f[1] /\ UNCHANGED x
+```
+
+With `Init == x=0`, TLC generates three states (Init plus two identical
+successors); Core generates two, with the same one distinct state, depth one
+and successful verdict. Original Examples `byzpaxos/VoteProof.cfg` likewise
+succeeds with 6,962 distinct states and depth 14, generating 27,727 states on
+Core versus TLC's 318,877. Core reports its actual counts.
+
+This owner-approved default avoids redundant predicate-witness bookkeeping.
+Only the exact two generated-count pairs are registered as default expected
+divergences. Verdicts, distinct counts, depth, properties, error classes/exits,
+queue counts and independent counterexample validation keep their contracts.
+Other observed differences remain findings.
+
+Nominal `--compat=tlc` uses the same Boolean evaluation on Core; it does not
+reconstruct TLC's duplicate witness expansion. Strict TLC comparisons still
+report this count difference. Escaping recursive functions, primed applications,
+unproved lexical/operator captures, nested recursion and other unsupported
+contexts retain their named refusals.

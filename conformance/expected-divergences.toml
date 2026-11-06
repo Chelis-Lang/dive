@@ -2,9 +2,9 @@
 #
 # dive runs under one of three profiles, recorded in every report:
 #   dive            the default; may differ from TLC where listed here
-#   tlc             pure TLC behaviour (--compat=tlc or DIVE_COMPAT=tlc);
-#                   must match TLC everywhere. Only this profile counts for
-#                   the strict tier.
+#   tlc             nominal TLC switches (--compat=tlc or DIVE_COMPAT=tlc);
+#                   known gaps remain strict findings. Only this profile counts
+#                   for strict-tier agreement.
 #   tlc+overrides   TLC behaviour with listed per-feature overrides; never
 #                   strict-tier agreement
 #
@@ -437,3 +437,24 @@ expected_verdict = "success"
 fields = ["verdict", "error_class", "counts.distinct_states", "counts.depth", "trace.length", "trace.ending"]
 justification = "Existing D-009 extensional equality distinguishes tuple and record function domains, so the configured comparison succeeds by default. This exact control completes with 3 distinct/3 generated/depth3; TLC stops with TLC_INVARIANT_EVALUATION_FAILED. No strict-profile or trace-validation difference is authorized."
 link = "docs/divergences.md#registry"
+
+# D-029: recursive Boolean action predicates emit successors, not duplicate witnesses.
+[[divergence]]
+id = "d029-actioncount"
+pattern = "specifications/ActionCount/ActionCount.cfg"
+profile = "dive"
+expected_verdict = "success"
+fields = []
+generated_count_pair = { expected = 3, actual = 2 }
+justification = "D-029: evaluate the recursive Boolean action predicate once; TLC's two existential witnesses produce the same successor. Success, 1 distinct state, depth 1, empty queue, property/error/exit and independent word validation retain their contracts."
+link = "docs/divergences.md#d-029-predicate-witness-counts"
+
+[[divergence]]
+id = "d029-voteproof"
+pattern = "specifications/byzpaxos/VoteProof.cfg"
+profile = "dive"
+expected_verdict = "success"
+fields = []
+generated_count_pair = { expected = 318877, actual = 27727 }
+justification = "D-029: Boolean recursive predicate guards avoid duplicate logical-witness successors; original VoteProof succeeds with the same 6962 distinct states, depth 14 and empty queue. Only this exact generated-count pair is registered; other observables and independent trace validation remain required."
+link = "docs/divergences.md#d-029-predicate-witness-counts"
