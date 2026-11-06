@@ -157,7 +157,7 @@ impl Image {
             nodes.push(Node {
                 handle: node.handle,
                 kind: node.kind,
-                flags: node.flags,
+                flags: node.flags & !flags::CONCRETE,
                 lo: node.lo,
                 hash: node.hash,
                 sum: node.sum,
@@ -243,7 +243,7 @@ pub(super) fn memory_image(
                         let node = Node {
                             handle: h.bits(),
                             kind: v.kind,
-                            flags: v.flags,
+                            flags: v.flags & !flags::CONCRETE,
                             lo: v.lo,
                             hash: v.hash,
                             sum: v.sum,
@@ -454,7 +454,7 @@ pub fn capture(
                         active.remove(&h.bits());
                         done.insert(h.bits());
                         out.word(h.bits())?;
-                        out.put(&[v.kind as u8, v.flags])?;
+                        out.put(&[v.kind as u8, v.flags & !flags::CONCRETE])?;
                         out.word(v.lo.cast_unsigned())?;
                         out.word(v.hash)?;
                         out.word(v.sum)?;
