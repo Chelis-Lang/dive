@@ -11,7 +11,9 @@ owner. The charter's appendix records later corrections.
 - **Parity means observable results** (ADR 0086). dive must match the pinned
   TLC/SANY on the verdict, distinct and generated counts (at 1 worker), the
   violated property name, the error class and exit code, the depth, and a
-  counterexample that `dive-trace` independently validates. Do not emulate
+  counterexample that `dive-trace` independently validates. Precisely registered
+  owner-approved default differences may change only their declared observable
+  fields; independent trace validation is never waived. Do not emulate
   arbitrary or nondeterministic TLC internals, such as timing, thread or queue
   order, tableau numbering, SCC or lasso choice, or Java method projections.
   Liveness names are the complete independently validated false-property set of
@@ -78,7 +80,10 @@ rules exist.
 **Do the better thing.** In the default profile, use canonical TLA+ semantics
 where TLC's behaviour is an implementation artifact. Register the divergence.
 Do not reproduce TLC internals: normalization history, demand order, receiver
-identity or error-site certificates.
+identity or error-site certificates. Prefer correct, faster results over
+suboptimal TLC bookkeeping; register the precise difference without asking the
+owner to decide each artifact variant again. This standing authorization does
+not relax soundness or excuse unrelated observable differences.
 
 **Compat is nominal.** `--compat=tlc` runs on Core using the cheap switches that
 already exist. Anything it cannot reproduce cheaply is a documented gap, not a
@@ -108,9 +113,10 @@ project.
 - Do not open an issue only as a receipt for a PR.
 
 **Escalate, don't emulate.**
-- When a semantic choice would add machinery, put a one-line question in
-  `docs/open-questions.md` with a recommended answer the same day. Proceed with
-  the recommendation if the owner has not answered within two days.
+- TLC bookkeeping variants follow the standing correct/faster default ruling;
+  register their precise differences instead of proposing emulation machinery.
+- Escalate genuine uncertainty about mathematical semantics or soundness in
+  `docs/open-questions.md`; retain a named refusal while correctness is unproved.
 - When data meets a condition the owner attached to a ruling, say so in the same
   way.
 

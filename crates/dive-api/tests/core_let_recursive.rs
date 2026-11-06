@@ -408,31 +408,103 @@ fn parameterized_instance_substitutions_never_reuse_caller_frame_slots()
 }
 
 #[test]
-fn recursive_function_action_witness_multiplicity_is_explicitly_refused()
+fn recursive_action_predicates_preserve_truth_without_duplicate_witnesses()
 -> Result<(), Box<dyn std::error::Error>> {
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../conformance/corpus/predicate-witness-counts/specifications/ActionCount");
     for compat_tlc in [false, true] {
-        let mut req = request("ActionCount", compat_tlc, 1);
-        req.file.set_file_name("ActionCount.tla");
-        let reference = check_file_engine(&req, Engine::Reference)?;
-        let doc = reference.to_json();
-        // Pinned TLC counts both existential witnesses, although their
-        // resulting successor is the same. A value guard would emit only one.
-        assert_eq!(reference.verdict(), "success");
-        assert_eq!(doc["statistics"]["generated"], 3);
-        assert_eq!(doc["statistics"]["distinct"], 1);
-        assert_eq!(doc["statistics"]["depth"], 1);
-        for workers in [1, 4] {
-            req.workers = Some(workers);
-            for switches in ["", "-fold,-memo,-hashcons,-eager"] {
-                let core = check_file_core_opts(&req, switches)?;
-                let doc = core.to_json();
-                assert_eq!(core.verdict(), "unsupported");
-                assert_eq!(
-                    doc["message"],
-                    "a recursive function used as an action with unproved successor multiplicity (M1 core)"
-                );
-                assert!(doc["counterexample"].is_null());
-                assert!(doc["tlc"].is_null());
+        for (config, positive, deadlock) in [
+            ("ActionCount", true, false),
+            ("ActionCountOpposite", false, false),
+            ("ActionCountFalse", false, true),
+        ] {
+            let mut req = CheckRequest {
+                file: root.join(if deadlock {
+                    "ActionCountFalse.tla"
+                } else {
+                    "ActionCount.tla"
+                }),
+                config: Some(root.join(format!("{config}.cfg"))),
+                workers: Some(1),
+                compat_tlc,
+                seed: Some(0),
+                fp: Some(0),
+                ..Default::default()
+            };
+            let reference = check_file_engine(&req, Engine::Reference)?;
+            let expected = observed(&reference);
+            assert_eq!(
+                expected["verdict"],
+                if positive {
+                    "success"
+                } else if deadlock {
+                    "deadlock"
+                } else {
+                    "invariant-violation"
+                }
+            );
+            assert_eq!(
+                expected["code"],
+                if positive {
+                    2193
+                } else if deadlock {
+                    2114
+                } else {
+                    2107
+                }
+            );
+            assert_eq!(
+                expected["exit"],
+                if positive {
+                    0
+                } else if deadlock {
+                    11
+                } else {
+                    12
+                }
+            );
+            assert_eq!(
+                expected["statistics"]["generated"],
+                if positive { 3 } else { 1 }
+            );
+            assert_eq!(expected["statistics"]["distinct"], 1);
+            assert_eq!(expected["statistics"]["depth"], 1);
+            assert_eq!(
+                expected["property"],
+                if positive || deadlock {
+                    Value::Null
+                } else {
+                    json!("Opposite")
+                }
+            );
+            let options = TraceOptions {
+                compat_tlc,
+                run: Some((0, 0)),
+                ..Default::default()
+            };
+            let model = SpecModel::load(&req.file, req.config.as_ref().ok_or("config")?, &options)?;
+            for workers in [1, 4] {
+                req.workers = Some(workers);
+                for switches in ["", "-fold,-memo,-hashcons,-eager"] {
+                    let core = check_file_core_opts(&req, switches)?;
+                    let doc = core.to_json();
+                    let mut native = observed(&core);
+                    assert_eq!(
+                        native["statistics"]["generated"],
+                        if positive { 2 } else { 1 }
+                    );
+                    // D-029 authorizes exactly this count pair. Everything
+                    // else, including class, property and physical exit, agrees.
+                    if positive {
+                        native["statistics"]["generated"] = json!(3);
+                    }
+                    assert_eq!(
+                        native, expected,
+                        "{config}/{compat_tlc}/{workers}/{switches}"
+                    );
+                    assert_eq!(doc["engine"], "core");
+                    validate_action_predicate_word(&req, &model, positive, &doc)?;
+                }
             }
         }
     }
@@ -647,6 +719,124 @@ fn primed_captures_mixed_self_calls_effects_and_escapes_stay_refused()
                 assert_eq!(doc["message"], message);
                 assert!(doc["tlc"].is_null());
                 assert!(doc["counterexample"].is_null());
+            }
+        }
+    }
+    Ok(())
+}
+
+fn validate_action_predicate_word(
+    req: &CheckRequest,
+    model: &SpecModel,
+    positive: bool,
+    doc: &Value,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let options = TraceOptions {
+        compat_tlc: req.compat_tlc,
+        run: Some((0, 0)),
+        ..Default::default()
+    };
+    if positive {
+        assert!(doc["counterexample"].is_null());
+        let mut word = json!({"format":"dive-trace", "version":1,
+            "variables":["x"], "states":[{"values":{"x":0}},{"values":{"x":0}}],
+            "ending":{"kind":"behavior"}});
+        assert_eq!(
+            model.validate(&TraceDoc::from_json(&word)?).validation,
+            Validation::Valid
+        );
+        word["states"][1]["values"]["x"] = json!(1);
+        assert!(
+            matches!(model.validate(&TraceDoc::from_json(&word)?).validation,
+            Validation::Invalid(ref failure) if failure.check == Check::Next)
+        );
+    } else {
+        let mut word = doc["counterexample"]["trace"].clone();
+        assert_eq!(
+            model.validate(&TraceDoc::from_json(&word)?).validation,
+            Validation::Valid
+        );
+        word["ending"] = json!({"kind":"invariant", "name":"Inv"});
+        let holding = SpecModel::load(
+            &req.file,
+            &req.file.with_file_name("ActionCount.cfg"),
+            &options,
+        )?;
+        assert!(
+            matches!(holding.validate(&TraceDoc::from_json(&word)?).validation,
+            Validation::Invalid(ref failure) if failure.check == Check::Ending)
+        );
+    }
+    Ok(())
+}
+
+#[test]
+fn recursive_action_predicates_refuse_direct_and_indirect_effects()
+-> Result<(), Box<dyn std::error::Error>> {
+    let corpus = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../conformance/corpus/predicate-witness-counts/specifications/ActionCount");
+    for compat_tlc in [false, true] {
+        for name in ["RegisterWitness", "IndirectEffectCall"] {
+            for workers in [1, 4] {
+                let mut req = request(name, compat_tlc, workers);
+                req.file.set_file_name(format!("{name}.tla"));
+                if name == "RegisterWitness" {
+                    req.file = corpus.join("RegisterWitness.tla");
+                    req.config = Some(corpus.join("RegisterWitness.cfg"));
+                }
+                for switches in ["", "-fold,-memo,-hashcons,-eager"] {
+                    let core = check_file_core_opts(&req, switches)?;
+                    let doc = core.to_json();
+                    assert_eq!(doc["verdict"], "unsupported", "{name}: {doc}");
+                    assert_eq!(core.exit_code_for(ExitConvention::Tlc), 3);
+                    assert_eq!(
+                        doc["message"],
+                        "recursive Boolean action predicates in a compiled plan with effects or unproved calls (D-029)"
+                    );
+                    assert!(doc["counterexample"].is_null());
+                    assert!(doc["tlc"].is_null());
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn recursive_boolean_or_does_not_demand_a_proven_unnecessary_error()
+-> Result<(), Box<dyn std::error::Error>> {
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../conformance/corpus/predicate-witness-counts/specifications/ActionCount");
+    for compat_tlc in [false, true] {
+        for workers in [1, 4] {
+            let req = CheckRequest {
+                file: root.join("OrError.tla"),
+                config: Some(root.join("OrError.cfg")),
+                workers: Some(workers),
+                compat_tlc,
+                seed: Some(0),
+                fp: Some(0),
+                ..Default::default()
+            };
+            for switches in ["", "-fold,-memo,-hashcons,-eager"] {
+                let core = check_file_core_opts(&req, switches)?;
+                let doc = core.to_json();
+                assert_eq!(doc["verdict"], "success");
+                assert_eq!(core.exit_code_for(ExitConvention::Tlc), 0);
+                assert_eq!(doc["statistics"]["generated"], 2);
+                assert_eq!(doc["statistics"]["distinct"], 1);
+                assert_eq!(doc["statistics"]["depth"], 1);
+                assert!(doc["property"].is_null());
+                let model = SpecModel::load(
+                    &req.file,
+                    req.config.as_ref().ok_or("config")?,
+                    &TraceOptions {
+                        compat_tlc,
+                        run: Some((0, 0)),
+                        ..Default::default()
+                    },
+                )?;
+                validate_action_predicate_word(&req, &model, true, &doc)?;
             }
         }
     }

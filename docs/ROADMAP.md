@@ -61,8 +61,9 @@ buckets rather than model-by-model history fixes:
    operator successor domains (3) and action composition (2). Canonical sets
    have since landed; retain verified focused results separately rather than
    adding them to the old census. Address the remaining recursive-helper/operator
-   and substitution gaps, preserving the narrow #813 count guard while the owner
-   decision is pending.
+   and substitution gaps. The owner resolved #813 in favor of precise registered
+   Boolean-predicate bookkeeping differences; effect safety and bounded calls
+   remain required.
 2. Resolve the nine absent oracle facts through targeted pinned-oracle work on
    the original configurations. Keep them unmeasured until a legitimate golden
    exists; snapshots do not turn unknowns into native results.

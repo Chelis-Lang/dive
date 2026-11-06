@@ -381,3 +381,10 @@ id = "set-diagnostic-demand"
 path = "conformance/corpus/set-diagnostic-demand"
 license = "MIT"
 layout = "examples-manifest"
+
+# Exact recursive predicate-witness count and opposite invariant controls (D-029).
+[[corpus]]
+id = "predicate-witness-counts"
+path = "conformance/corpus/predicate-witness-counts"
+license = "MIT"
+layout = "examples-manifest"

@@ -15,7 +15,7 @@
 
 - Evaluate applied LET-recursive functions on Core with lexical captures and
   substitution context preserved. Prisoners and SchedulingAllocator now agree
-  with TLC using their original configurations; unsupported prime, escape, action-position,
+  with TLC using their original configurations; unsupported prime, escape,
   operator-capture and nested-recursion cases retain named refusals.
 
 - Document Core's nominal TLC compatibility, consolidated gaps and explicit
@@ -344,6 +344,13 @@
   `ModelBadPrefix` as an exact model-specific expected divergence. Its exit
   and generated-count pairs are bound; TLC-mode results, goldens, trace checks
   and strict agreement are unchanged.
+
+- Evaluate effect-safe recursive Boolean action predicates without expanding
+  duplicate logical witnesses or already-unnecessary Boolean alternatives (D-029).
+  Register exact minimal/VoteProof count pairs and the pinned OrError result;
+  document nominal TLC gaps. Refuse compiled effects or unknown call targets,
+  including indirect effects, and bound recursive calls/arguments to 64 active
+  calls with budget polling. Preserve capture and independent word obligations.
 
 - Native trace version5 adds independently replayed `temporal-source-row`
   errors. At one worker, bounded scalar self rows retain TLC's GENERAL1000/255

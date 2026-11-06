@@ -19,8 +19,9 @@ mod product;
 #[path = "eval_work.rs"]
 mod work;
 
-/// The deepest recursive-operator nesting the interpreter allows.
-const MAX_CALL_DEPTH: usize = 2000;
+/// Conservative call nesting bound, including argument evaluation. Refuse
+/// before unbounded model recursion consumes the host interpreter's stack.
+const MAX_CALL_DEPTH: usize = 64;
 
 /// Evaluation counters.
 #[derive(Clone, Copy, Debug, Default)]
@@ -1028,14 +1029,24 @@ impl Machine {
     }
 
     fn call(&mut self, code: &Code, fun: u32, args: &[P]) -> Result<Handle, Error> {
+        self.charge(1)?;
+        if self.depth >= MAX_CALL_DEPTH {
+            return Err(Error::unsupported(
+                "Core recursive-call depth limit (64 activations)",
+            ));
+        }
+        // Arguments can recursively call the same function too. Count their
+        // activations and restore the counter on every success/error path.
+        self.depth += 1;
+        let result = self.call_inner(code, fun, args);
+        self.depth -= 1;
+        result
+    }
+
+    fn call_inner(&mut self, code: &Code, fun: u32, args: &[P]) -> Result<Handle, Error> {
         let Some(f) = code.funs.get(fun as usize) else {
             return Err(Error::internal("call of an unknown function"));
         };
-        if self.depth >= MAX_CALL_DEPTH {
-            return Err(Error::unsupported(
-                "recursion deeper than the M0 core's limit",
-            ));
-        }
         let mut vals = self.take_scratch();
         for &a in args {
             match self.eval_norm(code, a) {
@@ -1060,9 +1071,7 @@ impl Machine {
             self.set_slot(s, v);
         }
         self.give_scratch(vals);
-        self.depth += 1;
         let r = self.eval(code, f.body);
-        self.depth -= 1;
         self.leave(old);
         r
     }
@@ -2459,5 +2468,58 @@ mod tests {
             )
             .unwrap_err();
         assert_eq!(big.tlc(), exc(2178));
+    }
+}
+
+#[cfg(test)]
+mod recursive_call_bounds {
+    use super::*;
+    use std::sync::atomic::{AtomicUsize, Ordering};
+
+    #[derive(Debug)]
+    struct StopAfterOne(AtomicUsize);
+    impl WorkControl for StopAfterOne {
+        fn proceed(&self) -> bool {
+            self.0.fetch_add(1, Ordering::Relaxed) == 0
+        }
+    }
+
+    #[test]
+    fn recursive_calls_poll_work_and_restore_depth_and_frames_after_stops()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let code = Code {
+            nodes: vec![Node::Call {
+                fun: 0,
+                args: Box::new([]),
+            }],
+            funs: vec![crate::plan::Fun {
+                name: "loop".into(),
+                params: 0,
+                frame: 0,
+                body: 0,
+                caps: Box::new([]),
+            }],
+            ..Default::default()
+        };
+        let mut m = Machine::new(
+            Arc::new(Store::default()),
+            0,
+            Opts::default(),
+            Memo::default(),
+        );
+        let control = Arc::new(StopAfterOne(AtomicUsize::new(0)));
+        m.set_work_control(Some(control.clone()));
+        let stopped = m.eval(&code, 0).err().ok_or("expected cooperative stop")?;
+        assert_eq!(stopped.kind(), crate::ErrorKind::Stop);
+        assert_eq!(control.0.load(Ordering::Relaxed), 2);
+        assert_eq!(m.depth, 0);
+        assert_eq!(m.frame, Vec::<Handle>::new());
+        m.set_work_control(None);
+        let bounded = m.eval(&code, 0).err().ok_or("expected depth refusal")?;
+        assert_eq!(bounded.kind(), crate::ErrorKind::Unsupported);
+        assert!(bounded.message().contains("recursive-call depth limit"));
+        assert_eq!(m.depth, 0);
+        assert_eq!(m.frame, Vec::<Handle>::new());
+        Ok(())
     }
 }
