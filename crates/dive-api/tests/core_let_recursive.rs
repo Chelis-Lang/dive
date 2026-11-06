@@ -316,6 +316,133 @@ fn enclosing_callbacks_keep_capture_effect_and_recursive_boundaries()
     Ok(())
 }
 
+fn mutual_request(config: &str, compat_tlc: bool, workers: usize) -> CheckRequest {
+    let mut req = request(config, compat_tlc, workers);
+    req.file.set_file_name("MutualTop.tla");
+    req
+}
+
+fn validate_mutual_word(
+    req: &CheckRequest,
+    core: &dive_api::CheckReport,
+    compat_tlc: bool,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let options = TraceOptions {
+        compat_tlc,
+        run: Some((0, 0)),
+        ..Default::default()
+    };
+    let model = SpecModel::load(&req.file, req.config.as_ref().ok_or("config")?, &options)?;
+    let payload = core.to_json()["counterexample"]["trace"].clone();
+    assert_eq!(
+        model.validate(&TraceDoc::from_json(&payload)?).validation,
+        Validation::Valid
+    );
+    let mut bad = payload.clone();
+    bad["states"][1]["values"]["x"] = json!(3);
+    assert!(
+        matches!(model.validate(&TraceDoc::from_json(&bad)?).validation,
+        Validation::Invalid(ref failure) if failure.check == Check::Next)
+    );
+    let holding = mutual_request("MutualHolding", compat_tlc, 1);
+    let model = SpecModel::load(
+        &holding.file,
+        holding.config.as_ref().ok_or("holding config")?,
+        &options,
+    )?;
+    let mut bad = payload;
+    bad["ending"]["name"] = json!("Good");
+    assert!(
+        matches!(model.validate(&TraceDoc::from_json(&bad)?).validation,
+        Validation::Invalid(ref failure) if failure.check == Check::Ending
+            && failure.detail.contains("holds at the end"))
+    );
+    Ok(())
+}
+
+#[test]
+fn mutually_recursive_top_level_operators_keep_isolated_frames()
+-> Result<(), Box<dyn std::error::Error>> {
+    for compat_tlc in [false, true] {
+        for (config, verdict, generated, distinct, depth, code, exit) in [
+            ("MutualHolding", "success", 4, 3, 3, 2193, 0),
+            ("MutualWrong", "invariant-violation", 2, 2, 2, 2110, 12),
+        ] {
+            let expected = observed(&check_file_engine(
+                &mutual_request(config, compat_tlc, 1),
+                Engine::Reference,
+            )?);
+            // Pinned TLC 94d0c50 confirms both complete verdicts and counts.
+            assert_eq!(expected["verdict"], verdict);
+            assert_eq!(expected["statistics"]["generated"], generated);
+            assert_eq!(expected["statistics"]["distinct"], distinct);
+            assert_eq!(expected["statistics"]["depth"], depth);
+            assert_eq!(expected["code"], code);
+            assert_eq!(expected["exit"], exit);
+            let wrong = config == "MutualWrong";
+            assert_eq!(
+                expected["property"],
+                if wrong { json!("Wrong") } else { Value::Null }
+            );
+            for workers in [1, 4] {
+                let req = mutual_request(config, compat_tlc, workers);
+                for switches in ["", "-fold,-memo,-step-memo,-hashcons,-eager"] {
+                    let core = check_file_core_opts(&req, switches)?;
+                    assert_eq!(core.to_json()["engine"], "core");
+                    assert_eq!(
+                        observed(&core),
+                        expected,
+                        "{config}/{compat_tlc}/{workers}/{switches}"
+                    );
+                    if wrong {
+                        validate_mutual_word(&req, &core, compat_tlc)?;
+                    } else {
+                        assert!(core.to_json()["counterexample"].is_null());
+                    }
+                }
+            }
+        }
+        for (config, message) in [
+            (
+                "MutualNested",
+                "mutually recursive nested definitions (M1 core)",
+            ),
+            (
+                "MutualPrime",
+                "a recursive operator under a prime (M0 core)",
+            ),
+        ] {
+            for switches in ["", "-fold,-memo,-step-memo,-hashcons,-eager"] {
+                let core = check_file_core_opts(&mutual_request(config, compat_tlc, 1), switches)?;
+                let doc = core.to_json();
+                assert_eq!(core.verdict(), "unsupported", "{config}: {doc}");
+                assert_eq!(doc["message"], message);
+                assert!(doc["counterexample"].is_null());
+                assert!(doc["tlc"].is_null());
+            }
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn nonterminating_mutual_calls_stop_with_a_named_bound() -> Result<(), Box<dyn std::error::Error>> {
+    for compat_tlc in [false, true] {
+        for config in ["MutualLoopBody", "MutualLoopArgument"] {
+            for switches in ["", "-fold,-memo,-step-memo,-hashcons,-eager"] {
+                let core = check_file_core_opts(&mutual_request(config, compat_tlc, 1), switches)?;
+                let doc = core.to_json();
+                assert_eq!(core.verdict(), "unsupported", "{config}: {doc}");
+                assert_eq!(doc["message"], "recursion deeper than the M0 core's limit");
+                assert_eq!(core.exit_code_for(ExitConvention::Tlc), 3);
+                assert!(doc["counterexample"].is_null());
+                assert!(doc["tlc"].is_null());
+            }
+        }
+    }
+    Ok(())
+}
+
 #[test]
 fn parameterized_instance_substitutions_never_reuse_caller_frame_slots()
 -> Result<(), Box<dyn std::error::Error>> {

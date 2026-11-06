@@ -353,6 +353,10 @@ call, is `Maybe`. Folding keeps the expression's value.
   (`Lift`, `Fun::caps`). A captured thunk is forced at the call, so it is
   speculative. Mutually recursive nested definitions, and captures under a
   prime, are refused.
+  Top-level functions also retain frame boundaries for substitution safety,
+  but their boundaries have no lexical parent or captures. Mutual back-edges
+  to those functions are recorded on their actual target boundary; they do
+  not require nested capture passing.
 - **Startup values.** TLC's startup value of a constant definition may be
   lazy, for example a filter over `Nat`. When it cannot be converted, the core
   compiles the definition's body instead. Configuration overrides

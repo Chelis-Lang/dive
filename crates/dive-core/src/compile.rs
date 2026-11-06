@@ -2795,7 +2795,9 @@ impl Compiler<'_> {
     /// capture slots (filled in when its body is complete).
     fn fun_call(&mut self, d: DefId, fun: u32, mut ps: Vec<P>, env: usize) -> Result<P, Error> {
         if let Some(i) = self.lifts.iter().position(|l| l.fun == fun) {
-            if i + 1 != self.lifts.len() {
+            // Top-level functions still need the substitution frame boundary,
+            // but have no lexical captures to pass along a mutual back-edge.
+            if i + 1 != self.lifts.len() && self.lifts[i].parent.is_some() {
                 return Err(Error::unsupported(
                     "mutually recursive nested definitions (M1 core)",
                 ));
@@ -2804,7 +2806,7 @@ impl Compiler<'_> {
                 fun,
                 args: ps.into(),
             })?;
-            if let Some(l) = self.lifts.last_mut() {
+            if let Some(l) = self.lifts.get_mut(i) {
                 l.self_calls.push(call);
             }
             return Ok(call);
