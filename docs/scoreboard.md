@@ -9,16 +9,29 @@ measurements predate canonical sets and subsequent recursive-function and
 substitution work; later focused gains are not added to this full-tier
 measurement.
 
+Merged #835 repairs the configured-helper startup-register false success (#831)
+and configured constants through INSTANCE. The optimized original
+`MisraReachability/MCParReach.cfg` succeeds within 30 seconds / 3 GiB with
+747 generated states, 393 distinct states and depth 18, matching pinned success
+code 2193 and exit 0. Merged #832 repairs recursive INSTANCE ownership bugs.
+These focused results do not change the historical census.
+
+Optimized original `MCLiveWriteThroughCache` succeeds with 28,170 generated
+states, 5,196 distinct states and depth 18; `PaxosCommit` succeeds with
+16,959,159 generated states, 1,321,761 distinct states and depth 28. Both match
+pinned success code 2193 and exit 0. `EWD998ChanID_export` gives a named
+`TLCExt!Trace` refusal and earns no agreement.
+
 ## Release gates
 
 | Gate | Status | Latest evidence |
 |---|---|---|
 | R1 Coverage: Core alone, default profile, zero disagreements and at least Reference's count | **Open.** Core covers 128 of 185 in-scope Examples models (126 agreements plus two expected divergences); same-source Reference covers 150 (146 plus four). Both have zero disagreements. Core misses 29 Reference-covered models and covers seven Reference gaps: a net shortfall of 22. Nine missing goldens remain unmeasured. | Full-tier Core measurement below; small-tier Core-only CI ratchet is active (#806). |
-| R2 Speed: faster than TLC on geomean over R1 agreeing models | **Open.** Cross-host timing triage is available; it does not establish release speed. Three agreeing models exceed twice their golden TLC elapsed time and need matched confirmation. | Timing triage below. |
+| R2 Speed: faster than TLC on geomean over R1 agreeing models | **Open.** Matched local one-worker observations confirm SDP, NanoMedium and EWD startup exceed twice TLC. MCInnerSerial still stops at 300 seconds. | Matched performance blockers below; #820, #821, #822 and #787. |
 | R3 Bare use: bundled TLAPS and CommunityModules, smoke test | **Done.** All ten original Examples resolve without library flags; nine check successfully. EWD998ChanID retains its specifically permitted named refusal. These Reference-backed checks give no Core coverage credit; repeat bare-use checking on Core before cutover. | Bundled libraries and bare-use CI smoke (#803). |
 | R4 Compat exists on Core | **Done.** The TLC-profile small selection has 126 agreements and 30 named refusals, with no internal errors. This is a projection of completed full and auxiliary runs, not a new run. | Nominal switches and known gaps documented (#810); one worker. |
 | R5 Stable surface | **Done.** Advertised command help works, version identifies the source commit, unimplemented commands are hidden, and CLI help and schema-3 JSON have golden tests. | #802 and #804. |
-| R6 Shipped | **Open.** Packaging preparation is pending in #805. No release tag or release-candidate qualification yet. | Linux x86_64/aarch64 archives, checksums and installation/landing documentation are prepared for review. |
+| R6 Shipped | **Open.** Packaging preparation is delivered (#805). The release version/tag, native ARM verification and one release-candidate qualification remain. | Linux x86_64/aarch64 archive/checksum workflow and installation/landing documentation are merged; no release is published. |
 
 ## Corpus scoreboard
 
@@ -149,9 +162,32 @@ number does not pass R2 or support a headline performance claim.
 | `SDP_Verification/SDP_Attack_New_Solution_Spec/MC.cfg` | 4.07 |
 | `NanoBlockchain/MCNanoMedium.cfg` | 3.18 |
 
-Confirm these on matched inputs and hardware before claiming a speed regression
-or a release-wide improvement. The declared full-tier stops also remain open
-performance or capacity work; timings on completed models do not resolve them.
+### Matched local performance blockers
+
+Matched local observations use the original configurations, one worker, seed 0,
+fingerprint polynomial 0 and 3 GiB. All three remain R2 blockers:
+
+| Model | Core elapsed | TLC elapsed | Issue |
+|---|---:|---:|---|
+| `SDP_Verification/SDP_Attack_New_Solution_Spec/MC.cfg` | 6.992 s | 0.969 s | #820 |
+| `NanoBlockchain/MCNanoMedium.cfg` | 88.388 s | 10.787 s | #821 |
+| `ewd998/EWD998ChanID_shiviz.cfg` | 15.246 s | 3.074 s | #822 |
+
+The clean bounded-cache SDP pair improved from 29.471 to 6.992 seconds (#823),
+with exactly 6,826 generated states, 2,881 distinct states and depth 21. It still
+exceeds twice the matched TLC time. Nano's clean canonical-union pair improved
+from 199.413 to 88.388 seconds (#833): 2.26x with exactly 1,120,079 generated
+states, 530,587 distinct states and depth 11, still 8.2x TLC.
+
+The EWD scalar-function-space change (#834) measured 16.251 to 15.246 seconds;
+user CPU was essentially unchanged, 15.35 to 15.22 seconds. Peak RSS fell from
+437,996 to 36,416 KiB. The comparison retains code 2102 and exit 255; TLC omits
+statistics and depth, so no missing count/depth facts are inferred.
+
+MCInnerSerial still stops at 300 seconds (#787); the rejected filter experiment
+is not a delivered improvement. The historical full-tier stops remain open
+performance or capacity work. These focused observations establish no
+release-wide geometric mean or new coverage total.
 
 ## Feature families
 
