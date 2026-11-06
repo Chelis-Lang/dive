@@ -44,30 +44,36 @@ enum ContextColumn {
     Big { low: Int, high: Int, current: Int },
 }
 
+/// Preserve bulk enumeration admission before using an incremental cursor.
+fn admit_bulk_set(set: &Set, ctx: dive_value::Ctx) -> Result<()> {
+    // Preserve Set::elements' size check BEFORE enumerate's separate bulk
+    // ceiling, even though this cursor does not allocate the bulk column.
+    let count = set.size(ctx)?;
+    if count > dive_value::MAX_ENUMERATION {
+        // Same order override, typed error and pretty-printing as
+        // enumerate::enumerate -> too_large; no enumeration is requested.
+        let ctx = dive_value::Ctx {
+            order: set.order(),
+            ..ctx
+        };
+        let value = Value::Set(set.clone());
+        let printed =
+            dive_value::print::ppr(&dive_value::print::to_tlc_string_lenient(&value, ctx));
+        return Err(dive_value::ValueError::new(
+            dive_value::ErrorKind::TooLarge,
+            format!(
+                "The set\n{printed}\nhas {count} elements, more than dive enumerates ({}).",
+                dive_value::MAX_ENUMERATION
+            ),
+        )
+        .into());
+    }
+    Ok(())
+}
+
 impl ContextColumn {
     fn interval(set: &dive_value::Set, ctx: dive_value::Ctx) -> Result<Self> {
-        // Preserve Set::elements' size check BEFORE enumerate's separate bulk
-        // ceiling, even though this cursor does not allocate the bulk column.
-        let count = set.size(ctx)?;
-        if count > dive_value::MAX_ENUMERATION {
-            // Same order override, typed error and pretty-printing as
-            // enumerate::enumerate -> too_large; no enumeration is requested.
-            let ctx = dive_value::Ctx {
-                order: set.order(),
-                ..ctx
-            };
-            let value = Value::Set(set.clone());
-            let printed =
-                dive_value::print::ppr(&dive_value::print::to_tlc_string_lenient(&value, ctx));
-            return Err(dive_value::ValueError::new(
-                dive_value::ErrorKind::TooLarge,
-                format!(
-                    "The set\n{printed}\nhas {count} elements, more than dive enumerates ({}).",
-                    dive_value::MAX_ENUMERATION
-                ),
-            )
-            .into());
-        }
+        admit_bulk_set(set, ctx)?;
         let (low, high) = set
             .as_interval()
             .ok_or_else(|| EvalError::bug("noninterval context cursor"))?;
@@ -1678,15 +1684,20 @@ impl Core {
             return Err(self.choose_not_enumerable(e));
         }
         self.enum_guard(s)?;
-        let elems = s.elements(self.ctx)?;
+        let cursor = self.choose_stream(s)?;
+        let elems = if cursor.is_some() {
+            Arc::from([])
+        } else {
+            s.elements(self.ctx)?
+        };
         let slots: Vec<usize> = b.vars.iter().map(|s| s.index()).collect();
-        for x in elems.iter() {
+        for x in cursor.into_iter().flatten().chain(elems.iter().cloned()) {
             if let Some(coverage) = &self.source_coverage {
                 coverage.enumeration(s);
             }
             self.loop_work()?;
             if b.tuple {
-                let ok = matches!(x, Value::Fcn(f) if f.as_tuple().is_some_and(|t| t.len() == slots.len()));
+                let ok = matches!(&x, Value::Fcn(f) if f.as_tuple().is_some_and(|t| t.len() == slots.len()));
                 if !ok {
                     return Err(EvalError::general(format!(
                         "Attempted to compute the value of an expression of form\nCHOOSE <<x1, ... , xN>> \\in S: P, but S was not a set\nof N-tuples.\n{}",
@@ -1694,7 +1705,7 @@ impl Core {
                     )));
                 }
             }
-            self.bind_one(env, &slots, b.tuple, x, e)?;
+            self.bind_one(env, &slots, b.tuple, &x, e)?;
             let p = self.eval_bool(env, st, body, |c, _| {
                 EvalError::coded(
                     Ec::ExpectedValue,
@@ -1705,7 +1716,7 @@ impl Core {
                 )
             })?;
             if p {
-                return Ok(Ev::V(x.clone()));
+                return Ok(Ev::V(x));
             }
         }
         if let Some(coverage) = &self.source_coverage {
@@ -1715,6 +1726,42 @@ impl Core {
             "Attempted to compute the value of an expression of form\nCHOOSE x \\in S: P, but no element of S satisfied P.\n{}",
             self.loc(e)
         )))
+    }
+
+    /// Avoid retaining the entire function space when its component order is proven.
+    fn choose_stream(&self, set: &Set) -> Result<Option<dive_value::SetElementStream>> {
+        if set.order() != self.ctx.order || set.has_cached_elements() {
+            return Ok(None);
+        }
+        let Some((Value::Set(domain), Value::Set(range))) = set.as_fcn_set() else {
+            return Ok(None);
+        };
+        for component in [domain, range] {
+            if component.kind() != dive_value::SetKind::Enum || component.order() != self.ctx.order
+            {
+                return Ok(None);
+            }
+            let Some(values) = component.stored_elements() else {
+                return Ok(None);
+            };
+            if values.is_empty()
+                || !values.iter().all(|value| {
+                    matches!(
+                        value,
+                        Value::Bool(_)
+                            | Value::Int(_)
+                            | Value::BigInt(_)
+                            | Value::Str(_)
+                            | Value::Model(_)
+                    )
+                })
+                || !Value::elements_comparable(values)
+            {
+                return Ok(None);
+            }
+        }
+        admit_bulk_set(set, self.ctx)?;
+        set.concrete_element_stream(self.ctx).map_err(Into::into)
     }
 
     fn choose_not_enumerable(&self, e: ExprId) -> EvalError {
@@ -3089,3 +3136,7 @@ pub(crate) fn odometer(columns: &[Arc<[Value]>]) -> Vec<Vec<Value>> {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "choose_stream_tests.rs"]
+mod choose_stream_tests;
