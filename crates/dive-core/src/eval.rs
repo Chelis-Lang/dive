@@ -1387,6 +1387,9 @@ impl Machine {
 
     /// Merge canonical explicit operands; the caller retains identity/class checks.
     fn union_concrete(&mut self, x: Handle, y: Handle) -> Result<Option<Handle>, Error> {
+        if !x.is_compound() || !y.is_compound() {
+            return Ok(None);
+        }
         let (left_view, right_view) = (self.heap.view(x), self.heap.view(y));
         if left_view.kind != Kind::Set
             || right_view.kind != Kind::Set

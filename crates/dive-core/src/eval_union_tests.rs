@@ -103,3 +103,35 @@ fn canonical_union_polls_inside_a_merge() {
     assert_eq!(error.kind(), crate::ErrorKind::Stop);
     assert!(m.heap.work_interrupted());
 }
+
+#[test]
+fn canonical_union_rejects_scalar_operands_without_poisoning() {
+    for tlc in [false, true] {
+        for hashcons in [false, true] {
+            for kind in ["integer", "boolean", "string", "model"] {
+                for reverse in [false, true] {
+                    let mut m = machine(tlc, hashcons);
+                    let scalar = match kind {
+                        "integer" => Handle::int(1).unwrap(),
+                        "boolean" => Handle::TRUE,
+                        "string" => m.heap.string("scalar").unwrap(),
+                        _ => Handle::model(m.heap.store().strings().intern("scalar").unwrap()),
+                    };
+                    let set = m.heap.set_sorted(&[Handle::int(2).unwrap()]);
+                    let (left, right) = if reverse {
+                        (set, scalar)
+                    } else {
+                        (scalar, set)
+                    };
+                    let error = m.set_bin(SetOp::Cup, left, right).unwrap_err();
+                    assert_eq!(error.kind(), crate::ErrorKind::Eval);
+                    assert_eq!(
+                        error.message(),
+                        "attempted to enumerate a value that is not a set"
+                    );
+                    assert!(!m.heap.poisoned());
+                }
+            }
+        }
+    }
+}
