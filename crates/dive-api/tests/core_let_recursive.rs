@@ -109,12 +109,10 @@ fn lexical_captures_repeated_calls_and_substitutions_match_reference()
 }
 
 #[test]
-fn escape_operator_and_nested_recursion_keep_named_refusals()
--> Result<(), Box<dyn std::error::Error>> {
+fn escape_and_nested_recursion_keep_named_refusals() -> Result<(), Box<dyn std::error::Error>> {
     for compat_tlc in [false, true] {
         for (config, message) in [
             ("Escape", "used other than applied"),
-            ("Operator", "operator parameter"),
             ("Nested", "nested recursive"),
         ] {
             let core = check_file_core_opts(&request(config, compat_tlc, 1), "")?;
@@ -126,6 +124,193 @@ fn escape_operator_and_nested_recursion_keep_named_refusals()
             );
             assert!(doc["tlc"].is_null());
             assert!(doc["counterexample"].is_null());
+        }
+    }
+    Ok(())
+}
+
+fn op_request(config: &str, compat_tlc: bool, workers: usize) -> CheckRequest {
+    let mut req = request(config, compat_tlc, workers);
+    if config != "Operator" {
+        req.file.set_file_name("RecOpCalls.tla");
+    }
+    req
+}
+
+fn validate_op_word(
+    req: &CheckRequest,
+    core: &dive_api::CheckReport,
+    compat_tlc: bool,
+    prime: bool,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let options = TraceOptions {
+        compat_tlc,
+        run: Some((0, 0)),
+        ..Default::default()
+    };
+    let model = SpecModel::load(&req.file, req.config.as_ref().ok_or("config")?, &options)?;
+    let payload = core.to_json()["counterexample"]["trace"].clone();
+    assert_eq!(
+        model.validate(&TraceDoc::from_json(&payload)?).validation,
+        Validation::Valid
+    );
+    let mut bad = payload.clone();
+    bad["states"][1]["values"]["x"] = json!(3);
+    assert!(
+        matches!(model.validate(&TraceDoc::from_json(&bad)?).validation,
+        Validation::Invalid(ref failure) if failure.check == Check::Next)
+    );
+    let holding = op_request(
+        if prime { "OpPrimeHolding" } else { "OpHolding" },
+        compat_tlc,
+        1,
+    );
+    let model = SpecModel::load(
+        &holding.file,
+        holding.config.as_ref().ok_or("holding config")?,
+        &options,
+    )?;
+    let mut bad = payload;
+    bad["ending"]["name"] = json!(if prime { "PrimeCorrect" } else { "Good" });
+    assert!(
+        matches!(model.validate(&TraceDoc::from_json(&bad)?).validation,
+        Validation::Invalid(ref failure) if failure.check == Check::Ending
+            && failure.detail.contains("holds at the end"))
+    );
+    Ok(())
+}
+
+#[test]
+fn enclosing_operator_bindings_inline_in_their_actual_lexical_context()
+-> Result<(), Box<dyn std::error::Error>> {
+    for compat_tlc in [false, true] {
+        for config in [
+            "Operator",
+            "OpHolding",
+            "OpWrong",
+            "OpPrimeHolding",
+            "OpPrimeWrong",
+        ] {
+            let wrong = config.ends_with("Wrong");
+            let prime = config.starts_with("OpPrime");
+            let req = op_request(config, compat_tlc, 1);
+            let expected = observed(&check_file_engine(&req, Engine::Reference)?);
+            // Pinned TLC 94d0c50 confirms the complete positive/opposite
+            // counts, property, error class and exit for these inputs.
+            assert_eq!(
+                expected["verdict"],
+                if wrong {
+                    if prime {
+                        "action-property-violation"
+                    } else {
+                        "invariant-violation"
+                    }
+                } else {
+                    "success"
+                }
+            );
+            assert_eq!(
+                expected["code"],
+                if wrong {
+                    if prime { 2112 } else { 2110 }
+                } else {
+                    2193
+                }
+            );
+            assert_eq!(
+                expected["exit"],
+                if wrong {
+                    if prime { 13 } else { 12 }
+                } else {
+                    0
+                }
+            );
+            assert_eq!(
+                expected["property"],
+                if wrong {
+                    json!(if prime { "PrimeWrong" } else { "Wrong" })
+                } else {
+                    Value::Null
+                }
+            );
+            assert_eq!(
+                expected["statistics"]["generated"],
+                if wrong { 2 } else { 4 }
+            );
+            assert_eq!(
+                expected["statistics"]["distinct"],
+                if wrong { 2 } else { 3 }
+            );
+            assert_eq!(expected["statistics"]["depth"], if wrong { 2 } else { 3 });
+            for workers in [1, 4] {
+                let req = op_request(config, compat_tlc, workers);
+                for switches in ["", "-fold,-memo,-step-memo,-hashcons,-eager"] {
+                    let core = check_file_core_opts(&req, switches)?;
+                    assert_eq!(core.to_json()["engine"], "core");
+                    assert_eq!(
+                        observed(&core),
+                        expected,
+                        "{config}/{compat_tlc}/{workers}/{switches}"
+                    );
+                    if !wrong {
+                        assert!(core.to_json()["counterexample"].is_null());
+                        continue;
+                    }
+                    validate_op_word(&req, &core, compat_tlc, prime)?;
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn enclosing_callbacks_keep_capture_effect_and_recursive_boundaries()
+-> Result<(), Box<dyn std::error::Error>> {
+    for compat_tlc in [false, true] {
+        for (config, message) in [
+            (
+                "OpOutsideCapture",
+                "a recursive function with a dynamic INSTANCE capture outside its lexical activation (M1 core)",
+            ),
+            (
+                "OpPrimeCapture",
+                "a recursive LET definition reading an enclosing local under a prime (M1 core)",
+            ),
+            (
+                "OpEffect",
+                "an enclosing operator argument with effects or recursive calls inside a recursive function (M1 core)",
+            ),
+            (
+                "OpCapturedEffect",
+                "Print, PrintT, RandomElement, TLCSet or TLCGet inside a function constructor, set filter, set map or operator argument, which TLC may evaluate lazily or in its own order (M1 core)",
+            ),
+            (
+                "OpCapturedCall",
+                "a recursive definition capturing a value with unproved recursive calls (M1 core)",
+            ),
+            (
+                "OpRecursiveCallback",
+                "an enclosing operator argument with effects or recursive calls inside a recursive function (M1 core)",
+            ),
+            (
+                "OpActionBoundary",
+                "an enclosing operator parameter used as an action inside a recursive function (M1 core)",
+            ),
+            (
+                "OpRecursiveBoundary",
+                "an enclosing operator parameter inside a recursive LET definition (M1 core)",
+            ),
+        ] {
+            for switches in ["", "-fold,-memo,-step-memo,-hashcons,-eager"] {
+                let core = check_file_core_opts(&op_request(config, compat_tlc, 1), switches)?;
+                let doc = core.to_json();
+                assert_eq!(core.verdict(), "unsupported", "{config}: {doc}");
+                assert_eq!(doc["message"], message, "{config}");
+                assert!(doc["tlc"].is_null());
+                assert!(doc["counterexample"].is_null());
+                assert_eq!(doc["output"], json!([]));
+            }
         }
     }
     Ok(())

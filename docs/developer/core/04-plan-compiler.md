@@ -594,6 +594,14 @@ applies it there. The compiler reproduces this by inlining.
 - **Binding.** A parameter bound to an operator argument is an `Sb::OpArg`:
   the operator, and the environment it was passed in. `resolve_param` follows
   parameters that are passed on (`Through(F, v) == Twice(F, v)`).
+  A LET-recursive function's `Sb::Enclosing` view may also resolve to this
+  metadata. Following it preserves the original argument environment; the
+  callback is inlined into the function, with value references still checked
+  by `local` and `capture`. Pure non-recursive `LAMBDA`s work without being
+  top-level. Unreachable lexical captures, effects and unproved recursive
+  calls refuse. Captured thunks containing unproved calls are also refused
+  before speculative forcing, since a call can hide an effect. No operator
+  value is added to the runtime frame.
 - **Application.** The argument is applied the same way in expressions
   (`apply_param`) and in actions (`g_apply_op`). The call's arguments are
   compiled at the application site. A `LAMBDA` or `LET` operator's body is
@@ -609,7 +617,9 @@ applies it there. The compiler reproduces this by inlining.
   - an operator parameter of a recursive operator;
   - a recursive `LET` operator passed as an argument;
   - an `INSTANCE`-substituted operator passed as an argument;
-  - an enclosing operator parameter read inside a lifted recursive `LET`;
+  - an enclosing operator parameter read directly across a recursive operator's
+    frame boundary, rather than through a recursive function's owner view;
+  - an enclosing callback applied as an action inside a recursive function;
   - built-ins passed as arguments (`Op(\cup)`);
   - std operators applied to operator arguments (`FoldSet(LAMBDA ...)`),
     which belong to the stdlib (stream 1).
