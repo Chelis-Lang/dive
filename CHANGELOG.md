@@ -1,9 +1,5 @@
 # Changelog
 
-- Make benchmark native arms select and verify Core, add optional original-byte
-  process capture and fail-fast execution, and keep interrupted samples out of
-  timing summaries.
-
 - Remove obsolete Core set-history phases, constructor-origin allocation and
   receiver-authority walks from checking and state handoff. Preserve bounded
   mathematical identity checks, interruption handling and symbolic domains;
@@ -475,6 +471,10 @@
   and successful committed-prefix facts remain distinct. External graph
   factories preserve the original failure/stop verdict instead of admitting it
   as completion or a successful prefix (#624).
+
+- Make benchmark native arms select and verify Core, add optional original-byte
+  process capture and fail-fast execution, and keep interrupted samples out of
+  timing summaries.
 
 - Benchmark JSONL rows retain the child report’s actual engine, requested engine
   and fallback details, so campaign labels cannot hide reference-engine fallback.
