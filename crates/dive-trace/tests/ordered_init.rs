@@ -19,7 +19,8 @@ fn session(
     let source = format!(
         "---- MODULE OrderedInit ----\nEXTENDS Naturals,TLC\nVARIABLES {variables}\n{body}\n====\n"
     );
-    let analysis = dive_sema::analyze_source("OrderedInit.tla", &source, &Default::default());
+    let analysis =
+        dive_sema::analyze_source("OrderedInit.tla", &source, &dive_sema::Options::default());
     assert!(analysis.accepted(), "{analysis:?}");
     let ir = Arc::new(dive_ir::lower(&analysis)?);
     let config = dive_config::parse(&format!("INIT Init\nNEXT Next\n{extra}\n"))

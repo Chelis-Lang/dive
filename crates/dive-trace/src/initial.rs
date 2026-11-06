@@ -1,4 +1,4 @@
-//! Ordered single-candidate Init/Next construction, without checker enumeration.
+//! Independent Init membership and single-candidate Next construction.
 
 use std::sync::Arc;
 
