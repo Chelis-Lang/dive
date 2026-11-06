@@ -16,9 +16,11 @@ and configured constants through INSTANCE. The optimized original
 code 2193 and exit 0. Merged #832 repairs recursive INSTANCE ownership bugs.
 These focused results do not change the historical census.
 
-Short debug checks now admit `MCLiveWriteThroughCache` and `PaxosCommit`, but
-stop during temporal analysis and safety search respectively. `EWD998ChanID_export`
-has no terminal outcome before its outer backstop. None earns coverage credit.
+Optimized original `MCLiveWriteThroughCache` succeeds with 28,170 generated
+states, 5,196 distinct states and depth 18; `PaxosCommit` succeeds with
+16,959,159 generated states, 1,321,761 distinct states and depth 28. Both match
+pinned success code 2193 and exit 0. `EWD998ChanID_export` gives a named
+`TLCExt!Trace` refusal and earns no agreement.
 
 ## Release gates
 
