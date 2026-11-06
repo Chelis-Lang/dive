@@ -1,0 +1,94 @@
+name: release
+
+# Create the version tag only after R1-R5 and the RC qualification pass on
+# that source. This workflow packages the qualified source; it adds no campaign.
+on:
+  push:
+    tags: ["v[0-9]*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: "0"
+  CARGO_BUILD_JOBS: "2"
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            target: x86_64-unknown-linux-gnu
+          - runner: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    env:
+      TARGET: ${{ matrix.target }}
+      RELEASE_TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install pinned toolchain
+        run: rustup show active-toolchain || rustup toolchain install
+      - name: Require the tag to match the package version
+        run: |
+          version=$(cargo metadata --locked --no-deps --format-version 1 | python3 -c 'import json,sys; print(next(p["version"] for p in json.load(sys.stdin)["packages"] if p["name"] == "dive-cli"))')
+          test "$RELEASE_TAG" = "v$version"
+      - name: Build native binaries
+        run: cargo build --release --locked -p dive-cli --bins --target "$TARGET"
+      - name: Package binaries and licenses
+        run: scripts/package-release.sh "target/$TARGET/release" "$RELEASE_TAG" "$TARGET" dist
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-${{ matrix.target }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Download and verify archives
+        run: |
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --pattern 'release-*' --dir dist
+          for directory in dist/release-*; do
+            (
+              cd "$directory"
+              sha256sum --check ./*.sha256
+            )
+          done
+      - name: Extract curated release notes
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+          from pathlib import Path
+          version = re.escape(os.environ["RELEASE_TAG"].removeprefix("v"))
+          notes = re.search(rf"(?ms)^## {version}(?:[^\n]*)\n(.*?)(?=^## |\Z)", Path("CHANGELOG.md").read_text())
+          if notes is None:
+              raise SystemExit("Missing curated changelog section for this tag")
+          Path("release-notes.md").write_text(notes.group(1).strip() + "\n")
+          PY
+      - name: Publish release assets
+        run: gh release create "$RELEASE_TAG" dist/release-*/*.tar.gz dist/release-*/*.sha256 --verify-tag --title "$RELEASE_TAG" --notes-file release-notes.md
