@@ -42,12 +42,20 @@ GitHub milestones:
   Libraries are bundled, the ten-spec bare-use smoke meets its checked/refused
   contract, and help/version and schema-3 JSON are pinned. Bare-use checks are
   Reference-backed and do not increase Core coverage.
-- **Release speed is not established (R2).** Cross-host elapsed-time triage
-  identifies three agreeing models over twice their golden TLC time; matched
-  measurements are needed. Completed-model timing does not resolve the six
-  full-tier stops.
-- **There is no release.** Packaging preparation is pending in #805; R1, R2 and
-  R6 remain open. [scoreboard.md](scoreboard.md) lists exact refusal reasons,
+- **Configured-helper and INSTANCE repairs are delivered.** Merged #835 fixes
+  the startup-register false success (#831); the optimized original MCParReach
+  succeeds with pinned observables. The recursive INSTANCE ownership fix (#832)
+  is also merged. These focused gains do not update the full-tier count.
+- **Release speed is not established (R2).** Matched local one-worker runs
+  confirm SDP, NanoMedium and EWD startup exceed twice TLC (#820–#822).
+  The bounded-cache SDP, canonical-union Nano and EWD memory improvements are
+  delivered, but all three remain blockers. Nano's clean pair improves 2.26x
+  and remains 8.2x TLC; EWD user CPU is essentially unchanged.
+  MCInnerSerial still stops at 300 seconds (#787); the rejected filter experiment
+  is not delivered. Exact timings and qualifications are in the scoreboard.
+- **There is no release.** Packaging preparation is delivered (#805); R1, R2 and
+  R6 remain open. Version/tag, native ARM verification and one RC qualification
+  remain. [scoreboard.md](scoreboard.md) lists exact refusal reasons,
   model IDs, unmeasured cases and timing qualifications.
 
 ## Path to v0.1
@@ -55,9 +63,10 @@ GitHub milestones:
 Remaining work follows the [release gates](RELEASE.md), using measured reason
 buckets rather than model-by-model history fixes:
 
-1. Close the demonstrated Reference-covered gaps by reason bucket, with focused
-   checks on current Core. The completed comparison identifies 29 such baseline
-   refusals, led by recursive functions (10), quiet nested equality (4), lazy
+1. Close the remaining demonstrated Reference-covered gaps by reason bucket,
+   with focused checks on current Core. The completed comparison identifies
+   29 such baseline refusals, led by recursive functions (10), quiet nested
+   equality (4), lazy
    operator successor domains (3) and action composition (2). Canonical sets
    have since landed; retain verified focused results separately rather than
    adding them to the old census. Address the remaining recursive-helper/operator
@@ -67,22 +76,24 @@ buckets rather than model-by-model history fixes:
 2. Resolve the nine absent oracle facts through targeted pinned-oracle work on
    the original configurations. Keep them unmeasured until a legitimate golden
    exists; snapshots do not turn unknowns into native results.
-3. Resolve Core performance and capacity stops, including MCInnerSerial after
-   canonical admission. Confirm the three timing outliers on matched inputs;
-   retain verdict, trace and observable-count obligations. The named #788
-   liveness examples already agree or give their permitted refusal/stop; the
-   measurement contains no capture-capacity refusal bucket.
+3. Resolve the confirmed matched performance blockers and MCInnerSerial's
+   300-second stop; retain verdict, trace and observable-count obligations.
+   Capacity tracking (#788) is consolidated into R1 (#338): the measurement
+   contains no capture-capacity refusal bucket.
 4. Refresh the integrated Core measurement at the weekly or cutover boundary.
    Once R1 holds, remove the Auto fallback and Reference checking runtime from
-   the product path, retaining shared startup and independent validation. Repeat
-   the bare-use checks on Core before cutover.
-5. Land packaging preparation (#805), complete R2, then run one integrated
-   release-candidate qualification and tag `v0.1.0` when all gates hold.
+   the product path with obsolete compatibility scaffolding (#791), retaining
+   shared startup and independent validation. Repeat the bare-use checks on
+   Core before cutover.
+5. With packaging preparation delivered (#805), finish R1/R2, set the release
+   version and run one integrated release-candidate qualification. Verify the
+   native ARM release and tag/publish `v0.1.0` when all gates hold.
 
-Delivered release work: canonical sets (#807), lexically scoped applied
-LET-recursive functions (#811), the Core-only small-tier ratchet (#806), bundled
-TLAPS and CommunityModules with bare-use smoke (#803), nominal compatibility and
-its known gaps (#810), CLI help/version (#802), and schema-3 report goldens (#804).
+Delivered release work: canonical sets and history removal (#786, #807, #815),
+lexically scoped applied LET-recursive functions (#811), the Core-only small-tier
+ratchet (#806), bundled TLAPS and CommunityModules with bare-use smoke (#803),
+nominal compatibility and its known gaps (#810), CLI help/version (#802), and
+schema-3 report goldens (#804).
 
 ## After v0.1
 
