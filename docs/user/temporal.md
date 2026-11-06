@@ -67,8 +67,8 @@ comparisons remain in force (ADR 0126).
 
 Ordinary `--engine core` temporal checks retain persistent original state rows
 and compact CSR edges. The existing temporal analyzer reads values on demand;
-a bounded cache reuses successful closed function-tree values while
-other values use controlled conversion. It retains no second complete evaluator-value
+a bounded cache reuses successful closed tuples, records, functions and fully
+materialized finite sets; other values use controlled conversion. It retains no second complete evaluator-value
 graph. This changes storage, not the supported temporal language, fairness,
 property attribution or completion requirements. The default engine remains
 `reference`.

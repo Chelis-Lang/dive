@@ -237,11 +237,13 @@ formatting conversion does not supply that history.
 The admitted row is dropped immediately; eager admission always performs the
 controlled Graph conversion. Reads can reuse successful values by exact
 persistent `Handle` identity in a cache owned by this fixed run/store/profile.
-Eligibility is limited to closed function trees with Bool/Int or run-owned
-string leaves, recursively containing tuples, records or functions. General
+Eligibility is limited to closed materialized trees with Bool/Int or run-owned
+string leaves, recursively containing tuples, records, functions or enumerated
+sets with complete stored elements. General
 function keys must be scalar Bool/Int or run-owned strings. General string-domain functions retain their nonliteral flag;
 literal and general representations never share entries merely by equality.
-All sets, BigInt/model values, foreign name owners and unproved shapes keep
+Raw/symbolic sets (even with cached elements), BigInt/model values, foreign name
+owners and unproved shapes keep
 the controlled conversion path. No failed conversion or normalization-history refusal is cached.
 
 For one-variable reads, a retained row ID inside the table's current length
@@ -258,12 +260,14 @@ eligibility bypasses caching.
 Each cache entry retains a one-component shared row; its array storage is charged
 even for immediate values. A narrow value-layer inspector counts the actual
 private function header/fingerprint cache and boxed tuple/field storage.
+Enumerated sets charge their complete private header and stored element array;
+inspection never normalizes, enumerates or invokes a provider.
 General functions additionally charge the domain header, key/value arrays and
 the full possible scalar-domain TLC-order array (`usize` per key). Scalar keys
 cannot create the allocating product-domain index. The remaining lazy function
 lookup/fingerprint facts are fixed header fields and carry no observable set
 normalization history. Shared descendants are charged per occurrence; inspection
-declines after 4,096 values or 64 function levels, bypassing only reuse. Record Atom owners are included in field storage; name payload is shared
+declines after 4,096 values or 64 compound levels, bypassing only reuse. Record Atom owners are included in field storage; name payload is shared
 only after Arc identity proves the run Interner already pins it. Opaque Arc
 headers/allocator overhead remain outside this requested-payload metric. It is
 not a total RSS or allocation-time hard cap.
@@ -557,11 +561,11 @@ settings. No stop or refusal establishes a holding result.
 Implemented storage now includes all-vertex/original persistent roots, CSR
 metadata, eager controlled Graph admission, on-demand state access, graph-neutral
 completion/results and native validated reporting (§7.1–§7.4). It reuses the
-analyzer and independent validator. Conversion reuse is limited to the bounded closed-function cache (§4).
-Sets, nonscalar general domains and opaque values still need their own proved
-weighting and measured justification. Closed recursive functions with scalar
-domains are eligible under §4; no cache may recreate an unaccounted complete
-Value graph.
+analyzer and independent validator. Conversion reuse is limited to the bounded closed-materialized-value cache (§4).
+Raw/symbolic sets, nonscalar general domains and opaque values remain outside
+that cache. Closed recursive functions with scalar domains and already stored
+enumerated sets are eligible under §4; no cache may recreate an unaccounted
+complete Value graph.
 
 Remaining qualification and accounting work:
 
@@ -814,7 +818,7 @@ budgets capped at 900 s; harness reports kept outside the repository):
   the graph-equality test fails and the model is refused until the two
   agree. Labels are never derived independently.
 - **Conversion work and memory.** The native path removes the retained
-  evaluator-value graph. Bounded closed-function read reuse addresses repeated
+  evaluator-value graph. Bounded closed-materialized-value read reuse addresses repeated
   conversion; eager admission still converts every original, and unproved classes
   still reconvert on demand; transient source/target rows and analysis
   allocations still coexist with persistent storage. Their cost and remaining
