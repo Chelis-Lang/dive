@@ -13,13 +13,28 @@ On a reserved quiet machine, with the pinned cache fetched by the conformance
 harness, a campaign can use:
 
 ```sh
-target/release/dive-bench --profile both --workers 1,4,8 --reps 5 --tlc \
+target/release/dive-bench --profile default --workers 1 --reps 3 --tlc \
   --dive-revision <candidate-commit> --timeout 900 --xmx 3g \
+  --fail-fast --raw-dir <external-run-directory>/raw \
   --runs <external-run-directory>/runs.jsonl \
   --summary <external-run-directory>/summary.json
 ```
 
-Keep the raw rows and console report outside the repository. To compare a
+Use a tiny filtered workload while developing the runner; the release comparison
+is separate from that loop. Select additional profiles, workers or repetitions
+only for the comparison being made.
+
+Keep the raw rows and console report outside the repository. `--raw-dir` retains
+original stdout/stderr bytes, invocation details and physical exit/signal/timeout
+facts, including failed or interrupted attempts. It reuses the harness's existing
+raw TLC capture; oracle copies and scratch output are retained too. Archive bulky
+captures in S3 after review and remove local staging. No environment values are
+recorded. Without the option, process output remains temporary.
+`--fail-fast` stops before any later arm after the first incorrect or incomplete
+sample. Its JSONL row and raw files remain, but no timing summary is produced;
+an optional summary file records the abort with `summary: null`.
+
+To compare a
 previous frozen build in the same campaign, add both
 `--baseline-bin <previous-executable>` and `--baseline-revision <previous-commit>`.
 The supplied revision is recorded as a user label; it is not inferred from the
@@ -44,7 +59,10 @@ Use budget-aware native binaries for new campaigns. To reproduce older frozen
 campaigns, use their pinned runner and preserve their recorded budget limitations;
 the new runner does not silently omit guards for an older executable. Each native
 report must confirm the exact requested time and memory limits with explicit
-sources; missing, disabled or mismatched guards fail the observation.
+sources; missing, disabled or mismatched guards fail the observation. Native
+arms explicitly request Core and must report Core without fallback. They remove
+inherited `DIVE_ENGINE`; a previous binary that cannot honor this contract must
+use its pinned historical runner instead of qualifying the current product.
 `--tlc` enables the oracle arm; without it the TLC comparisons remain missing
 and no TLC speed-up is reported. The default cfg is the original pinned input.
 `--set <file>` selects another set; duplicate model IDs/names and duplicate
@@ -98,7 +116,10 @@ It retains each dive child's reported options, actual engine, requested engine a
 fallback details (`reported_engine`, `reported_engine_requested`,
 `reported_engine_fallback`). Missing fields stay null; an arm label never supplies
 engine evidence. Timed dive runs remove inherited
-`DIVE_COMPAT` and `DIVE_CHAOS`; the command selects compatibility explicitly.
+`DIVE_COMPAT`, `DIVE_ENGINE` and `DIVE_CHAOS`; the command selects compatibility
+and Core explicitly. `physical_process` retains the supervised process's actual
+exit code, signal, timeout and elapsed time independently of logical report
+classification. `raw_directory` locates the optional original-byte capture.
 The optional JSON summary reports all selected arms, comparisons and aggregate
 population counts. It does not certify performance target acceptance. ADR 0006's
 >=400,000-distinct-state population flag is reported for each model; the scaling
