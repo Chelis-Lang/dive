@@ -191,6 +191,15 @@ section 4 decide.
    - Locals become frame offsets in a flat per-activation frame.
    - Captured variables of `LAMBDA` and of `LET` operators become explicit
      closure slots.
+   - A LET-bound recursive function uses its owning definition's frame layout.
+     Its self/argument slots are rebound; other slots become lazy captures of
+     the actual enclosing activation. Compilation distinguishes that activation,
+     Init context and active substitutions. Calls pass captures through the
+     existing lambda-lifting mechanism; no caller frame offset is reused in the
+     callee frame.
+     External substitution expressions are compiled inside that callee frame;
+     proved constants can be reused. Non-lexical captures and effectful or
+     recursive substitutions refuse rather than borrowing caller thunk slots.
    - State-variable reads become `VarRead(i)` and `PrimedRead(i)`.
 5. **Specialization.** The pass picks specialized node kinds for common
    shapes:

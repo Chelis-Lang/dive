@@ -183,4 +183,6 @@ jobs:
       - name: Shadow gate (core vs reference engine, 1 and 4 workers)
         run: scripts/shadow-gate.sh conformance/gates/shadow-smoke.txt
       - name: Bare-use smoke (bundled libraries, explicit named refusal)
-        run: python3 scripts/bare-use-smoke.py
+        run: |
+          python3 scripts/test-bare-use-smoke.py
+          python3 scripts/bare-use-smoke.py
