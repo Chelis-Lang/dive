@@ -41,6 +41,8 @@ usage: dive-bench [options]
   --xmx <size>        TLC heap and dive process-memory ceiling (default: 3g)
   --timeout <secs>    external per-run backstop (default: 900)
   --runs <file>       append every run as a JSON line to <file>
+  --raw-dir <dir>     retain original process output outside the repository
+  --fail-fast         stop after the first incorrect or incomplete sample
   --set <file>        the benchmark set (default: crates/dive-bench/benchmarks.toml)
   --list              list the benchmark set and exit
 
@@ -64,6 +66,8 @@ struct Opts {
     xmx: String,
     timeout: Duration,
     runs: Option<PathBuf>,
+    raw_dir: Option<PathBuf>,
+    fail_fast: bool,
     set: Option<PathBuf>,
     list: bool,
 }
@@ -83,6 +87,8 @@ fn parse_args() -> Result<Opts, String> {
         xmx: "3g".to_owned(),
         timeout: Duration::from_mins(15),
         runs: None,
+        raw_dir: None,
+        fail_fast: false,
         set: None,
         list: false,
     };
@@ -124,6 +130,8 @@ fn parse_args() -> Result<Opts, String> {
                     Duration::from_secs(val()?.parse().map_err(|_| "--timeout expects seconds")?);
             }
             "--runs" => o.runs = Some(val()?.into()),
+            "--raw-dir" => o.raw_dir = Some(val()?.into()),
+            "--fail-fast" => o.fail_fast = true,
             "--set" => o.set = Some(val()?.into()),
             "--list" => o.list = true,
             "-h" | "--help" => return Err(String::new()),
@@ -437,49 +445,43 @@ fn run(opts: &Opts) -> Result<bool, String> {
         "memory": "--xmx is also the explicit whole-process memory ceiling for both dive profiles",
     });
     provenance["xmx"] = json!(opts.xmx);
+    provenance["native_engine"] = json!("core");
+    provenance["fail_fast"] = json!(opts.fail_fast);
     provenance["schedule"] = json!(
         "model order fixed; worker/arm blocks reversed on odd repetitions; one process at a time"
     );
     provenance["seed"] = json!(0);
     provenance["fp"] = json!(0);
     println!("provenance: {provenance}");
-    let mut runs: Vec<Run> = Vec::new();
-    let mut all_correct = true;
-    for rep in 0..opts.reps {
-        for p in &prepared {
-            for (ordinal, imp) in schedule(&impls, rep).into_iter().enumerate() {
-                let mut r = if imp.starts_with("tlc-w") {
-                    let env = tlc_env.as_ref().ok_or("no TLC environment")?;
-                    run_tlc(env, p, imp, rep, &time_out, opts)?
-                } else {
-                    let bin = if imp.starts_with("baseline-") {
-                        baseline_bin.as_ref().ok_or("missing baseline binary")?
-                    } else {
-                        &dive_bin
-                    };
-                    run_dive(bin, &module_path, p, imp, rep, &time_out, opts)?
-                };
-                r.metadata["schedule_ordinal_within_model"] = json!(ordinal);
-                all_correct &= r.correct;
-                eprintln!(
-                    "[rep {}] {:<20} {:<12} cpu {:>8} wall {:>8.2}s rss {:>6} {} {}",
-                    rep + 1,
-                    r.bench,
-                    r.implementation,
-                    r.usage
-                        .map_or("?".to_owned(), |u| format!("{:.2}s", u.cpu_s())),
-                    r.wall_s,
-                    r.usage
-                        .map_or("?".to_owned(), |u| format!("{}MB", u.max_rss_bytes >> 20)),
-                    if r.correct { "ok" } else { "WRONG" },
-                    r.note
-                );
-                if let Some(path) = &opts.runs {
-                    append_json(path, &r, &provenance)?;
-                }
-                runs.push(r);
-            }
+    let runs = collect_runs(&prepared, &impls, opts, &provenance, |p, imp, rep| {
+        if imp.starts_with("tlc-w") {
+            let env = tlc_env.as_ref().ok_or("no TLC environment")?;
+            run_tlc(env, p, imp, rep, &time_out, opts)
+        } else {
+            let bin = if imp.starts_with("baseline-") {
+                baseline_bin.as_ref().ok_or("missing baseline binary")?
+            } else {
+                &dive_bin
+            };
+            run_dive(bin, &module_path, p, imp, rep, &time_out, opts)
         }
+    })?;
+    let all_correct = runs.iter().all(|r| r.correct);
+    if opts.fail_fast && !all_correct {
+        if let Some(path) = &opts.summary {
+            std::fs::write(
+                path,
+                serde_json::to_vec_pretty(&json!({
+                    "schema_version":2,"provenance":provenance,"summary":null,
+                    "aborted":true,"samples_attempted":runs.len(),
+                    "reason":"incorrect or incomplete sample; later arms were not started",
+                }))
+                .map_err(err)?,
+            )
+            .map_err(err)?;
+        }
+        eprintln!("Stopped after an incorrect or incomplete sample; no timing summary.");
+        return Ok(false);
     }
     stats::validate(&runs)?;
     let summary = report(&prepared, &impls, &runs, opts)?;
@@ -495,6 +497,98 @@ fn run(opts: &Opts) -> Result<bool, String> {
     }
 
     Ok(all_correct)
+}
+
+fn collect_runs(
+    prepared: &[Prepared],
+    impls: &[String],
+    opts: &Opts,
+    provenance: &Value,
+    mut execute: impl FnMut(&Prepared, &str, usize) -> Result<Run, String>,
+) -> Result<Vec<Run>, String> {
+    let mut runs = Vec::new();
+    'samples: for rep in 0..opts.reps {
+        for p in prepared {
+            for (ordinal, imp) in schedule(impls, rep).into_iter().enumerate() {
+                let mut r = execute(p, imp, rep)?;
+                r.metadata["schedule_ordinal_within_model"] = json!(ordinal);
+                eprintln!(
+                    "[rep {}] {:<20} {:<12} cpu {:>8} wall {:>8.2}s rss {:>6} {} {}",
+                    rep + 1,
+                    r.bench,
+                    r.implementation,
+                    r.usage
+                        .map_or("?".to_owned(), |u| format!("{:.2}s", u.cpu_s())),
+                    r.wall_s,
+                    r.usage
+                        .map_or("?".to_owned(), |u| format!("{}MB", u.max_rss_bytes >> 20)),
+                    if r.correct { "ok" } else { "WRONG" },
+                    r.note
+                );
+                if let Some(path) = &opts.runs {
+                    append_json(path, &r, provenance)?;
+                }
+                let stop = opts.fail_fast && !r.correct;
+                runs.push(r);
+                if stop {
+                    break 'samples;
+                }
+            }
+        }
+    }
+    Ok(runs)
+}
+
+/// Preserve original bytes on request, including a partially completed child.
+/// Retained directories are exclusively created and never remove on drop.
+struct RunOutput {
+    path: PathBuf,
+    temporary: Option<TempDir>,
+}
+
+impl RunOutput {
+    fn new(raw_root: Option<&Path>) -> Result<Self, String> {
+        let Some(root) = raw_root else {
+            let temporary = TempDir::new("dive-bench-run").map_err(err)?;
+            return Ok(Self {
+                path: temporary.path().to_owned(),
+                temporary: Some(temporary),
+            });
+        };
+        std::fs::create_dir_all(root).map_err(err)?;
+        let nonce = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map_err(err)?
+            .as_nanos();
+        let path = root.join(format!("sample-{}-{nonce}", std::process::id()));
+        std::fs::create_dir(&path).map_err(err)?;
+        Ok(Self {
+            path: std::fs::canonicalize(path).map_err(err)?,
+            temporary: None,
+        })
+    }
+
+    fn path(&self) -> &Path {
+        &self.path
+    }
+
+    fn record(&self, name: &str, value: &Value) -> Result<(), String> {
+        if self.temporary.is_none() {
+            std::fs::write(
+                self.path.join(name),
+                serde_json::to_vec_pretty(value).map_err(err)?,
+            )
+            .map_err(err)?;
+        }
+        Ok(())
+    }
+
+    fn retain_usage(&self, time_out: &Path) -> Result<(), String> {
+        if self.temporary.is_none() && time_out.exists() {
+            std::fs::copy(time_out, self.path.join("time.txt")).map_err(err)?;
+        }
+        Ok(())
+    }
 }
 
 /// Compare semantic inputs, preserving their resolution order. Historical Java,
@@ -664,7 +758,9 @@ fn run_dive(
     args.push(bin.as_os_str().to_owned());
     let max_memory = memory_bytes(&opts.xmx).ok_or("invalid finite --xmx memory ceiling")?;
     let (profile, workers) = parse_impl(imp);
-    for a in ["check", "--output", "json", "--seed", "0", "--fp", "0"] {
+    for a in [
+        "check", "--engine", "core", "--output", "json", "--seed", "0", "--fp", "0",
+    ] {
         args.push(a.into());
     }
     args.push("--workers".into());
@@ -691,16 +787,29 @@ fn run_dive(
     let mut cmd = Command::new("/usr/bin/time");
     cmd.current_dir(dir)
         .env_remove("DIVE_COMPAT")
+        .env_remove("DIVE_ENGINE")
         .env_remove("DIVE_CHAOS")
         .args(&args);
-    let out_dir = TempDir::new_in(&std::env::temp_dir(), "dive-bench-run").map_err(err)?;
+    let out_dir = RunOutput::new(opts.raw_dir.as_deref())?;
     let _ = std::fs::remove_file(time_out);
     let load_before = load_average();
     let invocation_args: Vec<String> = std::iter::once(cmd.get_program())
         .chain(cmd.get_args())
         .map(|a| a.to_string_lossy().into_owned())
         .collect();
+    out_dir.record(
+        "started.json",
+        &json!({
+            "bench":p.bench.name,"implementation":imp,"rep":rep + 1,
+            "argv":invocation_args,"cwd":dir,"timeout_seconds":opts.timeout.as_secs_f64(),
+            "expected":p.expected,"stdout":"stdout.txt","stderr":"stderr.txt",
+        }),
+    )?;
     let outcome = run_with_timeout(&mut cmd, opts.timeout, out_dir.path()).map_err(err)?;
+    let physical = json!({"exit_code":outcome.exit_code,"signal":outcome.signal,
+        "timed_out":outcome.timed_out,"elapsed_seconds":outcome.elapsed.as_secs_f64()});
+    out_dir.record("finished.json", &physical)?;
+    out_dir.retain_usage(time_out)?;
     let load_after = load_average();
     let usage = read_usage(time_out);
     let v: Value = serde_json::from_str(outcome.stdout.trim()).unwrap_or(Value::Null);
@@ -734,9 +843,21 @@ fn run_dive(
         error_class: v["tlc"]["name"].as_str().map(str::to_owned),
         exit_code: outcome.exit_code,
         property: v["property"].as_str().map(str::to_owned),
-        metadata: json!({"argv":invocation_args,"cwd":dir,"environment_removed":["DIVE_COMPAT","DIVE_CHAOS"],"requested_native_budget":{"reference_tlc_elapsed_ms":p.golden_elapsed_ms,"time_limit_ms":time_limit_ms,"max_memory":opts.xmx,"max_memory_bytes":max_memory},"reported_options":v["options"],"reported_stopped":v["stopped"],"reported_resources":v["resources"],"reported_execution":v["execution"],"reported_engine":v["engine"],"reported_engine_requested":v["engine_requested"],"reported_engine_fallback":v["engine_fallback"],"load_before":load_before,"load_after":load_after,"inputs":p.provenance}),
+        metadata: json!({"argv":invocation_args,"cwd":dir,"environment_removed":["DIVE_COMPAT","DIVE_ENGINE","DIVE_CHAOS"],"requested_native_budget":{"reference_tlc_elapsed_ms":p.golden_elapsed_ms,"time_limit_ms":time_limit_ms,"max_memory":opts.xmx,"max_memory_bytes":max_memory},"reported_options":v["options"],"reported_stopped":v["stopped"],"reported_resources":v["resources"],"reported_execution":v["execution"],"reported_engine":v["engine"],"reported_engine_requested":v["engine_requested"],"reported_engine_fallback":v["engine_fallback"],"load_before":load_before,"load_after":load_after,"inputs":p.provenance}),
     };
-    (r.correct, r.note) = check(p, &r);
+    r.metadata["physical_process"] = physical;
+    r.metadata["raw_directory"] = json!(opts.raw_dir.as_ref().map(|_| out_dir.path()));
+    check_native(p, &mut r, &v, time_limit_ms, max_memory);
+    Ok(r)
+}
+
+fn check_native(p: &Prepared, r: &mut Run, v: &Value, time_limit_ms: u64, max_memory: u64) {
+    (r.correct, r.note) = check(p, r);
+    if v["engine"] != "core" || v["engine_requested"] != "core" || !v["engine_fallback"].is_null() {
+        r.correct = false;
+        r.note
+            .push_str("; native report does not confirm Core without fallback");
+    }
     let budget = &v["options"]["budget"];
     if budget["time_limit_ms"].as_u64() != Some(time_limit_ms)
         || budget["max_memory_bytes"].as_u64() != Some(max_memory)
@@ -755,7 +876,6 @@ fn run_dive(
         r.note
             .push_str("; dive did not report verified TLC success");
     }
-    Ok(r)
 }
 
 /// Reserve cleanup time so a native stop can publish its structured report
@@ -795,6 +915,11 @@ fn run_tlc(
     time_out: &Path,
     opts: &Opts,
 ) -> Result<Run, String> {
+    let output = RunOutput::new(opts.raw_dir.as_deref())?;
+    let mut env = env.clone();
+    if opts.raw_dir.is_some() {
+        env.raw_invocations = Some(output.path().join("oracle"));
+    }
     let (_, workers) = parse_impl(imp);
     let job = TlcJob {
         corpus_root: &p.corpus_root,
@@ -813,6 +938,7 @@ fn run_tlc(
     let _ = std::fs::remove_file(time_out);
     let load_before = load_average();
     let inv = env.run_tlc(&job).map_err(err)?;
+    output.retain_usage(time_out)?;
     let load_after = load_average();
     let usage = read_usage(time_out);
     let result = classify(
@@ -846,7 +972,17 @@ fn run_tlc(
         note: String::new(),
         metadata: json!({"argv":inv.command,"cwd":"$TMP/work","workers_used_source":"TLC BFS startup message, not inferred from request","load_before":load_before,"load_after":load_after,"inputs":p.provenance}),
     };
+    r.metadata["physical_process"] = json!({
+        "exit_code":inv.outcome.exit_code,"signal":inv.outcome.signal,
+        "timed_out":inv.outcome.timed_out,"elapsed_seconds":inv.outcome.elapsed.as_secs_f64(),
+    });
+    r.metadata["raw_directory"] = json!(opts.raw_dir.as_ref().map(|_| output.path()));
     (r.correct, r.note) = check(p, &r);
+    if inv.outcome.signal.is_some() || inv.outcome.timed_out || inv.outcome.exit_code != Some(0) {
+        r.correct = false;
+        r.note
+            .push_str("; oracle process did not exit successfully");
+    }
     Ok(r)
 }
 
@@ -1561,6 +1697,8 @@ mod tests {
             xmx: "3g".to_owned(),
             timeout: Duration::from_secs(1),
             runs: None,
+            raw_dir: None,
+            fail_fast: false,
             set: None,
             list: false,
         };
@@ -1653,6 +1791,8 @@ mod tests {
             // not startup latency. Leave headroom before its outer backstop.
             timeout: Duration::from_secs(5),
             runs: None,
+            raw_dir: None,
+            fail_fast: false,
             set: None,
             list: false,
         }
@@ -1757,7 +1897,7 @@ exit 5
 
     #[cfg(unix)]
     #[test]
-    fn native_success_requires_the_exact_requested_explicit_budgets() -> Result<(), String> {
+    fn native_success_requires_explicit_budgets_and_core_without_fallback() -> Result<(), String> {
         use std::os::unix::fs::PermissionsExt as _;
         let dir = TempDir::new_in(&std::env::temp_dir(), "bench-budget-contract").map_err(err)?;
         let bin = dir.path().join("native");
@@ -1772,8 +1912,13 @@ exit 5
             "wrong-time",
             "wrong-memory",
             "implicit",
+            "reference",
+            "auto",
+            "fallback",
+            "missing-engine",
         ] {
             let mut report = json!({
+                "engine":"core","engine_requested":"core","engine_fallback":null,
                 "verdict":"success", "statistics":{"distinct":1,"generated":2,"depth":1},
                 "tlc":{"name":"TLC_SUCCESS","verified":true,"code":2193,"exit_status":0},
                 "options":{"workers":{"used":1},"budget":{
@@ -1795,6 +1940,12 @@ exit 5
                 "wrong-time" => report["options"]["budget"]["time_limit_ms"] = json!(4501),
                 "wrong-memory" => report["options"]["budget"]["max_memory_bytes"] = json!(1 << 30),
                 "implicit" => report["options"]["budget"]["max_memory_source"] = json!("default"),
+                "reference" => report["engine"] = json!("reference"),
+                "auto" => report["engine_requested"] = json!("auto"),
+                "fallback" => report["engine_fallback"] = json!({"reason":"unproved"}),
+                "missing-engine" => {
+                    report.as_object_mut().expect("report").remove("engine");
+                }
                 _ => {}
             }
             let script = format!("#!/bin/sh\ncat <<'BENCH_REPORT'\n{report}\nBENCH_REPORT\n");
@@ -1808,9 +1959,15 @@ exit 5
             ] {
                 let run = run_dive(&bin, &[], &p, arm, 0, &output, &opts)?;
                 assert_eq!(run.correct, case == "matching", "{case}: {}", run.note);
-                assert!(run.metadata["reported_engine"].is_null());
-                assert!(run.metadata["reported_engine_requested"].is_null());
-                assert!(run.metadata["reported_engine_fallback"].is_null());
+                assert_eq!(run.metadata["reported_engine"], report["engine"]);
+                assert_eq!(
+                    run.metadata["reported_engine_requested"],
+                    report["engine_requested"]
+                );
+                assert_eq!(
+                    run.metadata["reported_engine_fallback"],
+                    report["engine_fallback"]
+                );
                 let pairs = stats::pair(
                     &[sample("tlc-w1", 0, 1.0), run],
                     "model",
@@ -1827,6 +1984,200 @@ exit 5
                 }
             }
         }
+        Ok(())
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn fail_fast_preserves_original_bytes_and_starts_no_later_child() -> Result<(), String> {
+        use std::os::unix::fs::PermissionsExt as _;
+        let dir = TempDir::new("bench-fail-fast").map_err(err)?;
+        let bin = dir.path().join("native");
+        let marker = dir.path().join("attempts");
+        let report = json!({
+            "engine":"core","engine_requested":"core","engine_fallback":null,
+            "verdict":"success","statistics":{"distinct":1,"generated":2,"depth":1},
+            "tlc":{"name":"TLC_SUCCESS","verified":true,"code":2193,"exit_status":0},
+            "options":{"workers":{"used":1},"budget":{
+                "time_limit_ms":4500,"time_limit_source":"explicit",
+                "max_memory_bytes":3_221_225_472_u64,"max_memory_source":"explicit"
+            }},
+        });
+        let script = format!(
+            r#"#!/bin/sh
+engine=missing
+while [ "$#" -gt 0 ]; do
+    case "$1" in --engine) shift; engine="$1" ;; esac
+    shift
+done
+[ "$engine" = core ] || exit 64
+if [ ! -f {marker} ]; then
+    printf x > {marker}
+    cat <<'BENCH_REPORT'
+{report}
+BENCH_REPORT
+    exit 0
+fi
+printf x >> {marker}
+printf '\377broken output\n'
+printf '\376original error\n' >&2
+exit 7
+"#,
+            marker = shell_quote(&marker.to_string_lossy())
+        );
+        std::fs::write(&bin, script).map_err(err)?;
+        std::fs::set_permissions(&bin, std::fs::Permissions::from_mode(0o755)).map_err(err)?;
+        let mut opts = native_test_options(&bin);
+        opts.reps = 3;
+        opts.fail_fast = true;
+        opts.raw_dir = Some(dir.path().join("raw"));
+        opts.runs = Some(dir.path().join("runs.jsonl"));
+        let mut p = prepared();
+        p.corpus_root = dir.path().to_path_buf();
+        let arms = vec!["dive-default-w1".to_owned(), "dive-tlc-w1".to_owned()];
+        let rows = collect_runs(&[p], &arms, &opts, &json!({}), |p, imp, rep| {
+            run_dive(&bin, &[], p, imp, rep, &dir.path().join("time.txt"), &opts)
+        })?;
+        assert_eq!(std::fs::read(marker).map_err(err)?, b"xx");
+        assert_eq!(rows.len(), 2);
+        assert!(rows[0].correct);
+        assert!(!rows[1].correct);
+        assert_eq!(rows[1].metadata["physical_process"]["exit_code"], 7);
+        assert_eq!(rows[1].metadata["physical_process"]["timed_out"], false);
+        let raw = Path::new(
+            rows[1].metadata["raw_directory"]
+                .as_str()
+                .expect("retained"),
+        );
+        assert_eq!(
+            std::fs::read(raw.join("stdout.txt")).map_err(err)?,
+            b"\xffbroken output\n"
+        );
+        let stderr = std::fs::read(raw.join("stderr.txt")).map_err(err)?;
+        assert!(stderr.starts_with(b"\xfeoriginal error\n"));
+        assert!(raw.join("started.json").is_file());
+        assert!(raw.join("finished.json").is_file());
+        assert!(raw.join("time.txt").is_file());
+        assert_eq!(
+            std::fs::read_to_string(opts.runs.expect("rows"))
+                .map_err(err)?
+                .lines()
+                .count(),
+            2
+        );
+        let paired = stats::pair(&rows, "model", &arms[0], &arms[1], 3, false)?;
+        assert_eq!(paired.paired, 0);
+        assert!(paired.median.is_none());
+        assert!(stats::geometric_mean(&[paired]).is_none());
+        opts.fail_fast = false;
+        opts.raw_dir = None;
+        opts.runs = None;
+        let mut p = prepared();
+        p.corpus_root = dir.path().to_path_buf();
+        let continued = collect_runs(&[p], &arms, &opts, &json!({}), |p, imp, rep| {
+            run_dive(&bin, &[], p, imp, rep, &dir.path().join("time.txt"), &opts)
+        })?;
+        assert_eq!(continued.len(), 6);
+        assert_eq!(
+            std::fs::read(dir.path().join("attempts"))
+                .map_err(err)?
+                .len(),
+            8
+        );
+        Ok(())
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn fail_fast_retains_timeout_output_and_censoring_before_next_arm() -> Result<(), String> {
+        use std::os::unix::fs::PermissionsExt as _;
+        let dir = TempDir::new("bench-censored").map_err(err)?;
+        let bin = dir.path().join("native");
+        std::fs::write(&bin, "#!/bin/sh\nprintf 'entered\\n'\nexec sleep 30\n").map_err(err)?;
+        std::fs::set_permissions(&bin, std::fs::Permissions::from_mode(0o755)).map_err(err)?;
+        let mut opts = native_test_options(&bin);
+        opts.fail_fast = true;
+        opts.timeout = Duration::from_millis(100);
+        opts.raw_dir = Some(dir.path().join("raw"));
+        let mut p = prepared();
+        p.corpus_root = dir.path().to_path_buf();
+        let arms = vec!["dive-default-w1".to_owned(), "dive-tlc-w1".to_owned()];
+        let runs = collect_runs(&[p], &arms, &opts, &json!({}), |p, imp, rep| {
+            run_dive(&bin, &[], p, imp, rep, &dir.path().join("time.txt"), &opts)
+        })?;
+        assert_eq!(runs.len(), 1);
+        assert!(!runs[0].correct);
+        assert_eq!(runs[0].verdict, "timeout");
+        assert_eq!(runs[0].metadata["physical_process"]["timed_out"], true);
+        assert!(!runs[0].metadata["physical_process"]["signal"].is_null());
+        let raw = Path::new(
+            runs[0].metadata["raw_directory"]
+                .as_str()
+                .expect("retained"),
+        );
+        assert_eq!(
+            std::fs::read(raw.join("stdout.txt")).map_err(err)?,
+            b"entered\n"
+        );
+        assert!(raw.join("finished.json").is_file());
+        assert!(summarise(&[&runs[0]], 1).wall_s.is_none());
+        Ok(())
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn retained_oracle_capture_keeps_original_bytes_and_physical_exit() -> Result<(), String> {
+        use std::os::unix::fs::PermissionsExt as _;
+        let dir = TempDir::new("bench-oracle-output").map_err(err)?;
+        let bin = dir.path().join("java");
+        std::fs::write(&bin, "#!/bin/sh\nprintf '\\377original oracle output\\n'\nprintf '\\376original oracle error\\n' >&2\nexit 17\n").map_err(err)?;
+        std::fs::set_permissions(&bin, std::fs::Permissions::from_mode(0o755)).map_err(err)?;
+        let (config, provenance) = oracle_fixture()?;
+        let mut java = provenance.java;
+        java.path = bin.clone();
+        let env = OracleEnv {
+            oracle: config.oracles.default_oracle().map_err(err)?.clone(),
+            jar: dir.path().join("unused.jar"),
+            classpath: Vec::new(),
+            libraries: Vec::new(),
+            java,
+            capabilities: dive_conformance::oracle::Capabilities::default(),
+            home: dir.path().join("home"),
+            tmp_root: dir.path().join("tmp"),
+            cache_root: dir.path().join("cache"),
+            raw_invocations: None,
+        };
+        let mut opts = native_test_options(&bin);
+        opts.raw_dir = Some(dir.path().join("raw"));
+        let mut p = prepared();
+        p.corpus_root = dir.path().join("source");
+        std::fs::create_dir_all(&p.corpus_root).map_err(err)?;
+        std::fs::write(
+            p.corpus_root.join("model.tla"),
+            "---- MODULE model ----\n====\n",
+        )
+        .map_err(err)?;
+        std::fs::write(p.corpus_root.join("model.cfg"), "").map_err(err)?;
+        let run = run_tlc(&env, &p, "tlc-w1", 0, &dir.path().join("time.txt"), &opts)?;
+        assert!(!run.correct);
+        assert_eq!(run.metadata["physical_process"]["exit_code"], 17);
+        let root = Path::new(run.metadata["raw_directory"].as_str().expect("retained"));
+        let capture = std::fs::read_dir(root.join("oracle"))
+            .map_err(err)?
+            .next()
+            .expect("oracle capture")
+            .map_err(err)?
+            .path();
+        assert_eq!(
+            std::fs::read(capture.join("stdout.txt")).map_err(err)?,
+            b"\xfforiginal oracle output\n"
+        );
+        assert_eq!(
+            std::fs::read(capture.join("stderr.txt")).map_err(err)?,
+            b"\xfeoriginal oracle error\n"
+        );
+        assert!(capture.join("started.json").is_file());
+        assert!(capture.join("completed.json").is_file());
         Ok(())
     }
 }

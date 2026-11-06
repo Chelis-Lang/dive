@@ -1,5 +1,9 @@
 # Changelog
 
+- Make benchmark native arms select and verify Core, add optional original-byte
+  process capture and fail-fast execution, and keep interrupted samples out of
+  timing summaries.
+
 - Remove obsolete Core set-history phases, constructor-origin allocation and
   receiver-authority walks from checking and state handoff. Preserve bounded
   mathematical identity checks, interruption handling and symbolic domains;
