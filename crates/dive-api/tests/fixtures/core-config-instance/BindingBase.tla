@@ -1,0 +1,3 @@
+---- MODULE BindingBase ----
+CONSTANT C
+====

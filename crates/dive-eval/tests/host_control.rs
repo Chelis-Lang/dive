@@ -40,7 +40,7 @@ struct Replacement;
 impl Host for Replacement {}
 
 fn evaluator(options: Options) -> Evaluator {
-    let source = "---- MODULE Control ----\nEXTENDS Naturals, FiniteSets, TLC\nQ == \\A x \\in 1..10000: x >= 0\nNested == \\A x \\in 1..2000: \\A y \\in 1..2: y >= 0\nC == CHOOSE x \\in 1..10000: x > 10000\nF == Cardinality({f \\in [1..12 -> {0,1}] : f[1] = 0})\nE == \\A x \\in 1..10000: IF x=1 THEN (1 \\div 0)=0 ELSE TRUE\nMessage == Assert(FALSE, \"host interrupted evaluation\")\n====\n";
+    let source = "---- MODULE Control ----\nEXTENDS Naturals, FiniteSets, TLC\nQ == \\A x \\in 1..10000: x >= 0\nNested == \\A x \\in 1..2000: \\A y \\in 1..2: y >= 0\nC == CHOOSE x \\in 1..10000: x > 10000\nF == Cardinality({f \\in [1..12 -> {0,1}] : f[1] = 0})\nE == \\A x \\in 1..10000: IF x=1 THEN (1 \\div 0)=0 ELSE TRUE\nMessage == Assert(FALSE, \"host interrupted evaluation\")\nWrite==TLCSet(0,1)\nNine==TLCSet(0,9)\nRead==TLCGet(0)\nNamedWrite==TLCSet(\"s:key\",1)\nNamedRead==TLCGet(\"s:key\")\nWriteControlled==TLCSet(IF Q THEN 0 ELSE 0,1)\nWriteBad==TLCSet(1 \\div 0,1)\nLazy==[k \\in STRING |-> TLCSet(0,0) /\\ TLCSet(0,1)]\nLazyField==Lazy.a\nMaterial==[k \\in 1..1 |-> TLCSet(0,0) /\\ TLCSet(0,1)]\nMaterialized==Material[1]\nLazyControlled==[k \\in STRING |-> TLCSet(IF Q THEN 0 ELSE 0,1)]\nControlledField==LazyControlled.a\n====\n";
     let analysis = dive_sema::analyze_source("Control.tla", source, &dive_sema::Options::default());
     assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
     let ir = Arc::new(dive_ir::lower(&analysis).expect("lower"));
@@ -296,4 +296,108 @@ fn quiet_equality_and_hash_never_publish_interrupted_fallbacks() {
     assert_eq!(run(&ev, "Same").expect("retry"), Value::TRUE);
     let _scope = ev.host_control(Some(control)).expect("restored owner");
     interrupted(&ev, "Q");
+}
+
+#[test]
+fn startup_register_precompute_has_no_writer_and_preserves_errors_and_stops() {
+    for options in [Options::tlc(), Options::dive()] {
+        let ev = evaluator(options);
+        let write = ev.ir().root_def("Write").expect("write");
+        assert_eq!(run(&ev, "Nine").expect("runtime setup"), Value::TRUE);
+        let error = ev
+            .precompute(write)
+            .expect_err("no startup register writer");
+        assert_eq!(error.class(), ErrorClass::Eval);
+        assert!(ev.precomputed(write).is_none());
+        assert_eq!(
+            run(&ev, "Read").expect("startup did not mutate"),
+            Value::Int(9)
+        );
+        let named = ev.ir().root_def("NamedWrite").expect("named");
+        assert_eq!(
+            ev.precompute(named).expect("named no-op"),
+            Some(Value::TRUE)
+        );
+        assert_eq!(
+            run(&ev, "NamedRead")
+                .expect_err("no startup publication")
+                .class(),
+            ErrorClass::Eval
+        );
+        assert_eq!(
+            run(&ev, "NamedWrite").expect("runtime named write"),
+            Value::TRUE
+        );
+        assert_eq!(
+            run(&ev, "NamedRead").expect("runtime named value"),
+            Value::Int(1)
+        );
+        let bad = ev.ir().root_def("WriteBad").expect("argument error");
+        assert_eq!(
+            ev.precompute(bad)
+                .expect_err("demanded argument error")
+                .ec()
+                .code(),
+            2179
+        );
+        let controlled = ev.ir().root_def("WriteControlled").expect("controlled");
+        let scope = ev.host_control(Some(Control::new(true))).expect("owner");
+        assert_eq!(
+            ev.precompute(controlled).expect_err("genuine stop").class(),
+            ErrorClass::Interrupted
+        );
+        assert!(ev.precomputed(controlled).is_none());
+        drop(scope);
+        // The stage is owned by a local St; failure/stop never leaks it into
+        // ASSUME or ordinary evaluation on the same evaluator.
+        assert_eq!(run(&ev, "Write").expect("runtime retry"), Value::TRUE);
+        assert_eq!(run(&ev, "Read").expect("runtime value"), Value::Int(1));
+    }
+}
+
+#[test]
+fn lazy_field_force_keeps_startup_availability_without_leaking_it_to_runtime() {
+    for options in [Options::tlc(), Options::dive()] {
+        let ev = evaluator(options);
+        for name in ["LazyField", "Materialized"] {
+            let def = ev.ir().root_def(name).expect("actual lowered force");
+            assert_eq!(run(&ev, "Nine").expect("runtime setup"), Value::TRUE);
+            let error = ev.precompute(def).expect_err("startup force cannot write");
+            assert_eq!(error.class(), ErrorClass::Eval, "{name}: {error}");
+            assert!(ev.precomputed(def).is_none());
+            assert_eq!(
+                run(&ev, "Read").expect("no partial startup write"),
+                Value::Int(9)
+            );
+            assert_eq!(
+                run(&ev, name).expect("ordinary constant/ASSUME retry"),
+                Value::TRUE
+            );
+            assert_eq!(
+                run(&ev, "Read").expect("runtime writes retained"),
+                Value::Int(1)
+            );
+        }
+        let def = ev
+            .ir()
+            .root_def("ControlledField")
+            .expect("controlled field");
+        let scope = ev.host_control(Some(Control::new(true))).expect("owner");
+        assert_eq!(
+            ev.precompute(def)
+                .expect_err("genuine lazy-force stop")
+                .class(),
+            ErrorClass::Interrupted
+        );
+        assert!(ev.precomputed(def).is_none());
+        drop(scope);
+        assert_eq!(
+            run(&ev, "ControlledField").expect("retry after stop"),
+            Value::TRUE
+        );
+        assert_eq!(
+            run(&ev, "Read").expect("runtime writer restored"),
+            Value::Int(1)
+        );
+    }
 }

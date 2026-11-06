@@ -94,11 +94,32 @@ fn caller_registers_and_cached_startup_values_are_not_authority() {
         "x<2",
         "Unused == TLCSet(1,42) /\\ (1=FALSE)",
     );
-    // The real binder executes the write even though its constant body fails.
-    assert_eq!(
-        m.validate(&doc(&[0, 1, 2], false)).validation,
-        Validation::Valid
+    // Failed constant pre-evaluation does not publish its register writes.
+    // Pinned TLC reports TLCGet(1) undefined before generating any state.
+    for lossy in [false, true] {
+        assert!(matches!(
+            m.validate(&doc(&[0, 1, 2], lossy)).validation,
+            Validation::Unsupported(reason) if reason.contains("TLCGet(1) was undefined.")
+        ));
+    }
+    let m = model(
+        "ASSUME TLCSet(1,42)",
+        "x=0 /\\ TLCGet(1)=42",
+        "x'=x+1",
+        "x<2",
+        "Unused == TLCSet(1,42) /\\ (1=FALSE)",
     );
+    // An ordinary ASSUME supplies startup state independently of the failed body.
+    for lossy in [false, true] {
+        assert_eq!(
+            m.validate(&doc(&[0, 1, 2], lossy)).validation,
+            Validation::Valid
+        );
+        assert!(matches!(
+            m.validate(&doc(&[0, 2], lossy)).validation,
+            Validation::Invalid(_)
+        ));
+    }
 }
 
 #[test]

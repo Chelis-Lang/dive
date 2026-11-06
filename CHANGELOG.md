@@ -71,6 +71,10 @@ The [release gates](docs/RELEASE.md) must pass before it is tagged.
   retain physical process output and report actual worker use. Core selection is
   explicit; incomplete runs cannot supply a complete-suite performance result.
 
+- Resolve configured constants through INSTANCE. Keep failed startup register
+  writes from becoming cached successes, including lazy field forces; preserve
+  ordinary Print/RNG startup values.
+
 ### Compatibility and limits
 
 - Reference remains the default checker; `--engine core` selects Core without
