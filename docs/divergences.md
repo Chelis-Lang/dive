@@ -82,13 +82,23 @@ normalization-dependent results. Exact additional default controls are:
 | `graph-empty-product/LazyDemandedProduct`, `LazyProductHistory` | Success, 3/3/depth 3, exit 0 |
 | `product-operations/DemandedRawProductSize` | Success, 3/3/depth 3, exit 0 |
 | `reference-finiteness-demand/AliasSizeAfterFiniteness` | Success, 3/3/depth 3, exit 0 |
-| `set-conversion-demand/AliasSizeAfterProjection`, `NonemptyMixedProjection` | Success, 3/3/depth 3, exit 0 |
+| `set-conversion-demand/AliasSizeAfterProjection`, `NonemptyMixedProjection`, `OtherConvertedConsumers` | Success, 3/3/depth 3, exit 0 |
 | `crates/dive-api/tests/fixtures/comparison-receiver-unclassified/InitialOverride.tla` | Success, 3/3/depth 3, exit 0 |
 
 Real argument errors remain errors: `graph-demand/FieldPriority` reaches the
 edge-field type error, `set-conversion-demand/AntiFunctionRawEmpty` rejects a
 set where a function is required, and `set-diagnostic-demand/PrefixReverse`
-reports the nonempty-set requirement. Context-only TLC observations remain
+reports the nonempty-set requirement. Core reaches these real argument errors
+without receiver-history admission. The other empty-prefix controls
+`PrefixNestedReverse`, `PrefixNestedUnknown`, `PrefixUnknownAfterEmpty` and
+`PrefixInfiniteAfterEmpty` also report that requirement; `PrefixUnknownFirst`
+and `UnknownFirstProjection` retain the demanded non-set operand error. Each
+reached initial error has 1 distinct / 1 generated / depth 1, exit 75; independent
+named-error words validate, while changed error/state claims fail. The
+`ConvertedEmptyProducts` positive/opposite fixture matches TLC: success 3/3/3
+or initial `Inv` violation, exit 12, with a validated violation word. Core reports
+1/1/1 for the initial violation; TLC omits those statistics.
+Context-only TLC observations remain
 unclassified; no deciding oracle class is inferred for registry entries.
 
 ## Oracle facts behind the registry
