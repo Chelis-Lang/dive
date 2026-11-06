@@ -53,30 +53,6 @@ pub struct Arena {
     /// Resets so far: a mark is valid only within the reset it was taken in.
     resets: u64,
     rollbacks: u64,
-    /// Sparse, construction-owned history of selected local literal sets.
-    pub(crate) literal_sets: Vec<LiteralSet>,
-    #[cfg(test)]
-    pub(crate) literal_trace: Vec<(&'static str, Handle, Handle)>,
-}
-
-/// A fresh raw constructor identity, never interned or hash-consed.
-#[derive(Debug)]
-pub(crate) struct LiteralSet {
-    pub(crate) handle: Handle,
-    pub(crate) phase: LiteralPhase,
-    pub(crate) normalized: Handle,
-    pub(crate) origin: i64,
-    /// Heap-local nonreused token, allocated only for candidate transport.
-    pub(crate) transport_origin: u64,
-    pub(crate) snapshots: [Handle; 2],
-}
-
-/// Successful normalization owns its array independently of arena rollback.
-#[derive(Debug)]
-pub(crate) enum LiteralPhase {
-    Raw,
-    Normalized(Box<[Handle]>),
-    Refused,
 }
 
 /// A point in an arena's allocation, for [`Arena::rollback`].
@@ -86,7 +62,6 @@ pub struct Mark {
     nodes: usize,
     pool: usize,
     boxed: usize,
-    literals: usize,
 }
 
 impl Arena {
@@ -106,9 +81,6 @@ impl Arena {
             peak_pool: 0,
             resets: 0,
             rollbacks: 0,
-            literal_sets: Vec::new(),
-            #[cfg(test)]
-            literal_trace: Vec::new(),
         }
     }
 
@@ -127,7 +99,6 @@ impl Arena {
             nodes: self.nodes.len(),
             pool: self.pool.len(),
             boxed: self.boxed.len(),
-            literals: self.literal_sets.len(),
         }
     }
 
@@ -149,7 +120,6 @@ impl Arena {
         self.interned.truncate(mark.nodes);
         self.pool.truncate(mark.pool);
         self.boxed.truncate(mark.boxed);
-        self.literal_sets.truncate(mark.literals);
         self.rollbacks += 1;
         self.next_epoch();
     }
@@ -168,7 +138,6 @@ impl Arena {
         self.pool.clear();
         self.boxed.clear();
         self.interned.clear();
-        self.literal_sets.clear();
         self.resets += 1;
         self.next_epoch();
     }

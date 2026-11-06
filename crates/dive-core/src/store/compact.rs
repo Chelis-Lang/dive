@@ -301,14 +301,14 @@ mod tests {
     use crate::Heap;
 
     #[test]
-    fn typed_permanent_preserves_wire_image_and_rejects_unregistered_history() {
+    fn typed_permanent_preserves_canonical_wire_image() {
         let source = Arc::new(Store::with_semantics(true, crate::Semantics::tlc()));
         let mut heap = Heap::new(Arc::clone(&source), true, false);
         let one = Handle::int(1).expect("one");
         let two = Handle::int(2).expect("two");
-        let local = heap.local_literal(&[two, one, two]).expect("literal");
+        let local = heap.canonical_test_set(&[two, one, two]).expect("literal");
         let raw = heap.intern_exact(local).expect("raw");
-        let normalized = heap.normalize_construction(local).expect("normalization");
+        let normalized = heap.norm(local).expect("canonical");
         let normalized = heap.intern_exact(normalized).expect("normalized");
         let wire = snapshot::capture(&source, 1 << 20, &|| true).expect("wire image");
         let permanent = Permanent::capture(&source, &|| true).expect("typed image");
@@ -317,17 +317,13 @@ mod tests {
             snapshot::capture(remap.store(), 1 << 20, &|| true).expect("same wire image"),
             wire
         );
-        assert!(remap.store().owns_history(raw));
-        assert!(remap.store().owns_history(normalized));
-        source.history_views.write().expect("origin table")[0][0] = Handle::EMPTY;
-        let invalid = Permanent::capture(&source, &|| true)
-            .err()
-            .expect("unregistered raw root");
-        assert!(invalid.message().contains("unregistered history authority"));
+        assert_eq!(remap.store().view(raw).data, &[one, two]);
+        assert_eq!(remap.store().view(normalized).data, &[one, two]);
+        assert_eq!(remap.store().memory_usage().history_view_bytes, 0);
     }
 
     #[test]
-    fn copies_live_aliases_and_history_and_releases_expanded_values() {
+    fn copies_live_canonical_aliases_and_releases_expanded_values() {
         for hashcons in [false, true] {
             let source = Arc::new(Store::with_semantics(hashcons, crate::Semantics::tlc()));
             let mut heap = Heap::new(Arc::clone(&source), true, false);
@@ -340,9 +336,9 @@ mod tests {
                 let garbage = heap.tuple_literal(&[Handle::int(i).expect("integer"), two]);
                 heap.intern_exact(garbage).expect("expanded value");
             }
-            let local = heap.local_literal(&[two, one, two]).expect("literal");
+            let local = heap.canonical_test_set(&[two, one, two]).expect("literal");
             let raw = heap.intern_exact(local).expect("raw");
-            let normalized = heap.normalize_construction(local).expect("normalize");
+            let normalized = heap.norm(local).expect("canonical");
             let normalized = heap.intern_exact(normalized).expect("normalized");
             let aliases = heap.tuple_literal(&[raw, raw, normalized, constant]);
             let aliases = heap.intern_exact(aliases).expect("aliases");
@@ -353,9 +349,9 @@ mod tests {
             let view = target.view(aliases);
             assert_eq!(view.data[0], view.data[1]);
             assert_eq!(view.data[3], constant);
-            assert!(target.owns_history(view.data[0]));
-            assert!(target.owns_history(view.data[2]));
-            assert_eq!(target.view(view.data[0]).data, &[two, one, two]);
+            assert_eq!(target.view(view.data[0]).data, &[one, two]);
+            assert_eq!(target.view(view.data[2]).data, &[one, two]);
+            assert_eq!(target.memory_usage().history_view_bytes, 0);
             assert!(old_count > target.stats().nodes + 1900);
             assert!(remap.copy(raw, &|| false).is_err());
         }

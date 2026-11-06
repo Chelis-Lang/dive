@@ -1,4 +1,4 @@
-//! Receiver-preserving Product scalar operations. Source: tlaplus value
+//! Bounded symbolic finiteness and Product cardinality. Source: tlaplus value
 //! isFinite/isEmpty/size methods, Sequences.isFinite and Nat/Int overrides,
 //! 94d0c50.
 
@@ -19,44 +19,26 @@ fn bounded(n: u64) -> Result<u64, Error> {
 }
 
 impl Machine {
-    /// Source finiteness for a retained Product and its unary wrappers. Other
-    /// constructors cannot borrow the Heap's conservative finiteness classifier
-    /// as a semantic Boolean. No query changes the original receiver or aliases.
-    pub(super) fn receiver_finiteness(&mut self, h: Handle, depth: u8) -> Result<bool, Error> {
-        self.charge(1)?;
-        if depth >= 64 || !h.is_compound() || self.heap.is_lazy(h) {
-            return Err(refused());
-        }
-        let view = self.heap.view(h);
-        match view.kind {
-            Kind::Product => self.factor_finiteness(h, depth),
-            Kind::Subset if view.data.len() == 1 => {
-                let base = view.data[0];
-                self.receiver_finiteness(base, depth + 1)
-            }
-            Kind::SeqSet if view.data.len() == 1 => {
-                let range = view.data[0];
-                // Sequences.isFinite: range.isFinite() && range.isEmpty().
-                if !self.receiver_finiteness(range, depth + 1)? {
-                    return Ok(false);
-                }
-                if self.heap.kind(range) == Some(Kind::SeqSet) {
-                    // Every unbounded Seq includes the empty sequence.
-                    return Ok(false);
-                }
-                self.finite_empty(range, depth + 1)
-            }
-            _ => Err(Error::unsupported(
-                "IsFiniteSet of a retained Product receiver under an unproved constructor",
-            )),
+    pub(super) fn symbolic_finiteness(&mut self, h: Handle) -> Result<bool, Error> {
+        if matches!(
+            self.heap.kind(h),
+            Some(
+                Kind::Product
+                    | Kind::Subset
+                    | Kind::FcnSet
+                    | Kind::RecSet
+                    | Kind::SeqSet
+                    | Kind::Union
+            )
+        ) {
+            self.factor_finiteness(h, 0)
+        } else {
+            self.charge(1)?;
+            Ok(self.heap.is_finite(h))
         }
     }
 
-    pub(super) fn product_finiteness(&mut self, h: Handle) -> Result<bool, Error> {
-        self.factor_finiteness(h, 0)
-    }
-
-    /// Source Boolean demand, distinct from complete finite size admission.
+    /// Mathematical Boolean finiteness, distinct from complete finite size admission.
     /// Known infinite factors never turn an unknown operand into a false answer.
     fn factor_finiteness(&mut self, h: Handle, depth: u8) -> Result<bool, Error> {
         self.charge(1)?;
@@ -70,6 +52,20 @@ impl Machine {
             Kind::Subset if len == 1 => {
                 let base = view.data[0];
                 self.factor_finiteness(base, depth + 1)
+            }
+            Kind::Union if len == 2 => {
+                let left = view.data[0];
+                let right = view.data[1];
+                let left_finite = self.factor_finiteness(left, depth + 1)?;
+                let right_finite = self.factor_finiteness(right, depth + 1)?;
+                Ok(left_finite && right_finite)
+            }
+            Kind::SeqSet if len == 1 => {
+                let range = view.data[0];
+                if !self.factor_finiteness(range, depth + 1)? {
+                    return Ok(false);
+                }
+                self.finite_empty(range, depth + 1)
             }
             Kind::Product | Kind::RecSet
                 if (kind == Kind::Product && len >= 2)
@@ -127,10 +123,7 @@ impl Machine {
         let view = self.heap.view(h);
         let (kind, lo, len) = (view.kind, view.lo, view.data.len());
         match kind {
-            Kind::Set => Ok(!self.heap.has_product_receiver(h)?),
-            Kind::SetEnum => {
-                Ok(self.heap.owns_local_literal(h) && !self.heap.has_product_receiver(h)?)
-            }
+            Kind::Set | Kind::SetEnum => Ok(true),
             Kind::Interval => Ok(view
                 .data
                 .first()
@@ -184,7 +177,7 @@ impl Machine {
                 .and_then(|v| v.as_int())
                 .ok_or_else(refused)?
                 < lo),
-            Kind::Subset => Ok(false),
+            Kind::Subset | Kind::SeqSet => Ok(false),
             Kind::FcnSet => {
                 let (domain, range) = (view.data[0], view.data[1]);
                 Ok(
@@ -273,7 +266,7 @@ mod tests {
     use std::sync::Arc;
 
     #[test]
-    fn sequence_finiteness_keeps_product_method_demand_and_raw_aliases() {
+    fn sequence_finiteness_keeps_empty_infinite_unknown_and_stop_cases() {
         for semantics in [Semantics::default(), Semantics::tlc()] {
             let mut m = Machine::new(
                 Arc::new(Store::with_semantics(true, semantics)),
@@ -282,36 +275,38 @@ mod tests {
                 Memo::new(&[]),
             );
             let zero = Handle::int(0).unwrap();
-            let raw = m.heap.local_literal(&[zero, Handle::TRUE]).unwrap();
+            let raw = m.heap.set_from(&mut vec![zero, Handle::TRUE]);
             let empty = m.heap.interval(1, 0);
             let product = m.heap.symbolic(Kind::Product, 0, &[empty, raw]);
             let sequences = m.heap.symbolic(Kind::SeqSet, 0, &[product]);
-            assert_eq!(m.receiver_finiteness(sequences, 0), Ok(true));
-            assert!(m.heap.has_raw_construction(raw));
+            assert_eq!(m.symbolic_finiteness(sequences), Ok(true));
+
             assert_eq!(m.heap.view(sequences).data, &[product]);
             assert_eq!(m.heap.view(product).data, &[empty, raw]);
             let subset = m.heap.symbolic(Kind::Subset, 0, &[sequences]);
-            assert_eq!(m.receiver_finiteness(subset, 0), Ok(true));
+            assert_eq!(m.symbolic_finiteness(subset), Ok(true));
             let outer_sequences = m.heap.symbolic(Kind::SeqSet, 0, &[sequences]);
-            assert_eq!(m.receiver_finiteness(outer_sequences, 0), Ok(false));
-            let unknown = m.heap.symbolic(Kind::Union, 0, &[sequences, empty]);
-            let error = m.receiver_finiteness(unknown, 0).unwrap_err();
+            assert_eq!(m.symbolic_finiteness(outer_sequences), Ok(false));
+            let finite_union = m.heap.symbolic(Kind::Union, 0, &[sequences, empty]);
+            assert_eq!(m.symbolic_finiteness(finite_union), Ok(true));
+            let unknown = m.heap.symbolic(Kind::Union, 0, &[sequences, zero]);
+            let error = m.symbolic_finiteness(unknown).unwrap_err();
             assert_eq!(error.kind(), crate::ErrorKind::Unsupported);
-            assert!(error.message().contains("unproved constructor"));
+            assert!(error.message().contains("unproved factor"));
             let nonempty = m.heap.interval(0, 0);
             let malformed = m.heap.symbolic(Kind::Product, 0, &[nonempty, zero]);
             let malformed_sequences = m.heap.symbolic(Kind::SeqSet, 0, &[malformed]);
-            assert!(m.receiver_finiteness(malformed_sequences, 0).is_err());
-            assert!(m.heap.has_raw_construction(raw));
-            assert!(m.work_cardinality(raw).is_err());
+            assert!(m.symbolic_finiteness(malformed_sequences).is_err());
+
+            assert_eq!(m.work_cardinality(raw), Ok(2));
             m.set_fuel(0);
-            assert!(m.receiver_finiteness(sequences, 0).is_err());
+            assert!(m.symbolic_finiteness(sequences).is_err());
             assert!(!m.heap.poisoned());
         }
     }
 
     #[test]
-    fn scalar_methods_keep_receivers_and_only_normalize_demanded_axes() {
+    fn finite_product_cardinality_accepts_canonical_mixed_axes() {
         for semantics in [Semantics::default(), Semantics::tlc()] {
             let mut m = Machine::new(
                 Arc::new(Store::with_semantics(true, semantics)),
@@ -321,23 +316,23 @@ mod tests {
             );
             let zero = Handle::int(0).unwrap();
             let one = Handle::int(1).unwrap();
-            let raw = m.heap.local_literal(&[one, zero, one]).unwrap();
+            let raw = m.heap.set_from(&mut vec![one, zero, one]);
             let axis = m.heap.interval(0, 0);
             let product = m.heap.symbolic(Kind::Product, 0, &[raw, axis]);
             m.finite_product(product).unwrap();
-            assert!(m.heap.has_raw_construction(raw));
+
             assert_eq!(m.product_cardinality(product).unwrap().as_int(), Some(2));
-            assert!(!m.heap.has_raw_construction(raw));
+
             assert_eq!(m.heap.kind(product), Some(Kind::Product));
             assert!(m.member(zero, product).is_err());
-            let mixed = m.heap.local_literal(&[zero, Handle::TRUE]).unwrap();
+            let mixed = m.heap.set_from(&mut vec![zero, Handle::TRUE]);
             let empty = m.heap.empty_set();
             let functions = m.heap.symbolic(Kind::FcnSet, 0, &[empty, mixed]);
             let skipped = m.heap.symbolic(Kind::Product, 0, &[functions, axis]);
             assert_eq!(m.product_cardinality(skipped).unwrap().as_int(), Some(1));
-            assert!(m.heap.has_raw_construction(mixed));
+
             let demanded = m.heap.symbolic(Kind::Product, 0, &[mixed, axis]);
-            assert!(m.product_cardinality(demanded).is_err());
+            assert_eq!(m.product_cardinality(demanded).unwrap().as_int(), Some(2));
             assert!(!m.heap.poisoned());
         }
     }
@@ -362,7 +357,7 @@ mod tests {
     }
 
     #[test]
-    fn boolean_finiteness_keeps_unknown_demand_and_raw_receiver_authority() {
+    fn boolean_finiteness_keeps_unknown_factor_refusals() {
         for semantics in [Semantics::default(), Semantics::tlc()] {
             let mut m = Machine::new(
                 Arc::new(Store::with_semantics(true, semantics)),
@@ -371,27 +366,27 @@ mod tests {
                 Memo::new(&[]),
             );
             let zero = Handle::int(0).unwrap();
-            let raw = m.heap.local_literal(&[zero, Handle::TRUE]).unwrap();
+            let raw = m.heap.set_from(&mut vec![zero, Handle::TRUE]);
             let empty = m.heap.empty_set();
             for kind in [Kind::Nat, Kind::Int] {
                 let infinite = m.heap.symbolic(kind, 0, &[]);
                 for axes in [[infinite, raw], [raw, infinite]] {
                     let product = m.heap.symbolic(Kind::Product, 0, &axes);
-                    assert!(!m.product_finiteness(product).unwrap());
+                    assert!(!m.symbolic_finiteness(product).unwrap());
                     assert_eq!(m.heap.kind(product), Some(Kind::Product));
-                    assert!(m.heap.has_raw_construction(raw));
+
                     assert!(m.product_cardinality(product).is_err());
                 }
                 let nested = m.heap.symbolic(Kind::Product, 0, &[infinite, empty]);
                 let outer = m.heap.symbolic(Kind::Product, 0, &[nested, raw]);
-                assert!(m.product_finiteness(outer).unwrap());
+                assert!(m.symbolic_finiteness(outer).unwrap());
                 for axes in [[infinite, zero], [zero, infinite]] {
                     let invalid = m.heap.symbolic(Kind::Product, 0, &axes);
-                    assert!(m.product_finiteness(invalid).is_err());
+                    assert!(m.symbolic_finiteness(invalid).is_err());
                 }
                 let invalid = m.heap.symbolic(kind, 0, &[zero]);
                 let product = m.heap.symbolic(Kind::Product, 0, &[raw, invalid]);
-                assert!(m.product_finiteness(product).is_err());
+                assert!(m.symbolic_finiteness(product).is_err());
             }
             assert!(!m.heap.poisoned());
         }

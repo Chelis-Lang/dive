@@ -95,17 +95,11 @@ impl Machine {
         self.saved.truncate(mark);
     }
 
-    fn bind_var(&mut self, var: u16, v: Handle) -> Result<(), Error> {
-        if self.heap.has_product_receiver(v)? {
-            return Err(Error::unsupported(
-                "state binding retaining a product receiver whose handoff authority is not proved",
-            ));
-        }
+    fn bind_var(&mut self, var: u16, v: Handle) {
         if let Some(x) = self.s1.get_mut(usize::from(var)) {
             *x = v;
             self.assigned += 1;
         }
-        Ok(())
     }
 
     fn unbind_var(&mut self, var: u16) {
@@ -328,7 +322,7 @@ impl Machine {
                     .copied()
                     .unwrap_or(Handle::EMPTY);
                 if cur.is_empty() {
-                    self.bind_var(var, old)?;
+                    self.bind_var(var, old);
                     let r = self.cont(code, next, sink);
                     self.unbind_var(var);
                     r
@@ -504,7 +498,7 @@ impl Machine {
                     .copied()
                     .unwrap_or(Handle::EMPTY);
                 if cur.is_empty() {
-                    self.bind_var(*var, r)?;
+                    self.bind_var(*var, r);
                     let res = self.cont(code, acts, sink);
                     self.unbind_var(*var);
                     res
@@ -584,7 +578,7 @@ impl Machine {
                     let forced = self.stats.transient_thunks;
                     self.bind_one(bind, e)?;
                     if self.eval_bool(code, *pred)? {
-                        self.bind_var(var, e)?;
+                        self.bind_var(var, e);
                         let r = self.cont(code, acts, sink);
                         self.unbind_var(var);
                         r?;
@@ -642,7 +636,7 @@ impl Machine {
                 return Ok(());
             };
             let forced = self.stats.transient_thunks;
-            self.bind_var(var, e)?;
+            self.bind_var(var, e);
             let r = self.cont(code, acts, sink);
             self.unbind_var(var);
             r?;

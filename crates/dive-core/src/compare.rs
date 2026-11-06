@@ -28,7 +28,7 @@ use crate::node::Kind;
 
 /// The materialized-tree invariant required by mathematical identity consumers.
 pub(crate) fn materialized(heap: &Heap, value: Handle, depth: u8) -> Result<bool, Error> {
-    heap.history_poll()?;
+    heap.work_poll()?;
     if depth == 64 || value.is_empty() {
         return Ok(false);
     }
@@ -68,166 +68,6 @@ pub(crate) fn require_materialized(heap: &Heap, values: &[Handle]) -> Result<(),
         }
     }
     Ok(())
-}
-
-/// Per-value eligibility work for closed scalar/model-value/literal-tuple
-/// trees. Collection work is governed by actual budgets, not this bound.
-/// Function storage alone does not establish a tuple receiver class.
-pub(crate) const LITERAL_WORK: usize = 64;
-
-pub(crate) fn literal_value(heap: &Heap, value: Handle) -> bool {
-    let mut remaining = LITERAL_WORK;
-    literal_value_work(heap, value, &mut remaining)
-}
-
-/// Counts an admitted tree against the private eligibility bound.
-pub(crate) fn literal_value_work(heap: &Heap, value: Handle, remaining: &mut usize) -> bool {
-    if *remaining == 0 {
-        return false;
-    }
-    *remaining -= 1;
-    match value.tag() {
-        Tag::Bool | Tag::Int => true,
-        Tag::Model => value.as_model_id().is_some_and(|id| heap.known_name(id)),
-        Tag::Str => value.as_str_id().is_some_and(|id| heap.known_name(id)),
-        Tag::Persistent | Tag::Transient => {
-            let view = heap.view(value);
-            view.kind == Kind::IntFcn
-                && view.lo == 1
-                && view.is_tuple_literal()
-                && view
-                    .data
-                    .iter()
-                    .all(|&child| literal_value_work(heap, child, remaining))
-        }
-        Tag::Empty => false,
-    }
-}
-
-/// A query can be a genuine tuple or an already closed unit-interval
-/// function: TupleValue.toTuple/FcnRcdValue.toTuple agree on this complete
-/// domain and range. This grants no producer receiver-class/history authority.
-pub(crate) fn literal_query(heap: &Heap, value: Handle) -> bool {
-    fn covered(heap: &Heap, value: Handle, work: &mut usize) -> bool {
-        if *work == 0 {
-            return false;
-        }
-        *work -= 1;
-        match value.tag() {
-            Tag::Bool | Tag::Int => true,
-            Tag::Model => value.as_model_id().is_some_and(|id| heap.known_name(id)),
-            Tag::Str => value.as_str_id().is_some_and(|id| heap.known_name(id)),
-            Tag::Persistent | Tag::Transient => {
-                let v = heap.view(value);
-                v.kind == Kind::IntFcn
-                    && v.lo == 1
-                    && v.data.iter().all(|&h| covered(heap, h, work))
-            }
-            Tag::Empty => false,
-        }
-    }
-    let mut work = LITERAL_WORK;
-    covered(heap, value, &mut work)
-}
-
-pub(crate) fn default_member_needs_checked(heap: &Heap, a: Handle, b: Handle) -> bool {
-    if let Some(comparable) = mv_comparable(heap, a, b) {
-        return !comparable;
-    }
-    let (a, b) = (class(heap, a), class(heap, b));
-    a != b && (a.is_scalar() || b.is_scalar())
-}
-
-fn literal_refusal() -> Error {
-    Error::unsupported(
-        "a checked local scalar/tuple comparison whose value-source error provenance is not proved (C2, E7); reporting depends on when it normalizes",
-    )
-}
-
-/// TLC's checked comparison on the closed named scalar/tuple subset. Length
-/// decides before fields; the first unequal field decides before later ones.
-/// A reached error remains unsupported until E7 provenance is proved.
-pub(crate) fn literal_cmp(
-    heap: &mut Heap,
-    a: Handle,
-    b: Handle,
-    operation: &'static str,
-) -> Result<std::cmp::Ordering, Error> {
-    heap.literal_step(operation, a, b);
-    literal_cmp_inner(heap, a, b, operation == "insert")
-}
-
-fn literal_cmp_inner(
-    heap: &Heap,
-    a: Handle,
-    b: Handle,
-    normalization: bool,
-) -> Result<std::cmp::Ordering, Error> {
-    if let Some(comparable) = mv_comparable(heap, a, b) {
-        if !comparable {
-            return Err(literal_refusal());
-        }
-        return Ok(match (a.as_model_id(), b.as_model_id()) {
-            (Some(x), Some(y)) => {
-                if normalization {
-                    x.cmp(&y)
-                } else {
-                    heap.str_cmp(x, y)
-                }
-            }
-            (Some(_), None) => std::cmp::Ordering::Less,
-            _ => std::cmp::Ordering::Greater,
-        });
-    }
-    if let (Some(x), Some(y)) = (a.as_str_id(), b.as_str_id()) {
-        return Ok(if normalization {
-            x.cmp(&y)
-        } else {
-            heap.str_cmp(x, y)
-        });
-    }
-    match (a.tag(), b.tag()) {
-        (Tag::Bool, Tag::Bool) => return Ok(a.as_bool().cmp(&b.as_bool())),
-        (Tag::Int, Tag::Int) => return Ok(a.as_int().cmp(&b.as_int())),
-        _ => {}
-    }
-    if !a.is_compound() || !b.is_compound() {
-        return Err(literal_refusal());
-    }
-    let (a, b) = (heap.view(a), heap.view(b));
-    if a.kind != Kind::IntFcn
-        || b.kind != Kind::IntFcn
-        || a.lo != 1
-        || b.lo != 1
-        || (!a.is_tuple_literal() && !b.is_tuple_literal())
-    {
-        return Err(literal_refusal());
-    }
-    let size = a.data.len().cmp(&b.data.len());
-    if !size.is_eq() {
-        return Ok(size);
-    }
-    for (&x, &y) in a.data.iter().zip(b.data) {
-        let order = literal_cmp_inner(heap, x, y, normalization)?;
-        if !order.is_eq() {
-            return Ok(order);
-        }
-    }
-    Ok(std::cmp::Ordering::Equal)
-}
-
-/// On Bool/Int/tuple receivers, TLC's equals has the same length and field
-/// demand sequence as compareTo, but returns false at the first inequality.
-pub(crate) fn literal_equals(heap: &mut Heap, a: Handle, b: Handle) -> Result<bool, Error> {
-    heap.literal_step("equals", a, b);
-    if let Some(comparable) = mv_comparable(heap, a, b) {
-        return if comparable {
-            Ok(a == b)
-        } else {
-            Err(literal_refusal())
-        };
-    }
-    literal_cmp_inner(heap, a, b, true).map(std::cmp::Ordering::is_eq)
 }
 
 /// The comparison class of a value.
@@ -354,16 +194,6 @@ fn mv_error(heap: &Heap, a: Handle, b: Handle) -> Error {
 /// TLC's error for values of different classes.
 pub(crate) fn equals(heap: &Heap, a: Handle, b: Handle) -> Result<bool, Error> {
     require_materialized(heap, &[a, b])?;
-    if heap.has_product_receiver(a)? || heap.has_product_receiver(b)? {
-        return Err(Error::unsupported(
-            "comparison retaining a product receiver whose nested normalization is not proved",
-        ));
-    }
-    if heap.has_raw_construction(a) || heap.has_raw_construction(b) {
-        return Err(Error::unsupported(
-            "equality requiring nested raw construction demand not yet proved",
-        ));
-    }
     if a == b {
         return Ok(true);
     }

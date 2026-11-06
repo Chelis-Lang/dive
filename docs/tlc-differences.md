@@ -3064,7 +3064,10 @@ violation, while the finite graph/Product/projection controls listed in the
 [D-028 registry](divergences.md#d-028-canonical-finite-set-construction) complete
 with exact tested counts. Malformed graph fields, non-function arguments to
 `AntiFunction`, and empty arguments to `LongestCommonPrefix` still report their
-real errors.
+real errors. Core also reaches the non-set operand error in
+`UnknownFirstProjection` and `PrefixUnknownFirst`; it refuses the unproved
+infinite enumeration in `PrefixInfiniteFirst`. These checks do not require
+constructor or receiver history.
 
 ### Compat gaps
 

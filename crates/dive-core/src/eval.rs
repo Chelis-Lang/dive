@@ -219,7 +219,7 @@ impl Machine {
     /// # }
     /// ```
     pub fn set_work_control(&mut self, control: Option<Arc<dyn WorkControl>>) {
-        self.heap.set_history_control(control.clone());
+        self.heap.set_work_control(control.clone());
         self.work_control = control;
     }
 
@@ -385,58 +385,13 @@ impl Machine {
     pub(crate) fn demand_equals(&mut self, a: Handle, b: Handle) -> Result<bool, Error> {
         let a = self.work_norm(a)?;
         let b = self.work_norm(b)?;
-        self.normalized_equals(a, b)
-    }
-
-    fn normalized_equals(&mut self, a: Handle, b: Handle) -> Result<bool, Error> {
-        if self.heap.has_product_receiver(a)? || self.heap.has_product_receiver(b)? {
-            return Err(Error::unsupported(
-                "compound equality retaining a product receiver whose demand is not proved",
-            ));
-        }
-        if !self.heap.has_raw_construction(a) && !self.heap.has_raw_construction(b) {
-            return compare::equals(&self.heap, a, b);
-        }
-        if !self.heap.store().semantics().tlc_comparisons {
-            // Value::semantic_eq uses quiet set elements: equality must not
-            // normalize an actual nested set merely to inspect its value.
-            if compare::class(&self.heap, a) != compare::class(&self.heap, b) {
-                return compare::equals(&self.heap, a, b);
-            }
-            return self.heap.quiet_construction_equals(a, b);
-        }
-        // TupleValue.equals / interval FcnRcdValue.equals demand fields from
-        // left to right, only after equal domains. Never normalize later fields
-        // after an earlier inequality, nor infer a record receiver class.
-        if !a.is_compound() || !b.is_compound() {
-            return compare::equals(&self.heap, a, b);
-        }
-        let (va, vb) = (self.heap.view(a), self.heap.view(b));
-        if va.kind != Kind::IntFcn || vb.kind != Kind::IntFcn {
-            return Err(Error::unsupported(
-                "nested raw equality outside interval functions",
-            ));
-        }
-        let (lo, len) = (va.lo, va.data.len());
-        if lo != vb.lo || len != vb.data.len() {
-            return Ok(false);
-        }
-        for index in 0..len {
-            self.charge(1)?;
-            let (x, y) = (self.heap.view(a).data[index], self.heap.view(b).data[index]);
-            if !self.demand_equals(x, y)? {
-                return Ok(false);
-            }
-        }
-        Ok(true)
+        compare::equals(&self.heap, a, b)
     }
 
     pub(crate) fn eval_component(&mut self, code: &Code, p: P) -> Result<Handle, Error> {
         let value = self.eval(code, p)?;
-        if self.heap.has_construction_history(value) || self.heap.kind(value) == Some(Kind::Product)
-        {
-            // Tool embeds the original product: empty enumeration does not
-            // authorize replacing its later public member() receiver class.
+        if self.heap.kind(value) == Some(Kind::Product) {
+            // Keep symbolic products lazy until an operator demands their elements.
             Ok(value)
         } else {
             self.work_norm(value)
@@ -567,12 +522,12 @@ impl Machine {
             Node::Eq(a, b) => {
                 let x = self.eval_norm(code, *a)?;
                 let y = self.eval_norm(code, *b)?;
-                Ok(Handle::bool(self.normalized_equals(x, y)?))
+                Ok(Handle::bool(compare::equals(&self.heap, x, y)?))
             }
             Node::Neq(a, b) => {
                 let x = self.eval_norm(code, *a)?;
                 let y = self.eval_norm(code, *b)?;
-                Ok(Handle::bool(!self.normalized_equals(x, y)?))
+                Ok(Handle::bool(!compare::equals(&self.heap, x, y)?))
             }
             Node::In(a, s) => {
                 let x = self.eval_norm(code, *a)?;
@@ -822,27 +777,13 @@ impl Machine {
                         | dive_ir::StdOp::TlcRandomElement
                 );
                 let mut a = Vec::with_capacity(args.len());
-                for (index, &x) in args.iter().enumerate() {
+                for &x in args {
                     a.push(if prints {
                         self.eval(code, x)?
                     } else if *op == dive_ir::StdOp::TlcMakeFcn {
                         self.eval_component(code, x)?
                     } else {
                         let value = self.eval_component(code, x)?;
-                        if self.heap.has_product_receiver(value)?
-                            && !matches!(op.module(), "Graphs" | "UndirectedGraphs")
-                        {
-                            if self.heap.kind(value) == Some(Kind::Product)
-                                && crate::stdlib::normalized_set_argument(*op, index)
-                            {
-                                self.finite_product(value)?;
-                            } else {
-                                return Err(Error::unsupported(format!(
-                                    "{} consuming an unproved product receiver",
-                                    op.qualified_name()
-                                )));
-                            }
-                        }
                         self.work_norm(value)?
                     });
                 }
@@ -867,21 +808,10 @@ impl Machine {
             Node::LibHo(op, args) => {
                 self.check_finite_access(*op)?;
                 let mut a = Vec::with_capacity(args.len());
-                for (index, x) in args.iter().enumerate() {
+                for x in args {
                     a.push(match x {
                         LibArg::Value(p) => {
                             let value = self.eval_component(code, *p)?;
-                            if self.heap.has_product_receiver(value)? {
-                                if self.heap.kind(value) == Some(Kind::Product)
-                                    && crate::stdlib::normalized_set_argument(*op, index)
-                                {
-                                    self.finite_product(value)?;
-                                } else {
-                                    return Err(Error::unsupported(
-                                        "a higher-order library argument retaining an unproved product receiver",
-                                    ));
-                                }
-                            }
                             crate::stdlib::Ho::Value(self.work_norm(value)?)
                         }
                         LibArg::Op { params, body } => {
@@ -1182,21 +1112,8 @@ impl Machine {
     /// `set` is not a set, or membership is undefined.
     #[allow(clippy::too_many_lines, reason = "one arm per set kind")]
     pub fn member(&mut self, x: Handle, set: Handle) -> Result<bool, Error> {
-        if self.heap.store().semantics().tlc_comparisons && self.heap.has_product_receiver(x)? {
-            return Err(Error::unsupported(
-                "a compound membership query retaining an unproved product receiver",
-            ));
-        }
         if self.fuel != u64::MAX && set.is_compound() && self.heap.view(set).kind == Kind::SetEnum {
             self.domain_work(set, false, 0)?;
-        }
-        let index = if self.fuel == u64::MAX {
-            Some(&mut self.memo.member_index)
-        } else {
-            None
-        };
-        if let Some(result) = self.heap.literal_member_indexed(x, set, index) {
-            return result;
         }
         if !set.is_compound() {
             return Err(eval_err("membership in a value that is not a set"));
@@ -1216,8 +1133,7 @@ impl Machine {
         match v.kind {
             Kind::Set => {
                 compare::require_materialized(&self.heap, &[x, set])?;
-                let indexed = if self.fuel == u64::MAX && v.flags & crate::node::flags::HISTORY == 0
-                {
+                let indexed = if self.fuel == u64::MAX {
                     self.memo.member_index.search(&self.heap, set, x, v.data)?
                 } else {
                     None
@@ -1272,11 +1188,6 @@ impl Machine {
                 if !matches!(query_kind, Some(Kind::Set | Kind::SetEnum | Kind::Interval)) {
                     return Err(eval_err(
                         "Attempted to check if a non-enumerable value is an element of SUBSET",
-                    ));
-                }
-                if query_kind == Some(Kind::SetEnum) && !self.heap.owns_local_literal(x) {
-                    return Err(Error::unsupported(
-                        "SUBSET membership of an unproved set enumeration receiver",
                     ));
                 }
                 // SubsetValue.member demands the query's Enumerable.elements.
@@ -1405,11 +1316,6 @@ impl Machine {
     }
 
     fn set_bin(&mut self, op: SetOp, x: Handle, y: Handle) -> Result<Handle, Error> {
-        if op == SetOp::Cup
-            && let Some(result) = self.heap.construction_union(x, y)
-        {
-            return result;
-        }
         let (x, y) = (self.work_norm(x)?, self.work_norm(y)?);
         let fx = self.heap.is_finite(x);
         let fy = self.heap.is_finite(y);
@@ -2099,16 +2005,11 @@ impl Machine {
             self.eval_component(code, x)?
         };
         let product = self.heap.kind(value) == Some(Kind::Product);
-        if f == StdFn::Seq
-            || (f == StdFn::IsFiniteSet && self.heap.has_product_receiver(value)?)
+        if matches!(f, StdFn::Seq | StdFn::IsFiniteSet)
             || (f == StdFn::Append && index == 1)
             || (product && matches!(f, StdFn::Cardinality | StdFn::IsFiniteSet | StdFn::Seq))
         {
             Ok(value)
-        } else if product {
-            Err(Error::unsupported(
-                "a standard operator consuming an unproved product receiver",
-            ))
         } else {
             self.work_norm(value)
         }
@@ -2197,16 +2098,7 @@ impl Machine {
                 let s = arg(0)?;
                 Ok(self.heap.symbolic(Kind::SeqSet, 0, &[s]))
             }
-            StdFn::IsFiniteSet => {
-                let s = arg(0)?;
-                if self.heap.kind(s) == Some(Kind::Product) {
-                    return self.product_finiteness(s).map(Handle::bool);
-                }
-                if self.heap.has_product_receiver(s)? {
-                    return self.receiver_finiteness(s, 0).map(Handle::bool);
-                }
-                Ok(Handle::bool(self.heap.is_finite(s)))
-            }
+            StdFn::IsFiniteSet => self.symbolic_finiteness(arg(0)?).map(Handle::bool),
             StdFn::EmptyBag
             | StdFn::SetToBag
             | StdFn::BagToSet
@@ -2315,160 +2207,6 @@ mod tests {
             assert_eq!(error.kind(), crate::ErrorKind::Eval);
             assert!(error.message().contains("not a set"));
             assert_eq!(m.heap.view(sequences).data, &[malformed]);
-        }
-    }
-
-    #[test]
-    fn nested_subset_membership_enumerates_only_the_demanded_literal() {
-        for tlc in [false, true] {
-            let semantics = if tlc {
-                crate::Semantics::tlc()
-            } else {
-                crate::Semantics::default()
-            };
-            let mut m = Machine::new(
-                Arc::new(Store::with_semantics(true, semantics)),
-                1,
-                Opts::default(),
-                Memo::new(&[]),
-            );
-            let one = Handle::int(1).unwrap();
-            let two = Handle::int(2).unwrap();
-            let raw = m.heap.local_literal(&[two, one, two]).unwrap();
-            let independent = m.heap.local_literal(&[two, one, two]).unwrap();
-            let mut values = vec![raw];
-            let outer = m.heap.set_from(&mut values);
-            let base = m.heap.interval(1, 2);
-            let inner = m.heap.symbolic(Kind::Subset, 0, &[base]);
-            let powerset = m.heap.symbolic(Kind::Subset, 0, &[inner]);
-            assert!(m.heap.has_raw_construction(raw));
-            assert!(m.heap.has_raw_construction(independent));
-            assert_eq!(m.member(outer, powerset), Ok(true));
-            assert!(!m.heap.has_raw_construction(raw));
-            assert!(m.heap.has_raw_construction(independent));
-            assert_eq!(m.heap.view(outer).data, &[raw]);
-            assert_eq!(m.heap.view(powerset).data, &[inner]);
-            assert_eq!(m.member(base, inner), Ok(true));
-            let outside = m.heap.interval(1, 3);
-            assert_eq!(m.member(outside, inner), Ok(false));
-        }
-    }
-
-    #[test]
-    fn subset_query_normalization_precedes_membership_and_skips_unused_base() {
-        let mut m = Machine::new(
-            Arc::new(Store::with_semantics(true, crate::Semantics::tlc())),
-            1,
-            Opts::default(),
-            Memo::new(&[]),
-        );
-        let zero = Handle::int(0).unwrap();
-        let raw = m.heap.local_literal(&[zero, Handle::TRUE]).unwrap();
-        let empty = m.heap.empty_set();
-        let empty_subset = m.heap.symbolic(Kind::Subset, 0, &[empty]);
-        // Enumerable.elements normalizes the whole query before even the first
-        // element could fail membership in the empty base.
-        let error = m.member(raw, empty_subset).unwrap_err();
-        assert_eq!(error.kind(), crate::ErrorKind::Unsupported);
-        assert!(error.message().contains("local scalar/tuple comparison"));
-
-        let unused = m.heap.local_literal(&[zero, Handle::TRUE]).unwrap();
-        let empty_query = m.heap.local_literal(&[]).unwrap();
-        let unused_subset = m.heap.symbolic(Kind::Subset, 0, &[unused]);
-        assert_eq!(m.member(empty_query, unused_subset), Ok(true));
-        assert!(m.heap.has_raw_construction(unused));
-        assert!(m.work_norm(unused).is_err());
-
-        let forged = m.heap.symbolic(Kind::SetEnum, 0, &[zero]);
-        let error = m.member(forged, unused_subset).unwrap_err();
-        assert_eq!(error.kind(), crate::ErrorKind::Unsupported);
-        assert!(
-            error
-                .message()
-                .contains("unproved set enumeration receiver")
-        );
-    }
-
-    #[test]
-    fn compound_components_keep_product_receiver_authority() {
-        for tlc in [false, true] {
-            for symbolic_member in [false, true] {
-                let semantics = if tlc {
-                    crate::Semantics::tlc()
-                } else {
-                    crate::Semantics::default()
-                };
-                let mut m = Machine::new(
-                    Arc::new(Store::with_semantics(true, semantics)),
-                    1,
-                    Opts {
-                        symbolic_member,
-                        ..Opts::default()
-                    },
-                    Memo::new(&[]),
-                );
-                let zero = Handle::int(0).unwrap();
-                let empty = m.heap.interval(0, -1);
-                let product = m.heap.symbolic(Kind::Product, 0, &[empty, zero]);
-                let field = m.heap.string("edge").unwrap();
-                let code = Code {
-                    nodes: vec![
-                        Node::Const(product),
-                        Node::Record(vec![(field, 0)].into()),
-                        Node::Tuple(vec![1].into()),
-                    ],
-                    ..Code::default()
-                };
-                assert_eq!(m.eval_component(&code, 0), Ok(product));
-                let record = m.eval(&code, 1).unwrap();
-                let tuple = m.eval(&code, 2).unwrap();
-                assert_eq!(m.heap.view(record).values(), &[product]);
-                assert_eq!(m.heap.has_product_receiver(tuple), Ok(true));
-                let ordinary = m.heap.empty_set();
-                assert_eq!(m.member(zero, ordinary), Ok(false));
-                let error = m.member(zero, product).unwrap_err();
-                assert_eq!(error.kind(), crate::ErrorKind::Eval);
-                assert!(error.message().contains("not a function"));
-                assert!(m.demand_equals(record, record).is_err());
-                assert_eq!(m.heap.view(record).values(), &[product]);
-                assert!(!m.heap.poisoned());
-            }
-        }
-    }
-
-    #[test]
-    fn nested_set_equality_demands_only_reached_fields_and_preserves_quiet_aliases() {
-        let one = Handle::int(1).unwrap();
-        let two = Handle::int(2).unwrap();
-        for tlc in [false, true] {
-            for hashcons in [false, true] {
-                let semantics = if tlc {
-                    crate::Semantics::tlc()
-                } else {
-                    crate::Semantics::default()
-                };
-                let store = Arc::new(Store::with_semantics(hashcons, semantics));
-                let mut m = Machine::new(store, 0, Opts::default(), Memo::new(&[]));
-                let raw = m.heap.local_literal(&[two, one, two]).unwrap();
-                let other = m.heap.local_literal(&[one, two]).unwrap();
-                let a = m.heap.tuple_literal(&[raw]);
-                let b = m.heap.tuple_literal(&[other]);
-                assert_eq!(m.demand_equals(a, b), Ok(true));
-                assert_eq!(m.heap.has_raw_construction(raw), !tlc);
-                assert_eq!(m.heap.has_raw_construction(other), !tlc);
-
-                // A later incomparable set must remain raw after an earlier
-                // unequal tuple field. D-009 also keeps actual aliases quiet.
-                let bad = m.heap.local_literal(&[one, Handle::TRUE]).unwrap();
-                let a = m.heap.tuple_literal(&[one, bad]);
-                let b = m.heap.tuple_literal(&[two, bad]);
-                assert_eq!(m.demand_equals(a, b), Ok(false));
-                assert!(m.heap.has_raw_construction(bad));
-                if !tlc {
-                    assert_eq!(m.demand_equals(a, a), Ok(true));
-                    assert!(m.heap.has_raw_construction(bad));
-                }
-            }
         }
     }
 

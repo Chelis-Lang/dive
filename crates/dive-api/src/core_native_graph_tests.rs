@@ -443,7 +443,7 @@ fn native_conversion_precedes_state_and_edge_caps() {
     );
     let reason = sink.take_error().expect("conversion error");
     assert!(
-        matches!(reason, Verdict::Unsupported { feature } if feature.contains("normalization history")),
+        matches!(reason, Verdict::Unsupported { feature } if feature.contains("unmaterialized symbolic")),
         "conversion must precede the zero state/edge caps"
     );
     assert_eq!(sink.graph.state_count(), 0);
