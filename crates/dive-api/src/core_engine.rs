@@ -249,8 +249,9 @@ fn frame_slots(
 }
 
 /// The `INSTANCE` substitutions active at a split role (splitting entered
-/// an instantiated definition). Values evaluated under substitutions of
-/// their own (nested instances) are refused.
+/// an instantiated definition). Uncaptured top-level operator definitions
+/// retain their identity. Values evaluated under substitutions of their own
+/// (nested instances) and captured operator closures remain named refusals.
 fn role_substs(
     model: &dive_model::Model,
     name: &str,
@@ -275,6 +276,18 @@ fn role_substs(
                 def: s.def(),
                 slots: frame_slots(model, &s)?,
             }),
+            SlotView::Other => {
+                let Some(def) = model
+                    .evaluator
+                    .scope_subst_operator(scope, decl)
+                    .map_err(|error| error.to_string())?
+                else {
+                    return Err(format!(
+                        "the split action {name} with a captured or opaque operator substitution (core)"
+                    ));
+                };
+                out.push(RoleSubst::Operator { decl, def });
+            }
             _ => {
                 return Err(format!(
                     "the split action {name} inside nested INSTANCE substitutions (M1 core)"
