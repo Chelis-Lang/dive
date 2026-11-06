@@ -183,9 +183,16 @@ Its resource/interruption/internal statuses are 3/5/4. No new budget is installe
 by the uncontrolled fallible entrypoint. The completed report vocabulary above
 is unchanged.
 
-The validator evaluates Init and the original next-state relation as predicates
-over supplied concrete states. It is independent of the checker's successor
-enumerator. Every state must assign every spec variable; missing/partial states
+The validator checks Init and the original next-state relation independently of
+the checking engine. For pure relational Init predicates, it reconstructs actual
+initial emissions with the shared evaluator and compares them with the supplied
+first state. Empty product and record branches therefore contribute no states;
+they are not tested as membership predicates on an already assigned variable.
+Replay stops at a matching complete emission. Exhausting Init without a match
+rejects the word; an earlier source error or partial emission remains unsupported,
+and interrupted replay never reports validity. Effects and unresolved contexts
+retain their existing private replay restrictions.
+Every state must assign every spec variable; missing/partial states
 are not completed by guessing. Native trace formats normalize value JSON and has known representation
 gaps. Successful decoding is separate from semantic validation. TLC dumpTrace
 JSON is also an accepted input format within the validator's documented boundary.
