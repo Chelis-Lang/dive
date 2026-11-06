@@ -180,6 +180,11 @@ jobs:
           target/release/dive-conformance corpus fetch --corpus examples
       - name: Smoke gate (1 and 4 workers)
         run: scripts/conformance-gate.sh conformance/gates/smoke.txt --workers 1,4
+      - name: Core golden gate (Core alone vs TLC goldens, 1 and 4 workers)
+        env:
+          DIVE_GATE_IMPL: dive:core
+          DIVE_GATE_PROFILE: dive
+        run: scripts/conformance-gate.sh conformance/gates/core-smoke.txt --workers 1,4
       - name: Shadow gate (core vs reference engine, 1 and 4 workers)
         run: scripts/shadow-gate.sh conformance/gates/shadow-smoke.txt
       - name: Bare-use smoke (bundled libraries, explicit named refusal)

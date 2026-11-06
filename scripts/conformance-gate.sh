@@ -3,7 +3,10 @@
 # committed TLC goldens and fails unless every one of them agrees.
 #
 #   scripts/conformance-gate.sh conformance/gates/cm1.txt [--workers 1,4,8] [extra run args...]
-# Set DIVE_GATE_CORPUS for another registered corpus (default: examples).
+# Set DIVE_GATE_CORPUS for another registered corpus (default: examples),
+# DIVE_GATE_IMPL for another dive engine (default: dive, e.g. dive:core) and
+# DIVE_GATE_PROFILE for the dive profile (default: tlc). In the default `dive`
+# profile a registered `expected-divergence` outcome also passes.
 #
 # Needs release builds of the harness and of dive
 # (`cargo build --release --locked -p dive-conformance -p dive-cli`) and the
@@ -20,6 +23,10 @@ list="${1:?usage: conformance-gate.sh <model-list> [run args...]}"
 shift
 harness="${HARNESS:-target/release/dive-conformance}"
 corpus="${DIVE_GATE_CORPUS:-examples}"
+impl="${DIVE_GATE_IMPL:-dive}"
+profile="${DIVE_GATE_PROFILE:-tlc}"
+pass='agree'
+[ "$profile" = dive ] && pass='(agree|expected-divergence)'
 out="$(mktemp -d)"
 trap 'rm -rf "$out"' EXIT
 
@@ -36,7 +43,7 @@ done <"$list"
 
 start=$(date +%s)
 set +e
-"$harness" run --impl dive --impl-profile tlc --corpus "$corpus" --tier all \
+"$harness" run --impl "$impl" --impl-profile "$profile" --corpus "$corpus" --tier all \
   --no-sany --no-summary --tlc-budgets --budget-cap 900 \
   --report-dir "$out" "${filters[@]}" "$@" \
   2>&1 | tee "$out/log"
@@ -46,7 +53,7 @@ elapsed=$(($(date +%s) - start))
 
 seen=$(grep -cE '^\[[0-9]+/[0-9]+\] ' "$out/log" || true)
 bad=$(grep -E '^\[[0-9]+/[0-9]+\] ' "$out/log" |
-  grep -vE '^\[[0-9]+/[0-9]+\] agree ' || true)
+  grep -vE "^\\[[0-9]+/[0-9]+\\] $pass " || true)
 echo "gate: $seen of $expected models run in ${elapsed}s"
 if [ "$status" -ne 0 ] || [ "$seen" -ne "$expected" ] || [ -n "$bad" ]; then
   [ -n "$bad" ] && printf 'gate: not agreeing:\n%s\n' "$bad"
