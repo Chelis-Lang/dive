@@ -899,8 +899,9 @@ fixtures in `crates/dive-api/tests/fixtures/core-m0`. Measurements are in
   variables is passed by name. Zero-arity `LET` definitions are thunks.
 - **Caching.** A zero-arity top-level definition of state level is evaluated
   at most once per frame activation (for example `sc` in GameOfLife).
-- **Recursive operators.** They are compiled once into their own frame, with
-  eager arguments. Function constructors are materialized. (M1: see §4.1.)
+- **Recursive operators.** They are compiled once per definition, Init mode,
+  lexical owner and active INSTANCE substitution prefix into their own frame,
+  with eager arguments. Function constructors are materialized. (M1: see §4.1.)
 - **Folding.** Closed subexpressions are folded by evaluating them at compile
   time, within the R9 bound (§3, pass 1). A folding failure leaves the node
   alone. Filters and `CHOOSE` enumerate a symbolic domain through its cursor

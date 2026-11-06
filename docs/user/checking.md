@@ -346,6 +346,8 @@ Top-level recursive functions also compile substituted expressions in their own
 runtime frame; caller thunk slots cannot supply a recursive argument's value.
 Mutually recursive top-level operators retain separate function frames;
 mutually recursive local definitions with lexical captures remain unsupported.
+Self and mutually recursive operators keep different INSTANCE substitutions
+separate, including Init and repeated calls through local activations.
 Substitutions that require effectful or recursive evaluation, or a caller local
 outside the function's lexical activation, also return `unsupported`.
 An applied recursive Boolean function can act as a predicate in `Next` when its
