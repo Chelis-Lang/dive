@@ -116,6 +116,7 @@ pub fn evaluate_lasso(
     for state in states {
         crate::trace::validate_state_names(model, state).map_err(TemporalError::Unsupported)?;
     }
+    let guard = crate::enabled::ComposeGuard::install(model);
     let mut cx = Word {
         model,
         states,
@@ -125,6 +126,11 @@ pub fn evaluate_lasso(
     let truth = cx.eval(formula.expr, &formula.scope, 0);
     if matches!(truth, Err(TemporalError::Interrupted(_))) {
         return truth;
+    }
+    if guard.composed() {
+        return Err(TemporalError::Unsupported(
+            crate::COMPOSITION_UNSUPPORTED.to_owned(),
+        ));
     }
     if model.has_runtime_names() {
         return Err(TemporalError::Unsupported(
@@ -1564,10 +1570,15 @@ impl Word<'_> {
                     todo.extend(items.iter().map(|item| (*item, scope.clone(), depth + 1)));
                     continue;
                 }
-                Expr::Cdot(..) => {
-                    return Err(TemporalError::Unsupported(
-                        crate::COMPOSITION_UNSUPPORTED.to_owned(),
-                    ));
+                Expr::Cdot(first, second) => {
+                    if ev.options().action_composition != dive_eval::ActionComposition::Tla {
+                        return Err(TemporalError::Unsupported(
+                            crate::COMPOSITION_UNSUPPORTED.to_owned(),
+                        ));
+                    }
+                    todo.push((*first, scope.clone(), depth + 1));
+                    todo.push((*second, scope.clone(), depth + 1));
+                    continue;
                 }
                 Expr::Let { body, .. } => {
                     let sc = ev.scope_let(&scope, e).map_err(TemporalError::from)?;

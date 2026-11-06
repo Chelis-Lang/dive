@@ -142,6 +142,14 @@ unclassified; no deciding oracle class is inferred for registry entries.
   is expected divergence rather than strict agreement. Issue #413 records the
   evidence. Goldens and checker behavior are unchanged.
 
+- **Composition nonstuttering and fairness (D-022).** Independent bounded TLA
+  replay tests the original-to-final edge. For `(x'=1) \cdot (x'=0)` at `x=0`,
+  `ENABLED <<A>>_x` is false and both fairness kinds hold on the stuttering word.
+  Pinned experimental TLC answers true and violates each fairness property.
+  These exact truth fields are the additional D-022 scope, proved by finite
+  relation enumeration and retained oracle facts in
+  `crates/dive-trace/tests/fixtures/composition/`. No unrelated field is waived.
+
 ## Refusals where SANY accepts
 
 These are not divergences, because `dive` gives no different answer: it refuses with

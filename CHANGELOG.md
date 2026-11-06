@@ -5,6 +5,11 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- Independently validate pure bounded TLA-mode action composition, including
+  actual closing edges, deadlock and fairness. Nonstuttering compares the
+  original and final states; alternate modes and unproved cases still refuse
+  (D-022).
+
 - Prepare native Linux x86_64/aarch64 release archives, SHA-256 checksums and
   bundled-library license notices. No version bump, tag or publication is part
   of this preparation.

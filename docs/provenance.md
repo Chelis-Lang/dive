@@ -1125,8 +1125,14 @@ pinned source; DFID and simulation use emitted successors only.
 D-022 records the default TLA+ counterpart, which counts composed successors and
 refuses enclosing conjunctions whose continuation or preassigned variables TLC
 would distort. Tests retain the complete existing six-probe selection and its
-consumed pinned oracle fixtures. The trace validator refuses action
-composition, including in `ENABLED` (ADR 0103). Pure TLC-profile capture now uses the
+consumed pinned oracle fixtures. Independent replay now reuses this evaluator for the bounded pure TLA slice:
+complete intermediates and at most one complete tail successor, existing
+callback-free closure inspection, private host grants and fresh cache domains
+(ADR 0103 follow-up). Its nonstuttering continuation compares the original and
+final states. Original finite-relation controls and compact pinned TLC facts in
+`crates/dive-trace/tests/fixtures/composition/` establish the exact D-022
+ENABLED/WF/SF artifact; no new upstream algorithm or second enumerator is added.
+Other composition modes, effects, partial and unproved cases remain refused. Pure TLC-profile capture now uses the
 inline fallback and counts intermediates as generated; only emitted successors
 become transition edges. Ordinary liveness integration remains pending.
 

@@ -145,6 +145,17 @@ evaluates only the branches it reaches, as TLC does (for example, an untaken
 `Host::reuse_expression_cache`, the bounded recursive-function views and the
 `enumerate` feature are removed; `dive_eval::next` is always built.
 
+**Bounded composition follow-up (2026-11-06, #338/#490).** The blanket composition
+refusal above is retained outside a pure finite TLA-mode slice: complete first
+stage, at most one complete tail successor, existing callback-free closure
+inspection, and private replay hosts/cache domains. Replay, public ENABLED and
+lasso predicates reuse the existing shared composition generator. WF/SF test
+the original-to-final nonstuttering edge; the pinned experimental TLC artifact
+is registered precisely in D-022. Alternate modes, effects, partial or unproved
+states and nested compositions remain refused. This changes no dependency or
+artifact-independence boundary and adds no second relation engine. Positive,
+forged, cold/warm, error and stop controls live in the existing composition tests.
+
 ## Consequences
 
 - #321 is fixed: both fairness kinds validate the TLC counterexample. The

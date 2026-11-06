@@ -2830,6 +2830,21 @@ Without the switch, `TLCGet("-Dtlc2.tool.impl.Tool.cdot")` returns its own key; 
 
 Under `--compat=tlc` composition is off, as in TLC. `--action-composition=tlc` reproduces TLC with the switch, including the counts and the hidden deadlock. dive runs it in sequential mode, because the intermediate states count as generated but are not successors. The conformance harness passes it for models with the Examples `action composition` feature, as it passes the switch to TLC. DFID and simulation count only emitted successors in both enabled modes, following their pinned TLC functors. For `CdDeadlock`, each reports deadlock (2114) with one generated state even in `tlc` composition mode; the pinned TLC exits 11. Composition being disabled retains the named refusal of an unverified DFID/simulation evaluation-error context. Ordinary temporal composition and its captured intermediate accounting remain unfinished.
 
+**Independent bounded replay and fairness.** In `tla` mode, replay admits pure
+finite complete intermediates with at most one complete tail successor, using
+the shared evaluator and a fresh private cache domain. It applies a
+nonstuttering continuation to the actual original-to-final edge. For
+`A == (x'=1) \cdot (x'=0)` at `x=0`, the finite relation has only the composed
+edge `0 -> 0`: `ENABLED A` is true, `ENABLED <<A>>_x` is false, and `WF_x(A)` and
+`SF_x(A)` hold on the stuttering word. Pinned experimental TLC instead reports
+both queries true and both fairness properties false (exit 13, one-state
+stuttering counterexample). D-022 covers exactly these nonstuttering-enabledness
+and consequent fairness truth differences; it grants no unrelated observable
+exception. The unchanged oracle facts and independent finite controls are in
+`crates/dive-trace/tests/fixtures/composition/` and `tests/composition.rs`.
+Replay still refuses `off`/`tlc`, effects, nested or unproved compositions,
+partial states and nondeterministic tails. See [trace validation](user/traces.md).
+
 **Evidence.** `crates/dive-eval/tests/cdot.rs`, with specs and compact generated pinned-TLC results in `crates/dive-eval/tests/fixtures/cdot/`:
 
 | Probe | TLC with the switch (generated / distinct) | dive default |

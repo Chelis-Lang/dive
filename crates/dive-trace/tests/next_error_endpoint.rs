@@ -238,7 +238,7 @@ fn instantiated_error_origins_remain_outside_the_first_slice() -> TestResult {
 }
 
 #[test]
-fn reached_composition_refuses_before_private_collection_in_both_modes() -> TestResult {
+fn bounded_composition_errors_replay_and_unproved_cases_remain_refused() -> TestResult {
     for profile in [Options::dive(), Options::tlc()] {
         for mode in [ActionComposition::Tla, ActionComposition::Tlc] {
             let options = Options {
@@ -247,9 +247,11 @@ fn reached_composition_refuses_before_private_collection_in_both_modes() -> Test
             };
             for next in [
                 "(x'=1) \\cdot (x'=1 \\div (x-x))",
+                "((x'=1) \\/ (x'=1 \\div (x-x))) \\cdot (x'=2)",
                 "(x'=1) \\cdot ((x'=1) \\cdot (x'=1 \\div (x-x)))",
             ] {
                 let input = Input::new(&format!("Init == x=0\nNext == {next}"), "")?;
+                let bounded = mode == ActionComposition::Tla && !next.contains("\\cdot ((");
                 // An ordinary allowed host still reaches the original native
                 // error. Warm its separate runtime before each fresh proof.
                 let model = dive_model::bind(
@@ -275,10 +277,23 @@ fn reached_composition_refuses_before_private_collection_in_both_modes() -> Test
                         .ok_or("native composition error")?;
                     assert_eq!(error.error.ec().name(), "TLC_MODULE_DIVISION_BY_ZERO");
                     let validation = session.try_read(&doc)?.0.validation;
-                    assert!(
-                        matches!(&validation, Validation::Unsupported(reason) if reason.contains("action composition")),
-                        "{mode:?}: {validation:?}"
-                    );
+                    if bounded {
+                        assert_eq!(validation, Validation::Valid);
+                        let mut forged = doc.to_json();
+                        forged["ending"]["ec"] = json!("TLC_MODULE_OVERFLOW");
+                        assert!(matches!(
+                            session
+                                .try_read(&TraceDoc::from_json(&forged)?)?
+                                .0
+                                .validation,
+                            Validation::Invalid(_)
+                        ));
+                    } else {
+                        assert!(
+                            matches!(&validation, Validation::Unsupported(reason) if reason.contains("action composition")),
+                            "{mode:?}: {validation:?}"
+                        );
+                    }
                 }
             }
             // Refusal precedes A-side collection, even if no complete state
@@ -292,14 +307,15 @@ fn reached_composition_refuses_before_private_collection_in_both_modes() -> Test
                 polls: AtomicUsize::new(0),
                 limit: 200,
             });
-            assert!(matches!(
-                input
-                    .session(options)
-                    .read_controlled(&doc, control)?
-                    .0
-                    .validation,
-                Validation::Unsupported(_)
-            ));
+            let result = input.session(options).read_controlled(&doc, control);
+            if mode == ActionComposition::Tla {
+                assert!(matches!(
+                    result,
+                    Err(ValidationRunError::Interrupted { .. })
+                ));
+            } else {
+                assert!(matches!(result?.0.validation, Validation::Unsupported(_)));
+            }
             // Only a reached composition is refused. Source presence in an
             // untaken conditional is not a reason to reject the actual error.
             let untaken = Input::new(
@@ -499,6 +515,30 @@ fn actual_receiver_diagnostic_keeps_control_and_rejects_foreign_cause_authority(
         assert_eq!(
             input.session(options).try_read(&document)?.0.validation,
             Validation::Valid
+        );
+    }
+    Ok(())
+}
+
+#[test]
+fn a_later_tail_error_cannot_hide_an_earlier_composed_successor() -> TestResult {
+    for next in [
+        "(x' \\in {1,2}) \\cdot (x'=1 \\div (2-x))",
+        "(x'=1) \\cdot (x'=2 \\/ x'=1 \\div (x-x))",
+    ] {
+        let input = Input::new(&format!("Init==x=0\nNext=={next}"), "")?;
+        let document = input.request(Options::dive())?;
+        let validation = input
+            .session(Options::dive())
+            .try_read(&document)?
+            .0
+            .validation;
+        assert!(
+            matches!(
+                validation,
+                Validation::Invalid(_) | Validation::Unsupported(_)
+            ),
+            "{validation:?}"
         );
     }
     Ok(())

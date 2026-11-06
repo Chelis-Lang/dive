@@ -1,8 +1,8 @@
 //! `ENABLED` and successor existence on a given state, decided by the core
 //! evaluator's `ENABLED` (ADR 0103). The validator replays and checks the
 //! counterexample's states and steps itself; whether an action has some
-//! successor is the evaluator's TLC-exact search, the same semantics the
-//! checker uses for `ENABLED`.
+//! successor is decided with the shared evaluator, with a pure bounded TLA
+//! composition path and independent cache ownership.
 
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -72,8 +72,8 @@ impl std::error::Error for EnabledError {}
 ///
 /// # Errors
 /// A foreign or malformed model context, state or predicate; an evaluation
-/// error or refusal during the search, including action composition
-/// ([`crate::COMPOSITION_UNSUPPORTED`], refused as replay refuses it); and a
+/// error or refusal during the search, including composition outside the pure
+/// bounded TLA slice ([`crate::COMPOSITION_UNSUPPORTED`]); and a
 /// string or model value created
 /// after binding ([`crate::RUNTIME_NAMES_UNSUPPORTED`]), whatever the result.
 pub fn enabled(
@@ -135,8 +135,8 @@ pub fn enabled(
     {
         return Err(EnabledError::Interrupted(error.clone()));
     }
-    // Composition is refused whatever the search did with the refusal, as
-    // replay refuses it: `[][A]_x` and `validate_doc` refuse the same action.
+    // A declined composition remains refused even if an inner query or label
+    // swallowed its error; accepted bounded composition never sets this flag.
     if composed {
         return Err(EnabledError::Unsupported(
             crate::COMPOSITION_UNSUPPORTED.to_owned(),
@@ -199,12 +199,10 @@ pub(crate) fn source_enabled(
     result
 }
 
-/// The host an `ENABLED` search runs under: the installed host, except that
-/// action composition is refused ([`crate::COMPOSITION_UNSUPPORTED`]) as
-/// replay refuses it, and lazy values live in a cache domain of the
-/// validator's own unless the installed host already has one (replay's). A
-/// value cached by ordinary evaluation, such as a composition argument the
-/// checker forced, therefore never stands in for the search (ADR 0103).
+/// A private cache domain and bounded composition policy for an ENABLED or
+/// lasso evaluation. Existing host grants are forwarded; every declined
+/// composition is remembered, including errors swallowed by optional checks.
+/// A prior consumer's cached value never substitutes for this replay.
 #[derive(Debug)]
 struct ComposeGuardHost {
     inner: Option<Arc<dyn Host>>,
@@ -249,6 +247,21 @@ impl Host for ComposeGuardHost {
         })
     }
 
+    fn requires_bounded_action_composition(&self) -> bool {
+        true
+    }
+
+    fn check_bounded_action_composition(&self) -> Result<(), HostError> {
+        let result = self
+            .inner
+            .as_ref()
+            .map_or(Ok(()), |host| host.check_bounded_action_composition());
+        if result.is_err() {
+            self.composition.store(true, Ordering::Relaxed);
+        }
+        result
+    }
+
     fn expression_cache_domain(&self) -> u64 {
         self.cache_domain
     }
@@ -273,14 +286,14 @@ impl Host for ComposeGuardHost {
 
 /// Installs a [`ComposeGuardHost`] for one search and restores the host
 /// installed before it when dropped.
-struct ComposeGuard<'a> {
+pub(crate) struct ComposeGuard<'a> {
     model: &'a Model,
     host: Arc<ComposeGuardHost>,
     inner: Option<Arc<dyn Host>>,
 }
 
 impl<'a> ComposeGuard<'a> {
-    fn install(model: &'a Model) -> Self {
+    pub(crate) fn install(model: &'a Model) -> Self {
         let inner = model.evaluator.host();
         let cache_domain = inner
             .as_ref()
@@ -296,7 +309,7 @@ impl<'a> ComposeGuard<'a> {
         Self { model, host, inner }
     }
 
-    fn composed(&self) -> bool {
+    pub(crate) fn composed(&self) -> bool {
         self.host.composition.load(Ordering::Relaxed)
     }
 }
