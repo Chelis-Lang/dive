@@ -330,9 +330,13 @@ an empty Init completes without either error.
 Core evaluates LET-bound recursive functions used through `f[arg]`, retaining
 the actual enclosing values across recursive and repeated calls, including
 `INSTANCE` substitutions. An unused failing LET binding or argument stays
-unevaluated. Escaping recursive function values, primed applications, enclosing
-operator parameters and mutually nested recursion remain named refusals in both
-profiles.
+unevaluated. Primed applications with pure domains and bodies read the successor
+state, including state-dependent domains and arguments. Escaping recursive
+function values, primed enclosing-local captures, mixed plain/primed self calls,
+effectful primed functions, enclosing operator parameters and mutually nested
+recursion remain named refusals in both profiles.
+Top-level recursive functions also compile substituted expressions in their own
+runtime frame; caller thunk slots cannot supply a recursive argument's value.
 Substitutions that require effectful or recursive evaluation, or a caller local
 outside the function's lexical activation, also return `unsupported`.
 Recursive functions used directly as actions are also refused: their logical
