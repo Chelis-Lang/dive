@@ -811,6 +811,45 @@ pub struct RunOptions {
     pub report_dir: PathBuf,
     /// Where to write the Markdown summary, if anywhere.
     pub summary_path: Option<PathBuf>,
+    /// `--tlc-timings`: same-host single-worker TLC times. A model with a
+    /// cached time gets [`crate::r2::time_limit`] as its budget instead of
+    /// [`Limits::timeout_for`]; the others keep that policy.
+    pub tlc_timings: Option<crate::r2::TlcTimings>,
+}
+
+impl RunOptions {
+    /// The timeout (and, with budgets, the `--time-limit`) for one model.
+    #[must_use]
+    pub fn model_timeout(
+        &self,
+        corpus: &str,
+        m: &ModelEntry,
+        golden_elapsed_ms: Option<u64>,
+    ) -> Duration {
+        let cached = self
+            .tlc_timings
+            .as_ref()
+            .and_then(|t| t.elapsed_ms(corpus, &m.id));
+        match (cached, self.limits.timeout, self.limits.budget_cap) {
+            (Some(tlc_ms), None, Some(cap)) => crate::r2::time_limit(tlc_ms, cap),
+            _ => self.limits.timeout_for(m, golden_elapsed_ms),
+        }
+    }
+
+    /// The timeout policy recorded in the report's settings.
+    #[must_use]
+    pub fn timeout_policy(&self) -> String {
+        match (
+            &self.tlc_timings,
+            self.limits.timeout,
+            self.limits.budget_cap,
+        ) {
+            (Some(t), None, Some(cap)) => {
+                format!("{}; otherwise {}", t.policy(cap), self.limits.policy())
+            }
+            _ => self.limits.policy(),
+        }
+    }
 }
 
 fn record_from(
@@ -1047,9 +1086,7 @@ fn run_model(
             corpus_root: &corpus.root,
             model: m,
             workers,
-            timeout: opts
-                .limits
-                .timeout_for(m, Some(golden.provenance.elapsed_ms)),
+            timeout: opts.model_timeout(&corpus.id, m, Some(golden.provenance.elapsed_ms)),
             xmx: &opts.limits.xmx,
             budgets: opts.limits.budget_cap.is_some(),
         };
@@ -1672,7 +1709,7 @@ pub fn run(
             workers: opts.workers.clone(),
             jobs: opts.limits.jobs,
             xmx: opts.limits.xmx.clone(),
-            timeout_policy: opts.limits.policy(),
+            timeout_policy: opts.timeout_policy(),
             crosscheck_manifest: opts.crosscheck_manifest,
             sany_phase: opts.sany_phase,
             impl_options: imp.options().to_vec(),
@@ -1791,6 +1828,86 @@ pub fn corpus_list(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn tlc_timings_cap_timed_models_at_twice_tlc_and_leave_the_rest() {
+        let m = |id: &str| crate::corpus::ModelEntry {
+            id: id.to_owned(),
+            ..model_entry()
+        };
+        let timings = crate::r2::TlcTimings::new(
+            "tlc-run",
+            Host::current(),
+            [
+                (("examples".to_owned(), "Fast.cfg".to_owned()), 1_000),
+                (("examples".to_owned(), "Slow.cfg".to_owned()), 120_000),
+                (("examples".to_owned(), "Long.cfg".to_owned()), 3_600_000),
+            ],
+        );
+        let mut opts = RunOptions {
+            corpora: vec!["examples".to_owned()],
+            sany_phase: SanyPhase::Full,
+            golden_oracle: "tlc".to_owned(),
+            selection: Selection {
+                tier: "all".to_owned(),
+                filters: Vec::new(),
+            },
+            workers: vec![1],
+            limits: Limits {
+                jobs: 1,
+                xmx: "3g".to_owned(),
+                timeout: None,
+                timeout_cap: Duration::from_hours(1),
+                budget_cap: Some(Duration::from_mins(15)),
+            },
+            crosscheck_manifest: false,
+            models: true,
+            sany: false,
+            report_dir: PathBuf::new(),
+            summary_path: None,
+            tlc_timings: Some(timings),
+        };
+        let secs = |o: &RunOptions, corpus: &str, id: &str| {
+            o.model_timeout(corpus, &m(id), Some(30_000)).as_secs()
+        };
+        assert_eq!(secs(&opts, "examples", "Fast.cfg"), 10, "floor");
+        assert_eq!(secs(&opts, "examples", "Slow.cfg"), 240, "twice TLC");
+        assert_eq!(secs(&opts, "examples", "Long.cfg"), 900, "hard cap");
+        assert_eq!(
+            secs(&opts, "examples", "Untimed.cfg"),
+            300,
+            "untimed: the --tlc-budgets policy"
+        );
+        assert_eq!(secs(&opts, "probes", "Fast.cfg"), 300, "keyed by corpus");
+        assert!(opts.timeout_policy().starts_with("--tlc-timings tlc-run:"));
+        opts.limits.timeout = Some(Duration::from_secs(7));
+        assert_eq!(secs(&opts, "examples", "Slow.cfg"), 7, "--timeout wins");
+        opts.tlc_timings = None;
+        opts.limits.timeout = None;
+        assert_eq!(secs(&opts, "examples", "Slow.cfg"), 300, "no timings");
+        assert_eq!(opts.timeout_policy(), opts.limits.policy());
+    }
+
+    fn model_entry() -> crate::corpus::ModelEntry {
+        crate::corpus::ModelEntry {
+            id: "M.cfg".to_owned(),
+            module: "M.tla".to_owned(),
+            mode: crate::corpus::ModelMode::Exhaustive,
+            features: Vec::new(),
+            tier: crate::corpus::Tier::Small,
+            out_of_scope: None,
+            counts_comparable: true,
+            expected: crate::corpus::ManifestExpectation {
+                result: "success".to_owned(),
+                runtime_seconds: Some(10),
+                distinct_states: None,
+                total_states: None,
+                state_depth: None,
+                workers: None,
+            },
+            worker_introspecting: false,
+        }
+    }
 
     #[test]
     fn tlc_budgets_respect_a_hard_cap_even_for_long_or_missing_references() {

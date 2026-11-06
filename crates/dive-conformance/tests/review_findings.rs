@@ -304,6 +304,7 @@ impl World {
             sany: true,
             report_dir: self.repo.join("reports"),
             summary_path: None,
+            tlc_timings: None,
         };
         pipeline::run(&self.config()?, &self.cache, imp, None, &opts)
     }

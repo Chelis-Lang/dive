@@ -40,6 +40,7 @@ mod native_envelope;
 pub mod oracle;
 pub mod pipeline;
 pub mod process;
+pub mod r2;
 pub mod report;
 pub mod sany;
 pub mod shadow;
