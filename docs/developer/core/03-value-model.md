@@ -421,6 +421,11 @@ ownership proof or sparse history row in ordinary execution. Default mixed
 structured sets have order-independent identity; nominal compat keeps inexpensive
 checked-comparison refusals rather than reproducing TLC's mutable set history.
 
+Union merges two already canonical explicit operands in order instead of
+concatenating and sorting their elements again. Symbolic operands keep their
+existing path. The complete result still passes mathematical identity and
+profile-specific class checks, and the merge polls the existing work owner.
+
 Identity consumers require a recursively materialized mathematical value. This
 includes singleton set elements, function keys and values, equality, membership
 in an explicit set, and stored state. Symbolic children cannot supply inequality
