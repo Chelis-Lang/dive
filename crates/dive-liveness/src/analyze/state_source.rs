@@ -44,6 +44,15 @@ pub(super) trait StateSource {
 
     fn concrete(&mut self, source: usize, original: usize) -> Result<StateVals, AnalysisError>;
 
+    /// True only when every representative and original was already admitted
+    /// (converted once, interning names in event order) before analysis, so a
+    /// later read can fail only by an interruption or a storage limit. Label
+    /// demand may then read a row only when a reference fallback needs it.
+    /// Other sources keep their eager per-vertex demand order.
+    fn defers_reads(&self) -> bool {
+        false
+    }
+
     fn predicate(
         &mut self,
         _atom: &crate::plan::PredicateAtom,
@@ -168,6 +177,10 @@ impl StateSource for NativeStates<'_, '_> {
             .representative_row(vertex)
             .ok_or(AnalysisError::Inconsistent("native representative row"))?;
         self.read_row(row).map(Cow::Owned)
+    }
+
+    fn defers_reads(&self) -> bool {
+        self.read.reads_admitted()
     }
 
     fn predicate(

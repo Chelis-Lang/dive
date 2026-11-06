@@ -8,6 +8,10 @@ published. Earlier pre-release development entries remain in git history.
 - Fold closed constant sets of up to 65,536 loop iterations at compile time
   (was 4,096), so type sets such as MCNano's `SignedBlock \cup {NoBlock}` are
   built once rather than in every state. Results are unchanged.
+- Core liveness reads a state row for a temporal atom only when the reference
+  evaluator needs it, not before every native evaluation; the implicit stutter
+  reuses its source row. AllocatorImplementation reads 15% fewer rows and
+  CoffeeCan1000Beans half as many.
 
 - Independently validate pure bounded TLA-mode action composition, including
   actual closing edges, deadlock and fairness. Nonstuttering compares the

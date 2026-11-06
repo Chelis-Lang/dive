@@ -360,18 +360,39 @@ owner. No negative result, reference conversion or atom truth issues a proof.
 One fallible, checked allocation requests and retains at most one MiB; oversized
 graphs and allocation failure scan through the original validator instead.
 A new Reader at every periodic/final analysis starts empty, and its bits drop
-before independent replay. Eager admission and every demanded conversion/read
-remain unchanged. `atoms.row_proofs` reports scans, hits, certifications and peak
+before independent replay. Eager admission is unchanged. `atoms.row_proofs` reports scans, hits, certifications and peak
 retained storage bytes across readers; these counters establish consumption,
 not a measured original ABA speed or capacity improvement.
 
 The analysis Machine has separate arena/frame/memo owners, with memoization and
 folding disabled. It does not intern predicate results into the producer Store.
 Additive `core.metrics.liveness.atoms` counters distinguish prepared eligibility,
-actual native evaluations and fallback. These are capability measurements,
+actual native evaluations and fallback. `atoms.rejections` counts unprepared
+atoms by their first failing check (`negated_enabled`, `stable_certificate`,
+`compile_error`, `effects`, `code_nodes`, `funs`, `memo`, `pow`,
+`const_unclosed`, `allocation`); `atoms.fallbacks` splits actual fallback
+demands into `row_proof`, `fuel_or_error`, `warning_or_print` and
+`not_compiled`. These are capability measurements,
 not performance acceptance; original workload completion and paired timing are
 still required. The existing conversion-cache allowance and eager admission
 policy are unchanged.
+
+**Row reads only on fallback.** The Reader declares `reads_admitted`: the
+producer converted every retained original through `NativeValues::admit`,
+interning names in event order, before retaining it. A later read repeats that
+conversion and can fail only by interruption or a storage limit. Label demand
+then keeps its atom-major order and every metadata check, but reads a source
+or target row only immediately before a reference fallback, and the implicit
+stutter reuses the source row. Sources without that declaration, including
+row-only readers, keep the eager per-vertex demand order.
+
+**Audit mode (developer tool).** With `DIVE_NATIVE_ATOM_AUDIT=1` in the
+environment (read once when atoms are prepared), every native `Some(truth)` is
+also evaluated by the reference evaluator on the converted rows. A different
+truth, or a reference error where native produced a truth, ends the run with an
+internal error naming the atom location, test and row ids. Frozen WF reuse is
+not re-audited: its column came from audited native evaluations. The audit adds
+reads and reference work; `atoms.audit` reports whether it was on.
 
 ### Frozen behavior WF columns
 
@@ -383,8 +404,8 @@ fairness and separately lowered contexts do not receive tokens. A cache belongs
 to one immutable graph analysis, never the run or a later prefix/final graph.
 
 Only a complete entirely native column is retained. Every reuse still demands
-original metadata, the first physical target (including implicit stutter),
-reference row conversion and current native control/descriptor/Store/poison/input
+original metadata, the first physical target (including implicit stutter)
+and current native control/descriptor/Store/poison/input
 checks. Reader-only adapters decline input reuse by default. Actual evaluations
 retain their fuel and fallback behavior; independent replay gets fresh state.
 
