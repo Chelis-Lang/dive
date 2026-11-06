@@ -3,16 +3,19 @@
 Current measurements and progress against the [release gates](RELEASE.md).
 Replace measurements when repeated; history stays in git. The full-tier Core
 measurement below used the pinned Examples selection, one worker, 16 GiB per
-model and TLC-derived time budgets capped at 900 seconds, on 2026-11-05. It
-predates the pending canonical-set and recursive-function changes.
+model and TLC-derived time budgets capped at 900 seconds. Core completed on
+2026-11-05; the same-source Reference runs completed on 2026-11-06. These
+measurements predate canonical sets and subsequent recursive-function and
+substitution work; later focused gains are not added to this full-tier
+measurement.
 
 ## Release gates
 
 | Gate | Status | Latest evidence |
 |---|---|---|
-| R1 Coverage: Core alone, default profile, zero disagreements and at least Reference's count | **Open.** Core has 126 agreements plus two registered expected divergences among 185 in-scope Examples models, with zero disagreements. The same-source full Reference comparison is still running. Nine missing goldens remain unmeasured. | Full-tier Core measurement below; small-tier Core-only CI ratchet is active (#806). |
+| R1 Coverage: Core alone, default profile, zero disagreements and at least Reference's count | **Open.** Core covers 128 of 185 in-scope Examples models (126 agreements plus two expected divergences); same-source Reference covers 150 (146 plus four). Both have zero disagreements. Core misses 29 Reference-covered models and covers seven Reference gaps: a net shortfall of 22. Nine missing goldens remain unmeasured. | Full-tier Core measurement below; small-tier Core-only CI ratchet is active (#806). |
 | R2 Speed: faster than TLC on geomean over R1 agreeing models | **Open.** Cross-host timing triage is available; it does not establish release speed. Three agreeing models exceed twice their golden TLC elapsed time and need matched confirmation. | Timing triage below. |
-| R3 Bare use: bundled TLAPS and CommunityModules, smoke test | **Done.** All ten original Examples resolve without library flags; nine check successfully. EWD998ChanID retains its specifically permitted named refusal. These Reference-backed checks give no Core coverage credit. | Bundled libraries and bare-use CI smoke (#803). |
+| R3 Bare use: bundled TLAPS and CommunityModules, smoke test | **Done.** All ten original Examples resolve without library flags; nine check successfully. EWD998ChanID retains its specifically permitted named refusal. These Reference-backed checks give no Core coverage credit; repeat bare-use checking on Core before cutover. | Bundled libraries and bare-use CI smoke (#803). |
 | R4 Compat exists on Core | **Done.** The TLC-profile small selection has 126 agreements and 30 named refusals, with no internal errors. This is a projection of completed full and auxiliary runs, not a new run. | Nominal switches and known gaps documented (#810); one worker. |
 | R5 Stable surface | **Done.** Advertised command help works, version identifies the source commit, unimplemented commands are hidden, and CLI help and schema-3 JSON have golden tests. | #802 and #804. |
 | R6 Shipped | **Open.** Packaging preparation is pending in #805. No release tag or release-candidate qualification yet. | Linux x86_64/aarch64 archives, checksums and installation/landing documentation are prepared for review. |
@@ -23,9 +26,10 @@ predates the pending canonical-set and recursive-function changes.
 |---|---|---|---:|---:|---:|---:|---:|---:|---|
 | Small (156) | default | Core alone | 122 | 4 | 30 | 0 | 0 | 0 | 2026-11-05; [committed baseline](../conformance/baselines/small-core-dive-w1.json), no fallback or pending trace validation |
 | Small (156) | TLC | Core alone | 126 | 0 | 30 | 0 | 0 | 0 | 2026-11-05; projection of full Examples and auxiliary runs |
-| Full Examples (185 in scope) | default | Core alone | 126 | 2 | 42 | 6 | 9 | 0 | 2026-11-05 |
-| Full Examples (185 in scope) | TLC | Core alone | 128 | 0 | 42 | 6 | 9 | 0 | 2026-11-05 |
-| Full Examples | both | Reference | — | — | — | — | — | — | Same-source comparison running |
+| Full Examples (185 in scope) | default | Core alone | 126 | 2 | 42 | 6 | 9 | 0 | 2026-11-05; [snapshot](../conformance/baselines/full-examples-core-dive-w1.json) |
+| Full Examples (185 in scope) | TLC | Core alone | 128 | 0 | 42 | 6 | 9 | 0 | 2026-11-05; [snapshot](../conformance/baselines/full-examples-core-tlc-w1.json) |
+| Full Examples (185 in scope) | default | Reference | 146 | 4 | 13 | 13 | 9 | 0 | 2026-11-06; [snapshot](../conformance/baselines/full-examples-reference-dive-w1.json) |
+| Full Examples (185 in scope) | TLC | Reference | 150 | 0 | 15 | 11 | 9 | 0 | 2026-11-06; [snapshot](../conformance/baselines/full-examples-reference-tlc-w1.json) |
 | Small (156), historical | TLC | Reference | 150 | 0 | 6 | 0 | 0 | 0 | 2026-10-23; [baseline](../conformance/baselines/small-tlc-w1.json) |
 | Small (156), historical | default | Reference | 144 | 7 | 5 | 0 | 0 | 0 | 2026-10-23; [baseline](../conformance/baselines/small-dive-w1.json) |
 | Full Examples (185 in scope), historical | TLC | Reference | 151 | 0 | 15 | 10 | 9 | 0 | 2026-10-26; Examples subset of the four-corpus measurement |
@@ -36,44 +40,71 @@ the nine with no golden. The small population comprises 140 Examples models,
 14 probes and two configured-temporal models. The full auxiliary population
 adds 32 models across probes, configured-temporal operators and validation-smoke.
 The historical 182 agreements therefore span four corpora; only 151 are Examples
-agreements. R1 compares identical selections on the same source. Current full
-baselines remain unchanged: the Core ratchet rejects missing-oracle findings;
-they must not be converted to native refusals or agreements.
+agreements. The four Examples-only snapshots use the same binary, oracle and
+module pins, host, selection, one-worker settings and resource budgets. They were
+written by the normal baseline serializer and retain all nine `oracle-error`
+rows. They record a measurement, not a passing Core ratchet: missing-oracle
+findings still fail that check. The historical four-corpus baseline is unchanged.
 
 The front end agrees with SANY on 458 of 458 cases (2026-11-04).
 
-## Core full-tier refusal backlog
+## Same-source Core and Reference comparison
 
-The default-profile histogram contains exactly 42 named refusals. Work the
-largest reason bucket first (#785, #338). Reasons below are the report's exact
-strings. Model IDs are relative to `specifications/` in the pinned Examples
-corpus; filenames retain `.cfg`.
+Both profiles cover the same model sets: Core covers 128 and Reference covers
+150, with 121 covered by both. All 29 Reference-covered Core misses are named
+refusals, marked in the histogram below. Core has seven agreements where
+Reference refuses or stops:
 
-| Exact reason | Count | Model IDs |
-|---|---:|---|
-| `unsupported: a recursive function used other than applied (M1 core)` | 12 | `Prisoners/Prisoners.cfg`, `SpecifyingSystems/CachingMemory/MCWriteThroughCache.cfg`, `SpecifyingSystems/Liveness/MCLiveWriteThroughCache.cfg`, `allocator/AllocatorImplementation.cfg`, `allocator/AllocatorRefinement.cfg`, `allocator/SchedulingAllocator.cfg`, `byzpaxos/PConProof.cfg`, `byzpaxos/VoteProof.cfg`, `echo/MCEcho.cfg`, `ewd998/EWD998ChanID.cfg`, `ewd998/EWD998ChanID_export.cfg`, `transaction_commit/PaxosCommit.cfg` |
-| `unsupported: quiet nested raw equality outside interval functions` | 4 | `Paxos/MCPaxos.cfg`, `PaxosHowToWinATuringAward/MCPaxosSmall.cfg`, `PaxosHowToWinATuringAward/MCPaxosTiny.cfg`, `ewd687a/MCEWD687a.cfg` |
-| `unsupported: x' \in an operator application whose body builds a lazily represented set (core)` | 4 | `LeastCircularSubstring/MCLeastCircularSubstringMedium.cfg`, `LeastCircularSubstring/MCLeastCircularSubstringSmall.cfg`, `SlidingPuzzles/SlidingPuzzles.cfg`, `SlidingPuzzles/SlidingPuzzles_anim.cfg` |
-| `unsupported: a set of values of different shapes: TLC's checked normalization may fail (C1, C2; the exact comparison order is not built)` | 2 | `LoopInvariance/MCQuicksort.cfg`, `SpecifyingSystems/AdvancedExamples/MCInnerSerial.cfg` |
-| `unsupported: action composition (M0 core)` | 2 | `FiniteMonotonic/MCCRDT.cfg`, `FiniteMonotonic/MCReplicatedLog.cfg` |
-| `unsupported: "simulation ALIAS"` | 1 | `ewd840/EWD840_anim.cfg` |
-| `unsupported: "temporal properties (liveness checking): DT2"` | 1 | `ewd687a/EWD687a_anim.cfg` |
-| `unsupported: "the start-up evaluation of BF: IOUtils!IOEnv requires explicit --allow-io=env (D-017)"` | 1 | `ewd998/SmokeEWD998.cfg` |
-| `unsupported: SYMMETRY (M0 core engine)` | 1 | `KeyValueStore/MCKVsnap.cfg` |
-| `unsupported: TLCGet("config") (this run does not provide it)` | 1 | `DieHard/MCDieHardest.cfg` |
-| `unsupported: a constant substituted by a definition, inside an instance (M1 core)` | 1 | `MisraReachability/MCParReach.cfg` |
-| `unsupported: a recursive operator under a prime (M0 core)` | 1 | `glowingRaccoon/product.cfg` |
-| `unsupported: a std or built-in operator passed to a higher-order operator (M1 core)` | 1 | `ewd998/EWD998Small.cfg` |
-| `unsupported: enumerating SUBSET of a set of more than 24 elements` | 1 | `SpanningTree/SpanTreeTest5Nodes.cfg` |
-| `unsupported: splitting the next-state relation: Json!ndJsonDeserialize requires explicit --allow-io=files (D-017)` | 1 | `ewd998/EWD998ChanTrace.cfg` |
-| `unsupported: temporal properties: graph capture with VIEW requires quotient edge and closing-state evidence (core)` | 1 | `FiniteMonotonic/MCDistributedReplicatedLog.cfg` |
-| `unsupported: temporal properties: graph capture with random operators (core)` | 1 | `SpanningTree/SpanTreeRandom.cfg` |
-| `unsupported: the split action <Init line 5, col 1 to line 5, col 17 of module MCTwoPhase> inside nested INSTANCE substitutions (M1 core)` | 1 | `TwoPhase/MCTwoPhase.cfg` |
-| `unsupported: the standard operator DyadicRationals!Reduce (M0 core)` | 1 | `Huang/Huang.cfg` |
-| `unsupported: the standard operator TLCExt!Trace (M0 core)` | 1 | `ewd840/EWD840_json.cfg` |
-| `unsupported: the start-up evaluation of CSVFile: TLC!JavaTime (not implemented in dive's evaluator yet)` | 1 | `ewd998/SmokeEWD998_SC.cfg` |
-| `unsupported: the start-up evaluation of GraphName: IOUtils!IOEnv requires explicit --allow-io=env (D-017)` | 1 | `TLC/TestGraphs.cfg` |
-| `unsupported: x' \in a startup value TLC represents lazily, whose enumeration depends on its history (core)` | 1 | `LoopInvariance/MCBinarySearch.cfg` |
+| Core agreement, in both profiles | Reference limitation |
+|---|---|
+| `CoffeeCan/CoffeeCan3000Beans.cfg` | Graph-capture state limit |
+| `KeyValueStore/MCKVSSafetyMedium.cfg` | 900-second safety-search stop |
+| `MultiCarElevator/ElevatorSafetyMedium.cfg` | 900-second safety-search stop |
+| `aba-asyn-byz/aba_asyn_byz.cfg` | Graph-capture edge limit |
+| `cf1s-folklore/cf1s_folklore.cfg` | Graph-capture edge limit |
+| `dijkstra-mutex/DijkstraMutex.toolbox/Safety-4-processors/MC.cfg` | 900-second safety-search stop |
+| `ewd998/EWD998Chan.cfg` | Default: 900-second graph-capture stop; TLC profile: graph-capture state limit |
+
+The net coverage shortfall is 22; neither the seven gains nor zero disagreements
+makes R1 complete. All four runs have the same nine missing-golden IDs and the
+same 48 exclusions. These completed runs are not measurements of the later
+canonical-set or subsequent recursive-function/substitution work.
+
+## Core full-tier refusal baseline
+
+The measured default-profile histogram contains exactly 42 named refusals.
+Reasons are the report's exact strings. Model IDs are relative to
+`specifications/` in the pinned Examples corpus; filenames retain `.cfg`.
+**Bold IDs** are the 29 refusals that Reference covered in both profiles;
+the Reference-covered column totals 29. Work by reason bucket (#785, #338),
+using focused checks to establish which refusals remain on current Core:
+canonical sets have since landed, so 42 is not a claim about today's code.
+
+| Exact reason | Count | Reference-covered | Model IDs |
+|---|---:|---:|---|
+| `unsupported: a recursive function used other than applied (M1 core)` | 12 | 10 | **`Prisoners/Prisoners.cfg`**, **`SpecifyingSystems/CachingMemory/MCWriteThroughCache.cfg`**, **`SpecifyingSystems/Liveness/MCLiveWriteThroughCache.cfg`**, **`allocator/AllocatorImplementation.cfg`**, **`allocator/AllocatorRefinement.cfg`**, **`allocator/SchedulingAllocator.cfg`**, `byzpaxos/PConProof.cfg`, **`byzpaxos/VoteProof.cfg`**, **`echo/MCEcho.cfg`**, `ewd998/EWD998ChanID.cfg`, **`ewd998/EWD998ChanID_export.cfg`**, **`transaction_commit/PaxosCommit.cfg`** |
+| `unsupported: quiet nested raw equality outside interval functions` | 4 | 4 | **`Paxos/MCPaxos.cfg`**, **`PaxosHowToWinATuringAward/MCPaxosSmall.cfg`**, **`PaxosHowToWinATuringAward/MCPaxosTiny.cfg`**, **`ewd687a/MCEWD687a.cfg`** |
+| `unsupported: x' \in an operator application whose body builds a lazily represented set (core)` | 4 | 3 | `LeastCircularSubstring/MCLeastCircularSubstringMedium.cfg`, **`LeastCircularSubstring/MCLeastCircularSubstringSmall.cfg`**, **`SlidingPuzzles/SlidingPuzzles.cfg`**, **`SlidingPuzzles/SlidingPuzzles_anim.cfg`** |
+| `unsupported: a set of values of different shapes: TLC's checked normalization may fail (C1, C2; the exact comparison order is not built)` | 2 | 1 | **`LoopInvariance/MCQuicksort.cfg`**, `SpecifyingSystems/AdvancedExamples/MCInnerSerial.cfg` |
+| `unsupported: action composition (M0 core)` | 2 | 2 | **`FiniteMonotonic/MCCRDT.cfg`**, **`FiniteMonotonic/MCReplicatedLog.cfg`** |
+| `unsupported: "simulation ALIAS"` | 1 | 0 | `ewd840/EWD840_anim.cfg` |
+| `unsupported: "temporal properties (liveness checking): DT2"` | 1 | 0 | `ewd687a/EWD687a_anim.cfg` |
+| `unsupported: "the start-up evaluation of BF: IOUtils!IOEnv requires explicit --allow-io=env (D-017)"` | 1 | 0 | `ewd998/SmokeEWD998.cfg` |
+| `unsupported: SYMMETRY (M0 core engine)` | 1 | 0 | `KeyValueStore/MCKVsnap.cfg` |
+| `unsupported: TLCGet("config") (this run does not provide it)` | 1 | 1 | **`DieHard/MCDieHardest.cfg`** |
+| `unsupported: a constant substituted by a definition, inside an instance (M1 core)` | 1 | 1 | **`MisraReachability/MCParReach.cfg`** |
+| `unsupported: a recursive operator under a prime (M0 core)` | 1 | 1 | **`glowingRaccoon/product.cfg`** |
+| `unsupported: a std or built-in operator passed to a higher-order operator (M1 core)` | 1 | 1 | **`ewd998/EWD998Small.cfg`** |
+| `unsupported: enumerating SUBSET of a set of more than 24 elements` | 1 | 1 | **`SpanningTree/SpanTreeTest5Nodes.cfg`** |
+| `unsupported: splitting the next-state relation: Json!ndJsonDeserialize requires explicit --allow-io=files (D-017)` | 1 | 0 | `ewd998/EWD998ChanTrace.cfg` |
+| `unsupported: temporal properties: graph capture with VIEW requires quotient edge and closing-state evidence (core)` | 1 | 0 | `FiniteMonotonic/MCDistributedReplicatedLog.cfg` |
+| `unsupported: temporal properties: graph capture with random operators (core)` | 1 | 0 | `SpanningTree/SpanTreeRandom.cfg` |
+| `unsupported: the split action <Init line 5, col 1 to line 5, col 17 of module MCTwoPhase> inside nested INSTANCE substitutions (M1 core)` | 1 | 1 | **`TwoPhase/MCTwoPhase.cfg`** |
+| `unsupported: the standard operator DyadicRationals!Reduce (M0 core)` | 1 | 1 | **`Huang/Huang.cfg`** |
+| `unsupported: the standard operator TLCExt!Trace (M0 core)` | 1 | 1 | **`ewd840/EWD840_json.cfg`** |
+| `unsupported: the start-up evaluation of CSVFile: TLC!JavaTime (not implemented in dive's evaluator yet)` | 1 | 0 | `ewd998/SmokeEWD998_SC.cfg` |
+| `unsupported: the start-up evaluation of GraphName: IOUtils!IOEnv requires explicit --allow-io=env (D-017)` | 1 | 0 | `TLC/TestGraphs.cfg` |
+| `unsupported: x' \in a startup value TLC represents lazily, whose enumeration depends on its history (core)` | 1 | 1 | **`LoopInvariance/MCBinarySearch.cfg`** |
 
 ## Unmeasured models and declared stops
 
