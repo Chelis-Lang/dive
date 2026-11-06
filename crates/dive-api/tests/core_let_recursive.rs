@@ -316,6 +316,241 @@ fn enclosing_callbacks_keep_capture_effect_and_recursive_boundaries()
     Ok(())
 }
 
+fn mutual_request(config: &str, compat_tlc: bool, workers: usize) -> CheckRequest {
+    let mut req = request(config, compat_tlc, workers);
+    req.file.set_file_name(if config.starts_with("Instance") {
+        "InstanceOps.tla"
+    } else {
+        "MutualTop.tla"
+    });
+    req
+}
+
+fn validate_mutual_word(
+    req: &CheckRequest,
+    core: &dive_api::CheckReport,
+    compat_tlc: bool,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let options = TraceOptions {
+        compat_tlc,
+        run: Some((0, 0)),
+        ..Default::default()
+    };
+    let model = SpecModel::load(&req.file, req.config.as_ref().ok_or("config")?, &options)?;
+    let payload = core.to_json()["counterexample"]["trace"].clone();
+    assert_eq!(
+        model.validate(&TraceDoc::from_json(&payload)?).validation,
+        Validation::Valid
+    );
+    let mut bad = payload.clone();
+    let config = req
+        .config
+        .as_ref()
+        .and_then(|p| p.file_stem())
+        .and_then(|s| s.to_str())
+        .ok_or("config")?;
+    let initial = config.ends_with("Opposite");
+    bad["states"][usize::from(!initial)]["values"]["x"] = json!(3);
+    assert!(
+        matches!(model.validate(&TraceDoc::from_json(&bad)?).validation,
+        Validation::Invalid(ref failure) if failure.check == if initial { Check::Init } else { Check::Next })
+    );
+    let (holding, property) = if config.starts_with("InstanceSelf") {
+        ("InstanceSelfHolding", "SelfGood")
+    } else if config.starts_with("InstanceMutual") {
+        ("InstanceMutualHolding", "MutualGood")
+    } else {
+        ("MutualHolding", "Good")
+    };
+    let holding = mutual_request(holding, compat_tlc, 1);
+    let model = SpecModel::load(
+        &holding.file,
+        holding.config.as_ref().ok_or("holding config")?,
+        &options,
+    )?;
+    let mut bad = payload;
+    bad["ending"]["name"] = json!(property);
+    assert!(
+        matches!(model.validate(&TraceDoc::from_json(&bad)?).validation,
+        Validation::Invalid(ref failure) if failure.check == Check::Ending
+            && failure.detail.contains("holds at the end"))
+    );
+    Ok(())
+}
+
+#[test]
+fn mutually_recursive_top_level_operators_keep_isolated_frames()
+-> Result<(), Box<dyn std::error::Error>> {
+    for compat_tlc in [false, true] {
+        for (config, verdict, generated, distinct, depth, code, exit) in [
+            ("MutualHolding", "success", 4, 3, 3, 2193, 0),
+            ("MutualWrong", "invariant-violation", 2, 2, 2, 2110, 12),
+        ] {
+            let expected = observed(&check_file_engine(
+                &mutual_request(config, compat_tlc, 1),
+                Engine::Reference,
+            )?);
+            // Pinned TLC 94d0c50 confirms both complete verdicts and counts.
+            assert_eq!(expected["verdict"], verdict);
+            assert_eq!(expected["statistics"]["generated"], generated);
+            assert_eq!(expected["statistics"]["distinct"], distinct);
+            assert_eq!(expected["statistics"]["depth"], depth);
+            assert_eq!(expected["code"], code);
+            assert_eq!(expected["exit"], exit);
+            let wrong = config == "MutualWrong";
+            assert_eq!(
+                expected["property"],
+                if wrong { json!("Wrong") } else { Value::Null }
+            );
+            for workers in [1, 4] {
+                let req = mutual_request(config, compat_tlc, workers);
+                for switches in ["", "-fold,-memo,-step-memo,-hashcons,-eager"] {
+                    let core = check_file_core_opts(&req, switches)?;
+                    assert_eq!(core.to_json()["engine"], "core");
+                    assert_eq!(
+                        observed(&core),
+                        expected,
+                        "{config}/{compat_tlc}/{workers}/{switches}"
+                    );
+                    if wrong {
+                        validate_mutual_word(&req, &core, compat_tlc)?;
+                    } else {
+                        assert!(core.to_json()["counterexample"].is_null());
+                    }
+                }
+            }
+        }
+        for (config, message) in [
+            (
+                "MutualNested",
+                "mutually recursive nested definitions (M1 core)",
+            ),
+            (
+                "MutualPrime",
+                "a recursive operator under a prime (M0 core)",
+            ),
+        ] {
+            for switches in ["", "-fold,-memo,-step-memo,-hashcons,-eager"] {
+                let core = check_file_core_opts(&mutual_request(config, compat_tlc, 1), switches)?;
+                let doc = core.to_json();
+                assert_eq!(core.verdict(), "unsupported", "{config}: {doc}");
+                assert_eq!(doc["message"], message);
+                assert!(doc["counterexample"].is_null());
+                assert!(doc["tlc"].is_null());
+            }
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn nonterminating_mutual_calls_stop_with_a_named_bound() -> Result<(), Box<dyn std::error::Error>> {
+    for compat_tlc in [false, true] {
+        for config in ["MutualLoopBody", "MutualLoopArgument"] {
+            for switches in ["", "-fold,-memo,-step-memo,-hashcons,-eager"] {
+                let core = check_file_core_opts(&mutual_request(config, compat_tlc, 1), switches)?;
+                let doc = core.to_json();
+                assert_eq!(core.verdict(), "unsupported", "{config}: {doc}");
+                assert_eq!(
+                    doc["message"],
+                    "Core recursive-call depth limit (64 activations)"
+                );
+                assert_eq!(core.exit_code_for(ExitConvention::Tlc), 3);
+                assert!(doc["counterexample"].is_null());
+                assert!(doc["tlc"].is_null());
+            }
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn recursive_operator_instances_keep_their_substitutions() -> Result<(), Box<dyn std::error::Error>>
+{
+    for compat_tlc in [false, true] {
+        for (config, property, generated, distinct, depth, code) in [
+            ("InstanceSelfHolding", "", 4, 3, 3, 2193),
+            ("InstanceSelfOpposite", "SelfOpposite", 1, 1, 1, 2107),
+            ("InstanceSelfWrong", "SelfWrong", 2, 2, 2, 2110),
+            ("InstanceMutualHolding", "", 4, 3, 3, 2193),
+            ("InstanceMutualOpposite", "MutualOpposite", 1, 1, 1, 2107),
+            ("InstanceMutualWrong", "MutualWrong", 2, 2, 2, 2110),
+            ("InstanceOperatorConstant", "", 4, 3, 3, 2193),
+        ] {
+            let expected = observed(&check_file_engine(
+                &mutual_request(config, compat_tlc, 1),
+                Engine::Reference,
+            )?);
+            // Pinned TLC 94d0c50: each Good holds, each Opposite fails
+            // initially, and each Wrong first fails after one transition.
+            let holds = code == 2193;
+            assert_eq!(
+                expected["verdict"],
+                if holds {
+                    "success"
+                } else {
+                    "invariant-violation"
+                }
+            );
+            assert_eq!(expected["statistics"]["generated"], generated);
+            assert_eq!(expected["statistics"]["distinct"], distinct);
+            assert_eq!(expected["statistics"]["depth"], depth);
+            assert_eq!(expected["code"], code);
+            assert_eq!(expected["exit"], if holds { 0 } else { 12 });
+            assert_eq!(
+                expected["property"],
+                if holds { Value::Null } else { json!(property) }
+            );
+            for workers in [1, 4] {
+                let req = mutual_request(config, compat_tlc, workers);
+                for switches in ["", "-fold,-memo,-step-memo,-hashcons,-eager"] {
+                    let core = check_file_core_opts(&req, switches)?;
+                    assert_eq!(core.to_json()["engine"], "core");
+                    assert_eq!(
+                        observed(&core),
+                        expected,
+                        "{config}/{compat_tlc}/{workers}/{switches}"
+                    );
+                    if holds {
+                        assert!(core.to_json()["counterexample"].is_null());
+                    } else {
+                        validate_mutual_word(&req, &core, compat_tlc)?;
+                    }
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn recursive_operator_instances_keep_dynamic_capture_and_effect_refusals()
+-> Result<(), Box<dyn std::error::Error>> {
+    for compat_tlc in [false, true] {
+        for (config, message) in [
+            (
+                "InstanceOperatorDynamic",
+                "a recursive function with a dynamic INSTANCE capture outside its lexical activation (M1 core)",
+            ),
+            (
+                "InstanceOperatorEffect",
+                "an effectful or recursive INSTANCE substitution inside a recursive function (M1 core)",
+            ),
+        ] {
+            for switches in ["", "-fold,-memo,-step-memo,-hashcons,-eager"] {
+                let core = check_file_core_opts(&mutual_request(config, compat_tlc, 1), switches)?;
+                let doc = core.to_json();
+                assert_eq!(core.verdict(), "unsupported", "{config}: {doc}");
+                assert_eq!(doc["message"], message);
+                assert!(doc["counterexample"].is_null());
+                assert!(doc["tlc"].is_null());
+                assert_eq!(doc["output"], json!([]));
+            }
+        }
+    }
+    Ok(())
+}
+
 #[test]
 fn parameterized_instance_substitutions_never_reuse_caller_frame_slots()
 -> Result<(), Box<dyn std::error::Error>> {
