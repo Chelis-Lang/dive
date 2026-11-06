@@ -442,7 +442,10 @@ opposite-invariant controls prevent false violations and false success.
 The existing default compound-membership index is derived lookup data for
 canonical explicit sets. It starts on the second eligible lookup for sets with
 at least 16 members, uses closed value hashes and verifies candidates with the
-canonical comparator. Misses retain class/error checks. Scalar queries, finite
+canonical comparator. Warm lookups check the query and reuse the immutable
+elements admitted when the index was built, avoiding another full set traversal.
+The root must be non-lazy; index fallback retains the complete materialized-tree
+check, including its depth bound. Misses retain class/error checks. Scalar queries, finite
 fuel, lazy or unproved values and TLC comparisons retain ordinary search. The
 `member-index` ablation changes the lookup strategy without changing results.
 
