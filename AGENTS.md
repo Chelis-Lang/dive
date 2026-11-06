@@ -95,6 +95,19 @@ project.
 - A PR body is at most 15 lines. It states which corpus IDs change and which
   focused checks ran.
 
+**Close regressions on evidence.**
+- A regression issue closes only after its stated acceptance check has run on
+  `main`. A red nightly is `failing-on-main` until a re-run is green.
+- A PR that changes Core evaluation runs the Core small-tier ratchet
+  (`--impl dive:core --baseline conformance/baselines/small-core-dive-w1.json`)
+  on the models it touches. Golden agreement is the evidence; agreement with
+  the Reference engine is not.
+- Refresh a baseline through the harness in the PR that improves it.
+- Governance and release-gate wording changes go in their own docs PR, never
+  inside a feature or CI PR.
+- Profile before optimizing: name the dominant cost from a profile in the PR
+  body before writing a cache or fast path.
+
 **Keep the loop fast.**
 - `cargo xtask gate --full`, the census and corpus/worker campaigns run only for
   a release candidate or an engine-cutover candidate. Otherwise there are no
