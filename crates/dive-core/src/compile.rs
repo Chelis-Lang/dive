@@ -2808,6 +2808,11 @@ impl Compiler<'_> {
                     slot: dive_ir::Slot(slot as u32),
                 };
                 let v = self.local(r, parent, Mode::Plain)?;
+                if self.info[v as usize].calls {
+                    return Err(Error::unsupported(
+                        "a recursive definition capturing a value with unproved recursive calls (M1 core)",
+                    ));
+                }
                 let v = if self.is_trivial(v) {
                     v
                 } else {
@@ -3410,10 +3415,10 @@ impl Compiler<'_> {
                 "an expression where an operator argument is expected (M1 core)",
             ));
         };
-        let (op, aenv) = match op {
+        let (op, aenv, enclosing) = match op {
             OpRef::Param(r) => self.resolve_param(*r, env)?,
-            OpRef::Subst(decl) => (self.subst_op(*decl)?, env),
-            op => (op.clone(), env),
+            OpRef::Subst(decl) => (self.subst_op(*decl)?, env, false),
+            op => (op.clone(), env, false),
         };
         let d = match op {
             OpRef::Def(d) => d,
@@ -3461,23 +3466,33 @@ impl Compiler<'_> {
             slots.push(slot);
         }
         let b = self.p(body, inner, Mode::Plain)?;
+        self.enclosing_op_body(b, enclosing)?;
         Ok((slots.into(), b))
     }
 
     /// The operator argument an operator parameter is bound to, following
-    /// parameters passed on, and the environment it was passed in.
-    fn resolve_param(&self, r: LocalRef, look_env: usize) -> Result<(OpRef, usize), Error> {
+    /// parameters passed on and recursive LET-function views. The original
+    /// argument environment is retained; the boolean records a function view.
+    fn resolve_param(&self, r: LocalRef, look_env: usize) -> Result<(OpRef, usize, bool), Error> {
         let mut r = r;
         let mut look = look_env;
+        let mut enclosing = false;
         loop {
             let fe = self.frame_env(look, r.up)?;
-            if self.lifts.last().is_some_and(|l| fe < l.floor) {
+            if !enclosing && self.lifts.last().is_some_and(|l| fe < l.floor) {
                 return Err(Error::unsupported(
                     "an enclosing operator parameter inside a recursive LET definition (M1 core)",
                 ));
             }
-            let Some(Sb::OpArg { op, env }) = self.envs[fe].slots.get(r.slot.index()).cloned()
-            else {
+            let mut binding = self.envs[fe].slots.get(r.slot.index());
+            while let Some(Sb::Enclosing { env, slot }) = binding {
+                // This is compile-time operator metadata, not a captured
+                // runtime value. The inlined body still resolves every value
+                // through `local`/`capture` in its original environment.
+                enclosing = true;
+                binding = self.envs[*env].slots.get(*slot);
+            }
+            let Some(Sb::OpArg { op, env }) = binding.cloned() else {
                 return Err(Error::unsupported(
                     "an operator parameter of a recursive operator (M1 core)",
                 ));
@@ -3487,9 +3502,20 @@ impl Compiler<'_> {
                     r = r2;
                     look = env;
                 }
-                op => return Ok((op, env)),
+                op => return Ok((op, env, enclosing)),
             }
         }
+    }
+
+    /// A newly admitted enclosing callback cannot hide effects or unknown
+    /// calls behind a recursive function's call node.
+    fn enclosing_op_body(&self, body: P, enclosing: bool) -> Result<(), Error> {
+        if enclosing && (self.info[body as usize].effect || self.info[body as usize].calls) {
+            return Err(Error::unsupported(
+                "an enclosing operator argument with effects or recursive calls inside a recursive function (M1 core)",
+            ));
+        }
+        Ok(())
     }
 
     /// Applies an operator parameter: the operator argument bound to it.
@@ -3504,8 +3530,8 @@ impl Compiler<'_> {
         look_env: usize,
         mode: Mode,
     ) -> Result<P, Error> {
-        let (op, aenv) = self.resolve_param(r, look_env)?;
-        match op {
+        let (op, aenv, enclosing) = self.resolve_param(r, look_env)?;
+        let body = match op {
             OpRef::Param(_) => Err(Error::internal("an unresolved operator parameter")),
             OpRef::Def(d) => {
                 let d = self.redirect(d);
@@ -3526,7 +3552,9 @@ impl Compiler<'_> {
             op @ (OpRef::Std(_) | OpRef::Builtin(_) | OpRef::Const(_) | OpRef::Unbound(_)) => {
                 self.apply(&op, args, env, mode)
             }
-        }
+        }?;
+        self.enclosing_op_body(body, enclosing)?;
+        Ok(body)
     }
 
     /// Binds an inlined operator's parameters: returns its environment and
@@ -4300,7 +4328,12 @@ impl Compiler<'_> {
                 callee: OpRef::Param(r),
                 args,
             } => {
-                let (op, aenv) = self.resolve_param(*r, env)?;
+                let (op, aenv, enclosing) = self.resolve_param(*r, env)?;
+                if enclosing {
+                    return Err(Error::unsupported(
+                        "an enclosing operator parameter used as an action inside a recursive function (M1 core)",
+                    ));
+                }
                 self.g_apply_op(&op, args, e, env, aenv)
             }
             Expr::Local(r) => {

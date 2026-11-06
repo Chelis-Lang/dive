@@ -52,6 +52,11 @@
   Recompile INSTANCE substitutions inside every recursive callee frame,
   including top-level functions, to preserve true and false property verdicts.
 
+- Resolve enclosing operator bindings inside applied LET-recursive functions
+  on Core, including pure lambdas and forwarded parameters. Preserve the
+  callback's lexical context and refuse unreachable captures, effects and
+  unproved recursive calls.
+
 - Restore Core `Seq` membership over original Cartesian-product ranges and
   demanded enumeration of owned raw literal queries in nested `SUBSET` checks.
   Disabling symbolic membership preserves the same `SUBSET` receiver dispatch.

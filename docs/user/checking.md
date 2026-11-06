@@ -333,8 +333,15 @@ the actual enclosing values across recursive and repeated calls, including
 unevaluated. Primed applications with pure domains and bodies read the successor
 state, including state-dependent domains and arguments. Escaping recursive
 function values, primed enclosing-local captures, mixed plain/primed self calls,
-effectful primed functions, enclosing operator parameters and mutually nested
-recursion remain named refusals in both profiles.
+effectful primed functions and mutually nested recursion remain named refusals
+in both profiles.
+An enclosing operator parameter used by a LET-recursive function can be bound
+to a pure non-recursive operator, including a `LAMBDA` or forwarded parameter.
+Its body keeps the original lexical context; reachable local captures use the
+same capture handling as other recursive functions. A callback that captures a
+local outside that activation, reaches an effect or an unproved recursive call,
+or is applied as an action inside the recursive function returns `unsupported`.
+General recursive operators with enclosing operator parameters remain refused.
 Top-level recursive functions also compile substituted expressions in their own
 runtime frame; caller thunk slots cannot supply a recursive argument's value.
 Substitutions that require effectful or recursive evaluation, or a caller local
