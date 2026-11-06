@@ -19,33 +19,60 @@ GitHub milestones:
 
 ## Where we are
 
-- **Front end, configuration and values work.** The front end agrees with SANY
-  on 458 of 458 cases.
-- **The Reference engine is still the default.** It agrees with TLC on 150 of
-  the 156 small-tier models and on 182 of the 217 full-tier models in the TLC
-  profile, with no disagreements. It runs at about a third of TLC's speed.
-- **Core alone on the small tier** records 122 agreements, four registered
-  divergences and 30 named refusals, with no disagreements or budget stops
-  (2026-11-05). Its historical ten-model speed panel is about 2.6x TLC;
-  full-tier coverage and timing remain unmeasured.
-- **There is no release.**
+- **Core has its first full Examples measurement.** At one worker, the default
+  profile records 126 agreements, two registered expected divergences, 42 named
+  refusals, six declared budget stops and nine missing goldens, with zero
+  disagreements among 185 in-scope models (233 selected, 48 excluded). The TLC
+  profile records 128 agreements and the same remaining outcome counts. These
+  2026-11-05 measurements predate the pending canonical-set changes.
+- **The Reference engine is still the default.** Its same-source full runs are
+  still running. The historical TLC-profile measurement has 151 Examples
+  agreements; the often-quoted 182 agreements span four corpora and are not
+  an Examples-only comparison.
+- **Core's small-tier floor is enforced in CI.** Default: 122 agreements, four
+  registered divergences and 30 named refusals. TLC profile: 126 agreements and
+  30 named refusals, projected from the completed full and auxiliary runs. Both
+  have zero disagreements, budget stops or missing goldens; the TLC projection
+  reports no internal errors.
+- **Bare use, nominal compat and the public surface are delivered (R3–R5).**
+  Libraries are bundled, the ten-spec bare-use smoke meets its checked/refused
+  contract, and help/version and schema-3 JSON are pinned. Bare-use checks are
+  Reference-backed and do not increase Core coverage.
+- **Release speed is not established (R2).** Cross-host elapsed-time triage
+  identifies three agreeing models over twice their golden TLC time; matched
+  measurements are needed. Completed-model timing does not resolve the six
+  full-tier stops.
+- **There is no release.** Packaging preparation is pending in #805; R1, R2 and
+  R6 remain open. [scoreboard.md](scoreboard.md) lists exact refusal reasons,
+  model IDs, unmeasured cases and timing qualifications.
 
 ## Path to v0.1
 
-The order follows [RELEASE.md](RELEASE.md#critical-path):
+Remaining work follows the [release gates](RELEASE.md), using measured reason
+buckets rather than model-by-model history fixes:
 
-1. Measure Core alone on the full tier and publish its refusal-reason histogram.
-   Ratchet the Core-native count in CI.
-2. Make sets canonical in the default profile, and delete the TLC
-   normalization-history machinery.
-3. Burn down Core refusals by reason bucket, largest first.
-4. Core liveness at corpus scale (MCInnerSerial first, then capture capacity).
-5. Bundle TLAPS and the CommunityModules; add a bare-use smoke test.
-6. Make `--compat=tlc` nominal on Core, with a documented gap list.
-7. Remove the Auto fallback and the Reference checking runtime from the product
-   path.
-8. Freeze the CLI and JSON surface, package, run one release-candidate
-   qualification, and tag `v0.1.0`.
+1. Finish the same-source Reference comparison and publish the R1 coverage gap.
+   Keep the nine missing-golden models explicitly unmeasured; no native
+   agreement or refusal can substitute for the absent reference.
+2. Land the pending canonical-set implementation and remove the obsolete
+   construction-history paths. The measured mixed-shape bucket contains two
+   Examples models; improvements remain uncredited until verified.
+3. Burn down refusals largest first: recursive functions used other than applied
+   (12), quiet nested raw equality (4), and operator applications building lazy
+   successor domains (4), then the remaining reasons. The generated-count choice
+   for recursive Boolean action predicates is pending in #813; the current
+   implementation retains its narrow refusal.
+4. Resolve Core performance and capacity stops, including MCInnerSerial after
+   canonical admission. Confirm the three timing outliers on matched inputs;
+   retain verdict, trace and observable-count obligations.
+5. Once R1 holds, remove the Auto fallback and the Reference checking runtime
+   from the product path, retaining shared startup and independent validation.
+6. Land packaging preparation (#805), complete R2, then run one integrated
+   release-candidate qualification and tag `v0.1.0` when all gates hold.
+
+Delivered release work: the Core-only small-tier ratchet (#806), bundled TLAPS
+and CommunityModules with bare-use smoke (#803), nominal compatibility and its
+known gaps (#810), CLI help/version (#802), and schema-3 report goldens (#804).
 
 ## After v0.1
 

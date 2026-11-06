@@ -84,6 +84,8 @@ divergence.
   canonical or better behaviour in the default profile, and whatever is cheap in
   compat.
 
+- **Recursive Boolean action predicates and generated counts (#813), pending owner answer.** May default Core count emitted successors rather than TLC's duplicate predicate witnesses? The minimal recursive-predicate fixture succeeds with TLC 3 generated versus Core 2, both 1 distinct at depth 1; the unmerged recursive-function work also gives VoteProof 318,877 versus 27,727 generated, both 6,962 distinct at depth 14. **Recommendation:** approve a precise registered default difference for predicate-witness multiplicity, document the nominal compat gap, and preserve verdict, distinct count, depth, property/error/exit and independently validated counterexample obligations. This is not a blanket generated-count waiver or an approved new default; the owner question is pending and #811 retains its narrow named refusal.
+
 ## Native recovery counter default (issue152)
 
 Pinned TLC recovery resets generated and initial counts to recovered distinct
