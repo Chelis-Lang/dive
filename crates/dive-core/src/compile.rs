@@ -59,9 +59,12 @@ const MAX_NODES: usize = 4_000_000;
 
 /// The most loop iterations one constant fold may spend (R9). A larger
 /// closed expression, such as `CoffeeCan`'s initial filter over 1,002,001
-/// records, is left to run time, where the generator streams it instead of
-/// building it in the compile arena.
-pub const FOLD_FUEL: u64 = 1 << 12;
+/// records (over 10,201 already at 100 beans), is left to run time, where
+/// the generator streams it instead of building it in the compile arena.
+/// Type sets of a few hundred records, such as `MCNano`'s
+/// `SignedBlock \cup {NoBlock}` (593 records, about 5,000 iterations), fit
+/// and are folded once instead of being rebuilt in every state (#821).
+pub const FOLD_FUEL: u64 = 1 << 16;
 
 /// The most loop iterations all constant folds of one compile may spend
 /// together: the compile-time budget (R9). Once it is spent, nothing more

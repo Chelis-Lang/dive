@@ -93,13 +93,18 @@ section 4 decide.
 1. **Constant folding.** Expressions that are constant-level under TLC's level
    bound, and whose startup value is known, become pool constants. This covers
    overridden definitions (`Op <- D`, `Op = v`) and module-scoped overrides.
-   - **Bound (R9).** A fold may visit at most `FOLD_FUEL` (4,096) loop
+   - **Bound (R9).** A fold may visit at most `FOLD_FUEL` (65,536) loop
      elements, and all folds of one compile together at most `FOLD_BUDGET`
      (2^22): the compile-time budget. A fold that runs out of fuel is
      abandoned, and its node and every node containing it stay unfolded, so
      the work happens at run time, where the generator streams it. The plan
      statistics report `fold_abandoned`, `fold_skipped`, `fold_fuel` and
-     `fold_ms` (`core.metrics.plan` in the JSON report).
+     `fold_ms` (`core.metrics.plan` in the JSON report). The per-fold bound
+     admits type sets of a few hundred records: MCNanoMedium's
+     `SignedBlock \cup {NoBlock}` takes about 5,000 iterations and, unfolded,
+     was rebuilt in every state (72% of the run in `set_bin`). CoffeeCan's
+     initial filter (10,201 records at 100 beans) still exceeds it and
+     streams.
 2. **INSTANCE substitution.** `Subst` bodies and `SubstRef` uses
    (`crates/dive-ir/src/expr.rs:342`, `:495`) are inlined by name: each
    reference is replaced by the bound argument expression in the substituting
