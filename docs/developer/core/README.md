@@ -17,8 +17,8 @@ independent trace validation remain supported.
 4. Use focused checks, then required CI. Full qualification runs only for a
    release candidate or an engine-cutover candidate.
 
-The default-profile canonical-set change is planned in #786. Do not extend
-TLC normalization history, receiver identity or construction authority.
+The default profile uses canonical sets (D-028). Do not extend TLC
+normalization history, receiver identity or construction authority.
 Compat is nominal; inexpensive existing switches and a documented gap list
 are its scope. Frozen modes, storage, distribution, debugging and LSP work are
 listed in ADR 0153.
@@ -41,7 +41,7 @@ keep historical measurements in git and their existing reports.
 | [Correctness](08-correctness.md) | Golden comparison, mutations and independent validation |
 | [Performance method](09-performance-method.md) | Benchmarking, profiling and ablations |
 | [Plan](10-plan.md) | Current release stages |
-| [Status](m1-status.md) | Current gaps and measurement entrypoint |
+| [Status](m1-status.md) | Links to current measurements and release work |
 | [Liveness](11-liveness.md) | Capture, temporal analysis and budgets |
 | [Motivation](01-motivation.md) | Original performance diagnosis |
 | [Spike results](m0-results.md) | Historical Core prototype measurements |
