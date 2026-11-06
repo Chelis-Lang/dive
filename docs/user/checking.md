@@ -66,8 +66,9 @@ returns the typed `CheckReport::tlc_coverage()` snapshot. Its `unsupported` fiel
 names a coverage refusal. Native `source_coverage` and logical `tlc_coverage`
 requests are mutually exclusive. Low-level callers use `SourceCoverage::tlc`
 and the existing observed binding entrypoints, which prepare the action forest
-before generation. Full TLC coverage, variable-value summaries, compiled source
-maps and debugging remain mandatory unfinished work (ADR 0150).
+before generation. Further TLC coverage, variable-value summary, compiled
+source-map and debugging breadth are post-v0.1 work, frozen under
+[ADR 0153](../decisions/0153-core-is-the-product.md).
 
 ## Native distributed workers
 
