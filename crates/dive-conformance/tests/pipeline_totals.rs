@@ -149,6 +149,7 @@ fn options(repo: &Path, filters: Vec<String>) -> RunOptions {
         sany: true,
         report_dir: repo.join("reports"),
         summary_path: Some(repo.join("conformance.md")),
+        tlc_timings: None,
     }
 }
 

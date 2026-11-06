@@ -125,6 +125,12 @@ LIMITS (golden generate, run; timeout options also apply to study final):
                            and pass it to dive as --time-limit, with --xmx as
                            --max-memory (ADR 0107); selected by model gates/nightly
     --budget-cap <secs>    hard cap on those budgets (default: 900)
+    --tlc-timings <report> run only: a same-host `run --impl tlc` report at 1 worker. Each
+                           model it timed gets max(10 s, 2 x TLC elapsed) as its budget
+                           (implies --tlc-budgets; hard cap --budget-cap); the others keep
+                           the --tlc-budgets policy. Prints the R2 summary (dive/TLC per
+                           model, geomean, >1x and >2x lists, untimed models) and writes
+                           it to <report-dir>/<run-id>-r2.json
     --java <path>          use this java instead of the pinned JRE (recorded in provenance)
     --raw-invocations <dir> retain original TLC model streams (golden generate only;
                            default off; excludes Java setup and capability probes)
@@ -188,6 +194,7 @@ struct Opts {
     timeout_cap: Option<u64>,
     budget_cap: Option<u64>,
     tlc_budgets: bool,
+    tlc_timings: Option<PathBuf>,
     java: Option<PathBuf>,
     raw_invocations: Option<PathBuf>,
     raw_setup_status: bool,
@@ -260,6 +267,7 @@ fn parse_opts(args: &mut Args) -> Result<Opts> {
             "--timeout-cap" => o.timeout_cap = Some(parse_num(&a, &args.value(&a)?)?),
             "--budget-cap" => o.budget_cap = Some(parse_num(&a, &args.value(&a)?)?),
             "--tlc-budgets" => o.tlc_budgets = true,
+            "--tlc-timings" => o.tlc_timings = Some(args.value(&a)?.into()),
             "--java" => o.java = Some(args.value(&a)?.into()),
             "--raw-invocations" => o.raw_invocations = Some(args.value(&a)?.into()),
             "--raw-setup-status" => o.raw_setup_status = true,
@@ -308,8 +316,7 @@ fn limits(o: &Opts) -> Limits {
         xmx: o.xmx.clone().unwrap_or_else(|| "3g".to_owned()),
         timeout: o.timeout.map(Duration::from_secs),
         timeout_cap: Duration::from_secs(o.timeout_cap.unwrap_or(3600)),
-        budget_cap: o
-            .tlc_budgets
+        budget_cap: (o.tlc_budgets || o.tlc_timings.is_some())
             .then(|| Duration::from_secs(o.budget_cap.unwrap_or(900))),
     }
 }
@@ -691,6 +698,7 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
     }
     // Load the baseline first: a bad path should not cost a whole run.
     let baseline = o.baseline.as_deref().map(Baseline::load).transpose()?;
+    let tlc_timings = tlc_timings(o, dive_engine.is_some())?;
     let opts = RunOptions {
         corpora: if o.corpus.is_empty() {
             vec!["examples".to_owned()]
@@ -718,6 +726,7 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
                     .unwrap_or_else(|| root.join("docs").join("conformance.md")),
             )
         },
+        tlc_timings,
     };
     let report = if imp_spec == "tlc" || imp_spec.starts_with("tlc:") {
         let id = imp_spec
@@ -759,11 +768,24 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
     } else {
         return Err(Error::Usage(format!("unknown --impl `{imp_spec}`")));
     };
-    let findings = print_and_gate(&report);
+    finish_run(&opts, &report, baseline)
+}
+
+/// Prints the run's summary, the R2 summary under `--tlc-timings` and the
+/// baseline comparison; returns whether there were findings.
+fn finish_run(
+    opts: &RunOptions,
+    report: &dive_conformance::report::Report,
+    baseline: Option<Baseline>,
+) -> Result<bool> {
+    let findings = print_and_gate(report);
+    if let Some(timings) = &opts.tlc_timings {
+        report_r2(opts, timings, report)?;
+    }
     let Some(base) = baseline else {
         return Ok(findings);
     };
-    let diff = dive_conformance::baseline::compare_report(&base, &report)?;
+    let diff = dive_conformance::baseline::compare_report(&base, report)?;
     let rendered = diff.render(&base.source_run_id);
     if diff.regressions.is_empty() {
         out(&rendered);
@@ -771,6 +793,45 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
         eprintln_safe(rendered.trim_end());
     }
     Ok(findings || !diff.regressions.is_empty())
+}
+
+/// `--tlc-timings`: the same-host TLC timing report, checked before the run.
+fn tlc_timings(o: &Opts, dive: bool) -> Result<Option<dive_conformance::r2::TlcTimings>> {
+    let Some(path) = o.tlc_timings.as_deref() else {
+        return Ok(None);
+    };
+    if !dive {
+        return Err(Error::Usage(
+            "--tlc-timings applies to --impl dive only".to_owned(),
+        ));
+    }
+    if o.timeout.is_some() {
+        return Err(Error::Usage(
+            "--tlc-timings and --timeout conflict".to_owned(),
+        ));
+    }
+    dive_conformance::r2::TlcTimings::load(path).map(Some)
+}
+
+/// Prints the R2 summary and writes it next to the report.
+fn report_r2(
+    opts: &RunOptions,
+    timings: &dive_conformance::r2::TlcTimings,
+    report: &dive_conformance::report::Report,
+) -> Result<()> {
+    let r2 = dive_conformance::r2::summarise(
+        report,
+        timings,
+        &dive_conformance::report::Host::current(),
+    );
+    out(&r2.render());
+    let path = opts.report_dir.join(format!("{}-r2.json", report.run_id));
+    dive_conformance::util::write_atomic(
+        &path,
+        dive_conformance::golden::to_pretty(&r2)?.as_bytes(),
+    )?;
+    out(&format!("R2 summary: {}\n", path.display()));
+    Ok(())
 }
 
 /// Prints the run's summary and returns whether its findings gate (exit 1).
