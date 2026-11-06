@@ -535,6 +535,81 @@ fn closed_function_reads_keep_nested_reports_and_do_not_reuse_admission() {
 }
 
 #[test]
+fn concrete_set_read_cache_preserves_holds_violations_and_independent_words() {
+    use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
+    for tlc in [false, true] {
+        for (config, verdict) in [
+            ("ConcreteSetsHolds", "success"),
+            ("ConcreteSetsViolation", "liveness-violation"),
+        ] {
+            let file = fixture("ConcreteSets");
+            let request = CheckRequest {
+                config: Some(file.with_file_name(format!("{config}.cfg"))),
+                file,
+                workers: Some(1),
+                seed: Some(0),
+                fp: Some(0),
+                compat_tlc: tlc,
+                ..CheckRequest::default()
+            };
+            let reference = check_file_engine(&request, Engine::Reference)
+                .expect("reference")
+                .to_json();
+            let core = check_file_engine(&request, Engine::Core)
+                .expect("core")
+                .to_json();
+            assert_eq!(core["verdict"], verdict);
+            assert_eq!(core["engine"], "core");
+            assert_eq!(core["statistics"]["distinct"], 1101);
+            let cache = &core["core"]["metrics"]["liveness"]["values"];
+            assert!(cache["cache_hits"].as_u64() > Some(0), "{cache}");
+            assert_eq!(
+                cache["cache_uncovered_misses"], 0,
+                "closed materialized sets are eligible"
+            );
+            assert!(cache["cache_bytes"].as_u64() <= cache["cache_limit_bytes"].as_u64());
+            assert!(
+                cache["converted_values"].as_u64()
+                    >= cache["admitted_rows"].as_u64().map(|n| n * 2)
+            );
+            if verdict == "liveness-violation" {
+                assert_eq!(core["counterexample"]["validation"], "valid");
+                let validator = SpecModel::load(
+                    &request.file,
+                    request.config.as_ref().expect("cfg"),
+                    &TraceOptions {
+                        compat_tlc: tlc,
+                        run: Some((0, 0)),
+                        ..TraceOptions::default()
+                    },
+                )
+                .expect("independent validator");
+                let doc = &core["counterexample"]["trace"];
+                assert_eq!(
+                    validator
+                        .validate(&TraceDoc::from_json(doc).expect("word"))
+                        .validation,
+                    Validation::Valid
+                );
+                let mut forged = doc.clone();
+                forged["states"][0]["values"]["counter"] = serde_json::json!(1);
+                assert!(matches!(
+                    validator
+                        .validate(&TraceDoc::from_json(&forged).expect("changed initial"))
+                        .validation,
+                    Validation::Invalid(_)
+                ));
+            }
+            assert_eq!(
+                comparable(core),
+                native_expected(reference),
+                "{config}/{tlc}"
+            );
+        }
+    }
+}
+
+#[test]
 fn fixed_native_names_admit_pure_tuple_calls_but_refuse_new_name_demands() {
     for tlc in [false, true] {
         let reference = run("FixedNames/TupleSubSeq", Engine::Reference, 1, tlc, false);

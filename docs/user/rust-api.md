@@ -153,13 +153,14 @@ CSR, then `level_native` at due committed levels. `finish_native` consumes
 callback receives a checked opaque row id and this run's `EvaluationControl`;
 it returns all model variables in IR order or an explicit failure. Missing
 values and typed stops cannot become FALSE truth or absence of acceptance.
-The core converter reuses successful exact-handle closed function trees in a
-bounded run-local cache: Bool/Int/run-owned-string leaves and recursive tuple,
-record or general functions with scalar keys. All sets, BigInt/model values,
-foreign names and unproved shapes still reconvert.
+The core converter reuses successful exact-handle closed materialized trees in a
+bounded run-local cache: Bool/Int/run-owned-string leaves and recursive tuples,
+records, general functions with scalar keys and fully stored enumerated sets.
+Raw/symbolic sets, BigInt/model values, foreign names and unproved shapes still
+reconvert.
 Its allowance is `min(128 MiB, memory_budget / 64)` (128 MiB when unlimited),
 covering actual table capacity, one-component row arrays and known private
-function/boxed payload and possible scalar-domain TLC-order storage. Shared
+function/set/boxed payload and possible scalar-domain TLC-order storage. Shared
 descendants are conservatively charged per occurrence; work/depth exhaustion
 bypasses reuse. One-variable model hits reuse the same shared row;
 multi-variable models assemble rows from cached components. In-range opaque row
