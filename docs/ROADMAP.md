@@ -24,11 +24,15 @@ GitHub milestones:
   refusals, six declared budget stops and nine missing goldens, with zero
   disagreements among 185 in-scope models (233 selected, 48 excluded). The TLC
   profile records 128 agreements and the same remaining outcome counts. These
-  2026-11-05 measurements predate the pending canonical-set changes.
-- **The Reference engine is still the default.** Its same-source full runs are
-  still running. The historical TLC-profile measurement has 151 Examples
-  agreements; the often-quoted 182 agreements span four corpora and are not
-  an Examples-only comparison.
+  2026-11-05 measurements predate canonical sets, now merged; subsequent
+  focused gains are not folded into this full-tier result.
+- **The Reference engine is still the default.** Its same-source measurement
+  completed on 2026-11-06: default 146 agreements plus four expected divergences,
+  13 refusals and 13 stops; TLC profile 150 agreements, 15 refusals and 11 stops.
+  Both retain nine missing goldens and zero disagreements. Core covers seven
+  models Reference cannot finish, but misses 29 Reference-covered models: a net
+  coverage gap of 22. The historical 151 Examples agreements and 182 agreements
+  across four corpora describe different measurements.
 - **Core's small-tier floor is enforced in CI.** Default: 122 agreements, four
   registered divergences and 30 named refusals. TLC profile: 126 agreements and
   30 named refusals, projected from the completed full and auxiliary runs. Both
@@ -51,28 +55,33 @@ GitHub milestones:
 Remaining work follows the [release gates](RELEASE.md), using measured reason
 buckets rather than model-by-model history fixes:
 
-1. Finish the same-source Reference comparison and publish the R1 coverage gap.
-   Keep the nine missing-golden models explicitly unmeasured; no native
-   agreement or refusal can substitute for the absent reference.
-2. Land the pending canonical-set implementation and remove the obsolete
-   construction-history paths. The measured mixed-shape bucket contains two
-   Examples models; improvements remain uncredited until verified.
-3. Burn down refusals largest first: recursive functions used other than applied
-   (12), quiet nested raw equality (4), and operator applications building lazy
-   successor domains (4), then the remaining reasons. The generated-count choice
-   for recursive Boolean action predicates is pending in #813; the current
-   implementation retains its narrow refusal.
-4. Resolve Core performance and capacity stops, including MCInnerSerial after
+1. Close the demonstrated Reference-covered gaps by reason bucket, with focused
+   checks on current Core. The completed comparison identifies 29 such baseline
+   refusals, led by recursive functions (10), quiet nested equality (4), lazy
+   operator successor domains (3) and action composition (2). Canonical sets
+   have since landed; retain verified focused results separately rather than
+   adding them to the old census. Address the remaining recursive-helper/operator
+   and substitution gaps, preserving the narrow #813 count guard while the owner
+   decision is pending.
+2. Resolve the nine absent oracle facts through targeted pinned-oracle work on
+   the original configurations. Keep them unmeasured until a legitimate golden
+   exists; snapshots do not turn unknowns into native results.
+3. Resolve Core performance and capacity stops, including MCInnerSerial after
    canonical admission. Confirm the three timing outliers on matched inputs;
-   retain verdict, trace and observable-count obligations.
-5. Once R1 holds, remove the Auto fallback and the Reference checking runtime
-   from the product path, retaining shared startup and independent validation.
-6. Land packaging preparation (#805), complete R2, then run one integrated
+   retain verdict, trace and observable-count obligations. The named #788
+   liveness examples already agree or give their permitted refusal/stop; the
+   measurement contains no capture-capacity refusal bucket.
+4. Refresh the integrated Core measurement at the weekly or cutover boundary.
+   Once R1 holds, remove the Auto fallback and Reference checking runtime from
+   the product path, retaining shared startup and independent validation. Repeat
+   the bare-use checks on Core before cutover.
+5. Land packaging preparation (#805), complete R2, then run one integrated
    release-candidate qualification and tag `v0.1.0` when all gates hold.
 
-Delivered release work: the Core-only small-tier ratchet (#806), bundled TLAPS
-and CommunityModules with bare-use smoke (#803), nominal compatibility and its
-known gaps (#810), CLI help/version (#802), and schema-3 report goldens (#804).
+Delivered release work: canonical sets (#807), lexically scoped applied
+LET-recursive functions (#811), the Core-only small-tier ratchet (#806), bundled
+TLAPS and CommunityModules with bare-use smoke (#803), nominal compatibility and
+its known gaps (#810), CLI help/version (#802), and schema-3 report goldens (#804).
 
 ## After v0.1
 
