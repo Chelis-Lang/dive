@@ -1,7 +1,7 @@
 //! Controlled Graph admission and on-demand values for the compact producer.
 //!
 //! Persistent roots stay with `NativeGraph`. A bounded exact-handle cache reuses
-//! successful closed function-tree conversions during reads; eager admission
+//! successful closed materialized-value conversions during reads; eager admission
 //! always converts, preserving its refusal and name encounter order.
 
 use std::sync::Arc;
@@ -303,7 +303,7 @@ impl<'a> NativeValues<'a> {
             if reuse {
                 let mut cache_proceed = || check(&self.capture, control).is_ok();
                 if let Some(bytes) =
-                    value.closed_function_cache_heap_bytes(&self.model.names, &mut cache_proceed)
+                    value.closed_cache_heap_bytes(&self.model.names, &mut cache_proceed)
                 {
                     self.cache.eligible += 1;
                     self.cache.insert(
@@ -345,7 +345,7 @@ impl<'a> NativeValues<'a> {
             "cache_direct_hits": self.cache.direct_hits,
             "cache_row_index_fallbacks": self.cache.row_index_fallbacks,
             "cache_evictions": self.cache.evictions, "cache_bypasses": self.cache.bypasses,
-            "cache_scope": "requested table capacity, single-component row arrays and closed-function payload including potential scalar-domain order storage; string/field-name payload already pinned by run Interner; opaque Arc/allocator overhead excluded; not total RSS",
+            "cache_scope": "requested table capacity, single-component row arrays and closed-function/set payload including potential scalar-domain order storage; string/field-name payload already pinned by run Interner; opaque Arc/allocator overhead excluded; not total RSS",
         })
     }
 }
@@ -673,7 +673,9 @@ mod tests {
             .expect("converter");
         values.cache.limit = 4096;
         values.cache.misses = CACHE_WARMUP;
-        let handle = Handle::int(1).expect("integer");
+        let one = Handle::int(1).expect("integer");
+        let handle = values.heap.set_sorted(&[one]);
+        let handle = values.heap.intern_exact(handle).expect("persistent set");
         let converted = dive_core::print::to_value_controlled(
             &mut values.heap,
             &model.names,
@@ -683,9 +685,12 @@ mod tests {
             &mut || true,
         )
         .expect("successful immutable conversion");
+        let bytes = converted
+            .closed_cache_heap_bytes(&model.names, &mut || true)
+            .expect("closed set payload");
         values
             .cache
-            .insert(handle, &converted, 0, Some(0), &mut || true);
+            .insert(handle, &converted, bytes, Some(0), &mut || true);
         assert_eq!(values.cache.entries, 1);
         let control = EvaluationControl::new(watchdog.budget(), Phase::Temporal).expect("control");
         assert!(
@@ -813,11 +818,82 @@ mod tests {
         let before = values.converted;
         values
             .read(8, &[normalized], &control)
-            .expect("uncached normalized set");
+            .expect("first normalized set read");
         values
             .read(8, &[normalized], &control)
-            .expect("still uncached normalized set");
-        assert_eq!(values.converted, before + 2);
-        assert_eq!(values.cache.entries, 3);
+            .expect("cached normalized set read");
+        assert_eq!(values.converted, before + 1);
+        assert_eq!(values.cache.entries, 4);
+    }
+
+    #[test]
+    fn concrete_set_hits_keep_nested_classes_exact_handles_and_payload_limits() {
+        let model = model();
+        let store = Arc::new(Store::default());
+        let mut heap = Heap::new(store.clone(), false, false);
+        let key = heap.string("field").expect("field");
+        let one = Handle::int(1).expect("integer");
+        let record = heap.record(&[key], &[one]);
+        let function = heap.fcn_sorted(&[key], &[one]);
+        let mut handles = Vec::new();
+        for child in [record, function] {
+            let set = heap.set_sorted(&[child]);
+            let tuple = heap.tuple_literal(&[set]);
+            handles.push(heap.intern_exact(tuple).expect("persistent nested set"));
+        }
+        let mut values = NativeValues::new(&model, store, &Budget::unlimited()).expect("converter");
+        values.cache.limit = 4096;
+        values.cache.misses = CACHE_WARMUP;
+        let control =
+            EvaluationControl::new(&Budget::unlimited(), Phase::Temporal).expect("control");
+        for (row, &handle) in handles.iter().enumerate() {
+            values.admit(&[handle]).expect("eager admission");
+            let miss = values.read(row, &[handle], &control).expect("conversion");
+            let converted = values.converted;
+            let hit = values.read(row, &[handle], &control).expect("cached set");
+            assert_eq!(miss, hit);
+            assert_eq!(values.converted, converted);
+            let root = hit[0].as_ref().expect("value").as_fcn().expect("tuple");
+            assert!(root.is_tuple_literal());
+            let set = root
+                .values()
+                .next()
+                .expect("tuple element")
+                .as_set()
+                .expect("set child");
+            let child = set.stored_elements().expect("materialized")[0]
+                .as_fcn()
+                .expect("function child");
+            assert_eq!(child.is_record_literal(), row == 0);
+            values.admit(&[handle]).expect("admission still converts");
+            assert_eq!(values.converted, converted + 1);
+        }
+        assert_eq!(
+            values.cache.entries, 2,
+            "equal mathematical sets retain their exact source representations"
+        );
+        assert!(values.cache.bytes <= values.cache.limit);
+        values.cache = ConversionCache {
+            limit: 1600,
+            misses: CACHE_WARMUP,
+            ..ConversionCache::default()
+        };
+        let mut many = Vec::new();
+        for n in 0..128 {
+            many.push(Handle::int(n).expect("integer"));
+        }
+        let large = heap.set_sorted(&many);
+        let large = heap.intern_exact(large).expect("persistent set");
+        values
+            .read(0, &[large], &control)
+            .expect("oversize converts");
+        let before = values.converted;
+        values
+            .read(0, &[large], &control)
+            .expect("oversize reconverts");
+        assert_eq!(values.converted, before + 1);
+        assert_eq!(values.cache.entries, 0);
+        assert!(values.cache.byte_rejections > 0);
+        assert!(values.cache.bytes <= values.cache.limit);
     }
 }

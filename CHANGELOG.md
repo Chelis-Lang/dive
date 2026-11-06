@@ -5,6 +5,10 @@
   mathematical identity checks, interruption handling and symbolic domains;
   candidate origin-index report fields remain zero and trace formats stay unchanged.
 
+- Reuse fully materialized finite-set conversions in Core temporal reads within
+  the existing bounded exact-handle cache. Preserve source value classes, eager
+  admission, independent witness validation and typed budget stops.
+
 - Evaluate applied LET-recursive functions on Core with lexical captures and
   substitution context preserved. Prisoners and SchedulingAllocator now agree
   with TLC using their original configurations; unsupported prime, escape, action-position,

@@ -110,7 +110,35 @@ impl crate::Value {
         names: &Interner,
         proceed: &mut dyn FnMut() -> bool,
     ) -> Option<usize> {
-        closed_cache_bytes(self, names, &mut 4096, 0, proceed)
+        closed_cache_bytes(self, names, &mut 4096, 0, false, proceed)
+    }
+
+    /// Requested payload for immutable closed function/set conversion reuse.
+    ///
+    /// Extends [`Self::closed_function_cache_heap_bytes`] to already materialized
+    /// enumerated sets, recursively retaining the same leaf/key restrictions,
+    /// name ownership, 4,096-value and 64-level bounds. No set is normalized or
+    /// enumerated: raw and symbolic representations decline even if they have
+    /// cached elements. Set headers and complete element arrays are charged,
+    /// including repeated shared children. Fixed set hash/fingerprint fields
+    /// cannot introduce further retained arrays. Declining bypasses reuse only;
+    /// the caller's conversion and control requirements are unchanged.
+    ///
+    /// ```
+    /// use dive_value::{Ctx, Interner, Value};
+    /// let names = Interner::new();
+    /// let set = Value::set(vec![Value::tuple(vec![Value::Int(1)])], Ctx::dive())?;
+    /// assert!(set.closed_cache_heap_bytes(&names, &mut || true).is_some());
+    /// assert_eq!(Value::nat(Ctx::dive()).closed_cache_heap_bytes(&names, &mut || true), None);
+    /// # Ok::<(), dive_value::ValueError>(())
+    /// ```
+    #[must_use]
+    pub fn closed_cache_heap_bytes(
+        &self,
+        names: &Interner,
+        proceed: &mut dyn FnMut() -> bool,
+    ) -> Option<usize> {
+        closed_cache_bytes(self, names, &mut 4096, 0, true, proceed)
     }
 }
 
@@ -125,11 +153,12 @@ fn closed_cache_bytes(
     names: &Interner,
     remaining: &mut usize,
     depth: usize,
+    sets: bool,
     proceed: &mut dyn FnMut() -> bool,
 ) -> Option<usize> {
     use crate::Value;
     use crate::function_domain::DomainInner;
-    use crate::value::{FcnInner, FcnRepr};
+    use crate::value::{FcnInner, FcnRepr, SetInner, SetRepr};
     *remaining = remaining.checked_sub(1)?;
     if !proceed() {
         return None;
@@ -137,6 +166,22 @@ fn closed_cache_bytes(
     match value {
         Value::Bool(_) | Value::Int(_) => Some(0),
         Value::Str(name) if run_owned(name, names) => Some(0),
+        Value::Set(set) if sets && depth < 64 && matches!(set.0.repr, SetRepr::Enum) => {
+            let elements = set.0.elems.get()?;
+            let mut bytes = std::mem::size_of::<SetInner>()
+                .checked_add(std::mem::size_of_val(elements.as_ref()))?;
+            for child in elements.as_ref() {
+                bytes = bytes.checked_add(closed_cache_bytes(
+                    child,
+                    names,
+                    remaining,
+                    depth + 1,
+                    sets,
+                    proceed,
+                )?)?;
+            }
+            Some(bytes)
+        }
         Value::Fcn(function) if depth < 64 => {
             let mut bytes = std::mem::size_of::<FcnInner>();
             match &function.0.repr {
@@ -148,6 +193,7 @@ fn closed_cache_bytes(
                             names,
                             remaining,
                             depth + 1,
+                            sets,
                             proceed,
                         )?)?;
                     }
@@ -163,6 +209,7 @@ fn closed_cache_bytes(
                             names,
                             remaining,
                             depth + 1,
+                            sets,
                             proceed,
                         )?)?;
                     }
@@ -191,6 +238,7 @@ fn closed_cache_bytes(
                             names,
                             remaining,
                             depth + 1,
+                            sets,
                             proceed,
                         )?)?;
                     }
@@ -200,6 +248,7 @@ fn closed_cache_bytes(
                             names,
                             remaining,
                             depth + 1,
+                            sets,
                             proceed,
                         )?)?;
                     }
@@ -585,5 +634,109 @@ mod flat_cache_tests {
                 .closed_function_cache_heap_bytes(&names, &mut || true)
                 .is_some()
         );
+    }
+
+    #[test]
+    fn concrete_set_charge_includes_headers_arrays_and_repeated_closed_children() {
+        use crate::value::{FcnInner, SetInner};
+        let names = Interner::new();
+        for ctx in [Ctx::dive(), Ctx::tlc()] {
+            let leaf = Value::set(vec![Value::Int(1)], ctx).expect("set");
+            let leaf_bytes = std::mem::size_of::<SetInner>() + std::mem::size_of::<Value>();
+            assert_eq!(
+                leaf.closed_cache_heap_bytes(&names, &mut || true),
+                Some(leaf_bytes)
+            );
+            assert_eq!(
+                leaf.closed_function_cache_heap_bytes(&names, &mut || true),
+                None
+            );
+            let tree = Value::tuple(vec![leaf.clone(), leaf]);
+            assert_eq!(
+                tree.closed_cache_heap_bytes(&names, &mut || true),
+                Some(
+                    std::mem::size_of::<FcnInner>()
+                        + 2 * std::mem::size_of::<Value>()
+                        + 2 * leaf_bytes
+                )
+            );
+            let record = Value::record(vec![(names.intern("items"), tree)], ctx).expect("record");
+            let outer = Value::set(vec![record], ctx).expect("outer set");
+            assert!(
+                outer
+                    .closed_cache_heap_bytes(&names, &mut || true)
+                    .is_some()
+            );
+            assert_eq!(outer.closed_cache_heap_bytes(&names, &mut || false), None);
+        }
+    }
+
+    #[test]
+    fn set_cache_inspection_keeps_symbolic_raw_foreign_and_depth_boundaries() {
+        use crate::value::{Set, SetRepr};
+        let names = Interner::new();
+        let foreign = Interner::new();
+        for ctx in [Ctx::dive(), Ctx::tlc()] {
+            let raw = Value::set_raw(vec![Value::Int(1)], ctx);
+            let interval = Value::interval(1.into(), 2.into(), ctx);
+            interval
+                .as_set()
+                .expect("interval")
+                .elements(ctx)
+                .expect("cached elements");
+            for value in [
+                raw,
+                interval,
+                Value::nat(ctx),
+                Value::subset(Value::empty_set(ctx), ctx),
+                Value::Set(Set::new(ctx.order, SetRepr::Enum)),
+                Value::tuple(vec![Value::string(&foreign, "foreign")]),
+                Value::tuple(vec![Value::model(&names, "model")]),
+            ] {
+                assert_eq!(value.closed_cache_heap_bytes(&names, &mut || true), None);
+            }
+            let mut deep = Value::Int(0);
+            for _ in 0..65 {
+                deep = Value::set(vec![deep], ctx).expect("nested set");
+            }
+            assert_eq!(deep.closed_cache_heap_bytes(&names, &mut || true), None);
+            let wide = Value::set((0..4096).map(Value::Int).collect(), ctx).expect("wide set");
+            assert_eq!(wide.closed_cache_heap_bytes(&names, &mut || true), None);
+        }
+    }
+
+    #[test]
+    fn concrete_cache_inspection_never_calls_even_an_already_materialized_provider() {
+        use std::sync::atomic::{AtomicUsize, Ordering};
+        #[derive(Debug)]
+        struct Probe(Arc<AtomicUsize>);
+        impl crate::DeferredSet for Probe {
+            fn kind(&self) -> crate::DeferredKind {
+                self.0.fetch_add(1, Ordering::Relaxed);
+                crate::DeferredKind::Filter
+            }
+            fn elements(&self, _ctx: Ctx) -> crate::Result<Vec<Value>> {
+                self.0.fetch_add(1, Ordering::Relaxed);
+                Ok(vec![Value::Int(1)])
+            }
+            fn member(&self, _value: &Value, _ctx: Ctx) -> Option<crate::Result<bool>> {
+                self.0.fetch_add(1, Ordering::Relaxed);
+                Some(Ok(true))
+            }
+        }
+        let names = Interner::new();
+        for ctx in [Ctx::dive(), Ctx::tlc()] {
+            let calls = Arc::new(AtomicUsize::new(0));
+            let value = Value::deferred(Arc::new(Probe(calls.clone())), ctx);
+            assert_eq!(value.closed_cache_heap_bytes(&names, &mut || true), None);
+            assert_eq!(calls.load(Ordering::Relaxed), 0);
+            let set = value.as_set().expect("provider set");
+            set.elements(ctx)
+                .expect("deliberately materialize provider");
+            assert!(set.has_cached_elements());
+            let before = calls.load(Ordering::Relaxed);
+            assert_eq!(value.closed_cache_heap_bytes(&names, &mut || true), None);
+            assert_eq!(calls.load(Ordering::Relaxed), before);
+        }
     }
 }
