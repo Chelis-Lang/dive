@@ -54,11 +54,16 @@ impl NamedState {
     }
 
     pub(crate) fn with(self: &Arc<Self>, name: &str, value: Value) -> Arc<Self> {
-        let mut result = self.clone();
-        Arc::make_mut(&mut result)
+        self.clone().with_owned(name, value)
+    }
+
+    pub(crate) fn with_owned(mut self: Arc<Self>, name: &str, value: Value) -> Arc<Self> {
+        // Cache keys, captured states and retained alternatives hold strong
+        // Arcs, so only a genuinely unshared query state is changed in place.
+        Arc::make_mut(&mut self)
             .values
             .insert(Arc::from(name), value);
-        result
+        self
     }
 }
 

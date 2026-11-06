@@ -67,6 +67,9 @@ The [release gates](docs/RELEASE.md) must pass before it is tagged.
   the existing bounded cache. Compound membership reuses its materialized-element
   admission proof while retaining query and interruption checks. These changes
   establish no release speed result.
+- Sequential `ENABLED` assignments and `UNCHANGED` checks avoid repeatedly
+  copying unshared partial query states while preserving retained alternatives
+  and lazy evaluation snapshots.
 - Benchmark runs stop before a later arm after an invalid or incomplete sample,
   retain physical process output and report actual worker use. Core selection is
   explicit; incomplete runs cannot supply a complete-suite performance result.
