@@ -14,7 +14,7 @@ use crate::env::{Sv, Thunk};
 use crate::{Evaluator, Model, Options, SlotView, St, StateRef};
 
 fn evaluator(options: Options) -> Evaluator {
-    let text = "---- MODULE NamedQueries ----\nEXTENDS TLC\nVARIABLES x,y\nCONSTANT C\nRead == x\nReadY == y\nAfter == x'\nSame == UNCHANGED x\nLiteral == TRUE\nPrinted == Print(x,x)\nSide == Print(42,TRUE)\nBindings == \\E i \\in Print(42,{1}): TRUE\nR[i \\in {1}] == IF i=1 THEN TRUE ELSE R[1]\nWrap(v) == v\nNested == ENABLED (x'=TRUE /\\ ENABLED (x'=FALSE) /\\ x'=TRUE)\nNestedConflict == ENABLED (x'=TRUE /\\ ENABLED (x'=FALSE /\\ x'=TRUE))\nPrimedNested == ENABLED (x'=TRUE /\\ (ENABLED (x'=x))')\nPrimedMissing == ENABLED (x'=TRUE /\\ (ENABLED (y'=y))')\n====\n";
+    let text = "---- MODULE NamedQueries ----\nEXTENDS TLC\nVARIABLES x,y\nCONSTANT C\nRead == x\nReadY == y\nAfter == x'\nSame == UNCHANGED x\nLiteral == TRUE\nPrinted == Print(x,x)\nSide == Print(42,TRUE)\nBindings == \\E i \\in Print(42,{1}): TRUE\nR[i \\in {1}] == IF i=1 THEN TRUE ELSE R[1]\nWrap(v) == v\nNested == ENABLED (x'=TRUE /\\ ENABLED (x'=FALSE) /\\ x'=TRUE)\nNestedConflict == ENABLED (x'=TRUE /\\ ENABLED (x'=FALSE /\\ x'=TRUE))\nPrimedNested == ENABLED (x'=TRUE /\\ (ENABLED (x'=x))')\nBranch == ENABLED ((x'=TRUE /\\ y'=TRUE /\\ FALSE) \\/ (x'=FALSE /\\ UNCHANGED y))\nBranchConflict == ENABLED ((x'=TRUE /\\ UNCHANGED x) \\/ (x'=FALSE /\\ y'=FALSE /\\ y'=TRUE))\nSequential == ENABLED (x'=TRUE /\\ UNCHANGED y /\\ x'=TRUE)\nUnchangedConflict == ENABLED (x'=TRUE /\\ UNCHANGED <<x,y>>)\nPrimedMissing == ENABLED (x'=TRUE /\\ (ENABLED (y'=y))')\n====\n";
     let analysis =
         dive_sema::analyze_source("NamedQueries.tla", text, &dive_sema::Options::default());
     assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
@@ -91,6 +91,75 @@ fn public_named_states_preserve_root_reads_prime_and_undefined_assignments() {
             ev.ir().vars().len(),
             2,
             "query assignments never add graph variables"
+        );
+    }
+}
+
+#[test]
+fn owned_updates_preserve_retained_thunk_states_and_sibling_candidates() {
+    for options in [Options::tlc(), Options::default()] {
+        let ev = evaluator(options);
+        let initial = named(&ev, &[("x", false)]);
+        let original = Arc::as_ptr(&initial);
+        let candidate = initial.with_owned("y", Value::TRUE);
+        assert_eq!(
+            Arc::as_ptr(&candidate),
+            original,
+            "unique updates need no state copy"
+        );
+        let printed = ev.ir().root_def("Printed").expect("printed");
+        let scope = ev.scope(printed).expect("scope");
+        let thunk = Thunk::new(body(&ev, "Printed"), scope.env.clone(), true);
+        let slot = Sv::Thunk(thunk.clone());
+        let force = |candidate: &Arc<crate::NamedState>| {
+            let value = ev
+                .core
+                .force(
+                    &mut scope.env.clone(),
+                    &slot,
+                    &St {
+                        s0: StateRef::Named(candidate.clone()),
+                        ..St::empty()
+                    },
+                    body(&ev, "Printed"),
+                )
+                .expect("force");
+            ev.core.force_fcn(value).expect("value")
+        };
+        assert_eq!(force(&candidate), Value::FALSE);
+        assert_eq!(ev.take_output().len(), 1);
+        // Only the actual thunk cache retains the old candidate now.
+        let changed = candidate.with_owned("x", Value::TRUE);
+        assert_ne!(
+            Arc::as_ptr(&changed),
+            original,
+            "retained cache state forces a COW fork"
+        );
+        let cached = thunk.stored_caches()[0]
+            .clone()
+            .expect("retained computation");
+        assert!(matches!(&cached.1, StateRef::Named(old) if old.get("x")==Some(&Value::FALSE)));
+        assert!(!StateRef::Named(changed.clone()).includes(&cached.1));
+        let sibling = changed.clone();
+        let changed = changed.with_owned("y", Value::FALSE);
+        assert_eq!(sibling.get("y"), Some(&Value::TRUE));
+        assert_eq!(changed.get("y"), Some(&Value::FALSE));
+        assert_eq!(
+            force(&changed),
+            Value::TRUE,
+            "old cached FALSE cannot prove the changed query"
+        );
+        assert_eq!(ev.take_output().len(), 1);
+        assert_eq!(force(&changed), Value::TRUE);
+        assert!(
+            ev.take_output().is_empty(),
+            "the identical candidate reuses its real cache"
+        );
+        assert_eq!(force(&sibling), Value::TRUE);
+        assert_eq!(
+            ev.take_output().len(),
+            1,
+            "a different sibling must force independently"
         );
     }
 }
@@ -263,6 +332,32 @@ fn nested_enabled_searches_use_separate_candidate_namespaces() {
             )
             .expect("nested conflict"),
             Value::FALSE
+        );
+    }
+}
+
+#[test]
+fn enabled_owned_chains_keep_rejected_alternatives_and_unchanged_conflicts_isolated() {
+    for options in [Options::tlc(), Options::default()] {
+        let ev = evaluator(options);
+        let state = St::state(Arc::from([Some(Value::FALSE), Some(Value::TRUE)]));
+        for _ in 0..2 {
+            for (name, expected) in [
+                ("Branch", true),
+                ("BranchConflict", false),
+                ("Sequential", true),
+                ("UnchangedConflict", false),
+            ] {
+                assert_eq!(
+                    ev.eval_def(ev.ir().root_def(name).expect("query"), &state)
+                        .expect(name),
+                    Value::Bool(expected),
+                    "{name}"
+                );
+            }
+        }
+        assert!(
+            matches!(&state.s0, StateRef::Vals(values) if values.as_ref()==[Some(Value::FALSE),Some(Value::TRUE)])
         );
     }
 }
