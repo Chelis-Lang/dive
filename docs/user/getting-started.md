@@ -1,5 +1,15 @@
 # Getting started
 
+With Rust 1.99 and a C compiler installed, install directly from Git:
+
+```sh
+cargo install --git https://github.com/Chelis-Lang/dive --locked dive-cli
+```
+
+This installs the `dive` and supported-subset `tlc` binaries. Linux release
+archives and checksum verification are described in the [README](../../README.md);
+the first release has not been published yet.
+
 From a source checkout, build the CLI with the pinned stable Rust toolchain:
 
 ```sh
