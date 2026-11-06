@@ -104,7 +104,7 @@ pub fn to_value(
     let kind = heap.view(h).kind;
     if conv == Conversion::Graph && kind.is_symbolic() {
         return Err(format!(
-            "a {kind:?} representation without certified normalization history in core graph conversion"
+            "an unmaterialized symbolic {kind:?} in core graph conversion"
         ));
     }
     if kind == Kind::BigInt {
@@ -593,7 +593,7 @@ mod controlled_tests {
     }
 
     #[test]
-    fn controlled_graph_conversion_keeps_literal_classes_and_history_refusals() {
+    fn controlled_graph_conversion_keeps_literal_classes_and_symbolic_refusals() {
         for ctx in [Ctx::dive(), Ctx::tlc()] {
             let mut heap = Heap::new(Arc::new(Store::default()), true, false);
             let names = Interner::new();

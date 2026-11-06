@@ -20,8 +20,7 @@ The value model has four goals:
 - **Incremental hashing.** A successor's state hash, and the hash of a function
   updated by `EXCEPT`, cost time proportional to what changed.
 - **Exact semantics.** The model has room for TLC's observable distinctions:
-  - lazy set classes and normalization state, because both affect membership
-    errors;
+  - symbolic set domains for scalable membership and bounded materialization;
   - intern-token string order under `--compat=tlc`;
   - TLC 32-bit integers under `--int=tlc`, and big integers otherwise.
 
@@ -413,221 +412,69 @@ profile.
 Comparing two values in order is a structural comparison. It is needed only
 when sets are built or merged, never for equality.
 
-## 8. Lazy views and normalization state
+## 8. Canonical construction and symbolic views
 
-Product enumeration and receiver identity remain separate. Core compound
-construction retains the original Product rather than installing its enumerated
-empty projection: `SetOfTuplesValue.member` validates tuple/function arguments
-even for an empty product. The parent `NESTED_VIEW` bit selects bounded traversal
-to the actual Product kind; it grants no literal or history ownership. Record,
-tuple, function, EXCEPT, `Append` and `:>` value components preserve that receiver.
-Unproved compound comparison, collection keys, state handoff and other operator
-consumers refuse. Product construction is history-sensitive for folding, memo
-sites and parent skips. Non-tuple membership follows the existing evaluation-error
-path; source provenance remains unverified, so the pinned `product-receivers`
-facts do not establish native error parity (#768).
+Finite literals and mapped sets use canonical construction in both profiles
+(ADR 0153, D-028). Elements are sorted and deduplicated by mathematical value.
+There is no per-object raw/normalized phase, constructor origin, receiver
+ownership proof or sparse history row in ordinary execution. Default mixed
+structured sets have order-independent identity; nominal compat keeps inexpensive
+checked-comparison refusals rather than reproducing TLC's mutable set history.
 
-Scalar Product consumers have operation-specific admission. `IsFiniteSet`
-follows source Boolean finiteness and emptiness demand for known factor shapes,
-including Nat/Int infinite answers, nested products and empty factors. It keeps
-checking after an infinite factor; an unknown demanded operand refuses. Function
-sets demand range size only on the source singleton-range branch. `Cardinality`
-retains complete finite-factor admission and follows source `isEmpty` and `size`
-order, including function-domain and singleton-range short circuits. Explicit
-axes normalize only when their sizes are demanded. Admission covers explicit
-sets, bounded intervals, powersets, function sets, record sets and nested products;
-it checks operand shapes, depth, work budget and signed 32-bit size
-bounds. Neither operation replaces the original Product. Established library argument positions that consume normalized
-set enumeration use a separate projection after this admission. The existing
-singleton-UNION constructor lowering also recognizes Cartesian products; generic
-set elements containing Product receivers remain guarded.
+Identity consumers require a recursively materialized mathematical value. This
+includes singleton set elements, function keys and values, equality, membership
+in an explicit set, and stored state. Symbolic children cannot supply inequality
+from their structural representation. Unproved identities return `unsupported`,
+including during independent counterexample validation. These checks retain
+cooperative interruption polling and bounded materialization; removal of history
+machinery does not admit unknown `Seq`, product or deferred-provider identities.
 
-`Seq` keeps its range symbolic and asks membership only for actual sequence
-elements. Empty sequence membership therefore does not enumerate a huge or
-infinite range. Product cardinality and finiteness use their bounded factor
-algorithms rather than materializing the Cartesian product. `SUBSET` membership
-uses the concrete query and leaves an unused base unenumerated.
+Symbolic sets remain useful operator domains. `Seq` keeps its range symbolic and
+asks membership only for actual sequence elements, so the empty sequence does
+not enumerate a huge or infinite range. `SUBSET` membership enumerates the
+concrete query and leaves an unused base unenumerated. Cartesian-product
+cardinality and finiteness use bounded factor algorithms rather than expanding
+the whole product. They check operand shapes, depth, work budget and size bounds;
+unknown demanded shapes refuse. Sequence finiteness checks range finiteness and
+emptiness, including empty products and nested sequence ranges. Holding and
+opposite-invariant controls prevent false violations and false success.
 
-`IsFiniteSet` inspects Product structure before eager normalization. The bounded
-dispatcher follows Product, SUBSET and Seq finiteness/emptiness where supported;
-unknown demanded shapes refuse. The holding and negated empty-range controls
-remain separate, preventing either a false violation or false success.
+The existing default compound-membership index is derived lookup data for
+canonical explicit sets. It starts on the second eligible lookup for sets with
+at least 16 members, uses closed value hashes and verifies candidates with the
+canonical comparator. Misses retain class/error checks. Scalar queries, finite
+fuel, lazy or unproved values and TLC comparisons retain ordinary search. The
+`member-index` ablation changes the lookup strategy without changing results.
 
-Finite literal and mapped sets now use canonical construction (ADR 0153,
-D-028). Multiple nested mapped sets no longer require constructor authority.
-`MappedMultipleSubsets` succeeds, and original `MCQuicksort` agrees at one worker
-with 4,548 distinct / 11,223 generated / depth 9. Mixed tuple/record states in
-either literal order produce independently validated words, with corrupted-state
-and wrong-property controls rejected. Nominal compat retains cheap checked
-comparison refusals rather than restoring TLC's normalization history.
+Each worker's index is reserved inside its existing memo cap, at most 4 MiB or
+one-sixteenth of that cap. Allocation is lazy and fallible. Complete set handles
+identify records; weak Store and Arena identities prevent reuse after
+replacement. Local records bind to reset/rollback revisions, while persistent
+records survive arena rollback. Exhaustion or allocation failure returns to
+ordinary search. Construction and probing poll the same work owner.
 
-TLC distinguishes how a set is represented, and the distinction is observable:
+Identity is extensional; genuine representation metadata stays separate:
 
-- membership of a value in a `SubsetValue`, `IntervalValue`, `SetOfFcnsValue`
-  or `SetOfRcdsValue` follows that class's `member` rules;
-- membership of a record in a set that has not been normalized can raise an
-  error that the normalized set does not (fixtures `RvMemUnnorm` and
-  `RvMemNorm`; ADR 0012).
+| Flag | Meaning |
+| --- | --- |
+| `UNNORM` | legacy `SetEnum` symbolic storage; finite normalization yields a canonical set |
+| `RECORD` | a function built by a record literal |
+| `TUPLE` | an interval function built by a tuple literal |
+| `NESTED_VIEW` | a structural parent containing child representation metadata |
 
-**Current consumed boundary.** Actual literal and MAP constructors now retain
-raw order, duplicate positions and independent object identities for closed
-Bool/inline-Int/owned-string/model-value leaves and nested literal tuples. A
-covered union preserves the empty-left alias, normalizes the right operand when
-required, checks additions against the original left receiver, and returns a
-fresh raw construction. Exact checked insertion, first equal representatives,
-raw receiver equality and normalized query/pivot comparison are consumed at the
-actual demand. D-009 remains unchanged.
+Hashing, equality and order ignore these bits. `intern` drops them for canonical
+identities; `intern_const` and `intern_exact` preserve available literal metadata
+and symbolic forms for evaluation, printing and captured originals. `EXCEPT`
+keeps genuine record and tuple bits. Metadata never proves mathematical identity.
+The `SetEnum` kind remains a finite symbolic representation for existing callers;
+Core source literals use canonical sets, and direct unnormalized membership has
+a named refusal rather than an emulated TLC search.
 
-The arena owns mutable phase; normalized immutable snapshots cross real state
-handoff through sparse view rows, including nested EXCEPT parents. The Store's
-private origin table validates exact snapshot handles. Ownership probes and
-capacity accounting share read access; origin allocation and snapshot registration
-keep exclusive access. The lock changes neither origin indexing nor Store-local
-exact-handle authority. `Kind::Set`, view flags,
-persistence and an extensional key alone do not prove history. Canonical keys
-and replay expectations remain separate; rollback rebuilds a freed projection
-from the owned normalization array. A seen emission does not replace a bound
-generator root with that temporary projection. The Store indexes retained
-`HISTORY`/`NESTED_VIEW` nodes with a private structural hash of their exact
-header and child handles. Equal independent constructions keep their origins
-without forming one linear-probing cluster under their shared extensional
-hash. The stored value hash and canonical-node index key are unchanged; the
-index key supplies no history authority. Symmetry uses a normalized local
-image; tuple equality preserves TLC's reached-field demand and D-009's quiet
-comparison without normalizing actual aliases. Empty owned receivers answer
-without demanding the query class; a closed unit-interval function query may
-convert to a tuple, without becoming a certified tuple producer. Raw persistent snapshots without a live
-mutable owner, unknown imports, set-valued elements and unproved receiver
-classes remain guarded/refused. See ADR 0131 and the source-pinned
-`construction-set-history` controls. These extend the original local lane;
-#623 remains partial and supplies no Sailfish throughput claim.
-
-After actual normalization and owned-history admission, a default-profile miss
-uses the canonical projection's class order for the existing D-009 class check.
-Model values still receive individual compatibility checks; the first and last
-non-model classes decide primitive scalar clashes. This replaces a repeated
-full scan of normalized tuple collections. It creates no membership cache and
-supplies no phase or origin authority. Raw constructions keep their original
-scan, and the remaining model-prefix loop polls the same resource owner.
-
-New construction work polls the actual existing file-route Budget through the
-controlled explorer hook. Origin-vector capacity is part of Store memory
-reporting; arena history and sparse frontier buffers still require whole-process
-RSS measurement. The witness memo in `06-memoization.md` proves comparison
-constraints only; it is neither normalization authority nor the generic
-S5 membership index described below.
-
-The default normalized compound-membership index is separate derived lookup data. It
-starts on the second eligible lookup for sets with at least 16 members, after
-the same actual local-history or Store-owned snapshot admission. Canonical
-explicit sets retain their original admission. The index uses existing closed
-value hashes and verifies every candidate with the original canonical
-comparator; distinct persistent history representations are not assumed
-unequal. Misses keep the existing class/error checks. Scalar queries, finite-fuel
-optional analysis, raw constructions, lazy or unproved values and TLC
-comparisons retain their original search. Finite
-optional analysis releases the index reservation. The
-`member-index` ablation disables it without changing results.
-
-Each worker's index is reserved inside its existing memo cap, at most 4 MiB
-or one-sixteenth of that cap. Allocation is lazy and fallible. Complete set
-handles identify records; weak Store and Arena allocation identities prevent
-reuse after replacement. Local records also bind to reset/rollback revisions,
-so freed transient data never supplies a lookup. Persistent records survive
-arena rollback. Replacement, exhaustion or allocation failure simply returns
-to the original search. Index construction and probing poll the same caller
-work owner. The index establishes neither normalization nor source provenance.
-
-Identity is extensional: equal sets have one handle. The representation class
-and normalization flag travel separately, as a **lazy view**:
-
-- **Transients.** A transient symbolic set (`a..b`, `SUBSET S`, `[D -> S]`,
-  record sets, filters and maps, unions) is an arena node of a symbolic kind.
-  It is never enumerated unless the program forces enumeration. Membership
-  tests on it are symbolic (S5).
-- **State slots.** When a state retains a set whose lazy view the contract
-  requires, the state carries the identity handle in its slot. It also carries
-  a view handle in a sparse side table keyed by variable. Hashing and equality
-  use only the identity handle. Membership and the error paths consult the
-  view.
-- **Memoization.** S6 cache keys include the view handles of their inputs
-  (`06-memoization.md`).
-
-**View bits.** TLC's representation state that is not a symbolic kind is
-kept in `View::flags`, which identity ignores:
-
-| Bit | Set on | TLC | Contract |
-|---|---|---|---|
-| `UNNORM` | every `Kind::SetEnum` node: `Heap::set_enum`, elements in construction order with duplicates | `SetEnumValue` with `isNorm` false | C1 |
-| `RECORD` | a `Fcn` built by `Heap::record` (the evaluator's record literal) | `RecordValue` | C5 |
-| `TUPLE` | an `IntFcn` over `1..n` built by `Heap::tuple_literal` (the evaluator's tuple literal) | `TupleValue` | C2 |
-| `HISTORY` | actual owned construction snapshot; exact handle registered by its producer | retained raw/normalized object view | ADR 0131 |
-| `NESTED_VIEW` | a representation-preserving parent containing a child view | structural persistent class; no new literal class | ADR 0121 |
-
-Rules for the bits:
-- `hash`, `eq` and `cmp` ignore them. `intern` drops them for canonical
-  identities. `intern_const` preserves available function literal classes
-  recursively for evaluation. A parent carrying `NESTED_VIEW` uses the existing
-  structural class, so unequal representation handles are not mistaken for
-  unequal values (ADR 0121). This supplies no set-normalization history proof.
-- `fcn_with` (`EXCEPT`) keeps `RECORD` and `TUPLE`, as TLC's `takeExcept`
-  keeps the class.
-- `intern_view` keeps a top-level bit and recursively preserved function
-  metadata. View nodes are hash-consed with their flags in the structural class,
-  apart from canonical identities.
-- A `SetEnum` is a finite symbolic set: `norm`, `cursor`, `cardinality` and
-  `intern` treat it as the set of its elements.
-- The evaluator refuses membership in a `SetEnum` (unsupported) until
-  its producer and history are proved. The selected local literal lane now
-  consumes the actual `Node::SetEnum` path and runs raw receiver-to-query
-  equality or normalized query-to-pivot search. `Kind::SetEnum`, flags and
-  persistence alone do not admit a value.
-- The selected literal's arena-owned sparse sidecar is allocated at its
-  constructor. Independent equal constructions remain independent; local
-  aliases share the same raw handle. Successful normalization owns its
-  sorted element array, retaining the first equal representative. It never
-  caches a post-mark normalized handle. Thus normalizing a pre-mark alias
-  survives rollback, post-mark constructors are truncated, and reset drops
-  all history. The original raw representation bit is not the phase oracle.
-  Selected views use the otherwise-unused `SetEnum.lo` as a sidecar slot;
-  lookup also verifies the exact transient handle against that arena-owned
-  record. The slot, kind or flag alone proves nothing. This gives constant
-  lookup work without a value or membership index; generic views use zero.
-  A separate clone is canonically sorted/deduplicated to form the extensional
-  projection; the checked TLC array is never assumed canonical and is not
-  overwritten by that projection. Tracked alias views refuse interning across
-  the uncovered persistent/state boundary; a demanded extensional identity
-  remains internable.
-- The compiler admits only direct covered operands and local LET groups
-  whose uses terminate in membership or `Cardinality`. It preserves source
-  tuple receiver classes and propagates history sensitivity through those
-  consumers, excluding folding, memo sites, extra definition reuse and
-  parent skips. Genuine LET thunk aliasing remains intact.
-- Internal eligibility is at most 64 total set/tuple/scalar syntax nodes per
-  construction and 64 query nodes; larger source expressions retain their
-  unchanged prior route, without a new public limit. The runtime validator
-  mirrors this bound. A covered set has at most 63 members: checked insertion
-  uses at most 378 outer comparisons, each with at most 64 value-node visits,
-  and at most 1,953 handle moves. Its owned normalized array is at most 504
-  bytes on 64-bit hosts; sorting/projection temporary arrays each have at
-  most 63 handles. Sparse records are bounded by live arena constructors,
-  with record-vector capacity retained at its peak like the other arena
-  pools; reset/rollback drop the corresponding owned arrays. The inner
-  checked operation does not itself poll: this private bound limits the new
-  work before returning to the existing evaluator/engine budget boundaries.
-- Names/model values, arithmetic producers, nested sets, records, generic
-  functions, imports, state handoff, map/union and arbitrary consumers retain
-  the existing guarded/refused paths. Reached comparison errors remain
-  unsupported until E7 source provenance is proved. C2 uses checked insertion
-  in both profiles; default D-009 comparisons are unchanged. #623 remains
-  open, and no Sailfish map/union speed claim follows from this lane.
-- TLC's sequence operators (`Append`, `Tail`, `\o`,
-  `SubSeq`) return a `TupleValue`, but their core results carry no bit:
-  that is stream 2's work, for `--compat=tlc` (M2).
-
-Which cases need a retained view is listed in `02-semantic-contract.md`
-(normalization and membership). In M0 the view side table is empty, because
-the spike models do not need it.
+Candidate DAG records retain their existing fields, with the legacy origin word
+fixed at zero. Decoding rejects nonzero origins or history flags. The retained
+report fields for the constructor-origin index stay zero; no trace version or
+report schema changes. Store snapshot and exchange compatibility code is separate
+from ordinary execution and does not grant an identity proof.
 
 ## 9. Integers
 
@@ -762,7 +609,7 @@ method.
 | `SetPred` | closure id | `[S, captures...]`: `{x \in S : P}` before it is enumerated |
 | `Union` | 0 | `[A, B]`: a lazy `A \cup B` |
 | `BigInt` | sign (`1` or `-1`) | the magnitude's 32-bit digits, least significant first, as inline integers; read only through `Heap::big` |
-| `SetEnum` | 0, or a verified local history slot | the elements in construction order, duplicates kept: raw `SetEnumValue`; selected local views consult their separate owned phase (§8) |
+| `SetEnum` | 0 | legacy symbolic enumeration; normalization produces canonical identity (§8) |
 
 `View` has `kind`, `lo`, `hash`, `sum`, `flags` and `data`. Use
 `len`, `keys` and `values` rather than indexing `data` by kind. Every kind

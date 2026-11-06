@@ -44,13 +44,6 @@ pub(super) fn boundary(
     };
     let next = copy(&ex.next, &mut remap)?;
     let originals = copy(&ex.next_originals, &mut remap)?;
-    let mut views = Vec::new();
-    views
-        .try_reserve_exact(ex.next_views.len())
-        .map_err(|_| Error::internal("DIVE-S0203: live view index allocation"))?;
-    for (id, row) in &ex.next_views {
-        views.push((*id, copy(row, &mut remap)?));
-    }
     let frontier = ex
         .frontier
         .as_mut()
@@ -87,7 +80,6 @@ pub(super) fn boundary(
     }
     ex.next = next;
     ex.next_originals = originals;
-    ex.next_views = views;
     if frontier.is_some() {
         ex.frontier = frontier;
     }

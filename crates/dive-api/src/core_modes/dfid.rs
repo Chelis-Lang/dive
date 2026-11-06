@@ -300,15 +300,6 @@ impl Search<'_> {
                 .heap
                 .intern(*value)
                 .map_err(|error| classify(&error, None))?;
-            if self.native.machine.heap.has_construction_history(*value) {
-                let normalized = self
-                    .native
-                    .machine
-                    .heap
-                    .normalize_construction(*value)
-                    .map_err(|error| classify(&error, None))?;
-                *value = normalized;
-            }
             if !fingerprintable(&self.native.machine.heap, identity) {
                 return Err(Outcome::Unsupported(
                     "native DFID state value cannot be fingerprinted".into(),

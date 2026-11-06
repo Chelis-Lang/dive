@@ -41,14 +41,7 @@ struct Capture {
 impl Sink for Capture {
     fn emit(&mut self, m: &mut Machine, _code: &Code) -> Result<(), Error> {
         if self.seen == self.want {
-            let mut views = Vec::new();
-            if m.s1.iter().any(|&h| m.heap.has_construction_history(h)) {
-                crate::capture_reserve(&mut views, m.s1.len())?;
-                for &h in &m.s1 {
-                    let h = m.heap.normalize_construction(h)?;
-                    views.push(m.heap.intern_exact(h)?);
-                }
-            }
+            let views = Vec::new();
             let mut values = Vec::with_capacity(m.s1.len());
             for &h in &m.s1 {
                 values.push(if h.is_empty() { h } else { m.heap.intern(h)? });

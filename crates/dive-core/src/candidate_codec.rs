@@ -1,7 +1,7 @@
 //! Owned, bounded candidate DAG records tied to one live Store.
 //!
 //! Transient payloads are copied before Arena rollback without interning them.
-//! Only ordered consumption imports nodes and construction origins into the
+//! Only ordered consumption imports nodes into the
 //! Store. This is transient working storage, not a checkpoint or trace proof.
 
 use crate::handle::Tag;
@@ -16,7 +16,7 @@ const HEADER: usize = 32;
 const NODE_HEADER: usize = 42;
 const REFERENCE: usize = 9;
 const MAX_DEPTH: usize = 128;
-/// Maximum retained constructor-origin index capacity per candidate source.
+/// Legacy report limit retained for schema stability; canonical records use zero.
 pub const MAX_ORIGIN_INDEX_BYTES: usize = 1024 * 1024;
 static NEXT: AtomicU64 = AtomicU64::new(1);
 
@@ -30,9 +30,6 @@ pub struct CandidateCodec {
     store: Arc<Store>,
     token: u64,
     source_arena: Arc<()>,
-    /// Allocated only when an actual ordered read imports a history object.
-    origins: Vec<(u64, i64)>,
-    origin_limit: usize,
 }
 
 impl CandidateCodec {
@@ -48,8 +45,6 @@ impl CandidateCodec {
             store: Arc::clone(heap.store()),
             token,
             source_arena: Arc::clone(&heap.arena.cache_owner),
-            origins: Vec::new(),
-            origin_limit: MAX_ORIGIN_INDEX_BYTES,
         })
     }
 
@@ -60,7 +55,7 @@ impl CandidateCodec {
     /// normalization demand or persistent origin allocation is performed.
     ///
     /// # Errors
-    /// A foreign/stale/lazy value, unowned history, nesting/byte limit or allocation.
+    /// A foreign/stale/lazy value, legacy history, nesting/byte limit or allocation.
     pub fn encode(
         &self,
         heap: &mut Heap,
@@ -106,8 +101,7 @@ impl CandidateCodec {
 
     /// Imports one unchanged record only when ordered commit consumes it.
     ///
-    /// Repeated local origin tokens in this source retain raw/normalized alias
-    /// relationships. Flags alone never confer construction authority.
+    /// Shared children retain their aliases. Legacy constructor origins are refused.
     ///
     /// # Errors
     /// Invalid format, owner, shape, reference, allocation or construction origin.
@@ -118,10 +112,6 @@ impl CandidateCodec {
         limit: usize,
     ) -> Result<Vec<Handle>, Error> {
         self.owner(heap)?;
-        self.origin_limit = self.origin_limit.min(limit);
-        if self.origin_index_bytes() > self.origin_limit {
-            return Err(self.origin_limit_error());
-        }
         if bytes.len() > limit {
             return Err(invalid("record exceeds byte bound"));
         }
@@ -134,10 +124,10 @@ impl CandidateCodec {
         let mut nodes = Vec::new();
         nodes.try_reserve_exact(count).map_err(invalid)?;
         for _ in 0..count {
-            heap.history_poll()?;
+            heap.work_poll()?;
             let kind = kind(input.take(1)?[0])?;
             let fl = input.take(1)?[0];
-            let mut lo = input.word()?.cast_signed();
+            let lo = input.word()?.cast_signed();
             let hash = input.word()?;
             let sum = input.word()?;
             let origin = input.word()?;
@@ -145,25 +135,19 @@ impl CandidateCodec {
             let mut children = Vec::new();
             children.try_reserve_exact(len).map_err(invalid)?;
             for _ in 0..len {
-                heap.history_poll()?;
+                heap.work_poll()?;
                 children.push(input.reference(&self.store, &nodes)?);
             }
             shape(kind, fl, lo, origin, &children)?;
-            if origin != 0 {
-                lo = self.retain_origin(origin)?;
-            }
             let handle = self
                 .store
                 .intern(&mut heap.cache, kind, fl, lo, hash, sum, &children);
-            if origin != 0 {
-                self.store.retain_history(lo, kind == Kind::Set, handle)?;
-            }
             nodes.push(handle);
         }
         let mut values = Vec::new();
         values.try_reserve_exact(roots).map_err(invalid)?;
         for _ in 0..roots {
-            heap.history_poll()?;
+            heap.work_poll()?;
             values.push(input.reference(&self.store, &nodes)?);
         }
         if input.at != bytes.len() {
@@ -173,49 +157,10 @@ impl CandidateCodec {
         Ok(values)
     }
 
-    /// Actual retained origin-index entry capacity in bytes, excluding its header.
+    /// Retained legacy report metric. Canonical candidates allocate no origins.
     #[must_use]
-    pub fn origin_index_bytes(&self) -> usize {
-        self.origins.capacity() * size_of::<(u64, i64)>()
-    }
-
-    fn retain_origin(&mut self, token: u64) -> Result<i64, Error> {
-        match self
-            .origins
-            .binary_search_by_key(&token, |&(token, _)| token)
-        {
-            Ok(index) => Ok(self.origins[index].1),
-            Err(index) => {
-                let entries = self.origin_limit / size_of::<(u64, i64)>();
-                if self.origins.len() >= entries {
-                    return Err(self.origin_limit_error());
-                }
-                if self.origins.len() == self.origins.capacity() {
-                    let capacity = self
-                        .origins
-                        .capacity()
-                        .max(16)
-                        .saturating_mul(2)
-                        .min(entries);
-                    self.origins
-                        .try_reserve_exact(capacity - self.origins.len())
-                        .map_err(|_| self.origin_limit_error())?;
-                    if self.origin_index_bytes() > self.origin_limit {
-                        return Err(self.origin_limit_error());
-                    }
-                }
-                let retained = self.store.history_origin()?;
-                self.origins.insert(index, (token, retained));
-                Ok(retained)
-            }
-        }
-    }
-
-    fn origin_limit_error(&self) -> Error {
-        Error::internal(format!(
-            "DIVE-S0202: candidate constructor-origin index exceeds its {}-byte workspace bound",
-            self.origin_limit
-        ))
+    pub const fn origin_index_bytes(&self) -> usize {
+        0
     }
 
     fn owner(&self, heap: &Heap) -> Result<(), Error> {
@@ -267,7 +212,7 @@ impl Write {
         self.word(reference.value)
     }
     fn visit(&mut self, heap: &mut Heap, value: Handle, depth: usize) -> Result<Reference, Error> {
-        heap.history_poll()?;
+        heap.work_poll()?;
         if !value.is_transient() {
             checked(&heap.store, value.bits())?;
             return Ok(Reference {
@@ -278,7 +223,7 @@ impl Write {
         if depth >= MAX_DEPTH {
             return Err(Error::unsupported("candidate payload nesting exceeds 128"));
         }
-        let (value, origin) = heap.candidate_history(value)?;
+        let origin = 0;
         if let Some(&value) = self.nodes.get(&value) {
             return Ok(Reference { local: true, value });
         }
@@ -289,7 +234,7 @@ impl Write {
         if view.is_lazy() || view.kind.is_lazy() {
             return Err(invalid("unclosed lazy value"));
         }
-        if (view.flags & flags::HISTORY != 0) != (origin != 0) {
+        if view.flags & flags::HISTORY != 0 {
             return Err(invalid("unowned construction history"));
         }
         let scratch = view
@@ -401,10 +346,7 @@ fn checked(store: &Store, bits: u64) -> Result<Handle, Error> {
             let view = store
                 .retained_view(handle)
                 .ok_or_else(|| invalid("unknown persistent coordinate"))?;
-            if view.is_lazy()
-                || view.kind.is_lazy()
-                || view.flags & flags::HISTORY != 0 && !store.owns_history(handle)
-            {
+            if view.is_lazy() || view.kind.is_lazy() || view.flags & flags::HISTORY != 0 {
                 Err(invalid("lazy or unowned persistent value"))
             } else {
                 Ok(handle)
@@ -433,8 +375,8 @@ pub(crate) fn shape(
         || fl & flags::TUPLE != 0 && (kind != Kind::IntFcn || lo != 1)
         || fl & flags::RECORD != 0 && kind != Kind::Fcn
         || fl & flags::UNNORM != 0 && kind != Kind::SetEnum
-        || (fl & flags::HISTORY != 0) != (origin != 0)
-        || origin != 0 && !matches!(kind, Kind::Set | Kind::SetEnum)
+        || fl & flags::HISTORY != 0
+        || origin != 0
         || kind == Kind::BigInt
             && (len == 0
                 || !matches!(lo, -1 | 1)
@@ -497,38 +439,33 @@ mod tests {
     }
 
     #[test]
-    fn raw_normalized_and_independent_origins_survive_reset() {
-        let store = Arc::new(Store::new(true));
-        let mut heap = Heap::new(Arc::clone(&store), false, false);
-        let mut codec = CandidateCodec::new(&heap).unwrap();
-        let one = Handle::int(1).unwrap();
-        let two = Handle::int(2).unwrap();
-        let raw = heap.local_literal(&[two, one, two]).unwrap();
-        let independent = heap.local_literal(&[two, one, two]).unwrap();
-        let first = codec
-            .encode(&mut heap, &[raw, raw, independent], 1 << 20)
-            .unwrap();
-        let normalized = heap.normalize_construction(raw).unwrap();
-        let identity = heap.close_identity_local(raw).unwrap();
-        assert!(identity.is_transient());
-        assert_eq!(heap.view(identity).flags, 0);
-        let second = codec
-            .encode(&mut heap, &[raw, normalized, identity], 1 << 20)
-            .unwrap();
-        assert_eq!(store.stats().nodes, 0, "no snapshot promotion during emit");
-        heap.reset();
-        let first = codec.decode(&mut heap, &first, 1 << 20).unwrap();
-        let second = codec.decode(&mut heap, &second, 1 << 20).unwrap();
-        assert_eq!(first[0], first[1]);
-        assert_ne!(first[0], first[2]);
-        assert_eq!(second[0], second[1]);
-        assert_eq!(heap.view(first[0]).kind, Kind::SetEnum);
-        assert_eq!(heap.view(second[0]).kind, Kind::Set);
-        assert_eq!(heap.view(first[0]).lo, heap.view(second[0]).lo);
-        assert!(store.owns_history(first[0]));
-        assert!(store.owns_history(second[0]));
-        assert_eq!(heap.view(second[2]).flags, 0);
-        assert_eq!(heap.view(second[2]).data, [one, two]);
+    fn canonical_candidates_keep_zero_origins_and_reject_legacy_history() {
+        for semantics in [crate::Semantics::default(), crate::Semantics::tlc()] {
+            let store = Arc::new(Store::with_semantics(true, semantics));
+            let mut heap = Heap::new(Arc::clone(&store), false, false);
+            let mut codec = CandidateCodec::new(&heap).unwrap();
+            let one = Handle::int(1).unwrap();
+            let value = heap.canonical_test_set(&[one, Handle::TRUE, one]).unwrap();
+            let bytes = codec.encode(&mut heap, &[value, value], 4096).unwrap();
+            assert_eq!(&bytes[58..66], &[0; 8], "legacy origin field is zero");
+            heap.reset();
+            for (at, byte) in [(58, 1), (33, flags::HISTORY)] {
+                let mut forged = bytes.clone();
+                forged[at] = byte;
+                let before = store.stats().nodes;
+                assert!(codec.decode(&mut heap, &forged, 4096).is_err());
+                assert_eq!(
+                    store.stats().nodes,
+                    before,
+                    "invalid origin cannot promote nodes"
+                );
+            }
+            let roots = codec.decode(&mut heap, &bytes, 4096).unwrap();
+            assert_eq!(roots[0], roots[1]);
+            assert_eq!(heap.view(roots[0]).data, &[Handle::TRUE, one]);
+            assert_eq!(codec.origin_index_bytes(), 0);
+            assert_eq!(store.memory_usage().history_view_bytes, 0);
+        }
     }
 
     #[test]
@@ -681,46 +618,5 @@ mod tests {
         let error = heap.close_identity_local(root).unwrap_err();
         assert!(error.message().contains("visited-node bound"));
         assert_eq!(store.stats().nodes, 0);
-    }
-
-    #[test]
-    fn small_records_cannot_grow_the_cross_record_origin_index_without_bound() {
-        let store = Arc::new(Store::new(true));
-        let mut heap = Heap::new(Arc::clone(&store), false, false);
-        let mut codec = CandidateCodec::new(&heap).unwrap();
-        let mut first = Vec::new();
-        let mut stopped = false;
-        for n in 0..256 {
-            let raw = heap.local_literal(&[Handle::int(n).unwrap()]).unwrap();
-            let bytes = codec.encode(&mut heap, &[raw], 1024).unwrap();
-            assert_eq!(bytes.len(), 92);
-            if first.is_empty() {
-                first = bytes.clone();
-            }
-            heap.reset();
-            let before = store.stats().nodes;
-            match codec.decode(&mut heap, &bytes, 1024) {
-                Ok(_) => assert!(codec.origin_index_bytes() <= 1024),
-                Err(error) => {
-                    assert_eq!(error.kind(), crate::ErrorKind::Internal);
-                    assert!(error.message().contains("DIVE-S0202"));
-                    assert!(error.message().contains("constructor-origin index"));
-                    assert_eq!(
-                        store.stats().nodes,
-                        before,
-                        "no origin or node after exhaustion"
-                    );
-                    stopped = true;
-                    break;
-                }
-            }
-        }
-        assert!(stopped);
-        assert_eq!(codec.origin_index_bytes(), 1024);
-        assert_eq!(codec.origins.len(), 64);
-        assert!(
-            codec.decode(&mut heap, &first, 1024).is_ok(),
-            "known aliases remain usable at the cap"
-        );
     }
 }

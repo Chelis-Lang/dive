@@ -260,7 +260,7 @@ impl WorkerSink<'_, '_> {
             let mut roots = crate::capture_copy(row)?;
             if self.capture_limit.is_none() && !self.preserve_originals {
                 for h in &mut roots {
-                    if !h.is_empty() && !m.heap.has_construction_history(*h) {
+                    if !h.is_empty() {
                         *h = m.heap.close_identity_local(*h)?;
                     }
                 }
@@ -278,10 +278,7 @@ impl WorkerSink<'_, '_> {
         for &h in original.unwrap_or(&m.s1) {
             let h = if h.is_empty() {
                 h
-            } else if self.capture_limit.is_some()
-                || self.preserve_originals
-                || m.heap.has_construction_history(h)
-            {
+            } else if self.capture_limit.is_some() || self.preserve_originals {
                 m.heap.intern_exact(h)?
             } else {
                 m.heap.intern(h)?
@@ -332,9 +329,6 @@ impl WorkerSink<'_, '_> {
         };
         // Under symmetry or a VIEW a state outside the model is checked
         // without a lookup, as TLC checks it (see `Explorer::probe`).
-        if inside {
-            crate::normalize_state_history(m)?;
-        }
         let unkeyed = !inside && (plan.symmetry.is_some() || plan.view.is_some());
         let mut identity = Vec::new();
         let key = if unkeyed {

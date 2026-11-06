@@ -757,15 +757,17 @@ mod tests {
     }
 
     #[test]
-    fn request_reply_preserves_owned_classes_phase_aliases_and_input_origins() {
+    fn request_reply_preserves_classes_aliases_and_canonical_sets() {
         for tlc in [false, true] {
             for hashcons in [false, true] {
                 let mut sender = heap(tlc, hashcons);
                 let one = Handle::int(1).expect("one");
                 let two = Handle::int(2).expect("two");
-                let set = sender.local_literal(&[two, one, two]).expect("literal");
+                let set = sender
+                    .canonical_test_set(&[two, one, two])
+                    .expect("literal");
                 let raw = sender.intern_exact(set).expect("raw");
-                let normal = sender.normalize_construction(set).expect("normalize");
+                let normal = sender.norm(set).expect("canonical");
                 let normal = sender.intern_exact(normal).expect("normal");
                 let tuple = sender.tuple_literal(&[raw, raw, normal, Handle::model(0)]);
                 let tuple = sender.intern_exact(tuple).expect("root");
@@ -778,10 +780,9 @@ mod tests {
                 let row = worker.view(roots[0]).data.to_vec();
                 assert_eq!(row[0], row[1]);
                 assert!(worker.view(roots[0]).is_tuple_literal());
-                assert_eq!(worker.view(row[0]).data, &[two, one, two]);
+                assert_eq!(worker.view(row[0]).data, &[one, two]);
                 assert_eq!(worker.view(row[2]).data, &[one, two]);
-                assert!(worker.store().owns_history(row[0]));
-                assert!(worker.store().owns_history(row[2]));
+                assert_eq!(worker.store().memory_usage().history_view_bytes, 0);
                 let bytes = remote
                     .reply(&worker, &roots, 1 << 20, &|| true)
                     .expect("unchanged reply");
@@ -792,7 +793,7 @@ mod tests {
                     vec![tuple]
                 );
                 let fresh = worker
-                    .local_literal(&[two, one, two])
+                    .canonical_test_set(&[two, one, two])
                     .expect("independent constructor");
                 let fresh = worker.intern_exact(fresh).expect("fresh history");
                 let out = worker.tuple_literal(&[roots[0], fresh, row[0]]);
@@ -806,8 +807,8 @@ mod tests {
                 let values = sender.view(result[0]).data;
                 assert_eq!(values[0], tuple);
                 assert_eq!(values[2], raw);
-                assert_ne!(sender.view(values[1]).lo, sender.view(raw).lo);
-                assert!(sender.store().owns_history(values[1]));
+                assert_eq!(sender.view(values[1]).data, &[one, two]);
+                assert_eq!(sender.store().memory_usage().history_view_bytes, 0);
             }
         }
     }
@@ -859,7 +860,7 @@ mod tests {
     }
 
     #[test]
-    fn compiled_startup_aliases_and_new_normalized_phase_keep_actual_authority() {
+    fn compiled_startup_aliases_keep_independent_store_ownership() {
         for tlc in [false, true] {
             for hashcons in [false, true] {
                 let mut sender = heap(tlc, hashcons);
@@ -867,11 +868,11 @@ mod tests {
                 let one = Handle::int(1).expect("one");
                 let two = Handle::int(2).expect("two");
                 let raw = sender
-                    .local_literal(&[two, one, two])
+                    .canonical_test_set(&[two, one, two])
                     .expect("startup constructor");
                 let raw = sender.intern_exact(raw).expect("startup raw");
                 let remote_literal = worker
-                    .local_literal(&[two, one, two])
+                    .canonical_test_set(&[two, one, two])
                     .expect("independent startup constructor");
                 let remote_raw = worker
                     .intern_exact(remote_literal)
@@ -904,9 +905,7 @@ mod tests {
                     [remote_raw],
                     "actual independently compiled constant alias"
                 );
-                let normal = worker
-                    .normalize_construction(remote_literal)
-                    .expect("new phase");
+                let normal = worker.norm(remote_literal).expect("canonical");
                 let normal = worker.intern_exact(normal).expect("owned new phase");
                 let bytes = remote
                     .reply(&worker, &[remote_raw, normal], 1 << 20, &|| true)
@@ -916,53 +915,9 @@ mod tests {
                     .expect("reply import");
                 assert_eq!(roots[0], raw);
                 assert_eq!(sender.view(roots[1]).lo, sender.view(raw).lo);
-                assert!(sender.store().owns_history(roots[1]));
+                assert_eq!(sender.store().memory_usage().history_view_bytes, 0);
                 assert_eq!(sender.view(roots[1]).data, &[one, two]);
             }
         }
-    }
-
-    #[test]
-    fn a_reply_cannot_replace_issued_input_constructor_history() {
-        let mut sender = heap(false, true);
-        let one = Handle::int(1).expect("one");
-        let two = Handle::int(2).expect("two");
-        let raw = sender.local_literal(&[two, one, two]).expect("literal");
-        let raw = sender.intern_exact(raw).expect("owned raw");
-        let (_, authority) =
-            Exchange::request(&sender, &[raw], 1 << 20, &|| true).expect("request");
-        let node = sender.view(raw);
-        let (kind, fl, hash, sum, origin) = (node.kind, node.flags, node.hash, node.sum, node.lo);
-        let mut forged =
-            Writer::new(&sender, 1 << 20, Some(&authority), None, &|| true).expect("writer");
-        forged.put(MAGIC).expect("magic");
-        forged.byte(1).expect("reply");
-        for n in [1, 0, 1] {
-            forged.word(n).expect("header");
-        }
-        forged.byte(kind as u8).expect("kind");
-        forged.byte(fl).expect("flags");
-        for n in [0, hash, sum] {
-            forged.word(n).expect("node");
-        }
-        forged.byte(2).expect("input origin");
-        forged.word(0).expect("index");
-        forged.word(1).expect("children");
-        forged.reference(Ref::Scalar(one)).expect("altered data");
-        forged.reference(Ref::Local(0)).expect("root");
-        let bytes = forged.bytes;
-        assert!(
-            authority
-                .receive_reply(&mut sender, &bytes, 1 << 20, &|| true)
-                .is_err()
-        );
-        assert_eq!(
-            sender
-                .store()
-                .history_snapshots(origin)
-                .expect("unchanged authority")[0],
-            raw
-        );
-        assert_eq!(sender.view(raw).data, &[two, one, two]);
     }
 }

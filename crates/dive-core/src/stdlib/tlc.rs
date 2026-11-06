@@ -36,12 +36,7 @@ pub(super) fn call(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle
     match op {
         StdOp::TlcMakeFcn => {
             let (d, e) = (arg(args, 0)?, arg(args, 1)?);
-            if m.heap.has_product_receiver(d)? {
-                return Err(refuse(
-                    op,
-                    "a function key retaining an unproved product receiver",
-                ));
-            }
+            crate::compare::require_materialized(&m.heap, &[d])?;
             Ok(m.heap.fcn_sorted(&[d], &[e]))
         }
         StdOp::TlcCombineFcn => combine(m, op, arg(args, 0)?, arg(args, 1)?),

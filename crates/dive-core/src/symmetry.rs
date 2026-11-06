@@ -74,21 +74,6 @@ impl Symmetry {
         state: &[Handle],
         out: &mut Vec<Handle>,
     ) -> Result<(), Error> {
-        // State fingerprinting has demanded normalization, but generator-bound
-        // roots must survive an emission rollback. Use local normalized views
-        // for permutation, leaving those original bindings untouched.
-        let mut normalized = Vec::new();
-        let state = if state.iter().any(|&h| heap.has_construction_history(h)) {
-            normalized
-                .try_reserve(state.len())
-                .map_err(|_| Error::unsupported("symmetry construction scratch allocation"))?;
-            for &h in state {
-                normalized.push(heap.normalize_construction(h)?);
-            }
-            normalized.as_slice()
-        } else {
-            state
-        };
         out.clear();
         out.extend_from_slice(state);
         let identity: Vec<usize>;

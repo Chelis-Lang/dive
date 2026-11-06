@@ -160,7 +160,7 @@ impl MemberIndex {
                 }
                 let mut pos = Self::bucket(heap.hash(value), size);
                 while !slots[pos].is_empty() {
-                    heap.history_poll()?;
+                    heap.work_poll()?;
                     pos = (pos + 1) & (size - 1);
                 }
                 slots[pos] = value;
@@ -170,7 +170,7 @@ impl MemberIndex {
         let slots = &self.records[bucket].slots;
         let mut pos = Self::bucket(heap.hash(query), slots.len());
         while !slots[pos].is_empty() {
-            heap.history_poll()?;
+            heap.work_poll()?;
             // Equal hashes and equal persistent coordinates alone prove
             // nothing about independently represented construction values.
             if heap.cmp(slots[pos], query).is_eq() {
@@ -213,7 +213,7 @@ mod tests {
                 m.heap.tuple_literal(&[x, x])
             })
             .collect();
-        let set = m.heap.local_literal(&values).unwrap();
+        let set = m.heap.canonical_test_set(&values).unwrap();
         m.heap.norm(set).unwrap()
     }
 
@@ -239,19 +239,18 @@ mod tests {
                 assert_eq!(indexed(&m), usize::from(!tlc));
                 for i in -2..35 {
                     let query = m.heap.tuple_literal(&[Handle::int(i).unwrap(); 2]);
-                    let old = m.heap.literal_member(query, set).unwrap();
+                    let old = Ok((0..32).contains(&i));
                     assert_eq!(m.member(query, set), old);
                 }
                 for query in [Handle::TRUE, Handle::int(4).unwrap()] {
-                    // Failing checked comparisons change their receiver's
-                    // phase. Differential receivers therefore stay independent.
+                    // Compare indexed lookup with a fresh uncached receiver.
                     let candidate = tuple_set(&mut m);
                     let reference = tuple_set(&mut m);
                     let hit = m.heap.view(candidate).data[0];
                     for _ in 0..2 {
                         assert_eq!(m.member(hit, candidate), Ok(true));
                     }
-                    let old = m.heap.literal_member(query, reference).unwrap();
+                    let old = m.member(query, reference);
                     assert_eq!(m.member(query, candidate), old);
                 }
                 assert!(!m.heap.poisoned());
@@ -260,28 +259,24 @@ mod tests {
     }
 
     #[test]
-    fn raw_empty_small_and_disabled_paths_never_allocate_indexes() {
+    fn empty_small_and_disabled_paths_never_allocate_indexes() {
         for disabled in [false, true] {
             let mut m = machine(false, true);
             if disabled {
                 m.memo.reserve_member_index(false);
             }
             let values: Vec<_> = (0..32).map(|i| Handle::int(i).unwrap()).collect();
-            let raw = m.heap.local_literal(&values).unwrap();
+            let empty = m.heap.canonical_test_set(&[]).unwrap();
             for _ in 0..4 {
-                assert_eq!(m.member(values[0], raw), Ok(true));
+                assert_eq!(m.member(Handle::TRUE, empty), Ok(false));
             }
-            let empty = m.heap.local_literal(&[]).unwrap();
-            for _ in 0..4 {
-                assert_eq!(m.member(Handle::EMPTY, empty), Ok(false));
-            }
-            let small = m.heap.local_literal(&values[..15]).unwrap();
+            let small = m.heap.canonical_test_set(&values[..15]).unwrap();
             let small = m.heap.norm(small).unwrap();
             for _ in 0..4 {
                 assert_eq!(m.member(values[0], small), Ok(true));
             }
             if disabled {
-                let norm = m.heap.norm(raw).unwrap();
+                let norm = m.heap.canonical_test_set(&values).unwrap();
                 for _ in 0..4 {
                     assert_eq!(m.member(values[0], norm), Ok(true));
                 }
@@ -378,18 +373,24 @@ mod tests {
     }
 
     #[test]
-    fn independent_history_values_keep_extensional_collision_verification() {
-        let mut m = machine(false, true);
+    fn independent_canonical_values_keep_extensional_collision_verification() {
+        let mut m = machine(false, false);
         let mut values = Vec::new();
         for i in 0..32 {
-            let inner = m.heap.local_literal(&[Handle::int(i).unwrap()]).unwrap();
+            let inner = m
+                .heap
+                .canonical_test_set(&[Handle::int(i).unwrap()])
+                .unwrap();
             let inner = m.heap.norm(inner).unwrap();
             let tuple = m.heap.tuple_literal(&[inner]);
             values.push(m.heap.intern_exact(tuple).unwrap());
         }
         let set = m.heap.set_from(&mut values);
         let set = m.heap.intern_exact(set).unwrap();
-        let inner = m.heap.local_literal(&[Handle::int(5).unwrap()]).unwrap();
+        let inner = m
+            .heap
+            .canonical_test_set(&[Handle::int(5).unwrap()])
+            .unwrap();
         let inner = m.heap.norm(inner).unwrap();
         let query = m.heap.tuple_literal(&[inner]);
         let query = m.heap.intern_exact(query).unwrap();
@@ -506,15 +507,12 @@ mod tests {
     fn scalar_queries_keep_the_original_search_without_index_allocation() {
         let mut m = machine(false, true);
         let values: Vec<_> = (0..32).map(|i| Handle::int(i).unwrap()).collect();
-        let set = m.heap.local_literal(&values).unwrap();
+        let set = m.heap.canonical_test_set(&values).unwrap();
         let set = m.heap.norm(set).unwrap();
         for i in -1..33 {
             let query = Handle::int(i).unwrap();
             for _ in 0..3 {
-                assert_eq!(
-                    m.member(query, set),
-                    m.heap.literal_member(query, set).unwrap()
-                );
+                assert_eq!(m.member(query, set), Ok((0..32).contains(&i)));
             }
         }
         assert_eq!(m.memo.member_index.bytes(), 0);
@@ -577,9 +575,9 @@ mod tests {
             assert_eq!(m.memo.member_index.cap, 0);
             assert_eq!(m.memo.member_index.bytes(), 0);
             let values: Vec<_> = (0..32).map(|i| Handle::int(i).unwrap()).collect();
-            let raw = m.heap.local_literal(&values).unwrap();
+            let raw = m.heap.canonical_test_set(&values).unwrap();
             m.set_fuel(0);
-            let error = m.member(values[0], raw).unwrap_err();
+            let error = m.work_elements(raw).unwrap_err();
             assert_eq!(error.kind(), crate::ErrorKind::Unsupported);
             assert_eq!(error.message(), "the constant-folding budget");
             assert!(!m.heap.work_interrupted());
