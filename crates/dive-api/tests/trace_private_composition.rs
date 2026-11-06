@@ -1,4 +1,4 @@
-//! Private startup must retain independent composition refusal and cache policy.
+//! Private startup checks bounded composition with independent caches and refusals.
 #![allow(clippy::expect_used, reason = "test fixture construction")]
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
@@ -43,30 +43,59 @@ fn doc(x: i64, lossy: bool) -> TraceDoc {
     }
 }
 
+fn assert_validation(validation: &Validation, mode: ActionComposition, admitted: bool, x: i64) {
+    if mode == ActionComposition::Tlc || !admitted {
+        assert_eq!(
+            validation,
+            &Validation::Unsupported(dive_trace::COMPOSITION_UNSUPPORTED.to_owned())
+        );
+    } else if x == 2 {
+        assert_eq!(validation, &Validation::Valid);
+    } else {
+        assert!(
+            matches!(validation, Validation::Invalid(_)),
+            "{validation:?}"
+        );
+    }
+}
+
 #[test]
-fn private_startup_refuses_reached_composition_in_both_modes_and_readers() {
+fn private_startup_checks_bounded_composition_and_retains_refusals_in_both_readers() {
+    // The pinned finite relation controls establish composition by an actual
+    // intermediate witness: here A fixes 1 and B fixes 2, so 9 is forged.
     for mode in [ActionComposition::Tla, ActionComposition::Tlc] {
-        let session = build_session("W((x'=1) \\cdot (x'=2))", "W(p) == p", mode);
-        for lossy in [false, true] {
-            for x in [2, 9] {
-                for _ in 0..2 {
-                    assert_eq!(
-                        session.read(&doc(x, lossy)).0.validation,
-                        Validation::Unsupported(dive_trace::COMPOSITION_UNSUPPORTED.to_owned())
-                    );
+        for (next, admitted) in [
+            ("W((x'=1) \\cdot (x'=2))", true),
+            ("W((x'=1) \\cdot (x' \\in {2,3}))", false),
+            ("W((PrintT(TRUE) /\\ x'=1) \\cdot (x'=2))", false),
+        ] {
+            let session = build_session(next, "W(p) == p", mode);
+            for lossy in [false, true] {
+                for x in [2, 9] {
+                    for _ in 0..2 {
+                        assert_validation(
+                            &session.read(&doc(x, lossy)).0.validation,
+                            mode,
+                            admitted,
+                            x,
+                        );
+                    }
                 }
             }
         }
-        let session = build_session("x'=2", "Alias == (x'=1) \\cdot (x'=2)", mode);
-        let mut document = doc(2, false);
-        document.labels[1] = Some(dive_trace::Label {
-            name: "Alias".to_owned(),
-            location: None,
-        });
-        assert_eq!(
-            session.read(&document).0.validation,
-            Validation::Unsupported(dive_trace::COMPOSITION_UNSUPPORTED.to_owned())
-        );
+        for (alias, admitted) in [
+            ("Alias == (x'=1) \\cdot (x'=2)", true),
+            ("Alias == (x'=1) \\cdot (x' \\in {2,3})", false),
+            ("Alias == (PrintT(TRUE) /\\ x'=1) \\cdot (x'=2)", false),
+        ] {
+            let session = build_session("x'=2", alias, mode);
+            let mut document = doc(2, false);
+            document.labels[1] = Some(dive_trace::Label {
+                name: "Alias".to_owned(),
+                location: None,
+            });
+            assert_validation(&session.read(&document).0.validation, mode, admitted, 2);
+        }
     }
 }
 
@@ -91,35 +120,51 @@ fn private_startup_keeps_untaken_composition_and_wrong_init_decidable() {
 }
 
 #[test]
-fn caller_warmed_composition_cannot_authorize_private_api_validation() {
-    let source = source("W((x'=1) \\cdot (x'=2))", "W(p) == p");
-    let api = SpecModel::from_source(
-        "PrivateComposition.tla",
-        &source,
-        "INIT Init\nNEXT Next\n",
-        &TraceOptions::default(),
-    )
-    .expect("API");
-    let model = api.model();
-    let next = model.ir.root_def("Next").expect("Next");
-    for x in [2, 9] {
-        let state = St::action(Arc::from([Some(0.into())]), Arc::from([Some(x.into())]));
-        assert_eq!(
-            model.evaluator.eval_def(next, &state).expect("caller warm"),
-            dive_value::Value::Bool(x == 2)
-        );
-        for lossy in [false, true] {
-            assert_eq!(
-                api.validate(&doc(x, lossy)).validation,
-                Validation::Unsupported(dive_trace::COMPOSITION_UNSUPPORTED.to_owned())
-            );
+fn caller_cache_warmth_cannot_supply_private_api_composition_decisions() {
+    for (next_source, admitted) in [
+        ("W((x'=1) \\cdot (x'=2))", true),
+        ("W((x'=1) \\cdot (x' \\in {2,3}))", false),
+        ("W((PrintT(TRUE) /\\ x'=1) \\cdot (x'=2))", false),
+    ] {
+        for x in [2, 9] {
+            for warm in [false, true] {
+                let source = source(next_source, "W(p) == p");
+                let api = SpecModel::from_source(
+                    "PrivateComposition.tla",
+                    &source,
+                    "INIT Init\nNEXT Next\n",
+                    &TraceOptions::default(),
+                )
+                .expect("API");
+                let model = api.model();
+                let next = model.ir.root_def("Next").expect("Next");
+                let state = St::action(Arc::from([Some(0.into())]), Arc::from([Some(x.into())]));
+                if warm {
+                    assert_eq!(
+                        model.evaluator.eval_def(next, &state).expect("caller warm"),
+                        dive_value::Value::Bool(x == 2)
+                    );
+                    // The ordinary caller may print; private replay must never
+                    // append to that caller's output or reuse its lazy truth.
+                    let _ = model.evaluator.take_output();
+                }
+                for lossy in [false, true] {
+                    assert_validation(
+                        &api.validate(&doc(x, lossy)).validation,
+                        ActionComposition::Tla,
+                        admitted,
+                        x,
+                    );
+                    assert_eq!(model.evaluator.take_output(), [] as [String; 0]);
+                }
+                assert_eq!(
+                    model
+                        .evaluator
+                        .eval_def(next, &state)
+                        .expect("ordinary caller remains usable"),
+                    dive_value::Value::Bool(x == 2)
+                );
+            }
         }
-        assert_eq!(
-            model
-                .evaluator
-                .eval_def(next, &state)
-                .expect("ordinary caller remains usable"),
-            dive_value::Value::Bool(x == 2)
-        );
     }
 }
