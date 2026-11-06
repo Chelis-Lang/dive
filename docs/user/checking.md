@@ -339,14 +339,20 @@ Top-level recursive functions also compile substituted expressions in their own
 runtime frame; caller thunk slots cannot supply a recursive argument's value.
 Substitutions that require effectful or recursive evaluation, or a caller local
 outside the function's lexical activation, also return `unsupported`.
-An applied recursive Boolean function can act as a predicate in `Next`. Core
-counts its emitted successors, without expanding multiple logical witnesses into
+An applied recursive Boolean function can act as a predicate in `Next` when its
+complete compiled plan is free of effects and unknown call targets. Otherwise
+Core conservatively refuses, including effects hidden behind compiled calls.
+Core counts its emitted successors, without expanding multiple logical witnesses into
 repeated identical successors. The minimal control generates 2 states instead
 of TLC's 3; original VoteProof generates 27,727 instead of 318,877, with the same
-6,962 distinct states, depth 14 and successful verdict. Other observable and
-independent trace-validation requirements remain unchanged. Nominal
-`--compat=tlc` keeps this evaluation; exact TLC generated counts are a documented
-gap. See [D-029](../tlc-differences.md#d-029-predicate-witness-counts).
+6,962 distinct states, depth 14 and successful verdict. Those count controls
+preserve other observables and independent trace validation. A Boolean predicate
+already proved true also avoids unnecessary alternatives: the pinned OrError
+control succeeds rather than demanding a later division by zero. That exact
+result difference is registered separately. Nominal `--compat=tlc` retains
+Boolean evaluation, with these gaps documented. Calls, including arguments,
+poll run budgets and refuse beyond 64 active calls instead of exhausting the
+host stack. See [D-029](../tlc-differences.md#d-029-predicate-witness-counts).
 
 The core can evaluate `SelectSeq(sequence, Test)'` when `Test` is pure and
 depends only on its element parameter and constants. The sequence reads the

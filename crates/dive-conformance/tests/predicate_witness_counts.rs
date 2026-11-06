@@ -170,3 +170,107 @@ fn every_other_observable_and_unmeasured_count_pair_remains_strict() -> TestResu
     }
     Ok(())
 }
+
+#[test]
+fn already_true_recursive_or_has_only_its_precise_registered_default_differences() -> TestResult {
+    let path = "specifications/ActionCount/OrError.cfg";
+    let other = "specifications/ActionCount/Other.cfg";
+    let doc: Value = serde_json::from_str(include_str!(
+        "../../../conformance/golden/tlc-2026.10.06.014338/predicate-witness-counts/specifications/ActionCount/OrError.cfg.json"
+    ))?;
+    let expected: OracleResult = serde_json::from_value(doc["result"].clone())?;
+    assert_eq!(expected.verdict, Verdict::EvaluationError);
+    assert_eq!(expected.verdict_code, Some(2179));
+    assert_eq!(
+        expected.error_class.as_deref(),
+        Some("TLC_MODULE_DIVISION_BY_ZERO")
+    );
+    assert_eq!(expected.exit_code, Some(255));
+    assert_eq!(expected.counts.distinct_states, Some(1));
+    assert_eq!(expected.counts.states_generated, Some(2));
+    assert_eq!(expected.counts.depth, Some(1));
+    let mut actual = expected.clone();
+    actual.verdict = Verdict::Success;
+    actual.verdict_code = Some(2193);
+    actual.error_class = Some("TLC_SUCCESS".into());
+    actual.exit_code = Some(0);
+    actual.trace = None;
+    let diffs = diff_results(
+        &expected,
+        &actual,
+        CompareContext {
+            workers: 1,
+            counts_comparable: true,
+        },
+    );
+    assert_eq!(
+        diffs.iter().map(|d| d.field.as_str()).collect::<Vec<_>>(),
+        [
+            "verdict",
+            "error_class",
+            "exit_code",
+            "trace.length",
+            "trace.ending"
+        ]
+    );
+    let registry = Registry::parse(include_str!(
+        "../../../conformance/expected-divergences.toml"
+    ))?;
+    assert_eq!(
+        registry
+            .excuse(Some(&Profile::Dive), &[], path, Verdict::Success, &diffs)
+            .ok_or("exact OrError default divergence")?
+            .id,
+        "d029-or-error"
+    );
+    for profile in [
+        None,
+        Some(Profile::Tlc),
+        Some(Profile::TlcWithOverrides(vec!["counts".into()])),
+    ] {
+        assert!(
+            registry
+                .excuse(profile.as_ref(), &[], path, Verdict::Success, &diffs)
+                .is_none()
+        );
+    }
+    for field in [
+        "counts.distinct_states",
+        "counts.states_generated",
+        "counts.depth",
+        "violated_property",
+        "trace.validated",
+        "trace.invalid",
+    ] {
+        let mut bad = diffs.clone();
+        bad.push(FieldDiff {
+            field: field.into(),
+            expected: json!(1),
+            actual: json!(2),
+        });
+        assert!(
+            registry
+                .excuse(Some(&Profile::Dive), &[], path, Verdict::Success, &bad)
+                .is_none(),
+            "{field}"
+        );
+    }
+    let mut bad = diffs.clone();
+    bad[2].actual = json!(1);
+    assert!(
+        registry
+            .excuse(Some(&Profile::Dive), &[], path, Verdict::Success, &bad)
+            .is_none()
+    );
+    assert!(
+        registry
+            .excuse(Some(&Profile::Dive), &[], other, Verdict::Success, &diffs)
+            .is_none()
+    );
+    assert!(
+        registry
+            .excuse(Some(&Profile::Dive), &[], path, Verdict::Deadlock, &diffs)
+            .is_none()
+    );
+    Ok(())
+}

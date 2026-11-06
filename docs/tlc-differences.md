@@ -3092,8 +3092,10 @@ change the trace format or permit an unvalidated counterexample.
 
 ## D-029: Predicate-witness counts
 
-Core evaluates an applied recursive Boolean function in `Next` as a predicate.
-If several existential witnesses prove it true, they do not each create another
+Core evaluates an applied recursive Boolean function in `Next` as a predicate
+when the complete compiled plan has no effects or unknown call targets. This
+conservative check includes indirect compiled function calls. If several
+existential witnesses prove it true, they do not each create another
 copy of the same successor. For example:
 
 ```tla
@@ -3108,13 +3110,25 @@ succeeds with 6,962 distinct states and depth 14, generating 27,727 states on
 Core versus TLC's 318,877. Core reports its actual counts.
 
 This owner-approved default avoids redundant predicate-witness bookkeeping.
-Only the exact two generated-count pairs are registered as default expected
-divergences. Verdicts, distinct counts, depth, properties, error classes/exits,
-queue counts and independent counterexample validation keep their contracts.
-Other observed differences remain findings.
+The exact two generated-count pairs are registered as default expected
+divergences. For these controls, verdicts, distinct counts, depth, properties,
+error classes/exits, queue counts and independent word validity keep their
+contracts.
+
+Boolean short-circuiting is also deliberate. In the pinned `OrError.cfg` control,
+the predicate is already true, so Core does not demand a later `1 \div 0`
+alternative. Core succeeds with 1 distinct / 2 generated / depth 1 and exit 0;
+TLC's action generator instead reports division by zero (2179, exit 255) with an
+error prefix. A separate exact-model default registration records only those
+verdict/class/error-prefix and exit-pair differences. Counts and independent
+word-validation obligations remain unchanged; other findings are not waived.
 
 Nominal `--compat=tlc` uses the same Boolean evaluation on Core; it does not
 reconstruct TLC's duplicate witness expansion. Strict TLC comparisons still
-report this count difference. Escaping recursive functions, primed applications,
+report these count and short-circuit differences. Plans with compiled effects
+(including register operations, randomness or output) or unproved calls refuse
+rather than changing observable behavior. Recursive evaluation, including
+arguments, polls budgets and refuses beyond 64 active calls instead of aborting
+on host stack exhaustion. Escaping recursive functions, primed applications,
 unproved lexical/operator captures, nested recursion and other unsupported
 contexts retain their named refusals.

@@ -12,7 +12,7 @@
 
 | Name (dive option) | TLC behaviour (the handcuff) | dive default | dive option | Kind | Status | Evidence / tests |
 |---|---|---|---|---|---|---|
-| Predicate-witness counts (Core; D-029) | Action-position recursive predicates expand distinct logical witnesses into repeated identical successors | Evaluate the Boolean predicate and count emitted successors | Nominal compat keeps this evaluation and documents its generated-count gap | changing | default on Core | Exact ActionCount 3→2 and VoteProof 318877→27727 controls; all other observables remain required |
+| Boolean recursive predicates (Core; D-029) | Action generation expands duplicate witnesses and can demand an already-unnecessary alternative | Evaluate effect-safe Boolean predicates and count emitted successors | Nominal compat retains Boolean evaluation and documents count/short-circuit gaps | changing | default on Core | Exact ActionCount/VoteProof count pairs and pinned OrError result; unrelated observables remain required |
 | Canonical finite sets (default Core; D-028) | Set construction errors and membership can depend on prior normalization of the same TLC object | Canonical finite literal and mapped sets | Nominal compat keeps canonical producers and names unsupported comparison shapes | changing | default on Core | ADR 0153; `core_receiver_consumers` |
 | Deterministic parallel search (`--workers N`, default `auto`) | Multi-worker BFS is only approximately breadth-first: depth and counterexample length vary with worker count, so exactness needs `-workers 1` (`TLCTrace.java`; tlaplus#883) | Exact BFS results identical to TLC's single-worker run | Any worker count gives the same verdict, counts, depth and chosen shortest counterexample | preserving | **implemented** (`dive check --workers N`, WP-D3: ADR 0015's three-phase level engine; specs using `TLCSet`, live `TLCGet`, randomness, I/O or runtime name constructors under TLC order run in reported sequential mode (#122)) | ADR 0004; harness worker-invariance runs at 1, 3, 4, 8 workers and chaos; `crates/dive-check/tests/invariance.rs`; Examples `DieHard` (TLC depth 9 vs trace 7 at 4 workers); probes in `crates/dive-check/tests/fixtures/tlc-probes/` |
 | Replayable randomness (`--seed`, seed always reported) | `RandomElement`/`RandomSubset`/`Randomization` are unseeded in exhaustive mode unless `-seed` is given; state counts vary per run. Draws in `Next` are seeded from the state fingerprint, whose polynomial is random unless `-fp` is given, so `-seed` alone does not replay them. A draw before `Init` can make TLC lose the counterexample (exit 12, no trace) | TLC-like: fresh seed per run, but the seed used is always reported | `--seed S` alone reproduces the run exactly at any worker count (streams keyed by seed, state fingerprint or trace number, and position); `--compat=tlc` reproduces TLC's draws bit for bit | changing (only when a seed is fixed) | implemented in `dive-stdlib` (`random`, both modes) and wired into ordinary safety checking, including actual-bound configured RandomElement; randomness combined with VIEW or SYMMETRY uniformly refuses before binding; non-VIEW configured native random targets use the ordinary per-state stream; strict initial-predecessor replay and graph/recovery randomness remain explicit refusals (#178/#180, D-002) | Examples `SpanningTree/SpanTreeRandom.cfg`: 1.9k to 240k distinct states without a seed, stable with `-seed 0`, golden reproduced from the first six draws; `crates/dive-stdlib/tests/fixtures/random/` (six seeds, `RndTraceAssume`, `RndLetRedraw`); D-002 |
@@ -1236,10 +1236,13 @@ and independent word validator keep their authority. See the
 
 The owner approved evaluating recursive Boolean action predicates as predicates,
 without expanding every logical witness into an identical successor (ADR 0153,
-2026-11-06; #813). Counts are the actual emitted successors, including Init;
-no TLC counts are fabricated. This changes bookkeeping, preserving the verdict,
-distinct states, depth, violated property, error class, physical exit and
-independent validation of every emitted counterexample.
+2026-11-06; #813). Admission requires a complete compiled plan without effects
+or unknown call targets, conservatively covering indirect compiled calls.
+Effectful or unproved plans refuse by name instead of changing register, random
+or output behavior. Counts are actual emissions, including Init.
+
+The two count controls preserve verdict, distinct states, depth, violated
+property, error class, physical exit and independent word validation.
 
 The exact default-profile registrations allow only generated counts:
 
@@ -1249,15 +1252,27 @@ The exact default-profile registrations allow only generated counts:
 | `examples/specifications/byzpaxos/VoteProof.cfg` | 318877 | 27727 | 6962 | 14 |
 
 Both succeed with an empty queue, no violated property or counterexample and
-exit 0. The registry uses exact `generated_count_pair` values and no field
+exit 0. These entries use exact `generated_count_pair` values and no field
 wildcards; unrelated count or result changes remain disagreements. The opposite
 invariant control fails initially and its actual word validates independently;
 a forged property claim and an invalid successor are rejected. A false recursive
 predicate also produces the pinned deadlock (1 generated, 1 distinct, depth 1,
 exit 11), with an independently validated deadlock word.
 
-Core keeps Boolean predicate evaluation under nominal `--compat=tlc`. The
-strict TLC comparison therefore still reports the generated-count difference;
-it is a documented gap, not expected-divergence credit in that profile. No
-other lexical-capture, prime, escape, nested-recursion or effect guard is removed.
+The pinned `specifications/ActionCount/OrError.cfg` separately proves the Boolean
+short-circuit case: a recursive predicate is true before a later `1 \div 0`
+alternative. Core succeeds (2193, exit 0); TLC's action generator demands the
+unnecessary alternative and reports `TLC_MODULE_DIVISION_BY_ZERO` (2179, exit
+255), with an error prefix. Both have 1 distinct / 2 generated / depth 1 and an
+empty queue. Its exact model/default registration declares only verdict,
+class, error-prefix presence and exit pair 255→0. It does not authorize count,
+property or independent word-validation differences.
+
+Core keeps Boolean evaluation under nominal `--compat=tlc`; strict comparison
+reports these count and short-circuit differences as findings, without registry
+credit. Calls, including argument evaluation, poll run control and refuse beyond
+64 active calls before unbounded recursion exhausts the host stack. The pinned
+RegisterWitness regression, which TLC violates after three generated/distinct
+states, refuses in Core because of its compiled effects. No lexical-capture,
+prime, escape or nested-recursion guard is removed.
 See [the user explanation](tlc-differences.md#d-029-predicate-witness-counts).

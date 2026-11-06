@@ -458,3 +458,13 @@ fields = []
 generated_count_pair = { expected = 318877, actual = 27727 }
 justification = "D-029: Boolean recursive predicate guards avoid duplicate logical-witness successors; original VoteProof succeeds with the same 6962 distinct states, depth 14 and empty queue. Only this exact generated-count pair is registered; other observables and independent trace validation remain required."
 link = "docs/divergences.md#d-029-predicate-witness-counts"
+
+[[divergence]]
+id = "d029-or-error"
+pattern = "specifications/ActionCount/OrError.cfg"
+profile = "dive"
+expected_verdict = "success"
+fields = ["verdict", "error_class", "trace.length", "trace.ending"]
+exit_code_pair = { expected = 255, actual = 0 }
+justification = "D-029: the pure recursive predicate is already true, so Boolean OR does not demand the later division by zero that TLC's action generator reaches. Core succeeds with the same 1 distinct/2 generated/depth1 and no error prefix instead of TLC_MODULE_DIVISION_BY_ZERO/255. Only this exact model/default profile and physical exit pair are authorized; counts, properties and independent word validity remain strict."
+link = "docs/divergences.md#d-029-predicate-witness-counts"

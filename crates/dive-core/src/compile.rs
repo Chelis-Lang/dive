@@ -476,6 +476,7 @@ fn compile_inner(
         init_mode: false,
         funs: HashMap::new(),
         recfuns: HashMap::new(),
+        recursive_action_predicate: false,
         def_slots: std::collections::HashSet::new(),
         lifts: Vec::new(),
         substs: Vec::new(),
@@ -527,6 +528,20 @@ fn compile_inner(
         } else {
             c.step_check(r)?
         });
+    }
+    // Check the complete compiled plan: Info::effect deliberately does not
+    // follow Node::Call bodies, whereas every compiled effect sets effects.any.
+    // Conservatively refuse mixed-effect plans and unknown call targets rather
+    // than changing witness-dependent effects or inventing a purity analysis.
+    if c.recursive_action_predicate
+        && (c.effects.any
+            || c.code.nodes.iter().any(|node| {
+                matches!(node, Node::Call { fun, .. } if c.code.funs.get(*fun as usize).is_none())
+            }))
+    {
+        return Err(Error::unsupported(
+            "recursive Boolean action predicates in a compiled plan with effects or unproved calls (D-029)",
+        ));
     }
     c.stats.nodes = c.code.nodes.len();
     c.stats.gnodes = c.code.gnodes.len();
@@ -599,6 +614,8 @@ struct Compiler<'a> {
     /// Recursive function definitions `f[x \in S] == e` compiled as
     /// functions of their argument.
     recfuns: HashMap<RecKey, u32>,
+    /// Whether an applied recursive function became a Boolean action guard.
+    recursive_action_predicate: bool,
     /// The thunk slots of `def_cache`.
     def_slots: std::collections::HashSet<u32>,
     /// The nested functions being compiled, innermost last.
@@ -4178,8 +4195,12 @@ impl Compiler<'_> {
             Expr::FcnApply { fcn, arg } => {
                 let (fcn, arg) = (*fcn, *arg);
                 let Some((lambda, lenv)) = self.fcn_lambda(fcn, env, 0)? else {
-                    // Applied recursive predicates are Boolean guards (D-029):
-                    // do not expand TLC's duplicate logical witnesses.
+                    // Applied recursive predicates are Boolean guards (D-029).
+                    // Their whole-plan effect safety is checked after all
+                    // function bodies and roles have been compiled.
+                    if self.rec_target(fcn, env, Mode::Plain)?.is_some() {
+                        self.recursive_action_predicate = true;
+                    }
                     return self.guard_expr(e, env);
                 };
                 let Expr::FcnCons { bounds, body } = self.ir.node(lambda).expr.clone() else {

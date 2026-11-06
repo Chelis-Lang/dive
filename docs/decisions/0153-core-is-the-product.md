@@ -56,7 +56,9 @@ evidence.
      Register precise measured differences; keep all other observable and
      soundness obligations. Genuine mathematical uncertainty still escalates.
      D-029 counts successors from recursive Boolean action predicates without
-     expanding duplicate logical witnesses; nominal compat documents the gap.
+     expanding duplicate logical witnesses or demanding an unnecessary Boolean
+     alternative. Effectful or unproved plans refuse; nominal compat documents
+     the precise count and short-circuit gaps.
 3. **`--compat=tlc` is a nominal feature.** It must exist on Core, select the
    cheap TLC-observable switches that already exist, and document its known gaps
    in `docs/tlc-differences.md`.

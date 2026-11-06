@@ -584,3 +584,76 @@ fn validate_action_predicate_word(
     }
     Ok(())
 }
+
+#[test]
+fn recursive_action_predicates_refuse_direct_and_indirect_effects()
+-> Result<(), Box<dyn std::error::Error>> {
+    let corpus = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../conformance/corpus/predicate-witness-counts/specifications/ActionCount");
+    for compat_tlc in [false, true] {
+        for name in ["RegisterWitness", "IndirectEffectCall"] {
+            for workers in [1, 4] {
+                let mut req = request(name, compat_tlc, workers);
+                req.file.set_file_name(format!("{name}.tla"));
+                if name == "RegisterWitness" {
+                    req.file = corpus.join("RegisterWitness.tla");
+                    req.config = Some(corpus.join("RegisterWitness.cfg"));
+                }
+                for switches in ["", "-fold,-memo,-hashcons,-eager"] {
+                    let core = check_file_core_opts(&req, switches)?;
+                    let doc = core.to_json();
+                    assert_eq!(doc["verdict"], "unsupported", "{name}: {doc}");
+                    assert_eq!(core.exit_code_for(ExitConvention::Tlc), 3);
+                    assert_eq!(
+                        doc["message"],
+                        "recursive Boolean action predicates in a compiled plan with effects or unproved calls (D-029)"
+                    );
+                    assert!(doc["counterexample"].is_null());
+                    assert!(doc["tlc"].is_null());
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn recursive_boolean_or_does_not_demand_a_proven_unnecessary_error()
+-> Result<(), Box<dyn std::error::Error>> {
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../conformance/corpus/predicate-witness-counts/specifications/ActionCount");
+    for compat_tlc in [false, true] {
+        for workers in [1, 4] {
+            let req = CheckRequest {
+                file: root.join("OrError.tla"),
+                config: Some(root.join("OrError.cfg")),
+                workers: Some(workers),
+                compat_tlc,
+                seed: Some(0),
+                fp: Some(0),
+                ..Default::default()
+            };
+            for switches in ["", "-fold,-memo,-hashcons,-eager"] {
+                let core = check_file_core_opts(&req, switches)?;
+                let doc = core.to_json();
+                assert_eq!(doc["verdict"], "success");
+                assert_eq!(core.exit_code_for(ExitConvention::Tlc), 0);
+                assert_eq!(doc["statistics"]["generated"], 2);
+                assert_eq!(doc["statistics"]["distinct"], 1);
+                assert_eq!(doc["statistics"]["depth"], 1);
+                assert!(doc["property"].is_null());
+                let model = SpecModel::load(
+                    &req.file,
+                    req.config.as_ref().ok_or("config")?,
+                    &TraceOptions {
+                        compat_tlc,
+                        run: Some((0, 0)),
+                        ..Default::default()
+                    },
+                )?;
+                validate_action_predicate_word(&req, &model, true, &doc)?;
+            }
+        }
+    }
+    Ok(())
+}
