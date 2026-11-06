@@ -279,6 +279,12 @@ distinct states, 4 generated states and depth 3:
 dive check crates/dive-api/tests/fixtures/core-m0/EnabStepCache.tla --engine core --compat=tlc --workers 4 --seed 0 --fp 0 --output json
 ```
 
+Split Init/Next roles retain uncaptured top-level operator substitutions, as in
+the original Examples `TwoPhase/MCTwoPhase` configuration. That model checks on
+Core with 5 generated states, 4 distinct states and depth 4, without extra library
+paths. The independent validator follows assignments through these operators;
+operator closures with unproved lexical or dynamic captures still refuse.
+
 The core also evaluates pure, nonrecursive `ENABLED` queries through
 `INSTANCE` constant and operator parameters when each instantiated variable maps to the root variable with the
 same name. This includes nested instances. For example, the following returns

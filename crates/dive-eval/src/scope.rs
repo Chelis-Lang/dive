@@ -1002,6 +1002,52 @@ impl Evaluator {
             }))
     }
 
+    /// The uncaptured top-level definition substituted for an operator.
+    ///
+    /// This only reads binding metadata. It does not execute the operator or
+    /// prove its body pure. Lexical or dynamic captures and native/built-in
+    /// operator values return `None`; a compiler must retain its named refusal
+    /// for those contexts instead of dropping them.
+    ///
+    /// # Errors
+    /// A foreign scope, unknown declaration, or inconsistent operator arity.
+    pub fn scope_subst_operator(
+        &self,
+        scope: &Scope,
+        decl: dive_ir::DeclId,
+    ) -> Result<Option<DefId>> {
+        self.validate_scope(scope)?;
+        let declaration = self.core.ir.decls().get(decl.index()).ok_or_else(|| {
+            crate::ContextError::new(
+                crate::ContextErrorKind::UnknownId,
+                "substitution declaration",
+            )
+        })?;
+        let Some(Sv::Op(operator)) = scope.env.dynamic.lookup(decl) else {
+            return Ok(None);
+        };
+        let crate::env::OpVal::Def {
+            def,
+            parent: None,
+            dynamic: None,
+        } = &**operator
+        else {
+            return Ok(None);
+        };
+        let target = self.admit_def(*def)?;
+        if target.scope != DefScope::TopLevel || target.std.is_some() {
+            return Ok(None);
+        }
+        if target.params.len() != declaration.arity as usize {
+            return Err(crate::ContextError::new(
+                crate::ContextErrorKind::Arity,
+                "substituted operator argument count",
+            )
+            .into());
+        }
+        Ok(Some(*def))
+    }
+
     /// What the innermost substitution of `decl` in `scope` holds, if any.
     #[must_use]
     pub fn scope_subst_slot(&self, scope: &Scope, decl: dive_ir::DeclId) -> SlotView {
@@ -1366,6 +1412,61 @@ impl crate::core::Core {
 mod operator_capture_tests {
     use super::*;
     use crate::env::OpVal;
+
+    #[test]
+    fn split_operator_metadata_rejects_foreign_and_captured_contexts() {
+        let analysis = dive_sema::analyze_source(
+            "SplitOperator.tla",
+            "---- MODULE SplitOperator ----\nCONSTANT F(_)\nTarget(v)==v\nRoot==TRUE\n====\n",
+            &dive_sema::Options::default(),
+        );
+        assert!(analysis.accepted());
+        let ir = Arc::new(dive_ir::lower(&analysis).expect("lower"));
+        let ev = Evaluator::new(crate::Model::new(ir.clone()), crate::Options::default())
+            .expect("evaluator");
+        let def = ir.root_def("Target").expect("Target");
+        let root = ir.root_def("Root").expect("Root");
+        let decl = ir.consts()[0];
+        let mut scope = ev.scope(root).expect("scope");
+        scope.env.dynamic.push(
+            decl,
+            Sv::op(OpVal::Def {
+                def,
+                parent: None,
+                dynamic: None,
+            }),
+        );
+        assert_eq!(
+            ev.scope_subst_operator(&scope, decl).expect("metadata"),
+            Some(def)
+        );
+        let other = Evaluator::new(crate::Model::new(ir.clone()), crate::Options::default())
+            .expect("other evaluator");
+        assert!(other.scope_subst_operator(&scope, decl).is_err());
+        assert!(
+            ev.scope_subst_operator(&scope, dive_ir::DeclId(u32::MAX))
+                .is_err()
+        );
+        for (parent, dynamic) in [
+            (Some(scope.env.frame.clone()), None),
+            (None, Some(Dyn::default())),
+        ] {
+            let mut retained = scope.clone();
+            retained.env.dynamic.push(
+                decl,
+                Sv::op(OpVal::Def {
+                    def,
+                    parent,
+                    dynamic,
+                }),
+            );
+            assert!(
+                ev.scope_subst_operator(&retained, decl)
+                    .expect("captured metadata")
+                    .is_none()
+            );
+        }
+    }
 
     #[test]
     fn same_lexical_frame_is_inspected_under_each_dynamic_context() {

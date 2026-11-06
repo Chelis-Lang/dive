@@ -284,6 +284,12 @@ impl Initial<'_> {
             Expr::Prime(body) if primed => {
                 return self.variable_side(scope, *body, false, depth + 1);
             }
+            Expr::Local(local) => match self.model.evaluator.scope_slot(scope, *local) {
+                SlotView::Lazy(expr, scope) => {
+                    return self.variable_side(&scope, expr, primed, depth + 1);
+                }
+                _ => None,
+            },
             Expr::SubstRef {
                 decl,
                 primed: actual,
@@ -387,6 +393,10 @@ impl Initial<'_> {
                 let inner = ev.scope_subst(scope, expr)?;
                 self.predicate(&inner, *body, depth + 1)
             }
+            Expr::Apply {
+                callee: OpRef::Subst(decl),
+                args,
+            } => self.substituted_predicate(scope, expr, *decl, args, depth),
             Expr::Selected(body) | Expr::Label { body, .. } => {
                 self.predicate(scope, *body, depth + 1)
             }
@@ -441,6 +451,25 @@ impl Initial<'_> {
             } => Err(ConstructionError::Declined),
             _ => self.filter(scope, expr),
         }
+    }
+
+    fn substituted_predicate(
+        &mut self,
+        scope: &Scope,
+        expr: ExprId,
+        decl: dive_ir::DeclId,
+        args: &[dive_ir::Arg],
+        depth: u32,
+    ) -> Result<bool, ConstructionError> {
+        let ev = &self.model.evaluator;
+        let def = ev
+            .scope_subst_operator(scope, decl)?
+            .ok_or(ConstructionError::Declined)?;
+        if ev.is_value_override(def) || ev.precomputed(def).is_some() {
+            return self.filter(scope, expr);
+        }
+        let inner = ev.scope_apply(scope, def, args)?;
+        self.predicate(&inner, self.model.ir.def(def).body, depth + 1)
     }
 
     fn equality(
