@@ -5,6 +5,10 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- Fold closed constant sets of up to 65,536 loop iterations at compile time
+  (was 4,096), so type sets such as MCNano's `SignedBlock \cup {NoBlock}` are
+  built once rather than in every state. Results are unchanged.
+
 - Independently validate pure bounded TLA-mode action composition, including
   actual closing edges, deadlock and fairness. Nonstuttering compares the
   original and final states; alternate modes and unproved cases still refuse
