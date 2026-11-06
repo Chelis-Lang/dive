@@ -10,10 +10,9 @@
 //! - Membership that fails to find the element raises TLC's error when the
 //!   set holds a scalar of another class than the element: TLC compares them
 //!   on its way and fails.
-//! - Outside the selected local literal lane below, the core builds sets
-//!   normalized. TLC normalizes lazily, and whether and which error a set
-//!   mixing incomparable values raises depends on that demand (C1, C2).
-//!   Unproved construction/comparison paths remain unsupported.
+//! - Core finite-set construction is canonical (ADR 0153, D-028). Nominal
+//!   compat retains existing checked-comparison refusals instead of reproducing
+//!   TLC's mutable construction history.
 //!
 //! Model values follow TLC's `ModelValue` (`crates/dive-value/src/tlc.rs`):
 //! - an untyped model value is unequal to every other value, without error,
@@ -26,6 +25,50 @@ use crate::Error;
 use crate::handle::{Handle, Tag};
 use crate::heap::Heap;
 use crate::node::Kind;
+
+/// The materialized-tree invariant required by mathematical identity consumers.
+pub(crate) fn materialized(heap: &Heap, value: Handle, depth: u8) -> Result<bool, Error> {
+    heap.history_poll()?;
+    if depth == 64 || value.is_empty() {
+        return Ok(false);
+    }
+    if !value.is_compound() {
+        return Ok(value
+            .as_str_id()
+            .or_else(|| value.as_model_id())
+            .is_none_or(|id| heap.known_name(id)));
+    }
+    let view = heap.view(value);
+    if view.is_lazy()
+        || !matches!(
+            view.kind,
+            Kind::Set | Kind::IntFcn | Kind::Fcn | Kind::BigInt
+        )
+    {
+        return Ok(false);
+    }
+    if view.kind == Kind::BigInt {
+        return Ok(true);
+    }
+    for &child in view.data {
+        if !materialized(heap, child, depth + 1)? {
+            return Ok(false);
+        }
+    }
+    Ok(true)
+}
+
+/// Requires mathematical identities rather than structural symbolic fallback.
+pub(crate) fn require_materialized(heap: &Heap, values: &[Handle]) -> Result<(), Error> {
+    for &value in values {
+        if !materialized(heap, value, 0)? {
+            return Err(Error::unsupported(
+                "mathematical identity of a symbolic or unclosed value (including nested set/function children)",
+            ));
+        }
+    }
+    Ok(())
+}
 
 /// Per-value eligibility work for closed scalar/model-value/literal-tuple
 /// trees. Collection work is governed by actual budgets, not this bound.
@@ -310,6 +353,7 @@ fn mv_error(heap: &Heap, a: Handle, b: Handle) -> Error {
 /// # Errors
 /// TLC's error for values of different classes.
 pub(crate) fn equals(heap: &Heap, a: Handle, b: Handle) -> Result<bool, Error> {
+    require_materialized(heap, &[a, b])?;
     if heap.has_product_receiver(a)? || heap.has_product_receiver(b)? {
         return Err(Error::unsupported(
             "comparison retaining a product receiver whose nested normalization is not proved",

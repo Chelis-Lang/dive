@@ -8,6 +8,8 @@ use dive_api::{CheckRequest, Engine, ExitConvention, check_file_core_opts, check
 use serde_json::{Value, json};
 use std::path::PathBuf;
 
+const MIXED_COMPAT: &str = "a set of values of different shapes under --compat=tlc, where TLC's checked comparison may fail or answer by its asymmetric rules (C1–C5; the exact port is not built)";
+
 fn root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..")
 }
@@ -64,7 +66,21 @@ fn concrete_product_operations_match_pinned_successes_and_preserve_alias_history
             for switches in ["", "-fold", "-memo", "-hashcons", "-symbolic-member"] {
                 let core = check_file_core_opts(&req, switches).expect("Core check");
                 assert_eq!(core.to_json()["engine"], "core");
-                assert_eq!(facts(&core), expected, "{name}/{compat}/{switches}");
+                if compat
+                    && matches!(
+                        name,
+                        "FiniteRawAxisHistory"
+                            | "EmptyFunctionRangeHistory"
+                            | "FiniteFunctionDomainHistory"
+                            | "SingletonFunctionDomainHistory"
+                    )
+                {
+                    assert_eq!(core.verdict(), "unsupported");
+                    assert_eq!(core.exit_code_for(ExitConvention::Tlc), 3);
+                    assert_eq!(core.to_json()["message"], MIXED_COMPAT);
+                } else {
+                    assert_eq!(facts(&core), expected, "{name}/{compat}/{switches}");
+                }
             }
         }
     }
@@ -119,6 +135,15 @@ fn sizing_keeps_product_membership_receiver_and_demands_nonempty_axis_sizes() {
         assert!(!root().join("conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/DemandedRawProductSize/DemandedRawProductSize.cfg.json").exists());
         let reference = check_file_engine(&req, Engine::Reference).expect("Reference check");
         let d = reference.to_json();
+        if !compat {
+            let expected = json!({"verdict":"success", "code":2193, "exit":0, "distinct":3, "generated":3, "depth":3});
+            assert_eq!(facts(&reference), expected);
+            for switches in ["", "-fold", "-memo", "-hashcons", "-symbolic-member"] {
+                let core = check_file_core_opts(&req, switches).expect("canonical Core check");
+                assert_eq!(facts(&core), expected, "{switches}");
+            }
+            continue;
+        }
         assert_eq!(d["verdict"], "evaluation-error");
         assert_eq!(reference.exit_code_for(ExitConvention::Tlc), 75);
         assert_eq!(d["tlc"]["verified"], false);
@@ -132,12 +157,7 @@ fn sizing_keeps_product_membership_receiver_and_demands_nonempty_axis_sizes() {
             let d = core.to_json();
             assert_eq!(d["verdict"], "unsupported");
             assert_eq!(core.exit_code_for(ExitConvention::Tlc), 3);
-            assert!(
-                d["message"]
-                    .as_str()
-                    .is_some_and(|s| s.contains("local scalar/tuple comparison")),
-                "{d}"
-            );
+            assert_eq!(d["message"], MIXED_COMPAT);
         }
     }
 }

@@ -96,6 +96,16 @@ fn transient(heap: &mut Heap, v: &Value, ctx: Ctx) -> Result<Handle, Error> {
                 Ok(heap.symbolic(Kind::Product, 0, &data))
             }
             SetKind::Enum | SetKind::Raw | SetKind::Deferred => {
+                if !heap.store().semantics().tlc_comparisons
+                    && let Some(elems) = s.raw_elements()
+                {
+                    let mut out = Vec::with_capacity(elems.len());
+                    for e in elems {
+                        let h = transient(heap, e, ctx)?;
+                        out.push(heap.norm(h)?);
+                    }
+                    return Ok(heap.set_from(&mut out));
+                }
                 let elems = s.elements(ctx).map_err(|e| {
                     Error::unsupported(format!("a startup set the core cannot convert: {e}"))
                 })?;

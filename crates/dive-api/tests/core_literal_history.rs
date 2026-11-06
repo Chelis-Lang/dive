@@ -1,4 +1,4 @@
-//! Consumed local literal-set history; oracle facts predate native changes.
+//! Canonical finite literals retain exact outcomes and independently valid words.
 #![allow(clippy::expect_used, reason = "pinned test fixtures")]
 
 use std::path::PathBuf;
@@ -84,6 +84,17 @@ fn selected_literal_producers_and_local_aliases_reach_checked_consumers() {
                 for opts in OPTS {
                     let report = check_file_core_opts(&req, opts).expect("core invocation");
                     assert_eq!(report.to_json()["engine"], "core");
+                    if compat && name != "DuplicateFirstRepresentative" {
+                        let doc = report.to_json();
+                        assert_eq!(doc["verdict"], "unsupported");
+                        assert!(
+                            doc["message"]
+                                .as_str()
+                                .expect("named compat gap")
+                                .contains("shapes")
+                        );
+                        continue;
+                    }
                     assert_eq!(
                         report.to_json()["verdict"],
                         "success",
@@ -91,24 +102,6 @@ fn selected_literal_producers_and_local_aliases_reach_checked_consumers() {
                         report.to_json()
                     );
                     assert_primary(&report, &oracle);
-                    if name == "AliasDemand" {
-                        assert_eq!(
-                            report.to_json()["core"]["metrics"]["plan"]["folded"],
-                            0,
-                            "the selected constructor/consumer must remain live"
-                        );
-                        assert!(
-                            report.to_json()["core"]["metrics"]["memo"]
-                                .as_array()
-                                .expect("memo site observations")
-                                .iter()
-                                .all(|site| !site["site"]
-                                    .as_str()
-                                    .expect("site name")
-                                    .starts_with("Inv")),
-                            "history-sensitive consumers are not keyed memo sites"
-                        );
-                    }
                 }
             }
         }
@@ -127,12 +120,7 @@ fn raw_prefix_failures_stay_unclaimed_and_default_d009_is_unchanged() {
                 let doc = report.to_json();
                 if compat {
                     assert_eq!(doc["verdict"], "unsupported", "{name}/{opts}: {doc}");
-                    assert!(
-                        doc["message"]
-                            .as_str()
-                            .expect("reason")
-                            .contains("provenance")
-                    );
+                    assert!(doc["message"].as_str().expect("reason").contains("shapes"));
                 } else {
                     // D-009 may find the later structural hit. This is an
                     // approved default outcome, not parity with TLC's error.
@@ -152,12 +140,17 @@ fn raw_prefix_failures_stay_unclaimed_and_default_d009_is_unchanged() {
             for opts in OPTS {
                 let report =
                     check_file_core_opts(&request(name, compat, 1), opts).expect("core invocation");
+                let doc = report.to_json();
                 assert_eq!(
-                    report.to_json()["verdict"],
-                    "unsupported",
-                    "{name}/{compat}/{opts}: {}",
-                    report.to_json()
+                    doc["verdict"],
+                    if compat { "unsupported" } else { "success" },
+                    "{name}/{compat}/{opts}"
                 );
+                if !compat {
+                    assert_eq!(doc["statistics"]["distinct"], 3);
+                    assert_eq!(doc["statistics"]["generated"], 3);
+                    assert_eq!(doc["statistics"]["depth"], 3);
+                }
             }
         }
     }

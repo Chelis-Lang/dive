@@ -113,7 +113,7 @@ fn object_order_is_canonical_by_default_and_explicitly_refused_in_tlc_mode() {
 
 #[test]
 fn ambiguous_and_unimplemented_conversions_are_named_refusals() {
-    for options in [Options::tlc(), Options::dive()] {
+    for (options, default_profile) in [(Options::tlc(), false), (Options::dive(), true)] {
         for expression in [
             "ToJson(Nat)",
             "ToJson(STRING)",
@@ -132,7 +132,14 @@ fn ambiguous_and_unimplemented_conversions_are_named_refusals() {
                 ErrorClass::Unsupported,
                 "{expression}: {error}"
             );
-            assert!(error.message().contains("Json!"));
+            if default_profile && expression == "ToJson({Nat})" {
+                assert_eq!(
+                    error.message(),
+                    "mathematical identity requires materialized values; symbolic or cross-order children are unsupported"
+                );
+            } else {
+                assert!(error.message().contains("Json!"));
+            }
         }
     }
 }

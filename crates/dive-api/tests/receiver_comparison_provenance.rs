@@ -178,7 +178,11 @@ fn unrelated_tool_errors_and_later_errors_keep_their_existing_primary_contract()
                     .expect("run");
                     let doc = report.to_json();
                     unchanged_counts(name, compat, &doc);
-                    if (name == "SubsequentInvariant" || name == "NextLiteral") && !compat {
+                    if matches!(
+                        name,
+                        "InitialOverride" | "SubsequentInvariant" | "NextLiteral"
+                    ) && !compat
+                    {
                         assert_eq!(doc["verdict"], "success", "{name}: {doc}");
                         continue;
                     }
@@ -313,7 +317,7 @@ fn unchanged_counts(name: &str, compat: bool, doc: &Value) {
             "InitGeneration" | "InitialStateLeft" | "InitialStateRight" | "NextStateLeft" => {
                 (2, 1, 1, 0)
             }
-            "InitialDivZero" | "InitialOverride" | "InitialTool" => (1, 1, 1, 1),
+            "InitialDivZero" | "InitialTool" => (1, 1, 1, 1),
             "NextDivZero" => (1, 1, 1, 0),
             _ => (3, 3, 3, 0),
         }

@@ -3,8 +3,10 @@
 Status: active implementation contract, first written 2026-10-26. Current
 acceptance evidence and remaining gaps are in `m1-status.md`. Every citation
 below was read at the time of writing. When a rule here and the
-reference engine disagree, the pinned TLC golden decides, and this document is
-corrected with the evidence.
+reference engine disagree, the pinned golden decides except for owner-approved
+registered divergences. ADR 0153 governs canonical construction and nominal
+compatibility; TLC receiver/normalization history below is background, not a
+requirement to rebuild that machinery.
 
 ## 1. Purpose and scope
 
@@ -17,7 +19,7 @@ today (`AGENTS.md`, "Soundness first").
 
 **Profiles.** Each rule names the profile it applies to:
 
-- **tlc**: `--compat=tlc`. The rule must match pinned TLC.
+- **tlc**: `--compat=tlc`. Existing cheap switches; known gaps are documented.
 - **default**: dive's default profile. It equals TLC except for the registered
   divergences in section 5.
 - **both**: both profiles.
@@ -128,14 +130,14 @@ record sets and function sets run as odometers with the last position fastest.
 A union lists its left operand, then its right, duplicates included. A filter
 uses its bound set's order. Where `elements()` depends on whether TLC has
 already normalized the same set object, the reference engine refuses.
-- Profile: both. Under default the order is the run's value order, but the
-  multiplicity is still TLC's.
+- Profile: tlc, where cheaply supported. Default Core uses canonical set
+  enumeration and does not reproduce constructor-object history (D-028).
 - Evidence: `Tool.java:1422-1468`; `crates/dive-eval/src/tlc_enum.rs:1-28`,
   `:269-298` (refusal), `:461-473`, `:476`; fixtures `NxInRcdOrder`,
   `NxInLazyFilter`, and `NxInLazyCup` (TLC 10 generated / 3 distinct; dive
   refuses); `tlc2/value/impl/SetCupValue.java:215` (`convertAndCache`), `:265`.
-- Core: keep the representation class of `S` until enumeration (lazy view,
-  `03-value-model.md` §8). Keep the refusal when the order depends on history.
+- Core: keep symbolic domains lazy. Default finite enumeration is canonical;
+  nominal compat can name a refusal instead of reproducing object history.
 
 **A7. `x' \subseteq S` enumerates `SUBSET S`.**
 - Profile: both.
@@ -323,44 +325,22 @@ recomputed in the caller's context.
 
 ### (c) Normalization (`isNorm`) and membership errors
 
-**C1. A set enumeration stays unnormalized until TLC normalizes it.** These
-operations normalize: comparison, equality, size, fingerprinting, printing and
-enumeration. Hashing does not. Until normalization, membership is a linear
-scan with `equals`. After it, membership is a binary search with `compareTo`.
-So `<<1>> \in {[qfa |-> 1, qfb |-> 1], [qfa |-> 2, qfb |-> 2]}` is an error
-until the set has been fingerprinted as part of a state.
-- Profile: tlc for the membership outcome. Under default, D-009 answers this
-  comparison.
-- Evidence: `tlc2/value/impl/SetEnumValue.java:146-148`, `:348-350`;
-  `crates/dive-value/src/value.rs:216-229` (`tlc_norm`); fixtures `RvMemUnnorm`
-  and `RvMemNorm` (`crates/dive-value/tests/fixtures/specs/`).
-- Core: the normalization flag is part of the lazy view, not of the value's
-  identity. Interning or hashing must not set it.
+**C1–C2. Core finite-set construction is canonical** (ADR 0153, D-028).
+Canonical sorting, equality and state identity require complete materialized
+children, including singleton elements and every function key and value.
+Unproved symbolic identity is an explicit unsupported result, not structural
+inequality or a specification-error certificate. Symbolic operator domains may
+remain lazy where membership or cardinality does not demand this identity.
+Literal and mapped sets are sorted and deduplicated without retaining TLC
+constructor-object history. Default construction accepts mixed shapes under
+D-009; direct scalar comparison errors remain unchanged. Nominal compat uses
+the same producers with its existing checked-comparison refusals.
 
-**C2. Normalization errors depend on insertion order.** Normalization is
-TLC's binary insertion sort, which raises an error for the first incomparable
-pair it happens to compare. `TupleValue.compareTo(record)` compares sizes, but
-`RecordValue.compareTo(tuple)` fails at once. So `{[qfa |-> 1, qfb |-> 1], <<1>>}`
-is a set and `{<<1>>, [qfa |-> 1, qfb |-> 1]}` is an error.
-- Profile: both. Set construction keeps TLC's rules under D-009
-  (`crates/dive-eval/src/tla_cmp.rs:15-16`).
-- Issue #619: compound elements can be incomparable below their outer class.
-  `Cardinality({<<1,1>>, <<TRUE,2>>})` fails during normalization even in
-  default. Outside the selected closed local literal lane
-  (`03-value-model.md` §8), the core refuses compound sets whose existing
-  comparison shapes do not unify in either profile.
-  Pinned cases and short-circuit controls are consumed from
-  `crates/dive-api/tests/fixtures/core-normalization/oracle.json`.
-- Evidence: `tlc2/value/impl/ValueVec.java:172-197`;
-  `crates/dive-value/src/order.rs:947`; ADR 0012 §4; fixtures `AsymSet*`,
-  `RvCanonAsym`.
-- Core: the slow path runs TLC's algorithm in TLC token order in both
-  profiles. The result is then re-sorted in the run's order.
-- **Superseded for the default profile by
-  [ADR 0153](../../decisions/0153-core-is-the-product.md) §2.** Sets are
-  canonical in the default profile, and TLC's insertion-order normalization
-  errors are a registered divergence there. The rule above describes TLC and
-  applies only to the nominal `--compat=tlc`.
+TLC instead delays normalization, then uses a partial insertion order. Thus
+`{[qfa |-> 1, qfb |-> 1], <<1>>}` can be accepted while the reversed literal
+raises an error. This historical observation is not a Core fidelity obligation.
+Evidence remains in `AsymSet*`, `RvCanonAsym`, `RvMemUnnorm`, `RvMemNorm` and
+`core-normalization/oracle.json`; no pinned oracle result changes.
 
 **C3. Membership dispatches on the set's TLC class.** For example,
 `IntervalValue.member` returns `FALSE` for an untyped model value but raises an
@@ -413,9 +393,9 @@ printing all follow it.
 - Profile: default.
 - Evidence: ADR 0012 §3; D-006, D-010.
 
-**D3. Normalization errors use TLC tokens in both profiles** (rule C2). The
-residual difference is that membership comparisons in a normalized set follow
-the run's order (ADR 0012 §4, D-009).
+**D3. Finite construction is canonical by default** (ADR 0153, D-028).
+TLC token-driven normalization errors are not a default-profile obligation.
+Nominal compat uses existing comparison checks or a documented gap.
 
 **D4. Runtime names get tokens in single-worker encounter order.**
 - Profile: tlc.
@@ -503,9 +483,9 @@ remain unchanged for these selected tuple/record controls.
 - Profile: both.
 - Evidence: `ModelChecker.java:302-305`; `class.rs:26-31`, `:86-99`; fixtures
   `ErWrap*`; `crates/dive-check/tests/fixtures/errors/README.md`.
-- Core: receiver provenance comes from the actual reference diagnostic replay,
-  never the core error's text or numeric code. Keep other cases unverified
-  (section 6, Q3).
+- Core: existing diagnostics must remain sound. Do not add receiver provenance
+  or error-site certificates to emulate TLC construction artifacts (ADR 0153).
+  Unimplemented diagnostic cases remain named refusals.
 
 **E8. An error ends the enumeration of the state.** Successors emitted before
 it keep their counts (probe `EvalErrorMidLevel`: 4 / 3 / 1; ADR 0014 §3).
@@ -682,7 +662,7 @@ each one's TLC counterpart applies.
 | D-006 | Canonical `CHOOSE` and print order | D2 |
 | D-007 | Exact storage option | exact key mode alongside fingerprint mode |
 | D-008 | Structured results | JSON schema unchanged (ADR 0108) |
-| D-009 | TLA+ comparisons | C1/C3 answered by TLA+; C2 kept |
+| D-009 | TLA+ comparisons | C1/C3 answered by TLA+; canonical construction extends C2 (D-028) |
 | D-010 | Canonical exploration order | A3, A6 in the run's order; flag the stop |
 | D-011 | Logical worker count 1 | G4 |
 | D-012 | Independent counterexample validation | every trace replays in `dive-trace` |

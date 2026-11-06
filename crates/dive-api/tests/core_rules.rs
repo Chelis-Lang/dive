@@ -12,8 +12,8 @@
 //! the TLC transcript is checked where the two profiles agree.
 //!
 //! Fixtures the core does not run yet must be refused, naming the
-//! construct, never answered wrongly. `NxInLazyCup` must stay refused in
-//! the default profile (§6).
+//! construct, never answered wrongly. Canonical lazy-union enumeration has
+//! an exact registered generated-count difference (D-028).
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
 
 use std::path::{Path, PathBuf};
@@ -25,11 +25,9 @@ const ORACLE: &str = "tlc-2026.10.06.014338";
 
 /// Fixtures the core refuses, with a word its refusal must contain.
 const REFUSED: &[(&str, &str)] = &[
-    // §6: TLC's multiplicity depends on the set object's history.
-    ("NxInLazyCup", "lazily represented set"),
-    // A set of an integer and a function: TLC's error depends on when it
-    // normalizes the set (C1, C2).
-    ("ErBagUnionNonBag", "depends on when it normalizes"),
+    // A symbolic infinite child cannot acquire a structural state identity.
+    // Refuse before the legacy fingerprint error, without an error certificate.
+    ("ErFpInfinite", "mathematical identity"),
     // TLC cannot apply an operator with a constant body passed as an
     // `OpValue`; the reference engine applies it (`04-plan-compiler.md` §8).
     ("ErHoConstBagOfAll", "body is constant"),
@@ -139,6 +137,17 @@ fn check_dir(dir: &str) -> usize {
             continue;
         }
         assert_eq!(core["engine"], "core", "{name}");
+        if name == "NxInLazyCup" {
+            // D-028 canonical enumeration visits the repeated record once.
+            // The unchanged TLC transcript proves the precise 10 -> 7 delta.
+            assert_eq!(tlc_counts(&transcript), Some((10, 3, 0)));
+            assert_eq!(core["verdict"], "success");
+            assert_eq!(core["statistics"]["generated"], 7);
+            assert_eq!(core["statistics"]["distinct"], 3);
+            assert_eq!(core["statistics"]["depth"], 2);
+            assert_eq!(core["statistics"]["left_on_queue"], 0);
+            continue;
+        }
         if let Some((_, word)) = REFUSED.iter().find(|(n, _)| *n == name) {
             assert_eq!(core["verdict"], "unsupported", "{name}: {core:#}");
             assert!(
@@ -187,8 +196,8 @@ fn check_dir(dir: &str) -> usize {
 #[test]
 fn rule_fixtures_match_the_reference_and_tlc() {
     let agreed = check_dir("crates/dive-eval/tests/fixtures/next");
-    // 18 fixtures: 15 agree (NxEnabled among them), NxInLazyCup is refused
-    // by rule, and NxInstance waits for stream 2.
+    // Native agreements exclude NxInLazyCup's exact registered D-028
+    // generated-count difference; it is checked separately above.
     assert!(agreed >= 15, "only {agreed} rule fixtures agreed");
 }
 
@@ -325,7 +334,7 @@ fn print_fixtures_print_as_tlc() {
 }
 
 /// The M1 generator fixtures (`tests/fixtures/core-m1`): each agrees with
-/// the reference engine, or is one of the lazy-union cases both refuse.
+/// the reference engine, or has an exact D-028 canonical-enumeration control.
 /// The `Fp*` fixtures are states holding a set TLC cannot fingerprint.
 #[test]
 fn m1_generator_fixtures_match_the_reference() {
@@ -345,15 +354,49 @@ fn m1_generator_fixtures_match_the_reference() {
             .to_owned();
         let core = run(&spec, Engine::Core);
         let reference = run(&spec, Engine::Reference);
-        if name.ends_with("Dup") {
-            assert_eq!(core["verdict"], "unsupported", "{name}: {core:#}");
-            assert_eq!(reference["verdict"], "unsupported", "{name}");
+        if matches!(
+            name.as_str(),
+            "FpInfiniteSets" | "FpRecordSet" | "FpSeqSet" | "FpSubsetNat"
+        ) {
+            assert_eq!(core["verdict"], "unsupported");
             assert!(
                 core["message"]
                     .as_str()
-                    .is_some_and(|m| m.contains("lazily represented set")),
-                "{name}: {core:#}"
+                    .is_some_and(|m| m.contains("mathematical identity"))
             );
+            assert!(core["tlc"].is_null());
+            assert_eq!(reference["verdict"], "evaluation-error");
+            continue;
+        }
+        if name == "FpInit" {
+            // Both reject unproved infinite identity; Core now rejects at
+            // construction rather than assigning meaningless partial counts.
+            assert_eq!(core["verdict"], "unsupported", "{name}");
+            assert_eq!(reference["verdict"], "unsupported", "{name}");
+            assert!(core["tlc"].is_null());
+            assert!(
+                core["message"]
+                    .as_str()
+                    .is_some_and(|m| m.contains("mathematical identity"))
+            );
+            continue;
+        }
+        if let Some((generated, distinct)) = match name.as_str() {
+            "LazyCupDup" => Some((7, 3)),
+            "LazyUnionDup" => Some((5, 2)),
+            _ => None,
+        } {
+            // D-028 removes raw duplicate enumeration. Shared finite UNION
+            // construction also supports the duplicate-union case for replay.
+            assert_eq!(core["verdict"], "success");
+            assert_eq!(core["statistics"]["generated"], generated);
+            assert_eq!(core["statistics"]["distinct"], distinct);
+            assert_eq!(core["statistics"]["depth"], 2);
+            if name == "LazyCupDup" {
+                assert_eq!(reference["verdict"], "unsupported");
+            } else {
+                assert_eq!(observed(&core), observed(&reference));
+            }
             continue;
         }
         assert_eq!(observed(&core), observed(&reference), "{name}");

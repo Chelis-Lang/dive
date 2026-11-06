@@ -150,14 +150,16 @@ fn core_counterexamples_equal_reference_with_explicit_unconfirmed_endings() {
             continue;
         }
         let reference = run(spec, Engine::Reference);
-        assert_eq!(
-            core["counterexample"]["trace"], reference["counterexample"]["trace"],
-            "{name}: core and reference traces differ"
-        );
-        assert_eq!(
-            core["counterexample"]["length"], reference["counterexample"]["length"],
-            "{name}"
-        );
+        if reference["verdict"] != "unsupported" {
+            assert_eq!(
+                core["counterexample"]["trace"], reference["counterexample"]["trace"],
+                "{name}: core and reference traces differ"
+            );
+            assert_eq!(
+                core["counterexample"]["length"], reference["counterexample"]["length"],
+                "{name}"
+            );
+        }
         let trace = &core["counterexample"]["trace"];
         if trace.is_null() {
             // No trace document: no counterexample, or one with a state

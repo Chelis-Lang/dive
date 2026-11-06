@@ -12,8 +12,8 @@
 //!   value is unequal to everything else).
 //! - Inside sets and functions, values of different kinds are unequal, so
 //!   `[a |-> 1, b |-> 1] = <<1>>` and `<<1>> \in [a : {1}]` are `FALSE`.
-//! - Set enumerations are still normalized by TLC's rules: this option
-//!   changes comparisons, not set construction.
+//! - Canonical identity demands a materialized value tree. Symbolic operator
+//!   membership stays lazy; unproved symbolic equality refuses explicitly.
 
 use dive_value::{ErrorKind, SetKind, Value, tlc};
 
@@ -38,10 +38,22 @@ fn class(v: &Value) -> Class {
     }
 }
 
+fn equality_operand(core: &Core, value: &Value) -> Result<Value> {
+    // Intervals have exact scalar bounds. Equality compares their bounds or
+    // streams one against an already materialized set, without structural
+    // fallback for symbolic children.
+    if matches!(value, Value::Set(set) if set.as_interval().is_some()) {
+        return Ok(value.clone());
+    }
+    Ok(value.materialized_for_equality(core.ctx)?)
+}
+
 /// `a = b`.
 pub(crate) fn equals(core: &Core, a: &Value, b: &Value) -> Result<bool> {
     let (ca, cb) = (class(a), class(b));
     if ca == cb && ca != Class::Scalar(3) {
+        let a = equality_operand(core, a)?;
+        let b = equality_operand(core, b)?;
         // Same kind: TLA+'s extensional equality, which `Value`'s total
         // equality implements (values of different kinds inside are unequal).
         return Ok(a == b);
@@ -81,21 +93,22 @@ pub(crate) fn member(core: &Core, elem: &Value, set: &Value) -> Result<bool> {
             Ok(true)
         }
         SetKind::Enum | SetKind::Raw => {
-            // An enumeration TLC has not normalized is scanned as written, so
-            // that the answer does not depend on normalizing it.
-            let normalized;
-            let elems = if let Some(raw) = s.raw_elements() {
-                raw
-            } else {
-                normalized = s.elements(core.ctx)?;
-                &normalized
+            let elem = equality_operand(core, elem)?;
+            set.require_materialized(core.ctx)?;
+            // Inspection admits explicit raw children, but those children still
+            // need canonical identity before Value equality can compare them.
+            // Providers were rejected by the read-only inspection above.
+            let materialized = set.materialized_for_equality(core.ctx)?;
+            let Value::Set(materialized_set) = &materialized else {
+                return Err(crate::EvalError::bug("materialized set changed value kind"));
             };
-            let ce = class(elem);
+            let elems = materialized_set.elements(core.ctx)?;
+            let ce = class(&elem);
             let mut unspecified = false;
-            for x in elems {
+            for x in elems.iter() {
                 let cx = class(x);
                 if ce == cx && ce != Class::Scalar(3) {
-                    if elem == x {
+                    if &elem == x {
                         return Ok(true);
                     }
                 } else if matches!(ce, Class::Scalar(_))
@@ -105,7 +118,7 @@ pub(crate) fn member(core: &Core, elem: &Value, set: &Value) -> Result<bool> {
                 {
                     // A comparison TLA+ leaves unspecified (or a model value):
                     // TLC's answer decides it, or the membership is unspecified.
-                    match tlc::equals(elem, x, core.ctx) {
+                    match tlc::equals(&elem, x, core.ctx) {
                         Ok(true) => return Ok(true),
                         Ok(false) => {}
                         Err(error) if matches!(error.kind(), ErrorKind::Interrupted { .. }) => {
@@ -116,7 +129,7 @@ pub(crate) fn member(core: &Core, elem: &Value, set: &Value) -> Result<bool> {
                 }
             }
             if unspecified {
-                return Ok(tlc::member(elem, set, core.ctx)?);
+                return Ok(tlc::member(&elem, &materialized, core.ctx)?);
             }
             Ok(false)
         }

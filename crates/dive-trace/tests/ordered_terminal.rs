@@ -70,7 +70,7 @@ fn request(model: &dive_model::Model) -> Result<TraceDoc, Box<dyn std::error::Er
 }
 #[test]
 fn exact_ordered_source_cause_reported_and_deciding_context_are_required() -> TestResult {
-    for options in [Options::dive(), Options::tlc()] {
+    for (options, default_profile) in [(Options::dive(), true), (Options::tlc(), false)] {
         let (session, model) = input(BODY, "", options)?;
         let doc = request(&model)?;
         let wire = doc.to_json();
@@ -144,9 +144,30 @@ fn exact_ordered_source_cause_reported_and_deciding_context_are_required() -> Te
             "",
             options,
         )?;
-        assert!(
-            matches!(raw.try_read(&request(&raw_model)?)?.0.validation,Validation::Unsupported(ref feature) if feature.contains("materialized"))
-        );
+        let doc = request(&raw_model)?;
+        if default_profile {
+            // D-028 accepts the first mixed-set successor; the later genuine
+            // division-by-zero error is still a source-qualified v1 word.
+            let wire = doc.to_json();
+            assert_eq!(wire["version"], 1);
+            assert_eq!(wire["ending"]["endpoint"]["deciding"], 2179);
+            assert_eq!(raw.try_read(&doc)?.0.validation, Validation::Valid);
+            for (pointer, value) in [
+                ("/ending/ec", json!("GENERAL")),
+                ("/ending/endpoint/source/module", json!("Forged")),
+            ] {
+                let mut bad = wire.clone();
+                *bad.pointer_mut(pointer).ok_or("field")? = value;
+                assert!(matches!(
+                    raw.try_read(&TraceDoc::from_json(&bad)?)?.0.validation,
+                    Validation::Invalid(_)
+                ));
+            }
+        } else {
+            assert!(
+                matches!(raw.try_read(&doc)?.0.validation,Validation::Unsupported(ref feature) if feature.contains("materialized"))
+            );
+        }
     }
     Ok(())
 }

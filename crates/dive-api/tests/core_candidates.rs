@@ -297,7 +297,7 @@ fn candidate_closure_keeps_an_actual_shared_dag_compact() {
 }
 
 #[test]
-fn candidate_constructor_index_is_separate_accounted_and_released() {
+fn canonical_candidates_need_no_constructor_history_index() {
     for tlc in [false, true] {
         let mut req = request(
             "tests/fixtures/core-candidates/OriginRows.tla",
@@ -321,6 +321,9 @@ fn candidate_constructor_index_is_separate_accounted_and_released() {
         let peak = usage["peak_origin_index_bytes"]
             .as_u64()
             .expect("actual origin workspace");
-        assert!(peak > 0 && peak <= dive_core::candidate_codec::MAX_ORIGIN_INDEX_BYTES as u64);
+        assert_eq!(
+            peak, 0,
+            "canonical candidates retain no constructor history"
+        );
     }
 }

@@ -1,4 +1,4 @@
-//! C2 normalization errors remain failures in both semantic profiles (#619).
+//! Canonical default construction and nominal compat against unchanged TLC facts.
 #![allow(clippy::expect_used, reason = "test fixtures")]
 
 use std::path::PathBuf;
@@ -21,7 +21,7 @@ fn observed(report: &dive_api::CheckReport) -> Value {
 }
 
 #[test]
-fn compound_normalization_requires_comparable_shapes_in_both_profiles() {
+fn canonical_default_accepts_shapes_while_nominal_compat_names_its_gaps() {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/core-normalization");
     let oracle: Value =
         serde_json::from_str(include_str!("fixtures/core-normalization/oracle.json"))
@@ -43,7 +43,7 @@ fn compound_normalization_requires_comparable_shapes_in_both_profiles() {
                 let reference_observed = observed(&reference);
                 // The direct equality fixture deliberately exercises D-009's
                 // approved default answer; its TLC error is not default parity.
-                if name != "DefaultEqualityControl" {
+                if compat_tlc && name != "DefaultEqualityControl" {
                     for key in [
                         "verdict",
                         "error_class",
@@ -59,11 +59,19 @@ fn compound_normalization_requires_comparable_shapes_in_both_profiles() {
                         );
                     }
                 }
-                // These two pinned successful controls now have the actual
-                // constructor/demand path; all failing C2 fixtures still refuse.
-                let covered = matches!(name.as_str(), "OrderShortCircuit" | "SizeShortCircuit");
-                let refused = (expected["core"] == "unsupported" && !covered)
-                    || (name == "DefaultEqualityControl" && compat_tlc);
+                if !compat_tlc {
+                    // Every invariant in this matrix is a true mathematical
+                    // cardinality/equality statement over exactly three states.
+                    assert_eq!(reference_observed["verdict"], "success");
+                    assert_eq!(reference_observed["distinct"], 3);
+                    assert_eq!(reference_observed["generated"], 3);
+                    assert_eq!(reference_observed["depth"], 3);
+                }
+                let refused = compat_tlc
+                    && !matches!(
+                        name.as_str(),
+                        "HomogeneousControl" | "LazyControl" | "RecordDomainControl"
+                    );
                 for opts in ["", "-fold,-memo", "-hashcons"] {
                     let core = check_file_core_opts(&req, opts).expect("core runs");
                     let doc = core.to_json();
