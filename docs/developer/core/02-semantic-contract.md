@@ -686,12 +686,12 @@ each one's TLC counterpart applies.
    fingerprint (F4). If the new core changes that function, a reported seed
    stops replaying runs made with the old core. Is that acceptable, or must the
    key stay FP64?
-3. **Value source provenance (E7).** Should the new core track where values
-   were built, so that 2147 classes can be verified, or keep them unverified?
-4. **Normalization outside the model (C4).** This needs a pinned probe: an
-   out-of-model successor whose invariant tests membership of a record in an
-   unnormalized set. Until then, should the new core refuse that shape under
-   tlc?
+3. **Resolved by ADR 0153: value source provenance (E7).** Preserve existing
+   implemented diagnostic proofs; do not add receiver-identity machinery solely
+   for TLC error fidelity.
+4. **Resolved by ADR 0153: normalization outside the model (C4).** Default sets
+   are canonical. Nominal TLC compatibility documents its remaining gaps rather
+   than recreating normalization history.
 5. **`TLCFP`.** `TlcExtTLCFP` is declared in `crates/dive-ir/src/std_op.rs:253`.
    I could not find its evaluator binding in `dive-stdlib` or `dive-eval`.
    Is it supported today?
