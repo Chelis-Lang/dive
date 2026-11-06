@@ -35,6 +35,20 @@ order follow the resolved [compatibility profile](compatibility.md). An operator
 name in the registry is an inventory entry, not a promise of complete support
 for every argument and mode.
 
+Core resolves a configured constant such as `C <- Target` through imported
+declarations inside `INSTANCE`, including nested instances. Explicit `WITH`
+bindings still take precedence. The target keeps its own module and lexical
+scope, while state substitutions retain their current or primed meaning.
+The configured target's body runs when demanded; ordinary helpers retain their
+successful startup values, including Print and RNG results. Startup
+pre-evaluation has no checker-register writer: integer register writes fail
+softly and remain lazy, while named writes publish no register value. ASSUMEs
+and checking use their ordinary register access. An explicit configured value
+override still replaces the target. Lazy configured functions selected through
+an instance can remain unsupported when Core cannot
+preserve undemanded entries. Configured targets with unresolved recursive or
+`ENABLED` calls also refuse. The refusal gives no checking verdict.
+
 A constant definition whose startup evaluation fails remains lazy at its actual
 use. For example, `F == [i \in 0..2 |-> IF i=0 THEN 0 ELSE 1 \div 0]`
 can be selected as `F[0]` without demanding entries 1 and 2, whether the function

@@ -34,6 +34,9 @@ pub(crate) mod control {
     /// Source attachment by the diagnostic tool. This changes error provenance,
     /// never a specification's value or the ordinary evaluation controls.
     pub(crate) const DIAGNOSTIC: u8 = 1 << 5;
+    /// Startup pre-evaluation has no running checker register writer. This
+    /// private stage is distinct from ordinary constant-level ASSUMEs.
+    pub(crate) const PRECOMPUTE: u8 = 1 << 6;
     /// `EvalControl.Clear`.
     pub(crate) const CLEAR: u8 = 0;
 

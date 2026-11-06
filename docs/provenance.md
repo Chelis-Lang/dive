@@ -7,6 +7,14 @@ tlapm `library/` at `d8b9747` (BSD-2-Clause). Their README records full pins,
 the jar digest, update instructions and redistribution licenses. These are
 module-search fallbacks; bundled resolution does not add operator support.
 
+Startup register pre-evaluation follows `SpecProcessor.processConstantDefns`
+and `TLCGetSet.TLCSet` in pinned tlaplus `94d0c50` (MIT). Before checker creation,
+integer writes fail and pre-evaluation keeps no value; named writes are no-ops.
+The shared evaluator models that availability through its existing local
+evaluation control state. It preserves successful ordinary Print/RNG startup
+values, argument errors and typed interruptions; no Java exception-object
+projection or new runtime cache is introduced.
+
 Native distributed safety reuses dive's existing ordered BFS/WorkerSink and
 owned Core recovery foundation (ADRs 0141/0151), rather than porting TLC's
 distributed protocol or adding another evaluator. Private framing/owned DAG

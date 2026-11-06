@@ -924,6 +924,31 @@ impl Core {
     }
 
     /// `TLCGetSet.TLCSet`.
+    ///
+    /// Startup pre-evaluation runs before a checker or simulator is installed.
+    /// Integer writes therefore fail softly and cannot produce a startup cache
+    /// value; named writes are no-ops there. Runtime and ASSUME writes use
+    /// `tlc_set` directly and retain their existing behavior.
+    pub(crate) fn startup_register_write(&self, key: &Value, value: &Value) -> Result<()> {
+        match key {
+            Value::Int(_) | Value::BigInt(_) if self.register_index(key)? >= 0 => {
+                self.check_register_access()?;
+                Err(EvalError::general(
+                    "integer TLCSet registers are unavailable during startup pre-evaluation",
+                ))
+            }
+            Value::Str(name) if name.as_str().starts_with("s:") => {
+                if let Some(host) = self.host.get() {
+                    host.check_tlc_access(name.as_str(), true)
+                        .map_err(host_error)?;
+                }
+                self.check_register_access()
+            }
+            _ => self.tlc_set(key, value).map(|_| ()),
+        }
+    }
+
+    /// `TLCGetSet.TLCSet` with an active checker (including ASSUMEs).
     pub(crate) fn tlc_set(&self, vidx: &Value, val: &Value) -> Result<Value> {
         match vidx {
             Value::Int(_) | Value::BigInt(_) => {

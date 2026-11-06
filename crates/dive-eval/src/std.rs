@@ -25,7 +25,7 @@ use dive_ir::{Arg, Expr, ExprId, StdKind, StdOp, StdSupport};
 use dive_value::{Atom, Int, Set, SetKind, Value, print, tlc};
 
 use crate::core::{Core, is_enumerable, java_class};
-use crate::env::{Env, Ev, OpVal, St};
+use crate::env::{Env, Ev, OpVal, St, control};
 use crate::error::{Ec, EvalError, Result};
 
 /// An evaluated argument of a value override.
@@ -524,7 +524,14 @@ impl Core {
                 Ok(Value::tuple(out))
             }
             StdOp::TlcPermutations => self.permutations(v(0)?),
-            StdOp::TlcTLCSet => self.tlc_set(v(0)?, v(1)?),
+            StdOp::TlcTLCSet => {
+                let (key, value) = (v(0)?, v(1)?);
+                if st.is(control::PRECOMPUTE) {
+                    self.startup_register_write(key, value)?;
+                    return Ok(Value::TRUE);
+                }
+                self.tlc_set(key, value)
+            }
             StdOp::TlcRandomElement
             | StdOp::RandomizationRandomSubset
             | StdOp::RandomizationRandomSetOfSubsets => {
