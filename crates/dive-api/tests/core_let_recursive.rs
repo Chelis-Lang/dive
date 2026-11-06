@@ -258,10 +258,70 @@ fn primed_request(config: &str, compat_tlc: bool, workers: usize) -> CheckReques
     let mut req = request(config, compat_tlc, workers);
     if config.starts_with("Queue") {
         req.file.set_file_name("PrimedQueue.tla");
+    } else if config.starts_with("Top") {
+        req.file.set_file_name("TopRecInstance.tla");
     } else if config != "Prime" {
         req.file.set_file_name("PrimedCalls.tla");
     }
     req
+}
+
+#[test]
+fn top_level_recursive_instances_never_borrow_the_callers_frame()
+-> Result<(), Box<dyn std::error::Error>> {
+    for compat_tlc in [false, true] {
+        // Pinned TLC 94d0c50: both the plain and mixed opposite claims fail.
+        // Reusing the caller thunk slot instead returns 1 and reverses them.
+        for config in [
+            "TopPlainHolding",
+            "TopMixedHolding",
+            "TopPrimeHolding",
+            "TopPlainWrong",
+            "TopMixedWrong",
+        ] {
+            let wrong = config.ends_with("Wrong");
+            let reference =
+                check_file_engine(&primed_request(config, compat_tlc, 1), Engine::Reference)?;
+            let expected = observed(&reference);
+            assert_eq!(
+                expected["verdict"],
+                if wrong {
+                    "action-property-violation"
+                } else {
+                    "success"
+                }
+            );
+            assert_eq!(expected["code"], if wrong { 2112 } else { 2193 });
+            assert_eq!(expected["exit"], if wrong { 13 } else { 0 });
+            assert_eq!(
+                expected["statistics"]["generated"],
+                if wrong { 3 } else { 17 }
+            );
+            assert_eq!(
+                expected["statistics"]["distinct"],
+                if wrong { 2 } else { 4 }
+            );
+            assert_eq!(expected["statistics"]["depth"], 2);
+            for workers in [1, 4] {
+                let req = primed_request(config, compat_tlc, workers);
+                for switches in ["", "-fold,-memo,-step-memo,-hashcons,-eager"] {
+                    let core = check_file_core_opts(&req, switches)?;
+                    assert_eq!(core.to_json()["engine"], "core");
+                    assert_eq!(
+                        observed(&core),
+                        expected,
+                        "{config}/{compat_tlc}/{workers}/{switches}"
+                    );
+                    if wrong {
+                        validate_primed_word(&req, &core, compat_tlc, config)?;
+                    } else {
+                        assert!(core.to_json()["counterexample"].is_null());
+                    }
+                }
+            }
+        }
+    }
+    Ok(())
 }
 
 #[test]
@@ -338,7 +398,7 @@ fn validate_primed_word(
         Validation::Valid
     );
     let mut bad = payload.clone();
-    bad["states"][1]["values"]["x"] = json!(3);
+    bad["states"][1]["values"]["x"] = json!(if config.starts_with("Top") { 4 } else { 3 });
     assert!(matches!(
         model.validate(&TraceDoc::from_json(&bad)?).validation,
         Validation::Invalid(ref failure) if failure.check == Check::Next
@@ -346,6 +406,8 @@ fn validate_primed_word(
     let holding = primed_request(
         if config == "QueueWrong" {
             "QueueHolding"
+        } else if config.starts_with("Top") {
+            "TopMixedHolding"
         } else {
             "PrimedHolding"
         },
@@ -387,6 +449,10 @@ fn primed_captures_mixed_self_calls_effects_and_escapes_stay_refused()
             (
                 "PrimedEscape",
                 "a recursive function used other than applied (M1 core)",
+            ),
+            (
+                "TopParameter",
+                "a recursive function with a dynamic INSTANCE capture outside its lexical activation (M1 core)",
             ),
         ] {
             for switches in ["", "-fold,-memo,-step-memo,-hashcons,-eager"] {

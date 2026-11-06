@@ -2823,23 +2823,20 @@ impl Compiler<'_> {
         })
     }
 
-    /// Starts compiling a function for `d`: its environment, with the
-    /// lexical parent for a nested definition (whose enclosing locals then
-    /// become captures).
+    /// Starts a fresh runtime frame for `d`, including top-level definitions.
+    /// Its boundary prevents caller substitutions from reusing frame slots;
+    /// a nested definition's lexical parent supplies its captures.
     fn begin_fun(&mut self, d: DefId, fun: u32, env: usize) -> Result<(usize, bool), Error> {
         let parent = self.lexical_parent(d, env)?;
         let inner = self.new_env(d, parent);
-        let lifted = parent.is_some();
-        if lifted {
-            self.lifts.push(Lift {
-                floor: inner,
-                parent,
-                fun,
-                caps: Vec::new(),
-                self_calls: Vec::new(),
-            });
-        }
-        Ok((inner, lifted))
+        self.lifts.push(Lift {
+            floor: inner,
+            parent,
+            fun,
+            caps: Vec::new(),
+            self_calls: Vec::new(),
+        });
+        Ok((inner, true))
     }
 
     /// LET values use their owner's frame layout, rather than owning a frame.

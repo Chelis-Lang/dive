@@ -200,6 +200,8 @@ section 4 decide.
      External substitution expressions are compiled inside that callee frame;
      proved constants can be reused. Non-lexical captures and effectful or
      recursive substitutions refuse rather than borrowing caller thunk slots.
+     Every compiled function records this runtime-frame boundary, including
+     top-level recursive functions with no lexical parent.
      Primed applications compile the domain and body against the candidate
      state; their bound argument stays a local slot. Self calls must use the
      definition's compilation mode. Primed enclosing-local captures, mixed-mode

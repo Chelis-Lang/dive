@@ -41,6 +41,8 @@
 - Evaluate pure recursive-function applications under prime on Core, using
   successor-state domains, bodies and arguments. Keep primed enclosing-local
   captures, mixed-mode self calls and effectful primed functions refused.
+  Recompile INSTANCE substitutions inside every recursive callee frame,
+  including top-level functions, to preserve true and false property verdicts.
 
 - Restore Core `Seq` membership over original Cartesian-product ranges and
   demanded enumeration of owned raw literal queries in nested `SUBSET` checks.

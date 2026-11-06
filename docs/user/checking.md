@@ -335,6 +335,8 @@ state, including state-dependent domains and arguments. Escaping recursive
 function values, primed enclosing-local captures, mixed plain/primed self calls,
 effectful primed functions, enclosing operator parameters and mutually nested
 recursion remain named refusals in both profiles.
+Top-level recursive functions also compile substituted expressions in their own
+runtime frame; caller thunk slots cannot supply a recursive argument's value.
 Substitutions that require effectful or recursive evaluation, or a caller local
 outside the function's lexical activation, also return `unsupported`.
 Recursive functions used directly as actions are also refused: their logical
