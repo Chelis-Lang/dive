@@ -39,6 +39,9 @@ pub(crate) fn materialized(heap: &Heap, value: Handle, depth: u8) -> Result<bool
             .is_none_or(|id| heap.known_name(id)));
     }
     let view = heap.view(value);
+    if view.flags & crate::node::flags::CONCRETE != 0 {
+        return Ok(true);
+    }
     if view.is_lazy()
         || !matches!(
             view.kind,
@@ -707,7 +710,9 @@ fn scalar_function_shapes(heap: &Heap, first: Handle, rest: &[Handle]) -> bool {
             return None;
         }
         let v = heap.view(h);
-        if !v.kind.is_fcn() || v.flags & !crate::node::flags::TUPLE != 0 {
+        if !v.kind.is_fcn()
+            || v.flags & !(crate::node::flags::TUPLE | crate::node::flags::CONCRETE) != 0
+        {
             return None;
         }
         Some(v)

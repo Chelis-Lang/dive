@@ -100,6 +100,12 @@ pub mod flags {
     pub const HISTORY: u8 = 32;
     /// All observable representation bits.
     pub const VIEW: u8 = UNNORM | RECORD | TUPLE | NESTED_VIEW | HISTORY;
+    /// A cached proof, set only by builders that checked every child: the
+    /// node is an eager `Set`, `IntFcn` or `Fcn` and every descendant is
+    /// materialized (`compare::materialized`). Its absence proves nothing;
+    /// the full check then runs. It is not representation or identity:
+    /// interning, codecs and exchange ignore it.
+    pub const CONCRETE: u8 = 64;
 }
 
 impl Kind {

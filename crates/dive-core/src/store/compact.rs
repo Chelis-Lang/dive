@@ -83,7 +83,7 @@ impl Permanent {
                 .retained_view(handle)
                 .ok_or_else(|| invalid("compiled node missing"))?;
             if v.kind != node.kind
-                || v.flags != node.flags
+                || v.flags & !flags::CONCRETE != node.flags & !flags::CONCRETE
                 || v.lo != node.lo
                 || v.hash != node.hash
                 || v.sum != node.sum

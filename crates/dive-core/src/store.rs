@@ -75,9 +75,19 @@ fn interning_hash(kind: Kind, fl: u8, lo: i64, hash: u64, data: &[Handle]) -> u6
     if fl & (flags::HISTORY | flags::NESTED_VIEW) == 0 {
         return hash;
     }
-    let header = u64::from(kind as u8) | (u64::from(fl) << 8);
+    let header = u64::from(kind as u8) | (u64::from(fl & !flags::CONCRETE) << 8);
     let hash = mix2(mix2(hash, header), lo.cast_unsigned());
     data.iter().fold(hash, |key, h| mix2(key, h.bits()))
+}
+
+/// Whether a stored node is the one being interned. [`flags::CONCRETE`] is a
+/// cached proof, not identity, so it is ignored.
+fn same_identity(n: &View<'_>, kind: Kind, fl: u8, lo: i64, hash: u64, data: &[Handle]) -> bool {
+    n.kind == kind
+        && (n.flags & !flags::CONCRETE) == (fl & !flags::CONCRETE)
+        && n.lo == lo
+        && n.hash == hash
+        && n.data == data
 }
 
 /// A node's header fields.
@@ -848,9 +858,8 @@ impl Store {
         #[allow(clippy::cast_possible_truncation, reason = "the low 32 bits")]
         let h32 = index_hash as u32;
         let same = |class: u8, i: u64| {
-            cols.view(class, i).is_some_and(|n| {
-                n.kind == kind && n.flags == flags && n.lo == lo && n.hash == hash && n.data == data
-            })
+            cols.view(class, i)
+                .is_some_and(|n| same_identity(&n, kind, flags, lo, hash, data))
         };
         if self.hashcons {
             // The lock-free probe of the cached table.

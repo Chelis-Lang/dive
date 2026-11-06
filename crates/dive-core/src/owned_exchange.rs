@@ -410,7 +410,13 @@ impl<'a> Writer<'a> {
         if view.flags & flags::HISTORY != 0 && !self.heap.store().owns_history(value) {
             return Err(invalid("unregistered history"));
         }
-        let (kind, fl, lo, hash, sum) = (view.kind, view.flags, view.lo, view.hash, view.sum);
+        let (kind, fl, lo, hash, sum) = (
+            view.kind,
+            view.flags & !flags::CONCRETE,
+            view.lo,
+            view.hash,
+            view.sum,
+        );
         let scratch = view
             .data
             .len()
@@ -693,7 +699,13 @@ fn decode(
                 .store()
                 .retained_view(existing)
                 .ok_or_else(|| invalid("unissued existing phase"))?;
-            if (view.kind, view.flags, view.lo, view.hash, view.sum) != (kind, fl, lo, hash, sum)
+            if (
+                view.kind,
+                view.flags & !flags::CONCRETE,
+                view.lo,
+                view.hash,
+                view.sum,
+            ) != (kind, fl & !flags::CONCRETE, lo, hash, sum)
                 || view.data != children
             {
                 return Err(invalid(

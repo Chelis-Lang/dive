@@ -276,7 +276,13 @@ impl Write {
             return Err(Error::unsupported("candidate DAG exceeds its record bound"));
         }
         self.scratch += scratch;
-        let (kind, fl, lo, hash, sum) = (view.kind, view.flags, view.lo, view.hash, view.sum);
+        let (kind, fl, lo, hash, sum) = (
+            view.kind,
+            view.flags & !flags::CONCRETE,
+            view.lo,
+            view.hash,
+            view.sum,
+        );
         let mut children = Vec::new();
         children
             .try_reserve_exact(view.data.len())
@@ -540,7 +546,7 @@ mod tests {
         assert_eq!(heap.hash(closed), heap.hash(expected));
         assert!(heap.eq(closed, expected));
         assert!(enumeration.is_transient() && closed.is_transient());
-        assert_eq!(heap.view(closed).flags, 0);
+        assert_eq!(heap.view(closed).flags & !flags::CONCRETE, 0);
         assert_eq!(store.stats().nodes, before);
         heap.set_speculative(old);
         let retained = heap.intern(closed).unwrap();

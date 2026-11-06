@@ -269,6 +269,30 @@ impl Heap {
         )
     }
 
+    /// Whether a child is proved materialized without walking it: a known
+    /// scalar, an eager big integer, or a node carrying [`flags::CONCRETE`].
+    /// `false` proves nothing (`compare::materialized` decides).
+    #[inline]
+    fn concrete_child(&self, h: Handle) -> bool {
+        if !h.is_compound() {
+            return h
+                .as_str_id()
+                .or_else(|| h.as_model_id())
+                .is_none_or(|id| self.known_name(id));
+        }
+        let v = self.view(h);
+        v.flags & flags::CONCRETE != 0 || (v.kind == Kind::BigInt && !v.is_lazy())
+    }
+
+    /// [`flags::CONCRETE`] when every child is [`Heap::concrete_child`].
+    fn concrete_bit(&self, children: &[Handle]) -> u8 {
+        if children.iter().all(|&c| self.concrete_child(c)) {
+            flags::CONCRETE
+        } else {
+            0
+        }
+    }
+
     /// Whether a value must be closed by the evaluator before it is hashed,
     /// compared or interned (§11.3).
     #[must_use]
@@ -531,8 +555,15 @@ impl Heap {
         if lazy & flags::LAZY != 0 {
             self.lazy_misuse();
         }
-        self.arena
-            .alloc(Kind::Set, 0, 0, set_hash(elems.len(), sum), sum, elems)
+        let concrete = self.concrete_bit(elems);
+        self.arena.alloc(
+            Kind::Set,
+            concrete,
+            0,
+            set_hash(elems.len(), sum),
+            sum,
+            elems,
+        )
     }
 
     /// The empty set.
@@ -555,6 +586,9 @@ impl Heap {
             let (h, f) = self.child(v);
             sum = sum.wrapping_add(mix2(int_hash(k), h));
             fl |= f;
+        }
+        if fl & flags::LAZY == 0 {
+            fl |= self.concrete_bit(vals);
         }
         self.arena.alloc(
             Kind::IntFcn,
@@ -601,6 +635,9 @@ impl Heap {
         let mut data = Vec::with_capacity(keys.len() * 2);
         data.extend_from_slice(keys);
         data.extend_from_slice(vals);
+        if fl & flags::LAZY == 0 {
+            fl |= self.concrete_bit(&data);
+        }
         self.arena.alloc(
             Kind::Fcn,
             fl | view,
@@ -651,6 +688,7 @@ impl Heap {
     pub fn fcn_with(&mut self, f: Handle, i: usize, new: Handle) -> Handle {
         let v = self.view(f);
         let (kind, lo, sum, n, was_lazy) = (v.kind, v.lo, v.sum, v.len(), v.is_lazy());
+        let was_concrete = v.flags & flags::CONCRETE != 0;
         // TLC's `RecordValue` and `TupleValue` EXCEPT keep their class.
         let record = v.flags & (flags::RECORD | flags::TUPLE);
         let mut data = v.data.to_vec();
@@ -694,8 +732,19 @@ impl Heap {
             sum.wrapping_sub(mix2(key_hash, self.child(old).0))
                 .wrapping_add(mix2(key_hash, self.child(new).0))
         };
-        self.arena
-            .alloc(kind, fl | record, lo, fcn_hash(n, sum), sum, &data)
+        let concrete = if was_concrete && fl & flags::LAZY == 0 && self.concrete_child(new) {
+            flags::CONCRETE
+        } else {
+            0
+        };
+        self.arena.alloc(
+            kind,
+            fl | record | concrete,
+            lo,
+            fcn_hash(n, sum),
+            sum,
+            &data,
+        )
     }
 
     /// A symbolic set node. Its hash is structural, not extensional: a
@@ -1239,17 +1288,18 @@ impl Heap {
             *child = self.close_local(*child, depth + 1, close)?;
         }
         let unchanged = self.view(h).data == children;
-        let closed = if unchanged && self.view(h).flags == 0 && self.view(h).lo == lo {
-            h
-        } else if unchanged && h.is_transient() {
-            self.arena
-                .project(h, 0, lo)
-                .ok_or_else(|| Error::internal("candidate identity projection owner"))?
-        } else {
-            // Materializing a child changes its value hash and can coalesce
-            // equal set members. Recompute the parent's structure and hash.
-            self.rebuild(h, &children)
-        };
+        let closed =
+            if unchanged && self.view(h).flags & !flags::CONCRETE == 0 && self.view(h).lo == lo {
+                h
+            } else if unchanged && h.is_transient() {
+                self.arena
+                    .project(h, 0, lo)
+                    .ok_or_else(|| Error::internal("candidate identity projection owner"))?
+            } else {
+                // Materializing a child changes its value hash and can coalesce
+                // equal set members. Recompute the parent's structure and hash.
+                self.rebuild(h, &children)
+            };
         close.scratch -= bytes;
         close.remember(source, closed)?;
         close.remember(h, closed)?;
@@ -1292,10 +1342,11 @@ impl Heap {
                         for d in &mut data {
                             *d = self.intern_materialized(*d)?;
                         }
+                        let concrete = self.concrete_identity(kind, &data);
                         return Ok(self.store.intern(
                             &mut self.cache,
                             kind,
-                            0,
+                            concrete,
                             lo,
                             hash,
                             sum,
@@ -1344,11 +1395,21 @@ impl Heap {
                 *d = self.intern_materialized(*d)?;
             }
         }
+        let concrete = self.concrete_identity(kind, &data);
         let p = self
             .store
-            .intern(&mut self.cache, kind, 0, lo, hash, sum, &data);
+            .intern(&mut self.cache, kind, concrete, lo, hash, sum, &data);
         self.arena.interned[idx] = p;
         Ok(p)
+    }
+
+    /// [`flags::CONCRETE`] for an eager canonical identity node.
+    fn concrete_identity(&self, kind: Kind, data: &[Handle]) -> u8 {
+        if matches!(kind, Kind::Set | Kind::IntFcn | Kind::Fcn) {
+            self.concrete_bit(data)
+        } else {
+            0
+        }
     }
 
     /// Interns a constant, preserving available function literal classes

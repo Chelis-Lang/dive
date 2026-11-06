@@ -626,8 +626,11 @@ mod tests {
         }
     }
 
+    // Builders prove deep eager values concrete bottom-up (`flags::CONCRETE`),
+    // so the guard's 64-level recursion bound no longer refuses them. The
+    // index and the full admission must still agree, and answer correctly.
     #[test]
-    fn index_elements_keep_the_whole_set_depth_boundary() {
+    fn index_elements_agree_with_whole_set_admission_beyond_recursion_bound() {
         for tlc in [false, true] {
             let mut m = machine(tlc, true);
             let mut elements = Vec::new();
@@ -640,14 +643,17 @@ mod tests {
             }
             let set = m.heap.set_from(&mut elements);
             let query = elements[0];
-            assert!(crate::compare::materialized(&m.heap, query, 0).unwrap());
-            assert!(!crate::compare::materialized(&m.heap, set, 0).unwrap());
-            for _ in 0..3 {
-                let error = m.member(query, set).unwrap_err();
-                assert_eq!(error.kind(), crate::ErrorKind::Unsupported);
-                assert!(error.message().contains("mathematical identity"));
+            let mut absent = Handle::int(99).unwrap();
+            for _ in 0..63 {
+                absent = m.heap.tuple_literal(&[absent]);
             }
-            assert_eq!(indexed(&m), 0);
+            assert!(crate::compare::materialized(&m.heap, query, 0).unwrap());
+            assert!(crate::compare::materialized(&m.heap, set, 0).unwrap());
+            for _ in 0..3 {
+                assert!(m.member(query, set).unwrap());
+                assert!(!m.member(absent, set).unwrap());
+            }
+            assert!(!m.heap.poisoned());
         }
     }
 
