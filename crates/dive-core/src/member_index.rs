@@ -1,4 +1,4 @@
-//! Bounded worker-local indexes, after normalized membership admission.
+//! Bounded worker-local indexes over immutable, materialized set elements.
 
 use std::sync::{Arc, Weak};
 
@@ -85,8 +85,9 @@ impl MemberIndex {
         bucket
     }
 
-    /// `None` retains the old search. Admission and miss checks stay with
-    /// the caller, including on every warm lookup.
+    /// Indexed values are materialized at construction, and every query is
+    /// checked. `None` retains the caller's full admission; misses retain its
+    /// class/error checks. The caller must reject a lazy set root.
     pub(crate) fn search(
         &mut self,
         heap: &Heap,
@@ -155,7 +156,7 @@ impl MemberIndex {
             }
             slots.resize(size, Handle::EMPTY);
             for &value in values {
-                if !Self::eligible(heap, value, 0)? {
+                if !Self::eligible(heap, value, 1)? {
                     return Ok(None);
                 }
                 let mut pos = Self::bucket(heap.hash(value), size);
@@ -593,11 +594,101 @@ mod tests {
         }
     }
 
+    #[test]
+    fn warm_indexes_keep_unknown_children_and_lazy_roots_refused() {
+        for tlc in [false, true] {
+            let mut m = machine(tlc, true);
+            let set = tuple_set(&mut m);
+            let query = m.heap.view(set).data[0];
+            for _ in 0..3 {
+                assert_eq!(m.member(query, set), Ok(true));
+            }
+            let interval = m.heap.interval(0, 1);
+            let symbolic = m.heap.symbolic(Kind::SeqSet, 0, &[interval]);
+            let unknown = m.heap.tuple_literal(&[symbolic]);
+            let view = m.heap.view(set);
+            let (hash, sum, mut children) = (view.hash, view.sum, view.data.to_vec());
+            let lazy =
+                m.heap
+                    .arena
+                    .alloc(Kind::Set, crate::node::flags::LAZY, 0, hash, sum, &children);
+            children.push(unknown);
+            let unknown_set = m.heap.set_from(&mut children);
+            for (query, set) in [(unknown, set), (query, lazy), (query, unknown_set)] {
+                for _ in 0..3 {
+                    let error = m.member(query, set).unwrap_err();
+                    assert_eq!(error.kind(), crate::ErrorKind::Unsupported);
+                    assert!(error.message().contains("mathematical identity"));
+                    assert_eq!(error.tlc(), None);
+                }
+            }
+            assert!(!m.heap.poisoned());
+        }
+    }
+
+    #[test]
+    fn index_elements_keep_the_whole_set_depth_boundary() {
+        for tlc in [false, true] {
+            let mut m = machine(tlc, true);
+            let mut elements = Vec::new();
+            for i in 0..16 {
+                let mut value = Handle::int(i).unwrap();
+                for _ in 0..63 {
+                    value = m.heap.tuple_literal(&[value]);
+                }
+                elements.push(value);
+            }
+            let set = m.heap.set_from(&mut elements);
+            let query = elements[0];
+            assert!(crate::compare::materialized(&m.heap, query, 0).unwrap());
+            assert!(!crate::compare::materialized(&m.heap, set, 0).unwrap());
+            for _ in 0..3 {
+                let error = m.member(query, set).unwrap_err();
+                assert_eq!(error.kind(), crate::ErrorKind::Unsupported);
+                assert!(error.message().contains("mathematical identity"));
+            }
+            assert_eq!(indexed(&m), 0);
+        }
+    }
+
     #[derive(Debug)]
     struct Stop;
     impl crate::eval::WorkControl for Stop {
         fn proceed(&self) -> bool {
             false
+        }
+    }
+
+    #[test]
+    fn warm_index_hits_and_misses_keep_actual_work_interruption() {
+        for hit in [false, true] {
+            let mut m = machine(false, true);
+            let set = tuple_set(&mut m);
+            let present = m.heap.view(set).data[0];
+            for _ in 0..3 {
+                assert_eq!(m.member(present, set), Ok(true));
+            }
+            assert_eq!(indexed(&m), 1);
+            let query = if hit {
+                present
+            } else {
+                m.heap.tuple_literal(&[Handle::int(-1).unwrap(); 2])
+            };
+            m.set_work_control(Some(Arc::new(Stop)));
+            // Work polling is amortized; even repeated warm lookups must
+            // reach the installed owner instead of returning indefinitely.
+            let mut stopped = false;
+            for _ in 0..128 {
+                let result = m.member(query, set);
+                if matches!(result, Err(ref error) if error.kind() == crate::ErrorKind::Stop) {
+                    stopped = true;
+                    break;
+                }
+                assert_eq!(result, Ok(hit));
+            }
+            assert!(stopped);
+            assert!(m.heap.work_interrupted());
+            assert_eq!(indexed(&m), 1);
         }
     }
 

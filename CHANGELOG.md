@@ -1,5 +1,9 @@
 # Changelog
 
+- Reuse the existing compound-membership index's materialized-element admission
+  instead of walking the entire set again on each indexed lookup. Preserve
+  query, depth, lazy-value, miss-class and interruption checks.
+
 - Remove obsolete Core set-history phases, constructor-origin allocation and
   receiver-authority walks from checking and state handoff. Preserve bounded
   mathematical identity checks, interruption handling and symbolic domains;

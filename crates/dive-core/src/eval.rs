@@ -1132,12 +1132,14 @@ impl Machine {
         let v = self.heap.view(set);
         match v.kind {
             Kind::Set => {
-                compare::require_materialized(&self.heap, &[x, set])?;
-                let indexed = if self.fuel == u64::MAX {
+                let indexed = if self.fuel == u64::MAX && !v.is_lazy() {
                     self.memo.member_index.search(&self.heap, set, x, v.data)?
                 } else {
                     None
                 };
+                if indexed.is_none() {
+                    compare::require_materialized(&self.heap, &[x, set])?;
+                }
                 if indexed
                     .unwrap_or_else(|| v.data.binary_search_by(|&e| self.heap.cmp(e, x)).is_ok())
                 {
