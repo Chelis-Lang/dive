@@ -352,3 +352,33 @@ time and memory budgets, and the harness allows a further 30 s only for
 uninterruptible work before killing the process. A budget stop is a resource
 finding, never agreement or an unsupported feature. These runs do not depend
 on the release-time default limit.
+
+## R2 speed measurement
+
+R2 (`docs/RELEASE.md`) compares Core with pinned TLC on one host at one
+worker. Time TLC once, then reuse that report instead of re-timing TLC:
+
+```sh
+dive-conformance run --impl tlc --corpus examples --tier all --workers 1 \
+  --no-sany --report-dir "$TLC_OUT" --no-summary
+dive-conformance run --impl dive:core --impl-profile dive --corpus examples \
+  --tier all --workers 1 --tlc-timings "$TLC_OUT"/<run-id>.json \
+  --report-dir "$OUT" --no-summary --filter <model>...
+```
+
+`--tlc-timings` takes the single-worker elapsed time of every model the TLC
+report completed (`agree` or `known-upstream-change`) and gives that model a
+Core `--time-limit` of `max(10 s, 2 × TLC elapsed)`, hard-capped by
+`--budget-cap` (default 900 s). It implies `--tlc-budgets`, so models without
+a cached time keep that policy. A Core run that would fail R2 stops at its
+budget instead of running to completion.
+
+After the usual summary the run prints the R2 summary and writes it to
+`<report-dir>/<run-id>-r2.json`: dive/TLC wall-clock ratio (both including
+start-up) for each agreeing model (`agree` or `expected-divergence`), their
+geometric mean, budget stops with lower-bound ratios, the models above 1x
+and above 2x, and the untimed models. A budget stop at 2x counts as above 2x.
+If the TLC report's host differs from this one (OS, architecture, kernel, CPU
+count or memory), the summary says so; such times are triage only. Keep
+models whose TLC time is ten minutes or more out of local runs; measure them
+once on a quiet node.
