@@ -121,6 +121,28 @@ impl CandidateCodec {
         }
         let count = input.count(NODE_HEADER)?;
         let roots = input.count(REFERENCE)?;
+        // Reject obsolete metadata across the whole record before any valid
+        // prefix can promote nodes. The normal pass retains shape/reference checks.
+        let mut metadata = Read {
+            bytes,
+            at: input.at,
+        };
+        for _ in 0..count {
+            heap.work_poll()?;
+            metadata.take(1)?; // kind
+            let fl = metadata.take(1)?[0];
+            metadata.take(3 * 8)?; // lo, hash, sum
+            let origin = metadata.word()?;
+            if fl & flags::HISTORY != 0 || origin != 0 {
+                return Err(invalid("legacy construction history"));
+            }
+            let len = metadata.count(REFERENCE)?;
+            metadata.take(len * REFERENCE)?;
+        }
+        metadata.take(roots * REFERENCE)?;
+        if metadata.at != bytes.len() {
+            return Err(invalid("trailing bytes"));
+        }
         let mut nodes = Vec::new();
         nodes.try_reserve_exact(count).map_err(invalid)?;
         for _ in 0..count {
@@ -465,6 +487,41 @@ mod tests {
             assert_eq!(heap.view(roots[0]).data, &[Handle::TRUE, one]);
             assert_eq!(codec.origin_index_bytes(), 0);
             assert_eq!(store.memory_usage().history_view_bytes, 0);
+        }
+    }
+
+    #[test]
+    fn later_legacy_metadata_cannot_promote_an_earlier_valid_node() {
+        for semantics in [crate::Semantics::default(), crate::Semantics::tlc()] {
+            let store = Arc::new(Store::with_semantics(true, semantics));
+            let mut heap = Heap::new(Arc::clone(&store), false, false);
+            let mut codec = CandidateCodec::new(&heap).unwrap();
+            let one = Handle::int(1).unwrap();
+            let child = heap.canonical_test_set(&[one]).unwrap();
+            let root = heap.tuple_literal(&[child, child]);
+            let bytes = codec.encode(&mut heap, &[root], 4096).unwrap();
+            assert_eq!(&bytes[16..24], &2u64.to_le_bytes());
+            let second = HEADER + NODE_HEADER + REFERENCE;
+            heap.reset();
+            for (at, byte) in [
+                (second + 26, 1),
+                (second + 1, flags::TUPLE | flags::HISTORY),
+            ] {
+                let mut forged = bytes.clone();
+                forged[at] = byte;
+                let before = store.stats();
+                let error = codec.decode(&mut heap, &forged, 4096).unwrap_err();
+                assert!(error.message().contains("legacy construction history"));
+                assert_eq!(store.stats().nodes, before.nodes);
+                assert_eq!(store.stats().handles, before.handles);
+                assert_eq!(store.memory_usage().history_view_bytes, 0);
+            }
+            let roots = codec.decode(&mut heap, &bytes, 4096).unwrap();
+            let row = heap.view(roots[0]);
+            assert!(row.is_tuple_literal());
+            assert_eq!(row.data[0], row.data[1]);
+            assert_eq!(heap.view(row.data[0]).data, &[one]);
+            assert_eq!(store.stats().nodes, 2);
         }
     }
 
