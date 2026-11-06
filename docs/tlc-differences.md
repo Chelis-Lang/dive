@@ -2781,6 +2781,15 @@ is pending.
 
 ## D-022: Action composition works by default, with its TLA+ meaning
 
+Core supports the bounded pure mathematical slice described in
+[compatibility](user/compatibility.md): complete enumerable first stages and
+conjunctive/`LET` tails assigning each variable once from unprimed expressions.
+Its `Reduction` control has 3 distinct states, depth 2 and 7 final generated
+states; pinned TLC with the switch has 13 generated states. Duplicate final
+candidates remain counted. Other shapes retain named refusals, and Core's
+nominal compatibility policy still refuses TLC's intermediate-accounting mode.
+The historical Reference-engine measurements below are unchanged.
+
 Ordinary TLC-profile bounded final checking accepts the existing
 `--action-composition=tlc` option with otherwise default resident settings.
 It preserves intermediate generated counts. Independent replay still refuses

@@ -330,6 +330,9 @@ pub(crate) fn reachable(plan: &crate::plan::Plan) -> Vec<Instruction> {
                             }
                         }
                         Node::Enabled { g, .. } => generators.push(*g),
+                        Node::Composition { first, then, .. } => {
+                            generators.extend([*first, *then]);
+                        }
                         Node::InLazy { elem, set, .. } => values.extend([*elem, *set]),
                         Node::Beta { chain, fc, arg } => values.extend([*chain, *fc, *arg]),
                         Node::DomCheck { domain, body, .. } => values.extend([*domain, *body]),
@@ -348,6 +351,9 @@ pub(crate) fn reachable(plan: &crate::plan::Plan) -> Vec<Instruction> {
                         }));
                     };
                     match node {
+                        GNode::Composition { first, then } => {
+                            generators.extend([*first, *then]);
+                        }
                         GNode::Conj(items) => {
                             for (g, p) in items {
                                 generators.push(*g);

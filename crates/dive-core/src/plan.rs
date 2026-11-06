@@ -168,6 +168,15 @@ pub enum Node {
     Implies(P, P),
     /// `a <=> b`
     Equiv(P, P),
+    /// Pure bounded `A \\cdot B`, tested against the complete successor.
+    Composition {
+        /// Enumerable first-stage action.
+        first: G,
+        /// Deterministic action assigning every final variable.
+        then: G,
+        /// Captured lexical slots.
+        free: Box<[u32]>,
+    },
     /// `IF c THEN a ELSE b`
     If(P, P, P),
     /// `CASE`
@@ -356,6 +365,14 @@ pub enum Node {
 /// A generator node (`05-successor-generation.md` §4, §8.1).
 #[derive(Clone, Debug)]
 pub enum GNode {
+    /// Pure bounded `A \\cdot B`, with complete intermediate rows and a
+    /// deterministic tail assigning every final variable.
+    Composition {
+        /// Enumerable first-stage action.
+        first: G,
+        /// Fully assigning deterministic tail.
+        then: G,
+    },
     /// A conjunction: items processed left to right as continuations; each
     /// item has a boolean form for the all-assigned shortcut.
     Conj(Box<[(G, P)]>),

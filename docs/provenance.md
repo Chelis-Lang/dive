@@ -1098,6 +1098,15 @@ inherited context mismatch without changing register or random admission.
 
 ## Action composition
 
+Core's bounded composition in `crates/dive-core/src/compile_composition.rs` and
+`crates/dive-core/src/generate/composition.rs` uses the existing generator rules for both stages,
+then applies the mathematical relation `A(s,t) /\ B(t,u)`. It does not port
+TLC's continuation distortion or intermediate-state accounting. The consumed
+`crates/dive-api/tests/fixtures/core-composition/` control was captured with the pinned
+oracle before implementation: success, 13 generated, 3 distinct, depth 2 and
+exit 0. Mathematical composition emits 7 final candidates, retaining duplicate
+witnesses; the six intermediate candidates are the existing D-022 difference.
+
 Successor-candidate and intermediate-right-step cooperative checkpoints (issue
 #393) are native budget control, not a change to the TLC algorithm below.
 They use the existing amortized evaluator host control before candidate binding

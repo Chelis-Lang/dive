@@ -411,6 +411,7 @@ pub(crate) fn handoff<'a>(
     Ok(Handoff {
         ir,
         ctx: ev.options().ctx,
+        action_composition: ev.options().action_composition == dive_eval::ActionComposition::Tla,
         constants,
         redirects,
         std_redirects,

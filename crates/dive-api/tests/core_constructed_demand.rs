@@ -80,6 +80,7 @@ fn named_selection_is_true_but_whole_function_demand_still_errors() {
             let handoff = Handoff {
                 ir: &ir,
                 ctx,
+                action_composition: true,
                 constants: vec![None; ir.consts().len()],
                 redirects: HashMap::new(),
                 std_redirects: HashMap::new(),

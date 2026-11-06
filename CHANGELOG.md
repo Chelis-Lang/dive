@@ -23,6 +23,10 @@ The [release gates](docs/RELEASE.md) must pass before it is tagged.
 - Safety and supported temporal checking, including fairness, with clear
   refusals for unimplemented features and explicit run-budget stops.
 - Counterexamples independently validated against their specifications.
+- Core evaluates pure bounded action composition with complete enumerable
+  intermediates and deterministic tails assigning every final variable.
+  Duplicate witnesses count as final candidates; state-dependent expressions
+  follow each intermediate source and unproved shapes keep named refusals.
 - Schema-3 JSON operation reports, pinned by fixtures for seven Core checking
   outcomes, with one shared API version constant for validation errors.
 - Per-command help without input files, source revision information in
