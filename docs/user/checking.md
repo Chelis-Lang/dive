@@ -416,6 +416,11 @@ no engine. After a dynamic refusal, the reference run gets what is left of
 `--time-limit`. Auto works the same way under `--compat=tlc`: the core runs
 TLC's profile, and the reference engine runs whatever the core refuses.
 
+During startup, `CHOOSE` over finite function spaces with normalized scalar
+domains and ranges generates candidates as needed. Both profiles keep their
+choice order, cardinality limits, errors and interruption checks. Other domains
+retain their existing evaluation path.
+
 Core constructs finite literals and mapped sets canonically by default.
 Union of already canonical explicit sets merges their ordered elements without
 sorting them again. This optimization is automatic in both profiles and keeps

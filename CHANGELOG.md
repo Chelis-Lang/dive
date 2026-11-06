@@ -42,6 +42,9 @@ The [release gates](docs/RELEASE.md) must pass before it is tagged.
 - Core builds finite sets canonically, removing TLC construction-history and
   receiver-authority tracking. Default mixed structured sets have consistent
   mathematical identity; unproved symbolic identities still refuse (D-028).
+- Generate admitted scalar function-space `CHOOSE` candidates incrementally
+  during model startup, preserving choice order, errors and resource controls
+  without retaining the complete function space.
 - Core evaluates applied LET-recursive functions with lexical captures and pure
   recursive applications under prime. Separate callee frames preserve INSTANCE
   substitutions; escapes, unproved captures and effectful primed functions refuse.
