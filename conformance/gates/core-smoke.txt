@@ -1,0 +1,35 @@
+# Core golden gate: the required `Conformance gate` job runs
+# DIVE_GATE_IMPL=dive:core DIVE_GATE_PROFILE=dive scripts/conformance-gate.sh
+# conformance/gates/core-smoke.txt --workers 1,4. Core alone (no fallback) must
+# agree with the TLC goldens, or match a registered expected divergence, on the
+# union of smoke.txt and shadow-smoke.txt. Shadow agreement with the Reference
+# engine is not soundness evidence; golden agreement is.
+specifications/byihive/VoucherLifeCycle.cfg
+specifications/CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_1/MC.cfg
+specifications/CigaretteSmokers/CigaretteSmokers.cfg
+specifications/dag-consensus/BlockDagTest.cfg
+specifications/DieHard/DieHard.cfg
+specifications/DieHard/MCDieHarder.cfg
+specifications/LearnProofs/MCFindHighest.cfg
+specifications/locks_auxiliary_vars/Lock.cfg
+specifications/Majority/MCMajority.cfg
+specifications/MissionariesAndCannibals/MissionariesAndCannibals.cfg
+specifications/nbacc_ray97/nbacc_ray97.cfg
+specifications/N-Queens/Queens.toolbox/FourQueens/MC.cfg
+specifications/PaxosHowToWinATuringAward/MCConsensus.cfg
+specifications/Paxos/MCConsensus.cfg
+specifications/spanning/MC_spanning.cfg
+specifications/SpecifyingSystems/AsynchronousInterface/AsynchInterface.cfg
+specifications/SpecifyingSystems/AsynchronousInterface/Channel.cfg
+specifications/SpecifyingSystems/AsynchronousInterface/PrintValues.cfg
+specifications/SpecifyingSystems/FIFO/MCInnerFIFO.cfg
+specifications/SpecifyingSystems/HourClock/HourClock.cfg
+specifications/SpecifyingSystems/SimpleMath/SimpleMath.cfg
+specifications/SpecifyingSystems/TLC/ABCorrectness.cfg
+specifications/Stones/Stones.cfg
+specifications/TeachingConcurrency/Simple.cfg
+specifications/tower_of_hanoi/Hanoi.toolbox/Model_1/MC.cfg
+specifications/transaction_commit/2PCwithBTM.cfg
+specifications/transaction_commit/TCommit.cfg
+specifications/transaction_commit/TwoPhase.cfg
+specifications/TwoPhase/MCTwoPhase.cfg
