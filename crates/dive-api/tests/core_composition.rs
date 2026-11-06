@@ -155,6 +155,36 @@ fn unproved_shapes_and_composition_modes_keep_named_refusals() {
 }
 
 #[test]
+fn configured_startup_effects_cannot_become_pure_composition() {
+    let file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/core-composition/ConfiguredEffect.tla");
+    for compat_tlc in [false, true] {
+        let request = CheckRequest {
+            config: Some(file.with_extension("cfg")),
+            file: file.clone(),
+            compat_tlc,
+            action_composition: Some(ActionComposition::Tla),
+            workers: Some(1),
+            seed: Some(0),
+            fp: Some(0),
+            ..CheckRequest::default()
+        };
+        for opts in ["", "-memo,-step-memo,-eager,-fold"] {
+            let report = check_file_core_opts(&request, opts)
+                .expect("configured effect refusal")
+                .to_json();
+            assert_eq!(report["verdict"], "unsupported", "{report:#}");
+            assert!(
+                report["message"]
+                    .as_str()
+                    .is_some_and(|message| message.contains("composition with effects")),
+                "{report:#}"
+            );
+        }
+    }
+}
+
+#[test]
 fn actual_opposite_and_forged_composed_words_use_independent_replay() {
     let source = include_str!("fixtures/core-composition/Controls.tla");
     for compat_tlc in [false, true] {
