@@ -43,7 +43,8 @@ The configured target's body runs when demanded; ordinary helpers retain their
 successful startup values, including Print and RNG results. Startup
 pre-evaluation has no checker-register writer: integer register writes fail
 softly and remain lazy, while named writes publish no register value. ASSUMEs
-and checking use their ordinary register access. An explicit configured value
+and checking use their ordinary register access. Lazy function field selection
+keeps the same startup availability rule. An explicit configured value
 override still replaces the target. Lazy configured functions selected through
 an instance can remain unsupported when Core cannot
 preserve undemanded entries. Configured targets with unresolved recursive or

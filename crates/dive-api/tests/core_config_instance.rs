@@ -535,3 +535,29 @@ fn demanded_initial_argument_errors_keep_the_context_report_and_validate_the_cau
         }
     }
 }
+
+#[test]
+fn lazy_field_and_materialized_forces_never_cache_startup_register_success() {
+    // The exact field control has TLC's incidental STRING-cardinality error;
+    // default semantics need not emulate it. MaterializedApply has TLC's real
+    // x=0 -> x=1 violation. Both native forms may precisely refuse, never hold.
+    for (name, feature) in [
+        ("LazyField", "STRING (M0 core)"),
+        (
+            "MaterializedApply",
+            "Print, PrintT, RandomElement, TLCSet or TLCGet inside a function constructor, set filter, set map or operator argument, which TLC may evaluate lazily or in its own order (M1 core)",
+        ),
+    ] {
+        for compat in [false, true] {
+            let mut req = request(name, compat, 1);
+            req.time_limit = dive_api::BudgetSetting::Explicit(std::time::Duration::from_secs(10));
+            let doc = check_file_core_opts(&req, "")
+                .expect("force control")
+                .to_json();
+            assert_eq!(doc["engine"], "core");
+            assert_eq!(doc["verdict"], "unsupported", "{name}/{compat}: {doc}");
+            assert_eq!(doc["message"], feature);
+            assert!(doc["counterexample"].is_null());
+        }
+    }
+}
