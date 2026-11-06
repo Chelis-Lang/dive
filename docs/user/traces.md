@@ -124,9 +124,11 @@ versions 1/2 keep their existing meanings.
 Earlier complete candidates receive ordered completeness, constraint,
 action-constraint, fingerprint and safety demands. Unknown global newness or
 alias history, raw/symbolic fingerprint representations, VIEW, symmetry,
-temporal obligations and executed effects remain named refusals. Reached action
-composition refuses before intermediate collection in both modes; an untaken
-composition branch alone does not refuse. Other terminal evaluation sites gain
+temporal obligations and executed effects remain named refusals. Pure bounded
+TLA-mode composition can reconstruct the actual source error. A tail that emits
+before failing cannot hide that earlier successor to certify a before-first
+error. Nested, effectful and alternate-mode composition retains named refusals;
+an untaken composition branch alone does not refuse. Other terminal evaluation sites gain
 no wrapper exemption. Generic errors without a source endpoint remain unsupported.
 An independently valid word does not certify checker counts or turn an
 unclassified pinned TLC result into parity.
@@ -312,14 +314,28 @@ decide, makes the result `unsupported`, never a decision.
 
 Init runs at startup level 0; generated-state invariants and implied initial properties run at level 1. The independent validator uses a distinct initial context and preserves ordinary state/action contexts thereafter. Random draws and register access after Init remain refused.
 
-Action composition (`A \cdot B`) currently has no independent intermediate-state
-validator. A reached composition therefore yields `unsupported`, including
-when the workspace enables the checker enumerator. Untaken composition branches
-do not run. The lasso API conservatively refuses composition in its predicate
-contexts, and `dive_trace::enabled::enabled` (with `ENABLED`, `WF` and `SF` in
-the lasso API) refuses a search that reaches a composition with the same named
-feature. Checker composition support does not establish trace-validation
-agreement.
+Action composition (`A \cdot B`) validates in `tla` mode when both operand
+closures pass the existing pure finite inspection, every first-stage state is
+complete, and each intermediate has at most one complete tail successor.
+Replay uses the shared evaluator with its own host and fresh cache domain; it
+reads and checks the supplied Init, actual Next and closing edges, invariants,
+labels and claimed ending. For example, `(x'=1) \cdot (x'=2)` admits the edge
+`x=0` to `x=2` and rejects a supplied successor `x=9`.
+
+Public `enabled::enabled`, temporal predicates and `WF`/`SF` use the same bounded
+relation. Nonstuttering tests compare the original state with the final state.
+Thus `(x'=1) \cdot (x'=0)` from `x=0` has a successor but has no nonstuttering
+successor; weak and strong fairness hold on the `x=0` stuttering word. Pinned TLC's
+experimental implementation differs here ([D-022](../tlc-differences.md#d-022-action-composition-works-by-default-with-its-tla-meaning)).
+
+Modes `off` and `tlc`, nested composition, partial rows, multiple tail successors,
+effects, unproved scopes and preassigned variables retain the named composition
+refusal. A nonstuttering subscript may follow the complete composed edge;
+other continuations remain refused. Untaken branches do not run. Random,
+register, runtime-name and host-grant checks retain their existing boundaries.
+Checked runnable sources and compact oracle facts are in
+`crates/dive-trace/tests/fixtures/composition/`; run
+`cargo test -p dive-trace --test composition --locked`.
 
 Replay evaluates lazy arguments and functions with the evaluator's ordinary
 caching, as TLC's `LazyValue` does.

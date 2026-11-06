@@ -51,6 +51,9 @@ use crate::store::Store;
 #[path = "compile_gen.rs"]
 mod generator;
 
+#[path = "compile_composition.rs"]
+mod composition;
+
 /// The largest plan the compiler builds (inlining blow-up guard).
 const MAX_NODES: usize = 4_000_000;
 
@@ -130,6 +133,8 @@ pub struct Handoff<'a> {
     pub ir: &'a Ir,
     /// The value semantics the startup values were built under.
     pub ctx: dive_value::Ctx,
+    /// Whether the existing TLA+ action-composition mode is enabled.
+    pub action_composition: bool,
     /// Constants, by `ConstId`.
     pub constants: Vec<Option<ConstBinding>>,
     /// `Op <- D` redirects, resolved to their final target.
@@ -477,6 +482,7 @@ fn compile_inner(
         funs: HashMap::new(),
         recfuns: HashMap::new(),
         recursive_action_predicate: false,
+        composition: composition::State::Absent,
         def_slots: std::collections::HashSet::new(),
         lifts: Vec::new(),
         substs: Vec::new(),
@@ -543,6 +549,7 @@ fn compile_inner(
             "recursive Boolean action predicates in a compiled plan with effects or unproved calls (D-029)",
         ));
     }
+    c.uncache_composition_states();
     c.stats.nodes = c.code.nodes.len();
     c.stats.gnodes = c.code.gnodes.len();
     let vars =
@@ -617,6 +624,8 @@ struct Compiler<'a> {
     recfuns: HashMap<RecKey, u32>,
     /// Whether an applied recursive function became a Boolean action guard.
     recursive_action_predicate: bool,
+    /// Whether source-changing composition is present or being compiled.
+    composition: composition::State,
     /// The thunk slots of `def_cache`.
     def_slots: std::collections::HashSet<u32>,
     /// The nested functions being compiled, innermost last.
@@ -1011,6 +1020,12 @@ impl Compiler<'_> {
                 union(&mut i.free, free);
                 i.calls = true;
                 i.vars = u64::MAX;
+            }
+            Node::Composition { free, .. } => {
+                union(&mut i.free, free);
+                i.calls = true;
+                i.vars = u64::MAX;
+                i.primed = u64::MAX;
             }
         }
         i.red = self.red_of(n);
@@ -1623,6 +1638,7 @@ impl Compiler<'_> {
 
     /// The free slots of the value nodes a generator node reads, its own
     /// binders included (the caller drops the slots the action allocated).
+    #[allow(clippy::too_many_lines, reason = "one arm per generator rule")]
     fn g_free(&self, g: G, out: &mut Vec<u32>, depth: u32, instance: bool) -> Result<(), Error> {
         if depth > 10_000 {
             return Err(Error::unsupported("an action nested too deeply (M1 core)"));
@@ -1647,6 +1663,10 @@ impl Compiler<'_> {
             return Err(Error::internal("generator node out of range"));
         };
         match node {
+            GNode::Composition { first, then } => {
+                self.g_free(*first, out, depth + 1, instance)?;
+                self.g_free(*then, out, depth + 1, instance)?;
+            }
             GNode::Conj(items) => {
                 for &(g, x) in items {
                     p(x, out);
@@ -2450,7 +2470,7 @@ impl Compiler<'_> {
                 }
             }
             Expr::Enabled(a) => self.enabled(Some(*a), None, env, mode),
-            Expr::Cdot(..) => Err(Error::unsupported("action composition (M0 core)")),
+            Expr::Cdot(a, b) => self.composition_value(*a, *b, env, mode),
             Expr::Always(_)
             | Expr::Eventually(_)
             | Expr::LeadsTo(..)
@@ -3952,6 +3972,7 @@ impl Compiler<'_> {
         .then_some(*item)
     }
 
+    #[allow(clippy::too_many_lines, reason = "one arm per built-in operator")]
     fn builtin(
         &mut self,
         op: BuiltinOp,
@@ -3991,7 +4012,12 @@ impl Compiler<'_> {
             }
             B::String => return Err(Error::unsupported("STRING (M0 core)")),
             B::Enabled => return self.enabled(args.first().copied(), None, env, mode),
-            B::Cdot => return Err(Error::unsupported("action composition (M0 core)")),
+            B::Cdot => {
+                let [a, b] = args else {
+                    return Err(Error::internal("action composition without two operands"));
+                };
+                return self.composition_value(*a, *b, env, mode);
+            }
             B::Always | B::Eventually | B::LeadsTo | B::WhilePlus => {
                 return Err(Error::unsupported(
                     "a temporal operator in a state or action role",
@@ -4094,6 +4120,17 @@ impl Compiler<'_> {
         self.leaf += 1;
         let expr = &self.ir.node(e).expr;
         match expr {
+            Expr::Cdot(a, b) => {
+                let (first, then, _) = self.composition_parts(*a, *b, env)?;
+                Ok(self.gpush(GNode::Composition { first, then }))
+            }
+            Expr::Builtin {
+                op: BuiltinOp::Cdot,
+                args,
+            } if args.len() == 2 => {
+                let (first, then, _) = self.composition_parts(args[0], args[1], env)?;
+                Ok(self.gpush(GNode::Composition { first, then }))
+            }
             Expr::Junction { kind, items, .. } => match kind {
                 JunctionKind::And => {
                     let mut out = Vec::with_capacity(items.len());

@@ -5,6 +5,11 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- Independently validate pure bounded TLA-mode action composition, including
+  actual closing edges, deadlock and fairness. Nonstuttering compares the
+  original and final states; alternate modes and unproved cases still refuse
+  (D-022).
+
 - Prepare native Linux x86_64/aarch64 release archives, SHA-256 checksums and
   bundled-library license notices. No version bump, tag or publication is part
   of this preparation.
@@ -23,6 +28,10 @@ The [release gates](docs/RELEASE.md) must pass before it is tagged.
 - Safety and supported temporal checking, including fairness, with clear
   refusals for unimplemented features and explicit run-budget stops.
 - Counterexamples independently validated against their specifications.
+- Core evaluates pure bounded action composition with complete enumerable
+  intermediates and deterministic tails assigning every final variable.
+  Duplicate witnesses count as final candidates; state-dependent expressions
+  follow each intermediate source and unproved shapes keep named refusals.
 - Schema-3 JSON operation reports, pinned by fixtures for seven Core checking
   outcomes, with one shared API version constant for validation errors.
 - Per-command help without input files, source revision information in

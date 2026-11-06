@@ -232,8 +232,8 @@ pub trait Host: Send + Sync + std::fmt::Debug {
     }
 
     /// Checks whether expression evaluation or successor generation may search
-    /// intermediate states to decide action composition. Independent replay drivers refuse this
-    /// before any intermediate state is generated; ordinary drivers permit it.
+    /// intermediate states to decide unrestricted action composition. Independent
+    /// replay refuses this; its explicit bounded capability is checked separately.
     ///
     /// # Errors
     /// A refusal (code 0) or an evaluation error supplied by the driver.
@@ -241,12 +241,32 @@ pub trait Host: Send + Sync + std::fmt::Debug {
         Ok(())
     }
 
+    /// Selects the evaluator's bounded, pure TLA+ composition path.
+    ///
+    /// This grants no expression or cached-result authority. The evaluator
+    /// inspects both operand closures without callbacks, requires complete
+    /// intermediate states and at most one complete tail successor, and calls
+    /// [`Self::check_action_composition`] on every declined case. Independent
+    /// replay uses this path with its own host and expression-cache domain.
+    fn requires_bounded_action_composition(&self) -> bool {
+        false
+    }
+
+    /// Checks the host's permission for an inspected bounded composition.
+    /// Existing host refusals still apply unless the host explicitly admits
+    /// this slice. This is called before collecting any intermediate states.
+    ///
+    /// # Errors
+    /// The host's composition refusal or evaluation error.
+    fn check_bounded_action_composition(&self) -> Result<(), HostError> {
+        self.check_action_composition()
+    }
+
     /// The cache domain that lazy expression results computed under this
     /// host belong to. A cached result is reused only by evaluation under a
     /// host of the same domain. Ordinary drivers share domain 0 (TLC's single
     /// `LazyValue` cache). Independent replay gives each run its own domain, so
-    /// a value cached by another consumer (for example through action
-    /// composition, which replay refuses) never becomes replay's answer and a
+    /// a value cached by another consumer never becomes replay's answer and a
     /// replay verdict does not depend on how warm the caches were.
     fn expression_cache_domain(&self) -> u64 {
         0

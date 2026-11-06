@@ -996,6 +996,7 @@ fn evaluate_scalar(
     let h = Handoff {
         ir: &ir,
         ctx: eval.ctx,
+        action_composition: eval.action_composition == dive_eval::ActionComposition::Tla,
         constants: Vec::new(),
         redirects: HashMap::new(),
         std_redirects: HashMap::new(),

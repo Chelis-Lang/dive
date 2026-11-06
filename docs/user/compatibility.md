@@ -35,15 +35,31 @@ Runtime reads, writes, processes and unproved TLC environment-name ordering
 remain refusals. See [host inputs](modules.md#host-inputs-and-explicit-grants).
 
 Action composition (`A \cdot B`) uses `--action-composition=tla` by default,
-counting only composed successors. `--compat=tlc` turns it off; an explicit
-`--action-composition=tlc` or `-Dtlc2.tool.impl.Tool.cdot=true` enables TLC's
-experimental behavior, including intermediate generated counts and sequential
-BFS checking. DFID and simulation count only emitted successors in either
-enabled mode. An explicit composition option takes precedence over the profile,
-regardless of flag order, and `options.action_composition` reports the resolved
-setting. Default mode refuses the enclosing conjunctions TLC's algorithm
-distorts. Independent trace replay currently refuses enabled composition when
-it requires intermediate-state enumeration. See [D-022](../tlc-differences.md#d-022-action-composition-works-by-default-with-its-tla-meaning).
+counting only composed successors. Core supports pure enumerable first stages
+that assign every variable, followed by a deterministic tail containing one
+assignment `v' = e` per variable with an unprimed `e`, optionally inside
+conjunctions and `LET`. The tail reads the intermediate state; the reported edge connects the
+original state to the final state. Duplicate final candidates still count.
+Incomplete intermediates, effects, nested or recursive composition and
+unproved tails give named refusals. Generation with pending conjuncts or
+preassigned variables also refuses; predicates on complete steps use the same
+composition relation.
+
+```sh
+dive check crates/dive-api/tests/fixtures/core-composition/specs/Reduction/Reduction.tla \
+  --config crates/dive-api/tests/fixtures/core-composition/specs/Reduction/Reduction.cfg \
+  --engine core --workers 1 --seed 0 --fp 0
+```
+
+This example succeeds with 3 distinct states, 7 generated states and depth 2.
+Pinned TLC with its experimental composition switch counts 13 generated states,
+including six intermediate states. `--compat=tlc` turns composition off; add
+`--action-composition=tla` to use the same mathematical slice with the profile's
+other switches. Core continues to refuse `--action-composition=tlc` and its
+`-Dtlc2.tool.impl.Tool.cdot=true` spelling, which request TLC's intermediate
+accounting. An explicit composition option takes precedence over the profile
+regardless of flag order; `options.action_composition` reports the resolved
+setting. See [D-022](../tlc-differences.md#d-022-action-composition-works-by-default-with-its-tla-meaning).
 
 Always record the reported seed and fingerprint settings for replay. A seeded
 mode still has to prove its draw order; the independent validator refuses random

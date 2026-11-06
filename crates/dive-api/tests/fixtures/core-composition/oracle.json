@@ -1,0 +1,17 @@
+{
+  "oracle": "tlc-2026.10.06.014338",
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "source_sha256": "0c050975d39436eb1c5fe4a189aefcbd113ef5c34a9f0cfc7d1e5265d5c80d56",
+  "config_sha256": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+  "cdot": true,
+  "workers": 1,
+  "seed": 0,
+  "fp": 0,
+  "lncheck": "final",
+  "verdict": "success",
+  "exit": 0,
+  "generated": 13,
+  "distinct": 3,
+  "queue": 0,
+  "depth": 2
+}

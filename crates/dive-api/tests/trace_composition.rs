@@ -1,4 +1,4 @@
-//! Feature-unified replay must never borrow the checker for composition.
+//! Replay admits the bounded pure relation and retains composition refusals.
 #![allow(clippy::expect_used, reason = "test fixture construction")]
 
 use std::sync::Arc;
@@ -40,7 +40,7 @@ fn pred(m: &Model, name: &str) -> Pred {
 }
 
 #[test]
-fn public_api_and_raw_replay_refuse_composition_for_valid_and_forged_words() {
+fn public_api_and_raw_replay_check_pure_composition_and_refuse_tlc_mode() {
     let src = source("(x'=1) \\cdot (x'=2)", "");
     let api = SpecModel::from_source(
         "Composition.tla",
@@ -50,19 +50,28 @@ fn public_api_and_raw_replay_refuse_composition_for_valid_and_forged_words() {
     )
     .expect("API");
     for x in [2, 9] {
-        assert_eq!(
-            api.validate(&doc(x)).validation,
-            Validation::Unsupported(dive_trace::COMPOSITION_UNSUPPORTED.to_owned())
-        );
+        let validation = api.validate(&doc(x)).validation;
+        if x == 2 {
+            assert_eq!(validation, Validation::Valid);
+        } else {
+            assert!(matches!(validation, Validation::Invalid(_)));
+        }
     }
     for mode in [ActionComposition::Tla, ActionComposition::Tlc] {
         let m = model("(x'=1) \\cdot (x'=2)", "", mode);
         for x in [2, 9] {
             let trace = dive_trace::Trace::decode(&m, &doc(x)).expect("decode");
-            assert_eq!(
-                dive_trace::validate(&m, &trace).validation,
-                Validation::Unsupported(dive_trace::COMPOSITION_UNSUPPORTED.to_owned())
-            );
+            let validation = dive_trace::validate(&m, &trace).validation;
+            if mode == ActionComposition::Tlc {
+                assert_eq!(
+                    validation,
+                    Validation::Unsupported(dive_trace::COMPOSITION_UNSUPPORTED.to_owned())
+                );
+            } else if x == 2 {
+                assert_eq!(validation, Validation::Valid);
+            } else {
+                assert!(matches!(validation, Validation::Invalid(_)));
+            }
         }
         // The ordinary evaluator is still permitted after the replay host drops.
         let d = m.ir.root_def("Next").expect("Next");
@@ -98,7 +107,7 @@ fn refused_composition_runs_no_operand_print_or_random_callback() {
 }
 
 #[test]
-fn swallowed_optional_label_composition_still_refuses_the_whole_word() {
+fn optional_labels_check_pure_composition_and_remember_tlc_refusal() {
     for mode in [ActionComposition::Tla, ActionComposition::Tlc] {
         let m = model("x'=2", "Alias == (x'=1) \\cdot (x'=2)", mode);
         let mut document = doc(2);
@@ -108,7 +117,11 @@ fn swallowed_optional_label_composition_still_refuses_the_whole_word() {
         });
         assert_eq!(
             dive_trace::validate_doc(&m, &document, &[]).0.validation,
-            Validation::Unsupported(dive_trace::COMPOSITION_UNSUPPORTED.to_owned())
+            if mode == ActionComposition::Tla {
+                Validation::Valid
+            } else {
+                Validation::Unsupported(dive_trace::COMPOSITION_UNSUPPORTED.to_owned())
+            }
         );
     }
 }
@@ -136,7 +149,7 @@ fn untaken_composition_and_earlier_invalid_init_keep_real_results() {
 }
 
 #[test]
-fn public_enabled_and_lasso_predicates_refuse_shared_composition() {
+fn public_enabled_and_lasso_predicates_share_the_bounded_relation() {
     for mode in [ActionComposition::Tla, ActionComposition::Tlc] {
         let m = model(
             "x'=x",
@@ -144,20 +157,29 @@ fn public_enabled_and_lasso_predicates_refuse_shared_composition() {
             mode,
         );
         let state: dive_trace::State = Arc::from([Some(0.into())]);
-        // The same composition is refused by name whether it is reached
-        // through ENABLED, a step box, fairness, or replay.
+        // Public queries and lasso predicates use the same relation and
+        // preserve the alternate-mode refusal.
         assert_eq!(
             enabled(&m, &pred(&m, "A"), None, &state),
-            Err(EnabledError::Unsupported(
-                dive_trace::COMPOSITION_UNSUPPORTED.to_owned()
-            )),
+            if mode == ActionComposition::Tla {
+                Ok(true)
+            } else {
+                Err(EnabledError::Unsupported(
+                    dive_trace::COMPOSITION_UNSUPPORTED.to_owned(),
+                ))
+            },
             "{mode:?}"
         );
         for property in ["P", "E", "F"] {
-            assert!(
-                matches!(evaluate_lasso(&m,&pred(&m,property),std::slice::from_ref(&state),0),Err(TemporalError::Unsupported(ref feature)) if feature==dive_trace::COMPOSITION_UNSUPPORTED),
-                "{mode:?} {property}"
-            );
+            let actual = evaluate_lasso(&m, &pred(&m, property), std::slice::from_ref(&state), 0);
+            if mode == ActionComposition::Tla {
+                assert_eq!(actual, Ok(vec![property != "F"]), "{property}");
+            } else {
+                assert!(
+                    matches!(actual, Err(TemporalError::Unsupported(ref feature)) if feature == dive_trace::COMPOSITION_UNSUPPORTED),
+                    "{mode:?} {property}"
+                );
+            }
         }
         assert!(!m.evaluator.has_print_event());
         // The refusal does not leak: the ordinary evaluator still composes.
@@ -174,9 +196,8 @@ fn public_enabled_and_lasso_predicates_refuse_shared_composition() {
     }
 }
 
-/// `ENABLED` of a retained composition argument that ordinary evaluation
-/// already forced is refused, cold and warm: the search never reads a value
-/// cached outside the validator (ADR 0103).
+/// A retained pure composition argument is decided cold and warm without
+/// reading a value cached outside the validator (ADR 0103).
 #[test]
 fn public_enabled_does_not_depend_on_cache_warmth() {
     for mode in [ActionComposition::Tla, ActionComposition::Tlc] {
@@ -208,9 +229,13 @@ fn public_enabled_does_not_depend_on_cache_warmth() {
             }
             assert_eq!(
                 enabled(&m, &p, None, &state),
-                Err(EnabledError::Unsupported(
-                    dive_trace::COMPOSITION_UNSUPPORTED.to_owned()
-                )),
+                if mode == ActionComposition::Tla {
+                    Ok(true)
+                } else {
+                    Err(EnabledError::Unsupported(
+                        dive_trace::COMPOSITION_UNSUPPORTED.to_owned(),
+                    ))
+                },
                 "{mode:?} warm={warm}"
             );
         }
@@ -222,12 +247,24 @@ fn warmed_same_owned_scopes_do_not_supply_replay_truth() {
     for mode in [ActionComposition::Tla, ActionComposition::Tlc] {
         for warm in [false, true] {
             for x in [2, 9] {
-                for (wrapper, argument) in [
-                    ("p", "(x'=1) \\cdot (x'=2)"),
-                    ("p[0]", "[n \\in {0} |-> ((x'=1) \\cdot (x'=2))]"),
+                for (wrapper, argument, admitted) in [
+                    ("p", "(x'=1) \\cdot (x'=2)", true),
+                    ("p[0]", "[n \\in {0} |-> ((x'=1) \\cdot (x'=2))]", true),
                     (
                         "p = [n \\in {0} |-> TRUE]",
                         "[n \\in {0} |-> ((x'=1) \\cdot (x'=2))]",
+                        true,
+                    ),
+                    ("p", "(x'=1) \\cdot (x' \\in {2,3})", false),
+                    (
+                        "p[0]",
+                        "[n \\in {0} |-> ((x'=1) \\cdot (x' \\in {2,3}))]",
+                        false,
+                    ),
+                    (
+                        "p = [n \\in {0} |-> TRUE]",
+                        "[n \\in {0} |-> ((x'=1) \\cdot (x' \\in {2,3}))]",
+                        false,
                     ),
                 ] {
                     let extra = format!("W(p) == {wrapper}\nCaller == W({argument})");
@@ -258,10 +295,17 @@ fn warmed_same_owned_scopes_do_not_supply_replay_truth() {
                     }
                     m.next = Some(p.clone());
                     m.validate_context().expect("same-owned valid model");
-                    assert_eq!(
-                        dive_trace::validate_doc(&m, &doc(x), &[]).0.validation,
-                        Validation::Unsupported(dive_trace::COMPOSITION_UNSUPPORTED.to_owned())
-                    );
+                    let validation = dive_trace::validate_doc(&m, &doc(x), &[]).0.validation;
+                    if mode == ActionComposition::Tlc || !admitted {
+                        assert_eq!(
+                            validation,
+                            Validation::Unsupported(dive_trace::COMPOSITION_UNSUPPORTED.to_owned())
+                        );
+                    } else if x == 2 {
+                        assert_eq!(validation, Validation::Valid);
+                    } else {
+                        assert!(matches!(validation, Validation::Invalid(_)));
+                    }
                     if warm {
                         assert_eq!(
                             m.evaluator
@@ -322,7 +366,11 @@ fn replay_verdict_does_not_depend_on_cache_warmth() {
         );
         assert_eq!(
             verdicts[0],
-            Validation::Unsupported(dive_trace::COMPOSITION_UNSUPPORTED.to_owned())
+            if mode == ActionComposition::Tla {
+                Validation::Valid
+            } else {
+                Validation::Unsupported(dive_trace::COMPOSITION_UNSUPPORTED.to_owned())
+            }
         );
     }
 }
@@ -365,7 +413,7 @@ fn pure_warmed_arguments_remain_decidable() {
 }
 
 #[test]
-fn a_pure_forward_step_cannot_authorize_a_composed_closing_edge() {
+fn composed_closing_edges_are_checked_independently_of_the_forward_prefix() {
     for mode in [ActionComposition::Tla, ActionComposition::Tlc] {
         let with_property = |next: &str| {
             let src = source(next, "P == <>(x=2)");
@@ -406,10 +454,14 @@ fn a_pure_forward_step_cannot_authorize_a_composed_closing_edge() {
             document.properties = vec!["P".into()];
             assert_eq!(
                 dive_trace::validate_doc(&m, &document, &[]).0.validation,
-                Validation::Unsupported(format!(
-                    "unsupported temporal validation: {}",
-                    dive_trace::COMPOSITION_UNSUPPORTED
-                ))
+                if mode == ActionComposition::Tla {
+                    Validation::Valid
+                } else {
+                    Validation::Unsupported(format!(
+                        "unsupported temporal validation: {}",
+                        dive_trace::COMPOSITION_UNSUPPORTED
+                    ))
+                }
             );
             assert_eq!(m.evaluator.take_output(), [] as [String; 0]);
             let pure = with_property("IF x=0 THEN x'=1 ELSE x'=0");

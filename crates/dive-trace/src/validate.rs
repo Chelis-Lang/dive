@@ -228,9 +228,8 @@ pub const RANDOM_UNSUPPORTED: &str = "a random draw: the value depends on the ch
 /// The reason given when a check accesses search-dependent TLC registers.
 pub const REGISTERS_UNSUPPORTED: &str = "TLCGet/TLCSet registers: their contents depend on evaluations outside the trace, so the independent validator cannot read or write them";
 
-/// Action composition has no independent intermediate-state decision path.
-/// Workspace feature unification must not let replay borrow the checker.
-pub const COMPOSITION_UNSUPPORTED: &str = "action composition: independent validation does not enumerate intermediate states with the checker";
+/// Composition outside independent replay's pure, complete, deterministic-tail slice.
+pub const COMPOSITION_UNSUPPORTED: &str = "action composition: independent replay requires TLA mode, pure finite complete intermediates and at most one complete tail successor";
 
 /// What stopped a run early.
 pub(crate) enum Stop {
@@ -1370,7 +1369,7 @@ pub(crate) struct TraceHost {
     any: AtomicBool,
     /// Whether any check attempted a register read or write.
     pub(crate) registers: AtomicBool,
-    /// Whether evaluation tried to borrow composition's intermediate search.
+    /// Whether evaluation reached composition outside the bounded slice.
     composition: AtomicBool,
     pub(crate) register_used: AtomicBool,
     pub(crate) startup: AtomicBool,
@@ -1565,6 +1564,21 @@ impl Host for TraceHost {
             code: 0,
             message: COMPOSITION_UNSUPPORTED.to_owned(),
         })
+    }
+
+    fn requires_bounded_action_composition(&self) -> bool {
+        true
+    }
+
+    fn check_bounded_action_composition(&self) -> Result<(), HostError> {
+        let result = self
+            .inner
+            .as_ref()
+            .map_or(Ok(()), |host| host.check_bounded_action_composition());
+        if result.is_err() {
+            self.composition.store(true, Ordering::Relaxed);
+        }
+        result
     }
 
     fn expression_cache_domain(&self) -> u64 {
