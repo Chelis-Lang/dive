@@ -128,6 +128,14 @@ section 4 decide.
      - **`SubstRef`.** It reads the innermost binding, or else falls back to
        the root variable or the configured constant. `x'` with `x <- e` is
        `e'`, compiled by name.
+       Configured definition targets use the same owned definition compiler as
+       direct constant references. `C <- Target` evaluates Target's body;
+       ordinary helpers retain their legitimate startup values. Integer TLCSet
+       cannot produce a cached startup value because pre-evaluation has no
+       checker-register writer. The shared evaluator preserves that distinction;
+       Core needs no extra configured-body context or helper-cache identity.
+       Unresolved target calls refuse, and definition/step cache entries require
+       a pure body without unresolved calls. Explicit value overrides retain priority.
      - **Generator.** It sees through substitutions for assignments
        (`getPrimedVar`: `v' = e` with `v <- x` assigns `x`), for `UNCHANGED`,
        and for substituted names used as actions (by name, B5).

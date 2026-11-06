@@ -2170,13 +2170,7 @@ impl Compiler<'_> {
                     (true, Mode::Primed) => Err(Error::unsupported("a doubly primed variable")),
                 }
             }
-            Expr::Const(c) => {
-                let c = *c;
-                match self.h.constants.get(c.index()).cloned().flatten() {
-                    Some(ConstBinding::Def(d)) => self.def_use(d, env, mode),
-                    _ => self.const_expr(c),
-                }
-            }
+            Expr::Const(c) => self.const_expr(*c, env, mode),
             Expr::Local(r) => self.local(*r, env, mode),
             Expr::Def(d) => self.def_use(*d, env, mode),
             Expr::Apply { callee, args } => self.apply(callee, args, env, mode),
@@ -2432,7 +2426,7 @@ impl Compiler<'_> {
                     return Err(Error::unsupported("a doubly primed expression"));
                 }
                 let mode = if primed { Mode::Primed } else { mode };
-                self.subst_ref(decl, mode)
+                self.subst_ref(decl, env, mode)
             }
             // `[A]_v` is `A \/ UNCHANGED v`; `<<A>>_v` is `A /\ v' # v`
             // (TLC's `OPCODE_sa`, `OPCODE_aa` in `eval`).
@@ -2471,8 +2465,8 @@ impl Compiler<'_> {
         }
     }
 
-    /// A constant bound to a value by the configuration.
-    fn const_expr(&mut self, c: dive_ir::ConstId) -> Result<P, Error> {
+    /// A configured constant, including an imported declaration in an INSTANCE.
+    fn const_expr(&mut self, c: dive_ir::ConstId, env: usize, mode: Mode) -> Result<P, Error> {
         match self.h.constants.get(c.index()).cloned().flatten() {
             Some(ConstBinding::Value(v)) => {
                 let h = if let Some(&h) = self.consts.get(&c.index()) {
@@ -2484,11 +2478,30 @@ impl Compiler<'_> {
                 };
                 self.konst(h)
             }
-            Some(ConstBinding::Def(_)) => Err(Error::unsupported(
-                "a constant substituted by a definition, inside an instance (M1 core)",
-            )),
+            Some(ConstBinding::Def(d)) => {
+                let d = self.redirect(d);
+                let body = if self.h.overrides.contains(&d) {
+                    self.def_use(d, env, mode)?
+                } else {
+                    // A configured constant names the target's body, not the
+                    // startup value of that target. Ordinary helpers retain
+                    // their own legitimate startup values.
+                    self.def_body(d, env, mode)?
+                };
+                self.configured_result(body)
+            }
             None => Err(Error::unsupported("an unbound constant")),
         }
+    }
+
+    /// Unknown calls cannot establish a configured target's runtime effects.
+    fn configured_result(&self, body: P) -> Result<P, Error> {
+        if self.info[body as usize].calls {
+            return Err(Error::unsupported(
+                "a configured constant target with unresolved recursive or ENABLED calls (core)",
+            ));
+        }
+        Ok(body)
     }
 
     fn ps(&mut self, items: &[ExprId], env: usize, mode: Mode) -> Result<Vec<P>, Error> {
@@ -3021,7 +3034,7 @@ impl Compiler<'_> {
     /// A reference to a substituted declaration: the innermost active
     /// substitution, or else the declaration itself (a root variable or a
     /// constant).
-    fn subst_ref(&mut self, decl: dive_ir::DeclId, mode: Mode) -> Result<P, Error> {
+    fn subst_ref(&mut self, decl: dive_ir::DeclId, env: usize, mode: Mode) -> Result<P, Error> {
         let Some(i) = self.substs.iter().rposition(|s| s.decl == decl) else {
             let d = self.ir.decl(decl);
             #[allow(clippy::cast_possible_truncation, reason = "at most 64 variables")]
@@ -3038,10 +3051,7 @@ impl Compiler<'_> {
                     Mode::Plain => self.push(Node::Var(v.index() as u16)),
                     Mode::Primed => self.push(Node::Primed(v.index() as u16)),
                 },
-                (None, Some(c)) => {
-                    let e = self.const_expr(c)?;
-                    Ok(e)
-                }
+                (None, Some(c)) => self.const_expr(c, env, mode),
                 (None, None) => Err(Error::unsupported(format!(
                     "the unsubstituted variable {} of an instantiated module (M1 core)",
                     d.name
@@ -3138,7 +3148,7 @@ impl Compiler<'_> {
         }
         let body = compile(self)?;
         let info = &self.info[body as usize];
-        if !info.free.is_empty() || info.effect || self.is_trivial(body) {
+        if !info.free.is_empty() || info.effect || info.calls || self.is_trivial(body) {
             return Ok(body);
         }
         let body = self.step_site(key, body)?;
@@ -3246,6 +3256,11 @@ impl Compiler<'_> {
         if let Some(h) = self.precomputed(d)? {
             return self.konst(h);
         }
+        self.def_body(d, env, mode)
+    }
+
+    /// Compiles a definition's body without replacing it by its startup value.
+    fn def_body(&mut self, d: DefId, env: usize, mode: Mode) -> Result<P, Error> {
         let def = self.ir.def(d);
         if let Some(op) = def.std {
             return self.std_apply(op, &[], env, mode);
@@ -3282,6 +3297,7 @@ impl Compiler<'_> {
             && info.free.is_empty()
             && info.primed == 0
             && !info.effect
+            && !info.calls
             && !self.is_trivial(body)
         {
             let slot = self.alloc();
@@ -3322,7 +3338,11 @@ impl Compiler<'_> {
             ))),
             // `CONSTANT F(_)` with `F <- D` in the configuration.
             OpRef::Const(c) => match self.h.constants.get(c.index()).cloned().flatten() {
-                Some(ConstBinding::Def(d)) => self.apply(&OpRef::Def(d), args, env, mode),
+                Some(ConstBinding::Def(_)) if args.is_empty() => self.const_expr(*c, env, mode),
+                Some(ConstBinding::Def(d)) => {
+                    let body = self.apply(&OpRef::Def(d), args, env, mode)?;
+                    self.configured_result(body)
+                }
                 _ => Err(Error::unsupported(
                     "a constant operator the configuration does not bind to a definition (M1 core)",
                 )),

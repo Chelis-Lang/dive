@@ -576,7 +576,7 @@ impl Core {
                 // OPCODE_rs
                 let r = self.eval(env, st, *record)?;
                 let name = self.field_atoms(e)?[0].clone();
-                self.select_field(r, &name, e)
+                self.select_field(r, &name, e, st.control)
             }
             Expr::Except { base, updates } => self.eval_except(env, st, *base, updates, e),
             Expr::ExceptAt => match &env.dynamic.at {
@@ -2369,7 +2369,13 @@ impl Core {
         Ok(Some(v))
     }
 
-    fn select_field(self: &Arc<Self>, r: Ev, name: &dive_value::Atom, e: ExprId) -> Result<Ev> {
+    fn select_field(
+        self: &Arc<Self>,
+        r: Ev,
+        name: &dive_value::Atom,
+        e: ExprId,
+        caller_control: u8,
+    ) -> Result<Ev> {
         let sval = Value::Str(name.clone());
         match r {
             Ev::V(Value::Fcn(f)) if f.is_record_literal() => {
@@ -2394,7 +2400,10 @@ impl Core {
                 };
                 self.apply_fcn(&f, &sval).map(Ev::V)
             }
-            Ev::F(f) => self.apply_lazy(&f, &sval, control::CLEAR),
+            // Field projection keeps its existing CLEAR convention for TLC's
+            // prime/init flags. Startup availability belongs to the current
+            // force, rather than the function's captured creation context.
+            Ev::F(f) => self.apply_lazy(&f, &sval, caller_control & control::PRECOMPUTE),
             Ev::V(other) => Err(EvalError::general(format!(
                 "Attempted to select field {} from a non-record value {}\n{}",
                 self.ppr(&Value::Str(name.clone())),

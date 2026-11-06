@@ -1358,7 +1358,9 @@ impl Evaluator {
         let core = &self.core;
         let d = self.admit_def(def)?;
         let mut env = Env::new(def, d.depth, d.frame.len(), None, Dyn::default());
-        let ev = core.eval(&mut env, &St::constant(), d.body)?;
+        let st = St::constant()
+            .with_control(crate::env::control::CONST | crate::env::control::PRECOMPUTE);
+        let ev = core.eval(&mut env, &st, d.body)?;
         let Ev::V(v) = ev else {
             return Ok(None);
         };

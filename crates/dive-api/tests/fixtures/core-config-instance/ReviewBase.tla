@@ -1,0 +1,3 @@
+---- MODULE ReviewBase ----
+CONSTANT C
+====
