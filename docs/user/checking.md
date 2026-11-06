@@ -394,6 +394,9 @@ Mixed structured sets, such as a set containing both a tuple and a record,
 have order-independent identity and can appear in independently validated
 counterexamples. Direct undefined scalar comparisons still report errors.
 Large symbolic powersets, function sets and sequence domains stay lazy.
+Core does not retain mutable per-object normalization phases or constructor
+origins. Canonical values cross state and candidate handoff directly; genuine
+tuple and record metadata remains available for printing and nominal compatibility.
 When an equality, set element, function key or stored state needs an unproved
 symbolic identity, checking returns `unsupported`. It does not infer inequality
 from the symbolic expression or report an implementation limit as a specification

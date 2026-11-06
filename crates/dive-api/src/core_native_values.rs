@@ -417,7 +417,7 @@ mod tests {
     }
 
     #[test]
-    fn graph_admission_preserves_classes_refuses_unknown_history_and_retains_no_values() {
+    fn graph_admission_preserves_classes_refuses_symbolic_identity_and_retains_no_values() {
         let model = model();
         let store = Arc::new(Store::default());
         let mut heap = Heap::new(store.clone(), false, false);
@@ -452,7 +452,7 @@ mod tests {
         let raw = heap.set_enum(&[zero]);
         let raw = heap.intern_exact(raw).expect("persistent raw");
         assert!(
-            matches!(values.admit(&[raw]), Err(Verdict::Unsupported { feature }) if feature.contains("normalization history"))
+            matches!(values.admit(&[raw]), Err(Verdict::Unsupported { feature }) if feature.contains("unmaterialized symbolic"))
         );
         assert_eq!(values.metrics()["cache_entries"], 0);
         assert_eq!(values.metrics()["cache_bytes"], 0);

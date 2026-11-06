@@ -510,8 +510,6 @@ struct Explorer<'p> {
     /// Capture-only first-discovered representations, parallel to `next`.
     /// Canonical frontier identities remain separate for logs and Step.new.
     next_originals: Vec<Handle>,
-    /// Sparse actual construction views, separate from canonical state keys.
-    next_views: Vec<(usize, Vec<Handle>)>,
     emitted: u64,
     initial: bool,
     /// Variables the current step changed (bit per variable); all ones for
@@ -669,20 +667,9 @@ impl Explorer<'_> {
             }
         };
         self.in_model = in_model;
-        if in_model {
-            normalize_state_history(m)?;
-        }
         if !self.opts.early_probe {
             for i in 0..m.s1.len() {
-                m.s1[i] = if m.heap.has_construction_history(m.s1[i]) {
-                    if in_model {
-                        m.heap.intern_exact(m.s1[i])?
-                    } else {
-                        m.s1[i]
-                    }
-                } else {
-                    m.heap.intern(m.s1[i])?
-                };
+                m.s1[i] = m.heap.intern(m.s1[i])?;
             }
         }
         if !in_model && (self.plan.symmetry.is_some() || self.plan.view.is_some()) {
@@ -1015,21 +1002,9 @@ impl Explorer<'_> {
             capture_reserve(&mut self.next_originals, m.s1.len())?;
             capture_reserve(&mut self.next_ids, 1)?;
         }
-        let row = self.next.len() / m.s1.len().max(1);
-        let mut history = false;
         for i in 0..m.s1.len() {
-            history |= m.heap.has_construction_history(m.s1[i]);
             let h = m.heap.intern(m.s1[i])?;
             self.next.push(h);
-        }
-        if self.graph.is_none() && history {
-            let mut views = Vec::new();
-            capture_reserve(&mut views, m.s1.len())?;
-            for &h in &m.s1 {
-                views.push(m.heap.intern_exact(h)?);
-            }
-            capture_reserve(&mut self.next_views, 1)?;
-            self.next_views.push((row, views));
         }
         if self.graph.is_some() || self.checkpoint.is_some() {
             for &h in original.unwrap_or(&m.s1) {
@@ -1054,11 +1029,7 @@ impl Explorer<'_> {
             values.push(if h.is_empty() { h } else { m.heap.intern(h)? });
         }
         let expect = if self.cur_id.is_some() {
-            if self.graph.is_some()
-                || self.checkpoint.is_some()
-                || self.distributed.is_some()
-                || m.s0.iter().any(|&h| m.heap.has_construction_history(h))
-            {
+            if self.graph.is_some() || self.checkpoint.is_some() || self.distributed.is_some() {
                 m.s0.iter()
                     .map(|&h| m.heap.intern(h))
                     .collect::<Result<Vec<_>, _>>()?
@@ -1187,18 +1158,6 @@ const FP_MESSAGE: &str = "a state holds a set that cannot be fingerprinted";
 ///
 /// # Errors
 /// A value too large to intern.
-fn normalize_state_history(m: &mut Machine) -> Result<(), Error> {
-    for i in 0..m.s1.len() {
-        if m.heap.has_construction_history(m.s1[i]) {
-            // A seen candidate is rolled back to the emission mark. Demand
-            // normalization on the actual object, but do not replace a bound
-            // generator root with a projection allocated after that mark.
-            let _ = m.heap.normalize_construction(m.s1[i])?;
-        }
-    }
-    Ok(())
-}
-
 pub(crate) fn fingerprintable(m: &mut Machine, initial: bool) -> Result<bool, Error> {
     fingerprintable_with_identity(m, initial, None)
 }
@@ -1222,16 +1181,7 @@ pub(crate) fn fingerprintable_with_identity(
         } else {
             m.heap.state_identity(h)?
         };
-        m.s1[i] = if m.heap.has_construction_history(h) {
-            let view = m.heap.normalize_construction(h)?;
-            if m.heap.is_speculative() {
-                view
-            } else {
-                m.heap.intern_exact(view)?
-            }
-        } else {
-            p
-        };
+        m.s1[i] = p;
         if !closed_fingerprintable(&m.heap, p) {
             return Ok(false);
         }
@@ -1403,7 +1353,7 @@ pub fn explore_with<'p>(
 }
 
 /// Explores with the caller's existing owned work checkpoint in addition to
-/// state-boundary polls. Construction-history bulk loops use this same owner.
+/// state-boundary polls. Mathematical identity walks use this same owner.
 #[must_use]
 #[allow(
     clippy::too_many_lines,
@@ -1684,7 +1634,6 @@ fn explore_inner<'p>(
         }),
         candidate_storage: storage.clone(),
         next_originals: Vec::new(),
-        next_views: Vec::new(),
         emitted: 0,
         initial: true,
         changed: u64::MAX,
@@ -2120,7 +2069,6 @@ fn run(
     reclaim::boundary(machines, ex, store, permanent, control)?;
     let mut cur = std::mem::take(&mut ex.next);
     let mut cur_originals = std::mem::take(&mut ex.next_originals);
-    let mut cur_views = std::mem::take(&mut ex.next_views);
     let mut cur_ids = std::mem::take(&mut ex.next_ids);
     ex.advance_frontier()?;
     let mut generated_before = 0;
@@ -2200,16 +2148,6 @@ fn run(
                 let started = Instant::now();
                 let end = (k + chunk).min(states);
                 let mut metrics = Metrics::default();
-                let mut overlay = Vec::new();
-                let view_start = cur_views.partition_point(|(row, _)| *row < k);
-                let view_end = cur_views.partition_point(|(row, _)| *row < end);
-                if ex.frontier.is_none() && ex.graph.is_none() && view_start < view_end {
-                    capture_reserve(&mut overlay, (end - k) * nvars)?;
-                    overlay.extend_from_slice(&cur[k * nvars..end * nvars]);
-                    for (row, values) in &cur_views[view_start..view_end] {
-                        overlay[(row - k) * nvars..(row - k + 1) * nvars].copy_from_slice(values);
-                    }
-                }
                 let r = if let Some(coordinator) = ex.distributed {
                     coordinator
                         .expand(
@@ -2217,10 +2155,8 @@ fn run(
                             machines[0].heap.store(),
                             if ex.frontier.is_some() {
                                 &decoded.original
-                            } else if overlay.is_empty() {
-                                &cur[k * nvars..end * nvars]
                             } else {
-                                &overlay
+                                &cur[k * nvars..end * nvars]
                             },
                             &ex.seen,
                             ex.level - 1,
@@ -2238,10 +2174,8 @@ fn run(
                             &decoded.original
                         } else if ex.graph.is_some() || ex.checkpoint.is_some() {
                             &cur_originals[k * nvars..end * nvars]
-                        } else if overlay.is_empty() {
-                            &cur[k * nvars..end * nvars]
                         } else {
-                            &overlay
+                            &cur[k * nvars..end * nvars]
                         },
                         nvars,
                         &ex.seen,
@@ -2326,10 +2260,7 @@ fn run(
                     .get(k * nvars..(k + 1) * nvars)
                     .ok_or_else(|| Error::internal("capture source original row missing"))?
             } else {
-                cur_views
-                    .binary_search_by_key(&k, |(row, _)| *row)
-                    .ok()
-                    .map_or(state, |index| cur_views[index].1.as_slice())
+                state
             };
             m.s0.copy_from_slice(source);
             let level = i64::try_from(ex.level - 1).unwrap_or(i64::MAX);
@@ -2428,7 +2359,6 @@ fn run(
         }
         cur.clear();
         cur_originals.clear();
-        cur_views.clear();
         cur_ids.clear();
         // Every source-level owner is now dead. Only the next frontier and
         // permanent compiled roots may cross the Store replacement boundary.
@@ -2437,7 +2367,6 @@ fn run(
         reclaim::boundary(machines, ex, store, permanent, control)?;
         std::mem::swap(&mut cur, &mut ex.next);
         std::mem::swap(&mut cur_originals, &mut ex.next_originals);
-        std::mem::swap(&mut cur_views, &mut ex.next_views);
         std::mem::swap(&mut cur_ids, &mut ex.next_ids);
         ex.advance_frontier()?;
     }

@@ -1024,39 +1024,26 @@ mod tests {
         assert!(error.message().contains("name admission bound"));
     }
     #[test]
-    fn restores_coordinates_aliases_raw_normalized_authority_and_fresh_frontier_owner() {
+    fn restores_canonical_coordinates_aliases_and_fresh_frontier_owner() {
         let startup = owner();
         let prefix = capture(&startup, 1 << 20, &|| true).expect("prefix");
         let mut heap = Heap::new(Arc::clone(&startup), true, false);
         let one = Handle::int(1).expect("int");
         let two = Handle::int(2).expect("int");
-        let local = heap.local_literal(&[two, one, two]).expect("literal");
+        let local = heap.canonical_test_set(&[two, one, two]).expect("literal");
         let raw = heap.intern_exact(local).expect("owned raw");
         let alias = heap.tuple_literal(&[raw, raw]);
         let alias = heap.intern_exact(alias).expect("nested aliases");
-        let normalized = heap.normalize_construction(local).expect("normalization");
+        let normalized = heap.norm(local).expect("canonical");
         let normalized = heap.intern_exact(normalized).expect("owned normalized");
-        assert_ne!(raw, normalized);
-        assert!(startup.owns_history(raw));
-        assert!(startup.owns_history(normalized));
+        assert_eq!(startup.view(raw).data, &[one, two]);
+        assert_eq!(startup.memory_usage().history_view_bytes, 0);
         let identity = heap.intern(normalized).expect("canonical");
         let image = capture(&startup, 1 << 20, &|| true).expect("image");
         let fresh = owner();
-        let mut corrupt_phase = image.clone();
-        let at = corrupt_phase.len() - 8;
-        corrupt_phase[at..].copy_from_slice(&raw.bits().to_le_bytes());
-        assert!(
-            restore(&fresh, &prefix, &corrupt_phase, 1 << 20, &|| true).is_err(),
-            "origin phase cannot be fabricated from a HISTORY flag"
-        );
         let restored = restore(&fresh, &prefix, &image, 1 << 20, &|| true).expect("restore");
         assert!(!Arc::ptr_eq(&restored, &startup));
-        assert!(restored.owns_history(raw));
-        assert!(restored.owns_history(normalized));
-        assert_eq!(
-            restored.history_views.read().expect("authority").as_slice(),
-            startup.history_views.read().expect("authority").as_slice()
-        );
+        assert_eq!(restored.memory_usage().history_view_bytes, 0);
         assert_eq!(
             row(
                 &restored,
@@ -1067,20 +1054,9 @@ mod tests {
             .expect("row"),
             vec![alias, raw, normalized]
         );
-        assert!(
-            row(&restored, &[raw.bits()], true, &|| true).is_err(),
-            "raw authority must not masquerade as canonical identity"
-        );
-        let mut new_heap = Heap::new(Arc::clone(&restored), true, false);
-        assert!(
-            new_heap.normalize_construction(raw).is_err(),
-            "retained raw ownership must not fabricate a normalization provider"
-        );
         assert_eq!(
-            new_heap
-                .normalize_construction(normalized)
-                .expect("normalized authority"),
-            normalized
+            row(&restored, &[identity.bits()], true, &|| true).expect("identity"),
+            vec![identity]
         );
         let old_codec =
             crate::frontier_codec::FrontierCodec::new(Arc::clone(&startup), 1).expect("old codec");

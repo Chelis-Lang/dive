@@ -70,7 +70,7 @@ fn graph_conversion_preserves_function_classes_recursively() {
 }
 
 #[test]
-fn graph_conversion_does_not_infer_missing_set_history() {
+fn graph_conversion_refuses_unmaterialized_symbolic_identity() {
     let mut heap = Heap::new(Arc::new(Store::default()), true, false);
     let names = Interner::new();
     let one = Handle::int(1).expect("integer");
@@ -80,8 +80,8 @@ fn graph_conversion_does_not_infer_missing_set_history() {
     for handle in [raw, symbolic] {
         assert!(
             to_value(&mut heap, &names, handle, Ctx::tlc(), Conversion::Graph)
-                .expect_err("history is not certified")
-                .contains("normalization history")
+                .expect_err("symbolic identity is not materialized")
+                .contains("unmaterialized symbolic")
         );
         assert!(to_value(&mut heap, &names, handle, Ctx::tlc(), Conversion::Report).is_ok());
     }

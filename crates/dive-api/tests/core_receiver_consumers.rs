@@ -356,18 +356,12 @@ fn sequence_finiteness_uses_original_range_methods_and_preserves_alias_demand()
             }
         }
         let request = request("SeqProductFiniteUnknownWrapper", compat_tlc);
-        assert_eq!(
-            check_file_engine(&request, Engine::Reference)?.verdict(),
-            "success"
-        );
+        let reference = check_file_engine(&request, Engine::Reference)?;
+        assert_eq!(reference.verdict(), "success");
         for switches in ["", "-fold,-memo,-hashcons,-symbolic-member"] {
-            let core = check_file_core_opts(&request, switches)?;
-            let doc = core.to_json();
-            assert_eq!(doc["verdict"], "unsupported", "{doc}");
-            assert!(
-                doc["message"]
-                    .as_str()
-                    .is_some_and(|message| message.contains("unproved constructor"))
+            assert_eq!(
+                facts(&check_file_core_opts(&request, switches)?),
+                facts(&reference)
             );
         }
     }
@@ -378,39 +372,44 @@ fn sequence_finiteness_uses_original_range_methods_and_preserves_alias_demand()
 fn negating_empty_range_finiteness_cannot_report_a_false_holds()
 -> Result<(), Box<dyn std::error::Error>> {
     for compat_tlc in [false, true] {
-        let request = request("SeqProductFiniteEmptyNegated", compat_tlc);
-        let reference = check_file_engine(&request, Engine::Reference)?;
-        assert_eq!(reference.verdict(), "invariant-violation");
-        let model = SpecModel::load(
-            &request.file,
-            &request.file.with_extension("cfg"),
-            &TraceOptions {
-                compat_tlc,
-                run: Some((0, 0)),
-                ..Default::default()
-            },
-        )?;
-        for workers in [1, 4] {
-            let request = CheckRequest {
-                workers: Some(workers),
-                ..request.clone()
-            };
-            for switches in ["", "-fold,-memo,-hashcons,-symbolic-member"] {
-                let core = check_file_core_opts(&request, switches)?;
-                assert_eq!(facts(&core), facts(&reference));
-                let doc = core.to_json();
-                let word = TraceDoc::from_json(&doc["counterexample"]["trace"])?;
-                assert!(matches!(
-                    model.validate(&word).validation,
-                    Validation::Valid
-                ));
-                let mut mutation = doc["counterexample"]["trace"].clone();
-                mutation["states"][0]["values"]["x"] = json!(1);
-                let mutation = TraceDoc::from_json(&mutation)?;
-                assert!(matches!(
-                    model.validate(&mutation).validation,
-                    Validation::Invalid(_)
-                ));
+        for name in [
+            "SeqProductFiniteEmptyNegated",
+            "SeqProductFiniteUnionNegated",
+        ] {
+            let request = request(name, compat_tlc);
+            let reference = check_file_engine(&request, Engine::Reference)?;
+            assert_eq!(reference.verdict(), "invariant-violation");
+            let model = SpecModel::load(
+                &request.file,
+                &request.file.with_extension("cfg"),
+                &TraceOptions {
+                    compat_tlc,
+                    run: Some((0, 0)),
+                    ..Default::default()
+                },
+            )?;
+            for workers in [1, 4] {
+                let request = CheckRequest {
+                    workers: Some(workers),
+                    ..request.clone()
+                };
+                for switches in ["", "-fold,-memo,-hashcons,-symbolic-member"] {
+                    let core = check_file_core_opts(&request, switches)?;
+                    assert_eq!(facts(&core), facts(&reference));
+                    let doc = core.to_json();
+                    let word = TraceDoc::from_json(&doc["counterexample"]["trace"])?;
+                    assert!(matches!(
+                        model.validate(&word).validation,
+                        Validation::Valid
+                    ));
+                    let mut mutation = doc["counterexample"]["trace"].clone();
+                    mutation["states"][0]["values"]["x"] = json!(1);
+                    let mutation = TraceDoc::from_json(&mutation)?;
+                    assert!(matches!(
+                        model.validate(&mutation).validation,
+                        Validation::Invalid(_)
+                    ));
+                }
             }
         }
     }

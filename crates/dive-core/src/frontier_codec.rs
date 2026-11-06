@@ -180,13 +180,13 @@ mod tests {
     use super::*;
 
     #[test]
-    fn rows_keep_original_literal_and_history_views_across_arena_reset() {
+    fn rows_keep_genuine_tuple_views_across_arena_reset() {
         let store = Arc::new(Store::new(true));
         let mut heap = Heap::new(Arc::clone(&store), true, false);
         let one = Handle::int(1).unwrap();
         let two = Handle::int(2).unwrap();
         let tuple = heap.tuple_literal(&[one, two]);
-        let raw = heap.local_literal(&[tuple]).unwrap();
+        let raw = heap.tuple_literal(&[tuple]);
         let identity = heap.intern(raw).unwrap();
         let original = heap.intern_exact(raw).unwrap();
         let codec = FrontierCodec::new(Arc::clone(&store), 1).unwrap();
@@ -195,8 +195,8 @@ mod tests {
         let rows = codec.decode(&bytes).unwrap();
         assert_eq!(rows.identity, [identity]);
         assert_eq!(rows.original, [original]);
-        assert!(heap.has_construction_history(rows.original[0]));
-        assert!(!heap.has_construction_history(rows.identity[0]));
+        assert!(heap.view(rows.original[0]).is_tuple_literal());
+        assert!(!heap.view(rows.identity[0]).is_tuple_literal());
         let weak = Arc::downgrade(&store);
         drop(heap);
         drop(store);

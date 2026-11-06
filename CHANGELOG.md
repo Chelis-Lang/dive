@@ -1,5 +1,10 @@
 # Changelog
 
+- Remove obsolete Core set-history phases, constructor-origin allocation and
+  receiver-authority walks from checking and state handoff. Preserve bounded
+  mathematical identity checks, interruption handling and symbolic domains;
+  candidate origin-index report fields remain zero and trace formats stay unchanged.
+
 - Evaluate applied LET-recursive functions on Core with lexical captures and
   substitution context preserved. Prisoners and SchedulingAllocator now agree
   with TLC using their original configurations; unsupported prime, escape, action-position,
