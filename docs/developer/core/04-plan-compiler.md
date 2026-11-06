@@ -841,44 +841,18 @@ At load 12, the core took 5.1 s wall and 4.8 s user, against TLC's 28.4 s and 15
 
 ## 7. Next step
 
-The #623 constructor path now consumes actual scalar/model-value/nested-tuple
-literal, MAP and covered union histories, including newly assigned successor
-queries and sparse normalized state views. Constructor/consumer history is
-ineligible for speculative folding, keyed memoization, extra definition reuse
-and parent skips; actual LET thunk sharing remains. The old closed-predicate and
-canonical-producer source certificates are not widened. The original 18 primary
-controls remain, alongside twelve TLC models/twelve SANY inputs in
-`conformance/corpus/construction-set-history`. All goldens come from the official
-harness with recorded reasons. Covered old positive controls now require exact
-primary agreement; failing C2 cases and unproved E7 classifications still refuse.
-Actual persistent view ownership and rollback are described in
-`03-value-model.md` §8 and ADR 0131. Whole-model Sailfish performance remains
-unqualified; this is not the generic S5 index.
+Follow the [release gates](../../RELEASE.md) and measured refusal buckets in the
+[scoreboard](../../scoreboard.md). Canonical default-profile sets (D-028) replace
+the former normalization-history and receiver-authority workstream. Do not
+extend construction-order tracking, alias lifetimes or diagnostic receiver
+provenance solely to reproduce TLC internals; nominal compatibility gaps are
+documented in [TLC differences](../../tlc-differences.md).
 
-The next checked-comparison delivery follows three dependencies:
+Keep the implemented semantic guards and independent diagnostic/word validation
+contracts described above. Their existence does not create a new history or
+receiver-emulation work queue.
 
-1. Preserve covered raw literal/map/union construction order and duplicates,
-   actual normalization demand/history, receiver class and alias lifetime
-   through imports, arguments, memo/fold and state handoff. Persistence,
-   `Kind::Set` and `is_norm` do not establish TLC history. Sailfish can query
-   newly assigned `es'` before commitment; a predecessor's normalized status
-   does not certify that successor set.
-2. Consume exact closed scalar/tuple normalization at the actual demand:
-   retain TLC's insertion order and first equal representative. Raw membership
-   scans member-to-query checked equality; a proved normalized view uses
-   query-to-pivot checked comparison. Stop at the first hit/error. Keep the
-   twelve #619 controls consumed and all uncovered paths guarded/refused;
-   metadata or an isolated helper alone is not a delivered live port.
-3. Widen record/function/nested/symbolic classes one bounded family at a time.
-   E7 diagnostic coverage separately needs receiver construction/source
-   ownership and replay-lifetime provenance. #620 is already unverified in
-   the reference and `Refused` by the native reader, not a false agreement;
-   no classifier mapping or exemption follows from it.
-
-The bounded witness memo is not the generic S5 index, which remains unbuilt.
-Hidden/nonidentity INSTANCE queries and B2/B4 lifetimes remain separate work.
-The earlier M0/census ordering below is historical context; current boundaries
-and completed work stay recorded in §§4–5 and §8.
+### Historical M0 context
 
 The state of M0, which M1 replaces item by item:
 
