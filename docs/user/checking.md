@@ -417,6 +417,9 @@ no engine. After a dynamic refusal, the reference run gets what is left of
 TLC's profile, and the reference engine runs whatever the core refuses.
 
 Core constructs finite literals and mapped sets canonically by default.
+Union of already canonical explicit sets merges their ordered elements without
+sorting them again. This optimization is automatic in both profiles and keeps
+the same identity checks and interruption controls.
 Mixed structured sets, such as a set containing both a tuple and a record,
 have order-independent identity and can appear in independently validated
 counterexamples. Direct undefined scalar comparisons still report errors.

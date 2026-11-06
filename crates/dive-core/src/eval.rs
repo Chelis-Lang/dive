@@ -1343,6 +1343,9 @@ impl Machine {
                 if !fx || !fy {
                     return Ok(self.heap.union(x, y));
                 }
+                if let Some(union) = self.union_concrete(x, y)? {
+                    return self.checked_set(union);
+                }
                 let mut v = self.work_elements(x)?;
                 v.extend(self.work_elements(y)?);
                 let r = self.heap.set_from(&mut v);
@@ -1380,6 +1383,61 @@ impl Machine {
                 Ok(self.heap.set_sorted(&out))
             }
         }
+    }
+
+    /// Merge canonical explicit operands; the caller retains identity/class checks.
+    fn union_concrete(&mut self, x: Handle, y: Handle) -> Result<Option<Handle>, Error> {
+        if !x.is_compound() || !y.is_compound() {
+            return Ok(None);
+        }
+        let (left_view, right_view) = (self.heap.view(x), self.heap.view(y));
+        if left_view.kind != Kind::Set
+            || right_view.kind != Kind::Set
+            || left_view.is_lazy()
+            || right_view.is_lazy()
+        {
+            return Ok(None);
+        }
+        let capacity = left_view
+            .data
+            .len()
+            .checked_add(right_view.data.len())
+            .ok_or_else(|| Error::unsupported("set union address space"))?;
+        let mut out = Vec::new();
+        out.try_reserve_exact(capacity)
+            .map_err(|_| Error::unsupported("set union allocation"))?;
+        let (mut i, mut j) = (0, 0);
+        while i < left_view.data.len() || j < right_view.data.len() {
+            self.heap.work_poll()?;
+            let value = match (left_view.data.get(i), right_view.data.get(j)) {
+                (Some(&left), Some(&right)) => match self.heap.cmp(left, right) {
+                    std::cmp::Ordering::Less => {
+                        i += 1;
+                        left
+                    }
+                    std::cmp::Ordering::Greater => {
+                        j += 1;
+                        right
+                    }
+                    std::cmp::Ordering::Equal => {
+                        i += 1;
+                        j += 1;
+                        left
+                    }
+                },
+                (Some(&left), None) => {
+                    i += 1;
+                    left
+                }
+                (None, Some(&right)) => {
+                    j += 1;
+                    right
+                }
+                (None, None) => return Err(Error::internal("union cursor past both operands")),
+            };
+            out.push(value);
+        }
+        Ok(Some(self.heap.set_sorted(&out)))
     }
 
     /// `x \ y` for enumerated sets with `y` smaller than `x` (`S \ {e}` in
@@ -2160,6 +2218,10 @@ fn fast_arith(op: Arith, x: i64, y: i64, mode: IntMode) -> Option<Handle> {
     }
     Handle::int(r)
 }
+
+#[cfg(test)]
+#[path = "eval_union_tests.rs"]
+mod union_tests;
 
 #[cfg(test)]
 mod tests {

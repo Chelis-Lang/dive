@@ -36,6 +36,9 @@ The [release gates](docs/RELEASE.md) must pass before it is tagged.
 
 ### Changed
 
+- Merge already canonical Core union operands in order, preserving complete
+  identity/class checks, symbolic fallbacks and cooperative interruption.
+
 - Core builds finite sets canonically, removing TLC construction-history and
   receiver-authority tracking. Default mixed structured sets have consistent
   mathematical identity; unproved symbolic identities still refuse (D-028).
