@@ -2763,7 +2763,7 @@ impl Enab {
                 let rval = core.embed(self.eval(env, &s1, rhs)?)?;
                 match lval {
                     None => {
-                        let s2 = self.with(&s1, var, rval);
+                        let s2 = s1.with_owned(&core.ir.decl(var).name, rval);
                         self.cont(acts, s2)
                     }
                     Some(l) => {
@@ -2868,7 +2868,7 @@ impl Enab {
             let v0 = core.force_fcn(self.eval(env, &s1, e)?)?;
             return match s1.get(&core.ir.decl(var).name).cloned() {
                 None => {
-                    let s2 = self.with(&s1, var, v0);
+                    let s2 = s1.with_owned(&core.ir.decl(var).name, v0);
                     self.cont(acts, s2)
                 }
                 Some(v1) => {

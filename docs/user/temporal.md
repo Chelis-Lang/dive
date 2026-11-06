@@ -775,6 +775,10 @@ branch cutoffs above. Ordinary graph states, fingerprints and trace variable
 lists still contain only the root variables. Both semantic profiles use the
 same query-name rules; no new flag or default divergence is introduced.
 
+Sequential assignments and `UNCHANGED` checks reuse an unshared partial query
+state. Retained alternatives, lazy computations and caller states keep their
+own snapshots; query evaluation still follows the same branch and error order.
+
 Rust callers can construct an actual partial query assignment with
 `Evaluator::named_state`, using checked IR variable declaration IDs and values.
 `StateRef::Named` retains it for scoped reads; `St::enabled_candidate`,
