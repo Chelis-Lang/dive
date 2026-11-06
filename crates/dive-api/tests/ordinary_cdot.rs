@@ -228,8 +228,7 @@ fn composed_fairness_and_custom_generated_bound_keep_their_original_limits() -> 
 }
 
 #[test]
-fn actual_primary_word_refuses_original_composed_next_without_borrowing_the_checker() -> TestResult
-{
+fn actual_primary_word_validates_tla_composition_and_refuses_tlc_accounting() -> TestResult {
     let oracle: serde_json::Value =
         serde_json::from_str(include_str!("fixtures/ordinary-cdot/oracle.json"))?;
     let analysis = dive_sema::analyze_source(
@@ -256,22 +255,31 @@ fn actual_primary_word_refuses_original_composed_next_without_borrowing_the_chec
                 .ok_or("property")?
                 .into(),
         ];
-        assert_eq!(
-            dive_trace::validate_doc(&model, &document, &[])
-                .0
-                .validation,
-            Validation::Unsupported(format!(
-                "unsupported temporal validation: {}",
-                dive_trace::COMPOSITION_UNSUPPORTED
-            ))
-        );
+        let validation = dive_trace::validate_doc(&model, &document, &[])
+            .0
+            .validation;
+        if mode == ActionComposition::Tla {
+            // FALSE -> TRUE follows First then Last; stuttering TRUE
+            // satisfies WF_x(Fair) and violates the named []<>~x property.
+            assert_eq!(validation, Validation::Valid);
+        } else {
+            assert_eq!(
+                validation,
+                Validation::Unsupported(format!(
+                    "unsupported temporal validation: {}",
+                    dive_trace::COMPOSITION_UNSUPPORTED
+                ))
+            );
+        }
         document.states[1].insert("x".into(), false.into());
-        assert_ne!(
-            dive_trace::validate_doc(&model, &document, &[])
-                .0
-                .validation,
-            Validation::Valid
-        );
+        let forged = dive_trace::validate_doc(&model, &document, &[])
+            .0
+            .validation;
+        if mode == ActionComposition::Tla {
+            assert!(matches!(forged, Validation::Invalid(_)));
+        } else {
+            assert_ne!(forged, Validation::Valid);
+        }
         assert_eq!(model.evaluator.take_output(), [] as [String; 0]);
     }
     Ok(())
