@@ -21,7 +21,7 @@ Each gate is measured on a commit on `main`. All six must hold to tag `v0.1.0`.
 | Gate | Requirement | How it is measured |
 |---|---|---|
 | **R1 Coverage** | Default profile, **Core engine alone** (`--impl dive:core`, no fallback), pinned Examples full tier, 1 worker. **0 disagreements.** Agreements plus registered expected divergences are at least the Reference engine's count on the same source and selection. The historical 182/217 baseline (#486) spans four corpora, including 151 Examples agreements; re-measure before comparing. Every other model gives a named refusal or a declared budget stop. | `dive-conformance run --impl dive:core --impl-profile dive --corpus examples --tier all --workers 1`, plus the same with `--impl dive:reference` for the comparison count |
-| **R2 Speed** | End to end, including TLC's JVM startup, Core is faster than TLC on the geometric mean over the R1 agreeing models. A model slower than TLC gets a `perf` issue. A model more than 2x slower than TLC blocks the release. | Harness elapsed times from the R1 run against the golden TLC times; the benchmark panel by `dive-bench` for the headline number |
+| **R2 Speed** | End to end, including TLC's JVM startup, Core is faster than TLC on the geometric mean over the R1 agreeing models. A model slower than TLC gets a `perf` issue. A model more than 2x slower than TLC blocks the release. | One host, one worker, seed and fingerprint 0: pinned TLC (through the harness JRE) and `dive check --engine core` on every R1 agreeing model, wall clock including startup. Report the geometric mean of dive/TLC and list every model above 1x and above 2x. Golden TLC times from another host are triage only. |
 | **R3 Bare use** | TLAPS and the CommunityModules ship inside dive at the lowest search priority, with provenance recorded. Ten original Examples specifications resolve with **no** `--module-path` or `--library-path` options. Nine must check successfully, including MCPaxos, MCBakery, at least two PlusCal specs and two liveness/fairness specs. EWD998ChanID may succeed or give its specific named VIEW/liveness or recursive-LET refusal (owner-approved bounded fallback); other failures block the gate. | A CI smoke test |
 | **R4 Compat exists** | `--compat=tlc` runs on Core. Its known gaps are listed in `docs/tlc-differences.md`. It is not measured against an agreement target. | Small-tier run in the TLC profile reports no internal errors |
 | **R5 Stable surface** | Per-command `--help` works. `--version` names the commit. Unimplemented commands such as `lsp` are hidden. The JSON report (`schema_version` 3) and the CLI help are pinned by golden tests. | Golden tests in the workspace gate |
@@ -56,7 +56,7 @@ In order. Each item has a GitHub issue in the
    - Register the D-entry.
    - MCQuicksort, ReadersWriters and MCAlternatingBit run natively.
 3. **Burn down Core refusals by largest reason bucket,** not model by model.
-4. **Core liveness at corpus scale.** Profile and fix MCInnerSerial first (#445).
+4. **Core liveness at corpus scale.** Profile and fix MCInnerSerial first (#787).
    Then raise temporal capture capacity for the Examples liveness models that
    currently stop.
 5. **Bundle the module libraries** and add the bare-use smoke test (R3).

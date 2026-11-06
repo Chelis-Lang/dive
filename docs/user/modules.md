@@ -102,10 +102,11 @@ internal symbolic-membership optimization disabled. The checked example is:
 dive check crates/dive-api/tests/fixtures/core-receiver-consumers/MappedSubsets.tla --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
 ```
 
-An outer mapped collection containing multiple raw sets still refuses when its
-constructor and comparison history are unproved. `MappedMultipleSubsets.tla`
-beside these examples records that boundary; the original Examples
-`LoopInvariance/MCQuicksort` model still reaches it.
+Under `--compat=tlc`, an outer mapped collection containing multiple raw sets
+still refuses when its constructor and comparison history are unproved.
+`MappedMultipleSubsets.tla` beside these examples records that boundary. In the
+default profile sets are canonical, and the original Examples
+`LoopInvariance/MCQuicksort` model agrees with TLC on Core.
 
 Repeat `--library-path DIR` to search before bundled standard modules or
 `--module-path DIR` to search after them. These directories contain TLA+ module
