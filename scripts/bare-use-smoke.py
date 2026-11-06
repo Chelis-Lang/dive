@@ -30,6 +30,7 @@ def expected_ewd_refusal(model: str, status: int, report: dict) -> bool:
     reasons = {
         "graph capture with VIEW requires quotient edge and closing-state evidence",
         "a recursive function used other than applied (M1 core)",
+        "an operator parameter of a recursive operator (M1 core)",
     }
     return (model == "ewd998/EWD998ChanID" and status == 3
             and report.get("verdict") == "unsupported" and report.get("message") in reasons

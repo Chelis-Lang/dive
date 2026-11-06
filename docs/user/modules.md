@@ -22,7 +22,8 @@ and licenses are in [the bundled-library README](../../crates/dive-sema/bundled/
 The bundled-library smoke checks ten original Examples without library flags.
 Nine must check successfully. `EWD998ChanID` resolves its imports but may report
 an explicit unsupported result: the Reference engine refuses its VIEW/liveness
-capture, and Core refuses its recursive LET function evaluation. This is a
+capture, and Core refuses an enclosing operator parameter in its recursive LET
+function. This is a
 checking limitation, not a missing-library error; it does not establish a
 verdict. Supporting that model remains deferred in #428.
 
