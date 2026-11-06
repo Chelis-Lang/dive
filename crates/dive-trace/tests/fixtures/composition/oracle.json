@@ -1,0 +1,56 @@
+{
+  "oracle": "tlc-2026.10.06.014338",
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "source_sha256": "0c050975d39436eb1c5fe4a189aefcbd113ef5c34a9f0cfc7d1e5265d5c80d56",
+  "config_sha256": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+  "cdot": true,
+  "workers": 1,
+  "seed": 0,
+  "fp": 0,
+  "lncheck": "final",
+  "verdict": "success",
+  "exit": 0,
+  "generated": 13,
+  "distinct": 3,
+  "queue": 0,
+  "depth": 2,
+  "files": {
+    "ReplayComposition.tla": "7db3a6d23d836614fd7b82c41ef60790287ff39b481c9393e875e219f1bc4567",
+    "facts.cfg": "77d08f68ba97cd44ea91a87ede013474a8c13da5120846036d8c883b8502e093",
+    "weak.cfg": "e2c9ae6c060df0d39c1ee3549f16c7ef5461b2bec75e3911959cb48e12a4b253",
+    "strong.cfg": "fe330f3d7dd55ffed19a3154d7aa61723ff70a87d2eb369149b8f13fa0c0d137"
+  },
+  "fairness": {
+    "facts": {
+      "exit": 0,
+      "generated": 2,
+      "distinct": 1,
+      "depth": 1,
+      "enabled": true,
+      "nonstuttering_enabled": true,
+      "expanded_nonstuttering_enabled": false
+    },
+    "weak": {
+      "exit": 13,
+      "generated": 2,
+      "distinct": 1,
+      "depth": 1,
+      "violated": "Weak",
+      "word": [
+        0
+      ],
+      "stuttering": true
+    },
+    "strong": {
+      "exit": 13,
+      "generated": 2,
+      "distinct": 1,
+      "depth": 1,
+      "violated": "Strong",
+      "word": [
+        0
+      ],
+      "stuttering": true
+    }
+  }
+}

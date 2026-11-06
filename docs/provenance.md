@@ -1098,6 +1098,15 @@ inherited context mismatch without changing register or random admission.
 
 ## Action composition
 
+Core's bounded composition in `crates/dive-core/src/compile_composition.rs` and
+`crates/dive-core/src/generate/composition.rs` uses the existing generator rules for both stages,
+then applies the mathematical relation `A(s,t) /\ B(t,u)`. It does not port
+TLC's continuation distortion or intermediate-state accounting. The consumed
+`crates/dive-api/tests/fixtures/core-composition/` control was captured with the pinned
+oracle before implementation: success, 13 generated, 3 distinct, depth 2 and
+exit 0. Mathematical composition emits 7 final candidates, retaining duplicate
+witnesses; the six intermediate candidates are the existing D-022 difference.
+
 Successor-candidate and intermediate-right-step cooperative checkpoints (issue
 #393) are native budget control, not a change to the TLC algorithm below.
 They use the existing amortized evaluator host control before candidate binding
@@ -1116,8 +1125,14 @@ pinned source; DFID and simulation use emitted successors only.
 D-022 records the default TLA+ counterpart, which counts composed successors and
 refuses enclosing conjunctions whose continuation or preassigned variables TLC
 would distort. Tests retain the complete existing six-probe selection and its
-consumed pinned oracle fixtures. The trace validator refuses action
-composition, including in `ENABLED` (ADR 0103). Pure TLC-profile capture now uses the
+consumed pinned oracle fixtures. Independent replay now reuses this evaluator for the bounded pure TLA slice:
+complete intermediates and at most one complete tail successor, existing
+callback-free closure inspection, private host grants and fresh cache domains
+(ADR 0103 follow-up). Its nonstuttering continuation compares the original and
+final states. Original finite-relation controls and compact pinned TLC facts in
+`crates/dive-trace/tests/fixtures/composition/` establish the exact D-022
+ENABLED/WF/SF artifact; no new upstream algorithm or second enumerator is added.
+Other composition modes, effects, partial and unproved cases remain refused. Pure TLC-profile capture now uses the
 inline fallback and counts intermediates as generated; only emitted successors
 become transition edges. Ordinary liveness integration remains pending.
 

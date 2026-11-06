@@ -15,6 +15,7 @@ use crate::handle::Handle;
 use crate::node::Kind;
 use crate::plan::{Bind, Code, G, GNode, Node, P, Raw, Unch};
 
+mod composition;
 mod constructive;
 
 const NONE: u32 = u32::MAX;
@@ -380,6 +381,19 @@ impl Machine {
             return Err(Error::internal("generator node out of range"));
         };
         match node {
+            GNode::Composition { first, then } => {
+                if sink.constructive() {
+                    return Err(Error::unsupported(
+                        "constructive generation of action composition",
+                    ));
+                }
+                if acts != NONE || self.assigned != 0 {
+                    return Err(Error::unsupported(
+                        "action composition with pending conjuncts or preassigned variables (D-022)",
+                    ));
+                }
+                self.composition(code, *first, *then, sink)
+            }
             GNode::Conj(items) => {
                 let Some((&(first, _), rest)) = items.split_first() else {
                     return self.cont(code, acts, sink);

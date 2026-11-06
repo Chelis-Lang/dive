@@ -481,6 +481,19 @@ unassigned primed variable is an evaluation error. dive: `Gen::default_rule`
 is on. dive's handling and its divergence are D-022
 (`crates/dive-eval/src/next/cdot.rs`, `crates/dive-eval/tests/cdot.rs`).
 
+Core's bounded mathematical slice compiles a pure enumerable first stage and a
+conjunctive/`LET` tail assigning every root variable once from unprimed values.
+It privately collects complete interned intermediate rows before running any
+tail, preserving duplicates and source errors. The tail uses each intermediate
+as its source; the outward sink sees the original source and the final row.
+All buffers, bindings and continuations restore on errors and stops. Boolean
+composition on a complete step uses the same relation, including all-assigned
+continuations. Effects, nested/recursive searches, incomplete intermediates,
+unproved tails and pending generator continuations refuse. Compiled models
+containing composition evaluate pure state-dependent thunks by name; keyed
+memo sites retain their actual source/step keys. No value cached solely for a
+frame activation can cross a changed source row.
+
 ### 4.11 When a successor counts as generated
 
 | Situation | Generated | Then |

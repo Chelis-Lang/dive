@@ -73,6 +73,95 @@ fn copy_with(s0: &StateRef, s1: &StateVals) -> StateVals {
 }
 
 impl Core {
+    fn bounded_composition(&self) -> bool {
+        self.host
+            .get()
+            .is_some_and(|host| host.requires_bounded_action_composition())
+    }
+
+    fn unproved_composition<T>(&self) -> Result<T> {
+        // Replay remembers this refusal even if an optional label swallows it.
+        self.check_action_composition()?;
+        Err(EvalError::unsupported(
+            "unproved bounded action composition",
+        ))
+    }
+
+    /// Reuse the existing callback-free closure inspection and generator,
+    /// never a checker callback or a separately implemented relation search.
+    /// All first-stage work finishes before any tail or outward observation.
+    fn bounded_cdot_intermediates(
+        self: &Arc<Self>,
+        env: &Env,
+        s0: &StateRef,
+        a: ExprId,
+        b: ExprId,
+    ) -> Result<Vec<StateVals>> {
+        if self.opts.action_composition != ActionComposition::Tla {
+            return self.unproved_composition();
+        }
+        let evaluator = crate::Evaluator {
+            core: self.clone(),
+            collected: None,
+        };
+        let mut inspected = env.clone();
+        // ENABLED's empty substitution cutoff changes no lookup. Inspect
+        // that equivalent closure; retain every nonempty/unknown cutoff.
+        if inspected.dynamic.cut == Some(0) && inspected.dynamic.subst.is_none() {
+            inspected.dynamic.cut = None;
+        }
+        let scope = crate::Scope {
+            env: inspected,
+            owner: self.ir.clone(),
+            names: self.names.clone(),
+            context: Arc::downgrade(self),
+            wrapper: None,
+        };
+        if evaluator
+            .canonical_producer_stability_budgeted(&[(a, scope.clone()), (b, scope)], &[], None)?
+            .is_none()
+        {
+            return self.unproved_composition();
+        }
+        let current = self.composition_current(s0)?;
+        if !matches!(&current, StateRef::Vals(values) if values.len() == self.ir.vars().len() && values.iter().all(Option::is_some))
+        {
+            return self.unproved_composition();
+        }
+        if let Some(host) = self.host.get() {
+            host.check_bounded_action_composition()
+                .map_err(crate::host::host_error)?;
+        }
+        let empty = || vec![None; self.ir.vars().len()].into();
+        let intermediates = self.cdot_steps(env, &current, empty(), a, false)?;
+        if intermediates
+            .iter()
+            .any(|state| state.iter().any(Option::is_none))
+        {
+            return self.unproved_composition();
+        }
+        Ok(intermediates)
+    }
+
+    fn bounded_cdot_tail(
+        self: &Arc<Self>,
+        env: &Env,
+        intermediate: StateVals,
+        b: ExprId,
+    ) -> Result<Vec<StateVals>> {
+        self.loop_work()?;
+        let empty = vec![None; self.ir.vars().len()].into();
+        let final_states = self.cdot_steps(env, &StateRef::Vals(intermediate), empty, b, true)?;
+        if final_states.len() > 1
+            || final_states
+                .iter()
+                .any(|state| state.iter().any(Option::is_none))
+        {
+            return self.unproved_composition();
+        }
+        Ok(final_states)
+    }
+
     fn composition_named(self: &Arc<Self>, state: &crate::NamedState) -> Result<StateVals> {
         if !std::ptr::eq(state.context.as_ptr(), Arc::as_ptr(self)) {
             return Err(EvalError::unsupported(
@@ -111,8 +200,11 @@ impl Core {
         s0: &StateRef,
         t: StateVals,
         a: ExprId,
+        bounded_tail: bool,
     ) -> Result<Vec<StateVals>> {
-        self.check_action_composition()?;
+        if !self.bounded_composition() {
+            self.check_action_composition()?;
+        }
         let s0 = self.composition_current(s0)?;
         let action = Action {
             owner: self.ir.clone(),
@@ -143,7 +235,16 @@ impl Core {
             sink: &mut collect,
             choices: None,
         };
-        g.step(a, &None, env)?;
+        let result = g.step(a, &None, env);
+        if let Err(error) = result {
+            // A tail that emitted before failing is not a proved deterministic
+            // operation. In particular its late error cannot certify a
+            // before-first-successor endpoint after hiding the earlier row.
+            if bounded_tail && !iss.is_empty() && error.class() == crate::ErrorClass::Eval {
+                return self.unproved_composition();
+            }
+            return Err(error);
+        }
         Ok(iss)
     }
 
@@ -156,11 +257,40 @@ impl Core {
         b: ExprId,
         e: ExprId,
     ) -> Result<Ev> {
+        if self.bounded_composition() {
+            let intermediates = self.bounded_cdot_intermediates(env, &st.s0, a, b)?;
+            let target = self.composition_current(&st.s1)?;
+            let StateRef::Vals(target) = target else {
+                return self.unproved_composition();
+            };
+            if target.len() != self.ir.vars().len() || target.iter().any(Option::is_none) {
+                return self.unproved_composition();
+            }
+            for intermediate in intermediates {
+                for successor in self.bounded_cdot_tail(env, intermediate, b)? {
+                    self.loop_work()?;
+                    let mut equal = true;
+                    for (left, right) in successor.iter().zip(target.iter()) {
+                        let (Some(left), Some(right)) = (left, right) else {
+                            return self.unproved_composition();
+                        };
+                        if !self.equals(left, right)? {
+                            equal = false;
+                            break;
+                        }
+                    }
+                    if equal {
+                        return Ok(Ev::V(Value::TRUE));
+                    }
+                }
+            }
+            return Ok(Ev::V(Value::FALSE));
+        }
         if self.opts.action_composition == ActionComposition::Off {
             return Err(off_error(self, e));
         }
         let empty: StateVals = vec![None; self.ir.vars().len()].into();
-        for t in self.cdot_steps(env, &st.s0, empty, a)? {
+        for t in self.cdot_steps(env, &st.s0, empty, a, false)? {
             self.loop_work()?;
             let st2 = St {
                 s0: StateRef::Vals(t),
@@ -194,6 +324,24 @@ impl Gen<'_, '_, '_> {
         env: &Env,
         e: ExprId,
     ) -> Result<Flow> {
+        if self.core.bounded_composition() {
+            if acts.is_some() || self.s1.iter().any(Option::is_some) {
+                return self.core.unproved_composition();
+            }
+            let intermediates = self.core.bounded_cdot_intermediates(env, &self.s0, a, b)?;
+            for intermediate in intermediates {
+                for successor in self.core.bounded_cdot_tail(env, intermediate, b)? {
+                    self.core.loop_work()?;
+                    self.s1 = successor;
+                    if self.emit() == Flow::Stop {
+                        self.s1 = vec![None; self.core.ir.vars().len()].into();
+                        return Ok(Flow::Stop);
+                    }
+                }
+            }
+            self.s1 = vec![None; self.core.ir.vars().len()].into();
+            return Ok(Flow::Continue);
+        }
         if self.choices.is_some() {
             return Err(EvalError::unsupported(
                 "constructive generation of action composition",
@@ -277,6 +425,36 @@ impl Enab {
         e: ExprId,
     ) -> Result<Option<EnabledState>> {
         let core = &self.core;
+        if core.bounded_composition() {
+            // Only a nonstuttering subscript may follow the complete composed
+            // edge. Test it against the original s0, never the intermediate t.
+            let mut continuation = acts.as_ref();
+            while let Some(item) = continuation {
+                if !matches!(item.kind, super::Kind::Changed) {
+                    return core.unproved_composition();
+                }
+                continuation = item.next.as_ref();
+            }
+            if !s1.is_empty() {
+                return core.unproved_composition();
+            }
+            for intermediate in core.bounded_cdot_intermediates(env, &self.s0, a, b)? {
+                for successor in core.bounded_cdot_tail(env, intermediate, b)? {
+                    core.loop_work()?;
+                    let mut named = crate::NamedState::empty(core);
+                    for (declaration, value) in core.ir.vars().iter().zip(successor.iter()) {
+                        let Some(value) = value else {
+                            return core.unproved_composition();
+                        };
+                        named = named.with(&core.ir.decl(*declaration).name, value.clone());
+                    }
+                    if let Some(successor) = self.cont(acts, named)? {
+                        return Ok(Some(successor));
+                    }
+                }
+            }
+            return Ok(None);
+        }
         let root_s1 = core.composition_named(s1)?;
         match core.opts.action_composition {
             ActionComposition::Off => return Err(off_error(core, e)),
@@ -286,7 +464,7 @@ impl Enab {
             _ => {}
         }
         let t0 = copy_with(&core.composition_current(&self.s0)?, &root_s1);
-        for t in core.cdot_steps(env, &self.s0, t0, a)? {
+        for t in core.cdot_steps(env, &self.s0, t0, a, false)? {
             core.loop_work()?;
             let en = Enab {
                 core: core.clone(),

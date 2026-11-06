@@ -89,7 +89,7 @@ fn ordinary_tlc_keeps_mixed_name_composition_primary_values_and_safe_refusal() -
     check_primary_cases(TemporalMode::Ordinary)
 }
 #[test]
-fn independent_composed_word_refusal_keeps_noncomposed_valid_and_forged_controls() -> TestResult {
+fn independent_composed_words_validate_tla_and_keep_tlc_accounting_refused() -> TestResult {
     let composed =
         "---- MODULE Control ----\nVARIABLE x\nInit==x=0\nNext==(x'=1) \\cdot (x'=2)\n====\n";
     for compat_tlc in [false, true] {
@@ -117,13 +117,20 @@ fn independent_composed_word_refusal_keeps_noncomposed_valid_and_forged_controls
         let model = dive_model::bind(ir, &cfg, &bind_opts).map_err(|f| format!("{f:?}"))?;
         for x in [2, 9] {
             let doc = TraceDoc::behavior(vec![json!({"x":0}), json!({"x":x})])?;
-            assert_eq!(
-                dive_trace::validate_doc(&model, &doc, &[]).0.validation,
-                Validation::Unsupported(dive_trace::COMPOSITION_UNSUPPORTED.to_owned())
-            );
+            let validation = dive_trace::validate_doc(&model, &doc, &[]).0.validation;
+            if compat_tlc {
+                assert_eq!(
+                    validation,
+                    Validation::Unsupported(dive_trace::COMPOSITION_UNSUPPORTED.to_owned())
+                );
+            } else if x == 2 {
+                assert_eq!(validation, Validation::Valid);
+            } else {
+                assert!(matches!(validation, Validation::Invalid(_)));
+            }
             assert_eq!(model.evaluator.take_output(), [] as [String; 0]);
             // Public TLC TraceOptions retain composition=Off; the default
-            // profile enables TLA composition and reaches its replay guard.
+            // profile validates the composed 0 -> 2 relation independently.
             if !compat_tlc {
                 let public = SpecModel::from_source(
                     "Control.tla",
@@ -131,10 +138,12 @@ fn independent_composed_word_refusal_keeps_noncomposed_valid_and_forged_controls
                     "INIT Init\nNEXT Next\n",
                     &opts,
                 )?;
-                assert_eq!(
-                    public.validate(&doc).validation,
-                    Validation::Unsupported(dive_trace::COMPOSITION_UNSUPPORTED.to_owned())
-                );
+                let validation = public.validate(&doc).validation;
+                if x == 2 {
+                    assert_eq!(validation, Validation::Valid);
+                } else {
+                    assert!(matches!(validation, Validation::Invalid(_)));
+                }
             }
         }
         let plain = SpecModel::from_source(
