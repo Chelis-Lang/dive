@@ -216,7 +216,9 @@ cargo deny --locked check                       # only when Cargo.lock or deny.t
 The `ci` nextest profile (`.config/nextest.toml`) leaves out slow,
 evidence-oriented and multi-worker matrix tests; everything it excludes still
 runs in the full gate. The `Conformance gate` job checks the eight models of
-`conformance/gates/smoke.txt` at 1 and 4 workers, then runs
+`conformance/gates/smoke.txt` at 1 and 4 workers, then the Core golden gate: Core alone (`--engine core`, default
+profile) must agree with the TLC goldens, or match a registered expected
+divergence, on `conformance/gates/core-smoke.txt` at 1 and 4 workers. It then runs
 `scripts/shadow-gate.sh` over `conformance/gates/shadow-smoke.txt`: the new
 execution core (`--engine core`) must agree with the reference engine and its
 counterexamples must validate (`docs/developer/core/08-correctness.md`).

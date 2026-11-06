@@ -15,8 +15,11 @@ protect-main`:
   PR changes `Cargo.lock` or `deny.toml` (a step condition, so the required
   check always reports), and on every push to `main`.
 - **Conformance gate**: release builds of the harness and `dive`, then
-  `scripts/conformance-gate.sh conformance/gates/smoke.txt --workers 1,4`
-  and the shadow gate `scripts/shadow-gate.sh
+  `scripts/conformance-gate.sh conformance/gates/smoke.txt --workers 1,4`,
+  the Core golden gate (the same script with `DIVE_GATE_IMPL=dive:core
+  DIVE_GATE_PROFILE=dive` over `conformance/gates/core-smoke.txt`, the union
+  of the smoke and shadow-smoke lists: Core alone must agree with the TLC
+  goldens or match a registered expected divergence), and the shadow gate `scripts/shadow-gate.sh
   conformance/gates/shadow-smoke.txt`. The shadow gate runs the new core
   against the reference engine on 26 fast examples models at 1 and 4
   workers, under `--strict` and with successor sampling
