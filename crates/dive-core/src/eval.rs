@@ -6,7 +6,7 @@ use std::sync::Arc;
 use crate::Error;
 use crate::compare;
 use crate::handle::Handle;
-use crate::heap::Heap;
+use crate::heap::{Cursor, Heap};
 use crate::int::{IntMode, IntOp};
 use crate::memo::{MAX_KEY, Memo};
 use crate::node::Kind;
@@ -695,7 +695,7 @@ impl Machine {
                 }
                 Ok(self.heap.symbolic(Kind::RecSet, 0, &v))
             }
-            Node::Filter { bind, pred } => self.filter(code, bind, *pred),
+            Node::Filter { bind, pred, subset } => self.filter(code, bind, *pred, *subset),
             Node::Map { binds, body } => {
                 let mut out = Vec::new();
                 self.for_each_binding(code, binds, &mut |m: &mut Self| {
@@ -912,7 +912,7 @@ impl Machine {
         match code.nodes.get(set as usize) {
             // TLC's `SetPredValue.member`: the domain first, then the
             // predicate on the element.
-            Some(Node::Filter { bind, pred }) => {
+            Some(Node::Filter { bind, pred, .. }) => {
                 if !self.member_lazy(code, x, bind.domain)? {
                     return Ok(false);
                 }
@@ -1486,7 +1486,21 @@ impl Machine {
         Ok(Some(self.heap.set_sorted(&out)))
     }
 
-    fn filter(&mut self, code: &Code, bind: &Bind, pred: P) -> Result<Handle, Error> {
+    fn filter(
+        &mut self,
+        code: &Code,
+        bind: &Bind,
+        pred: P,
+        subset: Option<P>,
+    ) -> Result<Handle, Error> {
+        if let Some(mut cur) = self.subset_cursor(code, subset)? {
+            let mut out = Vec::new();
+            while let Some(e) = self.work_next(&mut cur)? {
+                self.charge(1)?;
+                out.push(e);
+            }
+            return Ok(self.heap.set_sorted(&out));
+        }
         // The cursor enumerates a symbolic domain in canonical order without
         // materializing it (R9, R10).
         let dom = self.eval(code, bind.domain)?;
@@ -1518,6 +1532,38 @@ impl Machine {
             }
         }
         Ok(self.heap.set_sorted(&out))
+    }
+
+    /// The cursor over `SUBSET F` of a proven filter rewrite
+    /// (`Node::Filter::subset`), whose elements are exactly the filter's,
+    /// in the same canonical order (the subsets of `F` keep their relative
+    /// order among those of its superset). An evaluation error while
+    /// building `F` declines, so that the filter itself raises the error
+    /// TLC raises, where it raises it; `F`'s predicate is pure, so
+    /// evaluating it again is unobservable.
+    pub(crate) fn subset_cursor(
+        &mut self,
+        code: &Code,
+        subset: Option<P>,
+    ) -> Result<Option<Cursor>, Error> {
+        let Some(set) = subset else {
+            return Ok(None);
+        };
+        let before = self.heap.mark();
+        let forced = self.stats.transient_thunks;
+        match self.eval_norm(code, set) {
+            Ok(f) => {
+                let powerset = self.heap.symbolic(Kind::Subset, 0, &[f]);
+                self.work_cursor(powerset).map(Some)
+            }
+            Err(e) if e.kind() == crate::ErrorKind::Eval => {
+                if self.stats.transient_thunks == forced {
+                    self.heap.rollback(before);
+                }
+                Ok(None)
+            }
+            Err(e) => Err(e),
+        }
     }
 
     /// Binds one domain element to a bound group of one variable or a tuple

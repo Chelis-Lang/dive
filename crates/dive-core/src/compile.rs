@@ -951,7 +951,7 @@ impl Compiler<'_> {
                     add(x, &mut i);
                 }
             }
-            Node::Filter { bind, pred } => {
+            Node::Filter { bind, pred, .. } => {
                 binders(std::slice::from_ref(bind), &[*pred], &mut i, &mut add);
             }
             Node::Map { binds, body }
@@ -1066,6 +1066,73 @@ impl Compiler<'_> {
             | Node::Memo { body: b, .. } => self.red(*b),
             _ => Red::Maybe,
         }
+    }
+
+    /// The rewrite of `{E \in SUBSET T : \A e \in E : Q}` as `SUBSET F`,
+    /// `F = {e \in T : Q}`, when its side conditions hold (#853): one plain
+    /// bound `E` over `SUBSET T` (or its folded constant), a predicate that
+    /// is exactly a single-variable `\A` over `E` itself, and a body `Q`
+    /// that does not read `E`, reads no primed variable, makes no call
+    /// (recursive operator, `ENABLED`, composition) and has no effect.
+    /// Then `Q` is a function of `e` alone during the filter, so
+    /// `\A e \in E : Q` holds exactly when `E \subseteq F`. Returns the
+    /// node of `F`, which enumeration uses in place of the filter
+    /// (`Node::Filter::subset`).
+    fn subset_rewrite(&mut self, bind: &Bind, pred: P) -> Result<Option<P>, Error> {
+        let [outer] = *bind.slots else {
+            return Ok(None);
+        };
+        if bind.tuple {
+            return Ok(None);
+        }
+        let base = match self.code.nodes.get(bind.domain as usize) {
+            Some(Node::Powerset(t)) => *t,
+            Some(Node::Const(h)) if h.is_compound() => {
+                let v = self.m.heap.view(*h);
+                match (v.kind, v.data) {
+                    (Kind::Subset, &[t]) => self.push(Node::Const(t))?,
+                    _ => return Ok(None),
+                }
+            }
+            _ => return Ok(None),
+        };
+        let Some(Node::Quant {
+            kind: Quant::Forall,
+            binds,
+            body,
+        }) = self.code.nodes.get(pred as usize)
+        else {
+            return Ok(None);
+        };
+        let [inner] = binds.as_ref() else {
+            return Ok(None);
+        };
+        if inner.tuple
+            || inner.slots.len() != 1
+            || !matches!(
+                self.code.nodes.get(inner.domain as usize),
+                Some(Node::Slot(s)) if *s == outer
+            )
+        {
+            return Ok(None);
+        }
+        let (inner, body) = (inner.clone(), *body);
+        let Some(info) = self.info.get(body as usize) else {
+            return Ok(None);
+        };
+        if info.free.contains(&outer) || info.primed != 0 || info.calls || info.effect {
+            return Ok(None);
+        }
+        let set = self.push(Node::Filter {
+            bind: Bind {
+                slots: inner.slots,
+                tuple: false,
+                domain: base,
+            },
+            pred: body,
+            subset: None,
+        })?;
+        Ok(Some(set))
     }
 
     /// Pushes a filter, function constructor or set operation, wrapped in
@@ -2253,7 +2320,12 @@ impl Compiler<'_> {
                 let bind = binds
                     .pop()
                     .ok_or_else(|| Error::internal("filter without a bound"))?;
-                self.push_lazy(Node::Filter { bind, pred: b })
+                let subset = self.subset_rewrite(&bind, b)?;
+                self.push_lazy(Node::Filter {
+                    bind,
+                    pred: b,
+                    subset,
+                })
             }
             Expr::SetMap { expr, bounds } => {
                 let (binds, saved) = self.binds(bounds, env, mode)?;

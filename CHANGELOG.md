@@ -5,6 +5,10 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- Core enumerates `{E \in SUBSET T : \A e \in E : Q}` as the subsets of
+  `{e \in T : Q}` when `Q` is pure and does not read `E`, so
+  `SpanningTree/SpanTreeTest5Nodes` (2^32 candidate subsets) checks on Core
+  with TLC's counts instead of refusing.
 - Core checks `SYMMETRY` with genuine temporal properties under the default
   `--symmetry-liveness=unreduced` (D-005), as Reference does: the whole run is
   unreduced and the report says so. `=refuse` and `=tlc` still refuse.
