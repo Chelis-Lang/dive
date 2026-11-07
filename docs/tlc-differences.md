@@ -160,6 +160,25 @@ Graph, temporal and checkpoint/recovery randomness remain separate limitations. 
 `RandomSubsetSet` helper still reports its named evaluator limitation; configured
 replacement selection does not make that helper implemented.
 
+**Start-up-fixed randomness with temporal properties.** A zero-arity
+constant-level definition such as SpanTreeRandom's
+`Edges == UNION {{{n, m} : m \in RandomElement(SUBSET (Nodes \ {n}))} : n \in Nodes}`
+is evaluated once at start-up, from the reported seed, and its value is kept for
+the whole run, as TLC keeps it. Checking never draws again, so both engines check
+temporal properties of such a model on the fixed graph. A draw while checking,
+including through an operator with parameters, still refuses. So does a draw in
+a definition that a configured `Op <- D` or `C <- D` targets: TLC evaluates
+`D`'s body at every use of `Op` or `C`, so `D` is not fixed. Nor is a
+definition whose start-up value keeps a lazy set, such as
+`S == {n \in Nat : n = RandomElement(0..1)}`: each membership test evaluates
+the filter's predicate again, so it draws while checking and refuses. Under
+`--compat=tlc` the draws are TLC's: `SpanningTree/SpanTreeRandom` at `-seed 0`
+gives TLC's 79,550 distinct and 1,357,252 generated states. The default profile
+draws from dive's own streams, so its counts differ (22,040 distinct and 293,361
+generated at seed 0, a registered expected divergence). A temporal violation of
+such a model still refuses: the independent validator does not replay start-up
+draws, and an unvalidated candidate is not reported as a violation.
+
 **Configured random calls (#180).** The minimal model below selects a native
 operator through its configuration rather than a source call:
 

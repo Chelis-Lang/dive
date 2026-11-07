@@ -100,6 +100,9 @@ pub(crate) struct Core {
     /// (`Evaluator::precompute`, TLC's `processConstantDefns`): every later
     /// use of the definition sees this value.
     pub(crate) startup: Vec<OnceLock<Value>>,
+    /// Whether each [`Self::startup`] value, once set, is eager: it holds no
+    /// deferred set anywhere inside it (`Evaluator::startup_fixed`).
+    pub(crate) startup_eager: Vec<OnceLock<bool>>,
     pub(crate) sink: Arc<dyn PrintSink>,
     /// Actual Print/PrintT events, including quiet captures and empty text.
     pub(crate) printed: std::sync::atomic::AtomicBool,
@@ -188,6 +191,7 @@ impl Core {
             ConstBinding::Value(_) => true,
         }) && model.redirects.values().all(constant_pure);
         let startup = (0..ir.defs().len()).map(|_| OnceLock::new()).collect();
+        let startup_eager = (0..ir.defs().len()).map(|_| OnceLock::new()).collect();
         let std_redirects = model
             .redirects
             .iter()
@@ -217,6 +221,7 @@ impl Core {
             open_ok,
             warned: Mutex::default(),
             startup,
+            startup_eager,
             sink,
             printed: std::sync::atomic::AtomicBool::new(false),
             startup_names: std::sync::atomic::AtomicUsize::new(0),
