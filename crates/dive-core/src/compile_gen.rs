@@ -419,11 +419,66 @@ impl Compiler<'_> {
         Ok(())
     }
 
-    /// `v = v'` for `<<A>>_v`'s `CHANGED v` item.
+    /// `v = v'` for `<<A>>_v`'s `CHANGED v` item. A subscript compiled to a
+    /// tuple, possibly nested and behind thunks, of state variables keeps
+    /// its `Eq` inside a [`Node::SameVars`], which compares the variables
+    /// without building either tuple when that cannot change the result.
     pub(super) fn changed_test(&mut self, e: ExprId, env: usize) -> Result<P, Error> {
         let x = self.p(e, env, Mode::Plain)?;
         let y = self.p(e, env, Mode::Primed)?;
-        self.push(Node::Eq(x, y))
+        let eq = self.push(Node::Eq(x, y))?;
+        let mut leaves = Vec::new();
+        let mut thunks = Vec::new();
+        if self.variable_tuple(x, y, 0, &mut leaves, &mut thunks) && !leaves.is_empty() {
+            return self.push(Node::SameVars {
+                eq,
+                leaves: leaves.into(),
+                thunks: thunks.into(),
+            });
+        }
+        Ok(eq)
+    }
+
+    /// Whether `x` is a tuple whose elements are state variables or such
+    /// tuples, each possibly behind thunks (`Node::Lazy`), and `y` is the
+    /// same tree with each variable primed. Collects each variable with its
+    /// depth below the outer tuple, and every thunk slot on the way.
+    fn variable_tuple(
+        &self,
+        x: P,
+        y: P,
+        depth: u8,
+        leaves: &mut Vec<(u16, u8)>,
+        thunks: &mut Vec<u32>,
+    ) -> bool {
+        // A shallow tree keeps every leaf far from `compare::materialized`'s
+        // depth limit.
+        if depth >= 8 {
+            return false;
+        }
+        let nodes = &self.code.nodes;
+        match (nodes.get(x as usize), nodes.get(y as usize)) {
+            (Some(Node::Lazy { slot, body }), _) => {
+                thunks.push(*slot);
+                self.variable_tuple(*body, y, depth, leaves, thunks)
+            }
+            (_, Some(Node::Lazy { slot, body })) => {
+                thunks.push(*slot);
+                self.variable_tuple(x, *body, depth, leaves, thunks)
+            }
+            (Some(Node::Tuple(xs)), Some(Node::Tuple(ys))) if xs.len() == ys.len() => {
+                xs.iter().zip(ys.iter()).all(|(&a, &b)| {
+                    match (nodes.get(a as usize), nodes.get(b as usize)) {
+                        (Some(Node::Var(v)), Some(Node::Primed(w))) if v == w => {
+                            leaves.push((*v, depth + 1));
+                            true
+                        }
+                        _ => self.variable_tuple(a, b, depth + 1, leaves, thunks),
+                    }
+                })
+            }
+            _ => false,
+        }
     }
 
     /// The function constructor `f` names, with its environment, when TLC

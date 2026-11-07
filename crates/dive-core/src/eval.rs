@@ -587,6 +587,38 @@ impl Machine {
         self.work_norm(v)
     }
 
+    /// Whether a [`Node::SameVars`] may compare its leaves directly. Its
+    /// `Eq` forces the thunks, whose bodies build both tuples from the
+    /// variables (`eval_component`); `compare::equals` then requires every
+    /// leaf materialized at its depth and, outside TLC comparisons, returns
+    /// the tuples' `Heap::eq`, which is the conjunction of the leaves'
+    /// `Heap::eq` (the same tree, so equal arities). A materialized leaf is
+    /// neither symbolic nor a product, so `eval_component` returns it
+    /// unchanged. Skipping an unforced thunk only leaves it for a later
+    /// demand. TLC comparisons (whose shape guard may refuse), an observed
+    /// debugger, a forced thunk (whose cached value `Eq` would read), an
+    /// unassigned variable or an unmaterialized leaf evaluate the `Eq`.
+    fn same_vars_direct(&self, leaves: &[(u16, u8)], thunks: &[u32]) -> Result<bool, Error> {
+        if self.debugger.is_some()
+            || self.heap.store().semantics().tlc_comparisons
+            || thunks.iter().any(|&slot| !self.slot(slot).is_empty())
+        {
+            return Ok(false);
+        }
+        for &(v, depth) in leaves {
+            let v = usize::from(v);
+            let (Some(&a), Some(&b)) = (self.s0.get(v), self.s1.get(v)) else {
+                return Ok(false);
+            };
+            if !compare::materialized(&self.heap, a, depth)?
+                || (a != b && !compare::materialized(&self.heap, b, depth)?)
+            {
+                return Ok(false);
+            }
+        }
+        Ok(true)
+    }
+
     pub(crate) fn demand_equals(&mut self, a: Handle, b: Handle) -> Result<bool, Error> {
         let a = self.work_norm(a)?;
         let b = self.work_norm(b)?;
@@ -731,6 +763,19 @@ impl Machine {
                 let x = self.eval_norm(code, *a)?;
                 let y = self.eval_norm(code, *b)?;
                 Ok(Handle::bool(compare::equals(&self.heap, x, y)?))
+            }
+            Node::SameVars { eq, leaves, thunks } => {
+                if self.same_vars_direct(leaves, thunks)? {
+                    let same = leaves.iter().all(|&(v, _)| {
+                        let v = usize::from(v);
+                        match (self.s0.get(v), self.s1.get(v)) {
+                            (Some(&a), Some(&b)) => self.heap.eq(a, b),
+                            _ => false,
+                        }
+                    });
+                    return Ok(Handle::bool(same));
+                }
+                self.eval(code, *eq)
             }
             Node::Neq(a, b) => {
                 let x = self.eval_norm(code, *a)?;
@@ -3251,5 +3296,124 @@ mod bounded_analysis_machine {
         m.heap.set_int_mode(crate::int::IntMode::Tlc);
         m.set_fuel(4);
         assert_eq!(m.eval(&pow(2, 10), 2).unwrap(), Handle::int(1024).unwrap());
+    }
+}
+
+#[cfg(test)]
+mod same_vars {
+    #![allow(clippy::unwrap_used, reason = "tests")]
+    use super::*;
+
+    /// `<<x, <<y, z>>>> = <<x', <<y', z'>>>>` behind a thunk (node 8), and
+    /// its `SameVars` (node 15).
+    fn code() -> Code {
+        Code {
+            nodes: vec![
+                Node::Var(0),
+                Node::Var(1),
+                Node::Var(2),
+                Node::Tuple(Box::new([1, 2])),
+                Node::Tuple(Box::new([0, 3])),
+                Node::Lazy { slot: 0, body: 4 },
+                Node::Primed(0),
+                Node::Primed(1),
+                Node::Eq(5, 13),
+                Node::Primed(2),
+                Node::Tuple(Box::new([7, 9])),
+                Node::Tuple(Box::new([6, 10])),
+                Node::Lazy { slot: 1, body: 11 },
+                Node::Lazy { slot: 2, body: 12 },
+                Node::Const(Handle::TRUE),
+                Node::SameVars {
+                    eq: 8,
+                    leaves: Box::new([(0, 1), (1, 2), (2, 2)]),
+                    thunks: Box::new([0, 1, 2]),
+                },
+            ],
+            ..Default::default()
+        }
+    }
+
+    fn values(m: &mut Machine) -> Vec<Handle> {
+        let one = Handle::int(1).unwrap();
+        let two = Handle::int(2).unwrap();
+        let text = m.heap.string("a").unwrap();
+        let set = m.heap.set_enum(&[one, two]);
+        let set = m.heap.intern(set).unwrap();
+        let other = m.heap.set_enum(&[one]);
+        let other = m.heap.intern(other).unwrap();
+        let fcn = m.heap.int_fcn(1, &[set, text]);
+        let fcn = m.heap.intern_exact(fcn).unwrap();
+        // A symbolic interval is not materialized: `Eq` normalizes it.
+        let interval = m.heap.interval(1, 2);
+        let interval = m.heap.intern_exact(interval).unwrap();
+        vec![one, two, text, set, other, fcn, interval, Handle::EMPTY]
+    }
+
+    /// The `SameVars` result equals the `Eq` it wraps on every pair of
+    /// rows drawn from `values`, error for error.
+    fn agrees(semantics: crate::store::Semantics) {
+        let code = code();
+        let store = Arc::new(Store::with_semantics(true, semantics));
+        let mut m = Machine::new(store, 3, Opts::default(), Memo::default());
+        let values = values(&mut m);
+        let pick = |i: usize| values[i % values.len()];
+        let mut checked = 0;
+        for i in 0..values.len().pow(2) {
+            let (a, b) = (i % values.len(), i / values.len());
+            for row in [[a, a, b], [a, b, b], [b, a, a], [a, a, a]] {
+                let before: Vec<_> = row.iter().map(|&k| pick(k)).collect();
+                for after in [before.clone(), vec![pick(b), before[1], before[2]]] {
+                    m.s0.copy_from_slice(&before);
+                    m.s1.copy_from_slice(&after);
+                    let frame = m.enter(3);
+                    let eq = m.eval(&code, 8).map_err(|e| e.kind());
+                    m.leave(frame);
+                    let frame = m.enter(3);
+                    let same = m.eval(&code, 15).map_err(|e| e.kind());
+                    m.leave(frame);
+                    assert_eq!(same, eq, "{before:?} {after:?}");
+                    checked += 1;
+                }
+            }
+        }
+        assert!(checked > 100);
+        assert!(!m.heap.poisoned());
+    }
+
+    #[test]
+    fn same_vars_agrees_with_the_tuple_equality_it_wraps() {
+        agrees(crate::store::Semantics::default());
+        agrees(crate::store::Semantics::tlc());
+    }
+
+    #[test]
+    fn a_forced_thunk_is_read_as_the_tuple_equality_reads_it() {
+        let code = code();
+        let mut m = Machine::new(
+            Arc::new(Store::default()),
+            3,
+            Opts::default(),
+            Memo::default(),
+        );
+        let one = Handle::int(1).unwrap();
+        let two = Handle::int(2).unwrap();
+        m.s0.copy_from_slice(&[one, one, one]);
+        m.s1.copy_from_slice(&[one, one, one]);
+        let frame = m.enter(3);
+        // A cached value the variables no longer give is what `Eq` reads.
+        let stale = m.heap.tuple(&[two, two]);
+        m.set_slot(0, stale);
+        assert_eq!(m.eval(&code, 15).unwrap(), Handle::FALSE);
+        for slot in 0..3 {
+            m.set_slot(slot, Handle::EMPTY);
+        }
+        assert_eq!(m.eval(&code, 15).unwrap(), Handle::TRUE);
+        // The direct comparison forces no thunk.
+        assert!((0..3).all(|slot| m.slot(slot).is_empty()));
+        m.s1[2] = two;
+        assert_eq!(m.eval(&code, 15).unwrap(), Handle::FALSE);
+        assert!((0..3).all(|slot| m.slot(slot).is_empty()));
+        m.leave(frame);
     }
 }
