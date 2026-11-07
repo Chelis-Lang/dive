@@ -31,6 +31,14 @@ published. Earlier pre-release development entries remain in git history.
   binding the model again and evaluating every one. `LoopInvariance/MCBinarySearch`
   (`PROPERTY Termination`) takes about 2.5 s on Core instead of 5.6 s, the
   same as without the property.
+- Core computes `SYMMETRY` canonical images faster again: a function's
+  image is gathered through a remembered image of its domain instead of
+  re-sorted, a function variable is compared with the best image before it
+  is built, and recurring state-variable values reuse their remembered
+  images. `CheckpointCoordination/MCCheckpointCoordination` drops from about
+  124 s to 50 s and `MCCheckpointCoordinationFailure` from 7.0 s to 2.9 s
+  (TLC: 158 s and 11.2 s), with unchanged counts. Images of records and tuple
+  literals keep their literal form.
 - Core computes `SYMMETRY` canonical images faster: images of values inside
   a state that recur across states are remembered per worker, within 32 MiB
   per run, and a set variable's image is derived from its predecessor's.
