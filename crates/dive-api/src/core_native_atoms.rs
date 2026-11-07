@@ -10,13 +10,13 @@
 
 use std::sync::Arc;
 
-use dive_check::budget::EvaluationControl;
 use dive_core::{Handle, Machine, Opts, Store};
 use dive_eval::{EvalError, HostControl};
 use dive_liveness::analyze::AnalysisError;
 use dive_liveness::analyze::periodic::external::{GraphCheck, NativeReader};
 use dive_liveness::plan::{AtomTest, PredicateAtom};
 use dive_model::Model;
+use dive_runtime::budget::EvaluationControl;
 
 use crate::core_native_graph::NativeGraph;
 use crate::core_native_values::NativeValues;
@@ -151,7 +151,7 @@ impl NativeAtoms {
         driver: &GraphCheck<'_>,
         control: &Arc<EvaluationControl>,
         strategies: Opts,
-    ) -> Result<Self, dive_check::Verdict> {
+    ) -> Result<Self, dive_runtime::Verdict> {
         let opts = Opts {
             memo: false,
             step_memo: false,
@@ -242,7 +242,7 @@ impl NativeAtoms {
         control.check().map_err(|cause| {
             control
                 .verdict(&EvalError::interrupted(cause))
-                .unwrap_or_else(|| dive_check::Verdict::InternalError {
+                .unwrap_or_else(|| dive_runtime::Verdict::InternalError {
                     message: "native predicate preparation interruption lacks run authority".into(),
                 })
         })?;
@@ -534,8 +534,8 @@ fn check(owner: &EvaluationControl, control: &EvaluationControl) -> Result<(), A
                 );
             }
             match control.verdict(&error) {
-                Some(dive_check::Verdict::Stopped(stop)) => AnalysisError::Stopped(stop),
-                Some(dive_check::Verdict::BudgetMeasurement { error }) => {
+                Some(dive_runtime::Verdict::Stopped(stop)) => AnalysisError::Stopped(stop),
+                Some(dive_runtime::Verdict::BudgetMeasurement { error }) => {
                     AnalysisError::BudgetMeasurement(error)
                 }
                 _ => {
@@ -800,14 +800,16 @@ impl NativeReader for Reader<'_, '_> {
 )]
 mod tests {
     use super::*;
-    use dive_check::budget::{Budget, Phase};
+    use dive_runtime::budget::{Budget, Phase};
 
     /// The per-demand fuel the quota tests exhaust: small enough that their
     /// 10,000-element sources run out, as the run's [`NATIVE_FUEL`] does at
     /// larger sizes.
     const QUOTA_FUEL: u64 = 4096;
 
-    fn prepare_source(predicate: &str) -> (crate::core_engine::Prepared, dive_check::CheckOptions) {
+    fn prepare_source(
+        predicate: &str,
+    ) -> (crate::core_engine::Prepared, dive_runtime::CheckOptions) {
         let source = format!(
             "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nP == <>({predicate})\n====\n"
         );
@@ -822,16 +824,16 @@ mod tests {
         source: &str,
         config: &str,
         tlc: bool,
-    ) -> (crate::core_engine::Prepared, dive_check::CheckOptions) {
+    ) -> (crate::core_engine::Prepared, dive_runtime::CheckOptions) {
         let analysis =
             dive_sema::analyze_source("Atoms.tla", source, &dive_sema::Options::default());
         assert!(analysis.accepted(), "{analysis:?}");
         let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
         let config = dive_config::parse(config).into_config().expect("config");
         let mut options = if tlc {
-            dive_check::CheckOptions::tlc(0, 0)
+            dive_runtime::CheckOptions::tlc(0, 0)
         } else {
-            dive_check::CheckOptions::dive(0)
+            dive_runtime::CheckOptions::dive(0)
         };
         options.budget = Budget::unlimited();
         let prepared =
@@ -880,12 +882,12 @@ mod tests {
 
     fn capture<'a>(
         prepared: &'a crate::core_engine::Prepared,
-        options: &dive_check::CheckOptions,
+        options: &dive_runtime::CheckOptions,
     ) -> (NativeGraph, NativeValues<'a>) {
         let mut sink = crate::core_native_graph::NativeSink::new(
             &prepared.model,
             prepared.store.clone(),
-            dive_check::capture::Limits::default(),
+            dive_runtime::capture::Limits::default(),
             options,
             None,
         )
@@ -1073,9 +1075,9 @@ mod tests {
         for tlc in [false, true] {
             with_wrappers(&source, tlc, |prepared, driver, atoms, control| {
                 let options = if tlc {
-                    dive_check::CheckOptions::tlc(0, 0)
+                    dive_runtime::CheckOptions::tlc(0, 0)
                 } else {
-                    dive_check::CheckOptions::dive(0)
+                    dive_runtime::CheckOptions::dive(0)
                 };
                 let (graph, mut values) = capture(prepared, &options);
                 assert_eq!(graph.input().retained_rows, 2);
@@ -1148,9 +1150,9 @@ mod tests {
         for tlc in [false, true] {
             with_wrappers(source, tlc, |prepared, driver, atoms, control| {
                 let options = if tlc {
-                    dive_check::CheckOptions::tlc(0, 0)
+                    dive_runtime::CheckOptions::tlc(0, 0)
                 } else {
-                    dive_check::CheckOptions::dive(0)
+                    dive_runtime::CheckOptions::dive(0)
                 };
                 let (graph, mut values) = capture(prepared, &options);
                 let atom = driver
@@ -1220,9 +1222,9 @@ mod tests {
         for tlc in [false, true] {
             with_wrappers(source, tlc, |prepared, driver, atoms, control| {
                 let options = if tlc {
-                    dive_check::CheckOptions::tlc(0, 0)
+                    dive_runtime::CheckOptions::tlc(0, 0)
                 } else {
-                    dive_check::CheckOptions::dive(0)
+                    dive_runtime::CheckOptions::dive(0)
                 };
                 let (graph, mut values) = capture(prepared, &options);
                 let atom = driver.native_predicates().next().expect("predicate");
@@ -1265,9 +1267,9 @@ mod tests {
             with_wrappers(source, tlc, |prepared, driver, atoms, control| {
                 atoms.fuel = QUOTA_FUEL;
                 let options = if tlc {
-                    dive_check::CheckOptions::tlc(0, 0)
+                    dive_runtime::CheckOptions::tlc(0, 0)
                 } else {
-                    dive_check::CheckOptions::dive(0)
+                    dive_runtime::CheckOptions::dive(0)
                 };
                 let (graph, mut values) = capture(prepared, &options);
                 let atom = driver.native_predicates().next().expect("enabled");
@@ -2078,9 +2080,9 @@ mod tests {
         for tlc in [false, true] {
             with_wrappers(source, tlc, |prepared, driver, atoms, control| {
                 let options = if tlc {
-                    dive_check::CheckOptions::tlc(0, 0)
+                    dive_runtime::CheckOptions::tlc(0, 0)
                 } else {
-                    dive_check::CheckOptions::dive(0)
+                    dive_runtime::CheckOptions::dive(0)
                 };
                 let (graph, mut values) = capture(prepared, &options);
                 atoms.audit = true;
@@ -2154,9 +2156,9 @@ P == <>(/\ Pick = {}
             with_wrappers(source, tlc, |prepared, driver, atoms, control| {
                 assert_eq!(atoms.eligible, atoms.total, "{}", atoms.metrics());
                 let options = if tlc {
-                    dive_check::CheckOptions::tlc(0, 0)
+                    dive_runtime::CheckOptions::tlc(0, 0)
                 } else {
-                    dive_check::CheckOptions::dive(0)
+                    dive_runtime::CheckOptions::dive(0)
                 };
                 let (graph, mut values) = capture(prepared, &options);
                 atoms.audit = true;

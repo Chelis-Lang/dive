@@ -4,11 +4,11 @@
     clippy::panic,
     reason = "finite regression assertions"
 )]
-use dive_check::{CheckOptions, Verdict};
 use dive_liveness::analyze::{
     Analysis, AnalysisError, Limits, Stage,
     periodic::{PeriodicAnalysis, Schedule, analyze_periodic},
 };
+use dive_runtime::{CheckOptions, Verdict};
 use dive_trace::{Ending, Trace, Validation};
 use std::sync::Arc;
 
@@ -85,7 +85,10 @@ fn early_word_has_actual_prefix_counts_and_fresh_independent_validation() {
             );
             assert_eq!(candidate.target_property, "P");
             assert_eq!(candidate.properties, ["P"]);
-            assert_eq!(capture.graph.edges[1], [] as [dive_check::capture::Edge; 0]);
+            assert_eq!(
+                capture.graph.edges[1],
+                [] as [dive_runtime::capture::Edge; 0]
+            );
             let independent = model(&body, &options);
             let trace = Trace {
                 labels: vec![None; candidate.states.len()],
@@ -192,7 +195,7 @@ fn prefix_atom_limits_keep_actual_stage_and_incomplete_capture_without_holds() {
             &model(&body, &options),
             &options,
             Limits {
-                capture: dive_check::capture::Limits {
+                capture: dive_runtime::capture::Limits {
                     states: 1,
                     ..Default::default()
                 },

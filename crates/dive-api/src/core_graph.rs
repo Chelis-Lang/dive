@@ -12,16 +12,16 @@
 use std::collections::HashMap;
 use std::time::{Duration, Instant};
 
-use dive_check::Verdict;
-use dive_check::capture::{BehaviorGraph, GraphBuilder, Limits};
 use dive_core::{Handle, Heap};
 use dive_eval::next::StateVals;
 use dive_explore::graph::{GraphSink, Step, Stopped};
+use dive_runtime::Verdict;
+use dive_runtime::capture::{BehaviorGraph, GraphBuilder, Limits};
 use dive_value::Value;
 
 /// What a completed level asks of the search: called with the level, the
 /// graph so far and the counts; returns whether the search stops there.
-pub(crate) type OnLevel<'a> = dyn FnMut(u64, &BehaviorGraph, dive_check::Stats) -> bool + 'a;
+pub(crate) type OnLevel<'a> = dyn FnMut(u64, &BehaviorGraph, dive_runtime::Stats) -> bool + 'a;
 
 /// Conversion metrics (`11-liveness.md` §4).
 #[derive(Clone, Copy, Debug, Default)]
@@ -38,7 +38,7 @@ pub(crate) struct GraphMetrics {
 pub(crate) struct Graph<'a> {
     model: &'a dive_model::Model,
     ctx: dive_value::Ctx,
-    budget: dive_check::budget::Budget,
+    budget: dive_runtime::budget::Budget,
     builder: GraphBuilder,
     limits: Limits,
     memo: HashMap<Handle, Value>,
@@ -54,7 +54,7 @@ impl<'a> Graph<'a> {
         model: &'a dive_model::Model,
         limits: Limits,
         on_level: Option<&'a mut OnLevel<'a>>,
-        budget: &dive_check::budget::Budget,
+        budget: &dive_runtime::budget::Budget,
     ) -> Self {
         Self {
             model,
@@ -142,11 +142,11 @@ impl<'a> Graph<'a> {
 
 /// This direct callback is owned by this capture's actual run budget. It does
 /// not turn arbitrary evaluator interruptions or string errors into stops.
-fn conversion_stop(budget: &dive_check::budget::Budget) -> Option<Verdict> {
+fn conversion_stop(budget: &dive_runtime::budget::Budget) -> Option<Verdict> {
     match budget.poll() {
         Ok(None) => None,
         Ok(Some(exhausted)) => Some(Verdict::Stopped(Box::new(
-            exhausted.during(dive_check::budget::Phase::Capture),
+            exhausted.during(dive_runtime::budget::Phase::Capture),
         ))),
         Err(error) => Some(Verdict::BudgetMeasurement { error }),
     }
@@ -172,8 +172,8 @@ fn conversion_error(error: dive_core::print::ConversionError, stopped: Option<Ve
     }
 }
 
-fn to_check(s: dive_explore::Stats) -> dive_check::Stats {
-    dive_check::Stats {
+fn to_check(s: dive_explore::Stats) -> dive_runtime::Stats {
+    dive_runtime::Stats {
         generated: s.generated,
         distinct: s.distinct,
         left_on_queue: s.left_on_queue,
@@ -184,7 +184,7 @@ fn to_check(s: dive_explore::Stats) -> dive_check::Stats {
 
 impl GraphSink for Graph<'_> {
     fn max_expansion_units(&self) -> usize {
-        dive_check::capture::MAX_EXPANSION_UNITS
+        dive_runtime::capture::MAX_EXPANSION_UNITS
     }
 
     fn max_successors_per_unit(&self) -> u64 {

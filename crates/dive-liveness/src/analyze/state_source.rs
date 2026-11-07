@@ -3,8 +3,8 @@
 //! This private boundary is used by the reference adapter today. It does not
 //! provide completion evidence, store retention or a bounded conversion cache.
 
-use dive_check::capture::BehaviorGraph;
 use dive_eval::next::StateVals;
+use dive_runtime::capture::BehaviorGraph;
 use std::borrow::Cow;
 
 use super::AnalysisError;
@@ -126,9 +126,9 @@ impl StateSource for CapturedStates<'_> {
 
 /// On-demand rows supplied by the producer owning their persistent roots.
 pub(super) struct NativeStates<'a, 'b> {
-    pub(super) graph: &'a dive_check::capture::CsrCapture<'a>,
+    pub(super) graph: &'a dive_runtime::capture::CsrCapture<'a>,
     pub(super) read: &'a mut (dyn super::periodic::external::NativeReader + 'b),
-    pub(super) control: &'a dive_check::budget::EvaluationControl,
+    pub(super) control: &'a dive_runtime::budget::EvaluationControl,
     pub(super) variables: usize,
 }
 
@@ -250,8 +250,8 @@ mod tests;
 #[allow(clippy::expect_used, reason = "checked native row demand fixtures")]
 mod native_tests {
     use super::*;
-    use dive_check::budget::{Budget, EvaluationControl, Phase};
-    use dive_check::capture::{CsrCapture, CsrCaptureInput, Limits};
+    use dive_runtime::budget::{Budget, EvaluationControl, Phase};
+    use dive_runtime::capture::{CsrCapture, CsrCaptureInput, Limits};
 
     #[test]
     fn first_original_per_destination_uses_physical_positions_not_ordinals() {

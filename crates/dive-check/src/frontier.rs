@@ -11,27 +11,7 @@ use dive_value::{Ctx, ErrorKind, Interner, codec};
 
 use crate::{CheckOptions, Verdict};
 
-/// Storage evidence for the frontier only; this does not bound process memory.
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
-pub struct FrontierUsage {
-    /// Encoded frontier resident byte budget, independently for each of the
-    /// current and next queues. `None` is the legacy in-memory reference path.
-    pub memory_bytes_per_queue: Option<usize>,
-    /// Encoded record workspace bound, when spill is enabled.
-    pub max_record_bytes: Option<usize>,
-    /// Peak combined resident encoded data/index capacities of live queues.
-    pub peak_retained_bytes: u64,
-    /// Resident encoded bytes after explicit queue cleanup (normally zero).
-    pub retained_bytes: u64,
-    /// Confirmed complete writes including transient headers and indices.
-    /// A failed filesystem operation marks accounting incomplete; partial writes
-    /// may have left additional bytes and are never reported as exact.
-    pub spilled_bytes: u64,
-    /// Deciding search event before filesystem failure invalidated certification.
-    pub deciding_event_before_failure: Option<String>,
-    /// Filesystem failures, separately from any deciding safety event.
-    pub failures: Vec<String>,
-}
+pub use dive_runtime::usage::FrontierUsage;
 
 #[derive(Debug)]
 pub(crate) struct Accounting {

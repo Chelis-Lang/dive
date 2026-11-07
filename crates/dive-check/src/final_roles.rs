@@ -27,59 +27,7 @@ fn eligible(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> bool {
     !cfg.properties.is_empty() && route_exclusion(ir, cfg, opts).is_none()
 }
 
-/// Why an ordinary request with temporal properties cannot use the temporal
-/// route, or `None` when it can. Callers that refuse such a request name this
-/// reason, so the user knows which option to drop.
-///
-/// ```
-/// # fn example(ir: &std::sync::Arc<dive_ir::Ir>, cfg: &dive_config::ModelConfig) {
-/// let mut opts = dive_check::CheckOptions::tlc(0, 0);
-/// opts.chaos = Some(0);
-/// assert_eq!(
-///     dive_check::final_roles::route_exclusion(ir, cfg, &opts),
-///     Some("--chaos")
-/// );
-/// # }
-/// ```
-#[must_use]
-pub fn route_exclusion(
-    ir: &Arc<Ir>,
-    cfg: &ModelConfig,
-    opts: &CheckOptions,
-) -> Option<&'static str> {
-    let mut baseline = match opts.profile {
-        dive_eval::Profile::Dive => CheckOptions::dive(opts.seed),
-        dive_eval::Profile::Tlc => CheckOptions::tlc(0, opts.seed),
-    };
-    if opts.profile == dive_eval::Profile::Tlc
-        && opts.eval.action_composition == dive_eval::ActionComposition::Tlc
-    {
-        baseline.eval.action_composition = dive_eval::ActionComposition::Tlc;
-    }
-    // The seen-state store, fingerprint polynomial, deadlock switch and
-    // sequential request are honored by both continuations: the safety engine
-    // reads them, and temporal capture retains concrete states with its own
-    // deadlock check and worker plan.
-    if opts.candidate_memory_bytes.is_some() || opts.candidate_directory.is_some() {
-        Some("candidate spill")
-    } else if opts.seen_disk.is_some() {
-        Some("disk seen-state storage")
-    } else if opts.frontier_memory_bytes.is_some() || opts.frontier_directory.is_some() {
-        Some("frontier spill")
-    } else if opts.predecessor_memory_bytes.is_some() || opts.predecessor_directory.is_some() {
-        Some("predecessor spill")
-    } else if opts.eval != baseline.eval {
-        Some("evaluation options other than the profile defaults")
-    } else if opts.chaos != baseline.chaos {
-        Some("--chaos")
-    } else if dive_eval::validate_ir(ir).is_err() {
-        Some("an IR the evaluator does not accept")
-    } else if dive_model::transformed_randomness(ir, cfg).is_some() {
-        Some("randomness combined with VIEW or SYMMETRY")
-    } else {
-        None
-    }
-}
+pub use dive_runtime::admission::route_exclusion;
 
 /// Binds once and dispatches only the default resident-memory option route.
 ///

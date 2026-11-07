@@ -6,9 +6,10 @@
 //! their complete configured property set.
 //! Prefix candidates require independent validation and never prove `Holds`.
 
-use dive_check::{CheckOptions, CheckResult, capture};
+use dive_check::capture as reference;
 use dive_eval::{St, next::StateVals};
 use dive_model::Model;
+use dive_runtime::{CheckOptions, CheckResult, capture};
 
 use crate::formula::{self, AtomKind, CycleConditions, Tableau};
 use crate::plan::{self, Plan, PlanningError};
@@ -142,7 +143,7 @@ pub enum AnalysisError {
     /// A requested run budget could not be armed; no capture or analysis ran.
     BudgetStartup(String),
     /// Process-memory measurement failed; no invented exhaustion is reported.
-    BudgetMeasurement(dive_check::budget::MeasurementError),
+    BudgetMeasurement(dive_runtime::budget::MeasurementError),
     /// Original combined TLC normalization produced no liveness solutions,
     /// before assumptions or exploration. Retains the original startup output.
     StartupTautology {
@@ -178,8 +179,8 @@ pub enum AnalysisError {
     CaptureThread(String),
     /// The run's budget ran out after capture (ADR 0107). Never a verdict;
     /// a stop during capture is an [`Self::Exploration`] with
-    /// [`dive_check::Verdict::Stopped`].
-    Stopped(Box<dive_check::budget::Stopped>),
+    /// [`dive_runtime::Verdict::Stopped`].
+    Stopped(Box<dive_runtime::budget::Stopped>),
 }
 impl AnalysisError {
     /// Stable diagnostics for the library analysis stages. These are dive
@@ -194,10 +195,10 @@ impl AnalysisError {
             Self::Exploration(result)
                 if matches!(
                     result.verdict,
-                    dive_check::Verdict::BudgetMeasurement { .. }
+                    dive_runtime::Verdict::BudgetMeasurement { .. }
                 ) =>
             {
-                dive_check::budget::MEASUREMENT_FAILURE_CODE
+                dive_runtime::budget::MEASUREMENT_FAILURE_CODE
             }
             Self::Exploration(_) => "DIVE-L0032",
             Self::Atom { .. } => "DIVE-L0033",
@@ -205,8 +206,8 @@ impl AnalysisError {
             Self::Unsupported(_) | Self::UnsupportedValue(_) => "DIVE-L0035",
             Self::Inconsistent(_) => "DIVE-L0036",
             Self::CaptureThread(_) => "DIVE-L0037",
-            Self::BudgetStartup(_) => dive_check::budget::START_FAILURE_CODE,
-            Self::BudgetMeasurement(_) => dive_check::budget::MEASUREMENT_FAILURE_CODE,
+            Self::BudgetStartup(_) => dive_runtime::budget::START_FAILURE_CODE,
+            Self::BudgetMeasurement(_) => dive_runtime::budget::MEASUREMENT_FAILURE_CODE,
             Self::Stopped(_) => "DIVE-L0038",
         }
     }
@@ -284,11 +285,11 @@ impl Stage {
 #[derive(Clone, Debug)]
 pub struct ExplorationEvidence {
     /// The capture's complete state-space counters.
-    pub stats: dive_check::Stats,
+    pub stats: dive_runtime::Stats,
     /// Requested and actual capture workers.
-    pub workers: dive_check::Workers,
+    pub workers: dive_runtime::Workers,
     /// Collision qualification, absent for exact storage.
-    pub collision: Option<dive_check::Collision>,
+    pub collision: Option<dive_runtime::Collision>,
     /// Startup and exploration output in execution order.
     pub output: Vec<String>,
     /// Startup warnings with TLC message codes.
@@ -407,7 +408,7 @@ pub enum StateEvaluationSite {
 /// # fn example(model: &dive_model::Model) {
 /// use dive_liveness::analyze::{analyze_final_with_action_errors, Limits};
 /// if let Err(failure) = analyze_final_with_action_errors(model,
-///     &dive_check::CheckOptions::tlc(0, 0), Limits::default()) {
+///     &dive_runtime::CheckOptions::tlc(0, 0), Limits::default()) {
 ///     if let Some(state) = failure.state_evaluation() {
 ///         let _actual_site = state.site();
 ///         let _original_cause = state.core_cause();
@@ -564,7 +565,7 @@ impl EvaluationErrors {
 struct StateContext<'a> {
     property: &'a str,
     errors: &'a mut EvaluationErrors,
-    control: &'a dive_check::budget::EvaluationControl,
+    control: &'a dive_runtime::budget::EvaluationControl,
     attribution: bool,
 }
 
@@ -620,24 +621,29 @@ impl std::error::Error for DetailedFailure {}
 
 fn evaluator_control(
     opts: &CheckOptions,
-) -> Result<std::sync::Arc<dive_check::budget::EvaluationControl>, AnalysisError> {
-    dive_check::budget::EvaluationControl::new(&opts.budget, dive_check::budget::Phase::Temporal)
-        .map_err(|_| AnalysisError::Inconsistent("evaluator control identity is unrepresentable"))
+) -> Result<std::sync::Arc<dive_runtime::budget::EvaluationControl>, AnalysisError> {
+    dive_runtime::budget::EvaluationControl::new(
+        &opts.budget,
+        dive_runtime::budget::Phase::Temporal,
+    )
+    .map_err(|_| AnalysisError::Inconsistent("evaluator control identity is unrepresentable"))
 }
 
 fn evaluator_interruption(
-    control: &dive_check::budget::EvaluationControl,
+    control: &dive_runtime::budget::EvaluationControl,
     error: &dive_eval::EvalError,
 ) -> Option<AnalysisError> {
     control.verdict(error).map(|verdict| match verdict {
-        dive_check::Verdict::Stopped(stopped) => AnalysisError::Stopped(stopped),
-        dive_check::Verdict::BudgetMeasurement { error } => AnalysisError::BudgetMeasurement(error),
+        dive_runtime::Verdict::Stopped(stopped) => AnalysisError::Stopped(stopped),
+        dive_runtime::Verdict::BudgetMeasurement { error } => {
+            AnalysisError::BudgetMeasurement(error)
+        }
         _ => AnalysisError::Inconsistent("unexpected evaluator interruption classification"),
     })
 }
 
 fn planning_failure(
-    control: &dive_check::budget::EvaluationControl,
+    control: &dive_runtime::budget::EvaluationControl,
     error: plan::PlanningError,
 ) -> AnalysisError {
     if let plan::PlanningError::Evaluation { error: cause, .. } = &error
@@ -912,7 +918,7 @@ fn labels<'a>(
     policy: GraphLabelPolicy,
     active: &(std::collections::BTreeSet<usize>, Option<usize>),
     evaluations: &mut EvaluationErrors,
-    control: &dive_check::budget::EvaluationControl,
+    control: &dive_runtime::budget::EvaluationControl,
 ) -> Result<(PackedTruth, usize), AnalysisError> {
     let mut reuse = fairness::Cache::new(false, 0);
     labels_with_reuse(
@@ -946,7 +952,7 @@ fn labels_with_reuse<'a>(
     policy: GraphLabelPolicy,
     active: &(std::collections::BTreeSet<usize>, Option<usize>),
     evaluations: &mut EvaluationErrors,
-    control: &dive_check::budget::EvaluationControl,
+    control: &dive_runtime::budget::EvaluationControl,
     frozen_prefix: Option<plan::FrozenPrefix>,
     reuse: &mut fairness::Cache,
 ) -> Result<(PackedTruth, usize), AnalysisError> {
@@ -1142,7 +1148,7 @@ fn attribute(
     back: usize,
     cells: usize,
     evaluation: (
-        &dive_check::budget::EvaluationControl,
+        &dive_runtime::budget::EvaluationControl,
         &mut EvaluationErrors,
     ),
     cached: Option<(&row_demand::Cache, &[usize])>,
@@ -1212,7 +1218,7 @@ fn attribute(
 ///
 /// ```
 /// use std::sync::Arc;
-/// use dive_check::CheckOptions;
+/// use dive_runtime::CheckOptions;
 /// use dive_liveness::analyze::{analyze_final, Analysis, Limits};
 /// let source = "---- MODULE M ----\nVARIABLE x\nInit == x = TRUE\nNext == x' = x\nP == []<>x\n====\n";
 /// let analysis = dive_sema::analyze_source("M.tla", source, &dive_sema::Options::default());
@@ -1256,7 +1262,7 @@ pub fn analyze_final_with_evidence(
 /// ```no_run
 /// # fn example(model: &dive_model::Model) {
 /// use dive_liveness::analyze::{analyze_final_with_action_errors, Limits};
-/// if let Err(failure) = analyze_final_with_action_errors(model, &dive_check::CheckOptions::tlc(0, 0), Limits::default()) {
+/// if let Err(failure) = analyze_final_with_action_errors(model, &dive_runtime::CheckOptions::tlc(0, 0), Limits::default()) {
 ///     if let Some(action) = failure.action_evaluation() {
 ///         let _original_class = action.cause().class();
 ///     }
@@ -1307,7 +1313,7 @@ pub fn analyze_final_with_policy(
 /// # fn example(model: &dive_model::Model) {
 /// use dive_liveness::{analyze::{self, GraphLabelPolicy, Limits}, product::AcceptancePolicy};
 /// let result = analyze::analyze_final_with_policies(model,
-///     &dive_check::CheckOptions::tlc(0, 0), Limits::default(),
+///     &dive_runtime::CheckOptions::tlc(0, 0), Limits::default(),
 ///     AcceptancePolicy::compact_default(), GraphLabelPolicy::NoCellLimit);
 /// // A candidate still requires independent trace validation.
 /// # let _ = result;
@@ -1399,11 +1405,11 @@ fn analyze_observed(
     evaluations: &mut EvaluationErrors,
     authority: Option<&owned::Authority<'_>>,
 ) -> Result<Analysis, AnalysisError> {
-    let (mut watchdog, armed) = dive_check::budget::arm(opts).map_err(|error| match error {
-        dive_check::budget::StartError::Measurement(error) => {
+    let (mut watchdog, armed) = dive_runtime::budget::arm(opts).map_err(|error| match error {
+        dive_runtime::budget::StartError::Measurement(error) => {
             AnalysisError::BudgetMeasurement(error)
         }
-        error @ dive_check::budget::StartError::Thread(_) => {
+        error @ dive_runtime::budget::StartError::Thread(_) => {
             AnalysisError::BudgetStartup(error.to_string())
         }
     })?;
@@ -1425,7 +1431,7 @@ fn analyze_observed(
         Ok(Some(exhausted)) if budget_limit(&error) => {
             *evaluations = EvaluationErrors::default();
             AnalysisError::Stopped(Box::new(
-                exhausted.during(dive_check::budget::Phase::Temporal),
+                exhausted.during(dive_runtime::budget::Phase::Temporal),
             ))
         }
         Err(measurement) if budget_limit(&error) => AnalysisError::BudgetMeasurement(measurement),
@@ -1437,7 +1443,7 @@ fn analyze_observed(
             let error = match finished {
                 Err(error) => Some(AnalysisError::BudgetMeasurement(error)),
                 Ok(Some(exhausted)) => Some(AnalysisError::Stopped(Box::new(
-                    exhausted.during(dive_check::budget::Phase::Finalization),
+                    exhausted.during(dive_runtime::budget::Phase::Finalization),
                 ))),
                 Ok(None) => None,
             };
@@ -1555,7 +1561,8 @@ fn analyze_unbudgeted(
             )?,
         )?
     } else {
-        match capture::explore_with_native_hooks(model, opts, limits.capture, native_hooks)
+        // The reference engine's capture driver (ADR 0155).
+        match reference::explore_with_native_hooks(model, opts, limits.capture, native_hooks)
             .map_err(|message| {
                 *stage = Stage::Unknown;
                 AnalysisError::CaptureThread(message)
@@ -1629,7 +1636,7 @@ fn startup_normalization(
 fn prepare(
     model: &Model,
     limits: Limits,
-    control: &dive_check::budget::EvaluationControl,
+    control: &dive_runtime::budget::EvaluationControl,
 ) -> Result<Vec<PreparedProperty>, AnalysisError> {
     if model.implied_temporals.is_empty() {
         return Err(AnalysisError::Unsupported("no temporal properties"));
@@ -1787,7 +1794,7 @@ fn analyze_captured(
     graph_labels: GraphLabelPolicy,
     stage: &mut Stage,
     evaluations: &mut EvaluationErrors,
-    control: &dive_check::budget::EvaluationControl,
+    control: &dive_runtime::budget::EvaluationControl,
     cache: Option<&row_demand::Cache>,
 ) -> Result<Option<CandidateWord>, AnalysisError> {
     analyze_source(
@@ -1821,7 +1828,7 @@ fn analyze_source(
     graph_labels: GraphLabelPolicy,
     stage: &mut Stage,
     evaluations: &mut EvaluationErrors,
-    control: &dive_check::budget::EvaluationControl,
+    control: &dive_runtime::budget::EvaluationControl,
     cache: Option<&row_demand::Cache>,
 ) -> Result<Option<CandidateWord>, AnalysisError> {
     *stage = Stage::Product;
@@ -1870,7 +1877,7 @@ fn analyze_graph(
     graph_labels: GraphLabelPolicy,
     stage: &mut Stage,
     evaluations: &mut EvaluationErrors,
-    control: &dive_check::budget::EvaluationControl,
+    control: &dive_runtime::budget::EvaluationControl,
 ) -> Result<Option<CandidateWord>, AnalysisError> {
     let mut reuse = fairness::Cache::new(
         searched.min(plans.len()) > 1
@@ -1990,7 +1997,7 @@ fn analyze_native(
     graph_labels: GraphLabelPolicy,
     stage: &mut Stage,
     evaluations: &mut EvaluationErrors,
-    control: &dive_check::budget::EvaluationControl,
+    control: &dive_runtime::budget::EvaluationControl,
 ) -> Result<Option<CandidateWord>, AnalysisError> {
     *stage = Stage::Product;
     let topology = product::CsrTopology::from_capture(captured);

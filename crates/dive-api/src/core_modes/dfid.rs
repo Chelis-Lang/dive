@@ -695,7 +695,7 @@ mod tests {
             dive_store::StoreMode::Exact,
             dive_store::StoreMode::Fingerprint,
         ] {
-            let mut options = Options::new(dive_check::CheckOptions::dive(7), 6);
+            let mut options = Options::new(dive_runtime::CheckOptions::dive(7), 6);
             options.check.store = store;
             options.worker_seeds = Some(vec![0; 6]);
             let mut native = Native::prepare_with_options(
@@ -726,7 +726,7 @@ mod tests {
             "INIT Init\nNEXT Next\n",
             &TraceOptions::default(),
         )?;
-        let mut options = Options::new(dive_check::CheckOptions::dive(7), 10);
+        let mut options = Options::new(dive_runtime::CheckOptions::dive(7), 10);
         options.fingerprint_bits = 1;
         options.worker_seeds = Some(vec![0; 10]);
         let mut native = Native::prepare(model.model(), &options.check.budget)
@@ -757,9 +757,9 @@ mod tests {
                     dive_store::StoreMode::Fingerprint,
                 ] {
                     let check = if compat_tlc {
-                        dive_check::CheckOptions::tlc(0, 7)
+                        dive_runtime::CheckOptions::tlc(0, 7)
                     } else {
-                        dive_check::CheckOptions::dive(7)
+                        dive_runtime::CheckOptions::dive(7)
                     };
                     let mut options = Options::new(check, 6);
                     options.check.store = store;
@@ -796,7 +796,7 @@ mod tests {
         )?;
         let mut observations = Vec::new();
         for level in [4, 24] {
-            let mut options = Options::new(dive_check::CheckOptions::dive(7), level);
+            let mut options = Options::new(dive_runtime::CheckOptions::dive(7), level);
             options.worker_seeds = Some(vec![0; level as usize]);
             let mut native = Native::prepare(model.model(), &options.check.budget)
                 .map_err(|_| "native preparation")?;
@@ -824,7 +824,7 @@ mod tests {
             dive_store::StoreMode::Exact,
             dive_store::StoreMode::Fingerprint,
         ] {
-            let mut options = Options::new(dive_check::CheckOptions::dive(7), 8);
+            let mut options = Options::new(dive_runtime::CheckOptions::dive(7), 8);
             options.check.store = store;
             options.worker_seeds = Some(vec![0; 8]);
             let mut native = Native::prepare(model.model(), &options.check.budget)

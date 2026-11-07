@@ -3,8 +3,8 @@
 //! This encodes the charter's dependency structure: syntax feeds semantics,
 //! semantics feeds the IR, every backend consumes the IR, and `dive-value` /
 //! `dive-eval` underlie checking, liveness, simulation and trace validation.
-//! In particular `dive-trace` may not depend on `dive-check`, `dive-liveness`,
-//! `dive-sim` or `dive-store`, so the trace validator stays a genuine second
+//! In particular `dive-trace` may not depend on `dive-runtime`, `dive-check`,
+//! `dive-liveness`, `dive-sim` or `dive-store`, so the trace validator stays a genuine second
 //! check. `dive-model`, the binding stage, sits between the evaluator and
 //! every backend (ADR 0013 §8). `dive-trace` shares the core evaluator,
 //! including its `ENABLED` search (ADR 0103). Changing this table is an
@@ -31,6 +31,21 @@ pub const ALLOWED: &[(&str, &[&str])] = &[
             "dive-stdlib",
         ],
     ),
+    // The run contract every engine shares: options, budgets, results,
+    // capture evidence and checkpoint framing (ADR 0155).
+    (
+        "dive-runtime",
+        &[
+            "dive-ir",
+            "dive-value",
+            "dive-eval",
+            "dive-stdlib",
+            "dive-config",
+            "dive-model",
+            "dive-store",
+        ],
+    ),
+    // The reference search runtime (ADR 0155).
     (
         "dive-check",
         &[
@@ -41,6 +56,7 @@ pub const ALLOWED: &[(&str, &[&str])] = &[
             "dive-config",
             "dive-model",
             "dive-store",
+            "dive-runtime",
         ],
     ),
     (
@@ -53,6 +69,7 @@ pub const ALLOWED: &[(&str, &[&str])] = &[
             "dive-config",
             "dive-model",
             "dive-store",
+            "dive-runtime",
             "dive-check",
         ],
     ),
@@ -95,6 +112,7 @@ pub const ALLOWED: &[(&str, &[&str])] = &[
             "dive-config",
             "dive-model",
             "dive-store",
+            "dive-runtime",
             "dive-check",
             "dive-liveness",
             "dive-sim",
@@ -164,7 +182,13 @@ mod tests {
     fn trace_validator_is_independent_of_checker() {
         let g = graph();
         let trace = g.get("dive-trace").copied().unwrap_or_default();
-        for forbidden in ["dive-check", "dive-liveness", "dive-sim", "dive-store"] {
+        for forbidden in [
+            "dive-runtime",
+            "dive-check",
+            "dive-liveness",
+            "dive-sim",
+            "dive-store",
+        ] {
             assert!(
                 !trace.contains(&forbidden),
                 "dive-trace may not depend on {forbidden}"

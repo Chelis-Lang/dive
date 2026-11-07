@@ -1,6 +1,6 @@
 //! One API-owned run budget shared by finite execution modes.
 
-use dive_check::budget::{Budget, EvaluationControl, Phase, Watchdog};
+use dive_runtime::budget::{Budget, EvaluationControl, Phase, Watchdog};
 use serde_json::{Value, json};
 use std::sync::Arc;
 use std::time::Duration;
@@ -20,16 +20,16 @@ impl ModeBudget {
         memory: crate::BudgetSetting<u64>,
     ) -> Result<Self, crate::ApiError> {
         let (time, time_source) =
-            time.resolve((!compat).then_some(dive_check::budget::DEFAULT_TIME_LIMIT));
+            time.resolve((!compat).then_some(dive_runtime::budget::DEFAULT_TIME_LIMIT));
         let (memory, memory_source) =
-            crate::check::resolve_memory(memory, dive_check::budget::default_memory)
+            crate::check::resolve_memory(memory, dive_runtime::budget::default_memory)
                 .map_err(crate::ApiError::BudgetMeasurement)?;
         let requested = Budget::new(time, memory);
         let watchdog = requested.start().map_err(|error| match error {
-            dive_check::budget::StartError::Measurement(error) => {
+            dive_runtime::budget::StartError::Measurement(error) => {
                 crate::ApiError::BudgetMeasurement(error)
             }
-            error @ dive_check::budget::StartError::Thread(_) => {
+            error @ dive_runtime::budget::StartError::Thread(_) => {
                 crate::ApiError::BudgetStartup(error)
             }
         })?;

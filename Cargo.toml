@@ -21,6 +21,7 @@ dive-eval = { path = "crates/dive-eval" }
 dive-stdlib = { path = "crates/dive-stdlib" }
 dive-config = { path = "crates/dive-config" }
 dive-store = { path = "crates/dive-store" }
+dive-runtime = { path = "crates/dive-runtime" }
 dive-check = { path = "crates/dive-check" }
 dive-liveness = { path = "crates/dive-liveness" }
 dive-sim = { path = "crates/dive-sim" }

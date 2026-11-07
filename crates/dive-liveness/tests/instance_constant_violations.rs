@@ -1,8 +1,8 @@
 //! Final analysis preserves pinned constant-fallback violations and counts.
 #![allow(clippy::expect_used, reason = "pinned primary fixture assertions")]
 
-use dive_check::CheckOptions;
 use dive_liveness::analyze::{Analysis, Limits, analyze_final};
+use dive_runtime::CheckOptions;
 use dive_trace::{Ending, Trace, TraceDoc, Validation};
 use std::{path::Path, sync::Arc};
 

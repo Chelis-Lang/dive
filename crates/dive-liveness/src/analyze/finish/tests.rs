@@ -9,8 +9,8 @@ use std::sync::Arc;
 
 use super::*;
 use crate::analyze::{self, Limits};
-use dive_check::{CheckOptions, Stats, Verdict};
 use dive_model::Model;
+use dive_runtime::{CheckOptions, Stats, Verdict};
 
 fn fixture(options: &CheckOptions) -> Model {
     let source = "---- MODULE Evidence ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == x'=IF x<3 THEN x+1 ELSE x\nP == <>(x=4)\n====\n";
@@ -34,7 +34,7 @@ fn fixture(options: &CheckOptions) -> Model {
 }
 
 fn capture(model: &Model, options: &CheckOptions) -> capture::Complete {
-    match capture::explore(model, options, capture::Limits::default()) {
+    match dive_check::capture::explore(model, options, capture::Limits::default()) {
         capture::Exploration::Complete(complete) => *complete,
         capture::Exploration::Stopped(result) => panic!("finite capture: {result:?}"),
     }
@@ -51,7 +51,7 @@ impl capture::Observer for Stop {
 }
 
 fn captured_prefix(model: &Model, options: &CheckOptions) -> capture::Prefix {
-    match capture::explore_controlled_with_evidence(
+    match dive_check::capture::explore_controlled_with_evidence(
         model,
         options,
         capture::Limits::default(),
@@ -188,12 +188,12 @@ fn analysis_failures_and_typed_stops_never_become_absence_of_acceptance() {
     let model = fixture(&options);
     let complete = capture(&model, &options).into_evidence();
     let prefix = captured_prefix(&model, &options).into_evidence();
-    let stopped = dive_check::budget::Stopped {
-        resource: dive_check::budget::Resource::Time,
+    let stopped = dive_runtime::budget::Stopped {
+        resource: dive_runtime::budget::Resource::Time,
         limit: 10,
         observed: 11,
         elapsed_ms: 11,
-        phase: dive_check::budget::Phase::Temporal,
+        phase: dive_runtime::budget::Phase::Temporal,
     };
     let mut safety = complete.safety_result().clone();
     safety.verdict = Verdict::Stopped(Box::new(stopped.clone()));

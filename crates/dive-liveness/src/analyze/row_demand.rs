@@ -2,9 +2,9 @@
 
 use std::sync::Mutex;
 
-use dive_check::{CheckOptions, capture};
 use dive_eval::{ErrorClass, EvalError, St};
 use dive_model::Model;
+use dive_runtime::{CheckOptions, capture};
 
 use super::{
     AnalysisError, CaptureRowEvidence, EvaluationErrors, PreparedProperty, StateEvaluation,
@@ -48,7 +48,7 @@ pub(super) fn prepare(
     graph_labels: super::GraphLabelPolicy,
     owned_control: (
         Option<&super::owned::Authority<'_>>,
-        &dive_check::budget::EvaluationControl,
+        &dive_runtime::budget::EvaluationControl,
     ),
 ) -> Result<Option<Program>, AnalysisError> {
     let (authority, control) = owned_control;
@@ -110,7 +110,7 @@ pub(super) fn prepare(
 fn stable_producers(
     model: &Model,
     plans: &[PreparedProperty],
-    control: &dive_check::budget::EvaluationControl,
+    control: &dive_runtime::budget::EvaluationControl,
 ) -> Result<Option<dive_eval::ProducerStability>, EvalError> {
     let mut producers = Vec::new();
     for init in &model.init {
@@ -334,7 +334,7 @@ impl<'a> Observe<'a> {
 
     pub(super) fn error(
         &mut self,
-        result: &dive_check::CheckResult,
+        result: &dive_runtime::CheckResult,
         decision: Option<&capture::CheckpointDecision>,
         errors: &mut EvaluationErrors,
     ) -> Option<AnalysisError> {
@@ -524,7 +524,7 @@ impl capture::Observer for BorrowedObserver<'_> {
         &mut self,
         id: usize,
         state: &dive_eval::next::StateVals,
-        counters: dive_check::Stats,
+        counters: dive_runtime::Stats,
     ) -> Result<(), String> {
         self.0.init(id, state, counters)
     }
@@ -534,7 +534,7 @@ impl capture::Observer for BorrowedObserver<'_> {
         from: usize,
         edge: &capture::Edge,
         successor: &dive_eval::next::StateVals,
-        stats: dive_check::Stats,
+        stats: dive_runtime::Stats,
     ) -> Result<(), String> {
         self.0.edge(from, edge, successor, stats)
     }
@@ -543,7 +543,7 @@ impl capture::Observer for BorrowedObserver<'_> {
         &mut self,
         level: u64,
         graph: &capture::BehaviorGraph,
-        stats: dive_check::Stats,
+        stats: dive_runtime::Stats,
     ) -> Result<(), String> {
         self.0.level_done(level, graph, stats)
     }
@@ -565,7 +565,7 @@ impl Observe<'_> {
             let observer = forwarded
                 .as_mut()
                 .map(|observer| observer as &mut dyn capture::Observer);
-            capture::explore_checkpoints_with_native_hooks(
+            dive_check::capture::explore_checkpoints_with_native_hooks(
                 model,
                 options,
                 limits,

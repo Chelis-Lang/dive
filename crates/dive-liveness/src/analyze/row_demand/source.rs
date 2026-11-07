@@ -1,8 +1,8 @@
 //! Actual singleton source-row demand before an opaque temporal residual.
 
-use dive_check::{CheckOptions, CheckResult, capture};
 use dive_eval::{Ec, ErrorClass, EvalError, ExceptionKind, St};
 use dive_model::Model;
+use dive_runtime::{CheckOptions, CheckResult, capture};
 use dive_value::Value;
 
 use super::{BorrowedObserver, Failed, stable_producers};
@@ -26,7 +26,7 @@ pub(crate) fn prepare_source(
     graph_labels: GraphLabelPolicy,
     owned_control: (
         Option<&crate::analyze::owned::Authority<'_>>,
-        &dive_check::budget::EvaluationControl,
+        &dive_runtime::budget::EvaluationControl,
     ),
 ) -> Result<Option<SourceProgram>, AnalysisError> {
     let (authority, control) = owned_control;
@@ -50,7 +50,7 @@ pub(in crate::analyze) fn source_possible(
     options: &CheckOptions,
     limits: crate::formula::Limits,
     graph_labels: GraphLabelPolicy,
-    control: &dive_check::budget::EvaluationControl,
+    control: &dive_runtime::budget::EvaluationControl,
 ) -> Result<bool, AnalysisError> {
     inspect_source(
         model,
@@ -75,7 +75,7 @@ fn inspect_source(
     fairness: usize,
     limits: crate::formula::Limits,
     graph_labels: GraphLabelPolicy,
-    control: &dive_check::budget::EvaluationControl,
+    control: &dive_runtime::budget::EvaluationControl,
 ) -> Result<Option<SourceProgram>, AnalysisError> {
     if options.workers != 1
         || graph_labels != GraphLabelPolicy::NoCellLimit
@@ -271,7 +271,7 @@ impl<'a> SourceObserve<'a> {
             let observer = forwarded
                 .as_mut()
                 .map(|observer| observer as &mut dyn capture::Observer);
-            capture::explore_checkpoints_with_native_hooks(
+            dive_check::capture::explore_checkpoints_with_native_hooks(
                 model,
                 options,
                 limits,
@@ -397,7 +397,7 @@ impl SourceObserve<'_> {
 ///
 /// ```no_run
 /// # fn finish(driver: dive_liveness::analyze::owned::SourceRowDriver,
-/// # actual: &dive_check::CheckResult) -> Result<(), dive_liveness::analyze::AnalysisError> {
+/// # actual: &dive_runtime::CheckResult) -> Result<(), dive_liveness::analyze::AnalysisError> {
 /// let evidence = driver.finish(actual)?;
 /// // Evidence still requires fresh independent source/word validation.
 /// # let _ = evidence; Ok(()) }
@@ -406,11 +406,11 @@ pub struct SourceRowDriver {
     model: Box<Model>,
     plans: Vec<PreparedProperty>,
     program: SourceProgram,
-    control: std::sync::Arc<dive_check::budget::EvaluationControl>,
+    control: std::sync::Arc<dive_runtime::budget::EvaluationControl>,
     pending: Option<(
         usize,
         dive_eval::next::StateVals,
-        dive_check::Stats,
+        dive_runtime::Stats,
         SourceFailure,
     )>,
     active: bool,
@@ -422,7 +422,7 @@ impl SourceRowDriver {
         model: Box<Model>,
         plans: Vec<PreparedProperty>,
         program: SourceProgram,
-        control: std::sync::Arc<dive_check::budget::EvaluationControl>,
+        control: std::sync::Arc<dive_runtime::budget::EvaluationControl>,
     ) -> Self {
         Self {
             model,
@@ -447,7 +447,7 @@ impl SourceRowDriver {
         state: &dive_eval::next::StateVals,
         targets: &[dive_eval::next::StateVals],
         emitted: u64,
-        counts: dive_check::Stats,
+        counts: dive_runtime::Stats,
     ) -> Result<bool, AnalysisError> {
         self.observe(source, state, targets, emitted, counts, false)
     }
@@ -464,7 +464,7 @@ impl SourceRowDriver {
         state: &dive_eval::next::StateVals,
         targets: &[dive_eval::next::StateVals],
         emitted: u64,
-        counts: dive_check::Stats,
+        counts: dive_runtime::Stats,
     ) -> Result<bool, AnalysisError> {
         self.observe(source, state, targets, emitted, counts, true)
     }
@@ -479,7 +479,7 @@ impl SourceRowDriver {
         state: &dive_eval::next::StateVals,
         targets: &[dive_eval::next::StateVals],
         emitted: u64,
-        counts: dive_check::Stats,
+        counts: dive_runtime::Stats,
         next_failed: bool,
     ) -> Result<bool, AnalysisError> {
         if self.pending.is_some() {
