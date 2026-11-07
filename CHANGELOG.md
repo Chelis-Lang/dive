@@ -18,7 +18,11 @@ published. Earlier pre-release development entries remain in git history.
   Nor is a definition whose start-up value keeps a lazy set (`{x \in S : P}`
   or `{e : x \in S}` over an infinite or deferred domain): each membership
   test evaluates it again, so its draws refuse too.
-
+- In the default profile, Core evaluates the pure constant definitions its
+  safety roles use as values once, when it compiles its plan, instead of the
+  reference binder, and reuses the results of repeated calls while it does.
+  `ewd998/EWD998ChanID_shiviz`'s `RingOfNodes` search drops from 16 s to
+  1.5 s. Results are unchanged.
 - Core provides `TLCGet("config")` and the start-up counters to the
   `ASSUME`s, and `TLCGet("config")` during the search, as Reference does, so
   `DieHard/MCDieHardest` checks on Core.

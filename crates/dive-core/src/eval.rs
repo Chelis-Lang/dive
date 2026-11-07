@@ -102,7 +102,33 @@ pub struct Machine {
     refuse_unrecorded_warnings: bool,
     work_control: Option<Arc<dyn WorkControl>>,
     pub(crate) debugger: Option<Arc<dyn crate::debug::Observer>>,
+    /// Results of calls, kept only while the compiler evaluates start-up
+    /// constant definitions (see [`CallCache`]).
+    pub(crate) calls: Option<CallCache>,
 }
+
+/// The results of the calls made while the compiler evaluates the pure
+/// constant definitions the binder left to the core (issue #846), keyed by
+/// the function and the exact argument handles.
+///
+/// A start-up constant definition reads no state and applies no impure
+/// operator (`dive_model::bind_deferring_constants` checks it through every
+/// definition it reaches), so a call's result is a function of its
+/// arguments: captures are passed as arguments, and a frame starts empty.
+/// Equal handles are equal values while no transient they name has been
+/// freed, so the table is emptied whenever the arena's reset or rollback
+/// count changes; within one count a kept transient result is still live.
+#[derive(Debug, Default)]
+pub(crate) struct CallCache {
+    revision: (u64, u64),
+    results: std::collections::HashMap<Box<[u64]>, Handle>,
+    key: Vec<u64>,
+    /// Lookups answered from the table.
+    pub(crate) hits: u64,
+}
+
+/// The most results [`CallCache`] holds before it starts again.
+const CALL_CACHE_ENTRIES: usize = 1 << 16;
 
 fn eval_err(what: &str) -> Error {
     Error::eval(what)
@@ -196,6 +222,7 @@ impl Machine {
             refuse_unrecorded_warnings: false,
             work_control: None,
             debugger: None,
+            calls: None,
         }
     }
 
@@ -1072,6 +1099,25 @@ impl Machine {
                 }
             }
         }
+        let cached = match &mut self.calls {
+            Some(cache) if !self.heap.speculative => {
+                let revision = self.heap.arena.cache_revision();
+                if cache.revision != revision {
+                    cache.results.clear();
+                    cache.revision = revision;
+                }
+                cache.key.clear();
+                cache.key.push(u64::from(fun));
+                cache.key.extend(vals.iter().map(|h| h.0));
+                if let Some(&r) = cache.results.get(cache.key.as_slice()) {
+                    cache.hits += 1;
+                    self.give_scratch(vals);
+                    return Ok(r);
+                }
+                Some(cache.key.clone().into_boxed_slice())
+            }
+            _ => None,
+        };
         let old = self.enter(f.frame);
         for (i, &v) in vals.iter().enumerate() {
             #[allow(
@@ -1088,6 +1134,14 @@ impl Machine {
         self.give_scratch(vals);
         let r = self.eval(code, f.body);
         self.leave(old);
+        if let (Some(key), Ok(h), Some(cache)) = (cached, &r, &mut self.calls)
+            && cache.revision == self.heap.arena.cache_revision()
+        {
+            if cache.results.len() >= CALL_CACHE_ENTRIES {
+                cache.results.clear();
+            }
+            cache.results.insert(key, *h);
+        }
         r
     }
 

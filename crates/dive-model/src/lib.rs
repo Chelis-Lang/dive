@@ -71,6 +71,7 @@
 mod actions;
 mod bind;
 mod control;
+mod defer;
 mod error;
 pub mod intern;
 pub mod level;
@@ -300,6 +301,24 @@ pub fn bind(ir: Arc<Ir>, cfg: &ModelConfig, opts: &BindOptions) -> Result<Model,
     bind_in(ir, cfg, opts, None, false, None, false).map_err(ControlledBindError::legacy)
 }
 
+/// Binds `ir` to `cfg` for the core engine: as [`bind`], except that the pure
+/// constant-level definitions used only as values by the roles the core
+/// compiles are not evaluated at start-up. They are listed in
+/// [`Model::deferred_constants`], for the core to evaluate when it compiles
+/// its plan; the model's own evaluator evaluates them lazily wherever it
+/// needs them, with the same values.
+///
+/// # Errors
+/// As [`bind`].
+pub fn bind_deferring_constants(
+    ir: Arc<Ir>,
+    cfg: &ModelConfig,
+    opts: &BindOptions,
+) -> Result<Model, Box<Failure>> {
+    bind_in_source_covered_deferring(ir, cfg, opts, None, false, None, false, None, true)
+        .map_err(ControlledBindError::legacy)
+}
+
 /// Binds a trusted native recovered ordered name table before evaluating constants.
 /// The complete startup feed must be an identical prefix; missing, duplicate or
 /// reordered names refuse before any model callback. This is not an authenticity
@@ -436,6 +455,34 @@ fn bind_in_source_covered(
     fallible_errors: bool,
     coverage: Option<Arc<dive_eval::SourceCoverage>>,
 ) -> Result<Model, ControlledBindError> {
+    bind_in_source_covered_deferring(
+        ir,
+        cfg,
+        opts,
+        restored,
+        predicates_only,
+        control,
+        fallible_errors,
+        coverage,
+        false,
+    )
+}
+
+#[allow(
+    clippy::too_many_arguments,
+    reason = "bind_in_source_covered plus the core route's deferral switch"
+)]
+fn bind_in_source_covered_deferring(
+    ir: Arc<Ir>,
+    cfg: &ModelConfig,
+    opts: &BindOptions,
+    restored: Option<&[String]>,
+    predicates_only: bool,
+    control: Option<Arc<dyn dive_eval::HostControl>>,
+    fallible_errors: bool,
+    coverage: Option<Arc<dive_eval::SourceCoverage>>,
+    defer: bool,
+) -> Result<Model, ControlledBindError> {
     dive_eval::validate_ir(&ir).map_err(|error| {
         Box::new(Failure {
             error: BindError::unsupported(error.to_string()),
@@ -514,6 +561,12 @@ fn bind_in_source_covered(
     let mut b = bind::Binder::new(ir, cfg, opts, names, control, fallible_errors)
         .map_err(|error| error.with_output(Vec::new()))?;
     b.source_coverage = coverage;
+    if defer && !predicates_only {
+        b.defer = Some(defer::Deferral {
+            skip: std::collections::HashSet::new(),
+            evaluate: std::collections::HashSet::new(),
+        });
+    }
     let result = run(&mut b, predicates_only);
     b.drain_prints();
     match result {
@@ -656,6 +709,7 @@ fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> bind::R<Model> {
         sequential_names_only: false,
         runtime_name_order: false,
         stateful_checking: None,
+        deferred_constants: std::mem::take(&mut b.deferred),
     };
     model.unsupported = reach::unsupported(b, &model);
     let sequential = reach::sequential(b, &model)?;

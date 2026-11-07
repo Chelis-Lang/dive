@@ -423,6 +423,7 @@ pub(crate) fn handoff<'a>(
         std_redirects,
         precomputed,
         overrides,
+        deferred: model.deferred_constants.clone(),
         init: action_roles(model, &model.init_actions)?,
         next: action_roles(model, &model.actions)?,
         invariants: named_roles(model, &model.invariants)?,
@@ -706,15 +707,17 @@ fn prepare_observed(
     } else {
         dive_stdlib::random::RandomMode::Dive
     };
-    let host = Arc::new(dive_stdlib::host::RunHost::new(
-        dive_stdlib::random::Streams::new(options.seed, mode),
-        None,
-    ));
+    let new_host = || {
+        Arc::new(dive_stdlib::host::RunHost::new(
+            dive_stdlib::random::Streams::new(options.seed, mode),
+            None,
+        ))
+    };
     let defaults = dive_model::BindOptions::dive();
-    let bind = dive_model::BindOptions {
+    let bind_options = |host: &Arc<dive_stdlib::host::RunHost>| dive_model::BindOptions {
         eval: options.eval,
         no_deadlock: options.no_deadlock,
-        host: Some(Arc::clone(&host) as Arc<dyn dive_eval::Host>),
+        host: Some(Arc::clone(host) as Arc<dyn dive_eval::Host>),
         // The temporal route reports the requested policy, as the reference
         // engine binds it; it only matters with temporal properties.
         symmetry_liveness: if temporal {
@@ -723,10 +726,31 @@ fn prepare_observed(
             defaults.symmetry_liveness
         },
     };
-    let mut model = match dive_model::bind(Arc::clone(ir), config, &bind) {
+    let mut host = new_host();
+    // In the default profile the core evaluates the pure constant
+    // definitions its roles use only as values, once, when it compiles its
+    // plan (issue #846). Under `--compat=tlc` the startup evaluation stays
+    // the binder's: the names it meets feed TLC's string order.
+    let bound = if profile_tlc {
+        dive_model::bind(Arc::clone(ir), config, &bind_options(&host))
+    } else {
+        dive_model::bind_deferring_constants(Arc::clone(ir), config, &bind_options(&host))
+    };
+    let mut model = match bound {
         Ok(m) => m,
         Err(f) => return Err(Box::new(binding_failure(ir, config, options, &f))),
     };
+    // The temporal route checks its properties with the reference
+    // evaluator, which would evaluate a deferred definition wherever it is
+    // used: such a model is bound again, with a fresh host, as the
+    // reference engine binds it.
+    if temporal && !model.implied_temporals.is_empty() && !model.deferred_constants.is_empty() {
+        host = new_host();
+        model = match dive_model::bind(Arc::clone(ir), config, &bind_options(&host)) {
+            Ok(m) => m,
+            Err(f) => return Err(Box::new(binding_failure(ir, config, options, &f))),
+        };
+    }
     // TLC creates its model checker after binding, as the reference engine
     // does: `TLCGet("config")` and the checker's names exist from here on,
     // and the ASSUMEs read the start-up counters.
@@ -1703,6 +1727,7 @@ pub(crate) fn metrics_json(
             "folded": plan.stats.folded, "fold_abandoned": plan.stats.fold_abandoned,
             "fold_skipped": plan.stats.fold_skipped, "fold_fuel": plan.stats.fold_fuel,
             "fold_ms": std::time::Duration::from_nanos(plan.stats.fold_nanos).as_secs_f64() * 1e3, "cached_defs": plan.stats.cached_defs, "speculative": plan.stats.speculative, "beta": plan.stats.beta, "substituted": plan.stats.substituted, "memo_sites": plan.code.sites.len(),
+            "startup_values": plan.stats.startup_values, "startup_ms": std::time::Duration::from_nanos(plan.stats.startup_nanos).as_secs_f64() * 1e3, "startup_call_hits": plan.stats.startup_call_hits,
         },
         "probed": m.probed,
         "discarded_before_intern": m.discarded_before_intern,

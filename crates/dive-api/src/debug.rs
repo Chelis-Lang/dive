@@ -1002,6 +1002,7 @@ fn evaluate_scalar(
         std_redirects: HashMap::new(),
         precomputed: HashMap::new(),
         overrides: std::collections::HashSet::new(),
+        deferred: std::collections::BTreeSet::new(),
         init: Vec::new(),
         next: Vec::new(),
         invariants: vec![Role {

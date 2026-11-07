@@ -144,6 +144,20 @@ fn reads_only(op: StdOp) -> bool {
 /// may apply only reads. Conservative: an instance substitution or an
 /// operator parameter that may be impure counts as an effect.
 fn effect_free(b: &Binder<'_>, def: DefId) -> bool {
+    effect_free_with(b, def, false)
+}
+
+/// Whether evaluating `def` (everything it can reach, through constants the
+/// configuration binds) applies no impure operator at all, not even one that
+/// only reads: its value cannot depend on when it is evaluated.
+pub(crate) fn pure(b: &Binder<'_>, def: DefId) -> bool {
+    effect_free_with(b, def, true)
+}
+
+/// [`effect_free`], or with `strict` [`pure`], which also follows the
+/// configuration's overrides of the definitions it reaches.
+fn effect_free_with(b: &Binder<'_>, def: DefId, strict: bool) -> bool {
+    let reads_only = |op: StdOp| if strict { !op.impure() } else { reads_only(op) };
     let ir = &*b.t.ir;
     let mut seen = vec![false; ir.defs().len()];
     let mut work = vec![def];
@@ -160,6 +174,20 @@ fn effect_free(b: &Binder<'_>, def: DefId) -> bool {
             Some(s) if !*s => *s = true,
             Some(_) => continue,
             None => return false,
+        }
+        if strict {
+            match b.t.lookup_def(d) {
+                Look::Def(r) if r != d => work.push(r),
+                Look::Java(op, r) => {
+                    if !reads_only(op) {
+                        return false;
+                    }
+                    if r != d {
+                        work.push(r);
+                    }
+                }
+                _ => {}
+            }
         }
         let def = ir.def(d);
         if let Some(op) = def.std {

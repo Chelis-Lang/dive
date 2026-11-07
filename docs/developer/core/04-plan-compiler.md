@@ -374,6 +374,22 @@ call, is `Maybe`. Folding keeps the expression's value.
   lazy, for example a filter over `Nat`. When it cannot be converted, the core
   compiles the definition's body instead. Configuration overrides
   (`Handoff::overrides`) are never recompiled.
+- **Startup values the core evaluates.** In the default profile, on the
+  safety route, the binder (`dive_model::bind_deferring_constants`,
+  `crates/dive-model/src/defer.rs`) does not evaluate a constant definition
+  that applies no impure operator, appears only in value positions of the
+  roles the core compiles, is not named by the configuration, and is not
+  reached by an `ASSUME`, `ALIAS`, `VIEW`, `SYMMETRY`, `POSTCONDITION`, a
+  constant's replacement or a definition the binder does evaluate. The
+  compiler evaluates the ones a role reaches before compiling the roles
+  (`Handoff::deferred`), each in a fresh frame without a fuel bound, keeping
+  the results of calls made during that evaluation (keyed by the function
+  and exact argument handles, emptied whenever the arena resets or rolls
+  back). A body that does not compile, or whose evaluation fails, is
+  compiled in place, so its error surfaces where it is used, as TLC reports
+  it after swallowing the startup failure. The others are evaluated by no
+  one: their startup evaluation is unobservable. `--compat=tlc` and the
+  temporal route keep the binder's evaluation.
 
 **Not yet.** These need further demand-order or hidden-query lifetime support:
 - the demand-order analysis proper;
