@@ -42,7 +42,6 @@ reason covers one or two models, so work them in any order.
 | `TLCGet("config")` | **`DieHard/MCDieHardest`** |
 | `SUBSET` of more than 24 elements | **`SpanningTree/SpanTreeTest5Nodes`** |
 | `IOUtils!IOEnv` / `Json` without `--allow-io` (D-017) | `TLC/TestGraphs`, `ewd998/SmokeEWD998`, `ewd998/EWD998ChanTrace` |
-| SYMMETRY | `KeyValueStore/MCKVsnap` |
 | VIEW with liveness (deferred past v0.1 by owner ruling, 2026-11-06) | `FiniteMonotonic/MCDistributedReplicatedLog`, `ewd998/EWD998ChanID` |
 | graph capture with random operators | `SpanningTree/SpanTreeRandom` |
 | simulation ALIAS | `ewd840/EWD840_anim` |
@@ -67,6 +66,7 @@ Same host, one worker, seed and fingerprint 0, original configurations.
 | `SDP_Verification/SDP_Attack_New_Solution_Spec/MC` | 6.9 s | 1.0 s | #820 |
 | `ewd998/EWD998ChanID_shiviz` | 16.2 s | 3.1 s | #822 |
 | `SpecifyingSystems/AdvancedExamples/MCInnerSerial` | stops at 900 s | 240 s | #787 |
+| `KeyValueStore/MCKVsnap` | 28 to 52 s, unreduced (D-005) | 5.4 s reduced (golden run); 47 s without `SYMMETRY` | #851 |
 
 ## Feature families
 
