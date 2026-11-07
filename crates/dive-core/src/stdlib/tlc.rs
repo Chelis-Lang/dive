@@ -81,10 +81,12 @@ pub(super) fn call(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle
 /// (`03-value-model.md` §6.2), on the arguments converted to reference
 /// values and the result converted back.
 fn register(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle, Error> {
-    if !m.checker_access {
-        return Err(Error::unsupported(
-            "native finite mode TLCGet/TLCSet host access",
-        ));
+    use crate::eval::CheckerAccess;
+    let finite_refusal = || Error::unsupported("native finite mode TLCGet/TLCSet host access");
+    match m.checker_access {
+        CheckerAccess::Full => {}
+        CheckerAccess::Level if op == StdOp::TlcTLCGet => {}
+        CheckerAccess::Level | CheckerAccess::Denied => return Err(finite_refusal()),
     }
 
     let Some(p) = m.heap.store().printer().cloned() else {
@@ -108,6 +110,9 @@ fn register(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle, Error
     {
         return Handle::int(m.level)
             .ok_or_else(|| Error::unsupported("a level beyond the core's integers (M1 core)"));
+    }
+    if m.checker_access != CheckerAccess::Full {
+        return Err(finite_refusal());
     }
     let Some(registers) = m.heap.store().registers().cloned() else {
         return Err(refuse(

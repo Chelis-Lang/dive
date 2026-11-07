@@ -4448,6 +4448,19 @@ impl Compiler<'_> {
         if crate::stdlib::higher_order(op) {
             return self.lib_ho(op, args, env, mode);
         }
+        // TLC evaluates a primed expression in the successor state, so a
+        // primed `TLCGet("level")` is the successor's level, which the core
+        // does not track: `Machine::level` is the source's in a step.
+        if mode == Mode::Primed
+            && op == StdOp::TlcTLCGet
+            && !matches!(args, [Arg::Expr { expr, .. }]
+                if matches!(&self.ir.node(*expr).expr, Expr::Num(_))
+                    || matches!(&self.ir.node(*expr).expr, Expr::Str(k) if k.as_ref() != "level"))
+        {
+            return Err(Error::unsupported(
+                "TLCGet(\"level\") under a prime, which TLC evaluates at the successor's level (M1 core)",
+            ));
+        }
         let mut ps = Vec::with_capacity(args.len());
         for a in args {
             let Arg::Expr { expr, .. } = a else {
