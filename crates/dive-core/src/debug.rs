@@ -342,7 +342,7 @@ pub(crate) fn reachable(plan: &crate::plan::Plan) -> Vec<Instruction> {
                         }));
                     };
                     match node {
-                        GNode::Composition { first, then } => {
+                        GNode::Composition { first, then, .. } => {
                             generators.extend([*first, *then]);
                         }
                         GNode::Conj(items) => {
