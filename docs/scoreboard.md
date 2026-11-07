@@ -42,11 +42,16 @@ reason covers one or two models, so work them in any order.
 | `TLCGet("config")` | **`DieHard/MCDieHardest`** |
 | `SUBSET` of more than 24 elements | **`SpanningTree/SpanTreeTest5Nodes`** |
 | `IOUtils!IOEnv` / `Json` without `--allow-io` (D-017) | `TLC/TestGraphs`, `ewd998/SmokeEWD998`, `ewd998/EWD998ChanTrace` |
-| `TLC!JavaTime` | `ewd998/SmokeEWD998_SC` |
 | SYMMETRY | `KeyValueStore/MCKVsnap` |
-| graph capture with VIEW / random operators | `FiniteMonotonic/MCDistributedReplicatedLog`, `ewd998/EWD998ChanID`, `SpanningTree/SpanTreeRandom` |
-| simulation ALIAS; DT2 liveness | `ewd840/EWD840_anim`, `ewd687a/EWD687a_anim` |
+| VIEW with liveness (deferred past v0.1 by owner ruling, 2026-11-06) | `FiniteMonotonic/MCDistributedReplicatedLog`, `ewd998/EWD998ChanID` |
+| graph capture with random operators | `SpanningTree/SpanTreeRandom` |
+| simulation ALIAS | `ewd840/EWD840_anim` |
+| simulation with a liveness `PROPERTY` (deferred by owner ruling, 2026-11-06) | `ewd687a/EWD687a_anim` |
 | 900-second stop | `MultiCarElevator/ElevatorSafetyLarge`, `MultiPaxos-SMR/MultiPaxos_MC`, `NanoBlockchain/MCNanoLarge`, `SlushProtocol/SlushLarge`, `bcastFolklore/bcastFolklore`, `SpecifyingSystems/AdvancedExamples/MCInnerSerial` |
+
+Out of scope: `ewd998/SmokeEWD998_SC` is a host script, not a model. It
+launches a nested TLC run through `IOUtils!IOEnvExec` (`java -jar ...`) and
+names its output file with `TLC!JavaTime`, so it gets no refusal bucket.
 
 Core covers ten models that Reference refuses or stops on, including
 `bosco`, `ElevatorSafetyMedium`, `DijkstraMutex Safety-4-processors`,
