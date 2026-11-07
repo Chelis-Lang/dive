@@ -123,6 +123,9 @@ or an allocation-time hard cap.
 
 Every accepted original is admitted in producer order through exact Graph
 conversion before retention, including when a prior read has cached that handle.
+When every liveness atom runs natively, that admission is deferred until a row
+is first read (a reference fallback or a report), and then done in the same
+order; `values.admission` reports `"deferred"` or `"eager"`.
 Successful Bool/Int/run-owned-string leaves and recursive tuple/record/function
 conversions can be reused during reads; general function keys must be scalar.
 Sets, BigInt/model values and unproved shapes continue through conversion.

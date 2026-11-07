@@ -14,6 +14,18 @@
 //! before, and a persistent node that converted or walked successfully is
 //! remembered in a bounded lossy table, because a later conversion of the same
 //! persistent handle would succeed and intern nothing new.
+//!
+//! Admission is deferred ([`NativeValues::defer_admission`]) when every
+//! liveness atom was prepared natively, so only an actual reference
+//! fallback, source-row check or report reads values. Every read first
+//! admits, in retention order, the retained rows not yet admitted
+//! ([`NativeValues::read_retained`]). A seen successor original that is not
+//! retained repeats its representative's handles, so it interns nothing. A
+//! seen root may differ from its representative without being retained, so
+//! it is admitted at once, after the pending rows. The names interned before
+//! any read are thus those of eager admission, in the same order. A row whose
+//! conversion fails is refused at that read instead of stopping the capture;
+//! a run that never reads it needs no reference value of it.
 
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -26,6 +38,8 @@ use dive_model::Model;
 use dive_runtime::Verdict;
 use dive_runtime::budget::{Budget, EvaluationControl, Phase};
 use dive_value::Value;
+
+use crate::core_native_graph::NativeGraph;
 
 const MAX_CACHE_BYTES: usize = 128 * 1024 * 1024;
 const CACHE_WARMUP: u64 = 1024;
@@ -204,6 +218,12 @@ pub(crate) struct NativeValues<'a> {
     /// String and model-value ids already converted (so interned).
     names: Vec<u64>,
     skipped: u64,
+    /// Admission deferred to reads (see the module docs).
+    deferred: bool,
+    deferred_rows: u64,
+    /// Under deferred admission, retained rows below this index are admitted.
+    admitted_through: usize,
+    caught_up_rows: u64,
 }
 
 impl<'a> NativeValues<'a> {
@@ -246,6 +266,10 @@ impl<'a> NativeValues<'a> {
             memo_hits: 0,
             names: Vec::new(),
             skipped: 0,
+            deferred: false,
+            deferred_rows: 0,
+            admitted_through: 0,
+            caught_up_rows: 0,
         })
     }
 
@@ -255,27 +279,63 @@ impl<'a> NativeValues<'a> {
         self.model
     }
 
+    /// Defers admission to reads (see the module docs). The caller
+    /// proves that every liveness atom is native, so that only an actual
+    /// fallback, source-row check or report reads values.
+    pub(crate) fn defer_admission(&mut self) {
+        self.deferred = true;
+    }
+
+    /// Whether an original of this event is admitted when it is recorded;
+    /// otherwise its admission is counted as deferred.
+    pub(crate) fn admits_now(&mut self, seen_root: bool) -> bool {
+        if self.deferred && !seen_root {
+            self.deferred_rows = self.deferred_rows.saturating_add(1);
+            return false;
+        }
+        true
+    }
+
     /// Admits a row: succeeds exactly when its Graph conversion would, and
     /// interns the same new names in the same order (see the module docs).
     pub(crate) fn admit(&mut self, row: &[Handle]) -> Result<(), Verdict> {
+        self.admit_row(row).map_err(capture_error)
+    }
+
+    fn admit_row(&mut self, row: &[Handle]) -> Result<(), AnalysisError> {
         let control = self.capture.clone();
-        check(&self.capture, &control).map_err(capture_error)?;
+        check(&self.capture, &control)?;
         if row.len() != self.model.ir.vars().len() {
-            return Err(capture_error(AnalysisError::Inconsistent(
+            return Err(AnalysisError::Inconsistent(
                 "native value row variable dimensions",
-            )));
+            ));
         }
         let started = Instant::now();
         let before = self.converted;
         for &handle in row {
-            self.admit_value(handle, &control).map_err(capture_error)?;
+            self.admit_value(handle, &control)?;
         }
-        check(&self.capture, &control).map_err(capture_error)?;
+        check(&self.capture, &control)?;
         self.conversion += started.elapsed();
         if self.converted == before {
             self.skipped = self.skipped.saturating_add(1);
         }
         self.admitted = self.admitted.saturating_add(1);
+        Ok(())
+    }
+
+    /// Admits, in retention order, every retained row a deferred admission
+    /// has not admitted yet.
+    pub(crate) fn catch_up(&mut self, graph: &NativeGraph) -> Result<(), AnalysisError> {
+        if !self.deferred {
+            return Ok(());
+        }
+        let retained = graph.input().retained_rows;
+        while self.admitted_through < retained {
+            self.admit_row(graph.row(self.admitted_through)?)?;
+            self.admitted_through += 1;
+            self.caught_up_rows = self.caught_up_rows.saturating_add(1);
+        }
         Ok(())
     }
 
@@ -398,7 +458,43 @@ impl<'a> NativeValues<'a> {
         self.memo[at] = handle.bits();
     }
 
+    /// Reads retained row `row_id` of `graph`, after admitting every retained
+    /// row a deferred admission has not admitted yet.
+    pub(crate) fn read_retained(
+        &mut self,
+        graph: &NativeGraph,
+        row_id: usize,
+        control: &EvaluationControl,
+    ) -> Result<StateVals, AnalysisError> {
+        self.read_retained_as(graph, row_id, graph.row(row_id)?, control)
+    }
+
+    /// [`Self::read_retained`] of an explicit original whose storage hint is
+    /// `row_id`.
+    pub(crate) fn read_retained_as(
+        &mut self,
+        graph: &NativeGraph,
+        row_id: usize,
+        row: &[Handle],
+        control: &EvaluationControl,
+    ) -> Result<StateVals, AnalysisError> {
+        self.catch_up(graph)?;
+        self.read_row(row_id, row, control)
+    }
+
+    /// Reads an explicit row without admitting pending rows first. Producers
+    /// call [`Self::read_retained`]; this direct form keeps converter tests.
+    #[cfg(test)]
     pub(crate) fn read(
+        &mut self,
+        row_id: usize,
+        row: &[Handle],
+        control: &EvaluationControl,
+    ) -> Result<StateVals, AnalysisError> {
+        self.read_row(row_id, row, control)
+    }
+
+    fn read_row(
         &mut self,
         row_id: usize,
         row: &[Handle],
@@ -506,6 +602,8 @@ impl<'a> NativeValues<'a> {
 
     pub(crate) fn metrics(&self) -> serde_json::Value {
         serde_json::json!({
+            "admission": if self.deferred { "deferred" } else { "eager" },
+            "deferred_rows": self.deferred_rows, "caught_up_rows": self.caught_up_rows,
             "admitted_rows": self.admitted, "read_rows": self.read,
             "converted_values": self.converted,
             "skipped_admission_conversions": self.skipped,
@@ -592,7 +690,7 @@ fn interruption(
     }
 }
 
-fn capture_error(error: AnalysisError) -> Verdict {
+pub(crate) fn capture_error(error: AnalysisError) -> Verdict {
     match error {
         AnalysisError::Stopped(stopped) => Verdict::Stopped(stopped),
         AnalysisError::BudgetMeasurement(error) => Verdict::BudgetMeasurement { error },

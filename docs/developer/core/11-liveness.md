@@ -250,6 +250,21 @@ versus tuple/record literal classes recursively (ADR 0121). Raw or symbolic set
 representations without certified normalization history are refused; report
 formatting conversion does not supply that history.
 
+**Deferred admission.** When every liveness atom was prepared natively
+(`atoms.eligible_atoms == atoms.total_atoms`), the sink defers admission:
+it retains rows without converting them, and the first read of any row
+(a reference fallback, the source-row check, the audit or a report) first
+admits, in retention order, every retained row not yet admitted. A seen
+successor that is not retained repeats its representative's handles and
+interns nothing; a seen root, which may differ from its representative
+without being retained, is admitted when it is recorded, after the pending
+rows. The names interned before any reference evaluation are therefore those
+of eager admission, in the same order. A row whose conversion fails is refused
+at that read rather than stopping the capture, and a run that never reads it
+needs no reference value of it. `values.admission` is `"deferred"` or
+`"eager"`; `deferred_rows` counts events recorded without admission and
+`caught_up_rows` the rows admitted at a read.
+
 The admitted row is dropped immediately; admission never fills or reads the
 read cache. Reads can reuse successful values by exact
 persistent `Handle` identity in a cache owned by this fixed run/store/profile.
@@ -424,7 +439,7 @@ owner. No negative result, reference conversion or atom truth issues a proof.
 One fallible, checked allocation requests and retains at most one MiB; oversized
 graphs and allocation failure run `admissible_row` on every demand instead.
 A new Reader at every periodic/final analysis starts empty, and its bits drop
-before independent replay. Eager admission is unchanged. `atoms.row_proofs` reports scans, hits, certifications and peak
+before independent replay. Row proofs do not change admission. `atoms.row_proofs` reports scans, hits, certifications and peak
 retained storage bytes across readers; these counters establish consumption,
 not a measured original ABA speed or capacity improvement.
 
@@ -444,13 +459,15 @@ not counted. A directly syntactic `~ENABLED A` atom compiles the bounded
 search of `A` (both expressions must bind to the atom's scope) and negates a
 completed truth; `negated_enabled_evaluations` counts those. These are capability measurements,
 not performance acceptance; original workload completion and paired timing are
-still required. The existing conversion-cache allowance and eager admission
-policy are unchanged.
+still required. The conversion-cache allowance is unchanged; admission follows
+the deferred-admission rule above.
 
 **Row reads only on fallback.** The Reader declares `reads_admitted`: the
 producer converted every retained original through `NativeValues::admit`,
-interning names in event order, before retaining it. A later read repeats that
-conversion and can fail only by interruption or a storage limit. Label demand
+interning names in event order, before retaining it, or deferred that
+admission to the first read (above). A later read repeats that conversion and
+can fail only by interruption or a storage limit, or, after a deferred
+admission, by refusing an unconvertible row. Label demand
 then keeps its atom-major order and every metadata check, but reads a source
 or target row only immediately before a reference fallback, and the implicit
 stutter reuses the source row. Sources without that declaration, including
