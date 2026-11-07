@@ -573,6 +573,19 @@ impl Machine {
             .get(usize::from(var))
             .copied()
             .unwrap_or(Handle::EMPTY);
+        // A primed definition's site over a filter is streamed as its body
+        // is, without building the set to cache it (`06-memoization.md`
+        // §2.4).
+        let set = match code.nodes.get(set as usize) {
+            Some(Node::Memo { site, body })
+                if cur.is_empty()
+                    && code.sites.get(*site as usize).is_some_and(|s| s.candidate)
+                    && matches!(code.nodes.get(*body as usize), Some(Node::Filter { .. })) =>
+            {
+                *body
+            }
+            _ => set,
+        };
         // A filter is streamed: its bound set's elements, filtered, without
         // building the set.
         if cur.is_empty()

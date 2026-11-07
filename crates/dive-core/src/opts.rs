@@ -33,6 +33,11 @@ pub struct Opts {
     /// (implied actions, action constraints), keyed on the primed and
     /// unprimed variables they read. Off (`-step-memo`).
     pub step_memo: bool,
+    /// S6: keyed result caches for zero-arity definitions that a
+    /// next-state action reads primed, keyed on the primed and unprimed
+    /// variables they read, used only once those primed variables are
+    /// assigned (`06-memoization.md` §2.4). Off (`-primed-memo`).
+    pub primed_memo: bool,
     /// S6: parent-delta skip of invariant and constraint conjuncts. Off
     /// (`-parent-skip`).
     pub parent_skip: bool,
@@ -60,6 +65,7 @@ impl Default for Opts {
             member_index: true,
             memo: true,
             step_memo: true,
+            primed_memo: true,
             parent_skip: true,
             arena: true,
             eager: true,
@@ -78,6 +84,7 @@ pub const SWITCHES: &[&str] = &[
     "member-index",
     "memo",
     "step-memo",
+    "primed-memo",
     "parent-skip",
     "arena",
     "eager",
@@ -113,6 +120,7 @@ impl Opts {
                 "member-index" => &mut o.member_index,
                 "memo" => &mut o.memo,
                 "step-memo" => &mut o.step_memo,
+                "primed-memo" => &mut o.primed_memo,
                 "parent-skip" => &mut o.parent_skip,
                 "arena" => &mut o.arena,
                 "eager" => &mut o.eager,
@@ -146,6 +154,7 @@ impl Opts {
             ("member-index", self.member_index),
             ("memo", self.memo),
             ("step-memo", self.step_memo),
+            ("primed-memo", self.primed_memo),
             ("parent-skip", self.parent_skip),
             ("arena", self.arena),
             ("eager", self.eager),
@@ -160,6 +169,7 @@ impl Opts {
             d.member_index,
             d.memo,
             d.step_memo,
+            d.primed_memo,
             d.parent_skip,
             d.arena,
             d.eager,

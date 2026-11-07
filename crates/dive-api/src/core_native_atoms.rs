@@ -155,6 +155,7 @@ impl NativeAtoms {
         let opts = Opts {
             memo: false,
             step_memo: false,
+            primed_memo: false,
             fold: false,
             ..strategies
         };
